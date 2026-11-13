@@ -24,6 +24,7 @@ export 'lms_more_models.dart';
 export 'listing_models.dart';
 export 'news_models.dart';
 export 'page_models.dart';
+export 'studio_live_models.dart';
 export 'parent_models.dart';
 export 'quiz_models.dart';
 export 'restaurant_models.dart';

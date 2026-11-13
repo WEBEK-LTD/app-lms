@@ -2,9 +2,11 @@ import type { AppType, AppVertical } from "../data/types";
 import type { Action, ItemSource, LayoutBlock, StudioMarket, StudioNode, StudioPage } from "../pages/types";
 import type { StudioDemoId } from "../demo/constants";
 import { ACADEMY_PROJECT, academyHome, type TemplateProject } from "./academy";
-import { DEMO_HOME_TEMPLATES, DEMO_ICONS, demoTemplateId, marketHome, studioDemoOf, studioTextOf, translating } from "./demo-templates";
+import { DEMO_HOME_TEMPLATES, DEMO_ICONS, demoTemplateId, studioDemoOf, studioTextOf, translating } from "./demo-templates";
 import { newNodeId } from "./elements";
 import { SLIDER_SECTIONS, STORE_SECTIONS } from "./store-sections";
+import { demoDesignTemplate } from "./demo-designs";
+import { peopleRow, photoHero, photoOf, photoTiles } from "./photo-sections";
 
 /**
  * 103R Ready sections (dropped onto a page whole) and page templates (a
@@ -209,7 +211,91 @@ export type SectionWord =
   | "tipMyRides"
   | "tipSchool"
   | "tipCourses"
-  | "tipMyCourses";
+  | "tipMyCourses"
+  // 128 The photo-first templates (Sofra Eats's and Zad's homes) and Zad's tabs.
+  | "fpDeliverTo"
+  | "fpArea"
+  | "fpHeadline"
+  | "fpSearch"
+  | "fpGrill"
+  | "fpPizza"
+  | "fpKofta"
+  | "fpTawook"
+  | "fpSweets"
+  | "fpLoved"
+  | "fpTasteTitle"
+  | "fpTasteText"
+  | "mpSearch"
+  | "mpKicker"
+  | "mpOffer"
+  | "mpShopNow"
+  | "mpFruit"
+  | "mpFruitText"
+  | "mpVeg"
+  | "mpVegText"
+  | "mpBakery"
+  | "mpBakeryText"
+  | "mpDairy"
+  | "mpDairyText"
+  | "mpNear"
+  | "mpShopsTitle"
+  | "tabShops"
+  | "tabCart"
+  // 128 The premium delivery, ride and taxi demos' words (lib/studio/demo-designs).
+  | "brandName"
+  | "deliveryHeadline"
+  | "deliveryPickup"
+  | "deliveryFrom"
+  | "deliveryWhereTo"
+  | "deliverySend"
+  | "deliverySameDay"
+  | "deliverySameDayText"
+  | "deliveryExpress"
+  | "deliveryExpressText"
+  | "deliverySendBanner"
+  | "deliverySendBannerText"
+  | "deliveryShipmentsBanner"
+  | "deliveryShipmentsBannerText"
+  | "rideHeadline"
+  | "rideSearch"
+  | "rideNow"
+  | "rideHome"
+  | "rideOffice"
+  | "rideAirport"
+  | "rideEconomy"
+  | "rideEconomyText"
+  | "rideComfort"
+  | "rideComfortText"
+  | "rideVan"
+  | "rideVanText"
+  | "rideRidesBanner"
+  | "rideRidesBannerText"
+  | "taxiHeadline"
+  | "taxiWhereTo"
+  | "taxiAirportTitle"
+  | "taxiBook"
+  | "taxiRidesBanner"
+  // 128 The approved Studio demos' homes: the school's (Nakhla School) and the teachers' (Rawaq Academy), and their pages.
+  | "sdWelcome"
+  | "sdWeek"
+  | "sdAllNews"
+  | "sdFair"
+  | "sdParents"
+  | "rqKicker"
+  | "rqTitle"
+  | "rqMeet"
+  | "rqAllTeachers"
+  | "rqPopular"
+  | "rqP1"
+  | "rqP1i"
+  | "rqP2"
+  | "rqP2i"
+  | "rqP3"
+  | "rqP3i"
+  | "rqP4"
+  | "rqP4i"
+  | "tabTeachers"
+  | "tipTeachers";
 
 export interface SectionContext {
   brand: string;
@@ -229,6 +315,8 @@ export interface SectionContext {
   app?: string;
   /** The language `w` writes in (the dashboard's): a demo's template writes its own texts in it, with the others as translations. */
   lang?: "en" | "ar" | "tr";
+  /** 128 The Studio demo whose pages these are (the demo app, a project its template starts, its whole design): its own pages after the home, in its own look (lib/studio/demo-designs); missing, none. */
+  demo?: StudioDemoId;
 }
 
 /** 103R.7 The project types a section or template is made for; none: every type. */
@@ -378,51 +466,6 @@ function schoolWelcome(ctx: SectionContext, words: { title: SectionWord; text: S
           } as StudioNode,
         ],
       },
-    ],
-  };
-}
-
-/** 126 A travel app's welcome, as Explore has it: the question, what the app does, a stay or a flight. */
-function travelWelcome(ctx: SectionContext): StudioNode {
-  const id = () => (ctx.newId ?? newNodeId)();
-  return {
-    id: id(),
-    type: "column",
-    name: ctx.w("travelTitle"),
-    gap: 10,
-    padding: pad(24, 18),
-    margin: pad(12, 10),
-    radius: 24,
-    background: "#0E1424",
-    color: "#FFFFFF",
-    children: [
-      { id: id(), type: "icon", icon: "travel_explore", icon_size: 30, color: "#C9A063" },
-      text(ctx, ctx.w("travelTitle"), { font: { size: 26, weight: 700, line_height: 1.2 } }),
-      text(ctx, ctx.w("travelText"), { font: { size: 14 }, opacity: 0.85 }),
-      {
-        id: id(),
-        type: "row",
-        gap: 8,
-        children: [
-          { id: id(), type: "button", text: ctx.w("travelStays"), width: "hug", height: 44, radius: 14, background: "#C9A063", color: "#0E1424", font: { weight: 800, size: 14 }, padding: pad(0, 18), action: screen("stays"), motion: { press: "shrink" } },
-          { id: id(), type: "button", text: ctx.w("travelFlights"), width: "hug", height: 44, radius: 14, border: { width: 1.5, color: "#FFFFFF" }, color: "#FFFFFF", font: { weight: 700, size: 14 }, padding: pad(0, 16), action: screen("flights") } as StudioNode,
-        ],
-      },
-    ],
-  };
-}
-
-/** 126 The stays the company features, as cards across. */
-function travelStays(ctx: SectionContext): StudioNode {
-  return {
-    id: (ctx.newId ?? newNodeId)(),
-    type: "column",
-    name: ctx.w("travelFeatured"),
-    gap: 8,
-    padding: pad(6, 10),
-    children: [
-      text(ctx, ctx.w("travelFeatured"), { font: { size: 19, weight: 800 } }),
-      { id: (ctx.newId ?? newNodeId)(), type: "items", source: "hotels", layout: "carousel", gap: 12, query: { limit: 6, category_id: null, featured: false, sort: "newest", ids: [] } },
     ],
   };
 }
@@ -978,6 +1021,55 @@ export const SECTIONS: readonly SectionInfo[] = [
   // 112.4 A store's own sections, then the sliders.
   ...STORE_SECTIONS,
   ...SLIDER_SECTIONS,
+  // 128 Photo sections for every project (lib/studio/photo-sections.ts): a photo with words over a scrim, photo tiles with captions, people in circles.
+  {
+    id: "photo_hero",
+    icon: "panorama",
+    make: (ctx) =>
+      photoHero(
+        ctx,
+        {
+          photo: photoOf(ctx, "/stories/school/school-gate.jpg"),
+          height: 240,
+          shade: "#101828",
+          radius: 24,
+          margin: pad(10, 16),
+          words: [
+            text(ctx, ctx.w("heroTitle"), { color: "#FFFFFF", font: { size: 26, weight: 800, line_height: 1.1 } }),
+            text(ctx, ctx.w("heroText"), { color: "#FFFFFF", opacity: 0.9, font: { size: 14 } }),
+          ],
+        },
+        ctx.w("heroTitle"),
+      ),
+  },
+  {
+    id: "photo_tiles",
+    icon: "photo_library",
+    make: (ctx) =>
+      photoTiles(
+        ctx,
+        [
+          { photo: photoOf(ctx, "/stories/academy/academy-desk.jpg"), caption: "bannerOne" },
+          { photo: photoOf(ctx, "/stories/academy/academy-breakfast.jpg"), caption: "bannerTwo" },
+        ],
+        ctx.w("bannerOne"),
+      ),
+  },
+  {
+    id: "people_row",
+    icon: "groups",
+    make: (ctx) =>
+      peopleRow(
+        ctx,
+        [
+          { initials: "rqP1i", name: "rqP1", color: "#2E5E4E" },
+          { initials: "rqP2i", name: "rqP2", color: "#B8893A" },
+          { initials: "rqP3i", name: "rqP3", color: "#34336B" },
+          { initials: "rqP4i", name: "rqP4", color: "#B4235A" },
+        ],
+        ctx.w("rqMeet"),
+      ),
+  },
 ];
 
 /** 103R.7 Whether a section or template is made for this project (or for every project). */
@@ -1044,14 +1136,14 @@ const SHOP_HEADER: StudioPage["header"] = { type: "logo_actions", buttons: ["men
 
 /**
  * Templates = demos: a Studio demo's home, made from its kind's own designed
- * page (lib/studio/demo-templates.ts DEMO_HOME_TEMPLATES; Zad's the approved
- * marketplace home), with its texts in Studio's other languages too. The
+ * page (lib/studio/demo-templates.ts DEMO_HOME_TEMPLATES; 128 the premium
+ * ones lib/studio/demo-designs'), with its texts in Studio's other languages too. The
  * demo app adds how to sign in after its first element (`afterFirst`).
  */
 export function demoStudioPage(id: StudioDemoId, ctx: SectionContext, afterFirst: readonly LayoutBlock[] = []): StudioPage {
   const { ctx: words, translate } = translating(ctx);
   const own = DEMO_HOME_TEMPLATES[id];
-  const page = own === "market_home" ? marketHome(words) : TEMPLATES.find((t) => t.id === own)!.make(words);
+  const page = TEMPLATES.find((t) => t.id === own)!.make({ ...words, demo: id });
   const notes = afterFirst.map((b) => studioTextOf(ctx, b)).filter((n): n is StudioNode => n !== null);
   const [first, ...rest] = translate(page.body).children ?? [];
   return { ...page, body: { ...page.body, children: first ? [first, ...notes, ...rest] : notes } };
@@ -1075,16 +1167,8 @@ export const TEMPLATES: readonly TemplateInfo[] = [
   typed("shop_deals", "local_offer", STORE, ["banner_slider", "flash_sale", "deal", "category_pictures", "on_sale", "coupon", "trust"], SHOP_HEADER, { word: "cta", action: screen("cart") }),
   typed("shop_looks", "checkroom", STORE, ["peek_slider", "new_arrivals", "shop_look", "brands", "split_slider", "best_sellers", "recent"], { type: "logo_center", buttons: ["menu", "search", "cart"] }, { word: "cta", action: screen("cart") }),
   typed("menu", "restaurant_menu", { types: ["store"], verticals: ["restaurant"] }, ["hero", "categories", "products", "cta"], SHOP_HEADER, { word: "cta", action: screen("cart") }),
-  // 126 A travel app's home: Explore as approved (the photo, the search for stays, flights or both, the destinations with the whole trip's price), drawn by the app; the owner adds to it.
-  {
-    id: "travel",
-    icon: "travel_explore",
-    fits: { types: ["travel"] },
-    make: (ctx) => ({
-      header: { type: "logo_actions", buttons: ["menu", "notifications", "account"] },
-      body: { id: (ctx.newId ?? newNodeId)(), type: "column", gap: 4, padding: { bottom: 16 }, children: [travelWelcome(ctx), travelStays(ctx)] },
-    }),
-  },
+  // 126 A travel app's home: Explore as approved (the welcome, a stay or a flight, the featured stays), drawn by the app; the owner adds to it. 128 Safra's home, in the demos' registry (lib/studio/demo-designs/safra-travel.ts).
+  demoDesignTemplate("travel"),
   // 123 The premium academy: the whole project, its home, bar, tabs, screens and colours.
   {
     id: "academy_premium",
@@ -1109,6 +1193,8 @@ export const TEMPLATES: readonly TemplateInfo[] = [
   typed("food", "delivery_dining", FOOD, ["food", "products", "steps", "cta"], { type: "logo_actions", buttons: ["menu", "notifications", "account"] }, FOOD_BUTTON, FOOD_STEPS),
   typed("food_offers", "local_offer", FOOD, ["offer", "products", "review", "cta"], { type: "logo_center", buttons: ["menu", "notifications"] }, FOOD_BUTTON),
   typed("food_brand", "restaurant", FOOD, ["hero", "stats", "products", "steps", "contact"], { type: "transparent", buttons: ["menu", "account"] }, FOOD_BUTTON, FOOD_STEPS),
+  // 128 Food, photo first: Sofra Eats's approved home, for every food delivery project.
+  demoDesignTemplate("food"),
   // 105.2 Three ready-made designs for a ride company.
   typed("ride", "local_taxi", RIDES, ["ride", "products", "steps", "cta"], { type: "logo_actions", buttons: ["menu", "notifications", "account"] }, RIDE_BUTTON, RIDE_STEPS),
   typed("ride_offers", "local_offer", RIDES, ["offer", "products", "review", "cta"], { type: "logo_center", buttons: ["menu", "notifications"] }, RIDE_BUTTON),
@@ -1117,16 +1203,26 @@ export const TEMPLATES: readonly TemplateInfo[] = [
   typed("teachers", "groups", TEACHERS, ["teachers", "products", "steps", "cta"], { type: "logo_actions", buttons: ["menu", "notifications", "account"] }, TEACHERS_BUTTON, TEACHERS_STEPS),
   typed("teachers_offers", "local_offer", TEACHERS, ["offer", "products", "review", "cta"], { type: "logo_center", buttons: ["menu", "notifications"] }, { word: "ctaLearn", action: screen("courses") }),
   typed("teachers_brand", "school", TEACHERS, ["hero", "stats", "features", "steps", "contact"], { type: "transparent", buttons: ["menu", "account"] }, TEACHERS_BUTTON, TEACHERS_STEPS),
+  // 128 The teachers' home approved for Rawaq Academy: the library's photo, the teachers in circles, this month's popular courses.
+  demoDesignTemplate("instructors"),
   // 105.4 Three ready-made designs for a school.
   typed("school", "school", SCHOOL, ["school", "products", "steps", "cta"], { type: "logo_actions", buttons: ["menu", "notifications", "account"] }, SCHOOL_BUTTON, SCHOOL_STEPS),
   typed("school_news", "campaign", SCHOOL, ["hero", "products", "review", "contact"], { type: "logo_center", buttons: ["menu", "notifications"] }, SCHOOL_BUTTON),
   typed("school_brand", "workspace_premium", SCHOOL, ["hero", "stats", "features", "steps", "contact"], { type: "transparent", buttons: ["menu", "account"] }, SCHOOL_BUTTON, SCHOOL_STEPS),
+  // 128 The school's home approved for Nakhla School: the photo, the family's greeting, the children, today's card, this week in photos.
+  demoDesignTemplate("school"),
   // A university's own: its welcome, its news and how students follow it.
   typed("university", "apartment", SCHOOL, ["university", "products", "steps", "contact"], { type: "logo_actions", buttons: ["menu", "notifications", "account"] }, SCHOOL_BUTTON, ["uniStepOne", "uniStepTwo", "uniStepThree"]),
   // 115.14 Three ready-made designs for a marketplace: the search on top, the kinds, offers, the club and the places.
   typed("market", "storefront", MARKETPLACE, ["m_address", "m_kinds", "m_offers", "m_cuisines", "m_club", "m_near", "m_rated", "m_fast", "m_departments", "m_reorder"], { type: "logo_actions", buttons: ["menu", "notifications", "account"] }),
   typed("market_offers", "local_offer", MARKETPLACE, ["m_address", "m_offers", "m_free", "m_club", "m_kinds", "m_rated", "m_reorder"], { type: "logo_center", buttons: ["menu", "notifications"] }),
   typed("market_grocery", "shopping_cart", MARKETPLACE, ["m_address", "m_kinds", "m_grocery", "m_departments", "m_fast", "m_offers", "m_reorder"], { type: "title_search", buttons: ["notifications", "account"] }),
+  // 128 A marketplace, photo tiles: Zad's approved home, for every marketplace.
+  demoDesignTemplate("marketplace"),
+  // 128 The premium demos' homes as their kinds' templates: the courier in the city, the ride at night, the taxi map.
+  demoDesignTemplate("delivery"),
+  demoDesignTemplate("rides"),
+  demoDesignTemplate("taxi"),
   // For every project.
   { id: "brand", icon: "auto_awesome", make: (ctx) => pageOf(ctx, ["hero", "stats", "features", "review", "contact"], { type: "transparent", buttons: ["menu", "account"] }) },
   { id: "contact", icon: "call", make: (ctx) => pageOf(ctx, ["contact", "form"], { type: "title_search", buttons: [] }) },

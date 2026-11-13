@@ -51,9 +51,10 @@ describe("124.6 the canvas lays a page out as the app", () => {
     const column = nodes.find((x) => x.type === "column" && x.children?.includes(button))!;
     const root = draw(page);
     expect(styleOf(root, button.id)["align-self"]).toBe("flex-start");
-    expect(styleOf(root, button.id).background).toContain("linear-gradient");
+    // 128.8 On the board's gold.
+    expect(styleOf(root, button.id).background).toContain("#E6C26E");
     // The banner's words fill its height, so they sit at its foot (its column is the banner's height).
-    expect(column.height).toBe(206);
+    expect(column.height).toBe(236);
     expect(styleOf(root, column.id)["justify-content"]).toBe("flex-end");
   });
 
@@ -70,12 +71,16 @@ describe("124.6 the canvas lays a page out as the app", () => {
   });
 
   it("leaves out a card's text bound to what the entry hasn't (a course without a badge)", () => {
-    const page = academyHome();
+    const home = academyHome();
+    const list = allNodes(home).find((x) => x.type === "items")!;
+    const badge: StudioNode = { id: "badge", type: "text", bind: "badge", background: "#B8893A" };
+    const page: StudioPage = { ...home, body: { ...home.body, children: [{ ...list, card: { ...list.card!, children: [badge, ...list.card!.children!] } }] } };
     const html = draw(page);
-    const badge = allNodes(page).find((x) => x.bind === "badge")!;
     // The samples have no badge: no gold pill drawn for it, the titles there.
-    expect(html).not.toContain(`data-studio-node="${badge.id}"`);
+    expect(html).not.toContain(`data-studio-node="badge"`);
     expect(html).toContain("UX Design Fundamentals");
+    // 128.8 Their ratings after the teacher: the element's own mark, a star and the rating.
+    expect(html).toContain("· ★ 4.9");
     // A title of one line at most is cut off there.
     expect(html).toContain("display:-webkit-box;-webkit-box-orient:vertical;white-space:pre-wrap;-webkit-line-clamp:1");
   });
@@ -92,7 +97,10 @@ describe("124.6 the canvas lays a page out as the app", () => {
   });
 
   it("names the fonts the page is drawn in: the look's and each element's", () => {
-    expect(fontsOfPage(academyHome().body, "DM Sans")).toEqual(["DM Sans", "Alexandria"]);
+    // 128.8 The premium academy's home is in the look's font alone.
+    expect(fontsOfPage(academyHome().body, "DM Sans")).toEqual(["DM Sans"]);
+    const titled: StudioNode = { id: "t", type: "text", text: "Hi", font: { family: "Alexandria" } };
+    expect(fontsOfPage({ id: "b", type: "column", children: [titled] }, "DM Sans")).toEqual(["DM Sans", "Alexandria"]);
     expect(fontsOfPage(null, null)).toEqual([]);
   });
 });

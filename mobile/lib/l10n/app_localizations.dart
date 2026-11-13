@@ -15704,6 +15704,36 @@ abstract class AppLocalizations {
   /// **'{minutes} min'**
   String learningMinutesOnly(int minutes);
 
+  /// 128.8 The course the student is taking on its photo: the lesson they are on.
+  ///
+  /// In en, this message translates to:
+  /// **'Lesson {current} of {total}'**
+  String learningLessonShort(int current, int total);
+
+  /// 128.8 The student's live class today on its photo, in capitals: when it starts.
+  ///
+  /// In en, this message translates to:
+  /// **'LIVE AT {time}'**
+  String learningLiveAt(String time);
+
+  /// 128.8 The student's live class on its photo, once it has started.
+  ///
+  /// In en, this message translates to:
+  /// **'LIVE NOW'**
+  String get learningLiveNowShort;
+
+  /// 128.8 The compact streak card's title.
+  ///
+  /// In en, this message translates to:
+  /// **'Streak'**
+  String get learningStreakShort;
+
+  /// 128.8 A card's rating, read out by screen readers.
+  ///
+  /// In en, this message translates to:
+  /// **'Rated {rating} out of 5'**
+  String itemRating(String rating);
+
   /// 123 The search box on the premium academy's Explore.
   ///
   /// In en, this message translates to:
@@ -15967,6 +15997,252 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Welcome to'**
   String get launchWelcome;
+
+  /// 128 A live order card: the order was sent to the restaurant or shop.
+  ///
+  /// In en, this message translates to:
+  /// **'Your order is with {place}'**
+  String liveOrderPlaced(String place);
+
+  /// 128 A live order card: the restaurant accepted it and is cooking the dish (its first dish, in a sentence).
+  ///
+  /// In en, this message translates to:
+  /// **'{place} is preparing your {dish}'**
+  String liveOrderCooking(String place, String dish);
+
+  /// 128 A live order card: the food is ready, waiting for the courier.
+  ///
+  /// In en, this message translates to:
+  /// **'Your {dish} is ready for the courier'**
+  String liveOrderReady(String dish);
+
+  /// 128 A live order card: the courier has the food.
+  ///
+  /// In en, this message translates to:
+  /// **'Your {dish} is on its way'**
+  String liveOrderOnTheWay(String dish);
+
+  /// 128 A live order card: a marketplace shop accepted it and is picking it.
+  ///
+  /// In en, this message translates to:
+  /// **'{place} is getting your order ready'**
+  String liveOrderPicking(String place);
+
+  /// 128 A live order card: a marketplace order is ready.
+  ///
+  /// In en, this message translates to:
+  /// **'Your order from {place} is ready'**
+  String liveMarketReady(String place);
+
+  /// 128 A live order card: a marketplace order is with the courier.
+  ///
+  /// In en, this message translates to:
+  /// **'Your order from {place} is on its way'**
+  String liveMarketOnTheWay(String place);
+
+  /// 128 After the minutes left on a live order card ("12 min").
+  ///
+  /// In en, this message translates to:
+  /// **'min'**
+  String get liveOrderMin;
+
+  /// 128 The soonest a place delivers, in minutes (a place's chip, the address bar).
+  ///
+  /// In en, this message translates to:
+  /// **'{min} min'**
+  String marketMinutes(String min);
+
+  /// 128 The live card of the person's shipment on a Studio page, before a courier has it.
+  ///
+  /// In en, this message translates to:
+  /// **'{reference} is waiting for a courier'**
+  String studioTrackWaiting(String reference);
+
+  /// 128 The live shipment card once a courier has the shipment, before the pickup.
+  ///
+  /// In en, this message translates to:
+  /// **'{reference} has its courier'**
+  String studioTrackAssigned(String reference);
+
+  /// 128 The live shipment card once the courier has the parcel.
+  ///
+  /// In en, this message translates to:
+  /// **'{reference} is picked up'**
+  String studioTrackPickedUp(String reference);
+
+  /// 128 The live shipment card while the parcel is on its way to the drop-off.
+  ///
+  /// In en, this message translates to:
+  /// **'{reference} is on the way'**
+  String studioTrackOnTheWay(String reference);
+
+  /// 128 Under the live shipment card's title: the courier's first name and the drop-off.
+  ///
+  /// In en, this message translates to:
+  /// **'{courier} is bringing it to {place}'**
+  String studioTrackBringing(String courier, String place);
+
+  /// 128 Under the live shipment card's title before a courier has it: the drop-off.
+  ///
+  /// In en, this message translates to:
+  /// **'To {place}'**
+  String studioTrackTo(String place);
+
+  /// 128 The live shipment card's button, opening the shipment.
+  ///
+  /// In en, this message translates to:
+  /// **'Track'**
+  String get studioTrackButton;
+
+  /// 128 The live ride card while the driver comes to the pickup.
+  ///
+  /// In en, this message translates to:
+  /// **'Arriving in {minutes} min'**
+  String studioRideArriving(int minutes);
+
+  /// 128 The live ride card while the driver comes, without the minutes.
+  ///
+  /// In en, this message translates to:
+  /// **'Your driver is coming'**
+  String get studioRideComing;
+
+  /// 128 The live ride card once the driver is at the pickup.
+  ///
+  /// In en, this message translates to:
+  /// **'Your driver is here'**
+  String get studioRideHere;
+
+  /// 128 The live ride card during the ride.
+  ///
+  /// In en, this message translates to:
+  /// **'On the way to {place}'**
+  String studioRideOnBoard(String place);
+
+  /// 128 The live ride card while the ride looks for a driver.
+  ///
+  /// In en, this message translates to:
+  /// **'Finding your driver'**
+  String get studioRideSearching;
+
+  /// 128 The call button on the live ride card, read out.
+  ///
+  /// In en, this message translates to:
+  /// **'Call {name}'**
+  String studioRideCall(String name);
+
+  /// 128 The school's greeting on its home in the morning, to the family of the parent's first child (the photo hero).
+  ///
+  /// In en, this message translates to:
+  /// **'Good morning,\n{name}\'s family'**
+  String studioSchoolMorning(String name);
+
+  /// 128 The school's greeting on its home after noon, to the family of the parent's first child.
+  ///
+  /// In en, this message translates to:
+  /// **'Good evening,\n{name}\'s family'**
+  String studioSchoolEvening(String name);
+
+  /// 128 Today's card on a school's home: the child came in through the gate at this time.
+  ///
+  /// In en, this message translates to:
+  /// **'{name} checked in at {time}'**
+  String studioSchoolCheckedIn(String name, String time);
+
+  /// 128 Today's card: the child left the school at this time.
+  ///
+  /// In en, this message translates to:
+  /// **'{name} left at {time}'**
+  String studioSchoolLeft(String name, String time);
+
+  /// 128 Today's card: the child hasn't come in through the gate yet today.
+  ///
+  /// In en, this message translates to:
+  /// **'{name} isn\'t at school yet'**
+  String studioSchoolNotYet(String name);
+
+  /// 128 Today's card: the child is absent, excused or on leave today.
+  ///
+  /// In en, this message translates to:
+  /// **'{name} is away today'**
+  String studioSchoolAway(String name);
+
+  /// 128 Today's card, under the check-in: the child came in on time, at the school's gate.
+  ///
+  /// In en, this message translates to:
+  /// **'On time · the gate'**
+  String get studioSchoolOnTime;
+
+  /// 128 Today's card, under the check-in: the child came in late, at the school's gate.
+  ///
+  /// In en, this message translates to:
+  /// **'Late · the gate'**
+  String get studioSchoolLate;
+
+  /// 128 Today's card: the lesson going on now and its teacher.
+  ///
+  /// In en, this message translates to:
+  /// **'Now · {subject} with {teacher}'**
+  String studioSchoolNow(String subject, String teacher);
+
+  /// 128 Today's card: the lesson going on now, without a teacher's name.
+  ///
+  /// In en, this message translates to:
+  /// **'Now · {subject}'**
+  String studioSchoolNowAlone(String subject);
+
+  /// 128 Today's card, under the lesson now: the next lesson and when it starts.
+  ///
+  /// In en, this message translates to:
+  /// **'Next: {subject} at {time}'**
+  String studioSchoolNext(String subject, String time);
+
+  /// 128 Today's card before school: the day's first lesson and when it starts.
+  ///
+  /// In en, this message translates to:
+  /// **'First · {subject} at {time}'**
+  String studioSchoolFirst(String subject, String time);
+
+  /// 128 Today's card, under the lesson now when no lesson follows it.
+  ///
+  /// In en, this message translates to:
+  /// **'The day\'s last lesson'**
+  String get studioSchoolLastLesson;
+
+  /// 128 Today's card once the day's lessons have ended.
+  ///
+  /// In en, this message translates to:
+  /// **'Lessons are over for today'**
+  String get studioSchoolLessonsOver;
+
+  /// 128 Today's card once the lessons are over: when the last one ended.
+  ///
+  /// In en, this message translates to:
+  /// **'The last ended at {time}'**
+  String studioSchoolLessonsEnded(String time);
+
+  /// 128 Today's card: when the afternoon school bus leaves for home.
+  ///
+  /// In en, this message translates to:
+  /// **'Bus home leaves {time}'**
+  String studioSchoolBusLeaves(String time);
+
+  /// 128 Today's card: the child's school bus is running, this many minutes from their stop.
+  ///
+  /// In en, this message translates to:
+  /// **'Bus on its way · {minutes} min'**
+  String studioSchoolBusComing(String minutes);
+
+  /// 128 Today's card, under the bus: its route and the child's stop.
+  ///
+  /// In en, this message translates to:
+  /// **'{route} · {stop} stop'**
+  String studioSchoolBusRoute(String route, String stop);
+
+  /// 128 Today's card on a holiday or break; its name is under it.
+  ///
+  /// In en, this message translates to:
+  /// **'No school today'**
+  String get studioSchoolDayOff;
 
   /// 126 Travel (hotels and flights): the module's words, from here on.
   ///

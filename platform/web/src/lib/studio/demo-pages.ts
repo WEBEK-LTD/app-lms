@@ -5,7 +5,9 @@ import type { App } from "../data/types";
 import { innerScreen, innerScreenName, innerScreensFor, OWN_SCREEN_TITLES } from "../pages/inner-screens";
 import { pageScreenOptionsFor } from "../pages/sources";
 import { newNodeId } from "./elements";
+import { designedDemoPage, designedOwnPages, designedTabs } from "./demo-designs";
 import type { SectionContext, SectionWord } from "./sections";
+import { translating } from "./demo-templates";
 
 /**
  * 120 Templates = demos, every page of them: a Studio demo's tabs after its
@@ -53,6 +55,11 @@ const TAB_WORDS: Record<string, SectionWord> = {
   Alerts: "travTabAlerts",
   Help: "travTabHelp",
   "Your courses": "acTabMine",
+  // 128 Zad's Shops and Cart.
+  Shops: "tabShops",
+  Cart: "tabCart",
+  // 128 Rawaq Academy's teachers, its second tab.
+  Teachers: "tabTeachers",
 };
 
 /** The word over a screen and its icon; a screen that is all its own (the search, the club, the ride map) has none. */
@@ -65,6 +72,7 @@ const TIPS: Partial<Record<StudioPageScreen, { icon: string; word: SectionWord }
   school: { icon: "school", word: "tipSchool" },
   courses: { icon: "school", word: "tipCourses" },
   my_courses: { icon: "play_circle", word: "tipMyCourses" },
+  teachers: { icon: "co_present", word: "tipTeachers" },
 };
 
 /** A word in the dashboard's language, with Studio's own other languages as translations of `field`. */
@@ -139,15 +147,26 @@ export function demoTabPage(tab: LayoutTab, ctx: SectionContext): DemoTabPage {
   };
 }
 
-/** The demo's pages after its home, one per tab opening one of the app's screens. */
+/**
+ * The demo's pages after its home, one per tab (as the demo's own design has
+ * its tabs) opening one of the app's screens, then 128 the pages of its own
+ * its tabs open (Zad's Shops); each in the demo's own look where it has one
+ * (lib/studio/demo-designs).
+ */
 export function demoTabPages(tabs: readonly LayoutTab[], ctx: SectionContext): DemoTabPage[] {
-  return demoTabsWithPages(tabs).map((t) => demoTabPage(t, ctx));
+  const { ctx: words, translate } = translating(ctx);
+  const pages = designedOwnPages(words).map(({ slug, title, studio }) => {
+    const named = wordIn(ctx, title, "title");
+    const header = studio.header ? { ...studio.header, title: named.text, ...(named.translations ? { translations: named.translations } : {}) } : studio.header;
+    return { slug, title: named.text, ...(named.translations ? { translations: named.translations } : {}), studio: { ...studio, header, body: translate(studio.body) } };
+  });
+  return [...demoTabsWithPages(designedTabs(tabs, ctx)).map((t) => designedDemoPage(ctx, demoTabPage(t, ctx))), ...pages.map((p) => designedDemoPage(ctx, p))];
 }
 
 /** The demo's tabs opening their pages instead of the bare screens, each with its name in Studio's languages. */
-export function demoPageTabs(tabs: readonly LayoutTab[], ctx: Pick<SectionContext, "lang">): LayoutTab[] {
+export function demoPageTabs(tabs: readonly LayoutTab[], ctx: Pick<SectionContext, "lang" | "demo">): LayoutTab[] {
   const lang: DemoLang = ctx.lang ?? "en";
-  return tabs.map((tab) => {
+  return designedTabs(tabs, ctx).map((tab) => {
     const word = TAB_WORDS[tab.label];
     const label = word ? String(WORDS[lang][`w_${word}`]) : tab.label;
     const translations: Record<string, Record<string, string>> = {};
@@ -186,11 +205,14 @@ function screenPage(slug: string, screen: string, title: { en: string; ar: strin
  * app's screens that isn't one of its tabs, the ones a button opens
  * (settings, notifications) and the ones opened from the tabs (a shipment,
  * a restaurant's menu, the cart, an order, a ride on its way, a course, the
- * school's parts), so each can be changed in Studio.
+ * school's parts), so each can be changed in Studio. `taken`: the slugs of
+ * the project's other pages; the tabs' ids (as the demo's own design has its
+ * tabs, lib/studio/demo-designs) are taken too.
  */
 export function demoScreenPages(app: { appType: string; vertical?: string | null }, tabs: readonly LayoutTab[], ctx: SectionContext, taken: ReadonlySet<string> = new Set()): DemoTabPage[] {
-  const onTabs = new Set(tabs.map(tabScreen).filter((s): s is StudioPageScreen => s !== null));
-  const used = new Set(taken);
+  const designed = designedTabs(tabs, ctx);
+  const onTabs = new Set(designed.map(tabScreen).filter((s): s is StudioPageScreen => s !== null));
+  const used = new Set([...taken, ...designed.map((t) => t.id)]);
   const slugFor = (id: string) => {
     let slug = id.replace(/_/g, "-");
     if (used.has(slug)) slug = `${slug}-screen`;
@@ -203,5 +225,5 @@ export function demoScreenPages(app: { appType: string; vertical?: string | null
   return [
     ...own.map((s) => screenPage(slugFor(s), s, OWN_SCREEN_TITLES[s]!, OWN_SCREEN_TITLES[s]!.en, ctx)),
     ...innerScreensFor(app).map((s) => screenPage(slugFor(s.id), s.id, s.title, innerScreenName(s.id)!, ctx)),
-  ];
+  ].map((p) => designedDemoPage(ctx, p));
 }

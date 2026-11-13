@@ -185,7 +185,7 @@ async function setupApp(deps: DemoSetupDeps, client: Client, id: DemoId): Promis
     patch.courseSetup = await academySetupFor(deps, client.id, app);
   } else if (content === "courses") {
     patch.catalogSettings = { currency: COURSE_CURRENCY, shippingCents: 0, freeShippingOverCents: null, payment: null };
-    patch.courseSetup = await courseSetupFor(deps, client.id, app.courseSetup);
+    patch.courseSetup = await courseSetupFor(deps, client.id, app.courseSetup, id === PREMIUM_ACADEMY_DEMO);
   } else if (content === "travel") {
     // 126 Safra's bookings paid now, on the demo payment page.
     patch.catalogSettings = { currency: "USD", shippingCents: 0, freeShippingOverCents: null, payment: null };
@@ -259,12 +259,14 @@ async function setupApp(deps: DemoSetupDeps, client: Client, id: DemoId): Promis
 
 /** The demo's entries, made by the generators an app started from the demo gets its samples from (lib/demo/entries.ts). */
 function entryDeps(deps: DemoSetupDeps, clientId: string): EntryDeps {
+  // 128 The demos' real photos too (Sofra Eats's dishes, the academies' courses): savePicture saves them as Zad's are.
   return { store: deps.store, now: deps.now, picture: (name, size) => picture(deps, clientId, name, size, "product_image"), sample: false };
 }
 
 /** Courses with fixed IDs, so enrolments and progress keep pointing at the same course and lesson. */
-async function courseSetupFor(deps: DemoSetupDeps, clientId: string, previous: CourseSetup | null): Promise<CourseSetup> {
-  const made = await demoCourseEntries(entryDeps(deps, clientId), { categories: [], nextId: 1, currency: COURSE_CURRENCY }, false, null, (id) => previous?.courses.find((c) => c.id === id)?.createdAt ?? deps.now.toISOString());
+async function courseSetupFor(deps: DemoSetupDeps, clientId: string, previous: CourseSetup | null, premium = false): Promise<CourseSetup> {
+  // 128.8 Ufuq Academy's courses with their photos.
+  const made = await demoCourseEntries(entryDeps(deps, clientId), { categories: [], nextId: 1, currency: COURSE_CURRENCY }, false, null, (id) => previous?.courses.find((c) => c.id === id)?.createdAt ?? deps.now.toISOString(), premium);
   return { currency: COURSE_CURRENCY, categories: made.categories, courses: made.courses, nextId: made.nextId };
 }
 
@@ -445,7 +447,7 @@ export async function demoLayout(deps: Pick<DemoSetupDeps, "assetUrl" | "now">, 
   const studio = ctx && isStudioDemo(id) ? withDemoFacts(id, demoStudioPage(id, ctx, [signIn])) : null;
   // 120 Every tab after the home a Studio page drawn around its screen, so each of the demo's pages can be changed in Studio.
   // 120.4 And every other screen of the app, so each can be changed in Studio too.
-  const tabPages = ctx ? [...demoTabPages(designed.tabs, ctx), ...demoScreenPages(app, designed.tabs, ctx, new Set([...designed.pages.map((p) => p.slug), ...designed.tabs.map((t) => t.id)]))].map((p) => ({ ...p, show_title: false, updated_at: deps.now.toISOString(), blocks: [] })) : [];
+  const tabPages = ctx ? [...demoTabPages(designed.tabs, ctx), ...demoScreenPages(app, designed.tabs, ctx, new Set(designed.pages.map((p) => p.slug)))].map((p) => ({ ...p, show_title: false, updated_at: deps.now.toISOString(), blocks: [] })) : [];
   return {
     ...designed,
     appearance: {

@@ -10,6 +10,8 @@ export interface Item {
   image_url?: string | null;
   price_label?: string | null;
   badge?: string | null;
+  /** 128.8 A course's average rating, 0 to 5; null without reviews. */
+  rating?: number | null;
   favorited?: boolean;
   action?: Action;
 }

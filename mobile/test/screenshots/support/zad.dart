@@ -16,11 +16,16 @@ import 'package:yallapp/modules/market/data/market_samples.dart';
 abstract final class Zad {
   static String _art(String name) => MarketSamples.picture('art-$name.png');
 
+  /// 128 One of the demo's real photos (platform/web/public/demo-photos), as
+  /// Zad itself shows its places, dishes and products.
+  static String _photo(String name) =>
+      MarketSamples.picture('demo-photos/$name.jpg');
+
   static final grill = MarketVendor(
     id: '1',
     kind: MarketVendorKind.restaurant,
     name: 'Bab El Sharq Grill',
-    coverUrl: _art('dish-wrap'),
+    coverUrl: _photo('cover-grill'),
     logoUrl: '',
     tags: const ['Grills', 'Egyptian'],
     rating: 4.8,
@@ -38,7 +43,7 @@ abstract final class Zad {
     id: '2',
     kind: MarketVendorKind.restaurant,
     name: 'Nile Pizza Co.',
-    coverUrl: _art('dish-soup'),
+    coverUrl: _photo('cover-pizza'),
     logoUrl: '',
     tags: const ['Pizza'],
     rating: 4.6,
@@ -55,7 +60,7 @@ abstract final class Zad {
     id: '3',
     kind: MarketVendorKind.grocery,
     name: 'Zad Market',
-    coverUrl: _art('item-fruit'),
+    coverUrl: _photo('cover-market'),
     logoUrl: '',
     tags: const ['Supermarket'],
     rating: 4.7,
@@ -80,14 +85,14 @@ abstract final class Zad {
         id: 'food',
         title: 'Food',
         subtitle: '2 restaurants',
-        imageUrl: _art('dish-burger'),
+        imageUrl: _photo('cover-grill'),
         kind: MarketVendorKind.restaurant,
       ),
       MarketKindTile(
         id: 'market',
         title: 'Market',
         subtitle: 'Groceries by the kilo',
-        imageUrl: _art('item-fruit'),
+        imageUrl: _photo('cover-market'),
         kind: MarketVendorKind.grocery,
       ),
     ],
@@ -112,17 +117,21 @@ abstract final class Zad {
       ),
     ],
     cuisines: [
-      MarketCuisine(id: 'grill', name: 'Grills', imageUrl: _art('dish-wrap')),
-      MarketCuisine(id: 'pizza', name: 'Pizza', imageUrl: _art('dish-soup')),
+      MarketCuisine(
+        id: 'grill',
+        name: 'Grills',
+        imageUrl: _photo('mixed-grill'),
+      ),
+      MarketCuisine(id: 'pizza', name: 'Pizza', imageUrl: _photo('margherita')),
       MarketCuisine(
         id: 'egyptian',
         name: 'Egyptian',
-        imageUrl: _art('dish-breakfast'),
+        imageUrl: _photo('alexandrian-liver'),
       ),
       MarketCuisine(
         id: 'desserts',
         name: 'Desserts',
-        imageUrl: _art('dish-cheesecake'),
+        imageUrl: _photo('chocolate-brownie'),
       ),
     ],
     vendors: vendors,
@@ -151,7 +160,7 @@ abstract final class Zad {
     description: description,
     price: 'EGP ${price.toStringAsFixed(2)}',
     priceValue: price,
-    imageUrl: picture == null ? null : _art(picture),
+    imageUrl: picture == null ? null : _photo(picture),
     popular: popular,
     hasChoices: choices,
   );
@@ -170,7 +179,7 @@ abstract final class Zad {
     price: 'EGP ${price.toStringAsFixed(2)}',
     priceValue: price,
     oldPrice: was == null ? null : 'EGP ${was.toStringAsFixed(2)}',
-    imageUrl: picture == null ? null : _art(picture),
+    imageUrl: picture == null ? null : _photo(picture),
     unit: MarketUnit.kg,
     step: step,
     inStock: inStock,
@@ -186,7 +195,7 @@ abstract final class Zad {
           'Mixed grill',
           'Kofta, shish tawook and lamb chops with rice, tahini and salad.',
           320,
-          picture: 'dish-wrap',
+          picture: 'mixed-grill',
           popular: true,
           choices: true,
         ),
@@ -195,6 +204,7 @@ abstract final class Zad {
           'Kofta',
           'Half a kilo of charcoal kofta with grilled tomatoes and onions.',
           190,
+          picture: 'kofta',
           choices: true,
         ),
         _dish(
@@ -202,6 +212,7 @@ abstract final class Zad {
           'Shish tawook',
           'Marinated chicken skewers with garlic sauce and fries.',
           170,
+          picture: 'shish-tawook',
         ),
       ],
     ),
@@ -214,7 +225,7 @@ abstract final class Zad {
           'Kofta sandwich',
           'In baladi bread with tahini and pickles.',
           75,
-          picture: 'dish-wrap',
+          picture: 'kofta',
           popular: true,
         ),
       ],
@@ -223,8 +234,14 @@ abstract final class Zad {
       id: 'mezze',
       name: 'Mezze',
       items: [
-        _dish('15', 'Tahini', 'With lemon and cumin.', 25),
-        _dish('16', 'Baba ghanoush', 'Smoked aubergine with olive oil.', 35),
+        _dish('15', 'Tahini', 'With lemon and cumin.', 25, picture: 'tahini'),
+        _dish(
+          '16',
+          'Baba ghanoush',
+          'Smoked aubergine with olive oil.',
+          35,
+          picture: 'baba-ghanoush',
+        ),
       ],
     ),
   ];
@@ -233,35 +250,35 @@ abstract final class Zad {
     MarketShelf(
       id: 'fruit',
       name: 'Fresh fruit',
-      imageUrl: _art('item-fruit'),
+      imageUrl: _photo('fruit'),
       items: [
-        _kilo('31', 'Red apples', 90, picture: 'item-fruit', was: 110),
-        _kilo('32', 'Bananas', 35, picture: 'item-fruit'),
-        _kilo('33', 'Oranges', 25, picture: 'item-fruit'),
-        _kilo('34', 'Mangoes', 70, inStock: false),
+        _kilo('31', 'Red apples', 90, picture: 'red-apples', was: 110),
+        _kilo('32', 'Bananas', 35, picture: 'bananas'),
+        _kilo('33', 'Oranges', 25, picture: 'oranges'),
+        _kilo('34', 'Mangoes', 70, picture: 'mangoes', inStock: false),
       ],
     ),
     MarketShelf(
       id: 'veg',
       name: 'Vegetables',
-      imageUrl: _art('item-veg'),
+      imageUrl: _photo('vegetables'),
       items: [
-        _kilo('35', 'Tomatoes', 18, picture: 'item-veg'),
-        _kilo('36', 'Cucumbers', 20, picture: 'item-veg'),
-        _kilo('37', 'Lemons', 40, step: 0.25),
+        _kilo('35', 'Tomatoes', 18, picture: 'tomatoes'),
+        _kilo('36', 'Cucumbers', 20, picture: 'cucumbers'),
+        _kilo('37', 'Lemons', 40, picture: 'lemons', step: 0.25),
       ],
     ),
     MarketShelf(
       id: 'bread',
       name: 'Bread',
-      imageUrl: _art('item-bread'),
+      imageUrl: _photo('bakery'),
       items: [
         MarketItem(
           id: '38',
           name: 'Baladi bread, 5 loaves',
           price: 'EGP 10.00',
           priceValue: 10,
-          imageUrl: _art('item-bread'),
+          imageUrl: _photo('baladi-bread'),
         ),
       ],
     ),
@@ -310,6 +327,20 @@ Future<void> seedDesignPictures(WidgetTester tester) async {
         final codec = await ui.instantiateImageCodec(file.readAsBytesSync());
         final frame = await codec.getNextFrame();
         _pictures[MarketSamples.picture(file.uri.pathSegments.last)] =
+            frame.image;
+      }
+      // 128 And the demo's real photos.
+      final photos = Directory('../platform/web/public/demo-photos');
+      for (final file in photos.listSync().whereType<File>()) {
+        if (!file.path.endsWith('.jpg')) continue;
+        final codec = await ui.instantiateImageCodec(
+          file.readAsBytesSync(),
+          targetWidth: 600,
+        );
+        final frame = await codec.getNextFrame();
+        _pictures[MarketSamples.picture(
+              'demo-photos/${file.uri.pathSegments.last}',
+            )] =
             frame.image;
       }
     });

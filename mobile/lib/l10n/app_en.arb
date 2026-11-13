@@ -10734,6 +10734,44 @@
       }
     }
   },
+  "learningLessonShort": "Lesson {current} of {total}",
+  "@learningLessonShort": {
+    "description": "128.8 The course the student is taking on its photo: the lesson they are on.",
+    "placeholders": {
+      "current": {
+        "type": "int"
+      },
+      "total": {
+        "type": "int"
+      }
+    }
+  },
+  "learningLiveAt": "LIVE AT {time}",
+  "@learningLiveAt": {
+    "description": "128.8 The student's live class today on its photo, in capitals: when it starts.",
+    "placeholders": {
+      "time": {
+        "type": "String"
+      }
+    }
+  },
+  "learningLiveNowShort": "LIVE NOW",
+  "@learningLiveNowShort": {
+    "description": "128.8 The student's live class on its photo, once it has started."
+  },
+  "learningStreakShort": "Streak",
+  "@learningStreakShort": {
+    "description": "128.8 The compact streak card's title."
+  },
+  "itemRating": "Rated {rating} out of 5",
+  "@itemRating": {
+    "description": "128.8 A card's rating, read out by screen readers.",
+    "placeholders": {
+      "rating": {
+        "type": "String"
+      }
+    }
+  },
   "exploreSearchHint": "Course, skill or teacher",
   "@exploreSearchHint": {
     "description": "123 The search box on the premium academy's Explore."
@@ -10958,6 +10996,349 @@
     "description": "124.15 Over the app's name on the Editorial launch screen."
   },
   "launchWelcome": "Welcome to",
+  "liveOrderPlaced": "Your order is with {place}",
+  "@liveOrderPlaced": {
+    "description": "128 A live order card: the order was sent to the restaurant or shop.",
+    "placeholders": {
+      "place": {
+        "type": "String"
+      }
+    }
+  },
+  "liveOrderCooking": "{place} is preparing your {dish}",
+  "@liveOrderCooking": {
+    "description": "128 A live order card: the restaurant accepted it and is cooking the dish (its first dish, in a sentence).",
+    "placeholders": {
+      "place": {
+        "type": "String"
+      },
+      "dish": {
+        "type": "String"
+      }
+    }
+  },
+  "liveOrderReady": "Your {dish} is ready for the courier",
+  "@liveOrderReady": {
+    "description": "128 A live order card: the food is ready, waiting for the courier.",
+    "placeholders": {
+      "dish": {
+        "type": "String"
+      }
+    }
+  },
+  "liveOrderOnTheWay": "Your {dish} is on its way",
+  "@liveOrderOnTheWay": {
+    "description": "128 A live order card: the courier has the food.",
+    "placeholders": {
+      "dish": {
+        "type": "String"
+      }
+    }
+  },
+  "liveOrderPicking": "{place} is getting your order ready",
+  "@liveOrderPicking": {
+    "description": "128 A live order card: a marketplace shop accepted it and is picking it.",
+    "placeholders": {
+      "place": {
+        "type": "String"
+      }
+    }
+  },
+  "liveMarketReady": "Your order from {place} is ready",
+  "@liveMarketReady": {
+    "description": "128 A live order card: a marketplace order is ready.",
+    "placeholders": {
+      "place": {
+        "type": "String"
+      }
+    }
+  },
+  "liveMarketOnTheWay": "Your order from {place} is on its way",
+  "@liveMarketOnTheWay": {
+    "description": "128 A live order card: a marketplace order is with the courier.",
+    "placeholders": {
+      "place": {
+        "type": "String"
+      }
+    }
+  },
+  "liveOrderMin": "min",
+  "@liveOrderMin": {
+    "description": "128 After the minutes left on a live order card (\"12 min\")."
+  },
+  "marketMinutes": "{min} min",
+  "@marketMinutes": {
+    "description": "128 The soonest a place delivers, in minutes (a place's chip, the address bar).",
+    "placeholders": {
+      "min": {
+        "type": "String"
+      }
+    }
+  },
+  "studioTrackWaiting": "{reference} is waiting for a courier",
+  "@studioTrackWaiting": {
+    "description": "128 The live card of the person's shipment on a Studio page, before a courier has it.",
+    "placeholders": {
+      "reference": {
+        "type": "String"
+      }
+    }
+  },
+  "studioTrackAssigned": "{reference} has its courier",
+  "@studioTrackAssigned": {
+    "description": "128 The live shipment card once a courier has the shipment, before the pickup.",
+    "placeholders": {
+      "reference": {
+        "type": "String"
+      }
+    }
+  },
+  "studioTrackPickedUp": "{reference} is picked up",
+  "@studioTrackPickedUp": {
+    "description": "128 The live shipment card once the courier has the parcel.",
+    "placeholders": {
+      "reference": {
+        "type": "String"
+      }
+    }
+  },
+  "studioTrackOnTheWay": "{reference} is on the way",
+  "@studioTrackOnTheWay": {
+    "description": "128 The live shipment card while the parcel is on its way to the drop-off.",
+    "placeholders": {
+      "reference": {
+        "type": "String"
+      }
+    }
+  },
+  "studioTrackBringing": "{courier} is bringing it to {place}",
+  "@studioTrackBringing": {
+    "description": "128 Under the live shipment card's title: the courier's first name and the drop-off.",
+    "placeholders": {
+      "courier": {
+        "type": "String"
+      },
+      "place": {
+        "type": "String"
+      }
+    }
+  },
+  "studioTrackTo": "To {place}",
+  "@studioTrackTo": {
+    "description": "128 Under the live shipment card's title before a courier has it: the drop-off.",
+    "placeholders": {
+      "place": {
+        "type": "String"
+      }
+    }
+  },
+  "studioTrackButton": "Track",
+  "@studioTrackButton": {
+    "description": "128 The live shipment card's button, opening the shipment."
+  },
+  "studioRideArriving": "Arriving in {minutes} min",
+  "@studioRideArriving": {
+    "description": "128 The live ride card while the driver comes to the pickup.",
+    "placeholders": {
+      "minutes": {
+        "type": "int"
+      }
+    }
+  },
+  "studioRideComing": "Your driver is coming",
+  "@studioRideComing": {
+    "description": "128 The live ride card while the driver comes, without the minutes."
+  },
+  "studioRideHere": "Your driver is here",
+  "@studioRideHere": {
+    "description": "128 The live ride card once the driver is at the pickup."
+  },
+  "studioRideOnBoard": "On the way to {place}",
+  "@studioRideOnBoard": {
+    "description": "128 The live ride card during the ride.",
+    "placeholders": {
+      "place": {
+        "type": "String"
+      }
+    }
+  },
+  "studioRideSearching": "Finding your driver",
+  "@studioRideSearching": {
+    "description": "128 The live ride card while the ride looks for a driver."
+  },
+  "studioRideCall": "Call {name}",
+  "@studioRideCall": {
+    "description": "128 The call button on the live ride card, read out.",
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "studioSchoolMorning": "Good morning,\n{name}'s family",
+  "@studioSchoolMorning": {
+    "description": "128 The school's greeting on its home in the morning, to the family of the parent's first child (the photo hero).",
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "studioSchoolEvening": "Good evening,\n{name}'s family",
+  "@studioSchoolEvening": {
+    "description": "128 The school's greeting on its home after noon, to the family of the parent's first child.",
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "studioSchoolCheckedIn": "{name} checked in at {time}",
+  "@studioSchoolCheckedIn": {
+    "description": "128 Today's card on a school's home: the child came in through the gate at this time.",
+    "placeholders": {
+      "name": {
+        "type": "String"
+      },
+      "time": {
+        "type": "String"
+      }
+    }
+  },
+  "studioSchoolLeft": "{name} left at {time}",
+  "@studioSchoolLeft": {
+    "description": "128 Today's card: the child left the school at this time.",
+    "placeholders": {
+      "name": {
+        "type": "String"
+      },
+      "time": {
+        "type": "String"
+      }
+    }
+  },
+  "studioSchoolNotYet": "{name} isn't at school yet",
+  "@studioSchoolNotYet": {
+    "description": "128 Today's card: the child hasn't come in through the gate yet today.",
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "studioSchoolAway": "{name} is away today",
+  "@studioSchoolAway": {
+    "description": "128 Today's card: the child is absent, excused or on leave today.",
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "studioSchoolOnTime": "On time · the gate",
+  "@studioSchoolOnTime": {
+    "description": "128 Today's card, under the check-in: the child came in on time, at the school's gate."
+  },
+  "studioSchoolLate": "Late · the gate",
+  "@studioSchoolLate": {
+    "description": "128 Today's card, under the check-in: the child came in late, at the school's gate."
+  },
+  "studioSchoolNow": "Now · {subject} with {teacher}",
+  "@studioSchoolNow": {
+    "description": "128 Today's card: the lesson going on now and its teacher.",
+    "placeholders": {
+      "subject": {
+        "type": "String"
+      },
+      "teacher": {
+        "type": "String"
+      }
+    }
+  },
+  "studioSchoolNowAlone": "Now · {subject}",
+  "@studioSchoolNowAlone": {
+    "description": "128 Today's card: the lesson going on now, without a teacher's name.",
+    "placeholders": {
+      "subject": {
+        "type": "String"
+      }
+    }
+  },
+  "studioSchoolNext": "Next: {subject} at {time}",
+  "@studioSchoolNext": {
+    "description": "128 Today's card, under the lesson now: the next lesson and when it starts.",
+    "placeholders": {
+      "subject": {
+        "type": "String"
+      },
+      "time": {
+        "type": "String"
+      }
+    }
+  },
+  "studioSchoolFirst": "First · {subject} at {time}",
+  "@studioSchoolFirst": {
+    "description": "128 Today's card before school: the day's first lesson and when it starts.",
+    "placeholders": {
+      "subject": {
+        "type": "String"
+      },
+      "time": {
+        "type": "String"
+      }
+    }
+  },
+  "studioSchoolLastLesson": "The day's last lesson",
+  "@studioSchoolLastLesson": {
+    "description": "128 Today's card, under the lesson now when no lesson follows it."
+  },
+  "studioSchoolLessonsOver": "Lessons are over for today",
+  "@studioSchoolLessonsOver": {
+    "description": "128 Today's card once the day's lessons have ended."
+  },
+  "studioSchoolLessonsEnded": "The last ended at {time}",
+  "@studioSchoolLessonsEnded": {
+    "description": "128 Today's card once the lessons are over: when the last one ended.",
+    "placeholders": {
+      "time": {
+        "type": "String"
+      }
+    }
+  },
+  "studioSchoolBusLeaves": "Bus home leaves {time}",
+  "@studioSchoolBusLeaves": {
+    "description": "128 Today's card: when the afternoon school bus leaves for home.",
+    "placeholders": {
+      "time": {
+        "type": "String"
+      }
+    }
+  },
+  "studioSchoolBusComing": "Bus on its way · {minutes} min",
+  "@studioSchoolBusComing": {
+    "description": "128 Today's card: the child's school bus is running, this many minutes from their stop.",
+    "placeholders": {
+      "minutes": {
+        "type": "String"
+      }
+    }
+  },
+  "studioSchoolBusRoute": "{route} · {stop} stop",
+  "@studioSchoolBusRoute": {
+    "description": "128 Today's card, under the bus: its route and the child's stop.",
+    "placeholders": {
+      "route": {
+        "type": "String"
+      },
+      "stop": {
+        "type": "String"
+      }
+    }
+  },
+  "studioSchoolDayOff": "No school today",
+  "@studioSchoolDayOff": {
+    "description": "128 Today's card on a holiday or break; its name is under it."
+  },
   "travelTabExplore": "Explore",
   "@travelTabExplore": {
     "description": "126 Travel (hotels and flights): the module's words, from here on."

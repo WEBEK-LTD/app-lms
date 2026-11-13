@@ -535,8 +535,9 @@ function PremiumMyCourses({ ctx }: { ctx: Ctx }) {
   return (
     <div style={{ padding: "14px 18px 24px", display: "flex", flexDirection: "column" }}>
       <LargeTitle p={p} text={tabTitle(ctx, w.myCourses)} />
-      <div style={{ marginTop: 14, borderRadius: 26, background: p.dark ? "#F3F1EC" : "#15131A" }}>
-        <Week ctx={ctx} ink={p.dark ? "#15131A" : "#FFFFFF"} />
+      {/* 128.8 In the main colour by day and light by night, as the approved home's bar. */}
+      <div style={{ marginTop: 14, borderRadius: 26, background: p.dark ? "#EEF0F7" : p.primary }}>
+        <Week ctx={ctx} ink={p.dark ? "#141A30" : p.onPrimary} />
       </div>
       <div style={{ height: 16 }} />
       <InkChips p={p} labels={[`${w.learning} ${courses.length}`, `${w.finished} 1`, w.saved]} />
@@ -694,7 +695,7 @@ function AcademyAccount({ ctx, screens }: { ctx: Ctx; screens: StudioScreens | n
   );
   return (
     <div style={{ padding: "8px 18px 24px", display: "flex", flexDirection: "column", gap: 14 }}>
-      <div data-screen-account-card="" style={{ padding: "16px 18px", borderRadius: 26, background: "linear-gradient(225deg, #1C1710, #3A2D18, #6E5427)", boxShadow: "0 14px 30px rgba(0,0,0,.25)", color: "#FFFFFF" }}>
+      <div data-screen-account-card="" style={{ padding: "16px 18px", borderRadius: 26, background: `linear-gradient(225deg, ${mix(p.primary, "#000000", 0.45)}, ${mix(p.primary, "#000000", 0.15)}, ${mix(p.primary, "#FFFFFF", 0.1)})`, boxShadow: "0 14px 30px rgba(0,0,0,.25)", color: "#FFFFFF" }}>
         <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
           <span style={{ flex: 1, minWidth: 0, fontSize: 11, fontWeight: 800, letterSpacing: 2, color: alpha(gold, 0.9), textTransform: "uppercase", ...one }}>{ctx.props.appName}</span>
           <I name="verified" size={24} color={gold} fill />

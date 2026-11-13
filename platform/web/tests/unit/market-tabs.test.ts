@@ -54,7 +54,14 @@ describe("115 a marketplace's tabs", () => {
     const zad: App = { ...app("marketplace"), demo: true, appName: DEMO_BRANDS.marketplace.appName, primaryColor: DEMO_BRANDS.marketplace.primaryColor };
     const demo = await demoLayout({ assetUrl: (a) => `https://files.test/${a}`, now: NOW }, zad, "banner-asset");
     // 120 Each tab after the home opens its Studio page, drawn around the approved tab's screen.
-    expect(demo.tabs.map((t) => [t.label, t.target.type === "page" ? (t.target.page_slug === "home" ? "page:home" : demo.pages.find((p) => p.slug === (t.target.type === "page" ? t.target.page_slug : ""))?.studio?.screen) : null])).toEqual(APPROVED);
+    // 128 Zad's own bar as approved on 13 November 2026: Shops (a page of its own) and Cart in place of Search and Club.
+    expect(demo.tabs.map((t) => [t.label, t.target.type === "page" ? (t.target.page_slug === "home" ? "page:home" : (demo.pages.find((p) => p.slug === (t.target.type === "page" ? t.target.page_slug : ""))?.studio?.screen ?? `page:${t.target.page_slug}`)) : null])).toEqual([
+      ["Home", "page:home"],
+      ["Shops", "page:shops"],
+      ["Cart", "cart"],
+      ["Orders", "food_orders"],
+      ["Account", "account"],
+    ]);
     const project = { ...app("marketplace"), primaryColor: DEMO_BRANDS.marketplace.primaryColor };
     const started = startLayout(project, TEMPLATES.find((t) => t.id === "demo_marketplace")!, defaultLayout(project, BUILT_IN_APP_DEFAULTS, NOW), NOW, {
       brand: project.primaryColor,

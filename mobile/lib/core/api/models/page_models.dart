@@ -1,6 +1,7 @@
 import 'catalog_models.dart';
 import 'json.dart';
 import 'learning_models.dart';
+import 'studio_live_models.dart';
 
 /// `GET /pages`: the bottom tabs, the side menu and the pages published in
 /// the dashboard.
@@ -84,6 +85,9 @@ enum TabBarDesign {
   drop,
   glow,
   colours,
+  // 128 A floating bar in its own colours, the open tab a filled pill with
+  // its name, the others icons only.
+  float,
 }
 
 /// 109 How the bottom tabs look, set by the owner (`TabBar`); a field left
@@ -608,6 +612,7 @@ class PageItem {
     this.imageUrl,
     this.priceLabel,
     this.badge,
+    this.rating,
     this.favorited = false,
     this.action,
   });
@@ -620,6 +625,10 @@ class PageItem {
     imageUrl: optString(json, 'image_url'),
     priceLabel: optString(json, 'price_label'),
     badge: optString(json, 'badge'),
+    rating: switch (optDouble(json, 'rating')) {
+      final r? when r > 0 && r <= 5 => r,
+      _ => null,
+    },
     favorited: boolOr(json, 'favorited', false),
     action: PageAction.tryParse(json['action']),
   );
@@ -634,6 +643,9 @@ class PageItem {
   /// Display text only. Never a purchase button.
   final String? priceLabel;
   final String? badge;
+
+  /// 128.8 A course's average rating, 0 to 5; null without one.
+  final double? rating;
   final bool favorited;
   final PageAction? action;
 
@@ -1978,12 +1990,80 @@ enum StudioNodeType {
   market,
   // 123 One of the student's own cards in an academy (StudioLearning).
   learning,
+  // 128 The person's order on its way (StudioLiveStatus).
+  liveStatus,
+  // 128 A photo with a scrim, and a drawn map with markers, holding what
+  // lies over them (`overlap`: the last one hangs over their foot).
+  photoHero,
+  mapHeader,
+  // 128 The person's shipment or ride on its way, or the taxis near them;
+  // a greeting with their first name.
+  tracking,
+  greeting,
+  // 128 A part of the family's school day in a school (StudioSchool).
+  school,
 }
+
+/// 128 Whose order a `live_status` element follows: a food delivery order
+/// or a marketplace order.
+enum StudioLiveSource { foodOrder, marketOrder }
+
+/// 128 A shade over a picture so the words on it read (`StudioScrim`: an
+/// element's picture, or a `photo_hero`'s photo): its colour at [from] at
+/// the start of [angle] (CSS: 180 from the top down, 90 across from the
+/// start), [middle] at [at] percent, and [to] at its end.
+class StudioScrim {
+  const StudioScrim({
+    required this.color,
+    required this.from,
+    required this.to,
+    this.middle,
+    this.at = 50,
+    this.angle = 180,
+  });
+
+  static StudioScrim? tryParse(Object? value) {
+    if (value is! Map) return null;
+    final json = asJson(value);
+    final color = optString(json, 'color');
+    final from = optDouble(json, 'from');
+    final to = optDouble(json, 'to');
+    if (color == null || from == null || to == null) return null;
+    return StudioScrim(
+      color: color,
+      from: from.clamp(0, 1).toDouble(),
+      to: to.clamp(0, 1).toDouble(),
+      middle: optDouble(json, 'middle')?.clamp(0, 1).toDouble(),
+      at: (optDouble(json, 'at') ?? 50).clamp(1, 99).toDouble(),
+      angle: (optDouble(json, 'angle') ?? 180).clamp(0, 360).toDouble(),
+    );
+  }
+
+  final String color;
+  final double from;
+  final double to;
+  final double? middle;
+  final double at;
+  final double angle;
+}
+
+/// 128 Which part of the family's school day a `school` element is: the
+/// greeting with today's date, the children to switch between, or today's
+/// card of the chosen child (in at the gate, the class now and next, the
+/// bus home).
+enum StudioSchoolSection { greeting, children, today }
 
 /// 123 Which of the student's cards a `learning` element is: the course
 /// they are taking, their streak, their next live class, or this week's
 /// learning time.
 enum StudioLearningSection { continueCourse, streak, live, week }
+
+/// 128.8 How a `learning` card is drawn: as 123 drew it, or on a photo
+/// (`StudioLearning.style` `photo`).
+enum StudioLearningStyle { card, photo }
+
+StudioLearningStyle studioLearningStyle(Object? value) =>
+    value == 'photo' ? StudioLearningStyle.photo : StudioLearningStyle.card;
 
 StudioLearningSection? studioLearningSection(Object? value) => switch (value) {
   'continue' => StudioLearningSection.continueCourse,
@@ -2005,7 +2085,8 @@ enum StudioMarketSection {
 }
 
 /// 115 How a vendors section draws its vendors.
-enum StudioMarketStyle { spotlight, cards, tiles, list }
+/// 128 `chips`: small chips in a row; `bar`: the address as a flat bar.
+enum StudioMarketStyle { spotlight, cards, tiles, list, chips, bar }
 
 /// 115 What a vendors section shows.
 enum StudioMarketKind { all, restaurant, grocery }
@@ -2350,7 +2431,8 @@ enum StudioShadow { none, light, medium, strong }
 
 enum StudioTextAlign { start, center, end }
 
-enum StudioBind { title, subtitle, image, price, badge }
+/// 128.8 `rating`: the element's own text, a star and the entry's rating.
+enum StudioBind { title, subtitle, image, price, badge, rating }
 
 enum StudioVisibility { everyone, signedIn, signedOut }
 
@@ -2385,6 +2467,7 @@ class StudioNode {
     this.rotation = 0,
     this.overlay,
     this.borderColor,
+    this.darkBorderColor,
     this.borderWidth = 0,
     this.shadow = StudioShadow.none,
     this.opacity = 1,
@@ -2426,6 +2509,13 @@ class StudioNode {
     this.hidden = false,
     this.market,
     this.learning,
+    this.scrim,
+    this.liveStatus,
+    this.tracking,
+    this.mapDrawing,
+    this.overlap = 0,
+    this.school,
+    this.learningStyle = StudioLearningStyle.card,
   });
 
   /// Null for a type this app doesn't know (left out with what it holds),
@@ -2476,6 +2566,7 @@ class StudioNode {
         rotation: n('rotation', 0, -180, 180),
         overlay: StudioOverlay.tryParse(json['overlay']),
         borderColor: optString(json, 'border_color'),
+        darkBorderColor: optString(json, 'dark_border_color'),
         borderWidth: n('border_width', 0, 0, 20),
         shadow: enumFrom(
           StudioShadow.values,
@@ -2535,6 +2626,25 @@ class StudioNode {
         learning: json['learning'] is Map
             ? studioLearningSection((json['learning'] as Map)['section'])
             : null,
+        scrim: StudioScrim.tryParse(json['scrim']),
+        liveStatus: json['live_status'] is Map
+            ? enumOrNull(
+                StudioLiveSource.values,
+                (json['live_status'] as Map)['source'],
+              )
+            : null,
+        tracking: StudioTracking.tryParse(json['tracking']),
+        mapDrawing: StudioMapDrawing.tryParse(json['map_drawing']),
+        overlap: n('overlap', 0, 0, 400),
+        school: json['school'] is Map
+            ? enumOrNull(
+                StudioSchoolSection.values,
+                (json['school'] as Map)['section'],
+              )
+            : null,
+        learningStyle: json['learning'] is Map
+            ? studioLearningStyle((json['learning'] as Map)['style'])
+            : StudioLearningStyle.card,
         rating: optDouble(json, 'rating'),
         action: PageAction.tryParse(json['action']),
         platforms: rawPlatforms is List
@@ -2604,6 +2714,9 @@ class StudioNode {
   /// 107.2 A colour over the picture (an image, or the background picture).
   final StudioOverlay? overlay;
   final String? borderColor;
+
+  /// 128.8 The border in dark mode; null, [borderColor].
+  final String? darkBorderColor;
   final double borderWidth;
   final StudioShadow shadow;
   final double opacity;
@@ -2681,6 +2794,28 @@ class StudioNode {
   /// 123 For [StudioNodeType.learning]: which of the student's cards it is.
   final StudioLearningSection? learning;
 
+  /// 128 A shade over its picture, darker at its ends (a
+  /// [StudioNodeType.photoHero]'s photo too).
+  final StudioScrim? scrim;
+
+  /// 128 For [StudioNodeType.liveStatus]: whose order it follows.
+  final StudioLiveSource? liveStatus;
+
+  /// 128 For [StudioNodeType.tracking]: what it follows.
+  final StudioTracking? tracking;
+
+  /// 128 For [StudioNodeType.mapHeader]: its markers.
+  final StudioMapDrawing? mapDrawing;
+
+  /// 128 For the covers: how far their last element hangs over their foot.
+  final double overlap;
+
+  /// 128 For [StudioNodeType.school]: which part of the school day it is.
+  final StudioSchoolSection? school;
+
+  /// 128.8 How that card is drawn.
+  final StudioLearningStyle learningStyle;
+
   bool get holdsChildren => switch (type) {
     StudioNodeType.row ||
     StudioNodeType.column ||
@@ -2688,7 +2823,10 @@ class StudioNode {
     StudioNodeType.grid ||
     StudioNodeType.slider ||
     StudioNodeType.accordion ||
-    StudioNodeType.tabs => true,
+    StudioNodeType.tabs ||
+    // 128 The covers hold what lies over them.
+    StudioNodeType.photoHero ||
+    StudioNodeType.mapHeader => true,
     _ => false,
   };
 }

@@ -2,6 +2,8 @@ import { readFileSync, readdirSync } from "node:fs";
 import path from "node:path";
 import { describe, expect, it } from "vitest";
 import { ZAD_PHOTOS } from "@/lib/demo/zad-photos";
+import { isAcademyPhoto } from "@/lib/demo/academy-photos";
+import { ACADEMY_COURSES } from "@/lib/demo/teachers";
 
 const dir = path.resolve(__dirname, "../../public/demo-photos");
 const FREE = /^(CC0|Public domain|CC BY(-SA)? \d\.\d)$/;
@@ -26,5 +28,12 @@ describe("Zad's photos", () => {
       expect(c!.license, name).toMatch(FREE);
       expect(c!.page, name).toMatch(/^https:\/\/commons\.wikimedia\.org\/wiki\/File:/);
     }
+  });
+
+  it("128.7 give Rawaq Academy's popular courses their covers as its approved board has them, the academy story's photos", () => {
+    const cover = (title: string) => ACADEMY_COURSES.find((c) => c.title === title)!.picture;
+    expect(cover("Start Your Own Small Business")).toBe("academy-desk");
+    expect(cover("Arabic for Beginners")).toBe("academy-live");
+    expect(isAcademyPhoto(cover("Arabic for Beginners"))).toBe(true);
   });
 });

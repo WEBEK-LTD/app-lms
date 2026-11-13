@@ -134,9 +134,22 @@ const symbolsByName = <String, IconData>{
   'restaurant': Symbols.restaurant_rounded,
   'directions_car': Symbols.directions_car_rounded,
   'arrow_back': Symbols.arrow_back_rounded,
-  // 126 Travel: its tabs (Stays, Flights, Trips) and the demo's buttons.
-  'luggage': Symbols.luggage_rounded,
+  // 128 Sofra Eats's photo hero: where it delivers, opening the list.
+  'expand_more': Symbols.expand_more_rounded,
+  // 128 What the premium ride demos draw: My rides, the saved places, the
+  // car classes, and the greeting element's icon in Studio.
+  'history': Symbols.history_rounded,
+  'work': Symbols.work_rounded,
   'flight': Symbols.flight_rounded,
+  'airline_seat_recline_extra': Symbols.airline_seat_recline_extra_rounded,
+  'airport_shuttle': Symbols.airport_shuttle_rounded,
+  'waving_hand': Symbols.waving_hand_rounded,
+  // 128 Rawaq Academy's Teachers tab, and the school's day.
+  'co_present': Symbols.co_present_rounded,
+  'family_restroom': Symbols.family_restroom_rounded,
+  // 126 Travel: its tabs (Stays, Flights, Trips) and the demo's buttons
+  // ('flight' is above, with the ride demos).
+  'luggage': Symbols.luggage_rounded,
   'flight_takeoff': Symbols.flight_takeoff_rounded,
   'hotel_class': Symbols.hotel_class_rounded,
   'airline_seat_recline_normal': Symbols.airline_seat_recline_normal_rounded,

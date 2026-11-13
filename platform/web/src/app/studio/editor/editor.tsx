@@ -8,6 +8,7 @@ import { shareMediaAction } from "@/app/actions/media";
 import type { LayoutHistoryEntry } from "@/lib/pages/layout";
 import { useDashLang, useDashT, useKnownText } from "@/components/dashboard-i18n";
 import type { LearningWords } from "@/components/studio/learning";
+import type { SchoolWords } from "@/components/studio/school";
 import { StudioView, type ScreenPartInfo, type StudioEditing, type StudioLook } from "@/components/studio/view";
 import { screenDrawing, screenLookSection } from "@/lib/studio/screen-drawing";
 import { launchPictures, withLaunchPictures, type StudioScreens } from "@/lib/studio/screens";
@@ -180,8 +181,12 @@ export function StudioEditor(props: StudioEditorProps) {
   useStudioFonts(fontsOfPage(studio?.body, look.font), ownFonts);
   const palette = useMemo(() => [...new Set([brand, layout.appearance.secondary_color, "#FFFFFF", "#0E0D24", "#F4EFE6", "#FF5A1F"].filter((c): c is string => !!c))], [brand, layout.appearance.secondary_color]);
   // 123 The sample learning of the student's cards and the greeting header, in Studio's language.
-  const learningWords = Object.fromEntries((["lessonOf", "minutesLeft", "streak", "days", "live", "liveWhen", "week", "weekChange", "sampleCourse", "sampleTeacher", "sampleLive", "weekdays"] as const).map((k) => [k, t(`studio.lw_${k}` as DashKey)])) as unknown as LearningWords;
+  // 128 The live order card's sample words.
+  const liveWords = { title: t("studio.lv_title"), minutes: t("studio.lv_min") };
+  const learningWords = Object.fromEntries((["lessonOf", "minutesLeft", "streak", "days", "live", "liveWhen", "week", "weekChange", "sampleCourse", "sampleTeacher", "sampleLive", "weekdays", "photoChip", "liveAt", "photoCourse"] as const).map((k) => [k, t(`studio.lw_${k}` as DashKey)])) as unknown as LearningWords;
   const greeting = { date: t("studio.greetingDate"), hello: t("studio.greetingHello") };
+  // 128 The sample family of the school's cards, in Studio's language.
+  const schoolWords = Object.fromEntries((["hello", "childOne", "childTwo", "checkedIn", "onTime", "now", "next", "bus", "busRoute"] as const).map((k) => [k, t(`studio.sw_${k}` as DashKey)])) as unknown as Omit<SchoolWords, "date">;
   // 124.8 The app's screen under the page: drawn as the app draws it in the look chosen in Studio › Screens, else said so.
   const screenName = studio?.screen ? known(props.pageScreens.find((s) => s.value === studio.screen)?.label ?? studio.screen) : "";
   const looksAt = screenLookSection(studio?.screen, props.kind.type);
@@ -384,7 +389,7 @@ export function StudioEditor(props: StudioEditorProps) {
   }
 
   function nodeFor(payload: DragPayload): StudioNode | null {
-    if (payload.kind === "new") return newNode(payload.type, { source, brand: app.brand, text: newText });
+    if (payload.kind === "new") return newNode(payload.type, { source, brand: app.brand, text: newText, orders: props.kind.vertical === "marketplace" ? "market_order" : "food_order" });
     if (payload.kind === "section") return SECTIONS.find((s) => s.id === payload.id)?.make(sectionContext) ?? null;
     if (payload.kind === "picture") return { ...newNode("image", { source, brand: app.brand, text: newText }), image_url: payload.url };
     return null;
@@ -1207,6 +1212,9 @@ export function StudioEditor(props: StudioEditorProps) {
           source={source}
           marketplace={props.kind.vertical === "marketplace"}
           academy={props.kind.type === "lms"}
+          orders={props.kind.type === "food"}
+          trips={props.kind.type === "delivery" || props.kind.type === "rides"}
+          school={props.kind.type === "school"}
           page={studio}
           selectedId={selectedId}
           onSelect={(id) => setSelectedId(id)}
@@ -1293,7 +1301,7 @@ export function StudioEditor(props: StudioEditorProps) {
             <div style={{ width: frame.width, height: frame.height, transform: `scale(${zoom / 100})`, transformOrigin: "top left", borderRadius: frame.radius, background: C.ink, padding: 10, boxSizing: "border-box", boxShadow: "0 30px 60px rgba(14,13,36,0.25)" }} dir="ltr">
               <div className="studio-screen" style={{ width: "100%", height: "100%", borderRadius: frame.radius - 9, overflow: "hidden auto", position: "relative", background: dark ? "#14121F" : "#FBF8F2" }}>
                 {studio ? (
-                  <StudioView page={studio} lang={editLang} defaultLang={def} dark={dark} look={look} pickable={props.pickable} market={props.market} editing={editing} words={words} learningWords={learningWords} greeting={greeting} tablet={device === "tablet"} screenPart={screenPart} />
+                  <StudioView page={studio} lang={editLang} defaultLang={def} dark={dark} look={look} pickable={props.pickable} market={props.market} editing={editing} words={words} learningWords={learningWords} liveWords={liveWords} schoolWords={{ ...schoolWords, date: greeting.date }} greeting={greeting} tablet={device === "tablet"} screenPart={screenPart} />
                 ) : page ? (
                   <StartPage title={pageTitle(page)} regular={page.blocks.length > 0} onPick={applyTemplate} templates={kindTemplates} />
                 ) : null}
@@ -1405,7 +1413,7 @@ export function StudioEditor(props: StudioEditorProps) {
         <DesignsGallery
           kindName={props.kindName}
           designs={galleryDesigns}
-          preview={(p) => <StudioView page={p} lang={editLang} defaultLang={def} dark={false} look={look} pickable={props.pickable} market={props.market} words={words} learningWords={learningWords} greeting={greeting} />}
+          preview={(p) => <StudioView page={p} lang={editLang} defaultLang={def} dark={false} look={look} pickable={props.pickable} market={props.market} words={words} learningWords={learningWords} liveWords={liveWords} schoolWords={{ ...schoolWords, date: greeting.date }} greeting={greeting} />}
           load={loadOwnDesign}
           onApply={applyDesign}
           onImport={() => {
@@ -1422,7 +1430,7 @@ export function StudioEditor(props: StudioEditorProps) {
         <ImportDialog
           onClose={() => setImportOpen(false)}
           onImport={(choice) => void runImport(choice)}
-          preview={(p) => <StudioView page={p} lang={editLang} defaultLang={def} dark={false} look={look} pickable={props.pickable} market={props.market} words={words} learningWords={learningWords} greeting={greeting} />}
+          preview={(p) => <StudioView page={p} lang={editLang} defaultLang={def} dark={false} look={look} pickable={props.pickable} market={props.market} words={words} learningWords={learningWords} liveWords={liveWords} schoolWords={{ ...schoolWords, date: greeting.date }} greeting={greeting} />}
           ownFonts={ownFonts}
           onFontsAdded={(families) => setOwnFonts((list) => [...list, ...families.filter((f) => !list.some((x) => x.family === f)).map((family) => ({ family, previewUrl: "", files: [] }))])}
           hasOpenPage={!!studio}

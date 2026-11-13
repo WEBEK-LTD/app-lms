@@ -9853,6 +9853,27 @@ class AppLocalizationsAr extends AppLocalizations {
   }
 
   @override
+  String learningLessonShort(int current, int total) {
+    return 'الدرس $current من $total';
+  }
+
+  @override
+  String learningLiveAt(String time) {
+    return 'مباشر الساعة $time';
+  }
+
+  @override
+  String get learningLiveNowShort => 'مباشر الآن';
+
+  @override
+  String get learningStreakShort => 'السلسلة';
+
+  @override
+  String itemRating(String rating) {
+    return 'التقييم $rating من 5';
+  }
+
+  @override
   String get exploreSearchHint => 'دورة، مهارة، أو معلم';
 
   @override
@@ -10043,6 +10064,191 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get launchWelcome => 'مرحبًا بكم في';
+
+  @override
+  String liveOrderPlaced(String place) {
+    return 'طلبك لدى $place';
+  }
+
+  @override
+  String liveOrderCooking(String place, String dish) {
+    return '$place يُحضّر طلبك من $dish';
+  }
+
+  @override
+  String liveOrderReady(String dish) {
+    return 'طلبك من $dish جاهز للمندوب';
+  }
+
+  @override
+  String liveOrderOnTheWay(String dish) {
+    return 'طلبك من $dish في الطريق إليك';
+  }
+
+  @override
+  String liveOrderPicking(String place) {
+    return '$place يجهّز طلبك';
+  }
+
+  @override
+  String liveMarketReady(String place) {
+    return 'طلبك من $place جاهز';
+  }
+
+  @override
+  String liveMarketOnTheWay(String place) {
+    return 'طلبك من $place في الطريق إليك';
+  }
+
+  @override
+  String get liveOrderMin => 'د';
+
+  @override
+  String marketMinutes(String min) {
+    return '$min د';
+  }
+
+  @override
+  String studioTrackWaiting(String reference) {
+    return 'الشحنة $reference بانتظار مندوب';
+  }
+
+  @override
+  String studioTrackAssigned(String reference) {
+    return 'للشحنة $reference مندوبها';
+  }
+
+  @override
+  String studioTrackPickedUp(String reference) {
+    return 'استُلمت الشحنة $reference';
+  }
+
+  @override
+  String studioTrackOnTheWay(String reference) {
+    return 'الشحنة $reference في الطريق';
+  }
+
+  @override
+  String studioTrackBringing(String courier, String place) {
+    return '$courier يوصلها إلى $place';
+  }
+
+  @override
+  String studioTrackTo(String place) {
+    return 'إلى $place';
+  }
+
+  @override
+  String get studioTrackButton => 'تتبّع';
+
+  @override
+  String studioRideArriving(int minutes) {
+    return 'يصل خلال $minutes دقيقة';
+  }
+
+  @override
+  String get studioRideComing => 'سائقك في الطريق إليك';
+
+  @override
+  String get studioRideHere => 'سائقك وصل';
+
+  @override
+  String studioRideOnBoard(String place) {
+    return 'في الطريق إلى $place';
+  }
+
+  @override
+  String get studioRideSearching => 'نبحث عن سائقك';
+
+  @override
+  String studioRideCall(String name) {
+    return 'اتصل بـ$name';
+  }
+
+  @override
+  String studioSchoolMorning(String name) {
+    return 'صباح الخير،\nعائلة $name';
+  }
+
+  @override
+  String studioSchoolEvening(String name) {
+    return 'مساء الخير،\nعائلة $name';
+  }
+
+  @override
+  String studioSchoolCheckedIn(String name, String time) {
+    return '$name في المدرسة منذ $time';
+  }
+
+  @override
+  String studioSchoolLeft(String name, String time) {
+    return '$name خارج المدرسة منذ $time';
+  }
+
+  @override
+  String studioSchoolNotYet(String name) {
+    return 'لم يُسجَّل حضور $name بعد';
+  }
+
+  @override
+  String studioSchoolAway(String name) {
+    return '$name: غياب اليوم';
+  }
+
+  @override
+  String get studioSchoolOnTime => 'حضور في الموعد · البوابة';
+
+  @override
+  String get studioSchoolLate => 'حضور متأخر · البوابة';
+
+  @override
+  String studioSchoolNow(String subject, String teacher) {
+    return 'الآن · $subject مع $teacher';
+  }
+
+  @override
+  String studioSchoolNowAlone(String subject) {
+    return 'الآن · $subject';
+  }
+
+  @override
+  String studioSchoolNext(String subject, String time) {
+    return 'التالية: $subject الساعة $time';
+  }
+
+  @override
+  String studioSchoolFirst(String subject, String time) {
+    return 'أولًا · $subject الساعة $time';
+  }
+
+  @override
+  String get studioSchoolLastLesson => 'آخر حصة اليوم';
+
+  @override
+  String get studioSchoolLessonsOver => 'انتهت حصص اليوم';
+
+  @override
+  String studioSchoolLessonsEnded(String time) {
+    return 'انتهت آخرها الساعة $time';
+  }
+
+  @override
+  String studioSchoolBusLeaves(String time) {
+    return 'حافلة العودة تنطلق الساعة $time';
+  }
+
+  @override
+  String studioSchoolBusComing(String minutes) {
+    return 'الحافلة في الطريق · $minutes دقيقة';
+  }
+
+  @override
+  String studioSchoolBusRoute(String route, String stop) {
+    return '$route · محطة $stop';
+  }
+
+  @override
+  String get studioSchoolDayOff => 'لا دراسة اليوم';
 
   @override
   String get travelTabExplore => 'استكشف';

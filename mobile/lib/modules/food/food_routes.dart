@@ -44,6 +44,8 @@ final foodModule = AppModule(
     // 115 A marketplace's Search and Club tabs.
     Paths.marketSearch,
     Paths.marketClub,
+    // 128 And its basket, a tab of Zad's approved bar.
+    Paths.marketCheckout,
     Paths.restaurantDesk,
     Paths.courier,
     Paths.vendorDesk,
@@ -60,6 +62,8 @@ final foodModule = AppModule(
     // and its club; a food delivery app has neither.
     BuiltInScreen.search => config?.market != null ? Paths.marketSearch : null,
     BuiltInScreen.club => config?.market != null ? Paths.marketClub : null,
+    // 128 A marketplace's basket.
+    BuiltInScreen.cart => config?.market != null ? Paths.marketCheckout : null,
     BuiltInScreen.restaurant => Paths.restaurantDesk,
     BuiltInScreen.courier => Paths.courier,
     BuiltInScreen.account => Paths.account,
@@ -69,7 +73,6 @@ final foodModule = AppModule(
     BuiltInScreen.myCourses ||
     BuiltInScreen.favorites ||
     BuiltInScreen.messages ||
-    BuiltInScreen.cart ||
     BuiltInScreen.services ||
     BuiltInScreen.appointments ||
     BuiltInScreen.articles ||

@@ -4,7 +4,7 @@ import { useState, type DragEvent } from "react";
 import { useDashT } from "@/components/dashboard-i18n";
 import type { DashKey } from "@/i18n/dashboard";
 import type { ItemSource, StudioHeader, StudioNode, StudioPage } from "@/lib/pages/types";
-import { ELEMENTS, type ElementGroup } from "@/lib/studio/elements";
+import { ELEMENTS, type ElementGroup, type ElementInfo } from "@/lib/studio/elements";
 import type { SectionInfo, TemplateInfo } from "@/lib/studio/sections";
 import { holdsChildren } from "@/lib/studio/edit";
 import { PicturesPanel } from "./pictures-panel";
@@ -28,6 +28,12 @@ export function elementLabel(t: ReturnType<typeof useDashT>, type: StudioNode["t
   return t(`studio.el_${type}` as DashKey);
 }
 
+/** Whether an element made for some projects only is offered in this one. */
+function offered(only: ElementInfo["only"], props: { marketplace?: boolean; academy?: boolean; orders?: boolean; trips?: boolean; school?: boolean }): boolean {
+  if (!only) return true;
+  return props[only] === true;
+}
+
 export function LeftPanel(props: {
   tab: LeftTab;
   onTab: (tab: LeftTab) => void;
@@ -36,6 +42,12 @@ export function LeftPanel(props: {
   marketplace?: boolean;
   /** 123 An academy: the student's own cards are offered too. */
   academy?: boolean;
+  /** 128 A food delivery project or a marketplace: the live order card is offered too. */
+  orders?: boolean;
+  /** 128 A delivery or ride app: the live card of the person's shipment or ride is offered too. */
+  trips?: boolean;
+  /** 128 A school: the family's school day (greeting, children, today) is offered too. */
+  school?: boolean;
   page: StudioPage | null;
   selectedId: string | null;
   onSelect: (id: string) => void;
@@ -107,7 +119,7 @@ export function LeftPanel(props: {
       <div className="min-h-0 flex-1 overflow-y-auto">
         {props.tab === "elements"
           ? groups.map((group) => {
-              const items = ELEMENTS.filter((e) => (!e.only || (e.only === "marketplace" ? props.marketplace : props.academy)) && e.group === group.id && matches(elementLabel(t, e.type, props.source), e.keywords));
+              const items = ELEMENTS.filter((e) => offered(e.only, props) && e.group === group.id && matches(elementLabel(t, e.type, props.source), e.keywords));
               if (!items.length) return null;
               return (
                 <div key={group.id}>
@@ -135,7 +147,7 @@ export function LeftPanel(props: {
               );
             })
           : null}
-        {props.tab === "elements" && q && !ELEMENTS.some((e) => (!e.only || (e.only === "marketplace" ? props.marketplace : props.academy)) && matches(elementLabel(t, e.type, props.source), e.keywords)) ? (
+        {props.tab === "elements" && q && !ELEMENTS.some((e) => offered(e.only, props) && matches(elementLabel(t, e.type, props.source), e.keywords)) ? (
           <p className="m-0 px-3 pb-3 text-[13px]" style={{ color: "var(--studio-muted)" }}>
             {t("studio.noResults", { query })}
           </p>

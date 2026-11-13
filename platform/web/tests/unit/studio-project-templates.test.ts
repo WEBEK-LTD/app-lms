@@ -90,7 +90,8 @@ describe("124.6 the premium academy in App setup", () => {
     expect(draft.tabs.map((t) => t.id)).toEqual(["home", "courses", "blog", "learning", "account"]);
     expect(draft.tabs).toEqual(fresh.tabs);
     expect(draft.tab_bar).toEqual(fresh.tab_bar);
-    expect(draft.tab_bar).toMatchObject({ design: "glass", avatar: true });
+    // 128.8 The approved bar: a floating navy pill, the open tab on gold.
+    expect(draft.tab_bar).toMatchObject({ design: "float", margin: 12, radius: 22, background: "#1D2B4F", dark_background: "#EEF0F7", active: "#E6C26E", labels: "active" });
     expect(draft.appearance).toMatchObject(ACADEMY_PROJECT.appearance);
     const home = draft.pages.find((p) => p.slug === "home")!.studio!;
     expect(home.header).toMatchObject({ type: "greeting" });

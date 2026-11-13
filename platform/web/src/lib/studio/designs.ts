@@ -73,7 +73,7 @@ export function demoProjectLook(demo: StudioDemoId, tabs: readonly LayoutTab[], 
   const brand = DEMO_BRANDS[demo];
   return {
     appearance: { template: brand.template, font: brand.font, corners: brand.corners, cards: brand.cards, secondary_color: brand.secondaryColor },
-    tabs: demoPageTabs(tabs, { lang }),
+    tabs: demoPageTabs(tabs, { lang, demo }),
     tab_bar: structuredClone(DEMO_TAB_BARS[demo]),
   };
 }
@@ -117,8 +117,8 @@ export function designsFor(kind: ProjectKind | null): WholeDesign[] {
 /** 120.4 How many pages a whole design has: a demo's, its home, its tabs' pages and those around its other screens. */
 export function designPageCount(design: WholeDesign, demoTabs?: readonly LayoutTab[] | null): number {
   if (!design.demo || !demoTabs) return design.templates.length;
-  const ctx: SectionContext = { brand: "#000000", source: null, w: () => "", newId: () => "n" };
-  return design.templates.length + demoTabPages(demoTabs, ctx).length + demoScreenPages(design.kind ?? { appType: "" }, demoTabs, ctx, new Set(["home", ...demoTabs.map((t) => t.id)])).length;
+  const ctx: SectionContext = { brand: "#000000", source: null, w: () => "", newId: () => "n", demo: design.demo };
+  return design.templates.length + demoTabPages(demoTabs, ctx).length + demoScreenPages(design.kind ?? { appType: "" }, demoTabs, ctx, new Set(["home"])).length;
 }
 
 /** A page's lists and categories shown the design's way. A list with a card of its own keeps how it shows. */
@@ -181,7 +181,8 @@ export function designName(design: WholeDesign, words: DesignWords): string {
  * home too, one per tab of `demoTabs` (the demo's own) opening a screen.
  */
 export function makeDesign(design: WholeDesign, ctx: SectionContext, words: DesignWords, languages: Languages, demoTabs?: readonly LayoutTab[] | null): DesignFile {
-  const made = { ...ctx, brand: design.theme.accent };
+  // 128 A demo's pages in its own look (lib/studio/demo-designs).
+  const made: SectionContext = { ...ctx, brand: design.theme.accent, ...(design.demo ? { demo: design.demo } : {}) };
   const pages: DesignFile["pages"] = design.templates.map((id, i) => {
     const tpl = TEMPLATES.find((x) => x.id === id)!;
     return { slug: i === 0 ? "home" : id, title: i === 0 ? words.home : words.template(id), studio: themedPage(tpl.make(made), design.theme) };
@@ -189,7 +190,7 @@ export function makeDesign(design: WholeDesign, ctx: SectionContext, words: Desi
   if (design.demo && demoTabs) {
     pages.push(...demoTabPages(demoTabs, made));
     // 120.4 And every other screen of the app.
-    pages.push(...demoScreenPages(design.kind ?? { appType: "", vertical: null }, demoTabs, made, new Set([...pages.map((p) => p.slug), ...demoTabs.map((t) => t.id)])));
+    pages.push(...demoScreenPages(design.kind ?? { appType: "", vertical: null }, demoTabs, made, new Set(pages.map((p) => p.slug))));
   }
   return {
     format: DESIGN_FILE_FORMAT,

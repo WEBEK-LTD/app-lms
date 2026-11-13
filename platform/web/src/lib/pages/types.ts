@@ -16,9 +16,18 @@ export const CORNERS = ["sharp", "soft", "round"] as const;
 /** 97.3 Which look the app shows: the standard one, or the one made from a Figma file. */
 export const LOOK_MODES = ["standard", "figma"] as const;
 export const CARD_STYLES = ["flat", "outlined", "elevated"] as const;
+/**
+ * 128 Layouts that draw a cover behind what they hold: a photo with a scrim
+ * (`photo_hero`: a hero, a photo tile with its caption, a promo banner) and
+ * a drawn map with markers (`map_header`); the last element can hang over
+ * the cover's foot (`overlap`: a card, a bottom sheet).
+ */
+export const STUDIO_COVER_TYPES = ["photo_hero", "map_header"] as const;
+/** 128 Content drawn from the signed-in person: their shipment or ride on its way, or the taxis near them (`tracking`), and a greeting with their name (`greeting`). */
+export const STUDIO_LIVE_TYPES = ["tracking", "greeting"] as const;
 /** 103R Yallapp Studio: the elements of a page and what they can be (`StudioNode` in the app API). */
-export const STUDIO_LAYOUT_TYPES = ["row", "column", "stack", "grid", "slider", "spacer", "accordion", "tabs"] as const;
-export const STUDIO_CONTENT_TYPES = ["text", "image", "button", "icon", "items", "categories", "video", "form", "map", "ratings", "search", "divider", "countdown", "bullets", "coupon", "market", "learning"] as const;
+export const STUDIO_LAYOUT_TYPES = ["row", "column", "stack", "grid", "slider", "spacer", "accordion", "tabs", ...STUDIO_COVER_TYPES] as const;
+export const STUDIO_CONTENT_TYPES = ["text", "image", "button", "icon", "items", "categories", "video", "form", "map", "ratings", "search", "divider", "countdown", "bullets", "coupon", "market", "learning", "live_status", "school", ...STUDIO_LIVE_TYPES] as const;
 export const STUDIO_NODE_TYPES = [...STUDIO_LAYOUT_TYPES, ...STUDIO_CONTENT_TYPES] as const;
 /** 120 `title`: the page's title and its buttons, for the pages after the first. */
 /** 123 `greeting`: today's date over a greeting with the person's first name, the buttons beside it. */
@@ -31,7 +40,15 @@ export const STUDIO_PINS = ["none", "top", "bottom"] as const;
 export const STUDIO_SHADOWS = ["none", "light", "medium", "strong"] as const;
 export const STUDIO_FITS = ["cover", "contain"] as const;
 export const STUDIO_FONT_WEIGHTS = [300, 400, 500, 600, 700, 800, 900] as const;
-export const STUDIO_BINDS = ["title", "subtitle", "image", "price", "badge"] as const;
+export const STUDIO_BINDS = [
+  "title",
+  "subtitle",
+  "image",
+  "price",
+  "badge",
+  // 128.8 An entry's rating (a course's): the element's own text, a star and the rating; nothing without one.
+  "rating",
+] as const;
 export const STUDIO_ENTERS = ["none", "fade", "slide_up", "slide_down", "slide_start", "slide_end", "zoom"] as const;
 export const STUDIO_PRESSES = ["none", "shrink", "bounce"] as const;
 export const STUDIO_LOOPS = ["none", "pulse", "float", "shake"] as const;
@@ -633,13 +650,68 @@ export interface StudioForm {
  * their streak, their next live class, or this week's learning time.
  */
 export const STUDIO_LEARNING_SECTIONS = ["continue", "streak", "live", "week"] as const;
+/**
+ * 128.8 How the card is drawn: `card` (missing) as 123 drew it; `photo`
+ * the course they are taking and their live class over the element's
+ * picture (else the course's) with a dark scrim, their place and minutes
+ * on one chip, how far they are in gold and a round play button, the
+ * live class's time in gold over its name; the streak a compact figure.
+ */
+export const STUDIO_LEARNING_STYLES = ["card", "photo"] as const;
 export interface StudioLearning {
   section: (typeof STUDIO_LEARNING_SECTIONS)[number];
+  style?: (typeof STUDIO_LEARNING_STYLES)[number];
+}
+
+/**
+ * 128 For `live_status`: the signed-in person's order on its way, drawn by
+ * the app from the engine's own data (`StudioLiveStatus`): a food delivery
+ * order, or a marketplace order. Nothing shows signed out, or with no order
+ * on its way.
+ */
+export const STUDIO_LIVE_SOURCES = ["food_order", "market_order"] as const;
+export interface StudioLiveStatus {
+  source: (typeof STUDIO_LIVE_SOURCES)[number];
+}
+
+/**
+ * 128 A shade over the element's picture so the words on it read
+ * (`StudioScrim`): its colour at `from` (0 to 1) at the start of `angle`
+ * (CSS: 180 top to bottom, 90 start to end), `middle` at `at` percent, and
+ * `to` at the end. A photo hero with its words on it, a photo tile's
+ * caption; any element's picture, and a `photo_hero`'s photo.
+ */
+export interface StudioScrim {
+  color: string;
+  from: number;
+  to: number;
+  middle?: number;
+  /** Where `middle` sits, 1 to 99 (%); missing, half way. */
+  at?: number;
+  /** 0 to 360; missing, 180 (top to bottom). */
+  angle?: number;
+}
+
+/**
+ * 128 For `school`, in schools: one part of a family's school day drawn
+ * from the signed-in parent's own children (`StudioSchool`): the greeting
+ * with today's date, the children to switch between, or today's card (the
+ * chosen child's check-in at the gate, the class now and next, the bus
+ * home).
+ */
+export const STUDIO_SCHOOL_SECTIONS = ["greeting", "children", "today"] as const;
+export interface StudioSchool {
+  section: (typeof STUDIO_SCHOOL_SECTIONS)[number];
 }
 
 /** 115.14 For `market`: which marketplace section it is, drawn from the marketplace's data (`StudioMarket`). */
 export const STUDIO_MARKET_SECTIONS = ["address", "kinds", "offers", "cuisines", "club", "vendors", "reorder"] as const;
-export const STUDIO_MARKET_STYLES = ["spotlight", "cards", "tiles", "list"] as const;
+/**
+ * 128 `chips`: places as small chips in a row, the place's photo beside its
+ * name, rating and time; `bar`: the address (its section) as a flat bar with
+ * the soonest delivery time and the search under it.
+ */
+export const STUDIO_MARKET_STYLES = ["spotlight", "cards", "tiles", "list", "chips", "bar"] as const;
 /** Editor audit 3.4: facts a place's card can leave out. */
 export const STUDIO_MARKET_CARD_FACTS = ["offer", "rating", "time", "fee", "min_order"] as const;
 export const STUDIO_MARKET_KINDS = ["all", "restaurant", "grocery"] as const;
@@ -667,6 +739,31 @@ export interface StudioMarketCard {
   radius?: number;
   /** Facts the card leaves out; missing or empty, all shown. */
   hide?: (typeof STUDIO_MARKET_CARD_FACTS)[number][];
+}
+
+/** 128 For `tracking`: what it follows, and how it is drawn (`StudioTracking`). */
+export const STUDIO_TRACKING_KINDS = ["shipment", "ride", "nearby_taxis"] as const;
+/** `card`: a soft card with the stages; `driver`: the driver's photo, car and a call button; `line`: one line. */
+export const STUDIO_TRACKING_STYLES = ["card", "driver", "line"] as const;
+export interface StudioTracking {
+  kind: (typeof STUDIO_TRACKING_KINDS)[number];
+  /** Missing, `card`. */
+  style?: (typeof STUDIO_TRACKING_STYLES)[number];
+}
+
+/** 128 For `map_header`: the markers on the drawn map (`StudioMapDrawing`). */
+export interface StudioMapDrawing {
+  /** Where each marker is, in percent from the start and the top. */
+  markers?: StudioPlace[];
+  /** A Material Symbols name; missing, a taxi. */
+  icon?: string | null;
+  /** The markers' and the person's dot's colour, and the markers' tile; missing, gold on navy. */
+  accent?: string | null;
+  chip?: string | null;
+  /** The person's own dot in the middle. */
+  me?: boolean;
+  /** In the app, the free taxis near the person instead of the markers (the markers show in Studio). */
+  live?: boolean;
 }
 
 export interface StudioMap {
@@ -709,7 +806,11 @@ export interface StudioNode {
   corners?: StudioCorners | null;
   rotation?: number;
   overlay?: StudioOverlay | null;
+  /** 128 A shade over its picture (a `photo_hero`'s photo too), darker at its ends, so words on it read. */
+  scrim?: StudioScrim | null;
   border_color?: string | null;
+  /** 128.8 The border in dark mode; missing, `border_color`. */
+  dark_border_color?: string | null;
   border_width?: number;
   shadow?: StudioShadow;
   opacity?: number;
@@ -754,6 +855,16 @@ export interface StudioNode {
   market?: StudioMarket | null;
   /** 123 For `learning`: which of the student's cards it is. */
   learning?: StudioLearning | null;
+  /** 128 For `live_status`: whose order it follows. */
+  live_status?: StudioLiveStatus | null;
+  /** 128 For `tracking`: what it follows. */
+  tracking?: StudioTracking | null;
+  /** 128 For `map_header`: its markers. */
+  map_drawing?: StudioMapDrawing | null;
+  /** 128 For `photo_hero` and `map_header`: how far its last element hangs up over the cover's foot. */
+  overlap?: number;
+  /** 128 For `school`: which part of the family's school day it is. */
+  school?: StudioSchool | null;
   rating?: number | null;
   action?: Action | null;
   platforms?: (typeof STUDIO_PLATFORMS)[number][];
@@ -871,6 +982,8 @@ export const TAB_BAR_DESIGNS = [
   "drop",
   "glow",
   "colours",
+  // 128 A floating bar with its own colours, the open tab a filled pill with its name, the others icons only.
+  "float",
 ] as const;
 export type TabBarDesign = (typeof TAB_BAR_DESIGNS)[number];
 export type TabLabels = (typeof TAB_LABELS)[number];

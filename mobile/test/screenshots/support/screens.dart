@@ -7,6 +7,8 @@ import 'package:yallapp/core/config/build_config_data.dart';
 import 'package:yallapp/core/routing/app_router.dart';
 import 'package:flutter_riverpod/misc.dart' show Override;
 import 'package:yallapp/modules/delivery/data/delivery_providers.dart';
+import 'package:yallapp/modules/shared/pages/content_blocks.dart'
+    show pageClockProvider;
 import 'package:yallapp/modules/store/data/cart_controller.dart';
 
 import '../../support/fake_api.dart';
@@ -780,40 +782,52 @@ final websiteShots = <Shot>[
   ),
   // The website's multi-vendor story: Zad's home, Bab El Sharq Grill's
   // menu, Zad Market's aisles by the kilo, and the groceries on their way.
+  // 128 Zad as its Studio project is (test/support/zad_demo.json): the
+  // photo-first home approved on 13 November 2026, its five named tabs,
+  // Manrope, and its places in the demo's real photos.
   Shot(
     'zad-home',
-    api: DemoApi.zad,
+    api: zadStudioApi,
+    appName: 'Zad',
     appType: AppType.food,
     template: AppTemplate.bold,
     overrides: Zad.overrides,
     designPictures: true,
+    prepare: StudioDemo.zad.prepare,
+    shadows: true,
   ),
   Shot(
     'zad-grill',
-    api: DemoApi.zad,
+    api: zadStudioApi,
+    appName: 'Zad',
     appType: AppType.food,
     template: AppTemplate.bold,
     location: '/market/1',
     overrides: Zad.overrides,
     designPictures: true,
+    prepare: StudioDemo.zad.prepare,
   ),
   Shot(
     'zad-market',
-    api: DemoApi.zad,
+    api: zadStudioApi,
+    appName: 'Zad',
     appType: AppType.food,
     template: AppTemplate.bold,
     location: '/market/3',
     overrides: Zad.overrides,
     designPictures: true,
+    prepare: StudioDemo.zad.prepare,
   ),
   Shot(
     'zad-tracking',
-    api: DemoApi.zad,
+    api: zadStudioApi,
+    appName: 'Zad',
     appType: AppType.food,
     template: AppTemplate.bold,
     location: '/market-order/1207',
     overrides: Zad.overrides,
     designPictures: true,
+    prepare: StudioDemo.zad.prepare,
     mapTiles: true,
     mapCenter: (lat: 30.0548, lng: 31.2195),
   ),
@@ -844,9 +858,12 @@ final websiteShots = <Shot>[
     ('premium-mine', '/my-courses'),
     ('premium-account', '/account'),
     ('premium-cart', '/course-cart'),
+    // 128.8 The approved home by night too.
+    ('premium-home-dark', null),
   ])
     Shot(
       name,
+      dark: name.endsWith('-dark'),
       // The course's page as a student sees it before joining.
       api: name == 'premium-course'
           ? () => premiumAcademyApi(enrolled: false)
@@ -907,7 +924,7 @@ final websiteShots = <Shot>[
     appName: 'Sofra Eats',
     appType: AppType.food,
     template: AppTemplate.bold,
-    prepare: StudioDemo.sofra.prepare,
+    prepare: (tester) => StudioDemo.sofra.prepare(tester, sofraPhotos),
     shadows: true,
   ),
   Shot(
@@ -916,7 +933,7 @@ final websiteShots = <Shot>[
     appName: 'Sofra Eats',
     appType: AppType.food,
     template: AppTemplate.bold,
-    prepare: StudioDemo.sofra.prepare,
+    prepare: (tester) => StudioDemo.sofra.prepare(tester, sofraPhotos),
     location: '/restaurant/1',
     shadows: true,
   ),
@@ -926,7 +943,7 @@ final websiteShots = <Shot>[
     appName: 'Sofra Eats',
     appType: AppType.food,
     template: AppTemplate.bold,
-    prepare: StudioDemo.sofra.prepare,
+    prepare: (tester) => StudioDemo.sofra.prepare(tester, sofraPhotos),
     location: '/food-order/1',
     mapTiles: true,
     shadows: true,
@@ -950,7 +967,13 @@ final websiteShots = <Shot>[
     template: AppTemplate.bold,
     prepare: StudioDemo.masar.prepare,
     shadows: true,
-    after: _whereTo,
+    // 128 Masar opens on its Studio home (its Ride tab); "Search a place"
+    // opens the ride form.
+    after: (tester, router) async {
+      router.go('/ride');
+      await TestApp.settle(tester, 20);
+      await _whereTo(tester, router);
+    },
   ),
   Shot(
     'masar-driver',
@@ -1000,16 +1023,19 @@ final websiteShots = <Shot>[
     shadows: true,
     after: (tester, router) async => router.go('/driver'),
   ),
+  // 128 The approved home: Maths now, at 08:10, the staff app's teachers
+  // elsewhere.
   Shot(
     'nakhla-home',
-    api: nakhlaStudioApi,
+    api: () => nakhlaStudioApi(staffApp: true),
     appName: 'Nakhla School',
     appType: AppType.school,
     prepare: StudioDemo.nakhla.prepare,
+    overrides: _nakhlaMorning,
   ),
   Shot(
     'nakhla-parent',
-    api: nakhlaStudioApi,
+    api: () => nakhlaStudioApi(staffApp: true),
     appName: 'Nakhla School',
     appType: AppType.school,
     prepare: StudioDemo.nakhla.prepare,
@@ -1025,17 +1051,17 @@ final websiteShots = <Shot>[
   ),
   Shot(
     'rawaq-home',
-    api: rawaqStudioApi,
+    api: () => rawaqStudioApi(staffApp: true),
     appName: 'Rawaq Academy',
     appType: AppType.lms,
-    prepare: StudioDemo.rawaq.prepare,
+    prepare: (tester) => StudioDemo.rawaq.prepare(tester, rawaqPhotos),
   ),
   Shot(
     'rawaq-teacher',
-    api: rawaqStudioApi,
+    api: () => rawaqStudioApi(staffApp: true),
     appName: 'Rawaq Academy',
     appType: AppType.lms,
-    prepare: StudioDemo.rawaq.prepare,
+    prepare: (tester) => StudioDemo.rawaq.prepare(tester, rawaqPhotos),
     location: '/teachers/1',
   ),
   Shot(
@@ -1043,7 +1069,7 @@ final websiteShots = <Shot>[
     api: rawaqStudioApi,
     appName: 'Rawaq Academy',
     appType: AppType.lms,
-    prepare: StudioDemo.rawaq.prepare,
+    prepare: (tester) => StudioDemo.rawaq.prepare(tester, rawaqPhotos),
     after: (tester, router) async => router.go('/teacher-desk'),
   ),
   // 126 Safra, Studio's travel demo: its home, a hotel and the trip.
@@ -1070,4 +1096,13 @@ final websiteShots = <Shot>[
     prepare: prepareSafra,
     after: (tester, router) async => router.go('/trips'),
   ),
+];
+
+/// 128 Nakhla School's approved home at 08:10 on a school day: Maths now,
+/// Arabic next.
+final _nakhlaMorning = <Override>[
+  pageClockProvider.overrideWithValue(() {
+    final now = DateTime.now();
+    return DateTime(now.year, now.month, now.day, 8, 10);
+  }),
 ];

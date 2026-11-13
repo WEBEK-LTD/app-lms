@@ -382,6 +382,12 @@
      }
     },
     "studio": {
+     "body": {
+      "id": "demo-14",
+      "type": "column",
+      "children": []
+     },
+     "screen": "stays",
      "header": {
       "type": "title",
       "title": "Stays",
@@ -395,14 +401,14 @@
        "tr": {
         "title": "Konaklama"
        }
-      }
+      },
+      "background": "#F7F3EC",
+      "color": "#0E1424",
+      "dark_background": "#0E1424",
+      "dark_color": "#F4EFE6"
      },
-     "body": {
-      "id": "demo-14",
-      "type": "column",
-      "children": []
-     },
-     "screen": "stays"
+     "background": "#F7F3EC",
+     "dark_background": "#0E1424"
     },
     "show_title": false,
     "updated_at": "2026-11-09T10:00:00.000Z",
@@ -420,6 +426,12 @@
      }
     },
     "studio": {
+     "body": {
+      "id": "demo-15",
+      "type": "column",
+      "children": []
+     },
+     "screen": "flights",
      "header": {
       "type": "title",
       "title": "Flights",
@@ -433,14 +445,14 @@
        "tr": {
         "title": "Uçuşlar"
        }
-      }
+      },
+      "background": "#F7F3EC",
+      "color": "#0E1424",
+      "dark_background": "#0E1424",
+      "dark_color": "#F4EFE6"
      },
-     "body": {
-      "id": "demo-15",
-      "type": "column",
-      "children": []
-     },
-     "screen": "flights"
+     "background": "#F7F3EC",
+     "dark_background": "#0E1424"
     },
     "show_title": false,
     "updated_at": "2026-11-09T10:00:00.000Z",
@@ -458,6 +470,12 @@
      }
     },
     "studio": {
+     "body": {
+      "id": "demo-16",
+      "type": "column",
+      "children": []
+     },
+     "screen": "trips",
      "header": {
       "type": "title",
       "title": "Trips",
@@ -471,14 +489,14 @@
        "tr": {
         "title": "Seyahatler"
        }
-      }
+      },
+      "background": "#F7F3EC",
+      "color": "#0E1424",
+      "dark_background": "#0E1424",
+      "dark_color": "#F4EFE6"
      },
-     "body": {
-      "id": "demo-16",
-      "type": "column",
-      "children": []
-     },
-     "screen": "trips"
+     "background": "#F7F3EC",
+     "dark_background": "#0E1424"
     },
     "show_title": false,
     "updated_at": "2026-11-09T10:00:00.000Z",
@@ -501,7 +519,9 @@
       "type": "column",
       "children": []
      },
-     "screen": "account"
+     "screen": "account",
+     "background": "#F7F3EC",
+     "dark_background": "#0E1424"
     },
     "show_title": false,
     "updated_at": "2026-11-09T10:00:00.000Z",
@@ -519,6 +539,12 @@
      }
     },
     "studio": {
+     "body": {
+      "id": "demo-18",
+      "type": "column",
+      "children": []
+     },
+     "screen": "messages",
      "header": {
       "type": "title",
       "title": "Messages",
@@ -529,14 +555,14 @@
        "tr": {
         "title": "Mesajlar"
        }
-      }
+      },
+      "background": "#F7F3EC",
+      "color": "#0E1424",
+      "dark_background": "#0E1424",
+      "dark_color": "#F4EFE6"
      },
-     "body": {
-      "id": "demo-18",
-      "type": "column",
-      "children": []
-     },
-     "screen": "messages"
+     "background": "#F7F3EC",
+     "dark_background": "#0E1424"
     },
     "show_title": false,
     "updated_at": "2026-11-09T10:00:00.000Z",
@@ -554,6 +580,12 @@
      }
     },
     "studio": {
+     "body": {
+      "id": "demo-19",
+      "type": "column",
+      "children": []
+     },
+     "screen": "settings",
      "header": {
       "type": "title",
       "title": "Settings",
@@ -564,14 +596,14 @@
        "tr": {
         "title": "Ayarlar"
        }
-      }
+      },
+      "background": "#F7F3EC",
+      "color": "#0E1424",
+      "dark_background": "#0E1424",
+      "dark_color": "#F4EFE6"
      },
-     "body": {
-      "id": "demo-19",
-      "type": "column",
-      "children": []
-     },
-     "screen": "settings"
+     "background": "#F7F3EC",
+     "dark_background": "#0E1424"
     },
     "show_title": false,
     "updated_at": "2026-11-09T10:00:00.000Z",
@@ -589,6 +621,12 @@
      }
     },
     "studio": {
+     "body": {
+      "id": "demo-20",
+      "type": "column",
+      "children": []
+     },
+     "screen": "notifications",
      "header": {
       "type": "title",
       "title": "Notifications",
@@ -599,14 +637,14 @@
        "tr": {
         "title": "Bildirimler"
        }
-      }
+      },
+      "background": "#F7F3EC",
+      "color": "#0E1424",
+      "dark_background": "#0E1424",
+      "dark_color": "#F4EFE6"
      },
-     "body": {
-      "id": "demo-20",
-      "type": "column",
-      "children": []
-     },
-     "screen": "notifications"
+     "background": "#F7F3EC",
+     "dark_background": "#0E1424"
     },
     "show_title": false,
     "updated_at": "2026-11-09T10:00:00.000Z",
@@ -624,6 +662,12 @@
      }
     },
     "studio": {
+     "body": {
+      "id": "demo-21",
+      "type": "column",
+      "children": []
+     },
+     "screen": "edit_profile",
      "header": {
       "type": "title",
       "title": "Edit profile",
@@ -634,14 +678,14 @@
        "tr": {
         "title": "Profili düzenle"
        }
-      }
+      },
+      "background": "#F7F3EC",
+      "color": "#0E1424",
+      "dark_background": "#0E1424",
+      "dark_color": "#F4EFE6"
      },
-     "body": {
-      "id": "demo-21",
-      "type": "column",
-      "children": []
-     },
-     "screen": "edit_profile"
+     "background": "#F7F3EC",
+     "dark_background": "#0E1424"
     },
     "show_title": false,
     "updated_at": "2026-11-09T10:00:00.000Z",
@@ -659,6 +703,12 @@
      }
     },
     "studio": {
+     "body": {
+      "id": "demo-22",
+      "type": "column",
+      "children": []
+     },
+     "screen": "devices",
      "header": {
       "type": "title",
       "title": "Devices",
@@ -669,14 +719,14 @@
        "tr": {
         "title": "Cihazlar"
        }
-      }
+      },
+      "background": "#F7F3EC",
+      "color": "#0E1424",
+      "dark_background": "#0E1424",
+      "dark_color": "#F4EFE6"
      },
-     "body": {
-      "id": "demo-22",
-      "type": "column",
-      "children": []
-     },
-     "screen": "devices"
+     "background": "#F7F3EC",
+     "dark_background": "#0E1424"
     },
     "show_title": false,
     "updated_at": "2026-11-09T10:00:00.000Z",
@@ -691,7 +741,9 @@
       "type": "column",
       "children": []
      },
-     "screen": "change_password"
+     "screen": "change_password",
+     "background": "#F7F3EC",
+     "dark_background": "#0E1424"
     },
     "show_title": false,
     "updated_at": "2026-11-09T10:00:00.000Z",
@@ -706,7 +758,9 @@
       "type": "column",
       "children": []
      },
-     "screen": "chat_conversation"
+     "screen": "chat_conversation",
+     "background": "#F7F3EC",
+     "dark_background": "#0E1424"
     },
     "show_title": false,
     "updated_at": "2026-11-09T10:00:00.000Z",
@@ -721,7 +775,9 @@
       "type": "column",
       "children": []
      },
-     "screen": "travel_hotel"
+     "screen": "travel_hotel",
+     "background": "#F7F3EC",
+     "dark_background": "#0E1424"
     },
     "show_title": false,
     "updated_at": "2026-11-09T10:00:00.000Z",
@@ -736,7 +792,9 @@
       "type": "column",
       "children": []
      },
-     "screen": "hotel_results"
+     "screen": "hotel_results",
+     "background": "#F7F3EC",
+     "dark_background": "#0E1424"
     },
     "show_title": false,
     "updated_at": "2026-11-09T10:00:00.000Z",
@@ -751,7 +809,9 @@
       "type": "column",
       "children": []
      },
-     "screen": "hotel_map"
+     "screen": "hotel_map",
+     "background": "#F7F3EC",
+     "dark_background": "#0E1424"
     },
     "show_title": false,
     "updated_at": "2026-11-09T10:00:00.000Z",
@@ -766,7 +826,9 @@
       "type": "column",
       "children": []
      },
-     "screen": "hotel_rooms"
+     "screen": "hotel_rooms",
+     "background": "#F7F3EC",
+     "dark_background": "#0E1424"
     },
     "show_title": false,
     "updated_at": "2026-11-09T10:00:00.000Z",
@@ -781,7 +843,9 @@
       "type": "column",
       "children": []
      },
-     "screen": "hotel_checkout"
+     "screen": "hotel_checkout",
+     "background": "#F7F3EC",
+     "dark_background": "#0E1424"
     },
     "show_title": false,
     "updated_at": "2026-11-09T10:00:00.000Z",
@@ -796,7 +860,9 @@
       "type": "column",
       "children": []
      },
-     "screen": "flight_results"
+     "screen": "flight_results",
+     "background": "#F7F3EC",
+     "dark_background": "#0E1424"
     },
     "show_title": false,
     "updated_at": "2026-11-09T10:00:00.000Z",
@@ -811,7 +877,9 @@
       "type": "column",
       "children": []
      },
-     "screen": "flight_fares"
+     "screen": "flight_fares",
+     "background": "#F7F3EC",
+     "dark_background": "#0E1424"
     },
     "show_title": false,
     "updated_at": "2026-11-09T10:00:00.000Z",
@@ -826,7 +894,9 @@
       "type": "column",
       "children": []
      },
-     "screen": "price_calendar"
+     "screen": "price_calendar",
+     "background": "#F7F3EC",
+     "dark_background": "#0E1424"
     },
     "show_title": false,
     "updated_at": "2026-11-09T10:00:00.000Z",
@@ -841,7 +911,9 @@
       "type": "column",
       "children": []
      },
-     "screen": "seat_map"
+     "screen": "seat_map",
+     "background": "#F7F3EC",
+     "dark_background": "#0E1424"
     },
     "show_title": false,
     "updated_at": "2026-11-09T10:00:00.000Z",
@@ -856,7 +928,9 @@
       "type": "column",
       "children": []
      },
-     "screen": "flight_extras"
+     "screen": "flight_extras",
+     "background": "#F7F3EC",
+     "dark_background": "#0E1424"
     },
     "show_title": false,
     "updated_at": "2026-11-09T10:00:00.000Z",
@@ -871,7 +945,9 @@
       "type": "column",
       "children": []
      },
-     "screen": "trip_bundle"
+     "screen": "trip_bundle",
+     "background": "#F7F3EC",
+     "dark_background": "#0E1424"
     },
     "show_title": false,
     "updated_at": "2026-11-09T10:00:00.000Z",
@@ -886,7 +962,9 @@
       "type": "column",
       "children": []
      },
-     "screen": "trip_checkout"
+     "screen": "trip_checkout",
+     "background": "#F7F3EC",
+     "dark_background": "#0E1424"
     },
     "show_title": false,
     "updated_at": "2026-11-09T10:00:00.000Z",
@@ -901,7 +979,9 @@
       "type": "column",
       "children": []
      },
-     "screen": "travel_trip"
+     "screen": "travel_trip",
+     "background": "#F7F3EC",
+     "dark_background": "#0E1424"
     },
     "show_title": false,
     "updated_at": "2026-11-09T10:00:00.000Z",
@@ -916,7 +996,9 @@
       "type": "column",
       "children": []
      },
-     "screen": "boarding_pass"
+     "screen": "boarding_pass",
+     "background": "#F7F3EC",
+     "dark_background": "#0E1424"
     },
     "show_title": false,
     "updated_at": "2026-11-09T10:00:00.000Z",
@@ -931,7 +1013,9 @@
       "type": "column",
       "children": []
      },
-     "screen": "manage_booking"
+     "screen": "manage_booking",
+     "background": "#F7F3EC",
+     "dark_background": "#0E1424"
     },
     "show_title": false,
     "updated_at": "2026-11-09T10:00:00.000Z",
@@ -946,7 +1030,9 @@
       "type": "column",
       "children": []
      },
-     "screen": "review_stay"
+     "screen": "review_stay",
+     "background": "#F7F3EC",
+     "dark_background": "#0E1424"
     },
     "show_title": false,
     "updated_at": "2026-11-09T10:00:00.000Z",

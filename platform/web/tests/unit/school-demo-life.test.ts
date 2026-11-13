@@ -44,7 +44,8 @@ describe("Nakhla School, the whole school in the demo", { timeout: 30_000 }, () 
       actorEmail: "admin@yallapp.test",
       now: NOW,
     });
-  });
+    // 126 Nineteen demo apps now, Safra's flights twelve weeks ahead among them: the hook gets the tests' time.
+  }, 30_000);
 
   async function school() {
     const app = (await listDemoApps(store, { fresh: true })).find((a) => demoIdOf(a) === "school")!;

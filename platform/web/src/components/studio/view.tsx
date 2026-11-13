@@ -11,8 +11,14 @@ import { splitTabs } from "@/lib/pages/tab-bar";
 import type { MarketCanvas } from "@/lib/studio/market-canvas";
 import { MarketSection } from "./market";
 import { LEARNING_WORDS_EN, LearningCard, type LearningWords } from "./learning";
+import { LIVE_STATUS_WORDS_EN, LiveStatusCard, type LiveStatusWords } from "./live-status";
+import { scrimCss } from "@/lib/studio/scrim";
+import { SCHOOL_WORDS_EN, SchoolCard, type SchoolWords } from "./school";
 import type { ScreenDrawing } from "@/lib/studio/screen-drawing";
 import { AppScreen } from "./app-screens";
+// 128 The cover layouts and the live elements.
+import { Cover } from "./covers";
+import { GreetingText, TrackingCard } from "./tracking";
 
 /**
  * 103R A Studio page drawn in the editor's phone, as the app draws it: rows,
@@ -64,12 +70,20 @@ interface ViewProps {
   editing?: StudioEditing;
   /** Editor audit 3.3: inside a locked element, which the canvas leaves alone with what it holds. */
   lockedAbove?: boolean;
+  /** 128.10 Inside a cover (`photo_hero`, `map_header`): a colour over an element without a picture is its see-through background there. */
+  inCover?: boolean;
+  /** 128.10 In a row: the one text that gives way to what follows it (`textGivingWay`). */
+  rowGivesWay?: string | null;
   /** Editor audit 3.3: shown on a tablet, with each element's tablet changes. */
   tablet?: boolean;
   /** Labels for the placeholders, in the dashboard's language. */
   words: { price: string; addPicture: string; addVideo: string; send: string; search: string; days: string; hours: string; minutes: string; seconds: string; copy: string };
   /** 123 The sample words of the student's cards (`learning`); missing, English. */
   learningWords?: LearningWords;
+  /** 128 The sample words of a live order card (`live_status`); missing, English. */
+  liveWords?: LiveStatusWords;
+  /** 128 The sample family of the school's cards (`school`); missing, English. */
+  schoolWords?: SchoolWords;
   /** 123 The sample greeting header: today's date and a greeting with a name. */
   greeting?: { date: string; hello: string };
   /** 115.14 The marketplace's places, offers, cuisines and orders its `market` elements show; missing, the app's samples. */
@@ -147,16 +161,38 @@ function sizeStyle(size: StudioSize | undefined, axis: "width" | "height", paren
   return {};
 }
 
+/**
+ * 128.10 Whether a page's first element (of those not pinned) is a cover: a photo hero, a map header, or a picture with a
+ * scrim (the app's `studioStartsWithCover`, mobile studio_page.dart). Under a transparent header only such a page reaches
+ * under the status bar with the app's name over it; older pages, which have none of these, look as before.
+ */
+export function startsWithCover(body: StudioNode): boolean {
+  const first = (body.children ?? []).find((n) => (n.pin ?? "none") === "none" && !n.hidden);
+  return !!first && (first.type === "photo_hero" || first.type === "map_header" || !!first.scrim);
+}
+
+/**
+ * 128.10 The one text in a row that gives way to what follows it: the row's only text cut to its lines without a width
+ * of its own, when nothing in the row fills it (the app's `studioTextGivingWay`). With two such texts, or none, none does.
+ */
+export function textGivingWay(kids: readonly StudioNode[]): string | null {
+  if (kids.some((k) => k.width === "fill")) return null;
+  const texts = kids.filter((k) => k.type === "text" && k.max_lines && typeof k.width !== "number");
+  return texts.length === 1 ? texts[0]!.id : null;
+}
+
 export function StudioView(viewProps: ViewProps) {
   const props = viewProps.tablet ? { ...viewProps, page: { ...viewProps.page, body: mapTree(viewProps.page.body, forTablet) ?? viewProps.page.body } } : viewProps;
   const { page, dark, look } = props;
   const bg = (dark ? (page.dark_background ?? page.background) : page.background) ?? (dark ? "#14121F" : "#FBF8F2");
   const rtl = props.lang === "ar";
   const showTabs = page.show_tabs !== false && look.tabs.length > 0;
+  // 128.10 Under a transparent header a page starting with anything but a cover starts below the status bar, as the app draws it.
+  const belowBar = page.header?.type === "transparent" && !startsWithCover(page.body);
   return (
     <div dir={rtl ? "rtl" : "ltr"} style={{ display: "flex", flexDirection: "column", minHeight: "100%", background: bg, color: dark ? "#F4EFE6" : "#0E0D24", fontFamily: `'${look.font}', 'Cairo', system-ui, sans-serif` }}>
       {page.header ? <Header header={page.header} {...props} /> : null}
-      <div style={{ flex: "1 1 auto", display: "flex", flexDirection: "column" }}>
+      <div style={{ flex: "1 1 auto", display: "flex", flexDirection: "column", paddingTop: belowBar ? 30 : undefined }} data-studio-below-bar={belowBar ? "" : undefined}>
         <Node node={page.body} parentDir="column" {...props} />
         {page.screen ? <ScreenPart {...props} /> : null}
       </div>
@@ -173,7 +209,8 @@ function Header(props: ViewProps & { header: StudioHeader }) {
   const buttons = header.buttons ?? [];
   const icons: Record<string, string> = { menu: "menu", search: "search", cart: "shopping_bag", notifications: "notifications", chat: "chat", account: "account_circle" };
   const logo = header.logo_url ?? look.logoUrl;
-  const brandMark = logo ? (
+  // 128.10 A transparent header shows the app's name (or logo) only over a cover; over anything else its buttons alone, as the app draws it.
+  const brandMark = header.type === "transparent" && !startsWithCover(props.page.body) ? null : logo ? (
     // eslint-disable-next-line @next/next/no-img-element
     <img src={logo} alt="" style={{ height: 28, maxWidth: 120, objectFit: "contain" }} />
   ) : (
@@ -201,15 +238,15 @@ function Header(props: ViewProps & { header: StudioHeader }) {
       {icons[name]}
     </span>
   );
-  // 123 Today's date over a greeting with the person's name, the buttons as small squares beside it.
+  // 123 Today's date over a greeting with the person's name; 128.8 the buttons as round buttons on a card beside it.
   if (header.type === "greeting") {
     const ink = (dark ? (header.dark_color ?? header.color) : header.color) ?? (dark ? "#F3F1EC" : "#15131A");
-    const square: CSSProperties = { width: 40, height: 40, borderRadius: 14, display: "flex", alignItems: "center", justifyContent: "center", background: dark ? "rgba(22,25,36,.72)" : "rgba(255,255,255,.72)", border: `1px solid ${dark ? "rgba(255,255,255,.08)" : "rgba(21,19,26,.08)"}` };
+    const square: CSSProperties = { width: 40, height: 40, borderRadius: 20, display: "flex", alignItems: "center", justifyContent: "center", background: dark ? "#161C33" : "#FFFFFF", border: `1px solid ${dark ? "#262D48" : "#E3DFD6"}` };
     return (
       <div style={{ ...wrap, background: (dark ? (header.dark_background ?? header.background) : header.background) ?? "transparent", color: ink, margin: "30px 6px 0" }} onClick={editing ? (e) => (e.stopPropagation(), editing.onSelect("header")) : undefined} data-studio-header={header.type}>
         <div style={{ flex: 1, display: "flex", flexDirection: "column" }}>
-          <span style={{ fontSize: 11, opacity: 0.6 }}>{props.greeting?.date ?? ""}</span>
-          <span style={{ fontWeight: 700, fontSize: 22 }}>{props.greeting?.hello ?? title}</span>
+          <span style={{ fontSize: 12, opacity: 0.7 }}>{props.greeting?.date ?? ""}</span>
+          <span style={{ fontWeight: 800, fontSize: 22, letterSpacing: "-0.02em" }}>{props.greeting?.hello ?? title}</span>
         </div>
         {buttons.map((b) => (
           <span key={b} style={square}>
@@ -296,9 +333,10 @@ function Tabs({ look, dark, lang, defaultLang, editing }: ViewProps) {
   const labels = style.labels ?? "always";
   const middleOf = tabs.length % 2 === 1 && tabs.length >= 3 ? (tabs.length - 1) / 2 : -1;
   const center = design === "notch" ? middleOf : middleOf >= 0 && style.center && tabs[middleOf]?.id === style.center ? middleOf : -1;
-  const floatsItself = design === "glass" || design === "island" || design === "segment";
+  // 128 The floating pill floats too, 22 round unless the owner chose its corners.
+  const floatsItself = design === "glass" || design === "island" || design === "segment" || design === "float";
   const margin = style.margin ?? (floatsItself ? 12 : 0);
-  const radius = design === "island" ? 999 : (style.radius ?? (design === "glass" ? 26 : design === "segment" ? 18 : 0));
+  const radius = design === "island" ? 999 : (style.radius ?? (design === "glass" ? 26 : design === "segment" ? 18 : design === "float" ? 22 : 0));
   const selected = editing?.selectedId === "tabs";
   const onBar = design === "folder" ? "rgba(255,255,255,0.78)" : design === "island" ? "#8F9A95" : inactiveColour;
   const colours = ["#1F6F5C", "#B26A00", "#2F4FB5", "#7A2E8E"].map((c) => (dark ? readableOnDark(c) : c));
@@ -311,12 +349,12 @@ function Tabs({ look, dark, lang, defaultLang, editing }: ViewProps) {
         position: "relative",
         // The usual bar sits a little in from the phone's edges.
         margin: design === "island" ? `0 48px ${Math.max(margin, 12)}px` : margin ? `0 ${margin}px ${margin}px` : "0 10px 12px",
-        padding: design === "segment" ? "5px" : design === "folder" ? "14px 6px 8px" : "8px 6px",
+        padding: design === "segment" ? "5px" : design === "folder" ? "14px 6px 8px" : design === "float" ? "11px 6px" : "8px 6px",
         borderRadius: margin || design === "island" ? radius : radius || 18,
         background,
         backdropFilter: design === "glass" ? "blur(18px)" : undefined,
         border: design === "glass" ? `1px solid ${dark ? "rgba(255,255,255,0.14)" : "rgba(255,255,255,0.5)"}` : undefined,
-        boxShadow: design === "notch" ? undefined : "0 -2px 10px rgba(14,13,36,0.08)",
+        boxShadow: design === "notch" ? undefined : design === "float" ? "0 10px 30px rgba(0,0,0,0.18)" : "0 -2px 10px rgba(14,13,36,0.08)",
         // 119 The notch: a curved cut in the bar's top for the middle button.
         WebkitMaskImage: design === "notch" && center >= 0 ? "radial-gradient(circle 30px at 50% -6px, transparent 29px, #000 30px)" : undefined,
         maskImage: design === "notch" && center >= 0 ? "radial-gradient(circle 30px at 50% -6px, transparent 29px, #000 30px)" : undefined,
@@ -359,7 +397,7 @@ function Tabs({ look, dark, lang, defaultLang, editing }: ViewProps) {
         const key = tab?.id ?? "more";
         const tabKey = tab ? tab.id : "more";
         // 119 The open tab with its name beside its icon: a filled pill (lit on the island), a soft bubble or a raised segment; the others icons only.
-        if (design === "pill" || design === "bubble" || design === "island" || design === "segment") {
+        if (design === "pill" || design === "bubble" || design === "island" || design === "segment" || design === "float") {
           if (!active) {
             return (
               <div key={key} data-studio-tab={tabKey} title={label} style={{ display: "flex", flex: 1, justifyContent: "center", minWidth: 0 }}>
@@ -371,7 +409,7 @@ function Tabs({ look, dark, lang, defaultLang, editing }: ViewProps) {
           const ink = design === "bubble" || design === "segment" ? activeColour : onFill(activeColour);
           return (
             <div key={key} data-studio-tab={tabKey} data-studio-tab-design={design} title={label} style={{ display: "flex", flex: 1.6, justifyContent: "center", minWidth: 0 }}>
-              <span style={{ display: "flex", alignItems: "center", gap: 4, padding: "5px 10px", borderRadius: design === "segment" ? 12 : 16, minWidth: 0, background: fill, color: ink, fontWeight: 700, boxShadow: design === "segment" ? "0 2px 6px rgba(14,13,36,0.15)" : undefined }}>
+              <span style={{ display: "flex", alignItems: "center", gap: 4, padding: design === "float" ? "8px 14px" : "5px 10px", borderRadius: design === "segment" ? 12 : design === "float" ? 20 : 16, minWidth: 0, background: fill, color: ink, fontWeight: 700, boxShadow: design === "segment" ? "0 2px 6px rgba(14,13,36,0.15)" : undefined }}>
                 {glyph}
                 {labels !== "never" ? name : null}
               </span>
@@ -511,6 +549,7 @@ function Node(props: ViewProps & { node: StudioNode; parentDir: Dir; inStack?: I
   // 107.2 A hidden element shows only in the editor, faded.
   if (node.hidden && !editing) return null;
   const overlay = node.overlay ? tint(node.overlay.color, node.overlay.opacity) : null;
+  const scrim = node.scrim ? scrimCss(node.scrim, lang === "ar") : null;
   const decoration = [node.font?.underline ? "underline" : "", node.font?.strike ? "line-through" : ""].filter(Boolean).join(" ");
   const background = (dark ? (node.dark_background ?? node.background) : node.background) ?? undefined;
   const color = (dark ? (node.dark_color ?? node.color) : node.color) ?? undefined;
@@ -524,13 +563,14 @@ function Node(props: ViewProps & { node: StudioNode; parentDir: Dir; inStack?: I
     minHeight: node.min_height,
     aspectRatio: node.aspect_ratio ?? undefined,
     background: node.gradient ? `linear-gradient(${node.gradient.angle ?? 180}deg, ${node.gradient.from}, ${node.gradient.to})` : background,
-    backgroundImage: node.image_background_url ? `${overlay ? `linear-gradient(${overlay}, ${overlay}), ` : ""}url("${node.image_background_url}")` : undefined,
+    // 128 The shade for the words over it, then the colour over it, then the picture.
+    backgroundImage: node.image_background_url ? `${scrim ? `${scrim}, ` : ""}${overlay ? `linear-gradient(${overlay}, ${overlay}), ` : ""}url("${node.image_background_url}")` : undefined,
     backgroundSize: node.image_background_url ? "cover" : undefined,
     backgroundPosition: "center",
     color,
     ...cornersStyle(node),
     transform: node.rotation ? `rotate(${node.rotation}deg)` : undefined,
-    border: node.border_width && node.border_color ? `${node.border_width}px solid ${node.border_color}` : undefined,
+    border: node.border_width && node.border_color ? `${node.border_width}px solid ${(dark ? node.dark_border_color : null) ?? node.border_color}` : undefined,
     boxShadow: node.shadow && node.shadow !== "none" ? SHADOWS[node.shadow] : undefined,
     opacity: node.opacity,
     fontFamily: node.font?.family ? `'${node.font.family}', '${look.font}', sans-serif` : undefined,
@@ -546,6 +586,15 @@ function Node(props: ViewProps & { node: StudioNode; parentDir: Dir; inStack?: I
     alignSelf: node.self_align ? ITEMS[node.self_align] : (parentDir === "column" && node.width === "hug") || (parentDir === "row" && node.height === "hug") ? "flex-start" : undefined,
     overflow: node.radius || node.corners ? "hidden" : undefined,
   };
+  // 128 A colour over an element without a picture is its see-through background (a frosted button over a photo); 128.10 only
+  // inside a cover, so older pages draw such a colour as before (not at all).
+  if (props.inCover && overlay && !node.image_background_url && !node.gradient && !background) style.background = overlay;
+  // 128.10 In a row, its one text cut to its lines gives way to what follows it; the rest keep their width, as the app's.
+  if (parentDir === "row" && props.rowGivesWay) Object.assign(style, node.id === props.rowGivesWay ? { minWidth: 0, flexShrink: 1 } : { flexShrink: 0 });
+  // 128 A cover draws its own height, space inside, colour and corners (lib/pages/types.ts STUDIO_COVER_TYPES).
+  if (node.type === "photo_hero" || node.type === "map_header") {
+    for (const key of ["height", "paddingTop", "paddingBottom", "paddingInlineStart", "paddingInlineEnd", "background", "backgroundImage", "borderRadius", "overflow", "flexShrink"] as const) delete style[key];
+  }
   if (parentDir === "stack") {
     // 124.6 As the app's layers: after the first, an element filling the height fills the layer; any other is as tall as
     // what it holds, at its own alignment or the layer's (and as wide, when it hugs or has a width).
@@ -640,11 +689,32 @@ function Node(props: ViewProps & { node: StudioNode; parentDir: Dir; inStack?: I
       case "learning":
         // 123 The student's card as the app draws it, with sample learning.
         return <LearningCard node={n} dark={dark} color={color ?? null} words={p.learningWords ?? LEARNING_WORDS_EN} title={((lang !== defaultLang ? (n.translations?.[lang]?.title as string | undefined) : undefined) ?? n.title) || null} />;
+      case "live_status":
+        // 128 The person's order on its way, with sample words.
+        return <LiveStatusCard node={n} color={color ?? null} words={p.liveWords ?? LIVE_STATUS_WORDS_EN} />;
+      case "school":
+        // 128 The family's school day as the app draws it, with a sample family.
+        return <SchoolCard node={n} dark={dark} brand={look.brand} color={color ?? null} words={{ ...(p.schoolWords ?? SCHOOL_WORDS_EN), ...(p.greeting ? { date: p.greeting.date } : {}) }} title={text || null} />;
       case "market":
         // 115.14 The section as the app draws it, from the project's marketplace (the app's samples where it has none).
         return <MarketSection node={n} lang={lang} defaultLang={defaultLang} dark={dark} brand={look.brand} accent={look.accent} color={color} data={p.market} />;
       case "spacer":
         return null;
+      // 128 A photo with a scrim or a drawn map, what it holds over it, its last element hanging over its foot.
+      case "photo_hero":
+      case "map_header": {
+        const kids = n.children ?? [];
+        const hang = (n.overlap ?? 0) > 0 && kids.length ? kids[kids.length - 1]! : null;
+        // 128.10 What it holds may be see-through on it (a frosted button).
+        const inside = { ...p, inCover: true };
+        const front = Children({ ...inside, node: { ...n, type: "column", children: hang ? kids.slice(0, -1) : kids } });
+        return <Cover node={n} dark={dark} rtl={lang === "ar"} front={front} last={hang ? <Node {...inside} node={hang} parentDir="column" /> : null} />;
+      }
+      // 128 The person's shipment or ride on its way, or the taxis near them, and a greeting: samples here.
+      case "tracking":
+        return <TrackingCard node={n} lang={lang} dark={dark} brand={look.brand} second={look.accent} color={color} />;
+      case "greeting":
+        return <GreetingText lang={lang} sample={p.greeting?.hello} />;
       case "text":
         // 124.6 Its lines at most, the rest cut off as the app does (a line clamp needs the box).
         return <span style={{ display: n.max_lines ? "-webkit-box" : "block", WebkitBoxOrient: n.max_lines ? "vertical" : undefined, whiteSpace: "pre-wrap", WebkitLineClamp: n.max_lines ?? undefined, overflow: n.max_lines ? "hidden" : undefined }}>{text}</span>;
@@ -671,6 +741,7 @@ function Node(props: ViewProps & { node: StudioNode; parentDir: Dir; inStack?: I
             {/* eslint-disable-next-line @next/next/no-img-element -- any picture's link, drawn as the app draws it */}
             <img src={n.image_url} alt="" style={{ width: "100%", height: "100%", objectFit: n.fit ?? "cover", display: "block" }} />
             {overlay ? <span aria-hidden="true" data-studio-overlay="" style={{ position: "absolute", inset: 0, background: overlay }} /> : null}
+            {scrim ? <span aria-hidden="true" data-studio-scrim="" style={{ position: "absolute", inset: 0, background: scrim }} /> : null}
           </>
         ) : (
           <Placeholder icon="image" text={p.words.addPicture} />
@@ -789,6 +860,8 @@ function Node(props: ViewProps & { node: StudioNode; parentDir: Dir; inStack?: I
     const n = p.node;
     const dir: Dir = n.type === "row" && n.scroll ? "scroll" : n.type === "accordion" || n.type === "tabs" ? "column" : n.type === "row" || n.type === "column" || n.type === "stack" || n.type === "grid" || n.type === "slider" ? n.type : null;
     const kids = n.children ?? [];
+    // 128.10 Of the elements the app shows (it never gets the hidden ones).
+    const givesWay = dir === "row" ? textGivingWay(kids.filter((k) => !k.hidden)) : null;
     const drop = editing?.drop?.parentId === n.id ? editing.drop.index : null;
     const out: ReactNode[] = [];
     // 107.3 Tabs show the tab holding what's selected (the first otherwise); every question of an accordion shows open here, to be edited.
@@ -813,7 +886,7 @@ function Node(props: ViewProps & { node: StudioNode; parentDir: Dir; inStack?: I
       if (drop === i) out.push(<DropLine key={`drop${i}`} dir={dir} label={editing!.dropLabel} />);
       if (n.type === "tabs" && i !== shownTab) return;
       const width = n.type === "slider" ? { width: `${100 / (n.per_view ?? 1)}%` } : {};
-      const view = <Node {...p} node={child} parentDir={dir} inStack={dir === "stack" ? { first: i === 0, cross: n.cross } : undefined} />;
+      const view = <Node {...p} node={child} parentDir={dir} rowGivesWay={dir === "row" ? givesWay : null} inStack={dir === "stack" ? { first: i === 0, cross: n.cross } : undefined} />;
       out.push(
         n.type === "accordion" ? (
           <div key={child.id} style={{ display: "flex", flexDirection: "column", borderBottom: "1px solid rgba(127,127,127,0.25)", paddingBottom: 4 }}>
@@ -890,7 +963,7 @@ function Node(props: ViewProps & { node: StudioNode; parentDir: Dir; inStack?: I
         {shown.map((entry, i) =>
           n.card ? (
             <span key={entry.id} style={layout === "carousel" ? { flex: "0 0 60%" } : undefined}>
-              <CardOf {...p} node={n.card} entry={{ id: entry.id, title: entry.title, price: entry.price ?? "", subtitle: entry.subtitle ?? "", imageUrl: entry.imageUrl ?? null, badge: entry.badge ?? "" }} />
+              <CardOf {...p} node={n.card} entry={{ id: entry.id, title: entry.title, price: entry.price ?? "", subtitle: entry.subtitle ?? "", imageUrl: entry.imageUrl ?? null, badge: entry.badge ?? "", rating: entry.rating ?? null }} />
             </span>
           ) : (
             <span key={entry.id} data-studio-entry={entry.id} style={{ background: dark ? "#22203A" : "#FFFFFF", borderRadius: 14, padding: 8, boxShadow: "0 2px 6px rgba(20,54,31,0.08)", display: layout === "list" ? "flex" : "block", gap: 8, minWidth: 0, ...(layout === "carousel" ? { flex: "0 0 60%" } : {}) }}>
@@ -928,9 +1001,12 @@ function Node(props: ViewProps & { node: StudioNode; parentDir: Dir; inStack?: I
 }
 
 /** An items element's card for one entry: its bound elements show the entry. */
-function CardOf(props: ViewProps & { node: StudioNode; entry: { id: string; title: string; price: string; subtitle: string; imageUrl: string | null; badge: string } }) {
+function CardOf(props: ViewProps & { node: StudioNode; entry: { id: string; title: string; price: string; subtitle: string; imageUrl: string | null; badge: string; rating?: number | null } }) {
   const { entry } = props;
-  const bound = (node: StudioNode): string | null => (node.bind === "title" ? entry.title : node.bind === "price" ? entry.price : node.bind === "subtitle" ? entry.subtitle : node.bind === "badge" ? entry.badge : null);
+  // 128.8 A rating: the element's own text, a star and the rating; nothing without one.
+  const rating = (node: StudioNode): string => (entry.rating ? `${node.text ? `${node.text} ` : ""}★ ${entry.rating.toFixed(1)}` : "");
+  const bound = (node: StudioNode): string | null =>
+    node.bind === "title" ? entry.title : node.bind === "price" ? entry.price : node.bind === "subtitle" ? entry.subtitle : node.bind === "badge" ? entry.badge : node.bind === "rating" ? rating(node) : null;
   const fill = (node: StudioNode): StudioNode => ({
     ...node,
     ...(bound(node) !== null ? { text: bound(node)!, translations: undefined } : {}),

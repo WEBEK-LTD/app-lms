@@ -17,6 +17,8 @@ export interface PickableEntry {
   imageUrl?: string | null;
   price?: string | null;
   badge?: string | null;
+  /** 128.8 A course's rating, for a card's `rating` element. */
+  rating?: number | null;
 }
 
 /** Entries and categories the page editor offers to pick from. */
@@ -33,7 +35,7 @@ async function cardsOf(app: App, source: ItemSource, store: DataStore, now: Date
   if (!resolver) return new Map();
   try {
     const cards = await resolver({ appId: app.id, userId: null, lang: "en", store, now }, { limit: 50, category_id: null, featured: false, sort: "newest", ids: [] });
-    return new Map(cards.map((c) => [c.id, { id: c.id, title: c.title, subtitle: c.subtitle ?? null, imageUrl: c.image_url ?? null, price: c.price_label ?? null, badge: c.badge ?? null }]));
+    return new Map(cards.map((c) => [c.id, { id: c.id, title: c.title, subtitle: c.subtitle ?? null, imageUrl: c.image_url ?? null, price: c.price_label ?? null, badge: c.badge ?? null, rating: c.rating ?? null }]));
   } catch {
     return new Map();
   }
@@ -47,6 +49,7 @@ function cardFacts(x: Record<string, unknown>): Omit<PickableEntry, "id" | "titl
     imageUrl: text(x.image_url) ?? text(x.cover_url) ?? (Array.isArray(x.images) ? text(x.images[0]) : null),
     price: typeof price === "string" ? text(price) : text(price?.formatted),
     subtitle: text((x.instructor as { name?: unknown } | undefined)?.name) ?? text(x.subtitle),
+    rating: typeof x.rating === "number" && x.rating > 0 ? Math.round(x.rating * 10) / 10 : null,
   };
 }
 

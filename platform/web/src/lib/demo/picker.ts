@@ -128,7 +128,7 @@ export interface DemoItems {
 /** The entries each demo brings to its main list, counted from the demo's own definitions (lib/samples/demo.ts makes them). */
 const DEMO_ITEMS: Record<DemoId, () => DemoItems> = {
   lms: () => ({ list: "courses", noun: "courses", count: demoCourseSeeds(false).courses.length }),
-  premium_academy: () => ({ list: "courses", noun: "courses", count: demoCourseSeeds(false).courses.length }),
+  premium_academy: () => ({ list: "courses", noun: "courses", count: demoCourseSeeds(false, true).courses.length }),
   instructors: () => ({ list: "courses", noun: "courses", count: demoCourseSeeds(true).courses.length }),
   store: () => ({ list: "products", noun: "products", count: DEMO_PRODUCTS.length }),
   restaurant: () => ({ list: "products", noun: "dishes", count: DEMO_DISHES.length }),

@@ -1,0 +1,1476 @@
+{
+ "screens": {
+  "sign_in": {
+   "style": "photo",
+   "image_url": "http://localhost:3000/demo-photos/cover-market.jpg",
+   "title": {
+    "en": "Your neighbourhood, in one app",
+    "ar": "حيّك كله في تطبيق واحد",
+    "tr": "Mahalleniz tek bir uygulamada"
+   },
+   "subtitle": {
+    "en": "Fresh food and groceries from the places near you, at your door.",
+    "ar": "طعام طازج وبقالة من الأماكن القريبة منك حتى باب بيتك.",
+    "tr": "Yakınınızdaki yerlerden taze yemek ve market, kapınıza kadar."
+   },
+   "show_logo": true
+  },
+  "account_menu": {
+   "header": "night",
+   "accent": "#F2A93B",
+   "items": []
+  }
+ },
+ "layout": {
+  "appearance": {
+   "template": "bold",
+   "theme_mode": "system",
+   "user_can_change_mode": true,
+   "secondary_color": "#F2A93B",
+   "font": "Manrope",
+   "corners": "round",
+   "cards": "elevated"
+  },
+  "languages": {
+   "default": "en",
+   "available": [
+    "en",
+    "ar",
+    "tr"
+   ]
+  },
+  "tabs": [
+   {
+    "id": "home",
+    "label": "Home",
+    "icon": "home",
+    "target": {
+     "type": "page",
+     "page_slug": "home"
+    },
+    "translations": {
+     "ar": {
+      "label": "الرئيسية"
+     },
+     "tr": {
+      "label": "Ana sayfa"
+     }
+    }
+   },
+   {
+    "id": "shops",
+    "label": "Shops",
+    "icon": "grid_view",
+    "target": {
+     "type": "page",
+     "page_slug": "shops"
+    },
+    "translations": {
+     "ar": {
+      "label": "المحلات"
+     },
+     "tr": {
+      "label": "Dükkânlar"
+     }
+    }
+   },
+   {
+    "id": "cart",
+    "label": "Cart",
+    "icon": "shopping_bag",
+    "target": {
+     "type": "page",
+     "page_slug": "cart"
+    },
+    "translations": {
+     "ar": {
+      "label": "السلة"
+     },
+     "tr": {
+      "label": "Sepet"
+     }
+    }
+   },
+   {
+    "id": "orders",
+    "label": "Orders",
+    "icon": "receipt_long",
+    "target": {
+     "type": "page",
+     "page_slug": "orders"
+    },
+    "translations": {
+     "ar": {
+      "label": "الطلبات"
+     },
+     "tr": {
+      "label": "Siparişler"
+     }
+    }
+   },
+   {
+    "id": "account",
+    "label": "Account",
+    "icon": "person",
+    "target": {
+     "type": "page",
+     "page_slug": "account"
+    },
+    "translations": {
+     "ar": {
+      "label": "حسابي"
+     },
+     "tr": {
+      "label": "Hesabım"
+     }
+    }
+   }
+  ],
+  "pages": [
+   {
+    "slug": "home",
+    "title": "Home",
+    "show_title": false,
+    "updated_at": "2026-11-09T10:00:00.000Z",
+    "blocks": [],
+    "studio": {
+     "background": "#F6F3EE",
+     "dark_background": "#0D1712",
+     "body": {
+      "id": "demo-1",
+      "type": "column",
+      "padding": {
+       "top": 0,
+       "end": 0,
+       "bottom": 24,
+       "start": 0
+      },
+      "children": [
+       {
+        "id": "demo-2",
+        "type": "market",
+        "market": {
+         "section": "address",
+         "style": "bar"
+        },
+        "text": "Search products and shops",
+        "color": "#1E6B52",
+        "translations": {
+         "ar": {
+          "text": "دوّر على منتجات ومحلات"
+         },
+         "tr": {
+          "text": "Ürün ve dükkân arayın"
+         }
+        }
+       },
+       {
+        "id": "demo-30",
+        "type": "column",
+        "gap": 6,
+        "padding": {
+         "top": 8,
+         "end": 16,
+         "bottom": 8,
+         "start": 16
+        },
+        "margin": {
+         "top": 4,
+         "end": 0,
+         "bottom": 4,
+         "start": 0
+        },
+        "visibility": "signed_out",
+        "children": [
+         {
+          "id": "demo-29",
+          "type": "text",
+          "text": "This is a demo app. Sign in with +1 202 555 0123 and the code 246810. Anything you add is deleted after a day.",
+          "font": {
+           "size": 15,
+           "line_height": 1.5
+          }
+         }
+        ]
+       },
+       {
+        "id": "demo-3",
+        "type": "stack",
+        "name": "[This week's offer]",
+        "height": 150,
+        "radius": 22,
+        "margin": {
+         "top": 14,
+         "end": 16,
+         "bottom": 0,
+         "start": 16
+        },
+        "image_background_url": "http://localhost:3000/demo-photos/cover-market.jpg",
+        "scrim": {
+         "color": "#0E281E",
+         "from": 0.85,
+         "middle": 0.2,
+         "at": 70,
+         "to": 0.2,
+         "angle": 90
+        },
+        "action": {
+         "type": "screen",
+         "screen": "search"
+        },
+        "children": [
+         {
+          "id": "demo-4",
+          "type": "column",
+          "gap": 6,
+          "cross": "start",
+          "padding": {
+           "top": 18,
+           "end": 120,
+           "bottom": 0,
+           "start": 16
+          },
+          "color": "#FFFFFF",
+          "children": [
+           {
+            "id": "demo-5",
+            "type": "text",
+            "text": "This week",
+            "font": {
+             "size": 12,
+             "weight": 800,
+             "letter_spacing": 1.7,
+             "uppercase": true
+            },
+            "color": "#F2A93B",
+            "translations": {
+             "ar": {
+              "text": "الأسبوع ده"
+             },
+             "tr": {
+              "text": "Bu hafta"
+             }
+            }
+           },
+           {
+            "id": "demo-6",
+            "type": "text",
+            "text": "Fresh fruit, 15% off",
+            "max_lines": 2,
+            "font": {
+             "size": 22,
+             "weight": 800,
+             "line_height": 1.1
+            },
+            "color": "#FFFFFF",
+            "translations": {
+             "ar": {
+              "text": "فاكهة طازجة بخصم 15%"
+             },
+             "tr": {
+              "text": "Taze meyve %15 indirimli"
+             }
+            }
+           },
+           {
+            "id": "demo-7",
+            "type": "button",
+            "text": "Shop now",
+            "width": "hug",
+            "height": 32,
+            "radius": 16,
+            "background": "#FFFFFF",
+            "color": "#1E6B52",
+            "font": {
+             "size": 12,
+             "weight": 800
+            },
+            "padding": {
+             "top": 0,
+             "end": 12,
+             "bottom": 0,
+             "start": 12
+            },
+            "margin": {
+             "top": 6,
+             "end": 0,
+             "bottom": 0,
+             "start": 0
+            },
+            "action": {
+             "type": "screen",
+             "screen": "search"
+            },
+            "translations": {
+             "ar": {
+              "text": "اتسوّق دلوقتي"
+             },
+             "tr": {
+              "text": "Alışverişe başla"
+             }
+            }
+           }
+          ]
+         }
+        ]
+       },
+       {
+        "id": "demo-8",
+        "type": "grid",
+        "name": "Fruit",
+        "columns": 2,
+        "gap": 10,
+        "padding": {
+         "top": 14,
+         "end": 16,
+         "bottom": 0,
+         "start": 16
+        },
+        "children": [
+         {
+          "id": "demo-9",
+          "type": "stack",
+          "height": 112,
+          "radius": 20,
+          "image_background_url": "http://localhost:3000/demo-photos/fruit.jpg",
+          "scrim": {
+           "color": "#000000",
+           "from": 0,
+           "middle": 0,
+           "at": 40,
+           "to": 0.7
+          },
+          "action": {
+           "type": "screen",
+           "screen": "search"
+          },
+          "children": [
+           {
+            "id": "demo-10",
+            "type": "column",
+            "height": 112,
+            "align": "end",
+            "padding": {
+             "top": 0,
+             "end": 12,
+             "bottom": 10,
+             "start": 12
+            },
+            "color": "#FFFFFF",
+            "children": [
+             {
+              "id": "demo-11",
+              "type": "text",
+              "text": "Fruit",
+              "max_lines": 1,
+              "font": {
+               "size": 15,
+               "weight": 800
+              },
+              "color": "#FFFFFF",
+              "translations": {
+               "ar": {
+                "text": "فاكهة"
+               },
+               "tr": {
+                "text": "Meyve"
+               }
+              }
+             },
+             {
+              "id": "demo-12",
+              "type": "text",
+              "text": "Picked this morning",
+              "max_lines": 1,
+              "font": {
+               "size": 11
+              },
+              "opacity": 0.9,
+              "color": "#FFFFFF",
+              "translations": {
+               "ar": {
+                "text": "متقطفة الصبح"
+               },
+               "tr": {
+                "text": "Bu sabah toplandı"
+               }
+              }
+             }
+            ]
+           }
+          ]
+         },
+         {
+          "id": "demo-13",
+          "type": "stack",
+          "height": 112,
+          "radius": 20,
+          "image_background_url": "http://localhost:3000/demo-photos/vegetables.jpg",
+          "scrim": {
+           "color": "#000000",
+           "from": 0,
+           "middle": 0,
+           "at": 40,
+           "to": 0.7
+          },
+          "action": {
+           "type": "screen",
+           "screen": "search"
+          },
+          "children": [
+           {
+            "id": "demo-14",
+            "type": "column",
+            "height": 112,
+            "align": "end",
+            "padding": {
+             "top": 0,
+             "end": 12,
+             "bottom": 10,
+             "start": 12
+            },
+            "color": "#FFFFFF",
+            "children": [
+             {
+              "id": "demo-15",
+              "type": "text",
+              "text": "Vegetables",
+              "max_lines": 1,
+              "font": {
+               "size": 15,
+               "weight": 800
+              },
+              "color": "#FFFFFF",
+              "translations": {
+               "ar": {
+                "text": "خضار"
+               },
+               "tr": {
+                "text": "Sebze"
+               }
+              }
+             },
+             {
+              "id": "demo-16",
+              "type": "text",
+              "text": "Farm fresh",
+              "max_lines": 1,
+              "font": {
+               "size": 11
+              },
+              "opacity": 0.9,
+              "color": "#FFFFFF",
+              "translations": {
+               "ar": {
+                "text": "طازة من الأرض"
+               },
+               "tr": {
+                "text": "Tarladan taze"
+               }
+              }
+             }
+            ]
+           }
+          ]
+         },
+         {
+          "id": "demo-17",
+          "type": "stack",
+          "height": 112,
+          "radius": 20,
+          "image_background_url": "http://localhost:3000/demo-photos/bakery.jpg",
+          "scrim": {
+           "color": "#000000",
+           "from": 0,
+           "middle": 0,
+           "at": 40,
+           "to": 0.7
+          },
+          "action": {
+           "type": "screen",
+           "screen": "search"
+          },
+          "children": [
+           {
+            "id": "demo-18",
+            "type": "column",
+            "height": 112,
+            "align": "end",
+            "padding": {
+             "top": 0,
+             "end": 12,
+             "bottom": 10,
+             "start": 12
+            },
+            "color": "#FFFFFF",
+            "children": [
+             {
+              "id": "demo-19",
+              "type": "text",
+              "text": "Bakery",
+              "max_lines": 1,
+              "font": {
+               "size": 15,
+               "weight": 800
+              },
+              "color": "#FFFFFF",
+              "translations": {
+               "ar": {
+                "text": "مخبوزات"
+               },
+               "tr": {
+                "text": "Fırın"
+               }
+              }
+             },
+             {
+              "id": "demo-20",
+              "type": "text",
+              "text": "Baked today",
+              "max_lines": 1,
+              "font": {
+               "size": 11
+              },
+              "opacity": 0.9,
+              "color": "#FFFFFF",
+              "translations": {
+               "ar": {
+                "text": "مخبوزة النهارده"
+               },
+               "tr": {
+                "text": "Bugün pişti"
+               }
+              }
+             }
+            ]
+           }
+          ]
+         },
+         {
+          "id": "demo-21",
+          "type": "stack",
+          "height": 112,
+          "radius": 20,
+          "image_background_url": "http://localhost:3000/demo-photos/dairy.jpg",
+          "scrim": {
+           "color": "#000000",
+           "from": 0,
+           "middle": 0,
+           "at": 40,
+           "to": 0.7
+          },
+          "action": {
+           "type": "screen",
+           "screen": "search"
+          },
+          "children": [
+           {
+            "id": "demo-22",
+            "type": "column",
+            "height": 112,
+            "align": "end",
+            "padding": {
+             "top": 0,
+             "end": 12,
+             "bottom": 10,
+             "start": 12
+            },
+            "color": "#FFFFFF",
+            "children": [
+             {
+              "id": "demo-23",
+              "type": "text",
+              "text": "Dairy",
+              "max_lines": 1,
+              "font": {
+               "size": 15,
+               "weight": 800
+              },
+              "color": "#FFFFFF",
+              "translations": {
+               "ar": {
+                "text": "ألبان"
+               },
+               "tr": {
+                "text": "Süt ürünleri"
+               }
+              }
+             },
+             {
+              "id": "demo-24",
+              "type": "text",
+              "text": "Milk, cheese, eggs",
+              "max_lines": 1,
+              "font": {
+               "size": 11
+              },
+              "opacity": 0.9,
+              "color": "#FFFFFF",
+              "translations": {
+               "ar": {
+                "text": "لبن، جبنة، بيض"
+               },
+               "tr": {
+                "text": "Süt, peynir, yumurta"
+               }
+              }
+             }
+            ]
+           }
+          ]
+         }
+        ]
+       },
+       {
+        "id": "demo-25",
+        "type": "row",
+        "name": "Places near you",
+        "cross": "end",
+        "padding": {
+         "top": 16,
+         "end": 16,
+         "bottom": 8,
+         "start": 16
+        },
+        "children": [
+         {
+          "id": "demo-26",
+          "type": "text",
+          "text": "Places near you",
+          "width": "fill",
+          "font": {
+           "size": 17,
+           "weight": 800
+          },
+          "color": "#14231B",
+          "dark_color": "#EAF3EE",
+          "translations": {
+           "ar": {
+            "text": "أماكن جنبك"
+           },
+           "tr": {
+            "text": "Yakınınızdaki yerler"
+           }
+          }
+         },
+         {
+          "id": "demo-27",
+          "type": "text",
+          "text": "See all",
+          "font": {
+           "size": 13,
+           "weight": 700
+          },
+          "color": "#1E6B52",
+          "dark_color": "#7FD3AE",
+          "action": {
+           "type": "screen",
+           "screen": "search"
+          },
+          "translations": {
+           "ar": {
+            "text": "شوف الكل"
+           },
+           "tr": {
+            "text": "Tümünü gör"
+           }
+          }
+         }
+        ]
+       },
+       {
+        "id": "demo-28",
+        "type": "market",
+        "market": {
+         "section": "vendors",
+         "style": "chips",
+         "sort": "nearest",
+         "limit": 6
+        }
+       }
+      ]
+     }
+    }
+   },
+   {
+    "slug": "cart",
+    "title": "Cart",
+    "translations": {
+     "ar": {
+      "title": "السلة"
+     },
+     "tr": {
+      "title": "Sepet"
+     }
+    },
+    "studio": {
+     "body": {
+      "id": "demo-35",
+      "type": "column",
+      "children": []
+     },
+     "screen": "cart",
+     "header": {
+      "type": "title",
+      "title": "Cart",
+      "buttons": [
+       "notifications"
+      ],
+      "translations": {
+       "ar": {
+        "title": "السلة"
+       },
+       "tr": {
+        "title": "Sepet"
+       }
+      }
+     }
+    },
+    "show_title": false,
+    "updated_at": "2026-11-09T10:00:00.000Z",
+    "blocks": []
+   },
+   {
+    "slug": "orders",
+    "title": "Orders",
+    "translations": {
+     "ar": {
+      "title": "الطلبات"
+     },
+     "tr": {
+      "title": "Siparişler"
+     }
+    },
+    "studio": {
+     "body": {
+      "id": "demo-39",
+      "type": "column",
+      "children": [
+       {
+        "id": "demo-40",
+        "type": "live_status",
+        "live_status": {
+         "source": "market_order"
+        },
+        "visibility": "signed_in",
+        "radius": 18,
+        "background": "#1E6B52",
+        "color": "#FFFFFF",
+        "padding": {
+         "top": 12,
+         "end": 14,
+         "bottom": 12,
+         "start": 14
+        },
+        "margin": {
+         "top": 10,
+         "end": 16,
+         "bottom": 6,
+         "start": 16
+        }
+       }
+      ]
+     },
+     "screen": "food_orders",
+     "header": {
+      "type": "title",
+      "title": "Orders",
+      "buttons": [
+       "notifications"
+      ],
+      "translations": {
+       "ar": {
+        "title": "الطلبات"
+       },
+       "tr": {
+        "title": "Siparişler"
+       }
+      }
+     }
+    },
+    "show_title": false,
+    "updated_at": "2026-11-09T10:00:00.000Z",
+    "blocks": []
+   },
+   {
+    "slug": "account",
+    "title": "Account",
+    "translations": {
+     "ar": {
+      "title": "حسابي"
+     },
+     "tr": {
+      "title": "Hesabım"
+     }
+    },
+    "studio": {
+     "body": {
+      "id": "demo-41",
+      "type": "column",
+      "children": []
+     },
+     "screen": "account"
+    },
+    "show_title": false,
+    "updated_at": "2026-11-09T10:00:00.000Z",
+    "blocks": []
+   },
+   {
+    "slug": "shops",
+    "title": "Shops",
+    "translations": {
+     "ar": {
+      "title": "المحلات"
+     },
+     "tr": {
+      "title": "Dükkânlar"
+     }
+    },
+    "studio": {
+     "background": "#F6F3EE",
+     "dark_background": "#0D1712",
+     "body": {
+      "id": "demo-31",
+      "type": "column",
+      "padding": {
+       "top": 0,
+       "end": 0,
+       "bottom": 24,
+       "start": 0
+      },
+      "children": [
+       {
+        "id": "demo-32",
+        "type": "market",
+        "market": {
+         "section": "kinds"
+        },
+        "margin": {
+         "top": 8,
+         "end": 0,
+         "bottom": 0,
+         "start": 0
+        }
+       },
+       {
+        "id": "demo-33",
+        "type": "market",
+        "market": {
+         "section": "vendors",
+         "style": "cards",
+         "sort": "nearest",
+         "limit": 20
+        },
+        "title": "Every shop, one basket",
+        "margin": {
+         "top": 22,
+         "end": 0,
+         "bottom": 0,
+         "start": 0
+        },
+        "translations": {
+         "ar": {
+          "title": "كل المحلات في سلة واحدة"
+         },
+         "tr": {
+          "title": "Tüm dükkânlar, tek sepet"
+         }
+        }
+       },
+       {
+        "id": "demo-34",
+        "type": "market",
+        "market": {
+         "section": "club"
+        },
+        "title": "Free delivery on every order",
+        "text": "Join the club for free delivery and members' offers.",
+        "margin": {
+         "top": 10,
+         "end": 0,
+         "bottom": 0,
+         "start": 0
+        },
+        "translations": {
+         "ar": {
+          "text": "اشترك في النادي وخد توصيل ببلاش وعروض للأعضاء.",
+          "title": "توصيل ببلاش على كل طلب"
+         },
+         "tr": {
+          "text": "Ücretsiz teslimat ve üyelere özel kampanyalar için kulübe katılın.",
+          "title": "Her siparişte ücretsiz teslimat"
+         }
+        }
+       }
+      ]
+     },
+     "header": {
+      "type": "title",
+      "title": "Shops",
+      "buttons": [
+       "search",
+       "notifications"
+      ],
+      "translations": {
+       "ar": {
+        "title": "المحلات"
+       },
+       "tr": {
+        "title": "Dükkânlar"
+       }
+      }
+     }
+    },
+    "show_title": false,
+    "updated_at": "2026-11-09T10:00:00.000Z",
+    "blocks": []
+   },
+   {
+    "slug": "restaurants",
+    "title": "Restaurants",
+    "translations": {
+     "ar": {
+      "title": "المطاعم"
+     },
+     "tr": {
+      "title": "Restoranlar"
+     }
+    },
+    "studio": {
+     "body": {
+      "id": "demo-42",
+      "type": "column",
+      "children": []
+     },
+     "screen": "restaurants",
+     "header": {
+      "type": "title",
+      "title": "Restaurants",
+      "translations": {
+       "ar": {
+        "title": "المطاعم"
+       },
+       "tr": {
+        "title": "Restoranlar"
+       }
+      }
+     }
+    },
+    "show_title": false,
+    "updated_at": "2026-11-09T10:00:00.000Z",
+    "blocks": []
+   },
+   {
+    "slug": "settings",
+    "title": "Settings",
+    "translations": {
+     "ar": {
+      "title": "الإعدادات"
+     },
+     "tr": {
+      "title": "Ayarlar"
+     }
+    },
+    "studio": {
+     "body": {
+      "id": "demo-43",
+      "type": "column",
+      "children": []
+     },
+     "screen": "settings",
+     "header": {
+      "type": "title",
+      "title": "Settings",
+      "translations": {
+       "ar": {
+        "title": "الإعدادات"
+       },
+       "tr": {
+        "title": "Ayarlar"
+       }
+      }
+     }
+    },
+    "show_title": false,
+    "updated_at": "2026-11-09T10:00:00.000Z",
+    "blocks": []
+   },
+   {
+    "slug": "notifications",
+    "title": "Notifications",
+    "translations": {
+     "ar": {
+      "title": "الإشعارات"
+     },
+     "tr": {
+      "title": "Bildirimler"
+     }
+    },
+    "studio": {
+     "body": {
+      "id": "demo-44",
+      "type": "column",
+      "children": []
+     },
+     "screen": "notifications",
+     "header": {
+      "type": "title",
+      "title": "Notifications",
+      "translations": {
+       "ar": {
+        "title": "الإشعارات"
+       },
+       "tr": {
+        "title": "Bildirimler"
+       }
+      }
+     }
+    },
+    "show_title": false,
+    "updated_at": "2026-11-09T10:00:00.000Z",
+    "blocks": []
+   },
+   {
+    "slug": "search",
+    "title": "Search",
+    "translations": {
+     "ar": {
+      "title": "البحث"
+     },
+     "tr": {
+      "title": "Ara"
+     }
+    },
+    "studio": {
+     "body": {
+      "id": "demo-45",
+      "type": "column",
+      "children": []
+     },
+     "screen": "search",
+     "header": {
+      "type": "title",
+      "title": "Search",
+      "translations": {
+       "ar": {
+        "title": "البحث"
+       },
+       "tr": {
+        "title": "Ara"
+       }
+      }
+     }
+    },
+    "show_title": false,
+    "updated_at": "2026-11-09T10:00:00.000Z",
+    "blocks": []
+   },
+   {
+    "slug": "club",
+    "title": "Club",
+    "translations": {
+     "ar": {
+      "title": "النادي"
+     },
+     "tr": {
+      "title": "Kulüp"
+     }
+    },
+    "studio": {
+     "body": {
+      "id": "demo-46",
+      "type": "column",
+      "children": []
+     },
+     "screen": "club",
+     "header": {
+      "type": "title",
+      "title": "Club",
+      "translations": {
+       "ar": {
+        "title": "النادي"
+       },
+       "tr": {
+        "title": "Kulüp"
+       }
+      }
+     }
+    },
+    "show_title": false,
+    "updated_at": "2026-11-09T10:00:00.000Z",
+    "blocks": []
+   },
+   {
+    "slug": "edit-profile",
+    "title": "Edit profile",
+    "translations": {
+     "ar": {
+      "title": "تعديل الملف الشخصي"
+     },
+     "tr": {
+      "title": "Profili düzenle"
+     }
+    },
+    "studio": {
+     "body": {
+      "id": "demo-47",
+      "type": "column",
+      "children": []
+     },
+     "screen": "edit_profile",
+     "header": {
+      "type": "title",
+      "title": "Edit profile",
+      "translations": {
+       "ar": {
+        "title": "تعديل الملف الشخصي"
+       },
+       "tr": {
+        "title": "Profili düzenle"
+       }
+      }
+     }
+    },
+    "show_title": false,
+    "updated_at": "2026-11-09T10:00:00.000Z",
+    "blocks": []
+   },
+   {
+    "slug": "devices",
+    "title": "Devices",
+    "translations": {
+     "ar": {
+      "title": "الأجهزة"
+     },
+     "tr": {
+      "title": "Cihazlar"
+     }
+    },
+    "studio": {
+     "body": {
+      "id": "demo-48",
+      "type": "column",
+      "children": []
+     },
+     "screen": "devices",
+     "header": {
+      "type": "title",
+      "title": "Devices",
+      "translations": {
+       "ar": {
+        "title": "الأجهزة"
+       },
+       "tr": {
+        "title": "Cihazlar"
+       }
+      }
+     }
+    },
+    "show_title": false,
+    "updated_at": "2026-11-09T10:00:00.000Z",
+    "blocks": []
+   },
+   {
+    "slug": "change-password",
+    "title": "Change password",
+    "studio": {
+     "body": {
+      "id": "demo-49",
+      "type": "column",
+      "children": []
+     },
+     "screen": "change_password"
+    },
+    "show_title": false,
+    "updated_at": "2026-11-09T10:00:00.000Z",
+    "blocks": []
+   },
+   {
+    "slug": "chat-conversation",
+    "title": "A conversation",
+    "studio": {
+     "body": {
+      "id": "demo-50",
+      "type": "column",
+      "children": []
+     },
+     "screen": "chat_conversation"
+    },
+    "show_title": false,
+    "updated_at": "2026-11-09T10:00:00.000Z",
+    "blocks": []
+   },
+   {
+    "slug": "restaurant-menu",
+    "title": "A restaurant's menu",
+    "studio": {
+     "body": {
+      "id": "demo-51",
+      "type": "column",
+      "children": []
+     },
+     "screen": "restaurant_menu"
+    },
+    "show_title": false,
+    "updated_at": "2026-11-09T10:00:00.000Z",
+    "blocks": []
+   },
+   {
+    "slug": "food-order",
+    "title": "An order",
+    "studio": {
+     "body": {
+      "id": "demo-52",
+      "type": "column",
+      "children": []
+     },
+     "screen": "food_order"
+    },
+    "show_title": false,
+    "updated_at": "2026-11-09T10:00:00.000Z",
+    "blocks": []
+   },
+   {
+    "slug": "food-cart",
+    "title": "Your cart",
+    "translations": {
+     "ar": {
+      "title": "سلتك"
+     },
+     "tr": {
+      "title": "Sepetiniz"
+     }
+    },
+    "studio": {
+     "body": {
+      "id": "demo-53",
+      "type": "column",
+      "children": []
+     },
+     "screen": "food_cart",
+     "header": {
+      "type": "title",
+      "title": "Your cart",
+      "translations": {
+       "ar": {
+        "title": "سلتك"
+       },
+       "tr": {
+        "title": "Sepetiniz"
+       }
+      }
+     }
+    },
+    "show_title": false,
+    "updated_at": "2026-11-09T10:00:00.000Z",
+    "blocks": []
+   },
+   {
+    "slug": "market-vendor",
+    "title": "A place's page",
+    "studio": {
+     "body": {
+      "id": "demo-54",
+      "type": "column",
+      "children": []
+     },
+     "screen": "market_vendor"
+    },
+    "show_title": false,
+    "updated_at": "2026-11-09T10:00:00.000Z",
+    "blocks": []
+   },
+   {
+    "slug": "market-list",
+    "title": "A list of places",
+    "studio": {
+     "body": {
+      "id": "demo-55",
+      "type": "column",
+      "children": []
+     },
+     "screen": "market_list"
+    },
+    "show_title": false,
+    "updated_at": "2026-11-09T10:00:00.000Z",
+    "blocks": []
+   },
+   {
+    "slug": "market-checkout",
+    "title": "Checkout",
+    "translations": {
+     "ar": {
+      "title": "إتمام الطلب"
+     },
+     "tr": {
+      "title": "Ödeme"
+     }
+    },
+    "studio": {
+     "body": {
+      "id": "demo-56",
+      "type": "column",
+      "children": []
+     },
+     "screen": "market_checkout",
+     "header": {
+      "type": "title",
+      "title": "Checkout",
+      "translations": {
+       "ar": {
+        "title": "إتمام الطلب"
+       },
+       "tr": {
+        "title": "Ödeme"
+       }
+      }
+     }
+    },
+    "show_title": false,
+    "updated_at": "2026-11-09T10:00:00.000Z",
+    "blocks": []
+   },
+   {
+    "slug": "market-orders",
+    "title": "My orders",
+    "translations": {
+     "ar": {
+      "title": "طلباتي"
+     },
+     "tr": {
+      "title": "Siparişlerim"
+     }
+    },
+    "studio": {
+     "body": {
+      "id": "demo-57",
+      "type": "column",
+      "children": []
+     },
+     "screen": "market_orders",
+     "header": {
+      "type": "title",
+      "title": "My orders",
+      "translations": {
+       "ar": {
+        "title": "طلباتي"
+       },
+       "tr": {
+        "title": "Siparişlerim"
+       }
+      }
+     }
+    },
+    "show_title": false,
+    "updated_at": "2026-11-09T10:00:00.000Z",
+    "blocks": []
+   },
+   {
+    "slug": "market-order",
+    "title": "An order",
+    "studio": {
+     "body": {
+      "id": "demo-58",
+      "type": "column",
+      "children": []
+     },
+     "screen": "market_order"
+    },
+    "show_title": false,
+    "updated_at": "2026-11-09T10:00:00.000Z",
+    "blocks": []
+   },
+   {
+    "slug": "market-wallet",
+    "title": "Wallet",
+    "translations": {
+     "ar": {
+      "title": "المحفظة"
+     },
+     "tr": {
+      "title": "Cüzdan"
+     }
+    },
+    "studio": {
+     "body": {
+      "id": "demo-59",
+      "type": "column",
+      "children": []
+     },
+     "screen": "market_wallet",
+     "header": {
+      "type": "title",
+      "title": "Wallet",
+      "translations": {
+       "ar": {
+        "title": "المحفظة"
+       },
+       "tr": {
+        "title": "Cüzdan"
+       }
+      }
+     }
+    },
+    "show_title": false,
+    "updated_at": "2026-11-09T10:00:00.000Z",
+    "blocks": []
+   },
+   {
+    "slug": "market-complain",
+    "title": "Report a problem",
+    "translations": {
+     "ar": {
+      "title": "الإبلاغ عن مشكلة"
+     },
+     "tr": {
+      "title": "Sorun bildir"
+     }
+    },
+    "studio": {
+     "body": {
+      "id": "demo-60",
+      "type": "column",
+      "children": []
+     },
+     "screen": "market_complain",
+     "header": {
+      "type": "title",
+      "title": "Report a problem",
+      "translations": {
+       "ar": {
+        "title": "الإبلاغ عن مشكلة"
+       },
+       "tr": {
+        "title": "Sorun bildir"
+       }
+      }
+     }
+    },
+    "show_title": false,
+    "updated_at": "2026-11-09T10:00:00.000Z",
+    "blocks": []
+   },
+   {
+    "slug": "market-complaint",
+    "title": "A complaint",
+    "studio": {
+     "body": {
+      "id": "demo-61",
+      "type": "column",
+      "children": []
+     },
+     "screen": "market_complaint"
+    },
+    "show_title": false,
+    "updated_at": "2026-11-09T10:00:00.000Z",
+    "blocks": []
+   }
+  ],
+  "tab_bar": {
+   "design": "classic",
+   "active": "#1E6B52",
+   "dark_active": "#7FD3AE",
+   "labels": "always"
+  }
+ }
+}

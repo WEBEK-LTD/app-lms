@@ -1,6 +1,7 @@
 import type { TabBarStyle } from "../pages/types";
 import type { StudioScreens } from "../studio/screens";
 import { ACADEMY_PROJECT } from "../studio/academy";
+import { demoDesignBar } from "../studio/demo-designs";
 import { PREMIUM_ACADEMY_DEMO, type StudioDemoId } from "./constants";
 
 /**
@@ -12,12 +13,13 @@ import { PREMIUM_ACADEMY_DEMO, type StudioDemoId } from "./constants";
  * a welcome in each of the demo's languages (the app's Arabic is formal).
  */
 interface DemoScreens {
-  style: "photo" | "card" | "minimal";
+  /** 128 `premium`: the welcome large over the photo, the form on a card (Nakhla School, Rawaq Academy). */
+  style: "photo" | "card" | "minimal" | "premium";
   /** Under public/, served by the platform. */
   photo?: string;
   title: Record<"en" | "ar" | "tr", string>;
   subtitle: Record<"en" | "ar" | "tr", string>;
-  menu: "plain" | "card" | "cover" | "tiles" | "night";
+  menu: "plain" | "card" | "cover" | "tiles" | "night" | "academy";
   /** `night`: the membership card's colour. */
   accent?: string;
 }
@@ -35,28 +37,30 @@ export const DEMO_SCREENS: Record<Exclude<StudioDemoId, typeof PREMIUM_ACADEMY_D
     },
     menu: "tiles",
   },
+  // 128 The approved home's photo and words: tonight's table.
   food: {
     style: "photo",
     photo: "/demo-screens/sofra-mezze.jpg",
-    title: { en: "Hungry? We're on our way", ar: "جائع؟ نحن في الطريق", tr: "Acıktınız mı? Yoldayız" },
+    title: { en: "Tonight’s table is set.", ar: "سفرة الليلة جاهزة.", tr: "Bu akşamın sofrası hazır." },
     subtitle: {
-      en: "Sign in to order from your favourite restaurants.",
-      ar: "سجّل الدخول لتطلب من مطاعمك المفضلة.",
-      tr: "En sevdiğiniz restoranlardan sipariş vermek için giriş yapın.",
+      en: "Sign in to order from the restaurants near you.",
+      ar: "سجّل الدخول لتطلب من المطاعم القريبة منك.",
+      tr: "Yakınınızdaki restoranlardan sipariş vermek için giriş yapın.",
     },
     menu: "cover",
   },
+  // 128 The approved home's market photo, its green and amber.
   marketplace: {
-    style: "card",
-    photo: "/stories/multi-vendor/zad-market-aisle.jpg",
+    style: "photo",
+    photo: "/demo-photos/cover-market.jpg",
     title: { en: "Your neighbourhood, in one app", ar: "حيّك كله في تطبيق واحد", tr: "Mahalleniz tek bir uygulamada" },
     subtitle: {
-      en: "Restaurants and the supermarket, delivered to your door.",
-      ar: "المطاعم والسوبرماركت حتى باب بيتك.",
-      tr: "Restoranlar ve market, kapınıza kadar.",
+      en: "Fresh food and groceries from the places near you, at your door.",
+      ar: "طعام طازج وبقالة من الأماكن القريبة منك حتى باب بيتك.",
+      tr: "Yakınınızdaki yerlerden taze yemek ve market, kapınıza kadar.",
     },
     menu: "night",
-    accent: "#D9B36C",
+    accent: "#F2A93B",
   },
   rides: {
     style: "card",
@@ -82,7 +86,8 @@ export const DEMO_SCREENS: Record<Exclude<StudioDemoId, typeof PREMIUM_ACADEMY_D
     accent: "#F5B700",
   },
   school: {
-    style: "card",
+    // 128 In the approved home's language: the welcome large over the school's photo.
+    style: "premium",
     // The school's building: no photo of real children.
     photo: "/demo-screens/nakhla-school.jpg",
     title: { en: "Every school day, in one place", ar: "كل يوم دراسي في مكان واحد", tr: "Her okul günü tek bir yerde" },
@@ -91,7 +96,7 @@ export const DEMO_SCREENS: Record<Exclude<StudioDemoId, typeof PREMIUM_ACADEMY_D
       ar: "الحصص والواجبات والدرجات والرسوم للطلاب وأولياء الأمور والمعلمين.",
       tr: "Öğrenciler, veliler ve öğretmenler için dersler, ödevler, notlar ve ücretler.",
     },
-    menu: "card",
+    menu: "cover",
   },
   // 126 Safra: the resort's pool at dusk, ink and gold.
   travel: {
@@ -107,7 +112,8 @@ export const DEMO_SCREENS: Record<Exclude<StudioDemoId, typeof PREMIUM_ACADEMY_D
     accent: "#C9A063",
   },
   instructors: {
-    style: "card",
+    // 128 In the approved home's language: the welcome large over the library, the student's card in the account.
+    style: "premium",
     photo: "/demo-screens/rawaq-library.jpg",
     title: { en: "Learn from the best teachers", ar: "تعلّم من أفضل المدرّسين", tr: "En iyi öğretmenlerden öğrenin" },
     subtitle: {
@@ -115,7 +121,7 @@ export const DEMO_SCREENS: Record<Exclude<StudioDemoId, typeof PREMIUM_ACADEMY_D
       ar: "تابع مدرّسيك وأكمل من حيث توقفت.",
       tr: "Öğretmenlerinizi takip edin, kaldığınız yerden devam edin.",
     },
-    menu: "tiles",
+    menu: "academy",
   },
 };
 
@@ -132,6 +138,14 @@ export function demoStudioScreens(id: StudioDemoId, platformUrl: string): Studio
       show_logo: true,
     },
     account_menu: { header: d.menu, ...(d.accent ? { accent: d.accent } : {}), items: [] },
+    // 128 Rawaq Academy's courses, lessons and cart in the premium screens' looks, in its own green and gold.
+    ...(id === "instructors"
+      ? {
+          course_card: { style: "premium" as const, radius: 18, hide: [] },
+          course_page: { cover: "full" as const, bar: "glass" as const, hide: [], look: "premium" as const },
+          looks: { catalog: "explore" as const, my_courses: "premium" as const, lesson: "premium" as const, code: "premium" as const, cart: "premium" as const },
+        }
+      : {}),
   };
 }
 
@@ -142,15 +156,17 @@ export function demoStudioScreens(id: StudioDemoId, platformUrl: string): Studio
  * photo, a segmented track.
  */
 export const DEMO_TAB_BARS: Record<StudioDemoId, TabBarStyle> = {
-  delivery: { design: "line" },
-  food: { design: "bubble" },
-  marketplace: { design: "glass" },
-  rides: { design: "lift" },
+  // 128 The approved bars (lib/studio/demo-designs): Sahm Express's and Masar Rides's across the bottom with the open tab's icon in a soft pill, Sofra Eats's floating pill, Zad's five named tabs.
+  delivery: demoDesignBar("delivery"),
+  food: demoDesignBar("food"),
+  marketplace: demoDesignBar("marketplace"),
+  rides: demoDesignBar("rides"),
   taxi: { design: "island", dark_active: "#F5B700" },
-  school: { design: "classic", avatar: true },
-  instructors: { design: "segment" },
-  // 126 The dot under the open tab, as the travel designs have it.
-  travel: { design: "dot", active: "#0E1424", dark_active: "#C9A063" },
-  // 123 The premium academy's frosted floating bar, as its template has it.
+  // 128 Nakhla School's and Rawaq Academy's: the open tab's icon in a soft pill over its name, on the board's surface.
+  school: demoDesignBar("school"),
+  instructors: demoDesignBar("instructors"),
+  // 126 Safra's: the dot under the open tab, as the travel designs have it (128 from its design, lib/studio/demo-designs).
+  travel: demoDesignBar("travel"),
+  // 123 The premium academy's bar as its template has it (128.8 a floating navy pill, the open tab on gold).
   premium_academy: ACADEMY_PROJECT.tab_bar,
 };

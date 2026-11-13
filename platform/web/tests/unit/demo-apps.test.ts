@@ -18,7 +18,7 @@ import { PICTURES } from "@/lib/demo/pictures";
 import { SCHOOL_CLASSES, SCHOOL_HOMEWORK, SCHOOL_STAFF, SCHOOL_SUBJECTS, SCHOOL_TEACHERS } from "@/lib/demo/school";
 import { ACADEMY_COURSES, ACADEMY_TEACHERS } from "@/lib/demo/teachers";
 import { DemoSetupError, setupDemoApps, type DemoSetupDeps } from "@/lib/demo/setup";
-import { DEMO_SCREENS } from "@/lib/demo/screens";
+import { DEMO_SCREENS, DEMO_TAB_BARS } from "@/lib/demo/screens";
 import type { StudioScreens } from "@/lib/studio/screens";
 import { existsSync } from "node:fs";
 import { join } from "node:path";
@@ -180,7 +180,8 @@ describe("creating the demo apps", { timeout: 20_000 }, () => {
     expect(food).toMatchObject({ appName: "Sofra Eats", connector: { kind: "restaurants" } });
     const restaurants = await store.listRestaurants(food.id);
     expect(restaurants.map((r) => r.name)).toEqual(DEMO_RESTAURANTS.map((r) => r.name));
-    const menu = (await store.getRestaurantMenu(food.id, restaurants[0]!.id))!;
+    // 128 Bayt El Koshary is the third kitchen now, after the grill and the pizza.
+    const menu = (await store.getRestaurantMenu(food.id, restaurants.find((r) => r.name === "Bayt El Koshary")!.id))!;
     expect(menu.sections.flatMap((s) => s.dishes).find((d) => d.name === "Koshary")?.choiceGroups[0]).toMatchObject({ name: "Size", min: 1, max: 1 });
     expect(restaurants.every((r) => r.hours.length === 7 && r.active)).toBe(true);
     expect(rides).toMatchObject({ appName: "Masar Rides", connector: { kind: "rides" } });
@@ -579,20 +580,20 @@ describe("signing in to a demo app", () => {
       expect(screens.sign_in?.title.tr, id).toBeTruthy();
       expect(screens.account_menu?.header, id).not.toBe("plain");
       // Their photos are the website's own, credit-free ones (123 the premium academy's, its own picture).
-      if (screens.sign_in?.style !== "minimal") expect(screens.sign_in?.image_url, id).toMatch(/^https:\/\/yallapp\.test\/(stories|demo-screens|design-pictures)\/.+\.jpg$/);
+      if (screens.sign_in?.style !== "minimal") expect(screens.sign_in?.image_url, id).toMatch(/^https:\/\/yallapp\.test\/(stories|demo-screens|demo-photos|design-pictures)\/.+\.jpg$/);
     }
     expect((await config("taxi"))?.account_menu).toMatchObject({ header: "night", accent: "#F5B700" });
-    // 119 Their bars in their own designs.
+    // 119 Their bars in their own designs; 128 as their approved boards have them (several the same classic bar in their own colours), 126 Safra's the dot under the open tab.
     const bars = new Set<string>();
     for (const id of STUDIO_DEMO_TYPES) {
       const app = (await store.getAppById(result.apps.find((a) => a.type === id)!.appId))!;
       const res = await handleHosted(context(app), { method: "GET", path: ["pages"], query: new URLSearchParams({ platform: "android", app_version: "1.0.0" }), body: undefined, token: null });
       expectContract("GET", "/pages", res);
       const bar = (res.body as { tab_bar?: { design?: string } }).tab_bar;
-      expect(bar?.design, id).toBeTruthy();
+      expect(bar?.design, id).toBe(DEMO_TAB_BARS[id].design);
       bars.add(bar!.design!);
     }
-    expect(bars.size).toBeGreaterThanOrEqual(5);
+    expect([...bars].sort()).toEqual(["classic", "dot", "float", "island"]);
     expect(await config("store")).toBeUndefined();
     for (const d of Object.values(DEMO_SCREENS)) if (d.photo) expect(existsSync(join(process.cwd(), "public", d.photo)), d.photo).toBe(true);
   });

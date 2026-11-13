@@ -11,6 +11,7 @@ import '../../../core/gate/app_gate.dart';
 import '../../../core/l10n/l10n.dart';
 import '../../../core/routing/paths.dart';
 import '../../../core/theme/palette.dart';
+import '../../../core/widgets/common.dart';
 import '../coursework/coursework_providers.dart';
 import '../data/lms_providers.dart';
 import '../learning/learning_providers.dart';
@@ -69,9 +70,18 @@ class StudioLearningCard extends ConsumerWidget {
     required this.color,
     required this.title,
     required this.dark,
+    this.style = StudioLearningStyle.card,
+    this.ownPicture = false,
   });
 
   final StudioLearningSection section;
+
+  /// 128.8 On a photo, as the approved academy home draws them.
+  final StudioLearningStyle style;
+
+  /// 128.8 Whether the element has its own picture (drawn under the card);
+  /// without one the course they are taking shows its own.
+  final bool ownPicture;
 
   /// The element's own text colour; null, the card's.
   final Color? color;
@@ -82,6 +92,30 @@ class StudioLearningCard extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    if (style == StudioLearningStyle.photo) {
+      switch (section) {
+        case StudioLearningSection.continueCourse:
+          return PhotoContinueCard(
+            course: _taking(ref)!,
+            color: color,
+            ownPicture: ownPicture,
+          );
+        case StudioLearningSection.live:
+          return PhotoLiveCard(
+            live: _nextLive(ref)!,
+            now: ref.watch(pageClockProvider)(),
+            color: color,
+          );
+        case StudioLearningSection.streak:
+          return CompactStreakCard(
+            days: ref.watch(achievementsProvider).value?.streakDays ?? 0,
+            color: color,
+            title: title,
+          );
+        case StudioLearningSection.week:
+          break;
+      }
+    }
     return switch (section) {
       StudioLearningSection.continueCourse => _Continue(
         course: _taking(ref)!,
@@ -609,6 +643,312 @@ class LearningWeek extends StatelessWidget {
                   ),
                 ],
               ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+/// 128.8 The board's gold for fills (how far they are, the live class's
+/// time), as approved for the premium academy.
+const _goldFill = Color(0xFFE6C26E);
+
+/// 128.8 The course the student is taking over its photo (the element's
+/// own picture, drawn under it, else the course's) with a dark scrim: the
+/// lesson they are on and the minutes left on one chip, the course's name,
+/// how far they are in gold and a round play button.
+class PhotoContinueCard extends StatelessWidget {
+  const PhotoContinueCard({
+    super.key,
+    required this.course,
+    required this.color,
+    required this.ownPicture,
+  });
+
+  final MyCourse course;
+  final Color? color;
+  final bool ownPicture;
+
+  @override
+  Widget build(BuildContext context) {
+    final l10n = context.l10n;
+    final ink = color ?? Colors.white;
+    final progress = course.progress;
+    final current = (progress.completedItems + 1).clamp(
+      1,
+      progress.totalItems < 1 ? 1 : progress.totalItems,
+    );
+    final minutes = course.nextItem?.durationMinutes;
+    final chip = [
+      l10n.learningLessonShort(current, progress.totalItems),
+      if (minutes != null) l10n.learningMinutesLeft(minutes),
+    ].join(' · ');
+    final picture = ownPicture ? null : course.course.imageUrl;
+    return Semantics(
+      button: true,
+      label: course.course.title,
+      child: InkWell(
+        key: const ValueKey('learning-continue-photo'),
+        onTap: () => continueCourse(context, course),
+        child: SizedBox(
+          height: 236,
+          child: Stack(
+            fit: StackFit.expand,
+            children: [
+              if (picture != null) AppNetworkImage(url: picture),
+              const DecoratedBox(
+                decoration: BoxDecoration(
+                  gradient: LinearGradient(
+                    begin: Alignment.topCenter,
+                    end: Alignment.bottomCenter,
+                    colors: [Color(0x260E1228), Color(0xEB0E1228)],
+                  ),
+                ),
+              ),
+              PositionedDirectional(
+                start: 14,
+                top: 14,
+                end: 14,
+                child: Align(
+                  alignment: AlignmentDirectional.centerStart,
+                  child: Container(
+                    key: const ValueKey('learning-photo-chip'),
+                    height: 26,
+                    padding: const EdgeInsets.symmetric(horizontal: 10),
+                    decoration: BoxDecoration(
+                      color: const Color(0x33FFFFFF),
+                      borderRadius: BorderRadius.circular(13),
+                    ),
+                    child: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Flexible(
+                          child: Text(
+                            chip,
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                            style: const TextStyle(
+                              fontSize: 11,
+                              fontWeight: FontWeight.w800,
+                              color: Colors.white,
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+              ),
+              PositionedDirectional(
+                start: 16,
+                end: 16,
+                bottom: 16,
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Text(
+                      course.course.title,
+                      maxLines: 2,
+                      overflow: TextOverflow.ellipsis,
+                      style: TextStyle(
+                        fontSize: 22,
+                        height: 1.1,
+                        fontWeight: FontWeight.w800,
+                        color: ink,
+                      ),
+                    ),
+                    const SizedBox(height: 12),
+                    Row(
+                      children: [
+                        Expanded(
+                          child: ClipRRect(
+                            borderRadius: BorderRadius.circular(3),
+                            child: Container(
+                              key: const ValueKey('learning-photo-progress'),
+                              height: 5,
+                              color: const Color(0x4DFFFFFF),
+                              alignment: AlignmentDirectional.centerStart,
+                              child: FractionallySizedBox(
+                                widthFactor: (progress.percent / 100).clamp(
+                                  0.0,
+                                  1.0,
+                                ),
+                                heightFactor: 1,
+                                child: const DecoratedBox(
+                                  decoration: BoxDecoration(color: _goldFill),
+                                ),
+                              ),
+                            ),
+                          ),
+                        ),
+                        const SizedBox(width: 10),
+                        Container(
+                          width: 44,
+                          height: 44,
+                          decoration: const BoxDecoration(
+                            color: Colors.white,
+                            shape: BoxShape.circle,
+                          ),
+                          child: const Icon(
+                            Symbols.play_arrow_rounded,
+                            fill: 1,
+                            size: 24,
+                            color: Color(0xFF1D2B4F),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+/// 128.8 The student's next live class on the element's photo: when it
+/// starts in gold, with a dot, over its name.
+class PhotoLiveCard extends StatelessWidget {
+  const PhotoLiveCard({
+    super.key,
+    required this.live,
+    required this.now,
+    required this.color,
+  });
+
+  final LiveSession live;
+  final DateTime now;
+  final Color? color;
+
+  @override
+  Widget build(BuildContext context) {
+    final l10n = context.l10n;
+    final ink = color ?? Colors.white;
+    final starts = live.startsAt.toLocal();
+    final time = clockTime(starts);
+    final when = !starts.isAfter(now)
+        ? l10n.learningLiveNowShort
+        : DateUtils.isSameDay(starts, now)
+        ? l10n.learningLiveAt(time)
+        : l10n.learningLiveOn(dayLabel(starts), time).toUpperCase();
+    return Semantics(
+      button: true,
+      label: live.title,
+      child: InkWell(
+        key: const ValueKey('learning-live-photo'),
+        onTap: () => context.push(Paths.liveSession(live.id)),
+        child: Padding(
+          padding: const EdgeInsets.all(12),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Row(
+                children: [
+                  Container(
+                    width: 6,
+                    height: 6,
+                    decoration: const BoxDecoration(
+                      color: _goldFill,
+                      shape: BoxShape.circle,
+                    ),
+                  ),
+                  const SizedBox(width: 4),
+                  Flexible(
+                    child: Text(
+                      when,
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                      style: const TextStyle(
+                        fontSize: 11,
+                        fontWeight: FontWeight.w800,
+                        color: _goldFill,
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 4),
+              Text(
+                live.title,
+                maxLines: 2,
+                overflow: TextOverflow.ellipsis,
+                style: TextStyle(
+                  fontSize: 15,
+                  fontWeight: FontWeight.w800,
+                  height: 1.25,
+                  color: ink,
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+/// 128.8 The days in a row as one figure, beside the live class.
+class CompactStreakCard extends StatelessWidget {
+  const CompactStreakCard({
+    super.key,
+    required this.days,
+    required this.color,
+    required this.title,
+  });
+
+  final int days;
+  final Color? color;
+  final String? title;
+
+  @override
+  Widget build(BuildContext context) {
+    final l10n = context.l10n;
+    final p = context.palette;
+    return Padding(
+      key: const ValueKey('learning-streak-compact'),
+      padding: const EdgeInsets.all(12),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Row(
+            children: [
+              const Icon(
+                Symbols.local_fire_department_rounded,
+                fill: 1,
+                size: 16,
+                color: Color(0xFFE8742F),
+              ),
+              const SizedBox(width: 4),
+              Flexible(
+                child: Text(
+                  title ?? l10n.learningStreakShort,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  style: TextStyle(fontSize: 12, color: p.textSecondary),
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 4),
+          FittedBox(
+            fit: BoxFit.scaleDown,
+            alignment: AlignmentDirectional.centerStart,
+            child: Text(
+              '$days ${l10n.learningStreakDays(days)}',
+              maxLines: 1,
+              style: TextStyle(
+                fontSize: 22,
+                fontWeight: FontWeight.w800,
+                color: color ?? p.text,
+              ),
             ),
           ),
         ],

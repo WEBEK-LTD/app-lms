@@ -283,8 +283,8 @@ test("124.6 Academy: the premium academy's whole project from App setup, then sh
   await expectChosen("studio-academy_premium");
   // With pages of its own, its pages and look unless the owner keeps theirs.
   await expect(take().getByRole("radio", { name: "Its pages and look" })).toBeChecked();
-  // The template's font comes with it.
-  await expect(own.getByLabel("Font", { exact: true })).toHaveValue("Alexandria");
+  // The template's font comes with it (128.8 Manrope).
+  await expect(own.getByLabel("Font", { exact: true })).toHaveValue("Manrope");
   await own.getByRole("button", { name: "Save & continue" }).click();
   await expect(own).toHaveURL(/step=listing$/);
   // The project as a new one from the template starts: its tabs, with the blog of the website from sign-up.
@@ -402,7 +402,7 @@ test("124.11 a project's file brings the whole app into another project: pages, 
   const file = JSON.parse(readFileSync((await exported.path())!, "utf8"));
   expect(file.kind).toBe("project");
   expect(file.look.tabs.map((t: { label: string }) => t.label)).toEqual(["Home", "Explore", "Blog", "My courses", "Account"]);
-  expect(file.look.tab_bar).toMatchObject({ design: "glass" });
+  expect(file.look.tab_bar).toMatchObject({ design: "float", margin: 12 });
   expect(file.look.screens.looks).toMatchObject({ my_courses: "premium", lesson: "premium" });
   // As another owner's brand would have it.
   file.look.primary_color = "#002F5D";

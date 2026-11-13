@@ -82,13 +82,15 @@ class AcademyAccountLook extends ConsumerWidget {
             padding: const EdgeInsets.fromLTRB(18, 16, 18, 16),
             decoration: BoxDecoration(
               borderRadius: BorderRadius.circular(26),
-              gradient: const LinearGradient(
+              // 128.8 In the academy's main colour (navy in Ufuq Academy),
+              // as the approved home's bar and hero: deeper at one corner.
+              gradient: LinearGradient(
                 begin: Alignment.topRight,
                 end: Alignment.bottomLeft,
                 colors: [
-                  Color(0xFF1C1710),
-                  Color(0xFF3A2D18),
-                  Color(0xFF6E5427),
+                  Color.lerp(p.primary, Colors.black, 0.45)!,
+                  Color.lerp(p.primary, Colors.black, 0.15)!,
+                  Color.lerp(p.primary, Colors.white, 0.1)!,
                 ],
               ),
               boxShadow: [

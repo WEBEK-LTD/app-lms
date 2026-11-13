@@ -71,9 +71,13 @@ import {
   STUDIO_MARKET_KINDS,
   STUDIO_MARKET_SECTIONS,
   STUDIO_LEARNING_SECTIONS,
+  STUDIO_LIVE_SOURCES,
+  STUDIO_SCHOOL_SECTIONS,
   STUDIO_MARKET_SORTS,
   STUDIO_MARKET_STYLES,
   STUDIO_MARKET_CARD_FACTS,
+  STUDIO_TRACKING_KINDS,
+  STUDIO_TRACKING_STYLES,
   TAB_LABELS,
   THEME_MODES,
   TRANSLATABLE,
@@ -89,6 +93,7 @@ import {
   type HeaderIcon,
   type StudioHeader,
   type StudioMarket,
+  type StudioScrim,
   type StudioNode,
   type StudioFont,
   type StudioPage,
@@ -193,8 +198,9 @@ class Checker {
     } catch {
       url = null;
     }
-    // 97.5 The platform's own files too, 99.1 and the designs' pictures (https in production; local tests serve them over http).
-    const own = url !== null && url.origin === new URL(appUrl()).origin && /^\/(api\/v1\/assets|design-pictures)\//.test(url.pathname);
+    // 97.5 The platform's own files too, 99.1 and the designs' pictures (https in production; local tests serve them over http),
+    // 128 and Yallapp's own photos the demos' templates use (public/demo-photos, demo-screens, stories).
+    const own = url !== null && url.origin === new URL(appUrl()).origin && /^\/(api\/v1\/assets|design-pictures|demo-photos|demo-screens|stories)\//.test(url.pathname);
     if (!url || (url.protocol !== "https:" && !own) || text.length > 2000 || /\s/.test(text)) {
       this.fail(where, `${what} must be a full https address.`);
       return null;
@@ -1058,6 +1064,22 @@ function studioNumber(value: unknown, min: number, max: number): number | undefi
   return Math.round(value * 10) / 10;
 }
 
+/** 128 A shade over a picture (`StudioScrim`), checked: its colour, how dark at each end and in the middle (hundredths), where the middle sits and its angle; "bad" when wrong. */
+function parseStudioScrim(c: Checker, where: string, value: unknown): StudioScrim | "bad" | null {
+  const s = record(value);
+  if (!s) return "bad";
+  const color = optionalColor(c, where, s.color, "the shade's colour");
+  const share = (x: unknown): number | undefined => (x === undefined || x === null ? undefined : typeof x === "number" && Number.isFinite(x) && x >= 0 && x <= 1 ? Math.round(x * 100) / 100 : NaN);
+  const from = share(s.from);
+  const to = share(s.to);
+  const middle = share(s.middle);
+  const at = studioNumber(s.at, 1, 99);
+  const angle = studioNumber(s.angle, 0, 360);
+  if (!color || from === undefined || to === undefined || [from, to, middle, at, angle].some((n) => n !== undefined && Number.isNaN(n))) return "bad";
+  if (!from && !to && !middle) return null;
+  return { color, from, to, ...(middle !== undefined ? { middle } : {}), ...(middle !== undefined && at !== undefined && at !== 50 ? { at } : {}), ...(angle !== undefined && angle !== 180 ? { angle } : {}) };
+}
+
 function parseSize(c: Checker, where: string, value: unknown, what: string): StudioSize | undefined {
   if (value === undefined || value === null) return undefined;
   if (value === "fill" || value === "hug") return value;
@@ -1137,6 +1159,55 @@ function parseTextStyles(raw: unknown, c: { fail: (where: string, message: strin
     const font = parseStudioFont(value, (what) => c.fail("Text styles", what));
     if (font && Object.keys(font).length) out[key] = font;
   }
+  return out;
+}
+
+/**
+ * 128 What a cover layout holds besides its elements: a `photo_hero`'s photo
+ * (its shade is any element's `scrim`), a `map_header`'s markers, and how far
+ * either's last element hangs over its foot.
+ */
+function parseCover(ctx: Context, where: string, v: Record<string, unknown>, type: "photo_hero" | "map_header", bad: (what: string) => void): Partial<StudioNode> {
+  const { c } = ctx;
+  const out: Partial<StudioNode> = {};
+  if (type === "photo_hero") {
+    // The shade over the photo is any picture's (`scrim`, parsed with the element's look).
+    const url = c.mediaUrl(where, v.image_url, "the photo's address", false);
+    if (url) out.image_url = url;
+  } else if (v.map_drawing !== undefined && v.map_drawing !== null) {
+    const m = record(v.map_drawing);
+    if (!m) bad("the map's markers aren't valid.");
+    else {
+      const drawing: NonNullable<StudioNode["map_drawing"]> = {};
+      const raw = Array.isArray(m.markers) ? m.markers : [];
+      if (raw.length > 12) bad("a map has at most 12 markers.");
+      const markers = raw.slice(0, 12).flatMap((p) => {
+        const at = record(p);
+        const x = studioNumber(at?.x, 0, 100);
+        const y = studioNumber(at?.y, 0, 100);
+        if (x === undefined || y === undefined || Number.isNaN(x) || Number.isNaN(y)) {
+          bad("each marker needs a spot across and down, 0 to 100%.");
+          return [];
+        }
+        return [{ x: Math.round(x * 10) / 10, y: Math.round(y * 10) / 10 }];
+      });
+      if (markers.length) drawing.markers = markers;
+      if (m.icon !== undefined && m.icon !== null && m.icon !== "") {
+        if (!(typeof m.icon === "string" && ICON_NAME.test(m.icon))) bad("choose the markers' icon.");
+        else drawing.icon = m.icon;
+      }
+      const accent = optionalColor(c, where, m.accent, "the markers' colour");
+      if (accent) drawing.accent = accent;
+      const chip = optionalColor(c, where, m.chip, "the markers' tile");
+      if (chip) drawing.chip = chip;
+      if (m.me === true) drawing.me = true;
+      if (m.live === true) drawing.live = true;
+      out.map_drawing = drawing;
+    }
+  }
+  const overlap = studioNumber(v.overlap, 0, STUDIO_LIMITS.maxSide);
+  if (overlap !== undefined && Number.isNaN(overlap)) bad(`how far the last element hangs over must be 0 to ${STUDIO_LIMITS.maxSide}.`);
+  else if (overlap) out.overlap = Math.round(overlap);
   return out;
 }
 
@@ -1220,6 +1291,7 @@ function parseNode(ctx: Context, where: string, value: unknown, state: { count: 
     ["dark_background", "the dark background"],
     ["dark_color", "the dark text colour"],
     ["border_color", "the border colour"],
+    ["dark_border_color", "the dark border colour"],
   ] as const) {
     const color = optionalColor(c, where, v[key], what);
     if (color) node[key] = color;
@@ -1260,9 +1332,18 @@ function parseNode(ctx: Context, where: string, value: unknown, state: { count: 
     if (!color || Number.isNaN(strength)) bad("the colour over the picture needs a colour and how strong it is, 0 to 1.");
     else if (strength > 0) node.overlay = { color, opacity: strength };
   }
+  // 128 A shade over the picture, darker at its ends, so words on it read.
+  if (v.scrim !== undefined && v.scrim !== null) {
+    const scrim = parseStudioScrim(c, where, v.scrim);
+    if (scrim === "bad") bad("the shade over the picture needs a colour and how dark it is at each end, 0 to 1.");
+    else if (scrim) node.scrim = scrim;
+  }
   const border = num("border_width", 0, L.maxBorder, "the border");
   if (border && node.border_color) node.border_width = border;
-  else delete node.border_color;
+  else {
+    delete node.border_color;
+    delete node.dark_border_color;
+  }
   const shadow = pick("shadow", STUDIO_SHADOWS, "choose the shadow.");
   if (shadow && shadow !== "none") node.shadow = shadow;
   const opacity = num("opacity", 0, 1, "the opacity");
@@ -1281,7 +1362,7 @@ function parseNode(ctx: Context, where: string, value: unknown, state: { count: 
   const textAlign = pick("text_align", STUDIO_TEXT_ALIGNS, "choose where the text sits.");
   if (textAlign && textAlign !== "start") node.text_align = textAlign;
   // 115.14 A marketplace section keeps its own title and text (under the title, or the search box's hint).
-  const textual = node.type === "text" || node.type === "button" || node.type === "ratings" || node.type === "search" || node.type === "countdown" || node.type === "bullets" || node.type === "market" || node.type === "learning";
+  const textual = node.type === "text" || node.type === "button" || node.type === "ratings" || node.type === "search" || node.type === "countdown" || node.type === "bullets" || node.type === "market" || node.type === "learning" || node.type === "school";
   if (textual) {
     const text =
       (node.type === "text" || node.type === "bullets") && !card ? c.text(where, v.text, L.textChars, node.type === "bullets" ? "the list's lines" : "a text") : c.optionalText(where, v.text, L.textChars, node.type === "countdown" ? "The text once the time is up" : "The text");
@@ -1452,6 +1533,33 @@ function parseNode(ctx: Context, where: string, value: unknown, state: { count: 
         break;
       }
       node.learning = { section: l.section };
+      // 128.8 Its photo look; the card's own left out.
+      if (l.style === "photo") node.learning.style = "photo";
+      else if (l.style !== undefined && l.style !== null && l.style !== "card") bad("choose how the student's card is drawn from the list.");
+      break;
+    }
+    case "live_status": {
+      // 128 The person's order on its way, drawn by the app from the engine's data.
+      const l = record(v.live_status);
+      if (!l || !oneOf(STUDIO_LIVE_SOURCES, l.source)) {
+        bad("choose whose order it follows.");
+        break;
+      }
+      node.live_status = { source: l.source };
+      if (v.icon !== undefined && v.icon !== null && v.icon !== "") {
+        if (!(typeof v.icon === "string" && ICON_NAME.test(v.icon))) bad("choose an icon.");
+        else node.icon = v.icon;
+      }
+      break;
+    }
+    case "school": {
+      // 128 A part of the family's school day, drawn by the app from the parent's own children.
+      const sc = record(v.school);
+      if (!sc || !oneOf(STUDIO_SCHOOL_SECTIONS, sc.section)) {
+        bad("choose which part of the school day it is.");
+        break;
+      }
+      node.school = { section: sc.section };
       break;
     }
     case "market": {
@@ -1496,6 +1604,29 @@ function parseNode(ctx: Context, where: string, value: unknown, state: { count: 
     case "ratings": {
       const rating = num("rating", 0, 5, "the stars");
       if (rating !== undefined) node.rating = rating;
+      break;
+    }
+    // 128 A photo with a scrim, and a drawn map with markers, behind what they hold; a card hanging over their foot.
+    case "photo_hero":
+    case "map_header": {
+      Object.assign(node, parseCover(ctx, where, v, node.type, bad));
+      break;
+    }
+    // 128 The signed-in person's shipment or ride on its way, or the taxis near them.
+    case "tracking": {
+      const t = record(v.tracking);
+      if (!t || !oneOf(STUDIO_TRACKING_KINDS, t.kind)) {
+        bad("choose what the live card follows.");
+        break;
+      }
+      node.tracking = { kind: t.kind };
+      if (t.style !== undefined && t.style !== null) {
+        if (!oneOf(STUDIO_TRACKING_STYLES, t.style)) bad("choose how the live card looks.");
+        else if (t.style !== "card") node.tracking.style = t.style;
+      }
+      // The photo a driver's card shows while the driver has none of their own.
+      const photo = c.mediaUrl(where, v.image_url, "the photo's address", false);
+      if (photo) node.image_url = photo;
       break;
     }
     default:

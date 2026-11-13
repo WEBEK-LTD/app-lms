@@ -4,6 +4,7 @@ import { SAMPLE_COURSES, SAMPLE_TEACHERS, START_TOPIC, type SampleCourse } from 
 import { samplePrice } from "../samples/money";
 import { DEMO_RETENTION_HOURS, DEMO_SIGN_IN } from "./constants";
 import type { PictureName } from "./pictures";
+import type { AcademyPhoto } from "./academy-photos";
 
 /**
  * 110.5 Rawaq Academy, Studio's academy with many teachers (105.3): seven
@@ -76,9 +77,16 @@ export interface AcademyCourse {
   level: string;
   category: string;
   priceCents: number;
-  picture: PictureName;
+  /** 128.7 A real photo where the approved board shows one (lib/demo/academy-photos.ts), else its drawing. */
+  picture: PictureName | AcademyPhoto;
   topics: SampleCourse["topics"];
 }
+
+/** 128.7 The covers of Rawaq Academy's popular courses as its approved board shows them: the academy story's photos, saved as Ufuq Academy's are. */
+const ACADEMY_COVERS: Partial<Record<string, AcademyPhoto>> = {
+  "Start Your Own Small Business": "academy-desk",
+  "Arabic for Beginners": "academy-live",
+};
 
 /** The sample courses, each the course of the teacher with its instructor's name. */
 export const ACADEMY_COURSES: AcademyCourse[] = SAMPLE_COURSES.courses.map((c) => ({
@@ -88,7 +96,7 @@ export const ACADEMY_COURSES: AcademyCourse[] = SAMPLE_COURSES.courses.map((c) =
   level: c.level.en,
   category: c.category,
   priceCents: samplePrice(c.priceCents, SAMPLE_COURSES.currency, TEACHERS_CURRENCY),
-  picture: c.picture,
+  picture: ACADEMY_COVERS[c.title.en] ?? c.picture,
   topics: c.topics.length ? c.topics : START_TOPIC.en,
 }));
 

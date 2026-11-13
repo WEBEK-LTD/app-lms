@@ -29,10 +29,12 @@ describe("103R.7 Studio's templates and sections for each project type", () => {
     expect(ownTemplates(kindOf("academy")).map((t) => t.id).slice(0, 2)).toEqual(["academy_premium", "courses"]);
     expect(ownTemplates(kindOf("bookings"))[0]!.id).toBe("services");
     expect(ownTemplates(kindOf("clinic"))[0]!.id).toBe("services");
-    expect(ownTemplates(kindOf("delivery")).map((t) => t.id)).toEqual(["delivery", "brand", "contact", "blank"]);
+    // 128 And the premium demo's home as a template of its own (lib/studio/demo-designs).
+    expect(ownTemplates(kindOf("delivery")).map((t) => t.id)).toEqual(["delivery", "delivery_city", "brand", "contact", "blank"]);
     expect(templatesFor(null).map((t) => t.id)).toEqual(["brand", "contact", "blank"]);
     // 105.1.6 Three ready-made designs for a food delivery company, and its welcome section first.
-    expect(ownTemplates(kindOf("food")).map((t) => t.id)).toEqual(["food", "food_offers", "food_brand", "brand", "contact", "blank"]);
+    // 128 And Sofra Eats's photo-first home.
+    expect(ownTemplates(kindOf("food")).map((t) => t.id)).toEqual(["food", "food_offers", "food_brand", "food_photo", "brand", "contact", "blank"]);
     expect(sectionsFor(kindOf("food"))[0]!.id).toBe("food");
     expect(sectionsFor(kindOf("delivery")).map((s) => s.id)).not.toContain("food");
     // The delivery company's sections come first, and only for it.
@@ -84,7 +86,7 @@ describe("103R.7 Studio's templates and sections for each project type", () => {
   });
 
   it("105.2 gives a ride company three designs that ask for a ride, its welcome section first", () => {
-    expect(ownTemplates(kindOf("rides")).map((t) => t.id)).toEqual(["ride", "ride_offers", "ride_brand", "brand", "contact", "blank"]);
+    expect(ownTemplates(kindOf("rides")).map((t) => t.id)).toEqual(["ride", "ride_offers", "ride_brand", "ride_night", "taxi_map", "brand", "contact", "blank"]);
     expect(sectionsFor(kindOf("rides"))[0]!.id).toBe("ride");
     expect(sectionsFor(kindOf("food")).map((s) => s.id)).not.toContain("ride");
     for (const template of ownTemplates(kindOf("rides")).filter((t) => t.id.startsWith("ride"))) {
@@ -98,13 +100,13 @@ describe("103R.7 Studio's templates and sections for each project type", () => {
     expect(allNodes(welcome).map((n) => n.action?.screen).filter(Boolean)).toEqual(["ride", "my_rides", "ride"]);
   });
 
-  it("105.3 gives an academy with many teachers three designs that open its teachers, its welcome section first", () => {
-    expect(ownTemplates(kindOf("instructors")).map((t) => t.id)).toEqual(["teachers", "teachers_offers", "teachers_brand", "brand", "contact", "blank"]);
+  it("105.3 gives an academy with many teachers three designs that open its teachers, its welcome section first (128 and the approved Rawaq home)", () => {
+    expect(ownTemplates(kindOf("instructors")).map((t) => t.id)).toEqual(["teachers", "teachers_offers", "teachers_brand", "teachers_photo", "brand", "contact", "blank"]);
     expect(sectionsFor(kindOf("instructors"))[0]!.id).toBe("teachers");
     // A plain academy has neither.
     expect(ownTemplates(kindOf("academy")).map((t) => t.id)).not.toContain("teachers");
     // 105.4 A school's own three, with its welcome first.
-    expect(ownTemplates(kindOf("school")).map((t) => t.id)).toEqual(["school", "school_news", "school_brand", "university", "brand", "contact", "blank"]);
+    expect(ownTemplates(kindOf("school")).map((t) => t.id)).toEqual(["school", "school_news", "school_brand", "school_today", "university", "brand", "contact", "blank"]);
     // A university's own template: its welcome in a university's words, its steps too.
     const uni = ownTemplates(kindOf("school")).find((t) => t.id === "university")!.make({ brand: "#1F4E5F", source: "school_news", w: (word) => word });
     const uniWords = allNodes(uni).map((n) => n.text).filter(Boolean);

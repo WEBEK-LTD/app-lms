@@ -9556,6 +9556,27 @@ class AppLocalizationsTr extends AppLocalizations {
   }
 
   @override
+  String learningLessonShort(int current, int total) {
+    return '$total dersten $current.';
+  }
+
+  @override
+  String learningLiveAt(String time) {
+    return 'CANLI · $time';
+  }
+
+  @override
+  String get learningLiveNowShort => 'ŞİMDİ CANLI';
+
+  @override
+  String get learningStreakShort => 'Seri';
+
+  @override
+  String itemRating(String rating) {
+    return '5 üzerinden $rating puan';
+  }
+
+  @override
   String get exploreSearchHint => 'Kurs, beceri veya öğretmen';
 
   @override
@@ -9730,6 +9751,191 @@ class AppLocalizationsTr extends AppLocalizations {
 
   @override
   String get launchWelcome => 'Hoş geldiniz';
+
+  @override
+  String liveOrderPlaced(String place) {
+    return 'Siparişiniz iletildi: $place';
+  }
+
+  @override
+  String liveOrderCooking(String place, String dish) {
+    return '$place $dish siparişinizi hazırlıyor';
+  }
+
+  @override
+  String liveOrderReady(String dish) {
+    return '$dish siparişiniz kuryeyi bekliyor';
+  }
+
+  @override
+  String liveOrderOnTheWay(String dish) {
+    return '$dish siparişiniz yolda';
+  }
+
+  @override
+  String liveOrderPicking(String place) {
+    return '$place siparişinizi hazırlıyor';
+  }
+
+  @override
+  String liveMarketReady(String place) {
+    return '$place siparişiniz hazır';
+  }
+
+  @override
+  String liveMarketOnTheWay(String place) {
+    return '$place siparişiniz yolda';
+  }
+
+  @override
+  String get liveOrderMin => 'dk';
+
+  @override
+  String marketMinutes(String min) {
+    return '$min dk';
+  }
+
+  @override
+  String studioTrackWaiting(String reference) {
+    return '$reference kurye bekliyor';
+  }
+
+  @override
+  String studioTrackAssigned(String reference) {
+    return '$reference kuryesine verildi';
+  }
+
+  @override
+  String studioTrackPickedUp(String reference) {
+    return '$reference alındı';
+  }
+
+  @override
+  String studioTrackOnTheWay(String reference) {
+    return '$reference yolda';
+  }
+
+  @override
+  String studioTrackBringing(String courier, String place) {
+    return '$courier, $place adresine getiriyor';
+  }
+
+  @override
+  String studioTrackTo(String place) {
+    return '$place adresine';
+  }
+
+  @override
+  String get studioTrackButton => 'Takip et';
+
+  @override
+  String studioRideArriving(int minutes) {
+    return '$minutes dk içinde geliyor';
+  }
+
+  @override
+  String get studioRideComing => 'Sürücünüz geliyor';
+
+  @override
+  String get studioRideHere => 'Sürücünüz geldi';
+
+  @override
+  String studioRideOnBoard(String place) {
+    return '$place yolunda';
+  }
+
+  @override
+  String get studioRideSearching => 'Sürücünüz aranıyor';
+
+  @override
+  String studioRideCall(String name) {
+    return 'Ara: $name';
+  }
+
+  @override
+  String studioSchoolMorning(String name) {
+    return 'Günaydın,\n$name ve ailesi';
+  }
+
+  @override
+  String studioSchoolEvening(String name) {
+    return 'İyi akşamlar,\n$name ve ailesi';
+  }
+
+  @override
+  String studioSchoolCheckedIn(String name, String time) {
+    return '$name okulda · giriş $time';
+  }
+
+  @override
+  String studioSchoolLeft(String name, String time) {
+    return '$name okuldan çıktı · $time';
+  }
+
+  @override
+  String studioSchoolNotYet(String name) {
+    return '$name henüz okula gelmedi';
+  }
+
+  @override
+  String studioSchoolAway(String name) {
+    return '$name bugün okulda değil';
+  }
+
+  @override
+  String get studioSchoolOnTime => 'Zamanında · kapı';
+
+  @override
+  String get studioSchoolLate => 'Geç · kapı';
+
+  @override
+  String studioSchoolNow(String subject, String teacher) {
+    return 'Şimdi · $teacher ile $subject';
+  }
+
+  @override
+  String studioSchoolNowAlone(String subject) {
+    return 'Şimdi · $subject';
+  }
+
+  @override
+  String studioSchoolNext(String subject, String time) {
+    return 'Sonra: $subject · $time';
+  }
+
+  @override
+  String studioSchoolFirst(String subject, String time) {
+    return 'İlk ders: $subject · $time';
+  }
+
+  @override
+  String get studioSchoolLastLesson => 'Günün son dersi';
+
+  @override
+  String get studioSchoolLessonsOver => 'Bugünün dersleri bitti';
+
+  @override
+  String studioSchoolLessonsEnded(String time) {
+    return 'Son ders bitti · $time';
+  }
+
+  @override
+  String studioSchoolBusLeaves(String time) {
+    return 'Eve dönüş servisi · $time';
+  }
+
+  @override
+  String studioSchoolBusComing(String minutes) {
+    return 'Servis yolda · $minutes dk';
+  }
+
+  @override
+  String studioSchoolBusRoute(String route, String stop) {
+    return '$route · $stop durağı';
+  }
+
+  @override
+  String get studioSchoolDayOff => 'Bugün okul yok';
 
   @override
   String get travelTabExplore => 'Keşfet';

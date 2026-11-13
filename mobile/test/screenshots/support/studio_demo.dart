@@ -6,6 +6,7 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/painting.dart';
 import 'package:flutter_test/flutter_test.dart';
 
+import '../../support/fixtures.dart';
 import 'demo_api.dart';
 import 'map_tiles.dart';
 
@@ -31,6 +32,8 @@ class StudioDemo {
   static final lamha = StudioDemo._load('lamha_demo.json');
   static final nakhla = StudioDemo._load('nakhla_demo.json');
   static final rawaq = StudioDemo._load('rawaq_demo.json');
+  // 128 Zad's whole project too: its photo-first home, its five tabs.
+  static final zad = StudioDemo._load('zad_demo.json');
   static final safra = StudioDemo._load('safra_demo.json');
 
   final Map<String, dynamic> _demo;
@@ -49,6 +52,10 @@ class StudioDemo {
   /// The address of one of the demo's drawn pictures
   /// (platform/web/public/design-pictures/art-[name].png).
   String picture(String name) => '$base/design-pictures/art-$name.png';
+
+  /// 128 The address of one of Yallapp's photos the demo uses
+  /// (platform/web/public/demo-photos/[name].jpg).
+  String photo(String name) => '$base/demo-photos/$name.jpg';
 
   /// [json] with the screenshots' painted pictures (demo_images.dart) that
   /// the demo has drawn (a dish, a course) in its own drawings instead.
@@ -170,9 +177,36 @@ class StudioDemo {
 
   static final _pictures = <String, ui.Image>{};
 
+  /// 128 Yallapp's photos (public/demo-photos, demo-screens, stories), by
+  /// their path, read once.
+  static final _photos = <String, ui.Image>{};
+  static final _photoPath = RegExp(
+    r'^https?://[^/]+(/(?:demo-photos|demo-screens|stories)/[^"]+\.jpg)$',
+  );
+
+  /// The paths of the photos [json] names.
+  static Iterable<String> _photoPaths(Object? json) sync* {
+    switch (json) {
+      case final String url:
+        if (_photoPath.firstMatch(url)?.group(1) case final path?) yield path;
+      case final Map<String, dynamic> map:
+        for (final v in map.values) {
+          yield* _photoPaths(v);
+        }
+      case final List<dynamic> list:
+        for (final v in list) {
+          yield* _photoPaths(v);
+        }
+    }
+  }
+
   /// Puts the demo's drawn pictures (platform/web/public/design-pictures)
-  /// in the image cache at the addresses the demo serves them from.
-  Future<void> prepare(WidgetTester tester) async {
+  /// in the image cache at the addresses the demo serves them from; 128
+  /// and the photos its pages show.
+  Future<void> prepare(
+    WidgetTester tester, [
+    Iterable<String> extra = const [],
+  ]) async {
     if (_pictures.isEmpty) {
       await tester.runAsync(() async {
         final folder = Directory('../platform/web/public/design-pictures');
@@ -187,9 +221,31 @@ class StudioDemo {
         }
       });
     }
+    // 128 And the platform's own photos the demo shows (its pages', its
+    // sign-in's, and those the screens' data name: [extra]), at the
+    // screenshots' width, at the addresses the demo serves them from.
+    final paths = {..._photoPaths(_demo), ...extra};
+    await tester.runAsync(() async {
+      for (final path in paths) {
+        if (_photos.containsKey(path)) continue;
+        final codec = await ui.instantiateImageCodec(
+          File('../platform/web/public$path').readAsBytesSync(),
+          targetWidth: 1080,
+        );
+        _photos[path] = (await codec.getNextFrame()).image;
+      }
+    });
     final cache = PaintingBinding.instance.imageCache
       ..maximumSizeBytes = 1 << 30
       ..maximumSize = 4000;
+    for (final path in paths) {
+      cache.putIfAbsent(
+        NetworkImage('$base$path'),
+        () => OneFrameImageStreamCompleter(
+          SynchronousFuture(ImageInfo(image: _photos[path]!.clone())),
+        ),
+      );
+    }
     for (final MapEntry(:key, :value) in _pictures.entries) {
       cache.putIfAbsent(
         NetworkImage('$base/design-pictures/$key'),
@@ -242,14 +298,14 @@ DemoApi sahmStudioApi({bool courier = false}) {
           source,
           1,
           'Same day',
-          'Within 6 hours',
+          '2 to 4 hours',
           image: demo.picture('service-sameday'),
         ),
         _item(
           source,
           2,
           'Express',
-          'Within 2 hours',
+          'Within the hour',
           image: demo.picture('service-express'),
           badge: '+E£45.00',
         ),
@@ -266,32 +322,61 @@ DemoApi sahmStudioApi({bool courier = false}) {
   );
 }
 
-/// Sofra Eats (Studio's food delivery demo): its three restaurants on its
-/// home, each with its picture and cuisines.
+/// 128 Sofra Eats (Studio's food delivery demo) as its app is: its three
+/// kitchens in their real photos (lib/demo/content.ts), loved near you on
+/// its home, and the demo number's kofta on its way from Sahara Grill with
+/// Karim twelve minutes from Cairo Tower.
 DemoApi sofraStudioApi() {
   final demo = StudioDemo.sofra;
   const source = 'restaurants';
   final api = DemoApi.food();
-  // The demo's own drawings of its dishes, Bayt El Koshary's minimum order,
-  // and the order as the demo's menu prices it, with Karim on the map
-  // between the restaurant and Cairo Tower.
-  api
-    ..config = {
-      ...api.config,
-      'food': {
-        ...(api.config['food'] as Map<String, dynamic>),
-        'map': {'tiles_url': demoTilesUrl, 'attribution': null},
-      },
-    }
-    ..restaurants = [for (final r in api.restaurants) demo.drawn(r)]
-    ..restaurantMenus = {
-      for (final MapEntry(:key, :value) in api.restaurantMenus.entries)
-        key: {
-          ...demo.drawn(value),
-          'min_order': '50.00',
-          'min_order_formatted': 'E£50.00',
-        },
-    };
+  Map<String, dynamic> place(
+    int id,
+    String name,
+    String logo,
+    String cover,
+    List<String> cuisines,
+    int minutes,
+    double rating,
+    int count,
+  ) => {
+    ...restaurantSummaryJson(id: id, name: name),
+    'logo_url': demo.photo(logo),
+    'cover_url': demo.photo(cover),
+    'cuisines': cuisines,
+    'delivery_minutes': minutes,
+    'delivery_fee_formatted': 'E£25.00',
+    'rating': rating,
+    'ratings_count': count,
+  };
+  Map<String, dynamic> dish(
+    int id,
+    String name,
+    String text,
+    String price,
+    String photo, {
+    bool popular = false,
+  }) => {
+    'id': id,
+    'name': name,
+    'description': text,
+    'image_url': demo.photo(photo),
+    'price': price,
+    'price_formatted': 'E£$price',
+    'available': true,
+    'popular': popular,
+    'choice_groups': <Object>[],
+  };
+  final grill = place(
+    1,
+    'Sahara Grill',
+    'mixed-grill',
+    'cover-grill',
+    ['Grill'],
+    35,
+    4.6,
+    1240,
+  );
   Map<String, dynamic> line(
     int dish,
     String name,
@@ -309,21 +394,112 @@ DemoApi sofraStudioApi() {
     'total': total,
     'total_formatted': 'E£$total',
   };
+  api
+    ..config = {
+      ...api.config,
+      'food': {
+        ...(api.config['food'] as Map<String, dynamic>),
+        'map': {'tiles_url': demoTilesUrl, 'attribution': null},
+      },
+    }
+    ..restaurants = [
+      grill,
+      place(
+        2,
+        'Forno Zamalek',
+        'margherita',
+        'cover-pizza',
+        ['Pizza', 'Desserts'],
+        30,
+        4.8,
+        860,
+      ),
+      place(
+        3,
+        'Bayt El Koshary',
+        'baladi-bread',
+        'alexandrian-liver',
+        ['Egyptian', 'Desserts'],
+        25,
+        4.7,
+        2310,
+      ),
+    ]
+    ..restaurantMenus = {
+      1: {
+        ...restaurantJson(),
+        ...grill,
+        'description': 'Kofta, shish tawook and mixed grills over charcoal, with tahini and salads.',
+        'min_order': '100.00',
+        'min_order_formatted': 'E£100.00',
+        'menu': [
+          {
+            'id': 1,
+            'name': 'Grills',
+            'dishes': [
+              dish(
+                2,
+                'Mixed grill',
+                'Kofta, shish tawook and lamb chops, with rice and salads.',
+                '240.00',
+                'mixed-grill',
+                popular: true,
+              ),
+              dish(
+                3,
+                'Kofta',
+                'Half a kilo of charcoal kofta with grilled tomatoes and onions.',
+                '190.00',
+                'kofta',
+                popular: true,
+              ),
+              dish(
+                4,
+                'Shish tawook',
+                'Marinated chicken skewers with garlic sauce.',
+                '150.00',
+                'shish-tawook',
+              ),
+            ],
+          },
+          {
+            'id': 5,
+            'name': 'Sides',
+            'dishes': [
+              dish(
+                6,
+                'Baba ghanoush',
+                'Smoked aubergine with olive oil.',
+                '35.00',
+                'baba-ghanoush',
+              ),
+              dish(7, 'Tahini', 'With lemon and cumin.', '25.00', 'tahini'),
+            ],
+          },
+        ],
+      },
+    };
   api.foodOrders = [
     for (final o in api.foodOrders)
       {
-        ...demo.drawn(o),
+        ...o,
+        'restaurant': {
+          ...(o['restaurant'] as Map<String, dynamic>),
+          'name': 'Sahara Grill',
+          'logo_url': demo.photo('mixed-grill'),
+        },
         'lines': [
-          line(2, 'Koshary', 2, ['Size: Large'], '75.00', '150.00'),
-          line(3, 'Liver sandwich', 1, [], '35.00', '35.00'),
+          line(3, 'Kofta', 1, ['Weight: Half a kilo'], '190.00', '190.00'),
+          line(6, 'Baba ghanoush', 1, [], '35.00', '35.00'),
         ],
-        'subtotal_formatted': 'E£185.00',
+        'subtotal_formatted': 'E£225.00',
         'delivery_fee_formatted': 'E£25.00',
-        'total': '210.00',
-        'total_formatted': 'E£210.00',
+        'total': '250.00',
+        'total_formatted': 'E£250.00',
+        // Karim past Mohandessin, twelve minutes from Cairo Tower.
         'courier_location': {
-          'lat': 30.0466,
-          'lng': 31.2312,
+          'lat': 30.042,
+          'lng': 31.1745,
           'updated_at': '2026-10-28T10:12:00.000Z',
         },
       },
@@ -337,28 +513,61 @@ DemoApi sofraStudioApi() {
         _item(
           source,
           1,
-          'Bayt El Koshary',
-          'Egyptian · Desserts',
-          image: demo.picture('dish-soup'),
+          'Sahara Grill',
+          'Grill',
+          image: demo.photo('cover-grill'),
+          badge: '★ 4.6',
         ),
         _item(
           source,
           2,
-          'Sahara Grill',
-          'Grill',
-          image: demo.picture('dish-burger'),
+          'Forno Zamalek',
+          'Pizza · Desserts',
+          image: demo.photo('cover-pizza'),
+          badge: '★ 4.8',
         ),
         _item(
           source,
           3,
-          'Forno Zamalek',
-          'Pizza · Desserts',
-          image: demo.picture('dish-cheesecake'),
+          'Bayt El Koshary',
+          'Egyptian · Desserts',
+          image: demo.photo('alexandrian-liver'),
+          badge: '★ 4.7',
         ),
       ],
     },
   );
 }
+
+/// The photos Sofra Eats's screens show besides its pages' (its kitchens'
+/// covers and dishes).
+/// 128.7 The photos of Rawaq Academy's popular courses its home shows.
+const rawaqPhotos = [
+  '/stories/academy/academy-desk.jpg',
+  '/stories/academy/academy-live.jpg',
+];
+
+const sofraPhotos = [
+  '/demo-photos/mixed-grill.jpg',
+  '/demo-photos/margherita.jpg',
+  '/demo-photos/baladi-bread.jpg',
+  '/demo-photos/cover-grill.jpg',
+  '/demo-photos/cover-pizza.jpg',
+  '/demo-photos/alexandrian-liver.jpg',
+  '/demo-photos/kofta.jpg',
+  '/demo-photos/shish-tawook.jpg',
+  '/demo-photos/baba-ghanoush.jpg',
+  '/demo-photos/tahini.jpg',
+];
+
+/// 128 Zad (Studio's marketplace demo) as its app is: its whole project
+/// (test/support/zad_demo.json): the photo-first home, the five tabs and
+/// Shops, Manrope; its places and the Fathys' groceries from DemoApi.zad.
+DemoApi zadStudioApi() => StudioDemo.zad.apply(
+  DemoApi.zad(),
+  appName: 'Zad',
+  primaryColor: '#1E6B52',
+);
 
 /// Masar Rides (Studio's rides demo): its car types on its home, the cars
 /// in their drawings (none of a van); without
@@ -366,7 +575,7 @@ DemoApi sofraStudioApi() {
 DemoApi masarStudioApi({bool driver = false, bool ride = true}) =>
     StudioDemo.masar.apply(
       ride
-          ? DemoApi.rides(driver: driver)
+          ? _masarRide(DemoApi.rides(driver: driver))
           : (DemoApi.rides(driver: driver)..rides = []),
       appName: 'Masar Rides',
       primaryColor: '#14857A',
@@ -390,6 +599,27 @@ DemoApi masarStudioApi({bool driver = false, bool ride = true}) =>
         ],
       },
     );
+
+/// 128 The ride on its way on Masar's home: Youssef, one of the demo's
+/// drivers (lib/demo/content.ts RIDES_DEMO_DRIVERS), with his car.
+DemoApi _masarRide(DemoApi api) => api
+  ..rides = [
+    for (final r in api.rides)
+      {
+        ...r,
+        'driver': {
+          ...(r['driver'] as Map<String, dynamic>),
+          'name': 'Youssef Kamal',
+          'rating': 4.9,
+          'car': {
+            'model': 'Compact sedan',
+            'color': 'Silver',
+            'plate': 'MS 2147',
+          },
+        },
+        'pickup_minutes': 3,
+      },
+  ];
 
 /// Lamha Taxi (Studio's live taxi demo): its car types on its home, the cars
 /// in their drawings (none of a six-seat car).
@@ -427,8 +657,11 @@ DemoApi lamhaStudioApi({
   },
 );
 
-/// Nakhla School (Studio's school demo): the school's news on its home.
-DemoApi nakhlaStudioApi({bool map = false}) {
+/// Nakhla School (Studio's school demo). 128 Its approved home: Lina in at
+/// the gate at 07:42, Maths now and the bus home at 14:20; with
+/// [staffApp] its teachers work in the staff app, so this app has no
+/// Classroom tab (the approved bar).
+DemoApi nakhlaStudioApi({bool map = false, bool staffApp = false}) {
   String day(int ago) => DateTime.now()
       .subtract(Duration(days: ago, hours: 2))
       .toUtc()
@@ -443,8 +676,52 @@ DemoApi nakhlaStudioApi({bool map = false}) {
         badge: day(ago),
         action: {'type': 'screen', 'screen': 'school'},
       );
+  final api = DemoApi.school(map: map);
+  if (staffApp) {
+    api.config = {
+      ...api.config,
+      'school': {
+        ...(api.config['school'] as Map<String, dynamic>),
+        'staff_app': 'bundle',
+      },
+    };
+  }
+  final stop = {
+    'id': 3,
+    'name': 'Road 9',
+    'lat': 29.9602,
+    'lng': 31.2569,
+    'time': '14:45',
+    'passed': false,
+  };
+  api.childDay = {
+    ...api.childDay,
+    'checkin': {
+      ...(api.childDay['checkin'] as Map<String, dynamic>),
+      'in_time': '07:42',
+    },
+    'bus': [
+      {
+        'trip': 'afternoon',
+        'route': {'id': 1, 'name': 'Route 1', 'plate': 'ن ق ص 2741'},
+        'stop': stop,
+        'stops': [
+          {
+            'id': 9,
+            'name': 'Nakhla School',
+            'lat': 30.0911,
+            'lng': 31.3225,
+            'time': '14:20',
+            'passed': false,
+          },
+          stop,
+        ],
+        'run': null,
+      },
+    ],
+  };
   return StudioDemo.nakhla.apply(
-    DemoApi.school(map: map),
+    api,
     appName: 'Nakhla School',
     primaryColor: '#1F4E79',
     items: {
@@ -476,8 +753,10 @@ DemoApi nakhlaStudioApi({bool map = false}) {
 }
 
 /// Rawaq Academy (Studio's academy with many teachers): its newest courses
-/// on its home, each with its teacher and its picture.
-DemoApi rawaqStudioApi() {
+/// on its home, each with its teacher and its picture. 128 With [staffApp]
+/// its teachers work in the staff app, so this app has no Teacher tab (the
+/// approved bar).
+DemoApi rawaqStudioApi({bool staffApp = false}) {
   final demo = StudioDemo.rawaq;
   Map<String, dynamic> course(
     int id,
@@ -490,11 +769,25 @@ DemoApi rawaqStudioApi() {
     id,
     title,
     teacher,
-    image: demo.picture(picture),
+    // 128.7 The popular courses' real photos, the academy story's
+    // (platform/web/src/lib/demo/teachers.ts ACADEMY_COVERS), the others'
+    // drawings.
+    image: picture.startsWith('academy-')
+        ? '${demo.base}/stories/academy/$picture.jpg'
+        : demo.picture(picture),
     price: price,
     action: {'type': 'course', 'course_id': id},
   );
   final api = DemoApi.teachers();
+  if (staffApp) {
+    api.config = {
+      ...api.config,
+      'instructors': {
+        ...(api.config['instructors'] as Map<String, dynamic>),
+        'staff_app': 'bundle',
+      },
+    };
+  }
   // Deniz Kaya's course in its drawing, at the demo's price.
   final teacher = api.teacher;
   api.teacher = {
@@ -521,28 +814,28 @@ DemoApi rawaqStudioApi() {
         course(
           8,
           'Start Your Own Small Business',
-          'Omar Farouk',
+          'Omar Farouk · 4.8/5',
           'E£630.00',
-          'course-business',
+          'academy-desk',
         ),
         course(
           7,
           'Arabic for Beginners',
-          'Salma Nasser',
+          'Salma Nasser · 4.9/5',
           'E£475.00',
-          'course-arabic',
+          'academy-live',
         ),
         course(
           6,
           'Python for Data Analysis',
-          'Mert Şahin',
+          'Mert Şahin · 4.7/5',
           'E£1,010.00',
           'course-python',
         ),
         course(
           5,
           'Everyday English Conversation',
-          'Hannah Clarke',
+          'Hannah Clarke · 4.9/5',
           'E£410.00',
           'course-english',
         ),

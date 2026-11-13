@@ -109,7 +109,7 @@ export async function applyProjectTemplate(
   const look = options.look ?? {};
   if (options.mode === "look") {
     const record = await loadLayout(store, app, now);
-    return saveDraft(store, app, { ...record.draft, appearance: withLook({ ...record.draft.appearance, ...project.appearance }, look) }, now);
+    return saveDraft(store, app, { ...record.draft, appearance: withLook(withLook(record.draft.appearance, project.appearance), look) }, now);
   }
   const saved = await saveDraft(store, app, await projectTemplateLayout(store, app, template, now, words, look), now);
   if (!saved.ok) return saved;

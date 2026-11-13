@@ -3,9 +3,11 @@ import 'dart:math' as math;
 
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/rendering.dart' show RenderProxyBox;
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:material_symbols_icons/symbols.dart';
 
 import '../../../core/api/models/models.dart';
 import '../../../core/auth/auth_controller.dart';
@@ -19,10 +21,12 @@ import '../../../core/theme/app_theme.dart';
 import '../../../core/theme/fonts/remote_fonts.dart';
 import '../../../core/theme/palette.dart';
 import '../../../core/theme/symbol_names.dart';
+import '../../../core/widgets/app_nav_bar.dart' show TabBarOverBody;
 import '../../../core/widgets/buttons.dart';
 import '../../../core/widgets/common.dart';
 import '../../../core/widgets/studio_screen_scope.dart';
 import '../../lms/home/learning_cards.dart';
+import '../../school/widgets/studio_school.dart';
 import '../../market/widgets/market_sections.dart';
 import 'app_header.dart';
 import 'content_blocks.dart' show pageClockProvider;
@@ -30,6 +34,10 @@ import 'page_actions.dart';
 import 'page_blocks.dart';
 import 'recently_viewed.dart';
 import 'side_menu.dart';
+import 'studio_covers.dart';
+import 'studio_live.dart';
+import 'studio_live_status.dart';
+import 'studio_scrim.dart';
 
 /// 103R A page designed in Yallapp Studio, drawn from its tree of elements:
 /// rows, columns, layers, grids and sliders sized to fill, hug or a fixed
@@ -61,16 +69,39 @@ class StudioPageView extends ConsumerWidget {
     final p = context.palette;
     final dark = Theme.of(context).brightness == Brightness.dark;
     final top = MediaQuery.paddingOf(context).top;
+    final bottomInset = MediaQuery.paddingOf(context).bottom;
     final background =
         parseHexColor(
           dark ? (page.darkBackground ?? page.background) : page.background,
         ) ??
         p.background;
-    final scope = StudioScope(pageSlug: pageSlug, dark: dark);
     final header = page.header;
     final overlay = header?.type == StudioHeaderType.transparent;
     // Elements pinned at the top or bottom of the page's own column.
     final body = page.bodyFor(MediaQuery.sizeOf(context).shortestSide);
+    // 128 A page without a header that starts with a cover (a photo hero, a
+    // map) has it under the status bar, its elements below the bar.
+    final first = header == null
+        ? body.children.where((n) => n.pin == StudioPin.none).firstOrNull
+        : null;
+    final bleed =
+        first != null &&
+            (first.type == StudioNodeType.photoHero ||
+                first.type == StudioNodeType.mapHeader) &&
+            first.margin == null
+        ? first
+        : null;
+    // 128.10 Under a transparent header, a page starting with a cover (a
+    // photo hero, a map, a photo with a scrim) has it under the status bar
+    // and the app's name over it; any other page as before: its elements
+    // below the bar, the buttons alone.
+    final overCover = overlay && studioStartsWithCover(body);
+    final scope = StudioScope(
+      pageSlug: pageSlug,
+      dark: dark,
+      bleedId: bleed?.id,
+      topInset: bleed == null ? 0 : top,
+    );
     bool pinned(StudioNode n) => n.pin != StudioPin.none;
     final pinnedTop = [
       for (final n in body.children)
@@ -89,8 +120,16 @@ class StudioPageView extends ConsumerWidget {
     final list = ListView(
       key: ValueKey('studio-$pageSlug'),
       padding: EdgeInsets.only(
-        top: header == null || overlay ? top : 0,
-        bottom: 16,
+        // 128 A cover first on a page without a header reaches under the
+        // status bar; 128.10 under a transparent header, a cover first does.
+        top: header == null
+            ? (bleed == null ? top : 0)
+            : overlay && !overCover
+            ? top
+            : 0,
+        // 128.10 Over a bar the page goes on under (glass, float), its end
+        // above the bar.
+        bottom: 16 + (TabBarOverBody.of(context) ? bottomInset : 0),
       ),
       children: [
         if (header != null && !overlay)
@@ -104,7 +143,15 @@ class StudioPageView extends ConsumerWidget {
         children: [
           // 110 Without a header, nothing scrolls under the status bar.
           Positioned.fill(
-            child: header == null
+            child: bleed != null
+                // 128 Light icons over a photo; over the map, as on its land.
+                ? AnnotatedRegion<SystemUiOverlayStyle>(
+                    value: bleed.type == StudioNodeType.photoHero
+                        ? SystemUiOverlayStyle.light
+                        : overlayStyleOn(background),
+                    child: list,
+                  )
+                : header == null
                 ? StatusBarBackdrop(color: background, child: list)
                 : list,
           ),
@@ -113,7 +160,12 @@ class StudioPageView extends ConsumerWidget {
               top: 0,
               start: 0,
               end: 0,
-              child: StudioHeaderView(header: header!, top: top, scope: scope),
+              child: StudioHeaderView(
+                header: header!,
+                top: top,
+                scope: scope,
+                overCover: overCover,
+              ),
             ),
           if (pinnedTop.isNotEmpty)
             PositionedDirectional(
@@ -267,6 +319,7 @@ StudioNode _withChildren(StudioNode node, List<StudioNode> children) =>
       radius: node.radius,
       corners: node.corners,
       overlay: node.overlay,
+      scrim: node.scrim,
       font: node.font,
     );
 
@@ -278,6 +331,9 @@ class StudioScope {
     required this.dark,
     this.entry,
     this.uppercase = false,
+    this.bleedId,
+    this.topInset = 0,
+    this.inCover = false,
   });
 
   final String pageSlug;
@@ -287,11 +343,23 @@ class StudioScope {
   /// 107.2 Texts in capitals, as the element holding them asked.
   final bool uppercase;
 
+  /// 128 The cover at the top of a page without a header, reaching under
+  /// the status bar ([topInset] high).
+  final String? bleedId;
+  final double topInset;
+
+  /// 128.10 Inside a cover (a photo hero, a map header): a colour over an
+  /// element without a picture is its see-through background there.
+  final bool inCover;
+
   StudioScope withEntry(PageItem entry) => StudioScope(
     pageSlug: pageSlug,
     dark: dark,
     entry: entry,
     uppercase: uppercase,
+    bleedId: bleedId,
+    topInset: topInset,
+    inCover: inCover,
   );
 
   StudioScope inCapitals() => StudioScope(
@@ -299,7 +367,36 @@ class StudioScope {
     dark: dark,
     entry: entry,
     uppercase: true,
+    bleedId: bleedId,
+    topInset: topInset,
+    inCover: inCover,
   );
+
+  /// 128.10 What a cover holds.
+  StudioScope insideCover() => StudioScope(
+    pageSlug: pageSlug,
+    dark: dark,
+    entry: entry,
+    uppercase: uppercase,
+    bleedId: bleedId,
+    topInset: topInset,
+    inCover: true,
+  );
+}
+
+/// 128.10 Whether a page's first element (of those not pinned) is a cover:
+/// a photo hero, a map header, or a picture with a scrim (Studio's canvas:
+/// components/studio/view.tsx `startsWithCover`). Under a transparent
+/// header only such a page reaches under the status bar with the app's
+/// name over it; older pages, which have none of these, look as before.
+bool studioStartsWithCover(StudioNode body) {
+  final first = body.children
+      .where((n) => n.pin == StudioPin.none && !n.hidden)
+      .firstOrNull;
+  if (first == null) return false;
+  return first.type == StudioNodeType.photoHero ||
+      first.type == StudioNodeType.mapHeader ||
+      first.scrim != null;
 }
 
 // ----------------------------------------------------------------- Header
@@ -314,11 +411,16 @@ class StudioHeaderView extends ConsumerWidget {
     required this.top,
     required this.scope,
     this.back = false,
+    this.overCover = false,
   });
 
   final StudioHeader header;
   final double top;
   final StudioScope scope;
+
+  /// 128.10 A transparent header over a cover shows the app's name (or
+  /// logo) too; over anything else, its buttons alone, as before.
+  final bool overCover;
 
   /// 120.4 Over a screen opened on top of the tabs: a back button first.
   final bool back;
@@ -473,7 +575,11 @@ class StudioHeaderView extends ConsumerWidget {
             Expanded(
               child: Align(
                 alignment: AlignmentDirectional.centerStart,
-                child: transparent ? const SizedBox.shrink() : mark,
+                // 128.10 Over a cover, the app's name too, as the canvas
+                // draws it; over anything else nothing, as before.
+                child: transparent && !overCover
+                    ? const SizedBox.shrink()
+                    : mark,
               ),
             ),
             if (buttons.isNotEmpty) end,
@@ -552,7 +658,7 @@ class _Greeting extends ConsumerWidget {
       children: [
         Text(
           dayLabel(now),
-          style: TextStyle(fontSize: 12, color: color.withValues(alpha: 0.6)),
+          style: TextStyle(fontSize: 13, color: color.withValues(alpha: 0.7)),
         ),
         Semantics(
           header: true,
@@ -564,9 +670,9 @@ class _Greeting extends ConsumerWidget {
               hello,
               maxLines: 1,
               style: TextStyle(
-                fontSize: 26,
-                fontWeight: FontWeight.w700,
-                letterSpacing: -0.3,
+                fontSize: 24,
+                fontWeight: FontWeight.w800,
+                letterSpacing: -0.48,
                 color: color,
               ),
             ),
@@ -577,7 +683,48 @@ class _Greeting extends ConsumerWidget {
   }
 }
 
-/// 123 A header button of the greeting: a small frosted square.
+/// 128.8 A card's rating: the element's own text (the "·" after the
+/// teacher), a star drawn as an icon, which every font shows, and the
+/// rating with one decimal, in the text's own style.
+class _StudioRating extends StatelessWidget {
+  const _StudioRating({required this.mark, required this.rating});
+
+  final String? mark;
+  final double rating;
+
+  @override
+  Widget build(BuildContext context) {
+    final style = DefaultTextStyle.of(context).style;
+    final value = rating.toStringAsFixed(1);
+    final own = mark?.trim() ?? '';
+    return Semantics(
+      label: context.l10n.itemRating(value),
+      excludeSemantics: true,
+      child: Text.rich(
+        TextSpan(
+          children: [
+            if (own.isNotEmpty) TextSpan(text: '$own '),
+            WidgetSpan(
+              alignment: PlaceholderAlignment.middle,
+              child: Icon(
+                Symbols.star_rounded,
+                key: const ValueKey('studio-rating-star'),
+                fill: 1,
+                size: (style.fontSize ?? 12) + 1,
+                color: style.color,
+              ),
+            ),
+            TextSpan(text: ' $value'),
+          ],
+        ),
+        maxLines: 1,
+      ),
+    );
+  }
+}
+
+/// 123 A header button of the greeting: a small frosted square; 128.8 a
+/// round button on the page's card colour, as approved.
 class _GreetingButton extends StatelessWidget {
   const _GreetingButton({required this.icon, required this.color});
 
@@ -586,18 +733,18 @@ class _GreetingButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final dark = Theme.of(context).brightness == Brightness.dark;
+    final p = context.palette;
     return Container(
-      width: 42,
-      height: 42,
+      width: 40,
+      height: 40,
       decoration: BoxDecoration(
-        color: dark ? const Color(0xB8161924) : const Color(0xB8FFFFFF),
-        borderRadius: BorderRadius.circular(14),
-        border: Border.all(
-          color: dark ? const Color(0x14FFFFFF) : const Color(0x1415131A),
-        ),
+        color: p.surface,
+        shape: BoxShape.circle,
+        border: Border.all(color: p.divider),
       ),
-      child: _StudioHeaderButton(icon: icon, color: color),
+      child: Center(
+        child: _StudioHeaderButton(icon: icon, color: color),
+      ),
     );
   }
 }
@@ -712,6 +859,19 @@ class StudioNodeView extends ConsumerWidget {
       // 123 A student's card, signed in and with something to show.
       StudioNodeType.learning =>
         node.learning != null && learningCardShows(node.learning!, ref),
+      // 128 The person's order, while one is on its way.
+      StudioNodeType.liveStatus => switch (node.liveStatus) {
+        StudioLiveSource.foodOrder =>
+          ref.watch(liveFoodOrderProvider).value != null,
+        StudioLiveSource.marketOrder =>
+          ref.watch(liveMarketOrderProvider).value != null,
+        null => false,
+      },
+      // 128 The person's shipment, ride or the taxis near them, once there is one.
+      StudioNodeType.tracking => studioLiveShows(node, ref),
+      // 128 A part of the family's school day, with something to show.
+      StudioNodeType.school =>
+        node.school != null && studioSchoolShows(node.school!, ref),
       StudioNodeType.items =>
         node.card != null
             ? node.items.isNotEmpty
@@ -748,17 +908,41 @@ class StudioNodeView extends ConsumerWidget {
     final radius = _radiusOf(node).resolve(Directionality.of(context));
     final rounded = node.radius > 0 || node.corners != null;
     final overlay = _overlayOf(node);
-    Widget child = _content(context, ref, color);
-    final padding = _insets(node.padding);
+    // 128 A cover draws its own height, space inside, colours and corners.
+    final cover =
+        node.type == StudioNodeType.photoHero ||
+        node.type == StudioNodeType.mapHeader;
+    Widget child = cover
+        ? StudioCoverView(
+            node: node,
+            scope: scope,
+            topInset: scope.bleedId == node.id ? scope.topInset : 0,
+          )
+        : _content(context, ref, color);
+    final padding = cover ? null : _insets(node.padding);
     if (padding != null) child = Padding(padding: padding, child: child);
-    final border = parseHexColor(node.borderColor);
+    final border = parseHexColor(
+      dark ? (node.darkBorderColor ?? node.borderColor) : node.borderColor,
+    );
     final gradient = node.gradient;
+    // 128 A colour over an element without a picture is its see-through
+    // background (a frosted button over a photo); 128.10 only inside a
+    // cover, so older pages draw such a colour as before (not at all).
+    final seeThrough =
+        scope.inCover &&
+            background == null &&
+            gradient == null &&
+            node.imageBackgroundUrl == null
+        ? overlay
+        : null;
     final decorated =
-        background != null ||
-        gradient != null ||
-        node.imageBackgroundUrl != null ||
-        node.shadow != StudioShadow.none ||
-        (border != null && node.borderWidth > 0);
+        !cover &&
+        (background != null ||
+            seeThrough != null ||
+            gradient != null ||
+            node.imageBackgroundUrl != null ||
+            node.shadow != StudioShadow.none ||
+            (border != null && node.borderWidth > 0));
     if (node.imageBackgroundUrl case final url?) {
       // 112.4 What lies on the picture fills it when the element's size is
       // set (a slide), so its own alignment holds.
@@ -775,6 +959,8 @@ class StudioNodeView extends ConsumerWidget {
                 color: overlay,
               ),
             ),
+          // 128 The shade for the words on it.
+          if (node.scrim case final scrim?) studioScrimLayer(node, scrim),
           child,
         ],
       );
@@ -782,7 +968,7 @@ class StudioNodeView extends ConsumerWidget {
     if (decorated) {
       child = DecoratedBox(
         decoration: BoxDecoration(
-          color: gradient == null ? background : null,
+          color: gradient == null ? (background ?? seeThrough) : null,
           gradient: gradient == null ? null : _linear(gradient, background),
           borderRadius: radius,
           border: border != null && node.borderWidth > 0
@@ -794,12 +980,15 @@ class StudioNodeView extends ConsumerWidget {
         child: child,
       );
     }
+    // 128.8 A student's card on a photo draws its photo and scrim to its
+    // edges: rounded with the element.
     if (rounded &&
         (node.imageBackgroundUrl != null ||
-            node.type == StudioNodeType.image)) {
+            node.type == StudioNodeType.image ||
+            node.learningStyle == StudioLearningStyle.photo)) {
       child = ClipRRect(borderRadius: radius, child: child);
     }
-    child = _sized(child);
+    if (!cover) child = _sized(child);
     // The text's colour and font for what this element holds.
     if (color != null || node.font != null) {
       child = DefaultTextStyle.merge(
@@ -913,6 +1102,8 @@ class StudioNodeView extends ConsumerWidget {
         StudioBind.price => entry.priceLabel,
         StudioBind.badge => entry.badge,
         StudioBind.image => null,
+        // 128.8 Drawn with its star by [_StudioRating]; none, nothing.
+        StudioBind.rating => entry.rating?.toStringAsFixed(1),
       };
     }
     return node.text;
@@ -988,6 +1179,10 @@ class StudioNodeView extends ConsumerWidget {
           width: node.width?.fixed,
         );
       case StudioNodeType.text:
+        if (scope.entry?.rating case final rating?
+            when node.bind == StudioBind.rating) {
+          return _StudioRating(mark: node.text, rating: rating);
+        }
         final text = _text();
         if (text == null || text.isEmpty) return const SizedBox.shrink();
         return Text(
@@ -1077,18 +1272,22 @@ class StudioNodeView extends ConsumerWidget {
           clearPlaceholder: node.contain,
         );
         final overlay = _overlayOf(node);
-        final shown = overlay == null
+        final scrim = node.scrim;
+        final shown = overlay == null && scrim == null
             ? image
             : Stack(
                 fit: StackFit.passthrough,
                 children: [
                   image,
-                  Positioned.fill(
-                    child: ColoredBox(
-                      key: ValueKey('studio-overlay-${node.id}'),
-                      color: overlay,
+                  if (overlay != null)
+                    Positioned.fill(
+                      child: ColoredBox(
+                        key: ValueKey('studio-overlay-${node.id}'),
+                        color: overlay,
+                      ),
                     ),
-                  ),
+                  // 128 The shade for the words on it.
+                  if (scrim != null) studioScrimLayer(node, scrim),
                 ],
               );
         if (node.height?.fixed == null && node.aspectRatio == null) {
@@ -1118,6 +1317,30 @@ class StudioNodeView extends ConsumerWidget {
           section: node.learning!,
           color: color,
           title: node.title,
+          dark: scope.dark,
+          style: node.learningStyle,
+          ownPicture: node.imageBackgroundUrl != null,
+        );
+      case StudioNodeType.liveStatus:
+        final source = node.liveStatus;
+        final order = source == null
+            ? null
+            : watchLiveOrder(context, ref, source);
+        if (order == null) return const SizedBox.shrink();
+        return StudioLiveStatusCard(node: node, order: order, color: color);
+      // 128 The covers are drawn whole by StudioCoverView (build), the live
+      // elements from the person's own shipment, ride, taxis and name.
+      case StudioNodeType.photoHero || StudioNodeType.mapHeader:
+        return const SizedBox.shrink();
+      case StudioNodeType.tracking:
+        return StudioTrackingView(node: node);
+      case StudioNodeType.greeting:
+        return const StudioGreetingView();
+      case StudioNodeType.school:
+        return StudioSchoolPart(
+          section: node.school!,
+          color: color,
+          text: _text(),
           dark: scope.dark,
         );
       case StudioNodeType.market:
@@ -1272,6 +1495,7 @@ class StudioNodeView extends ConsumerWidget {
         final stretch =
             node.cross == StudioCross.stretch ||
             kids.any((k) => k.height?.fill == true);
+        final givesWay = studioTextGivingWay(kids);
         final row = Row(
           mainAxisAlignment: _main(node.align),
           crossAxisAlignment: stretch
@@ -1281,14 +1505,23 @@ class StudioNodeView extends ConsumerWidget {
             for (final child in kids)
               if (child.width?.fill == true)
                 Expanded(child: _selfAlign(child, view(child), Axis.vertical))
+              // 128.8 In a row where nothing fills, a text cut to its lines
+              // gives way to what follows it (a teacher's name before the
+              // rating), never overflowing; 128.10 only the row's one such
+              // text (studioTextGivingWay).
+              else if (identical(child, givesWay))
+                Flexible(child: _selfAlign(child, view(child), Axis.vertical))
               else
                 _selfAlign(child, view(child), Axis.vertical),
           ], horizontal: true),
         );
         // Stretching to the tallest needs the row's height first.
-        return stretch && node.height?.fixed == null
+        final laid = stretch && node.height?.fixed == null
             ? IntrinsicHeight(child: row)
             : row;
+        // 128.10 In a row of unbounded width (one inside another row) the
+        // text has no room to give way in: the row at its own width there.
+        return givesWay == null ? laid : _BoundedWidth(child: laid);
       default:
         // A column; its height is set when it's fixed, so children can fill it.
         final bounded = node.height?.fixed != null;
@@ -1466,6 +1699,63 @@ AlignmentDirectional _stackAlign(StudioCross cross) => switch (cross) {
   StudioCross.end => AlignmentDirectional.bottomEnd,
   StudioCross.stretch => AlignmentDirectional.topStart,
 };
+
+/// 128.10 The one text in a row that gives way to what follows it: the
+/// row's only text cut to its lines without a width of its own, when
+/// nothing in the row fills it (Studio's canvas: components/studio/
+/// view.tsx `textGivingWay`). With two such texts, or none, none does and
+/// the row is as before.
+StudioNode? studioTextGivingWay(List<StudioNode> kids) {
+  if (kids.any((k) => k.width?.fill == true)) return null;
+  final texts = [
+    for (final k in kids)
+      if (k.type == StudioNodeType.text &&
+          k.maxLines != null &&
+          k.width?.fixed == null)
+        k,
+  ];
+  return texts.length == 1 ? texts.single : null;
+}
+
+/// 128.10 What it holds at its own width when the width around it is
+/// unbounded (a row inside another row), so a [Flexible] in it has a bound;
+/// within a bounded width, as given. Unlike a LayoutBuilder it answers its
+/// intrinsic sizes (a row in a grid's or a card's IntrinsicHeight).
+class _BoundedWidth extends SingleChildRenderObjectWidget {
+  const _BoundedWidth({required Widget super.child});
+
+  @override
+  RenderObject createRenderObject(BuildContext context) =>
+      _RenderBoundedWidth();
+}
+
+class _RenderBoundedWidth extends RenderProxyBox {
+  BoxConstraints _inner(BoxConstraints constraints) {
+    if (constraints.hasBoundedWidth || child == null) return constraints;
+    final natural = child!.getMaxIntrinsicWidth(constraints.maxHeight);
+    return constraints.copyWith(
+      maxWidth: math.max(natural, constraints.minWidth),
+    );
+  }
+
+  @override
+  Size computeDryLayout(covariant BoxConstraints constraints) {
+    final child = this.child;
+    if (child == null) return constraints.smallest;
+    return constraints.constrain(child.getDryLayout(_inner(constraints)));
+  }
+
+  @override
+  void performLayout() {
+    final child = this.child;
+    if (child == null) {
+      size = constraints.smallest;
+      return;
+    }
+    child.layout(_inner(constraints), parentUsesSize: true);
+    size = constraints.constrain(child.size);
+  }
+}
 
 // ------------------------------------------------------------ Lists, stars
 

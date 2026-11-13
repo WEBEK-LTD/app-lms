@@ -9595,6 +9595,27 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
+  String learningLessonShort(int current, int total) {
+    return 'Lesson $current of $total';
+  }
+
+  @override
+  String learningLiveAt(String time) {
+    return 'LIVE AT $time';
+  }
+
+  @override
+  String get learningLiveNowShort => 'LIVE NOW';
+
+  @override
+  String get learningStreakShort => 'Streak';
+
+  @override
+  String itemRating(String rating) {
+    return 'Rated $rating out of 5';
+  }
+
+  @override
   String get exploreSearchHint => 'Course, skill or teacher';
 
   @override
@@ -9774,6 +9795,191 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get launchWelcome => 'Welcome to';
+
+  @override
+  String liveOrderPlaced(String place) {
+    return 'Your order is with $place';
+  }
+
+  @override
+  String liveOrderCooking(String place, String dish) {
+    return '$place is preparing your $dish';
+  }
+
+  @override
+  String liveOrderReady(String dish) {
+    return 'Your $dish is ready for the courier';
+  }
+
+  @override
+  String liveOrderOnTheWay(String dish) {
+    return 'Your $dish is on its way';
+  }
+
+  @override
+  String liveOrderPicking(String place) {
+    return '$place is getting your order ready';
+  }
+
+  @override
+  String liveMarketReady(String place) {
+    return 'Your order from $place is ready';
+  }
+
+  @override
+  String liveMarketOnTheWay(String place) {
+    return 'Your order from $place is on its way';
+  }
+
+  @override
+  String get liveOrderMin => 'min';
+
+  @override
+  String marketMinutes(String min) {
+    return '$min min';
+  }
+
+  @override
+  String studioTrackWaiting(String reference) {
+    return '$reference is waiting for a courier';
+  }
+
+  @override
+  String studioTrackAssigned(String reference) {
+    return '$reference has its courier';
+  }
+
+  @override
+  String studioTrackPickedUp(String reference) {
+    return '$reference is picked up';
+  }
+
+  @override
+  String studioTrackOnTheWay(String reference) {
+    return '$reference is on the way';
+  }
+
+  @override
+  String studioTrackBringing(String courier, String place) {
+    return '$courier is bringing it to $place';
+  }
+
+  @override
+  String studioTrackTo(String place) {
+    return 'To $place';
+  }
+
+  @override
+  String get studioTrackButton => 'Track';
+
+  @override
+  String studioRideArriving(int minutes) {
+    return 'Arriving in $minutes min';
+  }
+
+  @override
+  String get studioRideComing => 'Your driver is coming';
+
+  @override
+  String get studioRideHere => 'Your driver is here';
+
+  @override
+  String studioRideOnBoard(String place) {
+    return 'On the way to $place';
+  }
+
+  @override
+  String get studioRideSearching => 'Finding your driver';
+
+  @override
+  String studioRideCall(String name) {
+    return 'Call $name';
+  }
+
+  @override
+  String studioSchoolMorning(String name) {
+    return 'Good morning,\n$name\'s family';
+  }
+
+  @override
+  String studioSchoolEvening(String name) {
+    return 'Good evening,\n$name\'s family';
+  }
+
+  @override
+  String studioSchoolCheckedIn(String name, String time) {
+    return '$name checked in at $time';
+  }
+
+  @override
+  String studioSchoolLeft(String name, String time) {
+    return '$name left at $time';
+  }
+
+  @override
+  String studioSchoolNotYet(String name) {
+    return '$name isn\'t at school yet';
+  }
+
+  @override
+  String studioSchoolAway(String name) {
+    return '$name is away today';
+  }
+
+  @override
+  String get studioSchoolOnTime => 'On time · the gate';
+
+  @override
+  String get studioSchoolLate => 'Late · the gate';
+
+  @override
+  String studioSchoolNow(String subject, String teacher) {
+    return 'Now · $subject with $teacher';
+  }
+
+  @override
+  String studioSchoolNowAlone(String subject) {
+    return 'Now · $subject';
+  }
+
+  @override
+  String studioSchoolNext(String subject, String time) {
+    return 'Next: $subject at $time';
+  }
+
+  @override
+  String studioSchoolFirst(String subject, String time) {
+    return 'First · $subject at $time';
+  }
+
+  @override
+  String get studioSchoolLastLesson => 'The day\'s last lesson';
+
+  @override
+  String get studioSchoolLessonsOver => 'Lessons are over for today';
+
+  @override
+  String studioSchoolLessonsEnded(String time) {
+    return 'The last ended at $time';
+  }
+
+  @override
+  String studioSchoolBusLeaves(String time) {
+    return 'Bus home leaves $time';
+  }
+
+  @override
+  String studioSchoolBusComing(String minutes) {
+    return 'Bus on its way · $minutes min';
+  }
+
+  @override
+  String studioSchoolBusRoute(String route, String stop) {
+    return '$route · $stop stop';
+  }
+
+  @override
+  String get studioSchoolDayOff => 'No school today';
 
   @override
   String get travelTabExplore => 'Explore';

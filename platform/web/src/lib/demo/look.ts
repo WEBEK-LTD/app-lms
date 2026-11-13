@@ -108,5 +108,7 @@ export function demoStudioContext(id: StudioDemoId, pictureBase: string, source:
     w: (word: SectionWord) => String(studioWords[`w_${word}`]).replaceAll("{app}", brand.appName),
     picture: (file: string) => `${pictureBase}/design-pictures/${file}`,
     newId: () => `demo-${++n}`,
+    // 128 Its own pages after the home, in its own look (lib/studio/demo-designs).
+    demo: id,
   };
 }

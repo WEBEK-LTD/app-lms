@@ -194,7 +194,8 @@ describe("starting from a demo", () => {
     const { app } = await makeFromDemo(store, maker("Sahm", lang === "en" ? undefined : lang), { demo: "delivery", name: "Sahm", colour: "#B4235A", logoAssetId: null, iconAssetId: null }, NOW);
     const home = (await store.getAppLayout(app.id))!.draft.pages.find((p) => p.slug === "home")!;
     const texts = allNodes(home.studio!).map((n) => n.text ?? "");
-    expect(texts).toContain(DEMO_FACTS.delivery!.contactText![lang]);
+    // 128 The approved home's route card picks up at the demo's own street.
+    expect(texts).toContain(DEMO_FACTS.delivery!.deliveryFrom![lang]);
     expect(texts.join(" ")).not.toMatch(/\[/);
   });
 

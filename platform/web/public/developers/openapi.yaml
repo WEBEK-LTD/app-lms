@@ -15217,7 +15217,7 @@ components:
       properties:
         design:
           type: string
-          enum: [classic, pill, minimal, dot, line, bubble, glass, notch, lift, outline, square, text, island, segment, folder, drop, glow, colours]
+          enum: [classic, pill, minimal, dot, line, bubble, glass, notch, lift, outline, square, text, island, segment, folder, drop, glow, colours, float]
           description: |
             119 The bar's design; missing, the app template's own (Classic,
             Bold's pill, Minimal). `classic`: the open tab's icon in a soft
@@ -15237,7 +15237,11 @@ components:
             tab rising out of it like a folder's tab in the page's colour. `drop`:
             a drop of its colour hangs from the bar's edge over the open tab.
             `glow`: the open tab glows in its colour. `colours`: each tab its own
-            colour in a soft circle, the open one ringed. Every design works in
+            colour in a soft circle, the open one ringed. 128 `float`: a bar
+            62 high floating over the page in its own colours (22 round and
+            12 in from the edges unless `radius` and `margin` say), the page
+            going on under it, the open tab a filled pill with its name, the
+            others icons only. Every design works in
             light and dark mode. An app that doesn't know a value uses its
             template's.
         background: { type: [string, 'null'], pattern: '^#[0-9A-Fa-f]{6}$', description: "The bar's colour; null, the app's surface colour." }
@@ -15351,7 +15355,11 @@ components:
         103R The bar at the top of a Studio page; null, none. `logo_center`:
         the logo in the middle; `title_search`: the page's title and a
         search field; `logo_actions`: the logo and the `buttons`;
-        `transparent`: over the page's first element, the buttons on it.
+        `transparent`: over the page's first element, the buttons on it
+        (128.10 with the logo or the app's name too when that element is a
+        cover: a `photo_hero`, a `map_header` or a picture with a `scrim`,
+        which then starts under the status bar; any other first element
+        starts below it).
         120 `title`: the page's title and the buttons, for the pages after
         the first (a page drawn around one of the app's screens). 123
         `greeting`: today's date over a greeting for the time of day with
@@ -15387,16 +15395,28 @@ components:
         question, the child its answer), `tabs` shows one child at a time
         under a bar of their `title`s, `countdown` counts down to `ends_at`,
         and `bullets` shows each line of `text` after an `icon`. 112.4
-        `coupon` shows its `code` with a button that copies it. An element
-        the app doesn't know is left out with what it holds. Sides are
-        logical: `start` is the left in a left-to-right language and the
-        right in Arabic.
+        `coupon` shows its `code` with a button that copies it. 128 Two
+        layouts draw a cover behind the elements they hold, laid out over it
+        in a column (their `padding`, `gap`, `align` and `cross`) at their
+        `height`: `photo_hero` a photo (`image_url`) with a colour over it
+        (`scrim`), `map_header` a drawn map with markers (`map_drawing`);
+        with `overlap`, their last element hangs that far up over the
+        cover's foot (a card, a bottom sheet). The first element of a page
+        without a header reaches under the status bar when it is a cover.
+        `tracking` is the signed-in person's own shipment or ride on its way,
+        or the free taxis near them (`tracking`), and `greeting` good morning
+        or good evening with their first name, in the element's font and
+        colour. An `overlay` on an element without a picture is its
+        see-through background inside a cover (128.10; elsewhere, without a
+        picture, it isn't drawn). An element the app doesn't know is left out
+        with what it holds. Sides are logical: `start` is the left in a
+        left-to-right language and the right in Arabic.
       required: [id, type]
       properties:
         id: { type: string, maxLength: 64 }
         type:
           type: string
-          enum: [row, column, stack, grid, slider, spacer, accordion, tabs, text, image, button, icon, items, categories, video, form, map, ratings, search, divider, countdown, bullets, coupon, market, learning]
+          enum: [row, column, stack, grid, slider, spacer, accordion, tabs, text, image, button, icon, items, categories, video, form, map, ratings, search, divider, countdown, bullets, coupon, market, learning, live_status, school, photo_hero, map_header, tracking, greeting]
         name: { type: [string, 'null'], maxLength: 80, description: "The owner's name for it in the editor's layers; not shown in the app." }
         children:
           type: array
@@ -15425,7 +15445,9 @@ components:
         corners: { $ref: '#/components/schemas/StudioCorners' }
         rotation: { type: number, minimum: -180, maximum: 180, default: 0, description: "107.2 Turned by this many degrees, clockwise; what it holds turns with it." }
         overlay: { $ref: '#/components/schemas/StudioOverlay' }
+        scrim: { $ref: '#/components/schemas/StudioScrim' }
         border_color: { type: [string, 'null'], pattern: '^#[0-9A-Fa-f]{6}$' }
+        dark_border_color: { type: [string, 'null'], pattern: '^#[0-9A-Fa-f]{6}$', description: '128.8 The border in dark mode; missing, `border_color`.' }
         border_width: { type: number, minimum: 0, maximum: 20, default: 0 }
         shadow: { type: string, enum: [none, light, medium, strong], default: none }
         opacity: { type: number, minimum: 0, maximum: 1, default: 1 }
@@ -15460,7 +15482,7 @@ components:
         source: { $ref: '#/components/schemas/ItemSource' }
         layout: { type: string, enum: [list, grid, carousel], default: grid, description: "For `items`." }
         card: { $ref: '#/components/schemas/StudioNode', description: "For `items`: the card drawn for each entry, its elements' `bind` filled from the entry. Missing, the app's own card." }
-        bind: { type: [string, 'null'], enum: [title, subtitle, image, price, badge, null], description: "Inside an `items` card: this element's text (or a picture's address) comes from the entry." }
+        bind: { type: [string, 'null'], enum: [title, subtitle, image, price, badge, rating, null], description: "Inside an `items` card: this element's text (or a picture's address) comes from the entry. 128.8 `rating`: the element's own `text`, a star drawn as an icon and the entry's `rating` with one decimal; nothing when the entry has none." }
         items:
           type: array
           maxItems: 30
@@ -15475,6 +15497,11 @@ components:
         map: { $ref: '#/components/schemas/StudioMap' }
         market: { $ref: '#/components/schemas/StudioMarket' }
         learning: { $ref: '#/components/schemas/StudioLearning' }
+        live_status: { $ref: '#/components/schemas/StudioLiveStatus' }
+        tracking: { $ref: '#/components/schemas/StudioTracking' }
+        map_drawing: { $ref: '#/components/schemas/StudioMapDrawing' }
+        overlap: { type: number, minimum: 0, maximum: 400, description: "128 For `photo_hero` and `map_header`: how far their last element hangs up over the cover's foot; 0 or missing, it lies over the cover with the others." }
+        school: { $ref: '#/components/schemas/StudioSchool' }
         rating: { type: [number, 'null'], minimum: 0, maximum: 5, description: "For `ratings`, the stars shown with `text` (like \"4.8 · 320 reviews\")." }
         action: { $ref: '#/components/schemas/Action' }
         platforms:
@@ -15522,6 +15549,24 @@ components:
       properties:
         color: { type: string, pattern: '^#[0-9A-Fa-f]{6}$' }
         opacity: { type: number, minimum: 0, maximum: 1 }
+
+    StudioScrim:
+      type: [object, 'null']
+      description: |
+        128 A shade over the element's picture (an `image`, a `photo_hero`'s
+        photo, or the `image_background_url` behind what it holds) so the
+        words on it read: `color` at `from` (0 to 1) at the start of its direction,
+        `middle` at `at` percent of the way, and `to` at its end, blended in
+        between. `angle` as in CSS: 180 from the top down (missing), 90
+        across from the start (the right in Arabic).
+      required: [color, from, to]
+      properties:
+        color: { type: string, pattern: '^#[0-9A-Fa-f]{6}$' }
+        from: { type: number, minimum: 0, maximum: 1 }
+        to: { type: number, minimum: 0, maximum: 1 }
+        middle: { type: number, minimum: 0, maximum: 1 }
+        at: { type: number, minimum: 1, maximum: 99, default: 50 }
+        angle: { type: number, minimum: 0, maximum: 360, default: 180 }
 
     StudioSize:
       description: "103R `fill` the space the parent gives, `hug` the content, or a number of logical pixels. Missing: `fill` across a column, `hug` along a row."
@@ -15606,6 +15651,101 @@ components:
       required: [section]
       properties:
         section: { type: string, enum: [continue, streak, live, week] }
+        style:
+          type: string
+          enum: [card, photo]
+          description: |
+            128.8 How the card is drawn; missing, `card` (as above). `photo`:
+            `continue` over the element's picture (else the course's) under
+            a dark scrim, the lesson they are on and the minutes left on one
+            chip, the course's name, how far they are in gold and a round
+            play button; `live` over the element's picture with its
+            `overlay`, the time it starts in gold over the class's name;
+            `streak` the days in a row as one figure. Apps that don't know
+            a style draw the card.
+    StudioTracking:
+      type: [object, 'null']
+      description: |
+        128 For `tracking`, in delivery and ride apps: one card the app draws
+        from the signed-in person's own. `shipment` their shipment still on
+        its way (its reference and state, the courier bringing it and where,
+        its four stages, opening it); `ride` their ride (finding a driver,
+        arriving in so many minutes, here, on the way; the driver's first
+        name, car, rating and plate, a button that calls them, opening the
+        ride); `nearby_taxis` how many free taxis are near them and how far
+        the nearest is, in a taxi app once the phone says where they are.
+        `style` draws it as a card with the stages (`card`), the driver's
+        photo (or the element's `image_url` while they have none) with a
+        call button (`driver`) or one line (`line`); missing, the kind's
+        own. Nothing is drawn signed out or with nothing to show. Apps leave
+        out a kind they don't know.
+      required: [kind]
+      properties:
+        kind: { type: string, enum: [shipment, ride, nearby_taxis] }
+        style: { type: string, enum: [card, driver, line] }
+    StudioMapDrawing:
+      type: [object, 'null']
+      description: |
+        128 For `map_header`: a drawn map (water, roads and parks in the
+        app's light or dark colours; its land the element's `background`,
+        128.10 by night its `dark_background`, missing the dark map's own)
+        with `markers` at their places in percent from the start and the
+        top, each its `icon` (a taxi when missing) in `accent` on a tile of
+        `chip`, and with `me` the person's dot a little under the middle.
+        With `live`, a taxi app draws the free taxis near the person instead
+        of the markers, once the phone says where they are.
+      properties:
+        markers:
+          type: array
+          maxItems: 12
+          items:
+            type: object
+            required: [x, y]
+            properties:
+              x: { type: number, minimum: 0, maximum: 100 }
+              y: { type: number, minimum: 0, maximum: 100 }
+        icon: { type: [string, 'null'], pattern: '^[a-z0-9_]{1,40}$' }
+        accent: { type: [string, 'null'], pattern: '^#[0-9A-Fa-f]{6}$' }
+        chip: { type: [string, 'null'], pattern: '^#[0-9A-Fa-f]{6}$' }
+        me: { type: boolean }
+        live: { type: boolean }
+
+    StudioLiveStatus:
+      type: [object, 'null']
+      description: |
+        128 For `live_status`, in food delivery apps and marketplaces: the
+        signed-in person's latest order still on its way, drawn by the app
+        from its own data: `food_order` a food delivery order
+        (`GET /me/food-orders`), `market_order` a marketplace order
+        (`GET /me/market-orders`). The card shows what it is and where it
+        is ("Your kofta is on its way"), a bar for how far along it is and
+        the minutes left when known, on the element's colours and with its
+        `icon` (missing, the app's own); a tap opens the order. Nothing is
+        drawn signed out, or with no order on its way. Apps leave out a
+        source they don't know.
+      required: [source]
+      properties:
+        source: { type: string, enum: [food_order, market_order] }
+
+    StudioSchool:
+      type: [object, 'null']
+      description: |
+        128 For `school`, in schools: one part of the family's school day
+        the app draws from the signed-in parent's own children (the Parent
+        tag). `greeting` today's date over a greeting to the family of the
+        parent's first child (a student's own name; signed out, the
+        element's `text`); `children` the parent's children as chips, the
+        chosen one filled, a tap choosing another for the Parent tab and the
+        school's screens too; `today` the chosen child's day: in at the gate
+        (on time or late, away, not yet), the lesson now and the next (or
+        the first, or that lessons are over) and the bus home (when it
+        leaves, or on its way with the minutes to the child's stop). The
+        element's colours, corners and background are the card's. Nothing
+        but the greeting is drawn signed out or without anything to show.
+        Apps leave out a section they don't know.
+      required: [section]
+      properties:
+        section: { type: string, enum: [greeting, children, today] }
 
     StudioMarket:
       type: [object, 'null']
@@ -15622,7 +15762,7 @@ components:
       required: [section]
       properties:
         section: { type: string, enum: [address, kinds, offers, cuisines, club, vendors, reorder] }
-        style: { type: string, enum: [spotlight, cards, tiles, list], default: cards, description: For `vendors` and `offers`. }
+        style: { type: string, enum: [spotlight, cards, tiles, list, chips, bar], default: cards, description: "For `vendors` and `offers`; 128 `chips` small chips in a row (the place's photo, name, rating and soonest time). For `address`, 128 `bar`: a flat bar on the element's colour with the address, the soonest time an open place delivers in and the search under them (missing, the large greeting)." }
         kind: { type: string, enum: [all, restaurant, grocery], default: all }
         sort: { type: string, enum: [recommended, fastest, rating, nearest, newest], default: recommended }
         tag: { type: [string, 'null'], maxLength: 60, description: Only the places with this cuisine or department. }
@@ -15711,6 +15851,7 @@ components:
         image_url: { type: [string, 'null'], format: uri }
         price_label: { type: [string, 'null'], description: Display text only. Never a purchase button on iOS., example: 'EGP 4,250,000' }
         badge: { type: [string, 'null'], example: Negotiable }
+        rating: { type: [number, 'null'], minimum: 0, maximum: 5, description: "128.8 A course's average rating, for a card's `rating` element; null or missing without one.", example: 4.9 }
         favorited: { type: boolean }
         action: { $ref: '#/components/schemas/Action' }
 

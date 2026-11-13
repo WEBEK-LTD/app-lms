@@ -800,14 +800,14 @@ class DemoApi extends FakeApi {
         1,
         'Same day',
         'Picked up within the hour, delivered before 10 pm.',
-        'Within 6 hours',
+        '2 to 4 hours',
         null,
       ),
       service(
         2,
         'Express',
         'Straight from the pickup to the drop-off, no other stops.',
-        'Within 2 hours',
+        'Within the hour',
         '+E£45.00',
       ),
       service(
@@ -2530,8 +2530,18 @@ class DemoApi extends FakeApi {
           ),
         ];
 
+  /// 128.8 A picture per course over the academy's drawn ones (Ufuq
+  /// Academy's photos).
+  final courseImages = <int, String>{};
+
+  Map<String, dynamic> _pictured(Map<String, dynamic> course) =>
+      switch (courseImages[course['id']]) {
+        final String url => {...course, 'image_url': url},
+        null => course,
+      };
+
   Map<String, dynamic> _myCourse() => {
-    'course': {..._courses(arabic)[1], 'enrolled': true},
+    'course': _pictured({..._courses(arabic)[1], 'enrolled': true}),
     'progress': {
       'course_id': 2,
       'completed_items': 11,
@@ -2571,7 +2581,7 @@ class DemoApi extends FakeApi {
 
   @override
   Future<List<HomeSection>> getHome() => super.getHome().then((_) {
-    final courses = _courses(arabic);
+    final courses = [for (final c in _courses(arabic)) _pictured(c)];
     return [
       for (final s in [
         {'type': 'continue_learning', 'title': null, 'course': _myCourse()},
@@ -2600,8 +2610,10 @@ class DemoApi extends FakeApi {
   Future<Paged<CourseSummary>> listCourses(CourseQuery query) => super
       .listCourses(query)
       .then(
-        (_) =>
-            Paged.fromJson(pageJson(_courses(arabic)), CourseSummary.fromJson),
+        (_) => Paged.fromJson(
+          pageJson([for (final c in _courses(arabic)) _pictured(c)]),
+          CourseSummary.fromJson,
+        ),
       );
 
   @override

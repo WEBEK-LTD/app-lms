@@ -1,7 +1,7 @@
 {
  "screens": {
   "sign_in": {
-   "style": "card",
+   "style": "premium",
    "image_url": "http://localhost:3000/demo-screens/nakhla-school.jpg",
    "title": {
     "en": "Every school day, in one place",
@@ -16,7 +16,7 @@
    "show_logo": true
   },
   "account_menu": {
-   "header": "card",
+   "header": "cover",
    "items": []
   }
  },
@@ -26,7 +26,7 @@
    "theme_mode": "system",
    "user_can_change_mode": true,
    "secondary_color": "#F2B544",
-   "font": "Plus Jakarta Sans",
+   "font": "Manrope",
    "corners": "soft",
    "cards": "outlined"
   },
@@ -100,156 +100,63 @@
     "blocks": [],
     "studio": {
      "header": {
-      "type": "logo_actions",
+      "type": "transparent",
       "buttons": [
-       "menu",
-       "notifications",
-       "account"
+       "notifications"
       ]
      },
+     "background": "#F4F6F9",
+     "dark_background": "#09131F",
      "body": {
       "id": "demo-1",
       "type": "column",
-      "gap": 4,
       "padding": {
-       "bottom": 16
+       "bottom": 24
       },
       "children": [
        {
-        "id": "demo-2",
-        "type": "column",
-        "name": "Your school day at Nakhla School",
-        "gap": 10,
-        "padding": {
-         "top": 22,
-         "end": 18,
-         "bottom": 22,
-         "start": 18
+        "id": "demo-3",
+        "type": "stack",
+        "name": "Welcome to Nakhla School",
+        "height": 250,
+        "background": "#0A1E34",
+        "image_background_url": "http://localhost:3000/demo-screens/nakhla-school.jpg",
+        "scrim": {
+         "color": "#0A1E34",
+         "from": 0.5,
+         "middle": 0.15,
+         "at": 40,
+         "to": 0.9
         },
-        "margin": {
-         "top": 12,
-         "end": 10,
-         "bottom": 12,
-         "start": 10
-        },
-        "radius": 18,
-        "background": "#1F4E79",
-        "color": "#FFFFFF",
         "children": [
          {
-          "id": "demo-3",
-          "type": "icon",
-          "icon": "school",
-          "icon_size": 34,
-          "color": "#FFFFFF"
-         },
-         {
           "id": "demo-4",
-          "type": "text",
-          "text": "Your school day at Nakhla School",
-          "font": {
-           "size": 24,
-           "weight": 800,
-           "line_height": 1.25
+          "type": "column",
+          "height": 250,
+          "align": "end",
+          "gap": 4,
+          "padding": {
+           "top": 22,
+           "end": 18,
+           "bottom": 20,
+           "start": 18
           },
-          "translations": {
-           "ar": {
-            "text": "يومك في Nakhla School"
-           },
-           "tr": {
-            "text": "Nakhla School ile okul gününüz"
-           }
-          }
-         },
-         {
-          "id": "demo-5",
-          "type": "text",
-          "text": "The timetable, homework, grades and attendance, for students and their parents.",
-          "font": {
-           "size": 14
-          },
-          "opacity": 0.9,
-          "translations": {
-           "ar": {
-            "text": "الجدول والواجبات والدرجات والغياب، للطلبة وأولياء الأمور."
-           },
-           "tr": {
-            "text": "Ders programı, ödevler, notlar ve devam durumu; öğrenciler ve velileri için."
-           }
-          }
-         },
-         {
-          "id": "demo-6",
-          "type": "row",
-          "gap": 8,
+          "color": "#FFFFFF",
           "children": [
            {
-            "id": "demo-7",
-            "type": "button",
-            "text": "Open my school",
-            "width": "hug",
-            "height": 42,
-            "radius": 12,
-            "background": "#FFFFFF",
-            "color": "#1F4E79",
-            "font": {
-             "weight": 800,
-             "size": 14
+            "id": "demo-2",
+            "type": "school",
+            "school": {
+             "section": "greeting"
             },
-            "padding": {
-             "top": 0,
-             "end": 18,
-             "bottom": 0,
-             "start": 18
-            },
-            "action": {
-             "type": "screen",
-             "screen": "school"
-            },
-            "motion": {
-             "press": "shrink"
-            },
-            "translations": {
-             "ar": {
-              "text": "افتح مدرستي"
-             },
-             "tr": {
-              "text": "Okulumu aç"
-             }
-            }
-           },
-           {
-            "id": "demo-8",
-            "type": "button",
-            "text": "What's new",
-            "width": "hug",
-            "height": 42,
-            "radius": 12,
-            "border": {
-             "width": 1.5,
-             "color": "#FFFFFF"
-            },
+            "text": "Welcome to Nakhla School",
             "color": "#FFFFFF",
-            "font": {
-             "weight": 700,
-             "size": 14
-            },
-            "padding": {
-             "top": 0,
-             "end": 16,
-             "bottom": 0,
-             "start": 16
-            },
-            "action": {
-             "type": "screen",
-             "screen": "notifications"
-            },
             "translations": {
              "ar": {
-              "text": "الجديد"
+              "text": "مرحبًا بكم في Nakhla School"
              },
              "tr": {
-              "text": "Yenilikler"
+              "text": "Nakhla School ailesine hoş geldiniz"
              }
             }
            }
@@ -258,7 +165,7 @@
         ]
        },
        {
-        "id": "demo-30",
+        "id": "demo-18",
         "type": "column",
         "gap": 6,
         "padding": {
@@ -276,7 +183,7 @@
         "visibility": "signed_out",
         "children": [
          {
-          "id": "demo-29",
+          "id": "demo-17",
           "type": "text",
           "text": "This is a demo app. Sign in with +1 202 555 0123 and the code 246810. Anything you add is deleted after a day.",
           "font": {
@@ -287,315 +194,218 @@
         ]
        },
        {
-        "id": "demo-9",
-        "type": "column",
-        "name": "What's new",
-        "gap": 8,
+        "id": "demo-5",
+        "type": "school",
+        "school": {
+         "section": "children"
+        },
+        "visibility": "signed_in",
+        "margin": {
+         "top": 14,
+         "end": 16,
+         "bottom": 0,
+         "start": 16
+        }
+       },
+       {
+        "id": "demo-6",
+        "type": "school",
+        "school": {
+         "section": "today"
+        },
+        "visibility": "signed_in",
+        "radius": 22,
+        "background": "#FFFFFF",
+        "dark_background": "#122033",
+        "shadow": "light",
+        "margin": {
+         "top": 14,
+         "end": 16,
+         "bottom": 0,
+         "start": 16
+        }
+       },
+       {
+        "id": "demo-7",
+        "type": "row",
+        "name": "At school this week",
+        "cross": "end",
         "padding": {
-         "top": 6,
-         "end": 10,
-         "bottom": 6,
-         "start": 10
+         "top": 16,
+         "end": 16,
+         "bottom": 8,
+         "start": 16
         },
         "children": [
          {
-          "id": "demo-10",
+          "id": "demo-8",
           "type": "text",
-          "text": "What's new",
+          "text": "At school this week",
+          "width": "fill",
           "font": {
            "size": 17,
            "weight": 800
           },
           "translations": {
            "ar": {
-            "text": "الجديد"
+            "text": "في المدرسة هذا الأسبوع"
            },
            "tr": {
-            "text": "Yenilikler"
+            "text": "Bu hafta okulda"
            }
           }
          },
+         {
+          "id": "demo-9",
+          "type": "text",
+          "text": "All news",
+          "color": "#1F4E79",
+          "dark_color": "#9CC3EA",
+          "font": {
+           "size": 13,
+           "weight": 700
+          },
+          "action": {
+           "type": "screen",
+           "screen": "school"
+          },
+          "translations": {
+           "ar": {
+            "text": "كل الأخبار"
+           },
+           "tr": {
+            "text": "Tüm haberler"
+           }
+          }
+         }
+        ]
+       },
+       {
+        "id": "demo-10",
+        "type": "row",
+        "name": "At school this week",
+        "gap": 10,
+        "scroll": true,
+        "padding": {
+         "top": 0,
+         "end": 16,
+         "bottom": 0,
+         "start": 16
+        },
+        "children": [
          {
           "id": "demo-11",
-          "type": "items",
-          "source": "school_news",
-          "layout": "list",
-          "gap": 10,
-          "query": {
-           "limit": 4,
-           "category_id": null,
-           "featured": false,
-           "sort": "newest",
-           "ids": []
+          "type": "stack",
+          "width": 210,
+          "height": 128,
+          "radius": 20,
+          "background": "#1B2430",
+          "image_background_url": "http://localhost:3000/stories/school/school-graduation-1.jpg",
+          "scrim": {
+           "color": "#000000",
+           "from": 0,
+           "middle": 0.12,
+           "at": 40,
+           "to": 0.78
           },
-          "card": {
-           "id": "demo-12",
-           "type": "column",
-           "gap": 6,
-           "padding": {
-            "top": 14,
-            "end": 14,
-            "bottom": 14,
-            "start": 14
-           },
-           "radius": 16,
-           "background": "#FFFFFF",
-           "dark_background": "#22203A",
-           "shadow": "light",
-           "children": [
-            {
-             "id": "demo-13",
-             "type": "row",
-             "children": [
-              {
-               "id": "demo-14",
-               "type": "text",
-               "bind": "badge",
-               "font": {
-                "size": 11,
-                "weight": 800
+          "action": {
+           "type": "screen",
+           "screen": "school"
+          },
+          "children": [
+           {
+            "id": "demo-12",
+            "type": "column",
+            "height": 128,
+            "align": "end",
+            "padding": {
+             "top": 10,
+             "end": 12,
+             "bottom": 10,
+             "start": 12
+            },
+            "children": [
+             {
+              "id": "demo-13",
+              "type": "text",
+              "text": "Science fair on Friday",
+              "max_lines": 2,
+              "color": "#FFFFFF",
+              "font": {
+               "size": 14,
+               "weight": 800,
+               "line_height": 1.25
+              },
+              "translations": {
+               "ar": {
+                "text": "معرض العلوم يوم الجمعة"
                },
-               "padding": {
-                "top": 3,
-                "end": 9,
-                "bottom": 3,
-                "start": 9
-               },
-               "radius": 9,
-               "background": "#1F4E79",
-               "color": "#FFFFFF"
+               "tr": {
+                "text": "Cuma günü bilim fuarı"
+               }
               }
-             ]
-            },
-            {
-             "id": "demo-15",
-             "type": "text",
-             "bind": "title",
-             "max_lines": 2,
-             "font": {
-              "size": 15,
-              "weight": 700
              }
-            },
-            {
-             "id": "demo-16",
-             "type": "text",
-             "bind": "subtitle",
-             "max_lines": 2,
-             "font": {
-              "size": 13
-             },
-             "opacity": 0.75
-            }
-           ]
-          }
-         }
-        ]
-       },
-       {
-        "id": "demo-17",
-        "type": "column",
-        "name": "How it works",
-        "gap": 10,
-        "padding": {
-         "top": 14,
-         "end": 14,
-         "bottom": 14,
-         "start": 14
-        },
-        "margin": {
-         "top": 8,
-         "end": 10,
-         "bottom": 8,
-         "start": 10
-        },
-        "radius": 16,
-        "background": "#FFFFFF",
-        "dark_background": "#22203A",
-        "shadow": "light",
-        "children": [
+            ]
+           }
+          ]
+         },
          {
-          "id": "demo-18",
-          "type": "text",
-          "text": "How it works",
-          "font": {
-           "size": 17,
-           "weight": 800
+          "id": "demo-14",
+          "type": "stack",
+          "width": 210,
+          "height": 128,
+          "radius": 20,
+          "background": "#1B2430",
+          "image_background_url": "http://localhost:3000/stories/school/school-teacher.jpg",
+          "scrim": {
+           "color": "#000000",
+           "from": 0,
+           "middle": 0.12,
+           "at": 40,
+           "to": 0.78
           },
-          "translations": {
-           "ar": {
-            "text": "الموضوع ماشي إزاي"
-           },
-           "tr": {
-            "text": "Nasıl çalışır"
-           }
-          }
-         },
-         {
-          "id": "demo-19",
-          "type": "row",
-          "gap": 10,
-          "cross": "center",
+          "action": {
+           "type": "screen",
+           "screen": "school"
+          },
           "children": [
            {
-            "id": "demo-20",
-            "type": "text",
-            "text": "1",
-            "width": 30,
-            "height": 30,
-            "radius": 15,
-            "background": "#1F4E79",
-            "color": "#FFFFFF",
-            "text_align": "center",
-            "font": {
-             "size": 14,
-             "weight": 800,
-             "line_height": 2.1
-            }
-           },
-           {
-            "id": "demo-21",
-            "type": "text",
-            "text": "Sign in with the number you gave the school",
-            "font": {
-             "size": 14,
-             "weight": 600
+            "id": "demo-15",
+            "type": "column",
+            "height": 128,
+            "align": "end",
+            "padding": {
+             "top": 10,
+             "end": 12,
+             "bottom": 10,
+             "start": 12
             },
-            "width": "fill",
-            "translations": {
-             "ar": {
-              "text": "ادخل بالرقم اللي إديته للمدرسة"
-             },
-             "tr": {
-              "text": "Okula verdiğiniz numarayla giriş yapın"
+            "children": [
+             {
+              "id": "demo-16",
+              "type": "text",
+              "text": "Parents' evening",
+              "max_lines": 2,
+              "color": "#FFFFFF",
+              "font": {
+               "size": 14,
+               "weight": 800,
+               "line_height": 1.25
+              },
+              "translations": {
+               "ar": {
+                "text": "أمسية أولياء الأمور"
+               },
+               "tr": {
+                "text": "Veli akşamı"
+               }
+              }
              }
-            }
-           }
-          ]
-         },
-         {
-          "id": "demo-22",
-          "type": "row",
-          "gap": 10,
-          "cross": "center",
-          "children": [
-           {
-            "id": "demo-23",
-            "type": "text",
-            "text": "2",
-            "width": 30,
-            "height": 30,
-            "radius": 15,
-            "background": "#1F4E79",
-            "color": "#FFFFFF",
-            "text_align": "center",
-            "font": {
-             "size": 14,
-             "weight": 800,
-             "line_height": 2.1
-            }
-           },
-           {
-            "id": "demo-24",
-            "type": "text",
-            "text": "See the timetable, homework and grades",
-            "font": {
-             "size": 14,
-             "weight": 600
-            },
-            "width": "fill",
-            "translations": {
-             "ar": {
-              "text": "شوف الجدول والواجبات والدرجات"
-             },
-             "tr": {
-              "text": "Ders programını, ödevleri ve notları görün"
-             }
-            }
-           }
-          ]
-         },
-         {
-          "id": "demo-25",
-          "type": "row",
-          "gap": 10,
-          "cross": "center",
-          "children": [
-           {
-            "id": "demo-26",
-            "type": "text",
-            "text": "3",
-            "width": 30,
-            "height": 30,
-            "radius": 15,
-            "background": "#1F4E79",
-            "color": "#FFFFFF",
-            "text_align": "center",
-            "font": {
-             "size": 14,
-             "weight": 800,
-             "line_height": 2.1
-            }
-           },
-           {
-            "id": "demo-27",
-            "type": "text",
-            "text": "Hear of absences, marks and news at once",
-            "font": {
-             "size": 14,
-             "weight": 600
-            },
-            "width": "fill",
-            "translations": {
-             "ar": {
-              "text": "اعرف الغياب والدرجات والأخبار أول بأول"
-             },
-             "tr": {
-              "text": "Devamsızlık, not ve duyurulardan hemen haberdar olun"
-             }
-            }
+            ]
            }
           ]
          }
         ]
-       },
-       {
-        "id": "demo-28",
-        "type": "button",
-        "text": "Open my school",
-        "action": {
-         "type": "screen",
-         "screen": "school"
-        },
-        "width": "fill",
-        "height": 46,
-        "radius": 14,
-        "background": "#1F4E79",
-        "color": "#FFFFFF",
-        "font": {
-         "weight": 800,
-         "size": 15
-        },
-        "text_align": "center",
-        "icon": "arrow_back",
-        "margin": {
-         "top": 10,
-         "end": 18,
-         "bottom": 10,
-         "start": 18
-        },
-        "shadow": "medium",
-        "motion": {
-         "press": "shrink"
-        },
-        "translations": {
-         "ar": {
-          "text": "افتح مدرستي"
-         },
-         "tr": {
-          "text": "Okulumu aç"
-         }
-        }
        }
       ]
      }
@@ -613,6 +423,71 @@
      }
     },
     "studio": {
+     "body": {
+      "id": "demo-22",
+      "type": "column",
+      "children": [
+       {
+        "id": "demo-23",
+        "type": "stack",
+        "name": "Photo",
+        "height": 132,
+        "radius": 22,
+        "margin": {
+         "top": 12,
+         "end": 16,
+         "bottom": 4,
+         "start": 16
+        },
+        "background": "#0A1E34",
+        "image_background_url": "http://localhost:3000/stories/school/school-gate.jpg",
+        "scrim": {
+         "color": "#0A1E34",
+         "from": 0.1,
+         "middle": 0.25,
+         "at": 40,
+         "to": 0.88
+        },
+        "children": [
+         {
+          "id": "demo-24",
+          "type": "column",
+          "height": 132,
+          "align": "end",
+          "padding": {
+           "top": 14,
+           "end": 16,
+           "bottom": 14,
+           "start": 16
+          },
+          "children": [
+           {
+            "id": "demo-25",
+            "type": "text",
+            "text": "News, the timetable and homework, in one place.",
+            "color": "#FFFFFF",
+            "max_lines": 2,
+            "font": {
+             "size": 15,
+             "weight": 800,
+             "line_height": 1.3
+            },
+            "translations": {
+             "ar": {
+              "text": "الأخبار والجدول والواجبات في مكان واحد."
+             },
+             "tr": {
+              "text": "Haberler, ders programı ve ödevler tek yerde."
+             }
+            }
+           }
+          ]
+         }
+        ]
+       }
+      ]
+     },
+     "screen": "school",
      "header": {
       "type": "title",
       "title": "School",
@@ -626,68 +501,14 @@
        "tr": {
         "title": "Okul"
        }
-      }
+      },
+      "background": "#FFFFFF",
+      "color": "#10233A",
+      "dark_background": "#122033",
+      "dark_color": "#E9F0F8"
      },
-     "body": {
-      "id": "demo-34",
-      "type": "column",
-      "children": [
-       {
-        "id": "demo-31",
-        "type": "row",
-        "name": "Note",
-        "gap": 10,
-        "cross": "center",
-        "padding": {
-         "top": 12,
-         "end": 14,
-         "bottom": 12,
-         "start": 14
-        },
-        "margin": {
-         "top": 10,
-         "end": 16,
-         "bottom": 2,
-         "start": 16
-        },
-        "radius": 16,
-        "background": "#E4EAEF",
-        "dark_background": "#172338",
-        "children": [
-         {
-          "id": "demo-32",
-          "type": "icon",
-          "icon": "school",
-          "icon_size": 22,
-          "color": "#1F4E79",
-          "dark_color": "#9AAFC3"
-         },
-         {
-          "id": "demo-33",
-          "type": "text",
-          "text": "News, the timetable and homework, in one place.",
-          "translations": {
-           "ar": {
-            "text": "الأخبار والجدول والواجبات في مكان واحد."
-           },
-           "tr": {
-            "text": "Haberler, ders programı ve ödevler tek yerde."
-           }
-          },
-          "width": "fill",
-          "font": {
-           "size": 14,
-           "weight": 600,
-           "line_height": 1.35
-          },
-          "color": "#24222F",
-          "dark_color": "#EDE9F6"
-         }
-        ]
-       }
-      ]
-     },
-     "screen": "school"
+     "background": "#F4F6F9",
+     "dark_background": "#09131F"
     },
     "show_title": false,
     "updated_at": "2026-11-09T10:00:00.000Z",
@@ -706,7 +527,7 @@
     },
     "studio": {
      "body": {
-      "id": "demo-35",
+      "id": "demo-26",
       "type": "column",
       "children": []
      },
@@ -728,6 +549,12 @@
      }
     },
     "studio": {
+     "body": {
+      "id": "demo-27",
+      "type": "column",
+      "children": []
+     },
+     "screen": "settings",
      "header": {
       "type": "title",
       "title": "Settings",
@@ -738,14 +565,14 @@
        "tr": {
         "title": "Ayarlar"
        }
-      }
+      },
+      "background": "#FFFFFF",
+      "color": "#10233A",
+      "dark_background": "#122033",
+      "dark_color": "#E9F0F8"
      },
-     "body": {
-      "id": "demo-36",
-      "type": "column",
-      "children": []
-     },
-     "screen": "settings"
+     "background": "#F4F6F9",
+     "dark_background": "#09131F"
     },
     "show_title": false,
     "updated_at": "2026-11-09T10:00:00.000Z",
@@ -763,6 +590,12 @@
      }
     },
     "studio": {
+     "body": {
+      "id": "demo-28",
+      "type": "column",
+      "children": []
+     },
+     "screen": "notifications",
      "header": {
       "type": "title",
       "title": "Notifications",
@@ -773,14 +606,14 @@
        "tr": {
         "title": "Bildirimler"
        }
-      }
+      },
+      "background": "#FFFFFF",
+      "color": "#10233A",
+      "dark_background": "#122033",
+      "dark_color": "#E9F0F8"
      },
-     "body": {
-      "id": "demo-37",
-      "type": "column",
-      "children": []
-     },
-     "screen": "notifications"
+     "background": "#F4F6F9",
+     "dark_background": "#09131F"
     },
     "show_title": false,
     "updated_at": "2026-11-09T10:00:00.000Z",
@@ -798,6 +631,12 @@
      }
     },
     "studio": {
+     "body": {
+      "id": "demo-29",
+      "type": "column",
+      "children": []
+     },
+     "screen": "edit_profile",
      "header": {
       "type": "title",
       "title": "Edit profile",
@@ -808,14 +647,14 @@
        "tr": {
         "title": "Profili düzenle"
        }
-      }
+      },
+      "background": "#FFFFFF",
+      "color": "#10233A",
+      "dark_background": "#122033",
+      "dark_color": "#E9F0F8"
      },
-     "body": {
-      "id": "demo-38",
-      "type": "column",
-      "children": []
-     },
-     "screen": "edit_profile"
+     "background": "#F4F6F9",
+     "dark_background": "#09131F"
     },
     "show_title": false,
     "updated_at": "2026-11-09T10:00:00.000Z",
@@ -833,6 +672,12 @@
      }
     },
     "studio": {
+     "body": {
+      "id": "demo-30",
+      "type": "column",
+      "children": []
+     },
+     "screen": "devices",
      "header": {
       "type": "title",
       "title": "Devices",
@@ -843,14 +688,14 @@
        "tr": {
         "title": "Cihazlar"
        }
-      }
+      },
+      "background": "#FFFFFF",
+      "color": "#10233A",
+      "dark_background": "#122033",
+      "dark_color": "#E9F0F8"
      },
-     "body": {
-      "id": "demo-39",
-      "type": "column",
-      "children": []
-     },
-     "screen": "devices"
+     "background": "#F4F6F9",
+     "dark_background": "#09131F"
     },
     "show_title": false,
     "updated_at": "2026-11-09T10:00:00.000Z",
@@ -861,7 +706,7 @@
     "title": "Change password",
     "studio": {
      "body": {
-      "id": "demo-40",
+      "id": "demo-31",
       "type": "column",
       "children": []
      },
@@ -876,7 +721,7 @@
     "title": "A conversation",
     "studio": {
      "body": {
-      "id": "demo-41",
+      "id": "demo-32",
       "type": "column",
       "children": []
      },
@@ -891,7 +736,7 @@
     "title": "Parent",
     "studio": {
      "body": {
-      "id": "demo-42",
+      "id": "demo-33",
       "type": "column",
       "children": []
      },
@@ -913,6 +758,12 @@
      }
     },
     "studio": {
+     "body": {
+      "id": "demo-34",
+      "type": "column",
+      "children": []
+     },
+     "screen": "parent_slips",
      "header": {
       "type": "title",
       "title": "Permission slips",
@@ -923,14 +774,14 @@
        "tr": {
         "title": "İzin formları"
        }
-      }
+      },
+      "background": "#FFFFFF",
+      "color": "#10233A",
+      "dark_background": "#122033",
+      "dark_color": "#E9F0F8"
      },
-     "body": {
-      "id": "demo-43",
-      "type": "column",
-      "children": []
-     },
-     "screen": "parent_slips"
+     "background": "#F4F6F9",
+     "dark_background": "#09131F"
     },
     "show_title": false,
     "updated_at": "2026-11-09T10:00:00.000Z",
@@ -948,6 +799,12 @@
      }
     },
     "studio": {
+     "body": {
+      "id": "demo-35",
+      "type": "column",
+      "children": []
+     },
+     "screen": "parent_excuses",
      "header": {
       "type": "title",
       "title": "Absence notes",
@@ -958,14 +815,14 @@
        "tr": {
         "title": "Devamsızlık mazeretleri"
        }
-      }
+      },
+      "background": "#FFFFFF",
+      "color": "#10233A",
+      "dark_background": "#122033",
+      "dark_color": "#E9F0F8"
      },
-     "body": {
-      "id": "demo-44",
-      "type": "column",
-      "children": []
-     },
-     "screen": "parent_excuses"
+     "background": "#F4F6F9",
+     "dark_background": "#09131F"
     },
     "show_title": false,
     "updated_at": "2026-11-09T10:00:00.000Z",
@@ -983,6 +840,12 @@
      }
     },
     "studio": {
+     "body": {
+      "id": "demo-36",
+      "type": "column",
+      "children": []
+     },
+     "screen": "parent_excuse_new",
      "header": {
       "type": "title",
       "title": "New absence note",
@@ -993,14 +856,14 @@
        "tr": {
         "title": "Yeni mazeret"
        }
-      }
+      },
+      "background": "#FFFFFF",
+      "color": "#10233A",
+      "dark_background": "#122033",
+      "dark_color": "#E9F0F8"
      },
-     "body": {
-      "id": "demo-45",
-      "type": "column",
-      "children": []
-     },
-     "screen": "parent_excuse_new"
+     "background": "#F4F6F9",
+     "dark_background": "#09131F"
     },
     "show_title": false,
     "updated_at": "2026-11-09T10:00:00.000Z",
@@ -1018,6 +881,12 @@
      }
     },
     "studio": {
+     "body": {
+      "id": "demo-37",
+      "type": "column",
+      "children": []
+     },
+     "screen": "parent_pickup",
      "header": {
       "type": "title",
       "title": "Pickup",
@@ -1028,14 +897,14 @@
        "tr": {
         "title": "Okuldan alma"
        }
-      }
+      },
+      "background": "#FFFFFF",
+      "color": "#10233A",
+      "dark_background": "#122033",
+      "dark_color": "#E9F0F8"
      },
-     "body": {
-      "id": "demo-46",
-      "type": "column",
-      "children": []
-     },
-     "screen": "parent_pickup"
+     "background": "#F4F6F9",
+     "dark_background": "#09131F"
     },
     "show_title": false,
     "updated_at": "2026-11-09T10:00:00.000Z",
@@ -1053,6 +922,12 @@
      }
     },
     "studio": {
+     "body": {
+      "id": "demo-38",
+      "type": "column",
+      "children": []
+     },
+     "screen": "school_checkin",
      "header": {
       "type": "title",
       "title": "Check-in",
@@ -1063,14 +938,14 @@
        "tr": {
         "title": "Giriş kaydı"
        }
-      }
+      },
+      "background": "#FFFFFF",
+      "color": "#10233A",
+      "dark_background": "#122033",
+      "dark_color": "#E9F0F8"
      },
-     "body": {
-      "id": "demo-47",
-      "type": "column",
-      "children": []
-     },
-     "screen": "school_checkin"
+     "background": "#F4F6F9",
+     "dark_background": "#09131F"
     },
     "show_title": false,
     "updated_at": "2026-11-09T10:00:00.000Z",
@@ -1088,6 +963,12 @@
      }
     },
     "studio": {
+     "body": {
+      "id": "demo-39",
+      "type": "column",
+      "children": []
+     },
+     "screen": "school_timetable",
      "header": {
       "type": "title",
       "title": "Timetable",
@@ -1098,14 +979,14 @@
        "tr": {
         "title": "Ders programı"
        }
-      }
+      },
+      "background": "#FFFFFF",
+      "color": "#10233A",
+      "dark_background": "#122033",
+      "dark_color": "#E9F0F8"
      },
-     "body": {
-      "id": "demo-48",
-      "type": "column",
-      "children": []
-     },
-     "screen": "school_timetable"
+     "background": "#F4F6F9",
+     "dark_background": "#09131F"
     },
     "show_title": false,
     "updated_at": "2026-11-09T10:00:00.000Z",
@@ -1123,6 +1004,12 @@
      }
     },
     "studio": {
+     "body": {
+      "id": "demo-40",
+      "type": "column",
+      "children": []
+     },
+     "screen": "school_homework",
      "header": {
       "type": "title",
       "title": "Homework",
@@ -1133,14 +1020,14 @@
        "tr": {
         "title": "Ödevler"
        }
-      }
+      },
+      "background": "#FFFFFF",
+      "color": "#10233A",
+      "dark_background": "#122033",
+      "dark_color": "#E9F0F8"
      },
-     "body": {
-      "id": "demo-49",
-      "type": "column",
-      "children": []
-     },
-     "screen": "school_homework"
+     "background": "#F4F6F9",
+     "dark_background": "#09131F"
     },
     "show_title": false,
     "updated_at": "2026-11-09T10:00:00.000Z",
@@ -1158,6 +1045,12 @@
      }
     },
     "studio": {
+     "body": {
+      "id": "demo-41",
+      "type": "column",
+      "children": []
+     },
+     "screen": "school_grades",
      "header": {
       "type": "title",
       "title": "Grades",
@@ -1168,14 +1061,14 @@
        "tr": {
         "title": "Notlar"
        }
-      }
+      },
+      "background": "#FFFFFF",
+      "color": "#10233A",
+      "dark_background": "#122033",
+      "dark_color": "#E9F0F8"
      },
-     "body": {
-      "id": "demo-50",
-      "type": "column",
-      "children": []
-     },
-     "screen": "school_grades"
+     "background": "#F4F6F9",
+     "dark_background": "#09131F"
     },
     "show_title": false,
     "updated_at": "2026-11-09T10:00:00.000Z",
@@ -1193,6 +1086,12 @@
      }
     },
     "studio": {
+     "body": {
+      "id": "demo-42",
+      "type": "column",
+      "children": []
+     },
+     "screen": "school_attendance",
      "header": {
       "type": "title",
       "title": "Attendance",
@@ -1203,14 +1102,14 @@
        "tr": {
         "title": "Devam"
        }
-      }
+      },
+      "background": "#FFFFFF",
+      "color": "#10233A",
+      "dark_background": "#122033",
+      "dark_color": "#E9F0F8"
      },
-     "body": {
-      "id": "demo-51",
-      "type": "column",
-      "children": []
-     },
-     "screen": "school_attendance"
+     "background": "#F4F6F9",
+     "dark_background": "#09131F"
     },
     "show_title": false,
     "updated_at": "2026-11-09T10:00:00.000Z",
@@ -1228,6 +1127,12 @@
      }
     },
     "studio": {
+     "body": {
+      "id": "demo-43",
+      "type": "column",
+      "children": []
+     },
+     "screen": "school_fees",
      "header": {
       "type": "title",
       "title": "Fees",
@@ -1238,14 +1143,14 @@
        "tr": {
         "title": "Ücretler"
        }
-      }
+      },
+      "background": "#FFFFFF",
+      "color": "#10233A",
+      "dark_background": "#122033",
+      "dark_color": "#E9F0F8"
      },
-     "body": {
-      "id": "demo-52",
-      "type": "column",
-      "children": []
-     },
-     "screen": "school_fees"
+     "background": "#F4F6F9",
+     "dark_background": "#09131F"
     },
     "show_title": false,
     "updated_at": "2026-11-09T10:00:00.000Z",
@@ -1263,6 +1168,12 @@
      }
     },
     "studio": {
+     "body": {
+      "id": "demo-44",
+      "type": "column",
+      "children": []
+     },
+     "screen": "school_news",
      "header": {
       "type": "title",
       "title": "News",
@@ -1273,14 +1184,14 @@
        "tr": {
         "title": "Haberler"
        }
-      }
+      },
+      "background": "#FFFFFF",
+      "color": "#10233A",
+      "dark_background": "#122033",
+      "dark_color": "#E9F0F8"
      },
-     "body": {
-      "id": "demo-53",
-      "type": "column",
-      "children": []
-     },
-     "screen": "school_news"
+     "background": "#F4F6F9",
+     "dark_background": "#09131F"
     },
     "show_title": false,
     "updated_at": "2026-11-09T10:00:00.000Z",
@@ -1298,6 +1209,12 @@
      }
     },
     "studio": {
+     "body": {
+      "id": "demo-45",
+      "type": "column",
+      "children": []
+     },
+     "screen": "school_report_card",
      "header": {
       "type": "title",
       "title": "Report card",
@@ -1308,14 +1225,14 @@
        "tr": {
         "title": "Karne"
        }
-      }
+      },
+      "background": "#FFFFFF",
+      "color": "#10233A",
+      "dark_background": "#122033",
+      "dark_color": "#E9F0F8"
      },
-     "body": {
-      "id": "demo-54",
-      "type": "column",
-      "children": []
-     },
-     "screen": "school_report_card"
+     "background": "#F4F6F9",
+     "dark_background": "#09131F"
     },
     "show_title": false,
     "updated_at": "2026-11-09T10:00:00.000Z",
@@ -1333,6 +1250,12 @@
      }
     },
     "studio": {
+     "body": {
+      "id": "demo-46",
+      "type": "column",
+      "children": []
+     },
+     "screen": "school_messages",
      "header": {
       "type": "title",
       "title": "Messages",
@@ -1343,14 +1266,14 @@
        "tr": {
         "title": "Mesajlar"
        }
-      }
+      },
+      "background": "#FFFFFF",
+      "color": "#10233A",
+      "dark_background": "#122033",
+      "dark_color": "#E9F0F8"
      },
-     "body": {
-      "id": "demo-55",
-      "type": "column",
-      "children": []
-     },
-     "screen": "school_messages"
+     "background": "#F4F6F9",
+     "dark_background": "#09131F"
     },
     "show_title": false,
     "updated_at": "2026-11-09T10:00:00.000Z",
@@ -1368,6 +1291,12 @@
      }
     },
     "studio": {
+     "body": {
+      "id": "demo-47",
+      "type": "column",
+      "children": []
+     },
+     "screen": "school_bus",
      "header": {
       "type": "title",
       "title": "School bus",
@@ -1378,14 +1307,14 @@
        "tr": {
         "title": "Okul servisi"
        }
-      }
+      },
+      "background": "#FFFFFF",
+      "color": "#10233A",
+      "dark_background": "#122033",
+      "dark_color": "#E9F0F8"
      },
-     "body": {
-      "id": "demo-56",
-      "type": "column",
-      "children": []
-     },
-     "screen": "school_bus"
+     "background": "#F4F6F9",
+     "dark_background": "#09131F"
     },
     "show_title": false,
     "updated_at": "2026-11-09T10:00:00.000Z",
@@ -1403,6 +1332,12 @@
      }
     },
     "studio": {
+     "body": {
+      "id": "demo-48",
+      "type": "column",
+      "children": []
+     },
+     "screen": "school_library",
      "header": {
       "type": "title",
       "title": "Library",
@@ -1413,14 +1348,14 @@
        "tr": {
         "title": "Kütüphane"
        }
-      }
+      },
+      "background": "#FFFFFF",
+      "color": "#10233A",
+      "dark_background": "#122033",
+      "dark_color": "#E9F0F8"
      },
-     "body": {
-      "id": "demo-57",
-      "type": "column",
-      "children": []
-     },
-     "screen": "school_library"
+     "background": "#F4F6F9",
+     "dark_background": "#09131F"
     },
     "show_title": false,
     "updated_at": "2026-11-09T10:00:00.000Z",
@@ -1438,6 +1373,12 @@
      }
     },
     "studio": {
+     "body": {
+      "id": "demo-49",
+      "type": "column",
+      "children": []
+     },
+     "screen": "school_library_loans",
      "header": {
       "type": "title",
       "title": "My loans",
@@ -1448,14 +1389,14 @@
        "tr": {
         "title": "Ödünç aldıklarım"
        }
-      }
+      },
+      "background": "#FFFFFF",
+      "color": "#10233A",
+      "dark_background": "#122033",
+      "dark_color": "#E9F0F8"
      },
-     "body": {
-      "id": "demo-58",
-      "type": "column",
-      "children": []
-     },
-     "screen": "school_library_loans"
+     "background": "#F4F6F9",
+     "dark_background": "#09131F"
     },
     "show_title": false,
     "updated_at": "2026-11-09T10:00:00.000Z",
@@ -1466,7 +1407,7 @@
     "title": "A library book",
     "studio": {
      "body": {
-      "id": "demo-59",
+      "id": "demo-50",
       "type": "column",
       "children": []
      },
@@ -1488,6 +1429,12 @@
      }
     },
     "studio": {
+     "body": {
+      "id": "demo-51",
+      "type": "column",
+      "children": []
+     },
+     "screen": "school_calendar",
      "header": {
       "type": "title",
       "title": "Calendar",
@@ -1498,14 +1445,14 @@
        "tr": {
         "title": "Takvim"
        }
-      }
+      },
+      "background": "#FFFFFF",
+      "color": "#10233A",
+      "dark_background": "#122033",
+      "dark_color": "#E9F0F8"
      },
-     "body": {
-      "id": "demo-60",
-      "type": "column",
-      "children": []
-     },
-     "screen": "school_calendar"
+     "background": "#F4F6F9",
+     "dark_background": "#09131F"
     },
     "show_title": false,
     "updated_at": "2026-11-09T10:00:00.000Z",
@@ -1523,6 +1470,12 @@
      }
     },
     "studio": {
+     "body": {
+      "id": "demo-52",
+      "type": "column",
+      "children": []
+     },
+     "screen": "school_exams",
      "header": {
       "type": "title",
       "title": "Exams",
@@ -1533,14 +1486,14 @@
        "tr": {
         "title": "Sınavlar"
        }
-      }
+      },
+      "background": "#FFFFFF",
+      "color": "#10233A",
+      "dark_background": "#122033",
+      "dark_color": "#E9F0F8"
      },
-     "body": {
-      "id": "demo-61",
-      "type": "column",
-      "children": []
-     },
-     "screen": "school_exams"
+     "background": "#F4F6F9",
+     "dark_background": "#09131F"
     },
     "show_title": false,
     "updated_at": "2026-11-09T10:00:00.000Z",
@@ -1558,6 +1511,12 @@
      }
     },
     "studio": {
+     "body": {
+      "id": "demo-53",
+      "type": "column",
+      "children": []
+     },
+     "screen": "school_behaviour",
      "header": {
       "type": "title",
       "title": "Behaviour",
@@ -1568,14 +1527,14 @@
        "tr": {
         "title": "Davranış"
        }
-      }
+      },
+      "background": "#FFFFFF",
+      "color": "#10233A",
+      "dark_background": "#122033",
+      "dark_color": "#E9F0F8"
      },
-     "body": {
-      "id": "demo-62",
-      "type": "column",
-      "children": []
-     },
-     "screen": "school_behaviour"
+     "background": "#F4F6F9",
+     "dark_background": "#09131F"
     },
     "show_title": false,
     "updated_at": "2026-11-09T10:00:00.000Z",
@@ -1593,6 +1552,12 @@
      }
     },
     "studio": {
+     "body": {
+      "id": "demo-54",
+      "type": "column",
+      "children": []
+     },
+     "screen": "school_reports",
      "header": {
       "type": "title",
       "title": "Reports",
@@ -1603,14 +1568,14 @@
        "tr": {
         "title": "Raporlar"
        }
-      }
+      },
+      "background": "#FFFFFF",
+      "color": "#10233A",
+      "dark_background": "#122033",
+      "dark_color": "#E9F0F8"
      },
-     "body": {
-      "id": "demo-63",
-      "type": "column",
-      "children": []
-     },
-     "screen": "school_reports"
+     "background": "#F4F6F9",
+     "dark_background": "#09131F"
     },
     "show_title": false,
     "updated_at": "2026-11-09T10:00:00.000Z",
@@ -1628,6 +1593,12 @@
      }
     },
     "studio": {
+     "body": {
+      "id": "demo-55",
+      "type": "column",
+      "children": []
+     },
+     "screen": "uni_registration",
      "header": {
       "type": "title",
       "title": "Registration",
@@ -1638,14 +1609,14 @@
        "tr": {
         "title": "Ders kaydı"
        }
-      }
+      },
+      "background": "#FFFFFF",
+      "color": "#10233A",
+      "dark_background": "#122033",
+      "dark_color": "#E9F0F8"
      },
-     "body": {
-      "id": "demo-64",
-      "type": "column",
-      "children": []
-     },
-     "screen": "uni_registration"
+     "background": "#F4F6F9",
+     "dark_background": "#09131F"
     },
     "show_title": false,
     "updated_at": "2026-11-09T10:00:00.000Z",
@@ -1663,6 +1634,12 @@
      }
     },
     "studio": {
+     "body": {
+      "id": "demo-56",
+      "type": "column",
+      "children": []
+     },
+     "screen": "uni_timetable",
      "header": {
       "type": "title",
       "title": "Timetable",
@@ -1673,14 +1650,14 @@
        "tr": {
         "title": "Ders programı"
        }
-      }
+      },
+      "background": "#FFFFFF",
+      "color": "#10233A",
+      "dark_background": "#122033",
+      "dark_color": "#E9F0F8"
      },
-     "body": {
-      "id": "demo-65",
-      "type": "column",
-      "children": []
-     },
-     "screen": "uni_timetable"
+     "background": "#F4F6F9",
+     "dark_background": "#09131F"
     },
     "show_title": false,
     "updated_at": "2026-11-09T10:00:00.000Z",
@@ -1698,6 +1675,12 @@
      }
     },
     "studio": {
+     "body": {
+      "id": "demo-57",
+      "type": "column",
+      "children": []
+     },
+     "screen": "uni_results",
      "header": {
       "type": "title",
       "title": "Results",
@@ -1708,14 +1691,14 @@
        "tr": {
         "title": "Sonuçlar"
        }
-      }
+      },
+      "background": "#FFFFFF",
+      "color": "#10233A",
+      "dark_background": "#122033",
+      "dark_color": "#E9F0F8"
      },
-     "body": {
-      "id": "demo-66",
-      "type": "column",
-      "children": []
-     },
-     "screen": "uni_results"
+     "background": "#F4F6F9",
+     "dark_background": "#09131F"
     },
     "show_title": false,
     "updated_at": "2026-11-09T10:00:00.000Z",
@@ -1733,6 +1716,12 @@
      }
     },
     "studio": {
+     "body": {
+      "id": "demo-58",
+      "type": "column",
+      "children": []
+     },
+     "screen": "uni_transcript",
      "header": {
       "type": "title",
       "title": "Transcript",
@@ -1743,14 +1732,14 @@
        "tr": {
         "title": "Transkript"
        }
-      }
+      },
+      "background": "#FFFFFF",
+      "color": "#10233A",
+      "dark_background": "#122033",
+      "dark_color": "#E9F0F8"
      },
-     "body": {
-      "id": "demo-67",
-      "type": "column",
-      "children": []
-     },
-     "screen": "uni_transcript"
+     "background": "#F4F6F9",
+     "dark_background": "#09131F"
     },
     "show_title": false,
     "updated_at": "2026-11-09T10:00:00.000Z",
@@ -1768,6 +1757,12 @@
      }
     },
     "studio": {
+     "body": {
+      "id": "demo-59",
+      "type": "column",
+      "children": []
+     },
+     "screen": "uni_plan",
      "header": {
       "type": "title",
       "title": "Study plan",
@@ -1778,14 +1773,14 @@
        "tr": {
         "title": "Ders planı"
        }
-      }
+      },
+      "background": "#FFFFFF",
+      "color": "#10233A",
+      "dark_background": "#122033",
+      "dark_color": "#E9F0F8"
      },
-     "body": {
-      "id": "demo-68",
-      "type": "column",
-      "children": []
-     },
-     "screen": "uni_plan"
+     "background": "#F4F6F9",
+     "dark_background": "#09131F"
     },
     "show_title": false,
     "updated_at": "2026-11-09T10:00:00.000Z",
@@ -1794,7 +1789,12 @@
   ],
   "tab_bar": {
    "design": "classic",
-   "avatar": true
+   "background": "#FFFFFF",
+   "dark_background": "#122033",
+   "active": "#1F4E79",
+   "dark_active": "#9CC3EA",
+   "inactive": "#56657A",
+   "dark_inactive": "#A6B3C3"
   }
  }
 }
