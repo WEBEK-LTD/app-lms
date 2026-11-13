@@ -13,9 +13,11 @@ import { kindOf } from "@/lib/app/kinds";
 import type { DemoId } from "@/lib/demo/constants";
 import { demoKind } from "@/lib/demo/constants";
 import { DEMO_BRANDS } from "@/lib/demo/content";
+import type { DemoLoop as DemoLoopFiles } from "@/lib/demo/loops";
 import { businessOf, productOf, screensOf } from "@/lib/demo/picker";
 import { dashboardText, type DashboardText } from "@/lib/dashboard-lang";
 import { demoGuideFor, screenAltFor } from "@/lib/marketing-lang";
+import { DemoLoop } from "./demo-loop";
 
 /**
  * 127 The pieces of /start, as approved on 13 November 2026: the page with
@@ -45,11 +47,17 @@ export function businessName(text: DashboardText, id: DemoId): string {
   return business in startWords.business ? text.t(`start.business.${business}` as DashKey) : text.k(kindOf({ appType: demoKind(id).engine, vertical: demoKind(id).vertical }).name);
 }
 
-/** A screenshot of the demo in the approved phone frame: `width` × `height`, the frame's border `border`. */
-export function Phone({ src, alt, width, height, border, radius, frame = "#0E0D24", className = "", style }: { src: string; alt: string; width: number; height: number; border: number; radius: number; frame?: string; className?: string; style?: CSSProperties }) {
+/**
+ * A screenshot of the demo in the approved phone frame: `width` × `height`, the frame's border `border`.
+ * 128.9 With `loop`, the demo's short loop plays over it while in view (demo-loop.tsx).
+ */
+export function Phone({ src, alt, width, height, border, radius, frame = "#0E0D24", className = "", style, loop }: { src: string; alt: string; width: number; height: number; border: number; radius: number; frame?: string; className?: string; style?: CSSProperties; loop?: DemoLoopFiles }) {
   return (
     <div className={`shrink-0 overflow-hidden ${className}`} style={{ width, height, borderRadius: radius, border: `${border}px solid ${frame}`, background: frame, ...style }}>
-      <img src={src} alt={alt} className="block h-full w-full object-cover object-top" loading="lazy" decoding="async" />
+      <div className="relative h-full w-full">
+        <img src={src} alt={alt} className="block h-full w-full object-cover object-top" loading="lazy" decoding="async" />
+        {loop ? <DemoLoop webm={loop.webm} mp4={loop.mp4} poster={src} /> : null}
+      </div>
     </div>
   );
 }
