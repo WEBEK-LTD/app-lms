@@ -10,8 +10,8 @@ import { expect, test } from "@playwright/test";
 
 /**
  * How far the page's own content (main) reaches past the window. The site's
- * header is measured by tests/e2e/public.spec.ts: in Turkish at 1280 px its
- * longer labels already pass the edge on every page, the pricing page too.
+ * header is measured by tests/e2e/public.spec.ts (it fits at 1280 px in every
+ * language: when Turkish's labels didn't, the page scrolled sideways and moved main with it).
  * What bleeds past the edges on purpose, clipped by its scene (the sale
  * tape, the night sky, the phones at the opening's sides, the shelf that
  * scrolls), is marked `data-bleed` and left out.
