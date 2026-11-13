@@ -10957,5 +10957,1057 @@
   "@launchWelcome": {
     "description": "124.15 Over the app's name on the Editorial launch screen."
   },
-  "launchWelcome": "Welcome to"
+  "launchWelcome": "Welcome to",
+  "travelTabExplore": "Explore",
+  "@travelTabExplore": {
+    "description": "126 Travel (hotels and flights): the module's words, from here on."
+  },
+  "travelTabStays": "Stays",
+  "travelTabFlights": "Flights",
+  "travelTabTrips": "Trips",
+  "travelTabSaved": "Saved",
+  "travelTabBookings": "Bookings",
+  "travelTabAlerts": "Alerts",
+  "travelTabSearch": "Search",
+  "travelTabHelp": "Help",
+  "travelMorning": "Good morning",
+  "travelAfternoon": "Good afternoon",
+  "travelEvening": "Good evening",
+  "travelGreeting": "{part}, {name}",
+  "@travelGreeting": {
+    "placeholders": {
+      "part": {
+        "type": "String"
+      },
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "travelExploreTitle": "Where does the next story begin?",
+  "travelHeroPhoto": "A place to travel to",
+  "travelStayFlight": "Stay + Flight",
+  "travelFrom": "From",
+  "travelTo": "To",
+  "travelWhereTo": "Where to?",
+  "travelAnywhere": "Anywhere",
+  "travelDates": "Dates",
+  "travelDatesNights": "{count, plural, =1{Dates · 1 night} other{Dates · {count} nights}}",
+  "@travelDatesNights": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "travelTravellers": "Travellers",
+  "travelGuestsLabel": "Guests",
+  "travelRoomsLabel": "Rooms",
+  "travelTravellersLabel": "Travellers",
+  "travelPeopleLabel": "People",
+  "travelNightsLabel": "Nights",
+  "travelFindTrip": "Find my trip",
+  "travelSearchStays": "Search stays",
+  "travelSearchFlights": "Search flights",
+  "travelTogether": "Flight + hotel together",
+  "travelOneBooking": "one booking, one price",
+  "travelTrending": "Trending this month",
+  "travelSeeAll": "See all",
+  "travelTripFrom": "Stay + flight from {price}",
+  "@travelTripFrom": {
+    "placeholders": {
+      "price": {
+        "type": "String"
+      }
+    }
+  },
+  "travelNightFrom": "Stays from {price} a night",
+  "@travelNightFrom": {
+    "placeholders": {
+      "price": {
+        "type": "String"
+      }
+    }
+  },
+  "travelHotelsCount": "{count, plural, =1{1 hotel} other{{count} hotels}}",
+  "@travelHotelsCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "travelAlertDropped": "{route} dropped {amount}",
+  "@travelAlertDropped": {
+    "placeholders": {
+      "route": {
+        "type": "String"
+      },
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+  "travelAlertNow": "Your alert · now from {price}",
+  "@travelAlertNow": {
+    "placeholders": {
+      "price": {
+        "type": "String"
+      }
+    }
+  },
+  "travelPriceAlerts": "Price alerts",
+  "travelMember": "Member",
+  "travelMemberPrices": "Member prices · −{percent}%",
+  "@travelMemberPrices": {
+    "placeholders": {
+      "percent": {
+        "type": "int"
+      }
+    }
+  },
+  "travelMemberOff": "Member price · −{percent}%",
+  "@travelMemberOff": {
+    "placeholders": {
+      "percent": {
+        "type": "int"
+      }
+    }
+  },
+  "travelMemberPrice": "Member price",
+  "travelStaysTitle": "Stay somewhere",
+  "travelStaysTitleEnd": "unforgettable.",
+  "travelFlightsTitle": "The whole sky,",
+  "travelFlightsTitleEnd": "one search.",
+  "travelAll": "All",
+  "travelFeaturedIn": "Featured · {city}",
+  "@travelFeaturedIn": {
+    "placeholders": {
+      "city": {
+        "type": "String"
+      }
+    }
+  },
+  "travelPerNight": "{price} / night",
+  "@travelPerNight": {
+    "placeholders": {
+      "price": {
+        "type": "String"
+      }
+    }
+  },
+  "travelReturn": "Return",
+  "travelOneWay": "One way",
+  "travelDepart": "Depart",
+  "travelSwap": "Swap",
+  "travelDirectOnly": "Direct only",
+  "travelAdults": "{count, plural, =1{1 adult} other{{count} adults}}",
+  "@travelAdults": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "travelAdultsEconomy": "{count, plural, =1{1 adult · Economy} other{{count} adults · Economy}}",
+  "@travelAdultsEconomy": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "travelGuests": "{count, plural, =1{1 guest} other{{count} guests}}",
+  "@travelGuests": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "travelRooms": "{count, plural, =1{1 room} other{{count} rooms}}",
+  "@travelRooms": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "travelGuestsRooms": "{rooms, plural, =1{{guests} · 1 room} other{{guests} · {rooms} rooms}}",
+  "@travelGuestsRooms": {
+    "placeholders": {
+      "guests": {
+        "type": "int"
+      },
+      "rooms": {
+        "type": "int"
+      }
+    }
+  },
+  "travelPeople": "{count, plural, =1{1 person} other{{count} people}}",
+  "@travelPeople": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "travelTravellersCount": "{count, plural, =1{1 traveller} other{{count} travellers}}",
+  "@travelTravellersCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "travelNights": "{count, plural, =1{1 night} other{{count} nights}}",
+  "@travelNights": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "travelPickDates": "Choose your dates to see the prices.",
+  "travelLess": "Fewer",
+  "travelMore": "More",
+  "travelDone": "Done",
+  "travelChoose": "Choose",
+  "travelSearchPlaces": "City or airport",
+  "travelNoPlaces": "Nothing matches. Try another name.",
+  "travelAmenityPool": "Pool",
+  "travelAmenitySpa": "Spa",
+  "travelAmenityWifi": "Free Wi-Fi",
+  "travelAmenityBreakfast": "Breakfast",
+  "travelAmenityShuttle": "Airport shuttle",
+  "travelAmenityGym": "Gym",
+  "travelAmenityParking": "Parking",
+  "travelAmenityBeach": "Beach",
+  "travelAmenityRestaurant": "Restaurant",
+  "travelAmenityBar": "Bar",
+  "travelAmenityAirConditioning": "Air conditioning",
+  "travelAmenityFamily": "Family rooms",
+  "travelAmenityPets": "Pets allowed",
+  "travelAmenityAccessible": "Accessible",
+  "travelAmenityKitchen": "Kitchen",
+  "travelAmenityView": "View",
+  "travelKindResort": "Resort",
+  "travelKindBoutique": "Boutique hotel",
+  "travelKindApartments": "Apartments",
+  "travelKindVilla": "Villa",
+  "travelKindHostel": "Hostel",
+  "travelKindGuesthouse": "Guesthouse",
+  "travelKindHotel": "Hotel",
+  "travelBoardBreakfast": "Breakfast included",
+  "travelBoardHalf": "Half board",
+  "travelBoardFull": "Full board",
+  "travelBoardAll": "All inclusive",
+  "travelBoardRoomOnly": "Room only",
+  "travelStatusOnTime": "On time",
+  "travelStatusDelayed": "Delayed",
+  "travelStatusBoarding": "Boarding",
+  "travelStatusDeparted": "Departed",
+  "travelStatusLanded": "Landed",
+  "travelStatusCancelled": "Cancelled",
+  "travelStatusScheduled": "Scheduled",
+  "travelRequestLate": "Late arrival",
+  "travelRequestEarly": "Early arrival",
+  "travelRequestHighFloor": "High floor",
+  "travelRequestQuiet": "Quiet room",
+  "travelRequestPickup": "Airport pickup",
+  "travelRequestTwin": "Twin beds",
+  "travelRequestAccessible": "Accessible room",
+  "travelLineNights": "{count, plural, =1{1 night × {unit}} other{{count} nights × {unit}}}",
+  "@travelLineNights": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      },
+      "unit": {
+        "type": "String"
+      }
+    }
+  },
+  "travelLineFare": "{count, plural, =1{Fare · 1 traveller} other{Fare · {count} travellers}}",
+  "@travelLineFare": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "travelLineSeats": "Seats",
+  "travelLineBags": "{count, plural, =1{1 extra bag} other{{count} extra bags}}",
+  "@travelLineBags": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "travelLineMeals": "{count, plural, =1{1 meal} other{{count} meals}}",
+  "@travelLineMeals": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "travelLineTransfer": "Airport transfer",
+  "travelLineTaxes": "Taxes and fees",
+  "travelLineMember": "Member price",
+  "travelLineBundle": "Stay + flight saving",
+  "travelLineChangeFee": "Change fee",
+  "travelSaveHotel": "Save",
+  "travelUnsave": "Remove from saved",
+  "travelScoreExceptional": "Exceptional",
+  "travelScoreSuperb": "Superb",
+  "travelScoreVeryGood": "Very good",
+  "travelScoreGood": "Good",
+  "travelScorePleasant": "Pleasant",
+  "travelReviews": "{count, plural, =1{1 review} other{{count} reviews}}",
+  "@travelReviews": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "travelStars": "{count, plural, =1{1 star} other{{count} stars}}",
+  "@travelStars": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "travelFreeCancellation": "Free cancellation",
+  "travelNightsTaxes": "{count, plural, =1{1 night, taxes included} other{{count} nights, taxes included}}",
+  "@travelNightsTaxes": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "travelNightsAtHotel": "{count, plural, =1{1 night · pay at the hotel} other{{count} nights · pay at the hotel}}",
+  "@travelNightsAtHotel": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "travelANight": "a night",
+  "travelStaysCount": "{count, plural, =0{No stays} =1{1 stay} other{{count} stays}}",
+  "@travelStaysCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "travelSortedBy": "sorted by {sort}",
+  "@travelSortedBy": {
+    "placeholders": {
+      "sort": {
+        "type": "String"
+      }
+    }
+  },
+  "travelSort": "Sort",
+  "travelSortRecommended": "Recommended",
+  "travelSortPrice": "Lowest price",
+  "travelSortScore": "Guest score",
+  "travelSortStars": "Stars",
+  "travelSuperbPlus": "Superb 9+",
+  "travelShowMap": "Map",
+  "travelBackToList": "List",
+  "travelMapCount": "{count, plural, =0{No stays} =1{1 stay · {nights}-night totals} other{{count} stays · {nights}-night totals}}",
+  "@travelMapCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      },
+      "nights": {
+        "type": "int"
+      }
+    }
+  },
+  "travelPinNights": "{nights, plural, =1{{price} · 1 night} other{{price} · {nights} nights}}",
+  "@travelPinNights": {
+    "placeholders": {
+      "price": {
+        "type": "String"
+      },
+      "nights": {
+        "type": "int"
+      }
+    }
+  },
+  "travelView": "View",
+  "travelPhotosCount": "{count, plural, =1{1 photo} other{{count} photos}}",
+  "@travelPhotosCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "travelQuoteBy": "{name} · stayed {stayed}",
+  "@travelQuoteBy": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      },
+      "stayed": {
+        "type": "String"
+      }
+    }
+  },
+  "travelOverall": "Overall",
+  "travelScoreStaff": "Staff",
+  "travelScoreClean": "Cleanliness",
+  "travelScoreLocation": "Location",
+  "travelScoreValue": "Value for money",
+  "travelCheckInOut": "Check-in from {checkIn} · check-out by {checkOut}",
+  "@travelCheckInOut": {
+    "placeholders": {
+      "checkIn": {
+        "type": "String"
+      },
+      "checkOut": {
+        "type": "String"
+      }
+    }
+  },
+  "travelChooseRoom": "Choose a room",
+  "travelChooseYourRoom": "Choose your room",
+  "travelFromANight": "from, a night",
+  "travelSleeps": "{count, plural, =1{Sleeps 1} other{Sleeps {count}}}",
+  "@travelSleeps": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "travelLeftAtPrice": "{count, plural, =1{1 left at this price} other{{count} left at this price}}",
+  "@travelLeftAtPrice": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "travelMostChosen": "Most chosen",
+  "travelSoldOut": "Sold out for your dates",
+  "travelNoRooms": "No rooms are open for these dates.",
+  "travelNonRefundable": "Non-refundable",
+  "travelFreeCancelUntil": "Free cancellation until {day}",
+  "@travelFreeCancelUntil": {
+    "placeholders": {
+      "day": {
+        "type": "String"
+      }
+    }
+  },
+  "travelPayNowOrAtHotel": "Pay now or at the hotel",
+  "travelPayAtHotel": "Pay at the hotel",
+  "travelPayNow": "Pay now",
+  "travelReserve": "Reserve",
+  "travelTotalPrice": "Total price",
+  "travelNoStays": "No stays found",
+  "travelNoStaysText": "Try other dates or fewer filters.",
+  "travelNoSaved": "Nothing saved yet",
+  "travelNoSavedText": "Tap the heart on a stay to keep it here.",
+  "travelSavedSignIn": "Sign in to see your saved stays",
+  "travelSavedSignInText": "Your saved stays follow you on every phone.",
+  "travelMessageHotel": "Message the hotel",
+  "travelDirect": "Direct",
+  "travelStops": "{count, plural, =1{1 stop} other{{count} stops}}",
+  "@travelStops": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "travelStopsVia": "{count, plural, =1{1 stop · {via}} other{{count} stops · {via}}}",
+  "@travelStopsVia": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      },
+      "via": {
+        "type": "String"
+      }
+    }
+  },
+  "travelViaTime": "via {via} · {time}",
+  "@travelViaTime": {
+    "placeholders": {
+      "via": {
+        "type": "String"
+      },
+      "time": {
+        "type": "String"
+      }
+    }
+  },
+  "travelDuration": "{hours}h {minutes}m",
+  "@travelDuration": {
+    "placeholders": {
+      "hours": {
+        "type": "int"
+      },
+      "minutes": {
+        "type": "String"
+      }
+    }
+  },
+  "travelBothWays": "{stops} both ways",
+  "@travelBothWays": {
+    "placeholders": {
+      "stops": {
+        "type": "String"
+      }
+    }
+  },
+  "travelCalendar": "Calendar",
+  "travelPriceGraph": "Price graph",
+  "travelReturnPricesFor": "{count, plural, =1{Return prices for 1 · Economy} other{Return prices for {count} · Economy}}",
+  "@travelReturnPricesFor": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "travelOneWayPricesFor": "{count, plural, =1{One-way prices for 1 · Economy} other{One-way prices for {count} · Economy}}",
+  "@travelOneWayPricesFor": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "travelPreviousMonth": "Previous month",
+  "travelNextMonth": "Next month",
+  "travelLowest": "Lowest",
+  "travelAverage": "Average",
+  "travelHigher": "Higher",
+  "travelLeaveInstead": "Leave {day} instead and save {saving}",
+  "@travelLeaveInstead": {
+    "placeholders": {
+      "day": {
+        "type": "String"
+      },
+      "saving": {
+        "type": "String"
+      }
+    }
+  },
+  "travelSameNights": "{count, plural, =1{Same night} other{Same {count} nights}}",
+  "@travelSameNights": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "travelFromPerPerson": "from {price} per person",
+  "@travelFromPerPerson": {
+    "placeholders": {
+      "price": {
+        "type": "String"
+      }
+    }
+  },
+  "travelShowFlights": "Show flights",
+  "travelNoFlightsMonth": "No flights this month",
+  "travelPricesAre": "Prices are",
+  "travelLow": "low",
+  "travelHigh": "high",
+  "travelTypical": "typical",
+  "travelForYourDates": "for your dates",
+  "travelUsually": "Usually {from}–{to} for these dates",
+  "@travelUsually": {
+    "placeholders": {
+      "from": {
+        "type": "String"
+      },
+      "to": {
+        "type": "String"
+      }
+    }
+  },
+  "travelBest": "Best",
+  "travelCheapest": "Cheapest",
+  "travelFastest": "Fastest",
+  "travelTrack": "Track",
+  "travelTracking": "We'll tell you when the price drops.",
+  "travelSignInToWatch": "Sign in to watch prices.",
+  "travelPerPerson": "per person",
+  "travelPerPersonReturn": "per person, return",
+  "travelFreeChanges": "Free changes",
+  "travelCabinOnly": "Cabin bag only",
+  "travelCabinBag": "Cabin + {kg} kg bag",
+  "@travelCabinBag": {
+    "placeholders": {
+      "kg": {
+        "type": "int"
+      }
+    }
+  },
+  "travelNoFlights": "No flights found",
+  "travelNoFlightsText": "Try other dates or another airport.",
+  "travelOut": "Outbound",
+  "travelWifi": "Wi-Fi",
+  "travelMeal": "Meal",
+  "travelTerminal": "Terminal {terminal}",
+  "@travelTerminal": {
+    "placeholders": {
+      "terminal": {
+        "type": "String"
+      }
+    }
+  },
+  "travelChooseFare": "Choose your fare",
+  "travelBestValue": "Best value",
+  "travelSeatsLeft": "{count, plural, =1{1 seat left} other{{count} seats left}}",
+  "@travelSeatsLeft": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "travelCabinKg": "Cabin bag {kg} kg",
+  "@travelCabinKg": {
+    "placeholders": {
+      "kg": {
+        "type": "int"
+      }
+    }
+  },
+  "travelBagsKg": "{count, plural, =1{1 checked bag · {kg} kg} other{{count} checked bags · {kg} kg each}}",
+  "@travelBagsKg": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      },
+      "kg": {
+        "type": "int"
+      }
+    }
+  },
+  "travelNoCheckedBag": "No checked bag",
+  "travelChangeFor": "Changes for {fee}",
+  "@travelChangeFor": {
+    "placeholders": {
+      "fee": {
+        "type": "String"
+      }
+    }
+  },
+  "travelNoChanges": "No changes",
+  "travelFullRefund": "Full refund",
+  "travelRefundAtFee": "Refund for a fee",
+  "travelNoRefund": "No refund",
+  "travelAnySeat": "Any seat included",
+  "travelStandardSeat": "Standard seat included",
+  "travelSeatAtFee": "Seat for a fee",
+  "travelFareTravellers": "{count, plural, =1{{fare} · 1 traveller} other{{fare} · {count} travellers}}",
+  "@travelFareTravellers": {
+    "placeholders": {
+      "fare": {
+        "type": "String"
+      },
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "travelChooseSeats": "Choose seats",
+  "travelContinue": "Continue",
+  "travelChooseFlightFirst": "Choose a flight first",
+  "travelSeatsOn": "Seats · {route}",
+  "@travelSeatsOn": {
+    "placeholders": {
+      "route": {
+        "type": "String"
+      }
+    }
+  },
+  "travelSeatsAtAirport": "Seats are given at the airport on this flight",
+  "travelFree": "Free",
+  "travelTaken": "Taken",
+  "travelExtraLegroom": "Extra legroom · {price}",
+  "@travelExtraLegroom": {
+    "placeholders": {
+      "price": {
+        "type": "String"
+      }
+    }
+  },
+  "travelSeatTaken": "{id}, taken",
+  "@travelSeatTaken": {
+    "placeholders": {
+      "id": {
+        "type": "String"
+      }
+    }
+  },
+  "travelSeatExtra": "{id}, extra legroom",
+  "@travelSeatExtra": {
+    "placeholders": {
+      "id": {
+        "type": "String"
+      }
+    }
+  },
+  "travelSeatFee": "Choosing a seat costs {price} on this fare",
+  "@travelSeatFee": {
+    "placeholders": {
+      "price": {
+        "type": "String"
+      }
+    }
+  },
+  "travelSeatsNext": "You can skip this: seats are given at check-in.",
+  "travelBagsMeals": "Bags and meals",
+  "travelBagsMealsText": "Add them now, for less than at the airport.",
+  "travelExtraBags": "Extra checked bags",
+  "travelExtraBagsText": "{legs, plural, =1{For the flight, per bag} other{For each flight, per bag}}",
+  "@travelExtraBagsText": {
+    "placeholders": {
+      "legs": {
+        "type": "int"
+      }
+    }
+  },
+  "travelMeals": "Meals",
+  "travelMealsText": "{legs, plural, =1{A hot meal on the flight} other{A hot meal on each flight}}",
+  "@travelMealsText": {
+    "placeholders": {
+      "legs": {
+        "type": "int"
+      }
+    }
+  },
+  "travelAtAirport": "At the airport",
+  "travelNoTripFlight": "No flight on these dates. Try other dates.",
+  "travelNoTripStay": "No stay open in that city on these dates.",
+  "travelWatchTrip": "Watch this trip's price",
+  "travelOnePrice": "One price",
+  "travelOnePriceText": "{count, plural, =1{1 traveller · flights, {nights}-night stay and taxes} other{{count} travellers · flights, {nights}-night stay and taxes}}",
+  "@travelOnePriceText": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      },
+      "nights": {
+        "type": "int"
+      }
+    }
+  },
+  "travelSave": "Save {amount}",
+  "@travelSave": {
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+  "travelChange": "Change",
+  "travelBagIncluded": "{kg} kg bag included",
+  "@travelBagIncluded": {
+    "placeholders": {
+      "kg": {
+        "type": "int"
+      }
+    }
+  },
+  "travelStay": "Stay",
+  "travelTransfer": "Airport transfer",
+  "travelTotalFor": "{count, plural, =1{Total for 1 traveller} other{Total for {count} travellers}}",
+  "@travelTotalFor": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "travelReserveTrip": "Reserve trip",
+  "travelConfirmPay": "Confirm and pay",
+  "travelSecureCheckout": "Secure checkout",
+  "travelGuest": "Guest",
+  "travelTravellersAsPassport": "Travellers, as on the passport",
+  "travelSavedTraveller": "Saved",
+  "travelFirstName": "First name (traveller {n})",
+  "@travelFirstName": {
+    "placeholders": {
+      "n": {
+        "type": "int"
+      }
+    }
+  },
+  "travelLastName": "Last name",
+  "travelNamesNeeded": "Enter every traveller's name.",
+  "travelAtHotelText": "Nothing to pay now. You pay at the hotel.",
+  "travelPayNowText": "You pay on the secure payment page next.",
+  "travelConfirmAtHotel": "Confirm booking",
+  "travelConfirmAndPay": "Confirm and pay {total}",
+  "@travelConfirmAndPay": {
+    "placeholders": {
+      "total": {
+        "type": "String"
+      }
+    }
+  },
+  "travelTotal": "Total",
+  "travelFreeCancelUntilHotel": "Free cancellation until {day} · full refund",
+  "@travelFreeCancelUntilHotel": {
+    "placeholders": {
+      "day": {
+        "type": "String"
+      }
+    }
+  },
+  "travelBooked": "Booked. Have a good trip!",
+  "travelTripsSignIn": "Sign in to see your trips",
+  "travelBookingsSignIn": "Sign in to see your bookings",
+  "travelTripsSignInText": "Your bookings, boarding passes and changes, in one place.",
+  "travelNoTrips": "No trips yet",
+  "travelNoTripsText": "When you book, your trip shows here.",
+  "travelAwaitingPayment": "Awaiting payment",
+  "travelCancelled": "Cancelled",
+  "travelCompleted": "Completed",
+  "travelConfirmed": "Confirmed",
+  "travelCheckIn": "Check-in",
+  "travelBack": "Back",
+  "travelTripsUpcoming": "{count, plural, =1{Your next trip} other{Your next trip · {count} coming up}}",
+  "@travelTripsUpcoming": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "travelManage": "Manage booking",
+  "travelStartsIn": "{days, plural, =0{Starts in {hours} h} =1{Starts in 1 day, {hours} h} other{Starts in {days} days, {hours} h}}",
+  "@travelStartsIn": {
+    "placeholders": {
+      "days": {
+        "type": "int"
+      },
+      "hours": {
+        "type": "int"
+      }
+    }
+  },
+  "travelPayDue": "Pay {amount}",
+  "@travelPayDue": {
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+  "travelReviewStay": "Review your stay",
+  "travelTerminalLabel": "Terminal",
+  "travelGate": "Gate",
+  "travelSeatsLabel": "Seats",
+  "travelBoards": "Boards",
+  "travelBoardingPasses": "Boarding passes",
+  "travelPassesLater": "They open 48 hours before the flight.",
+  "travelPassOf": "{n} of {total}",
+  "@travelPassOf": {
+    "placeholders": {
+      "n": {
+        "type": "int"
+      },
+      "total": {
+        "type": "int"
+      }
+    }
+  },
+  "travelGateStatus": "Gate {gate} · {status}",
+  "@travelGateStatus": {
+    "placeholders": {
+      "gate": {
+        "type": "String"
+      },
+      "status": {
+        "type": "String"
+      }
+    }
+  },
+  "travelSeat": "Seat",
+  "travelGroup": "Group",
+  "travelPassenger": "Passenger",
+  "travelClass": "Fare",
+  "travelPassCode": "Boarding pass code",
+  "travelWorksOffline": "Works offline",
+  "travelKeptOffline": "Kept on this phone: it shows without a connection.",
+  "travelChangeSeat": "Change seat",
+  "travelPaid": "Paid: {amount}",
+  "@travelPaid": {
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+  "travelDue": "Due: {amount}",
+  "@travelDue": {
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+  "travelRefund": "Refund: {amount}",
+  "@travelRefund": {
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+  "travelChangeDates": "Change dates",
+  "travelChangeDatesText": "Same room, if it is free on the new dates.",
+  "travelChanged": "Your booking is changed.",
+  "travelChangeSeatOn": "Change seats on {number}",
+  "@travelChangeSeatOn": {
+    "placeholders": {
+      "number": {
+        "type": "String"
+      }
+    }
+  },
+  "travelSeatsOf": "Seats: {seats}",
+  "@travelSeatsOf": {
+    "placeholders": {
+      "seats": {
+        "type": "String"
+      }
+    }
+  },
+  "travelCancelTitle": "Cancel this booking?",
+  "travelCancelNoRefund": "Nothing is refunded on this booking.",
+  "travelCancelRefund": "You'll get {amount} back.",
+  "@travelCancelRefund": {
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+  "travelCancelBooking": "Cancel booking",
+  "travelCancelledDone": "Your booking is cancelled.",
+  "travelCancelledRefund": "Cancelled · {amount} refunded",
+  "@travelCancelledRefund": {
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+  "travelTravellerN": "Traveller {n}",
+  "@travelTravellerN": {
+    "placeholders": {
+      "n": {
+        "type": "int"
+      }
+    }
+  },
+  "travelTripCouple": "Couple",
+  "travelTripFamily": "Family",
+  "travelTripFriends": "Friends",
+  "travelTripSolo": "Solo",
+  "travelTripBusiness": "Business",
+  "travelReviewWords": "A few words for other guests",
+  "travelSendReview": "Send review",
+  "travelThanksReview": "Thank you for your review.",
+  "travelAlertsSignIn": "Sign in to watch prices",
+  "travelAlertsSignInText": "We watch the routes you choose and tell you when the price drops.",
+  "travelAlertsEyebrow": "We watch, you relax",
+  "travelNewAlert": "New",
+  "travelNoAlerts": "No price alerts yet",
+  "travelNoAlertsText": "Watch a route and we'll tell you when it gets cheaper.",
+  "travelAnywhereUnder": "Anywhere under {price}",
+  "@travelAnywhereUnder": {
+    "placeholders": {
+      "price": {
+        "type": "String"
+      }
+    }
+  },
+  "travelStayAndFlightTo": "{city} · stay + flight",
+  "@travelStayAndFlightTo": {
+    "placeholders": {
+      "city": {
+        "type": "String"
+      }
+    }
+  },
+  "travelFromCity": "From {city}",
+  "@travelFromCity": {
+    "placeholders": {
+      "city": {
+        "type": "String"
+      }
+    }
+  },
+  "travelAnyDates": "any dates",
+  "travelAnyDatesIn": "any dates in {month}",
+  "@travelAnyDatesIn": {
+    "placeholders": {
+      "month": {
+        "type": "String"
+      }
+    }
+  },
+  "travelChangeSince": "{change} so far",
+  "@travelChangeSince": {
+    "placeholders": {
+      "change": {
+        "type": "String"
+      }
+    }
+  },
+  "travelNothingOnSale": "Nothing on sale right now",
+  "travelFewSeatsAtPrice": "Few seats left at this price.",
+  "travelPriceDropped": "The price went down.",
+  "travelWeWatch": "We check the price every day and tell you when it drops.",
+  "travelGoodTimeToBook": "Good time to book.",
+  "travelSeeTrip": "See the trip",
+  "travelSeeFlights": "See flights",
+  "travelNewMatches": "{count, plural, =0{None yet} =1{1 new} other{{count} new}}",
+  "@travelNewMatches": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "travelStopWatching": "Stop watching",
+  "travelChooseRoute": "Choose the route to watch.",
+  "travelChooseMax": "Enter the most you'd pay.",
+  "travelAlertRoute": "Route",
+  "travelAlertTrip": "Stay + flight",
+  "travelAlertAnywhere": "Anywhere",
+  "travelMaxPrice": "Most you'd pay ({currency})",
+  "@travelMaxPrice": {
+    "placeholders": {
+      "currency": {
+        "type": "String"
+      }
+    }
+  },
+  "travelWhen": "When",
+  "travelWatchPrice": "Watch the price",
+  "travelTravellersCabin": "Travellers and cabin"
 }

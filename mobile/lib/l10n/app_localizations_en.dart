@@ -9774,4 +9774,1537 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get launchWelcome => 'Welcome to';
+
+  @override
+  String get travelTabExplore => 'Explore';
+
+  @override
+  String get travelTabStays => 'Stays';
+
+  @override
+  String get travelTabFlights => 'Flights';
+
+  @override
+  String get travelTabTrips => 'Trips';
+
+  @override
+  String get travelTabSaved => 'Saved';
+
+  @override
+  String get travelTabBookings => 'Bookings';
+
+  @override
+  String get travelTabAlerts => 'Alerts';
+
+  @override
+  String get travelTabSearch => 'Search';
+
+  @override
+  String get travelTabHelp => 'Help';
+
+  @override
+  String get travelMorning => 'Good morning';
+
+  @override
+  String get travelAfternoon => 'Good afternoon';
+
+  @override
+  String get travelEvening => 'Good evening';
+
+  @override
+  String travelGreeting(String part, String name) {
+    return '$part, $name';
+  }
+
+  @override
+  String get travelExploreTitle => 'Where does the next story begin?';
+
+  @override
+  String get travelHeroPhoto => 'A place to travel to';
+
+  @override
+  String get travelStayFlight => 'Stay + Flight';
+
+  @override
+  String get travelFrom => 'From';
+
+  @override
+  String get travelTo => 'To';
+
+  @override
+  String get travelWhereTo => 'Where to?';
+
+  @override
+  String get travelAnywhere => 'Anywhere';
+
+  @override
+  String get travelDates => 'Dates';
+
+  @override
+  String travelDatesNights(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'Dates · $count nights',
+      one: 'Dates · 1 night',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get travelTravellers => 'Travellers';
+
+  @override
+  String get travelGuestsLabel => 'Guests';
+
+  @override
+  String get travelRoomsLabel => 'Rooms';
+
+  @override
+  String get travelTravellersLabel => 'Travellers';
+
+  @override
+  String get travelPeopleLabel => 'People';
+
+  @override
+  String get travelNightsLabel => 'Nights';
+
+  @override
+  String get travelFindTrip => 'Find my trip';
+
+  @override
+  String get travelSearchStays => 'Search stays';
+
+  @override
+  String get travelSearchFlights => 'Search flights';
+
+  @override
+  String get travelTogether => 'Flight + hotel together';
+
+  @override
+  String get travelOneBooking => 'one booking, one price';
+
+  @override
+  String get travelTrending => 'Trending this month';
+
+  @override
+  String get travelSeeAll => 'See all';
+
+  @override
+  String travelTripFrom(String price) {
+    return 'Stay + flight from $price';
+  }
+
+  @override
+  String travelNightFrom(String price) {
+    return 'Stays from $price a night';
+  }
+
+  @override
+  String travelHotelsCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count hotels',
+      one: '1 hotel',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String travelAlertDropped(String route, String amount) {
+    return '$route dropped $amount';
+  }
+
+  @override
+  String travelAlertNow(String price) {
+    return 'Your alert · now from $price';
+  }
+
+  @override
+  String get travelPriceAlerts => 'Price alerts';
+
+  @override
+  String get travelMember => 'Member';
+
+  @override
+  String travelMemberPrices(int percent) {
+    return 'Member prices · −$percent%';
+  }
+
+  @override
+  String travelMemberOff(int percent) {
+    return 'Member price · −$percent%';
+  }
+
+  @override
+  String get travelMemberPrice => 'Member price';
+
+  @override
+  String get travelStaysTitle => 'Stay somewhere';
+
+  @override
+  String get travelStaysTitleEnd => 'unforgettable.';
+
+  @override
+  String get travelFlightsTitle => 'The whole sky,';
+
+  @override
+  String get travelFlightsTitleEnd => 'one search.';
+
+  @override
+  String get travelAll => 'All';
+
+  @override
+  String travelFeaturedIn(String city) {
+    return 'Featured · $city';
+  }
+
+  @override
+  String travelPerNight(String price) {
+    return '$price / night';
+  }
+
+  @override
+  String get travelReturn => 'Return';
+
+  @override
+  String get travelOneWay => 'One way';
+
+  @override
+  String get travelDepart => 'Depart';
+
+  @override
+  String get travelSwap => 'Swap';
+
+  @override
+  String get travelDirectOnly => 'Direct only';
+
+  @override
+  String travelAdults(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count adults',
+      one: '1 adult',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String travelAdultsEconomy(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count adults · Economy',
+      one: '1 adult · Economy',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String travelGuests(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count guests',
+      one: '1 guest',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String travelRooms(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count rooms',
+      one: '1 room',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String travelGuestsRooms(int guests, int rooms) {
+    String _temp0 = intl.Intl.pluralLogic(
+      rooms,
+      locale: localeName,
+      other: '$guests · $rooms rooms',
+      one: '$guests · 1 room',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String travelPeople(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count people',
+      one: '1 person',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String travelTravellersCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count travellers',
+      one: '1 traveller',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String travelNights(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count nights',
+      one: '1 night',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get travelPickDates => 'Choose your dates to see the prices.';
+
+  @override
+  String get travelLess => 'Fewer';
+
+  @override
+  String get travelMore => 'More';
+
+  @override
+  String get travelDone => 'Done';
+
+  @override
+  String get travelChoose => 'Choose';
+
+  @override
+  String get travelSearchPlaces => 'City or airport';
+
+  @override
+  String get travelNoPlaces => 'Nothing matches. Try another name.';
+
+  @override
+  String get travelAmenityPool => 'Pool';
+
+  @override
+  String get travelAmenitySpa => 'Spa';
+
+  @override
+  String get travelAmenityWifi => 'Free Wi-Fi';
+
+  @override
+  String get travelAmenityBreakfast => 'Breakfast';
+
+  @override
+  String get travelAmenityShuttle => 'Airport shuttle';
+
+  @override
+  String get travelAmenityGym => 'Gym';
+
+  @override
+  String get travelAmenityParking => 'Parking';
+
+  @override
+  String get travelAmenityBeach => 'Beach';
+
+  @override
+  String get travelAmenityRestaurant => 'Restaurant';
+
+  @override
+  String get travelAmenityBar => 'Bar';
+
+  @override
+  String get travelAmenityAirConditioning => 'Air conditioning';
+
+  @override
+  String get travelAmenityFamily => 'Family rooms';
+
+  @override
+  String get travelAmenityPets => 'Pets allowed';
+
+  @override
+  String get travelAmenityAccessible => 'Accessible';
+
+  @override
+  String get travelAmenityKitchen => 'Kitchen';
+
+  @override
+  String get travelAmenityView => 'View';
+
+  @override
+  String get travelKindResort => 'Resort';
+
+  @override
+  String get travelKindBoutique => 'Boutique hotel';
+
+  @override
+  String get travelKindApartments => 'Apartments';
+
+  @override
+  String get travelKindVilla => 'Villa';
+
+  @override
+  String get travelKindHostel => 'Hostel';
+
+  @override
+  String get travelKindGuesthouse => 'Guesthouse';
+
+  @override
+  String get travelKindHotel => 'Hotel';
+
+  @override
+  String get travelBoardBreakfast => 'Breakfast included';
+
+  @override
+  String get travelBoardHalf => 'Half board';
+
+  @override
+  String get travelBoardFull => 'Full board';
+
+  @override
+  String get travelBoardAll => 'All inclusive';
+
+  @override
+  String get travelBoardRoomOnly => 'Room only';
+
+  @override
+  String get travelStatusOnTime => 'On time';
+
+  @override
+  String get travelStatusDelayed => 'Delayed';
+
+  @override
+  String get travelStatusBoarding => 'Boarding';
+
+  @override
+  String get travelStatusDeparted => 'Departed';
+
+  @override
+  String get travelStatusLanded => 'Landed';
+
+  @override
+  String get travelStatusCancelled => 'Cancelled';
+
+  @override
+  String get travelStatusScheduled => 'Scheduled';
+
+  @override
+  String get travelRequestLate => 'Late arrival';
+
+  @override
+  String get travelRequestEarly => 'Early arrival';
+
+  @override
+  String get travelRequestHighFloor => 'High floor';
+
+  @override
+  String get travelRequestQuiet => 'Quiet room';
+
+  @override
+  String get travelRequestPickup => 'Airport pickup';
+
+  @override
+  String get travelRequestTwin => 'Twin beds';
+
+  @override
+  String get travelRequestAccessible => 'Accessible room';
+
+  @override
+  String travelLineNights(int count, String unit) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count nights × $unit',
+      one: '1 night × $unit',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String travelLineFare(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'Fare · $count travellers',
+      one: 'Fare · 1 traveller',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get travelLineSeats => 'Seats';
+
+  @override
+  String travelLineBags(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count extra bags',
+      one: '1 extra bag',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String travelLineMeals(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count meals',
+      one: '1 meal',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get travelLineTransfer => 'Airport transfer';
+
+  @override
+  String get travelLineTaxes => 'Taxes and fees';
+
+  @override
+  String get travelLineMember => 'Member price';
+
+  @override
+  String get travelLineBundle => 'Stay + flight saving';
+
+  @override
+  String get travelLineChangeFee => 'Change fee';
+
+  @override
+  String get travelSaveHotel => 'Save';
+
+  @override
+  String get travelUnsave => 'Remove from saved';
+
+  @override
+  String get travelScoreExceptional => 'Exceptional';
+
+  @override
+  String get travelScoreSuperb => 'Superb';
+
+  @override
+  String get travelScoreVeryGood => 'Very good';
+
+  @override
+  String get travelScoreGood => 'Good';
+
+  @override
+  String get travelScorePleasant => 'Pleasant';
+
+  @override
+  String travelReviews(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count reviews',
+      one: '1 review',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String travelStars(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count stars',
+      one: '1 star',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get travelFreeCancellation => 'Free cancellation';
+
+  @override
+  String travelNightsTaxes(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count nights, taxes included',
+      one: '1 night, taxes included',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String travelNightsAtHotel(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count nights · pay at the hotel',
+      one: '1 night · pay at the hotel',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get travelANight => 'a night';
+
+  @override
+  String travelStaysCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count stays',
+      one: '1 stay',
+      zero: 'No stays',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String travelSortedBy(String sort) {
+    return 'sorted by $sort';
+  }
+
+  @override
+  String get travelSort => 'Sort';
+
+  @override
+  String get travelSortRecommended => 'Recommended';
+
+  @override
+  String get travelSortPrice => 'Lowest price';
+
+  @override
+  String get travelSortScore => 'Guest score';
+
+  @override
+  String get travelSortStars => 'Stars';
+
+  @override
+  String get travelSuperbPlus => 'Superb 9+';
+
+  @override
+  String get travelShowMap => 'Map';
+
+  @override
+  String get travelBackToList => 'List';
+
+  @override
+  String travelMapCount(int count, int nights) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count stays · $nights-night totals',
+      one: '1 stay · $nights-night totals',
+      zero: 'No stays',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String travelPinNights(String price, int nights) {
+    String _temp0 = intl.Intl.pluralLogic(
+      nights,
+      locale: localeName,
+      other: '$price · $nights nights',
+      one: '$price · 1 night',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get travelView => 'View';
+
+  @override
+  String travelPhotosCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count photos',
+      one: '1 photo',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String travelQuoteBy(String name, String stayed) {
+    return '$name · stayed $stayed';
+  }
+
+  @override
+  String get travelOverall => 'Overall';
+
+  @override
+  String get travelScoreStaff => 'Staff';
+
+  @override
+  String get travelScoreClean => 'Cleanliness';
+
+  @override
+  String get travelScoreLocation => 'Location';
+
+  @override
+  String get travelScoreValue => 'Value for money';
+
+  @override
+  String travelCheckInOut(String checkIn, String checkOut) {
+    return 'Check-in from $checkIn · check-out by $checkOut';
+  }
+
+  @override
+  String get travelChooseRoom => 'Choose a room';
+
+  @override
+  String get travelChooseYourRoom => 'Choose your room';
+
+  @override
+  String get travelFromANight => 'from, a night';
+
+  @override
+  String travelSleeps(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'Sleeps $count',
+      one: 'Sleeps 1',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String travelLeftAtPrice(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count left at this price',
+      one: '1 left at this price',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get travelMostChosen => 'Most chosen';
+
+  @override
+  String get travelSoldOut => 'Sold out for your dates';
+
+  @override
+  String get travelNoRooms => 'No rooms are open for these dates.';
+
+  @override
+  String get travelNonRefundable => 'Non-refundable';
+
+  @override
+  String travelFreeCancelUntil(String day) {
+    return 'Free cancellation until $day';
+  }
+
+  @override
+  String get travelPayNowOrAtHotel => 'Pay now or at the hotel';
+
+  @override
+  String get travelPayAtHotel => 'Pay at the hotel';
+
+  @override
+  String get travelPayNow => 'Pay now';
+
+  @override
+  String get travelReserve => 'Reserve';
+
+  @override
+  String get travelTotalPrice => 'Total price';
+
+  @override
+  String get travelNoStays => 'No stays found';
+
+  @override
+  String get travelNoStaysText => 'Try other dates or fewer filters.';
+
+  @override
+  String get travelNoSaved => 'Nothing saved yet';
+
+  @override
+  String get travelNoSavedText => 'Tap the heart on a stay to keep it here.';
+
+  @override
+  String get travelSavedSignIn => 'Sign in to see your saved stays';
+
+  @override
+  String get travelSavedSignInText =>
+      'Your saved stays follow you on every phone.';
+
+  @override
+  String get travelMessageHotel => 'Message the hotel';
+
+  @override
+  String get travelDirect => 'Direct';
+
+  @override
+  String travelStops(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count stops',
+      one: '1 stop',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String travelStopsVia(int count, String via) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count stops · $via',
+      one: '1 stop · $via',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String travelViaTime(String via, String time) {
+    return 'via $via · $time';
+  }
+
+  @override
+  String travelDuration(int hours, String minutes) {
+    return '${hours}h ${minutes}m';
+  }
+
+  @override
+  String travelBothWays(String stops) {
+    return '$stops both ways';
+  }
+
+  @override
+  String get travelCalendar => 'Calendar';
+
+  @override
+  String get travelPriceGraph => 'Price graph';
+
+  @override
+  String travelReturnPricesFor(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'Return prices for $count · Economy',
+      one: 'Return prices for 1 · Economy',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String travelOneWayPricesFor(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'One-way prices for $count · Economy',
+      one: 'One-way prices for 1 · Economy',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get travelPreviousMonth => 'Previous month';
+
+  @override
+  String get travelNextMonth => 'Next month';
+
+  @override
+  String get travelLowest => 'Lowest';
+
+  @override
+  String get travelAverage => 'Average';
+
+  @override
+  String get travelHigher => 'Higher';
+
+  @override
+  String travelLeaveInstead(String day, String saving) {
+    return 'Leave $day instead and save $saving';
+  }
+
+  @override
+  String travelSameNights(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'Same $count nights',
+      one: 'Same night',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String travelFromPerPerson(String price) {
+    return 'from $price per person';
+  }
+
+  @override
+  String get travelShowFlights => 'Show flights';
+
+  @override
+  String get travelNoFlightsMonth => 'No flights this month';
+
+  @override
+  String get travelPricesAre => 'Prices are';
+
+  @override
+  String get travelLow => 'low';
+
+  @override
+  String get travelHigh => 'high';
+
+  @override
+  String get travelTypical => 'typical';
+
+  @override
+  String get travelForYourDates => 'for your dates';
+
+  @override
+  String travelUsually(String from, String to) {
+    return 'Usually $from–$to for these dates';
+  }
+
+  @override
+  String get travelBest => 'Best';
+
+  @override
+  String get travelCheapest => 'Cheapest';
+
+  @override
+  String get travelFastest => 'Fastest';
+
+  @override
+  String get travelTrack => 'Track';
+
+  @override
+  String get travelTracking => 'We\'ll tell you when the price drops.';
+
+  @override
+  String get travelSignInToWatch => 'Sign in to watch prices.';
+
+  @override
+  String get travelPerPerson => 'per person';
+
+  @override
+  String get travelPerPersonReturn => 'per person, return';
+
+  @override
+  String get travelFreeChanges => 'Free changes';
+
+  @override
+  String get travelCabinOnly => 'Cabin bag only';
+
+  @override
+  String travelCabinBag(int kg) {
+    return 'Cabin + $kg kg bag';
+  }
+
+  @override
+  String get travelNoFlights => 'No flights found';
+
+  @override
+  String get travelNoFlightsText => 'Try other dates or another airport.';
+
+  @override
+  String get travelOut => 'Outbound';
+
+  @override
+  String get travelWifi => 'Wi-Fi';
+
+  @override
+  String get travelMeal => 'Meal';
+
+  @override
+  String travelTerminal(String terminal) {
+    return 'Terminal $terminal';
+  }
+
+  @override
+  String get travelChooseFare => 'Choose your fare';
+
+  @override
+  String get travelBestValue => 'Best value';
+
+  @override
+  String travelSeatsLeft(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count seats left',
+      one: '1 seat left',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String travelCabinKg(int kg) {
+    return 'Cabin bag $kg kg';
+  }
+
+  @override
+  String travelBagsKg(int count, int kg) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count checked bags · $kg kg each',
+      one: '1 checked bag · $kg kg',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get travelNoCheckedBag => 'No checked bag';
+
+  @override
+  String travelChangeFor(String fee) {
+    return 'Changes for $fee';
+  }
+
+  @override
+  String get travelNoChanges => 'No changes';
+
+  @override
+  String get travelFullRefund => 'Full refund';
+
+  @override
+  String get travelRefundAtFee => 'Refund for a fee';
+
+  @override
+  String get travelNoRefund => 'No refund';
+
+  @override
+  String get travelAnySeat => 'Any seat included';
+
+  @override
+  String get travelStandardSeat => 'Standard seat included';
+
+  @override
+  String get travelSeatAtFee => 'Seat for a fee';
+
+  @override
+  String travelFareTravellers(String fare, int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$fare · $count travellers',
+      one: '$fare · 1 traveller',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get travelChooseSeats => 'Choose seats';
+
+  @override
+  String get travelContinue => 'Continue';
+
+  @override
+  String get travelChooseFlightFirst => 'Choose a flight first';
+
+  @override
+  String travelSeatsOn(String route) {
+    return 'Seats · $route';
+  }
+
+  @override
+  String get travelSeatsAtAirport =>
+      'Seats are given at the airport on this flight';
+
+  @override
+  String get travelFree => 'Free';
+
+  @override
+  String get travelTaken => 'Taken';
+
+  @override
+  String travelExtraLegroom(String price) {
+    return 'Extra legroom · $price';
+  }
+
+  @override
+  String travelSeatTaken(String id) {
+    return '$id, taken';
+  }
+
+  @override
+  String travelSeatExtra(String id) {
+    return '$id, extra legroom';
+  }
+
+  @override
+  String travelSeatFee(String price) {
+    return 'Choosing a seat costs $price on this fare';
+  }
+
+  @override
+  String get travelSeatsNext =>
+      'You can skip this: seats are given at check-in.';
+
+  @override
+  String get travelBagsMeals => 'Bags and meals';
+
+  @override
+  String get travelBagsMealsText =>
+      'Add them now, for less than at the airport.';
+
+  @override
+  String get travelExtraBags => 'Extra checked bags';
+
+  @override
+  String travelExtraBagsText(int legs) {
+    String _temp0 = intl.Intl.pluralLogic(
+      legs,
+      locale: localeName,
+      other: 'For each flight, per bag',
+      one: 'For the flight, per bag',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get travelMeals => 'Meals';
+
+  @override
+  String travelMealsText(int legs) {
+    String _temp0 = intl.Intl.pluralLogic(
+      legs,
+      locale: localeName,
+      other: 'A hot meal on each flight',
+      one: 'A hot meal on the flight',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get travelAtAirport => 'At the airport';
+
+  @override
+  String get travelNoTripFlight => 'No flight on these dates. Try other dates.';
+
+  @override
+  String get travelNoTripStay => 'No stay open in that city on these dates.';
+
+  @override
+  String get travelWatchTrip => 'Watch this trip\'s price';
+
+  @override
+  String get travelOnePrice => 'One price';
+
+  @override
+  String travelOnePriceText(int count, int nights) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count travellers · flights, $nights-night stay and taxes',
+      one: '1 traveller · flights, $nights-night stay and taxes',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String travelSave(String amount) {
+    return 'Save $amount';
+  }
+
+  @override
+  String get travelChange => 'Change';
+
+  @override
+  String travelBagIncluded(int kg) {
+    return '$kg kg bag included';
+  }
+
+  @override
+  String get travelStay => 'Stay';
+
+  @override
+  String get travelTransfer => 'Airport transfer';
+
+  @override
+  String travelTotalFor(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'Total for $count travellers',
+      one: 'Total for 1 traveller',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get travelReserveTrip => 'Reserve trip';
+
+  @override
+  String get travelConfirmPay => 'Confirm and pay';
+
+  @override
+  String get travelSecureCheckout => 'Secure checkout';
+
+  @override
+  String get travelGuest => 'Guest';
+
+  @override
+  String get travelTravellersAsPassport => 'Travellers, as on the passport';
+
+  @override
+  String get travelSavedTraveller => 'Saved';
+
+  @override
+  String travelFirstName(int n) {
+    return 'First name (traveller $n)';
+  }
+
+  @override
+  String get travelLastName => 'Last name';
+
+  @override
+  String get travelNamesNeeded => 'Enter every traveller\'s name.';
+
+  @override
+  String get travelAtHotelText => 'Nothing to pay now. You pay at the hotel.';
+
+  @override
+  String get travelPayNowText => 'You pay on the secure payment page next.';
+
+  @override
+  String get travelConfirmAtHotel => 'Confirm booking';
+
+  @override
+  String travelConfirmAndPay(String total) {
+    return 'Confirm and pay $total';
+  }
+
+  @override
+  String get travelTotal => 'Total';
+
+  @override
+  String travelFreeCancelUntilHotel(String day) {
+    return 'Free cancellation until $day · full refund';
+  }
+
+  @override
+  String get travelBooked => 'Booked. Have a good trip!';
+
+  @override
+  String get travelTripsSignIn => 'Sign in to see your trips';
+
+  @override
+  String get travelBookingsSignIn => 'Sign in to see your bookings';
+
+  @override
+  String get travelTripsSignInText =>
+      'Your bookings, boarding passes and changes, in one place.';
+
+  @override
+  String get travelNoTrips => 'No trips yet';
+
+  @override
+  String get travelNoTripsText => 'When you book, your trip shows here.';
+
+  @override
+  String get travelAwaitingPayment => 'Awaiting payment';
+
+  @override
+  String get travelCancelled => 'Cancelled';
+
+  @override
+  String get travelCompleted => 'Completed';
+
+  @override
+  String get travelConfirmed => 'Confirmed';
+
+  @override
+  String get travelCheckIn => 'Check-in';
+
+  @override
+  String get travelBack => 'Back';
+
+  @override
+  String travelTripsUpcoming(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'Your next trip · $count coming up',
+      one: 'Your next trip',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get travelManage => 'Manage booking';
+
+  @override
+  String travelStartsIn(int days, int hours) {
+    String _temp0 = intl.Intl.pluralLogic(
+      days,
+      locale: localeName,
+      other: 'Starts in $days days, $hours h',
+      one: 'Starts in 1 day, $hours h',
+      zero: 'Starts in $hours h',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String travelPayDue(String amount) {
+    return 'Pay $amount';
+  }
+
+  @override
+  String get travelReviewStay => 'Review your stay';
+
+  @override
+  String get travelTerminalLabel => 'Terminal';
+
+  @override
+  String get travelGate => 'Gate';
+
+  @override
+  String get travelSeatsLabel => 'Seats';
+
+  @override
+  String get travelBoards => 'Boards';
+
+  @override
+  String get travelBoardingPasses => 'Boarding passes';
+
+  @override
+  String get travelPassesLater => 'They open 48 hours before the flight.';
+
+  @override
+  String travelPassOf(int n, int total) {
+    return '$n of $total';
+  }
+
+  @override
+  String travelGateStatus(String gate, String status) {
+    return 'Gate $gate · $status';
+  }
+
+  @override
+  String get travelSeat => 'Seat';
+
+  @override
+  String get travelGroup => 'Group';
+
+  @override
+  String get travelPassenger => 'Passenger';
+
+  @override
+  String get travelClass => 'Fare';
+
+  @override
+  String get travelPassCode => 'Boarding pass code';
+
+  @override
+  String get travelWorksOffline => 'Works offline';
+
+  @override
+  String get travelKeptOffline =>
+      'Kept on this phone: it shows without a connection.';
+
+  @override
+  String get travelChangeSeat => 'Change seat';
+
+  @override
+  String travelPaid(String amount) {
+    return 'Paid: $amount';
+  }
+
+  @override
+  String travelDue(String amount) {
+    return 'Due: $amount';
+  }
+
+  @override
+  String travelRefund(String amount) {
+    return 'Refund: $amount';
+  }
+
+  @override
+  String get travelChangeDates => 'Change dates';
+
+  @override
+  String get travelChangeDatesText =>
+      'Same room, if it is free on the new dates.';
+
+  @override
+  String get travelChanged => 'Your booking is changed.';
+
+  @override
+  String travelChangeSeatOn(String number) {
+    return 'Change seats on $number';
+  }
+
+  @override
+  String travelSeatsOf(String seats) {
+    return 'Seats: $seats';
+  }
+
+  @override
+  String get travelCancelTitle => 'Cancel this booking?';
+
+  @override
+  String get travelCancelNoRefund => 'Nothing is refunded on this booking.';
+
+  @override
+  String travelCancelRefund(String amount) {
+    return 'You\'ll get $amount back.';
+  }
+
+  @override
+  String get travelCancelBooking => 'Cancel booking';
+
+  @override
+  String get travelCancelledDone => 'Your booking is cancelled.';
+
+  @override
+  String travelCancelledRefund(String amount) {
+    return 'Cancelled · $amount refunded';
+  }
+
+  @override
+  String travelTravellerN(int n) {
+    return 'Traveller $n';
+  }
+
+  @override
+  String get travelTripCouple => 'Couple';
+
+  @override
+  String get travelTripFamily => 'Family';
+
+  @override
+  String get travelTripFriends => 'Friends';
+
+  @override
+  String get travelTripSolo => 'Solo';
+
+  @override
+  String get travelTripBusiness => 'Business';
+
+  @override
+  String get travelReviewWords => 'A few words for other guests';
+
+  @override
+  String get travelSendReview => 'Send review';
+
+  @override
+  String get travelThanksReview => 'Thank you for your review.';
+
+  @override
+  String get travelAlertsSignIn => 'Sign in to watch prices';
+
+  @override
+  String get travelAlertsSignInText =>
+      'We watch the routes you choose and tell you when the price drops.';
+
+  @override
+  String get travelAlertsEyebrow => 'We watch, you relax';
+
+  @override
+  String get travelNewAlert => 'New';
+
+  @override
+  String get travelNoAlerts => 'No price alerts yet';
+
+  @override
+  String get travelNoAlertsText =>
+      'Watch a route and we\'ll tell you when it gets cheaper.';
+
+  @override
+  String travelAnywhereUnder(String price) {
+    return 'Anywhere under $price';
+  }
+
+  @override
+  String travelStayAndFlightTo(String city) {
+    return '$city · stay + flight';
+  }
+
+  @override
+  String travelFromCity(String city) {
+    return 'From $city';
+  }
+
+  @override
+  String get travelAnyDates => 'any dates';
+
+  @override
+  String travelAnyDatesIn(String month) {
+    return 'any dates in $month';
+  }
+
+  @override
+  String travelChangeSince(String change) {
+    return '$change so far';
+  }
+
+  @override
+  String get travelNothingOnSale => 'Nothing on sale right now';
+
+  @override
+  String get travelFewSeatsAtPrice => 'Few seats left at this price.';
+
+  @override
+  String get travelPriceDropped => 'The price went down.';
+
+  @override
+  String get travelWeWatch =>
+      'We check the price every day and tell you when it drops.';
+
+  @override
+  String get travelGoodTimeToBook => 'Good time to book.';
+
+  @override
+  String get travelSeeTrip => 'See the trip';
+
+  @override
+  String get travelSeeFlights => 'See flights';
+
+  @override
+  String travelNewMatches(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count new',
+      one: '1 new',
+      zero: 'None yet',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get travelStopWatching => 'Stop watching';
+
+  @override
+  String get travelChooseRoute => 'Choose the route to watch.';
+
+  @override
+  String get travelChooseMax => 'Enter the most you\'d pay.';
+
+  @override
+  String get travelAlertRoute => 'Route';
+
+  @override
+  String get travelAlertTrip => 'Stay + flight';
+
+  @override
+  String get travelAlertAnywhere => 'Anywhere';
+
+  @override
+  String travelMaxPrice(String currency) {
+    return 'Most you\'d pay ($currency)';
+  }
+
+  @override
+  String get travelWhen => 'When';
+
+  @override
+  String get travelWatchPrice => 'Watch the price';
+
+  @override
+  String get travelTravellersCabin => 'Travellers and cabin';
 }

@@ -70,6 +70,8 @@ IconData _iconFor(NotificationType type) => switch (type) {
   NotificationType.schoolBehaviour => AppIcons.star,
   NotificationType.schoolBus => AppIcons.bus,
   NotificationType.schoolLibrary => AppIcons.library,
+  NotificationType.travelUpdate => AppIcons.trip,
+  NotificationType.travelAlert => AppIcons.notifications,
   NotificationType.announcement ||
   NotificationType.unknown => AppIcons.notifications,
 };

@@ -42,3 +42,5 @@ export 'store_models.dart';
 // 115
 export 'market_api_models.dart';
 export 'vendor_models.dart';
+// 126
+export 'travel_models.dart';
