@@ -29,14 +29,29 @@ const EDITOR = ["lms", "store", "restaurant", "booking", "clinic", "fitness", "r
 const STUDIO = ["premium_academy", "instructors", "food", "marketplace", "delivery", "rides", "taxi", "school"];
 
 test.beforeAll(async ({ browser }) => {
+  // 128.9 The team has made the demo apps (Admin › Demo apps): the demos' pages run them live.
+  test.setTimeout(240_000);
+  const admin = await browser.newPage({ extraHTTPHeaders: { "x-forwarded-for": "203.0.113.129" } });
+  await admin.goto("/sign-in");
+  await admin.getByLabel("Email").fill(E2E.demosAdminEmail);
+  await admin.getByLabel("Password", { exact: true }).fill(E2E.adminPassword);
+  await admin.getByRole("button", { name: "Sign in" }).click();
+  await admin.waitForURL((url) => url.pathname.startsWith("/admin"));
+  await admin.goto("/admin/demos");
+  await admin.getByRole("button", { name: /Create the regular demo apps|Refresh all regular demo apps/ }).click();
+  await expect(admin.getByRole("status")).toContainText("up to date", { timeout: 90_000 });
+  await admin.goto("/admin/demos?family=studio");
+  await admin.getByRole("button", { name: /Create Studio's demo apps|Refresh all of Studio's demo apps/ }).click();
+  await expect(admin.getByRole("status")).toContainText("up to date", { timeout: 90_000 });
+  await admin.close();
+
   own = await browser.newPage({ extraHTTPHeaders });
   // Not the browser's notes, nor the app preview's own fonts (the Flutter app in Pages & look) cut off when the test moves on.
   const browserNote = /was preloaded using link preload|WebGL|GL Driver Message|Flutter Web engine failed|Failed to load font|^TypeError: Failed to fetch$/;
   own.on("console", (m) => {
     if ((m.type() === "error" || m.type() === "warning") && !m.location().url.includes("/api/v1/fonts/") && !browserNote.test(m.text())) problems.push(`${m.type()} on ${own.url()}: ${m.text()}`);
   });
-  own.on("pageerror", (e) => problems.push(`pageerror on ${own.url()}: ${e.message}`));
-});
+  own.on("pageerror", (e) => problems.push(`pageerror on ${own.url()}: ${e.message}`));});
 
 test.afterAll(async () => {
   await own.close();
@@ -83,6 +98,43 @@ test("a new account chooses Nour Academy and gets the whole demo in the app edit
     expect(shot.status(), src).toBe(200);
     expect(shot.headers()["content-type"], src).toContain("image/png");
   }
+  // 128.9 Each card's phone plays the demo's short loop while in view, the screenshot its poster.
+  expect(await own.locator("a[data-demo] video[data-loop]").count()).toBe(EDITOR.length + STUDIO.length);
+  for (const [id, poster, slug] of [
+    ["lms", "/screens/academy-home.png", "academy"],
+    ["premium_academy", "/screens/premium-home.png", "premium-academy"],
+  ] as const) {
+    const loop = own.locator(`a[data-demo="${id}"] video[data-loop]`);
+    await loop.scrollIntoViewIfNeeded();
+    await expect(loop).toHaveAttribute("poster", poster);
+    await expect(loop).toHaveAttribute("data-loop", "playing");
+    for (const type of ["webm", "mp4"]) await expect(loop.locator(`source[type="video/${type}"]`)).toHaveAttribute("src", `/loops/${slug}.${type}`);
+    await expect.poll(() => loop.evaluate((v: HTMLVideoElement) => v.muted && !v.paused && v.playsInline)).toBe(true);
+  }
+  for (const file of ["/loops/academy.webm", "/loops/academy.mp4", "/loops/premium-academy.webm"]) {
+    const loop = await own.request.get(file);
+    expect(loop.status(), file).toBe(200);
+    expect(loop.headers()["content-type"], file).toMatch(/^video\//);
+  }
+  // Reduced motion: the poster only, nothing plays or loads.
+  await own.emulateMedia({ reducedMotion: "reduce" });
+  await own.reload();
+  const still = own.locator('a[data-demo="premium_academy"] video[data-loop]');
+  await still.scrollIntoViewIfNeeded();
+  await expect(still).toHaveAttribute("poster", "/screens/premium-home.png");
+  await own.waitForTimeout(800);
+  await expect(still).toHaveAttribute("data-loop", "still");
+  await expect(still.locator("source")).toHaveCount(0);
+  expect(await still.evaluate((v: HTMLVideoElement) => v.paused && v.autoplay === false)).toBe(true);
+  // Nor does the live app start by itself in a demo's phone: it waits for "Try it live".
+  await own.locator('a[data-demo="lms"]').click();
+  await expect(own.locator("[data-live-try]")).toHaveAccessibleName("Try it live");
+  await own.waitForTimeout(1500);
+  await expect(own.locator("[data-live-frame]")).toHaveCount(0);
+  await own.emulateMedia({ reducedMotion: "no-preference" });
+  await own.goBack();
+  await expect(own.getByRole("heading", { level: 1, name: "What does your business do?" })).toBeVisible();
+
   // The switch: one product, the other, both.
   await own.getByRole("button", { name: "Studio" }).click();
   await expect(own.locator('[data-section="editor"]')).toBeHidden();
@@ -105,6 +157,18 @@ test("a new account chooses Nour Academy and gets the whole demo in the app edit
   await expect(own.getByRole("link", { name: "Teaching and courses" })).toBeVisible();
   const shots = await own.locator("[data-demo-page] img").evaluateAll((imgs) => imgs.map((i) => i.getAttribute("src")));
   expect(shots.sort()).toEqual(["/screens/academy-course.png", "/screens/academy-home.png", "/screens/academy-lesson.png"]);
+  // 128.9 The middle phone: the demo's screenshot first (as the page comes), then the real demo app
+  // running in it (the app preview with the demo app's preview link, in English and light), once it has its pages.
+  const served = await (await own.request.get(own.url())).text();
+  expect(served).toContain('data-live-phone="shot"');
+  expect(served).not.toContain("data-live-frame");
+  const phone = own.locator("[data-live-phone]");
+  await expect(phone.locator("img")).toHaveAttribute("src", "/screens/academy-home.png");
+  await expect(own.locator("[data-live-frame]")).toHaveAttribute("src", /^\/preview-app\/index\.html\?token=p1\.[0-9a-f-]{36}\.\d+\.0\.[\w-]+&lang=en&theme=light$/);
+  await expect(own.locator("[data-live-frame]")).toHaveAttribute("title", "Nour Academy, running live");
+  await expect(phone).toHaveAttribute("data-live-phone", "live", { timeout: 60_000 });
+  await expect(own.locator("[data-live-frame]")).toHaveCSS("opacity", "1");
+  await expect(own.locator("[data-live-full]")).toHaveAttribute("href", /^\/preview-app\/index\.html\?token=.+&lang=en$/);
   await expect(own.locator('[data-fact="items"]')).toContainText(`${DEMO_COURSES.length}`);
   await expect(own.locator('[data-fact="items"]')).toContainText("courses inside");
   await expect(own.locator('[data-fact="languages"]')).toContainText("3");
@@ -189,7 +253,21 @@ test("in Arabic and dark, Studio's New project opens the same page with Studio c
   await expect(own.locator("[data-demo-page]")).toHaveAttribute("data-product", "studio");
   await expect(own.locator("[data-demo-page]").getByText("STUDIO", { exact: true })).toBeVisible();
   await expect(own.getByText("بيفتح في Yallapp Studio")).toBeVisible();
+  // 128.9 The live app in Arabic and dark, as the page.
+  await expect(own.locator("[data-live-frame]")).toHaveAttribute("src", /&lang=ar&theme=dark$/);
+  await expect(own.locator("[data-live-phone]")).toHaveAttribute("data-live-phone", "live", { timeout: 60_000 });
   await fitsPhone(own);
+  // On a phone it waits for a tap, the screenshot shown until then.
+  await own.setViewportSize({ width: 375, height: 800 });
+  await own.reload();
+  await expect(own.locator("[data-live-phone]")).toHaveAttribute("data-live-phone", "shot");
+  await expect(own.locator("[data-live-phone] img")).toHaveAttribute("src", "/screens/sahm-home.png");
+  await expect(own.locator("[data-live-frame]")).toHaveCount(0);
+  await own.locator("[data-live-try]").click();
+  await expect(own.locator("[data-live-frame]")).toHaveAttribute("src", /&lang=ar&theme=dark$/);
+  await expect(own.locator("[data-live-phone]")).toHaveAttribute("data-live-phone", "live", { timeout: 60_000 });
+  await expect.poll(() => own.evaluate(() => document.documentElement.scrollWidth)).toBeLessThanOrEqual(375);
+  await own.setViewportSize({ width: 1280, height: 720 });
   await own.getByRole("link", { name: "ابدأ بالتطبيق ده" }).click();
   await expect(own.getByText("STUDIO · من Sahm Express")).toBeVisible();
   await expect(own.locator("[data-comes]")).toContainText(`${DEMO_DELIVERY_SERVICES.length}`);
