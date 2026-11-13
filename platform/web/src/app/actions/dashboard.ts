@@ -144,7 +144,8 @@ async function afterStep(context: ClientContext & { app: App }, step: SetupStep)
 export async function switchAppAction(formData: FormData): Promise<void> {
   const context = await requireActiveClient("dashboard");
   const appId = String(formData.get("appId") ?? "");
-  if (appId === "new") redirect("/dashboard/app-type?new=1");
+  // 127 A new app is chosen from our demos.
+  if (appId === "new") redirect("/start?new=1&for=editor");
   // Only one of this client's own apps can be chosen.
   const app = context.apps.find((a) => a.id === appId);
   if (app) await chooseApp(app.id);

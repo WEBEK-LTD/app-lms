@@ -519,6 +519,10 @@ test("103R the team offers a Studio plan; the client makes a Studio project apar
   await expect(own.getByRole("heading", { level: 1, name: "Your projects in Studio" })).toBeVisible();
   await expect(own.getByRole("article")).toHaveCount(0);
   await own.getByRole("link", { name: "New project" }).first().click();
+  // 127 Our demos first, Studio's chosen; an empty Studio project stays.
+  await expect(own).toHaveURL(/\/start\?new=1&for=studio$/);
+  await expect(own.getByRole("button", { name: "Studio", pressed: true })).toBeVisible();
+  await own.getByRole("link", { name: "Start an empty Studio project" }).click();
   await expect(own).toHaveURL(/\/studio\/new$/);
   await own.getByRole("radio", { name: "Academy", exact: true }).check();
   await own.getByRole("radio", { name: "No website: everything from here" }).click();

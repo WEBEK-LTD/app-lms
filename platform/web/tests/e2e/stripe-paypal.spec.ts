@@ -79,7 +79,7 @@ test("a shop takes an order on its own Stripe, then on its own PayPal", async ({
 
   // 121 Without an app yet: the choice of editor or Studio first.
 
-  await page.getByRole("link", { name: /The app editor/ }).click();
+  await page.getByRole("link", { name: "Start from an empty app" }).click();
   await page.getByText("Store", { exact: true }).click();
   await page.getByRole("button", { name: "Continue" }).click();
   await page.getByText("I don't have a website").click();

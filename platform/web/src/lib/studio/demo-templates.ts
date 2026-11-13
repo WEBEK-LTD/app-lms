@@ -208,7 +208,9 @@ export function studioDemoOf(kind: { type: string; vertical?: string | null } | 
  * 124.7 What a demo says of itself where its template asks the owner for
  * their own words in brackets ("[Your address and opening hours]"): the
  * demo app shows them, in its three languages; a project started from the
- * template keeps the brackets for the owner to fill.
+ * template in Studio's own steps keeps the brackets for the owner to fill.
+ * 127 A project started from the demo on /start gets the demo's words
+ * instead: no brackets left in its editor.
  */
 export const DEMO_FACTS: Partial<Record<StudioDemoId, Partial<Record<SectionWord, Record<"en" | "ar" | "tr", string>>>>> = {
   // Sahm Express by Tahrir Square, where its contact map is; open as late as its same-day parcels arrive.
@@ -221,14 +223,22 @@ export const DEMO_FACTS: Partial<Record<StudioDemoId, Partial<Record<SectionWord
   },
 };
 
-/** `page` with the demo's own words (`DEMO_FACTS`) in place of its template's brackets. */
-export function withDemoFacts(id: StudioDemoId, page: StudioPage): StudioPage {
+/**
+ * `page` with the demo's own words (`DEMO_FACTS`) in place of its template's
+ * brackets. The template's words are found in any of Studio's languages;
+ * the demo's go in `lang` (the page's own language), with the other two as
+ * translations.
+ */
+export function withDemoFacts(id: StudioDemoId, page: StudioPage, lang: DemoLang = "en"): StudioPage {
   const facts = DEMO_FACTS[id];
   if (!facts) return page;
-  const byText = new Map(Object.entries(facts).map(([word, words]) => [String(studioEn[`w_${word as SectionWord}`]), words!]));
+  const byText = new Map<string, Record<DemoLang, string>>();
+  for (const [word, words] of Object.entries(facts)) for (const l of DEMO_LANGS) byText.set(String(STUDIO_WORDS[l][`w_${word as SectionWord}`]), words!);
+  const others = DEMO_LANGS.filter((l) => l !== lang);
   const fill = (node: StudioNode): StudioNode => {
     const words = node.text ? byText.get(node.text) : undefined;
-    const out: StudioNode = words ? { ...node, text: words.en, translations: { ar: { text: words.ar }, tr: { text: words.tr } } } : { ...node };
+    const translations = Object.fromEntries(others.map((l) => [l, { text: words?.[l] ?? "" }])) as StudioNode["translations"];
+    const out: StudioNode = words ? { ...node, text: words[lang], translations } : { ...node };
     if (node.children) out.children = node.children.map(fill);
     if (node.card) out.card = fill(node.card);
     return out;

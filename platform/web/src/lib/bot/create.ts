@@ -99,18 +99,30 @@ async function makeRegular(store: DataStore, maker: BotMaker, answers: BotAnswer
   // The languages first: the design keeps the draft's, and the samples are written in the main one.
   const record = await loadLayout(store, app, now);
   await saveDraft(store, app, { ...record.draft, languages: languagesOf(answers, plan) }, now);
-  // Start from the demo: the kind's demo design, else its first design.
+  await startFromDemoDesign(store, app, now, { colour: answers.colour !== null });
+  return { app: (await store.getAppById(app.id)) ?? app, open: "/dashboard/pages?from=bot" };
+}
+
+/**
+ * A new regular app, saved, starts from its kind's demo: the demo's design
+ * (its pages, tabs, menu and look), else the kind's first design, and the
+ * empty lists the design shows get the demo's own sample entries (the bot,
+ * and 127 an app chosen on /start). The demo's colours unless the owner
+ * chose one (`colour`). Returns the design taken, or null.
+ */
+export async function startFromDemoDesign(store: DataStore, app: App, now: Date, options: { colour: boolean }): Promise<string | null> {
   const designs = await designsForApp(store, app);
   const design = designs.find((d) => d.id === demoDesignId(demoIdOf(app))) ?? designs[0] ?? null;
-  if (design) {
-    // The demo's colours unless the owner chose one.
-    const palette = answers.colour ? null : (design.palettes?.[0] ?? null);
-    const withColour = palette?.primary ? { ...app, primaryColor: palette.primary } : app;
-    if (palette?.primary) await store.updateApp(app.id, { primaryColor: palette.primary }, now);
-    const saved = await saveDesignDraft(store, withColour, design, now, palette ? { secondary_color: palette.secondary } : {});
-    if (!saved.ok) console.error("[bot] design", saved.errors.slice(0, 3).join("; "));
-    // 110.2 The empty lists the design shows get the demo's own sample entries.
-    else await seedForDesign(store, app.id, saved.value.record.draft.pages, now, demoOfDesign(design.id));
+  if (!design) return null;
+  const palette = options.colour ? null : (design.palettes?.[0] ?? null);
+  const withColour = palette?.primary ? { ...app, primaryColor: palette.primary } : app;
+  if (palette?.primary) await store.updateApp(app.id, { primaryColor: palette.primary }, now);
+  const saved = await saveDesignDraft(store, withColour, design, now, palette ? { secondary_color: palette.secondary } : {});
+  if (!saved.ok) {
+    console.error("[demo start] design", saved.errors.slice(0, 3).join("; "));
+    return null;
   }
-  return { app: (await store.getAppById(app.id)) ?? app, open: "/dashboard/pages?from=bot" };
+  // 110.2 The empty lists the design shows get the demo's own sample entries.
+  await seedForDesign(store, app.id, saved.value.record.draft.pages, now, demoOfDesign(design.id));
+  return design.id;
 }

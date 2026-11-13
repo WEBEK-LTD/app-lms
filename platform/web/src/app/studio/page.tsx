@@ -83,7 +83,7 @@ export default async function StudioHomePage() {
               {t("studio.homeIntro")}
             </p>
           </div>
-          <Link href="/studio/new" className="flex h-11 items-center gap-2 rounded-xl px-5 text-[15px] font-extrabold no-underline" style={{ background: C.accent, color: C.ink }}>
+          <Link href="/start?new=1&for=studio" className="flex h-11 items-center gap-2 rounded-xl px-5 text-[15px] font-extrabold no-underline" style={{ background: C.accent, color: C.ink }}>
             <Glyph name="add" />
             {t("studio.newProject")}
           </Link>

@@ -13,7 +13,7 @@ import { screenDrawing, screenLookSection } from "@/lib/studio/screen-drawing";
 import { launchPictures, withLaunchPictures, type StudioScreens } from "@/lib/studio/screens";
 import { fontsOfPage, useStudioFonts } from "@/components/studio/fonts";
 import type { DashKey } from "@/i18n/dashboard";
-import type { Pickable } from "@/lib/hosted/pages/pickable";
+import type { Pickable, PickableEntry } from "@/lib/hosted/pages/pickable";
 import type { MarketCanvas } from "@/lib/studio/market-canvas";
 import type { ScreenOption } from "@/lib/pages/sources";
 import { uniqueSlug } from "@/lib/pages/model";
@@ -191,6 +191,8 @@ export function StudioEditor(props: StudioEditorProps) {
         drawing: screenDrawing(studio.screen, props.kind.type, studioScreens),
         looksHref: props.screensHref && looksAt ? `${props.screensHref}#${looksAt}` : null,
         words: { drawnLook: t("studio.screenDrawnLook"), drawnOwn: t("studio.screenDrawnOwn"), open: t("studio.screenOpenLooks"), hint: t("studio.screenDrawnHint", { screen: screenName }) },
+        // 127 The screen's real content where the project has it (else its samples), not grey rows.
+        entries: screenEntries(studio.screen, props.pickable, editLang),
       }
     : undefined;
   const words = { price: t("studio.price"), addPicture: t("studio.addPicture"), addVideo: t("studio.addVideo"), send: t("studio.send"), search: t("studio.search"), days: t("studio.days"), hours: t("studio.hours"), minutes: t("studio.minutes"), seconds: t("studio.seconds"), copy: t("studio.copyCode") };
@@ -1043,6 +1045,10 @@ export function StudioEditor(props: StudioEditorProps) {
         <Link href="/studio/project" className="flex items-center gap-2.5 no-underline" style={{ color: C.ivory }} title={t("studio.back")}>
           <StudioMark />
         </Link>
+        {/* 127 The product the project is made in, as on every step of choosing it. */}
+        <span className="flex h-[26px] items-center rounded-[13px] px-2.5 text-xs font-extrabold" style={{ background: "#E6C26E", color: "#0E0D24" }} data-product="studio">
+          {t("start.badgeStudio")}
+        </span>
 
         <div className="relative">
           <button type="button" aria-expanded={pagesOpen} aria-haspopup="true" onClick={() => setPagesOpen((v) => !v)} className="flex items-center gap-1.5 rounded-[10px] border-0 px-3 py-1.5 text-sm" style={{ background: C.barSoft, color: C.ivory }}>
@@ -1535,4 +1541,25 @@ function StartPage({ title, regular, onPick, templates }: { title: string; regul
       </div>
     </div>
   );
+}
+
+/** 127 The list an app's own screen shows: its item source's entries. */
+const SCREEN_SOURCES: Partial<Record<string, ItemSource>> = {
+  courses: "courses",
+  services: "services",
+  classes: "services",
+  articles: "articles",
+  events: "events",
+  campaigns: "campaigns",
+  send_parcel: "delivery_services",
+  restaurants: "restaurants",
+  ride: "vehicle_types",
+};
+
+/** The entries the app's screen lists: the project's, else the samples in the language edited; none for a screen that lists none. */
+function screenEntries(screen: string, pickable: Pickable, lang: string): PickableEntry[] {
+  const source = SCREEN_SOURCES[screen];
+  if (!source) return [];
+  const own = pickable.items[source] ?? [];
+  return own.length ? own : ((pickable.samples?.[lang] ?? pickable.samples?.en)?.[source] ?? []);
 }

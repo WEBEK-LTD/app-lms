@@ -121,7 +121,7 @@ export function ProjectsGrid({ cards, words, samples }: { cards: ProjectCardView
         ))}
 
         <Link
-          href="/studio/new"
+          href="/start?new=1&for=studio"
           className="flex min-h-[330px] flex-col items-center justify-center gap-2.5 rounded-[18px] no-underline"
           style={{ border: "2px dashed #B9B3A5", color: C.ink, background: "rgba(255,255,255,0.4)" }}
         >

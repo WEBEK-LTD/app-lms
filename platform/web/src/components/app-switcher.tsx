@@ -110,7 +110,7 @@ export function AppSwitcher({
         </noscript>
       </form>
       {canAdd ? (
-        <Link href="/dashboard/app-type?new=1" className="flex h-9 items-center gap-1.5 self-start rounded-lg px-2 text-sm font-semibold no-underline">
+        <Link href="/start?new=1&for=editor" className="flex h-9 items-center gap-1.5 self-start rounded-lg px-2 text-sm font-semibold no-underline">
           <Icon name="add" size={18} />
           {t("nav.addApp")}
         </Link>

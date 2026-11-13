@@ -281,6 +281,8 @@ export interface HostedSettings {
   passwordSignIn?: PasswordSignInSettings | null;
   /** 118.3 Yallapp Studio: the sign-in screen's look and the account menu (lib/studio/screens.ts). */
   studioScreens?: StudioScreens | null;
+  /** 127 The app was started from one of our demos (/start): the editor's "Your first steps", until they are done or hidden. */
+  firstSteps?: FirstSteps | null;
   /** 18 The owner's own WhatsApp number on WABEK, for this app's phone codes; Yallapp's sender when missing. */
   whatsappSender?: AppWhatsappSender | null;
   /**
@@ -425,6 +427,21 @@ export interface AppWhatsappSender {
   /** The key's last 4 characters, to recognise it. */
   keyLast4: string;
   savedAt: string;
+}
+
+/**
+ * 127 An app started from one of our demos on /start: which demo (its
+ * entries marked `sample` are the demo's, "From <demo>"), the steps the
+ * owner marked done themselves (the others are read from the app), and
+ * when they hid the steps. Kept with the app, never in the browser.
+ */
+export interface FirstSteps {
+  /** The demo's id (lib/demo/constants.ts DemoId). */
+  demo: string;
+  startedAt: string;
+  /** Steps marked done by hand: `photos`. */
+  done: string[];
+  hiddenAt: string | null;
 }
 
 export const DEFAULT_HOSTED_SETTINGS: HostedSettings = {

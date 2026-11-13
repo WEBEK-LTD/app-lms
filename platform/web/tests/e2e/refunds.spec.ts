@@ -100,7 +100,7 @@ test("a shop refunds an order in part, then the rest, through Kashier", async ({
   await signUpAndActivate(page, shop, "+20 122 765 4400");
   await signIn(page, shop.email, shop.password);
   // 121 Without an app yet: the choice of editor or Studio first.
-  await page.getByRole("link", { name: /The app editor/ }).click();
+  await page.getByRole("link", { name: "Start from an empty app" }).click();
   await page.getByText("Store", { exact: true }).click();
   await page.getByRole("button", { name: "Continue" }).click();
   await page.getByText("I don't have a website").click();
@@ -201,7 +201,7 @@ test("the team edits what a plan includes, and the WordPress site on it is asked
   await signUpAndActivate(page, site, "+20 100 765 4401", "business");
   await signIn(page, site.email, site.password);
   // 121 Without an app yet: the choice of editor or Studio first.
-  await page.getByRole("link", { name: /The app editor/ }).click();
+  await page.getByRole("link", { name: "Start from an empty app" }).click();
   await page.getByText("Store", { exact: true }).click();
   await page.getByRole("button", { name: "Continue" }).click();
   await page.goto("/dashboard/license");

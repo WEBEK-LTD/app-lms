@@ -84,7 +84,7 @@ test("our team moves a Store app to the hosted API", async ({ page }) => {
 
   await expect(page).toHaveURL(/\/start$/);
 
-  await page.getByRole("link", { name: /The app editor/ }).click();
+  await page.getByRole("link", { name: "Start from an empty app" }).click();
 
   await expect(page).toHaveURL(/\/dashboard\/app-type$/);
   await page.getByText("Store", { exact: true }).click();
