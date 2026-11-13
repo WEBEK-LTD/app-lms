@@ -160,7 +160,7 @@ jobs:
                 echo "**The iOS app is skipped**: add the App Store Connect key as \`YB_ASC_KEY_ID\`, \`YB_ASC_ISSUER_ID\` and \`YB_ASC_PRIVATE_KEY\` (docs/LAUNCH-CHECKLIST.md 7l)."
               fi
               if ! all_set YB_IOS_DISTRIBUTION_P12; then
-                echo "No \`YB_IOS_DISTRIBUTION_P12\`: a distribution certificate is made for this run and kept for the build it signs; when Apple's limit is reached, the oldest one made over 30 days ago is revoked first (nothing to do)."
+                echo "No \`YB_IOS_DISTRIBUTION_P12\`: a distribution certificate is made for this run and kept for the build it signs; when Apple's limit is reached, the oldest one made over 30 days ago is revoked first. With the token that can save secrets, it is saved as \`YB_IOS_DISTRIBUTION_P12\` and \`YB_IOS_DISTRIBUTION_PASSWORD\` and used by every later run."
               fi
               if ! all_set YC_FIREBASE_SERVICE_INFO; then
                 echo "No \`YC_FIREBASE_SERVICE_INFO\`: the iOS app is built **without notifications**."
@@ -571,13 +571,44 @@ jobs:
         env:
           YB_IOS_DISTRIBUTION_P12: ${{ secrets.YB_IOS_DISTRIBUTION_P12 }}
           YB_IOS_DISTRIBUTION_PASSWORD: ${{ secrets.YB_IOS_DISTRIBUTION_PASSWORD }}
+          HAS_SECRETS_TOKEN: ${{ secrets.YC_SECRETS_TOKEN != '' || secrets.YB_SECRETS_TOKEN != '' }}
         run: |
           mkdir -p "$RUNNER_TEMP/ipa"
+          # 125.13 With a token that can save secrets, the certificate made here is kept for every run.
+          save=()
+          if [ "$HAS_SECRETS_TOKEN" = true ] && [ -z "$(printf '%s' "$YB_IOS_DISTRIBUTION_P12" | tr -d '[:space:]')" ]; then
+            save=(cert_save:"$RUNNER_TEMP/yc-cert-save.json")
+          fi
           bundle exec fastlane ios business_ipa app:courier push:"$YC_PUSH" \
             asc:"$RUNNER_TEMP/yc-asc.json" project:"$GITHUB_WORKSPACE/mobile" \
-            out:"$RUNNER_TEMP/ipa" status:"$RUNNER_TEMP/yc-ios-status.txt" cert_out:"$RUNNER_TEMP/yc-cert-id.txt"
+            out:"$RUNNER_TEMP/ipa" status:"$RUNNER_TEMP/yc-ios-status.txt" cert_out:"$RUNNER_TEMP/yc-cert-id.txt" "${save[@]}"
           mv "$RUNNER_TEMP/ipa/YallappCourier.ipa" "$RUNNER_TEMP/ipa/yallapp-courier-$VERSION-$BUILD.ipa"
           rm -f "$RUNNER_TEMP"/ipa/*.mobileprovision "$RUNNER_TEMP"/ipa/*.cer "$RUNNER_TEMP"/ipa/*.p12
+
+      # 125.13 The certificate this run made (no YB_IOS_DISTRIBUTION_P12 yet), with its key, saved
+      # as YB_IOS_DISTRIBUTION_P12 and YB_IOS_DISTRIBUTION_PASSWORD with the token that can save
+      # secrets: every later run of Yallapp Business and Yallapp Courier signs with it, and no more
+      # certificates are made. The repository is public: never printed nor attached, and kept
+      # (not revoked) from now on, even if this run stops later.
+      - name: Save the distribution certificate
+        env:
+          SECRETS_TOKEN: ${{ secrets.YC_SECRETS_TOKEN || secrets.YB_SECRETS_TOKEN }}
+        run: |
+          file="$RUNNER_TEMP/yc-cert-save.json"
+          [ -s "$file" ] || exit 0
+          echo "::add-mask::$SECRETS_TOKEN"
+          password=$(python3 -c 'import json,sys; print(json.load(open(sys.argv[1]))["password"])' "$file")
+          echo "::add-mask::$password"
+          # Values go to gh on stdin, never on the command line.
+          save() { GH_TOKEN="$SECRETS_TOKEN" gh secret set "$1" -R "$GITHUB_REPOSITORY" > /dev/null; }
+          if python3 -c 'import json,sys; sys.stdout.write(json.load(open(sys.argv[1]))["p12_base64"])' "$file" | save YB_IOS_DISTRIBUTION_P12 &&
+             printf '%s' "$password" | save YB_IOS_DISTRIBUTION_PASSWORD; then
+            rm -f "$file" "$RUNNER_TEMP/yc-cert-id.txt"
+            echo "This run's distribution certificate was saved as \`YB_IOS_DISTRIBUTION_P12\` and \`YB_IOS_DISTRIBUTION_PASSWORD\`: every later run of both apps signs with it, and no more certificates are made." | tee -a "$GITHUB_STEP_SUMMARY"
+          else
+            rm -f "$file"
+            echo "The token can't save repository secrets (it needs this repository and the permission Secrets: Read and write), so the certificate wasn't saved. The build goes on with it as before." | tee -a "$GITHUB_STEP_SUMMARY"
+          fi
 
       - name: Attach the IPA
         uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
@@ -631,7 +662,7 @@ jobs:
           fi
       - name: Remove the keys from the runner
         if: always()
-        run: rm -rf "$RUNNER_TEMP/yc-asc.json" "$RUNNER_TEMP/asc-store/review.json" "$RUNNER_TEMP/yc-cert-id.txt"
+        run: rm -rf "$RUNNER_TEMP/yc-asc.json" "$RUNNER_TEMP/asc-store/review.json" "$RUNNER_TEMP/yc-cert-id.txt" "$RUNNER_TEMP/yc-cert-save.json"
 
       - name: Summary
         if: always()

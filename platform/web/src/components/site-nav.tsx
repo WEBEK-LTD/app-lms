@@ -72,7 +72,7 @@ function moveFocus(event: ReactKeyboardEvent, root: HTMLElement | null) {
   links[next]!.focus();
 }
 
-const topLink = "flex h-10 items-center gap-1 rounded-lg px-2 text-[15px] font-semibold whitespace-nowrap no-underline xl:px-3";
+const topLink = "flex h-10 items-center gap-1 rounded-lg px-2 text-[15px] font-semibold whitespace-nowrap no-underline min-[1400px]:px-3";
 
 /** The ember line under the page or section the visitor is on. */
 function Marked({ on, children }: { on: boolean; children: React.ReactNode }) {
@@ -207,7 +207,7 @@ function DesktopNav({ current, nav, labels }: NavProps) {
   const marked = activeEntry(current);
   return (
     <nav aria-label={labels.main} className="hidden lg:block">
-      <ul className="m-0 flex list-none items-center gap-0.5 p-0 xl:gap-1">
+      <ul className="m-0 flex list-none items-center gap-0.5 p-0 min-[1400px]:gap-1">
         {nav.map((entry) =>
           entry.kind === "group" ? (
             <Dropdown
@@ -423,7 +423,7 @@ export function SiteNav({
         <AccountLink
           href={localePath(lang, "/sign-in")}
           signedIn={null}
-          className="hidden h-[42px] items-center rounded-[10px] px-2 text-[15px] font-semibold whitespace-nowrap text-midnight no-underline hover:text-midnight hover:underline lg:flex xl:px-3"
+          className="hidden h-[42px] items-center rounded-[10px] px-2 text-[15px] font-semibold whitespace-nowrap text-midnight no-underline hover:text-midnight hover:underline lg:flex min-[1400px]:px-3"
         >
           {labels.signIn}
         </AccountLink>
@@ -435,7 +435,7 @@ export function SiteNav({
               {labels.dashboard}
             </>
           }
-          className="hidden h-[42px] items-center gap-2 rounded-[10px] bg-midnight px-4 text-[15px] font-semibold whitespace-nowrap text-white no-underline hover:bg-ink-3 hover:text-white sm:flex xl:px-[18px]"
+          className="hidden h-[42px] items-center gap-2 rounded-[10px] bg-midnight px-4 text-[15px] font-semibold whitespace-nowrap text-white no-underline hover:bg-ink-3 hover:text-white sm:flex min-[1400px]:px-[18px]"
         >
           {labels.getStarted}
         </AccountLink>
