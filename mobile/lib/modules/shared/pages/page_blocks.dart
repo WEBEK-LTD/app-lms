@@ -16,6 +16,7 @@ import '../../../core/theme/symbol_names.dart';
 import '../../../core/web/web_page_screen.dart';
 import '../../../core/widgets/buttons.dart';
 import '../../../core/widgets/common.dart';
+import '../../../core/widgets/star_text.dart';
 import '../../chat/data/chat_providers.dart';
 import '../../lms/lesson/content/html_content.dart';
 import '../../lms/lesson/embeds/embed_frame.dart';
@@ -654,7 +655,7 @@ class _ItemImage extends StatelessWidget {
                     color: p.surface,
                     borderRadius: BorderRadius.circular(8),
                   ),
-                  child: Text(
+                  child: StarText(
                     badge,
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
@@ -732,7 +733,7 @@ class _ItemText extends StatelessWidget {
         ),
         if (subtitle != null && subtitle.isNotEmpty) ...[
           const SizedBox(height: 2),
-          Text(
+          StarText(
             subtitle,
             maxLines: 1,
             overflow: TextOverflow.ellipsis,
@@ -760,7 +761,7 @@ class _ItemText extends StatelessWidget {
               color: p.accentSoft,
               borderRadius: BorderRadius.circular(8),
             ),
-            child: Text(
+            child: StarText(
               badge,
               maxLines: 1,
               overflow: TextOverflow.ellipsis,

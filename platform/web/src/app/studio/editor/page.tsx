@@ -22,6 +22,9 @@ import { isStudioProject } from "@/lib/studio/section";
 import { studioDemoOf } from "@/lib/studio/demo-templates";
 import { screensConfig, studioScreensOn } from "@/lib/studio/screens";
 import { demoDesign } from "@/lib/demo/look";
+import { getDashT } from "@/i18n/dashboard";
+import { LANGS, type Lang } from "@/i18n/config";
+import { canvasWords } from "./canvas-words";
 import { StudioEditor } from "./editor";
 import { FirstSteps } from "@/components/first-steps";
 
@@ -90,6 +93,8 @@ export default async function StudioEditorPage({ searchParams }: PageProps<"/stu
       // 124.8 The screens drawn on the canvas in the looks the app gets, and where those are chosen.
       studioScreens={screensConfig(app).screens ?? null}
       screensHref={studioScreensOn(app) ? "/studio/project/screens" : null}
+      // 128 The canvas's sample cards in the language being edited.
+      canvasWords={Object.fromEntries(record.draft.languages.available.filter((l): l is Lang => (LANGS as readonly string[]).includes(l)).map((l) => [l, canvasWords(getDashT(l))]))}
     />
     {/* 127 A project started from a demo on /start: its first steps over the canvas, until done or hidden. */}
     <FirstSteps app={app} editor="/studio/editor" />

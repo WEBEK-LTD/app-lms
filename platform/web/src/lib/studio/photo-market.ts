@@ -34,8 +34,8 @@ export const MARKET_PHOTO_COLORS = {
 } as const;
 const C = MARKET_PHOTO_COLORS;
 
-/** The approved bar: every tab named, the open one in a soft pill in the brand's green. */
-export const MARKET_PHOTO_TAB_BAR: TabBarStyle = { design: "classic", active: C.brand, dark_active: C.nightAccentText, labels: "always" };
+/** The approved bar: every tab named, the open one in a soft pill in the brand's green, 128 on the board's surface by day and by night. */
+export const MARKET_PHOTO_TAB_BAR: TabBarStyle = { design: "classic", background: C.surface, dark_background: C.nightSurface, active: C.brand, dark_active: C.nightAccentText, inactive: C.muted, dark_inactive: C.nightMuted, labels: "always" };
 
 const pad = (v: number, h: number) => ({ top: v, end: h, bottom: v, start: h });
 // The search across every place, which every marketplace has (the demo's Shops page is on its bar).

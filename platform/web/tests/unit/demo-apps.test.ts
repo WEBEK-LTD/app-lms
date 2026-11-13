@@ -102,9 +102,9 @@ describe("creating the demo apps", { timeout: 20_000 }, () => {
       const license = await store.getLicenseForApp(client.id, app.id);
       expect(license).toMatchObject({ plan: "business", expiresAt: DEMO_LICENSE_UNTIL });
       const layout = await store.getAppLayout(app.id);
-      // A Studio demo's home is its kind's designed Studio page, with how to sign in after its top (tests/unit/studio-demo-templates.test.ts).
+      // A Studio demo's home is its kind's designed Studio page, with how to sign in at its end (tests/unit/studio-demo-templates.test.ts).
       const home = layout?.published?.pages[0];
-      if (app.section === "studio") expect(home?.studio?.body.children?.[1]?.visibility).toBe("signed_out");
+      if (app.section === "studio") expect(home?.studio?.body.children?.at(-1)?.visibility).toBe("signed_out");
       else expect(home?.blocks.map((b) => b.id)).toContain("demo-banner");
       expect(await store.getHostedUserByPhone(app.id, DEMO_SIGN_IN.e164)).toMatchObject({ name: DEMO_USER_NAME });
     }

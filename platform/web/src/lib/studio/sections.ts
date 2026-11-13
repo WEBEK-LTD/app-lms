@@ -2,7 +2,7 @@ import type { AppType, AppVertical } from "../data/types";
 import type { Action, ItemSource, LayoutBlock, StudioMarket, StudioNode, StudioPage } from "../pages/types";
 import type { StudioDemoId } from "../demo/constants";
 import { ACADEMY_PROJECT, academyHome, type TemplateProject } from "./academy";
-import { DEMO_HOME_TEMPLATES, DEMO_ICONS, demoTemplateId, studioDemoOf, studioTextOf, translating } from "./demo-templates";
+import { DEMO_HOME_TEMPLATES, DEMO_ICONS, demoTemplateId, studioDemoOf, studioNoteOf, translating } from "./demo-templates";
 import { newNodeId } from "./elements";
 import { SLIDER_SECTIONS, STORE_SECTIONS } from "./store-sections";
 import { demoDesignTemplate } from "./demo-designs";
@@ -1138,15 +1138,16 @@ const SHOP_HEADER: StudioPage["header"] = { type: "logo_actions", buttons: ["men
  * Templates = demos: a Studio demo's home, made from its kind's own designed
  * page (lib/studio/demo-templates.ts DEMO_HOME_TEMPLATES; 128 the premium
  * ones lib/studio/demo-designs'), with its texts in Studio's other languages too. The
- * demo app adds how to sign in after its first element (`afterFirst`).
+ * demo app adds how to sign in at its end (`atEnd`), 128 after the approved design.
  */
-export function demoStudioPage(id: StudioDemoId, ctx: SectionContext, afterFirst: readonly LayoutBlock[] = []): StudioPage {
+export function demoStudioPage(id: StudioDemoId, ctx: SectionContext, atEnd: readonly LayoutBlock[] = []): StudioPage {
   const { ctx: words, translate } = translating(ctx);
   const own = DEMO_HOME_TEMPLATES[id];
   const page = TEMPLATES.find((t) => t.id === own)!.make({ ...words, demo: id });
-  const notes = afterFirst.map((b) => studioTextOf(ctx, b)).filter((n): n is StudioNode => n !== null);
-  const [first, ...rest] = translate(page.body).children ?? [];
-  return { ...page, body: { ...page.body, children: first ? [first, ...notes, ...rest] : notes } };
+  // 128 The demo's notes (how to sign in) last, a quiet card in its colours: the approved home stays whole above them.
+  const inset = (page.body.padding?.start ?? 0) > 0 ? 0 : 16;
+  const notes = atEnd.map((b) => studioNoteOf(ctx, id, b, inset)).filter((n): n is StudioNode => n !== null);
+  return { ...page, body: { ...page.body, children: [...(translate(page.body).children ?? []), ...notes] } };
 }
 
 /** Each Studio demo's home as a template, offered first and recommended for its kind. */

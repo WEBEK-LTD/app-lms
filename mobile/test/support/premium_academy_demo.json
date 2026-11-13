@@ -322,35 +322,6 @@
         "color": "#FFFFFF"
        },
        {
-        "id": "demo-77",
-        "type": "column",
-        "gap": 6,
-        "padding": {
-         "top": 8,
-         "end": 16,
-         "bottom": 8,
-         "start": 16
-        },
-        "margin": {
-         "top": 4,
-         "end": 0,
-         "bottom": 4,
-         "start": 0
-        },
-        "visibility": "signed_out",
-        "children": [
-         {
-          "id": "demo-76",
-          "type": "text",
-          "text": "This is a demo app. Sign in with +1 202 555 0123 and the code 246810. Anything you add is deleted after a day.",
-          "font": {
-           "size": 15,
-           "line_height": 1.5
-          }
-         }
-        ]
-       },
-       {
         "id": "demo-58",
         "type": "stack",
         "name": "Learn from the best, at your own pace",
@@ -639,6 +610,61 @@
           }
          ]
         }
+       },
+       {
+        "id": "demo-76",
+        "type": "row",
+        "gap": 10,
+        "cross": "start",
+        "padding": {
+         "top": 12,
+         "end": 14,
+         "bottom": 12,
+         "start": 14
+        },
+        "margin": {
+         "top": 18,
+         "end": 0,
+         "bottom": 8,
+         "start": 0
+        },
+        "radius": 16,
+        "background": "#FFFFFF",
+        "dark_background": "#161C33",
+        "border_color": "#E3DFD6",
+        "dark_border_color": "#262D48",
+        "border_width": 1,
+        "visibility": "signed_out",
+        "children": [
+         {
+          "id": "demo-77",
+          "type": "icon",
+          "icon": "info",
+          "icon_size": 18,
+          "color": "#5A5F73",
+          "dark_color": "#A8AEC4"
+         },
+         {
+          "id": "demo-78",
+          "type": "text",
+          "text": "This is a demo app. Sign in with +1 202 555 0123 and the code 246810. Anything you add is deleted after a day.",
+          "width": "fill",
+          "font": {
+           "size": 13,
+           "line_height": 1.45
+          },
+          "color": "#5A5F73",
+          "dark_color": "#A8AEC4",
+          "translations": {
+           "ar": {
+            "text": "هذا تطبيق تجريبي. سجّل الدخول بالرقم ⁦+1 202 555 0123⁩ والرمز 246810. يُحذف كل ما تضيفه بعد يوم."
+           },
+           "tr": {
+            "text": "Bu bir demo uygulamasıdır. +1 202 555 0123 numarası ve 246810 koduyla giriş yapın. Eklediğiniz her şey bir gün sonra silinir."
+           }
+          }
+         }
+        ]
        }
       ]
      }

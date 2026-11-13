@@ -863,7 +863,12 @@ class AppNavBar extends StatelessWidget {
                 width: 56,
                 height: 28,
                 decoration: BoxDecoration(
-                  color: selected ? p.accentSoft : Colors.transparent,
+                  // 128 A soft pill in the open tab's own colour when the
+                  // owner chose one (the approved boards'), else the accent's.
+                  color: !selected
+                      ? Colors.transparent
+                      : active?.withValues(alpha: dark ? 0.22 : 0.14) ??
+                            p.accentSoft,
                   borderRadius: BorderRadius.circular(14),
                 ),
                 alignment: Alignment.center,

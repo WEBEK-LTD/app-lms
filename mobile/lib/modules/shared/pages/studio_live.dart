@@ -12,6 +12,7 @@ import '../../../core/theme/app_icons.dart';
 import '../../../core/theme/palette.dart';
 import '../../../core/theme/symbol_names.dart';
 import '../../../core/widgets/common.dart';
+import '../../../core/widgets/star_text.dart';
 import '../../delivery/data/delivery_providers.dart';
 import '../../rides/data/rides_providers.dart';
 import '../../taxi/data/taxi_providers.dart';
@@ -297,24 +298,9 @@ class _Live extends ConsumerWidget {
                       ),
                     ),
                     if (live.facts case final facts? when facts.isNotEmpty)
-                      Text.rich(
-                        TextSpan(
-                          children: [
-                            // The rating's star as the icon, in every font.
-                            if (facts.startsWith('★ ')) ...[
-                              WidgetSpan(
-                                alignment: PlaceholderAlignment.middle,
-                                child: Icon(
-                                  symbolByName('star'),
-                                  size: 13,
-                                  color: ink.withValues(alpha: 0.85),
-                                ),
-                              ),
-                              TextSpan(text: facts.substring(1)),
-                            ] else
-                              TextSpan(text: facts),
-                          ],
-                        ),
+                      // The rating's star as the icon, in every font.
+                      StarText(
+                        facts,
                         maxLines: 1,
                         style: TextStyle(
                           fontSize: 12,

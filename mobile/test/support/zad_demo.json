@@ -165,35 +165,6 @@
         }
        },
        {
-        "id": "demo-30",
-        "type": "column",
-        "gap": 6,
-        "padding": {
-         "top": 8,
-         "end": 16,
-         "bottom": 8,
-         "start": 16
-        },
-        "margin": {
-         "top": 4,
-         "end": 0,
-         "bottom": 4,
-         "start": 0
-        },
-        "visibility": "signed_out",
-        "children": [
-         {
-          "id": "demo-29",
-          "type": "text",
-          "text": "This is a demo app. Sign in with +1 202 555 0123 and the code 246810. Anything you add is deleted after a day.",
-          "font": {
-           "size": 15,
-           "line_height": 1.5
-          }
-         }
-        ]
-       },
-       {
         "id": "demo-3",
         "type": "stack",
         "name": "[This week's offer]",
@@ -687,6 +658,61 @@
          "sort": "nearest",
          "limit": 6
         }
+       },
+       {
+        "id": "demo-29",
+        "type": "row",
+        "gap": 10,
+        "cross": "start",
+        "padding": {
+         "top": 12,
+         "end": 14,
+         "bottom": 12,
+         "start": 14
+        },
+        "margin": {
+         "top": 18,
+         "end": 16,
+         "bottom": 8,
+         "start": 16
+        },
+        "radius": 16,
+        "background": "#FFFFFF",
+        "dark_background": "#16231C",
+        "border_color": "#E5E0D6",
+        "dark_border_color": "#26352D",
+        "border_width": 1,
+        "visibility": "signed_out",
+        "children": [
+         {
+          "id": "demo-30",
+          "type": "icon",
+          "icon": "info",
+          "icon_size": 18,
+          "color": "#5D6B63",
+          "dark_color": "#A9BAB0"
+         },
+         {
+          "id": "demo-31",
+          "type": "text",
+          "text": "This is a demo app. Sign in with +1 202 555 0123 and the code 246810. Anything you add is deleted after a day.",
+          "width": "fill",
+          "font": {
+           "size": 13,
+           "line_height": 1.45
+          },
+          "color": "#5D6B63",
+          "dark_color": "#A9BAB0",
+          "translations": {
+           "ar": {
+            "text": "هذا تطبيق تجريبي. سجّل الدخول بالرقم ⁦+1 202 555 0123⁩ والرمز 246810. يُحذف كل ما تضيفه بعد يوم."
+           },
+           "tr": {
+            "text": "Bu bir demo uygulamasıdır. +1 202 555 0123 numarası ve 246810 koduyla giriş yapın. Eklediğiniz her şey bir gün sonra silinir."
+           }
+          }
+         }
+        ]
        }
       ]
      }
@@ -705,7 +731,7 @@
     },
     "studio": {
      "body": {
-      "id": "demo-35",
+      "id": "demo-36",
       "type": "column",
       "children": []
      },
@@ -743,11 +769,11 @@
     },
     "studio": {
      "body": {
-      "id": "demo-39",
+      "id": "demo-40",
       "type": "column",
       "children": [
        {
-        "id": "demo-40",
+        "id": "demo-41",
         "type": "live_status",
         "live_status": {
          "source": "market_order"
@@ -805,7 +831,7 @@
     },
     "studio": {
      "body": {
-      "id": "demo-41",
+      "id": "demo-42",
       "type": "column",
       "children": []
      },
@@ -830,7 +856,7 @@
      "background": "#F6F3EE",
      "dark_background": "#0D1712",
      "body": {
-      "id": "demo-31",
+      "id": "demo-32",
       "type": "column",
       "padding": {
        "top": 0,
@@ -840,7 +866,7 @@
       },
       "children": [
        {
-        "id": "demo-32",
+        "id": "demo-33",
         "type": "market",
         "market": {
          "section": "kinds"
@@ -853,7 +879,7 @@
         }
        },
        {
-        "id": "demo-33",
+        "id": "demo-34",
         "type": "market",
         "market": {
          "section": "vendors",
@@ -878,7 +904,7 @@
         }
        },
        {
-        "id": "demo-34",
+        "id": "demo-35",
         "type": "market",
         "market": {
          "section": "club"
@@ -938,7 +964,7 @@
     },
     "studio": {
      "body": {
-      "id": "demo-42",
+      "id": "demo-43",
       "type": "column",
       "children": []
      },
@@ -973,7 +999,7 @@
     },
     "studio": {
      "body": {
-      "id": "demo-43",
+      "id": "demo-44",
       "type": "column",
       "children": []
      },
@@ -1008,7 +1034,7 @@
     },
     "studio": {
      "body": {
-      "id": "demo-44",
+      "id": "demo-45",
       "type": "column",
       "children": []
      },
@@ -1043,7 +1069,7 @@
     },
     "studio": {
      "body": {
-      "id": "demo-45",
+      "id": "demo-46",
       "type": "column",
       "children": []
      },
@@ -1078,7 +1104,7 @@
     },
     "studio": {
      "body": {
-      "id": "demo-46",
+      "id": "demo-47",
       "type": "column",
       "children": []
      },
@@ -1113,7 +1139,7 @@
     },
     "studio": {
      "body": {
-      "id": "demo-47",
+      "id": "demo-48",
       "type": "column",
       "children": []
      },
@@ -1148,7 +1174,7 @@
     },
     "studio": {
      "body": {
-      "id": "demo-48",
+      "id": "demo-49",
       "type": "column",
       "children": []
      },
@@ -1175,7 +1201,7 @@
     "title": "Change password",
     "studio": {
      "body": {
-      "id": "demo-49",
+      "id": "demo-50",
       "type": "column",
       "children": []
      },
@@ -1190,7 +1216,7 @@
     "title": "A conversation",
     "studio": {
      "body": {
-      "id": "demo-50",
+      "id": "demo-51",
       "type": "column",
       "children": []
      },
@@ -1205,7 +1231,7 @@
     "title": "A restaurant's menu",
     "studio": {
      "body": {
-      "id": "demo-51",
+      "id": "demo-52",
       "type": "column",
       "children": []
      },
@@ -1220,7 +1246,7 @@
     "title": "An order",
     "studio": {
      "body": {
-      "id": "demo-52",
+      "id": "demo-53",
       "type": "column",
       "children": []
      },
@@ -1243,7 +1269,7 @@
     },
     "studio": {
      "body": {
-      "id": "demo-53",
+      "id": "demo-54",
       "type": "column",
       "children": []
      },
@@ -1270,7 +1296,7 @@
     "title": "A place's page",
     "studio": {
      "body": {
-      "id": "demo-54",
+      "id": "demo-55",
       "type": "column",
       "children": []
      },
@@ -1285,7 +1311,7 @@
     "title": "A list of places",
     "studio": {
      "body": {
-      "id": "demo-55",
+      "id": "demo-56",
       "type": "column",
       "children": []
      },
@@ -1308,7 +1334,7 @@
     },
     "studio": {
      "body": {
-      "id": "demo-56",
+      "id": "demo-57",
       "type": "column",
       "children": []
      },
@@ -1343,7 +1369,7 @@
     },
     "studio": {
      "body": {
-      "id": "demo-57",
+      "id": "demo-58",
       "type": "column",
       "children": []
      },
@@ -1370,7 +1396,7 @@
     "title": "An order",
     "studio": {
      "body": {
-      "id": "demo-58",
+      "id": "demo-59",
       "type": "column",
       "children": []
      },
@@ -1393,7 +1419,7 @@
     },
     "studio": {
      "body": {
-      "id": "demo-59",
+      "id": "demo-60",
       "type": "column",
       "children": []
      },
@@ -1428,7 +1454,7 @@
     },
     "studio": {
      "body": {
-      "id": "demo-60",
+      "id": "demo-61",
       "type": "column",
       "children": []
      },
@@ -1455,7 +1481,7 @@
     "title": "A complaint",
     "studio": {
      "body": {
-      "id": "demo-61",
+      "id": "demo-62",
       "type": "column",
       "children": []
      },
@@ -1468,8 +1494,12 @@
   ],
   "tab_bar": {
    "design": "classic",
+   "background": "#FFFFFF",
+   "dark_background": "#16231C",
    "active": "#1E6B52",
    "dark_active": "#7FD3AE",
+   "inactive": "#5D6B63",
+   "dark_inactive": "#A9BAB0",
    "labels": "always"
   }
  }

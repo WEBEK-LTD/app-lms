@@ -485,30 +485,56 @@
         ]
        },
        {
-        "id": "demo-24",
-        "type": "column",
-        "gap": 6,
+        "id": "demo-23",
+        "type": "row",
+        "gap": 10,
+        "cross": "start",
         "padding": {
-         "top": 8,
+         "top": 12,
+         "end": 14,
+         "bottom": 12,
+         "start": 14
+        },
+        "margin": {
+         "top": 18,
          "end": 16,
          "bottom": 8,
          "start": 16
         },
-        "margin": {
-         "top": 4,
-         "end": 0,
-         "bottom": 4,
-         "start": 0
-        },
+        "radius": 16,
+        "background": "#FFFFFF",
+        "dark_background": "#1C2541",
+        "border_color": "#E2DED6",
+        "dark_border_color": "#333D5E",
+        "border_width": 1,
         "visibility": "signed_out",
         "children": [
          {
-          "id": "demo-23",
+          "id": "demo-24",
+          "type": "icon",
+          "icon": "info",
+          "icon_size": 18,
+          "color": "#5B6276",
+          "dark_color": "#AEB4C6"
+         },
+         {
+          "id": "demo-25",
           "type": "text",
           "text": "This is a demo app. Sign in with +1 202 555 0123 and the code 246810. Anything you add is deleted after a day.",
+          "width": "fill",
           "font": {
-           "size": 15,
-           "line_height": 1.5
+           "size": 13,
+           "line_height": 1.45
+          },
+          "color": "#5B6276",
+          "dark_color": "#AEB4C6",
+          "translations": {
+           "ar": {
+            "text": "هذا تطبيق تجريبي. سجّل الدخول بالرقم ⁦+1 202 555 0123⁩ والرمز 246810. يُحذف كل ما تضيفه بعد يوم."
+           },
+           "tr": {
+            "text": "Bu bir demo uygulamasıdır. +1 202 555 0123 numarası ve 246810 koduyla giriş yapın. Eklediğiniz her şey bir gün sonra silinir."
+           }
           }
          }
         ]
@@ -530,11 +556,11 @@
     },
     "studio": {
      "body": {
-      "id": "demo-28",
+      "id": "demo-29",
       "type": "column",
       "children": [
        {
-        "id": "demo-31",
+        "id": "demo-32",
         "type": "photo_hero",
         "name": "Your rides, day and night",
         "image_url": "http://localhost:3000/stories/rides/rides-backseat.jpg",
@@ -563,7 +589,7 @@
         },
         "children": [
          {
-          "id": "demo-29",
+          "id": "demo-30",
           "type": "text",
           "text": "Your rides, day and night",
           "color": "#FFFFFF",
@@ -582,7 +608,7 @@
           }
          },
          {
-          "id": "demo-30",
+          "id": "demo-31",
           "type": "text",
           "text": "Your rides, their fares and receipts.",
           "color": "#FFFFFF",
@@ -647,7 +673,7 @@
     },
     "studio": {
      "body": {
-      "id": "demo-32",
+      "id": "demo-33",
       "type": "column",
       "children": []
      },
@@ -672,7 +698,7 @@
     },
     "studio": {
      "body": {
-      "id": "demo-33",
+      "id": "demo-34",
       "type": "column",
       "children": []
      },
@@ -713,7 +739,7 @@
     },
     "studio": {
      "body": {
-      "id": "demo-34",
+      "id": "demo-35",
       "type": "column",
       "children": []
      },
@@ -754,7 +780,7 @@
     },
     "studio": {
      "body": {
-      "id": "demo-35",
+      "id": "demo-36",
       "type": "column",
       "children": []
      },
@@ -795,7 +821,7 @@
     },
     "studio": {
      "body": {
-      "id": "demo-36",
+      "id": "demo-37",
       "type": "column",
       "children": []
      },
@@ -836,7 +862,7 @@
     },
     "studio": {
      "body": {
-      "id": "demo-37",
+      "id": "demo-38",
       "type": "column",
       "children": []
      },
@@ -869,7 +895,7 @@
     "title": "Change password",
     "studio": {
      "body": {
-      "id": "demo-38",
+      "id": "demo-39",
       "type": "column",
       "children": []
      },
@@ -886,7 +912,7 @@
     "title": "A conversation",
     "studio": {
      "body": {
-      "id": "demo-39",
+      "id": "demo-40",
       "type": "column",
       "children": []
      },
@@ -903,7 +929,7 @@
     "title": "A ride on its way",
     "studio": {
      "body": {
-      "id": "demo-40",
+      "id": "demo-41",
       "type": "column",
       "children": []
      },

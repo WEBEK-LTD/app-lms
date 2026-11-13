@@ -84,14 +84,60 @@ export function paragraphsOf(html: string): { heading: boolean; text: string }[]
   return out;
 }
 
-/** A text block (the demo's note on how to sign in) as a Studio element, shown to the same people. */
-export function studioTextOf(ctx: SectionContext, block: LayoutBlock): StudioNode | null {
+/** 128 Each Studio demo's quiet colours by day and by night, its approved board's: the cards', their line's and the muted text's. */
+export const DEMO_NOTE_COLORS: Record<StudioDemoId, { surface: string; nightSurface: string; line: string; nightLine: string; muted: string; nightMuted: string }> = {
+  food: { surface: "#FFFFFF", nightSurface: "#241913", line: "#EFE4DA", nightLine: "#3A2A21", muted: "#6E5A50", nightMuted: "#C5B2A6" },
+  marketplace: { surface: "#FFFFFF", nightSurface: "#16231C", line: "#E5E0D6", nightLine: "#26352D", muted: "#5D6B63", nightMuted: "#A9BAB0" },
+  delivery: { surface: "#FFFFFF", nightSurface: "#132030", line: "#DEE5EE", nightLine: "#22324A", muted: "#566475", nightMuted: "#A7B4C2" },
+  rides: { surface: "#FFFFFF", nightSurface: "#0F2422", line: "#DCE6E4", nightLine: "#1F3735", muted: "#556866", nightMuted: "#A2BAB6" },
+  taxi: { surface: "#FFFFFF", nightSurface: "#1C2541", line: "#E2DED6", nightLine: "#333D5E", muted: "#5B6276", nightMuted: "#AEB4C6" },
+  school: { surface: "#FFFFFF", nightSurface: "#122033", line: "#DFE5EC", nightLine: "#22334A", muted: "#56657A", nightMuted: "#A6B3C3" },
+  instructors: { surface: "#FFFFFF", nightSurface: "#15221C", line: "#E2E0D6", nightLine: "#24352D", muted: "#5A665F", nightMuted: "#A9B7AF" },
+  premium_academy: { surface: "#FFFFFF", nightSurface: "#161C33", line: "#E3DFD6", nightLine: "#262D48", muted: "#5A5F73", nightMuted: "#A8AEC4" },
+  // 126 Safra's, its pages' (lib/studio/demo-designs/safra-travel.ts SAFRA_INK).
+  travel: { surface: "#FFFFFF", nightSurface: "#1B2338", line: "#E6DFD2", nightLine: "#2A3350", muted: "#5F6472", nightMuted: "#B4B8C6" },
+};
+
+/**
+ * A text block (the demo's note on how to sign in) as a Studio element,
+ * shown to the same people: 128 a small quiet card in the demo's own
+ * colours by day and by night, its words in each of the block's languages,
+ * for the end of the demo's home (never between the parts of its approved
+ * design). `inset`: the space either side, none when the page has its own.
+ */
+export function studioNoteOf(ctx: SectionContext, id: StudioDemoId, block: LayoutBlock, inset = 16): StudioNode | null {
   if (block.type !== "text") return null;
-  const children = paragraphsOf(block.html ?? "").map(
-    (part): StudioNode => ({ id: idOf(ctx), type: "text", text: part.text, font: part.heading ? { size: 20, weight: 800, line_height: 1.25 } : { size: 15, line_height: 1.5 } }),
+  const words = (html: string | null | undefined) =>
+    paragraphsOf(html ?? "")
+      .map((part) => part.text)
+      .join(" ");
+  const text = words(block.html);
+  if (!text) return null;
+  const translations = Object.fromEntries(
+    Object.entries(block.translations ?? {})
+      .map(([lang, texts]) => [lang, { text: words(texts.html) }] as const)
+      .filter(([, t]) => t.text),
   );
-  if (!children.length) return null;
-  return { id: idOf(ctx), type: "column", gap: 6, padding: pad(8, 16), margin: pad(4, 0), visibility: block.visibility, children };
+  const c = DEMO_NOTE_COLORS[id];
+  return {
+    id: idOf(ctx),
+    type: "row",
+    gap: 10,
+    cross: "start",
+    padding: pad(12, 14),
+    margin: { top: 18, end: inset, bottom: 8, start: inset },
+    radius: 16,
+    background: c.surface,
+    dark_background: c.nightSurface,
+    border_color: c.line,
+    dark_border_color: c.nightLine,
+    border_width: 1,
+    visibility: block.visibility,
+    children: [
+      { id: idOf(ctx), type: "icon", icon: "info", icon_size: 18, color: c.muted, dark_color: c.nightMuted },
+      { id: idOf(ctx), type: "text", text, width: "fill", font: { size: 13, line_height: 1.45 }, color: c.muted, dark_color: c.nightMuted, ...(Object.keys(translations).length ? { translations } : {}) },
+    ],
+  };
 }
 
 type DemoLang = "en" | "ar" | "tr";

@@ -19,6 +19,7 @@ export const TEACHERS_HOME_COLORS = {
   surface: "#FFFFFF",
   nightSurface: "#15221C",
   line: "#E2E0D6",
+  nightLine: "#24352D",
   ink: "#15241D",
   nightInk: "#ECF3EF",
   muted: "#5A665F",
@@ -85,6 +86,7 @@ export function teachersPhotoHome(ctx: SectionContext): StudioPage {
             background: C.surface,
             dark_background: C.nightSurface,
             border_color: C.line,
+            dark_border_color: C.nightLine,
             border_width: 1,
             children: [
               {

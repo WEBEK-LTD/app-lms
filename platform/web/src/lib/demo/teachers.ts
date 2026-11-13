@@ -82,10 +82,19 @@ export interface AcademyCourse {
   topics: SampleCourse["topics"];
 }
 
-/** 128.7 The covers of Rawaq Academy's popular courses as its approved board shows them: the academy story's photos, saved as Ufuq Academy's are. */
+/**
+ * 128.7 The covers of Rawaq Academy's popular courses as its approved board shows them: the academy story's photos, saved as Ufuq Academy's are;
+ * 128 the others' from the same free photos (as Ufuq Academy's, lib/demo/ufuq-courses.ts), so whichever its home lists is a photo, never a drawing.
+ */
 const ACADEMY_COVERS: Partial<Record<string, AcademyPhoto>> = {
   "Start Your Own Small Business": "academy-desk",
   "Arabic for Beginners": "academy-live",
+  "UX Design Fundamentals": "academy-phone",
+  "Product Photography with Your Phone": "academy-breakfast",
+  "Excel for Small Business Owners": "academy-graduation",
+  "Social Media Marketing That Sells": "academy-evening",
+  "Everyday English Conversation": "academy-graduation",
+  "Python for Data Analysis": "academy-desk",
 };
 
 /** The sample courses, each the course of the teacher with its instructor's name. */

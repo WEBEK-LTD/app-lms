@@ -1,6 +1,7 @@
 import 'dart:math' as math;
 
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:latlong2/latlong.dart';
@@ -10,6 +11,7 @@ import '../../../core/gate/app_gate.dart';
 import '../../../core/l10n/l10n.dart';
 import '../../../core/providers.dart';
 import '../../../core/theme/app_icons.dart';
+import '../../../core/theme/app_look.dart';
 import '../../../core/theme/palette.dart';
 import '../../../core/widgets/common.dart';
 import '../data/taxi_providers.dart';
@@ -69,6 +71,10 @@ class TaxiMapView extends ConsumerStatefulWidget {
   @override
   ConsumerState<TaxiMapView> createState() => _TaxiMapViewState();
 }
+
+/// [layer] in the [theme] of the map's tiles, when it has one.
+Widget _lit(ThemeData? theme, Widget layer) =>
+    theme == null ? layer : Theme(data: theme, child: layer);
 
 /// Where the map opens with nothing to show yet.
 const _anywhere = LatLng(30.0444, 31.2357);
@@ -150,7 +156,27 @@ class _TaxiMapViewState extends ConsumerState<TaxiMapView> {
   );
 
   Widget _map(BuildContext context) {
-    final p = context.palette;
+    // 128 The company's tiles are a light street map by night too: the
+    // lines, the pins and the cars on them are drawn in the light colours,
+    // so the dark ones' near-white ink doesn't vanish on them, and the
+    // phone's status bar over the map in dark icons.
+    final lit = _tiles != null && context.palette.brightness == Brightness.dark
+        ? ref.watch(appLookProvider).theme(Brightness.light)
+        : null;
+    final layers = _layers(context, lit);
+    return lit == null
+        ? layers
+        : AnnotatedRegion<SystemUiOverlayStyle>(
+            value: const SystemUiOverlayStyle(
+              statusBarIconBrightness: Brightness.dark,
+              statusBarBrightness: Brightness.light,
+            ),
+            child: layers,
+          );
+  }
+
+  Widget _layers(BuildContext context, ThemeData? lit) {
+    final p = lit?.extension<AppPalette>() ?? context.palette;
     final focus = widget.focus.map(_at).toList();
     final car = widget.car;
     final me = widget.me;
@@ -205,57 +231,60 @@ class _TaxiMapViewState extends ConsumerState<TaxiMapView> {
                     ),
                 ],
               ),
-            MarkerLayer(
-              markers: [
-                if (widget.pulse case final pulse?)
-                  Marker(
-                    point: _at(pulse),
-                    width: 180,
-                    height: 180,
-                    child: const _Pulse(key: ValueKey('taxi-pulse')),
-                  ),
-                for (final taxi in widget.taxis)
-                  if (taxi.driverKey != car?.driverKey)
+            _lit(
+              lit,
+              MarkerLayer(
+                markers: [
+                  if (widget.pulse case final pulse?)
                     Marker(
-                      point: LatLng(taxi.lat, taxi.lng),
-                      width: 36,
-                      height: 36,
-                      child: _CarMarker(
-                        key: ValueKey('taxi-taxi-${taxi.driverKey}'),
-                        heading: taxi.heading,
+                      point: _at(pulse),
+                      width: 180,
+                      height: 180,
+                      child: const _Pulse(key: ValueKey('taxi-pulse')),
+                    ),
+                  for (final taxi in widget.taxis)
+                    if (taxi.driverKey != car?.driverKey)
+                      Marker(
+                        point: LatLng(taxi.lat, taxi.lng),
+                        width: 36,
+                        height: 36,
+                        child: _CarMarker(
+                          key: ValueKey('taxi-taxi-${taxi.driverKey}'),
+                          heading: taxi.heading,
+                        ),
+                      ),
+                  for (final pin in widget.pins)
+                    Marker(
+                      point: LatLng(pin.lat, pin.lng),
+                      width: 200,
+                      height: 64,
+                      alignment: Alignment.topCenter,
+                      child: _PlacePin(
+                        key: ValueKey('taxi-pin-${pin.kind.name}'),
+                        pin: pin,
                       ),
                     ),
-                for (final pin in widget.pins)
-                  Marker(
-                    point: LatLng(pin.lat, pin.lng),
-                    width: 200,
-                    height: 64,
-                    alignment: Alignment.topCenter,
-                    child: _PlacePin(
-                      key: ValueKey('taxi-pin-${pin.kind.name}'),
-                      pin: pin,
+                  if (me != null)
+                    Marker(
+                      point: _at(me),
+                      width: 28,
+                      height: 28,
+                      child: const _MeDot(key: ValueKey('taxi-me')),
                     ),
-                  ),
-                if (me != null)
-                  Marker(
-                    point: _at(me),
-                    width: 28,
-                    height: 28,
-                    child: const _MeDot(key: ValueKey('taxi-me')),
-                  ),
-                if (car != null)
-                  Marker(
-                    point: LatLng(car.lat, car.lng),
-                    width: 46,
-                    height: 46,
-                    child: _CarMarker(
-                      key: const ValueKey('taxi-car'),
-                      heading: widget.carIcon == null ? car.heading : null,
-                      followed: true,
-                      icon: widget.carIcon,
+                  if (car != null)
+                    Marker(
+                      point: LatLng(car.lat, car.lng),
+                      width: 46,
+                      height: 46,
+                      child: _CarMarker(
+                        key: const ValueKey('taxi-car'),
+                        heading: widget.carIcon == null ? car.heading : null,
+                        followed: true,
+                        icon: widget.carIcon,
+                      ),
                     ),
-                  ),
-              ],
+                ],
+              ),
             ),
           ],
         ),

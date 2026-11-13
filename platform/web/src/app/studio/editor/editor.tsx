@@ -7,8 +7,6 @@ import { publishLayoutAction, restoreLayoutVersionAction, saveLayoutDraftAction,
 import { shareMediaAction } from "@/app/actions/media";
 import type { LayoutHistoryEntry } from "@/lib/pages/layout";
 import { useDashLang, useDashT, useKnownText } from "@/components/dashboard-i18n";
-import type { LearningWords } from "@/components/studio/learning";
-import type { SchoolWords } from "@/components/studio/school";
 import { StudioView, type ScreenPartInfo, type StudioEditing, type StudioLook } from "@/components/studio/view";
 import { screenDrawing, screenLookSection } from "@/lib/studio/screen-drawing";
 import { launchPictures, withLaunchPictures, type StudioScreens } from "@/lib/studio/screens";
@@ -32,6 +30,7 @@ import { forTablet, tabletPatch } from "@/lib/studio/tablet";
 import { DESIGN_FILE_EXTENSION, designPages, designSection, fontsIn, picturesIn, readDesignFile, withoutFonts, withPictures, writeDesignFile, type DesignFile, type DesignFileFont, type DesignFilePicture, type DesignKind } from "@/lib/studio/design-file";
 import { applyWholeDesign, demoProjectLook, designName, designPageCount, designsFor, makeDesign } from "@/lib/studio/designs";
 import type { OwnDesignView } from "@/lib/studio/own-designs";
+import { canvasWords, type CanvasWords } from "./canvas-words";
 import { DesignsGallery, type GalleryDesign } from "./designs-gallery";
 import { PublishHistory } from "./publish-history";
 import { TextStylesPanel } from "./text-styles-panel";
@@ -99,6 +98,8 @@ export interface StudioEditorProps {
   studioScreens?: StudioScreens | null;
   /** 124.8 Studio › Screens, where a screen's look is chosen; null when the project has none. */
   screensHref?: string | null;
+  /** 128 The canvas's sample words in each of the project's languages Studio has words in. */
+  canvasWords?: Partial<Record<LanguageCode, CanvasWords>>;
 }
 
 export function StudioEditor(props: StudioEditorProps) {
@@ -180,13 +181,13 @@ export function StudioEditor(props: StudioEditorProps) {
   // 124.6 The canvas in the fonts the app draws the page in (the look's and each element's), not the dashboard's.
   useStudioFonts(fontsOfPage(studio?.body, look.font), ownFonts);
   const palette = useMemo(() => [...new Set([brand, layout.appearance.secondary_color, "#FFFFFF", "#0E0D24", "#F4EFE6", "#FF5A1F"].filter((c): c is string => !!c))], [brand, layout.appearance.secondary_color]);
-  // 123 The sample learning of the student's cards and the greeting header, in Studio's language.
-  // 128 The live order card's sample words.
-  const liveWords = { title: t("studio.lv_title"), minutes: t("studio.lv_min") };
-  const learningWords = Object.fromEntries((["lessonOf", "minutesLeft", "streak", "days", "live", "liveWhen", "week", "weekChange", "sampleCourse", "sampleTeacher", "sampleLive", "weekdays", "photoChip", "liveAt", "photoCourse"] as const).map((k) => [k, t(`studio.lw_${k}` as DashKey)])) as unknown as LearningWords;
-  const greeting = { date: t("studio.greetingDate"), hello: t("studio.greetingHello") };
-  // 128 The sample family of the school's cards, in Studio's language.
-  const schoolWords = Object.fromEntries((["hello", "childOne", "childTwo", "checkedIn", "onTime", "now", "next", "bus", "busRoute"] as const).map((k) => [k, t(`studio.sw_${k}` as DashKey)])) as unknown as Omit<SchoolWords, "date">;
+  // 123 The sample learning of the student's cards and the greeting header; 128 the live order card's and the school's sample family:
+  // in the language being edited, as the app shows them (Studio's own language when the project's isn't one of Studio's).
+  const sample = props.canvasWords?.[editLang] ?? canvasWords(t);
+  const liveWords = sample.live;
+  const learningWords = sample.learning;
+  const greeting = sample.greeting;
+  const schoolWords = sample.school;
   // 124.8 The app's screen under the page: drawn as the app draws it in the look chosen in Studio › Screens, else said so.
   const screenName = studio?.screen ? known(props.pageScreens.find((s) => s.value === studio.screen)?.label ?? studio.screen) : "";
   const looksAt = screenLookSection(studio?.screen, props.kind.type);
