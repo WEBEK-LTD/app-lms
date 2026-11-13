@@ -339,7 +339,8 @@ platform :ios do
   #     (business_old_certificate), so every update just runs.
   #
   # options: asc, business (path to business/; 104.8.6 or project: the Flutter project), out, status,
-  #          cert_out, app (as business_play), push (Yallapp Courier: "false" without Firebase)
+  #          cert_out, cert_save (125.13: where to write the certificate made here, to be saved as
+  #          the secrets), app (as business_play), push (Yallapp Courier: "false" without Firebase)
   lane :business_ipa do |options|
     app = release_app(options)
     app_id = app[:id]
@@ -380,6 +381,17 @@ platform :ios do
       end
       cert_id = lane_context[SharedValues::CERT_CERTIFICATE_ID].to_s
       File.write(options[:cert_out], cert_id)
+      # 125.13 With options[:cert_save] (the workflow has YB_SECRETS_TOKEN), this certificate with
+      # its key goes to that file ({p12_base64, password}, only the runner can read it); the
+      # workflow saves it as YB_IOS_DISTRIBUTION_P12 and YB_IOS_DISTRIBUTION_PASSWORD, so every
+      # later run of both apps signs with it and Apple's few certificates stop filling up.
+      unless options[:cert_save].to_s.empty?
+        password = SecureRandom.hex(24)
+        p12 = File.join(options[:out], "distribution.p12")
+        sh("security", "export", "-k", "#{Dir.home}/Library/Keychains/#{keychain}-db", "-t", "identities", "-f", "pkcs12", "-P", password, "-o", p12, log: false)
+        File.open(options[:cert_save], "w", 0o600) { |f| f.write(JSON.generate("p12_base64" => Base64.strict_encode64(File.binread(p12)), "password" => password)) }
+        File.delete(p12)
+      end
     else
       p12 = File.join(options[:out], "distribution.p12")
       File.binwrite(p12, Base64.decode64(p12_base64))

@@ -700,9 +700,12 @@ never in a chat or an issue.
       for the build it signed (a revoked certificate makes App Review refuse
       its builds: ITMS-90035, Invalid Signature, as build 51 was). When
       Apple's few distribution certificates are all in use, the run revokes
-      the oldest one made over 30 days ago first. Optional:
-      `YB_IOS_DISTRIBUTION_P12` (the .p12 in base64) and
-      `YB_IOS_DISTRIBUTION_PASSWORD` to use one certificate for every run.
+      the oldest one made over 30 days ago first. With `YB_SECRETS_TOKEN`
+      (a fine-grained token for this repository with Secrets: Read and write),
+      the next run of Yallapp Business or Yallapp Courier saves the
+      certificate it made as `YB_IOS_DISTRIBUTION_P12` and
+      `YB_IOS_DISTRIBUTION_PASSWORD` (125.13), and every later run of both
+      apps signs with it; the token can be deleted after that run.
 
 ### Pushes (Firebase)
 
