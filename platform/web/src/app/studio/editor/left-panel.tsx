@@ -4,7 +4,7 @@ import { useState, type DragEvent } from "react";
 import { useDashT } from "@/components/dashboard-i18n";
 import type { DashKey } from "@/i18n/dashboard";
 import type { ItemSource, StudioHeader, StudioNode, StudioPage } from "@/lib/pages/types";
-import { ELEMENTS, type ElementGroup, type ElementInfo } from "@/lib/studio/elements";
+import { ELEMENTS, type ElementGroup, type ElementInfo, type ElementPreset } from "@/lib/studio/elements";
 import type { SectionInfo, TemplateInfo } from "@/lib/studio/sections";
 import { holdsChildren } from "@/lib/studio/edit";
 import { PicturesPanel } from "./pictures-panel";
@@ -23,7 +23,7 @@ export interface MyTemplate {
   page: StudioPage;
 }
 
-export function elementLabel(t: ReturnType<typeof useDashT>, type: StudioNode["type"], source: ItemSource | null | undefined, preset?: string): string {
+export function elementLabel(t: ReturnType<typeof useDashT>, type: StudioNode["type"], source: ItemSource | null | undefined, preset?: ElementPreset): string {
   // 129 A premium look of an element (a hero slider) has its own name.
   if (preset) return t(`studio.el_${preset}` as DashKey);
   if (type === "items" && source) return t(`studio.el_items_${source}` as DashKey);
@@ -53,7 +53,8 @@ export function LeftPanel(props: {
   page: StudioPage | null;
   selectedId: string | null;
   onSelect: (id: string) => void;
-  onAddElement: (type: StudioNode["type"], preset?: string) => void;
+  /** 129 With a ready look (a hero slider, a card carousel, a glass card: ElementInfo.preset). */
+  onAddElement: (type: StudioNode["type"], preset?: ElementPreset) => void;
   onAddSection: (id: string) => void;
   onUseTemplate: (id: string) => void;
   /** Editor audit 3.3: a picture from the pictures tab, added after what's selected. */
@@ -89,7 +90,7 @@ export function LeftPanel(props: {
     { id: "layout", label: t("studio.groupLayout") },
     { id: "content", label: t("studio.groupContent") },
     { id: "more", label: t("studio.groupMore") },
-    // 129 The premium elements and looks.
+    // 129 The premium library: one group for the motion & media and the content & commerce elements.
     { id: "premium", label: t("studio.groupPremium") },
   ];
   const sections = props.sections.filter((s) => matches(t(`studio.sec_${s.id}` as DashKey), s.id));

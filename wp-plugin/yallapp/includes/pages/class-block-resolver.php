@@ -1055,8 +1055,18 @@ class Block_Resolver {
 		'gallery',
 		'before_after',
 		'segments',
+		// 129.11–129.20 Premium content, trust and commerce (Studio_Premium).
+		'testimonials',
+		'pricing',
+		'stats',
+		'progress',
+		'timeline',
+		'profile_card',
+		'bento',
+		'badge_text',
+		'cta_bar',
 	);
-	const STUDIO_LAYOUT = array( 'row', 'column', 'stack', 'grid', 'slider', 'accordion', 'tabs', 'photo_hero', 'map_header', 'video_hero', 'parallax_banner' );
+	const STUDIO_LAYOUT = array( 'row', 'column', 'stack', 'grid', 'slider', 'accordion', 'tabs', 'photo_hero', 'map_header', 'video_hero', 'parallax_banner', /* 129.16 */ 'profile_card' );
 
 	/**
 	 * 103R A Studio page (`StudioPage`) for one request: its header and its tree of elements
@@ -1462,7 +1472,19 @@ class Block_Resolver {
 				);
 				break;
 		}
+		// 129.11–129.20 Studio's premium elements: their lists and options (Studio_Premium).
+		if ( in_array( $type, Studio_Premium::TYPES, true ) ) {
+			$node = Studio_Premium::node( $raw, $node, $language, array( $this, 'action' ) );
+			if ( null === $node ) {
+				return null;
+			}
+		}
 		if ( in_array( $type, self::STUDIO_LAYOUT, true ) ) {
+			// 129.18 A layout's premium card style.
+			$surface = Studio_Premium::surface( $raw['surface'] ?? null );
+			if ( null !== $surface ) {
+				$node['surface'] = $surface;
+			}
 			$children = array();
 			foreach ( array_slice( isset( $raw['children'] ) && is_array( $raw['children'] ) ? $raw['children'] : array(), 0, 60 ) as $child ) {
 				$served = is_array( $child ) ? $this->studio_node( $child, $depth + 1, $language ) : null;

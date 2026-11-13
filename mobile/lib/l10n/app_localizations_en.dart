@@ -11538,4 +11538,37 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get studioCompareHandle => 'Drag to compare';
+
+  @override
+  String get studioPremiumMonthly => 'Monthly';
+
+  @override
+  String get studioPremiumYearly => 'Yearly';
+
+  @override
+  String get studioPremiumPerMonth => '/ month';
+
+  @override
+  String get studioPremiumPerYear => '/ year';
+
+  @override
+  String get studioPremiumPopular => 'Most popular';
+
+  @override
+  String studioPremiumStars(int rating) {
+    return '$rating out of 5 stars';
+  }
+
+  @override
+  String studioPremiumProgress(String label, int value) {
+    return '$label: $value percent';
+  }
+
+  @override
+  String studioPremiumStep(int number, int count) {
+    return 'Step $number of $count';
+  }
+
+  @override
+  String get studioPremiumCurrentStep => 'Current step';
 }

@@ -150,6 +150,10 @@ export function SegmentsControls({ node, onChange }: PremiumControlsProps) {
       <p className="m-0 text-xs" style={{ color: "var(--studio-muted)" }}>
         {t("studio.pmSegmentsHint")}
       </p>
+      {/* 129 Not the Progress element's segmented bars (129.14, `progress.style` `segments`). */}
+      <p className="m-0 text-xs" style={{ color: "var(--studio-muted)" }} data-studio-hint="segments-vs-progress">
+        {t("studio.pmSegmentsOther")}
+      </p>
     </div>
   );
 }

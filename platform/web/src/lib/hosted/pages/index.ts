@@ -82,8 +82,10 @@ async function servedStudio(pc: PageContext, studio: StudioPage): Promise<Studio
   const body = await mapTreeAsync(studio.body, async (node) => {
     // 107.2 A hidden element stays in the editor only.
     if (node.hidden) return null;
-    const { query, translations: _t, ...shown } = translated(node, pc.lang, def);
+    const { query, translations: _t, ...own } = translated(node, pc.lang, def);
     void _t;
+    // 129.11–129.20 A premium element's entries, each in the language asked for.
+    const shown = own.entries ? { ...own, entries: own.entries.map((entry) => translated(entry, pc.lang, def)) } : own;
     // 129 The premium elements' entries (stories, photos) in the language asked for too.
     for (const list of ["slides", "images"] as const) {
       const entries = shown[list] as { translations?: Translations }[] | undefined;

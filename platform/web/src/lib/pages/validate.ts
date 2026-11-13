@@ -137,6 +137,24 @@ import {
   type TabBarStyle,
   TAB_BAR_DESIGNS,
   type Translations,
+  // 129.11–129.20 Premium content.
+  STUDIO_BADGE_STYLES,
+  STUDIO_CTA_STYLES,
+  STUDIO_ENTRY_SIZES,
+  STUDIO_ENTRY_TEXTS,
+  STUDIO_MAX_ENTRIES,
+  STUDIO_PRICING_CURRENCIES,
+  STUDIO_PROFILE_SHAPES,
+  STUDIO_PROGRESS_STYLES,
+  STUDIO_REVIEW_SOURCES,
+  STUDIO_STATS_STYLES,
+  STUDIO_TESTIMONIAL_STYLES,
+  STUDIO_TIMELINE_STYLES,
+  STUDIO_BENTO_CAPTIONS,
+  STUDIO_PATTERNS,
+  STUDIO_TICKET_AXES,
+  type StudioEntry,
+  type StudioSurface,
 } from "./types";
 
 /**
@@ -1852,6 +1870,18 @@ function parseNode(ctx: Context, where: string, value: unknown, state: { count: 
       if (photo) node.image_url = photo;
       break;
     }
+    // 129.11–129.20 The premium elements: their lists and options (parsePremium, at the end of this file).
+    case "testimonials":
+    case "pricing":
+    case "stats":
+    case "progress":
+    case "timeline":
+    case "bento":
+    case "badge_text":
+    case "cta_bar":
+    case "profile_card":
+      Object.assign(node, parsePremium(ctx, where, v, node.type, bad));
+      break;
     default:
       break;
   }
@@ -1912,6 +1942,11 @@ function parseNode(ctx: Context, where: string, value: unknown, state: { count: 
 
   // What a layout holds.
   const layout = (STUDIO_LAYOUT_TYPES as readonly string[]).includes(node.type) && node.type !== "spacer";
+  // 129.18 A layout's premium card style: glass, a gradient border, a glow inside, soft shadows.
+  if (layout && v.surface !== undefined && v.surface !== null) {
+    const surface = parseSurface(c, where, v.surface, bad);
+    if (surface) node.surface = surface;
+  }
   if (layout) {
     const raw = Array.isArray(v.children) ? v.children : [];
     if (raw.length > L.maxChildren) bad(`a layout can hold at most ${L.maxChildren} elements.`);
@@ -2113,3 +2148,322 @@ function parseTabBar(raw: unknown, tabs: LayoutTab[], c: { fail: (where: string,
   }
   return out;
 }
+
+// ——— 129.11–129.20 Premium content, trust and commerce ———
+
+/** 129.11–129.20 What each premium element's list needs: how many entries at least, and the field each must have. */
+const PREMIUM_LISTS: Record<string, { min: number; needs?: "title" | "text" | "value"; what: string }> = {
+  testimonials: { min: 0, needs: "text", what: "each quote needs its words" },
+  pricing: { min: 1, needs: "title", what: "each plan needs a name" },
+  stats: { min: 1, needs: "value", what: "each number needs its value" },
+  progress: { min: 1, needs: "value", what: "each bar needs how far it is, 0 to 100" },
+  timeline: { min: 1, needs: "title", what: "each step needs a title" },
+  bento: { min: 1, needs: "title", what: "each tile needs a title" },
+};
+
+/**
+ * 129.11–129.20 A premium element's own fields: its `entries` (bounded, each
+ * text with its translations), its options, and the element's own `title`
+ * and `text` with theirs (a badge's words, a call-to-action bar's label and
+ * button, a profile's name and role).
+ */
+function parsePremium(ctx: Context, where: string, v: Record<string, unknown>, type: StudioNode["type"], bad: (what: string) => void): Partial<StudioNode> {
+  const { c } = ctx;
+  const out: Partial<StudioNode> = {};
+  const L = STUDIO_LIMITS;
+  // The element's own words (its tap is parsed with every element's).
+  if (type === "badge_text" || type === "cta_bar" || type === "profile_card") {
+    const max = type === "profile_card" ? L.titleChars : 200;
+    const text = c.optionalText(where, v.text, max, type === "badge_text" ? "The badge's words" : type === "cta_bar" ? "The button's words" : "The role");
+    if (text) out.text = text;
+    if (type === "badge_text" && !text) bad("add the badge's words.");
+    const title = c.optionalText(where, v.title, L.titleChars, type === "cta_bar" ? "The label" : "The name");
+    if (title) out.title = title;
+    const translations = parseTranslations(ctx, where, v.translations, ["text", "title"], { text: max, title: L.titleChars });
+    if (translations) out.translations = translations;
+    if (v.icon !== undefined && v.icon !== null && v.icon !== "") {
+      if (!(typeof v.icon === "string" && ICON_NAME.test(v.icon))) bad("choose an icon.");
+      else out.icon = v.icon;
+    }
+  }
+  const optionsOf = (key: string): Record<string, unknown> | null => {
+    if (v[key] === undefined || v[key] === null) return null;
+    const o = record(v[key]);
+    if (!o) bad(`the element's options (${key}) aren't valid.`);
+    return o;
+  };
+  switch (type) {
+    case "testimonials": {
+      const o = optionsOf("testimonials");
+      if (o) {
+        const t: NonNullable<StudioNode["testimonials"]> = {};
+        if (o.style !== undefined && o.style !== null) {
+          if (!oneOf(STUDIO_TESTIMONIAL_STYLES, o.style)) bad("choose how the quotes are laid out.");
+          else if (o.style !== "carousel") t.style = o.style;
+        }
+        if (o.reviews !== undefined && o.reviews !== null) {
+          const r = record(o.reviews);
+          if (!r || !oneOf(STUDIO_REVIEW_SOURCES, r.source) || !(typeof r.id === "string" && ID.test(r.id))) bad("choose the course or the product whose reviews it shows.");
+          else t.reviews = { source: r.source, id: r.id };
+        }
+        if (Object.keys(t).length) out.testimonials = t;
+      }
+      break;
+    }
+    case "pricing": {
+      const o = optionsOf("pricing");
+      if (o) {
+        const p: NonNullable<StudioNode["pricing"]> = {};
+        if (o.currency !== undefined && o.currency !== null) {
+          if (!oneOf(STUDIO_PRICING_CURRENCIES, o.currency)) bad("choose the plans' currency.");
+          else if (o.currency !== "TRY") p.currency = o.currency;
+        }
+        if (o.yearly === true) p.yearly = true;
+        if (Object.keys(p).length) out.pricing = p;
+      }
+      break;
+    }
+    case "stats": {
+      const o = optionsOf("stats");
+      if (o) {
+        const st: NonNullable<StudioNode["stats"]> = {};
+        if (o.style !== undefined && o.style !== null) {
+          if (!oneOf(STUDIO_STATS_STYLES, o.style)) bad("choose how the numbers look.");
+          else if (o.style !== "plain") st.style = o.style;
+        }
+        if (o.dividers === true) st.dividers = true;
+        if (o.still === true) st.still = true;
+        if (o.start === true) st.start = true;
+        if (Object.keys(st).length) out.stats = st;
+      }
+      break;
+    }
+    case "progress": {
+      const o = optionsOf("progress");
+      if (o) {
+        const pr: NonNullable<StudioNode["progress"]> = {};
+        if (o.style !== undefined && o.style !== null) {
+          if (!oneOf(STUDIO_PROGRESS_STYLES, o.style)) bad("choose bars, rings or segments.");
+          else if (o.style !== "bars") pr.style = o.style;
+        }
+        for (const [key, lo, hi, what] of [
+          ["size", 40, 320, "a ring's size"],
+          ["stroke", 2, 24, "the ring's or bar's thickness"],
+          ["ticks", 0, 60, "the tick marks"],
+          ["segments", 2, 40, "the segments"],
+        ] as const) {
+          const n = studioNumber(o[key], lo, hi);
+          if (n !== undefined && Number.isNaN(n)) bad(`${what} must be ${lo} to ${hi}.`);
+          else if (n) pr[key] = Math.round(n);
+        }
+        if (o.knob === true) pr.knob = true;
+        if (Object.keys(pr).length) out.progress = pr;
+      }
+      break;
+    }
+    case "timeline": {
+      const o = optionsOf("timeline");
+      if (o) {
+        const tl: NonNullable<StudioNode["timeline"]> = {};
+        if (o.style !== undefined && o.style !== null) {
+          if (!oneOf(STUDIO_TIMELINE_STYLES, o.style)) bad("choose whether the steps go down or across.");
+          else if (o.style !== "vertical") tl.style = o.style;
+        }
+        for (const key of ["times", "mono", "card"] as const) if (o[key] === true) tl[key] = true;
+        if (Object.keys(tl).length) out.timeline = tl;
+      }
+      break;
+    }
+    case "bento": {
+      const o = optionsOf("bento");
+      if (o) {
+        const b: NonNullable<StudioNode["bento"]> = {};
+        if (o.caption !== undefined && o.caption !== null) {
+          if (!oneOf(STUDIO_BENTO_CAPTIONS, o.caption)) bad("choose how the tiles' words sit.");
+          else if (o.caption !== "plain") b.caption = o.caption;
+        }
+        const row = studioNumber(o.row, 60, 240);
+        if (row !== undefined && Number.isNaN(row)) bad("a row's height must be 60 to 240.");
+        else if (row) b.row = Math.round(row);
+        if (Object.keys(b).length) out.bento = b;
+      }
+      break;
+    }
+    case "profile_card": {
+      const o = optionsOf("profile");
+      const avatar = c.mediaUrl(where, v.image_url, "the photo's address", false);
+      if (avatar) out.image_url = avatar;
+      if (o) {
+        const pr: NonNullable<StudioNode["profile"]> = {};
+        const cover = c.mediaUrl(where, o.cover_url, "the cover photo's address", false);
+        if (cover) pr.cover_url = cover;
+        if (o.shape !== undefined && o.shape !== null) {
+          if (!oneOf(STUDIO_PROFILE_SHAPES, o.shape)) bad("choose a round or a square photo.");
+          else if (o.shape !== "round") pr.shape = o.shape;
+        }
+        if (o.socials !== undefined && o.socials !== null) {
+          const raw = Array.isArray(o.socials) ? o.socials : null;
+          if (!raw || raw.length > 6) bad("a card has at most 6 social links.");
+          const seen = new Set<string>();
+          const socials = (raw ?? []).slice(0, 6).flatMap((s) => {
+            const r = record(s);
+            const url = typeof r?.url === "string" ? safeHref(r.url.trim()) : null;
+            if (!r || !oneOf(SOCIAL_NETWORKS, r.network) || seen.has(r.network) || !url || !/^https:\/\//i.test(url)) {
+              bad("each social link needs its network, once, and its full https address.");
+              return [];
+            }
+            seen.add(r.network);
+            return [{ network: r.network, url }];
+          });
+          if (socials.length) pr.socials = socials;
+        }
+        if (Object.keys(pr).length) out.profile = pr;
+      }
+      break;
+    }
+    case "badge_text": {
+      const o = optionsOf("badge");
+      if (!o || !oneOf(STUDIO_BADGE_STYLES, o.style)) bad("choose how the badge looks.");
+      else out.badge = { style: o.style };
+      break;
+    }
+    case "cta_bar": {
+      const o = optionsOf("cta");
+      if (!o || !oneOf(STUDIO_CTA_STYLES, o.style)) bad("choose a bar, a card or a floating button.");
+      else {
+        out.cta = { style: o.style };
+        if (o.lead !== undefined && o.lead !== null && o.lead !== "") {
+          if (!(typeof o.lead === "string" && ICON_NAME.test(o.lead))) bad("choose the icon at its start.");
+          else out.cta.lead = o.lead;
+        }
+      }
+      break;
+    }
+    default:
+      break;
+  }
+  const list = PREMIUM_LISTS[type];
+  if (list) {
+    const raw = v.entries === undefined || v.entries === null ? [] : Array.isArray(v.entries) ? v.entries : null;
+    if (!raw) bad("the list isn't valid.");
+    else if (raw.length > STUDIO_MAX_ENTRIES) bad(`a list has at most ${STUDIO_MAX_ENTRIES} entries.`);
+    const kept = (raw ?? [])
+      .slice(0, STUDIO_MAX_ENTRIES)
+      .map((e, i) => parseEntry(ctx, `${where} › ${i + 1}`, e, type))
+      .filter((e): e is StudioEntry => e !== null);
+    const needs = list.needs;
+    if (needs && kept.some((e) => e[needs] === undefined || e[needs] === null)) bad(`${list.what}.`);
+    if (kept.length < list.min) bad("add at least one entry.");
+    if (type === "testimonials" && !kept.length && !out.testimonials?.reviews) bad("add a quote, or choose whose reviews it shows.");
+    if (kept.length) out.entries = kept;
+  }
+  return out;
+}
+
+/** 129.11–129.20 One entry of a premium element's list, from known fields only. */
+function parseEntry(ctx: Context, where: string, value: unknown, type: StudioNode["type"]): StudioEntry | null {
+  const { c } = ctx;
+  const e = record(value);
+  if (!e) {
+    c.fail(where, "the entry isn't valid.");
+    return null;
+  }
+  const out: StudioEntry = {};
+  const T = STUDIO_ENTRY_TEXTS;
+  const words = { title: "The title", subtitle: "The line under the title", text: "The text", label: "The button's words", prefix: "The text before the number", suffix: "The text after the number" } as const;
+  for (const field of Object.keys(T) as (keyof typeof T)[]) {
+    const text = c.optionalText(where, e[field], T[field], words[field]);
+    if (text) out[field] = text;
+  }
+  const image = c.mediaUrl(where, e.image_url, "the picture's address", false);
+  if (image) out.image_url = image;
+  if (e.icon !== undefined && e.icon !== null && e.icon !== "") {
+    if (!(typeof e.icon === "string" && ICON_NAME.test(e.icon))) c.fail(where, "choose an icon.");
+    else out.icon = e.icon;
+  }
+  // Stars 0 to 5, a share 0 to 100, or any number a business shows (up to a billion).
+  const [lo, hi] = type === "testimonials" ? [0, 5] : type === "progress" ? [0, 100] : [-1e9, 1e9];
+  if (e.value !== undefined && e.value !== null) {
+    const n = studioNumber(e.value, lo, hi);
+    if (n === undefined || Number.isNaN(n)) c.fail(where, `the number must be ${lo} to ${hi}.`);
+    else out.value = n;
+  }
+  for (const field of ["price", "price_yearly"] as const) {
+    const cents = e[field];
+    if (cents === undefined || cents === null) continue;
+    if (typeof cents !== "number" || !Number.isSafeInteger(cents) || cents < 0 || cents > 10_000_000_000) c.fail(where, "a price is a whole number of cents, 0 or more.");
+    else out[field] = cents;
+  }
+  if (e.highlight === true) out.highlight = true;
+  if (e.size !== undefined && e.size !== null) {
+    if (!oneOf(STUDIO_ENTRY_SIZES, e.size)) c.fail(where, "choose the tile's size.");
+    else if (e.size !== "small") out.size = e.size;
+  }
+  if (e.gradient !== undefined && e.gradient !== null) {
+    const g = record(e.gradient);
+    const from = optionalColor(c, where, g?.from, "the gradient's first colour");
+    const to = optionalColor(c, where, g?.to, "the gradient's second colour");
+    const angle = studioNumber(g?.angle, 0, 360);
+    if (!from || !to || (angle !== undefined && Number.isNaN(angle))) c.fail(where, "the gradient needs two colours and an angle of 0 to 360.");
+    else out.gradient = { from, to, ...(angle !== undefined && angle !== 180 ? { angle } : {}) };
+  }
+  const color = optionalColor(c, where, e.color, "the colour");
+  if (color) out.color = color;
+  const action = parseAction(ctx, where, e.action, false);
+  if (action) out.action = action;
+  const translations = parseTranslations(ctx, where, e.translations, Object.keys(T), T as unknown as Record<string, number>);
+  if (translations) out.translations = translations;
+  return out;
+}
+
+/** 129.18 A layout's premium card style, checked; null when it adds nothing. */
+function parseSurface(c: Checker, where: string, value: unknown, bad: (what: string) => void): StudioSurface | null {
+  const s = record(value);
+  if (!s) {
+    bad("the card style isn't valid.");
+    return null;
+  }
+  const out: StudioSurface = {};
+  const glass = studioNumber(s.glass, 4, 40);
+  if (glass !== undefined && Number.isNaN(glass)) bad("the glass's blur must be 4 to 40.");
+  else if (glass !== undefined) out.glass = Math.round(glass);
+  const tint = typeof s.tint === "number" && Number.isFinite(s.tint) && s.tint >= 0.05 && s.tint <= 0.9 ? Math.round(s.tint * 100) / 100 : s.tint === undefined || s.tint === null ? undefined : NaN;
+  if (tint !== undefined && Number.isNaN(tint)) bad("how white the glass is must be 5 to 90%.");
+  else if (tint !== undefined && out.glass !== undefined) out.tint = tint;
+  if (s.border !== undefined && s.border !== null) {
+    const b = record(s.border);
+    const from = optionalColor(c, where, b?.from, "the border's first colour");
+    const to = optionalColor(c, where, b?.to, "the border's second colour");
+    const width = studioNumber(b?.width, 1, 6);
+    if (!from || !to || (width !== undefined && Number.isNaN(width))) bad("the gradient border needs two colours and a width of 1 to 6.");
+    else out.border = { from, to, ...(width !== undefined && width !== 1.5 ? { width } : {}) };
+  }
+  const glow = optionalColor(c, where, s.glow, "the glow's colour");
+  if (glow) out.glow = glow;
+  if (s.soft !== undefined && s.soft !== null) {
+    if (s.soft !== 1 && s.soft !== 2 && s.soft !== 3) bad("choose a soft shadow of level 1, 2 or 3.");
+    else out.soft = s.soft;
+  }
+  // 129 Signature boards: a ticket's perforation, and a texture.
+  if (s.ticket !== undefined && s.ticket !== null) {
+    const t = record(s.ticket);
+    const at = studioNumber(t?.at, 5, 95);
+    const notch = studioNumber(t?.notch, 4, 24);
+    if (!t || at === undefined || Number.isNaN(at) || (notch !== undefined && Number.isNaN(notch)) || (t.axis !== undefined && t.axis !== null && !oneOf(STUDIO_TICKET_AXES, t.axis))) {
+      bad("a ticket needs where its perforation is (5 to 95%), across or down, and notches of 4 to 24.");
+    } else {
+      out.ticket = { at: Math.round(at), ...(t.axis === "vertical" ? { axis: "vertical" as const } : {}), ...(notch !== undefined && notch !== 10 ? { notch: Math.round(notch) } : {}) };
+    }
+  }
+  if (s.pattern !== undefined && s.pattern !== null) {
+    if (!oneOf(STUDIO_PATTERNS, s.pattern)) bad("choose the texture.");
+    else {
+      out.pattern = s.pattern;
+      const strength = typeof s.pattern_strength === "number" && Number.isFinite(s.pattern_strength) && s.pattern_strength >= 0.02 && s.pattern_strength <= 0.4 ? Math.round(s.pattern_strength * 100) / 100 : s.pattern_strength === undefined || s.pattern_strength === null ? undefined : NaN;
+      if (strength !== undefined && Number.isNaN(strength)) bad("the texture's strength must be 2 to 40%.");
+      else if (strength !== undefined && strength !== 0.08) out.pattern_strength = strength;
+    }
+  }
+  return Object.keys(out).length ? out : null;
+}
+// ——— end 129.11–129.20 ———

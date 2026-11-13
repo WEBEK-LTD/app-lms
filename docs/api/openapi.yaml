@@ -15217,7 +15217,7 @@ components:
       properties:
         design:
           type: string
-          enum: [classic, pill, minimal, dot, line, bubble, glass, notch, lift, outline, square, text, island, segment, folder, drop, glow, colours, float]
+          enum: [classic, pill, minimal, dot, line, bubble, glass, notch, lift, outline, square, text, island, segment, folder, drop, glow, colours, float, dock]
           description: |
             119 The bar's design; missing, the app template's own (Classic,
             Bold's pill, Minimal). `classic`: the open tab's icon in a soft
@@ -15241,7 +15241,9 @@ components:
             62 high floating over the page in its own colours (22 round and
             12 in from the edges unless `radius` and `margin` say), the page
             going on under it, the open tab a filled pill with its name, the
-            others icons only. Every design works in
+            others icons only. 129 `dock`: a small capsule floating in
+            the middle, as wide as its icons, no names, the open tab a filled
+            circle. Every design works in
             light and dark mode. An app that doesn't know a value uses its
             template's.
         background: { type: [string, 'null'], pattern: '^#[0-9A-Fa-f]{6}$', description: "The bar's colour; null, the app's surface colour." }
@@ -15440,7 +15442,19 @@ components:
         or good evening with their first name, in the element's font and
         colour. An `overlay` on an element without a picture is its
         see-through background inside a cover (128.10; elsewhere, without a
-        picture, it isn't drawn). An element the app doesn't know is left out
+        picture, it isn't drawn). 129.11–129.20 Premium elements drawn from
+        their own `entries` (`StudioEntry`) and options: `testimonials`
+        quote cards (`testimonials`), `pricing` plan cards (`pricing`),
+        `stats` big numbers that count up once when they show (`stats`),
+        `progress` bars or rings that fill (`progress`), `timeline` steps
+        (`timeline`), `bento` tiles of mixed sizes in `columns` (an element
+        of its own, not the `gallery.layout` `bento` of a photo gallery),
+        `badge_text` a badge or gradient words (`badge`), `cta_bar` a
+        call-to-action bar or a floating button (`cta`), and the layout
+        `profile_card`, a person's or a place's card (`profile`) holding its
+        badges and buttons; any layout can have a premium card style
+        (`surface`). Phones set to reduce motion show their final values,
+        filled. An element the app doesn't know is left out
         with what it holds. Sides are logical: `start` is the left in a
         left-to-right language and the right in Arabic.
       required: [id, type]
@@ -15448,7 +15462,7 @@ components:
         id: { type: string, maxLength: 64 }
         type:
           type: string
-          enum: [row, column, stack, grid, slider, spacer, accordion, tabs, text, image, button, icon, items, categories, video, form, map, ratings, search, divider, countdown, bullets, coupon, market, learning, live_status, school, photo_hero, map_header, tracking, greeting, stories, marquee, video_hero, parallax_banner, gallery, before_after, segments]
+          enum: [row, column, stack, grid, slider, spacer, accordion, tabs, text, image, button, icon, items, categories, video, form, map, ratings, search, divider, countdown, bullets, coupon, market, learning, live_status, school, photo_hero, map_header, tracking, greeting, stories, marquee, video_hero, parallax_banner, gallery, before_after, segments, testimonials, pricing, stats, progress, timeline, profile_card, bento, badge_text, cta_bar]
         name: { type: [string, 'null'], maxLength: 80, description: "The owner's name for it in the editor's layers; not shown in the app." }
         children:
           type: array
@@ -15617,6 +15631,21 @@ components:
         overlap: { type: number, minimum: 0, maximum: 400, description: "128 For `photo_hero` and `map_header`: how far their last element hangs up over the cover's foot; 0 or missing, it lies over the cover with the others." }
         school: { $ref: '#/components/schemas/StudioSchool' }
         rating: { type: [number, 'null'], minimum: 0, maximum: 5, description: "For `ratings`, the stars shown with `text` (like \"4.8 · 320 reviews\")." }
+        entries:
+          type: array
+          maxItems: 12
+          description: "129.11–129.20 The list a premium element draws, each entry in the language asked for: a quote, a plan, a number, a bar, a step or a tile."
+          items: { $ref: '#/components/schemas/StudioEntry' }
+        testimonials: { $ref: '#/components/schemas/StudioTestimonials' }
+        pricing: { $ref: '#/components/schemas/StudioPricing' }
+        stats: { $ref: '#/components/schemas/StudioStats' }
+        progress: { $ref: '#/components/schemas/StudioProgress' }
+        timeline: { $ref: '#/components/schemas/StudioTimeline' }
+        profile: { $ref: '#/components/schemas/StudioProfile' }
+        badge: { $ref: '#/components/schemas/StudioBadge' }
+        cta: { $ref: '#/components/schemas/StudioCta' }
+        bento: { $ref: '#/components/schemas/StudioBento' }
+        surface: { $ref: '#/components/schemas/StudioSurface' }
         action: { $ref: '#/components/schemas/Action' }
         platforms:
           type: array
@@ -15646,6 +15675,160 @@ components:
             font: { $ref: '#/components/schemas/StudioFont' }
             text_align: { type: string, enum: [start, center, end] }
           additionalProperties: false
+
+    StudioEntry:
+      type: object
+      description: |
+        129.11–129.20 One entry of a premium element's list; each element
+        reads the fields it draws. `testimonials`: `text` the quote, `title`
+        the name, `subtitle` the role, `value` the stars (0 to 5, drawn as
+        icons), `image_url` the photo (else the name's initial). `pricing`:
+        `title` the plan, `price` and `price_yearly` in cents of
+        `pricing.currency` (null: not set yet, no price shown), `text` the
+        features one per line (a check icon each), `label` and `action` its
+        button, `highlight` the most popular plan. `stats`: `value` with
+        `prefix` and `suffix`, `title` the label, `icon`, `highlight` in the
+        second colour. `progress`: `title` and `value` 0 to 100, `color`.
+        `timeline`: `subtitle` the date, `title`, `text`, `icon`,
+        `highlight` the active step (those before it done). `bento`: `title`,
+        `text`, `icon`, `label` and `action` its link, `size`, over
+        `image_url` (with a dark shade) or `gradient`.
+      properties:
+        title: { type: [string, 'null'], maxLength: 120 }
+        subtitle: { type: [string, 'null'], maxLength: 120 }
+        text: { type: [string, 'null'], maxLength: 600 }
+        label: { type: [string, 'null'], maxLength: 40 }
+        image_url: { type: [string, 'null'], format: uri }
+        icon: { type: [string, 'null'], description: "A Google Material Symbols (Rounded) name." }
+        value: { type: [number, 'null'], minimum: -1000000000, maximum: 1000000000 }
+        price: { type: [integer, 'null'], minimum: 0, maximum: 10000000000 }
+        price_yearly: { type: [integer, 'null'], minimum: 0, maximum: 10000000000 }
+        prefix: { type: [string, 'null'], maxLength: 8 }
+        suffix: { type: [string, 'null'], maxLength: 8 }
+        highlight: { type: boolean, default: false }
+        size: { type: string, enum: [small, wide, tall, large, full], default: small, description: "For a bento tile: one cell, two across, two down, two by two, or 129 across every column." }
+        gradient: { $ref: '#/components/schemas/StudioGradient' }
+        color: { type: [string, 'null'], pattern: '^#[0-9A-Fa-f]{6}$' }
+        action: { $ref: '#/components/schemas/Action' }
+
+    StudioTestimonials:
+      type: [object, 'null']
+      description: "129.11 For `testimonials`: `carousel` (missing) cards side by side to swipe, or `stacked`; with `reviews`, the app shows that course's or product's approved reviews of 4 stars and up with words (`GET /courses/{course_id}/reviews`, `GET /store/products/{product_id}/reviews`) instead of the entries, and the entries when it has none."
+      properties:
+        style: { type: string, enum: [carousel, stacked], default: carousel }
+        reviews:
+          type: [object, 'null']
+          required: [source, id]
+          properties:
+            source: { type: string, enum: [courses, products] }
+            id: { type: string, maxLength: 40 }
+
+    StudioPricing:
+      type: [object, 'null']
+      description: "129.12 For `pricing`: the plans' currency (prices are written as the app writes the shop's prices) and, with `yearly`, a monthly / yearly switch over the plans."
+      properties:
+        currency: { type: string, enum: [TRY, USD, EUR, EGP, SAR, AED], default: TRY }
+        yearly: { type: boolean, default: false }
+
+    StudioStats:
+      type: [object, 'null']
+      description: "129.13 For `stats`: `plain` (missing) or each number in a card; `dividers`, thin lines between them; `still`, the values at once, not counting up. The numbers are in the element's `font`, centred (with `start`, at the start); from a size of 40, the `prefix` and `suffix` are small beside them (\"6 min\")."
+      properties:
+        style: { type: string, enum: [plain, cards], default: plain }
+        dividers: { type: boolean, default: false }
+        still: { type: boolean, default: false }
+        start: { type: boolean, default: false, description: "At the start instead of centred." }
+
+    StudioProgress:
+      type: [object, 'null']
+      description: |
+        129.14 For `progress`: bars (missing), rings or `segments` (a row of
+        `segments` short bars per entry, as many filled as its share). A
+        ring is `size` across (missing, 76) and `stroke` thick (missing, 8;
+        a bar's or segment's height), with `ticks` marks around it and a
+        `knob` at its end; it holds the entry's `image_url` (its `subtitle`
+        a chip over the photo's foot), else its `icon`, else the share. An
+        entry's `gradient` or `color` fills it.
+      properties:
+        style: { type: string, enum: [bars, rings, segments], default: bars }
+        size: { type: integer, minimum: 40, maximum: 320 }
+        stroke: { type: integer, minimum: 2, maximum: 24 }
+        ticks: { type: integer, minimum: 0, maximum: 60 }
+        knob: { type: boolean, default: false }
+        segments: { type: integer, minimum: 2, maximum: 40, default: 4 }
+
+    StudioTimeline:
+      type: [object, 'null']
+      description: "129.15 For `timeline`: down the page (missing), across it, or `bars`, across with a bar over each step filled up to the active one (a trip's legs). Down the page, `times` puts each step's `subtitle` in a column at the start, and `card` draws the active step as a card with its `label` as a chip and its `value` (0 to 100) as a bar; `mono` writes the dates in a monospaced font."
+      properties:
+        style: { type: string, enum: [vertical, horizontal, bars], default: vertical }
+        times: { type: boolean, default: false }
+        mono: { type: boolean, default: false }
+        card: { type: boolean, default: false }
+
+    StudioBento:
+      type: [object, 'null']
+      description: "129.17 For `bento`: the tiles' words on their shade (missing) or on a frosted `glass` label, and a row's height (missing, 112). A tile's `subtitle` is a chip at its top."
+      properties:
+        caption: { type: string, enum: [plain, glass], default: plain }
+        row: { type: integer, minimum: 60, maximum: 240, default: 112 }
+
+    StudioProfile:
+      type: [object, 'null']
+      description: "129.16 For `profile_card`: its cover photo (else the brand's gradient), the photo's shape (`image_url`: round for a person, a rounded square for a place) and up to 6 social links, each drawn as a plain icon with its network's name for screen readers. Its `title` is the name, `text` the role, and its children (badges, two buttons) show under them."
+      properties:
+        cover_url: { type: [string, 'null'], format: uri }
+        shape: { type: string, enum: [round, square], default: round }
+        socials:
+          type: array
+          maxItems: 6
+          items:
+            type: object
+            required: [network, url]
+            properties:
+              network: { type: string, enum: [instagram, facebook, x, tiktok, youtube, linkedin, snapchat, telegram, whatsapp_channel] }
+              url: { type: string, format: uri }
+
+    StudioBadge:
+      type: [object, 'null']
+      description: "129.19 For `badge_text` (`text`, `icon`): a `pill`, an `outline`, a `gradient` chip, `glass`, or `text`, gradient words without a chip at the element's font; the gradient is the element's `gradient`, else the app's two brand colours."
+      required: [style]
+      properties:
+        style: { type: string, enum: [pill, outline, gradient, glass, text] }
+
+    StudioCta:
+      type: [object, 'null']
+      description: "129.20 For `cta_bar`: a `bar` across the page's foot with `title` (a label or a price the owner writes; its first line the title, the next ones under it, smaller) and a button of `text` and `icon`, a floating rounded `card` holding the same, or a `fab`, a round floating button at the end side (with `text`, a wide one); `lead`, an icon on a soft tile at the start of a bar or a card; `action` is the tap. Pinned to the bottom (`pin`), it stays above the tabs while the page scrolls."
+      required: [style]
+      properties:
+        style: { type: string, enum: [bar, fab, card] }
+        lead: { type: [string, 'null'], description: "A Google Material Symbols (Rounded) name." }
+
+    StudioSurface:
+      type: [object, 'null']
+      description: "129.18 A layout's premium card style, combined freely: frosted `glass` blurring what is behind it by that much (`tint`: how white, by night how dark), a `border` in two colours, a `glow` inside its edge, and a `soft` shadow of level 1 to 3. Apps that don't know it draw the layout as it is."
+      properties:
+        glass: { type: number, minimum: 4, maximum: 40 }
+        tint: { type: number, minimum: 0.05, maximum: 0.9, default: 0.18 }
+        border:
+          type: [object, 'null']
+          required: [from, to]
+          properties:
+            from: { type: string, pattern: '^#[0-9A-Fa-f]{6}$' }
+            to: { type: string, pattern: '^#[0-9A-Fa-f]{6}$' }
+            width: { type: number, minimum: 1, maximum: 6, default: 1.5 }
+        glow: { type: [string, 'null'], pattern: '^#[0-9A-Fa-f]{6}$' }
+        soft: { type: integer, enum: [1, 2, 3] }
+        ticket:
+          type: [object, 'null']
+          description: "129 A ticket: a round notch cut from both edges at `at` percent along it (across the card, or with `axis` vertical down it), a dashed line between them (a pass, a waybill, a stub beside a photo)."
+          required: [at]
+          properties:
+            at: { type: integer, minimum: 5, maximum: 95 }
+            axis: { type: string, enum: [horizontal, vertical], default: horizontal }
+            notch: { type: integer, minimum: 4, maximum: 24, default: 10 }
+        pattern: { type: string, enum: [grain, dots, grid, stripes], description: "129 A texture over it in the text's colour: fine grain, a dot grid, a square grid or diagonal stripes." }
+        pattern_strength: { type: number, minimum: 0.02, maximum: 0.4, default: 0.08 }
 
     StudioCorners:
       type: [object, 'null']

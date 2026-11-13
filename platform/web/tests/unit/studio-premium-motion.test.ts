@@ -7,7 +7,7 @@ import { newApp } from "@/lib/app/setup";
 import type { Pickable } from "@/lib/hosted/pages/pickable";
 import type { StudioNode, StudioPage } from "@/lib/pages/types";
 import { parseStudioPage } from "@/lib/pages/validate";
-import { ELEMENTS, newNode } from "@/lib/studio/elements";
+import { ELEMENTS, newNode, type ElementPreset } from "@/lib/studio/elements";
 import { handleHosted, type HostedResult } from "@/lib/hosted/service";
 import { LogSender } from "@/lib/hosted/otp-sender";
 import { publishLayout } from "@/lib/pages/layout";
@@ -28,7 +28,7 @@ const pickable = { items: {}, categories: {} } as unknown as Pickable;
 const draw = (children: StudioNode[], options: { dark?: boolean; lang?: "en" | "ar" } = {}) =>
   renderToStaticMarkup(createElement(StudioView, { page: { body: { id: "root", type: "column", children } } as StudioPage, lang: options.lang ?? "en", defaultLang: "en", dark: options.dark ?? false, look: { name: "App", logoUrl: null, brand: "#1F7A4D", font: "Cairo", tabs: [], activeTab: null }, pickable, words: WORDS }));
 let n = 0;
-const make = (type: StudioNode["type"], preset?: string) => newNode(type, { source: null, brand: "#1F7A4D", text: (w) => w, preset, newId: () => `p${++n}` });
+const make = (type: StudioNode["type"], preset?: ElementPreset) => newNode(type, { source: null, brand: "#1F7A4D", text: (w) => w, preset, newId: () => `p${++n}` });
 const ok = (children: unknown[]) => {
   const parsed = parse(children);
   expect(parsed.ok ? [] : parsed.errors).toEqual([]);

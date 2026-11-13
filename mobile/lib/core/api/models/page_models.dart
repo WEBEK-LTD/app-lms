@@ -2,6 +2,7 @@ import 'catalog_models.dart';
 import 'json.dart';
 import 'learning_models.dart';
 import 'studio_live_models.dart';
+import 'studio_premium_models.dart';
 
 /// `GET /pages`: the bottom tabs, the side menu and the pages published in
 /// the dashboard.
@@ -88,6 +89,8 @@ enum TabBarDesign {
   // 128 A floating bar in its own colours, the open tab a filled pill with
   // its name, the others icons only.
   float,
+  // 129 A small dock in the middle, icons only, the open tab a filled circle.
+  dock,
 }
 
 /// 109 How the bottom tabs look, set by the owner (`TabBar`); a field left
@@ -2014,6 +2017,19 @@ enum StudioNodeType {
   beforeAfter,
   // 129.1 A bar of segments (a course's lessons).
   segments,
+  // 129.11–129.20 Premium content, trust and commerce: quote cards, plans,
+  // numbers, progress, steps, a person's or a place's card (holding its
+  // badges and buttons), a bento grid, a badge, a call-to-action bar
+  // (studio_premium_models.dart).
+  testimonials,
+  pricing,
+  stats,
+  progress,
+  timeline,
+  profileCard,
+  bento,
+  badgeText,
+  ctaBar,
 }
 
 /// 128 Whose order a `live_status` element follows: a food delivery order
@@ -2636,6 +2652,10 @@ class StudioNode {
     this.segmentPart = 0,
     this.segmentHeight = 3,
     this.segmentsFromCourse = false,
+    // 129.11–129.20
+    this.entries = const [],
+    this.premium,
+    this.surface,
   });
 
   /// Null for a type this app doesn't know (left out with what it holds),
@@ -2765,6 +2785,11 @@ class StudioNode {
         learningStyle: json['learning'] is Map
             ? studioLearningStyle((json['learning'] as Map)['style'])
             : StudioLearningStyle.card,
+        // 129.11–129.20 A premium element's list and options; a layout's
+        // premium card style.
+        entries: StudioEntry.listFrom(json['entries']),
+        premium: StudioPremium.tryParse(json),
+        surface: StudioSurface.tryParse(json['surface']),
         rating: optDouble(json, 'rating'),
         action: PageAction.tryParse(json['action']),
         platforms: rawPlatforms is List
@@ -3084,6 +3109,14 @@ class StudioNode {
   /// 128.8 How that card is drawn.
   final StudioLearningStyle learningStyle;
 
+  /// 129.11–129.20 A premium element's list (its quotes, plans, numbers,
+  /// bars, steps or tiles) and its options.
+  final List<StudioEntry> entries;
+  final StudioPremium? premium;
+
+  /// 129.18 A layout's premium card style.
+  final StudioSurface? surface;
+
   bool get holdsChildren => switch (type) {
     StudioNodeType.row ||
     StudioNodeType.column ||
@@ -3094,7 +3127,9 @@ class StudioNode {
     StudioNodeType.tabs ||
     // 128 The covers hold what lies over them.
     StudioNodeType.photoHero ||
-    StudioNodeType.mapHeader => true,
+    StudioNodeType.mapHeader ||
+    // 129.16 A profile card holds its badges and buttons.
+    StudioNodeType.profileCard => true,
     _ => false,
   };
 }

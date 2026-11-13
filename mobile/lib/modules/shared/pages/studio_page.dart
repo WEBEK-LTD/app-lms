@@ -32,6 +32,8 @@ import 'app_header.dart';
 import 'content_blocks.dart' show pageClockProvider;
 import 'page_actions.dart';
 import 'page_blocks.dart';
+// 129.11–129.20 Studio's premium elements and card styles.
+import 'premium/studio_premium.dart';
 import 'recently_viewed.dart';
 import 'side_menu.dart';
 import 'studio_covers.dart';
@@ -942,7 +944,10 @@ class StudioNodeView extends ConsumerWidget {
             topInset: scope.bleedId == node.id ? scope.topInset : 0,
           )
         : _content(context, ref, color);
-    final padding = cover ? null : _insets(node.padding);
+    // 129.16 / 129.20 A profile card and a call-to-action bar draw their own
+    // space inside, background and button.
+    final own = premiumDrawsItself(node.type);
+    final padding = cover || own ? null : _insets(node.padding);
     if (padding != null) child = Padding(padding: padding, child: child);
     final border = parseHexColor(
       dark ? (node.darkBorderColor ?? node.borderColor) : node.borderColor,
@@ -960,6 +965,7 @@ class StudioNodeView extends ConsumerWidget {
         : null;
     final decorated =
         !cover &&
+        !own &&
         (background != null ||
             seeThrough != null ||
             gradient != null ||
@@ -1007,6 +1013,16 @@ class StudioNodeView extends ConsumerWidget {
         child: child,
       );
     }
+    // 129.18 A layout's premium card style: glass, a gradient border, a glow
+    // inside, soft shadows.
+    if (node.surface case final surface? when node.holdsChildren) {
+      child = PremiumSurface(
+        surface: surface,
+        radius: radius,
+        dark: dark,
+        child: child,
+      );
+    }
     // 128.8 A student's card on a photo draws its photo and scrim to its
     // edges: rounded with the element.
     if (rounded &&
@@ -1026,7 +1042,9 @@ class StudioNodeView extends ConsumerWidget {
         ),
       );
     }
-    final action = node.type == StudioNodeType.button || node.action != null
+    final action =
+        (node.type == StudioNodeType.button || node.action != null) &&
+            node.type != StudioNodeType.ctaBar
         ? node.action
         : null;
     final press = node.motion?.press ?? StudioPress.none;
@@ -1441,6 +1459,35 @@ class StudioNodeView extends ConsumerWidget {
           thickness: math.max(1, node.borderWidth),
           color: color ?? parseHexColor(node.borderColor) ?? p.divider,
         );
+      // 129.11–129.20 The premium elements (premium/studio_premium.dart); a
+      // profile card's own elements under the person, as a column.
+      case StudioNodeType.testimonials ||
+          StudioNodeType.pricing ||
+          StudioNodeType.stats ||
+          StudioNodeType.progress ||
+          StudioNodeType.timeline ||
+          StudioNodeType.bento ||
+          StudioNodeType.badgeText ||
+          StudioNodeType.ctaBar ||
+          StudioNodeType.profileCard:
+        final inner = node.type == StudioNodeType.profileCard
+            ? StudioNode(
+                id: '${node.id}-inner',
+                type: StudioNodeType.column,
+                children: node.children,
+                gap: node.gap,
+                align: node.align,
+                cross: node.cross,
+              )
+            : null;
+        return studioPremiumContent(
+              node,
+              dark: scope.dark,
+              front: inner == null || inner.children.isEmpty
+                  ? null
+                  : StudioNodeView(node: inner, scope: scope, parent: node),
+            ) ??
+            const SizedBox.shrink();
     }
   }
 

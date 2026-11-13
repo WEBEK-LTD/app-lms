@@ -35,9 +35,9 @@ class Pages {
 	const HEADER_ICONS   = array( 'search', 'cart', 'notifications', 'chat', 'account' );
 
 	/**
-	 * 119 The bottom bar's designs (`TabBar.design`).
+	 * 119 The bottom bar's designs (`TabBar.design`); 128 the floating pill, 129 the small dock.
 	 */
-	const TAB_BAR_DESIGNS = array( 'classic', 'pill', 'minimal', 'dot', 'line', 'bubble', 'glass', 'notch', 'lift', 'outline', 'square', 'text', 'island', 'segment', 'folder', 'drop', 'glow', 'colours' );
+	const TAB_BAR_DESIGNS = array( 'classic', 'pill', 'minimal', 'dot', 'line', 'bubble', 'glass', 'notch', 'lift', 'outline', 'square', 'text', 'island', 'segment', 'folder', 'drop', 'glow', 'colours', 'float', 'dock' );
 
 	/**
 	 * 97.1 The Appearance fields naming a free font, each with the field of its files.

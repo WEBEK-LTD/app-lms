@@ -22,6 +22,8 @@ import { GreetingText, TrackingCard } from "./tracking";
 // 129 Premium motion & media.
 import { entranceMark, watchEntrances } from "@/lib/studio/motion";
 import { BeforeAfter, edge, GalleryGrid, MediaBanner, Marquee, PremiumMotionStyles, Segments, SliderCount, SliderPill, StoriesRow } from "./premium-motion";
+// 129.11–129.20 The premium content elements, and a layout's premium card style.
+import { isPremiumContent, PREMIUM_WORDS_EN, PremiumElement, SurfaceExtras, surfaceStyle, type PremiumWords } from "./premium";
 
 /**
  * 103R A Studio page drawn in the editor's phone, as the app draws it: rows,
@@ -93,6 +95,8 @@ interface ViewProps {
   market?: MarketCanvas | null;
   /** 120 For a page drawn around one of the app's screens: 124.8 the screen as the app draws it, or what the canvas says in its place. */
   screenPart?: ScreenPartInfo;
+  /** 129.11–129.20 The editor's words of the premium elements (an empty price, the plans' switch); missing, English. */
+  premiumWords?: PremiumWords;
 }
 
 /** 124.8 The app's screen under a page's elements in the canvas. */
@@ -342,9 +346,11 @@ function Tabs({ look, dark, lang, defaultLang, editing }: ViewProps) {
   const middleOf = tabs.length % 2 === 1 && tabs.length >= 3 ? (tabs.length - 1) / 2 : -1;
   const center = design === "notch" ? middleOf : middleOf >= 0 && style.center && tabs[middleOf]?.id === style.center ? middleOf : -1;
   // 128 The floating pill floats too, 22 round unless the owner chose its corners.
-  const floatsItself = design === "glass" || design === "island" || design === "segment" || design === "float";
+  // 129 The dock: a small capsule in the middle, icons only.
+  const dock = design === "dock";
+  const floatsItself = design === "glass" || design === "island" || design === "segment" || design === "float" || dock;
   const margin = style.margin ?? (floatsItself ? 12 : 0);
-  const radius = design === "island" ? 999 : (style.radius ?? (design === "glass" ? 26 : design === "segment" ? 18 : design === "float" ? 22 : 0));
+  const radius = design === "island" || dock ? 999 : (style.radius ?? (design === "glass" ? 26 : design === "segment" ? 18 : design === "float" ? 22 : 0));
   const selected = editing?.selectedId === "tabs";
   const onBar = design === "folder" ? "rgba(255,255,255,0.78)" : design === "island" ? "#8F9A95" : inactiveColour;
   const colours = ["#1F6F5C", "#B26A00", "#2F4FB5", "#7A2E8E"].map((c) => (dark ? readableOnDark(c) : c));
@@ -356,13 +362,15 @@ function Tabs({ look, dark, lang, defaultLang, editing }: ViewProps) {
       style={{
         position: "relative",
         // The usual bar sits a little in from the phone's edges.
-        margin: design === "island" ? `0 48px ${Math.max(margin, 12)}px` : margin ? `0 ${margin}px ${margin}px` : "0 10px 12px",
-        padding: design === "segment" ? "5px" : design === "folder" ? "14px 6px 8px" : design === "float" ? "11px 6px" : "8px 6px",
+        margin: design === "island" ? `0 48px ${Math.max(margin, 12)}px` : dock ? `0 auto ${Math.max(margin, 12)}px` : margin ? `0 ${margin}px ${margin}px` : "0 10px 12px",
+        alignSelf: dock ? "center" : undefined,
+        gap: dock ? 6 : undefined,
+        padding: design === "segment" ? "5px" : design === "folder" ? "14px 6px 8px" : design === "float" ? "11px 6px" : dock ? "8px" : "8px 6px",
         borderRadius: margin || design === "island" ? radius : radius || 18,
         background,
         backdropFilter: design === "glass" ? "blur(18px)" : undefined,
         border: design === "glass" ? `1px solid ${dark ? "rgba(255,255,255,0.14)" : "rgba(255,255,255,0.5)"}` : undefined,
-        boxShadow: design === "notch" ? undefined : design === "float" ? "0 10px 30px rgba(0,0,0,0.18)" : "0 -2px 10px rgba(14,13,36,0.08)",
+        boxShadow: design === "notch" ? undefined : design === "float" || dock ? "0 10px 30px rgba(0,0,0,0.18)" : "0 -2px 10px rgba(14,13,36,0.08)",
         // 119 The notch: a curved cut in the bar's top for the middle button.
         WebkitMaskImage: design === "notch" && center >= 0 ? "radial-gradient(circle 30px at 50% -6px, transparent 29px, #000 30px)" : undefined,
         maskImage: design === "notch" && center >= 0 ? "radial-gradient(circle 30px at 50% -6px, transparent 29px, #000 30px)" : undefined,
@@ -397,6 +405,14 @@ function Tabs({ look, dark, lang, defaultLang, editing }: ViewProps) {
           return (
             <div key={tab?.id ?? "more"} data-studio-tab-center="" title={label} style={{ display: "flex", flex: 1, justifyContent: "center" }}>
               <span style={{ marginTop: design === "notch" ? -38 : -26, width: 50, height: 50, borderRadius: "50%", background: activeColour, color: onFill(activeColour), display: "flex", alignItems: "center", justifyContent: "center", boxShadow: "0 4px 12px rgba(14,13,36,0.25)" }}>{glyph}</span>
+            </div>
+          );
+        }
+        // 129 The dock: icons only, the open tab a filled circle.
+        if (dock) {
+          return (
+            <div key={tab?.id ?? "more"} data-studio-tab={tab ? tab.id : "more"} data-studio-tab-design="dock" title={label} style={{ width: 46, height: 46, borderRadius: "50%", flex: "none", display: "flex", alignItems: "center", justifyContent: "center", background: active ? activeColour : "transparent", color: active ? onFill(activeColour) : undefined }}>
+              {glyph}
             </div>
           );
         }
@@ -603,6 +619,17 @@ function Node(props: ViewProps & { node: StudioNode; parentDir: Dir; inStack?: I
   if (node.type === "photo_hero" || node.type === "map_header" || node.type === "video_hero" || node.type === "parallax_banner") {
     for (const key of ["height", "paddingTop", "paddingBottom", "paddingInlineStart", "paddingInlineEnd", "background", "backgroundImage", "borderRadius", "overflow", "flexShrink"] as const) delete style[key];
   }
+  // ——— 129.11–129.20 The premium elements draw their own cards and corners; a layout's premium card style. ———
+  if (isPremiumContent(node.type)) {
+    for (const key of ["borderRadius", "overflow"] as const) delete style[key];
+    if (node.type === "profile_card" || node.type === "cta_bar" || node.type === "badge_text") {
+      for (const key of ["background", "backgroundImage", "paddingTop", "paddingBottom", "paddingInlineStart", "paddingInlineEnd", "border", "boxShadow"] as const) delete style[key];
+    }
+    // 129.20 The bar stays at the foot of the page while it scrolls, above the tabs.
+    if (node.type === "cta_bar") Object.assign(style, { position: "sticky", bottom: 0, zIndex: 3 });
+  }
+  if (node.surface) Object.assign(style, surfaceStyle(node.surface, dark, typeof style.background === "string" ? style.background : undefined, lang === "ar"));
+  // ——— end 129.11–129.20 ———
   if (parentDir === "stack") {
     // 124.6 As the app's layers: after the first, an element filling the height fills the layer; any other is as tall as
     // what it holds, at its own alignment or the layer's (and as wide, when it hugs or has a width).
@@ -657,6 +684,8 @@ function Node(props: ViewProps & { node: StudioNode; parentDir: Dir; inStack?: I
   const content = Content(locked && !props.lockedAbove ? { ...props, lockedAbove: true } : props);
   return (
     <div style={{ ...style, ...layoutStyle(node) }} data-studio-node={node.id} data-studio-enter={entranceMark(node.motion)} data-studio-ken-burns={node.ken_burns && node.type !== "slider" ? "" : undefined} {...handlers}>
+      {/* 129 A premium card style's ticket perforation and texture, over it without taking room. */}
+      {node.surface && (node.surface.ticket || node.surface.pattern) ? <SurfaceExtras s={node.surface} dark={dark} /> : null}
       {content}
       {selected && editing ? (
         <>
@@ -737,6 +766,30 @@ function Node(props: ViewProps & { node: StudioNode; parentDir: Dir; inStack?: I
       case "video_hero":
       case "parallax_banner":
         return <MediaBanner node={n} dark={dark} rtl={lang === "ar"} front={Children({ ...p, node: { ...n, type: "column" } })} />;
+      // 129.11–129.20 The premium elements; a profile card's own elements under the person.
+      case "testimonials":
+      case "pricing":
+      case "stats":
+      case "progress":
+      case "timeline":
+      case "bento":
+      case "badge_text":
+      case "cta_bar":
+      case "profile_card":
+        return (
+          <PremiumElement
+            node={n}
+            lang={lang}
+            defaultLang={defaultLang}
+            dark={dark}
+            brand={look.brand}
+            accent={look.accent}
+            color={color}
+            words={p.premiumWords ?? PREMIUM_WORDS_EN}
+            editing={!!editing}
+            front={n.type === "profile_card" ? Children({ ...p, node: { ...n, type: "column" } }) : undefined}
+          />
+        );
       case "text":
         // 124.6 Its lines at most, the rest cut off as the app does (a line clamp needs the box).
         return <span style={{ display: n.max_lines ? "-webkit-box" : "block", WebkitBoxOrient: n.max_lines ? "vertical" : undefined, whiteSpace: "pre-wrap", WebkitLineClamp: n.max_lines ?? undefined, overflow: n.max_lines ? "hidden" : undefined }}>{text}</span>;

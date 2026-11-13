@@ -3064,5 +3064,14 @@
   "studioVideoPlay": "Videoyu oynat",
   "studioVideoPause": "Videoyu duraklat",
   "studioCompareLabel": "Önce ve sonra: {before} ve {after}",
-  "studioCompareHandle": "Karşılaştırmak için sürükleyin"
+  "studioCompareHandle": "Karşılaştırmak için sürükleyin",
+  "studioPremiumMonthly": "Aylık",
+  "studioPremiumYearly": "Yıllık",
+  "studioPremiumPerMonth": "/ ay",
+  "studioPremiumPerYear": "/ yıl",
+  "studioPremiumPopular": "En popüler",
+  "studioPremiumStars": "5 üzerinden {rating} yıldız",
+  "studioPremiumProgress": "{label}: yüzde {value}",
+  "studioPremiumStep": "{count} adımdan {number}.",
+  "studioPremiumCurrentStep": "Şu anki adım"
 }

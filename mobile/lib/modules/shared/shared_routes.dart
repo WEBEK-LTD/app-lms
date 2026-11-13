@@ -405,11 +405,12 @@ class MainShell extends ConsumerWidget {
         : null;
     // 123 A frosted bar floats over the page, which goes on under it;
     // 128 the floating pill too (Sofra Eats's, 128.8 Ufuq Academy's),
-    // which always floats.
+    // which always floats; 129 the small dock too.
     final overBody =
         !hideTabs &&
         ((tabBar?.design == TabBarDesign.glass && (tabBar?.margin ?? 0) > 0) ||
-            tabBar?.design == TabBarDesign.float);
+            tabBar?.design == TabBarDesign.float ||
+            tabBar?.design == TabBarDesign.dock);
     return Scaffold(
       // 128.10 The screens under it know, to end above it.
       body: TabBarOverBody(over: overBody, child: shell),

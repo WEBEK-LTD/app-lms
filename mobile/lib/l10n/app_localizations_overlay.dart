@@ -12198,4 +12198,46 @@ class OverlayLocalizations extends AppLocalizations {
   @override
   String get studioCompareHandle =>
       overlay.text('studioCompareHandle') ?? base.studioCompareHandle;
+
+  @override
+  String get studioPremiumMonthly =>
+      overlay.text('studioPremiumMonthly') ?? base.studioPremiumMonthly;
+
+  @override
+  String get studioPremiumYearly =>
+      overlay.text('studioPremiumYearly') ?? base.studioPremiumYearly;
+
+  @override
+  String get studioPremiumPerMonth =>
+      overlay.text('studioPremiumPerMonth') ?? base.studioPremiumPerMonth;
+
+  @override
+  String get studioPremiumPerYear =>
+      overlay.text('studioPremiumPerYear') ?? base.studioPremiumPerYear;
+
+  @override
+  String get studioPremiumPopular =>
+      overlay.text('studioPremiumPopular') ?? base.studioPremiumPopular;
+
+  @override
+  String studioPremiumStars(int rating) =>
+      overlay.format('studioPremiumStars', {'rating': rating}) ??
+      base.studioPremiumStars(rating);
+
+  @override
+  String studioPremiumProgress(String label, int value) =>
+      overlay.format('studioPremiumProgress', {
+        'label': label,
+        'value': value,
+      }) ??
+      base.studioPremiumProgress(label, value);
+
+  @override
+  String studioPremiumStep(int number, int count) =>
+      overlay.format('studioPremiumStep', {'number': number, 'count': count}) ??
+      base.studioPremiumStep(number, count);
+
+  @override
+  String get studioPremiumCurrentStep =>
+      overlay.text('studioPremiumCurrentStep') ?? base.studioPremiumCurrentStep;
 }

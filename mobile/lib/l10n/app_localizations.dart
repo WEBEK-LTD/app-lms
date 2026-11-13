@@ -18499,6 +18499,60 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Drag to compare'**
   String get studioCompareHandle;
+
+  /// 129.12 The monthly side of the plans' switch on a Studio page's pricing cards.
+  ///
+  /// In en, this message translates to:
+  /// **'Monthly'**
+  String get studioPremiumMonthly;
+
+  /// 129.12 The yearly side of the plans' switch on a Studio page's pricing cards.
+  ///
+  /// In en, this message translates to:
+  /// **'Yearly'**
+  String get studioPremiumYearly;
+
+  /// 129.12 After a plan's monthly price on a Studio page ("₺450 / month").
+  ///
+  /// In en, this message translates to:
+  /// **'/ month'**
+  String get studioPremiumPerMonth;
+
+  /// 129.12 After a plan's yearly price on a Studio page ("₺4,500 / year").
+  ///
+  /// In en, this message translates to:
+  /// **'/ year'**
+  String get studioPremiumPerYear;
+
+  /// 129.12 The chip on the highlighted plan of a Studio page's pricing cards.
+  ///
+  /// In en, this message translates to:
+  /// **'Most popular'**
+  String get studioPremiumPopular;
+
+  /// 129.11 What a screen reader says for the stars on a quote card of a Studio page.
+  ///
+  /// In en, this message translates to:
+  /// **'{rating} out of 5 stars'**
+  String studioPremiumStars(int rating);
+
+  /// 129.14 What a screen reader says for a progress bar or ring on a Studio page.
+  ///
+  /// In en, this message translates to:
+  /// **'{label}: {value} percent'**
+  String studioPremiumProgress(String label, int value);
+
+  /// 129.15 What a screen reader says before a step of a timeline on a Studio page.
+  ///
+  /// In en, this message translates to:
+  /// **'Step {number} of {count}'**
+  String studioPremiumStep(int number, int count);
+
+  /// 129.15 What a screen reader says for the active step of a timeline on a Studio page.
+  ///
+  /// In en, this message translates to:
+  /// **'Current step'**
+  String get studioPremiumCurrentStep;
 }
 
 class _AppLocalizationsDelegate

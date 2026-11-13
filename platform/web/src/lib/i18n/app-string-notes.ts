@@ -4493,6 +4493,90 @@ export const APP_STRING_NOTES: Record<string, { en?: string; ar: string; tr: str
     ar: "كلمات تطبيق السفر: الفنادق والطيران والحجز والرحلة.",
     tr: "Seyahat uygulamasının sözcükleri: oteller, uçuşlar, rezervasyon ve seyahat.",
   },
+  // ——— 129.1–129.8 Studio's premium motion & media elements ———
+  "129.2 A story's spoken name in a row of stories and full screen.": {
+    en: "What a screen reader says for a story in a page's row of stories, and when it is open full screen.",
+    ar: "ما يقوله قارئ الشاشة عن قصة في صف القصص بالصفحة، وعند فتحها بملء الشاشة.",
+    tr: "Ekran okuyucunun bir sayfadaki hikâye sırasında ve tam ekran açıkken bir hikâye için söylediği.",
+  },
+  "129.2 The button over a story that opens its link.": {
+    en: "The button over a story, open full screen, that opens what it links to.",
+    ar: "الزر فوق القصة المفتوحة بملء الشاشة، ويفتح ما ترتبط به.",
+    tr: "Tam ekran açık bir hikâyenin üstünde, bağlantısını açan düğme.",
+  },
+  "129.3 Spoken while a ticker is held still.": {
+    en: "What a screen reader says while a page's moving band of words is held still.",
+    ar: "ما يقوله قارئ الشاشة أثناء إيقاف شريط الكلمات المتحرك في الصفحة.",
+    tr: "Bir sayfadaki kayan sözcük şeridi durdurulmuşken ekran okuyucunun söylediği.",
+  },
+  "129.4 The button over a video banner that plays it.": {
+    en: "The round button over a page's video banner that plays the video.",
+    ar: "الزر الدائري فوق بانر الفيديو في الصفحة، ويشغّل الفيديو.",
+    tr: "Bir sayfadaki video afişinin üstünde videoyu oynatan yuvarlak düğme.",
+  },
+  "129.4 The button over a video banner that pauses it.": {
+    en: "The round button over a page's video banner that pauses the video.",
+    ar: "الزر الدائري فوق بانر الفيديو في الصفحة، ويوقف الفيديو مؤقتًا.",
+    tr: "Bir sayfadaki video afişinin üstünde videoyu duraklatan yuvarlak düğme.",
+  },
+  "129.6 The spoken name of a before and after photo.": {
+    en: "What a screen reader says for a page's before and after photos.",
+    ar: "ما يقوله قارئ الشاشة عن صورتي قبل وبعد في الصفحة.",
+    tr: "Ekran okuyucunun bir sayfadaki önce ve sonra fotoğrafları için söylediği.",
+  },
+  "129.6 The spoken hint of the handle between the two photos.": {
+    en: "What a screen reader says about the handle people drag between the before and after photos.",
+    ar: "ما يقوله قارئ الشاشة عن المقبض الذي يُسحب بين صورتي قبل وبعد.",
+    tr: "Ekran okuyucunun önce ve sonra fotoğrafları arasında sürüklenen tutamaç için söylediği.",
+  },
+  // ——— end 129.1–129.8 ———
+  // ——— 129.11–129.20 Studio's premium elements ———
+  "129.12 The monthly side of the plans' switch on a Studio page's pricing cards.": {
+    en: "The monthly side of the switch over the plans on a page's pricing cards.",
+    ar: "الجانب الشهري من المفتاح فوق الباقات في بطاقات الأسعار بالصفحة.",
+    tr: "Bir sayfanın fiyat kartlarındaki planların üstündeki geçişin aylık tarafı.",
+  },
+  "129.12 The yearly side of the plans' switch on a Studio page's pricing cards.": {
+    en: "The yearly side of the switch over the plans on a page's pricing cards.",
+    ar: "الجانب السنوي من المفتاح فوق الباقات في بطاقات الأسعار بالصفحة.",
+    tr: "Bir sayfanın fiyat kartlarındaki planların üstündeki geçişin yıllık tarafı.",
+  },
+  "129.12 After a plan's monthly price on a Studio page (\"₺450 / month\").": {
+    en: "After a plan's monthly price on a page (\"₺450 / month\").",
+    ar: "بعد السعر الشهري للباقة في الصفحة (\"₺450 / شهر\").",
+    tr: "Bir sayfada planın aylık fiyatından sonra (\"₺450 / ay\").",
+  },
+  "129.12 After a plan's yearly price on a Studio page (\"₺4,500 / year\").": {
+    en: "After a plan's yearly price on a page (\"₺4,500 / year\").",
+    ar: "بعد السعر السنوي للباقة في الصفحة (\"₺4,500 / سنة\").",
+    tr: "Bir sayfada planın yıllık fiyatından sonra (\"₺4,500 / yıl\").",
+  },
+  "129.12 The chip on the highlighted plan of a Studio page's pricing cards.": {
+    en: "The chip on the highlighted plan of a page's pricing cards.",
+    ar: "الشارة على الباقة المميزة في بطاقات الأسعار بالصفحة.",
+    tr: "Bir sayfanın fiyat kartlarında öne çıkan plandaki etiket.",
+  },
+  "129.11 What a screen reader says for the stars on a quote card of a Studio page.": {
+    en: "What a screen reader says for the stars on a quote card of a page.",
+    ar: "ما يقوله قارئ الشاشة عن النجوم في بطاقة رأي بالصفحة.",
+    tr: "Ekran okuyucunun bir sayfadaki yorum kartının yıldızları için söylediği.",
+  },
+  "129.14 What a screen reader says for a progress bar or ring on a Studio page.": {
+    en: "What a screen reader says for a progress bar or ring on a page.",
+    ar: "ما يقوله قارئ الشاشة عن شريط أو دائرة التقدم في الصفحة.",
+    tr: "Ekran okuyucunun bir sayfadaki ilerleme çubuğu veya halkası için söylediği.",
+  },
+  "129.15 What a screen reader says before a step of a timeline on a Studio page.": {
+    en: "What a screen reader says before a step of a timeline on a page.",
+    ar: "ما يقوله قارئ الشاشة قبل خطوة من الخط الزمني في الصفحة.",
+    tr: "Ekran okuyucunun bir sayfadaki zaman çizelgesinin bir adımından önce söylediği.",
+  },
+  "129.15 What a screen reader says for the active step of a timeline on a Studio page.": {
+    en: "What a screen reader says for the current step of a timeline on a page.",
+    ar: "ما يقوله قارئ الشاشة عن الخطوة الحالية في الخط الزمني بالصفحة.",
+    tr: "Ekran okuyucunun bir sayfadaki zaman çizelgesinin şu anki adımı için söylediği.",
+  },
+  // ——— end 129.11–129.20 ———
 };
 
 /** A developer's description without the app's code names: "… lib/core/x.dart uses it …", "(vertical_wording.dart)", a leading roadmap number. */
