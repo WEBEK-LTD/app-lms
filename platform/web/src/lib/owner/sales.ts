@@ -1,3 +1,4 @@
+import { morningBriefJson } from "./prime-jobs";
 import { inAppFigures } from "../analytics/sales";
 import { storeBillingSource } from "../store-billing/access";
 import { formatDate } from "@/i18n/format";
@@ -160,7 +161,9 @@ export async function today(ctx: OwnerContext, params: Record<string, string>): 
     needs.push({ kind: "notice", count: 1, title: ctx.k(notice.title), notice_id: notice.id });
   }
   // 125 A Prime app compares today with the same weekday last week.
-  const compare = areas.prime ? { compare: await todayCompare(ctx, app, ownerAreas(ctx, app), day) } : {};
+  const compare = areas.prime
+    ? { compare: await todayCompare(ctx, app, ownerAreas(ctx, app), day), morning_brief: await morningBriefJson(ctx.deps.store, app, day.zone, day.date, ctx.t) }
+    : {};
   return { status: 200, body: { date: day.date, time_zone: day.zone, sales: totalsJson(sales), donations: totalsJson(given), in_app_sales: totalsJson(inApp), counts, needs_you: needs, ...compare } };
 }
 

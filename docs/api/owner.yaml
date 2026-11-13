@@ -4226,6 +4226,13 @@ components:
         compare:
           description: 125 Prime apps only (missing for the others and on older servers), against the same weekday last week.
           $ref: '#/components/schemas/Compare'
+        morning_brief:
+          description: 125 Prime apps only (missing for the others and on older servers). Yesterday in the line the morning brief push sends, in the person's language.
+          type: object
+          required: [title, text]
+          properties:
+            title: { type: string }
+            text: { type: string }
 
     NeedsYou:
       type: object

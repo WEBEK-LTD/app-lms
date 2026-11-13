@@ -2,6 +2,7 @@ import { formatCents } from "../catalog/money";
 import { appAreas } from "../app/areas";
 import { appZone } from "../analytics/zone";
 import { addDays, localToUtc, minutesOf, utcToLocal } from "../bookings/time";
+import type { DashT } from "@/i18n/dashboard";
 import type { DataStore } from "../data/store";
 import type { App, PrimeAlerts, PrimeAlertSetting } from "../data/types";
 import { shipmentReference } from "../delivery/service";
@@ -221,15 +222,19 @@ async function briefFor(deps: OwnerPushDeps, app: App, row: PrimeAlerts, zone: s
   if (at === null || nowMinute < at || nowMinute >= at + BRIEF_WINDOW_MINUTES) return 0;
   if (!(await deps.store.claimPrimeSend(`brief:${row.userId}:${app.id}:${date}`, deps.now))) return 0;
   const b = await brief(deps.store, app, zone, date);
-  await pushMorningBrief(deps, app, row.userId, (w) => ({
-    title: w.t("owner.prime.briefTitle"),
-    body: [
-      w.t("owner.prime.briefSales", { sales: b.sales, count: b.orders }),
-      b.hour ? w.t("owner.prime.briefHour", { hour: b.hour }) : null,
-      b.best ? w.t("owner.prime.briefBest", { name: b.best }) : null,
-    ]
-      .filter(Boolean)
-      .join(" · "),
-  }));
+  await pushMorningBrief(deps, app, row.userId, (w) => ({ title: w.t("owner.prime.briefTitle"), body: briefLine(w.t, b) }));
   return 1;
+}
+
+type Brief = Awaited<ReturnType<typeof brief>>;
+
+function briefLine(t: DashT, b: Brief): string {
+  return [t("owner.prime.briefSales", { sales: b.sales, count: b.orders }), b.hour ? t("owner.prime.briefHour", { hour: b.hour }) : null, b.best ? t("owner.prime.briefBest", { name: b.best }) : null]
+    .filter(Boolean)
+    .join(" · ");
+}
+
+/** 125 Today's morning brief card on a Prime app: yesterday in the line the push sends, in the person's language. */
+export async function morningBriefJson(store: DataStore, app: App, zone: string, date: string, t: DashT): Promise<{ title: string; text: string }> {
+  return { title: t("owner.prime.briefTitle"), text: briefLine(t, await brief(store, app, zone, date)) };
 }
