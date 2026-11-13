@@ -2,6 +2,7 @@ import { createHmac } from "node:crypto";
 import { expect, test, type Page } from "@playwright/test";
 import { E2E } from "../../playwright.config";
 import { solidPng } from "./png";
+import { zip } from "./zip";
 
 /**
  * The main journey: sign up → 121 active at once, choosing the editor or Studio → the super admin activates the plan → the
@@ -341,12 +342,17 @@ test("the plugin activates and checks the license through the API", async ({ req
 test("a published plugin release reaches the site through the update API", async ({ page, request }) => {
   await signIn(page, E2E.adminEmail, E2E.adminPassword);
   await page.goto("/admin/releases");
-  const zip = Buffer.concat([Buffer.from([0x50, 0x4b, 0x03, 0x04]), Buffer.alloc(64)]);
-  await page.getByLabel("Plugin .zip").setInputFiles({ name: "yallapp.zip", mimeType: "application/zip", buffer: zip });
-  await page.getByLabel("Version", { exact: true }).fill("0.2.0");
+  const plugin = Buffer.from(zip({ "yallapp/yallapp.php": "<?php\n/**\n * Plugin Name:       Yallapp\n * Version:           0.2.0\n */\n", "yallapp/readme.txt": "Stable tag: 0.2.0\n" }));
+  await page.getByLabel("Plugin .zip").setInputFiles({ name: "yallapp.zip", mimeType: "application/zip", buffer: plugin });
+  // 124.17 A mistyped version is refused: the zip says which it is.
+  await page.getByLabel("Version", { exact: true }).fill("4.18.1");
   await page.getByLabel("Tested up to").fill("6.8");
   await page.getByLabel("Changelog").fill("- Faster lessons\n- Fixes");
   await page.getByLabel(/Publish now/).check();
+  await page.getByRole("button", { name: "Upload release" }).click();
+  await expect(page.getByText("The .zip is version 0.2.0. Enter 0.2.0, or choose the .zip of 4.18.1.")).toBeVisible();
+  await page.getByLabel("Plugin .zip").setInputFiles({ name: "yallapp.zip", mimeType: "application/zip", buffer: plugin });
+  await page.getByLabel("Version", { exact: true }).fill("0.2.0");
   await page.getByRole("button", { name: "Upload release" }).click();
   await expect(page.getByText("Version 0.2.0 uploaded and published.")).toBeVisible();
 

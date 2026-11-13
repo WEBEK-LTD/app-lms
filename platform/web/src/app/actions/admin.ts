@@ -1,6 +1,7 @@
 "use server";
 
 import { createHash } from "node:crypto";
+import { pluginZipVersion } from "@/lib/license/plugin-zip";
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { planFitsSection } from "@/lib/plans";
@@ -391,6 +392,11 @@ export async function uploadReleaseAction(_: FormState, formData: FormData): Pro
   if (file.size > PLUGIN_MAX_BYTES) return { errors: { file: "The file is larger than 5.5 MB." }, values };
   const data = Buffer.from(await file.arrayBuffer());
   if (data.length < 4 || data.readUInt32LE(0) !== 0x04034b50) return { errors: { file: "This isn't a .zip file." }, values };
+
+  // 124.17 The version is the zip's own: a mistyped one would become every site's "newest".
+  const inZip = pluginZipVersion(data);
+  if (!inZip) return { errors: { file: "This isn't the Yallapp plugin's .zip: it has no yallapp/yallapp.php with a Version line." }, values };
+  if (inZip !== parsed.data.version) return { errors: { version: `The .zip is version ${inZip}. Enter ${inZip}, or choose the .zip of ${parsed.data.version}.` }, values };
 
   const store = await getStore();
   if (await store.getReleaseByVersion(parsed.data.version)) {
