@@ -136,6 +136,25 @@ export const APP_SCREENS = [
   "teachers-sig-b-home",
   "school-sig-b-home",
   "travel-sig-b-home",
+  // 130.49 Each Studio demo's looks A and B by night (public/screens/<demo's address>-sig-<a|b>-home-dark.png), for /demo/studio, the Studio pages and Black Friday's shelf.
+  "food-delivery-sig-a-home-dark",
+  "food-delivery-sig-b-home-dark",
+  "multi-vendor-sig-a-home-dark",
+  "multi-vendor-sig-b-home-dark",
+  "delivery-sig-a-home-dark",
+  "delivery-sig-b-home-dark",
+  "rides-sig-a-home-dark",
+  "rides-sig-b-home-dark",
+  "taxi-sig-a-home-dark",
+  "taxi-sig-b-home-dark",
+  "premium-academy-sig-a-home-dark",
+  "premium-academy-sig-b-home-dark",
+  "teachers-sig-a-home-dark",
+  "teachers-sig-b-home-dark",
+  "school-sig-a-home-dark",
+  "school-sig-b-home-dark",
+  "travel-sig-a-home-dark",
+  "travel-sig-b-home-dark",
 ] as const;
 export type AppScreen = (typeof APP_SCREENS)[number];
 
@@ -247,6 +266,25 @@ export const SCREEN_ALT: Record<AppScreen | DashboardScreen, string> = {
   "teachers-sig-b-home": "Rawaq Academy in its second look, On air: a teacher's course in a full-screen slider, the teachers in rings and the popular courses",
   "school-sig-b-home": "Nakhla School in its second look, Family passes: the chosen child's day as a pass, the school bus, the forms to sign and the school's news",
   "travel-sig-b-home": "Safra in its second look, Bento atlas: the days to the next trip over its legs, the stays as a bento, a stay and a flight at one price, and the departures",
+  // 130.49 The looks by night.
+  "food-delivery-sig-a-home-dark": "Sofra Eats in its first look, Editorial menu, by night: tonight's dishes in a hero slider, the order on its way, the restaurants open nearby and dishes from the menus",
+  "food-delivery-sig-b-home-dark": "Sofra Eats in its second look, Bento table, by night: the order on its way in a gold ring, the cuisines as a photo bento, a band of dishes and the restaurants near you",
+  "multi-vendor-sig-a-home-dark": "Zad in its first look, Market arches, by night: the delivery address with the soonest time, this week's offers as posters, the departments as arch photos and the places near you",
+  "multi-vendor-sig-b-home-dark": "Zad in its second look, Night aisle, by night: the order as a slim pill over the aisle's photo, the minutes to the door, the departments as stories and the places as a deck",
+  "delivery-sig-a-home-dark": "Sahm Express in its first look, Waybill, by night: the city set large, sending a parcel on a waybill with the services and prices, and the shipment on its way",
+  "delivery-sig-b-home-dark": "Sahm Express in its second look, Live route, by night: the shipment drawn on a living map, its minutes and stages, and sending a parcel",
+  "rides-sig-a-home-dark": "Masar Rides in its first look, Living map, by night: a living map of the city with the driver on the way, the car classes with their fares and where to",
+  "rides-sig-b-home-dark": "Masar Rides in its second look, Horizon, by night: the city tilted to the horizon, where to with the rider's name, the driver's minutes and the fares",
+  "taxi-sig-a-home-dark": "Lamha Taxi in its first look, Two-ink cab, by night: the free taxis around the rider on a map in two inks, the nearest one's minutes, where to, the classes and the airport's set price",
+  "taxi-sig-b-home-dark": "Lamha Taxi in its second look, Glance radar, by night: the free taxis' count large, a radar of the taxis around, where to and the classes",
+  "premium-academy-sig-a-home-dark": "Ufuq Academy in its first look, Night cinema, by night: the course the student is taking full screen, their streak with this week's days and their next live class",
+  "premium-academy-sig-b-home-dark": "Ufuq Academy in its second look, Gold ring, by night: the course the student is taking in a gold ring, their streak and their next live class",
+  "teachers-sig-a-home-dark": "Rawaq Academy in its first look, Faculty index, by night: real teachers and real skills over the library's photo, the teachers as an index and the popular courses",
+  "teachers-sig-b-home-dark": "Rawaq Academy in its second look, On air, by night: a teacher's course in a full-screen slider, the teachers in rings and the popular courses",
+  "school-sig-a-home-dark": "Nakhla School in its first look, Morning edition, by night: the family's greeting over the school gate with the children, the school's news and today at school",
+  "school-sig-b-home-dark": "Nakhla School in its second look, Family passes, by night: the chosen child's day as a pass, the school bus, the forms to sign and the school's news",
+  "travel-sig-a-home-dark": "Safra in its first look, Cover story, by night: the next trip over the resort's photo, its flight as a boarding pass and the company's hotels with their price a night",
+  "travel-sig-b-home-dark": "Safra in its second look, Bento atlas, by night: the days to the next trip over its legs, the stays as a bento, a stay and a flight at one price, and the departures",
   "studio-editor": "The Yallapp Studio editor: elements on the left, the page on the phone, its settings on the right",
   "studio-home": "Yallapp Studio's home with the account's projects",
   "studio-project": "A Studio project's dashboard",
@@ -858,7 +896,8 @@ const STUDIO_SOLUTION_COPY: SolutionCopy[] = [
     pageName: "Delivery",
     summary: "Parcels sent, tracked live and delivered, with an app for your couriers.",
     audience: "Delivery and courier companies, and shops that deliver their own orders.",
-    screens: ["delivery-send", "delivery-shipment", "delivery-courier"],
+    // 130.49 Sahm Express as it is now, its Signature look A: the home, the parcel on its way and the courier's job.
+    screens: ["sahm-home", "sahm-tracking", "sahm-job"],
     sources: ["No website: services, prices, couriers and shipments managed in Yallapp Studio"],
     highlights: [
       {
@@ -934,7 +973,8 @@ const STUDIO_SOLUTION_COPY: SolutionCopy[] = [
     pageName: "Food delivery",
     summary: "Restaurants, their menus, orders and couriers, in one food delivery app.",
     audience: "Food delivery companies, and groups of restaurants that deliver.",
-    screens: ["food-restaurants", "food-menu", "food-order"],
+    // 130.49 Sofra Eats as it is now, its Signature look A.
+    screens: ["sofra-home", "sofra-menu", "sofra-order"],
     sources: ["No website: restaurants, menus, couriers and orders managed in Yallapp Studio"],
     highlights: [
       {
@@ -1010,7 +1050,8 @@ const STUDIO_SOLUTION_COPY: SolutionCopy[] = [
     pageName: "Multi-vendor",
     summary: "Restaurants, supermarkets and shops in one delivery app, each with its own panel, under your name.",
     audience: "Companies that run a delivery app for many restaurants, supermarkets and shops, in any country and currency.",
-    screens: ["food-restaurants", "food-menu", "food-order"],
+    // 130.49 Zad as it is now, its Signature look A.
+    screens: ["zad-home", "zad-market", "zad-tracking"],
     sources: ["No website: places, menus, catalogs, couriers and orders managed in Yallapp Studio and the places' own panel"],
     highlights: [
       {
@@ -1097,7 +1138,8 @@ const STUDIO_SOLUTION_COPY: SolutionCopy[] = [
     pageName: "Ride and taxi",
     summary: "Riders ask for a ride on the map, drivers take it, and both follow it live.",
     audience: "Ride hailing and taxi companies.",
-    screens: ["taxi-map", "rides-ride", "rides-driver"],
+    // 130.49 Masar Rides and Lamha Taxi as they are now, their Signature looks A.
+    screens: ["masar-home", "lamha-home", "lamha-ride"],
     sources: ["No website: vehicle types, fares, drivers and rides managed in Yallapp Studio"],
     highlights: [
       {
@@ -1171,7 +1213,8 @@ const STUDIO_SOLUTION_COPY: SolutionCopy[] = [
     kind: "school",
     summary: "The timetable, homework, attendance, parents and teachers, in your school's app.",
     audience: "Schools, with their students, parents, teachers and staff.",
-    screens: ["school-today", "school-homework", "school-classroom"],
+    // 130.49 Nakhla School as it is now, its Signature look A.
+    screens: ["nakhla-home", "nakhla-parent", "nakhla-classroom"],
     sources: ["No website: classes, people and the school day managed in Yallapp Studio"],
     highlights: [
       {
@@ -1248,7 +1291,8 @@ const STUDIO_SOLUTION_COPY: SolutionCopy[] = [
     pageName: "University",
     summary: "Faculties, programs, course registration and results by term, in your university's app.",
     audience: "Universities, colleges and institutes.",
-    screens: ["school-today", "school-classroom", "school-homework"],
+    // 130.49 Nakhla School as it is now, its looks A and B.
+    screens: ["nakhla-home", "school-sig-b-home", "nakhla-classroom"],
     sources: ["No website: faculties, programs, courses and terms managed in Yallapp Studio"],
     highlights: [
       {
@@ -1323,7 +1367,8 @@ const STUDIO_SOLUTION_COPY: SolutionCopy[] = [
     pageName: "Academy with many teachers",
     summary: "Many teachers, their courses and their students, in one academy app.",
     audience: "Academies and training centres that work with many teachers.",
-    screens: ["teachers-list", "teachers-teacher", "teachers-desk"],
+    // 130.49 Rawaq Academy as it is now, its Signature look A.
+    screens: ["rawaq-home", "rawaq-teacher", "rawaq-desk"],
     sources: ["No website: teachers, courses and their shares managed in Yallapp Studio"],
     highlights: [
       {
@@ -1753,7 +1798,7 @@ export const FEATURE_GROUPS: FeatureGroup[] = [
     id: "maps",
     title: "Live maps, couriers and drivers",
     text: "In Yallapp Studio's delivery, food delivery, ride and taxi projects, customers follow what's on its way, and your couriers and drivers work from their phones.",
-    screens: ["delivery-shipment", "delivery-courier", "taxi-map"],
+    screens: ["sahm-tracking", "sahm-job", "lamha-home"],
     features: [
       {
         icon: "map",
@@ -1793,7 +1838,7 @@ export const FEATURE_GROUPS: FeatureGroup[] = [
     id: "schools",
     title: "Schools, universities and academies",
     text: "In Yallapp Studio's school, university and academy projects, everyone has the part of the app that is theirs: students, parents, teachers and staff.",
-    screens: ["school-today", "school-homework", "teachers-list"],
+    screens: ["nakhla-home", "nakhla-parent", "rawaq-home"],
     features: [
       {
         icon: "school",

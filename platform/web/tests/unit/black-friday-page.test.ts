@@ -18,7 +18,8 @@ import { PRICED_PAGES } from "@/lib/geo-vary";
 import { LANGS, type Lang } from "@/i18n/config";
 import { isLocalizedPath, languageAlternates, localePath } from "@/i18n/paths";
 import { daysText, FALLBACK_BLACK_FRIDAY, occasionPlanPrice, occasionView, percentText } from "@/site/occasions/offer";
-import { FAQ_COUNT, HERO_SCREENS, INCLUDED_GROUPS, kindPagePath, RECEIPT_SCREEN, shopWindowKinds, STEP_ICONS, TERM_ICONS } from "@/site/occasions/shape";
+import { FAQ_COUNT, HERO_SCREENS, INCLUDED_GROUPS, kindPagePath, RECEIPT_SCREEN, shelfShots, shopWindowKinds, STEP_ICONS, TERM_ICONS } from "@/site/occasions/shape";
+import { screenAltFor } from "@/lib/marketing-lang";
 import { BLACK_FRIDAY_PATH, type OccasionText } from "@/site/occasions/types";
 
 /**
@@ -153,11 +154,35 @@ describe("124 Black Friday's page", () => {
       expect(SCREEN_ALT[screen]).toBeTruthy();
       expect(existsSync(path.join(PUBLIC, "screens", `${screen}.png`)), screen).toBe(true);
       // The premium academy and the screens designed in Studio, never a plain template's.
-      expect(screen, screen).toMatch(/^(premium-|studio-cafe-|zad-|sahm-|taxi-map$|taxi-on-ride$)/);
+      expect(screen, screen).toMatch(/^(premium-|zad-|sahm-|[a-z-]+-sig-[ab]-home(-dark)?$)/);
     }
-    // The shop window: every kind as its own lit sign (no phone screens), Studio's first; a kind with its story links to the story.
+    // The shop window: Studio's kinds first; a kind with its story links to the story.
     const studioIds = new Set(STUDIO_SOLUTIONS.map((s) => s.id));
     const order = shopWindowKinds(ALL_SOLUTIONS, studioIds).map((s) => s.id);
+    // 130.50 Every kind shows its app, no two displays alike: a Studio kind its demo in its Signature looks (look A in front, by day and by night), a regular kind its own screens; every picture ships, described in every language.
+    const shots = shelfShots(shopWindowKinds(ALL_SOLUTIONS, studioIds), studioIds);
+    expect([...shots.keys()]).toEqual(order);
+    expect(new Set([...shots.values()].map((s) => s.front.light)).size).toBe(order.length);
+    for (const [id, shot] of shots) {
+      const all = [shot.front, ...(shot.back ? [shot.back] : [])].flatMap((s) => [s.light, s.dark]);
+      for (const screen of all) {
+        expect(APP_SCREENS, `${id} ${screen}`).toContain(screen);
+        expect(existsSync(path.join(PUBLIC, "screens", `${screen}.png`)), screen).toBe(true);
+        for (const lang of LANGS) expect(screenAltFor(lang)[screen], `${lang} ${screen}`).toBeTruthy();
+      }
+      if (studioIds.has(id)) {
+        expect(shot.front.dark, id).toMatch(/-sig-[ab]-home-dark$/);
+        expect(shot.back, id).not.toBeNull();
+      } else {
+        expect(ALL_SOLUTIONS.find((s) => s.id === id)!.screens, id).toContain(shot.front.light);
+      }
+    }
+    expect(shots.get("delivery")).toEqual({ front: { light: "sahm-home", dark: "delivery-sig-a-home-dark" }, back: { light: "delivery-sig-b-home", dark: "delivery-sig-b-home-dark" } });
+    expect(shots.get("food")!.front).toEqual({ light: "sofra-home", dark: "food-delivery-sig-a-home-dark" });
+    expect(shots.get("rides")).toEqual({ front: { light: "masar-home", dark: "rides-sig-a-home-dark" }, back: { light: "lamha-home", dark: "taxi-sig-a-home-dark" } });
+    expect(shots.get("university")!.front).toEqual({ light: "school-sig-b-home", dark: "school-sig-b-home-dark" });
+    expect(shots.get("academy")!.front).toEqual({ light: "academy-home", dark: "academy-home-dark" });
+    expect(shots.get("services")!.front.light).toBe("bookings-slots");
     expect(order).toHaveLength(ALL_SOLUTIONS.length);
     expect(order.slice(0, studioIds.size).every((id) => studioIds.has(id))).toBe(true);
     expect(kindPagePath("school")).toBe("/yallapp-studio/school");
@@ -245,8 +270,14 @@ describe("124 Black Friday's page", () => {
       for (const id of ["bf-plans", "bf-kinds", "bf-steps", "bf-included", "bf-terms", "bf-faq", "bf-final"]) expect(html, id).toContain(`id="${id}"`);
       for (const g of t.included.groups) expect(html).toContain(escape(g.title));
       for (const s of HERO_SCREENS) expect(html).toContain(`data-screen="${s}"`);
-      // Only the premium academy's screens and Studio's are on the page.
-      for (const [, s] of html.matchAll(/data-screen="([^"]+)"/g)) expect([...HERO_SCREENS, RECEIPT_SCREEN]).toContain(s);
+      // The opening and the receipt: only the premium academy's screens and Studio's; 130.50 the shelf: each kind's app, every picture described, with no icon artwork left.
+      const studioIds = new Set(STUDIO_SOLUTIONS.map((s) => s.id));
+      const shots = [...shelfShots(shopWindowKinds(ALL_SOLUTIONS, studioIds), studioIds).values()];
+      const shelfScreens = shots.flatMap((s) => [s.front.light, ...(s.back ? [s.back.light] : [])]);
+      for (const [, s] of html.matchAll(/data-screen="([^"]+)"/g)) expect([...HERO_SCREENS, RECEIPT_SCREEN, ...shelfScreens]).toContain(s);
+      expect(html.match(/data-shelf-shot="/g)).toHaveLength(ALL_SOLUTIONS.length);
+      expect(html).not.toContain("bf-emblem");
+      for (const s of shots) expect(html).toContain(`alt="${escape(screenAltFor(lang)[s.front.light])}"`);
       // The night, scene by scene: every scene's moment and lines are in the HTML, the motion only leads to them.
       for (const scene of [t.hero.scene, t.plans.scene, t.kinds.scene, t.steps.scene, t.included.scene, t.terms.scene, t.faq.scene, t.final.scene]) {
         expect(html).toContain(escape(scene.label));

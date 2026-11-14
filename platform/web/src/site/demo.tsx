@@ -9,7 +9,7 @@ import { getContact } from "@/lib/contact";
 import { WhatsAppLink } from "@/components/whatsapp-link";
 import { getStore } from "@/lib/data";
 import { demoDownloadBuild, demoSecondAppBuild, listDemoApps } from "@/lib/demo/apps";
-import { DEMO_RETENTION_HOURS, DEMO_SIGN_IN, DEMO_SLUGS, DEMO_TYPES, demoIdOf, demoKind, PREMIUM_ACADEMY_DEMO, type DemoId } from "@/lib/demo/constants";
+import { DEMO_RETENTION_HOURS, DEMO_SIGN_IN, DEMO_SLUGS, DEMO_TYPES, demoIdOf, demoKind, isStudioDemo, PREMIUM_ACADEMY_DEMO, type DemoId } from "@/lib/demo/constants";
 import { DEMO_BRANDS, DEMO_SECOND_APP_STEP } from "@/lib/demo/content";
 import { staffAppNameOf } from "@/lib/school/staff-app";
 import { appUrl } from "@/lib/env";
@@ -18,6 +18,7 @@ import { allSolutionsFor, demoGuideFor, kindNameFor, screenAltFor, solutionFor }
 import { siteMetadata } from "@/lib/seo";
 import { formatMessage, messagesFor, type Lang } from "@/i18n";
 import { localePath } from "@/i18n/paths";
+import { StudioLooks } from "./studio-looks";
 
 export function demoMetadata(lang: Lang): Metadata {
   const m = messagesFor(lang).meta;
@@ -120,7 +121,7 @@ export function DemoSignIn({ lang }: { lang: Lang }) {
   );
 }
 
-/** One demo app: what it is, what to try, its download (or "coming soon") and its screens (also on /demo/studio). */
+/** One demo app: what it is, what to try, its download (or "coming soon") and its screens (also on /demo/studio); 130.49 a Studio demo's two looks, light and dark, under them. */
 export function DemoAppSection({ type, lang, ready, tinted, secondReady = false }: { type: DemoId; lang: Lang; ready: boolean; tinted: boolean; secondReady?: boolean }) {
   const base = appUrl().replace(/\/+$/, "");
   const m = messagesFor(lang).demo;
@@ -205,6 +206,8 @@ export function DemoAppSection({ type, lang, ready, tinted, secondReady = false 
           ))}
         </div>
       </div>
+      {/* 130.49 Look A is the demo above, its home first; its night, and look B by day and by night. */}
+      {isStudioDemo(type) ? <StudioLooks id={type} lang={lang} keys={["a-dark", "b", "b-dark"]} /> : null}
     </Section>
   );
 }

@@ -15,6 +15,7 @@ import { storyCopyFor } from "@/content/stories";
 import { storyOfSolution } from "@/site/story/links";
 import { STORIES } from "@/site/story/stories";
 import { storyPath } from "@/site/story/types";
+import { StudioLooks, studioDemoOfSlug } from "@/site/studio-looks";
 
 export function solutionsMetadata(lang: Lang): Metadata {
   const m = messagesFor(lang).meta;
@@ -85,6 +86,8 @@ export async function SolutionPage({ lang, id }: { lang: Lang; id: string }) {
   const lp = (path: string) => localePath(lang, path);
   // SEO: Studio's kinds are tried in Studio's demo apps and made in Yallapp Studio.
   const studio = STUDIO_SOLUTIONS.some((o) => o.id === s.id);
+  // 130.49 A Studio kind's demo in its two Signature looks, light and dark.
+  const looksOf = studio ? studioDemoOfSlug(STUDIO_SOLUTIONS.find((o) => o.id === s.id)!.demoSlug) : null;
   // The Studio story page that tells this kind's day, if there is one.
   const storyId = storyOfSolution(s.id);
   const story = storyId ? storyCopyFor(lang) : null;
@@ -167,6 +170,12 @@ export async function SolutionPage({ lang, id }: { lang: Lang; id: string }) {
           </div>
         </div>
       </Section>
+
+      {looksOf ? (
+        <Section id="looks">
+          <StudioLooks id={looksOf} lang={lang} />
+        </Section>
+      ) : null}
 
       <Section>
         {/* SEO: Studio's kinds keep their content in Studio, so there's no source to choose. */}

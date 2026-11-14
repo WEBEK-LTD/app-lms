@@ -280,9 +280,14 @@ test("103R Yallapp Studio has its own page: the editor, apps made in it, Studio-
   await expect(page.locator("[data-studio-video]").getByRole("button", { name: /^Turn the sound (on|off)$/ })).toBeVisible();
   await expect(page.getByRole("heading", { level: 1, name: "Design your app your way, element by element" })).toBeVisible();
   await expect(page.getByRole("img", { name: /^The Yallapp Studio editor/ }).first()).toBeVisible();
-  // Real screenshots of apps made in Studio, light and dark, and a delivery company's.
-  for (const screen of ["studio-cafe-home", "studio-cafe-home-dark", "delivery-send", "delivery-shipment", "delivery-courier"]) {
+  // 130.49 Real screenshots of the Studio demos in their Signature looks, A and B, light and dark; none of the older pictures anywhere.
+  for (const screen of ["sofra-home", "taxi-sig-a-home-dark", "school-sig-b-home", "premium-academy-sig-a-home-dark", "rides-sig-b-home"]) {
     await expect(page.locator(`#apps img[src*="${screen}.png"]`)).toHaveCount(1);
+  }
+  await expect(page.locator("#apps figcaption").first()).toHaveText("Sofra Eats · Look A · Light");
+  for (const screen of ["sahm-job", "lamha-home", "rawaq-home", "nakhla-home"]) await expect(page.locator(`#kinds img[src*="${screen}.png"]`)).toHaveCount(1);
+  for (const screen of ["studio-cafe-home", "studio-cafe-home-dark", "delivery-send", "delivery-shipment", "delivery-courier", "food-restaurants", "food-menu", "food-order", "rides-where", "rides-ride", "rides-driver", "taxi-map", "taxi-ride", "taxi-driver", "school-today", "school-homework", "school-classroom", "teachers-list", "teachers-teacher", "teachers-desk", "sahm-send", "sahm-shipment", "sahm-courier"]) {
+    await expect(page.locator(`main img[src*="${screen}.png"]`)).toHaveCount(0);
   }
   await expect(page.locator("[data-studio-only]").filter({ hasText: "Delivery & couriers" })).toContainText("Only in Studio");
   await expect(page.locator("[data-studio-only]").filter({ hasText: "Delivery & couriers" })).toContainText("Yallapp Courier");
@@ -325,14 +330,17 @@ test("104.8 Yallapp Courier, live maps and schools on the features page, in the 
 test("103R the Studio demo has its own page; the regular demo stays as it is", async ({ page }) => {
   await page.goto("/demo/studio");
   await expect(page.getByRole("heading", { level: 1, name: "See what a Studio project looks like" })).toBeVisible();
-  await expect(page.getByRole("heading", { level: 2, name: "A café designed in Studio" })).toBeVisible();
+  // 130.49 Each Studio demo in its two looks, light and dark, in place of the café.
+  await expect(page.getByRole("heading", { level: 2, name: "A café designed in Studio" })).toHaveCount(0);
+  await expect(page.locator("[data-studio-looks]")).toHaveCount(9);
+  await expect(page.getByRole("heading", { level: 3, name: "Two looks to start from" }).first()).toBeVisible();
+  await expect(page.locator('[data-studio-looks="food-delivery"] figcaption')).toHaveText(["Look A · Dark", "Look B · Light", "Look B · Dark"]);
   // Studio's own project types as demo apps, signed in to with the shared demo number.
   await expect(page.getByTestId("demo-phone")).toHaveText("+1 202 555 0123");
   for (const name of ["Sahm Express", "Sofra Eats", "Zad", "Masar Rides", "Lamha Taxi", "Nakhla School", "Rawaq Academy"]) await expect(page.getByRole("heading", { level: 2, name, exact: true })).toBeVisible();
   await expect(page.getByRole("heading", { level: 2, name: "The editor behind them" })).toBeVisible();
   for (const screen of [
-    "studio-cafe-home",
-    "studio-cafe-home-dark",
+    "food-delivery-sig-a-home-dark",
     // 124.7 Each Studio demo as its app is: its Studio home and two of its screens.
     "sahm-home",
     "sahm-tracking",
@@ -358,14 +366,28 @@ test("103R the Studio demo has its own page; the regular demo stays as it is", a
     "premium-home",
     "premium-course",
     "premium-lesson",
+    "safra-explore",
+    "safra-hotel",
+    "safra-trip",
+    // 130.49 Their looks A by night and B by day and by night.
+    "delivery-sig-a-home-dark",
+    "delivery-sig-b-home",
+    "delivery-sig-b-home-dark",
+    "multi-vendor-sig-b-home-dark",
+    "rides-sig-b-home",
+    "taxi-sig-b-home-dark",
+    "school-sig-a-home-dark",
+    "teachers-sig-b-home",
+    "premium-academy-sig-b-home-dark",
+    "travel-sig-b-home",
     "studio-editor",
     "studio-home",
     "studio-project",
   ]) {
     await expect(page.locator(`main img[src*="${screen}.png"]`).first()).toBeVisible();
   }
-  // 124.7 None of the pictures drawn with the app's plain defaults.
-  for (const screen of ["food-restaurants", "food-menu", "food-order", "rides-where", "rides-ride", "rides-driver", "taxi-map", "taxi-ride", "taxi-driver", "school-today", "school-homework", "school-classroom", "teachers-list", "teachers-teacher", "teachers-desk", "sahm-send", "sahm-shipment", "sahm-courier"]) {
+  // 124.7 None of the pictures drawn with the app's plain defaults; 130.49 nor the café's.
+  for (const screen of ["studio-cafe-home", "studio-cafe-home-dark", "food-restaurants", "food-menu", "food-order", "rides-where", "rides-ride", "rides-driver", "taxi-map", "taxi-ride", "taxi-driver", "school-today", "school-homework", "school-classroom", "teachers-list", "teachers-teacher", "teachers-desk", "sahm-send", "sahm-shipment", "sahm-courier"]) {
     await expect(page.locator(`main img[src*="${screen}.png"]`)).toHaveCount(0);
   }
   // The Demo menu entry is marked, and the regular demo apps are a link away.
@@ -374,6 +396,17 @@ test("103R the Studio demo has its own page; the regular demo stays as it is", a
   await expect(page).toHaveURL(/\/demo$/);
   await expect(page.getByRole("heading", { level: 1, name: "Try a real app on your phone" })).toBeVisible();
   await expect(page.locator("main img[src*=\"studio-\"]")).toHaveCount(0);
+});
+
+test("130.49 a Studio kind's solution page shows its demo as it is now, in its two looks, light and dark", async ({ page }) => {
+  await page.goto("/solutions/delivery");
+  for (const screen of ["sahm-home", "sahm-tracking", "sahm-job"]) await expect(page.locator(`main img[src*="${screen}.png"]`).first()).toBeVisible();
+  const looks = page.locator('#looks [data-studio-looks="delivery"]');
+  await expect(looks.locator("figcaption")).toHaveText(["Look A · Light", "Look A · Dark", "Look B · Light", "Look B · Dark"]);
+  for (const screen of ["delivery-sig-a-home-dark", "delivery-sig-b-home", "delivery-sig-b-home-dark"]) await expect(looks.locator(`img[src*="${screen}.png"]`)).toHaveCount(1);
+  await page.goto("/ar/solutions/school");
+  await expect(page.locator('#looks [data-studio-looks="school"] figcaption').first()).toHaveText("الشكل A · فاتح");
+  for (const screen of ["delivery-send", "school-today", "school-homework"]) await expect(page.locator(`main img[src*="${screen}.png"]`)).toHaveCount(0);
 });
 
 test("103R pricing keeps the regular plans and Studio's own plans apart, with the differences", async ({ page }) => {

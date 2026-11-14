@@ -37,7 +37,7 @@ describe("the home page's hero", () => {
     expect(home).toContain('<span className="sr-only">{text.title}</span>');
     expect(home).toContain('<span aria-hidden="true">');
     expect(home).toContain("priority={phone.x === 0}");
-    for (const screen of ["taxi-map", "school-today", "zad-home", "store-home", "academy-home"]) expect(home).toContain(`screen: "${screen}"`);
+    for (const screen of ["lamha-home", "nakhla-home", "zad-home", "store-home", "academy-home"]) expect(home).toContain(`screen: "${screen}"`);
     // The kinds' strip is the Works with strip's marquee: the other way right to left, still with less motion.
     expect(home).toMatch(/className="hero-ticker marquee/);
   });

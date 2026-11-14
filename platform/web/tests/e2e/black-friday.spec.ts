@@ -69,6 +69,13 @@ for (const width of [360, 1280]) {
         // The shop window: every kind on the shelf, which its button moves along in the page's direction.
         const kinds = tab.locator("[data-kind]");
         expect(await kinds.count()).toBeGreaterThanOrEqual(12);
+        // 130.50 Each display shows its app: real screens in a phone, each described; no icon artwork left.
+        await expect(tab.locator("[data-kind] [data-shelf-shot]")).toHaveCount(await kinds.count());
+        await expect(tab.locator("[data-kind] .bf-emblem")).toHaveCount(0);
+        const first = tab.locator("[data-kind]").first().locator("img:visible").first();
+        await first.scrollIntoViewIfNeeded();
+        await expect(first).toHaveAttribute("alt", /\S/);
+        await expect.poll(() => first.evaluate((img: HTMLImageElement) => img.complete && img.naturalWidth > 0)).toBe(true);
         const shelf = tab.getByRole("region", { name: /Kinds of app|أنواع التطبيقات|Uygulama türleri/ });
         await shelf.scrollIntoViewIfNeeded();
         const before = await shelf.evaluate((el) => el.scrollLeft);

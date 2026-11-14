@@ -210,7 +210,8 @@ Open **App setup** and choose another type. Your next build includes the new typ
     title: "Yallapp Studio: design your app freely",
     description: "What Yallapp Studio is, how its projects differ from regular apps, making a project or starting from a demo, the Studio editor, delivery companies, rides and taxis, academies with many teachers, schools and universities, travel companies, and Studio's own plans.",
     steps: false,
-    figures: ["studio-editor", "studio-cafe-home", "studio-cafe-home-dark", "delivery-courier"],
+    // 130.49 The editor, a Studio demo in its Signature look A by day and by night, and Sahm Express's courier job.
+    figures: ["studio-editor", "sofra-home", "food-delivery-sig-a-home-dark", "sahm-job"],
     body: `Yallapp Studio is a space of its own in your account for projects you design element by element: rows, columns, layers, pictures, buttons and lists in cards you design, with colours for light and dark mode and motion. What you design is drawn natively in your Android and iOS app, not shown as a web page. Studio also makes project types only it offers, like a delivery company's app with its couriers.
 
 Open it from **Yallapp Studio** in your dashboard's menu. Its first page, **Your projects in Studio**, lists your Studio projects, apart from your regular apps.

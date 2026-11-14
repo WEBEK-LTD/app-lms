@@ -8,7 +8,9 @@ import type { StoryId } from "./types";
  * numbers, item by item with its words (src/content/stories/<lang>.ts).
  * Photos are read from public/stories/<story>/<photo>.jpg when they are
  * there (./photos.json lists them); a missing one is a gradient with a real
- * screen, never a broken picture.
+ * screen, never a broken picture. 130.49 The demos' screens are the demos
+ * as they are now, in their Signature look A (Nakhla School's, Lamha
+ * Taxi's, Masar Rides's and Sahm Express's), where the app has that screen.
  */
 
 /** What a scene draws besides its photo and screen. */
@@ -63,12 +65,12 @@ export const STORIES: Record<StoryId, StoryShape> = {
     accent: "#F2A93B",
     demos: ["school"],
     solutions: ["school", "university"],
-    hero: { photo: "school-dawn", screens: ["school-parent", "school-bus"] },
+    hero: { photo: "school-dawn", screens: ["nakhla-parent", "school-bus"] },
     chapters: [
-      { screen: "school-parent", icon: "child_care" },
+      { screen: "nakhla-parent", icon: "child_care" },
       { photo: "school-bus", screen: "school-bus", icon: "directions_bus", art: "route" },
-      { photo: "school-gate", screen: "school-today", icon: "qr_code_2", art: "gate" },
-      { photo: "school-teacher", screen: "school-classroom", icon: "task_alt", art: "register" },
+      { photo: "school-gate", screen: "nakhla-home", icon: "qr_code_2", art: "gate" },
+      { photo: "school-teacher", screen: "nakhla-classroom", icon: "task_alt", art: "register" },
       { photo: "school-homework", screen: "school-homework", icon: "assignment" },
       { photo: "school-library", screen: "school-library", icon: "menu_book" },
       { screen: "school-fees", icon: "payments" },
@@ -79,17 +81,17 @@ export const STORIES: Record<StoryId, StoryShape> = {
     systems: [
       {
         icon: "school",
-        screens: ["school-today", "school-homework"],
+        screens: ["nakhla-home", "school-homework"],
         features: ["calendar_month", "assignment", "quiz", "qr_code_2", "workspace_premium", "menu_book", "chat", "campaign", "emoji_events", "directions_bus"],
       },
       {
         icon: "groups",
-        screens: ["school-classroom"],
+        screens: ["nakhla-classroom"],
         features: ["event", "task_alt", "edit", "quiz", "emoji_events", "list_alt", "description", "forum", "directions_bus", "event_busy", "receipt_long"],
       },
       {
         icon: "child_care",
-        screens: ["school-parent", "school-bus", "school-fees"],
+        screens: ["nakhla-parent", "school-bus", "school-fees"],
         features: ["group", "qr_code_2", "monitoring", "payments", "directions_bus", "draw", "event_busy", "person", "menu_book", "description", "chat", "notifications"],
       },
       {
@@ -104,7 +106,7 @@ export const STORIES: Record<StoryId, StoryShape> = {
       },
     ],
     bundle: ["smartphone", "dashboard_customize", "phone_iphone"],
-    finale: { photo: "school-graduation-1", screen: "school-today" },
+    finale: { photo: "school-graduation-1", screen: "nakhla-home" },
   },
   rides: {
     id: "rides",
@@ -112,13 +114,13 @@ export const STORIES: Record<StoryId, StoryShape> = {
     accent: "#FFC233",
     demos: ["taxi", "rides"],
     solutions: ["rides"],
-    hero: { photo: "rides-waiting", screens: ["taxi-map", "taxi-ride"] },
+    hero: { photo: "rides-waiting", screens: ["lamha-home", "lamha-ride"] },
     chapters: [
-      { screen: "taxi-map", icon: "my_location" },
-      { screen: "rides-where", icon: "payments", art: "price" },
-      { screen: "taxi-driver", icon: "timer", art: "offer" },
-      { screen: "taxi-ride", icon: "route", art: "route" },
-      { photo: "rides-backseat", screen: "taxi-on-ride", icon: "shield" },
+      { screen: "lamha-home", icon: "my_location" },
+      { screen: "masar-where", icon: "payments", art: "price" },
+      { screen: "lamha-driver", icon: "timer", art: "offer" },
+      { screen: "lamha-ride", icon: "route", art: "route" },
+      { photo: "rides-backseat", screen: "lamha-ride", icon: "shield" },
       { photo: "rides-arrive-home", screen: "taxi-earnings", icon: "home" },
     ],
     interlude: { photo: "rides-night-city" },
@@ -126,12 +128,12 @@ export const STORIES: Record<StoryId, StoryShape> = {
     systems: [
       {
         icon: "person",
-        screens: ["taxi-map", "rides-where", "taxi-on-ride"],
+        screens: ["lamha-home", "masar-where", "lamha-ride"],
         features: ["map", "my_location", "schedule", "directions_car", "near_me", "key", "share", "shield", "cancel", "payments", "star", "receipt_long"],
       },
       {
         icon: "directions_car",
-        screens: ["taxi-driver", "taxi-earnings"],
+        screens: ["lamha-driver", "taxi-earnings"],
         features: ["bolt", "timer", "directions", "key", "route", "payments", "monitoring", "smartphone"],
       },
       {
@@ -141,12 +143,12 @@ export const STORIES: Record<StoryId, StoryShape> = {
       },
       {
         icon: "local_taxi",
-        screens: ["taxi-map"],
+        screens: ["lamha-home"],
         features: ["map", "cloud_sync", "near_me", "space_dashboard"],
       },
     ],
     bundle: ["smartphone", "dashboard_customize", "phone_iphone"],
-    finale: { photo: "rides-driver", screen: "taxi-ride" },
+    finale: { photo: "rides-driver", screen: "lamha-ride" },
   },
   delivery: {
     id: "delivery",
@@ -154,25 +156,25 @@ export const STORIES: Record<StoryId, StoryShape> = {
     accent: "#FF7A3D",
     demos: ["delivery"],
     solutions: ["delivery"],
-    hero: { photo: "delivery-rider", screens: ["sahm-send", "sahm-shipment"] },
+    hero: { photo: "delivery-rider", screens: ["sahm-home", "sahm-tracking"] },
     chapters: [
-      { photo: "delivery-shop-owner", screen: "sahm-send", icon: "storefront" },
-      { photo: "delivery-boxes", screen: "sahm-send", icon: "package_2", art: "price" },
-      { screen: "sahm-courier", icon: "two_wheeler" },
-      { screen: "sahm-shipment", icon: "route", art: "route" },
-      { photo: "delivery-handover", screen: "sahm-shipment", icon: "task_alt" },
+      { photo: "delivery-shop-owner", screen: "sahm-home", icon: "storefront" },
+      { photo: "delivery-boxes", screen: "sahm-home", icon: "package_2", art: "price" },
+      { screen: "sahm-job", icon: "two_wheeler" },
+      { screen: "sahm-tracking", icon: "route", art: "route" },
+      { photo: "delivery-handover", screen: "sahm-tracking", icon: "task_alt" },
     ],
     interlude: { photo: "delivery-van" },
     stats: [{ value: 3 }, { value: 2 }, { value: 10, suffix: " min" }, { value: 0, suffix: "%" }],
     systems: [
       {
         icon: "person",
-        screens: ["sahm-send", "sahm-shipment"],
+        screens: ["sahm-home", "sahm-tracking"],
         features: ["package_2", "my_location", "sell", "credit_card", "route", "list_alt", "notifications"],
       },
       {
         icon: "two_wheeler",
-        screens: ["sahm-courier"],
+        screens: ["sahm-job"],
         features: ["bolt", "inventory_2", "task_alt", "payments", "directions", "near_me", "smartphone", "hub"],
       },
       {
@@ -182,7 +184,7 @@ export const STORIES: Record<StoryId, StoryShape> = {
       },
     ],
     bundle: ["smartphone", "dashboard_customize", "phone_iphone"],
-    finale: { photo: "delivery-map", screen: "sahm-shipment" },
+    finale: { photo: "delivery-map", screen: "sahm-tracking" },
   },
   "multi-vendor": {
     id: "multi-vendor",

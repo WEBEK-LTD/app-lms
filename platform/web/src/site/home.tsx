@@ -39,8 +39,9 @@ import { HeroStage, RotatingWord, type HeroNotice } from "./home-motion";
 const FAN_PHONE = 236;
 const fanUnit = (px: number) => Number((px / FAN_PHONE).toFixed(4));
 const FAN: { screen: AppScreen; x: number; y: number; z: number; r: number }[] = [
-  { screen: "taxi-map", x: -230, y: 40, z: -160, r: -11 },
-  { screen: "school-today", x: -115, y: 10, z: -60, r: -5 },
+  // 130.49 The Studio demos as they are now, their Signature looks A.
+  { screen: "lamha-home", x: -230, y: 40, z: -160, r: -11 },
+  { screen: "nakhla-home", x: -115, y: 10, z: -60, r: -5 },
   { screen: "zad-home", x: 0, y: -14, z: 60, r: 0 },
   { screen: "store-home", x: 115, y: 10, z: -60, r: 5 },
   { screen: "academy-home", x: 230, y: 40, z: -160, r: 11 },
@@ -257,7 +258,8 @@ export async function HomePage({ lang }: { lang: Lang }) {
                 <BrowserFrame screen="studio-editor" path={DASHBOARD_PATHS["studio-editor"]} alt={alt["studio-editor"]} className="w-full" />
               </div>
               <div className="absolute -bottom-6 end-[-8px] hidden sm:flex" data-parallax="-0.05" style={{ translate: "0 var(--py, 0px)" }}>
-                <DeviceFrame screen="studio-cafe-home" size="xs" alt={alt["studio-cafe-home"]} className="story-float" />
+                {/* 130.49 A Studio demo in its Signature look A, by night. */}
+                <DeviceFrame screen="food-delivery-sig-a-home-dark" size="xs" alt={alt["food-delivery-sig-a-home-dark"]} className="story-float" />
               </div>
             </div>
           </div>
