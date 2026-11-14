@@ -328,10 +328,11 @@ test("124.6 a new project: the premium academy among the Studio projects, its te
 
 test("128.11 on the canvas a transparent header over a cover takes the page's background once the page scrolls under it", async () => {
   await own.goto("/studio/new");
-  await own.getByRole("radio", { name: "An academy with many teachers", exact: true }).check();
-  await own.getByLabel("Project name").fill("Rawaq Scroll");
+  // 130 Nakhla School, its look A: its home's header lies over the school's photo.
+  await own.getByRole("radio", { name: "A school for students, parents and teachers" }).check();
+  await own.getByLabel("Project name").fill("Nakhla Scroll");
   await own.getByRole("button", { name: "Next" }).click();
-  await own.getByRole("radiogroup", { name: "3 · Where do you start?" }).getByRole("radio", { name: /Our demo: Rawaq Academy/ }).click();
+  await own.getByRole("radiogroup", { name: "3 · Where do you start?" }).getByRole("radio", { name: /Our demo: Nakhla School/ }).click();
   await own.getByRole("button", { name: "Next" }).click();
   await expect(own).toHaveURL(/\/studio\/project$/);
   await own.goto("/studio/editor");

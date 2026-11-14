@@ -79,7 +79,8 @@ describe("130 the Signature looks: one registry, eighteen looks", () => {
       expect(TEMPLATES.filter((t) => t.id === id), id).toHaveLength(1);
       const kind = demoKind(demo);
       expect(templatesFor({ type: kind.engine, vertical: kind.vertical }).map((t) => t.id)).toContain(id);
-      for (const lang of ["en", "ar", "tr"] as const) expect(String((WORDS[lang] as unknown as Record<string, string>)[`tpl_${id}`] ?? ""), `${lang} tpl_${id}`).not.toBe("");
+      // Its name, and (App setup's Branding) what it is.
+      for (const lang of ["en", "ar", "tr"] as const) for (const key of [`tpl_${id}`, `tplText_${id}`]) expect(String((WORDS[lang] as unknown as Record<string, string>)[key] ?? ""), `${lang} ${key}`).not.toBe("");
       // A look is a whole app of its own: never a page of another whole design's look; 130 the kind's whole designs start with its two looks (the demo, then look B), then the six premium designs.
       const designs = designsFor({ type: kind.engine, vertical: kind.vertical });
       expect(designs.filter((d) => !d.demo).flatMap((d) => d.templates)).not.toContain(id);
