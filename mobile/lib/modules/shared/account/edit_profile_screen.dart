@@ -83,6 +83,8 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
       ),
     );
     return AccountScaffold(
+      // 130.21 Its premium look.
+      screen: SystemScreen.editProfile,
       title: context.l10n.editProfile,
       footer: PrimaryButton(
         label: context.l10n.save,

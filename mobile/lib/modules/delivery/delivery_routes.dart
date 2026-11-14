@@ -12,6 +12,8 @@ import 'screens/courier_screen.dart';
 import 'screens/send_parcel_screen.dart';
 import 'screens/shipment_screen.dart';
 import 'screens/shipments_screen.dart';
+// 130.21 The system screens' premium look.
+import '../../core/widgets/premium_chrome.dart' show SystemScreenArea;
 
 /// 104 The Delivery & couriers module (hosted API): sending a parcel, my
 /// shipments and the account as tabs, a shipment's page; for the company's
@@ -102,7 +104,14 @@ List<TabScreen> _screens() => [
       serviceId: int.tryParse(state.uri.queryParameters['service'] ?? ''),
     ),
   ),
-  TabScreen(Paths.shipments, (state) => const ShipmentsScreen()),
+  TabScreen(
+    Paths.shipments,
+    (state) => const SystemScreenArea(
+      // 130.21 The lists in the project's premium look.
+      screen: SystemScreen.lists,
+      child: ShipmentsScreen(),
+    ),
+  ),
   TabScreen(Paths.courier, (state) => const CourierScreen()),
   TabScreen(
     Paths.account,

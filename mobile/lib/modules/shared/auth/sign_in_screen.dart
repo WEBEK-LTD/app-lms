@@ -25,6 +25,9 @@ import '../../../core/widgets/common.dart';
 import 'country_codes.dart';
 import 'otp_screen.dart';
 import 'password_screens.dart';
+// 130.24 Sign-in in the project's premium look.
+import '../../../core/widgets/premium_chrome.dart';
+import 'premium_auth_frame.dart';
 import '../../../core/l10n/l10n.dart';
 
 /// Sign in with a mobile number (design: Main), or by email when the app
@@ -456,7 +459,10 @@ class _SignInScreenState extends ConsumerState<SignInScreen> {
     final panel =
         style == SignInLookStyle.photo || style == SignInLookStyle.card;
 
-    if (style == SignInLookStyle.premium) {
+    // 130.24 The system screens' premium look wins over the sign-in's own
+    // style; it takes the sign-in's words and photo.
+    final chrome = SystemLookScope.lookOf(context, SystemScreen.signIn);
+    if (style == SignInLookStyle.premium && chrome == null) {
       return Scaffold(
         body: _premium(
           context,
@@ -470,7 +476,18 @@ class _SignInScreenState extends ConsumerState<SignInScreen> {
       );
     }
 
-    final formChildren = <Widget>[
+    final introLine =
+        ownSubtitle ??
+        (_passwordMode
+            ? context.l10n.signInIntroPasswordStudio
+            : _creating
+            ? context.l10n.createAccountIntroCode
+            : !byEmail
+            ? context.l10n.signInIntro
+            : _byPassword
+            ? context.l10n.signInIntroPassword
+            : context.l10n.signInIntroEmail);
+    final intro = <Widget>[
       Row(
         children: [
           if (canGoBack) ...[const AppBackButton(), const SizedBox(width: 12)],
@@ -515,20 +532,13 @@ class _SignInScreenState extends ConsumerState<SignInScreen> {
       ),
       const SizedBox(height: 8),
       Text(
-        ownSubtitle ??
-            (_passwordMode
-                ? context.l10n.signInIntroPasswordStudio
-                : _creating
-                ? context.l10n.createAccountIntroCode
-                : !byEmail
-                ? context.l10n.signInIntro
-                : _byPassword
-                ? context.l10n.signInIntroPassword
-                : context.l10n.signInIntroEmail),
+        introLine,
         textAlign: minimal ? TextAlign.center : null,
         style: Theme.of(context).textTheme.bodyLarge
             ?.copyWith(color: context.palette.textSecondary),
       ),
+    ];
+    final preview = <Widget>[
       if (env.isPreview) ...[
         const SizedBox(height: 16),
         PreviewNote(
@@ -537,7 +547,9 @@ class _SignInScreenState extends ConsumerState<SignInScreen> {
               : context.l10n.previewSignInNote,
         ),
       ],
-      const SizedBox(height: 32),
+    ];
+    final fields = <Widget>[
+      SizedBox(height: chrome != null ? 16 : 32),
       if (_passwordMode && passwords != null)
         ..._passwordFields(context, passwords)
       else ...[
@@ -639,10 +651,52 @@ class _SignInScreenState extends ConsumerState<SignInScreen> {
           style: TextStyle(fontSize: 14, height: 1.6, color: p.textSecondary),
         ),
       ],
-      if (panel) const SizedBox(height: 8) else const Spacer(),
+      if (panel || chrome != null)
+        const SizedBox(height: 8)
+      else
+        const Spacer(),
       const SizedBox(height: 24),
       LegalLine(terms: config.site.termsUrl, privacy: config.site.privacyUrl),
     ];
+    // ——— 130.24 The premium look: the welcome on the hero, the form on its sheet. ———
+    if (chrome != null) {
+      final system = config.screens?.system;
+      return PremiumAuthFrame(
+        look: chrome,
+        title: ownTitle ?? context.l10n.welcome,
+        subtitle: introLine,
+        imageUrl: system?.imageUrl ?? look?.imageUrl,
+        logo: showLogo
+            ? PremiumAuthLogo(url: logo, name: config.site.name)
+            : null,
+        leading: [
+          if (canGoBack) ChromeBackButton(onColour: chrome != SystemLook.large),
+        ],
+        trailing: [
+          if (!canGoBack)
+            TextButton(
+              key: const ValueKey('chrome-not-now'),
+              onPressed: _browse,
+              style: TextButton.styleFrom(
+                foregroundColor: chrome == SystemLook.large
+                    ? p.text
+                    : Colors.white,
+                backgroundColor:
+                    (chrome == SystemLook.large ? p.text : Colors.white)
+                        .withValues(alpha: 0.14),
+                shape: const StadiumBorder(),
+              ),
+              child: Text(context.l10n.notNow),
+            ),
+        ],
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [...preview, ...fields],
+        ),
+      );
+    }
+    // ——— end 130.24 ———
+    final formChildren = [...intro, ...preview, ...fields];
     return Scaffold(
       body: _framed(context, style, look?.imageUrl, formChildren),
     );

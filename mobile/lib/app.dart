@@ -17,6 +17,8 @@ import 'core/services/screen_security.dart';
 import 'core/storage/local_settings.dart';
 import 'core/theme/app_look.dart';
 import 'core/theme/app_theme.dart';
+// 130.21 The system screens' premium look, above every screen.
+import 'core/widgets/premium_chrome.dart';
 import 'modules/lms/downloads/learning_sync.dart';
 import 'modules/shared/pages/draft_reload.dart';
 import 'modules/store/data/cart_sync.dart';
@@ -29,7 +31,9 @@ class YallappApp extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final env = ref.watch(appEnvironmentProvider);
-    ref.watch(appGateProvider);
+    final gate = ref.watch(appGateProvider);
+    // 130.21 The premium look of the system screens (`Config.screens.system`).
+    final system = gate is GateReady ? gate.config.screens?.system : null;
     final look = ref.watch(appLookProvider);
     final settings = ref.watch(localSettingsProvider);
     final router = ref.watch(appRouterProvider);
@@ -78,7 +82,10 @@ class YallappApp extends ConsumerWidget {
           child: ScreenProtectionShield(
             // 100 What a store purchase came to, on any screen.
             child: StoreBillingMessages(
-              child: GateView(child: child ?? const SizedBox()),
+              child: SystemLookScope(
+                system: system,
+                child: GateView(child: child ?? const SizedBox()),
+              ),
             ),
           ),
         ),

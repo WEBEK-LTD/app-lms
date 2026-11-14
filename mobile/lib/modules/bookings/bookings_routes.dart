@@ -15,6 +15,8 @@ import 'screens/classes_screen.dart';
 import 'screens/membership_screen.dart';
 import 'screens/service_screen.dart';
 import 'screens/services_screen.dart';
+// 130.21 The system screens' premium look.
+import '../../core/widgets/premium_chrome.dart' show SystemScreenArea;
 
 /// The Bookings module: home, services, appointments and the account as
 /// tabs, and the service and appointment pages. 27 A gym's or studio's
@@ -130,9 +132,13 @@ List<TabScreen> _screens() => [
   ),
   TabScreen(
     Paths.appointments,
-    (state) => AppointmentsScreen(
-      key: const ValueKey('appointments'),
-      initialTab: state.uri.queryParameters['tab'] == 'past' ? 1 : 0,
+    (state) => SystemScreenArea(
+      // 130.21 The bookings in the project's premium look.
+      screen: SystemScreen.lists,
+      child: AppointmentsScreen(
+        key: const ValueKey('appointments'),
+        initialTab: state.uri.queryParameters['tab'] == 'past' ? 1 : 0,
+      ),
     ),
   ),
   TabScreen(

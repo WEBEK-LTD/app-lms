@@ -197,7 +197,8 @@ export function StudioView(viewProps: ViewProps) {
   const rtl = props.lang === "ar";
   const showTabs = page.show_tabs !== false && look.tabs.length > 0;
   // 128.10 Under a transparent header a page starting with anything but a cover starts below the status bar, as the app draws it.
-  const belowBar = page.header?.type === "transparent" && !startsWithCover(page.body);
+  // 130.20 A premium style is drawn in the page's flow, whatever its type.
+  const belowBar = page.header?.type === "transparent" && !page.header.style && !startsWithCover(page.body);
   // 129.8 Each element's entrance plays once when it first comes into view (lib/studio/motion.ts).
   const root = useRef<HTMLDivElement>(null);
   useEffect(() => (root.current ? watchEntrances(root.current, rtl) : undefined), [rtl]);

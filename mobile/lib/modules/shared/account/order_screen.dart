@@ -256,6 +256,8 @@ class _OrderScreenState extends ConsumerState<OrderScreen> {
       );
     }
     return AccountScaffold(
+      // 130.21 Its premium look.
+      screen: SystemScreen.lists,
       title: order == null ? l10n.myOrders : l10n.orderNumber(order.number),
       scrollable: false,
       child: body,

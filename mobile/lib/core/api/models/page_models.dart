@@ -1916,6 +1916,13 @@ enum StudioHeaderType {
 
 enum StudioHeaderButton { menu, search, cart, notifications, chat, account }
 
+// ——— 130.20 Premium chrome: the header's premium styles ———
+/// 130.20 A header's premium style (`StudioHeader.style`): a large title
+/// that collapses, a frosted bar the page scrolls under, a photo cover, the
+/// brand in the middle, the title with a search pill.
+enum StudioHeaderStyle { large, glass, photo, brand, search }
+// ——— end 130.20 ———
+
 /// 103R `StudioHeader`: the bar at the top of a Studio page.
 class StudioHeader {
   const StudioHeader({
@@ -1927,6 +1934,10 @@ class StudioHeader {
     this.color,
     this.darkBackground,
     this.darkColor,
+    this.style,
+    this.subtitle,
+    this.imageUrl,
+    this.collapse = true,
   });
 
   /// Null for none, or a type this app doesn't know.
@@ -1948,8 +1959,25 @@ class StudioHeader {
       color: optString(json, 'color'),
       darkBackground: optString(json, 'dark_background'),
       darkColor: optString(json, 'dark_color'),
+      // 130.20 Premium chrome.
+      style: enumOrNull(StudioHeaderStyle.values, json['style']),
+      subtitle: optString(json, 'subtitle'),
+      imageUrl: optString(json, 'image_url'),
+      collapse: json['collapse'] != false,
     );
   }
+
+  /// 130.20 Its premium style; null, drawn by [type] as before.
+  final StudioHeaderStyle? style;
+
+  /// 130.20 The line under the large title.
+  final String? subtitle;
+
+  /// 130.20 The photo style's photo; null, the brand's gradient.
+  final String? imageUrl;
+
+  /// 130.20 Whether large, photo and search collapse on scroll.
+  final bool collapse;
 
   final StudioHeaderType type;
   final String? title;

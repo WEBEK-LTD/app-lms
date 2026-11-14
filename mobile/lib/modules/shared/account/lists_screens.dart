@@ -50,6 +50,8 @@ class DevicesScreen extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final p = context.palette;
     return AccountScaffold(
+      // 130.21 Its premium look.
+      screen: SystemScreen.settings,
       title: context.l10n.registeredDevices,
       child: switch (ref.watch(devicesProvider)) {
         AsyncData(:final value) => Column(
@@ -110,6 +112,8 @@ class CertificatesScreen extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) => AccountScaffold(
+    // 130.21 Its premium look.
+    screen: SystemScreen.lists,
     title: context.l10n.myCertificates,
     child: switch (ref.watch(certificatesProvider)) {
       AsyncData(:final value) when value.isEmpty => MessageView(
@@ -203,6 +207,8 @@ class SubscriptionsScreen extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) => AccountScaffold(
+    // 130.21 Its premium look.
+    screen: SystemScreen.lists,
     title: context.l10n.siteMemberships,
     child: switch (ref.watch(subscriptionsProvider)) {
       AsyncData(:final value) when value.isEmpty => MessageView(
@@ -287,6 +293,8 @@ class QuizResultsScreen extends ConsumerWidget {
       );
     }
     return AccountScaffold(
+      // 130.21 Its premium look.
+      screen: SystemScreen.lists,
       title: context.l10n.quizResults,
       scrollable: false,
       child: body,

@@ -152,6 +152,8 @@ class _NotificationsScreenState extends ConsumerState<NotificationsScreen> {
       );
     }
     return AccountScaffold(
+      // 130.21 Its premium look.
+      screen: SystemScreen.notifications,
       title: context.l10n.notifications,
       scrollable: false,
       child: body,
@@ -303,6 +305,8 @@ class OrdersScreen extends ConsumerWidget {
       );
     }
     return AccountScaffold(
+      // 130.21 Its premium look.
+      screen: SystemScreen.lists,
       title: context.l10n.myOrders,
       scrollable: false,
       child: body,

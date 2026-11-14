@@ -49,6 +49,9 @@ import 'studio_motion.dart';
 import 'studio_scrim.dart';
 import 'studio_segments.dart';
 import 'studio_stories.dart';
+// 130.20 The premium headers (premium chrome).
+import '../../../core/widgets/premium_chrome.dart';
+import 'premium/studio_premium_header.dart';
 
 /// 103R A page designed in Yallapp Studio, drawn from its tree of elements:
 /// rows, columns, layers, grids and sliders sized to fill, hug or a fixed
@@ -128,6 +131,61 @@ class StudioPageView extends ConsumerWidget {
             for (final n in body.children)
               if (!pinned(n)) n,
           ]);
+    // ——— 130.20 A premium header: it folds as the page scrolls under it. ———
+    if (header != null && header.style != null) {
+      final glass = header.style == StudioHeaderStyle.glass;
+      // Elements pinned at the top stay under the header (the glass bar
+      // then sits over them, not over the page).
+      final under = glass && pinnedTop.isEmpty;
+      final list = ListView(
+        key: ValueKey('studio-$pageSlug'),
+        padding: EdgeInsets.only(
+          top: under ? StudioPremiumHeader.openHeightOf(header, top) : 0,
+          bottom: 16 + (TabBarOverBody.of(context) ? bottomInset : 0),
+        ),
+        children: [StudioNodeView(node: scrolling, scope: scope, parent: null)],
+      );
+      return ColoredBox(
+        color: background,
+        child: Stack(
+          children: [
+            Positioned.fill(
+              child: ChromeFoldingHeader(
+                overlay: under,
+                builder: (context, offset) => StudioPremiumHeader(
+                  header: header,
+                  dark: dark,
+                  top: top,
+                  back: pushed,
+                  offset: offset,
+                ),
+                child: MediaQuery.removePadding(
+                  context: context,
+                  removeTop: true,
+                  child: pinnedTop.isEmpty
+                      ? list
+                      : Column(
+                          crossAxisAlignment: CrossAxisAlignment.stretch,
+                          children: [
+                            _pinnedColumn(pinnedTop, scope),
+                            Expanded(child: list),
+                          ],
+                        ),
+                ),
+              ),
+            ),
+            if (pinnedBottom.isNotEmpty)
+              PositionedDirectional(
+                bottom: bottomInset,
+                start: 0,
+                end: 0,
+                child: _pinnedColumn(pinnedBottom, scope),
+              ),
+          ],
+        ),
+      );
+    }
+    // ——— end 130.20 ———
     final list = ListView(
       key: ValueKey('studio-$pageSlug'),
       padding: EdgeInsets.only(
@@ -254,25 +312,44 @@ class StudioPageView extends ConsumerWidget {
       child: Stack(
         children: [
           Positioned.fill(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.stretch,
-              children: [
-                if (header != null)
-                  StudioHeaderView(
-                    header: header,
-                    top: top,
-                    scope: scope,
-                    back: pushed && header.type == StudioHeaderType.title,
+            // 130.20 A premium header folds as the screen under it scrolls.
+            child: header != null && header.style != null
+                ? ChromeFoldingHeader(
+                    builder: (context, offset) => StudioPremiumHeader(
+                      header: header,
+                      dark: dark,
+                      top: top,
+                      back: pushed,
+                      offset: offset,
+                    ),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.stretch,
+                      children: [
+                        if (pinnedTop.isNotEmpty)
+                          _pinnedColumn(pinnedTop, scope),
+                        Expanded(child: rest),
+                      ],
+                    ),
                   )
-                else
-                  AnnotatedRegion<SystemUiOverlayStyle>(
-                    value: overlayStyleOn(background),
-                    child: SizedBox(height: top),
+                : Column(
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                    children: [
+                      if (header != null)
+                        StudioHeaderView(
+                          header: header,
+                          top: top,
+                          scope: scope,
+                          back: pushed && header.type == StudioHeaderType.title,
+                        )
+                      else
+                        AnnotatedRegion<SystemUiOverlayStyle>(
+                          value: overlayStyleOn(background),
+                          child: SizedBox(height: top),
+                        ),
+                      if (pinnedTop.isNotEmpty) _pinnedColumn(pinnedTop, scope),
+                      Expanded(child: rest),
+                    ],
                   ),
-                if (pinnedTop.isNotEmpty) _pinnedColumn(pinnedTop, scope),
-                Expanded(child: rest),
-              ],
-            ),
           ),
           if (pinnedBottom.isNotEmpty)
             PositionedDirectional(
@@ -281,8 +358,12 @@ class StudioPageView extends ConsumerWidget {
               end: 0,
               child: _pinnedColumn(pinnedBottom, scope),
             ),
-          // The title header has its own; without a header the screen has.
-          if (pushed && header != null && header.type != StudioHeaderType.title)
+          // The title header has its own; without a header the screen has
+          // (130.20 a premium header has its round one).
+          if (pushed &&
+              header != null &&
+              header.style == null &&
+              header.type != StudioHeaderType.title)
             PositionedDirectional(
               top: top + 8,
               start: 16,

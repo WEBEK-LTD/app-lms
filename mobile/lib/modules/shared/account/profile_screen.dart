@@ -27,6 +27,9 @@ import '../../rides/data/rides_providers.dart';
 import '../../vendor/data/vendor_providers.dart';
 import '../staff_app.dart';
 import 'account_looks.dart';
+// 130.21 The account in the project's premium look.
+import '../../../core/widgets/premium_chrome.dart';
+import 'premium/premium_account.dart';
 import '../../lms/downloads/download_manager.dart';
 import '../../lms/downloads/download_widgets.dart';
 
@@ -323,6 +326,23 @@ class ProfileScreen extends ConsumerWidget {
     List<Widget> designedTiles(AccountMenuDesign design) => [
       for (final e in designedEntries(design)) e.tile(),
     ];
+
+    // ——— 130.21 The system screens' premium look: the person on a hero,
+    // the quick numbers and the owner's entries in inset cards. ———
+    final chrome = hub == null
+        ? SystemLookScope.lookOf(context, SystemScreen.account)
+        : null;
+    if (chrome != null) {
+      return PremiumAccountLook(
+        look: chrome,
+        entries: designedEntries(design ?? const AccountMenuDesign()),
+        user: user,
+        onEdit: user == null ? null : () => context.push(Paths.editProfile),
+        onSignOut: () => _signOut(context, ref),
+        points: config.store?.loyalty != null && user != null,
+      );
+    }
+    // ——— end 130.21 ———
 
     // 118.3 The cover, tiles and night looks draw the whole page.
     if (design != null &&
