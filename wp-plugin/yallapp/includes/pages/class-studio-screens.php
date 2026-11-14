@@ -27,7 +27,9 @@ class Studio_Screens {
 		'cart'       => 'premium',
 	);
 	// 130.21 The system screens' premium looks and the screens they apply to.
-	const SYSTEM_LOOKS   = array( 'large', 'glass', 'photo', 'brand' );
+	const SYSTEM_LOOKS   = array( 'large', 'glass', 'photo', 'brand', 'petal' );
+	// 131.25 The store's checkout looks.
+	const CHECKOUT_LOOKS = array( 'gift' );
 	const SYSTEM_SCREENS = array( 'account', 'settings', 'notifications', 'language', 'edit_profile', 'help', 'lists', 'sign_in', 'code', 'states' );
 	const LAUNCH_LOOKS   = array( 'signature', 'cinema', 'aurora', 'editorial', 'monogram' );
 	// 130.52 Studio's course screens: the looks, and each screen's options the app knows.
@@ -121,7 +123,33 @@ class Studio_Screens {
 		if ( $courses ) {
 			$out['courses'] = $courses;
 		}
+		// 131.25 The checkout's look.
+		$checkout = is_array( $raw['checkout'] ?? null ) ? self::checkout( $raw['checkout'] ) : null;
+		if ( $checkout ) {
+			$out['checkout'] = $checkout;
+		}
 		return $out ? $out : null;
+	}
+
+	/**
+	 * 131.25 The store's checkout look and its colours by day and by night; null for a look
+	 * this plugin doesn't know.
+	 *
+	 * @param array $raw The platform's.
+	 * @return array|null
+	 */
+	private static function checkout( array $raw ) {
+		if ( ! in_array( $raw['look'] ?? null, self::CHECKOUT_LOOKS, true ) ) {
+			return null;
+		}
+		$out = array( 'look' => $raw['look'] );
+		foreach ( array( 'accent', 'dark_accent' ) as $field ) {
+			$value = $raw[ $field ] ?? null;
+			if ( is_string( $value ) && preg_match( '/^#[0-9A-Fa-f]{6}$/', $value ) ) {
+				$out[ $field ] = strtoupper( $value );
+			}
+		}
+		return $out;
 	}
 
 	/**

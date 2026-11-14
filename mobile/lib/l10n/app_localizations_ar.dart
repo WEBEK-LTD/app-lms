@@ -849,6 +849,145 @@ class AppLocalizationsAr extends AppLocalizations {
   String get edit => 'تعديل';
 
   @override
+  String get giftStepFrom => 'من';
+
+  @override
+  String get giftStepFor => 'إلى';
+
+  @override
+  String get giftStepWhen => 'متى';
+
+  @override
+  String get giftStepMessage => 'الرسالة';
+
+  @override
+  String get giftStepPay => 'الدفع';
+
+  @override
+  String get giftWhoFrom => 'من المُرسِل؟';
+
+  @override
+  String get giftWhoFor => 'لمن الهدية؟';
+
+  @override
+  String get giftWhen => 'متى تصل؟';
+
+  @override
+  String get giftYourMessage => 'رسالتك';
+
+  @override
+  String get giftYourOrder => 'طلبك';
+
+  @override
+  String get giftName => 'الاسم الكامل';
+
+  @override
+  String get giftPhone => 'رقم الهاتف';
+
+  @override
+  String get giftEmail => 'البريد الإلكتروني';
+
+  @override
+  String get giftTheirName => 'اسم المستلم';
+
+  @override
+  String get giftTheirPhone => 'هاتف المستلم';
+
+  @override
+  String get giftCountry => 'الدولة';
+
+  @override
+  String get giftCity => 'المدينة';
+
+  @override
+  String get giftAddress => 'الشارع والمبنى والطابق';
+
+  @override
+  String get giftPin => 'حدّد الباب على الخريطة';
+
+  @override
+  String get giftPinNote => 'تُحسب رسوم التوصيل حسب المسافة من المتجر.';
+
+  @override
+  String get giftOnlyPlaces => 'نوصّل إلى هذه الأماكن فقط';
+
+  @override
+  String get giftRequired => 'مطلوب';
+
+  @override
+  String get giftToday => 'اليوم';
+
+  @override
+  String get giftTomorrow => 'غدًا';
+
+  @override
+  String get giftPickDate => 'اختر تاريخًا';
+
+  @override
+  String get giftCutoffPassed => 'انتهى موعد طلبات اليوم';
+
+  @override
+  String get giftSlot => 'موعد التوصيل';
+
+  @override
+  String get giftOccasion => 'المناسبة';
+
+  @override
+  String get giftReady => 'رسائل جاهزة';
+
+  @override
+  String get giftWrite => 'أو اكتب رسالتك';
+
+  @override
+  String get giftAnonymous => 'أرسل دون ذكر اسمك';
+
+  @override
+  String get giftAnonymousNote => 'لن يظهر اسمك على البطاقة.';
+
+  @override
+  String get giftCard => 'البطاقة';
+
+  @override
+  String get giftTo => 'إلى';
+
+  @override
+  String get giftFrom => 'من';
+
+  @override
+  String get giftSomeone => 'شخص يهتم بك';
+
+  @override
+  String get giftArrives => 'يصل';
+
+  @override
+  String get giftAddOns => 'الإضافات';
+
+  @override
+  String get giftDiscount => 'رمز الخصم';
+
+  @override
+  String get giftApply => 'تطبيق';
+
+  @override
+  String get giftSubtotal => 'المجموع الفرعي';
+
+  @override
+  String get giftDeliveryFee => 'رسوم التوصيل';
+
+  @override
+  String get giftTotal => 'الإجمالي';
+
+  @override
+  String giftPay(String amount) {
+    return 'ادفع $amount';
+  }
+
+  @override
+  String giftFreeOver(String amount) {
+    return 'مجانًا للطلبات فوق $amount';
+  }
+
+  @override
   String get shopping => 'التسوق';
 
   @override

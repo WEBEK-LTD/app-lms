@@ -236,6 +236,7 @@ class StudioScreens {
     this.launch,
     this.system,
     this.courses,
+    this.checkout,
   });
 
   static StudioScreens? fromJson(Object? value) {
@@ -267,8 +268,12 @@ class StudioScreens {
       launch: LaunchLook.fromJson(value['launch']),
       system: SystemScreensLook.tryParse(value['system']),
       courses: CourseScreensLook.tryParse(value['courses']),
+      checkout: CheckoutLook.tryParse(value['checkout']),
     );
   }
+
+  /// 131.25 The store's checkout in a premium look; null, as before.
+  final CheckoutLook? checkout;
 
   /// 130.52 The academy's course screens in one premium look (the card, a
   /// course's page, the lesson and My courses); null, as before.
@@ -319,8 +324,9 @@ Color? _hex(String? value) {
 
 // ——— 130.21 Premium chrome: the system screens' premium look ———
 
-/// 130.21 The premium looks of the system screens (`Config.screens.system`).
-enum SystemLook { large, glass, photo, brand }
+/// 130.21 The premium looks of the system screens (`Config.screens.system`);
+/// 131.23 `petal`, Leqaa's, for every app.
+enum SystemLook { large, glass, photo, brand, petal }
 
 /// 130.21 The system screens a look applies to.
 enum SystemScreen {
@@ -379,3 +385,38 @@ class SystemScreensLook {
       screens.containsKey(screen) ? screens[screen] : look;
 }
 // ——— end 130.21 ———
+
+// ——— 131.25 The store's checkout in a premium look ———
+
+/// 131.25 The checkout's looks (`Config.screens.checkout.look`): `gift`, a
+/// gift checkout in five steps on one screen.
+enum CheckoutLookName { gift }
+
+/// 131.25 `Config.screens.checkout`: the look and its colours by day and
+/// by night (null, the app's main colour).
+class CheckoutLook {
+  const CheckoutLook({required this.look, this.accent, this.darkAccent});
+
+  /// Null for none, or a look this app doesn't know.
+  static CheckoutLook? tryParse(Object? value) {
+    if (value is! Map) return null;
+    final look = CheckoutLookName.values
+        .where((l) => l.name == value['look'])
+        .firstOrNull;
+    if (look == null) return null;
+    return CheckoutLook(
+      look: look,
+      accent: _hex(value['accent'] as String?),
+      darkAccent: _hex(value['dark_accent'] as String?),
+    );
+  }
+
+  final CheckoutLookName look;
+  final Color? accent;
+  final Color? darkAccent;
+
+  /// The steps' colour, by day or by night; null, the app's main colour.
+  Color? accentFor({required bool dark}) =>
+      dark ? (darkAccent ?? accent) : accent;
+}
+// ——— end 131.25 ———

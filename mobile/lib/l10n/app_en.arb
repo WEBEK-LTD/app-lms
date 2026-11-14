@@ -507,6 +507,197 @@
   "logOutMessage": "You'll need a verification code to sign in again.",
   "logOut": "Log out",
   "edit": "Edit",
+  "giftStepFrom": "From",
+  "@giftStepFrom": {
+    "description": "131.25 The gift checkout's stepper: the step for who the gift is from."
+  },
+  "giftStepFor": "For",
+  "@giftStepFor": {
+    "description": "131.25 The stepper: who the gift is for."
+  },
+  "giftStepWhen": "When",
+  "@giftStepWhen": {
+    "description": "131.25 The stepper: the delivery day and time."
+  },
+  "giftStepMessage": "Message",
+  "@giftStepMessage": {
+    "description": "131.25 The stepper: the card's message."
+  },
+  "giftStepPay": "Pay",
+  "@giftStepPay": {
+    "description": "131.25 The stepper: the order and the payment."
+  },
+  "giftWhoFrom": "Who is it from?",
+  "@giftWhoFrom": {
+    "description": "131.25 The sender's section: their name, phone and email."
+  },
+  "giftWhoFor": "Who is it for?",
+  "@giftWhoFor": {
+    "description": "131.25 The recipient's section: their name, phone and delivery address."
+  },
+  "giftWhen": "When should it arrive?",
+  "@giftWhen": {
+    "description": "131.25 The delivery day and time slot, required."
+  },
+  "giftYourMessage": "Your message",
+  "@giftYourMessage": {
+    "description": "131.25 The card's message section."
+  },
+  "giftYourOrder": "Your order",
+  "@giftYourOrder": {
+    "description": "131.25 The order summary and payment section."
+  },
+  "giftName": "Full name",
+  "@giftName": {
+    "description": "131.25 The sender's name field."
+  },
+  "giftPhone": "Phone",
+  "@giftPhone": {
+    "description": "131.25 The sender's phone field."
+  },
+  "giftEmail": "Email",
+  "@giftEmail": {
+    "description": "131.25 The sender's email field."
+  },
+  "giftTheirName": "Their name",
+  "@giftTheirName": {
+    "description": "131.25 The recipient's name field."
+  },
+  "giftTheirPhone": "Their phone",
+  "@giftTheirPhone": {
+    "description": "131.25 The recipient's phone field."
+  },
+  "giftCountry": "Country",
+  "@giftCountry": {
+    "description": "131.25 The recipient's country picker, limited to where the shop delivers."
+  },
+  "giftCity": "City",
+  "@giftCity": {
+    "description": "131.25 The recipient's city picker, limited to where the shop delivers."
+  },
+  "giftAddress": "Street, building and floor",
+  "@giftAddress": {
+    "description": "131.25 The recipient's address field."
+  },
+  "giftPin": "Pin the door on the map",
+  "@giftPin": {
+    "description": "131.25 The button that opens the map to set the recipient's location."
+  },
+  "giftPinNote": "Delivery is priced by the distance from the shop.",
+  "@giftPinNote": {
+    "description": "131.25 Under the map, when the shop prices delivery per kilometre."
+  },
+  "giftOnlyPlaces": "We deliver to these places only",
+  "@giftOnlyPlaces": {
+    "description": "131.25 Over the country and city pickers."
+  },
+  "giftRequired": "Required",
+  "@giftRequired": {
+    "description": "131.25 A badge on the delivery day and time step."
+  },
+  "giftToday": "Today",
+  "@giftToday": {
+    "description": "131.25 A delivery day chip."
+  },
+  "giftTomorrow": "Tomorrow",
+  "@giftTomorrow": {
+    "description": "131.25 A delivery day chip."
+  },
+  "giftPickDate": "Pick a date",
+  "@giftPickDate": {
+    "description": "131.25 The delivery day chip that opens a calendar."
+  },
+  "giftCutoffPassed": "Today's cut-off has passed",
+  "@giftCutoffPassed": {
+    "description": "131.25 Shown when same-day delivery is no longer possible today."
+  },
+  "giftSlot": "Time slot",
+  "@giftSlot": {
+    "description": "131.25 The delivery time slots."
+  },
+  "giftOccasion": "Occasion",
+  "@giftOccasion": {
+    "description": "131.25 The occasion chips over the ready messages."
+  },
+  "giftReady": "Ready messages",
+  "@giftReady": {
+    "description": "131.25 The occasion's ready messages; a tap fills the message."
+  },
+  "giftWrite": "Or write your own",
+  "@giftWrite": {
+    "description": "131.25 Over the message field."
+  },
+  "giftAnonymous": "Send anonymously",
+  "@giftAnonymous": {
+    "description": "131.25 The switch that leaves the sender's name off the card."
+  },
+  "giftAnonymousNote": "Your name won't be on the card.",
+  "@giftAnonymousNote": {
+    "description": "131.25 Under the anonymous switch."
+  },
+  "giftCard": "The card",
+  "@giftCard": {
+    "description": "131.25 The gift card's live preview."
+  },
+  "giftTo": "To",
+  "@giftTo": {
+    "description": "131.25 On the card: before the recipient's name."
+  },
+  "giftFrom": "From",
+  "@giftFrom": {
+    "description": "131.25 On the card: before the sender's name."
+  },
+  "giftSomeone": "Someone who cares",
+  "@giftSomeone": {
+    "description": "131.25 On the card instead of the sender's name when sent anonymously."
+  },
+  "giftArrives": "Arrives",
+  "@giftArrives": {
+    "description": "131.25 In the summary, before the chosen day and time slot."
+  },
+  "giftAddOns": "Add-ons",
+  "@giftAddOns": {
+    "description": "131.25 In the summary, over the add-ons."
+  },
+  "giftDiscount": "Discount code",
+  "@giftDiscount": {
+    "description": "131.25 The discount code field."
+  },
+  "giftApply": "Apply",
+  "@giftApply": {
+    "description": "131.25 The button that applies the discount code."
+  },
+  "giftSubtotal": "Subtotal",
+  "@giftSubtotal": {
+    "description": "131.25 In the summary."
+  },
+  "giftDeliveryFee": "Delivery fee",
+  "@giftDeliveryFee": {
+    "description": "131.25 In the summary, over its breakdown."
+  },
+  "giftTotal": "Total",
+  "@giftTotal": {
+    "description": "131.25 In the summary."
+  },
+  "giftPay": "Pay {amount}",
+  "@giftPay": {
+    "description": "131.25 The pay button with the order's total.",
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+  "giftFreeOver": "Free over {amount}",
+  "@giftFreeOver": {
+    "description": "131.25 Under the delivery fee: the order total from which delivery is free.",
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+
   "shopping": "Shopping",
   "learning": "Learning",
   "wishlist": "Wishlist",

@@ -754,6 +754,154 @@ class OverlayLocalizations extends AppLocalizations {
   String get edit => overlay.text('edit') ?? base.edit;
 
   @override
+  String get giftStepFrom => overlay.text('giftStepFrom') ?? base.giftStepFrom;
+
+  @override
+  String get giftStepFor => overlay.text('giftStepFor') ?? base.giftStepFor;
+
+  @override
+  String get giftStepWhen => overlay.text('giftStepWhen') ?? base.giftStepWhen;
+
+  @override
+  String get giftStepMessage =>
+      overlay.text('giftStepMessage') ?? base.giftStepMessage;
+
+  @override
+  String get giftStepPay => overlay.text('giftStepPay') ?? base.giftStepPay;
+
+  @override
+  String get giftWhoFrom => overlay.text('giftWhoFrom') ?? base.giftWhoFrom;
+
+  @override
+  String get giftWhoFor => overlay.text('giftWhoFor') ?? base.giftWhoFor;
+
+  @override
+  String get giftWhen => overlay.text('giftWhen') ?? base.giftWhen;
+
+  @override
+  String get giftYourMessage =>
+      overlay.text('giftYourMessage') ?? base.giftYourMessage;
+
+  @override
+  String get giftYourOrder =>
+      overlay.text('giftYourOrder') ?? base.giftYourOrder;
+
+  @override
+  String get giftName => overlay.text('giftName') ?? base.giftName;
+
+  @override
+  String get giftPhone => overlay.text('giftPhone') ?? base.giftPhone;
+
+  @override
+  String get giftEmail => overlay.text('giftEmail') ?? base.giftEmail;
+
+  @override
+  String get giftTheirName =>
+      overlay.text('giftTheirName') ?? base.giftTheirName;
+
+  @override
+  String get giftTheirPhone =>
+      overlay.text('giftTheirPhone') ?? base.giftTheirPhone;
+
+  @override
+  String get giftCountry => overlay.text('giftCountry') ?? base.giftCountry;
+
+  @override
+  String get giftCity => overlay.text('giftCity') ?? base.giftCity;
+
+  @override
+  String get giftAddress => overlay.text('giftAddress') ?? base.giftAddress;
+
+  @override
+  String get giftPin => overlay.text('giftPin') ?? base.giftPin;
+
+  @override
+  String get giftPinNote => overlay.text('giftPinNote') ?? base.giftPinNote;
+
+  @override
+  String get giftOnlyPlaces =>
+      overlay.text('giftOnlyPlaces') ?? base.giftOnlyPlaces;
+
+  @override
+  String get giftRequired => overlay.text('giftRequired') ?? base.giftRequired;
+
+  @override
+  String get giftToday => overlay.text('giftToday') ?? base.giftToday;
+
+  @override
+  String get giftTomorrow => overlay.text('giftTomorrow') ?? base.giftTomorrow;
+
+  @override
+  String get giftPickDate => overlay.text('giftPickDate') ?? base.giftPickDate;
+
+  @override
+  String get giftCutoffPassed =>
+      overlay.text('giftCutoffPassed') ?? base.giftCutoffPassed;
+
+  @override
+  String get giftSlot => overlay.text('giftSlot') ?? base.giftSlot;
+
+  @override
+  String get giftOccasion => overlay.text('giftOccasion') ?? base.giftOccasion;
+
+  @override
+  String get giftReady => overlay.text('giftReady') ?? base.giftReady;
+
+  @override
+  String get giftWrite => overlay.text('giftWrite') ?? base.giftWrite;
+
+  @override
+  String get giftAnonymous =>
+      overlay.text('giftAnonymous') ?? base.giftAnonymous;
+
+  @override
+  String get giftAnonymousNote =>
+      overlay.text('giftAnonymousNote') ?? base.giftAnonymousNote;
+
+  @override
+  String get giftCard => overlay.text('giftCard') ?? base.giftCard;
+
+  @override
+  String get giftTo => overlay.text('giftTo') ?? base.giftTo;
+
+  @override
+  String get giftFrom => overlay.text('giftFrom') ?? base.giftFrom;
+
+  @override
+  String get giftSomeone => overlay.text('giftSomeone') ?? base.giftSomeone;
+
+  @override
+  String get giftArrives => overlay.text('giftArrives') ?? base.giftArrives;
+
+  @override
+  String get giftAddOns => overlay.text('giftAddOns') ?? base.giftAddOns;
+
+  @override
+  String get giftDiscount => overlay.text('giftDiscount') ?? base.giftDiscount;
+
+  @override
+  String get giftApply => overlay.text('giftApply') ?? base.giftApply;
+
+  @override
+  String get giftSubtotal => overlay.text('giftSubtotal') ?? base.giftSubtotal;
+
+  @override
+  String get giftDeliveryFee =>
+      overlay.text('giftDeliveryFee') ?? base.giftDeliveryFee;
+
+  @override
+  String get giftTotal => overlay.text('giftTotal') ?? base.giftTotal;
+
+  @override
+  String giftPay(String amount) =>
+      overlay.format('giftPay', {'amount': amount}) ?? base.giftPay(amount);
+
+  @override
+  String giftFreeOver(String amount) =>
+      overlay.format('giftFreeOver', {'amount': amount}) ??
+      base.giftFreeOver(amount);
+
+  @override
   String get shopping => overlay.text('shopping') ?? base.shopping;
 
   @override

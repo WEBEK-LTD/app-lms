@@ -59,7 +59,7 @@ export function GiftCheckout(props: GiftCheckoutProps) {
   const head = (n: number, required = false) => (
     <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
       <span style={{ width: 28, height: 28, borderRadius: "14px 14px 14px 5px", background: n < 4 ? tone : soft, color: n < 4 ? onTone : tone, display: "flex", alignItems: "center", justifyContent: "center", fontSize: 13, fontWeight: 800 }}>{n + 1}</span>
-      <b style={{ flex: 1, fontSize: 18, fontWeight: 650, color: ink, fontFamily: "'Fraunces', Georgia, serif" }}>{w.stepTitles[n]}</b>
+      <b style={{ flex: 1, fontSize: 18, fontWeight: 650, color: ink }}>{w.stepTitles[n]}</b>
       {required ? <span style={{ padding: "3px 9px", borderRadius: 999, fontSize: 11, fontWeight: 800, background: soft, color: tone, letterSpacing: "0.04em" }}>{w.required}</span> : null}
     </div>
   );
@@ -101,7 +101,7 @@ export function GiftCheckout(props: GiftCheckoutProps) {
         <span style={{ fontSize: 12, color: alpha("#2A121C", 0.6) }}>
           {w.to} <b style={{ color: "#2A121C" }}>{w.sample.recipient}</b>
         </span>
-        <span style={{ fontSize: 16.5, lineHeight: 1.3, fontStyle: "italic", fontFamily: "'Fraunces', Georgia, serif", color: "#2A121C" }}>“{w.sample.message}”</span>
+        <span style={{ fontSize: 16.5, lineHeight: 1.3, fontStyle: "italic", color: "#2A121C" }}>“{w.sample.message}”</span>
         <span style={{ fontSize: 12, color: alpha("#2A121C", 0.6), marginTop: "auto" }}>
           {w.from} <b style={{ color: "#2A121C" }}>{w.sample.sender}</b>
         </span>
@@ -202,7 +202,7 @@ export function GiftCheckout(props: GiftCheckoutProps) {
           <span style={{ fontSize: 12.5, fontWeight: 800, color: ink, marginTop: 2 }}>{w.ready}</span>
           <div style={{ display: "flex", gap: 8, overflow: "hidden" }}>
             {w.sample.messages.map((m, i) => (
-              <span key={m} style={{ flex: "none", width: 168, padding: 12, borderRadius: 18, fontSize: 13, lineHeight: 1.35, color: ink, background: i === 0 ? soft : "transparent", border: `1px solid ${i === 0 ? tone : line}`, fontFamily: "'Fraunces', Georgia, serif", fontStyle: "italic" }}>
+              <span key={m} style={{ flex: "none", width: 168, padding: 12, borderRadius: 18, fontSize: 13, lineHeight: 1.35, color: ink, background: i === 0 ? soft : "transparent", border: `1px solid ${i === 0 ? tone : line}`, fontStyle: "italic" }}>
                 {m}
               </span>
             ))}
@@ -229,7 +229,7 @@ export function GiftCheckout(props: GiftCheckoutProps) {
           <div style={{ display: "flex", gap: 12, alignItems: "center" }}>
             <span style={{ width: 62, height: 74, borderRadius: 31, flex: "none", background: props.photo ? `url("${props.photo}") center / cover no-repeat` : soft }} />
             <span style={{ flex: 1, display: "flex", flexDirection: "column", gap: 2 }}>
-              <b style={{ fontSize: 16, color: ink, fontFamily: "'Fraunces', Georgia, serif" }}>{w.sample.bouquet}</b>
+              <b style={{ fontSize: 16, color: ink }}>{w.sample.bouquet}</b>
               <span style={{ fontSize: 12.5, color: muted }}>{w.sample.size}</span>
             </span>
             <b style={{ fontSize: 14, color: ink }}>{money(AMOUNTS.bouquet)}</b>

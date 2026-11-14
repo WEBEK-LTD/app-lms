@@ -47,8 +47,10 @@ class PremiumAuthFrame extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final p = context.palette;
-    final photo = look == SystemLook.photo ? imageUrl : null;
-    final tinted = look == SystemLook.large;
+    // 131.23 The petal: the photo under a soft rose shade, else the petal wash.
+    final petal = look == SystemLook.petal;
+    final photo = look == SystemLook.photo || petal ? imageUrl : null;
+    final tinted = look == SystemLook.large || (petal && photo == null);
     final ink = tinted ? p.text : Colors.white;
     final top = MediaQuery.paddingOf(context).top;
     return AnnotatedRegion<SystemUiOverlayStyle>(
@@ -75,6 +77,10 @@ class PremiumAuthFrame extends StatelessWidget {
                     children: [
                       if (photo != null)
                         AppNetworkImage(url: photo, fit: BoxFit.cover)
+                      else if (petal)
+                        DecoratedBox(
+                          decoration: ChromeTones.backdrop(p, SystemLook.petal),
+                        )
                       else if (tinted)
                         ColoredBox(
                           color: Color.alphaBlend(
@@ -88,7 +94,34 @@ class PremiumAuthFrame extends StatelessWidget {
                             gradient: ChromeTones.brand(p),
                           ),
                         ),
-                      if (photo != null)
+                      if (photo != null && petal)
+                        DecoratedBox(
+                          decoration: BoxDecoration(
+                            gradient: LinearGradient(
+                              begin: Alignment.topCenter,
+                              end: Alignment.bottomCenter,
+                              colors: [
+                                Color.lerp(
+                                  p.primary,
+                                  Colors.black,
+                                  0.6,
+                                )!.withValues(alpha: 0.30),
+                                Color.lerp(
+                                  p.primary,
+                                  Colors.black,
+                                  0.4,
+                                )!.withValues(alpha: 0.12),
+                                Color.lerp(
+                                  p.primary,
+                                  Colors.black,
+                                  0.7,
+                                )!.withValues(alpha: 0.72),
+                              ],
+                              stops: const [0, 0.4, 1],
+                            ),
+                          ),
+                        )
+                      else if (photo != null)
                         const DecoratedBox(
                           decoration: BoxDecoration(
                             gradient: LinearGradient(

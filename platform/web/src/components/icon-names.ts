@@ -283,6 +283,19 @@ export const ICON_NAMES = [
   // 130.13–130.18 The school's and the academies' Signature looks: a link's arrow, the live tab.
   "north_east",
   "sensors",
+  // 131.20 Leqaa, the flower shop: its looks, sections and the gift checkout.
+  "cake",
+  "celebration",
+  "construction",
+  "diamond",
+  "door_front",
+  "healing",
+  "home_pin",
+  "local_florist",
+  "location_city",
+  "public",
+  "wb_sunny",
+  "yard",
 ] as const;
 
 export type IconName = (typeof ICON_NAMES)[number];

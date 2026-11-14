@@ -1134,7 +1134,8 @@ class Block_Resolver {
 			$header[ $field ] = self::hex( $raw[ $field ] ?? null );
 		}
 		// 130.20 Premium chrome: the header's premium style, the line under its title, its photo and whether it collapses.
-		if ( in_array( $raw['style'] ?? null, array( 'large', 'glass', 'photo', 'brand', 'search' ), true ) ) {
+		// 131.21 And Leqaa's `petal`, for every app.
+		if ( in_array( $raw['style'] ?? null, array( 'large', 'glass', 'photo', 'brand', 'search', 'petal' ), true ) ) {
 			$header['style'] = $raw['style'];
 			$subtitle        = self::text( $raw['subtitle'] ?? null );
 			if ( null !== $subtitle ) {

@@ -12432,7 +12432,10 @@ components:
                 `image_url` (else the sign-in's photo, else the main to second colour
                 gradient) under a shade at the top of the account and sign-in, the cards over
                 its foot; `brand`: the main colour across the top with the logo in the middle
-                between round glass buttons. In the project's colours and fonts, light and
+                between round glass buttons; 131.23 `petal`: a soft wash of the main and second
+                colours with a curved petal edge, the person in a double ring in the middle over
+                a fine floral line, the rows' icons on petal-cut tiles, the page a blush wash of
+                the main colour (its header the `petal` style). In the project's colours and fonts, light and
                 dark, right to left, still for people who turn movement off. `screens` gives
                 one screen another look, or `classic`: that screen's own (as `sign_in` and
                 `account_menu` design it, else the app's). The system look takes the words
@@ -12440,20 +12443,20 @@ components:
                 screen as before; an app that doesn't know a value keeps the screen's own.
               required: [look]
               properties:
-                look: { type: string, enum: [large, glass, photo, brand] }
+                look: { type: string, enum: [large, glass, photo, brand, petal] }
                 screens:
                   type: object
                   properties:
-                    account: { type: string, enum: [classic, large, glass, photo, brand] }
-                    settings: { type: string, enum: [classic, large, glass, photo, brand] }
-                    notifications: { type: string, enum: [classic, large, glass, photo, brand] }
-                    language: { type: string, enum: [classic, large, glass, photo, brand] }
-                    edit_profile: { type: string, enum: [classic, large, glass, photo, brand] }
-                    help: { type: string, enum: [classic, large, glass, photo, brand] }
-                    lists: { type: string, enum: [classic, large, glass, photo, brand] }
-                    sign_in: { type: string, enum: [classic, large, glass, photo, brand] }
-                    code: { type: string, enum: [classic, large, glass, photo, brand] }
-                    states: { type: string, enum: [classic, large, glass, photo, brand] }
+                    account: { type: string, enum: [classic, large, glass, photo, brand, petal] }
+                    settings: { type: string, enum: [classic, large, glass, photo, brand, petal] }
+                    notifications: { type: string, enum: [classic, large, glass, photo, brand, petal] }
+                    language: { type: string, enum: [classic, large, glass, photo, brand, petal] }
+                    edit_profile: { type: string, enum: [classic, large, glass, photo, brand, petal] }
+                    help: { type: string, enum: [classic, large, glass, photo, brand, petal] }
+                    lists: { type: string, enum: [classic, large, glass, photo, brand, petal] }
+                    sign_in: { type: string, enum: [classic, large, glass, photo, brand, petal] }
+                    code: { type: string, enum: [classic, large, glass, photo, brand, petal] }
+                    states: { type: string, enum: [classic, large, glass, photo, brand, petal] }
                 image_url: { type: [string, 'null'], format: uri, description: "The `photo` look's photo." }
             courses:
               type: object
@@ -12596,6 +12599,29 @@ components:
                 theme: { type: string, enum: [system, light, dark], description: "`system`: as the phone, and the app's own setting, are. Missing: `system`." }
                 main_color: { type: [string, 'null'], pattern: '^#[0-9A-Fa-f]{6}$', description: "Null: the app's main colour." }
                 second_color: { type: [string, 'null'], pattern: '^#[0-9A-Fa-f]{6}$', description: "Null: the app's second colour (its accent)." }
+            checkout:
+              type: object
+              description: |
+                131.25 A store's checkout in a premium look, for every store app. `gift`: a
+                gift checkout in five steps on one screen under a stepper (who it is from:
+                the sender's name, phone and email, never an address; who it is for: the
+                recipient's name, phone and delivery address, the country and city as pickers
+                of the places the shop delivers to and a map pin where delivery is priced by
+                the distance; when: the delivery day, today, tomorrow or a date after the
+                cut-off, and the time slot, required; the card's message: the occasion as
+                chips, its ready messages as cards that fill the message, the words the person
+                edits or writes, send anonymously; pay: the order with its add-ons, the
+                chosen day and slot, the discount code, the delivery fee with its breakdown
+                and the pay button), with the gift card's live preview and the bouquet's
+                photo. Its fields and rules are the store's gift checkout; this is only its
+                look, in `accent` (else the main colour), light and dark, right to left,
+                still for people who turn movement off. Missing, the cart and checkout as
+                before; an app that doesn't know the look keeps its own.
+              required: [look]
+              properties:
+                look: { type: string, enum: [gift] }
+                accent: { type: [string, 'null'], pattern: '^#[0-9A-Fa-f]{6}$', description: "The steps, chips and pay button; null, the main colour." }
+                dark_accent: { type: [string, 'null'], pattern: '^#[0-9A-Fa-f]{6}$', description: "By night; null, `accent`." }
         chat: { $ref: '#/components/schemas/ChatConfig' }
         store_billing: { $ref: '#/components/schemas/StoreBillingConfig' }
         purchases:
@@ -15340,7 +15366,7 @@ components:
       properties:
         design:
           type: string
-          enum: [classic, pill, minimal, dot, line, bubble, glass, notch, lift, outline, square, text, island, segment, folder, drop, glow, colours, float, dock]
+          enum: [classic, pill, minimal, dot, line, bubble, glass, notch, lift, outline, square, text, island, segment, folder, drop, glow, colours, float, dock, petal]
           description: |
             119 The bar's design; missing, the app template's own (Classic,
             Bold's pill, Minimal). `classic`: the open tab's icon in a soft
@@ -15366,7 +15392,12 @@ components:
             going on under it, the open tab a filled pill with its name, the
             others icons only. 129 `dock`: a small capsule floating in
             the middle, as wide as its icons, no names, the open tab a filled
-            circle. Every design works in
+            circle. 131.22 `petal`: a bar floating over the page on a soft
+            wash of the open tab's colour (30 round and 12 in unless `radius`
+            and `margin` say), the open tab on a petal-cut leaf of its colour,
+            the middle tab (of three or five) a raised bloom: a petal-shaped
+            button in its colour's gradient ringed in the page's colour, its
+            name under it. Every design works in
             light and dark mode. An app that doesn't know a value uses its
             template's.
         background: { type: [string, 'null'], pattern: '^#[0-9A-Fa-f]{6}$', description: "The bar's colour; null, the app's surface colour." }
@@ -15507,10 +15538,10 @@ components:
       required: [type]
       properties:
         type: { type: string, enum: [logo_center, title_search, logo_actions, transparent, title, greeting] }
-        style: { type: string, enum: [large, glass, photo, brand, search], description: "130.20 The premium style; missing, the header is drawn by `type` as before." }
-        subtitle: { type: [string, 'null'], maxLength: 80, description: "130.20 A line under the title (`large`, `photo`, `brand`), in the language asked for." }
-        image_url: { type: [string, 'null'], format: uri, description: "130.20 The `photo` style's photo; null, the main to second colour gradient." }
-        collapse: { type: boolean, description: "130.20 False keeps `large`, `photo` and `search` open as the page scrolls. Missing, true." }
+        style: { type: string, enum: [large, glass, photo, brand, search, petal], description: "130.20 The premium style; missing, the header is drawn by `type` as before. 131.21 `petal`: a soft wash of the main and second colours (or `image_url` under a soft shade) with a curved petal edge at its foot, a fine floral line, the logo or the title as a centred wordmark between round glass buttons and `subtitle` under it; it folds into a compact bar with the title in the middle." }
+        subtitle: { type: [string, 'null'], maxLength: 80, description: "130.20 A line under the title (`large`, `photo`, `brand`, 131.21 `petal`), in the language asked for." }
+        image_url: { type: [string, 'null'], format: uri, description: "130.20 The `photo` style's photo (131.21 and the `petal` style's); null, the main to second colour gradient." }
+        collapse: { type: boolean, description: "130.20 False keeps `large`, `photo`, `search` and 131.21 `petal` open as the page scrolls. Missing, true." }
         title: { type: [string, 'null'], maxLength: 80, description: "In the language asked for; null, the app's name." }
         logo_url: { type: [string, 'null'], format: uri, description: "Null, the app's logo." }
         buttons:

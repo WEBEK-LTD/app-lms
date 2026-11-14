@@ -120,6 +120,26 @@ abstract final class ChromeTones {
     SystemLook look, {
     double radius = 22,
   }) {
+    // 131.23 The petal: soft cards with a hairline of the main colour and a
+    // warm shadow in it; by night the surface with a quiet line.
+    if (look == SystemLook.petal) {
+      return BoxDecoration(
+        color: p.surface,
+        borderRadius: BorderRadius.circular(radius + 2),
+        border: Border.all(
+          color: p.primary.withValues(alpha: p.isDark ? 0.22 : 0.10),
+        ),
+        boxShadow: [
+          BoxShadow(
+            color: p.isDark
+                ? Colors.black.withValues(alpha: 0.32)
+                : p.primary.withValues(alpha: 0.10),
+            blurRadius: 28,
+            offset: const Offset(0, 12),
+          ),
+        ],
+      );
+    }
     if (look == SystemLook.glass) {
       return BoxDecoration(
         color: p.isDark
@@ -161,6 +181,23 @@ abstract final class ChromeTones {
   /// The page behind a system screen: its colour, or in the glass look a
   /// soft wash of the main and second colours.
   static BoxDecoration backdrop(AppPalette p, SystemLook look) {
+    // 131.23 The petal: the page in a soft wash of the main colour from the top.
+    if (look == SystemLook.petal) {
+      return BoxDecoration(
+        color: p.background,
+        gradient: RadialGradient(
+          center: const Alignment(0, -1.2),
+          radius: 1.4,
+          colors: [
+            Color.alphaBlend(
+              p.primary.withValues(alpha: p.isDark ? 0.20 : 0.09),
+              p.background,
+            ),
+            p.background,
+          ],
+        ),
+      );
+    }
     if (look != SystemLook.glass) return BoxDecoration(color: p.background);
     return BoxDecoration(
       color: p.background,
@@ -339,8 +376,8 @@ class ChromeIconTile extends StatelessWidget {
 
 // ----------------------------------------------------------------- Header
 
-/// 130.20 A premium header's look.
-enum ChromeHeaderStyle { large, glass, photo, brand, search }
+/// 130.20 A premium header's look; 131.21 `petal`, Leqaa's, for every app.
+enum ChromeHeaderStyle { large, glass, photo, brand, search, petal }
 
 /// 130.20 How far a header is folded, from the scroll: 0 open, 1 folded;
 /// with reduced motion it snaps, never in between.
@@ -400,6 +437,15 @@ class ChromeHeaderBar extends StatelessWidget {
   static bool onColourOf(ChromeHeaderStyle style) =>
       style == ChromeHeaderStyle.photo || style == ChromeHeaderStyle.brand;
 
+  /// 131.21 And the petal over its photo (on its wash, the page's ink).
+  static bool onColourFor(ChromeHeaderStyle style, String? imageUrl) =>
+      onColourOf(style) ||
+      (style == ChromeHeaderStyle.petal && imageUrl != null);
+
+  /// 131.21 The petal's curved edge, open and folded.
+  static const petalEdge = 20.0;
+  static const petalEdgeFolded = 10.0;
+
   /// How tall the header is, open.
   double openHeight() {
     final line = subtitle == null || subtitle!.isEmpty ? 0.0 : 22.0;
@@ -409,6 +455,8 @@ class ChromeHeaderBar extends StatelessWidget {
       ChromeHeaderStyle.photo => top + 196 + line,
       ChromeHeaderStyle.brand => top + bar + 12 + line,
       ChromeHeaderStyle.glass => top + bar,
+      // 131.21 The wordmark's bar, its line, the floral line and the petal edge.
+      ChromeHeaderStyle.petal => top + bar + line + 24 + petalEdge,
     };
   }
 
@@ -417,11 +465,13 @@ class ChromeHeaderBar extends StatelessWidget {
     ChromeHeaderStyle.search => top + bar + 60,
     ChromeHeaderStyle.large ||
     ChromeHeaderStyle.photo when collapses => top + bar,
+    ChromeHeaderStyle.petal when collapses => top + bar + petalEdgeFolded,
     _ => openHeight(),
   };
 
   @override
   Widget build(BuildContext context) {
+    if (style == ChromeHeaderStyle.petal) return _petal(context);
     final p = context.palette;
     final onColour = onColourOf(style);
     final t = collapses ? fold : 0.0;
@@ -625,6 +675,219 @@ class ChromeHeaderBar extends StatelessWidget {
       ),
     );
   }
+
+  /// 131.21 The petal: a soft wash of the main and second colours (or the
+  /// photo under a soft rose shade), the title as a centred wordmark between
+  /// the round glass buttons, its line and a fine floral line under it, and
+  /// the curved petal edge at its foot; it folds into a compact bar with the
+  /// title in the middle (snapping with reduced motion, [chromeFold]).
+  Widget _petal(BuildContext context) {
+    final p = context.palette;
+    final photo = imageUrl;
+    final onColour = photo != null;
+    final t = collapses ? fold : 0.0;
+    final ink = foreground ?? (onColour ? Colors.white : p.text);
+    final base = background ?? p.background;
+    final height = lerpDouble(openHeight(), foldedHeight(), t)!;
+    final edge = lerpDouble(petalEdge, petalEdgeFolded, t)!;
+    final hasLine = subtitle != null && subtitle!.isNotEmpty;
+    final Widget wash = photo != null
+        ? Stack(
+            fit: StackFit.expand,
+            children: [
+              AppNetworkImage(url: photo, fit: BoxFit.cover),
+              DecoratedBox(
+                decoration: BoxDecoration(
+                  gradient: LinearGradient(
+                    begin: Alignment.topCenter,
+                    end: Alignment.bottomCenter,
+                    colors: [
+                      Color.lerp(
+                        p.primary,
+                        Colors.black,
+                        0.55,
+                      )!.withValues(alpha: 0.55),
+                      Color.lerp(
+                        p.primary,
+                        Colors.black,
+                        0.7,
+                      )!.withValues(alpha: 0.72),
+                    ],
+                  ),
+                ),
+              ),
+            ],
+          )
+        : DecoratedBox(
+            decoration: BoxDecoration(
+              color: base,
+              gradient: RadialGradient(
+                center: const Alignment(0, -1.3),
+                radius: 1.25,
+                colors: [
+                  Color.alphaBlend(
+                    p.primary.withValues(alpha: p.isDark ? 0.34 : 0.18),
+                    base,
+                  ),
+                  Color.alphaBlend(
+                    p.accent.withValues(alpha: p.isDark ? 0.14 : 0.10),
+                    base,
+                  ),
+                  base,
+                ],
+                stops: const [0, 0.55, 1],
+              ),
+            ),
+          );
+    final wordmark = mark != null && t < 0.5
+        ? mark!
+        : Text(
+            title,
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
+            textAlign: TextAlign.center,
+            style: TextStyle(
+              fontSize: lerpDouble(25, 17, t),
+              fontWeight: FontWeight.w700,
+              letterSpacing: lerpDouble(0.4, 0, t),
+              color: ink,
+            ),
+          );
+    return AnnotatedRegion<SystemUiOverlayStyle>(
+      value: onColour || p.isDark
+          ? SystemUiOverlayStyle.light
+          : SystemUiOverlayStyle.dark,
+      child: SizedBox(
+        key: const ValueKey('chrome-header-petal'),
+        height: height,
+        child: ClipPath(
+          clipper: PetalEdgeClipper(edge),
+          child: Stack(
+            children: [
+              Positioned.fill(child: wash),
+              PositionedDirectional(
+                top: top,
+                start: 12,
+                end: 12,
+                height: ChromeHeaderBar.bar,
+                child: Row(
+                  children: [
+                    for (final w in leading) ...[w, const SizedBox(width: 8)],
+                    // The title stays in the middle whatever is at the ends.
+                    if (leading.length < trailing.length)
+                      for (var i = leading.length; i < trailing.length; i++)
+                        const SizedBox(width: 48),
+                    Expanded(
+                      child: Semantics(
+                        header: true,
+                        child: Center(child: wordmark),
+                      ),
+                    ),
+                    if (trailing.length < leading.length)
+                      for (var i = trailing.length; i < leading.length; i++)
+                        const SizedBox(width: 48),
+                    for (final w in trailing) ...[const SizedBox(width: 8), w],
+                  ],
+                ),
+              ),
+              PositionedDirectional(
+                top: top + ChromeHeaderBar.bar - 6,
+                start: 20,
+                end: 20,
+                child: IgnorePointer(
+                  child: Opacity(
+                    opacity: (1 - t * 2).clamp(0.0, 1.0),
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        if (hasLine)
+                          Text(
+                            subtitle!,
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                            textAlign: TextAlign.center,
+                            style: TextStyle(
+                              fontSize: 13,
+                              color: ink.withValues(alpha: 0.72),
+                            ),
+                          ),
+                        const SizedBox(height: 6),
+                        ChromeFloralLine(
+                          color: ink.withValues(alpha: onColour ? 0.45 : 0.16),
+                          flower: onColour ? Colors.white : p.accent,
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+/// 131.21 The petal header's foot: a gentle arc down to a soft point in the
+/// middle, as a petal's tip.
+class PetalEdgeClipper extends CustomClipper<Path> {
+  const PetalEdgeClipper(this.depth);
+
+  final double depth;
+
+  @override
+  Path getClip(Size size) {
+    final w = size.width;
+    final h = size.height;
+    return Path()
+      ..moveTo(0, 0)
+      ..lineTo(w, 0)
+      ..lineTo(w, h - depth)
+      ..cubicTo(w * 0.80, h - depth, w * 0.66, h, w / 2, h)
+      ..cubicTo(w * 0.34, h, w * 0.20, h - depth, 0, h - depth)
+      ..close();
+  }
+
+  @override
+  bool shouldReclip(PetalEdgeClipper oldClipper) => oldClipper.depth != depth;
+}
+
+/// 131.21 A fine floral line: a hairline, a small flower, a hairline.
+class ChromeFloralLine extends StatelessWidget {
+  const ChromeFloralLine({
+    super.key,
+    required this.color,
+    required this.flower,
+    this.width = 170,
+  });
+
+  final Color color;
+  final Color flower;
+  final double width;
+
+  @override
+  Widget build(BuildContext context) => ExcludeSemantics(
+    child: SizedBox(
+      key: const ValueKey('chrome-floral'),
+      width: width,
+      child: Row(
+        children: [
+          Expanded(child: Container(height: 1, color: color)),
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 8),
+            child: AppIcon(
+              AppIcons.florist,
+              size: 15,
+              color: flower,
+              filled: true,
+            ),
+          ),
+          Expanded(child: Container(height: 1, color: color)),
+        ],
+      ),
+    ),
+  );
 }
 
 /// 130.20 The search style's pill: a round field that opens the search.

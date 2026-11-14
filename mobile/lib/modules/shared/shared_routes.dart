@@ -410,7 +410,9 @@ class MainShell extends ConsumerWidget {
         !hideTabs &&
         ((tabBar?.design == TabBarDesign.glass && (tabBar?.margin ?? 0) > 0) ||
             tabBar?.design == TabBarDesign.float ||
-            tabBar?.design == TabBarDesign.dock);
+            tabBar?.design == TabBarDesign.dock ||
+            // 131.22 The petal floats over the page too.
+            tabBar?.design == TabBarDesign.petal);
     return Scaffold(
       // 128.10 The screens under it know, to end above it.
       body: TabBarOverBody(over: overBody, child: shell),

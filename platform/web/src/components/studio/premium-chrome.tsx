@@ -153,7 +153,7 @@ export function PremiumHeader(props: PremiumHeaderProps) {
                 // eslint-disable-next-line @next/next/no-img-element
                 <img src={props.logoUrl} alt="" style={{ height: 30, maxWidth: 150, objectFit: "contain" }} />
               ) : (
-                <span role="heading" aria-level={1} style={{ fontWeight: 600, fontSize: 27, letterSpacing: "0.01em", color: pInk, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis", fontFamily: "'Fraunces', 'Cormorant Garamond', Georgia, serif" }}>
+                <span role="heading" aria-level={1} style={{ fontWeight: 600, fontSize: 27, letterSpacing: "0.01em", color: pInk, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>
                   {props.title}
                 </span>
               )}
@@ -307,7 +307,7 @@ function ProfileHero({ t, image }: { t: Tone; image: string | null }) {
           <span style={{ width: 84, height: 84, borderRadius: 42, display: "flex", alignItems: "center", justifyContent: "center", background: `linear-gradient(140deg, ${p.primary}, ${mix(p.primary, t.accent, 0.55)})`, boxShadow: `0 0 0 4px ${p.dark ? "#1A0F15" : "#FFFFFF"}, 0 0 0 6px ${alpha(t.accent, 0.7)}, 0 14px 28px ${alpha(p.primary, 0.3)}` }}>
             <Icon name="person" size={40} color="#FFFFFF" fill />
           </span>
-          <b style={{ fontSize: 22, fontWeight: 700, color: p.text, marginTop: 6, fontFamily: "'Fraunces', Georgia, serif" }}>{w.sampleName}</b>
+          <b style={{ fontSize: 22, fontWeight: 700, color: p.text, marginTop: 6 }}>{w.sampleName}</b>
           <span dir="ltr" style={{ fontSize: 13, color: p.textSecondary }}>{w.samplePhone}</span>
           <span aria-hidden="true" style={{ display: "flex", alignItems: "center", gap: 8, width: 160, marginTop: 4 }}>
             <span style={{ flex: 1, height: 1, background: alpha(p.text, 0.18) }} />

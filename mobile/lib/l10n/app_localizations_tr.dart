@@ -823,6 +823,146 @@ class AppLocalizationsTr extends AppLocalizations {
   String get edit => 'Düzenle';
 
   @override
+  String get giftStepFrom => 'Kimden';
+
+  @override
+  String get giftStepFor => 'Kime';
+
+  @override
+  String get giftStepWhen => 'Ne zaman';
+
+  @override
+  String get giftStepMessage => 'Mesaj';
+
+  @override
+  String get giftStepPay => 'Ödeme';
+
+  @override
+  String get giftWhoFrom => 'Kimden?';
+
+  @override
+  String get giftWhoFor => 'Kime?';
+
+  @override
+  String get giftWhen => 'Ne zaman ulaşsın?';
+
+  @override
+  String get giftYourMessage => 'Mesajınız';
+
+  @override
+  String get giftYourOrder => 'Siparişiniz';
+
+  @override
+  String get giftName => 'Ad soyad';
+
+  @override
+  String get giftPhone => 'Telefon';
+
+  @override
+  String get giftEmail => 'E-posta';
+
+  @override
+  String get giftTheirName => 'Alıcının adı';
+
+  @override
+  String get giftTheirPhone => 'Alıcının telefonu';
+
+  @override
+  String get giftCountry => 'Ülke';
+
+  @override
+  String get giftCity => 'Şehir';
+
+  @override
+  String get giftAddress => 'Sokak, bina ve kat';
+
+  @override
+  String get giftPin => 'Kapıyı haritada işaretleyin';
+
+  @override
+  String get giftPinNote =>
+      'Teslimat ücreti mağazaya uzaklığa göre hesaplanır.';
+
+  @override
+  String get giftOnlyPlaces => 'Yalnızca bu yerlere teslim ediyoruz';
+
+  @override
+  String get giftRequired => 'Zorunlu';
+
+  @override
+  String get giftToday => 'Bugün';
+
+  @override
+  String get giftTomorrow => 'Yarın';
+
+  @override
+  String get giftPickDate => 'Tarih seçin';
+
+  @override
+  String get giftCutoffPassed => 'Bugünün son sipariş saati geçti';
+
+  @override
+  String get giftSlot => 'Saat aralığı';
+
+  @override
+  String get giftOccasion => 'Vesile';
+
+  @override
+  String get giftReady => 'Hazır mesajlar';
+
+  @override
+  String get giftWrite => 'Ya da kendiniz yazın';
+
+  @override
+  String get giftAnonymous => 'İsimsiz gönder';
+
+  @override
+  String get giftAnonymousNote => 'Adınız kartta yer almaz.';
+
+  @override
+  String get giftCard => 'Kart';
+
+  @override
+  String get giftTo => 'Kime';
+
+  @override
+  String get giftFrom => 'Kimden';
+
+  @override
+  String get giftSomeone => 'Seni düşünen biri';
+
+  @override
+  String get giftArrives => 'Varış';
+
+  @override
+  String get giftAddOns => 'Ekler';
+
+  @override
+  String get giftDiscount => 'İndirim kodu';
+
+  @override
+  String get giftApply => 'Uygula';
+
+  @override
+  String get giftSubtotal => 'Ara toplam';
+
+  @override
+  String get giftDeliveryFee => 'Teslimat ücreti';
+
+  @override
+  String get giftTotal => 'Toplam';
+
+  @override
+  String giftPay(String amount) {
+    return '$amount öde';
+  }
+
+  @override
+  String giftFreeOver(String amount) {
+    return '$amount üzeri ücretsiz';
+  }
+
+  @override
   String get shopping => 'Alışveriş';
 
   @override

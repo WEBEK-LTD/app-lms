@@ -1288,6 +1288,276 @@ abstract class AppLocalizations {
   /// **'Edit'**
   String get edit;
 
+  /// 131.25 The gift checkout's stepper: the step for who the gift is from.
+  ///
+  /// In en, this message translates to:
+  /// **'From'**
+  String get giftStepFrom;
+
+  /// 131.25 The stepper: who the gift is for.
+  ///
+  /// In en, this message translates to:
+  /// **'For'**
+  String get giftStepFor;
+
+  /// 131.25 The stepper: the delivery day and time.
+  ///
+  /// In en, this message translates to:
+  /// **'When'**
+  String get giftStepWhen;
+
+  /// 131.25 The stepper: the card's message.
+  ///
+  /// In en, this message translates to:
+  /// **'Message'**
+  String get giftStepMessage;
+
+  /// 131.25 The stepper: the order and the payment.
+  ///
+  /// In en, this message translates to:
+  /// **'Pay'**
+  String get giftStepPay;
+
+  /// 131.25 The sender's section: their name, phone and email.
+  ///
+  /// In en, this message translates to:
+  /// **'Who is it from?'**
+  String get giftWhoFrom;
+
+  /// 131.25 The recipient's section: their name, phone and delivery address.
+  ///
+  /// In en, this message translates to:
+  /// **'Who is it for?'**
+  String get giftWhoFor;
+
+  /// 131.25 The delivery day and time slot, required.
+  ///
+  /// In en, this message translates to:
+  /// **'When should it arrive?'**
+  String get giftWhen;
+
+  /// 131.25 The card's message section.
+  ///
+  /// In en, this message translates to:
+  /// **'Your message'**
+  String get giftYourMessage;
+
+  /// 131.25 The order summary and payment section.
+  ///
+  /// In en, this message translates to:
+  /// **'Your order'**
+  String get giftYourOrder;
+
+  /// 131.25 The sender's name field.
+  ///
+  /// In en, this message translates to:
+  /// **'Full name'**
+  String get giftName;
+
+  /// 131.25 The sender's phone field.
+  ///
+  /// In en, this message translates to:
+  /// **'Phone'**
+  String get giftPhone;
+
+  /// 131.25 The sender's email field.
+  ///
+  /// In en, this message translates to:
+  /// **'Email'**
+  String get giftEmail;
+
+  /// 131.25 The recipient's name field.
+  ///
+  /// In en, this message translates to:
+  /// **'Their name'**
+  String get giftTheirName;
+
+  /// 131.25 The recipient's phone field.
+  ///
+  /// In en, this message translates to:
+  /// **'Their phone'**
+  String get giftTheirPhone;
+
+  /// 131.25 The recipient's country picker, limited to where the shop delivers.
+  ///
+  /// In en, this message translates to:
+  /// **'Country'**
+  String get giftCountry;
+
+  /// 131.25 The recipient's city picker, limited to where the shop delivers.
+  ///
+  /// In en, this message translates to:
+  /// **'City'**
+  String get giftCity;
+
+  /// 131.25 The recipient's address field.
+  ///
+  /// In en, this message translates to:
+  /// **'Street, building and floor'**
+  String get giftAddress;
+
+  /// 131.25 The button that opens the map to set the recipient's location.
+  ///
+  /// In en, this message translates to:
+  /// **'Pin the door on the map'**
+  String get giftPin;
+
+  /// 131.25 Under the map, when the shop prices delivery per kilometre.
+  ///
+  /// In en, this message translates to:
+  /// **'Delivery is priced by the distance from the shop.'**
+  String get giftPinNote;
+
+  /// 131.25 Over the country and city pickers.
+  ///
+  /// In en, this message translates to:
+  /// **'We deliver to these places only'**
+  String get giftOnlyPlaces;
+
+  /// 131.25 A badge on the delivery day and time step.
+  ///
+  /// In en, this message translates to:
+  /// **'Required'**
+  String get giftRequired;
+
+  /// 131.25 A delivery day chip.
+  ///
+  /// In en, this message translates to:
+  /// **'Today'**
+  String get giftToday;
+
+  /// 131.25 A delivery day chip.
+  ///
+  /// In en, this message translates to:
+  /// **'Tomorrow'**
+  String get giftTomorrow;
+
+  /// 131.25 The delivery day chip that opens a calendar.
+  ///
+  /// In en, this message translates to:
+  /// **'Pick a date'**
+  String get giftPickDate;
+
+  /// 131.25 Shown when same-day delivery is no longer possible today.
+  ///
+  /// In en, this message translates to:
+  /// **'Today\'s cut-off has passed'**
+  String get giftCutoffPassed;
+
+  /// 131.25 The delivery time slots.
+  ///
+  /// In en, this message translates to:
+  /// **'Time slot'**
+  String get giftSlot;
+
+  /// 131.25 The occasion chips over the ready messages.
+  ///
+  /// In en, this message translates to:
+  /// **'Occasion'**
+  String get giftOccasion;
+
+  /// 131.25 The occasion's ready messages; a tap fills the message.
+  ///
+  /// In en, this message translates to:
+  /// **'Ready messages'**
+  String get giftReady;
+
+  /// 131.25 Over the message field.
+  ///
+  /// In en, this message translates to:
+  /// **'Or write your own'**
+  String get giftWrite;
+
+  /// 131.25 The switch that leaves the sender's name off the card.
+  ///
+  /// In en, this message translates to:
+  /// **'Send anonymously'**
+  String get giftAnonymous;
+
+  /// 131.25 Under the anonymous switch.
+  ///
+  /// In en, this message translates to:
+  /// **'Your name won\'t be on the card.'**
+  String get giftAnonymousNote;
+
+  /// 131.25 The gift card's live preview.
+  ///
+  /// In en, this message translates to:
+  /// **'The card'**
+  String get giftCard;
+
+  /// 131.25 On the card: before the recipient's name.
+  ///
+  /// In en, this message translates to:
+  /// **'To'**
+  String get giftTo;
+
+  /// 131.25 On the card: before the sender's name.
+  ///
+  /// In en, this message translates to:
+  /// **'From'**
+  String get giftFrom;
+
+  /// 131.25 On the card instead of the sender's name when sent anonymously.
+  ///
+  /// In en, this message translates to:
+  /// **'Someone who cares'**
+  String get giftSomeone;
+
+  /// 131.25 In the summary, before the chosen day and time slot.
+  ///
+  /// In en, this message translates to:
+  /// **'Arrives'**
+  String get giftArrives;
+
+  /// 131.25 In the summary, over the add-ons.
+  ///
+  /// In en, this message translates to:
+  /// **'Add-ons'**
+  String get giftAddOns;
+
+  /// 131.25 The discount code field.
+  ///
+  /// In en, this message translates to:
+  /// **'Discount code'**
+  String get giftDiscount;
+
+  /// 131.25 The button that applies the discount code.
+  ///
+  /// In en, this message translates to:
+  /// **'Apply'**
+  String get giftApply;
+
+  /// 131.25 In the summary.
+  ///
+  /// In en, this message translates to:
+  /// **'Subtotal'**
+  String get giftSubtotal;
+
+  /// 131.25 In the summary, over its breakdown.
+  ///
+  /// In en, this message translates to:
+  /// **'Delivery fee'**
+  String get giftDeliveryFee;
+
+  /// 131.25 In the summary.
+  ///
+  /// In en, this message translates to:
+  /// **'Total'**
+  String get giftTotal;
+
+  /// 131.25 The pay button with the order's total.
+  ///
+  /// In en, this message translates to:
+  /// **'Pay {amount}'**
+  String giftPay(String amount);
+
+  /// 131.25 Under the delivery fee: the order total from which delivery is free.
+  ///
+  /// In en, this message translates to:
+  /// **'Free over {amount}'**
+  String giftFreeOver(String amount);
+
   /// No description provided for @shopping.
   ///
   /// In en, this message translates to:

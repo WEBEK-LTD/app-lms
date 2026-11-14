@@ -24,6 +24,7 @@ ChromeHeaderStyle chromeStyleOfHeader(StudioHeaderStyle style) =>
       StudioHeaderStyle.photo => ChromeHeaderStyle.photo,
       StudioHeaderStyle.brand => ChromeHeaderStyle.brand,
       StudioHeaderStyle.search => ChromeHeaderStyle.search,
+      StudioHeaderStyle.petal => ChromeHeaderStyle.petal,
     };
 
 /// 130.20 A Studio page's premium header (`StudioHeader.style`): its title
@@ -67,7 +68,7 @@ class StudioPremiumHeader extends ConsumerWidget {
     final build = ref.watch(appEnvironmentProvider).build;
     final config = ref.watch(appConfigProvider);
     final style = chromeStyleOfHeader(header.style!);
-    final onColour = ChromeHeaderBar.onColourOf(style);
+    final onColour = ChromeHeaderBar.onColourFor(style, header.imageUrl);
     final title = header.title ?? build.appName;
     final logo =
         header.logoUrl ??
@@ -177,7 +178,12 @@ class StudioPremiumHeader extends ConsumerWidget {
         imageUrl: header.imageUrl,
         background: style == ChromeHeaderStyle.photo ? null : background,
         foreground: foreground,
-        mark: mark,
+        // 131.21 The petal's wordmark: the logo on a logo header (a home's), else the page's title.
+        mark: style != ChromeHeaderStyle.petal
+            ? mark
+            : header.type == StudioHeaderType.logoCenter && logo != null
+            ? mark
+            : null,
         search: headerIconOpens(ref, HeaderIcon.search)
             ? ChromeSearchPill(
                 onTap: () => openHeaderIcon(context, ref, HeaderIcon.search),

@@ -91,6 +91,9 @@ enum TabBarDesign {
   float,
   // 129 A small dock in the middle, icons only, the open tab a filled circle.
   dock,
+  // 131.22 Leqaa's petal: a floating bar on a soft wash, the open tab on a
+  // petal-cut leaf, the middle tab a raised bloom.
+  petal,
 }
 
 /// 109 How the bottom tabs look, set by the owner (`TabBar`); a field left
@@ -1920,7 +1923,7 @@ enum StudioHeaderButton { menu, search, cart, notifications, chat, account }
 /// 130.20 A header's premium style (`StudioHeader.style`): a large title
 /// that collapses, a frosted bar the page scrolls under, a photo cover, the
 /// brand in the middle, the title with a search pill.
-enum StudioHeaderStyle { large, glass, photo, brand, search }
+enum StudioHeaderStyle { large, glass, photo, brand, search, petal }
 // ——— end 130.20 ———
 
 /// 103R `StudioHeader`: the bar at the top of a Studio page.

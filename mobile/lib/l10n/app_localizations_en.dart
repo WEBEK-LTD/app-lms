@@ -823,6 +823,145 @@ class AppLocalizationsEn extends AppLocalizations {
   String get edit => 'Edit';
 
   @override
+  String get giftStepFrom => 'From';
+
+  @override
+  String get giftStepFor => 'For';
+
+  @override
+  String get giftStepWhen => 'When';
+
+  @override
+  String get giftStepMessage => 'Message';
+
+  @override
+  String get giftStepPay => 'Pay';
+
+  @override
+  String get giftWhoFrom => 'Who is it from?';
+
+  @override
+  String get giftWhoFor => 'Who is it for?';
+
+  @override
+  String get giftWhen => 'When should it arrive?';
+
+  @override
+  String get giftYourMessage => 'Your message';
+
+  @override
+  String get giftYourOrder => 'Your order';
+
+  @override
+  String get giftName => 'Full name';
+
+  @override
+  String get giftPhone => 'Phone';
+
+  @override
+  String get giftEmail => 'Email';
+
+  @override
+  String get giftTheirName => 'Their name';
+
+  @override
+  String get giftTheirPhone => 'Their phone';
+
+  @override
+  String get giftCountry => 'Country';
+
+  @override
+  String get giftCity => 'City';
+
+  @override
+  String get giftAddress => 'Street, building and floor';
+
+  @override
+  String get giftPin => 'Pin the door on the map';
+
+  @override
+  String get giftPinNote => 'Delivery is priced by the distance from the shop.';
+
+  @override
+  String get giftOnlyPlaces => 'We deliver to these places only';
+
+  @override
+  String get giftRequired => 'Required';
+
+  @override
+  String get giftToday => 'Today';
+
+  @override
+  String get giftTomorrow => 'Tomorrow';
+
+  @override
+  String get giftPickDate => 'Pick a date';
+
+  @override
+  String get giftCutoffPassed => 'Today\'s cut-off has passed';
+
+  @override
+  String get giftSlot => 'Time slot';
+
+  @override
+  String get giftOccasion => 'Occasion';
+
+  @override
+  String get giftReady => 'Ready messages';
+
+  @override
+  String get giftWrite => 'Or write your own';
+
+  @override
+  String get giftAnonymous => 'Send anonymously';
+
+  @override
+  String get giftAnonymousNote => 'Your name won\'t be on the card.';
+
+  @override
+  String get giftCard => 'The card';
+
+  @override
+  String get giftTo => 'To';
+
+  @override
+  String get giftFrom => 'From';
+
+  @override
+  String get giftSomeone => 'Someone who cares';
+
+  @override
+  String get giftArrives => 'Arrives';
+
+  @override
+  String get giftAddOns => 'Add-ons';
+
+  @override
+  String get giftDiscount => 'Discount code';
+
+  @override
+  String get giftApply => 'Apply';
+
+  @override
+  String get giftSubtotal => 'Subtotal';
+
+  @override
+  String get giftDeliveryFee => 'Delivery fee';
+
+  @override
+  String get giftTotal => 'Total';
+
+  @override
+  String giftPay(String amount) {
+    return 'Pay $amount';
+  }
+
+  @override
+  String giftFreeOver(String amount) {
+    return 'Free over $amount';
+  }
+
+  @override
   String get shopping => 'Shopping';
 
   @override
