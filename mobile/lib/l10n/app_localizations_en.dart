@@ -11587,4 +11587,75 @@ class AppLocalizationsEn extends AppLocalizations {
   String studioMapEta(String name, int minutes) {
     return '$name · $minutes min';
   }
+
+  @override
+  String get liveLookMinAway => 'min away';
+
+  @override
+  String get liveLookLive => 'Live';
+
+  @override
+  String liveLookStep(int step) {
+    return 'step $step of 4';
+  }
+
+  @override
+  String liveLookOnItsWayFrom(String place) {
+    return '$place is on the way';
+  }
+
+  @override
+  String liveLookItems(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count items',
+      one: '1 item',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String liveLookHeading(String name, String place) {
+    return '$name is heading to $place';
+  }
+
+  @override
+  String get liveStatePlaced => 'Placed';
+
+  @override
+  String get liveStateCooking => 'Being prepared';
+
+  @override
+  String get liveStatePacking => 'Being packed';
+
+  @override
+  String get liveStateReady => 'Ready';
+
+  @override
+  String get liveStateOnItsWay => 'On its way';
+
+  @override
+  String get liveStatePickedUp => 'Picked up';
+
+  @override
+  String get liveStateDelivered => 'Delivered';
+
+  @override
+  String get liveStageCooking => 'Cooking';
+
+  @override
+  String get liveStagePacking => 'Packing';
+
+  @override
+  String get liveStageFinding => 'Finding';
+
+  @override
+  String get liveStageComing => 'Coming';
+
+  @override
+  String get liveStageHere => 'Here';
+
+  @override
+  String get liveStageOnBoard => 'On board';
 }

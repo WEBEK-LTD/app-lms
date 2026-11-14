@@ -5,7 +5,10 @@ import { ACADEMY_PROJECT, academyHome, type TemplateProject } from "./academy";
 import { DEMO_HOME_TEMPLATES, DEMO_ICONS, demoTemplateId, studioDemoOf, studioTextOf, translating } from "./demo-templates";
 import { newNodeId } from "./elements";
 import { SLIDER_SECTIONS, STORE_SECTIONS } from "./store-sections";
-import { demoDesignTemplate } from "./demo-designs";
+import { demoDesignTemplate, signatureDesigns, signatureTemplate } from "./demo-designs";
+// 130 The Signature looks.
+import type { SignatureLook } from "./demo-designs/signature";
+import type { FoodSignatureWord } from "./demo-designs/food-signature-words";
 import { peopleRow, photoHero, photoOf, photoTiles } from "./photo-sections";
 
 /**
@@ -295,7 +298,9 @@ export type SectionWord =
   | "rqP4"
   | "rqP4i"
   | "tabTeachers"
-  | "tipTeachers";
+  | "tipTeachers"
+  // 130.1–130.6 Sofra Eats's, Zad's and Sahm Express's Signature looks (lib/studio/demo-designs/food-signature-words.ts).
+  | FoodSignatureWord;
 
 export interface SectionContext {
   brand: string;
@@ -317,6 +322,8 @@ export interface SectionContext {
   lang?: "en" | "ar" | "tr";
   /** 128 The Studio demo whose pages these are (the demo app, a project its template starts, its whole design): its own pages after the home, in its own look (lib/studio/demo-designs); missing, none. */
   demo?: StudioDemoId;
+  /** 130 The demo's Signature look (A or B) the project was made from: its pages after the home in that look (lib/studio/demo-designs/signature.ts); missing, the demo's own. */
+  look?: SignatureLook;
 }
 
 /** 103R.7 The project types a section or template is made for; none: every type. */
@@ -1097,6 +1104,8 @@ export interface TemplateInfo {
   recommended?: boolean;
   /** 123 What the template sets for the whole project besides its home: its bar, tabs, screens and colours (lib/studio/academy.ts). */
   project?: TemplateProject;
+  /** 130 A Studio demo's Signature look (lib/studio/demo-designs/signature.ts): a project it starts has the demo's pages after the home, in that look. */
+  signature?: { demo: StudioDemoId; look: SignatureLook };
 }
 
 function pageOf(ctx: SectionContext, sections: string[], header: StudioPage["header"]): StudioPage {
@@ -1161,6 +1170,8 @@ const DEMO_TEMPLATES: readonly TemplateInfo[] = (Object.keys(DEMO_ICONS) as (key
 export const TEMPLATES: readonly TemplateInfo[] = [
   // Templates = demos: each Studio demo's home, offered first for its kind.
   ...DEMO_TEMPLATES,
+  // 130 The Studio demos' Signature looks (A and B), whole project templates, first among their kind's own.
+  ...signatureDesigns().map(signatureTemplate),
   // 103R.7 Each project type's own templates come first in the lists.
   // 112.4 Three for a store: a full shop, one for offers and one for looks and brands.
   typed("shop", "storefront", STORE, ["search", "hero_slider", "category_circles", "flash_sale", "new_arrivals", "coupon", "best_sellers", "brands", "trust", "recent"], SHOP_HEADER, { word: "cta", action: screen("cart") }),

@@ -39,6 +39,8 @@ import 'side_menu.dart';
 import 'studio_covers.dart';
 import 'studio_live.dart';
 import 'studio_live_status.dart';
+// 130 The live cards' premium looks.
+import 'studio_live_looks.dart';
 // 129 Premium motion & media: the slider's looks, stories, a ticker, a video
 // or parallax banner, a gallery, before and after, entrances on first show.
 import 'studio_before_after.dart';
@@ -1376,6 +1378,17 @@ class StudioNodeView extends ConsumerWidget {
         );
       case StudioNodeType.liveStatus:
         final source = node.liveStatus;
+        // 130 In one of the live cards' premium looks.
+        if (node.liveLook case final look? when source != null) {
+          final facts = watchLiveLookOrder(context, ref, source);
+          if (facts == null) return const SizedBox.shrink();
+          return StudioLiveLookCard(
+            node: node,
+            style: look,
+            facts: facts,
+            color: color,
+          );
+        }
         final order = source == null
             ? null
             : watchLiveOrder(context, ref, source);

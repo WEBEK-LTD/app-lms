@@ -16,6 +16,8 @@ import '../../delivery/data/delivery_providers.dart';
 import '../../rides/data/rides_providers.dart';
 import '../../taxi/data/taxi_providers.dart';
 import 'content_blocks.dart' show pageClockProvider;
+// 130 The live cards' premium looks.
+import 'studio_live_looks.dart';
 
 /// 128 The live elements of a Studio page (platform/web/src/lib/pages/
 /// types.ts `STUDIO_LIVE_TYPES`), drawn from the signed-in person: their
@@ -93,6 +95,15 @@ class StudioTrackingView extends ConsumerWidget {
       case StudioTrackingKind.shipment:
         final shipment = ref.watch(activeShipmentProvider).value;
         if (shipment == null) return const SizedBox.shrink();
+        // 130 In one of the live cards' premium looks.
+        if (node.liveLook case final look?) {
+          return StudioLiveLookCard(
+            node: node,
+            style: look,
+            facts: shipmentLiveLook(context.l10n, shipment),
+            color: DefaultTextStyle.of(context).style.color,
+          );
+        }
         return _Live(
           look: tracking.look,
           live: _shipmentLive(context, shipment),
@@ -101,6 +112,14 @@ class StudioTrackingView extends ConsumerWidget {
       case StudioTrackingKind.ride:
         final ride = ref.watch(activeRideProvider).value;
         if (ride == null) return const SizedBox.shrink();
+        if (node.liveLook case final look?) {
+          return StudioLiveLookCard(
+            node: node,
+            style: look,
+            facts: rideLiveLook(context.l10n, ride),
+            color: DefaultTextStyle.of(context).style.color,
+          );
+        }
         return _Live(
           look: tracking.look,
           live: _rideLive(context, ride),

@@ -12520,5 +12520,104 @@
         "type": "int"
       }
     }
+  },
+  "liveLookMinAway": "min away",
+  "@liveLookMinAway": {
+    "description": "130 Under the minutes left on a live card's premium look (\"12 min away\")."
+  },
+  "liveLookLive": "Live",
+  "@liveLookLive": {
+    "description": "130 Before the state on a live card in a progress ring (\"Live · On its way\")."
+  },
+  "liveLookStep": "step {step} of 4",
+  "@liveLookStep": {
+    "description": "130 How far a live order is, on a live card in a progress ring.",
+    "placeholders": {
+      "step": {
+        "type": "int"
+      }
+    }
+  },
+  "liveLookOnItsWayFrom": "{place} is on the way",
+  "@liveLookOnItsWayFrom": {
+    "description": "130 A slim live pill's line: the order from a place is with the courier.",
+    "placeholders": {
+      "place": {
+        "type": "String"
+      }
+    }
+  },
+  "liveLookItems": "{count, plural, =1{1 item} other{{count} items}}",
+  "@liveLookItems": {
+    "description": "130 How many things are on their way, on a slim live pill.",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "liveLookHeading": "{name} is heading to {place}",
+  "@liveLookHeading": {
+    "description": "130 A live shipment's title in a premium look: the courier's first name and the drop-off.",
+    "placeholders": {
+      "name": {
+        "type": "String"
+      },
+      "place": {
+        "type": "String"
+      }
+    }
+  },
+  "liveStatePlaced": "Placed",
+  "@liveStatePlaced": {
+    "description": "130 A live card's state, and the first of its four stages: the order is placed."
+  },
+  "liveStateCooking": "Being prepared",
+  "@liveStateCooking": {
+    "description": "130 A live food order's state: the restaurant is cooking it."
+  },
+  "liveStatePacking": "Being packed",
+  "@liveStatePacking": {
+    "description": "130 A live marketplace order's state: the shop is packing it."
+  },
+  "liveStateReady": "Ready",
+  "@liveStateReady": {
+    "description": "130 A live order's state: ready for the courier."
+  },
+  "liveStateOnItsWay": "On its way",
+  "@liveStateOnItsWay": {
+    "description": "130 A live card's state: with the courier, on the way."
+  },
+  "liveStatePickedUp": "Picked up",
+  "@liveStatePickedUp": {
+    "description": "130 A live shipment's second stage: the courier picked it up."
+  },
+  "liveStateDelivered": "Delivered",
+  "@liveStateDelivered": {
+    "description": "130 The last of a live card's four stages."
+  },
+  "liveStageCooking": "Cooking",
+  "@liveStageCooking": {
+    "description": "130 A live food order's second stage, named under its dot."
+  },
+  "liveStagePacking": "Packing",
+  "@liveStagePacking": {
+    "description": "130 A live marketplace order's second stage, named under its dot."
+  },
+  "liveStageFinding": "Finding",
+  "@liveStageFinding": {
+    "description": "130 A live ride's first stage: finding a driver."
+  },
+  "liveStageComing": "Coming",
+  "@liveStageComing": {
+    "description": "130 A live ride's second stage: the driver is coming."
+  },
+  "liveStageHere": "Here",
+  "@liveStageHere": {
+    "description": "130 A live ride's third stage: the driver is here."
+  },
+  "liveStageOnBoard": "On board",
+  "@liveStageOnBoard": {
+    "description": "130 A live ride's last stage: on board."
   }
 }

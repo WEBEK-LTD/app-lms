@@ -948,6 +948,22 @@ final websiteShots = <Shot>[
     mapTiles: true,
     shadows: true,
   ),
+  // 130.1–130.6 The Signature looks of Sofra Eats, Zad and Sahm Express
+  // (test/support/sig_<demo>_<look>.json): each look's home by day and by
+  // night, as a project started from it is.
+  for (final dark in [false, true])
+    Shot(
+      'food-sig-a-home${dark ? '-dark' : ''}',
+      dark: dark,
+      api: () =>
+          sofraStudioApi(look: StudioDemo.sigSofraA, primaryColor: '#B13F1A'),
+      appName: 'Sofra Eats',
+      appType: AppType.food,
+      template: AppTemplate.bold,
+      prepare: (tester) => StudioDemo.sigSofraA.prepare(tester, sofraPhotos),
+      shadows: true,
+    ),
+  // end 130.1–130.6
   // A ride app opens on its Ride tab; its Studio home is the next tab.
   Shot(
     'masar-home',

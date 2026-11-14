@@ -244,6 +244,9 @@ export const ICON_NAMES = [
   "flight_takeoff",
   "airline_seat_recline_normal",
   "hotel_class",
+  // 130.1–130.6 The food, marketplace and delivery Signature looks.
+  "add_circle",
+  "barcode_scanner",
 ] as const;
 
 export type IconName = (typeof ICON_NAMES)[number];

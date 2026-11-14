@@ -21,8 +21,11 @@ import type { SectionContext, TemplateInfo } from "./sections";
 export function startLayout(app: App, template: TemplateInfo, ready: LayoutContent, now: Date, made: SectionContext, site: string | null = null): LayoutContent {
   const project = template.project ?? null;
   // 128 A demo's template is the demo, its own pages after the home too, in its own look (lib/studio/demo-designs).
-  const ctx: SectionContext = template.demo ? { ...made, demo: template.demo } : made;
-  const designed = template.demo ? designLayout(app, demoDesign(template.demo), ready, now) : ready;
+  // 130 A demo's Signature look the same, its pages after the home in that look (lib/studio/demo-designs/signature.ts).
+  const signature = template.signature ?? null;
+  const ctx: SectionContext = template.demo ? { ...made, demo: template.demo } : signature ? { ...made, demo: signature.demo, look: signature.look } : made;
+  const demo = template.demo ?? signature?.demo ?? null;
+  const designed = demo ? designLayout(app, demoDesign(demo), ready, now) : ready;
   // 123 A template for the whole project: its tabs (a Blog tab with the site's blog, when the site is known) and its look.
   const layout = project
     ? { ...designed, tabs: project.tabs(designed.tabs, site), appearance: withLook(designed.appearance, project.appearance) }

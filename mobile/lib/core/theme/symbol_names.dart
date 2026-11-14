@@ -153,6 +153,13 @@ const symbolsByName = <String, IconData>{
   'flight_takeoff': Symbols.flight_takeoff_rounded,
   'hotel_class': Symbols.hotel_class_rounded,
   'airline_seat_recline_normal': Symbols.airline_seat_recline_normal_rounded,
+  // 130.1–130.6 The food, marketplace and delivery Signature looks: a dish's
+  // add button, the location button over a map and the barcode in a search.
+  'add_circle': Symbols.add_circle_rounded,
+  'add': Symbols.add_rounded,
+  'my_location': Symbols.my_location_rounded,
+  'barcode_scanner': Symbols.barcode_scanner_rounded,
+  // end 130.1–130.6
 };
 
 /// Shown for a name the app doesn't have.

@@ -2620,6 +2620,7 @@ class StudioNode {
     this.scrim,
     this.liveStatus,
     this.tracking,
+    this.liveLook,
     this.mapDrawing,
     this.overlap = 0,
     this.school,
@@ -2774,6 +2775,10 @@ class StudioNode {
               )
             : null,
         tracking: StudioTracking.tryParse(json['tracking']),
+        // 130 The live cards' premium looks.
+        liveLook: StudioLiveLookStyle.tryParse(
+          json['type'] == 'tracking' ? json['tracking'] : json['live_status'],
+        ),
         mapDrawing: StudioMapDrawing.tryParse(json['map_drawing']),
         overlap: n('overlap', 0, 0, 400),
         school: json['school'] is Map
@@ -3096,6 +3101,10 @@ class StudioNode {
 
   /// 128 For [StudioNodeType.tracking]: what it follows.
   final StudioTracking? tracking;
+
+  /// 130 For [StudioNodeType.liveStatus] and [StudioNodeType.tracking]: the
+  /// premium look it is drawn in; null, its own card.
+  final StudioLiveLookStyle? liveLook;
 
   /// 128 For [StudioNodeType.mapHeader]: its markers.
   final StudioMapDrawing? mapDrawing;

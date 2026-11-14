@@ -85,6 +85,8 @@ import {
   STUDIO_MARKET_SECTIONS,
   STUDIO_LEARNING_SECTIONS,
   STUDIO_LIVE_SOURCES,
+  // 130 The live cards' premium looks.
+  STUDIO_LIVE_STATUS_STYLES,
   STUDIO_SCHOOL_SECTIONS,
   STUDIO_MARKET_SORTS,
   STUDIO_MARKET_STYLES,
@@ -1001,6 +1003,13 @@ function optionalColor(c: Checker, where: string, value: unknown, what: string):
   return null;
 }
 
+/** 130 A live card's accent by day and by night (`live_status`, `tracking`). */
+function liveAccents(c: Checker, where: string, v: Record<string, unknown>): { accent?: string; dark_accent?: string } {
+  const accent = optionalColor(c, where, v.accent, "the live card's accent");
+  const dark = optionalColor(c, where, v.dark_accent, "the live card's dark accent");
+  return { ...(accent ? { accent } : {}), ...(dark ? { dark_accent: dark } : {}) };
+}
+
 /** 103R A Studio page on its own (an owner's own template): checked as in a layout of the app's. */
 export function parseStudioPage(value: unknown, app: Pick<App, "appType" | "backend" | "vertical">, languages: Languages): ParseResult<StudioPage> {
   const c = new Checker();
@@ -1902,6 +1911,16 @@ function parseNode(ctx: Context, where: string, value: unknown, state: { count: 
         if (!(typeof v.icon === "string" && ICON_NAME.test(v.icon))) bad("choose an icon.");
         else node.icon = v.icon;
       }
+      // 130 Its premium looks (the card's own left out), their accent and the ring's photo.
+      if (l.style !== undefined && l.style !== null) {
+        if (!oneOf(STUDIO_LIVE_STATUS_STYLES, l.style)) bad("choose how the live order looks.");
+        else if (l.style !== "card") node.live_status.style = l.style;
+      }
+      Object.assign(node.live_status, liveAccents(c, where, l));
+      {
+        const photo = c.mediaUrl(where, v.image_url, "the photo's address", false);
+        if (photo) node.image_url = photo;
+      }
       break;
     }
     case "school": {
@@ -1986,6 +2005,8 @@ function parseNode(ctx: Context, where: string, value: unknown, state: { count: 
         if (!oneOf(STUDIO_TRACKING_STYLES, t.style)) bad("choose how the live card looks.");
         else if (t.style !== "card") node.tracking.style = t.style;
       }
+      // 130 The premium looks' accent.
+      Object.assign(node.tracking, liveAccents(c, where, t));
       // The photo a driver's card shows while the driver has none of their own.
       const photo = c.mediaUrl(where, v.image_url, "the photo's address", false);
       if (photo) node.image_url = photo;

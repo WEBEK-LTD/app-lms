@@ -12,6 +12,10 @@ import { sahmHome, sahmPage, SAHM_INK } from "./sahm-express";
 import { schoolTodayHome } from "../school-home";
 import { teachersPhotoHome } from "../teachers-home";
 import { NAKHLA_LOOK, RAWAQ_LOOK, rawaqTabs, schoolPage } from "./school-looks";
+// 130 The Signature looks (signature.ts): each demo's looks A and B, in their own files.
+import type { SignatureDesign, SignatureLook } from "./signature";
+// 130.1–130.6 Sofra Eats's, Zad's and Sahm Express's looks.
+import { SOFRA_A } from "./sofra-signature";
 
 /**
  * 128 The Studio demos made premium and complete (the owner, 13 November
@@ -122,6 +126,58 @@ export function studioDemoDesign(demo: StudioDemoId | undefined): DemoDesign | u
   return demo ? STUDIO_DEMO_DESIGNS[demo] : undefined;
 }
 
+// ——— 130 The Signature looks: each Studio demo's looks A and B (signature.ts), whole project templates ———
+const SIGNATURE_DESIGNS: Partial<Record<StudioDemoId, Partial<Record<SignatureLook, SignatureDesign>>>> = {
+  // 130.1–130.6 Sofra Eats, Zad and Sahm Express (sofra-signature.ts, zad-signature.ts, sahm-signature.ts).
+  food: { a: SOFRA_A },
+};
+
+/** A demo's look, when it has it. */
+export function signatureDesign(demo: StudioDemoId, look: SignatureLook): SignatureDesign | undefined {
+  return SIGNATURE_DESIGNS[demo]?.[look];
+}
+
+/** Every demo's looks, A before B, in the demos' order. */
+export function signatureDesigns(): SignatureDesign[] {
+  return Object.values(SIGNATURE_DESIGNS).flatMap((looks) => [looks?.a, looks?.b].filter((d): d is SignatureDesign => Boolean(d)));
+}
+
+/**
+ * A look as a template of its demo's kind (lib/studio/sections.ts
+ * TEMPLATES) for the whole project: its home in the dashboard's language
+ * with Studio's others as translations, and (`project`) its bar, tabs,
+ * colours, font, sign-in and account menu; a project it starts gets its
+ * pages after the home in the look too (lib/studio/start.ts, `signature`).
+ */
+export function signatureTemplate(design: SignatureDesign): TemplateInfo {
+  return {
+    id: design.template.id,
+    icon: design.template.icon,
+    fits: design.template.fits,
+    recommended: true,
+    project: design.project,
+    signature: { demo: design.demo, look: design.variant },
+    make: (ctx: SectionContext) => {
+      const { ctx: words, translate } = translating({ ...ctx, demo: design.demo, look: design.variant });
+      const page = design.home(words);
+      return { ...page, body: translate(page.body) };
+    },
+  };
+}
+
+/** The design a demo's pages are made in: its look's, when the project was made from one, else the demo's own. */
+function designOf(ctx: Pick<SectionContext, "demo" | "look">): DemoDesign | undefined {
+  const look = ctx.demo && ctx.look ? signatureDesign(ctx.demo, ctx.look) : undefined;
+  return look ?? studioDemoDesign(ctx.demo);
+}
+
+/** 130 The premium header a look draws its pages after the home in (the premium chrome's `style`). */
+function chromeOf(design: DemoDesign): { style?: SignatureDesign["chrome"]["header"] } {
+  const chrome = (design as Partial<SignatureDesign>).chrome;
+  return chrome ? { style: chrome.header } : {};
+}
+// ——— end 130 ———
+
 /** A demo's home as a template of its kind (lib/studio/sections.ts TEMPLATES), in the dashboard's language with Studio's others as translations. */
 export function demoDesignTemplate(demo: StudioDemoId): TemplateInfo {
   const d = STUDIO_DEMO_DESIGNS[demo]!;
@@ -145,8 +201,8 @@ export function demoDesignBar(demo: StudioDemoId): TabBarStyle {
 }
 
 /** The demo's tabs as its own design has them (the kind's, for a demo without one or a project not made from a demo). */
-export function designedTabs(tabs: readonly LayoutTab[], ctx: Pick<SectionContext, "demo">): readonly LayoutTab[] {
-  const own = studioDemoDesign(ctx.demo)?.tabs;
+export function designedTabs(tabs: readonly LayoutTab[], ctx: Pick<SectionContext, "demo" | "look">): readonly LayoutTab[] {
+  const own = designOf(ctx)?.tabs;
   return own ? own(tabs) : tabs;
 }
 
@@ -158,13 +214,14 @@ export function designedTabs(tabs: readonly LayoutTab[], ctx: Pick<SectionContex
  * their own, as they are.
  */
 export function designedDemoPage<P extends { studio: StudioPage }>(ctx: SectionContext, page: P): P {
-  const design = studioDemoDesign(ctx.demo);
+  const design = designOf(ctx);
   if (!design) return page;
   const { ctx: words, translate } = translating(ctx);
   const own = page.studio.screen ? design.over(page.studio.screen, words) : null;
   const { header: was, ...studio } = page.studio;
   const look = design.look && (!design.look.headed || was) ? design.look : undefined;
-  const header = was && look ? { ...was, ...look.header } : was;
+  // 130 A look's pages in its premium header.
+  const header = was && look ? { ...was, ...look.header, ...chromeOf(design) } : was;
   return {
     ...page,
     studio: {
@@ -179,5 +236,5 @@ export function designedDemoPage<P extends { studio: StudioPage }>(ctx: SectionC
 
 /** The pages of its own the demo's tabs open (Zad's Shops), made with `ctx` (its words, in Studio's languages through `translate`). */
 export function designedOwnPages(ctx: SectionContext): { slug: string; title: SectionWord; studio: StudioPage }[] {
-  return studioDemoDesign(ctx.demo)?.pages?.(ctx) ?? [];
+  return designOf(ctx)?.pages?.(ctx) ?? [];
 }

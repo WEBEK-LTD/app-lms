@@ -9,6 +9,8 @@ import { RangeField } from "./controls";
 import { MAP_COLORS } from "@/components/studio/covers";
 // 129.21–129.24 The map's premium looks.
 import { MapLooksControls } from "./map-looks-controls";
+// 130 The live cards' premium looks.
+import { LiveLookControls } from "./live-look-controls";
 
 /**
  * 128 The inspector's part for the cover layouts and the live card: a
@@ -135,6 +137,8 @@ export function TrackingControls({ node, onChange }: { node: StudioNode; onChang
           ) : null}
         </div>
       ) : null}
+      {/* 130 The live cards' premium looks: their accent and photo. */}
+      <LiveLookControls node={node} onChange={onChange} />
       <span className="text-xs" style={{ color: "var(--studio-muted)" }}>
         {t("studio.trackingHint")}
       </span>

@@ -34,7 +34,8 @@ describe("103R.7 Studio's templates and sections for each project type", () => {
     expect(templatesFor(null).map((t) => t.id)).toEqual(["brand", "contact", "blank"]);
     // 105.1.6 Three ready-made designs for a food delivery company, and its welcome section first.
     // 128 And Sofra Eats's photo-first home.
-    expect(ownTemplates(kindOf("food")).map((t) => t.id)).toEqual(["food", "food_offers", "food_brand", "food_photo", "brand", "contact", "blank"]);
+    // 130.1–130.2 Its Signature looks first, whole project templates.
+    expect(ownTemplates(kindOf("food")).map((t) => t.id)).toEqual(["food_signature_a", "food", "food_offers", "food_brand", "food_photo", "brand", "contact", "blank"]);
     expect(sectionsFor(kindOf("food"))[0]!.id).toBe("food");
     expect(sectionsFor(kindOf("delivery")).map((s) => s.id)).not.toContain("food");
     // The delivery company's sections come first, and only for it.
@@ -81,7 +82,7 @@ describe("103R.7 Studio's templates and sections for each project type", () => {
       if (words.includes("stepsTitle")) expect(words, template.id).toEqual(expect.arrayContaining(["foodStepOne", "foodStepTwo", "foodStepThree"]));
       expect(words, template.id).not.toContain("stepOne");
     }
-    const welcome = ownTemplates(kindOf("food"))[0]!.make({ brand: "#1F4E5F", source: "restaurants", w: (word) => word });
+    const welcome = ownTemplates(kindOf("food")).find((t) => t.id === "food")!.make({ brand: "#1F4E5F", source: "restaurants", w: (word) => word });
     expect(allNodes(welcome).map((n) => n.action?.screen).filter(Boolean)).toEqual(["restaurants", "food_orders", "restaurants"]);
   });
 

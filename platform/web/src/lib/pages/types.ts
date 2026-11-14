@@ -803,8 +803,31 @@ export interface StudioLearning {
  * on its way.
  */
 export const STUDIO_LIVE_SOURCES = ["food_order", "market_order"] as const;
+// ——— 130 Signature looks: the live cards' premium looks (live_status and tracking) ———
+/**
+ * 130 The premium looks of a live card, for `live_status` and `tracking`
+ * alike: `hero` the minutes left as a hero number beside the state (a live
+ * dot), what it is and where, over its four stages as segments, with a
+ * round button in the accent when the element has an `icon`; `ring` the
+ * element's photo (else the order's own, else its icon) in a ring filled
+ * as far as it is, the state, what it is and "step 3 of 4", the minutes
+ * large; `pill` one slim line with a live dot, what is on its way, who
+ * brings it and a Track button; `steps` the hero's top over the four
+ * stages as dots on a line with their names. Words in the element's text
+ * colour; the dot, stages and button in `accent` (by night `dark_accent`;
+ * missing, the app's main colour).
+ */
+export const STUDIO_LIVE_LOOKS = ["hero", "ring", "pill", "steps"] as const;
+export type StudioLiveLook = (typeof STUDIO_LIVE_LOOKS)[number];
+export const STUDIO_LIVE_STATUS_STYLES = ["card", ...STUDIO_LIVE_LOOKS] as const;
+// ——— end 130 live looks ———
 export interface StudioLiveStatus {
   source: (typeof STUDIO_LIVE_SOURCES)[number];
+  /** 130 How it is drawn; missing, `card` (the 128 card). */
+  style?: (typeof STUDIO_LIVE_STATUS_STYLES)[number];
+  /** 130 The live dot, stages and button (#RRGGBB) by day and by night; missing, the app's main colour. */
+  accent?: string;
+  dark_accent?: string;
 }
 
 /**
@@ -877,11 +900,15 @@ export interface StudioMarketCard {
 /** 128 For `tracking`: what it follows, and how it is drawn (`StudioTracking`). */
 export const STUDIO_TRACKING_KINDS = ["shipment", "ride", "nearby_taxis"] as const;
 /** `card`: a soft card with the stages; `driver`: the driver's photo, car and a call button; `line`: one line. */
-export const STUDIO_TRACKING_STYLES = ["card", "driver", "line"] as const;
+/** 130 And the live cards' premium looks (`STUDIO_LIVE_LOOKS`: hero, ring, pill, steps). */
+export const STUDIO_TRACKING_STYLES = ["card", "driver", "line", ...STUDIO_LIVE_LOOKS] as const;
 export interface StudioTracking {
   kind: (typeof STUDIO_TRACKING_KINDS)[number];
   /** Missing, `card`. */
   style?: (typeof STUDIO_TRACKING_STYLES)[number];
+  /** 130 The premium looks' accent (#RRGGBB) by day and by night; missing, the app's main colour. */
+  accent?: string;
+  dark_accent?: string;
 }
 
 /** 128 For `map_header`: the markers on the drawn map (`StudioMapDrawing`). */

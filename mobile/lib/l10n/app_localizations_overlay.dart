@@ -12258,4 +12258,82 @@ class OverlayLocalizations extends AppLocalizations {
   String studioMapEta(String name, int minutes) =>
       overlay.format('studioMapEta', {'name': name, 'minutes': minutes}) ??
       base.studioMapEta(name, minutes);
+
+  @override
+  String get liveLookMinAway =>
+      overlay.text('liveLookMinAway') ?? base.liveLookMinAway;
+
+  @override
+  String get liveLookLive => overlay.text('liveLookLive') ?? base.liveLookLive;
+
+  @override
+  String liveLookStep(int step) =>
+      overlay.format('liveLookStep', {'step': step}) ?? base.liveLookStep(step);
+
+  @override
+  String liveLookOnItsWayFrom(String place) =>
+      overlay.format('liveLookOnItsWayFrom', {'place': place}) ??
+      base.liveLookOnItsWayFrom(place);
+
+  @override
+  String liveLookItems(int count) =>
+      overlay.format('liveLookItems', {'count': count}) ??
+      base.liveLookItems(count);
+
+  @override
+  String liveLookHeading(String name, String place) =>
+      overlay.format('liveLookHeading', {'name': name, 'place': place}) ??
+      base.liveLookHeading(name, place);
+
+  @override
+  String get liveStatePlaced =>
+      overlay.text('liveStatePlaced') ?? base.liveStatePlaced;
+
+  @override
+  String get liveStateCooking =>
+      overlay.text('liveStateCooking') ?? base.liveStateCooking;
+
+  @override
+  String get liveStatePacking =>
+      overlay.text('liveStatePacking') ?? base.liveStatePacking;
+
+  @override
+  String get liveStateReady =>
+      overlay.text('liveStateReady') ?? base.liveStateReady;
+
+  @override
+  String get liveStateOnItsWay =>
+      overlay.text('liveStateOnItsWay') ?? base.liveStateOnItsWay;
+
+  @override
+  String get liveStatePickedUp =>
+      overlay.text('liveStatePickedUp') ?? base.liveStatePickedUp;
+
+  @override
+  String get liveStateDelivered =>
+      overlay.text('liveStateDelivered') ?? base.liveStateDelivered;
+
+  @override
+  String get liveStageCooking =>
+      overlay.text('liveStageCooking') ?? base.liveStageCooking;
+
+  @override
+  String get liveStagePacking =>
+      overlay.text('liveStagePacking') ?? base.liveStagePacking;
+
+  @override
+  String get liveStageFinding =>
+      overlay.text('liveStageFinding') ?? base.liveStageFinding;
+
+  @override
+  String get liveStageComing =>
+      overlay.text('liveStageComing') ?? base.liveStageComing;
+
+  @override
+  String get liveStageHere =>
+      overlay.text('liveStageHere') ?? base.liveStageHere;
+
+  @override
+  String get liveStageOnBoard =>
+      overlay.text('liveStageOnBoard') ?? base.liveStageOnBoard;
 }

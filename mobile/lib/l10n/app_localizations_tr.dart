@@ -11508,4 +11508,69 @@ class AppLocalizationsTr extends AppLocalizations {
   String studioMapEta(String name, int minutes) {
     return '$name · $minutes dk';
   }
+
+  @override
+  String get liveLookMinAway => 'dk kaldı';
+
+  @override
+  String get liveLookLive => 'Canlı';
+
+  @override
+  String liveLookStep(int step) {
+    return '4 adımdan $step.';
+  }
+
+  @override
+  String liveLookOnItsWayFrom(String place) {
+    return '$place siparişi yolda';
+  }
+
+  @override
+  String liveLookItems(int count) {
+    return '$count ürün';
+  }
+
+  @override
+  String liveLookHeading(String name, String place) {
+    return '$name $place adresine gidiyor';
+  }
+
+  @override
+  String get liveStatePlaced => 'Alındı';
+
+  @override
+  String get liveStateCooking => 'Hazırlanıyor';
+
+  @override
+  String get liveStatePacking => 'Hazırlanıyor';
+
+  @override
+  String get liveStateReady => 'Hazır';
+
+  @override
+  String get liveStateOnItsWay => 'Yolda';
+
+  @override
+  String get liveStatePickedUp => 'Teslim alındı';
+
+  @override
+  String get liveStateDelivered => 'Teslim edildi';
+
+  @override
+  String get liveStageCooking => 'Hazırlık';
+
+  @override
+  String get liveStagePacking => 'Hazırlık';
+
+  @override
+  String get liveStageFinding => 'Aranıyor';
+
+  @override
+  String get liveStageComing => 'Geliyor';
+
+  @override
+  String get liveStageHere => 'Geldi';
+
+  @override
+  String get liveStageOnBoard => 'Yolculukta';
 }
