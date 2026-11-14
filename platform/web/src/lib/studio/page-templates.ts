@@ -1,6 +1,7 @@
 import type { StudioNode } from "@/lib/pages/types";
 import { newNodeId } from "./elements";
 import { SECTIONS, type SectionContext, type SectionWord, type TemplateInfo } from "./sections";
+import { LANDING_TEMPLATES } from "./premium-landings";
 
 /**
  * Editor audit 3.3: pages that start from something, for every project.
@@ -128,4 +129,6 @@ export const PAGE_TEMPLATES: readonly TemplateInfo[] = [
       body: body(ctx, [intro(ctx, "joinTitle", "joinText"), section(ctx, "form"), section(ctx, "contact")]),
     }),
   },
+  // 130.62 The new premium landings (lib/studio/premium-landings.ts), after the pages before them.
+  ...LANDING_TEMPLATES,
 ];

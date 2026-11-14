@@ -1,4 +1,4 @@
-import type { StudioScrim } from "../pages/types";
+import type { StudioScrim, StudioTone } from "../pages/types";
 
 /**
  * 128 A shade over a picture so the words on it read (`StudioScrim`): its
@@ -25,4 +25,13 @@ export function scrimCss(scrim: StudioScrim, rtl = false): string {
   return `linear-gradient(${deg}deg, ${scrimStops(scrim)
     .map((s) => `rgba(${rgb}, ${s.opacity}) ${s.at}%`)
     .join(", ")})`;
+}
+
+/**
+ * 130.61 A photo's tone (`StudioNode.tone`) on Studio's canvas: `mono` in
+ * black and white with a little more contrast, as the app draws it
+ * (mobile/lib/modules/shared/pages/studio_tone.dart); missing, nothing.
+ */
+export function toneStyle(tone: StudioTone | null | undefined): { filter?: string } {
+  return tone === "mono" ? { filter: "grayscale(1) contrast(1.08)" } : {};
 }

@@ -39,4 +39,6 @@ export const THEME_CHROME: Partial<Record<string, DemoChrome>> = {
   ocean: { pages: "glass", system: { look: "glass" } },
   classic: { pages: "large", system: { look: "large" } },
   rose: { pages: "brand", system: { look: "brand" } },
+  // 130.60 Monochrome luxe: the pages' large title on bone, the system screens under the ink band.
+  mono: { pages: "large", system: { look: "brand" } },
 };

@@ -784,6 +784,8 @@ function DesignTab(props: Props & { node: StudioNode }) {
       {node.type === "segments" ? <SegmentsControls {...premiumProps(props, node)} /> : null}
       {/* 129.1 A photo growing slowly, again and again. */}
       {node.type === "photo_hero" || node.type === "image" || node.type === "video_hero" || node.type === "parallax_banner" ? <Check label={t("studio.pmKenBurnsLoop")} checked={Boolean(node.ken_burns)} onChange={(on) => onChange({ ken_burns: on || undefined })} /> : null}
+      {/* 130.61 The photo in black and white. */}
+      {node.type === "photo_hero" || node.type === "image" || node.type === "parallax_banner" ? <Check label={t("studio.toneMono")} checked={node.tone === "mono"} onChange={(on) => onChange({ tone: on ? "mono" : undefined })} /> : null}
       {node.type === "school" ? <SchoolControls node={node} onChange={onChange} /> : null}
       {/* 129.11–129.20 The premium elements, and (129.18) any layout's premium card style. */}
       <PremiumControls

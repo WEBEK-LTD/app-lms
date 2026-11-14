@@ -15633,6 +15633,7 @@ components:
           properties:
             size: { type: integer, minimum: 52, maximum: 96, default: 68, description: "Each round photo's size across." }
         ken_burns: { type: boolean, default: false, description: "129.1 For `slider`: the photo of the slide showing grows slowly while it shows (a photo hero's, a picture's or a background picture), started again on each slide; for `photo_hero`, `image`, `video_hero` (its poster) and `parallax_banner`, its photo grows and shrinks slowly again and again. Still on phones set to reduce motion. A slider stops moving on by itself while it is off the screen." }
+        tone: { type: string, enum: [mono], description: "130.61 For `image` (a card's bound picture too), `photo_hero` and `parallax_banner`: the photo drawn in black and white (under its `scrim`, a duotone in the shade's colour). Missing, in colour. An app that doesn't know it shows the photo in colour." }
         indicator_look:
           type: [object, 'null']
           description: "129.1 For `slider`: where its indicator (lines, dots or pill) sits and its colour, and a count beside it."

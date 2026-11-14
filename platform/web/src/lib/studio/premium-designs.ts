@@ -1,5 +1,6 @@
 import { appOpensScreen, sortFor } from "../pages/sources";
 import type { Action, ItemSource, ScreenName, StudioEntry, StudioHeader, StudioHeaderButton, StudioHeaderStyle, StudioHeaderType, StudioNode, StudioPage, StudioStory, TabBarStyle, Translations } from "../pages/types";
+import type { StudioScreens } from "./screens";
 import { appWord, type AppWord } from "./app-words";
 import { newNodeId } from "./elements";
 import { yallappPhoto } from "./photo-food";
@@ -24,7 +25,8 @@ import type { ProjectKind, SectionContext } from "./sections";
  * hidden when there is none.
  */
 
-export const PREMIUM_DESIGN_IDS = ["warm", "fresh", "evening", "ocean", "classic", "rose"] as const;
+/** 130.60 `mono` (Monochrome luxe) after the six, offered as new: ids are kept for good, the list only grows at its end. */
+export const PREMIUM_DESIGN_IDS = ["warm", "fresh", "evening", "ocean", "classic", "rose", "mono"] as const;
 export type PremiumDesignId = (typeof PREMIUM_DESIGN_IDS)[number];
 
 /** A look's colours by day and by night (designed for the night, not inverted). */
@@ -48,6 +50,8 @@ export interface PremiumPalette {
   darkLine: string;
   /** The shade over photos. */
   shade: string;
+  /** 130.60 Where a gradient from the main colour ends when not at the second colour (a look whose second colour is too light for white words on it). */
+  gradTo?: string;
 }
 
 export const PREMIUM_PALETTES: Record<PremiumDesignId, PremiumPalette> = {
@@ -63,6 +67,8 @@ export const PREMIUM_PALETTES: Record<PremiumDesignId, PremiumPalette> = {
   classic: { brand: "#0E0D24", darkBrand: "#E3C77A", accent: "#C8A24A", deep: "#1B1A2E", page: "#FBF8F2", darkPage: "#0F0E17", surface: "#FFFFFF", darkSurface: "#1B1A26", ink: "#0E0D24", darkInk: "#F4EFE6", muted: "#6A6658", darkMuted: "#B4AE9E", line: "#E7DFCF", darkLine: "#2D2B3A", shade: "#07060F" },
   // Bloom: rose and coral on blush; by night, plum.
   rose: { brand: "#BE185D", darkBrand: "#F472B6", accent: "#FB7185", deep: "#4A1030", page: "#FFF5F7", darkPage: "#1A0B13", surface: "#FFFFFF", darkSurface: "#29121F", ink: "#3B0A24", darkInk: "#FCE7EF", muted: "#8A5A70", darkMuted: "#D4A5BA", line: "#F8DCE6", darkLine: "#45213A", shade: "#1F0612" },
+  // 130.60 Monochrome luxe: ink and bone with one accent, an electric citron; by night, bone and citron on true black.
+  mono: { brand: "#111111", darkBrand: "#E2FF3D", accent: "#E2FF3D", deep: "#050505", page: "#F2EEE6", darkPage: "#0A0A0A", surface: "#FBF9F4", darkSurface: "#161616", ink: "#111111", darkInk: "#F2EEE6", muted: "#6B675F", darkMuted: "#9C978D", line: "#DCD6CA", darkLine: "#2A2A2A", shade: "#050505", gradTo: "#3A3A3A" },
 };
 
 /** Each look's floating bar: a pill, the dock or glass, in its own colours by day and by night. */
@@ -73,19 +79,37 @@ export const PREMIUM_BARS: Record<PremiumDesignId, TabBarStyle> = {
   ocean: { design: "glass", background: "#FFFFFF", dark_background: "#0D2232", active: "#0369A1", dark_active: "#38BDF8", inactive: "#4F6B80", dark_inactive: "#93B3C8", radius: 28, margin: 12, labels: "active" },
   classic: { design: "dock", background: "#0E0D24", dark_background: "#F4EFE6", active: "#C8A24A", dark_active: "#0E0D24", inactive: "#B4AE9E", dark_inactive: "#6A6658", margin: 14 },
   rose: { design: "float", background: "#FFFFFF", dark_background: "#29121F", active: "#BE185D", dark_active: "#F472B6", inactive: "#8A5A70", dark_inactive: "#D4A5BA", radius: 24, margin: 14, labels: "active" },
+  // 130.60 The ink dock with the open tab in citron; by night graphite.
+  mono: { design: "dock", background: "#111111", dark_background: "#1E1E1E", active: "#E2FF3D", dark_active: "#E2FF3D", inactive: "#8F8B82", dark_inactive: "#8F8B82", margin: 16 },
 };
 
 /** Each look's home header (its other pages take the look's page header, THEME_CHROME). */
-export const PREMIUM_HOME_HEADERS: Record<PremiumDesignId, StudioHeaderStyle> = { warm: "photo", fresh: "large", evening: "glass", ocean: "search", classic: "large", rose: "brand" };
+export const PREMIUM_HOME_HEADERS: Record<PremiumDesignId, StudioHeaderStyle> = { warm: "photo", fresh: "large", evening: "glass", ocean: "search", classic: "large", rose: "brand", mono: "brand" };
+
+/** 130.60 The designs Studio marks as new in its list of whole designs. */
+export const NEW_PREMIUM_DESIGNS: readonly PremiumDesignId[] = ["mono"];
+
+/**
+ * 130.60 What a design sets for an academy's course screens (Config.screens: the courses' card in the lists and a
+ * course's page), applied with the whole project; the six before it keep the project's own.
+ */
+export const PREMIUM_COURSE_SCREENS: Partial<Record<PremiumDesignId, Pick<StudioScreens, "course_card" | "course_page">>> = {
+  // Each course a full photo with its name over it, nearly square; its page a tall photo with the facts on it and the purchase on glass.
+  mono: { course_card: { style: "cover", radius: 6, hide: [] }, course_page: { cover: "full", bar: "glass", first_tab: "overview", hide: [] } },
+};
 
 export function isPremiumDesign(id: string): id is PremiumDesignId {
   return (PREMIUM_DESIGN_IDS as readonly string[]).includes(id);
 }
 
+/** 130.60 The display face (bundled in the app) and the mono face of figures and small print. */
+export const DISPLAY_FONT = "Bricolage Grotesque";
+export const MONO_FONT = "JetBrains Mono";
+
 // ——— Each kind's photos, words, links and live card ———
 
 type Pack = "Ac" | "In" | "St" | "Re" | "Bo" | "Cl" | "Fi" | "Se" | "Es" | "Ne" | "Ev" | "Ch" | "De" | "Fo" | "Ma" | "Ri" | "Ta" | "Sc" | "Tr" | "Ge";
-type Field = "Kicker" | "Headline" | "Line" | "Cta" | "S1" | "S2" | "S3" | "S4" | "List" | "Ticker";
+export type Field = "Kicker" | "Headline" | "Line" | "Cta" | "S1" | "S2" | "S3" | "S4" | "List" | "Ticker";
 type Live = "learning" | "school" | "food_order" | "market_order" | "shipment" | "ride" | "recent";
 
 interface KindPack {
@@ -131,7 +155,7 @@ const PACKS: Record<Pack, KindPack> = {
 export const PREMIUM_DESIGN_PHOTOS: readonly string[] = [...new Set(Object.values(PACKS).flatMap((p) => p.photos))];
 
 /** The kind's words, photos, links and live card; a project without a kind gets the general ones. */
-function packOf(kind: ProjectKind | null): KindPack {
+export function packOf(kind: ProjectKind | null): KindPack {
   if (!kind) return PACKS.Ge;
   switch (kind.type) {
     case "lms":
@@ -164,11 +188,11 @@ function packOf(kind: ProjectKind | null): KindPack {
 }
 
 /** The pack's app word for a field (some kinds borrow another's). */
-function packWord(p: KindPack, field: Field): AppWord {
+export function packWord(p: KindPack, field: Field): AppWord {
   return `pd${p.from?.[field] ?? p.pack}${field}` as AppWord;
 }
 
-function packSteps(p: KindPack): readonly [AppWord, AppWord, AppWord] {
+export function packSteps(p: KindPack): readonly [AppWord, AppWord, AppWord] {
   return p.steps ?? ([`pd${p.pack}Step1`, `pd${p.pack}Step2`, `pd${p.pack}Step3`] as unknown as readonly [AppWord, AppWord, AppWord]);
 }
 
@@ -179,12 +203,12 @@ export function premiumCoverPath(kind: ProjectKind | null): string {
 
 // ——— The parts ———
 
-const LANGS = ["en", "ar", "tr"] as const;
+export const LANGS = ["en", "ar", "tr"] as const;
 type Lang = (typeof LANGS)[number];
-const pad = (top: number, end: number, bottom = top, start = end) => ({ top, end, bottom, start });
+export const pad = (top: number, end: number, bottom = top, start = end) => ({ top, end, bottom, start });
 
 /** What a design writes with: the kind, the look's colours and the app's words in the dashboard's language with the others as translations. */
-interface Maker {
+export interface Maker {
   ctx: SectionContext;
   kind: ProjectKind | null;
   p: KindPack;
@@ -202,6 +226,11 @@ interface Maker {
 }
 
 function maker(ctx: SectionContext, kind: ProjectKind | null, design: PremiumDesignId): Maker {
+  return makerOf(ctx, kind, PREMIUM_PALETTES[design]);
+}
+
+/** 130.62 What a page is written with in any palette (a landing template's, in the project's own colour). */
+export function makerOf(ctx: SectionContext, kind: ProjectKind | null, palette: PremiumPalette): Maker {
   const p = packOf(kind);
   const lang: Lang = ctx.lang ?? "en";
   const app = ctx.app ?? "";
@@ -222,7 +251,7 @@ function maker(ctx: SectionContext, kind: ProjectKind | null, design: PremiumDes
     ctx,
     kind,
     p,
-    c: PREMIUM_PALETTES[design],
+    c: palette,
     id: () => (ctx.newId ?? newNodeId)(),
     lang,
     say,
@@ -234,18 +263,18 @@ function maker(ctx: SectionContext, kind: ProjectKind | null, design: PremiumDes
 }
 
 /** A text node with its translations. */
-function text(m: Maker, word: AppWord, look: Partial<StudioNode>): StudioNode {
+export function text(m: Maker, word: AppWord, look: Partial<StudioNode>): StudioNode {
   const s = m.say(word);
   return { id: m.id(), type: "text", text: s.value, translations: s.translations, ...look };
 }
 
-const inkOf = (m: Maker) => ({ color: m.c.ink, dark_color: m.c.darkInk });
-const mutedOf = (m: Maker) => ({ color: m.c.muted, dark_color: m.c.darkMuted });
-const surfaceOf = (m: Maker) => ({ background: m.c.surface, dark_background: m.c.darkSurface });
-const rise = (delay = 0): StudioNode["motion"] => ({ enter: "slide_up", duration_ms: 520, ...(delay ? { delay_ms: delay } : {}) });
+export const inkOf = (m: Maker) => ({ color: m.c.ink, dark_color: m.c.darkInk });
+export const mutedOf = (m: Maker) => ({ color: m.c.muted, dark_color: m.c.darkMuted });
+export const surfaceOf = (m: Maker) => ({ background: m.c.surface, dark_background: m.c.darkSurface });
+export const rise = (delay = 0): StudioNode["motion"] => ({ enter: "slide_up", duration_ms: 520, ...(delay ? { delay_ms: delay } : {}) });
 
 /** A section's title, with "See all" opening `action`. */
-function head(m: Maker, word: AppWord, action: Action | null, look: { size?: number; top?: number; serif?: boolean } = {}): StudioNode {
+export function head(m: Maker, word: AppWord, action: Action | null, look: { size?: number; top?: number; serif?: boolean } = {}): StudioNode {
   const children: StudioNode[] = [text(m, word, { width: "fill", max_lines: 1, font: { size: look.size ?? 20, weight: 800, letter_spacing: -0.3 }, ...inkOf(m) })];
   if (action) children.push(text(m, "seeAll", { font: { size: 13, weight: 700 }, color: m.c.brand, dark_color: m.c.darkBrand, action }));
   const name = m.say(word).value;
@@ -253,7 +282,7 @@ function head(m: Maker, word: AppWord, action: Action | null, look: { size?: num
 }
 
 /** A button: filled in `background` or outlined. */
-function button(m: Maker, word: AppWord, action: Action | null, look: { background?: string; darkBackground?: string; color?: string; darkColor?: string; outline?: string; height?: number; icon?: string } = {}): StudioNode {
+export function button(m: Maker, word: AppWord, action: Action | null, look: { background?: string; darkBackground?: string; color?: string; darkColor?: string; outline?: string; height?: number; icon?: string } = {}): StudioNode {
   const s = m.say(word);
   return {
     id: m.id(),
@@ -277,7 +306,7 @@ function button(m: Maker, word: AppWord, action: Action | null, look: { backgrou
 }
 
 /** The kind's live card: the person's own order, ride, parcel, course or child; nothing without one, or signed out. */
-function liveCard(m: Maker, margin = pad(14, 16, 0, 16)): StudioNode[] {
+export function liveCard(m: Maker, margin = pad(14, 16, 0, 16)): StudioNode[] {
   const { c } = m;
   const signedIn = { visibility: "signed_in" as const, margin };
   switch (m.p.live) {
@@ -303,10 +332,11 @@ function liveCard(m: Maker, margin = pad(14, 16, 0, 16)): StudioNode[] {
   }
 }
 
-type CardLook = "photo" | "tall" | "grid" | "row" | "editorial" | "round";
+/** 130.60 `poster`: a tall photo in black and white with the title in capitals under it. */
+export type CardLook = "photo" | "tall" | "grid" | "row" | "editorial" | "round" | "poster";
 
 /** The app's main list in the look's cards; none when the project has no list. */
-function items(m: Maker, look: CardLook, o: { title?: AppWord | null; limit?: number; recent?: boolean } = {}): StudioNode[] {
+export function items(m: Maker, look: CardLook, o: { title?: AppWord | null; limit?: number; recent?: boolean } = {}): StudioNode[] {
   const source = m.ctx.source;
   if (!source) return [];
   const { c } = m;
@@ -322,6 +352,26 @@ function items(m: Maker, look: CardLook, o: { title?: AppWord | null; limit?: nu
       break;
     case "tall":
       card = { id: m.id(), type: "column", width: 200, gap: 10, children: [image(250, 26), { id: m.id(), type: "column", gap: 2, padding: pad(0, 4), children: [title(16), sub] }] };
+      break;
+    case "poster":
+      card = {
+        id: m.id(),
+        type: "column",
+        width: 228,
+        gap: 10,
+        children: [
+          image(304, 4, { tone: "mono" }),
+          {
+            id: m.id(),
+            type: "column",
+            gap: 3,
+            children: [
+              { id: m.id(), type: "text", bind: "title", max_lines: 1, font: { size: 14, weight: 800, letter_spacing: 0.8, uppercase: true }, ...inkOf(m) },
+              { id: m.id(), type: "text", bind: "subtitle", max_lines: 1, font: { size: 12, family: MONO_FONT }, ...mutedOf(m) },
+            ],
+          },
+        ],
+      };
       break;
     case "round":
       card = { id: m.id(), type: "column", width: 190, gap: 10, padding: pad(10, 10), radius: 30, ...surfaceOf(m), children: [image(170, 22), { id: m.id(), type: "column", gap: 2, padding: pad(0, 6, 6, 6), children: [title(15), sub] }] };
@@ -383,7 +433,7 @@ function items(m: Maker, look: CardLook, o: { title?: AppWord | null; limit?: nu
 }
 
 /** The four stories: the kind's photos in rings, each opening its screen. */
-function stories(m: Maker, ring: StudioStory["ring"] = "auto", size = 70): StudioNode {
+export function stories(m: Maker, ring: StudioStory["ring"] = "auto", size = 70): StudioNode {
   const slides: StudioStory[] = [1, 2, 3, 4].map((i) => {
     const s = m.say(packWord(m.p, `S${i}` as Field), "heading");
     const action = m.opens(i - 1);
@@ -393,12 +443,13 @@ function stories(m: Maker, ring: StudioStory["ring"] = "auto", size = 70): Studi
 }
 
 /** A bento of the kind's four photos (or its icons on the look's gradients), each opening its screen. */
-function bento(m: Maker, o: { caption?: "plain" | "glass"; photos?: boolean; row?: number } = {}): StudioNode {
+export function bento(m: Maker, o: { caption?: "plain" | "glass"; photos?: boolean; row?: number } = {}): StudioNode {
   const sizes = ["large", "small", "small", "wide"] as const;
+  const to = m.c.gradTo ?? m.c.accent;
   const grads = [
-    { from: m.c.brand, to: m.c.accent, angle: 135 },
+    { from: m.c.brand, to, angle: 135 },
     { from: m.c.deep, to: m.c.brand, angle: 160 },
-    { from: m.c.accent, to: m.c.brand, angle: 200 },
+    { from: to, to: m.c.brand, angle: 200 },
     { from: m.c.ink, to: m.c.deep, angle: 120 },
   ];
   const entries: StudioEntry[] = [1, 2, 3, 4].map((i) => {
@@ -411,7 +462,7 @@ function bento(m: Maker, o: { caption?: "plain" | "glass"; photos?: boolean; row
 }
 
 /** Quotes from customers: the owner's to write, in [brackets], no stars made up. */
-function testimonials(m: Maker, style: "carousel" | "stacked" = "carousel"): StudioNode[] {
+export function testimonials(m: Maker, style: "carousel" | "stacked" = "carousel"): StudioNode[] {
   const quote = (t: AppWord): StudioEntry => {
     const a = m.say(t, "text");
     const name = m.say("reviewName", "title");
@@ -439,7 +490,7 @@ function testimonials(m: Maker, style: "carousel" | "stacked" = "carousel"): Stu
 }
 
 /** The kind's ticker, a band of its three lines. */
-function ticker(m: Maker, look: Partial<StudioNode> & { tilt?: number; chips?: boolean }): StudioNode {
+export function ticker(m: Maker, look: Partial<StudioNode> & { tilt?: number; chips?: boolean }): StudioNode {
   const s = m.say(packWord(m.p, "Ticker"));
   const { tilt, chips, ...rest } = look;
   return {
@@ -458,7 +509,7 @@ function ticker(m: Maker, look: Partial<StudioNode> & { tilt?: number; chips?: b
 }
 
 /** The kind's steps (the timeline of how it works). */
-function steps(m: Maker, style: "vertical" | "horizontal" = "vertical"): StudioNode[] {
+export function steps(m: Maker, style: "vertical" | "horizontal" = "vertical"): StudioNode[] {
   const entries: StudioEntry[] = packSteps(m.p).map((w, i) => {
     const s = m.say(w, "title");
     return { title: s.value, subtitle: `0${i + 1}`, translations: s.translations };
@@ -467,7 +518,7 @@ function steps(m: Maker, style: "vertical" | "horizontal" = "vertical"): StudioN
 }
 
 /** A gallery of the kind's photos with their captions, each opening its screen. */
-function gallery(m: Maker, layout: "masonry" | "bento" | "filmstrip", withCover = false): StudioNode[] {
+export function gallery(m: Maker, layout: "masonry" | "bento" | "filmstrip", withCover = false): StudioNode[] {
   const shown = (withCover ? [0, 1, 2, 3, 4] : [1, 2, 3, 4]).filter((i) => m.photo(i));
   if (shown.length < 3) return [];
   return [
@@ -489,7 +540,7 @@ function gallery(m: Maker, layout: "masonry" | "bento" | "filmstrip", withCover 
 }
 
 /** A badge with an app word. */
-function badge(m: Maker, word: AppWord, style: "pill" | "outline" | "gradient" | "glass" | "text", look: Partial<StudioNode> = {}): StudioNode {
+export function badge(m: Maker, word: AppWord, style: "pill" | "outline" | "gradient" | "glass" | "text", look: Partial<StudioNode> = {}): StudioNode {
   const s = m.say(word);
   return { id: m.id(), type: "badge_text", text: s.value, translations: s.translations, badge: { style }, ...look };
 }
@@ -528,7 +579,7 @@ function homeHeader(m: Maker, design: PremiumDesignId, type: StudioHeaderType, b
 }
 
 /** A page in the look's colours. */
-function page(m: Maker, header: StudioHeader, children: StudioNode[]): StudioPage {
+export function page(m: Maker, header: StudioHeader, children: StudioNode[]): StudioPage {
   return {
     header,
     background: m.c.page,
@@ -539,7 +590,7 @@ function page(m: Maker, header: StudioHeader, children: StudioNode[]): StudioPag
 }
 
 /** A photo slide: the kicker, a headline and the main button, over the photo under the look's shade. */
-function slide(m: Maker, i: number, o: { height: number; radius: number; kicker: AppWord | null; title: AppWord; button: boolean; gold?: string; size?: number }): StudioNode {
+export function slide(m: Maker, i: number, o: { height: number; radius: number; kicker: AppWord | null; title: AppWord; button: boolean; gold?: string; size?: number }): StudioNode {
   const { c } = m;
   const children: StudioNode[] = [];
   if (o.kicker) children.push(text(m, o.kicker, { color: o.gold ?? c.accent, font: { size: 12, weight: 800, letter_spacing: 1.8, uppercase: true } }));
@@ -813,7 +864,175 @@ function roseHome(m: Maker, type: StudioHeaderType): StudioPage {
   ]);
 }
 
-const HOMES: Record<PremiumDesignId, (m: Maker, type: StudioHeaderType) => StudioPage> = { warm: warmHome, fresh: freshHome, evening: eveningHome, ocean: oceanHome, classic: classicHome, rose: roseHome };
+/** The bone of Monochrome luxe's words on photos, and its ink. */
+const BONE = "#F2EEE6";
+const INK = "#0B0B0B";
+
+/** 130.60 A solid citron tag with its word in capitals in the mono face, at the start. */
+export function monoTag(m: Maker, word: AppWord, colours: { background?: string; color?: string } = {}): StudioNode {
+  const bg = colours.background ?? m.c.accent;
+  const ink = colours.color ?? INK;
+  return {
+    id: m.id(),
+    type: "row",
+    self_align: "start",
+    radius: 2,
+    background: bg,
+    dark_background: bg,
+    padding: pad(5, 9),
+    children: [text(m, word, { color: ink, dark_color: ink, max_lines: 1, font: { size: 11, weight: 800, letter_spacing: 1.6, uppercase: true, family: MONO_FONT } })],
+  };
+}
+
+/** 130.60 Monochrome luxe's index: the kind's four places in oversized type, numbered in mono, a hairline between them, each opening its screen. */
+function monoIndex(m: Maker): StudioNode[] {
+  const { c } = m;
+  const rule = (): StudioNode => ({ id: m.id(), type: "row", height: 1, background: c.line, dark_background: c.darkLine, children: [] });
+  const rows: StudioNode[] = [rule()];
+  for (const i of [1, 2, 3, 4]) {
+    const action = m.opens(i - 1);
+    const s = m.say(packWord(m.p, `S${i}` as Field));
+    rows.push({
+      id: m.id(),
+      type: "row",
+      name: s.value,
+      gap: 14,
+      cross: "center",
+      padding: pad(16, 0),
+      ...(action ? { action } : {}),
+      children: [
+        { id: m.id(), type: "text", text: `0${i}`, color: c.muted, dark_color: c.accent, font: { size: 12, weight: 700, family: MONO_FONT } },
+        text(m, packWord(m.p, `S${i}` as Field), { width: "fill", max_lines: 1, font: { size: 30, weight: 700, letter_spacing: -1.2, line_height: 1.05, family: DISPLAY_FONT }, ...inkOf(m) }),
+        { id: m.id(), type: "icon", icon: action ? "north_east" : m.p.icons[i - 1], icon_size: 22, color: c.ink, dark_color: c.accent },
+      ],
+    });
+    rows.push(rule());
+  }
+  const kicker = m.say("pdMoIndex");
+  return [
+    { id: m.id(), type: "row", name: kicker.value, cross: "end", gap: 10, padding: pad(28, 20, 6, 20), children: [text(m, "pdMoIndex", { width: "fill", font: { size: 12, weight: 700, letter_spacing: 2.4, uppercase: true, family: MONO_FONT }, ...mutedOf(m) })] },
+    { id: m.id(), type: "column", padding: pad(0, 20), children: rows, motion: rise() },
+  ];
+}
+
+/**
+ * 130.60 Monochrome luxe: ink and bone with one electric citron, an oversized display face and every photo in black
+ * and white. The kind's cover full-bleed under an ink shade with its kicker on a citron tag and the headline set huge,
+ * a ticker of the kind's lines in capitals on an ink band, the live card, the kind's four places as an index in
+ * oversized type, the list as black-and-white posters, two photo panels side by side, a parallax banner with its words
+ * on glass, the quotes on ink and the owner's own statement to close.
+ */
+function monoHome(m: Maker, type: StudioHeaderType): StudioPage {
+  const { c } = m;
+  const tag = (word: AppWord) => monoTag(m, word);
+  const cover: StudioNode = {
+    id: m.id(),
+    type: "photo_hero",
+    image_url: m.photo(0),
+    tone: "mono",
+    ken_burns: true,
+    height: 540,
+    background: c.deep,
+    scrim: { color: c.shade, from: 0.2, middle: 0.08, at: 40, to: 0.92 },
+    align: "end",
+    gap: 12,
+    padding: pad(24, 22, 30, 22),
+    children: [
+      tag(packWord(m.p, "Kicker")),
+      text(m, packWord(m.p, "Headline"), { color: BONE, font: { size: 50, weight: 800, line_height: 0.98, letter_spacing: -2, family: DISPLAY_FONT } }),
+      text(m, packWord(m.p, "Line"), { color: BONE, opacity: 0.78, font: { size: 15, line_height: 1.4 } }),
+      {
+        id: m.id(),
+        type: "row",
+        gap: 10,
+        margin: pad(6, 0, 0, 0),
+        children: [
+          button(m, packWord(m.p, "Cta"), m.main, { background: c.accent, darkBackground: c.accent, color: INK, darkColor: INK, icon: "north_east", height: 50 }),
+          ...(m.opens(1) && m.opens(1)?.screen !== m.main?.screen
+            ? [{ ...button(m, packWord(m.p, "S2"), m.opens(1), { background: c.shade, darkBackground: c.shade, color: BONE, darkColor: BONE, height: 50 }), border_color: BONE, dark_border_color: BONE, border_width: 1 }]
+            : []),
+        ],
+      },
+    ],
+  };
+  const band = ticker(m, { background: INK, dark_background: c.accent, color: c.accent, dark_color: INK, font: { size: 20, weight: 800, letter_spacing: -0.4, uppercase: true, family: DISPLAY_FONT }, padding: pad(16, 0), margin: pad(0, 0, 4, 0) });
+  // Two photo panels side by side, each a place of the kind.
+  const panel = (i: number): StudioNode => {
+    const action = m.opens(i - 1);
+    return {
+      id: m.id(),
+      type: "photo_hero",
+      image_url: m.photo(i),
+      tone: "mono",
+      width: "fill",
+      height: 236,
+      radius: 4,
+      background: c.deep,
+      scrim: { color: c.shade, from: 0, to: 0.8 },
+      align: "end",
+      padding: pad(14, 14),
+      ...(action ? { action } : {}),
+      children: [
+        { id: m.id(), type: "text", text: `0${i}`, color: c.accent, font: { size: 11, weight: 700, family: MONO_FONT } },
+        text(m, packWord(m.p, `S${i}` as Field), { color: BONE, max_lines: 2, font: { size: 19, weight: 800, line_height: 1.05, letter_spacing: -0.5, family: DISPLAY_FONT } }),
+      ],
+    };
+  };
+  const duo: StudioNode | null = m.photo(2) && m.photo(3) ? { id: m.id(), type: "row", gap: 10, padding: pad(0, 16), margin: pad(24, 0, 0, 0), children: [panel(3), panel(4)], motion: rise() } : null;
+  const banner: StudioNode = {
+    id: m.id(),
+    type: "parallax_banner",
+    image_url: m.photo(1),
+    tone: "mono",
+    parallax: { speed: 0.4 },
+    glass: true,
+    height: 380,
+    margin: pad(28, 0, 0, 0),
+    background: c.deep,
+    scrim: { color: c.shade, from: 0.15, to: 0.6 },
+    align: "end",
+    gap: 10,
+    padding: pad(20, 20),
+    children: [
+      tag(packWord(m.p, "S1")),
+      text(m, packWord(m.p, "Line"), { color: BONE, font: { size: 24, weight: 800, line_height: 1.12, letter_spacing: -0.6, family: DISPLAY_FONT } }),
+      { ...button(m, packWord(m.p, "Cta"), m.main, { background: BONE, darkBackground: BONE, color: INK, darkColor: INK, icon: "north_east" }), margin: pad(4, 0, 0, 0) },
+    ],
+  };
+  const [quotesHead, quotes] = testimonials(m, "stacked");
+  // The owner's statement, set large on ink: theirs to write, in brackets.
+  const statement: StudioNode = {
+    id: m.id(),
+    type: "column",
+    gap: 14,
+    background: INK,
+    dark_background: c.darkSurface,
+    radius: 4,
+    padding: pad(28, 22),
+    margin: pad(24, 16, 0, 16),
+    children: [
+      { id: m.id(), type: "text", text: "“", color: c.accent, dark_color: c.accent, font: { size: 64, weight: 800, line_height: 0.6, family: DISPLAY_FONT } },
+      text(m, "pdMoNote", { color: BONE, dark_color: c.darkInk, font: { size: 30, weight: 700, line_height: 1.1, letter_spacing: -0.8, family: DISPLAY_FONT } }),
+      { id: m.id(), type: "row", height: 2, width: 48, background: c.accent, dark_background: c.accent, children: [] },
+      text(m, "pdMoSign", { color: BONE, dark_color: c.darkMuted, opacity: 0.8, font: { size: 12, weight: 700, letter_spacing: 2, uppercase: true, family: MONO_FONT } }),
+    ],
+    motion: rise(),
+  };
+  return page(m, homeHeader(m, "mono", type, ["search", "notifications", "account"], { subtitle: null }), [
+    cover,
+    band,
+    ...liveCard(m),
+    ...monoIndex(m),
+    ...items(m, "poster"),
+    ...(duo ? [duo] : []),
+    banner,
+    { ...quotesHead!, padding: pad(28, 20, 12, 20) },
+    { ...quotes!, background: INK, dark_background: c.darkSurface, color: BONE, dark_color: c.darkInk, radius: 4 },
+    statement,
+  ]);
+}
+
+const HOMES: Record<PremiumDesignId, (m: Maker, type: StudioHeaderType) => StudioPage> = { warm: warmHome, fresh: freshHome, evening: eveningHome, ocean: oceanHome, classic: classicHome, rose: roseHome, mono: monoHome };
 
 /** 130.30 A design's premium home for the project's kind. */
 export function premiumHome(design: PremiumDesignId, kind: ProjectKind | null, ctx: SectionContext, type: StudioHeaderType): StudioPage {
@@ -846,7 +1065,7 @@ export function premiumAbout(design: PremiumDesignId, kind: ProjectKind | null, 
     padding: pad(0, 16, 18, 16),
     cross: "center",
     children: [
-      { id: m.id(), type: "row", gap: 8, align: "center", children: [badge(m, packWord(m.p, "S1"), "gradient", { icon: m.p.icons[0], gradient: { from: c.brand, to: c.accent, angle: 90 } }), badge(m, packWord(m.p, "S2"), "outline", { color: c.brand, dark_color: c.darkBrand })] },
+      { id: m.id(), type: "row", gap: 8, align: "center", children: [badge(m, packWord(m.p, "S1"), "gradient", { icon: m.p.icons[0], gradient: { from: c.brand, to: c.gradTo ?? c.accent, angle: 90 } }), badge(m, packWord(m.p, "S2"), "outline", { color: c.brand, dark_color: c.darkBrand })] },
       {
         id: m.id(),
         type: "row",
@@ -874,7 +1093,7 @@ export function premiumAbout(design: PremiumDesignId, kind: ProjectKind | null, 
     bento: { caption: "plain", row: 112 },
     margin: pad(0, 16, 4, 16),
     ...inkOf(m),
-    entries: [promise("pdPromise1", "workspace_premium", "wide", { from: c.brand, to: c.accent, angle: 120 }), promise("pdPromise2", "favorite", "small"), promise("pdPromise3", "bolt", "small")],
+    entries: [promise("pdPromise1", "workspace_premium", "wide", { from: c.brand, to: c.gradTo ?? c.accent, angle: 120 }), promise("pdPromise2", "favorite", "small"), promise("pdPromise3", "bolt", "small")],
     motion: rise(),
   };
   return {

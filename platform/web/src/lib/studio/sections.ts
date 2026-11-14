@@ -10,6 +10,8 @@ import { demoDesignTemplate, signatureTemplates } from "./demo-designs";
 import type { SignatureLook } from "./demo-designs/signature";
 import type { SignatureWord } from "./demo-designs/signature-words";
 import { peopleRow, photoHero, photoOf, photoTiles } from "./photo-sections";
+// 130.62 The new premium landings.
+import { LANDING_SECTIONS } from "./premium-landings";
 
 /**
  * 103R Ready sections (dropped onto a page whole) and page templates (a
@@ -324,6 +326,8 @@ export interface SectionContext {
   demo?: StudioDemoId;
   /** 130 The Signature look of the demo these pages are in (lib/studio/demo-designs/signature.ts); missing, the demo's look A (the demo itself). */
   look?: SignatureLook;
+  /** 130.62 The project's kind, for a landing template's photos, words, screens and live card (lib/studio/premium-landings.ts); missing, the general ones. */
+  kind?: ProjectKind | null;
 }
 
 /** 103R.7 The project types a section or template is made for; none: every type. */
@@ -339,6 +343,8 @@ export interface SectionInfo {
   fits?: Fits;
   /** Shown only to projects with categories to list. */
   needsCategories?: boolean;
+  /** 130.62 Marked new in Studio's list. */
+  isNew?: boolean;
 }
 
 /** The project's type and vertical (`App.appType`, `App.vertical`). */
@@ -1077,6 +1083,8 @@ export const SECTIONS: readonly SectionInfo[] = [
         ctx.w("rqMeet"),
       ),
   },
+  // 130.62 The new premium landings' openings, for every project (lib/studio/premium-landings.ts), at the end.
+  ...LANDING_SECTIONS,
 ];
 
 /** 103R.7 Whether a section or template is made for this project (or for every project). */
@@ -1106,6 +1114,8 @@ export interface TemplateInfo {
   recommended?: boolean;
   /** 123 What the template sets for the whole project besides its home: its bar, tabs, screens and colours (lib/studio/academy.ts). */
   project?: TemplateProject;
+  /** 130.62 Marked new in Studio's list. */
+  isNew?: boolean;
 }
 
 function pageOf(ctx: SectionContext, sections: string[], header: StudioPage["header"]): StudioPage {

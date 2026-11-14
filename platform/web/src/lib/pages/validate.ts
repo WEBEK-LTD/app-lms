@@ -76,6 +76,7 @@ import {
   STUDIO_STORY_RINGS,
   STUDIO_CAPTION_STYLES,
   STUDIO_KEN_BURNS_TYPES,
+  STUDIO_TONE_TYPES,
   type StudioStory,
   type StudioPhoto,
   type StudioIndicatorLook,
@@ -2059,6 +2060,8 @@ function parseNode(ctx: Context, where: string, value: unknown, state: { count: 
   }
   // 129.1 A photo growing slowly: a slider's open slide's, a photo hero's, a picture's or a banner's.
   if (v.ken_burns === true && (STUDIO_KEN_BURNS_TYPES as readonly string[]).includes(node.type)) node.ken_burns = true;
+  // 130.61 A photo in black and white: a picture's, a photo hero's or a banner's.
+  if (v.tone === "mono" && (STUDIO_TONE_TYPES as readonly string[]).includes(node.type)) node.tone = "mono";
   if (node.type === "button" || node.type === "icon" || node.type === "bullets") {
     const iconSize = num("icon_size", 8, 200, "the icon's size");
     if (iconSize && iconSize !== 24) node.icon_size = iconSize;
