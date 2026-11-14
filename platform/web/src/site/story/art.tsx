@@ -235,6 +235,11 @@ function ScaleCard({ t }: { t: StoryArtText }) {
   );
 }
 
+/*
+ * 131.40 The flower shop's cards draw the app, which keeps its own colours
+ * whatever the site's theme: plain colours here, not the site's tokens.
+ */
+
 /**
  * 131.40 The flower shop's "when" (the gift checkout's third step, as the
  * app draws it): today struck through after the cut-off, tomorrow chosen, a
@@ -250,35 +255,35 @@ function SlotsCard({ t }: { t: StoryArtText }) {
   const chip = "flex min-w-0 items-center justify-center gap-1 rounded-full border px-2.5 py-1.5 text-[12.5px] font-bold";
   return (
     <div className="flex w-[290px] max-w-full flex-col gap-2.5 rounded-[22px] bg-white p-3.5 text-midnight shadow-[0_30px_60px_-24px_rgba(0,0,0,0.6)] sm:gap-3 sm:p-4" data-reveal="pop">
-      <span className="flex items-center gap-2 text-xs font-bold tracking-[0.8px] text-muted uppercase">
+      <span className="flex items-center gap-2 text-xs font-bold tracking-[0.8px] text-[#6b6880] uppercase">
         <Icon name="schedule" size={18} className="flex-none" />
         {t.when}
       </span>
       <span className="flex flex-wrap gap-1.5">
-        <span className={`${chip} border-line-soft text-faint line-through`}>{t.today}</span>
+        <span className={`${chip} border-[#efebe4] text-[#9b98ad] line-through`}>{t.today}</span>
         <span className={`${chip} border-transparent bg-[#8E2445] text-white`}>
           <Icon name="wb_sunny" size={15} />
           {t.tomorrow}
         </span>
-        <span className={`${chip} border-line text-ink-3`}>
+        <span className={`${chip} border-[#e6e1d8] text-[#3d3a52]`}>
           <Icon name="calendar_month" size={15} />
           {t.pickDate}
         </span>
       </span>
-      <span className="text-[12.5px] leading-snug text-muted">{t.todayClosed}</span>
+      <span className="text-[12.5px] leading-snug text-[#6b6880]">{t.todayClosed}</span>
       {/* One slot a row on a phone, two by two from a tablet up. */}
       <ul className="m-0 grid list-none grid-cols-1 gap-1.5 p-0 sm:grid-cols-2 sm:gap-2">
         {slots.map((slot, i) => (
           <li
             key={slot.time}
-            className={`story-stagger flex items-center justify-between gap-2 rounded-2xl border px-3 py-2 sm:flex-col sm:justify-center sm:gap-0.5 sm:px-2 sm:py-2.5 ${slot.state === "chosen" ? "border-[#8E2445] bg-[#FBEFF2]" : slot.state === "full" ? "border-line-soft bg-sand opacity-60" : "border-line"}`}
+            className={`story-stagger flex items-center justify-between gap-2 rounded-2xl border px-3 py-2 sm:flex-col sm:justify-center sm:gap-0.5 sm:px-2 sm:py-2.5 ${slot.state === "chosen" ? "border-[#8E2445] bg-[#FBEFF2]" : slot.state === "full" ? "border-[#efebe4] bg-[#f4efe6] opacity-60" : "border-[#e6e1d8]"}`}
             style={{ ["--i" as string]: i }}
           >
-            <span dir="ltr" className={`text-[13.5px] font-extrabold whitespace-nowrap tabular-nums sm:text-[14px] ${slot.state === "full" ? "text-faint line-through" : ""}`}>
+            <span dir="ltr" className={`text-[13.5px] font-extrabold whitespace-nowrap tabular-nums sm:text-[14px] ${slot.state === "full" ? "text-[#9b98ad] line-through" : ""}`}>
               {slot.time}
             </span>
             {slot.note ? (
-              <span dir={slot.state === "full" ? undefined : "ltr"} className="text-[11.5px] font-semibold text-muted">
+              <span dir={slot.state === "full" ? undefined : "ltr"} className="text-[11.5px] font-semibold text-[#6b6880]">
                 {slot.note}
               </span>
             ) : (
@@ -330,7 +335,7 @@ function FlashCard({ t }: { t: StoryArtText }) {
 /** 131.40 The gift card as the checkout previews it: the occasion, the words, who it's to and from, the shop's seal. */
 function GiftCard({ t }: { t: StoryArtText }) {
   return (
-    <figure className="relative m-0 flex w-[200px] max-w-full flex-col gap-2 rounded-[22px] bg-[#FFF8F4] p-3.5 text-[#2A121C] shadow-[0_30px_60px_-24px_rgba(0,0,0,0.6)] sm:w-[280px] sm:gap-3 sm:p-5" data-reveal="pop">
+    <figure className="relative m-0 flex w-[184px] max-w-full flex-col gap-2 rounded-[22px] bg-[#FFF8F4] p-3.5 text-[#2A121C] shadow-[0_30px_60px_-24px_rgba(0,0,0,0.6)] sm:w-[280px] sm:gap-3 sm:p-5" data-reveal="pop">
       <span aria-hidden="true" className="absolute end-3 top-3 flex h-10 w-10 items-center justify-center rounded-full bg-[#8E2445] text-[#FBEFF2] shadow-[0_6px_14px_-6px_rgba(142,36,69,0.8)] sm:end-4 sm:top-4 sm:h-11 sm:w-11">
         <Icon name="local_florist" size={22} />
       </span>
@@ -339,7 +344,7 @@ function GiftCard({ t }: { t: StoryArtText }) {
         {t.cardOccasion}
       </span>
       <span className="text-[14px] text-[#7B5E67]">{t.cardTo}</span>
-      <blockquote className="m-0 text-[16px] leading-snug sm:text-[20px] ltr:font-serif ltr:italic">{t.cardMessage}</blockquote>
+      <blockquote className="m-0 text-[15px] leading-snug sm:text-[20px] ltr:font-serif ltr:italic">{t.cardMessage}</blockquote>
       <figcaption className="text-[14px] text-[#7B5E67]">{t.cardFrom}</figcaption>
     </figure>
   );
@@ -360,30 +365,30 @@ function FeeCard({ t }: { t: StoryArtText }) {
           <span dir="ltr" className="self-start font-mono text-[15px] font-extrabold tracking-[1.5px]">
             LEQAA10
           </span>
-          <span className="text-[12px] font-semibold text-muted">{t.codeApplied}</span>
+          <span className="text-[12px] font-semibold text-[#6b6880]">{t.codeApplied}</span>
         </span>
         <span dir="ltr" className="text-[15px] font-extrabold text-[#8E2445]">
           −10%
         </span>
       </span>
-      <span className="text-xs font-bold tracking-[0.8px] text-muted uppercase">{t.feeTitle}</span>
+      <span className="text-xs font-bold tracking-[0.8px] text-[#6b6880] uppercase">{t.feeTitle}</span>
       <ul className="m-0 flex list-none flex-col gap-1.5 p-0 text-[14px]">
         {lines.map(([label, amount], i) => (
           <li key={label} className="story-stagger flex items-baseline justify-between gap-3" style={{ ["--i" as string]: i }}>
-            <span className="text-ink-4">{label}</span>
+            <span className="text-[#55526a]">{label}</span>
             <span dir="ltr" className="font-semibold tabular-nums">
               {amount}
             </span>
           </li>
         ))}
-        <li className="flex items-baseline justify-between gap-3 border-t border-line-soft pt-2 font-bold">
+        <li className="flex items-baseline justify-between gap-3 border-t border-[#efebe4] pt-2 font-bold">
           <span>{t.feeParts[3]}</span>
           <span dir="ltr" className="tabular-nums">
             E£70
           </span>
         </li>
       </ul>
-      <span className="flex flex-wrap items-center gap-x-2 gap-y-0.5 self-start rounded-2xl bg-sand px-3 py-1.5 text-[12.5px] font-bold">
+      <span className="flex flex-wrap items-center gap-x-2 gap-y-0.5 self-start rounded-2xl bg-[#f4efe6] px-3 py-1.5 text-[12.5px] font-bold">
         <Icon name="event_available" size={16} />
         <span className="whitespace-nowrap">{t.tomorrow}</span>
         <span dir="ltr" className="whitespace-nowrap tabular-nums">
