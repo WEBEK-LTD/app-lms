@@ -49,7 +49,7 @@ List<Shot> _masar(String look) => _looks('rides', look, (name, dark) {
   );
 });
 
-final signatureShots = <Shot>[..._masar('a')];
+final signatureShots = <Shot>[..._masar('a'), ..._masar('b')];
 
 void main() {
   setUpAll(() async {

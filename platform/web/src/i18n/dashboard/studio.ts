@@ -1098,6 +1098,7 @@ export const en = {
   tpl_taxi_map: "Taxi map",
   // 130 The Signature looks (lib/studio/demo-designs): Masar Rides's, Lamha Taxi's and Safra's.
   tpl_rides_signature_a: "Living map",
+  tpl_rides_signature_b: "Horizon",
   tpl_teachers: "Teachers",
   tpl_teachers_offers: "Course offers",
   tpl_teachers_brand: "Academy brand",
@@ -1306,6 +1307,12 @@ export const en = {
   w_sigPickup: "Pickup",
   w_sigFareFrom: "from E£",
   w_sigOnTheWay: "On the way",
+  // 130.8 Masar B: the horizon.
+  w_sigGardenCity: "Garden City",
+  w_sigWhereToName: "Where to,\n{name}?",
+  w_sigCurrency: "E£",
+  w_sigFromFourSeats: "from · 4 seats",
+  w_sigFromSevenSeats: "from · 7 seats",
   // 128 The approved Studio demos: the school day element, the scrim, the photo sections and the schools' and teachers' homes.
   el_school: "School day",
   schoolSection: "Which part",
@@ -2940,6 +2947,7 @@ export const ar: Messages = {
   tpl_taxi_map: "خريطة التاكسي",
   // 130 The Signature looks (lib/studio/demo-designs): Masar Rides's, Lamha Taxi's and Safra's.
   tpl_rides_signature_a: "خريطة حية",
+  tpl_rides_signature_b: "الأفق",
   tpl_teachers: "المدرسين",
   tpl_teachers_offers: "عروض الكورسات",
   tpl_teachers_brand: "براند الأكاديمية",
@@ -3147,6 +3155,12 @@ export const ar: Messages = {
   w_sigPickup: "مكان الركوب",
   w_sigFareFrom: "من ج.م",
   w_sigOnTheWay: "في الطريق",
+  // 130.8 Masar B: the horizon.
+  w_sigGardenCity: "جاردن سيتي",
+  w_sigWhereToName: "إلى أين يا\n{name}؟",
+  w_sigCurrency: "ج.م",
+  w_sigFromFourSeats: "ابتداءً · 4 مقاعد",
+  w_sigFromSevenSeats: "ابتداءً · 7 مقاعد",
   // 128 The approved Studio demos: the school day element, the scrim, the photo sections and the schools' and teachers' homes.
   el_school: "يوم المدرسة",
   schoolSection: "أنهي جزء",
@@ -4774,6 +4788,7 @@ export const tr: Messages = {
   tpl_taxi_map: "Taksi haritası",
   // 130 The Signature looks (lib/studio/demo-designs): Masar Rides's, Lamha Taxi's and Safra's.
   tpl_rides_signature_a: "Canlı harita",
+  tpl_rides_signature_b: "Ufuk",
   tpl_teachers: "Eğitmenler",
   tpl_teachers_offers: "Kurs fırsatları",
   tpl_teachers_brand: "Akademi markası",
@@ -4981,6 +4996,12 @@ export const tr: Messages = {
   w_sigPickup: "Biniş",
   w_sigFareFrom: "başlangıç E£",
   w_sigOnTheWay: "Yolda",
+  // 130.8 Masar B: the horizon.
+  w_sigGardenCity: "Garden City",
+  w_sigWhereToName: "Nereye,\n{name}?",
+  w_sigCurrency: "E£",
+  w_sigFromFourSeats: "başlangıç · 4 koltuk",
+  w_sigFromSevenSeats: "başlangıç · 7 koltuk",
   // 128 The approved Studio demos: the school day element, the scrim, the photo sections and the schools' and teachers' homes.
   el_school: "Okul günü",
   schoolSection: "Hangi bölüm",

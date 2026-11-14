@@ -100,11 +100,11 @@
      "background": "#EDF0EA",
      "dark_background": "#0C1716",
      "body": {
-      "id": "ndulvszv",
+      "id": "nnvwdoln",
       "type": "column",
       "children": [
        {
-        "id": "nqyiia9m",
+        "id": "nfopi2zl",
         "type": "map_header",
         "name": "Where to?",
         "height": 676,
@@ -208,18 +208,18 @@
         },
         "children": [
          {
-          "id": "nmmzx03z",
+          "id": "njxy8wpu",
           "type": "column",
           "gap": 10,
           "children": [
            {
-            "id": "nu0ye1g6",
+            "id": "n64ygjc8",
             "type": "row",
             "gap": 10,
             "cross": "center",
             "children": [
              {
-              "id": "ntskd8ar",
+              "id": "n675owkf",
               "type": "row",
               "width": 44,
               "height": 44,
@@ -238,7 +238,7 @@
               },
               "children": [
                {
-                "id": "nw3g4j07",
+                "id": "npxw2uf1",
                 "type": "icon",
                 "icon": "person",
                 "icon_size": 22,
@@ -248,7 +248,7 @@
               ]
              },
              {
-              "id": "n52uwpdx",
+              "id": "nu54gt3o",
               "type": "row",
               "height": 44,
               "radius": 22,
@@ -267,7 +267,7 @@
               },
               "children": [
                {
-                "id": "nmy20y3p",
+                "id": "ni0d5iq4",
                 "type": "row",
                 "width": 8,
                 "height": 8,
@@ -277,7 +277,7 @@
                 "children": []
                },
                {
-                "id": "n407rq4i",
+                "id": "nqibtco9",
                 "type": "greeting",
                 "color": "#0B2422",
                 "dark_color": "#E9F5F3",
@@ -289,14 +289,14 @@
               ]
              },
              {
-              "id": "nofv6xuo",
+              "id": "nf1j8n6c",
               "type": "row",
               "width": "fill",
               "height": 1,
               "children": []
              },
              {
-              "id": "nae4toci",
+              "id": "noi1t0f6",
               "type": "row",
               "width": 44,
               "height": 44,
@@ -315,7 +315,7 @@
               },
               "children": [
                {
-                "id": "nvcyo309",
+                "id": "nz3msc3m",
                 "type": "icon",
                 "icon": "notifications",
                 "icon_size": 22,
@@ -327,7 +327,7 @@
             ]
            },
            {
-            "id": "nt5h0ppm",
+            "id": "nado8mry",
             "type": "column",
             "name": "On the way",
             "visibility": "signed_in",
@@ -345,7 +345,7 @@
             },
             "children": [
              {
-              "id": "noez567x",
+              "id": "nurmmqh9",
               "type": "tracking",
               "tracking": {
                "kind": "ride",
@@ -361,19 +361,19 @@
           ]
          },
          {
-          "id": "n5t85ow5",
+          "id": "n8tnlv1d",
           "type": "column",
           "gap": 10,
           "children": [
            {
-            "id": "nkgh8cjy",
+            "id": "nyfbjk9y",
             "type": "row",
             "name": "Economy",
             "gap": 8,
             "cross": "stretch",
             "children": [
              {
-              "id": "n551ezzj",
+              "id": "ngqa0wxm",
               "type": "column",
               "name": "Economy",
               "width": "fill",
@@ -395,12 +395,12 @@
               "shadow": "medium",
               "children": [
                {
-                "id": "nk16tfgl",
+                "id": "nntwhgcg",
                 "type": "row",
                 "cross": "center",
                 "children": [
                  {
-                  "id": "n1lm2c9j",
+                  "id": "nq3mw67a",
                   "type": "icon",
                   "icon": "directions_car",
                   "icon_size": 22,
@@ -408,14 +408,14 @@
                   "dark_color": "#04201D"
                  },
                  {
-                  "id": "nfxge864",
+                  "id": "nkxaq0q1",
                   "type": "row",
                   "width": "fill",
                   "height": 1,
                   "children": []
                  },
                  {
-                  "id": "nd758rjl",
+                  "id": "n6ea004s",
                   "type": "icon",
                   "icon": "person",
                   "icon_size": 14,
@@ -423,7 +423,7 @@
                   "dark_color": "#0B3A35"
                  },
                  {
-                  "id": "n8ffhcmf",
+                  "id": "nuk6mugt",
                   "type": "text",
                   "text": "4",
                   "color": "#E6F4F1",
@@ -436,11 +436,11 @@
                 ]
                },
                {
-                "id": "nbd7mlky",
+                "id": "nl23lt9c",
                 "type": "column",
                 "children": [
                  {
-                  "id": "nhv7jevl",
+                  "id": "nddjiwe1",
                   "type": "text",
                   "text": "Economy",
                   "color": "#FFFFFF",
@@ -459,13 +459,13 @@
                   }
                  },
                  {
-                  "id": "nbtoex7o",
+                  "id": "n53rk02c",
                   "type": "row",
                   "gap": 3,
                   "cross": "end",
                   "children": [
                    {
-                    "id": "nfpqfsxs",
+                    "id": "n1hemydk",
                     "type": "text",
                     "text": "from E£",
                     "color": "#E6F4F1",
@@ -484,7 +484,7 @@
                     }
                    },
                    {
-                    "id": "nbpl1q29",
+                    "id": "ngce7qsy",
                     "type": "text",
                     "text": "35",
                     "color": "#FFFFFF",
@@ -503,7 +503,7 @@
               ]
              },
              {
-              "id": "nzp4mnre",
+              "id": "nnypb04r",
               "type": "column",
               "name": "Comfort",
               "width": "fill",
@@ -527,12 +527,12 @@
               },
               "children": [
                {
-                "id": "nldmv1fy",
+                "id": "n2bywavb",
                 "type": "row",
                 "cross": "center",
                 "children": [
                  {
-                  "id": "nnwy6mx9",
+                  "id": "n1xwpj3i",
                   "type": "icon",
                   "icon": "local_taxi",
                   "icon_size": 22,
@@ -540,14 +540,14 @@
                   "dark_color": "#E9F5F3"
                  },
                  {
-                  "id": "nu7n90rw",
+                  "id": "ngtgpi9q",
                   "type": "row",
                   "width": "fill",
                   "height": 1,
                   "children": []
                  },
                  {
-                  "id": "nvcgbf2s",
+                  "id": "n0mkwwlu",
                   "type": "icon",
                   "icon": "person",
                   "icon_size": 14,
@@ -555,7 +555,7 @@
                   "dark_color": "#A3BDB8"
                  },
                  {
-                  "id": "n1gg8o5v",
+                  "id": "nusigvko",
                   "type": "text",
                   "text": "4",
                   "color": "#4C5F5C",
@@ -568,11 +568,11 @@
                 ]
                },
                {
-                "id": "ntcry4fj",
+                "id": "n5wl3jb7",
                 "type": "column",
                 "children": [
                  {
-                  "id": "nyjbdfdq",
+                  "id": "njexpy7e",
                   "type": "text",
                   "text": "Comfort",
                   "color": "#0B2422",
@@ -591,13 +591,13 @@
                   }
                  },
                  {
-                  "id": "nqzuehrs",
+                  "id": "n9hw64pr",
                   "type": "row",
                   "gap": 3,
                   "cross": "end",
                   "children": [
                    {
-                    "id": "n9yoi3q9",
+                    "id": "n2ngrpsk",
                     "type": "text",
                     "text": "from E£",
                     "color": "#4C5F5C",
@@ -616,7 +616,7 @@
                     }
                    },
                    {
-                    "id": "nxof3n8i",
+                    "id": "nwjldp00",
                     "type": "text",
                     "text": "50",
                     "color": "#0B2422",
@@ -635,7 +635,7 @@
               ]
              },
              {
-              "id": "nla3f2l9",
+              "id": "nn08a44m",
               "type": "column",
               "name": "Van",
               "width": "fill",
@@ -659,12 +659,12 @@
               },
               "children": [
                {
-                "id": "nnqpcib1",
+                "id": "nvokuqvk",
                 "type": "row",
                 "cross": "center",
                 "children": [
                  {
-                  "id": "ndcflqm3",
+                  "id": "noxbvuct",
                   "type": "icon",
                   "icon": "airport_shuttle",
                   "icon_size": 22,
@@ -672,14 +672,14 @@
                   "dark_color": "#E9F5F3"
                  },
                  {
-                  "id": "nr6tg7jg",
+                  "id": "ni8dzmit",
                   "type": "row",
                   "width": "fill",
                   "height": 1,
                   "children": []
                  },
                  {
-                  "id": "nag2yp3s",
+                  "id": "n3t3kfp2",
                   "type": "icon",
                   "icon": "person",
                   "icon_size": 14,
@@ -687,7 +687,7 @@
                   "dark_color": "#A3BDB8"
                  },
                  {
-                  "id": "n6gpzi8g",
+                  "id": "nzk5z4ux",
                   "type": "text",
                   "text": "7",
                   "color": "#4C5F5C",
@@ -700,11 +700,11 @@
                 ]
                },
                {
-                "id": "nmmb8nq7",
+                "id": "nj2av28d",
                 "type": "column",
                 "children": [
                  {
-                  "id": "nus7f5xs",
+                  "id": "neye878e",
                   "type": "text",
                   "text": "Van",
                   "color": "#0B2422",
@@ -723,13 +723,13 @@
                   }
                  },
                  {
-                  "id": "nwddzlq5",
+                  "id": "n5hepild",
                   "type": "row",
                   "gap": 3,
                   "cross": "end",
                   "children": [
                    {
-                    "id": "np6p524j",
+                    "id": "nzsrar4y",
                     "type": "text",
                     "text": "from E£",
                     "color": "#4C5F5C",
@@ -748,7 +748,7 @@
                     }
                    },
                    {
-                    "id": "nhmr9oa4",
+                    "id": "npgtbti5",
                     "type": "text",
                     "text": "80",
                     "color": "#0B2422",
@@ -769,7 +769,7 @@
             ]
            },
            {
-            "id": "nw283srt",
+            "id": "nj7yumdw",
             "type": "row",
             "name": "Where to?",
             "height": 68,
@@ -793,7 +793,7 @@
             },
             "children": [
              {
-              "id": "n4foxj08",
+              "id": "nd1vrpst",
               "type": "row",
               "width": 46,
               "height": 46,
@@ -805,7 +805,7 @@
               "dark_background": "#5FD3C2",
               "children": [
                {
-                "id": "nzcvgeg2",
+                "id": "nt27b9zj",
                 "type": "icon",
                 "icon": "search",
                 "icon_size": 24,
@@ -815,7 +815,7 @@
               ]
              },
              {
-              "id": "n66vh4zq",
+              "id": "n3xmy80f",
               "type": "text",
               "text": "Where to?",
               "color": "#0B2422",
@@ -836,7 +836,7 @@
               }
              },
              {
-              "id": "nl8zx9p9",
+              "id": "nvppkpmj",
               "type": "row",
               "height": 40,
               "radius": 20,
@@ -854,7 +854,7 @@
               "border_width": 1,
               "children": [
                {
-                "id": "njzttu2o",
+                "id": "n34fucai",
                 "type": "icon",
                 "icon": "schedule",
                 "icon_size": 18,
@@ -862,7 +862,7 @@
                 "dark_color": "#5FD3C2"
                },
                {
-                "id": "new32arf",
+                "id": "nrxqmr8r",
                 "type": "text",
                 "text": "Now",
                 "color": "#0B2422",
@@ -905,11 +905,11 @@
     },
     "studio": {
      "body": {
-      "id": "ndp92hx3",
+      "id": "ntpa8ojn",
       "type": "column",
       "children": [
        {
-        "id": "nxg9yjfl",
+        "id": "nu05xaqr",
         "type": "photo_hero",
         "name": "Home safe, every ride",
         "image_url": "http://localhost:3000/stories/rides/rides-arrive-home.jpg",
@@ -938,7 +938,7 @@
         },
         "children": [
          {
-          "id": "nifv1pfz",
+          "id": "nilak3cu",
           "type": "text",
           "text": "Home safe, every ride",
           "color": "#FFFFFF",
@@ -957,7 +957,7 @@
           }
          },
          {
-          "id": "nhjfziv0",
+          "id": "nnbfpm8n",
           "type": "text",
           "text": "Your rides, their fares and receipts.",
           "color": "#FFFFFF",
@@ -1022,7 +1022,7 @@
     },
     "studio": {
      "body": {
-      "id": "nb7le4ak",
+      "id": "nznnu2py",
       "type": "column",
       "children": []
      },
@@ -1047,11 +1047,11 @@
     },
     "studio": {
      "body": {
-      "id": "n9mp4yi7",
+      "id": "nqkx4oa8",
       "type": "column",
       "children": [
        {
-        "id": "n3553n01",
+        "id": "n6b8l7iz",
         "type": "column",
         "name": "On the way",
         "visibility": "signed_in",
@@ -1075,7 +1075,7 @@
         },
         "children": [
          {
-          "id": "nnty9rp4",
+          "id": "nx7jnxsv",
           "type": "tracking",
           "tracking": {
            "kind": "ride",
@@ -1127,7 +1127,7 @@
     },
     "studio": {
      "body": {
-      "id": "nlnz88b1",
+      "id": "nn1kjs93",
       "type": "column",
       "children": []
      },
@@ -1168,7 +1168,7 @@
     },
     "studio": {
      "body": {
-      "id": "ndaxirnb",
+      "id": "njtrluib",
       "type": "column",
       "children": []
      },
@@ -1209,7 +1209,7 @@
     },
     "studio": {
      "body": {
-      "id": "nan6tr6y",
+      "id": "n5f2rygo",
       "type": "column",
       "children": []
      },
@@ -1250,7 +1250,7 @@
     },
     "studio": {
      "body": {
-      "id": "nyr091pa",
+      "id": "njxs8mxh",
       "type": "column",
       "children": []
      },
@@ -1283,7 +1283,7 @@
     "title": "Change password",
     "studio": {
      "body": {
-      "id": "n3ihy8gl",
+      "id": "njvcxov8",
       "type": "column",
       "children": []
      },
@@ -1300,7 +1300,7 @@
     "title": "A conversation",
     "studio": {
      "body": {
-      "id": "nifxokts",
+      "id": "n6xiwdk5",
       "type": "column",
       "children": []
      },
@@ -1317,7 +1317,7 @@
     "title": "A ride on its way",
     "studio": {
      "body": {
-      "id": "nv3omq9l",
+      "id": "n4mc021k",
       "type": "column",
       "children": []
      },

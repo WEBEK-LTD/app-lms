@@ -12,4 +12,10 @@ export type MoveWord =
   | "sigThreeMin"
   | "sigPickup"
   | "sigFareFrom"
-  | "sigOnTheWay";
+  | "sigOnTheWay"
+  // 130.8 Masar B: the horizon.
+  | "sigGardenCity"
+  | "sigWhereToName"
+  | "sigCurrency"
+  | "sigFromFourSeats"
+  | "sigFromSevenSeats";

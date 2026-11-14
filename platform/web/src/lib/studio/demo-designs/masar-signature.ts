@@ -279,4 +279,238 @@ const LIVING_MAP: SignatureDesign = {
   chrome: { header: "glass", screens: "glass" },
 };
 
-export const MASAR_LOOKS: SignatureLooks = { a: LIVING_MAP };
+// ——— B: Horizon ———
+
+const B: DemoInk = {
+  page: "#F1EFE9",
+  darkPage: "#061110",
+  surface: "#FFFFFF",
+  darkSurface: "#0C1C1B",
+  ink: "#0B2422",
+  darkInk: "#E9F5F3",
+  muted: "#4C5F5C",
+  darkMuted: "#A3BDB8",
+  line: "#DCE1DE",
+  darkLine: "#1F3735",
+};
+const B_INK: Ink = { color: B.ink, dark: B.darkInk };
+const B_MUTED: Ink = { color: B.muted, dark: B.darkMuted };
+const B_ACCENT: Ink = { color: "#0F766C", dark: "#5FD3C2" };
+/** "Where to?": on ink by day, on mint by night. */
+const B_CTA = { background: "#0B2422", dark: "#5FD3C2", ink: { color: "#FFFFFF", dark: "#04201D" }, chip: "#24403D", darkChip: "#4DB8A8" };
+
+/** A saved place in a white pill (a dark one by night). */
+function placeChip(ctx: SectionContext, icon: string, word: SectionWord): StudioNode {
+  const id = idOf(ctx);
+  return {
+    id: id(),
+    type: "row",
+    name: ctx.w(word),
+    width: "hug",
+    height: 36,
+    radius: 18,
+    gap: 6,
+    cross: "center",
+    padding: { top: 0, end: 12, bottom: 0, start: 10 },
+    background: B.surface,
+    dark_background: "#0F2422",
+    border_color: "#DCE1DE",
+    dark_border_color: "#21403C",
+    border_width: 1,
+    shadow: "light",
+    action: screen("ride"),
+    children: [inkIcon(ctx, icon, 17, B_ACCENT), inked(ctx, ctx.w(word), B_INK, { size: 13, weight: 700 })],
+  };
+}
+
+/** A car class's fare in its column: the class, "E£" and the fare large, the seats; the chosen one in the accent, underlined. */
+function fareColumn(ctx: SectionContext, c: (typeof CLASSES)[number], chosen: boolean): StudioNode {
+  const id = idOf(ctx);
+  return {
+    id: id(),
+    type: "column",
+    name: ctx.w(c.name),
+    width: "fill",
+    gap: 2,
+    padding: { top: 12, end: 0, bottom: 0, start: 0 },
+    action: screen("ride"),
+    children: [
+      inked(ctx, ctx.w(c.name), chosen ? B_ACCENT : B_MUTED, { size: 11, weight: 800, letter_spacing: 1.1, uppercase: true }),
+      { id: id(), type: "row", gap: 2, cross: "end", children: [inked(ctx, ctx.w("sigCurrency"), B_MUTED, { size: 13, weight: 700 }), inked(ctx, String(c.fare), B_INK, { size: 30, weight: 800, letter_spacing: -1.2, line_height: 1.05 })] },
+      inked(ctx, ctx.w(c.seats === 7 ? "sigFromSevenSeats" : "sigFromFourSeats"), B_MUTED, { size: 11, weight: 600 }),
+      { id: id(), type: "row", width: 28, height: 3, radius: 2, margin: { top: 9 }, ...(chosen ? { background: B_ACCENT.color, dark_background: B_ACCENT.dark } : {}), children: [] },
+    ],
+  };
+}
+
+/** A thin line by day and by night: across, or down between the fares. */
+function hair(ctx: SectionContext, down = false): StudioNode {
+  return { id: idOf(ctx)(), type: "row", ...(down ? { width: 1, height: "fill" as const, margin: { top: 0, end: 14, bottom: 0, start: 0 } } : { width: "fill" as const, height: 1 }), background: B.line, dark_background: B.darkLine, children: [] };
+}
+
+function masarBHome(ctx: SectionContext): StudioPage {
+  const id = idOf(ctx);
+  const ride = screen("ride");
+  const fares: StudioNode[] = [];
+  CLASSES.forEach((c, i) => {
+    if (i > 0) fares.push(hair(ctx, true));
+    fares.push(fareColumn(ctx, c, i === 0));
+  });
+  return {
+    background: B.page,
+    dark_background: B.darkPage,
+    body: {
+      id: id(),
+      type: "column",
+      children: [
+        {
+          id: id(),
+          type: "map_header",
+          name: ctx.w("taxiWhereTo"),
+          height: 420,
+          background: B.page,
+          dark_background: B.darkPage,
+          padding: { top: 8, end: 16, bottom: 0, start: 20 },
+          gap: 14,
+          overlap: 64,
+          map_drawing: {
+            style: "horizon",
+            accent: GOLD,
+            chip: "#21403C",
+            markers: [
+              { x: 18, y: 66 },
+              { x: 90, y: 70 },
+              { x: 64, y: 90 },
+            ],
+            me: true,
+            me_at: { x: 52, y: 82 },
+            labels: [{ x: 58, y: 93, text: ctx.w("sigGardenCity") }],
+            route: { points: [{ x: 84, y: 71 }, { x: 84, y: 76 }, { x: 52, y: 76 }, { x: 52, y: 82 }], to_label: ctx.w("sigPickup"), eta: ctx.w("sigThreeMin"), icon: "local_taxi", color: B_ACCENT.color, dark_color: "#3FC7B4", live: "ride" },
+          },
+          children: [
+            {
+              id: id(),
+              type: "row",
+              gap: 10,
+              cross: "center",
+              children: [
+                { id: id(), type: "row", width: 8, height: 8, radius: 4, self_align: "center", background: GOLD, children: [] },
+                inked(ctx, ctx.w("brandName"), B_INK, { size: 15, weight: 800, letter_spacing: -0.2 }, { width: "fill" }),
+                roundOf(ctx, "notifications", screen("notifications"), { ink: B_INK, background: B.surface, dark_background: "#0F2422", border_color: "#DCE1DE", dark_border_color: "#21403C", border_width: 1 }),
+                roundOf(ctx, "person", screen("account"), { ink: { color: "#FFFFFF", dark: "#04201D" }, background: B.ink, dark_background: B.darkInk }),
+              ],
+            },
+            {
+              id: id(),
+              type: "greeting",
+              name: ctx.w("taxiWhereTo"),
+              text: ctx.w("sigWhereToName"),
+              title: ctx.w("taxiWhereTo"),
+              color: B.ink,
+              dark_color: B.darkInk,
+              font: { size: 54, weight: 800, line_height: 0.96, letter_spacing: -2.6 },
+            },
+            { id: id(), type: "row", name: ctx.w("rideHome"), gap: 8, scroll: true, children: [placeChip(ctx, "home", "rideHome"), placeChip(ctx, "work", "rideOffice"), placeChip(ctx, "flight", "rideAirport")] },
+            {
+              id: id(),
+              type: "column",
+              name: ctx.w("sigOnTheWay"),
+              // Room at its foot for the floating bar.
+              padding: { top: 10, end: 20, bottom: 100, start: 20 },
+              corners: { top_start: 32, top_end: 32 },
+              background: B.surface,
+              dark_background: B.darkSurface,
+              shadow: "strong",
+              children: [
+                { id: id(), type: "row", width: 36, height: 4, radius: 2, self_align: "center", background: B.line, dark_background: B.darkLine, children: [] },
+                { id: id(), type: "tracking", tracking: { kind: "ride", style: "headline" }, visibility: "signed_in", color: B.ink, dark_color: B.darkInk, margin: { top: 14, end: 0, bottom: 16, start: 0 } },
+                hair(ctx),
+                { id: id(), type: "row", name: ctx.w("rideEconomy"), height: 104, cross: "stretch", children: fares },
+                hair(ctx),
+                {
+                  id: id(),
+                  type: "row",
+                  name: ctx.w("taxiWhereTo"),
+                  height: 60,
+                  radius: 20,
+                  gap: 12,
+                  cross: "center",
+                  margin: { top: 14 },
+                  padding: { top: 0, end: 8, bottom: 0, start: 18 },
+                  background: B_CTA.background,
+                  dark_background: B_CTA.dark,
+                  shadow: "medium",
+                  action: ride,
+                  children: [
+                    inkIcon(ctx, "search", 24, B_CTA.ink),
+                    inked(ctx, ctx.w("taxiWhereTo"), B_CTA.ink, { size: 18, weight: 800, letter_spacing: -0.2 }, { width: "fill" }),
+                    {
+                      id: id(),
+                      type: "row",
+                      height: 44,
+                      radius: 14,
+                      gap: 5,
+                      cross: "center",
+                      self_align: "center",
+                      padding: pad(0, 14),
+                      background: B_CTA.chip,
+                      dark_background: B_CTA.darkChip,
+                      children: [inkIcon(ctx, "schedule", 18, B_CTA.ink), inked(ctx, ctx.w("rideNow"), B_CTA.ink, { size: 13, weight: 700 })],
+                    },
+                  ],
+                },
+              ],
+            },
+          ],
+        },
+      ],
+    },
+  };
+}
+
+/** Over the ride screen, the driver's minutes large on the sheet's white; over My rides, the ride home at night. */
+function masarBOver(screenName: string, ctx: SectionContext): StudioNode[] | null {
+  if (screenName === "ride") {
+    return [{ id: idOf(ctx)(), type: "tracking", tracking: { kind: "ride", style: "headline" }, visibility: "signed_in", color: B.ink, dark_color: B.darkInk, background: B.surface, dark_background: B.darkSurface, radius: 24, padding: pad(14, 16), margin: { top: 12, end: 16, bottom: 4, start: 16 }, shadow: "light" }];
+  }
+  if (screenName === "my_rides") return [photoBanner(ctx, { path: "/stories/rides/rides-arrive-home.jpg", title: ctx.w("rideRidesBanner"), text: ctx.w("rideRidesBannerText"), scrim: "#041E1C" })];
+  return null;
+}
+
+/** B: a floating ink pill, the open tab a mint pill with its name. */
+const B_BAR: TabBarStyle = {
+  design: "float",
+  margin: 12,
+  radius: 24,
+  labels: "active",
+  background: B.ink,
+  dark_background: "#0F2422",
+  active: "#5FD3C2",
+  dark_active: "#5FD3C2",
+  inactive: "#A3BDB8",
+  dark_inactive: "#A3BDB8",
+};
+
+const HORIZON: SignatureDesign = {
+  template: { id: "rides_signature_b", icon: "landscape", fits: { types: ["rides"] } },
+  home: masarBHome,
+  over: masarBOver,
+  look: { header: { background: B.page, color: B.ink, dark_background: B.darkPage, dark_color: B.darkInk }, background: B.page, dark_background: B.darkPage },
+  bar: B_BAR,
+  screens: {
+    style: "photo",
+    photo: "/stories/rides/rides-arrive-home.jpg",
+    title: { en: "Where to, tonight?", ar: "إلى أين الليلة؟", tr: "Bu gece nereye?" },
+    subtitle: {
+      en: "Sign in to see the fare first and follow your driver to the door.",
+      ar: "سجّل الدخول لترى الأجرة أولًا وتتابع سائقك حتى الباب.",
+      tr: "Önce ücreti görmek ve sürücünüzü kapıya kadar izlemek için giriş yapın.",
+    },
+    menu: "night",
+    accent: "#5FD3C2",
+  },
+  chrome: { header: "large", screens: "large" },
+};
+
+export const MASAR_LOOKS: SignatureLooks = { a: LIVING_MAP, b: HORIZON };
+
