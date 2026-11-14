@@ -1,5 +1,6 @@
 import AVFoundation
 import Flutter
+import Network
 import PDFKit
 import UIKit
 
@@ -9,6 +10,7 @@ import UIKit
   private var pdfPages: PdfPages?
   private var privateFiles: PrivateFiles?
   private var mediaPermission: MediaPermission?
+  private var dataSaver: DataSaver?
 
   override func application(
     _ application: UIApplication,
@@ -26,6 +28,8 @@ import UIKit
       privateFiles = PrivateFiles(messenger: registrar.messenger())
       // 124.9 The camera and microphone for a page in the app that asks.
       mediaPermission = MediaPermission(messenger: registrar.messenger())
+      // 129.4 Low Data Mode, for Studio's video banners.
+      dataSaver = DataSaver(messenger: registrar.messenger())
     }
   }
 }
@@ -347,4 +351,27 @@ final class MediaPermission {
       done(false)
     }
   }
+}
+
+/// 129.4 Whether Low Data Mode is on for the network the phone uses
+/// (lib/core/services/data_saver.dart): a Studio video banner does not play
+/// by itself then. The path is watched from launch, so the answer is ready.
+final class DataSaver {
+  private let channel: FlutterMethodChannel
+  private let monitor = NWPathMonitor()
+  private var constrained = false
+
+  init(messenger: FlutterBinaryMessenger) {
+    channel = FlutterMethodChannel(name: "yallapp/data_saver", binaryMessenger: messenger)
+    monitor.pathUpdateHandler = { [weak self] path in
+      DispatchQueue.main.async { self?.constrained = path.isConstrained }
+    }
+    monitor.start(queue: DispatchQueue(label: "yallapp.data_saver"))
+    channel.setMethodCallHandler { [weak self] call, result in
+      guard call.method == "enabled" else { return result(FlutterMethodNotImplemented) }
+      result(self?.constrained ?? false)
+    }
+  }
+
+  deinit { monitor.cancel() }
 }

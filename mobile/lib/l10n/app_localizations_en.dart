@@ -11513,4 +11513,78 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get travelTravellersCabin => 'Travellers and cabin';
+
+  @override
+  String studioStoryOf(int index, int total) {
+    return 'Story $index of $total';
+  }
+
+  @override
+  String get studioStoryOpen => 'Open';
+
+  @override
+  String get studioTickerPaused => 'Paused';
+
+  @override
+  String get studioVideoPlay => 'Play the video';
+
+  @override
+  String get studioVideoPause => 'Pause the video';
+
+  @override
+  String studioCompareLabel(String before, String after) {
+    return 'Before and after: $before and $after';
+  }
+
+  @override
+  String get studioCompareHandle => 'Drag to compare';
+
+  @override
+  String get studioPremiumMonthly => 'Monthly';
+
+  @override
+  String get studioPremiumYearly => 'Yearly';
+
+  @override
+  String get studioPremiumPerMonth => '/ month';
+
+  @override
+  String get studioPremiumPerYear => '/ year';
+
+  @override
+  String get studioPremiumPopular => 'Most popular';
+
+  @override
+  String studioPremiumStars(int rating) {
+    return '$rating out of 5 stars';
+  }
+
+  @override
+  String studioPremiumProgress(String label, int value) {
+    return '$label: $value percent';
+  }
+
+  @override
+  String studioPremiumStep(int number, int count) {
+    return 'Step $number of $count';
+  }
+
+  @override
+  String get studioPremiumCurrentStep => 'Current step';
+
+  @override
+  String get studioMapSign => 'TAXI';
+
+  @override
+  String studioMapMinutes(int minutes) {
+    return '$minutes min';
+  }
+
+  @override
+  String get studioMapPickup => 'Pickup';
+
+  @override
+  String studioMapEta(String name, int minutes) {
+    return '$name · $minutes min';
+  }
 }

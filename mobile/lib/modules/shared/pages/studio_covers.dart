@@ -9,6 +9,9 @@ import '../../../core/theme/symbol_names.dart';
 import '../../../core/widgets/common.dart';
 import '../../taxi/data/taxi_providers.dart';
 import 'studio_live.dart';
+// 129.21–129.24 The map's premium looks.
+import 'studio_map_looks.dart';
+import 'studio_motion.dart';
 import 'studio_page.dart';
 import 'studio_scrim.dart';
 
@@ -69,7 +72,17 @@ class StudioCoverView extends ConsumerWidget {
     Widget cover = Stack(
       fit: StackFit.expand,
       children: [
-        if (map)
+        if (map && (node.mapDrawing?.premium ?? false))
+          // 129.21–129.24 One of the premium looks, or pins, words or a
+          // route on the map: drawn on their own.
+          StudioMapLooks(
+            node: node,
+            dark: scope.dark,
+            land: parseHexColor(
+              scope.dark ? node.darkBackground : node.background,
+            ),
+          )
+        else if (map)
           // 128.10 Its land: the element's background by day, its
           // `dark_background` by night (missing, the dark map's own).
           _DrawnMap(
@@ -82,7 +95,11 @@ class StudioCoverView extends ConsumerWidget {
         else ...[
           ColoredBox(color: background ?? const Color(0xFF1F2A37)),
           if (node.imageUrl case final url?)
-            AppNetworkImage(url: url, seed: node.id.hashCode),
+            // 129.1 Growing slowly in a slider's open slide (Ken Burns).
+            StudioKenBurns.wrap(
+              context,
+              AppNetworkImage(url: url, seed: node.id.hashCode),
+            ),
           // The shade any picture can have (studio_scrim.dart).
           if (node.scrim case final scrim?)
             DecoratedBox(

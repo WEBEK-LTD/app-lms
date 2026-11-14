@@ -2,6 +2,7 @@ import 'catalog_models.dart';
 import 'json.dart';
 import 'learning_models.dart';
 import 'studio_live_models.dart';
+import 'studio_premium_models.dart';
 
 /// `GET /pages`: the bottom tabs, the side menu and the pages published in
 /// the dashboard.
@@ -88,6 +89,8 @@ enum TabBarDesign {
   // 128 A floating bar in its own colours, the open tab a filled pill with
   // its name, the others icons only.
   float,
+  // 129 A small dock in the middle, icons only, the open tab a filled circle.
+  dock,
 }
 
 /// 109 How the bottom tabs look, set by the owner (`TabBar`); a field left
@@ -2002,6 +2005,31 @@ enum StudioNodeType {
   greeting,
   // 128 A part of the family's school day in a school (StudioSchool).
   school,
+  // 129 Premium motion & media: a row of stories, a ticker, a video banner
+  // and a parallax banner holding what lies over them.
+  stories,
+  marquee,
+  videoHero,
+  parallaxBanner,
+  // 129.5 Photos laid out as the owner chose, opened full screen.
+  gallery,
+  // 129.6 Two photos with a divider to drag.
+  beforeAfter,
+  // 129.1 A bar of segments (a course's lessons).
+  segments,
+  // 129.11–129.20 Premium content, trust and commerce: quote cards, plans,
+  // numbers, progress, steps, a person's or a place's card (holding its
+  // badges and buttons), a bento grid, a badge, a call-to-action bar
+  // (studio_premium_models.dart).
+  testimonials,
+  pricing,
+  stats,
+  progress,
+  timeline,
+  profileCard,
+  bento,
+  badgeText,
+  ctaBar,
 }
 
 /// 128 Whose order a `live_status` element follows: a food delivery order
@@ -2198,7 +2226,87 @@ class StudioMarketCard {
 
 /// 112.4 How a slider shows where it is: dots under it, a line per slide
 /// filling over it, or "2 / 5" over it.
-enum StudioIndicator { dots, progress, count }
+/// 129.2 How a story's ring is drawn: lit until seen, always lit (an
+/// offer), quiet, or dashed (a tile for all of them).
+enum StudioStoryRing { auto, highlight, plain, dashed }
+
+/// 129.2 One story of a row of stories: a slide and how its round photo is
+/// drawn (without a photo, a colour with initials or an icon).
+class StudioStoryEntry {
+  const StudioStoryEntry({
+    this.imageUrl,
+    this.heading,
+    this.subheading,
+    this.action,
+    this.ring = StudioStoryRing.auto,
+    this.ringColor,
+    this.color,
+    this.label,
+    this.icon,
+  });
+
+  /// Null with nothing to show.
+  static StudioStoryEntry? tryParse(Json json) {
+    final story = StudioStoryEntry(
+      imageUrl: optString(json, 'image_url'),
+      heading: optString(json, 'heading'),
+      subheading: optString(json, 'subheading'),
+      action: PageAction.tryParse(json['action']),
+      ring: enumFrom(
+        StudioStoryRing.values,
+        json['ring'],
+        StudioStoryRing.auto,
+      ),
+      ringColor: optString(json, 'ring_color'),
+      color: optString(json, 'color'),
+      label: optString(json, 'label'),
+      icon: optString(json, 'icon'),
+    );
+    return (story.imageUrl ?? story.heading ?? story.label ?? story.icon) ==
+            null
+        ? null
+        : story;
+  }
+
+  final String? imageUrl;
+  final String? heading;
+  final String? subheading;
+  final PageAction? action;
+  final StudioStoryRing ring;
+  final String? ringColor;
+  final String? color;
+  final String? label;
+
+  /// A Material Symbols name.
+  final String? icon;
+}
+
+/// 129.5 A photo of a premium element; in a gallery, with a link a tap
+/// opens instead of the full-screen viewer.
+class StudioPhoto extends GalleryImage {
+  const StudioPhoto({required super.imageUrl, super.caption, this.action});
+
+  static StudioPhoto? tryParse(Json json) {
+    final url = optString(json, 'image_url');
+    if (url == null || url.trim().isEmpty) return null;
+    return StudioPhoto(
+      imageUrl: url,
+      caption: optString(json, 'caption'),
+      action: PageAction.tryParse(json['action']),
+    );
+  }
+
+  final PageAction? action;
+}
+
+/// 129.5 How a Studio gallery lays out its photos: in columns of different
+/// heights, a big tile beside two small ones then a wide one, or a row of
+/// tall tiles that scrolls sideways.
+enum StudioGalleryLayout { masonry, bento, filmstrip }
+
+/// 129.1 `pill`: the dots in a frosted pill over the slides' foot (Studio
+/// sliders only).
+enum StudioIndicator { dots, progress, count, pill }
 
 /// 112.4 Where a child of a stack sits, in percent from its start and top.
 class StudioPlace {
@@ -2516,6 +2624,38 @@ class StudioNode {
     this.overlap = 0,
     this.school,
     this.learningStyle = StudioLearningStyle.card,
+    // 129 Premium motion & media.
+    this.kenBurns = false,
+    this.slides = const [],
+    this.storySize = 68,
+    this.images = const [],
+    this.marqueeSpeed = 40,
+    this.marqueeToStart = true,
+    this.marqueePauses = true,
+    this.marqueeSize = 36,
+    this.glass = false,
+    this.parallaxSpeed = 0.5,
+    this.galleryLayout = StudioGalleryLayout.masonry,
+    this.galleryRadius = 16,
+    this.galleryCaptions = false,
+    this.compareAt = 50,
+    this.indicatorTop = false,
+    this.indicatorInset = 12,
+    this.indicatorColor,
+    this.slideCount,
+    this.marqueeTilt = 0,
+    this.marqueeDot = false,
+    this.marqueeChips = false,
+    this.captionPill = false,
+    this.segmentCount = 5,
+    this.segmentsDone = 0,
+    this.segmentPart = 0,
+    this.segmentHeight = 3,
+    this.segmentsFromCourse = false,
+    // 129.11–129.20
+    this.entries = const [],
+    this.premium,
+    this.surface,
   });
 
   /// Null for a type this app doesn't know (left out with what it holds),
@@ -2645,6 +2785,11 @@ class StudioNode {
         learningStyle: json['learning'] is Map
             ? studioLearningStyle((json['learning'] as Map)['style'])
             : StudioLearningStyle.card,
+        // 129.11–129.20 A premium element's list and options; a layout's
+        // premium card style.
+        entries: StudioEntry.listFrom(json['entries']),
+        premium: StudioPremium.tryParse(json),
+        surface: StudioSurface.tryParse(json['surface']),
         rating: optDouble(json, 'rating'),
         action: PageAction.tryParse(json['action']),
         platforms: rawPlatforms is List
@@ -2660,10 +2805,83 @@ class StudioNode {
         ),
         motion: StudioMotion.tryParse(json['motion']),
         hidden: boolOr(json, 'hidden', false),
+        // 129 Premium motion & media.
+        kenBurns: boolOr(json, 'ken_burns', false),
+        slides: _entries(json, 'slides', StudioStoryEntry.tryParse),
+        storySize: json['stories'] is Map
+            ? (optDouble(asJson(json['stories']), 'size') ?? 68)
+                  .clamp(52, 96)
+                  .toDouble()
+            : 68,
+        images: _entries(json, 'images', StudioPhoto.tryParse),
+        marqueeSpeed: _premium(json, 'marquee', 'speed', 40, 10, 200),
+        marqueeToStart:
+            !(json['marquee'] is Map &&
+                (json['marquee'] as Map)['direction'] == 'end'),
+        marqueePauses:
+            !(json['marquee'] is Map &&
+                (json['marquee'] as Map)['pause_on_press'] == false),
+        marqueeSize: _premium(json, 'marquee', 'size', 36, 16, 120),
+        glass: boolOr(json, 'glass', false),
+        parallaxSpeed: _premium(json, 'parallax', 'speed', 0.5, 0.1, 0.9),
+        galleryLayout: json['gallery'] is Map
+            ? enumFrom(
+                StudioGalleryLayout.values,
+                (json['gallery'] as Map)['layout'],
+                StudioGalleryLayout.masonry,
+              )
+            : StudioGalleryLayout.masonry,
+        galleryRadius: _premium(json, 'gallery', 'radius', 16, 0, 40),
+        galleryCaptions:
+            json['gallery'] is Map &&
+            (json['gallery'] as Map)['captions'] == true,
+        compareAt: _premium(json, 'compare', 'at', 50, 5, 95),
+        indicatorTop:
+            json['indicator_look'] is Map &&
+            (json['indicator_look'] as Map)['at'] == 'top',
+        indicatorInset: _premium(json, 'indicator_look', 'inset', 12, 0, 400),
+        indicatorColor: json['indicator_look'] is Map
+            ? optString(asJson(json['indicator_look']), 'color')
+            : null,
+        slideCount: json['indicator_look'] is Map
+            ? switch ((json['indicator_look'] as Map)['count']) {
+                'plain' => false,
+                'padded' => true,
+                _ => null,
+              }
+            : null,
+        marqueeTilt: _premium(json, 'marquee', 'tilt', 0, -8, 8),
+        marqueeDot:
+            json['marquee'] is Map && (json['marquee'] as Map)['dot'] == true,
+        marqueeChips:
+            json['marquee'] is Map && (json['marquee'] as Map)['chips'] == true,
+        captionPill: json['caption_style'] == 'pill',
+        segmentCount: _premium(json, 'segments', 'count', 5, 2, 40).round(),
+        segmentsDone: _premium(json, 'segments', 'done', 0, 0, 40).round(),
+        segmentPart: _premium(json, 'segments', 'part', 0, 0, 1),
+        segmentHeight: _premium(json, 'segments', 'height', 3, 2, 10),
+        segmentsFromCourse:
+            json['segments'] is Map &&
+            (json['segments'] as Map)['source'] == 'course',
       );
     } on FormatException {
       return null;
     }
+  }
+
+  /// 129 A number of a premium element's settings (`marquee.speed`), kept
+  /// within its bounds; [fallback] when missing.
+  static double _premium(
+    Json json,
+    String object,
+    String key,
+    double fallback,
+    double min,
+    double max,
+  ) {
+    final o = json[object];
+    if (o is! Map) return fallback;
+    return (optDouble(asJson(o), key) ?? fallback).clamp(min, max).toDouble();
   }
 
   /// Editor audit 3.3: the element with its tablet changes (`tablet`) put
@@ -2763,6 +2981,81 @@ class StudioNode {
 
   /// 107.2 For a row: it scrolls sideways, its children keeping their widths.
   final bool scroll;
+
+  /// 129.1 For a slider: the open slide's photo grows slowly (Ken Burns).
+  final bool kenBurns;
+
+  /// 129.2 For [StudioNodeType.stories]: the stories, in order.
+  final List<StudioStoryEntry> slides;
+
+  /// 129.2 For [StudioNodeType.stories]: each round photo's size across.
+  final double storySize;
+
+  /// 129.3 For [StudioNodeType.marquee]: its logos or photos, after its
+  /// words.
+  final List<StudioPhoto> images;
+
+  /// 129.3 For [StudioNodeType.marquee]: points a second.
+  final double marqueeSpeed;
+
+  /// 129.3 For [StudioNodeType.marquee]: it runs toward the start (else
+  /// the end).
+  final bool marqueeToStart;
+
+  /// 129.3 For [StudioNodeType.marquee]: held still while pressed.
+  final bool marqueePauses;
+
+  /// 129.3 For [StudioNodeType.marquee]: how tall its pictures are.
+  final double marqueeSize;
+
+  /// 129.4 and 129.7 For a video or parallax banner: its words in a
+  /// frosted panel.
+  final bool glass;
+
+  /// 129.7 For [StudioNodeType.parallaxBanner]: how much slower than the
+  /// page its photo moves, 0.1 to 0.9.
+  final double parallaxSpeed;
+
+  /// 129.5 For [StudioNodeType.gallery]: how it lays out its photos.
+  final StudioGalleryLayout galleryLayout;
+
+  /// 129.5 For [StudioNodeType.gallery]: each photo's corners.
+  final double galleryRadius;
+
+  /// 129.5 For [StudioNodeType.gallery]: each photo's caption over it.
+  final bool galleryCaptions;
+
+  /// 129.6 For [StudioNodeType.beforeAfter]: where the divider starts, in
+  /// percent from the start side.
+  final double compareAt;
+
+  /// 129.1 For a slider: its indicator at the top (else the foot), this far
+  /// from that edge, the open slide's line or dot in this colour; with
+  /// [slideCount], "1/3" (false) or "01/03" (true) beside it.
+  final bool indicatorTop;
+  final double indicatorInset;
+  final String? indicatorColor;
+  final bool? slideCount;
+
+  /// 129.3 For a ticker: the band turned this many degrees, a dot between
+  /// its words, each word in an outlined pill.
+  final double marqueeTilt;
+  final bool marqueeDot;
+  final bool marqueeChips;
+
+  /// 129.5 For a gallery: its captions in a frosted pill (else on a shade).
+  final bool captionPill;
+
+  /// 129.1 For [StudioNodeType.segments]: how many, how many done, how much
+  /// of the next one, how tall; or the student's course in progress.
+  final int segmentCount;
+  final int segmentsDone;
+  final double segmentPart;
+  final double segmentHeight;
+  final bool segmentsFromCourse;
+
+  /// 129.5 A masonry gallery's columns: 2 or 3.
+  int get galleryColumns => columns.clamp(2, 3);
   final ItemSource? source;
   final ItemsLayout layout;
 
@@ -2816,6 +3109,14 @@ class StudioNode {
   /// 128.8 How that card is drawn.
   final StudioLearningStyle learningStyle;
 
+  /// 129.11–129.20 A premium element's list (its quotes, plans, numbers,
+  /// bars, steps or tiles) and its options.
+  final List<StudioEntry> entries;
+  final StudioPremium? premium;
+
+  /// 129.18 A layout's premium card style.
+  final StudioSurface? surface;
+
   bool get holdsChildren => switch (type) {
     StudioNodeType.row ||
     StudioNodeType.column ||
@@ -2826,7 +3127,9 @@ class StudioNode {
     StudioNodeType.tabs ||
     // 128 The covers hold what lies over them.
     StudioNodeType.photoHero ||
-    StudioNodeType.mapHeader => true,
+    StudioNodeType.mapHeader ||
+    // 129.16 A profile card holds its badges and buttons.
+    StudioNodeType.profileCard => true,
     _ => false,
   };
 }

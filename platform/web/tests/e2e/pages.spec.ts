@@ -1016,6 +1016,28 @@ test("112.4 a store project starts from a full shop, with a store's sections and
   // A list of products on sale only.
   await own.locator('[data-studio-section="on_sale"]').click();
   await expect(phone.getByText("On sale now").first()).toBeVisible();
+  await unselect();
+
+  // ——— 129.11–129.20 Elements › Premium: each added and drawn, a plan's price set in its panel, the checker takes them. ———
+  await own.getByRole("tab", { name: "Elements" }).click();
+  await expect(own.locator(".studio-left").getByText("Premium", { exact: true })).toBeVisible();
+  for (const element of ["pricing", "testimonials", "stats", "progress", "timeline", "profile_card", "bento", "glass_card", "badge_text"]) {
+    await own.locator(`[data-studio-element="${element}"]`).click();
+    await unselect();
+  }
+  for (const drawn of ["testimonials", "pricing", "stats", "progress", "timeline", "profile-card", "bento", "badge"]) await expect(phone.locator(`[data-studio-${drawn}]`).first()).toBeAttached();
+  // No price made up: the owner is shown where to set one.
+  await expect(phone.locator("[data-studio-pricing] [data-studio-premium-placeholder]")).toHaveCount(3);
+  await phone.locator("[data-studio-pricing]").getByText("Basic", { exact: true }).click();
+  await inspector.getByLabel("Price a month").fill("450");
+  await expect(phone.locator("[data-studio-pricing]")).toContainText("₺450");
+  await expect(phone.locator("[data-studio-pricing] [data-studio-premium-placeholder]")).toHaveCount(2);
+  await unselect();
+  // The call-to-action bar stays at the page's foot; its label is the owner's to write.
+  await own.locator('[data-studio-element="cta_bar"]').click();
+  await expect(phone.locator('[data-studio-cta="bar"] [data-studio-premium-placeholder]')).toBeVisible();
+  await unselect();
+  // ——— end 129.11–129.20 ———
   await expect(own.getByRole("status").filter({ hasText: "Saved just now" })).toBeVisible({ timeout: 10_000 });
 
   // The page checker takes it all: published.

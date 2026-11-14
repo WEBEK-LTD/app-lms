@@ -67,6 +67,19 @@ import {
   SLIDER_RATIOS,
   SLIDER_SECONDS,
   STUDIO_INDICATORS,
+  STUDIO_SLIDER_INDICATORS,
+  STUDIO_PREMIUM_LIMITS,
+  STUDIO_MARQUEE_DIRECTIONS,
+  STUDIO_GALLERY_LAYOUTS,
+  STUDIO_STORY_RINGS,
+  STUDIO_CAPTION_STYLES,
+  STUDIO_KEN_BURNS_TYPES,
+  type StudioStory,
+  type StudioPhoto,
+  type StudioIndicatorLook,
+  type StudioSegments,
+  type StudioGallery,
+  type StudioMarquee,
   STUDIO_CATEGORY_STYLES,
   STUDIO_MARKET_KINDS,
   STUDIO_MARKET_SECTIONS,
@@ -77,6 +90,11 @@ import {
   STUDIO_MARKET_STYLES,
   STUDIO_MARKET_CARD_FACTS,
   STUDIO_TRACKING_KINDS,
+  // 129.21–129.24 The drawn map's premium looks.
+  STUDIO_MAP_LIMITS,
+  STUDIO_MAP_MARKERS,
+  STUDIO_MAP_ROUTE_LIVE,
+  STUDIO_MAP_STYLES,
   STUDIO_TRACKING_STYLES,
   TAB_LABELS,
   THEME_MODES,
@@ -94,6 +112,10 @@ import {
   type StudioHeader,
   type StudioMarket,
   type StudioScrim,
+  // 129.21–129.24
+  type StudioMapDrawing,
+  type StudioMapRoute,
+  type StudioPlace,
   type StudioNode,
   type StudioFont,
   type StudioPage,
@@ -124,6 +146,24 @@ import {
   type TabBarStyle,
   TAB_BAR_DESIGNS,
   type Translations,
+  // 129.11–129.20 Premium content.
+  STUDIO_BADGE_STYLES,
+  STUDIO_CTA_STYLES,
+  STUDIO_ENTRY_SIZES,
+  STUDIO_ENTRY_TEXTS,
+  STUDIO_MAX_ENTRIES,
+  STUDIO_PRICING_CURRENCIES,
+  STUDIO_PROFILE_SHAPES,
+  STUDIO_PROGRESS_STYLES,
+  STUDIO_REVIEW_SOURCES,
+  STUDIO_STATS_STYLES,
+  STUDIO_TESTIMONIAL_STYLES,
+  STUDIO_TIMELINE_STYLES,
+  STUDIO_BENTO_CAPTIONS,
+  STUDIO_PATTERNS,
+  STUDIO_TICKET_AXES,
+  type StudioEntry,
+  type StudioSurface,
 } from "./types";
 
 /**
@@ -1202,12 +1242,295 @@ function parseCover(ctx: Context, where: string, v: Record<string, unknown>, typ
       if (chip) drawing.chip = chip;
       if (m.me === true) drawing.me = true;
       if (m.live === true) drawing.live = true;
+      Object.assign(drawing, parseMapLooks(c, where, m, bad));
       out.map_drawing = drawing;
     }
   }
   const overlap = studioNumber(v.overlap, 0, STUDIO_LIMITS.maxSide);
   if (overlap !== undefined && Number.isNaN(overlap)) bad(`how far the last element hangs over must be 0 to ${STUDIO_LIMITS.maxSide}.`);
   else if (overlap) out.overlap = Math.round(overlap);
+  return out;
+}
+
+// ——— 129.1–129.8 Premium motion & media ———
+/**
+ * 129 What the premium elements hold besides any element's look: the
+ * stories (129.2). `num` is the element's own bounded number reader.
+ */
+function parsePremiumMotion(ctx: Context, where: string, v: Record<string, unknown>, node: StudioNode, num: (key: string, min: number, max: number, what: string) => number | undefined, bad: (what: string) => void): void {
+  const { c } = ctx;
+  const P = STUDIO_PREMIUM_LIMITS;
+  if (node.type === "stories") {
+    const raw = Array.isArray(v.slides) ? v.slides : [];
+    if (!raw.length) bad("add a story.");
+    if (raw.length > P.stories) bad(`a row of stories can have at most ${P.stories}.`);
+    node.slides = raw.slice(0, P.stories).map((value, i) => {
+      const s = record(value) ?? {};
+      const at = `${where}, story ${i + 1}`;
+      const translations = parseTranslations(ctx, at, s.translations, ["heading", "subheading"], { heading: P.storyTitle, subheading: P.storyLine });
+      // What a story has; what it hasn't is left out.
+      const story = {
+        image_url: c.mediaUrl(at, s.image_url, "the story's photo's address", false),
+        heading: c.optionalText(at, s.heading, P.storyTitle, "The story's title"),
+        subheading: c.optionalText(at, s.subheading, P.storyLine, "The line under it"),
+        action: parseAction(ctx, at, s.action, false),
+      };
+      // How its round photo is drawn: its ring, the ring's colour, and without a photo a colour with initials or an icon.
+      const look: Partial<StudioStory> = {};
+      if (s.ring !== undefined && s.ring !== null && !oneOf(STUDIO_STORY_RINGS, s.ring)) bad("choose how the story's ring looks.");
+      else if (s.ring && s.ring !== "auto") look.ring = s.ring as StudioStory["ring"];
+      for (const key of ["ring_color", "color"] as const) {
+        const color = optionalColor(c, at, s[key], key === "color" ? "the story's colour" : "the ring's colour");
+        if (color) look[key] = color;
+      }
+      const label = c.optionalText(at, s.label, 3, "The letters in the circle");
+      if (label) look.label = label;
+      if (s.icon !== undefined && s.icon !== null && s.icon !== "") {
+        if (!(typeof s.icon === "string" && ICON_NAME.test(s.icon))) bad("choose the story's icon.");
+        else look.icon = s.icon;
+      }
+      return { ...(Object.fromEntries(Object.entries(story).filter(([, x]) => x !== null)) as Partial<typeof story>), ...look, ...(translations ? { translations } : {}) } as StudioStory;
+    });
+    const interval = num("interval_ms", 2000, 15000, "the time each story shows");
+    if (interval) node.interval_ms = Math.round(interval);
+    if (v.stories !== undefined && v.stories !== null) {
+      const o = record(v.stories);
+      const size = studioNumber(o?.size, P.ringMin, P.ringMax);
+      if (!o || (size !== undefined && Number.isNaN(size))) bad(`the stories' rings are ${P.ringMin} to ${P.ringMax} across.`);
+      else if (size !== undefined && size !== 68) node.stories = { size: Math.round(size) };
+    }
+  }
+  if (node.type === "video_hero" || node.type === "parallax_banner") parsePremiumBanner(ctx, where, v, node, bad);
+  if (node.type === "gallery") {
+    // 129.5 One to 30 photos, each with its caption, laid out as the owner chose.
+    node.images = parsePremiumImages(ctx, where, v.images, 1, true);
+    const g = record(v.gallery);
+    if (!g || !oneOf(STUDIO_GALLERY_LAYOUTS, g.layout)) bad("choose how the gallery lays out its photos.");
+    else {
+      const gallery: StudioGallery = { layout: g.layout };
+      const radius = studioNumber(g.radius, 0, 40);
+      if (radius !== undefined && Number.isNaN(radius)) bad("the photos' corners must be 0 to 40.");
+      else if (radius !== undefined && radius !== 16) gallery.radius = Math.round(radius);
+      if (g.captions === true) gallery.captions = true;
+      if (v.caption_style !== undefined && v.caption_style !== null && !oneOf(STUDIO_CAPTION_STYLES, v.caption_style)) bad("choose how the captions look.");
+      else if (v.caption_style === "pill") node.caption_style = "pill";
+      node.gallery = gallery;
+    }
+    const columns = num("columns", 2, 3, "the gallery's columns");
+    if (columns && columns !== 2) node.columns = Math.round(columns);
+  }
+  if (node.type === "segments") {
+    // 129.1 A bar of segments, some of them filled; or the student's course's lessons.
+    const s = record(v.segments) ?? {};
+    const segments: StudioSegments = {};
+    const count = studioNumber(s.count, 2, 40);
+    if (count !== undefined && Number.isNaN(count)) bad("a bar has 2 to 40 segments.");
+    else if (count !== undefined) segments.count = Math.round(count);
+    const done = studioNumber(s.done, 0, segments.count ?? 40);
+    if (done !== undefined && Number.isNaN(done)) bad("the segments done are 0 to how many there are.");
+    else if (done !== undefined) segments.done = Math.round(done);
+    const part = typeof s.part === "number" && s.part >= 0 && s.part <= 1 ? Math.round(s.part * 100) / 100 : s.part === undefined || s.part === null ? undefined : NaN;
+    if (part !== undefined && Number.isNaN(part)) bad("the next segment is filled 0 to 1.");
+    else if (part) segments.part = part;
+    const height = studioNumber(s.height, 2, 10);
+    if (height !== undefined && Number.isNaN(height)) bad("the bar is 2 to 10 tall.");
+    else if (height !== undefined && height !== 3) segments.height = height;
+    if (s.source === "course") segments.source = "course";
+    else if (s.source !== undefined && s.source !== null) bad("choose where the bar's progress comes from.");
+    if (Object.keys(segments).length) node.segments = segments;
+  }
+  if (node.type === "before_after") {
+    // 129.6 The photo before and the photo after, their captions the labels; where the divider starts.
+    const raw = Array.isArray(v.images) ? v.images : [];
+    if (raw.length !== 2) bad("add the photo before and the photo after.");
+    node.images = parsePremiumImages(ctx, where, raw.slice(0, 2), 0);
+    if (v.compare !== undefined && v.compare !== null) {
+      const at = studioNumber(record(v.compare)?.at, 5, 95);
+      if (at !== undefined && Number.isNaN(at)) bad("the divider starts 5 to 95% of the way.");
+      else if (at !== undefined && at !== 50) node.compare = { at: Math.round(at) };
+    }
+  }
+  if (node.type === "marquee") {
+    const images = parsePremiumImages(ctx, where, v.images, 0);
+    if (images.length) node.images = images;
+    if (!node.text?.trim() && !images.length) bad("add the ticker's words or pictures.");
+    if (v.icon !== undefined && v.icon !== null && v.icon !== "") {
+      if (!(typeof v.icon === "string" && ICON_NAME.test(v.icon))) bad("choose an icon.");
+      else node.icon = v.icon;
+    }
+    if (v.marquee !== undefined && v.marquee !== null) {
+      const m = record(v.marquee);
+      if (!m) bad("the ticker's settings aren't valid.");
+      else {
+        const marquee: StudioMarquee = {};
+        const speed = studioNumber(m.speed, P.speedMin, P.speedMax);
+        if (speed !== undefined && Number.isNaN(speed)) bad(`the ticker's speed must be ${P.speedMin} to ${P.speedMax}.`);
+        else if (speed !== undefined && speed !== 40) marquee.speed = Math.round(speed);
+        if (m.direction !== undefined && m.direction !== null && !oneOf(STUDIO_MARQUEE_DIRECTIONS, m.direction)) bad("choose which way the ticker runs.");
+        else if (m.direction === "end") marquee.direction = "end";
+        if (m.pause_on_press === false) marquee.pause_on_press = false;
+        const size = studioNumber(m.size, P.logoMin, P.logoMax);
+        if (size !== undefined && Number.isNaN(size)) bad(`the ticker's pictures must be ${P.logoMin} to ${P.logoMax} tall.`);
+        else if (size !== undefined && size !== 36) marquee.size = Math.round(size);
+        const tilt = studioNumber(m.tilt, -8, 8);
+        if (tilt !== undefined && Number.isNaN(tilt)) bad("the band turns -8 to 8 degrees.");
+        else if (tilt) marquee.tilt = tilt;
+        if (m.dot === true) marquee.dot = true;
+        if (m.chips === true) marquee.chips = true;
+        if (Object.keys(marquee).length) node.marquee = marquee;
+      }
+    }
+  }
+}
+
+/** 129.4 and 129.7 A video banner's video, poster and playing by itself; a parallax banner's photo and speed; either's frosted panel. */
+function parsePremiumBanner(ctx: Context, where: string, v: Record<string, unknown>, node: StudioNode, bad: (what: string) => void): void {
+  const { c } = ctx;
+  const photo = c.mediaUrl(where, v.image_url, node.type === "video_hero" ? "the poster's address" : "the photo's address", false);
+  if (photo) node.image_url = photo;
+  if (node.type === "video_hero") {
+    // An MP4 from the media library (https); without one, the poster shows.
+    const video = c.mediaUrl(where, v.video_url, "the video's address", false);
+    if (video) node.video_url = video;
+    if (v.autoplay === true) node.autoplay = true;
+  } else if (v.parallax !== undefined && v.parallax !== null) {
+    const p = record(v.parallax);
+    // In hundredths, as the inspector's slider sets it.
+    const speed = p?.speed === undefined || p.speed === null ? undefined : typeof p.speed === "number" && p.speed >= 0.1 && p.speed <= 0.9 ? p.speed : NaN;
+    if (!p || (speed !== undefined && Number.isNaN(speed))) bad("the photo moves 0.1 to 0.9 as fast as the page.");
+    else if (speed !== undefined && speed !== 0.5) node.parallax = { speed: Math.round(speed * 100) / 100 };
+  }
+  if (v.glass === true) node.glass = true;
+}
+
+/** 129 Photos of a premium element (a ticker's logos, a gallery's photos): each one's address and caption, `min` to 30. */
+function parsePremiumImages(ctx: Context, where: string, value: unknown, min: number, withLinks = false): StudioPhoto[] {
+  const { c } = ctx;
+  const P = STUDIO_PREMIUM_LIMITS;
+  const raw = Array.isArray(value) ? value : [];
+  if (raw.length < min) c.fail(where, min === 1 ? "add a photo." : `add ${min} photos.`);
+  if (raw.length > P.images) c.fail(where, `add at most ${P.images} photos.`);
+  return raw.slice(0, P.images).map((one, i) => {
+    const o = record(one) ?? {};
+    const at = `${where}, photo ${i + 1}`;
+    const caption = c.optionalText(at, o.caption, P.caption, "The caption");
+    const translations = parseTranslations(ctx, at, o.translations, ["caption"], { caption: P.caption });
+    // A photo without a caption has none.
+    // 129.5 A gallery's photo can open a link instead of the viewer.
+    const action = withLinks ? parseAction(ctx, at, o.action, false) : null;
+    return { image_url: c.mediaUrl(at, o.image_url, "the photo", true), ...(caption ? { caption } : {}), ...(action ? { action } : {}), ...(translations ? { translations } : {}) } as StudioPhoto;
+  });
+}
+// ——— end 129 premium motion & media ———
+
+// 129.21–129.24 The drawn map's premium looks: its style and markers, the person's dot, labelled pins, words and a route.
+function parseMapLooks(c: Checker, where: string, m: Record<string, unknown>, bad: (what: string) => void): Partial<StudioMapDrawing> {
+  const out: Partial<StudioMapDrawing> = {};
+  const L = STUDIO_MAP_LIMITS;
+  const spot = (value: unknown, what: string): StudioPlace | null => {
+    const at = record(value);
+    const x = studioNumber(at?.x, 0, 100);
+    const y = studioNumber(at?.y, 0, 100);
+    if (x === undefined || y === undefined || Number.isNaN(x) || Number.isNaN(y)) {
+      bad(`${what} needs a spot across and down, 0 to 100%.`);
+      return null;
+    }
+    return { x, y };
+  };
+  const words = (value: unknown, max: number, what: string): string | null => {
+    if (value === undefined || value === null || value === "") return null;
+    if (typeof value !== "string" || !value.trim()) {
+      bad(`${what} must be text.`);
+      return null;
+    }
+    if (value.trim().length > max) bad(`${what} can have at most ${max} characters.`);
+    return value.trim().slice(0, max);
+  };
+  const icon = (value: unknown, what: string): string | null => {
+    if (value === undefined || value === null || value === "") return null;
+    if (typeof value === "string" && ICON_NAME.test(value)) return value;
+    bad(`choose ${what}.`);
+    return null;
+  };
+  if (m.style !== undefined && m.style !== null) {
+    if (!oneOf(STUDIO_MAP_STYLES, m.style)) bad("choose how the map looks.");
+    else out.style = m.style;
+  }
+  if (m.marker !== undefined && m.marker !== null) {
+    if (!oneOf(STUDIO_MAP_MARKERS, m.marker)) bad("choose how the markers look.");
+    else out.marker = m.marker;
+  }
+  const sign = words(m.sign, L.sign, "the word on the markers");
+  if (sign) out.sign = sign;
+  if (m.me_at !== undefined && m.me_at !== null) {
+    const at = spot(m.me_at, "the person's dot");
+    if (at) out.me_at = at;
+  }
+  const list = (value: unknown, max: number, what: string): Record<string, unknown>[] => {
+    if (value === undefined || value === null) return [];
+    if (!Array.isArray(value)) {
+      bad(`${what} must be a list.`);
+      return [];
+    }
+    if (value.length > max) bad(`a map has at most ${max} ${what}.`);
+    return value.slice(0, max).flatMap((v) => {
+      const r = record(v);
+      if (!r) bad(`${what} aren't valid.`);
+      return r ? [r] : [];
+    });
+  };
+  const places = list(m.places, L.places, "labelled pins").flatMap((p) => {
+    const at = spot(p, "each labelled pin");
+    const label = words(p.label, L.label, "a pin's label");
+    if (!label) bad("each labelled pin needs its label.");
+    if (!at || !label) return [];
+    const glyph = icon(p.icon, "the pin's icon");
+    return [{ ...at, label, ...(glyph ? { icon: glyph } : {}) }];
+  });
+  if (places.length) out.places = places;
+  const labels = list(m.labels, L.labels, "words").flatMap((p) => {
+    const at = spot(p, "each word on the map");
+    const text = words(p.text, L.label, "a word on the map");
+    if (!text) bad("each word on the map needs its text.");
+    return at && text ? [{ ...at, text }] : [];
+  });
+  if (labels.length) out.labels = labels;
+  if (m.route !== undefined && m.route !== null) {
+    const r = record(m.route);
+    if (!r) bad("the route isn't valid.");
+    else {
+      const raw = Array.isArray(r.points) ? r.points : [];
+      if (raw.length < 2 || raw.length > L.routePoints) bad(`a route goes through 2 to ${L.routePoints} points.`);
+      const points = raw.slice(0, L.routePoints).flatMap((p) => {
+        const at = spot(p, "each point of the route");
+        return at ? [at] : [];
+      });
+      if (points.length >= 2) {
+        const route: StudioMapRoute = { points };
+        const at = studioNumber(r.at, 0, 100);
+        if (at !== undefined && Number.isNaN(at)) bad("where the vehicle is must be 0 to 100%.");
+        else if (at) route.at = at;
+        const from = words(r.from_label, L.label, "the chip over the route's start");
+        if (from) route.from_label = from;
+        const to = words(r.to_label, L.label, "the chip over the route's end");
+        if (to) route.to_label = to;
+        const eta = words(r.eta, L.label, "the bubble by the vehicle");
+        if (eta) route.eta = eta;
+        const glyph = icon(r.icon, "the vehicle's icon");
+        if (glyph) route.icon = glyph;
+        const color = optionalColor(c, where, r.color, "the route's colour");
+        if (color) route.color = color;
+        const dark = optionalColor(c, where, r.dark_color, "the route's colour by night");
+        if (dark) route.dark_color = dark;
+        if (r.moving === true) route.moving = true;
+        if (r.live !== undefined && r.live !== null) {
+          if (!oneOf(STUDIO_MAP_ROUTE_LIVE, r.live)) bad("choose what the route follows.");
+          else route.live = r.live;
+        }
+        out.route = route;
+      }
+    }
+  }
   return out;
 }
 
@@ -1362,7 +1685,18 @@ function parseNode(ctx: Context, where: string, value: unknown, state: { count: 
   const textAlign = pick("text_align", STUDIO_TEXT_ALIGNS, "choose where the text sits.");
   if (textAlign && textAlign !== "start") node.text_align = textAlign;
   // 115.14 A marketplace section keeps its own title and text (under the title, or the search box's hint).
-  const textual = node.type === "text" || node.type === "button" || node.type === "ratings" || node.type === "search" || node.type === "countdown" || node.type === "bullets" || node.type === "market" || node.type === "learning" || node.type === "school";
+  const textual =
+    node.type === "text" ||
+    node.type === "button" ||
+    node.type === "ratings" ||
+    node.type === "search" ||
+    node.type === "countdown" ||
+    node.type === "bullets" ||
+    node.type === "market" ||
+    node.type === "learning" ||
+    node.type === "school" ||
+    // 129.3 A ticker's words, a line each.
+    node.type === "marquee";
   if (textual) {
     const text =
       (node.type === "text" || node.type === "bullets") && !card ? c.text(where, v.text, L.textChars, node.type === "bullets" ? "the list's lines" : "a text") : c.optionalText(where, v.text, L.textChars, node.type === "countdown" ? "The text once the time is up" : "The text");
@@ -1415,8 +1749,26 @@ function parseNode(ctx: Context, where: string, value: unknown, state: { count: 
       if (perView && perView !== 1) node.per_view = perView;
       if (v.dots === false) node.dots = false;
       // 112.4 Lines filling over it, or "2 / 5".
-      const indicator = pick("indicator", STUDIO_INDICATORS, "choose how the slider shows where it is.");
+      const indicator = pick("indicator", STUDIO_SLIDER_INDICATORS, "choose how the slider shows where it is.");
       if (indicator && indicator !== "dots") node.indicator = indicator;
+      // 129.1 Where its indicator sits, its colour and a count beside it.
+      if (v.indicator_look !== undefined && v.indicator_look !== null) {
+        const l = record(v.indicator_look);
+        const look: StudioIndicatorLook = {};
+        if (!l) bad("the indicator's look isn't valid.");
+        else {
+          if (l.at === "top") look.at = "top";
+          else if (l.at !== undefined && l.at !== null && l.at !== "bottom") bad("put the indicator at the top or the foot.");
+          const inset = studioNumber(l.inset, 0, 400);
+          if (inset !== undefined && Number.isNaN(inset)) bad("the indicator sits 0 to 400 from its edge.");
+          else if (inset !== undefined) look.inset = Math.round(inset);
+          const color = optionalColor(c, where, l.color, "the indicator's colour");
+          if (color) look.color = color;
+          if (l.count === "plain" || l.count === "padded") look.count = l.count;
+          else if (l.count !== undefined && l.count !== null) bad("choose how the slides are counted.");
+          if (Object.keys(look).length) node.indicator_look = look;
+        }
+      }
       break;
     }
     case "coupon": {
@@ -1612,6 +1964,16 @@ function parseNode(ctx: Context, where: string, value: unknown, state: { count: 
       Object.assign(node, parseCover(ctx, where, v, node.type, bad));
       break;
     }
+    // 129 Premium motion & media.
+    case "stories":
+    case "marquee":
+    case "video_hero":
+    case "parallax_banner":
+    case "gallery":
+    case "before_after":
+    case "segments":
+      parsePremiumMotion(ctx, where, v, node, num, bad);
+      break;
     // 128 The signed-in person's shipment or ride on its way, or the taxis near them.
     case "tracking": {
       const t = record(v.tracking);
@@ -1629,9 +1991,23 @@ function parseNode(ctx: Context, where: string, value: unknown, state: { count: 
       if (photo) node.image_url = photo;
       break;
     }
+    // 129.11–129.20 The premium elements: their lists and options (parsePremium, at the end of this file).
+    case "testimonials":
+    case "pricing":
+    case "stats":
+    case "progress":
+    case "timeline":
+    case "bento":
+    case "badge_text":
+    case "cta_bar":
+    case "profile_card":
+      Object.assign(node, parsePremium(ctx, where, v, node.type, bad));
+      break;
     default:
       break;
   }
+  // 129.1 A photo growing slowly: a slider's open slide's, a photo hero's, a picture's or a banner's.
+  if (v.ken_burns === true && (STUDIO_KEN_BURNS_TYPES as readonly string[]).includes(node.type)) node.ken_burns = true;
   if (node.type === "button" || node.type === "icon" || node.type === "bullets") {
     const iconSize = num("icon_size", 8, 200, "the icon's size");
     if (iconSize && iconSize !== 24) node.icon_size = iconSize;
@@ -1687,6 +2063,11 @@ function parseNode(ctx: Context, where: string, value: unknown, state: { count: 
 
   // What a layout holds.
   const layout = (STUDIO_LAYOUT_TYPES as readonly string[]).includes(node.type) && node.type !== "spacer";
+  // 129.18 A layout's premium card style: glass, a gradient border, a glow inside, soft shadows.
+  if (layout && v.surface !== undefined && v.surface !== null) {
+    const surface = parseSurface(c, where, v.surface, bad);
+    if (surface) node.surface = surface;
+  }
   if (layout) {
     const raw = Array.isArray(v.children) ? v.children : [];
     if (raw.length > L.maxChildren) bad(`a layout can hold at most ${L.maxChildren} elements.`);
@@ -1888,3 +2269,322 @@ function parseTabBar(raw: unknown, tabs: LayoutTab[], c: { fail: (where: string,
   }
   return out;
 }
+
+// ——— 129.11–129.20 Premium content, trust and commerce ———
+
+/** 129.11–129.20 What each premium element's list needs: how many entries at least, and the field each must have. */
+const PREMIUM_LISTS: Record<string, { min: number; needs?: "title" | "text" | "value"; what: string }> = {
+  testimonials: { min: 0, needs: "text", what: "each quote needs its words" },
+  pricing: { min: 1, needs: "title", what: "each plan needs a name" },
+  stats: { min: 1, needs: "value", what: "each number needs its value" },
+  progress: { min: 1, needs: "value", what: "each bar needs how far it is, 0 to 100" },
+  timeline: { min: 1, needs: "title", what: "each step needs a title" },
+  bento: { min: 1, needs: "title", what: "each tile needs a title" },
+};
+
+/**
+ * 129.11–129.20 A premium element's own fields: its `entries` (bounded, each
+ * text with its translations), its options, and the element's own `title`
+ * and `text` with theirs (a badge's words, a call-to-action bar's label and
+ * button, a profile's name and role).
+ */
+function parsePremium(ctx: Context, where: string, v: Record<string, unknown>, type: StudioNode["type"], bad: (what: string) => void): Partial<StudioNode> {
+  const { c } = ctx;
+  const out: Partial<StudioNode> = {};
+  const L = STUDIO_LIMITS;
+  // The element's own words (its tap is parsed with every element's).
+  if (type === "badge_text" || type === "cta_bar" || type === "profile_card") {
+    const max = type === "profile_card" ? L.titleChars : 200;
+    const text = c.optionalText(where, v.text, max, type === "badge_text" ? "The badge's words" : type === "cta_bar" ? "The button's words" : "The role");
+    if (text) out.text = text;
+    if (type === "badge_text" && !text) bad("add the badge's words.");
+    const title = c.optionalText(where, v.title, L.titleChars, type === "cta_bar" ? "The label" : "The name");
+    if (title) out.title = title;
+    const translations = parseTranslations(ctx, where, v.translations, ["text", "title"], { text: max, title: L.titleChars });
+    if (translations) out.translations = translations;
+    if (v.icon !== undefined && v.icon !== null && v.icon !== "") {
+      if (!(typeof v.icon === "string" && ICON_NAME.test(v.icon))) bad("choose an icon.");
+      else out.icon = v.icon;
+    }
+  }
+  const optionsOf = (key: string): Record<string, unknown> | null => {
+    if (v[key] === undefined || v[key] === null) return null;
+    const o = record(v[key]);
+    if (!o) bad(`the element's options (${key}) aren't valid.`);
+    return o;
+  };
+  switch (type) {
+    case "testimonials": {
+      const o = optionsOf("testimonials");
+      if (o) {
+        const t: NonNullable<StudioNode["testimonials"]> = {};
+        if (o.style !== undefined && o.style !== null) {
+          if (!oneOf(STUDIO_TESTIMONIAL_STYLES, o.style)) bad("choose how the quotes are laid out.");
+          else if (o.style !== "carousel") t.style = o.style;
+        }
+        if (o.reviews !== undefined && o.reviews !== null) {
+          const r = record(o.reviews);
+          if (!r || !oneOf(STUDIO_REVIEW_SOURCES, r.source) || !(typeof r.id === "string" && ID.test(r.id))) bad("choose the course or the product whose reviews it shows.");
+          else t.reviews = { source: r.source, id: r.id };
+        }
+        if (Object.keys(t).length) out.testimonials = t;
+      }
+      break;
+    }
+    case "pricing": {
+      const o = optionsOf("pricing");
+      if (o) {
+        const p: NonNullable<StudioNode["pricing"]> = {};
+        if (o.currency !== undefined && o.currency !== null) {
+          if (!oneOf(STUDIO_PRICING_CURRENCIES, o.currency)) bad("choose the plans' currency.");
+          else if (o.currency !== "TRY") p.currency = o.currency;
+        }
+        if (o.yearly === true) p.yearly = true;
+        if (Object.keys(p).length) out.pricing = p;
+      }
+      break;
+    }
+    case "stats": {
+      const o = optionsOf("stats");
+      if (o) {
+        const st: NonNullable<StudioNode["stats"]> = {};
+        if (o.style !== undefined && o.style !== null) {
+          if (!oneOf(STUDIO_STATS_STYLES, o.style)) bad("choose how the numbers look.");
+          else if (o.style !== "plain") st.style = o.style;
+        }
+        if (o.dividers === true) st.dividers = true;
+        if (o.still === true) st.still = true;
+        if (o.start === true) st.start = true;
+        if (Object.keys(st).length) out.stats = st;
+      }
+      break;
+    }
+    case "progress": {
+      const o = optionsOf("progress");
+      if (o) {
+        const pr: NonNullable<StudioNode["progress"]> = {};
+        if (o.style !== undefined && o.style !== null) {
+          if (!oneOf(STUDIO_PROGRESS_STYLES, o.style)) bad("choose bars, rings or segments.");
+          else if (o.style !== "bars") pr.style = o.style;
+        }
+        for (const [key, lo, hi, what] of [
+          ["size", 40, 320, "a ring's size"],
+          ["stroke", 2, 24, "the ring's or bar's thickness"],
+          ["ticks", 0, 60, "the tick marks"],
+          ["segments", 2, 40, "the segments"],
+        ] as const) {
+          const n = studioNumber(o[key], lo, hi);
+          if (n !== undefined && Number.isNaN(n)) bad(`${what} must be ${lo} to ${hi}.`);
+          else if (n) pr[key] = Math.round(n);
+        }
+        if (o.knob === true) pr.knob = true;
+        if (Object.keys(pr).length) out.progress = pr;
+      }
+      break;
+    }
+    case "timeline": {
+      const o = optionsOf("timeline");
+      if (o) {
+        const tl: NonNullable<StudioNode["timeline"]> = {};
+        if (o.style !== undefined && o.style !== null) {
+          if (!oneOf(STUDIO_TIMELINE_STYLES, o.style)) bad("choose whether the steps go down or across.");
+          else if (o.style !== "vertical") tl.style = o.style;
+        }
+        for (const key of ["times", "mono", "card"] as const) if (o[key] === true) tl[key] = true;
+        if (Object.keys(tl).length) out.timeline = tl;
+      }
+      break;
+    }
+    case "bento": {
+      const o = optionsOf("bento");
+      if (o) {
+        const b: NonNullable<StudioNode["bento"]> = {};
+        if (o.caption !== undefined && o.caption !== null) {
+          if (!oneOf(STUDIO_BENTO_CAPTIONS, o.caption)) bad("choose how the tiles' words sit.");
+          else if (o.caption !== "plain") b.caption = o.caption;
+        }
+        const row = studioNumber(o.row, 60, 240);
+        if (row !== undefined && Number.isNaN(row)) bad("a row's height must be 60 to 240.");
+        else if (row) b.row = Math.round(row);
+        if (Object.keys(b).length) out.bento = b;
+      }
+      break;
+    }
+    case "profile_card": {
+      const o = optionsOf("profile");
+      const avatar = c.mediaUrl(where, v.image_url, "the photo's address", false);
+      if (avatar) out.image_url = avatar;
+      if (o) {
+        const pr: NonNullable<StudioNode["profile"]> = {};
+        const cover = c.mediaUrl(where, o.cover_url, "the cover photo's address", false);
+        if (cover) pr.cover_url = cover;
+        if (o.shape !== undefined && o.shape !== null) {
+          if (!oneOf(STUDIO_PROFILE_SHAPES, o.shape)) bad("choose a round or a square photo.");
+          else if (o.shape !== "round") pr.shape = o.shape;
+        }
+        if (o.socials !== undefined && o.socials !== null) {
+          const raw = Array.isArray(o.socials) ? o.socials : null;
+          if (!raw || raw.length > 6) bad("a card has at most 6 social links.");
+          const seen = new Set<string>();
+          const socials = (raw ?? []).slice(0, 6).flatMap((s) => {
+            const r = record(s);
+            const url = typeof r?.url === "string" ? safeHref(r.url.trim()) : null;
+            if (!r || !oneOf(SOCIAL_NETWORKS, r.network) || seen.has(r.network) || !url || !/^https:\/\//i.test(url)) {
+              bad("each social link needs its network, once, and its full https address.");
+              return [];
+            }
+            seen.add(r.network);
+            return [{ network: r.network, url }];
+          });
+          if (socials.length) pr.socials = socials;
+        }
+        if (Object.keys(pr).length) out.profile = pr;
+      }
+      break;
+    }
+    case "badge_text": {
+      const o = optionsOf("badge");
+      if (!o || !oneOf(STUDIO_BADGE_STYLES, o.style)) bad("choose how the badge looks.");
+      else out.badge = { style: o.style };
+      break;
+    }
+    case "cta_bar": {
+      const o = optionsOf("cta");
+      if (!o || !oneOf(STUDIO_CTA_STYLES, o.style)) bad("choose a bar, a card or a floating button.");
+      else {
+        out.cta = { style: o.style };
+        if (o.lead !== undefined && o.lead !== null && o.lead !== "") {
+          if (!(typeof o.lead === "string" && ICON_NAME.test(o.lead))) bad("choose the icon at its start.");
+          else out.cta.lead = o.lead;
+        }
+      }
+      break;
+    }
+    default:
+      break;
+  }
+  const list = PREMIUM_LISTS[type];
+  if (list) {
+    const raw = v.entries === undefined || v.entries === null ? [] : Array.isArray(v.entries) ? v.entries : null;
+    if (!raw) bad("the list isn't valid.");
+    else if (raw.length > STUDIO_MAX_ENTRIES) bad(`a list has at most ${STUDIO_MAX_ENTRIES} entries.`);
+    const kept = (raw ?? [])
+      .slice(0, STUDIO_MAX_ENTRIES)
+      .map((e, i) => parseEntry(ctx, `${where} › ${i + 1}`, e, type))
+      .filter((e): e is StudioEntry => e !== null);
+    const needs = list.needs;
+    if (needs && kept.some((e) => e[needs] === undefined || e[needs] === null)) bad(`${list.what}.`);
+    if (kept.length < list.min) bad("add at least one entry.");
+    if (type === "testimonials" && !kept.length && !out.testimonials?.reviews) bad("add a quote, or choose whose reviews it shows.");
+    if (kept.length) out.entries = kept;
+  }
+  return out;
+}
+
+/** 129.11–129.20 One entry of a premium element's list, from known fields only. */
+function parseEntry(ctx: Context, where: string, value: unknown, type: StudioNode["type"]): StudioEntry | null {
+  const { c } = ctx;
+  const e = record(value);
+  if (!e) {
+    c.fail(where, "the entry isn't valid.");
+    return null;
+  }
+  const out: StudioEntry = {};
+  const T = STUDIO_ENTRY_TEXTS;
+  const words = { title: "The title", subtitle: "The line under the title", text: "The text", label: "The button's words", prefix: "The text before the number", suffix: "The text after the number" } as const;
+  for (const field of Object.keys(T) as (keyof typeof T)[]) {
+    const text = c.optionalText(where, e[field], T[field], words[field]);
+    if (text) out[field] = text;
+  }
+  const image = c.mediaUrl(where, e.image_url, "the picture's address", false);
+  if (image) out.image_url = image;
+  if (e.icon !== undefined && e.icon !== null && e.icon !== "") {
+    if (!(typeof e.icon === "string" && ICON_NAME.test(e.icon))) c.fail(where, "choose an icon.");
+    else out.icon = e.icon;
+  }
+  // Stars 0 to 5, a share 0 to 100, or any number a business shows (up to a billion).
+  const [lo, hi] = type === "testimonials" ? [0, 5] : type === "progress" ? [0, 100] : [-1e9, 1e9];
+  if (e.value !== undefined && e.value !== null) {
+    const n = studioNumber(e.value, lo, hi);
+    if (n === undefined || Number.isNaN(n)) c.fail(where, `the number must be ${lo} to ${hi}.`);
+    else out.value = n;
+  }
+  for (const field of ["price", "price_yearly"] as const) {
+    const cents = e[field];
+    if (cents === undefined || cents === null) continue;
+    if (typeof cents !== "number" || !Number.isSafeInteger(cents) || cents < 0 || cents > 10_000_000_000) c.fail(where, "a price is a whole number of cents, 0 or more.");
+    else out[field] = cents;
+  }
+  if (e.highlight === true) out.highlight = true;
+  if (e.size !== undefined && e.size !== null) {
+    if (!oneOf(STUDIO_ENTRY_SIZES, e.size)) c.fail(where, "choose the tile's size.");
+    else if (e.size !== "small") out.size = e.size;
+  }
+  if (e.gradient !== undefined && e.gradient !== null) {
+    const g = record(e.gradient);
+    const from = optionalColor(c, where, g?.from, "the gradient's first colour");
+    const to = optionalColor(c, where, g?.to, "the gradient's second colour");
+    const angle = studioNumber(g?.angle, 0, 360);
+    if (!from || !to || (angle !== undefined && Number.isNaN(angle))) c.fail(where, "the gradient needs two colours and an angle of 0 to 360.");
+    else out.gradient = { from, to, ...(angle !== undefined && angle !== 180 ? { angle } : {}) };
+  }
+  const color = optionalColor(c, where, e.color, "the colour");
+  if (color) out.color = color;
+  const action = parseAction(ctx, where, e.action, false);
+  if (action) out.action = action;
+  const translations = parseTranslations(ctx, where, e.translations, Object.keys(T), T as unknown as Record<string, number>);
+  if (translations) out.translations = translations;
+  return out;
+}
+
+/** 129.18 A layout's premium card style, checked; null when it adds nothing. */
+function parseSurface(c: Checker, where: string, value: unknown, bad: (what: string) => void): StudioSurface | null {
+  const s = record(value);
+  if (!s) {
+    bad("the card style isn't valid.");
+    return null;
+  }
+  const out: StudioSurface = {};
+  const glass = studioNumber(s.glass, 4, 40);
+  if (glass !== undefined && Number.isNaN(glass)) bad("the glass's blur must be 4 to 40.");
+  else if (glass !== undefined) out.glass = Math.round(glass);
+  const tint = typeof s.tint === "number" && Number.isFinite(s.tint) && s.tint >= 0.05 && s.tint <= 0.9 ? Math.round(s.tint * 100) / 100 : s.tint === undefined || s.tint === null ? undefined : NaN;
+  if (tint !== undefined && Number.isNaN(tint)) bad("how white the glass is must be 5 to 90%.");
+  else if (tint !== undefined && out.glass !== undefined) out.tint = tint;
+  if (s.border !== undefined && s.border !== null) {
+    const b = record(s.border);
+    const from = optionalColor(c, where, b?.from, "the border's first colour");
+    const to = optionalColor(c, where, b?.to, "the border's second colour");
+    const width = studioNumber(b?.width, 1, 6);
+    if (!from || !to || (width !== undefined && Number.isNaN(width))) bad("the gradient border needs two colours and a width of 1 to 6.");
+    else out.border = { from, to, ...(width !== undefined && width !== 1.5 ? { width } : {}) };
+  }
+  const glow = optionalColor(c, where, s.glow, "the glow's colour");
+  if (glow) out.glow = glow;
+  if (s.soft !== undefined && s.soft !== null) {
+    if (s.soft !== 1 && s.soft !== 2 && s.soft !== 3) bad("choose a soft shadow of level 1, 2 or 3.");
+    else out.soft = s.soft;
+  }
+  // 129 Signature boards: a ticket's perforation, and a texture.
+  if (s.ticket !== undefined && s.ticket !== null) {
+    const t = record(s.ticket);
+    const at = studioNumber(t?.at, 5, 95);
+    const notch = studioNumber(t?.notch, 4, 24);
+    if (!t || at === undefined || Number.isNaN(at) || (notch !== undefined && Number.isNaN(notch)) || (t.axis !== undefined && t.axis !== null && !oneOf(STUDIO_TICKET_AXES, t.axis))) {
+      bad("a ticket needs where its perforation is (5 to 95%), across or down, and notches of 4 to 24.");
+    } else {
+      out.ticket = { at: Math.round(at), ...(t.axis === "vertical" ? { axis: "vertical" as const } : {}), ...(notch !== undefined && notch !== 10 ? { notch: Math.round(notch) } : {}) };
+    }
+  }
+  if (s.pattern !== undefined && s.pattern !== null) {
+    if (!oneOf(STUDIO_PATTERNS, s.pattern)) bad("choose the texture.");
+    else {
+      out.pattern = s.pattern;
+      const strength = typeof s.pattern_strength === "number" && Number.isFinite(s.pattern_strength) && s.pattern_strength >= 0.02 && s.pattern_strength <= 0.4 ? Math.round(s.pattern_strength * 100) / 100 : s.pattern_strength === undefined || s.pattern_strength === null ? undefined : NaN;
+      if (strength !== undefined && Number.isNaN(strength)) bad("the texture's strength must be 2 to 40%.");
+      else if (strength !== undefined && strength !== 0.08) out.pattern_strength = strength;
+    }
+  }
+  return Object.keys(out).length ? out : null;
+}
+// ——— end 129.11–129.20 ———

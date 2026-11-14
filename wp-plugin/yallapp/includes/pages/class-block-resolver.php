@@ -1016,8 +1016,57 @@ class Block_Resolver {
 	 * a shipment or ride, a greeting), which the app draws from the person's own data and
 	 * leaves out when it has none.
 	 */
-	const STUDIO_TYPES  = array( 'row', 'column', 'stack', 'grid', 'slider', 'spacer', 'accordion', 'tabs', 'text', 'image', 'button', 'icon', 'items', 'categories', 'video', 'form', 'map', 'ratings', 'search', 'divider', 'countdown', 'bullets', 'coupon', 'learning', 'live_status', 'school', 'photo_hero', 'map_header', 'tracking', 'greeting' );
-	const STUDIO_LAYOUT = array( 'row', 'column', 'stack', 'grid', 'slider', 'accordion', 'tabs', 'photo_hero', 'map_header' );
+	const STUDIO_TYPES  = array(
+		'row',
+		'column',
+		'stack',
+		'grid',
+		'slider',
+		'spacer',
+		'accordion',
+		'tabs',
+		'text',
+		'image',
+		'button',
+		'icon',
+		'items',
+		'categories',
+		'video',
+		'form',
+		'map',
+		'ratings',
+		'search',
+		'divider',
+		'countdown',
+		'bullets',
+		'coupon',
+		'learning',
+		'live_status',
+		'school',
+		'photo_hero',
+		'map_header',
+		'tracking',
+		'greeting',
+		// 129 Premium motion & media (Studio_Premium_Motion::TYPES).
+		'stories',
+		'marquee',
+		'video_hero',
+		'parallax_banner',
+		'gallery',
+		'before_after',
+		'segments',
+		// 129.11–129.20 Premium content, trust and commerce (Studio_Premium).
+		'testimonials',
+		'pricing',
+		'stats',
+		'progress',
+		'timeline',
+		'profile_card',
+		'bento',
+		'badge_text',
+		'cta_bar',
+	);
+	const STUDIO_LAYOUT = array( 'row', 'column', 'stack', 'grid', 'slider', 'accordion', 'tabs', 'photo_hero', 'map_header', 'video_hero', 'parallax_banner', /* 129.16 */ 'profile_card' );
 
 	/**
 	 * 103R A Studio page (`StudioPage`) for one request: its header and its tree of elements
@@ -1158,7 +1207,7 @@ class Block_Resolver {
 			'bind'          => array( 'title', 'subtitle', 'image', 'price', 'badge', 'rating' ),
 			'visibility'    => array( 'everyone', 'signed_in', 'signed_out' ),
 			// 112.4 How a slider shows where it is, and how categories look.
-			'indicator'     => array( 'dots', 'progress', 'count' ),
+			'indicator'     => array( 'dots', 'progress', 'count', 'pill' ),
 			'style'         => array( 'chips', 'tiles', 'pictures', 'circles' ),
 		);
 		foreach ( $choices as $field => $values ) {
@@ -1178,7 +1227,8 @@ class Block_Resolver {
 				$node[ $field ] = $sides;
 			}
 		}
-		foreach ( array( 'autoplay', 'dots' ) as $field ) {
+		// 129.1 A slider's slow zoom over its photos.
+		foreach ( array( 'autoplay', 'dots', 'ken_burns' ) as $field ) {
 			if ( isset( $raw[ $field ] ) && is_bool( $raw[ $field ] ) ) {
 				$node[ $field ] = $raw[ $field ];
 			}
@@ -1392,6 +1442,23 @@ class Block_Resolver {
 				}
 				$node['form'] = $form;
 				return $node;
+			// 129 Premium motion & media: what they hold (Studio_Premium_Motion).
+			case 'stories':
+			case 'marquee':
+			case 'video_hero':
+			case 'parallax_banner':
+			case 'gallery':
+			case 'before_after':
+			case 'segments':
+				$node = Studio_Premium_Motion::node( $type, $raw, $node, array( $this, 'action' ) );
+				if ( null === $node ) {
+					return null;
+				}
+				break;
+			// 129.1 Where a slider's indicator sits, its colour and a count.
+			case 'slider':
+				$node = Studio_Premium_Motion::slider( $raw, $node );
+				break;
 			case 'map':
 				$map = $raw['map'] ?? null;
 				if ( ! is_array( $map ) || ! isset( $map['lat'], $map['lng'] ) || ! is_numeric( $map['lat'] ) || ! is_numeric( $map['lng'] ) || abs( (float) $map['lat'] ) > 90 || abs( (float) $map['lng'] ) > 180 ) {
@@ -1405,7 +1472,19 @@ class Block_Resolver {
 				);
 				break;
 		}
+		// 129.11–129.20 Studio's premium elements: their lists and options (Studio_Premium).
+		if ( in_array( $type, Studio_Premium::TYPES, true ) ) {
+			$node = Studio_Premium::node( $raw, $node, $language, array( $this, 'action' ) );
+			if ( null === $node ) {
+				return null;
+			}
+		}
 		if ( in_array( $type, self::STUDIO_LAYOUT, true ) ) {
+			// 129.18 A layout's premium card style.
+			$surface = Studio_Premium::surface( $raw['surface'] ?? null );
+			if ( null !== $surface ) {
+				$node['surface'] = $surface;
+			}
 			$children = array();
 			foreach ( array_slice( isset( $raw['children'] ) && is_array( $raw['children'] ) ? $raw['children'] : array(), 0, 60 ) as $child ) {
 				$served = is_array( $child ) ? $this->studio_node( $child, $depth + 1, $language ) : null;
@@ -1563,7 +1642,132 @@ class Block_Resolver {
 				$drawing[ $field ] = true;
 			}
 		}
+		// 129.21–129.24 Its premium look, its markers' look, the person's dot, labelled pins, words and a route.
+		$drawing += self::studio_map_looks( $value );
 		return $drawing ? $drawing : null;
+	}
+
+	/**
+	 * 129.21–129.24 A map's premium look with known parts only (`StudioMapDrawing`): its style
+	 * and markers' look, the word on roof signs, where the person's dot is, up to 6 labelled
+	 * pins, up to 8 words and a route of 2 to 6 points.
+	 *
+	 * @param array $value Value.
+	 * @return array
+	 */
+	private static function studio_map_looks( array $value ) {
+		$looks = array();
+		if ( in_array( $value['style'] ?? null, array( 'natural', 'horizon', 'two_ink', 'lens' ), true ) ) {
+			$looks['style'] = $value['style'];
+		}
+		if ( in_array( $value['marker'] ?? null, array( 'tile', 'car', 'sign', 'token' ), true ) ) {
+			$looks['marker'] = $value['marker'];
+		}
+		$sign = self::map_words( $value['sign'] ?? null, 8 );
+		if ( null !== $sign ) {
+			$looks['sign'] = $sign;
+		}
+		$me = self::map_spot( $value['me_at'] ?? null );
+		if ( null !== $me ) {
+			$looks['me_at'] = $me;
+		}
+		$places = array();
+		foreach ( array_slice( isset( $value['places'] ) && is_array( $value['places'] ) ? $value['places'] : array(), 0, 6 ) as $pin ) {
+			$spot  = self::map_spot( $pin );
+			$label = is_array( $pin ) ? self::map_words( $pin['label'] ?? null, 40 ) : null;
+			if ( null !== $spot && null !== $label ) {
+				$spot['label'] = $label;
+				if ( isset( $pin['icon'] ) && is_string( $pin['icon'] ) && preg_match( '/^[a-z0-9_]{1,40}$/', $pin['icon'] ) ) {
+					$spot['icon'] = $pin['icon'];
+				}
+				$places[] = $spot;
+			}
+		}
+		if ( $places ) {
+			$looks['places'] = $places;
+		}
+		$labels = array();
+		foreach ( array_slice( isset( $value['labels'] ) && is_array( $value['labels'] ) ? $value['labels'] : array(), 0, 8 ) as $label ) {
+			$spot = self::map_spot( $label );
+			$text = is_array( $label ) ? self::map_words( $label['text'] ?? null, 40 ) : null;
+			if ( null !== $spot && null !== $text ) {
+				$spot['text'] = $text;
+				$labels[]     = $spot;
+			}
+		}
+		if ( $labels ) {
+			$looks['labels'] = $labels;
+		}
+		$route = isset( $value['route'] ) && is_array( $value['route'] ) ? $value['route'] : null;
+		if ( null !== $route ) {
+			$points = array();
+			foreach ( array_slice( isset( $route['points'] ) && is_array( $route['points'] ) ? $route['points'] : array(), 0, 6 ) as $point ) {
+				$spot = self::map_spot( $point );
+				if ( null !== $spot ) {
+					$points[] = $spot;
+				}
+			}
+			if ( count( $points ) >= 2 ) {
+				$line = array( 'points' => $points );
+				if ( isset( $route['at'] ) && is_numeric( $route['at'] ) && (float) $route['at'] > 0 ) {
+					$line['at'] = round( min( 100, (float) $route['at'] ), 1 );
+				}
+				foreach ( array( 'from_label', 'to_label', 'eta' ) as $field ) {
+					$words = self::map_words( $route[ $field ] ?? null, 40 );
+					if ( null !== $words ) {
+						$line[ $field ] = $words;
+					}
+				}
+				if ( isset( $route['icon'] ) && is_string( $route['icon'] ) && preg_match( '/^[a-z0-9_]{1,40}$/', $route['icon'] ) ) {
+					$line['icon'] = $route['icon'];
+				}
+				foreach ( array( 'color', 'dark_color' ) as $field ) {
+					$color = self::hex( $route[ $field ] ?? null );
+					if ( null !== $color ) {
+						$line[ $field ] = $color;
+					}
+				}
+				if ( true === ( $route['moving'] ?? false ) ) {
+					$line['moving'] = true;
+				}
+				if ( in_array( $route['live'] ?? null, array( 'ride', 'shipment' ), true ) ) {
+					$line['live'] = $route['live'];
+				}
+				$looks['route'] = $line;
+			}
+		}
+		return $looks;
+	}
+
+	/**
+	 * 129.21 A spot on the map in percent from the start and the top, or null.
+	 *
+	 * @param mixed $value Value.
+	 * @return array|null
+	 */
+	private static function map_spot( $value ) {
+		if ( ! is_array( $value ) || ! isset( $value['x'], $value['y'] ) || ! is_numeric( $value['x'] ) || ! is_numeric( $value['y'] ) ) {
+			return null;
+		}
+		return array(
+			'x' => round( max( 0, min( 100, (float) $value['x'] ) ), 1 ),
+			'y' => round( max( 0, min( 100, (float) $value['y'] ) ), 1 ),
+		);
+	}
+
+	/**
+	 * 129.21 Words on the map, at most `$max` characters, or null when empty.
+	 *
+	 * @param mixed $value Value.
+	 * @param int   $max   Most characters.
+	 * @return string|null
+	 */
+	private static function map_words( $value, $max ) {
+		if ( ! is_string( $value ) ) {
+			return null;
+		}
+		$words = trim( sanitize_text_field( $value ) );
+		return '' === $words ? null : mb_substr( $words, 0, $max );
 	}
 
 	/**

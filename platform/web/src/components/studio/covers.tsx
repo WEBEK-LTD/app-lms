@@ -1,6 +1,8 @@
 import type { CSSProperties, ReactNode } from "react";
 import type { StudioNode } from "@/lib/pages/types";
 import { scrimCss } from "@/lib/studio/scrim";
+// 129.21–129.24 The map's premium looks (a living map, a horizon, two inks, a lens; pins, words and a route).
+import { MapLooks, hasMapLooks } from "./map-looks";
 
 /**
  * 128 The cover layouts as the app draws them (mobile/lib/modules/shared/
@@ -68,7 +70,7 @@ function Me({ accent }: { accent: string }) {
  * padding, gap and alignment, down the cover), `last` under it, pulled up
  * by `overlap` so it hangs over the cover's foot.
  */
-export function Cover({ node, dark, rtl, front, last }: { node: StudioNode; dark: boolean; rtl: boolean; front: ReactNode; last: ReactNode | null }) {
+export function Cover({ node, dark, rtl, front, last, lang = "en" }: { node: StudioNode; dark: boolean; rtl: boolean; front: ReactNode; last: ReactNode | null; lang?: string }) {
   const height = typeof node.height === "number" ? node.height : node.type === "map_header" ? 320 : 180;
   const radius: CSSProperties = node.corners
     ? { borderStartStartRadius: node.corners.top_start ?? 0, borderStartEndRadius: node.corners.top_end ?? 0, borderEndEndRadius: node.corners.bottom_end ?? 0, borderEndStartRadius: node.corners.bottom_start ?? 0 }
@@ -91,6 +93,9 @@ export function Cover({ node, dark, rtl, front, last }: { node: StudioNode; dark
             ) : null}
             {node.scrim ? <span aria-hidden="true" data-studio-scrim="" style={{ position: "absolute", inset: 0, background: scrimCss(node.scrim, rtl) }} /> : null}
           </>
+        ) : hasMapLooks(drawing) ? (
+          // 129.21–129.24 One of the premium looks, or pins, words or a route on the map: drawn on their own.
+          <MapLooks node={node} dark={dark} rtl={rtl} lang={lang} />
         ) : (
           <>
             {/* 128.10 Its land: the element's background by day, its dark_background by night (missing, the dark map's own). */}

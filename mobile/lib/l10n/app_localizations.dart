@@ -18457,6 +18457,126 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Travellers and cabin'**
   String get travelTravellersCabin;
+
+  /// 129.2 A story's spoken name in a row of stories and full screen.
+  ///
+  /// In en, this message translates to:
+  /// **'Story {index} of {total}'**
+  String studioStoryOf(int index, int total);
+
+  /// 129.2 The button over a story that opens its link.
+  ///
+  /// In en, this message translates to:
+  /// **'Open'**
+  String get studioStoryOpen;
+
+  /// 129.3 Spoken while a ticker is held still.
+  ///
+  /// In en, this message translates to:
+  /// **'Paused'**
+  String get studioTickerPaused;
+
+  /// 129.4 The button over a video banner that plays it.
+  ///
+  /// In en, this message translates to:
+  /// **'Play the video'**
+  String get studioVideoPlay;
+
+  /// 129.4 The button over a video banner that pauses it.
+  ///
+  /// In en, this message translates to:
+  /// **'Pause the video'**
+  String get studioVideoPause;
+
+  /// 129.6 The spoken name of a before and after photo.
+  ///
+  /// In en, this message translates to:
+  /// **'Before and after: {before} and {after}'**
+  String studioCompareLabel(String before, String after);
+
+  /// 129.6 The spoken hint of the handle between the two photos.
+  ///
+  /// In en, this message translates to:
+  /// **'Drag to compare'**
+  String get studioCompareHandle;
+
+  /// 129.12 The monthly side of the plans' switch on a Studio page's pricing cards.
+  ///
+  /// In en, this message translates to:
+  /// **'Monthly'**
+  String get studioPremiumMonthly;
+
+  /// 129.12 The yearly side of the plans' switch on a Studio page's pricing cards.
+  ///
+  /// In en, this message translates to:
+  /// **'Yearly'**
+  String get studioPremiumYearly;
+
+  /// 129.12 After a plan's monthly price on a Studio page ("₺450 / month").
+  ///
+  /// In en, this message translates to:
+  /// **'/ month'**
+  String get studioPremiumPerMonth;
+
+  /// 129.12 After a plan's yearly price on a Studio page ("₺4,500 / year").
+  ///
+  /// In en, this message translates to:
+  /// **'/ year'**
+  String get studioPremiumPerYear;
+
+  /// 129.12 The chip on the highlighted plan of a Studio page's pricing cards.
+  ///
+  /// In en, this message translates to:
+  /// **'Most popular'**
+  String get studioPremiumPopular;
+
+  /// 129.11 What a screen reader says for the stars on a quote card of a Studio page.
+  ///
+  /// In en, this message translates to:
+  /// **'{rating} out of 5 stars'**
+  String studioPremiumStars(int rating);
+
+  /// 129.14 What a screen reader says for a progress bar or ring on a Studio page.
+  ///
+  /// In en, this message translates to:
+  /// **'{label}: {value} percent'**
+  String studioPremiumProgress(String label, int value);
+
+  /// 129.15 What a screen reader says before a step of a timeline on a Studio page.
+  ///
+  /// In en, this message translates to:
+  /// **'Step {number} of {count}'**
+  String studioPremiumStep(int number, int count);
+
+  /// 129.15 What a screen reader says for the active step of a timeline on a Studio page.
+  ///
+  /// In en, this message translates to:
+  /// **'Current step'**
+  String get studioPremiumCurrentStep;
+
+  /// 129.23 The word on a two-ink map's roof-sign markers when the Studio element has none.
+  ///
+  /// In en, this message translates to:
+  /// **'TAXI'**
+  String get studioMapSign;
+
+  /// 129.23 A radar lens's minute ring on a Studio map, and a live route's minutes without a name.
+  ///
+  /// In en, this message translates to:
+  /// **'{minutes} min'**
+  String studioMapMinutes(int minutes);
+
+  /// 129.24 The chip over the pickup on a Studio map's live route while the driver comes.
+  ///
+  /// In en, this message translates to:
+  /// **'Pickup'**
+  String get studioMapPickup;
+
+  /// 129.24 The bubble by the driver on a Studio map's live route: their first name and the minutes to the pickup.
+  ///
+  /// In en, this message translates to:
+  /// **'{name} · {minutes} min'**
+  String studioMapEta(String name, int minutes);
 }
 
 class _AppLocalizationsDelegate

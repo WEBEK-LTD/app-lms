@@ -25,9 +25,51 @@ export const CARD_STYLES = ["flat", "outlined", "elevated"] as const;
 export const STUDIO_COVER_TYPES = ["photo_hero", "map_header"] as const;
 /** 128 Content drawn from the signed-in person: their shipment or ride on its way, or the taxis near them (`tracking`), and a greeting with their name (`greeting`). */
 export const STUDIO_LIVE_TYPES = ["tracking", "greeting"] as const;
+// ——— 129.11–129.20 Premium content, trust and commerce (types below, "Premium content") ———
+/** 129.11–129.20 Premium elements drawn from their own `entries` and options: quotes, plans, numbers, progress, steps, tiles, badges, a call-to-action bar. */
+export const STUDIO_PREMIUM_CONTENT_TYPES = ["testimonials", "pricing", "stats", "progress", "timeline", "bento", "badge_text", "cta_bar"] as const;
+/** 129.16 A person's or a place's card: its cover, avatar, name and role, then what it holds (badges, two buttons), then its social links. */
+export const STUDIO_PREMIUM_CARD_TYPES = ["profile_card"] as const;
+// ——— end 129.11–129.20 ———
 /** 103R Yallapp Studio: the elements of a page and what they can be (`StudioNode` in the app API). */
-export const STUDIO_LAYOUT_TYPES = ["row", "column", "stack", "grid", "slider", "spacer", "accordion", "tabs", ...STUDIO_COVER_TYPES] as const;
-export const STUDIO_CONTENT_TYPES = ["text", "image", "button", "icon", "items", "categories", "video", "form", "map", "ratings", "search", "divider", "countdown", "bullets", "coupon", "market", "learning", "live_status", "school", ...STUDIO_LIVE_TYPES] as const;
+/**
+ * 129.4 and 129.7 Premium banners that hold what lies over them, as a cover
+ * does: a muted looping video (`video_hero`) and a photo that moves slower
+ * than the page (`parallax_banner`), each under its `scrim`.
+ */
+export const STUDIO_PREMIUM_BANNERS = ["video_hero", "parallax_banner"] as const;
+export const STUDIO_LAYOUT_TYPES = ["row", "column", "stack", "grid", "slider", "spacer", "accordion", "tabs", ...STUDIO_COVER_TYPES, ...STUDIO_PREMIUM_BANNERS, ...STUDIO_PREMIUM_CARD_TYPES] as const;
+export const STUDIO_CONTENT_TYPES = [
+  "text",
+  "image",
+  "button",
+  "icon",
+  "items",
+  "categories",
+  "video",
+  "form",
+  "map",
+  "ratings",
+  "search",
+  "divider",
+  "countdown",
+  "bullets",
+  "coupon",
+  "market",
+  "learning",
+  "live_status",
+  "school",
+  ...STUDIO_LIVE_TYPES,
+  // 129 Premium motion & media (stories, a ticker, a gallery, before and after).
+  "stories",
+  "marquee",
+  "gallery",
+  "before_after",
+  // 129.1 A bar of segments (a course's lessons, a story's progress).
+  "segments",
+  // 129.11–129.20 Premium content, trust and commerce.
+  ...STUDIO_PREMIUM_CONTENT_TYPES,
+] as const;
 export const STUDIO_NODE_TYPES = [...STUDIO_LAYOUT_TYPES, ...STUDIO_CONTENT_TYPES] as const;
 /** 120 `title`: the page's title and its buttons, for the pages after the first. */
 /** 123 `greeting`: today's date over a greeting with the person's first name, the buttons beside it. */
@@ -56,6 +98,97 @@ export const STUDIO_PLATFORMS = ["android", "ios"] as const;
 export const STUDIO_VISIBILITY = ["everyone", "signed_in", "signed_out"] as const;
 /** 112.4 How a slider shows where it is: dots under it, lines filling over it (stories), or "2 / 5" over it. */
 export const STUDIO_INDICATORS = ["dots", "progress", "count"] as const;
+// ——— 129.1–129.8 Premium motion & media ———
+/** 129.1 A Studio slider's indicators: the block's, and `pill`, the dots in a frosted pill over the slides' foot. */
+export const STUDIO_SLIDER_INDICATORS = [...STUDIO_INDICATORS, "pill"] as const;
+/** 129 The premium content elements: a row of stories (129.2). */
+export const STUDIO_PREMIUM_MOTION_CONTENT = ["stories", "marquee", "gallery", "before_after"] as const;
+/**
+ * 129.5 How a gallery lays out its photos: `masonry` in columns of
+ * different heights, `bento` a big tile beside two small ones over a wide
+ * one, `filmstrip` tall tiles in a row that scrolls sideways.
+ */
+export const STUDIO_GALLERY_LAYOUTS = ["masonry", "bento", "filmstrip"] as const;
+/** 129.5 For `gallery`: its layout, its tiles' corners and whether their captions show over them; a tap opens them full screen. */
+export interface StudioGallery {
+  layout: (typeof STUDIO_GALLERY_LAYOUTS)[number];
+  /** 0 to 40; missing, 16. */
+  radius?: number;
+  captions?: boolean;
+}
+/** 129.2 How a story's ring is drawn: the second colour into the main one until seen (`auto`), always lit (`highlight`, an offer), quiet (`plain`) or dashed (a tile for all of them). */
+export const STUDIO_STORY_RINGS = ["auto", "highlight", "plain", "dashed"] as const;
+/**
+ * 129.2 One story: a slide (its photo, title, line over the photo and link)
+ * and how its round photo is drawn: its ring, the ring's colour, and without
+ * a photo a colour with a short `label` (initials) or an `icon`. A story
+ * without a photo that has a link opens the link instead of the stories.
+ */
+export interface StudioStory extends Slide {
+  ring?: (typeof STUDIO_STORY_RINGS)[number];
+  ring_color?: string;
+  color?: string;
+  label?: string;
+  icon?: string;
+}
+/** 129.5 A gallery's photo; with a link, a tap opens it instead of the full-screen viewer. */
+export interface StudioPhoto extends GalleryImage {
+  action?: Action;
+}
+/** 129.5 How a gallery's captions sit over its photos: on a shade at their foot, or in a frosted pill. */
+export const STUDIO_CAPTION_STYLES = ["shade", "pill"] as const;
+/**
+ * 129.1 Where a slider's lines, dots or pill sit (`at` its top or foot,
+ * `inset` from that edge), their colour, and "1/3" or "01/03" beside them.
+ */
+export interface StudioIndicatorLook {
+  at?: "top" | "bottom";
+  inset?: number;
+  color?: string;
+  count?: "plain" | "padded";
+}
+/**
+ * 129.1 For `segments`: a bar of `count` segments, `done` of them filled
+ * and the next one filled by `part` (0 to 1), `height` tall; with
+ * `source: course`, the app fills it from the signed-in student's course in
+ * progress (its lessons, the ones done) and leaves it out without one.
+ */
+export interface StudioSegments {
+  count?: number;
+  done?: number;
+  part?: number;
+  height?: number;
+  source?: "course";
+}
+/** 129 The elements whose photo can grow slowly (Ken Burns): in a slider its open slide's; elsewhere again and again. */
+export const STUDIO_KEN_BURNS_TYPES = ["slider", "photo_hero", "image", "video_hero", "parallax_banner"] as const;
+/** 129 Their bounds. */
+export const STUDIO_PREMIUM_LIMITS = { stories: 20, storyTitle: 40, storyLine: 120, ringMin: 52, ringMax: 96, images: 30, caption: 120, speedMin: 10, speedMax: 200, logoMin: 16, logoMax: 120 } as const;
+/** 129.3 Which way a ticker runs: toward the start (the left in English, the right in Arabic) or the end. */
+export const STUDIO_MARQUEE_DIRECTIONS = ["start", "end"] as const;
+/**
+ * 129.3 For `marquee`: an endless ticker of its `text`'s lines and its
+ * `images` (logos, photos), `speed` points a second toward `direction`;
+ * held still while pressed unless `pause_on_press` is false; `size` is
+ * how tall its pictures are. Still on phones that reduce motion.
+ */
+export interface StudioMarquee {
+  speed?: number;
+  direction?: (typeof STUDIO_MARQUEE_DIRECTIONS)[number];
+  pause_on_press?: boolean;
+  size?: number;
+  /** A band turned this many degrees (-8 to 8), reaching past the screen's sides. */
+  tilt?: number;
+  /** A small dot between its words when it has no icon. */
+  dot?: boolean;
+  /** Each word in an outlined pill (routes, tags). */
+  chips?: boolean;
+}
+/** 129.2 For `stories`: how big each round photo is, 52 to 96; missing, 68. */
+export interface StudioStories {
+  size?: number;
+}
+// ——— end 129 premium motion & media ———
 /** 112.4 How a categories element draws them: chips, tiles, pictures in a grid, or round pictures in a row. */
 export const STUDIO_CATEGORY_STYLES = ["chips", "tiles", "pictures", "circles"] as const;
 export const STUDIO_LIMITS = {
@@ -764,6 +897,67 @@ export interface StudioMapDrawing {
   me?: boolean;
   /** In the app, the free taxis near the person instead of the markers (the markers show in Studio). */
   live?: boolean;
+  // 129.21–129.24 Premium looks of the drawn map (all optional: missing, the map drawn as before).
+  /** How the map is drawn; missing, the plain map (a river, four roads and two parks). */
+  style?: StudioMapStyle | null;
+  /** How the markers look; missing, the style's own (plain a tile, natural and horizon a car, two-ink a roof sign, lens a token). */
+  marker?: (typeof STUDIO_MAP_MARKERS)[number] | null;
+  /** The word on a roof-sign marker; missing, "TAXI" in the page's language. */
+  sign?: string | null;
+  /** Where the person's dot is, in percent from the start and the top; missing, a little under the middle (a lens's centre). */
+  me_at?: StudioPlace | null;
+  /** Labelled pins: the person's saved places (Home, Office). */
+  places?: StudioMapPin[];
+  /** Words on the map: districts, a river. */
+  labels?: StudioMapLabel[];
+  /** A route: done solid, the rest dashed, with the vehicle where it is. */
+  route?: StudioMapRoute | null;
+}
+
+/** 129.21–129.24 The drawn map's looks: a living map, a horizon in perspective, two inks, a radar lens. */
+export const STUDIO_MAP_STYLES = ["natural", "horizon", "two_ink", "lens"] as const;
+export type StudioMapStyle = (typeof STUDIO_MAP_STYLES)[number];
+/** 129.21 How the map's markers look: a tile with the icon, a car from above, a roof sign, a round token with a trail. */
+export const STUDIO_MAP_MARKERS = ["tile", "car", "sign", "token"] as const;
+/** 129.24 What a live route follows in the app: the person's ride or shipment on its way. */
+export const STUDIO_MAP_ROUTE_LIVE = ["ride", "shipment"] as const;
+export const STUDIO_MAP_LIMITS = { places: 6, labels: 8, routePoints: 6, label: 40, sign: 8 } as const;
+
+/** 129.21 A labelled pin, in percent from the start and the top of the map (a lens: of the lens). */
+export interface StudioMapPin {
+  x: number;
+  y: number;
+  label: string;
+  /** A Material Symbols name; missing, a place. */
+  icon?: string | null;
+}
+
+/** 129.21 A word on the map, its start at the spot. */
+export interface StudioMapLabel {
+  x: number;
+  y: number;
+  text: string;
+}
+
+/** 129.24 A route on the map: through its points (from the first to the last), done up to `at` percent of the way. */
+export interface StudioMapRoute {
+  points: StudioPlace[];
+  /** Where the vehicle is along the way, 0 to 100; missing, at the start. */
+  at?: number;
+  /** A chip over the start, and over the end. */
+  from_label?: string | null;
+  to_label?: string | null;
+  /** The bubble by the vehicle ("3 min", "Karim · 6 min"). */
+  eta?: string | null;
+  /** The vehicle's icon; missing, the markers'. */
+  icon?: string | null;
+  /** The line's colour by day and by night; missing, the markers' accent. */
+  color?: string | null;
+  dark_color?: string | null;
+  /** The vehicle drives on along the rest of the way, again and again (a sample; still with reduced motion). */
+  moving?: boolean;
+  /** In the app, the person's ride or shipment on its way instead (nothing when there is none; Studio shows these points). */
+  live?: (typeof STUDIO_MAP_ROUTE_LIVE)[number] | null;
 }
 
 export interface StudioMap {
@@ -772,6 +966,170 @@ export interface StudioMap {
   zoom?: number;
   label?: string | null;
 }
+
+// ——— 129.11–129.20 Premium content, trust and commerce ———
+
+/** 129.17 A bento tile's size: one cell, two across, two down, or two by two. */
+/** 129.17 `full`: across every column (129 Signature boards). */
+export const STUDIO_ENTRY_SIZES = ["small", "wide", "tall", "large", "full"] as const;
+/** 129.11–129.20 The texts of an entry, each at most this long (and translated, `translations`). */
+export const STUDIO_ENTRY_TEXTS = { title: 120, subtitle: 120, text: 600, label: 40, prefix: 8, suffix: 8 } as const;
+export const STUDIO_MAX_ENTRIES = 12;
+
+/**
+ * 129.11–129.20 One entry of a premium element's list (`StudioEntry`): a
+ * testimonial (photo, name, role, stars, quote), a plan (name, prices,
+ * features, button), a number, a progress, a step, a bento tile. Each
+ * element reads the fields it draws (docs/api/openapi.yaml).
+ */
+export interface StudioEntry {
+  title?: string | null;
+  subtitle?: string | null;
+  text?: string | null;
+  /** A button's words (a plan's, a tile's link). */
+  label?: string | null;
+  image_url?: string | null;
+  icon?: string | null;
+  /** Stars 0 to 5 (testimonials), a number (stats), a share 0 to 100 (progress). */
+  value?: number | null;
+  /** 129.12 A plan's price a month and a year, in cents of `pricing.currency`; null: not set yet (the app shows none). */
+  price?: number | null;
+  price_yearly?: number | null;
+  /** 129.13 Before and after a number ("+", "%", "k"). */
+  prefix?: string | null;
+  suffix?: string | null;
+  /** The most popular plan, the active step, a stat drawn in the accent. */
+  highlight?: boolean;
+  size?: (typeof STUDIO_ENTRY_SIZES)[number];
+  gradient?: { from: string; to: string; angle?: number } | null;
+  color?: string | null;
+  action?: Action | null;
+  translations?: Translations;
+}
+
+/** 129.11 Quote cards side by side to swipe, or stacked under each other. */
+export const STUDIO_TESTIMONIAL_STYLES = ["carousel", "stacked"] as const;
+/** 129.11 Whose real reviews the cards can show: a course's or a product's, from the app's own reviews. */
+export const STUDIO_REVIEW_SOURCES = ["courses", "products"] as const;
+export interface StudioTestimonials {
+  style?: (typeof STUDIO_TESTIMONIAL_STYLES)[number];
+  /** The approved reviews of this course or product (4 stars and up, with words), in place of the entries when it has any. */
+  reviews?: { source: (typeof STUDIO_REVIEW_SOURCES)[number]; id: string } | null;
+}
+
+/** 129.12 The currencies of the platform's own prices (lib/catalog/money.ts CATALOG_CURRENCIES). */
+export const STUDIO_PRICING_CURRENCIES = ["TRY", "USD", "EUR", "EGP", "SAR", "AED"] as const;
+export interface StudioPricing {
+  /** Missing, TRY. */
+  currency?: (typeof STUDIO_PRICING_CURRENCIES)[number];
+  /** A monthly / yearly switch over the plans (their `price_yearly`). */
+  yearly?: boolean;
+}
+
+export const STUDIO_STATS_STYLES = ["plain", "cards"] as const;
+/**
+ * 129.13 The numbers take the element's `font` (a hero number of 96 is a
+ * stat); from 40 up their text before and after is small beside them
+ * ("6 min", "E£ 35"). Centred, or at the start with `start`.
+ */
+export interface StudioStats {
+  style?: (typeof STUDIO_STATS_STYLES)[number];
+  /** Thin lines between the numbers. */
+  dividers?: boolean;
+  /** Shown at their values at once, without counting up. */
+  still?: boolean;
+  /** At the start instead of centred. */
+  start?: boolean;
+}
+
+/** 129.14 `segments`: each entry a row of short bars, as many filled as its share (lessons done, an order's stages). */
+export const STUDIO_PROGRESS_STYLES = ["bars", "rings", "segments"] as const;
+export interface StudioProgress {
+  style?: (typeof STUDIO_PROGRESS_STYLES)[number];
+  /** A ring's width across, 40 to 320 (missing, 76), and its stroke, 2 to 24 (missing, 8; a bar's height). */
+  size?: number;
+  stroke?: number;
+  /** Tick marks around a ring, 0 to 60. */
+  ticks?: number;
+  /** A round knob at the ring's end. */
+  knob?: boolean;
+  /** For `segments`: how many, 2 to 40; missing, 4. */
+  segments?: number;
+}
+
+/**
+ * 129.15 `bars`: across, a bar over each step (filled to the active one)
+ * with its icon, title and date, as a trip's legs.
+ */
+export const STUDIO_TIMELINE_STYLES = ["vertical", "horizontal", "bars"] as const;
+export interface StudioTimeline {
+  style?: (typeof STUDIO_TIMELINE_STYLES)[number];
+  /** Down the page: each step's date (a time) in a column at its start. */
+  times?: boolean;
+  /** Dates in a monospaced font ("07:42", "SFR 471"). */
+  mono?: boolean;
+  /** The active step drawn as a card: its `label` as a chip ("NOW") and its `value` (0 to 100) as a bar. */
+  card?: boolean;
+}
+
+/** 129.17 How a tile's words sit: on its shade, or on a frosted glass label. */
+export const STUDIO_BENTO_CAPTIONS = ["plain", "glass"] as const;
+export interface StudioBento {
+  caption?: (typeof STUDIO_BENTO_CAPTIONS)[number];
+  /** A row's height, 60 to 240; missing, 112. */
+  row?: number;
+}
+
+/** 129.16 A person's round avatar, or a place's rounded square. */
+export const STUDIO_PROFILE_SHAPES = ["round", "square"] as const;
+export interface StudioProfile {
+  cover_url?: string | null;
+  shape?: (typeof STUDIO_PROFILE_SHAPES)[number];
+  /** At most 6 links, each its network's mark. */
+  socials?: { network: SocialNetwork; url: string }[];
+}
+
+/** 129.19 A chip with its words (and icon): filled, outlined, a gradient, frosted, or gradient words without a chip. */
+export const STUDIO_BADGE_STYLES = ["pill", "outline", "gradient", "glass", "text"] as const;
+export interface StudioBadge {
+  style: (typeof STUDIO_BADGE_STYLES)[number];
+}
+
+/** 129.20 A bar across the page's foot with a label (a price) and a button, or a round floating button. */
+/** 129.20 `card`: a floating rounded card at the foot (a form to sign, the nearest taxi) instead of a bar across it. */
+export const STUDIO_CTA_STYLES = ["bar", "fab", "card"] as const;
+export interface StudioCta {
+  style: (typeof STUDIO_CTA_STYLES)[number];
+  /** An icon on a soft tile at the start (a bar or a card). */
+  lead?: string | null;
+}
+
+/** 129.18 A ticket's perforation: across (a pass, a waybill) or down (a stub beside a photo). */
+export const STUDIO_TICKET_AXES = ["horizontal", "vertical"] as const;
+/** 129.18 A texture over a layout: fine grain, a dot grid, a square grid or diagonal stripes. */
+export const STUDIO_PATTERNS = ["grain", "dots", "grid", "stripes"] as const;
+
+/**
+ * 129.18 A premium card style for any layout (`StudioSurface`): frosted
+ * glass blurring what is behind it (a photo), a border in two colours, a
+ * soft glow inside its edge, and soft shadows in three levels. Combined
+ * freely; missing, the layout as it is.
+ */
+export interface StudioSurface {
+  /** The blur behind it, 4 to 40. */
+  glass?: number;
+  /** How white (dark: how dark) the glass is, 0.05 to 0.9; missing, 0.18. */
+  tint?: number;
+  border?: { from: string; to: string; width?: number } | null;
+  glow?: string | null;
+  soft?: 1 | 2 | 3;
+  /** A ticket: notches cut from both edges at `at` percent along it, a dashed line between them. */
+  ticket?: { at: number; axis?: (typeof STUDIO_TICKET_AXES)[number]; notch?: number } | null;
+  /** A texture in the text colour, `pattern_strength` 0.02 to 0.4 (missing, 0.08). */
+  pattern?: (typeof STUDIO_PATTERNS)[number];
+  pattern_strength?: number;
+}
+// ——— end 129.11–129.20 ———
 
 /**
  * 103R One element of a Studio page (`StudioNode` in the app API). In the
@@ -834,8 +1192,34 @@ export interface StudioNode {
   dots?: boolean;
   /** 107.2 A row that scrolls sideways. */
   scroll?: boolean;
-  /** 112.4 For `slider`: how it shows where it is; missing, dots. */
-  indicator?: (typeof STUDIO_INDICATORS)[number];
+  /** 112.4 For `slider`: how it shows where it is; missing, dots. 129.1 `pill` too. */
+  indicator?: (typeof STUDIO_SLIDER_INDICATORS)[number];
+  // ——— 129.1–129.8 Premium motion & media ———
+  /** 129.1 For `slider`: the open slide's photo grows slowly (Ken Burns); for a photo hero, a picture or a banner, again and again (STUDIO_KEN_BURNS_TYPES). */
+  ken_burns?: boolean;
+  /** 129.1 For `slider`: where its indicator sits, its colour and a count beside it. */
+  indicator_look?: StudioIndicatorLook | null;
+  /** 129.2 For `stories`: each story's photo, title (`heading`), line under it (`subheading`), link (`action`) and ring. */
+  slides?: StudioStory[];
+  /** 129.1 For `segments`: how many, how many done. */
+  segments?: StudioSegments | null;
+  /** 129.5 For `gallery`: how its captions sit over the photos; missing, on a shade. */
+  caption_style?: (typeof STUDIO_CAPTION_STYLES)[number];
+  /** 129.2 For `stories`: the rings' size. */
+  stories?: StudioStories | null;
+  /** 129.5 For `gallery`: how it lays them out. */
+  gallery?: StudioGallery | null;
+  /** 129.6 For `before_after` (its two `images`, before then after, their captions the labels): where the divider starts, 5 to 95 (%) from the start; missing, 50. */
+  compare?: { at?: number } | null;
+  /** 129.3 For `marquee`: its logos or photos (`caption`: what they show, for screen readers). 129.5 A gallery's photos (with a link each, maybe). */
+  images?: StudioPhoto[];
+  /** 129.3 For `marquee`: its speed, direction and size. */
+  marquee?: StudioMarquee | null;
+  /** 129.4 and 129.7 For `video_hero` and `parallax_banner`: what lies over it sits in a frosted panel. */
+  glass?: boolean;
+  /** 129.7 For `parallax_banner`: how much slower than the page its photo moves, 0.1 to 0.9; missing, 0.5. */
+  parallax?: { speed?: number } | null;
+  // ——— end 129 premium motion & media ———
   /** 112.4 For a child of `stack`: its place in percent from the start and the top (a shop-the-look spot). */
   place?: StudioPlace | null;
   /** 112.4 For `categories`: how they're drawn; missing, chips. */
@@ -866,6 +1250,19 @@ export interface StudioNode {
   /** 128 For `school`: which part of the family's school day it is. */
   school?: StudioSchool | null;
   rating?: number | null;
+  // ——— 129.11–129.20 Premium content: each premium element's list and options, and a layout's card style ———
+  entries?: StudioEntry[];
+  testimonials?: StudioTestimonials | null;
+  pricing?: StudioPricing | null;
+  stats?: StudioStats | null;
+  progress?: StudioProgress | null;
+  timeline?: StudioTimeline | null;
+  profile?: StudioProfile | null;
+  badge?: StudioBadge | null;
+  cta?: StudioCta | null;
+  bento?: StudioBento | null;
+  surface?: StudioSurface | null;
+  // ——— end 129.11–129.20 ———
   action?: Action | null;
   platforms?: (typeof STUDIO_PLATFORMS)[number][];
   visibility?: (typeof STUDIO_VISIBILITY)[number];
@@ -984,6 +1381,8 @@ export const TAB_BAR_DESIGNS = [
   "colours",
   // 128 A floating bar with its own colours, the open tab a filled pill with its name, the others icons only.
   "float",
+  // 129 A small dock in the middle, icons only, the open tab a filled circle.
+  "dock",
 ] as const;
 export type TabBarDesign = (typeof TAB_BAR_DESIGNS)[number];
 export type TabLabels = (typeof TAB_LABELS)[number];

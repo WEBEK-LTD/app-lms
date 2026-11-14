@@ -12165,4 +12165,97 @@ class OverlayLocalizations extends AppLocalizations {
   @override
   String get travelTravellersCabin =>
       overlay.text('travelTravellersCabin') ?? base.travelTravellersCabin;
+
+  @override
+  String studioStoryOf(int index, int total) =>
+      overlay.format('studioStoryOf', {'index': index, 'total': total}) ??
+      base.studioStoryOf(index, total);
+
+  @override
+  String get studioStoryOpen =>
+      overlay.text('studioStoryOpen') ?? base.studioStoryOpen;
+
+  @override
+  String get studioTickerPaused =>
+      overlay.text('studioTickerPaused') ?? base.studioTickerPaused;
+
+  @override
+  String get studioVideoPlay =>
+      overlay.text('studioVideoPlay') ?? base.studioVideoPlay;
+
+  @override
+  String get studioVideoPause =>
+      overlay.text('studioVideoPause') ?? base.studioVideoPause;
+
+  @override
+  String studioCompareLabel(String before, String after) =>
+      overlay.format('studioCompareLabel', {
+        'before': before,
+        'after': after,
+      }) ??
+      base.studioCompareLabel(before, after);
+
+  @override
+  String get studioCompareHandle =>
+      overlay.text('studioCompareHandle') ?? base.studioCompareHandle;
+
+  @override
+  String get studioPremiumMonthly =>
+      overlay.text('studioPremiumMonthly') ?? base.studioPremiumMonthly;
+
+  @override
+  String get studioPremiumYearly =>
+      overlay.text('studioPremiumYearly') ?? base.studioPremiumYearly;
+
+  @override
+  String get studioPremiumPerMonth =>
+      overlay.text('studioPremiumPerMonth') ?? base.studioPremiumPerMonth;
+
+  @override
+  String get studioPremiumPerYear =>
+      overlay.text('studioPremiumPerYear') ?? base.studioPremiumPerYear;
+
+  @override
+  String get studioPremiumPopular =>
+      overlay.text('studioPremiumPopular') ?? base.studioPremiumPopular;
+
+  @override
+  String studioPremiumStars(int rating) =>
+      overlay.format('studioPremiumStars', {'rating': rating}) ??
+      base.studioPremiumStars(rating);
+
+  @override
+  String studioPremiumProgress(String label, int value) =>
+      overlay.format('studioPremiumProgress', {
+        'label': label,
+        'value': value,
+      }) ??
+      base.studioPremiumProgress(label, value);
+
+  @override
+  String studioPremiumStep(int number, int count) =>
+      overlay.format('studioPremiumStep', {'number': number, 'count': count}) ??
+      base.studioPremiumStep(number, count);
+
+  @override
+  String get studioPremiumCurrentStep =>
+      overlay.text('studioPremiumCurrentStep') ?? base.studioPremiumCurrentStep;
+
+  @override
+  String get studioMapSign =>
+      overlay.text('studioMapSign') ?? base.studioMapSign;
+
+  @override
+  String studioMapMinutes(int minutes) =>
+      overlay.format('studioMapMinutes', {'minutes': minutes}) ??
+      base.studioMapMinutes(minutes);
+
+  @override
+  String get studioMapPickup =>
+      overlay.text('studioMapPickup') ?? base.studioMapPickup;
+
+  @override
+  String studioMapEta(String name, int minutes) =>
+      overlay.format('studioMapEta', {'name': name, 'minutes': minutes}) ??
+      base.studioMapEta(name, minutes);
 }

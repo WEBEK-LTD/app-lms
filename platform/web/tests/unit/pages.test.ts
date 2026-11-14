@@ -160,7 +160,7 @@ describe("layout validation", () => {
     });
     const where = 'Page "Home", page';
     expect(errorsOf(page({ body: { id: "t", type: "text", text: "Hi" } }))).toEqual(['Page "Home": the page must start with a row, a column or another layout.']);
-    expect(errorsOf(page({ body: { ...body, children: [{ ...text, type: "marquee" }] } }))).toEqual([`${where} › 1: this kind of element isn't available.`]);
+    expect(errorsOf(page({ body: { ...body, children: [{ ...text, type: "hologram" }] } }))).toEqual([`${where} › 1: this kind of element isn't available.`]);
     expect(errorsOf(page({ body: { ...body, children: [{ id: "i", type: "image", image_url: "javascript:x" }] } }))).toEqual([`${where} › 1: the picture's address must be a full https address.`]);
     expect(errorsOf(page({ body: { ...body, children: [text, text] } }))).toEqual([`${where} › 2: two elements have the same ID.`]);
     expect(errorsOf(page({ body: { ...body, children: [{ ...text, width: "wide" }] } }))).toEqual([`${where} › 1: the width must be fill, hug or 0 to 4000.`]);

@@ -4,9 +4,11 @@ import { useState, type DragEvent } from "react";
 import { useDashT } from "@/components/dashboard-i18n";
 import type { DashKey } from "@/i18n/dashboard";
 import type { ItemSource, StudioHeader, StudioNode, StudioPage } from "@/lib/pages/types";
-import { ELEMENTS, type ElementGroup, type ElementInfo } from "@/lib/studio/elements";
+import { ELEMENTS, type ElementGroup, type ElementInfo, type ElementPreset } from "@/lib/studio/elements";
 import type { SectionInfo, TemplateInfo } from "@/lib/studio/sections";
 import { holdsChildren } from "@/lib/studio/edit";
+// 129.21–129.24 The Premium group's maps.
+import { PREMIUM_MAPS, type PremiumMapId } from "@/lib/studio/premium-maps";
 import { PicturesPanel } from "./pictures-panel";
 import { Glyph, STUDIO_COLORS as C, type DragPayload } from "./shared";
 
@@ -23,7 +25,9 @@ export interface MyTemplate {
   page: StudioPage;
 }
 
-export function elementLabel(t: ReturnType<typeof useDashT>, type: StudioNode["type"], source: ItemSource | null | undefined): string {
+export function elementLabel(t: ReturnType<typeof useDashT>, type: StudioNode["type"], source: ItemSource | null | undefined, preset?: ElementPreset): string {
+  // 129 A premium look of an element (a hero slider) has its own name.
+  if (preset) return t(`studio.el_${preset}` as DashKey);
   if (type === "items" && source) return t(`studio.el_items_${source}` as DashKey);
   return t(`studio.el_${type}` as DashKey);
 }
@@ -51,7 +55,10 @@ export function LeftPanel(props: {
   page: StudioPage | null;
   selectedId: string | null;
   onSelect: (id: string) => void;
-  onAddElement: (type: StudioNode["type"]) => void;
+  /** 129 With a ready look (a hero slider, a card carousel, a glass card: ElementInfo.preset). */
+  onAddElement: (type: StudioNode["type"], preset?: ElementPreset) => void;
+  /** 129.21–129.24 A premium map (a map header in one of its premium looks), in the Premium group under Maps. */
+  onAddPremiumMap?: (id: PremiumMapId) => void;
   onAddSection: (id: string) => void;
   onUseTemplate: (id: string) => void;
   /** Editor audit 3.3: a picture from the pictures tab, added after what's selected. */
@@ -87,7 +94,11 @@ export function LeftPanel(props: {
     { id: "layout", label: t("studio.groupLayout") },
     { id: "content", label: t("studio.groupContent") },
     { id: "more", label: t("studio.groupMore") },
+    // 129 The premium library: one group for the motion & media and the content & commerce elements.
+    { id: "premium", label: t("studio.groupPremium") },
   ];
+  // 129.21–129.24 The premium maps the search leaves (none without a way to add them).
+  const premiumMaps = props.onAddPremiumMap ? PREMIUM_MAPS.filter((m) => matches(t(`studio.pmap_${m.id}` as DashKey), m.keywords)) : [];
   const sections = props.sections.filter((s) => matches(t(`studio.sec_${s.id}` as DashKey), s.id));
   const templates = props.templates.filter((tpl) => matches(t(`studio.tpl_${tpl.id}` as DashKey), tpl.id));
 
@@ -119,8 +130,10 @@ export function LeftPanel(props: {
       <div className="min-h-0 flex-1 overflow-y-auto">
         {props.tab === "elements"
           ? groups.map((group) => {
-              const items = ELEMENTS.filter((e) => offered(e.only, props) && e.group === group.id && matches(elementLabel(t, e.type, props.source), e.keywords));
-              if (!items.length) return null;
+              const items = ELEMENTS.filter((e) => offered(e.only, props) && e.group === group.id && matches(elementLabel(t, e.type, props.source, e.preset), e.keywords));
+              // 129.21–129.24 The Premium group also holds the maps in their premium looks, under Maps.
+              const maps = group.id === "premium" ? premiumMaps : [];
+              if (!items.length && !maps.length) return null;
               return (
                 <div key={group.id}>
                   <div className="px-3 text-xs font-bold" style={{ color: "var(--studio-muted)" }}>
@@ -129,25 +142,49 @@ export function LeftPanel(props: {
                   <div className="grid grid-cols-3 gap-2 px-3 pt-2 pb-3">
                     {items.map((e) => (
                       <button
-                        key={e.type}
+                        key={e.preset ?? e.type}
                         type="button"
                         draggable
-                        onDragStart={(ev) => props.onDragStart(ev, { kind: "new", type: e.type })}
-                        onClick={() => props.onAddElement(e.type)}
+                        onDragStart={(ev) => props.onDragStart(ev, { kind: "new", type: e.type, ...(e.preset ? { preset: e.preset } : {}) })}
+                        onClick={() => props.onAddElement(e.type, e.preset)}
                         className="studio-tile flex flex-col items-center rounded-[10px] bg-white px-1 py-2.5 text-center text-xs"
                         style={{ border: "1px solid var(--studio-line)", cursor: "grab" }}
-                        data-studio-element={e.type}
+                        data-studio-element={e.preset ?? e.type}
                       >
                         <Glyph name={e.icon} size={20} />
-                        <span className="mt-1">{elementLabel(t, e.type, props.source)}</span>
+                        <span className="mt-1">{elementLabel(t, e.type, props.source, e.preset)}</span>
                       </button>
                     ))}
                   </div>
+                  {maps.length ? (
+                    <div data-studio-premium-maps="">
+                      <div className="px-3 text-[11px] font-bold" style={{ color: "var(--studio-muted)" }}>
+                        {t("studio.pmapGroup")}
+                      </div>
+                      <div className="grid grid-cols-3 gap-2 px-3 pt-2 pb-3">
+                        {maps.map((m) => (
+                          <button
+                            key={m.id}
+                            type="button"
+                            draggable
+                            onDragStart={(ev) => props.onDragStart(ev, { kind: "premium_map", id: m.id })}
+                            onClick={() => props.onAddPremiumMap?.(m.id)}
+                            className="studio-tile flex flex-col items-center rounded-[10px] bg-white px-1 py-2.5 text-center text-xs"
+                            style={{ border: "1px solid var(--studio-line)", cursor: "grab" }}
+                            data-studio-premium-map={m.id}
+                          >
+                            <Glyph name={m.icon} size={20} />
+                            <span className="mt-1">{t(`studio.pmap_${m.id}` as DashKey)}</span>
+                          </button>
+                        ))}
+                      </div>
+                    </div>
+                  ) : null}
                 </div>
               );
             })
           : null}
-        {props.tab === "elements" && q && !ELEMENTS.some((e) => offered(e.only, props) && matches(elementLabel(t, e.type, props.source), e.keywords)) ? (
+        {props.tab === "elements" && q && !ELEMENTS.some((e) => offered(e.only, props) && matches(elementLabel(t, e.type, props.source, e.preset), e.keywords)) && !premiumMaps.length ? (
           <p className="m-0 px-3 pb-3 text-[13px]" style={{ color: "var(--studio-muted)" }}>
             {t("studio.noResults", { query })}
           </p>

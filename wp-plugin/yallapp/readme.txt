@@ -4,7 +4,7 @@ Tags: lms, mobile app, tutor lms, digits, otp
 Requires at least: 6.0
 Tested up to: 7.1
 Requires PHP: 7.4
-Stable tag: 0.4.39
+Stable tag: 0.4.40
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -140,6 +140,9 @@ Symbols Rounded by Google (the material-design-icons project),
 under the Apache License 2.0, included as inline SVG.
 
 == Changelog ==
+
+= 0.4.40 =
+* Yallapp Studio's premium library reaches the app from your site: stories, a moving ticker of words, logos or photos, a video banner, a parallax photo banner, a photo gallery (masonry, bento or filmstrip), before and after photos and a bar of progress segments, with the slider's new looks (where its indicator sits, its colour and "1/3"); quote cards, pricing plans, big numbers, progress bars and rings, a timeline, a person's or a place's card, a bento grid of tiles, badges and a call-to-action bar, each with its list in the language asked for, and a premium card style (glass, a ticket, a texture) on any layout; and the drawn map's premium looks on a map header (a living map, a horizon, two inks or a radar lens, with its markers, labelled pins, words and a live route).
 
 = 0.4.39 =
 * The new academy home you design in Yallapp Studio reaches the app from your site: the student's cards (the course in progress, the live class and the streak) on a photo, a course card's rating from your reviews, and a card's border colour by night.

@@ -12390,5 +12390,135 @@
   },
   "travelWhen": "When",
   "travelWatchPrice": "Watch the price",
-  "travelTravellersCabin": "Travellers and cabin"
+  "travelTravellersCabin": "Travellers and cabin",
+  "studioStoryOf": "Story {index} of {total}",
+  "@studioStoryOf": {
+    "description": "129.2 A story's spoken name in a row of stories and full screen.",
+    "placeholders": {
+      "index": {
+        "type": "int"
+      },
+      "total": {
+        "type": "int"
+      }
+    }
+  },
+  "studioStoryOpen": "Open",
+  "@studioStoryOpen": {
+    "description": "129.2 The button over a story that opens its link."
+  },
+  "studioTickerPaused": "Paused",
+  "@studioTickerPaused": {
+    "description": "129.3 Spoken while a ticker is held still."
+  },
+  "studioVideoPlay": "Play the video",
+  "@studioVideoPlay": {
+    "description": "129.4 The button over a video banner that plays it."
+  },
+  "studioVideoPause": "Pause the video",
+  "@studioVideoPause": {
+    "description": "129.4 The button over a video banner that pauses it."
+  },
+  "studioCompareLabel": "Before and after: {before} and {after}",
+  "@studioCompareLabel": {
+    "description": "129.6 The spoken name of a before and after photo.",
+    "placeholders": {
+      "before": {
+        "type": "String"
+      },
+      "after": {
+        "type": "String"
+      }
+    }
+  },
+  "studioCompareHandle": "Drag to compare",
+  "@studioCompareHandle": {
+    "description": "129.6 The spoken hint of the handle between the two photos."
+  },
+  "studioPremiumMonthly": "Monthly",
+  "@studioPremiumMonthly": {
+    "description": "129.12 The monthly side of the plans' switch on a Studio page's pricing cards."
+  },
+  "studioPremiumYearly": "Yearly",
+  "@studioPremiumYearly": {
+    "description": "129.12 The yearly side of the plans' switch on a Studio page's pricing cards."
+  },
+  "studioPremiumPerMonth": "/ month",
+  "@studioPremiumPerMonth": {
+    "description": "129.12 After a plan's monthly price on a Studio page (\"₺450 / month\")."
+  },
+  "studioPremiumPerYear": "/ year",
+  "@studioPremiumPerYear": {
+    "description": "129.12 After a plan's yearly price on a Studio page (\"₺4,500 / year\")."
+  },
+  "studioPremiumPopular": "Most popular",
+  "@studioPremiumPopular": {
+    "description": "129.12 The chip on the highlighted plan of a Studio page's pricing cards."
+  },
+  "studioPremiumStars": "{rating} out of 5 stars",
+  "@studioPremiumStars": {
+    "description": "129.11 What a screen reader says for the stars on a quote card of a Studio page.",
+    "placeholders": {
+      "rating": {
+        "type": "int"
+      }
+    }
+  },
+  "studioPremiumProgress": "{label}: {value} percent",
+  "@studioPremiumProgress": {
+    "description": "129.14 What a screen reader says for a progress bar or ring on a Studio page.",
+    "placeholders": {
+      "label": {
+        "type": "String"
+      },
+      "value": {
+        "type": "int"
+      }
+    }
+  },
+  "studioPremiumStep": "Step {number} of {count}",
+  "@studioPremiumStep": {
+    "description": "129.15 What a screen reader says before a step of a timeline on a Studio page.",
+    "placeholders": {
+      "number": {
+        "type": "int"
+      },
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "studioPremiumCurrentStep": "Current step",
+  "@studioPremiumCurrentStep": {
+    "description": "129.15 What a screen reader says for the active step of a timeline on a Studio page."
+  },
+  "studioMapSign": "TAXI",
+  "@studioMapSign": {
+    "description": "129.23 The word on a two-ink map's roof-sign markers when the Studio element has none."
+  },
+  "studioMapMinutes": "{minutes} min",
+  "@studioMapMinutes": {
+    "description": "129.23 A radar lens's minute ring on a Studio map, and a live route's minutes without a name.",
+    "placeholders": {
+      "minutes": {
+        "type": "int"
+      }
+    }
+  },
+  "studioMapPickup": "Pickup",
+  "@studioMapPickup": {
+    "description": "129.24 The chip over the pickup on a Studio map's live route while the driver comes."
+  },
+  "studioMapEta": "{name} · {minutes} min",
+  "@studioMapEta": {
+    "description": "129.24 The bubble by the driver on a Studio map's live route: their first name and the minutes to the pickup.",
+    "placeholders": {
+      "name": {
+        "type": "String"
+      },
+      "minutes": {
+        "type": "int"
+      }
+    }
+  }
 }

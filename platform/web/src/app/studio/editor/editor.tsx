@@ -19,10 +19,15 @@ import { uniqueSlug } from "@/lib/pages/model";
 import { moreLabel } from "@/lib/pages/tab-bar";
 import { STUDIO_HEADER_TYPES, type ItemSource, type LanguageCode, type LayoutContent, type LayoutPage, type LayoutTab, type StudioHeader, type StudioNode, type StudioPage } from "@/lib/pages/types";
 import { duplicateNode, historyOf, holdsChildren, insertNode, isInside, moveNode, placeOf, pushHistory, redo, removeNode, undo, updateNode, wrapNode, type History } from "@/lib/studio/edit";
-import { elementInfo, newNode, newNodeId, type NewText } from "@/lib/studio/elements";
+import { ELEMENTS, elementInfo, newNode, newNodeId, type NewText } from "@/lib/studio/elements";
+import { ENTRANCE_EASING, entranceFrom } from "@/lib/studio/motion";
+// 129.11–129.20 The premium elements' words.
+import type { PremiumWords } from "@/components/studio/premium";
 import { SECTIONS, sectionsFor, TEMPLATES, templatesFor, type ProjectKind, type SectionContext, type TemplateInfo } from "@/lib/studio/sections";
-import { appWord, appWords } from "@/lib/studio/app-words";
+import { appWord, appWords, premiumAppWords } from "@/lib/studio/app-words";
 import { PAGE_TEMPLATES } from "@/lib/studio/page-templates";
+// 129.21–129.24 The Premium group's maps.
+import { PREMIUM_MAPS, type PremiumMapWords } from "@/lib/studio/premium-maps";
 import { CLIPBOARD_KEY, forPaste, readCopied, readStyle, STYLE_CLIPBOARD_KEY, styleOf, stylePatch } from "@/lib/studio/clipboard";
 import { findNode, studioPageOpeners } from "@/lib/studio/tree";
 import { formatList } from "@/i18n/format";
@@ -189,6 +194,11 @@ export function StudioEditor(props: StudioEditorProps) {
   const learningWords = sample.learning;
   const greeting = sample.greeting;
   const schoolWords = sample.school;
+  // 129.11–129.20 The premium elements' words on the canvas, and their first words when added.
+  const premiumWords = Object.fromEntries((["setPrice", "monthly", "yearly", "perMonth", "perYear", "popular", "addLabel", "reviewsNote"] as const).map((k) => [k, t(`studio.pmw_${k}` as DashKey)])) as unknown as PremiumWords;
+  // 128.11 A new premium element's and premium map's words are the app's (lib/studio/app-words.ts), in the dashboard's language.
+  const premiumNew = premiumAppWords(dashLang, app.name);
+  const premiumText = premiumNew.content;
   // 124.8 The app's screen under the page: drawn as the app draws it in the look chosen in Studio › Screens, else said so.
   const screenName = studio?.screen ? known(props.pageScreens.find((s) => s.value === studio.screen)?.label ?? studio.screen) : "";
   const looksAt = screenLookSection(studio?.screen, props.kind.type);
@@ -219,6 +229,8 @@ export function StudioEditor(props: StudioEditorProps) {
     picture: (file: string) => `${props.pictureBase}/design-pictures/${file}`,
     entries: source === "products" ? (props.pickable.items.products ?? []).slice(0, 3) : undefined,
   };
+  // 129.21–129.24 A premium map's sample words.
+  const premiumMapWords: PremiumMapWords = premiumNew.map;
   // 128.11 A new element's words are the app's (lib/studio/app-words.ts), in the dashboard's language.
   const newText = (key: NewText) =>
     appWord(
@@ -394,9 +406,22 @@ export function StudioEditor(props: StudioEditorProps) {
   }
 
   function nodeFor(payload: DragPayload): StudioNode | null {
-    if (payload.kind === "new") return newNode(payload.type, { source, brand: app.brand, text: newText, orders: props.kind.vertical === "marketplace" ? "market_order" : "food_order" });
+    if (payload.kind === "new")
+      return newNode(payload.type, {
+        source,
+        brand: app.brand,
+        text: newText,
+        orders: props.kind.vertical === "marketplace" ? "market_order" : "food_order",
+        // 129 A premium look, and the premium elements' sample words in the dashboard's language (lib/studio/app-words.ts):
+        // the motion & media elements' (129.1–129.8, `motion…`) and the content & commerce elements' (129.11–129.20, `premium…`).
+        preset: payload.preset,
+        premiumWords: premiumNew.motion,
+        premium: premiumText,
+      });
     if (payload.kind === "section") return SECTIONS.find((s) => s.id === payload.id)?.make(sectionContext) ?? null;
     if (payload.kind === "picture") return { ...newNode("image", { source, brand: app.brand, text: newText }), image_url: payload.url };
+    // 129.21–129.24 A premium map, its sample words in the editor's language.
+    if (payload.kind === "premium_map") return PREMIUM_MAPS.find((m) => m.id === payload.id)?.make({ newId: newNodeId, words: premiumMapWords }) ?? null;
     return null;
   }
 
@@ -614,7 +639,8 @@ export function StudioEditor(props: StudioEditorProps) {
     e.dataTransfer.effectAllowed = payload.kind === "move" ? "move" : "copy";
     e.dataTransfer.setData(DRAG_TYPE, JSON.stringify(payload));
     e.dataTransfer.setData("text/plain", "");
-    if (payload.kind === "new") dragGhost(e, elementLabel(t, payload.type, source), elementInfo(payload.type).icon);
+    if (payload.kind === "new") dragGhost(e, elementLabel(t, payload.type, source, payload.preset), (ELEMENTS.find((x) => x.type === payload.type && x.preset === payload.preset) ?? elementInfo(payload.type)).icon);
+    else if (payload.kind === "premium_map") dragGhost(e, t(`studio.pmap_${payload.id}` as DashKey), PREMIUM_MAPS.find((m) => m.id === payload.id)?.icon ?? "map");
     else if (payload.kind === "section") dragGhost(e, t(`studio.sec_${payload.id}` as DashKey), SECTIONS.find((s) => s.id === payload.id)?.icon ?? "dashboard");
     else if (payload.kind === "move" && studio) {
       const node = findNode(studio.body, payload.id);
@@ -695,16 +721,9 @@ export function StudioEditor(props: StudioEditorProps) {
     const m = selected.motion;
     if (!el || !m) return;
     const rtl = editLang === "ar";
-    const from: Record<string, Keyframe> = {
-      fade: { opacity: 0 },
-      slide_up: { opacity: 0, transform: "translateY(24px)" },
-      slide_down: { opacity: 0, transform: "translateY(-24px)" },
-      slide_start: { opacity: 0, transform: `translateX(${rtl ? 24 : -24}px)` },
-      slide_end: { opacity: 0, transform: `translateX(${rtl ? -24 : 24}px)` },
-      zoom: { opacity: 0, transform: "scale(0.85)" },
-    };
-    const first = m.enter && m.enter !== "none" ? from[m.enter] : null;
-    if (first) el.animate([first, { opacity: 1, transform: "none" }], { duration: m.duration_ms ?? 400, delay: m.delay_ms ?? 0, easing: "cubic-bezier(.2,.8,.2,1)" });
+    // 129.8 The entrance as the canvas plays it when the element first shows (lib/studio/motion.ts).
+    const first = entranceFrom(m.enter, rtl);
+    if (first) el.animate([first, { opacity: 1, transform: "none" }], { duration: m.duration_ms ?? 400, delay: m.delay_ms ?? 0, easing: ENTRANCE_EASING });
     const loops: Record<string, Keyframe[]> = {
       pulse: [{ transform: "scale(1)" }, { transform: "scale(1.05)" }, { transform: "scale(1)" }],
       float: [{ transform: "translateY(0)" }, { transform: "translateY(-6px)" }, { transform: "translateY(0)" }],
@@ -1223,7 +1242,8 @@ export function StudioEditor(props: StudioEditorProps) {
           page={studio}
           selectedId={selectedId}
           onSelect={(id) => setSelectedId(id)}
-          onAddElement={(type) => add({ kind: "new", type })}
+          onAddElement={(type, preset) => add({ kind: "new", type, ...(preset ? { preset } : {}) })}
+          onAddPremiumMap={(id) => add({ kind: "premium_map", id })}
           onAddSection={(id) => add({ kind: "section", id })}
           onUseTemplate={applyTemplate}
           onAddPicture={(payload) => add(payload)}
@@ -1306,7 +1326,7 @@ export function StudioEditor(props: StudioEditorProps) {
             <div style={{ width: frame.width, height: frame.height, transform: `scale(${zoom / 100})`, transformOrigin: "top left", borderRadius: frame.radius, background: C.ink, padding: 10, boxSizing: "border-box", boxShadow: "0 30px 60px rgba(14,13,36,0.25)" }} dir="ltr">
               <div className="studio-screen" style={{ width: "100%", height: "100%", borderRadius: frame.radius - 9, overflow: "hidden auto", position: "relative", background: dark ? "#14121F" : "#FBF8F2" }}>
                 {studio ? (
-                  <StudioView page={studio} lang={editLang} defaultLang={def} dark={dark} look={look} pickable={props.pickable} market={props.market} editing={editing} words={words} learningWords={learningWords} liveWords={liveWords} schoolWords={{ ...schoolWords, date: greeting.date }} greeting={greeting} tablet={device === "tablet"} screenPart={screenPart} />
+                  <StudioView page={studio} lang={editLang} defaultLang={def} dark={dark} look={look} pickable={props.pickable} market={props.market} editing={editing} words={words} learningWords={learningWords} liveWords={liveWords} schoolWords={{ ...schoolWords, date: greeting.date }} greeting={greeting} tablet={device === "tablet"} screenPart={screenPart} premiumWords={premiumWords} />
                 ) : page ? (
                   <StartPage title={pageTitle(page)} regular={page.blocks.length > 0} onPick={applyTemplate} templates={kindTemplates} />
                 ) : null}

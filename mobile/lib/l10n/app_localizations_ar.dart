@@ -11893,4 +11893,78 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get travelTravellersCabin => 'المسافرون والدرجة';
+
+  @override
+  String studioStoryOf(int index, int total) {
+    return 'القصة $index من $total';
+  }
+
+  @override
+  String get studioStoryOpen => 'افتح';
+
+  @override
+  String get studioTickerPaused => 'متوقّف';
+
+  @override
+  String get studioVideoPlay => 'شغّل الفيديو';
+
+  @override
+  String get studioVideoPause => 'أوقف الفيديو مؤقتًا';
+
+  @override
+  String studioCompareLabel(String before, String after) {
+    return 'قبل وبعد: $before و$after';
+  }
+
+  @override
+  String get studioCompareHandle => 'اسحب للمقارنة';
+
+  @override
+  String get studioPremiumMonthly => 'شهريًا';
+
+  @override
+  String get studioPremiumYearly => 'سنويًا';
+
+  @override
+  String get studioPremiumPerMonth => '/ شهر';
+
+  @override
+  String get studioPremiumPerYear => '/ سنة';
+
+  @override
+  String get studioPremiumPopular => 'الأكثر طلبًا';
+
+  @override
+  String studioPremiumStars(int rating) {
+    return '$rating من 5 نجوم';
+  }
+
+  @override
+  String studioPremiumProgress(String label, int value) {
+    return '$label: $value بالمئة';
+  }
+
+  @override
+  String studioPremiumStep(int number, int count) {
+    return 'الخطوة $number من $count';
+  }
+
+  @override
+  String get studioPremiumCurrentStep => 'الخطوة الحالية';
+
+  @override
+  String get studioMapSign => 'تاكسي';
+
+  @override
+  String studioMapMinutes(int minutes) {
+    return '$minutes د';
+  }
+
+  @override
+  String get studioMapPickup => 'نقطة الركوب';
+
+  @override
+  String studioMapEta(String name, int minutes) {
+    return '$name · $minutes د';
+  }
 }
