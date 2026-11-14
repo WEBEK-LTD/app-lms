@@ -19,6 +19,11 @@ export function CheckoutSection({ value, onChange, brand, lang, dark }: { value:
       <span className="text-sm text-muted">{hint}</span>
     </button>
   );
+  // 131 The commerce side's settings of the look (its style, chips, mode…) stay as they are.
+  const { look: _look, ...others } = value ?? {};
+  void _look;
+  const without = (next: CheckoutLook) => (Object.keys(next).length ? next : null);
+  const gift = value?.look === "gift" ? value : null;
   return (
     <section aria-labelledby="h-checkout-look" className="flex flex-col gap-4 rounded-2xl border border-line bg-white p-5 sm:p-6" data-checkout-section="">
       <div className="flex flex-col gap-1">
@@ -28,17 +33,17 @@ export function CheckoutSection({ value, onChange, brand, lang, dark }: { value:
         <p className="m-0 text-sm text-muted">{t("studio.coText")}</p>
       </div>
       <div className="grid gap-3 sm:grid-cols-2">
-        {option(!value, t("studio.coLookNone"), t("studio.coLookNoneHint"), () => onChange(null))}
-        {option(value?.look === "gift", t("studio.coLook_gift"), t("studio.coLookHint_gift"), () => onChange({ look: "gift", ...(value?.accent ? { accent: value.accent } : {}), ...(value?.dark_accent ? { dark_accent: value.dark_accent } : {}) }))}
+        {option(!gift, t("studio.coLookNone"), t("studio.coLookNoneHint"), () => onChange(without(others)))}
+        {option(!!gift, t("studio.coLook_gift"), t("studio.coLookHint_gift"), () => onChange({ ...others, look: "gift", mode: "gift" }))}
       </div>
-      {value ? (
+      {gift ? (
         <div className="flex flex-col gap-3 sm:flex-row sm:items-start">
           <label className="flex flex-col gap-1">
             <span className="text-sm font-bold">{t("studio.coAccent")}</span>
             <span className="flex items-center gap-2">
-              <input type="color" value={value.accent ?? brand} onChange={(e) => onChange({ ...value, accent: e.target.value.toUpperCase() })} className="h-10 w-14 rounded-lg border border-line" />
-              {value.accent ? (
-                <button type="button" onClick={() => onChange({ look: value.look })} className="rounded-lg border border-line bg-white px-2 py-1 text-sm">
+              <input type="color" value={gift.accent ?? brand} onChange={(e) => onChange({ ...gift, accent: e.target.value.toUpperCase() })} className="h-10 w-14 rounded-lg border border-line" />
+              {gift.accent ? (
+                <button type="button" onClick={() => onChange((({ accent: _a, dark_accent: _d, ...rest }) => (void _a, void _d, rest))(gift))} className="rounded-lg border border-line bg-white px-2 py-1 text-sm">
                   {t("studio.coAccentOwn")}
                 </button>
               ) : null}
@@ -46,7 +51,7 @@ export function CheckoutSection({ value, onChange, brand, lang, dark }: { value:
           </label>
           <div aria-hidden="true" className="relative h-[520px] w-[300px] shrink-0 overflow-hidden rounded-[28px] border border-line">
             <div style={{ width: 360, transform: "scale(0.8333)", transformOrigin: "top left" }}>
-              <GiftCheckout look={value} dark={dark} lang={lang} brand={brand} photo="/flower-photos/blush-bouquet.jpg" top={20} />
+              <GiftCheckout look={gift} dark={dark} lang={lang} brand={brand} photo="/flower-photos/blush-bouquet.jpg" top={20} />
             </div>
           </div>
         </div>

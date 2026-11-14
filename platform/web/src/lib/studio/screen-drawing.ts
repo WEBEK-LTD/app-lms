@@ -41,8 +41,8 @@ export function screenDrawing(screen: string | null | undefined, appType: string
   const key = systemScreenOf(screen);
   const look = key ? systemLookFor(screens?.system, key) : null;
   if (key && look) return { screen: "system", key, look, image: screens?.system?.image_url ?? screens?.sign_in?.image_url ?? null };
-  // 131.25 The cart in the checkout's look, in a store.
-  if (screen === "cart" && appType === "store" && screens?.checkout) return { screen: "checkout", look: screens.checkout };
+  // 131.25 The cart in the premium gift look, in a store (the commerce side's other styles draw the cart as it is).
+  if (screen === "cart" && appType === "store" && screens?.checkout?.look === "gift") return { screen: "checkout", look: screens.checkout };
   if (!screen || appType !== "lms") return null;
   // 130.52 The course screens in Studio's course screens' look, before the older looks.
   const part = (COURSE_PARTS as Record<string, (typeof COURSE_PARTS)[keyof typeof COURSE_PARTS]>)[screen];
