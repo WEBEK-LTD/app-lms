@@ -47,9 +47,8 @@ class CourseLookColors {
   bool get dark => palette.isDark;
 
   /// The words and icons on the accent.
-  Color get onAccent => accent.computeLuminance() > 0.42
-      ? const Color(0xFF17120A)
-      : Colors.white;
+  Color get onAccent =>
+      accent.computeLuminance() > 0.42 ? const Color(0xFF17120A) : Colors.white;
 
   /// The accent softly, behind its icons.
   Color get accentSoft => accent.withValues(alpha: dark ? 0.18 : 0.13);
@@ -147,8 +146,8 @@ class CourseStars extends StatelessWidget {
                 overflow: TextOverflow.fade,
                 softWrap: false,
                 style: TextStyle(
-                fontSize: size * 0.9,
-                fontWeight: FontWeight.w700,
+                  fontSize: size * 0.9,
+                  fontWeight: FontWeight.w700,
                   color: textColor ?? context.palette.text,
                 ),
               ),

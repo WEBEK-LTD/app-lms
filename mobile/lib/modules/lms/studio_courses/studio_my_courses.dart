@@ -9,6 +9,7 @@ import '../../../core/services/external_links.dart';
 import '../../../core/theme/palette.dart';
 import '../../../core/widgets/app_nav_bar.dart';
 import '../../../core/widgets/common.dart';
+import '../../../core/widgets/studio_screen_scope.dart';
 import '../data/lms_providers.dart';
 import '../home/learning_cards.dart';
 import '../learning/learning_providers.dart';
@@ -99,22 +100,25 @@ class StudioMyCourses extends ConsumerWidget {
                 padding: const EdgeInsets.fromLTRB(18, 16, 18, 14),
                 sliver: SliverList.list(
                   children: [
-                    Semantics(
-                      header: true,
-                      child: Text(
-                        myCoursesTitle(ref, context),
-                        key: const ValueKey('studio-my-courses-title'),
-                        style: TextStyle(
-                          fontSize: look.look == CourseLook.faculty ? 32 : 29,
-                          height: 1.1,
-                          fontWeight: FontWeight.w800,
-                          letterSpacing: -0.3,
-                          color: p.text,
+                    // Under a Studio page's header, the header is the title.
+                    if (!StudioScreenScope.hidesTitleOf(context))
+                      Semantics(
+                        header: true,
+                        child: Text(
+                          myCoursesTitle(ref, context),
+                          key: const ValueKey('studio-my-courses-title'),
+                          style: TextStyle(
+                            fontSize: look.look == CourseLook.faculty ? 32 : 29,
+                            height: 1.1,
+                            fontWeight: FontWeight.w800,
+                            letterSpacing: -0.3,
+                            color: p.text,
+                          ),
                         ),
                       ),
-                    ),
                     if (headline != null) ...[
-                      const SizedBox(height: 6),
+                      if (!StudioScreenScope.hidesTitleOf(context))
+                        const SizedBox(height: 6),
                       Text(
                         headline,
                         key: const ValueKey('studio-my-courses-headline'),
@@ -134,7 +138,9 @@ class StudioMyCourses extends ConsumerWidget {
                       DecoratedBox(
                         key: const ValueKey('studio-my-courses-week'),
                         decoration: BoxDecoration(
-                          color: colors.dark ? const Color(0xFFEEF0F7) : p.primary,
+                          color: colors.dark
+                              ? const Color(0xFFEEF0F7)
+                              : p.primary,
                           borderRadius: BorderRadius.circular(
                             look.look == CourseLook.faculty ? 14 : 26,
                           ),
@@ -172,7 +178,9 @@ class StudioMyCourses extends ConsumerWidget {
                                 ),
                                 alignment: Alignment.center,
                                 decoration: BoxDecoration(
-                                  color: on ? colors.accent : Colors.transparent,
+                                  color: on
+                                      ? colors.accent
+                                      : Colors.transparent,
                                   borderRadius: BorderRadius.circular(999),
                                   border: Border.all(
                                     color: on ? colors.accent : colors.line,
@@ -484,7 +492,9 @@ class _Finished extends StatelessWidget {
         Flexible(
           child: url != null
               ? InkWell(
-                  key: ValueKey('studio-my-course-certificate-${course.course.id}'),
+                  key: ValueKey(
+                    'studio-my-course-certificate-${course.course.id}',
+                  ),
                   onTap: () => openExternal(url),
                   child: Text(
                     l10n.viewCertificate,
@@ -587,7 +597,10 @@ class _GridItem extends StatelessWidget {
                 _Finished(course: course, colors: colors)
               else
                 Text(
-                  l10n.lessonsDoneOf(progress.completedItems, progress.totalItems),
+                  l10n.lessonsDoneOf(
+                    progress.completedItems,
+                    progress.totalItems,
+                  ),
                   style: TextStyle(fontSize: 11.5, color: p.textSecondary),
                 ),
               if (colors.look.myCourses.progress == MyCoursesProgress.bars &&
@@ -695,10 +708,7 @@ class _ListItem extends StatelessWidget {
       child: InkWell(
         key: ValueKey('studio-my-course-${course.course.id}'),
         onTap: () => continueCourse(context, course),
-        child: Padding(
-          padding: EdgeInsets.all(faculty ? 0 : 10),
-          child: body,
-        ),
+        child: Padding(padding: EdgeInsets.all(faculty ? 0 : 10), child: body),
       ),
     );
   }

@@ -797,7 +797,7 @@ export const en = {
   csCtaIndex: "Join the class",
   csLineIndex: "Your teachers, at your pace.",
   csCtaOnAir: "Join now",
-  csLineOnAir: "Pick up where you left off.",
+  csLineOnAir: "Every lesson, live or recorded.",
   // ——— end 130.52 ———
 } as const;
 
@@ -1584,7 +1584,7 @@ export const ar: Record<AppWord, string> = {
   csCtaIndex: "انضم إلى الصف",
   csLineIndex: "مدرّسوك، بالوتيرة التي تناسبك.",
   csCtaOnAir: "انضم الآن",
-  csLineOnAir: "تابع من حيث توقفت.",
+  csLineOnAir: "كل درس، مباشرًا أو مسجّلًا.",
   // ——— end 130.52 ———
 };
 
@@ -2367,7 +2367,7 @@ export const tr: Record<AppWord, string> = {
   csCtaIndex: "Sınıfa katıl",
   csLineIndex: "Öğretmenleriniz, sizin hızınızda.",
   csCtaOnAir: "Hemen katıl",
-  csLineOnAir: "Kaldığınız yerden devam edin.",
+  csLineOnAir: "Her ders, canlı ya da kayıtlı.",
   // ——— end 130.52 ———
 };
 

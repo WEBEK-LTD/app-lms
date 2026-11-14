@@ -60,7 +60,9 @@ class StudioCourseCard extends ConsumerWidget {
     final progress = !design.shows(CourseCardPart.progress)
         ? null
         : share ??
-              (course.enrolled ? ref.watch(courseShareProvider(course.id)) : null);
+              (course.enrolled
+                  ? ref.watch(courseShareProvider(course.id))
+                  : null);
     final facts = _Facts(course: course, design: design, progress: progress);
     final card = switch (design.layout) {
       CourseCardLayout.poster => _Poster(facts: facts, colors: colors),
@@ -83,9 +85,7 @@ class StudioCourseCard extends ConsumerWidget {
       ].join(', '),
       excludeSemantics: true,
       child: GestureDetector(
-        key: ValueKey(
-          'studio-course-card-${design.layout.name}-${course.id}',
-        ),
+        key: ValueKey('studio-course-card-${design.layout.name}-${course.id}'),
         behavior: HitTestBehavior.opaque,
         onTap: onTap,
         child: card,
@@ -281,7 +281,9 @@ class _Poster extends StatelessWidget {
                   colors: [
                     Colors.black.withValues(alpha: scrim * 0.25),
                     Colors.black.withValues(alpha: scrim * 0.15),
-                    Colors.black.withValues(alpha: (scrim + 0.12).clamp(0, 0.95)),
+                    Colors.black.withValues(
+                      alpha: (scrim + 0.12).clamp(0, 0.95),
+                    ),
                   ],
                   stops: const [0, 0.42, 1],
                 ),

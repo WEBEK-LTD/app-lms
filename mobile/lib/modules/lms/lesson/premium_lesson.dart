@@ -419,8 +419,8 @@ class _Steps extends StatelessWidget {
         Expanded(
           child: PrimaryButton(
             key: const ValueKey('studio-lesson-next'),
-            label: l10n.nextLesson,
-            icon: Symbols.arrow_forward_rounded,
+            label: l10n.upNext,
+            trailingIcon: Symbols.arrow_forward_rounded,
             height: 46,
             onPressed: next == null ? null : () => go(next),
           ),

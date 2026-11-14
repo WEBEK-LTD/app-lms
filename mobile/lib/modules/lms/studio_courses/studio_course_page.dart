@@ -311,7 +311,9 @@ class _Framed extends StatelessWidget {
               borderRadius: BorderRadius.circular(30),
               boxShadow: [
                 BoxShadow(
-                  color: colors.accent.withValues(alpha: p.isDark ? 0.18 : 0.28),
+                  color: colors.accent.withValues(
+                    alpha: p.isDark ? 0.18 : 0.28,
+                  ),
                   blurRadius: 34,
                   offset: const Offset(0, 16),
                 ),
@@ -614,15 +616,14 @@ class StudioCourseSections extends ConsumerWidget {
           number: ++number,
           trailing: Text(
             l10n.lessonCount(course.lessonCount),
-            style: TextStyle(fontSize: 12.5, color: context.palette.textSecondary),
+            style: TextStyle(
+              fontSize: 12.5,
+              color: context.palette.textSecondary,
+            ),
           ),
         ),
         const SizedBox(height: 14),
-        StudioCurriculum(
-          topics: items,
-          courseId: course.id,
-          colors: colors,
-        ),
+        StudioCurriculum(topics: items, courseId: course.id, colors: colors),
       ],
       if (page.shows(CoursePagePart.reviews) && reviews)
         _Reviews(courseId: course.id, colors: colors, number: ++number),
@@ -655,18 +656,19 @@ class StudioCourseSections extends ConsumerWidget {
   }
 }
 
-Future<void> _sheet(BuildContext context, Widget child) => showModalBottomSheet<void>(
-  context: context,
-  isScrollControlled: true,
-  showDragHandle: true,
-  builder: (context) => FractionallySizedBox(
-    heightFactor: 0.88,
-    child: ListView(
-      padding: const EdgeInsets.fromLTRB(20, 0, 20, 32),
-      children: [child],
-    ),
-  ),
-);
+Future<void> _sheet(BuildContext context, Widget child) =>
+    showModalBottomSheet<void>(
+      context: context,
+      isScrollControlled: true,
+      showDragHandle: true,
+      builder: (context) => FractionallySizedBox(
+        heightFactor: 0.88,
+        child: ListView(
+          padding: const EdgeInsets.fromLTRB(20, 0, 20, 32),
+          children: [child],
+        ),
+      ),
+    );
 
 /// The teacher's profile: their photo in the accent's ring, their name,
 /// their bio and following them.
@@ -958,8 +960,8 @@ class _Node extends StatelessWidget {
       CurriculumItemType.live => Symbols.live_tv_rounded,
       CurriculumItemType.lesson => Symbols.play_arrow_rounded,
     };
-    final detail = item.type == CurriculumItemType.quiz &&
-            item.questionCount != null
+    final detail =
+        item.type == CurriculumItemType.quiz && item.questionCount != null
         ? l10n.questionCount(item.questionCount!)
         : item.durationMinutes != null && item.durationMinutes! > 0
         ? formatMinutes(item.durationMinutes!)
@@ -1058,7 +1060,10 @@ class _Node extends StatelessWidget {
                   padding: const EdgeInsets.symmetric(vertical: 10),
                   child: Container(
                     padding: here
-                        ? const EdgeInsets.symmetric(horizontal: 12, vertical: 10)
+                        ? const EdgeInsets.symmetric(
+                            horizontal: 12,
+                            vertical: 10,
+                          )
                         : EdgeInsets.zero,
                     decoration: here
                         ? BoxDecoration(
@@ -1143,7 +1148,9 @@ class _Reviews extends ConsumerWidget {
     final state = ref.watch(courseReviewsProvider(courseId));
     final summary = state.head?.summary;
     final list = state.items
-        .where((r) => r.status == ReviewStatus.approved && r.text.trim().isNotEmpty)
+        .where(
+          (r) => r.status == ReviewStatus.approved && r.text.trim().isNotEmpty,
+        )
         .take(6)
         .toList();
     if (summary == null || summary.ratingCount == 0 || summary.rating == null) {
@@ -1160,7 +1167,8 @@ class _Reviews extends ConsumerWidget {
           number: number,
           trailing: TextButton(
             key: const ValueKey('studio-course-all-reviews'),
-            onPressed: () => _sheet(context, CourseReviewsTab(courseId: courseId)),
+            onPressed: () =>
+                _sheet(context, CourseReviewsTab(courseId: courseId)),
             child: Text(
               l10n.courseLookAllReviews,
               style: TextStyle(

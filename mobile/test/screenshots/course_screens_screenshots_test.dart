@@ -14,6 +14,7 @@
 @Tags(['screenshots'])
 library;
 
+import 'dart:async';
 import 'dart:ui' as ui;
 
 import 'package:flutter/foundation.dart';
@@ -275,7 +276,15 @@ Shot _shot(_Look look, String screen, String variant) {
       await preparePremiumAcademy(tester);
     },
     overrides: premiumAcademyOverrides,
-    after: (tester, router) async => router.push(location),
+    // The tabs' screens in their tab, the others over it.
+    after: (tester, router) async {
+      if (screen == 'card' || screen == 'mine') {
+        router.go(location);
+      } else {
+        // Not awaited: the route's future completes when it closes.
+        unawaited(router.push(location));
+      }
+    },
   );
 }
 
