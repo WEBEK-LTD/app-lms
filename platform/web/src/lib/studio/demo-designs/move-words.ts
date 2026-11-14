@@ -18,4 +18,17 @@ export type MoveWord =
   | "sigWhereToName"
   | "sigCurrency"
   | "sigFromFourSeats"
-  | "sigFromSevenSeats";
+  | "sigFromSevenSeats"
+  // 130.9 130.10 Lamha A and B: its taxi classes, its districts, "Book it", the airport's set price, the taxis around.
+  | "sigTaxiClass"
+  | "sigXl"
+  | "sigMaadi"
+  | "sigNile"
+  | "sigMohandessin"
+  | "sigAgouza"
+  | "sigBookIt"
+  | "sigAirportPrice"
+  | "sigAirportLine"
+  | "sigAirportSetPrice"
+  | "sigAirportFare"
+  | "sigTaxisAround";

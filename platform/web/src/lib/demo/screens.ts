@@ -163,7 +163,8 @@ export const DEMO_TAB_BARS: Record<StudioDemoId, TabBarStyle> = {
   marketplace: demoDesignBar("marketplace"),
   // 130.7 Masar Rides's is its look A's (lib/studio/demo-designs/masar-signature.ts).
   rides: demoDesignBar("rides"),
-  taxi: { design: "island", dark_active: "#F5B700" },
+  // 130.9 Lamha Taxi's is its look A's (lib/studio/demo-designs/lamha-signature.ts).
+  taxi: demoDesignBar("taxi"),
   // 128 Nakhla School's and Rawaq Academy's: the open tab's icon in a soft pill over its name, on the board's surface.
   school: demoDesignBar("school"),
   instructors: demoDesignBar("instructors"),

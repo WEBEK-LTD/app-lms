@@ -49,7 +49,31 @@ List<Shot> _masar(String look) => _looks('rides', look, (name, dark) {
   );
 });
 
-final signatureShots = <Shot>[..._masar('a'), ..._masar('b')];
+/// 130.9 130.10 Lamha Taxi: the free taxis around Tahrir Square, live; no
+/// ride on its way.
+List<Shot> _lamha(String look) => _looks('taxi', look, (name, dark) {
+  final demo = StudioDemo.signature('taxi', look);
+  return Shot(
+    name,
+    api: () => lamhaStudioApi(ride: false, look: demo),
+    appName: 'Lamha Taxi',
+    appType: AppType.rides,
+    template: AppTemplate.bold,
+    dark: dark,
+    prepare: demo.prepare,
+    overrides: atTahrir,
+    mapTiles: true,
+    shadows: true,
+    after: (tester, router) async => router.go('/page/home'),
+  );
+});
+
+final signatureShots = <Shot>[
+  ..._masar('a'),
+  ..._masar('b'),
+  ..._lamha('a'),
+  ..._lamha('b'),
+];
 
 void main() {
   setUpAll(() async {

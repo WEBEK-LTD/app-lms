@@ -50,6 +50,8 @@ const symbolsByName = <String, IconData>{
   'fitness_center': AppIcons.fitness,
   'card_membership': AppIcons.membership,
   'location_on': AppIcons.location,
+  // 130.9 The button that shows where the person is (Lamha A's map).
+  'my_location': AppIcons.myLocation,
   'open_in_new': AppIcons.openInNew,
   'volunteer_activism': AppIcons.campaigns,
   'campaign': AppIcons.campaignUpdate,

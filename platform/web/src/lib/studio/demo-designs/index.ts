@@ -13,6 +13,7 @@ import { schoolTodayHome } from "../school-home";
 import { teachersPhotoHome } from "../teachers-home";
 import { NAKHLA_LOOK, RAWAQ_LOOK, rawaqTabs, schoolPage } from "./school-looks";
 // 130 The Signature looks (./signature.ts): Masar's, Lamha's and Safra's.
+import { LAMHA_LOOKS } from "./lamha-signature";
 import { MASAR_LOOKS } from "./masar-signature";
 import { SIGNATURE_LOOKS, signatureTemplateId, type SignatureDesign, type SignatureLook, type SignatureLooks } from "./signature";
 
@@ -131,6 +132,8 @@ function tabbed(looks: SignatureLooks, tabs: DemoDesign["tabs"]): SignatureLooks
 const SIGNATURE_DESIGNS: Partial<Record<StudioDemoId, SignatureLooks>> = {
   // 130.7 130.8 Masar Rides, map first: A a living map, B a horizon.
   rides: tabbed(MASAR_LOOKS, rideTabs),
+  // 130.9 130.10 Lamha Taxi, taxi yellow and navy: A two inks, B a radar.
+  taxi: tabbed(LAMHA_LOOKS, rideTabs),
 };
 
 /** A demo's look; missing `look`, its look A (the demo). Undefined when the demo has no such look. */

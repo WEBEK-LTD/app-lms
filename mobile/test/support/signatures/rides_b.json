@@ -101,11 +101,11 @@
      "background": "#F1EFE9",
      "dark_background": "#061110",
      "body": {
-      "id": "ni8x6j0h",
+      "id": "ntty215j",
       "type": "column",
       "children": [
        {
-        "id": "ncfrpbcs",
+        "id": "n11slb9n",
         "type": "map_header",
         "name": "Where to?",
         "height": 420,
@@ -178,13 +178,13 @@
         },
         "children": [
          {
-          "id": "nsxe1n86",
+          "id": "nwto8xiy",
           "type": "row",
           "gap": 10,
           "cross": "center",
           "children": [
            {
-            "id": "n6a0bb3f",
+            "id": "nlscl742",
             "type": "row",
             "width": 8,
             "height": 8,
@@ -194,7 +194,7 @@
             "children": []
            },
            {
-            "id": "nh81uv9i",
+            "id": "nfct9hi7",
             "type": "text",
             "text": "Masar Rides",
             "color": "#0B2422",
@@ -215,7 +215,7 @@
             }
            },
            {
-            "id": "ne4mlwyl",
+            "id": "n47qzlla",
             "type": "row",
             "width": 44,
             "height": 44,
@@ -234,7 +234,7 @@
             "border_width": 1,
             "children": [
              {
-              "id": "nm2yzqh9",
+              "id": "njom06yp",
               "type": "icon",
               "icon": "notifications",
               "icon_size": 22,
@@ -244,7 +244,7 @@
             ]
            },
            {
-            "id": "nlejoelz",
+            "id": "nwfa14rg",
             "type": "row",
             "width": 44,
             "height": 44,
@@ -260,7 +260,7 @@
             "dark_background": "#E9F5F3",
             "children": [
              {
-              "id": "ntofw4zk",
+              "id": "nd7ikb98",
               "type": "icon",
               "icon": "person",
               "icon_size": 22,
@@ -272,7 +272,7 @@
           ]
          },
          {
-          "id": "ndotv7s6",
+          "id": "nhcmtlfg",
           "type": "greeting",
           "name": "Where to?",
           "text": "Where to,\n{name}?",
@@ -297,14 +297,14 @@
           }
          },
          {
-          "id": "nfu5aco9",
+          "id": "n1rflyed",
           "type": "row",
           "name": "Home",
           "gap": 8,
           "scroll": true,
           "children": [
            {
-            "id": "nq211vit",
+            "id": "nqn88w2b",
             "type": "row",
             "name": "Home",
             "width": "hug",
@@ -330,7 +330,7 @@
             },
             "children": [
              {
-              "id": "nvpq6q61",
+              "id": "nqm62e44",
               "type": "icon",
               "icon": "home",
               "icon_size": 17,
@@ -338,7 +338,7 @@
               "dark_color": "#5FD3C2"
              },
              {
-              "id": "n872mld8",
+              "id": "n5z7rf4i",
               "type": "text",
               "text": "Home",
               "color": "#0B2422",
@@ -359,7 +359,7 @@
             ]
            },
            {
-            "id": "nlpwweam",
+            "id": "nli1wo0h",
             "type": "row",
             "name": "Office",
             "width": "hug",
@@ -385,7 +385,7 @@
             },
             "children": [
              {
-              "id": "nyfmmnzz",
+              "id": "n0g8solm",
               "type": "icon",
               "icon": "work",
               "icon_size": 17,
@@ -393,7 +393,7 @@
               "dark_color": "#5FD3C2"
              },
              {
-              "id": "nxouyrty",
+              "id": "np10e2dn",
               "type": "text",
               "text": "Office",
               "color": "#0B2422",
@@ -414,7 +414,7 @@
             ]
            },
            {
-            "id": "n3uyaplu",
+            "id": "nyuahvya",
             "type": "row",
             "name": "Airport",
             "width": "hug",
@@ -440,7 +440,7 @@
             },
             "children": [
              {
-              "id": "nip8dkaz",
+              "id": "n2nvet0d",
               "type": "icon",
               "icon": "flight",
               "icon_size": 17,
@@ -448,7 +448,7 @@
               "dark_color": "#5FD3C2"
              },
              {
-              "id": "nnrtb1vx",
+              "id": "nrk8f6y0",
               "type": "text",
               "text": "Airport",
               "color": "#0B2422",
@@ -471,7 +471,7 @@
           ]
          },
          {
-          "id": "nw3sbsy4",
+          "id": "ns6ofdm0",
           "type": "column",
           "name": "On the way",
           "padding": {
@@ -489,7 +489,7 @@
           "shadow": "strong",
           "children": [
            {
-            "id": "nasky02v",
+            "id": "nc7lx27u",
             "type": "row",
             "width": 36,
             "height": 4,
@@ -500,7 +500,7 @@
             "children": []
            },
            {
-            "id": "nvsms00j",
+            "id": "ndvinygn",
             "type": "tracking",
             "tracking": {
              "kind": "ride",
@@ -517,7 +517,7 @@
             }
            },
            {
-            "id": "nk9k0gm9",
+            "id": "n6wpfque",
             "type": "row",
             "width": "fill",
             "height": 1,
@@ -526,14 +526,14 @@
             "children": []
            },
            {
-            "id": "nwtbavqg",
+            "id": "n9gu27yy",
             "type": "row",
             "name": "Economy",
             "height": 104,
             "cross": "stretch",
             "children": [
              {
-              "id": "n4liewp2",
+              "id": "nrijabnn",
               "type": "column",
               "name": "Economy",
               "width": "fill",
@@ -550,7 +550,7 @@
               },
               "children": [
                {
-                "id": "n6jiq1js",
+                "id": "nzy9zbik",
                 "type": "text",
                 "text": "Economy",
                 "color": "#0F766C",
@@ -571,13 +571,13 @@
                 }
                },
                {
-                "id": "nvu1z7ek",
+                "id": "nwvl0n82",
                 "type": "row",
                 "gap": 2,
                 "cross": "end",
                 "children": [
                  {
-                  "id": "nzut7us9",
+                  "id": "nrrz7ntx",
                   "type": "text",
                   "text": "E£",
                   "color": "#4C5F5C",
@@ -596,7 +596,7 @@
                   }
                  },
                  {
-                  "id": "n9o575tg",
+                  "id": "nj4wapir",
                   "type": "text",
                   "text": "35",
                   "color": "#0B2422",
@@ -611,7 +611,7 @@
                 ]
                },
                {
-                "id": "nhl5p9eh",
+                "id": "ni9jwiud",
                 "type": "text",
                 "text": "from · 4 seats",
                 "color": "#4C5F5C",
@@ -630,7 +630,7 @@
                 }
                },
                {
-                "id": "nzo8cr2j",
+                "id": "n11wzfn8",
                 "type": "row",
                 "width": 28,
                 "height": 3,
@@ -645,7 +645,7 @@
               ]
              },
              {
-              "id": "nwaf3f4q",
+              "id": "nrby3bet",
               "type": "row",
               "width": 1,
               "height": "fill",
@@ -660,7 +660,7 @@
               "children": []
              },
              {
-              "id": "n399f7sq",
+              "id": "narfwubx",
               "type": "column",
               "name": "Comfort",
               "width": "fill",
@@ -677,7 +677,7 @@
               },
               "children": [
                {
-                "id": "n9qc3u8i",
+                "id": "n5erxn35",
                 "type": "text",
                 "text": "Comfort",
                 "color": "#4C5F5C",
@@ -698,13 +698,13 @@
                 }
                },
                {
-                "id": "nbx8sfz2",
+                "id": "nadhxzb3",
                 "type": "row",
                 "gap": 2,
                 "cross": "end",
                 "children": [
                  {
-                  "id": "neefyx0n",
+                  "id": "nnp7s4j6",
                   "type": "text",
                   "text": "E£",
                   "color": "#4C5F5C",
@@ -723,7 +723,7 @@
                   }
                  },
                  {
-                  "id": "nqygvvel",
+                  "id": "nfeqizg5",
                   "type": "text",
                   "text": "50",
                   "color": "#0B2422",
@@ -738,7 +738,7 @@
                 ]
                },
                {
-                "id": "n0ceji3m",
+                "id": "nf4zxkq6",
                 "type": "text",
                 "text": "from · 4 seats",
                 "color": "#4C5F5C",
@@ -757,7 +757,7 @@
                 }
                },
                {
-                "id": "nza9xnjn",
+                "id": "n8hchzag",
                 "type": "row",
                 "width": 28,
                 "height": 3,
@@ -770,7 +770,7 @@
               ]
              },
              {
-              "id": "n0p10dqc",
+              "id": "nw5c492j",
               "type": "row",
               "width": 1,
               "height": "fill",
@@ -785,7 +785,7 @@
               "children": []
              },
              {
-              "id": "nhsv8h3f",
+              "id": "nr6umu15",
               "type": "column",
               "name": "Van",
               "width": "fill",
@@ -802,7 +802,7 @@
               },
               "children": [
                {
-                "id": "nivxkh1r",
+                "id": "nc238t5f",
                 "type": "text",
                 "text": "Van",
                 "color": "#4C5F5C",
@@ -823,13 +823,13 @@
                 }
                },
                {
-                "id": "nkrah0q4",
+                "id": "n5smwpui",
                 "type": "row",
                 "gap": 2,
                 "cross": "end",
                 "children": [
                  {
-                  "id": "nakhd8i3",
+                  "id": "nmphubvm",
                   "type": "text",
                   "text": "E£",
                   "color": "#4C5F5C",
@@ -848,7 +848,7 @@
                   }
                  },
                  {
-                  "id": "n05sd8an",
+                  "id": "nguhs4n6",
                   "type": "text",
                   "text": "80",
                   "color": "#0B2422",
@@ -863,7 +863,7 @@
                 ]
                },
                {
-                "id": "nsgvrllq",
+                "id": "n9da1ixn",
                 "type": "text",
                 "text": "from · 7 seats",
                 "color": "#4C5F5C",
@@ -882,7 +882,7 @@
                 }
                },
                {
-                "id": "n56jl2ar",
+                "id": "nimo9hc6",
                 "type": "row",
                 "width": 28,
                 "height": 3,
@@ -897,7 +897,7 @@
             ]
            },
            {
-            "id": "na3or9ex",
+            "id": "n25goq84",
             "type": "row",
             "width": "fill",
             "height": 1,
@@ -906,7 +906,7 @@
             "children": []
            },
            {
-            "id": "ndykjze0",
+            "id": "nmfbhn9v",
             "type": "row",
             "name": "Where to?",
             "height": 60,
@@ -931,7 +931,7 @@
             },
             "children": [
              {
-              "id": "nb0k355y",
+              "id": "nmysxloz",
               "type": "icon",
               "icon": "search",
               "icon_size": 24,
@@ -939,7 +939,7 @@
               "dark_color": "#04201D"
              },
              {
-              "id": "nnfz5rut",
+              "id": "nulrlnva",
               "type": "text",
               "text": "Where to?",
               "color": "#FFFFFF",
@@ -960,7 +960,7 @@
               }
              },
              {
-              "id": "nqpalm8o",
+              "id": "nmqplwkt",
               "type": "row",
               "height": 44,
               "radius": 14,
@@ -977,7 +977,7 @@
               "dark_background": "#4DB8A8",
               "children": [
                {
-                "id": "nq917wqk",
+                "id": "ns86digq",
                 "type": "icon",
                 "icon": "schedule",
                 "icon_size": 18,
@@ -985,7 +985,7 @@
                 "dark_color": "#04201D"
                },
                {
-                "id": "n07uhviu",
+                "id": "ntbqd501",
                 "type": "text",
                 "text": "Now",
                 "color": "#FFFFFF",
@@ -1028,11 +1028,11 @@
     },
     "studio": {
      "body": {
-      "id": "nql5fqsi",
+      "id": "nhswnkt2",
       "type": "column",
       "children": [
        {
-        "id": "nue652ds",
+        "id": "n4gjyapx",
         "type": "photo_hero",
         "name": "Home safe, every ride",
         "image_url": "http://localhost:3000/stories/rides/rides-arrive-home.jpg",
@@ -1061,7 +1061,7 @@
         },
         "children": [
          {
-          "id": "np97szt5",
+          "id": "ni28d1y2",
           "type": "text",
           "text": "Home safe, every ride",
           "color": "#FFFFFF",
@@ -1080,7 +1080,7 @@
           }
          },
          {
-          "id": "n0sp0jwf",
+          "id": "nkiv23q2",
           "type": "text",
           "text": "Your rides, their fares and receipts.",
           "color": "#FFFFFF",
@@ -1145,7 +1145,7 @@
     },
     "studio": {
      "body": {
-      "id": "n01ivlnj",
+      "id": "nnlc5qeo",
       "type": "column",
       "children": []
      },
@@ -1170,11 +1170,11 @@
     },
     "studio": {
      "body": {
-      "id": "nwo26bgt",
+      "id": "nw6fbkqf",
       "type": "column",
       "children": [
        {
-        "id": "nen6m9c4",
+        "id": "n72805jd",
         "type": "tracking",
         "tracking": {
          "kind": "ride",
@@ -1239,7 +1239,7 @@
     },
     "studio": {
      "body": {
-      "id": "nrkmqlbk",
+      "id": "n4lys2pp",
       "type": "column",
       "children": []
      },
@@ -1280,7 +1280,7 @@
     },
     "studio": {
      "body": {
-      "id": "nadppcim",
+      "id": "nsr1zkqr",
       "type": "column",
       "children": []
      },
@@ -1321,7 +1321,7 @@
     },
     "studio": {
      "body": {
-      "id": "nzjt6to3",
+      "id": "n51yo54q",
       "type": "column",
       "children": []
      },
@@ -1362,7 +1362,7 @@
     },
     "studio": {
      "body": {
-      "id": "na4mzllz",
+      "id": "n8mk0ih3",
       "type": "column",
       "children": []
      },
@@ -1395,7 +1395,7 @@
     "title": "Change password",
     "studio": {
      "body": {
-      "id": "n1dmb2t9",
+      "id": "navd1qbk",
       "type": "column",
       "children": []
      },
@@ -1412,7 +1412,7 @@
     "title": "A conversation",
     "studio": {
      "body": {
-      "id": "npu4nzm9",
+      "id": "nnle9r74",
       "type": "column",
       "children": []
      },
@@ -1429,7 +1429,7 @@
     "title": "A ride on its way",
     "studio": {
      "body": {
-      "id": "nkspvgiv",
+      "id": "n5xphbzz",
       "type": "column",
       "children": []
      },

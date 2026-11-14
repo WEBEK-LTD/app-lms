@@ -687,6 +687,7 @@ class _NearbyMore extends ConsumerWidget {
           _BigNumber(
             value: '${driveMinutes(nearest)}',
             unit: l.studioMinutesShort,
+            size: 56,
           ),
           const SizedBox(width: 12),
         ],

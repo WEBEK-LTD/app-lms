@@ -32,7 +32,8 @@ export const DEMO_HOME_TEMPLATES: Record<StudioDemoId, string> = {
   marketplace: "market_photo",
   // 130.7 Masar Rides is its Signature look A, the living map (lib/studio/demo-designs/masar-signature.ts).
   rides: "rides_signature_a",
-  taxi: "taxi_map",
+  // 130.9 Lamha Taxi is its Signature look A, the two-ink cab (lib/studio/demo-designs/lamha-signature.ts).
+  taxi: "taxi_signature_a",
   school: "school_today",
   instructors: "teachers_photo",
   // 126 Safra's Explore: travel's own template (128 in the same registry, lib/studio/demo-designs/safra-travel.ts).
