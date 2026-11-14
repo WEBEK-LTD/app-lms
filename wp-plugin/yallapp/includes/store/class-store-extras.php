@@ -248,8 +248,8 @@ class Store_Extras {
 			'anonymous'  => (bool) $this->settings->get( 'store_gift_anonymous' ) || $gift,
 		);
 		// 131 The owner's titles of the add-ons, the card and the delivery picker (the Yallapp dashboard's).
-		$status            = (array) call_user_func( $this->status );
-		$config['titles']  = Addon_Rules::titles( $status['store_titles'] ?? null );
+		$status           = (array) call_user_func( $this->status );
+		$config['titles'] = Addon_Rules::titles( $status['store_titles'] ?? null );
 		return $config;
 	}
 
