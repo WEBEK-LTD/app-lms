@@ -71,8 +71,10 @@ describe("129.11–129.20 the premium library in the editor", () => {
     const src = ["src/app/studio/editor/premium-controls.tsx", "src/app/studio/editor/editor.tsx"].map((f) => readFileSync(path.resolve(__dirname, "../..", f), "utf8")).join("\n");
     const keys = new Set([...src.matchAll(/studio\.(pm[a-z]*_\w+|pm_\w+)/g)].map((m) => m[1]!));
     // Keys built at run time: each style, each network, each entry list, each size.
-    const dynamic = Object.keys(en).filter((k) => /^pm_(tst|rev|stats|progress|timeline|shape|badge|cta|net|entries|size)_/.test(k) || /^pm[wn]_/.test(k));
-    expect(dynamic.length).toBeGreaterThan(60);
+    const dynamic = Object.keys(en).filter((k) => /^pm_(tst|rev|stats|progress|timeline|shape|badge|cta|net|entries|size)_/.test(k) || /^pmw_/.test(k));
+    expect(dynamic.length).toBeGreaterThan(40);
+    // 128.11 A new element's first words are the app's (lib/studio/app-words.ts, studio-app-words.test.ts), not the editor's.
+    expect(Object.keys(en).filter((k) => /^(pmn_|pmNew_|pmapWord_)/.test(k))).toEqual([]);
     for (const [lang, dict] of Object.entries({ en, ar, tr }) as [string, Record<string, unknown>][]) {
       expect([...keys, ...dynamic].filter((k) => !k.endsWith("_") && typeof dict[k] !== "string"), lang).toEqual([]);
     }
