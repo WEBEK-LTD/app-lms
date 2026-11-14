@@ -89,17 +89,20 @@ typedef CartDelivery = ({
   String? slot,
   String? country,
   String? city,
+  double? lat,
+  double? lng,
 });
 
 class CartDeliveryController extends Notifier<CartDelivery> {
   @override
-  CartDelivery build() => (date: null, slot: null, country: null, city: null);
+  CartDelivery build() =>
+      (date: null, slot: null, country: null, city: null, lat: null, lng: null);
 
   void set(CartDelivery value) {
     if (value != state) state = value;
   }
 
-  void clear() => state = (date: null, slot: null, country: null, city: null);
+  void clear() => state = build();
 }
 
 final cartDeliveryProvider =
@@ -122,12 +125,17 @@ final cartQuoteProvider = FutureProvider.autoDispose<CartQuote?>((ref) {
     usePoints: usePoints,
     deliveryDate: delivery.date,
     deliverySlot: delivery.date != null ? delivery.slot : null,
-    recipient: delivery.country != null || delivery.city != null
+    recipient:
+        delivery.country != null ||
+            delivery.city != null ||
+            delivery.lat != null
         ? GiftPerson(
             name: '',
             phone: '',
             country: delivery.country,
             city: delivery.city,
+            lat: delivery.lat,
+            lng: delivery.lng,
           )
         : null,
   );

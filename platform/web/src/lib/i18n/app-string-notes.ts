@@ -4916,6 +4916,14 @@ export const APP_STRING_NOTES: Record<string, { en?: string; ar: string; tr: str
     ar: "من يُرسل إليه الطلب.",
     tr: "Siparişin gideceği kişi.",
   },
+  "131 Sets where it goes from the phone's place, for shipping by distance.": {
+    ar: "يحدد مكان التوصيل من موقع الهاتف، للشحن حسب المسافة.",
+    tr: "Mesafeye göre kargo için teslimat yerini telefonun konumundan belirler.",
+  },
+  "131 The phone's place couldn't be read.": {
+    ar: "تعذّرت قراءة موقع الهاتف.",
+    tr: "Telefonun konumu okunamadı.",
+  },
 };
 
 /** A developer's description without the app's code names: "… lib/core/x.dart uses it …", "(vertical_wording.dart)", a leading roadmap number. */

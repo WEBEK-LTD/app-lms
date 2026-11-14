@@ -12574,4 +12574,12 @@ class OverlayLocalizations extends AppLocalizations {
   String orderRecipient(String name) =>
       overlay.format('orderRecipient', {'name': name}) ??
       base.orderRecipient(name);
+
+  @override
+  String get giftUseLocation =>
+      overlay.text('giftUseLocation') ?? base.giftUseLocation;
+
+  @override
+  String get giftLocationFailed =>
+      overlay.text('giftLocationFailed') ?? base.giftLocationFailed;
 }

@@ -11813,4 +11813,11 @@ class AppLocalizationsTr extends AppLocalizations {
   String orderRecipient(String name) {
     return 'Alıcı: $name';
   }
+
+  @override
+  String get giftUseLocation => 'Teslimat için konumumu kullan';
+
+  @override
+  String get giftLocationFailed =>
+      'Konumunuz bulunamadı. Lütfen tekrar deneyin.';
 }

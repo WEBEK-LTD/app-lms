@@ -3155,5 +3155,7 @@
   "giftNeedSender": "Devam etmek için adınızı, telefonunuzu ve e-postanızı ekleyin.",
   "giftNeedRecipient": "Devam etmek için alıcının adını, telefonunu ve adresini ekleyin.",
   "orderDeliveryOn": "Teslimat: {date}",
-  "orderRecipient": "Alıcı: {name}"
+  "orderRecipient": "Alıcı: {name}",
+  "giftUseLocation": "Teslimat için konumumu kullan",
+  "giftLocationFailed": "Konumunuz bulunamadı. Lütfen tekrar deneyin."
 }

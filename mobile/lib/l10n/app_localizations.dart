@@ -19045,6 +19045,18 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'For {name}'**
   String orderRecipient(String name);
+
+  /// 131 Sets where it goes from the phone's place, for shipping by distance.
+  ///
+  /// In en, this message translates to:
+  /// **'Use my location for the delivery'**
+  String get giftUseLocation;
+
+  /// 131 The phone's place couldn't be read.
+  ///
+  /// In en, this message translates to:
+  /// **'Your location couldn\'t be found. Please try again.'**
+  String get giftLocationFailed;
 }
 
 class _AppLocalizationsDelegate

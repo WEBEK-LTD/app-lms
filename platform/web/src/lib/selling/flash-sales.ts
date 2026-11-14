@@ -94,7 +94,12 @@ interface PriceJson {
  * own sale (its compare-at price) as it is. Products already carrying a
  * `sale` keep it.
  */
-export function withSale<T extends { id: number; price?: PriceJson | null; sale?: unknown; categories?: { id: number }[] }>(product: T, sales: StoreFlashSale[], now: Date, categoryIds?: number[]): T {
+export function withSale<T extends { id: number; price?: PriceJson | null; sale?: unknown; categories?: { id: number }[] }>(
+  product: T,
+  sales: StoreFlashSale[],
+  now: Date,
+  categoryIds?: number[],
+): T & { sale?: unknown } {
   const price = product.price;
   if (!price || price.range) return product.sale !== undefined ? product : { ...product, sale: null };
   const current = centsOf(price.amount);

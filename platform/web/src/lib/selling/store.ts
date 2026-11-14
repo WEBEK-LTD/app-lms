@@ -28,6 +28,8 @@ export interface StoreExtrasDeps {
 
 /** The checkout the app shows (the store's setting, or the flower shop's look in Studio). */
 export function checkoutModeOfApp(app: App): CheckoutMode {
+  // A restaurant's checkout is its kitchen's (26), whatever the look says.
+  if (app.vertical === "restaurant") return "standard";
   return checkoutModeOf(giftsOf(app), checkoutLookOf(app));
 }
 

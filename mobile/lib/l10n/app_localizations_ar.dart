@@ -12292,4 +12292,11 @@ class AppLocalizationsAr extends AppLocalizations {
   String orderRecipient(String name) {
     return 'إلى $name';
   }
+
+  @override
+  String get giftUseLocation => 'استخدم موقعي للتوصيل';
+
+  @override
+  String get giftLocationFailed =>
+      'تعذّر تحديد موقعك. يُرجى المحاولة مرة أخرى.';
 }

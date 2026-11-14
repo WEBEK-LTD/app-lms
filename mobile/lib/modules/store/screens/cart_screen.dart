@@ -117,6 +117,8 @@ class _CartScreenState extends ConsumerState<CartScreen> {
       slot: _deliverySlot,
       country: _giftForm.country,
       city: _giftForm.chosenCity,
+      lat: _giftForm.pin?.lat,
+      lng: _giftForm.pin?.lng,
     ));
   }
 

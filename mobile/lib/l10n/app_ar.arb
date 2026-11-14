@@ -3155,5 +3155,7 @@
   "giftNeedSender": "أضف اسمك وهاتفك وبريدك الإلكتروني للمتابعة.",
   "giftNeedRecipient": "أضف اسم المستلم وهاتفه وعنوانه للمتابعة.",
   "orderDeliveryOn": "التوصيل: {date}",
-  "orderRecipient": "إلى {name}"
+  "orderRecipient": "إلى {name}",
+  "giftUseLocation": "استخدم موقعي للتوصيل",
+  "giftLocationFailed": "تعذّر تحديد موقعك. يُرجى المحاولة مرة أخرى."
 }

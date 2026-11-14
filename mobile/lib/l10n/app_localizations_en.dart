@@ -11900,4 +11900,11 @@ class AppLocalizationsEn extends AppLocalizations {
   String orderRecipient(String name) {
     return 'For $name';
   }
+
+  @override
+  String get giftUseLocation => 'Use my location for the delivery';
+
+  @override
+  String get giftLocationFailed =>
+      'Your location couldn\'t be found. Please try again.';
 }

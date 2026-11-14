@@ -3153,4 +3153,6 @@
 {"key":"giftNeedSender","en":"Add your name, phone and email to continue.","ar":"أضف اسمك وهاتفك وبريدك الإلكتروني للمتابعة.","tr":"Devam etmek için adınızı, telefonunuzu ve e-postanızı ekleyin.","description":"131 Under the cart's button while the sender is missing."},
 {"key":"giftNeedRecipient","en":"Add the recipient's name, phone and address to continue.","ar":"أضف اسم المستلم وهاتفه وعنوانه للمتابعة.","tr":"Devam etmek için alıcının adını, telefonunu ve adresini ekleyin.","description":"131 Under the cart's button while the recipient is missing."},
 {"key":"orderDeliveryOn","en":"Delivery: {date}","ar":"التوصيل: {date}","tr":"Teslimat: {date}","description":"131 An order's delivery day and time.","placeholders":{"date":"String"}},
-{"key":"orderRecipient","en":"For {name}","ar":"إلى {name}","tr":"Alıcı: {name}","description":"131 Who an order goes to.","placeholders":{"name":"String"}}]}
+{"key":"orderRecipient","en":"For {name}","ar":"إلى {name}","tr":"Alıcı: {name}","description":"131 Who an order goes to.","placeholders":{"name":"String"}},
+{"key":"giftUseLocation","en":"Use my location for the delivery","ar":"استخدم موقعي للتوصيل","tr":"Teslimat için konumumu kullan","description":"131 Sets where it goes from the phone's place, for shipping by distance."},
+{"key":"giftLocationFailed","en":"Your location couldn't be found. Please try again.","ar":"تعذّر تحديد موقعك. يُرجى المحاولة مرة أخرى.","tr":"Konumunuz bulunamadı. Lütfen tekrar deneyin.","description":"131 The phone's place couldn't be read."}]}

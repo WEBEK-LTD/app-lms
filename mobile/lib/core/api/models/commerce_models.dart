@@ -463,6 +463,8 @@ class GiftPerson {
     this.address,
     this.country,
     this.city,
+    this.lat,
+    this.lng,
   });
 
   final String name;
@@ -471,6 +473,10 @@ class GiftPerson {
   final String? address;
   final String? country;
   final String? city;
+
+  /// The pin where it goes (the phone's location), for shipping by distance.
+  final double? lat;
+  final double? lng;
 
   Json toSender() => {
     'name': name.trim(),
@@ -484,6 +490,8 @@ class GiftPerson {
     if ((address ?? '').trim().isNotEmpty) 'address': address!.trim(),
     'country': ?country,
     if ((city ?? '').trim().isNotEmpty) 'city': city!.trim(),
+    'lat': ?lat,
+    'lng': ?lng,
   };
 }
 

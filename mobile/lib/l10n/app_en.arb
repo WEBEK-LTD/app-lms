@@ -12941,5 +12941,13 @@
         "type": "String"
       }
     }
+  },
+  "giftUseLocation": "Use my location for the delivery",
+  "@giftUseLocation": {
+    "description": "131 Sets where it goes from the phone's place, for shipping by distance."
+  },
+  "giftLocationFailed": "Your location couldn't be found. Please try again.",
+  "@giftLocationFailed": {
+    "description": "131 The phone's place couldn't be read."
   }
 }

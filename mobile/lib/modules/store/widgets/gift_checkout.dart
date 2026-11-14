@@ -8,6 +8,7 @@ import '../../../core/theme/app_icons.dart';
 import '../../../core/theme/palette.dart';
 import '../../../core/theme/symbol_names.dart';
 import '../../../core/widgets/common.dart';
+import '../../delivery/data/delivery_providers.dart';
 import '../data/store_providers.dart';
 
 /// 131 The store checkout's premium parts, for every store app: the
@@ -390,6 +391,9 @@ class GiftForm {
   String? city;
   bool anonymous = false;
 
+  /// The pin where it goes, for shipping by distance.
+  ({double lat, double lng})? pin;
+
   /// The standard checkout's "Send it to someone else".
   bool toSomeoneElse = false;
 
@@ -422,6 +426,7 @@ class GiftForm {
     anonymous = false;
     toSomeoneElse = false;
     city = null;
+    pin = null;
   }
 
   static final _email = RegExp(r'^[^\s@]+@[^\s@]+\.[A-Za-z]{2,}$');
@@ -457,6 +462,8 @@ class GiftForm {
     address: address ? recipientAddress.text : null,
     country: country,
     city: chosenCity,
+    lat: pin?.lat,
+    lng: pin?.lng,
   );
 }
 
@@ -646,6 +653,30 @@ class _GiftDetailsPanelState extends ConsumerState<GiftDetailsPanel> {
             keyName: 'gift-recipient-address',
             icon: AppIcons.location,
           ),
+          // Shipping by distance: the pin where it goes (the phone's place).
+          if (widget.shipping?.needsLocation ?? false)
+            Align(
+              alignment: AlignmentDirectional.centerStart,
+              child: TextButton.icon(
+                key: const ValueKey('gift-location'),
+                icon: AppIcon(
+                  f.pin == null ? AppIcons.pinDrop : AppIcons.checkCircle,
+                  size: 18,
+                ),
+                label: Text(l10n.giftUseLocation),
+                onPressed: () async {
+                  final found = await ref.read(locatorProvider).current();
+                  final at = found.position;
+                  if (!context.mounted) return;
+                  if (at == null) {
+                    showMessage(context, l10n.giftLocationFailed);
+                    return;
+                  }
+                  setState(() => f.pin = (lat: at.lat, lng: at.lng));
+                  widget.onChanged();
+                },
+              ),
+            ),
         ],
       ],
     );
