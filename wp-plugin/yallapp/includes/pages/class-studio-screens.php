@@ -121,6 +121,55 @@ class Studio_Screens {
 		if ( $courses ) {
 			$out['courses'] = $courses;
 		}
+		// 131 The store checkout's look (and the gift checkout).
+		$checkout = is_array( $raw['checkout'] ?? null ) ? self::checkout( $raw['checkout'] ) : null;
+		if ( $checkout ) {
+			$out['checkout'] = $checkout;
+		}
+		return $out ? $out : null;
+	}
+
+	/**
+	 * 131 The store checkout's look: the gift checkout, the style, the chips, the surface, the
+	 * accent, the corners, the photo and the title per language; unknown values are left out.
+	 *
+	 * @param array $raw The platform's.
+	 * @return array|null
+	 */
+	public static function checkout( array $raw ) {
+		$out = array();
+		if ( 'gift' === ( $raw['mode'] ?? null ) ) {
+			$out['mode'] = 'gift';
+		}
+		foreach ( array(
+			'style'   => array( 'classic', 'cards', 'steps' ),
+			'chips'   => array( 'pill', 'square' ),
+			'surface' => array( 'plain', 'glass' ),
+		) as $key => $allowed ) {
+			if ( in_array( $raw[ $key ] ?? null, $allowed, true ) ) {
+				$out[ $key ] = $raw[ $key ];
+			}
+		}
+		if ( is_string( $raw['accent'] ?? null ) && preg_match( '/^#[0-9A-Fa-f]{6}$/', $raw['accent'] ) ) {
+			$out['accent'] = strtoupper( $raw['accent'] );
+		}
+		if ( isset( $raw['radius'] ) && is_numeric( $raw['radius'] ) && $raw['radius'] >= 0 && $raw['radius'] <= 32 ) {
+			$out['radius'] = (int) $raw['radius'];
+		}
+		if ( is_string( $raw['image_url'] ?? null ) && preg_match( '#^https://\S{1,1000}$#', $raw['image_url'] ) ) {
+			$out['image_url'] = $raw['image_url'];
+		}
+		if ( is_array( $raw['title'] ?? null ) ) {
+			$title = array();
+			foreach ( $raw['title'] as $lang => $text ) {
+				if ( is_string( $lang ) && preg_match( '/^[a-z]{2,3}$/', $lang ) && is_string( $text ) && '' !== trim( $text ) ) {
+					$title[ $lang ] = function_exists( 'mb_substr' ) ? mb_substr( trim( $text ), 0, 40, 'UTF-8' ) : substr( trim( $text ), 0, 40 );
+				}
+			}
+			if ( $title ) {
+				$out['title'] = $title;
+			}
+		}
 		return $out ? $out : null;
 	}
 

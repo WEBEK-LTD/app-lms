@@ -61,6 +61,7 @@ class Settings_Page {
 		'purchases'     => 'shopping_bag',
 		'checkout'      => 'shopping_cart',
 		'store'         => 'storefront',
+		'flash'         => 'shopping_bag',
 		'bookings'      => 'event',
 		'video'         => 'smart_display',
 		'content'       => 'code',
@@ -1239,7 +1240,76 @@ class Settings_Page {
 		$this->toggle( 'store_gift_message', __( 'Let customers add a gift message', 'yallapp' ) );
 		$this->number( 'store_gift_message_max', __( 'Gift message length (characters)', 'yallapp' ), 1, 500 );
 		$this->number( 'store_return_days', __( 'Returns in the app (days after completion, 0 for none)', 'yallapp' ), 0, 365 );
+		// 131 Same-day delivery, the delivery slots, the gift checkout and gifts.
+		$this->text( 'store_delivery_cutoff', __( 'Same-day orders until (with the earliest delivery at 0 days)', 'yallapp' ), '14:00' );
+		$this->textarea( 'store_delivery_slots', __( 'Delivery times, one a line', 'yallapp' ), __( 'Like "10:00-13:00 | 20 | 25": the time, then how many orders it takes and its extra fee (both optional). Full times show as full in the app; the fee is added on the checkout.', 'yallapp' ), "10:00-13:00\n13:00-16:00 | 20\n16:00-20:00 | 20 | 25" );
+		$this->radios(
+			'store_checkout_mode',
+			__( 'Checkout in the app', 'yallapp' ),
+			array(
+				'standard' => __( 'Standard', 'yallapp' ),
+				'gift'     => __( 'Gift checkout: the sender\'s name, phone and email, the recipient\'s name, phone and address, the delivery day and time (required) and the card', 'yallapp' ),
+			)
+		);
+		$this->textarea( 'store_gift_starters', __( 'Gift message beginnings, one a line (up to 6)', 'yallapp' ), __( 'Customers tap one to start their card. The card messages by occasion are managed in the Yallapp dashboard (Store › Card messages).', 'yallapp' ), '' );
+		$this->toggle( 'store_gift_recipient', __( 'Ask for the recipient\'s name and phone', 'yallapp' ) );
+		$this->toggle( 'store_gift_anonymous', __( 'Let customers send it anonymously', 'yallapp' ) );
 		$this->close();
+		// 131 A flash sale, through WooCommerce's own sale price.
+		$this->open( 'flash', __( 'Flash sale', 'yallapp' ) );
+		$this->toggle( 'store_flash_sale', __( 'Run a flash sale', 'yallapp' ), __( 'While it is on, its products cost the sale price everywhere (the shop, the cart and the checkout, as WooCommerce\'s own sale price), with a countdown in the app. WooCommerce\'s scheduled sale prices show their end in the app too.', 'yallapp' ) );
+		$this->text( 'store_flash_title', __( 'Its name in the app', 'yallapp' ) );
+		$this->checks( 'store_flash_product_ids', __( 'Products', 'yallapp' ), $this->product_options() );
+		$this->select( 'store_flash_category_id', __( 'Or a whole category', 'yallapp' ), $categories );
+		$this->select(
+			'store_flash_kind',
+			__( 'Discount', 'yallapp' ),
+			array(
+				'percent' => __( 'A share off (%)', 'yallapp' ),
+				'price'   => __( 'One sale price', 'yallapp' ),
+			)
+		);
+		$this->text( 'store_flash_value', __( 'Its value', 'yallapp' ), '20' );
+		$this->datetime( 'store_flash_starts', __( 'Starts (the site\'s time zone)', 'yallapp' ) );
+		$this->datetime( 'store_flash_ends', __( 'Ends', 'yallapp' ) );
+		$this->number( 'store_flash_limit', __( 'Units on sale (0 for no limit)', 'yallapp' ), 0, 100000 );
+		$this->close();
+	}
+
+	/**
+	 * 131 A text of several lines.
+	 *
+	 * @param string $key         Setting key.
+	 * @param string $label       Label.
+	 * @param string $help        Help under it.
+	 * @param string $placeholder Placeholder.
+	 * @return void
+	 */
+	private function textarea( $key, $label, $help, $placeholder ) {
+		printf(
+			'<label class="ya-row"><span class="ya-label">%1$s</span><textarea name="%2$s" rows="4" class="large-text" placeholder="%3$s">%4$s</textarea><span class="ya-help">%5$s</span></label>',
+			esc_html( $label ),
+			esc_attr( self::name( $key ) ),
+			esc_attr( $placeholder ),
+			esc_textarea( (string) $this->values[ $key ] ),
+			esc_html( $help )
+		);
+	}
+
+	/**
+	 * 131 A date and time, in the site's time zone.
+	 *
+	 * @param string $key   Setting key.
+	 * @param string $label Label.
+	 * @return void
+	 */
+	private function datetime( $key, $label ) {
+		printf(
+			'<label class="ya-row"><span class="ya-label">%1$s</span><input type="datetime-local" name="%2$s" value="%3$s"></label>',
+			esc_html( $label ),
+			esc_attr( self::name( $key ) ),
+			esc_attr( (string) $this->values[ $key ] )
+		);
 	}
 
 	/**

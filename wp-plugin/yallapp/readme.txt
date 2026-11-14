@@ -4,7 +4,7 @@ Tags: lms, mobile app, tutor lms, digits, otp
 Requires at least: 6.0
 Tested up to: 7.1
 Requires PHP: 7.4
-Stable tag: 0.4.42
+Stable tag: 0.4.43
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -142,6 +142,9 @@ under the Apache License 2.0, included as inline SVG.
 
 == Changelog ==
 
+= 0.4.43 =
+* For flower and gift shops: same-day delivery until a cut-off and delivery times (each with how many orders it takes and an extra fee on the checkout); a gift checkout (the sender's details as the order's billing, the recipient's as its shipping, the delivery day and time required, the card and "send anonymously"); card messages by occasion from your Yallapp dashboard; a flash sale through WooCommerce's own sale price with a countdown in the app; and coupons ticked "Show in the app".
+
 = 0.4.42 =
 * The course screens you design in Yallapp Studio reach the app from your site: one premium look for the course card, the course page, the lesson and My courses (Night cinema, Gold ring, Faculty index or On air), with each screen's options: the card as a poster, a ticket, frosted glass or a row with its photo's shape, shade and corners; the page's cover, its enrol bar and the parts it shows (the teacher, what you'll learn, the curriculum, the reviews, the description) with the button's own words; the lesson's player and how far through the course; and My courses as a grid or a list with rings or bars, continue learning and the completed courses.
 
@@ -160,11 +163,5 @@ under the Apache License 2.0, included as inline SVG.
 
 = 0.4.37 =
 * A lesson's content (its text, links and embedded frames) reaches the app even when another plugin of your site leaves it empty outside the website's own pages: the app then shows the content as it is saved, formatted as WordPress formats it.
-
-= 0.4.36 =
-* A page of your website opened in the app (a tab, a button or a banner) opens with the student signed in on the site: the app asks for a one-time link that works once, for 5 minutes, and only for pages on your site's own address.
-
-= 0.4.35 =
-* A new look for the settings screen and the course, lesson and post boxes: the Yallapp header, the sections listed beside the settings, cards with their icons, status chips, switches and buttons in Yallapp's colours, in light and dark, right to left too. Nothing else changes.
 
 Earlier versions are listed in changelog.txt, next to this readme in the plugin's source.

@@ -92,6 +92,23 @@ class Settings {
 			'store_gift_message'           => false,
 			'store_gift_message_max'       => 200,
 			'store_return_days'            => 0,
+			// 131 Same-day delivery's cut-off, the delivery slots, the gift checkout and the gifts.
+			'store_delivery_cutoff'        => '',
+			'store_delivery_slots'         => '',
+			'store_checkout_mode'          => 'standard',
+			'store_gift_starters'          => '',
+			'store_gift_recipient'         => false,
+			'store_gift_anonymous'         => false,
+			// 131 A flash sale, applied through WooCommerce's own sale price.
+			'store_flash_sale'             => false,
+			'store_flash_title'            => '',
+			'store_flash_product_ids'      => array(),
+			'store_flash_category_id'      => 0,
+			'store_flash_kind'             => 'percent',
+			'store_flash_value'            => '',
+			'store_flash_starts'           => '',
+			'store_flash_ends'             => '',
+			'store_flash_limit'            => 0,
 			// Bookings home screen and rules (Bookings apps).
 			'bookings_home_sections'       => array( 'banner', 'next_appointment', 'categories', 'services', 'staff' ),
 			'bookings_banner_image_id'     => 0,
@@ -139,6 +156,8 @@ class Settings {
 			'home_sections'           => array( 'banner', 'continue_learning', 'categories', 'featured_courses', 'latest_courses' ),
 			'store_home_sections'     => array( 'banner', 'categories', 'featured_products', 'sale_products', 'new_products', 'best_sellers' ),
 			'store_closed_weekdays'   => array( '0', '1', '2', '3', '4', '5', '6' ),
+			'store_checkout_mode'     => array( 'standard', 'gift' ),
+			'store_flash_kind'        => array( 'percent', 'price' ),
 			'bookings_home_sections'  => array( 'banner', 'next_appointment', 'categories', 'services', 'staff' ),
 		);
 	}
@@ -217,6 +236,22 @@ class Settings {
 		}
 		if ( 'maintenance_message' === $key ) {
 			return sanitize_textarea_field( (string) $raw );
+		}
+		// 131 One slot or beginning a line; the cut-off and the flash sale's times as typed.
+		if ( 'store_delivery_slots' === $key || 'store_gift_starters' === $key ) {
+			return sanitize_textarea_field( (string) $raw );
+		}
+		if ( 'store_delivery_cutoff' === $key ) {
+			$raw = trim( (string) $raw );
+			return preg_match( '/^([01][0-9]|2[0-3]):[0-5][0-9]$/', $raw ) ? $raw : '';
+		}
+		if ( 'store_flash_starts' === $key || 'store_flash_ends' === $key ) {
+			$raw = trim( (string) $raw );
+			return preg_match( '/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}$/', $raw ) ? $raw : '';
+		}
+		if ( 'store_flash_value' === $key ) {
+			$raw = str_replace( ',', '.', trim( (string) $raw ) );
+			return is_numeric( $raw ) && (float) $raw > 0 ? $raw : '';
 		}
 		if ( 'firebase_service_account' === $key ) {
 			return self::service_account( (string) $raw );

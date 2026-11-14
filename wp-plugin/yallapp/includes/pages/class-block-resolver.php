@@ -615,6 +615,8 @@ class Block_Resolver {
 				'image_url'   => $product['image_url'],
 				'price_label' => $product['price']['formatted'],
 				'badge'       => $badge,
+				// 131 Its sale, for the cards and the flash sale.
+				'sale'        => $product['sale'] ?? null,
 				'action'      => array(
 					'type' => 'item',
 					'item' => array(
@@ -1065,8 +1067,113 @@ class Block_Resolver {
 		'bento',
 		'badge_text',
 		'cta_bar',
+		// 131 A flash sale with its products at their sale price, its countdown and stock bar.
+		'flash_sale',
 	);
 	const STUDIO_LAYOUT = array( 'row', 'column', 'stack', 'grid', 'slider', 'accordion', 'tabs', 'photo_hero', 'map_header', 'video_hero', 'parallax_banner', /* 129.16 */ 'profile_card' );
+
+	/**
+	 * 131 The shop's coupon shown in the app with this code, else its first one; null without one.
+	 *
+	 * @param string $code The element's code, or ''.
+	 * @return array|null PublicCoupon.
+	 */
+	private function public_coupon( $code ) {
+		if ( ! $this->serves( 'products' ) ) {
+			return null;
+		}
+		$coupons = \Yallapp\Store\Store_Extras::coupons()['items'];
+		foreach ( $coupons as $coupon ) {
+			if ( '' === $code || strtoupper( $code ) === $coupon['code'] ) {
+				return $coupon;
+			}
+		}
+		return null;
+	}
+
+	/**
+	 * 131 A flash sale element's `flash` and `items`: the plugin's flash sale while it is on,
+	 * else the products on sale now with the soonest end any of them has; null when none is.
+	 *
+	 * @param array $options StudioFlashSale.
+	 * @return array|null
+	 */
+	private function flash_sale( array $options ) {
+		if ( ! $this->serves( 'products' ) ) {
+			return null;
+		}
+		$limit = isset( $options['limit'] ) && is_numeric( $options['limit'] ) ? max( 1, min( 12, (int) $options['limit'] ) ) : 6;
+		$own   = array();
+		if ( in_array( $options['look'] ?? null, array( 'banner', 'carousel', 'grid' ), true ) ) {
+			$own['look'] = $options['look'];
+		}
+		$own['limit'] = $limit;
+		if ( false === ( $options['countdown'] ?? true ) ) {
+			$own['countdown'] = false;
+		}
+		if ( false === ( $options['stock_bar'] ?? true ) ) {
+			$own['stock_bar'] = false;
+		}
+		$accent = self::hex( $options['accent'] ?? null );
+		if ( null !== $accent ) {
+			$own['accent'] = $accent;
+		}
+		$sales = \Yallapp\Plugin::instance()->store_extras()->flash_sales( new Catalog() )['items'];
+		$sale  = $sales && $sales[0]['live'] ? $sales[0] : null;
+		$items = array();
+		$list  = $sale ? $sale['products'] : ( new Catalog() )->products(
+			array(
+				'on_sale'  => true,
+				'per_page' => $limit,
+			)
+		)['items'];
+		foreach ( $list as $product ) {
+			if ( empty( $product['sale'] ) ) {
+				continue;
+			}
+			$items[] = array(
+				'source'      => 'products',
+				'id'          => (string) $product['id'],
+				'title'       => (string) $product['name'],
+				'subtitle'    => null,
+				'image_url'   => $product['image_url'],
+				'price_label' => $product['price']['formatted'],
+				'badge'       => null,
+				'sale'        => $product['sale'],
+				'action'      => array(
+					'type' => 'item',
+					'item' => array(
+						'source' => 'products',
+						'id'     => (string) $product['id'],
+					),
+				),
+			);
+		}
+		$items = array_slice( $items, 0, $limit );
+		if ( ! $items ) {
+			return null;
+		}
+		$ends = null;
+		foreach ( $items as $item ) {
+			$end = $item['sale']['ends_at'] ?? null;
+			if ( is_string( $end ) && ( null === $ends || $end < $ends ) ) {
+				$ends = $end;
+			}
+		}
+		return array(
+			'flash_sale' => $own,
+			'flash'      => array(
+				'id'          => $sale ? 1 : null,
+				'title'       => $sale ? $sale['title'] : null,
+				'starts_at'   => $sale ? $sale['starts_at'] : null,
+				'ends_at'     => $sale ? $sale['ends_at'] : $ends,
+				'percent_off' => $sale ? $sale['percent_off'] : null,
+				'remaining'   => $sale ? $sale['remaining'] : null,
+				'total'       => $sale ? $sale['total'] : null,
+			),
+			'items'      => $items,
+		);
+	}
 
 	/**
 	 * 103R A Studio page (`StudioPage`) for one request: its header and its tree of elements
@@ -1219,7 +1326,7 @@ class Block_Resolver {
 			'fit'           => array( 'cover', 'contain' ),
 			'icon_position' => array( 'start', 'end' ),
 			'layout'        => array( 'list', 'grid', 'carousel' ),
-			'bind'          => array( 'title', 'subtitle', 'image', 'price', 'badge', 'rating' ),
+			'bind'          => array( 'title', 'subtitle', 'image', 'price', 'badge', 'rating', /* 131 */ 'sale', 'was_price' ),
 			'visibility'    => array( 'everyone', 'signed_in', 'signed_out' ),
 			// 112.4 How a slider shows where it is, and how categories look.
 			'indicator'     => array( 'dots', 'progress', 'count', 'pill' ),
@@ -1419,11 +1526,40 @@ class Block_Resolver {
 			case 'coupon':
 				// 112.4 A code people copy: letters, numbers, - and _.
 				$code = is_string( $raw['code'] ?? null ) ? trim( $raw['code'] ) : '';
+				// 131 Its premium look, and one of the shop's coupons shown in the app (left out without one).
+				$look = is_array( $raw['coupon'] ?? null ) ? $raw['coupon'] : array();
+				$own  = array();
+				if ( in_array( $look['look'] ?? null, array( 'ticket', 'glass' ), true ) ) {
+					$own['look'] = $look['look'];
+				}
+				if ( 'public' === ( $look['bind'] ?? null ) ) {
+					$own['bind'] = 'public';
+					$offer       = $this->public_coupon( $code );
+					if ( ! $offer ) {
+						return null;
+					}
+					$node['coupon_offer'] = $offer;
+					$code                 = $offer['code'];
+				}
+				if ( $own ) {
+					$node['coupon'] = $own;
+				}
 				if ( ! preg_match( '/^[\p{L}\p{N}_-]{1,40}$/u', $code ) ) {
 					return null;
 				}
 				$node['code'] = $code;
 				break;
+			case 'flash_sale':
+				// 131 The flash sale on now (or the products on sale), its countdown and stock bar; left out without one.
+				$flash = $this->flash_sale( is_array( $raw['flash_sale'] ?? null ) ? $raw['flash_sale'] : array() );
+				if ( ! $flash ) {
+					return null;
+				}
+				$node = array_merge( $node, $flash );
+				if ( is_string( $raw['text'] ?? null ) && '' !== trim( $raw['text'] ) ) {
+					$node['text'] = sanitize_text_field( $raw['text'] );
+				}
+				return $node;
 			case 'items':
 				// 112.4 What this person opened lately is kept on the phone: sent without entries.
 				if ( true === ( $raw['recent'] ?? false ) ) {
@@ -1449,6 +1585,20 @@ class Block_Resolver {
 				$node['source'] = $list['source'];
 				$node['items']  = $list['items'];
 				$node['layout'] = $node['layout'] ?? 'grid';
+				// 131 How the cards show a product's sale.
+				$badge = is_array( $raw['sale_badge'] ?? null ) ? $raw['sale_badge'] : null;
+				if ( $badge && 'products' === $list['source'] && in_array( $badge['style'] ?? null, array( 'chip', 'ribbon', 'price' ), true ) ) {
+					$node['sale_badge'] = array_filter(
+						array(
+							'style'     => $badge['style'],
+							'countdown' => true === ( $badge['countdown'] ?? false ) ? true : null,
+							'color'     => self::hex( $badge['color'] ?? null ),
+						),
+						static function ( $v ) {
+							return null !== $v;
+						}
+					);
+				}
 				if ( is_array( $raw['card'] ?? null ) ) {
 					$card = $this->studio_node( $raw['card'], $depth + 1, $language );
 					if ( null !== $card ) {
