@@ -197,6 +197,8 @@ interface Maker {
   /** What a story or tile opens; the main button's. */
   opens: (i: number) => Action | null;
   main: Action | null;
+  /** The chat with the owner, where the app has it. */
+  contact: Action | null;
 }
 
 function maker(ctx: SectionContext, kind: ProjectKind | null, design: PremiumDesignId): Maker {
@@ -214,9 +216,8 @@ function maker(ctx: SectionContext, kind: ProjectKind | null, design: PremiumDes
     if (kind && !appOpensScreen({ appType: kind.type, vertical: kind.vertical }, screen)) return null;
     return { type: "screen", screen };
   };
-  // A project without a kind: its about and contact pages.
-  const general: (Action | null)[] = [{ type: "page", page_slug: "brand" }, { type: "page", page_slug: "brand" }, { type: "page", page_slug: "brand" }, { type: "page", page_slug: "contact" }];
-  const main = p.pack === "Ge" ? { type: "page" as const, page_slug: "brand" } : (p.main.map(screenAction).find(Boolean) ?? null);
+  // Screens only, never another page: a page stands on its own (kept as a template, applied alone).
+  const main = p.main.map(screenAction).find(Boolean) ?? null;
   return {
     ctx,
     kind,
@@ -226,7 +227,8 @@ function maker(ctx: SectionContext, kind: ProjectKind | null, design: PremiumDes
     lang,
     say,
     photo: (i) => yallappPhoto(ctx, p.photos[i]!),
-    opens: (i) => (p.pack === "Ge" ? (general[i] ?? null) : screenAction(p.opens[i])),
+    opens: (i) => screenAction(p.opens[i]),
+    contact: screenAction("messages"),
     main,
   };
 }
@@ -261,7 +263,8 @@ function button(m: Maker, word: AppWord, action: Action | null, look: { backgrou
     width: "hug",
     height: look.height ?? 46,
     radius: (look.height ?? 46) / 2,
-    background: look.outline ? null : (look.background ?? "#FFFFFF"),
+    background: look.outline ? m.c.page : (look.background ?? "#FFFFFF"),
+    ...(look.outline ? { dark_background: m.c.darkPage } : {}),
     ...(look.darkBackground ? { dark_background: look.darkBackground } : {}),
     color: look.color ?? m.c.ink,
     ...(look.darkColor ? { dark_color: look.darkColor } : {}),
@@ -552,7 +555,7 @@ function slide(m: Maker, i: number, o: { height: number; radius: number; kicker:
     scrim: { color: c.shade, from: 0.35, middle: 0.05, at: 42, to: 0.86 },
     align: "end",
     gap: 8,
-    padding: pad(20, 22, o.radius ? 22 : 34, 22),
+    padding: pad(20, 22, o.radius ? 36 : 34, 22),
     children,
   };
 }
@@ -579,7 +582,7 @@ function warmHome(m: Maker, type: StudioHeaderType): StudioPage {
     ],
     motion: rise(),
   };
-  return page(m, homeHeader(m, "warm", type, ["notifications", "account"], { image: true }), [
+  return page(m, homeHeader(m, "warm", type, ["notifications", "account"], { image: true, subtitle: packWord(m.p, "Kicker") }), [
     stories(m, "auto", 70),
     ...liveCard(m),
     promo,
@@ -616,9 +619,9 @@ function freshHome(m: Maker, type: StudioHeaderType): StudioPage {
     scroll: true,
     gap: 8,
     padding: pad(14, 16, 2, 16),
-    children: [1, 2, 3, 4].map((i) => badge(m, packWord(m.p, `S${i}` as Field), i === 1 ? "pill" : "outline", { icon: m.p.icons[i - 1], color: i === 1 ? "#FFFFFF" : c.brand, dark_color: i === 1 ? "#0A1610" : c.darkBrand, background: i === 1 ? c.brand : null, dark_background: i === 1 ? c.darkBrand : null, ...(m.opens(i - 1) ? { action: m.opens(i - 1) } : {}) })),
+    children: [1, 2, 3, 4].map((i) => badge(m, packWord(m.p, `S${i}` as Field), i === 1 ? "gradient" : "outline", { icon: m.p.icons[i - 1], ...(i === 1 ? { gradient: { from: c.brand, to: c.accent, angle: 90 } } : { color: c.brand, dark_color: c.darkBrand }), ...(m.opens(i - 1) ? { action: m.opens(i - 1) } : {}) })),
   };
-  return page(m, homeHeader(m, "fresh", type, ["search", "notifications", "account"]), [slider, chips, ...liveCard(m), ...items(m, "grid", { limit: 4 }), ...steps(m), ...testimonials(m, "stacked")]);
+  return page(m, homeHeader(m, "fresh", type, ["search", "notifications", "account"], { subtitle: packWord(m.p, "Kicker") }), [slider, chips, ...liveCard(m), ...items(m, "grid", { limit: 4 }), ...steps(m), ...testimonials(m, "stacked")]);
 }
 
 /** After dark: a full-screen hero slider with its story lines in gold, a tilted ticker, the live card, tall cards, a filmstrip and the quotes. */
@@ -712,7 +715,7 @@ function oceanHome(m: Maker, type: StudioHeaderType): StudioPage {
     ],
     motion: rise(),
   };
-  return page(m, homeHeader(m, "ocean", type, ["notifications", "account"], { subtitle: null }), [banner, stories(m, "highlight", 66), ...liveCard(m), ...items(m, "row", { limit: 4 }), how, head(m, "pdExplore", null), bento(m, { caption: "plain", photos: false, row: 96 })]);
+  return page(m, homeHeader(m, "ocean", type, ["search", "notifications", "account"], { subtitle: packWord(m.p, "Kicker") }), [banner, stories(m, "highlight", 66), ...liveCard(m), ...items(m, "row", { limit: 4 }), how, head(m, "pdExplore", null), bento(m, { caption: "plain", photos: false, row: 96 })]);
 }
 
 /** Editorial: words in the look's gradient, a photo story, a ticker of outlined words, the live card, the list as an index, the place's card and the quotes. */
@@ -724,12 +727,12 @@ function classicHome(m: Maker, type: StudioHeaderType): StudioPage {
     gap: 10,
     padding: pad(6, 20, 4, 20),
     children: [
-      badge(m, packWord(m.p, "Headline"), "text", { font: { size: 38, weight: 800, line_height: 1.02, letter_spacing: -1 }, gradient: { from: c.brand, to: c.accent, angle: 90 } }),
+      badge(m, packWord(m.p, "Headline"), "text", { font: { size: 38, weight: 800, line_height: 1.02, letter_spacing: -1 }, gradient: { from: c.accent, to: "#8C5A1C", angle: 90 } }),
       text(m, packWord(m.p, "Line"), { font: { size: 15, line_height: 1.45 }, ...mutedOf(m) }),
       { id: m.id(), type: "row", height: 1, background: c.line, dark_background: c.darkLine, margin: pad(8, 0, 0, 0), children: [] },
     ],
   };
-  const story: StudioNode = { ...slide(m, 0, { height: 320, radius: 8, kicker: packWord(m.p, "S1"), title: packWord(m.p, "List"), button: true, gold: c.accent, size: 28 }), ken_burns: true, margin: pad(16, 16, 0, 16), motion: rise() };
+  const story: StudioNode = { ...slide(m, 0, { height: 320, radius: 8, kicker: packWord(m.p, "Kicker"), title: packWord(m.p, "S1"), button: true, gold: c.accent, size: 28 }), ken_burns: true, margin: pad(16, 16, 0, 16), motion: rise() };
   const kicker = m.say(packWord(m.p, "Kicker"), "title");
   const line = m.say("pdAboutLine");
   const about: StudioNode = {
@@ -757,7 +760,7 @@ function classicHome(m: Maker, type: StudioHeaderType): StudioPage {
         gap: 10,
         children: [
           { ...button(m, packWord(m.p, "Cta"), m.main, { background: c.brand, darkBackground: c.darkBrand, color: "#FFFFFF", darkColor: c.darkPage }), width: "fill", radius: 8 },
-          { ...button(m, "formTitle", { type: "page", page_slug: "contact" }, { outline: c.ink, color: c.ink, darkColor: c.darkInk }), width: "fill", radius: 8, dark_border_color: c.darkInk },
+          ...(m.contact ? [{ ...button(m, "formTitle", m.contact, { outline: c.ink, color: c.ink, darkColor: c.darkInk }), width: "fill" as const, radius: 8, dark_border_color: c.darkInk }] : []),
         ],
       },
     ],
@@ -793,7 +796,7 @@ function roseHome(m: Maker, type: StudioHeaderType): StudioPage {
         margin: pad(6, 0, 0, 0),
         children: [
           button(m, packWord(m.p, "Cta"), m.main, { background: c.brand, darkBackground: c.darkBrand, color: "#FFFFFF", darkColor: c.darkPage, icon: "arrow_forward" }),
-          { ...button(m, "pdExplore", { type: "page", page_slug: "brand" }, { outline: c.brand, color: c.brand, darkColor: c.darkBrand }), dark_border_color: c.darkBrand },
+          ...(m.opens(1) && m.opens(1)?.screen !== m.main?.screen ? [{ ...button(m, packWord(m.p, "S2"), m.opens(1), { outline: c.brand, color: c.brand, darkColor: c.darkBrand }), dark_border_color: c.darkBrand }] : []),
         ],
       },
     ],
@@ -850,7 +853,7 @@ export function premiumAbout(design: PremiumDesignId, kind: ProjectKind | null, 
         gap: 10,
         children: [
           { ...button(m, packWord(m.p, "Cta"), m.main, { background: c.brand, darkBackground: c.darkBrand, color: "#FFFFFF", darkColor: c.darkPage }), width: "fill", radius: 16 },
-          { ...button(m, "formTitle", { type: "page", page_slug: "contact" }, { outline: c.brand, color: c.brand, darkColor: c.darkBrand }), width: "fill", radius: 16, dark_border_color: c.darkBrand },
+          ...(m.contact ? [{ ...button(m, "formTitle", m.contact, { outline: c.brand, color: c.brand, darkColor: c.darkBrand }), width: "fill" as const, radius: 16, dark_border_color: c.darkBrand }] : []),
         ],
       },
     ],

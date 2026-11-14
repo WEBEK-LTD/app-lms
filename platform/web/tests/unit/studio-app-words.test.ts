@@ -2,17 +2,11 @@ import { describe, expect, it } from "vitest";
 import { KINDS } from "@/lib/app/kinds";
 import { newApp } from "@/lib/app/setup";
 import type { App } from "@/lib/data/types";
-import { demoKind, PREMIUM_ACADEMY_DEMO, PREMIUM_ACADEMY_TEMPLATE, STUDIO_DEMO_TYPES, type StudioDemoId } from "@/lib/demo/constants";
-import { DEMO_BRANDS } from "@/lib/demo/content";
-import { demoStudioScreens } from "@/lib/demo/screens";
-import { demoLayout } from "@/lib/demo/setup";
-import { BUILT_IN_APP_DEFAULTS, defaultLayout } from "@/lib/pages/defaults";
 import { itemSourcesFor } from "@/lib/pages/sources";
 import { APP_WORDS, appWords } from "@/lib/studio/app-words";
 import { DEMO_FACTS } from "@/lib/studio/demo-templates";
-import { PAGE_TEMPLATES } from "@/lib/studio/page-templates";
-import { SECTIONS, templatesFor, type SectionContext } from "@/lib/studio/sections";
-import { startLayout } from "@/lib/studio/start";
+import { designsFor, makeDesign } from "@/lib/studio/designs";
+import type { SectionContext } from "@/lib/studio/sections";
 
 /**
  * 128.11 The Arabic a template, a ready section or a demo puts INTO the app
@@ -130,12 +124,6 @@ function arabicContext(app: App): SectionContext {
   return { brand: "#1F4E5F", source: itemSourcesFor(app)[0] ?? null, app: app.appName!, lang: "ar", w: appWords("ar", app.appName!), picture: (f) => `https://files.test/design-pictures/${f}`, newId: () => `n${++n}` };
 }
 
-function demoApp(id: StudioDemoId): App {
-  const kind = demoKind(id);
-  const design = id === PREMIUM_ACADEMY_DEMO ? { design: PREMIUM_ACADEMY_TEMPLATE } : {};
-  return { ...newApp("demo-client", null, NOW, kind.engine, kind.vertical), demo: true, section: "studio", backend: "hosted", appName: DEMO_BRANDS[id].appName, primaryColor: DEMO_BRANDS[id].primaryColor, brandingDoneAt: NOW, ...design };
-}
-
 describe("The Arabic that templates put into the app is Modern Standard Arabic (128.11)", () => {
   it("knows the Egyptian forms QA found, with their prefixes, and leaves MSA alone", () => {
     for (const text of ["اتسوّق دلوقتي", "شوف الكل", "دوّر على فندق", "رحلتك الجاية تبدأ منين؟", "كل اللي محتاجه", "مش لاقي سؤالك؟", "أتابع طلبي إزاي؟", "الكورس بتاعك", "اسألنا هنا", "عايز تسافر؟", "كده تمام", "وفين؟"]) {
@@ -154,31 +142,37 @@ describe("The Arabic that templates put into the app is Modern Standard Arabic (
     for (const facts of Object.values(DEMO_FACTS)) expect(offending(facts)).toEqual([]);
   });
 
-  it("writes no Egyptian form into any template, section or whole project made in Arabic, for every kind", () => {
-    const bad: unknown[] = [];
-    let seen = 0;
-    const check = (value: unknown, where: Record<string, string>) => {
-      seen += arabicIn(value).length;
-      for (const x of offending(value)) bad.push({ ...where, ...x });
-    };
-    for (const kind of KINDS) {
-      const app = projectApp(kind.engine, kind.vertical);
-      const ready = defaultLayout(app, BUILT_IN_APP_DEFAULTS, NOW);
-      for (const template of [...templatesFor({ type: kind.engine, vertical: kind.vertical }), ...PAGE_TEMPLATES]) {
-        check(template.make(arabicContext(app)), { kind: kind.id, template: template.id });
-        // The whole project it starts: its other pages, its tabs, its screens.
-        check(startLayout(app, template, ready, NOW, arabicContext(app)), { kind: kind.id, project: template.id });
-      }
-      for (const section of SECTIONS) check(section.make(arabicContext(app)), { kind: kind.id, section: section.id });
+});
+
+/**
+ * 130.30 The premium whole designs' words (lib/studio/premium-designs.ts):
+ * each kind's and the designs' own, in the app's Modern Standard Arabic, and
+ * every design made in Arabic for every kind, its texts and translations.
+ */
+describe("130.30 the premium whole designs write Modern Standard Arabic into the app", () => {
+  it("has every design word in English, Arabic and Turkish, none Egyptian", () => {
+    const own = Object.keys(APP_WORDS.en).filter((k) => k.startsWith("pd"));
+    expect(own.length).toBeGreaterThan(240);
+    for (const k of own) {
+      const ar = (APP_WORDS.ar as Record<string, string>)[k]!;
+      expect(ar, k).toMatch(/[\u0600-\u06FF]/);
+      expect(egyptian(ar), `${k}: ${ar}`).toBeNull();
+      expect((APP_WORDS.tr as Record<string, string>)[k], k).toBeTruthy();
     }
-    expect(seen).toBeGreaterThan(1000);
-    expect(bad).toEqual([]);
   });
 
-  it.each(STUDIO_DEMO_TYPES)("the %s demo app's Arabic has no Egyptian form (its pages, tabs, note and sign-in screens)", async (id) => {
-    const layout = await demoLayout({ assetUrl: (a) => `https://files.test/${a}`, now: NOW }, demoApp(id), "banner-asset");
-    expect(arabicIn(layout).length).toBeGreaterThan(5);
-    expect(offending(layout)).toEqual([]);
-    expect(offending(demoStudioScreens(id, "https://files.test"))).toEqual([]);
+  it("writes no Egyptian form into any whole design made in Arabic, for every kind and look", () => {
+    const bad: unknown[] = [];
+    let seen = 0;
+    for (const kind of KINDS) {
+      const app = projectApp(kind.engine, kind.vertical);
+      for (const design of designsFor({ type: kind.engine, vertical: kind.vertical }).filter((d) => !d.demo)) {
+        const file = makeDesign(design, arabicContext(app), { home: "الرئيسية", template: (id) => id, theme: (id) => id }, { default: "ar", available: ["ar", "en", "tr"] });
+        seen += arabicIn(file.pages).length;
+        for (const x of offending(file.pages)) bad.push({ kind: kind.id, design: design.id, ...x });
+      }
+    }
+    expect(seen).toBeGreaterThan(2000);
+    expect(bad).toEqual([]);
   });
 });

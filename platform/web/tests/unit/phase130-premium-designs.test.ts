@@ -1,6 +1,7 @@
 import { existsSync, readFileSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
 import { describe, expect, it } from "vitest";
+import { ICON_NAMES } from "@/components/icon-names";
 import { KINDS } from "@/lib/app/kinds";
 import { newApp } from "@/lib/app/setup";
 import type { App } from "@/lib/data/types";
@@ -152,6 +153,27 @@ describe("130.30 every whole design is premium, for every kind", () => {
     }
   });
 
+  it("draws every icon in Material Symbols Rounded, in the app's set and the site's", () => {
+    const dart = readFileSync(join(process.cwd(), "..", "..", "mobile", "lib", "core", "theme", "symbol_names.dart"), "utf8");
+    const icons = new Set<string>();
+    for (const kind of KINDS) {
+      for (const design of premiumOf(kind)) {
+        for (const page of makeDesign(design, context(projectApp(kind)), words, LANGS).pages.filter((p) => p.slug === "home" || p.slug === "brand")) {
+          for (const n of allNodes(page.studio)) {
+            if (n.icon) icons.add(n.icon);
+            for (const e of n.entries ?? []) if (e.icon) icons.add(e.icon);
+            for (const s of n.slides ?? []) if ("icon" in s && s.icon) icons.add(s.icon as string);
+          }
+        }
+      }
+    }
+    expect(icons.size).toBeGreaterThan(20);
+    for (const icon of icons) {
+      expect(dart, icon).toContain(`'${icon}':`);
+      expect(ICON_NAMES as readonly string[], icon).toContain(icon);
+    }
+  });
+
   it("writes every word into the app in English, Arabic and Turkish", () => {
     const keys = Object.keys(APP_WORDS.en).filter((k) => k.startsWith("pd"));
     expect(keys.length).toBeGreaterThan(240);
@@ -192,6 +214,29 @@ describe("130.30 every whole design is premium, for every kind", () => {
 });
 
 /** Entries for the gallery's lists, on the platform's own free photos (the gallery's sample data, never a project's). */
+/** The gallery's middle tab for each kind: its main screen. */
+const GALLERY_TAB: Record<string, [string, string, string]> = {
+  academy: ["courses", "Courses", "menu_book"],
+  instructors: ["teachers", "Teachers", "groups"],
+  store: ["search", "Search", "search"],
+  restaurant: ["search", "Menu", "restaurant_menu"],
+  bookings: ["services", "Services", "event_available"],
+  clinic: ["services", "Services", "stethoscope"],
+  fitness: ["classes", "Classes", "fitness_center"],
+  services: ["services", "Services", "category"],
+  real_estate: ["favorites", "Saved", "bookmark"],
+  news: ["articles", "News", "newspaper"],
+  events: ["events", "Events", "event"],
+  charity: ["campaigns", "Campaigns", "volunteer_activism"],
+  delivery: ["shipments", "Shipments", "local_shipping"],
+  food: ["restaurants", "Restaurants", "restaurant"],
+  marketplace: ["restaurants", "Shops", "storefront"],
+  rides: ["my_rides", "My rides", "route"],
+  taxi: ["my_rides", "My rides", "local_taxi"],
+  school: ["school", "School", "school"],
+  travel: ["trips", "Trips", "luggage"],
+};
+
 const GALLERY_ITEMS: Record<ItemSource, [string, string, string][]> = {
   courses: [["Design foundations", "12 lessons", "/stories/academy/academy-live.jpg"], ["Arabic for beginners", "8 lessons", "/demo-screens/rawaq-library.jpg"], ["Public speaking", "10 lessons", "/stories/academy/academy-graduation.jpg"], ["Photography basics", "9 lessons", "/stories/multi-vendor/zad-cafe.jpg"]],
   products: [["Morning croissants", "Bakery", "/demo-photos/croissants.jpg"], ["Fresh juices", "Drinks", "/demo-photos/drinks.jpg"], ["Oranges", "Fruit", "/demo-photos/oranges.jpg"], ["Home refills", "Home", "/demo-photos/home.jpg"]],
@@ -217,6 +262,11 @@ describe("130.38 the gallery for the owner's review (mobile/test/support/premium
       const ctx = context(app);
       return {
         kind: kind.id,
+        tabs: [
+          { id: "home", label: "Home", icon: "home", target: { type: "page", page_slug: "home" } },
+          { id: "main", label: GALLERY_TAB[kind.id]![1], icon: GALLERY_TAB[kind.id]![2], target: { type: "screen", screen: GALLERY_TAB[kind.id]![0] } },
+          { id: "account", label: "Account", icon: "person", target: { type: "screen", screen: "account" } },
+        ],
         engine: kind.engine,
         vertical: kind.vertical,
         designs: premiumOf(kind).map((design) => {
