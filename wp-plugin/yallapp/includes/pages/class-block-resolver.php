@@ -1366,6 +1366,12 @@ class Block_Resolver {
 					return null;
 				}
 				$node['live_status'] = array( 'source' => $source );
+				// 130 The live cards' premium looks and their accent.
+				$style = $raw['live_status']['style'] ?? null;
+				if ( in_array( $style, array( 'hero', 'ring', 'pill', 'steps' ), true ) ) {
+					$node['live_status']['style'] = $style;
+				}
+				$node['live_status'] = array_merge( $node['live_status'], self::live_accents( $raw['live_status'] ) );
 				break;
 			case 'school':
 				// 128.10 A part of the family's school day (a school's own: the app shows the greeting alone without one).
@@ -1384,16 +1390,18 @@ class Block_Resolver {
 				}
 				$node['tracking'] = array( 'kind' => $kind );
 				$style            = $raw['tracking']['style'] ?? null;
-				// 130.11 A ticket and a headline too, and a card where it is not the kind's own (a ride's, the taxis').
+				// 130.11 A ticket and a headline too, and a card where it is not the kind's own (a ride's, the taxis');
+				// 130 and the live cards' premium looks, with their accent.
 				$own = array(
 					'shipment'     => 'card',
 					'ride'         => 'driver',
 					'nearby_taxis' => 'line',
 					'trip'         => 'card',
 				);
-				if ( in_array( $style, array( 'driver', 'line', 'ticket', 'headline' ), true ) || ( 'card' === $style && 'card' !== $own[ $kind ] ) ) {
+				if ( in_array( $style, array( 'driver', 'line', 'ticket', 'headline', 'hero', 'ring', 'pill', 'steps' ), true ) || ( 'card' === $style && 'card' !== $own[ $kind ] ) ) {
 					$node['tracking']['style'] = $style;
 				}
+				$node['tracking'] = array_merge( $node['tracking'], self::live_accents( $raw['tracking'] ) );
 				break;
 			case 'photo_hero':
 			case 'map_header':
@@ -1827,6 +1835,23 @@ class Block_Resolver {
 	 */
 	private static function hex( $value ) {
 		return is_string( $value ) && preg_match( '/^#[0-9A-Fa-f]{6}$/', $value ) ? strtoupper( $value ) : null;
+	}
+
+	/**
+	 * 130 A live card's accent by day and by night (`live_status`, `tracking`), the ones set.
+	 *
+	 * @param mixed $raw The element's `live_status` or `tracking`.
+	 * @return array<string, string>
+	 */
+	private static function live_accents( $raw ) {
+		$out = array();
+		foreach ( array( 'accent', 'dark_accent' ) as $field ) {
+			$color = is_array( $raw ) ? self::hex( $raw[ $field ] ?? null ) : null;
+			if ( null !== $color ) {
+				$out[ $field ] = $color;
+			}
+		}
+		return $out;
 	}
 
 	/**

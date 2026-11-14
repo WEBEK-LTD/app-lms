@@ -16062,10 +16062,20 @@ components:
         kind's own: `card` (shipment, trip), `driver` (ride), `line`
         (`nearby_taxis`). Nothing is drawn signed out or with nothing to show. Apps leave
         out a kind they don't know.
+
+        130 For a shipment or a ride, `style` can also be one of the live
+        cards' premium looks (`StudioLiveStatus`: `hero`, `ring`, `pill`,
+        `steps`): the reference as a chip before the state, the courier's or
+        driver's photo (or the element's `image_url`) at the start, the
+        minutes left large, its four stages as segments or named dots, in
+        `accent` (by night `dark_accent`; missing, the app's main colour).
+        Apps that don't know a style draw the card.
       required: [kind]
       properties:
         kind: { type: string, enum: [shipment, ride, nearby_taxis, trip] }
-        style: { type: string, enum: [card, driver, line, ticket, headline] }
+        style: { type: string, enum: [card, driver, line, ticket, headline, hero, ring, pill, steps] }
+        accent: { type: string, pattern: '^#[0-9A-Fa-f]{6}$' }
+        dark_accent: { type: string, pattern: '^#[0-9A-Fa-f]{6}$' }
     StudioMapDrawing:
       type: [object, 'null']
       description: |
@@ -16202,9 +16212,27 @@ components:
         `icon` (missing, the app's own); a tap opens the order. Nothing is
         drawn signed out, or with no order on its way. Apps leave out a
         source they don't know.
+
+        130 `style` draws it in one of the live cards' premium looks
+        (missing, the card above): `hero` the minutes left as a hero
+        number beside the state with a live dot, the dish (or the shop)
+        and the place under it, its four stages as segments under them and,
+        when the element has an `icon`, a round button in the accent;
+        `ring` the element's `image_url` (else the restaurant's logo, else
+        its icon) in a ring filled as far as the order is, the state, the
+        dish, "step 3 of 4" and the minutes large; `pill` one slim line
+        with a live dot, what is on its way, who brings it and a Track
+        button; `steps` the hero's top over the four stages as dots on a
+        line with their names. The words take the element's text colour;
+        the dot, stages and button `accent` (by night `dark_accent`;
+        missing, the app's main colour). Apps that don't know a style draw
+        the card.
       required: [source]
       properties:
         source: { type: string, enum: [food_order, market_order] }
+        style: { type: string, enum: [card, hero, ring, pill, steps] }
+        accent: { type: string, pattern: '^#[0-9A-Fa-f]{6}$' }
+        dark_accent: { type: string, pattern: '^#[0-9A-Fa-f]{6}$' }
 
     StudioSchool:
       type: [object, 'null']
@@ -16241,7 +16269,7 @@ components:
       required: [section]
       properties:
         section: { type: string, enum: [address, kinds, offers, cuisines, club, vendors, reorder] }
-        style: { type: string, enum: [spotlight, cards, tiles, list, chips, bar], default: cards, description: "For `vendors` and `offers`; 128 `chips` small chips in a row (the place's photo, name, rating and soonest time). For `address`, 128 `bar`: a flat bar on the element's colour with the address, the soonest time an open place delivers in and the search under them (missing, the large greeting)." }
+        style: { type: string, enum: [spotlight, cards, tiles, list, chips, bar, deck], default: cards, description: "For `vendors` and `offers`; 128 `chips` small chips in a row (the place's photo, name, rating and soonest time); 130 `deck` (for `vendors`) a deck of photo cards, the open place in front with its club benefit or offer, name and facts over a shade, the next two peeking behind it on the end side, swiped one at a time, the title with `1 / 3` at its end (apps that don't know it draw `cards`). For `address`, 128 `bar`: a flat bar on the element's colour with the address, the soonest time an open place delivers in and the search under them (missing, the large greeting)." }
         kind: { type: string, enum: [all, restaurant, grocery], default: all }
         sort: { type: string, enum: [recommended, fastest, rating, nearest, newest], default: recommended }
         tag: { type: [string, 'null'], maxLength: 60, description: Only the places with this cuisine or department. }

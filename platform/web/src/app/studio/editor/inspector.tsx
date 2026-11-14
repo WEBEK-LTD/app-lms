@@ -20,6 +20,8 @@ import {
   STUDIO_MARKET_SECTIONS,
   STUDIO_LEARNING_SECTIONS,
   STUDIO_LIVE_SOURCES,
+  // 130 The live cards' premium looks.
+  STUDIO_LIVE_STATUS_STYLES,
   STUDIO_SCHOOL_SECTIONS,
   STUDIO_LEARNING_STYLES,
   STUDIO_LEARNING_DAYS,
@@ -56,6 +58,8 @@ import { SCRIM_DEFAULT } from "@/lib/studio/scrim";
 import { elementLabel } from "./left-panel";
 import { RangeField, SidesField } from "./controls";
 import { CoverControls, TrackingControls } from "./cover-controls";
+// 130 The live cards' premium looks.
+import { LiveLookControls } from "./live-look-controls";
 // 129 Premium motion & media.
 import { BannerControls, BeforeAfterControls, GalleryControls, IndicatorLookControls, SegmentsControls, MarqueeControls, StoriesControls, type PremiumControlsProps } from "./premium-motion-controls";
 // 129.11–129.20 The premium elements' options and lists, and a layout's premium card style.
@@ -1886,20 +1890,35 @@ function SchoolControls({ node, onChange }: { node: StudioNode; onChange: (patch
 /** 128 Whose order a live order card follows. */
 function LiveStatusControls({ node, onChange }: { node: StudioNode; onChange: (patch: Partial<StudioNode>) => void }) {
   const t = useDashT();
+  const live = node.live_status ?? { source: "food_order" as const };
   return (
-    <label className="flex flex-col gap-1 font-bold">
-      {t("studio.liveSource")}
-      <select value={node.live_status?.source ?? "food_order"} onChange={(e) => onChange({ live_status: { source: e.target.value as NonNullable<StudioNode["live_status"]>["source"] } })} className="h-9 rounded-lg px-2 font-normal" style={{ border: "1px solid var(--studio-line)" }}>
-        {STUDIO_LIVE_SOURCES.map((s) => (
-          <option key={s} value={s}>
-            {t(`studio.live_${s}` as DashKey)}
-          </option>
-        ))}
-      </select>
-      <span className="text-xs font-normal" style={{ color: "var(--studio-muted)" }}>
-        {t("studio.liveHint")}
-      </span>
-    </label>
+    <div className="flex flex-col gap-2">
+      <label className="flex flex-col gap-1 font-bold">
+        {t("studio.liveSource")}
+        <select value={live.source} onChange={(e) => onChange({ live_status: { ...live, source: e.target.value as NonNullable<StudioNode["live_status"]>["source"] } })} className="h-9 rounded-lg px-2 font-normal" style={{ border: "1px solid var(--studio-line)" }}>
+          {STUDIO_LIVE_SOURCES.map((s) => (
+            <option key={s} value={s}>
+              {t(`studio.live_${s}` as DashKey)}
+            </option>
+          ))}
+        </select>
+        <span className="text-xs font-normal" style={{ color: "var(--studio-muted)" }}>
+          {t("studio.liveHint")}
+        </span>
+      </label>
+      {/* 130 The live cards' premium looks. */}
+      <label className="flex flex-col gap-1 font-bold">
+        {t("studio.liveLook")}
+        <select value={live.style ?? "card"} onChange={(e) => onChange({ live_status: { ...live, style: e.target.value === "card" ? undefined : (e.target.value as NonNullable<typeof live.style>) } })} className="h-9 rounded-lg px-2 font-normal" style={{ border: "1px solid var(--studio-line)" }}>
+          {STUDIO_LIVE_STATUS_STYLES.map((s) => (
+            <option key={s} value={s}>
+              {t(`studio.liveLook_${s}` as DashKey)}
+            </option>
+          ))}
+        </select>
+      </label>
+      <LiveLookControls node={node} onChange={onChange} />
+    </div>
   );
 }
 

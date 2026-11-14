@@ -26,10 +26,13 @@ function idOf(ctx: SectionContext): string {
 
 /** The kind's own template each Studio demo's home is (lib/studio/sections.ts TEMPLATES). */
 export const DEMO_HOME_TEMPLATES: Record<StudioDemoId, string> = {
-  // 128 The premium homes approved on 13 November 2026 (lib/studio/demo-designs): Sofra Eats's and Zad's photo-first, Sahm's courier in the city, Masar's ride at night, Lamha's taxi map, Nakhla School's day, Rawaq Academy's teachers.
-  delivery: "delivery_city",
-  food: "food_photo",
-  marketplace: "market_photo",
+  // 128 The premium homes approved on 13 November 2026 (lib/studio/demo-designs); 130 every demo is now its Signature look A (lib/studio/demo-designs/signature.ts), the 128 homes stay templates of their kinds.
+  // 130.5 Sahm Express is its Signature look A, the waybill (lib/studio/demo-designs/sahm-signature.ts).
+  delivery: "delivery_signature_a",
+  // 130.1 Sofra Eats is its Signature look A, the editorial menu (lib/studio/demo-designs/sofra-signature.ts).
+  food: "food_signature_a",
+  // 130.3 Zad is its Signature look A, the market arches (lib/studio/demo-designs/zad-signature.ts).
+  marketplace: "marketplace_signature_a",
   // 130.7 Masar Rides is its Signature look A, the living map (lib/studio/demo-designs/masar-signature.ts).
   rides: "rides_signature_a",
   // 130.9 Lamha Taxi is its Signature look A, the two-ink cab (lib/studio/demo-designs/lamha-signature.ts).
@@ -266,6 +269,8 @@ export const DEMO_FACTS: Partial<Record<StudioDemoId, Partial<Record<SectionWord
   // 128 Zad Market's own offer this week (lib/demo/marketplace.ts).
   marketplace: {
     mpOffer: { en: "Fresh fruit, 15% off", ar: "فاكهة طازجة بخصم 15%", tr: "Taze meyve %15 indirimli" },
+    // 130.4 Where Zad's Night aisle look delivers, the demo number's home.
+    zadBTo: { en: "to Home, Garden City", ar: "إلى المنزل، جاردن سيتي", tr: "Ev, Garden City'ye" },
   },
   // Sahm Express by Tahrir Square, where its contact map is; open as late as its same-day parcels arrive.
   delivery: {
@@ -276,6 +281,8 @@ export const DEMO_FACTS: Partial<Record<StudioDemoId, Partial<Record<SectionWord
     },
     // 128 Where the approved home's route card picks up: the demo's own street, where its parcels leave from.
     deliveryFrom: { en: "Abbas El Akkad St.", ar: "شارع عباس العقاد", tr: "Abbas El Akkad Caddesi" },
+    // 130.5 The Waybill look's headline names the demo's city.
+    sahHead1: { en: "Across Cairo,", ar: "عبر القاهرة،", tr: "Kahire'nin her yerine," },
   },
   // 130.12 Safra's own stays on its look B's bento (lib/travel/samples.ts TRAVEL_HOTELS): their names and their nights' prices.
   travel: {

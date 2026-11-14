@@ -218,7 +218,10 @@ class _Tile extends ConsumerWidget {
               end: 0,
               bottom: 0,
               child: Padding(
-                padding: const EdgeInsets.all(14),
+                // 130 A small tile's frosted label closer to its corner.
+                padding: EdgeInsets.all(
+                  glass && e.size == StudioTileSize.small ? 8 : 14,
+                ),
                 child: Column(
                   mainAxisSize: MainAxisSize.min,
                   crossAxisAlignment: CrossAxisAlignment.start,
@@ -299,7 +302,10 @@ class _Tile extends ConsumerWidget {
     child: BackdropFilter(
       filter: ImageFilter.blur(sigmaX: 14, sigmaY: 14),
       child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+        // 130 A small tile's label a compact pill.
+        padding: e.size == StudioTileSize.small
+            ? const EdgeInsets.symmetric(horizontal: 10, vertical: 6)
+            : const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
         decoration: BoxDecoration(
           color: const Color(0x6B141220),
           borderRadius: BorderRadius.circular(16),

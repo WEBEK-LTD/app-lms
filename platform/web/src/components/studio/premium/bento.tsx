@@ -35,7 +35,8 @@ export function Bento(p: PremiumProps) {
               position: "relative",
               overflow: "hidden",
               borderRadius: radius,
-              padding: 14,
+              // 130 A small tile's frosted label sits closer to its corner, a compact pill.
+              padding: glass && (e.size ?? "small") === "small" ? 8 : 14,
               display: "flex",
               flexDirection: "column",
               justifyContent: "flex-end",
@@ -59,7 +60,7 @@ export function Bento(p: PremiumProps) {
               </span>
             ) : null}
             {chip ? <span data-studio-tile-chip="" style={{ position: "absolute", top: 12, insetInlineEnd: 12, padding: "4px 10px", borderRadius: 999, background: e.color ?? accent ?? "#E8B04B", color: "#0E0D24", fontSize: 11, fontWeight: 800 }}>{chip}</span> : null}
-            <span style={glass ? { position: "relative", alignSelf: "flex-start", display: "flex", flexDirection: "column", gap: 2, padding: "8px 12px", borderRadius: 16, background: "rgba(20,18,32,0.42)", backdropFilter: "blur(14px)", WebkitBackdropFilter: "blur(14px)", border: "1px solid rgba(255,255,255,0.18)", color: "#FFFFFF" } : { position: "relative", display: "flex", flexDirection: "column", gap: 4 }}>
+            <span style={glass ? { position: "relative", alignSelf: "flex-start", display: "flex", flexDirection: "column", gap: 2, padding: (e.size ?? "small") === "small" ? "6px 10px" : "8px 12px", borderRadius: 16, background: "rgba(20,18,32,0.42)", backdropFilter: "blur(14px)", WebkitBackdropFilter: "blur(14px)", border: "1px solid rgba(255,255,255,0.18)", color: "#FFFFFF" } : { position: "relative", display: "flex", flexDirection: "column", gap: 4 }}>
               <b style={{ fontSize: e.size === "large" ? 20 : 15, lineHeight: 1.2 }}>{entryText(e, "title", lang, defaultLang)}</b>
               {entryText(e, "text", lang, defaultLang) ? <span style={{ fontSize: 12, opacity: filled || glass ? 0.88 : 1, color: filled || glass ? undefined : t.muted }}>{entryText(e, "text", lang, defaultLang)}</span> : null}
             </span>

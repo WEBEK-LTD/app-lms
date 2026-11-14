@@ -25,6 +25,8 @@ import '../../../core/gate/app_gate.dart';
 import '../../travel/data/travel_providers.dart';
 import '../../travel/travel_paths.dart';
 import '../../travel/widgets/travel_words.dart' show boardName;
+// 130 The live cards' premium looks.
+import 'studio_live_looks.dart';
 
 part 'studio_live_more.dart';
 
@@ -119,6 +121,15 @@ class StudioTrackingView extends ConsumerWidget {
       case StudioTrackingKind.shipment:
         final shipment = ref.watch(activeShipmentProvider).value;
         if (shipment == null) return const SizedBox.shrink();
+        // 130 In one of the live cards' premium looks.
+        if (node.liveLook case final look?) {
+          return StudioLiveLookCard(
+            node: node,
+            style: look,
+            facts: shipmentLiveLook(context.l10n, shipment),
+            color: DefaultTextStyle.of(context).style.color,
+          );
+        }
         return _Live(
           look: tracking.look,
           live: _shipmentLive(context, shipment),
@@ -130,6 +141,15 @@ class StudioTrackingView extends ConsumerWidget {
         // 130.11 The minutes to the pickup, large.
         if (tracking.look == StudioTrackingStyle.headline) {
           return _RideHeadline(ride: ride, live: _rideLive(context, ride));
+        }
+        // 130 In one of the live cards' premium looks.
+        if (node.liveLook case final look?) {
+          return StudioLiveLookCard(
+            node: node,
+            style: look,
+            facts: rideLiveLook(context.l10n, ride),
+            color: DefaultTextStyle.of(context).style.color,
+          );
         }
         return _Live(
           look: tracking.look,

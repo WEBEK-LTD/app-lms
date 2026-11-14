@@ -1,0 +1,1165 @@
+{
+ "screens": {
+  "sign_in": {
+   "style": "photo",
+   "image_url": "http://localhost:3000/demo-screens/sofra-mezze.jpg",
+   "title": {
+    "en": "What’s for dinner?",
+    "ar": "ماذا على العشاء؟",
+    "tr": "Akşam yemeğinde ne var?"
+   },
+   "subtitle": {
+    "en": "Sign in to order from the restaurants near you.",
+    "ar": "سجّل الدخول لتطلب من المطاعم القريبة منك.",
+    "tr": "Yakınınızdaki restoranlardan sipariş vermek için giriş yapın."
+   },
+   "show_logo": true
+  },
+  "account_menu": {
+   "header": "night",
+   "accent": "#F4B63F",
+   "items": [
+    {
+     "key": "food_orders",
+     "hidden": false,
+     "label": {},
+     "icon": null
+    },
+    {
+     "key": "notifications",
+     "hidden": false,
+     "label": {},
+     "icon": null
+    },
+    {
+     "key": "settings",
+     "hidden": false,
+     "label": {},
+     "icon": null
+    },
+    {
+     "key": "help",
+     "hidden": false,
+     "label": {},
+     "icon": null
+    },
+    {
+     "key": "privacy",
+     "hidden": false,
+     "label": {},
+     "icon": null
+    },
+    {
+     "key": "terms",
+     "hidden": false,
+     "label": {},
+     "icon": null
+    }
+   ]
+  }
+ },
+ "layout": {
+  "appearance": {
+   "template": "bold",
+   "theme_mode": "system",
+   "user_can_change_mode": true,
+   "font": "Manrope",
+   "corners": "round",
+   "cards": "elevated",
+   "secondary_color": "#F4B63F"
+  },
+  "languages": {
+   "default": "en",
+   "available": [
+    "en",
+    "ar",
+    "tr"
+   ]
+  },
+  "tabs": [
+   {
+    "id": "home",
+    "label": "Home",
+    "icon": "home",
+    "target": {
+     "type": "page",
+     "page_slug": "home"
+    },
+    "translations": {
+     "ar": {
+      "label": "الرئيسية"
+     },
+     "tr": {
+      "label": "Ana sayfa"
+     }
+    }
+   },
+   {
+    "id": "restaurants",
+    "label": "Restaurants",
+    "icon": "restaurant",
+    "target": {
+     "type": "page",
+     "page_slug": "restaurants"
+    },
+    "translations": {
+     "ar": {
+      "label": "المطاعم"
+     },
+     "tr": {
+      "label": "Restoranlar"
+     }
+    }
+   },
+   {
+    "id": "orders",
+    "label": "My orders",
+    "icon": "receipt_long",
+    "target": {
+     "type": "page",
+     "page_slug": "orders"
+    },
+    "translations": {
+     "ar": {
+      "label": "طلباتي"
+     },
+     "tr": {
+      "label": "Siparişlerim"
+     }
+    }
+   },
+   {
+    "id": "account",
+    "label": "Account",
+    "icon": "person",
+    "target": {
+     "type": "page",
+     "page_slug": "account"
+    },
+    "translations": {
+     "ar": {
+      "label": "حسابي"
+     },
+     "tr": {
+      "label": "Hesabım"
+     }
+    }
+   }
+  ],
+  "pages": [
+   {
+    "slug": "home",
+    "title": "Home",
+    "show_title": false,
+    "updated_at": "2026-11-13T10:00:00.000Z",
+    "blocks": [],
+    "studio": {
+     "background": "#F2EFEA",
+     "dark_background": "#0C0A09",
+     "body": {
+      "id": "sig-1",
+      "type": "column",
+      "padding": {
+       "top": 0,
+       "end": 0,
+       "bottom": 24,
+       "start": 0
+      },
+      "children": [
+       {
+        "id": "sig-2",
+        "type": "row",
+        "name": "What’s for dinner?",
+        "gap": 8,
+        "cross": "center",
+        "padding": {
+         "top": 20,
+         "end": 16,
+         "bottom": 0,
+         "start": 16
+        },
+        "children": [
+         {
+          "id": "sig-3",
+          "type": "column",
+          "width": "fill",
+          "gap": 2,
+          "children": [
+           {
+            "id": "sig-4",
+            "type": "greeting",
+            "font": {
+             "size": 13,
+             "weight": 600
+            },
+            "color": "#5F5750",
+            "dark_color": "#B5ACA3"
+           },
+           {
+            "id": "sig-5",
+            "type": "text",
+            "text": "What’s for dinner?",
+            "font": {
+             "family": "Outfit",
+             "size": 26,
+             "weight": 700,
+             "line_height": 1.1,
+             "letter_spacing": -0.7
+            },
+            "color": "#15110E",
+            "dark_color": "#F4EEE8",
+            "translations": {
+             "ar": {
+              "text": "ماذا على العشاء؟"
+             },
+             "tr": {
+              "text": "Akşam yemeğinde ne var?"
+             }
+            }
+           }
+          ]
+         },
+         {
+          "id": "sig-6",
+          "type": "row",
+          "width": 44,
+          "height": 44,
+          "radius": 22,
+          "align": "center",
+          "cross": "center",
+          "background": "#FFFFFF",
+          "dark_background": "#181412",
+          "border_color": "#E3DED6",
+          "dark_border_color": "#2A2420",
+          "border_width": 1,
+          "shadow": "light",
+          "action": {
+           "type": "screen",
+           "screen": "restaurants"
+          },
+          "children": [
+           {
+            "id": "sig-7",
+            "type": "icon",
+            "icon": "search",
+            "icon_size": 22,
+            "color": "#15110E",
+            "dark_color": "#F4EEE8"
+           }
+          ]
+         },
+         {
+          "id": "sig-8",
+          "type": "row",
+          "width": 44,
+          "height": 44,
+          "radius": 22,
+          "align": "center",
+          "cross": "center",
+          "background": "#FFFFFF",
+          "dark_background": "#181412",
+          "border_color": "#E3DED6",
+          "dark_border_color": "#2A2420",
+          "border_width": 1,
+          "shadow": "light",
+          "action": {
+           "type": "screen",
+           "screen": "account"
+          },
+          "children": [
+           {
+            "id": "sig-9",
+            "type": "icon",
+            "icon": "person",
+            "icon_size": 22,
+            "color": "#15110E",
+            "dark_color": "#F4EEE8"
+           }
+          ]
+         }
+        ]
+       },
+       {
+        "id": "sig-10",
+        "type": "live_status",
+        "name": "Your order on its way",
+        "live_status": {
+         "source": "food_order",
+         "style": "ring",
+         "accent": "#F4B63F",
+         "dark_accent": "#F4B63F"
+        },
+        "image_url": "http://localhost:3000/demo-photos/kofta.jpg",
+        "image_background_url": "http://localhost:3000/demo-photos/kofta.jpg",
+        "scrim": {
+         "color": "#120A06",
+         "from": 0.82,
+         "middle": 0.68,
+         "at": 50,
+         "to": 0.86,
+         "angle": 90
+        },
+        "background": "#2A1A10",
+        "visibility": "signed_in",
+        "width": "fill",
+        "radius": 26,
+        "color": "#FFFFFF",
+        "shadow": "strong",
+        "padding": {
+         "top": 18,
+         "end": 18,
+         "bottom": 18,
+         "start": 16
+        },
+        "margin": {
+         "top": 14,
+         "end": 16,
+         "bottom": 0,
+         "start": 16
+        }
+       },
+       {
+        "id": "sig-11",
+        "type": "bento",
+        "name": "Grill",
+        "columns": 3,
+        "gap": 8,
+        "radius": 22,
+        "margin": {
+         "top": 16,
+         "end": 16,
+         "bottom": 0,
+         "start": 16
+        },
+        "bento": {
+         "caption": "glass",
+         "row": 92
+        },
+        "entries": [
+         {
+          "title": "Grill",
+          "text": "Sahara Grill",
+          "subtitle": "Mixed grill · EGP 240",
+          "size": "large",
+          "image_url": "http://localhost:3000/demo-photos/cover-grill.jpg",
+          "action": {
+           "type": "screen",
+           "screen": "restaurants"
+          },
+          "translations": {
+           "ar": {
+            "title": "مشويات",
+            "text": "صحارى جريل",
+            "subtitle": "مشويات مشكّلة · 240 ج.م"
+           },
+           "tr": {
+            "title": "Izgara",
+            "text": "Sahara Grill",
+            "subtitle": "Karışık ızgara · 240 EGP"
+           }
+          }
+         },
+         {
+          "title": "Pizza",
+          "size": "small",
+          "image_url": "http://localhost:3000/demo-photos/cover-pizza.jpg",
+          "action": {
+           "type": "screen",
+           "screen": "restaurants"
+          },
+          "translations": {
+           "ar": {
+            "title": "بيتزا"
+           },
+           "tr": {
+            "title": "Pizza"
+           }
+          }
+         },
+         {
+          "title": "Sweets",
+          "size": "small",
+          "image_url": "http://localhost:3000/demo-photos/chocolate-brownie.jpg",
+          "action": {
+           "type": "screen",
+           "screen": "restaurants"
+          },
+          "translations": {
+           "ar": {
+            "title": "حلويات"
+           },
+           "tr": {
+            "title": "Tatlı"
+           }
+          }
+         },
+         {
+          "title": "Egyptian",
+          "text": "Bayt El Koshary · Koshary EGP 55",
+          "size": "full",
+          "image_url": "http://localhost:3000/demo-screens/sofra-mezze.jpg",
+          "action": {
+           "type": "screen",
+           "screen": "restaurants"
+          },
+          "translations": {
+           "ar": {
+            "title": "مصري",
+            "text": "بيت الكشري · كشري 55 ج.م"
+           },
+           "tr": {
+            "title": "Mısır mutfağı",
+            "text": "Bayt El Koshary · Koşari 55 EGP"
+           }
+          }
+         }
+        ]
+       },
+       {
+        "id": "sig-12",
+        "type": "marquee",
+        "name": "From the menus",
+        "text": "Koshary EGP 55\nMixed grill EGP 240\nMargherita EGP 140\nShish tawook EGP 150",
+        "marquee": {
+         "speed": 36,
+         "direction": "start",
+         "tilt": -2,
+         "dot": true
+        },
+        "gap": 18,
+        "height": 34,
+        "background": "#15110E",
+        "dark_background": "#F4B63F",
+        "color": "#F4B63F",
+        "dark_color": "#1C1307",
+        "font": {
+         "family": "Outfit",
+         "size": 13,
+         "weight": 700,
+         "letter_spacing": 1,
+         "uppercase": true
+        },
+        "margin": {
+         "top": 22,
+         "end": 0,
+         "bottom": 0,
+         "start": 0
+        },
+        "translations": {
+         "ar": {
+          "text": "كشري 55 ج.م\nمشويات مشكّلة 240 ج.م\nمارجريتا 140 ج.م\nشيش طاووق 150 ج.م"
+         },
+         "tr": {
+          "text": "Koşari 55 EGP\nKarışık ızgara 240 EGP\nMargherita 140 EGP\nŞiş tavuk 150 EGP"
+         }
+        }
+       },
+       {
+        "id": "sig-13",
+        "type": "row",
+        "name": "Restaurants near you",
+        "cross": "end",
+        "gap": 12,
+        "padding": {
+         "top": 20,
+         "end": 16,
+         "bottom": 10,
+         "start": 16
+        },
+        "children": [
+         {
+          "id": "sig-14",
+          "type": "text",
+          "text": "Restaurants near you",
+          "font": {
+           "family": "Outfit",
+           "size": 20,
+           "weight": 700,
+           "letter_spacing": -0.4
+          },
+          "color": "#15110E",
+          "dark_color": "#F4EEE8",
+          "width": "fill",
+          "translations": {
+           "ar": {
+            "text": "مطاعم بالقرب منك"
+           },
+           "tr": {
+            "text": "Yakınınızdaki restoranlar"
+           }
+          }
+         },
+         {
+          "id": "sig-15",
+          "type": "text",
+          "text": "See all",
+          "font": {
+           "size": 13,
+           "weight": 700
+          },
+          "color": "#875800",
+          "dark_color": "#F4B63F",
+          "action": {
+           "type": "screen",
+           "screen": "restaurants"
+          },
+          "translations": {
+           "ar": {
+            "text": "شوف الكل"
+           },
+           "tr": {
+            "text": "Tümünü gör"
+           }
+          }
+         }
+        ]
+       },
+       {
+        "id": "sig-16",
+        "type": "items",
+        "name": "Restaurants near you",
+        "source": "restaurants",
+        "layout": "carousel",
+        "gap": 10,
+        "padding": {
+         "top": 0,
+         "end": 16,
+         "bottom": 0,
+         "start": 16
+        },
+        "query": {
+         "limit": 6,
+         "category_id": null,
+         "featured": false,
+         "sort": "popular",
+         "ids": []
+        },
+        "card": {
+         "id": "sig-17",
+         "type": "row",
+         "width": 262,
+         "height": 96,
+         "radius": 22,
+         "background": "#FFFFFF",
+         "dark_background": "#181412",
+         "border_color": "#E3DED6",
+         "dark_border_color": "#2A2420",
+         "border_width": 1,
+         "shadow": "medium",
+         "children": [
+          {
+           "id": "sig-18",
+           "type": "image",
+           "bind": "image",
+           "width": 96,
+           "height": 96,
+           "fit": "cover"
+          },
+          {
+           "id": "sig-19",
+           "type": "column",
+           "width": "fill",
+           "gap": 2,
+           "align": "center",
+           "padding": {
+            "top": 12,
+            "end": 14,
+            "bottom": 12,
+            "start": 14
+           },
+           "children": [
+            {
+             "id": "sig-20",
+             "type": "text",
+             "bind": "title",
+             "max_lines": 1,
+             "font": {
+              "size": 16,
+              "weight": 800
+             },
+             "color": "#15110E",
+             "dark_color": "#F4EEE8"
+            },
+            {
+             "id": "sig-21",
+             "type": "text",
+             "bind": "subtitle",
+             "max_lines": 1,
+             "font": {
+              "size": 12
+             },
+             "color": "#5F5750",
+             "dark_color": "#B5ACA3"
+            },
+            {
+             "id": "sig-22",
+             "type": "text",
+             "bind": "badge",
+             "font": {
+              "size": 12,
+              "weight": 700
+             },
+             "color": "#875800",
+             "dark_color": "#F4B63F",
+             "margin": {
+              "top": 6,
+              "end": 0,
+              "bottom": 0,
+              "start": 0
+             }
+            }
+           ]
+          }
+         ]
+        }
+       }
+      ]
+     }
+    }
+   },
+   {
+    "slug": "restaurants",
+    "title": "Restaurants",
+    "translations": {
+     "ar": {
+      "title": "المطاعم"
+     },
+     "tr": {
+      "title": "Restoranlar"
+     }
+    },
+    "studio": {
+     "body": {
+      "id": "sig-26",
+      "type": "column",
+      "children": [
+       {
+        "id": "sig-27",
+        "type": "bento",
+        "name": "Grill",
+        "columns": 3,
+        "gap": 8,
+        "radius": 22,
+        "margin": {
+         "top": 8,
+         "end": 16,
+         "bottom": 8,
+         "start": 16
+        },
+        "bento": {
+         "caption": "glass",
+         "row": 92
+        },
+        "entries": [
+         {
+          "title": "Grill",
+          "text": "Sahara Grill",
+          "subtitle": "Mixed grill · EGP 240",
+          "size": "large",
+          "image_url": "http://localhost:3000/demo-photos/cover-grill.jpg",
+          "action": {
+           "type": "screen",
+           "screen": "restaurants"
+          },
+          "translations": {
+           "ar": {
+            "title": "مشويات",
+            "text": "صحارى جريل",
+            "subtitle": "مشويات مشكّلة · 240 ج.م"
+           },
+           "tr": {
+            "title": "Izgara",
+            "text": "Sahara Grill",
+            "subtitle": "Karışık ızgara · 240 EGP"
+           }
+          }
+         },
+         {
+          "title": "Pizza",
+          "size": "small",
+          "image_url": "http://localhost:3000/demo-photos/cover-pizza.jpg",
+          "action": {
+           "type": "screen",
+           "screen": "restaurants"
+          },
+          "translations": {
+           "ar": {
+            "title": "بيتزا"
+           },
+           "tr": {
+            "title": "Pizza"
+           }
+          }
+         },
+         {
+          "title": "Sweets",
+          "size": "small",
+          "image_url": "http://localhost:3000/demo-photos/chocolate-brownie.jpg",
+          "action": {
+           "type": "screen",
+           "screen": "restaurants"
+          },
+          "translations": {
+           "ar": {
+            "title": "حلويات"
+           },
+           "tr": {
+            "title": "Tatlı"
+           }
+          }
+         },
+         {
+          "title": "Egyptian",
+          "text": "Bayt El Koshary · Koshary EGP 55",
+          "size": "full",
+          "image_url": "http://localhost:3000/demo-screens/sofra-mezze.jpg",
+          "action": {
+           "type": "screen",
+           "screen": "restaurants"
+          },
+          "translations": {
+           "ar": {
+            "title": "مصري",
+            "text": "بيت الكشري · كشري 55 ج.م"
+           },
+           "tr": {
+            "title": "Mısır mutfağı",
+            "text": "Bayt El Koshary · Koşari 55 EGP"
+           }
+          }
+         }
+        ]
+       }
+      ]
+     },
+     "screen": "restaurants",
+     "header": {
+      "type": "title",
+      "title": "Restaurants",
+      "buttons": [
+       "notifications"
+      ],
+      "translations": {
+       "ar": {
+        "title": "المطاعم"
+       },
+       "tr": {
+        "title": "Restoranlar"
+       }
+      },
+      "background": "#F2EFEA",
+      "color": "#15110E",
+      "dark_background": "#0C0A09",
+      "dark_color": "#F4EEE8",
+      "style": "glass"
+     },
+     "background": "#F2EFEA",
+     "dark_background": "#0C0A09"
+    },
+    "show_title": false,
+    "updated_at": "2026-11-13T10:00:00.000Z",
+    "blocks": []
+   },
+   {
+    "slug": "orders",
+    "title": "My orders",
+    "translations": {
+     "ar": {
+      "title": "طلباتي"
+     },
+     "tr": {
+      "title": "Siparişlerim"
+     }
+    },
+    "studio": {
+     "body": {
+      "id": "sig-31",
+      "type": "column",
+      "children": [
+       {
+        "id": "sig-32",
+        "type": "live_status",
+        "name": "Your order on its way",
+        "live_status": {
+         "source": "food_order",
+         "style": "ring",
+         "accent": "#F4B63F",
+         "dark_accent": "#F4B63F"
+        },
+        "image_url": "http://localhost:3000/demo-photos/kofta.jpg",
+        "image_background_url": "http://localhost:3000/demo-photos/kofta.jpg",
+        "scrim": {
+         "color": "#120A06",
+         "from": 0.82,
+         "middle": 0.68,
+         "at": 50,
+         "to": 0.86,
+         "angle": 90
+        },
+        "background": "#2A1A10",
+        "visibility": "signed_in",
+        "width": "fill",
+        "radius": 26,
+        "color": "#FFFFFF",
+        "shadow": "strong",
+        "padding": {
+         "top": 18,
+         "end": 18,
+         "bottom": 18,
+         "start": 16
+        },
+        "margin": {
+         "top": 10,
+         "end": 16,
+         "bottom": 6,
+         "start": 16
+        }
+       }
+      ]
+     },
+     "screen": "food_orders",
+     "header": {
+      "type": "title",
+      "title": "My orders",
+      "buttons": [
+       "notifications"
+      ],
+      "translations": {
+       "ar": {
+        "title": "طلباتي"
+       },
+       "tr": {
+        "title": "Siparişlerim"
+       }
+      },
+      "background": "#F2EFEA",
+      "color": "#15110E",
+      "dark_background": "#0C0A09",
+      "dark_color": "#F4EEE8",
+      "style": "glass"
+     },
+     "background": "#F2EFEA",
+     "dark_background": "#0C0A09"
+    },
+    "show_title": false,
+    "updated_at": "2026-11-13T10:00:00.000Z",
+    "blocks": []
+   },
+   {
+    "slug": "account",
+    "title": "Account",
+    "translations": {
+     "ar": {
+      "title": "حسابي"
+     },
+     "tr": {
+      "title": "Hesabım"
+     }
+    },
+    "studio": {
+     "body": {
+      "id": "sig-33",
+      "type": "column",
+      "children": []
+     },
+     "screen": "account",
+     "background": "#F2EFEA",
+     "dark_background": "#0C0A09"
+    },
+    "show_title": false,
+    "updated_at": "2026-11-13T10:00:00.000Z",
+    "blocks": []
+   },
+   {
+    "slug": "settings",
+    "title": "Settings",
+    "translations": {
+     "ar": {
+      "title": "الإعدادات"
+     },
+     "tr": {
+      "title": "Ayarlar"
+     }
+    },
+    "studio": {
+     "body": {
+      "id": "sig-34",
+      "type": "column",
+      "children": []
+     },
+     "screen": "settings",
+     "header": {
+      "type": "title",
+      "title": "Settings",
+      "translations": {
+       "ar": {
+        "title": "الإعدادات"
+       },
+       "tr": {
+        "title": "Ayarlar"
+       }
+      },
+      "background": "#F2EFEA",
+      "color": "#15110E",
+      "dark_background": "#0C0A09",
+      "dark_color": "#F4EEE8",
+      "style": "glass"
+     },
+     "background": "#F2EFEA",
+     "dark_background": "#0C0A09"
+    },
+    "show_title": false,
+    "updated_at": "2026-11-13T10:00:00.000Z",
+    "blocks": []
+   },
+   {
+    "slug": "notifications",
+    "title": "Notifications",
+    "translations": {
+     "ar": {
+      "title": "الإشعارات"
+     },
+     "tr": {
+      "title": "Bildirimler"
+     }
+    },
+    "studio": {
+     "body": {
+      "id": "sig-35",
+      "type": "column",
+      "children": []
+     },
+     "screen": "notifications",
+     "header": {
+      "type": "title",
+      "title": "Notifications",
+      "translations": {
+       "ar": {
+        "title": "الإشعارات"
+       },
+       "tr": {
+        "title": "Bildirimler"
+       }
+      },
+      "background": "#F2EFEA",
+      "color": "#15110E",
+      "dark_background": "#0C0A09",
+      "dark_color": "#F4EEE8",
+      "style": "glass"
+     },
+     "background": "#F2EFEA",
+     "dark_background": "#0C0A09"
+    },
+    "show_title": false,
+    "updated_at": "2026-11-13T10:00:00.000Z",
+    "blocks": []
+   },
+   {
+    "slug": "edit-profile",
+    "title": "Edit profile",
+    "translations": {
+     "ar": {
+      "title": "تعديل الملف الشخصي"
+     },
+     "tr": {
+      "title": "Profili düzenle"
+     }
+    },
+    "studio": {
+     "body": {
+      "id": "sig-36",
+      "type": "column",
+      "children": []
+     },
+     "screen": "edit_profile",
+     "header": {
+      "type": "title",
+      "title": "Edit profile",
+      "translations": {
+       "ar": {
+        "title": "تعديل الملف الشخصي"
+       },
+       "tr": {
+        "title": "Profili düzenle"
+       }
+      },
+      "background": "#F2EFEA",
+      "color": "#15110E",
+      "dark_background": "#0C0A09",
+      "dark_color": "#F4EEE8",
+      "style": "glass"
+     },
+     "background": "#F2EFEA",
+     "dark_background": "#0C0A09"
+    },
+    "show_title": false,
+    "updated_at": "2026-11-13T10:00:00.000Z",
+    "blocks": []
+   },
+   {
+    "slug": "devices",
+    "title": "Devices",
+    "translations": {
+     "ar": {
+      "title": "الأجهزة"
+     },
+     "tr": {
+      "title": "Cihazlar"
+     }
+    },
+    "studio": {
+     "body": {
+      "id": "sig-37",
+      "type": "column",
+      "children": []
+     },
+     "screen": "devices",
+     "header": {
+      "type": "title",
+      "title": "Devices",
+      "translations": {
+       "ar": {
+        "title": "الأجهزة"
+       },
+       "tr": {
+        "title": "Cihazlar"
+       }
+      },
+      "background": "#F2EFEA",
+      "color": "#15110E",
+      "dark_background": "#0C0A09",
+      "dark_color": "#F4EEE8",
+      "style": "glass"
+     },
+     "background": "#F2EFEA",
+     "dark_background": "#0C0A09"
+    },
+    "show_title": false,
+    "updated_at": "2026-11-13T10:00:00.000Z",
+    "blocks": []
+   },
+   {
+    "slug": "change-password",
+    "title": "Change password",
+    "studio": {
+     "body": {
+      "id": "sig-38",
+      "type": "column",
+      "children": []
+     },
+     "screen": "change_password",
+     "background": "#F2EFEA",
+     "dark_background": "#0C0A09"
+    },
+    "show_title": false,
+    "updated_at": "2026-11-13T10:00:00.000Z",
+    "blocks": []
+   },
+   {
+    "slug": "chat-conversation",
+    "title": "A conversation",
+    "studio": {
+     "body": {
+      "id": "sig-39",
+      "type": "column",
+      "children": []
+     },
+     "screen": "chat_conversation",
+     "background": "#F2EFEA",
+     "dark_background": "#0C0A09"
+    },
+    "show_title": false,
+    "updated_at": "2026-11-13T10:00:00.000Z",
+    "blocks": []
+   },
+   {
+    "slug": "restaurant-menu",
+    "title": "A restaurant's menu",
+    "studio": {
+     "body": {
+      "id": "sig-40",
+      "type": "column",
+      "children": []
+     },
+     "screen": "restaurant_menu",
+     "background": "#F2EFEA",
+     "dark_background": "#0C0A09"
+    },
+    "show_title": false,
+    "updated_at": "2026-11-13T10:00:00.000Z",
+    "blocks": []
+   },
+   {
+    "slug": "food-order",
+    "title": "An order",
+    "studio": {
+     "body": {
+      "id": "sig-41",
+      "type": "column",
+      "children": []
+     },
+     "screen": "food_order",
+     "background": "#F2EFEA",
+     "dark_background": "#0C0A09"
+    },
+    "show_title": false,
+    "updated_at": "2026-11-13T10:00:00.000Z",
+    "blocks": []
+   },
+   {
+    "slug": "food-cart",
+    "title": "Your cart",
+    "translations": {
+     "ar": {
+      "title": "سلتك"
+     },
+     "tr": {
+      "title": "Sepetiniz"
+     }
+    },
+    "studio": {
+     "body": {
+      "id": "sig-42",
+      "type": "column",
+      "children": []
+     },
+     "screen": "food_cart",
+     "header": {
+      "type": "title",
+      "title": "Your cart",
+      "translations": {
+       "ar": {
+        "title": "سلتك"
+       },
+       "tr": {
+        "title": "Sepetiniz"
+       }
+      },
+      "background": "#F2EFEA",
+      "color": "#15110E",
+      "dark_background": "#0C0A09",
+      "dark_color": "#F4EEE8",
+      "style": "glass"
+     },
+     "background": "#F2EFEA",
+     "dark_background": "#0C0A09"
+    },
+    "show_title": false,
+    "updated_at": "2026-11-13T10:00:00.000Z",
+    "blocks": []
+   }
+  ],
+  "tab_bar": {
+   "background": "#15110E",
+   "dark_background": "#28221E",
+   "active": "#F4B63F",
+   "dark_active": "#F4B63F",
+   "inactive": "#D9D2CA",
+   "dark_inactive": "#C9C0B7",
+   "design": "float",
+   "labels": "active",
+   "radius": 30,
+   "margin": 14
+  }
+ }
+}

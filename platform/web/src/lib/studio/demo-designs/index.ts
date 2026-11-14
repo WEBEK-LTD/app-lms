@@ -20,7 +20,10 @@ import { MASAR_A, MASAR_B } from "./masar-signature";
 import { NAKHLA_A, NAKHLA_B } from "./nakhla-signature";
 import { RAWAQ_A, RAWAQ_B } from "./rawaq-signature";
 import { SAFRA_A, SAFRA_B } from "./safra-signature";
+import { SAHM_A, SAHM_B } from "./sahm-signature";
+import { SOFRA_A, SOFRA_B } from "./sofra-signature";
 import { UFUQ_A, UFUQ_B } from "./ufuq-signature";
+import { ZAD_A, ZAD_B } from "./zad-signature";
 import { SIGNATURE_LOOKS, signatureProject, signatureSystem, signatureTemplateId, type SignatureDesign, type SignatureLook } from "./signature";
 
 /**
@@ -136,7 +139,12 @@ const STUDIO_DEMO_DESIGNS: Partial<Record<StudioDemoId, DemoDesign>> = {
  * has its demo's (128's design's).
  */
 const SIGNATURE_DESIGNS: Record<StudioDemoId, Record<SignatureLook, SignatureDesign>> = {
-  // 130.1–130.6 Sofra Eats, Zad and Sahm Express.
+  // 130.1 130.2 Sofra Eats: A the editorial menu, B the bento table.
+  food: { a: SOFRA_A, b: SOFRA_B },
+  // 130.3 130.4 Zad: A the market arches, B the night aisle.
+  marketplace: { a: ZAD_A, b: ZAD_B },
+  // 130.5 130.6 Sahm Express: A the waybill, B the live route.
+  delivery: { a: SAHM_A, b: SAHM_B },
   // 130.7 130.8 Masar Rides, map first: A a living map, B a horizon.
   rides: { a: MASAR_A, b: MASAR_B },
   // 130.9 130.10 Lamha Taxi, taxi yellow and navy: A two inks, B a radar.
@@ -149,7 +157,7 @@ const SIGNATURE_DESIGNS: Record<StudioDemoId, Record<SignatureLook, SignatureDes
   instructors: { a: RAWAQ_A, b: RAWAQ_B },
   // 130.17 130.18 Ufuq Academy (the premium academy): A night cinema, B the gold ring.
   premium_academy: { a: UFUQ_A, b: UFUQ_B },
-} as Record<StudioDemoId, Record<SignatureLook, SignatureDesign>>;
+};
 
 /** A look with its demo's own tabs when it has none of its own. */
 function withDemoTabs(d: SignatureDesign): SignatureDesign {
@@ -218,6 +226,7 @@ export function studioDemoDesign(demo: StudioDemoId | undefined, look?: Signatur
   if (!demo) return undefined;
   return signatureDesign(demo, look) ?? STUDIO_DEMO_DESIGNS[demo];
 }
+
 
 /** A demo's home as a template of its kind (lib/studio/sections.ts TEMPLATES), in the dashboard's language with Studio's others as translations. */
 export function demoDesignTemplate(demo: StudioDemoId): TemplateInfo {

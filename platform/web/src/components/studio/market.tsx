@@ -290,7 +290,8 @@ function AddressBar({ node, data, color, text, c }: { node: StudioNode; data: Ma
   const soonest = data.vendors.filter((v) => v.state !== "closed" && v.etaMin !== null).reduce<number | null>((min, v) => (min === null || v.etaMin! < min ? v.etaMin : min), null);
   // 128.10 The words on the bar readable on its colour; by night the search field in the theme's dark colours, as the app's.
   const onBar = luminance(color) > 0.5 ? "#14231B" : "#FFFFFF";
-  const field = p.dark ? p.surface : "#FFFFFF";
+  // 130 On a bar of a dark colour of its own (a page's night), the field that colour a step lighter.
+  const field = !p.dark ? "#FFFFFF" : luminance(color) < 0.02 ? blend("#FFFFFF", 0.08, color) : p.surface;
   const fieldInk = p.dark ? p.textSecondary : "#5D6B63";
   return (
     <div data-market-bar={node.id} style={{ padding: "22px 16px 12px", background: color, color: onBar, borderRadius: "0 0 28px 28px" }}>
@@ -641,7 +642,54 @@ function VendorRow({ vendor, c }: { vendor: MarketCanvasVendor; c: Ctx }) {
   );
 }
 
-function Vendors({ market, vendors, title, text, c }: { market: StudioMarket; vendors: MarketCanvasVendor[]; title: string; text: string; c: Ctx }) {
+/**
+ * 130 The places as a deck of photo cards (`style: "deck"`, as the app's
+ * MarketVendorDeck): the open one in front with its club benefit, name and
+ * facts over a shade, up to two more peeking behind it on the end side,
+ * smaller and turned a little; the title with "1 / 3" at its end.
+ */
+function VendorDeck({ vendors, title, c }: { vendors: MarketCanvasVendor[]; title: string; c: Ctx }) {
+  const { p } = c;
+  const [front, ...rest] = vendors;
+  if (!front) return null;
+  const facts = (v: MarketCanvasVendor) => [...v.tags.slice(0, 1), v.etaMin !== null ? fill(c.w.minutes, { min: v.etaMin }) : null].filter(Boolean).join(" · ");
+  return (
+    <div data-market-deck="">
+      <div style={{ display: "flex", alignItems: "flex-end", paddingInlineStart: 20, paddingInlineEnd: 20, paddingBottom: 12 }}>
+        <div style={{ flex: "1 1 auto", fontSize: 19, fontWeight: 800, letterSpacing: -0.3, color: p.text }}>{title}</div>
+        <span style={{ fontSize: 13, fontWeight: 700, color: p.textSecondary, fontVariantNumeric: "tabular-nums" }}>{`1 / ${vendors.length}`}</span>
+      </div>
+      <div style={{ position: "relative", height: 196, marginInline: 16 }}>
+        {rest
+          .slice(0, 2)
+          .reverse()
+          .map((v, i, all) => {
+            const depth = all.length - i;
+            return (
+              <div key={v.id} aria-hidden="true" style={{ position: "absolute", top: 12 * depth, bottom: 12 * depth, insetInlineStart: 0, insetInlineEnd: -12 * depth, borderRadius: 24, overflow: "hidden", transform: `rotate(${(c.rtl ? -2 : 2) * depth}deg)`, filter: "brightness(0.85)", boxShadow: "0 12px 24px -12px rgba(0,0,0,0.5)" }}>
+                {/* eslint-disable-next-line @next/next/no-img-element -- the place's cover, drawn as the app draws it */}
+                <img src={v.coverUrl} alt="" style={{ width: "100%", height: "100%", objectFit: "cover" }} />
+              </div>
+            );
+          })}
+        <div style={{ position: "absolute", inset: 0, insetInlineEnd: 44, borderRadius: 24, overflow: "hidden", boxShadow: "0 26px 40px -18px rgba(0,0,0,0.6)" }}>
+          {/* eslint-disable-next-line @next/next/no-img-element -- the place's cover, drawn as the app draws it */}
+          <img src={front.coverUrl} alt="" style={{ position: "absolute", inset: 0, width: "100%", height: "100%", objectFit: "cover" }} />
+          <div style={{ position: "absolute", inset: 0, background: "linear-gradient(180deg, rgba(0,0,0,0) 35%, rgba(0,0,0,0.78))" }} />
+          {front.club || front.promo ? (
+            <span style={{ position: "absolute", top: 12, insetInlineStart: 12, maxWidth: "80%", ...oneLine, padding: "5px 10px", borderRadius: 999, background: p.accent, color: "#1B2A20", fontSize: 12, fontWeight: 800 }}>{front.clubBenefit ?? front.promo}</span>
+          ) : null}
+          <div style={{ position: "absolute", insetInlineStart: 14, insetInlineEnd: 14, bottom: 12, color: "#FFFFFF" }}>
+            <div style={{ ...oneLine, fontSize: 24, fontWeight: 800, letterSpacing: -0.4 }}>{front.name}</div>
+            <div style={{ ...oneLine, fontSize: 13, opacity: 0.9 }}>{facts(front)}</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function Vendors({ market, vendors, title, text, c }:{ market: StudioMarket; vendors: MarketCanvasVendor[]; title: string; text: string; c: Ctx }) {
   const head = <Head title={title} subtitle={text} seeAll c={c} />;
   switch (market.style ?? "cards") {
     case "spotlight":
@@ -688,6 +736,9 @@ function Vendors({ market, vendors, title, text, c }: { market: StudioMarket; ve
           ))}
         </div>
       );
+    // 130 A deck: the first place as a photo card, the next ones peeking behind it on the end side, "1 / 3" by the title.
+    case "deck":
+      return <VendorDeck vendors={vendors} title={title} c={c} />;
     default:
       return (
         <div>

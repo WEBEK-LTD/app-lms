@@ -21,6 +21,8 @@ import { Cover } from "./covers";
 import { GreetingText, TrackingCard } from "./tracking";
 // 128 The icons that point along the reading direction, mirrored in Arabic.
 import { mirrored } from "./mirrored";
+// 130 The live cards' premium looks.
+import { LiveLookCard, liveLookOf } from "./live-looks";
 // 129 Premium motion & media.
 import { entranceMark, watchEntrances } from "@/lib/studio/motion";
 import { BeforeAfter, edge, GalleryGrid, MediaBanner, Marquee, PremiumMotionStyles, Segments, SliderCount, SliderPill, StoriesRow } from "./premium-motion";
@@ -794,6 +796,8 @@ function Node(props: ViewProps & { node: StudioNode; parentDir: Dir; inStack?: I
         return <LearningCard node={n} dark={dark} color={color ?? null} words={p.learningWords ?? LEARNING_WORDS_EN} title={((lang !== defaultLang ? (n.translations?.[lang]?.title as string | undefined) : undefined) ?? n.title) || null} />;
       case "live_status":
         // 128 The person's order on its way, with sample words.
+        // 130 Or in one of the live cards' premium looks.
+        if (liveLookOf(n)) return <LiveLookCard node={n} lang={lang} dark={dark} brand={look.brand} color={color} />;
         return <LiveStatusCard node={n} color={color ?? null} words={p.liveWords ?? LIVE_STATUS_WORDS_EN} />;
       case "school":
         // 128 The family's school day as the app draws it, with a sample family.
@@ -815,6 +819,7 @@ function Node(props: ViewProps & { node: StudioNode; parentDir: Dir; inStack?: I
       }
       // 128 The person's shipment or ride on its way, or the taxis near them, and a greeting: samples here.
       case "tracking":
+        if (liveLookOf(n)) return <LiveLookCard node={n} lang={lang} dark={dark} brand={look.brand} color={color} />;
         return <TrackingCard node={n} lang={lang} dark={dark} brand={look.brand} second={look.accent} color={color} />;
       case "greeting":
         // 130.11 Its own words, when it has them.

@@ -49,6 +49,16 @@ class StudioDemo {
   static StudioDemo signature(String demo, String look) =>
       StudioDemo._load('signatures/${demo}_$look.json');
 
+  // 130.1–130.6 The food, marketplace and delivery demos' Signature looks:
+  // a project started from each (written by
+  // platform/web/tests/unit/studio-signature-food.test.ts).
+  static final sigSofraA = StudioDemo._load('sig_sofra_a.json');
+  static final sigSofraB = StudioDemo._load('sig_sofra_b.json');
+  static final sigZadA = StudioDemo._load('sig_zad_a.json');
+  static final sigZadB = StudioDemo._load('sig_zad_b.json');
+  static final sigSahmA = StudioDemo._load('sig_sahm_a.json');
+  static final sigSahmB = StudioDemo._load('sig_sahm_b.json');
+
   final Map<String, dynamic> _demo;
 
   /// The language the demo's texts are served in, as the hosted API picks
@@ -318,8 +328,10 @@ Map<String, dynamic> _item(
 
 /// Sahm Express (Studio's delivery demo) as its app is: its three services
 /// on its home, with their drawn pictures (lib/demo/content.ts).
-DemoApi sahmStudioApi({bool courier = false}) {
-  final demo = StudioDemo.sahm;
+/// 130.5–130.6 Or a project from one of its Signature looks ([look],
+/// test/support/sig_sahm_a.json, sig_sahm_b.json).
+DemoApi sahmStudioApi({bool courier = false, StudioDemo? look}) {
+  final demo = look ?? StudioDemo.sahm;
   const source = 'delivery_services';
   return demo.apply(
     DemoApi.sahm(courier: courier),
@@ -359,8 +371,10 @@ DemoApi sahmStudioApi({bool courier = false}) {
 /// kitchens in their real photos (lib/demo/content.ts), loved near you on
 /// its home, and the demo number's kofta on its way from Sahara Grill with
 /// Karim twelve minutes from Cairo Tower.
-DemoApi sofraStudioApi() {
-  final demo = StudioDemo.sofra;
+/// 130.1–130.2 Or a project from one of its Signature looks ([look],
+/// test/support/sig_sofra_a.json, sig_sofra_b.json) in the look's main colour.
+DemoApi sofraStudioApi({StudioDemo? look, String primaryColor = '#D2552B'}) {
+  final demo = look ?? StudioDemo.sofra;
   const source = 'restaurants';
   final api = DemoApi.food();
   Map<String, dynamic> place(
@@ -540,7 +554,7 @@ DemoApi sofraStudioApi() {
   return demo.apply(
     api,
     appName: 'Sofra Eats',
-    primaryColor: '#D2552B',
+    primaryColor: primaryColor,
     items: {
       source: [
         _item(
@@ -598,11 +612,14 @@ const sofraPhotos = [
 /// 128 Zad (Studio's marketplace demo) as its app is: its whole project
 /// (test/support/zad_demo.json): the photo-first home, the five tabs and
 /// Shops, Manrope; its places and the Fathys' groceries from DemoApi.zad.
-DemoApi zadStudioApi() => StudioDemo.zad.apply(
-  DemoApi.zad(),
-  appName: 'Zad',
-  primaryColor: '#1E6B52',
-);
+/// 130.3–130.4 Or a project from one of its Signature looks ([look],
+/// test/support/sig_zad_a.json, sig_zad_b.json) in the look's main colour.
+DemoApi zadStudioApi({StudioDemo? look, String primaryColor = '#1E6B52'}) =>
+    (look ?? StudioDemo.zad).apply(
+      DemoApi.zad(),
+      appName: 'Zad',
+      primaryColor: primaryColor,
+    );
 
 /// Masar Rides (Studio's rides demo): its car types on its home, the cars
 /// in their drawings (none of a van); without

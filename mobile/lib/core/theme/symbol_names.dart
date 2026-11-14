@@ -169,6 +169,13 @@ const symbolsByName = <String, IconData>{
   'local_fire_department': Symbols.local_fire_department_rounded,
   'sensors': Symbols.sensors_rounded,
   'north_east': Symbols.north_east_rounded,
+  // 130.1–130.6 The food, marketplace and delivery Signature looks: a dish's
+  // add button, the location button over a map and the barcode in a search.
+  'add_circle': Symbols.add_circle_rounded,
+  'add': Symbols.add_rounded,
+  'barcode_scanner': Symbols.barcode_scanner_rounded,
+  'radio_button_checked': Symbols.radio_button_checked_rounded,
+  // end 130.1–130.6
 };
 
 /// Shown for a name the app doesn't have.
