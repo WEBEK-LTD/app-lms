@@ -17,6 +17,7 @@ import '../courses/community_widgets.dart' show showTextSheet;
 import 'lesson_upload.dart';
 import 'teacher_widgets.dart';
 import 'teachers_providers.dart';
+import '../../shared/staff_scaffold.dart';
 
 /// 105.3 A teacher's course: its details, sections and lessons, and sending
 /// it to the academy. A draft (or one the academy returned) is the
@@ -32,20 +33,14 @@ class TeacherCourseScreen extends ConsumerWidget {
     final l10n = context.l10n;
     final id = courseId;
     if (id == null) {
-      return Scaffold(
-        appBar: AppBar(
-          leading: appBarBack(context),
-          title: Text(l10n.teacherNewCourse),
-        ),
+      return StaffScaffold(
+        title: l10n.teacherNewCourse,
         body: const _DetailsForm(),
       );
     }
     final async = ref.watch(teacherCourseProvider(id));
-    return Scaffold(
-      appBar: AppBar(
-        leading: appBarBack(context),
-        title: Text(async.value?.title ?? ''),
-      ),
+    return StaffScaffold(
+      title: async.value?.title ?? '',
       body: switch (async) {
         AsyncValue(value: final course?) => RefreshIndicator(
           onRefresh: () async => ref.invalidate(teacherCourseProvider(id)),

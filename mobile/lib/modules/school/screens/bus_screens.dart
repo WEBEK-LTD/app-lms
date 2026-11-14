@@ -19,6 +19,7 @@ import '../data/school_providers.dart';
 import '../widgets/bus_map.dart';
 import '../widgets/school_widgets.dart';
 import '../../../core/widgets/studio_screen_scope.dart';
+import '../../shared/staff_scaffold.dart';
 
 /// 113.10 The school bus in the app: a family's view of their child's bus
 /// (each trip, its stops on the map and the bus live while it runs, how
@@ -279,11 +280,9 @@ class _BusDutyScreenState extends ConsumerState<BusDutyScreen> {
   Widget build(BuildContext context) {
     final p = context.palette;
     final l10n = context.l10n;
-    return Scaffold(
-      appBar: studioBar(
-        context,
-        AppBar(leading: appBarBack(context), title: Text(l10n.busDutyTitle)),
-      ),
+    return StaffScaffold(
+      title: l10n.busDutyTitle,
+      studioPage: true,
       body: SafeArea(
         top: false,
         child: switch (ref.watch(busCrewRoutesProvider)) {
@@ -507,21 +506,11 @@ class _BusRunScreenState extends ConsumerState<BusRunScreen>
     } else if (run != null) {
       sharer.stop();
     }
-    return Scaffold(
-      appBar: studioBar(
-        context,
-        AppBar(
-          leading: appBarBack(context),
-          title: Text(
-            run == null
-                ? l10n.busDutyTitle
-                : l10n.busTripTitle(
-                    run.routeName,
-                    busTripLabel(context, run.trip),
-                  ),
-          ),
-        ),
-      ),
+    return StaffScaffold(
+      title: run == null
+          ? l10n.busDutyTitle
+          : l10n.busTripTitle(run.routeName, busTripLabel(context, run.trip)),
+      studioPage: true,
       body: SafeArea(
         top: false,
         child: switch (async) {

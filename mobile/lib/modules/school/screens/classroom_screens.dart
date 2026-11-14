@@ -29,6 +29,7 @@ import 'bus_screens.dart' show BusDutyTile;
 import 'library_screens.dart' show LibraryTile;
 import 'lecturer_screens.dart' show LecturerHomeView;
 import 'student_screens.dart' show FileTile;
+import '../../shared/staff_scaffold.dart';
 
 /// 105.4 The Classroom tab, for the school's teachers only: today's lessons
 /// and their classes; for each class, its attendance, homework (given,
@@ -260,17 +261,14 @@ class _ClassGate extends ConsumerWidget {
           final klass? => builder(context, klass),
           null => const NotFoundScreen(),
         },
-        AsyncValue(error: final e?) => Scaffold(
-          appBar: AppBar(leading: appBarBack(context)),
+        AsyncValue(error: final e?) => StaffScaffold(
+          title: null,
           body: ErrorView(
             error: e,
             onRetry: () => ref.invalidate(classroomMeProvider),
           ),
         ),
-        _ => Scaffold(
-          appBar: AppBar(leading: appBarBack(context)),
-          body: const LoadingView(),
-        ),
+        _ => StaffScaffold(title: null, body: const LoadingView()),
       };
 }
 
@@ -304,8 +302,8 @@ class _ClassScreenState extends ConsumerState<ClassScreen> {
     final l10n = context.l10n;
     return _ClassGate(
       classId: widget.classId,
-      builder: (context, klass) => Scaffold(
-        appBar: AppBar(leading: appBarBack(context), title: Text(klass.name)),
+      builder: (context, klass) => StaffScaffold(
+        title: klass.name,
         body: SafeArea(
           top: false,
           child: Column(
@@ -1058,11 +1056,8 @@ class _TakeAttendanceScreenState extends ConsumerState<TakeAttendanceScreen> {
         final async = ref.watch(
           classAttendanceProvider((classId: klass.id, date: _date)),
         );
-        return Scaffold(
-          appBar: AppBar(
-            leading: appBarBack(context),
-            title: Text(l10n.classroomAttendanceOf(klass.name)),
-          ),
+        return StaffScaffold(
+          title: l10n.classroomAttendanceOf(klass.name),
           body: SafeArea(
             top: false,
             child: switch (async) {
@@ -1208,11 +1203,8 @@ class ClassroomHomeworkScreen extends ConsumerWidget {
     final p = context.palette;
     final l10n = context.l10n;
     final async = ref.watch(classroomHomeworkProvider(homeworkId));
-    return Scaffold(
-      appBar: AppBar(
-        leading: appBarBack(context),
-        title: Text(async.value?.title ?? l10n.schoolHomework),
-      ),
+    return StaffScaffold(
+      title: async.value?.title ?? l10n.schoolHomework,
       body: SafeArea(
         top: false,
         child: switch (async) {
@@ -1460,11 +1452,8 @@ class _ScoresScreenState extends ConsumerState<ScoresScreen> {
     final p = context.palette;
     final l10n = context.l10n;
     final async = ref.watch(assessmentScoresProvider(widget.assessmentId));
-    return Scaffold(
-      appBar: AppBar(
-        leading: appBarBack(context),
-        title: Text(async.value?.assessment.title ?? ''),
-      ),
+    return StaffScaffold(
+      title: async.value?.assessment.title ?? '',
       body: SafeArea(
         top: false,
         child: switch (async) {
@@ -1573,11 +1562,8 @@ class ClassGradebookScreen extends ConsumerWidget {
     final state = ref.watch(classGradebookProvider(classId));
     String pct(double? v) =>
         v == null ? '—' : '${v.toStringAsFixed(v % 1 == 0 ? 0 : 1)}%';
-    return Scaffold(
-      appBar: AppBar(
-        leading: appBarBack(context),
-        title: Text(state.value?.className ?? l10n.classGradebook),
-      ),
+    return StaffScaffold(
+      title: state.value?.className ?? l10n.classGradebook,
       body: SafeArea(
         top: false,
         child: switch (state) {

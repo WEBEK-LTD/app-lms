@@ -19,6 +19,7 @@ import 'checkin_screens.dart' show CheckinCard;
 import 'classroom_screens.dart' show BusDutyEntry, SchoolStaffEntries;
 import 'messages_screen.dart' show SchoolMessagesTile;
 import 'staff_screens.dart' show StaffTiles;
+import '../../shared/staff_scaffold.dart';
 import 'university_screens.dart'
     show meetingsText, uniEnrolmentLabel, uniStatusLabel, uniStatusTone;
 
@@ -235,11 +236,8 @@ class _LecturerSectionScreenState extends ConsumerState<LecturerSectionScreen> {
     final p = context.palette;
     final l10n = context.l10n;
     final async = ref.watch(lecturerSectionProvider(widget.sectionId));
-    return Scaffold(
-      appBar: AppBar(
-        leading: appBarBack(context),
-        title: Text(async.value?.section.label ?? ''),
-      ),
+    return StaffScaffold(
+      title: async.value?.section.label ?? '',
       body: SafeArea(
         top: false,
         child: switch (async) {
@@ -470,11 +468,8 @@ class _SectionAttendanceScreenState
   Widget build(BuildContext context) {
     final p = context.palette;
     final l10n = context.l10n;
-    return Scaffold(
-      appBar: AppBar(
-        leading: appBarBack(context),
-        title: Text(l10n.classroomTakeAttendance),
-      ),
+    return StaffScaffold(
+      title: l10n.classroomTakeAttendance,
       body: SafeArea(
         top: false,
         child: switch (ref.watch(sectionAttendanceProvider(_query))) {
@@ -574,11 +569,8 @@ class AdviseesScreen extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final p = context.palette;
     final l10n = context.l10n;
-    return Scaffold(
-      appBar: AppBar(
-        leading: appBarBack(context),
-        title: Text(l10n.uniAdvisees),
-      ),
+    return StaffScaffold(
+      title: l10n.uniAdvisees,
       body: SafeArea(
         top: false,
         child: switch (ref.watch(adviseesProvider)) {
@@ -700,11 +692,8 @@ class _AdviseeScreenState extends ConsumerState<AdviseeScreen> {
     final p = context.palette;
     final l10n = context.l10n;
     final async = ref.watch(adviseeProvider(widget.studentId));
-    return Scaffold(
-      appBar: AppBar(
-        leading: appBarBack(context),
-        title: Text(async.value?.student.name ?? ''),
-      ),
+    return StaffScaffold(
+      title: async.value?.student.name ?? '',
       body: SafeArea(
         top: false,
         child: switch (async) {

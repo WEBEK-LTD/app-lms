@@ -39,6 +39,11 @@ class SystemLookScope extends InheritedWidget {
   static SystemLook? lookOf(BuildContext context, SystemScreen screen) =>
       systemOf(context)?.lookFor(screen);
 
+  /// 130.58 The project's own look, for the screens that aren't one of the
+  /// system screens (the staff's, the couriers', the drivers'); null, none.
+  static SystemLook? projectLookOf(BuildContext context) =>
+      systemOf(context)?.look;
+
   @override
   bool updateShouldNotify(SystemLookScope oldWidget) =>
       oldWidget.system != system;
@@ -49,16 +54,25 @@ class SystemLookScope extends InheritedWidget {
 class SystemScreenArea extends StatelessWidget {
   const SystemScreenArea({
     super.key,
-    required this.screen,
+    required SystemScreen this.screen,
     required this.child,
-  });
+  }) : look = null;
 
-  final SystemScreen screen;
+  /// 130.58 A screen that isn't one of the system screens, in [look] (the
+  /// project's, [SystemLookScope.projectLookOf]).
+  const SystemScreenArea.inLook({
+    super.key,
+    required SystemLook this.look,
+    required this.child,
+  }) : screen = null;
+
+  final SystemScreen? screen;
+  final SystemLook? look;
   final Widget child;
 
   @override
   Widget build(BuildContext context) => _SystemScreenLook(
-    look: SystemLookScope.lookOf(context, screen),
+    look: look ?? SystemLookScope.lookOf(context, screen!),
     child: child,
   );
 
