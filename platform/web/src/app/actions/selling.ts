@@ -15,6 +15,7 @@ import { giftsOf, parseGiftForm } from "@/lib/selling/gifts";
 import { parseShippingForm } from "@/lib/selling/shipping";
 import { appLanguagesOf } from "@/lib/selling/store";
 import { shopZone, zoneOffsetMinutes } from "@/lib/selling/zone";
+import { refreshSitesSoon } from "@/lib/license/refresh-soon";
 
 /**
  * 131 Store › Delivery & offers (app/dashboard/selling): the checkout, the
@@ -43,6 +44,8 @@ async function saveSettings(app: App, patch: Partial<CatalogSettings>): Promise<
 function refresh() {
   revalidatePath("/dashboard/selling", "layout");
 }
+
+
 
 /** The checkout: standard, or the gift checkout. */
 export async function saveCheckoutModeAction(_: FormState, formData: FormData): Promise<FormState> {
@@ -107,6 +110,8 @@ export async function addOccasionAction(_: FormState, formData: FormData): Promi
   const now = new Date();
   await store.createGiftOccasion({ appId: app.id, key: null, names: parsed.value.names, icon: "redeem", position: list.length, hidden: false, templates: [], createdAt: now, updatedAt: now });
   refresh();
+  // The card messages reach a WordPress site with its license status: it is asked to check now.
+  if (app.backend === "wordpress") refreshSitesSoon([app.id]);
   return { ok: true, message: "Saved." };
 }
 
@@ -120,6 +125,8 @@ export async function saveOccasionAction(_: FormState, formData: FormData): Prom
   await occasions(app);
   await store.updateGiftOccasion(app.id, id, { names: parsed.value.names, updatedAt: new Date() });
   refresh();
+  // The card messages reach a WordPress site with its license status: it is asked to check now.
+  if (app.backend === "wordpress") refreshSitesSoon([app.id]);
   return { ok: true, message: "Saved.", values: v };
 }
 
@@ -141,6 +148,8 @@ export async function changeOccasionAction(formData: FormData): Promise<void> {
     await store.deleteGiftOccasion(app.id, id);
   }
   refresh();
+  // The card messages reach a WordPress site with its license status: it is asked to check now.
+  if (app.backend === "wordpress") refreshSitesSoon([app.id]);
 }
 
 export async function saveTemplateAction(_: FormState, formData: FormData): Promise<FormState> {
@@ -161,6 +170,8 @@ export async function saveTemplateAction(_: FormState, formData: FormData): Prom
   }
   await store.updateGiftOccasion(app.id, occasion.id, { templates, updatedAt: new Date() });
   refresh();
+  // The card messages reach a WordPress site with its license status: it is asked to check now.
+  if (app.backend === "wordpress") refreshSitesSoon([app.id]);
   return { ok: true, message: "Saved.", values: at >= 0 ? v : undefined };
 }
 
@@ -185,6 +196,8 @@ export async function changeTemplateAction(formData: FormData): Promise<void> {
   }
   await store.updateGiftOccasion(app.id, occasion.id, { templates, updatedAt: new Date() });
   refresh();
+  // The card messages reach a WordPress site with its license status: it is asked to check now.
+  if (app.backend === "wordpress") refreshSitesSoon([app.id]);
 }
 
 // Flash sales

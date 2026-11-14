@@ -101,7 +101,15 @@ export const STARTER_CITIES: Record<string, { en: string; ar: string; tr: string
 
 /** The same city however it is typed: case, spaces and Turkish dotted letters don't matter. */
 export function sameCity(a: string, b: string): boolean {
-  const norm = (s: string) => s.normalize("NFKC").toLocaleLowerCase("tr").replace(/\s+/g, " ").trim();
+  // Accents and the Turkish dotted and dotless i fold away ("İstanbul", "Istanbul", "istanbul"; "Kadıköy", "Kadikoy").
+  const norm = (s: string) =>
+    s
+      .normalize("NFKD")
+      .replace(/[\u0300-\u036f]/g, "")
+      .toLowerCase()
+      .replace(/ı/g, "i")
+      .replace(/\s+/g, " ")
+      .trim();
   return norm(a) === norm(b);
 }
 

@@ -113,8 +113,9 @@ export class CatalogConnector implements Connector {
     return paymentsSetUp(this.deps.app) && this.deps.cardPayments !== false;
   }
 
-  /** 131 The shop's flash sales (loaded once a request). */
+  /** 131 The shop's flash sales (loaded once a request), and the request's time they're on at. */
   private flash: StoreFlashSale[] = [];
+  private now: Date = new Date();
 
   async config() {
     return {
@@ -139,6 +140,7 @@ export class CatalogConnector implements Connector {
   async handle(request: ConnectorRequest): Promise<ConnectorResult | null> {
     const route = `${request.method} /${request.path.join("/")}`;
     // 131 The flash sales on now price the products below.
+    this.now = request.now;
     if (request.path[0] === "store") this.flash = await this.deps.store.listFlashSales(this.deps.app.id);
     const extra = await handleStoreExtras(
       {
@@ -235,7 +237,7 @@ export class CatalogConnector implements Connector {
     return left === null || left >= quantity ? best : null;
   }
 
-  private summary(p: CatalogProduct, now: Date = new Date()) {
+  private summary(p: CatalogProduct, now: Date = this.now) {
     // 131 With its sale: a flash sale on now over its price, else its own sale price.
     return withSale(this.plainSummary(p), this.flash, now, p.categoryIds);
   }
@@ -319,7 +321,7 @@ export class CatalogConnector implements Connector {
           (category === null || p.categoryIds.includes(category)) &&
           (!flag("featured") || p.featured) &&
           // 131 With the products of a flash sale on now.
-          (!flag("on_sale") || priceOf(p) < p.priceCents || this.flashFor(p, p.priceCents, new Date()) !== null) &&
+          (!flag("on_sale") || priceOf(p) < p.priceCents || this.flashFor(p, p.priceCents, this.now) !== null) &&
           (search === "" || `${p.name} ${p.description}`.toLocaleLowerCase("tr").includes(search)),
       ),
       orderParam && ORDERS.includes(orderParam) ? orderParam : "newest",
@@ -344,13 +346,13 @@ export class CatalogConnector implements Connector {
     return [
       ...(categories.length > 0 ? [{ type: "categories", title: null, categories: categories.slice(0, 12) }] : []),
       ...section("featured_products", products.filter((p) => p.featured)),
-      ...section("sale_products", products.filter((p) => priceOf(p) < p.priceCents || this.flashFor(p, p.priceCents, new Date()) !== null)),
+      ...section("sale_products", products.filter((p) => priceOf(p) < p.priceCents || this.flashFor(p, p.priceCents, this.now) !== null)),
       ...section("new_products", products),
       ...section("best_sellers", this.sorted(products.filter((p) => p.salesCount > 0), "popular")),
     ];
   }
 
-  private async product(id: number, now: Date = new Date()): Promise<ConnectorResult> {
+  private async product(id: number, now: Date = this.now): Promise<ConnectorResult> {
     const { store, app } = this.deps;
     const product = await store.getCatalogProduct(app.id, id);
     if (!product || !product.active) return error(404, "not_found", "Product not found.");
@@ -410,7 +412,7 @@ export class CatalogConnector implements Connector {
 
   // Cart and checkout
 
-  private async priced(lines: CartLineInput[], now: Date = new Date()) {
+  private async priced(lines: CartLineInput[], now: Date = this.now) {
     const byId = new Map((await this.active()).map((p) => [p.id, p]));
     let subtotal = 0;
     let count = 0;
