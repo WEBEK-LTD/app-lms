@@ -8,7 +8,7 @@ import { BUILT_IN_APP_DEFAULTS, defaultLayout } from "../pages/defaults";
 import { itemSourcesFor } from "../pages/sources";
 import type { LanguageCode } from "../pages/types";
 import type { SampleList } from "../samples/lists";
-import { templatesFor, TEMPLATES, type TemplateInfo } from "../studio/sections";
+import { TEMPLATES, type TemplateInfo } from "../studio/sections";
 import { startLayout } from "../studio/start";
 import { SIGNATURE_LOOKS, type SignatureLook } from "../studio/demo-designs/signature";
 import { DEMO_SLUGS, DEMO_TYPES, demoKind, demoTypeOfSlug, isStudioDemo, PREMIUM_ACADEMY_DEMO, PREMIUM_ACADEMY_TEMPLATE, STUDIO_DEMO_TYPES, type DemoId, type StudioDemoId } from "./constants";

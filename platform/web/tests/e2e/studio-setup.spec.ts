@@ -169,7 +169,7 @@ test("Academy in Studio: every step, its links in Studio, and moving between the
   // 124.6 The premium academy (the Studio template for the whole project) first, in its real picture; templates = demos: the demo's design, then the academy's own.
   // 130.17 130.18 Ufuq Academy's two Signature looks before it, each in its own picture.
   expect(ids).toEqual(["studio-premium_academy_signature_a", "studio-premium_academy_signature_b", "studio-academy_premium", "demo-lms", "academy-classic", "academy-online", "academy-coaching", "academy-kids"]);
-  await expect(card("studio-premium_academy_signature_a").getByRole("img", { name: "Night cinema: its home in the app" })).toHaveAttribute("src", "/screens/ufuq-sig-a-home.png");
+  await expect(card("studio-premium_academy_signature_a").getByRole("img", { name: "Night cinema: its home in the app" })).toHaveAttribute("src", "/screens/premium-academy-sig-a-home.png");
   await expect(card("studio-academy_premium").getByRole("img", { name: "Premium academy: its home in the app" })).toHaveAttribute("src", "/screens/premium-home.png");
   await expect(card("studio-academy_premium")).toContainText("The whole app: the home, the tab bar");
   expect(await thumbText("academy-kids")).toContain("Fun lessons for curious kids");
