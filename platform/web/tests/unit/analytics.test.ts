@@ -265,17 +265,25 @@ describe("44 POST /api/v1/apps/{app_id}/events", () => {
     expect((await send(store, app, batch([{ type: "app_open", at: "2026-10-19T11:00:00Z" }], { install_id: uuid(999) }), {}, later)).status).toBe(429);
   });
 
-  it("marks a day already counted when late events arrive, so it is counted again", async () => {
+  it("marks a day already counted when late events arrive, and the days after it, so they are counted again", async () => {
     const store = new MemoryStore();
     const app = await appIn(store);
     await refreshAnalytics(store, app.id, NOW);
     expect(await daysToCount(store, app.id, NOW)).toEqual([]);
     expect((await send(store, app, batch([{ type: "app_open", at: "2026-10-16T09:00:00Z" }]))).status).toBe(202);
-    expect(await daysToCount(store, app.id, NOW)).toEqual(["2026-10-16"]);
+    // The days after it have the install in their weekly and monthly users.
+    expect(await daysToCount(store, app.id, NOW)).toEqual(["2026-10-16", "2026-10-17", "2026-10-18"]);
     await refreshAnalytics(store, app.id, NOW);
     expect(await daysToCount(store, app.id, NOW)).toEqual([]);
     const totals = await store.listAnalyticsDaily(app.id, "2026-10-16", "2026-10-16", ["active"]);
     expect(totals[0]!.value).toBe(1);
+    const weekly = await store.listAnalyticsDaily(app.id, "2026-10-16", TODAY, ["active_7"]);
+    expect(weekly.map((r) => [r.day, r.value])).toEqual([
+      ["2026-10-16", 1],
+      ["2026-10-17", 1],
+      ["2026-10-18", 1],
+      [TODAY, 1],
+    ]);
   });
 
   it("98.1 counts today again only when it got events since it was counted", async () => {
@@ -527,6 +535,27 @@ describe("47 days in the owner's time zone", () => {
     const report = await loadReport(store, app.id, range, now, "Asia/Tokyo");
     expect(report.kpis.installs).toBe(1);
     expect(report.daily.at(-1)).toMatchObject({ day: "2026-10-20", installs: 1 });
+  });
+
+  it("counts yesterday's events sent after Istanbul's midnight in today's weekly users", async () => {
+    const store = new MemoryStore();
+    const app = await appIn(store);
+    const zone = await appZone(store, app);
+    expect(zone).toBe("Europe/Istanbul");
+    // 00:00:30 on the 20th in Istanbul (21:00:30 UTC on the 19th): the owner opens Analytics, and today is counted with nothing in it yet.
+    const midnight = new Date("2026-10-19T21:00:30Z");
+    const range = rangeFrom({ range: "7" }, midnight, zone);
+    expect(range.to).toBe("2026-10-20");
+    expect((await loadReport(store, app.id, range, midnight, zone)).kpis.weekly).toBe(0);
+    // A minute later a phone sends its first open from 23:59 the day before.
+    const later = new Date(midnight.getTime() + 60_000);
+    expect((await send(store, app, batch([{ type: "app_open", at: "2026-10-19T20:59:00Z", first_open: true }]), later)).status).toBe(202);
+    expect(await store.listAnalyticsEvents(app.id, "2026-10-19")).toHaveLength(1);
+    const report = await loadReport(store, app.id, range, later, zone);
+    expect(report.kpis.installs).toBe(1);
+    // Today's weekly and monthly users have it, though today got no event of its own.
+    expect(report.kpis.weekly).toBe(1);
+    expect(report.kpis.monthly).toBe(1);
   });
 
   it("uses the account's country when the owner hasn't chosen", async () => {
