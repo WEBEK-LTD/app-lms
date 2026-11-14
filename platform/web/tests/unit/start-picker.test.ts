@@ -14,6 +14,7 @@ import { businessOf, demoFacts, hasLookShot, LOOK_SHOTS, lookOf, lookShotName, r
 import { signatureDesign } from "@/lib/studio/demo-designs";
 import { firstStepsView, makeFromDemo, shortNameOf, startedFromDemo, type DemoMaker } from "@/lib/demo/start";
 import { readPngInfo } from "@/lib/png";
+import type { TabBarStyle } from "@/lib/pages/types";
 import { getDashT } from "@/i18n/dashboard";
 import { countList, sampleTotal } from "@/lib/samples/lists";
 import { allNodes } from "@/lib/studio/tree";
@@ -235,22 +236,34 @@ describe("starting from a demo", () => {
       expect(startLooks(id)).toEqual([]);
       expect(lookOf(id, "a")).toBeNull();
     }
-    // The pictures named are the ones in public/screens, and each look of Masar, Lamha and Safra has its own, by day and by night.
+    // The pictures named are the ones in public/screens, and each look of all nine Studio demos has its own, by day and by night.
     for (const name of LOOK_SHOTS) expect(existsSync(join(ROOT, "public", "screens", `${name}.png`)), name).toBe(true);
-    for (const id of ["rides", "taxi", "travel"] as const) for (const look of ["a", "b"] as const) for (const dark of [false, true]) expect(hasLookShot(lookShotName(id, look, dark))).toBe(true);
+    expect(LOOK_SHOTS.size).toBe(STUDIO_DEMO_TYPES.length * 4);
+    for (const id of STUDIO_DEMO_TYPES) for (const look of ["a", "b"] as const) for (const dark of [false, true]) expect(hasLookShot(lookShotName(id, look, dark)), lookShotName(id, look, dark)).toBe(true);
   });
 
-  it.each(["rides", "taxi", "travel"] as const)("starts the %s demo in its look B: that look's whole app, bar and screens", async (id) => {
+  /** A bar as the platform saves it: names always shown is the bar's own, so it is left out. */
+  const savedBar = ({ labels, ...bar }: TabBarStyle): TabBarStyle => (labels && labels !== "always" ? { ...bar, labels } : bar);
+
+  it.each(STUDIO_DEMO_TYPES)("starts the %s demo in its look B: that look's whole app, bar, screens and premium chrome, kept as saved", async (id) => {
     const store = new MemoryStore();
     const { app } = await makeFromDemo(store, maker("Selin's"), { demo: id, name: "Selin's", colour: "#B4235A", logoAssetId: null, iconAssetId: null, look: "b" }, NOW);
     const layout = (await store.getAppLayout(app.id))!.draft;
     const design = signatureDesign(id, "b")!;
-    expect(layout.tab_bar).toEqual(design.bar);
+    expect(layout.tab_bar).toEqual(savedBar(design.bar));
     expect(layout.pages[0]!.studio!.background).toBe(design.look!.background);
-    expect(app.hostedSettings?.studioScreens?.account_menu?.header).toBe(design.screens.menu);
+    const own = design.project.screens("https://yallapp.test");
+    expect(app.hostedSettings?.studioScreens?.account_menu?.header).toBe(own.account_menu?.header);
+    // 130 Its premium chrome as saved: every page after the home in the look's premium header, the system screens in its look.
+    expect(app.hostedSettings?.studioScreens?.system?.look).toBe(design.chrome.system);
+    const headed = layout.pages.filter((p) => p.slug !== "home" && p.studio?.header);
+    expect(headed.length).toBeGreaterThan(2);
+    for (const p of headed) expect(p.studio!.header!.style, p.slug).toBeTruthy();
+    expect(headed.filter((p) => p.studio!.header!.style === design.chrome.header).length).toBeGreaterThan(2);
+    expect(app.design).toBe(`${id}_signature_b`);
     // Look A (or none chosen) is the demo itself.
     const a = await makeFromDemo(store, maker("Lale"), { demo: id, name: "Lale", colour: "#B4235A", logoAssetId: null, iconAssetId: null }, NOW);
-    expect((await store.getAppLayout(a.app.id))!.draft.tab_bar).toEqual(signatureDesign(id, "a")!.bar);
+    expect((await store.getAppLayout(a.app.id))!.draft.tab_bar).toEqual(savedBar(signatureDesign(id, "a")!.bar));
   });
 
   it("shortens the name under the icon", () => {

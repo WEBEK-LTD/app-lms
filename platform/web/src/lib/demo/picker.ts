@@ -156,17 +156,15 @@ export function demoItems(id: DemoId): DemoItems {
 
 /**
  * The Studio template a Studio demo starts a project from: the demo's own
- * (templates = demos), 123 the premium academy's template; 130 with `look`,
- * the demo's Signature look of that name (the whole app in that look), the
- * demo's own while it has no such look.
+ * (templates = demos, the demo being its Signature look A); 130 with
+ * `look`, the demo's Signature look of that name (the whole app in that
+ * look). The premium academy, with no template of the demo's own, starts
+ * from its look A.
  */
 export function studioDemoTemplate(id: StudioDemoId, look?: SignatureLook): TemplateInfo {
-  const kind = demoKind(id);
-  const all = templatesFor({ type: kind.engine, vertical: kind.vertical });
-  const own = look ? all.find((t) => t.demo === id && t.look === look) : undefined;
+  const own = TEMPLATES.find((t) => t.demo === id && t.look === (look ?? (id === PREMIUM_ACADEMY_DEMO ? "a" : undefined)));
   if (own) return own;
-  if (id === PREMIUM_ACADEMY_DEMO) return TEMPLATES.find((t) => t.id === PREMIUM_ACADEMY_TEMPLATE)!;
-  return all.find((t) => t.demo === id && !t.look)!;
+  return TEMPLATES.find((t) => t.demo === id && !t.look) ?? TEMPLATES.find((t) => t.id === PREMIUM_ACADEMY_TEMPLATE)!;
 }
 
 const MADE_AT = new Date("2026-01-01T00:00:00Z");
@@ -228,16 +226,13 @@ export function lookShotName(id: DemoId, look: SignatureLook, dark = false): str
 }
 
 /**
- * The looks' pictures in public/screens, by name: each engineer adds a
- * look's when its picture is made (mobile/test/screenshots/
- * signature_screenshots_test.dart); until then /start shows the demo's own
- * screenshot for it (tests/unit/start-picker.test.ts keeps the list and the
- * files the same).
+ * The looks' pictures in public/screens, by name: every Studio demo's looks
+ * A and B by day and by night, named by the demo's address (`lookShotName`:
+ * `school-sig-a-home.png`, `food-delivery-sig-b-home-dark.png`), made by
+ * the app (mobile/test/screenshots/signature_screenshots_test.dart);
+ * tests/unit/start-picker.test.ts keeps the list and the files the same.
  */
-export const LOOK_SHOTS: ReadonlySet<string> = new Set([
-  // 130.7–130.12 Masar Rides, Lamha Taxi and Safra.
-  ...(["rides", "taxi", "travel"] as const).flatMap((demo) => ["a", "b"].flatMap((look) => [`${demo}-sig-${look}-home`, `${demo}-sig-${look}-home-dark`])),
-]);
+export const LOOK_SHOTS: ReadonlySet<string> = new Set(STUDIO_DEMO_TYPES.flatMap((demo) => SIGNATURE_LOOKS.flatMap((look) => [lookShotName(demo, look), lookShotName(demo, look, true)])));
 
 /** Whether a look's picture is in public/screens. */
 export function hasLookShot(name: string): boolean {

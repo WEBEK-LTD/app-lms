@@ -11,6 +11,7 @@ import type { ParseResult } from "../pages/validate";
 import { seedForDesign } from "../samples/server";
 import { siteAddress } from "./academy";
 import { isStudioProject } from "./section";
+import { DEMO_SLUGS, STUDIO_DEMO_TYPES, type StudioDemoId } from "../demo/constants";
 import { templatesFor, type SectionContext, type SectionWord, type TemplateInfo } from "./sections";
 import { startLayout } from "./start";
 
@@ -29,22 +30,14 @@ const PREFIX = "studio-";
 /** The template's real picture, as the app draws its home (public/screens). */
 const PICTURES: Record<string, string> = {
   academy_premium: "/screens/premium-home.png",
-  // 130.13–130.18 The Signature looks of Nakhla School, Rawaq Academy and Ufuq Academy.
-  school_signature_a: "/screens/nakhla-sig-a-home.png",
-  school_signature_b: "/screens/nakhla-sig-b-home.png",
-  instructors_signature_a: "/screens/rawaq-sig-a-home.png",
-  instructors_signature_b: "/screens/rawaq-sig-b-home.png",
-  premium_academy_signature_a: "/screens/ufuq-sig-a-home.png",
-  premium_academy_signature_b: "/screens/ufuq-sig-b-home.png",
-  // ——— end 130.13–130.18 ———
-  // 130.1–130.6 The Signature looks of Sofra Eats, Zad and Sahm Express, as the app draws a project from each.
-  food_signature_a: "/screens/food-sig-a-home.png",
-  food_signature_b: "/screens/food-sig-b-home.png",
-  marketplace_signature_a: "/screens/marketplace-sig-a-home.png",
-  marketplace_signature_b: "/screens/marketplace-sig-b-home.png",
-  delivery_signature_a: "/screens/delivery-sig-a-home.png",
-  delivery_signature_b: "/screens/delivery-sig-b-home.png",
 };
+
+/** 130 A Signature look's picture: `<demo's address>-sig-<look>-home.png` (lib/demo/picker.ts LOOK_SHOTS), the eighteen alike. */
+function lookPicture(id: string): string | null {
+  const m = /^(.+)_signature_([ab])$/.exec(id);
+  const demo = m && (STUDIO_DEMO_TYPES as readonly string[]).includes(m[1]!) ? (m[1] as StudioDemoId) : null;
+  return demo ? `/screens/${DEMO_SLUGS[demo]}-sig-${m![2]}-home.png` : null;
+}
 
 /** The Branding step's id for a template (`studio-academy_premium`). */
 export function projectDesignId(templateId: string): string {
@@ -71,7 +64,7 @@ export function chosenProjectDesign(app: Pick<App, "section" | "appType" | "desi
 
 /** The template's real picture, or null. */
 export function projectTemplatePicture(template: Pick<TemplateInfo, "id">): string | null {
-  return PICTURES[template.id] ?? null;
+  return PICTURES[template.id] ?? lookPicture(template.id);
 }
 
 /** What the template's words are written with: the app's words (lib/studio/app-words.ts) in the dashboard's language. */

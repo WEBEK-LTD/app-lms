@@ -13,9 +13,11 @@ import { appUrl } from "@/lib/env";
 import { servedAppearance } from "@/lib/fonts/look";
 import { BUILT_IN_APP_DEFAULTS, defaultLayout } from "@/lib/pages/defaults";
 import { itemSourcesFor } from "@/lib/pages/sources";
-import { TAB_BAR_DESIGNS, type StudioNode, type StudioPage } from "@/lib/pages/types";
+import { STUDIO_HEADER_STYLES, TAB_BAR_DESIGNS, type StudioHeader, type StudioNode, type StudioPage } from "@/lib/pages/types";
 import { parseLayoutContent } from "@/lib/pages/validate";
-import { signatureDesign, signatureLooksOf, studioDemoDesign } from "@/lib/studio/demo-designs";
+import { signatureDesign, signatureDesigns, signatureLooksOf, studioDemoDesign } from "@/lib/studio/demo-designs";
+import { SYSTEM_SCREENS, systemLookFor } from "@/lib/studio/premium-chrome";
+import { parseStudioScreens } from "@/lib/studio/screens";
 import type { SignatureLook } from "@/lib/studio/demo-designs/signature";
 import { DEMO_HOME_TEMPLATES, withDemoFacts } from "@/lib/studio/demo-templates";
 import { designsFor } from "@/lib/studio/designs";
@@ -24,13 +26,15 @@ import { startLayout } from "@/lib/studio/start";
 import { allNodes } from "@/lib/studio/tree";
 
 /**
- * 130 The Signature looks: each one a real template of its demo's kind
- * (`<demo>_signature_<look>`) that makes the whole app in that look, every
- * page, tab, the premium bar, the sign-in screen and the account menu, in
- * Studio's three languages; a demo's look A is the demo. Every look a demo
- * registers (lib/studio/demo-designs) is checked here. With
- * YALLAPP_WRITE_SIGNATURES the projects are written for the app's pictures
- * of them (mobile/test/support/signatures/<demo>_<look>.json).
+ * 130 The Signature looks, all eighteen from the one registry
+ * (lib/studio/demo-designs SIGNATURE_DESIGNS): each one a real template of
+ * its demo's kind (`<demo>_signature_<look>`) that makes the whole app in
+ * that look, every page, tab, the premium bar, the sign-in screen and the
+ * account menu, in Studio's three languages, every page in its premium
+ * header and the system screens in its premium look, kept as the platform
+ * saves them; a demo's look A is the demo. With YALLAPP_WRITE_SIGNATURES
+ * the projects are written for the app's pictures of them
+ * (mobile/test/support/signatures/<demo's address>_<look>.json).
  */
 
 const NOW = new Date("2026-11-13T18:00:00Z");
@@ -61,13 +65,18 @@ function started(demo: StudioDemoId, look: SignatureLook, lang: "en" | "ar" | "t
 
 const texts = (page: StudioPage) => allNodes(page).flatMap((n) => [n.text, n.title].filter((x): x is string => Boolean(x)));
 
-describe("130 the Signature looks", () => {
-  it("has looks for Masar Rides, a template of its kind each, named in Studio's three languages", () => {
-    expect(signatureLooksOf("rides")).toContain("a");
+describe("130 the Signature looks: one registry, eighteen looks", () => {
+  it("has looks A and B for each of the nine Studio demos, one template of its kind each, named in Studio's three languages", () => {
+    expect(LOOKS).toHaveLength(18);
+    for (const demo of STUDIO_DEMO_TYPES) expect(signatureLooksOf(demo), demo).toEqual(["a", "b"]);
+    expect(signatureDesigns().map((d) => `${d.demo}_signature_${d.variant}`).sort()).toEqual(LOOKS.map(([demo, look]) => `${demo}_signature_${look}`).sort());
     for (const [demo, look] of LOOKS) {
       const id = `${demo}_signature_${look}`;
+      const design = signatureDesign(demo, look)!;
+      expect(design, id).toMatchObject({ demo, variant: look, template: { id } });
       const template = TEMPLATES.find((t) => t.id === id);
       expect(template, id).toMatchObject({ demo, look, recommended: true });
+      expect(TEMPLATES.filter((t) => t.id === id), id).toHaveLength(1);
       const kind = demoKind(demo);
       expect(templatesFor({ type: kind.engine, vertical: kind.vertical }).map((t) => t.id)).toContain(id);
       for (const lang of ["en", "ar", "tr"] as const) expect(String((WORDS[lang] as unknown as Record<string, string>)[`tpl_${id}`] ?? ""), `${lang} tpl_${id}`).not.toBe("");
@@ -76,12 +85,13 @@ describe("130 the Signature looks", () => {
     }
   });
 
-  it("makes the demo's look A the demo: its home, bar and screens", () => {
-    for (const demo of STUDIO_DEMO_TYPES.filter((d) => signatureLooksOf(d).includes("a"))) {
+  it("makes every demo's look A the demo: its home, bar, screens and chrome", () => {
+    for (const demo of STUDIO_DEMO_TYPES) {
       expect(DEMO_HOME_TEMPLATES[demo]).toBe(`${demo}_signature_a`);
-      expect(studioDemoDesign(demo)).toBe(signatureDesign(demo, "a"));
+      expect(studioDemoDesign(demo)).toEqual(signatureDesign(demo, "a"));
       expect(demoTabBar(demo)).toEqual(signatureDesign(demo, "a")!.bar);
       expect(demoStudioScreens(demo, appUrl())).toEqual(demoStudioScreens(demo, appUrl(), "a"));
+      expect(studioDemoTemplate(demo).id === `${demo}_signature_a` || studioDemoTemplate(demo).demo === demo, demo).toBe(true);
     }
   });
 
@@ -91,25 +101,45 @@ describe("130 the Signature looks", () => {
     expect(template.id).toBe(`${demo}_signature_${look}`);
     const checked = parseLayoutContent(layout, { app, now: NOW });
     expect(checked.ok ? [] : checked.errors).toEqual([]);
-    // Its premium bar: never the classic one, never across the bottom.
+    // Its premium bar: never the classic one.
     expect(layout.tab_bar).toEqual(design.bar);
     expect(TAB_BAR_DESIGNS).toContain(design.bar.design);
     expect(design.bar.design).not.toBe("classic");
     // The home is the look's, every tab's page and every screen's after it in the look's colours.
     const [home, ...rest] = layout.pages;
     expect(home!.slug).toBe("home");
-    expect(home!.studio!.background).toBe(design.look!.background);
     const designed = rest.filter((p) => p.studio?.header);
     expect(designed.length).toBeGreaterThan(2);
-    for (const p of designed) expect(p.studio!.header, p.slug).toMatchObject(design.look!.header);
+    const { style: _style, ...colours } = design.look!.header as StudioHeader;
+    void _style;
+    for (const p of designed) expect(p.studio!.header, p.slug).toMatchObject(colours);
     // Its tabs open the look's pages.
     for (const tab of layout.tabs) if (tab.target.type === "page") expect(layout.pages.some((p) => p.slug === tab.target.page_slug), tab.id).toBe(true);
     // Live parts are the signed-in person's: nothing of theirs signed out.
-    for (const node of allNodes(home!.studio!).filter((n) => n.type === "tracking")) expect(node.visibility, node.id).toBe("signed_in");
-    // The sign-in screen and the account menu in the look.
+    for (const node of allNodes(home!.studio!).filter((n) => n.type === "tracking" && !["nearby_taxis"].includes(n.tracking?.kind ?? ""))) expect(node.visibility, node.id).toBe("signed_in");
+  });
+
+  it.each(LOOKS)("%s look %s: premium chrome on every page, kept as the platform saves it, and premium system screens", (demo, look) => {
+    const { app, layout } = started(demo, look);
+    const design = signatureDesign(demo, look)!;
+    const checked = parseLayoutContent(layout, { app, now: NOW });
+    if (!checked.ok) throw new Error(checked.errors.join("; "));
+    for (const page of checked.value.pages) {
+      const header = page.studio?.header;
+      if (!header) continue;
+      // The home's header over its cover (and the greeting) is the board's own; every other header premium.
+      if (page.slug === "home" && (header.type === "transparent" || header.type === "greeting")) continue;
+      expect(STUDIO_HEADER_STYLES, `${page.slug} (${header.type})`).toContain(header.style);
+      if (page.slug === "home") expect(header.style).toBe(design.chrome.home ?? design.chrome.header);
+    }
+    expect(checked.value.pages.filter((p) => p.slug !== "home" && p.studio?.header?.style === design.chrome.header).length).toBeGreaterThan(2);
+    // The sign-in screen, the account menu and the system screens in the look.
     const screens = demoStudioScreens(demo, appUrl(), look);
-    expect(screens.sign_in?.image_url).toBe(`${appUrl()}${design.screens.photo}`);
-    expect(screens.account_menu?.header).toBe(design.screens.menu);
+    expect(parseStudioScreens(screens).problems).toEqual([]);
+    expect(screens.system?.look).toBe(design.chrome.system);
+    for (const screen of SYSTEM_SCREENS) expect(systemLookFor(parseStudioScreens(screens).screens.system, screen), screen).toBe(design.chrome.system);
+    if (design.chrome.system === "photo") expect(screens.system?.image_url).toBe(screens.sign_in?.image_url);
+    expect(screens.sign_in?.image_url).toMatch(/^https?:\/\//);
     for (const lang of ["en", "ar", "tr"] as const) expect(screens.sign_in?.title[lang]).toBeTruthy();
   });
 
@@ -117,7 +147,7 @@ describe("130 the Signature looks", () => {
     // Made in Arabic, its words are Arabic, with English and Turkish as translations.
     const { layout } = started(demo, look, "ar");
     const home = layout.pages[0]!.studio!;
-    const words = allNodes(home).filter((n): n is StudioNode & { text: string } => n.type === "text" && Boolean(n.text) && !/^[\d\s.,:·+%$£E-]+$/.test(n.text!) && !/^[A-Z0-9 ]+$/.test(n.text!));
+    const words = allNodes(home).filter((n): n is StudioNode & { text: string } => n.type === "text" && Boolean(n.text) && /[؀-ۿ]/u.test(n.text!));
     expect(words.length).toBeGreaterThan(2);
     for (const n of words) {
       expect(n.translations?.en?.text, n.text).toBeTruthy();

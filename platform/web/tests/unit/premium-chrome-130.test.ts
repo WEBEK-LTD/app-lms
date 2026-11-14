@@ -10,7 +10,8 @@ import { demoStudioScreens } from "@/lib/demo/screens";
 import { STUDIO_DEMO_TYPES } from "@/lib/demo/constants";
 import { STUDIO_HEADER_STYLES, type StudioHeader, type StudioPage } from "@/lib/pages/types";
 import { parseStudioPage } from "@/lib/pages/validate";
-import { chromedHeader, DEMO_CHROME, THEME_CHROME } from "@/lib/studio/demo-designs/chrome";
+import { chromedHeader, THEME_CHROME } from "@/lib/studio/demo-designs/chrome";
+import { demoChrome, signatureDesign } from "@/lib/studio/demo-designs";
 import { DESIGN_THEMES, themedPage } from "@/lib/studio/designs";
 import { headerCollapses, parseSystemLook, SYSTEM_SCREENS, systemLookFor, systemScreenOf } from "@/lib/studio/premium-chrome";
 import { screenDrawing } from "@/lib/studio/screen-drawing";
@@ -128,21 +129,23 @@ describe("130.21 the system screens' look", () => {
 });
 
 describe("130.23 the defaults", () => {
-  it("gives every Studio demo's new project premium system screens and its pages a premium header", () => {
+  it("gives every Studio demo's new project premium system screens and its pages a premium header: its look A's (130)", () => {
     for (const demo of STUDIO_DEMO_TYPES) {
       const screens = demoStudioScreens(demo, "https://yallapp.test");
-      expect(screens.system?.look, demo).toBe(DEMO_CHROME[demo].system.look);
+      const chrome = demoChrome(demo)!;
+      expect(chrome.pages, demo).toBe(signatureDesign(demo, "a")!.chrome.header);
+      expect(screens.system?.look, demo).toBe(chrome.system.look);
       expect(parseStudioScreens(screens).problems, demo).toEqual([]);
-      expect(chromedHeader({ type: "title" }, demo)?.style).toBe(DEMO_CHROME[demo].pages);
+      expect(chromedHeader({ type: "title" }, chrome.pages)?.style).toBe(chrome.pages);
+      // 130 The account, settings and sign-in premium in every look, the academies' too.
+      for (const screen of ["account", "settings", "sign_in", "code"] as const) expect(systemLookFor(screens.system, screen), `${demo} ${screen}`).not.toBeNull();
     }
-    // The academies keep their student card.
-    expect(demoStudioScreens("instructors", "https://yallapp.test").system?.screens?.account).toBe("classic");
   });
 
   it("keeps a page's own style and the home's headers, and leaves pages not made from a demo as they are", () => {
-    expect(chromedHeader({ type: "title", style: "brand" }, "food")?.style).toBe("brand");
-    expect(chromedHeader({ type: "transparent" }, "food")?.style).toBeUndefined();
-    expect(chromedHeader({ type: "title" }, undefined)?.style).toBeUndefined();
+    expect(chromedHeader({ type: "title", style: "brand" }, "large")?.style).toBe("brand");
+    expect(chromedHeader({ type: "transparent" }, "large")?.style).toBeUndefined();
+    expect(chromedHeader({ type: "title" }, demoChrome(undefined)?.pages)?.style).toBeUndefined();
   });
 
   it("gives Studio's whole designs premium headers", () => {

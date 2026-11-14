@@ -369,7 +369,6 @@ export const SOFRA_A: SignatureDesign = {
   chrome: { header: "large", system: "photo" },
   project: {
     primary: A.fill,
-    tab_bar: signatureBar(A, { design: "glass", labels: "always", radius: 26, margin: 12 }),
     appearance: { secondary_color: A.darkAccent, font: "DM Sans" },
     screens: SOFRA_A_SCREENS,
   },

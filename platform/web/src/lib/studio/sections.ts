@@ -1250,5 +1250,7 @@ export function templatesFor(kind: ProjectKind | null): TemplateInfo[] {
   const others = TEMPLATES.filter((tpl) => !tpl.demo);
   const own = others.filter((tpl) => tpl.fits && fitsKind(tpl.fits, kind));
   const best = own.some((tpl) => tpl.fits?.verticals) ? own.filter((tpl) => tpl.fits?.verticals) : own;
-  return [...TEMPLATES.filter((tpl) => tpl.demo && tpl.demo === demo), ...best, ...others.filter((tpl) => !tpl.fits)];
+  // 130 A kind with no demo of its own (an academy: the premium academy's) gets the Signature looks made for its type alone, first.
+  const looks = demo ? [] : TEMPLATES.filter((tpl) => tpl.look && tpl.fits && !tpl.fits.verticals && fitsKind(tpl.fits, kind));
+  return [...TEMPLATES.filter((tpl) => tpl.demo && tpl.demo === demo), ...looks, ...best, ...others.filter((tpl) => !tpl.fits)];
 }
