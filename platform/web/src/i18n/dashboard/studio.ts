@@ -1887,6 +1887,12 @@ export const en = {
   lw_ringResume: "Resume lesson",
   tpl_premium_academy_signature_a: "Night cinema",
   tpl_premium_academy_signature_b: "Gold ring",
+  tplText_school_signature_a: "The whole app: the school gate's photo with the children and the family's greeting, the news ticker, today at school and the forms to sign; every page, the bar and the menus in navy and gold.",
+  tplText_school_signature_b: "The whole app: the chosen child's day as a pass, the school bus, the forms to sign and the news side by side; every page, the frosted bar and the menus in cool blue.",
+  tplText_instructors_signature_a: "The whole app: the library's photo with Real teachers. Real skills., the teachers as an index and the popular courses as photo cards; every page, the dark green bar and the menus in green and gold.",
+  tplText_instructors_signature_b: "The whole app: the teachers on air in a full-screen slider, the teachers in rings and the popular courses in a grid; every page, the white bar and the menus in green.",
+  tplText_premium_academy_signature_a: "The premium academy, made more of: the course in progress full screen, the streak with this week's days and the live class, courses picked for the student; every screen, the navy bar and the menus in navy and gold.",
+  tplText_premium_academy_signature_b: "The premium academy, made more of: the course in progress in a gold ring, the streak with this week's days and the live class, courses picked for the student; every screen, the dock and the menus in cream and gold.",
   // ——— end 130.13–130.18 The Signature looks of Nakhla School, Rawaq Academy and Ufuq Academy ———
 } as const;
 
@@ -3758,6 +3764,12 @@ export const ar: Messages = {
   lw_ringResume: "كمّل الدرس",
   tpl_premium_academy_signature_a: "سينما بالليل",
   tpl_premium_academy_signature_b: "الحلقة الدهبي",
+  tplText_school_signature_a: "التطبيق كله: صورة باب المدرسة مع الأولاد وتحية العيلة، شريط الأخبار، النهارده في المدرسة والنماذج اللي محتاجة توقيع؛ كل صفحة والشريط والمنيوهات بالكحلي والدهبي.",
+  tplText_school_signature_b: "التطبيق كله: يوم الطفل كأنه كارت، باص المدرسة، النماذج والأخبار جنب بعض؛ كل صفحة والشريط المتلج والمنيوهات بالأزرق الهادي.",
+  tplText_instructors_signature_a: "التطبيق كله: صورة المكتبة مع مدرسين حقيقيين. مهارات حقيقية.، المدرسين في فهرس والكورسات المشهورة في كروت بصور؛ كل صفحة والشريط الأخضر الغامق والمنيوهات بالأخضر والدهبي.",
+  tplText_instructors_signature_b: "التطبيق كله: المدرسين على الهوا في سلايدر بالشاشة كلها، المدرسين في دواير والكورسات المشهورة في شبكة؛ كل صفحة والشريط الأبيض والمنيوهات بالأخضر.",
+  tplText_premium_academy_signature_a: "الأكاديمية البريميوم بشكل أكبر: الكورس اللي شغال فيه بالشاشة كلها، السلسلة بأيام الأسبوع والحصة المباشرة، وكورسات مختارة للطالب؛ كل شاشة والشريط الكحلي والمنيوهات بالكحلي والدهبي.",
+  tplText_premium_academy_signature_b: "الأكاديمية البريميوم بشكل أكبر: الكورس اللي شغال فيه جوه حلقة دهبي، السلسلة بأيام الأسبوع والحصة المباشرة، وكورسات مختارة للطالب؛ كل شاشة والدوك والمنيوهات بالكريمي والدهبي.",
   // ——— end 130.13–130.18 The Signature looks of Nakhla School, Rawaq Academy and Ufuq Academy ———
 };
 
@@ -5627,5 +5639,11 @@ export const tr: Messages = {
   lw_ringResume: "Derse devam et",
   tpl_premium_academy_signature_a: "Gece sineması",
   tpl_premium_academy_signature_b: "Altın halka",
+  tplText_school_signature_a: "Uygulamanın tamamı: çocuklar ve ailenin selamıyla okul kapısının fotoğrafı, haber bandı, bugün okulda ve imzalanacak formlar; her sayfa, çubuk ve menüler lacivert ve altın renginde.",
+  tplText_school_signature_b: "Uygulamanın tamamı: seçilen çocuğun günü bir kart gibi, okul servisi, imzalanacak formlar ve haberler yan yana; her sayfa, buzlu çubuk ve menüler serin mavide.",
+  tplText_instructors_signature_a: "Uygulamanın tamamı: Gerçek öğretmenler. Gerçek beceriler. yazılı kütüphane fotoğrafı, dizin halinde öğretmenler ve fotoğraflı popüler kurslar; her sayfa, koyu yeşil çubuk ve menüler yeşil ve altın renginde.",
+  tplText_instructors_signature_b: "Uygulamanın tamamı: tam ekran kaydırıcıda yayındaki öğretmenler, halkalar içinde öğretmenler ve ızgarada popüler kurslar; her sayfa, beyaz çubuk ve menüler yeşil.",
+  tplText_premium_academy_signature_a: "Premium akademi, daha da güçlü: devam eden kurs tam ekran, bu haftanın günleriyle seri ve canlı ders, öğrenciye seçilen kurslar; her ekran, lacivert çubuk ve menüler lacivert ve altın renginde.",
+  tplText_premium_academy_signature_b: "Premium akademi, daha da güçlü: devam eden kurs altın bir halka içinde, bu haftanın günleriyle seri ve canlı ders, öğrenciye seçilen kurslar; her ekran, dock ve menüler krem ve altın renginde.",
   // ——— end 130.13–130.18 The Signature looks of Nakhla School, Rawaq Academy and Ufuq Academy ———
 };

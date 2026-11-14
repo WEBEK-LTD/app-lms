@@ -62,7 +62,8 @@ describe("130.13–130.18 the Signature looks of Nakhla School, Rawaq Academy an
     const kind = { type: demoKind(look.demo).engine, vertical: demoKind(look.demo).vertical };
     const list = templatesFor(kind).filter((t) => !t.demo);
     expect(list.slice(0, signatureLooksOf(look.demo).length).map((t) => t.id)).toContain(id);
-    for (const words of [studioEn, studioAr, studioTr]) expect(String((words as Record<string, unknown>)[`tpl_${id}`] ?? "")).not.toBe("");
+    // Its name, and what it is in App setup's Branding.
+    for (const words of [studioEn, studioAr, studioTr]) for (const key of [`tpl_${id}`, `tplText_${id}`]) expect(String((words as Record<string, unknown>)[key] ?? ""), key).not.toBe("");
   });
 
   it.each(LOOKS.map((l) => l.id))("%s starts a whole project in its look, valid as the app API takes it", (id) => {
