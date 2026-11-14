@@ -949,7 +949,7 @@ final websiteShots = <Shot>[
     shadows: true,
   ),
   // 130.1–130.6 The Signature looks of Sofra Eats, Zad and Sahm Express
-  // (test/support/sig_<demo>_<look>.json): each look's home by day and by
+  // (test/support/sig_*.json): each look's home by day and by
   // night, as a project started from it is.
   for (final dark in [false, true])
     Shot(

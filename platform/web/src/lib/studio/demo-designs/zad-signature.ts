@@ -90,7 +90,7 @@ function poster(ctx: SectionContext, path: string, kicker: SectionWord, big: Sec
                   margin: sides(12, 0, 0, 0),
                   children: [
                     { id: id(), type: "text" as const, text: ctx.w(code[0]), color: "#FFFFFF", font: { family: "JetBrains Mono", size: 12, weight: 700 as const } },
-                    { id: id(), type: "text" as const, text: ctx.w(code[1]), color: "#D7E6DE", font: { size: 10.5 }, width: "fill", max_lines: 1 },
+                    { id: id(), type: "text" as const, text: ctx.w(code[1]), color: "#D7E6DE", font: { size: 10.5 }, width: "fill" as const, max_lines: 1 },
                   ],
                 },
               ]

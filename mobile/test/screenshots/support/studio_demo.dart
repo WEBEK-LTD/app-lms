@@ -296,7 +296,7 @@ Map<String, dynamic> _item(
 /// Sahm Express (Studio's delivery demo) as its app is: its three services
 /// on its home, with their drawn pictures (lib/demo/content.ts).
 /// 130.5–130.6 Or a project from one of its Signature looks ([look],
-/// test/support/sig_sahm_<a|b>.json).
+/// test/support/sig_sahm_a.json, sig_sahm_b.json).
 DemoApi sahmStudioApi({bool courier = false, StudioDemo? look}) {
   final demo = look ?? StudioDemo.sahm;
   const source = 'delivery_services';
@@ -339,7 +339,7 @@ DemoApi sahmStudioApi({bool courier = false, StudioDemo? look}) {
 /// its home, and the demo number's kofta on its way from Sahara Grill with
 /// Karim twelve minutes from Cairo Tower.
 /// 130.1–130.2 Or a project from one of its Signature looks ([look],
-/// test/support/sig_sofra_<a|b>.json) in the look's main colour.
+/// test/support/sig_sofra_a.json, sig_sofra_b.json) in the look's main colour.
 DemoApi sofraStudioApi({StudioDemo? look, String primaryColor = '#D2552B'}) {
   final demo = look ?? StudioDemo.sofra;
   const source = 'restaurants';
@@ -578,7 +578,7 @@ const sofraPhotos = [
 /// (test/support/zad_demo.json): the photo-first home, the five tabs and
 /// Shops, Manrope; its places and the Fathys' groceries from DemoApi.zad.
 /// 130.3–130.4 Or a project from one of its Signature looks ([look],
-/// test/support/sig_zad_<a|b>.json) in the look's main colour.
+/// test/support/sig_zad_a.json, sig_zad_b.json) in the look's main colour.
 DemoApi zadStudioApi({StudioDemo? look, String primaryColor = '#1E6B52'}) =>
     (look ?? StudioDemo.zad).apply(
       DemoApi.zad(),

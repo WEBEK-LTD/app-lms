@@ -63,7 +63,7 @@ describe("103R.7 Studio's templates and sections for each project type", () => {
   });
 
   it("sends the delivery company's customers to send a parcel and to their shipments", () => {
-    const page = ownTemplates(kindOf("delivery"))[0]!.make({ brand: "#1F4E5F", source: "delivery_services", w: (word) => word });
+    const page = ownTemplates(kindOf("delivery")).find((t) => t.id === "delivery")!.make({ brand: "#1F4E5F", source: "delivery_services", w: (word) => word });
     const screens = allNodes(page)
       .map((n) => n.action?.screen)
       .filter(Boolean);
