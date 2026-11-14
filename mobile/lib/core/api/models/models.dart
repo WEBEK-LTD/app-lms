@@ -12,6 +12,8 @@ export 'class_models.dart';
 export 'community_models.dart';
 export 'config_models.dart';
 export 'course_cart_models.dart';
+// 130.52
+export 'course_screens_models.dart';
 export 'course_work_models.dart';
 export 'event_models.dart';
 export 'food_models.dart';

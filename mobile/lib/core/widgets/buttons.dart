@@ -601,6 +601,19 @@ class GlassBottomBars extends InheritedWidget {
   bool updateShouldNotify(GlassBottomBars oldWidget) => false;
 }
 
+/// 130.52 The bottom bars under it float as a rounded card over the page
+/// (a course's enrol bar in the course screens' `floating` look), frosted
+/// when [glass].
+class FloatingBottomBars extends InheritedWidget {
+  const FloatingBottomBars({super.key, required super.child});
+
+  static bool of(BuildContext context) =>
+      context.dependOnInheritedWidgetOfExactType<FloatingBottomBars>() != null;
+
+  @override
+  bool updateShouldNotify(FloatingBottomBars oldWidget) => false;
+}
+
 class BottomActionBar extends StatelessWidget {
   const BottomActionBar({
     super.key,
@@ -614,6 +627,53 @@ class BottomActionBar extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final p = context.palette;
+    // 130.52 A rounded card floating over the page, frosted.
+    if (FloatingBottomBars.of(context)) {
+      return SafeArea(
+        key: const ValueKey('bottom-bar-floating'),
+        top: false,
+        minimum: const EdgeInsets.fromLTRB(14, 0, 14, 14),
+        child: Align(
+          heightFactor: 1,
+          child: ConstrainedBox(
+            constraints: const BoxConstraints(maxWidth: 720),
+            child: DecoratedBox(
+              decoration: BoxDecoration(
+                borderRadius: BorderRadius.circular(28),
+                boxShadow: [
+                  BoxShadow(
+                    color: const Color(0xFF0E0D24).withValues(
+                      alpha: p.isDark ? 0.5 : 0.18,
+                    ),
+                    blurRadius: 30,
+                    offset: const Offset(0, 12),
+                  ),
+                ],
+              ),
+              child: ClipRRect(
+                borderRadius: BorderRadius.circular(28),
+                child: BackdropFilter(
+                  filter: ImageFilter.blur(sigmaX: 20, sigmaY: 20),
+                  child: DecoratedBox(
+                    decoration: BoxDecoration(
+                      color: p.surface.withValues(alpha: 0.86),
+                      borderRadius: BorderRadius.circular(28),
+                      border: Border.all(
+                        color: p.border.withValues(alpha: 0.6),
+                      ),
+                    ),
+                    child: Padding(
+                      padding: const EdgeInsets.fromLTRB(16, 12, 12, 12),
+                      child: child,
+                    ),
+                  ),
+                ),
+              ),
+            ),
+          ),
+        ),
+      );
+    }
     // 122 Frosted glass over the page, where the screen asks for it.
     if (GlassBottomBars.of(context)) {
       return ClipRect(

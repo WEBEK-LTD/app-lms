@@ -158,6 +158,20 @@ class InkChips extends StatelessWidget {
   }
 }
 
+/// 130.52 The enrol button's words the owner chose in Studio's course
+/// screens (`page.cta`), in the app's language; the app's own without.
+class CourseCtaWords extends InheritedWidget {
+  const CourseCtaWords({super.key, required this.words, required super.child});
+
+  final String? words;
+
+  static String? of(BuildContext context) =>
+      context.dependOnInheritedWidgetOfExactType<CourseCtaWords>()?.words;
+
+  @override
+  bool updateShouldNotify(CourseCtaWords oldWidget) => oldWidget.words != words;
+}
+
 /// Where the course's price shows with its saving (a premium page).
 class PremiumPrice extends InheritedWidget {
   const PremiumPrice({super.key, required super.child});
