@@ -11587,4 +11587,156 @@ class AppLocalizationsEn extends AppLocalizations {
   String studioMapEta(String name, int minutes) {
     return '$name · $minutes min';
   }
+
+  @override
+  String get studioTripNext => 'Your next trip';
+
+  @override
+  String studioTripIn(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'In $count days',
+      one: 'Tomorrow',
+      zero: 'Today',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String studioTripDaysTo(int count, String city) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'days to $city',
+      one: 'day to $city',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String studioTripStay(String nights, String hotel) {
+    return '$nights at $hotel';
+  }
+
+  @override
+  String get studioTripTransfer => 'Transfer';
+
+  @override
+  String get studioTripPass => 'Boarding pass';
+
+  @override
+  String get studioMinutesShort => 'min';
+
+  @override
+  String get studioTaxiNearestFree => 'Nearest free taxi';
+
+  @override
+  String studioTaxisAroundLive(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count taxis around you, live',
+      one: '1 taxi around you, live',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String studioTaxisFreeAround(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'free taxis around you.',
+      one: 'free taxi around you.',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get studioRideOnTheWayShort => 'On the way';
+
+  @override
+  String studioTripVia(String via) {
+    return 'via $via';
+  }
+
+  @override
+  String get learningResumeLesson => 'Resume lesson';
+
+  @override
+  String learningPercentOfCourse(int percent) {
+    return '$percent% of the course';
+  }
+
+  @override
+  String get liveLookMinAway => 'min away';
+
+  @override
+  String get liveLookLive => 'Live';
+
+  @override
+  String liveLookStep(int step) {
+    return 'step $step of 4';
+  }
+
+  @override
+  String liveLookOnItsWayFrom(String place) {
+    return '$place is on the way';
+  }
+
+  @override
+  String liveLookItems(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count items',
+      one: '1 item',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String liveLookHeading(String name, String place) {
+    return '$name is heading to $place';
+  }
+
+  @override
+  String get liveStatePlaced => 'Placed';
+
+  @override
+  String get liveStateCooking => 'Being prepared';
+
+  @override
+  String get liveStatePacking => 'Being packed';
+
+  @override
+  String get liveStateReady => 'Ready';
+
+  @override
+  String get liveStateOnItsWay => 'On its way';
+
+  @override
+  String get liveStatePickedUp => 'Picked up';
+
+  @override
+  String get liveStateDelivered => 'Delivered';
+
+  @override
+  String get liveStageCooking => 'Cooking';
+
+  @override
+  String get liveStagePacking => 'Packing';
+
+  @override
+  String get liveStageFinding => 'Finding';
+
+  @override
+  String get liveStageComing => 'Coming';
+
+  @override
+  String get liveStageHere => 'Here';
+
+  @override
+  String get liveStageOnBoard => 'On board';
 }

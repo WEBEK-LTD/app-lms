@@ -1,6 +1,8 @@
 import type { App } from "../data/types";
 import { yallappSignsIn } from "../hosted/sign-in-methods";
 import { ICON_NAME } from "../pages/icons";
+// 130.21 The system screens' premium look.
+import { parseSystemLook, type SystemScreensLook } from "./premium-chrome";
 
 /**
  * 118.3 Yallapp Studio: the sign-in screen's look and the account menu, as
@@ -138,6 +140,8 @@ export interface StudioScreens {
   looks?: ScreenLooks;
   /** 124.15 The screen the app shows while it opens. */
   launch?: LaunchLook | null;
+  /** 130.21 The premium look of the app's system screens (lib/studio/premium-chrome.ts); missing, the app's own. */
+  system?: SystemScreensLook | null;
 }
 
 /**
@@ -438,6 +442,9 @@ export function parseStudioScreens(input: unknown): { screens: StudioScreens; pr
   // 124.15 The launch screen.
   const launch = parseLaunchLook(v.launch, problems);
   if (launch) screens.launch = launch;
+  // 130.21 The system screens' premium look.
+  const system = parseSystemLook(v.system, problems);
+  if (system) screens.system = system;
   return { screens, problems: [...new Set(problems)] };
 }
 
@@ -464,5 +471,7 @@ export function screensConfig(app: Pick<App, "section" | "backend"> & { hostedSe
   if (saved.course_page) screens.course_page = saved.course_page;
   if (saved.looks && Object.keys(saved.looks).length) screens.looks = saved.looks;
   if (saved.launch) screens.launch = saved.launch;
+  // 130.21 The system screens' premium look.
+  if (saved.system) screens.system = saved.system;
   return Object.keys(screens).length ? { screens } : {};
 }

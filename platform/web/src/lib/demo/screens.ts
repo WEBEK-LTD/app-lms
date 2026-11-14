@@ -1,7 +1,8 @@
 import type { TabBarStyle } from "../pages/types";
 import type { StudioScreens } from "../studio/screens";
 import { ACADEMY_PROJECT } from "../studio/academy";
-import { demoDesignBar } from "../studio/demo-designs";
+import { demoDesignBar, signatureDesign } from "../studio/demo-designs";
+import { signatureScreensOf, type SignatureLook } from "../studio/demo-designs/signature";
 import { PREMIUM_ACADEMY_DEMO, type StudioDemoId } from "./constants";
 
 /**
@@ -125,8 +126,19 @@ export const DEMO_SCREENS: Record<Exclude<StudioDemoId, typeof PREMIUM_ACADEMY_D
   },
 };
 
-/** 118.3 A Studio demo's `hostedSettings.studioScreens`; its photo on the platform's own address. */
-export function demoStudioScreens(id: StudioDemoId, platformUrl: string): StudioScreens {
+/**
+ * 118.3 A Studio demo's `hostedSettings.studioScreens`; its photo on the
+ * platform's own address. 130 In one of its Signature looks (missing, look
+ * A: the demo itself): that look's sign-in screen, account menu and 130.23
+ * premium system screens (lib/studio/demo-designs/signature.ts).
+ */
+export function demoStudioScreens(id: StudioDemoId, platformUrl: string, look?: SignatureLook): StudioScreens {
+  const sig = signatureDesign(id, look);
+  return sig ? signatureScreensOf(sig, platformUrl) : demoOwnScreens(id, platformUrl);
+}
+
+/** 118.3 The screens 128 gave a demo, before its Signature looks. */
+function demoOwnScreens(id: StudioDemoId, platformUrl: string): StudioScreens {
   if (id === PREMIUM_ACADEMY_DEMO) return ACADEMY_PROJECT.screens(platformUrl);
   const d = DEMO_SCREENS[id];
   return {
@@ -160,13 +172,20 @@ export const DEMO_TAB_BARS: Record<StudioDemoId, TabBarStyle> = {
   delivery: demoDesignBar("delivery"),
   food: demoDesignBar("food"),
   marketplace: demoDesignBar("marketplace"),
+  // 130.7 Masar Rides's is its look A's (lib/studio/demo-designs/masar-signature.ts).
   rides: demoDesignBar("rides"),
-  taxi: { design: "island", dark_active: "#F5B700" },
+  // 130.9 Lamha Taxi's is its look A's (lib/studio/demo-designs/lamha-signature.ts).
+  taxi: demoDesignBar("taxi"),
   // 128 Nakhla School's and Rawaq Academy's: the open tab's icon in a soft pill over its name, on the board's surface.
   school: demoDesignBar("school"),
   instructors: demoDesignBar("instructors"),
   // 126 Safra's: the dot under the open tab, as the travel designs have it (128 from its design, lib/studio/demo-designs).
   travel: demoDesignBar("travel"),
-  // 123 The premium academy's bar as its template has it (128.8 a floating navy pill, the open tab on gold).
-  premium_academy: ACADEMY_PROJECT.tab_bar,
+  // 130.17 The premium academy's is its look A's (lib/studio/demo-designs/ufuq-signature.ts).
+  premium_academy: demoDesignBar("premium_academy"),
 };
+
+/** 130 A demo's bar in one of its Signature looks (its look's premium bar); without a look, the demo's own (DEMO_TAB_BARS). */
+export function demoTabBar(id: StudioDemoId, look?: SignatureLook): TabBarStyle {
+  return look && signatureDesign(id, look) ? demoDesignBar(id, look) : DEMO_TAB_BARS[id];
+}

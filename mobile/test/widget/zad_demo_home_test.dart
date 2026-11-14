@@ -35,10 +35,12 @@ class _Auth extends AuthController {
   AuthState build() => start;
 }
 
-/// Templates = demos: Zad's demo home, as the platform makes it
+/// Templates = demos: Zad's 128 demo home, as the platform makes it
 /// (test/support/zad_demo_home.json, kept equal to the platform's by
-/// platform/web/tests/unit/studio-demo-templates.test.ts), is 128 the
-/// photo-first home approved on 13 November 2026: the green bar with the
+/// platform/web/tests/unit/studio-demo-templates.test.ts; 130 the demo is
+/// now its Signature look A, and this home a marketplace's template,
+/// `market_photo`, shown here with the demo's note), the photo-first home
+/// approved on 13 November 2026: the green bar with the
 /// address, the soonest time and the search, this week's offer on a photo,
 /// the departments as photo tiles and the places near you as chips, with
 /// how to sign in for people not signed in.

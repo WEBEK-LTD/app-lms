@@ -2,7 +2,7 @@
  "screens": {
   "sign_in": {
    "style": "photo",
-   "image_url": "http://localhost:3000/demo-photos/cover-market.jpg",
+   "image_url": "http://localhost:3000/demo-photos/fruit.jpg",
    "title": {
     "en": "Your neighbourhood, in one app",
     "ar": "حيّك كله في تطبيق واحد",
@@ -16,9 +16,43 @@
    "show_logo": true
   },
   "account_menu": {
-   "header": "night",
-   "accent": "#F2A93B",
-   "items": []
+   "header": "cover",
+   "items": [
+    {
+     "key": "notifications",
+     "hidden": false,
+     "label": {},
+     "icon": null
+    },
+    {
+     "key": "settings",
+     "hidden": false,
+     "label": {},
+     "icon": null
+    },
+    {
+     "key": "help",
+     "hidden": false,
+     "label": {},
+     "icon": null
+    },
+    {
+     "key": "privacy",
+     "hidden": false,
+     "label": {},
+     "icon": null
+    },
+    {
+     "key": "terms",
+     "hidden": false,
+     "label": {},
+     "icon": null
+    }
+   ]
+  },
+  "system": {
+   "look": "photo",
+   "image_url": "http://localhost:3000/demo-photos/fruit.jpg"
   }
  },
  "layout": {
@@ -27,7 +61,7 @@
    "theme_mode": "system",
    "user_can_change_mode": true,
    "secondary_color": "#F2A93B",
-   "font": "Manrope",
+   "font": "Plus Jakarta Sans",
    "corners": "round",
    "cards": "elevated"
   },
@@ -60,7 +94,7 @@
    {
     "id": "shops",
     "label": "Shops",
-    "icon": "grid_view",
+    "icon": "storefront",
     "target": {
      "type": "page",
      "page_slug": "shops"
@@ -134,8 +168,8 @@
     "updated_at": "2026-11-09T10:00:00.000Z",
     "blocks": [],
     "studio": {
-     "background": "#F6F3EE",
-     "dark_background": "#0D1712",
+     "background": "#F5F2EA",
+     "dark_background": "#09130E",
      "body": {
       "id": "demo-1",
       "type": "column",
@@ -149,12 +183,14 @@
        {
         "id": "demo-2",
         "type": "market",
+        "name": "Search products and shops",
         "market": {
          "section": "address",
          "style": "bar"
         },
         "text": "Search products and shops",
-        "color": "#1E6B52",
+        "color": "#F5F2EA",
+        "dark_color": "#09130E",
         "translations": {
          "ar": {
           "text": "ابحث عن منتجات ومتاجر"
@@ -166,223 +202,269 @@
        },
        {
         "id": "demo-3",
-        "type": "stack",
-        "name": "[This week's offer]",
-        "height": 150,
-        "radius": 22,
+        "type": "slider",
+        "name": "Offer of the week",
+        "radius": 28,
+        "height": 220,
+        "per_view": 1,
+        "autoplay": true,
+        "interval_ms": 5000,
+        "indicator": "progress",
+        "indicator_look": {
+         "at": "top",
+         "inset": 14,
+         "color": "#FFFFFF"
+        },
         "margin": {
-         "top": 14,
+         "top": 12,
          "end": 16,
          "bottom": 0,
          "start": 16
-        },
-        "image_background_url": "http://localhost:3000/demo-photos/cover-market.jpg",
-        "scrim": {
-         "color": "#0E281E",
-         "from": 0.85,
-         "middle": 0.2,
-         "at": 70,
-         "to": 0.2,
-         "angle": 90
-        },
-        "action": {
-         "type": "screen",
-         "screen": "search"
         },
         "children": [
          {
           "id": "demo-4",
-          "type": "column",
-          "gap": 6,
-          "cross": "start",
-          "padding": {
-           "top": 18,
-           "end": 120,
-           "bottom": 0,
-           "start": 16
+          "type": "row",
+          "name": "off fruit & vegetables",
+          "height": 220,
+          "radius": 28,
+          "gap": 10,
+          "background": "#134A36",
+          "dark_background": "#0F3B2B",
+          "surface": {
+           "soft": 3
           },
-          "color": "#FFFFFF",
+          "padding": {
+           "top": 14,
+           "end": 14,
+           "bottom": 14,
+           "start": 18
+          },
+          "action": {
+           "type": "screen",
+           "screen": "search"
+          },
           "children": [
            {
             "id": "demo-5",
-            "type": "text",
-            "text": "This week",
-            "font": {
-             "size": 12,
-             "weight": 800,
-             "letter_spacing": 1.7,
-             "uppercase": true
-            },
-            "color": "#F2A93B",
-            "translations": {
-             "ar": {
-              "text": "هذا الأسبوع"
-             },
-             "tr": {
-              "text": "Bu hafta"
-             }
-            }
-           },
-           {
-            "id": "demo-6",
-            "type": "text",
-            "text": "Fresh fruit, 15% off",
-            "max_lines": 2,
-            "font": {
-             "size": 22,
-             "weight": 800,
-             "line_height": 1.1
-            },
-            "color": "#FFFFFF",
-            "translations": {
-             "ar": {
-              "text": "فاكهة طازجة بخصم 15%"
-             },
-             "tr": {
-              "text": "Taze meyve %15 indirimli"
-             }
-            }
-           },
-           {
-            "id": "demo-7",
-            "type": "button",
-            "text": "Shop now",
-            "width": "hug",
-            "height": 32,
-            "radius": 16,
-            "background": "#FFFFFF",
-            "color": "#1E6B52",
-            "font": {
-             "size": 12,
-             "weight": 800
-            },
+            "type": "column",
+            "width": "fill",
+            "align": "end",
             "padding": {
              "top": 0,
-             "end": 12,
-             "bottom": 0,
-             "start": 12
-            },
-            "margin": {
-             "top": 6,
              "end": 0,
-             "bottom": 0,
+             "bottom": 4,
              "start": 0
             },
-            "action": {
-             "type": "screen",
-             "screen": "search"
-            },
-            "translations": {
-             "ar": {
-              "text": "تسوّق الآن"
-             },
-             "tr": {
-              "text": "Alışverişe başla"
-             }
-            }
-           }
-          ]
-         }
-        ]
-       },
-       {
-        "id": "demo-8",
-        "type": "grid",
-        "name": "Fruit",
-        "columns": 2,
-        "gap": 10,
-        "padding": {
-         "top": 14,
-         "end": 16,
-         "bottom": 0,
-         "start": 16
-        },
-        "children": [
-         {
-          "id": "demo-9",
-          "type": "stack",
-          "height": 112,
-          "radius": 20,
-          "image_background_url": "http://localhost:3000/demo-photos/fruit.jpg",
-          "scrim": {
-           "color": "#000000",
-           "from": 0,
-           "middle": 0,
-           "at": 40,
-           "to": 0.7
-          },
-          "action": {
-           "type": "screen",
-           "screen": "search"
-          },
-          "children": [
-           {
-            "id": "demo-10",
-            "type": "column",
-            "height": 112,
-            "align": "end",
-            "padding": {
-             "top": 0,
-             "end": 12,
-             "bottom": 10,
-             "start": 12
-            },
-            "color": "#FFFFFF",
             "children": [
              {
-              "id": "demo-11",
+              "id": "demo-6",
               "type": "text",
-              "text": "Fruit",
-              "max_lines": 1,
+              "text": "Zad Market offer",
+              "color": "#FFD27A",
               "font": {
-               "size": 15,
-               "weight": 800
+               "size": 11,
+               "weight": 800,
+               "letter_spacing": 1.8,
+               "uppercase": true
               },
-              "color": "#FFFFFF",
               "translations": {
                "ar": {
-                "text": "فاكهة"
+                "text": "عرض زاد ماركت"
                },
                "tr": {
-                "text": "Meyve"
+                "text": "Zad Market fırsatı"
                }
               }
              },
              {
-              "id": "demo-12",
+              "id": "demo-7",
               "type": "text",
-              "text": "Picked this morning",
+              "text": "15%",
+              "color": "#F2A93B",
               "max_lines": 1,
               "font": {
-               "size": 11
+               "family": "Lexend",
+               "size": 72,
+               "weight": 800,
+               "line_height": 0.95,
+               "letter_spacing": -4
               },
-              "opacity": 0.9,
-              "color": "#FFFFFF",
+              "margin": {
+               "top": 6,
+               "end": 0,
+               "bottom": 0,
+               "start": 0
+              },
               "translations": {
                "ar": {
-                "text": "قُطفت هذا الصباح"
+                "text": "15%"
                },
                "tr": {
-                "text": "Bu sabah toplandı"
+                "text": "%15"
                }
               }
+             },
+             {
+              "id": "demo-8",
+              "type": "text",
+              "text": "off fruit & vegetables",
+              "color": "#FFFFFF",
+              "max_lines": 2,
+              "font": {
+               "size": 15,
+               "weight": 700,
+               "line_height": 1.25
+              },
+              "margin": {
+               "top": 4,
+               "end": 0,
+               "bottom": 0,
+               "start": 0
+              },
+              "translations": {
+               "ar": {
+                "text": "خصم على الفاكهة والخضروات"
+               },
+               "tr": {
+                "text": "meyve ve sebzede indirim"
+               }
+              }
+             },
+             {
+              "id": "demo-9",
+              "type": "row",
+              "gap": 6,
+              "cross": "center",
+              "height": 34,
+              "radius": 10,
+              "border_color": "#F2A93B",
+              "border_width": 1.5,
+              "padding": {
+               "top": 0,
+               "end": 10,
+               "bottom": 0,
+               "start": 10
+              },
+              "margin": {
+               "top": 12,
+               "end": 0,
+               "bottom": 0,
+               "start": 0
+              },
+              "children": [
+               {
+                "id": "demo-10",
+                "type": "text",
+                "text": "FRESH15",
+                "color": "#FFFFFF",
+                "font": {
+                 "family": "JetBrains Mono",
+                 "size": 12,
+                 "weight": 700
+                },
+                "translations": {
+                 "ar": {
+                  "text": "FRESH15"
+                 },
+                 "tr": {
+                  "text": "FRESH15"
+                 }
+                }
+               },
+               {
+                "id": "demo-11",
+                "type": "text",
+                "text": "over EGP 100",
+                "color": "#D7E6DE",
+                "font": {
+                 "size": 10.5
+                },
+                "width": "fill",
+                "max_lines": 1,
+                "translations": {
+                 "ar": {
+                  "text": "فوق 100 ج.م"
+                 },
+                 "tr": {
+                  "text": "100 EGP üzeri"
+                 }
+                }
+               }
+              ]
+             }
+            ]
+           },
+           {
+            "id": "demo-12",
+            "type": "stack",
+            "width": 124,
+            "height": 192,
+            "children": [
+             {
+              "id": "demo-13",
+              "type": "image",
+              "image_url": "http://localhost:3000/demo-photos/fruit.jpg",
+              "fit": "cover",
+              "width": 124,
+              "height": 192,
+              "corners": {
+               "top_start": 62,
+               "top_end": 62,
+               "bottom_end": 20,
+               "bottom_start": 20
+              },
+              "ken_burns": true
+             },
+             {
+              "id": "demo-14",
+              "type": "row",
+              "width": 44,
+              "height": 44,
+              "radius": 22,
+              "align": "center",
+              "cross": "center",
+              "background": "#FFFFFF",
+              "shadow": "strong",
+              "place": {
+               "x": 30,
+               "y": 84
+              },
+              "action": {
+               "type": "screen",
+               "screen": "search"
+              },
+              "children": [
+               {
+                "id": "demo-15",
+                "type": "icon",
+                "icon": "arrow_forward",
+                "icon_size": 22,
+                "color": "#134A36"
+               }
+              ]
              }
             ]
            }
           ]
          },
          {
-          "id": "demo-13",
-          "type": "stack",
-          "height": 112,
-          "radius": 20,
-          "image_background_url": "http://localhost:3000/demo-photos/vegetables.jpg",
-          "scrim": {
-           "color": "#000000",
-           "from": 0,
-           "middle": 0,
-           "at": 40,
-           "to": 0.7
+          "id": "demo-16",
+          "type": "row",
+          "name": "off your basket",
+          "height": 220,
+          "radius": 28,
+          "gap": 10,
+          "background": "#134A36",
+          "dark_background": "#0F3B2B",
+          "surface": {
+           "soft": 3
+          },
+          "padding": {
+           "top": 14,
+           "end": 14,
+           "bottom": 14,
+           "start": 18
           },
           "action": {
            "type": "screen",
@@ -390,145 +472,225 @@
           },
           "children": [
            {
-            "id": "demo-14",
+            "id": "demo-17",
             "type": "column",
-            "height": 112,
+            "width": "fill",
             "align": "end",
             "padding": {
              "top": 0,
-             "end": 12,
-             "bottom": 10,
-             "start": 12
+             "end": 0,
+             "bottom": 4,
+             "start": 0
             },
-            "color": "#FFFFFF",
             "children": [
              {
-              "id": "demo-15",
+              "id": "demo-18",
               "type": "text",
-              "text": "Vegetables",
-              "max_lines": 1,
+              "text": "Zad's own code",
+              "color": "#FFD27A",
               "font": {
-               "size": 15,
-               "weight": 800
+               "size": 11,
+               "weight": 800,
+               "letter_spacing": 1.8,
+               "uppercase": true
               },
-              "color": "#FFFFFF",
               "translations": {
                "ar": {
-                "text": "خضروات"
+                "text": "رمز زاد"
                },
                "tr": {
-                "text": "Sebze"
+                "text": "Zad'ın kodu"
                }
               }
              },
-             {
-              "id": "demo-16",
-              "type": "text",
-              "text": "Farm fresh",
-              "max_lines": 1,
-              "font": {
-               "size": 11
-              },
-              "opacity": 0.9,
-              "color": "#FFFFFF",
-              "translations": {
-               "ar": {
-                "text": "طازجة من المزرعة"
-               },
-               "tr": {
-                "text": "Tarladan taze"
-               }
-              }
-             }
-            ]
-           }
-          ]
-         },
-         {
-          "id": "demo-17",
-          "type": "stack",
-          "height": 112,
-          "radius": 20,
-          "image_background_url": "http://localhost:3000/demo-photos/bakery.jpg",
-          "scrim": {
-           "color": "#000000",
-           "from": 0,
-           "middle": 0,
-           "at": 40,
-           "to": 0.7
-          },
-          "action": {
-           "type": "screen",
-           "screen": "search"
-          },
-          "children": [
-           {
-            "id": "demo-18",
-            "type": "column",
-            "height": 112,
-            "align": "end",
-            "padding": {
-             "top": 0,
-             "end": 12,
-             "bottom": 10,
-             "start": 12
-            },
-            "color": "#FFFFFF",
-            "children": [
              {
               "id": "demo-19",
               "type": "text",
-              "text": "Bakery",
+              "text": "20%",
+              "color": "#F2A93B",
               "max_lines": 1,
               "font": {
-               "size": 15,
-               "weight": 800
+               "family": "Lexend",
+               "size": 72,
+               "weight": 800,
+               "line_height": 0.95,
+               "letter_spacing": -4
               },
-              "color": "#FFFFFF",
+              "margin": {
+               "top": 6,
+               "end": 0,
+               "bottom": 0,
+               "start": 0
+              },
               "translations": {
                "ar": {
-                "text": "مخبوزات"
+                "text": "20%"
                },
                "tr": {
-                "text": "Fırın"
+                "text": "%20"
                }
               }
              },
              {
               "id": "demo-20",
               "type": "text",
-              "text": "Baked today",
-              "max_lines": 1,
-              "font": {
-               "size": 11
-              },
-              "opacity": 0.9,
+              "text": "off your basket",
               "color": "#FFFFFF",
+              "max_lines": 2,
+              "font": {
+               "size": 15,
+               "weight": 700,
+               "line_height": 1.25
+              },
+              "margin": {
+               "top": 4,
+               "end": 0,
+               "bottom": 0,
+               "start": 0
+              },
               "translations": {
                "ar": {
-                "text": "خُبزت اليوم"
+                "text": "خصم على سلّتك"
                },
                "tr": {
-                "text": "Bugün pişti"
+                "text": "sepetinizde indirim"
                }
               }
+             },
+             {
+              "id": "demo-21",
+              "type": "row",
+              "gap": 6,
+              "cross": "center",
+              "height": 34,
+              "radius": 10,
+              "border_color": "#F2A93B",
+              "border_width": 1.5,
+              "padding": {
+               "top": 0,
+               "end": 10,
+               "bottom": 0,
+               "start": 10
+              },
+              "margin": {
+               "top": 12,
+               "end": 0,
+               "bottom": 0,
+               "start": 0
+              },
+              "children": [
+               {
+                "id": "demo-22",
+                "type": "text",
+                "text": "ZAD20",
+                "color": "#FFFFFF",
+                "font": {
+                 "family": "JetBrains Mono",
+                 "size": 12,
+                 "weight": 700
+                },
+                "translations": {
+                 "ar": {
+                  "text": "ZAD20"
+                 },
+                 "tr": {
+                  "text": "ZAD20"
+                 }
+                }
+               },
+               {
+                "id": "demo-23",
+                "type": "text",
+                "text": "over EGP 200",
+                "color": "#D7E6DE",
+                "font": {
+                 "size": 10.5
+                },
+                "width": "fill",
+                "max_lines": 1,
+                "translations": {
+                 "ar": {
+                  "text": "فوق 200 ج.م"
+                 },
+                 "tr": {
+                  "text": "200 EGP üzeri"
+                 }
+                }
+               }
+              ]
+             }
+            ]
+           },
+           {
+            "id": "demo-24",
+            "type": "stack",
+            "width": 124,
+            "height": 192,
+            "children": [
+             {
+              "id": "demo-25",
+              "type": "image",
+              "image_url": "http://localhost:3000/demo-photos/bakery.jpg",
+              "fit": "cover",
+              "width": 124,
+              "height": 192,
+              "corners": {
+               "top_start": 62,
+               "top_end": 62,
+               "bottom_end": 20,
+               "bottom_start": 20
+              },
+              "ken_burns": true
+             },
+             {
+              "id": "demo-26",
+              "type": "row",
+              "width": 44,
+              "height": 44,
+              "radius": 22,
+              "align": "center",
+              "cross": "center",
+              "background": "#FFFFFF",
+              "shadow": "strong",
+              "place": {
+               "x": 30,
+               "y": 84
+              },
+              "action": {
+               "type": "screen",
+               "screen": "search"
+              },
+              "children": [
+               {
+                "id": "demo-27",
+                "type": "icon",
+                "icon": "arrow_forward",
+                "icon_size": 22,
+                "color": "#134A36"
+               }
+              ]
              }
             ]
            }
           ]
          },
          {
-          "id": "demo-21",
-          "type": "stack",
-          "height": 112,
-          "radius": 20,
-          "image_background_url": "http://localhost:3000/demo-photos/dairy.jpg",
-          "scrim": {
-           "color": "#000000",
-           "from": 0,
-           "middle": 0,
-           "at": 40,
-           "to": 0.7
+          "id": "demo-28",
+          "type": "row",
+          "name": "delivery over EGP 250",
+          "height": 220,
+          "radius": 28,
+          "gap": 10,
+          "background": "#134A36",
+          "dark_background": "#0F3B2B",
+          "surface": {
+           "soft": 3
+          },
+          "padding": {
+           "top": 14,
+           "end": 14,
+           "bottom": 14,
+           "start": 18
           },
           "action": {
            "type": "screen",
@@ -536,55 +698,141 @@
           },
           "children": [
            {
-            "id": "demo-22",
+            "id": "demo-29",
             "type": "column",
-            "height": 112,
+            "width": "fill",
             "align": "end",
             "padding": {
              "top": 0,
-             "end": 12,
-             "bottom": 10,
-             "start": 12
+             "end": 0,
+             "bottom": 4,
+             "start": 0
             },
-            "color": "#FFFFFF",
             "children": [
              {
-              "id": "demo-23",
+              "id": "demo-30",
               "type": "text",
-              "text": "Dairy",
-              "max_lines": 1,
+              "text": "Nile Pizza Co.",
+              "color": "#FFD27A",
               "font": {
-               "size": 15,
-               "weight": 800
+               "size": 11,
+               "weight": 800,
+               "letter_spacing": 1.8,
+               "uppercase": true
               },
-              "color": "#FFFFFF",
               "translations": {
                "ar": {
-                "text": "ألبان"
+                "text": "نايل بيتزا"
                },
                "tr": {
-                "text": "Süt ürünleri"
+                "text": "Nile Pizza Co."
                }
               }
              },
              {
-              "id": "demo-24",
+              "id": "demo-31",
               "type": "text",
-              "text": "Milk, cheese, eggs",
+              "text": "Free",
+              "color": "#F2A93B",
               "max_lines": 1,
               "font": {
-               "size": 11
+               "family": "Lexend",
+               "size": 72,
+               "weight": 800,
+               "line_height": 0.95,
+               "letter_spacing": -4
               },
-              "opacity": 0.9,
-              "color": "#FFFFFF",
+              "margin": {
+               "top": 6,
+               "end": 0,
+               "bottom": 0,
+               "start": 0
+              },
               "translations": {
                "ar": {
-                "text": "حليب وجبن وبيض"
+                "text": "مجاني"
                },
                "tr": {
-                "text": "Süt, peynir, yumurta"
+                "text": "Ücretsiz"
                }
               }
+             },
+             {
+              "id": "demo-32",
+              "type": "text",
+              "text": "delivery over EGP 250",
+              "color": "#FFFFFF",
+              "max_lines": 2,
+              "font": {
+               "size": 15,
+               "weight": 700,
+               "line_height": 1.25
+              },
+              "margin": {
+               "top": 4,
+               "end": 0,
+               "bottom": 0,
+               "start": 0
+              },
+              "translations": {
+               "ar": {
+                "text": "توصيل فوق 250 ج.م"
+               },
+               "tr": {
+                "text": "teslimat 250 EGP üzeri"
+               }
+              }
+             }
+            ]
+           },
+           {
+            "id": "demo-33",
+            "type": "stack",
+            "width": 124,
+            "height": 192,
+            "children": [
+             {
+              "id": "demo-34",
+              "type": "image",
+              "image_url": "http://localhost:3000/demo-photos/cover-pizza.jpg",
+              "fit": "cover",
+              "width": 124,
+              "height": 192,
+              "corners": {
+               "top_start": 62,
+               "top_end": 62,
+               "bottom_end": 20,
+               "bottom_start": 20
+              },
+              "ken_burns": true
+             },
+             {
+              "id": "demo-35",
+              "type": "row",
+              "width": 44,
+              "height": 44,
+              "radius": 22,
+              "align": "center",
+              "cross": "center",
+              "background": "#FFFFFF",
+              "shadow": "strong",
+              "place": {
+               "x": 30,
+               "y": 84
+              },
+              "action": {
+               "type": "screen",
+               "screen": "search"
+              },
+              "children": [
+               {
+                "id": "demo-36",
+                "type": "icon",
+                "icon": "arrow_forward",
+                "icon_size": 22,
+                "color": "#134A36"
+               }
+              ]
              }
             ]
            }
@@ -593,47 +841,50 @@
         ]
        },
        {
-        "id": "demo-25",
+        "id": "demo-37",
         "type": "row",
-        "name": "Places near you",
+        "name": "Departments",
         "cross": "end",
+        "gap": 12,
         "padding": {
-         "top": 16,
+         "top": 18,
          "end": 16,
-         "bottom": 8,
+         "bottom": 10,
          "start": 16
         },
         "children": [
          {
-          "id": "demo-26",
+          "id": "demo-38",
           "type": "text",
-          "text": "Places near you",
-          "width": "fill",
+          "text": "Departments",
           "font": {
-           "size": 17,
-           "weight": 800
+           "family": "Lexend",
+           "size": 19,
+           "weight": 700,
+           "letter_spacing": -0.4
           },
-          "color": "#14231B",
+          "color": "#12211A",
           "dark_color": "#EAF3EE",
+          "width": "fill",
           "translations": {
            "ar": {
-            "text": "أماكن قريبة منك"
+            "text": "الأقسام"
            },
            "tr": {
-            "text": "Yakınınızdaki yerler"
+            "text": "Reyonlar"
            }
           }
          },
          {
-          "id": "demo-27",
+          "id": "demo-39",
           "type": "text",
           "text": "See all",
           "font": {
            "size": 13,
            "weight": 700
           },
-          "color": "#1E6B52",
-          "dark_color": "#7FD3AE",
+          "color": "#1B644C",
+          "dark_color": "#8FDDB9",
           "action": {
            "type": "screen",
            "screen": "search"
@@ -650,17 +901,327 @@
         ]
        },
        {
-        "id": "demo-28",
+        "id": "demo-40",
+        "type": "row",
+        "name": "Departments",
+        "scroll": true,
+        "gap": 10,
+        "cross": "start",
+        "padding": {
+         "top": 0,
+         "end": 16,
+         "bottom": 0,
+         "start": 16
+        },
+        "children": [
+         {
+          "id": "demo-41",
+          "type": "column",
+          "name": "Fruit & veg",
+          "width": 80,
+          "gap": 7,
+          "cross": "center",
+          "action": {
+           "type": "screen",
+           "screen": "search"
+          },
+          "children": [
+           {
+            "id": "demo-42",
+            "type": "image",
+            "image_url": "http://localhost:3000/demo-photos/vegetables.jpg",
+            "fit": "cover",
+            "width": 80,
+            "height": 104,
+            "corners": {
+             "top_start": 40,
+             "top_end": 40,
+             "bottom_end": 14,
+             "bottom_start": 14
+            },
+            "shadow": "medium"
+           },
+           {
+            "id": "demo-43",
+            "type": "text",
+            "text": "Fruit & veg",
+            "font": {
+             "size": 13,
+             "weight": 800,
+             "line_height": 1.15
+            },
+            "color": "#12211A",
+            "dark_color": "#EAF3EE",
+            "text_align": "center",
+            "max_lines": 2,
+            "translations": {
+             "ar": {
+              "text": "فاكهة وخضار"
+             },
+             "tr": {
+              "text": "Meyve ve sebze"
+             }
+            }
+           }
+          ]
+         },
+         {
+          "id": "demo-44",
+          "type": "column",
+          "name": "Dairy & eggs",
+          "width": 80,
+          "gap": 7,
+          "cross": "center",
+          "action": {
+           "type": "screen",
+           "screen": "search"
+          },
+          "children": [
+           {
+            "id": "demo-45",
+            "type": "image",
+            "image_url": "http://localhost:3000/demo-photos/dairy.jpg",
+            "fit": "cover",
+            "width": 80,
+            "height": 104,
+            "corners": {
+             "top_start": 40,
+             "top_end": 40,
+             "bottom_end": 14,
+             "bottom_start": 14
+            },
+            "shadow": "medium"
+           },
+           {
+            "id": "demo-46",
+            "type": "text",
+            "text": "Dairy & eggs",
+            "font": {
+             "size": 13,
+             "weight": 800,
+             "line_height": 1.15
+            },
+            "color": "#12211A",
+            "dark_color": "#EAF3EE",
+            "text_align": "center",
+            "max_lines": 2,
+            "translations": {
+             "ar": {
+              "text": "ألبان وبيض"
+             },
+             "tr": {
+              "text": "Süt ve yumurta"
+             }
+            }
+           }
+          ]
+         },
+         {
+          "id": "demo-47",
+          "type": "column",
+          "name": "Bakery",
+          "width": 80,
+          "gap": 7,
+          "cross": "center",
+          "action": {
+           "type": "screen",
+           "screen": "search"
+          },
+          "children": [
+           {
+            "id": "demo-48",
+            "type": "image",
+            "image_url": "http://localhost:3000/demo-photos/bakery.jpg",
+            "fit": "cover",
+            "width": 80,
+            "height": 104,
+            "corners": {
+             "top_start": 40,
+             "top_end": 40,
+             "bottom_end": 14,
+             "bottom_start": 14
+            },
+            "shadow": "medium"
+           },
+           {
+            "id": "demo-49",
+            "type": "text",
+            "text": "Bakery",
+            "font": {
+             "size": 13,
+             "weight": 800,
+             "line_height": 1.15
+            },
+            "color": "#12211A",
+            "dark_color": "#EAF3EE",
+            "text_align": "center",
+            "max_lines": 2,
+            "translations": {
+             "ar": {
+              "text": "مخبوزات"
+             },
+             "tr": {
+              "text": "Fırın"
+             }
+            }
+           }
+          ]
+         },
+         {
+          "id": "demo-50",
+          "type": "column",
+          "name": "Pantry",
+          "width": 80,
+          "gap": 7,
+          "cross": "center",
+          "action": {
+           "type": "screen",
+           "screen": "search"
+          },
+          "children": [
+           {
+            "id": "demo-51",
+            "type": "column",
+            "width": 80,
+            "height": 104,
+            "corners": {
+             "top_start": 40,
+             "top_end": 40,
+             "bottom_end": 14,
+             "bottom_start": 14
+            },
+            "align": "end",
+            "padding": {
+             "top": 0,
+             "end": 10,
+             "bottom": 12,
+             "start": 10
+            },
+            "background": "#DDEFE6",
+            "dark_background": "#183A2C",
+            "children": [
+             {
+              "id": "demo-52",
+              "type": "text",
+              "text": "Rice, pasta & pulses",
+              "font": {
+               "family": "Lexend",
+               "size": 12,
+               "weight": 700,
+               "line_height": 1.2
+              },
+              "color": "#1B644C",
+              "dark_color": "#8FDDB9",
+              "translations": {
+               "ar": {
+                "text": "أرز ومكرونة وبقوليات"
+               },
+               "tr": {
+                "text": "Pirinç, makarna ve bakliyat"
+               }
+              }
+             }
+            ]
+           },
+           {
+            "id": "demo-53",
+            "type": "text",
+            "text": "Pantry",
+            "font": {
+             "size": 13,
+             "weight": 800,
+             "line_height": 1.15
+            },
+            "color": "#12211A",
+            "dark_color": "#EAF3EE",
+            "text_align": "center",
+            "max_lines": 2,
+            "translations": {
+             "ar": {
+              "text": "البقالة"
+             },
+             "tr": {
+              "text": "Kiler"
+             }
+            }
+           }
+          ]
+         }
+        ]
+       },
+       {
+        "id": "demo-54",
+        "type": "row",
+        "name": "Places near you",
+        "cross": "end",
+        "gap": 12,
+        "padding": {
+         "top": 18,
+         "end": 16,
+         "bottom": 4,
+         "start": 16
+        },
+        "children": [
+         {
+          "id": "demo-55",
+          "type": "text",
+          "text": "Places near you",
+          "font": {
+           "family": "Lexend",
+           "size": 19,
+           "weight": 700,
+           "letter_spacing": -0.4
+          },
+          "color": "#12211A",
+          "dark_color": "#EAF3EE",
+          "width": "fill",
+          "translations": {
+           "ar": {
+            "text": "أماكن قريبة منك"
+           },
+           "tr": {
+            "text": "Yakınınızdaki yerler"
+           }
+          }
+         },
+         {
+          "id": "demo-56",
+          "type": "text",
+          "text": "See all",
+          "font": {
+           "size": 13,
+           "weight": 700
+          },
+          "color": "#1B644C",
+          "dark_color": "#8FDDB9",
+          "action": {
+           "type": "screen",
+           "screen": "search"
+          },
+          "translations": {
+           "ar": {
+            "text": "عرض الكل"
+           },
+           "tr": {
+            "text": "Tümünü gör"
+           }
+          }
+         }
+        ]
+       },
+       {
+        "id": "demo-57",
         "type": "market",
+        "name": "Places near you",
         "market": {
          "section": "vendors",
-         "style": "chips",
+         "style": "list",
          "sort": "nearest",
-         "limit": 6
+         "limit": 3
         }
        },
        {
-        "id": "demo-29",
+        "id": "demo-58",
         "type": "row",
         "gap": 10,
         "cross": "start",
@@ -685,7 +1246,7 @@
         "visibility": "signed_out",
         "children": [
          {
-          "id": "demo-30",
+          "id": "demo-59",
           "type": "icon",
           "icon": "info",
           "icon_size": 18,
@@ -693,7 +1254,7 @@
           "dark_color": "#A9BAB0"
          },
          {
-          "id": "demo-31",
+          "id": "demo-60",
           "type": "text",
           "text": "This is a demo app. Sign in with +1 202 555 0123 and the code 246810. Anything you add is deleted after a day.",
           "width": "fill",
@@ -731,7 +1292,7 @@
     },
     "studio": {
      "body": {
-      "id": "demo-36",
+      "id": "demo-65",
       "type": "column",
       "children": []
      },
@@ -749,8 +1310,15 @@
        "tr": {
         "title": "Sepet"
        }
-      }
-     }
+      },
+      "background": "#F5F2EA",
+      "color": "#12211A",
+      "dark_background": "#09130E",
+      "dark_color": "#EAF3EE",
+      "style": "search"
+     },
+     "background": "#F5F2EA",
+     "dark_background": "#09130E"
     },
     "show_title": false,
     "updated_at": "2026-11-09T10:00:00.000Z",
@@ -769,24 +1337,36 @@
     },
     "studio": {
      "body": {
-      "id": "demo-40",
+      "id": "demo-69",
       "type": "column",
       "children": [
        {
-        "id": "demo-41",
+        "id": "demo-70",
         "type": "live_status",
+        "name": "Your order on its way",
         "live_status": {
-         "source": "market_order"
+         "source": "market_order",
+         "style": "hero",
+         "accent": "#1B644C",
+         "dark_accent": "#8FDDB9"
         },
+        "icon": "shopping_bag",
         "visibility": "signed_in",
-        "radius": 18,
-        "background": "#1E6B52",
-        "color": "#FFFFFF",
+        "width": "fill",
+        "radius": 24,
+        "background": "#FFFFFF",
+        "dark_background": "#12201A",
+        "color": "#12211A",
+        "dark_color": "#EAF3EE",
+        "border_color": "#E3DED3",
+        "dark_border_color": "#213129",
+        "border_width": 1,
+        "shadow": "medium",
         "padding": {
-         "top": 12,
+         "top": 14,
          "end": 14,
          "bottom": 12,
-         "start": 14
+         "start": 16
         },
         "margin": {
          "top": 10,
@@ -811,8 +1391,15 @@
        "tr": {
         "title": "Siparişler"
        }
-      }
-     }
+      },
+      "background": "#F5F2EA",
+      "color": "#12211A",
+      "dark_background": "#09130E",
+      "dark_color": "#EAF3EE",
+      "style": "search"
+     },
+     "background": "#F5F2EA",
+     "dark_background": "#09130E"
     },
     "show_title": false,
     "updated_at": "2026-11-09T10:00:00.000Z",
@@ -831,11 +1418,13 @@
     },
     "studio": {
      "body": {
-      "id": "demo-42",
+      "id": "demo-71",
       "type": "column",
       "children": []
      },
-     "screen": "account"
+     "screen": "account",
+     "background": "#F5F2EA",
+     "dark_background": "#09130E"
     },
     "show_title": false,
     "updated_at": "2026-11-09T10:00:00.000Z",
@@ -853,10 +1442,10 @@
      }
     },
     "studio": {
-     "background": "#F6F3EE",
-     "dark_background": "#0D1712",
+     "background": "#F5F2EA",
+     "dark_background": "#09130E",
      "body": {
-      "id": "demo-32",
+      "id": "demo-61",
       "type": "column",
       "padding": {
        "top": 0,
@@ -866,7 +1455,7 @@
       },
       "children": [
        {
-        "id": "demo-33",
+        "id": "demo-62",
         "type": "market",
         "market": {
          "section": "kinds"
@@ -879,7 +1468,7 @@
         }
        },
        {
-        "id": "demo-34",
+        "id": "demo-63",
         "type": "market",
         "market": {
          "section": "vendors",
@@ -904,7 +1493,7 @@
         }
        },
        {
-        "id": "demo-35",
+        "id": "demo-64",
         "type": "market",
         "market": {
          "section": "club"
@@ -944,7 +1533,12 @@
        "tr": {
         "title": "Dükkânlar"
        }
-      }
+      },
+      "background": "#F5F2EA",
+      "color": "#12211A",
+      "dark_background": "#09130E",
+      "dark_color": "#EAF3EE",
+      "style": "search"
      }
     },
     "show_title": false,
@@ -964,7 +1558,7 @@
     },
     "studio": {
      "body": {
-      "id": "demo-43",
+      "id": "demo-72",
       "type": "column",
       "children": []
      },
@@ -979,8 +1573,15 @@
        "tr": {
         "title": "Restoranlar"
        }
-      }
-     }
+      },
+      "background": "#F5F2EA",
+      "color": "#12211A",
+      "dark_background": "#09130E",
+      "dark_color": "#EAF3EE",
+      "style": "search"
+     },
+     "background": "#F5F2EA",
+     "dark_background": "#09130E"
     },
     "show_title": false,
     "updated_at": "2026-11-09T10:00:00.000Z",
@@ -999,7 +1600,7 @@
     },
     "studio": {
      "body": {
-      "id": "demo-44",
+      "id": "demo-73",
       "type": "column",
       "children": []
      },
@@ -1014,8 +1615,15 @@
        "tr": {
         "title": "Ayarlar"
        }
-      }
-     }
+      },
+      "background": "#F5F2EA",
+      "color": "#12211A",
+      "dark_background": "#09130E",
+      "dark_color": "#EAF3EE",
+      "style": "search"
+     },
+     "background": "#F5F2EA",
+     "dark_background": "#09130E"
     },
     "show_title": false,
     "updated_at": "2026-11-09T10:00:00.000Z",
@@ -1034,7 +1642,7 @@
     },
     "studio": {
      "body": {
-      "id": "demo-45",
+      "id": "demo-74",
       "type": "column",
       "children": []
      },
@@ -1049,8 +1657,15 @@
        "tr": {
         "title": "Bildirimler"
        }
-      }
-     }
+      },
+      "background": "#F5F2EA",
+      "color": "#12211A",
+      "dark_background": "#09130E",
+      "dark_color": "#EAF3EE",
+      "style": "search"
+     },
+     "background": "#F5F2EA",
+     "dark_background": "#09130E"
     },
     "show_title": false,
     "updated_at": "2026-11-09T10:00:00.000Z",
@@ -1069,9 +1684,650 @@
     },
     "studio": {
      "body": {
-      "id": "demo-46",
+      "id": "demo-75",
       "type": "column",
-      "children": []
+      "children": [
+       {
+        "id": "demo-92",
+        "type": "slider",
+        "name": "Offer of the week",
+        "radius": 28,
+        "height": 220,
+        "per_view": 1,
+        "autoplay": true,
+        "interval_ms": 5000,
+        "indicator": "progress",
+        "indicator_look": {
+         "at": "top",
+         "inset": 14,
+         "color": "#FFFFFF"
+        },
+        "margin": {
+         "top": 8,
+         "end": 16,
+         "bottom": 8,
+         "start": 16
+        },
+        "children": [
+         {
+          "id": "demo-93",
+          "type": "row",
+          "name": "off fruit & vegetables",
+          "height": 220,
+          "radius": 28,
+          "gap": 10,
+          "background": "#134A36",
+          "dark_background": "#0F3B2B",
+          "surface": {
+           "soft": 3
+          },
+          "padding": {
+           "top": 14,
+           "end": 14,
+           "bottom": 14,
+           "start": 18
+          },
+          "action": {
+           "type": "screen",
+           "screen": "search"
+          },
+          "children": [
+           {
+            "id": "demo-94",
+            "type": "column",
+            "width": "fill",
+            "align": "end",
+            "padding": {
+             "top": 0,
+             "end": 0,
+             "bottom": 4,
+             "start": 0
+            },
+            "children": [
+             {
+              "id": "demo-95",
+              "type": "text",
+              "text": "Offer of the week",
+              "color": "#FFD27A",
+              "font": {
+               "size": 11,
+               "weight": 800,
+               "letter_spacing": 1.8,
+               "uppercase": true
+              },
+              "translations": {
+               "ar": {
+                "text": "عرض الأسبوع"
+               },
+               "tr": {
+                "text": "Haftanın fırsatı"
+               }
+              }
+             },
+             {
+              "id": "demo-96",
+              "type": "text",
+              "text": "15%",
+              "color": "#F2A93B",
+              "max_lines": 1,
+              "font": {
+               "family": "Lexend",
+               "size": 72,
+               "weight": 800,
+               "line_height": 0.95,
+               "letter_spacing": -4
+              },
+              "margin": {
+               "top": 6,
+               "end": 0,
+               "bottom": 0,
+               "start": 0
+              },
+              "translations": {
+               "ar": {
+                "text": "15%"
+               },
+               "tr": {
+                "text": "%15"
+               }
+              }
+             },
+             {
+              "id": "demo-97",
+              "type": "text",
+              "text": "off fruit & vegetables",
+              "color": "#FFFFFF",
+              "max_lines": 2,
+              "font": {
+               "size": 15,
+               "weight": 700,
+               "line_height": 1.25
+              },
+              "margin": {
+               "top": 4,
+               "end": 0,
+               "bottom": 0,
+               "start": 0
+              },
+              "translations": {
+               "ar": {
+                "text": "خصم على الفاكهة والخضروات"
+               },
+               "tr": {
+                "text": "meyve ve sebzede indirim"
+               }
+              }
+             },
+             {
+              "id": "demo-98",
+              "type": "row",
+              "gap": 6,
+              "cross": "center",
+              "height": 34,
+              "radius": 10,
+              "border_color": "#F2A93B",
+              "border_width": 1.5,
+              "padding": {
+               "top": 0,
+               "end": 10,
+               "bottom": 0,
+               "start": 10
+              },
+              "margin": {
+               "top": 12,
+               "end": 0,
+               "bottom": 0,
+               "start": 0
+              },
+              "children": [
+               {
+                "id": "demo-99",
+                "type": "text",
+                "text": "FRESH15",
+                "color": "#FFFFFF",
+                "font": {
+                 "family": "JetBrains Mono",
+                 "size": 12,
+                 "weight": 700
+                },
+                "translations": {
+                 "ar": {
+                  "text": "FRESH15"
+                 },
+                 "tr": {
+                  "text": "FRESH15"
+                 }
+                }
+               },
+               {
+                "id": "demo-100",
+                "type": "text",
+                "text": "over EGP 100",
+                "color": "#D7E6DE",
+                "font": {
+                 "size": 10.5
+                },
+                "width": "fill",
+                "max_lines": 1,
+                "translations": {
+                 "ar": {
+                  "text": "فوق 100 ج.م"
+                 },
+                 "tr": {
+                  "text": "100 EGP üzeri"
+                 }
+                }
+               }
+              ]
+             }
+            ]
+           },
+           {
+            "id": "demo-101",
+            "type": "stack",
+            "width": 124,
+            "height": 192,
+            "children": [
+             {
+              "id": "demo-102",
+              "type": "image",
+              "image_url": "http://localhost:3000/demo-photos/fruit.jpg",
+              "fit": "cover",
+              "width": 124,
+              "height": 192,
+              "corners": {
+               "top_start": 62,
+               "top_end": 62,
+               "bottom_end": 20,
+               "bottom_start": 20
+              },
+              "ken_burns": true
+             },
+             {
+              "id": "demo-103",
+              "type": "row",
+              "width": 44,
+              "height": 44,
+              "radius": 22,
+              "align": "center",
+              "cross": "center",
+              "background": "#FFFFFF",
+              "shadow": "strong",
+              "place": {
+               "x": 30,
+               "y": 84
+              },
+              "action": {
+               "type": "screen",
+               "screen": "search"
+              },
+              "children": [
+               {
+                "id": "demo-104",
+                "type": "icon",
+                "icon": "arrow_forward",
+                "icon_size": 22,
+                "color": "#134A36"
+               }
+              ]
+             }
+            ]
+           }
+          ]
+         },
+         {
+          "id": "demo-105",
+          "type": "row",
+          "name": "off your basket",
+          "height": 220,
+          "radius": 28,
+          "gap": 10,
+          "background": "#134A36",
+          "dark_background": "#0F3B2B",
+          "surface": {
+           "soft": 3
+          },
+          "padding": {
+           "top": 14,
+           "end": 14,
+           "bottom": 14,
+           "start": 18
+          },
+          "action": {
+           "type": "screen",
+           "screen": "search"
+          },
+          "children": [
+           {
+            "id": "demo-106",
+            "type": "column",
+            "width": "fill",
+            "align": "end",
+            "padding": {
+             "top": 0,
+             "end": 0,
+             "bottom": 4,
+             "start": 0
+            },
+            "children": [
+             {
+              "id": "demo-107",
+              "type": "text",
+              "text": "Our own code",
+              "color": "#FFD27A",
+              "font": {
+               "size": 11,
+               "weight": 800,
+               "letter_spacing": 1.8,
+               "uppercase": true
+              },
+              "translations": {
+               "ar": {
+                "text": "رمزنا الخاص"
+               },
+               "tr": {
+                "text": "Kendi kodumuz"
+               }
+              }
+             },
+             {
+              "id": "demo-108",
+              "type": "text",
+              "text": "20%",
+              "color": "#F2A93B",
+              "max_lines": 1,
+              "font": {
+               "family": "Lexend",
+               "size": 72,
+               "weight": 800,
+               "line_height": 0.95,
+               "letter_spacing": -4
+              },
+              "margin": {
+               "top": 6,
+               "end": 0,
+               "bottom": 0,
+               "start": 0
+              },
+              "translations": {
+               "ar": {
+                "text": "20%"
+               },
+               "tr": {
+                "text": "%20"
+               }
+              }
+             },
+             {
+              "id": "demo-109",
+              "type": "text",
+              "text": "off your basket",
+              "color": "#FFFFFF",
+              "max_lines": 2,
+              "font": {
+               "size": 15,
+               "weight": 700,
+               "line_height": 1.25
+              },
+              "margin": {
+               "top": 4,
+               "end": 0,
+               "bottom": 0,
+               "start": 0
+              },
+              "translations": {
+               "ar": {
+                "text": "خصم على سلّتك"
+               },
+               "tr": {
+                "text": "sepetinizde indirim"
+               }
+              }
+             },
+             {
+              "id": "demo-110",
+              "type": "row",
+              "gap": 6,
+              "cross": "center",
+              "height": 34,
+              "radius": 10,
+              "border_color": "#F2A93B",
+              "border_width": 1.5,
+              "padding": {
+               "top": 0,
+               "end": 10,
+               "bottom": 0,
+               "start": 10
+              },
+              "margin": {
+               "top": 12,
+               "end": 0,
+               "bottom": 0,
+               "start": 0
+              },
+              "children": [
+               {
+                "id": "demo-111",
+                "type": "text",
+                "text": "ZAD20",
+                "color": "#FFFFFF",
+                "font": {
+                 "family": "JetBrains Mono",
+                 "size": 12,
+                 "weight": 700
+                },
+                "translations": {
+                 "ar": {
+                  "text": "ZAD20"
+                 },
+                 "tr": {
+                  "text": "ZAD20"
+                 }
+                }
+               },
+               {
+                "id": "demo-112",
+                "type": "text",
+                "text": "over EGP 200",
+                "color": "#D7E6DE",
+                "font": {
+                 "size": 10.5
+                },
+                "width": "fill",
+                "max_lines": 1,
+                "translations": {
+                 "ar": {
+                  "text": "فوق 200 ج.م"
+                 },
+                 "tr": {
+                  "text": "200 EGP üzeri"
+                 }
+                }
+               }
+              ]
+             }
+            ]
+           },
+           {
+            "id": "demo-113",
+            "type": "stack",
+            "width": 124,
+            "height": 192,
+            "children": [
+             {
+              "id": "demo-114",
+              "type": "image",
+              "image_url": "http://localhost:3000/demo-photos/bakery.jpg",
+              "fit": "cover",
+              "width": 124,
+              "height": 192,
+              "corners": {
+               "top_start": 62,
+               "top_end": 62,
+               "bottom_end": 20,
+               "bottom_start": 20
+              },
+              "ken_burns": true
+             },
+             {
+              "id": "demo-115",
+              "type": "row",
+              "width": 44,
+              "height": 44,
+              "radius": 22,
+              "align": "center",
+              "cross": "center",
+              "background": "#FFFFFF",
+              "shadow": "strong",
+              "place": {
+               "x": 30,
+               "y": 84
+              },
+              "action": {
+               "type": "screen",
+               "screen": "search"
+              },
+              "children": [
+               {
+                "id": "demo-116",
+                "type": "icon",
+                "icon": "arrow_forward",
+                "icon_size": 22,
+                "color": "#134A36"
+               }
+              ]
+             }
+            ]
+           }
+          ]
+         },
+         {
+          "id": "demo-117",
+          "type": "row",
+          "name": "delivery over EGP 250",
+          "height": 220,
+          "radius": 28,
+          "gap": 10,
+          "background": "#134A36",
+          "dark_background": "#0F3B2B",
+          "surface": {
+           "soft": 3
+          },
+          "padding": {
+           "top": 14,
+           "end": 14,
+           "bottom": 14,
+           "start": 18
+          },
+          "action": {
+           "type": "screen",
+           "screen": "search"
+          },
+          "children": [
+           {
+            "id": "demo-118",
+            "type": "column",
+            "width": "fill",
+            "align": "end",
+            "padding": {
+             "top": 0,
+             "end": 0,
+             "bottom": 4,
+             "start": 0
+            },
+            "children": [
+             {
+              "id": "demo-119",
+              "type": "text",
+              "text": "[One of your shops]",
+              "color": "#FFD27A",
+              "font": {
+               "size": 11,
+               "weight": 800,
+               "letter_spacing": 1.8,
+               "uppercase": true
+              },
+              "translations": {
+               "ar": {
+                "text": "[أحد متاجرك]"
+               },
+               "tr": {
+                "text": "[Mağazalarınızdan biri]"
+               }
+              }
+             },
+             {
+              "id": "demo-120",
+              "type": "text",
+              "text": "Free",
+              "color": "#F2A93B",
+              "max_lines": 1,
+              "font": {
+               "family": "Lexend",
+               "size": 72,
+               "weight": 800,
+               "line_height": 0.95,
+               "letter_spacing": -4
+              },
+              "margin": {
+               "top": 6,
+               "end": 0,
+               "bottom": 0,
+               "start": 0
+              },
+              "translations": {
+               "ar": {
+                "text": "مجاني"
+               },
+               "tr": {
+                "text": "Ücretsiz"
+               }
+              }
+             },
+             {
+              "id": "demo-121",
+              "type": "text",
+              "text": "delivery over EGP 250",
+              "color": "#FFFFFF",
+              "max_lines": 2,
+              "font": {
+               "size": 15,
+               "weight": 700,
+               "line_height": 1.25
+              },
+              "margin": {
+               "top": 4,
+               "end": 0,
+               "bottom": 0,
+               "start": 0
+              },
+              "translations": {
+               "ar": {
+                "text": "توصيل فوق 250 ج.م"
+               },
+               "tr": {
+                "text": "teslimat 250 EGP üzeri"
+               }
+              }
+             }
+            ]
+           },
+           {
+            "id": "demo-122",
+            "type": "stack",
+            "width": 124,
+            "height": 192,
+            "children": [
+             {
+              "id": "demo-123",
+              "type": "image",
+              "image_url": "http://localhost:3000/demo-photos/cover-pizza.jpg",
+              "fit": "cover",
+              "width": 124,
+              "height": 192,
+              "corners": {
+               "top_start": 62,
+               "top_end": 62,
+               "bottom_end": 20,
+               "bottom_start": 20
+              },
+              "ken_burns": true
+             },
+             {
+              "id": "demo-124",
+              "type": "row",
+              "width": 44,
+              "height": 44,
+              "radius": 22,
+              "align": "center",
+              "cross": "center",
+              "background": "#FFFFFF",
+              "shadow": "strong",
+              "place": {
+               "x": 30,
+               "y": 84
+              },
+              "action": {
+               "type": "screen",
+               "screen": "search"
+              },
+              "children": [
+               {
+                "id": "demo-125",
+                "type": "icon",
+                "icon": "arrow_forward",
+                "icon_size": 22,
+                "color": "#134A36"
+               }
+              ]
+             }
+            ]
+           }
+          ]
+         }
+        ]
+       }
+      ]
      },
      "screen": "search",
      "header": {
@@ -1084,8 +2340,15 @@
        "tr": {
         "title": "Ara"
        }
-      }
-     }
+      },
+      "background": "#F5F2EA",
+      "color": "#12211A",
+      "dark_background": "#09130E",
+      "dark_color": "#EAF3EE",
+      "style": "search"
+     },
+     "background": "#F5F2EA",
+     "dark_background": "#09130E"
     },
     "show_title": false,
     "updated_at": "2026-11-09T10:00:00.000Z",
@@ -1104,7 +2367,7 @@
     },
     "studio": {
      "body": {
-      "id": "demo-47",
+      "id": "demo-76",
       "type": "column",
       "children": []
      },
@@ -1119,8 +2382,15 @@
        "tr": {
         "title": "Kulüp"
        }
-      }
-     }
+      },
+      "background": "#F5F2EA",
+      "color": "#12211A",
+      "dark_background": "#09130E",
+      "dark_color": "#EAF3EE",
+      "style": "search"
+     },
+     "background": "#F5F2EA",
+     "dark_background": "#09130E"
     },
     "show_title": false,
     "updated_at": "2026-11-09T10:00:00.000Z",
@@ -1139,7 +2409,7 @@
     },
     "studio": {
      "body": {
-      "id": "demo-48",
+      "id": "demo-77",
       "type": "column",
       "children": []
      },
@@ -1154,8 +2424,15 @@
        "tr": {
         "title": "Profili düzenle"
        }
-      }
-     }
+      },
+      "background": "#F5F2EA",
+      "color": "#12211A",
+      "dark_background": "#09130E",
+      "dark_color": "#EAF3EE",
+      "style": "search"
+     },
+     "background": "#F5F2EA",
+     "dark_background": "#09130E"
     },
     "show_title": false,
     "updated_at": "2026-11-09T10:00:00.000Z",
@@ -1174,7 +2451,7 @@
     },
     "studio": {
      "body": {
-      "id": "demo-49",
+      "id": "demo-78",
       "type": "column",
       "children": []
      },
@@ -1189,8 +2466,15 @@
        "tr": {
         "title": "Cihazlar"
        }
-      }
-     }
+      },
+      "background": "#F5F2EA",
+      "color": "#12211A",
+      "dark_background": "#09130E",
+      "dark_color": "#EAF3EE",
+      "style": "search"
+     },
+     "background": "#F5F2EA",
+     "dark_background": "#09130E"
     },
     "show_title": false,
     "updated_at": "2026-11-09T10:00:00.000Z",
@@ -1201,11 +2485,13 @@
     "title": "Change password",
     "studio": {
      "body": {
-      "id": "demo-50",
+      "id": "demo-79",
       "type": "column",
       "children": []
      },
-     "screen": "change_password"
+     "screen": "change_password",
+     "background": "#F5F2EA",
+     "dark_background": "#09130E"
     },
     "show_title": false,
     "updated_at": "2026-11-09T10:00:00.000Z",
@@ -1216,11 +2502,13 @@
     "title": "A conversation",
     "studio": {
      "body": {
-      "id": "demo-51",
+      "id": "demo-80",
       "type": "column",
       "children": []
      },
-     "screen": "chat_conversation"
+     "screen": "chat_conversation",
+     "background": "#F5F2EA",
+     "dark_background": "#09130E"
     },
     "show_title": false,
     "updated_at": "2026-11-09T10:00:00.000Z",
@@ -1231,11 +2519,13 @@
     "title": "A restaurant's menu",
     "studio": {
      "body": {
-      "id": "demo-52",
+      "id": "demo-81",
       "type": "column",
       "children": []
      },
-     "screen": "restaurant_menu"
+     "screen": "restaurant_menu",
+     "background": "#F5F2EA",
+     "dark_background": "#09130E"
     },
     "show_title": false,
     "updated_at": "2026-11-09T10:00:00.000Z",
@@ -1246,11 +2536,13 @@
     "title": "An order",
     "studio": {
      "body": {
-      "id": "demo-53",
+      "id": "demo-82",
       "type": "column",
       "children": []
      },
-     "screen": "food_order"
+     "screen": "food_order",
+     "background": "#F5F2EA",
+     "dark_background": "#09130E"
     },
     "show_title": false,
     "updated_at": "2026-11-09T10:00:00.000Z",
@@ -1269,7 +2561,7 @@
     },
     "studio": {
      "body": {
-      "id": "demo-54",
+      "id": "demo-83",
       "type": "column",
       "children": []
      },
@@ -1284,8 +2576,15 @@
        "tr": {
         "title": "Sepetiniz"
        }
-      }
-     }
+      },
+      "background": "#F5F2EA",
+      "color": "#12211A",
+      "dark_background": "#09130E",
+      "dark_color": "#EAF3EE",
+      "style": "search"
+     },
+     "background": "#F5F2EA",
+     "dark_background": "#09130E"
     },
     "show_title": false,
     "updated_at": "2026-11-09T10:00:00.000Z",
@@ -1296,11 +2595,13 @@
     "title": "A place's page",
     "studio": {
      "body": {
-      "id": "demo-55",
+      "id": "demo-84",
       "type": "column",
       "children": []
      },
-     "screen": "market_vendor"
+     "screen": "market_vendor",
+     "background": "#F5F2EA",
+     "dark_background": "#09130E"
     },
     "show_title": false,
     "updated_at": "2026-11-09T10:00:00.000Z",
@@ -1311,11 +2612,13 @@
     "title": "A list of places",
     "studio": {
      "body": {
-      "id": "demo-56",
+      "id": "demo-85",
       "type": "column",
       "children": []
      },
-     "screen": "market_list"
+     "screen": "market_list",
+     "background": "#F5F2EA",
+     "dark_background": "#09130E"
     },
     "show_title": false,
     "updated_at": "2026-11-09T10:00:00.000Z",
@@ -1334,7 +2637,7 @@
     },
     "studio": {
      "body": {
-      "id": "demo-57",
+      "id": "demo-86",
       "type": "column",
       "children": []
      },
@@ -1349,8 +2652,15 @@
        "tr": {
         "title": "Ödeme"
        }
-      }
-     }
+      },
+      "background": "#F5F2EA",
+      "color": "#12211A",
+      "dark_background": "#09130E",
+      "dark_color": "#EAF3EE",
+      "style": "search"
+     },
+     "background": "#F5F2EA",
+     "dark_background": "#09130E"
     },
     "show_title": false,
     "updated_at": "2026-11-09T10:00:00.000Z",
@@ -1369,7 +2679,7 @@
     },
     "studio": {
      "body": {
-      "id": "demo-58",
+      "id": "demo-87",
       "type": "column",
       "children": []
      },
@@ -1384,8 +2694,15 @@
        "tr": {
         "title": "Siparişlerim"
        }
-      }
-     }
+      },
+      "background": "#F5F2EA",
+      "color": "#12211A",
+      "dark_background": "#09130E",
+      "dark_color": "#EAF3EE",
+      "style": "search"
+     },
+     "background": "#F5F2EA",
+     "dark_background": "#09130E"
     },
     "show_title": false,
     "updated_at": "2026-11-09T10:00:00.000Z",
@@ -1396,11 +2713,13 @@
     "title": "An order",
     "studio": {
      "body": {
-      "id": "demo-59",
+      "id": "demo-88",
       "type": "column",
       "children": []
      },
-     "screen": "market_order"
+     "screen": "market_order",
+     "background": "#F5F2EA",
+     "dark_background": "#09130E"
     },
     "show_title": false,
     "updated_at": "2026-11-09T10:00:00.000Z",
@@ -1419,7 +2738,7 @@
     },
     "studio": {
      "body": {
-      "id": "demo-60",
+      "id": "demo-89",
       "type": "column",
       "children": []
      },
@@ -1434,8 +2753,15 @@
        "tr": {
         "title": "Cüzdan"
        }
-      }
-     }
+      },
+      "background": "#F5F2EA",
+      "color": "#12211A",
+      "dark_background": "#09130E",
+      "dark_color": "#EAF3EE",
+      "style": "search"
+     },
+     "background": "#F5F2EA",
+     "dark_background": "#09130E"
     },
     "show_title": false,
     "updated_at": "2026-11-09T10:00:00.000Z",
@@ -1454,7 +2780,7 @@
     },
     "studio": {
      "body": {
-      "id": "demo-61",
+      "id": "demo-90",
       "type": "column",
       "children": []
      },
@@ -1469,8 +2795,15 @@
        "tr": {
         "title": "Sorun bildir"
        }
-      }
-     }
+      },
+      "background": "#F5F2EA",
+      "color": "#12211A",
+      "dark_background": "#09130E",
+      "dark_color": "#EAF3EE",
+      "style": "search"
+     },
+     "background": "#F5F2EA",
+     "dark_background": "#09130E"
     },
     "show_title": false,
     "updated_at": "2026-11-09T10:00:00.000Z",
@@ -1481,11 +2814,13 @@
     "title": "A complaint",
     "studio": {
      "body": {
-      "id": "demo-62",
+      "id": "demo-91",
       "type": "column",
       "children": []
      },
-     "screen": "market_complaint"
+     "screen": "market_complaint",
+     "background": "#F5F2EA",
+     "dark_background": "#09130E"
     },
     "show_title": false,
     "updated_at": "2026-11-09T10:00:00.000Z",
@@ -1493,14 +2828,16 @@
    }
   ],
   "tab_bar": {
-   "design": "classic",
-   "background": "#FFFFFF",
-   "dark_background": "#16231C",
-   "active": "#1E6B52",
-   "dark_active": "#7FD3AE",
-   "inactive": "#5D6B63",
-   "dark_inactive": "#A9BAB0",
-   "labels": "always"
+   "background": "#F5F2EA",
+   "dark_background": "#09130E",
+   "active": "#1B644C",
+   "dark_active": "#8FDDB9",
+   "inactive": "#56645C",
+   "dark_inactive": "#A3B5AB",
+   "design": "glass",
+   "labels": "always",
+   "radius": 26,
+   "margin": 12
   }
  }
 }

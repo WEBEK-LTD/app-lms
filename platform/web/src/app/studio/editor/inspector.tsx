@@ -1,4 +1,7 @@
 "use client";
+// 130.20 130.21 Premium chrome: the header's premium style and the system screens' look.
+import { HeaderStyleControls, SystemLookControl } from "./premium-chrome-controls";
+import type { SystemLook } from "@/lib/studio/premium-chrome";
 
 import { useId, useState, type CSSProperties, type ReactNode } from "react";
 import { useDashT, useKnownText } from "@/components/dashboard-i18n";
@@ -17,8 +20,11 @@ import {
   STUDIO_MARKET_SECTIONS,
   STUDIO_LEARNING_SECTIONS,
   STUDIO_LIVE_SOURCES,
+  // 130 The live cards' premium looks.
+  STUDIO_LIVE_STATUS_STYLES,
   STUDIO_SCHOOL_SECTIONS,
   STUDIO_LEARNING_STYLES,
+  STUDIO_LEARNING_DAYS,
   STUDIO_MARKET_SORTS,
   STUDIO_MARKET_STYLES,
   STUDIO_MARKET_CARD_FACTS,
@@ -52,6 +58,8 @@ import { SCRIM_DEFAULT } from "@/lib/studio/scrim";
 import { elementLabel } from "./left-panel";
 import { RangeField, SidesField } from "./controls";
 import { CoverControls, TrackingControls } from "./cover-controls";
+// 130 The live cards' premium looks.
+import { LiveLookControls } from "./live-look-controls";
 // 129 Premium motion & media.
 import { BannerControls, BeforeAfterControls, GalleryControls, IndicatorLookControls, SegmentsControls, MarqueeControls, StoriesControls, type PremiumControlsProps } from "./premium-motion-controls";
 // 129.11–129.20 The premium elements' options and lists, and a layout's premium card style.
@@ -113,6 +121,8 @@ interface Props {
   textStyles: Record<StudioTextStyle, StudioFont>;
   /** Editor audit 3.3: editing while the canvas shows a tablet; `changed` when the element has tablet changes. */
   tablet?: { changed: boolean; onReset: () => void };
+  /** 130.21 The system screens' look (Studio › Screens), where the project has Studio's screens. */
+  system?: { look: SystemLook | null; onLook: (look: SystemLook | null) => void; busy: boolean };
 }
 
 export function Inspector(props: Props) {
@@ -646,6 +656,25 @@ function DesignTab(props: Props & { node: StudioNode }) {
           {t("studio.text")}
           <textarea value={textOf(node, props.lang, props.defaultLang)} onChange={(e) => onChange(withText(node, e.target.value, props.lang, props.defaultLang))} rows={node.type === "text" ? 3 : 1} maxLength={2000} placeholder={node.type === "text" ? undefined : node.text ?? ""} className="rounded-lg px-2.5 py-1.5 font-normal" style={{ border: "1px solid var(--studio-line)" }} data-studio-text="" />
         </label>
+      ) : null}
+      {/* 130.11 A greeting's own words ({name} the person's first name) and its words without a name. */}
+      {node.type === "greeting" ? (
+        <div className="flex flex-col gap-2" data-greeting-words="">
+          <label className="flex flex-col gap-1 font-bold">
+            {t("studio.greetingWords")}
+            <input value={textOf(node, props.lang, props.defaultLang)} maxLength={200} onChange={(e) => onChange(withText(node, e.target.value, props.lang, props.defaultLang))} className="h-9 rounded-lg px-2.5 font-normal" style={{ border: "1px solid var(--studio-line)" }} />
+            <span className="text-xs font-normal" style={{ color: "var(--studio-muted)" }}>
+              {t("studio.greetingWordsHint", { name: "{name}" })}
+            </span>
+          </label>
+          <label className="flex flex-col gap-1 font-bold">
+            {t("studio.greetingAlone")}
+            <input value={titleOf(node, props.lang, props.defaultLang)} maxLength={120} onChange={(e) => onChange(withTitle(node, e.target.value, props.lang, props.defaultLang))} className="h-9 rounded-lg px-2.5 font-normal" style={{ border: "1px solid var(--studio-line)" }} />
+            <span className="text-xs font-normal" style={{ color: "var(--studio-muted)" }}>
+              {t("studio.greetingAloneHint")}
+            </span>
+          </label>
+        </div>
       ) : null}
       {node.type === "bullets" || node.type === "countdown" ? (
         <label className="flex flex-col gap-1 font-bold">
@@ -1413,6 +1442,9 @@ function HeaderPanel(props: Props) {
             {t("studio.noHeader")}
           </button>
         </div>
+        {/* 130.20 The header's premium style. */}
+        <Rule />
+        <HeaderStyleControls header={header} onChange={set} lang={props.lang} defaultLang={props.defaultLang} />
         <Rule />
         <div className="flex flex-wrap gap-2.5">
           {STUDIO_HEADER_BUTTONS.map((b) => (
@@ -1732,6 +1764,8 @@ function PagePanel(props: Props) {
             {t("studio.pageScreenHint")}
           </span>
         </label>
+        {/* 130.21 The look of the app's system screens, for the whole project. */}
+        {props.system ? <SystemLookControl look={props.system.look} onLook={props.system.onLook} busy={props.system.busy} /> : null}
         <p className="m-0 text-xs" style={{ color: "var(--studio-muted)" }}>
           {t("studio.keyboard")}
         </p>
@@ -1752,7 +1786,7 @@ function LearningControls({ node, onChange }: { node: StudioNode; onChange: (pat
         {t("studio.learningSection")}
         <select
           value={node.learning?.section ?? "continue"}
-          onChange={(e) => onChange({ learning: { section: e.target.value as Learning["section"], ...(style === "photo" ? { style } : {}) } })}
+          onChange={(e) => onChange({ learning: { ...node.learning, section: e.target.value as Learning["section"], ...(style !== "card" ? { style } : {}) } })}
           className="h-9 rounded-lg px-2 font-normal"
           style={{ border: "1px solid var(--studio-line)" }}
         >
@@ -1771,7 +1805,11 @@ function LearningControls({ node, onChange }: { node: StudioNode; onChange: (pat
         {t("studio.learningStyle")}
         <select
           value={style}
-          onChange={(e) => onChange({ learning: { section: node.learning?.section ?? "continue", ...(e.target.value === "photo" ? { style: "photo" as const } : {}) } })}
+          onChange={(e) => {
+            const { style: _old, ...rest } = node.learning ?? { section: "continue" as const };
+            void _old;
+            onChange({ learning: { ...rest, ...(e.target.value !== "card" ? { style: e.target.value as Learning["style"] } : {}) } });
+          }}
           className="h-9 rounded-lg px-2 font-normal"
           style={{ border: "1px solid var(--studio-line)" }}
         >
@@ -1782,6 +1820,29 @@ function LearningControls({ node, onChange }: { node: StudioNode; onChange: (pat
           ))}
         </select>
       </label>
+      {/* 130.18 This week's days under a streak. */}
+      {node.learning?.section === "streak" ? (
+        <label className="flex flex-col gap-1 font-bold">
+          {t("studio.learningDays")}
+          <select
+            value={node.learning.days ?? ""}
+            onChange={(e) => {
+              const { days: _old, ...rest } = node.learning!;
+              void _old;
+              onChange({ learning: { ...rest, ...(e.target.value ? { days: e.target.value as Learning["days"] } : {}) } });
+            }}
+            className="h-9 rounded-lg px-2 font-normal"
+            style={{ border: "1px solid var(--studio-line)" }}
+          >
+            <option value="">{t("studio.learningDays_none")}</option>
+            {STUDIO_LEARNING_DAYS.map((d) => (
+              <option key={d} value={d}>
+                {t(`studio.learningDays_${d}` as DashKey)}
+              </option>
+            ))}
+          </select>
+        </label>
+      ) : null}
     </div>
   );
 }
@@ -1829,20 +1890,35 @@ function SchoolControls({ node, onChange }: { node: StudioNode; onChange: (patch
 /** 128 Whose order a live order card follows. */
 function LiveStatusControls({ node, onChange }: { node: StudioNode; onChange: (patch: Partial<StudioNode>) => void }) {
   const t = useDashT();
+  const live = node.live_status ?? { source: "food_order" as const };
   return (
-    <label className="flex flex-col gap-1 font-bold">
-      {t("studio.liveSource")}
-      <select value={node.live_status?.source ?? "food_order"} onChange={(e) => onChange({ live_status: { source: e.target.value as NonNullable<StudioNode["live_status"]>["source"] } })} className="h-9 rounded-lg px-2 font-normal" style={{ border: "1px solid var(--studio-line)" }}>
-        {STUDIO_LIVE_SOURCES.map((s) => (
-          <option key={s} value={s}>
-            {t(`studio.live_${s}` as DashKey)}
-          </option>
-        ))}
-      </select>
-      <span className="text-xs font-normal" style={{ color: "var(--studio-muted)" }}>
-        {t("studio.liveHint")}
-      </span>
-    </label>
+    <div className="flex flex-col gap-2">
+      <label className="flex flex-col gap-1 font-bold">
+        {t("studio.liveSource")}
+        <select value={live.source} onChange={(e) => onChange({ live_status: { ...live, source: e.target.value as NonNullable<StudioNode["live_status"]>["source"] } })} className="h-9 rounded-lg px-2 font-normal" style={{ border: "1px solid var(--studio-line)" }}>
+          {STUDIO_LIVE_SOURCES.map((s) => (
+            <option key={s} value={s}>
+              {t(`studio.live_${s}` as DashKey)}
+            </option>
+          ))}
+        </select>
+        <span className="text-xs font-normal" style={{ color: "var(--studio-muted)" }}>
+          {t("studio.liveHint")}
+        </span>
+      </label>
+      {/* 130 The live cards' premium looks. */}
+      <label className="flex flex-col gap-1 font-bold">
+        {t("studio.liveLook")}
+        <select value={live.style ?? "card"} onChange={(e) => onChange({ live_status: { ...live, style: e.target.value === "card" ? undefined : (e.target.value as NonNullable<typeof live.style>) } })} className="h-9 rounded-lg px-2 font-normal" style={{ border: "1px solid var(--studio-line)" }}>
+          {STUDIO_LIVE_STATUS_STYLES.map((s) => (
+            <option key={s} value={s}>
+              {t(`studio.liveLook_${s}` as DashKey)}
+            </option>
+          ))}
+        </select>
+      </label>
+      <LiveLookControls node={node} onChange={onChange} />
+    </div>
   );
 }
 

@@ -2,12 +2,12 @@ import type { Metadata } from "next";
 import type { DashKey } from "@/i18n/dashboard";
 import { dashboardText } from "@/lib/dashboard-lang";
 import { DEMO_BRANDS } from "@/lib/demo/content";
-import { demoFacts, demoOfSlug, pickerPath, productOf, slugOf } from "@/lib/demo/picker";
+import { demoFacts, demoOfSlug, lookOf, pickerPath, productOf, slugOf, startLooks } from "@/lib/demo/picker";
 import { DEMO_NAME_MAX } from "@/lib/demo/start";
 import { swatchesFor } from "@/lib/brand-colour";
 import { appLanguageName } from "@/lib/i18n/language-names";
 import { pickerContext } from "../../context";
-import { BackLink, demoScreens, PickerShell } from "../../parts";
+import { BackLink, demoScreens, lookShots, PickerShell } from "../../parts";
 import { MakeForm } from "./form";
 
 export async function generateMetadata({ params }: PageProps<"/start/[demo]/make">): Promise<Metadata> {
@@ -34,6 +34,9 @@ export default async function MakePage({ params, searchParams }: PageProps<"/sta
   const facts = demoFacts(demo);
   const product = productOf(demo);
   const error = ERRORS.find((e) => e === query.error) ?? null;
+  // 130 A Studio demo's chosen look (A unless B was chosen), its picture in the preview.
+  const look = startLooks(demo).length ? (lookOf(demo, query.look) ?? "a") : null;
+  const lookShot = look ? lookShots(text, demo).find((s) => s.look === look)! : null;
   const list = new Intl.ListFormat(lang === "ar" ? "ar" : lang, { style: "long", type: "conjunction" });
   const swatches = swatchesFor(brand.primaryColor);
   const colourNames: Record<string, string> = {
@@ -44,10 +47,11 @@ export default async function MakePage({ params, searchParams }: PageProps<"/sta
     "#B8913A": t("start.colours.gold"),
   };
   return (
-    <PickerShell step={3} back={<BackLink href={pickerPath({ demo, adding })} label={brand.appName} />}>
+    <PickerShell step={3} back={<BackLink href={pickerPath({ demo, adding, look })} label={brand.appName} />}>
       <MakeForm
         demo={{ slug: slugOf(demo), name: brand.appName, colour: brand.primaryColor, product }}
-        screen={demoScreens(text, demo)[0]!.src}
+        screen={lookShot?.src ?? demoScreens(text, demo)[0]!.src}
+        look={look ? { id: look, words: t("start.lookOf", { look: lookShot!.name ? `${lookShot!.label} · ${lookShot!.name}` : lookShot!.label }) } : null}
         swatches={swatches.map((hex, i) => ({ hex, name: i === 0 ? t("start.colours.demo") : (colourNames[hex] ?? hex) }))}
         maxName={DEMO_NAME_MAX}
         error={error ? t(`start.errors.${error}` as DashKey) : null}

@@ -13,7 +13,8 @@ import { demoAppOfType } from "@/lib/demo/apps";
 import { DEMO_SIGN_IN, demoKind, type DemoId } from "@/lib/demo/constants";
 import { DEMO_BRANDS } from "@/lib/demo/content";
 import { liveLanguage } from "@/lib/demo/loops";
-import { demoFacts, demoOfSlug, pickerPath, productOf, sameBusiness, slugOf } from "@/lib/demo/picker";
+import { demoFacts, demoOfSlug, lookOf, pickerPath, productOf, sameBusiness, slugOf, startLooks } from "@/lib/demo/picker";
+import type { SignatureLook } from "@/lib/studio/demo-designs/signature";
 import { appUrl, signingSecret } from "@/lib/env";
 import { demoGuideFor } from "@/lib/marketing-lang";
 import { createPreviewToken, previewAppPath, previewKey } from "@/lib/preview/token";
@@ -21,7 +22,7 @@ import { appTypeOn, getSwitches } from "@/lib/switches";
 import { demoDownloads } from "@/site/demo";
 import { pickerContext } from "../context";
 import { LivePhone, type LiveApp } from "../live-phone";
-import { BackLink, businessName, cardWords, demoScreens, PickerShell, ProductBadge, STUDIO } from "../parts";
+import { BackLink, businessName, cardWords, demoScreens, lookShots, PickerShell, ProductBadge, STUDIO } from "../parts";
 
 export async function generateMetadata({ params }: PageProps<"/start/[demo]">): Promise<Metadata> {
   const demo = demoOfSlug((await params).demo);
@@ -39,8 +40,10 @@ export const dynamic = "force-dynamic";
  * section. 128.9 The middle phone runs the real demo app (the app
  * preview), its screenshot shown until it is ready (live-phone.tsx).
  */
-export default async function PickPage({ params }: PageProps<"/start/[demo]">) {
+export default async function PickPage({ params, searchParams }: PageProps<"/start/[demo]">) {
   const { demo, adding, context } = await pickerContext((await params).demo);
+  // 130 A Studio demo's look to start from: A (the demo) unless B is chosen.
+  const look = studioLook(demo, (await searchParams).look);
   const text = await dashboardText();
   const { t, lang } = text;
   const studio = productOf(demo) === "studio";
@@ -94,9 +97,10 @@ export default async function PickPage({ params }: PageProps<"/start/[demo]">) {
               </div>
             ))}
           </dl>
+          {look ? <LookChooser text={text} demo={demo} chosen={look} adding={adding} /> : null}
           {offered ? (
             <div className="mt-1 flex flex-wrap gap-2.5">
-              <Link href={pickerPath({ demo, make: true, adding })} className="flex h-14 items-center rounded-2xl bg-[var(--pk-ink)] px-[26px] text-[17px] font-bold text-[var(--pk-on-ink)] no-underline">
+              <Link href={pickerPath({ demo, make: true, adding, look })} className="flex h-14 items-center rounded-2xl bg-[var(--pk-ink)] px-[26px] text-[17px] font-bold text-[var(--pk-on-ink)] no-underline" data-start-look={look ?? undefined}>
                 {t("start.startWith")}
               </Link>
               <TryOnPhone text={text} demo={demo} ready={ready} />
@@ -139,6 +143,66 @@ function Shot({ src, alt, className }: { src: string; alt: string; className: st
     <div className={`shrink-0 overflow-hidden border-solid border-[#0E0D24] bg-[#0E0D24] ${className}`}>
       <img src={src} alt={alt} className="block h-full w-full object-cover object-top" />
     </div>
+  );
+}
+
+/** 130 The look a Studio demo starts from: the one asked for, else A (the demo itself); none for an App editor demo. */
+function studioLook(demo: DemoId, asked: string | string[] | undefined): SignatureLook | null {
+  if (!startLooks(demo).length) return null;
+  return lookOf(demo, asked) ?? "a";
+}
+
+/**
+ * 130 The two Signature looks of a Studio demo, each its home's picture,
+ * "Look A" and its name; the chosen one marked, the other a link that
+ * chooses it. "Start with this app" makes the app in the chosen look.
+ */
+function LookChooser({ text, demo, chosen, adding }: { text: DashboardText; demo: DemoId; chosen: SignatureLook; adding: boolean }) {
+  const { t } = text;
+  return (
+    <section aria-labelledby="pk-looks" className="flex flex-col gap-2.5" data-looks="">
+      <div className="flex flex-col gap-0.5">
+        <h2 id="pk-looks" className="m-0 text-lg font-extrabold">
+          {t("start.looks")}
+        </h2>
+        <p className="m-0 text-sm text-[var(--pk-ink2)]">{t("start.looksText")}</p>
+      </div>
+      <ul className="m-0 grid list-none grid-cols-2 gap-2.5 p-0">
+        {lookShots(text, demo).map((shot) => {
+          const on = shot.look === chosen;
+          const inner = (
+            <>
+              <picture className="block h-[150px] w-[70px] shrink-0 overflow-hidden rounded-[14px] border-[3px] border-solid border-[#0E0D24] bg-[#0E0D24]">
+                <source srcSet={shot.dark} media="(prefers-color-scheme: dark)" />
+                <img src={shot.src} alt={shot.alt} className="block h-full w-full object-cover object-top" loading="lazy" />
+              </picture>
+              <span className="flex min-w-0 flex-col gap-1">
+                <span className="text-[13px] font-bold text-[var(--pk-ink2)]">{shot.label}</span>
+                {shot.name ? <span className="text-base font-extrabold break-words">{shot.name}</span> : null}
+                <span className="mt-1 flex items-center gap-1 text-[13px] font-bold" style={{ color: on ? "var(--pk-accent-text)" : "var(--pk-ink2)" }}>
+                  <Icon name={on ? "check_circle" : "radio_button_unchecked"} size={18} />
+                  {on ? t("start.lookChosen") : t("start.lookChoose")}
+                </span>
+              </span>
+            </>
+          );
+          const box = "flex h-full items-center gap-3 rounded-2xl p-2.5 no-underline text-[var(--pk-ink)]";
+          return (
+            <li key={shot.look} data-look={shot.look}>
+              {on ? (
+                <div className={box} aria-current="true" style={{ background: "var(--pk-surface)", outline: "2px solid var(--pk-ink)" }}>
+                  {inner}
+                </div>
+              ) : (
+                <Link href={pickerPath({ demo, adding, look: shot.look })} scroll={false} className={box} style={{ background: "var(--pk-surface)", outline: "1px solid var(--pk-line)" }}>
+                  {inner}
+                </Link>
+              )}
+            </li>
+          );
+        })}
+      </ul>
+    </section>
   );
 }
 

@@ -15,7 +15,10 @@ import { itemSourcesFor } from "../pages/sources";
 import { demoStudioPage, TEMPLATES } from "../studio/sections";
 import { startLayout } from "../studio/start";
 import { demoPageTabs, demoScreenPages, demoTabPages } from "../studio/demo-pages";
-import { withDemoFacts } from "../studio/demo-templates";
+import { DEMO_HOME_TEMPLATES, withDemoFacts } from "../studio/demo-templates";
+// 130 A demo is its Signature look A: its colours and font too.
+import { signatureDesign } from "../studio/demo-designs";
+import { withLook } from "../fonts/look";
 import { demoDesign, demoStudioContext } from "./look";
 import { DEMO_TAB_BARS, demoStudioScreens } from "./screens";
 import type { LayoutBlock, LayoutContent } from "../pages/types";
@@ -459,15 +462,19 @@ export async function demoLayout(deps: Pick<DemoSetupDeps, "assetUrl" | "now">, 
   const tabPages = ctx ? [...demoTabPages(designed.tabs, ctx), ...demoScreenPages(app, designed.tabs, ctx, new Set(designed.pages.map((p) => p.slug)))].map((p) => ({ ...p, show_title: false, updated_at: deps.now.toISOString(), blocks: [] })) : [];
   return {
     ...designed,
-    appearance: {
-      template: brand.template,
-      theme_mode: "system",
-      user_can_change_mode: true,
-      secondary_color: brand.secondaryColor,
-      font: brand.font,
-      corners: brand.corners,
-      cards: brand.cards,
-    },
+    appearance: withLook(
+      {
+        template: brand.template,
+        theme_mode: "system",
+        user_can_change_mode: true,
+        secondary_color: brand.secondaryColor,
+        font: brand.font,
+        corners: brand.corners,
+        cards: brand.cards,
+      },
+      // 130 In its look A's second colour and font, as a project made from the look starts.
+      (isStudioDemo(id) ? signatureDesign(id, "a")?.project.appearance : undefined) ?? {},
+    ),
     languages: { default: "en", available: [...brand.languages] },
     // 119 A Studio demo's bar in its own design.
     ...(isStudioDemo(id) ? { tab_bar: DEMO_TAB_BARS[id] } : {}),
@@ -484,7 +491,8 @@ export async function demoLayout(deps: Pick<DemoSetupDeps, "assetUrl" | "now">, 
  */
 function premiumAcademyLayout(deps: Pick<DemoSetupDeps, "now">, app: App, base: LayoutContent, signIn: LayoutBlock): LayoutContent {
   const brand = DEMO_BRANDS[PREMIUM_ACADEMY_DEMO];
-  const template = TEMPLATES.find((t) => t.id === PREMIUM_ACADEMY_TEMPLATE)!;
+  // 130.17 Its look A (Ufuq's night cinema), the template its demo is.
+  const template = TEMPLATES.find((t) => t.id === DEMO_HOME_TEMPLATES[PREMIUM_ACADEMY_DEMO])!;
   const ctx = demoStudioContext(PREMIUM_ACADEMY_DEMO, appUrl(), itemSourcesFor(app)[0] ?? null);
   const started = startLayout(app, template, base, deps.now, ctx, null);
   const home = demoStudioPage(PREMIUM_ACADEMY_DEMO, ctx, [signIn]);

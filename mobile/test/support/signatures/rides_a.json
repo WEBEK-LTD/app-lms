@@ -1,0 +1,1355 @@
+{
+ "screens": {
+  "sign_in": {
+   "style": "premium",
+   "image_url": "http://localhost:3000/stories/rides/rides-night-city.jpg",
+   "title": {
+    "en": "Where to today?",
+    "ar": "إلى أين اليوم؟",
+    "tr": "Bugün nereye?"
+   },
+   "subtitle": {
+    "en": "Sign in to see the fare before you ride and follow your driver on the map.",
+    "ar": "سجّل الدخول لترى الأجرة قبل أن تركب وتتابع سائقك على الخريطة.",
+    "tr": "Binmeden önce ücreti görmek ve sürücünüzü haritada izlemek için giriş yapın."
+   },
+   "show_logo": true
+  },
+  "account_menu": {
+   "header": "cover",
+   "items": []
+  },
+  "system": {
+   "look": "glass"
+  }
+ },
+ "layout": {
+  "appearance": {
+   "template": "bold",
+   "theme_mode": "system",
+   "user_can_change_mode": true,
+   "font": "Manrope",
+   "corners": "round",
+   "cards": "elevated",
+   "secondary_color": "#F2B544"
+  },
+  "languages": {
+   "default": "en",
+   "available": [
+    "en"
+   ]
+  },
+  "tabs": [
+   {
+    "id": "home",
+    "label": "Ride",
+    "icon": "local_taxi",
+    "target": {
+     "type": "page",
+     "page_slug": "home"
+    },
+    "translations": {
+     "ar": {
+      "label": "رحلة"
+     },
+     "tr": {
+      "label": "Yolculuk"
+     }
+    }
+   },
+   {
+    "id": "rides",
+    "label": "My rides",
+    "icon": "history",
+    "target": {
+     "type": "page",
+     "page_slug": "rides"
+    },
+    "translations": {
+     "ar": {
+      "label": "رحلاتي"
+     },
+     "tr": {
+      "label": "Yolculuklarım"
+     }
+    }
+   },
+   {
+    "id": "account",
+    "label": "Account",
+    "icon": "person",
+    "target": {
+     "type": "page",
+     "page_slug": "account"
+    },
+    "translations": {
+     "ar": {
+      "label": "حسابي"
+     },
+     "tr": {
+      "label": "Hesabım"
+     }
+    }
+   }
+  ],
+  "pages": [
+   {
+    "slug": "home",
+    "title": "Home",
+    "show_title": false,
+    "updated_at": "2026-11-13T18:00:00.000Z",
+    "blocks": [],
+    "studio": {
+     "background": "#EDF0EA",
+     "dark_background": "#0C1716",
+     "body": {
+      "id": "sig-1",
+      "type": "column",
+      "children": [
+       {
+        "id": "sig-2",
+        "type": "map_header",
+        "name": "Where to?",
+        "height": 676,
+        "background": "#EDF0EA",
+        "dark_background": "#0C1716",
+        "align": "between",
+        "padding": {
+         "top": 8,
+         "end": 16,
+         "bottom": 18,
+         "start": 16
+        },
+        "map_drawing": {
+         "style": "natural",
+         "accent": "#F2B544",
+         "chip": "#21403C",
+         "markers": [
+          {
+           "x": 14,
+           "y": 28
+          },
+          {
+           "x": 30,
+           "y": 62
+          },
+          {
+           "x": 92,
+           "y": 30
+          },
+          {
+           "x": 80,
+           "y": 66
+          },
+          {
+           "x": 4,
+           "y": 60
+          },
+          {
+           "x": 54,
+           "y": 57
+          }
+         ],
+         "places": [
+          {
+           "x": 30,
+           "y": 30,
+           "label": "Home",
+           "icon": "home"
+          },
+          {
+           "x": 78,
+           "y": 54,
+           "label": "Office",
+           "icon": "work"
+          },
+          {
+           "x": 68,
+           "y": 31,
+           "label": "Airport",
+           "icon": "flight"
+          }
+         ],
+         "labels": [
+          {
+           "x": 28,
+           "y": 70,
+           "text": "Zamalek"
+          },
+          {
+           "x": 80,
+           "y": 46,
+           "text": "Downtown"
+          },
+          {
+           "x": 80,
+           "y": 63,
+           "text": "Tahrir"
+          }
+         ],
+         "route": {
+          "points": [
+           {
+            "x": 80,
+            "y": 37
+           },
+           {
+            "x": 46,
+            "y": 39
+           },
+           {
+            "x": 41,
+            "y": 46
+           }
+          ],
+          "eta": "3 min",
+          "to_label": "Pickup",
+          "color": "#0F766C",
+          "dark_color": "#3FC7B4",
+          "live": "ride"
+         }
+        },
+        "children": [
+         {
+          "id": "sig-3",
+          "type": "column",
+          "gap": 10,
+          "children": [
+           {
+            "id": "sig-4",
+            "type": "row",
+            "gap": 10,
+            "cross": "center",
+            "children": [
+             {
+              "id": "sig-5",
+              "type": "row",
+              "width": 44,
+              "height": 44,
+              "radius": 22,
+              "align": "center",
+              "cross": "center",
+              "action": {
+               "type": "screen",
+               "screen": "account"
+              },
+              "self_align": "center",
+              "surface": {
+               "glass": 18,
+               "tint": 0.74,
+               "soft": 2
+              },
+              "children": [
+               {
+                "id": "sig-6",
+                "type": "icon",
+                "icon": "person",
+                "icon_size": 22,
+                "color": "#0B2422",
+                "dark_color": "#E9F5F3"
+               }
+              ]
+             },
+             {
+              "id": "sig-7",
+              "type": "row",
+              "height": 44,
+              "radius": 22,
+              "gap": 8,
+              "cross": "center",
+              "padding": {
+               "top": 0,
+               "end": 16,
+               "bottom": 0,
+               "start": 16
+              },
+              "surface": {
+               "glass": 18,
+               "tint": 0.74,
+               "soft": 2
+              },
+              "children": [
+               {
+                "id": "sig-8",
+                "type": "row",
+                "width": 8,
+                "height": 8,
+                "radius": 4,
+                "self_align": "center",
+                "background": "#F2B544",
+                "children": []
+               },
+               {
+                "id": "sig-9",
+                "type": "greeting",
+                "color": "#0B2422",
+                "dark_color": "#E9F5F3",
+                "font": {
+                 "size": 14,
+                 "weight": 700
+                }
+               }
+              ]
+             },
+             {
+              "id": "sig-10",
+              "type": "row",
+              "width": "fill",
+              "height": 1,
+              "children": []
+             },
+             {
+              "id": "sig-11",
+              "type": "row",
+              "width": 44,
+              "height": 44,
+              "radius": 22,
+              "align": "center",
+              "cross": "center",
+              "action": {
+               "type": "screen",
+               "screen": "notifications"
+              },
+              "self_align": "center",
+              "surface": {
+               "glass": 18,
+               "tint": 0.74,
+               "soft": 2
+              },
+              "children": [
+               {
+                "id": "sig-12",
+                "type": "icon",
+                "icon": "notifications",
+                "icon_size": 22,
+                "color": "#0B2422",
+                "dark_color": "#E9F5F3"
+               }
+              ]
+             }
+            ]
+           },
+           {
+            "id": "sig-13",
+            "type": "column",
+            "name": "On the way",
+            "visibility": "signed_in",
+            "radius": 24,
+            "padding": {
+             "top": 12,
+             "end": 12,
+             "bottom": 12,
+             "start": 12
+            },
+            "surface": {
+             "glass": 18,
+             "tint": 0.78,
+             "soft": 2
+            },
+            "children": [
+             {
+              "id": "sig-14",
+              "type": "tracking",
+              "tracking": {
+               "kind": "ride",
+               "style": "driver"
+              },
+              "visibility": "signed_in",
+              "image_url": "http://localhost:3000/stories/rides/rides-driver.jpg",
+              "color": "#0B2422",
+              "dark_color": "#E9F5F3"
+             }
+            ]
+           }
+          ]
+         },
+         {
+          "id": "sig-15",
+          "type": "column",
+          "gap": 10,
+          "children": [
+           {
+            "id": "sig-16",
+            "type": "row",
+            "name": "Economy",
+            "gap": 8,
+            "cross": "stretch",
+            "children": [
+             {
+              "id": "sig-17",
+              "type": "column",
+              "name": "Economy",
+              "width": "fill",
+              "height": 98,
+              "radius": 22,
+              "align": "between",
+              "padding": {
+               "top": 11,
+               "end": 12,
+               "bottom": 11,
+               "start": 12
+              },
+              "action": {
+               "type": "screen",
+               "screen": "ride"
+              },
+              "background": "#0F766C",
+              "dark_background": "#5FD3C2",
+              "shadow": "medium",
+              "children": [
+               {
+                "id": "sig-18",
+                "type": "row",
+                "cross": "center",
+                "children": [
+                 {
+                  "id": "sig-19",
+                  "type": "icon",
+                  "icon": "directions_car",
+                  "icon_size": 22,
+                  "color": "#FFFFFF",
+                  "dark_color": "#04201D"
+                 },
+                 {
+                  "id": "sig-20",
+                  "type": "row",
+                  "width": "fill",
+                  "height": 1,
+                  "children": []
+                 },
+                 {
+                  "id": "sig-21",
+                  "type": "icon",
+                  "icon": "person",
+                  "icon_size": 14,
+                  "color": "#E6F4F1",
+                  "dark_color": "#0B3A35"
+                 },
+                 {
+                  "id": "sig-22",
+                  "type": "text",
+                  "text": "4",
+                  "color": "#E6F4F1",
+                  "dark_color": "#0B3A35",
+                  "font": {
+                   "size": 11,
+                   "weight": 700
+                  }
+                 }
+                ]
+               },
+               {
+                "id": "sig-23",
+                "type": "column",
+                "children": [
+                 {
+                  "id": "sig-24",
+                  "type": "text",
+                  "text": "Economy",
+                  "color": "#FFFFFF",
+                  "dark_color": "#04201D",
+                  "font": {
+                   "size": 13,
+                   "weight": 700
+                  },
+                  "translations": {
+                   "ar": {
+                    "text": "اقتصادية"
+                   },
+                   "tr": {
+                    "text": "Ekonomi"
+                   }
+                  }
+                 },
+                 {
+                  "id": "sig-25",
+                  "type": "row",
+                  "gap": 3,
+                  "cross": "end",
+                  "children": [
+                   {
+                    "id": "sig-26",
+                    "type": "text",
+                    "text": "from E£",
+                    "color": "#E6F4F1",
+                    "dark_color": "#0B3A35",
+                    "font": {
+                     "size": 11,
+                     "weight": 700
+                    },
+                    "translations": {
+                     "ar": {
+                      "text": "من ج.م"
+                     },
+                     "tr": {
+                      "text": "başlangıç E£"
+                     }
+                    }
+                   },
+                   {
+                    "id": "sig-27",
+                    "type": "text",
+                    "text": "35",
+                    "color": "#FFFFFF",
+                    "dark_color": "#04201D",
+                    "font": {
+                     "size": 20,
+                     "weight": 800,
+                     "letter_spacing": -0.6,
+                     "line_height": 1.1
+                    }
+                   }
+                  ]
+                 }
+                ]
+               }
+              ]
+             },
+             {
+              "id": "sig-28",
+              "type": "column",
+              "name": "Comfort",
+              "width": "fill",
+              "height": 98,
+              "radius": 22,
+              "align": "between",
+              "padding": {
+               "top": 11,
+               "end": 12,
+               "bottom": 11,
+               "start": 12
+              },
+              "action": {
+               "type": "screen",
+               "screen": "ride"
+              },
+              "surface": {
+               "glass": 18,
+               "tint": 0.74,
+               "soft": 2
+              },
+              "children": [
+               {
+                "id": "sig-29",
+                "type": "row",
+                "cross": "center",
+                "children": [
+                 {
+                  "id": "sig-30",
+                  "type": "icon",
+                  "icon": "local_taxi",
+                  "icon_size": 22,
+                  "color": "#0B2422",
+                  "dark_color": "#E9F5F3"
+                 },
+                 {
+                  "id": "sig-31",
+                  "type": "row",
+                  "width": "fill",
+                  "height": 1,
+                  "children": []
+                 },
+                 {
+                  "id": "sig-32",
+                  "type": "icon",
+                  "icon": "person",
+                  "icon_size": 14,
+                  "color": "#4C5F5C",
+                  "dark_color": "#A3BDB8"
+                 },
+                 {
+                  "id": "sig-33",
+                  "type": "text",
+                  "text": "4",
+                  "color": "#4C5F5C",
+                  "dark_color": "#A3BDB8",
+                  "font": {
+                   "size": 11,
+                   "weight": 700
+                  }
+                 }
+                ]
+               },
+               {
+                "id": "sig-34",
+                "type": "column",
+                "children": [
+                 {
+                  "id": "sig-35",
+                  "type": "text",
+                  "text": "Comfort",
+                  "color": "#0B2422",
+                  "dark_color": "#E9F5F3",
+                  "font": {
+                   "size": 13,
+                   "weight": 700
+                  },
+                  "translations": {
+                   "ar": {
+                    "text": "مريحة"
+                   },
+                   "tr": {
+                    "text": "Konfor"
+                   }
+                  }
+                 },
+                 {
+                  "id": "sig-36",
+                  "type": "row",
+                  "gap": 3,
+                  "cross": "end",
+                  "children": [
+                   {
+                    "id": "sig-37",
+                    "type": "text",
+                    "text": "from E£",
+                    "color": "#4C5F5C",
+                    "dark_color": "#A3BDB8",
+                    "font": {
+                     "size": 11,
+                     "weight": 700
+                    },
+                    "translations": {
+                     "ar": {
+                      "text": "من ج.م"
+                     },
+                     "tr": {
+                      "text": "başlangıç E£"
+                     }
+                    }
+                   },
+                   {
+                    "id": "sig-38",
+                    "type": "text",
+                    "text": "50",
+                    "color": "#0B2422",
+                    "dark_color": "#E9F5F3",
+                    "font": {
+                     "size": 20,
+                     "weight": 800,
+                     "letter_spacing": -0.6,
+                     "line_height": 1.1
+                    }
+                   }
+                  ]
+                 }
+                ]
+               }
+              ]
+             },
+             {
+              "id": "sig-39",
+              "type": "column",
+              "name": "Van",
+              "width": "fill",
+              "height": 98,
+              "radius": 22,
+              "align": "between",
+              "padding": {
+               "top": 11,
+               "end": 12,
+               "bottom": 11,
+               "start": 12
+              },
+              "action": {
+               "type": "screen",
+               "screen": "ride"
+              },
+              "surface": {
+               "glass": 18,
+               "tint": 0.74,
+               "soft": 2
+              },
+              "children": [
+               {
+                "id": "sig-40",
+                "type": "row",
+                "cross": "center",
+                "children": [
+                 {
+                  "id": "sig-41",
+                  "type": "icon",
+                  "icon": "airport_shuttle",
+                  "icon_size": 22,
+                  "color": "#0B2422",
+                  "dark_color": "#E9F5F3"
+                 },
+                 {
+                  "id": "sig-42",
+                  "type": "row",
+                  "width": "fill",
+                  "height": 1,
+                  "children": []
+                 },
+                 {
+                  "id": "sig-43",
+                  "type": "icon",
+                  "icon": "person",
+                  "icon_size": 14,
+                  "color": "#4C5F5C",
+                  "dark_color": "#A3BDB8"
+                 },
+                 {
+                  "id": "sig-44",
+                  "type": "text",
+                  "text": "7",
+                  "color": "#4C5F5C",
+                  "dark_color": "#A3BDB8",
+                  "font": {
+                   "size": 11,
+                   "weight": 700
+                  }
+                 }
+                ]
+               },
+               {
+                "id": "sig-45",
+                "type": "column",
+                "children": [
+                 {
+                  "id": "sig-46",
+                  "type": "text",
+                  "text": "Van",
+                  "color": "#0B2422",
+                  "dark_color": "#E9F5F3",
+                  "font": {
+                   "size": 13,
+                   "weight": 700
+                  },
+                  "translations": {
+                   "ar": {
+                    "text": "فان"
+                   },
+                   "tr": {
+                    "text": "Van"
+                   }
+                  }
+                 },
+                 {
+                  "id": "sig-47",
+                  "type": "row",
+                  "gap": 3,
+                  "cross": "end",
+                  "children": [
+                   {
+                    "id": "sig-48",
+                    "type": "text",
+                    "text": "from E£",
+                    "color": "#4C5F5C",
+                    "dark_color": "#A3BDB8",
+                    "font": {
+                     "size": 11,
+                     "weight": 700
+                    },
+                    "translations": {
+                     "ar": {
+                      "text": "من ج.م"
+                     },
+                     "tr": {
+                      "text": "başlangıç E£"
+                     }
+                    }
+                   },
+                   {
+                    "id": "sig-49",
+                    "type": "text",
+                    "text": "80",
+                    "color": "#0B2422",
+                    "dark_color": "#E9F5F3",
+                    "font": {
+                     "size": 20,
+                     "weight": 800,
+                     "letter_spacing": -0.6,
+                     "line_height": 1.1
+                    }
+                   }
+                  ]
+                 }
+                ]
+               }
+              ]
+             }
+            ]
+           },
+           {
+            "id": "sig-50",
+            "type": "row",
+            "name": "Where to?",
+            "height": 68,
+            "radius": 26,
+            "gap": 12,
+            "cross": "center",
+            "padding": {
+             "top": 0,
+             "end": 10,
+             "bottom": 0,
+             "start": 10
+            },
+            "action": {
+             "type": "screen",
+             "screen": "ride"
+            },
+            "surface": {
+             "glass": 18,
+             "tint": 0.86,
+             "soft": 2
+            },
+            "children": [
+             {
+              "id": "sig-51",
+              "type": "row",
+              "width": 46,
+              "height": 46,
+              "radius": 18,
+              "align": "center",
+              "cross": "center",
+              "self_align": "center",
+              "background": "#0F766C",
+              "dark_background": "#5FD3C2",
+              "children": [
+               {
+                "id": "sig-52",
+                "type": "icon",
+                "icon": "search",
+                "icon_size": 24,
+                "color": "#FFFFFF",
+                "dark_color": "#04201D"
+               }
+              ]
+             },
+             {
+              "id": "sig-53",
+              "type": "text",
+              "text": "Where to?",
+              "color": "#0B2422",
+              "dark_color": "#E9F5F3",
+              "font": {
+               "size": 20,
+               "weight": 800,
+               "letter_spacing": -0.4
+              },
+              "width": "fill",
+              "translations": {
+               "ar": {
+                "text": "إلى أين؟"
+               },
+               "tr": {
+                "text": "Nereye?"
+               }
+              }
+             },
+             {
+              "id": "sig-54",
+              "type": "row",
+              "height": 40,
+              "radius": 20,
+              "gap": 5,
+              "cross": "center",
+              "self_align": "center",
+              "padding": {
+               "top": 0,
+               "end": 12,
+               "bottom": 0,
+               "start": 12
+              },
+              "border_color": "#C9D3D1",
+              "dark_border_color": "#2B4744",
+              "border_width": 1,
+              "children": [
+               {
+                "id": "sig-55",
+                "type": "icon",
+                "icon": "schedule",
+                "icon_size": 18,
+                "color": "#0F766C",
+                "dark_color": "#5FD3C2"
+               },
+               {
+                "id": "sig-56",
+                "type": "text",
+                "text": "Now",
+                "color": "#0B2422",
+                "dark_color": "#E9F5F3",
+                "font": {
+                 "size": 13,
+                 "weight": 700
+                },
+                "translations": {
+                 "ar": {
+                  "text": "الآن"
+                 },
+                 "tr": {
+                  "text": "Şimdi"
+                 }
+                }
+               }
+              ]
+             }
+            ]
+           }
+          ]
+         }
+        ]
+       }
+      ]
+     }
+    }
+   },
+   {
+    "slug": "rides",
+    "title": "My rides",
+    "translations": {
+     "ar": {
+      "title": "رحلاتي"
+     },
+     "tr": {
+      "title": "Yolculuklarım"
+     }
+    },
+    "studio": {
+     "body": {
+      "id": "sig-60",
+      "type": "column",
+      "children": [
+       {
+        "id": "sig-63",
+        "type": "photo_hero",
+        "name": "Home safe, every ride",
+        "image_url": "http://localhost:3000/stories/rides/rides-arrive-home.jpg",
+        "height": 132,
+        "radius": 22,
+        "background": "#041E1C",
+        "scrim": {
+         "color": "#041E1C",
+         "from": 0,
+         "middle": 0,
+         "at": 40,
+         "to": 0.82
+        },
+        "align": "end",
+        "padding": {
+         "top": 16,
+         "end": 16,
+         "bottom": 16,
+         "start": 16
+        },
+        "margin": {
+         "top": 12,
+         "end": 16,
+         "bottom": 4,
+         "start": 16
+        },
+        "children": [
+         {
+          "id": "sig-61",
+          "type": "text",
+          "text": "Home safe, every ride",
+          "color": "#FFFFFF",
+          "font": {
+           "size": 17,
+           "weight": 800,
+           "line_height": 1.2
+          },
+          "translations": {
+           "ar": {
+            "text": "تصل إلى بيتك بأمان في كل رحلة"
+           },
+           "tr": {
+            "text": "Her yolculukta eve güvenle"
+           }
+          }
+         },
+         {
+          "id": "sig-62",
+          "type": "text",
+          "text": "Your rides, their fares and receipts.",
+          "color": "#FFFFFF",
+          "opacity": 0.9,
+          "font": {
+           "size": 12.5,
+           "line_height": 1.35
+          },
+          "margin": {
+           "top": 3
+          },
+          "translations": {
+           "ar": {
+            "text": "رحلاتك وأجرتها وإيصالاتها."
+           },
+           "tr": {
+            "text": "Yolculuklarınız, ücretleri ve fişleri."
+           }
+          }
+         }
+        ]
+       }
+      ]
+     },
+     "screen": "my_rides",
+     "header": {
+      "type": "title",
+      "title": "My rides",
+      "buttons": [
+       "notifications"
+      ],
+      "translations": {
+       "ar": {
+        "title": "رحلاتي"
+       },
+       "tr": {
+        "title": "Yolculuklarım"
+       }
+      },
+      "background": "#EDF0EA",
+      "color": "#0B2422",
+      "dark_background": "#0C1716",
+      "dark_color": "#E9F5F3",
+      "style": "glass"
+     },
+     "background": "#EDF0EA",
+     "dark_background": "#0C1716"
+    },
+    "show_title": false,
+    "updated_at": "2026-11-13T18:00:00.000Z",
+    "blocks": []
+   },
+   {
+    "slug": "account",
+    "title": "Account",
+    "translations": {
+     "ar": {
+      "title": "حسابي"
+     },
+     "tr": {
+      "title": "Hesabım"
+     }
+    },
+    "studio": {
+     "body": {
+      "id": "sig-64",
+      "type": "column",
+      "children": []
+     },
+     "screen": "account",
+     "background": "#EDF0EA",
+     "dark_background": "#0C1716"
+    },
+    "show_title": false,
+    "updated_at": "2026-11-13T18:00:00.000Z",
+    "blocks": []
+   },
+   {
+    "slug": "ride",
+    "title": "Ride",
+    "translations": {
+     "ar": {
+      "title": "رحلة"
+     },
+     "tr": {
+      "title": "Yolculuk"
+     }
+    },
+    "studio": {
+     "body": {
+      "id": "sig-65",
+      "type": "column",
+      "children": [
+       {
+        "id": "sig-73",
+        "type": "column",
+        "name": "On the way",
+        "visibility": "signed_in",
+        "radius": 24,
+        "padding": {
+         "top": 12,
+         "end": 12,
+         "bottom": 12,
+         "start": 12
+        },
+        "surface": {
+         "glass": 18,
+         "tint": 0.78,
+         "soft": 2
+        },
+        "margin": {
+         "top": 12,
+         "end": 16,
+         "bottom": 4,
+         "start": 16
+        },
+        "children": [
+         {
+          "id": "sig-74",
+          "type": "tracking",
+          "tracking": {
+           "kind": "ride",
+           "style": "driver"
+          },
+          "visibility": "signed_in",
+          "image_url": "http://localhost:3000/stories/rides/rides-driver.jpg",
+          "color": "#0B2422",
+          "dark_color": "#E9F5F3"
+         }
+        ]
+       }
+      ]
+     },
+     "screen": "ride",
+     "header": {
+      "type": "title",
+      "title": "Ride",
+      "translations": {
+       "ar": {
+        "title": "رحلة"
+       },
+       "tr": {
+        "title": "Yolculuk"
+       }
+      },
+      "background": "#EDF0EA",
+      "color": "#0B2422",
+      "dark_background": "#0C1716",
+      "dark_color": "#E9F5F3",
+      "style": "glass"
+     },
+     "background": "#EDF0EA",
+     "dark_background": "#0C1716"
+    },
+    "show_title": false,
+    "updated_at": "2026-11-13T18:00:00.000Z",
+    "blocks": []
+   },
+   {
+    "slug": "settings",
+    "title": "Settings",
+    "translations": {
+     "ar": {
+      "title": "الإعدادات"
+     },
+     "tr": {
+      "title": "Ayarlar"
+     }
+    },
+    "studio": {
+     "body": {
+      "id": "sig-66",
+      "type": "column",
+      "children": []
+     },
+     "screen": "settings",
+     "header": {
+      "type": "title",
+      "title": "Settings",
+      "translations": {
+       "ar": {
+        "title": "الإعدادات"
+       },
+       "tr": {
+        "title": "Ayarlar"
+       }
+      },
+      "background": "#EDF0EA",
+      "color": "#0B2422",
+      "dark_background": "#0C1716",
+      "dark_color": "#E9F5F3",
+      "style": "glass"
+     },
+     "background": "#EDF0EA",
+     "dark_background": "#0C1716"
+    },
+    "show_title": false,
+    "updated_at": "2026-11-13T18:00:00.000Z",
+    "blocks": []
+   },
+   {
+    "slug": "notifications",
+    "title": "Notifications",
+    "translations": {
+     "ar": {
+      "title": "الإشعارات"
+     },
+     "tr": {
+      "title": "Bildirimler"
+     }
+    },
+    "studio": {
+     "body": {
+      "id": "sig-67",
+      "type": "column",
+      "children": []
+     },
+     "screen": "notifications",
+     "header": {
+      "type": "title",
+      "title": "Notifications",
+      "translations": {
+       "ar": {
+        "title": "الإشعارات"
+       },
+       "tr": {
+        "title": "Bildirimler"
+       }
+      },
+      "background": "#EDF0EA",
+      "color": "#0B2422",
+      "dark_background": "#0C1716",
+      "dark_color": "#E9F5F3",
+      "style": "glass"
+     },
+     "background": "#EDF0EA",
+     "dark_background": "#0C1716"
+    },
+    "show_title": false,
+    "updated_at": "2026-11-13T18:00:00.000Z",
+    "blocks": []
+   },
+   {
+    "slug": "edit-profile",
+    "title": "Edit profile",
+    "translations": {
+     "ar": {
+      "title": "تعديل الملف الشخصي"
+     },
+     "tr": {
+      "title": "Profili düzenle"
+     }
+    },
+    "studio": {
+     "body": {
+      "id": "sig-68",
+      "type": "column",
+      "children": []
+     },
+     "screen": "edit_profile",
+     "header": {
+      "type": "title",
+      "title": "Edit profile",
+      "translations": {
+       "ar": {
+        "title": "تعديل الملف الشخصي"
+       },
+       "tr": {
+        "title": "Profili düzenle"
+       }
+      },
+      "background": "#EDF0EA",
+      "color": "#0B2422",
+      "dark_background": "#0C1716",
+      "dark_color": "#E9F5F3",
+      "style": "glass"
+     },
+     "background": "#EDF0EA",
+     "dark_background": "#0C1716"
+    },
+    "show_title": false,
+    "updated_at": "2026-11-13T18:00:00.000Z",
+    "blocks": []
+   },
+   {
+    "slug": "devices",
+    "title": "Devices",
+    "translations": {
+     "ar": {
+      "title": "الأجهزة"
+     },
+     "tr": {
+      "title": "Cihazlar"
+     }
+    },
+    "studio": {
+     "body": {
+      "id": "sig-69",
+      "type": "column",
+      "children": []
+     },
+     "screen": "devices",
+     "header": {
+      "type": "title",
+      "title": "Devices",
+      "translations": {
+       "ar": {
+        "title": "الأجهزة"
+       },
+       "tr": {
+        "title": "Cihazlar"
+       }
+      },
+      "background": "#EDF0EA",
+      "color": "#0B2422",
+      "dark_background": "#0C1716",
+      "dark_color": "#E9F5F3",
+      "style": "glass"
+     },
+     "background": "#EDF0EA",
+     "dark_background": "#0C1716"
+    },
+    "show_title": false,
+    "updated_at": "2026-11-13T18:00:00.000Z",
+    "blocks": []
+   },
+   {
+    "slug": "change-password",
+    "title": "Change password",
+    "studio": {
+     "body": {
+      "id": "sig-70",
+      "type": "column",
+      "children": []
+     },
+     "screen": "change_password",
+     "background": "#EDF0EA",
+     "dark_background": "#0C1716"
+    },
+    "show_title": false,
+    "updated_at": "2026-11-13T18:00:00.000Z",
+    "blocks": []
+   },
+   {
+    "slug": "chat-conversation",
+    "title": "A conversation",
+    "studio": {
+     "body": {
+      "id": "sig-71",
+      "type": "column",
+      "children": []
+     },
+     "screen": "chat_conversation",
+     "background": "#EDF0EA",
+     "dark_background": "#0C1716"
+    },
+    "show_title": false,
+    "updated_at": "2026-11-13T18:00:00.000Z",
+    "blocks": []
+   },
+   {
+    "slug": "ride-follow",
+    "title": "A ride on its way",
+    "studio": {
+     "body": {
+      "id": "sig-72",
+      "type": "column",
+      "children": []
+     },
+     "screen": "ride_follow",
+     "background": "#EDF0EA",
+     "dark_background": "#0C1716"
+    },
+    "show_title": false,
+    "updated_at": "2026-11-13T18:00:00.000Z",
+    "blocks": []
+   }
+  ],
+  "tab_bar": {
+   "design": "glass",
+   "margin": 12,
+   "radius": 26,
+   "labels": "active",
+   "background": "#FFFFFF",
+   "dark_background": "#0F2422",
+   "active": "#0F766C",
+   "dark_active": "#5FD3C2",
+   "inactive": "#4C5F5C",
+   "dark_inactive": "#A3BDB8"
+  }
+ }
+}

@@ -56,7 +56,13 @@ class MarketAddressBar extends ConsumerWidget {
     final onBar = color.computeLuminance() > 0.5
         ? const Color(0xFF14231B)
         : Colors.white;
-    final field = dark ? p.surface : Colors.white;
+    // 130 On a bar of a dark colour of its own (a page's night), the field
+    // that colour a step lighter, in the bar's family.
+    final field = !dark
+        ? Colors.white
+        : color.computeLuminance() < 0.02
+        ? Color.lerp(color, Colors.white, 0.08)!
+        : p.surface;
     final fieldInk = dark ? p.textSecondary : const Color(0xFF5D6B63);
     return DecoratedBox(
       key: ValueKey('market-bar-${node.id}'),

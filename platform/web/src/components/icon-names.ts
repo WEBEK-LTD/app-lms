@@ -277,6 +277,12 @@ export const ICON_NAMES = [
   "flight_takeoff",
   "airline_seat_recline_normal",
   "hotel_class",
+  // 130.1–130.6 The food, marketplace and delivery Signature looks.
+  "add_circle",
+  "barcode_scanner",
+  // 130.13–130.18 The school's and the academies' Signature looks: a link's arrow, the live tab.
+  "north_east",
+  "sensors",
 ] as const;
 
 export type IconName = (typeof ICON_NAMES)[number];

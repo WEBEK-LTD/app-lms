@@ -50,6 +50,8 @@ import {
   STUDIO_FONT_WEIGHTS,
   STUDIO_HEADER_BUTTONS,
   STUDIO_HEADER_TYPES,
+  // 130.20 The premium headers' styles.
+  STUDIO_HEADER_STYLES,
   STUDIO_LAYOUT_TYPES,
   STUDIO_PAGE_SCREENS,
   WEB_HIDE_PATTERN,
@@ -83,8 +85,11 @@ import {
   STUDIO_CATEGORY_STYLES,
   STUDIO_MARKET_KINDS,
   STUDIO_MARKET_SECTIONS,
+  STUDIO_LEARNING_DAYS,
   STUDIO_LEARNING_SECTIONS,
   STUDIO_LIVE_SOURCES,
+  // 130 The live cards' premium looks.
+  STUDIO_LIVE_STATUS_STYLES,
   STUDIO_SCHOOL_SECTIONS,
   STUDIO_MARKET_SORTS,
   STUDIO_MARKET_STYLES,
@@ -96,6 +101,7 @@ import {
   STUDIO_MAP_ROUTE_LIVE,
   STUDIO_MAP_STYLES,
   STUDIO_TRACKING_STYLES,
+  STUDIO_TRACKING_DEFAULTS,
   TAB_LABELS,
   THEME_MODES,
   TRANSLATABLE,
@@ -239,8 +245,8 @@ class Checker {
       url = null;
     }
     // 97.5 The platform's own files too, 99.1 and the designs' pictures (https in production; local tests serve them over http),
-    // 128 and Yallapp's own photos the demos' templates use (public/demo-photos, demo-screens, stories).
-    const own = url !== null && url.origin === new URL(appUrl()).origin && /^\/(api\/v1\/assets|design-pictures|demo-photos|demo-screens|stories)\//.test(url.pathname);
+    // 128 and Yallapp's own photos the demos' templates use (public/demo-photos, demo-screens, stories); 130.12 and its travel photos (public/travel-photos).
+    const own = url !== null && url.origin === new URL(appUrl()).origin && /^\/(api\/v1\/assets|design-pictures|demo-photos|demo-screens|stories|travel-photos)\//.test(url.pathname);
     if (!url || (url.protocol !== "https:" && !own) || text.length > 2000 || /\s/.test(text)) {
       this.fail(where, `${what} must be a full https address.`);
       return null;
@@ -877,7 +883,13 @@ function parseBlock(ctx: Context, where: string, value: unknown, allowed: string
       break;
     case "text": {
       const html = typeof v.html === "string" ? cleanBlockHtml(v.html) : "";
-      if (!html.replace(/<[^>]*>/g, "").trim()) c.fail(at, "add some text.");
+      // Its words without tags, stripped until none is left, only to see that there are some.
+      let words = html;
+      for (let before = ""; before !== words; ) {
+        before = words;
+        words = words.replace(/<[^>]*>/g, "");
+      }
+      if (!words.trim()) c.fail(at, "add some text.");
       if (html.length > LAYOUT_LIMITS.htmlChars) c.fail(at, `the text can have at most ${LAYOUT_LIMITS.htmlChars} characters.`);
       block.html = html;
       break;
@@ -1001,6 +1013,13 @@ function optionalColor(c: Checker, where: string, value: unknown, what: string):
   return null;
 }
 
+/** 130 A live card's accent by day and by night (`live_status`, `tracking`). */
+function liveAccents(c: Checker, where: string, v: Record<string, unknown>): { accent?: string; dark_accent?: string } {
+  const accent = optionalColor(c, where, v.accent, "the live card's accent");
+  const dark = optionalColor(c, where, v.dark_accent, "the live card's dark accent");
+  return { ...(accent ? { accent } : {}), ...(dark ? { dark_accent: dark } : {}) };
+}
+
 /** 103R A Studio page on its own (an owner's own template): checked as in a layout of the app's. */
 export function parseStudioPage(value: unknown, app: Pick<App, "appType" | "backend" | "vertical">, languages: Languages): ParseResult<StudioPage> {
   const c = new Checker();
@@ -1088,7 +1107,21 @@ function parseStudioHeader(ctx: Context, where: string, value: unknown): StudioH
     const color = optionalColor(c, where, v[key], what);
     if (color) header[key] = color;
   }
-  const translations = parseTranslations(ctx, where, v.translations, TRANSLATABLE.studioHeader, { title: 80 });
+  // ——— 130.20 Premium chrome: the header's premium style, its line, photo and collapse ———
+  if (v.style !== undefined && v.style !== null) {
+    if (!oneOf(STUDIO_HEADER_STYLES, v.style)) c.fail(where, "the header's premium style isn't one the app has.");
+    else header.style = v.style;
+  }
+  const subtitle = c.optionalText(where, v.subtitle, 80, "The line under the header's title");
+  if (subtitle) header.subtitle = subtitle;
+  const cover = c.mediaUrl(where, v.image_url, "the header photo's address", false);
+  if (cover) header.image_url = cover;
+  if (v.collapse !== undefined && v.collapse !== null) {
+    if (typeof v.collapse !== "boolean") c.fail(where, "whether the header collapses must be true or false.");
+    else if (v.collapse === false) header.collapse = false;
+  }
+  // ——— end 130.20 premium chrome ———
+  const translations = parseTranslations(ctx, where, v.translations, TRANSLATABLE.studioHeader, { title: 80, subtitle: 80 });
   if (translations) header.translations = translations;
   return header;
 }
@@ -1696,7 +1729,9 @@ function parseNode(ctx: Context, where: string, value: unknown, state: { count: 
     node.type === "learning" ||
     node.type === "school" ||
     // 129.3 A ticker's words, a line each.
-    node.type === "marquee";
+    node.type === "marquee" ||
+    // 130.11 A greeting's own words, `{name}` the person's first name (its `title`: the words without a name).
+    node.type === "greeting";
   if (textual) {
     const text =
       (node.type === "text" || node.type === "bullets") && !card ? c.text(where, v.text, L.textChars, node.type === "bullets" ? "the list's lines" : "a text") : c.optionalText(where, v.text, L.textChars, node.type === "countdown" ? "The text once the time is up" : "The text");
@@ -1885,9 +1920,12 @@ function parseNode(ctx: Context, where: string, value: unknown, state: { count: 
         break;
       }
       node.learning = { section: l.section };
-      // 128.8 Its photo look; the card's own left out.
-      if (l.style === "photo") node.learning.style = "photo";
+      // 128.8 Its photo look; the card's own left out. 130.18 The gold ring.
+      if (l.style === "photo" || l.style === "ring") node.learning.style = l.style;
       else if (l.style !== undefined && l.style !== null && l.style !== "card") bad("choose how the student's card is drawn from the list.");
+      // 130.18 This week's days under a streak.
+      if (oneOf(STUDIO_LEARNING_DAYS, l.days)) node.learning.days = l.days;
+      else if (l.days !== undefined && l.days !== null) bad("choose how this week's days are drawn from the list.");
       break;
     }
     case "live_status": {
@@ -1901,6 +1939,16 @@ function parseNode(ctx: Context, where: string, value: unknown, state: { count: 
       if (v.icon !== undefined && v.icon !== null && v.icon !== "") {
         if (!(typeof v.icon === "string" && ICON_NAME.test(v.icon))) bad("choose an icon.");
         else node.icon = v.icon;
+      }
+      // 130 Its premium looks (the card's own left out), their accent and the ring's photo.
+      if (l.style !== undefined && l.style !== null) {
+        if (!oneOf(STUDIO_LIVE_STATUS_STYLES, l.style)) bad("choose how the live order looks.");
+        else if (l.style !== "card") node.live_status.style = l.style;
+      }
+      Object.assign(node.live_status, liveAccents(c, where, l));
+      {
+        const photo = c.mediaUrl(where, v.image_url, "the photo's address", false);
+        if (photo) node.image_url = photo;
       }
       break;
     }
@@ -1984,8 +2032,11 @@ function parseNode(ctx: Context, where: string, value: unknown, state: { count: 
       node.tracking = { kind: t.kind };
       if (t.style !== undefined && t.style !== null) {
         if (!oneOf(STUDIO_TRACKING_STYLES, t.style)) bad("choose how the live card looks.");
-        else if (t.style !== "card") node.tracking.style = t.style;
+        // 130.11 Kept unless it is the kind's own (a ride drawn as a card is kept: its own is the driver).
+        else if (t.style !== STUDIO_TRACKING_DEFAULTS[t.kind]) node.tracking.style = t.style;
       }
+      // 130 The premium looks' accent.
+      Object.assign(node.tracking, liveAccents(c, where, t));
       // The photo a driver's card shows while the driver has none of their own.
       const photo = c.mediaUrl(where, v.image_url, "the photo's address", false);
       if (photo) node.image_url = photo;

@@ -1,13 +1,17 @@
 import { describe, expect, it } from "vitest";
+import { signatureDesign } from "@/lib/studio/demo-designs";
 import { KINDS } from "@/lib/app/kinds";
 import { newApp } from "@/lib/app/setup";
 import type { StudioNode } from "@/lib/pages/types";
 import { itemSourcesFor } from "@/lib/pages/sources";
-import { parseStudioPage } from "@/lib/pages/validate";
 import { DEMO_BRANDS } from "@/lib/demo/content";
 import { studioDemoOf } from "@/lib/studio/demo-templates";
-import { applyWholeDesign, DESIGN_THEMES, designName, designsFor, keepContent, makeDesign } from "@/lib/studio/designs";
+import { applyWholeDesign, DESIGN_THEMES, designName, designsFor, keepContent, makeDesign, PREMIUM_HOME } from "@/lib/studio/designs";
+import { PREMIUM_BARS, PREMIUM_PALETTES, type PremiumDesignId } from "@/lib/studio/premium-designs";
+import { BUILT_IN_APP_DEFAULTS, defaultLayout } from "@/lib/pages/defaults";
+import { parseLayoutContent } from "@/lib/pages/validate";
 import { TEMPLATES } from "@/lib/studio/sections";
+import { THEME_CHROME } from "@/lib/studio/demo-designs/chrome";
 import type { SectionWord } from "@/lib/studio/sections";
 import { NOW } from "./helpers";
 
@@ -19,11 +23,12 @@ describe("108.7 whole designs", () => {
     const food = designsFor({ type: "food", vertical: null }).filter((d) => !d.demo);
     expect(food).toHaveLength(DESIGN_THEMES.length);
     expect(food.map((d) => d.id)).toEqual(DESIGN_THEMES.map((t) => `yallapp-${t.id}`));
-    expect(food[0]!.templates).toEqual(["food", "food_offers", "food_brand", "brand", "contact"]);
-    // Not only other colours: another first page, the pages in another order, lists and categories shown another way.
-    expect(new Set(food.map((d) => d.templates[0])).size).toBeGreaterThanOrEqual(3);
+    // 130.30 Each first its premium home made for the kind, then the kind's own pages, about and contact.
+    expect(food[0]!.templates).toEqual([PREMIUM_HOME, "food", "food_offers", "food_brand", "brand", "contact"]);
+    // Not only other colours: another home, the pages in another order, lists and categories shown another way.
+    expect(new Set(food.map((d) => d.templates[1])).size).toBeGreaterThanOrEqual(3);
     expect(new Set(DESIGN_THEMES.map((t) => JSON.stringify(t.layout))).size).toBe(DESIGN_THEMES.length);
-    expect(designsFor(null).map((d) => d.templates)).toEqual(DESIGN_THEMES.map(() => ["brand", "contact"]));
+    expect(designsFor(null).map((d) => d.templates)).toEqual(DESIGN_THEMES.map(() => [PREMIUM_HOME, "brand", "contact"]));
   });
 
   it("templates = demos: a kind with a Studio demo gets the demo first, the demo's own page only, in the demo's colour and font", () => {
@@ -35,7 +40,8 @@ describe("108.7 whole designs", () => {
     for (const kind of KINDS) {
       const demo = studioDemoOf({ type: kind.engine, vertical: kind.vertical });
       const designs = designsFor({ type: kind.engine, vertical: kind.vertical });
-      expect(designs.filter((d) => d.demo).map((d) => d.demo), kind.id).toEqual(demo ? [demo] : []);
+      // 130 The demo (its look A), then its Signature look B.
+      expect(designs.filter((d) => d.demo).map((d) => [d.demo, d.look ?? "a"]), kind.id).toEqual(demo ? [[demo, "a"], [demo, "b"]] : []);
       if (!demo) continue;
       // The demo's design starts with the very page the demo shows, as it is.
       const ctx = { brand: "#1F4E5F", source: null, w: (word: SectionWord) => `[${word}]`, newId: (() => { let n = 0; return () => `n${++n}`; })() };
@@ -56,10 +62,18 @@ describe("108.7 whole designs", () => {
       const ctx = { brand: "#1F4E5F", source: itemSourcesFor(app)[0] ?? null, w: (word: SectionWord) => `[${word}]` };
       for (const design of designsFor({ type: kind.engine, vertical: kind.vertical })) {
         const file = makeDesign(design, ctx, words, languages);
-        expect(file.look).toEqual({ font: design.theme.font, secondary_color: design.demo ? DEMO_BRANDS[design.demo].secondaryColor : design.theme.accent });
+        // 130.23 A whole design of Yallapp's own brings the system screens' premium look (a demo's, its own screens);
+        // 130.30 and its second colour and floating bar.
+        // (130 A demo's look B in that look's second colour.)
+        if (design.demo) expect(file.look).toEqual({ font: design.theme.font, secondary_color: (design.look ? signatureDesign(design.demo, design.look)?.project.appearance?.secondary_color : undefined) ?? DEMO_BRANDS[design.demo].secondaryColor });
+        else expect(file.look).toEqual({ font: design.theme.font, secondary_color: PREMIUM_PALETTES[design.theme.id as PremiumDesignId].accent, tab_bar: PREMIUM_BARS[design.theme.id as PremiumDesignId], screens: { system: THEME_CHROME[design.theme.id]!.system } });
+        // Checked as the editor saves them: their links to each other too.
+        const ready = defaultLayout(app, BUILT_IN_APP_DEFAULTS, NOW);
+        const slug = (s: string) => s.replaceAll("_", "-");
+        const layout = { ...ready, languages, pages: [...ready.pages.filter((p) => !file.pages.some((d) => slug(d.slug) === p.slug)), ...file.pages.map((p) => ({ slug: slug(p.slug), title: p.title, show_title: false, updated_at: NOW.toISOString(), blocks: [], studio: p.studio }))] };
+        const checked = parseLayoutContent(layout, { app, now: NOW });
+        expect(checked.ok ? [] : checked.errors, `${kind.id} › ${design.id}`).toEqual([]);
         for (const page of file.pages) {
-          const parsed = parseStudioPage(page.studio, app, languages);
-          expect(parsed.ok ? [] : parsed.errors, `${kind.id} › ${design.id} › ${page.slug}`).toEqual([]);
           // A demo's page keeps its own background.
           if (!design.demo) expect(page.studio.background ?? null).toBe(design.theme.background);
           if (page.studio.header && design.theme.header) expect(page.studio.header.type).toBe(design.theme.header);

@@ -36,6 +36,13 @@ class StudioDemo {
   static final zad = StudioDemo._load('zad_demo.json');
   static final safra = StudioDemo._load('safra_demo.json');
 
+  /// 130 One of the eighteen Signature looks: the project its template
+  /// starts, by the demo's address (test/support/signatures/
+  /// `<demo>_<look>.json`, all written by
+  /// platform/web/tests/unit/signature-looks.test.ts).
+  static StudioDemo signature(String demo, String look) =>
+      StudioDemo._load('signatures/${demo}_$look.json');
+
   final Map<String, dynamic> _demo;
 
   /// The language the demo's texts are served in, as the hosted API picks
@@ -199,7 +206,7 @@ class StudioDemo {
   /// their path, read once.
   static final _photos = <String, ui.Image>{};
   static final _photoPath = RegExp(
-    r'^https?://[^/]+(/(?:demo-photos|demo-screens|stories)/[^"]+\.jpg)$',
+    r'^https?://[^/]+(/(?:demo-photos|demo-screens|stories|travel-photos)/[^"]+\.jpg)$',
   );
 
   /// The paths of the photos [json] names.
@@ -305,8 +312,10 @@ Map<String, dynamic> _item(
 
 /// Sahm Express (Studio's delivery demo) as its app is: its three services
 /// on its home, with their drawn pictures (lib/demo/content.ts).
-DemoApi sahmStudioApi({bool courier = false}) {
-  final demo = StudioDemo.sahm;
+/// 130.5–130.6 Or a project from one of its Signature looks ([look],
+/// test/support/sig_sahm_a.json, sig_sahm_b.json).
+DemoApi sahmStudioApi({bool courier = false, StudioDemo? look}) {
+  final demo = look ?? StudioDemo.sahm;
   const source = 'delivery_services';
   return demo.apply(
     DemoApi.sahm(courier: courier),
@@ -346,8 +355,10 @@ DemoApi sahmStudioApi({bool courier = false}) {
 /// kitchens in their real photos (lib/demo/content.ts), loved near you on
 /// its home, and the demo number's kofta on its way from Sahara Grill with
 /// Karim twelve minutes from Cairo Tower.
-DemoApi sofraStudioApi() {
-  final demo = StudioDemo.sofra;
+/// 130.1–130.2 Or a project from one of its Signature looks ([look],
+/// `test/support/signatures/food-delivery_<a|b>.json`) in the look's main colour.
+DemoApi sofraStudioApi({StudioDemo? look, String primaryColor = '#D2552B'}) {
+  final demo = look ?? StudioDemo.sofra;
   const source = 'restaurants';
   final api = DemoApi.food();
   Map<String, dynamic> place(
@@ -527,7 +538,7 @@ DemoApi sofraStudioApi() {
   return demo.apply(
     api,
     appName: 'Sofra Eats',
-    primaryColor: '#D2552B',
+    primaryColor: primaryColor,
     items: {
       source: [
         _item(
@@ -585,42 +596,48 @@ const sofraPhotos = [
 /// 128 Zad (Studio's marketplace demo) as its app is: its whole project
 /// (test/support/zad_demo.json): the photo-first home, the five tabs and
 /// Shops, Manrope; its places and the Fathys' groceries from DemoApi.zad.
-DemoApi zadStudioApi() => StudioDemo.zad.apply(
-  DemoApi.zad(),
-  appName: 'Zad',
-  primaryColor: '#1E6B52',
-);
+/// 130.3–130.4 Or a project from one of its Signature looks ([look],
+/// test/support/sig_zad_a.json, sig_zad_b.json) in the look's main colour.
+DemoApi zadStudioApi({StudioDemo? look, String primaryColor = '#1E6B52'}) =>
+    (look ?? StudioDemo.zad).apply(
+      DemoApi.zad(),
+      appName: 'Zad',
+      primaryColor: primaryColor,
+    );
 
 /// Masar Rides (Studio's rides demo): its car types on its home, the cars
 /// in their drawings (none of a van); without
 /// [ride], no ride on its way.
-DemoApi masarStudioApi({bool driver = false, bool ride = true}) =>
-    StudioDemo.masar.apply(
-      ride
-          ? _masarRide(DemoApi.rides(driver: driver))
-          : (DemoApi.rides(driver: driver)..rides = []),
-      appName: 'Masar Rides',
-      primaryColor: '#14857A',
-      items: {
-        'vehicle_types': [
-          _item(
-            'vehicle_types',
-            1,
-            'Economy',
-            'Everyday cars',
-            image: StudioDemo.masar.picture('car-teal'),
-          ),
-          _item(
-            'vehicle_types',
-            2,
-            'Comfort',
-            'Newer cars with more room',
-            image: StudioDemo.masar.picture('car-dark'),
-          ),
-          _item('vehicle_types', 3, 'Van', 'For the family and the luggage'),
-        ],
-      },
-    );
+DemoApi masarStudioApi({
+  bool driver = false,
+  bool ride = true,
+  StudioDemo? look,
+}) => (look ?? StudioDemo.masar).apply(
+  ride
+      ? _masarRide(DemoApi.rides(driver: driver))
+      : (DemoApi.rides(driver: driver)..rides = []),
+  appName: 'Masar Rides',
+  primaryColor: '#14857A',
+  items: {
+    'vehicle_types': [
+      _item(
+        'vehicle_types',
+        1,
+        'Economy',
+        'Everyday cars',
+        image: StudioDemo.masar.picture('car-teal'),
+      ),
+      _item(
+        'vehicle_types',
+        2,
+        'Comfort',
+        'Newer cars with more room',
+        image: StudioDemo.masar.picture('car-dark'),
+      ),
+      _item('vehicle_types', 3, 'Van', 'For the family and the luggage'),
+    ],
+  },
+);
 
 /// 128 The ride on its way on Masar's home: Youssef, one of the demo's
 /// drivers (lib/demo/content.ts RIDES_DEMO_DRIVERS), with his car.
@@ -649,7 +666,8 @@ DemoApi lamhaStudioApi({
   bool driver = false,
   bool ride = true,
   bool onBoard = false,
-}) => StudioDemo.lamha.apply(
+  StudioDemo? look,
+}) => (look ?? StudioDemo.lamha).apply(
   DemoApi.taxi(driver: driver, ride: ride, onBoard: onBoard),
   appName: 'Lamha Taxi',
   primaryColor: '#1C2541',
@@ -683,7 +701,12 @@ DemoApi lamhaStudioApi({
 /// the gate at 07:42, Maths now and the bus home at 14:20; with
 /// [staffApp] its teachers work in the staff app, so this app has no
 /// Classroom tab (the approved bar).
-DemoApi nakhlaStudioApi({bool map = false, bool staffApp = false}) {
+DemoApi nakhlaStudioApi({
+  bool map = false,
+  bool staffApp = false,
+  // 130 A Signature look's project instead of the demo's.
+  StudioDemo? look,
+}) {
   String day(int ago) => DateTime.now()
       .subtract(Duration(days: ago, hours: 2))
       .toUtc()
@@ -742,7 +765,7 @@ DemoApi nakhlaStudioApi({bool map = false, bool staffApp = false}) {
       },
     ],
   };
-  return StudioDemo.nakhla.apply(
+  return (look ?? StudioDemo.nakhla).apply(
     api,
     appName: 'Nakhla School',
     primaryColor: '#1F4E79',
@@ -778,8 +801,12 @@ DemoApi nakhlaStudioApi({bool map = false, bool staffApp = false}) {
 /// on its home, each with its teacher and its picture. 128 With [staffApp]
 /// its teachers work in the staff app, so this app has no Teacher tab (the
 /// approved bar).
-DemoApi rawaqStudioApi({bool staffApp = false}) {
-  final demo = StudioDemo.rawaq;
+DemoApi rawaqStudioApi({
+  bool staffApp = false,
+  // 130 A Signature look's project instead of the demo's.
+  StudioDemo? look,
+}) {
+  final demo = look ?? StudioDemo.rawaq;
   Map<String, dynamic> course(
     int id,
     String title,
@@ -877,13 +904,13 @@ DemoApi rawaqStudioApi({bool staffApp = false}) {
 
 /// 126 Safra (Studio's travel demo) as its app is: its hotels on its home,
 /// with their photos.
-DemoApi safraStudioApi() {
+DemoApi safraStudioApi({StudioDemo? look}) {
   final data = jsonDecode(
     File('test/support/safra_api.json').readAsStringSync(),
   ) as Map<String, dynamic>;
   final hotels = ((data['hotels'] as Map)['items'] as List)
       .cast<Map<String, dynamic>>();
-  return StudioDemo.safra.apply(
+  return (look ?? StudioDemo.safra).apply(
     DemoApi.travel(),
     appName: 'Safra',
     primaryColor: '#0E1424',

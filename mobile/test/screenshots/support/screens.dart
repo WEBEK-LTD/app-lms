@@ -105,6 +105,10 @@ class _TahrirLocator implements Locator {
 
 final _atTahrir = [locatorProvider.overrideWithValue(const _TahrirLocator())];
 
+/// 130 The phone at Tahrir Square, for the Signature looks' pictures
+/// (signature_screenshots_test.dart).
+final atTahrir = _atTahrir;
+
 /// A ride from Tahrir Square to Cairo Tower set on the ride form, with
 /// "When" at the top and each car type's fare under it.
 Future<void> _whereTo(WidgetTester tester, GoRouter router) async {
@@ -855,6 +859,18 @@ final websiteShots = <Shot>[
     appType: AppType.lms,
     after: (tester, router) async => router.go('/teacher-desk'),
   ),
+  // 130.17 130.18 Ufuq Academy's Signature looks' homes, by day and by night.
+  for (final letter in ['a', 'b'])
+    for (final dark in [false, true])
+      Shot(
+        'premium-academy-sig-$letter-home${dark ? '-dark' : ''}',
+        dark: dark,
+        api: () =>
+            premiumAcademyApi(look: 'signatures/premium-academy_$letter.json'),
+        appType: AppType.lms,
+        prepare: preparePremiumAcademy,
+        overrides: premiumAcademyOverrides,
+      ),
   // 123 The premium academy's demo, Ufuq Academy (its story page too).
   for (final (name, location) in [
     ('premium-home', null),
@@ -954,6 +970,93 @@ final websiteShots = <Shot>[
     mapTiles: true,
     shadows: true,
   ),
+  // 130.1–130.6 The Signature looks of Sofra Eats, Zad and Sahm Express
+  // (test/support/signatures): each look's home by day and by
+  // night, as a project started from it is.
+  for (final dark in [false, true])
+    Shot(
+      'food-delivery-sig-a-home${dark ? '-dark' : ''}',
+      dark: dark,
+      api: () =>
+          sofraStudioApi(look: StudioDemo.signature('food-delivery', 'a')),
+      appName: 'Sofra Eats',
+      appType: AppType.food,
+      template: AppTemplate.bold,
+      prepare: (tester) => StudioDemo.signature(
+        'food-delivery',
+        'a',
+      ).prepare(tester, sofraPhotos),
+      shadows: true,
+    ),
+  for (final dark in [false, true])
+    Shot(
+      'food-delivery-sig-b-home${dark ? '-dark' : ''}',
+      dark: dark,
+      api: () => sofraStudioApi(
+        look: StudioDemo.signature('food-delivery', 'b'),
+        primaryColor: '#875800',
+      ),
+      appName: 'Sofra Eats',
+      appType: AppType.food,
+      template: AppTemplate.bold,
+      prepare: (tester) => StudioDemo.signature(
+        'food-delivery',
+        'b',
+      ).prepare(tester, sofraPhotos),
+      shadows: true,
+    ),
+  for (final dark in [false, true])
+    Shot(
+      'multi-vendor-sig-a-home${dark ? '-dark' : ''}',
+      dark: dark,
+      api: () => zadStudioApi(look: StudioDemo.signature('multi-vendor', 'a')),
+      appName: 'Zad',
+      appType: AppType.food,
+      template: AppTemplate.bold,
+      overrides: Zad.overrides,
+      designPictures: true,
+      prepare: StudioDemo.signature('multi-vendor', 'a').prepare,
+      shadows: true,
+    ),
+  for (final dark in [false, true])
+    Shot(
+      'multi-vendor-sig-b-home${dark ? '-dark' : ''}',
+      dark: dark,
+      api: () => zadStudioApi(
+        look: StudioDemo.signature('multi-vendor', 'b'),
+        primaryColor: '#134A36',
+      ),
+      appName: 'Zad',
+      appType: AppType.food,
+      template: AppTemplate.bold,
+      overrides: Zad.overrides,
+      designPictures: true,
+      prepare: StudioDemo.signature('multi-vendor', 'b').prepare,
+      shadows: true,
+    ),
+  for (final dark in [false, true])
+    Shot(
+      'delivery-sig-a-home${dark ? '-dark' : ''}',
+      dark: dark,
+      api: () => sahmStudioApi(look: StudioDemo.signature('delivery', 'a')),
+      appName: 'Sahm Express',
+      appType: AppType.delivery,
+      template: AppTemplate.bold,
+      prepare: StudioDemo.signature('delivery', 'a').prepare,
+      shadows: true,
+    ),
+  for (final dark in [false, true])
+    Shot(
+      'delivery-sig-b-home${dark ? '-dark' : ''}',
+      dark: dark,
+      api: () => sahmStudioApi(look: StudioDemo.signature('delivery', 'b')),
+      appName: 'Sahm Express',
+      appType: AppType.delivery,
+      template: AppTemplate.bold,
+      prepare: StudioDemo.signature('delivery', 'b').prepare,
+      shadows: true,
+    ),
+  // end 130.1–130.6
   // A ride app opens on its Ride tab; its Studio home is the next tab.
   Shot(
     'masar-home',
@@ -1039,6 +1142,36 @@ final websiteShots = <Shot>[
     prepare: StudioDemo.nakhla.prepare,
     overrides: _nakhlaMorning,
   ),
+  // 130.13–130.18 The Signature looks' homes, by day and by night.
+  for (final (name, look) in [
+    ('school-sig-a', StudioDemo.signature('school', 'a')),
+    ('school-sig-b', StudioDemo.signature('school', 'b')),
+  ])
+    for (final dark in [false, true])
+      Shot(
+        '$name-home${dark ? '-dark' : ''}',
+        dark: dark,
+        api: () => nakhlaStudioApi(staffApp: true, look: look),
+        appName: 'Nakhla School',
+        appType: AppType.school,
+        prepare: look.prepare,
+        overrides: _nakhlaMorning,
+        shadows: true,
+      ),
+  for (final (name, look) in [
+    ('teachers-sig-a', StudioDemo.signature('teachers', 'a')),
+    ('teachers-sig-b', StudioDemo.signature('teachers', 'b')),
+  ])
+    for (final dark in [false, true])
+      Shot(
+        '$name-home${dark ? '-dark' : ''}',
+        dark: dark,
+        api: () => rawaqStudioApi(staffApp: true, look: look),
+        appName: 'Rawaq Academy',
+        appType: AppType.lms,
+        prepare: (tester) => look.prepare(tester, rawaqPhotos),
+        shadows: true,
+      ),
   Shot(
     'nakhla-parent',
     api: () => nakhlaStudioApi(staffApp: true),

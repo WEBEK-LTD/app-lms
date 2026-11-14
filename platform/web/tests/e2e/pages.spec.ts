@@ -834,7 +834,8 @@ test("103R the team offers a Studio plan; the client makes a Studio project apar
   const designs = own.getByRole("dialog", { name: "Whole designs for your project (Academy)" });
   await expect(designs.getByRole("button", { name: "All 6" })).toBeVisible();
   await designs.locator('[data-studio-design="yallapp-fresh"]').click();
-  await expect(designs.getByText(/^3 pages · /)).toBeVisible();
+  // 130.30 Its premium home made for the academy, then its own pages, about and contact.
+  await expect(designs.getByText(/^4 pages · /)).toBeVisible();
   await expect(designs.getByLabel("Keep the texts and pictures I changed")).toBeChecked();
   const screenBackground = () => own.locator(".studio-screen > div").first().evaluate((el) => getComputedStyle(el).backgroundColor);
   const before = await screenBackground();
@@ -843,7 +844,7 @@ test("103R the team offers a Studio plan; the client makes a Studio project apar
   await expect(own.getByRole("status").filter({ hasText: "The design is applied." })).toBeVisible();
   await own.getByRole("button", { name: /^Page: / }).click();
   await own.getByRole("menuitemradio").first().click();
-  await expect.poll(screenBackground).toBe("rgb(240, 253, 244)");
+  await expect.poll(screenBackground).toBe("rgb(243, 250, 244)");
   await own.getByRole("button", { name: "Undo" }).click();
   await expect.poll(screenBackground).toBe(before);
   await own.getByRole("button", { name: "Redo" }).click();

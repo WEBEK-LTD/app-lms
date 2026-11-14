@@ -2,7 +2,7 @@
  "screens": {
   "sign_in": {
    "style": "card",
-   "image_url": "http://localhost:3000/stories/delivery/delivery-shop-owner.jpg",
+   "image_url": "http://localhost:3000/stories/delivery/delivery-handover.jpg",
    "title": {
     "en": "Your parcel, across town today",
     "ar": "طردك يصل عبر المدينة اليوم",
@@ -17,7 +17,47 @@
   },
   "account_menu": {
    "header": "tiles",
-   "items": []
+   "items": [
+    {
+     "key": "shipments",
+     "hidden": false,
+     "label": {},
+     "icon": null
+    },
+    {
+     "key": "notifications",
+     "hidden": false,
+     "label": {},
+     "icon": null
+    },
+    {
+     "key": "settings",
+     "hidden": false,
+     "label": {},
+     "icon": null
+    },
+    {
+     "key": "help",
+     "hidden": false,
+     "label": {},
+     "icon": null
+    },
+    {
+     "key": "privacy",
+     "hidden": false,
+     "label": {},
+     "icon": null
+    },
+    {
+     "key": "terms",
+     "hidden": false,
+     "label": {},
+     "icon": null
+    }
+   ]
+  },
+  "system": {
+   "look": "brand"
   }
  },
  "layout": {
@@ -26,7 +66,7 @@
    "theme_mode": "system",
    "user_can_change_mode": true,
    "secondary_color": "#F2B544",
-   "font": "Manrope",
+   "font": "Plus Jakarta Sans",
    "corners": "round",
    "cards": "elevated"
   },
@@ -116,277 +156,343 @@
     "updated_at": "2026-11-09T10:00:00.000Z",
     "blocks": [],
     "studio": {
-     "background": "#F3F6FA",
-     "dark_background": "#0A121C",
+     "background": "#F1F4F8",
+     "dark_background": "#070D16",
      "body": {
-      "id": "demo-13",
+      "id": "demo-1",
       "type": "column",
       "padding": {
-       "bottom": 24
+       "top": 0,
+       "end": 0,
+       "bottom": 24,
+       "start": 0
       },
       "children": [
        {
-        "id": "demo-14",
-        "type": "photo_hero",
-        "name": "Anything, anywhere\nin the city. Today.",
-        "image_url": "http://localhost:3000/stories/delivery/delivery-rider.jpg",
-        "height": 300,
-        "background": "#08182C",
-        "scrim": {
-         "color": "#08182C",
-         "from": 0.5,
-         "middle": 0.1,
-         "at": 40,
-         "to": 0.85
+        "id": "demo-2",
+        "type": "column",
+        "name": "Across the city,",
+        "surface": {
+         "pattern": "grid",
+         "pattern_strength": 0.06
         },
-        "align": "between",
         "padding": {
-         "top": 22,
-         "end": 18,
-         "bottom": 74,
-         "start": 18
+         "top": 0,
+         "end": 0,
+         "bottom": 4,
+         "start": 0
         },
-        "overlap": 56,
         "children": [
          {
-          "id": "demo-15",
+          "id": "demo-3",
           "type": "row",
+          "name": "Sahm Express",
+          "gap": 2,
           "cross": "center",
-          "align": "between",
+          "padding": {
+           "top": 18,
+           "end": 16,
+           "bottom": 0,
+           "start": 16
+          },
           "children": [
            {
-            "id": "demo-16",
-            "type": "row",
-            "cross": "center",
-            "children": [
-             {
-              "id": "demo-17",
-              "type": "text",
-              "text": "Sahm Express",
-              "color": "#FFFFFF",
-              "font": {
-               "size": 18,
-               "weight": 800,
-               "letter_spacing": -0.2
-              },
-              "translations": {
-               "ar": {
-                "text": "Sahm Express"
-               },
-               "tr": {
-                "text": "Sahm Express"
-               }
-              }
+            "id": "demo-4",
+            "type": "text",
+            "text": "Sahm Express",
+            "font": {
+             "size": 22,
+             "weight": 800,
+             "letter_spacing": -0.9
+            },
+            "color": "#0D1B2A",
+            "dark_color": "#EAF1F8",
+            "max_lines": 1,
+            "translations": {
+             "ar": {
+              "text": "Sahm Express"
              },
-             {
-              "id": "demo-18",
-              "type": "row",
-              "width": 5,
-              "height": 5,
-              "radius": 3,
-              "background": "#F2B544",
-              "self_align": "center",
-              "margin": {
-               "start": 2,
-               "top": 8
-              },
-              "children": []
+             "tr": {
+              "text": "Sahm Express"
              }
-            ]
+            }
            },
            {
-            "id": "demo-19",
+            "id": "demo-5",
+            "type": "text",
+            "text": ".",
+            "width": "fill",
+            "color": "#E79B12",
+            "dark_color": "#F2B544",
+            "font": {
+             "size": 22,
+             "weight": 800
+            }
+           },
+           {
+            "id": "demo-6",
             "type": "row",
-            "width": 40,
-            "height": 40,
-            "radius": 20,
+            "width": 44,
+            "height": 44,
+            "radius": 22,
             "align": "center",
             "cross": "center",
-            "overlay": {
-             "color": "#FFFFFF",
-             "opacity": 0.18
-            },
-            "color": "#FFFFFF",
+            "background": "#FFFFFF",
+            "dark_background": "#0F1A28",
+            "border_color": "#DCE3EC",
+            "dark_border_color": "#1E2D40",
+            "border_width": 1,
+            "shadow": "light",
             "action": {
              "type": "screen",
              "screen": "notifications"
             },
             "children": [
              {
-              "id": "demo-20",
+              "id": "demo-7",
               "type": "icon",
               "icon": "notifications",
               "icon_size": 22,
-              "color": "#FFFFFF"
+              "color": "#0D1B2A",
+              "dark_color": "#EAF1F8"
              }
             ]
            }
           ]
          },
          {
-          "id": "demo-21",
-          "type": "text",
-          "text": "Anything, anywhere\nin the city. Today.",
-          "color": "#FFFFFF",
-          "font": {
-           "size": 30,
-           "weight": 800,
-           "line_height": 1.05,
-           "letter_spacing": -0.6
-          },
-          "translations": {
-           "ar": {
-            "text": "أي شيء، إلى أي مكان\nفي المدينة. اليوم."
-           },
-           "tr": {
-            "text": "Her şey, şehrin\nher yerine. Bugün."
-           }
-          }
-         },
-         {
-          "id": "demo-1",
+          "id": "demo-8",
           "type": "column",
-          "name": "Send a parcel",
-          "gap": 10,
           "padding": {
-           "top": 16,
-           "end": 16,
-           "bottom": 16,
-           "start": 16
-          },
-          "margin": {
-           "top": 0,
+           "top": 18,
            "end": 16,
            "bottom": 0,
            "start": 16
           },
-          "radius": 24,
-          "background": "#FFFFFF",
-          "dark_background": "#132030",
-          "shadow": "strong",
+          "children": [
+           {
+            "id": "demo-9",
+            "type": "text",
+            "text": "Across Cairo,",
+            "font": {
+             "size": 46,
+             "weight": 800,
+             "line_height": 0.98,
+             "letter_spacing": -2.2
+            },
+            "color": "#0D1B2A",
+            "dark_color": "#EAF1F8",
+            "translations": {
+             "ar": {
+              "text": "عبر القاهرة،"
+             },
+             "tr": {
+              "text": "Kahire'nin her yerine,"
+             }
+            }
+           },
+           {
+            "id": "demo-10",
+            "type": "text",
+            "text": "today.",
+            "font": {
+             "size": 46,
+             "weight": 800,
+             "line_height": 0.98,
+             "letter_spacing": -2.2
+            },
+            "color": "#1F6FB2",
+            "dark_color": "#6DB3F2",
+            "translations": {
+             "ar": {
+              "text": "اليوم."
+             },
+             "tr": {
+              "text": "bugün."
+             }
+            }
+           }
+          ]
+         }
+        ]
+       },
+       {
+        "id": "demo-11",
+        "type": "column",
+        "name": "Send a parcel",
+        "radius": 28,
+        "gap": 0,
+        "background": "#FFFFFF",
+        "dark_background": "#0F1A28",
+        "border_color": "#DCE3EC",
+        "dark_border_color": "#1E2D40",
+        "border_width": 1,
+        "shadow": "strong",
+        "surface": {
+         "ticket": {
+          "at": 47,
+          "axis": "horizontal",
+          "notch": 12
+         },
+         "soft": 3
+        },
+        "padding": {
+         "top": 20,
+         "end": 16,
+         "bottom": 16,
+         "start": 16
+        },
+        "margin": {
+         "top": 18,
+         "end": 16,
+         "bottom": 0,
+         "start": 16
+        },
+        "children": [
+         {
+          "id": "demo-12",
+          "type": "row",
+          "name": "Pickup",
+          "gap": 12,
+          "cross": "center",
           "action": {
            "type": "screen",
            "screen": "send_parcel"
           },
           "children": [
            {
-            "id": "demo-2",
-            "type": "row",
-            "gap": 10,
-            "cross": "center",
+            "id": "demo-13",
+            "type": "icon",
+            "icon": "radio_button_checked",
+            "icon_size": 22,
+            "color": "#1F6FB2",
+            "dark_color": "#6DB3F2"
+           },
+           {
+            "id": "demo-14",
+            "type": "column",
+            "width": "fill",
+            "gap": 2,
             "children": [
              {
-              "id": "demo-3",
-              "type": "row",
-              "radius": 5,
-              "padding": {
-               "top": 3,
-               "end": 3,
-               "bottom": 3,
-               "start": 3
+              "id": "demo-15",
+              "type": "text",
+              "text": "Pickup",
+              "font": {
+               "family": "JetBrains Mono",
+               "size": 11,
+               "weight": 700,
+               "letter_spacing": 2,
+               "uppercase": true
               },
-              "background": "#1F6FB2",
-              "dark_background": "#1F6FB2",
-              "children": [
-               {
-                "type": "row",
-                "width": 4,
-                "height": 4,
-                "radius": 2,
-                "id": "demo-4",
-                "background": "#FFFFFF",
-                "dark_background": "#132030"
+              "color": "#526070",
+              "dark_color": "#9FB0C2",
+              "translations": {
+               "ar": {
+                "text": "الاستلام"
+               },
+               "tr": {
+                "text": "Alış"
                }
-              ]
+              }
              },
              {
-              "id": "demo-5",
-              "type": "row",
-              "width": "fill",
-              "gap": 4,
-              "cross": "center",
-              "children": [
-               {
-                "id": "demo-6",
-                "type": "text",
-                "text": "Pickup ·",
-                "font": {
-                 "size": 14
-                },
-                "color": "#566475",
-                "dark_color": "#A7B4C2",
-                "translations": {
-                 "ar": {
-                  "text": "الاستلام ·"
-                 },
-                 "tr": {
-                  "text": "Alış ·"
-                 }
-                }
+              "id": "demo-16",
+              "type": "text",
+              "text": "Abbas El Akkad St.",
+              "font": {
+               "size": 19,
+               "weight": 800,
+               "letter_spacing": -0.4
+              },
+              "color": "#0D1B2A",
+              "dark_color": "#EAF1F8",
+              "max_lines": 1,
+              "translations": {
+               "ar": {
+                "text": "شارع عباس العقاد"
                },
-               {
-                "id": "demo-7",
-                "type": "text",
-                "text": "Abbas El Akkad St.",
-                "width": "fill",
-                "max_lines": 1,
-                "font": {
-                 "size": 14,
-                 "weight": 800
-                },
-                "color": "#0F1E2E",
-                "dark_color": "#EAF1F8",
-                "translations": {
-                 "ar": {
-                  "text": "شارع عباس العقاد"
-                 },
-                 "tr": {
-                  "text": "Abbas El Akkad Caddesi"
-                 }
-                }
+               "tr": {
+                "text": "Abbas El Akkad Caddesi"
                }
-              ]
+              }
              }
             ]
            },
            {
-            "id": "demo-8",
-            "type": "row",
-            "width": 2,
-            "height": 12,
-            "background": "#DEE5EE",
-            "dark_background": "#22324A",
-            "margin": {
-             "top": 0,
-             "end": 0,
-             "bottom": 0,
-             "start": 4
-            },
-            "children": []
+            "id": "demo-17",
+            "type": "icon",
+            "icon": "my_location",
+            "icon_size": 22,
+            "color": "#526070",
+            "dark_color": "#9FB0C2"
+           }
+          ]
+         },
+         {
+          "id": "demo-18",
+          "type": "spacer",
+          "height": 20
+         },
+         {
+          "id": "demo-19",
+          "type": "row",
+          "name": "Drop-off",
+          "gap": 12,
+          "cross": "center",
+          "action": {
+           "type": "screen",
+           "screen": "send_parcel"
+          },
+          "children": [
+           {
+            "id": "demo-20",
+            "type": "icon",
+            "icon": "location_on",
+            "icon_size": 22,
+            "color": "#E79B12",
+            "dark_color": "#F2B544"
            },
            {
-            "id": "demo-9",
-            "type": "row",
-            "gap": 10,
-            "cross": "center",
+            "id": "demo-21",
+            "type": "column",
+            "width": "fill",
+            "gap": 2,
             "children": [
              {
-              "id": "demo-10",
-              "type": "icon",
-              "icon": "location_on",
-              "icon_size": 18,
-              "color": "#F2B544"
+              "id": "demo-22",
+              "type": "text",
+              "text": "Drop-off",
+              "font": {
+               "family": "JetBrains Mono",
+               "size": 11,
+               "weight": 700,
+               "letter_spacing": 2,
+               "uppercase": true
+              },
+              "color": "#526070",
+              "dark_color": "#9FB0C2",
+              "translations": {
+               "ar": {
+                "text": "التسليم"
+               },
+               "tr": {
+                "text": "Teslim"
+               }
+              }
              },
              {
-              "id": "demo-11",
+              "id": "demo-23",
               "type": "text",
               "text": "Where to?",
-              "width": "fill",
               "font": {
-               "size": 14
+               "size": 19,
+               "weight": 800,
+               "letter_spacing": -0.4
               },
-              "color": "#566475",
-              "dark_color": "#A7B4C2",
+              "color": "#526070",
+              "dark_color": "#9FB0C2",
+              "max_lines": 1,
               "translations": {
                "ar": {
                 "text": "إلى أين؟"
@@ -399,61 +505,354 @@
             ]
            },
            {
-            "id": "demo-12",
-            "type": "button",
-            "text": "Send a parcel",
-            "icon": "send",
-            "icon_position": "start",
+            "id": "demo-24",
+            "type": "icon",
+            "icon": "link",
+            "icon_size": 22,
+            "color": "#526070",
+            "dark_color": "#9FB0C2"
+           }
+          ]
+         },
+         {
+          "id": "demo-25",
+          "type": "spacer",
+          "height": 44
+         },
+         {
+          "id": "demo-26",
+          "type": "row",
+          "name": "Same day",
+          "gap": 8,
+          "children": [
+           {
+            "id": "demo-27",
+            "type": "column",
+            "name": "Same day",
             "width": "fill",
-            "height": 50,
-            "radius": 16,
-            "background": "#1F6FB2",
-            "color": "#FFFFFF",
-            "font": {
-             "size": 15,
-             "weight": 800
+            "gap": 6,
+            "radius": 18,
+            "padding": {
+             "top": 12,
+             "end": 8,
+             "bottom": 12,
+             "start": 10
             },
-            "text_align": "center",
-            "margin": {
-             "top": 4
-            },
+            "background": "#EAF2FB",
+            "dark_background": "#132A44",
+            "border_color": "#1F6FB2",
+            "dark_border_color": "#6DB3F2",
+            "border_width": 2,
             "action": {
              "type": "screen",
              "screen": "send_parcel"
             },
-            "motion": {
-             "press": "shrink"
-            },
-            "translations": {
-             "ar": {
-              "text": "أرسل طردًا"
+            "children": [
+             {
+              "id": "demo-28",
+              "type": "text",
+              "text": "Same day",
+              "font": {
+               "size": 12.5,
+               "weight": 700,
+               "letter_spacing": -0.2
+              },
+              "color": "#0D1B2A",
+              "dark_color": "#EAF1F8",
+              "max_lines": 1,
+              "translations": {
+               "ar": {
+                "text": "في اليوم نفسه"
+               },
+               "tr": {
+                "text": "Aynı gün"
+               }
+              }
              },
-             "tr": {
-              "text": "Kargo gönder"
+             {
+              "id": "demo-29",
+              "type": "text",
+              "text": "2–4h",
+              "font": {
+               "size": 22,
+               "weight": 800,
+               "letter_spacing": -0.6,
+               "line_height": 1
+              },
+              "color": "#0D1B2A",
+              "dark_color": "#EAF1F8",
+              "translations": {
+               "ar": {
+                "text": "2–4 س"
+               },
+               "tr": {
+                "text": "2–4 sa"
+               }
+              }
+             },
+             {
+              "id": "demo-30",
+              "type": "text",
+              "text": "+EGP 0",
+              "font": {
+               "size": 11,
+               "weight": 600
+              },
+              "color": "#526070",
+              "dark_color": "#9FB0C2",
+              "max_lines": 1,
+              "translations": {
+               "ar": {
+                "text": "+0 ج.م"
+               },
+               "tr": {
+                "text": "+0 EGP"
+               }
+              }
              }
-            }
+            ]
+           },
+           {
+            "id": "demo-31",
+            "type": "column",
+            "name": "Express",
+            "width": "fill",
+            "gap": 6,
+            "radius": 18,
+            "padding": {
+             "top": 12,
+             "end": 8,
+             "bottom": 12,
+             "start": 10
+            },
+            "background": "#FFFFFF",
+            "dark_background": "#0F1A28",
+            "border_color": "#DCE3EC",
+            "dark_border_color": "#1E2D40",
+            "border_width": 1,
+            "action": {
+             "type": "screen",
+             "screen": "send_parcel"
+            },
+            "children": [
+             {
+              "id": "demo-32",
+              "type": "text",
+              "text": "Express",
+              "font": {
+               "size": 12.5,
+               "weight": 700,
+               "letter_spacing": -0.2
+              },
+              "color": "#0D1B2A",
+              "dark_color": "#EAF1F8",
+              "max_lines": 1,
+              "translations": {
+               "ar": {
+                "text": "سريع"
+               },
+               "tr": {
+                "text": "Ekspres"
+               }
+              }
+             },
+             {
+              "id": "demo-33",
+              "type": "text",
+              "text": "1h",
+              "font": {
+               "size": 22,
+               "weight": 800,
+               "letter_spacing": -0.6,
+               "line_height": 1
+              },
+              "color": "#0D1B2A",
+              "dark_color": "#EAF1F8",
+              "translations": {
+               "ar": {
+                "text": "1 س"
+               },
+               "tr": {
+                "text": "1 sa"
+               }
+              }
+             },
+             {
+              "id": "demo-34",
+              "type": "text",
+              "text": "+EGP 45",
+              "font": {
+               "size": 11,
+               "weight": 600
+              },
+              "color": "#526070",
+              "dark_color": "#9FB0C2",
+              "max_lines": 1,
+              "translations": {
+               "ar": {
+                "text": "+45 ج.م"
+               },
+               "tr": {
+                "text": "+45 EGP"
+               }
+              }
+             }
+            ]
+           },
+           {
+            "id": "demo-35",
+            "type": "column",
+            "name": "Documents",
+            "width": "fill",
+            "gap": 6,
+            "radius": 18,
+            "padding": {
+             "top": 12,
+             "end": 8,
+             "bottom": 12,
+             "start": 10
+            },
+            "background": "#FFFFFF",
+            "dark_background": "#0F1A28",
+            "border_color": "#DCE3EC",
+            "dark_border_color": "#1E2D40",
+            "border_width": 1,
+            "action": {
+             "type": "screen",
+             "screen": "send_parcel"
+            },
+            "children": [
+             {
+              "id": "demo-36",
+              "type": "text",
+              "text": "Documents",
+              "font": {
+               "size": 12.5,
+               "weight": 700,
+               "letter_spacing": -0.2
+              },
+              "color": "#0D1B2A",
+              "dark_color": "#EAF1F8",
+              "max_lines": 1,
+              "translations": {
+               "ar": {
+                "text": "مستندات"
+               },
+               "tr": {
+                "text": "Evrak"
+               }
+              }
+             },
+             {
+              "id": "demo-37",
+              "type": "text",
+              "text": "4h",
+              "font": {
+               "size": 22,
+               "weight": 800,
+               "letter_spacing": -0.6,
+               "line_height": 1
+              },
+              "color": "#0D1B2A",
+              "dark_color": "#EAF1F8",
+              "translations": {
+               "ar": {
+                "text": "4 س"
+               },
+               "tr": {
+                "text": "4 sa"
+               }
+              }
+             },
+             {
+              "id": "demo-38",
+              "type": "text",
+              "text": "+EGP 15",
+              "font": {
+               "size": 11,
+               "weight": 600
+              },
+              "color": "#526070",
+              "dark_color": "#9FB0C2",
+              "max_lines": 1,
+              "translations": {
+               "ar": {
+                "text": "+15 ج.م"
+               },
+               "tr": {
+                "text": "+15 EGP"
+               }
+              }
+             }
+            ]
            }
           ]
+         },
+         {
+          "id": "demo-39",
+          "type": "button",
+          "text": "Send a parcel · from EGP 40",
+          "icon": "send",
+          "width": "fill",
+          "height": 52,
+          "radius": 16,
+          "background": "#1F6FB2",
+          "dark_background": "#F2B544",
+          "color": "#FFFFFF",
+          "dark_color": "#0D1B2A",
+          "shadow": "medium",
+          "font": {
+           "size": 16,
+           "weight": 800
+          },
+          "margin": {
+           "top": 14,
+           "end": 0,
+           "bottom": 0,
+           "start": 0
+          },
+          "action": {
+           "type": "screen",
+           "screen": "send_parcel"
+          },
+          "translations": {
+           "ar": {
+            "text": "أرسل طردًا · من 40 ج.م"
+           },
+           "tr": {
+            "text": "Paket gönder · 40 EGP'den"
+           }
+          }
          }
         ]
        },
        {
-        "id": "demo-22",
+        "id": "demo-40",
         "type": "tracking",
+        "name": "Your shipment on its way",
         "tracking": {
-         "kind": "shipment"
+         "kind": "shipment",
+         "style": "steps",
+         "accent": "#F2B544",
+         "dark_accent": "#F2B544"
         },
+        "image_url": "http://localhost:3000/stories/delivery/delivery-rider.jpg",
         "visibility": "signed_in",
-        "background": "#E3EEF8",
-        "dark_background": "#16263A",
-        "color": "#0F1E2E",
-        "dark_color": "#EAF1F8",
-        "radius": 20,
+        "width": "fill",
+        "radius": 26,
+        "background": "#0D1B2A",
+        "dark_background": "#13263C",
+        "color": "#FFFFFF",
+        "shadow": "strong",
+        "surface": {
+         "pattern": "dots",
+         "pattern_strength": 0.06
+        },
         "padding": {
-         "top": 14,
-         "end": 14,
+         "top": 16,
+         "end": 16,
          "bottom": 14,
-         "start": 14
+         "start": 16
         },
         "margin": {
          "top": 14,
@@ -463,149 +862,7 @@
         }
        },
        {
-        "id": "demo-23",
-        "type": "grid",
-        "columns": 2,
-        "gap": 10,
-        "padding": {
-         "top": 14,
-         "end": 16,
-         "bottom": 0,
-         "start": 16
-        },
-        "children": [
-         {
-          "id": "demo-24",
-          "type": "photo_hero",
-          "name": "Same day",
-          "image_url": "http://localhost:3000/stories/delivery/delivery-handover.jpg",
-          "height": 120,
-          "radius": 20,
-          "background": "#0F1E2E",
-          "scrim": {
-           "color": "#000000",
-           "from": 0,
-           "middle": 0,
-           "at": 40,
-           "to": 0.75
-          },
-          "align": "end",
-          "padding": {
-           "top": 10,
-           "end": 12,
-           "bottom": 10,
-           "start": 12
-          },
-          "action": {
-           "type": "screen",
-           "screen": "send_parcel"
-          },
-          "children": [
-           {
-            "id": "demo-25",
-            "type": "text",
-            "text": "Same day",
-            "color": "#FFFFFF",
-            "font": {
-             "size": 15,
-             "weight": 800
-            },
-            "translations": {
-             "ar": {
-              "text": "في اليوم نفسه"
-             },
-             "tr": {
-              "text": "Aynı gün"
-             }
-            }
-           },
-           {
-            "id": "demo-26",
-            "type": "text",
-            "text": "2 to 4 hours",
-            "color": "#FFFFFF",
-            "font": {
-             "size": 11
-            },
-            "translations": {
-             "ar": {
-              "text": "من ساعتين إلى 4 ساعات"
-             },
-             "tr": {
-              "text": "2 ila 4 saat"
-             }
-            }
-           }
-          ]
-         },
-         {
-          "id": "demo-27",
-          "type": "photo_hero",
-          "name": "Express",
-          "image_url": "http://localhost:3000/stories/delivery/delivery-boxes.jpg",
-          "height": 120,
-          "radius": 20,
-          "background": "#0F1E2E",
-          "scrim": {
-           "color": "#000000",
-           "from": 0,
-           "middle": 0,
-           "at": 40,
-           "to": 0.75
-          },
-          "align": "end",
-          "padding": {
-           "top": 10,
-           "end": 12,
-           "bottom": 10,
-           "start": 12
-          },
-          "action": {
-           "type": "screen",
-           "screen": "send_parcel"
-          },
-          "children": [
-           {
-            "id": "demo-28",
-            "type": "text",
-            "text": "Express",
-            "color": "#FFFFFF",
-            "font": {
-             "size": 15,
-             "weight": 800
-            },
-            "translations": {
-             "ar": {
-              "text": "سريع"
-             },
-             "tr": {
-              "text": "Ekspres"
-             }
-            }
-           },
-           {
-            "id": "demo-29",
-            "type": "text",
-            "text": "Within the hour",
-            "color": "#FFFFFF",
-            "font": {
-             "size": 11
-            },
-            "translations": {
-             "ar": {
-              "text": "خلال ساعة"
-             },
-             "tr": {
-              "text": "Bir saat içinde"
-             }
-            }
-           }
-          ]
-         }
-        ]
-       },
-       {
-        "id": "demo-30",
+        "id": "demo-41",
         "type": "row",
         "gap": 10,
         "cross": "start",
@@ -630,7 +887,7 @@
         "visibility": "signed_out",
         "children": [
          {
-          "id": "demo-31",
+          "id": "demo-42",
           "type": "icon",
           "icon": "info",
           "icon_size": 18,
@@ -638,7 +895,7 @@
           "dark_color": "#A7B4C2"
          },
          {
-          "id": "demo-32",
+          "id": "demo-43",
           "type": "text",
           "text": "This is a demo app. Sign in with +1 202 555 0123 and the code 246810. Anything you add is deleted after a day.",
           "width": "fill",
@@ -676,80 +933,43 @@
     },
     "studio": {
      "body": {
-      "id": "demo-36",
+      "id": "demo-47",
       "type": "column",
       "children": [
        {
-        "id": "demo-39",
-        "type": "photo_hero",
-        "name": "Picked up within the hour",
-        "image_url": "http://localhost:3000/stories/delivery/delivery-boxes.jpg",
-        "height": 132,
-        "radius": 22,
-        "background": "#08182C",
-        "scrim": {
-         "color": "#08182C",
-         "from": 0,
-         "middle": 0,
-         "at": 40,
-         "to": 0.82
+        "id": "demo-48",
+        "type": "tracking",
+        "name": "Your shipment on its way",
+        "tracking": {
+         "kind": "shipment",
+         "style": "steps",
+         "accent": "#F2B544",
+         "dark_accent": "#F2B544"
         },
-        "align": "end",
+        "image_url": "http://localhost:3000/stories/delivery/delivery-rider.jpg",
+        "visibility": "signed_in",
+        "width": "fill",
+        "radius": 26,
+        "background": "#0D1B2A",
+        "dark_background": "#13263C",
+        "color": "#FFFFFF",
+        "shadow": "strong",
+        "surface": {
+         "pattern": "dots",
+         "pattern_strength": 0.06
+        },
         "padding": {
          "top": 16,
          "end": 16,
-         "bottom": 16,
+         "bottom": 14,
          "start": 16
         },
         "margin": {
-         "top": 12,
+         "top": 10,
          "end": 16,
-         "bottom": 4,
+         "bottom": 6,
          "start": 16
-        },
-        "children": [
-         {
-          "id": "demo-37",
-          "type": "text",
-          "text": "Picked up within the hour",
-          "color": "#FFFFFF",
-          "font": {
-           "size": 17,
-           "weight": 800,
-           "line_height": 1.2
-          },
-          "translations": {
-           "ar": {
-            "text": "نستلم طردك خلال ساعة"
-           },
-           "tr": {
-            "text": "Bir saat içinde alınır"
-           }
-          }
-         },
-         {
-          "id": "demo-38",
-          "type": "text",
-          "text": "Across the city, the same day.",
-          "color": "#FFFFFF",
-          "opacity": 0.9,
-          "font": {
-           "size": 12.5,
-           "line_height": 1.35
-          },
-          "margin": {
-           "top": 3
-          },
-          "translations": {
-           "ar": {
-            "text": "عبر المدينة، في اليوم نفسه."
-           },
-           "tr": {
-            "text": "Aynı gün, şehrin her yerine."
-           }
-          }
-         }
-        ]
+        }
        }
       ]
      },
@@ -768,13 +988,14 @@
         "title": "Gönder"
        }
       },
-      "background": "#FFFFFF",
-      "color": "#0F1E2E",
-      "dark_background": "#132030",
-      "dark_color": "#EAF1F8"
+      "background": "#F1F4F8",
+      "color": "#0D1B2A",
+      "dark_background": "#070D16",
+      "dark_color": "#EAF1F8",
+      "style": "brand"
      },
-     "background": "#F3F6FA",
-     "dark_background": "#0A121C"
+     "background": "#F1F4F8",
+     "dark_background": "#070D16"
     },
     "show_title": false,
     "updated_at": "2026-11-09T10:00:00.000Z",
@@ -793,105 +1014,43 @@
     },
     "studio": {
      "body": {
-      "id": "demo-43",
+      "id": "demo-52",
       "type": "column",
       "children": [
        {
-        "id": "demo-44",
+        "id": "demo-53",
         "type": "tracking",
+        "name": "Your shipment on its way",
         "tracking": {
-         "kind": "shipment"
+         "kind": "shipment",
+         "style": "steps",
+         "accent": "#F2B544",
+         "dark_accent": "#F2B544"
         },
+        "image_url": "http://localhost:3000/stories/delivery/delivery-rider.jpg",
         "visibility": "signed_in",
-        "background": "#E3EEF8",
-        "dark_background": "#16263A",
-        "color": "#0F1E2E",
-        "dark_color": "#EAF1F8",
-        "radius": 20,
-        "padding": {
-         "top": 14,
-         "end": 14,
-         "bottom": 14,
-         "start": 14
+        "width": "fill",
+        "radius": 26,
+        "background": "#0D1B2A",
+        "dark_background": "#13263C",
+        "color": "#FFFFFF",
+        "shadow": "strong",
+        "surface": {
+         "pattern": "dots",
+         "pattern_strength": 0.06
         },
-        "margin": {
-         "top": 12,
-         "end": 16,
-         "bottom": 0,
-         "start": 16
-        }
-       },
-       {
-        "id": "demo-47",
-        "type": "photo_hero",
-        "name": "From your door to theirs",
-        "image_url": "http://localhost:3000/stories/delivery/delivery-handover.jpg",
-        "height": 132,
-        "radius": 22,
-        "background": "#08182C",
-        "scrim": {
-         "color": "#08182C",
-         "from": 0,
-         "middle": 0,
-         "at": 40,
-         "to": 0.82
-        },
-        "align": "end",
         "padding": {
          "top": 16,
          "end": 16,
-         "bottom": 16,
+         "bottom": 14,
          "start": 16
         },
         "margin": {
-         "top": 12,
+         "top": 10,
          "end": 16,
-         "bottom": 4,
+         "bottom": 6,
          "start": 16
-        },
-        "children": [
-         {
-          "id": "demo-45",
-          "type": "text",
-          "text": "From your door to theirs",
-          "color": "#FFFFFF",
-          "font": {
-           "size": 17,
-           "weight": 800,
-           "line_height": 1.2
-          },
-          "translations": {
-           "ar": {
-            "text": "من بابك إلى بابهم"
-           },
-           "tr": {
-            "text": "Kapınızdan onların kapısına"
-           }
-          }
-         },
-         {
-          "id": "demo-46",
-          "type": "text",
-          "text": "Follow every parcel to the handover.",
-          "color": "#FFFFFF",
-          "opacity": 0.9,
-          "font": {
-           "size": 12.5,
-           "line_height": 1.35
-          },
-          "margin": {
-           "top": 3
-          },
-          "translations": {
-           "ar": {
-            "text": "تابع كل طرد حتى تسليمه."
-           },
-           "tr": {
-            "text": "Her paketi teslimata kadar takip edin."
-           }
-          }
-         }
-        ]
+        }
        }
       ]
      },
@@ -910,13 +1069,14 @@
         "title": "Gönderilerim"
        }
       },
-      "background": "#FFFFFF",
-      "color": "#0F1E2E",
-      "dark_background": "#132030",
-      "dark_color": "#EAF1F8"
+      "background": "#F1F4F8",
+      "color": "#0D1B2A",
+      "dark_background": "#070D16",
+      "dark_color": "#EAF1F8",
+      "style": "brand"
      },
-     "background": "#F3F6FA",
-     "dark_background": "#0A121C"
+     "background": "#F1F4F8",
+     "dark_background": "#070D16"
     },
     "show_title": false,
     "updated_at": "2026-11-09T10:00:00.000Z",
@@ -935,13 +1095,13 @@
     },
     "studio": {
      "body": {
-      "id": "demo-48",
+      "id": "demo-54",
       "type": "column",
       "children": []
      },
      "screen": "account",
-     "background": "#F3F6FA",
-     "dark_background": "#0A121C"
+     "background": "#F1F4F8",
+     "dark_background": "#070D16"
     },
     "show_title": false,
     "updated_at": "2026-11-09T10:00:00.000Z",
@@ -960,7 +1120,7 @@
     },
     "studio": {
      "body": {
-      "id": "demo-49",
+      "id": "demo-55",
       "type": "column",
       "children": []
      },
@@ -976,13 +1136,14 @@
         "title": "Ayarlar"
        }
       },
-      "background": "#FFFFFF",
-      "color": "#0F1E2E",
-      "dark_background": "#132030",
-      "dark_color": "#EAF1F8"
+      "background": "#F1F4F8",
+      "color": "#0D1B2A",
+      "dark_background": "#070D16",
+      "dark_color": "#EAF1F8",
+      "style": "brand"
      },
-     "background": "#F3F6FA",
-     "dark_background": "#0A121C"
+     "background": "#F1F4F8",
+     "dark_background": "#070D16"
     },
     "show_title": false,
     "updated_at": "2026-11-09T10:00:00.000Z",
@@ -1001,7 +1162,7 @@
     },
     "studio": {
      "body": {
-      "id": "demo-50",
+      "id": "demo-56",
       "type": "column",
       "children": []
      },
@@ -1017,13 +1178,14 @@
         "title": "Bildirimler"
        }
       },
-      "background": "#FFFFFF",
-      "color": "#0F1E2E",
-      "dark_background": "#132030",
-      "dark_color": "#EAF1F8"
+      "background": "#F1F4F8",
+      "color": "#0D1B2A",
+      "dark_background": "#070D16",
+      "dark_color": "#EAF1F8",
+      "style": "brand"
      },
-     "background": "#F3F6FA",
-     "dark_background": "#0A121C"
+     "background": "#F1F4F8",
+     "dark_background": "#070D16"
     },
     "show_title": false,
     "updated_at": "2026-11-09T10:00:00.000Z",
@@ -1042,7 +1204,7 @@
     },
     "studio": {
      "body": {
-      "id": "demo-51",
+      "id": "demo-57",
       "type": "column",
       "children": []
      },
@@ -1058,13 +1220,14 @@
         "title": "Profili düzenle"
        }
       },
-      "background": "#FFFFFF",
-      "color": "#0F1E2E",
-      "dark_background": "#132030",
-      "dark_color": "#EAF1F8"
+      "background": "#F1F4F8",
+      "color": "#0D1B2A",
+      "dark_background": "#070D16",
+      "dark_color": "#EAF1F8",
+      "style": "brand"
      },
-     "background": "#F3F6FA",
-     "dark_background": "#0A121C"
+     "background": "#F1F4F8",
+     "dark_background": "#070D16"
     },
     "show_title": false,
     "updated_at": "2026-11-09T10:00:00.000Z",
@@ -1083,7 +1246,7 @@
     },
     "studio": {
      "body": {
-      "id": "demo-52",
+      "id": "demo-58",
       "type": "column",
       "children": []
      },
@@ -1099,13 +1262,14 @@
         "title": "Cihazlar"
        }
       },
-      "background": "#FFFFFF",
-      "color": "#0F1E2E",
-      "dark_background": "#132030",
-      "dark_color": "#EAF1F8"
+      "background": "#F1F4F8",
+      "color": "#0D1B2A",
+      "dark_background": "#070D16",
+      "dark_color": "#EAF1F8",
+      "style": "brand"
      },
-     "background": "#F3F6FA",
-     "dark_background": "#0A121C"
+     "background": "#F1F4F8",
+     "dark_background": "#070D16"
     },
     "show_title": false,
     "updated_at": "2026-11-09T10:00:00.000Z",
@@ -1116,13 +1280,13 @@
     "title": "Change password",
     "studio": {
      "body": {
-      "id": "demo-53",
+      "id": "demo-59",
       "type": "column",
       "children": []
      },
      "screen": "change_password",
-     "background": "#F3F6FA",
-     "dark_background": "#0A121C"
+     "background": "#F1F4F8",
+     "dark_background": "#070D16"
     },
     "show_title": false,
     "updated_at": "2026-11-09T10:00:00.000Z",
@@ -1133,13 +1297,13 @@
     "title": "A conversation",
     "studio": {
      "body": {
-      "id": "demo-54",
+      "id": "demo-60",
       "type": "column",
       "children": []
      },
      "screen": "chat_conversation",
-     "background": "#F3F6FA",
-     "dark_background": "#0A121C"
+     "background": "#F1F4F8",
+     "dark_background": "#070D16"
     },
     "show_title": false,
     "updated_at": "2026-11-09T10:00:00.000Z",
@@ -1150,13 +1314,13 @@
     "title": "A shipment",
     "studio": {
      "body": {
-      "id": "demo-55",
+      "id": "demo-61",
       "type": "column",
       "children": []
      },
      "screen": "shipment",
-     "background": "#F3F6FA",
-     "dark_background": "#0A121C"
+     "background": "#F1F4F8",
+     "dark_background": "#070D16"
     },
     "show_title": false,
     "updated_at": "2026-11-09T10:00:00.000Z",
@@ -1164,14 +1328,16 @@
    }
   ],
   "tab_bar": {
-   "design": "classic",
-   "background": "#FFFFFF",
-   "dark_background": "#132030",
+   "background": "#F1F4F8",
+   "dark_background": "#070D16",
    "active": "#1F6FB2",
-   "inactive": "#566475",
-   "dark_inactive": "#A7B4C2",
-   "margin": 0,
-   "radius": 0
+   "dark_active": "#F2B544",
+   "inactive": "#526070",
+   "dark_inactive": "#9FB0C2",
+   "design": "glass",
+   "labels": "always",
+   "radius": 26,
+   "margin": 12
   }
  }
 }

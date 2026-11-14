@@ -50,7 +50,7 @@ function stripNode(n: StudioNode): unknown {
   return { ...rest, ...(children ? { children: children.map(stripNode) } : {}), ...(card ? { card: stripNode(card) } : {}) };
 }
 function withoutNote(page: StudioPage): StudioPage {
-  return { ...page, body: { ...page.body, children: (page.body.children ?? []).filter((n) => n.visibility !== "signed_out") } };
+  return { ...page, body: { ...page.body, children: (page.body.children ?? []).filter((n) => !(n.visibility === "signed_out" && n.children?.[0]?.icon === "info")) } };
 }
 function untranslated(node: StudioNode): StudioNode {
   const { translations: _t, children, ...rest } = node;

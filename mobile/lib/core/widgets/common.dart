@@ -8,6 +8,8 @@ import '../theme/app_theme.dart';
 import '../theme/palette.dart';
 import 'buttons.dart';
 import '../l10n/l10n.dart';
+// 130.21 130.22 The premium looks of the system screens and states.
+import 'premium_chrome.dart';
 
 /// A network image with a soft tinted placeholder while loading or missing.
 /// The picture fades in once it arrives.
@@ -749,14 +751,20 @@ class SkeletonBox extends StatelessWidget {
   final double radius;
 
   @override
-  Widget build(BuildContext context) => Container(
-    width: width ?? double.infinity,
-    height: height,
-    decoration: BoxDecoration(
-      color: context.palette.segment,
-      borderRadius: BorderRadius.circular(radius),
-    ),
-  );
+  Widget build(BuildContext context) {
+    // 130.22 In the premium states: a shimmer in the brand's tones.
+    if (SystemLookScope.lookOf(context, SystemScreen.states) != null) {
+      return ChromeShimmer(width: width, height: height, radius: radius);
+    }
+    return Container(
+      width: width ?? double.infinity,
+      height: height,
+      decoration: BoxDecoration(
+        color: context.palette.segment,
+        borderRadius: BorderRadius.circular(radius),
+      ),
+    );
+  }
 }
 
 class _SkeletonCard extends StatelessWidget {
@@ -766,15 +774,27 @@ class _SkeletonCard extends StatelessWidget {
   final double padding;
 
   @override
-  Widget build(BuildContext context) => Container(
-    padding: EdgeInsets.all(padding),
-    clipBehavior: Clip.antiAlias,
-    decoration: ShapeDecoration(
-      color: context.palette.surface,
-      shape: context.cardShape(16, outlined: true),
-    ),
-    child: child,
-  );
+  Widget build(BuildContext context) {
+    // 130.22 In the premium states: a soft rounded card.
+    final look = SystemLookScope.lookOf(context, SystemScreen.states);
+    if (look != null) {
+      return Container(
+        padding: EdgeInsets.all(padding + 2),
+        clipBehavior: Clip.antiAlias,
+        decoration: ChromeTones.card(context.palette, look, radius: 20),
+        child: child,
+      );
+    }
+    return Container(
+      padding: EdgeInsets.all(padding),
+      clipBehavior: Clip.antiAlias,
+      decoration: ShapeDecoration(
+        color: context.palette.surface,
+        shape: context.cardShape(16, outlined: true),
+      ),
+      child: child,
+    );
+  }
 }
 
 class _SkeletonRow extends StatelessWidget {
@@ -925,29 +945,36 @@ class MessageView extends StatelessWidget {
     final p = context.palette;
     // 110 Tighter on a small phone, so the button isn't under the tab bar.
     final tight = compact || MediaQuery.sizeOf(context).height < 700;
+    // 130.22 The premium empty state: the icon on the brand's disc.
+    final premium =
+        SystemLookScope.lookOf(context, SystemScreen.states) != null;
     return Center(
       child: SingleChildScrollView(
         padding: EdgeInsets.all(tight ? 16 : 32),
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            Container(
-              width: 64,
-              height: 64,
-              decoration: BoxDecoration(
-                color: p.accentSoft,
-                borderRadius: BorderRadius.circular(18),
+            if (premium)
+              ChromeEmptyArt(icon: icon, size: tight ? 84 : 104)
+            else
+              Container(
+                width: 64,
+                height: 64,
+                decoration: BoxDecoration(
+                  color: p.accentSoft,
+                  borderRadius: BorderRadius.circular(18),
+                ),
+                alignment: Alignment.center,
+                child: AppIcon(icon, size: 30, color: p.text),
               ),
-              alignment: Alignment.center,
-              child: AppIcon(icon, size: 30, color: p.text),
-            ),
-            const SizedBox(height: 18),
+            SizedBox(height: premium ? 14 : 18),
             Text(
               title,
               textAlign: TextAlign.center,
               style: TextStyle(
-                fontSize: 20,
-                fontWeight: FontWeight.w700,
+                fontSize: premium ? 22 : 20,
+                fontWeight: premium ? FontWeight.w800 : FontWeight.w700,
+                letterSpacing: premium ? -0.3 : null,
                 color: p.text,
               ),
             ),
@@ -1022,6 +1049,29 @@ class AppCard extends StatelessWidget {
     final p = context.palette;
     final r = radius ?? 16;
     final content = Padding(padding: padding, child: child);
+    // 130.21 In a system screen's premium look: a soft inset card.
+    final look = color == null ? SystemScreenArea.lookOf(context) : null;
+    if (look != null) {
+      final rr = r < 20 ? 20.0 : r;
+      final premium = DecoratedBox(
+        decoration: ChromeTones.card(p, look, radius: rr),
+        child: ClipRRect(
+          borderRadius: BorderRadius.circular(rr),
+          child: Material(
+            type: MaterialType.transparency,
+            child: onTap == null
+                ? content
+                : InkWell(onTap: onTap, child: content),
+          ),
+        ),
+      );
+      if (semanticLabel == null) return premium;
+      return Semantics(
+        button: onTap != null,
+        label: semanticLabel,
+        child: premium,
+      );
+    }
     final card = Material(
       color: color ?? p.surface,
       shape: context.cardShape(r, outlined: true),
@@ -1044,6 +1094,39 @@ class SettingsGroup extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final p = context.palette;
+    // 130.21 In a system screen's premium look: the rows in an inset card.
+    final look = SystemScreenArea.lookOf(context);
+    if (look != null) {
+      return Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          if (title.isNotEmpty) ChromeGroupTitle(title),
+          DecoratedBox(
+            decoration: ChromeTones.card(p, look),
+            child: ClipRRect(
+              borderRadius: BorderRadius.circular(22),
+              child: Material(
+                type: MaterialType.transparency,
+                child: Column(
+                  children: [
+                    for (var i = 0; i < children.length; i++) ...[
+                      if (i > 0)
+                        Divider(
+                          height: 1,
+                          thickness: 1,
+                          indent: 62,
+                          color: p.divider,
+                        ),
+                      children[i],
+                    ],
+                  ],
+                ),
+              ),
+            ),
+          ),
+        ],
+      );
+    }
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
@@ -1105,18 +1188,31 @@ class SettingsTile extends StatelessWidget {
   Widget build(BuildContext context) {
     final p = context.palette;
     final color = destructive ? p.danger : p.text;
+    // 130.21 In a system screen's premium look: the icon on a tinted tile.
+    final premium = SystemScreenArea.lookOf(context) != null;
     return InkWell(
       onTap: onTap,
       child: ConstrainedBox(
-        constraints: const BoxConstraints(minHeight: 54),
+        constraints: BoxConstraints(minHeight: premium ? 58 : 54),
         child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+          padding: EdgeInsets.symmetric(
+            horizontal: premium ? 14 : 16,
+            vertical: 8,
+          ),
           // The value takes what it needs, up to 45% of the row; the title
           // gets the rest.
           child: LayoutBuilder(
             builder: (context, constraints) => Row(
               children: [
-                if (icon != null) ...[
+                if (icon != null && premium) ...[
+                  ChromeIconTile(
+                    icon: icon!,
+                    color: destructive
+                        ? p.danger
+                        : ChromeTones.tint(p, ChromeTones.turnOf(icon)),
+                  ),
+                  const SizedBox(width: 14),
+                ] else if (icon != null) ...[
                   AppIcon(icon!, color: color),
                   const SizedBox(width: 12),
                 ],
@@ -1129,7 +1225,7 @@ class SettingsTile extends StatelessWidget {
                         style: TextStyle(
                           fontSize: 15,
                           color: color,
-                          fontWeight: destructive
+                          fontWeight: destructive || premium
                               ? FontWeight.w600
                               : FontWeight.w400,
                         ),

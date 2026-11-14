@@ -126,7 +126,9 @@ async function draftPages(request: APIRequestContext): Promise<{ tabs: string[];
   const home = await request.get(`${api}/pages/home?platform=android`, { headers });
   expect(nav.status()).toBe(200);
   expect(home.status()).toBe(200);
-  return { tabs: (await nav.json()).tabs.map((t: { label: string }) => t.label), home: JSON.stringify((await home.json()).blocks) };
+  // 130 A Studio home (a whole-project template's, a Signature look's) has no blocks: its Studio page is compared too.
+  const page = (await home.json()) as { blocks: unknown; studio?: unknown };
+  return { tabs: (await nav.json()).tabs.map((t: { label: string }) => t.label), home: JSON.stringify([page.blocks, page.studio ?? null]) };
 }
 
 const take = () => own.getByRole("group", { name: "From this design, take" });
@@ -165,7 +167,9 @@ test("Academy in Studio: every step, its links in Studio, and moving between the
   await expectChosen(KEEP);
   const ids = await everyDesignAndBack();
   // 124.6 The premium academy (the Studio template for the whole project) first, in its real picture; templates = demos: the demo's design, then the academy's own.
-  expect(ids).toEqual(["studio-academy_premium", "demo-lms", "academy-classic", "academy-online", "academy-coaching", "academy-kids"]);
+  // 130.17 130.18 Ufuq Academy's two Signature looks before it, each in its own picture.
+  expect(ids).toEqual(["studio-premium_academy_signature_a", "studio-premium_academy_signature_b", "studio-academy_premium", "demo-lms", "academy-classic", "academy-online", "academy-coaching", "academy-kids"]);
+  await expect(card("studio-premium_academy_signature_a").getByRole("img", { name: "Night cinema: its home in the app" })).toHaveAttribute("src", "/screens/premium-academy-sig-a-home.png");
   await expect(card("studio-academy_premium").getByRole("img", { name: "Premium academy: its home in the app" })).toHaveAttribute("src", "/screens/premium-home.png");
   await expect(card("studio-academy_premium")).toContainText("The whole app: the home, the tab bar");
   expect(await thumbText("academy-kids")).toContain("Fun lessons for curious kids");
@@ -324,10 +328,11 @@ test("124.6 a new project: the premium academy among the Studio projects, its te
 
 test("128.11 on the canvas a transparent header over a cover takes the page's background once the page scrolls under it", async () => {
   await own.goto("/studio/new");
-  await own.getByRole("radio", { name: "An academy with many teachers", exact: true }).check();
-  await own.getByLabel("Project name").fill("Rawaq Scroll");
+  // 130 Nakhla School, its look A: its home's header lies over the school's photo.
+  await own.getByRole("radio", { name: "A school for students, parents and teachers" }).check();
+  await own.getByLabel("Project name").fill("Nakhla Scroll");
   await own.getByRole("button", { name: "Next" }).click();
-  await own.getByRole("radiogroup", { name: "3 · Where do you start?" }).getByRole("radio", { name: /Our demo: Rawaq Academy/ }).click();
+  await own.getByRole("radiogroup", { name: "3 · Where do you start?" }).getByRole("radio", { name: /Our demo: Nakhla School/ }).click();
   await own.getByRole("button", { name: "Next" }).click();
   await expect(own).toHaveURL(/\/studio\/project$/);
   await own.goto("/studio/editor");
@@ -359,8 +364,10 @@ for (const [kind, short] of KINDS) {
     await expectChosen(KEEP);
     const ids = await everyDesignAndBack();
 
-    // The first design, saved: the app's draft is its pages.
-    await designRadio(ids[0]!).click();
+    // The first design, saved: the app's draft is its pages. 130 Page designs here (a whole project's template, a kind's
+    // Signature look, is its own project: tests/unit/studio-signature-learn.test.ts).
+    const pageDesigns = ids.filter((id) => !id.startsWith("studio-"));
+    await designRadio(pageDesigns[0]!).click();
     await own.getByLabel("Name under the app icon").fill(short);
     await uploadIcon();
     await own.getByRole("button", { name: "Save & continue" }).click();
@@ -369,15 +376,16 @@ for (const [kind, short] of KINDS) {
 
     // With pages of its own: Keep my pages to each design and back, then another design's pages.
     await own.goto("/studio/project/setup?step=branding");
-    await expectChosen(ids[0]!);
+    await expectChosen(pageDesigns[0]!);
     await everyDesignAndBack();
-    await designRadio(ids[1]!).click();
-    await expectChosen(ids[1]!);
+    const second = pageDesigns[1]!;
+    await designRadio(second).click();
+    await expectChosen(second);
     await own.getByRole("button", { name: "Save & continue" }).click();
     await expect(own).toHaveURL(/step=listing$/);
     expect((await draftPages(request)).home).not.toEqual(first.home);
     await own.goto("/studio/project/setup?step=branding");
-    await expectChosen(ids[1]!);
+    await expectChosen(second);
   });
 }
 

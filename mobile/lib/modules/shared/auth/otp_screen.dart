@@ -21,6 +21,9 @@ import 'password_screens.dart';
 import 'sign_in_screen.dart';
 import 'signup_screen.dart';
 import '../../../core/l10n/l10n.dart';
+// 130.24 The code screen in the project's premium look.
+import '../../../core/widgets/premium_chrome.dart';
+import 'premium_auth_frame.dart';
 
 class OtpArgs {
   const OtpArgs({
@@ -200,6 +203,9 @@ class _OtpScreenState extends ConsumerState<OtpScreen> {
           formatPhone(widget.args.phone, dialCode: widget.args.countryCode),
     );
     final resendIn = _resendIn;
+    // 130.24 The system screens' premium look.
+    final chrome = SystemLookScope.lookOf(context, SystemScreen.code);
+    if (chrome != null) return _chrome(context, chrome, number, resendIn);
     // 123 The premium academy's code screen.
     final gate = ref.watch(appGateProvider);
     if (gate is GateReady &&
@@ -341,6 +347,88 @@ class _OtpScreenState extends ConsumerState<OtpScreen> {
             ),
           ],
         ),
+      ),
+    );
+  }
+
+  /// 130.24 The code screen in the project's premium look: the title and
+  /// where the code went on the hero, the boxes and sending again on its
+  /// sheet, the button at the foot.
+  Widget _chrome(
+    BuildContext context,
+    SystemLook look,
+    String number,
+    Duration resendIn,
+  ) {
+    final p = context.palette;
+    final l10n = context.l10n;
+    final sentTo = parts(l10n.codeSentTo);
+    final resendParts = parts(l10n.resendCodeIn);
+    final email = widget.args.email;
+    return PremiumAuthFrame(
+      look: look,
+      compact: true,
+      title: l10n.enterCode,
+      subtitle: [
+        sentTo.first,
+        number,
+        if (sentTo.length > 1) sentTo.last,
+      ].join(),
+      leading: [
+        ChromeBackButton(
+          onColour: look != SystemLook.large,
+          onPressed: () => context.pop(),
+        ),
+      ],
+      footer: SafeArea(
+        top: false,
+        child: Padding(
+          padding: const EdgeInsets.fromLTRB(24, 0, 24, 16),
+          child: PrimaryButton(
+            label: l10n.verifyAndSignIn,
+            loading: _verifying,
+            onPressed: _code.text.length == _length ? _verify : null,
+          ),
+        ),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          const SizedBox(height: 16),
+          CodeBoxes(
+            controller: _code,
+            focusNode: _focus,
+            length: _length,
+            onChanged: (value) {
+              setState(() => _error = null);
+              if (value.length == _length) _verify();
+            },
+          ),
+          if (_error != null) ...[
+            const SizedBox(height: 12),
+            InlineError(_error!),
+          ],
+          const SizedBox(height: 20),
+          Center(
+            child: resendIn > Duration.zero
+                ? Text(
+                    [
+                      resendParts.first,
+                      formatClock(resendIn + const Duration(milliseconds: 999)),
+                      if (resendParts.length > 1) resendParts.last,
+                    ].join(),
+                    style: TextStyle(fontSize: 14, color: p.textSecondary),
+                  )
+                : TextButton(
+                    onPressed: _resending ? null : _resend,
+                    child: Text(_resending ? l10n.sending : l10n.sendNewCode),
+                  ),
+          ),
+          TextButton(
+            onPressed: () => context.pop(),
+            child: Text(email != null ? l10n.changeEmail : l10n.changeNumber),
+          ),
+        ],
       ),
     );
   }

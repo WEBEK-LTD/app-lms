@@ -15,6 +15,8 @@ import 'screens/explore_screens.dart';
 import 'screens/flight_screens.dart';
 import 'screens/hotel_screens.dart';
 import 'travel_paths.dart';
+// 130.21 The system screens' premium look.
+import '../../core/widgets/premium_chrome.dart' show SystemScreenArea;
 
 /// 126 The Travel module (hosted API, tag Travel): hotels, flights, or both,
 /// as the company's Admin switches have it (`TravelConfig.mode`). Its tabs
@@ -173,7 +175,14 @@ List<TabScreen> _screens() => [
   TabScreen(TravelPaths.explore, (state) => const TravelExploreScreen()),
   TabScreen(TravelPaths.stays, (state) => const StaysHomeScreen()),
   TabScreen(TravelPaths.flights, (state) => const FlightsHomeScreen()),
-  TabScreen(TravelPaths.trips, (state) => const TripsScreen()),
+  TabScreen(
+    TravelPaths.trips,
+    (state) => const SystemScreenArea(
+      // 130.21 The lists in the project's premium look.
+      screen: SystemScreen.lists,
+      child: TripsScreen(),
+    ),
+  ),
   TabScreen(TravelPaths.saved, (state) => const SavedHotelsScreen()),
   TabScreen(TravelPaths.alerts, (state) => const PriceAlertsScreen()),
   TabScreen(

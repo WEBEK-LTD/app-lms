@@ -5,7 +5,10 @@ import { ACADEMY_PROJECT, academyHome, type TemplateProject } from "./academy";
 import { DEMO_HOME_TEMPLATES, DEMO_ICONS, demoTemplateId, studioDemoOf, studioNoteOf, translating } from "./demo-templates";
 import { newNodeId } from "./elements";
 import { SLIDER_SECTIONS, STORE_SECTIONS } from "./store-sections";
-import { demoDesignTemplate } from "./demo-designs";
+import { demoDesignTemplate, signatureTemplates } from "./demo-designs";
+// 130 The Signature looks: which look, and the words they write into the app.
+import type { SignatureLook } from "./demo-designs/signature";
+import type { SignatureWord } from "./demo-designs/signature-words";
 import { peopleRow, photoHero, photoOf, photoTiles } from "./photo-sections";
 
 /**
@@ -295,7 +298,9 @@ export type SectionWord =
   | "rqP4"
   | "rqP4i"
   | "tabTeachers"
-  | "tipTeachers";
+  | "tipTeachers"
+  // 130 The Signature looks (lib/studio/demo-designs/signature-words.ts).
+  | SignatureWord;
 
 export interface SectionContext {
   brand: string;
@@ -317,6 +322,8 @@ export interface SectionContext {
   lang?: "en" | "ar" | "tr";
   /** 128 The Studio demo whose pages these are (the demo app, a project its template starts, its whole design): its own pages after the home, in its own look (lib/studio/demo-designs); missing, none. */
   demo?: StudioDemoId;
+  /** 130 The Signature look of the demo these pages are in (lib/studio/demo-designs/signature.ts); missing, the demo's look A (the demo itself). */
+  look?: SignatureLook;
 }
 
 /** 103R.7 The project types a section or template is made for; none: every type. */
@@ -1093,6 +1100,8 @@ export interface TemplateInfo {
   fits?: Fits;
   /** Templates = demos: the Studio demo whose first page this is (lib/studio/demo-templates.ts), shown first for its kind. */
   demo?: StudioDemoId;
+  /** 130 The demo's Signature look this template makes, the whole app in it (`<demo>_signature_<look>`). */
+  look?: SignatureLook;
   /** Shown as the recommended start. */
   recommended?: boolean;
   /** 123 What the template sets for the whole project besides its home: its bar, tabs, screens and colours (lib/studio/academy.ts). */
@@ -1162,6 +1171,8 @@ const DEMO_TEMPLATES: readonly TemplateInfo[] = (Object.keys(DEMO_ICONS) as (key
 export const TEMPLATES: readonly TemplateInfo[] = [
   // Templates = demos: each Studio demo's home, offered first for its kind.
   ...DEMO_TEMPLATES,
+  // 130 The Signature looks, two for each Studio demo (lib/studio/demo-designs/signature.ts): each the whole app in that look, offered first for its kind with its demo (look A is the demo itself).
+  ...signatureTemplates(),
   // 103R.7 Each project type's own templates come first in the lists.
   // 112.4 Three for a store: a full shop, one for offers and one for looks and brands.
   typed("shop", "storefront", STORE, ["search", "hero_slider", "category_circles", "flash_sale", "new_arrivals", "coupon", "best_sellers", "brands", "trust", "recent"], SHOP_HEADER, { word: "cta", action: screen("cart") }),
@@ -1239,5 +1250,7 @@ export function templatesFor(kind: ProjectKind | null): TemplateInfo[] {
   const others = TEMPLATES.filter((tpl) => !tpl.demo);
   const own = others.filter((tpl) => tpl.fits && fitsKind(tpl.fits, kind));
   const best = own.some((tpl) => tpl.fits?.verticals) ? own.filter((tpl) => tpl.fits?.verticals) : own;
-  return [...TEMPLATES.filter((tpl) => tpl.demo && tpl.demo === demo), ...best, ...others.filter((tpl) => !tpl.fits)];
+  // 130 A kind with no demo of its own (an academy: the premium academy's) gets the Signature looks made for its type alone, first.
+  const looks = demo ? [] : TEMPLATES.filter((tpl) => tpl.look && tpl.fits && !tpl.fits.verticals && fitsKind(tpl.fits, kind));
+  return [...TEMPLATES.filter((tpl) => tpl.demo && tpl.demo === demo), ...looks, ...best, ...others.filter((tpl) => !tpl.fits)];
 }

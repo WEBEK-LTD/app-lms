@@ -8,13 +8,15 @@ import { ThemeSwitch } from "@/components/theme-switch";
 import { messagesFor } from "@/i18n";
 import { dashboardMessages, knownEnglish, type DashKey } from "@/i18n/dashboard";
 import { en as startWords } from "@/i18n/dashboard/start";
+import { en as studioWords } from "@/i18n/dashboard/studio";
 import { localePath } from "@/i18n/paths";
 import { kindOf } from "@/lib/app/kinds";
 import type { DemoId } from "@/lib/demo/constants";
 import { demoKind } from "@/lib/demo/constants";
 import { DEMO_BRANDS } from "@/lib/demo/content";
 import type { DemoLoop as DemoLoopFiles } from "@/lib/demo/loops";
-import { businessOf, productOf, screensOf } from "@/lib/demo/picker";
+import { businessOf, hasLookShot, lookShotName, productOf, screensOf, startLooks } from "@/lib/demo/picker";
+import type { SignatureLook } from "@/lib/studio/demo-designs/signature";
 import { dashboardText, type DashboardText } from "@/lib/dashboard-lang";
 import { demoGuideFor, screenAltFor } from "@/lib/marketing-lang";
 import { DemoLoop } from "./demo-loop";
@@ -71,6 +73,41 @@ export function demoScreens(text: DashboardText, id: DemoId): { src: string; alt
   const alt = screenAltFor(text.lang) as Record<string, string>;
   return screensOf(id).map((s) => ({ src: screenSrc(s), alt: alt[s] ?? DEMO_BRANDS[id].appName }));
 }
+
+// ——— 130 The Studio demos' two Signature looks ———
+
+export interface LookShot {
+  look: SignatureLook;
+  /** Its home's picture, by day and by night; the demo's own while the look has none yet. */
+  src: string;
+  dark: string;
+  alt: string;
+  /** "Look A", and its name ("Living map") when its template is in Studio. */
+  label: string;
+  name: string | null;
+}
+
+
+/** A Studio demo's looks with their pictures (`<demo>-sig-<look>-home.png`), the demo's own screenshot until a look has its own. */
+export function lookShots(text: DashboardText, id: DemoId): LookShot[] {
+  const fallback = demoScreens(text, id)[0]!;
+  return startLooks(id).map((look) => {
+    const own = hasLookShot(lookShotName(id, look));
+    const dark = hasLookShot(lookShotName(id, look, true));
+    const key = `tpl_${id}_signature_${look}`;
+    const name = key in studioWords ? text.t(`studio.${key}` as DashKey) : null;
+    const label = text.t(look === "a" ? "start.lookA" : "start.lookB");
+    return {
+      look,
+      src: own ? screenSrc(lookShotName(id, look)) : fallback.src,
+      dark: dark ? screenSrc(lookShotName(id, look, true)) : own ? screenSrc(lookShotName(id, look)) : fallback.src,
+      alt: name ? `${DEMO_BRANDS[id].appName} · ${name}` : fallback.alt,
+      label,
+      name,
+    };
+  });
+}
+// ——— end 130 ———
 
 /** The product badge: "App editor" on a light card, "STUDIO" in gold on a dark one. */
 export function ProductBadge({ text, id, long = false }: { text: DashboardText; id: DemoId; long?: boolean }) {

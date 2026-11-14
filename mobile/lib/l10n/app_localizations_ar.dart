@@ -11967,4 +11967,166 @@ class AppLocalizationsAr extends AppLocalizations {
   String studioMapEta(String name, int minutes) {
     return '$name · $minutes د';
   }
+
+  @override
+  String get studioTripNext => 'رحلتك القادمة';
+
+  @override
+  String studioTripIn(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'بعد $count يومًا',
+      few: 'بعد $count أيام',
+      two: 'بعد يومين',
+      one: 'غدًا',
+      zero: 'اليوم',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String studioTripDaysTo(int count, String city) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'يومًا على $city',
+      few: 'أيام على $city',
+      two: 'يومان على $city',
+      one: 'يوم على $city',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String studioTripStay(String nights, String hotel) {
+    return '$nights في $hotel';
+  }
+
+  @override
+  String get studioTripTransfer => 'التوصيل';
+
+  @override
+  String get studioTripPass => 'بطاقة الصعود';
+
+  @override
+  String get studioMinutesShort => 'د';
+
+  @override
+  String get studioTaxiNearestFree => 'أقرب سيارة أجرة متاحة';
+
+  @override
+  String studioTaxisAroundLive(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count سيارة أجرة حولك الآن',
+      few: '$count سيارات أجرة حولك الآن',
+      two: 'سيارتا أجرة حولك الآن',
+      one: 'سيارة أجرة واحدة حولك الآن',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String studioTaxisFreeAround(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'سيارة أجرة متاحة حولك.',
+      few: 'سيارات أجرة متاحة حولك.',
+      two: 'سيارتا أجرة متاحتان حولك.',
+      one: 'سيارة أجرة متاحة حولك.',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get studioRideOnTheWayShort => 'في الطريق';
+
+  @override
+  String studioTripVia(String via) {
+    return 'عبر $via';
+  }
+
+  @override
+  String get learningResumeLesson => 'تابع الدرس';
+
+  @override
+  String learningPercentOfCourse(int percent) {
+    return '$percent% من الدورة';
+  }
+
+  @override
+  String get liveLookMinAway => 'دقيقة متبقية';
+
+  @override
+  String get liveLookLive => 'مباشر';
+
+  @override
+  String liveLookStep(int step) {
+    return 'المرحلة $step من 4';
+  }
+
+  @override
+  String liveLookOnItsWayFrom(String place) {
+    return 'طلب $place في الطريق';
+  }
+
+  @override
+  String liveLookItems(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count صنفًا',
+      few: '$count أصناف',
+      two: 'صنفان',
+      one: 'صنف واحد',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String liveLookHeading(String name, String place) {
+    return '$name في طريقه إلى $place';
+  }
+
+  @override
+  String get liveStatePlaced => 'تم الطلب';
+
+  @override
+  String get liveStateCooking => 'قيد التحضير';
+
+  @override
+  String get liveStatePacking => 'قيد التجهيز';
+
+  @override
+  String get liveStateReady => 'جاهز';
+
+  @override
+  String get liveStateOnItsWay => 'في الطريق';
+
+  @override
+  String get liveStatePickedUp => 'تم الاستلام';
+
+  @override
+  String get liveStateDelivered => 'تم التوصيل';
+
+  @override
+  String get liveStageCooking => 'التحضير';
+
+  @override
+  String get liveStagePacking => 'التجهيز';
+
+  @override
+  String get liveStageFinding => 'البحث';
+
+  @override
+  String get liveStageComing => 'في الطريق';
+
+  @override
+  String get liveStageHere => 'وصل';
+
+  @override
+  String get liveStageOnBoard => 'في الرحلة';
 }

@@ -22,6 +22,9 @@ import '../../../core/widgets/buttons.dart';
 import '../../../core/widgets/common.dart';
 import '../../lms/data/lms_providers.dart';
 import 'account_scaffold.dart';
+// 130.21 The language in the project's premium look.
+import '../../../core/widgets/premium_chrome.dart';
+import 'premium/premium_choice_sheet.dart';
 import '../../../core/l10n/l10n.dart';
 
 /// Appearance, video defaults, notifications and security (design:
@@ -36,34 +39,49 @@ class SettingsScreen extends ConsumerWidget {
     required T current,
     required String Function(T) label,
     required ValueChanged<T> onPicked,
+    SystemScreen? screen,
   }) async {
+    // 130.21 The language in the project's premium look.
+    final chrome = screen == null
+        ? null
+        : SystemLookScope.lookOf(context, screen);
     final picked = await showModalBottomSheet<T>(
       context: context,
-      builder: (context) => SafeArea(
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            Padding(
-              padding: const EdgeInsets.fromLTRB(20, 0, 20, 8),
-              child: Text(
-                title,
-                style: Theme.of(context).textTheme.titleMedium,
+      backgroundColor: chrome == null ? null : Colors.transparent,
+      elevation: chrome == null ? null : 0,
+      builder: (context) => chrome != null
+          ? PremiumChoiceSheet<T>(
+              look: chrome,
+              title: title,
+              values: values,
+              current: current,
+              label: label,
+            )
+          : SafeArea(
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  Padding(
+                    padding: const EdgeInsets.fromLTRB(20, 0, 20, 8),
+                    child: Text(
+                      title,
+                      style: Theme.of(context).textTheme.titleMedium,
+                    ),
+                  ),
+                  for (final v in values)
+                    ListTile(
+                      minTileHeight: 52,
+                      title: Text(label(v)),
+                      trailing: v == current
+                          ? AppIcon(AppIcons.check, color: context.palette.text)
+                          : null,
+                      selected: v == current,
+                      onTap: () => Navigator.of(context).pop(v),
+                    ),
+                ],
               ),
             ),
-            for (final v in values)
-              ListTile(
-                minTileHeight: 52,
-                title: Text(label(v)),
-                trailing: v == current
-                    ? AppIcon(AppIcons.check, color: context.palette.text)
-                    : null,
-                selected: v == current,
-                onTap: () => Navigator.of(context).pop(v),
-              ),
-          ],
-        ),
-      ),
     );
     if (picked != null) onPicked(picked);
   }
@@ -138,6 +156,8 @@ class SettingsScreen extends ConsumerWidget {
     );
 
     return AccountScaffold(
+      // 130.21 Its premium look.
+      screen: SystemScreen.settings,
       title: l10n.settings,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -159,6 +179,7 @@ class SettingsScreen extends ConsumerWidget {
                       current: language,
                       label: languageName,
                       onPicked: (code) => changeLanguage(ref, code),
+                      screen: SystemScreen.language,
                     ),
                   ),
                 if (look.userCanChangeMode)

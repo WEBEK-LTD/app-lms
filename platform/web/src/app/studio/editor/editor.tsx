@@ -47,6 +47,8 @@ import { LeftPanel, elementLabel, type LeftTab, type MyTemplate } from "./left-p
 import { DRAG_TYPE, Glyph, STUDIO_COLORS as C, StudioMark, type DragPayload } from "./shared";
 import { seedSamplesAction } from "@/app/actions/samples";
 import { applyDemoScreensAction, applyDesignLookAction } from "@/app/actions/studio-screens";
+// 130.21 The system screens' look chosen here.
+import { saveSystemLookAction } from "@/app/actions/studio-screens";
 import { sourcesIn } from "@/lib/samples/lists";
 
 /**
@@ -116,6 +118,8 @@ export function StudioEditor(props: StudioEditorProps) {
   // 124.11 The main colour and the screens' looks a whole design brings are the app's: kept here once saved.
   const [brand, setBrand] = useState(props.app.brand);
   const [studioScreens, setStudioScreens] = useState<StudioScreens | null>(props.studioScreens ?? null);
+  // 130.21 While the system screens' look is being saved.
+  const [systemBusy, setSystemBusy] = useState(false);
   const app = { ...props.app, brand };
 
   const [history, setHistory] = useState<History<LayoutContent>>(() => historyOf(props.initial.draft));
@@ -980,10 +984,10 @@ export function StudioEditor(props: StudioEditorProps) {
     for (const p of file.pages) for (const url of picturesIn(p.studio)) if (/^https?:\/\//.test(url)) pictures.set(url, url);
     const fitted = designPages(file, { sources: props.sources, categorySources: props.categorySources, screens: props.screens.map((s) => s.value), newId: newNodeId, pages: current.pages, languages: current.languages, pictures, now: new Date().toISOString() });
     // Templates = demos: the demo's whole design is the demo, its look and tabs too.
-    const demo = mode === "project" && file.demo && props.demoTabs ? demoProjectLook(file.demo, props.demoTabs, sectionContext.lang) : undefined;
+    const demo = mode === "project" && file.demo && props.demoTabs ? demoProjectLook(file.demo, props.demoTabs, sectionContext.lang, file.demo_look) : undefined;
     const next = applyWholeDesign(current, fitted, mode === "project" ? file.look : undefined, { mode, openSlug: slug, pageIndex, keep, now: new Date().toISOString(), demo, designSlugs: file.pages.map((p) => p.slug) });
     // 120 The demo's sign-in screen and account menu too.
-    if (demo && file.demo) void applyDemoScreensAction(file.demo).catch(() => null);
+    if (demo && file.demo) void applyDemoScreensAction(file.demo, file.demo_look).catch(() => null);
     // 124.11 A project's own file: its main colour and its screens' looks, which are the app's.
     else if (mode === "project" && file.look && (file.look.primary_color || file.look.screens)) {
       void applyDesignLookAction({ primary: file.look.primary_color ?? null, screens: file.look.screens ?? null })
@@ -1363,6 +1367,24 @@ export function StudioEditor(props: StudioEditorProps) {
 
         {studio ? (
           <Inspector
+            // 130.21 The system screens' look, saved with Studio › Screens and drawn on the canvas at once.
+            system={
+              props.screensHref
+                ? {
+                    look: studioScreens?.system?.look ?? null,
+                    busy: systemBusy,
+                    onLook: (look) => {
+                      setSystemBusy(true);
+                      void saveSystemLookAction({ look })
+                        .then((r) => {
+                          if (r.ok) setStudioScreens(r.screens ?? null);
+                        })
+                        .catch(() => null)
+                        .finally(() => setSystemBusy(false));
+                    },
+                  }
+                : undefined
+            }
             page={studio}
             node={selected && device === "tablet" ? forTablet(selected) : selected}
             tablet={device === "tablet" && selected ? { changed: Boolean(selected.tablet), onReset: () => changePage((p) => updateNode(p, selected.id, { tablet: undefined })) } : undefined}

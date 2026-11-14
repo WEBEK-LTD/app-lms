@@ -205,8 +205,12 @@ class _StudioMapLooksState extends ConsumerState<StudioMapLooks>
               context,
               ride: ride,
               shipment: shipment,
+              // 130.7 Where the element's own route is drawn (the owner's
+              // points), when it has two or more; else the map's middle.
               area: lens == null
-                  ? Rect.fromLTRB(w * 0.16, h * 0.22, w * 0.84, h * 0.72)
+                  ? (route.points.length >= 2
+                        ? _routeArea([for (final at in route.points) px(at)])
+                        : Rect.fromLTRB(w * 0.16, h * 0.22, w * 0.84, h * 0.72))
                   : Rect.fromCenter(
                       center: lens.center,
                       width: lens.width * 0.6,
@@ -1911,6 +1915,23 @@ class _Route {
 }
 
 String _short(String address) => address.split(',').first.trim();
+
+/// 130.7 The room a live route is fitted into: around the element's own
+/// route's points, at least 96 across and 72 high.
+Rect _routeArea(List<Offset> points) {
+  final xs = points.map((p) => p.dx), ys = points.map((p) => p.dy);
+  final box = Rect.fromLTRB(
+    xs.reduce(math.min),
+    ys.reduce(math.min),
+    xs.reduce(math.max),
+    ys.reduce(math.max),
+  );
+  return Rect.fromCenter(
+    center: box.center,
+    width: math.max(96, box.width),
+    height: math.max(72, box.height),
+  );
+}
 
 /// 129.24 The person's ride or shipment on its way, fitted into [area]:
 /// the driver to the pickup, then the pickup to the drop-off, or the

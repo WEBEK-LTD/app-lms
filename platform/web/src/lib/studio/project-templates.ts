@@ -11,6 +11,7 @@ import type { ParseResult } from "../pages/validate";
 import { seedForDesign } from "../samples/server";
 import { siteAddress } from "./academy";
 import { isStudioProject } from "./section";
+import { DEMO_SLUGS, STUDIO_DEMO_TYPES, type StudioDemoId } from "../demo/constants";
 import { templatesFor, type SectionContext, type SectionWord, type TemplateInfo } from "./sections";
 import { startLayout } from "./start";
 
@@ -30,6 +31,13 @@ const PREFIX = "studio-";
 const PICTURES: Record<string, string> = {
   academy_premium: "/screens/premium-home.png",
 };
+
+/** 130 A Signature look's picture: `<demo's address>-sig-<look>-home.png` (lib/demo/picker.ts LOOK_SHOTS), the eighteen alike. */
+function lookPicture(id: string): string | null {
+  const m = /^(.+)_signature_([ab])$/.exec(id);
+  const demo = m && (STUDIO_DEMO_TYPES as readonly string[]).includes(m[1]!) ? (m[1] as StudioDemoId) : null;
+  return demo ? `/screens/${DEMO_SLUGS[demo]}-sig-${m![2]}-home.png` : null;
+}
 
 /** The Branding step's id for a template (`studio-academy_premium`). */
 export function projectDesignId(templateId: string): string {
@@ -56,7 +64,7 @@ export function chosenProjectDesign(app: Pick<App, "section" | "appType" | "desi
 
 /** The template's real picture, or null. */
 export function projectTemplatePicture(template: Pick<TemplateInfo, "id">): string | null {
-  return PICTURES[template.id] ?? null;
+  return PICTURES[template.id] ?? lookPicture(template.id);
 }
 
 /** What the template's words are written with: the app's words (lib/studio/app-words.ts) in the dashboard's language. */

@@ -11508,4 +11508,147 @@ class AppLocalizationsTr extends AppLocalizations {
   String studioMapEta(String name, int minutes) {
     return '$name · $minutes dk';
   }
+
+  @override
+  String get studioTripNext => 'Sıradaki seyahatiniz';
+
+  @override
+  String studioTripIn(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count gün sonra',
+      one: 'Yarın',
+      zero: 'Bugün',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String studioTripDaysTo(int count, String city) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'gün kaldı: $city',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String studioTripStay(String nights, String hotel) {
+    return '$hotel · $nights';
+  }
+
+  @override
+  String get studioTripTransfer => 'Transfer';
+
+  @override
+  String get studioTripPass => 'Biniş kartı';
+
+  @override
+  String get studioMinutesShort => 'dk';
+
+  @override
+  String get studioTaxiNearestFree => 'En yakın boş taksi';
+
+  @override
+  String studioTaxisAroundLive(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'Çevrenizde $count taksi, canlı',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String studioTaxisFreeAround(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'boş taksi çevrenizde.',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get studioRideOnTheWayShort => 'Yolda';
+
+  @override
+  String studioTripVia(String via) {
+    return '$via aktarmalı';
+  }
+
+  @override
+  String get learningResumeLesson => 'Derse devam et';
+
+  @override
+  String learningPercentOfCourse(int percent) {
+    return 'Kursun %$percent kadarı';
+  }
+
+  @override
+  String get liveLookMinAway => 'dk kaldı';
+
+  @override
+  String get liveLookLive => 'Canlı';
+
+  @override
+  String liveLookStep(int step) {
+    return '4 adımdan $step.';
+  }
+
+  @override
+  String liveLookOnItsWayFrom(String place) {
+    return '$place siparişi yolda';
+  }
+
+  @override
+  String liveLookItems(int count) {
+    return '$count ürün';
+  }
+
+  @override
+  String liveLookHeading(String name, String place) {
+    return '$name $place adresine gidiyor';
+  }
+
+  @override
+  String get liveStatePlaced => 'Alındı';
+
+  @override
+  String get liveStateCooking => 'Hazırlanıyor';
+
+  @override
+  String get liveStatePacking => 'Hazırlanıyor';
+
+  @override
+  String get liveStateReady => 'Hazır';
+
+  @override
+  String get liveStateOnItsWay => 'Yolda';
+
+  @override
+  String get liveStatePickedUp => 'Teslim alındı';
+
+  @override
+  String get liveStateDelivered => 'Teslim edildi';
+
+  @override
+  String get liveStageCooking => 'Hazırlık';
+
+  @override
+  String get liveStagePacking => 'Hazırlık';
+
+  @override
+  String get liveStageFinding => 'Aranıyor';
+
+  @override
+  String get liveStageComing => 'Geliyor';
+
+  @override
+  String get liveStageHere => 'Geldi';
+
+  @override
+  String get liveStageOnBoard => 'Yolculukta';
 }

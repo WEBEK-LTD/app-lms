@@ -1133,6 +1133,21 @@ class Block_Resolver {
 		foreach ( array( 'background', 'color', 'dark_background', 'dark_color' ) as $field ) {
 			$header[ $field ] = self::hex( $raw[ $field ] ?? null );
 		}
+		// 130.20 Premium chrome: the header's premium style, the line under its title, its photo and whether it collapses.
+		if ( in_array( $raw['style'] ?? null, array( 'large', 'glass', 'photo', 'brand', 'search' ), true ) ) {
+			$header['style'] = $raw['style'];
+			$subtitle        = self::text( $raw['subtitle'] ?? null );
+			if ( null !== $subtitle ) {
+				$header['subtitle'] = mb_substr( $subtitle, 0, 80 );
+			}
+			$cover = self::url( $raw['image_url'] ?? null );
+			if ( null !== $cover ) {
+				$header['image_url'] = $cover;
+			}
+			if ( false === ( $raw['collapse'] ?? null ) ) {
+				$header['collapse'] = false;
+			}
+		}
 		return $header;
 	}
 
@@ -1333,9 +1348,15 @@ class Block_Resolver {
 					return null;
 				}
 				$node['learning'] = array( 'section' => $section );
-				// 128.8 On a photo, as the approved academy home draws them.
-				if ( 'photo' === ( $raw['learning']['style'] ?? null ) ) {
-					$node['learning']['style'] = 'photo';
+				// 128.8 On a photo, as the approved academy home draws them; 130.18 in a gold ring.
+				$style = $raw['learning']['style'] ?? null;
+				if ( in_array( $style, array( 'photo', 'ring' ), true ) ) {
+					$node['learning']['style'] = $style;
+				}
+				// 130.18 This week's days under a streak.
+				$days = $raw['learning']['days'] ?? null;
+				if ( in_array( $days, array( 'letters', 'pills' ), true ) ) {
+					$node['learning']['days'] = $days;
 				}
 				break;
 			case 'live_status':
@@ -1345,6 +1366,12 @@ class Block_Resolver {
 					return null;
 				}
 				$node['live_status'] = array( 'source' => $source );
+				// 130 The live cards' premium looks and their accent.
+				$style = $raw['live_status']['style'] ?? null;
+				if ( in_array( $style, array( 'hero', 'ring', 'pill', 'steps' ), true ) ) {
+					$node['live_status']['style'] = $style;
+				}
+				$node['live_status'] = array_merge( $node['live_status'], self::live_accents( $raw['live_status'] ) );
 				break;
 			case 'school':
 				// 128.10 A part of the family's school day (a school's own: the app shows the greeting alone without one).
@@ -1357,14 +1384,24 @@ class Block_Resolver {
 			case 'tracking':
 				// 128.10 The person's shipment or ride on its way, or the taxis near them (nothing without one).
 				$kind = $raw['tracking']['kind'] ?? null;
-				if ( ! in_array( $kind, array( 'shipment', 'ride', 'nearby_taxis' ), true ) ) {
+				// 130.11 And the person's next trip (a travel app).
+				if ( ! in_array( $kind, array( 'shipment', 'ride', 'nearby_taxis', 'trip' ), true ) ) {
 					return null;
 				}
 				$node['tracking'] = array( 'kind' => $kind );
 				$style            = $raw['tracking']['style'] ?? null;
-				if ( in_array( $style, array( 'driver', 'line' ), true ) ) {
+				// 130.11 A ticket and a headline too, and a card where it is not the kind's own (a ride's, the taxis');
+				// 130 and the live cards' premium looks, with their accent.
+				$own = array(
+					'shipment'     => 'card',
+					'ride'         => 'driver',
+					'nearby_taxis' => 'line',
+					'trip'         => 'card',
+				);
+				if ( in_array( $style, array( 'driver', 'line', 'ticket', 'headline', 'hero', 'ring', 'pill', 'steps' ), true ) || ( 'card' === $style && 'card' !== $own[ $kind ] ) ) {
 					$node['tracking']['style'] = $style;
 				}
+				$node['tracking'] = array_merge( $node['tracking'], self::live_accents( $raw['tracking'] ) );
 				break;
 			case 'photo_hero':
 			case 'map_header':
@@ -1798,6 +1835,23 @@ class Block_Resolver {
 	 */
 	private static function hex( $value ) {
 		return is_string( $value ) && preg_match( '/^#[0-9A-Fa-f]{6}$/', $value ) ? strtoupper( $value ) : null;
+	}
+
+	/**
+	 * 130 A live card's accent by day and by night (`live_status`, `tracking`), the ones set.
+	 *
+	 * @param mixed $raw The element's `live_status` or `tracking`.
+	 * @return array<string, string>
+	 */
+	private static function live_accents( $raw ) {
+		$out = array();
+		foreach ( array( 'accent', 'dark_accent' ) as $field ) {
+			$color = is_array( $raw ) ? self::hex( $raw[ $field ] ?? null ) : null;
+			if ( null !== $color ) {
+				$out[ $field ] = $color;
+			}
+		}
+		return $out;
 	}
 
 	/**

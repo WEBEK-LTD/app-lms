@@ -580,7 +580,7 @@ describe("signing in to a demo app", () => {
       expect(screens.sign_in?.title.tr, id).toBeTruthy();
       expect(screens.account_menu?.header, id).not.toBe("plain");
       // Their photos are the website's own, credit-free ones (123 the premium academy's, its own picture).
-      if (screens.sign_in?.style !== "minimal") expect(screens.sign_in?.image_url, id).toMatch(/^https:\/\/yallapp\.test\/(stories|demo-screens|demo-photos|design-pictures)\/.+\.jpg$/);
+      if (screens.sign_in?.style !== "minimal") expect(screens.sign_in?.image_url, id).toMatch(/^https:\/\/yallapp\.test\/(stories|demo-screens|demo-photos|design-pictures|travel-photos)\/.+\.jpg$/);
     }
     expect((await config("taxi"))?.account_menu).toMatchObject({ header: "night", accent: "#F5B700" });
     // 119 Their bars in their own designs; 128 as their approved boards have them (several the same classic bar in their own colours), 126 Safra's the dot under the open tab.
@@ -593,7 +593,8 @@ describe("signing in to a demo app", () => {
       expect(bar?.design, id).toBe(DEMO_TAB_BARS[id].design);
       bars.add(bar!.design!);
     }
-    expect([...bars].sort()).toEqual(["classic", "dot", "float", "island"]);
+    // 130 Each demo's look A's premium bar: glass, a floating pill or a dock, never the classic one.
+    expect([...bars].sort()).toEqual(["dock", "float", "glass"]);
     expect(await config("store")).toBeUndefined();
     for (const d of Object.values(DEMO_SCREENS)) if (d.photo) expect(existsSync(join(process.cwd(), "public", d.photo)), d.photo).toBe(true);
   });

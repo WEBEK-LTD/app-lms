@@ -1916,6 +1916,13 @@ enum StudioHeaderType {
 
 enum StudioHeaderButton { menu, search, cart, notifications, chat, account }
 
+// ——— 130.20 Premium chrome: the header's premium styles ———
+/// 130.20 A header's premium style (`StudioHeader.style`): a large title
+/// that collapses, a frosted bar the page scrolls under, a photo cover, the
+/// brand in the middle, the title with a search pill.
+enum StudioHeaderStyle { large, glass, photo, brand, search }
+// ——— end 130.20 ———
+
 /// 103R `StudioHeader`: the bar at the top of a Studio page.
 class StudioHeader {
   const StudioHeader({
@@ -1927,6 +1934,10 @@ class StudioHeader {
     this.color,
     this.darkBackground,
     this.darkColor,
+    this.style,
+    this.subtitle,
+    this.imageUrl,
+    this.collapse = true,
   });
 
   /// Null for none, or a type this app doesn't know.
@@ -1948,8 +1959,25 @@ class StudioHeader {
       color: optString(json, 'color'),
       darkBackground: optString(json, 'dark_background'),
       darkColor: optString(json, 'dark_color'),
+      // 130.20 Premium chrome.
+      style: enumOrNull(StudioHeaderStyle.values, json['style']),
+      subtitle: optString(json, 'subtitle'),
+      imageUrl: optString(json, 'image_url'),
+      collapse: json['collapse'] != false,
     );
   }
+
+  /// 130.20 Its premium style; null, drawn by [type] as before.
+  final StudioHeaderStyle? style;
+
+  /// 130.20 The line under the large title.
+  final String? subtitle;
+
+  /// 130.20 The photo style's photo; null, the brand's gradient.
+  final String? imageUrl;
+
+  /// 130.20 Whether large, photo and search collapse on scroll.
+  final bool collapse;
 
   final StudioHeaderType type;
   final String? title;
@@ -2087,11 +2115,26 @@ enum StudioSchoolSection { greeting, children, today }
 enum StudioLearningSection { continueCourse, streak, live, week }
 
 /// 128.8 How a `learning` card is drawn: as 123 drew it, or on a photo
-/// (`StudioLearning.style` `photo`).
-enum StudioLearningStyle { card, photo }
+/// (`StudioLearning.style` `photo`). 130.18 `ring`: the course they are
+/// taking as its photo in a gold ring filled to how far they are.
+enum StudioLearningStyle { card, photo, ring }
 
-StudioLearningStyle studioLearningStyle(Object? value) =>
-    value == 'photo' ? StudioLearningStyle.photo : StudioLearningStyle.card;
+StudioLearningStyle studioLearningStyle(Object? value) => switch (value) {
+  'photo' => StudioLearningStyle.photo,
+  'ring' => StudioLearningStyle.ring,
+  _ => StudioLearningStyle.card,
+};
+
+/// 130.18 The week's days under a streak (`StudioLearning.days`): round
+/// letters or short pills, the days learned filled and today ringed; none
+/// when missing.
+enum StudioLearningDays { none, letters, pills }
+
+StudioLearningDays studioLearningDays(Object? value) => switch (value) {
+  'letters' => StudioLearningDays.letters,
+  'pills' => StudioLearningDays.pills,
+  _ => StudioLearningDays.none,
+};
 
 StudioLearningSection? studioLearningSection(Object? value) => switch (value) {
   'continue' => StudioLearningSection.continueCourse,
@@ -2114,7 +2157,17 @@ enum StudioMarketSection {
 
 /// 115 How a vendors section draws its vendors.
 /// 128 `chips`: small chips in a row; `bar`: the address as a flat bar.
-enum StudioMarketStyle { spotlight, cards, tiles, list, chips, bar }
+enum StudioMarketStyle {
+  spotlight,
+  cards,
+  tiles,
+  list,
+  chips,
+  bar,
+
+  /// 130 A deck of photo cards, the next ones peeking behind.
+  deck,
+}
 
 /// 115 What a vendors section shows.
 enum StudioMarketKind { all, restaurant, grocery }
@@ -2620,10 +2673,12 @@ class StudioNode {
     this.scrim,
     this.liveStatus,
     this.tracking,
+    this.liveLook,
     this.mapDrawing,
     this.overlap = 0,
     this.school,
     this.learningStyle = StudioLearningStyle.card,
+    this.learningDays = StudioLearningDays.none,
     // 129 Premium motion & media.
     this.kenBurns = false,
     this.slides = const [],
@@ -2774,6 +2829,10 @@ class StudioNode {
               )
             : null,
         tracking: StudioTracking.tryParse(json['tracking']),
+        // 130 The live cards' premium looks.
+        liveLook: StudioLiveLookStyle.tryParse(
+          json['type'] == 'tracking' ? json['tracking'] : json['live_status'],
+        ),
         mapDrawing: StudioMapDrawing.tryParse(json['map_drawing']),
         overlap: n('overlap', 0, 0, 400),
         school: json['school'] is Map
@@ -2785,6 +2844,9 @@ class StudioNode {
         learningStyle: json['learning'] is Map
             ? studioLearningStyle((json['learning'] as Map)['style'])
             : StudioLearningStyle.card,
+        learningDays: json['learning'] is Map
+            ? studioLearningDays((json['learning'] as Map)['days'])
+            : StudioLearningDays.none,
         // 129.11–129.20 A premium element's list and options; a layout's
         // premium card style.
         entries: StudioEntry.listFrom(json['entries']),
@@ -3097,6 +3159,10 @@ class StudioNode {
   /// 128 For [StudioNodeType.tracking]: what it follows.
   final StudioTracking? tracking;
 
+  /// 130 For [StudioNodeType.liveStatus] and [StudioNodeType.tracking]: the
+  /// premium look it is drawn in; null, its own card.
+  final StudioLiveLookStyle? liveLook;
+
   /// 128 For [StudioNodeType.mapHeader]: its markers.
   final StudioMapDrawing? mapDrawing;
 
@@ -3108,6 +3174,9 @@ class StudioNode {
 
   /// 128.8 How that card is drawn.
   final StudioLearningStyle learningStyle;
+
+  /// 130.18 The week's days under a streak.
+  final StudioLearningDays learningDays;
 
   /// 129.11–129.20 A premium element's list (its quotes, plans, numbers,
   /// bars, steps or tiles) and its options.

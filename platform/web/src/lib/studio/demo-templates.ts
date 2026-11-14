@@ -1,4 +1,4 @@
-import type { LayoutBlock, StudioNode, StudioPage } from "../pages/types";
+import type { LayoutBlock, StudioEntry, StudioNode, StudioPage } from "../pages/types";
 import type { StudioDemoId } from "../demo/constants";
 import { APP_WORDS } from "./app-words";
 import { newNodeId } from "./elements";
@@ -26,18 +26,26 @@ function idOf(ctx: SectionContext): string {
 
 /** The kind's own template each Studio demo's home is (lib/studio/sections.ts TEMPLATES). */
 export const DEMO_HOME_TEMPLATES: Record<StudioDemoId, string> = {
-  // 128 The premium homes approved on 13 November 2026 (lib/studio/demo-designs): Sofra Eats's and Zad's photo-first, Sahm's courier in the city, Masar's ride at night, Lamha's taxi map, Nakhla School's day, Rawaq Academy's teachers.
-  delivery: "delivery_city",
-  food: "food_photo",
-  marketplace: "market_photo",
-  rides: "ride_night",
-  taxi: "taxi_map",
-  school: "school_today",
-  instructors: "teachers_photo",
+  // 128 The premium homes approved on 13 November 2026 (lib/studio/demo-designs); 130 every demo is now its Signature look A (lib/studio/demo-designs/signature.ts), the 128 homes stay templates of their kinds.
+  // 130.5 Sahm Express is its Signature look A, the waybill (lib/studio/demo-designs/sahm-signature.ts).
+  delivery: "delivery_signature_a",
+  // 130.1 Sofra Eats is its Signature look A, the editorial menu (lib/studio/demo-designs/sofra-signature.ts).
+  food: "food_signature_a",
+  // 130.3 Zad is its Signature look A, the market arches (lib/studio/demo-designs/zad-signature.ts).
+  marketplace: "marketplace_signature_a",
+  // 130.7 Masar Rides is its Signature look A, the living map (lib/studio/demo-designs/masar-signature.ts).
+  rides: "rides_signature_a",
+  // 130.9 Lamha Taxi is its Signature look A, the two-ink cab (lib/studio/demo-designs/lamha-signature.ts).
+  taxi: "taxi_signature_a",
+  // 130.13 Nakhla School is its Signature look A, the morning edition (lib/studio/demo-designs/nakhla-signature.ts).
+  school: "school_signature_a",
+  // 130.15 Rawaq Academy is its Signature look A, the faculty index (lib/studio/demo-designs/rawaq-signature.ts).
+  instructors: "instructors_signature_a",
   // 126 Safra's Explore: travel's own template (128 in the same registry, lib/studio/demo-designs/safra-travel.ts).
-  travel: "travel",
-  // 123 The premium academy's home is its template's.
-  premium_academy: "academy_premium",
+  // 130.12 Safra is its Signature look A, the cover story (lib/studio/demo-designs/safra-signature.ts).
+  travel: "travel_signature_a",
+  // 123 The premium academy's home is its template's; 130.17 its Signature look A, night cinema (lib/studio/demo-designs/ufuq-signature.ts).
+  premium_academy: "premium_academy_signature_a",
 };
 
 const ENTITIES: Record<string, string> = { amp: "&", lt: "<", gt: ">", quot: '"', "#39": "'" };
@@ -175,13 +183,24 @@ export function translating(ctx: SectionContext): { ctx: SectionContext; transla
   const translate = (node: StudioNode): StudioNode => {
     const out: StudioNode = { ...node };
     const texts = all(node.text);
-    const titles = node.type === "market" ? all(node.title) : null;
+    // 130.11 And a greeting's words without a name; 130 any element's title the template wrote (a call to action's, a card's).
+    const titles = all(node.title);
     if (texts || titles) {
       const translations: Record<string, Record<string, string>> = {};
-      for (const l of others) translations[l] = { ...(texts ? { text: texts[l]! } : {}), ...(titles ? { title: titles[l]! } : {}) };
+      for (const l of others) translations[l] = { ...((node.translations?.[l] as Record<string, string> | undefined) ?? {}), ...(texts ? { text: texts[l]! } : {}), ...(titles ? { title: titles[l]! } : {}) };
       out.translations = translations as StudioNode["translations"];
     }
     if (node.children) out.children = node.children.map(translate);
+    // 130 A premium element's list (130.12 a bento's tiles, a story, a stat; a story's heading): their words in Studio's other languages too, keeping the ones they have.
+    const listed = <T extends { translations?: StudioEntry["translations"] }>(item: T, names: readonly string[]): T => {
+      const fields = names.map((f) => [f, all((item as Record<string, unknown>)[f] as string | null | undefined)] as const).filter(([, words]) => words);
+      if (!fields.length) return item;
+      const translations: Record<string, Record<string, string>> = {};
+      for (const l of others) translations[l] = { ...((item.translations?.[l] as Record<string, string> | undefined) ?? {}), ...Object.fromEntries(fields.map(([f, words]) => [f, words![l]!])) };
+      return { ...item, translations: translations as StudioEntry["translations"] };
+    };
+    if (node.entries) out.entries = node.entries.map((entry) => listed(entry, ["title", "subtitle", "text", "label"]));
+    if (node.slides) out.slides = node.slides.map((slide) => listed(slide, ["heading", "subheading", "label"]));
     if (node.card) out.card = translate(node.card);
     return out;
   };
@@ -237,9 +256,26 @@ export const DEMO_FACTS: Partial<Record<StudioDemoId, Partial<Record<SectionWord
   food: {
     fpArea: { en: "Home · Zamalek", ar: "المنزل · الزمالك", tr: "Ev · Zamalek" },
   },
+  // ——— 130.13–130.18 The Signature looks' brackets, in the demo's own words ———
+  // Nakhla School's week (lib/demo/school-life.ts): the parents' evening, the class trip, sports day.
+  school: {
+    nkNewsLines: {
+      en: "Parents' evening for Grade 5 in the main hall\nGrade 5 A: Science museum trip\nSports day: come in your sports kit",
+      ar: "لقاء أولياء أمور الصف الخامس في القاعة الرئيسية\nالصف 5 أ: رحلة إلى متحف العلوم\nاليوم الرياضي: تعالوا بالزي الرياضي",
+      tr: "5. sınıflar için veli akşamı ana salonda\n5 A: Bilim müzesi gezisi\nSpor günü: spor kıyafetinizle gelin",
+    },
+  },
+  // ——— end 130.13–130.18 ———
   // 128 Zad Market's own offer this week (lib/demo/marketplace.ts).
   marketplace: {
     mpOffer: { en: "Fresh fruit, 15% off", ar: "فاكهة طازجة بخصم 15%", tr: "Taze meyve %15 indirimli" },
+    // 130.3 130.4 Zad's own offers and aisle on its Signature looks: its market's name, a shop on it (lib/demo/marketplace.ts) and its district.
+    zadOfferKicker: { en: "Zad Market offer", ar: "عرض زاد ماركت", tr: "Zad Market fırsatı" },
+    zadOffer2Kicker: { en: "Zad's own code", ar: "رمز زاد", tr: "Zad'ın kodu" },
+    zadOffer3Kicker: { en: "Nile Pizza Co.", ar: "نايل بيتزا", tr: "Nile Pizza Co." },
+    zadBKicker: { en: "Zad Market · Mohandessin", ar: "زاد ماركت · المهندسين", tr: "Zad Market · Mohandessin" },
+    // 130.4 Where Zad's Night aisle look delivers, the demo number's home.
+    zadBTo: { en: "to Home, Garden City", ar: "إلى المنزل، جاردن سيتي", tr: "Ev, Garden City'ye" },
   },
   // Sahm Express by Tahrir Square, where its contact map is; open as late as its same-day parcels arrive.
   delivery: {
@@ -250,6 +286,17 @@ export const DEMO_FACTS: Partial<Record<StudioDemoId, Partial<Record<SectionWord
     },
     // 128 Where the approved home's route card picks up: the demo's own street, where its parcels leave from.
     deliveryFrom: { en: "Abbas El Akkad St.", ar: "شارع عباس العقاد", tr: "Abbas El Akkad Caddesi" },
+    // 130.5 The Waybill look's headline names the demo's city.
+    sahHead1: { en: "Across Cairo,", ar: "عبر القاهرة،", tr: "Kahire'nin her yerine," },
+  },
+  // 130.12 Safra's own stays on its look B's bento (lib/travel/samples.ts TRAVEL_HOTELS): their names and their nights' prices.
+  travel: {
+    sigStayOne: { en: "Safra Caldera Suites", ar: "Safra Caldera Suites", tr: "Safra Caldera Suites" },
+    sigStayOneText: { en: "Cave suites on the cliff · $262 a night", ar: "أجنحة كهفية على المنحدر · 262 دولارًا لليلة", tr: "Uçurumda mağara süitler · gecelik 262 $" },
+    sigStayTwo: { en: "Safra Skyline Hotel", ar: "Safra Skyline Hotel", tr: "Safra Skyline Hotel" },
+    sigStayTwoText: { en: "$134 a night", ar: "134 دولارًا لليلة", tr: "Gecelik 134 $" },
+    sigStayThree: { en: "Safra Old Town House", ar: "Safra Old Town House", tr: "Safra Old Town House" },
+    sigStayThreeText: { en: "$96 a night", ar: "96 دولارًا لليلة", tr: "Gecelik 96 $" },
   },
 };
 
@@ -271,6 +318,21 @@ export function withDemoFacts(id: StudioDemoId, page: StudioPage, lang: DemoLang
     const out: StudioNode = words ? { ...node, text: words[lang], translations } : { ...node };
     if (node.children) out.children = node.children.map(fill);
     if (node.card) out.card = fill(node.card);
+    // 130.12 And a premium element's entries (Safra B's stays): their title and text.
+    if (node.entries) {
+      out.entries = node.entries.map((entry) => {
+        const own = (["title", "text"] as const).map((f) => [f, entry[f] ? byText.get(entry[f]!) : undefined] as const).filter(([, words]) => words);
+        if (!own.length) return entry;
+        const filled: StudioEntry = { ...entry };
+        const translations: Record<string, Record<string, string>> = {};
+        for (const l of others) translations[l] = { ...((entry.translations?.[l] as Record<string, string> | undefined) ?? {}) };
+        for (const [f, words] of own) {
+          filled[f] = words![lang];
+          for (const l of others) translations[l]![f] = words![l];
+        }
+        return { ...filled, translations: translations as StudioEntry["translations"] };
+      });
+    }
     return out;
   };
   return { ...page, body: fill(page.body) };

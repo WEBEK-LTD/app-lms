@@ -75,6 +75,18 @@ export const STUDIO_NODE_TYPES = [...STUDIO_LAYOUT_TYPES, ...STUDIO_CONTENT_TYPE
 /** 123 `greeting`: today's date over a greeting with the person's first name, the buttons beside it. */
 export const STUDIO_HEADER_TYPES = ["logo_center", "title_search", "logo_actions", "transparent", "title", "greeting"] as const;
 export const STUDIO_HEADER_BUTTONS = ["menu", "search", "cart", "notifications", "chat", "account"] as const;
+// ——— 130.20 Premium chrome: the premium page headers ———
+/**
+ * 130.20 A header's premium style (`StudioHeader.style`): `large` a big title that collapses into a compact bar on
+ * scroll, `glass` a frosted bar the page scrolls under, `photo` a photo (or the brand's gradient) cover with a shade
+ * and the title that collapses, `brand` the logo or the app's name in the middle between round glass buttons,
+ * `search` the title and a search pill. Its buttons are round glass buttons (the bell with a dot while something is
+ * unread, the person's photo for the account) and a page opened over the tabs has a round glass back button.
+ * Missing, the header is drawn by its `type` exactly as before.
+ */
+export const STUDIO_HEADER_STYLES = ["large", "glass", "photo", "brand", "search"] as const;
+export type StudioHeaderStyle = (typeof STUDIO_HEADER_STYLES)[number];
+// ——— end 130.20 premium chrome ———
 export const STUDIO_ALIGNS = ["start", "center", "end", "between", "around"] as const;
 export const STUDIO_CROSS = ["start", "center", "end", "stretch"] as const;
 export const STUDIO_TEXT_ALIGNS = ["start", "center", "end"] as const;
@@ -790,10 +802,21 @@ export const STUDIO_LEARNING_SECTIONS = ["continue", "streak", "live", "week"] a
  * on one chip, how far they are in gold and a round play button, the
  * live class's time in gold over its name; the streak a compact figure.
  */
-export const STUDIO_LEARNING_STYLES = ["card", "photo"] as const;
+/**
+ * 130.18 `ring`: the course they are taking as its photo in a round frame,
+ * a gold ring round it filled to how far they are (ticks, a knob at its
+ * end), the lesson on a chip over the photo's foot, then the kicker, the
+ * course's name, the minutes left and how far they are, and a button that
+ * opens the lesson, centred; the other cards as on a photo.
+ */
+export const STUDIO_LEARNING_STYLES = ["card", "photo", "ring"] as const;
+/** 130.18 This week's days under a streak: round letters or short pills, the days learned filled, today ringed. */
+export const STUDIO_LEARNING_DAYS = ["letters", "pills"] as const;
 export interface StudioLearning {
   section: (typeof STUDIO_LEARNING_SECTIONS)[number];
   style?: (typeof STUDIO_LEARNING_STYLES)[number];
+  /** 130.18 For `streak`: this week's days under it; missing, none (the card look keeps its bars). */
+  days?: (typeof STUDIO_LEARNING_DAYS)[number];
 }
 
 /**
@@ -803,8 +826,31 @@ export interface StudioLearning {
  * on its way.
  */
 export const STUDIO_LIVE_SOURCES = ["food_order", "market_order"] as const;
+// ——— 130 Signature looks: the live cards' premium looks (live_status and tracking) ———
+/**
+ * 130 The premium looks of a live card, for `live_status` and `tracking`
+ * alike: `hero` the minutes left as a hero number beside the state (a live
+ * dot), what it is and where, over its four stages as segments, with a
+ * round button in the accent when the element has an `icon`; `ring` the
+ * element's photo (else the order's own, else its icon) in a ring filled
+ * as far as it is, the state, what it is and "step 3 of 4", the minutes
+ * large; `pill` one slim line with a live dot, what is on its way, who
+ * brings it and a Track button; `steps` the hero's top over the four
+ * stages as dots on a line with their names. Words in the element's text
+ * colour; the dot, stages and button in `accent` (by night `dark_accent`;
+ * missing, the app's main colour).
+ */
+export const STUDIO_LIVE_LOOKS = ["hero", "ring", "pill", "steps"] as const;
+export type StudioLiveLook = (typeof STUDIO_LIVE_LOOKS)[number];
+export const STUDIO_LIVE_STATUS_STYLES = ["card", ...STUDIO_LIVE_LOOKS] as const;
+// ——— end 130 live looks ———
 export interface StudioLiveStatus {
   source: (typeof STUDIO_LIVE_SOURCES)[number];
+  /** 130 How it is drawn; missing, `card` (the 128 card). */
+  style?: (typeof STUDIO_LIVE_STATUS_STYLES)[number];
+  /** 130 The live dot, stages and button (#RRGGBB) by day and by night; missing, the app's main colour. */
+  accent?: string;
+  dark_accent?: string;
 }
 
 /**
@@ -844,7 +890,8 @@ export const STUDIO_MARKET_SECTIONS = ["address", "kinds", "offers", "cuisines",
  * name, rating and time; `bar`: the address (its section) as a flat bar with
  * the soonest delivery time and the search under it.
  */
-export const STUDIO_MARKET_STYLES = ["spotlight", "cards", "tiles", "list", "chips", "bar"] as const;
+/** 130 `deck`: places as a deck of photo cards, the open one in front and the next ones peeking behind it, swiped one at a time, "1 / 3" by the title. */
+export const STUDIO_MARKET_STYLES = ["spotlight", "cards", "tiles", "list", "chips", "bar", "deck"] as const;
 /** Editor audit 3.4: facts a place's card can leave out. */
 export const STUDIO_MARKET_CARD_FACTS = ["offer", "rating", "time", "fee", "min_order"] as const;
 export const STUDIO_MARKET_KINDS = ["all", "restaurant", "grocery"] as const;
@@ -875,13 +922,24 @@ export interface StudioMarketCard {
 }
 
 /** 128 For `tracking`: what it follows, and how it is drawn (`StudioTracking`). */
-export const STUDIO_TRACKING_KINDS = ["shipment", "ride", "nearby_taxis"] as const;
-/** `card`: a soft card with the stages; `driver`: the driver's photo, car and a call button; `line`: one line. */
-export const STUDIO_TRACKING_STYLES = ["card", "driver", "line"] as const;
+/** 130.11 `trip`: the person's next trip (Studio's travel apps: their stay and flights). */
+export const STUDIO_TRACKING_KINDS = ["shipment", "ride", "nearby_taxis", "trip"] as const;
+/**
+ * `card`: a soft card with the stages; `driver`: the driver's photo, car and a call button; `line`: one line.
+ * 130.11 `ticket`: the trip's first flight as a boarding pass under its city, large (other kinds: their card);
+ * `headline`: the main number large (the minutes to the pickup, the free taxis around, the days to the trip).
+ */
+/** 130 And the live cards' premium looks for a shipment or a ride (`STUDIO_LIVE_LOOKS`: hero, ring, pill, steps). */
+export const STUDIO_TRACKING_STYLES = ["card", "driver", "line", "ticket", "headline", ...STUDIO_LIVE_LOOKS] as const;
+/** 130.11 Each kind's own style, when the element sets none. */
+export const STUDIO_TRACKING_DEFAULTS = { shipment: "card", ride: "driver", nearby_taxis: "line", trip: "card" } as const satisfies Record<(typeof STUDIO_TRACKING_KINDS)[number], (typeof STUDIO_TRACKING_STYLES)[number]>;
 export interface StudioTracking {
   kind: (typeof STUDIO_TRACKING_KINDS)[number];
-  /** Missing, `card`. */
+  /** Missing, the kind's own (`STUDIO_TRACKING_DEFAULTS`). */
   style?: (typeof STUDIO_TRACKING_STYLES)[number];
+  /** 130 The premium looks' accent (#RRGGBB) by day and by night; missing, the app's main colour. */
+  accent?: string;
+  dark_accent?: string;
 }
 
 /** 128 For `map_header`: the markers on the drawn map (`StudioMapDrawing`). */
@@ -1282,6 +1340,7 @@ export interface StudioNode {
 export const STUDIO_TABLET_FIELDS = ["width", "height", "min_height", "padding", "margin", "gap", "columns", "per_view", "font", "text_align"] as const;
 export type StudioTablet = Partial<Pick<StudioNode, (typeof STUDIO_TABLET_FIELDS)[number]>>;
 
+
 /** 103R The bar at the top of a Studio page (`StudioHeader`). */
 export interface StudioHeader {
   type: StudioHeaderType;
@@ -1292,6 +1351,16 @@ export interface StudioHeader {
   color?: string | null;
   dark_background?: string | null;
   dark_color?: string | null;
+  // ——— 130.20 Premium chrome: the header's premium style ———
+  /** 130.20 Its premium style; missing, drawn by `type` as before (apps that don't know it draw `type`). */
+  style?: StudioHeaderStyle;
+  /** 130.20 A line under the large title (`large`, `photo`, `brand`), translated; missing, none. */
+  subtitle?: string | null;
+  /** 130.20 The `photo` style's photo; missing, the main to second colour gradient. */
+  image_url?: string | null;
+  /** 130.20 `large`, `photo` and `search` collapse on scroll; false keeps them open. */
+  collapse?: boolean;
+  // ——— end 130.20 premium chrome ———
   translations?: Translations;
 }
 
@@ -1441,7 +1510,8 @@ export const TRANSLATABLE = {
   tab: ["label"],
   // 103R A Studio element's text, and the header's title.
   studio: ["text", "title"],
-  studioHeader: ["title"],
+  // 130.20 And the premium header's line under its title.
+  studioHeader: ["title", "subtitle"],
   block: ["title", "heading", "subheading", "html", "label", "placeholder", "text", "ended_text", "note", "address", "name", "submit_label", "success_text"],
 } as const;
 

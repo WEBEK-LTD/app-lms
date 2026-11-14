@@ -20,6 +20,8 @@ import '../data/market_place.dart';
 import '../data/market_providers.dart';
 import '../screens/market_orders_screen.dart' show orderAgain;
 import 'market_compact.dart';
+// 130 The places as a deck of photo cards.
+import 'market_deck.dart';
 import 'market_look.dart';
 
 /// 115 A Studio `market` element: one marketplace section, drawn from the
@@ -1050,6 +1052,9 @@ class _Vendors extends StatelessWidget {
             for (final v in vendors) _VendorRow(vendor: v),
           ],
         );
+      // 130 A deck of photo cards, "1 / 3" by the title.
+      case StudioMarketStyle.deck:
+        return MarketVendorDeck(vendors: vendors, title: node.title);
       // 128 Small chips in a row; `bar` is the address's, drawn as cards here.
       case StudioMarketStyle.chips:
         final card = MarketCardLook.of(context);

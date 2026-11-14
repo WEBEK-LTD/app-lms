@@ -125,9 +125,14 @@ for (const id of demos) {
     const bar = await barButtons(page);
     // The loop starts on the home, as the card's screenshot (some apps open on another tab, such as a taxi's map).
     const home = bar.find((b) => /^home$/i.test(b.label)) ?? bar[0];
+    // 130 Where a tab is now: a bar whose open tab grows (its name beside its icon) moves the others.
+    const tapTab = async (tab: Spot) => {
+      const now = (await barButtons(page)).find((b) => b.label === tab.label) ?? tab;
+      await page.touchscreen.tap(now.x, now.y);
+    };
     const goHome = async () => {
       if (!home) return;
-      await page.touchscreen.tap(home.x, home.y);
+      await tapTab(home);
       await page.waitForTimeout(1500);
     };
     await goHome();
@@ -136,7 +141,7 @@ for (const id of demos) {
     // what it shows (not a map that can't load here); tried once before filming, so it has its entries.
     let other: Spot | null = null;
     for (const tab of bar.filter((b) => b !== home && !SKIP.test(b.label))) {
-      await page.touchscreen.tap(tab.x, tab.y);
+      await tapTab(tab);
       await page.waitForTimeout(2500);
       const words = await screenWords(page);
       const hasBar = (await barButtons(page)).length > 0;
@@ -159,11 +164,11 @@ for (const id of demos) {
     await page.waitForTimeout(400);
     // The other screen, then home again: the loop ends where it starts.
     if (other && home) {
-      await page.touchscreen.tap(other.x, other.y);
+      await tapTab(other);
       await page.waitForTimeout(1500);
       await scroll(page, 260);
       await page.waitForTimeout(600);
-      await page.touchscreen.tap(home.x, home.y);
+      await tapTab(home);
       await page.waitForTimeout(1200);
     } else {
       await page.waitForTimeout(1500);

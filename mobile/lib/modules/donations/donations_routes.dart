@@ -10,6 +10,8 @@ import '../shared/shared_routes.dart';
 import 'screens/campaign_screen.dart';
 import 'screens/campaigns_screen.dart';
 import 'screens/my_donations_screen.dart';
+// 130.21 The system screens' premium look.
+import '../../core/widgets/premium_chrome.dart' show SystemScreenArea;
 
 /// The Charity & donations module (29, hosted API): campaigns, my donations
 /// and the account as tabs, and the campaign page. Browsing needs no
@@ -81,7 +83,14 @@ final _defaultTabs = [
 
 List<TabScreen> _screens() => [
   TabScreen(Paths.campaigns, (state) => const CampaignsScreen()),
-  TabScreen(Paths.myDonations, (state) => const MyDonationsScreen()),
+  TabScreen(
+    Paths.myDonations,
+    (state) => const SystemScreenArea(
+      // 130.21 The lists in the project's premium look.
+      screen: SystemScreen.lists,
+      child: MyDonationsScreen(),
+    ),
+  ),
   TabScreen(
     Paths.account,
     (state) => const ProfileScreen(),

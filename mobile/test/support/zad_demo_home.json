@@ -525,7 +525,7 @@
         }
       },
       {
-        "id": "demo-29",
+        "id": "demo-1",
         "type": "row",
         "gap": 10,
         "cross": "start",
@@ -550,7 +550,7 @@
         "visibility": "signed_out",
         "children": [
           {
-            "id": "demo-30",
+            "id": "demo-2",
             "type": "icon",
             "icon": "info",
             "icon_size": 18,
@@ -558,7 +558,7 @@
             "dark_color": "#A9BAB0"
           },
           {
-            "id": "demo-31",
+            "id": "demo-3",
             "type": "text",
             "text": "This is a demo app. Sign in with +1 202 555 0123 and the code 246810. Anything you add is deleted after a day.",
             "width": "fill",

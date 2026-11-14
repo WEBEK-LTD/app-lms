@@ -12,6 +12,8 @@ import 'screens/event_screen.dart';
 import 'screens/events_screen.dart';
 import 'screens/ticket_screen.dart';
 import 'screens/tickets_screen.dart';
+// 130.21 The system screens' premium look.
+import '../../core/widgets/premium_chrome.dart' show SystemScreenArea;
 
 /// The Events & tickets module (28, hosted API): events (a list and a
 /// calendar), My tickets (kept on the phone, with QR codes) and the
@@ -91,7 +93,14 @@ List<TabScreen> _screens() => [
       focusSearch: state.uri.queryParameters['focus'] == '1',
     ),
   ),
-  TabScreen(Paths.tickets, (state) => const TicketsScreen()),
+  TabScreen(
+    Paths.tickets,
+    (state) => const SystemScreenArea(
+      // 130.21 The lists in the project's premium look.
+      screen: SystemScreen.lists,
+      child: TicketsScreen(),
+    ),
+  ),
   TabScreen(
     Paths.account,
     (state) => const ProfileScreen(),

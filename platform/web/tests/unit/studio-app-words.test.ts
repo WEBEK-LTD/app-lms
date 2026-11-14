@@ -9,13 +9,16 @@ import { demoLayout } from "@/lib/demo/setup";
 import { BUILT_IN_APP_DEFAULTS, defaultLayout } from "@/lib/pages/defaults";
 import { itemSourcesFor } from "@/lib/pages/sources";
 import { APP_WORDS, appWord, appWords, premiumAppWords, type AppWord } from "@/lib/studio/app-words";
-import { DEMO_FACTS } from "@/lib/studio/demo-templates";
+import { DEMO_FACTS, withDemoFacts } from "@/lib/studio/demo-templates";
+// 130.30 The premium whole designs.
+import { designsFor, makeDesign } from "@/lib/studio/designs";
+import { signatureDesigns } from "@/lib/studio/demo-designs";
 import { ELEMENTS, newNode, type NewText } from "@/lib/studio/elements";
 import { PREMIUM_MAPS } from "@/lib/studio/premium-maps";
 import { PREMIUM_WORDS_EN } from "@/lib/studio/premium-motion";
 import { premiumWordEn } from "@/lib/studio/premium-content";
 import { PAGE_TEMPLATES } from "@/lib/studio/page-templates";
-import { SECTIONS, templatesFor, type SectionContext } from "@/lib/studio/sections";
+import { SECTIONS, TEMPLATES, templatesFor, type SectionContext } from "@/lib/studio/sections";
 import { startLayout } from "@/lib/studio/start";
 
 /**
@@ -24,7 +27,9 @@ import { startLayout } from "@/lib/studio/start";
  * Studio's editor speak Egyptian. These fail on an Egyptian-only form
  * (دلوقتي, عايز, إزاي, اللي…) in the app words (lib/studio/app-words.ts),
  * in any template, section or whole project made in Arabic, or in any demo
- * app's Arabic translations.
+ * app's Arabic translations. 130.42 And every one of the eighteen Signature
+ * looks, a whole project made in Arabic: no Egyptian form, no word left in
+ * English.
  */
 
 const NOW = new Date("2026-11-13T10:00:00Z");
@@ -119,6 +124,14 @@ function arabicIn(value: unknown, at = "", out: { at: string; text: string }[] =
   else if (value && typeof value === "object") for (const [k, v] of Object.entries(value)) arabicIn(v, at ? `${at}.${k}` : k, out);
   return out;
 }
+
+/** 130.42 The app's words in English (each line of them too) that its Arabic writes otherwise: one of them on an Arabic page is a word left in English. */
+const ENGLISH_APP_WORDS = new Set(
+  Object.entries(APP_WORDS.en)
+    .filter(([key, text]) => APP_WORDS.ar[key as AppWord] !== text)
+    .flatMap(([, text]) => [text, ...text.split("\n")])
+    .filter((text) => /[A-Za-z]{2}/.test(text) && !text.includes("{")),
+);
 
 const offending = (value: unknown) =>
   arabicIn(value)
@@ -216,10 +229,69 @@ describe("The Arabic that templates put into the app is Modern Standard Arabic (
     expect(JSON.stringify(made("tr"))).not.toMatch(/[؀-ۿ]/u);
   });
 
+  // ——— 130.42 The eighteen Signature looks, whole projects made in Arabic ———
+  it.each(signatureDesigns().map((d) => [d.demo, d.variant] as const))("the %s demo's Signature look %s, a whole project made in Arabic, is Modern Standard Arabic with no English left", (demo, look) => {
+    const kind = demoKind(demo);
+    const app = { ...projectApp(kind.engine, kind.vertical), appName: DEMO_BRANDS[demo].appName };
+    const template = TEMPLATES.find((t) => t.id === `${demo}_signature_${look}`)!;
+    const ctx = { ...arabicContext(app), app: app.appName! };
+    const layout = startLayout(app, template, defaultLayout(app, BUILT_IN_APP_DEFAULTS, NOW), NOW, ctx);
+    // As /start makes it from the demo: the demo's own words in the template's brackets.
+    const filled = { ...layout, pages: layout.pages.map((p) => (p.studio ? { ...p, studio: withDemoFacts(demo, p.studio, "ar") } : p)) };
+    const screens = demoStudioScreens(demo, "https://files.test", look);
+    const project = { layout: filled, screens: { sign_in: { title: screens.sign_in?.title.ar, subtitle: screens.sign_in?.subtitle.ar } } };
+    expect(arabicIn(project).length).toBeGreaterThan(10);
+    expect(offending(project)).toEqual([]);
+    // No word of the app's left in English (or Turkish) where the Arabic is written: every text, title and list entry the app shows.
+    const strings = (v: unknown, key = ""): { key: string; text: string }[] =>
+      typeof v === "string" ? [{ key, text: v }] : Array.isArray(v) ? v.flatMap((x) => strings(x, key)) : v && typeof v === "object" ? Object.entries(v).flatMap(([k, x]) => (k === "translations" ? [] : strings(x, k))) : [];
+    const shown = new Set(["text", "title", "subtitle", "label", "heading", "subheading"]);
+    const left = filled.pages
+      // A page's own title shows only where it has a header (its title there) or shows it.
+      .flatMap((p) => [...(p.show_title ? [{ key: "title", text: p.title }] : []), ...(p.studio ? strings(p.studio) : [])])
+      .filter((s) => shown.has(s.key) && ENGLISH_APP_WORDS.has(s.text));
+    expect(left.map((s) => s.text)).toEqual([]);
+    for (const tab of filled.tabs) expect(ENGLISH_APP_WORDS.has(tab.label), `${demo} ${look} tab ${tab.label}`).toBe(false);
+  });
+  // ——— end 130.42 ———
+
   it.each(STUDIO_DEMO_TYPES)("the %s demo app's Arabic has no Egyptian form (its pages, tabs, note and sign-in screens)", async (id) => {
     const layout = await demoLayout({ assetUrl: (a) => `https://files.test/${a}`, now: NOW }, demoApp(id), "banner-asset");
     expect(arabicIn(layout).length).toBeGreaterThan(5);
     expect(offending(layout)).toEqual([]);
     expect(offending(demoStudioScreens(id, "https://files.test"))).toEqual([]);
+  });
+});
+
+/**
+ * 130.30 The premium whole designs' words (lib/studio/premium-designs.ts):
+ * each kind's and the designs' own, in the app's Modern Standard Arabic, and
+ * every design made in Arabic for every kind, its texts and translations.
+ */
+describe("130.30 the premium whole designs write Modern Standard Arabic into the app", () => {
+  it("has every design word in English, Arabic and Turkish, none Egyptian", () => {
+    const own = Object.keys(APP_WORDS.en).filter((k) => k.startsWith("pd"));
+    expect(own.length).toBeGreaterThan(240);
+    for (const k of own) {
+      const ar = (APP_WORDS.ar as Record<string, string>)[k]!;
+      expect(ar, k).toMatch(/[\u0600-\u06FF]/);
+      expect(egyptian(ar), `${k}: ${ar}`).toBeNull();
+      expect((APP_WORDS.tr as Record<string, string>)[k], k).toBeTruthy();
+    }
+  });
+
+  it("writes no Egyptian form into any whole design made in Arabic, for every kind and look", () => {
+    const bad: unknown[] = [];
+    let seen = 0;
+    for (const kind of KINDS) {
+      const app = projectApp(kind.engine, kind.vertical);
+      for (const design of designsFor({ type: kind.engine, vertical: kind.vertical }).filter((d) => !d.demo)) {
+        const file = makeDesign(design, arabicContext(app), { home: "الرئيسية", template: (id) => id, theme: (id) => id }, { default: "ar", available: ["ar", "en", "tr"] });
+        seen += arabicIn(file.pages).length;
+        for (const x of offending(file.pages)) bad.push({ kind: kind.id, design: design.id, ...x });
+      }
+    }
+    expect(seen).toBeGreaterThan(2000);
+    expect(bad).toEqual([]);
   });
 });

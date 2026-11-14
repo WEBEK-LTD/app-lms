@@ -50,6 +50,8 @@ const symbolsByName = <String, IconData>{
   'fitness_center': AppIcons.fitness,
   'card_membership': AppIcons.membership,
   'location_on': AppIcons.location,
+  // 130.9 The button that shows where the person is (Lamha A's map).
+  'my_location': AppIcons.myLocation,
   'open_in_new': AppIcons.openInNew,
   'volunteer_activism': AppIcons.campaigns,
   'campaign': AppIcons.campaignUpdate,
@@ -153,6 +155,27 @@ const symbolsByName = <String, IconData>{
   'flight_takeoff': Symbols.flight_takeoff_rounded,
   'hotel_class': Symbols.hotel_class_rounded,
   'airline_seat_recline_normal': Symbols.airline_seat_recline_normal_rounded,
+  // 130.11 A trip's legs (the stay, the flight home) and its boarding pass;
+  // the Signature looks' templates (a radar, a horizon).
+  'hotel': Symbols.hotel_rounded,
+  'flight_land': Symbols.flight_land_rounded,
+  'qr_code_2': Symbols.qr_code_2_rounded,
+  'radar': Symbols.radar_rounded,
+  'landscape': Symbols.landscape_rounded,
+  // 130.13–130.18 The Signature looks of the school and the academies: the
+  // school bus, the forms to sign, a streak's flame, the live tab.
+  'directions_bus': Symbols.directions_bus_rounded,
+  'signature': Symbols.signature_rounded,
+  'local_fire_department': Symbols.local_fire_department_rounded,
+  'sensors': Symbols.sensors_rounded,
+  'north_east': Symbols.north_east_rounded,
+  // 130.1–130.6 The food, marketplace and delivery Signature looks: a dish's
+  // add button, the location button over a map and the barcode in a search.
+  'add_circle': Symbols.add_circle_rounded,
+  'add': Symbols.add_rounded,
+  'barcode_scanner': Symbols.barcode_scanner_rounded,
+  'radio_button_checked': Symbols.radio_button_checked_rounded,
+  // end 130.1–130.6
 };
 
 /// Shown for a name the app doesn't have.

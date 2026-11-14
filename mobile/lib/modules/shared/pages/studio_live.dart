@@ -1,3 +1,5 @@
+import 'dart:math' as math;
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
@@ -17,6 +19,16 @@ import '../../delivery/data/delivery_providers.dart';
 import '../../rides/data/rides_providers.dart';
 import '../../taxi/data/taxi_providers.dart';
 import 'content_blocks.dart' show pageClockProvider;
+// 130.11 The next trip, and the taxis' and a ride's more looks.
+import '../../../core/format/dates.dart';
+import '../../../core/gate/app_gate.dart';
+import '../../travel/data/travel_providers.dart';
+import '../../travel/travel_paths.dart';
+import '../../travel/widgets/travel_words.dart' show boardName;
+// 130 The live cards' premium looks.
+import 'studio_live_looks.dart';
+
+part 'studio_live_more.dart';
 
 /// 128 The live elements of a Studio page (platform/web/src/lib/pages/
 /// types.ts `STUDIO_LIVE_TYPES`), drawn from the signed-in person: their
@@ -70,6 +82,7 @@ bool studioLiveShows(StudioNode node, WidgetRef ref) {
     StudioTrackingKind.shipment =>
       ref.watch(activeShipmentProvider).value != null,
     StudioTrackingKind.ride => ref.watch(activeRideProvider).value != null,
+    StudioTrackingKind.trip => ref.watch(studioNextTripProvider).value != null,
     StudioTrackingKind.nearbyTaxis =>
       ref.watch(studioNearbyTaxisProvider) != null,
   };
@@ -90,10 +103,33 @@ class StudioTrackingView extends ConsumerWidget {
       case StudioTrackingKind.nearbyTaxis:
         final near = ref.watch(studioNearbyTaxisProvider);
         if (near == null) return const SizedBox.shrink();
+        // 130.11 The nearest one's minutes, or their count, large.
+        if (tracking.look == StudioTrackingStyle.card ||
+            tracking.look == StudioTrackingStyle.headline) {
+          return _NearbyMore(
+            at: near.at,
+            taxis: near.taxis,
+            headline: tracking.look == StudioTrackingStyle.headline,
+          );
+        }
         return _NearbyTaxis(at: near.at, taxis: near.taxis);
+      // 130.11 The person's next trip.
+      case StudioTrackingKind.trip:
+        final trip = ref.watch(studioNextTripProvider).value;
+        if (trip == null) return const SizedBox.shrink();
+        return _TripView(trip: trip, look: tracking.look);
       case StudioTrackingKind.shipment:
         final shipment = ref.watch(activeShipmentProvider).value;
         if (shipment == null) return const SizedBox.shrink();
+        // 130 In one of the live cards' premium looks.
+        if (node.liveLook case final look?) {
+          return StudioLiveLookCard(
+            node: node,
+            style: look,
+            facts: shipmentLiveLook(context.l10n, shipment),
+            color: DefaultTextStyle.of(context).style.color,
+          );
+        }
         return _Live(
           look: tracking.look,
           live: _shipmentLive(context, shipment),
@@ -102,6 +138,19 @@ class StudioTrackingView extends ConsumerWidget {
       case StudioTrackingKind.ride:
         final ride = ref.watch(activeRideProvider).value;
         if (ride == null) return const SizedBox.shrink();
+        // 130.11 The minutes to the pickup, large.
+        if (tracking.look == StudioTrackingStyle.headline) {
+          return _RideHeadline(ride: ride, live: _rideLive(context, ride));
+        }
+        // 130 In one of the live cards' premium looks.
+        if (node.liveLook case final look?) {
+          return StudioLiveLookCard(
+            node: node,
+            style: look,
+            facts: rideLiveLook(context.l10n, ride),
+            color: DefaultTextStyle.of(context).style.color,
+          );
+        }
         return _Live(
           look: tracking.look,
           live: _rideLive(context, ride),
@@ -337,7 +386,10 @@ class _Live extends ConsumerWidget {
             ],
           ),
         );
-      case StudioTrackingStyle.card:
+      // 130.11 A ticket or a headline of a shipment or a ride on its way is its card.
+      case StudioTrackingStyle.card ||
+          StudioTrackingStyle.ticket ||
+          StudioTrackingStyle.headline:
         final track = Theme.of(context).brightness == Brightness.dark
             ? Colors.white.withValues(alpha: 0.14)
             : ink.withValues(alpha: 0.12);
@@ -464,7 +516,12 @@ class _NearbyTaxis extends ConsumerWidget {
 /// A `greeting`: good morning or good evening with the person's first name;
 /// signed out, the greeting alone. Its font and colour are the element's.
 class StudioGreetingView extends ConsumerWidget {
-  const StudioGreetingView({super.key});
+  const StudioGreetingView({super.key, this.node});
+
+  /// 130.11 The element: its own words (`text`, `{name}` the person's first
+  /// name) and its words without a name (`title`); without them, good
+  /// morning or good evening.
+  final StudioNode? node;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -473,6 +530,21 @@ class StudioGreetingView extends ConsumerWidget {
     final auth = ref.watch(authControllerProvider);
     final name = auth is SignedIn ? _first(auth.user?.name ?? '') : '';
     final morning = now.hour < 12;
+    final own = node?.text;
+    if (own != null && own.trim().isNotEmpty) {
+      final alone = node?.title;
+      final words = name.isNotEmpty || !own.contains('{name}')
+          ? own.replaceAll('{name}', name)
+          : (alone != null && alone.trim().isNotEmpty
+                ? alone
+                : own.replaceAll(RegExp(r',?\s*\{name\}'), ''));
+      return Text(
+        words,
+        key: const ValueKey('studio-greeting-own'),
+        maxLines: 3,
+        overflow: TextOverflow.ellipsis,
+      );
+    }
     return Text(
       name.isEmpty
           ? (morning

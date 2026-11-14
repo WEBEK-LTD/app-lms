@@ -4599,6 +4599,141 @@ export const APP_STRING_NOTES: Record<string, { en?: string; ar: string; tr: str
     tr: "Bir sayfa haritasındaki canlı rotada sürücünün yanındaki balon: adı ve alış noktasına kalan dakikalar.",
   },
   // ——— end 129.21–129.24 ———
+  // 130 The Signature looks' and the live looks' app strings.
+  "130.11 Over the city of the person's next trip (Studio's `tracking` trip ticket).": {
+    en: "Over the city of the person's next trip, on the trip ticket.",
+    ar: "فوق مدينة الرحلة القادمة للشخص، على تذكرة الرحلة.",
+    tr: "Kişinin bir sonraki yolculuğunun şehrinin üstünde, yolculuk biletinde.",
+  },
+  "130.11 When the person's next trip starts.": {
+    ar: "متى تبدأ الرحلة القادمة للشخص.",
+    tr: "Kişinin bir sonraki yolculuğunun ne zaman başladığı.",
+  },
+  "130.11 After the days left, large: to which city.": {
+    ar: "بعد الأيام المتبقية بخط كبير: إلى أي مدينة.",
+    tr: "Kalan günlerden sonra, büyük yazıyla: hangi şehre.",
+  },
+  "130.11 The trip's stay: its nights (\"4 nights\") at the hotel.": {
+    ar: "إقامة الرحلة: عدد لياليها («4 ليالٍ») في الفندق.",
+    tr: "Yolculuğun konaklaması: oteldeki gece sayısı (\"4 gece\").",
+  },
+  "130.11 The trip's airport transfer, one of its legs.": {
+    ar: "التوصيل من المطار وإليه، إحدى مراحل الرحلة.",
+    tr: "Yolculuğun havalimanı transferi, aşamalarından biri.",
+  },
+  "130.11 The trip ticket's button to the boarding passes.": {
+    ar: "زر تذكرة الرحلة الذي يفتح بطاقات الصعود.",
+    tr: "Yolculuk biletindeki, biniş kartlarını açan düğme.",
+  },
+  "130.11 After a number of minutes shown large (\"3 min\").": {
+    ar: "بعد عدد الدقائق المعروض بخط كبير («3 دقائق»).",
+    tr: "Büyük gösterilen dakika sayısından sonra (\"3 dk\").",
+  },
+  "130.11 Beside the nearest free taxi's minutes, large.": {
+    ar: "بجانب دقائق أقرب تاكسي متاح، بخط كبير.",
+    tr: "En yakın boş taksinin dakikalarının yanında, büyük yazıyla.",
+  },
+  "130.11 How many free taxis are around the person, live.": {
+    ar: "عدد سيارات التاكسي المتاحة حول الشخص، مباشرةً.",
+    tr: "Kişinin çevresindeki boş taksi sayısı, canlı.",
+  },
+  "130.11 After the count of free taxis, large (\"8 free taxis around you.\").": {
+    ar: "بعد عدد سيارات التاكسي المتاحة بخط كبير («8 سيارات تاكسي متاحة حولك.»).",
+    tr: "Büyük yazılan boş taksi sayısından sonra (\"Çevrende 8 boş taksi.\").",
+  },
+  "130.11 Over the driver's name while they come to the pickup.": {
+    ar: "فوق اسم السائق أثناء قدومه إلى نقطة الانطلاق.",
+    tr: "Sürücü alış noktasına gelirken adının üstünde.",
+  },
+  "130.11 On the trip ticket: where the flight stops.": {
+    ar: "على تذكرة الرحلة: أين تتوقف الطائرة.",
+    tr: "Yolculuk biletinde: uçağın aktarma yaptığı yer.",
+  },
+  "130.18 The button under the course in its gold ring (the Signature looks).": {
+    en: "The button under the course in its gold ring.",
+    ar: "الزر تحت الدورة داخل حلقتها الذهبية.",
+    tr: "Altın halkasındaki kursun altındaki düğme.",
+  },
+  "130.18 How far the student is in the course, under it in its gold ring.": {
+    ar: "مدى تقدّم الطالب في الدورة، تحتها داخل حلقتها الذهبية.",
+    tr: "Öğrencinin kurstaki ilerlemesi, altın halkasının altında.",
+  },
+  "130 Under the minutes left on a live card's premium look (\"12 min away\").": {
+    ar: "تحت الدقائق المتبقية على البطاقة المباشرة بشكلها المميز («على بُعد 12 دقيقة»).",
+    tr: "Canlı kartın premium görünümünde kalan dakikaların altında (\"12 dk uzakta\").",
+  },
+  "130 Before the state on a live card in a progress ring (\"Live · On its way\").": {
+    ar: "قبل الحالة على البطاقة المباشرة داخل حلقة التقدّم («مباشر · في الطريق»).",
+    tr: "İlerleme halkalı canlı kartta durumdan önce (\"Canlı · Yolda\").",
+  },
+  "130 How far a live order is, on a live card in a progress ring.": {
+    ar: "مدى تقدّم الطلب المباشر، على البطاقة المباشرة داخل حلقة التقدّم.",
+    tr: "Canlı siparişin ne kadar ilerlediği, ilerleme halkalı canlı kartta.",
+  },
+  "130 A slim live pill's line: the order from a place is with the courier.": {
+    ar: "سطر الشريط المباشر الرفيع: الطلب من المكان مع المندوب.",
+    tr: "İnce canlı şeridin satırı: bir yerden gelen sipariş kuryede.",
+  },
+  "130 How many things are on their way, on a slim live pill.": {
+    ar: "عدد الأشياء التي في الطريق، على الشريط المباشر الرفيع.",
+    tr: "Yoldaki ürün sayısı, ince canlı şeritte.",
+  },
+  "130 A live shipment's title in a premium look: the courier's first name and the drop-off.": {
+    ar: "عنوان الشحنة المباشرة بالشكل المميز: الاسم الأول للمندوب ومكان التسليم.",
+    tr: "Premium görünümde canlı gönderinin başlığı: kuryenin adı ve teslim yeri.",
+  },
+  "130 A live card's state, and the first of its four stages: the order is placed.": {
+    ar: "حالة البطاقة المباشرة، وأولى مراحلها الأربع: تم تقديم الطلب.",
+    tr: "Canlı kartın durumu ve dört aşamasının ilki: sipariş verildi.",
+  },
+  "130 A live food order's state: the restaurant is cooking it.": {
+    ar: "حالة طلب الطعام المباشر: المطعم يُحضّره.",
+    tr: "Canlı yemek siparişinin durumu: restoran hazırlıyor.",
+  },
+  "130 A live marketplace order's state: the shop is packing it.": {
+    ar: "حالة طلب المتجر المباشر: المتجر يُجهّزه.",
+    tr: "Canlı pazar yeri siparişinin durumu: mağaza paketliyor.",
+  },
+  "130 A live order's state: ready for the courier.": {
+    ar: "حالة الطلب المباشر: جاهز للمندوب.",
+    tr: "Canlı siparişin durumu: kurye için hazır.",
+  },
+  "130 A live card's state: with the courier, on the way.": {
+    ar: "حالة البطاقة المباشرة: مع المندوب، في الطريق.",
+    tr: "Canlı kartın durumu: kuryede, yolda.",
+  },
+  "130 A live shipment's second stage: the courier picked it up.": {
+    ar: "المرحلة الثانية للشحنة المباشرة: استلمها المندوب.",
+    tr: "Canlı gönderinin ikinci aşaması: kurye teslim aldı.",
+  },
+  "130 The last of a live card's four stages.": {
+    ar: "آخر المراحل الأربع للبطاقة المباشرة.",
+    tr: "Canlı kartın dört aşamasının sonuncusu.",
+  },
+  "130 A live food order's second stage, named under its dot.": {
+    ar: "المرحلة الثانية لطلب الطعام المباشر، باسمها تحت نقطتها.",
+    tr: "Canlı yemek siparişinin ikinci aşaması, noktasının altında adıyla.",
+  },
+  "130 A live marketplace order's second stage, named under its dot.": {
+    ar: "المرحلة الثانية لطلب المتجر المباشر، باسمها تحت نقطتها.",
+    tr: "Canlı pazar yeri siparişinin ikinci aşaması, noktasının altında adıyla.",
+  },
+  "130 A live ride's first stage: finding a driver.": {
+    ar: "المرحلة الأولى للرحلة المباشرة: البحث عن سائق.",
+    tr: "Canlı yolculuğun ilk aşaması: sürücü aranıyor.",
+  },
+  "130 A live ride's second stage: the driver is coming.": {
+    ar: "المرحلة الثانية للرحلة المباشرة: السائق في الطريق إليك.",
+    tr: "Canlı yolculuğun ikinci aşaması: sürücü geliyor.",
+  },
+  "130 A live ride's third stage: the driver is here.": {
+    ar: "المرحلة الثالثة للرحلة المباشرة: وصل السائق.",
+    tr: "Canlı yolculuğun üçüncü aşaması: sürücü geldi.",
+  },
+  "130 A live ride's last stage: on board.": {
+    ar: "المرحلة الأخيرة للرحلة المباشرة: على متن السيارة.",
+    tr: "Canlı yolculuğun son aşaması: araçta.",
+  },
 };
 
 /** A developer's description without the app's code names: "… lib/core/x.dart uses it …", "(vertical_wording.dart)", a leading roadmap number. */

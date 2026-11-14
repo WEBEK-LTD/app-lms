@@ -213,12 +213,13 @@ class StudioMapRoute {
 }
 
 /// What a `tracking` element follows: the person's shipment or ride on its
-/// way, or the free taxis near them.
-enum StudioTrackingKind { shipment, ride, nearbyTaxis }
+/// way, or the free taxis near them; 130.11 their next trip (a travel app).
+enum StudioTrackingKind { shipment, ride, nearbyTaxis, trip }
 
 /// How it is drawn: a card with the stages, the driver and the car, or one
-/// line.
-enum StudioTrackingStyle { card, driver, line }
+/// line; 130.11 a trip's first flight as a boarding pass (`ticket`, the
+/// others' card) or the main number large (`headline`).
+enum StudioTrackingStyle { card, driver, line, ticket, headline }
 
 class StudioTracking {
   const StudioTracking({required this.kind, this.style});
@@ -246,5 +247,45 @@ class StudioTracking {
         StudioTrackingKind.shipment => StudioTrackingStyle.card,
         StudioTrackingKind.ride => StudioTrackingStyle.driver,
         StudioTrackingKind.nearbyTaxis => StudioTrackingStyle.line,
+        StudioTrackingKind.trip => StudioTrackingStyle.card,
       };
 }
+
+// ——— 130 Signature looks: the live cards' premium looks ———
+
+/// 130 The live cards' premium looks (`StudioLiveStatus.style`,
+/// `StudioTracking.style`): the minutes as a hero number over the stages
+/// as segments, a photo in a progress ring, a slim pill with a Track
+/// button, or the stages as named dots on a line.
+enum StudioLiveLook { hero, ring, pill, steps }
+
+/// 130 A live card in one of its premium looks, with the accent of its live
+/// dot, stages and button by day and by night (#RRGGBB; null, the app's
+/// main colour). Read from a `live_status`'s or a `tracking`'s object; null
+/// when it is drawn in its own card.
+class StudioLiveLookStyle {
+  const StudioLiveLookStyle({required this.look, this.accent, this.darkAccent});
+
+  static StudioLiveLookStyle? tryParse(Object? value) {
+    if (value is! Map) return null;
+    final json = asJson(value);
+    final look = enumOrNull(StudioLiveLook.values, json['style']);
+    if (look == null) return null;
+    String? hex(String key) {
+      final v = optString(json, key);
+      return v != null && RegExp(r'^#[0-9A-Fa-f]{6}$').hasMatch(v) ? v : null;
+    }
+
+    return StudioLiveLookStyle(
+      look: look,
+      accent: hex('accent'),
+      darkAccent: hex('dark_accent'),
+    );
+  }
+
+  final StudioLiveLook look;
+  final String? accent;
+  final String? darkAccent;
+}
+
+// ——— end 130 ———

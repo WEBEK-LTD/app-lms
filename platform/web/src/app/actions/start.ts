@@ -9,7 +9,7 @@ import { getStore } from "@/lib/data";
 import { DEFAULT_HOSTED_SETTINGS } from "@/lib/data/types";
 import { demoKind } from "@/lib/demo/constants";
 import { DEMO_BRANDS } from "@/lib/demo/content";
-import { demoOfSlug, pickerPath } from "@/lib/demo/picker";
+import { demoOfSlug, lookOf, pickerPath } from "@/lib/demo/picker";
 import { DEMO_NAME_MAX, firstStepsOf, makeFromDemo } from "@/lib/demo/start";
 import { appPlan } from "@/lib/entitlements";
 import { appTypeOn, getSwitches } from "@/lib/switches";
@@ -41,7 +41,9 @@ export async function startFromDemoAction(formData: FormData): Promise<void> {
   const demo = demoOfSlug(String(formData.get("demo") ?? ""));
   if (!demo) redirect(pickerPath({ adding: context.apps.length > 0 }));
   const adding = context.apps.length > 0;
-  const back = (problem: string): never => redirect(`${pickerPath({ demo, make: true, adding })}${adding ? "&" : "?"}error=${problem}`);
+  // 130 A Studio demo's chosen look (its Signature look B, else the demo itself).
+  const look = lookOf(demo, formData.get("look"));
+  const back = (problem: string): never => redirect(`${pickerPath({ demo, make: true, adding, look })}${adding || look ? "&" : "?"}error=${problem}`);
   const name = String(formData.get("name") ?? "").trim().replace(/\s+/g, " ");
   if (!name || name.length > DEMO_NAME_MAX) back("name");
   if (context.apps.length >= MAX_APPS_PER_CLIENT) back("limit");
@@ -62,7 +64,7 @@ export async function startFromDemoAction(formData: FormData): Promise<void> {
     const made = await makeFromDemo(
       store,
       { clientId: context.client.id, plan: await appPlan(store, license, now) },
-      { demo, name, colour, logoAssetId: logoAssetId || null, iconAssetId: iconAssetId || null },
+      { demo, name, colour, logoAssetId: logoAssetId || null, iconAssetId: iconAssetId || null, ...(look ? { look } : {}) },
       now,
     );
     await chooseApp(made.app.id);
