@@ -1331,6 +1331,8 @@ class Block_Resolver {
 			// 112.4 How a slider shows where it is, and how categories look.
 			'indicator'     => array( 'dots', 'progress', 'count', 'pill' ),
 			'style'         => array( 'chips', 'tiles', 'pictures', 'circles' ),
+			// 130.61 A photo in black and white.
+			'tone'          => array( 'mono' ),
 		);
 		foreach ( $choices as $field => $values ) {
 			if ( isset( $raw[ $field ] ) && in_array( $raw[ $field ], $values, true ) ) {

@@ -1533,15 +1533,19 @@ class StudioNodeView extends ConsumerWidget {
             ? entry.imageUrl
             : node.imageUrl;
         // 129.1 Growing slowly in a slider's open slide (Ken Burns).
+        // 130.61 In black and white with `tone` mono.
         final image = StudioKenBurns.wrap(
           context,
-          AppNetworkImage(
-            url: url,
-            seed: node.id.hashCode,
-            fit: node.contain ? BoxFit.contain : BoxFit.cover,
-            width: double.infinity,
-            height: node.height?.fixed,
-            clearPlaceholder: node.contain,
+          studioToned(
+            node,
+            AppNetworkImage(
+              url: url,
+              seed: node.id.hashCode,
+              fit: node.contain ? BoxFit.contain : BoxFit.cover,
+              width: double.infinity,
+              height: node.height?.fixed,
+              clearPlaceholder: node.contain,
+            ),
           ),
         );
         final overlay = _overlayOf(node);

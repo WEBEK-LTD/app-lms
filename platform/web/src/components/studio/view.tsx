@@ -13,7 +13,7 @@ import type { MarketCanvas } from "@/lib/studio/market-canvas";
 import { MarketSection } from "./market";
 import { LEARNING_WORDS_EN, LearningCard, type LearningWords } from "./learning";
 import { LIVE_STATUS_WORDS_EN, LiveStatusCard, type LiveStatusWords } from "./live-status";
-import { scrimCss } from "@/lib/studio/scrim";
+import { scrimCss, toneStyle } from "@/lib/studio/scrim";
 import { SCHOOL_WORDS_EN, SchoolCard, type SchoolWords } from "./school";
 import type { ScreenDrawing } from "@/lib/studio/screen-drawing";
 import { AppScreen } from "./app-screens";
@@ -884,7 +884,7 @@ function Node(props: ViewProps & { node: StudioNode; parentDir: Dir; inStack?: I
         return n.image_url ? (
           <>
             {/* eslint-disable-next-line @next/next/no-img-element -- any picture's link, drawn as the app draws it */}
-            <img src={n.image_url} alt="" style={{ width: "100%", height: "100%", objectFit: n.fit ?? "cover", display: "block" }} />
+            <img src={n.image_url} alt="" data-studio-tone={n.tone} style={{ width: "100%", height: "100%", objectFit: n.fit ?? "cover", display: "block", ...toneStyle(n.tone) }} />
             {overlay ? <span aria-hidden="true" data-studio-overlay="" style={{ position: "absolute", inset: 0, background: overlay }} /> : null}
             {scrim ? <span aria-hidden="true" data-studio-scrim="" style={{ position: "absolute", inset: 0, background: scrim }} /> : null}
           </>

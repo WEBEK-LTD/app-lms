@@ -1,6 +1,6 @@
 import type { CSSProperties, ReactNode } from "react";
 import type { LanguageCode, StudioNode, Translations } from "@/lib/pages/types";
-import { scrimCss } from "@/lib/studio/scrim";
+import { scrimCss, toneStyle } from "@/lib/studio/scrim";
 
 /**
  * 129.1–129.8 Studio's premium motion and media on the canvas, as the app
@@ -152,7 +152,7 @@ export function MediaBanner({ node, dark, rtl, front }: { node: StudioNode; dark
         <video src={node.video_url} poster={node.image_url ?? undefined} muted loop playsInline preload="none" aria-hidden="true" style={fill} />
       ) : node.image_url ? (
         // eslint-disable-next-line @next/next/no-img-element -- the owner's photo, drawn as the app draws it
-        <img src={node.image_url} alt="" data-studio-parallax={video ? undefined : speed} style={video ? fill : { ...fill, height: `${100 + speed * 100}%`, transform: `translateY(-${((speed * 50) / (1 + speed)).toFixed(1)}%)` }} />
+        <img src={node.image_url} alt="" data-studio-parallax={video ? undefined : speed} data-studio-tone={node.tone} style={{ ...(video ? fill : { ...fill, height: `${100 + speed * 100}%`, transform: `translateY(-${((speed * 50) / (1 + speed)).toFixed(1)}%)` }), ...toneStyle(node.tone) }} />
       ) : null}
       {node.scrim ? <span aria-hidden="true" data-studio-scrim="" style={{ position: "absolute", inset: 0, background: scrimCss(node.scrim, rtl) }} /> : null}
       <div

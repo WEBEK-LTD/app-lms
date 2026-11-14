@@ -7,7 +7,7 @@ import { itemSourcesFor } from "@/lib/pages/sources";
 import { DEMO_BRANDS } from "@/lib/demo/content";
 import { studioDemoOf } from "@/lib/studio/demo-templates";
 import { applyWholeDesign, DESIGN_THEMES, designName, designsFor, keepContent, makeDesign, PREMIUM_HOME } from "@/lib/studio/designs";
-import { PREMIUM_BARS, PREMIUM_PALETTES, type PremiumDesignId } from "@/lib/studio/premium-designs";
+import { PREMIUM_BARS, PREMIUM_COURSE_SCREENS, PREMIUM_PALETTES, type PremiumDesignId } from "@/lib/studio/premium-designs";
 import { BUILT_IN_APP_DEFAULTS, defaultLayout } from "@/lib/pages/defaults";
 import { parseLayoutContent } from "@/lib/pages/validate";
 import { TEMPLATES } from "@/lib/studio/sections";
@@ -66,7 +66,8 @@ describe("108.7 whole designs", () => {
         // 130.30 and its second colour and floating bar.
         // (130 A demo's look B in that look's second colour.)
         if (design.demo) expect(file.look).toEqual({ font: design.theme.font, secondary_color: (design.look ? signatureDesign(design.demo, design.look)?.project.appearance?.secondary_color : undefined) ?? DEMO_BRANDS[design.demo].secondaryColor });
-        else expect(file.look).toEqual({ font: design.theme.font, secondary_color: PREMIUM_PALETTES[design.theme.id as PremiumDesignId].accent, tab_bar: PREMIUM_BARS[design.theme.id as PremiumDesignId], screens: { system: THEME_CHROME[design.theme.id]!.system } });
+        // 130.60 And an academy's course screens, where the design has them (Monochrome luxe).
+        else expect(file.look).toEqual({ font: design.theme.font, secondary_color: PREMIUM_PALETTES[design.theme.id as PremiumDesignId].accent, tab_bar: PREMIUM_BARS[design.theme.id as PremiumDesignId], screens: { system: THEME_CHROME[design.theme.id]!.system, ...(kind.engine === "lms" ? (PREMIUM_COURSE_SCREENS[design.theme.id as PremiumDesignId] ?? {}) : {}) } });
         // Checked as the editor saves them: their links to each other too.
         const ready = defaultLayout(app, BUILT_IN_APP_DEFAULTS, NOW);
         const slug = (s: string) => s.replaceAll("_", "-");

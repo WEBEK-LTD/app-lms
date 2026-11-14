@@ -35,7 +35,7 @@ import { localePath } from "@/i18n/paths";
 import { applyTextStyle, textStylesOf, textStyleUse } from "@/lib/studio/text-styles";
 import { forTablet, tabletPatch } from "@/lib/studio/tablet";
 import { DESIGN_FILE_EXTENSION, designPages, designSection, fontsIn, picturesIn, readDesignFile, withoutFonts, withPictures, writeDesignFile, type DesignFile, type DesignFileFont, type DesignFilePicture, type DesignKind } from "@/lib/studio/design-file";
-import { applyWholeDesign, demoProjectLook, designName, designPageCount, designsFor, makeDesign } from "@/lib/studio/designs";
+import { applyWholeDesign, demoProjectLook, designName, designPageCount, designsFor, isNewDesign, makeDesign } from "@/lib/studio/designs";
 import type { OwnDesignView } from "@/lib/studio/own-designs";
 import { canvasWords, type CanvasWords } from "./canvas-words";
 import { DesignsGallery, type GalleryDesign } from "./designs-gallery";
@@ -44,7 +44,7 @@ import { TextStylesPanel } from "./text-styles-panel";
 import { download, fileName, fromBase64, readFont, readPicture, type OwnFontFiles } from "./design-io";
 import { fontUpload, ImportDialog, type ImportChoice } from "./import-dialog";
 import { Inspector, type InspectorTab } from "./inspector";
-import { LeftPanel, elementLabel, type LeftTab, type MyTemplate } from "./left-panel";
+import { LeftPanel, NewTag, elementLabel, type LeftTab, type MyTemplate } from "./left-panel";
 import { DRAG_TYPE, Glyph, STUDIO_COLORS as C, StudioMark, type DragPayload } from "./shared";
 import { seedSamplesAction } from "@/app/actions/samples";
 import { applyDemoScreensAction, applyDesignLookAction } from "@/app/actions/studio-screens";
@@ -227,6 +227,8 @@ export function StudioEditor(props: StudioEditorProps) {
   const sectionContext: SectionContext = {
     brand: app.brand,
     source,
+    // 130.62 The project's kind, for the landing templates' photos, words, screens and live card.
+    kind: props.kind,
     w: appWords(dashLang, app.name),
     app: app.name,
     lang: dashLang,
@@ -980,6 +982,8 @@ export function StudioEditor(props: StudioEditorProps) {
         // 120 A demo's design: its home and a page for each of its tabs opening a screen.
         pages: designPageCount(d, d.demo ? props.demoTabs : null),
         recommended: d.demo !== undefined,
+        // 130.60 Monochrome luxe, marked new.
+        isNew: isNewDesign(d),
         file: designsOpen ? makeDesign(d, sectionContext, designWords, layout.languages, d.demo ? props.demoTabs : null) : null,
       })),
       ...ownDesigns.map((d) => ({ id: d.id, name: d.name, kind: d.source, pages: d.pages, file: null })),
@@ -1616,6 +1620,7 @@ function StartPage({ title, regular, onPick, templates }: { title: string; regul
           <button key={tpl.id} type="button" onClick={() => onPick(tpl.id)} className="flex flex-col items-center gap-1.5 rounded-xl bg-white px-2 py-3 text-[13px] font-bold" style={{ border: `1px solid ${C.line}` }}>
             <Glyph name={tpl.icon} size={26} className="text-[#FF5A1F]" />
             {t(`studio.tpl_${tpl.id}` as DashKey)}
+            {tpl.isNew ? <NewTag label={t("studio.designsTagNew")} /> : null}
           </button>
         ))}
       </div>

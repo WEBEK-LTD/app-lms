@@ -98,7 +98,10 @@ class StudioCoverView extends ConsumerWidget {
             // 129.1 Growing slowly in a slider's open slide (Ken Burns).
             StudioKenBurns.wrap(
               context,
-              AppNetworkImage(url: url, seed: node.id.hashCode),
+              studioToned(
+                node,
+                AppNetworkImage(url: url, seed: node.id.hashCode),
+              ),
             ),
           // The shade any picture can have (studio_scrim.dart).
           if (node.scrim case final scrim?)

@@ -37,3 +37,6 @@ __pycache__/
 Thumbs.db
 build/files-host/config.php
 dist/
+
+# 130.63 The new premium gallery, rendered on demand (mobile/test/screenshots/new_premium_screenshots_test.dart).
+platform/web/public/screens/premium/new-*.png

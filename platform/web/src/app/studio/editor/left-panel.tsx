@@ -212,6 +212,7 @@ export function LeftPanel(props: {
               >
                 <Glyph name={s.icon} size={20} />
                 {t(`studio.sec_${s.id}` as DashKey)}
+                {s.isNew ? <NewTag label={t("studio.designsTagNew")} /> : null}
               </button>
             ))}
           </div>
@@ -237,6 +238,7 @@ export function LeftPanel(props: {
               <button key={tpl.id} type="button" onClick={() => props.onUseTemplate(tpl.id)} className="studio-tile flex items-center gap-2.5 rounded-[10px] bg-white px-3 py-2.5 text-start text-[13px] font-semibold" style={{ border: "1px solid var(--studio-line)" }} data-studio-template={tpl.id}>
                 <Glyph name={tpl.icon} size={20} />
                 {t(`studio.tpl_${tpl.id}` as DashKey)}
+                {tpl.isNew ? <NewTag label={t("studio.designsTagNew")} /> : null}
               </button>
             ))}
             <div className="pt-2 text-xs font-bold" style={{ color: "var(--studio-muted)" }}>
@@ -423,5 +425,14 @@ function Layer(props: {
       </li>
       {folded ? null : kids.map((child) => <Layer key={child.id} {...props} node={child} depth={props.depth + 1} />)}
     </>
+  );
+}
+
+/** 130.62 "New" beside a template or section added lately, at the row's end. */
+export function NewTag({ label }: { label: string }) {
+  return (
+    <span className="ms-auto flex-none rounded-full px-2 py-px text-[11px] font-bold" style={{ background: "#111111", color: "#E2FF3D" }} data-studio-new="">
+      {label}
+    </span>
   );
 }

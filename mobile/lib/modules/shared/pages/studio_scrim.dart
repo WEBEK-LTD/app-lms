@@ -38,3 +38,27 @@ Widget studioScrimLayer(StudioNode node, StudioScrim scrim) => Positioned.fill(
     ),
   ),
 );
+
+/// 130.61 A photo's tone (`StudioNode.tone`): `mono` drains its colours to
+/// black and white with a little more contrast, as Studio's canvas draws it
+/// (platform/web/src/lib/studio/scrim.ts `toneStyle`); under the element's
+/// shade it reads as a duotone in the shade's colour. Otherwise [photo] as
+/// it is.
+Widget studioToned(StudioNode node, Widget photo) {
+  if (!node.monoTone) return photo;
+  return ColorFiltered(
+    key: ValueKey('studio-tone-${node.id}'),
+    colorFilter: _mono,
+    child: photo,
+  );
+}
+
+/// Luminance (Rec. 709) to grey, stretched a little round the middle.
+const _c = 1.08;
+const _o = -0.04 * 255;
+const _mono = ColorFilter.matrix([
+  0.2126 * _c, 0.7152 * _c, 0.0722 * _c, 0, _o, //
+  0.2126 * _c, 0.7152 * _c, 0.0722 * _c, 0, _o, //
+  0.2126 * _c, 0.7152 * _c, 0.0722 * _c, 0, _o, //
+  0, 0, 0, 1, 0, //
+]);

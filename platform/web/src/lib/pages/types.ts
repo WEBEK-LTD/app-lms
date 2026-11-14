@@ -179,6 +179,11 @@ export interface StudioSegments {
 }
 /** 129 The elements whose photo can grow slowly (Ken Burns): in a slider its open slide's; elsewhere again and again. */
 export const STUDIO_KEN_BURNS_TYPES = ["slider", "photo_hero", "image", "video_hero", "parallax_banner"] as const;
+/** 130.61 A photo's tone: `mono` its colours drained to black and white (under its own shade, a duotone with the shade's colour). */
+export const STUDIO_TONES = ["mono"] as const;
+export type StudioTone = (typeof STUDIO_TONES)[number];
+/** 130.61 The elements whose photo can take a tone: a picture (a card's bound picture too), a photo hero and a parallax banner. */
+export const STUDIO_TONE_TYPES = ["image", "photo_hero", "parallax_banner"] as const;
 /** 129 Their bounds. */
 export const STUDIO_PREMIUM_LIMITS = { stories: 20, storyTitle: 40, storyLine: 120, ringMin: 52, ringMax: 96, images: 30, caption: 120, speedMin: 10, speedMax: 200, logoMin: 16, logoMax: 120 } as const;
 /** 129.3 Which way a ticker runs: toward the start (the left in English, the right in Arabic) or the end. */
@@ -1305,6 +1310,8 @@ export interface StudioNode {
   // ——— 129.1–129.8 Premium motion & media ———
   /** 129.1 For `slider`: the open slide's photo grows slowly (Ken Burns); for a photo hero, a picture or a banner, again and again (STUDIO_KEN_BURNS_TYPES). */
   ken_burns?: boolean;
+  /** 130.61 For a picture, a photo hero or a parallax banner (STUDIO_TONE_TYPES): its photo in black and white; missing, in colour. */
+  tone?: StudioTone;
   /** 129.1 For `slider`: where its indicator sits, its colour and a count beside it. */
   indicator_look?: StudioIndicatorLook | null;
   /** 129.2 For `stories`: each story's photo, title (`heading`), line under it (`subheading`), link (`action`) and ring. */

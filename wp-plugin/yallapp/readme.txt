@@ -4,7 +4,7 @@ Tags: lms, mobile app, tutor lms, digits, otp
 Requires at least: 6.0
 Tested up to: 7.1
 Requires PHP: 7.4
-Stable tag: 0.4.43
+Stable tag: 0.4.44
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -142,8 +142,11 @@ under the Apache License 2.0, included as inline SVG.
 
 == Changelog ==
 
-= 0.4.43 =
+= 0.4.44 =
 * For flower and gift shops: same-day delivery until a cut-off and delivery times (each with how many orders it takes and an extra fee on the checkout); a gift checkout (the sender's details as the order's billing, the recipient's as its shipping, the delivery day and time required, the card and "send anonymously"); card messages by occasion from your Yallapp dashboard; a flash sale through WooCommerce's own sale price with a countdown in the app; and coupons ticked "Show in the app".
+
+= 0.4.43 =
+* The new premium whole design and landings you pick in Yallapp Studio reach the app from your site: a photo shown in black and white (a picture, a list card's picture, a photo hero or a parallax banner), as the Monochrome luxe design and the new landings use it.
 
 = 0.4.42 =
 * The course screens you design in Yallapp Studio reach the app from your site: one premium look for the course card, the course page, the lesson and My courses (Night cinema, Gold ring, Faculty index or On air), with each screen's options: the card as a poster, a ticket, frosted glass or a row with its photo's shape, shade and corners; the page's cover, its enrol bar and the parts it shows (the teacher, what you'll learn, the curriculum, the reviews, the description) with the button's own words; the lesson's player and how far through the course; and My courses as a grid or a list with rings or bars, continue learning and the completed courses.
