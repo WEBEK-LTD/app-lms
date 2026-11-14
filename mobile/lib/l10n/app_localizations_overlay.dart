@@ -12398,4 +12398,37 @@ class OverlayLocalizations extends AppLocalizations {
   @override
   String get liveStageOnBoard =>
       overlay.text('liveStageOnBoard') ?? base.liveStageOnBoard;
+
+  @override
+  String courseLookStars(String rating) =>
+      overlay.format('courseLookStars', {'rating': rating}) ??
+      base.courseLookStars(rating);
+
+  @override
+  String get courseLookResources =>
+      overlay.text('courseLookResources') ?? base.courseLookResources;
+
+  @override
+  String get courseLookUpNext =>
+      overlay.text('courseLookUpNext') ?? base.courseLookUpNext;
+
+  @override
+  String get courseLookYouAreHere =>
+      overlay.text('courseLookYouAreHere') ?? base.courseLookYouAreHere;
+
+  @override
+  String get courseLookCompleted =>
+      overlay.text('courseLookCompleted') ?? base.courseLookCompleted;
+
+  @override
+  String get courseLookCourseProgress =>
+      overlay.text('courseLookCourseProgress') ?? base.courseLookCourseProgress;
+
+  @override
+  String get courseLookAllReviews =>
+      overlay.text('courseLookAllReviews') ?? base.courseLookAllReviews;
+
+  @override
+  String get courseLookQuestions =>
+      overlay.text('courseLookQuestions') ?? base.courseLookQuestions;
 }

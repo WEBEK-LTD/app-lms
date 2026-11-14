@@ -1,5 +1,6 @@
 import type { Action, StudioNode, StudioPage, StudioStory } from "../../pages/types";
 import { ACCOUNT_ITEMS, type StudioScreens } from "../screens";
+import { signatureCourseScreens, type CourseLook } from "../course-screens";
 import type { SectionContext, SectionWord } from "../sections";
 import { idOf, pad, photo } from "./parts";
 import { rawaqTabs } from "./school-looks";
@@ -98,7 +99,7 @@ function avatar(ctx: SectionContext, initials: SectionWord, color: string, size:
 }
 
 /** The account menu with the student's own entries first; the sign-in over the library. */
-function rawaqScreens(header: "night" | "cover", photoPath: string): (platform: string) => StudioScreens {
+function rawaqScreens(header: "night" | "cover", photoPath: string, courses: CourseLook): (platform: string) => StudioScreens {
   const shown = ["orders", "certificates", "live_classes", "teachers", "downloads", "settings", "help", "privacy", "terms"] as const;
   return (platform) => ({
     sign_in: {
@@ -124,6 +125,8 @@ function rawaqScreens(header: "night" | "cover", photoPath: string): (platform: 
     course_card: { style: "premium", radius: 20, hide: [] },
     course_page: { cover: "full", bar: "glass", hide: [], look: "premium" },
     looks: { catalog: "explore", my_courses: "premium", lesson: "premium", code: "premium", cart: "premium" },
+    // 130.52 And in the look's own course screens, where the app knows them.
+    courses: signatureCourseScreens(courses),
   });
 }
 
@@ -312,7 +315,7 @@ export const RAWAQ_A: SignatureDesign = {
   project: {
     primary: GREEN,
     appearance: { secondary_color: GOLD, font: "DM Sans" },
-    screens: rawaqScreens("night", "/demo-screens/rawaq-library.jpg"),
+    screens: rawaqScreens("night", "/demo-screens/rawaq-library.jpg", "index"),
   },
   chrome: { header: "large", home: "brand", system: "brand" },
 };
@@ -468,7 +471,7 @@ export const RAWAQ_B: SignatureDesign = {
   project: {
     primary: GREEN,
     appearance: { secondary_color: GOLD, font: "Manrope" },
-    screens: rawaqScreens("cover", "/stories/academy/academy-live.jpg"),
+    screens: rawaqScreens("cover", "/stories/academy/academy-live.jpg", "on_air"),
   },
   chrome: { header: "glass", home: "photo", system: "glass" },
 };

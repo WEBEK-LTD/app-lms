@@ -182,6 +182,31 @@
    "code": "premium",
    "cart": "premium"
   },
+  "courses": {
+   "look": "cinema",
+   "card": {
+    "hide": []
+   },
+   "page": {
+    "hide": [],
+    "cta": {
+     "en": "Start watching",
+     "ar": "ابدأ المشاهدة",
+     "tr": "İzlemeye başla"
+    }
+   },
+   "lesson": {
+    "hide": []
+   },
+   "my_courses": {
+    "hide": [],
+    "headline": {
+     "en": "Tonight's lessons are waiting.",
+     "ar": "دروس الليلة بانتظارك.",
+     "tr": "Bu akşamın dersleri sizi bekliyor."
+    }
+   }
+  },
   "system": {
    "look": "brand"
   }

@@ -182,6 +182,31 @@
    "code": "premium",
    "cart": "premium"
   },
+  "courses": {
+   "look": "ring",
+   "card": {
+    "hide": []
+   },
+   "page": {
+    "hide": [],
+    "cta": {
+     "en": "Join the course",
+     "ar": "انضم إلى الدورة",
+     "tr": "Kursa katıl"
+    }
+   },
+   "lesson": {
+    "hide": []
+   },
+   "my_courses": {
+    "hide": [],
+    "headline": {
+     "en": "Close the ring on every course.",
+     "ar": "أكمل الحلقة في كل دورة.",
+     "tr": "Her kursta halkayı tamamlayın."
+    }
+   }
+  },
   "system": {
    "look": "large"
   }

@@ -1,4 +1,6 @@
 import type { CourseCardLook, CoursePageLook, StudioScreens } from "./screens";
+// 130.52 Studio's course screens.
+import { resolveCourseScreens, type ResolvedCourseScreens } from "./course-screens";
 // 130.21 The system screens' premium looks.
 import { systemLookFor, systemScreenOf, type SystemLook, type SystemScreenKey } from "./premium-chrome";
 
@@ -22,7 +24,12 @@ export type ScreenDrawing =
   | { screen: "course"; look: "premium" | "default"; page: CoursePageLook }
   | { screen: "lesson"; look: "premium" | "default" }
   // 130.21 One of the app's system screens (the account, settings, notifications, editing the profile, the lists) in its premium look, in every kind of app.
-  | { screen: "system"; key: SystemScreenKey; look: SystemLook; image: string | null };
+  | { screen: "system"; key: SystemScreenKey; look: SystemLook; image: string | null }
+  // 130.52 One of the academy's course screens in Studio's course screens' look (components/studio/course-screens.tsx).
+  | { screen: "courses"; part: "card" | "page" | "lesson" | "mine"; look: ResolvedCourseScreens };
+
+/** 130.52 The course screens Studio's course screens' look draws, by the app's screen. */
+const COURSE_PARTS = { courses: "card", course: "page", lesson: "lesson", my_courses: "mine" } as const;
 
 /** The drawing of a page's screen in this project, or null when the canvas has none for it. */
 export function screenDrawing(screen: string | null | undefined, appType: string, screens: StudioScreens | null | undefined): ScreenDrawing | null {
@@ -31,6 +38,9 @@ export function screenDrawing(screen: string | null | undefined, appType: string
   const look = key ? systemLookFor(screens?.system, key) : null;
   if (key && look) return { screen: "system", key, look, image: screens?.system?.image_url ?? screens?.sign_in?.image_url ?? null };
   if (!screen || appType !== "lms") return null;
+  // 130.52 The course screens in Studio's course screens' look, before the older looks.
+  const part = (COURSE_PARTS as Record<string, (typeof COURSE_PARTS)[keyof typeof COURSE_PARTS]>)[screen];
+  if (part && screens?.courses) return { screen: "courses", part, look: resolveCourseScreens(screens.courses) };
   const looks = screens?.looks ?? {};
   switch (screen) {
     case "courses":
@@ -60,7 +70,9 @@ export function screenDrawing(screen: string | null | undefined, appType: string
  * there: the account menu in every app; the catalog, My courses, a
  * lesson's looks and a course's page in an academy.
  */
-export function screenLookSection(screen: string | null | undefined, appType: string): string | null {
+export function screenLookSection(screen: string | null | undefined, appType: string, screens?: StudioScreens | null): string | null {
+  // 130.52 The course screens' look, where the project has one.
+  if (appType === "lms" && screens?.courses && screen && screen in COURSE_PARTS) return "h-course-screens";
   // 130.21 The system screens' look.
   if (systemScreenOf(screen) && screen !== "account") return "h-system-look";
   if (screen === "account") return "h-account-menu";

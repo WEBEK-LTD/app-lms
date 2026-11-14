@@ -183,6 +183,31 @@
    "code": "premium",
    "cart": "premium"
   },
+  "courses": {
+   "look": "on_air",
+   "card": {
+    "hide": []
+   },
+   "page": {
+    "hide": [],
+    "cta": {
+     "en": "Join now",
+     "ar": "انضم الآن",
+     "tr": "Hemen katıl"
+    }
+   },
+   "lesson": {
+    "hide": []
+   },
+   "my_courses": {
+    "hide": [],
+    "headline": {
+     "en": "Every lesson, live or recorded.",
+     "ar": "كل درس، مباشرًا أو مسجّلًا.",
+     "tr": "Her ders, canlı ya da kayıtlı."
+    }
+   }
+  },
   "system": {
    "look": "glass"
   }

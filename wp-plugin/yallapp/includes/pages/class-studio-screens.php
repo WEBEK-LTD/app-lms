@@ -30,6 +30,32 @@ class Studio_Screens {
 	const SYSTEM_LOOKS   = array( 'large', 'glass', 'photo', 'brand' );
 	const SYSTEM_SCREENS = array( 'account', 'settings', 'notifications', 'language', 'edit_profile', 'help', 'lists', 'sign_in', 'code', 'states' );
 	const LAUNCH_LOOKS   = array( 'signature', 'cinema', 'aurora', 'editorial', 'monogram' );
+	// 130.52 Studio's course screens: the looks, and each screen's options the app knows.
+	const COURSE_LOOKS   = array( 'cinema', 'ring', 'index', 'on_air' );
+	const COURSE_OPTIONS = array(
+		'card'       => array(
+			'layout' => array( 'poster', 'ticket', 'glass', 'row' ),
+			'ratio'  => array( 'wide', 'tall', 'square' ),
+		),
+		'page'       => array(
+			'hero' => array( 'cinema', 'framed', 'split' ),
+			'bar'  => array( 'glass', 'solid', 'floating' ),
+		),
+		'lesson'     => array(
+			'player'   => array( 'cinema', 'framed' ),
+			'progress' => array( 'bar', 'segments', 'ring' ),
+		),
+		'my_courses' => array(
+			'layout'   => array( 'grid', 'list' ),
+			'progress' => array( 'rings', 'bars' ),
+		),
+	);
+	const COURSE_PARTS   = array(
+		'card'       => array( 'teacher', 'rating', 'lessons', 'price', 'progress' ),
+		'page'       => array( 'teacher', 'learn', 'curriculum', 'reviews', 'about' ),
+		'lesson'     => array( 'progress', 'notes', 'resources', 'up_next' ),
+		'my_courses' => array( 'continue', 'completed', 'week' ),
+	);
 	const LAUNCH_LOADERS = array(
 		'signature' => 'bar',
 		'cinema'    => 'bar',
@@ -90,7 +116,64 @@ class Studio_Screens {
 		if ( $system ) {
 			$out['system'] = $system;
 		}
+		// 130.52 The course screens' look.
+		$courses = is_array( $raw['courses'] ?? null ) ? self::courses( $raw['courses'] ) : null;
+		if ( $courses ) {
+			$out['courses'] = $courses;
+		}
 		return $out ? $out : null;
+	}
+
+	/**
+	 * 130.52 Studio's course screens: the look, its accent, and each screen's known options (the
+	 * card's layout, photo, shade and corners, the page's top and enrol bar, the lesson's player
+	 * and progress, My courses' layout and progress), the parts each leaves out and its words;
+	 * an unknown value is left out (the look's own), null for a look this plugin doesn't know.
+	 *
+	 * @param array $raw The platform's.
+	 * @return array|null
+	 */
+	private static function courses( array $raw ) {
+		if ( ! in_array( $raw['look'] ?? null, self::COURSE_LOOKS, true ) ) {
+			return null;
+		}
+		$out    = array( 'look' => $raw['look'] );
+		$accent = self::hex( $raw['accent'] ?? null );
+		if ( null !== $accent ) {
+			$out['accent'] = $accent;
+		}
+		foreach ( self::COURSE_OPTIONS as $screen => $options ) {
+			if ( ! is_array( $raw[ $screen ] ?? null ) ) {
+				continue;
+			}
+			$asked = $raw[ $screen ];
+			$one   = array();
+			foreach ( $options as $option => $values ) {
+				if ( in_array( $asked[ $option ] ?? null, $values, true ) ) {
+					$one[ $option ] = $asked[ $option ];
+				}
+			}
+			$hide        = is_array( $asked['hide'] ?? null ) ? $asked['hide'] : array();
+			$one['hide'] = array_values( array_intersect( self::COURSE_PARTS[ $screen ], $hide ) );
+			if ( 'card' === $screen ) {
+				foreach ( array(
+					'scrim'  => 90,
+					'radius' => 32,
+				) as $number => $max ) {
+					if ( isset( $asked[ $number ] ) && is_int( $asked[ $number ] ) && $asked[ $number ] >= 0 && $asked[ $number ] <= $max ) {
+						$one[ $number ] = $asked[ $number ];
+					}
+				}
+			}
+			if ( 'page' === $screen && is_array( $asked['cta'] ?? null ) ) {
+				$one['cta'] = self::texts( $asked['cta'], 24 );
+			}
+			if ( 'my_courses' === $screen && is_array( $asked['headline'] ?? null ) ) {
+				$one['headline'] = self::texts( $asked['headline'], 60 );
+			}
+			$out[ $screen ] = $one;
+		}
+		return $out;
 	}
 
 	/**

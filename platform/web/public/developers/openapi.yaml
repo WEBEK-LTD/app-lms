@@ -12455,6 +12455,91 @@ components:
                     code: { type: string, enum: [classic, large, glass, photo, brand] }
                     states: { type: string, enum: [classic, large, glass, photo, brand] }
                 image_url: { type: [string, 'null'], format: uri, description: "The `photo` look's photo." }
+            courses:
+              type: object
+              description: |
+                130.52 Studio's course screens: one premium look for an academy's four course
+                screens, each with its own options. `look`: `cinema` (Night cinema), `ring`
+                (Gold ring), `index` (Faculty index) or `on_air` (On air), the academies'
+                Signature looks; every option left out is the look's own:
+
+                | look | card | page | lesson | my_courses |
+                |---|---|---|---|---|
+                | cinema | poster, tall, scrim 70, radius 24 | cinema, glass | cinema, segments | list, bars |
+                | ring | row, square, scrim 0, radius 20 | framed, floating | framed, ring | grid, rings |
+                | index | ticket, wide, scrim 0, radius 16 | split, solid | framed, bar | list, bars |
+                | on_air | glass, wide, scrim 40, radius 26 | cinema, floating | cinema, bar | grid, rings |
+
+                The course card wherever the lists show a course (the catalog, My courses, a
+                teacher's and a bundle's courses): `poster` the photo whole under a scrim with
+                the course over it, `ticket` the photo over a perforated stub, `glass` a frosted
+                label over the photo, `row` a compact row; its photo `wide` (16:9), `tall`
+                (4:3) or `square`; the rating as five star icons with the count, the teacher's
+                photo and name, the lessons, the price, and for an enrolled student how far
+                they are. The course's page: its hero (`cinema` the cover full bleed under a
+                scrim with the course on it, `framed` a rounded photo on the page, `split` the
+                photo over an editorial panel with the facts in columns), the teacher's
+                profile, what you'll learn, the curriculum as a timeline (done, the student's
+                place, locked), the reviews with their summary, the description, and the enrol
+                bar `glass` (frosted over the page), `solid` or `floating` (a rounded card over
+                the page) with the course's real price and its saving; `cta` the enrol button's
+                words. The lesson: the player `cinema` (full width on black) or `framed` (a
+                rounded frame on the page), how far through the course (`bar`, `segments` a
+                segment per lesson, `ring`), previous and next, the student's notes, the
+                resources and what's next. My courses: a `grid` or `list` of the enrolled
+                courses with `rings` or `bars`, continue learning (the course in progress with
+                its next lesson), the completed courses with their certificates, this week's
+                learning, `headline` a line under the title. Everything is the course's and the
+                student's own, hidden when absent. In the project's colours (`accent`, else the
+                second colour) and fonts, light and dark, right to left, still for people who
+                turn movement off. When `courses` is set the app draws the four screens in it
+                in place of `course_card`, `course_page` and the `looks` of `my_courses` and
+                `lesson`, which apps that don't know it go on reading. Missing, every screen as
+                before; an app that doesn't know a value uses the look's own.
+              required: [look]
+              properties:
+                look: { type: string, enum: [cinema, ring, index, on_air] }
+                accent: { type: [string, 'null'], pattern: '^#[0-9A-Fa-f]{6}$', description: "The look's accent (the stars, the progress, the buttons); null, the app's second colour." }
+                card:
+                  type: object
+                  properties:
+                    layout: { type: string, enum: [poster, ticket, glass, row] }
+                    ratio: { type: string, enum: [wide, tall, square], description: "The photo's shape (`poster`, `ticket`, `glass`)." }
+                    scrim: { type: integer, minimum: 0, maximum: 90, description: "How dark the photo's shade is under the words, in % (`poster`, `glass`)." }
+                    radius: { type: integer, minimum: 0, maximum: 32 }
+                    hide:
+                      type: array
+                      uniqueItems: true
+                      items: { type: string, enum: [teacher, rating, lessons, price, progress] }
+                page:
+                  type: object
+                  properties:
+                    hero: { type: string, enum: [cinema, framed, split] }
+                    bar: { type: string, enum: [glass, solid, floating] }
+                    hide:
+                      type: array
+                      uniqueItems: true
+                      items: { type: string, enum: [teacher, learn, curriculum, reviews, about] }
+                    cta: { type: object, additionalProperties: { type: string, maxLength: 24 }, description: "The enrol button's words per language code; missing, the app's own." }
+                lesson:
+                  type: object
+                  properties:
+                    player: { type: string, enum: [cinema, framed] }
+                    progress: { type: string, enum: [bar, segments, ring] }
+                    hide:
+                      type: array
+                      uniqueItems: true
+                      items: { type: string, enum: [progress, notes, resources, up_next] }
+                my_courses:
+                  type: object
+                  properties:
+                    layout: { type: string, enum: [grid, list] }
+                    progress: { type: string, enum: [rings, bars] }
+                    hide:
+                      type: array
+                      uniqueItems: true
+                      items: { type: string, enum: [continue, completed, week] }
+                    headline: { type: object, additionalProperties: { type: string, maxLength: 60 }, description: "A line under the title per language code; missing, none." }
             launch:
               type: object
               description: |

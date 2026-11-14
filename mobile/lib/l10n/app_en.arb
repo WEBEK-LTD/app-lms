@@ -12716,5 +12716,42 @@
   "liveStageOnBoard": "On board",
   "@liveStageOnBoard": {
     "description": "130 A live ride's last stage: on board."
+  },
+  "courseLookStars": "{rating} out of 5 stars",
+  "@courseLookStars": {
+    "description": "130.52 A course's rating drawn as five star icons, read out.",
+    "placeholders": {
+      "rating": {
+        "type": "String"
+      }
+    }
+  },
+  "courseLookResources": "Resources",
+  "@courseLookResources": {
+    "description": "130.52 The lesson's files and links."
+  },
+  "courseLookUpNext": "Up next",
+  "@courseLookUpNext": {
+    "description": "130.52 The next lesson of the course, on the lesson screen."
+  },
+  "courseLookYouAreHere": "You're here",
+  "@courseLookYouAreHere": {
+    "description": "130.52 The student's place on the course's curriculum timeline."
+  },
+  "courseLookCompleted": "Completed courses",
+  "@courseLookCompleted": {
+    "description": "130.52 My courses: the student's completed courses."
+  },
+  "courseLookCourseProgress": "Your progress",
+  "@courseLookCourseProgress": {
+    "description": "130.52 How far through the course, on the lesson screen."
+  },
+  "courseLookAllReviews": "All reviews",
+  "@courseLookAllReviews": {
+    "description": "130.52 Opens every review of the course."
+  },
+  "courseLookQuestions": "Questions and answers",
+  "@courseLookQuestions": {
+    "description": "130.52 The course's questions, opened from its page."
   }
 }

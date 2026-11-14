@@ -11739,4 +11739,30 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get liveStageOnBoard => 'On board';
+
+  @override
+  String courseLookStars(String rating) {
+    return '$rating out of 5 stars';
+  }
+
+  @override
+  String get courseLookResources => 'Resources';
+
+  @override
+  String get courseLookUpNext => 'Up next';
+
+  @override
+  String get courseLookYouAreHere => 'You\'re here';
+
+  @override
+  String get courseLookCompleted => 'Completed courses';
+
+  @override
+  String get courseLookCourseProgress => 'Your progress';
+
+  @override
+  String get courseLookAllReviews => 'All reviews';
+
+  @override
+  String get courseLookQuestions => 'Questions and answers';
 }

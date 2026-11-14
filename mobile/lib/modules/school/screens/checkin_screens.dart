@@ -17,7 +17,8 @@ import '../../delivery/data/delivery_providers.dart'
     show LocateProblem, locatorProvider;
 import '../data/school_providers.dart';
 import '../widgets/school_widgets.dart';
-import '../../../core/widgets/studio_screen_scope.dart';
+import '../../shared/staff_scaffold.dart';
+import '../../shared/staff_app.dart';
 
 /// 113.2 Checking in and out at the school, for students, teachers and
 /// staff: with the gate's code (the six digits on the school's screen at
@@ -217,11 +218,14 @@ class _CheckinScreenState extends ConsumerState<CheckinScreen> {
   @override
   Widget build(BuildContext context) {
     final l10n = context.l10n;
-    return Scaffold(
-      appBar: studioBar(
-        context,
-        AppBar(leading: appBarBack(context), title: Text(l10n.checkinTitle)),
-      ),
+    return StaffScaffold(
+      title: l10n.checkinTitle,
+      studioPage: true,
+      // 130.58 The teachers' and staff's in the project's premium look.
+      staff:
+          ref.watch(staffAppProvider) ||
+          ref.watch(isSchoolTeacherProvider) == true ||
+          ref.watch(isSchoolStaffProvider) == true,
       body: SafeArea(
         top: false,
         child: switch (ref.watch(checkinTodayProvider)) {

@@ -2027,8 +2027,9 @@ class DemoApi extends FakeApi {
 
   /// 110.5 Yallapp Studio's academy with many teachers (Rawaq Academy):
   /// the teachers, a teacher's page, and a teacher's own tab.
-  factory DemoApi.teachers() {
+  factory DemoApi.teachers({bool arabic = false}) {
     final api = DemoApi._(
+      arabic: arabic,
       config: {
         ...configJson(qna: true, orders: true, languages: _languages),
         'site': _site('Rawaq Academy'),
@@ -2622,7 +2623,28 @@ class DemoApi extends FakeApi {
     int page = 1,
   }) => super
       .listMyCourses(status: status, page: page)
-      .then((_) => Paged.fromJson(pageJson([_myCourse()]), MyCourse.fromJson));
+      .then(
+        (_) => Paged.fromJson(
+          pageJson(myCourseLists?[status] ?? [_myCourse()]),
+          MyCourse.fromJson,
+        ),
+      );
+
+  /// 130.52 The student's courses in each list (the course screens'
+  /// gallery); null, the one course in progress in both.
+  Map<MyCoursesStatus, List<Map<String, dynamic>>>? myCourseLists;
+
+  /// 130.52 The academy's courses (in its language), its first course's
+  /// page and its lesson, as [DemoApi.academy] has them.
+  void useAcademyCourses() {
+    course = _courseDetail(_courses(arabic).first);
+    lesson = _lesson();
+  }
+
+  /// 130.52 The academy's courses as a list, in its language.
+  List<Map<String, dynamic>> get academyCourses => [
+    for (final c in _courses(arabic)) _pictured(c),
+  ];
 
   Map<String, dynamic> _courseDetail(Map<String, dynamic> summary) => {
     ...summary,

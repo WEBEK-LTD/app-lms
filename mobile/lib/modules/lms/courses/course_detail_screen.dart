@@ -2,6 +2,8 @@ import 'course_questions.dart';
 import 'premium_course_parts.dart';
 import 'course_reviews.dart';
 import 'store_purchase_bars.dart';
+import '../studio_courses/course_look_kit.dart';
+import '../studio_courses/studio_course_page.dart';
 
 import 'dart:async';
 
@@ -59,6 +61,24 @@ class _CourseDetailScreenState extends ConsumerState<CourseDetailScreen>
 
   /// 50 The curriculum's open topics, by position; null until it loads.
   Set<int>? _openTopics;
+
+  /// 130.52 The curriculum on the page in Studio's course screens' look.
+  final _curriculumKey = GlobalKey();
+
+  /// "Review course": the curriculum, on the tab or where it is on the page.
+  void _review(int tab) {
+    final at = _curriculumKey.currentContext;
+    if (at != null) {
+      Scrollable.ensureVisible(
+        at,
+        duration: MediaQuery.disableAnimationsOf(context)
+            ? Duration.zero
+            : const Duration(milliseconds: 400),
+      );
+      return;
+    }
+    setState(() => _tab = tab);
+  }
 
   @override
   void initState() {
@@ -328,6 +348,56 @@ class _CourseDetailScreenState extends ConsumerState<CourseDetailScreen>
         : overviewAt;
     final tab = (_tab ?? first).clamp(0, tabs.length - 1);
 
+    // The purchase bar: one of these, as the course and the platform allow.
+    final Widget bar = <Widget>[
+      // 62 A course with a password on the website: no password in the app.
+      if (course.passwordProtected && !course.enrolled)
+        _PasswordBar(course: course, platform: env.platform)
+      // 100 Its membership's subscriptions, sold in the app.
+      else if (course.membership case final membership?
+          when !membership.hasAccess &&
+              !course.enrolled &&
+              storeBilling &&
+              membership.storeProductIds.isNotEmpty)
+        StoreMembershipBar(membership: membership, onSignIn: _signIn)
+      // 90.3 A course that needs a membership the student doesn't have.
+      else if (course.membership case final membership?
+          when !membership.hasAccess && !course.enrolled)
+        _MembershipBar(
+          course: course,
+          membership: membership,
+          // 100 No way to the website's memberships where the app sells
+          // in the app (the stores' rule for digital content).
+          websiteLink: !storeBilling && env.platform != DevicePlatform.ios,
+        )
+      // 100 A paid course bought through the store.
+      else if (cta == CourseCta.store)
+        StoreCourseBar(productId: course.storeProductId!, onSignIn: _signIn)
+      else
+        _CtaBar(
+          course: course,
+          cta: cta,
+          busy: _busy,
+          finished: finished,
+          onReview: () => _review(tabs.indexOf(_CourseTab.curriculum)),
+          onContinue: () => _continue(topics.value, course),
+          onRestart: () => _restart(course),
+          onEnrollFree: () => _enrollFree(course),
+          onCheckout: () => _checkout(course),
+        ),
+    ].single;
+    // 130.52 The page in Studio's course screens' look.
+    if (config.screens?.courses case final studio?) {
+      return _studioPage(
+        context,
+        course,
+        studio,
+        topics,
+        bar,
+        wishlisted,
+        showQna,
+      );
+    }
     final glass = look.bar == CoursePageBar.glass;
     final page = <Widget>[
       Expanded(
@@ -723,42 +793,7 @@ class _CourseDetailScreenState extends ConsumerState<CourseDetailScreen>
           ),
         ),
       ),
-      // 62 A course with a password on the website: no password in the app.
-      if (course.passwordProtected && !course.enrolled)
-        _PasswordBar(course: course, platform: env.platform)
-      // 100 Its membership's subscriptions, sold in the app.
-      else if (course.membership case final membership?
-          when !membership.hasAccess &&
-              !course.enrolled &&
-              storeBilling &&
-              membership.storeProductIds.isNotEmpty)
-        StoreMembershipBar(membership: membership, onSignIn: _signIn)
-      // 90.3 A course that needs a membership the student doesn't have.
-      else if (course.membership case final membership?
-          when !membership.hasAccess && !course.enrolled)
-        _MembershipBar(
-          course: course,
-          membership: membership,
-          // 100 No way to the website's memberships where the app sells
-          // in the app (the stores' rule for digital content).
-          websiteLink: !storeBilling && env.platform != DevicePlatform.ios,
-        )
-      // 100 A paid course bought through the store.
-      else if (cta == CourseCta.store)
-        StoreCourseBar(productId: course.storeProductId!, onSignIn: _signIn)
-      else
-        _CtaBar(
-          course: course,
-          cta: cta,
-          busy: _busy,
-          finished: finished,
-          onReview: () =>
-              setState(() => _tab = tabs.indexOf(_CourseTab.curriculum)),
-          onContinue: () => _continue(topics.value, course),
-          onRestart: () => _restart(course),
-          onEnrollFree: () => _enrollFree(course),
-          onCheckout: () => _checkout(course),
-        ),
+      bar,
     ];
     // 123 The premium page's purchase in gold, the price with its saving.
     Widget gilded(Widget child) => premium
@@ -789,6 +824,155 @@ class _CourseDetailScreenState extends ConsumerState<CourseDetailScreen>
         ),
       ),
     );
+  }
+
+  /// 130.52 The course's page in Studio's course screens' look: the hero,
+  /// the student's own parts (the bundles, the finished banner, saving it
+  /// for offline, what to finish first, the final score, their notes and
+  /// the leaderboard), the sections, and the purchase bar in the look's
+  /// style (frosted, solid or floating) with the accent's buttons, the
+  /// price with its saving and the owner's words on the button.
+  Widget _studioPage(
+    BuildContext context,
+    CourseDetail course,
+    CourseScreensLook studio,
+    AsyncValue<List<Topic>> topics,
+    Widget bar,
+    bool wishlisted,
+    bool showQna,
+  ) {
+    final config = ref.watch(appConfigProvider);
+    final l10n = context.l10n;
+    final p = context.palette;
+    final finished = courseFinished(course, topics.value);
+    final design = studio.page;
+    final colors = CourseLookColors.of(context, studio);
+    final over = design.bar != CourseEnrolBar.solid;
+    final language = Localizations.localeOf(context).languageCode;
+    final own = <Widget>[
+      if (course.cohort case final cohort?)
+        CourseTag(
+          l10n.cohortStarts(cohort.name, shortDate(cohort.startsAt)),
+          background: colors.accentSoft,
+          color: p.text,
+          icon: AppIcons.group,
+        ),
+      if (course.bundles.any((b) => !b.owned)) ...[
+        Text(
+          l10n.bundleAlsoIn,
+          style: TextStyle(
+            fontSize: 14,
+            fontWeight: FontWeight.w700,
+            color: p.text,
+          ),
+        ),
+        for (final bundle in course.bundles.where((b) => !b.owned))
+          BundleCard(bundle: bundle),
+      ],
+      if (finished)
+        CourseCompletedBanner(
+          completedAt: course.progress?.completedAt,
+          certificateUrl: course.certificateUrl,
+        ),
+      if (course.enrolled)
+        CourseDownloadButton(course: course, topics: topics.value),
+      if (!course.enrolled && course.prerequisites.isNotEmpty)
+        CoursePrerequisites(course: course),
+      if (course.enrolled) ...[
+        if (course.progress?.finalScore case final score?)
+          Text(
+            course.progress!.minFinalScore == null
+                ? l10n.finalScore(score)
+                : l10n.finalScoreNeeded(score, course.progress!.minFinalScore!),
+            key: const ValueKey('course-final-score'),
+            style: TextStyle(fontSize: 14, color: p.textSecondary),
+          ),
+        CourseLearningLinks(courseId: course.id),
+      ],
+    ];
+    final list = RefreshIndicator(
+      onRefresh: () async {
+        invalidateCourse(ref, course.id);
+        ref
+          ..invalidate(courseReviewsProvider(course.id))
+          ..invalidate(courseQuestionsProvider(course.id));
+        await ref.read(courseDetailProvider(course.id).future);
+      },
+      child: ListView(
+        key: const ValueKey('studio-course-page'),
+        padding: EdgeInsets.only(bottom: over ? 150 : 24),
+        children: [
+          StudioCourseHero(
+            course: course,
+            look: studio,
+            onBack: () =>
+                context.canPop() ? context.pop() : context.go(Paths.home),
+            wishlisted: config.features.wishlist ? wishlisted : null,
+            onWishlist: () => _toggleWishlist(course),
+          ),
+          Padding(
+            padding: readablePadding(
+              context,
+              top: design.hero == CoursePageHero.split ? 0 : 22,
+              bottom: 8,
+            ),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                for (final (i, w) in own.indexed) ...[
+                  if (i > 0) const SizedBox(height: 12),
+                  w,
+                ],
+                if (own.isNotEmpty) const SizedBox(height: 26),
+                KeyedSubtree(
+                  key: _curriculumKey,
+                  child: StudioCourseSections(
+                    course: course,
+                    topics: topics,
+                    look: studio,
+                    reviews: config.features.reviews,
+                    questions: showQna,
+                    onTeacher: teacherOpener(
+                      context,
+                      course.instructor,
+                      ref.watch(teachersOnProvider),
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+    final styled = CourseCtaWords(
+      words: textFor(design.cta, language),
+      child: GoldButtons(
+        color: colors.accent,
+        child: PremiumPrice(child: bar),
+      ),
+    );
+    final body = !over
+        ? Column(
+            children: [
+              Expanded(child: list),
+              styled,
+            ],
+          )
+        : Stack(
+            children: [
+              Positioned.fill(child: list),
+              PositionedDirectional(
+                start: 0,
+                end: 0,
+                bottom: 0,
+                child: design.bar == CourseEnrolBar.floating
+                    ? FloatingBottomBars(child: styled)
+                    : GlassBottomBars(child: styled),
+              ),
+            ],
+          );
+    return Scaffold(key: const ValueKey('studio-course-screen'), body: body);
   }
 }
 
@@ -1349,7 +1533,9 @@ class _CtaBar extends StatelessWidget {
               Expanded(
                 child: PrimaryButton(
                   key: const ValueKey('cta-enroll-free'),
-                  label: context.l10n.enrollForFree,
+                  // 130.52 The owner's words, where Studio's course screens have them.
+                  label:
+                      CourseCtaWords.of(context) ?? context.l10n.enrollForFree,
                   height: 54,
                   loading: busy,
                   onPressed: onEnrollFree,
@@ -1368,9 +1554,11 @@ class _CtaBar extends StatelessWidget {
                 child: PrimaryButton(
                   key: const ValueKey('cta-checkout'),
                   // 123 On the premium page: "Join now" with a bag.
-                  label: PremiumPrice.of(context)
-                      ? context.l10n.joinNow
-                      : context.l10n.enrollNow,
+                  label:
+                      CourseCtaWords.of(context) ??
+                      (PremiumPrice.of(context)
+                          ? context.l10n.joinNow
+                          : context.l10n.enrollNow),
                   icon: PremiumPrice.of(context)
                       ? Symbols.shopping_bag_rounded
                       : AppIcons.cart,

@@ -21,6 +21,7 @@ import '../../taxi/widgets/navigate_button.dart';
 import '../../taxi/widgets/taxi_map.dart';
 import '../data/rides_providers.dart';
 import '../widgets/ride_widgets.dart';
+import '../../shared/staff_scaffold.dart';
 
 /// How often a ride that isn't over is asked about on the driver's screen.
 const driverRideEvery = Duration(seconds: 10);
@@ -193,13 +194,8 @@ class _DriverRideScreenState extends ConsumerState<DriverRideScreen> {
           );
     final taxi = ref.watch(taxiConfigProvider);
     if (taxi != null && ride != null) return _mapLayout(taxi, ride, bar);
-    return Scaffold(
-      appBar: AppBar(
-        leading: appBarBack(context),
-        title: Text(
-          ride == null ? l10n.driverTitle : l10n.rideHeading(ride.reference),
-        ),
-      ),
+    return StaffScaffold(
+      title: ride == null ? l10n.driverTitle : l10n.rideHeading(ride.reference),
       body: switch (async) {
         AsyncValue(value: final r?) => RefreshIndicator(
           onRefresh: () async =>

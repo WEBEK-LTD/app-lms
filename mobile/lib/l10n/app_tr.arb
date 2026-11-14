@@ -3110,5 +3110,13 @@
   "liveStageFinding": "Aranıyor",
   "liveStageComing": "Geliyor",
   "liveStageHere": "Geldi",
-  "liveStageOnBoard": "Yolculukta"
+  "liveStageOnBoard": "Yolculukta",
+  "courseLookStars": "5 üzerinden {rating} yıldız",
+  "courseLookResources": "Kaynaklar",
+  "courseLookUpNext": "Sıradaki",
+  "courseLookYouAreHere": "Buradasınız",
+  "courseLookCompleted": "Tamamlanan kurslar",
+  "courseLookCourseProgress": "İlerlemeniz",
+  "courseLookAllReviews": "Tüm değerlendirmeler",
+  "courseLookQuestions": "Sorular ve cevaplar"
 }

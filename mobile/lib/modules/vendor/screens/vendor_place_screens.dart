@@ -11,6 +11,7 @@ import '../../../core/theme/palette.dart';
 import '../../../core/widgets/buttons.dart';
 import '../../../core/widgets/common.dart';
 import '../data/vendor_providers.dart';
+import '../../shared/staff_scaffold.dart';
 
 /// 115.20 What a marketplace place sets itself, beside busy and paused:
 /// running late (still taking orders, with more minutes and a reason
@@ -506,12 +507,6 @@ class _VendorHoursScreenState extends ConsumerState<VendorHoursScreen> {
         ],
       );
     }
-    return Scaffold(
-      appBar: AppBar(
-        leading: appBarBack(context),
-        title: Text(l10n.vendorHoursTitle),
-      ),
-      body: body,
-    );
+    return StaffScaffold(title: l10n.vendorHoursTitle, body: body);
   }
 }

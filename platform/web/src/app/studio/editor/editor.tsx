@@ -206,7 +206,7 @@ export function StudioEditor(props: StudioEditorProps) {
   const premiumText = premiumNew.content;
   // 124.8 The app's screen under the page: drawn as the app draws it in the look chosen in Studio › Screens, else said so.
   const screenName = studio?.screen ? known(props.pageScreens.find((s) => s.value === studio.screen)?.label ?? studio.screen) : "";
-  const looksAt = screenLookSection(studio?.screen, props.kind.type);
+  const looksAt = screenLookSection(studio?.screen, props.kind.type, studioScreens);
   const screenPart: ScreenPartInfo | undefined = studio?.screen
     ? {
         name: screenName,

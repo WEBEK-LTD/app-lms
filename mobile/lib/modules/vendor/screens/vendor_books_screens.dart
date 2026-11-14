@@ -7,11 +7,11 @@ import '../../../core/format/dates.dart';
 import '../../../core/l10n/l10n.dart';
 import '../../../core/theme/app_icons.dart';
 import '../../../core/theme/palette.dart';
-import '../../../core/widgets/buttons.dart';
 import '../../../core/widgets/common.dart';
 import '../../market/screens/market_complaint_screens.dart'
     show complaintReasonText, complaintStatusText;
 import '../data/vendor_providers.dart';
+import '../../shared/staff_scaffold.dart';
 
 /// `YYYY-MM` of [day].
 String vendorMonthOf(DateTime day) =>
@@ -57,11 +57,8 @@ class _VendorStatementsScreenState
     final async = ref.watch(vendorStatementProvider(_month));
     final thisMonth = vendorMonthOf(DateTime.now());
     final shown = async.value?.month ?? _month ?? thisMonth;
-    return Scaffold(
-      appBar: AppBar(
-        leading: appBarBack(context),
-        title: Text(l10n.vendorStatementsTitle),
-      ),
+    return StaffScaffold(
+      title: l10n.vendorStatementsTitle,
       body: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
@@ -262,11 +259,8 @@ class VendorComplaintsScreen extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final l10n = context.l10n;
     final async = ref.watch(vendorComplaintsProvider);
-    return Scaffold(
-      appBar: AppBar(
-        leading: appBarBack(context),
-        title: Text(l10n.vendorComplaintsTitle),
-      ),
+    return StaffScaffold(
+      title: l10n.vendorComplaintsTitle,
       body: switch (async) {
         AsyncValue(value: final items?) when items.isEmpty => RefreshIndicator(
           onRefresh: () async => ref.invalidate(vendorComplaintsProvider),
