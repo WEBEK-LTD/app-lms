@@ -21,7 +21,7 @@ import type { LayoutContent, LayoutPage, StudioNode, StudioPage } from "@/lib/pa
 import { parseLayoutContent, parseStudioPage } from "@/lib/pages/validate";
 import { sourcesIn } from "@/lib/samples/lists";
 import { designPages, picturesIn, type DesignFile } from "@/lib/studio/design-file";
-import { DEMO_FACTS, DEMO_HOME_TEMPLATES, DEMO_NOTE_COLORS, demoTemplateId, paragraphsOf, studioDemoOf, withDemoFacts } from "@/lib/studio/demo-templates";
+import { DEMO_FACTS, DEMO_HOME_TEMPLATES, DEMO_NOTE_COLORS, demoTemplateId, paragraphsOf, studioDemoOf, studioNoteOf, withDemoFacts } from "@/lib/studio/demo-templates";
 import { designedTabs, signatureLooksOf } from "@/lib/studio/demo-designs";
 import { applyWholeDesign, demoProjectLook, designsFor, makeDesign } from "@/lib/studio/designs";
 import { demoStudioPage, TEMPLATES, templatesFor, type SectionContext, type SectionWord } from "@/lib/studio/sections";
@@ -454,10 +454,14 @@ describe("128 Sofra Eats and Zad: the photo-first homes approved on 13 November 
     expect(sourcesIn(page).has("restaurants")).toBe(true);
   });
 
-  it("is the page the app's widget test draws (mobile/test/support/zad_demo_home.json)", async () => {
-    const layout = await demoOf("marketplace");
+  it("is the page the app's widget test draws (mobile/test/support/zad_demo_home.json)", () => {
+    // 130 The 128 home (market_photo, a marketplace's template; the demo is now its look A) with the demo's note, as the demo had it.
+    const home = home128("marketplace", "market_photo");
+    const { demo: _demo, ...ctx } = demoStudioContext("marketplace", appUrl(), itemSourcesFor(demoApp("marketplace"))[0] ?? null);
+    void _demo;
+    const note = studioNoteOf(ctx, "marketplace", demoSignInBlock(), (home.body.padding?.start ?? 0) > 0 ? 0 : 16)!;
     const file = join(process.cwd(), "..", "..", "mobile", "test", "support", "zad_demo_home.json");
-    const page = `${JSON.stringify(layout.pages[0]!.studio, null, 2)}\n`;
+    const page = `${JSON.stringify({ ...home, body: { ...home.body, children: [...(home.body.children ?? []), note] } }, null, 2)}\n`;
     if (process.env.YALLAPP_WRITE_ZAD_HOME) writeFileSync(file, page);
     expect(readFileSync(file, "utf8")).toBe(page);
   });
