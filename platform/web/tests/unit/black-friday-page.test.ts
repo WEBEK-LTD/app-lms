@@ -191,7 +191,8 @@ describe("124 Black Friday's page", () => {
     expect(kindPagePath("delivery")).toBe("/yallapp-studio/delivery");
     expect(kindPagePath("food")).toBe("/yallapp-studio/multi-vendor");
     expect(kindPagePath("academy")).toBe("/yallapp-studio/academy");
-    expect(kindPagePath("store")).toBe("/solutions/store");
+    // 131.40 The store's story is the flower shop's.
+    expect(kindPagePath("store")).toBe("/yallapp-studio/flowers");
   });
 
   it("tells one night: every scene has its moment and a few short lines, in every language", () => {

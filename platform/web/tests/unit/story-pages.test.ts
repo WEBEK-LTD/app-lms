@@ -148,3 +148,26 @@ describe("the Studio story pages", () => {
     });
   }
 });
+
+describe("131.40 the flower shop's story", () => {
+  it("is Leqaa's: its demo, its screens, the store's solution page and its own comparison", async () => {
+    const { storyOfSolution } = await import("@/site/story/links");
+    const shape = STORIES.flowers;
+    expect(shape.demos).toEqual(["flowers"]);
+    expect(storyOfSolution("store")).toBe("flowers");
+    expect(storyScreens(shape).every((s) => s.startsWith("leqaa-") || s.startsWith("flowers-sig-"))).toBe(true);
+    expect(competitorsOf("flowers").map((c) => c.name)).toEqual(["Tapcart", "AppMySite", "MobiLoud", "Deonde"]);
+  });
+
+  for (const lang of LANGS) {
+    it(`${lang}: draws the day and slot, the flash sale, the card and the fee, and opens Leqaa's demo`, async () => {
+      const html = await render(lang, "flowers");
+      const art = storyCopyFor(lang).ui.art;
+      expect(html).toContain('data-countdown="');
+      expect(html).toContain("LEQAA10");
+      expect(html).toContain("13:00–16:00");
+      for (const words of [art.cardMessage, art.cardTo, art.todayClosed, art.onlyLeft]) expect(html).toContain(escape(words));
+      expect(html).toContain(`${localePath(lang, "/demo/studio")}#flowers`);
+    });
+  }
+});

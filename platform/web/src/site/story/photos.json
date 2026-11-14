@@ -346,5 +346,98 @@
         "title": "Woman holding a cup of coffee while looking at her phone"
       }
     }
+  ],
+  "flowers": [
+    {
+      "slot": "flowers-blush",
+      "src": "/stories/flowers/flowers-blush.jpg",
+      "width": 800,
+      "height": 800,
+      "credit": {
+        "creator": "Alisa Anton alisaanton",
+        "license": "CC0 1.0",
+        "licenseUrl": "https://creativecommons.org/publicdomain/zero/1.0/",
+        "source": "https://commons.wikimedia.org/wiki/File:Rural_bouquet_(Unsplash).jpg",
+        "title": "Rural bouquet (Unsplash)"
+      }
+    },
+    {
+      "slot": "flowers-card",
+      "src": "/stories/flowers/flowers-card.jpg",
+      "width": 800,
+      "height": 800,
+      "credit": {
+        "creator": "Dinkum",
+        "license": "CC0 1.0",
+        "licenseUrl": "https://creativecommons.org/publicdomain/zero/1.0/",
+        "source": "https://commons.wikimedia.org/wiki/File:Roses_blanche_et_rose_rose.jpg",
+        "title": "Roses blanche et rose rose"
+      }
+    },
+    {
+      "slot": "flowers-door",
+      "src": "/stories/flowers/flowers-door.jpg",
+      "width": 800,
+      "height": 800,
+      "credit": {
+        "creator": "Lizzie amianyuhua",
+        "license": "CC0 1.0",
+        "licenseUrl": "https://creativecommons.org/publicdomain/zero/1.0/",
+        "source": "https://commons.wikimedia.org/wiki/File:Paper-wrapped_bouquet_(Unsplash).jpg",
+        "title": "Paper-wrapped bouquet (Unsplash)"
+      }
+    },
+    {
+      "slot": "flowers-hero",
+      "src": "/stories/flowers/flowers-hero.jpg",
+      "width": 1600,
+      "height": 1000,
+      "credit": {
+        "creator": "Mira Bozhko miroslava",
+        "license": "CC0 1.0",
+        "licenseUrl": "https://creativecommons.org/publicdomain/zero/1.0/",
+        "source": "https://commons.wikimedia.org/wiki/File:Gorgeous_bouquet_on_purple_background_(Unsplash).jpg",
+        "title": "Gorgeous bouquet on purple background (Unsplash)"
+      }
+    },
+    {
+      "slot": "flowers-shop",
+      "src": "/stories/flowers/flowers-shop.jpg",
+      "width": 800,
+      "height": 800,
+      "credit": {
+        "creator": "Kurt Kaiser",
+        "license": "CC0 1.0",
+        "licenseUrl": "https://creativecommons.org/publicdomain/zero/1.0/",
+        "source": "https://commons.wikimedia.org/wiki/File:Flowers_to_buy.jpg",
+        "title": "Flowers to buy"
+      }
+    },
+    {
+      "slot": "flowers-table",
+      "src": "/stories/flowers/flowers-table.jpg",
+      "width": 800,
+      "height": 500,
+      "credit": {
+        "creator": "Caroline Ingebrigtsen icarroi",
+        "license": "CC0 1.0",
+        "licenseUrl": "https://creativecommons.org/publicdomain/zero/1.0/",
+        "source": "https://commons.wikimedia.org/wiki/File:Tulip_bouquets_in_pink_paper_(Unsplash).jpg",
+        "title": "Tulip bouquets in pink paper (Unsplash)"
+      }
+    },
+    {
+      "slot": "flowers-vase",
+      "src": "/stories/flowers/flowers-vase.jpg",
+      "width": 800,
+      "height": 500,
+      "credit": {
+        "creator": "Yuri_B",
+        "license": "CC0 1.0",
+        "licenseUrl": "https://creativecommons.org/publicdomain/zero/1.0/",
+        "source": "https://commons.wikimedia.org/wiki/File:Bouquet-3175315_1920.jpg",
+        "title": "Bouquet-3175315 1920"
+      }
+    }
   ]
 }

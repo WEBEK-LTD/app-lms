@@ -50,6 +50,8 @@ export const en = {
     storyMultiVendorText: "Restaurants, supermarkets and delivery",
     storyAcademy: "Academy app",
     storyAcademyText: "Courses, live classes and certificates",
+    storyFlowers: "Flower shop app",
+    storyFlowersText: "Delivery slots, card messages and flash sales",
     studioDemo: "Studio demo",
     studioDemoText: "Try Studio's apps on your phone",
     signIn: "Sign in",

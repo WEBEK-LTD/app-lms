@@ -4,8 +4,8 @@ import type { StoryId } from "./types";
 /**
  * The comparison on each story page: companies that make and sell such
  * apps (SaaS builders, white-label and clone-script vendors), what their own
- * sites say, checked on 10 November 2026 (the academy's on 12 November),
- * with the pages it comes from.
+ * sites say, checked on 10 November 2026 (the academy's on 12 November,
+ * 131.40 the flower shop's on 14 November), with the pages it comes from.
  * Only rows their sites state plainly: which apps come with it, whether the
  * apps carry the client's own name, how it is priced, whether prices are
  * published, and whether Arabic is stated. No prices are quoted (several
@@ -254,6 +254,47 @@ const COLUMNS = {
     arabic: NOT_STATED,
     sources: ["https://graphy.com/us/pricing/", "https://graphy.com/blog/kajabi-alternatives/"],
   },
+  // 131.40 The flower shop's story, checked on 14 November 2026.
+  tapcart: {
+    name: "Tapcart",
+    kind: SAAS,
+    apps: { en: "iOS and Android apps for a Shopify store; Shopify only", ar: "تطبيقا iOS وأندرويد لمتجر على Shopify؛ لـ Shopify فقط", tr: "Bir Shopify mağazası için iOS ve Android uygulamaları; yalnızca Shopify" },
+    ownName: { en: "Yes, with no Tapcart branding, in your own developer accounts", ar: "نعم، بلا علامة Tapcart، في حسابات المطوّر الخاصة بك", tr: "Evet, Tapcart markası olmadan, kendi geliştirici hesaplarınızda" },
+    pricing: { en: "Monthly plans, billed through Shopify; the store accounts' fees apart", ar: "باقات شهرية تُدفع عبر Shopify؛ ورسوم حسابات المتاجر منفصلة", tr: "Shopify üzerinden faturalanan aylık paketler; mağaza hesaplarının ücretleri ayrı" },
+    published: { en: "Yes, different on different pages", ar: "نعم، وتختلف من صفحة لأخرى", tr: "Evet, sayfadan sayfaya farklı" },
+    arabic: { en: "Not stated; languages through Shopify Markets", ar: "غير مذكورة؛ واللغات عبر Shopify Markets", tr: "Belirtilmemiş; diller Shopify Markets ile" },
+    sources: ["https://www.tapcart.com/pricing", "https://academy.tapcart.com/classes/your-apple-developer-account", "https://www.tapcart.com/integrations/shopify-markets"],
+  },
+  appmysite: {
+    name: "AppMySite",
+    kind: SAAS,
+    apps: { en: "Android and iPhone apps from a WooCommerce or WordPress site; iPhone from its Pro plan", ar: "تطبيقا أندرويد وiPhone من موقع WooCommerce أو WordPress؛ وiPhone بدءًا من باقة Pro", tr: "WooCommerce veya WordPress sitesinden Android ve iPhone uygulamaları; iPhone, Pro paketinden itibaren" },
+    ownName: { en: "On paid plans, without its branding; help with publishing on its top plan", ar: "في الباقات المدفوعة، بلا علامته؛ والمساعدة في النشر في باقته العليا", tr: "Ücretli paketlerde, markası olmadan; yayın desteği en üst paketinde" },
+    pricing: { en: "Monthly or yearly plans, or a one-time lifetime plan; one plan per app", ar: "باقات شهرية أو سنوية، أو باقة مدى الحياة بدفعة واحدة؛ باقة لكل تطبيق", tr: "Aylık veya yıllık paketler ya da tek ödemeli ömür boyu paket; uygulama başına bir paket" },
+    published: { en: "Yes, different by region", ar: "نعم، وتختلف بحسب المنطقة", tr: "Evet, bölgeye göre farklı" },
+    arabic: { en: "Right to left for Arabic, on its Premium plan", ar: "من اليمين لليسار للعربية، في باقة Premium", tr: "Arapça için sağdan sola, Premium paketinde" },
+    sources: ["https://www.appmysite.com/woocommerce-pricing/", "https://www.appmysite.com/features/", "https://docs.appmysite.com/frequently-asked-questions/app-features-and-settings/languages-support"],
+  },
+  mobiloud: {
+    name: "MobiLoud",
+    kind: { en: "Managed apps made from your website", ar: "تطبيقات تُصنع من موقعك وتُدار لك", tr: "Sitenizden yapılan, sizin için yönetilen uygulamalar" },
+    apps: { en: "iOS and Android apps of your shop's website: Shopify, WooCommerce and others", ar: "تطبيقا iOS وأندرويد لموقع متجرك: Shopify وWooCommerce وغيرهما", tr: "Mağaza sitenizin iOS ve Android uygulamaları: Shopify, WooCommerce ve diğerleri" },
+    ownName: { en: "Yes, in your own Apple and Google developer accounts", ar: "نعم، في حسابَي المطوّر الخاصين بك لدى Apple وGoogle", tr: "Evet, kendi Apple ve Google geliştirici hesaplarınızda" },
+    pricing: { en: "Monthly, less on a yearly term; no share of sales", ar: "شهري، وأقل بالتزام سنوي؛ بلا نسبة من المبيعات", tr: "Aylık, yıllık taahhütte daha az; satışlardan pay yok" },
+    published: { en: "Yes, different on different pages", ar: "نعم، وتختلف من صفحة لأخرى", tr: "Evet, sayfadan sayfaya farklı" },
+    arabic: NOT_STATED,
+    sources: ["https://www.mobiloud.com/", "https://www.mobiloud.com/faqs/", "https://www.mobiloud.com/blog/shopify-mobile-app-builders/", "https://www.mobiloud.com/blog/woocommerce-mobile-app-builders/"],
+  },
+  deondeFlowers: {
+    name: "Deonde",
+    kind: SAAS,
+    apps: { en: "Customer and driver apps, a florist portal, an admin panel and an ordering site", ar: "تطبيقا العميل والسائق، وبوابة لمحل الزهور، ولوحة إدارة، وموقع للطلب", tr: "Müşteri ve sürücü uygulamaları, çiçekçi portalı, yönetim paneli ve sipariş sitesi" },
+    ownName: { en: "Yes, under your brand; a one-time fee for each branded app", ar: "نعم، بعلامتك؛ ورسوم لمرة واحدة لكل تطبيق بعلامتك", tr: "Evet, markanızla; markalı her uygulama için tek seferlik ücret" },
+    pricing: { en: "Monthly, no commission on orders", ar: "شهري، بلا عمولة على الطلبات", tr: "Aylık, siparişlerden komisyon yok" },
+    published: { en: "Yes, different on different pages", ar: "نعم، وتختلف من صفحة لأخرى", tr: "Evet, sayfadan sayfaya farklı" },
+    arabic: { en: "Yes, Arabic and right to left", ar: "نعم، العربية ومن اليمين لليسار", tr: "Evet, Arapça ve sağdan sola" },
+    sources: ["https://deonde.co/flower-delivery-software.shtml", "https://deonde.co/faq.shtml", "https://deonde.co/food-delivery-software.shtml"],
+  },
 } satisfies Record<string, CompareColumn>;
 
 /** Each story's companies, in the order shown. */
@@ -263,6 +304,7 @@ const BY_STORY: Record<StoryId, (keyof typeof COLUMNS)[]> = {
   delivery: ["tookan", "shipday", "onfleet", "apporioDelivery"],
   "multi-vendor": ["yelo", "enatega", "deonde", "sixammart"],
   academy: ["kajabi", "thinkific", "learnworlds", "graphy"],
+  flowers: ["tapcart", "appmysite", "mobiloud", "deondeFlowers"],
 };
 
 export function competitorsOf(story: StoryId): CompareColumn[] {
@@ -314,6 +356,13 @@ export const YALLAPP: Record<StoryId, Pick<CompareColumn, "kind" | "apps" | "own
     apps: { en: "The academy's own app for its students, and Studio for you", ar: "تطبيق الأكاديمية الخاص لطلابها، وStudio لك", tr: "Akademinin öğrencileri için kendi uygulaması ve sizin için Studio" },
     ownName: { en: "Yes: your name, your icon, your store accounts", ar: "نعم: اسمك وأيقونتك وحساباتك في المتاجر", tr: "Evet: adınız, simgeniz, mağaza hesaplarınız" },
     pricing: { en: "A Studio plan; no share of your course sales", ar: "باقة Studio؛ بلا نسبة من مبيعات دوراتك", tr: "Bir Studio paketi; kurs satışlarınızdan pay yok" },
+    arabic: { en: "Yes: Arabic, right to left, in the app and in Studio", ar: "نعم: العربية من اليمين لليسار، في التطبيق وفي Studio", tr: "Evet: Arapça, sağdan sola, uygulamada ve Studio'da" },
+  },
+  flowers: {
+    kind: { en: "A Yallapp Studio template", ar: "قالب من Yallapp Studio", tr: "Bir Yallapp Studio şablonu" },
+    apps: { en: "The shop's own app for its customers, and Studio for you", ar: "تطبيق المتجر الخاص لعملائه، وStudio لك", tr: "Mağazanın müşterileri için kendi uygulaması ve sizin için Studio" },
+    ownName: { en: "Yes: your name, your icon, your store accounts", ar: "نعم: اسمك وأيقونتك وحساباتك في المتاجر", tr: "Evet: adınız, simgeniz, mağaza hesaplarınız" },
+    pricing: { en: "A Studio plan; no share of your sales", ar: "باقة Studio؛ بلا نسبة من مبيعاتك", tr: "Bir Studio paketi; satışlarınızdan pay yok" },
     arabic: { en: "Yes: Arabic, right to left, in the app and in Studio", ar: "نعم: العربية من اليمين لليسار، في التطبيق وفي Studio", tr: "Evet: Arapça, sağdan sola, uygulamada ve Studio'da" },
   },
 };

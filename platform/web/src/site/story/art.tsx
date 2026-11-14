@@ -6,7 +6,8 @@ import type { StoryArtText } from "./types";
  * The story pages' drawn pictures, made here in SVG and CSS (no images,
  * nothing generated): a city with a route the vehicle drives along, the
  * gate's code, the class register, a fare's rule, a ride offer's countdown,
- * a place running late, and a scale. They move once they are seen
+ * a place running late, and a scale; 131.40 the flower shop's day and slot,
+ * flash sale, gift card and delivery fee. They move once they are seen
  * (./effects.tsx) and stand still with "reduce motion".
  */
 
@@ -234,6 +235,165 @@ function ScaleCard({ t }: { t: StoryArtText }) {
   );
 }
 
+/**
+ * 131.40 The flower shop's "when" (the gift checkout's third step, as the
+ * app draws it): today struck through after the cut-off, tomorrow chosen, a
+ * full slot that can't be picked and the evening slots with their extra.
+ */
+function SlotsCard({ t }: { t: StoryArtText }) {
+  const slots: { time: string; note?: string; state: "full" | "chosen" | "open" }[] = [
+    { time: "10:00–13:00", note: t.slotFull, state: "full" },
+    { time: "13:00–16:00", state: "chosen" },
+    { time: "16:00–19:00", note: "+E£50", state: "open" },
+    { time: "19:00–22:00", note: "+E£80", state: "open" },
+  ];
+  const chip = "flex min-w-0 items-center justify-center gap-1 rounded-full border px-2.5 py-1.5 text-[12.5px] font-bold";
+  return (
+    <div className="flex w-[290px] max-w-full flex-col gap-2.5 rounded-[22px] bg-white p-3.5 text-midnight shadow-[0_30px_60px_-24px_rgba(0,0,0,0.6)] sm:gap-3 sm:p-4" data-reveal="pop">
+      <span className="flex items-center gap-2 text-xs font-bold tracking-[0.8px] text-muted uppercase">
+        <Icon name="schedule" size={18} className="flex-none" />
+        {t.when}
+      </span>
+      <span className="flex flex-wrap gap-1.5">
+        <span className={`${chip} border-line-soft text-faint line-through`}>{t.today}</span>
+        <span className={`${chip} border-transparent bg-[#8E2445] text-white`}>
+          <Icon name="wb_sunny" size={15} />
+          {t.tomorrow}
+        </span>
+        <span className={`${chip} border-line text-ink-3`}>
+          <Icon name="calendar_month" size={15} />
+          {t.pickDate}
+        </span>
+      </span>
+      <span className="text-[12.5px] leading-snug text-muted">{t.todayClosed}</span>
+      {/* One slot a row on a phone, two by two from a tablet up. */}
+      <ul className="m-0 grid list-none grid-cols-1 gap-1.5 p-0 sm:grid-cols-2 sm:gap-2">
+        {slots.map((slot, i) => (
+          <li
+            key={slot.time}
+            className={`story-stagger flex items-center justify-between gap-2 rounded-2xl border px-3 py-2 sm:flex-col sm:justify-center sm:gap-0.5 sm:px-2 sm:py-2.5 ${slot.state === "chosen" ? "border-[#8E2445] bg-[#FBEFF2]" : slot.state === "full" ? "border-line-soft bg-sand opacity-60" : "border-line"}`}
+            style={{ ["--i" as string]: i }}
+          >
+            <span dir="ltr" className={`text-[13.5px] font-extrabold whitespace-nowrap tabular-nums sm:text-[14px] ${slot.state === "full" ? "text-faint line-through" : ""}`}>
+              {slot.time}
+            </span>
+            {slot.note ? (
+              <span dir={slot.state === "full" ? undefined : "ltr"} className="text-[11.5px] font-semibold text-muted">
+                {slot.note}
+              </span>
+            ) : (
+              <Icon name="check_circle" size={16} className="text-[#8E2445]" />
+            )}
+          </li>
+        ))}
+      </ul>
+    </div>
+  );
+}
+
+/** 131.40 A flash sale on the shop's garnet band (Leqaa's "Blush hour"): the timer counting down, the sale price, the share off and how few are left. */
+function FlashCard({ t }: { t: StoryArtText }) {
+  return (
+    <div className="flex w-[280px] max-w-full flex-col gap-3 rounded-[22px] bg-[#4A1328] p-4 text-white shadow-[0_30px_60px_-24px_rgba(0,0,0,0.7)] sm:p-5" data-reveal="pop">
+      <span className="flex items-center gap-2 text-xs font-bold tracking-[0.8px] text-[#F5B9CB] uppercase">
+        <Icon name="bolt" size={18} />
+        {t.flashSale}
+      </span>
+      <span dir="ltr" className="font-mono text-[28px] leading-none font-extrabold tabular-nums sm:text-[40px] sm:tracking-[1px]" data-countdown="7152">
+        01:59:12
+      </span>
+      <span className="flex flex-col gap-1 rounded-2xl bg-[#5E2238] p-3">
+        <span className="flex items-start justify-between gap-2">
+          <span className="flex min-w-0 items-center gap-1.5 text-[15px] leading-snug font-bold">
+            <Icon name="local_florist" size={18} className="flex-none text-[#FFC9A8]" />
+            {t.flashItem}
+          </span>
+          <span dir="ltr" className="flex-none rounded-full bg-[#FFC9A8] px-2 py-0.5 text-[12px] font-extrabold text-[#4A1328]">
+            −25%
+          </span>
+        </span>
+        <span dir="ltr" className="flex flex-wrap items-baseline gap-x-2 self-start text-[13px] tabular-nums">
+          <span className="font-extrabold text-[#FFC9A8]">E£1,575</span>
+          <span className="text-white/55 line-through">E£2,100</span>
+        </span>
+      </span>
+      <span className="flex flex-col gap-1.5">
+        <span className="h-1.5 overflow-hidden rounded-full bg-white/15" aria-hidden="true">
+          <span className="block h-full w-[34%] rounded-full bg-[#FFC9A8]" />
+        </span>
+        <span className="text-[12.5px] font-semibold text-white/75">{t.onlyLeft}</span>
+      </span>
+    </div>
+  );
+}
+
+/** 131.40 The gift card as the checkout previews it: the occasion, the words, who it's to and from, the shop's seal. */
+function GiftCard({ t }: { t: StoryArtText }) {
+  return (
+    <figure className="relative m-0 flex w-[200px] max-w-full flex-col gap-2 rounded-[22px] bg-[#FFF8F4] p-3.5 text-[#2A121C] shadow-[0_30px_60px_-24px_rgba(0,0,0,0.6)] sm:w-[280px] sm:gap-3 sm:p-5" data-reveal="pop">
+      <span aria-hidden="true" className="absolute end-3 top-3 flex h-10 w-10 items-center justify-center rounded-full bg-[#8E2445] text-[#FBEFF2] shadow-[0_6px_14px_-6px_rgba(142,36,69,0.8)] sm:end-4 sm:top-4 sm:h-11 sm:w-11">
+        <Icon name="local_florist" size={22} />
+      </span>
+      <span className="flex items-center gap-2 pe-11 text-xs font-bold tracking-[0.8px] text-[#A8325A] uppercase">
+        <Icon name="cake" size={18} />
+        {t.cardOccasion}
+      </span>
+      <span className="text-[14px] text-[#7B5E67]">{t.cardTo}</span>
+      <blockquote className="m-0 text-[16px] leading-snug sm:text-[20px] ltr:font-serif ltr:italic">{t.cardMessage}</blockquote>
+      <figcaption className="text-[14px] text-[#7B5E67]">{t.cardFrom}</figcaption>
+    </figure>
+  );
+}
+
+/** 131.40 The last step's lines: the shop's code applied, the delivery fee worked out, tomorrow's slot. */
+function FeeCard({ t }: { t: StoryArtText }) {
+  const lines: [string, string][] = [
+    [t.feeParts[0], "E£60"],
+    [t.feeParts[1], "E£10"],
+    [t.feeParts[2], "E£0"],
+  ];
+  return (
+    <div className="flex w-[280px] max-w-full flex-col gap-3 rounded-[22px] bg-white p-4 text-midnight shadow-[0_30px_60px_-24px_rgba(0,0,0,0.6)]" data-reveal="pop">
+      <span className="flex items-center gap-3 rounded-2xl border border-dashed border-[#8E2445]/50 bg-[#FBEFF2] px-3.5 py-2.5">
+        <Icon name="confirmation_number" size={20} className="flex-none text-[#8E2445]" />
+        <span className="flex min-w-0 flex-1 flex-col">
+          <span dir="ltr" className="self-start font-mono text-[15px] font-extrabold tracking-[1.5px]">
+            LEQAA10
+          </span>
+          <span className="text-[12px] font-semibold text-muted">{t.codeApplied}</span>
+        </span>
+        <span dir="ltr" className="text-[15px] font-extrabold text-[#8E2445]">
+          −10%
+        </span>
+      </span>
+      <span className="text-xs font-bold tracking-[0.8px] text-muted uppercase">{t.feeTitle}</span>
+      <ul className="m-0 flex list-none flex-col gap-1.5 p-0 text-[14px]">
+        {lines.map(([label, amount], i) => (
+          <li key={label} className="story-stagger flex items-baseline justify-between gap-3" style={{ ["--i" as string]: i }}>
+            <span className="text-ink-4">{label}</span>
+            <span dir="ltr" className="font-semibold tabular-nums">
+              {amount}
+            </span>
+          </li>
+        ))}
+        <li className="flex items-baseline justify-between gap-3 border-t border-line-soft pt-2 font-bold">
+          <span>{t.feeParts[3]}</span>
+          <span dir="ltr" className="tabular-nums">
+            E£70
+          </span>
+        </li>
+      </ul>
+      <span className="flex flex-wrap items-center gap-x-2 gap-y-0.5 self-start rounded-2xl bg-sand px-3 py-1.5 text-[12.5px] font-bold">
+        <Icon name="event_available" size={16} />
+        <span className="whitespace-nowrap">{t.tomorrow}</span>
+        <span dir="ltr" className="whitespace-nowrap tabular-nums">
+          13:00–16:00
+        </span>
+      </span>
+    </div>
+  );
+}
+
 /** The drawn picture a scene shows over its photo, if any. */
 export function ChapterArtView({ art, t, vehicle }: { art: ChapterArt; t: StoryArtText; vehicle: "two_wheeler" | "local_taxi" | "directions_bus" | "delivery_dining" }) {
   switch (art) {
@@ -251,6 +411,14 @@ export function ChapterArtView({ art, t, vehicle }: { art: ChapterArt; t: StoryA
       return <LateCard t={t} />;
     case "scale":
       return <ScaleCard t={t} />;
+    case "slots":
+      return <SlotsCard t={t} />;
+    case "flash":
+      return <FlashCard t={t} />;
+    case "card":
+      return <GiftCard t={t} />;
+    case "fee":
+      return <FeeCard t={t} />;
     default:
       return null;
   }

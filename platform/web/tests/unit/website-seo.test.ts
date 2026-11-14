@@ -55,6 +55,7 @@ describe("32 the website's menu", () => {
       "/yallapp-studio/delivery",
       "/yallapp-studio/multi-vendor",
       "/yallapp-studio/academy",
+      "/yallapp-studio/flowers",
       "/demo/studio",
     ]);
     const studio = SITE_NAV.find((e) => e.id === "studio");
