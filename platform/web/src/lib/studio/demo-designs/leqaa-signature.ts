@@ -186,6 +186,7 @@ function pill(ctx: SectionContext, word: SectionWord, action: Action, look: { ba
     shadow: "medium",
     action,
     ...look,
+    dark_background: look.dark_background ?? look.background,
     children: [
       { id: id(), type: "text", text: ctx.w(word), font: { size: 15, weight: 700 }, color: look.color, ...(look.dark_color ? { dark_color: look.dark_color } : {}) },
       {
@@ -197,7 +198,7 @@ function pill(ctx: SectionContext, word: SectionWord, action: Action, look: { ba
         align: "center",
         cross: "center",
         background: look.color,
-        ...(look.dark_color ? { dark_background: look.dark_color } : {}),
+        dark_background: look.dark_color ?? look.color,
         children: [{ id: id(), type: "icon", icon, icon_size: 19, color: look.background, ...(look.dark_background ? { dark_color: look.dark_background } : {}) }],
       },
     ],
@@ -270,7 +271,7 @@ function occasionTicker(ctx: SectionContext, k: SignatureInk, family: string, lo
 }
 
 /** COMMERCE The flash sale: its countdown and the shop's own products on sale (the commerce engineer's `flash_sale` takes its place). */
-function flashSale(ctx: SectionContext, look: { background: string; dark_background: string; accent: string; family: string; kicker: string }, layout: "carousel" | "list" = "carousel"): StudioNode {
+function flashSale(ctx: SectionContext, look: { background: string; dark_background: string; raised: string; darkRaised: string; accent: string; family: string; kicker: string }, layout: "carousel" | "list" = "carousel"): StudioNode {
   const id = idOf(ctx);
   const white = "#FFFFFF";
   return {
@@ -293,7 +294,7 @@ function flashSale(ctx: SectionContext, look: { background: string; dark_backgro
         cross: "center",
         padding: sides(0, 18, 0, 18),
         children: [
-          { id: id(), type: "icon", icon: "bolt", icon_size: 22, color: look.accent, background: "#FFFFFF1F", radius: 99, padding: sides(8, 8, 8, 8), motion: { loop: "pulse" } },
+          { id: id(), type: "icon", icon: "bolt", icon_size: 22, color: look.accent, background: look.raised, dark_background: look.darkRaised, radius: 99, padding: sides(8, 8, 8, 8), motion: { loop: "pulse" } },
           {
             id: id(),
             type: "column",
@@ -346,7 +347,8 @@ function flashSale(ctx: SectionContext, look: { background: string; dark_backgro
                 cross: "center",
                 padding: sides(8, 8, 8, 8),
                 radius: 18,
-                background: "#FFFFFF14",
+                background: look.raised,
+                dark_background: look.darkRaised,
                 children: [
                   { id: id(), type: "image", bind: "image", width: 64, height: 64, radius: 14, fit: "cover" },
                   { id: id(), type: "text", bind: "title", width: "fill", max_lines: 2, color: white, font: { size: 14.5, weight: 700 } },
@@ -373,7 +375,7 @@ function dayChips(ctx: SectionContext, k: SignatureInk, onColour = false): Studi
     action: shop,
     ...(lit
       ? { background: onColour ? "#FFFFFF" : k.fill, dark_background: onColour ? "#FFFFFF" : k.darkFill }
-      : { border_color: onColour ? "#FFFFFF66" : k.line, dark_border_color: onColour ? "#FFFFFF66" : k.darkLine, border_width: 1 }),
+      : { border_color: onColour ? "#FFFFFF" : k.line, dark_border_color: onColour ? "#FFFFFF" : k.darkLine, border_width: 1 }),
     children: [
       { id: id(), type: "icon", icon, icon_size: 16, color: lit ? (onColour ? k.ink : k.onFill) : onColour ? "#FFFFFF" : k.ink, dark_color: lit ? (onColour ? k.ink : k.darkOnFill) : onColour ? "#FFFFFF" : k.darkInk },
       { id: id(), type: "text", text: ctx.w(word), font: { size: 13, weight: 700 }, color: lit ? (onColour ? k.ink : k.onFill) : onColour ? "#FFFFFF" : k.ink, dark_color: lit ? (onColour ? k.ink : k.darkOnFill) : onColour ? "#FFFFFF" : k.darkInk },
@@ -489,7 +491,7 @@ function roseSlide(ctx: SectionContext, o: (typeof OCCASIONS)[number]): StudioNo
         radius: 15,
         padding: sides(0, 12, 0, 10),
         surface: { glass: 14, tint: 0.2 },
-        border_color: "#FFFFFF55",
+        border_color: "#F6D3DD",
         border_width: 1,
         children: [
           { id: id(), type: "icon", icon: o.icon, icon_size: 15, color: "#FFD9C2" },
@@ -654,7 +656,7 @@ function builderA(ctx: SectionContext, margin: StudioSides = sides(22, 16, 4, 16
     radius: 16,
     padding: sides(0, 12, 0, 6),
     surface: { glass: 12, tint: 0.2 },
-    border_color: "#FFFFFF44",
+    border_color: "#F6D3DD",
     border_width: 1,
     children: [
       { id: id(), type: "text", text: n, width: 22, height: 22, radius: 11, text_align: "center", background: "#FFFFFF", color: ROSE_SHADE, font: { size: 11, weight: 800, line_height: 2 } },
@@ -698,7 +700,7 @@ export function leqaaAHome(ctx: SectionContext): StudioPage {
       children: [
         roseHero(ctx),
         sendTodayA(ctx),
-        flashSale(ctx, { background: "#4A1328", dark_background: "#2E0E1B", accent: "#FFC9A8", family: FRAUNCES, kicker: "#F5B9CB" }),
+        flashSale(ctx, { background: "#4A1328", dark_background: "#2E0E1B", raised: "#5E2238", darkRaised: "#40182A", accent: "#FFC9A8", family: FRAUNCES, kicker: "#F5B9CB" }),
         headOf(ctx, A, FRAUNCES, "lqCollections", { word: "lqShopAll", action: shop }, sides(28, 18, 12, 18), "lqOccasions"),
         collectionsBento(ctx),
         headOf(ctx, A, FRAUNCES, "lqLoved", { word: "lqWishlist", action: pageOf("wishlist") }),
@@ -1152,7 +1154,7 @@ function sendTodayB(ctx: SectionContext, margin: StudioSides = sides(18, 16, 4, 
         gap: 14,
         cross: "center",
         children: [
-          { id: id(), type: "icon", icon: "local_shipping", icon_size: 24, color: FOREST, background: LEQAA_PEACH, radius: 18, padding: sides(12, 12, 12, 12) },
+          { id: id(), type: "icon", icon: "local_shipping", icon_size: 24, color: FOREST, background: LEQAA_PEACH, dark_background: LEQAA_PEACH, radius: 18, padding: sides(12, 12, 12, 12) },
           {
             id: id(),
             type: "column",
@@ -1280,7 +1282,7 @@ export function leqaaBHome(ctx: SectionContext): StudioPage {
         askB(ctx),
         { ...editSlider(ctx), margin: sides(14, 0, 0, 0) },
         sendTodayB(ctx),
-        flashSale(ctx, { background: FOREST, dark_background: FOREST_NIGHT, accent: LEQAA_PEACH, family: CORMORANT, kicker: "#BFD8C9" }, "list"),
+        flashSale(ctx, { background: FOREST, dark_background: FOREST_NIGHT, raised: "#2A4A40", darkRaised: "#1A3028", accent: LEQAA_PEACH, family: CORMORANT, kicker: "#BFD8C9" }, "list"),
         headOf(ctx, B, CORMORANT, "lqCollections", { word: "lqShopAll", action: shop }, sides(26, 18, 12, 18)),
         collectionArches(ctx),
         headOf(ctx, B, CORMORANT, "lqAtelier", null, sides(26, 18, 12, 18)),
@@ -1332,7 +1334,7 @@ export const LEQAA_SECTIONS: readonly SectionInfo[] = [
   { id: "lq_occasions", icon: "favorite", isNew: true, fits: STORE_PLAIN, make: one((ctx) => ({ ...occasionStories(ctx, A, LEQAA_CHAMPAGNE), padding: sides(10, 12, 6, 12) })) },
   { id: "lq_send_today", icon: "local_shipping", isNew: true, fits: STORE_PLAIN, make: one((ctx) => sendTodayA(ctx)) },
   { id: "lq_send_ticket", icon: "confirmation_number", isNew: true, fits: STORE_PLAIN, make: one((ctx) => sendTodayB(ctx)) },
-  { id: "lq_flash", icon: "bolt", isNew: true, fits: STORE_PLAIN, make: one((ctx) => flashSale(ctx, { background: "#4A1328", dark_background: "#2E0E1B", accent: "#FFC9A8", family: FRAUNCES, kicker: "#F5B9CB" })) },
+  { id: "lq_flash", icon: "bolt", isNew: true, fits: STORE_PLAIN, make: one((ctx) => flashSale(ctx, { background: "#4A1328", dark_background: "#2E0E1B", raised: "#5E2238", darkRaised: "#40182A", accent: "#FFC9A8", family: FRAUNCES, kicker: "#F5B9CB" })) },
   { id: "lq_collections", icon: "dashboard", isNew: true, fits: STORE_PLAIN, make: one((ctx) => [headOf(ctx, A, FRAUNCES, "lqCollections", { word: "lqShopAll", action: shop }), collectionsBento(ctx)]) },
   { id: "lq_arches", icon: "door_front", isNew: true, fits: STORE_PLAIN, make: one((ctx) => [headOf(ctx, B, CORMORANT, "lqCollections", { word: "lqShopAll", action: shop }), collectionArches(ctx)]) },
   { id: "lq_loved", icon: "workspace_premium", isNew: true, fits: STORE_PLAIN, make: one((ctx) => [headOf(ctx, A, FRAUNCES, "lqLoved", null), lovedCards(ctx, A, FRAUNCES)]) },

@@ -501,14 +501,16 @@ class AppNavBar extends StatelessWidget {
     final Widget content;
     if (index == _middle && design == TabBarDesign.petal) {
       // 131.22 The petal's raised bloom: a petal-shaped button in the open
-      // colour's gradient, ringed in the page's colour, its name under it.
+      // colour's gradient, ringed in the page's colour, rising over the
+      // bar, its name under it.
       final fill = active ?? p.primary;
       final onIt = active == null ? p.onPrimary : onFill(active);
-      content = Column(
-        mainAxisSize: MainAxisSize.min,
+      content = Stack(
+        clipBehavior: Clip.none,
+        alignment: Alignment.center,
         children: [
-          Transform.translate(
-            offset: const Offset(0, -18),
+          Positioned(
+            top: -28,
             child: SizedBox(
               key: const ValueKey('nav-petal-bloom'),
               width: 58,
@@ -556,8 +558,10 @@ class AppNavBar extends StatelessWidget {
             ),
           ),
           if (labels != TabLabels.never)
-            Transform.translate(
-              offset: const Offset(0, -14),
+            Positioned(
+              bottom: 0,
+              left: 0,
+              right: 0,
               child: name(fill, size: 11.5, bold: true),
             ),
         ],

@@ -519,6 +519,7 @@ function petalLanding(ctx: SectionContext): StudioPage {
   return landing(m, header(m, "logo_center", "petal", ["menu", "account"]), [
     ...petalCover(m),
     stories(m, "highlight", 64),
+    ...liveCard(m),
     head(m, "pdLdStories", null, { top: 18 }),
     bento(m, { caption: "glass", row: 120 }),
     ...items(m, "photo"),

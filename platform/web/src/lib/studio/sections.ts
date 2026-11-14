@@ -1090,10 +1090,10 @@ export const SECTIONS: readonly SectionInfo[] = [
         ctx.w("rqMeet"),
       ),
   },
-  // 130.62 The new premium landings' openings, for every project (lib/studio/premium-landings.ts), at the end.
-  ...LANDING_SECTIONS,
   // 131.26 Every slider and section of Leqaa's two looks, for every store (lib/studio/demo-designs/leqaa-signature.ts).
   ...LEQAA_SECTIONS,
+  // 130.62 The new premium landings' openings, for every project (lib/studio/premium-landings.ts), at the end.
+  ...LANDING_SECTIONS,
 ];
 
 /** 103R.7 Whether a section or template is made for this project (or for every project). */

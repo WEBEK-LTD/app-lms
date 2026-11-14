@@ -53,7 +53,7 @@ beforeEach(() => clearPlatformSettingsCache());
 
 // 27 Eight (28 nine, 29 ten) demo apps draw their pictures: slower when the whole suite runs at once.
 describe("creating the demo apps", { timeout: 20_000 }, () => {
-  it("makes the demo account with nineteen apps, their content, pages and a license that doesn't end", async () => {
+  it("makes the demo account with twenty apps (131.20 Leqaa too), their content, pages and a license that doesn't end", async () => {
     const store = new MemoryStore();
     const blobs = new Map<string, Buffer>();
     const result = await setupDemoApps(deps(store, NOW, blobs));
@@ -80,6 +80,8 @@ describe("creating the demo apps", { timeout: 20_000 }, () => {
       ["travel", true],
       // 123 The premium academy, a template's demo.
       ["premium_academy", true],
+      // 131.20 Leqaa, the flower shop, a template's demo too (the store's).
+      ["flowers", true],
     ]);
     const user = await store.getUserByEmail(DEMO_ACCOUNT.email);
     expect(user?.passwordHash).toBeNull();
@@ -87,7 +89,7 @@ describe("creating the demo apps", { timeout: 20_000 }, () => {
     expect(client.status).toBe("active");
 
     const apps = await listDemoApps(store, { fresh: true });
-    expect(apps.map((a) => a.appType)).toEqual(["lms", "store", "store", "booking", "booking", "booking", "real_estate", "news", "events", "donations", "delivery", "food", "food", "rides", "rides", "school", "lms", "travel", "lms"]);
+    expect(apps.map((a) => a.appType)).toEqual(["lms", "store", "store", "booking", "booking", "booking", "real_estate", "news", "events", "donations", "delivery", "food", "food", "rides", "rides", "school", "lms", "travel", "lms", "store"]);
     // 21 The clinic demo is the bookings engine with the clinic vertical; 26 the café the store engine with the restaurant vertical; 27 the gym the bookings engine with the fitness vertical; 29 the charity the donations engine with the charity vertical.
     // 110.5 The live taxi app is the rides engine with the taxi vertical, the academy with many teachers the courses engine with the instructors vertical.
     expect(apps.map((a) => a.vertical ?? null)).toEqual([null, null, "restaurant", null, "clinic", "fitness", null, null, null, "charity", null, null, "marketplace", null, "taxi", null, "instructors", null, null]);
@@ -310,7 +312,8 @@ describe("creating the demo apps", { timeout: 20_000 }, () => {
     expect(demoTypeOfSlug("teachers")).toBe("instructors");
     expect(demoTypeOfSlug("premium-academy")).toBe("premium_academy");
     expect(DEMO_TYPES).not.toContain("rides");
-    expect(STUDIO_DEMO_TYPES).toEqual(["delivery", "food", "marketplace", "rides", "taxi", "school", "instructors", "travel", "premium_academy"]);
+    expect(STUDIO_DEMO_TYPES).toEqual(["delivery", "food", "marketplace", "rides", "taxi", "school", "instructors", "travel", "premium_academy", "flowers"]);
+    expect(demoTypeOfSlug("flowers")).toBe("flowers");
     expect(demoTypeOfSlug("travel")).toBe("travel");
     expect(demoTypeOfSlug("nope")).toBeNull();
   });

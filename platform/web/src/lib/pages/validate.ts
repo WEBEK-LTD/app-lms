@@ -247,7 +247,8 @@ class Checker {
     }
     // 97.5 The platform's own files too, 99.1 and the designs' pictures (https in production; local tests serve them over http),
     // 128 and Yallapp's own photos the demos' templates use (public/demo-photos, demo-screens, stories); 130.12 and its travel photos (public/travel-photos).
-    const own = url !== null && url.origin === new URL(appUrl()).origin && /^\/(api\/v1\/assets|design-pictures|demo-photos|demo-screens|stories|travel-photos)\//.test(url.pathname);
+    // 131.20 And Leqaa's flower photos (public/flower-photos).
+    const own = url !== null && url.origin === new URL(appUrl()).origin && /^\/(api\/v1\/assets|design-pictures|demo-photos|demo-screens|stories|travel-photos|flower-photos)\//.test(url.pathname);
     if (!url || (url.protocol !== "https:" && !own) || text.length > 2000 || /\s/.test(text)) {
       this.fail(where, `${what} must be a full https address.`);
       return null;

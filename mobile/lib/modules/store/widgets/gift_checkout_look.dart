@@ -391,9 +391,11 @@ class _GiftCheckoutLookState extends State<GiftCheckoutLook> {
                   children: [
                     AppIcon(AppIcons.schedule, size: 15, color: t.muted),
                     const SizedBox(width: 6),
-                    Text(
-                      l10n.giftCutoffPassed,
-                      style: TextStyle(fontSize: 12, color: t.muted),
+                    Flexible(
+                      child: Text(
+                        l10n.giftCutoffPassed,
+                        style: TextStyle(fontSize: 12, color: t.muted),
+                      ),
                     ),
                   ],
                 ),
@@ -1439,33 +1441,39 @@ class _SlotGrid extends StatelessWidget {
                     onTap: s.enabled ? () => onTap?.call(i) : null,
                     child: SizedBox(
                       height: 44,
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          Text(
-                            ltrIsolate(s.label),
-                            style: TextStyle(
-                              fontSize: 13,
-                              fontWeight: FontWeight.w700,
-                              color: s.selected
-                                  ? t.onTone
-                                  : s.enabled
-                                  ? t.ink
-                                  : t.muted,
-                            ),
-                          ),
-                          if (s.extra != null) ...[
-                            const SizedBox(width: 6),
-                            Text(
-                              s.extra!,
-                              style: TextStyle(
-                                fontSize: 11,
-                                color: (s.selected ? t.onTone : t.ink)
-                                    .withValues(alpha: 0.7),
+                      child: FittedBox(
+                        fit: BoxFit.scaleDown,
+                        child: Padding(
+                          padding: const EdgeInsets.symmetric(horizontal: 8),
+                          child: Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              Text(
+                                ltrIsolate(s.label),
+                                style: TextStyle(
+                                  fontSize: 13,
+                                  fontWeight: FontWeight.w700,
+                                  color: s.selected
+                                      ? t.onTone
+                                      : s.enabled
+                                      ? t.ink
+                                      : t.muted,
+                                ),
                               ),
-                            ),
-                          ],
-                        ],
+                              if (s.extra != null) ...[
+                                const SizedBox(width: 6),
+                                Text(
+                                  s.extra!,
+                                  style: TextStyle(
+                                    fontSize: 11,
+                                    color: (s.selected ? t.onTone : t.ink)
+                                        .withValues(alpha: 0.7),
+                                  ),
+                                ),
+                              ],
+                            ],
+                          ),
+                        ),
                       ),
                     ),
                   ),

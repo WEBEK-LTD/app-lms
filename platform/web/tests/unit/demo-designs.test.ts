@@ -34,7 +34,7 @@ describe("templates = demos", () => {
     expect(DEMO_DESIGNS.map((d) => d.id)).toEqual(DEMO_DESIGN_TYPES.map(demoDesignId));
     for (const id of DEMO_DESIGN_TYPES) expect(demoDesign(id).kind).toBe(demoKind(id).id);
     // 123 But the premium academy's: its design is its Studio template (tests/unit/studio-demo-templates.test.ts), never a design of pages offered to an academy.
-    expect(DEMO_DESIGN_TYPES).toEqual(ALL_DEMO_TYPES.filter((id) => id !== "premium_academy"));
+    expect(DEMO_DESIGN_TYPES).toEqual(ALL_DEMO_TYPES.filter((id) => id !== "premium_academy" && id !== "flowers"));
   });
 
   it.each(DEMO_DESIGN_TYPES)("the %s demo is exactly its design, with only how to sign in added", async (id) => {

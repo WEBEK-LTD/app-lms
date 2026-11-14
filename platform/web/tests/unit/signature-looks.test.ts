@@ -65,9 +65,9 @@ function started(demo: StudioDemoId, look: SignatureLook, lang: "en" | "ar" | "t
 
 const texts = (page: StudioPage) => allNodes(page).flatMap((n) => [n.text, n.title].filter((x): x is string => Boolean(x)));
 
-describe("130 the Signature looks: one registry, eighteen looks", () => {
-  it("has looks A and B for each of the nine Studio demos, one template of its kind each, named in Studio's three languages", () => {
-    expect(LOOKS).toHaveLength(18);
+describe("130 the Signature looks: one registry, twenty looks", () => {
+  it("has looks A and B for each of the ten Studio demos (131.20 Leqaa's too), one template of its kind each, named in Studio's three languages", () => {
+    expect(LOOKS).toHaveLength(20);
     for (const demo of STUDIO_DEMO_TYPES) expect(signatureLooksOf(demo), demo).toEqual(["a", "b"]);
     expect(signatureDesigns().map((d) => `${d.demo}_signature_${d.variant}`).sort()).toEqual(LOOKS.map(([demo, look]) => `${demo}_signature_${look}`).sort());
     for (const [demo, look] of LOOKS) {
@@ -84,9 +84,10 @@ describe("130 the Signature looks: one registry, eighteen looks", () => {
       // A look is a whole app of its own: never a page of another whole design's look; 130 the kind's whole designs start with its two looks (the demo, then look B), then the six premium designs.
       const designs = designsFor({ type: kind.engine, vertical: kind.vertical });
       expect(designs.filter((d) => !d.demo).flatMap((d) => d.templates)).not.toContain(id);
-      // (The premium academy is no kind's own demo: its looks are an academy's first templates instead.)
-      if (demo !== "premium_academy") expect(designs.slice(0, 2).map((d) => d.templates)).toEqual([[`demo_${demo}`], [`${demo}_signature_b`]]);
-      expect(designs.slice(demo === "premium_academy" ? 0 : 2).map((d) => d.id)).toEqual(["yallapp-warm", "yallapp-fresh", "yallapp-evening", "yallapp-ocean", "yallapp-classic", "yallapp-rose", "yallapp-mono"]);
+      // (The premium academy and 131.20 Leqaa are no kind's own demo: their looks are an academy's and a store's first templates instead.)
+      const kindsOwn = demo !== "premium_academy" && demo !== "flowers";
+      if (kindsOwn) expect(designs.slice(0, 2).map((d) => d.templates)).toEqual([[`demo_${demo}`], [`${demo}_signature_b`]]);
+      expect(designs.slice(kindsOwn ? 2 : 0).map((d) => d.id)).toEqual(["yallapp-warm", "yallapp-fresh", "yallapp-evening", "yallapp-ocean", "yallapp-classic", "yallapp-rose", "yallapp-mono"]);
     }
   });
 

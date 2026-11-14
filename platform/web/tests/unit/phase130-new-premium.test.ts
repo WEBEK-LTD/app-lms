@@ -203,21 +203,21 @@ describe("130.61 a photo in black and white (`tone`)", () => {
   });
 });
 
-describe("130.62 six new premium landings, for every project, marked new", () => {
+describe("130.62 six new premium landings (131.27 and Leqaa's petal), for every project, marked new", () => {
   it("are page templates after the ones before them and their openings ready sections at the end, each marked new", () => {
-    expect(LANDING_IDS).toEqual(["land_cinema", "land_split", "land_stories", "land_bento", "land_magazine", "land_luxe"]);
-    expect(PAGE_TEMPLATES.slice(-6).map((t) => t.id)).toEqual([...LANDING_IDS]);
-    expect(PAGE_TEMPLATES.slice(0, -6).map((t) => t.id)).toEqual(["about", "faq", "reviews", "how", "join"]);
-    expect(SECTIONS.slice(-6).map((s) => s.id)).toEqual([...LANDING_IDS]);
+    expect(LANDING_IDS).toEqual(["land_cinema", "land_split", "land_stories", "land_bento", "land_magazine", "land_luxe", "land_petal"]);
+    expect(PAGE_TEMPLATES.slice(-7).map((t) => t.id)).toEqual([...LANDING_IDS]);
+    expect(PAGE_TEMPLATES.slice(0, -7).map((t) => t.id)).toEqual(["about", "faq", "reviews", "how", "join"]);
+    expect(SECTIONS.slice(-7).map((s) => s.id)).toEqual([...LANDING_IDS]);
     for (const x of [...LANDING_TEMPLATES, ...LANDING_SECTIONS]) {
       expect(x.isNew).toBe(true);
       expect(x.fits).toBeUndefined();
     }
-    // Nothing that was is marked new, and every kind's template list is as it was.
-    expect([...SECTIONS.slice(0, -6), ...PAGE_TEMPLATES.slice(0, -6)].filter((x) => x.isNew)).toEqual([]);
+    // Nothing that was is marked new (131.26 but Leqaa's sections), and every kind's template list is as it was.
+    expect([...SECTIONS.slice(0, -7), ...PAGE_TEMPLATES.slice(0, -7)].filter((x) => x.isNew && !x.id.startsWith("lq_"))).toEqual([]);
     for (const kind of KINDS) {
       expect(templatesFor(kindOf(kind)).some((t) => t.id.startsWith("land_"))).toBe(false);
-      expect(sectionsFor(kindOf(kind)).slice(-6).map((s) => s.id)).toEqual([...LANDING_IDS]);
+      expect(sectionsFor(kindOf(kind)).slice(-7).map((s) => s.id)).toEqual([...LANDING_IDS]);
     }
   });
 
@@ -238,8 +238,8 @@ describe("130.62 six new premium landings, for every project, marked new", () =>
       // The project's colour on its buttons.
       expect(JSON.stringify(pages)).toContain("#7C3AED");
     }
-    // Six compositions, none like another.
-    expect(new Set([...shapes].map((x) => x.slice(x.indexOf(" ") + 1))).size).toBe(6);
+    // Seven compositions, none like another.
+    expect(new Set([...shapes].map((x) => x.slice(x.indexOf(" ") + 1))).size).toBe(7);
     // Each its own: the cinema's cover and story slider, the split's arch and ticker, the stories' rings first, the bento's live card first, the magazine's banner, the luxe sticky button.
     const app = projectApp(KINDS.find((k) => k.id === "store")!);
     const made = Object.fromEntries(LANDING_TEMPLATES.map((t) => [t.id, t.make(context(app))]));
@@ -396,6 +396,8 @@ const LANDING_SHOTS: Record<string, { kind: string; brand: string }> = {
   land_bento: { kind: "academy", brand: "#4338CA" },
   land_magazine: { kind: "news", brand: "#9F1239" },
   land_luxe: { kind: "store", brand: "#7C5C3B" },
+  // 131.27 Leqaa's petal on a clinic, in a rose of its own.
+  land_petal: { kind: "clinic", brand: "#B4235A" },
 };
 
 const tabsOf = (id: string) => [

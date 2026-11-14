@@ -117,7 +117,7 @@ export const DEMO_TYPES: readonly DemoId[] = ALL_DEMO_TYPES.filter((id) => !isSt
 export const STUDIO_DEMO_TYPES: readonly StudioDemoId[] = ALL_DEMO_TYPES.filter(isStudioDemo);
 
 /** Each demo's address on /demo (or /demo/studio) and of its download: /demo/download/<slug> (lib/app/kinds.ts). */
-export const DEMO_SLUGS = Object.fromEntries(ALL_DEMO_TYPES.map((id) => [id, id === PREMIUM_ACADEMY_DEMO ? "premium-academy" : demoSlugOfKind(demoKind(id))!])) as Record<DemoId, string>;
+export const DEMO_SLUGS = Object.fromEntries(ALL_DEMO_TYPES.map((id) => [id, id === PREMIUM_ACADEMY_DEMO ? "premium-academy" : id === FLOWER_SHOP_DEMO ? "flowers" : demoSlugOfKind(demoKind(id))!])) as Record<DemoId, string>;
 
 export function demoTypeOfSlug(slug: string): DemoId | null {
   return ALL_DEMO_TYPES.find((id) => DEMO_SLUGS[id] === slug) ?? null;

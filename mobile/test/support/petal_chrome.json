@@ -1,0 +1,1568 @@
+{
+ "base": "http://localhost:3000",
+ "kinds": [
+  {
+   "kind": "academy",
+   "engine": "lms",
+   "brand": "#4338CA",
+   "accent": "#AAA5E7",
+   "home": {
+    "header": {
+     "type": "logo_center",
+     "buttons": [
+      "menu",
+      "account"
+     ],
+     "background": "#FAFAF7",
+     "dark_background": "#0E0F12",
+     "color": "#121316",
+     "dark_color": "#F3F3F0",
+     "style": "petal"
+    },
+    "background": "#FAFAF7",
+    "dark_background": "#0E0F12",
+    "body": {
+     "id": "lq-33",
+     "type": "column",
+     "padding": {
+      "top": 0,
+      "end": 0,
+      "bottom": 28,
+      "start": 0
+     },
+     "children": [
+      {
+       "id": "lq-2",
+       "type": "column",
+       "gap": 10,
+       "cross": "center",
+       "padding": {
+        "top": 18,
+        "end": 28,
+        "bottom": 14,
+        "start": 28
+       },
+       "children": [
+        {
+         "id": "lq-3",
+         "type": "badge_text",
+         "text": "In bloom",
+         "translations": {
+          "ar": {
+           "text": "في أوج الإزهار"
+          },
+          "tr": {
+           "text": "Çiçek açtı"
+          }
+         },
+         "badge": {
+          "style": "outline"
+         },
+         "icon": "local_florist",
+         "color": "#4338CA",
+         "dark_color": "#857EDD"
+        },
+        {
+         "id": "lq-4",
+         "type": "text",
+         "text": "Skills that\nmove you forward",
+         "translations": {
+          "ar": {
+           "text": "مهارات\nتأخذك إلى الأمام"
+          },
+          "tr": {
+           "text": "Sizi ileri taşıyan\nbeceriler"
+          }
+         },
+         "text_align": "center",
+         "font": {
+          "size": 40,
+          "weight": 600,
+          "line_height": 1.04,
+          "letter_spacing": -1,
+          "family": "Fraunces"
+         },
+         "color": "#121316",
+         "dark_color": "#F3F3F0"
+        },
+        {
+         "id": "lq-5",
+         "type": "text",
+         "text": "Courses, lessons and certificates in one app.",
+         "translations": {
+          "ar": {
+           "text": "الدورات والدروس والشهادات في تطبيق واحد."
+          },
+          "tr": {
+           "text": "Kurslar, dersler ve sertifikalar tek uygulamada."
+          }
+         },
+         "text_align": "center",
+         "font": {
+          "size": 14.5,
+          "line_height": 1.5
+         },
+         "color": "#64666D",
+         "dark_color": "#A2A4AB"
+        }
+       ],
+       "motion": {
+        "enter": "slide_up",
+        "duration_ms": 520
+       }
+      },
+      {
+       "id": "lq-6",
+       "type": "image",
+       "image_url": "http://localhost:3000/demo-screens/rawaq-library.jpg",
+       "width": "fill",
+       "height": 400,
+       "corners": {
+        "top_start": 170,
+        "top_end": 170,
+        "bottom_end": 34,
+        "bottom_start": 34
+       },
+       "fit": "cover",
+       "ken_burns": true,
+       "margin": {
+        "top": 0,
+        "end": 26,
+        "bottom": 0,
+        "start": 26
+       },
+       "background": "#131039",
+       "dark_background": "#131039",
+       "shadow": "medium"
+      },
+      {
+       "id": "lq-7",
+       "type": "row",
+       "gap": 10,
+       "cross": "center",
+       "padding": {
+        "top": 10,
+        "end": 64,
+        "bottom": 10,
+        "start": 64
+       },
+       "children": [
+        {
+         "id": "lq-8",
+         "type": "row",
+         "width": "fill",
+         "height": 1,
+         "background": "#E7E7E2",
+         "dark_background": "#2A2C33",
+         "children": []
+        },
+        {
+         "id": "lq-9",
+         "type": "icon",
+         "icon": "local_florist",
+         "icon_size": 16,
+         "color": "#4338CA",
+         "dark_color": "#857EDD"
+        },
+        {
+         "id": "lq-10",
+         "type": "row",
+         "width": "fill",
+         "height": 1,
+         "background": "#E7E7E2",
+         "dark_background": "#2A2C33",
+         "children": []
+        }
+       ]
+      },
+      {
+       "id": "lq-11",
+       "type": "button",
+       "text": "Browse courses",
+       "translations": {
+        "ar": {
+         "text": "تصفّح الدورات"
+        },
+        "tr": {
+         "text": "Kurslara göz at"
+        }
+       },
+       "width": "hug",
+       "height": 52,
+       "radius": 26,
+       "background": "#4338CA",
+       "dark_background": "#857EDD",
+       "color": "#FFFFFF",
+       "dark_color": "#0E0F12",
+       "icon": "arrow_forward",
+       "icon_position": "end",
+       "icon_size": 18,
+       "font": {
+        "size": 14,
+        "weight": 800
+       },
+       "padding": {
+        "top": 0,
+        "end": 22,
+        "bottom": 0,
+        "start": 22
+       },
+       "action": {
+        "type": "screen",
+        "screen": "courses"
+       },
+       "self_align": "center",
+       "margin": {
+        "top": 2,
+        "end": 0,
+        "bottom": 6,
+        "start": 0
+       }
+      },
+      {
+       "id": "lq-12",
+       "type": "stories",
+       "interval_ms": 5000,
+       "stories": {
+        "size": 64
+       },
+       "color": "#121316",
+       "dark_color": "#F3F3F0",
+       "padding": {
+        "top": 16,
+        "end": 16,
+        "bottom": 6,
+        "start": 16
+       },
+       "slides": [
+        {
+         "image_url": "http://localhost:3000/stories/academy/academy-live.jpg",
+         "heading": "Courses",
+         "subheading": null,
+         "action": {
+          "type": "screen",
+          "screen": "courses"
+         },
+         "translations": {
+          "ar": {
+           "heading": "الدورات"
+          },
+          "tr": {
+           "heading": "Kurslar"
+          }
+         },
+         "ring": "highlight",
+         "ring_color": "#AAA5E7"
+        },
+        {
+         "image_url": "http://localhost:3000/stories/school/school-teacher.jpg",
+         "heading": "Lessons",
+         "subheading": null,
+         "action": {
+          "type": "screen",
+          "screen": "my_courses"
+         },
+         "translations": {
+          "ar": {
+           "heading": "الدروس"
+          },
+          "tr": {
+           "heading": "Dersler"
+          }
+         },
+         "ring": "highlight",
+         "ring_color": "#AAA5E7"
+        },
+        {
+         "image_url": "http://localhost:3000/stories/multi-vendor/zad-cafe.jpg",
+         "heading": "Quizzes",
+         "subheading": null,
+         "action": {
+          "type": "screen",
+          "screen": "my_courses"
+         },
+         "translations": {
+          "ar": {
+           "heading": "الاختبارات"
+          },
+          "tr": {
+           "heading": "Sınavlar"
+          }
+         },
+         "ring": "highlight",
+         "ring_color": "#AAA5E7"
+        },
+        {
+         "image_url": "http://localhost:3000/stories/academy/academy-graduation.jpg",
+         "heading": "Certificates",
+         "subheading": null,
+         "action": {
+          "type": "screen",
+          "screen": "my_courses"
+         },
+         "translations": {
+          "ar": {
+           "heading": "الشهادات"
+          },
+          "tr": {
+           "heading": "Sertifikalar"
+          }
+         },
+         "ring": "highlight",
+         "ring_color": "#AAA5E7"
+        }
+       ]
+      },
+      {
+       "id": "lq-13",
+       "type": "learning",
+       "learning": {
+        "section": "continue",
+        "style": "photo"
+       },
+       "visibility": "signed_in",
+       "margin": {
+        "top": 14,
+        "end": 16,
+        "bottom": 0,
+        "start": 16
+       },
+       "height": 220,
+       "radius": 26,
+       "background": "#4338CA",
+       "dark_background": "#131039",
+       "color": "#FFFFFF"
+      },
+      {
+       "id": "lq-15",
+       "type": "row",
+       "name": "Stories",
+       "cross": "end",
+       "gap": 10,
+       "padding": {
+        "top": 18,
+        "end": 20,
+        "bottom": 12,
+        "start": 20
+       },
+       "children": [
+        {
+         "id": "lq-14",
+         "type": "text",
+         "text": "Stories",
+         "translations": {
+          "ar": {
+           "text": "قصص"
+          },
+          "tr": {
+           "text": "Hikâyeler"
+          }
+         },
+         "width": "fill",
+         "max_lines": 1,
+         "font": {
+          "size": 20,
+          "weight": 800,
+          "letter_spacing": -0.3
+         },
+         "color": "#121316",
+         "dark_color": "#F3F3F0"
+        }
+       ]
+      },
+      {
+       "id": "lq-16",
+       "type": "bento",
+       "columns": 2,
+       "gap": 10,
+       "radius": 24,
+       "bento": {
+        "caption": "glass",
+        "row": 120
+       },
+       "margin": {
+        "top": 0,
+        "end": 16,
+        "bottom": 4,
+        "start": 16
+       },
+       "entries": [
+        {
+         "title": "Courses",
+         "translations": {
+          "ar": {
+           "title": "الدورات"
+          },
+          "tr": {
+           "title": "Kurslar"
+          }
+         },
+         "size": "large",
+         "icon": "menu_book",
+         "image_url": "http://localhost:3000/stories/academy/academy-live.jpg",
+         "action": {
+          "type": "screen",
+          "screen": "courses"
+         }
+        },
+        {
+         "title": "Lessons",
+         "translations": {
+          "ar": {
+           "title": "الدروس"
+          },
+          "tr": {
+           "title": "Dersler"
+          }
+         },
+         "size": "small",
+         "icon": "play_circle",
+         "image_url": "http://localhost:3000/stories/school/school-teacher.jpg",
+         "action": {
+          "type": "screen",
+          "screen": "my_courses"
+         }
+        },
+        {
+         "title": "Quizzes",
+         "translations": {
+          "ar": {
+           "title": "الاختبارات"
+          },
+          "tr": {
+           "title": "Sınavlar"
+          }
+         },
+         "size": "small",
+         "icon": "quiz",
+         "image_url": "http://localhost:3000/stories/multi-vendor/zad-cafe.jpg",
+         "action": {
+          "type": "screen",
+          "screen": "my_courses"
+         }
+        },
+        {
+         "title": "Certificates",
+         "translations": {
+          "ar": {
+           "title": "الشهادات"
+          },
+          "tr": {
+           "title": "Sertifikalar"
+          }
+         },
+         "size": "wide",
+         "icon": "workspace_premium",
+         "image_url": "http://localhost:3000/stories/academy/academy-graduation.jpg",
+         "action": {
+          "type": "screen",
+          "screen": "my_courses"
+         }
+        }
+       ],
+       "motion": {
+        "enter": "slide_up",
+        "duration_ms": 520
+       }
+      },
+      {
+       "id": "lq-25",
+       "type": "row",
+       "name": "Popular courses",
+       "cross": "end",
+       "gap": 10,
+       "padding": {
+        "top": 24,
+        "end": 20,
+        "bottom": 12,
+        "start": 20
+       },
+       "children": [
+        {
+         "id": "lq-23",
+         "type": "text",
+         "text": "Popular courses",
+         "translations": {
+          "ar": {
+           "text": "الدورات الأكثر طلبًا"
+          },
+          "tr": {
+           "text": "En çok tercih edilen kurslar"
+          }
+         },
+         "width": "fill",
+         "max_lines": 1,
+         "font": {
+          "size": 20,
+          "weight": 800,
+          "letter_spacing": -0.3
+         },
+         "color": "#121316",
+         "dark_color": "#F3F3F0"
+        },
+        {
+         "id": "lq-24",
+         "type": "text",
+         "text": "See all",
+         "translations": {
+          "ar": {
+           "text": "عرض الكل"
+          },
+          "tr": {
+           "text": "Tümünü gör"
+          }
+         },
+         "font": {
+          "size": 13,
+          "weight": 700
+         },
+         "color": "#4338CA",
+         "dark_color": "#857EDD",
+         "action": {
+          "type": "screen",
+          "screen": "courses"
+         }
+        }
+       ]
+      },
+      {
+       "id": "lq-22",
+       "type": "items",
+       "source": "courses",
+       "layout": "carousel",
+       "gap": 14,
+       "padding": {
+        "top": 0,
+        "end": 16,
+        "bottom": 4,
+        "start": 16
+       },
+       "query": {
+        "limit": 6,
+        "category_id": null,
+        "featured": false,
+        "sort": "popular",
+        "ids": []
+       },
+       "card": {
+        "id": "lq-18",
+        "type": "column",
+        "width": 220,
+        "radius": 24,
+        "background": "#FFFFFF",
+        "dark_background": "#191B20",
+        "shadow": "light",
+        "children": [
+         {
+          "id": "lq-19",
+          "type": "image",
+          "bind": "image",
+          "width": "fill",
+          "height": 146,
+          "radius": 0,
+          "fit": "cover"
+         },
+         {
+          "id": "lq-20",
+          "type": "column",
+          "gap": 3,
+          "padding": {
+           "top": 12,
+           "end": 14,
+           "bottom": 12,
+           "start": 14
+          },
+          "children": [
+           {
+            "id": "lq-21",
+            "type": "text",
+            "bind": "title",
+            "max_lines": 1,
+            "font": {
+             "size": 15,
+             "weight": 800
+            },
+            "color": "#121316",
+            "dark_color": "#F3F3F0"
+           },
+           {
+            "id": "lq-17",
+            "type": "text",
+            "bind": "subtitle",
+            "max_lines": 1,
+            "font": {
+             "size": 12.5
+            },
+            "color": "#64666D",
+            "dark_color": "#A2A4AB"
+           }
+          ]
+         }
+        ]
+       },
+       "motion": {
+        "enter": "slide_up",
+        "duration_ms": 520
+       }
+      },
+      {
+       "id": "lq-26",
+       "type": "row",
+       "gap": 10,
+       "cross": "center",
+       "padding": {
+        "top": 10,
+        "end": 64,
+        "bottom": 10,
+        "start": 64
+       },
+       "children": [
+        {
+         "id": "lq-27",
+         "type": "row",
+         "width": "fill",
+         "height": 1,
+         "background": "#E7E7E2",
+         "dark_background": "#2A2C33",
+         "children": []
+        },
+        {
+         "id": "lq-28",
+         "type": "icon",
+         "icon": "local_florist",
+         "icon_size": 16,
+         "color": "#4338CA",
+         "dark_color": "#857EDD"
+        },
+        {
+         "id": "lq-29",
+         "type": "row",
+         "width": "fill",
+         "height": 1,
+         "background": "#E7E7E2",
+         "dark_background": "#2A2C33",
+         "children": []
+        }
+       ]
+      },
+      {
+       "id": "lq-31",
+       "type": "row",
+       "name": "What people say",
+       "cross": "end",
+       "gap": 10,
+       "padding": {
+        "top": 24,
+        "end": 20,
+        "bottom": 12,
+        "start": 20
+       },
+       "children": [
+        {
+         "id": "lq-30",
+         "type": "text",
+         "text": "What people say",
+         "translations": {
+          "ar": {
+           "text": "ماذا يقول عملاؤنا"
+          },
+          "tr": {
+           "text": "Müşterilerimiz ne diyor"
+          }
+         },
+         "width": "fill",
+         "max_lines": 1,
+         "font": {
+          "size": 20,
+          "weight": 800,
+          "letter_spacing": -0.3
+         },
+         "color": "#121316",
+         "dark_color": "#F3F3F0"
+        }
+       ]
+      },
+      {
+       "id": "lq-32",
+       "type": "testimonials",
+       "testimonials": {
+        "style": "stacked"
+       },
+       "gap": 12,
+       "radius": 24,
+       "background": "#FFFFFF",
+       "dark_background": "#191B20",
+       "color": "#121316",
+       "dark_color": "#F3F3F0",
+       "padding": {
+        "top": 0,
+        "end": 16,
+        "bottom": 0,
+        "start": 16
+       },
+       "margin": {
+        "top": 0,
+        "end": 0,
+        "bottom": 8,
+        "start": 0
+       },
+       "entries": [
+        {
+         "text": "[What a customer says about you]",
+         "title": "[Customer name]",
+         "subtitle": "[Their city]",
+         "translations": {
+          "ar": {
+           "text": "[رأي أحد العملاء فيك]",
+           "title": "[اسم العميل]",
+           "subtitle": "[مدينته]"
+          },
+          "tr": {
+           "text": "[Bir müşterinin sizin hakkınızdaki sözü]",
+           "title": "[Müşterinin adı]",
+           "subtitle": "[Şehri]"
+          }
+         }
+        },
+        {
+         "text": "[Another customer's words]",
+         "title": "[Customer name]",
+         "subtitle": "[Their city]",
+         "translations": {
+          "ar": {
+           "text": "[كلمات عميل آخر]",
+           "title": "[اسم العميل]",
+           "subtitle": "[مدينته]"
+          },
+          "tr": {
+           "text": "[Başka bir müşterinin sözleri]",
+           "title": "[Müşterinin adı]",
+           "subtitle": "[Şehri]"
+          }
+         }
+        }
+       ],
+       "motion": {
+        "enter": "slide_up",
+        "duration_ms": 520
+       }
+      },
+      {
+       "id": "lq-1",
+       "type": "cta_bar",
+       "title": "Learn anywhere",
+       "text": "Browse courses",
+       "translations": {
+        "ar": {
+         "title": "تعلّم في أي مكان",
+         "text": "تصفّح الدورات"
+        },
+        "tr": {
+         "title": "Her yerde öğrenin",
+         "text": "Kurslara göz at"
+        }
+       },
+       "cta": {
+        "style": "bar",
+        "lead": "local_florist"
+       },
+       "pin": "bottom",
+       "icon": "arrow_forward",
+       "background": "#4338CA",
+       "dark_background": "#857EDD",
+       "color": "#121316",
+       "dark_color": "#F3F3F0",
+       "action": {
+        "type": "screen",
+        "screen": "courses"
+       }
+      }
+     ]
+    }
+   },
+   "tab_bar": {
+    "design": "petal",
+    "background": "#FFFFFF",
+    "dark_background": "#1A1B22",
+    "active": "#4338CA",
+    "dark_active": "#857EDD",
+    "inactive": "#64666D",
+    "dark_inactive": "#A2A4AB",
+    "labels": "active",
+    "radius": 30,
+    "margin": 12
+   },
+   "system": {
+    "look": "petal"
+   }
+  },
+  {
+   "kind": "clinic",
+   "engine": "booking",
+   "brand": "#0F766E",
+   "accent": "#93C1BE",
+   "home": {
+    "header": {
+     "type": "logo_center",
+     "buttons": [
+      "menu",
+      "account"
+     ],
+     "background": "#FAFAF7",
+     "dark_background": "#0E0F12",
+     "color": "#121316",
+     "dark_color": "#F3F3F0",
+     "style": "petal"
+    },
+    "background": "#FAFAF7",
+    "dark_background": "#0E0F12",
+    "body": {
+     "id": "lq-32",
+     "type": "column",
+     "padding": {
+      "top": 0,
+      "end": 0,
+      "bottom": 28,
+      "start": 0
+     },
+     "children": [
+      {
+       "id": "lq-2",
+       "type": "column",
+       "gap": 10,
+       "cross": "center",
+       "padding": {
+        "top": 18,
+        "end": 28,
+        "bottom": 14,
+        "start": 28
+       },
+       "children": [
+        {
+         "id": "lq-3",
+         "type": "badge_text",
+         "text": "In bloom",
+         "translations": {
+          "ar": {
+           "text": "في أوج الإزهار"
+          },
+          "tr": {
+           "text": "Çiçek açtı"
+          }
+         },
+         "badge": {
+          "style": "outline"
+         },
+         "icon": "local_florist",
+         "color": "#0F766E",
+         "dark_color": "#63A6A1"
+        },
+        {
+         "id": "lq-4",
+         "type": "text",
+         "text": "Your health,\nin good hands",
+         "translations": {
+          "ar": {
+           "text": "صحتك\nفي أيدٍ أمينة"
+          },
+          "tr": {
+           "text": "Sağlığınız\nemin ellerde"
+          }
+         },
+         "text_align": "center",
+         "font": {
+          "size": 40,
+          "weight": 600,
+          "line_height": 1.04,
+          "letter_spacing": -1,
+          "family": "Fraunces"
+         },
+         "color": "#121316",
+         "dark_color": "#F3F3F0"
+        },
+        {
+         "id": "lq-5",
+         "type": "text",
+         "text": "Book a visit with our team in a few taps.",
+         "translations": {
+          "ar": {
+           "text": "احجز زيارة لدى فريقنا بلمسات قليلة."
+          },
+          "tr": {
+           "text": "Ekibimizden birkaç dokunuşla randevu alın."
+          }
+         },
+         "text_align": "center",
+         "font": {
+          "size": 14.5,
+          "line_height": 1.5
+         },
+         "color": "#64666D",
+         "dark_color": "#A2A4AB"
+        }
+       ],
+       "motion": {
+        "enter": "slide_up",
+        "duration_ms": 520
+       }
+      },
+      {
+       "id": "lq-6",
+       "type": "image",
+       "image_url": "http://localhost:3000/travel-photos/suite.jpg",
+       "width": "fill",
+       "height": 400,
+       "corners": {
+        "top_start": 170,
+        "top_end": 170,
+        "bottom_end": 34,
+        "bottom_start": 34
+       },
+       "fit": "cover",
+       "ken_burns": true,
+       "margin": {
+        "top": 0,
+        "end": 26,
+        "bottom": 0,
+        "start": 26
+       },
+       "background": "#04211F",
+       "dark_background": "#04211F",
+       "shadow": "medium"
+      },
+      {
+       "id": "lq-7",
+       "type": "row",
+       "gap": 10,
+       "cross": "center",
+       "padding": {
+        "top": 10,
+        "end": 64,
+        "bottom": 10,
+        "start": 64
+       },
+       "children": [
+        {
+         "id": "lq-8",
+         "type": "row",
+         "width": "fill",
+         "height": 1,
+         "background": "#E7E7E2",
+         "dark_background": "#2A2C33",
+         "children": []
+        },
+        {
+         "id": "lq-9",
+         "type": "icon",
+         "icon": "local_florist",
+         "icon_size": 16,
+         "color": "#0F766E",
+         "dark_color": "#63A6A1"
+        },
+        {
+         "id": "lq-10",
+         "type": "row",
+         "width": "fill",
+         "height": 1,
+         "background": "#E7E7E2",
+         "dark_background": "#2A2C33",
+         "children": []
+        }
+       ]
+      },
+      {
+       "id": "lq-11",
+       "type": "button",
+       "text": "Book a visit",
+       "translations": {
+        "ar": {
+         "text": "احجز زيارة"
+        },
+        "tr": {
+         "text": "Randevu al"
+        }
+       },
+       "width": "hug",
+       "height": 52,
+       "radius": 26,
+       "background": "#0F766E",
+       "dark_background": "#63A6A1",
+       "color": "#FFFFFF",
+       "dark_color": "#0E0F12",
+       "icon": "arrow_forward",
+       "icon_position": "end",
+       "icon_size": 18,
+       "font": {
+        "size": 14,
+        "weight": 800
+       },
+       "padding": {
+        "top": 0,
+        "end": 22,
+        "bottom": 0,
+        "start": 22
+       },
+       "action": {
+        "type": "screen",
+        "screen": "services"
+       },
+       "self_align": "center",
+       "margin": {
+        "top": 2,
+        "end": 0,
+        "bottom": 6,
+        "start": 0
+       }
+      },
+      {
+       "id": "lq-12",
+       "type": "stories",
+       "interval_ms": 5000,
+       "stories": {
+        "size": 64
+       },
+       "color": "#121316",
+       "dark_color": "#F3F3F0",
+       "padding": {
+        "top": 16,
+        "end": 16,
+        "bottom": 6,
+        "start": 16
+       },
+       "slides": [
+        {
+         "image_url": "http://localhost:3000/travel-photos/room.jpg",
+         "heading": "Visits",
+         "subheading": null,
+         "action": {
+          "type": "screen",
+          "screen": "services"
+         },
+         "translations": {
+          "ar": {
+           "heading": "الزيارات"
+          },
+          "tr": {
+           "heading": "Ziyaretler"
+          }
+         },
+         "ring": "highlight",
+         "ring_color": "#93C1BE"
+        },
+        {
+         "image_url": "http://localhost:3000/demo-photos/mineral-water.jpg",
+         "heading": "Services",
+         "subheading": null,
+         "action": {
+          "type": "screen",
+          "screen": "services"
+         },
+         "translations": {
+          "ar": {
+           "heading": "الخدمات"
+          },
+          "tr": {
+           "heading": "Hizmetler"
+          }
+         },
+         "ring": "highlight",
+         "ring_color": "#93C1BE"
+        },
+        {
+         "image_url": "http://localhost:3000/demo-photos/oranges.jpg",
+         "heading": "My bookings",
+         "subheading": null,
+         "action": {
+          "type": "screen",
+          "screen": "appointments"
+         },
+         "translations": {
+          "ar": {
+           "heading": "حجوزاتي"
+          },
+          "tr": {
+           "heading": "Randevularım"
+          }
+         },
+         "ring": "highlight",
+         "ring_color": "#93C1BE"
+        },
+        {
+         "image_url": "http://localhost:3000/demo-photos/tomatoes.jpg",
+         "heading": "Advice",
+         "subheading": null,
+         "action": null,
+         "translations": {
+          "ar": {
+           "heading": "نصائح"
+          },
+          "tr": {
+           "heading": "Öneriler"
+          }
+         },
+         "ring": "highlight",
+         "ring_color": "#93C1BE"
+        }
+       ]
+      },
+      {
+       "id": "lq-14",
+       "type": "row",
+       "name": "Stories",
+       "cross": "end",
+       "gap": 10,
+       "padding": {
+        "top": 18,
+        "end": 20,
+        "bottom": 12,
+        "start": 20
+       },
+       "children": [
+        {
+         "id": "lq-13",
+         "type": "text",
+         "text": "Stories",
+         "translations": {
+          "ar": {
+           "text": "قصص"
+          },
+          "tr": {
+           "text": "Hikâyeler"
+          }
+         },
+         "width": "fill",
+         "max_lines": 1,
+         "font": {
+          "size": 20,
+          "weight": 800,
+          "letter_spacing": -0.3
+         },
+         "color": "#121316",
+         "dark_color": "#F3F3F0"
+        }
+       ]
+      },
+      {
+       "id": "lq-15",
+       "type": "bento",
+       "columns": 2,
+       "gap": 10,
+       "radius": 24,
+       "bento": {
+        "caption": "glass",
+        "row": 120
+       },
+       "margin": {
+        "top": 0,
+        "end": 16,
+        "bottom": 4,
+        "start": 16
+       },
+       "entries": [
+        {
+         "title": "Visits",
+         "translations": {
+          "ar": {
+           "title": "الزيارات"
+          },
+          "tr": {
+           "title": "Ziyaretler"
+          }
+         },
+         "size": "large",
+         "icon": "stethoscope",
+         "image_url": "http://localhost:3000/travel-photos/room.jpg",
+         "action": {
+          "type": "screen",
+          "screen": "services"
+         }
+        },
+        {
+         "title": "Services",
+         "translations": {
+          "ar": {
+           "title": "الخدمات"
+          },
+          "tr": {
+           "title": "Hizmetler"
+          }
+         },
+         "size": "small",
+         "icon": "event_available",
+         "image_url": "http://localhost:3000/demo-photos/mineral-water.jpg",
+         "action": {
+          "type": "screen",
+          "screen": "services"
+         }
+        },
+        {
+         "title": "My bookings",
+         "translations": {
+          "ar": {
+           "title": "حجوزاتي"
+          },
+          "tr": {
+           "title": "Randevularım"
+          }
+         },
+         "size": "small",
+         "icon": "calendar_month",
+         "image_url": "http://localhost:3000/demo-photos/oranges.jpg",
+         "action": {
+          "type": "screen",
+          "screen": "appointments"
+         }
+        },
+        {
+         "title": "Advice",
+         "translations": {
+          "ar": {
+           "title": "نصائح"
+          },
+          "tr": {
+           "title": "Öneriler"
+          }
+         },
+         "size": "wide",
+         "icon": "info",
+         "image_url": "http://localhost:3000/demo-photos/tomatoes.jpg"
+        }
+       ],
+       "motion": {
+        "enter": "slide_up",
+        "duration_ms": 520
+       }
+      },
+      {
+       "id": "lq-24",
+       "type": "row",
+       "name": "Our services",
+       "cross": "end",
+       "gap": 10,
+       "padding": {
+        "top": 24,
+        "end": 20,
+        "bottom": 12,
+        "start": 20
+       },
+       "children": [
+        {
+         "id": "lq-22",
+         "type": "text",
+         "text": "Our services",
+         "translations": {
+          "ar": {
+           "text": "خدماتنا"
+          },
+          "tr": {
+           "text": "Hizmetlerimiz"
+          }
+         },
+         "width": "fill",
+         "max_lines": 1,
+         "font": {
+          "size": 20,
+          "weight": 800,
+          "letter_spacing": -0.3
+         },
+         "color": "#121316",
+         "dark_color": "#F3F3F0"
+        },
+        {
+         "id": "lq-23",
+         "type": "text",
+         "text": "See all",
+         "translations": {
+          "ar": {
+           "text": "عرض الكل"
+          },
+          "tr": {
+           "text": "Tümünü gör"
+          }
+         },
+         "font": {
+          "size": 13,
+          "weight": 700
+         },
+         "color": "#0F766E",
+         "dark_color": "#63A6A1",
+         "action": {
+          "type": "screen",
+          "screen": "services"
+         }
+        }
+       ]
+      },
+      {
+       "id": "lq-21",
+       "type": "items",
+       "source": "services",
+       "layout": "carousel",
+       "gap": 14,
+       "padding": {
+        "top": 0,
+        "end": 16,
+        "bottom": 4,
+        "start": 16
+       },
+       "query": {
+        "limit": 6,
+        "category_id": null,
+        "featured": false,
+        "sort": "newest",
+        "ids": []
+       },
+       "card": {
+        "id": "lq-17",
+        "type": "column",
+        "width": 220,
+        "radius": 24,
+        "background": "#FFFFFF",
+        "dark_background": "#191B20",
+        "shadow": "light",
+        "children": [
+         {
+          "id": "lq-18",
+          "type": "image",
+          "bind": "image",
+          "width": "fill",
+          "height": 146,
+          "radius": 0,
+          "fit": "cover"
+         },
+         {
+          "id": "lq-19",
+          "type": "column",
+          "gap": 3,
+          "padding": {
+           "top": 12,
+           "end": 14,
+           "bottom": 12,
+           "start": 14
+          },
+          "children": [
+           {
+            "id": "lq-20",
+            "type": "text",
+            "bind": "title",
+            "max_lines": 1,
+            "font": {
+             "size": 15,
+             "weight": 800
+            },
+            "color": "#121316",
+            "dark_color": "#F3F3F0"
+           },
+           {
+            "id": "lq-16",
+            "type": "text",
+            "bind": "subtitle",
+            "max_lines": 1,
+            "font": {
+             "size": 12.5
+            },
+            "color": "#64666D",
+            "dark_color": "#A2A4AB"
+           }
+          ]
+         }
+        ]
+       },
+       "motion": {
+        "enter": "slide_up",
+        "duration_ms": 520
+       }
+      },
+      {
+       "id": "lq-25",
+       "type": "row",
+       "gap": 10,
+       "cross": "center",
+       "padding": {
+        "top": 10,
+        "end": 64,
+        "bottom": 10,
+        "start": 64
+       },
+       "children": [
+        {
+         "id": "lq-26",
+         "type": "row",
+         "width": "fill",
+         "height": 1,
+         "background": "#E7E7E2",
+         "dark_background": "#2A2C33",
+         "children": []
+        },
+        {
+         "id": "lq-27",
+         "type": "icon",
+         "icon": "local_florist",
+         "icon_size": 16,
+         "color": "#0F766E",
+         "dark_color": "#63A6A1"
+        },
+        {
+         "id": "lq-28",
+         "type": "row",
+         "width": "fill",
+         "height": 1,
+         "background": "#E7E7E2",
+         "dark_background": "#2A2C33",
+         "children": []
+        }
+       ]
+      },
+      {
+       "id": "lq-30",
+       "type": "row",
+       "name": "What people say",
+       "cross": "end",
+       "gap": 10,
+       "padding": {
+        "top": 24,
+        "end": 20,
+        "bottom": 12,
+        "start": 20
+       },
+       "children": [
+        {
+         "id": "lq-29",
+         "type": "text",
+         "text": "What people say",
+         "translations": {
+          "ar": {
+           "text": "ماذا يقول عملاؤنا"
+          },
+          "tr": {
+           "text": "Müşterilerimiz ne diyor"
+          }
+         },
+         "width": "fill",
+         "max_lines": 1,
+         "font": {
+          "size": 20,
+          "weight": 800,
+          "letter_spacing": -0.3
+         },
+         "color": "#121316",
+         "dark_color": "#F3F3F0"
+        }
+       ]
+      },
+      {
+       "id": "lq-31",
+       "type": "testimonials",
+       "testimonials": {
+        "style": "stacked"
+       },
+       "gap": 12,
+       "radius": 24,
+       "background": "#FFFFFF",
+       "dark_background": "#191B20",
+       "color": "#121316",
+       "dark_color": "#F3F3F0",
+       "padding": {
+        "top": 0,
+        "end": 16,
+        "bottom": 0,
+        "start": 16
+       },
+       "margin": {
+        "top": 0,
+        "end": 0,
+        "bottom": 8,
+        "start": 0
+       },
+       "entries": [
+        {
+         "text": "[What a customer says about you]",
+         "title": "[Customer name]",
+         "subtitle": "[Their city]",
+         "translations": {
+          "ar": {
+           "text": "[رأي أحد العملاء فيك]",
+           "title": "[اسم العميل]",
+           "subtitle": "[مدينته]"
+          },
+          "tr": {
+           "text": "[Bir müşterinin sizin hakkınızdaki sözü]",
+           "title": "[Müşterinin adı]",
+           "subtitle": "[Şehri]"
+          }
+         }
+        },
+        {
+         "text": "[Another customer's words]",
+         "title": "[Customer name]",
+         "subtitle": "[Their city]",
+         "translations": {
+          "ar": {
+           "text": "[كلمات عميل آخر]",
+           "title": "[اسم العميل]",
+           "subtitle": "[مدينته]"
+          },
+          "tr": {
+           "text": "[Başka bir müşterinin sözleri]",
+           "title": "[Müşterinin adı]",
+           "subtitle": "[Şehri]"
+          }
+         }
+        }
+       ],
+       "motion": {
+        "enter": "slide_up",
+        "duration_ms": 520
+       }
+      },
+      {
+       "id": "lq-1",
+       "type": "cta_bar",
+       "title": "Care, close to you",
+       "text": "Book a visit",
+       "translations": {
+        "ar": {
+         "title": "رعاية قريبة منك",
+         "text": "احجز زيارة"
+        },
+        "tr": {
+         "title": "Size yakın bakım",
+         "text": "Randevu al"
+        }
+       },
+       "cta": {
+        "style": "bar",
+        "lead": "local_florist"
+       },
+       "pin": "bottom",
+       "icon": "arrow_forward",
+       "background": "#0F766E",
+       "dark_background": "#63A6A1",
+       "color": "#121316",
+       "dark_color": "#F3F3F0",
+       "action": {
+        "type": "screen",
+        "screen": "services"
+       }
+      }
+     ]
+    }
+   },
+   "tab_bar": {
+    "design": "petal",
+    "background": "#FFFFFF",
+    "dark_background": "#1A1B22",
+    "active": "#0F766E",
+    "dark_active": "#63A6A1",
+    "inactive": "#64666D",
+    "dark_inactive": "#A2A4AB",
+    "labels": "active",
+    "radius": 30,
+    "margin": 12
+   },
+   "system": {
+    "look": "petal"
+   }
+  }
+ ]
+}
