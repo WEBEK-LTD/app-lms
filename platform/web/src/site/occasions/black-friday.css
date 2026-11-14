@@ -1639,73 +1639,91 @@
   pointer-events: none;
   mix-blend-mode: screen;
 }
-.bf-display-phone {
-  position: relative;
-  z-index: 0;
-  width: 168px;
-  margin-bottom: -96px;
-  transition: transform 0.6s var(--bf-ease);
-}
-.bf-display-phone .bf-phone-frame {
-  -webkit-box-reflect: unset;
-}
-.bf-display:hover .bf-display-phone,
-.bf-display:focus-within .bf-display-phone {
-  transform: translateY(-14px);
-}
-.bf-emblem {
-  position: relative;
-  display: grid;
-  place-items: center;
-  align-self: center;
-  width: 150px;
-  height: 150px;
-  color: var(--bf-gold);
-}
-.bf-emblem-ring {
+/*
+ * 130.50 The app itself on each display: a real screen in the site's phone
+ * frame rising out of the display's floor (cropped by the window, so the
+ * top of the app shows), a second one tilted behind it toward the start
+ * side, a warm glow in the display's own hue under them, and the glass's
+ * glare. Light and dark pictures follow the site's theme (globals.css
+ * `.theme-dark-only`); right to left mirrors the tilt.
+ */
+.bf-shot {
   position: absolute;
   inset: 0;
-  border-radius: 50%;
-  border: 1.5px solid var(--bf-line-strong);
-  background: radial-gradient(closest-side, color-mix(in srgb, var(--bf-gold-2) 22%, transparent), transparent);
-  box-shadow:
-    0 0 40px -6px rgba(255, 122, 69, 0.45),
-    inset 0 0 30px -10px rgba(255, 122, 69, 0.5);
+  z-index: 0;
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  pointer-events: none;
 }
-.bf-emblem-ring::after {
+.bf-shot-glow {
+  position: absolute;
+  inset-inline: 8%;
+  bottom: -30%;
+  height: 80%;
+  border-radius: 50%;
+  background: radial-gradient(closest-side, hsl(var(--hue) 85% 60% / 0.38), color-mix(in srgb, var(--bf-gold-2) 18%, transparent) 55%, transparent);
+  filter: blur(6px);
+}
+.bf-shot-phone {
+  position: absolute;
+  bottom: 0;
+  transition:
+    transform 0.6s var(--bf-ease),
+    translate 0.6s var(--bf-ease),
+    rotate 0.6s var(--bf-ease);
+}
+.bf-shot-phone .phone-body {
+  box-shadow:
+    inset 0 1px 1px rgba(255, 255, 255, 0.2),
+    inset 0 0 0 1.5px #5b5b66,
+    inset 0 0 0 2.5px #0a0a0c,
+    0 2px 4px rgba(0, 0, 0, 0.25),
+    0 34px 48px -18px rgba(0, 0, 0, 0.55),
+    0 0 0 1px rgba(255, 122, 69, 0.14);
+}
+.bf-shot-front {
+  z-index: 1;
+  width: 156px;
+  margin-bottom: -96px;
+  translate: 18px 0;
+}
+.bf-shot-back {
+  width: 128px;
+  margin-bottom: -70px;
+  translate: -66px -26px;
+  rotate: -9deg;
+  filter: saturate(0.9) brightness(0.9);
+}
+.bf-shot-back .phone-screen::after {
   content: "";
   position: absolute;
-  inset: -16px;
-  border-radius: 50%;
-  border: 1px dashed var(--bf-line-strong);
-  animation: bf-spin 40s linear infinite;
+  inset: 0;
+  z-index: 2;
+  background: linear-gradient(180deg, transparent 40%, rgba(14, 13, 36, 0.35));
 }
-.bf-emblem-orbit {
+.bf:dir(rtl) .bf-shot-front {
+  translate: -18px 0;
+}
+.bf:dir(rtl) .bf-shot-back {
+  translate: 66px -26px;
+  rotate: 9deg;
+}
+.bf-shot-face {
   position: absolute;
-  inset: -22px;
+  inset: 0;
 }
-.bf-emblem-orbit .material-symbols-rounded {
-  position: absolute;
-  display: grid;
-  place-items: center;
-  width: 38px;
-  height: 38px;
-  border-radius: 50%;
-  border: 1px solid var(--bf-line-strong);
-  background: var(--bf-card);
-  color: var(--bf-ink);
+.bf-display:hover .bf-shot-front,
+.bf-display:focus-within .bf-shot-front {
+  transform: translateY(-12px);
 }
-.bf-emblem-orbit .material-symbols-rounded:nth-child(1) {
-  top: 0;
-  inset-inline-start: 4px;
+.bf-display:hover .bf-shot-back,
+.bf-display:focus-within .bf-shot-back {
+  transform: translateY(-6px) rotate(-3deg);
 }
-.bf-emblem-orbit .material-symbols-rounded:nth-child(2) {
-  top: 18px;
-  inset-inline-end: -8px;
-}
-.bf-emblem-orbit .material-symbols-rounded:nth-child(3) {
-  bottom: 0;
-  inset-inline-start: 44%;
+.bf:dir(rtl) .bf-display:hover .bf-shot-back,
+.bf:dir(rtl) .bf-display:focus-within .bf-shot-back {
+  transform: translateY(-6px) rotate(3deg);
 }
 .bf-display-tag {
   position: absolute;

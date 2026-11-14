@@ -43,9 +43,10 @@ offered ones with their prices, else "on request"); its own demo page
 on `/pricing`; a section on the home page; a menu and footer link; FAQ
 entries; a note on How it works; and the docs article `yallapp-studio`
 (plus a Studio section in `plans-and-billing`), in English, Arabic and
-Turkish. Its screenshots are real: the app's (`studio-cafe-home`, its dark
-version, `delivery-send`, `delivery-shipment`, `delivery-courier`) from the
-Flutter screenshot test, the dashboard's (`studio-editor`, `studio-home`,
+Turkish. Its screenshots are real: the app's from the Flutter screenshot
+tests (since 130.49 the Studio demos as they are now, their Signature looks
+A and B by day and by night, `<demo's address>-sig-<a|b>-home(-dark)`, and
+each demo's own screens), the dashboard's (`studio-editor`, `studio-home`,
 `studio-project`) from `tests/screens/studio.screens.ts`.
 
 Phase 126 (Travel: hotels and flights, phase 1) is complete: a Yallapp

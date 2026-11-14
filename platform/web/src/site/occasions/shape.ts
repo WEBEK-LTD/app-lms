@@ -2,6 +2,7 @@ import { STORIES } from "@/site/story/stories";
 import { STORY_IDS, storyPath } from "@/site/story/types";
 import type { IconName } from "@/components/icon-names";
 import type { AppScreen } from "@/lib/marketing";
+import { lookScreen, studioDemoOfSlug, type LookShotKey } from "@/site/look-shots";
 
 /**
  * 124 The shape of Black Friday's page: the screens and icons, item by
@@ -12,16 +13,17 @@ import type { AppScreen } from "@/lib/marketing";
 /**
  * The real app screens in the opening's phones (public/screens): the
  * premium academy in the middle, a café designed in Studio and a
- * multi-vendor home at its sides. The page shows only the premium
+ * multi-vendor home at its sides (130.49 Sofra Eats in its Signature look
+ * A by night, in place of the café). The page shows only the premium
  * template and screens designed in Studio.
  */
-export const HERO_SCREENS: [AppScreen, AppScreen, AppScreen] = ["premium-home", "studio-cafe-home-dark", "zad-home"];
+export const HERO_SCREENS: [AppScreen, AppScreen, AppScreen] = ["premium-home", "food-delivery-sig-a-home-dark", "zad-home"];
 
 /**
  * The shop window's displays, kind by kind (lib/marketing `ALL_SOLUTIONS`),
- * each a lit sign of its own icon (the owner, 12 November: icons, not phone
- * screens), Studio's kinds first; a kind with its story (site/story) links
- * to the story, any other to its solution page.
+ * Studio's kinds first (130.50 each shows the app itself: `shelfShots`); a
+ * kind with its story (site/story) links to the story, any other to its
+ * solution page.
  */
 export function shopWindowKinds<T extends { id: string }>(solutions: readonly T[], studioIds: ReadonlySet<string>): T[] {
   return [...solutions.filter((s) => studioIds.has(s.id)), ...solutions.filter((s) => !studioIds.has(s.id))];
@@ -57,3 +59,59 @@ export const TERM_ICONS: IconName[] = ["schedule", "receipt_long", "account_circ
 
 /** How many questions the page answers (8 to 12, the FAQPage data too). */
 export const FAQ_COUNT = 12;
+
+/** A real screen of the app, by day and by night (the same picture when the app has no night one). */
+export interface ShelfScreen {
+  light: AppScreen;
+  dark: AppScreen;
+}
+
+/** What a kind's display on the shelf shows: a phone in front, and one behind it. */
+export interface ShelfShot {
+  front: ShelfScreen;
+  back: ShelfScreen | null;
+}
+
+/** A regular app's screens that have a night picture too (public/screens). */
+const NIGHT_SCREENS: Partial<Record<AppScreen, AppScreen>> = { "academy-home": "academy-home-dark" };
+
+/**
+ * 130.50 The owner (14 November): every kind on Black Friday's shelf shows
+ * a real picture of its app in place of the icons. A Studio kind its demo
+ * in its Signature looks (look A in front, look B behind, each by day and
+ * by night: site/look-shots.ts): Ride and taxi Masar Rides in front of
+ * Lamha Taxi, University Nakhla School's look B in front of its look A, so
+ * no two displays are alike; a regular kind its own screens (its solution's
+ * `screens`, a kind whose first screen another display already shows
+ * leading with its second).
+ */
+export function shelfShots<T extends { id: string; demoSlug: string; screens: readonly AppScreen[] }>(solutions: readonly T[], studioIds: ReadonlySet<string>): Map<string, ShelfShot> {
+  const out = new Map<string, ShelfShot>();
+  const shown = new Set<AppScreen>();
+  const look = (demo: Parameters<typeof lookScreen>[0], day: LookShotKey, night: LookShotKey): ShelfScreen | null => {
+    const light = lookScreen(demo, day);
+    return light ? { light, dark: lookScreen(demo, night) ?? light } : null;
+  };
+  const plain = (screen: AppScreen | undefined): ShelfScreen | null => (screen ? { light: screen, dark: NIGHT_SCREENS[screen] ?? screen } : null);
+  for (const s of solutions) {
+    const demo = studioIds.has(s.id) ? studioDemoOfSlug(s.demoSlug) : null;
+    let shot: ShelfShot | null = null;
+    if (demo) {
+      const a = look(demo, "a", "a-dark");
+      const b = look(demo, "b", "b-dark");
+      if (s.id === "rides") shot = a ? { front: a, back: look("taxi", "a", "a-dark") } : null;
+      else if (shown.has(a?.light as AppScreen) && b) shot = { front: b, back: a };
+      else if (a) shot = { front: a, back: b };
+    }
+    if (!shot) {
+      const [first, second] = s.screens;
+      const lead = first && shown.has(first) && second ? [second, first] : [first, second];
+      const front = plain(lead[0]);
+      if (front) shot = { front, back: plain(lead[1]) };
+    }
+    if (!shot) continue;
+    shown.add(shot.front.light);
+    out.set(s.id, shot);
+  }
+  return out;
+}

@@ -18,7 +18,7 @@ import { getVisitorContact, type Contact } from "@/lib/contact";
 import { getStore } from "@/lib/data";
 import type { OccasionRecord, PaymentProviderId } from "@/lib/data/types";
 import { effectivePlans } from "@/lib/entitlements";
-import { STUDIO_SOLUTIONS, type AppScreen } from "@/lib/marketing";
+import { ALL_SOLUTIONS, STUDIO_SOLUTIONS, type AppScreen } from "@/lib/marketing";
 import { allSolutionsFor, planFor, screenAltFor } from "@/lib/marketing-lang";
 import { FEATURED_PLAN, hasFeature, planOffered, REGULAR_PLANS, STUDIO_PLANS, type PlanInfo, type PriceView } from "@/lib/plans";
 import { breadcrumbLd, faqLd, siteMetadata, siteUrl, type JsonLd } from "@/lib/seo";
@@ -29,7 +29,7 @@ import { localePath } from "@/i18n/paths";
 import { BlackFridayMotion, Confetti, CouponTicket, Countdown, GoldDust, Shelf, Tabs } from "./client";
 import { blackFridayOccasion } from "./load";
 import { occasionPlanPrice, occasionValues, occasionView, percentText, savedText, type OccasionPlanPrice, type OccasionView } from "./offer";
-import { FAQ_COUNT, HERO_SCREENS, INCLUDED_GROUPS, kindPagePath, RECEIPT_SCREEN, shopWindowKinds, STEP_ICONS, TERM_ICONS } from "./shape";
+import { FAQ_COUNT, HERO_SCREENS, INCLUDED_GROUPS, kindPagePath, RECEIPT_SCREEN, shelfShots, shopWindowKinds, STEP_ICONS, TERM_ICONS, type ShelfScreen, type ShelfShot } from "./shape";
 import { BLACK_FRIDAY_PATH, type OccasionText, type SceneText } from "./types";
 import "./black-friday.css";
 
@@ -126,6 +126,48 @@ function Phone({ screen, alt, className = "", priority = false, sizes = "(max-wi
       <div className="bf-phone-float">
         <PhoneFrame className="bf-phone-frame w-full" data-screen={screen}>
           <Image src={`/screens/${screen}.png`} alt={alt} fill sizes={sizes} priority={priority} className="object-cover" />
+          <span aria-hidden="true" className="bf-phone-glare" />
+        </PhoneFrame>
+      </div>
+    </div>
+  );
+}
+
+/** A screen by day and by night, as the site's theme is (the same picture when the app has no night one). */
+function ThemedScreen({ screen, alt, sizes }: { screen: ShelfScreen; alt: Record<string, string>; sizes: string }) {
+  if (screen.dark === screen.light) return <Image src={`/screens/${screen.light}.png`} alt={alt[screen.light] ?? ""} fill sizes={sizes} className="object-cover object-top" />;
+  return (
+    <>
+      <span className="theme-light-only bf-shot-face">
+        <Image src={`/screens/${screen.light}.png`} alt={alt[screen.light] ?? ""} fill sizes={sizes} className="object-cover object-top" />
+      </span>
+      <span className="theme-dark-only bf-shot-face">
+        <Image src={`/screens/${screen.dark}.png`} alt={alt[screen.dark] ?? ""} fill sizes={sizes} className="object-cover object-top" />
+      </span>
+    </>
+  );
+}
+
+/**
+ * 130.50 A kind's display on the shelf: the app itself, a real screen in
+ * the site's phone frame lit from above, rising out of the display's floor,
+ * with a second screen tilted behind it (the Studio demos' looks A and B).
+ * Lazy: only the shelf's first displays load with the page's scroll.
+ */
+function ShelfPhones({ shot, alt }: { shot: ShelfShot; alt: Record<string, string> }) {
+  return (
+    <div className="bf-shot" data-shelf-shot={shot.front.light}>
+      <span aria-hidden="true" className="bf-shot-glow" />
+      {shot.back ? (
+        <div className="bf-shot-phone bf-shot-back">
+          <PhoneFrame className="w-full" data-screen={shot.back.light}>
+            <ThemedScreen screen={shot.back} alt={alt} sizes="(max-width: 640px) 30vw, 128px" />
+          </PhoneFrame>
+        </div>
+      ) : null}
+      <div className="bf-shot-phone bf-shot-front">
+        <PhoneFrame className="w-full" data-screen={shot.front.light}>
+          <ThemedScreen screen={shot.front} alt={alt} sizes="(max-width: 640px) 40vw, 156px" />
           <span aria-hidden="true" className="bf-phone-glare" />
         </PhoneFrame>
       </div>
@@ -573,6 +615,9 @@ function Kinds({ lang, t, view }: { lang: Lang; t: OccasionText; view: OccasionV
   const studioIds = new Set(STUDIO_SOLUTIONS.map((s) => s.id));
   const lp = (path: string) => localePath(lang, path);
   const solutions = shopWindowKinds(allSolutionsFor(lang), studioIds);
+  // 130.50 Each kind's display shows its app (./shape.ts shelfShots), with the descriptions in the page's language.
+  const shots = shelfShots(shopWindowKinds(ALL_SOLUTIONS, studioIds), studioIds);
+  const alt = screenAltFor(lang);
   const percent = percentText(lang, view.occasion.percent);
   return (
     <section className="bf-scene bf-kinds" aria-labelledby="bf-kinds" id="kinds">
@@ -586,20 +631,13 @@ function Kinds({ lang, t, view }: { lang: Lang; t: OccasionText; view: OccasionV
         <ul className="bf-shelf-list">
           {solutions.map((s, i) => {
             const studio = studioIds.has(s.id);
+            const shot = shots.get(s.id);
             return (
               <li key={s.id} className="bf-shelf-item">
                 <article className="bf-display" aria-labelledby={`bf-kind-${s.id}`} data-kind={s.id} style={vars({ "--hue": (i * 47) % 360 })}>
                   <div className="bf-display-window">
                     <span aria-hidden="true" className="bf-display-light" />
-                    <span aria-hidden="true" className="bf-emblem">
-                      <span className="bf-emblem-ring" />
-                      <Icon name={s.icon} size={64} />
-                      <span className="bf-emblem-orbit">
-                        {s.highlights.slice(0, 3).map((h) => (
-                          <Icon key={h.title} name={h.icon} size={20} />
-                        ))}
-                      </span>
-                    </span>
+                    {shot ? <ShelfPhones shot={shot} alt={alt} /> : null}
                     {view.on ? (
                       <span aria-hidden="true" className="bf-display-tag" dir="ltr">
                         −{percent}

@@ -20,11 +20,13 @@ import { planOffered, STUDIO_PLANS } from "@/lib/plans";
 import { siteMetadata } from "@/lib/seo";
 import { messagesFor, type Lang } from "@/i18n";
 import { Notice } from "@/components/ui";
-import { STUDIO_DEMO_TYPES } from "@/lib/demo/constants";
+import { STUDIO_DEMO_TYPES, type StudioDemoId } from "@/lib/demo/constants";
+import { DEMO_BRANDS } from "@/lib/demo/content";
 import { DemoAppSection, DemoSignIn, demoDownloads, demoSecondDownloads } from "@/site/demo";
 import { localePath } from "@/i18n/paths";
 import { storyCopyFor } from "@/content/stories";
 import { storyLinks } from "@/site/story/links";
+import { lookCaption, lookScreen, type LookShotKey } from "@/site/studio-looks";
 
 export function studioMetadata(lang: Lang): Metadata {
   const m = messagesFor(lang).studio;
@@ -53,6 +55,15 @@ export async function studioPlans(lang: Lang) {
  * with many teachers, schools and universities),
  * how it differs from regular apps, and its own plans.
  */
+/** 130.49 "Apps made in Studio": the demos in their Signature looks, A and B, light and dark (public/screens). */
+const STUDIO_SHOWCASE: { demo: StudioDemoId; key: LookShotKey }[] = [
+  { demo: "food", key: "a" },
+  { demo: "taxi", key: "a-dark" },
+  { demo: "school", key: "b" },
+  { demo: "premium_academy", key: "a-dark" },
+  { demo: "rides", key: "b" },
+];
+
 /** The team's film at the top of the Studio page: the Arabic one on the Arabic page, the English one in English and Turkish. */
 const STUDIO_VIDEOS: Record<Lang, string> = { en: "studio-hero-en", tr: "studio-hero-en", ar: "studio-hero-ar" };
 
@@ -77,14 +88,15 @@ export async function StudioPage({ lang }: { lang: Lang }) {
     { icon: "layers", text: m.el8 },
   ];
   const onlyStudio: { icon: IconName; title: string; text: string; screen?: AppScreen }[] = [
-    { icon: "local_shipping", title: m.deliveryTitle, text: m.deliveryText, screen: "delivery-courier" },
+    // 130.49 Each kind's demo as it is now, its Signature look A (Sahm Express's courier job, Lamha Taxi's, Rawaq Academy's and Nakhla School's homes).
+    { icon: "local_shipping", title: m.deliveryTitle, text: m.deliveryText, screen: "sahm-job" },
     // 105 Food delivery, once the kind is there.
-    ...(kindById("food") ? [{ icon: "restaurant" as IconName, title: m.foodTitle, text: m.foodText }] : []),
+    ...(kindById("food") ? [{ icon: "restaurant" as IconName, title: m.foodTitle, text: m.foodText, screen: "sofra-home" as AppScreen }] : []),
     // 105.2, 105.9 Rides and live taxis; 105.3 academies with many teachers; 105.4, 113 schools and universities.
-    { icon: "local_taxi", title: m.ridesTitle, text: m.ridesText, screen: "taxi-map" },
-    { icon: "groups", title: m.academyTitle, text: m.academyText, screen: "teachers-list" },
-    { icon: "school", title: m.schoolTitle, text: m.schoolText, screen: "school-today" },
-    { icon: "workspace_premium", title: m.universityTitle, text: m.universityText },
+    { icon: "local_taxi", title: m.ridesTitle, text: m.ridesText, screen: "lamha-home" },
+    { icon: "groups", title: m.academyTitle, text: m.academyText, screen: "rawaq-home" },
+    { icon: "school", title: m.schoolTitle, text: m.schoolText, screen: "nakhla-home" },
+    { icon: "workspace_premium", title: m.universityTitle, text: m.universityText, screen: "school-sig-b-home" },
   ];
   return (
     <MarketingPage
@@ -124,9 +136,10 @@ export async function StudioPage({ lang }: { lang: Lang }) {
       <Section tinted id="apps">
         <SectionTitle title={m.appsTitle} text={m.appsText} />
         <div className="flex flex-wrap justify-center gap-x-5 gap-y-8">
-          {(["studio-cafe-home", "studio-cafe-home-dark", "delivery-send", "delivery-shipment", "delivery-courier"] as const).map((screen) => (
-            <DeviceFrame key={screen} screen={screen} size="sm" alt={alt[screen]} />
-          ))}
+          {STUDIO_SHOWCASE.map(({ demo, key }) => {
+            const screen = lookScreen(demo, key)!;
+            return <DeviceFrame key={screen} screen={screen} size="sm" caption={`${DEMO_BRANDS[demo].appName} · ${lookCaption(lang, key)}`} alt={alt[screen]} />;
+          })}
         </div>
         <MoreLink href={lp("/demo/studio")}>{m.seeDemo}</MoreLink>
       </Section>
@@ -213,9 +226,9 @@ export async function StudioPage({ lang }: { lang: Lang }) {
  * 103R /demo/studio: what a Studio project looks like, apart from the regular
  * demo apps on /demo: Studio's own project types as demo apps to install
  * and try with the demo number (a parcel company, food delivery, rides;
- * 110.5 a live taxi app, a school and an academy with many teachers),
- * then a café's home page designed in the editor (light and dark) and the
- * editor.
+ * 110.5 a live taxi app, a school and an academy with many teachers), 130.49
+ * each in its two Signature looks, light and dark (site/studio-looks.tsx),
+ * then the editor.
  */
 export async function StudioDemoPage({ lang, download }: { lang: Lang; download?: string | string[] }) {
   const [contact, ready, second] = await Promise.all([getVisitorContact(), demoDownloads(), demoSecondDownloads()]);
@@ -233,7 +246,7 @@ export async function StudioDemoPage({ lang, download }: { lang: Lang; download?
       eyebrow={m.demoEyebrow}
       title={m.demoTitle}
       intro={m.demoIntro}
-      aside={<DeviceFrame screen="studio-cafe-home-dark" size="md" alt={alt["studio-cafe-home-dark"]} priority />}
+      aside={<DeviceFrame screen="food-delivery-sig-a-home-dark" size="md" alt={alt["food-delivery-sig-a-home-dark"]} priority />}
       lang={lang}
     >
       {/* Studio's own project types, as apps to install and try with the demo number. */}
@@ -248,25 +261,6 @@ export async function StudioDemoPage({ lang, download }: { lang: Lang; download?
       {STUDIO_DEMO_TYPES.map((type, index) => (
         <DemoAppSection key={type} type={type} lang={lang} ready={ready[type] ?? false} secondReady={second[type] ?? false} tinted={index % 2 === 0} />
       ))}
-
-      <Section id="cafe">
-        <div className="flex flex-wrap items-center gap-10" role="group" aria-labelledby="h-cafe">
-          <div className="flex min-w-0 flex-[1_1_380px] flex-col gap-3">
-            <span className="flex items-center gap-2 text-[13px] font-bold tracking-[1px] text-accent uppercase">
-              <Icon name="restaurant" size={20} />
-              {m.studio}
-            </span>
-            <h2 id="h-cafe" className="m-0 text-[28px] font-extrabold tracking-[-0.5px] sm:text-[34px]">
-              {m.demoCafeTitle}
-            </h2>
-            <p className="m-0 text-[17px] leading-relaxed text-ink-4">{m.demoCafeText}</p>
-          </div>
-          <div className="flex min-w-0 flex-[1_1_320px] flex-wrap justify-center gap-5">
-            <DeviceFrame screen="studio-cafe-home" size="sm" alt={alt["studio-cafe-home"]} />
-            <DeviceFrame screen="studio-cafe-home-dark" size="sm" alt={alt["studio-cafe-home-dark"]} />
-          </div>
-        </div>
-      </Section>
 
       <Section tinted id="editor">
         <SectionTitle title={m.demoEditorTitle} text={m.demoEditorText} />
