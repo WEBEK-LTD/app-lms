@@ -105,7 +105,8 @@ function pagesFor(own: readonly string[], layout: DesignLayout | undefined): str
 export function designsFor(kind: ProjectKind | null): WholeDesign[] {
   // 123 A template for the whole project (the premium academy) is a project of its own, never a page of another look.
   const own = templatesFor(kind)
-    .filter((tpl) => tpl.fits && !tpl.project)
+    // 130 A Signature look is a whole app of its own, never a page of another look.
+    .filter((tpl) => tpl.fits && !tpl.project && !tpl.look)
     .slice(0, 3)
     .map((tpl) => tpl.id);
   const demo = studioDemoOf(kind);

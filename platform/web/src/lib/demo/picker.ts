@@ -10,6 +10,7 @@ import type { LanguageCode } from "../pages/types";
 import type { SampleList } from "../samples/lists";
 import { templatesFor, TEMPLATES, type SectionWord, type TemplateInfo } from "../studio/sections";
 import { startLayout } from "../studio/start";
+import type { SignatureLook } from "../studio/demo-designs/signature";
 import { DEMO_SLUGS, DEMO_TYPES, demoKind, demoTypeOfSlug, isStudioDemo, PREMIUM_ACADEMY_DEMO, PREMIUM_ACADEMY_TEMPLATE, STUDIO_DEMO_TYPES, type DemoId, type StudioDemoId } from "./constants";
 import { CLINIC_SERVICES, DEMO_ARTICLES, DEMO_BRANDS, DEMO_CAMPAIGNS, DEMO_DELIVERY_SERVICES, DEMO_DISHES, DEMO_EVENTS, DEMO_GUIDES, DEMO_LISTINGS, DEMO_PRODUCTS, DEMO_RESTAURANTS, DEMO_SERVICES, FITNESS_SERVICES, RIDES_DEMO_TYPES, TAXI_DEMO_TYPES } from "./content";
 import { demoCourseSeeds } from "./entries";
@@ -153,11 +154,19 @@ export function demoItems(id: DemoId): DemoItems {
   return DEMO_ITEMS[id]();
 }
 
-/** The Studio template a Studio demo starts a project from: the demo's own (templates = demos), 123 the premium academy's template. */
-export function studioDemoTemplate(id: StudioDemoId): TemplateInfo {
-  if (id === PREMIUM_ACADEMY_DEMO) return TEMPLATES.find((t) => t.id === PREMIUM_ACADEMY_TEMPLATE)!;
+/**
+ * The Studio template a Studio demo starts a project from: the demo's own
+ * (templates = demos), 123 the premium academy's template; 130 with `look`,
+ * the demo's Signature look of that name (the whole app in that look), the
+ * demo's own while it has no such look.
+ */
+export function studioDemoTemplate(id: StudioDemoId, look?: SignatureLook): TemplateInfo {
   const kind = demoKind(id);
-  return templatesFor({ type: kind.engine, vertical: kind.vertical }).find((t) => t.demo === id)!;
+  const all = templatesFor({ type: kind.engine, vertical: kind.vertical });
+  const own = look ? all.find((t) => t.demo === id && t.look === look) : undefined;
+  if (own) return own;
+  if (id === PREMIUM_ACADEMY_DEMO) return TEMPLATES.find((t) => t.id === PREMIUM_ACADEMY_TEMPLATE)!;
+  return all.find((t) => t.demo === id && !t.look)!;
 }
 
 const MADE_AT = new Date("2026-01-01T00:00:00Z");

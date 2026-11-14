@@ -55,7 +55,8 @@ export async function makeStudioProject(store: DataStore, input: NewStudioProjec
   // 123 A template for the whole project starts it in its colour, with its screens.
   const project = template.project ?? null;
   const fresh = newApp(input.clientId, null, now, kind.engine, kind.vertical);
-  const screens = demo ? demoStudioScreens(demo, appUrl()) : project ? project.screens(appUrl()) : null;
+  // 130 A Signature look's template: that look's sign-in screen and account menu.
+  const screens = demo ? demoStudioScreens(demo, appUrl(), template.look) : project ? project.screens(appUrl()) : null;
   const base: App = {
     ...fresh,
     section: "studio",

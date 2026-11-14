@@ -1086,6 +1086,8 @@ export const en = {
   tpl_delivery_city: "Courier in the city",
   tpl_ride_night: "Ride at night",
   tpl_taxi_map: "Taxi map",
+  // 130 The Signature looks (lib/studio/demo-designs): Masar Rides's, Lamha Taxi's and Safra's.
+  tpl_rides_signature_a: "Living map",
   tpl_teachers: "Teachers",
   tpl_teachers_offers: "Course offers",
   tpl_teachers_brand: "Academy brand",
@@ -1286,6 +1288,14 @@ export const en = {
   w_taxiAirportTitle: "One fixed fare,\nday or night",
   w_taxiBook: "Book the nearest taxi",
   w_taxiRidesBanner: "Your rides, day and night",
+  // 130.7 Masar A: the living map.
+  w_sigZamalek: "Zamalek",
+  w_sigDowntown: "Downtown",
+  w_sigTahrir: "Tahrir",
+  w_sigThreeMin: "3 min",
+  w_sigPickup: "Pickup",
+  w_sigFareFrom: "from E£",
+  w_sigOnTheWay: "On the way",
   // 128 The approved Studio demos: the school day element, the scrim, the photo sections and the schools' and teachers' homes.
   el_school: "School day",
   schoolSection: "Which part",
@@ -2908,6 +2918,8 @@ export const ar: Messages = {
   tpl_delivery_city: "مندوب في المدينة",
   tpl_ride_night: "مشوار بالليل",
   tpl_taxi_map: "خريطة التاكسي",
+  // 130 The Signature looks (lib/studio/demo-designs): Masar Rides's, Lamha Taxi's and Safra's.
+  tpl_rides_signature_a: "خريطة حية",
   tpl_teachers: "المدرسين",
   tpl_teachers_offers: "عروض الكورسات",
   tpl_teachers_brand: "براند الأكاديمية",
@@ -3107,6 +3119,14 @@ export const ar: Messages = {
   w_taxiAirportTitle: "أجرة ثابتة واحدة،\nليلًا أو نهارًا",
   w_taxiBook: "اطلب أقرب سيارة أجرة",
   w_taxiRidesBanner: "رحلاتك ليلًا ونهارًا",
+  // 130.7 Masar A: the living map.
+  w_sigZamalek: "الزمالك",
+  w_sigDowntown: "وسط البلد",
+  w_sigTahrir: "التحرير",
+  w_sigThreeMin: "3 دقايق",
+  w_sigPickup: "مكان الركوب",
+  w_sigFareFrom: "من ج.م",
+  w_sigOnTheWay: "في الطريق",
   // 128 The approved Studio demos: the school day element, the scrim, the photo sections and the schools' and teachers' homes.
   el_school: "يوم المدرسة",
   schoolSection: "أنهي جزء",
@@ -4722,6 +4742,8 @@ export const tr: Messages = {
   tpl_delivery_city: "Şehirde kurye",
   tpl_ride_night: "Gece yolculuğu",
   tpl_taxi_map: "Taksi haritası",
+  // 130 The Signature looks (lib/studio/demo-designs): Masar Rides's, Lamha Taxi's and Safra's.
+  tpl_rides_signature_a: "Canlı harita",
   tpl_teachers: "Eğitmenler",
   tpl_teachers_offers: "Kurs fırsatları",
   tpl_teachers_brand: "Akademi markası",
@@ -4921,6 +4943,14 @@ export const tr: Messages = {
   w_taxiAirportTitle: "Gece ya da gündüz,\ntek sabit ücret",
   w_taxiBook: "En yakın taksiyi çağır",
   w_taxiRidesBanner: "Gece gündüz yolculuklarınız",
+  // 130.7 Masar A: the living map.
+  w_sigZamalek: "Zamalek",
+  w_sigDowntown: "Şehir merkezi",
+  w_sigTahrir: "Tahrir",
+  w_sigThreeMin: "3 dk",
+  w_sigPickup: "Biniş",
+  w_sigFareFrom: "başlangıç E£",
+  w_sigOnTheWay: "Yolda",
   // 128 The approved Studio demos: the school day element, the scrim, the photo sections and the schools' and teachers' homes.
   el_school: "Okul günü",
   schoolSection: "Hangi bölüm",

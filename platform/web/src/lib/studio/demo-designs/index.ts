@@ -12,6 +12,9 @@ import { sahmHome, sahmPage, SAHM_INK } from "./sahm-express";
 import { schoolTodayHome } from "../school-home";
 import { teachersPhotoHome } from "../teachers-home";
 import { NAKHLA_LOOK, RAWAQ_LOOK, rawaqTabs, schoolPage } from "./school-looks";
+// 130 The Signature looks (./signature.ts): Masar's, Lamha's and Safra's.
+import { MASAR_LOOKS } from "./masar-signature";
+import { SIGNATURE_LOOKS, signatureTemplateId, type SignatureDesign, type SignatureLook, type SignatureLooks } from "./signature";
 
 /**
  * 128 The Studio demos made premium and complete (the owner, 13 November
@@ -117,9 +120,56 @@ const STUDIO_DEMO_DESIGNS: Partial<Record<StudioDemoId, DemoDesign>> = {
   instructors: { template: { id: "teachers_photo", icon: "co_present", fits: { types: ["lms"], verticals: ["instructors"] } }, home: teachersPhotoHome, over: schoolPage(RAWAQ_LOOK), look: RAWAQ_LOOK, tabs: rawaqTabs, bar: { design: "classic", background: "#FFFFFF", dark_background: "#15221C", active: "#2E5E4E", dark_active: "#8FD1B6", inactive: "#5A665F", dark_inactive: "#A9B7AF" } },
 };
 
-/** The demo's own design, when it has one. */
-export function studioDemoDesign(demo: StudioDemoId | undefined): DemoDesign | undefined {
-  return demo ? STUDIO_DEMO_DESIGNS[demo] : undefined;
+// ——— 130 The Signature looks: each demo's two looks, A and B (./signature.ts) ———
+
+/** A demo's looks with its tabs as its own design has them. */
+function tabbed(looks: SignatureLooks, tabs: DemoDesign["tabs"]): SignatureLooks {
+  return Object.fromEntries(Object.entries(looks).map(([look, design]) => [look, { ...design, tabs: design.tabs ?? tabs }])) as SignatureLooks;
+}
+
+/** The looks of the demos that have them; a demo's look A is the demo itself. */
+const SIGNATURE_DESIGNS: Partial<Record<StudioDemoId, SignatureLooks>> = {
+  // 130.7 130.8 Masar Rides, map first: A a living map, B a horizon.
+  rides: tabbed(MASAR_LOOKS, rideTabs),
+};
+
+/** A demo's look; missing `look`, its look A (the demo). Undefined when the demo has no such look. */
+export function signatureDesign(demo: StudioDemoId, look?: SignatureLook): SignatureDesign | undefined {
+  return SIGNATURE_DESIGNS[demo]?.[look ?? "a"];
+}
+
+/** The looks a demo has, in their order (none for a demo without Signature looks). */
+export function signatureLooksOf(demo: StudioDemoId): SignatureLook[] {
+  return SIGNATURE_LOOKS.filter((look) => SIGNATURE_DESIGNS[demo]?.[look]);
+}
+
+/** Each look as a template of its demo's kind (`<demo>_signature_<look>`): the whole app in that look (lib/studio/start.ts). */
+export function signatureTemplates(): TemplateInfo[] {
+  return (Object.keys(SIGNATURE_DESIGNS) as StudioDemoId[]).flatMap((demo) =>
+    signatureLooksOf(demo).map((look): TemplateInfo => {
+      const d = signatureDesign(demo, look)!;
+      return {
+        id: signatureTemplateId(demo, look),
+        icon: d.template.icon,
+        fits: d.template.fits,
+        demo,
+        look,
+        recommended: true,
+        make: (ctx: SectionContext) => {
+          const { ctx: words, translate } = translating(ctx);
+          const page = d.home({ ...words, demo, look });
+          return { ...page, body: translate(page.body) };
+        },
+      };
+    }),
+  );
+}
+// ——— end 130 ———
+
+/** The demo's own design, when it has one; 130 its Signature look `look` (missing, look A) when it has looks. */
+export function studioDemoDesign(demo: StudioDemoId | undefined, look?: SignatureLook): DemoDesign | undefined {
+  if (!demo) return undefined;
+  return signatureDesign(demo, look) ?? STUDIO_DEMO_DESIGNS[demo];
 }
 
 /** A demo's home as a template of its kind (lib/studio/sections.ts TEMPLATES), in the dashboard's language with Studio's others as translations. */
@@ -137,16 +187,16 @@ export function demoDesignTemplate(demo: StudioDemoId): TemplateInfo {
   };
 }
 
-/** The demo's bar as approved (lib/demo/screens.ts DEMO_TAB_BARS). */
-export function demoDesignBar(demo: StudioDemoId): TabBarStyle {
-  const bar = STUDIO_DEMO_DESIGNS[demo]?.bar;
+/** The demo's bar as approved (lib/demo/screens.ts DEMO_TAB_BARS); 130 its look's premium bar when it has looks. */
+export function demoDesignBar(demo: StudioDemoId, look?: SignatureLook): TabBarStyle {
+  const bar = studioDemoDesign(demo, look)?.bar;
   if (!bar) throw new Error(`The ${demo} demo's design has no bar of its own.`);
   return bar;
 }
 
 /** The demo's tabs as its own design has them (the kind's, for a demo without one or a project not made from a demo). */
-export function designedTabs(tabs: readonly LayoutTab[], ctx: Pick<SectionContext, "demo">): readonly LayoutTab[] {
-  const own = studioDemoDesign(ctx.demo)?.tabs;
+export function designedTabs(tabs: readonly LayoutTab[], ctx: Pick<SectionContext, "demo" | "look">): readonly LayoutTab[] {
+  const own = studioDemoDesign(ctx.demo, ctx.look)?.tabs;
   return own ? own(tabs) : tabs;
 }
 
@@ -158,7 +208,7 @@ export function designedTabs(tabs: readonly LayoutTab[], ctx: Pick<SectionContex
  * their own, as they are.
  */
 export function designedDemoPage<P extends { studio: StudioPage }>(ctx: SectionContext, page: P): P {
-  const design = studioDemoDesign(ctx.demo);
+  const design = studioDemoDesign(ctx.demo, ctx.look);
   if (!design) return page;
   const { ctx: words, translate } = translating(ctx);
   const own = page.studio.screen ? design.over(page.studio.screen, words) : null;
@@ -179,5 +229,5 @@ export function designedDemoPage<P extends { studio: StudioPage }>(ctx: SectionC
 
 /** The pages of its own the demo's tabs open (Zad's Shops), made with `ctx` (its words, in Studio's languages through `translate`). */
 export function designedOwnPages(ctx: SectionContext): { slug: string; title: SectionWord; studio: StudioPage }[] {
-  return studioDemoDesign(ctx.demo)?.pages?.(ctx) ?? [];
+  return studioDemoDesign(ctx.demo, ctx.look)?.pages?.(ctx) ?? [];
 }

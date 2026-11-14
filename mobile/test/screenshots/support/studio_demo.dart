@@ -36,6 +36,12 @@ class StudioDemo {
   static final zad = StudioDemo._load('zad_demo.json');
   static final safra = StudioDemo._load('safra_demo.json');
 
+  /// 130 One of a demo's Signature looks: the project its template starts
+  /// (test/support/signatures/`<demo>_<look>.json`, written by
+  /// platform/web/tests/unit/signature-looks.test.ts).
+  static StudioDemo signature(String demo, String look) =>
+      StudioDemo._load('signatures/${demo}_$look.json');
+
   final Map<String, dynamic> _demo;
 
   Map<String, dynamic> get _layout => _demo['layout'] as Map<String, dynamic>;
@@ -572,33 +578,36 @@ DemoApi zadStudioApi() => StudioDemo.zad.apply(
 /// Masar Rides (Studio's rides demo): its car types on its home, the cars
 /// in their drawings (none of a van); without
 /// [ride], no ride on its way.
-DemoApi masarStudioApi({bool driver = false, bool ride = true}) =>
-    StudioDemo.masar.apply(
-      ride
-          ? _masarRide(DemoApi.rides(driver: driver))
-          : (DemoApi.rides(driver: driver)..rides = []),
-      appName: 'Masar Rides',
-      primaryColor: '#14857A',
-      items: {
-        'vehicle_types': [
-          _item(
-            'vehicle_types',
-            1,
-            'Economy',
-            'Everyday cars',
-            image: StudioDemo.masar.picture('car-teal'),
-          ),
-          _item(
-            'vehicle_types',
-            2,
-            'Comfort',
-            'Newer cars with more room',
-            image: StudioDemo.masar.picture('car-dark'),
-          ),
-          _item('vehicle_types', 3, 'Van', 'For the family and the luggage'),
-        ],
-      },
-    );
+DemoApi masarStudioApi({
+  bool driver = false,
+  bool ride = true,
+  StudioDemo? look,
+}) => (look ?? StudioDemo.masar).apply(
+  ride
+      ? _masarRide(DemoApi.rides(driver: driver))
+      : (DemoApi.rides(driver: driver)..rides = []),
+  appName: 'Masar Rides',
+  primaryColor: '#14857A',
+  items: {
+    'vehicle_types': [
+      _item(
+        'vehicle_types',
+        1,
+        'Economy',
+        'Everyday cars',
+        image: StudioDemo.masar.picture('car-teal'),
+      ),
+      _item(
+        'vehicle_types',
+        2,
+        'Comfort',
+        'Newer cars with more room',
+        image: StudioDemo.masar.picture('car-dark'),
+      ),
+      _item('vehicle_types', 3, 'Van', 'For the family and the luggage'),
+    ],
+  },
+);
 
 /// 128 The ride on its way on Masar's home: Youssef, one of the demo's
 /// drivers (lib/demo/content.ts RIDES_DEMO_DRIVERS), with his car.
@@ -627,7 +636,8 @@ DemoApi lamhaStudioApi({
   bool driver = false,
   bool ride = true,
   bool onBoard = false,
-}) => StudioDemo.lamha.apply(
+  StudioDemo? look,
+}) => (look ?? StudioDemo.lamha).apply(
   DemoApi.taxi(driver: driver, ride: ride, onBoard: onBoard),
   appName: 'Lamha Taxi',
   primaryColor: '#1C2541',
@@ -846,13 +856,13 @@ DemoApi rawaqStudioApi({bool staffApp = false}) {
 
 /// 126 Safra (Studio's travel demo) as its app is: its hotels on its home,
 /// with their photos.
-DemoApi safraStudioApi() {
+DemoApi safraStudioApi({StudioDemo? look}) {
   final data = jsonDecode(
     File('test/support/safra_api.json').readAsStringSync(),
   ) as Map<String, dynamic>;
   final hotels = ((data['hotels'] as Map)['items'] as List)
       .cast<Map<String, dynamic>>();
-  return StudioDemo.safra.apply(
+  return (look ?? StudioDemo.safra).apply(
     DemoApi.travel(),
     appName: 'Safra',
     primaryColor: '#0E1424',

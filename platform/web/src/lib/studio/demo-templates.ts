@@ -30,7 +30,8 @@ export const DEMO_HOME_TEMPLATES: Record<StudioDemoId, string> = {
   delivery: "delivery_city",
   food: "food_photo",
   marketplace: "market_photo",
-  rides: "ride_night",
+  // 130.7 Masar Rides is its Signature look A, the living map (lib/studio/demo-designs/masar-signature.ts).
+  rides: "rides_signature_a",
   taxi: "taxi_map",
   school: "school_today",
   instructors: "teachers_photo",
