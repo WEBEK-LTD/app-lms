@@ -73,7 +73,7 @@ describe("130.1–130.6 the food, marketplace and delivery Signature looks", () 
     expect(ids.length).toBe(1 + signatureDesigns().filter((d) => d.demo === id).length);
     const template = list.find((t) => t.id === design.template.id)!;
     expect(template).toMatchObject({ recommended: true, demo: id, look });
-    expect(template.project).toMatchObject({ tab_bar: design.bar, primary: design.project.primary });
+    expect(template.project).toMatchObject({ tab_bar: design.bar, primary: design.project.primary ?? DEMO_BRANDS[id].primaryColor });
     // App setup's Branding step offers it as a whole design for a Studio project of the kind.
     const app = { ...newApp("c1", null, NOW, demoKind(id).engine, demoKind(id).vertical), section: "studio" as const };
     expect(projectTemplatesFor(app).map((t) => t.id)).toContain(design.template.id);

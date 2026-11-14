@@ -291,7 +291,7 @@ export const ZAD_A: SignatureDesign = {
   look: { header: signatureHeader(A, "search"), background: A.page, dark_background: A.darkPage },
   chrome: { header: "search", system: "photo" },
   project: {
-    primary: A.fill,
+    // Look A is the demo: its main colour the demo's (lib/demo/content.ts).
     appearance: { secondary_color: AMBER, font: "Plus Jakarta Sans" },
     screens: ZAD_A_SCREENS,
   },

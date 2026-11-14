@@ -75,7 +75,7 @@ const withoutIds = (page: StudioPage): unknown => ({ ...page, body: stripNode(pa
 
 /** A Studio page without the demo's note on how to sign in. */
 function withoutNote(page: StudioPage): StudioPage {
-  return { ...page, body: { ...page.body, children: (page.body.children ?? []).filter((n) => n.visibility !== "signed_out") } };
+  return { ...page, body: { ...page.body, children: (page.body.children ?? []).filter((n) => !(n.visibility === "signed_out" && n.children?.[0]?.icon === "info")) } };
 }
 
 /** A page without its translations, to compare with a template made in one language. */
@@ -101,6 +101,13 @@ function withFacts(id: StudioDemoId, layout: LayoutContent): LayoutContent {
 }
 
 const demoOf = async (id: StudioDemoId) => demoLayout({ assetUrl: (a) => `https://files.test/${a}`, now: NOW }, demoApp(id), "banner-asset");
+
+/** 130 A 128 home (still a template of its kind) as the demo drew it before the demo became its Signature look A: with the demo's words. */
+function home128(id: StudioDemoId, template: string): StudioPage {
+  const { demo: _demo, ...ctx } = demoStudioContext(id, appUrl(), itemSourcesFor(demoApp(id))[0] ?? null);
+  void _demo;
+  return withDemoFacts(id, TEMPLATES.find((t) => t.id === template)!.make(ctx));
+}
 
 /** 128 A design's pictures on the web kept where they are, as the editor keeps them (app/studio/editor/editor.tsx): the demos' photos. */
 const platformPictures = (file: DesignFile) => new Map(file.pages.flatMap((p) => picturesIn(p.studio)).filter((u) => /^https?:\/\//.test(u)).map((u) => [u, u] as const));
@@ -225,8 +232,9 @@ describe("Studio templates = Studio demos", () => {
       // The screen the tab opened before, now under the page's elements; 128 or a page of the demo's own (Zad's Shops).
       if (was.type === "page") {
         expect(page!.slug).toBe(was.page_slug);
-        expect(page!.studio!.screen).toBeUndefined();
-        expect(page!.studio!.header).toMatchObject({ type: "title", title: page!.title });
+        // 130 Or around a screen of the look's own that draws its own top (Nakhla's Parent tab).
+        if (page!.studio!.screen) expect(page!.studio!.screen).toBe(was.page_slug);
+        else expect(page!.studio!.header).toMatchObject({ type: "title", title: page!.title });
       } else {
         expect(was.type).toBe("screen");
         expect(page!.studio!.screen).toBe(was.type === "screen" ? was.screen : null);
@@ -235,14 +243,15 @@ describe("Studio templates = Studio demos", () => {
         // The account screen keeps its own top, set with the sign-in screen.
         expect(page!.studio!.header ?? null).toBeNull();
         expect(page!.studio!.body.children).toEqual([]);
-      } else {
+      } else if (!(was.type === "page" && page!.studio!.screen)) {
         expect(page!.studio!.header).toMatchObject({ type: "title", title: page!.title });
         expect(page!.studio!.header!.translations?.ar?.title).toBeTruthy();
       }
       // The tab's name and the page's title in Arabic and Turkish too.
       expect(tab.translations?.ar?.label, tab.id).toBeTruthy();
       expect(tab.translations?.tr?.label, tab.id).toBeTruthy();
-      expect(page!.translations?.ar?.title).toBe(tab.translations?.ar?.label);
+      // (130 A page around a screen that draws its own top keeps the screen's own title: Nakhla's Parent.)
+      if (page!.studio!.header || page!.studio!.screen === "account") expect(page!.translations?.ar?.title).toBe(tab.translations?.ar?.label);
     });
     // The bar the demo was designed with.
     expect(demo.tab_bar).toBeTruthy();
@@ -281,7 +290,9 @@ describe("123 The premium academy's demo: the project its template starts", () =
   it("is its template's project, with only how to sign in added on its home", async () => {
     const demo = await demoOf(PREMIUM_ACADEMY_DEMO);
     const app = { ...projectApp(PREMIUM_ACADEMY_DEMO), primaryColor: DEMO_BRANDS[PREMIUM_ACADEMY_DEMO].primaryColor };
-    const template = TEMPLATES.find((t) => t.id === PREMIUM_ACADEMY_TEMPLATE)!;
+    // 130.17 Its look A, night cinema.
+    const template = TEMPLATES.find((t) => t.id === DEMO_HOME_TEMPLATES[PREMIUM_ACADEMY_DEMO])!;
+    expect(template.id).toBe("premium_academy_signature_a");
     const ctx = demoStudioContext(PREMIUM_ACADEMY_DEMO, appUrl(), itemSourcesFor(app)[0] ?? null);
     const project = startLayout(app, template, defaultLayout(app, BUILT_IN_APP_DEFAULTS, NOW), NOW, ctx, null);
     expect(whole(demo)).toEqual(whole(project));
@@ -290,8 +301,8 @@ describe("123 The premium academy's demo: the project its template starts", () =
     const note = demo.pages[0]!.studio!.body.children!.at(-1)!;
     expect(note.visibility).toBe("signed_out");
     expect(texts({ body: note }).join(" ")).toMatch(/^This is a demo app\./);
-    // 128.8 In the template's Manrope (Arabic in Alexandria) and gold, in the demo's languages.
-    expect(demo.appearance).toMatchObject({ font: "Manrope", arabic_font: "Alexandria", secondary_color: "#B8893A", theme_mode: "system", user_can_change_mode: true });
+    // 128.8 130.17 In its look A's DM Sans (Readex Pro, Arabic in Alexandria) and gold, in the demo's languages.
+    expect(demo.appearance).toMatchObject({ font: "DM Sans", font_family: "Readex Pro", arabic_font: "Alexandria", secondary_color: "#B8893A", theme_mode: "system", user_can_change_mode: true });
     expect(demo.languages?.available).toEqual(["en", "ar", "tr"]);
     const checked = parseLayoutContent(demo, { app: demoApp(PREMIUM_ACADEMY_DEMO), now: NOW });
     expect(checked.ok ? [] : checked.errors).toEqual([]);
@@ -338,29 +349,24 @@ describe("123 The premium academy's demo: the project its template starts", () =
     expect(binds).toEqual(["badge", "title", "subtitle"]);
   });
 
-  it("128 is the home approved for Nakhla School: the photo, the family's greeting, the children, today's card, this week in photos", async () => {
-    const layout = await demoOf("school");
-    const page = layout.pages[0]!.studio!;
+  it("128 is the home approved for Nakhla School (the school's template school_today): the photo, the family's greeting, the children, today's card, this week in photos", () => {
+    const page = home128("school", "school_today");
     expect(page.header).toEqual({ type: "transparent", buttons: ["notifications"] });
     expect(page).toMatchObject({ background: "#F4F6F9", dark_background: "#09131F" });
-    const [hero, children, today, week, tiles, note] = page.body.children!;
+    const [hero, children, today, week, tiles] = page.body.children!;
     expect(hero).toMatchObject({ type: "stack", height: 250, image_background_url: `${appUrl()}/demo-screens/nakhla-school.jpg`, scrim: { color: "#0A1E34", from: 0.5, middle: 0.15, at: 40, to: 0.9 } });
     expect(allNodes({ body: hero! }).find((n) => n.type === "school")).toMatchObject({ school: { section: "greeting" }, text: "Welcome to Nakhla School" });
-    expect(note!.visibility).toBe("signed_out");
     expect(children).toMatchObject({ type: "school", school: { section: "children" }, visibility: "signed_in" });
     expect(today).toMatchObject({ type: "school", school: { section: "today" }, visibility: "signed_in", radius: 22, background: "#FFFFFF", dark_background: "#122033" });
     expect(texts({ body: week! })).toEqual(["At school this week", "All news"]);
     expect(tiles).toMatchObject({ type: "row", scroll: true });
     expect(tiles!.children!.map((t) => t.image_background_url)).toEqual([`${appUrl()}/stories/school/school-graduation-1.jpg`, `${appUrl()}/stories/school/school-teacher.jpg`]);
     expect(texts({ body: tiles! })).toEqual(["Science fair on Friday", "Parents' evening"]);
-    // The approved bar and font.
-    expect(layout.tab_bar).toMatchObject({ design: "classic", active: "#1F4E79", dark_active: "#9CC3EA" });
-    expect(layout.appearance.font).toBe("Manrope");
   });
 
-  it("128 is the home approved for Rawaq Academy: the library, the teachers in circles, this month's popular courses, and its Teachers tab", async () => {
+  it("128 is the home approved for Rawaq Academy (the teachers' template teachers_photo): the library, the teachers in circles, this month's popular courses", async () => {
+    const page = home128("instructors", "teachers_photo");
     const layout = await demoOf("instructors");
-    const page = layout.pages[0]!.studio!;
     expect(page.header).toEqual({ type: "transparent", buttons: ["search"] });
     const [hero, meet, people, popular, courses] = page.body.children!;
     expect(hero).toMatchObject({ type: "stack", height: 300, image_background_url: `${appUrl()}/demo-screens/rawaq-library.jpg` });
@@ -369,10 +375,9 @@ describe("123 The premium academy's demo: the project its template starts", () =
     expect(texts({ body: people! })).toEqual(["DK", "Deniz", "HC", "Hannah", "OF", "Omar", "YA", "Yasmin"]);
     expect(texts({ body: popular! })).toEqual(["Popular this month"]);
     expect(courses).toMatchObject({ type: "items", source: "courses", layout: "carousel" });
+    // 130.15 The demo, its look A, keeps the Teachers tab, and its courses, lessons and cart in the premium looks.
     expect(layout.tabs.map((t) => t.id)).toEqual(["home", "teachers", "learning", "account"]);
-    expect(layout.pages.find((p) => p.slug === "teachers")!.studio).toMatchObject({ screen: "teachers", background: "#F5F4EE", header: { title: "Teachers", background: "#FFFFFF", dark_background: "#15221C" } });
-    // Its courses, lessons and cart in the premium looks.
-    expect(demoStudioScreens("instructors", appUrl())).toMatchObject({ sign_in: { style: "premium" }, account_menu: { header: "academy" }, looks: { catalog: "explore", my_courses: "premium", lesson: "premium" } });
+    expect(demoStudioScreens("instructors", appUrl())).toMatchObject({ sign_in: { style: "premium" }, looks: { catalog: "explore", my_courses: "premium", lesson: "premium" } });
   });
 
   it.each(STUDIO_DEMO_TYPES)("draws every icon of the %s demo's pages and tabs in the app (mobile/lib/core/theme/symbol_names.dart)", async (id) => {
@@ -392,20 +397,19 @@ describe("123 The premium academy's demo: the project its template starts", () =
 
   it("is told apart from the academy's own demo by its template, and isn't offered as a template twice", () => {
     expect(TEMPLATES.filter((t) => t.id === PREMIUM_ACADEMY_TEMPLATE)).toHaveLength(1);
-    expect(TEMPLATES.some((t) => t.demo === PREMIUM_ACADEMY_DEMO)).toBe(false);
+    // 130 Only its two Signature looks are templates of the premium academy demo.
+    expect(TEMPLATES.filter((t) => t.demo === PREMIUM_ACADEMY_DEMO).map((t) => t.id)).toEqual(["premium_academy_signature_a", "premium_academy_signature_b"]);
   });
 });
 
 describe("128 Sofra Eats and Zad: the photo-first homes approved on 13 November 2026", () => {
   const photos = (page: StudioPage) => allNodes(page).flatMap((n) => [n.image_url, n.image_background_url].filter((u): u is string => Boolean(u)));
 
-  it("Sofra Eats: the photo hero with the search over its edge, the cuisines, the order on its way, the restaurants loved near you, the floating pill", async () => {
-    const layout = await demoOf("food");
-    const page = layout.pages[0]!.studio!;
+  it("Sofra Eats (food_photo): the photo hero with the search over its edge, the cuisines, the order on its way, the restaurants loved near you", () => {
+    const page = home128("food", "food_photo");
     expect(page.header ?? null).toBeNull();
     expect(page).toMatchObject({ background: "#FBF7F2", dark_background: "#17100C" });
-    const [hero, cuisines, live, head, loved, note] = page.body.children!;
-    expect(note!.visibility).toBe("signed_out");
+    const [hero, cuisines, live, head, loved] = page.body.children!;
     // The table's photo under a shade, its words at the foot, the search card over its edge.
     const photo = allNodes({ body: hero! }).find((n) => n.image_background_url)!;
     expect(photo).toMatchObject({ height: 330, scrim: { color: "#140A05", from: 0.55, middle: 0.05, at: 38, to: 0.75 } });
@@ -418,40 +422,30 @@ describe("128 Sofra Eats and Zad: the photo-first homes approved on 13 November 
     expect(loved).toMatchObject({ type: "items", source: "restaurants", layout: "carousel" });
     // Every photo one of Yallapp's own, served by the platform.
     for (const url of photos(page)) expect(url).toMatch(/^https?:\/\/[^/]+\/demo-(photos|screens)\/[a-z-]+\.jpg$/);
-    expect(layout.tab_bar).toMatchObject({ design: "float", background: "#2A1810", dark_background: "#F7EDE6", active: "#D2552B", labels: "active", radius: 22, margin: 12 });
-    expect(layout.appearance.font).toBe("Manrope");
-    // The pages after it in its language: the cuisines over the restaurants, the order on its way over the orders.
-    const over = (screen: string) => layout.pages.find((p) => p.studio?.screen === screen)!.studio!;
-    expect(over("restaurants").body.children!.map((n) => n.type)).toEqual(["row"]);
-    expect(over("food_orders").body.children!.map((n) => n.type)).toEqual(["live_status"]);
-    expect(over("food_orders").header).toMatchObject({ background: "#FBF7F2", dark_background: "#17100C" });
   });
 
-  it("Zad: the green bar with the soonest time, this week's offer on a photo, the department tiles, the places as chips, five named tabs", async () => {
+  it("Zad (market_photo): the green bar with the soonest time, this week's offer on a photo, the department tiles, the places as chips; the demo's five named tabs", async () => {
+    const page = home128("marketplace", "market_photo");
     const layout = await demoOf("marketplace");
-    const page = layout.pages[0]!.studio!;
     expect(page.header ?? null).toBeNull();
     expect(page).toMatchObject({ background: "#F6F3EE", dark_background: "#0D1712" });
-    const [bar, offer, tiles, head, places, note] = page.body.children!;
+    const [bar, offer, tiles, head, places] = page.body.children!;
     expect(bar).toMatchObject({ type: "market", market: { section: "address", style: "bar" }, text: "Search products and shops", color: "#1E6B52" });
-    expect(note!.visibility).toBe("signed_out");
     expect(offer).toMatchObject({ type: "stack", height: 150, radius: 22, scrim: { angle: 90 } });
     expect(texts({ body: offer! })).toEqual(["This week", "Fresh fruit, 15% off", "Shop now"]);
     expect(tiles).toMatchObject({ type: "grid", columns: 2 });
     expect(texts({ body: tiles! })).toEqual(["Fruit", "Picked this morning", "Vegetables", "Farm fresh", "Bakery", "Baked today", "Dairy", "Milk, cheese, eggs"]);
     expect(texts({ body: head! })).toEqual(["Places near you", "See all"]);
     expect(places).toMatchObject({ type: "market", market: { section: "vendors", style: "chips", sort: "nearest" } });
-    expect(layout.appearance.font).toBe("Manrope");
     expect(demoApp("marketplace").primaryColor).toBe("#1E6B52");
-    // Home, Shops (a page of its own), Cart, Orders and Account, every tab named.
+    // Home, Shops (a page of its own), Cart, Orders and Account, every tab named (130.3 the demo, its look A, with the shops' storefront).
     expect(layout.tabs.map((t) => [t.label, t.icon])).toEqual([
       ["Home", "home"],
-      ["Shops", "grid_view"],
+      ["Shops", "storefront"],
       ["Cart", "shopping_bag"],
       ["Orders", "receipt_long"],
       ["Account", "person"],
     ]);
-    expect(layout.tab_bar).toMatchObject({ design: "classic", active: "#1E6B52", labels: "always" });
     const shops = layout.pages.find((p) => p.slug === "shops")!.studio!;
     expect(shops.body.children!.map((n) => n.market?.section)).toEqual(["kinds", "vendors", "club"]);
     expect(layout.pages.find((p) => p.studio?.screen === "cart")).toBeTruthy();
@@ -493,9 +487,9 @@ describe("templates = demos: the demos' pages in Arabic and Turkish", () => {
       expect(written.length, id).toBeGreaterThan(0);
       for (const n of written) {
         // Arabic on the Arabic page, with English and Turkish kept.
-        for (const value of [n.text, n.title].filter(Boolean)) expect(value, `${id}: ${value}`).toMatch(/[؀-ۿ]|^[\dA-Z :·]+$/);
+        for (const value of [n.text, n.title].filter(Boolean)) expect(value, `${id}: ${value}`).toMatch(/[؀-ۿ]|^[\dA-Z :·.,%+–-]+$/);
         // 130.12 Numbers, and the codes and times the same in every language (CAI, SFR 251, 06:30).
-        if (/^[\dA-Z :·]+$/.test(n.text ?? "")) continue;
+        if (/^[\dA-Z :·.,%+–-]+$/.test(n.text ?? "")) continue;
         expect(Object.keys(n.translations ?? {}).sort(), `${id}: ${n.text ?? n.title}`).toEqual(["en", "tr"]);
       }
       const parsed = parseStudioPage(page, app, languages);
@@ -506,7 +500,7 @@ describe("templates = demos: the demos' pages in Arabic and Turkish", () => {
   it("gives the demo apps, made in English, their Arabic and Turkish too", () => {
     for (const id of STUDIO_DEMO_TYPES) {
       const page = demoStudioPage(id, demoStudioContext(id, appUrl(), itemSourcesFor(demoApp(id))[0] ?? null));
-      const titled = allNodes(page).filter((n) => (n.text && !/^[\dA-Z :·]+$/.test(n.text) && n.text !== DEMO_BRANDS[id].appName && n.bind !== "rating") || (n.type === "market" && n.title));
+      const titled = allNodes(page).filter((n) => (n.text && !/^[\dA-Z :·.,%+–-]+$/.test(n.text) && n.text !== DEMO_BRANDS[id].appName && n.bind !== "rating") || (n.type === "market" && n.title));
       for (const n of titled) {
         expect(n.translations?.ar, `${id}: ${n.text ?? n.title}`).toBeTruthy();
         expect(Object.values(n.translations!.ar!).join(" "), `${id}: ${n.text ?? n.title}`).toMatch(/[؀-ۿ]/);

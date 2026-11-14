@@ -568,7 +568,7 @@ export const DEMO_BRANDS: Record<DemoId, DemoBrand> = {
     splashColor: "#E4EEF8",
     secondaryColor: "#F2B544",
     template: "bold",
-    font: "Manrope",
+    font: "Plus Jakarta Sans",
     corners: "round",
     cards: "elevated",
     languages: ["en", "ar", "tr"],
@@ -585,10 +585,10 @@ export const DEMO_BRANDS: Record<DemoId, DemoBrand> = {
     shortName: "Sofra",
     primaryColor: "#D2552B",
     splashColor: "#FCE9DE",
-    secondaryColor: "#2E7D5B",
+    secondaryColor: "#FF9A6B",
     template: "bold",
     // 128 The approved boards' font, one of the app's own.
-    font: "Manrope",
+    font: "DM Sans",
     corners: "round",
     cards: "elevated",
     languages: ["en", "ar", "tr"],
@@ -609,7 +609,7 @@ export const DEMO_BRANDS: Record<DemoId, DemoBrand> = {
     secondaryColor: "#F2A93B",
     template: "bold",
     // 128 The approved boards' font, one of the app's own.
-    font: "Manrope",
+    font: "Plus Jakarta Sans",
     corners: "round",
     cards: "elevated",
     languages: ["en", "ar", "tr"],
@@ -667,7 +667,7 @@ export const DEMO_BRANDS: Record<DemoId, DemoBrand> = {
     secondaryColor: "#F2B544",
     template: "classic",
     // 128 The approved board's Manrope, bundled with the app.
-    font: "Manrope",
+    font: "Plus Jakarta Sans",
     corners: "soft",
     cards: "outlined",
     languages: ["en", "ar", "tr"],
@@ -687,7 +687,7 @@ export const DEMO_BRANDS: Record<DemoId, DemoBrand> = {
     secondaryColor: "#F2B544",
     template: "classic",
     // 128 The approved board's Manrope, bundled with the app.
-    font: "Manrope",
+    font: "DM Sans",
     corners: "soft",
     cards: "outlined",
     languages: ["en", "ar", "tr"],

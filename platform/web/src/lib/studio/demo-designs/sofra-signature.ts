@@ -368,7 +368,7 @@ export const SOFRA_A: SignatureDesign = {
   look: { header: signatureHeader(A, "large"), background: A.page, dark_background: A.darkPage },
   chrome: { header: "large", system: "photo" },
   project: {
-    primary: A.fill,
+    // Look A is the demo: its main colour the demo's (lib/demo/content.ts).
     appearance: { secondary_color: A.darkAccent, font: "DM Sans" },
     screens: SOFRA_A_SCREENS,
   },

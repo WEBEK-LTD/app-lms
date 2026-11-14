@@ -26,17 +26,19 @@ describe("103R.7 Studio's templates and sections for each project type", () => {
     // A restaurant gets its menu, not the shop.
     expect(ownTemplates(kindOf("restaurant")).map((t) => t.id)).toEqual(["menu", "brand", "contact", "blank"]);
     // 123 The premium academy first, then the courses.
-    // 130.17 130.18 Ufuq Academy's Signature looks first, then the premium academy.
-    expect(ownTemplates(kindOf("academy")).map((t) => t.id).slice(0, 4)).toEqual(["premium_academy_signature_a", "premium_academy_signature_b", "academy_premium", "courses"]);
+    // 130.17 130.18 Ufuq Academy's Signature looks first (the premium academy demo's, offered to every academy), then the premium academy.
+    expect(templatesFor(kindOf("academy")).map((t) => t.id).slice(0, 4)).toEqual(["premium_academy_signature_a", "premium_academy_signature_b", "academy_premium", "courses"]);
     expect(ownTemplates(kindOf("bookings"))[0]!.id).toBe("services");
     expect(ownTemplates(kindOf("clinic"))[0]!.id).toBe("services");
     // 128 And the premium demo's home as a template of its own (lib/studio/demo-designs).
-    expect(ownTemplates(kindOf("delivery")).map((t) => t.id)).toEqual(["delivery_signature_a", "delivery_signature_b", "delivery", "delivery_city", "brand", "contact", "blank"]);
+    expect(ownTemplates(kindOf("delivery")).map((t) => t.id)).toEqual(["delivery", "delivery_city", "brand", "contact", "blank"]);
+    // 130 A demo's Signature looks are offered with it, after its own template.
+    expect(templatesFor(kindOf("delivery")).map((t) => t.id).slice(0, 3)).toEqual(["demo_delivery", "delivery_signature_a", "delivery_signature_b"]);
     expect(templatesFor(null).map((t) => t.id)).toEqual(["brand", "contact", "blank"]);
     // 105.1.6 Three ready-made designs for a food delivery company, and its welcome section first.
     // 128 And Sofra Eats's photo-first home.
     // 130.1–130.2 Its Signature looks first, whole project templates.
-    expect(ownTemplates(kindOf("food")).map((t) => t.id)).toEqual(["food_signature_a", "food_signature_b", "food", "food_offers", "food_brand", "food_photo", "brand", "contact", "blank"]);
+    expect(ownTemplates(kindOf("food")).map((t) => t.id)).toEqual(["food", "food_offers", "food_brand", "food_photo", "brand", "contact", "blank"]);
     expect(sectionsFor(kindOf("food"))[0]!.id).toBe("food");
     expect(sectionsFor(kindOf("delivery")).map((s) => s.id)).not.toContain("food");
     // The delivery company's sections come first, and only for it.
@@ -103,13 +105,13 @@ describe("103R.7 Studio's templates and sections for each project type", () => {
   });
 
   it("105.3 gives an academy with many teachers three designs that open its teachers, its welcome section first (128 and the approved Rawaq home)", () => {
-    expect(ownTemplates(kindOf("instructors")).map((t) => t.id)).toEqual(["instructors_signature_a", "instructors_signature_b", "teachers", "teachers_offers", "teachers_brand", "teachers_photo", "brand", "contact", "blank"]);
+    expect(ownTemplates(kindOf("instructors")).map((t) => t.id)).toEqual(["teachers", "teachers_offers", "teachers_brand", "teachers_photo", "brand", "contact", "blank"]);
     expect(sectionsFor(kindOf("instructors"))[0]!.id).toBe("teachers");
     // A plain academy has neither.
     expect(ownTemplates(kindOf("academy")).map((t) => t.id)).not.toContain("teachers");
     // 105.4 A school's own three, with its welcome first.
     // 130.13 130.14 Nakhla School's Signature looks first.
-    expect(ownTemplates(kindOf("school")).map((t) => t.id)).toEqual(["school_signature_a", "school_signature_b", "school", "school_news", "school_brand", "school_today", "university", "brand", "contact", "blank"]);
+    expect(ownTemplates(kindOf("school")).map((t) => t.id)).toEqual(["school", "school_news", "school_brand", "school_today", "university", "brand", "contact", "blank"]);
     // A university's own template: its welcome in a university's words, its steps too.
     const uni = ownTemplates(kindOf("school")).find((t) => t.id === "university")!.make({ brand: "#1F4E5F", source: "school_news", w: (word) => word });
     const uniWords = allNodes(uni).map((n) => n.text).filter(Boolean);

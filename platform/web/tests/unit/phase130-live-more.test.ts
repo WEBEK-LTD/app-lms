@@ -81,6 +81,7 @@ describe("130.11 the live element's more looks", () => {
     const contract = readFileSync(join(process.cwd(), "..", "..", "docs", "api", "openapi.yaml"), "utf8");
     expect(readFileSync(join(process.cwd(), "public", "developers", "openapi.yaml"), "utf8")).toBe(contract);
     expect(contract).toContain("kind: { type: string, enum: [shipment, ride, nearby_taxis, trip] }");
-    expect(contract).toContain("style: { type: string, enum: [card, driver, line, ticket, headline] }");
+    // With 130.1–130.6's live cards' premium looks.
+    expect(contract).toContain("style: { type: string, enum: [card, driver, line, ticket, headline, hero, ring, pill, steps] }");
   });
 });

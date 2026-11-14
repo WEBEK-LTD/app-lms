@@ -20,7 +20,9 @@ describe("115.14 the marketplace's Studio templates and its market element", () 
   it("gives marketplace projects their three templates, and food delivery keeps its own", () => {
     // Templates = demos: Zad's own first, then 130.3–130.4 its Signature looks, then the marketplace's three.
     expect(templatesFor(MARKETPLACE)[0]!.id).toBe("demo_marketplace");
-    expect(templatesFor(MARKETPLACE).filter((t) => !t.demo).map((t) => t.id)).toEqual(["marketplace_signature_a", "marketplace_signature_b", "market", "market_offers", "market_grocery", "market_photo", "brand", "contact", "blank"]);
+    // (130 Its looks are the demo's: offered with it, look A the demo itself.)
+    expect(templatesFor(MARKETPLACE).filter((t) => t.demo).map((t) => t.id)).toEqual(["demo_marketplace", "marketplace_signature_a", "marketplace_signature_b"]);
+    expect(templatesFor(MARKETPLACE).filter((t) => !t.demo).map((t) => t.id)).toEqual(["market", "market_offers", "market_grocery", "market_photo", "brand", "contact", "blank"]);
     expect(templatesFor(FOOD).map((t) => t.id)).not.toContain("market");
     expect(sectionsFor(MARKETPLACE).map((s) => s.id)).toEqual(expect.arrayContaining(["m_address", "m_kinds", "m_offers", "m_club", "m_near", "m_rated", "m_fast", "m_departments"]));
     expect(sectionsFor(FOOD).map((s) => s.id)).not.toContain("m_address");

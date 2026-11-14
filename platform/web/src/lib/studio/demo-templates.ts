@@ -269,6 +269,11 @@ export const DEMO_FACTS: Partial<Record<StudioDemoId, Partial<Record<SectionWord
   // 128 Zad Market's own offer this week (lib/demo/marketplace.ts).
   marketplace: {
     mpOffer: { en: "Fresh fruit, 15% off", ar: "فاكهة طازجة بخصم 15%", tr: "Taze meyve %15 indirimli" },
+    // 130.3 130.4 Zad's own offers and aisle on its Signature looks: its market's name, a shop on it (lib/demo/marketplace.ts) and its district.
+    zadOfferKicker: { en: "Zad Market offer", ar: "عرض زاد ماركت", tr: "Zad Market fırsatı" },
+    zadOffer2Kicker: { en: "Zad's own code", ar: "رمز زاد", tr: "Zad'ın kodu" },
+    zadOffer3Kicker: { en: "Nile Pizza Co.", ar: "نايل بيتزا", tr: "Nile Pizza Co." },
+    zadBKicker: { en: "Zad Market · Mohandessin", ar: "زاد ماركت · المهندسين", tr: "Zad Market · Mohandessin" },
     // 130.4 Where Zad's Night aisle look delivers, the demo number's home.
     zadBTo: { en: "to Home, Garden City", ar: "إلى المنزل، جاردن سيتي", tr: "Ev, Garden City'ye" },
   },
