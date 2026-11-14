@@ -26,6 +26,8 @@ import { entranceMark, watchEntrances } from "@/lib/studio/motion";
 import { BeforeAfter, edge, GalleryGrid, MediaBanner, Marquee, PremiumMotionStyles, Segments, SliderCount, SliderPill, StoriesRow } from "./premium-motion";
 // 129.11–129.20 The premium content elements, and a layout's premium card style.
 import { isPremiumContent, PREMIUM_WORDS_EN, PremiumElement, SurfaceExtras, surfaceStyle, type PremiumWords } from "./premium";
+// 130.20 The premium page headers.
+import { PremiumHeader, SystemScreen } from "./premium-chrome";
 
 /**
  * 103R A Studio page drawn in the editor's phone, as the app draws it: rows,
@@ -197,7 +199,8 @@ export function StudioView(viewProps: ViewProps) {
   const rtl = props.lang === "ar";
   const showTabs = page.show_tabs !== false && look.tabs.length > 0;
   // 128.10 Under a transparent header a page starting with anything but a cover starts below the status bar, as the app draws it.
-  const belowBar = page.header?.type === "transparent" && !startsWithCover(page.body);
+  // 130.20 A premium style is drawn in the page's flow, whatever its type.
+  const belowBar = page.header?.type === "transparent" && !page.header.style && !startsWithCover(page.body);
   // 129.8 Each element's entrance plays once when it first comes into view (lib/studio/motion.ts).
   const root = useRef<HTMLDivElement>(null);
   useEffect(() => (root.current ? watchEntrances(root.current, rtl) : undefined), [rtl]);
@@ -262,6 +265,28 @@ function Header(props: ViewProps & { header: StudioHeader; under?: { scrolled: b
     <span style={{ fontWeight: 800, fontSize: 16 }}>{title}</span>
   );
   const selected = editing?.selectedId === "header";
+  // ——— 130.20 A premium header style: drawn by premium-chrome.tsx, open as the page starts ———
+  if (header.style) {
+    const subtitle = (props.lang !== props.defaultLang ? (header.translations?.[props.lang]?.subtitle as string | undefined) : undefined) ?? header.subtitle ?? null;
+    return (
+      <PremiumHeader
+        header={header}
+        title={title}
+        subtitle={subtitle}
+        brand={look.brand}
+        accent={look.accent ?? null}
+        logoUrl={logo}
+        dark={dark}
+        rtl={props.lang === "ar"}
+        searchWord={props.words.search}
+        back={header.type === "title"}
+        selected={selected}
+        onSelect={editing ? () => editing.onSelect("header") : undefined}
+        tag={selected && editing ? <Tag text={editing.tagOf({ id: "header", type: "row" })} /> : null}
+      />
+    );
+  }
+  // ——— end 130.20 ———
   const wrap: CSSProperties = {
     position: "relative",
     margin: header.type === "transparent" ? "0" : "30px 10px 0",
@@ -1199,6 +1224,21 @@ function ScreenPart(props: ViewProps) {
         onMouseLeave={props.editing ? () => setHover(false) : undefined}
         style={{ position: "relative", flex: "1 0 auto", display: "flex", flexDirection: "column", cursor: props.editing ? "default" : undefined, userSelect: "none" }}
       >
+        {/* 130.21 A system screen in its premium look (premium-chrome.tsx). */}
+        {part.drawing.screen === "system" ? (
+          <SystemScreen
+            screen={part.drawing.key}
+            look={part.drawing.look}
+            dark={dark}
+            lang={lang}
+            brand={look.brand}
+            accent={look.accent ?? null}
+            image={part.drawing.image}
+            title={tabLabel}
+            hidesTitle={Boolean(page.header)}
+            top={page.header || page.body.children?.length || props.editing ? 0 : 30}
+          />
+        ) : (
         <AppScreen
           drawing={part.drawing}
           dark={dark}
@@ -1214,6 +1254,7 @@ function ScreenPart(props: ViewProps) {
           // Room for the status bar when nothing is over it (in the editor the empty page's drop box takes it).
           top={page.header || page.body.children?.length || props.editing ? 0 : 30}
         />
+        )}
         {props.editing && hover ? (
           <span style={{ position: "absolute", top: 8, insetInline: 10, display: "flex", justifyContent: "center", pointerEvents: "none", zIndex: 4 }}>
             <span data-studio-screen-hint="" style={{ display: "inline-flex", alignItems: "center", gap: 8, maxWidth: "100%", padding: "6px 6px 6px 12px", borderRadius: 999, background: "rgba(14,13,36,0.88)", color: "#F4EFE6", fontSize: 11.5, fontWeight: 700, boxShadow: "0 6px 16px rgba(14,13,36,0.25)" }}>

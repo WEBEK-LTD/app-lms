@@ -1,4 +1,7 @@
 "use client";
+// 130.20 130.21 Premium chrome: the header's premium style and the system screens' look.
+import { HeaderStyleControls, SystemLookControl } from "./premium-chrome-controls";
+import type { SystemLook } from "@/lib/studio/premium-chrome";
 
 import { useId, useState, type CSSProperties, type ReactNode } from "react";
 import { useDashT, useKnownText } from "@/components/dashboard-i18n";
@@ -113,6 +116,8 @@ interface Props {
   textStyles: Record<StudioTextStyle, StudioFont>;
   /** Editor audit 3.3: editing while the canvas shows a tablet; `changed` when the element has tablet changes. */
   tablet?: { changed: boolean; onReset: () => void };
+  /** 130.21 The system screens' look (Studio › Screens), where the project has Studio's screens. */
+  system?: { look: SystemLook | null; onLook: (look: SystemLook | null) => void; busy: boolean };
 }
 
 export function Inspector(props: Props) {
@@ -1413,6 +1418,9 @@ function HeaderPanel(props: Props) {
             {t("studio.noHeader")}
           </button>
         </div>
+        {/* 130.20 The header's premium style. */}
+        <Rule />
+        <HeaderStyleControls header={header} onChange={set} lang={props.lang} defaultLang={props.defaultLang} />
         <Rule />
         <div className="flex flex-wrap gap-2.5">
           {STUDIO_HEADER_BUTTONS.map((b) => (
@@ -1732,6 +1740,8 @@ function PagePanel(props: Props) {
             {t("studio.pageScreenHint")}
           </span>
         </label>
+        {/* 130.21 The look of the app's system screens, for the whole project. */}
+        {props.system ? <SystemLookControl look={props.system.look} onLook={props.system.onLook} busy={props.system.busy} /> : null}
         <p className="m-0 text-xs" style={{ color: "var(--studio-muted)" }}>
           {t("studio.keyboard")}
         </p>

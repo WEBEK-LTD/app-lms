@@ -18,6 +18,10 @@
   "account_menu": {
    "header": "cover",
    "items": []
+  },
+  "system": {
+   "look": "photo",
+   "image_url": "http://localhost:3000/demo-screens/sofra-mezze.jpg"
   }
  },
  "layout": {
@@ -1068,7 +1072,8 @@
       "background": "#FBF7F2",
       "color": "#2A1810",
       "dark_background": "#17100C",
-      "dark_color": "#F7EDE6"
+      "dark_color": "#F7EDE6",
+      "style": "large"
      }
     },
     "show_title": false,
@@ -1134,7 +1139,8 @@
       "background": "#FBF7F2",
       "color": "#2A1810",
       "dark_background": "#17100C",
-      "dark_color": "#F7EDE6"
+      "dark_color": "#F7EDE6",
+      "style": "large"
      }
     },
     "show_title": false,
@@ -1196,7 +1202,8 @@
       "background": "#FBF7F2",
       "color": "#2A1810",
       "dark_background": "#17100C",
-      "dark_color": "#F7EDE6"
+      "dark_color": "#F7EDE6",
+      "style": "large"
      }
     },
     "show_title": false,
@@ -1235,7 +1242,8 @@
       "background": "#FBF7F2",
       "color": "#2A1810",
       "dark_background": "#17100C",
-      "dark_color": "#F7EDE6"
+      "dark_color": "#F7EDE6",
+      "style": "large"
      }
     },
     "show_title": false,
@@ -1274,7 +1282,8 @@
       "background": "#FBF7F2",
       "color": "#2A1810",
       "dark_background": "#17100C",
-      "dark_color": "#F7EDE6"
+      "dark_color": "#F7EDE6",
+      "style": "large"
      }
     },
     "show_title": false,
@@ -1313,7 +1322,8 @@
       "background": "#FBF7F2",
       "color": "#2A1810",
       "dark_background": "#17100C",
-      "dark_color": "#F7EDE6"
+      "dark_color": "#F7EDE6",
+      "style": "large"
      }
     },
     "show_title": false,
@@ -1412,7 +1422,8 @@
       "background": "#FBF7F2",
       "color": "#2A1810",
       "dark_background": "#17100C",
-      "dark_color": "#F7EDE6"
+      "dark_color": "#F7EDE6",
+      "style": "large"
      }
     },
     "show_title": false,

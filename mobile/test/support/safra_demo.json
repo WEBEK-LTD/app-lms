@@ -19,6 +19,10 @@
    "header": "night",
    "accent": "#C9A063",
    "items": []
+  },
+  "system": {
+   "look": "photo",
+   "image_url": "http://localhost:3000/demo-screens/safra-caldera.jpg"
   }
  },
  "layout": {
@@ -436,7 +440,8 @@
       "background": "#F7F3EC",
       "color": "#0E1424",
       "dark_background": "#0E1424",
-      "dark_color": "#F4EFE6"
+      "dark_color": "#F4EFE6",
+      "style": "large"
      },
      "background": "#F7F3EC",
      "dark_background": "#0E1424"
@@ -480,7 +485,8 @@
       "background": "#F7F3EC",
       "color": "#0E1424",
       "dark_background": "#0E1424",
-      "dark_color": "#F4EFE6"
+      "dark_color": "#F4EFE6",
+      "style": "large"
      },
      "background": "#F7F3EC",
      "dark_background": "#0E1424"
@@ -524,7 +530,8 @@
       "background": "#F7F3EC",
       "color": "#0E1424",
       "dark_background": "#0E1424",
-      "dark_color": "#F4EFE6"
+      "dark_color": "#F4EFE6",
+      "style": "large"
      },
      "background": "#F7F3EC",
      "dark_background": "#0E1424"
@@ -590,7 +597,8 @@
       "background": "#F7F3EC",
       "color": "#0E1424",
       "dark_background": "#0E1424",
-      "dark_color": "#F4EFE6"
+      "dark_color": "#F4EFE6",
+      "style": "large"
      },
      "background": "#F7F3EC",
      "dark_background": "#0E1424"
@@ -631,7 +639,8 @@
       "background": "#F7F3EC",
       "color": "#0E1424",
       "dark_background": "#0E1424",
-      "dark_color": "#F4EFE6"
+      "dark_color": "#F4EFE6",
+      "style": "large"
      },
      "background": "#F7F3EC",
      "dark_background": "#0E1424"
@@ -672,7 +681,8 @@
       "background": "#F7F3EC",
       "color": "#0E1424",
       "dark_background": "#0E1424",
-      "dark_color": "#F4EFE6"
+      "dark_color": "#F4EFE6",
+      "style": "large"
      },
      "background": "#F7F3EC",
      "dark_background": "#0E1424"
@@ -713,7 +723,8 @@
       "background": "#F7F3EC",
       "color": "#0E1424",
       "dark_background": "#0E1424",
-      "dark_color": "#F4EFE6"
+      "dark_color": "#F4EFE6",
+      "style": "large"
      },
      "background": "#F7F3EC",
      "dark_background": "#0E1424"
@@ -754,7 +765,8 @@
       "background": "#F7F3EC",
       "color": "#0E1424",
       "dark_background": "#0E1424",
-      "dark_color": "#F4EFE6"
+      "dark_color": "#F4EFE6",
+      "style": "large"
      },
      "background": "#F7F3EC",
      "dark_background": "#0E1424"

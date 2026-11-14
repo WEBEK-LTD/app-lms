@@ -27,6 +27,9 @@ List<NavTab> sideMenuEntries(WidgetRef ref) {
 }
 
 /// The bottom tabs' screen that holds the side menu, above [context].
+/// 130.20 Opens the side menu (a premium header's round menu button).
+void openSideMenu(BuildContext context) => _menuHolder(context)?.openDrawer();
+
 ScaffoldState? _menuHolder(BuildContext context) {
   ScaffoldState? holder;
   context.visitAncestorElements((element) {

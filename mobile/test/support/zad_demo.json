@@ -19,6 +19,9 @@
    "header": "night",
    "accent": "#F2A93B",
    "items": []
+  },
+  "system": {
+   "look": "glass"
   }
  },
  "layout": {
@@ -749,7 +752,8 @@
        "tr": {
         "title": "Sepet"
        }
-      }
+      },
+      "style": "glass"
      }
     },
     "show_title": false,
@@ -811,7 +815,8 @@
        "tr": {
         "title": "Siparişler"
        }
-      }
+      },
+      "style": "glass"
      }
     },
     "show_title": false,
@@ -944,7 +949,8 @@
        "tr": {
         "title": "Dükkânlar"
        }
-      }
+      },
+      "style": "glass"
      }
     },
     "show_title": false,
@@ -979,7 +985,8 @@
        "tr": {
         "title": "Restoranlar"
        }
-      }
+      },
+      "style": "glass"
      }
     },
     "show_title": false,
@@ -1014,7 +1021,8 @@
        "tr": {
         "title": "Ayarlar"
        }
-      }
+      },
+      "style": "glass"
      }
     },
     "show_title": false,
@@ -1049,7 +1057,8 @@
        "tr": {
         "title": "Bildirimler"
        }
-      }
+      },
+      "style": "glass"
      }
     },
     "show_title": false,
@@ -1084,7 +1093,8 @@
        "tr": {
         "title": "Ara"
        }
-      }
+      },
+      "style": "glass"
      }
     },
     "show_title": false,
@@ -1119,7 +1129,8 @@
        "tr": {
         "title": "Kulüp"
        }
-      }
+      },
+      "style": "glass"
      }
     },
     "show_title": false,
@@ -1154,7 +1165,8 @@
        "tr": {
         "title": "Profili düzenle"
        }
-      }
+      },
+      "style": "glass"
      }
     },
     "show_title": false,
@@ -1189,7 +1201,8 @@
        "tr": {
         "title": "Cihazlar"
        }
-      }
+      },
+      "style": "glass"
      }
     },
     "show_title": false,
@@ -1284,7 +1297,8 @@
        "tr": {
         "title": "Sepetiniz"
        }
-      }
+      },
+      "style": "glass"
      }
     },
     "show_title": false,
@@ -1349,7 +1363,8 @@
        "tr": {
         "title": "Ödeme"
        }
-      }
+      },
+      "style": "glass"
      }
     },
     "show_title": false,
@@ -1384,7 +1399,8 @@
        "tr": {
         "title": "Siparişlerim"
        }
-      }
+      },
+      "style": "glass"
      }
     },
     "show_title": false,
@@ -1434,7 +1450,8 @@
        "tr": {
         "title": "Cüzdan"
        }
-      }
+      },
+      "style": "glass"
      }
     },
     "show_title": false,
@@ -1469,7 +1486,8 @@
        "tr": {
         "title": "Sorun bildir"
        }
-      }
+      },
+      "style": "glass"
      }
     },
     "show_title": false,

@@ -16,6 +16,8 @@ import '../../../core/widgets/buttons.dart';
 import '../../../core/widgets/common.dart';
 import '../../../core/widgets/studio_screen_scope.dart';
 import '../data/real_estate_providers.dart';
+// 130.21 The lists in the project's premium look.
+import '../../../core/widgets/premium_chrome.dart';
 
 /// Icons of the listing facts (Material Symbols Rounded).
 abstract final class ListingIcons {
@@ -420,6 +422,59 @@ class TabHeader extends StatelessWidget {
                 child: trailing,
               ),
             );
+    }
+    // 130.21 A list in the project's premium look: its title large, on the
+    // brand's colour in the photo and brand looks.
+    final look = SystemScreenArea.lookOf(context);
+    if (look != null) {
+      final band = look == SystemLook.photo || look == SystemLook.brand;
+      final heading = Row(
+        children: [
+          Expanded(
+            child: Semantics(
+              header: true,
+              child: Text(
+                title,
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+                style: TextStyle(
+                  fontSize: 31,
+                  fontWeight: FontWeight.w800,
+                  letterSpacing: -0.6,
+                  color: band ? Colors.white : p.text,
+                ),
+              ),
+            ),
+          ),
+          ?trailing,
+        ],
+      );
+      if (!band) {
+        return Padding(
+          key: ValueKey('chrome-tab-header-${look.name}'),
+          padding: const EdgeInsets.fromLTRB(20, 18, 20, 12),
+          child: heading,
+        );
+      }
+      return Padding(
+        key: ValueKey('chrome-tab-header-${look.name}'),
+        padding: const EdgeInsets.fromLTRB(12, 8, 12, 12),
+        child: Container(
+          padding: const EdgeInsets.fromLTRB(20, 22, 16, 22),
+          decoration: BoxDecoration(
+            gradient: ChromeTones.brand(p),
+            borderRadius: BorderRadius.circular(26),
+            boxShadow: [
+              BoxShadow(
+                color: p.primary.withValues(alpha: 0.28),
+                blurRadius: 26,
+                offset: const Offset(0, 12),
+              ),
+            ],
+          ),
+          child: heading,
+        ),
+      );
     }
     return Padding(
       padding: const EdgeInsets.fromLTRB(20, 16, 20, 10),

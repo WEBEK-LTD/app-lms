@@ -13,6 +13,8 @@ import 'screens/driver_screen.dart';
 import 'screens/my_rides_screen.dart';
 import 'screens/ride_follow_screen.dart';
 import 'screens/ride_screen.dart';
+// 130.21 The system screens' premium look.
+import '../../core/widgets/premium_chrome.dart' show SystemScreenArea;
 
 /// 105.2 The Ride hailing module (hosted API): asking for a ride, my rides
 /// and the account as tabs, and a ride's page; for the company's drivers a
@@ -99,7 +101,14 @@ final driverAppTabs = [driverTab, _accountTab];
 
 List<TabScreen> _screens() => [
   TabScreen(Paths.ride, (state) => const RideScreen()),
-  TabScreen(Paths.myRides, (state) => const MyRidesScreen()),
+  TabScreen(
+    Paths.myRides,
+    (state) => const SystemScreenArea(
+      // 130.21 The lists in the project's premium look.
+      screen: SystemScreen.lists,
+      child: MyRidesScreen(),
+    ),
+  ),
   TabScreen(Paths.driver, (state) => const DriverScreen()),
   TabScreen(
     Paths.account,

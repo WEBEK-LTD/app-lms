@@ -13,6 +13,8 @@ import { demoStudioScreens } from "@/lib/demo/screens";
 import { appUrl } from "@/lib/env";
 import { refreshSitesSoon } from "@/lib/license/refresh-soon";
 import { parseStudioScreens, studioScreensOn, type StudioScreens } from "@/lib/studio/screens";
+// 130.21 The system screens' premium look.
+import { parseSystemLook } from "@/lib/studio/premium-chrome";
 
 /**
  * 118.3 Saves the sign-in screen's look and the account menu of a Studio
@@ -90,8 +92,11 @@ export async function applyDesignLookAction(input: { primary?: string | null; sc
   if (input.screens && studioScreensOn(app)) {
     const parsed = parseStudioScreens(input.screens);
     if (!parsed.problems.length) {
-      update.hostedSettings = { ...DEFAULT_HOSTED_SETTINGS, ...(app.hostedSettings ?? {}), studioScreens: parsed.screens };
-      out.screens = parsed.screens;
+      // 130.22 A whole design that brings only the system screens' look keeps the project's sign-in, menu and the rest.
+      const only = Object.keys(parsed.screens).every((k) => k === "system");
+      const screens = only ? { ...(app.hostedSettings?.studioScreens ?? {}), ...parsed.screens } : parsed.screens;
+      update.hostedSettings = { ...DEFAULT_HOSTED_SETTINGS, ...(app.hostedSettings ?? {}), studioScreens: screens };
+      out.screens = screens;
     }
   }
   if (!Object.keys(update).length) return out;
@@ -106,3 +111,28 @@ export async function applyDesignLookAction(input: { primary?: string | null; sc
   revalidatePath("/studio/project/screens");
   return out;
 }
+
+// ——— 130.21 Premium chrome: the system screens' look chosen in Studio's editor ———
+/**
+ * 130.21 Saves the look of the app's system screens (the account, settings, notifications, the lists, sign-in…)
+ * chosen in Studio's editor, keeping the rest of Studio › Screens; `look` null goes back to the app's own.
+ * Returns the screens as saved, for the canvas.
+ */
+export async function saveSystemLookAction(input: { look: string | null }): Promise<{ ok: boolean; screens?: StudioScreens | null }> {
+  const context = await clientFor("settings");
+  if (!context || !mayUseDashboard(context)) return { ok: false };
+  const app = context.app;
+  if (!app || !studioScreensOn(app)) return { ok: false };
+  const saved = app.hostedSettings?.studioScreens ?? {};
+  const { system: was, ...rest } = saved;
+  const next = input.look === null ? null : parseSystemLook({ ...(was ?? {}), look: input.look }, []);
+  if (input.look !== null && !next) return { ok: false };
+  const screens: StudioScreens = next ? { ...rest, system: next } : rest;
+  const settings = { ...DEFAULT_HOSTED_SETTINGS, ...(app.hostedSettings ?? {}), studioScreens: screens };
+  await (await getStore()).updateApp(app.id, { hostedSettings: settings }, new Date());
+  await recordStaffChange(context, "Changed the system screens' look", { studioScreens: app.hostedSettings?.studioScreens ?? null }, { studioScreens: screens });
+  if (app.backend === "wordpress") refreshSitesSoon([app.id]);
+  revalidatePath("/studio/project/screens");
+  return { ok: true, screens };
+}
+// ——— end 130.21 premium chrome ———

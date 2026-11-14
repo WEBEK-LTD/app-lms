@@ -1133,6 +1133,21 @@ class Block_Resolver {
 		foreach ( array( 'background', 'color', 'dark_background', 'dark_color' ) as $field ) {
 			$header[ $field ] = self::hex( $raw[ $field ] ?? null );
 		}
+		// 130.20 Premium chrome: the header's premium style, the line under its title, its photo and whether it collapses.
+		if ( in_array( $raw['style'] ?? null, array( 'large', 'glass', 'photo', 'brand', 'search' ), true ) ) {
+			$header['style'] = $raw['style'];
+			$subtitle        = self::text( $raw['subtitle'] ?? null );
+			if ( null !== $subtitle ) {
+				$header['subtitle'] = mb_substr( $subtitle, 0, 80 );
+			}
+			$cover = self::url( $raw['image_url'] ?? null );
+			if ( null !== $cover ) {
+				$header['image_url'] = $cover;
+			}
+			if ( false === ( $raw['collapse'] ?? null ) ) {
+				$header['collapse'] = false;
+			}
+		}
 		return $header;
 	}
 

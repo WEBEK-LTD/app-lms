@@ -181,6 +181,14 @@
    "lesson": "premium",
    "code": "premium",
    "cart": "premium"
+  },
+  "system": {
+   "look": "brand",
+   "screens": {
+    "account": "classic",
+    "sign_in": "classic",
+    "code": "classic"
+   }
   }
  },
  "layout": {

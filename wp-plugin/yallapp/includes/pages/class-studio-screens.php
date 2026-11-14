@@ -26,6 +26,9 @@ class Studio_Screens {
 		'code'       => 'premium',
 		'cart'       => 'premium',
 	);
+	// 130.21 The system screens' premium looks and the screens they apply to.
+	const SYSTEM_LOOKS   = array( 'large', 'glass', 'photo', 'brand' );
+	const SYSTEM_SCREENS = array( 'account', 'settings', 'notifications', 'language', 'edit_profile', 'help', 'lists', 'sign_in', 'code', 'states' );
 	const LAUNCH_LOOKS   = array( 'signature', 'cinema', 'aurora', 'editorial', 'monogram' );
 	const LAUNCH_LOADERS = array(
 		'signature' => 'bar',
@@ -82,7 +85,42 @@ class Studio_Screens {
 		if ( $launch ) {
 			$out['launch'] = $launch;
 		}
+		// 130.21 The system screens' premium look.
+		$system = is_array( $raw['system'] ?? null ) ? self::system( $raw['system'] ) : null;
+		if ( $system ) {
+			$out['system'] = $system;
+		}
 		return $out ? $out : null;
+	}
+
+	/**
+	 * 130.21 The premium look of the app's system screens: the look, another one (or `classic`) for
+	 * a screen, and the photo look's photo; null for a look this plugin doesn't know.
+	 *
+	 * @param array $raw The platform's.
+	 * @return array|null
+	 */
+	private static function system( array $raw ) {
+		if ( ! in_array( $raw['look'] ?? null, self::SYSTEM_LOOKS, true ) ) {
+			return null;
+		}
+		$out     = array( 'look' => $raw['look'] );
+		$screens = array();
+		$asked   = is_array( $raw['screens'] ?? null ) ? $raw['screens'] : array();
+		foreach ( self::SYSTEM_SCREENS as $screen ) {
+			$own = $asked[ $screen ] ?? null;
+			if ( 'classic' === $own || ( in_array( $own, self::SYSTEM_LOOKS, true ) && $own !== $raw['look'] ) ) {
+				$screens[ $screen ] = $own;
+			}
+		}
+		if ( $screens ) {
+			$out['screens'] = $screens;
+		}
+		$image = self::url( $raw['image_url'] ?? null );
+		if ( null !== $image ) {
+			$out['image_url'] = $image;
+		}
+		return $out;
 	}
 
 	/**

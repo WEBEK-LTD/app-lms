@@ -233,6 +233,7 @@ class StudioScreens {
     this.coursePage,
     this.looks = const {},
     this.launch,
+    this.system,
   });
 
   static StudioScreens? fromJson(Object? value) {
@@ -262,8 +263,12 @@ class StudioScreens {
               k,
       },
       launch: LaunchLook.fromJson(value['launch']),
+      system: SystemScreensLook.tryParse(value['system']),
     );
   }
+
+  /// 130.21 The premium look of the app's system screens; null, their own.
+  final SystemScreensLook? system;
 
   final SignInLook? signIn;
   final AccountMenuDesign? accountMenu;
@@ -304,3 +309,66 @@ Color? _hex(String? value) {
   }
   return Color(int.parse('FF${value.substring(1)}', radix: 16));
 }
+
+// ——— 130.21 Premium chrome: the system screens' premium look ———
+
+/// 130.21 The premium looks of the system screens (`Config.screens.system`).
+enum SystemLook { large, glass, photo, brand }
+
+/// 130.21 The system screens a look applies to.
+enum SystemScreen {
+  account('account'),
+  settings('settings'),
+  notifications('notifications'),
+  language('language'),
+  editProfile('edit_profile'),
+  help('help'),
+  lists('lists'),
+  signIn('sign_in'),
+  code('code'),
+  states('states');
+
+  const SystemScreen(this.wire);
+  final String wire;
+}
+
+/// 130.21 `Config.screens.system`: one look for the system screens, another
+/// (or `classic`, the screen's own) for some, and the photo look's photo.
+class SystemScreensLook {
+  const SystemScreensLook({
+    required this.look,
+    this.screens = const {},
+    this.imageUrl,
+  });
+
+  /// Null for none, or a look this app doesn't know.
+  static SystemScreensLook? tryParse(Object? value) {
+    if (value is! Map) return null;
+    SystemLook? pick(Object? name) =>
+        SystemLook.values.where((l) => l.name == name).firstOrNull;
+    final look = pick(value['look']);
+    if (look == null) return null;
+    final raw = value['screens'];
+    final image = value['image_url'];
+    return SystemScreensLook(
+      look: look,
+      screens: {
+        if (raw is Map)
+          for (final s in SystemScreen.values)
+            if (raw[s.wire] == 'classic') s: null else s: ?pick(raw[s.wire]),
+      },
+      imageUrl: image is String && image.startsWith('http') ? image : null,
+    );
+  }
+
+  final SystemLook look;
+
+  /// A screen with its own look; null there, the screen's own (classic).
+  final Map<SystemScreen, SystemLook?> screens;
+  final String? imageUrl;
+
+  /// The look [screen] has; null, its own.
+  SystemLook? lookFor(SystemScreen screen) =>
+      screens.containsKey(screen) ? screens[screen] : look;
+}
+// ——— end 130.21 ———

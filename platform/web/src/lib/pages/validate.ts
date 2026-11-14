@@ -50,6 +50,8 @@ import {
   STUDIO_FONT_WEIGHTS,
   STUDIO_HEADER_BUTTONS,
   STUDIO_HEADER_TYPES,
+  // 130.20 The premium headers' styles.
+  STUDIO_HEADER_STYLES,
   STUDIO_LAYOUT_TYPES,
   STUDIO_PAGE_SCREENS,
   WEB_HIDE_PATTERN,
@@ -1088,7 +1090,21 @@ function parseStudioHeader(ctx: Context, where: string, value: unknown): StudioH
     const color = optionalColor(c, where, v[key], what);
     if (color) header[key] = color;
   }
-  const translations = parseTranslations(ctx, where, v.translations, TRANSLATABLE.studioHeader, { title: 80 });
+  // ——— 130.20 Premium chrome: the header's premium style, its line, photo and collapse ———
+  if (v.style !== undefined && v.style !== null) {
+    if (!oneOf(STUDIO_HEADER_STYLES, v.style)) c.fail(where, "the header's premium style isn't one the app has.");
+    else header.style = v.style;
+  }
+  const subtitle = c.optionalText(where, v.subtitle, 80, "The line under the header's title");
+  if (subtitle) header.subtitle = subtitle;
+  const cover = c.mediaUrl(where, v.image_url, "the header photo's address", false);
+  if (cover) header.image_url = cover;
+  if (v.collapse !== undefined && v.collapse !== null) {
+    if (typeof v.collapse !== "boolean") c.fail(where, "whether the header collapses must be true or false.");
+    else if (v.collapse === false) header.collapse = false;
+  }
+  // ——— end 130.20 premium chrome ———
+  const translations = parseTranslations(ctx, where, v.translations, TRANSLATABLE.studioHeader, { title: 80, subtitle: 80 });
   if (translations) header.translations = translations;
   return header;
 }

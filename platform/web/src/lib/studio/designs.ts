@@ -6,6 +6,8 @@ import { demoPageTabs, demoScreenPages, demoTabPages } from "./demo-pages";
 import { demoTemplateId, studioDemoOf } from "./demo-templates";
 import { DESIGN_FILE_FORMAT, DESIGN_FILE_VERSION, type DesignFile } from "./design-file";
 import { TEMPLATES, templatesFor, type ProjectKind, type SectionContext } from "./sections";
+// 130.23 The whole designs' premium chrome.
+import { THEME_CHROME } from "./demo-designs/chrome";
 
 /**
  * 108.7 Whole designs: every page of a project, its header and its look at
@@ -154,7 +156,7 @@ export function themedPage(page: StudioPage, theme: DesignTheme): StudioPage {
   return {
     ...page,
     ...(theme.background ? { background: theme.background } : {}),
-    ...(page.header && theme.header ? { header: { ...page.header, type: theme.header } } : {}),
+    ...(page.header && theme.header ? { header: { ...page.header, type: theme.header, ...(THEME_CHROME[theme.id] && !page.header.style ? { style: THEME_CHROME[theme.id]!.pages } : {}) } } : {}),
     body: theme.layout ? laidOut(body, theme.layout) : body,
   };
 }
@@ -200,7 +202,12 @@ export function makeDesign(design: WholeDesign, ctx: SectionContext, words: Desi
     made_at: "",
     languages,
     pages,
-    look: { font: design.theme.font, secondary_color: design.demo ? DEMO_BRANDS[design.demo].secondaryColor : design.theme.accent },
+    look: {
+      font: design.theme.font,
+      secondary_color: design.demo ? DEMO_BRANDS[design.demo].secondaryColor : design.theme.accent,
+      // 130.23 The system screens in the design's premium look (a demo's come with the demo's screens).
+      ...(!design.demo && THEME_CHROME[design.theme.id] ? { screens: { system: structuredClone(THEME_CHROME[design.theme.id]!.system) } } : {}),
+    },
     pictures: {},
     fonts: [],
     ...(design.demo ? { demo: design.demo } : {}),

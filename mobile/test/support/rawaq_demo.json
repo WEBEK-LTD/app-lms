@@ -36,6 +36,15 @@
    "lesson": "premium",
    "code": "premium",
    "cart": "premium"
+  },
+  "system": {
+   "look": "photo",
+   "screens": {
+    "account": "classic",
+    "sign_in": "classic",
+    "code": "classic"
+   },
+   "image_url": "http://localhost:3000/demo-screens/rawaq-library.jpg"
   }
  },
  "layout": {
@@ -883,7 +892,8 @@
       "background": "#FFFFFF",
       "color": "#15241D",
       "dark_background": "#15221C",
-      "dark_color": "#ECF3EF"
+      "dark_color": "#ECF3EF",
+      "style": "large"
      },
      "background": "#F5F4EE",
      "dark_background": "#0C1511"
@@ -986,7 +996,8 @@
       "background": "#FFFFFF",
       "color": "#15241D",
       "dark_background": "#15221C",
-      "dark_color": "#ECF3EF"
+      "dark_color": "#ECF3EF",
+      "style": "large"
      },
      "background": "#F5F4EE",
      "dark_background": "#0C1511"
@@ -1050,7 +1061,8 @@
       "background": "#FFFFFF",
       "color": "#15241D",
       "dark_background": "#15221C",
-      "dark_color": "#ECF3EF"
+      "dark_color": "#ECF3EF",
+      "style": "large"
      },
      "background": "#F5F4EE",
      "dark_background": "#0C1511"
@@ -1091,7 +1103,8 @@
       "background": "#FFFFFF",
       "color": "#15241D",
       "dark_background": "#15221C",
-      "dark_color": "#ECF3EF"
+      "dark_color": "#ECF3EF",
+      "style": "large"
      },
      "background": "#F5F4EE",
      "dark_background": "#0C1511"
@@ -1132,7 +1145,8 @@
       "background": "#FFFFFF",
       "color": "#15241D",
       "dark_background": "#15221C",
-      "dark_color": "#ECF3EF"
+      "dark_color": "#ECF3EF",
+      "style": "large"
      },
      "background": "#F5F4EE",
      "dark_background": "#0C1511"
@@ -1173,7 +1187,8 @@
       "background": "#FFFFFF",
       "color": "#15241D",
       "dark_background": "#15221C",
-      "dark_color": "#ECF3EF"
+      "dark_color": "#ECF3EF",
+      "style": "large"
      },
      "background": "#F5F4EE",
      "dark_background": "#0C1511"
@@ -1214,7 +1229,8 @@
       "background": "#FFFFFF",
       "color": "#15241D",
       "dark_background": "#15221C",
-      "dark_color": "#ECF3EF"
+      "dark_color": "#ECF3EF",
+      "style": "large"
      },
      "background": "#F5F4EE",
      "dark_background": "#0C1511"
@@ -1255,7 +1271,8 @@
       "background": "#FFFFFF",
       "color": "#15241D",
       "dark_background": "#15221C",
-      "dark_color": "#ECF3EF"
+      "dark_color": "#ECF3EF",
+      "style": "large"
      },
      "background": "#F5F4EE",
      "dark_background": "#0C1511"
@@ -1296,7 +1313,8 @@
       "background": "#FFFFFF",
       "color": "#15241D",
       "dark_background": "#15221C",
-      "dark_color": "#ECF3EF"
+      "dark_color": "#ECF3EF",
+      "style": "large"
      },
      "background": "#F5F4EE",
      "dark_background": "#0C1511"
@@ -1337,7 +1355,8 @@
       "background": "#FFFFFF",
       "color": "#15241D",
       "dark_background": "#15221C",
-      "dark_color": "#ECF3EF"
+      "dark_color": "#ECF3EF",
+      "style": "large"
      },
      "background": "#F5F4EE",
      "dark_background": "#0C1511"
@@ -1513,7 +1532,8 @@
       "background": "#FFFFFF",
       "color": "#15241D",
       "dark_background": "#15221C",
-      "dark_color": "#ECF3EF"
+      "dark_color": "#ECF3EF",
+      "style": "large"
      },
      "background": "#F5F4EE",
      "dark_background": "#0C1511"
@@ -1569,7 +1589,8 @@
       "background": "#FFFFFF",
       "color": "#15241D",
       "dark_background": "#15221C",
-      "dark_color": "#ECF3EF"
+      "dark_color": "#ECF3EF",
+      "style": "large"
      },
      "background": "#F5F4EE",
      "dark_background": "#0C1511"
@@ -1610,7 +1631,8 @@
       "background": "#FFFFFF",
       "color": "#15241D",
       "dark_background": "#15221C",
-      "dark_color": "#ECF3EF"
+      "dark_color": "#ECF3EF",
+      "style": "large"
      },
      "background": "#F5F4EE",
      "dark_background": "#0C1511"
@@ -1651,7 +1673,8 @@
       "background": "#FFFFFF",
       "color": "#15241D",
       "dark_background": "#15221C",
-      "dark_color": "#ECF3EF"
+      "dark_color": "#ECF3EF",
+      "style": "large"
      },
      "background": "#F5F4EE",
      "dark_background": "#0C1511"
@@ -1707,7 +1730,8 @@
       "background": "#FFFFFF",
       "color": "#15241D",
       "dark_background": "#15221C",
-      "dark_color": "#ECF3EF"
+      "dark_color": "#ECF3EF",
+      "style": "large"
      },
      "background": "#F5F4EE",
      "dark_background": "#0C1511"
@@ -1748,7 +1772,8 @@
       "background": "#FFFFFF",
       "color": "#15241D",
       "dark_background": "#15221C",
-      "dark_color": "#ECF3EF"
+      "dark_color": "#ECF3EF",
+      "style": "large"
      },
      "background": "#F5F4EE",
      "dark_background": "#0C1511"
@@ -1789,7 +1814,8 @@
       "background": "#FFFFFF",
       "color": "#15241D",
       "dark_background": "#15221C",
-      "dark_color": "#ECF3EF"
+      "dark_color": "#ECF3EF",
+      "style": "large"
      },
      "background": "#F5F4EE",
      "dark_background": "#0C1511"
@@ -1830,7 +1856,8 @@
       "background": "#FFFFFF",
       "color": "#15241D",
       "dark_background": "#15221C",
-      "dark_color": "#ECF3EF"
+      "dark_color": "#ECF3EF",
+      "style": "large"
      },
      "background": "#F5F4EE",
      "dark_background": "#0C1511"
@@ -1871,7 +1898,8 @@
       "background": "#FFFFFF",
       "color": "#15241D",
       "dark_background": "#15221C",
-      "dark_color": "#ECF3EF"
+      "dark_color": "#ECF3EF",
+      "style": "large"
      },
      "background": "#F5F4EE",
      "dark_background": "#0C1511"
@@ -1912,7 +1940,8 @@
       "background": "#FFFFFF",
       "color": "#15241D",
       "dark_background": "#15221C",
-      "dark_color": "#ECF3EF"
+      "dark_color": "#ECF3EF",
+      "style": "large"
      },
      "background": "#F5F4EE",
      "dark_background": "#0C1511"

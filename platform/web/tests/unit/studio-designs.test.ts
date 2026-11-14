@@ -8,6 +8,7 @@ import { DEMO_BRANDS } from "@/lib/demo/content";
 import { studioDemoOf } from "@/lib/studio/demo-templates";
 import { applyWholeDesign, DESIGN_THEMES, designName, designsFor, keepContent, makeDesign } from "@/lib/studio/designs";
 import { TEMPLATES } from "@/lib/studio/sections";
+import { THEME_CHROME } from "@/lib/studio/demo-designs/chrome";
 import type { SectionWord } from "@/lib/studio/sections";
 import { NOW } from "./helpers";
 
@@ -56,7 +57,8 @@ describe("108.7 whole designs", () => {
       const ctx = { brand: "#1F4E5F", source: itemSourcesFor(app)[0] ?? null, w: (word: SectionWord) => `[${word}]` };
       for (const design of designsFor({ type: kind.engine, vertical: kind.vertical })) {
         const file = makeDesign(design, ctx, words, languages);
-        expect(file.look).toEqual({ font: design.theme.font, secondary_color: design.demo ? DEMO_BRANDS[design.demo].secondaryColor : design.theme.accent });
+        // 130.23 A whole design of Yallapp's own brings the system screens' premium look (a demo's, its own screens).
+        expect(file.look).toEqual({ font: design.theme.font, secondary_color: design.demo ? DEMO_BRANDS[design.demo].secondaryColor : design.theme.accent, ...(design.demo ? {} : { screens: { system: THEME_CHROME[design.theme.id]!.system } }) });
         for (const page of file.pages) {
           const parsed = parseStudioPage(page.studio, app, languages);
           expect(parsed.ok ? [] : parsed.errors, `${kind.id} › ${design.id} › ${page.slug}`).toEqual([]);

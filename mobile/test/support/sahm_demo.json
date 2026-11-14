@@ -18,6 +18,9 @@
   "account_menu": {
    "header": "tiles",
    "items": []
+  },
+  "system": {
+   "look": "brand"
   }
  },
  "layout": {
@@ -771,7 +774,8 @@
       "background": "#FFFFFF",
       "color": "#0F1E2E",
       "dark_background": "#132030",
-      "dark_color": "#EAF1F8"
+      "dark_color": "#EAF1F8",
+      "style": "large"
      },
      "background": "#F3F6FA",
      "dark_background": "#0A121C"
@@ -913,7 +917,8 @@
       "background": "#FFFFFF",
       "color": "#0F1E2E",
       "dark_background": "#132030",
-      "dark_color": "#EAF1F8"
+      "dark_color": "#EAF1F8",
+      "style": "large"
      },
      "background": "#F3F6FA",
      "dark_background": "#0A121C"
@@ -979,7 +984,8 @@
       "background": "#FFFFFF",
       "color": "#0F1E2E",
       "dark_background": "#132030",
-      "dark_color": "#EAF1F8"
+      "dark_color": "#EAF1F8",
+      "style": "large"
      },
      "background": "#F3F6FA",
      "dark_background": "#0A121C"
@@ -1020,7 +1026,8 @@
       "background": "#FFFFFF",
       "color": "#0F1E2E",
       "dark_background": "#132030",
-      "dark_color": "#EAF1F8"
+      "dark_color": "#EAF1F8",
+      "style": "large"
      },
      "background": "#F3F6FA",
      "dark_background": "#0A121C"
@@ -1061,7 +1068,8 @@
       "background": "#FFFFFF",
       "color": "#0F1E2E",
       "dark_background": "#132030",
-      "dark_color": "#EAF1F8"
+      "dark_color": "#EAF1F8",
+      "style": "large"
      },
      "background": "#F3F6FA",
      "dark_background": "#0A121C"
@@ -1102,7 +1110,8 @@
       "background": "#FFFFFF",
       "color": "#0F1E2E",
       "dark_background": "#132030",
-      "dark_color": "#EAF1F8"
+      "dark_color": "#EAF1F8",
+      "style": "large"
      },
      "background": "#F3F6FA",
      "dark_background": "#0A121C"

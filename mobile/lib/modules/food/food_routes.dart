@@ -31,6 +31,8 @@ import 'screens/restaurant_desk_screen.dart';
 import 'screens/restaurant_order_screen.dart';
 import 'screens/restaurant_screen.dart';
 import 'screens/restaurants_screen.dart';
+// 130.21 The system screens' premium look.
+import '../../core/widgets/premium_chrome.dart' show SystemScreenArea;
 
 /// 105.1 The Food delivery module (hosted API): the restaurants, my orders
 /// and the account as tabs, a restaurant with its menu, the cart and an
@@ -166,7 +168,14 @@ final restaurantTab = ShellTab(
 
 List<TabScreen> _screens() => [
   TabScreen(Paths.restaurants, (state) => const RestaurantsScreen()),
-  TabScreen(Paths.foodOrders, (state) => const FoodOrdersScreen()),
+  TabScreen(
+    Paths.foodOrders,
+    (state) => const SystemScreenArea(
+      // 130.21 The lists in the project's premium look.
+      screen: SystemScreen.lists,
+      child: FoodOrdersScreen(),
+    ),
+  ),
   TabScreen(Paths.restaurantDesk, (state) => const RestaurantDeskScreen()),
   TabScreen(Paths.courier, (state) => const CourierScreen()),
   TabScreen(Paths.vendorDesk, (state) => const VendorDeskScreen()),
@@ -231,7 +240,14 @@ List<RouteBase> _pushedRoutes() => [
   ),
   GoRoute(
     path: Paths.marketOrders,
-    pageBuilder: (context, state) => appPage(state, const MarketOrdersScreen()),
+    pageBuilder: (context, state) => appPage(
+      state,
+      const SystemScreenArea(
+        // 130.21 The lists in the project's premium look.
+        screen: SystemScreen.lists,
+        child: MarketOrdersScreen(),
+      ),
+    ),
   ),
   _byId('/market-order/:id', (id) => MarketOrderScreen(orderId: id)),
   // 115 The vendors of a kind, a cuisine or with offers.
