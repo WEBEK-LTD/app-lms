@@ -1,5 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { ar, en, tr } from "@/i18n/dashboard/studio";
+import { APP_WORDS } from "@/lib/studio/app-words";
 import { KINDS } from "@/lib/app/kinds";
 import { newApp } from "@/lib/app/setup";
 import { itemSourcesFor } from "@/lib/pages/sources";
@@ -33,10 +34,14 @@ describe("Studio page templates (About, FAQ) and locked elements", () => {
     const used = new Set<string>();
     const ctx = { brand: "#1F4E5F", source: null, w: (word: SectionWord) => (used.add(word), word as string) };
     for (const template of PAGE_TEMPLATES) template.make(ctx);
-    const keys = [...[...used].map((w) => `w_${w}`), ...PAGE_TEMPLATES.map((t) => `tpl_${t.id}`)];
-    expect(keys.length).toBeGreaterThan(10);
+    const keys = PAGE_TEMPLATES.map((t) => `tpl_${t.id}`);
+    expect(used.size).toBeGreaterThan(10);
     for (const [lang, dict] of Object.entries({ en, ar, tr }) as [string, Record<string, unknown>][]) {
       expect(keys.filter((k) => typeof dict[k] !== "string"), lang).toEqual([]);
+    }
+    // 128.11 Its words are the app's (lib/studio/app-words.ts); its name the editor's.
+    for (const [lang, dict] of Object.entries(APP_WORDS) as [string, Record<string, unknown>][]) {
+      expect([...used].filter((k) => typeof dict[k] !== "string"), lang).toEqual([]);
     }
   });
 

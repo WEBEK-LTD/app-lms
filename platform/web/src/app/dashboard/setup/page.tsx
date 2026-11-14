@@ -41,7 +41,7 @@ import { getSwitches, noWebsiteFor, websiteOf, websiteOn } from "@/lib/switches"
 import { designFitsApp, designsForApp, findDesign } from "@/lib/pages/designs/catalog";
 import { isStudioProject, studioPathFor } from "@/lib/studio/section";
 import { chosenProjectDesign, projectDesignId, projectTemplateLayout, projectTemplatePicture, projectTemplatesFor } from "@/lib/studio/project-templates";
-import type { SectionWord } from "@/lib/studio/sections";
+import { appWords } from "@/lib/studio/app-words";
 import type { DashKey } from "@/i18n/dashboard";
 
 export async function generateMetadata(): Promise<Metadata> {
@@ -387,7 +387,7 @@ async function brandingDesigns(store: DataStore, app: App, { t, lang }: Awaited<
   // 84.4 The built-in designs and the team's.
   const chosen = await findDesign(store, app.design);
   // 124.6 A Studio project's templates for the whole project first (the premium academy), shown in their real picture.
-  const words = { w: (word: SectionWord) => t(`studio.w_${word}` as DashKey, { app: app.appName ?? "" }), lang };
+  const words = { w: appWords(lang, app.appName ?? ""), lang };
   const projects = await Promise.all(
     projectTemplatesFor(app).map(async (template) => {
       const name = t(`studio.tpl_${template.id}` as DashKey);

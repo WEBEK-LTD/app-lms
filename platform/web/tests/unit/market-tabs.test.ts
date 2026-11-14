@@ -11,7 +11,7 @@ import type { LayoutContent } from "@/lib/pages/types";
 import { parseLayoutContent } from "@/lib/pages/validate";
 import { TEMPLATES, type SectionWord } from "@/lib/studio/sections";
 import { startLayout } from "@/lib/studio/start";
-import { en as studioEn } from "@/i18n/dashboard/studio";
+import { en as appEn } from "@/lib/studio/app-words";
 import { NOW } from "./helpers";
 
 /**
@@ -68,7 +68,7 @@ describe("115 a marketplace's tabs", () => {
       source: "restaurants",
       app: "Nour",
       lang: "en",
-      w: (word: SectionWord) => String(studioEn[`w_${word}`]).replaceAll("{app}", "Nour"),
+      w: (word: SectionWord) => String(appEn[word]).replaceAll("{app}", "Nour"),
     });
     expect(started.tabs).toEqual(demo.tabs);
   });

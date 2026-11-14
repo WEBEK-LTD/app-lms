@@ -20,7 +20,8 @@ import { moreLabel } from "@/lib/pages/tab-bar";
 import { STUDIO_HEADER_TYPES, type ItemSource, type LanguageCode, type LayoutContent, type LayoutPage, type LayoutTab, type StudioHeader, type StudioNode, type StudioPage } from "@/lib/pages/types";
 import { duplicateNode, historyOf, holdsChildren, insertNode, isInside, moveNode, placeOf, pushHistory, redo, removeNode, undo, updateNode, wrapNode, type History } from "@/lib/studio/edit";
 import { elementInfo, newNode, newNodeId, type NewText } from "@/lib/studio/elements";
-import { SECTIONS, sectionsFor, TEMPLATES, templatesFor, type ProjectKind, type SectionContext, type SectionWord, type TemplateInfo } from "@/lib/studio/sections";
+import { SECTIONS, sectionsFor, TEMPLATES, templatesFor, type ProjectKind, type SectionContext, type TemplateInfo } from "@/lib/studio/sections";
+import { appWord, appWords } from "@/lib/studio/app-words";
 import { PAGE_TEMPLATES } from "@/lib/studio/page-templates";
 import { CLIPBOARD_KEY, forPaste, readCopied, readStyle, STYLE_CLIPBOARD_KEY, styleOf, stylePatch } from "@/lib/studio/clipboard";
 import { findNode, studioPageOpeners } from "@/lib/studio/tree";
@@ -211,29 +212,32 @@ export function StudioEditor(props: StudioEditorProps) {
   const sectionContext: SectionContext = {
     brand: app.brand,
     source,
-    w: (word: SectionWord) => t(`studio.w_${word}` as DashKey, { app: app.name }),
+    w: appWords(dashLang, app.name),
     app: app.name,
     lang: dashLang,
     // 112.4 Yallapp's pictures, and the products a look's spots open.
     picture: (file: string) => `${props.pictureBase}/design-pictures/${file}`,
     entries: source === "products" ? (props.pickable.items.products ?? []).slice(0, 3) : undefined,
   };
+  // 128.11 A new element's words are the app's (lib/studio/app-words.ts), in the dashboard's language.
   const newText = (key: NewText) =>
-    t(
+    appWord(
+      dashLang,
       (
         {
-          text: "studio.newText",
-          button: "studio.newButton",
-          search: "studio.search",
-          ratings: "studio.newRatings",
-          field: "studio.newField",
-          question: "studio.newQuestion",
-          answer: "studio.newAnswer",
-          tab: "studio.newTab",
-          ended: "studio.newEnded",
-          bullets: "studio.newBullets",
+          text: "newText",
+          button: "newButton",
+          search: "newSearch",
+          ratings: "newRatings",
+          field: "newField",
+          question: "newQuestion",
+          answer: "newAnswer",
+          tab: "newTab",
+          ended: "newEnded",
+          bullets: "newBullets",
         } as const
       )[key],
+      app.name,
     );
 
   // ——— Changes, undo and the draft saving itself ———

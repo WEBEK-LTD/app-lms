@@ -59,7 +59,7 @@ export function projectTemplatePicture(template: Pick<TemplateInfo, "id">): stri
   return PICTURES[template.id] ?? null;
 }
 
-/** What the template's words are written with: the dashboard's words (`studio.w_<word>`) and language. */
+/** What the template's words are written with: the app's words (lib/studio/app-words.ts) in the dashboard's language. */
 export interface ProjectTemplateWords {
   w: (word: SectionWord) => string;
   lang: "en" | "ar" | "tr";

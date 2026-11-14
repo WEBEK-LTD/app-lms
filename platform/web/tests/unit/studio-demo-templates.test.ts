@@ -3,7 +3,7 @@ import { join } from "node:path";
 import { describe, expect, it } from "vitest";
 import { KINDS } from "@/lib/app/kinds";
 import { newApp } from "@/lib/app/setup";
-import { ar as studioAr, en as studioEn } from "@/i18n/dashboard/studio";
+import { ar as appAr, en as appEn } from "@/lib/studio/app-words";
 import { demoKind, PREMIUM_ACADEMY_DEMO, PREMIUM_ACADEMY_TEMPLATE, STUDIO_DEMO_TYPES, type StudioDemoId } from "@/lib/demo/constants";
 import { DEMO_BRANDS } from "@/lib/demo/content";
 import { demoDesign, demoStudioContext } from "@/lib/demo/look";
@@ -61,7 +61,7 @@ const kindOf = (id: StudioDemoId) => ({ type: demoKind(id).engine, vertical: dem
 
 /** The dashboard's words in English, as a project made in English gets them (createStudioProjectAction). */
 function englishContext(app: App): SectionContext {
-  return { brand: app.primaryColor, source: itemSourcesFor(app)[0] ?? null, app: app.appName!, lang: "en", w: (word: SectionWord) => String(studioEn[`w_${word}`]).replaceAll("{app}", app.appName!), picture: (f) => `${appUrl()}/design-pictures/${f}` };
+  return { brand: app.primaryColor, source: itemSourcesFor(app)[0] ?? null, app: app.appName!, lang: "en", w: (word: SectionWord) => String(appEn[word]).replaceAll("{app}", app.appName!), picture: (f) => `${appUrl()}/design-pictures/${f}` };
 }
 
 /** A Studio element without its id, which differs each time a page is made. */
@@ -482,7 +482,7 @@ describe("templates = demos: the demos' pages in Arabic and Turkish", () => {
     const languages = { default: "ar" as const, available: ["ar" as const, "en" as const, "tr" as const] };
     for (const id of STUDIO_DEMO_TYPES) {
       const app = { ...demoApp(id), appName: "Nour" };
-      const ctx: SectionContext = { brand: "#123456", source: itemSourcesFor(app)[0] ?? null, app: "Nour", lang: "ar", w: (word) => String(studioAr[`w_${word}`]).replaceAll("{app}", "Nour") };
+      const ctx: SectionContext = { brand: "#123456", source: itemSourcesFor(app)[0] ?? null, app: "Nour", lang: "ar", w: (word) => String(appAr[word]).replaceAll("{app}", "Nour") };
       const page = demoStudioPage(id, ctx);
       // 128 The app's own name (Sofra Eats's over its photo, a wordmark, a name on a pill) is the same in every language; 128.8 a card's rating shows its own text only as the mark before the star ("·"), no words.
       const written = allNodes(page).filter((n) => (n.text || n.title) && n.type !== "items" && n.text !== "Nour" && n.bind !== "rating");

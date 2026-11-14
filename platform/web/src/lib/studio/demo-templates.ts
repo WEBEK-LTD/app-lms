@@ -1,6 +1,6 @@
 import type { LayoutBlock, StudioNode, StudioPage } from "../pages/types";
 import type { StudioDemoId } from "../demo/constants";
-import { ar as studioAr, en as studioEn, tr as studioTr } from "../../i18n/dashboard/studio";
+import { APP_WORDS } from "./app-words";
 import { newNodeId } from "./elements";
 import type { SectionContext, SectionWord } from "./sections";
 
@@ -142,16 +142,16 @@ export function studioNoteOf(ctx: SectionContext, id: StudioDemoId, block: Layou
 
 type DemoLang = "en" | "ar" | "tr";
 const DEMO_LANGS: readonly DemoLang[] = ["en", "ar", "tr"];
-const STUDIO_WORDS = { en: studioEn, ar: studioAr, tr: studioTr };
+const STUDIO_WORDS = APP_WORDS;
 
 /**
  * A context that remembers the words it wrote, and the page those words
  * made with the other languages as translations: the template is made in
- * the dashboard's language (`ctx.lang`) and keeps Studio's own English,
+ * the dashboard's language (`ctx.lang`) and keeps the app words' English,
  * Arabic and Turkish for its texts, so the demo shows in each of its
  * languages and so does a project started from it.
  */
-export function translating(ctx: SectionContext): { ctx: SectionContext; translate: (body: StudioNode) => StudioNode } {
+export function translating(ctx: SectionContext): { ctx: SectionContext; translate: (body: StudioNode) => StudioNode; page: (page: StudioPage) => StudioPage } {
   const written = new Map<string, SectionWord>();
   const w = (word: SectionWord) => {
     const value = ctx.w(word);
@@ -165,7 +165,7 @@ export function translating(ctx: SectionContext): { ctx: SectionContext; transla
     if (!word) return null;
     const out: Record<string, string> = {};
     for (const l of others) {
-      const text = String(STUDIO_WORDS[l][`w_${word}`]);
+      const text = STUDIO_WORDS[l][word];
       // A word with the app's name in it needs the name.
       if (text.includes("{app}") && !ctx.app) return null;
       out[l] = text.replaceAll("{app}", ctx.app ?? "");
@@ -185,7 +185,16 @@ export function translating(ctx: SectionContext): { ctx: SectionContext; transla
     if (node.card) out.card = translate(node.card);
     return out;
   };
-  return { ctx: { ...ctx, w }, translate };
+  // 128.11 The whole page: its elements and its header's title the template wrote (the premium academy's greeting, signed out), in the other languages too.
+  const page = (made: StudioPage): StudioPage => {
+    const titles = made.header ? all(made.header.title) : null;
+    const header =
+      made.header && titles
+        ? { ...made.header, translations: Object.fromEntries(others.map((l) => [l, { ...(made.header!.translations?.[l] ?? {}), title: titles[l]! }])) as NonNullable<StudioPage["header"]>["translations"] }
+        : made.header;
+    return { ...made, ...(header !== undefined ? { header } : {}), body: translate(made.body) };
+  };
+  return { ctx: { ...ctx, w }, translate, page };
 }
 
 /** The demos' own templates; 123 the premium academy is a template already (lib/studio/sections.ts academy_premium). */
@@ -254,7 +263,7 @@ export function withDemoFacts(id: StudioDemoId, page: StudioPage, lang: DemoLang
   const facts = DEMO_FACTS[id];
   if (!facts) return page;
   const byText = new Map<string, Record<DemoLang, string>>();
-  for (const [word, words] of Object.entries(facts)) for (const l of DEMO_LANGS) byText.set(String(STUDIO_WORDS[l][`w_${word as SectionWord}`]), words!);
+  for (const [word, words] of Object.entries(facts)) for (const l of DEMO_LANGS) byText.set(STUDIO_WORDS[l][word as SectionWord], words!);
   const others = DEMO_LANGS.filter((l) => l !== lang);
   const fill = (node: StudioNode): StudioNode => {
     const words = node.text ? byText.get(node.text) : undefined;

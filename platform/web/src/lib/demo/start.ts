@@ -11,8 +11,7 @@ import type { Languages } from "../pages/types";
 import { planFitsSection, type PlanInfo } from "../plans";
 import { countList } from "../samples/lists";
 import { makeStudioProject } from "../studio/new-project";
-import type { SectionWord } from "../studio/sections";
-import { ar as studioAr, en as studioEn, tr as studioTr } from "../../i18n/dashboard/studio";
+import { appWords } from "../studio/app-words";
 import { isStudioDemo, demoKind, type DemoId } from "./constants";
 import { DEMO_BRANDS } from "./content";
 import { demoItems, studioDemoTemplate } from "./picker";
@@ -47,7 +46,6 @@ export interface DemoMaker {
 }
 
 type StudioLang = "en" | "ar" | "tr";
-const STUDIO_WORDS = { en: studioEn, ar: studioAr, tr: studioTr };
 
 /** The demo's main language, when Studio has its words in it (else English). */
 function mainLang(demo: DemoId): StudioLang {
@@ -111,7 +109,7 @@ export async function makeFromDemo(store: DataStore, maker: DemoMaker, input: De
         kind: demoKind(input.demo),
         source: "catalog",
         template: studioDemoTemplate(input.demo),
-        words: (word: SectionWord) => String(STUDIO_WORDS[lang][`w_${word}`]).replaceAll("{app}", input.name),
+        words: appWords(lang, input.name),
         lang,
         languages: demoLanguages(input.demo, plan),
         fromDemo: input.demo,

@@ -1,6 +1,6 @@
 import type { LayoutTab, StudioNode, StudioPage, StudioPageScreen, Translations } from "../pages/types";
 import { STUDIO_PAGE_SCREENS } from "../pages/types";
-import { ar as studioAr, en as studioEn, tr as studioTr } from "../../i18n/dashboard/studio";
+import { APP_WORDS } from "./app-words";
 import type { App } from "../data/types";
 import { innerScreen, innerScreenName, innerScreensFor, OWN_SCREEN_TITLES } from "../pages/inner-screens";
 import { pageScreenOptionsFor } from "../pages/sources";
@@ -24,7 +24,7 @@ import { translating } from "./demo-templates";
 
 type DemoLang = "en" | "ar" | "tr";
 const LANGS: readonly DemoLang[] = ["en", "ar", "tr"];
-const WORDS = { en: studioEn, ar: studioAr, tr: studioTr };
+const WORDS = APP_WORDS;
 
 /** The words of the demos' tabs, by their names in lib/app/kinds.ts. */
 const TAB_WORDS: Record<string, SectionWord> = {
@@ -79,7 +79,7 @@ const TIPS: Partial<Record<StudioPageScreen, { icon: string; word: SectionWord }
 function wordIn(ctx: SectionContext, word: SectionWord, field: string): { text: string; translations?: Translations } {
   const lang: DemoLang = ctx.lang ?? "en";
   const translations: Record<string, Record<string, string>> = {};
-  for (const l of LANGS.filter((x) => x !== lang)) translations[l] = { [field]: String(WORDS[l][`w_${word}`]) };
+  for (const l of LANGS.filter((x) => x !== lang)) translations[l] = { [field]: WORDS[l][word] };
   return { text: ctx.w(word), translations: translations as Translations };
 }
 
@@ -168,9 +168,9 @@ export function demoPageTabs(tabs: readonly LayoutTab[], ctx: Pick<SectionContex
   const lang: DemoLang = ctx.lang ?? "en";
   return designedTabs(tabs, ctx).map((tab) => {
     const word = TAB_WORDS[tab.label];
-    const label = word ? String(WORDS[lang][`w_${word}`]) : tab.label;
+    const label = word ? WORDS[lang][word] : tab.label;
     const translations: Record<string, Record<string, string>> = {};
-    if (word) for (const l of LANGS.filter((x) => x !== lang)) translations[l] = { label: String(WORDS[l][`w_${word}`]) };
+    if (word) for (const l of LANGS.filter((x) => x !== lang)) translations[l] = { label: WORDS[l][word] };
     const screen = tabScreen(tab);
     return {
       ...structuredClone(tab),

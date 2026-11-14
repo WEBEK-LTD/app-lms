@@ -2,7 +2,7 @@ import { mkdtempSync, rmSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { afterAll, describe, expect, it } from "vitest";
-import { en as studioEn } from "@/i18n/dashboard/studio";
+import { en as appEn } from "@/lib/studio/app-words";
 import { kindById } from "@/lib/app/kinds";
 import { readAnswers, websiteAddress, type BotAnswers } from "@/lib/bot/answers";
 import { makeFromAnswers, type BotMaker } from "@/lib/bot/create";
@@ -29,7 +29,7 @@ afterAll(() => rmSync(BLOBS, { recursive: true, force: true }));
 const NOW = new Date("2026-11-09T10:00:00Z");
 
 function maker(name: string, plan: BotMaker["plan"] = null): BotMaker {
-  return { clientId: "client-1", plan, lang: "en", words: (word: SectionWord) => String(studioEn[`w_${word}`]).replaceAll("{app}", name) };
+  return { clientId: "client-1", plan, lang: "en", words: (word: SectionWord) => String(appEn[word]).replaceAll("{app}", name) };
 }
 
 function answers(patch: Partial<BotAnswers>): BotAnswers {

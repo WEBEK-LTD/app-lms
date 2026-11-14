@@ -5,8 +5,7 @@ import { redirect } from "next/navigation";
 import { ownContentSetup } from "@/lib/app/own-content";
 import { STUDIO_ONLY_KINDS, isStudioProject, studioPathFor } from "@/lib/studio/section";
 import { applyProjectTemplate, projectTemplateOf } from "@/lib/studio/project-templates";
-import type { SectionWord } from "@/lib/studio/sections";
-import type { DashKey } from "@/i18n/dashboard";
+import { appWords } from "@/lib/studio/app-words";
 import { dashboardText } from "@/lib/dashboard-lang";
 import { checkApi, type ApiCheckResult } from "@/lib/app/api-check";
 import { listingLanguages, parseListingExtras } from "@/lib/app/listing-languages";
@@ -633,9 +632,9 @@ export async function saveBrandingAction(_: FormState, formData: FormData): Prom
   }
   // 124.6 The template's whole project, as a new project from it starts (or its look only), in the colour just chosen.
   if (project && project.id !== context.app.design) {
-    const { t, lang } = await dashboardText();
+    const { lang } = await dashboardText();
     const app = { ...context.app, ...patch };
-    const words = { w: (word: SectionWord) => t(`studio.w_${word}` as DashKey, { app: app.appName ?? "" }), lang };
+    const words = { w: appWords(lang, app.appName ?? ""), lang };
     const saved = await applyProjectTemplate(store, app, project, now, words, { mode, look: { template: parsed.data.template, ...lookFont(parsed.data.font) } });
     if (!saved.ok) return { errors: { design: "This design couldn't be applied to your app. Choose another one." }, values };
     revalidatePath("/dashboard/pages");
