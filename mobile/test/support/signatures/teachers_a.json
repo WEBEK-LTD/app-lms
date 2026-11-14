@@ -182,6 +182,9 @@
    "lesson": "premium",
    "code": "premium",
    "cart": "premium"
+  },
+  "system": {
+   "look": "brand"
   }
  },
  "layout": {
@@ -197,9 +200,7 @@
   "languages": {
    "default": "en",
    "available": [
-    "en",
-    "ar",
-    "tr"
+    "en"
    ]
   },
   "tabs": [
@@ -247,7 +248,7 @@
     },
     "translations": {
      "ar": {
-      "label": "كورساتي"
+      "label": "دوراتي"
      },
      "tr": {
       "label": "Kurslarım"
@@ -277,7 +278,7 @@
     "slug": "home",
     "title": "Home",
     "show_title": false,
-    "updated_at": "2026-11-13T07:00:00.000Z",
+    "updated_at": "2026-11-13T18:00:00.000Z",
     "blocks": [],
     "studio": {
      "header": {
@@ -1203,7 +1204,7 @@
      "dark_background": "#0A110E"
     },
     "show_title": false,
-    "updated_at": "2026-11-13T07:00:00.000Z",
+    "updated_at": "2026-11-13T18:00:00.000Z",
     "blocks": []
    },
    {
@@ -1211,7 +1212,7 @@
     "title": "My courses",
     "translations": {
      "ar": {
-      "title": "كورساتي"
+      "title": "دوراتي"
      },
      "tr": {
       "title": "Kurslarım"
@@ -1265,7 +1266,7 @@
           },
           "translations": {
            "ar": {
-            "text": "كمّل من مكان ما وقفت."
+            "text": "تابع من حيث توقفت."
            },
            "tr": {
             "text": "Kaldığınız yerden devam edin."
@@ -1285,7 +1286,7 @@
       ],
       "translations": {
        "ar": {
-        "title": "كورساتي"
+        "title": "دوراتي"
        },
        "tr": {
         "title": "Kurslarım"
@@ -1301,7 +1302,7 @@
      "dark_background": "#0A110E"
     },
     "show_title": false,
-    "updated_at": "2026-11-13T07:00:00.000Z",
+    "updated_at": "2026-11-13T18:00:00.000Z",
     "blocks": []
    },
    {
@@ -1324,7 +1325,7 @@
      "screen": "account"
     },
     "show_title": false,
-    "updated_at": "2026-11-13T07:00:00.000Z",
+    "updated_at": "2026-11-13T18:00:00.000Z",
     "blocks": []
    },
    {
@@ -1366,7 +1367,7 @@
      "dark_background": "#0A110E"
     },
     "show_title": false,
-    "updated_at": "2026-11-13T07:00:00.000Z",
+    "updated_at": "2026-11-13T18:00:00.000Z",
     "blocks": []
    },
    {
@@ -1408,7 +1409,7 @@
      "dark_background": "#0A110E"
     },
     "show_title": false,
-    "updated_at": "2026-11-13T07:00:00.000Z",
+    "updated_at": "2026-11-13T18:00:00.000Z",
     "blocks": []
    },
    {
@@ -1450,7 +1451,7 @@
      "dark_background": "#0A110E"
     },
     "show_title": false,
-    "updated_at": "2026-11-13T07:00:00.000Z",
+    "updated_at": "2026-11-13T18:00:00.000Z",
     "blocks": []
    },
    {
@@ -1492,7 +1493,7 @@
      "dark_background": "#0A110E"
     },
     "show_title": false,
-    "updated_at": "2026-11-13T07:00:00.000Z",
+    "updated_at": "2026-11-13T18:00:00.000Z",
     "blocks": []
    },
    {
@@ -1534,7 +1535,7 @@
      "dark_background": "#0A110E"
     },
     "show_title": false,
-    "updated_at": "2026-11-13T07:00:00.000Z",
+    "updated_at": "2026-11-13T18:00:00.000Z",
     "blocks": []
    },
    {
@@ -1576,7 +1577,7 @@
      "dark_background": "#0A110E"
     },
     "show_title": false,
-    "updated_at": "2026-11-13T07:00:00.000Z",
+    "updated_at": "2026-11-13T18:00:00.000Z",
     "blocks": []
    },
    {
@@ -1618,7 +1619,7 @@
      "dark_background": "#0A110E"
     },
     "show_title": false,
-    "updated_at": "2026-11-13T07:00:00.000Z",
+    "updated_at": "2026-11-13T18:00:00.000Z",
     "blocks": []
    },
    {
@@ -1660,7 +1661,7 @@
      "dark_background": "#0A110E"
     },
     "show_title": false,
-    "updated_at": "2026-11-13T07:00:00.000Z",
+    "updated_at": "2026-11-13T18:00:00.000Z",
     "blocks": []
    },
    {
@@ -1675,7 +1676,7 @@
      "screen": "change_password"
     },
     "show_title": false,
-    "updated_at": "2026-11-13T07:00:00.000Z",
+    "updated_at": "2026-11-13T18:00:00.000Z",
     "blocks": []
    },
    {
@@ -1690,7 +1691,7 @@
      "screen": "chat_conversation"
     },
     "show_title": false,
-    "updated_at": "2026-11-13T07:00:00.000Z",
+    "updated_at": "2026-11-13T18:00:00.000Z",
     "blocks": []
    },
    {
@@ -1705,7 +1706,7 @@
      "screen": "course"
     },
     "show_title": false,
-    "updated_at": "2026-11-13T07:00:00.000Z",
+    "updated_at": "2026-11-13T18:00:00.000Z",
     "blocks": []
    },
    {
@@ -1720,7 +1721,7 @@
      "screen": "bundle"
     },
     "show_title": false,
-    "updated_at": "2026-11-13T07:00:00.000Z",
+    "updated_at": "2026-11-13T18:00:00.000Z",
     "blocks": []
    },
    {
@@ -1735,7 +1736,7 @@
      "screen": "lesson"
     },
     "show_title": false,
-    "updated_at": "2026-11-13T07:00:00.000Z",
+    "updated_at": "2026-11-13T18:00:00.000Z",
     "blocks": []
    },
    {
@@ -1750,7 +1751,7 @@
      "screen": "quiz"
     },
     "show_title": false,
-    "updated_at": "2026-11-13T07:00:00.000Z",
+    "updated_at": "2026-11-13T18:00:00.000Z",
     "blocks": []
    },
    {
@@ -1765,7 +1766,7 @@
      "screen": "assignment"
     },
     "show_title": false,
-    "updated_at": "2026-11-13T07:00:00.000Z",
+    "updated_at": "2026-11-13T18:00:00.000Z",
     "blocks": []
    },
    {
@@ -1780,7 +1781,7 @@
      "screen": "live"
     },
     "show_title": false,
-    "updated_at": "2026-11-13T07:00:00.000Z",
+    "updated_at": "2026-11-13T18:00:00.000Z",
     "blocks": []
    },
    {
@@ -1795,7 +1796,7 @@
      "screen": "question"
     },
     "show_title": false,
-    "updated_at": "2026-11-13T07:00:00.000Z",
+    "updated_at": "2026-11-13T18:00:00.000Z",
     "blocks": []
    },
    {
@@ -1837,7 +1838,7 @@
      "dark_background": "#0A110E"
     },
     "show_title": false,
-    "updated_at": "2026-11-13T07:00:00.000Z",
+    "updated_at": "2026-11-13T18:00:00.000Z",
     "blocks": []
    },
    {
@@ -1852,7 +1853,7 @@
      "screen": "learning_path"
     },
     "show_title": false,
-    "updated_at": "2026-11-13T07:00:00.000Z",
+    "updated_at": "2026-11-13T18:00:00.000Z",
     "blocks": []
    },
    {
@@ -1894,7 +1895,7 @@
      "dark_background": "#0A110E"
     },
     "show_title": false,
-    "updated_at": "2026-11-13T07:00:00.000Z",
+    "updated_at": "2026-11-13T18:00:00.000Z",
     "blocks": []
    },
    {
@@ -1936,7 +1937,7 @@
      "dark_background": "#0A110E"
     },
     "show_title": false,
-    "updated_at": "2026-11-13T07:00:00.000Z",
+    "updated_at": "2026-11-13T18:00:00.000Z",
     "blocks": []
    },
    {
@@ -1978,7 +1979,7 @@
      "dark_background": "#0A110E"
     },
     "show_title": false,
-    "updated_at": "2026-11-13T07:00:00.000Z",
+    "updated_at": "2026-11-13T18:00:00.000Z",
     "blocks": []
    },
    {
@@ -1993,7 +1994,7 @@
      "screen": "teacher_profile"
     },
     "show_title": false,
-    "updated_at": "2026-11-13T07:00:00.000Z",
+    "updated_at": "2026-11-13T18:00:00.000Z",
     "blocks": []
    },
    {
@@ -2035,7 +2036,7 @@
      "dark_background": "#0A110E"
     },
     "show_title": false,
-    "updated_at": "2026-11-13T07:00:00.000Z",
+    "updated_at": "2026-11-13T18:00:00.000Z",
     "blocks": []
    },
    {
@@ -2077,7 +2078,7 @@
      "dark_background": "#0A110E"
     },
     "show_title": false,
-    "updated_at": "2026-11-13T07:00:00.000Z",
+    "updated_at": "2026-11-13T18:00:00.000Z",
     "blocks": []
    },
    {
@@ -2119,7 +2120,7 @@
      "dark_background": "#0A110E"
     },
     "show_title": false,
-    "updated_at": "2026-11-13T07:00:00.000Z",
+    "updated_at": "2026-11-13T18:00:00.000Z",
     "blocks": []
    },
    {
@@ -2161,7 +2162,7 @@
      "dark_background": "#0A110E"
     },
     "show_title": false,
-    "updated_at": "2026-11-13T07:00:00.000Z",
+    "updated_at": "2026-11-13T18:00:00.000Z",
     "blocks": []
    },
    {
@@ -2203,7 +2204,7 @@
      "dark_background": "#0A110E"
     },
     "show_title": false,
-    "updated_at": "2026-11-13T07:00:00.000Z",
+    "updated_at": "2026-11-13T18:00:00.000Z",
     "blocks": []
    },
    {
@@ -2245,7 +2246,7 @@
      "dark_background": "#0A110E"
     },
     "show_title": false,
-    "updated_at": "2026-11-13T07:00:00.000Z",
+    "updated_at": "2026-11-13T18:00:00.000Z",
     "blocks": []
    }
   ],

@@ -19,6 +19,9 @@
    "header": "night",
    "accent": "#5FD3C2",
    "items": []
+  },
+  "system": {
+   "look": "large"
   }
  },
  "layout": {
@@ -48,7 +51,7 @@
     },
     "translations": {
      "ar": {
-      "label": "مشوار"
+      "label": "رحلة"
      },
      "tr": {
       "label": "Yolculuk"
@@ -65,7 +68,7 @@
     },
     "translations": {
      "ar": {
-      "label": "مشاويري"
+      "label": "رحلاتي"
      },
      "tr": {
       "label": "Yolculuklarım"
@@ -1020,7 +1023,7 @@
     "title": "My rides",
     "translations": {
      "ar": {
-      "title": "مشاويري"
+      "title": "رحلاتي"
      },
      "tr": {
       "title": "Yolculuklarım"
@@ -1114,7 +1117,7 @@
       ],
       "translations": {
        "ar": {
-        "title": "مشاويري"
+        "title": "رحلاتي"
        },
        "tr": {
         "title": "Yolculuklarım"
@@ -1123,7 +1126,8 @@
       "background": "#F1EFE9",
       "color": "#0B2422",
       "dark_background": "#061110",
-      "dark_color": "#E9F5F3"
+      "dark_color": "#E9F5F3",
+      "style": "large"
      },
      "background": "#F1EFE9",
      "dark_background": "#061110"
@@ -1217,7 +1221,8 @@
       "background": "#F1EFE9",
       "color": "#0B2422",
       "dark_background": "#061110",
-      "dark_color": "#E9F5F3"
+      "dark_color": "#E9F5F3",
+      "style": "large"
      },
      "background": "#F1EFE9",
      "dark_background": "#061110"
@@ -1258,7 +1263,8 @@
       "background": "#F1EFE9",
       "color": "#0B2422",
       "dark_background": "#061110",
-      "dark_color": "#E9F5F3"
+      "dark_color": "#E9F5F3",
+      "style": "large"
      },
      "background": "#F1EFE9",
      "dark_background": "#061110"
@@ -1299,7 +1305,8 @@
       "background": "#F1EFE9",
       "color": "#0B2422",
       "dark_background": "#061110",
-      "dark_color": "#E9F5F3"
+      "dark_color": "#E9F5F3",
+      "style": "large"
      },
      "background": "#F1EFE9",
      "dark_background": "#061110"
@@ -1340,7 +1347,8 @@
       "background": "#F1EFE9",
       "color": "#0B2422",
       "dark_background": "#061110",
-      "dark_color": "#E9F5F3"
+      "dark_color": "#E9F5F3",
+      "style": "large"
      },
      "background": "#F1EFE9",
      "dark_background": "#061110"
@@ -1381,7 +1389,8 @@
       "background": "#F1EFE9",
       "color": "#0B2422",
       "dark_background": "#061110",
-      "dark_color": "#E9F5F3"
+      "dark_color": "#E9F5F3",
+      "style": "large"
      },
      "background": "#F1EFE9",
      "dark_background": "#061110"

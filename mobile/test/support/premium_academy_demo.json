@@ -2,7 +2,7 @@
  "screens": {
   "sign_in": {
    "style": "premium",
-   "image_url": "http://localhost:3000/stories/academy/academy-desk.jpg",
+   "image_url": "http://localhost:3000/stories/academy/academy-evening.jpg",
    "title": {
     "en": "Learn what changes your path.",
     "ar": "تعلّم ما يغيّر مسارك.",
@@ -183,12 +183,7 @@
    "cart": "premium"
   },
   "system": {
-   "look": "brand",
-   "screens": {
-    "account": "classic",
-    "sign_in": "classic",
-    "code": "classic"
-   }
+   "look": "brand"
   }
  },
  "layout": {
@@ -196,11 +191,12 @@
    "template": "classic",
    "theme_mode": "system",
    "user_can_change_mode": true,
-   "font": "Manrope",
+   "font": "DM Sans",
    "corners": "soft",
    "cards": "outlined",
    "secondary_color": "#B8893A",
    "arabic_font": "Alexandria",
+   "font_family": "Readex Pro",
    "arabic_font_files": [
     {
      "url": "http://localhost:3000/api/v1/fonts/ofl/alexandria/Alexandria%5Bwght%5D.ttf",
@@ -295,130 +291,76 @@
     "blocks": [],
     "studio": {
      "header": {
-      "type": "greeting",
-      "title": "What will you learn today?",
+      "type": "transparent",
       "buttons": [
+       "search",
        "notifications"
-      ],
-      "color": "#141A30",
-      "dark_color": "#EEF0F7",
-      "translations": {
-       "ar": {
-        "title": "ماذا ستتعلم اليوم؟"
-       },
-       "tr": {
-        "title": "Bugün ne öğreneceksin?"
-       }
-      }
+      ]
      },
-     "background": "#F5F3EF",
-     "dark_background": "#0B0F1F",
+     "background": "#FAF7F1",
+     "dark_background": "#0A0B10",
      "body": {
-      "id": "demo-56",
+      "id": "demo-61",
       "type": "column",
       "padding": {
-       "top": 8,
-       "end": 16,
-       "bottom": 24,
-       "start": 16
+       "bottom": 24
       },
       "children": [
        {
-        "id": "demo-57",
-        "type": "learning",
-        "name": "The course they're taking",
-        "learning": {
-         "section": "continue",
-         "style": "photo"
-        },
-        "visibility": "signed_in",
-        "height": 236,
-        "radius": 26,
-        "background": "#1D2B4F",
-        "color": "#FFFFFF"
-       },
-       {
-        "id": "demo-58",
+        "id": "demo-62",
         "type": "stack",
-        "name": "Learn from the best, at your own pace",
-        "visibility": "signed_out",
-        "height": 236,
-        "radius": 26,
-        "background": "#1D2B4F",
-        "image_background_url": "http://localhost:3000/stories/academy/academy-desk.jpg",
-        "overlay": {
-         "color": "#1D2B4F",
-         "opacity": 0.55
+        "name": "The course they're taking",
+        "visibility": "signed_in",
+        "height": 430,
+        "corners": {
+         "bottom_start": 34,
+         "bottom_end": 34
         },
+        "background": "#1D2B4F",
         "children": [
          {
-          "id": "demo-59",
+          "id": "demo-63",
+          "type": "learning",
+          "learning": {
+           "section": "continue",
+           "style": "photo"
+          },
+          "height": 430,
+          "corners": {
+           "bottom_start": 34,
+           "bottom_end": 34
+          },
+          "background": "#1D2B4F",
+          "color": "#FFFFFF"
+         },
+         {
+          "id": "demo-64",
           "type": "column",
-          "height": 236,
-          "align": "end",
-          "gap": 12,
+          "gap": 14,
           "padding": {
-           "top": 16,
+           "top": 64,
            "end": 16,
-           "bottom": 16,
+           "bottom": 0,
            "start": 16
           },
-          "color": "#FFFFFF",
           "children": [
            {
-            "id": "demo-60",
-            "type": "text",
-            "text": "Learn from the best, at your own pace",
-            "font": {
-             "size": 22,
-             "weight": 800,
-             "line_height": 1.1
+            "id": "demo-65",
+            "type": "segments",
+            "segments": {
+             "source": "course",
+             "height": 3
             },
-            "color": "#FFFFFF",
-            "translations": {
-             "ar": {
-              "text": "تعلّم من الأفضل، في الوقت الذي يناسبك"
-             },
-             "tr": {
-              "text": "En iyilerden, kendi hızında öğren"
-             }
-            }
+            "gap": 4,
+            "color": "#E6C26E"
            },
            {
-            "id": "demo-61",
-            "type": "button",
-            "text": "Browse courses",
-            "width": "hug",
-            "height": 44,
-            "radius": 22,
-            "background": "#E6C26E",
-            "color": "#1D2B4F",
+            "id": "demo-66",
+            "type": "greeting",
+            "color": "#FFFFFF",
             "font": {
-             "weight": 800,
-             "size": 14
-            },
-            "padding": {
-             "top": 0,
-             "end": 18,
-             "bottom": 0,
-             "start": 18
-            },
-            "icon": "arrow_forward",
-            "icon_position": "end",
-            "motion": {
-             "press": "shrink"
-            },
-            "action": {
-             "type": "screen",
-             "screen": "courses"
-            },
-            "translations": {
-             "ar": {
-              "text": "تصفّح الدورات"
-             },
-             "tr": {
-              "text": "Kurslara göz at"
-             }
+             "size": 17,
+             "weight": 700
             }
            }
           ]
@@ -426,72 +368,167 @@
         ]
        },
        {
-        "id": "demo-62",
+        "id": "demo-67",
+        "type": "photo_hero",
+        "name": "Learn from the best, at your own pace",
+        "visibility": "signed_out",
+        "image_url": "http://localhost:3000/stories/academy/academy-evening.jpg",
+        "ken_burns": true,
+        "background": "#1D2B4F",
+        "scrim": {
+         "color": "#0B0F1F",
+         "from": 0.35,
+         "middle": 0.2,
+         "at": 40,
+         "to": 0.92
+        },
+        "align": "end",
+        "gap": 12,
+        "padding": {
+         "top": 20,
+         "end": 18,
+         "bottom": 20,
+         "start": 18
+        },
+        "height": 380,
+        "corners": {
+         "bottom_start": 34,
+         "bottom_end": 34
+        },
+        "children": [
+         {
+          "id": "demo-68",
+          "type": "text",
+          "text": "Learn from the best, at your own pace",
+          "color": "#FFFFFF",
+          "font": {
+           "size": 28,
+           "weight": 800,
+           "line_height": 1.08,
+           "letter_spacing": -0.6
+          },
+          "translations": {
+           "ar": {
+            "text": "تعلّم من الأفضل، في الوقت الذي يناسبك"
+           },
+           "tr": {
+            "text": "En iyilerden, kendi hızında öğren"
+           }
+          }
+         },
+         {
+          "id": "demo-69",
+          "type": "button",
+          "text": "Browse courses",
+          "width": "hug",
+          "height": 46,
+          "radius": 23,
+          "background": "#E6C26E",
+          "color": "#1D2B4F",
+          "font": {
+           "weight": 800,
+           "size": 15
+          },
+          "padding": {
+           "top": 0,
+           "end": 20,
+           "bottom": 0,
+           "start": 20
+          },
+          "icon": "arrow_forward",
+          "icon_position": "end",
+          "motion": {
+           "press": "shrink"
+          },
+          "action": {
+           "type": "screen",
+           "screen": "courses"
+          },
+          "translations": {
+           "ar": {
+            "text": "تصفّح الدورات"
+           },
+           "tr": {
+            "text": "Kurslara göz at"
+           }
+          }
+         }
+        ]
+       },
+       {
+        "id": "demo-70",
         "type": "row",
         "name": "Streak and live class",
         "visibility": "signed_in",
         "gap": 10,
         "cross": "stretch",
         "margin": {
-         "top": 12,
-         "bottom": 0
+         "top": 14,
+         "end": 16,
+         "bottom": 0,
+         "start": 16
         },
         "children": [
          {
-          "id": "demo-63",
+          "id": "demo-71",
           "type": "learning",
           "learning": {
            "section": "streak",
-           "style": "photo"
+           "style": "photo",
+           "days": "letters"
           },
-          "width": 145,
-          "radius": 20,
+          "width": 158,
+          "radius": 22,
+          "shadow": "light",
           "background": "#FFFFFF",
-          "dark_background": "#161C33",
-          "border_color": "#E3DFD6",
-          "dark_border_color": "#262D48",
+          "dark_background": "#15161D",
+          "border_color": "#EAE1CF",
+          "dark_border_color": "#262833",
           "border_width": 1
          },
          {
-          "id": "demo-64",
+          "id": "demo-72",
           "type": "learning",
           "learning": {
            "section": "live",
            "style": "photo"
           },
           "width": "fill",
-          "radius": 20,
+          "radius": 22,
           "background": "#1D2B4F",
           "image_background_url": "http://localhost:3000/stories/academy/academy-live.jpg",
           "overlay": {
            "color": "#1D2B4F",
-           "opacity": 0.72
+           "opacity": 0.74
           },
           "color": "#FFFFFF"
          }
         ]
        },
        {
-        "id": "demo-65",
+        "id": "demo-73",
         "type": "row",
         "name": "Picked for you",
-        "cross": "center",
-        "margin": {
-         "top": 16,
-         "bottom": 10
+        "cross": "end",
+        "padding": {
+         "top": 18,
+         "end": 16,
+         "bottom": 10,
+         "start": 16
         },
         "children": [
          {
-          "id": "demo-66",
+          "id": "demo-74",
           "type": "text",
           "text": "Picked for you",
           "width": "fill",
+          "color": "#15131A",
+          "dark_color": "#F4F1EA",
           "font": {
-           "size": 17,
-           "weight": 800
+           "size": 20,
+           "weight": 700,
+           "letter_spacing": -0.3
           },
-          "color": "#141A30",
-          "dark_color": "#EEF0F7",
           "translations": {
            "ar": {
             "text": "مختارة لك"
@@ -502,20 +539,14 @@
           }
          },
          {
-          "id": "demo-67",
+          "id": "demo-75",
           "type": "text",
           "text": "See all",
           "color": "#7A5C14",
-          "dark_color": "#E6C26E",
+          "dark_color": "#E2BE74",
           "font": {
            "size": 13,
            "weight": 700
-          },
-          "padding": {
-           "top": 4,
-           "end": 2,
-           "bottom": 4,
-           "start": 2
           },
           "action": {
            "type": "screen",
@@ -533,11 +564,18 @@
         ]
        },
        {
-        "id": "demo-68",
+        "id": "demo-76",
         "type": "items",
+        "name": "Picked for you",
         "source": "courses",
         "layout": "carousel",
         "gap": 12,
+        "padding": {
+         "top": 0,
+         "end": 16,
+         "bottom": 0,
+         "start": 16
+        },
         "query": {
          "limit": 6,
          "category_id": null,
@@ -546,79 +584,109 @@
          "ids": []
         },
         "card": {
-         "id": "demo-69",
-         "type": "column",
-         "width": 200,
+         "id": "demo-77",
+         "type": "stack",
+         "width": 236,
+         "height": 150,
          "radius": 22,
-         "background": "#FFFFFF",
-         "dark_background": "#161C33",
-         "border_color": "#E3DFD6",
-         "dark_border_color": "#262D48",
-         "border_width": 1,
+         "background": "#1D2B4F",
          "children": [
           {
-           "id": "demo-70",
+           "id": "demo-78",
            "type": "image",
            "bind": "image",
            "width": "fill",
-           "height": 100,
-           "corners": {
-            "top_start": 22,
-            "top_end": 22
+           "height": 150,
+           "radius": 22,
+           "scrim": {
+            "color": "#0B0F1F",
+            "from": 0.1,
+            "middle": 0.15,
+            "at": 40,
+            "to": 0.88
            }
           },
           {
-           "id": "demo-71",
+           "id": "demo-79",
            "type": "column",
+           "height": 150,
+           "align": "between",
            "padding": {
-            "top": 10,
+            "top": 12,
             "end": 12,
-            "bottom": 10,
+            "bottom": 12,
             "start": 12
            },
            "children": [
             {
-             "id": "demo-72",
+             "id": "demo-80",
              "type": "text",
-             "bind": "title",
-             "max_lines": 1,
+             "bind": "badge",
+             "self_align": "start",
              "font": {
-              "size": 14,
-              "weight": 800
+              "size": 11,
+              "weight": 800,
+              "letter_spacing": 1.2,
+              "uppercase": true
              },
-             "color": "#141A30",
-             "dark_color": "#EEF0F7"
+             "padding": {
+              "top": 4,
+              "end": 10,
+              "bottom": 4,
+              "start": 10
+             },
+             "radius": 12,
+             "background": "#E6C26E",
+             "color": "#2A1D05"
             },
             {
-             "id": "demo-73",
-             "type": "row",
-             "cross": "center",
-             "gap": 4,
-             "margin": {
-              "top": 3
-             },
+             "id": "demo-81",
+             "type": "column",
              "children": [
               {
-               "id": "demo-74",
+               "id": "demo-82",
                "type": "text",
-               "bind": "subtitle",
-               "max_lines": 1,
+               "bind": "title",
+               "max_lines": 2,
+               "color": "#FFFFFF",
                "font": {
-                "size": 12
-               },
-               "color": "#5A5F73",
-               "dark_color": "#A8AEC4"
+                "size": 15,
+                "weight": 800,
+                "line_height": 1.2
+               }
               },
               {
-               "id": "demo-75",
-               "type": "text",
-               "bind": "rating",
-               "text": "·",
-               "font": {
-                "size": 12
+               "id": "demo-83",
+               "type": "row",
+               "gap": 4,
+               "cross": "center",
+               "margin": {
+                "top": 3
                },
-               "color": "#5A5F73",
-               "dark_color": "#A8AEC4"
+               "children": [
+                {
+                 "id": "demo-84",
+                 "type": "text",
+                 "bind": "subtitle",
+                 "max_lines": 1,
+                 "color": "#FFFFFF",
+                 "opacity": 0.85,
+                 "font": {
+                  "size": 12
+                 }
+                },
+                {
+                 "id": "demo-85",
+                 "type": "text",
+                 "bind": "rating",
+                 "text": "·",
+                 "color": "#FFFFFF",
+                 "opacity": 0.85,
+                 "font": {
+                  "size": 12
+                 }
+                }
+               ]
               }
              ]
             }
@@ -628,7 +696,7 @@
         }
        },
        {
-        "id": "demo-76",
+        "id": "demo-86",
         "type": "row",
         "gap": 10,
         "cross": "start",
@@ -640,9 +708,9 @@
         },
         "margin": {
          "top": 18,
-         "end": 0,
+         "end": 16,
          "bottom": 8,
-         "start": 0
+         "start": 16
         },
         "radius": 16,
         "background": "#FFFFFF",
@@ -653,7 +721,7 @@
         "visibility": "signed_out",
         "children": [
          {
-          "id": "demo-77",
+          "id": "demo-87",
           "type": "icon",
           "icon": "info",
           "icon_size": 18,
@@ -661,7 +729,7 @@
           "dark_color": "#A8AEC4"
          },
          {
-          "id": "demo-78",
+          "id": "demo-88",
           "type": "text",
           "text": "This is a demo app. Sign in with +1 202 555 0123 and the code 246810. Anything you add is deleted after a day.",
           "width": "fill",
@@ -699,7 +767,7 @@
     },
     "studio": {
      "body": {
-      "id": "demo-24",
+      "id": "demo-29",
       "type": "column",
       "children": []
      },
@@ -722,7 +790,7 @@
     },
     "studio": {
      "body": {
-      "id": "demo-28",
+      "id": "demo-33",
       "type": "column",
       "children": []
      },
@@ -745,7 +813,7 @@
     },
     "studio": {
      "body": {
-      "id": "demo-29",
+      "id": "demo-34",
       "type": "column",
       "children": []
      },
@@ -767,6 +835,12 @@
      }
     },
     "studio": {
+     "body": {
+      "id": "demo-35",
+      "type": "column",
+      "children": []
+     },
+     "screen": "search",
      "header": {
       "type": "title",
       "title": "Search",
@@ -778,15 +852,14 @@
         "title": "Ara"
        }
       },
-      "dark_background": "#161C33",
-      "dark_color": "#EEF0F7"
+      "background": "#FAF7F1",
+      "color": "#15131A",
+      "dark_background": "#0A0B10",
+      "dark_color": "#F4F1EA",
+      "style": "large"
      },
-     "body": {
-      "id": "demo-30",
-      "type": "column",
-      "children": []
-     },
-     "screen": "search"
+     "background": "#FAF7F1",
+     "dark_background": "#0A0B10"
     },
     "show_title": false,
     "updated_at": "2026-11-09T10:00:00.000Z",
@@ -804,6 +877,12 @@
      }
     },
     "studio": {
+     "body": {
+      "id": "demo-36",
+      "type": "column",
+      "children": []
+     },
+     "screen": "favorites",
      "header": {
       "type": "title",
       "title": "Wishlist",
@@ -815,15 +894,14 @@
         "title": "Favoriler"
        }
       },
-      "dark_background": "#161C33",
-      "dark_color": "#EEF0F7"
+      "background": "#FAF7F1",
+      "color": "#15131A",
+      "dark_background": "#0A0B10",
+      "dark_color": "#F4F1EA",
+      "style": "large"
      },
-     "body": {
-      "id": "demo-31",
-      "type": "column",
-      "children": []
-     },
-     "screen": "favorites"
+     "background": "#FAF7F1",
+     "dark_background": "#0A0B10"
     },
     "show_title": false,
     "updated_at": "2026-11-09T10:00:00.000Z",
@@ -841,6 +919,12 @@
      }
     },
     "studio": {
+     "body": {
+      "id": "demo-37",
+      "type": "column",
+      "children": []
+     },
+     "screen": "orders",
      "header": {
       "type": "title",
       "title": "My orders",
@@ -852,15 +936,14 @@
         "title": "Siparişlerim"
        }
       },
-      "dark_background": "#161C33",
-      "dark_color": "#EEF0F7"
+      "background": "#FAF7F1",
+      "color": "#15131A",
+      "dark_background": "#0A0B10",
+      "dark_color": "#F4F1EA",
+      "style": "large"
      },
-     "body": {
-      "id": "demo-32",
-      "type": "column",
-      "children": []
-     },
-     "screen": "orders"
+     "background": "#FAF7F1",
+     "dark_background": "#0A0B10"
     },
     "show_title": false,
     "updated_at": "2026-11-09T10:00:00.000Z",
@@ -878,6 +961,12 @@
      }
     },
     "studio": {
+     "body": {
+      "id": "demo-38",
+      "type": "column",
+      "children": []
+     },
+     "screen": "settings",
      "header": {
       "type": "title",
       "title": "Settings",
@@ -889,15 +978,14 @@
         "title": "Ayarlar"
        }
       },
-      "dark_background": "#161C33",
-      "dark_color": "#EEF0F7"
+      "background": "#FAF7F1",
+      "color": "#15131A",
+      "dark_background": "#0A0B10",
+      "dark_color": "#F4F1EA",
+      "style": "large"
      },
-     "body": {
-      "id": "demo-33",
-      "type": "column",
-      "children": []
-     },
-     "screen": "settings"
+     "background": "#FAF7F1",
+     "dark_background": "#0A0B10"
     },
     "show_title": false,
     "updated_at": "2026-11-09T10:00:00.000Z",
@@ -915,6 +1003,12 @@
      }
     },
     "studio": {
+     "body": {
+      "id": "demo-39",
+      "type": "column",
+      "children": []
+     },
+     "screen": "notifications",
      "header": {
       "type": "title",
       "title": "Notifications",
@@ -926,15 +1020,14 @@
         "title": "Bildirimler"
        }
       },
-      "dark_background": "#161C33",
-      "dark_color": "#EEF0F7"
+      "background": "#FAF7F1",
+      "color": "#15131A",
+      "dark_background": "#0A0B10",
+      "dark_color": "#F4F1EA",
+      "style": "large"
      },
-     "body": {
-      "id": "demo-34",
-      "type": "column",
-      "children": []
-     },
-     "screen": "notifications"
+     "background": "#FAF7F1",
+     "dark_background": "#0A0B10"
     },
     "show_title": false,
     "updated_at": "2026-11-09T10:00:00.000Z",
@@ -952,6 +1045,12 @@
      }
     },
     "studio": {
+     "body": {
+      "id": "demo-40",
+      "type": "column",
+      "children": []
+     },
+     "screen": "edit_profile",
      "header": {
       "type": "title",
       "title": "Edit profile",
@@ -963,15 +1062,14 @@
         "title": "Profili düzenle"
        }
       },
-      "dark_background": "#161C33",
-      "dark_color": "#EEF0F7"
+      "background": "#FAF7F1",
+      "color": "#15131A",
+      "dark_background": "#0A0B10",
+      "dark_color": "#F4F1EA",
+      "style": "large"
      },
-     "body": {
-      "id": "demo-35",
-      "type": "column",
-      "children": []
-     },
-     "screen": "edit_profile"
+     "background": "#FAF7F1",
+     "dark_background": "#0A0B10"
     },
     "show_title": false,
     "updated_at": "2026-11-09T10:00:00.000Z",
@@ -989,6 +1087,12 @@
      }
     },
     "studio": {
+     "body": {
+      "id": "demo-41",
+      "type": "column",
+      "children": []
+     },
+     "screen": "devices",
      "header": {
       "type": "title",
       "title": "Devices",
@@ -1000,15 +1104,14 @@
         "title": "Cihazlar"
        }
       },
-      "dark_background": "#161C33",
-      "dark_color": "#EEF0F7"
+      "background": "#FAF7F1",
+      "color": "#15131A",
+      "dark_background": "#0A0B10",
+      "dark_color": "#F4F1EA",
+      "style": "large"
      },
-     "body": {
-      "id": "demo-36",
-      "type": "column",
-      "children": []
-     },
-     "screen": "devices"
+     "background": "#FAF7F1",
+     "dark_background": "#0A0B10"
     },
     "show_title": false,
     "updated_at": "2026-11-09T10:00:00.000Z",
@@ -1019,7 +1122,7 @@
     "title": "Change password",
     "studio": {
      "body": {
-      "id": "demo-37",
+      "id": "demo-42",
       "type": "column",
       "children": []
      },
@@ -1034,7 +1137,7 @@
     "title": "A conversation",
     "studio": {
      "body": {
-      "id": "demo-38",
+      "id": "demo-43",
       "type": "column",
       "children": []
      },
@@ -1049,7 +1152,7 @@
     "title": "A course",
     "studio": {
      "body": {
-      "id": "demo-39",
+      "id": "demo-44",
       "type": "column",
       "children": []
      },
@@ -1064,7 +1167,7 @@
     "title": "A bundle",
     "studio": {
      "body": {
-      "id": "demo-40",
+      "id": "demo-45",
       "type": "column",
       "children": []
      },
@@ -1079,7 +1182,7 @@
     "title": "A lesson",
     "studio": {
      "body": {
-      "id": "demo-41",
+      "id": "demo-46",
       "type": "column",
       "children": []
      },
@@ -1094,7 +1197,7 @@
     "title": "A quiz",
     "studio": {
      "body": {
-      "id": "demo-42",
+      "id": "demo-47",
       "type": "column",
       "children": []
      },
@@ -1109,7 +1212,7 @@
     "title": "An assignment",
     "studio": {
      "body": {
-      "id": "demo-43",
+      "id": "demo-48",
       "type": "column",
       "children": []
      },
@@ -1124,7 +1227,7 @@
     "title": "A live session",
     "studio": {
      "body": {
-      "id": "demo-44",
+      "id": "demo-49",
       "type": "column",
       "children": []
      },
@@ -1139,7 +1242,7 @@
     "title": "A question",
     "studio": {
      "body": {
-      "id": "demo-45",
+      "id": "demo-50",
       "type": "column",
       "children": []
      },
@@ -1161,6 +1264,12 @@
      }
     },
     "studio": {
+     "body": {
+      "id": "demo-51",
+      "type": "column",
+      "children": []
+     },
+     "screen": "learning_paths",
      "header": {
       "type": "title",
       "title": "Learning paths",
@@ -1172,15 +1281,14 @@
         "title": "Öğrenme yolları"
        }
       },
-      "dark_background": "#161C33",
-      "dark_color": "#EEF0F7"
+      "background": "#FAF7F1",
+      "color": "#15131A",
+      "dark_background": "#0A0B10",
+      "dark_color": "#F4F1EA",
+      "style": "large"
      },
-     "body": {
-      "id": "demo-46",
-      "type": "column",
-      "children": []
-     },
-     "screen": "learning_paths"
+     "background": "#FAF7F1",
+     "dark_background": "#0A0B10"
     },
     "show_title": false,
     "updated_at": "2026-11-09T10:00:00.000Z",
@@ -1191,7 +1299,7 @@
     "title": "A learning path",
     "studio": {
      "body": {
-      "id": "demo-47",
+      "id": "demo-52",
       "type": "column",
       "children": []
      },
@@ -1213,6 +1321,12 @@
      }
     },
     "studio": {
+     "body": {
+      "id": "demo-53",
+      "type": "column",
+      "children": []
+     },
+     "screen": "leaderboard",
      "header": {
       "type": "title",
       "title": "Leaderboard",
@@ -1224,15 +1338,14 @@
         "title": "Liderlik tablosu"
        }
       },
-      "dark_background": "#161C33",
-      "dark_color": "#EEF0F7"
+      "background": "#FAF7F1",
+      "color": "#15131A",
+      "dark_background": "#0A0B10",
+      "dark_color": "#F4F1EA",
+      "style": "large"
      },
-     "body": {
-      "id": "demo-48",
-      "type": "column",
-      "children": []
-     },
-     "screen": "leaderboard"
+     "background": "#FAF7F1",
+     "dark_background": "#0A0B10"
     },
     "show_title": false,
     "updated_at": "2026-11-09T10:00:00.000Z",
@@ -1250,6 +1363,12 @@
      }
     },
     "studio": {
+     "body": {
+      "id": "demo-54",
+      "type": "column",
+      "children": []
+     },
+     "screen": "course_notes",
      "header": {
       "type": "title",
       "title": "My notes",
@@ -1261,15 +1380,14 @@
         "title": "Notlarım"
        }
       },
-      "dark_background": "#161C33",
-      "dark_color": "#EEF0F7"
+      "background": "#FAF7F1",
+      "color": "#15131A",
+      "dark_background": "#0A0B10",
+      "dark_color": "#F4F1EA",
+      "style": "large"
      },
-     "body": {
-      "id": "demo-49",
-      "type": "column",
-      "children": []
-     },
-     "screen": "course_notes"
+     "background": "#FAF7F1",
+     "dark_background": "#0A0B10"
     },
     "show_title": false,
     "updated_at": "2026-11-09T10:00:00.000Z",
@@ -1287,6 +1405,12 @@
      }
     },
     "studio": {
+     "body": {
+      "id": "demo-55",
+      "type": "column",
+      "children": []
+     },
+     "screen": "lesson_discussion",
      "header": {
       "type": "title",
       "title": "Discussion",
@@ -1298,15 +1422,14 @@
         "title": "Tartışma"
        }
       },
-      "dark_background": "#161C33",
-      "dark_color": "#EEF0F7"
+      "background": "#FAF7F1",
+      "color": "#15131A",
+      "dark_background": "#0A0B10",
+      "dark_color": "#F4F1EA",
+      "style": "large"
      },
-     "body": {
-      "id": "demo-50",
-      "type": "column",
-      "children": []
-     },
-     "screen": "lesson_discussion"
+     "background": "#FAF7F1",
+     "dark_background": "#0A0B10"
     },
     "show_title": false,
     "updated_at": "2026-11-09T10:00:00.000Z",
@@ -1324,6 +1447,12 @@
      }
     },
     "studio": {
+     "body": {
+      "id": "demo-56",
+      "type": "column",
+      "children": []
+     },
+     "screen": "certificates",
      "header": {
       "type": "title",
       "title": "Certificates",
@@ -1335,15 +1464,14 @@
         "title": "Sertifikalar"
        }
       },
-      "dark_background": "#161C33",
-      "dark_color": "#EEF0F7"
+      "background": "#FAF7F1",
+      "color": "#15131A",
+      "dark_background": "#0A0B10",
+      "dark_color": "#F4F1EA",
+      "style": "large"
      },
-     "body": {
-      "id": "demo-51",
-      "type": "column",
-      "children": []
-     },
-     "screen": "certificates"
+     "background": "#FAF7F1",
+     "dark_background": "#0A0B10"
     },
     "show_title": false,
     "updated_at": "2026-11-09T10:00:00.000Z",
@@ -1361,6 +1489,12 @@
      }
     },
     "studio": {
+     "body": {
+      "id": "demo-57",
+      "type": "column",
+      "children": []
+     },
+     "screen": "quiz_results",
      "header": {
       "type": "title",
       "title": "Quiz results",
@@ -1372,15 +1506,14 @@
         "title": "Sınav sonuçları"
        }
       },
-      "dark_background": "#161C33",
-      "dark_color": "#EEF0F7"
+      "background": "#FAF7F1",
+      "color": "#15131A",
+      "dark_background": "#0A0B10",
+      "dark_color": "#F4F1EA",
+      "style": "large"
      },
-     "body": {
-      "id": "demo-52",
-      "type": "column",
-      "children": []
-     },
-     "screen": "quiz_results"
+     "background": "#FAF7F1",
+     "dark_background": "#0A0B10"
     },
     "show_title": false,
     "updated_at": "2026-11-09T10:00:00.000Z",
@@ -1398,6 +1531,12 @@
      }
     },
     "studio": {
+     "body": {
+      "id": "demo-58",
+      "type": "column",
+      "children": []
+     },
+     "screen": "live_classes",
      "header": {
       "type": "title",
       "title": "Live classes",
@@ -1409,15 +1548,14 @@
         "title": "Canlı dersler"
        }
       },
-      "dark_background": "#161C33",
-      "dark_color": "#EEF0F7"
+      "background": "#FAF7F1",
+      "color": "#15131A",
+      "dark_background": "#0A0B10",
+      "dark_color": "#F4F1EA",
+      "style": "large"
      },
-     "body": {
-      "id": "demo-53",
-      "type": "column",
-      "children": []
-     },
-     "screen": "live_classes"
+     "background": "#FAF7F1",
+     "dark_background": "#0A0B10"
     },
     "show_title": false,
     "updated_at": "2026-11-09T10:00:00.000Z",
@@ -1435,6 +1573,12 @@
      }
     },
     "studio": {
+     "body": {
+      "id": "demo-59",
+      "type": "column",
+      "children": []
+     },
+     "screen": "achievements",
      "header": {
       "type": "title",
       "title": "Achievements",
@@ -1446,15 +1590,14 @@
         "title": "Başarılar"
        }
       },
-      "dark_background": "#161C33",
-      "dark_color": "#EEF0F7"
+      "background": "#FAF7F1",
+      "color": "#15131A",
+      "dark_background": "#0A0B10",
+      "dark_color": "#F4F1EA",
+      "style": "large"
      },
-     "body": {
-      "id": "demo-54",
-      "type": "column",
-      "children": []
-     },
-     "screen": "achievements"
+     "background": "#FAF7F1",
+     "dark_background": "#0A0B10"
     },
     "show_title": false,
     "updated_at": "2026-11-09T10:00:00.000Z",
@@ -1472,6 +1615,12 @@
      }
     },
     "studio": {
+     "body": {
+      "id": "demo-60",
+      "type": "column",
+      "children": []
+     },
+     "screen": "downloads",
      "header": {
       "type": "title",
       "title": "Downloads",
@@ -1483,15 +1632,14 @@
         "title": "İndirilenler"
        }
       },
-      "dark_background": "#161C33",
-      "dark_color": "#EEF0F7"
+      "background": "#FAF7F1",
+      "color": "#15131A",
+      "dark_background": "#0A0B10",
+      "dark_color": "#F4F1EA",
+      "style": "large"
      },
-     "body": {
-      "id": "demo-55",
-      "type": "column",
-      "children": []
-     },
-     "screen": "downloads"
+     "background": "#FAF7F1",
+     "dark_background": "#0A0B10"
     },
     "show_title": false,
     "updated_at": "2026-11-09T10:00:00.000Z",
@@ -1500,15 +1648,15 @@
   ],
   "tab_bar": {
    "design": "float",
-   "radius": 22,
-   "margin": 12,
+   "radius": 30,
+   "margin": 14,
    "labels": "active",
    "background": "#1D2B4F",
-   "dark_background": "#EEF0F7",
+   "dark_background": "#15161D",
    "active": "#E6C26E",
    "dark_active": "#E6C26E",
-   "inactive": "#AFB6CC",
-   "dark_inactive": "#59607A"
+   "inactive": "#B3BAD0",
+   "dark_inactive": "#A9A3B4"
   }
  }
 }

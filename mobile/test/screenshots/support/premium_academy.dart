@@ -129,7 +129,7 @@ Map<String, dynamic> _served(Map<String, dynamic> node) {
 DemoApi premiumAcademyApi({
   bool enrolled = true,
   // 130.17 130.18 A Signature look's project instead of the demo's
-  // (test/support/ufuq_sig_<a|b>.json).
+  // (test/support/signatures/premium-academy_<a|b>.json).
   String? look,
 }) {
   final demo = look == null ? _demo : _looks[look] ??= _read(look);
@@ -297,10 +297,9 @@ DemoApi premiumAcademyApi({
   api.navigation = {
     'version': '1',
     'tabs': [
-      for (final t
-          in (layout['tabs'] as List).cast<Map<String, dynamic>>().map(
-            StudioDemo.localized,
-          ))
+      for (final t in (layout['tabs'] as List).cast<Map<String, dynamic>>().map(
+        StudioDemo.localized,
+      ))
         {
           'id': t['id'],
           'label': t['label'],

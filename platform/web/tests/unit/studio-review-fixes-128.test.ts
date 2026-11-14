@@ -54,6 +54,8 @@ describe("128.10 existing Studio pages keep their look", () => {
     }
     expect(startsWithCover(page([{ ...text("pinned"), pin: "top" }, hero()]).body)).toBe(true);
     expect(startsWithCover(page([{ ...hero(), hidden: true }, text("x")]).body)).toBe(false);
+    // 130 129's video hero and parallax banner are covers too.
+    for (const type of ["video_hero", "parallax_banner"] as const) expect(startsWithCover(page([{ id: type, type, children: [] } as StudioNode, text("next")]).body), type).toBe(true);
   });
 
   it("draws a colour over an element without a picture as its background only inside a cover", () => {

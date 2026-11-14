@@ -181,6 +181,9 @@
    "lesson": "premium",
    "code": "premium",
    "cart": "premium"
+  },
+  "system": {
+   "look": "brand"
   }
  },
  "layout": {
@@ -188,11 +191,12 @@
    "template": "classic",
    "theme_mode": "system",
    "user_can_change_mode": true,
-   "font": "Plus Jakarta Sans",
+   "font": "DM Sans",
    "corners": "soft",
    "cards": "outlined",
    "secondary_color": "#B8893A",
    "arabic_font": "Alexandria",
+   "font_family": "Readex Pro",
    "arabic_font_files": [
     {
      "url": "http://localhost:3000/api/v1/fonts/ofl/alexandria/Alexandria%5Bwght%5D.ttf",
@@ -203,9 +207,7 @@
   "languages": {
    "default": "en",
    "available": [
-    "en",
-    "ar",
-    "tr"
+    "en"
    ]
   },
   "tabs": [
@@ -283,45 +285,88 @@
     "slug": "home",
     "title": "Home",
     "show_title": false,
-    "updated_at": "2026-11-13T07:00:00.000Z",
+    "updated_at": "2026-11-13T18:00:00.000Z",
     "blocks": [],
     "studio": {
      "header": {
-      "type": "greeting",
+      "type": "transparent",
       "buttons": [
        "search",
        "notifications"
-      ],
-      "color": "#15131A",
-      "dark_color": "#F4F1EA",
-      "style": "large"
+      ]
      },
-     "background": "#F6F1E7",
+     "background": "#FAF7F1",
      "dark_background": "#0A0B10",
      "body": {
       "id": "sig-1",
       "type": "column",
       "padding": {
-       "top": 4,
-       "end": 16,
-       "bottom": 24,
-       "start": 16
+       "bottom": 24
       },
       "children": [
        {
         "id": "sig-2",
-        "type": "learning",
+        "type": "stack",
         "name": "The course they're taking",
-        "learning": {
-         "section": "continue",
-         "style": "ring"
-        },
         "visibility": "signed_in",
-        "color": "#15131A",
-        "dark_color": "#F4F1EA"
+        "height": 430,
+        "corners": {
+         "bottom_start": 34,
+         "bottom_end": 34
+        },
+        "background": "#1D2B4F",
+        "children": [
+         {
+          "id": "sig-3",
+          "type": "learning",
+          "learning": {
+           "section": "continue",
+           "style": "photo"
+          },
+          "height": 430,
+          "corners": {
+           "bottom_start": 34,
+           "bottom_end": 34
+          },
+          "background": "#1D2B4F",
+          "color": "#FFFFFF"
+         },
+         {
+          "id": "sig-4",
+          "type": "column",
+          "gap": 14,
+          "padding": {
+           "top": 64,
+           "end": 16,
+           "bottom": 0,
+           "start": 16
+          },
+          "children": [
+           {
+            "id": "sig-5",
+            "type": "segments",
+            "segments": {
+             "source": "course",
+             "height": 3
+            },
+            "gap": 4,
+            "color": "#E6C26E"
+           },
+           {
+            "id": "sig-6",
+            "type": "greeting",
+            "color": "#FFFFFF",
+            "font": {
+             "size": 17,
+             "weight": 700
+            }
+           }
+          ]
+         }
+        ]
        },
        {
-        "id": "sig-3",
+        "id": "sig-7",
         "type": "photo_hero",
         "name": "Learn from the best, at your own pace",
         "visibility": "signed_out",
@@ -343,11 +388,14 @@
          "bottom": 20,
          "start": 18
         },
-        "height": 300,
-        "radius": 28,
+        "height": 380,
+        "corners": {
+         "bottom_start": 34,
+         "bottom_end": 34
+        },
         "children": [
          {
-          "id": "sig-4",
+          "id": "sig-8",
           "type": "text",
           "text": "Learn from the best, at your own pace",
           "color": "#FFFFFF",
@@ -367,7 +415,7 @@
           }
          },
          {
-          "id": "sig-5",
+          "id": "sig-9",
           "type": "button",
           "text": "Browse courses",
           "width": "hug",
@@ -406,61 +454,69 @@
         ]
        },
        {
-        "id": "sig-6",
+        "id": "sig-10",
         "type": "row",
         "name": "Streak and live class",
         "visibility": "signed_in",
         "gap": 10,
         "cross": "stretch",
         "margin": {
-         "top": 16
+         "top": 14,
+         "end": 16,
+         "bottom": 0,
+         "start": 16
         },
         "children": [
          {
-          "id": "sig-7",
+          "id": "sig-11",
           "type": "learning",
           "learning": {
            "section": "streak",
            "style": "photo",
-           "days": "pills"
+           "days": "letters"
           },
-          "width": "fill",
-          "radius": 24,
+          "width": 158,
+          "radius": 22,
+          "shadow": "light",
           "background": "#FFFFFF",
           "dark_background": "#15161D",
-          "border_color": "#E6DBC6",
+          "border_color": "#EAE1CF",
           "dark_border_color": "#262833",
           "border_width": 1
          },
          {
-          "id": "sig-8",
+          "id": "sig-12",
           "type": "learning",
           "learning": {
            "section": "live",
            "style": "photo"
           },
           "width": "fill",
-          "radius": 24,
+          "radius": 22,
           "background": "#1D2B4F",
-          "dark_background": "#1A2244",
+          "image_background_url": "http://localhost:3000/stories/academy/academy-live.jpg",
+          "overlay": {
+           "color": "#1D2B4F",
+           "opacity": 0.74
+          },
           "color": "#FFFFFF"
          }
         ]
        },
        {
-        "id": "sig-9",
+        "id": "sig-13",
         "type": "row",
         "name": "Picked for you",
         "cross": "end",
         "padding": {
          "top": 18,
-         "end": 0,
+         "end": 16,
          "bottom": 10,
-         "start": 0
+         "start": 16
         },
         "children": [
          {
-          "id": "sig-10",
+          "id": "sig-14",
           "type": "text",
           "text": "Picked for you",
           "width": "fill",
@@ -473,7 +529,7 @@
           },
           "translations": {
            "ar": {
-            "text": "اختيارات لك"
+            "text": "مختارة لك"
            },
            "tr": {
             "text": "Senin için seçtiklerimiz"
@@ -481,7 +537,7 @@
           }
          },
          {
-          "id": "sig-11",
+          "id": "sig-15",
           "type": "text",
           "text": "See all",
           "color": "#7A5C14",
@@ -506,12 +562,18 @@
         ]
        },
        {
-        "id": "sig-12",
+        "id": "sig-16",
         "type": "items",
         "name": "Picked for you",
         "source": "courses",
         "layout": "carousel",
-        "gap": 14,
+        "gap": 12,
+        "padding": {
+         "top": 0,
+         "end": 16,
+         "bottom": 0,
+         "start": 16
+        },
         "query": {
          "limit": 6,
          "category_id": null,
@@ -520,64 +582,109 @@
          "ids": []
         },
         "card": {
-         "id": "sig-13",
-         "type": "row",
-         "width": 260,
-         "gap": 12,
-         "cross": "center",
+         "id": "sig-17",
+         "type": "stack",
+         "width": 236,
+         "height": 150,
+         "radius": 22,
+         "background": "#1D2B4F",
          "children": [
           {
-           "id": "sig-14",
+           "id": "sig-18",
            "type": "image",
            "bind": "image",
-           "width": 64,
-           "height": 64,
-           "radius": 18
+           "width": "fill",
+           "height": 150,
+           "radius": 22,
+           "scrim": {
+            "color": "#0B0F1F",
+            "from": 0.1,
+            "middle": 0.15,
+            "at": 40,
+            "to": 0.88
+           }
           },
           {
-           "id": "sig-15",
+           "id": "sig-19",
            "type": "column",
-           "width": "fill",
+           "height": 150,
+           "align": "between",
+           "padding": {
+            "top": 12,
+            "end": 12,
+            "bottom": 12,
+            "start": 12
+           },
            "children": [
             {
-             "id": "sig-16",
+             "id": "sig-20",
              "type": "text",
-             "bind": "title",
-             "max_lines": 1,
-             "color": "#15131A",
-             "dark_color": "#F4F1EA",
+             "bind": "badge",
+             "self_align": "start",
              "font": {
-              "size": 15,
-              "weight": 700
-             }
+              "size": 11,
+              "weight": 800,
+              "letter_spacing": 1.2,
+              "uppercase": true
+             },
+             "padding": {
+              "top": 4,
+              "end": 10,
+              "bottom": 4,
+              "start": 10
+             },
+             "radius": 12,
+             "background": "#E6C26E",
+             "color": "#2A1D05"
             },
             {
-             "id": "sig-17",
-             "type": "row",
-             "gap": 4,
-             "cross": "center",
+             "id": "sig-21",
+             "type": "column",
              "children": [
               {
-               "id": "sig-18",
+               "id": "sig-22",
                "type": "text",
-               "bind": "subtitle",
-               "max_lines": 1,
-               "color": "#625C69",
-               "dark_color": "#A9A3B4",
+               "bind": "title",
+               "max_lines": 2,
+               "color": "#FFFFFF",
                "font": {
-                "size": 12
+                "size": 15,
+                "weight": 800,
+                "line_height": 1.2
                }
               },
               {
-               "id": "sig-19",
-               "type": "text",
-               "bind": "rating",
-               "text": "·",
-               "color": "#625C69",
-               "dark_color": "#A9A3B4",
-               "font": {
-                "size": 12
-               }
+               "id": "sig-23",
+               "type": "row",
+               "gap": 4,
+               "cross": "center",
+               "margin": {
+                "top": 3
+               },
+               "children": [
+                {
+                 "id": "sig-24",
+                 "type": "text",
+                 "bind": "subtitle",
+                 "max_lines": 1,
+                 "color": "#FFFFFF",
+                 "opacity": 0.85,
+                 "font": {
+                  "size": 12
+                 }
+                },
+                {
+                 "id": "sig-25",
+                 "type": "text",
+                 "bind": "rating",
+                 "text": "·",
+                 "color": "#FFFFFF",
+                 "opacity": 0.85,
+                 "font": {
+                  "size": 12
+                 }
+                }
+               ]
               }
              ]
             }
@@ -603,14 +710,14 @@
     },
     "studio": {
      "body": {
-      "id": "sig-23",
+      "id": "sig-29",
       "type": "column",
       "children": []
      },
      "screen": "courses"
     },
     "show_title": false,
-    "updated_at": "2026-11-13T07:00:00.000Z",
+    "updated_at": "2026-11-13T18:00:00.000Z",
     "blocks": []
    },
    {
@@ -626,14 +733,14 @@
     },
     "studio": {
      "body": {
-      "id": "sig-27",
+      "id": "sig-33",
       "type": "column",
       "children": []
      },
      "screen": "my_courses"
     },
     "show_title": false,
-    "updated_at": "2026-11-13T07:00:00.000Z",
+    "updated_at": "2026-11-13T18:00:00.000Z",
     "blocks": []
    },
    {
@@ -649,14 +756,14 @@
     },
     "studio": {
      "body": {
-      "id": "sig-28",
+      "id": "sig-34",
       "type": "column",
       "children": []
      },
      "screen": "account"
     },
     "show_title": false,
-    "updated_at": "2026-11-13T07:00:00.000Z",
+    "updated_at": "2026-11-13T18:00:00.000Z",
     "blocks": []
    },
    {
@@ -672,7 +779,7 @@
     },
     "studio": {
      "body": {
-      "id": "sig-29",
+      "id": "sig-35",
       "type": "column",
       "children": []
      },
@@ -688,17 +795,17 @@
         "title": "Ara"
        }
       },
-      "background": "#F6F1E7",
+      "background": "#FAF7F1",
       "color": "#15131A",
       "dark_background": "#0A0B10",
       "dark_color": "#F4F1EA",
       "style": "large"
      },
-     "background": "#F6F1E7",
+     "background": "#FAF7F1",
      "dark_background": "#0A0B10"
     },
     "show_title": false,
-    "updated_at": "2026-11-13T07:00:00.000Z",
+    "updated_at": "2026-11-13T18:00:00.000Z",
     "blocks": []
    },
    {
@@ -714,7 +821,7 @@
     },
     "studio": {
      "body": {
-      "id": "sig-30",
+      "id": "sig-36",
       "type": "column",
       "children": []
      },
@@ -730,17 +837,17 @@
         "title": "Favoriler"
        }
       },
-      "background": "#F6F1E7",
+      "background": "#FAF7F1",
       "color": "#15131A",
       "dark_background": "#0A0B10",
       "dark_color": "#F4F1EA",
       "style": "large"
      },
-     "background": "#F6F1E7",
+     "background": "#FAF7F1",
      "dark_background": "#0A0B10"
     },
     "show_title": false,
-    "updated_at": "2026-11-13T07:00:00.000Z",
+    "updated_at": "2026-11-13T18:00:00.000Z",
     "blocks": []
    },
    {
@@ -756,7 +863,7 @@
     },
     "studio": {
      "body": {
-      "id": "sig-31",
+      "id": "sig-37",
       "type": "column",
       "children": []
      },
@@ -772,17 +879,17 @@
         "title": "Siparişlerim"
        }
       },
-      "background": "#F6F1E7",
+      "background": "#FAF7F1",
       "color": "#15131A",
       "dark_background": "#0A0B10",
       "dark_color": "#F4F1EA",
       "style": "large"
      },
-     "background": "#F6F1E7",
+     "background": "#FAF7F1",
      "dark_background": "#0A0B10"
     },
     "show_title": false,
-    "updated_at": "2026-11-13T07:00:00.000Z",
+    "updated_at": "2026-11-13T18:00:00.000Z",
     "blocks": []
    },
    {
@@ -798,7 +905,7 @@
     },
     "studio": {
      "body": {
-      "id": "sig-32",
+      "id": "sig-38",
       "type": "column",
       "children": []
      },
@@ -814,17 +921,17 @@
         "title": "Ayarlar"
        }
       },
-      "background": "#F6F1E7",
+      "background": "#FAF7F1",
       "color": "#15131A",
       "dark_background": "#0A0B10",
       "dark_color": "#F4F1EA",
       "style": "large"
      },
-     "background": "#F6F1E7",
+     "background": "#FAF7F1",
      "dark_background": "#0A0B10"
     },
     "show_title": false,
-    "updated_at": "2026-11-13T07:00:00.000Z",
+    "updated_at": "2026-11-13T18:00:00.000Z",
     "blocks": []
    },
    {
@@ -840,7 +947,7 @@
     },
     "studio": {
      "body": {
-      "id": "sig-33",
+      "id": "sig-39",
       "type": "column",
       "children": []
      },
@@ -856,17 +963,17 @@
         "title": "Bildirimler"
        }
       },
-      "background": "#F6F1E7",
+      "background": "#FAF7F1",
       "color": "#15131A",
       "dark_background": "#0A0B10",
       "dark_color": "#F4F1EA",
       "style": "large"
      },
-     "background": "#F6F1E7",
+     "background": "#FAF7F1",
      "dark_background": "#0A0B10"
     },
     "show_title": false,
-    "updated_at": "2026-11-13T07:00:00.000Z",
+    "updated_at": "2026-11-13T18:00:00.000Z",
     "blocks": []
    },
    {
@@ -882,7 +989,7 @@
     },
     "studio": {
      "body": {
-      "id": "sig-34",
+      "id": "sig-40",
       "type": "column",
       "children": []
      },
@@ -898,17 +1005,17 @@
         "title": "Profili düzenle"
        }
       },
-      "background": "#F6F1E7",
+      "background": "#FAF7F1",
       "color": "#15131A",
       "dark_background": "#0A0B10",
       "dark_color": "#F4F1EA",
       "style": "large"
      },
-     "background": "#F6F1E7",
+     "background": "#FAF7F1",
      "dark_background": "#0A0B10"
     },
     "show_title": false,
-    "updated_at": "2026-11-13T07:00:00.000Z",
+    "updated_at": "2026-11-13T18:00:00.000Z",
     "blocks": []
    },
    {
@@ -924,7 +1031,7 @@
     },
     "studio": {
      "body": {
-      "id": "sig-35",
+      "id": "sig-41",
       "type": "column",
       "children": []
      },
@@ -940,17 +1047,17 @@
         "title": "Cihazlar"
        }
       },
-      "background": "#F6F1E7",
+      "background": "#FAF7F1",
       "color": "#15131A",
       "dark_background": "#0A0B10",
       "dark_color": "#F4F1EA",
       "style": "large"
      },
-     "background": "#F6F1E7",
+     "background": "#FAF7F1",
      "dark_background": "#0A0B10"
     },
     "show_title": false,
-    "updated_at": "2026-11-13T07:00:00.000Z",
+    "updated_at": "2026-11-13T18:00:00.000Z",
     "blocks": []
    },
    {
@@ -958,14 +1065,14 @@
     "title": "Change password",
     "studio": {
      "body": {
-      "id": "sig-36",
+      "id": "sig-42",
       "type": "column",
       "children": []
      },
      "screen": "change_password"
     },
     "show_title": false,
-    "updated_at": "2026-11-13T07:00:00.000Z",
+    "updated_at": "2026-11-13T18:00:00.000Z",
     "blocks": []
    },
    {
@@ -973,14 +1080,14 @@
     "title": "A conversation",
     "studio": {
      "body": {
-      "id": "sig-37",
+      "id": "sig-43",
       "type": "column",
       "children": []
      },
      "screen": "chat_conversation"
     },
     "show_title": false,
-    "updated_at": "2026-11-13T07:00:00.000Z",
+    "updated_at": "2026-11-13T18:00:00.000Z",
     "blocks": []
    },
    {
@@ -988,14 +1095,14 @@
     "title": "A course",
     "studio": {
      "body": {
-      "id": "sig-38",
+      "id": "sig-44",
       "type": "column",
       "children": []
      },
      "screen": "course"
     },
     "show_title": false,
-    "updated_at": "2026-11-13T07:00:00.000Z",
+    "updated_at": "2026-11-13T18:00:00.000Z",
     "blocks": []
    },
    {
@@ -1003,14 +1110,14 @@
     "title": "A bundle",
     "studio": {
      "body": {
-      "id": "sig-39",
+      "id": "sig-45",
       "type": "column",
       "children": []
      },
      "screen": "bundle"
     },
     "show_title": false,
-    "updated_at": "2026-11-13T07:00:00.000Z",
+    "updated_at": "2026-11-13T18:00:00.000Z",
     "blocks": []
    },
    {
@@ -1018,14 +1125,14 @@
     "title": "A lesson",
     "studio": {
      "body": {
-      "id": "sig-40",
+      "id": "sig-46",
       "type": "column",
       "children": []
      },
      "screen": "lesson"
     },
     "show_title": false,
-    "updated_at": "2026-11-13T07:00:00.000Z",
+    "updated_at": "2026-11-13T18:00:00.000Z",
     "blocks": []
    },
    {
@@ -1033,14 +1140,14 @@
     "title": "A quiz",
     "studio": {
      "body": {
-      "id": "sig-41",
+      "id": "sig-47",
       "type": "column",
       "children": []
      },
      "screen": "quiz"
     },
     "show_title": false,
-    "updated_at": "2026-11-13T07:00:00.000Z",
+    "updated_at": "2026-11-13T18:00:00.000Z",
     "blocks": []
    },
    {
@@ -1048,14 +1155,14 @@
     "title": "An assignment",
     "studio": {
      "body": {
-      "id": "sig-42",
+      "id": "sig-48",
       "type": "column",
       "children": []
      },
      "screen": "assignment"
     },
     "show_title": false,
-    "updated_at": "2026-11-13T07:00:00.000Z",
+    "updated_at": "2026-11-13T18:00:00.000Z",
     "blocks": []
    },
    {
@@ -1063,14 +1170,14 @@
     "title": "A live session",
     "studio": {
      "body": {
-      "id": "sig-43",
+      "id": "sig-49",
       "type": "column",
       "children": []
      },
      "screen": "live"
     },
     "show_title": false,
-    "updated_at": "2026-11-13T07:00:00.000Z",
+    "updated_at": "2026-11-13T18:00:00.000Z",
     "blocks": []
    },
    {
@@ -1078,14 +1185,14 @@
     "title": "A question",
     "studio": {
      "body": {
-      "id": "sig-44",
+      "id": "sig-50",
       "type": "column",
       "children": []
      },
      "screen": "question"
     },
     "show_title": false,
-    "updated_at": "2026-11-13T07:00:00.000Z",
+    "updated_at": "2026-11-13T18:00:00.000Z",
     "blocks": []
    },
    {
@@ -1101,7 +1208,7 @@
     },
     "studio": {
      "body": {
-      "id": "sig-45",
+      "id": "sig-51",
       "type": "column",
       "children": []
      },
@@ -1117,17 +1224,17 @@
         "title": "Öğrenme yolları"
        }
       },
-      "background": "#F6F1E7",
+      "background": "#FAF7F1",
       "color": "#15131A",
       "dark_background": "#0A0B10",
       "dark_color": "#F4F1EA",
       "style": "large"
      },
-     "background": "#F6F1E7",
+     "background": "#FAF7F1",
      "dark_background": "#0A0B10"
     },
     "show_title": false,
-    "updated_at": "2026-11-13T07:00:00.000Z",
+    "updated_at": "2026-11-13T18:00:00.000Z",
     "blocks": []
    },
    {
@@ -1135,14 +1242,14 @@
     "title": "A learning path",
     "studio": {
      "body": {
-      "id": "sig-46",
+      "id": "sig-52",
       "type": "column",
       "children": []
      },
      "screen": "learning_path"
     },
     "show_title": false,
-    "updated_at": "2026-11-13T07:00:00.000Z",
+    "updated_at": "2026-11-13T18:00:00.000Z",
     "blocks": []
    },
    {
@@ -1158,7 +1265,7 @@
     },
     "studio": {
      "body": {
-      "id": "sig-47",
+      "id": "sig-53",
       "type": "column",
       "children": []
      },
@@ -1174,17 +1281,17 @@
         "title": "Liderlik tablosu"
        }
       },
-      "background": "#F6F1E7",
+      "background": "#FAF7F1",
       "color": "#15131A",
       "dark_background": "#0A0B10",
       "dark_color": "#F4F1EA",
       "style": "large"
      },
-     "background": "#F6F1E7",
+     "background": "#FAF7F1",
      "dark_background": "#0A0B10"
     },
     "show_title": false,
-    "updated_at": "2026-11-13T07:00:00.000Z",
+    "updated_at": "2026-11-13T18:00:00.000Z",
     "blocks": []
    },
    {
@@ -1200,7 +1307,7 @@
     },
     "studio": {
      "body": {
-      "id": "sig-48",
+      "id": "sig-54",
       "type": "column",
       "children": []
      },
@@ -1216,17 +1323,17 @@
         "title": "Notlarım"
        }
       },
-      "background": "#F6F1E7",
+      "background": "#FAF7F1",
       "color": "#15131A",
       "dark_background": "#0A0B10",
       "dark_color": "#F4F1EA",
       "style": "large"
      },
-     "background": "#F6F1E7",
+     "background": "#FAF7F1",
      "dark_background": "#0A0B10"
     },
     "show_title": false,
-    "updated_at": "2026-11-13T07:00:00.000Z",
+    "updated_at": "2026-11-13T18:00:00.000Z",
     "blocks": []
    },
    {
@@ -1242,7 +1349,7 @@
     },
     "studio": {
      "body": {
-      "id": "sig-49",
+      "id": "sig-55",
       "type": "column",
       "children": []
      },
@@ -1258,17 +1365,17 @@
         "title": "Tartışma"
        }
       },
-      "background": "#F6F1E7",
+      "background": "#FAF7F1",
       "color": "#15131A",
       "dark_background": "#0A0B10",
       "dark_color": "#F4F1EA",
       "style": "large"
      },
-     "background": "#F6F1E7",
+     "background": "#FAF7F1",
      "dark_background": "#0A0B10"
     },
     "show_title": false,
-    "updated_at": "2026-11-13T07:00:00.000Z",
+    "updated_at": "2026-11-13T18:00:00.000Z",
     "blocks": []
    },
    {
@@ -1284,7 +1391,7 @@
     },
     "studio": {
      "body": {
-      "id": "sig-50",
+      "id": "sig-56",
       "type": "column",
       "children": []
      },
@@ -1300,17 +1407,17 @@
         "title": "Sertifikalar"
        }
       },
-      "background": "#F6F1E7",
+      "background": "#FAF7F1",
       "color": "#15131A",
       "dark_background": "#0A0B10",
       "dark_color": "#F4F1EA",
       "style": "large"
      },
-     "background": "#F6F1E7",
+     "background": "#FAF7F1",
      "dark_background": "#0A0B10"
     },
     "show_title": false,
-    "updated_at": "2026-11-13T07:00:00.000Z",
+    "updated_at": "2026-11-13T18:00:00.000Z",
     "blocks": []
    },
    {
@@ -1326,7 +1433,7 @@
     },
     "studio": {
      "body": {
-      "id": "sig-51",
+      "id": "sig-57",
       "type": "column",
       "children": []
      },
@@ -1342,17 +1449,17 @@
         "title": "Sınav sonuçları"
        }
       },
-      "background": "#F6F1E7",
+      "background": "#FAF7F1",
       "color": "#15131A",
       "dark_background": "#0A0B10",
       "dark_color": "#F4F1EA",
       "style": "large"
      },
-     "background": "#F6F1E7",
+     "background": "#FAF7F1",
      "dark_background": "#0A0B10"
     },
     "show_title": false,
-    "updated_at": "2026-11-13T07:00:00.000Z",
+    "updated_at": "2026-11-13T18:00:00.000Z",
     "blocks": []
    },
    {
@@ -1368,7 +1475,7 @@
     },
     "studio": {
      "body": {
-      "id": "sig-52",
+      "id": "sig-58",
       "type": "column",
       "children": []
      },
@@ -1384,17 +1491,17 @@
         "title": "Canlı dersler"
        }
       },
-      "background": "#F6F1E7",
+      "background": "#FAF7F1",
       "color": "#15131A",
       "dark_background": "#0A0B10",
       "dark_color": "#F4F1EA",
       "style": "large"
      },
-     "background": "#F6F1E7",
+     "background": "#FAF7F1",
      "dark_background": "#0A0B10"
     },
     "show_title": false,
-    "updated_at": "2026-11-13T07:00:00.000Z",
+    "updated_at": "2026-11-13T18:00:00.000Z",
     "blocks": []
    },
    {
@@ -1410,7 +1517,7 @@
     },
     "studio": {
      "body": {
-      "id": "sig-53",
+      "id": "sig-59",
       "type": "column",
       "children": []
      },
@@ -1426,17 +1533,17 @@
         "title": "Başarılar"
        }
       },
-      "background": "#F6F1E7",
+      "background": "#FAF7F1",
       "color": "#15131A",
       "dark_background": "#0A0B10",
       "dark_color": "#F4F1EA",
       "style": "large"
      },
-     "background": "#F6F1E7",
+     "background": "#FAF7F1",
      "dark_background": "#0A0B10"
     },
     "show_title": false,
-    "updated_at": "2026-11-13T07:00:00.000Z",
+    "updated_at": "2026-11-13T18:00:00.000Z",
     "blocks": []
    },
    {
@@ -1452,7 +1559,7 @@
     },
     "studio": {
      "body": {
-      "id": "sig-54",
+      "id": "sig-60",
       "type": "column",
       "children": []
      },
@@ -1468,28 +1575,30 @@
         "title": "İndirilenler"
        }
       },
-      "background": "#F6F1E7",
+      "background": "#FAF7F1",
       "color": "#15131A",
       "dark_background": "#0A0B10",
       "dark_color": "#F4F1EA",
       "style": "large"
      },
-     "background": "#F6F1E7",
+     "background": "#FAF7F1",
      "dark_background": "#0A0B10"
     },
     "show_title": false,
-    "updated_at": "2026-11-13T07:00:00.000Z",
+    "updated_at": "2026-11-13T18:00:00.000Z",
     "blocks": []
    }
   ],
   "tab_bar": {
-   "design": "dock",
+   "design": "float",
+   "radius": 30,
    "margin": 14,
-   "background": "#FFFFFF",
+   "labels": "active",
+   "background": "#1D2B4F",
    "dark_background": "#15161D",
-   "active": "#C99B4A",
-   "dark_active": "#E7C982",
-   "inactive": "#625C69",
+   "active": "#E6C26E",
+   "dark_active": "#E6C26E",
+   "inactive": "#B3BAD0",
    "dark_inactive": "#A9A3B4"
   }
  }

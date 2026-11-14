@@ -175,13 +175,14 @@ function sizeStyle(size: StudioSize | undefined, axis: "width" | "height", paren
 }
 
 /**
- * 128.10 Whether a page's first element (of those not pinned) is a cover: a photo hero, a map header, or a picture with a
- * scrim (the app's `studioStartsWithCover`, mobile studio_page.dart). Under a transparent header only such a page reaches
+ * 128.10 Whether a page's first element (of those not pinned) is a cover: a photo hero, a map header, 130 a video hero, a
+ * parallax banner, or a picture with a scrim (the app's `studioStartsWithCover`, mobile studio_page.dart). Under a transparent header only such a page reaches
  * under the status bar with the app's name over it; older pages, which have none of these, look as before.
  */
 export function startsWithCover(body: StudioNode): boolean {
   const first = (body.children ?? []).find((n) => (n.pin ?? "none") === "none" && !n.hidden);
-  return !!first && (first.type === "photo_hero" || first.type === "map_header" || !!first.scrim);
+  // 130 And 129's video hero and parallax banner, covers too.
+  return !!first && (first.type === "photo_hero" || first.type === "map_header" || first.type === "video_hero" || first.type === "parallax_banner" || !!first.scrim);
 }
 
 /**

@@ -19,6 +19,10 @@
    "header": "night",
    "accent": "#D8B57A",
    "items": []
+  },
+  "system": {
+   "look": "photo",
+   "image_url": "http://localhost:3000/travel-photos/room.jpg"
   }
  },
  "layout": {
@@ -453,7 +457,7 @@
           },
           "translations": {
            "ar": {
-            "text": "رحلتك الجاية تبدأ منين؟"
+            "text": "من أين تبدأ حكايتك القادمة؟"
            },
            "tr": {
             "text": "Bir sonraki hikâye nerede başlıyor?"
@@ -481,35 +485,6 @@
            "end": 16,
            "bottom": 0,
            "start": 16
-          }
-         }
-        ]
-       },
-       {
-        "id": "demo-59",
-        "type": "column",
-        "gap": 6,
-        "padding": {
-         "top": 8,
-         "end": 16,
-         "bottom": 8,
-         "start": 16
-        },
-        "margin": {
-         "top": 4,
-         "end": 0,
-         "bottom": 4,
-         "start": 0
-        },
-        "visibility": "signed_out",
-        "children": [
-         {
-          "id": "demo-58",
-          "type": "text",
-          "text": "This is a demo app. Sign in with +1 202 555 0123 and the code 246810. Anything you add is deleted after a day.",
-          "font": {
-           "size": 15,
-           "line_height": 1.5
           }
          }
         ]
@@ -1114,6 +1089,61 @@
           ]
          }
         ]
+       },
+       {
+        "id": "demo-58",
+        "type": "row",
+        "gap": 10,
+        "cross": "start",
+        "padding": {
+         "top": 12,
+         "end": 14,
+         "bottom": 12,
+         "start": 14
+        },
+        "margin": {
+         "top": 18,
+         "end": 16,
+         "bottom": 8,
+         "start": 16
+        },
+        "radius": 16,
+        "background": "#FFFFFF",
+        "dark_background": "#1B2338",
+        "border_color": "#E6DFD2",
+        "dark_border_color": "#2A3350",
+        "border_width": 1,
+        "visibility": "signed_out",
+        "children": [
+         {
+          "id": "demo-59",
+          "type": "icon",
+          "icon": "info",
+          "icon_size": 18,
+          "color": "#5F6472",
+          "dark_color": "#B4B8C6"
+         },
+         {
+          "id": "demo-60",
+          "type": "text",
+          "text": "This is a demo app. Sign in with +1 202 555 0123 and the code 246810. Anything you add is deleted after a day.",
+          "width": "fill",
+          "font": {
+           "size": 13,
+           "line_height": 1.45
+          },
+          "color": "#5F6472",
+          "dark_color": "#B4B8C6",
+          "translations": {
+           "ar": {
+            "text": "هذا تطبيق تجريبي. سجّل الدخول بالرقم ⁦+1 202 555 0123⁩ والرمز 246810. يُحذف كل ما تضيفه بعد يوم."
+           },
+           "tr": {
+            "text": "Bu bir demo uygulamasıdır. +1 202 555 0123 numarası ve 246810 koduyla giriş yapın. Eklediğiniz her şey bir gün sonra silinir."
+           }
+          }
+         }
+        ]
        }
       ]
      }
@@ -1132,7 +1162,7 @@
     },
     "studio": {
      "body": {
-      "id": "demo-60",
+      "id": "demo-61",
       "type": "column",
       "children": []
      },
@@ -1154,7 +1184,8 @@
       "background": "#F7F3EC",
       "color": "#0E1424",
       "dark_background": "#0B0F1A",
-      "dark_color": "#F3EEE4"
+      "dark_color": "#F3EEE4",
+      "style": "photo"
      },
      "background": "#F7F3EC",
      "dark_background": "#0B0F1A"
@@ -1176,7 +1207,7 @@
     },
     "studio": {
      "body": {
-      "id": "demo-61",
+      "id": "demo-62",
       "type": "column",
       "children": []
      },
@@ -1198,7 +1229,8 @@
       "background": "#F7F3EC",
       "color": "#0E1424",
       "dark_background": "#0B0F1A",
-      "dark_color": "#F3EEE4"
+      "dark_color": "#F3EEE4",
+      "style": "photo"
      },
      "background": "#F7F3EC",
      "dark_background": "#0B0F1A"
@@ -1220,11 +1252,11 @@
     },
     "studio": {
      "body": {
-      "id": "demo-62",
+      "id": "demo-63",
       "type": "column",
       "children": [
        {
-        "id": "demo-63",
+        "id": "demo-64",
         "type": "tracking",
         "tracking": {
          "kind": "trip",
@@ -1269,7 +1301,8 @@
       "background": "#F7F3EC",
       "color": "#0E1424",
       "dark_background": "#0B0F1A",
-      "dark_color": "#F3EEE4"
+      "dark_color": "#F3EEE4",
+      "style": "photo"
      },
      "background": "#F7F3EC",
      "dark_background": "#0B0F1A"
@@ -1291,7 +1324,7 @@
     },
     "studio": {
      "body": {
-      "id": "demo-64",
+      "id": "demo-65",
       "type": "column",
       "children": []
      },
@@ -1316,7 +1349,7 @@
     },
     "studio": {
      "body": {
-      "id": "demo-65",
+      "id": "demo-66",
       "type": "column",
       "children": []
      },
@@ -1335,7 +1368,8 @@
       "background": "#F7F3EC",
       "color": "#0E1424",
       "dark_background": "#0B0F1A",
-      "dark_color": "#F3EEE4"
+      "dark_color": "#F3EEE4",
+      "style": "photo"
      },
      "background": "#F7F3EC",
      "dark_background": "#0B0F1A"
@@ -1357,7 +1391,7 @@
     },
     "studio": {
      "body": {
-      "id": "demo-66",
+      "id": "demo-67",
       "type": "column",
       "children": []
      },
@@ -1376,7 +1410,8 @@
       "background": "#F7F3EC",
       "color": "#0E1424",
       "dark_background": "#0B0F1A",
-      "dark_color": "#F3EEE4"
+      "dark_color": "#F3EEE4",
+      "style": "photo"
      },
      "background": "#F7F3EC",
      "dark_background": "#0B0F1A"
@@ -1398,7 +1433,7 @@
     },
     "studio": {
      "body": {
-      "id": "demo-67",
+      "id": "demo-68",
       "type": "column",
       "children": []
      },
@@ -1417,7 +1452,8 @@
       "background": "#F7F3EC",
       "color": "#0E1424",
       "dark_background": "#0B0F1A",
-      "dark_color": "#F3EEE4"
+      "dark_color": "#F3EEE4",
+      "style": "photo"
      },
      "background": "#F7F3EC",
      "dark_background": "#0B0F1A"
@@ -1439,7 +1475,7 @@
     },
     "studio": {
      "body": {
-      "id": "demo-68",
+      "id": "demo-69",
       "type": "column",
       "children": []
      },
@@ -1458,7 +1494,8 @@
       "background": "#F7F3EC",
       "color": "#0E1424",
       "dark_background": "#0B0F1A",
-      "dark_color": "#F3EEE4"
+      "dark_color": "#F3EEE4",
+      "style": "photo"
      },
      "background": "#F7F3EC",
      "dark_background": "#0B0F1A"
@@ -1480,7 +1517,7 @@
     },
     "studio": {
      "body": {
-      "id": "demo-69",
+      "id": "demo-70",
       "type": "column",
       "children": []
      },
@@ -1499,7 +1536,8 @@
       "background": "#F7F3EC",
       "color": "#0E1424",
       "dark_background": "#0B0F1A",
-      "dark_color": "#F3EEE4"
+      "dark_color": "#F3EEE4",
+      "style": "photo"
      },
      "background": "#F7F3EC",
      "dark_background": "#0B0F1A"
@@ -1513,7 +1551,7 @@
     "title": "Change password",
     "studio": {
      "body": {
-      "id": "demo-70",
+      "id": "demo-71",
       "type": "column",
       "children": []
      },
@@ -1530,7 +1568,7 @@
     "title": "A conversation",
     "studio": {
      "body": {
-      "id": "demo-71",
+      "id": "demo-72",
       "type": "column",
       "children": []
      },
@@ -1547,7 +1585,7 @@
     "title": "A hotel's page",
     "studio": {
      "body": {
-      "id": "demo-72",
+      "id": "demo-73",
       "type": "column",
       "children": []
      },
@@ -1564,7 +1602,7 @@
     "title": "Hotels found",
     "studio": {
      "body": {
-      "id": "demo-73",
+      "id": "demo-74",
       "type": "column",
       "children": []
      },
@@ -1581,7 +1619,7 @@
     "title": "Hotels on the map",
     "studio": {
      "body": {
-      "id": "demo-74",
+      "id": "demo-75",
       "type": "column",
       "children": []
      },
@@ -1598,7 +1636,7 @@
     "title": "A hotel's rooms",
     "studio": {
      "body": {
-      "id": "demo-75",
+      "id": "demo-76",
       "type": "column",
       "children": []
      },
@@ -1615,7 +1653,7 @@
     "title": "Booking a stay",
     "studio": {
      "body": {
-      "id": "demo-76",
+      "id": "demo-77",
       "type": "column",
       "children": []
      },
@@ -1632,7 +1670,7 @@
     "title": "Flights found",
     "studio": {
      "body": {
-      "id": "demo-77",
+      "id": "demo-78",
       "type": "column",
       "children": []
      },
@@ -1649,7 +1687,7 @@
     "title": "A flight's fares",
     "studio": {
      "body": {
-      "id": "demo-78",
+      "id": "demo-79",
       "type": "column",
       "children": []
      },
@@ -1666,7 +1704,7 @@
     "title": "Prices by date",
     "studio": {
      "body": {
-      "id": "demo-79",
+      "id": "demo-80",
       "type": "column",
       "children": []
      },
@@ -1683,7 +1721,7 @@
     "title": "Choosing seats",
     "studio": {
      "body": {
-      "id": "demo-80",
+      "id": "demo-81",
       "type": "column",
       "children": []
      },
@@ -1700,7 +1738,7 @@
     "title": "Bags and meals",
     "studio": {
      "body": {
-      "id": "demo-81",
+      "id": "demo-82",
       "type": "column",
       "children": []
      },
@@ -1717,7 +1755,7 @@
     "title": "Stay + Flight",
     "studio": {
      "body": {
-      "id": "demo-82",
+      "id": "demo-83",
       "type": "column",
       "children": []
      },
@@ -1734,7 +1772,7 @@
     "title": "Booking a trip",
     "studio": {
      "body": {
-      "id": "demo-83",
+      "id": "demo-84",
       "type": "column",
       "children": []
      },
@@ -1751,7 +1789,7 @@
     "title": "A trip",
     "studio": {
      "body": {
-      "id": "demo-84",
+      "id": "demo-85",
       "type": "column",
       "children": []
      },
@@ -1768,7 +1806,7 @@
     "title": "Boarding passes",
     "studio": {
      "body": {
-      "id": "demo-85",
+      "id": "demo-86",
       "type": "column",
       "children": []
      },
@@ -1785,7 +1823,7 @@
     "title": "Changing a booking",
     "studio": {
      "body": {
-      "id": "demo-86",
+      "id": "demo-87",
       "type": "column",
       "children": []
      },
@@ -1802,7 +1840,7 @@
     "title": "Reviewing a stay",
     "studio": {
      "body": {
-      "id": "demo-87",
+      "id": "demo-88",
       "type": "column",
       "children": []
      },

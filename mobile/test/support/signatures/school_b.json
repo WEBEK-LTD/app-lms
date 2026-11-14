@@ -164,6 +164,9 @@
      "icon": null
     }
    ]
+  },
+  "system": {
+   "look": "large"
   }
  },
  "layout": {
@@ -179,9 +182,7 @@
   "languages": {
    "default": "en",
    "available": [
-    "en",
-    "ar",
-    "tr"
+    "en"
    ]
   },
   "tabs": [
@@ -259,7 +260,7 @@
     "slug": "home",
     "title": "Home",
     "show_title": false,
-    "updated_at": "2026-11-13T07:00:00.000Z",
+    "updated_at": "2026-11-13T18:00:00.000Z",
     "blocks": [],
     "studio": {
      "header": {
@@ -268,8 +269,7 @@
        "notifications"
       ],
       "color": "#0D1B2A",
-      "dark_color": "#E8EEF5",
-      "style": "large"
+      "dark_color": "#E8EEF5"
      },
      "background": "#E8EDF2",
      "dark_background": "#060C13",
@@ -745,7 +745,7 @@
      "dark_background": "#060C13"
     },
     "show_title": false,
-    "updated_at": "2026-11-13T07:00:00.000Z",
+    "updated_at": "2026-11-13T18:00:00.000Z",
     "blocks": []
    },
    {
@@ -768,7 +768,7 @@
      "screen": "account"
     },
     "show_title": false,
-    "updated_at": "2026-11-13T07:00:00.000Z",
+    "updated_at": "2026-11-13T18:00:00.000Z",
     "blocks": []
    },
    {
@@ -810,7 +810,7 @@
      "dark_background": "#060C13"
     },
     "show_title": false,
-    "updated_at": "2026-11-13T07:00:00.000Z",
+    "updated_at": "2026-11-13T18:00:00.000Z",
     "blocks": []
    },
    {
@@ -852,7 +852,7 @@
      "dark_background": "#060C13"
     },
     "show_title": false,
-    "updated_at": "2026-11-13T07:00:00.000Z",
+    "updated_at": "2026-11-13T18:00:00.000Z",
     "blocks": []
    },
    {
@@ -894,7 +894,7 @@
      "dark_background": "#060C13"
     },
     "show_title": false,
-    "updated_at": "2026-11-13T07:00:00.000Z",
+    "updated_at": "2026-11-13T18:00:00.000Z",
     "blocks": []
    },
    {
@@ -936,7 +936,7 @@
      "dark_background": "#060C13"
     },
     "show_title": false,
-    "updated_at": "2026-11-13T07:00:00.000Z",
+    "updated_at": "2026-11-13T18:00:00.000Z",
     "blocks": []
    },
    {
@@ -951,7 +951,7 @@
      "screen": "change_password"
     },
     "show_title": false,
-    "updated_at": "2026-11-13T07:00:00.000Z",
+    "updated_at": "2026-11-13T18:00:00.000Z",
     "blocks": []
    },
    {
@@ -966,7 +966,7 @@
      "screen": "chat_conversation"
     },
     "show_title": false,
-    "updated_at": "2026-11-13T07:00:00.000Z",
+    "updated_at": "2026-11-13T18:00:00.000Z",
     "blocks": []
    },
    {
@@ -981,7 +981,7 @@
      "screen": "parent"
     },
     "show_title": false,
-    "updated_at": "2026-11-13T07:00:00.000Z",
+    "updated_at": "2026-11-13T18:00:00.000Z",
     "blocks": []
    },
    {
@@ -1023,7 +1023,7 @@
      "dark_background": "#060C13"
     },
     "show_title": false,
-    "updated_at": "2026-11-13T07:00:00.000Z",
+    "updated_at": "2026-11-13T18:00:00.000Z",
     "blocks": []
    },
    {
@@ -1065,7 +1065,7 @@
      "dark_background": "#060C13"
     },
     "show_title": false,
-    "updated_at": "2026-11-13T07:00:00.000Z",
+    "updated_at": "2026-11-13T18:00:00.000Z",
     "blocks": []
    },
    {
@@ -1107,7 +1107,7 @@
      "dark_background": "#060C13"
     },
     "show_title": false,
-    "updated_at": "2026-11-13T07:00:00.000Z",
+    "updated_at": "2026-11-13T18:00:00.000Z",
     "blocks": []
    },
    {
@@ -1149,7 +1149,7 @@
      "dark_background": "#060C13"
     },
     "show_title": false,
-    "updated_at": "2026-11-13T07:00:00.000Z",
+    "updated_at": "2026-11-13T18:00:00.000Z",
     "blocks": []
    },
    {
@@ -1191,7 +1191,7 @@
      "dark_background": "#060C13"
     },
     "show_title": false,
-    "updated_at": "2026-11-13T07:00:00.000Z",
+    "updated_at": "2026-11-13T18:00:00.000Z",
     "blocks": []
    },
    {
@@ -1233,7 +1233,7 @@
      "dark_background": "#060C13"
     },
     "show_title": false,
-    "updated_at": "2026-11-13T07:00:00.000Z",
+    "updated_at": "2026-11-13T18:00:00.000Z",
     "blocks": []
    },
    {
@@ -1275,7 +1275,7 @@
      "dark_background": "#060C13"
     },
     "show_title": false,
-    "updated_at": "2026-11-13T07:00:00.000Z",
+    "updated_at": "2026-11-13T18:00:00.000Z",
     "blocks": []
    },
    {
@@ -1317,7 +1317,7 @@
      "dark_background": "#060C13"
     },
     "show_title": false,
-    "updated_at": "2026-11-13T07:00:00.000Z",
+    "updated_at": "2026-11-13T18:00:00.000Z",
     "blocks": []
    },
    {
@@ -1359,7 +1359,7 @@
      "dark_background": "#060C13"
     },
     "show_title": false,
-    "updated_at": "2026-11-13T07:00:00.000Z",
+    "updated_at": "2026-11-13T18:00:00.000Z",
     "blocks": []
    },
    {
@@ -1401,7 +1401,7 @@
      "dark_background": "#060C13"
     },
     "show_title": false,
-    "updated_at": "2026-11-13T07:00:00.000Z",
+    "updated_at": "2026-11-13T18:00:00.000Z",
     "blocks": []
    },
    {
@@ -1443,7 +1443,7 @@
      "dark_background": "#060C13"
     },
     "show_title": false,
-    "updated_at": "2026-11-13T07:00:00.000Z",
+    "updated_at": "2026-11-13T18:00:00.000Z",
     "blocks": []
    },
    {
@@ -1485,7 +1485,7 @@
      "dark_background": "#060C13"
     },
     "show_title": false,
-    "updated_at": "2026-11-13T07:00:00.000Z",
+    "updated_at": "2026-11-13T18:00:00.000Z",
     "blocks": []
    },
    {
@@ -1527,7 +1527,7 @@
      "dark_background": "#060C13"
     },
     "show_title": false,
-    "updated_at": "2026-11-13T07:00:00.000Z",
+    "updated_at": "2026-11-13T18:00:00.000Z",
     "blocks": []
    },
    {
@@ -1569,7 +1569,7 @@
      "dark_background": "#060C13"
     },
     "show_title": false,
-    "updated_at": "2026-11-13T07:00:00.000Z",
+    "updated_at": "2026-11-13T18:00:00.000Z",
     "blocks": []
    },
    {
@@ -1611,7 +1611,7 @@
      "dark_background": "#060C13"
     },
     "show_title": false,
-    "updated_at": "2026-11-13T07:00:00.000Z",
+    "updated_at": "2026-11-13T18:00:00.000Z",
     "blocks": []
    },
    {
@@ -1653,7 +1653,7 @@
      "dark_background": "#060C13"
     },
     "show_title": false,
-    "updated_at": "2026-11-13T07:00:00.000Z",
+    "updated_at": "2026-11-13T18:00:00.000Z",
     "blocks": []
    },
    {
@@ -1668,7 +1668,7 @@
      "screen": "school_library_book"
     },
     "show_title": false,
-    "updated_at": "2026-11-13T07:00:00.000Z",
+    "updated_at": "2026-11-13T18:00:00.000Z",
     "blocks": []
    },
    {
@@ -1710,7 +1710,7 @@
      "dark_background": "#060C13"
     },
     "show_title": false,
-    "updated_at": "2026-11-13T07:00:00.000Z",
+    "updated_at": "2026-11-13T18:00:00.000Z",
     "blocks": []
    },
    {
@@ -1752,7 +1752,7 @@
      "dark_background": "#060C13"
     },
     "show_title": false,
-    "updated_at": "2026-11-13T07:00:00.000Z",
+    "updated_at": "2026-11-13T18:00:00.000Z",
     "blocks": []
    },
    {
@@ -1794,7 +1794,7 @@
      "dark_background": "#060C13"
     },
     "show_title": false,
-    "updated_at": "2026-11-13T07:00:00.000Z",
+    "updated_at": "2026-11-13T18:00:00.000Z",
     "blocks": []
    },
    {
@@ -1836,7 +1836,7 @@
      "dark_background": "#060C13"
     },
     "show_title": false,
-    "updated_at": "2026-11-13T07:00:00.000Z",
+    "updated_at": "2026-11-13T18:00:00.000Z",
     "blocks": []
    },
    {
@@ -1878,7 +1878,7 @@
      "dark_background": "#060C13"
     },
     "show_title": false,
-    "updated_at": "2026-11-13T07:00:00.000Z",
+    "updated_at": "2026-11-13T18:00:00.000Z",
     "blocks": []
    },
    {
@@ -1920,7 +1920,7 @@
      "dark_background": "#060C13"
     },
     "show_title": false,
-    "updated_at": "2026-11-13T07:00:00.000Z",
+    "updated_at": "2026-11-13T18:00:00.000Z",
     "blocks": []
    },
    {
@@ -1962,7 +1962,7 @@
      "dark_background": "#060C13"
     },
     "show_title": false,
-    "updated_at": "2026-11-13T07:00:00.000Z",
+    "updated_at": "2026-11-13T18:00:00.000Z",
     "blocks": []
    },
    {
@@ -2004,7 +2004,7 @@
      "dark_background": "#060C13"
     },
     "show_title": false,
-    "updated_at": "2026-11-13T07:00:00.000Z",
+    "updated_at": "2026-11-13T18:00:00.000Z",
     "blocks": []
    },
    {
@@ -2046,7 +2046,7 @@
      "dark_background": "#060C13"
     },
     "show_title": false,
-    "updated_at": "2026-11-13T07:00:00.000Z",
+    "updated_at": "2026-11-13T18:00:00.000Z",
     "blocks": []
    }
   ],

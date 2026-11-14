@@ -56,6 +56,10 @@
      "icon": null
     }
    ]
+  },
+  "system": {
+   "look": "photo",
+   "image_url": "http://localhost:3000/stories/delivery/delivery-rider.jpg"
   }
  },
  "layout": {
@@ -71,9 +75,7 @@
   "languages": {
    "default": "en",
    "available": [
-    "en",
-    "ar",
-    "tr"
+    "en"
    ]
   },
   "tabs": [
@@ -104,7 +106,7 @@
     },
     "translations": {
      "ar": {
-      "label": "ابعت"
+      "label": "إرسال"
      },
      "tr": {
       "label": "Gönder"
@@ -151,7 +153,7 @@
     "slug": "home",
     "title": "Home",
     "show_title": false,
-    "updated_at": "2026-11-13T10:00:00.000Z",
+    "updated_at": "2026-11-13T18:00:00.000Z",
     "blocks": [],
     "studio": {
      "background": "#F7F9FC",
@@ -790,7 +792,7 @@
     "title": "Send",
     "translations": {
      "ar": {
-      "title": "ابعت"
+      "title": "إرسال"
      },
      "tr": {
       "title": "Gönder"
@@ -842,7 +844,7 @@
       ],
       "translations": {
        "ar": {
-        "title": "ابعت"
+        "title": "إرسال"
        },
        "tr": {
         "title": "Gönder"
@@ -858,7 +860,7 @@
      "dark_background": "#08111C"
     },
     "show_title": false,
-    "updated_at": "2026-11-13T10:00:00.000Z",
+    "updated_at": "2026-11-13T18:00:00.000Z",
     "blocks": []
    },
    {
@@ -934,7 +936,7 @@
      "dark_background": "#08111C"
     },
     "show_title": false,
-    "updated_at": "2026-11-13T10:00:00.000Z",
+    "updated_at": "2026-11-13T18:00:00.000Z",
     "blocks": []
    },
    {
@@ -959,7 +961,7 @@
      "dark_background": "#08111C"
     },
     "show_title": false,
-    "updated_at": "2026-11-13T10:00:00.000Z",
+    "updated_at": "2026-11-13T18:00:00.000Z",
     "blocks": []
    },
    {
@@ -1001,7 +1003,7 @@
      "dark_background": "#08111C"
     },
     "show_title": false,
-    "updated_at": "2026-11-13T10:00:00.000Z",
+    "updated_at": "2026-11-13T18:00:00.000Z",
     "blocks": []
    },
    {
@@ -1043,7 +1045,7 @@
      "dark_background": "#08111C"
     },
     "show_title": false,
-    "updated_at": "2026-11-13T10:00:00.000Z",
+    "updated_at": "2026-11-13T18:00:00.000Z",
     "blocks": []
    },
    {
@@ -1085,7 +1087,7 @@
      "dark_background": "#08111C"
     },
     "show_title": false,
-    "updated_at": "2026-11-13T10:00:00.000Z",
+    "updated_at": "2026-11-13T18:00:00.000Z",
     "blocks": []
    },
    {
@@ -1127,7 +1129,7 @@
      "dark_background": "#08111C"
     },
     "show_title": false,
-    "updated_at": "2026-11-13T10:00:00.000Z",
+    "updated_at": "2026-11-13T18:00:00.000Z",
     "blocks": []
    },
    {
@@ -1144,7 +1146,7 @@
      "dark_background": "#08111C"
     },
     "show_title": false,
-    "updated_at": "2026-11-13T10:00:00.000Z",
+    "updated_at": "2026-11-13T18:00:00.000Z",
     "blocks": []
    },
    {
@@ -1161,7 +1163,7 @@
      "dark_background": "#08111C"
     },
     "show_title": false,
-    "updated_at": "2026-11-13T10:00:00.000Z",
+    "updated_at": "2026-11-13T18:00:00.000Z",
     "blocks": []
    },
    {
@@ -1178,7 +1180,7 @@
      "dark_background": "#08111C"
     },
     "show_title": false,
-    "updated_at": "2026-11-13T10:00:00.000Z",
+    "updated_at": "2026-11-13T18:00:00.000Z",
     "blocks": []
    }
   ],

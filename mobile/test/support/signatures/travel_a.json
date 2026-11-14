@@ -19,6 +19,10 @@
    "header": "night",
    "accent": "#D8B57A",
    "items": []
+  },
+  "system": {
+   "look": "photo",
+   "image_url": "http://localhost:3000/travel-photos/room.jpg"
   }
  },
  "layout": {
@@ -451,7 +455,7 @@
           },
           "translations": {
            "ar": {
-            "text": "رحلتك الجاية تبدأ منين؟"
+            "text": "من أين تبدأ حكايتك القادمة؟"
            },
            "tr": {
             "text": "Bir sonraki hikâye nerede başlıyor?"
@@ -1123,7 +1127,8 @@
       "background": "#F7F3EC",
       "color": "#0E1424",
       "dark_background": "#0B0F1A",
-      "dark_color": "#F3EEE4"
+      "dark_color": "#F3EEE4",
+      "style": "photo"
      },
      "background": "#F7F3EC",
      "dark_background": "#0B0F1A"
@@ -1167,7 +1172,8 @@
       "background": "#F7F3EC",
       "color": "#0E1424",
       "dark_background": "#0B0F1A",
-      "dark_color": "#F3EEE4"
+      "dark_color": "#F3EEE4",
+      "style": "photo"
      },
      "background": "#F7F3EC",
      "dark_background": "#0B0F1A"
@@ -1238,7 +1244,8 @@
       "background": "#F7F3EC",
       "color": "#0E1424",
       "dark_background": "#0B0F1A",
-      "dark_color": "#F3EEE4"
+      "dark_color": "#F3EEE4",
+      "style": "photo"
      },
      "background": "#F7F3EC",
      "dark_background": "#0B0F1A"
@@ -1304,7 +1311,8 @@
       "background": "#F7F3EC",
       "color": "#0E1424",
       "dark_background": "#0B0F1A",
-      "dark_color": "#F3EEE4"
+      "dark_color": "#F3EEE4",
+      "style": "photo"
      },
      "background": "#F7F3EC",
      "dark_background": "#0B0F1A"
@@ -1345,7 +1353,8 @@
       "background": "#F7F3EC",
       "color": "#0E1424",
       "dark_background": "#0B0F1A",
-      "dark_color": "#F3EEE4"
+      "dark_color": "#F3EEE4",
+      "style": "photo"
      },
      "background": "#F7F3EC",
      "dark_background": "#0B0F1A"
@@ -1386,7 +1395,8 @@
       "background": "#F7F3EC",
       "color": "#0E1424",
       "dark_background": "#0B0F1A",
-      "dark_color": "#F3EEE4"
+      "dark_color": "#F3EEE4",
+      "style": "photo"
      },
      "background": "#F7F3EC",
      "dark_background": "#0B0F1A"
@@ -1427,7 +1437,8 @@
       "background": "#F7F3EC",
       "color": "#0E1424",
       "dark_background": "#0B0F1A",
-      "dark_color": "#F3EEE4"
+      "dark_color": "#F3EEE4",
+      "style": "photo"
      },
      "background": "#F7F3EC",
      "dark_background": "#0B0F1A"
@@ -1468,7 +1479,8 @@
       "background": "#F7F3EC",
       "color": "#0E1424",
       "dark_background": "#0B0F1A",
-      "dark_color": "#F3EEE4"
+      "dark_color": "#F3EEE4",
+      "style": "photo"
      },
      "background": "#F7F3EC",
      "dark_background": "#0B0F1A"

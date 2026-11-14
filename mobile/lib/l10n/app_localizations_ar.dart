@@ -12048,4 +12048,85 @@ class AppLocalizationsAr extends AppLocalizations {
   String studioTripVia(String via) {
     return 'عبر $via';
   }
+
+  @override
+  String get learningResumeLesson => 'تابع الدرس';
+
+  @override
+  String learningPercentOfCourse(int percent) {
+    return '$percent% من الدورة';
+  }
+
+  @override
+  String get liveLookMinAway => 'دقيقة متبقية';
+
+  @override
+  String get liveLookLive => 'مباشر';
+
+  @override
+  String liveLookStep(int step) {
+    return 'المرحلة $step من 4';
+  }
+
+  @override
+  String liveLookOnItsWayFrom(String place) {
+    return 'طلب $place في الطريق';
+  }
+
+  @override
+  String liveLookItems(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count صنفًا',
+      few: '$count أصناف',
+      two: 'صنفان',
+      one: 'صنف واحد',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String liveLookHeading(String name, String place) {
+    return '$name في طريقه إلى $place';
+  }
+
+  @override
+  String get liveStatePlaced => 'تم الطلب';
+
+  @override
+  String get liveStateCooking => 'قيد التحضير';
+
+  @override
+  String get liveStatePacking => 'قيد التجهيز';
+
+  @override
+  String get liveStateReady => 'جاهز';
+
+  @override
+  String get liveStateOnItsWay => 'في الطريق';
+
+  @override
+  String get liveStatePickedUp => 'تم الاستلام';
+
+  @override
+  String get liveStateDelivered => 'تم التوصيل';
+
+  @override
+  String get liveStageCooking => 'التحضير';
+
+  @override
+  String get liveStagePacking => 'التجهيز';
+
+  @override
+  String get liveStageFinding => 'البحث';
+
+  @override
+  String get liveStageComing => 'في الطريق';
+
+  @override
+  String get liveStageHere => 'وصل';
+
+  @override
+  String get liveStageOnBoard => 'في الرحلة';
 }

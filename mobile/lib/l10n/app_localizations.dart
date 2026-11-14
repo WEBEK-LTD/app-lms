@@ -18649,6 +18649,132 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'via {via}'**
   String studioTripVia(String via);
+
+  /// 130.18 The button under the course in its gold ring (the Signature looks).
+  ///
+  /// In en, this message translates to:
+  /// **'Resume lesson'**
+  String get learningResumeLesson;
+
+  /// 130.18 How far the student is in the course, under it in its gold ring.
+  ///
+  /// In en, this message translates to:
+  /// **'{percent}% of the course'**
+  String learningPercentOfCourse(int percent);
+
+  /// 130 Under the minutes left on a live card's premium look ("12 min away").
+  ///
+  /// In en, this message translates to:
+  /// **'min away'**
+  String get liveLookMinAway;
+
+  /// 130 Before the state on a live card in a progress ring ("Live · On its way").
+  ///
+  /// In en, this message translates to:
+  /// **'Live'**
+  String get liveLookLive;
+
+  /// 130 How far a live order is, on a live card in a progress ring.
+  ///
+  /// In en, this message translates to:
+  /// **'step {step} of 4'**
+  String liveLookStep(int step);
+
+  /// 130 A slim live pill's line: the order from a place is with the courier.
+  ///
+  /// In en, this message translates to:
+  /// **'{place} is on the way'**
+  String liveLookOnItsWayFrom(String place);
+
+  /// 130 How many things are on their way, on a slim live pill.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{1 item} other{{count} items}}'**
+  String liveLookItems(int count);
+
+  /// 130 A live shipment's title in a premium look: the courier's first name and the drop-off.
+  ///
+  /// In en, this message translates to:
+  /// **'{name} is heading to {place}'**
+  String liveLookHeading(String name, String place);
+
+  /// 130 A live card's state, and the first of its four stages: the order is placed.
+  ///
+  /// In en, this message translates to:
+  /// **'Placed'**
+  String get liveStatePlaced;
+
+  /// 130 A live food order's state: the restaurant is cooking it.
+  ///
+  /// In en, this message translates to:
+  /// **'Being prepared'**
+  String get liveStateCooking;
+
+  /// 130 A live marketplace order's state: the shop is packing it.
+  ///
+  /// In en, this message translates to:
+  /// **'Being packed'**
+  String get liveStatePacking;
+
+  /// 130 A live order's state: ready for the courier.
+  ///
+  /// In en, this message translates to:
+  /// **'Ready'**
+  String get liveStateReady;
+
+  /// 130 A live card's state: with the courier, on the way.
+  ///
+  /// In en, this message translates to:
+  /// **'On its way'**
+  String get liveStateOnItsWay;
+
+  /// 130 A live shipment's second stage: the courier picked it up.
+  ///
+  /// In en, this message translates to:
+  /// **'Picked up'**
+  String get liveStatePickedUp;
+
+  /// 130 The last of a live card's four stages.
+  ///
+  /// In en, this message translates to:
+  /// **'Delivered'**
+  String get liveStateDelivered;
+
+  /// 130 A live food order's second stage, named under its dot.
+  ///
+  /// In en, this message translates to:
+  /// **'Cooking'**
+  String get liveStageCooking;
+
+  /// 130 A live marketplace order's second stage, named under its dot.
+  ///
+  /// In en, this message translates to:
+  /// **'Packing'**
+  String get liveStagePacking;
+
+  /// 130 A live ride's first stage: finding a driver.
+  ///
+  /// In en, this message translates to:
+  /// **'Finding'**
+  String get liveStageFinding;
+
+  /// 130 A live ride's second stage: the driver is coming.
+  ///
+  /// In en, this message translates to:
+  /// **'Coming'**
+  String get liveStageComing;
+
+  /// 130 A live ride's third stage: the driver is here.
+  ///
+  /// In en, this message translates to:
+  /// **'Here'**
+  String get liveStageHere;
+
+  /// 130 A live ride's last stage: on board.
+  ///
+  /// In en, this message translates to:
+  /// **'On board'**
+  String get liveStageOnBoard;
 }
 
 class _AppLocalizationsDelegate

@@ -164,6 +164,10 @@
      "icon": null
     }
    ]
+  },
+  "system": {
+   "look": "photo",
+   "image_url": "http://localhost:3000/demo-screens/nakhla-school.jpg"
   }
  },
  "layout": {
@@ -179,9 +183,7 @@
   "languages": {
    "default": "en",
    "available": [
-    "en",
-    "ar",
-    "tr"
+    "en"
    ]
   },
   "tabs": [
@@ -259,15 +261,14 @@
     "slug": "home",
     "title": "Home",
     "show_title": false,
-    "updated_at": "2026-11-13T07:00:00.000Z",
+    "updated_at": "2026-11-13T18:00:00.000Z",
     "blocks": [],
     "studio": {
      "header": {
       "type": "transparent",
       "buttons": [
        "notifications"
-      ],
-      "style": "photo"
+      ]
      },
      "background": "#F3F1EC",
      "dark_background": "#08111B",
@@ -728,7 +729,7 @@
      "dark_background": "#08111B"
     },
     "show_title": false,
-    "updated_at": "2026-11-13T07:00:00.000Z",
+    "updated_at": "2026-11-13T18:00:00.000Z",
     "blocks": []
    },
    {
@@ -751,7 +752,7 @@
      "screen": "account"
     },
     "show_title": false,
-    "updated_at": "2026-11-13T07:00:00.000Z",
+    "updated_at": "2026-11-13T18:00:00.000Z",
     "blocks": []
    },
    {
@@ -793,7 +794,7 @@
      "dark_background": "#08111B"
     },
     "show_title": false,
-    "updated_at": "2026-11-13T07:00:00.000Z",
+    "updated_at": "2026-11-13T18:00:00.000Z",
     "blocks": []
    },
    {
@@ -835,7 +836,7 @@
      "dark_background": "#08111B"
     },
     "show_title": false,
-    "updated_at": "2026-11-13T07:00:00.000Z",
+    "updated_at": "2026-11-13T18:00:00.000Z",
     "blocks": []
    },
    {
@@ -877,7 +878,7 @@
      "dark_background": "#08111B"
     },
     "show_title": false,
-    "updated_at": "2026-11-13T07:00:00.000Z",
+    "updated_at": "2026-11-13T18:00:00.000Z",
     "blocks": []
    },
    {
@@ -919,7 +920,7 @@
      "dark_background": "#08111B"
     },
     "show_title": false,
-    "updated_at": "2026-11-13T07:00:00.000Z",
+    "updated_at": "2026-11-13T18:00:00.000Z",
     "blocks": []
    },
    {
@@ -934,7 +935,7 @@
      "screen": "change_password"
     },
     "show_title": false,
-    "updated_at": "2026-11-13T07:00:00.000Z",
+    "updated_at": "2026-11-13T18:00:00.000Z",
     "blocks": []
    },
    {
@@ -949,7 +950,7 @@
      "screen": "chat_conversation"
     },
     "show_title": false,
-    "updated_at": "2026-11-13T07:00:00.000Z",
+    "updated_at": "2026-11-13T18:00:00.000Z",
     "blocks": []
    },
    {
@@ -964,7 +965,7 @@
      "screen": "parent"
     },
     "show_title": false,
-    "updated_at": "2026-11-13T07:00:00.000Z",
+    "updated_at": "2026-11-13T18:00:00.000Z",
     "blocks": []
    },
    {
@@ -1006,7 +1007,7 @@
      "dark_background": "#08111B"
     },
     "show_title": false,
-    "updated_at": "2026-11-13T07:00:00.000Z",
+    "updated_at": "2026-11-13T18:00:00.000Z",
     "blocks": []
    },
    {
@@ -1048,7 +1049,7 @@
      "dark_background": "#08111B"
     },
     "show_title": false,
-    "updated_at": "2026-11-13T07:00:00.000Z",
+    "updated_at": "2026-11-13T18:00:00.000Z",
     "blocks": []
    },
    {
@@ -1090,7 +1091,7 @@
      "dark_background": "#08111B"
     },
     "show_title": false,
-    "updated_at": "2026-11-13T07:00:00.000Z",
+    "updated_at": "2026-11-13T18:00:00.000Z",
     "blocks": []
    },
    {
@@ -1132,7 +1133,7 @@
      "dark_background": "#08111B"
     },
     "show_title": false,
-    "updated_at": "2026-11-13T07:00:00.000Z",
+    "updated_at": "2026-11-13T18:00:00.000Z",
     "blocks": []
    },
    {
@@ -1174,7 +1175,7 @@
      "dark_background": "#08111B"
     },
     "show_title": false,
-    "updated_at": "2026-11-13T07:00:00.000Z",
+    "updated_at": "2026-11-13T18:00:00.000Z",
     "blocks": []
    },
    {
@@ -1216,7 +1217,7 @@
      "dark_background": "#08111B"
     },
     "show_title": false,
-    "updated_at": "2026-11-13T07:00:00.000Z",
+    "updated_at": "2026-11-13T18:00:00.000Z",
     "blocks": []
    },
    {
@@ -1258,7 +1259,7 @@
      "dark_background": "#08111B"
     },
     "show_title": false,
-    "updated_at": "2026-11-13T07:00:00.000Z",
+    "updated_at": "2026-11-13T18:00:00.000Z",
     "blocks": []
    },
    {
@@ -1300,7 +1301,7 @@
      "dark_background": "#08111B"
     },
     "show_title": false,
-    "updated_at": "2026-11-13T07:00:00.000Z",
+    "updated_at": "2026-11-13T18:00:00.000Z",
     "blocks": []
    },
    {
@@ -1342,7 +1343,7 @@
      "dark_background": "#08111B"
     },
     "show_title": false,
-    "updated_at": "2026-11-13T07:00:00.000Z",
+    "updated_at": "2026-11-13T18:00:00.000Z",
     "blocks": []
    },
    {
@@ -1384,7 +1385,7 @@
      "dark_background": "#08111B"
     },
     "show_title": false,
-    "updated_at": "2026-11-13T07:00:00.000Z",
+    "updated_at": "2026-11-13T18:00:00.000Z",
     "blocks": []
    },
    {
@@ -1426,7 +1427,7 @@
      "dark_background": "#08111B"
     },
     "show_title": false,
-    "updated_at": "2026-11-13T07:00:00.000Z",
+    "updated_at": "2026-11-13T18:00:00.000Z",
     "blocks": []
    },
    {
@@ -1468,7 +1469,7 @@
      "dark_background": "#08111B"
     },
     "show_title": false,
-    "updated_at": "2026-11-13T07:00:00.000Z",
+    "updated_at": "2026-11-13T18:00:00.000Z",
     "blocks": []
    },
    {
@@ -1510,7 +1511,7 @@
      "dark_background": "#08111B"
     },
     "show_title": false,
-    "updated_at": "2026-11-13T07:00:00.000Z",
+    "updated_at": "2026-11-13T18:00:00.000Z",
     "blocks": []
    },
    {
@@ -1552,7 +1553,7 @@
      "dark_background": "#08111B"
     },
     "show_title": false,
-    "updated_at": "2026-11-13T07:00:00.000Z",
+    "updated_at": "2026-11-13T18:00:00.000Z",
     "blocks": []
    },
    {
@@ -1594,7 +1595,7 @@
      "dark_background": "#08111B"
     },
     "show_title": false,
-    "updated_at": "2026-11-13T07:00:00.000Z",
+    "updated_at": "2026-11-13T18:00:00.000Z",
     "blocks": []
    },
    {
@@ -1636,7 +1637,7 @@
      "dark_background": "#08111B"
     },
     "show_title": false,
-    "updated_at": "2026-11-13T07:00:00.000Z",
+    "updated_at": "2026-11-13T18:00:00.000Z",
     "blocks": []
    },
    {
@@ -1651,7 +1652,7 @@
      "screen": "school_library_book"
     },
     "show_title": false,
-    "updated_at": "2026-11-13T07:00:00.000Z",
+    "updated_at": "2026-11-13T18:00:00.000Z",
     "blocks": []
    },
    {
@@ -1693,7 +1694,7 @@
      "dark_background": "#08111B"
     },
     "show_title": false,
-    "updated_at": "2026-11-13T07:00:00.000Z",
+    "updated_at": "2026-11-13T18:00:00.000Z",
     "blocks": []
    },
    {
@@ -1735,7 +1736,7 @@
      "dark_background": "#08111B"
     },
     "show_title": false,
-    "updated_at": "2026-11-13T07:00:00.000Z",
+    "updated_at": "2026-11-13T18:00:00.000Z",
     "blocks": []
    },
    {
@@ -1777,7 +1778,7 @@
      "dark_background": "#08111B"
     },
     "show_title": false,
-    "updated_at": "2026-11-13T07:00:00.000Z",
+    "updated_at": "2026-11-13T18:00:00.000Z",
     "blocks": []
    },
    {
@@ -1819,7 +1820,7 @@
      "dark_background": "#08111B"
     },
     "show_title": false,
-    "updated_at": "2026-11-13T07:00:00.000Z",
+    "updated_at": "2026-11-13T18:00:00.000Z",
     "blocks": []
    },
    {
@@ -1861,7 +1862,7 @@
      "dark_background": "#08111B"
     },
     "show_title": false,
-    "updated_at": "2026-11-13T07:00:00.000Z",
+    "updated_at": "2026-11-13T18:00:00.000Z",
     "blocks": []
    },
    {
@@ -1903,7 +1904,7 @@
      "dark_background": "#08111B"
     },
     "show_title": false,
-    "updated_at": "2026-11-13T07:00:00.000Z",
+    "updated_at": "2026-11-13T18:00:00.000Z",
     "blocks": []
    },
    {
@@ -1945,7 +1946,7 @@
      "dark_background": "#08111B"
     },
     "show_title": false,
-    "updated_at": "2026-11-13T07:00:00.000Z",
+    "updated_at": "2026-11-13T18:00:00.000Z",
     "blocks": []
    },
    {
@@ -1987,7 +1988,7 @@
      "dark_background": "#08111B"
     },
     "show_title": false,
-    "updated_at": "2026-11-13T07:00:00.000Z",
+    "updated_at": "2026-11-13T18:00:00.000Z",
     "blocks": []
    },
    {
@@ -2029,7 +2030,7 @@
      "dark_background": "#08111B"
     },
     "show_title": false,
-    "updated_at": "2026-11-13T07:00:00.000Z",
+    "updated_at": "2026-11-13T18:00:00.000Z",
     "blocks": []
    }
   ],

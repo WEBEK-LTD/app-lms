@@ -19,6 +19,9 @@
    "header": "night",
    "accent": "#D8B57A",
    "items": []
+  },
+  "system": {
+   "look": "large"
   }
  },
  "layout": {
@@ -938,7 +941,8 @@
       "background": "#F4EFE6",
       "color": "#0E1424",
       "dark_background": "#0B0F1A",
-      "dark_color": "#F3EEE4"
+      "dark_color": "#F3EEE4",
+      "style": "large"
      },
      "background": "#F4EFE6",
      "dark_background": "#0B0F1A"
@@ -982,7 +986,8 @@
       "background": "#F4EFE6",
       "color": "#0E1424",
       "dark_background": "#0B0F1A",
-      "dark_color": "#F3EEE4"
+      "dark_color": "#F3EEE4",
+      "style": "large"
      },
      "background": "#F4EFE6",
      "dark_background": "#0B0F1A"
@@ -1048,7 +1053,8 @@
       "background": "#F4EFE6",
       "color": "#0E1424",
       "dark_background": "#0B0F1A",
-      "dark_color": "#F3EEE4"
+      "dark_color": "#F3EEE4",
+      "style": "large"
      },
      "background": "#F4EFE6",
      "dark_background": "#0B0F1A"
@@ -1089,7 +1095,8 @@
       "background": "#F4EFE6",
       "color": "#0E1424",
       "dark_background": "#0B0F1A",
-      "dark_color": "#F3EEE4"
+      "dark_color": "#F3EEE4",
+      "style": "large"
      },
      "background": "#F4EFE6",
      "dark_background": "#0B0F1A"
@@ -1130,7 +1137,8 @@
       "background": "#F4EFE6",
       "color": "#0E1424",
       "dark_background": "#0B0F1A",
-      "dark_color": "#F3EEE4"
+      "dark_color": "#F3EEE4",
+      "style": "large"
      },
      "background": "#F4EFE6",
      "dark_background": "#0B0F1A"
@@ -1171,7 +1179,8 @@
       "background": "#F4EFE6",
       "color": "#0E1424",
       "dark_background": "#0B0F1A",
-      "dark_color": "#F3EEE4"
+      "dark_color": "#F3EEE4",
+      "style": "large"
      },
      "background": "#F4EFE6",
      "dark_background": "#0B0F1A"
@@ -1212,7 +1221,8 @@
       "background": "#F4EFE6",
       "color": "#0E1424",
       "dark_background": "#0B0F1A",
-      "dark_color": "#F3EEE4"
+      "dark_color": "#F3EEE4",
+      "style": "large"
      },
      "background": "#F4EFE6",
      "dark_background": "#0B0F1A"

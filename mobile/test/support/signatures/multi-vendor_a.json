@@ -49,6 +49,10 @@
      "icon": null
     }
    ]
+  },
+  "system": {
+   "look": "photo",
+   "image_url": "http://localhost:3000/demo-photos/fruit.jpg"
   }
  },
  "layout": {
@@ -64,9 +68,7 @@
   "languages": {
    "default": "en",
    "available": [
-    "en",
-    "ar",
-    "tr"
+    "en"
    ]
   },
   "tabs": [
@@ -97,7 +99,7 @@
     },
     "translations": {
      "ar": {
-      "label": "المحلات"
+      "label": "المتاجر"
      },
      "tr": {
       "label": "Dükkânlar"
@@ -161,7 +163,7 @@
     "slug": "home",
     "title": "Home",
     "show_title": false,
-    "updated_at": "2026-11-13T10:00:00.000Z",
+    "updated_at": "2026-11-13T18:00:00.000Z",
     "blocks": [],
     "studio": {
      "background": "#F5F2EA",
@@ -189,7 +191,7 @@
         "dark_color": "#09130E",
         "translations": {
          "ar": {
-          "text": "دوّر على منتجات ومحلات"
+          "text": "ابحث عن منتجات ومتاجر"
          },
          "tr": {
           "text": "Ürün ve dükkân arayın"
@@ -199,7 +201,7 @@
        {
         "id": "sig-3",
         "type": "slider",
-        "name": "Zad Market offer",
+        "name": "Offer of the week",
         "radius": 28,
         "height": 220,
         "per_view": 1,
@@ -492,7 +494,7 @@
               },
               "translations": {
                "ar": {
-                "text": "كود زاد"
+                "text": "رمز زاد"
                },
                "tr": {
                 "text": "Zad'ın kodu"
@@ -887,7 +889,7 @@
           },
           "translations": {
            "ar": {
-            "text": "شوف الكل"
+            "text": "عرض الكل"
            },
            "tr": {
             "text": "Tümünü gör"
@@ -1173,7 +1175,7 @@
           "width": "fill",
           "translations": {
            "ar": {
-            "text": "أماكن جنبك"
+            "text": "أماكن قريبة منك"
            },
            "tr": {
             "text": "Yakınınızdaki yerler"
@@ -1196,7 +1198,7 @@
           },
           "translations": {
            "ar": {
-            "text": "شوف الكل"
+            "text": "عرض الكل"
            },
            "tr": {
             "text": "Tümünü gör"
@@ -1262,7 +1264,7 @@
      "dark_background": "#09130E"
     },
     "show_title": false,
-    "updated_at": "2026-11-13T10:00:00.000Z",
+    "updated_at": "2026-11-13T18:00:00.000Z",
     "blocks": []
    },
    {
@@ -1343,7 +1345,7 @@
      "dark_background": "#09130E"
     },
     "show_title": false,
-    "updated_at": "2026-11-13T10:00:00.000Z",
+    "updated_at": "2026-11-13T18:00:00.000Z",
     "blocks": []
    },
    {
@@ -1368,7 +1370,7 @@
      "dark_background": "#09130E"
     },
     "show_title": false,
-    "updated_at": "2026-11-13T10:00:00.000Z",
+    "updated_at": "2026-11-13T18:00:00.000Z",
     "blocks": []
    },
    {
@@ -1376,7 +1378,7 @@
     "title": "Shops",
     "translations": {
      "ar": {
-      "title": "المحلات"
+      "title": "المتاجر"
      },
      "tr": {
       "title": "Dükkânlar"
@@ -1426,7 +1428,7 @@
         },
         "translations": {
          "ar": {
-          "title": "كل المحلات في سلة واحدة"
+          "title": "كل المتاجر في سلة واحدة"
          },
          "tr": {
           "title": "Tüm dükkânlar, tek sepet"
@@ -1449,8 +1451,8 @@
         },
         "translations": {
          "ar": {
-          "text": "اشترك في النادي وخد توصيل ببلاش وعروض للأعضاء.",
-          "title": "توصيل ببلاش على كل طلب"
+          "text": "انضم إلى النادي واحصل على توصيل مجاني وعروض للأعضاء.",
+          "title": "توصيل مجاني لكل طلب"
          },
          "tr": {
           "text": "Ücretsiz teslimat ve üyelere özel kampanyalar için kulübe katılın.",
@@ -1469,7 +1471,7 @@
       ],
       "translations": {
        "ar": {
-        "title": "المحلات"
+        "title": "المتاجر"
        },
        "tr": {
         "title": "Dükkânlar"
@@ -1483,7 +1485,7 @@
      }
     },
     "show_title": false,
-    "updated_at": "2026-11-13T10:00:00.000Z",
+    "updated_at": "2026-11-13T18:00:00.000Z",
     "blocks": []
    },
    {
@@ -1525,7 +1527,7 @@
      "dark_background": "#09130E"
     },
     "show_title": false,
-    "updated_at": "2026-11-13T10:00:00.000Z",
+    "updated_at": "2026-11-13T18:00:00.000Z",
     "blocks": []
    },
    {
@@ -1567,7 +1569,7 @@
      "dark_background": "#09130E"
     },
     "show_title": false,
-    "updated_at": "2026-11-13T10:00:00.000Z",
+    "updated_at": "2026-11-13T18:00:00.000Z",
     "blocks": []
    },
    {
@@ -1609,7 +1611,7 @@
      "dark_background": "#09130E"
     },
     "show_title": false,
-    "updated_at": "2026-11-13T10:00:00.000Z",
+    "updated_at": "2026-11-13T18:00:00.000Z",
     "blocks": []
    },
    {
@@ -1631,7 +1633,7 @@
        {
         "id": "sig-89",
         "type": "slider",
-        "name": "Zad Market offer",
+        "name": "Offer of the week",
         "radius": 28,
         "height": 220,
         "per_view": 1,
@@ -1924,7 +1926,7 @@
               },
               "translations": {
                "ar": {
-                "text": "كود زاد"
+                "text": "رمز زاد"
                },
                "tr": {
                 "text": "Zad'ın kodu"
@@ -2292,7 +2294,7 @@
      "dark_background": "#09130E"
     },
     "show_title": false,
-    "updated_at": "2026-11-13T10:00:00.000Z",
+    "updated_at": "2026-11-13T18:00:00.000Z",
     "blocks": []
    },
    {
@@ -2334,7 +2336,7 @@
      "dark_background": "#09130E"
     },
     "show_title": false,
-    "updated_at": "2026-11-13T10:00:00.000Z",
+    "updated_at": "2026-11-13T18:00:00.000Z",
     "blocks": []
    },
    {
@@ -2376,7 +2378,7 @@
      "dark_background": "#09130E"
     },
     "show_title": false,
-    "updated_at": "2026-11-13T10:00:00.000Z",
+    "updated_at": "2026-11-13T18:00:00.000Z",
     "blocks": []
    },
    {
@@ -2418,7 +2420,7 @@
      "dark_background": "#09130E"
     },
     "show_title": false,
-    "updated_at": "2026-11-13T10:00:00.000Z",
+    "updated_at": "2026-11-13T18:00:00.000Z",
     "blocks": []
    },
    {
@@ -2435,7 +2437,7 @@
      "dark_background": "#09130E"
     },
     "show_title": false,
-    "updated_at": "2026-11-13T10:00:00.000Z",
+    "updated_at": "2026-11-13T18:00:00.000Z",
     "blocks": []
    },
    {
@@ -2452,7 +2454,7 @@
      "dark_background": "#09130E"
     },
     "show_title": false,
-    "updated_at": "2026-11-13T10:00:00.000Z",
+    "updated_at": "2026-11-13T18:00:00.000Z",
     "blocks": []
    },
    {
@@ -2469,7 +2471,7 @@
      "dark_background": "#09130E"
     },
     "show_title": false,
-    "updated_at": "2026-11-13T10:00:00.000Z",
+    "updated_at": "2026-11-13T18:00:00.000Z",
     "blocks": []
    },
    {
@@ -2486,7 +2488,7 @@
      "dark_background": "#09130E"
     },
     "show_title": false,
-    "updated_at": "2026-11-13T10:00:00.000Z",
+    "updated_at": "2026-11-13T18:00:00.000Z",
     "blocks": []
    },
    {
@@ -2528,7 +2530,7 @@
      "dark_background": "#09130E"
     },
     "show_title": false,
-    "updated_at": "2026-11-13T10:00:00.000Z",
+    "updated_at": "2026-11-13T18:00:00.000Z",
     "blocks": []
    },
    {
@@ -2545,7 +2547,7 @@
      "dark_background": "#09130E"
     },
     "show_title": false,
-    "updated_at": "2026-11-13T10:00:00.000Z",
+    "updated_at": "2026-11-13T18:00:00.000Z",
     "blocks": []
    },
    {
@@ -2562,7 +2564,7 @@
      "dark_background": "#09130E"
     },
     "show_title": false,
-    "updated_at": "2026-11-13T10:00:00.000Z",
+    "updated_at": "2026-11-13T18:00:00.000Z",
     "blocks": []
    },
    {
@@ -2604,7 +2606,7 @@
      "dark_background": "#09130E"
     },
     "show_title": false,
-    "updated_at": "2026-11-13T10:00:00.000Z",
+    "updated_at": "2026-11-13T18:00:00.000Z",
     "blocks": []
    },
    {
@@ -2646,7 +2648,7 @@
      "dark_background": "#09130E"
     },
     "show_title": false,
-    "updated_at": "2026-11-13T10:00:00.000Z",
+    "updated_at": "2026-11-13T18:00:00.000Z",
     "blocks": []
    },
    {
@@ -2663,7 +2665,7 @@
      "dark_background": "#09130E"
     },
     "show_title": false,
-    "updated_at": "2026-11-13T10:00:00.000Z",
+    "updated_at": "2026-11-13T18:00:00.000Z",
     "blocks": []
    },
    {
@@ -2705,7 +2707,7 @@
      "dark_background": "#09130E"
     },
     "show_title": false,
-    "updated_at": "2026-11-13T10:00:00.000Z",
+    "updated_at": "2026-11-13T18:00:00.000Z",
     "blocks": []
    },
    {
@@ -2747,7 +2749,7 @@
      "dark_background": "#09130E"
     },
     "show_title": false,
-    "updated_at": "2026-11-13T10:00:00.000Z",
+    "updated_at": "2026-11-13T18:00:00.000Z",
     "blocks": []
    },
    {
@@ -2764,7 +2766,7 @@
      "dark_background": "#09130E"
     },
     "show_title": false,
-    "updated_at": "2026-11-13T10:00:00.000Z",
+    "updated_at": "2026-11-13T18:00:00.000Z",
     "blocks": []
    }
   ],

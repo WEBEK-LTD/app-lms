@@ -19,6 +19,9 @@
    "header": "night",
    "accent": "#F5B700",
    "items": []
+  },
+  "system": {
+   "look": "brand"
   }
  },
  "layout": {
@@ -48,7 +51,7 @@
     },
     "translations": {
      "ar": {
-      "label": "مشوار"
+      "label": "رحلة"
      },
      "tr": {
       "label": "Yolculuk"
@@ -65,7 +68,7 @@
     },
     "translations": {
      "ar": {
-      "label": "مشاويري"
+      "label": "رحلاتي"
      },
      "tr": {
       "label": "Yolculuklarım"
@@ -711,7 +714,7 @@
               },
               "translations": {
                "ar": {
-                "text": "إكس لارج"
+                "text": "XL"
                },
                "tr": {
                 "text": "XL"
@@ -908,7 +911,7 @@
     "title": "My rides",
     "translations": {
      "ar": {
-      "title": "مشاويري"
+      "title": "رحلاتي"
      },
      "tr": {
       "title": "Yolculuklarım"
@@ -1002,7 +1005,7 @@
       ],
       "translations": {
        "ar": {
-        "title": "مشاويري"
+        "title": "رحلاتي"
        },
        "tr": {
         "title": "Yolculuklarım"
@@ -1011,7 +1014,8 @@
       "background": "#FFFDF6",
       "color": "#141B2E",
       "dark_background": "#0E1324",
-      "dark_color": "#F1F2F7"
+      "dark_color": "#F1F2F7",
+      "style": "brand"
      },
      "background": "#FFFDF6",
      "dark_background": "#0E1324"
@@ -1104,7 +1108,8 @@
       "background": "#FFFDF6",
       "color": "#141B2E",
       "dark_background": "#0E1324",
-      "dark_color": "#F1F2F7"
+      "dark_color": "#F1F2F7",
+      "style": "brand"
      },
      "background": "#FFFDF6",
      "dark_background": "#0E1324"
@@ -1145,7 +1150,8 @@
       "background": "#FFFDF6",
       "color": "#141B2E",
       "dark_background": "#0E1324",
-      "dark_color": "#F1F2F7"
+      "dark_color": "#F1F2F7",
+      "style": "brand"
      },
      "background": "#FFFDF6",
      "dark_background": "#0E1324"
@@ -1186,7 +1192,8 @@
       "background": "#FFFDF6",
       "color": "#141B2E",
       "dark_background": "#0E1324",
-      "dark_color": "#F1F2F7"
+      "dark_color": "#F1F2F7",
+      "style": "brand"
      },
      "background": "#FFFDF6",
      "dark_background": "#0E1324"
@@ -1227,7 +1234,8 @@
       "background": "#FFFDF6",
       "color": "#141B2E",
       "dark_background": "#0E1324",
-      "dark_color": "#F1F2F7"
+      "dark_color": "#F1F2F7",
+      "style": "brand"
      },
      "background": "#FFFDF6",
      "dark_background": "#0E1324"
@@ -1268,7 +1276,8 @@
       "background": "#FFFDF6",
       "color": "#141B2E",
       "dark_background": "#0E1324",
-      "dark_color": "#F1F2F7"
+      "dark_color": "#F1F2F7",
+      "style": "brand"
      },
      "background": "#FFFDF6",
      "dark_background": "#0E1324"

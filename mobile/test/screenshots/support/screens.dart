@@ -863,9 +863,10 @@ final websiteShots = <Shot>[
   for (final letter in ['a', 'b'])
     for (final dark in [false, true])
       Shot(
-        'ufuq-sig-$letter-home${dark ? '-dark' : ''}',
+        'premium-academy-sig-$letter-home${dark ? '-dark' : ''}',
         dark: dark,
-        api: () => premiumAcademyApi(look: 'ufuq_sig_$letter.json'),
+        api: () =>
+            premiumAcademyApi(look: 'signatures/premium-academy_$letter.json'),
         appType: AppType.lms,
         prepare: preparePremiumAcademy,
         overrides: premiumAcademyOverrides,
@@ -970,80 +971,89 @@ final websiteShots = <Shot>[
     shadows: true,
   ),
   // 130.1–130.6 The Signature looks of Sofra Eats, Zad and Sahm Express
-  // (test/support/sig_*.json): each look's home by day and by
+  // (test/support/signatures): each look's home by day and by
   // night, as a project started from it is.
   for (final dark in [false, true])
     Shot(
-      'food-sig-a-home${dark ? '-dark' : ''}',
+      'food-delivery-sig-a-home${dark ? '-dark' : ''}',
       dark: dark,
       api: () =>
-          sofraStudioApi(look: StudioDemo.sigSofraA, primaryColor: '#B13F1A'),
+          sofraStudioApi(look: StudioDemo.signature('food-delivery', 'a')),
       appName: 'Sofra Eats',
       appType: AppType.food,
       template: AppTemplate.bold,
-      prepare: (tester) => StudioDemo.sigSofraA.prepare(tester, sofraPhotos),
+      prepare: (tester) => StudioDemo.signature(
+        'food-delivery',
+        'a',
+      ).prepare(tester, sofraPhotos),
       shadows: true,
     ),
   for (final dark in [false, true])
     Shot(
-      'food-sig-b-home${dark ? '-dark' : ''}',
+      'food-delivery-sig-b-home${dark ? '-dark' : ''}',
       dark: dark,
-      api: () =>
-          sofraStudioApi(look: StudioDemo.sigSofraB, primaryColor: '#875800'),
+      api: () => sofraStudioApi(
+        look: StudioDemo.signature('food-delivery', 'b'),
+        primaryColor: '#875800',
+      ),
       appName: 'Sofra Eats',
       appType: AppType.food,
       template: AppTemplate.bold,
-      prepare: (tester) => StudioDemo.sigSofraB.prepare(tester, sofraPhotos),
+      prepare: (tester) => StudioDemo.signature(
+        'food-delivery',
+        'b',
+      ).prepare(tester, sofraPhotos),
       shadows: true,
     ),
   for (final dark in [false, true])
     Shot(
-      'marketplace-sig-a-home${dark ? '-dark' : ''}',
+      'multi-vendor-sig-a-home${dark ? '-dark' : ''}',
       dark: dark,
-      api: () =>
-          zadStudioApi(look: StudioDemo.sigZadA, primaryColor: '#1B644C'),
+      api: () => zadStudioApi(look: StudioDemo.signature('multi-vendor', 'a')),
       appName: 'Zad',
       appType: AppType.food,
       template: AppTemplate.bold,
       overrides: Zad.overrides,
       designPictures: true,
-      prepare: StudioDemo.sigZadA.prepare,
+      prepare: StudioDemo.signature('multi-vendor', 'a').prepare,
       shadows: true,
     ),
   for (final dark in [false, true])
     Shot(
-      'marketplace-sig-b-home${dark ? '-dark' : ''}',
+      'multi-vendor-sig-b-home${dark ? '-dark' : ''}',
       dark: dark,
-      api: () =>
-          zadStudioApi(look: StudioDemo.sigZadB, primaryColor: '#134A36'),
+      api: () => zadStudioApi(
+        look: StudioDemo.signature('multi-vendor', 'b'),
+        primaryColor: '#134A36',
+      ),
       appName: 'Zad',
       appType: AppType.food,
       template: AppTemplate.bold,
       overrides: Zad.overrides,
       designPictures: true,
-      prepare: StudioDemo.sigZadB.prepare,
+      prepare: StudioDemo.signature('multi-vendor', 'b').prepare,
       shadows: true,
     ),
   for (final dark in [false, true])
     Shot(
       'delivery-sig-a-home${dark ? '-dark' : ''}',
       dark: dark,
-      api: () => sahmStudioApi(look: StudioDemo.sigSahmA),
+      api: () => sahmStudioApi(look: StudioDemo.signature('delivery', 'a')),
       appName: 'Sahm Express',
       appType: AppType.delivery,
       template: AppTemplate.bold,
-      prepare: StudioDemo.sigSahmA.prepare,
+      prepare: StudioDemo.signature('delivery', 'a').prepare,
       shadows: true,
     ),
   for (final dark in [false, true])
     Shot(
       'delivery-sig-b-home${dark ? '-dark' : ''}',
       dark: dark,
-      api: () => sahmStudioApi(look: StudioDemo.sigSahmB),
+      api: () => sahmStudioApi(look: StudioDemo.signature('delivery', 'b')),
       appName: 'Sahm Express',
       appType: AppType.delivery,
       template: AppTemplate.bold,
-      prepare: StudioDemo.sigSahmB.prepare,
+      prepare: StudioDemo.signature('delivery', 'b').prepare,
       shadows: true,
     ),
   // end 130.1–130.6
@@ -1134,8 +1144,8 @@ final websiteShots = <Shot>[
   ),
   // 130.13–130.18 The Signature looks' homes, by day and by night.
   for (final (name, look) in [
-    ('nakhla-sig-a', StudioDemo.nakhlaSigA),
-    ('nakhla-sig-b', StudioDemo.nakhlaSigB),
+    ('school-sig-a', StudioDemo.signature('school', 'a')),
+    ('school-sig-b', StudioDemo.signature('school', 'b')),
   ])
     for (final dark in [false, true])
       Shot(
@@ -1149,8 +1159,8 @@ final websiteShots = <Shot>[
         shadows: true,
       ),
   for (final (name, look) in [
-    ('rawaq-sig-a', StudioDemo.rawaqSigA),
-    ('rawaq-sig-b', StudioDemo.rawaqSigB),
+    ('teachers-sig-a', StudioDemo.signature('teachers', 'a')),
+    ('teachers-sig-b', StudioDemo.signature('teachers', 'b')),
   ])
     for (final dark in [false, true])
       Shot(

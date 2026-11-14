@@ -35,29 +35,13 @@ class StudioDemo {
   // 128 Zad's whole project too: its photo-first home, its five tabs.
   static final zad = StudioDemo._load('zad_demo.json');
   static final safra = StudioDemo._load('safra_demo.json');
-  // 130.13–130.18 The Signature looks of Nakhla School, Rawaq Academy and
-  // Ufuq Academy: the projects their templates start
-  // (platform/web/tests/unit/studio-signature-learn.test.ts).
-  static final nakhlaSigA = StudioDemo._load('nakhla_sig_a.json');
-  static final nakhlaSigB = StudioDemo._load('nakhla_sig_b.json');
-  static final rawaqSigA = StudioDemo._load('rawaq_sig_a.json');
-  static final rawaqSigB = StudioDemo._load('rawaq_sig_b.json');
 
-  /// 130 One of a demo's Signature looks: the project its template starts
-  /// (test/support/signatures/`<demo>_<look>.json`, written by
+  /// 130 One of the eighteen Signature looks: the project its template
+  /// starts, by the demo's address (test/support/signatures/
+  /// `<demo>_<look>.json`, all written by
   /// platform/web/tests/unit/signature-looks.test.ts).
   static StudioDemo signature(String demo, String look) =>
       StudioDemo._load('signatures/${demo}_$look.json');
-
-  // 130.1–130.6 The food, marketplace and delivery demos' Signature looks:
-  // a project started from each (written by
-  // platform/web/tests/unit/studio-signature-food.test.ts).
-  static final sigSofraA = StudioDemo._load('sig_sofra_a.json');
-  static final sigSofraB = StudioDemo._load('sig_sofra_b.json');
-  static final sigZadA = StudioDemo._load('sig_zad_a.json');
-  static final sigZadB = StudioDemo._load('sig_zad_b.json');
-  static final sigSahmA = StudioDemo._load('sig_sahm_a.json');
-  static final sigSahmB = StudioDemo._load('sig_sahm_b.json');
 
   final Map<String, dynamic> _demo;
 
@@ -372,7 +356,7 @@ DemoApi sahmStudioApi({bool courier = false, StudioDemo? look}) {
 /// its home, and the demo number's kofta on its way from Sahara Grill with
 /// Karim twelve minutes from Cairo Tower.
 /// 130.1–130.2 Or a project from one of its Signature looks ([look],
-/// test/support/sig_sofra_a.json, sig_sofra_b.json) in the look's main colour.
+/// `test/support/signatures/food-delivery_<a|b>.json`) in the look's main colour.
 DemoApi sofraStudioApi({StudioDemo? look, String primaryColor = '#D2552B'}) {
   final demo = look ?? StudioDemo.sofra;
   const source = 'restaurants';

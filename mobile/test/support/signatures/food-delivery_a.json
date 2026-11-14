@@ -55,6 +55,10 @@
      "icon": null
     }
    ]
+  },
+  "system": {
+   "look": "photo",
+   "image_url": "http://localhost:3000/demo-photos/cover-grill.jpg"
   }
  },
  "layout": {
@@ -70,9 +74,7 @@
   "languages": {
    "default": "en",
    "available": [
-    "en",
-    "ar",
-    "tr"
+    "en"
    ]
   },
   "tabs": [
@@ -150,7 +152,7 @@
     "slug": "home",
     "title": "Home",
     "show_title": false,
-    "updated_at": "2026-11-13T10:00:00.000Z",
+    "updated_at": "2026-11-13T18:00:00.000Z",
     "blocks": [],
     "studio": {
      "background": "#F6F0E6",
@@ -634,7 +636,7 @@
                   "color": "#FFFFFF",
                   "translations": {
                    "ar": {
-                    "text": "التوصيل لـ"
+                    "text": "التوصيل إلى"
                    },
                    "tr": {
                     "text": "Teslimat adresi"
@@ -839,7 +841,7 @@
           },
           "translations": {
            "ar": {
-            "text": "شوف الكل"
+            "text": "عرض الكل"
            },
            "tr": {
             "text": "Tümünü gör"
@@ -1333,7 +1335,7 @@
      "dark_background": "#110B08"
     },
     "show_title": false,
-    "updated_at": "2026-11-13T10:00:00.000Z",
+    "updated_at": "2026-11-13T18:00:00.000Z",
     "blocks": []
    },
    {
@@ -1419,7 +1421,7 @@
      "dark_background": "#110B08"
     },
     "show_title": false,
-    "updated_at": "2026-11-13T10:00:00.000Z",
+    "updated_at": "2026-11-13T18:00:00.000Z",
     "blocks": []
    },
    {
@@ -1444,7 +1446,7 @@
      "dark_background": "#110B08"
     },
     "show_title": false,
-    "updated_at": "2026-11-13T10:00:00.000Z",
+    "updated_at": "2026-11-13T18:00:00.000Z",
     "blocks": []
    },
    {
@@ -1486,7 +1488,7 @@
      "dark_background": "#110B08"
     },
     "show_title": false,
-    "updated_at": "2026-11-13T10:00:00.000Z",
+    "updated_at": "2026-11-13T18:00:00.000Z",
     "blocks": []
    },
    {
@@ -1528,7 +1530,7 @@
      "dark_background": "#110B08"
     },
     "show_title": false,
-    "updated_at": "2026-11-13T10:00:00.000Z",
+    "updated_at": "2026-11-13T18:00:00.000Z",
     "blocks": []
    },
    {
@@ -1570,7 +1572,7 @@
      "dark_background": "#110B08"
     },
     "show_title": false,
-    "updated_at": "2026-11-13T10:00:00.000Z",
+    "updated_at": "2026-11-13T18:00:00.000Z",
     "blocks": []
    },
    {
@@ -1612,7 +1614,7 @@
      "dark_background": "#110B08"
     },
     "show_title": false,
-    "updated_at": "2026-11-13T10:00:00.000Z",
+    "updated_at": "2026-11-13T18:00:00.000Z",
     "blocks": []
    },
    {
@@ -1629,7 +1631,7 @@
      "dark_background": "#110B08"
     },
     "show_title": false,
-    "updated_at": "2026-11-13T10:00:00.000Z",
+    "updated_at": "2026-11-13T18:00:00.000Z",
     "blocks": []
    },
    {
@@ -1646,7 +1648,7 @@
      "dark_background": "#110B08"
     },
     "show_title": false,
-    "updated_at": "2026-11-13T10:00:00.000Z",
+    "updated_at": "2026-11-13T18:00:00.000Z",
     "blocks": []
    },
    {
@@ -1663,7 +1665,7 @@
      "dark_background": "#110B08"
     },
     "show_title": false,
-    "updated_at": "2026-11-13T10:00:00.000Z",
+    "updated_at": "2026-11-13T18:00:00.000Z",
     "blocks": []
    },
    {
@@ -1680,7 +1682,7 @@
      "dark_background": "#110B08"
     },
     "show_title": false,
-    "updated_at": "2026-11-13T10:00:00.000Z",
+    "updated_at": "2026-11-13T18:00:00.000Z",
     "blocks": []
    },
    {
@@ -1722,7 +1724,7 @@
      "dark_background": "#110B08"
     },
     "show_title": false,
-    "updated_at": "2026-11-13T10:00:00.000Z",
+    "updated_at": "2026-11-13T18:00:00.000Z",
     "blocks": []
    }
   ],

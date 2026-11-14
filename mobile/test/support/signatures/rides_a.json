@@ -18,6 +18,9 @@
   "account_menu": {
    "header": "cover",
    "items": []
+  },
+  "system": {
+   "look": "glass"
   }
  },
  "layout": {
@@ -47,7 +50,7 @@
     },
     "translations": {
      "ar": {
-      "label": "مشوار"
+      "label": "رحلة"
      },
      "tr": {
       "label": "Yolculuk"
@@ -64,7 +67,7 @@
     },
     "translations": {
      "ar": {
-      "label": "مشاويري"
+      "label": "رحلاتي"
      },
      "tr": {
       "label": "Yolculuklarım"
@@ -897,7 +900,7 @@
     "title": "My rides",
     "translations": {
      "ar": {
-      "title": "مشاويري"
+      "title": "رحلاتي"
      },
      "tr": {
       "title": "Yolculuklarım"
@@ -991,7 +994,7 @@
       ],
       "translations": {
        "ar": {
-        "title": "مشاويري"
+        "title": "رحلاتي"
        },
        "tr": {
         "title": "Yolculuklarım"
@@ -1000,7 +1003,8 @@
       "background": "#EDF0EA",
       "color": "#0B2422",
       "dark_background": "#0C1716",
-      "dark_color": "#E9F5F3"
+      "dark_color": "#E9F5F3",
+      "style": "glass"
      },
      "background": "#EDF0EA",
      "dark_background": "#0C1716"
@@ -1105,7 +1109,8 @@
       "background": "#EDF0EA",
       "color": "#0B2422",
       "dark_background": "#0C1716",
-      "dark_color": "#E9F5F3"
+      "dark_color": "#E9F5F3",
+      "style": "glass"
      },
      "background": "#EDF0EA",
      "dark_background": "#0C1716"
@@ -1146,7 +1151,8 @@
       "background": "#EDF0EA",
       "color": "#0B2422",
       "dark_background": "#0C1716",
-      "dark_color": "#E9F5F3"
+      "dark_color": "#E9F5F3",
+      "style": "glass"
      },
      "background": "#EDF0EA",
      "dark_background": "#0C1716"
@@ -1187,7 +1193,8 @@
       "background": "#EDF0EA",
       "color": "#0B2422",
       "dark_background": "#0C1716",
-      "dark_color": "#E9F5F3"
+      "dark_color": "#E9F5F3",
+      "style": "glass"
      },
      "background": "#EDF0EA",
      "dark_background": "#0C1716"
@@ -1228,7 +1235,8 @@
       "background": "#EDF0EA",
       "color": "#0B2422",
       "dark_background": "#0C1716",
-      "dark_color": "#E9F5F3"
+      "dark_color": "#E9F5F3",
+      "style": "glass"
      },
      "background": "#EDF0EA",
      "dark_background": "#0C1716"
@@ -1269,7 +1277,8 @@
       "background": "#EDF0EA",
       "color": "#0B2422",
       "dark_background": "#0C1716",
-      "dark_color": "#E9F5F3"
+      "dark_color": "#E9F5F3",
+      "style": "glass"
      },
      "background": "#EDF0EA",
      "dark_background": "#0C1716"

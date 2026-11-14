@@ -488,7 +488,8 @@ class StudioScope {
 }
 
 /// 128.10 Whether a page's first element (of those not pinned) is a cover:
-/// a photo hero, a map header, or a picture with a scrim (Studio's canvas:
+/// a photo hero, a map header, 130 a video hero, a parallax banner, or a
+/// picture with a scrim (Studio's canvas:
 /// components/studio/view.tsx `startsWithCover`). Under a transparent
 /// header only such a page reaches under the status bar with the app's
 /// name over it; older pages, which have none of these, look as before.
@@ -499,6 +500,9 @@ bool studioStartsWithCover(StudioNode body) {
   if (first == null) return false;
   return first.type == StudioNodeType.photoHero ||
       first.type == StudioNodeType.mapHeader ||
+      // 130 And 129's video hero and parallax banner, covers too.
+      first.type == StudioNodeType.videoHero ||
+      first.type == StudioNodeType.parallaxBanner ||
       first.scrim != null;
 }
 

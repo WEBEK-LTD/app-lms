@@ -18,6 +18,9 @@
   "account_menu": {
    "header": "cover",
    "items": []
+  },
+  "system": {
+   "look": "glass"
   }
  },
  "layout": {
@@ -49,7 +52,7 @@
     },
     "translations": {
      "ar": {
-      "label": "مشوار"
+      "label": "رحلة"
      },
      "tr": {
       "label": "Yolculuk"
@@ -66,7 +69,7 @@
     },
     "translations": {
      "ar": {
-      "label": "مشاويري"
+      "label": "رحلاتي"
      },
      "tr": {
       "label": "Yolculuklarım"
@@ -891,30 +894,56 @@
         ]
        },
        {
-        "id": "demo-58",
-        "type": "column",
-        "gap": 6,
+        "id": "demo-57",
+        "type": "row",
+        "gap": 10,
+        "cross": "start",
         "padding": {
-         "top": 8,
+         "top": 12,
+         "end": 14,
+         "bottom": 12,
+         "start": 14
+        },
+        "margin": {
+         "top": 18,
          "end": 16,
          "bottom": 8,
          "start": 16
         },
-        "margin": {
-         "top": 4,
-         "end": 0,
-         "bottom": 4,
-         "start": 0
-        },
+        "radius": 16,
+        "background": "#FFFFFF",
+        "dark_background": "#0F2422",
+        "border_color": "#DCE6E4",
+        "dark_border_color": "#1F3735",
+        "border_width": 1,
         "visibility": "signed_out",
         "children": [
          {
-          "id": "demo-57",
+          "id": "demo-58",
+          "type": "icon",
+          "icon": "info",
+          "icon_size": 18,
+          "color": "#556866",
+          "dark_color": "#A2BAB6"
+         },
+         {
+          "id": "demo-59",
           "type": "text",
           "text": "This is a demo app. Sign in with +1 202 555 0123 and the code 246810. Anything you add is deleted after a day.",
+          "width": "fill",
           "font": {
-           "size": 15,
-           "line_height": 1.5
+           "size": 13,
+           "line_height": 1.45
+          },
+          "color": "#556866",
+          "dark_color": "#A2BAB6",
+          "translations": {
+           "ar": {
+            "text": "هذا تطبيق تجريبي. سجّل الدخول بالرقم ⁦+1 202 555 0123⁩ والرمز 246810. يُحذف كل ما تضيفه بعد يوم."
+           },
+           "tr": {
+            "text": "Bu bir demo uygulamasıdır. +1 202 555 0123 numarası ve 246810 koduyla giriş yapın. Eklediğiniz her şey bir gün sonra silinir."
+           }
           }
          }
         ]
@@ -928,7 +957,7 @@
     "title": "My rides",
     "translations": {
      "ar": {
-      "title": "مشاويري"
+      "title": "رحلاتي"
      },
      "tr": {
       "title": "Yolculuklarım"
@@ -936,11 +965,11 @@
     },
     "studio": {
      "body": {
-      "id": "demo-62",
+      "id": "demo-63",
       "type": "column",
       "children": [
        {
-        "id": "demo-65",
+        "id": "demo-66",
         "type": "photo_hero",
         "name": "Home safe, every ride",
         "image_url": "http://localhost:3000/stories/rides/rides-arrive-home.jpg",
@@ -969,7 +998,7 @@
         },
         "children": [
          {
-          "id": "demo-63",
+          "id": "demo-64",
           "type": "text",
           "text": "Home safe, every ride",
           "color": "#FFFFFF",
@@ -988,7 +1017,7 @@
           }
          },
          {
-          "id": "demo-64",
+          "id": "demo-65",
           "type": "text",
           "text": "Your rides, their fares and receipts.",
           "color": "#FFFFFF",
@@ -1022,7 +1051,7 @@
       ],
       "translations": {
        "ar": {
-        "title": "مشاويري"
+        "title": "رحلاتي"
        },
        "tr": {
         "title": "Yolculuklarım"
@@ -1031,7 +1060,8 @@
       "background": "#EDF0EA",
       "color": "#0B2422",
       "dark_background": "#0C1716",
-      "dark_color": "#E9F5F3"
+      "dark_color": "#E9F5F3",
+      "style": "glass"
      },
      "background": "#EDF0EA",
      "dark_background": "#0C1716"
@@ -1053,7 +1083,7 @@
     },
     "studio": {
      "body": {
-      "id": "demo-66",
+      "id": "demo-67",
       "type": "column",
       "children": []
      },
@@ -1078,11 +1108,11 @@
     },
     "studio": {
      "body": {
-      "id": "demo-67",
+      "id": "demo-68",
       "type": "column",
       "children": [
        {
-        "id": "demo-75",
+        "id": "demo-76",
         "type": "column",
         "name": "On the way",
         "visibility": "signed_in",
@@ -1106,7 +1136,7 @@
         },
         "children": [
          {
-          "id": "demo-76",
+          "id": "demo-77",
           "type": "tracking",
           "tracking": {
            "kind": "ride",
@@ -1136,7 +1166,8 @@
       "background": "#EDF0EA",
       "color": "#0B2422",
       "dark_background": "#0C1716",
-      "dark_color": "#E9F5F3"
+      "dark_color": "#E9F5F3",
+      "style": "glass"
      },
      "background": "#EDF0EA",
      "dark_background": "#0C1716"
@@ -1158,7 +1189,7 @@
     },
     "studio": {
      "body": {
-      "id": "demo-68",
+      "id": "demo-69",
       "type": "column",
       "children": []
      },
@@ -1177,7 +1208,8 @@
       "background": "#EDF0EA",
       "color": "#0B2422",
       "dark_background": "#0C1716",
-      "dark_color": "#E9F5F3"
+      "dark_color": "#E9F5F3",
+      "style": "glass"
      },
      "background": "#EDF0EA",
      "dark_background": "#0C1716"
@@ -1199,7 +1231,7 @@
     },
     "studio": {
      "body": {
-      "id": "demo-69",
+      "id": "demo-70",
       "type": "column",
       "children": []
      },
@@ -1218,7 +1250,8 @@
       "background": "#EDF0EA",
       "color": "#0B2422",
       "dark_background": "#0C1716",
-      "dark_color": "#E9F5F3"
+      "dark_color": "#E9F5F3",
+      "style": "glass"
      },
      "background": "#EDF0EA",
      "dark_background": "#0C1716"
@@ -1240,7 +1273,7 @@
     },
     "studio": {
      "body": {
-      "id": "demo-70",
+      "id": "demo-71",
       "type": "column",
       "children": []
      },
@@ -1259,7 +1292,8 @@
       "background": "#EDF0EA",
       "color": "#0B2422",
       "dark_background": "#0C1716",
-      "dark_color": "#E9F5F3"
+      "dark_color": "#E9F5F3",
+      "style": "glass"
      },
      "background": "#EDF0EA",
      "dark_background": "#0C1716"
@@ -1281,7 +1315,7 @@
     },
     "studio": {
      "body": {
-      "id": "demo-71",
+      "id": "demo-72",
       "type": "column",
       "children": []
      },
@@ -1300,7 +1334,8 @@
       "background": "#EDF0EA",
       "color": "#0B2422",
       "dark_background": "#0C1716",
-      "dark_color": "#E9F5F3"
+      "dark_color": "#E9F5F3",
+      "style": "glass"
      },
      "background": "#EDF0EA",
      "dark_background": "#0C1716"
@@ -1314,7 +1349,7 @@
     "title": "Change password",
     "studio": {
      "body": {
-      "id": "demo-72",
+      "id": "demo-73",
       "type": "column",
       "children": []
      },
@@ -1331,7 +1366,7 @@
     "title": "A conversation",
     "studio": {
      "body": {
-      "id": "demo-73",
+      "id": "demo-74",
       "type": "column",
       "children": []
      },
@@ -1348,7 +1383,7 @@
     "title": "A ride on its way",
     "studio": {
      "body": {
-      "id": "demo-74",
+      "id": "demo-75",
       "type": "column",
       "children": []
      },
