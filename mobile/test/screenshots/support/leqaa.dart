@@ -26,8 +26,6 @@ const _photos = {
   109: 'sunflowers',
   110: 'garden-jug',
   201: 'ceramic-vase',
-  202: 'chocolates',
-  203: 'greeting-card',
 };
 
 /// The paths of the photos the products show, for [StudioDemo.prepare].
@@ -98,82 +96,67 @@ List<Map<String, dynamic>> _categories(String base) => [
     },
 ];
 
-/// Blush Garden as its page shows it: its photos, its three sizes and
-/// what goes with it.
-Map<String, dynamic> leqaaBouquet(String base) => {
-  ...leqaaProducts(base).first,
-  'description_html':
-      '<p>Blush roses, lisianthus and eucalyptus, made on the day it is '
-      'delivered and wrapped in our blush paper with a silk ribbon.</p>'
-      '<p>Classic has 12 stems, Deluxe 24 and Grand 36.</p>',
-  'short_description_html': '<p>Blush roses, lisianthus and eucalyptus.</p>',
-  'images': [
-    for (final photo in ['blush-bouquet', 'ranunculus', 'atelier'])
-      {'url': '$base/flower-photos/$photo.jpg', 'alt': null},
-  ],
-  'sku': 'LQ-101',
-  'max_quantity': 5,
-  'attributes': <Object>[],
-  'variations': <Object>[],
-  'categories': [_categories(base).first],
-  'related': leqaaProducts(base).skip(1).take(3).toList(),
-  'external_url': null,
-  'permalink': 'https://leqaa.example/bouquets/blush-garden',
-  'option_groups': [
-    {
-      'id': 'size',
-      'name': 'Size',
-      'min': 1,
-      'max': 1,
-      'options': [
+/// Blush Garden as its page shows it: its photos and its three sizes (its
+/// variations, each with its price), as the platform's catalog serves a
+/// bouquet (lib/demo/flowers.ts `flowerVariants`).
+Map<String, dynamic> leqaaBouquet(String base) {
+  Map<String, dynamic> price(String amount) => _money(
+    amount,
+    'E£ ${amount.substring(0, amount.length - 3)},${amount.substring(amount.length - 3)}',
+  );
+  return {
+    ...leqaaProducts(base).first,
+    'type': 'variable',
+    'price': {..._money('1450', 'E£ 1,450 – E£ 2,700'), 'range': true},
+    'description_html':
+        '<p>Blush roses, lisianthus and eucalyptus, made on the day it is '
+        'delivered and wrapped in our blush paper with a silk ribbon.</p>'
+        '<p>Classic has 12 stems, Deluxe 24 and Grand 36.</p>',
+    'short_description_html': '<p>Blush roses, lisianthus and eucalyptus.</p>',
+    'images': [
+      for (final photo in ['blush-bouquet', 'ranunculus', 'atelier'])
+        {'url': '$base/flower-photos/$photo.jpg', 'alt': null},
+    ],
+    'sku': 'LQ-101',
+    'max_quantity': 5,
+    'attributes': [
+      {
+        'slug': 'size',
+        'name': 'Size',
+        'variation': true,
+        'options': [
+          for (final size in [
+            'Classic · 12 stems',
+            'Deluxe · 24 stems',
+            'Grand · 36 stems',
+          ])
+            {'value': size, 'label': size},
+        ],
+      },
+    ],
+    'variations': [
+      for (final (i, (size, amount)) in [
+        ('Classic · 12 stems', '1450'),
+        ('Deluxe · 24 stems', '2100'),
+        ('Grand · 36 stems', '2700'),
+      ].indexed)
         {
-          'id': 'classic',
-          'name': 'Classic · 12 stems',
-          'price_delta': '0.00',
-          'price_delta_formatted': null,
+          'id': 1011 + i,
+          'attributes': {'size': size},
+          'price': price(amount),
+          'image_url': null,
+          'stock_status': 'in_stock',
+          'max_quantity': 5,
+          'purchasable': true,
         },
-        {
-          'id': 'deluxe',
-          'name': 'Deluxe · 24 stems',
-          'price_delta': '650.00',
-          'price_delta_formatted': '+E£ 650',
-        },
-        {
-          'id': 'grand',
-          'name': 'Grand · 36 stems',
-          'price_delta': '1250.00',
-          'price_delta_formatted': '+E£ 1,250',
-        },
-      ],
-    },
-    {
-      'id': 'with',
-      'name': 'Add to it',
-      'min': 0,
-      'max': 3,
-      'options': [
-        {
-          'id': 'vase',
-          'name': 'Ceramic vase',
-          'price_delta': '350.00',
-          'price_delta_formatted': '+E£ 350',
-        },
-        {
-          'id': 'chocolates',
-          'name': 'Chocolate box',
-          'price_delta': '320.00',
-          'price_delta_formatted': '+E£ 320',
-        },
-        {
-          'id': 'card',
-          'name': 'Greeting card',
-          'price_delta': '60.00',
-          'price_delta_formatted': '+E£ 60',
-        },
-      ],
-    },
-  ],
-};
+    ],
+    'categories': [_categories(base).first],
+    'related': leqaaProducts(base).skip(1).take(3).toList(),
+    'external_url': null,
+    'permalink': 'https://leqaa.example/bouquets/blush-garden',
+    'option_groups': <Object>[],
+  };
+}
 
 /// The cart as the phone keeps it: a bouquet, a card and chocolates.
 String leqaaCart(String base) => jsonEncode([

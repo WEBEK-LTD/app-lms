@@ -397,8 +397,9 @@ class AppNavBar extends StatelessWidget {
       label: context.l10n.mainNavigation,
       explicitChildNodes: true,
       child: floating && design == TabBarDesign.petal
-          // 131.22 The petal fades what scrolls under it into its own
-          // colour, so nothing shows through below it.
+          // 131.22 The petal fades what scrolls under it into the page's
+          // colour below it (behind its lower half, so nothing shows
+          // through under it and nothing clouds the page above it).
           ? DecoratedBox(
               key: const ValueKey('nav-petal-fade'),
               decoration: BoxDecoration(
@@ -406,11 +407,11 @@ class AppNavBar extends StatelessWidget {
                   begin: Alignment.topCenter,
                   end: Alignment.bottomCenter,
                   colors: [
-                    background.withValues(alpha: 0),
-                    background.withValues(alpha: 0.94),
-                    background,
+                    p.background.withValues(alpha: 0),
+                    p.background.withValues(alpha: 0),
+                    p.background,
                   ],
-                  stops: const [0, 0.42, 1],
+                  stops: const [0, 0.5, 0.78],
                 ),
               ),
               child: SafeArea(

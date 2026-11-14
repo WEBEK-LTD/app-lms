@@ -594,7 +594,8 @@ function sendTodayA(ctx: SectionContext, margin: StudioSides = sides(18, 16, 4, 
     radius: 26,
     padding: sides(16, 16, 16, 16),
     margin,
-    gradient: { from: "#FFF6F1", to: "#F7E1DC", angle: 135 },
+    // Solid: a gradient would stay light by night.
+    background: "#FCECE6",
     dark_background: "#2A1720",
     border_color: A.line,
     dark_border_color: A.darkLine,
@@ -748,7 +749,7 @@ function shopTop(ctx: SectionContext, k: SignatureInk, family: string, photo: st
       scroll: true,
       padding: sides(4, 16, 4, 16),
       children: [
-        { ...pill(ctx, "lqSeeBouquet", pageOf("bouquet"), { background: k.fill, dark_background: k.darkFill, color: k.onFill, dark_color: k.darkOnFill }, "local_florist", 42) },
+        { ...pill(ctx, "lqBouquetPage", pageOf("bouquet"), { background: k.fill, dark_background: k.darkFill, color: k.onFill, dark_color: k.darkOnFill }, "local_florist", 42) },
         { ...pill(ctx, "lqWishlist", pageOf("wishlist"), { background: k.surface, dark_background: k.darkSurface, color: k.ink, dark_color: k.darkInk }, "favorite", 42) },
       ],
     },
@@ -768,6 +769,34 @@ function cartTop(ctx: SectionContext, k: SignatureInk, family: string): StudioNo
     action: shop,
     children: [
       { ...sigImage(ctx, k, photo, { width: 104, height: 104, radius: 24 }) },
+      inked(ctx, k, ctx.w(word), { size: 12.5, weight: 700 }, { text_align: "center", max_lines: 2 }),
+    ],
+  });
+  // An add-on with no fitting free photo: its symbol on a tile of the look's wash, as round as the photos.
+  const addOnTile = (word: SectionWord, icon: string): StudioNode => ({
+    id: id(),
+    type: "column",
+    name: ctx.w(word),
+    width: 104,
+    gap: 6,
+    cross: "center",
+    action: shop,
+    children: [
+      {
+        id: id(),
+        type: "row",
+        width: 104,
+        height: 104,
+        radius: 24,
+        align: "center",
+        cross: "center",
+        background: k.surface,
+        dark_background: k.darkSurface,
+        border_color: k.line,
+        dark_border_color: k.darkLine,
+        border_width: 1,
+        children: [{ id: id(), type: "icon", icon, icon_size: 38, color: k.accent, dark_color: k.darkAccent }],
+      },
       inked(ctx, k, ctx.w(word), { size: 12.5, weight: 700 }, { text_align: "center", max_lines: 2 }),
     ],
   });
@@ -792,7 +821,7 @@ function cartTop(ctx: SectionContext, k: SignatureInk, family: string): StudioNo
       ],
     },
     { ...headOf(ctx, k, family, "lqAddOns", null, sides(16, 18, 8, 18)) },
-    { id: id(), type: "row", name: ctx.w("lqAddOns"), gap: 10, scroll: true, padding: sides(0, 16, 6, 16), children: [addOn("lqVase", P("ceramic-vase")), addOn("lqChocolates", P("chocolates")), addOn("lqCard", P("greeting-card"))] },
+    { id: id(), type: "row", name: ctx.w("lqAddOns"), gap: 10, scroll: true, padding: sides(0, 16, 6, 16), children: [addOn("lqVase", P("ceramic-vase")), addOnTile("lqChocolates", "redeem"), addOnTile("lqCard", "mail")] },
   ];
 }
 
@@ -908,7 +937,7 @@ function bouquetPage(ctx: SectionContext, k: SignatureInk, family: string, look:
         { ...dayChips(ctx, k), padding: sides(0, 16, 0, 16) },
         headOf(ctx, k, family, "lqGiftMsg", null, sides(20, 18, 10, 18)),
         card,
-        { ...pill(ctx, "lqChoose", shop, { background: k.fill, dark_background: k.darkFill, color: k.onFill, dark_color: k.darkOnFill }), margin: sides(20, 18, 0, 18), self_align: "center" },
+        { ...pill(ctx, "lqChoose", shop, { background: k.fill, dark_background: k.darkFill, color: k.onFill, dark_color: k.darkOnFill }), align: "between", margin: sides(20, 18, 0, 18), self_align: "center" },
       ],
     },
   };

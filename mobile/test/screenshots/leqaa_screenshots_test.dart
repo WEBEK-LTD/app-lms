@@ -73,6 +73,7 @@ Shot _leqaa(
   String? location,
   String primary = '#8E2445',
   Map<String, Object> preferences = const {},
+  double scroll = 0,
 }) => Shot(
   name,
   api: () => leqaaStudioApi(look: demo, primaryColor: primary),
@@ -86,7 +87,21 @@ Shot _leqaa(
   designPictures: true,
   prepare: (tester) => demo.prepare(tester, leqaaPhotoPaths),
   shadows: true,
+  after: scroll <= 0 ? null : (tester, _) => _scrollPage(tester, scroll),
 );
+
+/// The page [by] further down (its sections under the fold).
+Future<void> _scrollPage(WidgetTester tester, double by) async {
+  final page = find
+      .byWidgetPredicate(
+        (w) => w is Scrollable && w.axisDirection == AxisDirection.down,
+      )
+      .first;
+  final position = tester.state<ScrollableState>(page).position;
+  position.jumpTo(by.clamp(0.0, position.maxScrollExtent));
+  await tester.pump(const Duration(milliseconds: 800));
+  await tester.pump(const Duration(milliseconds: 800));
+}
 
 /// /start's pictures of the two looks and the guide's.
 List<Shot> get _website => [
@@ -110,15 +125,20 @@ List<Shot> get _galleryShots => [
       ('dark', true, 'en'),
       ('ar', false, 'ar'),
     ])
-      for (final (page, location) in [
-        ('home', null),
-        ('bouquet', '/page/bouquet'),
-        ('product', '/product/101'),
-        ('shop', '/page/shop'),
-        ('cart', '/page/cart'),
-        ('orders', '/page/orders'),
-        ('wishlist', '/page/wishlist'),
-        ('account', '/account'),
+      for (final (page, location, scroll) in [
+        ('home', null, 0.0),
+        // The home's sections under the fold.
+        ('home-2', null, 700.0),
+        ('home-3', null, 1400.0),
+        ('home-4', null, 2100.0),
+        ('bouquet', '/page/bouquet', 0.0),
+        ('bouquet-2', '/page/bouquet', 760.0),
+        ('product', '/product/101', 0.0),
+        ('shop', '/page/shop', 0.0),
+        ('cart', '/page/cart', 0.0),
+        ('orders', '/page/orders', 0.0),
+        ('wishlist', '/page/wishlist', 0.0),
+        ('account', '/account', 0.0),
       ])
         _leqaa(
           'leqaa-$look-$page-$mode',
@@ -130,6 +150,7 @@ List<Shot> get _galleryShots => [
           preferences: page == 'cart'
               ? leqaaCartPreferences(StudioDemo.signature('flowers', look))
               : const {},
+          scroll: scroll,
         ),
 ];
 

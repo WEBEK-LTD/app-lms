@@ -1,14 +1,17 @@
-import type { CatalogCurrency, CatalogOptionGroup } from "../data/types";
+import type { CatalogCurrency, CatalogVariants } from "../data/types";
 import type { FlowerPhoto } from "./flower-photos";
 
 /**
  * 131.20 Leqaa's shop (the flower shop's demo, lib/studio/demo-designs/
- * leqaa-signature.ts): bouquets and arrangements for every occasion, each
- * in three sizes with what goes with it (a vase, chocolates, a card) as its
- * options, and the add-ons on their own. Its collections and occasions are
- * the shop's categories, a bouquet in its collection and each occasion it
- * suits. The shop, its bouquets and its prices are invented; its photos
- * are real, CC0 or public domain (public/flower-photos/CREDITS.md).
+ * leqaa-signature.ts): bouquets and arrangements for every occasion, a
+ * bouquet in three sizes (its variations: the size a person picks on its
+ * page, each with its price), and the add-ons on their own (a vase,
+ * chocolates, a card) that the cart offers with the flowers. Its
+ * collections and occasions are the shop's categories, a bouquet in its
+ * collection and each occasion it suits. The shop, its bouquets and its
+ * prices are invented; its photos are real, CC0 or public domain
+ * (public/flower-photos/CREDITS.md); an add-on with no fitting free photo
+ * has none.
  */
 
 export const FLOWER_CURRENCY: CatalogCurrency = "EGP";
@@ -29,23 +32,34 @@ export interface FlowerProduct {
   occasions: readonly (typeof FLOWER_OCCASIONS)[number][];
   priceCents: number;
   salePriceCents: number | null;
-  photo: FlowerPhoto;
+  /** Null: no fitting free photo (the add-ons drawn as tiles in the looks). */
+  photo: FlowerPhoto | null;
   featured: boolean;
   description: string;
-  optionGroups?: CatalogOptionGroup[];
+  /** A bouquet's bigger sizes, what each adds to its price (Classic is its own). */
+  sizes?: { deluxe: number; grand: number };
 }
-
-const option = (id: string, name: string, delta: number) => ({ id, name, priceDeltaCents: delta });
 
 /** A bouquet's three sizes, by how many stems it has. */
-function sizes(deluxe: number, grand: number): CatalogOptionGroup {
-  return { id: "size", name: "Size", min: 1, max: 1, options: [option("classic", "Classic · 12 stems", 0), option("deluxe", "Deluxe · 24 stems", deluxe), option("grand", "Grand · 36 stems", grand)] };
+export const FLOWER_SIZES = ["Classic · 12 stems", "Deluxe · 24 stems", "Grand · 36 stems"] as const;
+
+/** A bouquet's sizes as its variations (91.5), priced by [money] (the app's currency); none for the rest. */
+export function flowerVariants(p: FlowerProduct, money: (cents: number) => number): CatalogVariants | null {
+  if (!p.sizes) return null;
+  const add = [0, p.sizes.deluxe, p.sizes.grand];
+  return {
+    attributes: [{ name: "Size", values: [...FLOWER_SIZES] }],
+    items: FLOWER_SIZES.map((size, i) => ({
+      id: i + 1,
+      values: [size],
+      priceCents: money(p.priceCents + add[i]!),
+      salePriceCents: p.salePriceCents === null ? null : money(p.salePriceCents + add[i]!),
+      stock: null,
+      sku: `${p.sku}-${["C", "D", "G"][i]}`,
+      active: true,
+    })),
+  };
 }
-
-/** What goes with it: a vase, chocolates, a card. */
-const WITH: CatalogOptionGroup = { id: "with", name: "Add to it", min: 0, max: 3, options: [option("vase", "Ceramic vase", 350_00), option("chocolates", "Chocolate box", 320_00), option("card", "Greeting card", 60_00)] };
-
-const bouquet = (deluxe: number, grand: number): CatalogOptionGroup[] => [sizes(deluxe, grand), structuredClone(WITH)];
 
 export const FLOWER_PRODUCTS: readonly FlowerProduct[] = [
   {
@@ -58,7 +72,7 @@ export const FLOWER_PRODUCTS: readonly FlowerProduct[] = [
     photo: "blush-bouquet",
     featured: true,
     description: "Blush roses, lisianthus and eucalyptus, made on the day it is delivered and wrapped in our blush paper with a silk ribbon.\n\nClassic has 12 stems, Deluxe 24 and Grand 36.",
-    optionGroups: bouquet(650_00, 1250_00),
+    sizes: { deluxe: 650_00, grand: 1250_00 },
   },
   {
     sku: "LQ-102",
@@ -70,7 +84,7 @@ export const FLOWER_PRODUCTS: readonly FlowerProduct[] = [
     photo: "red-rose",
     featured: true,
     description: "Deep red roses, nothing else: the simplest way to say it.\n\nClassic has 12 stems, Deluxe 24 and Grand 36.",
-    optionGroups: bouquet(900_00, 1700_00),
+    sizes: { deluxe: 900_00, grand: 1700_00 },
   },
   {
     sku: "LQ-103",
@@ -82,7 +96,7 @@ export const FLOWER_PRODUCTS: readonly FlowerProduct[] = [
     photo: "tulips",
     featured: false,
     description: "Tulips in their spring colours, wrapped in pink paper. They keep opening for days in a vase.",
-    optionGroups: bouquet(500_00, 950_00),
+    sizes: { deluxe: 500_00, grand: 950_00 },
   },
   {
     sku: "LQ-104",
@@ -94,7 +108,7 @@ export const FLOWER_PRODUCTS: readonly FlowerProduct[] = [
     photo: "ranunculus",
     featured: true,
     description: "Soft pink and white ranunculus while they are in season, with a little greenery. Each one opens into a cloud of petals.",
-    optionGroups: bouquet(1100_00, 2100_00),
+    sizes: { deluxe: 1100_00, grand: 2100_00 },
   },
   {
     sku: "LQ-105",
@@ -106,7 +120,7 @@ export const FLOWER_PRODUCTS: readonly FlowerProduct[] = [
     photo: "white-lilies",
     featured: false,
     description: "White lilies and roses, calm and quiet, with a card for the words that are hard to say.",
-    optionGroups: bouquet(700_00, 1300_00),
+    sizes: { deluxe: 700_00, grand: 1300_00 },
   },
   {
     sku: "LQ-106",
@@ -118,7 +132,7 @@ export const FLOWER_PRODUCTS: readonly FlowerProduct[] = [
     photo: "sunshine",
     featured: false,
     description: "Bright yellow and white blooms for a new arrival or a happy day, in a small hand-tied bunch.",
-    optionGroups: bouquet(400_00, 800_00),
+    sizes: { deluxe: 400_00, grand: 800_00 },
   },
   {
     sku: "LQ-107",
@@ -130,7 +144,7 @@ export const FLOWER_PRODUCTS: readonly FlowerProduct[] = [
     photo: "baby-breath",
     featured: false,
     description: "Baby's breath in a soft blue, wrapped in white paper with a scalloped edge.",
-    optionGroups: bouquet(750_00, 1400_00),
+    sizes: { deluxe: 750_00, grand: 1400_00 },
   },
   {
     sku: "LQ-108",
@@ -142,7 +156,6 @@ export const FLOWER_PRODUCTS: readonly FlowerProduct[] = [
     photo: "orchid",
     featured: true,
     description: "A cattleya orchid with ruffled violet petals, in a pot, that flowers for weeks with a little water once a week.",
-    optionGroups: [structuredClone(WITH)],
   },
   {
     sku: "LQ-109",
@@ -154,7 +167,7 @@ export const FLOWER_PRODUCTS: readonly FlowerProduct[] = [
     photo: "sunflowers",
     featured: false,
     description: "Sunflowers with wild blooms and baby's breath, as if picked from a field on the way over.",
-    optionGroups: bouquet(450_00, 850_00),
+    sizes: { deluxe: 450_00, grand: 850_00 },
   },
   {
     sku: "LQ-110",
@@ -166,7 +179,6 @@ export const FLOWER_PRODUCTS: readonly FlowerProduct[] = [
     photo: "garden-jug",
     featured: true,
     description: "Pink and white blooms in an enamel jug with a hand-written tag, ready to give: no vase needed.",
-    optionGroups: [structuredClone(WITH)],
   },
   {
     sku: "LQ-201",
@@ -186,7 +198,7 @@ export const FLOWER_PRODUCTS: readonly FlowerProduct[] = [
     occasions: [],
     priceCents: 320_00,
     salePriceCents: null,
-    photo: "chocolates",
+    photo: null,
     featured: false,
     description: "A box of assorted chocolates to go with the flowers.",
   },
@@ -197,7 +209,7 @@ export const FLOWER_PRODUCTS: readonly FlowerProduct[] = [
     occasions: [],
     priceCents: 60_00,
     salePriceCents: null,
-    photo: "greeting-card",
+    photo: null,
     featured: false,
     description: "A folded card with your message written in it by hand.",
   },

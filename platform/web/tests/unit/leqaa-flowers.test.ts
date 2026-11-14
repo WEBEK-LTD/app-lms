@@ -6,7 +6,7 @@ import { newApp } from "@/lib/app/setup";
 import type { App } from "@/lib/data/types";
 import { demoIdOf, demoKind, DEMO_SLUGS, FLOWER_SHOP_DEMO, FLOWER_SHOP_TEMPLATE, isStudioDemo, STUDIO_DEMO_TYPES } from "@/lib/demo/constants";
 import { DEMO_BRANDS, DEMO_GUIDES } from "@/lib/demo/content";
-import { FLOWER_CATEGORIES, FLOWER_COLLECTIONS, FLOWER_OCCASIONS, FLOWER_PRODUCTS } from "@/lib/demo/flowers";
+import { FLOWER_CATEGORIES, FLOWER_COLLECTIONS, FLOWER_OCCASIONS, FLOWER_PRODUCTS, FLOWER_SIZES, flowerVariants } from "@/lib/demo/flowers";
 import { FLOWER_PHOTOS } from "@/lib/demo/flower-photos";
 import { demoStudioScreens, demoTabBar } from "@/lib/demo/screens";
 import { demoLayout } from "@/lib/demo/setup";
@@ -91,18 +91,31 @@ describe("131.20 Leqaa, the flower shop: a Studio demo of the store kind", () =>
     }
   });
 
-  it("brings real-feeling bouquets for the five occasions, in three sizes with what goes with them, in Egyptian pounds", () => {
+  it("brings real-feeling bouquets for the five occasions, in three sizes, and the add-ons on their own, in Egyptian pounds", () => {
     expect(FLOWER_PRODUCTS.length).toBeGreaterThanOrEqual(12);
     expect(new Set(FLOWER_PRODUCTS.map((p) => p.sku)).size).toBe(FLOWER_PRODUCTS.length);
     expect(FLOWER_CATEGORIES).toEqual([...FLOWER_COLLECTIONS, ...FLOWER_OCCASIONS]);
     for (const occasion of FLOWER_OCCASIONS) expect(FLOWER_PRODUCTS.some((p) => p.occasions.includes(occasion)), occasion).toBe(true);
     for (const p of FLOWER_PRODUCTS) {
+      // Every flower its real photo; an add-on with no fitting free photo, none (drawn as a tile).
+      if (p.collection === "Add-ons" && p.photo === null) continue;
       expect(FLOWER_PHOTOS).toContain(p.photo);
       if (p.salePriceCents !== null) expect(p.salePriceCents).toBeLessThan(p.priceCents);
     }
-    const bouquets = FLOWER_PRODUCTS.filter((p) => p.optionGroups?.some((g) => g.id === "size"));
+    // A bouquet's sizes are its variations: the size a person picks on its page, each its price (and its sale).
+    const bouquets = FLOWER_PRODUCTS.filter((p) => p.sizes);
     expect(bouquets.length).toBeGreaterThanOrEqual(8);
-    for (const p of bouquets) expect(p.optionGroups!.find((g) => g.id === "size")!.options.map((o) => o.id)).toEqual(["classic", "deluxe", "grand"]);
+    for (const p of bouquets) {
+      const v = flowerVariants(p, (c) => c)!;
+      expect(v.attributes).toEqual([{ name: "Size", values: [...FLOWER_SIZES] }]);
+      expect(v.items.map((i) => i.values[0])).toEqual([...FLOWER_SIZES]);
+      expect(v.items[0]!.priceCents).toBe(p.priceCents);
+      expect(v.items[2]!.priceCents).toBeGreaterThan(v.items[1]!.priceCents!);
+      if (p.salePriceCents !== null) for (const i of v.items) expect(i.salePriceCents!).toBeLessThan(i.priceCents!);
+    }
+    expect(FLOWER_PRODUCTS.filter((p) => !p.sizes).every((p) => flowerVariants(p, (c) => c) === null)).toBe(true);
+    // No options left that read as "Size · Required" on a product's page.
+    expect(FLOWER_PRODUCTS.some((p) => "optionGroups" in p)).toBe(false);
     expect(FLOWER_PRODUCTS.filter((p) => p.collection === "Add-ons").map((p) => p.name)).toEqual(["Ceramic Vase", "Chocolate Box", "Greeting Card"]);
   });
 

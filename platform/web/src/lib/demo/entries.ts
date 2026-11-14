@@ -59,7 +59,7 @@ import {
   type DemoStaff,
 } from "./content";
 import type { DemoPicture, PictureSize } from "./picture-assets";
-import { FLOWER_CATEGORIES, FLOWER_CURRENCY, FLOWER_PRODUCTS } from "./flowers";
+import { FLOWER_CATEGORIES, FLOWER_CURRENCY, FLOWER_PRODUCTS, flowerVariants } from "./flowers";
 import { UFUQ_COURSES } from "./ufuq-courses";
 import { ACADEMY_CATEGORIES, ACADEMY_COURSES, TEACHERS_CURRENCY } from "./teachers";
 
@@ -178,13 +178,15 @@ export async function demoFlowerProducts(deps: EntryDeps, app: App): Promise<voi
       priceCents,
       salePriceCents: sale !== null && sale < priceCents ? sale : null,
       categoryIds: [seed.collection, ...seed.occasions].map((name) => categoryIds.get(name)!),
-      imageAssetIds: [await deps.picture(seed.photo, "product")],
+      imageAssetIds: seed.photo ? [await deps.picture(seed.photo, "product")] : [],
       stock: null,
       digital: false,
       featured: seed.featured,
       active: true,
       sku: deps.sample ? null : seed.sku,
-      optionGroups: seed.optionGroups ? structuredClone(seed.optionGroups).map((g) => ({ ...g, options: g.options.map((o) => ({ ...o, priceDeltaCents: money(o.priceDeltaCents) })) })) : null,
+      // A bouquet's sizes are its variations, each priced in the app's currency.
+      variants: flowerVariants(seed, money),
+      optionGroups: null,
       ...marked(deps),
     };
     if (deps.sample) {
