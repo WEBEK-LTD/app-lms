@@ -1,0 +1,1345 @@
+{
+ "screens": {
+  "sign_in": {
+   "style": "photo",
+   "image_url": "http://localhost:3000/stories/rides/rides-backseat.jpg",
+   "title": {
+    "en": "A taxi, moments away",
+    "ar": "سيارة أجرة على بُعد لحظات",
+    "tr": "Taksiniz birkaç dakika uzakta"
+   },
+   "subtitle": {
+    "en": "See the free taxis around you, live on the map.",
+    "ar": "شاهد سيارات الأجرة المتاحة حولك مباشرةً على الخريطة.",
+    "tr": "Etrafınızdaki boş taksileri haritada canlı görün."
+   },
+   "show_logo": true
+  },
+  "account_menu": {
+   "header": "night",
+   "accent": "#F5B700",
+   "items": []
+  }
+ },
+ "layout": {
+  "appearance": {
+   "template": "bold",
+   "theme_mode": "system",
+   "user_can_change_mode": true,
+   "font": "Manrope",
+   "corners": "round",
+   "cards": "elevated",
+   "secondary_color": "#F5B700"
+  },
+  "languages": {
+   "default": "en",
+   "available": [
+    "en"
+   ]
+  },
+  "tabs": [
+   {
+    "id": "home",
+    "label": "Ride",
+    "icon": "local_taxi",
+    "target": {
+     "type": "page",
+     "page_slug": "home"
+    },
+    "translations": {
+     "ar": {
+      "label": "مشوار"
+     },
+     "tr": {
+      "label": "Yolculuk"
+     }
+    }
+   },
+   {
+    "id": "rides",
+    "label": "My rides",
+    "icon": "history",
+    "target": {
+     "type": "page",
+     "page_slug": "rides"
+    },
+    "translations": {
+     "ar": {
+      "label": "مشاويري"
+     },
+     "tr": {
+      "label": "Yolculuklarım"
+     }
+    }
+   },
+   {
+    "id": "account",
+    "label": "Account",
+    "icon": "person",
+    "target": {
+     "type": "page",
+     "page_slug": "account"
+    },
+    "translations": {
+     "ar": {
+      "label": "حسابي"
+     },
+     "tr": {
+      "label": "Hesabım"
+     }
+    }
+   }
+  ],
+  "pages": [
+   {
+    "slug": "home",
+    "title": "Home",
+    "show_title": false,
+    "updated_at": "2026-11-13T18:00:00.000Z",
+    "blocks": [],
+    "studio": {
+     "background": "#FFFDF6",
+     "dark_background": "#0E1324",
+     "body": {
+      "id": "sig-1",
+      "type": "column",
+      "padding": {
+       "bottom": 96
+      },
+      "children": [
+       {
+        "id": "sig-2",
+        "type": "map_header",
+        "name": "Where to?",
+        "height": 352,
+        "background": "#F5B700",
+        "dark_background": "#121829",
+        "align": "between",
+        "padding": {
+         "top": 8,
+         "end": 16,
+         "bottom": 24,
+         "start": 16
+        },
+        "map_drawing": {
+         "style": "two_ink",
+         "accent": "#F5B700",
+         "chip": "#1C2541",
+         "markers": [
+          {
+           "x": 33,
+           "y": 31
+          },
+          {
+           "x": 81,
+           "y": 33
+          },
+          {
+           "x": 52,
+           "y": 42
+          },
+          {
+           "x": 43,
+           "y": 92
+          },
+          {
+           "x": 72,
+           "y": 94
+          },
+          {
+           "x": 95,
+           "y": 56
+          },
+          {
+           "x": 58,
+           "y": 28
+          }
+         ],
+         "me": true,
+         "me_at": {
+          "x": 40,
+          "y": 60
+         },
+         "live": true,
+         "labels": [
+          {
+           "x": 36,
+           "y": 44,
+           "text": "Maadi"
+          },
+          {
+           "x": 6,
+           "y": 72,
+           "text": "Nile"
+          }
+         ]
+        },
+        "children": [
+         {
+          "id": "sig-3",
+          "type": "row",
+          "gap": 10,
+          "cross": "center",
+          "children": [
+           {
+            "id": "sig-4",
+            "type": "row",
+            "height": 44,
+            "radius": 22,
+            "gap": 8,
+            "cross": "center",
+            "padding": {
+             "top": 0,
+             "end": 16,
+             "bottom": 0,
+             "start": 14
+            },
+            "background": "#1C2541",
+            "dark_background": "#F5B700",
+            "children": [
+             {
+              "id": "sig-5",
+              "type": "icon",
+              "icon": "local_taxi",
+              "icon_size": 20,
+              "color": "#F5B700",
+              "dark_color": "#1C2541"
+             },
+             {
+              "id": "sig-6",
+              "type": "text",
+              "text": "Lamha Taxi",
+              "color": "#FFFFFF",
+              "dark_color": "#1C2541",
+              "font": {
+               "size": 15,
+               "weight": 800
+              },
+              "translations": {
+               "ar": {
+                "text": "Lamha Taxi"
+               },
+               "tr": {
+                "text": "Lamha Taxi"
+               }
+              }
+             }
+            ]
+           },
+           {
+            "id": "sig-7",
+            "type": "row",
+            "width": "fill",
+            "height": 1,
+            "children": []
+           },
+           {
+            "id": "sig-8",
+            "type": "row",
+            "width": 44,
+            "height": 44,
+            "radius": 22,
+            "align": "center",
+            "cross": "center",
+            "action": {
+             "type": "screen",
+             "screen": "notifications"
+            },
+            "self_align": "center",
+            "background": "#1C2541",
+            "dark_background": "#F5B700",
+            "children": [
+             {
+              "id": "sig-9",
+              "type": "icon",
+              "icon": "notifications",
+              "icon_size": 22,
+              "color": "#F5B700",
+              "dark_color": "#1C2541"
+             }
+            ]
+           },
+           {
+            "id": "sig-10",
+            "type": "row",
+            "width": 44,
+            "height": 44,
+            "radius": 22,
+            "align": "center",
+            "cross": "center",
+            "action": {
+             "type": "screen",
+             "screen": "account"
+            },
+            "self_align": "center",
+            "background": "#1C2541",
+            "dark_background": "#F5B700",
+            "children": [
+             {
+              "id": "sig-11",
+              "type": "icon",
+              "icon": "person",
+              "icon_size": 22,
+              "color": "#F5B700",
+              "dark_color": "#1C2541"
+             }
+            ]
+           }
+          ]
+         },
+         {
+          "id": "sig-12",
+          "type": "row",
+          "children": [
+           {
+            "id": "sig-13",
+            "type": "row",
+            "width": "fill",
+            "height": 1,
+            "children": []
+           },
+           {
+            "id": "sig-14",
+            "type": "row",
+            "width": 44,
+            "height": 44,
+            "radius": 22,
+            "align": "center",
+            "cross": "center",
+            "action": {
+             "type": "screen",
+             "screen": "ride"
+            },
+            "self_align": "center",
+            "background": "#1C2541",
+            "dark_background": "#F5B700",
+            "children": [
+             {
+              "id": "sig-15",
+              "type": "icon",
+              "icon": "my_location",
+              "icon_size": 22,
+              "color": "#F5B700",
+              "dark_color": "#1C2541"
+             }
+            ]
+           }
+          ]
+         }
+        ]
+       },
+       {
+        "id": "sig-16",
+        "type": "column",
+        "name": "Where to?",
+        "gap": 12,
+        "padding": {
+         "top": 16,
+         "end": 16,
+         "bottom": 0,
+         "start": 16
+        },
+        "children": [
+         {
+          "id": "sig-17",
+          "type": "row",
+          "gap": 12,
+          "cross": "center",
+          "children": [
+           {
+            "id": "sig-18",
+            "type": "tracking",
+            "tracking": {
+             "kind": "nearby_taxis",
+             "style": "card"
+            },
+            "visibility": "signed_in",
+            "width": "fill",
+            "color": "#141B2E",
+            "dark_color": "#F1F2F7"
+           },
+           {
+            "id": "sig-19",
+            "type": "row",
+            "name": "Book it",
+            "height": 52,
+            "radius": 26,
+            "gap": 6,
+            "cross": "center",
+            "self_align": "center",
+            "padding": {
+             "top": 0,
+             "end": 18,
+             "bottom": 0,
+             "start": 18
+            },
+            "background": "#1C2541",
+            "dark_background": "#F5B700",
+            "action": {
+             "type": "screen",
+             "screen": "ride"
+            },
+            "children": [
+             {
+              "id": "sig-20",
+              "type": "text",
+              "text": "Book it",
+              "color": "#F5B700",
+              "dark_color": "#1C2541",
+              "font": {
+               "size": 15,
+               "weight": 800
+              },
+              "translations": {
+               "ar": {
+                "text": "احجزه"
+               },
+               "tr": {
+                "text": "Çağır"
+               }
+              }
+             },
+             {
+              "id": "sig-21",
+              "type": "icon",
+              "icon": "arrow_forward",
+              "icon_size": 20,
+              "color": "#F5B700",
+              "dark_color": "#1C2541"
+             }
+            ]
+           }
+          ]
+         },
+         {
+          "id": "sig-22",
+          "type": "row",
+          "name": "Where to?",
+          "height": 56,
+          "radius": 18,
+          "gap": 10,
+          "cross": "center",
+          "padding": {
+           "top": 0,
+           "end": 6,
+           "bottom": 0,
+           "start": 16
+          },
+          "background": "#F3EFE3",
+          "dark_background": "#1A2138",
+          "action": {
+           "type": "screen",
+           "screen": "ride"
+          },
+          "children": [
+           {
+            "id": "sig-23",
+            "type": "icon",
+            "icon": "search",
+            "icon_size": 22,
+            "color": "#141B2E",
+            "dark_color": "#F1F2F7"
+           },
+           {
+            "id": "sig-24",
+            "type": "text",
+            "text": "Where to?",
+            "color": "#141B2E",
+            "dark_color": "#F1F2F7",
+            "font": {
+             "size": 17,
+             "weight": 800
+            },
+            "width": "fill",
+            "translations": {
+             "ar": {
+              "text": "إلى أين؟"
+             },
+             "tr": {
+              "text": "Nereye?"
+             }
+            }
+           },
+           {
+            "id": "sig-25",
+            "type": "row",
+            "height": 44,
+            "radius": 14,
+            "gap": 5,
+            "cross": "center",
+            "self_align": "center",
+            "padding": {
+             "top": 0,
+             "end": 12,
+             "bottom": 0,
+             "start": 12
+            },
+            "background": "#FFFDF6",
+            "dark_background": "#0E1324",
+            "children": [
+             {
+              "id": "sig-26",
+              "type": "icon",
+              "icon": "schedule",
+              "icon_size": 18,
+              "color": "#141B2E",
+              "dark_color": "#F1F2F7"
+             },
+             {
+              "id": "sig-27",
+              "type": "text",
+              "text": "Now",
+              "color": "#141B2E",
+              "dark_color": "#F1F2F7",
+              "font": {
+               "size": 13,
+               "weight": 700
+              },
+              "translations": {
+               "ar": {
+                "text": "الآن"
+               },
+               "tr": {
+                "text": "Şimdi"
+               }
+              }
+             }
+            ]
+           }
+          ]
+         },
+         {
+          "id": "sig-28",
+          "type": "row",
+          "name": "Taxi",
+          "gap": 8,
+          "children": [
+           {
+            "id": "sig-29",
+            "type": "column",
+            "name": "Taxi",
+            "width": "fill",
+            "height": 52,
+            "radius": 16,
+            "gap": 1,
+            "align": "center",
+            "padding": {
+             "top": 0,
+             "end": 12,
+             "bottom": 0,
+             "start": 12
+            },
+            "action": {
+             "type": "screen",
+             "screen": "ride"
+            },
+            "background": "#F5B700",
+            "children": [
+             {
+              "id": "sig-30",
+              "type": "text",
+              "text": "Taxi",
+              "color": "#1C2541",
+              "dark_color": "#1C2541",
+              "font": {
+               "size": 13,
+               "weight": 800
+              },
+              "translations": {
+               "ar": {
+                "text": "تاكسي"
+               },
+               "tr": {
+                "text": "Taksi"
+               }
+              }
+             },
+             {
+              "id": "sig-31",
+              "type": "row",
+              "width": "hug",
+              "gap": 2,
+              "children": [
+               {
+                "id": "sig-32",
+                "type": "text",
+                "text": "from E£",
+                "color": "#3D3206",
+                "dark_color": "#3D3206",
+                "font": {
+                 "size": 12,
+                 "weight": 600
+                },
+                "translations": {
+                 "ar": {
+                  "text": "من ج.م"
+                 },
+                 "tr": {
+                  "text": "başlangıç E£"
+                 }
+                }
+               },
+               {
+                "id": "sig-33",
+                "type": "text",
+                "text": "35",
+                "color": "#3D3206",
+                "dark_color": "#3D3206",
+                "font": {
+                 "size": 12,
+                 "weight": 700
+                }
+               }
+              ]
+             }
+            ]
+           },
+           {
+            "id": "sig-34",
+            "type": "column",
+            "name": "Comfort",
+            "width": "fill",
+            "height": 52,
+            "radius": 16,
+            "gap": 1,
+            "align": "center",
+            "padding": {
+             "top": 0,
+             "end": 12,
+             "bottom": 0,
+             "start": 12
+            },
+            "action": {
+             "type": "screen",
+             "screen": "ride"
+            },
+            "border_color": "#E2DCCB",
+            "dark_border_color": "#2A3354",
+            "border_width": 1.5,
+            "children": [
+             {
+              "id": "sig-35",
+              "type": "text",
+              "text": "Comfort",
+              "color": "#141B2E",
+              "dark_color": "#F1F2F7",
+              "font": {
+               "size": 13,
+               "weight": 800
+              },
+              "translations": {
+               "ar": {
+                "text": "مريحة"
+               },
+               "tr": {
+                "text": "Konfor"
+               }
+              }
+             },
+             {
+              "id": "sig-36",
+              "type": "row",
+              "width": "hug",
+              "gap": 2,
+              "children": [
+               {
+                "id": "sig-37",
+                "type": "text",
+                "text": "from E£",
+                "color": "#5B6276",
+                "dark_color": "#AEB4C6",
+                "font": {
+                 "size": 12,
+                 "weight": 600
+                },
+                "translations": {
+                 "ar": {
+                  "text": "من ج.م"
+                 },
+                 "tr": {
+                  "text": "başlangıç E£"
+                 }
+                }
+               },
+               {
+                "id": "sig-38",
+                "type": "text",
+                "text": "55",
+                "color": "#5B6276",
+                "dark_color": "#AEB4C6",
+                "font": {
+                 "size": 12,
+                 "weight": 700
+                }
+               }
+              ]
+             }
+            ]
+           },
+           {
+            "id": "sig-39",
+            "type": "column",
+            "name": "XL",
+            "width": "fill",
+            "height": 52,
+            "radius": 16,
+            "gap": 1,
+            "align": "center",
+            "padding": {
+             "top": 0,
+             "end": 12,
+             "bottom": 0,
+             "start": 12
+            },
+            "action": {
+             "type": "screen",
+             "screen": "ride"
+            },
+            "border_color": "#E2DCCB",
+            "dark_border_color": "#2A3354",
+            "border_width": 1.5,
+            "children": [
+             {
+              "id": "sig-40",
+              "type": "text",
+              "text": "XL",
+              "color": "#141B2E",
+              "dark_color": "#F1F2F7",
+              "font": {
+               "size": 13,
+               "weight": 800
+              },
+              "translations": {
+               "ar": {
+                "text": "إكس لارج"
+               },
+               "tr": {
+                "text": "XL"
+               }
+              }
+             },
+             {
+              "id": "sig-41",
+              "type": "row",
+              "width": "hug",
+              "gap": 2,
+              "children": [
+               {
+                "id": "sig-42",
+                "type": "text",
+                "text": "from E£",
+                "color": "#5B6276",
+                "dark_color": "#AEB4C6",
+                "font": {
+                 "size": 12,
+                 "weight": 600
+                },
+                "translations": {
+                 "ar": {
+                  "text": "من ج.م"
+                 },
+                 "tr": {
+                  "text": "başlangıç E£"
+                 }
+                }
+               },
+               {
+                "id": "sig-43",
+                "type": "text",
+                "text": "85",
+                "color": "#5B6276",
+                "dark_color": "#AEB4C6",
+                "font": {
+                 "size": 12,
+                 "weight": 700
+                }
+               }
+              ]
+             }
+            ]
+           }
+          ]
+         },
+         {
+          "id": "sig-44",
+          "type": "row",
+          "name": "One set price, day or night",
+          "height": 96,
+          "radius": 20,
+          "background": "#1C2541",
+          "dark_background": "#1C2541",
+          "shadow": "medium",
+          "cross": "stretch",
+          "action": {
+           "type": "screen",
+           "screen": "ride"
+          },
+          "surface": {
+           "ticket": {
+            "at": 27,
+            "axis": "vertical",
+            "notch": 8
+           }
+          },
+          "children": [
+           {
+            "id": "sig-45",
+            "type": "row",
+            "width": 96,
+            "height": "fill",
+            "image_background_url": "http://localhost:3000/stories/rides/rides-backseat.jpg",
+            "background": "#1C2541",
+            "name": "Airport",
+            "children": []
+           },
+           {
+            "id": "sig-46",
+            "type": "column",
+            "width": "fill",
+            "gap": 3,
+            "align": "center",
+            "padding": {
+             "top": 0,
+             "end": 8,
+             "bottom": 0,
+             "start": 14
+            },
+            "children": [
+             {
+              "id": "sig-47",
+              "type": "text",
+              "text": "Airport",
+              "color": "#F5B700",
+              "dark_color": "#F5B700",
+              "font": {
+               "size": 13,
+               "weight": 800,
+               "letter_spacing": 2.8,
+               "uppercase": true
+              },
+              "translations": {
+               "ar": {
+                "text": "المطار"
+               },
+               "tr": {
+                "text": "Havalimanı"
+               }
+              }
+             },
+             {
+              "id": "sig-48",
+              "type": "text",
+              "text": "One set price, day or night",
+              "color": "#FFFFFF",
+              "dark_color": "#FFFFFF",
+              "font": {
+               "size": 15,
+               "weight": 800,
+               "line_height": 1.15
+              },
+              "translations": {
+               "ar": {
+                "text": "سعر واحد ثابت ليلًا ونهارًا"
+               },
+               "tr": {
+                "text": "Gece gündüz tek sabit fiyat"
+               }
+              }
+             },
+             {
+              "id": "sig-49",
+              "type": "text",
+              "text": "To and from Cairo International",
+              "color": "#C9CEDD",
+              "dark_color": "#C9CEDD",
+              "font": {
+               "size": 12,
+               "weight": 600
+              },
+              "max_lines": 1,
+              "translations": {
+               "ar": {
+                "text": "من مطار القاهرة الدولي وإليه"
+               },
+               "tr": {
+                "text": "Kahire Uluslararası Havalimanı'na gidiş ve dönüş"
+               }
+              }
+             }
+            ]
+           },
+           {
+            "id": "sig-50",
+            "type": "row",
+            "width": 40,
+            "height": 40,
+            "radius": 20,
+            "align": "center",
+            "cross": "center",
+            "self_align": "center",
+            "margin": {
+             "top": 0,
+             "end": 14,
+             "bottom": 0,
+             "start": 0
+            },
+            "background": "#F5B700",
+            "children": [
+             {
+              "id": "sig-51",
+              "type": "icon",
+              "icon": "flight_takeoff",
+              "icon_size": 22,
+              "color": "#1C2541",
+              "dark_color": "#1C2541"
+             }
+            ]
+           }
+          ]
+         }
+        ]
+       }
+      ]
+     }
+    }
+   },
+   {
+    "slug": "rides",
+    "title": "My rides",
+    "translations": {
+     "ar": {
+      "title": "مشاويري"
+     },
+     "tr": {
+      "title": "Yolculuklarım"
+     }
+    },
+    "studio": {
+     "body": {
+      "id": "sig-55",
+      "type": "column",
+      "children": [
+       {
+        "id": "sig-58",
+        "type": "photo_hero",
+        "name": "Your rides, day and night",
+        "image_url": "http://localhost:3000/stories/rides/rides-backseat.jpg",
+        "height": 132,
+        "radius": 22,
+        "background": "#1C2541",
+        "scrim": {
+         "color": "#1C2541",
+         "from": 0,
+         "middle": 0,
+         "at": 40,
+         "to": 0.82
+        },
+        "align": "end",
+        "padding": {
+         "top": 16,
+         "end": 16,
+         "bottom": 16,
+         "start": 16
+        },
+        "margin": {
+         "top": 12,
+         "end": 16,
+         "bottom": 4,
+         "start": 16
+        },
+        "children": [
+         {
+          "id": "sig-56",
+          "type": "text",
+          "text": "Your rides, day and night",
+          "color": "#FFFFFF",
+          "font": {
+           "size": 17,
+           "weight": 800,
+           "line_height": 1.2
+          },
+          "translations": {
+           "ar": {
+            "text": "رحلاتك ليلًا ونهارًا"
+           },
+           "tr": {
+            "text": "Gece gündüz yolculuklarınız"
+           }
+          }
+         },
+         {
+          "id": "sig-57",
+          "type": "text",
+          "text": "Your rides, their fares and receipts.",
+          "color": "#FFFFFF",
+          "opacity": 0.9,
+          "font": {
+           "size": 12.5,
+           "line_height": 1.35
+          },
+          "margin": {
+           "top": 3
+          },
+          "translations": {
+           "ar": {
+            "text": "رحلاتك وأجرتها وإيصالاتها."
+           },
+           "tr": {
+            "text": "Yolculuklarınız, ücretleri ve fişleri."
+           }
+          }
+         }
+        ]
+       }
+      ]
+     },
+     "screen": "my_rides",
+     "header": {
+      "type": "title",
+      "title": "My rides",
+      "buttons": [
+       "notifications"
+      ],
+      "translations": {
+       "ar": {
+        "title": "مشاويري"
+       },
+       "tr": {
+        "title": "Yolculuklarım"
+       }
+      },
+      "background": "#FFFDF6",
+      "color": "#141B2E",
+      "dark_background": "#0E1324",
+      "dark_color": "#F1F2F7"
+     },
+     "background": "#FFFDF6",
+     "dark_background": "#0E1324"
+    },
+    "show_title": false,
+    "updated_at": "2026-11-13T18:00:00.000Z",
+    "blocks": []
+   },
+   {
+    "slug": "account",
+    "title": "Account",
+    "translations": {
+     "ar": {
+      "title": "حسابي"
+     },
+     "tr": {
+      "title": "Hesabım"
+     }
+    },
+    "studio": {
+     "body": {
+      "id": "sig-59",
+      "type": "column",
+      "children": []
+     },
+     "screen": "account",
+     "background": "#FFFDF6",
+     "dark_background": "#0E1324"
+    },
+    "show_title": false,
+    "updated_at": "2026-11-13T18:00:00.000Z",
+    "blocks": []
+   },
+   {
+    "slug": "ride",
+    "title": "Ride",
+    "translations": {
+     "ar": {
+      "title": "رحلة"
+     },
+     "tr": {
+      "title": "Yolculuk"
+     }
+    },
+    "studio": {
+     "body": {
+      "id": "sig-60",
+      "type": "column",
+      "children": [
+       {
+        "id": "sig-68",
+        "type": "tracking",
+        "tracking": {
+         "kind": "nearby_taxis",
+         "style": "card"
+        },
+        "visibility": "signed_in",
+        "color": "#141B2E",
+        "dark_color": "#F1F2F7",
+        "background": "#F3EFE3",
+        "dark_background": "#1A2138",
+        "radius": 20,
+        "padding": {
+         "top": 12,
+         "end": 16,
+         "bottom": 12,
+         "start": 16
+        },
+        "margin": {
+         "top": 12,
+         "end": 16,
+         "bottom": 4,
+         "start": 16
+        }
+       }
+      ]
+     },
+     "screen": "ride",
+     "header": {
+      "type": "title",
+      "title": "Ride",
+      "translations": {
+       "ar": {
+        "title": "رحلة"
+       },
+       "tr": {
+        "title": "Yolculuk"
+       }
+      },
+      "background": "#FFFDF6",
+      "color": "#141B2E",
+      "dark_background": "#0E1324",
+      "dark_color": "#F1F2F7"
+     },
+     "background": "#FFFDF6",
+     "dark_background": "#0E1324"
+    },
+    "show_title": false,
+    "updated_at": "2026-11-13T18:00:00.000Z",
+    "blocks": []
+   },
+   {
+    "slug": "settings",
+    "title": "Settings",
+    "translations": {
+     "ar": {
+      "title": "الإعدادات"
+     },
+     "tr": {
+      "title": "Ayarlar"
+     }
+    },
+    "studio": {
+     "body": {
+      "id": "sig-61",
+      "type": "column",
+      "children": []
+     },
+     "screen": "settings",
+     "header": {
+      "type": "title",
+      "title": "Settings",
+      "translations": {
+       "ar": {
+        "title": "الإعدادات"
+       },
+       "tr": {
+        "title": "Ayarlar"
+       }
+      },
+      "background": "#FFFDF6",
+      "color": "#141B2E",
+      "dark_background": "#0E1324",
+      "dark_color": "#F1F2F7"
+     },
+     "background": "#FFFDF6",
+     "dark_background": "#0E1324"
+    },
+    "show_title": false,
+    "updated_at": "2026-11-13T18:00:00.000Z",
+    "blocks": []
+   },
+   {
+    "slug": "notifications",
+    "title": "Notifications",
+    "translations": {
+     "ar": {
+      "title": "الإشعارات"
+     },
+     "tr": {
+      "title": "Bildirimler"
+     }
+    },
+    "studio": {
+     "body": {
+      "id": "sig-62",
+      "type": "column",
+      "children": []
+     },
+     "screen": "notifications",
+     "header": {
+      "type": "title",
+      "title": "Notifications",
+      "translations": {
+       "ar": {
+        "title": "الإشعارات"
+       },
+       "tr": {
+        "title": "Bildirimler"
+       }
+      },
+      "background": "#FFFDF6",
+      "color": "#141B2E",
+      "dark_background": "#0E1324",
+      "dark_color": "#F1F2F7"
+     },
+     "background": "#FFFDF6",
+     "dark_background": "#0E1324"
+    },
+    "show_title": false,
+    "updated_at": "2026-11-13T18:00:00.000Z",
+    "blocks": []
+   },
+   {
+    "slug": "edit-profile",
+    "title": "Edit profile",
+    "translations": {
+     "ar": {
+      "title": "تعديل الملف الشخصي"
+     },
+     "tr": {
+      "title": "Profili düzenle"
+     }
+    },
+    "studio": {
+     "body": {
+      "id": "sig-63",
+      "type": "column",
+      "children": []
+     },
+     "screen": "edit_profile",
+     "header": {
+      "type": "title",
+      "title": "Edit profile",
+      "translations": {
+       "ar": {
+        "title": "تعديل الملف الشخصي"
+       },
+       "tr": {
+        "title": "Profili düzenle"
+       }
+      },
+      "background": "#FFFDF6",
+      "color": "#141B2E",
+      "dark_background": "#0E1324",
+      "dark_color": "#F1F2F7"
+     },
+     "background": "#FFFDF6",
+     "dark_background": "#0E1324"
+    },
+    "show_title": false,
+    "updated_at": "2026-11-13T18:00:00.000Z",
+    "blocks": []
+   },
+   {
+    "slug": "devices",
+    "title": "Devices",
+    "translations": {
+     "ar": {
+      "title": "الأجهزة"
+     },
+     "tr": {
+      "title": "Cihazlar"
+     }
+    },
+    "studio": {
+     "body": {
+      "id": "sig-64",
+      "type": "column",
+      "children": []
+     },
+     "screen": "devices",
+     "header": {
+      "type": "title",
+      "title": "Devices",
+      "translations": {
+       "ar": {
+        "title": "الأجهزة"
+       },
+       "tr": {
+        "title": "Cihazlar"
+       }
+      },
+      "background": "#FFFDF6",
+      "color": "#141B2E",
+      "dark_background": "#0E1324",
+      "dark_color": "#F1F2F7"
+     },
+     "background": "#FFFDF6",
+     "dark_background": "#0E1324"
+    },
+    "show_title": false,
+    "updated_at": "2026-11-13T18:00:00.000Z",
+    "blocks": []
+   },
+   {
+    "slug": "change-password",
+    "title": "Change password",
+    "studio": {
+     "body": {
+      "id": "sig-65",
+      "type": "column",
+      "children": []
+     },
+     "screen": "change_password",
+     "background": "#FFFDF6",
+     "dark_background": "#0E1324"
+    },
+    "show_title": false,
+    "updated_at": "2026-11-13T18:00:00.000Z",
+    "blocks": []
+   },
+   {
+    "slug": "chat-conversation",
+    "title": "A conversation",
+    "studio": {
+     "body": {
+      "id": "sig-66",
+      "type": "column",
+      "children": []
+     },
+     "screen": "chat_conversation",
+     "background": "#FFFDF6",
+     "dark_background": "#0E1324"
+    },
+    "show_title": false,
+    "updated_at": "2026-11-13T18:00:00.000Z",
+    "blocks": []
+   },
+   {
+    "slug": "ride-follow",
+    "title": "A ride on its way",
+    "studio": {
+     "body": {
+      "id": "sig-67",
+      "type": "column",
+      "children": []
+     },
+     "screen": "ride_follow",
+     "background": "#FFFDF6",
+     "dark_background": "#0E1324"
+    },
+    "show_title": false,
+    "updated_at": "2026-11-13T18:00:00.000Z",
+    "blocks": []
+   }
+  ],
+  "tab_bar": {
+   "design": "float",
+   "margin": 12,
+   "radius": 24,
+   "labels": "active",
+   "background": "#1C2541",
+   "dark_background": "#1A2138",
+   "active": "#F5B700",
+   "dark_active": "#F5B700",
+   "inactive": "#C9CEDD",
+   "dark_inactive": "#AEB4C6"
+  }
+ }
+}

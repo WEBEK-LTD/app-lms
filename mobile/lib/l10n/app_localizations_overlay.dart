@@ -12258,4 +12258,57 @@ class OverlayLocalizations extends AppLocalizations {
   String studioMapEta(String name, int minutes) =>
       overlay.format('studioMapEta', {'name': name, 'minutes': minutes}) ??
       base.studioMapEta(name, minutes);
+
+  @override
+  String get studioTripNext =>
+      overlay.text('studioTripNext') ?? base.studioTripNext;
+
+  @override
+  String studioTripIn(int count) =>
+      overlay.format('studioTripIn', {'count': count}) ??
+      base.studioTripIn(count);
+
+  @override
+  String studioTripDaysTo(int count, String city) =>
+      overlay.format('studioTripDaysTo', {'count': count, 'city': city}) ??
+      base.studioTripDaysTo(count, city);
+
+  @override
+  String studioTripStay(String nights, String hotel) =>
+      overlay.format('studioTripStay', {'nights': nights, 'hotel': hotel}) ??
+      base.studioTripStay(nights, hotel);
+
+  @override
+  String get studioTripTransfer =>
+      overlay.text('studioTripTransfer') ?? base.studioTripTransfer;
+
+  @override
+  String get studioTripPass =>
+      overlay.text('studioTripPass') ?? base.studioTripPass;
+
+  @override
+  String get studioMinutesShort =>
+      overlay.text('studioMinutesShort') ?? base.studioMinutesShort;
+
+  @override
+  String get studioTaxiNearestFree =>
+      overlay.text('studioTaxiNearestFree') ?? base.studioTaxiNearestFree;
+
+  @override
+  String studioTaxisAroundLive(int count) =>
+      overlay.format('studioTaxisAroundLive', {'count': count}) ??
+      base.studioTaxisAroundLive(count);
+
+  @override
+  String studioTaxisFreeAround(int count) =>
+      overlay.format('studioTaxisFreeAround', {'count': count}) ??
+      base.studioTaxisFreeAround(count);
+
+  @override
+  String get studioRideOnTheWayShort =>
+      overlay.text('studioRideOnTheWayShort') ?? base.studioRideOnTheWayShort;
+
+  @override
+  String studioTripVia(String via) =>
+      overlay.format('studioTripVia', {'via': via}) ?? base.studioTripVia(via);
 }

@@ -15554,7 +15554,7 @@ components:
         opacity: { type: number, minimum: 0, maximum: 1, default: 1 }
         font: { $ref: '#/components/schemas/StudioFont' }
         text_align: { type: string, enum: [start, center, end], default: start }
-        text: { type: [string, 'null'], maxLength: 2000, description: "For `text` and `button` (and the `search` hint), in the language asked for. 107.3 For `bullets`, one line each; for `countdown`, what shows once the time is up (none: the countdown hides)." }
+        text: { type: [string, 'null'], maxLength: 2000, description: "For `text` and `button` (and the `search` hint), in the language asked for. 107.3 For `bullets`, one line each; for `countdown`, what shows once the time is up (none: the countdown hides). 130.11 For `greeting`, its own words with `{name}` for the person's first name (`title`: its words without a name, shown signed out or without one); missing, good morning or good evening." }
         title: { type: [string, 'null'], maxLength: 120, description: "107.3 For a child of `accordion` or `tabs`: its question or its tab's name, in the language asked for." }
         ends_at: { type: [string, 'null'], format: date-time, description: "107.3 For `countdown`: when the time is up." }
         max_lines: { type: [integer, 'null'], minimum: 1, maximum: 50 }
@@ -16029,12 +16029,25 @@ components:
         `style` draws it as a card with the stages (`card`), the driver's
         photo (or the element's `image_url` while they have none) with a
         call button (`driver`) or one line (`line`); missing, the kind's
-        own. Nothing is drawn signed out or with nothing to show. Apps leave
+        own. 130.11 `trip` the person's next trip in a travel app (its city, the
+        days to it, the stay and nights, its legs: the flights, the transfer
+        and the stay; opening the trip): `card` the days large over its legs
+        as bars, `ticket` its city large over the first flight as a boarding
+        pass (the airports' codes, the flight, the times, the seats, the
+        length and a button to the boarding passes), `line` one line,
+        `headline` the days large. `headline` for the others draws their main
+        number large: the minutes to the pickup (a ride, with the driver, the
+        plate and a call button) or the free taxis around (`nearby_taxis`,
+        the count in the second colour over the element's font); `card` for
+        `nearby_taxis` the nearest one's minutes large and how many are
+        around. `ticket` is a card for the other kinds. Missing `style`, the
+        kind's own: `card` (shipment, trip), `driver` (ride), `line`
+        (`nearby_taxis`). Nothing is drawn signed out or with nothing to show. Apps leave
         out a kind they don't know.
       required: [kind]
       properties:
-        kind: { type: string, enum: [shipment, ride, nearby_taxis] }
-        style: { type: string, enum: [card, driver, line] }
+        kind: { type: string, enum: [shipment, ride, nearby_taxis, trip] }
+        style: { type: string, enum: [card, driver, line, ticket, headline] }
     StudioMapDrawing:
       type: [object, 'null']
       description: |

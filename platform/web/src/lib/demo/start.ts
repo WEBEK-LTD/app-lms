@@ -15,6 +15,7 @@ import { appWords } from "../studio/app-words";
 import { isStudioDemo, demoKind, type DemoId } from "./constants";
 import { DEMO_BRANDS } from "./content";
 import { demoItems, studioDemoTemplate } from "./picker";
+import type { SignatureLook } from "../studio/demo-designs/signature";
 
 /**
  * 127 An app started from one of our demos on /start, complete: a demo of
@@ -35,6 +36,8 @@ export interface DemoStart {
   colour: string;
   logoAssetId: string | null;
   iconAssetId: string | null;
+  /** 130 A Studio demo's Signature look to start from (its whole app in that look); missing, the demo itself (its look A). */
+  look?: SignatureLook;
 }
 
 export interface DemoMaker {
@@ -108,7 +111,7 @@ export async function makeFromDemo(store: DataStore, maker: DemoMaker, input: De
         name: input.name,
         kind: demoKind(input.demo),
         source: "catalog",
-        template: studioDemoTemplate(input.demo),
+        template: studioDemoTemplate(input.demo, input.look),
         words: appWords(lang, input.name),
         lang,
         languages: demoLanguages(input.demo, plan),

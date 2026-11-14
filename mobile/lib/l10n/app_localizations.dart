@@ -18577,6 +18577,78 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'{name} · {minutes} min'**
   String studioMapEta(String name, int minutes);
+
+  /// 130.11 Over the city of the person's next trip (Studio's `tracking` trip ticket).
+  ///
+  /// In en, this message translates to:
+  /// **'Your next trip'**
+  String get studioTripNext;
+
+  /// 130.11 When the person's next trip starts.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =0{Today} =1{Tomorrow} other{In {count} days}}'**
+  String studioTripIn(int count);
+
+  /// 130.11 After the days left, large: to which city.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{day to {city}} other{days to {city}}}'**
+  String studioTripDaysTo(int count, String city);
+
+  /// 130.11 The trip's stay: its nights ("4 nights") at the hotel.
+  ///
+  /// In en, this message translates to:
+  /// **'{nights} at {hotel}'**
+  String studioTripStay(String nights, String hotel);
+
+  /// 130.11 The trip's airport transfer, one of its legs.
+  ///
+  /// In en, this message translates to:
+  /// **'Transfer'**
+  String get studioTripTransfer;
+
+  /// 130.11 The trip ticket's button to the boarding passes.
+  ///
+  /// In en, this message translates to:
+  /// **'Boarding pass'**
+  String get studioTripPass;
+
+  /// 130.11 After a number of minutes shown large ("3 min").
+  ///
+  /// In en, this message translates to:
+  /// **'min'**
+  String get studioMinutesShort;
+
+  /// 130.11 Beside the nearest free taxi's minutes, large.
+  ///
+  /// In en, this message translates to:
+  /// **'Nearest free taxi'**
+  String get studioTaxiNearestFree;
+
+  /// 130.11 How many free taxis are around the person, live.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{1 taxi around you, live} other{{count} taxis around you, live}}'**
+  String studioTaxisAroundLive(int count);
+
+  /// 130.11 After the count of free taxis, large ("8 free taxis around you.").
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{free taxi around you.} other{free taxis around you.}}'**
+  String studioTaxisFreeAround(int count);
+
+  /// 130.11 Over the driver's name while they come to the pickup.
+  ///
+  /// In en, this message translates to:
+  /// **'On the way'**
+  String get studioRideOnTheWayShort;
+
+  /// 130.11 On the trip ticket: where the flight stops.
+  ///
+  /// In en, this message translates to:
+  /// **'via {via}'**
+  String studioTripVia(String via);
 }
 
 class _AppLocalizationsDelegate

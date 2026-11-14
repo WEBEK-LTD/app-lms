@@ -10,7 +10,8 @@ import { MemoryStore } from "@/lib/data/memory";
 import { ALL_DEMO_TYPES, DEMO_TYPES, demoKind, isStudioDemo, STUDIO_DEMO_TYPES } from "@/lib/demo/constants";
 import { DEMO_BRANDS } from "@/lib/demo/content";
 import { demoDesign, demoDesignId } from "@/lib/demo/look";
-import { businessOf, demoFacts, regularPageCount, demoItems, demoOfSlug, pickerPath, pickerSections, productOf, sameBusiness, screensOf, slugOf } from "@/lib/demo/picker";
+import { businessOf, demoFacts, hasLookShot, LOOK_SHOTS, lookOf, lookShotName, regularPageCount, demoItems, demoOfSlug, pickerPath, pickerSections, productOf, sameBusiness, screensOf, slugOf, startLooks } from "@/lib/demo/picker";
+import { signatureDesign } from "@/lib/studio/demo-designs";
 import { firstStepsView, makeFromDemo, shortNameOf, startedFromDemo, type DemoMaker } from "@/lib/demo/start";
 import { readPngInfo } from "@/lib/png";
 import { getDashT } from "@/i18n/dashboard";
@@ -217,6 +218,39 @@ describe("starting from a demo", () => {
     // Hidden: not shown again.
     await store.updateApp(app.id, { hostedSettings: { ...app.hostedSettings!, firstSteps: { ...app.hostedSettings!.firstSteps!, hiddenAt: NOW.toISOString() } } }, NOW);
     expect(await firstStepsView(store, (await store.getAppById(app.id))!)).toBeNull();
+  });
+
+  // ——— 130 The Studio demos' two Signature looks ———
+  it("offers every Studio demo's two looks, A then B, with their pictures (the demo's own until a look has one), and none for the App editor's", () => {
+    for (const id of STUDIO_DEMO_TYPES) {
+      expect(startLooks(id)).toEqual(["a", "b"]);
+      expect(lookShotName(id, "b")).toBe(`${slugOf(id)}-sig-b-home`);
+      expect(lookShotName(id, "a", true)).toBe(`${slugOf(id)}-sig-a-home-dark`);
+      expect(lookOf(id, "b")).toBe("b");
+      expect(lookOf(id, "c")).toBeNull();
+      expect(pickerPath({ demo: id, make: true, adding: true, look: "b" })).toBe(`/start/${slugOf(id)}/make?new=1&look=b`);
+      expect(pickerPath({ demo: id, look: "a" })).toBe(`/start/${slugOf(id)}?look=a`);
+    }
+    for (const id of DEMO_TYPES) {
+      expect(startLooks(id)).toEqual([]);
+      expect(lookOf(id, "a")).toBeNull();
+    }
+    // The pictures named are the ones in public/screens, and each look of Masar, Lamha and Safra has its own, by day and by night.
+    for (const name of LOOK_SHOTS) expect(existsSync(join(ROOT, "public", "screens", `${name}.png`)), name).toBe(true);
+    for (const id of ["rides", "taxi", "travel"] as const) for (const look of ["a", "b"] as const) for (const dark of [false, true]) expect(hasLookShot(lookShotName(id, look, dark))).toBe(true);
+  });
+
+  it.each(["rides", "taxi", "travel"] as const)("starts the %s demo in its look B: that look's whole app, bar and screens", async (id) => {
+    const store = new MemoryStore();
+    const { app } = await makeFromDemo(store, maker("Selin's"), { demo: id, name: "Selin's", colour: "#B4235A", logoAssetId: null, iconAssetId: null, look: "b" }, NOW);
+    const layout = (await store.getAppLayout(app.id))!.draft;
+    const design = signatureDesign(id, "b")!;
+    expect(layout.tab_bar).toEqual(design.bar);
+    expect(layout.pages[0]!.studio!.background).toBe(design.look!.background);
+    expect(app.hostedSettings?.studioScreens?.account_menu?.header).toBe(design.screens.menu);
+    // Look A (or none chosen) is the demo itself.
+    const a = await makeFromDemo(store, maker("Lale"), { demo: id, name: "Lale", colour: "#B4235A", logoAssetId: null, iconAssetId: null }, NOW);
+    expect((await store.getAppLayout(a.app.id))!.draft.tab_bar).toEqual(signatureDesign(id, "a")!.bar);
   });
 
   it("shortens the name under the icon", () => {

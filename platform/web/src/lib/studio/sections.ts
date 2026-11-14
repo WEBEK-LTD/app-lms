@@ -5,7 +5,10 @@ import { ACADEMY_PROJECT, academyHome, type TemplateProject } from "./academy";
 import { DEMO_HOME_TEMPLATES, DEMO_ICONS, demoTemplateId, studioDemoOf, studioNoteOf, translating } from "./demo-templates";
 import { newNodeId } from "./elements";
 import { SLIDER_SECTIONS, STORE_SECTIONS } from "./store-sections";
-import { demoDesignTemplate } from "./demo-designs";
+import { demoDesignTemplate, signatureTemplates } from "./demo-designs";
+// 130 The Signature looks: their type and the words of Masar's, Lamha's and Safra's.
+import type { SignatureLook } from "./demo-designs/signature";
+import type { MoveWord } from "./demo-designs/move-words";
 import { peopleRow, photoHero, photoOf, photoTiles } from "./photo-sections";
 
 /**
@@ -295,7 +298,9 @@ export type SectionWord =
   | "rqP4"
   | "rqP4i"
   | "tabTeachers"
-  | "tipTeachers";
+  | "tipTeachers"
+  // 130 The Signature looks of Masar Rides, Lamha Taxi and Safra (lib/studio/demo-designs/move-words.ts).
+  | MoveWord;
 
 export interface SectionContext {
   brand: string;
@@ -317,6 +322,8 @@ export interface SectionContext {
   lang?: "en" | "ar" | "tr";
   /** 128 The Studio demo whose pages these are (the demo app, a project its template starts, its whole design): its own pages after the home, in its own look (lib/studio/demo-designs); missing, none. */
   demo?: StudioDemoId;
+  /** 130 The Signature look of the demo these pages are in (lib/studio/demo-designs/signature.ts); missing, the demo's look A (the demo itself). */
+  look?: SignatureLook;
 }
 
 /** 103R.7 The project types a section or template is made for; none: every type. */
@@ -1093,6 +1100,8 @@ export interface TemplateInfo {
   fits?: Fits;
   /** Templates = demos: the Studio demo whose first page this is (lib/studio/demo-templates.ts), shown first for its kind. */
   demo?: StudioDemoId;
+  /** 130 The demo's Signature look this template makes, the whole app in it (`<demo>_signature_<look>`). */
+  look?: SignatureLook;
   /** Shown as the recommended start. */
   recommended?: boolean;
   /** 123 What the template sets for the whole project besides its home: its bar, tabs, screens and colours (lib/studio/academy.ts). */
@@ -1223,6 +1232,8 @@ export const TEMPLATES: readonly TemplateInfo[] = [
   demoDesignTemplate("delivery"),
   demoDesignTemplate("rides"),
   demoDesignTemplate("taxi"),
+  // 130 The Signature looks, two for each Studio demo (lib/studio/demo-designs/signature.ts): each the whole app in that look, offered first for its kind with its demo.
+  ...signatureTemplates(),
   // For every project.
   { id: "brand", icon: "auto_awesome", make: (ctx) => pageOf(ctx, ["hero", "stats", "features", "review", "contact"], { type: "transparent", buttons: ["menu", "account"] }) },
   { id: "contact", icon: "call", make: (ctx) => pageOf(ctx, ["contact", "form"], { type: "title_search", buttons: [] }) },

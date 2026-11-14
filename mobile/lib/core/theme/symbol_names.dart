@@ -50,6 +50,8 @@ const symbolsByName = <String, IconData>{
   'fitness_center': AppIcons.fitness,
   'card_membership': AppIcons.membership,
   'location_on': AppIcons.location,
+  // 130.9 The button that shows where the person is (Lamha A's map).
+  'my_location': AppIcons.myLocation,
   'open_in_new': AppIcons.openInNew,
   'volunteer_activism': AppIcons.campaigns,
   'campaign': AppIcons.campaignUpdate,
@@ -153,6 +155,13 @@ const symbolsByName = <String, IconData>{
   'flight_takeoff': Symbols.flight_takeoff_rounded,
   'hotel_class': Symbols.hotel_class_rounded,
   'airline_seat_recline_normal': Symbols.airline_seat_recline_normal_rounded,
+  // 130.11 A trip's legs (the stay, the flight home) and its boarding pass;
+  // the Signature looks' templates (a radar, a horizon).
+  'hotel': Symbols.hotel_rounded,
+  'flight_land': Symbols.flight_land_rounded,
+  'qr_code_2': Symbols.qr_code_2_rounded,
+  'radar': Symbols.radar_rounded,
+  'landscape': Symbols.landscape_rounded,
 };
 
 /// Shown for a name the app doesn't have.

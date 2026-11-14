@@ -1,0 +1,57 @@
+/**
+ * 130.7–130.12 The words of Masar Rides's, Lamha Taxi's and Safra's
+ * Signature looks (`studio.w_<word>` in i18n/dashboard/studio.ts, in the
+ * dashboard's English, Egyptian Arabic and Turkish): part of Studio's
+ * `SectionWord` (lib/studio/sections.ts).
+ */
+export type MoveWord =
+  // 130.7 Masar A: the districts on the living map, the driver's minutes and the pickup, the fare a class starts from.
+  | "sigZamalek"
+  | "sigDowntown"
+  | "sigTahrir"
+  | "sigThreeMin"
+  | "sigPickup"
+  | "sigFareFrom"
+  | "sigOnTheWay"
+  // 130.8 Masar B: the horizon.
+  | "sigGardenCity"
+  | "sigWhereToName"
+  | "sigCurrency"
+  | "sigFromFourSeats"
+  | "sigFromSevenSeats"
+  // 130.9 130.10 Lamha A and B: its taxi classes, its districts, "Book it", the airport's set price, the taxis around.
+  | "sigTaxiClass"
+  | "sigXl"
+  | "sigMaadi"
+  | "sigNile"
+  | "sigMohandessin"
+  | "sigAgouza"
+  | "sigBookIt"
+  | "sigAirportPrice"
+  | "sigAirportLine"
+  | "sigAirportSetPrice"
+  | "sigAirportFare"
+  | "sigTaxisAround"
+  // 130.12 Safra A and B: the stays, stay + flight, Safra Air's departures, the next trip.
+  | "sigStaysWithUs"
+  | "sigANight"
+  | "sigBundleTitle"
+  | "sigBundleText"
+  | "sigBundlePercent"
+  | "sigSafraAirFrom"
+  | "sigIstanbul"
+  | "sigSantorini"
+  | "sigDubai"
+  | "sigNonstop"
+  | "sigViaAth"
+  | "sigNextTrip"
+  | "sigWhereNext"
+  | "sigStayOne"
+  | "sigStayOneText"
+  | "sigStayTwo"
+  | "sigStayTwoText"
+  | "sigStayThree"
+  | "sigStayThreeText"
+  | "sigBundleOne"
+  | "sigBundleLess"
+  | "sigDepartures";

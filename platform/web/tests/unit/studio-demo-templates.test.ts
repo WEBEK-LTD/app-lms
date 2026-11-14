@@ -22,7 +22,7 @@ import { parseLayoutContent, parseStudioPage } from "@/lib/pages/validate";
 import { sourcesIn } from "@/lib/samples/lists";
 import { designPages, picturesIn, type DesignFile } from "@/lib/studio/design-file";
 import { DEMO_FACTS, DEMO_HOME_TEMPLATES, DEMO_NOTE_COLORS, demoTemplateId, paragraphsOf, studioDemoOf, withDemoFacts } from "@/lib/studio/demo-templates";
-import { designedTabs } from "@/lib/studio/demo-designs";
+import { designedTabs, signatureLooksOf } from "@/lib/studio/demo-designs";
 import { applyWholeDesign, demoProjectLook, designsFor, makeDesign } from "@/lib/studio/designs";
 import { demoStudioPage, TEMPLATES, templatesFor, type SectionContext, type SectionWord } from "@/lib/studio/sections";
 import { startLayout } from "@/lib/studio/start";
@@ -109,7 +109,9 @@ const texts = (page: StudioPage) => allNodes(page).flatMap((n) => [n.text, n.tit
 
 describe("Studio templates = Studio demos", () => {
   it("has a template for every Studio demo, and none for another kind", () => {
-    expect(TEMPLATES.filter((t) => t.demo).map((t) => t.demo).sort()).toEqual([...KIND_DEMOS].sort());
+    // 130 Each demo's own, then its Signature looks (each a template of its own, `<demo>_signature_<look>`).
+    expect(TEMPLATES.filter((t) => t.demo && !t.look).map((t) => t.demo).sort()).toEqual([...KIND_DEMOS].sort());
+    for (const t of TEMPLATES.filter((x) => x.look)) expect(t.id).toBe(`${t.demo}_signature_${t.look}`);
     for (const id of KIND_DEMOS) expect(studioDemoOf(kindOf(id))).toBe(id);
     for (const kind of KINDS) {
       const demo = studioDemoOf({ type: kind.engine, vertical: kind.vertical });
@@ -120,12 +122,13 @@ describe("Studio templates = Studio demos", () => {
   it.each(KIND_DEMOS)("offers the %s demo's template first, recommended, and keeps every template it had", (id) => {
     const list = templatesFor(kindOf(id));
     expect(list[0]).toMatchObject({ id: demoTemplateId(id), demo: id, recommended: true });
-    expect(list.filter((t) => t.demo).map((t) => t.id)).toEqual([demoTemplateId(id)]);
+    // 130 Then its Signature looks, A then B.
+    expect(list.filter((t) => t.demo).map((t) => t.id)).toEqual([demoTemplateId(id), ...signatureLooksOf(id).map((look) => `${id}_signature_${look}`)]);
     // The templates it had before, in their order, after it: none removed.
     const others = TEMPLATES.filter((t) => !t.demo);
     const own = others.filter((t) => t.fits && (!t.fits.types || t.fits.types.includes(kindOf(id).type)) && (!t.fits.verticals || (kindOf(id).vertical !== null && t.fits.verticals.includes(kindOf(id).vertical!))));
     const best = own.some((t) => t.fits?.verticals) ? own.filter((t) => t.fits?.verticals) : own;
-    expect(list.slice(1).map((t) => t.id)).toEqual([...best, ...others.filter((t) => !t.fits)].map((t) => t.id));
+    expect(list.slice(1 + signatureLooksOf(id).length).map((t) => t.id)).toEqual([...best, ...others.filter((t) => !t.fits)].map((t) => t.id));
     for (const old of ["market", "market_offers", "market_grocery", "delivery", "food", "ride", "teachers", "school", "university", "brand", "contact", "blank"]) expect(TEMPLATES.some((t) => t.id === old), old).toBe(true);
   });
 
@@ -151,7 +154,8 @@ describe("Studio templates = Studio demos", () => {
     const facts = withDemoFacts(id, designed);
     expect(withoutIds({ ...page, body: untranslated(page.body) })).toEqual(withoutIds({ ...facts, body: untranslated(facts.body) }));
     // Nothing generated for the demo: no banner of the brand's words, no welcome over one list.
-    expect(texts(home.studio!)).not.toContain(DEMO_BRANDS[id].banner.heading);
+    // (130 Unless the template says them itself: Masar A's "Where to?".)
+    if (!texts(designed).includes(DEMO_BRANDS[id].banner.heading)) expect(texts(home.studio!)).not.toContain(DEMO_BRANDS[id].banner.heading);
     expect(texts(home.studio!)).not.toContain(DEMO_BRANDS[id].welcome);
     // The whole demo layout is one the platform takes.
     const checked = parseLayoutContent(layout, { app: demoApp(id), now: NOW });
@@ -489,8 +493,9 @@ describe("templates = demos: the demos' pages in Arabic and Turkish", () => {
       expect(written.length, id).toBeGreaterThan(0);
       for (const n of written) {
         // Arabic on the Arabic page, with English and Turkish kept.
-        for (const value of [n.text, n.title].filter(Boolean)) expect(value, `${id}: ${value}`).toMatch(/[؀-ۿ]|^\d+$/);
-        if (/^\d+$/.test(n.text ?? "")) continue;
+        for (const value of [n.text, n.title].filter(Boolean)) expect(value, `${id}: ${value}`).toMatch(/[؀-ۿ]|^[\dA-Z :·]+$/);
+        // 130.12 Numbers, and the codes and times the same in every language (CAI, SFR 251, 06:30).
+        if (/^[\dA-Z :·]+$/.test(n.text ?? "")) continue;
         expect(Object.keys(n.translations ?? {}).sort(), `${id}: ${n.text ?? n.title}`).toEqual(["en", "tr"]);
       }
       const parsed = parseStudioPage(page, app, languages);
@@ -501,7 +506,7 @@ describe("templates = demos: the demos' pages in Arabic and Turkish", () => {
   it("gives the demo apps, made in English, their Arabic and Turkish too", () => {
     for (const id of STUDIO_DEMO_TYPES) {
       const page = demoStudioPage(id, demoStudioContext(id, appUrl(), itemSourcesFor(demoApp(id))[0] ?? null));
-      const titled = allNodes(page).filter((n) => (n.text && !/^\d+$/.test(n.text) && n.text !== DEMO_BRANDS[id].appName && n.bind !== "rating") || (n.type === "market" && n.title));
+      const titled = allNodes(page).filter((n) => (n.text && !/^[\dA-Z :·]+$/.test(n.text) && n.text !== DEMO_BRANDS[id].appName && n.bind !== "rating") || (n.type === "market" && n.title));
       for (const n of titled) {
         expect(n.translations?.ar, `${id}: ${n.text ?? n.title}`).toBeTruthy();
         expect(Object.values(n.translations!.ar!).join(" "), `${id}: ${n.text ?? n.title}`).toMatch(/[؀-ۿ]/);

@@ -1,7 +1,7 @@
 import type { App } from "../data/types";
 import { withLook } from "../fonts/look";
 import { demoDesign } from "../demo/look";
-import { DEMO_TAB_BARS } from "../demo/screens";
+import { demoTabBar } from "../demo/screens";
 import { designLayout } from "../pages/layout";
 import type { LayoutContent } from "../pages/types";
 import { demoPageTabs, demoScreenPages, demoTabPages } from "./demo-pages";
@@ -21,7 +21,8 @@ import type { SectionContext, TemplateInfo } from "./sections";
 export function startLayout(app: App, template: TemplateInfo, ready: LayoutContent, now: Date, made: SectionContext, site: string | null = null): LayoutContent {
   const project = template.project ?? null;
   // 128 A demo's template is the demo, its own pages after the home too, in its own look (lib/studio/demo-designs).
-  const ctx: SectionContext = template.demo ? { ...made, demo: template.demo } : made;
+  // 130 A Signature look's template: the demo's pages in that look.
+  const ctx: SectionContext = template.demo ? { ...made, demo: template.demo, ...(template.look ? { look: template.look } : {}) } : made;
   const designed = template.demo ? designLayout(app, demoDesign(template.demo), ready, now) : ready;
   // 123 A template for the whole project: its tabs (a Blog tab with the site's blog, when the site is known) and its look.
   const layout = project
@@ -39,6 +40,6 @@ export function startLayout(app: App, template: TemplateInfo, ready: LayoutConte
     .filter((p) => !taken.has(p.slug))
     .map((p) => ({ ...p, show_title: false, updated_at: now.toISOString(), blocks: [] }))
     .map((p) => (project?.page_header && p.studio.header ? { ...p, studio: { ...p.studio, header: { ...p.studio.header, ...project.page_header } } } : p));
-  const tabBar = template.demo ? DEMO_TAB_BARS[template.demo] : project!.tab_bar;
+  const tabBar = template.demo ? demoTabBar(template.demo, template.look) : project!.tab_bar;
   return { ...layout, pages: [...pages, ...tabPages], tabs: demoPageTabs(layout.tabs, ctx), tab_bar: structuredClone(tabBar) };
 }

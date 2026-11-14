@@ -11508,4 +11508,74 @@ class AppLocalizationsTr extends AppLocalizations {
   String studioMapEta(String name, int minutes) {
     return '$name · $minutes dk';
   }
+
+  @override
+  String get studioTripNext => 'Sıradaki seyahatiniz';
+
+  @override
+  String studioTripIn(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count gün sonra',
+      one: 'Yarın',
+      zero: 'Bugün',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String studioTripDaysTo(int count, String city) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'gün kaldı: $city',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String studioTripStay(String nights, String hotel) {
+    return '$hotel · $nights';
+  }
+
+  @override
+  String get studioTripTransfer => 'Transfer';
+
+  @override
+  String get studioTripPass => 'Biniş kartı';
+
+  @override
+  String get studioMinutesShort => 'dk';
+
+  @override
+  String get studioTaxiNearestFree => 'En yakın boş taksi';
+
+  @override
+  String studioTaxisAroundLive(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'Çevrenizde $count taksi, canlı',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String studioTaxisFreeAround(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'boş taksi çevrenizde.',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get studioRideOnTheWayShort => 'Yolda';
+
+  @override
+  String studioTripVia(String via) {
+    return '$via aktarmalı';
+  }
 }

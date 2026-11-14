@@ -1,26 +1,23 @@
 {
  "screens": {
   "sign_in": {
-   "style": "card",
-   "image_url": "http://localhost:3000/stories/rides/rides-driver.jpg",
+   "style": "premium",
+   "image_url": "http://localhost:3000/stories/rides/rides-night-city.jpg",
    "title": {
     "en": "Where to today?",
     "ar": "إلى أين اليوم؟",
     "tr": "Bugün nereye?"
    },
    "subtitle": {
-    "en": "Sign in to see the fare before you ride.",
-    "ar": "سجّل الدخول لترى الأجرة قبل أن تركب.",
-    "tr": "Binmeden önce ücreti görmek için giriş yapın."
+    "en": "Sign in to see the fare before you ride and follow your driver on the map.",
+    "ar": "سجّل الدخول لترى الأجرة قبل أن تركب وتتابع سائقك على الخريطة.",
+    "tr": "Binmeden önce ücreti görmek ve sürücünüzü haritada izlemek için giriş yapın."
    },
    "show_logo": true
   },
   "account_menu": {
    "header": "cover",
    "items": []
-  },
-  "system": {
-   "look": "glass"
   }
  },
  "layout": {
@@ -52,7 +49,7 @@
     },
     "translations": {
      "ar": {
-      "label": "رحلة"
+      "label": "مشوار"
      },
      "tr": {
       "label": "Yolculuk"
@@ -69,7 +66,7 @@
     },
     "translations": {
      "ar": {
-      "label": "رحلاتي"
+      "label": "مشاويري"
      },
      "tr": {
       "label": "Yolculuklarım"
@@ -102,192 +99,779 @@
     "updated_at": "2026-11-09T10:00:00.000Z",
     "blocks": [],
     "studio": {
-     "background": "#F2F6F5",
-     "dark_background": "#071615",
+     "background": "#EDF0EA",
+     "dark_background": "#0C1716",
      "body": {
       "id": "demo-1",
       "type": "column",
-      "padding": {
-       "bottom": 24
-      },
       "children": [
        {
         "id": "demo-2",
-        "type": "photo_hero",
-        "name": "Where to\ntonight?",
-        "image_url": "http://localhost:3000/stories/rides/rides-night-city.jpg",
-        "height": 360,
-        "background": "#041E1C",
-        "scrim": {
-         "color": "#041E1C",
-         "from": 0.45,
-         "middle": 0.09,
-         "at": 40,
-         "to": 0.92
-        },
+        "type": "map_header",
+        "name": "Where to?",
+        "height": 676,
+        "background": "#EDF0EA",
+        "dark_background": "#0C1716",
         "align": "between",
         "padding": {
-         "top": 22,
+         "top": 8,
          "end": 16,
-         "bottom": 22,
+         "bottom": 18,
          "start": 16
+        },
+        "map_drawing": {
+         "style": "natural",
+         "accent": "#F2B544",
+         "chip": "#21403C",
+         "markers": [
+          {
+           "x": 14,
+           "y": 28
+          },
+          {
+           "x": 30,
+           "y": 62
+          },
+          {
+           "x": 92,
+           "y": 30
+          },
+          {
+           "x": 80,
+           "y": 66
+          },
+          {
+           "x": 4,
+           "y": 60
+          },
+          {
+           "x": 54,
+           "y": 57
+          }
+         ],
+         "places": [
+          {
+           "x": 30,
+           "y": 30,
+           "label": "Home",
+           "icon": "home"
+          },
+          {
+           "x": 78,
+           "y": 54,
+           "label": "Office",
+           "icon": "work"
+          },
+          {
+           "x": 68,
+           "y": 31,
+           "label": "Airport",
+           "icon": "flight"
+          }
+         ],
+         "labels": [
+          {
+           "x": 28,
+           "y": 70,
+           "text": "Zamalek"
+          },
+          {
+           "x": 80,
+           "y": 46,
+           "text": "Downtown"
+          },
+          {
+           "x": 80,
+           "y": 63,
+           "text": "Tahrir"
+          }
+         ],
+         "route": {
+          "points": [
+           {
+            "x": 80,
+            "y": 37
+           },
+           {
+            "x": 46,
+            "y": 39
+           },
+           {
+            "x": 41,
+            "y": 46
+           }
+          ],
+          "eta": "3 min",
+          "to_label": "Pickup",
+          "color": "#0F766C",
+          "dark_color": "#3FC7B4",
+          "live": "ride"
+         }
         },
         "children": [
          {
           "id": "demo-3",
-          "type": "row",
+          "type": "column",
           "gap": 10,
-          "cross": "center",
-          "padding": {
-           "start": 2,
-           "end": 2
-          },
           "children": [
            {
             "id": "demo-4",
-            "type": "greeting",
-            "width": "fill",
-            "color": "#FFFFFF",
-            "font": {
-             "size": 15,
-             "weight": 700
-            }
+            "type": "row",
+            "gap": 10,
+            "cross": "center",
+            "children": [
+             {
+              "id": "demo-5",
+              "type": "row",
+              "width": 44,
+              "height": 44,
+              "radius": 22,
+              "align": "center",
+              "cross": "center",
+              "action": {
+               "type": "screen",
+               "screen": "account"
+              },
+              "self_align": "center",
+              "surface": {
+               "glass": 18,
+               "tint": 0.74,
+               "soft": 2
+              },
+              "children": [
+               {
+                "id": "demo-6",
+                "type": "icon",
+                "icon": "person",
+                "icon_size": 22,
+                "color": "#0B2422",
+                "dark_color": "#E9F5F3"
+               }
+              ]
+             },
+             {
+              "id": "demo-7",
+              "type": "row",
+              "height": 44,
+              "radius": 22,
+              "gap": 8,
+              "cross": "center",
+              "padding": {
+               "top": 0,
+               "end": 16,
+               "bottom": 0,
+               "start": 16
+              },
+              "surface": {
+               "glass": 18,
+               "tint": 0.74,
+               "soft": 2
+              },
+              "children": [
+               {
+                "id": "demo-8",
+                "type": "row",
+                "width": 8,
+                "height": 8,
+                "radius": 4,
+                "self_align": "center",
+                "background": "#F2B544",
+                "children": []
+               },
+               {
+                "id": "demo-9",
+                "type": "greeting",
+                "color": "#0B2422",
+                "dark_color": "#E9F5F3",
+                "font": {
+                 "size": 14,
+                 "weight": 700
+                }
+               }
+              ]
+             },
+             {
+              "id": "demo-10",
+              "type": "row",
+              "width": "fill",
+              "height": 1,
+              "children": []
+             },
+             {
+              "id": "demo-11",
+              "type": "row",
+              "width": 44,
+              "height": 44,
+              "radius": 22,
+              "align": "center",
+              "cross": "center",
+              "action": {
+               "type": "screen",
+               "screen": "notifications"
+              },
+              "self_align": "center",
+              "surface": {
+               "glass": 18,
+               "tint": 0.74,
+               "soft": 2
+              },
+              "children": [
+               {
+                "id": "demo-12",
+                "type": "icon",
+                "icon": "notifications",
+                "icon_size": 22,
+                "color": "#0B2422",
+                "dark_color": "#E9F5F3"
+               }
+              ]
+             }
+            ]
            },
            {
-            "id": "demo-5",
-            "type": "row",
-            "width": 40,
-            "height": 40,
-            "radius": 20,
-            "align": "center",
-            "cross": "center",
-            "overlay": {
-             "color": "#FFFFFF",
-             "opacity": 0.18
+            "id": "demo-13",
+            "type": "column",
+            "name": "On the way",
+            "visibility": "signed_in",
+            "radius": 24,
+            "padding": {
+             "top": 12,
+             "end": 12,
+             "bottom": 12,
+             "start": 12
             },
-            "color": "#FFFFFF",
-            "action": {
-             "type": "screen",
-             "screen": "notifications"
+            "surface": {
+             "glass": 18,
+             "tint": 0.78,
+             "soft": 2
             },
             "children": [
              {
-              "id": "demo-6",
-              "type": "icon",
-              "icon": "notifications",
-              "icon_size": 22,
-              "color": "#FFFFFF"
+              "id": "demo-14",
+              "type": "tracking",
+              "tracking": {
+               "kind": "ride",
+               "style": "driver"
+              },
+              "visibility": "signed_in",
+              "image_url": "http://localhost:3000/stories/rides/rides-driver.jpg",
+              "color": "#0B2422",
+              "dark_color": "#E9F5F3"
              }
             ]
            }
           ]
          },
          {
-          "id": "demo-7",
+          "id": "demo-15",
           "type": "column",
-          "gap": 16,
+          "gap": 10,
           "children": [
            {
-            "id": "demo-8",
-            "type": "text",
-            "text": "Where to\ntonight?",
-            "color": "#FFFFFF",
-            "font": {
-             "size": 34,
-             "weight": 800,
-             "line_height": 1.02,
-             "letter_spacing": -1
-            },
-            "padding": {
-             "start": 2,
-             "end": 2
-            },
-            "translations": {
-             "ar": {
-              "text": "إلى أين\nالليلة؟"
+            "id": "demo-16",
+            "type": "row",
+            "name": "Economy",
+            "gap": 8,
+            "cross": "stretch",
+            "children": [
+             {
+              "id": "demo-17",
+              "type": "column",
+              "name": "Economy",
+              "width": "fill",
+              "height": 98,
+              "radius": 22,
+              "align": "between",
+              "padding": {
+               "top": 11,
+               "end": 12,
+               "bottom": 11,
+               "start": 12
+              },
+              "action": {
+               "type": "screen",
+               "screen": "ride"
+              },
+              "background": "#0F766C",
+              "dark_background": "#5FD3C2",
+              "shadow": "medium",
+              "children": [
+               {
+                "id": "demo-18",
+                "type": "row",
+                "cross": "center",
+                "children": [
+                 {
+                  "id": "demo-19",
+                  "type": "icon",
+                  "icon": "directions_car",
+                  "icon_size": 22,
+                  "color": "#FFFFFF",
+                  "dark_color": "#04201D"
+                 },
+                 {
+                  "id": "demo-20",
+                  "type": "row",
+                  "width": "fill",
+                  "height": 1,
+                  "children": []
+                 },
+                 {
+                  "id": "demo-21",
+                  "type": "icon",
+                  "icon": "person",
+                  "icon_size": 14,
+                  "color": "#E6F4F1",
+                  "dark_color": "#0B3A35"
+                 },
+                 {
+                  "id": "demo-22",
+                  "type": "text",
+                  "text": "4",
+                  "color": "#E6F4F1",
+                  "dark_color": "#0B3A35",
+                  "font": {
+                   "size": 11,
+                   "weight": 700
+                  }
+                 }
+                ]
+               },
+               {
+                "id": "demo-23",
+                "type": "column",
+                "children": [
+                 {
+                  "id": "demo-24",
+                  "type": "text",
+                  "text": "Economy",
+                  "color": "#FFFFFF",
+                  "dark_color": "#04201D",
+                  "font": {
+                   "size": 13,
+                   "weight": 700
+                  },
+                  "translations": {
+                   "ar": {
+                    "text": "اقتصادية"
+                   },
+                   "tr": {
+                    "text": "Ekonomi"
+                   }
+                  }
+                 },
+                 {
+                  "id": "demo-25",
+                  "type": "row",
+                  "gap": 3,
+                  "cross": "end",
+                  "children": [
+                   {
+                    "id": "demo-26",
+                    "type": "text",
+                    "text": "from E£",
+                    "color": "#E6F4F1",
+                    "dark_color": "#0B3A35",
+                    "font": {
+                     "size": 11,
+                     "weight": 700
+                    },
+                    "translations": {
+                     "ar": {
+                      "text": "من ج.م"
+                     },
+                     "tr": {
+                      "text": "başlangıç E£"
+                     }
+                    }
+                   },
+                   {
+                    "id": "demo-27",
+                    "type": "text",
+                    "text": "35",
+                    "color": "#FFFFFF",
+                    "dark_color": "#04201D",
+                    "font": {
+                     "size": 20,
+                     "weight": 800,
+                     "letter_spacing": -0.6,
+                     "line_height": 1.1
+                    }
+                   }
+                  ]
+                 }
+                ]
+               }
+              ]
              },
-             "tr": {
-              "text": "Bu gece\nnereye?"
+             {
+              "id": "demo-28",
+              "type": "column",
+              "name": "Comfort",
+              "width": "fill",
+              "height": 98,
+              "radius": 22,
+              "align": "between",
+              "padding": {
+               "top": 11,
+               "end": 12,
+               "bottom": 11,
+               "start": 12
+              },
+              "action": {
+               "type": "screen",
+               "screen": "ride"
+              },
+              "surface": {
+               "glass": 18,
+               "tint": 0.74,
+               "soft": 2
+              },
+              "children": [
+               {
+                "id": "demo-29",
+                "type": "row",
+                "cross": "center",
+                "children": [
+                 {
+                  "id": "demo-30",
+                  "type": "icon",
+                  "icon": "local_taxi",
+                  "icon_size": 22,
+                  "color": "#0B2422",
+                  "dark_color": "#E9F5F3"
+                 },
+                 {
+                  "id": "demo-31",
+                  "type": "row",
+                  "width": "fill",
+                  "height": 1,
+                  "children": []
+                 },
+                 {
+                  "id": "demo-32",
+                  "type": "icon",
+                  "icon": "person",
+                  "icon_size": 14,
+                  "color": "#4C5F5C",
+                  "dark_color": "#A3BDB8"
+                 },
+                 {
+                  "id": "demo-33",
+                  "type": "text",
+                  "text": "4",
+                  "color": "#4C5F5C",
+                  "dark_color": "#A3BDB8",
+                  "font": {
+                   "size": 11,
+                   "weight": 700
+                  }
+                 }
+                ]
+               },
+               {
+                "id": "demo-34",
+                "type": "column",
+                "children": [
+                 {
+                  "id": "demo-35",
+                  "type": "text",
+                  "text": "Comfort",
+                  "color": "#0B2422",
+                  "dark_color": "#E9F5F3",
+                  "font": {
+                   "size": 13,
+                   "weight": 700
+                  },
+                  "translations": {
+                   "ar": {
+                    "text": "مريحة"
+                   },
+                   "tr": {
+                    "text": "Konfor"
+                   }
+                  }
+                 },
+                 {
+                  "id": "demo-36",
+                  "type": "row",
+                  "gap": 3,
+                  "cross": "end",
+                  "children": [
+                   {
+                    "id": "demo-37",
+                    "type": "text",
+                    "text": "from E£",
+                    "color": "#4C5F5C",
+                    "dark_color": "#A3BDB8",
+                    "font": {
+                     "size": 11,
+                     "weight": 700
+                    },
+                    "translations": {
+                     "ar": {
+                      "text": "من ج.م"
+                     },
+                     "tr": {
+                      "text": "başlangıç E£"
+                     }
+                    }
+                   },
+                   {
+                    "id": "demo-38",
+                    "type": "text",
+                    "text": "50",
+                    "color": "#0B2422",
+                    "dark_color": "#E9F5F3",
+                    "font": {
+                     "size": 20,
+                     "weight": 800,
+                     "letter_spacing": -0.6,
+                     "line_height": 1.1
+                    }
+                   }
+                  ]
+                 }
+                ]
+               }
+              ]
+             },
+             {
+              "id": "demo-39",
+              "type": "column",
+              "name": "Van",
+              "width": "fill",
+              "height": 98,
+              "radius": 22,
+              "align": "between",
+              "padding": {
+               "top": 11,
+               "end": 12,
+               "bottom": 11,
+               "start": 12
+              },
+              "action": {
+               "type": "screen",
+               "screen": "ride"
+              },
+              "surface": {
+               "glass": 18,
+               "tint": 0.74,
+               "soft": 2
+              },
+              "children": [
+               {
+                "id": "demo-40",
+                "type": "row",
+                "cross": "center",
+                "children": [
+                 {
+                  "id": "demo-41",
+                  "type": "icon",
+                  "icon": "airport_shuttle",
+                  "icon_size": 22,
+                  "color": "#0B2422",
+                  "dark_color": "#E9F5F3"
+                 },
+                 {
+                  "id": "demo-42",
+                  "type": "row",
+                  "width": "fill",
+                  "height": 1,
+                  "children": []
+                 },
+                 {
+                  "id": "demo-43",
+                  "type": "icon",
+                  "icon": "person",
+                  "icon_size": 14,
+                  "color": "#4C5F5C",
+                  "dark_color": "#A3BDB8"
+                 },
+                 {
+                  "id": "demo-44",
+                  "type": "text",
+                  "text": "7",
+                  "color": "#4C5F5C",
+                  "dark_color": "#A3BDB8",
+                  "font": {
+                   "size": 11,
+                   "weight": 700
+                  }
+                 }
+                ]
+               },
+               {
+                "id": "demo-45",
+                "type": "column",
+                "children": [
+                 {
+                  "id": "demo-46",
+                  "type": "text",
+                  "text": "Van",
+                  "color": "#0B2422",
+                  "dark_color": "#E9F5F3",
+                  "font": {
+                   "size": 13,
+                   "weight": 700
+                  },
+                  "translations": {
+                   "ar": {
+                    "text": "فان"
+                   },
+                   "tr": {
+                    "text": "Van"
+                   }
+                  }
+                 },
+                 {
+                  "id": "demo-47",
+                  "type": "row",
+                  "gap": 3,
+                  "cross": "end",
+                  "children": [
+                   {
+                    "id": "demo-48",
+                    "type": "text",
+                    "text": "from E£",
+                    "color": "#4C5F5C",
+                    "dark_color": "#A3BDB8",
+                    "font": {
+                     "size": 11,
+                     "weight": 700
+                    },
+                    "translations": {
+                     "ar": {
+                      "text": "من ج.م"
+                     },
+                     "tr": {
+                      "text": "başlangıç E£"
+                     }
+                    }
+                   },
+                   {
+                    "id": "demo-49",
+                    "type": "text",
+                    "text": "80",
+                    "color": "#0B2422",
+                    "dark_color": "#E9F5F3",
+                    "font": {
+                     "size": 20,
+                     "weight": 800,
+                     "letter_spacing": -0.6,
+                     "line_height": 1.1
+                    }
+                   }
+                  ]
+                 }
+                ]
+               }
+              ]
              }
-            }
+            ]
            },
            {
-            "id": "demo-9",
+            "id": "demo-50",
             "type": "row",
-            "name": "Search a place",
-            "height": 58,
-            "radius": 20,
-            "gap": 10,
+            "name": "Where to?",
+            "height": 68,
+            "radius": 26,
+            "gap": 12,
             "cross": "center",
             "padding": {
              "top": 0,
-             "end": 16,
+             "end": 10,
              "bottom": 0,
-             "start": 16
+             "start": 10
             },
-            "overlay": {
-             "color": "#FFFFFF",
-             "opacity": 0.16
-            },
-            "color": "#FFFFFF",
             "action": {
              "type": "screen",
              "screen": "ride"
             },
+            "surface": {
+             "glass": 18,
+             "tint": 0.86,
+             "soft": 2
+            },
             "children": [
              {
-              "id": "demo-10",
-              "type": "icon",
-              "icon": "search",
-              "icon_size": 22
+              "id": "demo-51",
+              "type": "row",
+              "width": 46,
+              "height": 46,
+              "radius": 18,
+              "align": "center",
+              "cross": "center",
+              "self_align": "center",
+              "background": "#0F766C",
+              "dark_background": "#5FD3C2",
+              "children": [
+               {
+                "id": "demo-52",
+                "type": "icon",
+                "icon": "search",
+                "icon_size": 24,
+                "color": "#FFFFFF",
+                "dark_color": "#04201D"
+               }
+              ]
              },
              {
-              "id": "demo-11",
+              "id": "demo-53",
               "type": "text",
-              "text": "Search a place",
-              "width": "fill",
+              "text": "Where to?",
+              "color": "#0B2422",
+              "dark_color": "#E9F5F3",
               "font": {
-               "size": 16,
-               "weight": 600
+               "size": 20,
+               "weight": 800,
+               "letter_spacing": -0.4
               },
+              "width": "fill",
               "translations": {
                "ar": {
-                "text": "ابحث عن مكان"
+                "text": "إلى أين؟"
                },
                "tr": {
-                "text": "Bir yer arayın"
+                "text": "Nereye?"
                }
               }
              },
              {
-              "id": "demo-12",
+              "id": "demo-54",
               "type": "row",
-              "height": 34,
-              "radius": 17,
-              "gap": 4,
+              "height": 40,
+              "radius": 20,
+              "gap": 5,
               "cross": "center",
+              "self_align": "center",
               "padding": {
                "top": 0,
                "end": 12,
                "bottom": 0,
                "start": 12
               },
-              "background": "#FFFFFF",
-              "color": "#0E4A44",
+              "border_color": "#C9D3D1",
+              "dark_border_color": "#2B4744",
+              "border_width": 1,
               "children": [
                {
-                "id": "demo-13",
+                "id": "demo-55",
                 "type": "icon",
                 "icon": "schedule",
-                "icon_size": 16
+                "icon_size": 18,
+                "color": "#0F766C",
+                "dark_color": "#5FD3C2"
                },
                {
-                "id": "demo-14",
+                "id": "demo-56",
                 "type": "text",
                 "text": "Now",
+                "color": "#0B2422",
+                "dark_color": "#E9F5F3",
                 "font": {
-                 "size": 12,
-                 "weight": 800
+                 "size": 13,
+                 "weight": 700
                 },
                 "translations": {
                  "ar": {
@@ -307,555 +891,30 @@
         ]
        },
        {
-        "id": "demo-15",
-        "type": "row",
-        "name": "Home",
-        "gap": 8,
-        "scroll": true,
+        "id": "demo-58",
+        "type": "column",
+        "gap": 6,
         "padding": {
-         "top": 14,
-         "end": 16,
-         "bottom": 0,
-         "start": 16
-        },
-        "children": [
-         {
-          "id": "demo-18",
-          "type": "row",
-          "radius": 20,
-          "padding": {
-           "top": 1,
-           "end": 1,
-           "bottom": 1,
-           "start": 1
-          },
-          "background": "#DCE6E4",
-          "dark_background": "#1F3735",
-          "action": {
-           "type": "screen",
-           "screen": "ride"
-          },
-          "children": [
-           {
-            "type": "row",
-            "width": "hug",
-            "height": 38,
-            "radius": 19,
-            "gap": 6,
-            "cross": "center",
-            "padding": {
-             "top": 0,
-             "end": 13,
-             "bottom": 0,
-             "start": 13
-            },
-            "children": [
-             {
-              "id": "demo-16",
-              "type": "icon",
-              "icon": "home",
-              "icon_size": 18,
-              "color": "#14857A"
-             },
-             {
-              "id": "demo-17",
-              "type": "text",
-              "text": "Home",
-              "font": {
-               "size": 13,
-               "weight": 700
-              },
-              "color": "#0B2422",
-              "dark_color": "#E7F4F2",
-              "translations": {
-               "ar": {
-                "text": "المنزل"
-               },
-               "tr": {
-                "text": "Ev"
-               }
-              }
-             }
-            ],
-            "id": "demo-19",
-            "background": "#FFFFFF",
-            "dark_background": "#0F2422"
-           }
-          ]
-         },
-         {
-          "id": "demo-22",
-          "type": "row",
-          "radius": 20,
-          "padding": {
-           "top": 1,
-           "end": 1,
-           "bottom": 1,
-           "start": 1
-          },
-          "background": "#DCE6E4",
-          "dark_background": "#1F3735",
-          "action": {
-           "type": "screen",
-           "screen": "ride"
-          },
-          "children": [
-           {
-            "type": "row",
-            "width": "hug",
-            "height": 38,
-            "radius": 19,
-            "gap": 6,
-            "cross": "center",
-            "padding": {
-             "top": 0,
-             "end": 13,
-             "bottom": 0,
-             "start": 13
-            },
-            "children": [
-             {
-              "id": "demo-20",
-              "type": "icon",
-              "icon": "work",
-              "icon_size": 18,
-              "color": "#14857A"
-             },
-             {
-              "id": "demo-21",
-              "type": "text",
-              "text": "Office",
-              "font": {
-               "size": 13,
-               "weight": 700
-              },
-              "color": "#0B2422",
-              "dark_color": "#E7F4F2",
-              "translations": {
-               "ar": {
-                "text": "المكتب"
-               },
-               "tr": {
-                "text": "Ofis"
-               }
-              }
-             }
-            ],
-            "id": "demo-23",
-            "background": "#FFFFFF",
-            "dark_background": "#0F2422"
-           }
-          ]
-         },
-         {
-          "id": "demo-26",
-          "type": "row",
-          "radius": 20,
-          "padding": {
-           "top": 1,
-           "end": 1,
-           "bottom": 1,
-           "start": 1
-          },
-          "background": "#DCE6E4",
-          "dark_background": "#1F3735",
-          "action": {
-           "type": "screen",
-           "screen": "ride"
-          },
-          "children": [
-           {
-            "type": "row",
-            "width": "hug",
-            "height": 38,
-            "radius": 19,
-            "gap": 6,
-            "cross": "center",
-            "padding": {
-             "top": 0,
-             "end": 13,
-             "bottom": 0,
-             "start": 13
-            },
-            "children": [
-             {
-              "id": "demo-24",
-              "type": "icon",
-              "icon": "flight",
-              "icon_size": 18,
-              "color": "#14857A"
-             },
-             {
-              "id": "demo-25",
-              "type": "text",
-              "text": "Airport",
-              "font": {
-               "size": 13,
-               "weight": 700
-              },
-              "color": "#0B2422",
-              "dark_color": "#E7F4F2",
-              "translations": {
-               "ar": {
-                "text": "المطار"
-               },
-               "tr": {
-                "text": "Havalimanı"
-               }
-              }
-             }
-            ],
-            "id": "demo-27",
-            "background": "#FFFFFF",
-            "dark_background": "#0F2422"
-           }
-          ]
-         }
-        ]
-       },
-       {
-        "id": "demo-28",
-        "type": "tracking",
-        "tracking": {
-         "kind": "ride",
-         "style": "driver"
-        },
-        "visibility": "signed_in",
-        "image_url": "http://localhost:3000/stories/rides/rides-driver.jpg",
-        "background": "#0E4A44",
-        "color": "#FFFFFF",
-        "radius": 22,
-        "padding": {
-         "top": 12,
-         "end": 12,
-         "bottom": 12,
-         "start": 12
-        },
-        "margin": {
-         "top": 14,
-         "end": 16,
-         "bottom": 0,
-         "start": 16
-        }
-       },
-       {
-        "id": "demo-29",
-        "type": "row",
-        "name": "Economy",
-        "gap": 10,
-        "cross": "stretch",
-        "padding": {
-         "top": 14,
-         "end": 16,
-         "bottom": 0,
-         "start": 16
-        },
-        "children": [
-         {
-          "id": "demo-33",
-          "type": "row",
-          "radius": 20,
-          "padding": {
-           "top": 2,
-           "end": 2,
-           "bottom": 2,
-           "start": 2
-          },
-          "background": "#14857A",
-          "dark_background": "#14857A",
-          "width": "fill",
-          "action": {
-           "type": "screen",
-           "screen": "ride"
-          },
-          "children": [
-           {
-            "type": "column",
-            "radius": 18,
-            "padding": {
-             "top": 12,
-             "end": 12,
-             "bottom": 12,
-             "start": 12
-            },
-            "children": [
-             {
-              "id": "demo-30",
-              "type": "icon",
-              "icon": "directions_car",
-              "icon_size": 24,
-              "color": "#14857A",
-              "dark_color": "#14857A"
-             },
-             {
-              "id": "demo-31",
-              "type": "text",
-              "text": "Economy",
-              "font": {
-               "size": 14,
-               "weight": 800
-              },
-              "margin": {
-               "top": 6
-              },
-              "color": "#0B2422",
-              "dark_color": "#E7F4F2",
-              "translations": {
-               "ar": {
-                "text": "اقتصادية"
-               },
-               "tr": {
-                "text": "Ekonomi"
-               }
-              }
-             },
-             {
-              "id": "demo-32",
-              "type": "text",
-              "text": "Everyday cars",
-              "font": {
-               "size": 12
-              },
-              "color": "#556866",
-              "dark_color": "#A2BAB6",
-              "translations": {
-               "ar": {
-                "text": "سيارات لكل يوم"
-               },
-               "tr": {
-                "text": "Her gün için"
-               }
-              }
-             }
-            ],
-            "id": "demo-34",
-            "width": "fill",
-            "background": "#FFFFFF",
-            "dark_background": "#0F2422"
-           }
-          ]
-         },
-         {
-          "id": "demo-38",
-          "type": "row",
-          "radius": 20,
-          "padding": {
-           "top": 1,
-           "end": 1,
-           "bottom": 1,
-           "start": 1
-          },
-          "background": "#DCE6E4",
-          "dark_background": "#1F3735",
-          "width": "fill",
-          "action": {
-           "type": "screen",
-           "screen": "ride"
-          },
-          "children": [
-           {
-            "type": "column",
-            "radius": 19,
-            "padding": {
-             "top": 12,
-             "end": 12,
-             "bottom": 12,
-             "start": 12
-            },
-            "children": [
-             {
-              "id": "demo-35",
-              "type": "icon",
-              "icon": "airline_seat_recline_extra",
-              "icon_size": 24,
-              "color": "#556866",
-              "dark_color": "#A2BAB6"
-             },
-             {
-              "id": "demo-36",
-              "type": "text",
-              "text": "Comfort",
-              "font": {
-               "size": 14,
-               "weight": 800
-              },
-              "margin": {
-               "top": 6
-              },
-              "color": "#0B2422",
-              "dark_color": "#E7F4F2",
-              "translations": {
-               "ar": {
-                "text": "مريحة"
-               },
-               "tr": {
-                "text": "Konfor"
-               }
-              }
-             },
-             {
-              "id": "demo-37",
-              "type": "text",
-              "text": "More room",
-              "font": {
-               "size": 12
-              },
-              "color": "#556866",
-              "dark_color": "#A2BAB6",
-              "translations": {
-               "ar": {
-                "text": "مساحة أكبر"
-               },
-               "tr": {
-                "text": "Daha geniş"
-               }
-              }
-             }
-            ],
-            "id": "demo-39",
-            "width": "fill",
-            "background": "#FFFFFF",
-            "dark_background": "#0F2422"
-           }
-          ]
-         },
-         {
-          "id": "demo-43",
-          "type": "row",
-          "radius": 20,
-          "padding": {
-           "top": 1,
-           "end": 1,
-           "bottom": 1,
-           "start": 1
-          },
-          "background": "#DCE6E4",
-          "dark_background": "#1F3735",
-          "width": "fill",
-          "action": {
-           "type": "screen",
-           "screen": "ride"
-          },
-          "children": [
-           {
-            "type": "column",
-            "radius": 19,
-            "padding": {
-             "top": 12,
-             "end": 12,
-             "bottom": 12,
-             "start": 12
-            },
-            "children": [
-             {
-              "id": "demo-40",
-              "type": "icon",
-              "icon": "airport_shuttle",
-              "icon_size": 24,
-              "color": "#556866",
-              "dark_color": "#A2BAB6"
-             },
-             {
-              "id": "demo-41",
-              "type": "text",
-              "text": "Van",
-              "font": {
-               "size": 14,
-               "weight": 800
-              },
-              "margin": {
-               "top": 6
-              },
-              "color": "#0B2422",
-              "dark_color": "#E7F4F2",
-              "translations": {
-               "ar": {
-                "text": "فان"
-               },
-               "tr": {
-                "text": "Van"
-               }
-              }
-             },
-             {
-              "id": "demo-42",
-              "type": "text",
-              "text": "Seven seats",
-              "font": {
-               "size": 12
-              },
-              "color": "#556866",
-              "dark_color": "#A2BAB6",
-              "translations": {
-               "ar": {
-                "text": "سبعة مقاعد"
-               },
-               "tr": {
-                "text": "Yedi koltuk"
-               }
-              }
-             }
-            ],
-            "id": "demo-44",
-            "width": "fill",
-            "background": "#FFFFFF",
-            "dark_background": "#0F2422"
-           }
-          ]
-         }
-        ]
-       },
-       {
-        "id": "demo-45",
-        "type": "row",
-        "gap": 10,
-        "cross": "start",
-        "padding": {
-         "top": 12,
-         "end": 14,
-         "bottom": 12,
-         "start": 14
-        },
-        "margin": {
-         "top": 18,
+         "top": 8,
          "end": 16,
          "bottom": 8,
          "start": 16
         },
-        "radius": 16,
-        "background": "#FFFFFF",
-        "dark_background": "#0F2422",
-        "border_color": "#DCE6E4",
-        "dark_border_color": "#1F3735",
-        "border_width": 1,
+        "margin": {
+         "top": 4,
+         "end": 0,
+         "bottom": 4,
+         "start": 0
+        },
         "visibility": "signed_out",
         "children": [
          {
-          "id": "demo-46",
-          "type": "icon",
-          "icon": "info",
-          "icon_size": 18,
-          "color": "#556866",
-          "dark_color": "#A2BAB6"
-         },
-         {
-          "id": "demo-47",
+          "id": "demo-57",
           "type": "text",
           "text": "This is a demo app. Sign in with +1 202 555 0123 and the code 246810. Anything you add is deleted after a day.",
-          "width": "fill",
           "font": {
-           "size": 13,
-           "line_height": 1.45
-          },
-          "color": "#556866",
-          "dark_color": "#A2BAB6",
-          "translations": {
-           "ar": {
-            "text": "هذا تطبيق تجريبي. سجّل الدخول بالرقم ⁦+1 202 555 0123⁩ والرمز 246810. يُحذف كل ما تضيفه بعد يوم."
-           },
-           "tr": {
-            "text": "Bu bir demo uygulamasıdır. +1 202 555 0123 numarası ve 246810 koduyla giriş yapın. Eklediğiniz her şey bir gün sonra silinir."
-           }
+           "size": 15,
+           "line_height": 1.5
           }
          }
         ]
@@ -869,7 +928,7 @@
     "title": "My rides",
     "translations": {
      "ar": {
-      "title": "رحلاتي"
+      "title": "مشاويري"
      },
      "tr": {
       "title": "Yolculuklarım"
@@ -877,11 +936,11 @@
     },
     "studio": {
      "body": {
-      "id": "demo-51",
+      "id": "demo-62",
       "type": "column",
       "children": [
        {
-        "id": "demo-54",
+        "id": "demo-65",
         "type": "photo_hero",
         "name": "Home safe, every ride",
         "image_url": "http://localhost:3000/stories/rides/rides-arrive-home.jpg",
@@ -910,7 +969,7 @@
         },
         "children": [
          {
-          "id": "demo-52",
+          "id": "demo-63",
           "type": "text",
           "text": "Home safe, every ride",
           "color": "#FFFFFF",
@@ -929,7 +988,7 @@
           }
          },
          {
-          "id": "demo-53",
+          "id": "demo-64",
           "type": "text",
           "text": "Your rides, their fares and receipts.",
           "color": "#FFFFFF",
@@ -963,20 +1022,19 @@
       ],
       "translations": {
        "ar": {
-        "title": "رحلاتي"
+        "title": "مشاويري"
        },
        "tr": {
         "title": "Yolculuklarım"
        }
       },
-      "background": "#FFFFFF",
+      "background": "#EDF0EA",
       "color": "#0B2422",
-      "dark_background": "#0F2422",
-      "dark_color": "#E7F4F2",
-      "style": "glass"
+      "dark_background": "#0C1716",
+      "dark_color": "#E9F5F3"
      },
-     "background": "#F2F6F5",
-     "dark_background": "#071615"
+     "background": "#EDF0EA",
+     "dark_background": "#0C1716"
     },
     "show_title": false,
     "updated_at": "2026-11-09T10:00:00.000Z",
@@ -995,13 +1053,13 @@
     },
     "studio": {
      "body": {
-      "id": "demo-55",
+      "id": "demo-66",
       "type": "column",
       "children": []
      },
      "screen": "account",
-     "background": "#F2F6F5",
-     "dark_background": "#071615"
+     "background": "#EDF0EA",
+     "dark_background": "#0C1716"
     },
     "show_title": false,
     "updated_at": "2026-11-09T10:00:00.000Z",
@@ -1020,33 +1078,46 @@
     },
     "studio": {
      "body": {
-      "id": "demo-56",
+      "id": "demo-67",
       "type": "column",
       "children": [
        {
-        "id": "demo-64",
-        "type": "tracking",
-        "tracking": {
-         "kind": "ride",
-         "style": "driver"
-        },
+        "id": "demo-75",
+        "type": "column",
+        "name": "On the way",
         "visibility": "signed_in",
-        "image_url": "http://localhost:3000/stories/rides/rides-driver.jpg",
-        "background": "#0E4A44",
-        "color": "#FFFFFF",
-        "radius": 22,
+        "radius": 24,
         "padding": {
          "top": 12,
          "end": 12,
          "bottom": 12,
          "start": 12
         },
+        "surface": {
+         "glass": 18,
+         "tint": 0.78,
+         "soft": 2
+        },
         "margin": {
          "top": 12,
          "end": 16,
          "bottom": 4,
          "start": 16
-        }
+        },
+        "children": [
+         {
+          "id": "demo-76",
+          "type": "tracking",
+          "tracking": {
+           "kind": "ride",
+           "style": "driver"
+          },
+          "visibility": "signed_in",
+          "image_url": "http://localhost:3000/stories/rides/rides-driver.jpg",
+          "color": "#0B2422",
+          "dark_color": "#E9F5F3"
+         }
+        ]
        }
       ]
      },
@@ -1062,14 +1133,13 @@
         "title": "Yolculuk"
        }
       },
-      "background": "#FFFFFF",
+      "background": "#EDF0EA",
       "color": "#0B2422",
-      "dark_background": "#0F2422",
-      "dark_color": "#E7F4F2",
-      "style": "glass"
+      "dark_background": "#0C1716",
+      "dark_color": "#E9F5F3"
      },
-     "background": "#F2F6F5",
-     "dark_background": "#071615"
+     "background": "#EDF0EA",
+     "dark_background": "#0C1716"
     },
     "show_title": false,
     "updated_at": "2026-11-09T10:00:00.000Z",
@@ -1088,7 +1158,7 @@
     },
     "studio": {
      "body": {
-      "id": "demo-57",
+      "id": "demo-68",
       "type": "column",
       "children": []
      },
@@ -1104,14 +1174,13 @@
         "title": "Ayarlar"
        }
       },
-      "background": "#FFFFFF",
+      "background": "#EDF0EA",
       "color": "#0B2422",
-      "dark_background": "#0F2422",
-      "dark_color": "#E7F4F2",
-      "style": "glass"
+      "dark_background": "#0C1716",
+      "dark_color": "#E9F5F3"
      },
-     "background": "#F2F6F5",
-     "dark_background": "#071615"
+     "background": "#EDF0EA",
+     "dark_background": "#0C1716"
     },
     "show_title": false,
     "updated_at": "2026-11-09T10:00:00.000Z",
@@ -1130,7 +1199,7 @@
     },
     "studio": {
      "body": {
-      "id": "demo-58",
+      "id": "demo-69",
       "type": "column",
       "children": []
      },
@@ -1146,14 +1215,13 @@
         "title": "Bildirimler"
        }
       },
-      "background": "#FFFFFF",
+      "background": "#EDF0EA",
       "color": "#0B2422",
-      "dark_background": "#0F2422",
-      "dark_color": "#E7F4F2",
-      "style": "glass"
+      "dark_background": "#0C1716",
+      "dark_color": "#E9F5F3"
      },
-     "background": "#F2F6F5",
-     "dark_background": "#071615"
+     "background": "#EDF0EA",
+     "dark_background": "#0C1716"
     },
     "show_title": false,
     "updated_at": "2026-11-09T10:00:00.000Z",
@@ -1172,7 +1240,7 @@
     },
     "studio": {
      "body": {
-      "id": "demo-59",
+      "id": "demo-70",
       "type": "column",
       "children": []
      },
@@ -1188,14 +1256,13 @@
         "title": "Profili düzenle"
        }
       },
-      "background": "#FFFFFF",
+      "background": "#EDF0EA",
       "color": "#0B2422",
-      "dark_background": "#0F2422",
-      "dark_color": "#E7F4F2",
-      "style": "glass"
+      "dark_background": "#0C1716",
+      "dark_color": "#E9F5F3"
      },
-     "background": "#F2F6F5",
-     "dark_background": "#071615"
+     "background": "#EDF0EA",
+     "dark_background": "#0C1716"
     },
     "show_title": false,
     "updated_at": "2026-11-09T10:00:00.000Z",
@@ -1214,7 +1281,7 @@
     },
     "studio": {
      "body": {
-      "id": "demo-60",
+      "id": "demo-71",
       "type": "column",
       "children": []
      },
@@ -1230,14 +1297,13 @@
         "title": "Cihazlar"
        }
       },
-      "background": "#FFFFFF",
+      "background": "#EDF0EA",
       "color": "#0B2422",
-      "dark_background": "#0F2422",
-      "dark_color": "#E7F4F2",
-      "style": "glass"
+      "dark_background": "#0C1716",
+      "dark_color": "#E9F5F3"
      },
-     "background": "#F2F6F5",
-     "dark_background": "#071615"
+     "background": "#EDF0EA",
+     "dark_background": "#0C1716"
     },
     "show_title": false,
     "updated_at": "2026-11-09T10:00:00.000Z",
@@ -1248,13 +1314,13 @@
     "title": "Change password",
     "studio": {
      "body": {
-      "id": "demo-61",
+      "id": "demo-72",
       "type": "column",
       "children": []
      },
      "screen": "change_password",
-     "background": "#F2F6F5",
-     "dark_background": "#071615"
+     "background": "#EDF0EA",
+     "dark_background": "#0C1716"
     },
     "show_title": false,
     "updated_at": "2026-11-09T10:00:00.000Z",
@@ -1265,13 +1331,13 @@
     "title": "A conversation",
     "studio": {
      "body": {
-      "id": "demo-62",
+      "id": "demo-73",
       "type": "column",
       "children": []
      },
      "screen": "chat_conversation",
-     "background": "#F2F6F5",
-     "dark_background": "#071615"
+     "background": "#EDF0EA",
+     "dark_background": "#0C1716"
     },
     "show_title": false,
     "updated_at": "2026-11-09T10:00:00.000Z",
@@ -1282,13 +1348,13 @@
     "title": "A ride on its way",
     "studio": {
      "body": {
-      "id": "demo-63",
+      "id": "demo-74",
       "type": "column",
       "children": []
      },
      "screen": "ride_follow",
-     "background": "#F2F6F5",
-     "dark_background": "#071615"
+     "background": "#EDF0EA",
+     "dark_background": "#0C1716"
     },
     "show_title": false,
     "updated_at": "2026-11-09T10:00:00.000Z",
@@ -1296,14 +1362,16 @@
    }
   ],
   "tab_bar": {
-   "design": "classic",
+   "design": "glass",
+   "margin": 12,
+   "radius": 26,
+   "labels": "active",
    "background": "#FFFFFF",
    "dark_background": "#0F2422",
-   "active": "#14857A",
-   "inactive": "#556866",
-   "dark_inactive": "#A2BAB6",
-   "margin": 0,
-   "radius": 0
+   "active": "#0F766C",
+   "dark_active": "#5FD3C2",
+   "inactive": "#4C5F5C",
+   "dark_inactive": "#A3BDB8"
   }
  }
 }

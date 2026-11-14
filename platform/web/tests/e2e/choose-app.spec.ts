@@ -91,7 +91,8 @@ test("a new account chooses Nour Academy and gets the whole demo in the app edit
   for (const id of EDITOR) await expect(own.locator(`[data-section="editor"] a[data-demo="${id}"]`)).toContainText("App editor");
   for (const id of STUDIO) await expect(own.locator(`[data-section="studio"] a[data-demo="${id}"]`)).toContainText("STUDIO");
   await expect(own.locator('a[data-demo="lms"] img')).toHaveAttribute("src", "/screens/academy-home.png");
-  await expect(own.locator('a[data-demo="premium_academy"] img')).toHaveAttribute("src", "/screens/premium-home.png");
+  // 130 A Studio card's first phone is its look A (the demo; the demo's screenshot until the look has its own picture), look B beside it.
+  await expect(own.locator('a[data-demo="premium_academy"] img').first()).toHaveAttribute("src", "/screens/premium-home.png");
   // Every card's screenshot is there to load.
   for (const src of await own.locator("a[data-demo] img").evaluateAll((imgs) => imgs.map((i) => i.getAttribute("src")!))) {
     const shot = await own.request.get(src);
@@ -297,5 +298,34 @@ test("in Arabic and dark, Studio's New project opens the same page with Studio c
   await expect(own.getByRole("article").filter({ hasText: "Selin Express" })).toHaveCount(1);
   await own.context().clearCookies({ name: "yallapp_lang" });
   await own.emulateMedia({ colorScheme: "light" });
+  expect(problems).toEqual([]);
+});
+
+// 130 The Studio demos' two Signature looks.
+test("every Studio demo shows its two looks, and Masar Rides started in its look B is the horizon", async () => {
+  await own.goto("/start?new=1&for=studio");
+  // Each Studio card shows both looks.
+  for (const id of STUDIO) await expect(own.locator(`[data-section="studio"] a[data-demo="${id}"] [data-looks]`)).toHaveAttribute("data-looks", "a b");
+  await own.locator('[data-section="studio"] a[data-demo="rides"]').click();
+  await expect(own.getByRole("heading", { level: 1, name: "Masar Rides" })).toBeVisible();
+  // Look A (the demo) chosen, its picture and name; look B a tap away.
+  const looks = own.locator("[data-looks]");
+  await expect(looks.getByRole("heading", { name: "Two looks to start from" })).toBeVisible();
+  await expect(looks.locator('[data-look="a"] [aria-current="true"]')).toContainText("Living map");
+  await expect(looks.locator('[data-look="a"] img')).toHaveAttribute("src", "/screens/rides-sig-a-home.png");
+  await expect(looks.locator('[data-look="b"] img')).toHaveAttribute("src", "/screens/rides-sig-b-home.png");
+  await expect(own.locator("[data-start-look]")).toHaveAttribute("data-start-look", "a");
+  await looks.locator('[data-look="b"] a').click();
+  await expect(own).toHaveURL(/\/start\/rides\?new=1&look=b$/);
+  await expect(looks.locator('[data-look="b"] [aria-current="true"]')).toContainText("Horizon");
+  await fitsPhone(own);
+  await own.getByRole("link", { name: "Start with this app" }).click();
+  await expect(own).toHaveURL(/\/start\/rides\/make\?new=1&look=b$/);
+  await expect(own.locator("[data-look]")).toHaveText("In the look: Look B · Horizon");
+  await own.getByLabel("Your app's name").fill("Selin Rides");
+  await own.getByRole("button", { name: "Create my app" }).click();
+  // Studio's editor, the home the horizon's: "Where to, …?" large over the tilted city.
+  await expect(own).toHaveURL(/\/studio\/editor\?from=demo$/);
+  await expect(own.getByText("Where to, Omar?").first()).toBeVisible();
   expect(problems).toEqual([]);
 });

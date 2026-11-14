@@ -105,6 +105,10 @@ class _TahrirLocator implements Locator {
 
 final _atTahrir = [locatorProvider.overrideWithValue(const _TahrirLocator())];
 
+/// 130 The phone at Tahrir Square, for the Signature looks' pictures
+/// (signature_screenshots_test.dart).
+final atTahrir = _atTahrir;
+
 /// A ride from Tahrir Square to Cairo Tower set on the ride form, with
 /// "When" at the top and each car type's fare under it.
 Future<void> _whereTo(WidgetTester tester, GoRouter router) async {
