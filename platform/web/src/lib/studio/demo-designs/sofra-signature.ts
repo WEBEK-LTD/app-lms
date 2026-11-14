@@ -59,7 +59,7 @@ function heroSlide(ctx: SectionContext, path: string, kicker: SectionWord, dish:
   return {
     id: id(),
     type: "photo_hero",
-    name: ctx.w(dish).replace("\n", " "),
+    name: ctx.w(dish).replaceAll("\n", " "),
     image_url: sigPhoto(ctx, path),
     height: 340,
     background: HERO_SHADE,
@@ -323,7 +323,7 @@ export function sofraAPage(screenName: string, ctx: SectionContext): StudioNode[
           ken_burns: true,
           children: [
             { id: id(), type: "text", text: ctx.w("sofTonight1"), color: "#FFFFFF", font: { size: 11, weight: 700, letter_spacing: 2, uppercase: true } },
-            { id: id(), type: "text", text: ctx.w("sofDish1").replace("\n", " "), color: "#FFFFFF", font: { family: DISPLAY, size: 40, weight: 800, line_height: 0.95, letter_spacing: -1.6 }, margin: sides(6, 0, 0, 0) },
+            { id: id(), type: "text", text: ctx.w("sofDish1").replaceAll("\n", " "), color: "#FFFFFF", font: { family: DISPLAY, size: 40, weight: 800, line_height: 0.95, letter_spacing: -1.6 }, margin: sides(6, 0, 0, 0) },
             { id: id(), type: "text", text: ctx.w("sofDish1Line"), color: "#FFFFFF", opacity: 0.92, max_lines: 1, font: { size: 13 }, margin: sides(6, 0, 0, 0) },
           ],
         },

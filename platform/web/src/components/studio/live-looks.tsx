@@ -174,7 +174,7 @@ export function LiveLookCard({ node, lang, dark, brand, color }: { node: StudioN
           {kicker(`${w.live} · ${f.state}`)}
           <span style={{ fontSize: 17, fontWeight: 800, marginTop: 5 }}>{f.title}</span>
           <span style={{ fontSize: 12, color: soft }}>
-            {f.line} · {w.step.replace("{n}", String(f.stage))}
+            {f.line} · {w.step.replaceAll("{n}", String(f.stage))}
           </span>
         </span>
         {minutes}
