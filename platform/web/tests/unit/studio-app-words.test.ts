@@ -10,6 +10,8 @@ import { BUILT_IN_APP_DEFAULTS, defaultLayout } from "@/lib/pages/defaults";
 import { itemSourcesFor } from "@/lib/pages/sources";
 import { APP_WORDS, appWord, appWords, premiumAppWords, type AppWord } from "@/lib/studio/app-words";
 import { DEMO_FACTS, withDemoFacts } from "@/lib/studio/demo-templates";
+// 130.30 The premium whole designs.
+import { designsFor, makeDesign } from "@/lib/studio/designs";
 import { signatureDesigns } from "@/lib/studio/demo-designs";
 import { ELEMENTS, newNode, type NewText } from "@/lib/studio/elements";
 import { PREMIUM_MAPS } from "@/lib/studio/premium-maps";
@@ -258,5 +260,38 @@ describe("The Arabic that templates put into the app is Modern Standard Arabic (
     expect(arabicIn(layout).length).toBeGreaterThan(5);
     expect(offending(layout)).toEqual([]);
     expect(offending(demoStudioScreens(id, "https://files.test"))).toEqual([]);
+  });
+});
+
+/**
+ * 130.30 The premium whole designs' words (lib/studio/premium-designs.ts):
+ * each kind's and the designs' own, in the app's Modern Standard Arabic, and
+ * every design made in Arabic for every kind, its texts and translations.
+ */
+describe("130.30 the premium whole designs write Modern Standard Arabic into the app", () => {
+  it("has every design word in English, Arabic and Turkish, none Egyptian", () => {
+    const own = Object.keys(APP_WORDS.en).filter((k) => k.startsWith("pd"));
+    expect(own.length).toBeGreaterThan(240);
+    for (const k of own) {
+      const ar = (APP_WORDS.ar as Record<string, string>)[k]!;
+      expect(ar, k).toMatch(/[\u0600-\u06FF]/);
+      expect(egyptian(ar), `${k}: ${ar}`).toBeNull();
+      expect((APP_WORDS.tr as Record<string, string>)[k], k).toBeTruthy();
+    }
+  });
+
+  it("writes no Egyptian form into any whole design made in Arabic, for every kind and look", () => {
+    const bad: unknown[] = [];
+    let seen = 0;
+    for (const kind of KINDS) {
+      const app = projectApp(kind.engine, kind.vertical);
+      for (const design of designsFor({ type: kind.engine, vertical: kind.vertical }).filter((d) => !d.demo)) {
+        const file = makeDesign(design, arabicContext(app), { home: "الرئيسية", template: (id) => id, theme: (id) => id }, { default: "ar", available: ["ar", "en", "tr"] });
+        seen += arabicIn(file.pages).length;
+        for (const x of offending(file.pages)) bad.push({ kind: kind.id, design: design.id, ...x });
+      }
+    }
+    expect(seen).toBeGreaterThan(2000);
+    expect(bad).toEqual([]);
   });
 });

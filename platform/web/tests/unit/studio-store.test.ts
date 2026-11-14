@@ -50,7 +50,8 @@ describe("112.4 a store's sections and sliders in Studio", () => {
     // Categories in pictures only where there are categories to show.
     expect(sectionsFor(STORE, { categories: false }).map((s) => s.id)).not.toContain("category_pictures");
     expect(templatesFor(STORE).slice(0, 3).map((t) => t.id)).toEqual(["shop", "shop_deals", "shop_looks"]);
-    expect(designsFor(STORE)[0]!.templates).toEqual(["shop", "shop_deals", "shop_looks", "brand", "contact"]);
+    // 130.30 A premium home made for the store first.
+    expect(designsFor(STORE)[0]!.templates).toEqual(["premium_home", "shop", "shop_deals", "shop_looks", "brand", "contact"]);
   });
 
   it("makes sections and templates the page checker takes, with Yallapp's pictures and the shop's products", () => {
