@@ -11,10 +11,12 @@ import type { StoryId } from "./types";
  * screen, never a broken picture. 130.49 The demos' screens are the demos
  * as they are now, in their Signature look A (Nakhla School's, Lamha
  * Taxi's, Masar Rides's and Sahm Express's), where the app has that screen.
+ * 131.40 The flower shop's are Leqaa's own, in its look A (Rose hour) by
+ * day and by night, and its look B (Botanical press) in its section.
  */
 
 /** What a scene draws besides its photo and screen. */
-export type ChapterArt = "route" | "gate" | "register" | "payslip" | "late" | "scale" | "offer" | "price";
+export type ChapterArt = "route" | "gate" | "register" | "payslip" | "late" | "scale" | "offer" | "price" | "slots" | "flash" | "card" | "fee";
 
 export interface ChapterShape {
   /** The photo slot's name (public/stories/<story>/<photo>.jpg). */
@@ -276,6 +278,72 @@ export const STORIES: Record<StoryId, StoryShape> = {
     ],
     bundle: ["smartphone", "dashboard_customize", "web"],
     finale: { photo: "academy-graduation", screen: "premium-home" },
+  },
+  // 131.40 Leqaa, the flower shop: an evening's order for tomorrow's slot, in its look A (Rose hour); look B in its section.
+  flowers: {
+    id: "flowers",
+    icon: "local_florist",
+    // Rose hour's candle rose, the colour of its plum night.
+    accent: "#F3A9C0",
+    demos: ["flowers"],
+    solutions: ["store"],
+    hero: { photo: "flowers-hero", screens: ["leqaa-home", "leqaa-checkout"] },
+    chapters: [
+      { screen: "flowers-sig-a-home-dark", icon: "cake" },
+      { screen: "leqaa-home", icon: "bolt", art: "flash" },
+      { photo: "flowers-blush", screen: "leqaa-product", icon: "local_florist" },
+      { screen: "leqaa-checkout", icon: "event_available", art: "slots" },
+      { photo: "flowers-card", screen: "leqaa-checkout", icon: "edit_note", art: "card" },
+      { screen: "flowers-sig-a-home-dark", icon: "sell", art: "fee" },
+      { photo: "flowers-shop", screen: "leqaa-product", icon: "storefront" },
+      { photo: "flowers-door", screen: "leqaa-home", icon: "task_alt" },
+    ],
+    interlude: { photo: "flowers-table" },
+    stats: [{ value: 5 }, { value: 11 }, { value: 8 }, { value: 4 }],
+    systems: [
+      {
+        icon: "schedule",
+        screens: [],
+        features: ["bolt", "calendar_month", "event_busy", "schedule", "groups", "payments", "event_available"],
+      },
+      {
+        icon: "local_florist",
+        screens: ["leqaa-product"],
+        features: ["local_florist", "add", "block", "tune", "shopping_cart", "timer", "celebration"],
+      },
+      {
+        icon: "redeem",
+        screens: ["leqaa-checkout"],
+        features: ["view_agenda", "person", "location_on", "pin_drop", "visibility", "visibility_off", "credit_card", "shield"],
+      },
+      {
+        icon: "edit_note",
+        screens: [],
+        features: ["celebration", "add", "format_quote", "translate", "tune", "edit"],
+      },
+      {
+        icon: "local_shipping",
+        screens: [],
+        features: ["public", "sell", "location_city", "route", "package_2", "location_on", "payments", "local_offer", "receipt_long"],
+      },
+      {
+        icon: "bolt",
+        screens: [],
+        features: ["bolt", "timer", "inventory_2", "sell", "confirmation_number", "content_copy"],
+      },
+      {
+        icon: "palette",
+        screens: ["flowers-sig-b-home", "flowers-sig-b-home-dark"],
+        features: ["local_florist", "spa", "dark_mode", "tab", "smartphone", "account_circle", "dashboard_customize", "translate"],
+      },
+      {
+        icon: "cloud_sync",
+        screens: [],
+        features: ["inventory_2", "web", "shopping_bag", "storefront", "hub", "history", "local_offer", "code"],
+      },
+    ],
+    bundle: ["smartphone", "dashboard_customize", "web"],
+    finale: { photo: "flowers-vase", screen: "leqaa-home" },
   },
 };
 

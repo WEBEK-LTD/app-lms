@@ -11,7 +11,8 @@ import { useEffect } from "react";
  * - `[data-parallax]` drifts a little with the scroll (`--py`);
  * - `[data-count]` counts up to its number once seen (inside a `[data-reveal]`);
  * - `[data-route]` draws its route and starts the vehicle on it;
- * - `[data-gate]` shows a new six-digit code every 30 seconds, as the gate does.
+ * - `[data-gate]` shows a new six-digit code every 30 seconds, as the gate does;
+ * - `[data-countdown]` counts its seconds down, as a flash sale's timer does (131.40).
  *
  * With "reduce motion" on, everything is shown at once and nothing moves.
  * The home page uses it too (`root="[data-home]"`) for its drifting frames
@@ -81,6 +82,20 @@ export function StoryEffects({ root: selector = "[data-story]" }: { root?: strin
           window.setInterval(() => {
             el.textContent = String(Math.floor(100000 + Math.random() * 900000));
           }, 30000),
+        );
+      });
+    }
+
+    // 131.40 A flash sale's timer, a second at a time.
+    if (!reduce) {
+      root.querySelectorAll<HTMLElement>("[data-countdown]").forEach((el) => {
+        let left = Number(el.dataset.countdown) || 0;
+        const two = (n: number) => String(n).padStart(2, "0");
+        timers.push(
+          window.setInterval(() => {
+            left = left > 0 ? left - 1 : 7200;
+            el.textContent = `${two(Math.floor(left / 3600))}:${two(Math.floor((left % 3600) / 60))}:${two(left % 60)}`;
+          }, 1000),
         );
       });
     }

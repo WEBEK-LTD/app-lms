@@ -47,6 +47,8 @@ const VEHICLE: Record<StoryId, "two_wheeler" | "local_taxi" | "directions_bus" |
   "multi-vendor": "delivery_dining",
   // The academy's scenes draw no map.
   academy: "two_wheeler",
+  // 131.40 Nor the flower shop's: its courier is the shop's own.
+  flowers: "two_wheeler",
 };
 
 const primary =
@@ -523,7 +525,8 @@ function Finale({ shape, t, ui, lang }: { shape: StoryShape; t: StoryText; ui: S
           <h2 id="story-more" className="m-0 text-[24px] font-extrabold tracking-[-0.4px]">
             {ui.otherStories}
           </h2>
-          <ul className="m-0 grid list-none gap-4 p-0 sm:grid-cols-2 lg:grid-cols-4">
+          {/* 131.40 Five other stories: three, then two. */}
+          <ul className="m-0 grid list-none gap-4 p-0 sm:grid-cols-2 lg:grid-cols-3">
             {others.map((id) => (
               <li key={id}>
                 <Link
