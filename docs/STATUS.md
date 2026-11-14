@@ -8,6 +8,17 @@ Last updated: 13 November 2026.
 
 ## Current release
 
+Roadmap 129.30 (the documentation up to date) is complete: the docs have
+articles for every element of Studio's editor (`studio-elements`), the
+premium elements of Phase 128 (`studio-premium-elements`, Phase 129's
+elements added as they land), ready sections, templates and Studio's eight
+demos with /start (`studio-templates`) and Travel (`travel`, Phase 126,
+the outside providers "Coming soon"), and `yallapp-business` (1.0.2: the
+Studio apps' tools, Prime and VIP), `yallapp-studio`, `wordpress-plugin`
+(0.4.39) and `my-own-api` brought up to date, in English, Arabic and
+Turkish, with the screenshots already in `public/screens`. The dashboard's
+Travel pages, Studio's Help and the editor's Help link to them.
+
 The website shows Yallapp Studio apart from the regular apps: its own page
 (`/yallapp-studio`) with the editor, apps made in it, the Studio-only project
 types, a Regular apps and Studio projects table and Studio's own plans (the

@@ -210,6 +210,12 @@ Değişiklikler, yeni derleme olmadan uygulama bir sonraki açılışında uygul
 
 Yallapp panelinizde **Uygulama kurulumu › Web sitesi**'ni açın, **WordPress sitem**'i seçin, web sitenizin https adresini girin ve **Kaydet ve devam et**'i seçin. Adım, eklentinin bağlı olup olmadığını gösterir.
 
+## Yallapp Studio'da tasarlanan uygulamalar
+
+Bir WordPress akademisi bir [Yallapp Studio](/docs/yallapp-studio) projesi olabilir. Studio'da tasarladığınız şey, kendi kurslarınızla doldurularak eklenti üzerinden uygulamaya ulaşır: sayfalar ve sekmeler, giriş ekranı, hesap menüsü, açılış ekranı ve premium akademinin ekranlarının görünümleri. Eklenti 0.4.39 yeni akademi ana sayfasını ekler: fotoğraf üzerinde öğrenci kartları (aldığı kurs, sıradaki canlı dersi ve öğrenme serisi), her kurs kartında kurs değerlendirmelerinizden gelen puan ve koyu modda kartın kenarlık rengi. [Studio'nun premium öğeleri](/docs/studio-premium-elements) sayfasına bakın.
+
+Eklentiyi **Eklentiler**'den güncel tutun, ardından Studio'da **Yayınla**'yı seçin: uygulama bunu yeni bir derleme olmadan bir sonraki açılışında gösterir.
+
 ## Üyelikler ve abonelikler
 
 Uygulama, web sitenizin erişim verdiği üyelikleri izler:

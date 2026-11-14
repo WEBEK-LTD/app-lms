@@ -208,7 +208,7 @@ Open **App setup** and choose another type. Your next build includes the new typ
     slug: "yallapp-studio",
     section: "Getting started",
     title: "Yallapp Studio: design your app freely",
-    description: "What Yallapp Studio is, how its projects differ from regular apps, making a project, the Studio editor, delivery companies, rides and taxis, academies with many teachers, schools and universities, and Studio's own plans.",
+    description: "What Yallapp Studio is, how its projects differ from regular apps, making a project or starting from a demo, the Studio editor, delivery companies, rides and taxis, academies with many teachers, schools and universities, travel companies, and Studio's own plans.",
     steps: false,
     figures: ["studio-editor", "studio-cafe-home", "studio-cafe-home-dark", "delivery-courier"],
     body: `Yallapp Studio is a space of its own in your account for projects you design element by element: rows, columns, layers, pictures, buttons and lists in cards you design, with colours for light and dark mode and motion. What you design is drawn natively in your Android and iOS app, not shown as a web page. Studio also makes project types only it offers, like a delivery company's app with its couriers.
@@ -234,6 +234,8 @@ Choose **New project**. It takes three steps:
 
 The project's dashboard opens, with the same pages as a regular app of its kind. You can design and try before you choose a plan. Publishing needs one of Studio's plans.
 
+You can also start from one of Studio's demos, with all its pages, photos and entries, and try each one live first: see [Ready sections, templates and Studio's demos](/docs/studio-templates).
+
 ## The Studio editor
 
 Choose **Open the editor**. The page sits in the phone in the middle; **Elements**, **Ready sections**, **Templates** and **Page layers** are on one side, and the chosen element's settings on the other.
@@ -246,6 +248,8 @@ Choose **Open the editor**. The page sits in the phone in the middle; **Elements
 - **Shows on** Android, iOS or both, and **Who sees it**: everyone, people signed in, or people not signed in.
 
 Check the page on a small phone, a large phone and a tablet, in light and dark. **Undo** and **Redo** go back and forward, and the page is saved as you go. **Preview on the phone** lets you try it on your phone; **Publish** sends it to your app, which shows it the next time it opens. **Save the page as my own template** keeps it in **My templates** for your other pages.
+
+Every element and its settings are on [The Studio editor: every element](/docs/studio-elements), and the photo-first ones Studio's demos are made of on [Premium elements in Studio](/docs/studio-premium-elements).
 
 ## Delivery companies
 
@@ -265,9 +269,13 @@ An academy whose courses come from several teachers. Teachers have their own tab
 
 A school's app for students, parents, teachers and staff, each seeing their own part: the timetable, homework, grades, attendance, exams, the calendar and announcements. Parents have a Parent tab for each of their children, with the fees. Students, teachers and staff check in at the gate with a code on the school's screen; teachers and staff ask for leave; the school runs its bus routes and its library in the app, and allows messages between teachers and families if it wants to. Salaries are recorded by hand, as paid in cash or by bank transfer, with a payslip for each person each month. A school project in university mode adds faculties, departments, programs, course registration each term, and results with the GPA.
 
+## Travel companies
+
+A travel company's app sells its hotels, its flights with fixed seats, or both as one trip. You add the hotels with their rooms, rates and prices, and the flights with their fares and seat maps; travellers book, pay on your own payment page or at the hotel, and keep their trip and boarding passes in the app. See [Travel: hotels and flights](/docs/travel).
+
 ## Studio's plans
 
-Every Studio plan has the Studio editor, push notifications, card payments through your own payment account, offline downloads, automatic rebuilds, chat, loyalty points, and courses and memberships sold through the app stores. The iOS app, publishing for you, delivery and couriers, a second app for couriers, motion, templates and the number of Studio pages in a project are chosen plan by plan.
+Every Studio plan has the Studio editor, push notifications, card payments through your own payment account, offline downloads, automatic rebuilds, chat, loyalty points, and courses and memberships sold through the app stores. The iOS app, publishing for you, delivery and couriers, a second app for couriers, travel, motion, templates and the number of Studio pages in a project are chosen plan by plan.
 
 See Studio's plans on the [pricing page](/pricing) and on [Yallapp Studio](/yallapp-studio). When they say **On request**, message us on WhatsApp and we'll suggest the plan that fits your project.
 
@@ -375,6 +383,12 @@ Changes apply in the app the next time it opens, without a new build.
 ## Choose My WordPress site on the Website step
 
 In your Yallapp dashboard, open **App setup › Website**, choose **My WordPress site**, enter your website's https address and select **Save & continue**. The step shows whether the plugin is connected.
+
+## Apps designed in Yallapp Studio
+
+A WordPress academy can be a [Yallapp Studio](/docs/yallapp-studio) project. What you design in Studio reaches the app through the plugin, filled with your own courses: the pages and tabs, the sign-in screen, the account menu, the launch screen and the looks of the premium academy's screens. Plugin 0.4.39 adds the new academy home: the student's cards (the course they're taking, their next live class and their streak) on a photo, each course card's rating from your course reviews, and a card's border colour in dark mode. See [Premium elements in Studio](/docs/studio-premium-elements).
+
+Keep the plugin up to date in **Plugins**, then select **Publish** in Studio: the app shows it the next time it opens, without a new build.
 
 ## Memberships and subscriptions
 
@@ -937,6 +951,214 @@ Your app's name under the icon, its icon and its store listing come with a build
 - **A WordPress app that isn't active yet:** your site answers the preview once the Yallapp plugin is connected and the app's plan is active. Apps without a website can be previewed at any time.
 `,
   }),
+
+  // 129.30 Yallapp Studio's editor, element by element; its premium elements; its ready sections, templates and demos.
+  doc({
+    slug: "studio-elements",
+    section: "Your app",
+    title: "The Studio editor: every element",
+    description: "Every element of Yallapp Studio's editor, what it does and its settings: layout, content, lists and cards, the page's header and bottom tabs, motion, taps, tablets and working faster.",
+    steps: false,
+    figures: ["studio-editor"],
+    body: `In [Yallapp Studio](/docs/yallapp-studio) a page is made of elements: drag one from **Elements** and drop it anywhere on the phone, or search for it with **Search for an element**. Select an element on the page or in **Page layers**, and its settings open beside the phone in three tabs: **Design**, **Motion** and **Data**. This page lists every element and every setting.
+
+The photo-first elements Studio's demos are made of, like the photo hero and the live order card, are on [Premium elements in Studio](/docs/studio-premium-elements). Ready-made sections and whole pages are on [Ready sections, templates and Studio's demos](/docs/studio-templates).
+
+## Layout elements
+
+They hold other elements and place them.
+
+- **Row**: side by side. **Space between** sets the gap, **Spread** how they share the row (**Start**, **Middle**, **End**, **Spread out** or **Even**) and **Line up** how they sit across it (start, middle, end or **Stretch**). **Scrolls sideways** makes a row wider than the screen that people swipe.
+- **Column**: one under the other, with the same settings.
+- **Layers**: one over the other, like words over a picture. Each element inside can have its **Place on the picture**, across and down in percent, for a spot people tap on a photo, or line up as in a column.
+- **Grid**: tiles in **Columns**, with **Space between**.
+- **Slider**: slides people swipe. **Shown at a time**, **Seconds per slide** (2 to 10), **Plays by itself**, **Shows where it is** (**Dots**, **Lines that fill** or a **Number**) and **Proportions** (16:9, 4:3 or square). **Slides' words** and **Darken the slides' pictures** change every slide at once; each slide can still be changed on its own.
+- **Space**: empty space, as high as you set it.
+- **Questions**: questions that open to show their answer. Each one's question is in **Its question or tab name**; its answer is what it holds.
+- **Tabs**: parts people switch between. Each tab's name is in **Its question or tab name**.
+- **Photo hero** and **Map header**: covers with elements over them, on [Premium elements in Studio](/docs/studio-premium-elements).
+
+**Put in a** Row, Column or Layers wraps the selected element in a new one.
+
+## Content elements
+
+- **Text**: your words, with the **Font**, **Weight**, **Size**, **Line height**, **Letter spacing**, **Italic**, **Underline**, **Struck through** (an old price), **Capitals**, where the text lines up and **Lines at most**. **Text style** makes it follow one of the project's styles (**Heading**, **Subheading**, **Body text** or **Button**).
+- **Picture**: from your Media or from Yallapp's pictures. **Fit** is **Fill the space** or **Show it whole**; **Proportions** keeps its shape; **Colour over the picture**, with its **Strength**, and **Shade for the words** keep words on it easy to read.
+- **Button**: its words, an **Icon** first or last with its **Icon size**, and what it opens under **When the customer taps**.
+- **Icon**: one icon, at the size you choose.
+- **List**: your entries, in a card. It is named after what it shows: products, courses, services, articles, posts, listings, events, campaigns, delivery services, restaurants, vehicle types, school news or course bundles. See the next part.
+- **Categories**: your categories, as **Chips**, **Tiles**, **Pictures** or **Round pictures**.
+- **Video**: a YouTube, Vimeo or MP4 address, which **Plays by itself** if you like.
+- **Form**: your **Questions** (a short or long answer, an email, a phone number, a number or a choice), each **Required** or not. **Answers go to** your email or the chat; set the **Button text** and the **Text after sending**.
+- **Map**: **The place**, by latitude and longitude, with a place name.
+- **Ratings**: stars, from 0 to 5 by halves, and the words beside them.
+- **Search**: a search box, with the words shown in it.
+- **Divider**: a line between parts.
+- **Countdown**: the days, hours, minutes and seconds until **Ends at**. **Once the time is up** shows your words, or nothing when it's empty.
+- A **List** with an icon on each line: **One line each**, and the **Icon of each line**.
+- **Coupon code**: **The code** (letters, numbers, - and _), which people copy with one tap.
+- **Greeting**, **Live order**, **Live card**, **School day** and the **Student's card**: drawn from the person signed in, on [Premium elements in Studio](/docs/studio-premium-elements).
+- In a multi-vendor app, **the multi-vendor section**: the address and search, the kinds of places, the offers, the cuisines and departments, the club, the places or order again, filled from your places. For places, choose the look, which places (all, restaurants or groceries), the order, a tag, free delivery only, how many (up to 40) and what each place's card leaves out (the offer, rating, delivery time, delivery fee or smallest order).
+
+## Lists and their cards
+
+On the **Data** tab, a list has:
+
+- **Shows**: which entries, and **As**: a **Grid**, a **List** or a **Carousel**.
+- **How many**, and **Order**: newest, most popular, lowest or highest price.
+- **Featured only**, one **Category**, **On sale only**, and for products **What this person opened lately**, kept on their phone and hidden until they open a product.
+- **Card**: **The app's card**, or **My own card**. **Design the card** opens one entry's card: lay it out with any elements, and set each one's **Shows from the entry** to **The title**, **The line under it**, **The picture**, **The price**, **The badge** or **The rating**. Every entry is drawn with your card.
+
+Studio's page shows your own entries, or sample ones until you add yours, so you see the real card.
+
+## Settings every element has
+
+- **Size and place**: **Width** and **Height** each **Fill** the space, **Hug** the content or are **Fixed**; **Lowest height** and **Proportions**; **Space inside** and **Space outside**, the same on opposite sides or each side on its own; **Fixed on the screen**, at the top or the bottom.
+- **Colours**: **Background**, **Text colour**, a **Gradient** of two colours at an **Angle**, and a **Picture behind it**. **In dark mode** gives the background, the text and the border their own colours by night.
+- **Shape**: **Corners**, or **Each corner on its own**; **Shadow** (none, light, medium or strong); **Border**; **Opacity**; **Turn**.
+- **Motion**: **When it shows** (fade in, slide up, down, from the start or the end, or grow) with its **Time (ms)** and **Wait before (ms)**; **While tapped** (shrink or bounce); **Again and again** (pulse, float or shake). **Play it** shows it on the phone. Phones set to reduce motion show it still.
+- **When the customer taps**: **A screen of the app**, **A page**, **A web address**, **One entry** or **A course**.
+- **Shows on** Android, iOS or both, and **Who sees it**: everyone, people signed in, or people not signed in.
+- **Hide in the app (kept here)**, **Lock on the canvas**, and its **Name in the layers**.
+
+## Phones and tablets
+
+Check each page on a **Small phone**, a **Large phone** and a **Tablet**, in light and dark. On the tablet, what you change is **Changing it for tablets**: widths, heights, spacing, columns, slides shown at a time and text. Phones keep theirs, and **Same as on phones** takes it back.
+
+## The page, its header and its tabs
+
+- **Header**: **No header**, or one of six: **1 Logo in the middle**, **2 Title + search**, **3 Logo + cart + account**, **4 Clear over the picture**, **5 The page's title and buttons** and **6 Greeting with the person's name**. Choose its buttons (menu, search, cart, notifications, chat, account) and its colours, in dark mode too. A clear header lies over the page's first element, from the very top.
+- **Page background**, **Bottom tabs under this page**, and **The app's screen under this page**: the app draws one of its own screens (its lists, forms or map) under your elements, and your header becomes its title.
+- **Bottom tabs**: up to ten. Up to five show in the bar; with more, the fifth becomes More and holds the rest. Each tab has its name and icon. Under **How the bar looks**, choose the **Design** (Classic, Pill, Minimal, Dot, Line, Bubble, Glass, Notch, Lift, Outline, Square, Names only, Island, Segment, Folder tab, Drop, Glow, Colours or **Floating pill**), the **Open tab** and **Other tabs** colours, **Corners**, **Space around it (floating)**, the names' font, **Names** (always, open tab only or icons only), a **Round button in the middle** and **The account tab shows the person's photo**.
+
+## Working faster
+
+- **Copy**, **Cut** and **Paste**, also onto another page or into another project; **Duplicate**; **Copy style** and **Paste style**; **Move up** and **Move down**; **Select what holds it**.
+- Arrows move an element among its neighbours, Delete deletes it, Ctrl+Z undoes, Ctrl+D duplicates, and Ctrl+C and Ctrl+V copy and paste (⌘ on a Mac). Press ? for every shortcut.
+- Drag an element's corner to make it bigger or smaller; hold Shift to keep its shape, and double click the corner for its own size again.
+- **Text styles**: change a style once and every text using it changes, on every page.
+- **Pictures**: drag one of **Your pictures** or **Yallapp's pictures** onto the phone.
+- **Import a design…**: SVG files from your design tool, a Figma link, or a .yallapp file. **Export this page as a file**, the selected element, or **Export the whole project as a file** moves designs between projects and accounts.
+- **Published versions**: **Bring back** an earlier publish as your draft; what's live stays until you publish again.
+
+**Undo** and **Redo** go back and forward, and the page is saved as you go. **Publish** sends it to your app, which shows it the next time it opens.
+`,
+  }),
+  doc({
+    slug: "studio-premium-elements",
+    section: "Your app",
+    title: "Premium elements in Studio",
+    description: "The photo-first elements of Studio's demos, for every project: the photo hero, the shade for the words, the map header, the greeting, live cards for orders, shipments, rides and the school day, the student's cards on a photo, ratings, borders by night and the floating pill bar.",
+    steps: false,
+    figures: ["premium-home", "sofra-home", "sahm-home", "lamha-home"],
+    body: `Studio's demos are made of these elements, and every project can use them: find them under **Elements** in the [Studio editor](/docs/studio-elements). Studio's page draws them as the app does, in light and dark, right to left in Arabic. The ones drawn from the person signed in show a sample in Studio and nothing in the app for someone signed out or with nothing to show.
+
+## Photo hero
+
+A photo with a shade and elements over it: a big welcome, a photo tile with its caption, or an offer banner. Choose the **Picture**, the height and the **Corners**, and add any elements over it: words, a search box, buttons. **Last element over the foot** makes the last one hang over the photo's edge, like a search card or a route card. A page without a header that starts with a cover shows it under the phone's status bar, and a clear header lies over it.
+
+## Shade for the words
+
+A shade over a picture so the words on it read: on a photo hero, a **Picture**, or any element with a **Picture behind it**. Choose its colour, how dark it is **At the start** and **At the end**, and **Across, from the start** to darken it from one side instead of top to bottom.
+
+## Map header
+
+A drawn map at the top of a page, with its **Markers**, the **Markers' icon**, **Markers' colour** and **Markers' tile**, and **The person's dot in the middle**. **In the app, the free taxis near the person** shows the real taxis, live, in place of the markers. With **Last element over the foot**, the last element becomes a sheet over the map's foot.
+
+## Greeting
+
+Good morning or good evening with the person's first name, in the app's language. The header **6 Greeting with the person's name** puts the greeting and today's date at the top of the page, with its buttons beside it.
+
+## Live order
+
+For food delivery and multi-vendor apps: the person's order on its way, with what it is, how far along it is and the minutes left. Choose **Whose order** and its icon.
+
+## Live card
+
+For delivery, ride and taxi apps. **What it follows**: **Their shipment on its way**, **Their ride**, or **The taxis near them**. **How it looks**: **A card with the stages**, **The driver and the car** (their photo, car, rating and plate, with a call button), or **One line**. **Photo while the driver has none** fills in until the driver adds theirs.
+
+## School day
+
+For schools: one part of a family's school day, from the parent's own children. **Which part**: **The greeting with today's date**, **The children to switch between**, or **Today: check-in, class and bus** for the chosen child: in at the gate, the class now and the next, and the bus home.
+
+## The student's cards on a photo
+
+For academies, the **Student's card** shows **The course they're taking**, their **Learning streak**, their **Next live class** or **This week's learning time**. Its **How it looks** can be **A card** or **On a photo**: the course over its picture under a dark shade, the lesson and the minutes left on one chip, how far they are in gold and a round play button; the live class's time in gold over its name; the streak as one figure.
+
+## Ratings on a card
+
+In a list's own card, set an element's **Shows from the entry** to **The rating**: the entry's rating with a star, after the element's own words, like "Omar Farouk · 4.8/5". Nothing shows for an entry without one.
+
+## Borders by night
+
+Once an element has a **Border**, **In dark mode** gives it its own border colour by night.
+
+## The floating pill bar
+
+Under **Bottom tabs**, the **Floating pill** design: a bar floating over the page with its own colours, the open tab a filled pill with its name, the others icons only. The page goes on under it.
+
+## Places as chips and the address bar
+
+In a multi-vendor app, the places can show as **Chips** (each place's photo beside its name, rating and time), and the address and search as a **Bar** with the soonest time an open place delivers in.
+`,
+  }),
+  doc({
+    slug: "studio-templates",
+    section: "Your app",
+    title: "Ready sections, templates and Studio's demos",
+    description: "Add ready-made sections and whole pages in Yallapp Studio, keep your own templates and designs, start from one of Studio's eight demos and try each one live before you choose.",
+    steps: false,
+    figures: ["rawaq-home", "zad-home", "masar-home", "nakhla-home"],
+    body: `You don't have to build every page from single elements. In the [Studio editor](/docs/studio-elements), **Ready sections** adds a whole part of a page, **Templates** a whole page, and **Whole designs** every page at once. And a new project can start as one of Studio's demos, with all its pages, photos and entries.
+
+## Ready sections
+
+Drag a section onto the page, or click it to add it at the end. Each one is made of ordinary elements you change one by one.
+
+- **For every project**: Welcome, Offer banner, Categories, List, Button, Features, Numbers, A review, Find us, Contact form, Search bar, How it works, Questions and Offer countdown; and the photo-first sections **Photo with words**, **Photo tiles** and **People in circles**.
+- **For shops**: Big slider, Cards slider, Picture and words slider, Offers slider, Flash sale, Categories in pictures, Round categories, New arrivals, Best sellers, On sale, Deal of the day, Shop the look, Brands, Why buy here, Coupon and Recently viewed.
+- **For each kind of project**: Send a parcel, Food delivery, Rides, Teachers, School and University; and, in a multi-vendor app, the address and search, the kinds of places, offers, cuisines, supermarket departments, the club, places near you, best rated, fastest, groceries, free delivery and order again.
+
+## Templates
+
+**Templates** starts the open page from a whole page; its elements are replaced, and **Undo** brings them back. Your kind of project's templates come first, its demo's home marked **Recommended**: for example **Food, photo first**, **Market, photo tiles**, **Courier in the city**, **Ride at night**, **Taxi map**, **Today at school**, **Real teachers** or **Premium academy**. **Brand**, **Contact** and **Blank page** fit every project.
+
+**Save the page as my own template** keeps a page in **My templates**, for your other pages.
+
+## Whole designs
+
+**Whole designs** changes every page, the header and the look at once. **Replace the whole project's design**, or use it **For the open page only**, and **Keep the texts and pictures I changed** if you like. **Save this project as a design** keeps it under **Mine**. What's published in the app doesn't change until you select **Publish**, and **Undo** brings the old design back.
+
+## Studio's eight demos
+
+Each demo is a real app made in Studio, in English, Arabic and Turkish, light and dark, with real photos. Starting from one gives you all of it: its pages, tabs, look, sign-in screen, account menu and entries.
+
+- **Ufuq Academy**, a premium academy: a greeting with today's date, the course the student is taking over its photo, their streak beside their next live class, and courses picked for them with the teacher and the rating; a floating navy bar with the open tab on gold, and its courses with their photos.
+- **Rawaq Academy**, an academy with many teachers: the library's photo with the search over it, the teachers in circles and this month's popular courses with their teacher and rating; Home, Teachers, My courses and Account.
+- **Sofra Eats**, food delivery from many restaurants: a photo of a full table with where it delivers, the search over its edge, the cuisines as round photos, the person's order on its way and the restaurants loved nearby, with their dishes and ratings.
+- **Zad**, a multi-vendor app with restaurants and a supermarket: the address with the soonest delivery time, this week's offer on a market photo, the departments as photo tiles and the places near you as chips; Home, Shops, Cart, Orders and Account.
+- **Sahm Express**, a delivery company: a courier riding through the city, the route card over the photo's foot, the person's shipment with its stages, and the same-day and express services as photo tiles.
+- **Masar Rides**, rides: the city at night with the person's greeting and a search, the saved places, the driver on the way and the car classes.
+- **Lamha Taxi**, a live taxi app: the free taxis around the person on a map, and a sheet with where to, the nearest taxi and the airport's fixed fare.
+- **Nakhla School**, a school: the school's photo with the family's greeting, the children as chips, today's card for the chosen child and this week at school in photos.
+
+Each demo's home is also a template for its kind of project, so any project can start a page like it.
+
+## Starting from a demo
+
+1. Open [Choose your app](/start), or select **New project** in Studio. **Studio** at the top shows Studio's demos, dark with gold, apart from the App editor's.
+2. Choose one to see its page: three of its screens, its pages, what comes with it (its courses, dishes, places, car types or classes) and its languages.
+3. Select **Start with this app**, then **Make it yours**: your app's name, your logo, and your colour, taken from the logo. The phone beside it shows your app as you go. Select **Create my app**.
+
+Your project opens in Studio's editor. **Your first steps** shows what's left: put in your own entries, your photos on the home page, and the stores. **Tap anything in the app to change it**. The demo's entries are marked **From** the demo in your lists, and **Remove the demo's things** takes them all away when yours are in.
+
+## Trying a demo live
+
+On a demo's page the middle phone runs the real demo app, as a guest on its home, in your dashboard's language when the demo has it, light or dark as the page. On a computer it starts by itself; on a phone, select **Try it live**. **Open the live app full size** opens it on its own. **Try it on your phone** gives the demo's download, with a number and code to sign in.
+
+Every card on the choosing page plays a short silent loop of its demo while you see it: its home, one other tab, and back. Phones set to reduce motion show the picture only.
+`,
+  }),
   doc({
     slug: "languages",
     section: "Your app",
@@ -1362,7 +1584,7 @@ Turn it off and select **Save**: the app stops sending the next time it opens, r
     slug: "yallapp-business",
     section: "Your app",
     title: "Yallapp Business, the app for you",
-    description: "Run your app from your phone with Yallapp Business: signing in, what it shows, the notifications it sends you, and signing a phone out on Your phones.",
+    description: "Run your app from your phone with Yallapp Business: signing in, what it shows, the tools of apps made in Yallapp Studio, Prime and VIP, the notifications it sends you, and signing a phone out on Your phones.",
     steps: false,
     body: `Yallapp Business is Yallapp's own app for the people who run an app on Yallapp: your dashboard on your phone, for Android phones and iPhones. It works on the same account and the same data as the dashboard, so what you do in one shows in the other. Nothing is bought or paid in it: your plan and storage are shown as they are, and **Manage on yallapp.com.tr** opens the website.
 
@@ -1385,9 +1607,35 @@ The people on your team sign in with their own email and password, and see only 
 
 Each screen shows only when your app has it and your role allows it. If you have several apps, choose one at the top.
 
+## Apps made in Yallapp Studio
+
+From version 1.0.2, apps made in [Yallapp Studio](/docs/yallapp-studio) have their own tools, in the same words as their dashboard:
+
+- **Food delivery** (Today, Orders, Shipments, Chat and More): food orders as **New**, **Active**, **Done** and **Problems**. Accept one with the minutes it takes (**Ready in**), turn it down with a reason, mark it ready or cancel it: the customer is told and the courier's job is made. Your restaurants show as open, busy or late; end a delay or open a busy one again.
+- **Shipments**: who is on duty, on the way and waiting. Give a waiting shipment to a courier, the closest on duty first, and see each courier as free, busy, off or paused.
+- **Rides and taxis** (Today, Rides, Chat, Stats and More): rides now, scheduled, done and with problems. Give a ride that's looking for a driver to a free one, nearest first, or cancel it without a fee.
+- **Multi-vendor apps** (Today, Market, Shipments, Chat and More): the orders of every place (each place moves its own), the complaints waiting on you or on the customer, with a refund suggested for missing, wrong or damaged items, your reply and your decision; and your places, open or not, with today's orders.
+- **Schools** (Today, School, Notify, Stats and More): the day at the gate (students in, late, not yet, absent or excused, and the teachers and staff), the buses running and late, today's pick-up notes, permission slips and fees due. Accept or decline parents' absence excuses (a note is needed to decline), comment on, return or approve teachers' reports, and approve or refuse leave.
+
+**Today** counts these apps' own orders and sales, and **Needs you now** what waits: new food orders, shipments without a courier, rides looking for a driver, complaints, excuses, reports and leave.
+
+## Prime
+
+**Prime** comes with every app on one of Studio's plans: there's nothing to buy and nothing to switch on. An app on a regular plan sees what Prime is, with a link to the website.
+
+- **Today** compares today so far with the same day last week.
+- **Insights**: this week or this month against the one before: sales, orders, each day, the peak hours by weekday, the customers who came back, the average order and the five best sellers.
+- **Smart alerts**: a notification on your phone when something waits too long: an order waiting to be accepted, a shipment without a courier, sales low by a time you choose, a message without an answer, a low rating or a ride without a driver. Only the ones your app has show, all off until you turn them on, and each person on your team sets their own.
+- **Morning brief**: yesterday in one notification, every day at your time.
+- **Prime looks**: Classic, Midnight gold, Ember and Sage, light and dark, kept on this phone. The look changes nothing in your customers' app.
+
+## VIP: your account manager
+
+When one of your apps has a plan that comes with an account manager (the Business plan, and Studio's Business plan when it includes one), Yallapp Business shows your **account manager** at Yallapp: their photo, WhatsApp, phone and the days and hours they take calls, with your messages answered first. **Book a call** offers their free times over the next five working days, in half hours. Your manager confirms the call, and can move it if needed.
+
 ## Notifications on your phone
 
-After you sign in, the app asks to send you notifications. Under **More › Notifications** you choose which ones this phone gets: **New orders**, **New bookings**, **New messages**, **Chat messages**, **New reviews**, **Payments**, **Builds**, **Updates from Yallapp** and **Account notices**. Account notices tell you about your plan ending, your storage, your app's users nearing your plan's limit, and your website or a connection needing attention: when your website, payment keys or notification keys fail their daily check, the notice comes to your phone, to your dashboard's **Overview** and by email. Tap a notification to open its screen.
+After you sign in, the app asks to send you notifications. Under **More › Notifications** you choose which ones this phone gets: **New orders**, **New bookings**, **New messages**, **Chat messages**, **New reviews**, **Payments**, **Builds**, **Updates from Yallapp** and **Account notices**; and in apps made in Studio, **New food orders**, **Shipments without a courier**, complaints, **Smart alerts** and the **Morning brief**. Account notices tell you about your plan ending, your storage, your app's users nearing your plan's limit, and your website or a connection needing attention: when your website, payment keys or notification keys fail their daily check, the notice comes to your phone, to your dashboard's **Overview** and by email. Tap a notification to open its screen.
 
 If you work on several businesses, notifications from another business start with its name, and tapping one switches to it.
 
@@ -2279,6 +2527,91 @@ Members buy a plan in the app and pay by card on your payment page; the membersh
 ## iPhone and the App Store
 
 A membership is for classes at your place, used in person, so Apple allows paying for it outside the app (App Store Review Guideline 3.1.3(e)). The iPhone app opens the same payment page as Android. When you publish, add this to **For the store reviewers** on **Publishing**: the page suggests the words.
+`,
+  }),
+  // 129.30 Travel (Phase 126): hotels and flights in Yallapp Studio.
+  doc({
+    slug: "travel",
+    section: "Selling and bookings",
+    title: "Travel: hotels and flights",
+    description: "Run a travel company's app made in Yallapp Studio: your hotels, rooms and rates, your flights, fares and seat maps, a stay and a flight as one trip, bookings, payments, changes, cancellations and refunds.",
+    steps: false,
+    body: `A travel project is a [Yallapp Studio](/docs/yallapp-studio) app for a travel company: your hotels, your flights with fixed seats (charters, Umrah, packages), or both, booked as one trip and followed in the app. You add everything in the project's dashboard, under **Hotels**, **Flights**, **Bookings** and **Travel settings**. Travel is chosen plan by plan on Studio's plans; you can set everything up before, and the app takes bookings once it is on your plan.
+
+## What your app does
+
+Your app sells hotels, flights or both. Yallapp sets this for your project, and **Travel settings** shows it with the app's tabs:
+
+- **Hotels and flights**: Explore, Stays, Flights, Trips and Account. The home offers a stay and a flight together, at one price.
+- **Hotels only**: Explore, Saved, Bookings, Messages and Account. With one hotel only, the app opens on its page.
+- **Flights only**: Search, Alerts, Trips, Help and Account.
+
+The screens of a part that is off never show in the app. To change it, message us on WhatsApp.
+
+## Hotels
+
+On **Hotels**, select **Add a hotel**: its name, kind (hotel, resort, boutique hotel, apartments, villa, hostel or guesthouse), stars, the city as people search it, the country, area, what it's near, the address and its place on the map. Add what it's about, its **Amenities**, the **Kinds of stay** people filter with (like Beach or Spa), check-in and check-out times, **Taxes and fees (%)**, whether it **Can be paid at the hotel**, its rules, phone and a word for its card. Add its photos (PNG or JPEG, up to 3 MB each); the first one is the cover.
+
+**Featured on Explore** puts it on the home; **Shown in the app** hides it without deleting it. **Move up** and **Move down** set the order the app lists them in. A deleted hotel keeps its name on its bookings.
+
+## Rooms and rates
+
+On a hotel's page, **Add a room** for each kind of room: its name, size, beds, how many it sleeps, how many **Rooms of this kind** you have, what it has, **A night**'s price and the **Fewest nights**. Set when it's **Open from** and **Open until**, its **Closed days** (one a line), and **Other nights' prices** for single nights or ranges, like 2026-12-20 to 2026-12-31 = 220.
+
+**Rates** are what people choose from for the room: room only, breakfast, breakfast and dinner, all meals or all inclusive, each with **Free cancellation** up to a number of days before, its price on top of the night, whether it's paid **At the hotel**, and one marked **Most chosen**.
+
+A room is held for one booking at a time: the last one goes to one person only, however many book at once. **Reviews** shows what guests wrote after their stay; **Hide** keeps a review out of every score.
+
+## Flights and fares
+
+On **Flights**, select **Add a flight**: the flight number, the airline or charter with its short code and colour, the airports it leaves from and lands at (their 3-letter codes, terminals and cities), when it **Leaves** and **Lands** in local time with the time difference, its stops, the aircraft and what's on board. **Repeat weekly** adds the same flight for up to 52 weeks at once.
+
+Each flight sells up to three **Fares**, **Light**, **Standard** and **Flex**: their price for one person, the seats sold at that fare, the cabin bag, the checked bags and their weight, whether changes and refunds are allowed and their fees, and which seats come with it. A flight with bookings is never deleted: it stops being sold instead.
+
+## Seat maps
+
+Turn on **Let people choose their seats** and draw the plane: the **Seats across** (letters, with a space for each aisle, like ABC DEF), the **First row** and how many **Rows**, the **Extra legroom rows** and their price, the price of a seat on a light fare, and the **Seats not sold**. People pick their seats on the map in the app, and a seat goes to one booking only.
+
+## Status, gate and boarding
+
+**Status, gate and time** keeps a flight up to date: scheduled, on time, delayed with its new time, boarding, departed, landed or cancelled, with the **Gate**, when it **Boards at** and a **Note to travellers**. Everyone booked on it is told on their phone.
+
+Boarding passes show in the app 48 hours before the flight leaves, or as soon as you turn on **Check-in open**. They stay on the traveller's phone.
+
+## A stay and a flight as one trip
+
+With hotels and flights, people book a stay and a flight together as one trip, at one price, with the **Stay + flight saving** you set taken off the stay, and an **Airport transfer** if you offer one. They're offered together only when the flight lands in the hotel's city on the check-in day or the day before, and comes back on the check-out day or the day after. People can add extra bags and meals at the prices you set.
+
+## Bookings and payment
+
+**Bookings** lists every stay, flight and trip, newest first: **All**, **Confirmed**, **Waiting for payment**, **Cancelled**, **Done** and **To refund**, and a search by reference, name or phone. A booking shows its stay, flights and seats, the travellers and their requests, the price line by line, the payment, and what happened.
+
+People pay on your own payment page, into your own account: Yallapp takes no commission. A stay alone can also be paid at the hotel, if you allow it. A booking not paid yet holds its rooms and seats for 30 minutes, then gives them back. If someone pays less than the booking now costs (because its dates or seats changed while the payment page was open), it waits for the rest. **Mark as paid** confirms a booking whose hold has ended only while its rooms and seats are still free. **Member price** gives people signed in a lower price.
+
+## Changes, cancellations and refunds
+
+Travellers change their dates, their flight or their seats, and cancel, in the app; the app shows what a cancellation refunds before they confirm, by the rate's free cancellation and the fare's rules. What's owed back is always what was paid over the new total.
+
+In **Bookings**, **Cancel the booking** cancels it for the traveller, with everything paid to refund, and tells them. Refund it through your payment account, then select **Mark as refunded**; a later full cancellation refunds only the rest.
+
+## Travel settings
+
+- **Currency**, and the ways to pay: in the app, at the hotel, or both.
+- **Member price** and **Stay + flight saving**, in percent.
+- The **Airport transfer**'s price and note, and the prices of an extra bag and a meal.
+- **Titles' font**, a free font for the app's travel titles.
+- **Time zone**: today, the sale and cancellation deadlines, check-in for boarding passes and the flights' times are counted in it. Until you choose one, it's your app's, else Istanbul's.
+- **Help**: the phone, email and WhatsApp the app shows travellers.
+
+## In the app
+
+Travellers search stays by place, dates and guests, see hotels on a list or a map, open a hotel's rooms for their dates, and see flights with the best, cheapest and fastest and a calendar of the month's prices. They choose a fare, their seats, bags and meals, check out, and keep each trip in **Trips** with its boarding passes. After their stay they can review it. They save hotels and set price alerts, checked every day and told on their phone when a price drops. In English, Arabic and Turkish, light and dark.
+
+In Studio, the travel template and its three designs, Explore, Escape and Calm journeys, come with Packages, About us, Contact and Questions pages, and the hotels can be a list on any page. [Studio's demo](/demo/studio) Safra shows a travel app with its hotels and flights.
+
+## Hotels' and flights' own systems
+
+Hotels and flights are set in your dashboard. Linking a hotel's own booking system, a hotel supplier or a live flight provider is **Coming soon**: message us if you need one.
 `,
   }),
   doc({

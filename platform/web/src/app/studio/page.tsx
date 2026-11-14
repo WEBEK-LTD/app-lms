@@ -63,7 +63,7 @@ export default async function StudioHomePage() {
           </Link>
         </nav>
         <div className="flex-[1_1_20px]" />
-        <a href={localePath(lang, "/docs")} className="flex items-center gap-1.5 text-sm no-underline" style={{ color: C.ivory }}>
+        <a href={localePath(lang, "/docs/yallapp-studio")} className="flex items-center gap-1.5 text-sm no-underline" style={{ color: C.ivory }}>
           <Glyph name="help" size={18} />
           {t("studio.help")}
         </a>
