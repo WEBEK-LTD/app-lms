@@ -216,9 +216,8 @@ void main() {
       await open(
         tester,
         AppType.rides,
-        withPage(FakeApi(config: configJson()), [
-          tracking('ride', 'headline'),
-        ])..rides = [rideJson(status: 'accepted')],
+        withPage(FakeApi(config: configJson()), [tracking('ride', 'headline')])
+          ..rides = [rideJson(status: 'accepted')],
         dark: dark,
       );
       expect(

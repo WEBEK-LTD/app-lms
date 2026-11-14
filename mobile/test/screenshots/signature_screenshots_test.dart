@@ -19,7 +19,6 @@ import 'package:yallapp/modules/shared/pages/content_blocks.dart'
     show pageClockProvider;
 
 import 'support/screens.dart';
-import 'support/shot.dart';
 import 'support/studio_demo.dart';
 
 const _enabled = bool.fromEnvironment('YALLAPP_SCREENSHOTS');
