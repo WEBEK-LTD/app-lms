@@ -1,4 +1,4 @@
-import { NAKHLA_A } from "./nakhla-signature";
+import { NAKHLA_A, NAKHLA_B } from "./nakhla-signature";
 import { signatureTemplate, type SignatureLook } from "./signature";
 
 /**
@@ -9,6 +9,7 @@ import { signatureTemplate, type SignatureLook } from "./signature";
 export const SIGNATURE_LOOKS: readonly SignatureLook[] = [
   // ——— 130.13–130.18 Nakhla School, Rawaq Academy and Ufuq Academy ———
   NAKHLA_A,
+  NAKHLA_B,
   // ——— end 130.13–130.18 ———
 ];
 

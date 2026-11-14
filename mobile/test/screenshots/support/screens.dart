@@ -1034,7 +1034,10 @@ final websiteShots = <Shot>[
     overrides: _nakhlaMorning,
   ),
   // 130.13–130.18 The Signature looks' homes, by day and by night.
-  for (final (name, look) in [('nakhla-sig-a', StudioDemo.nakhlaSigA)])
+  for (final (name, look) in [
+    ('nakhla-sig-a', StudioDemo.nakhlaSigA),
+    ('nakhla-sig-b', StudioDemo.nakhlaSigB),
+  ])
     for (final dark in [false, true])
       Shot(
         '$name-home${dark ? '-dark' : ''}',
@@ -1044,6 +1047,7 @@ final websiteShots = <Shot>[
         appType: AppType.school,
         prepare: look.prepare,
         overrides: _nakhlaMorning,
+        shadows: true,
       ),
   Shot(
     'nakhla-parent',

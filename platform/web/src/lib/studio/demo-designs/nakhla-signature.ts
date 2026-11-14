@@ -299,3 +299,197 @@ export const NAKHLA_A: SignatureLook = {
   },
   chrome: { home: "photo", header: "glass", screens: "photo" },
 };
+
+// ——— B · Family passes ———
+
+const OUTFIT = "Outfit";
+
+/** A small card's kicker over its title, in capitals. */
+function kicker(ctx: SectionContext, word: SectionWord, color: string, dark: string): StudioNode {
+  return text(ctx, word, { color, dark_color: dark, font: { size: 11, weight: 800, letter_spacing: 1.7, uppercase: true } });
+}
+
+/**
+ * 130.14 R2-Nakhla-B: today's date over the family's greeting; the chosen
+ * child's day as a pass (the school's photo with the children to switch
+ * between, the perforation, the day: in at the gate, the class now and
+ * next, the bus home); then the school bus, the forms to sign on navy (gold
+ * by night) and the school's news on a photo, side by side.
+ */
+export function nakhlaPassesHome(ctx: SectionContext): StudioPage {
+  const id = idOf(ctx);
+  const k = NAKHLA_B_INK;
+  const card = { background: k.surface, dark_background: k.darkSurface, border_color: k.line, dark_border_color: k.darkLine, border_width: 1, radius: 24 } as const;
+  return {
+    header: { type: "greeting", buttons: ["notifications"], color: k.ink, dark_color: k.darkInk },
+    background: k.page,
+    dark_background: k.darkPage,
+    body: {
+      id: id(),
+      type: "column",
+      padding: { top: 8, end: 16, bottom: 24, start: 16 },
+      children: [
+        // The pass: the school's photo with the children, the perforation, the chosen child's day.
+        {
+          id: id(),
+          type: "column",
+          name: ctx.w("nbPass"),
+          visibility: "signed_in",
+          ...card,
+          radius: 26,
+          surface: { ticket: { at: 42, notch: 10 }, soft: 3 },
+          children: [
+            {
+              id: id(),
+              type: "photo_hero",
+              image_url: photo(ctx, "/demo-screens/nakhla-school.jpg"),
+              height: 128,
+              background: NAVY,
+              corners: { top_start: 26, top_end: 26 },
+              scrim: { color: "#06101C", from: 0.35, middle: 0.05, at: 45, to: 0.75 },
+              align: "end",
+              padding: pad(12, 12),
+              children: [{ id: id(), type: "school", school: { section: "children" }, color: "#FFFFFF" }],
+            },
+            todayCard(ctx, k, { background: null, dark_background: null, border_width: 0, shadow: "none", margin: pad(6, 4), radius: 0 }),
+          ],
+        },
+        // Signed out: the school's photo with its welcome.
+        {
+          id: id(),
+          type: "photo_hero",
+          name: ctx.w("sdWelcome"),
+          visibility: "signed_out",
+          image_url: photo(ctx, "/demo-screens/nakhla-school.jpg"),
+          height: 220,
+          radius: 26,
+          background: NAVY,
+          scrim: { color: "#06101C", from: 0.2, middle: 0.1, at: 40, to: 0.88 },
+          align: "end",
+          padding: pad(18, 18),
+          children: [text(ctx, "sdWelcome", { color: "#FFFFFF", font: { family: OUTFIT, size: 26, weight: 700, line_height: 1.1 } })],
+        },
+        {
+          id: id(),
+          type: "row",
+          gap: 10,
+          cross: "stretch",
+          margin: { top: 14 },
+          children: [
+            // The school bus, stop by stop.
+            {
+              id: id(),
+              type: "column",
+              name: ctx.w("nbBus"),
+              width: "fill",
+              gap: 8,
+              padding: pad(16, 14),
+              ...card,
+              action: SCHOOL,
+              children: [
+                {
+                  id: id(),
+                  type: "row",
+                  width: 44,
+                  height: 44,
+                  radius: 14,
+                  align: "center",
+                  cross: "center",
+                  background: "#FBEBC4",
+                  dark_background: "#3A2D0C",
+                  children: [{ id: id(), type: "icon", icon: "directions_bus", icon_size: 24, color: "#6B4A00", dark_color: "#F2C66A" }],
+                },
+                text(ctx, "nbBus", { color: k.ink, dark_color: k.darkInk, font: { family: OUTFIT, size: 17, weight: 700 } }),
+                text(ctx, "nbBusText", { color: k.muted, dark_color: k.darkMuted, font: { size: 13, line_height: 1.4 } }),
+              ],
+            },
+            {
+              id: id(),
+              type: "column",
+              width: "fill",
+              gap: 10,
+              children: [
+                // The forms to sign: navy by day, gold by night.
+                {
+                  id: id(),
+                  type: "column",
+                  name: ctx.w("nbSlips"),
+                  gap: 6,
+                  radius: 24,
+                  padding: pad(14, 14),
+                  background: NAVY,
+                  dark_background: GOLD,
+                  action: SCHOOL,
+                  children: [
+                    kicker(ctx, "nbToSign", "#F5D68E", "#4A3500"),
+                    text(ctx, "nbSlips", { color: "#FFFFFF", dark_color: NAVY, font: { family: OUTFIT, size: 17, weight: 700, line_height: 1.2 } }),
+                  ],
+                },
+                // The school's news on a photo.
+                {
+                  id: id(),
+                  type: "photo_hero",
+                  name: ctx.w("sdWeek"),
+                  image_url: photo(ctx, "/stories/school/school-teacher.jpg"),
+                  height: 112,
+                  radius: 24,
+                  background: NAVY,
+                  scrim: { color: "#06101C", from: 0.1, middle: 0.3, at: 40, to: 0.9 },
+                  align: "end",
+                  padding: pad(12, 12),
+                  action: SCHOOL,
+                  children: [kicker(ctx, "nbNewsKicker", "#F5D68E", "#F5D68E"), text(ctx, "sdWeek", { color: "#FFFFFF", max_lines: 2, font: { family: OUTFIT, size: 15, weight: 700, line_height: 1.2 } })],
+                },
+              ],
+            },
+          ],
+        },
+      ],
+    },
+  };
+}
+
+/** Over the School tab: the school's building as a pass's photo, its word at the foot. */
+function nakhlaPassesPage(screen: string, ctx: SectionContext): StudioNode[] | null {
+  if (screen !== "school") return null;
+  const id = idOf(ctx);
+  return [
+    {
+      id: id(),
+      type: "photo_hero",
+      name: ctx.w("tipSchool"),
+      image_url: photo(ctx, "/demo-screens/nakhla-school.jpg"),
+      height: 132,
+      radius: 24,
+      background: NAVY,
+      scrim: { color: "#06101C", from: 0.15, middle: 0.2, at: 40, to: 0.88 },
+      align: "end",
+      padding: pad(16, 16),
+      margin: { top: 12, end: 16, bottom: 4, start: 16 },
+      children: [text(ctx, "tipSchool", { color: "#FFFFFF", max_lines: 2, font: { family: OUTFIT, size: 16, weight: 700, line_height: 1.3 } })],
+    },
+  ];
+}
+
+export const NAKHLA_B: SignatureLook = {
+  id: "school_signature_b",
+  demo: "school",
+  letter: "b",
+  icon: "badge",
+  fits: { types: ["school"] },
+  home: nakhlaPassesHome,
+  design: {
+    over: nakhlaPassesPage,
+    look: { header: { background: NAKHLA_B_INK.page, color: NAKHLA_B_INK.ink, dark_background: NAKHLA_B_INK.darkPage, dark_color: NAKHLA_B_INK.darkInk }, background: NAKHLA_B_INK.page, dark_background: NAKHLA_B_INK.darkPage, headed: true },
+    headerStyle: "large",
+  },
+  project: {
+    primary: "#1F4E79",
+    // The board's bar: frosted and floating, every tab named, the open one in a soft pill.
+    tab_bar: { design: "glass", radius: 28, margin: 16, labels: "always", background: "#FFFFFF", dark_background: NAKHLA_B_INK.darkSurface, active: "#1F4E79", dark_active: "#9CC3EA", inactive: NAKHLA_B_INK.muted, dark_inactive: NAKHLA_B_INK.darkMuted },
+    appearance: { secondary_color: GOLD, font: "Lexend" },
+    tabs: (tabs) => nakhlaTabs(tabs),
+    screens: nakhlaScreens("card"),
+  },
+  chrome: { home: "large", header: "large", screens: "card" },
+};

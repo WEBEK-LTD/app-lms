@@ -107,7 +107,7 @@ describe("103R.7 Studio's templates and sections for each project type", () => {
     expect(ownTemplates(kindOf("academy")).map((t) => t.id)).not.toContain("teachers");
     // 105.4 A school's own three, with its welcome first.
     // 130.13 130.14 Nakhla School's Signature looks first.
-    expect(ownTemplates(kindOf("school")).map((t) => t.id)).toEqual(["school_signature_a", "school", "school_news", "school_brand", "school_today", "university", "brand", "contact", "blank"]);
+    expect(ownTemplates(kindOf("school")).map((t) => t.id)).toEqual(["school_signature_a", "school_signature_b", "school", "school_news", "school_brand", "school_today", "university", "brand", "contact", "blank"]);
     // A university's own template: its welcome in a university's words, its steps too.
     const uni = ownTemplates(kindOf("school")).find((t) => t.id === "university")!.make({ brand: "#1F4E5F", source: "school_news", w: (word) => word });
     const uniWords = allNodes(uni).map((n) => n.text).filter(Boolean);

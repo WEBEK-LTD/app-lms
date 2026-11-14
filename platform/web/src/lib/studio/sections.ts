@@ -298,6 +298,12 @@ export type SectionWord =
   | "tabTeachers"
   | "tipTeachers"
   // 130.13–130.18 The Signature looks' words.
+  | "nbPass"
+  | "nbBus"
+  | "nbBusText"
+  | "nbToSign"
+  | "nbSlips"
+  | "nbNewsKicker"
   | "nkKicker"
   | "nkNewsLabel"
   | "nkNewsLines"

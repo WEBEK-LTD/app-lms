@@ -68,7 +68,7 @@ describe("130.13–130.18 the Signature looks of Nakhla School, Rawaq Academy an
   it.each(LOOKS.map((l) => l.id))("%s starts a whole project in its look, valid as the app API takes it", (id) => {
     const look = signatureLook(id)!;
     const { app, layout } = projectOf(id);
-    const parsed = parseLayoutContent(layout, { app: { ...app, demo: false }, now: NOW });
+    const parsed = parseLayoutContent(layout, { app, now: NOW });
     expect(parsed.ok ? [] : parsed.errors).toEqual([]);
     // Its premium bar, never the classic bar across the bottom.
     expect(layout.tab_bar).toEqual(look.project.tab_bar);
@@ -87,7 +87,7 @@ describe("130.13–130.18 the Signature looks of Nakhla School, Rawaq Academy an
 
   it.each(LOOKS.map((l) => l.id))("%s is made in Arabic too", (id) => {
     const { app, layout } = projectOf(id, "ar");
-    const parsed = parseLayoutContent(layout, { app: { ...app, demo: false }, now: NOW });
+    const parsed = parseLayoutContent(layout, { app, now: NOW });
     expect(parsed.ok ? [] : parsed.errors).toEqual([]);
   });
 

@@ -153,6 +153,13 @@ const symbolsByName = <String, IconData>{
   'flight_takeoff': Symbols.flight_takeoff_rounded,
   'hotel_class': Symbols.hotel_class_rounded,
   'airline_seat_recline_normal': Symbols.airline_seat_recline_normal_rounded,
+  // 130.13–130.18 The Signature looks of the school and the academies: the
+  // school bus, the forms to sign, a streak's flame, the live tab.
+  'directions_bus': Symbols.directions_bus_rounded,
+  'signature': Symbols.signature_rounded,
+  'local_fire_department': Symbols.local_fire_department_rounded,
+  'sensors': Symbols.sensors_rounded,
+  'north_east': Symbols.north_east_rounded,
 };
 
 /// Shown for a name the app doesn't have.

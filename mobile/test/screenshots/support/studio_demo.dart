@@ -39,6 +39,7 @@ class StudioDemo {
   // Ufuq Academy: the projects their templates start
   // (platform/web/tests/unit/studio-signature-learn.test.ts).
   static final nakhlaSigA = StudioDemo._load('nakhla_sig_a.json');
+  static final nakhlaSigB = StudioDemo._load('nakhla_sig_b.json');
 
   final Map<String, dynamic> _demo;
 

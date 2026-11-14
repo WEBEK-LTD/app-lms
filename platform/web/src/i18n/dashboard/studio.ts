@@ -1844,6 +1844,13 @@ export const en = {
   w_nkSignLines: "Forms to sign\nTrips and permission slips from the school",
   w_tabParent: "Parent",
   w_tabLive: "Live",
+  tpl_school_signature_b: "Family passes",
+  w_nbPass: "Today's pass",
+  w_nbBus: "School bus",
+  w_nbBusText: "Every stop on the way home, as the bus goes.",
+  w_nbToSign: "To sign",
+  w_nbSlips: "Trips and permission slips",
+  w_nbNewsKicker: "School news",
   // ——— end 130.13–130.18 The Signature looks of Nakhla School, Rawaq Academy and Ufuq Academy ———
 } as const;
 
@@ -3672,6 +3679,13 @@ export const ar: Messages = {
   w_nkSignLines: "نماذج للتوقيع\nالرحلات وأذونات المدرسة",
   w_tabParent: "وليّ الأمر",
   w_tabLive: "مباشر",
+  tpl_school_signature_b: "كروت العيلة",
+  w_nbPass: "بطاقة اليوم",
+  w_nbBus: "حافلة المدرسة",
+  w_nbBusText: "كل محطة في طريق العودة، أولًا بأول.",
+  w_nbToSign: "للتوقيع",
+  w_nbSlips: "الرحلات والأذونات",
+  w_nbNewsKicker: "أخبار المدرسة",
   // ——— end 130.13–130.18 The Signature looks of Nakhla School, Rawaq Academy and Ufuq Academy ———
 };
 
@@ -5498,5 +5512,12 @@ export const tr: Messages = {
   w_nkSignLines: "İmzalanacak formlar\nOkuldan gezi ve izin formları",
   w_tabParent: "Veli",
   w_tabLive: "Canlı",
+  tpl_school_signature_b: "Aile kartları",
+  w_nbPass: "Bugünün kartı",
+  w_nbBus: "Okul servisi",
+  w_nbBusText: "Eve dönüş yolundaki her durak, servis ilerledikçe.",
+  w_nbToSign: "İmzalanacak",
+  w_nbSlips: "Geziler ve izin formları",
+  w_nbNewsKicker: "Okul haberleri",
   // ——— end 130.13–130.18 The Signature looks of Nakhla School, Rawaq Academy and Ufuq Academy ———
 };
