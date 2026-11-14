@@ -50,6 +50,8 @@ export const DASHBOARD_HELP: Record<string, string> = {
   "/dashboard/timetable": "fitness",
   // 129.30 Travel's Hotels, Flights, Bookings and Travel settings (Phase 126).
   "/dashboard/travel": "travel",
+  // 130.48 A Studio project's Sign-in and account: the sign-in screen, the account menu and the system screens' premium look.
+  "/dashboard/screens": "studio-premium-elements",
 };
 
 /** The article's slug for a dashboard address, or null. */

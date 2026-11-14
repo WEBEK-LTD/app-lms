@@ -58,7 +58,7 @@ Required: \`GET /bookings/home\`, \`GET /bookings/categories\`, \`GET /bookings/
 
 ### Optional for every app type
 
-\`GET /pages\` and \`GET /pages/{slug}\` serve the app's bottom tabs and pages, in the shape the reference describes. The **Pages & look** editor in the Yallapp dashboard doesn't reach your own API: it publishes to apps that run on Yallapp and to WordPress sites through our plugin. So leave these out, and the app uses its built-in tabs and your home endpoint (when \`/pages\` answers 404), or serve tabs and pages your own system builds. A page may also carry \`studio\`, a page made of elements (\`StudioPage\` and \`StudioNode\` in the reference), with the elements of [the Studio editor](/docs/studio-elements).
+\`GET /pages\` and \`GET /pages/{slug}\` serve the app's bottom tabs and pages, in the shape the reference describes. The **Pages & look** editor in the Yallapp dashboard doesn't reach your own API: it publishes to apps that run on Yallapp and to WordPress sites through our plugin. So leave these out, and the app uses its built-in tabs and your home endpoint (when \`/pages\` answers 404), or serve tabs and pages your own system builds. A page may also carry \`studio\`, a page made of elements (\`StudioPage\` and \`StudioNode\` in the reference), with the elements of [the Studio editor](/docs/studio-elements). Its header can have a premium \`style\` (\`StudioHeader\`), and \`/config\` can give the app's own screens a premium look (\`screens.system\`); an app that doesn't know a value draws the header's type and the screens' own look.
 
 > Features you don't support: turn them off in \`/config\` and the app hides them. An endpoint the app doesn't need for your settings is never called.
 

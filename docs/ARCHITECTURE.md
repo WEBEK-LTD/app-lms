@@ -3891,13 +3891,18 @@ Where the documentation lives, for whoever brings it up to date next:
   waabek.com, say "multi-vendor", never "marketplace", and show no prices.
 - **The help links**: `lib/docs/help.ts` maps each dashboard address to its
   article (`PageHelp`); Studio's Help opens `yallapp-studio`, the editor's
-  Help `studio-elements`.
+  Help `studio-elements`, Sign-in and account's `studio-premium-elements`.
 - **The developer docs**: `src/content/docs-developer.ts` (the `my-own-api`
   guide) and `/developers`, made from `docs/api/openapi.yaml` through
   `src/content/api-reference.json`.
 - **Studio's articles**: `studio-elements` (every element of
   `lib/studio/elements.ts` and the inspector), `studio-premium-elements`
-  (the photo-first elements; new premium elements go there),
-  `studio-templates` (`lib/studio/sections.ts`, the demos and /start).
+  (the photo-first elements, the premium library, the maps' looks, the live
+  cards' options, the premium headers and the system screens' look; new
+  premium elements go there), `studio-templates` (`lib/studio/sections.ts`,
+  `lib/studio/premium-designs.ts`, the demos, their Signature looks
+  (`lib/studio/demo-designs/`) and /start). A look's home picture is
+  `public/screens/<demo's address>-sig-<a|b>-home.png`; the look B ones are
+  in `APP_SCREENS` with their words in the three languages.
 - **Elsewhere**: `docs/*.md`, the plugin's `wp-plugin/yallapp/readme.txt`,
   `business/README.md` and the stores' texts in `business/store`.

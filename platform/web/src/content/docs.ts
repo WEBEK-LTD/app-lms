@@ -219,7 +219,7 @@ Open it from **Yallapp Studio** in your dashboard's menu. Its first page, **Your
 
 - **Pages**: regular apps use the page editor, with its blocks and ready-made designs. Studio projects use the Studio editor, where any element goes anywhere.
 - **Kinds of apps**: Studio makes every kind of app Yallapp makes, and the project types only Studio offers, like delivery companies.
-- **Plans**: they're separate. A regular app is paid on a regular plan (Starter, Growth, Pro or Business), and a Studio project on one of Studio's own plans.
+- **Plans**: they're separate. A regular app is paid on one of the regular plans, and a Studio project on one of Studio's own plans.
 - **In your account**: your regular apps stay in the dashboard; your Studio projects are in Studio, each with its own dashboard.
 
 Building, the setup steps and publishing on the app stores work the same way for both.
@@ -230,26 +230,26 @@ Choose **New project**. It takes three steps:
 
 1. **Project type**: what your project is. **Studio projects only** come first, then every kind of app.
 2. **Content source**: where its content comes from, as for a regular app of the same kind. Delivery companies have no website: their shipments, couriers and prices are set in the project's dashboard.
-3. **The start**: a template made for your kind of project, or a blank page, and your project's name.
+3. **The start**: a template made for your kind of project, like the two Signature looks of its demo, or a blank page, and your project's name.
 
 The project's dashboard opens, with the same pages as a regular app of its kind. You can design and try before you choose a plan. Publishing needs one of Studio's plans.
 
-You can also start from one of Studio's demos, with all its pages, photos and entries, and try each one live first: see [Ready sections, templates and Studio's demos](/docs/studio-templates).
+You can also start from one of Studio's nine demos, in either of its two looks, with all its pages, photos and entries, and try each one live first: see [Ready sections, templates and Studio's demos](/docs/studio-templates).
 
 ## The Studio editor
 
 Choose **Open the editor**. The page sits in the phone in the middle; **Elements**, **Ready sections**, **Templates** and **Page layers** are on one side, and the chosen element's settings on the other.
 
-- **Elements**: Row, Column, Layers, Grid, Slider and Space to lay the page out; Text, Picture, Button, Icon and Divider; a List of your products, courses, services or other entries, in a card you design; Categories, Video, Form, Map, Ratings and Search. Drag any element and drop it anywhere.
+- **Elements**: Row, Column, Layers, Grid, Slider and Space to lay the page out; Text, Picture, Button, Icon and Divider; a List of your products, courses, services or other entries, in a card you design; Categories, Video, Form, Map, Ratings and Search; and the **Premium** group: sliders, stories, tickers, video and parallax banners, galleries, quotes, plans, numbers, progress, timelines, bento grids, glass cards and the drawn maps' looks. Drag any element and drop it anywhere.
 - **Size and place**: each element can **Fill** the space, **Hug** its content or take a **Fixed** size, with space inside, space outside and space between.
 - **Colours**: a background, a gradient or a picture behind it, and a text colour, each with its own colour **In dark mode**. Fonts, corners, shadows and borders too.
-- **Motion**: what happens **When it shows** (fade in, slide or grow), **While tapped** (shrink or bounce) and **Again and again** (pulse, float or shake). Phones set to reduce motion show it still.
+- **Motion**: what happens **When it shows** (fade in, slide or grow), as people scroll to it, **While tapped** (shrink or bounce) and **Again and again** (pulse, float or shake). Phones set to reduce motion show it still.
 - **When the customer taps**: open a screen of the app, a page, a web address or one entry.
 - **Shows on** Android, iOS or both, and **Who sees it**: everyone, people signed in, or people not signed in.
 
 Check the page on a small phone, a large phone and a tablet, in light and dark. **Undo** and **Redo** go back and forward, and the page is saved as you go. **Preview on the phone** lets you try it on your phone; **Publish** sends it to your app, which shows it the next time it opens. **Save the page as my own template** keeps it in **My templates** for your other pages.
 
-Every element and its settings are on [The Studio editor: every element](/docs/studio-elements), and the photo-first ones Studio's demos are made of on [Premium elements in Studio](/docs/studio-premium-elements).
+Every element and its settings are on [The Studio editor: every element](/docs/studio-elements), and the premium ones Studio's demos are made of, with the premium headers and the app's own screens in a premium look, on [Premium elements in Studio](/docs/studio-premium-elements).
 
 ## Delivery companies
 
@@ -386,7 +386,7 @@ In your Yallapp dashboard, open **App setup › Website**, choose **My WordPress
 
 ## Apps designed in Yallapp Studio
 
-A WordPress academy can be a [Yallapp Studio](/docs/yallapp-studio) project. What you design in Studio reaches the app through the plugin, filled with your own courses: the pages and tabs, the sign-in screen, the account menu, the launch screen and the looks of the premium academy's screens. Plugin 0.4.39 adds the new academy home: the student's cards (the course they're taking, their next live class and their streak) on a photo, each course card's rating from your course reviews, and a card's border colour in dark mode. See [Premium elements in Studio](/docs/studio-premium-elements).
+A WordPress academy can be a [Yallapp Studio](/docs/yallapp-studio) project. What you design in Studio reaches the app through the plugin, filled with your own courses: the pages and tabs, the sign-in screen, the account menu, the launch screen and the looks of the premium academy's screens. Plugin 0.4.39 adds the new academy home: the student's cards (the course they're taking, their next live class and their streak) on a photo, each course card's rating from your course reviews, and a card's border colour in dark mode. Plugin 0.4.40 adds Studio's premium library: stories, the ticker, the video and parallax banners, the gallery, before and after, progress segments and the slider's new looks; quotes, plans, numbers, progress, the timeline, the profile card, the bento grid, badges, the action bar and the glass, ticket and texture card styles; and the drawn map's premium looks with their pins, words and live route. Plugin 0.4.41 adds the Signature looks and premium screens: a header's premium style with its line, photo and folding, the look of the app's own screens, the live cards' new looks, the next trip as a boarding pass or a big countdown, a greeting in your own words, and the course in progress in a gold ring with this week's days. See [Premium elements in Studio](/docs/studio-premium-elements).
 
 Keep the plugin up to date in **Plugins**, then select **Publish** in Studio: the app shows it the next time it opens, without a new build.
 
@@ -976,7 +976,7 @@ They hold other elements and place them.
 - **Space**: empty space, as high as you set it.
 - **Questions**: questions that open to show their answer. Each one's question is in **Its question or tab name**; its answer is what it holds.
 - **Tabs**: parts people switch between. Each tab's name is in **Its question or tab name**.
-- **Photo hero** and **Map header**: covers with elements over them, on [Premium elements in Studio](/docs/studio-premium-elements).
+- **Photo hero** and **Map header**: covers with elements over them; and in the **Premium** group, the **Hero slider**, **Card carousel**, **Video banner**, **Parallax banner**, **Glass card** and **Profile card**. All of them are on [Premium elements in Studio](/docs/studio-premium-elements).
 
 **Put in a** Row, Column or Layers wraps the selected element in a new one.
 
@@ -998,6 +998,7 @@ They hold other elements and place them.
 - A **List** with an icon on each line: **One line each**, and the **Icon of each line**.
 - **Coupon code**: **The code** (letters, numbers, - and _), which people copy with one tap.
 - **Greeting**, **Live order**, **Live card**, **School day** and the **Student's card**: drawn from the person signed in, on [Premium elements in Studio](/docs/studio-premium-elements).
+- In the **Premium** group: **Stories**, **Ticker**, **Gallery**, **Before and after**, **Progress segments**, **Testimonials**, **Pricing**, **Numbers**, **Progress**, **Timeline**, **Bento grid**, **Badge**, **Action bar**, and under **Maps** the drawn maps in their premium looks, on the same page.
 - In a multi-vendor app, **the multi-vendor section**: the address and search, the kinds of places, the offers, the cuisines and departments, the club, the places or order again, filled from your places. For places, choose the look, which places (all, restaurants or groceries), the order, a tag, free delivery only, how many (up to 40) and what each place's card leaves out (the offer, rating, delivery time, delivery fee or smallest order).
 
 ## Lists and their cards
@@ -1016,7 +1017,7 @@ Studio's page shows your own entries, or sample ones until you add yours, so you
 - **Size and place**: **Width** and **Height** each **Fill** the space, **Hug** the content or are **Fixed**; **Lowest height** and **Proportions**; **Space inside** and **Space outside**, the same on opposite sides or each side on its own; **Fixed on the screen**, at the top or the bottom.
 - **Colours**: **Background**, **Text colour**, a **Gradient** of two colours at an **Angle**, and a **Picture behind it**. **In dark mode** gives the background, the text and the border their own colours by night.
 - **Shape**: **Corners**, or **Each corner on its own**; **Shadow** (none, light, medium or strong); **Border**; **Opacity**; **Turn**.
-- **Motion**: **When it shows** (fade in, slide up, down, from the start or the end, or grow) with its **Time (ms)** and **Wait before (ms)**; **While tapped** (shrink or bounce); **Again and again** (pulse, float or shake). **Play it** shows it on the phone. Phones set to reduce motion show it still.
+- **Motion**: **When it shows** (fade in, slide up, down, from the start or the end, or grow) with its **Time (ms)** and **Wait before (ms)**, played once when the element first comes onto the screen as people scroll to it; **While tapped** (shrink or bounce); **Again and again** (pulse, float or shake). **Play it** shows it on the phone. Phones set to reduce motion show it still.
 - **When the customer taps**: **A screen of the app**, **A page**, **A web address**, **One entry** or **A course**.
 - **Shows on** Android, iOS or both, and **Who sees it**: everyone, people signed in, or people not signed in.
 - **Hide in the app (kept here)**, **Lock on the canvas**, and its **Name in the layers**.
@@ -1027,9 +1028,10 @@ Check each page on a **Small phone**, a **Large phone** and a **Tablet**, in lig
 
 ## The page, its header and its tabs
 
-- **Header**: **No header**, or one of six: **1 Logo in the middle**, **2 Title + search**, **3 Logo + cart + account**, **4 Clear over the picture**, **5 The page's title and buttons** and **6 Greeting with the person's name**. Choose its buttons (menu, search, cart, notifications, chat, account) and its colours, in dark mode too. A clear header lies over the page's first element, from the very top.
+- **Header**: **No header**, or one of six: **1 Logo in the middle**, **2 Title + search**, **3 Logo + cart + account**, **4 Clear over the picture**, **5 The page's title and buttons** and **6 Greeting with the person's name**. Choose its buttons (menu, search, cart, notifications, chat, account) and its colours, in dark mode too. A clear header lies over the page's first element, from the very top. A **Premium style** (a large title, frosted glass, a photo cover, your brand in the middle, or a title with search) is drawn in place of the type: see [Premium elements in Studio](/docs/studio-premium-elements).
 - **Page background**, **Bottom tabs under this page**, and **The app's screen under this page**: the app draws one of its own screens (its lists, forms or map) under your elements, and your header becomes its title.
-- **Bottom tabs**: up to ten. Up to five show in the bar; with more, the fifth becomes More and holds the rest. Each tab has its name and icon. Under **How the bar looks**, choose the **Design** (Classic, Pill, Minimal, Dot, Line, Bubble, Glass, Notch, Lift, Outline, Square, Names only, Island, Segment, Folder tab, Drop, Glow, Colours or **Floating pill**), the **Open tab** and **Other tabs** colours, **Corners**, **Space around it (floating)**, the names' font, **Names** (always, open tab only or icons only), a **Round button in the middle** and **The account tab shows the person's photo**.
+- **Bottom tabs**: up to ten. Up to five show in the bar; with more, the fifth becomes More and holds the rest. Each tab has its name and icon. Under **How the bar looks**, choose the **Design** (Classic, Pill, Minimal, Dot, Line, Bubble, Glass, Notch, Lift, Outline, Square, Names only, Island, Segment, Folder tab, Drop, Glow, Colours, **Floating pill** or **Small dock**), the **Open tab** and **Other tabs** colours, **Corners**, **Space around it (floating)**, the names' font, **Names** (always, open tab only or icons only), a **Round button in the middle** and **The account tab shows the person's photo**.
+- **System screens' look**, with nothing selected: the look of the app's own screens (the account, settings, notifications, sign-in and more) for the whole project.
 
 ## Working faster
 
@@ -1048,34 +1050,116 @@ Check each page on a **Small phone**, a **Large phone** and a **Tablet**, in lig
     slug: "studio-premium-elements",
     section: "Your app",
     title: "Premium elements in Studio",
-    description: "The photo-first elements of Studio's demos, for every project: the photo hero, the shade for the words, the map header, the greeting, live cards for orders, shipments, rides and the school day, the student's cards on a photo, ratings, borders by night and the floating pill bar.",
+    description: "Studio's premium library for every project: sliders, stories, tickers, video and parallax banners, galleries, quotes, plans, numbers, progress, timelines, bento grids, glass cards, the maps' looks and live routes, the live cards, premium headers and the app's own screens in a premium look.",
     steps: false,
-    figures: ["premium-home", "sofra-home", "sahm-home", "lamha-home"],
-    body: `Studio's demos are made of these elements, and every project can use them: find them under **Elements** in the [Studio editor](/docs/studio-elements). Studio's page draws them as the app does, in light and dark, right to left in Arabic. The ones drawn from the person signed in show a sample in Studio and nothing in the app for someone signed out or with nothing to show.
+    figures: ["food-delivery-sig-b-home", "rides-sig-b-home", "taxi-sig-b-home", "premium-academy-sig-b-home"],
+    body: `Studio's demos and their Signature looks are made of these elements, and every project can use them: find them under **Elements** in the [Studio editor](/docs/studio-elements), most of them in the **Premium** group, its maps under **Maps**. Each one is made of settings you change, like any element. Studio's page draws them as the app does, in light and dark, right to left in Arabic, and phones set to reduce motion show them still. The ones drawn from the person signed in show a sample in Studio and nothing in the app for someone signed out or with nothing to show.
 
 ## Photo hero
 
-A photo with a shade and elements over it: a big welcome, a photo tile with its caption, or an offer banner. Choose the **Picture**, the height and the **Corners**, and add any elements over it: words, a search box, buttons. **Last element over the foot** makes the last one hang over the photo's edge, like a search card or a route card. A page without a header that starts with a cover shows it under the phone's status bar, and a clear header lies over it.
+A photo with a shade and elements over it: a big welcome, a photo tile with its caption, or an offer banner. Choose the **Picture**, the height and the **Corners**, and add any elements over it: words, a search box, buttons. **Last element over the foot** makes the last one hang over the photo's edge, like a search card or a route card. **Slow zoom on the photo** makes it grow slowly, again and again. A page without a header that starts with a cover shows it under the phone's status bar, and a clear header lies over it.
 
 ## Shade for the words
 
 A shade over a picture so the words on it read: on a photo hero, a **Picture**, or any element with a **Picture behind it**. Choose its colour, how dark it is **At the start** and **At the end**, and **Across, from the start** to darken it from one side instead of top to bottom.
 
+## Hero slider and card carousel
+
+Two looks of the **Slider**. The **Hero slider** shows full-width photos under a shade, each with a small line, a big headline and a button, a line for each slide filling while it waits, and **Slow zoom on the photos**. The **Card carousel** shows rounded photo cards, the next one peeking, that move one at a time, with its dots in a **Frosted pill** over their foot. **Indicator sits at** the top or **The foot**, as far **From the edge** as you set and in **Its colour**, with a **Count beside it** like "1/3" or "01/03". A slider stops moving on by itself while it's off the screen.
+
+**Progress segments** is a bar of short segments, like 18 lessons with 11 done. With **The student's course in progress**, the app shows the student's own lessons, and leaves the bar out when they have no course in progress.
+
+## Stories
+
+A row of round photos in rings, with their titles under them. A ring is lit in your colours until the person has seen the story on their phone, then turns quiet; its **Ring** can also be **Always lit (an offer)**, **Quiet** or **Dashed (all of them)**, in its own **Ring colour**. A tap opens the stories full screen one after another, a line for each filling at the top while it shows (**Each story shows for** 2 to 15 seconds): a tap on one side moves on or goes back, holding pauses and swiping down closes them. Each story has its photo, its **Title under the ring**, its **Line over the photo** and a link its Open button opens: a page, a screen of the app, an entry or a web address. Without a photo, a story shows initials or an icon on its colour.
+
+## Ticker
+
+An endless band of **Words, a line each**, or of **Logos or photos**, with an icon **Between them**. Set its **Speed**, whether it **Runs** **Toward the start** or **Toward the end**, and whether it **Stops while pressed**. It can be **Turned** a little, reaching past the screen's sides, with **A dot between the words**, or **Each in an outlined pill**. Screen readers read it once, and it stands still while it's off the screen.
+
+## Video banner and parallax banner
+
+The **Video banner** plays a muted, looping video from your Media over its **Poster, shown first**, under a shade, with your words and buttons over it and a round button to play and pause it. With **Plays by itself, muted and looping**, it plays only while it's on the screen, and waits on its poster on phones that reduce motion or save data.
+
+The **Parallax banner** is a photo banner whose photo moves slower than the page as it scrolls: **Photo moves at** 10 to 90% of the page's speed. Both banners can show their **Words in a frosted panel**, and under a clear header both are covers, like a photo hero.
+
+## Gallery
+
+1 to 30 photos, each with its caption, as a **Masonry** of 2 or 3 **Columns**, a **Bento of photos**, or a **Filmstrip** that scrolls sideways. Choose the **Photos' corners** and the **Captions over the photos**, on a shade or **In a frosted pill**. A tap opens the photos full screen: swipe through them, pinch to zoom, each with its caption. A photo can open a link instead, like a cuisine's restaurants.
+
+## Before and after
+
+Two photos one over the other, with a divider people drag with a finger or move with a tap; the photo before is on the start side. Each photo has its **Label on the photo**, and **Divider starts at** sets where the divider starts.
+
+## Motion as people scroll
+
+On the **Motion** tab, **When it shows** plays once, when the element first comes onto the screen: in the app as people scroll to it, and on Studio's page when it comes into view. Phones and computers set to reduce motion show it still.
+
+## Testimonials
+
+Quote cards with the person's photo (else their initial), name, role or city, stars and quote, **Side by side, to swipe** or **Under each other**. Write up to 12 quotes, in each of your app's languages, or **Show real reviews from the app**: a course's or a product's approved reviews of 4 stars and up with words. Your quotes show while there are none.
+
+## Pricing
+
+Plan cards with their name, their price "/ month" or "/ year" in the **Currency** you choose, what each one includes with a check, a button, and the **Most popular (highlighted)** one in your two brand colours. A **Monthly / yearly switch** can sit over them. No price is filled in for you: until you write one, Studio shows **Set a price** where it goes, and the app shows none.
+
+## Numbers
+
+Big numbers with their labels, words before and after them ("+", "%", " min") and an icon, counting up once when they show. Show them **In cards** or with **Lines between them**, and one of them **In the second colour**. **Show the values without counting up** keeps them still.
+
+## Progress
+
+Bars with their label and share, **Rings** with the share inside, or **Segmented bars**, filling once when they show. A ring has its **Ring size** and **Thickness**, and can have **Tick marks**, **A knob at the end**, and a **Photo inside the ring** with a **Chip over the photo**.
+
+## Timeline
+
+Steps with a dot each on a line, with a date, a title and a text; the steps up to **The step it is at now** are done in your colour. Lay it **Down the page**, **Across**, or **Across, a bar over each**. For a school day or a trip, use **Times in a column at the start**, **The current step as a card** and **Dates in a monospaced font**.
+
+## Profile card
+
+A person's or a place's card: its cover photo, a round photo or a rounded square (**Photo shape**), the name and role, two badges and two buttons you change like any element, and up to 6 **Social links**.
+
+## Bento grid
+
+Tiles of mixed sizes (**One cell**, **Wide**, **Tall**, **Large** or **Across all**) in 1 to 4 columns, each on its photo under a shade, on a gradient or on a soft card, with its icon, title, text and link. Its **Tiles' words** can sit **On frosted glass**, with a **Chip at its top**.
+
+## Glass cards, tickets and textures
+
+A **Row**, **Column**, **Layers**, **Grid** or **Profile card** can take a **Premium card style**: **Frosted glass** that blurs what's behind it (its **Blur** and **How white**), a **Border in two colours**, a **Glow inside** and a **Soft shadow**, together as you like. **Ticket, perforated** cuts round notches into both edges with a dashed line between them, across or **Perforated down instead of across**, like a boarding pass or a school pass. **Texture** adds grain, a dot grid, a grid or stripes. **Glass card** in the Premium group is a column of frosted glass with a border in two colours.
+
+## Badge
+
+A badge or chip with its words and icon: **Pill**, **Outline**, **Gradient**, **Glass**, or **Gradient words**, a heading in your two brand colours without a chip. Put it in a row beside a heading.
+
+## Action bar
+
+**A bar with a button** at the page's foot, with its label, like a price you write yourself, that **Stays at the foot while the page scrolls**, above the tabs; **A floating round button**; or **A floating card** with an icon at its start.
+
 ## Map header
 
 A drawn map at the top of a page, with its **Markers**, the **Markers' icon**, **Markers' colour** and **Markers' tile**, and **The person's dot in the middle**. **In the app, the free taxis near the person** shows the real taxis, live, in place of the markers. With **Last element over the foot**, the last element becomes a sheet over the map's foot.
 
+## The maps' premium looks
+
+A map header can take a **Map look**: **Living map** (a curved river with its island, streets, avenues and parks), **Horizon** (the city tilted towards a foggy horizon, with room for a headline over the fog), **Two inks** (printed in the markers' two colours, the markers as roof signs, with a checker band at its foot) or **Radar lens** (a round radar with 1, 3 and 5 minute rings and a slow sweep, the taxis around with their trails). The app draws each one, by day and by night, without map tiles, and turns it for Arabic.
+
+Every look can have **Labelled pins** (Home, Office), **Words on the map**, **Where the person's dot is** and **How the markers look**: a tile with the icon, a car from above, a roof sign or a token with a trail. Under **Maps** in the Premium group, they're ready as **Living map**, **Horizon map**, **Two-ink map**, **Radar lens** and **Live route map**.
+
+## Live route
+
+**A route** on any map look is drawn through its points, solid up to where the vehicle is and dashed after it, the vehicle pulsing, with a chip at each end and a bubble by the vehicle, like "3 min". With **In the app, the route follows** set to **The person's ride on its way** or **The person's shipment on its way**, the app draws their own ride or shipment from its real places, and nothing when there is none.
+
 ## Greeting
 
-Good morning or good evening with the person's first name, in the app's language. The header **6 Greeting with the person's name** puts the greeting and today's date at the top of the page, with its buttons beside it.
+Good morning or good evening with the person's first name, in the app's language. **Its words** can be your own instead, with {name} where their first name goes, and **Without a name** is what people who aren't signed in see: "Where to, Omar?" and "Where to?". The header **6 Greeting with the person's name** puts the greeting and today's date at the top of the page, with its buttons beside it.
 
 ## Live order
 
-For food delivery and multi-vendor apps: the person's order on its way, with what it is, how far along it is and the minutes left. Choose **Whose order** and its icon.
+For food delivery and multi-vendor apps: the person's order on its way, with what it is, how far along it is and the minutes left. Choose **Whose order** and its icon, and its **Look**: a **Card**, **Big minutes, stages as bars**, **Photo in a progress ring**, **Slim pill with Track** or **Named stages on a line**, with its **Accent** and **Accent at night**.
 
 ## Live card
 
-For delivery, ride and taxi apps. **What it follows**: **Their shipment on its way**, **Their ride**, or **The taxis near them**. **How it looks**: **A card with the stages**, **The driver and the car** (their photo, car, rating and plate, with a call button), or **One line**. **Photo while the driver has none** fills in until the driver adds theirs.
+For delivery, ride, taxi and travel apps. **What it follows**: **Their shipment on its way**, **Their ride**, **The taxis near them** or **Their next trip** (their soonest booking: its city, the days to it, the stay and its legs). **How it looks**: **A card with the stages**, **The driver and the car** (their photo, car, rating and plate, with a call button), **One line**, the same premium looks as the live order, **A ticket** (the trip's first flight as a boarding pass, with the airports' codes, the times, the seats and a button for the boarding pass) or **The number, large** (the minutes to the pickup with the driver and the car, or how many free taxis are around). **Photo while the driver has none** fills in until the driver adds theirs.
 
 ## School day
 
@@ -1083,7 +1167,7 @@ For schools: one part of a family's school day, from the parent's own children. 
 
 ## The student's cards on a photo
 
-For academies, the **Student's card** shows **The course they're taking**, their **Learning streak**, their **Next live class** or **This week's learning time**. Its **How it looks** can be **A card** or **On a photo**: the course over its picture under a dark shade, the lesson and the minutes left on one chip, how far they are in gold and a round play button; the live class's time in gold over its name; the streak as one figure.
+For academies, the **Student's card** shows **The course they're taking**, their **Learning streak**, their **Next live class** or **This week's learning time**. Its **How it looks** can be **A card**, **On a photo** or **In a gold ring**. On a photo: the course over its picture under a dark shade, the lesson and the minutes left on one chip, how far they are in gold and a round play button; the live class's time in gold over its name; the streak as one figure. In a gold ring: the course's photo in a round frame with a gold ring filled to how far they are, the lesson on a chip and a button to resume it. Under a streak, **This week's days** shows the days they learned in gold and today ringed, as **Round letters** or **Short pills**.
 
 ## Ratings on a card
 
@@ -1093,23 +1177,33 @@ In a list's own card, set an element's **Shows from the entry** to **The rating*
 
 Once an element has a **Border**, **In dark mode** gives it its own border colour by night.
 
-## The floating pill bar
+## Floating bars
 
-Under **Bottom tabs**, the **Floating pill** design: a bar floating over the page with its own colours, the open tab a filled pill with its name, the others icons only. The page goes on under it.
+Under **Bottom tabs**, two designs float over the page in their own colours, and the page goes on under them. **Floating pill**: the open tab a filled pill with its name, the others icons only. **Small dock**: a capsule in the middle as wide as its icons, the open tab a filled circle.
 
-## Places as chips and the address bar
+## Places as chips, a deck and the address bar
 
-In a multi-vendor app, the places can show as **Chips** (each place's photo beside its name, rating and time), and the address and search as a **Bar** with the soonest time an open place delivers in.
+In a multi-vendor app, the places can show as **Chips** (each place's photo beside its name, rating and time), or as a **Deck of cards**: the open place in front with its club benefit or offer, the next two peeking behind it, and a swipe bringing the next one. The address and search can show as a **Bar** with the soonest time an open place delivers in.
+
+## Premium headers
+
+Select the page's **Header** and choose a **Premium style**, drawn in place of the header's type: **Large title**, a big title with a **Line under the title**; **Frosted glass**, a bar the page scrolls under; **Photo cover**, a photo under a shade with the title over its foot (**Choose the photo**, or your main and second colours); **Brand in the middle**, your logo on your main colour; or **Title + search**, the title over a search pill that stays. The large title, the photo and the search fold into a small bar as the page scrolls, unless you turn off **Folds into a small bar on scroll**. Their buttons are round and glassy: the bell has a dot while the person has unread notifications, the account shows their photo, and a page opened over the tabs has a round back button. **None (the type above)** keeps the header's type.
+
+## The app's own screens in a premium look
+
+With nothing selected, the page's settings have the **System screens' look**, for the whole project. It's also under **System screens** on **Sign-in and account** in your project's menu, where you design the sign-in screen and the account menu. Choose **The app's own** (every screen as it is today), **Large title**, **Frosted glass**, **Photo hero** (a photo under a shade at the top: choose one, or the sign-in's photo shows) or **Brand hero** (your main colour across the top with your logo).
+
+The look is for the account (the person on a card, a few numbers from their own data and your entries grouped, with Sign out last), settings, notifications, the language, editing the profile, help, about and the legal pages, the lists of orders, bookings and trips, sign-in and the code screen, and the empty and loading states, which load as a shimmer in your colours. **Another look for one screen** gives one screen a look of its own. The app shows it the next time it opens, with no new build. Existing projects keep their screens until you choose a look; projects made from a demo, one of its looks or a whole design start with theirs.
 `,
   }),
   doc({
     slug: "studio-templates",
     section: "Your app",
     title: "Ready sections, templates and Studio's demos",
-    description: "Add ready-made sections and whole pages in Yallapp Studio, keep your own templates and designs, start from one of Studio's eight demos and try each one live before you choose.",
+    description: "Add ready-made sections and whole pages in Yallapp Studio, keep your own templates and designs, use the six premium whole designs, and start from one of Studio's nine demos in either of its two looks, trying each one live before you choose.",
     steps: false,
-    figures: ["rawaq-home", "zad-home", "masar-home", "nakhla-home"],
-    body: `You don't have to build every page from single elements. In the [Studio editor](/docs/studio-elements), **Ready sections** adds a whole part of a page, **Templates** a whole page, and **Whole designs** every page at once. And a new project can start as one of Studio's demos, with all its pages, photos and entries.
+    figures: ["safra-explore", "travel-sig-b-home", "rawaq-home", "teachers-sig-b-home"],
+    body: `You don't have to build every page from single elements. In the [Studio editor](/docs/studio-elements), **Ready sections** adds a whole part of a page, **Templates** a whole page, and **Whole designs** every page at once. And a new project can start as one of Studio's demos, in either of its two looks, with all its pages, photos and entries.
 
 ## Ready sections
 
@@ -1121,42 +1215,74 @@ Drag a section onto the page, or click it to add it at the end. Each one is made
 
 ## Templates
 
-**Templates** starts the open page from a whole page; its elements are replaced, and **Undo** brings them back. Your kind of project's templates come first, its demo's home marked **Recommended**: for example **Food, photo first**, **Market, photo tiles**, **Courier in the city**, **Ride at night**, **Taxi map**, **Today at school**, **Real teachers** or **Premium academy**. **Brand**, **Contact** and **Blank page** fit every project.
+**Templates** starts the open page from a whole page; its elements are replaced, and **Undo** brings them back. Your kind of project's templates come first: its demo, marked **Recommended** (like **Our demo: Sofra Eats**), then the demo's two Signature looks, each the whole app in that look, then the kind's other templates, like **Food, photo first**, **Market, photo tiles**, **Courier in the city**, **Ride at night**, **Taxi map**, **Today at school**, **Real teachers** or **Premium academy**. An academy starts with Ufuq Academy's two looks, **Night cinema** and **Gold ring**. **Brand**, **Contact** and **Blank page** fit every project.
+
+The Signature looks are also offered on the **Branding** step of App setup, each with its picture, and when you make a new project.
 
 **Save the page as my own template** keeps a page in **My templates**, for your other pages.
 
 ## Whole designs
 
-**Whole designs** changes every page, the header and the look at once. **Replace the whole project's design**, or use it **For the open page only**, and **Keep the texts and pictures I changed** if you like. **Save this project as a design** keeps it under **Mine**. What's published in the app doesn't change until you select **Publish**, and **Undo** brings the old design back.
+**Whole designs** changes every page, the header and the look at once. A kind of project with a Studio demo has the demo first (**Like our demo: …**) and its second look by its own name. Then come six premium designs, each made for your kind of project, whatever it is:
 
-## Studio's eight demos
+- **Golden hour**: your kind's photo as the header's cover, stories, the live card, a gradient card with the headline, the list in photo cards, a bento of photos and quotes.
+- **Garden**: a large title, photo cards to swipe, your kind's chips, the live card, the list in a grid, how it works as a timeline and quotes.
+- **After dark**: a glass bar over a hero slider with its slow zoom, a turned gold ticker, the live card, tall cards, a filmstrip and quotes.
+- **Clear water**: the title with its search, a parallax photo with its words on glass, stories, the live card, the list in soft rows, how it works on a glass card and a bento.
+- **Editorial**: a large title, the headline in gold gradient words, a photo story, a ticker of outlined words, the live card, the list as an index, the place's card and quotes.
+- **Bloom**: your brand's bar with the name in the middle, stories, a gradient badge over the headline with two buttons, the live card, a masonry of photos, rounded cards and quotes.
 
-Each demo is a real app made in Studio, in English, Arabic and Turkish, light and dark, with real photos. Starting from one gives you all of it: its pages, tabs, look, sign-in screen, account menu and entries.
+Each one's home comes first, then your kind's own pages, an about page and contact, every page with a premium header, in the design's colours by day and a night made for it. Applied to the whole project, it also sets its floating bar (a pill for Golden hour and Bloom, the small dock for After dark and Editorial, glass for Garden and Clear water), its second colour, its font and the look of the app's own screens. Its photos are free photos for your kind of project. Nothing is made up: no number, price or rating; the quotes and promises are yours to write, in [brackets], and the live cards show only the person's own order, ride, parcel, course or child. A project that applied one of these designs before keeps what it saved; applying it again gives the new one.
 
-- **Ufuq Academy**, a premium academy: a greeting with today's date, the course the student is taking over its photo, their streak beside their next live class, and courses picked for them with the teacher and the rating; a floating navy bar with the open tab on gold, and its courses with their photos.
-- **Rawaq Academy**, an academy with many teachers: the library's photo with the search over it, the teachers in circles and this month's popular courses with their teacher and rating; Home, Teachers, My courses and Account.
-- **Sofra Eats**, food delivery from many restaurants: a photo of a full table with where it delivers, the search over its edge, the cuisines as round photos, the person's order on its way and the restaurants loved nearby, with their dishes and ratings.
-- **Zad**, a multi-vendor app with restaurants and a supermarket: the address with the soonest delivery time, this week's offer on a market photo, the departments as photo tiles and the places near you as chips; Home, Shops, Cart, Orders and Account.
-- **Sahm Express**, a delivery company: a courier riding through the city, the route card over the photo's foot, the person's shipment with its stages, and the same-day and express services as photo tiles.
-- **Masar Rides**, rides: the city at night with the person's greeting and a search, the saved places, the driver on the way and the car classes.
-- **Lamha Taxi**, a live taxi app: the free taxis around the person on a map, and a sheet with where to, the nearest taxi and the airport's fixed fare.
-- **Nakhla School**, a school: the school's photo with the family's greeting, the children as chips, today's card for the chosen child and this week at school in photos.
+**Replace the whole project's design**, or use it **For the open page only**, and **Keep the texts and pictures I changed** if you like. **Save this project as a design** keeps it under **Mine**. What's published in the app doesn't change until you select **Publish**, and **Undo** brings the old design back.
 
-Each demo's home is also a template for its kind of project, so any project can start a page like it.
+## The words in your app
+
+The words a template, a ready section, a whole design or a look puts into your app (its headlines, buttons, section titles, tabs and sign-in lines) are your app's own, in English, Arabic and Turkish: written in your dashboard's language, with the others as translations. In Arabic they're in Modern Standard Arabic, like the rest of your app; Studio's editor itself speaks your dashboard's language.
+
+## Studio's nine demos
+
+Each demo is a real app made in Studio, in English, Arabic and Turkish, light and dark, with real photos, and each one is its look A. Starting from one gives you all of it: its pages, tabs, bar, look, sign-in screen, account menu, entries, premium headers and the look of the app's own screens.
+
+- **Ufuq Academy**, a premium academy: the course the student is taking full screen, with its lessons as gold segments, the greeting and a play button; their streak with this week's days beside their next live class; and courses picked for them; with its Blog tab and a floating navy bar.
+- **Rawaq Academy**, an academy with many teachers: the library's photo with "Real teachers. Real skills.", the teachers as an index with the one teaching live marked, and the month's popular courses as photo cards; Home, Teachers, My courses and Account.
+- **Sofra Eats**, food delivery from many restaurants: tonight's dishes in a hero slider, the person's order on its way over its foot, the restaurants open near you as photo tiles, and a few dishes from the menus with the delivery fee.
+- **Zad**, a multi-vendor app with restaurants and a supermarket: the address with the soonest delivery time and the search, this week's offers as green posters with their codes, the departments as arch photos and the places near you; Home, Shops, Cart, Orders and Account.
+- **Sahm Express**, a delivery company: "Across the city, today." set large, the send form as a waybill with the services, their times and prices, and the person's shipment with its stages named on a line.
+- **Masar Rides**, rides: a living map of the city with the person's ride drawn on it, the driver on the way, the car classes with their fares and "Where to?".
+- **Lamha Taxi**, a live taxi app: the free taxis around the person on a map in two inks, the nearest one's minutes, where to, the classes and the airport's set price.
+- **Nakhla School**, a school: the school gate's photo with the children to switch between and the family's greeting, the school's news running, today at school for the chosen child and the forms to sign.
+- **Safra**, a travel company: the resort's photo with Explore, Trips, Flights and Saved, the person's next trip as a boarding pass, the company's hotels with their price a night and its flights.
+
+Each demo's earlier home is also a template for its kind of project, so any project can start a page like it.
+
+## Two looks for every demo
+
+Every demo has two Signature looks. Look A is the demo itself; look B is another whole app, with its own home, pages, tabs, bar, colours, font, sign-in screen and account menu. Both are real templates: either one starts a real project.
+
+- **Sofra Eats**: **Editorial menu**, and **Bento table** (the order in a gold ring, the cuisines as a photo bento, a turned band of dishes and a dark floating pill).
+- **Zad**: **Market arches**, and **Night aisle** (the aisle's photo with the order as a slim pill and the minutes to the door, the departments as stories and the places as a deck).
+- **Sahm Express**: **Waybill**, and **Live route** (the shipment drawn on a living map, a sheet with its minutes and stages, sending a parcel and the services as photos).
+- **Masar Rides**: **Living map**, and **Horizon** (the city tilted to the horizon, "Where to?" large with the person's name, the driver's minutes and the fares).
+- **Lamha Taxi**: **Two-ink cab**, and **Glance radar** (the free taxis' count large, a radar of the taxis around, the classes and a dock).
+- **Safra**: **Cover story**, and **Bento atlas** (the next trip's days over its legs, the stays as a bento, a stay and a flight at one price, and the departures).
+- **Nakhla School**: **Morning edition**, and **Family passes** (the chosen child's day as a pass, the school bus, the forms to sign and the news).
+- **Rawaq Academy**: **Faculty index**, and **On air** (the teachers in a full-screen slider, the teachers in rings and the popular courses in a grid).
+- **Ufuq Academy**: **Night cinema**, and **Gold ring** (the course in a gold ring, the streak with this week's days, the live class and the picked courses in a list, with a dock).
 
 ## Starting from a demo
 
-1. Open [Choose your app](/start), or select **New project** in Studio. **Studio** at the top shows Studio's demos, dark with gold, apart from the App editor's.
-2. Choose one to see its page: three of its screens, its pages, what comes with it (its courses, dishes, places, car types or classes) and its languages.
-3. Select **Start with this app**, then **Make it yours**: your app's name, your logo, and your colour, taken from the logo. The phone beside it shows your app as you go. Select **Create my app**.
+1. Open [Choose your app](/start), or select **New project** in Studio. **Studio** at the top shows Studio's demos, dark with gold, apart from the App editor's. Each card shows look A in front, playing its loop, and look B behind it with **2 looks**.
+2. Choose one to see its page: three of its screens, its pages, what comes with it (its courses, dishes, places, car types, classes or hotels), its languages, and **Two looks to start from**, each look's home with its name. **Look A** is chosen first; **Choose this look** takes the other.
+3. Select **Start with this app**, then **Make it yours**: your app's name, your logo, and your colour, taken from the logo. The phone beside it shows your app as you go, in the look you chose ("In the look: Look B · Horizon"). Select **Create my app**.
 
-Your project opens in Studio's editor. **Your first steps** shows what's left: put in your own entries, your photos on the home page, and the stores. **Tap anything in the app to change it**. The demo's entries are marked **From** the demo in your lists, and **Remove the demo's things** takes them all away when yours are in.
+Your project opens in Studio's editor, made from that look: its pages, tabs, bar, sign-in screen, account menu, premium headers and the look of the app's own screens. **Your first steps** shows what's left: put in your own entries, your photos on the home page, and the stores. **Tap anything in the app to change it**. The demo's entries are marked **From** the demo in your lists, and **Remove the demo's things** takes them all away when yours are in.
 
 ## Trying a demo live
 
 On a demo's page the middle phone runs the real demo app, as a guest on its home, in your dashboard's language when the demo has it, light or dark as the page. On a computer it starts by itself; on a phone, select **Try it live**. **Open the live app full size** opens it on its own. **Try it on your phone** gives the demo's download, with a number and code to sign in.
 
-Every card on the choosing page plays a short silent loop of its demo while you see it: its home, one other tab, and back. Phones set to reduce motion show the picture only.
+Every card on the choosing page plays a short silent loop of its demo, in its look A, while you see it: its home, one other tab, and back. Phones set to reduce motion show the picture only.
 `,
   }),
   doc({
@@ -2607,7 +2733,7 @@ In **Bookings**, **Cancel the booking** cancels it for the traveller, with every
 
 Travellers search stays by place, dates and guests, see hotels on a list or a map, open a hotel's rooms for their dates, and see flights with the best, cheapest and fastest and a calendar of the month's prices. They choose a fare, their seats, bags and meals, check out, and keep each trip in **Trips** with its boarding passes. After their stay they can review it. They save hotels and set price alerts, checked every day and told on their phone when a price drops. In English, Arabic and Turkish, light and dark.
 
-In Studio, the travel template and its three designs, Explore, Escape and Calm journeys, come with Packages, About us, Contact and Questions pages, and the hotels can be a list on any page. [Studio's demo](/demo/studio) Safra shows a travel app with its hotels and flights.
+In Studio, the travel template and its three designs, Explore, Escape and Calm journeys, come with Packages, About us, Contact and Questions pages, and the hotels can be a list on any page. [Studio's demo](/demo/studio) Safra shows a travel app with its hotels and flights, and a travel project can start from either of its two looks, **Cover story** (the next trip as a boarding pass) or **Bento atlas** (the next trip's days over its legs): see [Ready sections, templates and Studio's demos](/docs/studio-templates).
 
 ## Hotels' and flights' own systems
 

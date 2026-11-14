@@ -1567,6 +1567,21 @@ edits in Admin › Website content still show over them.
 - [ ] Plugin 0.4.39's readme (WordPress.org) names the Studio academy's
       screens; publish it with the plugin's release.
 
+## 7z6. The documentation for Phases 128–130 (130.48)
+
+Nothing to migrate or set: the articles and screenshots are in the code.
+
+- [ ] After the deploy, open `/docs/studio-premium-elements` and
+      `/docs/studio-templates` in English, Arabic and Turkish: the nine
+      demos, both looks of each, the six whole designs, the premium library,
+      the premium headers and the system screens are there, and the look B
+      pictures show.
+- [ ] The search finds "Golden hour", "Radar lens" and "System screens".
+- [ ] In a Studio project, **Sign-in and account**'s Help opens
+      `/docs/studio-premium-elements`.
+- [ ] Plugin 0.4.41's readme names the premium library and the Signature
+      looks; publish it with the plugin's release.
+
 ## 8. Accounts the remaining roadmap steps wait on
 
 | Step | What we need |
