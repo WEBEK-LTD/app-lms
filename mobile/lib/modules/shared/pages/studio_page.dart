@@ -1388,7 +1388,7 @@ class StudioNodeView extends ConsumerWidget {
       case StudioNodeType.tracking:
         return StudioTrackingView(node: node);
       case StudioNodeType.greeting:
-        return const StudioGreetingView();
+        return StudioGreetingView(node: node);
       case StudioNodeType.school:
         return StudioSchoolPart(
           section: node.school!,

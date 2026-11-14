@@ -130,7 +130,8 @@ export function translating(ctx: SectionContext): { ctx: SectionContext; transla
   const translate = (node: StudioNode): StudioNode => {
     const out: StudioNode = { ...node };
     const texts = all(node.text);
-    const titles = node.type === "market" ? all(node.title) : null;
+    // 130.11 And a greeting's words without a name.
+    const titles = node.type === "market" || node.type === "greeting" ? all(node.title) : null;
     if (texts || titles) {
       const translations: Record<string, Record<string, string>> = {};
       for (const l of others) translations[l] = { ...(texts ? { text: texts[l]! } : {}), ...(titles ? { title: titles[l]! } : {}) };

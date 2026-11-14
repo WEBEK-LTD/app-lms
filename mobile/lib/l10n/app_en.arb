@@ -12520,5 +12520,89 @@
         "type": "int"
       }
     }
+  },
+  "studioTripNext": "Your next trip",
+  "@studioTripNext": {
+    "description": "130.11 Over the city of the person's next trip (Studio's `tracking` trip ticket)."
+  },
+  "studioTripIn": "{count, plural, =0{Today} =1{Tomorrow} other{In {count} days}}",
+  "@studioTripIn": {
+    "description": "130.11 When the person's next trip starts.",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "studioTripDaysTo": "{count, plural, =1{day to {city}} other{days to {city}}}",
+  "@studioTripDaysTo": {
+    "description": "130.11 After the days left, large: to which city.",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      },
+      "city": {
+        "type": "String"
+      }
+    }
+  },
+  "studioTripStay": "{nights} at {hotel}",
+  "@studioTripStay": {
+    "description": "130.11 The trip's stay: its nights (\"4 nights\") at the hotel.",
+    "placeholders": {
+      "nights": {
+        "type": "String"
+      },
+      "hotel": {
+        "type": "String"
+      }
+    }
+  },
+  "studioTripTransfer": "Transfer",
+  "@studioTripTransfer": {
+    "description": "130.11 The trip's airport transfer, one of its legs."
+  },
+  "studioTripPass": "Boarding pass",
+  "@studioTripPass": {
+    "description": "130.11 The trip ticket's button to the boarding passes."
+  },
+  "studioMinutesShort": "min",
+  "@studioMinutesShort": {
+    "description": "130.11 After a number of minutes shown large (\"3 min\")."
+  },
+  "studioTaxiNearestFree": "Nearest free taxi",
+  "@studioTaxiNearestFree": {
+    "description": "130.11 Beside the nearest free taxi's minutes, large."
+  },
+  "studioTaxisAroundLive": "{count, plural, =1{1 taxi around you, live} other{{count} taxis around you, live}}",
+  "@studioTaxisAroundLive": {
+    "description": "130.11 How many free taxis are around the person, live.",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "studioTaxisFreeAround": "{count, plural, =1{free taxi around you.} other{free taxis around you.}}",
+  "@studioTaxisFreeAround": {
+    "description": "130.11 After the count of free taxis, large (\"8 free taxis around you.\").",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "studioRideOnTheWayShort": "On the way",
+  "@studioRideOnTheWayShort": {
+    "description": "130.11 Over the driver's name while they come to the pickup."
+  },
+  "studioTripVia": "via {via}",
+  "@studioTripVia": {
+    "description": "130.11 On the trip ticket: where the flight stops.",
+    "placeholders": {
+      "via": {
+        "type": "String"
+      }
+    }
   }
 }

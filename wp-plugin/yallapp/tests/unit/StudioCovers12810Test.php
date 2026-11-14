@@ -232,4 +232,46 @@ class StudioCovers12810Test extends TestCase {
 		$this->assertArrayNotHasKey( 'scrim', $nodes[4] );
 		$this->assertArrayNotHasKey( 'scrim', $nodes[5] );
 	}
+
+	/** 130.11 The person's next trip, a ticket and a headline, and a card where it is not the kind's own. */
+	public function test_serves_the_trip_and_the_new_looks() {
+		$tracking = function ( $id, $kind, $style ) {
+			return array(
+				'id'       => $id,
+				'type'     => 'tracking',
+				'tracking' => array(
+					'kind'  => $kind,
+					'style' => $style,
+				),
+			);
+		};
+		$nodes    = $this->served(
+			array(
+				$tracking( 'trip', 'trip', 'ticket' ),
+				$tracking( 'days', 'trip', 'card' ),
+				$tracking( 'taxis', 'nearby_taxis', 'card' ),
+				$tracking( 'ride', 'ride', 'headline' ),
+				$tracking( 'odd', 'ride', 'poster' ),
+			)
+		);
+		$this->assertSame(
+			array(
+				array(
+					'kind'  => 'trip',
+					'style' => 'ticket',
+				),
+				array( 'kind' => 'trip' ),
+				array(
+					'kind'  => 'nearby_taxis',
+					'style' => 'card',
+				),
+				array(
+					'kind'  => 'ride',
+					'style' => 'headline',
+				),
+				array( 'kind' => 'ride' ),
+			),
+			array_column( $nodes, 'tracking' )
+		);
+	}
 }

@@ -3077,5 +3077,17 @@
   "studioMapSign": "TAKSİ",
   "studioMapMinutes": "{minutes} dk",
   "studioMapPickup": "Biniş",
-  "studioMapEta": "{name} · {minutes} dk"
+  "studioMapEta": "{name} · {minutes} dk",
+  "studioTripNext": "Sıradaki seyahatiniz",
+  "studioTripIn": "{count, plural, =0{Bugün} =1{Yarın} other{{count} gün sonra}}",
+  "studioTripDaysTo": "{count, plural, other{gün kaldı: {city}}}",
+  "studioTripStay": "{hotel} · {nights}",
+  "studioTripTransfer": "Transfer",
+  "studioTripPass": "Biniş kartı",
+  "studioMinutesShort": "dk",
+  "studioTaxiNearestFree": "En yakın boş taksi",
+  "studioTaxisAroundLive": "{count, plural, other{Çevrenizde {count} taksi, canlı}}",
+  "studioTaxisFreeAround": "{count, plural, other{boş taksi çevrenizde.}}",
+  "studioRideOnTheWayShort": "Yolda",
+  "studioTripVia": "{via} aktarmalı"
 }

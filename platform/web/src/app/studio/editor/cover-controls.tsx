@@ -4,7 +4,7 @@ import { useDashT } from "@/components/dashboard-i18n";
 import { MediaPicker } from "@/components/media-picker";
 import type { DashKey } from "@/i18n/dashboard";
 import { IconPicker } from "@/app/dashboard/pages/controls";
-import { STUDIO_TRACKING_KINDS, STUDIO_TRACKING_STYLES, type StudioMapDrawing, type StudioNode } from "@/lib/pages/types";
+import { STUDIO_TRACKING_DEFAULTS, STUDIO_TRACKING_KINDS, STUDIO_TRACKING_STYLES, type StudioMapDrawing, type StudioNode } from "@/lib/pages/types";
 import { RangeField } from "./controls";
 import { MAP_COLORS } from "@/components/studio/covers";
 // 129.21–129.24 The map's premium looks.
@@ -117,7 +117,8 @@ export function TrackingControls({ node, onChange }: { node: StudioNode; onChang
       </label>
       <label className="flex flex-col gap-1 font-bold">
         {t("studio.trackingStyle")}
-        <select value={tracking.style ?? "card"} onChange={(e) => onChange({ tracking: { ...tracking, style: e.target.value === "card" ? undefined : (e.target.value as NonNullable<typeof tracking.style>) } })} className="h-9 rounded-lg px-2 font-normal" style={FIELD}>
+        {/* 130.11 Each kind's own look when none is set (a ride's the driver, the taxis' a line). */}
+        <select value={tracking.style ?? STUDIO_TRACKING_DEFAULTS[tracking.kind]} onChange={(e) => onChange({ tracking: { ...tracking, style: e.target.value === STUDIO_TRACKING_DEFAULTS[tracking.kind] ? undefined : (e.target.value as NonNullable<typeof tracking.style>) } })} className="h-9 rounded-lg px-2 font-normal" style={FIELD}>
           {STUDIO_TRACKING_STYLES.map((s) => (
             <option key={s} value={s}>
               {t(`studio.trackingStyle_${s}` as DashKey)}
@@ -125,7 +126,7 @@ export function TrackingControls({ node, onChange }: { node: StudioNode; onChang
           ))}
         </select>
       </label>
-      {(tracking.style ?? "card") === "driver" ? (
+      {(tracking.style ?? STUDIO_TRACKING_DEFAULTS[tracking.kind]) === "driver" ? (
         <div className="flex items-center gap-2">
           <MediaPicker kind="image" share library onPick={(url) => onChange({ image_url: url })} label={t("studio.trackingPhoto")} />
           {node.image_url ? (

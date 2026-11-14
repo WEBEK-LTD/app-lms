@@ -65,7 +65,7 @@ describe("130 the Signature looks", () => {
       expect(template, id).toMatchObject({ demo, look, recommended: true });
       const kind = demoKind(demo);
       expect(templatesFor({ type: kind.engine, vertical: kind.vertical }).map((t) => t.id)).toContain(id);
-      for (const lang of ["en", "ar", "tr"] as const) expect(String((WORDS[lang] as Record<string, string>)[`tpl_${id}`] ?? ""), `${lang} tpl_${id}`).not.toBe("");
+      for (const lang of ["en", "ar", "tr"] as const) expect(String((WORDS[lang] as unknown as Record<string, string>)[`tpl_${id}`] ?? ""), `${lang} tpl_${id}`).not.toBe("");
       // A look is a whole app of its own: never a page of a whole design's look.
       expect(designsFor({ type: kind.engine, vertical: kind.vertical }).flatMap((d) => d.templates)).not.toContain(id);
     }

@@ -751,7 +751,8 @@ function Node(props: ViewProps & { node: StudioNode; parentDir: Dir; inStack?: I
       case "tracking":
         return <TrackingCard node={n} lang={lang} dark={dark} brand={look.brand} second={look.accent} color={color} />;
       case "greeting":
-        return <GreetingText lang={lang} sample={p.greeting?.hello} />;
+        // 130.11 Its own words, when it has them.
+        return <GreetingText lang={lang} sample={p.greeting?.hello} own={textIn(n, lang, defaultLang) || null} />;
       // 129 Premium motion & media.
       case "stories":
         return <StoriesRow node={n} lang={lang} defaultLang={defaultLang} dark={dark} brand={look.brand} accent={look.accent} />;

@@ -96,6 +96,7 @@ import {
   STUDIO_MAP_ROUTE_LIVE,
   STUDIO_MAP_STYLES,
   STUDIO_TRACKING_STYLES,
+  STUDIO_TRACKING_DEFAULTS,
   TAB_LABELS,
   THEME_MODES,
   TRANSLATABLE,
@@ -1696,7 +1697,9 @@ function parseNode(ctx: Context, where: string, value: unknown, state: { count: 
     node.type === "learning" ||
     node.type === "school" ||
     // 129.3 A ticker's words, a line each.
-    node.type === "marquee";
+    node.type === "marquee" ||
+    // 130.11 A greeting's own words, `{name}` the person's first name (its `title`: the words without a name).
+    node.type === "greeting";
   if (textual) {
     const text =
       (node.type === "text" || node.type === "bullets") && !card ? c.text(where, v.text, L.textChars, node.type === "bullets" ? "the list's lines" : "a text") : c.optionalText(where, v.text, L.textChars, node.type === "countdown" ? "The text once the time is up" : "The text");
@@ -1984,7 +1987,8 @@ function parseNode(ctx: Context, where: string, value: unknown, state: { count: 
       node.tracking = { kind: t.kind };
       if (t.style !== undefined && t.style !== null) {
         if (!oneOf(STUDIO_TRACKING_STYLES, t.style)) bad("choose how the live card looks.");
-        else if (t.style !== "card") node.tracking.style = t.style;
+        // 130.11 Kept unless it is the kind's own (a ride drawn as a card is kept: its own is the driver).
+        else if (t.style !== STUDIO_TRACKING_DEFAULTS[t.kind]) node.tracking.style = t.style;
       }
       // The photo a driver's card shows while the driver has none of their own.
       const photo = c.mediaUrl(where, v.image_url, "the photo's address", false);

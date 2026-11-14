@@ -875,12 +875,19 @@ export interface StudioMarketCard {
 }
 
 /** 128 For `tracking`: what it follows, and how it is drawn (`StudioTracking`). */
-export const STUDIO_TRACKING_KINDS = ["shipment", "ride", "nearby_taxis"] as const;
-/** `card`: a soft card with the stages; `driver`: the driver's photo, car and a call button; `line`: one line. */
-export const STUDIO_TRACKING_STYLES = ["card", "driver", "line"] as const;
+/** 130.11 `trip`: the person's next trip (Studio's travel apps: their stay and flights). */
+export const STUDIO_TRACKING_KINDS = ["shipment", "ride", "nearby_taxis", "trip"] as const;
+/**
+ * `card`: a soft card with the stages; `driver`: the driver's photo, car and a call button; `line`: one line.
+ * 130.11 `ticket`: the trip's first flight as a boarding pass under its city, large (other kinds: their card);
+ * `headline`: the main number large (the minutes to the pickup, the free taxis around, the days to the trip).
+ */
+export const STUDIO_TRACKING_STYLES = ["card", "driver", "line", "ticket", "headline"] as const;
+/** 130.11 Each kind's own style, when the element sets none. */
+export const STUDIO_TRACKING_DEFAULTS = { shipment: "card", ride: "driver", nearby_taxis: "line", trip: "card" } as const satisfies Record<(typeof STUDIO_TRACKING_KINDS)[number], (typeof STUDIO_TRACKING_STYLES)[number]>;
 export interface StudioTracking {
   kind: (typeof STUDIO_TRACKING_KINDS)[number];
-  /** Missing, `card`. */
+  /** Missing, the kind's own (`STUDIO_TRACKING_DEFAULTS`). */
   style?: (typeof STUDIO_TRACKING_STYLES)[number];
 }
 

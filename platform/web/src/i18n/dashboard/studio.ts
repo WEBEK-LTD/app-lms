@@ -367,10 +367,20 @@ export const en = {
   tracking_shipment: "Their shipment on its way",
   tracking_ride: "Their ride",
   tracking_nearby_taxis: "The taxis near them",
+  // 130.11 The person's next trip.
+  tracking_trip: "Their next trip",
   trackingStyle: "How it looks",
   trackingStyle_card: "A card with the stages",
   trackingStyle_driver: "The driver and the car",
   trackingStyle_line: "One line",
+  // 130.11 A boarding pass, the main number large.
+  trackingStyle_ticket: "A ticket",
+  trackingStyle_headline: "The number, large",
+  // 130.11 A greeting's own words.
+  greetingWords: "Its words",
+  greetingWordsHint: "{name} is the person's first name. Empty: good morning or good evening.",
+  greetingAlone: "Without a name",
+  greetingAloneHint: "Shown when nobody is signed in.",
   trackingPhoto: "Photo while the driver has none",
   trackingHint: "Drawn from the signed-in person's own; nothing shows when there is none. Here, a sample.",
   learning_continue: "The course they're taking",
@@ -2210,10 +2220,20 @@ export const ar: Messages = {
   tracking_shipment: "شحنته اللي في الطريق",
   tracking_ride: "مشواره",
   tracking_nearby_taxis: "التاكسيات اللي جنبه",
+  // 130.11 The person's next trip.
+  tracking_trip: "رحلته الجاية",
   trackingStyle: "شكله",
   trackingStyle_card: "كارت بالمراحل",
   trackingStyle_driver: "السواق والعربية",
   trackingStyle_line: "سطر واحد",
+  // 130.11 A boarding pass, the main number large.
+  trackingStyle_ticket: "تذكرة",
+  trackingStyle_headline: "الرقم بخط كبير",
+  // 130.11 A greeting's own words.
+  greetingWords: "الكلام",
+  greetingWordsHint: "{name} هو الاسم الأول للشخص. لو فاضي: صباح الخير أو مساء الخير.",
+  greetingAlone: "من غير اسم",
+  greetingAloneHint: "بيظهر لما محدش يكون مسجّل دخول.",
   trackingPhoto: "صورة لحد ما السواق يحط صورته",
   trackingHint: "بيتعرض من بيانات الشخص المسجّل نفسه؛ مش بيظهر لو مفيش. هنا مثال.",
   learning_continue: "الكورس اللي بيذاكره",
@@ -4034,10 +4054,20 @@ export const tr: Messages = {
   tracking_shipment: "Yoldaki gönderisi",
   tracking_ride: "Yolculuğu",
   tracking_nearby_taxis: "Yakınındaki taksiler",
+  // 130.11 The person's next trip.
+  tracking_trip: "Sıradaki seyahati",
   trackingStyle: "Görünüşü",
   trackingStyle_card: "Aşamalı kart",
   trackingStyle_driver: "Sürücü ve araç",
   trackingStyle_line: "Tek satır",
+  // 130.11 A boarding pass, the main number large.
+  trackingStyle_ticket: "Bilet",
+  trackingStyle_headline: "Büyük sayı",
+  // 130.11 A greeting's own words.
+  greetingWords: "Sözleri",
+  greetingWordsHint: "{name} kişinin adıdır. Boşsa: günaydın ya da iyi akşamlar.",
+  greetingAlone: "İsimsiz",
+  greetingAloneHint: "Kimse giriş yapmamışken gösterilir.",
   trackingPhoto: "Sürücünün fotoğrafı yokken fotoğraf",
   trackingHint: "Giriş yapmış kişinin kendi bilgisinden çizilir; yoksa görünmez. Burada bir örnek.",
   learning_continue: "Aldığı kurs",

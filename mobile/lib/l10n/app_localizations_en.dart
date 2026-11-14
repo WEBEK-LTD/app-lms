@@ -11587,4 +11587,77 @@ class AppLocalizationsEn extends AppLocalizations {
   String studioMapEta(String name, int minutes) {
     return '$name · $minutes min';
   }
+
+  @override
+  String get studioTripNext => 'Your next trip';
+
+  @override
+  String studioTripIn(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'In $count days',
+      one: 'Tomorrow',
+      zero: 'Today',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String studioTripDaysTo(int count, String city) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'days to $city',
+      one: 'day to $city',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String studioTripStay(String nights, String hotel) {
+    return '$nights at $hotel';
+  }
+
+  @override
+  String get studioTripTransfer => 'Transfer';
+
+  @override
+  String get studioTripPass => 'Boarding pass';
+
+  @override
+  String get studioMinutesShort => 'min';
+
+  @override
+  String get studioTaxiNearestFree => 'Nearest free taxi';
+
+  @override
+  String studioTaxisAroundLive(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count taxis around you, live',
+      one: '1 taxi around you, live',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String studioTaxisFreeAround(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'free taxis around you.',
+      one: 'free taxi around you.',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get studioRideOnTheWayShort => 'On the way';
+
+  @override
+  String studioTripVia(String via) {
+    return 'via $via';
+  }
 }

@@ -1357,12 +1357,20 @@ class Block_Resolver {
 			case 'tracking':
 				// 128.10 The person's shipment or ride on its way, or the taxis near them (nothing without one).
 				$kind = $raw['tracking']['kind'] ?? null;
-				if ( ! in_array( $kind, array( 'shipment', 'ride', 'nearby_taxis' ), true ) ) {
+				// 130.11 And the person's next trip (a travel app).
+				if ( ! in_array( $kind, array( 'shipment', 'ride', 'nearby_taxis', 'trip' ), true ) ) {
 					return null;
 				}
 				$node['tracking'] = array( 'kind' => $kind );
 				$style            = $raw['tracking']['style'] ?? null;
-				if ( in_array( $style, array( 'driver', 'line' ), true ) ) {
+				// 130.11 A ticket and a headline too, and a card where it is not the kind's own (a ride's, the taxis').
+				$own = array(
+					'shipment'     => 'card',
+					'ride'         => 'driver',
+					'nearby_taxis' => 'line',
+					'trip'         => 'card',
+				);
+				if ( in_array( $style, array( 'driver', 'line', 'ticket', 'headline' ), true ) || ( 'card' === $style && 'card' !== $own[ $kind ] ) ) {
 					$node['tracking']['style'] = $style;
 				}
 				break;

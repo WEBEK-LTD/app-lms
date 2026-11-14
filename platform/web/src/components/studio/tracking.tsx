@@ -1,5 +1,6 @@
 import type { CSSProperties } from "react";
-import type { StudioNode } from "@/lib/pages/types";
+import { STUDIO_TRACKING_DEFAULTS, type StudioNode } from "@/lib/pages/types";
+import { NearbyMore, ownGreeting, RideHeadline, TripCard } from "./tracking-more";
 
 /**
  * 128 The live elements in the editor's phone, as the app draws them
@@ -85,7 +86,12 @@ const ICON: CSSProperties = { fontVariationSettings: "'FILL' 1", lineHeight: 1 }
 export function TrackingCard({ node, lang, dark, brand, second, color }: { node: StudioNode; lang: string; dark: boolean; brand: string; second: string | null | undefined; color: string | undefined }) {
   const w = liveWords(lang);
   const kind = node.tracking?.kind ?? "shipment";
-  const style = node.tracking?.style ?? (kind === "nearby_taxis" ? "line" : kind === "ride" ? "driver" : "card");
+  const own = node.tracking?.style ?? STUDIO_TRACKING_DEFAULTS[kind];
+  // 130.11 The next trip, the taxis' card and headline, a ride's headline (tracking-more.tsx); a ticket or a headline of another kind is its card.
+  if (kind === "trip") return <TripCard node={node} lang={lang} dark={dark} accent={second ?? brand} />;
+  if (kind === "nearby_taxis" && (own === "card" || own === "headline")) return <NearbyMore node={node} lang={lang} accent={second ?? brand} />;
+  if (kind === "ride" && own === "headline") return <RideHeadline lang={lang} brand={brand} />;
+  const style = own === "ticket" || own === "headline" ? "card" : own;
   const accent = style === "line" ? (second ?? brand) : brand;
   const ink = color;
   if (style === "line") {
@@ -152,6 +158,8 @@ export function TrackingCard({ node, lang, dark, brand, second, color }: { node:
 }
 
 /** A `greeting`: good morning or good evening with the person's first name (a sample here). */
-export function GreetingText({ lang, sample }: { lang: string; sample?: string | null }) {
+export function GreetingText({ lang, sample, own }: { lang: string; sample?: string | null; own?: string | null }) {
+  // 130.11 Its own words, with the sample's first name for `{name}`.
+  if (own) return <span data-studio-greeting="own">{ownGreeting(own, lang)}</span>;
   return <span data-studio-greeting="">{sample ?? liveWords(lang).greeting}</span>;
 }

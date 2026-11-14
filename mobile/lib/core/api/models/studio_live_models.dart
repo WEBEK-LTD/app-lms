@@ -213,12 +213,13 @@ class StudioMapRoute {
 }
 
 /// What a `tracking` element follows: the person's shipment or ride on its
-/// way, or the free taxis near them.
-enum StudioTrackingKind { shipment, ride, nearbyTaxis }
+/// way, or the free taxis near them; 130.11 their next trip (a travel app).
+enum StudioTrackingKind { shipment, ride, nearbyTaxis, trip }
 
 /// How it is drawn: a card with the stages, the driver and the car, or one
-/// line.
-enum StudioTrackingStyle { card, driver, line }
+/// line; 130.11 a trip's first flight as a boarding pass (`ticket`, the
+/// others' card) or the main number large (`headline`).
+enum StudioTrackingStyle { card, driver, line, ticket, headline }
 
 class StudioTracking {
   const StudioTracking({required this.kind, this.style});
@@ -246,5 +247,6 @@ class StudioTracking {
         StudioTrackingKind.shipment => StudioTrackingStyle.card,
         StudioTrackingKind.ride => StudioTrackingStyle.driver,
         StudioTrackingKind.nearbyTaxis => StudioTrackingStyle.line,
+        StudioTrackingKind.trip => StudioTrackingStyle.card,
       };
 }
