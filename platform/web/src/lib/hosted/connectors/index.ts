@@ -18,6 +18,7 @@ import { platformConnector } from "./platforms";
 import "./registry";
 import { ShopifyConnector } from "./shopify";
 import type { Connector } from "./types";
+import { withStoreExtras } from "../../selling/store";
 
 export const context = (appId: string) => `app:connector:${appId}`;
 
@@ -101,6 +102,15 @@ export function connectorFor(
   },
   fetcher: typeof fetch = fetch,
 ): Connector | null {
+  const connector = sourceConnector(app, key, deps, fetcher);
+  // 131 A store on a connected platform gets the delivery days, gifts, flash sales and the coupons shown in the app.
+  if (connector && app.appType === "store" && (app.connector?.kind === "shopify" || app.connector?.kind === "platform")) {
+    return withStoreExtras(connector, { store: deps.store, app });
+  }
+  return connector;
+}
+
+function sourceConnector(app: App, key: Buffer, deps: Parameters<typeof connectorFor>[2], fetcher: typeof fetch): Connector | null {
   if (app.connector?.kind === "catalog") return new CatalogConnector({ ...deps, app });
   if (app.connector?.kind === "bookings") return new BookingsConnector({ ...deps, app });
   if (app.connector?.kind === "courses") return new CoursesConnector({ ...deps, app });

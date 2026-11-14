@@ -81,6 +81,7 @@ import type {
 import { holdsOf, holdsOn } from "../travel/holds";
 import { alertData, bookingColumns, bookingData, flightData, hotelData, reviewData, roomData, type TravelAlertData, type TravelBookingData, type TravelFlightData, type TravelHotelData, type TravelReviewData, type TravelRoomData } from "../travel/rows";
 import type { AppDeletion, AppDeletionStatus, KeptBillingRecord } from "./types";
+import type { GiftOccasion, StoreDelivery, StoreFlashSale } from "./types";
 import type { CourierAccount, CourierChallenge, CourierDevice, CourierDevicePatch } from "./types";
 // 114 Email campaigns
 import type { BotPhrase, BotUnmatched, BotUnmatchedStatus } from "../bot/types";
@@ -1340,6 +1341,165 @@ export class MysqlStore implements DataStore {
         .where(and(eq(t.appId, appId), eq(t.id, id), or(isNull(t.maxUses), lt(t.usedCount, t.maxUses)))),
     );
     return done.affectedRows > 0;
+  }
+
+  async updateCatalogCoupon(appId: string, id: number, patch: Partial<Omit<CatalogCoupon, "id" | "appId" | "usedCount" | "createdAt">>): Promise<boolean> {
+    const t = schema.catalogCoupons;
+    if (Object.keys(patch).length === 0) return true;
+    try {
+      await this.run((db) => db.update(t).set(patch).where(and(eq(t.appId, appId), eq(t.id, id))));
+      return true;
+    } catch (error) {
+      if (errorCode(error) === "ER_DUP_ENTRY") return false;
+      throw error;
+    }
+  }
+
+  // 131 The flower shop
+
+  private flashSaleOf(row: typeof schema.storeFlashSales.$inferSelect): StoreFlashSale {
+    const { data, unitLimit, ...rest } = row;
+    return { ...rest, ...data, limit: unitLimit };
+  }
+
+  async listFlashSales(appId: string): Promise<StoreFlashSale[]> {
+    const t = schema.storeFlashSales;
+    const rows = await this.run((db) => db.select().from(t).where(eq(t.appId, appId)).orderBy(desc(t.id)));
+    return rows.map((r) => this.flashSaleOf(r));
+  }
+
+  async getFlashSale(appId: string, id: number): Promise<StoreFlashSale | null> {
+    const t = schema.storeFlashSales;
+    const [row] = await this.run((db) => db.select().from(t).where(and(eq(t.appId, appId), eq(t.id, id))).limit(1));
+    return row ? this.flashSaleOf(row) : null;
+  }
+
+  async createFlashSale(input: Omit<StoreFlashSale, "id" | "sold">): Promise<StoreFlashSale> {
+    const { productIds, categoryId, discount, platformCode, limit, ...rest } = input;
+    const [result] = await this.run((db) =>
+      db.insert(schema.storeFlashSales).values({ ...rest, unitLimit: limit, sold: 0, data: { productIds, categoryId, discount, platformCode } }),
+    );
+    return { ...input, id: Number(result.insertId), sold: 0 };
+  }
+
+  async updateFlashSale(appId: string, id: number, patch: Partial<Omit<StoreFlashSale, "id" | "appId" | "createdAt">>): Promise<void> {
+    const current = await this.getFlashSale(appId, id);
+    if (!current) return;
+    const next = { ...current, ...patch };
+    const t = schema.storeFlashSales;
+    await this.run((db) =>
+      db
+        .update(t)
+        .set({
+          title: next.title,
+          startsAt: next.startsAt,
+          endsAt: next.endsAt,
+          unitLimit: next.limit,
+          active: next.active,
+          updatedAt: next.updatedAt,
+          data: { productIds: next.productIds, categoryId: next.categoryId, discount: next.discount, platformCode: next.platformCode },
+          ...(patch.sold !== undefined ? { sold: patch.sold } : {}),
+        })
+        .where(and(eq(t.appId, appId), eq(t.id, id))),
+    );
+  }
+
+  async deleteFlashSale(appId: string, id: number): Promise<void> {
+    const t = schema.storeFlashSales;
+    await this.run((db) => db.delete(t).where(and(eq(t.appId, appId), eq(t.id, id))));
+  }
+
+  async addFlashSaleSold(appId: string, id: number, units: number): Promise<void> {
+    const t = schema.storeFlashSales;
+    await this.run((db) => db.update(t).set({ sold: sql`${t.sold} + ${units}` }).where(and(eq(t.appId, appId), eq(t.id, id))));
+  }
+
+  async countCatalogDeliveries(appId: string, date: string, pendingSince: Date): Promise<Record<string, number>> {
+    const t = schema.catalogOrders;
+    const rows = await this.run((db) =>
+      db
+        .select({ delivery: t.delivery, status: t.status, createdAt: t.createdAt, manual: isNotNull(t.manualPayment) })
+        .from(t)
+        .where(and(eq(t.appId, appId), eq(t.deliveryDate, date), inArray(t.status, ["pending", "processing", "completed"]))),
+    );
+    const counts: Record<string, number> = {};
+    for (const o of rows) {
+      if (o.status === "pending" && !o.manual && o.createdAt.getTime() <= pendingSince.getTime()) continue;
+      const slot = o.delivery?.slot?.id ?? "";
+      counts[slot] = (counts[slot] ?? 0) + 1;
+    }
+    return counts;
+  }
+
+  async createStoreDelivery(input: Omit<StoreDelivery, "id">): Promise<StoreDelivery> {
+    const [result] = await this.run((db) =>
+      db.insert(schema.storeDeliveries).values({
+        appId: input.appId,
+        userId: input.userId,
+        deliveryDate: input.delivery.date,
+        slotId: input.delivery.slot?.id ?? null,
+        data: { delivery: input.delivery, lines: input.lines, buyer: input.buyer, passed: input.passed },
+        createdAt: input.createdAt,
+      }),
+    );
+    return { ...input, id: Number(result.insertId) };
+  }
+
+  async countStoreDeliveries(appId: string, date: string): Promise<Record<string, number>> {
+    const t = schema.storeDeliveries;
+    const rows = await this.run((db) =>
+      db.select({ slot: t.slotId, n: count() }).from(t).where(and(eq(t.appId, appId), eq(t.deliveryDate, date))).groupBy(t.slotId),
+    );
+    const counts: Record<string, number> = {};
+    for (const r of rows) counts[r.slot ?? ""] = Number(r.n);
+    return counts;
+  }
+
+  async listStoreDeliveries(appId: string, limit: number): Promise<StoreDelivery[]> {
+    const t = schema.storeDeliveries;
+    const rows = await this.run((db) => db.select().from(t).where(eq(t.appId, appId)).orderBy(desc(t.createdAt), desc(t.id)).limit(limit));
+    return rows.map((r) => ({ id: r.id, appId: r.appId, userId: r.userId, createdAt: r.createdAt, ...r.data }));
+  }
+
+  async deleteStoreDeliveriesBefore(before: Date): Promise<number> {
+    const t = schema.storeDeliveries;
+    const [done] = await this.run((db) => db.delete(t).where(lt(t.createdAt, before)));
+    return done.affectedRows;
+  }
+
+  private giftOccasionOf(row: typeof schema.storeGiftOccasions.$inferSelect): GiftOccasion {
+    const { data, occasionKey, ...rest } = row;
+    return { ...rest, key: occasionKey, names: data.names, icon: data.icon, templates: data.templates };
+  }
+
+  async listGiftOccasions(appId: string): Promise<GiftOccasion[]> {
+    const t = schema.storeGiftOccasions;
+    const rows = await this.run((db) => db.select().from(t).where(eq(t.appId, appId)).orderBy(asc(t.position), asc(t.id)));
+    return rows.map((r) => this.giftOccasionOf(r));
+  }
+
+  async createGiftOccasion(input: Omit<GiftOccasion, "id">): Promise<GiftOccasion> {
+    const { key, names, icon, templates, ...rest } = input;
+    const [result] = await this.run((db) => db.insert(schema.storeGiftOccasions).values({ ...rest, occasionKey: key, data: { names, icon, templates } }));
+    return { ...input, id: Number(result.insertId) };
+  }
+
+  async updateGiftOccasion(appId: string, id: number, patch: Partial<Omit<GiftOccasion, "id" | "appId" | "createdAt">>): Promise<void> {
+    const t = schema.storeGiftOccasions;
+    const [row] = await this.run((db) => db.select().from(t).where(and(eq(t.appId, appId), eq(t.id, id))).limit(1));
+    if (!row) return;
+    const next = { ...this.giftOccasionOf(row), ...patch };
+    await this.run((db) =>
+      db
+        .update(t)
+        .set({ occasionKey: next.key, position: next.position, hidden: next.hidden, updatedAt: next.updatedAt, data: { names: next.names, icon: next.icon, templates: next.templates } })
+        .where(and(eq(t.appId, appId), eq(t.id, id))),
+    );
+  }
+
+  async deleteGiftOccasion(appId: string, id: number): Promise<void> {
+    const t = schema.storeGiftOccasions;
+    await this.run((db) => db.delete(t).where(and(eq(t.appId, appId), eq(t.id, id))));
   }
 
   async createCatalogOrder(input: Omit<CatalogOrder, "id">): Promise<CatalogOrder> {

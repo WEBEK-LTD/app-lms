@@ -361,6 +361,10 @@ export async function deliverPaidOrder(store: DataStore, app: App, order: Catalo
   }
   // 91.4 And spends the loyalty points it used.
   await spendOrderPoints(store, order, now);
+  // 131 And counts the units it bought at a flash sale's price.
+  const flash = new Map<number, number>();
+  for (const line of order.lines) if (line.flashSaleId !== undefined) flash.set(line.flashSaleId, (flash.get(line.flashSaleId) ?? 0) + line.quantity);
+  for (const [saleId, units] of flash) await store.addFlashSaleSold(app.id, saleId, units);
   await enrollPaidCourses(store, app, order, now);
   await startPaidMemberships(store, app, order, now);
   await issuePaidTickets(store, app, order, now, baseUrl);
