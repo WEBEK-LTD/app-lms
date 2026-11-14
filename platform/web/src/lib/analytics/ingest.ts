@@ -1,6 +1,6 @@
 import { hmacSha256, safeEqual } from "../crypto/tokens";
 import type { DataStore } from "../data/store";
-import { addDays, dayOf } from "./days";
+import { addDays, dayOf, dayRange } from "./days";
 import {
   ANALYTICS_EVENT_TYPES,
   ANALYTICS_ITEM_KINDS,
@@ -190,6 +190,10 @@ export { countryFromHeaders } from "../geo";
  * Stores a parsed batch: the events, the day's search counts, and marks
  * days already counted as changed so the next count includes the late events
  * (98.1 today too, so a report counts today again only when it changed).
+ * A day's weekly and monthly users, and its cohorts' returns, count the days
+ * before it: a late event changes every day from its own to today, so each
+ * of them is counted again (yesterday's events sent after midnight are in
+ * today's weekly users).
  */
 export async function storeBatch(
   store: Pick<DataStore, "insertAnalyticsEvents" | "addAnalyticsDaily">,
@@ -204,6 +208,8 @@ export async function storeBatch(
     await store.addAnalyticsDaily(appId, day, { metric: "search", key: query, label: null, value: 1 });
   }
   const today = dayOf(now, zone);
-  const late = new Set(batch.events.map((e) => e.day).filter((day) => day <= today && day >= addDays(today, -MAX_EVENT_AGE_DAYS - 1)));
-  for (const day of late) await store.addAnalyticsDaily(appId, day, { metric: "dirty", key: "", label: null, value: 1 });
+  const oldest = addDays(today, -MAX_EVENT_AGE_DAYS - 1);
+  const earliest = batch.events.reduce<string | null>((first, e) => (e.day <= today && (first === null || e.day < first) ? e.day : first), null);
+  if (earliest === null) return;
+  for (const day of dayRange(earliest < oldest ? oldest : earliest, today)) await store.addAnalyticsDaily(appId, day, { metric: "dirty", key: "", label: null, value: 1 });
 }

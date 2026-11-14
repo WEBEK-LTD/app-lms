@@ -2,6 +2,8 @@ import { createHmac, randomUUID } from "node:crypto";
 import { readFile } from "node:fs/promises";
 import { expect, test, type APIRequestContext, type Page } from "@playwright/test";
 import { E2E } from "../../playwright.config";
+import { addDays, dayOf } from "../../src/lib/analytics/days";
+import { zoneOfPhone } from "../../src/lib/analytics/zone";
 
 /**
  * 44 Analytics for app owners: an app sends its usage events to the
@@ -11,7 +13,7 @@ import { E2E } from "../../playwright.config";
 test.describe.configure({ mode: "serial" });
 
 const suffix = Date.now().toString(36);
-const client = { name: "Tulip House", email: `tulip-${suffix}@analytics.test`, password: "tulip-house-strong-password-1" };
+const client = { name: "Tulip House", email: `tulip-${suffix}@analytics.test`, whatsapp: "+90 544 000 01 44", password: "tulip-house-strong-password-1" };
 /** Its own address, so this spec's sign-up and sign-in don't count against the other specs' per-IP limits. */
 const extraHTTPHeaders = { "x-forwarded-for": "198.51.100.144" };
 let own: Page;
@@ -19,14 +21,28 @@ let appId = "";
 const a = randomUUID();
 const b = randomUUID();
 
-/** `hour` o'clock on Istanbul's date `offset` days from today: the app counts its days in Istanbul (UTC+3, no summer time). */
+/** The app counts its days in the account's zone: Istanbul for a Turkish WhatsApp number (UTC+3, no summer time). */
+const ZONE = zoneOfPhone(client.whatsapp)!;
 const ISTANBUL = 3 * 3_600_000;
-const day = (offset: number, hour = 10) => {
-  const date = new Date(Date.now() + ISTANBUL);
-  date.setUTCDate(date.getUTCDate() + offset);
-  date.setUTCHours(hour, 0, 0, 0);
-  // Today's events are a minute in the past at most, never ahead of the server.
-  return new Date(Math.min(date.getTime() - ISTANBUL, Date.now() - 60_000)).toISOString();
+/**
+ * The spec's today: Istanbul's date when the events are sent, fixed then, so
+ * every event and every day the tests expect comes from that one date. Near
+ * midnight the server's today may be the next day by the time the numbers
+ * are read: what the tests expect holds on either.
+ */
+let today = "";
+let sentAt = 0;
+/** Midday in Istanbul `offset` days before today: well inside that day, and in the past. */
+const day = (offset: number) => {
+  const at = new Date(Date.parse(`${addDays(today, offset)}T12:00:00Z`) - ISTANBUL);
+  expect(dayOf(at, ZONE)).toBe(addDays(today, offset));
+  return at.toISOString();
+};
+/** Today's events: a minute before they are sent, but never before today's midnight, so always today and never ahead of the server. */
+const justNow = () => {
+  const at = new Date(Math.max(Date.parse(`${today}T00:00:00Z`) - ISTANBUL, sentAt - 60_000));
+  expect(dayOf(at, ZONE)).toBe(today);
+  return at.toISOString();
 };
 
 /** The app's analytics key, as the platform puts it in the build config. */
@@ -44,7 +60,7 @@ test.beforeAll(async ({ browser }) => {
   await own.goto("/sign-up");
   await own.getByLabel("Full name").fill(client.name);
   await own.getByLabel("Email").fill(client.email);
-  await own.getByLabel("WhatsApp number").fill("+90 544 000 01 44");
+  await own.getByLabel("WhatsApp number").fill(client.whatsapp);
   await own.getByLabel("Your website (optional)").fill(`https://tulip-${suffix}.shop.test`);
   await own.getByLabel("Password", { exact: true }).fill(client.password);
   await own.getByRole("checkbox").check();
@@ -93,6 +109,8 @@ test("Analytics explains when its numbers appear", async () => {
 });
 
 test("the app's events arrive, and bad ones are refused", async ({ request }) => {
+  sentAt = Date.now();
+  today = dayOf(new Date(sentAt), ZONE);
   const batch = (install: string, platform: string, events: Record<string, unknown>[]) => ({
     install_id: install,
     platform,
@@ -106,14 +124,14 @@ test("the app's events arrive, and bad ones are refused", async ({ request }) =>
     batch(a, "android", [
       { type: "app_open", at: day(-2), first_open: true },
       { type: "app_open", at: day(-1) },
-      { type: "app_open", at: day(0, 0) },
-      { type: "screen_view", at: day(0, 0), screen: "home" },
-      { type: "item_view", at: day(0, 0), item_kind: "product", item_id: "7", title: "Tulip Bouquet" },
-      { type: "add_to_cart", at: day(0, 0), item_kind: "product", item_id: "7", title: "Tulip Bouquet" },
-      { type: "purchase_click", at: day(0, 0), item_kind: "product", item_id: "7", amount: 350, currency: "TRY" },
-      { type: "search", at: day(0, 0), query: "Tulips" },
-      { type: "search", at: day(0, 0), query: "ada@example.com" },
-      { type: "push_open", at: day(0, 0), push_type: "announcement" },
+      { type: "app_open", at: justNow() },
+      { type: "screen_view", at: justNow(), screen: "home" },
+      { type: "item_view", at: justNow(), item_kind: "product", item_id: "7", title: "Tulip Bouquet" },
+      { type: "add_to_cart", at: justNow(), item_kind: "product", item_id: "7", title: "Tulip Bouquet" },
+      { type: "purchase_click", at: justNow(), item_kind: "product", item_id: "7", amount: 350, currency: "TRY" },
+      { type: "search", at: justNow(), query: "Tulips" },
+      { type: "search", at: justNow(), query: "ada@example.com" },
+      { type: "push_open", at: justNow(), push_type: "announcement" },
       { type: "app_open", at: day(-9) },
     ]),
   );
@@ -122,15 +140,15 @@ test("the app's events arrive, and bad ones are refused", async ({ request }) =>
   const second = await send(
     request,
     batch(b, "ios", [
-      { type: "app_open", at: day(0, 0), first_open: true },
-      { type: "item_view", at: day(0, 0), item_kind: "product", item_id: "7", title: "Tulip Bouquet" },
-      { type: "search", at: day(0, 0), query: "tulips " },
+      { type: "app_open", at: justNow(), first_open: true },
+      { type: "item_view", at: justNow(), item_kind: "product", item_id: "7", title: "Tulip Bouquet" },
+      { type: "search", at: justNow(), query: "tulips " },
     ]),
   );
   expect(second.status()).toBe(202);
 
-  expect((await send(request, batch(a, "android", [{ type: "app_open", at: day(0, 0) }]), keyOf(randomUUID()))).status()).toBe(403);
-  const invalid = await send(request, batch(a, "android", [{ type: "app_open", at: day(0, 0), email: "a@b.c" }]));
+  expect((await send(request, batch(a, "android", [{ type: "app_open", at: justNow() }]), keyOf(randomUUID()))).status()).toBe(403);
+  const invalid = await send(request, batch(a, "android", [{ type: "app_open", at: justNow(), email: "a@b.c" }]));
   expect(invalid.status()).toBe(400);
   expect((await invalid.json()).code).toBe("invalid_request");
   expect((await request.post(`/api/v1/apps/${randomUUID()}/events`, { data: {} })).status()).toBe(404);
@@ -184,7 +202,7 @@ test("Dashboard › Analytics shows the numbers, compared and split", async () =
 
   // A custom range.
   const custom = own.getByRole("form", { name: "Custom range" });
-  const yesterday = new Date(Date.parse(day(-1)) + ISTANBUL).toISOString().slice(0, 10);
+  const yesterday = addDays(today, -1);
   await custom.getByLabel("From").fill(yesterday);
   await custom.getByLabel("To").fill(yesterday);
   await custom.getByRole("button", { name: "Apply" }).click();
@@ -237,10 +255,11 @@ test("47 days are counted in the owner's time zone, which they change on the pag
   await form.getByRole("button", { name: "Save time zone" }).click();
   await expect(form.getByRole("status")).toHaveText("Time zone saved: days are counted in Pacific/Kiritimati from now on.");
 
-  // An event sent now is filed under Kiritimati's date (UTC+14), whatever the UTC date is.
-  const kiritimatiToday = new Intl.DateTimeFormat("en-CA", { timeZone: "Pacific/Kiritimati", year: "numeric", month: "2-digit", day: "2-digit" }).format(new Date());
+  // An event sent now is filed under Kiritimati's date (UTC+14), whatever the UTC date is: its time is chosen first, and its date read from it.
+  const at = new Date(Date.now() - 30_000);
+  const kiritimatiDay = dayOf(at, "Pacific/Kiritimati");
   // Between 21:00 and 10:00 UTC Kiritimati and Istanbul share a date, so the earlier tests' installs may be on that day too: count from what is there.
-  const day = `/dashboard/analytics?range=custom&from=${kiritimatiToday}&to=${kiritimatiToday}`;
+  const day = `/dashboard/analytics?range=custom&from=${kiritimatiDay}&to=${kiritimatiDay}`;
   await own.goto(day);
   const before = Number((await own.locator('[data-kpi="installs"] [data-value]').innerText()).replace(/\D/g, ""));
   const c = randomUUID();
@@ -250,7 +269,7 @@ test("47 days are counted in the owner's time zone, which they change on the pag
         app_version: "1.2.0",
         os_version: "Android 14",
         locale: "tr",
-        events: [{ type: "app_open", at: new Date(Date.now() - 30_000).toISOString(), first_open: true }],
+        events: [{ type: "app_open", at: at.toISOString(), first_open: true }],
       })).status()).toBe(202);
   await own.goto(day);
   await expect(own.locator('[data-kpi="installs"] [data-value]')).toHaveText(String(before + 1));
