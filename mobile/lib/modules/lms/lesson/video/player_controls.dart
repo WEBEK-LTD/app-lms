@@ -666,16 +666,23 @@ class _PremiumControls extends StatelessWidget {
                   ],
                 ),
               ),
-              // 110 Played, then the length, in every language.
-              Directionality(
-                textDirection: TextDirection.ltr,
-                child: Row(
-                  children: [
-                    Text(formatClock(position), style: time),
-                    const Spacer(),
-                    Text(formatClock(duration), style: time),
-                  ],
-                ),
+              // 110 Played, then the length, in every language; 128 the
+              // time played at the bar's start, where its gold starts (on
+              // the right in Arabic).
+              Row(
+                children: [
+                  Text(
+                    formatClock(position),
+                    style: time,
+                    textDirection: TextDirection.ltr,
+                  ),
+                  const Spacer(),
+                  Text(
+                    formatClock(duration),
+                    style: time,
+                    textDirection: TextDirection.ltr,
+                  ),
+                ],
               ),
             ],
           ),

@@ -47,13 +47,12 @@ class TeacherCard extends StatelessWidget {
                       width: 2,
                     ),
                   ),
-                  child: ClipOval(
-                    child: AppNetworkImage(
-                      url: instructor.avatarUrl,
-                      seed: instructor.id,
-                      width: 48,
-                      height: 48,
-                    ),
+                  // 128 Their photo, else their initials (never an empty
+                  // picture's placeholder).
+                  child: InitialsAvatar(
+                    name: instructor.name,
+                    imageUrl: instructor.avatarUrl,
+                    size: 48,
                   ),
                 ),
                 const SizedBox(width: 12),

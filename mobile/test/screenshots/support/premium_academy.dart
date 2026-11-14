@@ -15,6 +15,7 @@ import 'package:yallapp/modules/shared/pages/content_blocks.dart'
 
 import '../../support/fixtures.dart';
 import 'demo_api.dart';
+import 'studio_demo.dart';
 
 /// 123 The premium academy's demo, Ufuq Academy, as the platform makes it
 /// (test/support/premium_academy_demo.json, written by
@@ -83,11 +84,10 @@ List<Map<String, dynamic>> _items(int limit, String sort) {
   ];
 }
 
-/// A Studio element as the hosted API serves it: its lists filled, in English.
+/// A Studio element as the hosted API serves it: its lists filled, in
+/// [StudioDemo.language].
 Map<String, dynamic> _served(Map<String, dynamic> node) {
-  final out = {...node}
-    ..remove('translations')
-    ..remove('query');
+  final out = StudioDemo.localized(node)..remove('query');
   if (node['type'] == 'items') {
     final q = node['query'] as Map<String, dynamic>;
     out['items'] = _items(q['limit'] as int, q['sort'] as String);
@@ -285,7 +285,10 @@ DemoApi premiumAcademyApi({bool enrolled = true}) {
   api.navigation = {
     'version': '1',
     'tabs': [
-      for (final t in (_layout['tabs'] as List).cast<Map<String, dynamic>>())
+      for (final t
+          in (_layout['tabs'] as List).cast<Map<String, dynamic>>().map(
+            StudioDemo.localized,
+          ))
         {
           'id': t['id'],
           'label': t['label'],
@@ -321,7 +324,7 @@ DemoApi premiumAcademyApi({bool enrolled = true}) {
           'studio': {
             ...studio,
             if (studio['header'] case final Map<String, dynamic> header)
-              'header': {...header}..remove('translations'),
+              'header': StudioDemo.localized(header),
             'body': _served(studio['body'] as Map<String, dynamic>),
           },
       },

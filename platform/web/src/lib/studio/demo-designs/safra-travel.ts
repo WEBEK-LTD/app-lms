@@ -44,7 +44,9 @@ function travelWelcome(ctx: SectionContext): StudioNode {
     padding: pad(24, 18),
     margin: pad(12, 10),
     radius: 24,
+    // 128 By night on the dark surface, never the page's own ink (it vanished into it).
     background: K.ink,
+    dark_background: K.darkSurface,
     color: "#FFFFFF",
     children: [
       { id: id(), type: "icon", icon: "travel_explore", icon_size: 30, color: GOLD },
@@ -56,7 +58,7 @@ function travelWelcome(ctx: SectionContext): StudioNode {
         gap: 8,
         children: [
           { id: id(), type: "button", text: ctx.w("travelStays"), width: "hug", height: 44, radius: 14, background: GOLD, color: K.ink, font: { weight: 800, size: 14 }, padding: pad(0, 18), action: screen("stays"), motion: { press: "shrink" } },
-          { id: id(), type: "button", text: ctx.w("travelFlights"), width: "hug", height: 44, radius: 14, border: { width: 1.5, color: "#FFFFFF" }, color: "#FFFFFF", font: { weight: 700, size: 14 }, padding: pad(0, 16), action: screen("flights") } as StudioNode,
+          { id: id(), type: "button", text: ctx.w("travelFlights"), width: "hug", height: 44, radius: 14, background: K.ink, dark_background: K.darkSurface, border_color: "#FFFFFF", border_width: 1.5, color: "#FFFFFF", font: { weight: 700, size: 14 }, padding: pad(0, 16), action: screen("flights") },
         ],
       },
     ],
@@ -82,7 +84,8 @@ function travelStays(ctx: SectionContext): StudioNode {
 /** A travel app's home: Explore as approved (the welcome, a stay or a flight, the featured stays), drawn by the app; the owner adds to it. */
 export function safraHome(ctx: SectionContext): StudioPage {
   return {
-    header: { type: "logo_actions", buttons: ["menu", "notifications", "account"] },
+    // 128 The ink header by day, the dark surface by night (not the app's lightened blue).
+    header: { type: "logo_actions", buttons: ["menu", "notifications", "account"], background: K.ink, color: "#FFFFFF", dark_background: K.darkSurface, dark_color: K.darkInk },
     body: { id: idOf(ctx)(), type: "column", gap: 4, padding: { bottom: 16 }, children: [travelWelcome(ctx), travelStays(ctx)] },
   };
 }

@@ -170,6 +170,7 @@ function restaurantCards(ctx: SectionContext): StudioNode {
       background: C.surface,
       dark_background: C.nightSurface,
       border_color: C.line,
+      dark_border_color: C.nightLine,
       border_width: 1,
       children: [
         { id: id(), type: "image", bind: "image", width: "fill", height: 108 },

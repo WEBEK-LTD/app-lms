@@ -362,35 +362,6 @@
         ]
        },
        {
-        "id": "demo-49",
-        "type": "column",
-        "gap": 6,
-        "padding": {
-         "top": 8,
-         "end": 16,
-         "bottom": 8,
-         "start": 16
-        },
-        "margin": {
-         "top": 4,
-         "end": 0,
-         "bottom": 4,
-         "start": 0
-        },
-        "visibility": "signed_out",
-        "children": [
-         {
-          "id": "demo-48",
-          "type": "text",
-          "text": "This is a demo app. Sign in with +1 202 555 0123 and the code 246810. Anything you add is deleted after a day.",
-          "font": {
-           "size": 15,
-           "line_height": 1.5
-          }
-         }
-        ]
-       },
-       {
         "id": "demo-20",
         "type": "row",
         "name": "Grill",
@@ -715,6 +686,7 @@
          "background": "#FFFFFF",
          "dark_background": "#241913",
          "border_color": "#EFE4DA",
+         "dark_border_color": "#3A2A21",
          "border_width": 1,
          "children": [
           {
@@ -782,6 +754,61 @@
           }
          ]
         }
+       },
+       {
+        "id": "demo-48",
+        "type": "row",
+        "gap": 10,
+        "cross": "start",
+        "padding": {
+         "top": 12,
+         "end": 14,
+         "bottom": 12,
+         "start": 14
+        },
+        "margin": {
+         "top": 18,
+         "end": 16,
+         "bottom": 8,
+         "start": 16
+        },
+        "radius": 16,
+        "background": "#FFFFFF",
+        "dark_background": "#241913",
+        "border_color": "#EFE4DA",
+        "dark_border_color": "#3A2A21",
+        "border_width": 1,
+        "visibility": "signed_out",
+        "children": [
+         {
+          "id": "demo-49",
+          "type": "icon",
+          "icon": "info",
+          "icon_size": 18,
+          "color": "#6E5A50",
+          "dark_color": "#C5B2A6"
+         },
+         {
+          "id": "demo-50",
+          "type": "text",
+          "text": "This is a demo app. Sign in with +1 202 555 0123 and the code 246810. Anything you add is deleted after a day.",
+          "width": "fill",
+          "font": {
+           "size": 13,
+           "line_height": 1.45
+          },
+          "color": "#6E5A50",
+          "dark_color": "#C5B2A6",
+          "translations": {
+           "ar": {
+            "text": "هذا تطبيق تجريبي. سجّل الدخول بالرقم ⁦+1 202 555 0123⁩ والرمز 246810. يُحذف كل ما تضيفه بعد يوم."
+           },
+           "tr": {
+            "text": "Bu bir demo uygulamasıdır. +1 202 555 0123 numarası ve 246810 koduyla giriş yapın. Eklediğiniz her şey bir gün sonra silinir."
+           }
+          }
+         }
+        ]
        }
       ]
      }
@@ -800,11 +827,11 @@
     },
     "studio": {
      "body": {
-      "id": "demo-53",
+      "id": "demo-54",
       "type": "column",
       "children": [
        {
-        "id": "demo-54",
+        "id": "demo-55",
         "type": "row",
         "name": "Grill",
         "scroll": true,
@@ -818,7 +845,7 @@
         },
         "children": [
          {
-          "id": "demo-55",
+          "id": "demo-56",
           "type": "column",
           "gap": 6,
           "cross": "center",
@@ -828,7 +855,7 @@
           },
           "children": [
            {
-            "id": "demo-56",
+            "id": "demo-57",
             "type": "image",
             "image_url": "http://localhost:3000/demo-photos/cover-grill.jpg",
             "fit": "cover",
@@ -839,7 +866,7 @@
             "border_width": 2
            },
            {
-            "id": "demo-57",
+            "id": "demo-58",
             "type": "text",
             "text": "Grill",
             "font": {
@@ -860,7 +887,7 @@
           ]
          },
          {
-          "id": "demo-58",
+          "id": "demo-59",
           "type": "column",
           "gap": 6,
           "cross": "center",
@@ -870,7 +897,7 @@
           },
           "children": [
            {
-            "id": "demo-59",
+            "id": "demo-60",
             "type": "image",
             "image_url": "http://localhost:3000/demo-photos/margherita.jpg",
             "fit": "cover",
@@ -879,7 +906,7 @@
             "radius": 29
            },
            {
-            "id": "demo-60",
+            "id": "demo-61",
             "type": "text",
             "text": "Pizza",
             "font": {
@@ -900,7 +927,7 @@
           ]
          },
          {
-          "id": "demo-61",
+          "id": "demo-62",
           "type": "column",
           "gap": 6,
           "cross": "center",
@@ -910,7 +937,7 @@
           },
           "children": [
            {
-            "id": "demo-62",
+            "id": "demo-63",
             "type": "image",
             "image_url": "http://localhost:3000/demo-photos/kofta.jpg",
             "fit": "cover",
@@ -919,7 +946,7 @@
             "radius": 29
            },
            {
-            "id": "demo-63",
+            "id": "demo-64",
             "type": "text",
             "text": "Kofta",
             "font": {
@@ -940,7 +967,7 @@
           ]
          },
          {
-          "id": "demo-64",
+          "id": "demo-65",
           "type": "column",
           "gap": 6,
           "cross": "center",
@@ -950,7 +977,7 @@
           },
           "children": [
            {
-            "id": "demo-65",
+            "id": "demo-66",
             "type": "image",
             "image_url": "http://localhost:3000/demo-photos/shish-tawook.jpg",
             "fit": "cover",
@@ -959,7 +986,7 @@
             "radius": 29
            },
            {
-            "id": "demo-66",
+            "id": "demo-67",
             "type": "text",
             "text": "Tawook",
             "font": {
@@ -980,7 +1007,7 @@
           ]
          },
          {
-          "id": "demo-67",
+          "id": "demo-68",
           "type": "column",
           "gap": 6,
           "cross": "center",
@@ -990,7 +1017,7 @@
           },
           "children": [
            {
-            "id": "demo-68",
+            "id": "demo-69",
             "type": "image",
             "image_url": "http://localhost:3000/demo-photos/chocolate-brownie.jpg",
             "fit": "cover",
@@ -999,7 +1026,7 @@
             "radius": 29
            },
            {
-            "id": "demo-69",
+            "id": "demo-70",
             "type": "text",
             "text": "Sweets",
             "font": {
@@ -1061,11 +1088,11 @@
     },
     "studio": {
      "body": {
-      "id": "demo-73",
+      "id": "demo-74",
       "type": "column",
       "children": [
        {
-        "id": "demo-74",
+        "id": "demo-75",
         "type": "live_status",
         "live_status": {
          "source": "food_order"
@@ -1127,7 +1154,7 @@
     },
     "studio": {
      "body": {
-      "id": "demo-75",
+      "id": "demo-76",
       "type": "column",
       "children": []
      },
@@ -1150,7 +1177,7 @@
     },
     "studio": {
      "body": {
-      "id": "demo-76",
+      "id": "demo-77",
       "type": "column",
       "children": []
      },
@@ -1189,7 +1216,7 @@
     },
     "studio": {
      "body": {
-      "id": "demo-77",
+      "id": "demo-78",
       "type": "column",
       "children": []
      },
@@ -1228,7 +1255,7 @@
     },
     "studio": {
      "body": {
-      "id": "demo-78",
+      "id": "demo-79",
       "type": "column",
       "children": []
      },
@@ -1267,7 +1294,7 @@
     },
     "studio": {
      "body": {
-      "id": "demo-79",
+      "id": "demo-80",
       "type": "column",
       "children": []
      },
@@ -1298,7 +1325,7 @@
     "title": "Change password",
     "studio": {
      "body": {
-      "id": "demo-80",
+      "id": "demo-81",
       "type": "column",
       "children": []
      },
@@ -1313,7 +1340,7 @@
     "title": "A conversation",
     "studio": {
      "body": {
-      "id": "demo-81",
+      "id": "demo-82",
       "type": "column",
       "children": []
      },
@@ -1328,7 +1355,7 @@
     "title": "A restaurant's menu",
     "studio": {
      "body": {
-      "id": "demo-82",
+      "id": "demo-83",
       "type": "column",
       "children": []
      },
@@ -1343,7 +1370,7 @@
     "title": "An order",
     "studio": {
      "body": {
-      "id": "demo-83",
+      "id": "demo-84",
       "type": "column",
       "children": []
      },
@@ -1366,7 +1393,7 @@
     },
     "studio": {
      "body": {
-      "id": "demo-84",
+      "id": "demo-85",
       "type": "column",
       "children": []
      },

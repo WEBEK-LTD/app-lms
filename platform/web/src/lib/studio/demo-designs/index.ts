@@ -76,9 +76,9 @@ function inkLook(k: DemoInk): DemoPageLook {
   return { header: { background: k.surface, color: k.ink, dark_background: k.darkSurface, dark_color: k.darkInk }, background: k.page, dark_background: k.darkPage };
 }
 
-/** 119 The demos' bars as approved: across the bottom with the open tab's icon in a soft pill. */
-function classicBar(k: DemoInk): TabBarStyle {
-  return { design: "classic", background: k.surface, dark_background: k.darkSurface, inactive: k.muted, dark_inactive: k.darkMuted, margin: 0, radius: 0 };
+/** 119 The demos' bars as approved: across the bottom with the open tab's icon in a soft pill, 128 the open tab in the brand's colour. */
+function classicBar(k: DemoInk, active: string): TabBarStyle {
+  return { design: "classic", background: k.surface, dark_background: k.darkSurface, active, inactive: k.muted, dark_inactive: k.darkMuted, margin: 0, radius: 0 };
 }
 
 const STUDIO_DEMO_DESIGNS: Partial<Record<StudioDemoId, DemoDesign>> = {
@@ -100,9 +100,9 @@ const STUDIO_DEMO_DESIGNS: Partial<Record<StudioDemoId, DemoDesign>> = {
     over: sahmPage,
     look: inkLook(SAHM_INK),
     tabs: (tabs) => retab(tabs, (t) => (screenOf(t) === "send_parcel" ? { ...t, icon: "send" } : screenOf(t) === "account" ? { ...t, icon: "person" } : t)),
-    bar: classicBar(SAHM_INK),
+    bar: classicBar(SAHM_INK, "#1F6FB2"),
   },
-  rides: { template: { id: "ride_night", icon: "nightlife", fits: { types: ["rides"] } }, home: masarHome, over: masarPage, look: inkLook(MASAR_INK), tabs: rideTabs, bar: classicBar(MASAR_INK) },
+  rides: { template: { id: "ride_night", icon: "nightlife", fits: { types: ["rides"] } }, home: masarHome, over: masarPage, look: inkLook(MASAR_INK), tabs: rideTabs, bar: classicBar(MASAR_INK, "#14857A") },
   taxi: { template: { id: "taxi_map", icon: "map", fits: { types: ["rides"] } }, home: lamhaHome, over: lamhaPage, look: inkLook(LAMHA_INK), tabs: rideTabs },
   // 128.6 128.7 The family's school day; the teachers in circles, its Teachers tab.
   school: { template: { id: "school_today", icon: "family_restroom", fits: { types: ["school"] } }, home: schoolTodayHome, over: schoolPage(NAKHLA_LOOK), look: NAKHLA_LOOK, bar: { design: "classic", background: "#FFFFFF", dark_background: "#122033", active: "#1F4E79", dark_active: "#9CC3EA", inactive: "#56657A", dark_inactive: "#A6B3C3" } },

@@ -5,6 +5,9 @@ import { StudioView, type ScreenPartInfo } from "@/components/studio/view";
 import { appPalette, subjectIcon } from "@/components/studio/app-screens";
 import { ICON_NAMES } from "@/components/icon-names";
 import { ACADEMY_PROJECT } from "@/lib/studio/academy";
+import { ELEMENTS } from "@/lib/studio/elements";
+import { PREMIUM_MAPS } from "@/lib/studio/premium-maps";
+import { PREMIUM_MOTION_ELEMENTS } from "@/lib/studio/premium-motion";
 import { screenDrawing, screenLookSection } from "@/lib/studio/screen-drawing";
 import { screenWords } from "@/lib/studio/screen-words";
 import type { StudioScreens } from "@/lib/studio/screens";
@@ -206,5 +209,18 @@ describe("124.8 the screen drawn on the canvas", () => {
     expect(account).toContain("Drawn by the app; choose its look in Screens");
     expect(account).toContain('href="/studio/project/screens#h-account-menu"');
     expect(account).toContain("Open Screens");
+  });
+});
+
+describe("128 Studio's list of elements", () => {
+  it("draws every element's icon in the site's icon font (its subset, components/icon-names.ts), never its name", () => {
+    const icons = new Set<string>(ICON_NAMES);
+    for (const e of ELEMENTS) expect(icons.has(e.icon), `${e.type}: ${e.icon}`).toBe(true);
+  });
+
+  it("129 draws the premium library's and the premium maps' icons in it too", () => {
+    const icons = new Set<string>(ICON_NAMES);
+    for (const e of PREMIUM_MOTION_ELEMENTS) expect(icons.has(e.icon), `${e.type}: ${e.icon}`).toBe(true);
+    for (const m of PREMIUM_MAPS) expect(icons.has(m.icon), `${m.id}: ${m.icon}`).toBe(true);
   });
 });

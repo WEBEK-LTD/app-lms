@@ -24,6 +24,7 @@ import '../../../core/theme/symbol_names.dart';
 import '../../../core/widgets/app_nav_bar.dart' show TabBarOverBody;
 import '../../../core/widgets/buttons.dart';
 import '../../../core/widgets/common.dart';
+import '../../../core/widgets/star_text.dart';
 import '../../../core/widgets/studio_screen_scope.dart';
 import '../../lms/home/learning_cards.dart';
 import '../../school/widgets/studio_school.dart';
@@ -1038,7 +1039,7 @@ class StudioNodeView extends ConsumerWidget {
         style: _textStyle(ref, color),
         child: IconTheme.merge(
           data: IconThemeData(color: color),
-          child: child,
+          child: color == null ? child : _StudioInk(color: color, child: child),
         ),
       );
     }
@@ -1234,7 +1235,8 @@ class StudioNodeView extends ConsumerWidget {
         }
         final text = _text();
         if (text == null || text.isEmpty) return const SizedBox.shrink();
-        return Text(
+        // 128 A rating's ★ (a restaurant's badge) as the star icon.
+        return StarText(
           text,
           textAlign: align,
           maxLines: node.maxLines,
@@ -1348,10 +1350,12 @@ class StudioNodeView extends ConsumerWidget {
         }
         return shown;
       case StudioNodeType.icon:
+        // 128 Without its own colour, the colour of what holds it (the
+        // dark ink of a white "Now" pill, by night too).
         return AppIcon(
           symbolByName(node.icon),
           size: node.iconSize,
-          color: color ?? p.text,
+          color: color ?? _StudioInk.of(context) ?? p.text,
         );
       case StudioNodeType.items:
         // 112.4 What this person opened lately comes from this phone.
@@ -2940,4 +2944,18 @@ class _StudioCountdownState extends ConsumerState<_StudioCountdown> {
       ),
     );
   }
+}
+
+/// 128 The colour an element sets for what it holds, for the icons inside
+/// it that have none of their own.
+class _StudioInk extends InheritedWidget {
+  const _StudioInk({required this.color, required super.child});
+
+  final Color color;
+
+  static Color? of(BuildContext context) =>
+      context.dependOnInheritedWidgetOfExactType<_StudioInk>()?.color;
+
+  @override
+  bool updateShouldNotify(_StudioInk old) => old.color != color;
 }

@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:go_router/go_router.dart';
 import 'package:yallapp/core/config/build_config_data.dart';
+import 'package:yallapp/core/l10n/l10n.dart';
 import 'package:yallapp/core/routing/app_router.dart';
 import 'package:flutter_riverpod/misc.dart' show Override;
 import 'package:yallapp/modules/delivery/data/delivery_providers.dart';
@@ -107,6 +108,8 @@ final _atTahrir = [locatorProvider.overrideWithValue(const _TahrirLocator())];
 /// A ride from Tahrir Square to Cairo Tower set on the ride form, with
 /// "When" at the top and each car type's fare under it.
 Future<void> _whereTo(WidgetTester tester, GoRouter router) async {
+  // The app's strings in the shot's language.
+  final l10n = tester.element(find.byKey(const ValueKey('ride-form'))).l10n;
   Future<void> place(String prefix, String address, String at) async {
     await tester.dragUntilVisible(
       find.byKey(ValueKey('$prefix-paste')),
@@ -118,7 +121,7 @@ Future<void> _whereTo(WidgetTester tester, GoRouter router) async {
     await tester.tap(find.byKey(ValueKey('$prefix-paste')));
     await tester.pumpAndSettle();
     await tester.enterText(find.byKey(const ValueKey('paste-link-field')), at);
-    await tester.tap(find.text('Use this place'));
+    await tester.tap(find.text(l10n.pasteLinkUse));
     await tester.pumpAndSettle();
   }
 
@@ -128,7 +131,7 @@ Future<void> _whereTo(WidgetTester tester, GoRouter router) async {
   await tester.pumpAndSettle();
   FocusManager.instance.primaryFocus?.unfocus();
   await tester.pumpAndSettle();
-  await Scrollable.ensureVisible(tester.element(find.text('When')));
+  await Scrollable.ensureVisible(tester.element(find.text(l10n.rideWhen)));
   await tester.pumpAndSettle();
 }
 
@@ -214,6 +217,9 @@ class Shot {
     final lightIcons = ValueNotifier(dark);
     addTearDown(lightIcons.dispose);
     usePhone(tester, size: size);
+    // The Studio demos' texts in the app's language, as the API serves them.
+    StudioDemo.language = language;
+    addTearDown(() => StudioDemo.language = 'en');
     seedDemoImages();
     if (designPictures) await seedDesignPictures(tester);
     if (prepare != null) await prepare!(tester);

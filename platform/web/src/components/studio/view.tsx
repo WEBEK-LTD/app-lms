@@ -529,6 +529,17 @@ function mixHex(a: string, b: string, t: number): string {
   return `#${[16, 8, 0].map((s) => ch(s).toString(16).padStart(2, "0")).join("")}`.toUpperCase();
 }
 
+/**
+ * 128 The icons that point along the reading direction, mirrored right to left as the app mirrors them (Material
+ * Symbols' own matchTextDirection, mobile/lib/core/theme/app_icons.dart): an arrow forward points left in Arabic.
+ */
+const MIRRORED = new Set(["arrow_forward", "arrow_back", "arrow_forward_ios", "arrow_back_ios", "arrow_back_ios_new", "chevron_right", "chevron_left", "navigate_next", "navigate_before", "keyboard_arrow_right", "keyboard_arrow_left", "arrow_right_alt", "send", "reply", "last_page", "first_page", "logout", "login", "trending_flat"]);
+
+/** The flip of an icon that points along the reading direction, in Arabic. */
+function mirrored(icon: string | null | undefined, rtl: boolean): CSSProperties {
+  return rtl && icon && MIRRORED.has(icon) ? { transform: "scaleX(-1)" } : {};
+}
+
 function Tag({ text }: { text: string }) {
   return <span style={{ position: "absolute", top: -22, insetInlineEnd: 0, background: "#6C8BFF", color: "#FFFFFF", fontSize: 10, fontWeight: 700, padding: "2px 8px", borderRadius: 6, whiteSpace: "nowrap", zIndex: 5 }}>{text}</span>;
 }
@@ -797,7 +808,7 @@ function Node(props: ViewProps & { node: StudioNode; parentDir: Dir; inStack?: I
         return (
           <span style={{ display: "flex", alignItems: "center", justifyContent: n.text_align === "start" ? "flex-start" : n.text_align === "end" ? "flex-end" : "center", gap: 8, height: "100%", flexDirection: n.icon_position === "start" ? "row" : "row-reverse", minHeight: 40, paddingInline: n.padding ? 0 : 16 }}>
             {n.icon ? (
-              <span className="material-symbols-rounded" aria-hidden="true" style={{ fontSize: n.icon_size ?? 20 }}>
+              <span className="material-symbols-rounded" aria-hidden="true" style={{ fontSize: n.icon_size ?? 20, ...mirrored(n.icon, lang === "ar") }}>
                 {n.icon}
               </span>
             ) : null}
@@ -806,7 +817,7 @@ function Node(props: ViewProps & { node: StudioNode; parentDir: Dir; inStack?: I
         );
       case "icon":
         return (
-          <span className="material-symbols-rounded" aria-hidden="true" style={{ fontSize: n.icon_size ?? 24, display: "block" }}>
+          <span className="material-symbols-rounded" aria-hidden="true" style={{ fontSize: n.icon_size ?? 24, display: "block", ...mirrored(n.icon, lang === "ar") }}>
             {n.icon}
           </span>
         );
