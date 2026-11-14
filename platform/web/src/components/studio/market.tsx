@@ -290,7 +290,8 @@ function AddressBar({ node, data, color, text, c }: { node: StudioNode; data: Ma
   const soonest = data.vendors.filter((v) => v.state !== "closed" && v.etaMin !== null).reduce<number | null>((min, v) => (min === null || v.etaMin! < min ? v.etaMin : min), null);
   // 128.10 The words on the bar readable on its colour; by night the search field in the theme's dark colours, as the app's.
   const onBar = luminance(color) > 0.5 ? "#14231B" : "#FFFFFF";
-  const field = p.dark ? p.surface : "#FFFFFF";
+  // 130 On a bar of a dark colour of its own (a page's night), the field that colour a step lighter.
+  const field = !p.dark ? "#FFFFFF" : luminance(color) < 0.02 ? blend("#FFFFFF", 0.08, color) : p.surface;
   const fieldInk = p.dark ? p.textSecondary : "#5D6B63";
   return (
     <div data-market-bar={node.id} style={{ padding: "22px 16px 12px", background: color, color: onBar, borderRadius: "0 0 28px 28px" }}>

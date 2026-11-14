@@ -36,6 +36,7 @@ const LANGS = { default: "en" as const, available: ["en" as const, "ar" as const
 const LOOKS: readonly (readonly [StudioDemoId, SignatureLook, string])[] = [
   ["food", "a", "sofra"],
   ["food", "b", "sofra"],
+  ["marketplace", "a", "zad"],
 ];
 
 const kindOf = (id: StudioDemoId) => ({ type: demoKind(id).engine, vertical: demoKind(id).vertical });

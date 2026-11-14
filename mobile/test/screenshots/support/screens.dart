@@ -967,14 +967,26 @@ final websiteShots = <Shot>[
     Shot(
       'food-sig-b-home${dark ? '-dark' : ''}',
       dark: dark,
-      api: () => sofraStudioApi(
-        look: StudioDemo.sigSofraB,
-        primaryColor: '#875800',
-      ),
+      api: () =>
+          sofraStudioApi(look: StudioDemo.sigSofraB, primaryColor: '#875800'),
       appName: 'Sofra Eats',
       appType: AppType.food,
       template: AppTemplate.bold,
       prepare: (tester) => StudioDemo.sigSofraB.prepare(tester, sofraPhotos),
+      shadows: true,
+    ),
+  for (final dark in [false, true])
+    Shot(
+      'marketplace-sig-a-home${dark ? '-dark' : ''}',
+      dark: dark,
+      api: () =>
+          zadStudioApi(look: StudioDemo.sigZadA, primaryColor: '#1B644C'),
+      appName: 'Zad',
+      appType: AppType.food,
+      template: AppTemplate.bold,
+      overrides: Zad.overrides,
+      designPictures: true,
+      prepare: StudioDemo.sigZadA.prepare,
       shadows: true,
     ),
   // end 130.1–130.6

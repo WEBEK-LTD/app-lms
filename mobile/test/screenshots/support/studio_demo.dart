@@ -41,6 +41,7 @@ class StudioDemo {
   // platform/web/tests/unit/studio-signature-food.test.ts).
   static final sigSofraA = StudioDemo._load('sig_sofra_a.json');
   static final sigSofraB = StudioDemo._load('sig_sofra_b.json');
+  static final sigZadA = StudioDemo._load('sig_zad_a.json');
 
   final Map<String, dynamic> _demo;
 
@@ -571,11 +572,14 @@ const sofraPhotos = [
 /// 128 Zad (Studio's marketplace demo) as its app is: its whole project
 /// (test/support/zad_demo.json): the photo-first home, the five tabs and
 /// Shops, Manrope; its places and the Fathys' groceries from DemoApi.zad.
-DemoApi zadStudioApi() => StudioDemo.zad.apply(
-  DemoApi.zad(),
-  appName: 'Zad',
-  primaryColor: '#1E6B52',
-);
+/// 130.3–130.4 Or a project from one of its Signature looks ([look],
+/// test/support/sig_zad_<a|b>.json) in the look's main colour.
+DemoApi zadStudioApi({StudioDemo? look, String primaryColor = '#1E6B52'}) =>
+    (look ?? StudioDemo.zad).apply(
+      DemoApi.zad(),
+      appName: 'Zad',
+      primaryColor: primaryColor,
+    );
 
 /// Masar Rides (Studio's rides demo): its car types on its home, the cars
 /// in their drawings (none of a van); without
