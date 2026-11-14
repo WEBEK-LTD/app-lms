@@ -795,8 +795,8 @@ function roseHome(m: Maker, type: StudioHeaderType): StudioPage {
         gap: 10,
         margin: pad(6, 0, 0, 0),
         children: [
-          button(m, packWord(m.p, "Cta"), m.main, { background: c.brand, darkBackground: c.darkBrand, color: "#FFFFFF", darkColor: c.darkPage, icon: "arrow_forward" }),
-          ...(m.opens(1) && m.opens(1)?.screen !== m.main?.screen ? [{ ...button(m, packWord(m.p, "S2"), m.opens(1), { outline: c.brand, color: c.brand, darkColor: c.darkBrand }), dark_border_color: c.darkBrand }] : []),
+          { ...button(m, packWord(m.p, "Cta"), m.main, { background: c.brand, darkBackground: c.darkBrand, color: "#FFFFFF", darkColor: c.darkPage }), width: "fill" as const, padding: pad(0, 12) },
+          ...(m.opens(1) && m.opens(1)?.screen !== m.main?.screen ? [{ ...button(m, packWord(m.p, "S2"), m.opens(1), { outline: c.brand, color: c.brand, darkColor: c.darkBrand }), dark_border_color: c.darkBrand, width: "fill" as const, padding: pad(0, 12) }] : []),
         ],
       },
     ],

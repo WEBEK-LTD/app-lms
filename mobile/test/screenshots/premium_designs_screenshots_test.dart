@@ -30,6 +30,12 @@ import 'support/screens.dart';
 const _enabled = bool.fromEnvironment('YALLAPP_SCREENSHOTS');
 const _only = String.fromEnvironment('YALLAPP_DESIGN_KINDS');
 const _out = '../../../platform/web/public/screens/designs';
+
+/// Arabic, right to left (`--dart-define=YALLAPP_DESIGN_LANG=ar`), written
+/// as `<kind>-<design>-<light|dark>-ar.png` where
+/// `--dart-define=YALLAPP_DESIGN_OUT=<folder>` says, for checking.
+const _lang = String.fromEnvironment('YALLAPP_DESIGN_LANG', defaultValue: 'en');
+const _outOther = String.fromEnvironment('YALLAPP_DESIGN_OUT');
 const _ratio = 1.25;
 const _size = Size(360, 1440);
 
@@ -41,6 +47,18 @@ String get _base => _gallery['base'] as String;
 
 /// The page as the hosted API serves it: no translations, each list filled
 /// with the gallery's entries.
+/// [json] in the language shown: each text's translation in its place.
+Object? _translated(Object? json) => switch (json) {
+  final Map<String, dynamic> map => <String, dynamic>{
+    for (final MapEntry(:key, :value) in map.entries)
+      if (key != 'translations') key: _translated(value),
+    if (map['translations'] case {_lang: final Map<String, dynamic> own})
+      ...own,
+  },
+  final List<dynamic> list => [for (final v in list) _translated(v)],
+  _ => json,
+};
+
 Map<String, dynamic> _served(Map<String, dynamic> node) {
   final out = {...node}
     ..remove('translations')
@@ -112,8 +130,8 @@ FakeApi _api(Map<String, dynamic> kind, Map<String, dynamic> design) {
       'studio': {
         ...home,
         if (home['header'] case final Map<String, dynamic> header)
-          'header': {...header}..remove('translations'),
-        'body': _served(home['body'] as Map<String, dynamic>),
+          'header': _translated(header),
+        'body': _served(_translated(home['body']) as Map<String, dynamic>),
       },
     },
   };
@@ -181,7 +199,8 @@ void main() {
     for (final design
         in (kind['designs'] as List).cast<Map<String, dynamic>>()) {
       for (final mode in ['light', 'dark']) {
-        final name = '$id-${design['id']}-$mode';
+        final name =
+            '$id-${design['id']}-$mode${_lang == 'en' ? '' : '-$_lang'}';
         testWidgets(name, skip: !_enabled, (tester) async {
           debugDisableShadows = false;
           final shot = Shot(
@@ -190,6 +209,7 @@ void main() {
             appType: _appType(kind['engine'] as String),
             template: AppTemplate.bold,
             dark: mode == 'dark',
+            language: _lang,
             appName: 'Nour',
             signedIn: false,
             // The whole home, from its header to its quotes, as tall as two phones.
@@ -208,7 +228,9 @@ void main() {
             image.dispose();
             return Uint8List.view(data!.buffer);
           });
-          final file = Uri.parse('$_out/$name.png');
+          final file = Uri.parse(
+            '${_outOther.isEmpty ? _out : _outOther}/$name.png',
+          );
           await tester.runAsync(() async {
             if (autoUpdateGoldenFiles) {
               await goldenFileComparator.update(file, png!);
