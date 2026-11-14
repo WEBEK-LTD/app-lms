@@ -283,6 +283,13 @@ export const ICON_NAMES = [
   // 130.13–130.18 The school's and the academies' Signature looks: a link's arrow, the live tab.
   "north_east",
   "sensors",
+  // 131 The card messages' occasions.
+  "cake",
+  "celebration",
+  "healing",
+  "sentiment_dissatisfied",
+  "local_florist",
+  "nights_stay",
 ] as const;
 
 export type IconName = (typeof ICON_NAMES)[number];

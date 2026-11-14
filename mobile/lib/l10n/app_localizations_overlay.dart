@@ -12431,4 +12431,147 @@ class OverlayLocalizations extends AppLocalizations {
   @override
   String get courseLookQuestions =>
       overlay.text('courseLookQuestions') ?? base.courseLookQuestions;
+
+  @override
+  String saleOff(int percent) =>
+      overlay.format('saleOff', {'percent': percent}) ?? base.saleOff(percent);
+
+  @override
+  String saleEndsIn(String time) =>
+      overlay.format('saleEndsIn', {'time': time}) ?? base.saleEndsIn(time);
+
+  @override
+  String saleLeft(int count) =>
+      overlay.format('saleLeft', {'count': count}) ?? base.saleLeft(count);
+
+  @override
+  String get saleSoldOut => overlay.text('saleSoldOut') ?? base.saleSoldOut;
+
+  @override
+  String get flashSaleTitle =>
+      overlay.text('flashSaleTitle') ?? base.flashSaleTitle;
+
+  @override
+  String get flashEndsIn => overlay.text('flashEndsIn') ?? base.flashEndsIn;
+
+  @override
+  String couponOff(String amount) =>
+      overlay.format('couponOff', {'amount': amount}) ?? base.couponOff(amount);
+
+  @override
+  String couponMinOrder(String amount) =>
+      overlay.format('couponMinOrder', {'amount': amount}) ??
+      base.couponMinOrder(amount);
+
+  @override
+  String get deliveryWhen => overlay.text('deliveryWhen') ?? base.deliveryWhen;
+
+  @override
+  String get deliveryToday =>
+      overlay.text('deliveryToday') ?? base.deliveryToday;
+
+  @override
+  String get deliveryTomorrow =>
+      overlay.text('deliveryTomorrow') ?? base.deliveryTomorrow;
+
+  @override
+  String get deliveryPickDate =>
+      overlay.text('deliveryPickDate') ?? base.deliveryPickDate;
+
+  @override
+  String deliveryOrderBy(String time) =>
+      overlay.format('deliveryOrderBy', {'time': time}) ??
+      base.deliveryOrderBy(time);
+
+  @override
+  String get deliveryTodayClosed =>
+      overlay.text('deliveryTodayClosed') ?? base.deliveryTodayClosed;
+
+  @override
+  String get deliveryTimeTitle =>
+      overlay.text('deliveryTimeTitle') ?? base.deliveryTimeTitle;
+
+  @override
+  String get deliverySlotFull =>
+      overlay.text('deliverySlotFull') ?? base.deliverySlotFull;
+
+  @override
+  String get deliveryChooseTime =>
+      overlay.text('deliveryChooseTime') ?? base.deliveryChooseTime;
+
+  @override
+  String get deliveryNoTimes =>
+      overlay.text('deliveryNoTimes') ?? base.deliveryNoTimes;
+
+  @override
+  String get giftFromTitle =>
+      overlay.text('giftFromTitle') ?? base.giftFromTitle;
+
+  @override
+  String get giftToTitle => overlay.text('giftToTitle') ?? base.giftToTitle;
+
+  @override
+  String get giftYourName => overlay.text('giftYourName') ?? base.giftYourName;
+
+  @override
+  String get giftYourPhone =>
+      overlay.text('giftYourPhone') ?? base.giftYourPhone;
+
+  @override
+  String get giftYourEmail =>
+      overlay.text('giftYourEmail') ?? base.giftYourEmail;
+
+  @override
+  String get giftRecipientName =>
+      overlay.text('giftRecipientName') ?? base.giftRecipientName;
+
+  @override
+  String get giftRecipientPhone =>
+      overlay.text('giftRecipientPhone') ?? base.giftRecipientPhone;
+
+  @override
+  String get giftAddress => overlay.text('giftAddress') ?? base.giftAddress;
+
+  @override
+  String get giftCountry => overlay.text('giftCountry') ?? base.giftCountry;
+
+  @override
+  String get giftCardTitle =>
+      overlay.text('giftCardTitle') ?? base.giftCardTitle;
+
+  @override
+  String get giftCardHint => overlay.text('giftCardHint') ?? base.giftCardHint;
+
+  @override
+  String get giftOccasion => overlay.text('giftOccasion') ?? base.giftOccasion;
+
+  @override
+  String get giftAnonymous =>
+      overlay.text('giftAnonymous') ?? base.giftAnonymous;
+
+  @override
+  String get giftAnonymousHint =>
+      overlay.text('giftAnonymousHint') ?? base.giftAnonymousHint;
+
+  @override
+  String get giftSendToSomeone =>
+      overlay.text('giftSendToSomeone') ?? base.giftSendToSomeone;
+
+  @override
+  String get giftNeedSender =>
+      overlay.text('giftNeedSender') ?? base.giftNeedSender;
+
+  @override
+  String get giftNeedRecipient =>
+      overlay.text('giftNeedRecipient') ?? base.giftNeedRecipient;
+
+  @override
+  String orderDeliveryOn(String date) =>
+      overlay.format('orderDeliveryOn', {'date': date}) ??
+      base.orderDeliveryOn(date);
+
+  @override
+  String orderRecipient(String name) =>
+      overlay.format('orderRecipient', {'name': name}) ??
+      base.orderRecipient(name);
 }

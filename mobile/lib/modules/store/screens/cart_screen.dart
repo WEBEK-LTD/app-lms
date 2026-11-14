@@ -20,6 +20,7 @@ import '../../lms/data/lms_providers.dart' show ordersProvider;
 import '../data/cart_controller.dart';
 import '../data/store_providers.dart';
 import '../widgets/fulfilment_widgets.dart';
+import '../widgets/gift_checkout.dart';
 import '../widgets/product_widgets.dart';
 import '../../../core/l10n/l10n.dart';
 import '../../../core/l10n/vertical_wording.dart';
@@ -48,6 +49,10 @@ class _CartScreenState extends ConsumerState<CartScreen> {
   final _gift = TextEditingController();
   bool _busy = false;
 
+  // 131 The delivery slot, and the gift checkout's people and choices.
+  String? _deliverySlot;
+  final _giftForm = GiftForm();
+
   // 26 A restaurant's pickup or delivery.
   FulfilmentType? _type;
   final _address = TextEditingController();
@@ -60,12 +65,14 @@ class _CartScreenState extends ConsumerState<CartScreen> {
   void initState() {
     super.initState();
     _address.addListener(_changed);
+    _giftForm.addListener(_changed);
   }
 
   void _changed() => setState(() {});
 
   @override
   void dispose() {
+    _giftForm.dispose();
     _gift.dispose();
     _address.dispose();
     _notes.dispose();
@@ -103,26 +110,27 @@ class _CartScreenState extends ConsumerState<CartScreen> {
   bool _laterChosen(FulfilmentConfig config, OrderTimes times) =>
       _later || (!times.asap && config.scheduled && times.slots.isNotEmpty);
 
-  Future<void> _pickDate(DeliveryDateRules rules) async {
-    final today = DateTime.now();
-    final first = rules.firstDay(today);
-    if (first == null) {
-      showMessage(context, context.l10n.noDeliveryDays);
-      return;
-    }
-    final last = DateTime(today.year, today.month, today.day + rules.maxDays);
-    final current = _deliveryDate;
-    final picked = await showDatePicker(
-      context: context,
-      helpText: context.l10n.deliveryDate,
-      initialDate: current != null && rules.allows(current, today)
-          ? current
-          : first,
-      firstDate: first,
-      lastDate: last,
-      selectableDayPredicate: (day) => rules.allows(day, today),
-    );
-    if (picked != null && mounted) setState(() => _deliveryDate = picked);
+  /// 131 The quote prices the chosen day's slot and where it goes.
+  void _syncDelivery() {
+    ref.read(cartDeliveryProvider.notifier).set((
+      date: _deliveryDate == null ? null : isoDate(_deliveryDate!),
+      slot: _deliverySlot,
+      country: _giftForm.country,
+      city: _giftForm.chosenCity,
+    ));
+  }
+
+  void _onDate(DateTime day) {
+    setState(() {
+      _deliveryDate = day;
+      _deliverySlot = null;
+    });
+    _syncDelivery();
+  }
+
+  void _onSlot(String? slot) {
+    setState(() => _deliverySlot = slot);
+    _syncDelivery();
   }
 
   void _clear() async {
@@ -148,6 +156,9 @@ class _CartScreenState extends ConsumerState<CartScreen> {
       return;
     }
     setState(() => _busy = true);
+    final gift =
+        store.giftCheckout ||
+        (ref.read(appConfigProvider).screens?.checkout?.gift ?? false);
     try {
       final items = ref.read(cartProvider);
       final date = _deliveryDate;
@@ -166,10 +177,17 @@ class _CartScreenState extends ConsumerState<CartScreen> {
           .read(yallappApiProvider)
           .createStoreCheckoutLink(
             [for (final i in items) i.toInput()],
-            deliveryDate: store.deliveryDate.enabled && date != null
+            deliveryDate: (store.deliveryDate.enabled || gift) && date != null
                 ? isoDate(date)
                 : null,
-            giftMessage: store.giftMessage.enabled ? _gift.text : null,
+            giftMessage: store.giftMessage.enabled || gift ? _gift.text : null,
+            // 131 The slot, the gift checkout's people, "send anonymously".
+            deliverySlot: _deliveryDate != null ? _deliverySlot : null,
+            sender: gift ? _giftForm.sender() : null,
+            recipient: gift || _giftForm.toSomeoneElse
+                ? _giftForm.recipient(address: gift)
+                : null,
+            giftAnonymous: _giftForm.anonymous,
             fulfilment: fulfilment != null ? type : null,
             deliveryAddress: type == FulfilmentType.delivery
                 ? DeliveryAddress(
@@ -211,6 +229,10 @@ class _CartScreenState extends ConsumerState<CartScreen> {
       if (e.code == ApiException.cartChanged) {
         ref.invalidate(cartQuoteProvider);
       }
+      // 131 A slot that filled up meanwhile: ask for the day's slots again.
+      if (_deliveryDate != null) {
+        ref.invalidate(deliverySlotsProvider(isoDate(_deliveryDate!)));
+      }
       // 26 The kitchen closed, or a time went: ask for the times again.
       if (store.fulfilment != null) ref.invalidate(orderTimesProvider);
       showMessage(context, e.message);
@@ -227,10 +249,13 @@ class _CartScreenState extends ConsumerState<CartScreen> {
     ref.invalidate(ordersProvider);
     setState(() {
       _deliveryDate = null;
+      _deliverySlot = null;
       _gift.clear();
+      _giftForm.clear();
       _slot = null;
       _later = false;
     });
+    ref.read(cartDeliveryProvider.notifier).clear();
     showMessage(context, context.l10n.orderPlaced);
     // 46 A good moment to ask for a rating.
     reportGoodMoment(ref, GoodMoment.orderPlaced);
@@ -306,7 +331,36 @@ class _CartScreenState extends ConsumerState<CartScreen> {
     final lines = value?.lines ?? const <CartQuoteLine>[];
     final blocked = lines.any((l) => !l.available);
     final rules = store.deliveryDate;
-    final needsDate = rules.enabled && rules.required && _deliveryDate == null;
+    // 131 The gift checkout (the store's, or the look Studio set) and the look.
+    final look = ref.watch(appConfigProvider).screens?.checkout;
+    final gift = store.giftCheckout || (look?.gift ?? false);
+    final needsDate =
+        (rules.enabled && rules.required || gift) && _deliveryDate == null;
+    final needsSlot =
+        rules.slots.isNotEmpty &&
+        _deliveryDate != null &&
+        _deliverySlot == null;
+    final cityList = store.shipping?.countries
+        .where((c) => c.code == _giftForm.country)
+        .firstOrNull
+        ?.cities;
+    final needsSender = gift && !_giftForm.senderDone;
+    final needsRecipient =
+        (gift &&
+            !_giftForm.recipientDone(
+              address: true,
+              cityList: cityList != null,
+            )) ||
+        (!gift &&
+            _giftForm.toSomeoneElse &&
+            !_giftForm.recipientDone(address: false, cityList: false));
+    final giftProblem = needsSlot
+        ? context.l10n.deliveryChooseTime
+        : needsSender
+        ? context.l10n.giftNeedSender
+        : needsRecipient
+        ? context.l10n.giftNeedRecipient
+        : null;
     // 26 A restaurant: pickup or delivery, the address and when.
     final fulfilment = store.fulfilment;
     final times = fulfilment != null
@@ -329,6 +383,7 @@ class _CartScreenState extends ConsumerState<CartScreen> {
         !quote.isLoading &&
         !blocked &&
         !needsDate &&
+        giftProblem == null &&
         fulfilmentProblem == null;
 
     return Scaffold(
@@ -383,38 +438,48 @@ class _CartScreenState extends ConsumerState<CartScreen> {
                         }),
                       ),
                     ],
-                    if (rules.enabled) ...[
+                    // 131 The delivery day and slot, the gift details and
+                    // the card, in the checkout look Studio sets.
+                    if (rules.enabled || gift || store.giftMessage.enabled) ...[
                       const SizedBox(height: 8),
-                      AppCard(
-                        child: SettingsTile(
-                          icon: AppIcons.calendar,
-                          title: rules.required
-                              ? context.l10n.deliveryDate
-                              : context.l10n.deliveryDateOptional,
-                          value: _deliveryDate == null
-                              ? context.l10n.choose
-                              : dayLabel(_deliveryDate!),
-                          onTap: () => _pickDate(rules),
-                        ),
-                      ),
-                    ],
-                    if (store.giftMessage.enabled) ...[
-                      const SizedBox(height: 12),
-                      TextField(
-                        controller: _gift,
-                        maxLength: store.giftMessage.maxLength,
-                        minLines: 2,
-                        maxLines: 4,
-                        textCapitalization: TextCapitalization.sentences,
-                        decoration: InputDecoration(
-                          labelText: context.l10n.giftMessage,
-                          hintText: context.l10n.giftMessageHint,
-                          prefixIcon: AppIcon(
-                            AppIcons.gift,
-                            size: 20,
-                            color: p.textSecondary,
-                          ),
-                        ),
+                      Builder(
+                        builder: (context) {
+                          Widget picker(int? step) => DeliveryPicker(
+                            rules: rules,
+                            date: _deliveryDate,
+                            slot: _deliverySlot,
+                            onDate: _onDate,
+                            onSlot: _onSlot,
+                            look: look,
+                            step: step,
+                          );
+                          final panel = GiftDetailsPanel(
+                            rules: store.giftMessage,
+                            form: _giftForm,
+                            message: _gift,
+                            giftCheckout: gift,
+                            shipping: store.shipping,
+                            look: look,
+                            firstStep: 1,
+                            between: gift && (rules.enabled || gift)
+                                ? picker
+                                : null,
+                            onChanged: () {
+                              setState(() {});
+                              _syncDelivery();
+                            },
+                          );
+                          return Column(
+                            crossAxisAlignment: CrossAxisAlignment.stretch,
+                            children: [
+                              if (!gift && rules.enabled) ...[
+                                picker(null),
+                                const SizedBox(height: 12),
+                              ],
+                              panel,
+                            ],
+                          );
+                        },
                       ),
                     ],
                     const SizedBox(height: 16),
@@ -490,8 +555,47 @@ class _CartScreenState extends ConsumerState<CartScreen> {
                             ),
                           if (value?.shipping case final shipping?)
                             _SumRow(
-                              label: context.l10n.cartShipping,
+                              label: value!.deliveryZone == null
+                                  ? context.l10n.cartShipping
+                                  : '${context.l10n.cartShipping} · ${value.deliveryZone}',
                               value: shipping,
+                            ),
+                          // 131 What made up the shipping (the city, the km,
+                          // the kg, the slot), when it has several parts.
+                          if ((value?.breakdown.length ?? 0) > 1)
+                            for (final line in value!.breakdown)
+                              Padding(
+                                padding: const EdgeInsetsDirectional.only(
+                                  start: 12,
+                                ),
+                                child: Row(
+                                  children: [
+                                    Expanded(
+                                      child: Text(
+                                        line.label,
+                                        style: TextStyle(
+                                          fontSize: 12,
+                                          color: p.textSecondary,
+                                        ),
+                                      ),
+                                    ),
+                                    Text(
+                                      line.amount,
+                                      style: TextStyle(
+                                        fontSize: 12,
+                                        color: p.textSecondary,
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                          if (value?.deliveryProblem case final problem?)
+                            Padding(
+                              padding: const EdgeInsets.only(top: 4),
+                              child: Text(
+                                problem,
+                                style: TextStyle(fontSize: 13, color: p.danger),
+                              ),
                             ),
                           if (value?.tax case final tax?)
                             _SumRow(
@@ -556,6 +660,7 @@ class _CartScreenState extends ConsumerState<CartScreen> {
           children: [
             if (blocked ||
                 needsDate ||
+                giftProblem != null ||
                 (fulfilmentProblem != null && fulfilmentProblem.isNotEmpty))
               Padding(
                 padding: const EdgeInsets.only(bottom: 8),
@@ -564,7 +669,7 @@ class _CartScreenState extends ConsumerState<CartScreen> {
                       ? context.l10n.fixCartItems
                       : needsDate
                       ? context.l10n.chooseDeliveryDate
-                      : fulfilmentProblem!,
+                      : giftProblem ?? fulfilmentProblem!,
                   textAlign: TextAlign.center,
                   style: TextStyle(fontSize: 13, color: p.textSecondary),
                 ),

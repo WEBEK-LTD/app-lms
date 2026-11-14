@@ -6,6 +6,7 @@ import '../../../core/theme/app_theme.dart';
 import '../../../core/theme/palette.dart';
 import '../../../core/widgets/buttons.dart';
 import '../../../core/widgets/common.dart';
+import '../../../core/widgets/sale_widgets.dart';
 import '../../../core/l10n/l10n.dart';
 
 /// The price as the shop shows it, with the regular price struck through
@@ -138,6 +139,14 @@ class ProductCard extends StatelessWidget {
                     top: 8,
                     child: _Tag(context.l10n.outOfStock, strong: false),
                   )
+                // 131 A sale with its share off.
+                else if (product.sale case final sale?
+                    when sale.liveAt(DateTime.now()))
+                  PositionedDirectional(
+                    start: 8,
+                    top: 8,
+                    child: SaleChip(percentOff: sale.percentOff),
+                  )
                 else if (product.price.onSale)
                   PositionedDirectional(
                     start: 8,
@@ -167,6 +176,12 @@ class ProductCard extends StatelessWidget {
                 ),
                 const SizedBox(height: 6),
                 ProductPriceLabel(product.price, size: 14),
+                // 131 A sale ending within a day: a small countdown.
+                if (product.sale case final sale?
+                    when sale.endsSoon(DateTime.now())) ...[
+                  const SizedBox(height: 3),
+                  SaleCountdown(endsAt: sale.endsAt!, compact: true),
+                ],
                 if (product.rating != null && product.ratingCount > 0) ...[
                   const SizedBox(height: 4),
                   Row(

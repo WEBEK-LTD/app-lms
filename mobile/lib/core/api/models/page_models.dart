@@ -1,3 +1,4 @@
+import 'commerce_models.dart';
 import 'catalog_models.dart';
 import 'json.dart';
 import 'learning_models.dart';
@@ -618,6 +619,7 @@ class PageItem {
     this.rating,
     this.favorited = false,
     this.action,
+    this.sale,
   });
 
   factory PageItem.fromJson(Json json) => PageItem(
@@ -634,7 +636,11 @@ class PageItem {
     },
     favorited: boolOr(json, 'favorited', false),
     action: PageAction.tryParse(json['action']),
+    sale: ProductSale.tryParse(json['sale']),
   );
+
+  /// 131 A product's sale; null when it isn't on sale.
+  final ProductSale? sale;
 
   /// Null for a source added to the contract later.
   final ItemSource? source;
@@ -2058,6 +2064,9 @@ enum StudioNodeType {
   bento,
   badgeText,
   ctaBar,
+  // 131 A flash sale: its products at their sale price, a live countdown
+  // and a stock bar (StudioCommerce.flashSale).
+  flashSale,
 }
 
 /// 128 Whose order a `live_status` element follows: a food delivery order
@@ -2593,7 +2602,7 @@ enum StudioShadow { none, light, medium, strong }
 enum StudioTextAlign { start, center, end }
 
 /// 128.8 `rating`: the element's own text, a star and the entry's rating.
-enum StudioBind { title, subtitle, image, price, badge, rating }
+enum StudioBind { title, subtitle, image, price, badge, rating, sale, wasPrice }
 
 enum StudioVisibility { everyone, signedIn, signedOut }
 
@@ -2658,6 +2667,7 @@ class StudioNode {
     this.layout = ItemsLayout.grid,
     this.card,
     this.bind,
+    this.commerce,
     this.items = const [],
     this.categories = const [],
     this.form,
@@ -2811,6 +2821,7 @@ class StudioNode {
           tablet: tablet,
         ),
         bind: enumOrNull(StudioBind.values, json['bind']),
+        commerce: StudioCommerce.tryParse(json),
         items: _entries(json, 'items', _itemOrNull),
         categories: _entries(json, 'categories', _categoryOrNull),
         form: json['form'] is Map
@@ -3036,6 +3047,10 @@ class StudioNode {
 
   /// 112.4 For a coupon: the code people copy.
   final String? code;
+
+  /// 131 The flash sale, the sale on a products list's cards, the coupon's
+  /// look and the shop's coupon it shows; null for none.
+  final StudioCommerce? commerce;
 
   /// 112.4 For a list of products: the ones this person opened lately on
   /// this phone, filled by the app.

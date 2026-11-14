@@ -1046,7 +1046,11 @@ class FakeApi implements YallappApi {
     List<CartLineInput> lines, {
     String? coupon,
     bool usePoints = false,
+    String? deliveryDate,
+    String? deliverySlot,
+    GiftPerson? recipient,
   }) {
+    lastQuoteDelivery = (date: deliveryDate, slot: deliverySlot);
     lastCartLines = lines;
     lastCoupon = coupon;
     lastUsePoints = usePoints;
@@ -1079,6 +1083,36 @@ class FakeApi implements YallappApi {
 
   ({String? deliveryDate, String? giftMessage})? lastStoreCheckout;
 
+  /// 131 The day and slot of the last quote.
+  ({String? date, String? slot})? lastQuoteDelivery;
+
+  /// 131 The slot, the people and "send anonymously" of the last checkout.
+  ({String? slot, GiftPerson? sender, GiftPerson? recipient, bool anonymous})?
+  lastGift;
+
+  /// 131 `GET /store/delivery-slots`, by date; missing dates are open with
+  /// [deliverySlotsJson]'s slots.
+  Map<String, Map<String, dynamic>> deliverySlots = {};
+  List<Map<String, dynamic>> deliverySlotsJson = [];
+
+  /// 131 `GET /store/gift-messages`.
+  List<Map<String, dynamic>> giftOccasions = [];
+
+  @override
+  Future<DeliverySlots> getDeliverySlots(String date) => _answer(
+    'getDeliverySlots',
+    () => DeliverySlots.fromJson(
+      deliverySlots[date] ??
+          {'date': date, 'open': true, 'slots': deliverySlotsJson},
+    ),
+  );
+
+  @override
+  Future<List<GiftOccasion>> getGiftMessages() => _answer(
+    'getGiftMessages',
+    () => [for (final o in giftOccasions) GiftOccasion.fromJson(o)],
+  );
+
   /// 26 How the last restaurant checkout wanted the order.
   ({
     FulfilmentType? fulfilment,
@@ -1097,11 +1131,21 @@ class FakeApi implements YallappApi {
     DateTime? scheduledFor,
     String? coupon,
     bool usePoints = false,
+    String? deliverySlot,
+    GiftPerson? sender,
+    GiftPerson? recipient,
+    bool giftAnonymous = false,
   }) {
     lastCartLines = lines;
     lastCoupon = coupon;
     lastUsePoints = usePoints;
     lastStoreCheckout = (deliveryDate: deliveryDate, giftMessage: giftMessage);
+    lastGift = (
+      slot: deliverySlot,
+      sender: sender,
+      recipient: recipient,
+      anonymous: giftAnonymous,
+    );
     lastFulfilment = (
       fulfilment: fulfilment,
       address: deliveryAddress,

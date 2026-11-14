@@ -1,3 +1,5 @@
+import 'commerce_models.dart';
+
 import 'dart:ui' show Color;
 
 import 'course_screens_models.dart';
@@ -236,6 +238,7 @@ class StudioScreens {
     this.launch,
     this.system,
     this.courses,
+    this.checkout,
   });
 
   static StudioScreens? fromJson(Object? value) {
@@ -267,8 +270,13 @@ class StudioScreens {
       launch: LaunchLook.fromJson(value['launch']),
       system: SystemScreensLook.tryParse(value['system']),
       courses: CourseScreensLook.tryParse(value['courses']),
+      checkout: CheckoutLook.tryParse(value['checkout']),
     );
   }
+
+  /// 131 How the store checkout is drawn, and the gift checkout; null, the
+  /// app's own.
+  final CheckoutLook? checkout;
 
   /// 130.52 The academy's course screens in one premium look (the card, a
   /// course's page, the lesson and My courses); null, as before.

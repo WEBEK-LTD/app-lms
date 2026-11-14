@@ -17,6 +17,7 @@ import '../../lms/lesson/content/html_content.dart';
 import '../../shared/pages/recently_viewed.dart';
 import '../data/cart_controller.dart';
 import '../data/store_providers.dart';
+import '../../../core/widgets/sale_widgets.dart';
 import '../widgets/option_sheet.dart';
 import '../widgets/product_widgets.dart';
 import '../../../core/l10n/l10n.dart';
@@ -273,6 +274,30 @@ class _ProductViewState extends ConsumerState<_ProductView> {
                 ),
                 const SizedBox(height: 8),
                 ProductPriceLabel(price, size: 20),
+                // 131 Its sale: the share off, the countdown to its end and
+                // what's left at this price.
+                if (product.summary.sale case final sale?
+                    when sale.liveAt(DateTime.now())) ...[
+                  const SizedBox(height: 8),
+                  Wrap(
+                    key: const ValueKey('product-sale'),
+                    spacing: 10,
+                    runSpacing: 8,
+                    crossAxisAlignment: WrapCrossAlignment.center,
+                    children: [
+                      SaleChip(percentOff: sale.percentOff),
+                      if (sale.endsAt != null)
+                        SaleCountdown(endsAt: sale.endsAt!),
+                    ],
+                  ),
+                  if (sale.remaining != null && sale.total != null) ...[
+                    const SizedBox(height: 8),
+                    SaleStockBar(
+                      remaining: sale.remaining!,
+                      total: sale.total!,
+                    ),
+                  ],
+                ],
                 const SizedBox(height: 8),
                 if (product.summary.rating != null &&
                     product.summary.ratingCount > 0)
