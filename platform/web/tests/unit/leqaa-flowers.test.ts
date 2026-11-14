@@ -103,7 +103,7 @@ describe("131.20 Leqaa, the flower shop: a Studio demo of the store kind", () =>
     const bouquets = FLOWER_PRODUCTS.filter((p) => p.optionGroups?.some((g) => g.id === "size"));
     expect(bouquets.length).toBeGreaterThanOrEqual(8);
     for (const p of bouquets) expect(p.optionGroups!.find((g) => g.id === "size")!.options.map((o) => o.id)).toEqual(["classic", "deluxe", "grand"]);
-    expect(FLOWER_PRODUCTS.filter((p) => p.collection === "Add-ons").map((p) => p.name)).toEqual(["Glass Vase", "Chocolate Box", "Greeting Card"]);
+    expect(FLOWER_PRODUCTS.filter((p) => p.collection === "Add-ons").map((p) => p.name)).toEqual(["Ceramic Vase", "Chocolate Box", "Greeting Card"]);
   });
 
   it("has its photos in public/flower-photos, each CC0 or public domain from Wikimedia Commons, credited", () => {
@@ -172,7 +172,7 @@ describe("131.20 its two Signature looks: whole store templates, marked new", ()
     // The home's parts.
     const home = layout.pages[0]!.studio!;
     const types = allNodes(home).map((n) => n.type);
-    for (const t of look === "a" ? ["slider", "stories", "bento", "items", "testimonials", "marquee", "countdown", "cta_bar"] : ["slider", "gallery", "timeline", "items", "testimonials", "marquee", "countdown", "cta_bar"]) expect(types, t).toContain(t);
+    for (const t of look === "a" ? ["slider", "stories", "bento", "items", "testimonials", "marquee", "countdown"] : ["slider", "gallery", "timeline", "items", "testimonials", "marquee", "countdown"]) expect(types, t).toContain(t);
     if (look === "a") {
       const hero = allNodes(home).find((n) => n.type === "slider")!;
       expect(hero).toMatchObject({ ken_burns: true, indicator: "progress", autoplay: true });
@@ -182,8 +182,10 @@ describe("131.20 its two Signature looks: whole store templates, marked new", ()
       expect(home.header).toMatchObject({ style: "petal", type: "logo_center" });
       expect(allNodes(home).find((n) => n.type === "slider")).toMatchObject({ indicator: "pill", per_view: 1.18 });
     }
-    // The sticky Send flowers over the tabs.
-    expect(home.body.children!.at(-1)).toMatchObject({ type: "cta_bar", pin: "bottom" });
+    // One send action on the screen: the petal bar's raised bloom (the
+    // cart), never a sticky Send flowers over it too.
+    expect(types).not.toContain("cta_bar");
+    expect(layout.tab_bar).toMatchObject({ design: "petal", center: "cart" });
     // The commerce side's parts composed of today's elements, each in a block the integrator finds by its name.
     const names = allNodes(home).map((n) => n.name);
     expect(names).toContain(COMMERCE.sendToday);

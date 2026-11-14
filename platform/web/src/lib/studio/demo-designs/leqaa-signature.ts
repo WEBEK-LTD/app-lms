@@ -66,7 +66,6 @@ export const LEQAA_A_INK: SignatureInk = {
 const A = LEQAA_A_INK;
 /** A's second colour: champagne, warmer by night. */
 export const LEQAA_CHAMPAGNE = "#C89B6D";
-const CHAMPAGNE_NIGHT = "#E6C595";
 /** The shade over A's photos: a deep rose, never black. */
 const ROSE_SHADE = "#2A0C17";
 const FRAUNCES = "Fraunces";
@@ -225,11 +224,11 @@ function floralRule(ctx: SectionContext, k: SignatureInk, margin: StudioSides = 
 
 /** The occasions, each its photo, word and the story it opens. */
 const OCCASIONS: readonly { photo: string; word: SectionWord; kicker: SectionWord; headline: SectionWord; icon: string }[] = [
-  { photo: P("roses-red"), word: "lqLove", kicker: "lqForLove", headline: "lqHeroLove", icon: "favorite" },
+  { photo: P("blush-bouquet"), word: "lqLove", kicker: "lqForLove", headline: "lqHeroLove", icon: "favorite" },
   { photo: P("tulips"), word: "lqBirthday", kicker: "lqForBirthday", headline: "lqHeroBirthday", icon: "cake" },
   { photo: P("white-lilies"), word: "lqSympathy", kicker: "lqForSympathy", headline: "lqHeroSympathy", icon: "spa" },
-  { photo: P("gerberas"), word: "lqNewBaby", kicker: "lqForBaby", headline: "lqHeroBaby", icon: "child_care" },
-  { photo: P("peonies"), word: "lqCongrats", kicker: "lqForCongrats", headline: "lqHeroCongrats", icon: "celebration" },
+  { photo: P("sunshine"), word: "lqNewBaby", kicker: "lqForBaby", headline: "lqHeroBaby", icon: "child_care" },
+  { photo: P("ranunculus"), word: "lqCongrats", kicker: "lqForCongrats", headline: "lqHeroCongrats", icon: "celebration" },
 ];
 
 /** The occasions as story rings: each its photo, its word under it, opening the stories (and the shop from each). */
@@ -486,23 +485,19 @@ function roseSlide(ctx: SectionContext, o: (typeof OCCASIONS)[number]): StudioNo
       {
         id: id(),
         type: "row",
-        gap: 6,
+        gap: 8,
         cross: "center",
-        width: "hug",
-        height: 30,
-        radius: 15,
-        padding: sides(0, 12, 0, 10),
-        surface: { glass: 14, tint: 0.2 },
-        border_color: "#F6D3DD",
-        border_width: 1,
+        height: 22,
         children: [
+          { id: id(), type: "row", width: 22, height: 1, self_align: "center", background: "#FFD9C2", dark_background: "#FFD9C2", children: [] },
           { id: id(), type: "icon", icon: o.icon, icon_size: 15, color: "#FFD9C2" },
           { id: id(), type: "text", text: ctx.w(o.kicker), color: white, font: { size: 11, weight: 700, letter_spacing: 1.8, uppercase: true } },
         ],
       },
       { id: id(), type: "text", text: ctx.w(o.headline), color: white, max_lines: 3, font: display(FRAUNCES, 50, { weight: 500, line_height: 0.98 }), margin: sides(14, 0, 0, 0) },
       { id: id(), type: "text", text: ctx.w("lqHeroLine"), color: white, opacity: 0.9, max_lines: 2, font: { size: 15, line_height: 1.4 }, margin: sides(10, 0, 0, 0) },
-      { ...pill(ctx, "lqSendFlowers", shop, { background: white, color: ROSE_SHADE }), margin: sides(18, 0, 0, 0) },
+      // The full width over the photo, its arrow at its end.
+      { ...pill(ctx, "lqSendFlowers", shop, { background: white, color: ROSE_SHADE }), align: "between", margin: sides(18, 0, 0, 0) },
     ],
   };
 }
@@ -516,6 +511,9 @@ function roseTop(ctx: SectionContext): StudioNode {
     name: ctx.w("lqWordmark"),
     width: "fill",
     gap: 10,
+    // Its own height: in the stack, a row of fixed-size discs would
+    // otherwise take the slides' whole height and sit in their middle.
+    height: 68,
     cross: "center",
     self_align: "start",
     padding: sides(26, 16, 0, 16),
@@ -640,7 +638,7 @@ function collectionsBento(ctx: SectionContext, margin: StudioSides = sides(0, 16
     radius: 26,
     bento: { caption: "glass", row: 122 },
     margin,
-    entries: [tile("lqSignature", P("blush-bouquet"), "large", "lqLoved"), tile("lqRoses", P("roses-red"), "small"), tile("lqSeasonal", P("peonies"), "small"), tile("lqPlants", P("orchid"), "wide"), tile("lqGiftSets", P("rose-box"), "wide")],
+    entries: [tile("lqSignature", P("blush-bouquet"), "large", "lqLoved"), tile("lqRoses", P("red-rose"), "small"), tile("lqSeasonal", P("ranunculus"), "small"), tile("lqPlants", P("orchid"), "wide"), tile("lqGiftSets", P("garden-jug"), "wide")],
     motion: { enter: "slide_up", duration_ms: 500, delay_ms: 0 },
   };
 }
@@ -712,7 +710,6 @@ export function leqaaAHome(ctx: SectionContext): StudioPage {
         headOf(ctx, A, FRAUNCES, "lqKindWords", null, sides(22, 18, 12, 18)),
         kindWords(ctx, A, "carousel"),
         floralRule(ctx, A, sides(22, 0, 0, 0)),
-        sendBar(ctx, A, "bar"),
       ],
     },
   };
@@ -795,7 +792,7 @@ function cartTop(ctx: SectionContext, k: SignatureInk, family: string): StudioNo
       ],
     },
     { ...headOf(ctx, k, family, "lqAddOns", null, sides(16, 18, 8, 18)) },
-    { id: id(), type: "row", name: ctx.w("lqAddOns"), gap: 10, scroll: true, padding: sides(0, 16, 6, 16), children: [addOn("lqVase", P("vase")), addOn("lqChocolates", P("chocolates")), addOn("lqCard", P("greeting-card"))] },
+    { id: id(), type: "row", name: ctx.w("lqAddOns"), gap: 10, scroll: true, padding: sides(0, 16, 6, 16), children: [addOn("lqVase", P("ceramic-vase")), addOn("lqChocolates", P("chocolates")), addOn("lqCard", P("greeting-card"))] },
   ];
 }
 
@@ -808,7 +805,7 @@ function ordersTop(ctx: SectionContext, k: SignatureInk, family: string): Studio
       id: idOf(ctx)(),
       type: "timeline",
       name: ctx.w("lqTrackTitle"),
-      timeline: { style: "horizontal" },
+      timeline: { style: "vertical" },
       color: k.ink,
       dark_color: k.darkInk,
       background: k.surface,
@@ -827,7 +824,7 @@ function ordersTop(ctx: SectionContext, k: SignatureInk, family: string): Studio
 /** The look's own pages: the signature bouquet (the product's page as the look draws it) and the person's picks. */
 function leqaaPages(k: SignatureInk, family: string, look: "a" | "b") {
   return (ctx: SectionContext) => [
-    { slug: "bouquet", title: "lqBouquetKicker" as SectionWord, studio: bouquetPage(ctx, k, family, look) },
+    { slug: "bouquet", title: "lqBouquetPage" as SectionWord, studio: bouquetPage(ctx, k, family, look) },
     { slug: "wishlist", title: "lqWishlist" as SectionWord, studio: wishlistPage(ctx, k, family) },
   ];
 }
@@ -858,7 +855,7 @@ function bouquetPage(ctx: SectionContext, k: SignatureInk, family: string, look:
       { id: id(), type: "text", text: ctx.w(stems), font: { size: 11.5 }, color: lit ? k.onFill : k.muted, dark_color: lit ? k.darkOnFill : k.darkMuted, opacity: lit ? 0.85 : 1 },
     ],
   });
-  const photos = (look === "a" ? ["blush-bouquet", "roses-red", "peonies", "atelier"] : ["peonies", "blush-bouquet", "hydrangea", "atelier"])
+  const photos = (look === "a" ? ["blush-bouquet", "red-rose", "ranunculus", "atelier"] : ["ranunculus", "blush-bouquet", "baby-breath", "atelier"])
     .map((name) => sigPhoto(ctx, P(name)))
     .filter((url): url is string => url !== null)
     .map((image_url) => ({ image_url, caption: null }));
@@ -1142,7 +1139,7 @@ function editSlider(ctx: SectionContext): StudioNode {
     indicator: "pill",
     ken_burns: true,
     padding: sides(4, 0, 4, 16),
-    children: [editCard(ctx, P("peonies"), "lqNo1", "lqSeasonal"), editCard(ctx, P("roses-red"), "lqNo2", "lqRoses"), editCard(ctx, P("hydrangea"), "lqNo3", "lqSignature")],
+    children: [editCard(ctx, P("ranunculus"), "lqNo1", "lqSeasonal"), editCard(ctx, P("red-rose"), "lqNo2", "lqRoses"), editCard(ctx, P("baby-breath"), "lqNo3", "lqSignature")],
   };
 }
 
@@ -1208,13 +1205,13 @@ function collectionArches(ctx: SectionContext): StudioNode {
     gap: 12,
     cross: "start",
     padding: sides(0, 16, 0, 16),
-    children: [tile(P("roses-red"), "lqRoses"), tile(P("tulips"), "lqTulips"), tile(P("orchid"), "lqPlants"), tile(P("rose-box"), "lqGiftSets"), tile(P("blush-bouquet"), "lqSignature")],
+    children: [tile(P("red-rose"), "lqRoses"), tile(P("tulips"), "lqTulips"), tile(P("orchid"), "lqPlants"), tile(P("garden-jug"), "lqGiftSets"), tile(P("blush-bouquet"), "lqSignature")],
   };
 }
 
 /** From the atelier: a filmstrip of the shop's photos. */
 function atelierStrip(ctx: SectionContext): StudioNode {
-  const photos = ["atelier", "stems", "hydrangea", "sunflowers", "white-lilies"].map((name) => sigPhoto(ctx, P(name))).filter((url): url is string => url !== null).map((image_url) => ({ image_url, caption: null }));
+  const photos = ["atelier", "stems", "baby-breath", "sunflowers", "white-lilies"].map((name) => sigPhoto(ctx, P(name))).filter((url): url is string => url !== null).map((image_url) => ({ image_url, caption: null }));
   // Without the platform's photos at hand, the owner's own to add: the floral line in their place.
   if (!photos.length) return floralRule(ctx, B);
   return { id: idOf(ctx)(), type: "gallery", name: ctx.w("lqAtelier"), gallery: { layout: "filmstrip", radius: 24, captions: false }, height: 250, images: photos, padding: sides(0, 16, 0, 16) };
@@ -1313,7 +1310,6 @@ export function leqaaBHome(ctx: SectionContext): StudioPage {
         headOf(ctx, B, OUTFIT, "lqKindWords", null, sides(22, 18, 12, 18)),
         kindWords(ctx, B, "stacked"),
         floralRule(ctx, B, sides(22, 0, 0, 0)),
-        sendBar(ctx, B, "fab"),
       ],
     },
   };

@@ -16,16 +16,16 @@ import 'studio_demo.dart';
 /// The photos Leqaa's products show, by product.
 const _photos = {
   101: 'blush-bouquet',
-  102: 'roses-red',
+  102: 'red-rose',
   103: 'tulips',
-  104: 'peonies',
+  104: 'ranunculus',
   105: 'white-lilies',
-  106: 'gerberas',
-  107: 'hydrangea',
+  106: 'sunshine',
+  107: 'baby-breath',
   108: 'orchid',
   109: 'sunflowers',
-  110: 'rose-box',
-  201: 'vase',
+  110: 'garden-jug',
+  201: 'ceramic-vase',
   202: 'chocolates',
   203: 'greeting-card',
 };
@@ -71,23 +71,23 @@ Map<String, dynamic> _product(
 List<Map<String, dynamic>> leqaaProducts(String base) => [
   _product(base, 101, 'Blush Garden', 'E£ 1,450'),
   _product(base, 102, 'Velvet Red Roses', 'E£ 1,590', was: 'E£ 1,850'),
-  _product(base, 104, 'Peony Cloud', 'E£ 2,400'),
-  _product(base, 110, 'Rose Box', 'E£ 2,900'),
+  _product(base, 104, 'Ranunculus Cloud', 'E£ 2,400'),
+  _product(base, 110, 'Garden Jug', 'E£ 2,900'),
   _product(base, 108, 'Orchid Elegance', 'E£ 2,200'),
   _product(base, 103, 'Morning Tulips', 'E£ 1,100'),
   _product(base, 109, 'Sunflower Field', 'E£ 850', was: 'E£ 980'),
   _product(base, 105, 'White Serenity', 'E£ 1,650'),
   _product(base, 106, 'Little Sunshine', 'E£ 950'),
-  _product(base, 107, 'Hydrangea Hush', 'E£ 1,750'),
+  _product(base, 107, 'Blue Cloud', 'E£ 1,750'),
 ];
 
 List<Map<String, dynamic>> _categories(String base) => [
   for (final (i, (name, photo)) in [
     ('Signature bouquets', 'blush-bouquet'),
-    ('Roses', 'roses-red'),
-    ('In season', 'peonies'),
+    ('Roses', 'red-rose'),
+    ('In season', 'ranunculus'),
     ('Plants', 'orchid'),
-    ('Gift sets', 'rose-box'),
+    ('Gift sets', 'garden-jug'),
   ].indexed)
     {
       'id': 30 + i,
@@ -108,7 +108,7 @@ Map<String, dynamic> leqaaBouquet(String base) => {
       '<p>Classic has 12 stems, Deluxe 24 and Grand 36.</p>',
   'short_description_html': '<p>Blush roses, lisianthus and eucalyptus.</p>',
   'images': [
-    for (final photo in ['blush-bouquet', 'peonies', 'atelier'])
+    for (final photo in ['blush-bouquet', 'ranunculus', 'atelier'])
       {'url': '$base/flower-photos/$photo.jpg', 'alt': null},
   ],
   'sku': 'LQ-101',
@@ -154,7 +154,7 @@ Map<String, dynamic> leqaaBouquet(String base) => {
       'options': [
         {
           'id': 'vase',
-          'name': 'Glass vase',
+          'name': 'Ceramic vase',
           'price_delta': '350.00',
           'price_delta_formatted': '+E£ 350',
         },

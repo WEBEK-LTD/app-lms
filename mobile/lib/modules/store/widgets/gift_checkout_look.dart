@@ -1,3 +1,5 @@
+import 'dart:math' as math;
+
 import 'package:flutter/material.dart';
 import 'package:material_symbols_icons/symbols.dart';
 
@@ -236,414 +238,430 @@ class _GiftCheckoutLookState extends State<GiftCheckoutLook> {
     return ColoredBox(
       key: const ValueKey('gift-checkout'),
       color: t.page,
-      child: ListView(
-        padding: EdgeInsets.fromLTRB(0, widget.top + 8, 0, 32),
+      child: Column(
         children: [
-          _Stepper(
-            t: t,
-            step: d.step,
-            labels: [
-              l10n.giftStepFrom,
-              l10n.giftStepFor,
-              l10n.giftStepWhen,
-              l10n.giftStepMessage,
-              l10n.giftStepPay,
-            ],
-          ),
-          const SizedBox(height: 14),
-          ListenableBuilder(
-            listenable: _message,
-            builder: (context, _) => _CardPreview(
-              t: t,
-              photoUrl: d.photoUrl,
-              to: d.recipient.name,
-              from: _anonymous ? l10n.giftSomeone : d.sender.name,
-              message: _message.text,
-              icon: d.occasions.where((o) => o.selected).firstOrNull?.icon,
+          // The steps stay at the top while the order scrolls under them.
+          DecoratedBox(
+            decoration: BoxDecoration(
+              color: t.page,
+              border: Border(bottom: BorderSide(color: t.line)),
+            ),
+            child: Padding(
+              padding: EdgeInsets.fromLTRB(0, widget.top + 8, 0, 10),
+              child: _Stepper(
+                t: t,
+                step: d.step,
+                labels: [
+                  l10n.giftStepFrom,
+                  l10n.giftStepFor,
+                  l10n.giftStepWhen,
+                  l10n.giftStepMessage,
+                  l10n.giftStepPay,
+                ],
+              ),
             ),
           ),
-          const SizedBox(height: 16),
-          _Section(
+          Expanded(child: _order(context, t, d, day, slot)),
+        ],
+      ),
+    );
+  }
+
+  Widget _order(
+    BuildContext context,
+    _Tones t,
+    GiftCheckoutData d,
+    GiftChoice? day,
+    GiftChoice? slot,
+  ) {
+    final l10n = context.l10n;
+    final tone = t.tone;
+    return ListView(
+      padding: const EdgeInsets.fromLTRB(0, 14, 0, 32),
+      children: [
+        ListenableBuilder(
+          listenable: _message,
+          builder: (context, _) => _CardPreview(
             t: t,
-            index: 0,
-            done: d.step > 0,
-            title: l10n.giftWhoFrom,
-            children: [
-              _Field(
-                t: t,
-                icon: AppIcons.account,
-                label: l10n.giftName,
-                value: d.sender.name,
-              ),
-              _Field(
-                t: t,
-                icon: Symbols.call_rounded,
-                label: l10n.giftPhone,
-                value: d.sender.phone,
-                ltr: true,
-              ),
-              if (d.sender.email != null)
-                _Field(
-                  t: t,
-                  icon: Symbols.mail_rounded,
-                  label: l10n.giftEmail,
-                  value: d.sender.email!,
-                  ltr: true,
-                ),
-            ],
+            photoUrl: d.photoUrl,
+            to: d.recipient.name,
+            from: _anonymous ? l10n.giftSomeone : d.sender.name,
+            message: _message.text,
+            icon: d.occasions.where((o) => o.selected).firstOrNull?.icon,
           ),
-          _Section(
-            t: t,
-            index: 1,
-            done: d.step > 1,
-            title: l10n.giftWhoFor,
-            children: [
+        ),
+        const SizedBox(height: 16),
+        _Section(
+          t: t,
+          index: 0,
+          done: d.step > 0,
+          title: l10n.giftWhoFrom,
+          children: [
+            _Field(
+              t: t,
+              icon: AppIcons.account,
+              label: l10n.giftName,
+              value: d.sender.name,
+            ),
+            _Field(
+              t: t,
+              icon: Symbols.call_rounded,
+              label: l10n.giftPhone,
+              value: d.sender.phone,
+              ltr: true,
+            ),
+            if (d.sender.email != null)
               _Field(
                 t: t,
-                icon: Symbols.redeem_rounded,
-                label: l10n.giftTheirName,
-                value: d.recipient.name,
-              ),
-              _Field(
-                t: t,
-                icon: Symbols.call_rounded,
-                label: l10n.giftTheirPhone,
-                value: d.recipient.phone,
+                icon: Symbols.mail_rounded,
+                label: l10n.giftEmail,
+                value: d.sender.email!,
                 ltr: true,
               ),
+          ],
+        ),
+        _Section(
+          t: t,
+          index: 1,
+          done: d.step > 1,
+          title: l10n.giftWhoFor,
+          children: [
+            _Field(
+              t: t,
+              icon: Symbols.redeem_rounded,
+              label: l10n.giftTheirName,
+              value: d.recipient.name,
+            ),
+            _Field(
+              t: t,
+              icon: Symbols.call_rounded,
+              label: l10n.giftTheirPhone,
+              value: d.recipient.phone,
+              ltr: true,
+            ),
+            Row(
+              children: [
+                AppIcon(Symbols.verified_rounded, size: 15, color: tone),
+                const SizedBox(width: 6),
+                Expanded(
+                  child: Text(
+                    l10n.giftOnlyPlaces,
+                    style: TextStyle(
+                      fontSize: 12,
+                      fontWeight: FontWeight.w700,
+                      color: t.muted,
+                    ),
+                  ),
+                ),
+              ],
+            ),
+            Row(
+              key: const ValueKey('gift-places'),
+              children: [
+                Expanded(
+                  child: _Picker(
+                    t: t,
+                    icon: Symbols.public_rounded,
+                    label: l10n.giftCountry,
+                    value: d.recipient.country,
+                    onTap: widget.onCountry,
+                  ),
+                ),
+                const SizedBox(width: 8),
+                Expanded(
+                  child: _Picker(
+                    t: t,
+                    icon: Symbols.location_city_rounded,
+                    label: l10n.giftCity,
+                    value: d.recipient.city,
+                    onTap: widget.onCity,
+                  ),
+                ),
+              ],
+            ),
+            _Field(
+              t: t,
+              icon: Symbols.home_pin_rounded,
+              label: l10n.giftAddress,
+              value: d.recipient.address,
+            ),
+            if (d.perKm) ...[
+              _MapPin(t: t, label: l10n.giftPin, onTap: widget.onPin),
+              Text(
+                l10n.giftPinNote,
+                style: TextStyle(fontSize: 12, color: t.muted),
+              ),
+            ],
+          ],
+        ),
+        _Section(
+          key: const ValueKey('gift-when'),
+          t: t,
+          index: 2,
+          done: d.step > 2,
+          title: l10n.giftWhen,
+          required: l10n.giftRequired,
+          children: [
+            Wrap(
+              spacing: 8,
+              runSpacing: 8,
+              children: [
+                for (final (i, c) in d.days.indexed)
+                  _Chip(
+                    t: t,
+                    choice: c,
+                    onTap: c.enabled ? () => widget.onDay?.call(i) : null,
+                  ),
+              ],
+            ),
+            if (d.cutoffPassed)
               Row(
                 children: [
-                  AppIcon(Symbols.verified_rounded, size: 15, color: tone),
+                  AppIcon(AppIcons.schedule, size: 15, color: t.muted),
                   const SizedBox(width: 6),
-                  Expanded(
+                  Flexible(
                     child: Text(
-                      l10n.giftOnlyPlaces,
-                      style: TextStyle(
-                        fontSize: 12,
-                        fontWeight: FontWeight.w700,
-                        color: t.muted,
-                      ),
+                      l10n.giftCutoffPassed,
+                      style: TextStyle(fontSize: 12, color: t.muted),
                     ),
                   ),
                 ],
               ),
-              Row(
-                key: const ValueKey('gift-places'),
-                children: [
-                  Expanded(
-                    child: _Picker(
-                      t: t,
-                      icon: Symbols.public_rounded,
-                      label: l10n.giftCountry,
-                      value: d.recipient.country,
-                      onTap: widget.onCountry,
-                    ),
-                  ),
-                  const SizedBox(width: 8),
-                  Expanded(
-                    child: _Picker(
-                      t: t,
-                      icon: Symbols.location_city_rounded,
-                      label: l10n.giftCity,
-                      value: d.recipient.city,
-                      onTap: widget.onCity,
-                    ),
-                  ),
-                ],
+            Text(
+              l10n.giftSlot,
+              style: TextStyle(
+                fontSize: 13,
+                fontWeight: FontWeight.w800,
+                color: t.ink,
               ),
-              _Field(
-                t: t,
-                icon: Symbols.home_pin_rounded,
-                label: l10n.giftAddress,
-                value: d.recipient.address,
+            ),
+            _SlotGrid(t: t, slots: d.slots, onTap: widget.onSlot),
+          ],
+        ),
+        _Section(
+          key: const ValueKey('gift-message'),
+          t: t,
+          index: 3,
+          done: d.step > 3,
+          title: l10n.giftYourMessage,
+          children: [
+            Text(
+              l10n.giftOccasion,
+              style: TextStyle(
+                fontSize: 13,
+                fontWeight: FontWeight.w800,
+                color: t.ink,
               ),
-              if (d.perKm) ...[
-                _MapPin(t: t, label: l10n.giftPin, onTap: widget.onPin),
-                Text(
-                  l10n.giftPinNote,
-                  style: TextStyle(fontSize: 12, color: t.muted),
-                ),
+            ),
+            Wrap(
+              spacing: 8,
+              runSpacing: 8,
+              children: [
+                for (final (i, c) in d.occasions.indexed)
+                  _Chip(
+                    t: t,
+                    choice: c,
+                    onTap: () => widget.onOccasion?.call(i),
+                  ),
               ],
-            ],
-          ),
-          _Section(
-            key: const ValueKey('gift-when'),
-            t: t,
-            index: 2,
-            done: d.step > 2,
-            title: l10n.giftWhen,
-            required: l10n.giftRequired,
-            children: [
-              Wrap(
-                spacing: 8,
-                runSpacing: 8,
-                children: [
-                  for (final (i, c) in d.days.indexed)
-                    _Chip(
+            ),
+            if (d.messages.isNotEmpty) ...[
+              Text(
+                l10n.giftReady,
+                style: TextStyle(
+                  fontSize: 13,
+                  fontWeight: FontWeight.w800,
+                  color: t.ink,
+                ),
+              ),
+              SizedBox(
+                height: 112,
+                child: ListView.separated(
+                  scrollDirection: Axis.horizontal,
+                  itemCount: d.messages.length,
+                  separatorBuilder: (_, _) => const SizedBox(width: 8),
+                  itemBuilder: (context, i) => ListenableBuilder(
+                    listenable: _message,
+                    builder: (context, _) => _ReadyMessage(
                       t: t,
-                      choice: c,
-                      onTap: c.enabled ? () => widget.onDay?.call(i) : null,
+                      text: d.messages[i],
+                      chosen: _message.text == d.messages[i],
+                      onTap: () => _pick(d.messages[i]),
                     ),
+                  ),
+                ),
+              ),
+            ],
+            Text(
+              l10n.giftWrite,
+              style: TextStyle(
+                fontSize: 13,
+                fontWeight: FontWeight.w800,
+                color: t.ink,
+              ),
+            ),
+            TextField(
+              key: const ValueKey('gift-message-field'),
+              controller: _message,
+              minLines: 2,
+              maxLines: 4,
+              maxLength: 240,
+              onChanged: widget.onMessage,
+              style: TextStyle(fontSize: 15, height: 1.45, color: t.ink),
+              decoration: InputDecoration(
+                filled: true,
+                fillColor: t.field,
+                counterStyle: TextStyle(color: t.muted),
+                contentPadding: const EdgeInsets.all(14),
+                enabledBorder: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(16),
+                  borderSide: BorderSide(color: t.line),
+                ),
+                focusedBorder: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(16),
+                  borderSide: BorderSide(color: tone, width: 1.5),
+                ),
+              ),
+            ),
+            MergeSemantics(
+              child: Row(
+                children: [
+                  AppIcon(
+                    Symbols.visibility_off_rounded,
+                    size: 20,
+                    color: tone,
+                  ),
+                  const SizedBox(width: 10),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          l10n.giftAnonymous,
+                          style: TextStyle(
+                            fontSize: 14.5,
+                            fontWeight: FontWeight.w700,
+                            color: t.ink,
+                          ),
+                        ),
+                        Text(
+                          l10n.giftAnonymousNote,
+                          style: TextStyle(fontSize: 12, color: t.muted),
+                        ),
+                      ],
+                    ),
+                  ),
+                  Switch(
+                    key: const ValueKey('gift-anonymous'),
+                    value: _anonymous,
+                    activeTrackColor: tone,
+                    onChanged: (v) {
+                      setState(() => _anonymous = v);
+                      widget.onAnonymous?.call(v);
+                    },
+                  ),
                 ],
               ),
-              if (d.cutoffPassed)
-                Row(
-                  children: [
-                    AppIcon(AppIcons.schedule, size: 15, color: t.muted),
-                    const SizedBox(width: 6),
-                    Flexible(
-                      child: Text(
-                        l10n.giftCutoffPassed,
-                        style: TextStyle(fontSize: 12, color: t.muted),
-                      ),
-                    ),
-                  ],
-                ),
+            ),
+          ],
+        ),
+        _Section(
+          key: const ValueKey('gift-summary'),
+          t: t,
+          index: 4,
+          done: false,
+          title: l10n.giftYourOrder,
+          children: [
+            for (final line in d.lines.where((l) => !l.addOn))
+              _MainLine(t: t, line: line),
+            if (d.lines.any((l) => l.addOn)) ...[
               Text(
-                l10n.giftSlot,
+                l10n.giftAddOns.toUpperCase(),
                 style: TextStyle(
-                  fontSize: 13,
+                  fontSize: 11.5,
                   fontWeight: FontWeight.w800,
-                  color: t.ink,
+                  letterSpacing: 1,
+                  color: t.muted,
                 ),
               ),
-              _SlotGrid(t: t, slots: d.slots, onTap: widget.onSlot),
+              for (final line in d.lines.where((l) => l.addOn))
+                _Amount(t: t, label: line.title, value: line.price),
             ],
-          ),
-          _Section(
-            key: const ValueKey('gift-message'),
-            t: t,
-            index: 3,
-            done: d.step > 3,
-            title: l10n.giftYourMessage,
-            children: [
-              Text(
-                l10n.giftOccasion,
-                style: TextStyle(
-                  fontSize: 13,
-                  fontWeight: FontWeight.w800,
-                  color: t.ink,
+            if (day != null && slot != null)
+              Container(
+                key: const ValueKey('gift-arrives'),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 12,
+                  vertical: 10,
                 ),
-              ),
-              Wrap(
-                spacing: 8,
-                runSpacing: 8,
-                children: [
-                  for (final (i, c) in d.occasions.indexed)
-                    _Chip(
-                      t: t,
-                      choice: c,
-                      onTap: () => widget.onOccasion?.call(i),
-                    ),
-                ],
-              ),
-              if (d.messages.isNotEmpty) ...[
-                Text(
-                  l10n.giftReady,
-                  style: TextStyle(
-                    fontSize: 13,
-                    fontWeight: FontWeight.w800,
-                    color: t.ink,
-                  ),
+                decoration: BoxDecoration(
+                  color: t.soft,
+                  borderRadius: BorderRadius.circular(16),
                 ),
-                SizedBox(
-                  height: 112,
-                  child: ListView.separated(
-                    scrollDirection: Axis.horizontal,
-                    itemCount: d.messages.length,
-                    separatorBuilder: (_, _) => const SizedBox(width: 8),
-                    itemBuilder: (context, i) => ListenableBuilder(
-                      listenable: _message,
-                      builder: (context, _) => _ReadyMessage(
-                        t: t,
-                        text: d.messages[i],
-                        chosen: _message.text == d.messages[i],
-                        onTap: () => _pick(d.messages[i]),
-                      ),
-                    ),
-                  ),
-                ),
-              ],
-              Text(
-                l10n.giftWrite,
-                style: TextStyle(
-                  fontSize: 13,
-                  fontWeight: FontWeight.w800,
-                  color: t.ink,
-                ),
-              ),
-              TextField(
-                key: const ValueKey('gift-message-field'),
-                controller: _message,
-                minLines: 2,
-                maxLines: 4,
-                maxLength: 240,
-                onChanged: widget.onMessage,
-                style: TextStyle(fontSize: 15, height: 1.45, color: t.ink),
-                decoration: InputDecoration(
-                  filled: true,
-                  fillColor: t.field,
-                  counterStyle: TextStyle(color: t.muted),
-                  contentPadding: const EdgeInsets.all(14),
-                  enabledBorder: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(16),
-                    borderSide: BorderSide(color: t.line),
-                  ),
-                  focusedBorder: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(16),
-                    borderSide: BorderSide(color: tone, width: 1.5),
-                  ),
-                ),
-              ),
-              MergeSemantics(
                 child: Row(
                   children: [
                     AppIcon(
-                      Symbols.visibility_off_rounded,
+                      Symbols.event_available_rounded,
                       size: 20,
                       color: tone,
                     ),
                     const SizedBox(width: 10),
-                    Expanded(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(
-                            l10n.giftAnonymous,
-                            style: TextStyle(
-                              fontSize: 14.5,
-                              fontWeight: FontWeight.w700,
-                              color: t.ink,
-                            ),
-                          ),
-                          Text(
-                            l10n.giftAnonymousNote,
-                            style: TextStyle(fontSize: 12, color: t.muted),
-                          ),
-                        ],
-                      ),
+                    Text(
+                      l10n.giftArrives,
+                      style: TextStyle(fontSize: 12.5, color: t.muted),
                     ),
-                    Switch(
-                      key: const ValueKey('gift-anonymous'),
-                      value: _anonymous,
-                      activeTrackColor: tone,
-                      onChanged: (v) {
-                        setState(() => _anonymous = v);
-                        widget.onAnonymous?.call(v);
-                      },
+                    const SizedBox(width: 8),
+                    Expanded(
+                      child: Text(
+                        '${day.label} · ${ltrIsolate(slot.label)}',
+                        textAlign: TextAlign.end,
+                        style: TextStyle(
+                          fontSize: 13.5,
+                          fontWeight: FontWeight.w800,
+                          color: t.ink,
+                        ),
+                      ),
                     ),
                   ],
                 ),
               ),
-            ],
-          ),
-          _Section(
-            key: const ValueKey('gift-summary'),
-            t: t,
-            index: 4,
-            done: false,
-            title: l10n.giftYourOrder,
-            children: [
-              for (final line in d.lines.where((l) => !l.addOn))
-                _MainLine(t: t, line: line),
-              if (d.lines.any((l) => l.addOn)) ...[
-                Text(
-                  l10n.giftAddOns.toUpperCase(),
-                  style: TextStyle(
-                    fontSize: 11.5,
-                    fontWeight: FontWeight.w800,
-                    letterSpacing: 1,
-                    color: t.muted,
+            _CodeRow(t: t, code: d.discountCode, onApply: widget.onApplyCode),
+            _Amount(t: t, label: l10n.giftSubtotal, value: d.subtotal),
+            _Amount(t: t, label: l10n.giftDeliveryFee, value: d.fee),
+            if (d.feeParts.isNotEmpty || d.freeOver != null)
+              Container(
+                key: const ValueKey('gift-fee'),
+                padding: const EdgeInsetsDirectional.only(start: 12),
+                decoration: BoxDecoration(
+                  border: BorderDirectional(
+                    start: BorderSide(color: t.soft, width: 2),
                   ),
                 ),
-                for (final line in d.lines.where((l) => l.addOn))
-                  _Amount(t: t, label: line.title, value: line.price),
-              ],
-              if (day != null && slot != null)
-                Container(
-                  key: const ValueKey('gift-arrives'),
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 12,
-                    vertical: 10,
-                  ),
-                  decoration: BoxDecoration(
-                    color: t.soft,
-                    borderRadius: BorderRadius.circular(16),
-                  ),
-                  child: Row(
-                    children: [
-                      AppIcon(
-                        Symbols.event_available_rounded,
-                        size: 20,
-                        color: tone,
-                      ),
-                      const SizedBox(width: 10),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: [
+                    for (final (label, value) in d.feeParts)
+                      _Amount(t: t, label: label, value: value, small: true),
+                    if (d.freeOver != null)
                       Text(
-                        l10n.giftArrives,
-                        style: TextStyle(fontSize: 12.5, color: t.muted),
-                      ),
-                      const SizedBox(width: 8),
-                      Expanded(
-                        child: Text(
-                          '${day.label} · ${ltrIsolate(slot.label)}',
-                          textAlign: TextAlign.end,
-                          style: TextStyle(
-                            fontSize: 13.5,
-                            fontWeight: FontWeight.w800,
-                            color: t.ink,
-                          ),
+                        l10n.giftFreeOver(d.freeOver!),
+                        style: TextStyle(
+                          fontSize: 12,
+                          fontWeight: FontWeight.w700,
+                          color: tone,
                         ),
                       ),
-                    ],
-                  ),
+                  ],
                 ),
-              _CodeRow(t: t, code: d.discountCode, onApply: widget.onApplyCode),
-              _Amount(t: t, label: l10n.giftSubtotal, value: d.subtotal),
-              _Amount(t: t, label: l10n.giftDeliveryFee, value: d.fee),
-              if (d.feeParts.isNotEmpty || d.freeOver != null)
-                Container(
-                  key: const ValueKey('gift-fee'),
-                  padding: const EdgeInsetsDirectional.only(start: 12),
-                  decoration: BoxDecoration(
-                    border: BorderDirectional(
-                      start: BorderSide(color: t.soft, width: 2),
-                    ),
-                  ),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.stretch,
-                    children: [
-                      for (final (label, value) in d.feeParts)
-                        _Amount(t: t, label: label, value: value, small: true),
-                      if (d.freeOver != null)
-                        Text(
-                          l10n.giftFreeOver(d.freeOver!),
-                          style: TextStyle(
-                            fontSize: 12,
-                            fontWeight: FontWeight.w700,
-                            color: tone,
-                          ),
-                        ),
-                    ],
-                  ),
-                ),
-              if (d.discount != null)
-                _Amount(t: t, label: l10n.giftDiscount, value: d.discount!),
-              Divider(height: 1, color: t.line),
-              _Amount(
-                t: t,
-                label: l10n.giftTotal,
-                value: d.total,
-                strong: true,
               ),
-              _PayButton(
-                t: t,
-                label: l10n.giftPay(d.total),
-                onTap: widget.onPay,
-              ),
-            ],
-          ),
-        ],
-      ),
+            if (d.discount != null)
+              _Amount(t: t, label: l10n.giftDiscount, value: d.discount!),
+            Divider(height: 1, color: t.line),
+            _Amount(t: t, label: l10n.giftTotal, value: d.total, strong: true),
+            _PayButton(t: t, label: l10n.giftPay(d.total), onTap: widget.onPay),
+          ],
+        ),
+      ],
     );
   }
 }
@@ -851,21 +869,24 @@ class _CardPreview extends StatelessWidget {
               Expanded(
                 child: Stack(
                   children: [
+                    // The card's wax seal: the shop's flower pressed in it.
                     PositionedDirectional(
                       top: 10,
                       end: 12,
                       child: Transform.rotate(
-                        angle: -0.785398,
-                        child: Container(
-                          width: 32,
-                          height: 32,
-                          decoration: BoxDecoration(
-                            color: t.tone.withValues(alpha: 0.16),
-                            borderRadius: const BorderRadius.only(
-                              topLeft: Radius.circular(16),
-                              topRight: Radius.circular(16),
-                              bottomRight: Radius.circular(16),
-                              bottomLeft: Radius.circular(5),
+                        angle: -0.21,
+                        child: SizedBox(
+                          key: const ValueKey('gift-seal'),
+                          width: 40,
+                          height: 40,
+                          child: CustomPaint(
+                            painter: _SealPainter(t.tone),
+                            child: Center(
+                              child: AppIcon(
+                                AppIcons.florist,
+                                size: 18,
+                                color: Colors.white.withValues(alpha: 0.92),
+                              ),
                             ),
                           ),
                         ),
@@ -1759,3 +1780,55 @@ Widget giftFloralLine(BuildContext context, Color accent) => ChromeFloralLine(
   color: context.palette.text.withValues(alpha: 0.16),
   flower: accent,
 );
+
+/// 131.25 A wax seal: a round of wax with a soft scalloped edge, lit from
+/// its top, a pressed ring inside it.
+class _SealPainter extends CustomPainter {
+  const _SealPainter(this.tone);
+
+  final Color tone;
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    final c = size.center(Offset.zero);
+    final r = size.shortestSide / 2;
+    final edge = Path();
+    const points = 96;
+    for (var i = 0; i <= points; i++) {
+      final a = i / points * 2 * math.pi;
+      final d = r * (0.93 + 0.05 * math.cos(a * 11) + 0.02 * math.sin(a * 5));
+      final o = c + Offset(math.cos(a) * d, math.sin(a) * d);
+      i == 0 ? edge.moveTo(o.dx, o.dy) : edge.lineTo(o.dx, o.dy);
+    }
+    edge.close();
+    canvas.drawShadow(edge, tone.withValues(alpha: 0.6), 3, false);
+    final hsl = HSLColor.fromColor(tone);
+    final light = hsl
+        .withLightness((hsl.lightness + 0.14).clamp(0.0, 0.9))
+        .toColor();
+    final deep = hsl
+        .withLightness((hsl.lightness - 0.10).clamp(0.05, 1.0))
+        .toColor();
+    canvas.drawPath(
+      edge,
+      Paint()
+        ..shader = RadialGradient(
+          center: const Alignment(-0.35, -0.45),
+          radius: 1.05,
+          colors: [light, tone, deep],
+          stops: const [0, 0.55, 1],
+        ).createShader(Rect.fromCircle(center: c, radius: r)),
+    );
+    canvas.drawCircle(
+      c,
+      r * 0.68,
+      Paint()
+        ..style = PaintingStyle.stroke
+        ..strokeWidth = 1.2
+        ..color = Colors.white.withValues(alpha: 0.38),
+    );
+  }
+
+  @override
+  bool shouldRepaint(_SealPainter old) => old.tone != tone;
+}

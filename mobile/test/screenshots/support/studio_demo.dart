@@ -53,17 +53,47 @@ class StudioDemo {
   static String language = 'en';
 
   /// [node]'s texts in [language], without its translations.
+  /// 131.20 Its entries' and its lists' too (a story's heading, a step of
+  /// a timeline), as the hosted API serves them (lib/hosted/pages).
   static Map<String, dynamic> localized(Map<String, dynamic> node) {
     final out = {...node}..remove('translations');
     final texts = (node['translations'] as Map?)?[language] as Map?;
-    if (texts == null) return out;
-    for (final MapEntry(:key, :value) in texts.entries) {
-      if (value is String && value.trim().isNotEmpty && out.containsKey(key)) {
-        out[key as String] = value;
+    if (texts != null) {
+      for (final MapEntry(:key, :value) in texts.entries) {
+        if (value is String &&
+            value.trim().isNotEmpty &&
+            out.containsKey(key)) {
+          out[key as String] = value;
+        }
+      }
+    }
+    for (final list in _entryLists) {
+      if (out[list] case final List entries) {
+        out[list] = [
+          for (final e in entries)
+            e is Map<String, dynamic> && e.containsKey('translations')
+                ? localized(e)
+                : e,
+        ];
       }
     }
     return out;
   }
+
+  /// The lists whose entries have texts of their own (lib/pages/types.ts
+  /// `TRANSLATABLE_ENTRIES`, and a node's `entries`).
+  static const _entryLists = [
+    'entries',
+    'slides',
+    'links',
+    'quotes',
+    'questions',
+    'people',
+    'stats',
+    'cards',
+    'images',
+    'fields',
+  ];
 
   Map<String, dynamic> get _layout => _demo['layout'] as Map<String, dynamic>;
 

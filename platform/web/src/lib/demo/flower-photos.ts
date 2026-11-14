@@ -15,19 +15,19 @@ import { idFrom, type PictureDeps } from "./picture-assets";
  */
 export const FLOWER_PHOTOS = [
   "atelier",
+  "baby-breath",
   "blush-bouquet",
+  "ceramic-vase",
   "chocolates",
-  "gerberas",
+  "garden-jug",
   "greeting-card",
-  "hydrangea",
   "orchid",
-  "peonies",
-  "rose-box",
-  "roses-red",
+  "ranunculus",
+  "red-rose",
   "stems",
   "sunflowers",
+  "sunshine",
   "tulips",
-  "vase",
   "white-lilies",
 ] as const satisfies readonly string[];
 

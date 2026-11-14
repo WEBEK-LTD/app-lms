@@ -9,8 +9,9 @@
 ///   the guide's screens (`leqaa-home`, `leqaa-product`, `leqaa-checkout`);
 /// - with `--dart-define=YALLAPP_GALLERY=<folder>`, the owner's gallery (not
 ///   kept in the repository): both looks' home, the bouquet, the cart, the
-///   account and the gift checkout (its message step too), by day, by night
-///   and in Arabic, and the petal chrome on an academy and a clinic.
+///   account and the gift checkout (its when, message and summary steps
+///   too), by day, by night and in Arabic, and the petal chrome on an
+///   academy and a clinic.
 @Tags(['screenshots'])
 library;
 
@@ -277,10 +278,13 @@ Shot _petalKind(
         ? '/page/about'
         : '/account',
     designPictures: true,
-    prepare: (tester) => StudioDemo.signature(
-      'flowers',
-      'a',
-    ).prepare(tester, const ['/stories/academy/academy-live.jpg']),
+    // Every photo the landing names, at the address it names it by.
+    prepare: (tester) => StudioDemo.signature('flowers', 'a').prepare(tester, {
+      for (final m in RegExp(
+        r'https?://[^/"]+(/[^"]+\.(?:jpg|png))',
+      ).allMatches(jsonEncode(home)))
+        m.group(1)!,
+    }),
     shadows: true,
   );
 }
@@ -306,7 +310,7 @@ Future<void> _write(WidgetTester tester, String folder, String name) async {
 }
 
 /// 131.25 The gift checkout's look in the app's theme, as its screen, from
-/// its step [scroll] down (the message's at 900).
+/// its step [at] (its top when null) under the steps.
 Future<void> _checkout(
   WidgetTester tester, {
   required bool dark,
@@ -315,7 +319,7 @@ Future<void> _checkout(
   required Color accent,
   required String font,
   required String photo,
-  double scroll = 0,
+  String? at,
 }) async {
   usePhone(tester);
   final light = ValueNotifier(dark);
@@ -346,8 +350,19 @@ Future<void> _checkout(
     ),
   );
   await tester.pumpAndSettle();
-  if (scroll > 0) {
-    await tester.drag(find.byType(Scrollable).first, Offset(0, -scroll));
+  if (at != null) {
+    final list = find
+        .descendant(
+          of: find.byType(ListView),
+          matching: find.byType(Scrollable),
+        )
+        .first;
+    final step = find.byKey(ValueKey(at));
+    await tester.scrollUntilVisible(step, 300, scrollable: list);
+    final position = tester.state<ScrollableState>(list).position;
+    final box = tester.renderObject(step);
+    final reveal = RenderAbstractViewport.of(box).getOffsetToReveal(box, 0);
+    position.jumpTo((reveal.offset - 12).clamp(0.0, position.maxScrollExtent));
     await tester.pumpAndSettle();
   }
 }
@@ -430,14 +445,15 @@ void main() {
         ('dark', true, 'en'),
         ('ar', false, 'ar'),
       ])
-        for (final (step, scroll) in [
-          ('checkout', 0.0),
-          ('message', 1180.0),
-          ('summary', 1900.0),
+        for (final (step, at) in [
+          ('checkout', null),
+          ('when', 'gift-when'),
+          ('message', 'gift-message'),
+          ('summary', 'gift-summary'),
         ])
-          (look, mode, dark, language, step, scroll),
+          (look, mode, dark, language, step, at),
   ];
-  for (final (look, mode, dark, language, step, scroll) in checkouts) {
+  for (final (look, mode, dark, language, step, at) in checkouts) {
     testWidgets(
       'gallery leqaa-$look-$step-$mode',
       skip: gallery.isEmpty || !photosReady,
@@ -455,8 +471,8 @@ void main() {
           accent: a ? const Color(0xFFC89B6D) : const Color(0xFFE8A486),
           font: a ? 'DM Sans' : 'Manrope',
           photo:
-              '${demo.base}/flower-photos/${a ? 'blush-bouquet' : 'peonies'}.jpg',
-          scroll: scroll,
+              '${demo.base}/flower-photos/${a ? 'blush-bouquet' : 'ranunculus'}.jpg',
+          at: at,
         );
         await _write(tester, gallery, 'leqaa-$look-$step-$mode');
       },

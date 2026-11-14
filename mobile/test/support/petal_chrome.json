@@ -749,32 +749,46 @@
       },
       {
        "id": "lq-1",
-       "type": "cta_bar",
-       "title": "Learn anywhere",
+       "type": "button",
        "text": "Browse courses",
        "translations": {
         "ar": {
-         "title": "تعلّم في أي مكان",
          "text": "تصفّح الدورات"
         },
         "tr": {
-         "title": "Her yerde öğrenin",
          "text": "Kurslara göz at"
         }
        },
-       "cta": {
-        "style": "bar",
-        "lead": "local_florist"
-       },
-       "pin": "bottom",
-       "icon": "arrow_forward",
+       "width": "hug",
+       "height": 52,
+       "radius": 26,
        "background": "#4338CA",
        "dark_background": "#857EDD",
-       "color": "#121316",
-       "dark_color": "#F3F3F0",
+       "color": "#FFFFFF",
+       "dark_color": "#0E0F12",
+       "icon": "arrow_forward",
+       "icon_position": "end",
+       "icon_size": 18,
+       "font": {
+        "size": 14,
+        "weight": 800
+       },
+       "padding": {
+        "top": 0,
+        "end": 22,
+        "bottom": 0,
+        "start": 22
+       },
        "action": {
         "type": "screen",
         "screen": "courses"
+       },
+       "self_align": "center",
+       "margin": {
+        "top": 18,
+        "end": 0,
+        "bottom": 8,
+        "start": 0
        }
       }
      ]
@@ -1517,32 +1531,46 @@
       },
       {
        "id": "lq-1",
-       "type": "cta_bar",
-       "title": "Care, close to you",
+       "type": "button",
        "text": "Book a visit",
        "translations": {
         "ar": {
-         "title": "رعاية قريبة منك",
          "text": "احجز زيارة"
         },
         "tr": {
-         "title": "Size yakın bakım",
          "text": "Randevu al"
         }
        },
-       "cta": {
-        "style": "bar",
-        "lead": "local_florist"
-       },
-       "pin": "bottom",
-       "icon": "arrow_forward",
+       "width": "hug",
+       "height": 52,
+       "radius": 26,
        "background": "#0F766E",
        "dark_background": "#63A6A1",
-       "color": "#121316",
-       "dark_color": "#F3F3F0",
+       "color": "#FFFFFF",
+       "dark_color": "#0E0F12",
+       "icon": "arrow_forward",
+       "icon_position": "end",
+       "icon_size": 18,
+       "font": {
+        "size": 14,
+        "weight": 800
+       },
+       "padding": {
+        "top": 0,
+        "end": 22,
+        "bottom": 0,
+        "start": 22
+       },
        "action": {
         "type": "screen",
         "screen": "services"
+       },
+       "self_align": "center",
+       "margin": {
+        "top": 18,
+        "end": 0,
+        "bottom": 8,
+        "start": 0
        }
       }
      ]

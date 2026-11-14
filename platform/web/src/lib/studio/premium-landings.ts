@@ -510,12 +510,9 @@ function petalCover(m: Maker): StudioNode[] {
 function petalLanding(ctx: SectionContext): StudioPage {
   const m = makerFor(ctx);
   const { c } = m;
-  const kick = m.say(packWord(m.p, "Kicker"), "title");
-  const cta = m.say(packWord(m.p, "Cta"));
-  const translations: Translations = {};
-  for (const l of LANGS) if (l !== m.lang) translations[l] = { ...kick.translations[l], ...cta.translations[l] };
-  // Pinned to the foot while the page scrolls, above the bar.
-  const sticky: StudioNode = { id: m.id(), type: "cta_bar", title: kick.value, text: cta.value, translations, cta: { style: "bar", lead: "local_florist" }, pin: "bottom", icon: "arrow_forward", background: c.brand, dark_background: c.darkBrand, color: c.ink, dark_color: c.darkInk, ...(m.main ? { action: m.main } : {}) };
+  // Its call to action at its foot, in the page (never pinned over the
+  // bar: the petal bar's raised bloom is the app's own main action).
+  const close: StudioNode = { ...button(m, packWord(m.p, "Cta"), m.main, { background: c.brand, darkBackground: c.darkBrand, color: "#FFFFFF", darkColor: c.darkPage, icon: "arrow_forward", height: 52 }), self_align: "center", margin: pad(18, 0, 8, 0) };
   return landing(m, header(m, "logo_center", "petal", ["menu", "account"]), [
     ...petalCover(m),
     stories(m, "highlight", 64),
@@ -525,7 +522,7 @@ function petalLanding(ctx: SectionContext): StudioPage {
     ...items(m, "photo"),
     floral(m),
     ...testimonials(m, "stacked"),
-    sticky,
+    close,
   ]);
 }
 
