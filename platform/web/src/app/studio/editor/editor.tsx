@@ -48,6 +48,8 @@ import { LeftPanel, elementLabel, type LeftTab, type MyTemplate } from "./left-p
 import { DRAG_TYPE, Glyph, STUDIO_COLORS as C, StudioMark, type DragPayload } from "./shared";
 import { seedSamplesAction } from "@/app/actions/samples";
 import { applyDemoScreensAction, applyDesignLookAction } from "@/app/actions/studio-screens";
+// 130.21 The system screens' look chosen here.
+import { saveSystemLookAction } from "@/app/actions/studio-screens";
 import { sourcesIn } from "@/lib/samples/lists";
 
 /**
@@ -115,6 +117,8 @@ export function StudioEditor(props: StudioEditorProps) {
   // 124.11 The main colour and the screens' looks a whole design brings are the app's: kept here once saved.
   const [brand, setBrand] = useState(props.app.brand);
   const [studioScreens, setStudioScreens] = useState<StudioScreens | null>(props.studioScreens ?? null);
+  // 130.21 While the system screens' look is being saved.
+  const [systemBusy, setSystemBusy] = useState(false);
   const app = { ...props.app, brand };
 
   const [history, setHistory] = useState<History<LayoutContent>>(() => historyOf(props.initial.draft));
@@ -1357,6 +1361,24 @@ export function StudioEditor(props: StudioEditorProps) {
 
         {studio ? (
           <Inspector
+            // 130.21 The system screens' look, saved with Studio › Screens and drawn on the canvas at once.
+            system={
+              props.screensHref
+                ? {
+                    look: studioScreens?.system?.look ?? null,
+                    busy: systemBusy,
+                    onLook: (look) => {
+                      setSystemBusy(true);
+                      void saveSystemLookAction({ look })
+                        .then((r) => {
+                          if (r.ok) setStudioScreens(r.screens ?? null);
+                        })
+                        .catch(() => null)
+                        .finally(() => setSystemBusy(false));
+                    },
+                  }
+                : undefined
+            }
             page={studio}
             node={selected && device === "tablet" ? forTablet(selected) : selected}
             tablet={device === "tablet" && selected ? { changed: Boolean(selected.tablet), onReset: () => changePage((p) => updateNode(p, selected.id, { tablet: undefined })) } : undefined}

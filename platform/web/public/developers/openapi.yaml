@@ -12417,6 +12417,44 @@ components:
                 lesson: { type: string, enum: [premium] }
                 code: { type: string, enum: [premium] }
                 cart: { type: string, enum: [premium] }
+            system:
+              type: object
+              description: |
+                130.21 The premium look of the app's own system screens, for the whole project:
+                the account (a profile hero card, quick numbers and the entries grouped in
+                inset cards with tinted icon tiles), settings, notifications, the language,
+                editing the profile, help, about and the legal pages, the lists of orders,
+                bookings, trips, rides and shipments, sign-in and the code screen (a photo or
+                brand hero), and the empty and loading states (an illustrated empty state, a
+                shimmer in the brand's tones instead of grey blocks). `large`: the page's
+                colours, a large title that collapses as the screen scrolls; `glass`: frosted
+                glass cards and bar over a soft wash of the main and second colours; `photo`:
+                `image_url` (else the sign-in's photo, else the main to second colour
+                gradient) under a shade at the top of the account and sign-in, the cards over
+                its foot; `brand`: the main colour across the top with the logo in the middle
+                between round glass buttons. In the project's colours and fonts, light and
+                dark, right to left, still for people who turn movement off. `screens` gives
+                one screen another look, or `classic`: that screen's own (as `sign_in` and
+                `account_menu` design it, else the app's). The system look takes the words
+                and photo of `sign_in` and the entries of `account_menu`. Missing, every
+                screen as before; an app that doesn't know a value keeps the screen's own.
+              required: [look]
+              properties:
+                look: { type: string, enum: [large, glass, photo, brand] }
+                screens:
+                  type: object
+                  properties:
+                    account: { type: string, enum: [classic, large, glass, photo, brand] }
+                    settings: { type: string, enum: [classic, large, glass, photo, brand] }
+                    notifications: { type: string, enum: [classic, large, glass, photo, brand] }
+                    language: { type: string, enum: [classic, large, glass, photo, brand] }
+                    edit_profile: { type: string, enum: [classic, large, glass, photo, brand] }
+                    help: { type: string, enum: [classic, large, glass, photo, brand] }
+                    lists: { type: string, enum: [classic, large, glass, photo, brand] }
+                    sign_in: { type: string, enum: [classic, large, glass, photo, brand] }
+                    code: { type: string, enum: [classic, large, glass, photo, brand] }
+                    states: { type: string, enum: [classic, large, glass, photo, brand] }
+                image_url: { type: [string, 'null'], format: uri, description: "The `photo` look's photo." }
             launch:
               type: object
               description: |
@@ -15368,9 +15406,26 @@ components:
         the person's first name ("Good morning, Sara"), the buttons beside
         it; signed out, `title` (or the app's name) under the date. Apps
         that don't know a type show no header.
+        130.20 `style`, a premium style drawn instead of the type (apps that
+        don't know it draw the type): `large` a big title (and `subtitle`)
+        that collapses into a compact bar as the page scrolls; `glass` a
+        frosted bar the page scrolls under; `photo` a cover of `image_url`
+        (else the main to second colour gradient) under a shade with the
+        title over its foot, collapsing; `brand` the logo (or the app's
+        name) in the middle between the buttons on the main colour; `search`
+        the title and a search pill (the search stays as the title folds).
+        Its buttons are round glass buttons (`notifications` with a dot while
+        something is unread, `account` the person's photo when signed in) and
+        a page opened over the tabs has a round glass back button. `collapse`
+        false keeps `large`, `photo` and `search` open. Light and dark,
+        mirrored right to left, still for people who turn movement off.
       required: [type]
       properties:
         type: { type: string, enum: [logo_center, title_search, logo_actions, transparent, title, greeting] }
+        style: { type: string, enum: [large, glass, photo, brand, search], description: "130.20 The premium style; missing, the header is drawn by `type` as before." }
+        subtitle: { type: [string, 'null'], maxLength: 80, description: "130.20 A line under the title (`large`, `photo`, `brand`), in the language asked for." }
+        image_url: { type: [string, 'null'], format: uri, description: "130.20 The `photo` style's photo; null, the main to second colour gradient." }
+        collapse: { type: boolean, description: "130.20 False keeps `large`, `photo` and `search` open as the page scrolls. Missing, true." }
         title: { type: [string, 'null'], maxLength: 80, description: "In the language asked for; null, the app's name." }
         logo_url: { type: [string, 'null'], format: uri, description: "Null, the app's logo." }
         buttons:

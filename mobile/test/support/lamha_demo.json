@@ -19,6 +19,9 @@
    "header": "night",
    "accent": "#F5B700",
    "items": []
+  },
+  "system": {
+   "look": "brand"
   }
  },
  "layout": {
@@ -625,7 +628,8 @@
       "background": "#FFFFFF",
       "color": "#141B2E",
       "dark_background": "#1C2541",
-      "dark_color": "#F1F2F7"
+      "dark_color": "#F1F2F7",
+      "style": "brand"
      },
      "background": "#F6F4EF",
      "dark_background": "#151B2B"
@@ -691,7 +695,8 @@
       "background": "#FFFFFF",
       "color": "#141B2E",
       "dark_background": "#1C2541",
-      "dark_color": "#F1F2F7"
+      "dark_color": "#F1F2F7",
+      "style": "brand"
      },
      "background": "#F6F4EF",
      "dark_background": "#151B2B"
@@ -732,7 +737,8 @@
       "background": "#FFFFFF",
       "color": "#141B2E",
       "dark_background": "#1C2541",
-      "dark_color": "#F1F2F7"
+      "dark_color": "#F1F2F7",
+      "style": "brand"
      },
      "background": "#F6F4EF",
      "dark_background": "#151B2B"
@@ -773,7 +779,8 @@
       "background": "#FFFFFF",
       "color": "#141B2E",
       "dark_background": "#1C2541",
-      "dark_color": "#F1F2F7"
+      "dark_color": "#F1F2F7",
+      "style": "brand"
      },
      "background": "#F6F4EF",
      "dark_background": "#151B2B"
@@ -814,7 +821,8 @@
       "background": "#FFFFFF",
       "color": "#141B2E",
       "dark_background": "#1C2541",
-      "dark_color": "#F1F2F7"
+      "dark_color": "#F1F2F7",
+      "style": "brand"
      },
      "background": "#F6F4EF",
      "dark_background": "#151B2B"
@@ -855,7 +863,8 @@
       "background": "#FFFFFF",
       "color": "#141B2E",
       "dark_background": "#1C2541",
-      "dark_color": "#F1F2F7"
+      "dark_color": "#F1F2F7",
+      "style": "brand"
      },
      "background": "#F6F4EF",
      "dark_background": "#151B2B"

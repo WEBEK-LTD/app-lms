@@ -40,6 +40,9 @@ import {
 } from "@/lib/studio/screens";
 import type { LaunchBrand } from "./launch-preview";
 import { LaunchSection, newLaunch } from "./launch-section";
+// 130.21 The system screens' premium look.
+import { SystemSection } from "./system-section";
+import type { SystemScreensLook } from "@/lib/studio/premium-chrome";
 
 /** 118.3 The night look's card colour when the owner keeps the default. */
 const NIGHT_GOLD = "#D9B36C";
@@ -153,6 +156,8 @@ export function ScreensEditor({
   // 124.15 The launch screen: saved once the owner has designed it.
   const [launch, setLaunch] = useState(() => initial?.launch ?? newLaunch());
   const [launchOwn, setLaunchOwn] = useState(!!initial?.launch);
+  // 130.21 The system screens' premium look; null, the app's own.
+  const [system, setSystem] = useState<SystemScreensLook | null>(initial?.system ?? null);
 
   const screens: StudioScreens = useMemo(
     () => ({
@@ -168,8 +173,10 @@ export function ScreensEditor({
       ...(courses ? { course_card: card, course_page: coursePage } : {}),
       ...(courses && Object.keys(looks).length ? { looks } : {}),
       ...(launchOwn ? { launch: { ...launch, title: clean(launch.title), subtitle: clean(launch.subtitle) } } : {}),
+      // 130.21
+      ...(system ? { system } : {}),
     }),
-    [look, header, accent, entries, courses, card, coursePage, looks, launch, launchOwn],
+    [look, header, accent, entries, courses, card, coursePage, looks, launch, launchOwn, system],
   );
 
   const move = (index: number, by: number) =>
@@ -203,6 +210,9 @@ export function ScreensEditor({
           languages={languages}
           previewLang={previewLang}
         />
+
+        {/* 130.21 The system screens' premium look. */}
+        <SystemSection value={system} onChange={setSystem} />
 
         <section aria-labelledby="h-sign-in-look" className="flex flex-col gap-4 rounded-2xl border border-line bg-white p-5 sm:p-6">
           <h2 id="h-sign-in-look" className="m-0 text-lg font-bold">

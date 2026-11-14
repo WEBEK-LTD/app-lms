@@ -12,6 +12,8 @@ import { sahmHome, sahmPage, SAHM_INK } from "./sahm-express";
 import { schoolTodayHome } from "../school-home";
 import { teachersPhotoHome } from "../teachers-home";
 import { NAKHLA_LOOK, RAWAQ_LOOK, rawaqTabs, schoolPage } from "./school-looks";
+// 130.23 The premium chrome of a demo's pages (lib/studio/demo-designs/chrome.ts).
+import { chromedHeader } from "./chrome";
 
 /**
  * 128 The Studio demos made premium and complete (the owner, 13 November
@@ -164,7 +166,9 @@ export function designedDemoPage<P extends { studio: StudioPage }>(ctx: SectionC
   const own = page.studio.screen ? design.over(page.studio.screen, words) : null;
   const { header: was, ...studio } = page.studio;
   const look = design.look && (!design.look.headed || was) ? design.look : undefined;
-  const header = was && look ? { ...was, ...look.header } : was;
+  const coloured = was && look ? { ...was, ...look.header } : was;
+  // 130.23 The pages after the home in the demo's premium header style.
+  const header = chromedHeader(coloured, ctx.demo);
   return {
     ...page,
     studio: {

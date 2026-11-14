@@ -3,6 +3,8 @@ import type { StudioScreens } from "../studio/screens";
 import { ACADEMY_PROJECT } from "../studio/academy";
 import { demoDesignBar } from "../studio/demo-designs";
 import { PREMIUM_ACADEMY_DEMO, type StudioDemoId } from "./constants";
+// 130.23 The demos' premium system screens.
+import { demoSystemLook } from "../studio/demo-designs/chrome";
 
 /**
  * 118.3 Each Studio demo's sign-in screen and account menu, as an owner
@@ -127,6 +129,12 @@ export const DEMO_SCREENS: Record<Exclude<StudioDemoId, typeof PREMIUM_ACADEMY_D
 
 /** 118.3 A Studio demo's `hostedSettings.studioScreens`; its photo on the platform's own address. */
 export function demoStudioScreens(id: StudioDemoId, platformUrl: string): StudioScreens {
+  // 130.23 Every Studio demo's system screens in its premium look (the photo look on the sign-in's photo).
+  const screens = demoOwnScreens(id, platformUrl);
+  return { ...screens, system: demoSystemLook(id, screens.sign_in?.image_url) };
+}
+
+function demoOwnScreens(id: StudioDemoId, platformUrl: string): StudioScreens {
   if (id === PREMIUM_ACADEMY_DEMO) return ACADEMY_PROJECT.screens(platformUrl);
   const d = DEMO_SCREENS[id];
   return {

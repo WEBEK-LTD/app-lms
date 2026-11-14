@@ -75,6 +75,18 @@ export const STUDIO_NODE_TYPES = [...STUDIO_LAYOUT_TYPES, ...STUDIO_CONTENT_TYPE
 /** 123 `greeting`: today's date over a greeting with the person's first name, the buttons beside it. */
 export const STUDIO_HEADER_TYPES = ["logo_center", "title_search", "logo_actions", "transparent", "title", "greeting"] as const;
 export const STUDIO_HEADER_BUTTONS = ["menu", "search", "cart", "notifications", "chat", "account"] as const;
+// ——— 130.20 Premium chrome: the premium page headers ———
+/**
+ * 130.20 A header's premium style (`StudioHeader.style`): `large` a big title that collapses into a compact bar on
+ * scroll, `glass` a frosted bar the page scrolls under, `photo` a photo (or the brand's gradient) cover with a shade
+ * and the title that collapses, `brand` the logo or the app's name in the middle between round glass buttons,
+ * `search` the title and a search pill. Its buttons are round glass buttons (the bell with a dot while something is
+ * unread, the person's photo for the account) and a page opened over the tabs has a round glass back button.
+ * Missing, the header is drawn by its `type` exactly as before.
+ */
+export const STUDIO_HEADER_STYLES = ["large", "glass", "photo", "brand", "search"] as const;
+export type StudioHeaderStyle = (typeof STUDIO_HEADER_STYLES)[number];
+// ——— end 130.20 premium chrome ———
 export const STUDIO_ALIGNS = ["start", "center", "end", "between", "around"] as const;
 export const STUDIO_CROSS = ["start", "center", "end", "stretch"] as const;
 export const STUDIO_TEXT_ALIGNS = ["start", "center", "end"] as const;
@@ -1292,6 +1304,16 @@ export interface StudioHeader {
   color?: string | null;
   dark_background?: string | null;
   dark_color?: string | null;
+  // ——— 130.20 Premium chrome: the header's premium style ———
+  /** 130.20 Its premium style; missing, drawn by `type` as before (apps that don't know it draw `type`). */
+  style?: StudioHeaderStyle;
+  /** 130.20 A line under the large title (`large`, `photo`, `brand`), translated; missing, none. */
+  subtitle?: string | null;
+  /** 130.20 The `photo` style's photo; missing, the main to second colour gradient. */
+  image_url?: string | null;
+  /** 130.20 `large`, `photo` and `search` collapse on scroll; false keeps them open. */
+  collapse?: boolean;
+  // ——— end 130.20 premium chrome ———
   translations?: Translations;
 }
 
@@ -1441,7 +1463,8 @@ export const TRANSLATABLE = {
   tab: ["label"],
   // 103R A Studio element's text, and the header's title.
   studio: ["text", "title"],
-  studioHeader: ["title"],
+  // 130.20 And the premium header's line under its title.
+  studioHeader: ["title", "subtitle"],
   block: ["title", "heading", "subheading", "html", "label", "placeholder", "text", "ended_text", "note", "address", "name", "submit_label", "success_text"],
 } as const;
 
