@@ -20,6 +20,7 @@ import '../../lms/data/lms_providers.dart' show ordersProvider;
 import '../data/cart_controller.dart';
 import '../data/store_providers.dart';
 import '../widgets/fulfilment_widgets.dart';
+import '../widgets/addon_widgets.dart';
 import '../widgets/gift_checkout.dart';
 import '../widgets/product_widgets.dart';
 import '../../../core/l10n/l10n.dart';
@@ -425,12 +426,38 @@ class _CartScreenState extends ConsumerState<CartScreen> {
                 child: ListView(
                   padding: const EdgeInsets.fromLTRB(20, 4, 20, 24),
                   children: [
-                    for (var i = 0; i < items.length; i++) ...[
+                    // 131 Each item with its gift add-ons under it.
+                    for (final i in cartDisplayOrder(items)) ...[
                       _LineCard(
                         item: items[i],
                         line: i < lines.length ? lines[i] : null,
+                        withName: items[i].isAddon
+                            ? items
+                                  .where(
+                                    (m) =>
+                                        !m.isAddon &&
+                                        m.productId == items[i].addonOf,
+                                  )
+                                  .firstOrNull
+                                  ?.name
+                            : null,
                       ),
                       const SizedBox(height: 10),
+                    ],
+                    // 131 "Add a little more" with the first item.
+                    if (items.where((i) => !i.isAddon).firstOrNull
+                        case final main?) ...[
+                      _CartAddons(
+                        main: main,
+                        items: items,
+                        look: look,
+                        title: ownedTitle(
+                          context,
+                          SectionTitle.addons,
+                          look: look,
+                          store: store,
+                        ),
+                      ),
                     ],
                     if (quote.hasError && value == null)
                       ErrorView(
@@ -471,6 +498,12 @@ class _CartScreenState extends ConsumerState<CartScreen> {
                       Builder(
                         builder: (context) {
                           Widget picker(int? step) => DeliveryPicker(
+                            title: ownedTitle(
+                              context,
+                              SectionTitle.delivery,
+                              look: look,
+                              store: store,
+                            ),
                             rules: rules,
                             date: _deliveryDate,
                             slot: _deliverySlot,
@@ -480,6 +513,12 @@ class _CartScreenState extends ConsumerState<CartScreen> {
                             step: step,
                           );
                           final panel = GiftDetailsPanel(
+                            cardTitle: ownedTitle(
+                              context,
+                              SectionTitle.giftCard,
+                              look: look,
+                              store: store,
+                            ),
                             rules: store.giftMessage,
                             form: _giftForm,
                             message: _gift,
@@ -770,10 +809,82 @@ class _CartScreenState extends ConsumerState<CartScreen> {
   }
 }
 
+/// 131 The cart's lines in the order shown: each item, then the gift
+/// add-ons linked to it; add-ons whose item is gone last.
+List<int> cartDisplayOrder(List<CartItem> items) {
+  final out = <int>[];
+  final placed = <int>{};
+  for (var i = 0; i < items.length; i++) {
+    final item = items[i];
+    if (item.isAddon) continue;
+    out.add(i);
+    if (!placed.add(item.productId)) continue;
+    for (var j = 0; j < items.length; j++) {
+      if (items[j].addonOf == item.productId) out.add(j);
+    }
+  }
+  for (var j = 0; j < items.length; j++) {
+    if (!out.contains(j)) out.add(j);
+  }
+  return out;
+}
+
+/// 131 "Add a little more" in the cart: the add-ons offered with [main],
+/// ticked when they're in the cart with it.
+class _CartAddons extends ConsumerWidget {
+  const _CartAddons({
+    required this.main,
+    required this.items,
+    this.look,
+    this.title,
+  });
+
+  final CartItem main;
+  final List<CartItem> items;
+  final CheckoutLook? look;
+  final String? title;
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final addons = ref.watch(addonsProvider(main.productId)).value ?? const [];
+    if (AddonPicker.offered(addons).isEmpty) return const SizedBox.shrink();
+    final selected = {
+      for (final i in items)
+        if (i.addonOf == main.productId) i.productId,
+    };
+    return Padding(
+      padding: const EdgeInsets.only(top: 6, bottom: 10),
+      child: AddonPicker(
+        addons: addons,
+        selected: selected,
+        look: look,
+        title: title,
+        onChanged: (a, on) => ref
+            .read(cartProvider.notifier)
+            .toggleAddon(
+              CartItem(
+                productId: a.id,
+                quantity: 1,
+                name: a.name,
+                imageUrl: a.imageUrl,
+                price: a.sale?.nowFormatted ?? a.price.formatted,
+              ),
+              main.productId,
+              on,
+            ),
+      ),
+    );
+  }
+}
+
 class _LineCard extends ConsumerWidget {
-  const _LineCard({required this.item, this.line});
+  const _LineCard({required this.item, this.line, this.withName});
 
   final CartItem item;
+
+  /// 131 A gift add-on's line: the name of the item it goes with (drawn
+  /// smaller, under it).
+  final String? withName;
 
   /// The shop's view of this line, once priced.
   final CartQuoteLine? line;
@@ -788,25 +899,33 @@ class _LineCard extends ConsumerWidget {
     final options = quoted != null && quoted.options.isNotEmpty
         ? [for (final o in quoted.options) o.name]
         : item.optionNames;
-    return AppCard(
+    final addon = item.isAddon;
+    final card = AppCard(
       padding: const EdgeInsets.all(10),
-      onTap: () => context.push(Paths.product(item.productId)),
+      onTap: addon ? null : () => context.push(Paths.product(item.productId)),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           AppNetworkImage(
             url: quoted?.imageUrl ?? item.imageUrl,
             seed: item.productId,
-            width: 84,
-            height: 84,
+            width: addon ? 56 : 84,
+            height: addon ? 56 : 84,
             radius: context.shapes.r(12),
-            placeholderIcon: AppIcons.shop,
+            placeholderIcon: addon ? AppIcons.gift : AppIcons.shop,
           ),
           const SizedBox(width: 12),
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
+                if (withName case final name?)
+                  Text(
+                    context.l10n.addonWith(name),
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    style: TextStyle(fontSize: 12, color: p.textSecondary),
+                  ),
                 Row(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
@@ -906,6 +1025,13 @@ class _LineCard extends ConsumerWidget {
           ),
         ],
       ),
+    );
+    if (!addon) return card;
+    // 131 Indented under the item it goes with.
+    return Padding(
+      key: ValueKey('cart-addon-${item.productId}'),
+      padding: const EdgeInsetsDirectional.only(start: 28),
+      child: card,
     );
   }
 }

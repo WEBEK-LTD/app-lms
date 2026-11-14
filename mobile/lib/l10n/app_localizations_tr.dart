@@ -11820,4 +11820,25 @@ class AppLocalizationsTr extends AppLocalizations {
   @override
   String get giftLocationFailed =>
       'Konumunuz bulunamadı. Lütfen tekrar deneyin.';
+
+  @override
+  String get addonsTitle => 'Biraz daha ekleyin';
+
+  @override
+  String get addonsHint => 'Hediyenizle birlikte gider';
+
+  @override
+  String addonWith(String name) {
+    return '$name ile';
+  }
+
+  @override
+  String addonAdd(String name) {
+    return '$name ekle';
+  }
+
+  @override
+  String salePercentBadge(int percent) {
+    return '−%$percent';
+  }
 }

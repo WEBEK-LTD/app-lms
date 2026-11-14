@@ -11907,4 +11907,25 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get giftLocationFailed =>
       'Your location couldn\'t be found. Please try again.';
+
+  @override
+  String get addonsTitle => 'Add a little more';
+
+  @override
+  String get addonsHint => 'Goes with your gift';
+
+  @override
+  String addonWith(String name) {
+    return 'With $name';
+  }
+
+  @override
+  String addonAdd(String name) {
+    return 'Add $name';
+  }
+
+  @override
+  String salePercentBadge(int percent) {
+    return '−$percent%';
+  }
 }

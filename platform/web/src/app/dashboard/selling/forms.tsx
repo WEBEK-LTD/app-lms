@@ -9,6 +9,9 @@ import { initialFormState } from "@/lib/forms";
 
 /** 131 Store › Delivery & offers: its forms. */
 
+/** A platform tag for the gift add-ons, as an example (a tag, not words). */
+const TAG_EXAMPLE = "yallapp-addon";
+
 function Check({ name, label, hint, defaultChecked, value }: { name: string; label: string; hint?: string; defaultChecked: boolean; value?: string }) {
   return (
     <label className="flex cursor-pointer items-start gap-3">
@@ -414,7 +417,7 @@ export function AddonsForm({ values: saved, tags, platform }: { values: Record<s
       <FormMessage message={state.message} ok={state.ok} />
       <Field label={t("selling.addonIds", { platform })} name="addonProductIds" dir="ltr" defaultValue={v.addonProductIds} hint={t("selling.addonIdsHint")} small />
       <Field label={t("selling.addonCategory", { platform })} name="addonCategoryId" dir="ltr" inputMode="numeric" defaultValue={v.addonCategoryId} hint={t("selling.addonCategoryHint")} error={e.addonCategoryId} small />
-      {tags ? <Field label={t("selling.addonTag", { platform })} name="addonTag" dir="ltr" maxLength={40} defaultValue={v.addonTag} placeholder="yallapp-addon" hint={t("selling.addonTagHint", { platform })} error={e.addonTag} small /> : null}
+      {tags ? <Field label={t("selling.addonTag", { platform })} name="addonTag" dir="ltr" maxLength={40} defaultValue={v.addonTag} placeholder={TAG_EXAMPLE} hint={t("selling.addonTagHint", { platform })} error={e.addonTag} small /> : null}
       <fieldset className="m-0 flex flex-col gap-2 border-0 p-0">
         <legend className="mb-1.5 text-sm font-semibold">{t("shop.addonOfferWith")}</legend>
         {(["all", "categories", "products"] as const).map((k) => (

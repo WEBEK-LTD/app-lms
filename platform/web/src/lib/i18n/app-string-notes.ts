@@ -4924,6 +4924,31 @@ export const APP_STRING_NOTES: Record<string, { en?: string; ar: string; tr: str
     ar: "تعذّرت قراءة موقع الهاتف.",
     tr: "Telefonun konumu okunamadı.",
   },
+  "131 The gift add-ons offered with a product, in the cart and at checkout (chocolates, a card, a vase); the owner may word it their own way.": {
+    en: "The gift add-ons offered with a product, in the cart and at checkout (chocolates, a card, a vase); you can word it your own way in Delivery & offers.",
+    ar: "إضافات الهدايا اللي بتتعرض مع المنتج وفي السلة وعند الدفع (شوكولاتة، كارت، فازة)؛ وتقدر تكتب العنوان بطريقتك في التوصيل والعروض.",
+    tr: "Bir ürünle, sepette ve ödemede sunulan hediye ekleri (çikolata, kart, vazo); başlığı Teslimat ve fırsatlar'da kendi sözlerinizle yazabilirsiniz.",
+  },
+  "131 Under the add-ons' title: they're sent with the gift.": {
+    en: "Under the add-ons' title: they're sent with the gift.",
+    ar: "تحت عنوان الإضافات: بتتبعت مع الهدية.",
+    tr: "Ek ürünlerin başlığının altında: hediyeyle birlikte gönderilirler.",
+  },
+  "131 A gift add-on's line in the cart, under the item it goes with.": {
+    en: "A gift add-on's line in the cart, under the item it goes with.",
+    ar: "سطر إضافة الهدية في السلة، تحت المنتج اللي معاه.",
+    tr: "Sepette bir hediye ekinin satırı, birlikte gittiği ürünün altında.",
+  },
+  "131 Screen readers: the checkbox that adds a gift add-on.": {
+    en: "Read aloud by screen readers: the checkbox that adds a gift add-on.",
+    ar: "بتتقري لقارئ الشاشة: خانة الاختيار اللي بتضيف إضافة الهدية.",
+    tr: "Ekran okuyucular için: bir hediye ekini ekleyen onay kutusu.",
+  },
+  "131 A flash sale's share off on its badge, like −25%.": {
+    en: "A flash sale's share off on its badge, like −25%.",
+    ar: "نسبة خصم عرض الفلاش على الشارة بتاعته، زي −25%.",
+    tr: "Flaş indirimin rozetindeki indirim oranı, örneğin −%25.",
+  },
 };
 
 /** A developer's description without the app's code names: "… lib/core/x.dart uses it …", "(vertical_wording.dart)", a leading roadmap number. */

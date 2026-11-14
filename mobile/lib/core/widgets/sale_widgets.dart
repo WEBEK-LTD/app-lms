@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 
 import '../api/models/commerce_models.dart';
 import '../l10n/l10n.dart';
+import '../theme/app_icons.dart';
 import '../theme/palette.dart';
 
 /// 131 A product's sale, wherever a product shows: the share off on a
@@ -357,5 +358,130 @@ class SaleCorner extends StatelessWidget {
           ),
         );
     }
+  }
+}
+
+/// 131 A flash sale on a product's own page: the "−25%" badge, the new
+/// price with the old one struck through, the countdown to its end
+/// (hours, minutes and seconds) and, for a limited sale, "8 left" with its
+/// stock bar. Hidden once it has ended.
+class ProductFlashSale extends StatefulWidget {
+  const ProductFlashSale({
+    super.key,
+    required this.sale,
+    this.color,
+    this.radius,
+    this.now,
+  });
+
+  final ProductSale sale;
+
+  /// The sale's colour (a Studio look's accent); missing, the app's.
+  final Color? color;
+  final double? radius;
+
+  /// For tests: the clock.
+  final DateTime Function()? now;
+
+  @override
+  State<ProductFlashSale> createState() => _ProductFlashSaleState();
+}
+
+class _ProductFlashSaleState extends State<ProductFlashSale> {
+  bool _ended = false;
+
+  @override
+  Widget build(BuildContext context) {
+    final p = context.palette;
+    final l10n = context.l10n;
+    final sale = widget.sale;
+    final at = widget.now?.call() ?? DateTime.now();
+    if (_ended || !sale.liveAt(at)) return const SizedBox.shrink();
+    final c = widget.color ?? p.accent;
+    final radius = BorderRadius.circular(widget.radius ?? 16);
+    return Container(
+      key: const ValueKey('product-flash-sale'),
+      padding: const EdgeInsets.all(14),
+      decoration: BoxDecoration(
+        color: c.withValues(alpha: 0.08),
+        borderRadius: radius,
+        border: Border.all(color: c.withValues(alpha: 0.35)),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          Row(
+            children: [
+              AppIcon(AppIcons.flashSale, size: 18, color: c),
+              const SizedBox(width: 6),
+              Expanded(
+                child: Text(
+                  l10n.flashSaleTitle,
+                  style: TextStyle(
+                    fontSize: 14,
+                    fontWeight: FontWeight.w800,
+                    color: c,
+                  ),
+                ),
+              ),
+              DecoratedBox(
+                key: const ValueKey('product-flash-percent'),
+                decoration: BoxDecoration(
+                  color: c,
+                  borderRadius: BorderRadius.circular(8),
+                ),
+                child: Padding(
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 8,
+                    vertical: 4,
+                  ),
+                  child: Text(
+                    l10n.salePercentBadge(sale.percentOff),
+                    style: TextStyle(
+                      fontSize: 13,
+                      fontWeight: FontWeight.w900,
+                      color: contrastRatio(Colors.white, c) >= 3
+                          ? Colors.white
+                          : p.text,
+                    ),
+                  ),
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 10),
+          SalePrice(sale: sale, size: 22),
+          if (sale.endsAt != null) ...[
+            const SizedBox(height: 10),
+            Text(
+              l10n.flashEndsIn,
+              style: TextStyle(fontSize: 13, color: p.textSecondary),
+            ),
+            const SizedBox(height: 4),
+            // Smaller on a narrow screen rather than cut.
+            FittedBox(
+              fit: BoxFit.scaleDown,
+              alignment: AlignmentDirectional.centerStart,
+              child: SaleCountdown(
+                endsAt: sale.endsAt!,
+                color: c,
+                now: widget.now,
+                onEnded: () {
+                  if (mounted) setState(() => _ended = true);
+                },
+              ),
+            ),
+          ],
+          if (sale.remaining != null && sale.total != null) ...[
+            const SizedBox(height: 12),
+            SaleStockBar(
+              remaining: sale.remaining!,
+              total: sale.total!,
+              color: c,
+            ),
+          ],
+        ],
+      ),
+    );
   }
 }

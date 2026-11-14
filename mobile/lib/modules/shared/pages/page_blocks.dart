@@ -752,8 +752,8 @@ class _ItemText extends StatelessWidget {
             sale: sale,
             color: parseHexColor(SaleBadgeScope.of(context).color),
           ),
-          if (SaleBadgeScope.of(context).countdown &&
-              sale.endsSoon(DateTime.now()))
+          // A flash sale's countdown, whenever it has an end.
+          if (SaleBadgeScope.of(context).countdown && sale.endsAt != null)
             SaleCountdown(endsAt: sale.endsAt!, compact: true),
         ],
         if (price != null && price.isNotEmpty) ...[

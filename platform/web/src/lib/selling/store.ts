@@ -166,9 +166,11 @@ export async function checkStoreCheckout(
   if (!gift.ok) return gift;
   const input = (body ?? {}) as { recipient?: unknown; delivery_address?: unknown };
   const rules = shippingRulesOf(catalogSettings(app));
-  const place = needsPlace(rules) ? placeOf(mode === "gift" ? input.recipient : (input.delivery_address ?? input.recipient)) : null;
+  const byPlace = needsPlace(rules);
+  // A price per kg needs no place: with flat shipping anywhere it's priced as it is.
+  const place = byPlace || rules.weight ? placeOf(mode === "gift" ? input.recipient : (input.delivery_address ?? input.recipient)) : null;
   let shipping: Extract<ShippingQuote, { ok: true }> | null = null;
-  if (place && (opts.requirePlace || place.country || place.city || place.lat !== null)) {
+  if (place && (!byPlace || opts.requirePlace || place.country || place.city || place.lat !== null)) {
     const quoted = quoteShipping(rules, { subtotalCents: opts.subtotalCents, physical: opts.physical, place, weightGrams: opts.weightGrams });
     if (!quoted.ok) return { ok: false, status: 400, code: quoted.code, message: quoted.message };
     shipping = quoted;

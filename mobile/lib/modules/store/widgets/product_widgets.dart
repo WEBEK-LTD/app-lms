@@ -176,9 +176,10 @@ class ProductCard extends StatelessWidget {
                 ),
                 const SizedBox(height: 6),
                 ProductPriceLabel(product.price, size: 14),
-                // 131 A sale ending within a day: a small countdown.
+                // 131 A flash sale (one with an end): its countdown, live.
                 if (product.sale case final sale?
-                    when sale.endsSoon(DateTime.now())) ...[
+                    when sale.endsAt != null &&
+                        sale.liveAt(DateTime.now())) ...[
                   const SizedBox(height: 3),
                   SaleCountdown(endsAt: sale.endsAt!, compact: true),
                 ],

@@ -18,6 +18,8 @@ import '../../shared/pages/recently_viewed.dart';
 import '../data/cart_controller.dart';
 import '../data/store_providers.dart';
 import '../../../core/widgets/sale_widgets.dart';
+import '../widgets/addon_widgets.dart';
+import '../widgets/gift_checkout.dart' show ownedTitle;
 import '../widgets/option_sheet.dart';
 import '../widgets/product_widgets.dart';
 import '../../../core/l10n/l10n.dart';
@@ -64,6 +66,9 @@ class _ProductViewState extends ConsumerState<_ProductView> {
   final Map<String, String> _chosen = {};
   int _quantity = 1;
   int _image = 0;
+
+  /// 131 The gift add-ons chosen to go with it ("Add a little more").
+  final Set<int> _addons = {};
 
   ProductDetail get _product => widget.product;
 
@@ -132,6 +137,25 @@ class _ProductViewState extends ConsumerState<_ProductView> {
   }
 
   void _added(bool added) {
+    // 131 The add-ons chosen go in as lines linked to this one.
+    if (added && _addons.isNotEmpty) {
+      final cart = ref.read(cartProvider.notifier);
+      for (final a in AddonPicker.offered(_product.addons)) {
+        if (!_addons.contains(a.id)) continue;
+        cart.toggleAddon(
+          CartItem(
+            productId: a.id,
+            quantity: 1,
+            name: a.name,
+            imageUrl: a.imageUrl,
+            price: a.sale?.nowFormatted ?? a.price.formatted,
+          ),
+          _product.id,
+          true,
+        );
+      }
+      setState(_addons.clear);
+    }
     final messenger = ScaffoldMessenger.maybeOf(context);
     messenger
       ?..hideCurrentSnackBar()
@@ -276,7 +300,18 @@ class _ProductViewState extends ConsumerState<_ProductView> {
                 ProductPriceLabel(price, size: 20),
                 // 131 Its sale: the share off, the countdown to its end and
                 // what's left at this price.
+                // A flash sale (an end or a number of units): its own block.
                 if (product.summary.sale case final sale?
+                    when sale.liveAt(DateTime.now()) &&
+                        (sale.endsAt != null || sale.remaining != null)) ...[
+                  const SizedBox(height: 12),
+                  ProductFlashSale(
+                    sale: sale,
+                    color: parseHexColor(
+                      ref.watch(appConfigProvider).screens?.checkout?.accent,
+                    ),
+                  ),
+                ] else if (product.summary.sale case final sale?
                     when sale.liveAt(DateTime.now())) ...[
                   const SizedBox(height: 8),
                   Wrap(
@@ -376,6 +411,34 @@ class _ProductViewState extends ConsumerState<_ProductView> {
                     quantity: _quantity,
                     max: max,
                     onChanged: (q) => setState(() => _quantity = q),
+                  ),
+                ],
+                // 131 "Add a little more": the gift add-ons offered with it.
+                if (AddonPicker.offered(product.addons).isNotEmpty) ...[
+                  const SizedBox(height: 20),
+                  Builder(
+                    builder: (context) {
+                      final config = ref.watch(appConfigProvider);
+                      final look = config.screens?.checkout;
+                      return AddonPicker(
+                        addons: product.addons,
+                        selected: _addons,
+                        look: look,
+                        title: ownedTitle(
+                          context,
+                          SectionTitle.addons,
+                          look: look,
+                          store: config.store,
+                        ),
+                        onChanged: (a, on) => setState(() {
+                          if (on) {
+                            _addons.add(a.id);
+                          } else {
+                            _addons.remove(a.id);
+                          }
+                        }),
+                      );
+                    },
                   ),
                 ],
                 if (product.descriptionHtml.trim().isNotEmpty) ...[

@@ -12949,5 +12949,40 @@
   "giftLocationFailed": "Your location couldn't be found. Please try again.",
   "@giftLocationFailed": {
     "description": "131 The phone's place couldn't be read."
+  },
+  "addonsTitle": "Add a little more",
+  "@addonsTitle": {
+    "description": "131 The gift add-ons offered with a product, in the cart and at checkout (chocolates, a card, a vase); the owner may word it their own way."
+  },
+  "addonsHint": "Goes with your gift",
+  "@addonsHint": {
+    "description": "131 Under the add-ons' title: they're sent with the gift."
+  },
+  "addonWith": "With {name}",
+  "@addonWith": {
+    "description": "131 A gift add-on's line in the cart, under the item it goes with.",
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "addonAdd": "Add {name}",
+  "@addonAdd": {
+    "description": "131 Screen readers: the checkbox that adds a gift add-on.",
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "salePercentBadge": "−{percent}%",
+  "@salePercentBadge": {
+    "description": "131 A flash sale's share off on its badge, like −25%.",
+    "placeholders": {
+      "percent": {
+        "type": "int"
+      }
+    }
   }
 }

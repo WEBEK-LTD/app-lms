@@ -3157,5 +3157,10 @@
   "orderDeliveryOn": "Teslimat: {date}",
   "orderRecipient": "Alıcı: {name}",
   "giftUseLocation": "Teslimat için konumumu kullan",
-  "giftLocationFailed": "Konumunuz bulunamadı. Lütfen tekrar deneyin."
+  "giftLocationFailed": "Konumunuz bulunamadı. Lütfen tekrar deneyin.",
+  "addonsTitle": "Biraz daha ekleyin",
+  "addonsHint": "Hediyenizle birlikte gider",
+  "addonWith": "{name} ile",
+  "addonAdd": "{name} ekle",
+  "salePercentBadge": "−%{percent}"
 }

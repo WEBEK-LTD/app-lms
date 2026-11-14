@@ -12299,4 +12299,25 @@ class AppLocalizationsAr extends AppLocalizations {
   @override
   String get giftLocationFailed =>
       'تعذّر تحديد موقعك. يُرجى المحاولة مرة أخرى.';
+
+  @override
+  String get addonsTitle => 'أضف لمسة إضافية';
+
+  @override
+  String get addonsHint => 'تُرسَل مع هديتك';
+
+  @override
+  String addonWith(String name) {
+    return 'مع $name';
+  }
+
+  @override
+  String addonAdd(String name) {
+    return 'أضف $name';
+  }
+
+  @override
+  String salePercentBadge(int percent) {
+    return '−$percent٪';
+  }
 }

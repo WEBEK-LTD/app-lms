@@ -3155,4 +3155,9 @@
 {"key":"orderDeliveryOn","en":"Delivery: {date}","ar":"التوصيل: {date}","tr":"Teslimat: {date}","description":"131 An order's delivery day and time.","placeholders":{"date":"String"}},
 {"key":"orderRecipient","en":"For {name}","ar":"إلى {name}","tr":"Alıcı: {name}","description":"131 Who an order goes to.","placeholders":{"name":"String"}},
 {"key":"giftUseLocation","en":"Use my location for the delivery","ar":"استخدم موقعي للتوصيل","tr":"Teslimat için konumumu kullan","description":"131 Sets where it goes from the phone's place, for shipping by distance."},
-{"key":"giftLocationFailed","en":"Your location couldn't be found. Please try again.","ar":"تعذّر تحديد موقعك. يُرجى المحاولة مرة أخرى.","tr":"Konumunuz bulunamadı. Lütfen tekrar deneyin.","description":"131 The phone's place couldn't be read."}]}
+{"key":"giftLocationFailed","en":"Your location couldn't be found. Please try again.","ar":"تعذّر تحديد موقعك. يُرجى المحاولة مرة أخرى.","tr":"Konumunuz bulunamadı. Lütfen tekrar deneyin.","description":"131 The phone's place couldn't be read."},
+{"key":"addonsTitle","en":"Add a little more","ar":"أضف لمسة إضافية","tr":"Biraz daha ekleyin","description":"131 The gift add-ons offered with a product, in the cart and at checkout (chocolates, a card, a vase); the owner may word it their own way."},
+{"key":"addonsHint","en":"Goes with your gift","ar":"تُرسَل مع هديتك","tr":"Hediyenizle birlikte gider","description":"131 Under the add-ons' title: they're sent with the gift."},
+{"key":"addonWith","en":"With {name}","ar":"مع {name}","tr":"{name} ile","description":"131 A gift add-on's line in the cart, under the item it goes with.","placeholders":{"name":"String"}},
+{"key":"addonAdd","en":"Add {name}","ar":"أضف {name}","tr":"{name} ekle","description":"131 Screen readers: the checkbox that adds a gift add-on.","placeholders":{"name":"String"}},
+{"key":"salePercentBadge","en":"−{percent}%","ar":"−{percent}٪","tr":"−%{percent}","description":"131 A flash sale's share off on its badge, like −25%.","placeholders":{"percent":"int"}}]}

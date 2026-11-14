@@ -12582,4 +12582,23 @@ class OverlayLocalizations extends AppLocalizations {
   @override
   String get giftLocationFailed =>
       overlay.text('giftLocationFailed') ?? base.giftLocationFailed;
+
+  @override
+  String get addonsTitle => overlay.text('addonsTitle') ?? base.addonsTitle;
+
+  @override
+  String get addonsHint => overlay.text('addonsHint') ?? base.addonsHint;
+
+  @override
+  String addonWith(String name) =>
+      overlay.format('addonWith', {'name': name}) ?? base.addonWith(name);
+
+  @override
+  String addonAdd(String name) =>
+      overlay.format('addonAdd', {'name': name}) ?? base.addonAdd(name);
+
+  @override
+  String salePercentBadge(int percent) =>
+      overlay.format('salePercentBadge', {'percent': percent}) ??
+      base.salePercentBadge(percent);
 }
