@@ -43,7 +43,9 @@ function projectApp(id: StudioDemoId): App {
 }
 
 function contextOf(app: App, lang: "en" | "ar" | "tr" = "en"): SectionContext {
-  return { brand: app.primaryColor, source: itemSourcesFor(app)[0] ?? null, app: app.appName!, lang, w: (word: SectionWord) => String(WORDS[lang][`w_${word}`]).replaceAll("{app}", app.appName!), picture: (f) => `${appUrl()}/design-pictures/${f}` };
+  // The same ids each time, so the pictures' project stays the same until the look changes.
+  let n = 0;
+  return { brand: app.primaryColor, source: itemSourcesFor(app)[0] ?? null, app: app.appName!, lang, w: (word: SectionWord) => String(WORDS[lang][`w_${word}`]).replaceAll("{app}", app.appName!), picture: (f) => `${appUrl()}/design-pictures/${f}`, newId: () => `sig-${++n}` };
 }
 
 /** A new project from the look's template, as /start and Studio make it. */

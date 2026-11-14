@@ -100,11 +100,11 @@
      "background": "#EDF0EA",
      "dark_background": "#0C1716",
      "body": {
-      "id": "nwx0yg58",
+      "id": "sig-1",
       "type": "column",
       "children": [
        {
-        "id": "n2i0ctnn",
+        "id": "sig-2",
         "type": "map_header",
         "name": "Where to?",
         "height": 676,
@@ -208,18 +208,18 @@
         },
         "children": [
          {
-          "id": "ntwvhxoo",
+          "id": "sig-3",
           "type": "column",
           "gap": 10,
           "children": [
            {
-            "id": "nb8xi7g8",
+            "id": "sig-4",
             "type": "row",
             "gap": 10,
             "cross": "center",
             "children": [
              {
-              "id": "ntmca5py",
+              "id": "sig-5",
               "type": "row",
               "width": 44,
               "height": 44,
@@ -238,7 +238,7 @@
               },
               "children": [
                {
-                "id": "n254ouvu",
+                "id": "sig-6",
                 "type": "icon",
                 "icon": "person",
                 "icon_size": 22,
@@ -248,7 +248,7 @@
               ]
              },
              {
-              "id": "n62w8k3q",
+              "id": "sig-7",
               "type": "row",
               "height": 44,
               "radius": 22,
@@ -267,7 +267,7 @@
               },
               "children": [
                {
-                "id": "n6t78msu",
+                "id": "sig-8",
                 "type": "row",
                 "width": 8,
                 "height": 8,
@@ -277,7 +277,7 @@
                 "children": []
                },
                {
-                "id": "nvs9n04h",
+                "id": "sig-9",
                 "type": "greeting",
                 "color": "#0B2422",
                 "dark_color": "#E9F5F3",
@@ -289,14 +289,14 @@
               ]
              },
              {
-              "id": "nn8s9ugf",
+              "id": "sig-10",
               "type": "row",
               "width": "fill",
               "height": 1,
               "children": []
              },
              {
-              "id": "n2tfsxvy",
+              "id": "sig-11",
               "type": "row",
               "width": 44,
               "height": 44,
@@ -315,7 +315,7 @@
               },
               "children": [
                {
-                "id": "nnpknb9h",
+                "id": "sig-12",
                 "type": "icon",
                 "icon": "notifications",
                 "icon_size": 22,
@@ -327,7 +327,7 @@
             ]
            },
            {
-            "id": "nq33ripm",
+            "id": "sig-13",
             "type": "column",
             "name": "On the way",
             "visibility": "signed_in",
@@ -345,7 +345,7 @@
             },
             "children": [
              {
-              "id": "nsw01rs7",
+              "id": "sig-14",
               "type": "tracking",
               "tracking": {
                "kind": "ride",
@@ -361,19 +361,19 @@
           ]
          },
          {
-          "id": "na6bowxi",
+          "id": "sig-15",
           "type": "column",
           "gap": 10,
           "children": [
            {
-            "id": "na8slmz5",
+            "id": "sig-16",
             "type": "row",
             "name": "Economy",
             "gap": 8,
             "cross": "stretch",
             "children": [
              {
-              "id": "nns0yt7d",
+              "id": "sig-17",
               "type": "column",
               "name": "Economy",
               "width": "fill",
@@ -395,12 +395,12 @@
               "shadow": "medium",
               "children": [
                {
-                "id": "nz9vt8v2",
+                "id": "sig-18",
                 "type": "row",
                 "cross": "center",
                 "children": [
                  {
-                  "id": "novc6ioj",
+                  "id": "sig-19",
                   "type": "icon",
                   "icon": "directions_car",
                   "icon_size": 22,
@@ -408,14 +408,14 @@
                   "dark_color": "#04201D"
                  },
                  {
-                  "id": "nuwi7hts",
+                  "id": "sig-20",
                   "type": "row",
                   "width": "fill",
                   "height": 1,
                   "children": []
                  },
                  {
-                  "id": "n3va2odq",
+                  "id": "sig-21",
                   "type": "icon",
                   "icon": "person",
                   "icon_size": 14,
@@ -423,7 +423,7 @@
                   "dark_color": "#0B3A35"
                  },
                  {
-                  "id": "ntcc8htt",
+                  "id": "sig-22",
                   "type": "text",
                   "text": "4",
                   "color": "#E6F4F1",
@@ -436,11 +436,11 @@
                 ]
                },
                {
-                "id": "n54tdqks",
+                "id": "sig-23",
                 "type": "column",
                 "children": [
                  {
-                  "id": "nw61wklc",
+                  "id": "sig-24",
                   "type": "text",
                   "text": "Economy",
                   "color": "#FFFFFF",
@@ -459,13 +459,13 @@
                   }
                  },
                  {
-                  "id": "nj31xcb0",
+                  "id": "sig-25",
                   "type": "row",
                   "gap": 3,
                   "cross": "end",
                   "children": [
                    {
-                    "id": "nkwcnq6r",
+                    "id": "sig-26",
                     "type": "text",
                     "text": "from E£",
                     "color": "#E6F4F1",
@@ -484,7 +484,7 @@
                     }
                    },
                    {
-                    "id": "nvhca73h",
+                    "id": "sig-27",
                     "type": "text",
                     "text": "35",
                     "color": "#FFFFFF",
@@ -503,7 +503,7 @@
               ]
              },
              {
-              "id": "nlaecfs6",
+              "id": "sig-28",
               "type": "column",
               "name": "Comfort",
               "width": "fill",
@@ -527,12 +527,12 @@
               },
               "children": [
                {
-                "id": "n4uw14h3",
+                "id": "sig-29",
                 "type": "row",
                 "cross": "center",
                 "children": [
                  {
-                  "id": "nvqlb0w6",
+                  "id": "sig-30",
                   "type": "icon",
                   "icon": "local_taxi",
                   "icon_size": 22,
@@ -540,14 +540,14 @@
                   "dark_color": "#E9F5F3"
                  },
                  {
-                  "id": "nggkix2z",
+                  "id": "sig-31",
                   "type": "row",
                   "width": "fill",
                   "height": 1,
                   "children": []
                  },
                  {
-                  "id": "n5lzredt",
+                  "id": "sig-32",
                   "type": "icon",
                   "icon": "person",
                   "icon_size": 14,
@@ -555,7 +555,7 @@
                   "dark_color": "#A3BDB8"
                  },
                  {
-                  "id": "n0q3mf54",
+                  "id": "sig-33",
                   "type": "text",
                   "text": "4",
                   "color": "#4C5F5C",
@@ -568,11 +568,11 @@
                 ]
                },
                {
-                "id": "nc501guk",
+                "id": "sig-34",
                 "type": "column",
                 "children": [
                  {
-                  "id": "nzigbae8",
+                  "id": "sig-35",
                   "type": "text",
                   "text": "Comfort",
                   "color": "#0B2422",
@@ -591,13 +591,13 @@
                   }
                  },
                  {
-                  "id": "n55parap",
+                  "id": "sig-36",
                   "type": "row",
                   "gap": 3,
                   "cross": "end",
                   "children": [
                    {
-                    "id": "nvoadu49",
+                    "id": "sig-37",
                     "type": "text",
                     "text": "from E£",
                     "color": "#4C5F5C",
@@ -616,7 +616,7 @@
                     }
                    },
                    {
-                    "id": "nwgoyqn1",
+                    "id": "sig-38",
                     "type": "text",
                     "text": "50",
                     "color": "#0B2422",
@@ -635,7 +635,7 @@
               ]
              },
              {
-              "id": "nv852k4a",
+              "id": "sig-39",
               "type": "column",
               "name": "Van",
               "width": "fill",
@@ -659,12 +659,12 @@
               },
               "children": [
                {
-                "id": "n304qw7w",
+                "id": "sig-40",
                 "type": "row",
                 "cross": "center",
                 "children": [
                  {
-                  "id": "nk9kxbjz",
+                  "id": "sig-41",
                   "type": "icon",
                   "icon": "airport_shuttle",
                   "icon_size": 22,
@@ -672,14 +672,14 @@
                   "dark_color": "#E9F5F3"
                  },
                  {
-                  "id": "ncj5wunu",
+                  "id": "sig-42",
                   "type": "row",
                   "width": "fill",
                   "height": 1,
                   "children": []
                  },
                  {
-                  "id": "ngja7hnb",
+                  "id": "sig-43",
                   "type": "icon",
                   "icon": "person",
                   "icon_size": 14,
@@ -687,7 +687,7 @@
                   "dark_color": "#A3BDB8"
                  },
                  {
-                  "id": "n7ivsdki",
+                  "id": "sig-44",
                   "type": "text",
                   "text": "7",
                   "color": "#4C5F5C",
@@ -700,11 +700,11 @@
                 ]
                },
                {
-                "id": "npkp87fm",
+                "id": "sig-45",
                 "type": "column",
                 "children": [
                  {
-                  "id": "nb0avui8",
+                  "id": "sig-46",
                   "type": "text",
                   "text": "Van",
                   "color": "#0B2422",
@@ -723,13 +723,13 @@
                   }
                  },
                  {
-                  "id": "ncxeat5e",
+                  "id": "sig-47",
                   "type": "row",
                   "gap": 3,
                   "cross": "end",
                   "children": [
                    {
-                    "id": "nzlmwdvp",
+                    "id": "sig-48",
                     "type": "text",
                     "text": "from E£",
                     "color": "#4C5F5C",
@@ -748,7 +748,7 @@
                     }
                    },
                    {
-                    "id": "n5lm9m1m",
+                    "id": "sig-49",
                     "type": "text",
                     "text": "80",
                     "color": "#0B2422",
@@ -769,7 +769,7 @@
             ]
            },
            {
-            "id": "nnq7aaua",
+            "id": "sig-50",
             "type": "row",
             "name": "Where to?",
             "height": 68,
@@ -793,7 +793,7 @@
             },
             "children": [
              {
-              "id": "nx18177w",
+              "id": "sig-51",
               "type": "row",
               "width": 46,
               "height": 46,
@@ -805,7 +805,7 @@
               "dark_background": "#5FD3C2",
               "children": [
                {
-                "id": "nyley76v",
+                "id": "sig-52",
                 "type": "icon",
                 "icon": "search",
                 "icon_size": 24,
@@ -815,7 +815,7 @@
               ]
              },
              {
-              "id": "ndjnsbp7",
+              "id": "sig-53",
               "type": "text",
               "text": "Where to?",
               "color": "#0B2422",
@@ -836,7 +836,7 @@
               }
              },
              {
-              "id": "nwsyg4y8",
+              "id": "sig-54",
               "type": "row",
               "height": 40,
               "radius": 20,
@@ -854,7 +854,7 @@
               "border_width": 1,
               "children": [
                {
-                "id": "nnveq1qf",
+                "id": "sig-55",
                 "type": "icon",
                 "icon": "schedule",
                 "icon_size": 18,
@@ -862,7 +862,7 @@
                 "dark_color": "#5FD3C2"
                },
                {
-                "id": "nnlmi3nz",
+                "id": "sig-56",
                 "type": "text",
                 "text": "Now",
                 "color": "#0B2422",
@@ -905,11 +905,11 @@
     },
     "studio": {
      "body": {
-      "id": "nw6wnxml",
+      "id": "sig-60",
       "type": "column",
       "children": [
        {
-        "id": "nf86t153",
+        "id": "sig-63",
         "type": "photo_hero",
         "name": "Home safe, every ride",
         "image_url": "http://localhost:3000/stories/rides/rides-arrive-home.jpg",
@@ -938,7 +938,7 @@
         },
         "children": [
          {
-          "id": "nlsruh17",
+          "id": "sig-61",
           "type": "text",
           "text": "Home safe, every ride",
           "color": "#FFFFFF",
@@ -957,7 +957,7 @@
           }
          },
          {
-          "id": "nbpyj0vu",
+          "id": "sig-62",
           "type": "text",
           "text": "Your rides, their fares and receipts.",
           "color": "#FFFFFF",
@@ -1022,7 +1022,7 @@
     },
     "studio": {
      "body": {
-      "id": "nims8nfz",
+      "id": "sig-64",
       "type": "column",
       "children": []
      },
@@ -1047,11 +1047,11 @@
     },
     "studio": {
      "body": {
-      "id": "nv7n5pay",
+      "id": "sig-65",
       "type": "column",
       "children": [
        {
-        "id": "nxr1asx5",
+        "id": "sig-73",
         "type": "column",
         "name": "On the way",
         "visibility": "signed_in",
@@ -1075,7 +1075,7 @@
         },
         "children": [
          {
-          "id": "nrvy9mkq",
+          "id": "sig-74",
           "type": "tracking",
           "tracking": {
            "kind": "ride",
@@ -1127,7 +1127,7 @@
     },
     "studio": {
      "body": {
-      "id": "nw8085t0",
+      "id": "sig-66",
       "type": "column",
       "children": []
      },
@@ -1168,7 +1168,7 @@
     },
     "studio": {
      "body": {
-      "id": "npg3rele",
+      "id": "sig-67",
       "type": "column",
       "children": []
      },
@@ -1209,7 +1209,7 @@
     },
     "studio": {
      "body": {
-      "id": "n7knsfms",
+      "id": "sig-68",
       "type": "column",
       "children": []
      },
@@ -1250,7 +1250,7 @@
     },
     "studio": {
      "body": {
-      "id": "ncutea6b",
+      "id": "sig-69",
       "type": "column",
       "children": []
      },
@@ -1283,7 +1283,7 @@
     "title": "Change password",
     "studio": {
      "body": {
-      "id": "nwz0osx3",
+      "id": "sig-70",
       "type": "column",
       "children": []
      },
@@ -1300,7 +1300,7 @@
     "title": "A conversation",
     "studio": {
      "body": {
-      "id": "nlr0ulo7",
+      "id": "sig-71",
       "type": "column",
       "children": []
      },
@@ -1317,7 +1317,7 @@
     "title": "A ride on its way",
     "studio": {
      "body": {
-      "id": "nnx3hgkw",
+      "id": "sig-72",
       "type": "column",
       "children": []
      },

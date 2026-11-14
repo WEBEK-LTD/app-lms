@@ -101,7 +101,7 @@
      "background": "#F6F5F1",
      "dark_background": "#0A0F1E",
      "body": {
-      "id": "nsadt03a",
+      "id": "sig-1",
       "type": "column",
       "padding": {
        "top": 8,
@@ -109,7 +109,7 @@
       },
       "children": [
        {
-        "id": "nd8yts2u",
+        "id": "sig-2",
         "type": "row",
         "gap": 10,
         "cross": "center",
@@ -121,7 +121,7 @@
         },
         "children": [
          {
-          "id": "n66pdhc3",
+          "id": "sig-3",
           "type": "row",
           "width": 10,
           "height": 10,
@@ -131,7 +131,7 @@
           "children": []
          },
          {
-          "id": "nq0eiizl",
+          "id": "sig-4",
           "type": "text",
           "text": "Lamha Taxi",
           "color": "#141B2E",
@@ -151,7 +151,7 @@
           }
          },
          {
-          "id": "namqun11",
+          "id": "sig-5",
           "type": "row",
           "width": 44,
           "height": 44,
@@ -168,7 +168,7 @@
           "border_width": 1,
           "children": [
            {
-            "id": "n85sieg8",
+            "id": "sig-6",
             "type": "icon",
             "icon": "notifications",
             "icon_size": 22,
@@ -178,7 +178,7 @@
           ]
          },
          {
-          "id": "nx30egeo",
+          "id": "sig-7",
           "type": "row",
           "width": 44,
           "height": 44,
@@ -194,7 +194,7 @@
           "dark_background": "#1C2541",
           "children": [
            {
-            "id": "nr2gfsyh",
+            "id": "sig-8",
             "type": "icon",
             "icon": "person",
             "icon_size": 22,
@@ -206,7 +206,7 @@
         ]
        },
        {
-        "id": "n5f907ok",
+        "id": "sig-9",
         "type": "tracking",
         "tracking": {
          "kind": "nearby_taxis",
@@ -229,7 +229,7 @@
         }
        },
        {
-        "id": "nlii9tge",
+        "id": "sig-10",
         "type": "text",
         "text": "Free taxis around you.",
         "color": "#141B2E",
@@ -257,7 +257,7 @@
         }
        },
        {
-        "id": "nol1nb58",
+        "id": "sig-11",
         "type": "map_header",
         "name": "Free taxis around you.",
         "height": 300,
@@ -322,7 +322,7 @@
         "children": []
        },
        {
-        "id": "nboy7e69",
+        "id": "sig-12",
         "type": "column",
         "gap": 12,
         "padding": {
@@ -333,7 +333,7 @@
         },
         "children": [
          {
-          "id": "n84086qr",
+          "id": "sig-13",
           "type": "row",
           "name": "Where to?",
           "height": 56,
@@ -358,7 +358,7 @@
           },
           "children": [
            {
-            "id": "ngfxwa4w",
+            "id": "sig-14",
             "type": "row",
             "width": 44,
             "height": 44,
@@ -369,7 +369,7 @@
             "background": "#F5B700",
             "children": [
              {
-              "id": "nxc9mznx",
+              "id": "sig-15",
               "type": "icon",
               "icon": "search",
               "icon_size": 22,
@@ -379,7 +379,7 @@
             ]
            },
            {
-            "id": "nfd79f6q",
+            "id": "sig-16",
             "type": "text",
             "text": "Where to?",
             "color": "#FFFFFF",
@@ -399,7 +399,7 @@
             }
            },
            {
-            "id": "nh4tfm4p",
+            "id": "sig-17",
             "type": "row",
             "height": 44,
             "radius": 22,
@@ -416,7 +416,7 @@
             "dark_background": "#2E3653",
             "children": [
              {
-              "id": "ni5jalx4",
+              "id": "sig-18",
               "type": "icon",
               "icon": "schedule",
               "icon_size": 18,
@@ -424,7 +424,7 @@
               "dark_color": "#F5B700"
              },
              {
-              "id": "nn1j70uc",
+              "id": "sig-19",
               "type": "text",
               "text": "Now",
               "color": "#FFFFFF",
@@ -447,7 +447,7 @@
           ]
          },
          {
-          "id": "nmdlvq7q",
+          "id": "sig-20",
           "type": "row",
           "name": "Taxi",
           "height": 56,
@@ -464,7 +464,7 @@
           "dark_background": "#151D33",
           "children": [
            {
-            "id": "niohvy9c",
+            "id": "sig-21",
             "type": "column",
             "name": "Taxi",
             "width": "fill",
@@ -479,7 +479,7 @@
             "shadow": "light",
             "children": [
              {
-              "id": "nel08ii9",
+              "id": "sig-22",
               "type": "text",
               "text": "Taxi",
               "color": "#1C2541",
@@ -498,13 +498,13 @@
               }
              },
              {
-              "id": "noxi565y",
+              "id": "sig-23",
               "type": "row",
               "width": "hug",
               "gap": 2,
               "children": [
                {
-                "id": "n2l0dicg",
+                "id": "sig-24",
                 "type": "text",
                 "text": "from E£",
                 "color": "#3D3206",
@@ -523,7 +523,7 @@
                 }
                },
                {
-                "id": "nrtjjnwl",
+                "id": "sig-25",
                 "type": "text",
                 "text": "35",
                 "color": "#3D3206",
@@ -539,7 +539,7 @@
             ]
            },
            {
-            "id": "n6ayeqsf",
+            "id": "sig-26",
             "type": "column",
             "name": "Comfort",
             "width": "fill",
@@ -552,7 +552,7 @@
             },
             "children": [
              {
-              "id": "nemph05g",
+              "id": "sig-27",
               "type": "text",
               "text": "Comfort",
               "color": "#141B2E",
@@ -571,13 +571,13 @@
               }
              },
              {
-              "id": "n7dh0xqu",
+              "id": "sig-28",
               "type": "row",
               "width": "hug",
               "gap": 2,
               "children": [
                {
-                "id": "n8dzc3gm",
+                "id": "sig-29",
                 "type": "text",
                 "text": "from E£",
                 "color": "#565D72",
@@ -596,7 +596,7 @@
                 }
                },
                {
-                "id": "n37hj130",
+                "id": "sig-30",
                 "type": "text",
                 "text": "55",
                 "color": "#565D72",
@@ -612,7 +612,7 @@
             ]
            },
            {
-            "id": "n1llm84v",
+            "id": "sig-31",
             "type": "column",
             "name": "XL",
             "width": "fill",
@@ -625,7 +625,7 @@
             },
             "children": [
              {
-              "id": "n3rtixrp",
+              "id": "sig-32",
               "type": "text",
               "text": "XL",
               "color": "#141B2E",
@@ -644,13 +644,13 @@
               }
              },
              {
-              "id": "nk7yclf8",
+              "id": "sig-33",
               "type": "row",
               "width": "hug",
               "gap": 2,
               "children": [
                {
-                "id": "nraetvy5",
+                "id": "sig-34",
                 "type": "text",
                 "text": "from E£",
                 "color": "#565D72",
@@ -669,7 +669,7 @@
                 }
                },
                {
-                "id": "no96tefe",
+                "id": "sig-35",
                 "type": "text",
                 "text": "85",
                 "color": "#565D72",
@@ -687,7 +687,7 @@
           ]
          },
          {
-          "id": "nxa93ogm",
+          "id": "sig-36",
           "type": "photo_hero",
           "name": "One fare, day or night",
           "image_url": "http://localhost:3000/stories/rides/rides-waiting.jpg",
@@ -714,19 +714,19 @@
           },
           "children": [
            {
-            "id": "nqpl1kmy",
+            "id": "sig-37",
             "type": "row",
             "gap": 12,
             "cross": "center",
             "children": [
              {
-              "id": "nuqkrmgs",
+              "id": "sig-38",
               "type": "column",
               "width": "fill",
               "gap": 3,
               "children": [
                {
-                "id": "ndpoh8bv",
+                "id": "sig-39",
                 "type": "text",
                 "text": "Airport · set price",
                 "color": "#F5B700",
@@ -747,7 +747,7 @@
                 }
                },
                {
-                "id": "n4z28gj0",
+                "id": "sig-40",
                 "type": "text",
                 "text": "One fare, day or night",
                 "color": "#FFFFFF",
@@ -767,7 +767,7 @@
                 }
                },
                {
-                "id": "nnpjv8s9",
+                "id": "sig-41",
                 "type": "text",
                 "text": "To and from Cairo International",
                 "color": "#C9CEDD",
@@ -789,7 +789,7 @@
               ]
              },
              {
-              "id": "noxmtjjc",
+              "id": "sig-42",
               "type": "row",
               "width": 44,
               "height": 44,
@@ -800,7 +800,7 @@
               "background": "#F5B700",
               "children": [
                {
-                "id": "nawvtjzu",
+                "id": "sig-43",
                 "type": "icon",
                 "icon": "arrow_forward",
                 "icon_size": 22,
@@ -832,11 +832,11 @@
     },
     "studio": {
      "body": {
-      "id": "njp161vz",
+      "id": "sig-47",
       "type": "column",
       "children": [
        {
-        "id": "nwwrl2oy",
+        "id": "sig-50",
         "type": "photo_hero",
         "name": "Your rides, day and night",
         "image_url": "http://localhost:3000/stories/rides/rides-waiting.jpg",
@@ -865,7 +865,7 @@
         },
         "children": [
          {
-          "id": "n74o9s7k",
+          "id": "sig-48",
           "type": "text",
           "text": "Your rides, day and night",
           "color": "#FFFFFF",
@@ -884,7 +884,7 @@
           }
          },
          {
-          "id": "nk7zdjuu",
+          "id": "sig-49",
           "type": "text",
           "text": "Your rides, their fares and receipts.",
           "color": "#FFFFFF",
@@ -949,7 +949,7 @@
     },
     "studio": {
      "body": {
-      "id": "nt75htzb",
+      "id": "sig-51",
       "type": "column",
       "children": []
      },
@@ -974,11 +974,11 @@
     },
     "studio": {
      "body": {
-      "id": "nxozptmp",
+      "id": "sig-52",
       "type": "column",
       "children": [
        {
-        "id": "nrs5jywv",
+        "id": "sig-60",
         "type": "tracking",
         "tracking": {
          "kind": "nearby_taxis",
@@ -1038,7 +1038,7 @@
     },
     "studio": {
      "body": {
-      "id": "n5qt3i5r",
+      "id": "sig-53",
       "type": "column",
       "children": []
      },
@@ -1079,7 +1079,7 @@
     },
     "studio": {
      "body": {
-      "id": "nvjl4y7v",
+      "id": "sig-54",
       "type": "column",
       "children": []
      },
@@ -1120,7 +1120,7 @@
     },
     "studio": {
      "body": {
-      "id": "nu9k8gvb",
+      "id": "sig-55",
       "type": "column",
       "children": []
      },
@@ -1161,7 +1161,7 @@
     },
     "studio": {
      "body": {
-      "id": "n1oo0ixu",
+      "id": "sig-56",
       "type": "column",
       "children": []
      },
@@ -1194,7 +1194,7 @@
     "title": "Change password",
     "studio": {
      "body": {
-      "id": "n9iriybk",
+      "id": "sig-57",
       "type": "column",
       "children": []
      },
@@ -1211,7 +1211,7 @@
     "title": "A conversation",
     "studio": {
      "body": {
-      "id": "nmcr8wj8",
+      "id": "sig-58",
       "type": "column",
       "children": []
      },
@@ -1228,7 +1228,7 @@
     "title": "A ride on its way",
     "studio": {
      "body": {
-      "id": "nb4qs3co",
+      "id": "sig-59",
       "type": "column",
       "children": []
      },

@@ -10,7 +10,7 @@ import type { LanguageCode } from "../pages/types";
 import type { SampleList } from "../samples/lists";
 import { templatesFor, TEMPLATES, type SectionWord, type TemplateInfo } from "../studio/sections";
 import { startLayout } from "../studio/start";
-import type { SignatureLook } from "../studio/demo-designs/signature";
+import { SIGNATURE_LOOKS, type SignatureLook } from "../studio/demo-designs/signature";
 import { DEMO_SLUGS, DEMO_TYPES, demoKind, demoTypeOfSlug, isStudioDemo, PREMIUM_ACADEMY_DEMO, PREMIUM_ACADEMY_TEMPLATE, STUDIO_DEMO_TYPES, type DemoId, type StudioDemoId } from "./constants";
 import { CLINIC_SERVICES, DEMO_ARTICLES, DEMO_BRANDS, DEMO_CAMPAIGNS, DEMO_DELIVERY_SERVICES, DEMO_DISHES, DEMO_EVENTS, DEMO_GUIDES, DEMO_LISTINGS, DEMO_PRODUCTS, DEMO_RESTAURANTS, DEMO_SERVICES, FITNESS_SERVICES, RIDES_DEMO_TYPES, TAXI_DEMO_TYPES } from "./content";
 import { demoCourseSeeds } from "./entries";
@@ -215,12 +215,48 @@ export function demoFacts(id: DemoId): DemoFacts {
   return facts;
 }
 
-/** Where the picker goes: the first step, a demo's page, its "Make it yours". `adding` keeps an account that has apps on the picker. */
-export function pickerPath(step: { demo?: DemoId; make?: boolean; adding?: boolean; product?: PickerProduct | null } = {}): string {
+// ——— 130 The Studio demos' two Signature looks on /start ———
+
+/** The looks every Studio demo offers on /start, A (the demo itself) then B; none for an App editor demo. */
+export function startLooks(id: DemoId): readonly SignatureLook[] {
+  return isStudioDemo(id) ? SIGNATURE_LOOKS : [];
+}
+
+/** A look's picture of its home (public/screens/`<demo>-sig-<look>-home.png`, `-dark` by night), by the demo's address. */
+export function lookShotName(id: DemoId, look: SignatureLook, dark = false): string {
+  return `${slugOf(id)}-sig-${look}-home${dark ? "-dark" : ""}`;
+}
+
+/**
+ * The looks' pictures in public/screens, by name: each engineer adds a
+ * look's when its picture is made (mobile/test/screenshots/
+ * signature_screenshots_test.dart); until then /start shows the demo's own
+ * screenshot for it (tests/unit/start-picker.test.ts keeps the list and the
+ * files the same).
+ */
+export const LOOK_SHOTS: ReadonlySet<string> = new Set([
+  // 130.7–130.12 Masar Rides, Lamha Taxi and Safra.
+  ...(["rides", "taxi", "travel"] as const).flatMap((demo) => ["a", "b"].flatMap((look) => [`${demo}-sig-${look}-home`, `${demo}-sig-${look}-home-dark`])),
+]);
+
+/** Whether a look's picture is in public/screens. */
+export function hasLookShot(name: string): boolean {
+  return LOOK_SHOTS.has(name);
+}
+
+/** The look a page's `look` asks for, when the demo offers it; null otherwise. */
+export function lookOf(id: DemoId, value: unknown): SignatureLook | null {
+  return typeof value === "string" && (startLooks(id) as readonly string[]).includes(value) ? (value as SignatureLook) : null;
+}
+// ——— end 130 ———
+
+/** Where the picker goes: the first step, a demo's page, its "Make it yours". `adding` keeps an account that has apps on the picker; 130 `look` a Studio demo's chosen look. */
+export function pickerPath(step: { demo?: DemoId; make?: boolean; adding?: boolean; product?: PickerProduct | null; look?: SignatureLook | null } = {}): string {
   const base = step.demo ? `/start/${slugOf(step.demo)}${step.make ? "/make" : ""}` : "/start";
   const query = new URLSearchParams();
   if (step.adding) query.set("new", "1");
   if (step.product && !step.demo) query.set("for", step.product);
+  if (step.look && step.demo) query.set("look", step.look);
   const text = query.toString();
   return text ? `${base}?${text}` : base;
 }

@@ -299,3 +299,32 @@ test("in Arabic and dark, Studio's New project opens the same page with Studio c
   await own.emulateMedia({ colorScheme: "light" });
   expect(problems).toEqual([]);
 });
+
+// 130 The Studio demos' two Signature looks.
+test("every Studio demo shows its two looks, and Masar Rides started in its look B is the horizon", async () => {
+  await own.goto("/start?new=1&for=studio");
+  // Each Studio card shows both looks.
+  for (const id of STUDIO) await expect(own.locator(`[data-section="studio"] a[data-demo="${id}"] [data-looks]`)).toHaveAttribute("data-looks", "a b");
+  await own.locator('[data-section="studio"] a[data-demo="rides"]').click();
+  await expect(own.getByRole("heading", { level: 1, name: "Masar Rides" })).toBeVisible();
+  // Look A (the demo) chosen, its picture and name; look B a tap away.
+  const looks = own.locator("[data-looks]");
+  await expect(looks.getByRole("heading", { name: "Two looks to start from" })).toBeVisible();
+  await expect(looks.locator('[data-look="a"] [aria-current="true"]')).toContainText("Living map");
+  await expect(looks.locator('[data-look="a"] img')).toHaveAttribute("src", "/screens/rides-sig-a-home.png");
+  await expect(looks.locator('[data-look="b"] img')).toHaveAttribute("src", "/screens/rides-sig-b-home.png");
+  await expect(own.locator("[data-start-look]")).toHaveAttribute("data-start-look", "a");
+  await looks.locator('[data-look="b"] a').click();
+  await expect(own).toHaveURL(/\/start\/rides\?new=1&look=b$/);
+  await expect(looks.locator('[data-look="b"] [aria-current="true"]')).toContainText("Horizon");
+  await fitsPhone(own);
+  await own.getByRole("link", { name: "Start with this app" }).click();
+  await expect(own).toHaveURL(/\/start\/rides\/make\?new=1&look=b$/);
+  await expect(own.locator("[data-look]")).toHaveText("In the look: Look B · Horizon");
+  await own.getByLabel("Your app's name").fill("Selin Rides");
+  await own.getByRole("button", { name: "Create my app" }).click();
+  // Studio's editor, the home the horizon's: "Where to, …?" large over the tilted city.
+  await expect(own).toHaveURL(/\/studio\/editor\?from=demo$/);
+  await expect(own.getByText("Where to, Omar?").first()).toBeVisible();
+  expect(problems).toEqual([]);
+});

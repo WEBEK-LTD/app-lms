@@ -135,14 +135,14 @@
      "background": "#F7F3EC",
      "dark_background": "#0B0F1A",
      "body": {
-      "id": "nhtf7545",
+      "id": "sig-10",
       "type": "column",
       "padding": {
        "bottom": 96
       },
       "children": [
        {
-        "id": "n3unm5pc",
+        "id": "sig-11",
         "type": "photo_hero",
         "name": "Your next trip",
         "image_url": "http://localhost:3000/travel-photos/room.jpg",
@@ -165,7 +165,7 @@
         "overlap": 150,
         "children": [
          {
-          "id": "nyy7qhos",
+          "id": "sig-12",
           "type": "row",
           "gap": 10,
           "cross": "center",
@@ -174,7 +174,7 @@
           },
           "children": [
            {
-            "id": "nqsh2o7g",
+            "id": "sig-13",
             "type": "text",
             "text": "Safra",
             "color": "#FFFFFF",
@@ -196,7 +196,7 @@
             }
            },
            {
-            "id": "na4cssgb",
+            "id": "sig-14",
             "type": "row",
             "width": 44,
             "height": 44,
@@ -216,7 +216,7 @@
             "border_width": 1,
             "children": [
              {
-              "id": "nekf9ou0",
+              "id": "sig-15",
               "type": "icon",
               "icon": "search",
               "icon_size": 22,
@@ -226,7 +226,7 @@
             ]
            },
            {
-            "id": "n3og38w3",
+            "id": "sig-16",
             "type": "row",
             "width": 44,
             "height": 44,
@@ -246,7 +246,7 @@
             "border_width": 1,
             "children": [
              {
-              "id": "nits3xbf",
+              "id": "sig-17",
               "type": "icon",
               "icon": "person",
               "icon_size": 22,
@@ -258,7 +258,7 @@
           ]
          },
          {
-          "id": "nlgzbpas",
+          "id": "sig-1",
           "type": "row",
           "name": "Explore",
           "width": "hug",
@@ -276,7 +276,7 @@
           "dark_background": "#2C3142",
           "children": [
            {
-            "id": "n0gwpe0m",
+            "id": "sig-2",
             "type": "row",
             "height": 36,
             "radius": 18,
@@ -291,7 +291,7 @@
             "background": "#F4F4F6",
             "children": [
              {
-              "id": "n2z328o2",
+              "id": "sig-3",
               "type": "text",
               "text": "Explore",
               "color": "#0E1424",
@@ -312,7 +312,7 @@
             ]
            },
            {
-            "id": "nyey1dn7",
+            "id": "sig-4",
             "type": "row",
             "height": 36,
             "radius": 18,
@@ -330,7 +330,7 @@
             },
             "children": [
              {
-              "id": "nvz51gfh",
+              "id": "sig-5",
               "type": "text",
               "text": "Trips",
               "color": "#FFFFFF",
@@ -351,7 +351,7 @@
             ]
            },
            {
-            "id": "nyq1ut82",
+            "id": "sig-6",
             "type": "row",
             "height": 36,
             "radius": 18,
@@ -369,7 +369,7 @@
             },
             "children": [
              {
-              "id": "nds6ps79",
+              "id": "sig-7",
               "type": "text",
               "text": "Flights",
               "color": "#FFFFFF",
@@ -390,7 +390,7 @@
             ]
            },
            {
-            "id": "npkf1try",
+            "id": "sig-8",
             "type": "row",
             "height": 36,
             "radius": 18,
@@ -408,7 +408,7 @@
             },
             "children": [
              {
-              "id": "n0cb2yh2",
+              "id": "sig-9",
               "type": "text",
               "text": "Saved",
               "color": "#FFFFFF",
@@ -431,7 +431,7 @@
           ]
          },
          {
-          "id": "n5utnwra",
+          "id": "sig-18",
           "type": "text",
           "text": "Where does the next story begin?",
           "color": "#FFFFFF",
@@ -459,7 +459,7 @@
           }
          },
          {
-          "id": "n2pr38iy",
+          "id": "sig-19",
           "type": "tracking",
           "tracking": {
            "kind": "trip",
@@ -484,7 +484,7 @@
         ]
        },
        {
-        "id": "noyrz2rl",
+        "id": "sig-20",
         "type": "row",
         "cross": "end",
         "padding": {
@@ -495,7 +495,7 @@
         },
         "children": [
          {
-          "id": "naieli9x",
+          "id": "sig-21",
           "type": "text",
           "text": "Stays with us",
           "color": "#0E1424",
@@ -516,7 +516,7 @@
           }
          },
          {
-          "id": "nbnrkpso",
+          "id": "sig-22",
           "type": "text",
           "text": "See all",
           "color": "#7A5C24",
@@ -541,7 +541,7 @@
         ]
        },
        {
-        "id": "ndmyx5q7",
+        "id": "sig-23",
         "type": "items",
         "name": "Stays with us",
         "source": "hotels",
@@ -561,7 +561,7 @@
          "ids": []
         },
         "card": {
-         "id": "n5so4n20",
+         "id": "sig-24",
          "type": "stack",
          "width": 150,
          "height": 128,
@@ -569,7 +569,7 @@
          "shadow": "medium",
          "children": [
           {
-           "id": "nwmhh44t",
+           "id": "sig-25",
            "type": "image",
            "bind": "image",
            "width": "fill",
@@ -583,7 +583,7 @@
            }
           },
           {
-           "id": "n2i8627p",
+           "id": "sig-26",
            "type": "column",
            "width": "fill",
            "height": "fill",
@@ -597,7 +597,7 @@
            },
            "children": [
             {
-             "id": "n7fvlx0j",
+             "id": "sig-27",
              "type": "text",
              "bind": "title",
              "max_lines": 2,
@@ -610,12 +610,12 @@
              "dark_color": "#FFFFFF"
             },
             {
-             "id": "noio94z0",
+             "id": "sig-28",
              "type": "row",
              "gap": 4,
              "children": [
               {
-               "id": "nt66qyer",
+               "id": "sig-29",
                "type": "text",
                "bind": "price",
                "font": {
@@ -626,7 +626,7 @@
                "dark_color": "#FFFFFF"
               },
               {
-               "id": "nmclypys",
+               "id": "sig-30",
                "type": "text",
                "text": "a night",
                "max_lines": 1,
@@ -655,7 +655,7 @@
         "dark_color": "#F3EEE4"
        },
        {
-        "id": "nuduvfhh",
+        "id": "sig-31",
         "type": "row",
         "name": "Stay + flight",
         "height": 64,
@@ -686,7 +686,7 @@
         },
         "children": [
          {
-          "id": "neg1fs5y",
+          "id": "sig-32",
           "type": "text",
           "text": "8%",
           "color": "#E6C58C",
@@ -706,12 +706,12 @@
           }
          },
          {
-          "id": "nngozqdi",
+          "id": "sig-33",
           "type": "column",
           "width": "fill",
           "children": [
            {
-            "id": "nqjubh8v",
+            "id": "sig-34",
             "type": "text",
             "text": "Stay + flight",
             "color": "#FFFFFF",
@@ -730,7 +730,7 @@
             }
            },
            {
-            "id": "nrpdv2w7",
+            "id": "sig-35",
             "type": "text",
             "text": "less when you book them together",
             "color": "#E7E9F0",
@@ -753,7 +753,7 @@
           ]
          },
          {
-          "id": "nh93lok6",
+          "id": "sig-36",
           "type": "row",
           "width": 40,
           "height": 40,
@@ -764,7 +764,7 @@
           "background": "#E6C58C",
           "children": [
            {
-            "id": "nsayt58y",
+            "id": "sig-37",
             "type": "icon",
             "icon": "arrow_forward",
             "icon_size": 22,
@@ -776,7 +776,7 @@
         ]
        },
        {
-        "id": "na6xkyao",
+        "id": "sig-38",
         "type": "text",
         "text": "Safra · from Cairo",
         "color": "#7A5C24",
@@ -803,7 +803,7 @@
         }
        },
        {
-        "id": "nwaptb6u",
+        "id": "sig-39",
         "type": "row",
         "name": "Safra · from Cairo",
         "gap": 8,
@@ -816,7 +816,7 @@
         },
         "children": [
          {
-          "id": "nw3m3tai",
+          "id": "sig-40",
           "type": "row",
           "width": "hug",
           "height": 40,
@@ -840,7 +840,7 @@
           },
           "children": [
            {
-            "id": "niejukm5",
+            "id": "sig-41",
             "type": "text",
             "text": "CAI",
             "color": "#0E1424",
@@ -852,7 +852,7 @@
             }
            },
            {
-            "id": "ncdm67uz",
+            "id": "sig-42",
             "type": "icon",
             "icon": "arrow_forward",
             "icon_size": 16,
@@ -860,7 +860,7 @@
             "dark_color": "#D8B57A"
            },
            {
-            "id": "nbvp63ah",
+            "id": "sig-43",
             "type": "text",
             "text": "IST",
             "color": "#0E1424",
@@ -872,7 +872,7 @@
             }
            },
            {
-            "id": "nwo9ykpj",
+            "id": "sig-44",
             "type": "text",
             "text": "Istanbul",
             "color": "#5A5F6E",
@@ -891,7 +891,7 @@
             }
            },
            {
-            "id": "npnbfnba",
+            "id": "sig-45",
             "type": "text",
             "text": "06:30",
             "color": "#5A5F6E",
@@ -905,7 +905,7 @@
           ]
          },
          {
-          "id": "nanx3lpl",
+          "id": "sig-46",
           "type": "row",
           "width": "hug",
           "height": 40,
@@ -929,7 +929,7 @@
           },
           "children": [
            {
-            "id": "ne1emov1",
+            "id": "sig-47",
             "type": "text",
             "text": "CAI",
             "color": "#0E1424",
@@ -941,7 +941,7 @@
             }
            },
            {
-            "id": "nkpw51ej",
+            "id": "sig-48",
             "type": "icon",
             "icon": "arrow_forward",
             "icon_size": 16,
@@ -949,7 +949,7 @@
             "dark_color": "#D8B57A"
            },
            {
-            "id": "nfnibf6h",
+            "id": "sig-49",
             "type": "text",
             "text": "JTR",
             "color": "#0E1424",
@@ -961,7 +961,7 @@
             }
            },
            {
-            "id": "nzehnrjn",
+            "id": "sig-50",
             "type": "text",
             "text": "Santorini",
             "color": "#5A5F6E",
@@ -980,7 +980,7 @@
             }
            },
            {
-            "id": "nqoqpry2",
+            "id": "sig-51",
             "type": "text",
             "text": "08:40",
             "color": "#5A5F6E",
@@ -994,7 +994,7 @@
           ]
          },
          {
-          "id": "n3hxz641",
+          "id": "sig-52",
           "type": "row",
           "width": "hug",
           "height": 40,
@@ -1018,7 +1018,7 @@
           },
           "children": [
            {
-            "id": "nth0n0e6",
+            "id": "sig-53",
             "type": "text",
             "text": "CAI",
             "color": "#0E1424",
@@ -1030,7 +1030,7 @@
             }
            },
            {
-            "id": "n9ylm36r",
+            "id": "sig-54",
             "type": "icon",
             "icon": "arrow_forward",
             "icon_size": 16,
@@ -1038,7 +1038,7 @@
             "dark_color": "#D8B57A"
            },
            {
-            "id": "nbyceljv",
+            "id": "sig-55",
             "type": "text",
             "text": "DXB",
             "color": "#0E1424",
@@ -1050,7 +1050,7 @@
             }
            },
            {
-            "id": "nsb1c4jp",
+            "id": "sig-56",
             "type": "text",
             "text": "Dubai",
             "color": "#5A5F6E",
@@ -1069,7 +1069,7 @@
             }
            },
            {
-            "id": "nty8k5b9",
+            "id": "sig-57",
             "type": "text",
             "text": "10:15",
             "color": "#5A5F6E",
@@ -1101,7 +1101,7 @@
     },
     "studio": {
      "body": {
-      "id": "n0prgoe4",
+      "id": "sig-58",
       "type": "column",
       "children": []
      },
@@ -1145,7 +1145,7 @@
     },
     "studio": {
      "body": {
-      "id": "nq9ui201",
+      "id": "sig-59",
       "type": "column",
       "children": []
      },
@@ -1189,11 +1189,11 @@
     },
     "studio": {
      "body": {
-      "id": "nqagm9uz",
+      "id": "sig-60",
       "type": "column",
       "children": [
        {
-        "id": "nn9adf0d",
+        "id": "sig-61",
         "type": "tracking",
         "tracking": {
          "kind": "trip",
@@ -1260,7 +1260,7 @@
     },
     "studio": {
      "body": {
-      "id": "n8u437z9",
+      "id": "sig-62",
       "type": "column",
       "children": []
      },
@@ -1285,7 +1285,7 @@
     },
     "studio": {
      "body": {
-      "id": "nm0ztqyt",
+      "id": "sig-63",
       "type": "column",
       "children": []
      },
@@ -1326,7 +1326,7 @@
     },
     "studio": {
      "body": {
-      "id": "nvwnjo59",
+      "id": "sig-64",
       "type": "column",
       "children": []
      },
@@ -1367,7 +1367,7 @@
     },
     "studio": {
      "body": {
-      "id": "nq0t84bp",
+      "id": "sig-65",
       "type": "column",
       "children": []
      },
@@ -1408,7 +1408,7 @@
     },
     "studio": {
      "body": {
-      "id": "nsbes7s3",
+      "id": "sig-66",
       "type": "column",
       "children": []
      },
@@ -1449,7 +1449,7 @@
     },
     "studio": {
      "body": {
-      "id": "nnk14k5t",
+      "id": "sig-67",
       "type": "column",
       "children": []
      },
@@ -1482,7 +1482,7 @@
     "title": "Change password",
     "studio": {
      "body": {
-      "id": "nwe2kdwh",
+      "id": "sig-68",
       "type": "column",
       "children": []
      },
@@ -1499,7 +1499,7 @@
     "title": "A conversation",
     "studio": {
      "body": {
-      "id": "nfm4ib74",
+      "id": "sig-69",
       "type": "column",
       "children": []
      },
@@ -1516,7 +1516,7 @@
     "title": "A hotel's page",
     "studio": {
      "body": {
-      "id": "nroteqia",
+      "id": "sig-70",
       "type": "column",
       "children": []
      },
@@ -1533,7 +1533,7 @@
     "title": "Hotels found",
     "studio": {
      "body": {
-      "id": "nj6q2h8o",
+      "id": "sig-71",
       "type": "column",
       "children": []
      },
@@ -1550,7 +1550,7 @@
     "title": "Hotels on the map",
     "studio": {
      "body": {
-      "id": "n4lx20fj",
+      "id": "sig-72",
       "type": "column",
       "children": []
      },
@@ -1567,7 +1567,7 @@
     "title": "A hotel's rooms",
     "studio": {
      "body": {
-      "id": "nvyfhh45",
+      "id": "sig-73",
       "type": "column",
       "children": []
      },
@@ -1584,7 +1584,7 @@
     "title": "Booking a stay",
     "studio": {
      "body": {
-      "id": "n2mdlbg1",
+      "id": "sig-74",
       "type": "column",
       "children": []
      },
@@ -1601,7 +1601,7 @@
     "title": "Flights found",
     "studio": {
      "body": {
-      "id": "n4r60yo2",
+      "id": "sig-75",
       "type": "column",
       "children": []
      },
@@ -1618,7 +1618,7 @@
     "title": "A flight's fares",
     "studio": {
      "body": {
-      "id": "n4dp6cja",
+      "id": "sig-76",
       "type": "column",
       "children": []
      },
@@ -1635,7 +1635,7 @@
     "title": "Prices by date",
     "studio": {
      "body": {
-      "id": "noa8571h",
+      "id": "sig-77",
       "type": "column",
       "children": []
      },
@@ -1652,7 +1652,7 @@
     "title": "Choosing seats",
     "studio": {
      "body": {
-      "id": "n88ny5ft",
+      "id": "sig-78",
       "type": "column",
       "children": []
      },
@@ -1669,7 +1669,7 @@
     "title": "Bags and meals",
     "studio": {
      "body": {
-      "id": "nmxcww3u",
+      "id": "sig-79",
       "type": "column",
       "children": []
      },
@@ -1686,7 +1686,7 @@
     "title": "Stay + Flight",
     "studio": {
      "body": {
-      "id": "now4mj0h",
+      "id": "sig-80",
       "type": "column",
       "children": []
      },
@@ -1703,7 +1703,7 @@
     "title": "Booking a trip",
     "studio": {
      "body": {
-      "id": "nvsn6y2q",
+      "id": "sig-81",
       "type": "column",
       "children": []
      },
@@ -1720,7 +1720,7 @@
     "title": "A trip",
     "studio": {
      "body": {
-      "id": "nfzaor6d",
+      "id": "sig-82",
       "type": "column",
       "children": []
      },
@@ -1737,7 +1737,7 @@
     "title": "Boarding passes",
     "studio": {
      "body": {
-      "id": "nn28807y",
+      "id": "sig-83",
       "type": "column",
       "children": []
      },
@@ -1754,7 +1754,7 @@
     "title": "Changing a booking",
     "studio": {
      "body": {
-      "id": "nlajkxla",
+      "id": "sig-84",
       "type": "column",
       "children": []
      },
@@ -1771,7 +1771,7 @@
     "title": "Reviewing a stay",
     "studio": {
      "body": {
-      "id": "na9etvkr",
+      "id": "sig-85",
       "type": "column",
       "children": []
      },

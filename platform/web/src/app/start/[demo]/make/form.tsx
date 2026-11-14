@@ -88,6 +88,7 @@ async function makeIcon(colour: string, name: string, logo: Logo | null, lightLo
 export function MakeForm({
   demo,
   screen,
+  look,
   swatches,
   maxName,
   error,
@@ -95,6 +96,8 @@ export function MakeForm({
 }: {
   demo: { slug: string; name: string; colour: string; product: "editor" | "studio" };
   screen: string;
+  /** 130 A Studio demo's chosen look and its words ("In the look: Look B · Horizon"). */
+  look?: { id: "a" | "b"; words: string } | null;
   swatches: Swatch[];
   maxName: number;
   error: string | null;
@@ -173,12 +176,18 @@ export function MakeForm({
         <input type="hidden" name="demo" value={demo.slug} />
         <input type="hidden" name="colour" value={colour} />
         <input type="hidden" name="logoAssetId" value={logo?.id ?? ""} />
+        {look ? <input type="hidden" name="look" value={look.id} /> : null}
         <div className="flex flex-col gap-2.5">
           <h1 className="m-0 text-[36px] leading-[1.02] font-extrabold tracking-[-0.03em] sm:text-[48px]">{t("start.makeTitle")}</h1>
           <p className="m-0 text-lg leading-normal text-[var(--pk-ink2)]">{t("start.makeText")}</p>
           <span className="flex min-h-8 items-center gap-1.5 self-start rounded-2xl border-2 border-[var(--pk-ink)] px-3.5 text-[13px] font-extrabold" data-product={demo.product}>
             {t(demo.product === "studio" ? "start.fromStudio" : "start.fromEditor", { demo: demo.name })}
           </span>
+          {look ? (
+            <span className="flex min-h-8 items-center gap-1.5 self-start rounded-2xl bg-[var(--pk-surface)] px-3.5 text-[13px] font-bold" data-look={look.id}>
+              {look.words}
+            </span>
+          ) : null}
         </div>
         {problem ? (
           <p role="alert" className="m-0 rounded-[14px] bg-[var(--pk-surface)] px-4 py-3 text-[15px] font-semibold text-[#B3261E]">

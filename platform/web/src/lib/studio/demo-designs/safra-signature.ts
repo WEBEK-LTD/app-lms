@@ -1,7 +1,7 @@
 import type { LayoutTab, StudioNode, StudioPage, TabBarStyle } from "../../pages/types";
 import type { SectionContext, SectionWord } from "../sections";
 import { idOf, pad, photo, screen, type DemoInk } from "./parts";
-import { filler, inked, inkIcon, roundOf, type SignatureDesign, type SignatureLooks } from "./signature";
+import { inked, inkIcon, roundOf, type SignatureDesign, type SignatureLooks } from "./signature";
 
 /**
  * 130.12 Safra's Signature looks (the R2-Safra boards), ink and gold: A
@@ -454,7 +454,6 @@ const B_BAR: TabBarStyle = {
   design: "float",
   margin: 16,
   radius: 30,
-  labels: "always",
   background: NAVY,
   dark_background: "#151C2E",
   active: GOLD,
