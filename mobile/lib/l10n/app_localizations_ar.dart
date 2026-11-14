@@ -3422,16 +3422,16 @@ class AppLocalizationsAr extends AppLocalizations {
   String get pageWebsite => 'الموقع الإلكتروني';
 
   @override
-  String get countdownDays => 'أيام';
+  String get countdownDays => 'ي';
 
   @override
-  String get countdownHours => 'ساعات';
+  String get countdownHours => 'س';
 
   @override
-  String get countdownMinutes => 'دقائق';
+  String get countdownMinutes => 'د';
 
   @override
-  String get countdownSeconds => 'ثوانٍ';
+  String get countdownSeconds => 'ث';
 
   @override
   String get socialWhatsappChannel => 'قناة واتساب';

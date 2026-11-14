@@ -575,9 +575,9 @@ function collectionsBento(ctx: SectionContext, margin: StudioSides = sides(0, 16
 }
 
 /** "Build your bouquet": the loose stems under a rose shade, its three steps as chips, Start. */
-function builderA(ctx: SectionContext, margin: StudioSides = sides(22, 16, 4, 16)): StudioNode {
+/** The builder's three steps as chips on a dark card: each its number on a white disc, its word in white. */
+function buildSteps(ctx: SectionContext, border: string, ink: string, margin: StudioSides): StudioNode {
   const id = idOf(ctx);
-  const white = "#FFFFFF";
   const step = (n: string, word: SectionWord): StudioNode => ({
     id: id(),
     type: "row",
@@ -588,14 +588,21 @@ function builderA(ctx: SectionContext, margin: StudioSides = sides(22, 16, 4, 16
     // The number's disc as far from the pill's edge as from its top and foot.
     padding: sides(0, 12, 0, 5),
     surface: { glass: 12, tint: 0.2 },
-    border_color: "#F6D3DD",
+    border_color: border,
+    dark_border_color: border,
     border_width: 1,
     children: [
       // The number on a white disc, in plain figures (the serif's old-style 3 reads as a 5 when cut).
-      { id: id(), type: "row", width: 22, height: 22, radius: 11, align: "center", cross: "center", background: "#FFFFFF", dark_background: "#FFFFFF", children: [{ id: id(), type: "text", text: n, color: ROSE_SHADE, font: { family: "DM Sans", size: 12, weight: 800, line_height: 1 } }] },
-      { id: id(), type: "text", text: ctx.w(word), color: white, font: { size: 12.5, weight: 700 } },
+      { id: id(), type: "row", width: 22, height: 22, radius: 11, align: "center", cross: "center", background: "#FFFFFF", dark_background: "#FFFFFF", children: [{ id: id(), type: "text", text: n, color: ink, dark_color: ink, font: { family: "DM Sans", size: 12, weight: 800, line_height: 1 } }] },
+      { id: id(), type: "text", text: ctx.w(word), color: "#FFFFFF", dark_color: "#FFFFFF", font: { size: 12.5, weight: 700 } },
     ],
   });
+  return { id: id(), type: "row", name: ctx.w("lqBuildTitle"), gap: 6, scroll: true, margin, children: [step("1", "lqStepFlowers"), step("2", "lqStepWrap"), step("3", "lqStepCard")] };
+}
+
+function builderA(ctx: SectionContext, margin: StudioSides = sides(22, 16, 4, 16)): StudioNode {
+  const id = idOf(ctx);
+  const white = "#FFFFFF";
   return {
     id: id(),
     type: "photo_hero",
@@ -614,7 +621,7 @@ function builderA(ctx: SectionContext, margin: StudioSides = sides(22, 16, 4, 16
       { id: id(), type: "text", text: ctx.w("lqBuildKicker"), color: "#FFD9C2", font: { size: 11, weight: 700, letter_spacing: 2.2, uppercase: true } },
       { id: id(), type: "text", text: ctx.w("lqBuildTitle"), color: white, width: 230, max_lines: 2, font: display(FRAUNCES, 36, { weight: 500 }), margin: sides(8, 0, 0, 0) },
       { id: id(), type: "text", text: ctx.w("lqBuildLine"), color: white, opacity: 0.88, width: 230, max_lines: 3, font: { size: 13.5, line_height: 1.4 }, margin: sides(8, 0, 0, 0) },
-      { id: id(), type: "row", gap: 6, scroll: true, margin: sides(14, 0, 0, 0), children: [step("1", "lqStepFlowers"), step("2", "lqStepWrap"), step("3", "lqStepCard")] },
+      buildSteps(ctx, "#F6D3DD", ROSE_SHADE, sides(14, 0, 0, 0)),
       heroButton(ctx, "lqBuildStart", shop, { background: white, color: ROSE_SHADE }, sides(16, 0, 0, 0), "arrow_forward", 44),
     ],
   };
@@ -1111,6 +1118,8 @@ function editSlider(ctx: SectionContext): StudioNode {
     autoplay: true,
     interval_ms: 5000,
     indicator: "pill",
+    // At the cards' top, clear of their titles.
+    indicator_look: { at: "top", inset: 14 },
     ken_burns: true,
     padding: sides(4, 0, 4, 16),
     children: [editCard(ctx, P("ranunculus"), "lqNo1", "lqSeasonal"), editCard(ctx, P("red-rose"), "lqNo2", "lqRoses"), editCard(ctx, P("baby-breath"), "lqNo3", "lqSignature")],
@@ -1234,7 +1243,6 @@ function priceList(ctx: SectionContext): StudioNode {
 /** The bouquet's three steps on the forest: a step each as a bar with its icon, Start. */
 function builderB(ctx: SectionContext, margin: StudioSides = sides(22, 16, 4, 16)): StudioNode {
   const id = idOf(ctx);
-  const step = (title: SectionWord, highlight: boolean, icon: string): StudioEntry => sigEntry(ctx, { title }, { icon, ...(highlight ? { highlight: true } : {}) });
   return {
     id: id(),
     type: "column",
@@ -1252,7 +1260,8 @@ function builderB(ctx: SectionContext, margin: StudioSides = sides(22, 16, 4, 16
       { id: id(), type: "text", text: ctx.w("lqBuildKicker"), color: LEQAA_PEACH, font: { size: 11, weight: 700, letter_spacing: 2.2, uppercase: true } },
       { id: id(), type: "text", text: ctx.w("lqBuildTitle"), color: "#FFFFFF", max_lines: 2, font: display(OUTFIT, 38, { weight: 400 }) },
       { id: id(), type: "text", text: ctx.w("lqBuildLine"), color: "#FFFFFF", opacity: 0.85, max_lines: 2, font: { size: 13.5, line_height: 1.4 } },
-      { id: id(), type: "timeline", timeline: { style: "bars" }, color: "#FFFFFF", entries: [step("lqStepFlowers", true, "local_florist"), step("lqStepWrap", false, "redeem"), step("lqStepCard", false, "edit_note")], margin: sides(6, 0, 0, 0) },
+      // A's chips in B's colours: white words and discs, clear on the forest.
+      buildSteps(ctx, "#BFD8C9", FOREST, sides(6, 0, 0, 0)),
       heroButton(ctx, "lqBuildStart", shop, { background: LEQAA_PEACH, color: FOREST }, sides(8, 0, 0, 0), "arrow_forward", 46),
     ],
   };

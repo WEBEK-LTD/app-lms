@@ -38,7 +38,8 @@ export const FLOWER_COMMERCE: Pick<CatalogSettings, "delivery" | "gifts" | "area
     closedWeekdays: [],
     timezone: "Africa/Cairo",
     slots: [
-      { id: "s1", start: "10:00", end: "13:00", capacity: null, feeCents: null },
+      // The morning's taken already (as the story tells it): shown full.
+      { id: "s1", start: "10:00", end: "13:00", capacity: 0, feeCents: null },
       { id: "s2", start: "13:00", end: "16:00", capacity: null, feeCents: null },
       { id: "s3", start: "16:00", end: "19:00", capacity: null, feeCents: 50_00 },
       { id: "s4", start: "19:00", end: "22:00", capacity: null, feeCents: 80_00 },
@@ -51,8 +52,8 @@ export const FLOWER_COMMERCE: Pick<CatalogSettings, "delivery" | "gifts" | "area
   distancePricing: { origin: { lat: 30.0626, lng: 31.2197 }, baseCents: 60_00, perKmCents: 5_00, maxKm: 40 },
 };
 
-/** The demo's flash sale: Blush Garden a quarter off for 26 hours (made again each day), 12 bouquets at that price. */
-export const FLOWER_FLASH_SALE = { title: "Blush hour", percent: 25, hours: 26, limit: 12, skus: ["LQ-101"] } as const;
+/** The demo's flash sale: Blush Garden a quarter off for 26 hours (made again each day), 12 bouquets at that price and 8 of them gone (4 left, as the story tells it). */
+export const FLOWER_FLASH_SALE = { title: "Blush hour", percent: 25, hours: 26, limit: 12, sold: 8, skus: ["LQ-101"] } as const;
 
 /** The demo's code shown in the app: 10% off a first bouquet from E£ 1,000 (the looks' coupon element). */
 export const FLOWER_COUPON = { code: "LEQAA10", percent: 10, minOrderCents: 1000_00 } as const;

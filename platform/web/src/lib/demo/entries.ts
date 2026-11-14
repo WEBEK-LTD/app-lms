@@ -222,7 +222,7 @@ export async function demoFlowerCommerce(deps: EntryDeps, app: App): Promise<voi
 /**
  * 131 Leqaa's flash sale from now, for a little over a day (made again by
  * the daily job, lib/demo/cleanup.ts), so its countdown always shows hours
- * left, never days; its units sold back to none.
+ * left, never days; its units sold back to the demo's own.
  */
 export async function refreshFlowerSale(store: DataStore, app: Pick<App, "id">, now: Date): Promise<void> {
   const products = await store.listCatalogProducts(app.id);
@@ -230,8 +230,8 @@ export async function refreshFlowerSale(store: DataStore, app: Pick<App, "id">, 
   const endsAt = new Date(now.getTime() + FLOWER_FLASH_SALE.hours * 3_600_000);
   const sale = (await store.listFlashSales(app.id)).find((f) => f.title === FLOWER_FLASH_SALE.title);
   const terms = { productIds: ids, categoryId: null, discount: { kind: "percent" as const, percent: FLOWER_FLASH_SALE.percent }, startsAt: now, endsAt, limit: FLOWER_FLASH_SALE.limit, platformCode: null, active: true };
-  if (sale) await store.updateFlashSale(app.id, sale.id, { ...terms, sold: 0, updatedAt: now });
-  else await store.createFlashSale({ appId: app.id, title: FLOWER_FLASH_SALE.title, ...terms, createdAt: now, updatedAt: now });
+  const made = sale ?? (await store.createFlashSale({ appId: app.id, title: FLOWER_FLASH_SALE.title, ...terms, createdAt: now, updatedAt: now }));
+  await store.updateFlashSale(app.id, made.id, { ...terms, sold: FLOWER_FLASH_SALE.sold, updatedAt: now });
 }
 
 // ——— Courses ———

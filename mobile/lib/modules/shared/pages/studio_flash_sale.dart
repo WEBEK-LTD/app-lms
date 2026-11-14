@@ -142,27 +142,32 @@ class _StudioFlashSaleState extends State<StudioFlashSale> {
         : null;
     Widget card(PageItem item, {double? width}) =>
         _FlashCard(item: item, accent: accent, width: width);
-    final body = switch (options.look) {
-      FlashLook.grid => LayoutBuilder(
-        builder: (context, box) {
-          final w = (box.maxWidth - 10) / 2;
-          return Wrap(
-            spacing: 10,
-            runSpacing: 10,
-            children: [for (final i in items) card(i, width: w)],
-          );
-        },
-      ),
-      FlashLook.carousel || FlashLook.banner => SizedBox(
-        height: 236,
-        child: ListView.separated(
-          scrollDirection: Axis.horizontal,
-          itemCount: items.length,
-          separatorBuilder: (_, _) => const SizedBox(width: 10),
-          itemBuilder: (_, i) => card(items[i], width: banner ? 140 : 168),
-        ),
-      ),
-    };
+    // 131 One product on sale: one card the width of the sale, its photo on
+    // one side and its name, prices and share off on the other.
+    final body = items.length == 1
+        ? _FlashCard(item: items.single, accent: accent, wide: true)
+        : switch (options.look) {
+            FlashLook.grid => LayoutBuilder(
+              builder: (context, box) {
+                final w = (box.maxWidth - 10) / 2;
+                return Wrap(
+                  spacing: 10,
+                  runSpacing: 10,
+                  children: [for (final i in items) card(i, width: w)],
+                );
+              },
+            ),
+            FlashLook.carousel || FlashLook.banner => SizedBox(
+              height: 236,
+              child: ListView.separated(
+                scrollDirection: Axis.horizontal,
+                itemCount: items.length,
+                separatorBuilder: (_, _) => const SizedBox(width: 10),
+                itemBuilder: (_, i) =>
+                    card(items[i], width: banner ? 140 : 168),
+              ),
+            ),
+          };
     final column = Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       mainAxisSize: MainAxisSize.min,
@@ -191,53 +196,107 @@ class _StudioFlashSaleState extends State<StudioFlashSale> {
 }
 
 class _FlashCard extends ConsumerWidget {
-  const _FlashCard({required this.item, required this.accent, this.width});
+  const _FlashCard({
+    required this.item,
+    required this.accent,
+    this.width,
+    this.wide = false,
+  });
 
   final PageItem item;
   final Color accent;
   final double? width;
+
+  /// 131 The sale's only product: the photo beside its name and prices.
+  final bool wide;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final p = context.palette;
     final sale = item.sale!;
     final action = item.tapAction;
-    final content = Column(
-      crossAxisAlignment: CrossAxisAlignment.stretch,
-      mainAxisSize: MainAxisSize.min,
-      children: [
-        AspectRatio(
-          aspectRatio: 1,
-          child: ClipRRect(
-            borderRadius: BorderRadius.circular(12),
-            child: Stack(
-              fit: StackFit.expand,
-              children: [
-                AppNetworkImage(url: item.imageUrl, seed: item.id.hashCode),
-                PositionedDirectional(
-                  top: 6,
-                  start: 6,
-                  child: SaleChip(percentOff: sale.percentOff, color: accent),
+    final Widget content = wide
+        ? Row(
+            key: const ValueKey('flash-single'),
+            children: [
+              SizedBox(
+                width: 116,
+                height: 136,
+                child: ClipRRect(
+                  borderRadius: BorderRadius.circular(12),
+                  child: AppNetworkImage(
+                    url: item.imageUrl,
+                    seed: item.id.hashCode,
+                  ),
                 ),
-              ],
-            ),
-          ),
-        ),
-        const SizedBox(height: 6),
-        Text(
-          item.title,
-          maxLines: 1,
-          overflow: TextOverflow.ellipsis,
-          style: TextStyle(
-            fontSize: 13,
-            fontWeight: FontWeight.w700,
-            color: p.text,
-          ),
-        ),
-        const SizedBox(height: 2),
-        SalePrice(sale: sale, size: 14, color: accent),
-      ],
-    );
+              ),
+              const SizedBox(width: 14),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    SaleChip(percentOff: sale.percentOff, color: accent),
+                    const SizedBox(height: 8),
+                    Text(
+                      item.title,
+                      maxLines: 2,
+                      overflow: TextOverflow.ellipsis,
+                      style: TextStyle(
+                        fontSize: 17,
+                        fontWeight: FontWeight.w800,
+                        color: p.text,
+                      ),
+                    ),
+                    const SizedBox(height: 6),
+                    SalePrice(sale: sale, size: 18, color: accent),
+                  ],
+                ),
+              ),
+            ],
+          )
+        : Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              AspectRatio(
+                aspectRatio: 1,
+                child: ClipRRect(
+                  borderRadius: BorderRadius.circular(12),
+                  child: Stack(
+                    fit: StackFit.expand,
+                    children: [
+                      AppNetworkImage(
+                        url: item.imageUrl,
+                        seed: item.id.hashCode,
+                      ),
+                      PositionedDirectional(
+                        top: 6,
+                        start: 6,
+                        child: SaleChip(
+                          percentOff: sale.percentOff,
+                          color: accent,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+              const SizedBox(height: 6),
+              Text(
+                item.title,
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+                style: TextStyle(
+                  fontSize: 13,
+                  fontWeight: FontWeight.w700,
+                  color: p.text,
+                ),
+              ),
+              const SizedBox(height: 2),
+              SalePrice(sale: sale, size: 14, color: accent),
+            ],
+          );
     return SizedBox(
       width: width,
       child: Material(
@@ -248,7 +307,7 @@ class _FlashCard extends ConsumerWidget {
           onTap: action == null
               ? null
               : () => runPageAction(context, ref, action),
-          child: Padding(padding: const EdgeInsets.all(6), child: content),
+          child: Padding(padding: EdgeInsets.all(wide ? 8 : 6), child: content),
         ),
       ),
     );

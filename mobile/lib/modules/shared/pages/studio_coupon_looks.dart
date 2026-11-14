@@ -90,7 +90,8 @@ class StudioCouponLook extends StatelessWidget {
         if (minOrder != null)
           Text(
             l10n.couponMinOrder(minOrder),
-            maxLines: 1,
+            // 131 Its condition whole, on two lines when it needs them.
+            maxLines: 2,
             overflow: TextOverflow.ellipsis,
             style: TextStyle(fontSize: 11, color: p.textSecondary),
           ),

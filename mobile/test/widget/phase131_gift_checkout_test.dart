@@ -126,6 +126,13 @@ void main() {
   int stepNow(WidgetTester tester) =>
       tester.widget<GiftStepBar>(find.byType(GiftStepBar)).step;
 
+  /// How many steps are done, in order.
+  int doneNow(WidgetTester tester) => tester
+      .widget<GiftStepBar>(find.byType(GiftStepBar))
+      .done
+      .takeWhile((d) => d)
+      .length;
+
   for (final (mode, dark, language) in [
     ('light', false, 'en'),
     ('dark', true, 'en'),
@@ -169,6 +176,8 @@ void main() {
     'the steps follow the order, the card follows the typing, the summary shows when',
     (tester) async {
       await openCart(tester, api());
+      // Nothing done yet; the first part, who it is from, in view.
+      expect(doneNow(tester), 0);
       expect(stepNow(tester), 0);
 
       Future<void> type(String key, String text) async {
@@ -179,11 +188,11 @@ void main() {
       await type('gift-sender-name', 'Omar Hassan');
       await type('gift-sender-phone', '+20 100 555 0142');
       await type('gift-sender-email', 'omar@example.com');
-      expect(stepNow(tester), 1);
+      expect(doneNow(tester), 1);
       await type('gift-recipient-name', 'Salma Adel');
       await type('gift-recipient-phone', '+20 122 555 0187');
       await type('gift-recipient-address', '12 Shagaret El Dor St., Zamalek');
-      expect(stepNow(tester), 2);
+      expect(doneNow(tester), 2);
       // The card says who it is for and from, as they are typed.
       final card = find.byKey(const ValueKey('gift-card-preview'));
       expect(
@@ -193,10 +202,10 @@ void main() {
       // When: the day, then the slot; both in the summary.
       await tester.tap(find.byKey(const ValueKey('delivery-today')));
       await TestApp.settle(tester);
-      expect(stepNow(tester), 2);
+      expect(doneNow(tester), 2);
       await tester.tap(find.byKey(const ValueKey('delivery-slot-s2')));
       await TestApp.settle(tester);
-      expect(stepNow(tester), 3);
+      expect(doneNow(tester), 3);
       expect(find.textContaining('13:00–16:00'), findsWidgets);
       // The summary, further down: when it arrives, the day and the slot.
       await tester.scrollUntilVisible(
@@ -225,7 +234,7 @@ void main() {
       await TestApp.settle(tester);
       await tester.tap(find.byKey(const ValueKey('gift-template-birthday-t1')));
       await TestApp.settle(tester);
-      expect(stepNow(tester), 4);
+      expect(doneNow(tester), 4);
       await tester.scrollUntilVisible(
         card,
         -300,

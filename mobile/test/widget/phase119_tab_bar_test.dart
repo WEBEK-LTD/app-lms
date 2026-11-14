@@ -72,7 +72,10 @@ void main() {
       (d) =>
           d != TabBarDesign.classic &&
           d != TabBarDesign.minimal &&
-          d != TabBarDesign.notch,
+          d != TabBarDesign.notch &&
+          // 131.22 The petal's middle tab is its raised bloom, as the notch's
+          // (phase131_petal_chrome_test.dart).
+          d != TabBarDesign.petal,
     )) {
       testWidgets('${design.name} marks the open tab (${brightness.name})', (
         tester,

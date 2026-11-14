@@ -2180,6 +2180,7 @@
          {
           "id": "demo-91",
           "type": "row",
+          "name": "Build your bouquet",
           "gap": 6,
           "scroll": true,
           "margin": {
@@ -2207,6 +2208,7 @@
              "tint": 0.2
             },
             "border_color": "#F6D3DD",
+            "dark_border_color": "#F6D3DD",
             "border_width": 1,
             "children": [
              {
@@ -2225,6 +2227,7 @@
                 "type": "text",
                 "text": "1",
                 "color": "#2A0C17",
+                "dark_color": "#2A0C17",
                 "font": {
                  "family": "DM Sans",
                  "size": 12,
@@ -2239,6 +2242,7 @@
               "type": "text",
               "text": "Flowers",
               "color": "#FFFFFF",
+              "dark_color": "#FFFFFF",
               "font": {
                "size": 12.5,
                "weight": 700
@@ -2272,6 +2276,7 @@
              "tint": 0.2
             },
             "border_color": "#F6D3DD",
+            "dark_border_color": "#F6D3DD",
             "border_width": 1,
             "children": [
              {
@@ -2290,6 +2295,7 @@
                 "type": "text",
                 "text": "2",
                 "color": "#2A0C17",
+                "dark_color": "#2A0C17",
                 "font": {
                  "family": "DM Sans",
                  "size": 12,
@@ -2304,6 +2310,7 @@
               "type": "text",
               "text": "Wrap",
               "color": "#FFFFFF",
+              "dark_color": "#FFFFFF",
               "font": {
                "size": 12.5,
                "weight": 700
@@ -2337,6 +2344,7 @@
              "tint": 0.2
             },
             "border_color": "#F6D3DD",
+            "dark_border_color": "#F6D3DD",
             "border_width": 1,
             "children": [
              {
@@ -2355,6 +2363,7 @@
                 "type": "text",
                 "text": "3",
                 "color": "#2A0C17",
+                "dark_color": "#2A0C17",
                 "font": {
                  "family": "DM Sans",
                  "size": 12,
@@ -2369,6 +2378,7 @@
               "type": "text",
               "text": "Card",
               "color": "#FFFFFF",
+              "dark_color": "#FFFFFF",
               "font": {
                "size": 12.5,
                "weight": 700

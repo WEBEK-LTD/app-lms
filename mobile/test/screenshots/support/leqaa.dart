@@ -83,7 +83,7 @@ Map<String, dynamic> _money(int now, String lang, {int? was}) => {
 };
 
 /// The flash sale on now: Blush Garden a quarter off, 2:14:36 left, 12
-/// bouquets at that price and 8 left (lib/demo/flowers.ts).
+/// bouquets at that price and 4 left (lib/demo/flowers.ts).
 final _saleEnds = DateTime.now().toUtc().add(
   const Duration(hours: 2, minutes: 14, seconds: 36),
 );
@@ -96,7 +96,7 @@ Map<String, dynamic> _sale(int was, int now, String lang) => {
   'percent_off': ((was - now) * 100 / was).round(),
   'starts_at': null,
   'ends_at': _saleEnds.toIso8601String(),
-  'remaining': 8,
+  'remaining': 4,
   'total': 12,
   'flash_sale_id': 7,
 };
@@ -302,6 +302,8 @@ Map<String, dynamic> _quote(String base, String lang) {
       },
     ],
     'total': _egp(2050, lang),
+    // Yallapp's own checkout knows the whole total.
+    'total_final': true,
   };
 }
 
@@ -457,8 +459,10 @@ DemoApi leqaaStudioApi({
           'end': label.substring(6),
           'label': label,
           if (fee != null) 'fee_formatted': _egp(fee, lang),
-          'available': true,
-          'full': false,
+          // The morning's taken already.
+          'available': id != 's1',
+          'full': id == 's1',
+          if (id == 's1') 'remaining': 0,
         },
     ]
     ..giftOccasions = _occasions(lang);
@@ -497,7 +501,7 @@ DemoApi leqaaStudioApi({
         'starts_at': null,
         'ends_at': _saleEnds.toIso8601String(),
         'percent_off': 25,
-        'remaining': 8,
+        'remaining': 4,
         'total': 12,
       },
       'items': [

@@ -209,7 +209,7 @@ describe("131.20 its two Signature looks: whole store templates, marked new", ()
     // The home's parts.
     const home = layout.pages[0]!.studio!;
     const types = allNodes(home).map((n) => n.type);
-    for (const t of look === "a" ? ["slider", "stories", "bento", "items", "testimonials", "marquee", "flash_sale", "coupon"] : ["slider", "gallery", "timeline", "items", "testimonials", "marquee", "flash_sale", "coupon"]) expect(types, t).toContain(t);
+    for (const t of look === "a" ? ["slider", "stories", "bento", "items", "testimonials", "marquee", "flash_sale", "coupon"] : ["slider", "gallery", "items", "testimonials", "marquee", "flash_sale", "coupon"]) expect(types, t).toContain(t);
     if (look === "a") {
       const hero = allNodes(home).find((n) => n.type === "slider")!;
       expect(hero).toMatchObject({ ken_burns: true, indicator: "progress", autoplay: true });

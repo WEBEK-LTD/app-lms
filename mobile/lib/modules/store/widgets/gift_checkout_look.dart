@@ -50,9 +50,18 @@ int giftStepOf({
 
 /// The five steps in a bar that stays at the top of the cart.
 class GiftStepBar extends StatelessWidget {
-  const GiftStepBar({super.key, required this.step, this.accent});
+  const GiftStepBar({
+    super.key,
+    required this.step,
+    this.done = const [],
+    this.accent,
+  });
 
+  /// The step now: the one in view, else the first not done.
   final int step;
+
+  /// Which steps are done; a step before [step] is ticked only when done.
+  final List<bool> done;
 
   /// The look's colour; null, the app's main colour.
   final Color? accent;
@@ -68,7 +77,12 @@ class GiftStepBar extends StatelessWidget {
       ),
       child: Padding(
         padding: const EdgeInsets.fromLTRB(0, 6, 0, 10),
-        child: _Stepper(t: t, step: step, labels: giftStepLabels(context)),
+        child: _Stepper(
+          t: t,
+          step: step,
+          done: done,
+          labels: giftStepLabels(context),
+        ),
       ),
     );
   }
@@ -156,11 +170,20 @@ class _Tones {
 
 /// The five steps, the ones done ticked, the one now ringed.
 class _Stepper extends StatelessWidget {
-  const _Stepper({required this.t, required this.step, required this.labels});
+  const _Stepper({
+    required this.t,
+    required this.step,
+    required this.labels,
+    this.done = const [],
+  });
 
   final _Tones t;
   final int step;
   final List<String> labels;
+  final List<bool> done;
+
+  /// Ticked: before the step now, and done (all before it, when not told).
+  bool _ticked(int i) => i < step && (done.length <= i || done[i]);
 
   @override
   Widget build(BuildContext context) => Padding(
@@ -195,7 +218,7 @@ class _Stepper extends StatelessWidget {
                               ),
                               child: Container(
                                 height: 2,
-                                color: i <= step ? t.tone : t.line,
+                                color: _ticked(i - 1) ? t.tone : t.line,
                               ),
                             ),
                           ),
@@ -204,9 +227,9 @@ class _Stepper extends StatelessWidget {
                           height: 26,
                           decoration: BoxDecoration(
                             shape: BoxShape.circle,
-                            color: i < step ? t.tone : t.surface,
+                            color: _ticked(i) ? t.tone : t.surface,
                             border: Border.all(
-                              color: i <= step ? t.tone : t.line,
+                              color: _ticked(i) || i == step ? t.tone : t.line,
                               width: 2,
                             ),
                             boxShadow: i == step
@@ -214,7 +237,7 @@ class _Stepper extends StatelessWidget {
                                 : null,
                           ),
                           alignment: Alignment.center,
-                          child: i < step
+                          child: _ticked(i)
                               ? AppIcon(
                                   AppIcons.check,
                                   size: 15,
