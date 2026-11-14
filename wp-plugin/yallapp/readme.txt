@@ -4,7 +4,7 @@ Tags: lms, mobile app, tutor lms, digits, otp
 Requires at least: 6.0
 Tested up to: 7.1
 Requires PHP: 7.4
-Stable tag: 0.4.41
+Stable tag: 0.4.42
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -141,6 +141,9 @@ Symbols Rounded by Google (the material-design-icons project),
 under the Apache License 2.0, included as inline SVG.
 
 == Changelog ==
+
+= 0.4.42 =
+* The course screens you design in Yallapp Studio reach the app from your site: one premium look for the course card, the course page, the lesson and My courses (Night cinema, Gold ring, Faculty index or On air), with each screen's options: the card as a poster, a ticket, frosted glass or a row with its photo's shape, shade and corners; the page's cover, its enrol bar and the parts it shows (the teacher, what you'll learn, the curriculum, the reviews, the description) with the button's own words; the lesson's player and how far through the course; and My courses as a grid or a list with rings or bars, continue learning and the completed courses.
 
 = 0.4.41 =
 * The Signature looks and premium screens you design in Yallapp Studio reach the app from your site: a header's premium style (a large title that folds, frosted glass, a photo, your brand's colour or a search pill) with its line, photo and folding; the look of the app's own screens (account, settings, notifications, language, sign-in and the code screen, lists and empty states); the live cards' new looks (a photo hero, a ring, a pill or steps, with their accent colour by day and by night); the live trip as a boarding pass or a big countdown; a greeting in your own words; and the course in progress as a ring with this week's days.
