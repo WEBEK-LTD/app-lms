@@ -101,7 +101,7 @@ describe("103R.7 Studio's templates and sections for each project type", () => {
   });
 
   it("105.3 gives an academy with many teachers three designs that open its teachers, its welcome section first (128 and the approved Rawaq home)", () => {
-    expect(ownTemplates(kindOf("instructors")).map((t) => t.id)).toEqual(["teachers", "teachers_offers", "teachers_brand", "teachers_photo", "brand", "contact", "blank"]);
+    expect(ownTemplates(kindOf("instructors")).map((t) => t.id)).toEqual(["instructors_signature_a", "instructors_signature_b", "teachers", "teachers_offers", "teachers_brand", "teachers_photo", "brand", "contact", "blank"]);
     expect(sectionsFor(kindOf("instructors"))[0]!.id).toBe("teachers");
     // A plain academy has neither.
     expect(ownTemplates(kindOf("academy")).map((t) => t.id)).not.toContain("teachers");

@@ -40,6 +40,8 @@ class StudioDemo {
   // (platform/web/tests/unit/studio-signature-learn.test.ts).
   static final nakhlaSigA = StudioDemo._load('nakhla_sig_a.json');
   static final nakhlaSigB = StudioDemo._load('nakhla_sig_b.json');
+  static final rawaqSigA = StudioDemo._load('rawaq_sig_a.json');
+  static final rawaqSigB = StudioDemo._load('rawaq_sig_b.json');
 
   final Map<String, dynamic> _demo;
 
@@ -766,8 +768,12 @@ DemoApi nakhlaStudioApi({
 /// on its home, each with its teacher and its picture. 128 With [staffApp]
 /// its teachers work in the staff app, so this app has no Teacher tab (the
 /// approved bar).
-DemoApi rawaqStudioApi({bool staffApp = false}) {
-  final demo = StudioDemo.rawaq;
+DemoApi rawaqStudioApi({
+  bool staffApp = false,
+  // 130 A Signature look's project instead of the demo's.
+  StudioDemo? look,
+}) {
+  final demo = look ?? StudioDemo.rawaq;
   Map<String, dynamic> course(
     int id,
     String title,

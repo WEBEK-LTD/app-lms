@@ -60,9 +60,8 @@ const TAB_WORDS: Record<string, SectionWord> = {
   Cart: "tabCart",
   // 128 Rawaq Academy's teachers, its second tab.
   Teachers: "tabTeachers",
-  // 130 The Signature looks' own tabs: a school's Parent, an academy's live classes.
+  // 130 The Signature looks' own tab: a school's Parent.
   Parent: "tabParent",
-  Live: "tabLive",
 };
 
 /** The word over a screen and its icon; a screen that is all its own (the search, the club, the ride map) has none. */

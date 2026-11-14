@@ -1049,6 +1049,20 @@ final websiteShots = <Shot>[
         overrides: _nakhlaMorning,
         shadows: true,
       ),
+  for (final (name, look) in [
+    ('rawaq-sig-a', StudioDemo.rawaqSigA),
+    ('rawaq-sig-b', StudioDemo.rawaqSigB),
+  ])
+    for (final dark in [false, true])
+      Shot(
+        '$name-home${dark ? '-dark' : ''}',
+        dark: dark,
+        api: () => rawaqStudioApi(staffApp: true, look: look),
+        appName: 'Rawaq Academy',
+        appType: AppType.lms,
+        prepare: (tester) => look.prepare(tester, rawaqPhotos),
+        shadows: true,
+      ),
   Shot(
     'nakhla-parent',
     api: () => nakhlaStudioApi(staffApp: true),

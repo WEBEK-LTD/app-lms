@@ -298,6 +298,30 @@ export type SectionWord =
   | "tabTeachers"
   | "tipTeachers"
   // 130.13–130.18 The Signature looks' words.
+  | "raTitle1"
+  | "raTitle2"
+  | "raFaculty"
+  | "raT1"
+  | "raT1s"
+  | "raT2"
+  | "raT2s"
+  | "raT3"
+  | "raT3i"
+  | "raT3s"
+  | "raT4"
+  | "raT4s"
+  | "raLiveBadge"
+  | "raOnAir"
+  | "raLiveKicker"
+  | "raNewKicker"
+  | "raS1"
+  | "raS1Line"
+  | "raS2"
+  | "raS2Line"
+  | "raS3"
+  | "raS3Line"
+  | "raMeet"
+  | "raCourses"
   | "nbPass"
   | "nbBus"
   | "nbBusText"
@@ -311,8 +335,7 @@ export type SectionWord =
   | "nkTimetable"
   | "nkSign"
   | "nkSignLines"
-  | "tabParent"
-  | "tabLive";
+  | "tabParent";
 
 export interface SectionContext {
   brand: string;
