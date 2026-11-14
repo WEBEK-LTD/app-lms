@@ -789,6 +789,16 @@ export const en = {
   pdQuoteTwo: "[Another customer's words]",
   pdAboutLine: "[Your story in a line or two]",
   // ——— end 130.30 ———
+  // ——— 130.52 The academies' Signature looks' course screens: the enrol button and My courses' line ———
+  csCtaCinema: "Start watching",
+  csLineCinema: "Tonight's lessons are waiting.",
+  csCtaRing: "Join the course",
+  csLineRing: "Close the ring on every course.",
+  csCtaIndex: "Join the class",
+  csLineIndex: "Your teachers, at your pace.",
+  csCtaOnAir: "Join now",
+  csLineOnAir: "Every lesson, live or recorded.",
+  // ——— end 130.52 ———
 } as const;
 
 /** A word a template writes into the app. */
@@ -1566,6 +1576,16 @@ export const ar: Record<AppWord, string> = {
   pdQuoteTwo: "[كلمات عميل آخر]",
   pdAboutLine: "[قصتك في سطر أو سطرين]",
   // ——— end 130.30 ———
+  // ——— 130.52 ———
+  csCtaCinema: "ابدأ المشاهدة",
+  csLineCinema: "دروس الليلة بانتظارك.",
+  csCtaRing: "انضم إلى الدورة",
+  csLineRing: "أكمل الحلقة في كل دورة.",
+  csCtaIndex: "انضم إلى الصف",
+  csLineIndex: "مدرّسوك، بالوتيرة التي تناسبك.",
+  csCtaOnAir: "انضم الآن",
+  csLineOnAir: "كل درس، مباشرًا أو مسجّلًا.",
+  // ——— end 130.52 ———
 };
 
 export const tr: Record<AppWord, string> = {
@@ -2339,6 +2359,16 @@ export const tr: Record<AppWord, string> = {
   pdQuoteTwo: "[Başka bir müşterinin sözleri]",
   pdAboutLine: "[Hikâyeniz bir iki satırda]",
   // ——— end 130.30 ———
+  // ——— 130.52 ———
+  csCtaCinema: "İzlemeye başla",
+  csLineCinema: "Bu akşamın dersleri sizi bekliyor.",
+  csCtaRing: "Kursa katıl",
+  csLineRing: "Her kursta halkayı tamamlayın.",
+  csCtaIndex: "Sınıfa katıl",
+  csLineIndex: "Öğretmenleriniz, sizin hızınızda.",
+  csCtaOnAir: "Hemen katıl",
+  csLineOnAir: "Her ders, canlı ya da kayıtlı.",
+  // ——— end 130.52 ———
 };
 
 /** The languages templates are written in; another one gets English. */

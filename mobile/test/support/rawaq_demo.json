@@ -183,6 +183,31 @@
    "code": "premium",
    "cart": "premium"
   },
+  "courses": {
+   "look": "index",
+   "card": {
+    "hide": []
+   },
+   "page": {
+    "hide": [],
+    "cta": {
+     "en": "Join the class",
+     "ar": "انضم إلى الصف",
+     "tr": "Sınıfa katıl"
+    }
+   },
+   "lesson": {
+    "hide": []
+   },
+   "my_courses": {
+    "hide": [],
+    "headline": {
+     "en": "Your teachers, at your pace.",
+     "ar": "مدرّسوك، بالوتيرة التي تناسبك.",
+     "tr": "Öğretmenleriniz, sizin hızınızda."
+    }
+   }
+  },
   "system": {
    "look": "brand"
   }

@@ -9,6 +9,7 @@ import '../../../core/api/api_exception.dart';
 import '../../../core/api/models/models.dart';
 import 'learning_clock.dart';
 import 'premium_lesson.dart';
+import '../studio_courses/course_look_kit.dart';
 import 'video/player_controls.dart' show PremiumPlayer;
 import '../../../core/auth/auth_controller.dart';
 import '../../../core/gate/app_gate.dart';
@@ -321,9 +322,12 @@ class _LessonScreenState extends ConsumerState<LessonScreen> {
 
     // 123 The premium academy's lesson.
     final gate = ref.watch(appGateProvider);
+    // 130.52 Studio's course screens' look, in place of it.
+    final studio = gate is GateReady ? gate.config.screens?.courses : null;
     final premium =
-        gate is GateReady &&
-        (gate.config.screens?.has(ScreenLookKey.lesson) ?? false);
+        studio != null ||
+        (gate is GateReady &&
+            (gate.config.screens?.has(ScreenLookKey.lesson) ?? false));
 
     if (lesson.video != null) {
       return _VideoLesson(
@@ -338,8 +342,12 @@ class _LessonScreenState extends ConsumerState<LessonScreen> {
                 courseImage: course?.imageUrl,
                 enrolled: tools != null,
                 videoPosition: () => _lastPosition,
+                studio: studio,
+                topics: topics,
               )
             : null,
+        studio: studio,
+        courseTitle: course?.title,
         lesson: lesson,
         download: download,
         subtitle: subtitle,
@@ -367,18 +375,25 @@ class _LessonScreenState extends ConsumerState<LessonScreen> {
     if (premium && lesson.renderMode != RenderMode.webview) {
       return Scaffold(
         body: GoldButtons(
-          color: Theme.of(context).colorScheme.secondary,
+          color: studio != null
+              ? CourseLookColors.of(context, studio).accent
+              : Theme.of(context).colorScheme.secondary,
           child: SafeArea(
             bottom: false,
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                const Padding(
-                  padding: EdgeInsetsDirectional.fromSTEB(16, 8, 16, 0),
-                  child: AppBackButton(),
-                ),
+                if (studio != null)
+                  StudioLessonTop(title: course?.title)
+                else
+                  const Padding(
+                    padding: EdgeInsetsDirectional.fromSTEB(16, 8, 16, 0),
+                    child: AppBackButton(),
+                  ),
                 Expanded(
                   child: PremiumLessonBody(
+                    studio: studio,
+                    topics: topics,
                     lesson: lesson,
                     position: position,
                     download: download,
@@ -608,9 +623,16 @@ class _VideoLesson extends ConsumerStatefulWidget {
     required this.onEnded,
     this.tools,
     this.premium,
+    this.studio,
+    this.courseTitle,
   });
 
   final Lesson lesson;
+
+  /// 130.52 Studio's course screens' look: the player full width on black
+  /// (`cinema`) or in a rounded frame on the page (`framed`).
+  final CourseScreensLook? studio;
+  final String? courseTitle;
 
   /// 123 The premium academy's lesson under the video, in place of the
   /// app's own.
@@ -680,6 +702,72 @@ class _VideoLessonState extends ConsumerState<_VideoLesson> {
         ),
       ),
     );
+    // 130.52 The player in Studio's course screens' look.
+    final studio = widget.studio;
+    if (premium != null && studio != null) {
+      final accent = CourseLookColors.of(context, studio).accent;
+      if (studio.lesson.player == LessonPlayer.framed) {
+        final framed = LessonVideoPlayer(
+          key: ValueKey('video-${lesson.id}'),
+          video: lesson.video!,
+          startSeconds: lesson.positionSeconds,
+          reloadVideo: widget.reloadVideo,
+          watermark: watermarkText(config.content.watermark, user),
+          captured: widget.captured,
+          onProgress: widget.onProgress,
+          onEnded: widget.onEnded,
+        );
+        return Scaffold(
+          key: const ValueKey('studio-lesson-framed'),
+          body: GoldButtons(
+            color: accent,
+            child: SafeArea(
+              bottom: false,
+              child: Column(
+                children: [
+                  StudioLessonTop(title: widget.courseTitle),
+                  Padding(
+                    padding: const EdgeInsets.fromLTRB(16, 6, 16, 0),
+                    child: DecoratedBox(
+                      decoration: BoxDecoration(
+                        borderRadius: BorderRadius.circular(24),
+                        boxShadow: [
+                          BoxShadow(
+                            color: accent.withValues(alpha: 0.22),
+                            blurRadius: 28,
+                            offset: const Offset(0, 12),
+                          ),
+                        ],
+                      ),
+                      child: ClipRRect(
+                        borderRadius: BorderRadius.circular(24),
+                        child: ColoredBox(
+                          color: BrandColors.midnight,
+                          child: PremiumPlayer(gold: accent, child: framed),
+                        ),
+                      ),
+                    ),
+                  ),
+                  Expanded(child: premium),
+                ],
+              ),
+            ),
+          ),
+        );
+      }
+      return Scaffold(
+        key: const ValueKey('studio-lesson-cinema'),
+        body: GoldButtons(
+          color: accent,
+          child: Column(
+            children: [
+              PremiumPlayer(gold: accent, child: player),
+              Expanded(child: premium),
+            ],
+          ),
+        ),
+      );
+    }
     if (premium != null) {
       return Scaffold(
         body: GoldButtons(
@@ -981,4 +1069,38 @@ String attachmentSize(int bytes) {
     return currentL10n.sizeKilobytes((bytes / 1024).toStringAsFixed(0));
   }
   return currentL10n.sizeMegabytes((bytes / (1024 * 1024)).toStringAsFixed(1));
+}
+
+/// 130.52 The top of a lesson in Studio's course screens' framed look: the
+/// way back and the course's name.
+class StudioLessonTop extends StatelessWidget {
+  const StudioLessonTop({super.key, this.title});
+
+  final String? title;
+
+  @override
+  Widget build(BuildContext context) {
+    final p = context.palette;
+    return Padding(
+      padding: const EdgeInsetsDirectional.fromSTEB(8, 4, 16, 4),
+      child: Row(
+        children: [
+          AppBackButton(onPressed: () => Navigator.of(context).maybePop()),
+          const SizedBox(width: 4),
+          Expanded(
+            child: Text(
+              title ?? '',
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+              style: TextStyle(
+                fontSize: 14,
+                fontWeight: FontWeight.w800,
+                color: p.text,
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
 }

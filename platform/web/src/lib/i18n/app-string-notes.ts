@@ -4734,6 +4734,40 @@ export const APP_STRING_NOTES: Record<string, { en?: string; ar: string; tr: str
     ar: "المرحلة الأخيرة للرحلة المباشرة: على متن السيارة.",
     tr: "Canlı yolculuğun son aşaması: araçta.",
   },
+  // 130.52 The course screens' app strings.
+  "130.52 A course's rating drawn as five star icons, read out.": {
+    en: "A course's rating drawn as five stars, read out by screen readers.",
+    ar: "تقييم الدورة مرسومًا بخمس نجوم، ويُقرأ لقارئ الشاشة.",
+    tr: "Kursun puanı beş yıldızla çizilir ve ekran okuyucuya okunur.",
+  },
+  "130.52 The lesson's files and links.": {
+    ar: "ملفات الدرس وروابطه.",
+    tr: "Dersin dosyaları ve bağlantıları.",
+  },
+  "130.52 The next lesson of the course, on the lesson screen.": {
+    ar: "الدرس التالي في الدورة، على شاشة الدرس.",
+    tr: "Ders ekranında, kursun bir sonraki dersi.",
+  },
+  "130.52 The student's place on the course's curriculum timeline.": {
+    ar: "موضع الطالب على الخط الزمني لمنهج الدورة.",
+    tr: "Öğrencinin kurs müfredatı zaman çizelgesindeki yeri.",
+  },
+  "130.52 My courses: the student's completed courses.": {
+    ar: "دوراتي: الدورات التي أكملها الطالب.",
+    tr: "Kurslarım: öğrencinin tamamladığı kurslar.",
+  },
+  "130.52 How far through the course, on the lesson screen.": {
+    ar: "مدى تقدّم الطالب في الدورة، على شاشة الدرس.",
+    tr: "Ders ekranında, kursta ne kadar ilerlendiği.",
+  },
+  "130.52 Opens every review of the course.": {
+    ar: "يفتح كل تقييمات الدورة.",
+    tr: "Kursun tüm değerlendirmelerini açar.",
+  },
+  "130.52 The course's questions, opened from its page.": {
+    ar: "أسئلة الدورة، تُفتح من صفحتها.",
+    tr: "Kursun soruları, sayfasından açılır.",
+  },
 };
 
 /** A developer's description without the app's code names: "… lib/core/x.dart uses it …", "(vertical_wording.dart)", a leading roadmap number. */

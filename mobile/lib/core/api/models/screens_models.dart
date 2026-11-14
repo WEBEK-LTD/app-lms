@@ -1,5 +1,6 @@
 import 'dart:ui' show Color;
 
+import 'course_screens_models.dart';
 import 'json.dart';
 import 'launch_models.dart';
 
@@ -234,6 +235,7 @@ class StudioScreens {
     this.looks = const {},
     this.launch,
     this.system,
+    this.courses,
   });
 
   static StudioScreens? fromJson(Object? value) {
@@ -264,8 +266,13 @@ class StudioScreens {
       },
       launch: LaunchLook.fromJson(value['launch']),
       system: SystemScreensLook.tryParse(value['system']),
+      courses: CourseScreensLook.tryParse(value['courses']),
     );
   }
+
+  /// 130.52 The academy's course screens in one premium look (the card, a
+  /// course's page, the lesson and My courses); null, as before.
+  final CourseScreensLook? courses;
 
   /// 130.21 The premium look of the app's system screens; null, their own.
   final SystemScreensLook? system;

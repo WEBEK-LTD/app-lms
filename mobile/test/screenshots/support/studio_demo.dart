@@ -812,6 +812,8 @@ DemoApi rawaqStudioApi({
   bool staffApp = false,
   // 130 A Signature look's project instead of the demo's.
   StudioDemo? look,
+  // 130.52 The academy's courses in Arabic.
+  bool arabic = false,
 }) {
   final demo = look ?? StudioDemo.rawaq;
   Map<String, dynamic> course(
@@ -836,7 +838,7 @@ DemoApi rawaqStudioApi({
     rating: rating,
     action: {'type': 'course', 'course_id': id},
   );
-  final api = DemoApi.teachers();
+  final api = DemoApi.teachers(arabic: arabic);
   if (staffApp) {
     api.config = {
       ...api.config,

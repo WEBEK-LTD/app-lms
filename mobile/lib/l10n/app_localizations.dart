@@ -18775,6 +18775,54 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'On board'**
   String get liveStageOnBoard;
+
+  /// 130.52 A course's rating drawn as five star icons, read out.
+  ///
+  /// In en, this message translates to:
+  /// **'{rating} out of 5 stars'**
+  String courseLookStars(String rating);
+
+  /// 130.52 The lesson's files and links.
+  ///
+  /// In en, this message translates to:
+  /// **'Resources'**
+  String get courseLookResources;
+
+  /// 130.52 The next lesson of the course, on the lesson screen.
+  ///
+  /// In en, this message translates to:
+  /// **'Up next'**
+  String get courseLookUpNext;
+
+  /// 130.52 The student's place on the course's curriculum timeline.
+  ///
+  /// In en, this message translates to:
+  /// **'You\'re here'**
+  String get courseLookYouAreHere;
+
+  /// 130.52 My courses: the student's completed courses.
+  ///
+  /// In en, this message translates to:
+  /// **'Completed courses'**
+  String get courseLookCompleted;
+
+  /// 130.52 How far through the course, on the lesson screen.
+  ///
+  /// In en, this message translates to:
+  /// **'Your progress'**
+  String get courseLookCourseProgress;
+
+  /// 130.52 Opens every review of the course.
+  ///
+  /// In en, this message translates to:
+  /// **'All reviews'**
+  String get courseLookAllReviews;
+
+  /// 130.52 The course's questions, opened from its page.
+  ///
+  /// In en, this message translates to:
+  /// **'Questions and answers'**
+  String get courseLookQuestions;
 }
 
 class _AppLocalizationsDelegate

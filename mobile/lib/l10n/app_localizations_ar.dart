@@ -12129,4 +12129,30 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get liveStageOnBoard => 'في الرحلة';
+
+  @override
+  String courseLookStars(String rating) {
+    return '$rating من 5 نجوم';
+  }
+
+  @override
+  String get courseLookResources => 'الموارد';
+
+  @override
+  String get courseLookUpNext => 'التالي';
+
+  @override
+  String get courseLookYouAreHere => 'أنت هنا';
+
+  @override
+  String get courseLookCompleted => 'الدورات المكتملة';
+
+  @override
+  String get courseLookCourseProgress => 'تقدّمك في الدورة';
+
+  @override
+  String get courseLookAllReviews => 'كل التقييمات';
+
+  @override
+  String get courseLookQuestions => 'الأسئلة والأجوبة';
 }

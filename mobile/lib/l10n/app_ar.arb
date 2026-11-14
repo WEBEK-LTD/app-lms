@@ -3110,5 +3110,13 @@
   "liveStageFinding": "البحث",
   "liveStageComing": "في الطريق",
   "liveStageHere": "وصل",
-  "liveStageOnBoard": "في الرحلة"
+  "liveStageOnBoard": "في الرحلة",
+  "courseLookStars": "{rating} من 5 نجوم",
+  "courseLookResources": "الموارد",
+  "courseLookUpNext": "التالي",
+  "courseLookYouAreHere": "أنت هنا",
+  "courseLookCompleted": "الدورات المكتملة",
+  "courseLookCourseProgress": "تقدّمك في الدورة",
+  "courseLookAllReviews": "كل التقييمات",
+  "courseLookQuestions": "الأسئلة والأجوبة"
 }

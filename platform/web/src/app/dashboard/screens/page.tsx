@@ -8,6 +8,8 @@ import { studioScreensOn } from "@/lib/studio/screens";
 import { appLanguageName } from "@/lib/i18n/language-names";
 import { assetUrl } from "@/lib/assets";
 import { ScreensEditor } from "./editor";
+// 130.52 The courses the course screens' drawings show.
+import { sampleEntries } from "@/lib/studio/sample-entries";
 
 export async function generateMetadata(): Promise<Metadata> {
   return { title: (await dashboardText()).t("studio.screensTitle") };
@@ -39,6 +41,7 @@ export default async function ScreensPage() {
         appName={app.appName ?? ""}
         color={app.primaryColor ?? "#0E1424"}
         courses={app.appType === "lms"}
+        sampleCourses={app.appType === "lms" ? Object.fromEntries(Object.entries(sampleEntries(new Date())).map(([l, e]) => [l, e?.courses ?? []])) : undefined}
         brand={{
           main: layout.appearance.primary_color ?? app.primaryColor ?? "#0E1424",
           second: layout.appearance.secondary_color ?? null,

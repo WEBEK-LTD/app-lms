@@ -11651,4 +11651,30 @@ class AppLocalizationsTr extends AppLocalizations {
 
   @override
   String get liveStageOnBoard => 'Yolculukta';
+
+  @override
+  String courseLookStars(String rating) {
+    return '5 üzerinden $rating yıldız';
+  }
+
+  @override
+  String get courseLookResources => 'Kaynaklar';
+
+  @override
+  String get courseLookUpNext => 'Sıradaki';
+
+  @override
+  String get courseLookYouAreHere => 'Buradasınız';
+
+  @override
+  String get courseLookCompleted => 'Tamamlanan kurslar';
+
+  @override
+  String get courseLookCourseProgress => 'İlerlemeniz';
+
+  @override
+  String get courseLookAllReviews => 'Tüm değerlendirmeler';
+
+  @override
+  String get courseLookQuestions => 'Sorular ve cevaplar';
 }

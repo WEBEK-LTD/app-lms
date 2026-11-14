@@ -16,6 +16,7 @@ import { scrimCss } from "@/lib/studio/scrim";
 import { SCHOOL_WORDS_EN, SchoolCard, type SchoolWords } from "./school";
 import type { ScreenDrawing } from "@/lib/studio/screen-drawing";
 import { AppScreen } from "./app-screens";
+import { CourseScreenDrawing } from "./course-screens";
 // 128 The cover layouts and the live elements.
 import { Cover } from "./covers";
 import { GreetingText, TrackingCard } from "./tracking";
@@ -1243,6 +1244,19 @@ function ScreenPart(props: ViewProps) {
             image={part.drawing.image}
             title={tabLabel}
             hidesTitle={Boolean(page.header)}
+            top={page.header || page.body.children?.length || props.editing ? 0 : 30}
+          />
+        ) : part.drawing.screen === "courses" ? (
+          // 130.52 A course screen in Studio's course screens' look.
+          <CourseScreenDrawing
+            part={part.drawing.part}
+            design={part.drawing.look}
+            dark={dark}
+            lang={lang}
+            brand={look.brand}
+            accent={look.accent ?? null}
+            courses={courses}
+            tabLabel={tabLabel}
             top={page.header || page.body.children?.length || props.editing ? 0 : 30}
           />
         ) : (

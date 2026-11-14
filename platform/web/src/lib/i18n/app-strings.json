@@ -3108,4 +3108,12 @@
 {"key":"liveStageFinding","en":"Finding","ar":"البحث","tr":"Aranıyor","description":"130 A live ride's first stage: finding a driver."},
 {"key":"liveStageComing","en":"Coming","ar":"في الطريق","tr":"Geliyor","description":"130 A live ride's second stage: the driver is coming."},
 {"key":"liveStageHere","en":"Here","ar":"وصل","tr":"Geldi","description":"130 A live ride's third stage: the driver is here."},
-{"key":"liveStageOnBoard","en":"On board","ar":"في الرحلة","tr":"Yolculukta","description":"130 A live ride's last stage: on board."}]}
+{"key":"liveStageOnBoard","en":"On board","ar":"في الرحلة","tr":"Yolculukta","description":"130 A live ride's last stage: on board."},
+{"key":"courseLookStars","en":"{rating} out of 5 stars","ar":"{rating} من 5 نجوم","tr":"5 üzerinden {rating} yıldız","description":"130.52 A course's rating drawn as five star icons, read out.","placeholders":{"rating":"String"}},
+{"key":"courseLookResources","en":"Resources","ar":"الموارد","tr":"Kaynaklar","description":"130.52 The lesson's files and links."},
+{"key":"courseLookUpNext","en":"Up next","ar":"التالي","tr":"Sıradaki","description":"130.52 The next lesson of the course, on the lesson screen."},
+{"key":"courseLookYouAreHere","en":"You're here","ar":"أنت هنا","tr":"Buradasınız","description":"130.52 The student's place on the course's curriculum timeline."},
+{"key":"courseLookCompleted","en":"Completed courses","ar":"الدورات المكتملة","tr":"Tamamlanan kurslar","description":"130.52 My courses: the student's completed courses."},
+{"key":"courseLookCourseProgress","en":"Your progress","ar":"تقدّمك في الدورة","tr":"İlerlemeniz","description":"130.52 How far through the course, on the lesson screen."},
+{"key":"courseLookAllReviews","en":"All reviews","ar":"كل التقييمات","tr":"Tüm değerlendirmeler","description":"130.52 Opens every review of the course."},
+{"key":"courseLookQuestions","en":"Questions and answers","ar":"الأسئلة والأجوبة","tr":"Sorular ve cevaplar","description":"130.52 The course's questions, opened from its page."}]}

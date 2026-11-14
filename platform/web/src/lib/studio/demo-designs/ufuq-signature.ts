@@ -1,6 +1,7 @@
 import type { Action, LayoutTab, StudioNode, StudioPage } from "../../pages/types";
 import { ACADEMY_COLORS, ACADEMY_PROJECT, type TemplateProject } from "../academy";
 import type { StudioScreens } from "../screens";
+import { signatureCourseScreens, type CourseLook } from "../course-screens";
 import type { SectionContext, SectionWord } from "../sections";
 import { idOf, pad, photo } from "./parts";
 import type { SignatureDesign, SignatureProject } from "./signature";
@@ -115,7 +116,7 @@ function invite(ctx: SectionContext, path: string, extra: Partial<StudioNode>): 
 }
 
 /** The premium academy's project in the look: its tabs, screens and features, the look's bar, font and account card. */
-function ufuqProject(appearance: TemplateProject["appearance"], signIn: string): SignatureProject {
+function ufuqProject(appearance: TemplateProject["appearance"], signIn: string, courses: CourseLook): SignatureProject {
   return {
     primary: ACADEMY_PROJECT.primary,
     // The pages' headers are the look's (./index.ts designedDemoPage), by day and by night.
@@ -125,7 +126,8 @@ function ufuqProject(appearance: TemplateProject["appearance"], signIn: string):
     siteTabs: ACADEMY_PROJECT.tabs,
     screens: (platform: string): StudioScreens => {
       const screens = ACADEMY_PROJECT.screens(platform);
-      return { ...screens, sign_in: { ...screens.sign_in!, image_url: `${platform.replace(/\/+$/, "")}${signIn}` } };
+      // 130.52 The course card, a course's page, the lesson and My courses in the look's own course screens.
+      return { ...screens, sign_in: { ...screens.sign_in!, image_url: `${platform.replace(/\/+$/, "")}${signIn}` }, courses: signatureCourseScreens(courses) };
     },
   };
 }
@@ -274,7 +276,7 @@ export const UFUQ_A: SignatureDesign = {
   tabs: ufuqTabs,
   // The board's bar: a floating navy pill (ink by night), the open tab's name beside its icon on gold.
   bar: { design: "float", radius: 30, margin: 14, labels: "active", background: NAVY, dark_background: UFUQ_A_INK.darkSurface, active: GOLD_FILL, dark_active: GOLD_FILL, inactive: "#B3BAD0", dark_inactive: UFUQ_A_INK.darkMuted },
-  project: ufuqProject({ font: "DM Sans", font_family: "Readex Pro" }, "/stories/academy/academy-evening.jpg"),
+  project: ufuqProject({ font: "DM Sans", font_family: "Readex Pro" }, "/stories/academy/academy-evening.jpg", "cinema"),
   chrome: { header: "large", home: "photo", system: "brand" },
 };
 
@@ -369,6 +371,6 @@ export const UFUQ_B: SignatureDesign = {
   tabs: ufuqTabs,
   // The board's bar: a small white dock in the middle (ink by night), the open tab a gold circle.
   bar: { design: "dock", margin: 14, background: "#FFFFFF", dark_background: UFUQ_B_INK.darkSurface, active: "#C99B4A", dark_active: "#E7C982", inactive: UFUQ_B_INK.muted, dark_inactive: UFUQ_B_INK.darkMuted },
-  project: ufuqProject({ font: "Plus Jakarta Sans" }, "/stories/academy/academy-evening.jpg"),
+  project: ufuqProject({ font: "Plus Jakarta Sans" }, "/stories/academy/academy-evening.jpg", "ring"),
   chrome: { header: "large", home: "large", system: "large" },
 };

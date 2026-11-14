@@ -9,6 +9,7 @@ import '../../../core/theme/app_theme.dart';
 import '../../../core/theme/palette.dart';
 import '../../../core/widgets/common.dart';
 import 'course_cards.dart';
+import '../studio_courses/studio_course_card.dart';
 
 /// 122 The course card the owner designed in Studio (`Config.screens.
 /// course_card`): its shape, corners and what it shows; the app's own row
@@ -26,6 +27,11 @@ class DesignedCourseCard extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final gate = ref.watch(appGateProvider);
+    // 130.52 The course screens' look, in place of the card below.
+    final studio = gate is GateReady ? gate.config.screens?.courses : null;
+    if (studio != null) {
+      return StudioCourseCard(course: course, onTap: onTap, look: studio);
+    }
     final look = gate is GateReady ? gate.config.screens?.courseCard : null;
     if (look == null ||
         (look.style == CourseCardStyle.classic &&
