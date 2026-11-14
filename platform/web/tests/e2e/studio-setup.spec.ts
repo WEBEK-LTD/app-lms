@@ -126,7 +126,9 @@ async function draftPages(request: APIRequestContext): Promise<{ tabs: string[];
   const home = await request.get(`${api}/pages/home?platform=android`, { headers });
   expect(nav.status()).toBe(200);
   expect(home.status()).toBe(200);
-  return { tabs: (await nav.json()).tabs.map((t: { label: string }) => t.label), home: JSON.stringify((await home.json()).blocks) };
+  // 130 A Studio home (a whole-project template's, a Signature look's) has no blocks: its Studio page is compared too.
+  const page = (await home.json()) as { blocks: unknown; studio?: unknown };
+  return { tabs: (await nav.json()).tabs.map((t: { label: string }) => t.label), home: JSON.stringify([page.blocks, page.studio ?? null]) };
 }
 
 const take = () => own.getByRole("group", { name: "From this design, take" });

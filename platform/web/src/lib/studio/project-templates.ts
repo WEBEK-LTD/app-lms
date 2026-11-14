@@ -29,6 +29,13 @@ const PREFIX = "studio-";
 /** The template's real picture, as the app draws its home (public/screens). */
 const PICTURES: Record<string, string> = {
   academy_premium: "/screens/premium-home.png",
+  // 130.1–130.6 The Signature looks of Sofra Eats, Zad and Sahm Express, as the app draws a project from each.
+  food_signature_a: "/screens/food-sig-a-home.png",
+  food_signature_b: "/screens/food-sig-b-home.png",
+  marketplace_signature_a: "/screens/marketplace-sig-a-home.png",
+  marketplace_signature_b: "/screens/marketplace-sig-b-home.png",
+  delivery_signature_a: "/screens/delivery-sig-a-home.png",
+  delivery_signature_b: "/screens/delivery-sig-b-home.png",
 };
 
 /** The Branding step's id for a template (`studio-academy_premium`). */

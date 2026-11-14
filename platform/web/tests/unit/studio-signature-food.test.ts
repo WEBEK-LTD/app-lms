@@ -1,4 +1,4 @@
-import { readFileSync, writeFileSync } from "node:fs";
+import { existsSync, readFileSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
 import { describe, expect, it } from "vitest";
 import { ar as studioAr, en as studioEn, tr as studioTr } from "@/i18n/dashboard/studio";
@@ -15,7 +15,7 @@ import { parseLayoutContent, parseStudioPage } from "@/lib/pages/validate";
 import { signatureDesign, signatureDesigns } from "@/lib/studio/demo-designs";
 import type { SignatureDesign, SignatureLook } from "@/lib/studio/demo-designs/signature";
 import { withDemoFacts } from "@/lib/studio/demo-templates";
-import { projectTemplatesFor } from "@/lib/studio/project-templates";
+import { projectTemplatePicture, projectTemplatesFor } from "@/lib/studio/project-templates";
 import { TEMPLATES, templatesFor, type SectionContext, type SectionWord } from "@/lib/studio/sections";
 import { startLayout } from "@/lib/studio/start";
 import { allNodes } from "@/lib/studio/tree";
@@ -77,8 +77,17 @@ describe("130.1–130.6 the food, marketplace and delivery Signature looks", () 
     // App setup's Branding step offers it as a whole design for a Studio project of the kind.
     const app = { ...newApp("c1", null, NOW, demoKind(id).engine, demoKind(id).vertical), section: "studio" as const };
     expect(projectTemplatesFor(app).map((t) => t.id)).toContain(design.template.id);
-    // Its name, in the dashboard's three languages.
-    for (const words of [studioEn, studioAr, studioTr]) expect(String(words[`w_${design.name}`]).length).toBeGreaterThan(2);
+    // Its name, its template's name and the Branding step's words about it, in the dashboard's three languages; its real picture.
+    for (const words of [studioEn, studioAr, studioTr]) {
+      expect(String(words[`w_${design.name}`]).length).toBeGreaterThan(2);
+      const own = words as unknown as Record<string, string | undefined>;
+      expect(own[`tpl_${design.template.id}`], design.template.id).toBeTruthy();
+      expect(own[`tplText_${design.template.id}`], design.template.id).toBeTruthy();
+    }
+    const picture = projectTemplatePicture(template);
+    expect(picture).toBe(`/screens/${id}-sig-${look}-home.png`);
+    expect(existsSync(join(process.cwd(), "public", picture!))).toBe(true);
+    expect(existsSync(join(process.cwd(), "public", picture!.replace(".png", "-dark.png")))).toBe(true);
   });
 
   it.each(LOOKS)("the %s look %s's home, taken by an owner, is a page the platform takes, in Studio's three languages", (id, look) => {
