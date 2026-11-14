@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { ar as studioAr, en as studioEn, tr as studioTr } from "@/i18n/dashboard/studio";
+import { ar as appAr, en as appEn, tr as appTr } from "@/lib/studio/app-words";
 import { newApp } from "@/lib/app/setup";
 import type { App } from "@/lib/data/types";
 import { BUILT_IN_APP_DEFAULTS, defaultLayout } from "@/lib/pages/defaults";
@@ -29,14 +29,14 @@ function academy(): App {
 }
 
 function context(app: App, lang: "en" | "ar" | "tr" = "en"): SectionContext {
-  const words = { en: studioEn, ar: studioAr, tr: studioTr }[lang];
+  const words = { en: appEn, ar: appAr, tr: appTr }[lang];
   let n = 0;
   return {
     brand: app.primaryColor,
     source: itemSourcesFor(app)[0] ?? null,
     app: app.appName!,
     lang,
-    w: (word: SectionWord) => String(words[`w_${word}`]).replaceAll("{app}", app.appName!),
+    w: (word: SectionWord) => String(words[word]).replaceAll("{app}", app.appName!),
     newId: () => `n${++n}`,
     picture: (f) => `https://webek.org/design-pictures/${f}`,
   };
@@ -99,7 +99,7 @@ describe("123 the premium academy template", () => {
     expect(layout.tabs.find((t) => t.id === "courses")!.translations).toMatchObject({ en: { label: "Explore" } });
     const home = layout.pages.find((p) => p.slug === "home")!.studio!;
     const texts = allNodes(home).filter((n: StudioNode) => n.type === "text" && n.text);
-    const forYou = texts.find((n) => n.text === "اختيارات لك")!;
+    const forYou = texts.find((n) => n.text === "مختارة لك")!;
     expect(forYou.translations).toMatchObject({ en: { text: "Picked for you" }, tr: { text: "Senin için seçtiklerimiz" } });
     expect(texts.map((n) => n.text)).toContain("عرض الكل");
   });

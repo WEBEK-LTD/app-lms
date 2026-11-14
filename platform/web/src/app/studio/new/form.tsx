@@ -9,7 +9,8 @@ import { StudioView } from "@/components/studio/view";
 import type { Pickable } from "@/lib/hosted/pages/pickable";
 import type { DashKey } from "@/i18n/dashboard";
 import { kindById } from "@/lib/app/kinds";
-import { templatesFor, type SectionWord } from "@/lib/studio/sections";
+import { templatesFor } from "@/lib/studio/sections";
+import { appWords } from "@/lib/studio/app-words";
 import { kindOfChoice, templateAfterChoice, type PresetChoice } from "@/lib/studio/new-choices";
 import { Glyph, STUDIO_COLORS as C } from "../editor/shared";
 import { StudioBar } from "../chrome";
@@ -67,7 +68,7 @@ export function NewProjectForm({ studioKinds, kinds, error, samples }: { studioK
             brand: "#0E0D24",
             source: null,
             app: name.trim() || t("studio.untitledProject"),
-            w: (word: SectionWord) => t(`studio.w_${word}` as DashKey, { app: name.trim() || t("studio.untitledProject") }),
+            w: appWords(lang, name.trim() || t("studio.untitledProject")),
             newId: () => `t${x.id}`,
             lang,
             // The demo's own pictures, as in the demo.
@@ -144,6 +145,9 @@ export function NewProjectForm({ studioKinds, kinds, error, samples }: { studioK
                       value={k.id}
                       checked={on}
                       disabled={k.soon}
+                      // 128.11 Named by its visible name, its line under it as its description.
+                      aria-labelledby={`kind-studio-${k.id}`}
+                      aria-describedby={`kind-studio-${k.id}-text`}
                       onChange={() => {
                         setKindId(k.id);
                         setKindOf(kindOfChoice(k));
@@ -155,10 +159,10 @@ export function NewProjectForm({ studioKinds, kinds, error, samples }: { studioK
                       style={{ accentColor: C.accent }}
                     />
                     <Glyph name={k.icon} size={28} />
-                    <span className="text-[15px] font-extrabold" style={{ color: C.ink }}>
+                    <span id={`kind-studio-${k.id}`} className="text-[15px] font-extrabold" style={{ color: C.ink }}>
                       {k.name}
                     </span>
-                    <span className="text-xs" style={{ color: C.muted }}>
+                    <span id={`kind-studio-${k.id}-text`} className="text-xs" style={{ color: C.muted }}>
                       {k.text}
                     </span>
                   </label>
@@ -182,6 +186,7 @@ export function NewProjectForm({ studioKinds, kinds, error, samples }: { studioK
                       name="kindChoice"
                       value={k.id}
                       checked={on}
+                      aria-labelledby={`kind-all-${k.id}`}
                       onChange={() => {
                         setKindId(k.id);
                         setKindOf(kindOfChoice(k));
@@ -192,7 +197,7 @@ export function NewProjectForm({ studioKinds, kinds, error, samples }: { studioK
                       style={{ accentColor: C.ink }}
                     />
                     <Glyph name={k.icon} />
-                    {k.name}
+                    <span id={`kind-all-${k.id}`}>{k.name}</span>
                   </label>
                 );
               })}

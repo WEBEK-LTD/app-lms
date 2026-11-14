@@ -1,7 +1,7 @@
 import { createElement } from "react";
 import { renderToStaticMarkup } from "react-dom/server";
 import { describe, expect, it } from "vitest";
-import { en as studioEn } from "@/i18n/dashboard/studio";
+import { en as appEn } from "@/lib/studio/app-words";
 import { StudioView } from "@/components/studio/view";
 import { fontsOfPage } from "@/components/studio/fonts";
 import type { StudioNode, StudioPage } from "@/lib/pages/types";
@@ -40,7 +40,7 @@ function styleOf(html: string, id: string): Record<string, string> {
 
 const academyHome = (): StudioPage => {
   let n = 0;
-  return TEMPLATES.find((t) => t.id === "academy_premium")!.make({ brand: "#1D2B4F", source: "courses", w: (word: SectionWord) => String(studioEn[`w_${word}`]), newId: () => `n${++n}`, lang: "en", picture: (f) => `/design-pictures/${f}` });
+  return TEMPLATES.find((t) => t.id === "academy_premium")!.make({ brand: "#1D2B4F", source: "courses", w: (word: SectionWord) => String(appEn[word]), newId: () => `n${++n}`, lang: "en", picture: (f) => `/design-pictures/${f}` });
 };
 
 describe("124.6 the canvas lays a page out as the app", () => {
@@ -87,7 +87,7 @@ describe("124.6 the canvas lays a page out as the app", () => {
 
   it("124.7 draws a school's news as cards of words: the date chip, the title and its lines, no picture tile", () => {
     let n = 0;
-    const page = TEMPLATES.find((t) => t.id === "school")!.make({ brand: "#1F4E79", source: "school_news", w: (word: SectionWord) => String(studioEn[`w_${word}`]), newId: () => `n${++n}`, lang: "en", picture: (f) => `/design-pictures/${f}` });
+    const page = TEMPLATES.find((t) => t.id === "school")!.make({ brand: "#1F4E79", source: "school_news", w: (word: SectionWord) => String(appEn[word]), newId: () => `n${++n}`, lang: "en", picture: (f) => `/design-pictures/${f}` });
     const news = allNodes(page).find((x) => x.type === "items")!;
     const school = { items: { school_news: [{ id: "1", title: "Parents' evening on Thursday", subtitle: "Teachers will meet parents in the classrooms.", badge: "2026-11-11", imageUrl: null }] }, categories: {} };
     const html = renderToStaticMarkup(createElement(StudioView, { page, lang: "en", defaultLang: "en", dark: false, look: { ...LOOK, brand: "#1F4E79" }, pickable: school, words: WORDS }));

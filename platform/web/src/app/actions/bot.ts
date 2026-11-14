@@ -2,7 +2,6 @@
 
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
-import type { DashKey } from "@/i18n/dashboard";
 import { recordStaffChange } from "@/lib/admin/audit";
 import { MAX_APPS_PER_CLIENT } from "@/lib/app/label";
 import { chooseApp, clientFor, mayUseDashboard } from "@/lib/auth/session";
@@ -18,7 +17,7 @@ import { dashboardText } from "@/lib/dashboard-lang";
 import { appPlan } from "@/lib/entitlements";
 import { sessionSecret } from "@/lib/env";
 import { hitRateLimit, RATE_LIMITS } from "@/lib/rate-limit";
-import type { SectionWord } from "@/lib/studio/sections";
+import { appWords } from "@/lib/studio/app-words";
 import { appTypeOn, getSwitches } from "@/lib/switches";
 
 /**
@@ -137,7 +136,7 @@ export async function botCreateAction(answers: unknown): Promise<{ error: BotCre
     if (!asset || asset.clientId !== context.client.id || asset.kind !== "logo") return { error: "logo" };
   }
   const now = new Date();
-  const { t, lang } = await dashboardText();
+  const { lang } = await dashboardText();
   let open: string;
   try {
     const made = await makeFromAnswers(
@@ -145,7 +144,7 @@ export async function botCreateAction(answers: unknown): Promise<{ error: BotCre
       {
         clientId: context.client.id,
         plan: await appPlan(store, license, now),
-        words: (word: SectionWord) => t(`studio.w_${word}` as DashKey, { app: value.name }),
+        words: appWords(lang, value.name),
         lang,
       },
       value,

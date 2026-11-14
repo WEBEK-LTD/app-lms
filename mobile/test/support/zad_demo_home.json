@@ -22,7 +22,7 @@
         "color": "#1E6B52",
         "translations": {
           "ar": {
-            "text": "دوّر على منتجات ومحلات"
+            "text": "ابحث عن منتجات ومتاجر"
           },
           "tr": {
             "text": "Ürün ve dükkân arayın"
@@ -81,7 +81,7 @@
                 "color": "#F2A93B",
                 "translations": {
                   "ar": {
-                    "text": "الأسبوع ده"
+                    "text": "هذا الأسبوع"
                   },
                   "tr": {
                     "text": "Bu hafta"
@@ -139,7 +139,7 @@
                 },
                 "translations": {
                   "ar": {
-                    "text": "اتسوّق دلوقتي"
+                    "text": "تسوّق الآن"
                   },
                   "tr": {
                     "text": "Alışverişe başla"
@@ -225,7 +225,7 @@
                     "color": "#FFFFFF",
                     "translations": {
                       "ar": {
-                        "text": "متقطفة الصبح"
+                        "text": "قُطفت هذا الصباح"
                       },
                       "tr": {
                         "text": "Bu sabah toplandı"
@@ -279,7 +279,7 @@
                     "color": "#FFFFFF",
                     "translations": {
                       "ar": {
-                        "text": "خضار"
+                        "text": "خضروات"
                       },
                       "tr": {
                         "text": "Sebze"
@@ -298,7 +298,7 @@
                     "color": "#FFFFFF",
                     "translations": {
                       "ar": {
-                        "text": "طازة من الأرض"
+                        "text": "طازجة من المزرعة"
                       },
                       "tr": {
                         "text": "Tarladan taze"
@@ -371,7 +371,7 @@
                     "color": "#FFFFFF",
                     "translations": {
                       "ar": {
-                        "text": "مخبوزة النهارده"
+                        "text": "خُبزت اليوم"
                       },
                       "tr": {
                         "text": "Bugün pişti"
@@ -444,7 +444,7 @@
                     "color": "#FFFFFF",
                     "translations": {
                       "ar": {
-                        "text": "لبن، جبنة، بيض"
+                        "text": "حليب وجبن وبيض"
                       },
                       "tr": {
                         "text": "Süt, peynir, yumurta"
@@ -482,7 +482,7 @@
             "dark_color": "#EAF3EE",
             "translations": {
               "ar": {
-                "text": "أماكن جنبك"
+                "text": "أماكن قريبة منك"
               },
               "tr": {
                 "text": "Yakınınızdaki yerler"
@@ -505,7 +505,7 @@
             },
             "translations": {
               "ar": {
-                "text": "شوف الكل"
+                "text": "عرض الكل"
               },
               "tr": {
                 "text": "Tümünü gör"

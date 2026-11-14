@@ -6,11 +6,11 @@ import { recordStaffChange } from "@/lib/admin/audit";
 import { kindById } from "@/lib/app/kinds";
 import { MAX_APPS_PER_CLIENT } from "@/lib/app/label";
 import { chooseApp, clientFor, mayUseDashboard } from "@/lib/auth/session";
-import type { DashKey } from "@/i18n/dashboard";
 import { dashboardText } from "@/lib/dashboard-lang";
 import { getStore } from "@/lib/data";
 import { makeStudioProject } from "@/lib/studio/new-project";
-import { templatesFor, TEMPLATES, type SectionWord } from "@/lib/studio/sections";
+import { templatesFor, TEMPLATES } from "@/lib/studio/sections";
+import { appWords } from "@/lib/studio/app-words";
 import { studioSourcesFor, type StudioSource } from "@/lib/studio/section";
 import { appTypeOn, getSwitches } from "@/lib/switches";
 import type { TeamPermission } from "@/lib/team/permissions";
@@ -71,8 +71,8 @@ export async function createStudioProjectAction(formData: FormData): Promise<voi
   const template = templatesFor({ type: kind.engine, vertical: kind.vertical }).find((x) => x.id === formData.get("template")) ?? TEMPLATES.find((x) => x.id === "blank")!;
   const now = new Date();
   // The home page starts as a Studio page from the chosen template, in the dashboard's language.
-  const { t, lang } = await dashboardText();
-  const app = await makeStudioProject(store, { clientId: context.client.id, name, kind, source, template, words: (word: SectionWord) => t(`studio.w_${word}` as DashKey, { app: name }), lang }, now);
+  const { lang } = await dashboardText();
+  const app = await makeStudioProject(store, { clientId: context.client.id, name, kind, source, template, words: appWords(lang, name), lang }, now);
   await chooseApp(app.id);
   await recordStaffChange({ ...context, app }, `Added a Studio project: ${kind.name}`, { appType: null }, { appType: kind.engine, vertical: kind.vertical, section: "studio" });
   revalidatePath("/studio", "layout");

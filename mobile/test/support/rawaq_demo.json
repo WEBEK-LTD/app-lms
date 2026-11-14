@@ -101,7 +101,7 @@
     },
     "translations": {
      "ar": {
-      "label": "كورساتي"
+      "label": "دوراتي"
      },
      "tr": {
       "label": "Kurslarım"
@@ -897,7 +897,7 @@
     "title": "My courses",
     "translations": {
      "ar": {
-      "title": "كورساتي"
+      "title": "دوراتي"
      },
      "tr": {
       "title": "Kurslarım"
@@ -955,7 +955,7 @@
             },
             "translations": {
              "ar": {
-              "text": "كمّل من مكان ما وقفت."
+              "text": "تابع من حيث توقفت."
              },
              "tr": {
               "text": "Kaldığınız yerden devam edin."
@@ -977,7 +977,7 @@
       ],
       "translations": {
        "ar": {
-        "title": "كورساتي"
+        "title": "دوراتي"
        },
        "tr": {
         "title": "Kurslarım"
