@@ -424,7 +424,7 @@ function OptionGroupsEditor({ initial, currency, restaurant, error }: { initial:
                     className="input input-sm w-[100px]"
                     inputMode="decimal"
                     value={option.weight ?? ""}
-                    placeholder="+ kg"
+                    placeholder={t("shop.optionWeightPlaceholder")}
                     aria-label={t("shop.optionWeightAria", { n, k: k + 1 })}
                     onChange={(e) => updateOption(i, k, { weight: e.target.value })}
                   />

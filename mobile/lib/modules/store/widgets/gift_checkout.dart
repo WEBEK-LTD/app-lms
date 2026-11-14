@@ -714,8 +714,38 @@ class _GiftDetailsPanelState extends ConsumerState<GiftDetailsPanel> {
 
     if (widget.between != null) parts.add(widget.between!(step++));
 
-    if (widget.rules.enabled || gift) {
-      final occasions = ref.watch(giftMessagesProvider).value ?? const [];
+    final occasions = widget.rules.enabled || gift
+        ? ref.watch(giftMessagesProvider).value ?? const <GiftOccasion>[]
+        : const <GiftOccasion>[];
+    // A shop with only the message, as before 131: its one field.
+    final plain =
+        !gift &&
+        !widget.rules.recipient &&
+        !widget.rules.anonymous &&
+        widget.rules.starters.isEmpty &&
+        occasions.isEmpty;
+    if (widget.rules.enabled && plain) {
+      parts.add(
+        TextField(
+          key: const ValueKey('gift-message'),
+          controller: widget.message,
+          maxLength: widget.rules.maxLength,
+          minLines: 2,
+          maxLines: 4,
+          textCapitalization: TextCapitalization.sentences,
+          onChanged: (_) => widget.onChanged(),
+          decoration: InputDecoration(
+            labelText: l10n.giftMessage,
+            hintText: l10n.giftMessageHint,
+            prefixIcon: AppIcon(
+              AppIcons.gift,
+              size: 20,
+              color: p.textSecondary,
+            ),
+          ),
+        ),
+      );
+    } else if (widget.rules.enabled || gift) {
       final open = occasions.where((o) => o.id == _occasion).firstOrNull;
       void fill(String text) {
         final max = widget.rules.maxLength;

@@ -591,7 +591,7 @@ describe("91.1 coupon rules", () => {
   it("reads the dashboard's form", () => {
     expect(parseCoupon({ code: "spring10", kind: "percent", value: "10", minOrder: "", endsOn: "2026-12-31", maxUses: "" }, NOW)).toEqual({
       ok: true,
-      value: { code: "SPRING10", kind: "percent", value: 10, minOrderCents: null, endsAt: new Date("2026-12-31T23:59:59Z"), maxUses: null },
+      value: { code: "SPRING10", kind: "percent", value: 10, minOrderCents: null, startsAt: null, endsAt: new Date("2026-12-31T23:59:59Z"), maxUses: null, public: false },
     });
     expect(parseCoupon({ code: "OFF50", kind: "amount", value: "50", minOrder: "300", maxUses: "100" }, NOW)).toMatchObject({ ok: true, value: { value: 5000, minOrderCents: 30000, maxUses: 100 } });
     expect(parseCoupon({ code: "!", kind: "percent", value: "120", minOrder: "x", endsOn: "2020-01-01", maxUses: "0" }, NOW)).toEqual({

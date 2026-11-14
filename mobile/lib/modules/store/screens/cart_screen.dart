@@ -110,6 +110,30 @@ class _CartScreenState extends ConsumerState<CartScreen> {
   bool _laterChosen(FulfilmentConfig config, OrderTimes times) =>
       _later || (!times.asap && config.scheduled && times.slots.isNotEmpty);
 
+  /// The delivery date as before 131, for a shop with no slots and no
+  /// same-day cut-off (its app looks as it did).
+  Future<void> _pickDate(DeliveryDateRules rules) async {
+    final today = DateTime.now();
+    final first = rules.firstDay(today);
+    if (first == null) {
+      showMessage(context, context.l10n.noDeliveryDays);
+      return;
+    }
+    final last = DateTime(today.year, today.month, today.day + rules.maxDays);
+    final current = _deliveryDate;
+    final picked = await showDatePicker(
+      context: context,
+      helpText: context.l10n.deliveryDate,
+      initialDate: current != null && rules.allows(current, today)
+          ? current
+          : first,
+      firstDate: first,
+      lastDate: last,
+      selectableDayPredicate: (day) => rules.allows(day, today),
+    );
+    if (picked != null && mounted) _onDate(picked);
+  }
+
   /// 131 The quote prices the chosen day's slot and where it goes.
   void _syncDelivery() {
     ref.read(cartDeliveryProvider.notifier).set((
@@ -471,11 +495,30 @@ class _CartScreenState extends ConsumerState<CartScreen> {
                               _syncDelivery();
                             },
                           );
+                          // A shop with only the older delivery date (no
+                          // slots, no same-day cut-off) keeps its tile.
+                          final premium =
+                              rules.slots.isNotEmpty ||
+                              rules.sameDayCutoff != null;
                           return Column(
                             crossAxisAlignment: CrossAxisAlignment.stretch,
                             children: [
                               if (!gift && rules.enabled) ...[
-                                picker(null),
+                                if (premium)
+                                  picker(null)
+                                else
+                                  AppCard(
+                                    child: SettingsTile(
+                                      icon: AppIcons.calendar,
+                                      title: rules.required
+                                          ? context.l10n.deliveryDate
+                                          : context.l10n.deliveryDateOptional,
+                                      value: _deliveryDate == null
+                                          ? context.l10n.choose
+                                          : dayLabel(_deliveryDate!),
+                                      onTap: () => _pickDate(rules),
+                                    ),
+                                  ),
                                 const SizedBox(height: 12),
                               ],
                               panel,
