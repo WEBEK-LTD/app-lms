@@ -984,10 +984,10 @@ export function StudioEditor(props: StudioEditorProps) {
     for (const p of file.pages) for (const url of picturesIn(p.studio)) if (/^https?:\/\//.test(url)) pictures.set(url, url);
     const fitted = designPages(file, { sources: props.sources, categorySources: props.categorySources, screens: props.screens.map((s) => s.value), newId: newNodeId, pages: current.pages, languages: current.languages, pictures, now: new Date().toISOString() });
     // Templates = demos: the demo's whole design is the demo, its look and tabs too.
-    const demo = mode === "project" && file.demo && props.demoTabs ? demoProjectLook(file.demo, props.demoTabs, sectionContext.lang) : undefined;
+    const demo = mode === "project" && file.demo && props.demoTabs ? demoProjectLook(file.demo, props.demoTabs, sectionContext.lang, file.demo_look) : undefined;
     const next = applyWholeDesign(current, fitted, mode === "project" ? file.look : undefined, { mode, openSlug: slug, pageIndex, keep, now: new Date().toISOString(), demo, designSlugs: file.pages.map((p) => p.slug) });
     // 120 The demo's sign-in screen and account menu too.
-    if (demo && file.demo) void applyDemoScreensAction(file.demo).catch(() => null);
+    if (demo && file.demo) void applyDemoScreensAction(file.demo, file.demo_look).catch(() => null);
     // 124.11 A project's own file: its main colour and its screens' looks, which are the app's.
     else if (mode === "project" && file.look && (file.look.primary_color || file.look.screens)) {
       void applyDesignLookAction({ primary: file.look.primary_color ?? null, screens: file.look.screens ?? null })

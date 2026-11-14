@@ -593,7 +593,8 @@ describe("signing in to a demo app", () => {
       expect(bar?.design, id).toBe(DEMO_TAB_BARS[id].design);
       bars.add(bar!.design!);
     }
-    expect([...bars].sort()).toEqual(["classic", "dot", "float", "island"]);
+    // 130 Each demo's look A's premium bar: glass, a floating pill or a dock, never the classic one.
+    expect([...bars].sort()).toEqual(["dock", "float", "glass"]);
     expect(await config("store")).toBeUndefined();
     for (const d of Object.values(DEMO_SCREENS)) if (d.photo) expect(existsSync(join(process.cwd(), "public", d.photo)), d.photo).toBe(true);
   });

@@ -1,4 +1,5 @@
 import { describe, expect, it } from "vitest";
+import { signatureDesign } from "@/lib/studio/demo-designs";
 import { KINDS } from "@/lib/app/kinds";
 import { newApp } from "@/lib/app/setup";
 import type { StudioNode } from "@/lib/pages/types";
@@ -39,7 +40,8 @@ describe("108.7 whole designs", () => {
     for (const kind of KINDS) {
       const demo = studioDemoOf({ type: kind.engine, vertical: kind.vertical });
       const designs = designsFor({ type: kind.engine, vertical: kind.vertical });
-      expect(designs.filter((d) => d.demo).map((d) => d.demo), kind.id).toEqual(demo ? [demo] : []);
+      // 130 The demo (its look A), then its Signature look B.
+      expect(designs.filter((d) => d.demo).map((d) => [d.demo, d.look ?? "a"]), kind.id).toEqual(demo ? [[demo, "a"], [demo, "b"]] : []);
       if (!demo) continue;
       // The demo's design starts with the very page the demo shows, as it is.
       const ctx = { brand: "#1F4E5F", source: null, w: (word: SectionWord) => `[${word}]`, newId: (() => { let n = 0; return () => `n${++n}`; })() };
@@ -62,7 +64,8 @@ describe("108.7 whole designs", () => {
         const file = makeDesign(design, ctx, words, languages);
         // 130.23 A whole design of Yallapp's own brings the system screens' premium look (a demo's, its own screens);
         // 130.30 and its second colour and floating bar.
-        if (design.demo) expect(file.look).toEqual({ font: design.theme.font, secondary_color: DEMO_BRANDS[design.demo].secondaryColor });
+        // (130 A demo's look B in that look's second colour.)
+        if (design.demo) expect(file.look).toEqual({ font: design.theme.font, secondary_color: (design.look ? signatureDesign(design.demo, design.look)?.project.appearance?.secondary_color : undefined) ?? DEMO_BRANDS[design.demo].secondaryColor });
         else expect(file.look).toEqual({ font: design.theme.font, secondary_color: PREMIUM_PALETTES[design.theme.id as PremiumDesignId].accent, tab_bar: PREMIUM_BARS[design.theme.id as PremiumDesignId], screens: { system: THEME_CHROME[design.theme.id]!.system } });
         // Checked as the editor saves them: their links to each other too.
         const ready = defaultLayout(app, BUILT_IN_APP_DEFAULTS, NOW);

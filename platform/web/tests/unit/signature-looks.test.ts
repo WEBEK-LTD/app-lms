@@ -80,8 +80,12 @@ describe("130 the Signature looks: one registry, eighteen looks", () => {
       const kind = demoKind(demo);
       expect(templatesFor({ type: kind.engine, vertical: kind.vertical }).map((t) => t.id)).toContain(id);
       for (const lang of ["en", "ar", "tr"] as const) expect(String((WORDS[lang] as unknown as Record<string, string>)[`tpl_${id}`] ?? ""), `${lang} tpl_${id}`).not.toBe("");
-      // A look is a whole app of its own: never a page of a whole design's look.
-      expect(designsFor({ type: kind.engine, vertical: kind.vertical }).flatMap((d) => d.templates)).not.toContain(id);
+      // A look is a whole app of its own: never a page of another whole design's look; 130 the kind's whole designs start with its two looks (the demo, then look B), then the six premium designs.
+      const designs = designsFor({ type: kind.engine, vertical: kind.vertical });
+      expect(designs.filter((d) => !d.demo).flatMap((d) => d.templates)).not.toContain(id);
+      // (The premium academy is no kind's own demo: its looks are an academy's first templates instead.)
+      if (demo !== "premium_academy") expect(designs.slice(0, 2).map((d) => d.templates)).toEqual([[`demo_${demo}`], [`${demo}_signature_b`]]);
+      expect(designs.slice(demo === "premium_academy" ? 0 : 2).map((d) => d.id)).toEqual(["yallapp-warm", "yallapp-fresh", "yallapp-evening", "yallapp-ocean", "yallapp-classic", "yallapp-rose"]);
     }
   });
 

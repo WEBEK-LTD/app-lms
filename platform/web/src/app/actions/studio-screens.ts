@@ -57,12 +57,13 @@ export async function saveStudioScreensAction(_: FormState, formData: FormData):
  * demo app has them (lib/demo/screens.ts). Nothing for an app whose screens
  * Studio doesn't design.
  */
-export async function applyDemoScreensAction(demo: string): Promise<{ ok: boolean }> {
+export async function applyDemoScreensAction(demo: string, look?: string | null): Promise<{ ok: boolean }> {
   const context = await clientFor("settings");
   if (!context || !mayUseDashboard(context)) return { ok: false };
   const app = context.app;
   if (!app || !studioScreensOn(app) || !(STUDIO_DEMO_TYPES as readonly string[]).includes(demo) || !isStudioDemo(demo as StudioDemoId)) return { ok: false };
-  const screens = demoStudioScreens(demo as StudioDemoId, appUrl());
+  // 130 Its Signature look B's when the whole design was the look's (else the demo's, its look A).
+  const screens = demoStudioScreens(demo as StudioDemoId, appUrl(), look === "b" ? "b" : undefined);
   const settings = { ...DEFAULT_HOSTED_SETTINGS, ...(app.hostedSettings ?? {}), studioScreens: screens };
   await (await getStore()).updateApp(app.id, { hostedSettings: settings }, new Date());
   await recordStaffChange(context, "Took the demo's sign-in screen and account menu", { studioScreens: app.hostedSettings?.studioScreens ?? null }, { studioScreens: screens });

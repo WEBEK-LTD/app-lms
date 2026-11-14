@@ -8,6 +8,9 @@ import { DESIGN_FILE_FORMAT, DESIGN_FILE_VERSION, type DesignFile } from "./desi
 import { TEMPLATES, templatesFor, type ProjectKind, type SectionContext } from "./sections";
 // 130.23 The whole designs' premium chrome.
 import { THEME_CHROME } from "./demo-designs/chrome";
+// 130 A demo's Signature look B as a whole design, after the demo.
+import { signatureDesign } from "./demo-designs";
+import { signatureTemplateId, type SignatureLook } from "./demo-designs/signature";
 // 130.30 The whole designs, premium for every kind.
 import { isPremiumDesign, premiumAbout, premiumCoverPath, premiumHome, PREMIUM_BARS, PREMIUM_PALETTES, type PremiumDesignId } from "./premium-designs";
 import { yallappPhoto } from "./photo-food";
@@ -70,10 +73,11 @@ export const DESIGN_THEMES: readonly DesignTheme[] = [
 /** 130.30 A premium design's home, made for the project's kind (lib/studio/premium-designs.ts), before the kind's own pages. */
 export const PREMIUM_HOME = "premium_home";
 
-/** A Studio demo's look: its colour and font, its pages' own header, corners and background. */
-export function demoTheme(demo: StudioDemoId): DesignTheme {
+/** A Studio demo's look: its colour and font, its pages' own header, corners and background; 130 in its Signature look B, that look's. */
+export function demoTheme(demo: StudioDemoId, look?: SignatureLook): DesignTheme {
   const brand = DEMO_BRANDS[demo];
-  return { id: "demo", accent: brand.primaryColor, background: null, font: brand.font, round: 1 };
+  const own = look === "b" ? signatureDesign(demo, "b")?.project : undefined;
+  return { id: "demo", accent: own?.primary ?? brand.primaryColor, background: null, font: own?.appearance?.font ?? brand.font, round: 1 };
 }
 
 /**
@@ -82,12 +86,14 @@ export function demoTheme(demo: StudioDemoId): DesignTheme {
  * and its tabs, 120 those after the home opening the demo's pages drawn
  * around their screens (at the tabs' ids, as the design's pages are).
  */
-export function demoProjectLook(demo: StudioDemoId, tabs: readonly LayoutTab[], lang: SectionContext["lang"] = "en"): { appearance: Partial<Appearance>; tabs: LayoutTab[]; tab_bar: TabBarStyle } {
+export function demoProjectLook(demo: StudioDemoId, tabs: readonly LayoutTab[], lang: SectionContext["lang"] = "en", look?: SignatureLook): { appearance: Partial<Appearance>; tabs: LayoutTab[]; tab_bar: TabBarStyle } {
   const brand = DEMO_BRANDS[demo];
+  // 130 Its Signature look B: that look's font and second colour, tabs and bar.
+  const b = look === "b" ? signatureDesign(demo, "b") : undefined;
   return {
-    appearance: { template: brand.template, font: brand.font, corners: brand.corners, cards: brand.cards, secondary_color: brand.secondaryColor },
-    tabs: demoPageTabs(tabs, { lang, demo }),
-    tab_bar: structuredClone(DEMO_TAB_BARS[demo]),
+    appearance: { template: brand.template, font: brand.font, corners: brand.corners, cards: brand.cards, secondary_color: brand.secondaryColor, ...(b?.project.appearance ?? {}) },
+    tabs: demoPageTabs(tabs, { lang, demo, ...(b ? { look: "b" as const } : {}) }),
+    tab_bar: structuredClone(b ? b.bar : DEMO_TAB_BARS[demo]),
   };
 }
 
@@ -98,6 +104,8 @@ export interface WholeDesign {
   templates: string[];
   /** Templates = demos: the Studio demo this design is, shown first and recommended. */
   demo?: StudioDemoId;
+  /** 130 With `demo`: its Signature look B, right after the demo (its look A). */
+  look?: "b";
   /** 120.4 The project's type and kind, for the demo's pages around its screens. */
   kind?: { appType: string; vertical: string | null };
   /** 130.30 The kind a premium design's home and about page are made for (null: a project without one). */
@@ -126,7 +134,14 @@ export function designsFor(kind: ProjectKind | null): WholeDesign[] {
     .map((tpl) => tpl.id);
   const demo = studioDemoOf(kind);
   // The demo's pages only: its home (the only page the demo has), nothing generated around it.
-  const first: WholeDesign[] = demo && kind ? [{ id: `demo-${demo}`, theme: demoTheme(demo), templates: [demoTemplateId(demo)], demo, kind: { appType: kind.type, vertical: kind.vertical ?? null } }] : [];
+  // 130 Its two Signature looks first: the demo (its look A), then its look B; the six premium designs after them.
+  const first: WholeDesign[] =
+    demo && kind
+      ? [
+          { id: `demo-${demo}`, theme: demoTheme(demo), templates: [demoTemplateId(demo)], demo, kind: { appType: kind.type, vertical: kind.vertical ?? null } },
+          ...(signatureDesign(demo, "b") ? [{ id: `demo-${demo}-b`, theme: demoTheme(demo, "b"), templates: [signatureTemplateId(demo, "b")], demo, look: "b" as const, kind: { appType: kind.type, vertical: kind.vertical ?? null } }] : []),
+        ]
+      : [];
   // 130.30 Each look premium: its home made for the kind first, then the kind's pages, the about page and contact.
   return [...first, ...DESIGN_THEMES.map((theme) => ({ id: `yallapp-${theme.id}`, theme, templates: [PREMIUM_HOME, ...pagesFor(own, theme.layout)], project: kind }))];
 }
@@ -134,7 +149,7 @@ export function designsFor(kind: ProjectKind | null): WholeDesign[] {
 /** 120.4 How many pages a whole design has: a demo's, its home, its tabs' pages and those around its other screens. */
 export function designPageCount(design: WholeDesign, demoTabs?: readonly LayoutTab[] | null): number {
   if (!design.demo || !demoTabs) return design.templates.length;
-  const ctx: SectionContext = { brand: "#000000", source: null, w: () => "", newId: () => "n", demo: design.demo };
+  const ctx: SectionContext = { brand: "#000000", source: null, w: () => "", newId: () => "n", demo: design.demo, ...(design.look ? { look: design.look } : {}) };
   return design.templates.length + demoTabPages(demoTabs, ctx).length + demoScreenPages(design.kind ?? { appType: "" }, demoTabs, ctx, new Set(["home"])).length;
 }
 
@@ -223,6 +238,8 @@ export interface DesignWords {
 
 /** A whole design's name: its look's, or the demo's. */
 export function designName(design: WholeDesign, words: DesignWords): string {
+  // 130 A demo's look B by the look's own name.
+  if (design.demo && design.look) return words.template(signatureTemplateId(design.demo, design.look));
   return design.demo && words.demo ? words.demo(DEMO_BRANDS[design.demo].appName) : words.theme(design.theme.id);
 }
 
@@ -233,7 +250,7 @@ export function designName(design: WholeDesign, words: DesignWords): string {
  */
 export function makeDesign(design: WholeDesign, ctx: SectionContext, words: DesignWords, languages: Languages, demoTabs?: readonly LayoutTab[] | null): DesignFile {
   // 128 A demo's pages in its own look (lib/studio/demo-designs).
-  const made: SectionContext = { ...ctx, brand: design.theme.accent, ...(design.demo ? { demo: design.demo } : {}) };
+  const made: SectionContext = { ...ctx, brand: design.theme.accent, ...(design.demo ? { demo: design.demo } : {}), ...(design.look ? { look: design.look } : {}) };
   const pages: DesignFile["pages"] = design.templates.map((id, i) => ({ slug: i === 0 ? "home" : id, title: i === 0 ? words.home : words.template(id), studio: designPage(design, id, made) }));
   if (design.demo && demoTabs) {
     pages.push(...demoTabPages(demoTabs, made));
@@ -250,7 +267,7 @@ export function makeDesign(design: WholeDesign, ctx: SectionContext, words: Desi
     pages,
     look: {
       font: design.theme.font,
-      secondary_color: design.demo ? DEMO_BRANDS[design.demo].secondaryColor : design.theme.accent,
+      secondary_color: design.demo ? ((design.look ? signatureDesign(design.demo, design.look)?.project.appearance?.secondary_color : undefined) ?? DEMO_BRANDS[design.demo].secondaryColor) : design.theme.accent,
       // 130.23 The system screens in the design's premium look (a demo's come with the demo's screens).
       ...(!design.demo && THEME_CHROME[design.theme.id] ? { screens: { system: structuredClone(THEME_CHROME[design.theme.id]!.system) } } : {}),
       // 130.30 A premium design's second colour, floating bar and the photo look on the kind's photo.
@@ -259,6 +276,7 @@ export function makeDesign(design: WholeDesign, ctx: SectionContext, words: Desi
     pictures: {},
     fonts: [],
     ...(design.demo ? { demo: design.demo } : {}),
+    ...(design.demo && design.look ? { demo_look: design.look } : {}),
   };
 }
 
