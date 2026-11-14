@@ -179,8 +179,9 @@ test("/demo/studio shows Studio's own demos apart from the regular ones", async 
   await expect(page.getByTestId("demo-phone")).toHaveText(DEMO.display);
   await expect(page.getByTestId("demo-code")).toHaveText(DEMO.code);
   // 126 Safra, the travel demo.
-  for (const name of ["Sahm Express", "Sofra Eats", "Zad", "Masar Rides", "Lamha Taxi", "Nakhla School", "Rawaq Academy", "Safra", "Ufuq Academy"]) await expect(page.getByRole("heading", { name, level: 2, exact: true })).toBeVisible();
-  await expect(page.getByText("Coming soon", { exact: true })).toHaveCount(9);
+  // 131.20 Leqaa, the flower shop.
+  for (const name of ["Sahm Express", "Sofra Eats", "Zad", "Masar Rides", "Lamha Taxi", "Nakhla School", "Rawaq Academy", "Safra", "Ufuq Academy", "Leqaa"]) await expect(page.getByRole("heading", { name, level: 2, exact: true })).toBeVisible();
+  await expect(page.getByText("Coming soon", { exact: true })).toHaveCount(10);
   await expect(page.locator("#travel")).toContainText("Its hotel photos are CC0");
   // 123 The premium academy, at its own address.
   await expect(page.locator("#premium-academy").getByRole("heading", { name: "Ufuq Academy", level: 2 })).toBeVisible();
