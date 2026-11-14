@@ -4083,7 +4083,7 @@ paths:
         today's slot hasn't started and it isn't `full`) and how many orders it
         still takes (`remaining`, null without a limit). The checkout checks
         the same again. `not_found` for shops without delivery days. A WordPress
-        site (plugin 0.4.43 and later) counts its WooCommerce orders; Yallapp
+        site (plugin 0.4.44 and later) counts its WooCommerce orders; Yallapp
         counts its own orders, and for a connected platform the checkouts
         started in the app for that slot (the platform's own orders aren't
         seen).
@@ -4117,7 +4117,7 @@ paths:
         Hidden occasions and messages aren't sent. A store that never opened
         them gets Yallapp's starting messages. The hosted API serves them for
         every source; a WordPress site gets them with its license check and
-        serves them (plugin 0.4.43 and later). An own API serves its own, or
+        serves them (plugin 0.4.44 and later). An own API serves its own, or
         none (an empty list).
       security: [{}, { bearerAuth: [] }]
       responses:
@@ -4142,7 +4142,7 @@ paths:
         products the sale price is charged at checkout; on a connected
         platform its checkout charges its own prices unless the owner added
         the platform's discount code to the sale. WordPress: WooCommerce's own
-        scheduled sale prices (plugin 0.4.43 and later).
+        scheduled sale prices (plugin 0.4.44 and later).
       security: [{}, { bearerAuth: [] }]
       parameters:
         - $ref: '#/components/parameters/PerPage'
@@ -4170,7 +4170,7 @@ paths:
         Roadmap 131. Coupons the owner marked "Show in the app" that are valid
         now (started, not ended, not used up), for the coupon element. The
         customer still types or pastes the code in the cart (`CartInput.coupon`).
-        WordPress: WooCommerce coupons ticked "Show in the app" (plugin 0.4.43
+        WordPress: WooCommerce coupons ticked "Show in the app" (plugin 0.4.44
         and later). At most 20.
       security: [{}, { bearerAuth: [] }]
       responses:
