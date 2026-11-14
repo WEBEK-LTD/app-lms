@@ -21,14 +21,15 @@ import { inked, sides, sigEntry, sigImage, sigPhoto, sigTexts, signatureBar, sig
  * what is loved most, "Build your bouquet", kind words in the owner's
  * [brackets], a ticker of the occasions and a sticky "Send flowers". Blush
  * paper and plum ink in Fraunces by day; a plum night lit in candle rose
- * and champagne (designed, never inverted).
+ * and champagne (designed, never inverted); the whole app in Fraunces (the
+ * look's own font, `font_family`, the app's DM Sans until it is ready).
  *
  * B · Botanical press: the petal header over the page, "Who are the
  * flowers for?" with the occasions as chips, the edit as a card carousel
  * with numbered collections, "Send today" as a ticket with its stub, the
  * flash sale as a forest band, the collections as arches, a filmstrip from
  * the atelier, the price list, the bouquet's three steps and the kind
- * words; sage paper and forest ink in Cormorant Garamond; a forest night
+ * words; sage paper and forest ink in a light Outfit; a forest night
  * with peach and moss.
  *
  * The parts the commerce side brings (131.1–131.19: same-day delivery with
@@ -94,7 +95,8 @@ const B = LEQAA_B_INK;
 export const LEQAA_PEACH = "#E8A486";
 const FOREST = "#1E3B32";
 const FOREST_NIGHT = "#0F2019";
-const CORMORANT = "Cormorant Garamond";
+/** B's display face: Outfit, light and airy (bundled with the app). */
+const OUTFIT = "Outfit";
 
 /** Leqaa's photos (public/flower-photos, CC0 or public domain, credited in CREDITS.md). */
 const P = (name: string) => `/flower-photos/${name}.jpg`;
@@ -676,13 +678,13 @@ function builderA(ctx: SectionContext, margin: StudioSides = sides(22, 16, 4, 16
     padding: sides(22, 22, 22, 22),
     margin,
     ken_burns: true,
-    action: pageOf("bouquet"),
+    action: shop,
     children: [
       { id: id(), type: "text", text: ctx.w("lqBuildKicker"), color: "#FFD9C2", font: { size: 11, weight: 700, letter_spacing: 2.2, uppercase: true } },
       { id: id(), type: "text", text: ctx.w("lqBuildTitle"), color: white, width: 230, max_lines: 2, font: display(FRAUNCES, 36, { weight: 500 }), margin: sides(8, 0, 0, 0) },
       { id: id(), type: "text", text: ctx.w("lqBuildLine"), color: white, opacity: 0.88, width: 230, max_lines: 3, font: { size: 13.5, line_height: 1.4 }, margin: sides(8, 0, 0, 0) },
       { id: id(), type: "row", gap: 6, scroll: true, margin: sides(14, 0, 0, 0), children: [step("1", "lqStepFlowers"), step("2", "lqStepWrap"), step("3", "lqStepCard")] },
-      { ...pill(ctx, "lqBuildStart", pageOf("bouquet"), { background: white, color: ROSE_SHADE }, "arrow_forward", 44), margin: sides(16, 0, 0, 0) },
+      { ...pill(ctx, "lqBuildStart", shop, { background: white, color: ROSE_SHADE }, "arrow_forward", 44), margin: sides(16, 0, 0, 0) },
     ],
   };
 }
@@ -703,7 +705,7 @@ export function leqaaAHome(ctx: SectionContext): StudioPage {
         flashSale(ctx, { background: "#4A1328", dark_background: "#2E0E1B", raised: "#5E2238", darkRaised: "#40182A", accent: "#FFC9A8", family: FRAUNCES, kicker: "#F5B9CB" }),
         headOf(ctx, A, FRAUNCES, "lqCollections", { word: "lqShopAll", action: shop }, sides(28, 18, 12, 18), "lqOccasions"),
         collectionsBento(ctx),
-        headOf(ctx, A, FRAUNCES, "lqLoved", { word: "lqWishlist", action: pageOf("wishlist") }),
+        headOf(ctx, A, FRAUNCES, "lqLoved", { word: "lqShopAll", action: shop }),
         lovedCards(ctx, A, FRAUNCES),
         builderA(ctx),
         occasionTicker(ctx, A, FRAUNCES, { margin: sides(22, 0, 0, 0), background: "#F6E6E1", dark_background: "#1C0F15" }),
@@ -741,6 +743,18 @@ function shopTop(ctx: SectionContext, k: SignatureInk, family: string, photo: st
       ],
     },
     { ...occasionStories(ctx, k, ring, 58), padding: sides(10, 12, 2, 12) },
+    {
+      id: id(),
+      type: "row",
+      name: ctx.w("lqBouquetKicker"),
+      gap: 8,
+      scroll: true,
+      padding: sides(4, 16, 4, 16),
+      children: [
+        { ...pill(ctx, "lqSeeBouquet", pageOf("bouquet"), { background: k.fill, dark_background: k.darkFill, color: k.onFill, dark_color: k.darkOnFill }, "local_florist", 42) },
+        { ...pill(ctx, "lqWishlist", pageOf("wishlist"), { background: k.surface, dark_background: k.darkSurface, color: k.ink, dark_color: k.darkInk }, "favorite", 42) },
+      ],
+    },
   ];
 }
 
@@ -844,7 +858,10 @@ function bouquetPage(ctx: SectionContext, k: SignatureInk, family: string, look:
       { id: id(), type: "text", text: ctx.w(stems), font: { size: 11.5 }, color: lit ? k.onFill : k.muted, dark_color: lit ? k.darkOnFill : k.darkMuted, opacity: lit ? 0.85 : 1 },
     ],
   });
-  const photos = (look === "a" ? ["blush-bouquet", "roses-red", "peonies", "atelier"] : ["peonies", "blush-bouquet", "hydrangea", "atelier"]).map((name) => ({ image_url: sigPhoto(ctx, P(name)) ?? "", caption: null }));
+  const photos = (look === "a" ? ["blush-bouquet", "roses-red", "peonies", "atelier"] : ["peonies", "blush-bouquet", "hydrangea", "atelier"])
+    .map((name) => sigPhoto(ctx, P(name)))
+    .filter((url): url is string => url !== null)
+    .map((image_url) => ({ image_url, caption: null }));
   const card: StudioNode = {
     id: id(),
     type: "column",
@@ -874,7 +891,7 @@ function bouquetPage(ctx: SectionContext, k: SignatureInk, family: string, look:
       type: "column",
       padding: sides(0, 0, 110, 0),
       children: [
-        { id: id(), type: "gallery", name: ctx.w("lqBouquetKicker"), gallery: { layout: "filmstrip", radius: 28, captions: false }, height: 380, images: photos, padding: sides(8, 16, 0, 16) },
+        photos.length ? { id: id(), type: "gallery", name: ctx.w("lqBouquetKicker"), gallery: { layout: "filmstrip", radius: 28, captions: false }, height: 380, images: photos, padding: sides(8, 16, 0, 16) } : floralRule(ctx, k, sides(12, 0, 0, 0)),
         {
           id: id(),
           type: "column",
@@ -1025,7 +1042,7 @@ export const LEQAA_A: SignatureDesign = {
   isNew: true,
   project: {
     // Look A is the demo: its main colour the demo's (lib/demo/content.ts).
-    appearance: { secondary_color: LEQAA_CHAMPAGNE, font: "DM Sans" },
+    appearance: { secondary_color: LEQAA_CHAMPAGNE, font: "DM Sans", font_family: FRAUNCES },
     screens: (platform) => ({ ...LEQAA_A_SCREENS(platform), checkout: { ...LEQAA_A_CHECKOUT } }),
   },
 };
@@ -1064,7 +1081,7 @@ function askB(ctx: SectionContext): StudioNode {
     gap: 14,
     padding: sides(18, 0, 6, 0),
     children: [
-      { ...say(ctx, B, "lqAsk", display(CORMORANT, 38, { weight: 600, line_height: 1 }), { max_lines: 2 }), padding: sides(0, 18, 0, 18) },
+      { ...say(ctx, B, "lqAsk", display(OUTFIT, 38, { weight: 400, line_height: 1 }), { max_lines: 2 }), padding: sides(0, 18, 0, 18) },
       { id: id(), type: "row", gap: 8, scroll: true, padding: sides(0, 16, 0, 16), children: OCCASIONS.map((o, i) => chip(o, i === 0)) },
     ],
   };
@@ -1087,7 +1104,7 @@ function editCard(ctx: SectionContext, photo: string, no: SectionWord, word: Sec
     padding: sides(18, 18, 22, 18),
     action: shop,
     children: [
-      { id: id(), type: "text", text: ctx.w(no), color: white, font: display(CORMORANT, 64, { weight: 500, line_height: 0.9 }) },
+      { id: id(), type: "text", text: ctx.w(no), color: white, font: display(OUTFIT, 64, { weight: 400, line_height: 0.9 }) },
       {
         id: id(),
         type: "row",
@@ -1101,7 +1118,7 @@ function editCard(ctx: SectionContext, photo: string, no: SectionWord, word: Sec
             gap: 4,
             children: [
               { id: id(), type: "text", text: ctx.w("lqEdit"), color: "#F6D7C8", font: { size: 11, weight: 700, letter_spacing: 2, uppercase: true } },
-              { id: id(), type: "text", text: ctx.w(word), color: white, max_lines: 2, font: display(CORMORANT, 32, { weight: 600 }) },
+              { id: id(), type: "text", text: ctx.w(word), color: white, max_lines: 2, font: display(OUTFIT, 32, { weight: 400 }) },
             ],
           },
           { id: id(), type: "row", width: 48, height: 48, radius: 24, align: "center", cross: "center", background: white, shadow: "strong", children: [{ id: id(), type: "icon", icon: "arrow_forward", icon_size: 22, color: FOREST }] },
@@ -1160,7 +1177,7 @@ function sendTodayB(ctx: SectionContext, margin: StudioSides = sides(18, 16, 4, 
             type: "column",
             width: "fill",
             gap: 4,
-            children: [say(ctx, B, "lqSendToday", display(CORMORANT, 30, { weight: 600 })), say(ctx, B, "lqCutoff", { size: 13.5, line_height: 1.35 }, { muted: true, max_lines: 3 })],
+            children: [say(ctx, B, "lqSendToday", display(OUTFIT, 30, { weight: 400 })), say(ctx, B, "lqCutoff", { size: 13.5, line_height: 1.35 }, { muted: true, max_lines: 3 })],
           },
         ],
       },
@@ -1181,7 +1198,7 @@ function collectionArches(ctx: SectionContext): StudioNode {
     gap: 8,
     cross: "center",
     action: shop,
-    children: [sigImage(ctx, B, photo, { width: 118, height: 156, corners: arch, shadow: "medium" }), inked(ctx, B, ctx.w(word), { family: CORMORANT, size: 19, weight: 600 }, { text_align: "center", max_lines: 2 })],
+    children: [sigImage(ctx, B, photo, { width: 118, height: 156, corners: arch, shadow: "medium" }), inked(ctx, B, ctx.w(word), { family: OUTFIT, size: 19, weight: 400 }, { text_align: "center", max_lines: 2 })],
   });
   return {
     id: id(),
@@ -1197,7 +1214,9 @@ function collectionArches(ctx: SectionContext): StudioNode {
 
 /** From the atelier: a filmstrip of the shop's photos. */
 function atelierStrip(ctx: SectionContext): StudioNode {
-  const photos = ["atelier", "stems", "hydrangea", "sunflowers", "white-lilies"].map((name) => ({ image_url: sigPhoto(ctx, P(name)) ?? "", caption: null }));
+  const photos = ["atelier", "stems", "hydrangea", "sunflowers", "white-lilies"].map((name) => sigPhoto(ctx, P(name))).filter((url): url is string => url !== null).map((image_url) => ({ image_url, caption: null }));
+  // Without the platform's photos at hand, the owner's own to add: the floral line in their place.
+  if (!photos.length) return floralRule(ctx, B);
   return { id: idOf(ctx)(), type: "gallery", name: ctx.w("lqAtelier"), gallery: { layout: "filmstrip", radius: 24, captions: false }, height: 250, images: photos, padding: sides(0, 16, 0, 16) };
 }
 
@@ -1230,7 +1249,7 @@ function priceList(ctx: SectionContext): StudioNode {
           width: "fill",
           gap: 2,
           children: [
-            { id: id(), type: "text", bind: "title", max_lines: 1, color: B.ink, dark_color: B.darkInk, font: { family: CORMORANT, size: 21, weight: 600 } },
+            { id: id(), type: "text", bind: "title", max_lines: 1, color: B.ink, dark_color: B.darkInk, font: { family: OUTFIT, size: 21, weight: 400 } },
             { id: id(), type: "text", bind: "badge", max_lines: 1, color: B.accent, dark_color: B.darkAccent, font: { size: 12, weight: 700 } },
           ],
         },
@@ -1256,13 +1275,13 @@ function builderB(ctx: SectionContext, margin: StudioSides = sides(22, 16, 4, 16
     dark_background: FOREST_NIGHT,
     surface: { soft: 3, pattern: "dots", pattern_strength: 0.07 },
     color: "#FFFFFF",
-    action: pageOf("bouquet"),
+    action: shop,
     children: [
       { id: id(), type: "text", text: ctx.w("lqBuildKicker"), color: LEQAA_PEACH, font: { size: 11, weight: 700, letter_spacing: 2.2, uppercase: true } },
-      { id: id(), type: "text", text: ctx.w("lqBuildTitle"), color: "#FFFFFF", max_lines: 2, font: display(CORMORANT, 38, { weight: 600 }) },
+      { id: id(), type: "text", text: ctx.w("lqBuildTitle"), color: "#FFFFFF", max_lines: 2, font: display(OUTFIT, 38, { weight: 400 }) },
       { id: id(), type: "text", text: ctx.w("lqBuildLine"), color: "#FFFFFF", opacity: 0.85, max_lines: 2, font: { size: 13.5, line_height: 1.4 } },
       { id: id(), type: "timeline", timeline: { style: "bars" }, color: "#FFFFFF", entries: [step("lqStepFlowers", true, "local_florist"), step("lqStepWrap", false, "redeem"), step("lqStepCard", false, "edit_note")], margin: sides(6, 0, 0, 0) },
-      { ...pill(ctx, "lqBuildStart", pageOf("bouquet"), { background: LEQAA_PEACH, color: FOREST }, "arrow_forward", 46), margin: sides(8, 0, 0, 0) },
+      { ...pill(ctx, "lqBuildStart", shop, { background: LEQAA_PEACH, color: FOREST }, "arrow_forward", 46), margin: sides(8, 0, 0, 0) },
     ],
   };
 }
@@ -1282,16 +1301,16 @@ export function leqaaBHome(ctx: SectionContext): StudioPage {
         askB(ctx),
         { ...editSlider(ctx), margin: sides(14, 0, 0, 0) },
         sendTodayB(ctx),
-        flashSale(ctx, { background: FOREST, dark_background: FOREST_NIGHT, raised: "#2A4A40", darkRaised: "#1A3028", accent: LEQAA_PEACH, family: CORMORANT, kicker: "#BFD8C9" }, "list"),
-        headOf(ctx, B, CORMORANT, "lqCollections", { word: "lqShopAll", action: shop }, sides(26, 18, 12, 18)),
+        flashSale(ctx, { background: FOREST, dark_background: FOREST_NIGHT, raised: "#2A4A40", darkRaised: "#1A3028", accent: LEQAA_PEACH, family: OUTFIT, kicker: "#BFD8C9" }, "list"),
+        headOf(ctx, B, OUTFIT, "lqCollections", { word: "lqShopAll", action: shop }, sides(26, 18, 12, 18)),
         collectionArches(ctx),
-        headOf(ctx, B, CORMORANT, "lqAtelier", null, sides(26, 18, 12, 18)),
+        headOf(ctx, B, OUTFIT, "lqAtelier", null, sides(26, 18, 12, 18)),
         atelierStrip(ctx),
-        headOf(ctx, B, CORMORANT, "lqPriceList", { word: "lqWishlist", action: pageOf("wishlist") }, sides(26, 18, 4, 18)),
+        headOf(ctx, B, OUTFIT, "lqPriceList", { word: "lqShopAll", action: shop }, sides(26, 18, 4, 18)),
         priceList(ctx),
         builderB(ctx),
-        occasionTicker(ctx, B, CORMORANT, { margin: sides(22, 0, 0, 0), background: "#E8ECE2", dark_background: "#0F1B15" }),
-        headOf(ctx, B, CORMORANT, "lqKindWords", null, sides(22, 18, 12, 18)),
+        occasionTicker(ctx, B, OUTFIT, { margin: sides(22, 0, 0, 0), background: "#E8ECE2", dark_background: "#0F1B15" }),
+        headOf(ctx, B, OUTFIT, "lqKindWords", null, sides(22, 18, 12, 18)),
         kindWords(ctx, B, "stacked"),
         floralRule(ctx, B, sides(22, 0, 0, 0)),
         sendBar(ctx, B, "fab"),
@@ -1305,9 +1324,9 @@ export const LEQAA_B: SignatureDesign = {
   variant: "b",
   template: { id: "flowers_signature_b", icon: "yard", fits: { types: ["store"], plain: true } },
   home: leqaaBHome,
-  over: leqaaOver(B, CORMORANT, P("atelier"), "#0B1A14", LEQAA_PEACH),
+  over: leqaaOver(B, OUTFIT, P("atelier"), "#0B1A14", LEQAA_PEACH),
   tabs: leqaaTabs,
-  pages: leqaaPages(B, CORMORANT, "b"),
+  pages: leqaaPages(B, OUTFIT, "b"),
   bar: LEQAA_B_BAR,
   look: { header: signatureHeader(B, "petal"), background: B.page, dark_background: B.darkPage },
   chrome: { header: "petal", home: "petal", system: "petal" },
@@ -1336,13 +1355,13 @@ export const LEQAA_SECTIONS: readonly SectionInfo[] = [
   { id: "lq_send_ticket", icon: "confirmation_number", isNew: true, fits: STORE_PLAIN, make: one((ctx) => sendTodayB(ctx)) },
   { id: "lq_flash", icon: "bolt", isNew: true, fits: STORE_PLAIN, make: one((ctx) => flashSale(ctx, { background: "#4A1328", dark_background: "#2E0E1B", raised: "#5E2238", darkRaised: "#40182A", accent: "#FFC9A8", family: FRAUNCES, kicker: "#F5B9CB" })) },
   { id: "lq_collections", icon: "dashboard", isNew: true, fits: STORE_PLAIN, make: one((ctx) => [headOf(ctx, A, FRAUNCES, "lqCollections", { word: "lqShopAll", action: shop }), collectionsBento(ctx)]) },
-  { id: "lq_arches", icon: "door_front", isNew: true, fits: STORE_PLAIN, make: one((ctx) => [headOf(ctx, B, CORMORANT, "lqCollections", { word: "lqShopAll", action: shop }), collectionArches(ctx)]) },
+  { id: "lq_arches", icon: "door_front", isNew: true, fits: STORE_PLAIN, make: one((ctx) => [headOf(ctx, B, OUTFIT, "lqCollections", { word: "lqShopAll", action: shop }), collectionArches(ctx)]) },
   { id: "lq_loved", icon: "workspace_premium", isNew: true, fits: STORE_PLAIN, make: one((ctx) => [headOf(ctx, A, FRAUNCES, "lqLoved", null), lovedCards(ctx, A, FRAUNCES)]) },
   { id: "lq_edit", icon: "view_carousel", isNew: true, fits: STORE_PLAIN, make: one(editSlider) },
   { id: "lq_builder", icon: "construction", isNew: true, fits: STORE_PLAIN, make: one((ctx) => builderA(ctx)) },
   { id: "lq_steps", icon: "linear_scale", isNew: true, fits: STORE_PLAIN, make: one((ctx) => builderB(ctx)) },
-  { id: "lq_atelier", icon: "photo_library", isNew: true, fits: STORE_PLAIN, make: one((ctx) => [headOf(ctx, B, CORMORANT, "lqAtelier", null), atelierStrip(ctx)]) },
-  { id: "lq_price_list", icon: "receipt_long", isNew: true, fits: STORE_PLAIN, make: one((ctx) => [headOf(ctx, B, CORMORANT, "lqPriceList", null), priceList(ctx)]) },
+  { id: "lq_atelier", icon: "photo_library", isNew: true, fits: STORE_PLAIN, make: one((ctx) => [headOf(ctx, B, OUTFIT, "lqAtelier", null), atelierStrip(ctx)]) },
+  { id: "lq_price_list", icon: "receipt_long", isNew: true, fits: STORE_PLAIN, make: one((ctx) => [headOf(ctx, B, OUTFIT, "lqPriceList", null), priceList(ctx)]) },
   { id: "lq_kind_words", icon: "format_quote", isNew: true, fits: STORE_PLAIN, make: one((ctx) => [headOf(ctx, A, FRAUNCES, "lqKindWords", null), kindWords(ctx, A, "carousel")]) },
   { id: "lq_ticker", icon: "text_rotation_none", isNew: true, fits: STORE_PLAIN, make: one((ctx) => occasionTicker(ctx, A, FRAUNCES, { background: "#F6E6E1", dark_background: "#1C0F15" })) },
   { id: "lq_send_bar", icon: "local_florist", isNew: true, fits: STORE_PLAIN, make: one((ctx) => sendBar(ctx, A, "bar")) },

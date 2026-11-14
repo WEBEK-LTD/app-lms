@@ -49,7 +49,8 @@ describe("112.4 a store's sections and sliders in Studio", () => {
     expect(academy.filter((id) => own.includes(id))).toEqual([]);
     // Categories in pictures only where there are categories to show.
     expect(sectionsFor(STORE, { categories: false }).map((s) => s.id)).not.toContain("category_pictures");
-    expect(templatesFor(STORE).slice(0, 3).map((t) => t.id)).toEqual(["shop", "shop_deals", "shop_looks"]);
+    // 131.20 After Leqaa's two looks, the flower shop's (a store's first templates).
+    expect(templatesFor(STORE).slice(0, 5).map((t) => t.id)).toEqual(["flowers_signature_a", "flowers_signature_b", "shop", "shop_deals", "shop_looks"]);
     // 130.30 A premium home made for the store first.
     expect(designsFor(STORE)[0]!.templates).toEqual(["premium_home", "shop", "shop_deals", "shop_looks", "brand", "contact"]);
   });
@@ -75,7 +76,7 @@ describe("112.4 a store's sections and sliders in Studio", () => {
   });
 
   it("fills the shop's templates with the store's sections", () => {
-    const shop = templatesFor(STORE)[0]!.make(ctx);
+    const shop = templatesFor(STORE).find((t) => t.id === "shop")!.make(ctx);
     const nodes = allNodes(shop);
     expect(nodes.filter((n) => n.type === "slider").map((n) => n.indicator)).toEqual(["progress"]);
     expect(nodes.some((n) => n.type === "countdown")).toBe(true);
@@ -88,7 +89,7 @@ describe("112.4 a store's sections and sliders in Studio", () => {
     expect(nodes.find((n) => n.type === "coupon")).toMatchObject({ code: "WELCOME15" });
     expect(nodes.find((n) => n.type === "categories")).toMatchObject({ source: "products", style: "circles" });
     // A look's spots open the shop's first products, and the pieces under it are those.
-    const looks = allNodes(templatesFor(STORE)[2]!.make(ctx));
+    const looks = allNodes(templatesFor(STORE).find((t) => t.id === "shop_looks")!.make(ctx));
     const spots = looks.filter((n) => n.place);
     expect(spots.map((n) => n.action?.item?.id)).toEqual(["11", "12", "13"]);
     expect(looks.find((n) => n.type === "items" && n.query?.ids.length)?.query?.ids).toEqual(["11", "12", "13"]);

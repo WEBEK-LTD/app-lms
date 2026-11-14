@@ -43,6 +43,9 @@ class StudioDemo {
   static StudioDemo signature(String demo, String look) =>
       StudioDemo._load('signatures/${demo}_$look.json');
 
+  /// 131.20 Another of test/support's projects (leqaa_demo.json).
+  static StudioDemo file(String name) => StudioDemo._load(name);
+
   final Map<String, dynamic> _demo;
 
   /// The language the demo's texts are served in, as the hosted API picks
@@ -206,7 +209,7 @@ class StudioDemo {
   /// their path, read once.
   static final _photos = <String, ui.Image>{};
   static final _photoPath = RegExp(
-    r'^https?://[^/]+(/(?:demo-photos|demo-screens|stories|travel-photos)/[^"]+\.jpg)$',
+    r'^https?://[^/]+(/(?:demo-photos|demo-screens|stories|travel-photos|flower-photos)/[^"]+\.jpg)$',
   );
 
   /// The paths of the photos [json] names.

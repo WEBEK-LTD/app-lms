@@ -1420,13 +1420,13 @@ abstract class AppLocalizations {
   /// **'Required'**
   String get giftRequired;
 
-  /// 131.25 A delivery day chip.
+  /// 131.25 A delivery day chip: today.
   ///
   /// In en, this message translates to:
   /// **'Today'**
   String get giftToday;
 
-  /// 131.25 A delivery day chip.
+  /// 131.25 A delivery day chip: tomorrow.
   ///
   /// In en, this message translates to:
   /// **'Tomorrow'**
@@ -1528,7 +1528,7 @@ abstract class AppLocalizations {
   /// **'Apply'**
   String get giftApply;
 
-  /// 131.25 In the summary.
+  /// 131.25 In the summary: the items' total.
   ///
   /// In en, this message translates to:
   /// **'Subtotal'**
@@ -1540,7 +1540,7 @@ abstract class AppLocalizations {
   /// **'Delivery fee'**
   String get giftDeliveryFee;
 
-  /// 131.25 In the summary.
+  /// 131.25 In the summary: what is paid.
   ///
   /// In en, this message translates to:
   /// **'Total'**

@@ -597,11 +597,11 @@
   },
   "giftToday": "Today",
   "@giftToday": {
-    "description": "131.25 A delivery day chip."
+    "description": "131.25 A delivery day chip: today."
   },
   "giftTomorrow": "Tomorrow",
   "@giftTomorrow": {
-    "description": "131.25 A delivery day chip."
+    "description": "131.25 A delivery day chip: tomorrow."
   },
   "giftPickDate": "Pick a date",
   "@giftPickDate": {
@@ -669,7 +669,7 @@
   },
   "giftSubtotal": "Subtotal",
   "@giftSubtotal": {
-    "description": "131.25 In the summary."
+    "description": "131.25 In the summary: the items' total."
   },
   "giftDeliveryFee": "Delivery fee",
   "@giftDeliveryFee": {
@@ -677,7 +677,7 @@
   },
   "giftTotal": "Total",
   "@giftTotal": {
-    "description": "131.25 In the summary."
+    "description": "131.25 In the summary: what is paid."
   },
   "giftPay": "Pay {amount}",
   "@giftPay": {

@@ -4764,6 +4764,233 @@ export const APP_STRING_NOTES: Record<string, { en?: string; ar: string; tr: str
     ar: "يفتح كل تقييمات الدورة.",
     tr: "Kursun tüm değerlendirmelerini açar.",
   },
+  // ——— 131.25 The gift checkout's look ———
+  "131.25 The gift checkout's stepper: the step for who the gift is from.": {
+    en: "In the gift checkout's steps: the step for who the gift is from.",
+    ar: "في خطوات الدفع كهدية: خطوة المُرسِل.",
+    tr: "Hediye ödemesinin adımlarında: hediyenin kimden olduğu adımı.",
+  },
+  "131.25 The stepper: who the gift is for.": {
+    en: "In the gift checkout's steps: who the gift is for.",
+    ar: "في خطوات الدفع كهدية: لمن الهدية.",
+    tr: "Hediye ödemesinin adımlarında: hediyenin kime olduğu.",
+  },
+  "131.25 The stepper: the delivery day and time.": {
+    en: "In the gift checkout's steps: the delivery day and time.",
+    ar: "في خطوات الدفع كهدية: يوم التوصيل وموعده.",
+    tr: "Hediye ödemesinin adımlarında: teslimat günü ve saati.",
+  },
+  "131.25 The stepper: the card's message.": {
+    en: "In the gift checkout's steps: the card's message.",
+    ar: "في خطوات الدفع كهدية: رسالة البطاقة.",
+    tr: "Hediye ödemesinin adımlarında: kartın mesajı.",
+  },
+  "131.25 The stepper: the order and the payment.": {
+    en: "In the gift checkout's steps: the order and the payment.",
+    ar: "في خطوات الدفع كهدية: الطلب والدفع.",
+    tr: "Hediye ödemesinin adımlarında: sipariş ve ödeme.",
+  },
+  "131.25 The sender's section: their name, phone and email.": {
+    en: "The gift checkout's section for the sender: their name, phone and email.",
+    ar: "قسم المُرسِل في الدفع كهدية: اسمه وهاتفه وبريده.",
+    tr: "Hediye ödemesinde gönderenin bölümü: adı, telefonu ve e-postası.",
+  },
+  "131.25 The recipient's section: their name, phone and delivery address.": {
+    en: "The gift checkout's section for the recipient: their name, phone and delivery address.",
+    ar: "قسم المستلم في الدفع كهدية: اسمه وهاتفه وعنوان التوصيل.",
+    tr: "Hediye ödemesinde alıcının bölümü: adı, telefonu ve teslimat adresi.",
+  },
+  "131.25 The delivery day and time slot, required.": {
+    en: "The gift checkout's required step: the delivery day and time slot.",
+    ar: "الخطوة المطلوبة في الدفع كهدية: يوم التوصيل وموعده.",
+    tr: "Hediye ödemesinin zorunlu adımı: teslimat günü ve saat aralığı.",
+  },
+  "131.25 The card's message section.": {
+    en: "The gift checkout's section for the card's message.",
+    ar: "قسم رسالة البطاقة في الدفع كهدية.",
+    tr: "Hediye ödemesinde kartın mesajı bölümü.",
+  },
+  "131.25 The order summary and payment section.": {
+    en: "The gift checkout's order summary and payment.",
+    ar: "ملخص الطلب والدفع في الدفع كهدية.",
+    tr: "Hediye ödemesinde sipariş özeti ve ödeme.",
+  },
+  "131.25 The sender's name field.": {
+    en: "The sender's name in the gift checkout.",
+    ar: "اسم المُرسِل في الدفع كهدية.",
+    tr: "Hediye ödemesinde gönderenin adı.",
+  },
+  "131.25 The sender's phone field.": {
+    en: "The sender's phone number in the gift checkout.",
+    ar: "رقم هاتف المُرسِل في الدفع كهدية.",
+    tr: "Hediye ödemesinde gönderenin telefonu.",
+  },
+  "131.25 The sender's email field.": {
+    en: "The sender's email in the gift checkout.",
+    ar: "بريد المُرسِل الإلكتروني في الدفع كهدية.",
+    tr: "Hediye ödemesinde gönderenin e-postası.",
+  },
+  "131.25 The recipient's name field.": {
+    en: "The recipient's name in the gift checkout.",
+    ar: "اسم المستلم في الدفع كهدية.",
+    tr: "Hediye ödemesinde alıcının adı.",
+  },
+  "131.25 The recipient's phone field.": {
+    en: "The recipient's phone number in the gift checkout.",
+    ar: "رقم هاتف المستلم في الدفع كهدية.",
+    tr: "Hediye ödemesinde alıcının telefonu.",
+  },
+  "131.25 The recipient's country picker, limited to where the shop delivers.": {
+    en: "The recipient's country, chosen from the places the shop delivers to.",
+    ar: "دولة المستلم، من الأماكن التي يوصّل إليها المتجر.",
+    tr: "Alıcının ülkesi, mağazanın teslim ettiği yerlerden seçilir.",
+  },
+  "131.25 The recipient's city picker, limited to where the shop delivers.": {
+    en: "The recipient's city, chosen from the places the shop delivers to.",
+    ar: "مدينة المستلم، من الأماكن التي يوصّل إليها المتجر.",
+    tr: "Alıcının şehri, mağazanın teslim ettiği yerlerden seçilir.",
+  },
+  "131.25 The recipient's address field.": {
+    en: "The recipient's street, building and floor.",
+    ar: "شارع المستلم ومبناه وطابقه.",
+    tr: "Alıcının sokağı, binası ve katı.",
+  },
+  "131.25 The button that opens the map to set the recipient's location.": {
+    en: "The button that opens the map to set the recipient's door.",
+    ar: "زر يفتح الخريطة لتحديد باب المستلم.",
+    tr: "Alıcının kapısını belirlemek için haritayı açan düğme.",
+  },
+  "131.25 Under the map, when the shop prices delivery per kilometre.": {
+    en: "Under the map when the shop prices delivery by the distance.",
+    ar: "تحت الخريطة حين يحسب المتجر التوصيل حسب المسافة.",
+    tr: "Mağaza teslimatı mesafeye göre ücretlendirdiğinde haritanın altında.",
+  },
+  "131.25 Over the country and city pickers.": {
+    en: "Over the country and city: the shop delivers only to these places.",
+    ar: "فوق الدولة والمدينة: يوصّل المتجر إلى هذه الأماكن فقط.",
+    tr: "Ülke ve şehrin üstünde: mağaza yalnızca bu yerlere teslim eder.",
+  },
+  "131.25 A badge on the delivery day and time step.": {
+    en: "A badge on the delivery day and time step: it must be chosen.",
+    ar: "شارة على خطوة يوم التوصيل وموعده: يجب اختيارها.",
+    tr: "Teslimat günü ve saati adımındaki rozet: seçilmesi gerekir.",
+  },
+  "131.25 A delivery day chip: today.": {
+    en: "A delivery day to choose: today.",
+    ar: "يوم توصيل للاختيار: اليوم.",
+    tr: "Seçilecek teslimat günü: bugün.",
+  },
+  "131.25 A delivery day chip: tomorrow.": {
+    en: "A delivery day to choose: tomorrow.",
+    ar: "يوم توصيل للاختيار: غدًا.",
+    tr: "Seçilecek teslimat günü: yarın.",
+  },
+  "131.25 The delivery day chip that opens a calendar.": {
+    en: "The delivery day that opens a calendar.",
+    ar: "يوم التوصيل الذي يفتح التقويم.",
+    tr: "Takvimi açan teslimat günü.",
+  },
+  "131.25 Shown when same-day delivery is no longer possible today.": {
+    en: "Shown when it is too late for delivery today.",
+    ar: "يظهر حين يفوت موعد التوصيل اليوم.",
+    tr: "Bugün teslimat için geç kalındığında gösterilir.",
+  },
+  "131.25 The delivery time slots.": {
+    en: "Over the delivery time slots.",
+    ar: "فوق مواعيد التوصيل.",
+    tr: "Teslimat saat aralıklarının üstünde.",
+  },
+  "131.25 The occasion chips over the ready messages.": {
+    en: "Over the occasions for the card's ready messages.",
+    ar: "فوق المناسبات لرسائل البطاقة الجاهزة.",
+    tr: "Kartın hazır mesajları için vesilelerin üstünde.",
+  },
+  "131.25 The occasion's ready messages; a tap fills the message.": {
+    en: "The chosen occasion's ready messages; a tap puts one on the card.",
+    ar: "رسائل المناسبة المختارة الجاهزة؛ تضع اللمسة إحداها على البطاقة.",
+    tr: "Seçilen vesilenin hazır mesajları; dokunuş birini karta yazar.",
+  },
+  "131.25 Over the message field.": {
+    en: "Over the field where the person writes the card's message.",
+    ar: "فوق الحقل الذي يكتب فيه الشخص رسالة البطاقة.",
+    tr: "Kişinin kartın mesajını yazdığı alanın üstünde.",
+  },
+  "131.25 The switch that leaves the sender's name off the card.": {
+    en: "The switch that leaves the sender's name off the card.",
+    ar: "مفتاح يحذف اسم المُرسِل من البطاقة.",
+    tr: "Gönderenin adını karttan çıkaran anahtar.",
+  },
+  "131.25 Under the anonymous switch.": {
+    en: "Under the switch that sends the gift anonymously.",
+    ar: "تحت مفتاح الإرسال دون ذكر الاسم.",
+    tr: "İsimsiz gönderme anahtarının altında.",
+  },
+  "131.25 The gift card's live preview.": {
+    en: "The gift card's live preview.",
+    ar: "معاينة بطاقة الهدية وهي تُكتب.",
+    tr: "Hediye kartının canlı önizlemesi.",
+  },
+  "131.25 On the card: before the recipient's name.": {
+    en: "On the card's preview, before the recipient's name.",
+    ar: "في معاينة البطاقة، قبل اسم المستلم.",
+    tr: "Kartın önizlemesinde, alıcının adından önce.",
+  },
+  "131.25 On the card: before the sender's name.": {
+    en: "On the card's preview, before the sender's name.",
+    ar: "في معاينة البطاقة، قبل اسم المُرسِل.",
+    tr: "Kartın önizlemesinde, gönderenin adından önce.",
+  },
+  "131.25 On the card instead of the sender's name when sent anonymously.": {
+    en: "On the card instead of the sender's name when sent anonymously.",
+    ar: "على البطاقة بدل اسم المُرسِل حين تُرسل دون اسم.",
+    tr: "İsimsiz gönderildiğinde kartta gönderenin adı yerine.",
+  },
+  "131.25 In the summary, before the chosen day and time slot.": {
+    en: "In the order summary, before the chosen delivery day and time.",
+    ar: "في ملخص الطلب، قبل يوم التوصيل وموعده المختارين.",
+    tr: "Sipariş özetinde, seçilen teslimat günü ve saatinden önce.",
+  },
+  "131.25 In the summary, over the add-ons.": {
+    en: "In the order summary, over the add-ons.",
+    ar: "في ملخص الطلب، فوق الإضافات.",
+    tr: "Sipariş özetinde, eklerin üstünde.",
+  },
+  "131.25 The discount code field.": {
+    en: "The discount code field in the gift checkout.",
+    ar: "حقل رمز الخصم في الدفع كهدية.",
+    tr: "Hediye ödemesinde indirim kodu alanı.",
+  },
+  "131.25 The button that applies the discount code.": {
+    en: "The button that applies the discount code.",
+    ar: "زر تطبيق رمز الخصم.",
+    tr: "İndirim kodunu uygulayan düğme.",
+  },
+  "131.25 In the summary: the items' total.": {
+    en: "In the order summary: the items' total.",
+    ar: "في ملخص الطلب: مجموع المنتجات.",
+    tr: "Sipariş özetinde: ürünlerin toplamı.",
+  },
+  "131.25 In the summary, over its breakdown.": {
+    en: "In the order summary: the delivery fee, over its breakdown.",
+    ar: "في ملخص الطلب: رسوم التوصيل فوق تفصيلها.",
+    tr: "Sipariş özetinde: dökümünün üstünde teslimat ücreti.",
+  },
+  "131.25 In the summary: what is paid.": {
+    en: "In the order summary: what the person pays.",
+    ar: "في ملخص الطلب: ما يدفعه الشخص.",
+    tr: "Sipariş özetinde: kişinin ödeyeceği tutar.",
+  },
+  "131.25 The pay button with the order's total.": {
+    en: "The pay button with the order's total.",
+    ar: "زر الدفع بإجمالي الطلب.",
+    tr: "Siparişin toplamıyla ödeme düğmesi.",
+  },
+  "131.25 Under the delivery fee: the order total from which delivery is free.": {
+    en: "Under the delivery fee: the order total from which delivery is free.",
+    ar: "تحت رسوم التوصيل: إجمالي الطلب الذي يصبح التوصيل بعده مجانيًا.",
+    tr: "Teslimat ücretinin altında: teslimatın ücretsiz olduğu sipariş tutarı.",
+  },
+  // ——— end 131.25 ———
   "130.52 The course's questions, opened from its page.": {
     ar: "أسئلة الدورة، تُفتح من صفحتها.",
     tr: "Kursun soruları, sayfasından açılır.",

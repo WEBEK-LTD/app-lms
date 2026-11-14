@@ -158,6 +158,7 @@ export const AR_MARKETING: MarketingTranslation = {
     School: "مدرسة",
     "Academy with many teachers": "أكاديمية بمدرّسين كثيرين",
     "Premium academy": "الأكاديمية المميزة",
+    "Flower shop": "متجر الزهور",
   },
   solutions: {
     food: {

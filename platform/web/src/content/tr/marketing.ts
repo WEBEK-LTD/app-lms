@@ -158,6 +158,7 @@ export const TR_MARKETING: MarketingTranslation = {
     School: "Okul",
     "Academy with many teachers": "Çok eğitmenli akademi",
     "Premium academy": "Premium akademi",
+    "Flower shop": "Çiçekçi",
   },
   solutions: {
     food: {

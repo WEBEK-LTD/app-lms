@@ -20,7 +20,9 @@ describe("103R.7 Studio's templates and sections for each project type", () => {
     // Templates = demos: a kind with a Studio demo starts with its demo's template.
     expect(templatesFor(kindOf("delivery"))[0]!.id).toBe("demo_delivery");
     expect(templatesFor(kindOf("taxi"))[0]!.id).toBe("demo_taxi");
-    expect(templatesFor(kindOf("store")).some((t) => t.demo)).toBe(false);
+    // 131.20 A store has no demo of its own kind; Leqaa's two looks (the flower shop's, a template's demo) come first.
+    expect(templatesFor(kindOf("store")).filter((t) => t.demo).map((t) => t.id)).toEqual(["flowers_signature_a", "flowers_signature_b"]);
+    expect(templatesFor(kindOf("restaurant")).some((t) => t.demo)).toBe(false);
     // 112.4 A store's three.
     expect(ownTemplates(kindOf("store")).map((t) => t.id)).toEqual(["shop", "shop_deals", "shop_looks", "brand", "contact", "blank"]);
     // A restaurant gets its menu, not the shop.
