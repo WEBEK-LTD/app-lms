@@ -36,7 +36,7 @@ export async function ProductPage({ id }: { id: number | null }) {
         name: g.name,
         min: String(g.min),
         max: String(g.max),
-        options: g.options.map((o) => ({ id: o.id, name: o.name, price: o.priceDeltaCents ? centsToDecimal(o.priceDeltaCents) : "" })),
+        options: g.options.map((o) => ({ id: o.id, name: o.name, price: o.priceDeltaCents ? centsToDecimal(o.priceDeltaCents) : "", weight: o.weightGrams ? String(o.weightGrams / 1000) : "" })),
       }))
     : [];
   // 91.5 The variations as the editor shows them.
@@ -63,6 +63,8 @@ export async function ProductPage({ id }: { id: number | null }) {
         salePrice: product.salePriceCents !== null ? centsToDecimal(product.salePriceCents) : "",
         stock: product.stock !== null ? String(product.stock) : "",
         sku: product.sku ?? "",
+        // 131 Its weight in kg.
+        weight: product.weightGrams ? String(product.weightGrams / 1000) : "",
         categoryIds: product.categoryIds,
         images: product.imageAssetIds.map((a) => ({ id: a, url: assetUrl(a) })),
         digital: product.digital,
