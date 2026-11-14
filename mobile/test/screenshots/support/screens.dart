@@ -989,6 +989,20 @@ final websiteShots = <Shot>[
       prepare: StudioDemo.sigZadA.prepare,
       shadows: true,
     ),
+  for (final dark in [false, true])
+    Shot(
+      'marketplace-sig-b-home${dark ? '-dark' : ''}',
+      dark: dark,
+      api: () =>
+          zadStudioApi(look: StudioDemo.sigZadB, primaryColor: '#134A36'),
+      appName: 'Zad',
+      appType: AppType.food,
+      template: AppTemplate.bold,
+      overrides: Zad.overrides,
+      designPictures: true,
+      prepare: StudioDemo.sigZadB.prepare,
+      shadows: true,
+    ),
   // end 130.1–130.6
   // A ride app opens on its Ride tab; its Studio home is the next tab.
   Shot(

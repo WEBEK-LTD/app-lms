@@ -61,4 +61,13 @@ export type FoodSignatureWord =
   | "zadDairy"
   | "zadBakery"
   | "zadPantry"
-  | "zadPantryLine";
+  | "zadPantryLine"
+  // Zad · B Night aisle: the week's shop and the departments as stories.
+  | "sigZadB"
+  | "zadVegetables"
+  | "zadAllDepartments"
+  | "zadBKicker"
+  | "zadBHeadline"
+  | "zadBMinutes"
+  | "zadBMin"
+  | "zadBTo";

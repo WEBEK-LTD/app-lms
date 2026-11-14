@@ -37,6 +37,7 @@ const LOOKS: readonly (readonly [StudioDemoId, SignatureLook, string])[] = [
   ["food", "a", "sofra"],
   ["food", "b", "sofra"],
   ["marketplace", "a", "zad"],
+  ["marketplace", "b", "zad"],
 ];
 
 const kindOf = (id: StudioDemoId) => ({ type: demoKind(id).engine, vertical: demoKind(id).vertical });
@@ -140,5 +141,29 @@ describe("130.1–130.6 the food, marketplace and delivery Signature looks", () 
     const data = `${JSON.stringify({ screens: design.project.screens(appUrl()), layout: served }, null, 1)}\n`;
     if (process.env.YALLAPP_WRITE_SIGNATURES) writeFileSync(file, data);
     expect(readFileSync(file, "utf8")).toBe(data);
+  });
+});
+
+describe("130 the generic options the looks needed", () => {
+  const app = { ...newApp("c1", null, NOW, "food", null), backend: "hosted" as const };
+  const page = (node: Record<string, unknown>) => ({ body: { id: "root", type: "column", children: [{ id: "n", ...node }] } });
+  const parsed = (node: Record<string, unknown>) => parseStudioPage(page(node), app, LANGS);
+
+  it("takes the live cards' premium looks with their accent, and leaves out the card's own", () => {
+    const ok = parsed({ type: "live_status", live_status: { source: "food_order", style: "ring", accent: "#f4b63f", dark_accent: "#F4B63F" }, image_url: "https://files.test/kofta.jpg" });
+    expect(ok.ok && ok.value.body.children![0]).toMatchObject({ live_status: { source: "food_order", style: "ring", accent: "#F4B63F", dark_accent: "#F4B63F" }, image_url: "https://files.test/kofta.jpg" });
+    const card = parsed({ type: "live_status", live_status: { source: "food_order", style: "card" } });
+    expect(card.ok && card.value.body.children![0]!.live_status).toEqual({ source: "food_order" });
+    expect(parsed({ type: "live_status", live_status: { source: "food_order", style: "spinning" } }).ok).toBe(false);
+    expect(parsed({ type: "live_status", live_status: { source: "food_order", accent: "orange" } }).ok).toBe(false);
+    const track = parsed({ type: "tracking", tracking: { kind: "shipment", style: "steps", accent: "#1F6FB2" } });
+    expect(track.ok && track.value.body.children![0]!.tracking).toEqual({ kind: "shipment", style: "steps", accent: "#1F6FB2" });
+  });
+
+  it("takes the places as a deck", () => {
+    const market = { ...newApp("c1", null, NOW, "food", "marketplace"), backend: "hosted" as const };
+    const deck = parseStudioPage(page({ type: "market", title: "Places near you", market: { section: "vendors", style: "deck", limit: 3 } }), market, LANGS);
+    expect(deck.ok ? [] : deck.errors).toEqual([]);
+    expect(deck.ok && deck.value.body.children![0]!.market).toMatchObject({ section: "vendors", style: "deck" });
   });
 });

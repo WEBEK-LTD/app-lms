@@ -16183,7 +16183,7 @@ components:
       required: [section]
       properties:
         section: { type: string, enum: [address, kinds, offers, cuisines, club, vendors, reorder] }
-        style: { type: string, enum: [spotlight, cards, tiles, list, chips, bar], default: cards, description: "For `vendors` and `offers`; 128 `chips` small chips in a row (the place's photo, name, rating and soonest time). For `address`, 128 `bar`: a flat bar on the element's colour with the address, the soonest time an open place delivers in and the search under them (missing, the large greeting)." }
+        style: { type: string, enum: [spotlight, cards, tiles, list, chips, bar, deck], default: cards, description: "For `vendors` and `offers`; 128 `chips` small chips in a row (the place's photo, name, rating and soonest time); 130 `deck` (for `vendors`) a deck of photo cards, the open place in front with its club benefit or offer, name and facts over a shade, the next two peeking behind it on the end side, swiped one at a time, the title with `1 / 3` at its end (apps that don't know it draw `cards`). For `address`, 128 `bar`: a flat bar on the element's colour with the address, the soonest time an open place delivers in and the search under them (missing, the large greeting)." }
         kind: { type: string, enum: [all, restaurant, grocery], default: all }
         sort: { type: string, enum: [recommended, fastest, rating, nearest, newest], default: recommended }
         tag: { type: [string, 'null'], maxLength: 60, description: Only the places with this cuisine or department. }

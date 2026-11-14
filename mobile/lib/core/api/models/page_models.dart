@@ -2114,7 +2114,17 @@ enum StudioMarketSection {
 
 /// 115 How a vendors section draws its vendors.
 /// 128 `chips`: small chips in a row; `bar`: the address as a flat bar.
-enum StudioMarketStyle { spotlight, cards, tiles, list, chips, bar }
+enum StudioMarketStyle {
+  spotlight,
+  cards,
+  tiles,
+  list,
+  chips,
+  bar,
+
+  /// 130 A deck of photo cards, the next ones peeking behind.
+  deck,
+}
 
 /// 115 What a vendors section shows.
 enum StudioMarketKind { all, restaurant, grocery }

@@ -168,6 +168,17 @@ export function sigEntry(ctx: SectionContext, words: Partial<Record<"title" | "s
   return { ...own, ...rest, translations: translations as Translations };
 }
 
+/** Fields of a list's entry (a story's `heading`) in Studio's words: their texts in the dashboard's language and `translations` with the other two. */
+export function sigTexts<K extends string>(ctx: SectionContext, words: Record<K, SectionWord>): Record<K, string> & { translations: Translations } {
+  const lang = ctx.lang ?? "en";
+  const translations: Record<string, Record<string, string>> = {};
+  for (const l of (["en", "ar", "tr"] as const).filter((x) => x !== lang)) {
+    translations[l] = Object.fromEntries(Object.entries<SectionWord>(words).map(([field, word]) => [field, String(STUDIO_WORDS[l][`w_${word}`]).replaceAll("{app}", ctx.app ?? "")]));
+  }
+  const own = Object.fromEntries(Object.entries<SectionWord>(words).map(([field, word]) => [field, ctx.w(word)])) as Record<K, string>;
+  return { ...own, translations: translations as Translations };
+}
+
 /** One of Yallapp's photos, or (without the platform's address at hand) none. */
 export const sigPhoto = (ctx: SectionContext, path: string): string | null => photo(ctx, path);
 

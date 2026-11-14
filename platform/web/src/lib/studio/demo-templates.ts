@@ -185,6 +185,8 @@ export const DEMO_FACTS: Partial<Record<StudioDemoId, Partial<Record<SectionWord
   // 128 Zad Market's own offer this week (lib/demo/marketplace.ts).
   marketplace: {
     mpOffer: { en: "Fresh fruit, 15% off", ar: "فاكهة طازجة بخصم 15%", tr: "Taze meyve %15 indirimli" },
+    // 130.4 Where Zad's Night aisle look delivers, the demo number's home.
+    zadBTo: { en: "to Home, Garden City", ar: "إلى المنزل، جاردن سيتي", tr: "Ev, Garden City'ye" },
   },
   // Sahm Express by Tahrir Square, where its contact map is; open as late as its same-day parcels arrive.
   delivery: {

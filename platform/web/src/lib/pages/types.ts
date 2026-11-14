@@ -867,7 +867,8 @@ export const STUDIO_MARKET_SECTIONS = ["address", "kinds", "offers", "cuisines",
  * name, rating and time; `bar`: the address (its section) as a flat bar with
  * the soonest delivery time and the search under it.
  */
-export const STUDIO_MARKET_STYLES = ["spotlight", "cards", "tiles", "list", "chips", "bar"] as const;
+/** 130 `deck`: places as a deck of photo cards, the open one in front and the next ones peeking behind it, swiped one at a time, "1 / 3" by the title. */
+export const STUDIO_MARKET_STYLES = ["spotlight", "cards", "tiles", "list", "chips", "bar", "deck"] as const;
 /** Editor audit 3.4: facts a place's card can leave out. */
 export const STUDIO_MARKET_CARD_FACTS = ["offer", "rating", "time", "fee", "min_order"] as const;
 export const STUDIO_MARKET_KINDS = ["all", "restaurant", "grocery"] as const;
