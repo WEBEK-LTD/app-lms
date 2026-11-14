@@ -8,6 +8,10 @@ import { connectorFor } from "../connectors";
 import { itemResolver } from "./items";
 import "./sources";
 import type { Connector } from "../connectors/types";
+import { catalogSettings } from "../../catalog/settings";
+import { listedSales, unitsLeft } from "../../selling/flash-sales";
+import { giftMessagesJson, giftOccasionsOf } from "../../selling/gift-messages";
+import { appLanguagesOf, couponShown, publicCouponJson } from "../../selling/store";
 
 /** An entry as the app's list card shows it: its picture, its line under the title, its price and its badge (`Item`). */
 export interface PickableEntry {
@@ -19,6 +23,16 @@ export interface PickableEntry {
   badge?: string | null;
   /** 128.8 A course's rating, for a card's `rating` element. */
   rating?: number | null;
+  /** 131 A product's sale (`ProductSummary.sale`), for a card's `sale` and `was_price` elements and the flash sale. */
+  sale?: { was: string; now: string; percentOff: number; endsAt: string | null; remaining: number | null; total: number | null } | null;
+}
+
+/** 131 A store's flash sales, coupons shown in the app and card messages, for Studio's inspector and canvas. */
+export interface PickableCommerce {
+  flashSales: { id: number; title: string; startsAt: string; endsAt: string; percentOff: number | null; remaining: number | null; total: number | null; productIds: number[] }[];
+  coupons: { code: string; percentOff: number | null; amountOff: string | null; minOrder: string | null; endsAt: string | null }[];
+  /** `GET /store/gift-messages` in each of the app's languages: the gift checkout's occasions and messages. */
+  giftMessages: Record<string, ReturnType<typeof giftMessagesJson>>;
 }
 
 /** Entries and categories the page editor offers to pick from. */
@@ -27,6 +41,8 @@ export interface Pickable {
   categories: Partial<Record<ItemSource, { id: string; name: string }[]>>;
   /** Studio's canvas: the samples a list shows while it has no entries of its own, by language (lib/studio/sample-entries.ts); never offered to pick. */
   samples?: Partial<Record<string, Partial<Record<ItemSource, PickableEntry[]>>>>;
+  /** 131 A store's flash sales, coupons and card messages. */
+  commerce?: PickableCommerce;
 }
 
 /** 110 The cards the app shows for a source the platform fills (lib/hosted/pages/sources.ts), by entry. */
@@ -50,6 +66,48 @@ function cardFacts(x: Record<string, unknown>): Omit<PickableEntry, "id" | "titl
     price: typeof price === "string" ? text(price) : text(price?.formatted),
     subtitle: text((x.instructor as { name?: unknown } | undefined)?.name) ?? text(x.subtitle),
     rating: typeof x.rating === "number" && x.rating > 0 ? Math.round(x.rating * 10) / 10 : null,
+    sale: saleFacts(x.sale),
+  };
+}
+
+/** 131 A product's `sale` as the canvas draws it. */
+function saleFacts(value: unknown): PickableEntry["sale"] {
+  if (!value || typeof value !== "object") return null;
+  const v = value as Record<string, unknown>;
+  if (typeof v.was_formatted !== "string" || typeof v.now_formatted !== "string") return null;
+  return {
+    was: v.was_formatted,
+    now: v.now_formatted,
+    percentOff: typeof v.percent_off === "number" ? v.percent_off : 0,
+    endsAt: typeof v.ends_at === "string" ? v.ends_at : null,
+    remaining: typeof v.remaining === "number" ? v.remaining : null,
+    total: typeof v.total === "number" ? v.total : null,
+  };
+}
+
+/** 131 A store's flash sales, the coupons it shows in the app and its card messages in each language. */
+export async function pickableCommerce(store: DataStore, app: App, now: Date): Promise<PickableCommerce | undefined> {
+  if (app.appType !== "store") return undefined;
+  const [sales, coupons, occasions, languages] = await Promise.all([store.listFlashSales(app.id), store.listCatalogCoupons(app.id), giftOccasionsOf(store, app, now), appLanguagesOf(store, app)]);
+  const currency = catalogSettings(app).currency;
+  return {
+    flashSales: listedSales(sales, now).map((s) => ({
+      id: s.id,
+      title: s.title,
+      startsAt: s.startsAt.toISOString(),
+      endsAt: s.endsAt.toISOString(),
+      percentOff: s.discount.kind === "percent" ? s.discount.percent : null,
+      remaining: unitsLeft(s),
+      total: s.limit,
+      productIds: s.productIds,
+    })),
+    coupons: coupons
+      .filter((c) => couponShown(c, now))
+      .map((c) => {
+        const j = publicCouponJson(c, currency);
+        return { code: j.code, percentOff: j.percent_off, amountOff: j.amount_off_formatted, minOrder: j.min_order_formatted, endsAt: j.ends_at };
+      }),
+    giftMessages: Object.fromEntries(languages.available.map((lang) => [lang, giftMessagesJson(occasions, lang, languages.default)])),
   };
 }
 
@@ -77,6 +135,17 @@ export function ownApiBase(app: Pick<App, "backend" | "siteUrl" | "apiBaseUrl">)
  * client's WordPress site or own API.
  */
 export async function pickableContent(
+  app: App,
+  deps: { store: DataStore; key: Buffer; assetUrl: (id: string) => string; platformUrl: string; readList?: typeof readApiList },
+  now: Date,
+): Promise<Pickable> {
+  const content = await pickableOwn(app, deps, now);
+  // 131 A store's flash sales, coupons shown in the app and card messages (Yallapp keeps them for every source).
+  const commerce = await pickableCommerce(deps.store, app, now).catch(() => undefined);
+  return commerce ? { ...content, commerce } : content;
+}
+
+async function pickableOwn(
   app: App,
   deps: { store: DataStore; key: Buffer; assetUrl: (id: string) => string; platformUrl: string; readList?: typeof readApiList },
   now: Date,

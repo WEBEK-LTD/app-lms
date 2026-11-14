@@ -1,5 +1,6 @@
 "use client";
 
+import { COMMERCE_WORDS_EN, CouponCanvas, FlashSaleCanvas, type CommerceWords } from "./commerce";
 import { useEffect, useRef, useState, type CSSProperties, type DragEvent, type MouseEvent, type PointerEvent, type ReactNode } from "react";
 import type { LanguageCode } from "@/lib/pages/types";
 import { resized, snapped } from "@/lib/studio/resize";
@@ -105,6 +106,8 @@ interface ViewProps {
   screenPart?: ScreenPartInfo;
   /** 129.11–129.20 The editor's words of the premium elements (an empty price, the plans' switch); missing, English. */
   premiumWords?: PremiumWords;
+  /** 131 The flash sale's and the coupon's words (lib/studio/app-words.ts); missing, English. */
+  commerceWords?: CommerceWords;
 }
 
 /** 124.8 The app's screen under a page's elements in the canvas. */
@@ -807,18 +810,11 @@ function Node(props: ViewProps & { node: StudioNode; parentDir: Dir; inStack?: I
       case "slider":
         return Slider(p);
       case "coupon":
-        // 112.4 The code in a dashed frame, with a button that copies it in the app.
-        return (
-          <span dir="ltr" data-studio-coupon="" style={{ display: "flex", alignItems: "center", gap: 8, border: `1.5px dashed ${color ?? look.brand}`, borderRadius: "inherit", padding: "6px 6px 6px 14px", background: dark ? "rgba(255,255,255,0.06)" : "#FFFFFF" }}>
-            <span style={{ flex: "1 1 auto", fontWeight: 800, fontSize: 16, letterSpacing: 2, fontFamily: "ui-monospace, SFMono-Regular, Menlo, monospace", color: color ?? look.brand }}>{n.code}</span>
-            <span style={{ display: "flex", alignItems: "center", gap: 4, padding: "6px 12px", borderRadius: 8, background: color ?? look.brand, color: "#FFFFFF", fontSize: 12, fontWeight: 700 }}>
-              <span className="material-symbols-rounded" aria-hidden="true" style={{ fontSize: 16 }}>
-                content_copy
-              </span>
-              {p.words.copy}
-            </span>
-          </span>
-        );
+        // 112.4 The code in a dashed frame, with a button that copies it in the app; 131 a ticket or glass, the shop's own coupon when bound.
+        return <CouponCanvas node={n} pickable={p.pickable} dark={dark} brand={look.brand} color={color ?? null} words={{ ...(p.commerceWords ?? COMMERCE_WORDS_EN), copy: p.words.copy }} />;
+      case "flash_sale":
+        // 131 The flash sale: its products at their sale price, the live countdown and the stock bar.
+        return <FlashSaleCanvas node={n} title={text} pickable={p.pickable} dark={dark} brand={look.brand} words={p.commerceWords ?? COMMERCE_WORDS_EN} />;
       case "learning":
         // 123 The student's card as the app draws it, with sample learning.
         return <LearningCard node={n} dark={dark} color={color ?? null} words={p.learningWords ?? LEARNING_WORDS_EN} title={((lang !== defaultLang ? (n.translations?.[lang]?.title as string | undefined) : undefined) ?? n.title) || null} />;
@@ -1144,7 +1140,7 @@ function Node(props: ViewProps & { node: StudioNode; parentDir: Dir; inStack?: I
         {shown.map((entry, i) =>
           n.card ? (
             <span key={entry.id} style={layout === "carousel" ? { flex: "0 0 60%" } : undefined}>
-              <CardOf {...p} node={n.card} entry={{ id: entry.id, title: entry.title, price: entry.price ?? "", subtitle: entry.subtitle ?? "", imageUrl: entry.imageUrl ?? null, badge: entry.badge ?? "", rating: entry.rating ?? null }} />
+              <CardOf {...p} node={n.card} entry={{ id: entry.id, title: entry.title, price: entry.price ?? "", subtitle: entry.subtitle ?? "", imageUrl: entry.imageUrl ?? null, badge: entry.badge ?? "", rating: entry.rating ?? null, sale: entry.sale ?? null }} />
             </span>
           ) : (
             <span key={entry.id} data-studio-entry={entry.id} style={{ background: dark ? "#22203A" : "#FFFFFF", borderRadius: 14, padding: 8, boxShadow: "0 2px 6px rgba(20,54,31,0.08)", display: layout === "list" ? "flex" : "block", gap: 8, minWidth: 0, ...(layout === "carousel" ? { flex: "0 0 60%" } : {}) }}>
@@ -1157,11 +1153,24 @@ function Node(props: ViewProps & { node: StudioNode; parentDir: Dir; inStack?: I
                     image
                   </span>
                 ) : null}
-                {entry.badge && layout !== "list" ? <span style={{ position: "absolute", top: 6, insetInlineStart: 6, maxWidth: "calc(100% - 12px)", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap", background: look.brand, color: "#FFFFFF", fontSize: 10, fontWeight: 700, padding: "2px 7px", borderRadius: 999 }}>{entry.badge}</span> : null}
+                {entry.badge && layout !== "list" && !entry.sale ? <span style={{ position: "absolute", top: 6, insetInlineStart: 6, maxWidth: "calc(100% - 12px)", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap", background: look.brand, color: "#FFFFFF", fontSize: 10, fontWeight: 700, padding: "2px 7px", borderRadius: 999 }}>{entry.badge}</span> : null}
+                {/* 131 The sale on the card, as the products element's `sale_badge` says (a chip by default). */}
+                {entry.sale && layout !== "list" && n.sale_badge?.style !== "price" ? (
+                  <span data-studio-sale-badge={n.sale_badge?.style ?? "chip"} style={n.sale_badge?.style === "ribbon" ? { position: "absolute", top: 10, insetInlineEnd: -22, transform: "rotate(45deg)", background: n.sale_badge.color ?? look.brand, color: "#FFFFFF", fontSize: 10, fontWeight: 800, padding: "2px 26px" } : { position: "absolute", top: 6, insetInlineStart: 6, background: n.sale_badge?.color ?? look.brand, color: "#FFFFFF", fontSize: 10, fontWeight: 800, padding: "2px 7px", borderRadius: 999 }}>
+                    −{entry.sale.percentOff}%
+                  </span>
+                ) : null}
               </span>
               <span style={{ display: "block", minWidth: 0 }}>
                 <span style={{ display: "block", fontSize: 12, fontWeight: 700, marginTop: layout === "list" ? 0 : 6, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{entry.title}</span>
-                {entry.price || entry.subtitle ? <span style={{ display: "block", fontSize: 11, opacity: 0.7, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{entry.price || entry.subtitle}</span> : null}
+                {entry.sale ? (
+                  <span style={{ display: "flex", gap: 5, alignItems: "baseline", fontSize: 11 }}>
+                    <span style={{ fontWeight: 800, color: n.sale_badge?.color ?? look.brand }}>{entry.sale.now}</span>
+                    <span style={{ textDecoration: "line-through", opacity: 0.55 }}>{entry.sale.was}</span>
+                  </span>
+                ) : entry.price || entry.subtitle ? (
+                  <span style={{ display: "block", fontSize: 11, opacity: 0.7, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{entry.price || entry.subtitle}</span>
+                ) : null}
               </span>
             </span>
           ),
@@ -1182,12 +1191,26 @@ function Node(props: ViewProps & { node: StudioNode; parentDir: Dir; inStack?: I
 }
 
 /** An items element's card for one entry: its bound elements show the entry. */
-function CardOf(props: ViewProps & { node: StudioNode; entry: { id: string; title: string; price: string; subtitle: string; imageUrl: string | null; badge: string; rating?: number | null } }) {
+function CardOf(props: ViewProps & { node: StudioNode; entry: { id: string; title: string; price: string; subtitle: string; imageUrl: string | null; badge: string; rating?: number | null; sale?: PickableEntry["sale"] } }) {
   const { entry } = props;
+  // 131 A product's sale: the share off and its price before it; nothing when it isn't on sale.
+  const sale = (node: StudioNode): string => (node.bind === "sale" ? (entry.sale ? `−${entry.sale.percentOff}%` : "") : entry.sale ? entry.sale.was : "");
   // 128.8 A rating: the element's own text, a star and the rating; nothing without one.
   const rating = (node: StudioNode): string => (entry.rating ? `${node.text ? `${node.text} ` : ""}★ ${entry.rating.toFixed(1)}` : "");
   const bound = (node: StudioNode): string | null =>
-    node.bind === "title" ? entry.title : node.bind === "price" ? entry.price : node.bind === "subtitle" ? entry.subtitle : node.bind === "badge" ? entry.badge : node.bind === "rating" ? rating(node) : null;
+    node.bind === "title"
+      ? entry.title
+      : node.bind === "price"
+        ? (entry.sale?.now ?? entry.price)
+        : node.bind === "subtitle"
+          ? entry.subtitle
+          : node.bind === "badge"
+            ? entry.badge
+            : node.bind === "rating"
+              ? rating(node)
+              : node.bind === "sale" || node.bind === "was_price"
+                ? sale(node)
+                : null;
   const fill = (node: StudioNode): StudioNode => ({
     ...node,
     ...(bound(node) !== null ? { text: bound(node)!, translations: undefined } : {}),

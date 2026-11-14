@@ -1,5 +1,11 @@
 Yallapp plugin: earlier versions
 
+= 0.4.36 =
+* A page of your website opened in the app (a tab, a button or a banner) opens with the student signed in on the site: the app asks for a one-time link that works once, for 5 minutes, and only for pages on your site's own address.
+
+= 0.4.35 =
+* A new look for the settings screen and the course, lesson and post boxes: the Yallapp header, the sections listed beside the settings, cards with their icons, status chips, switches and buttons in Yallapp's colours, in light and dark, right to left too. Nothing else changes.
+
 = 0.4.34 =
 * The premium academy: your app's home, Explore, a course's page, a lesson, My courses, the account, signing in and the sign-in code keep the looks you chose in Yallapp Studio.
 * Students can follow a teacher; a new course of theirs reaches their followers' inboxes and phones.

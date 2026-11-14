@@ -1,4 +1,5 @@
 import { morningBriefJson } from "./prime-jobs";
+import { orderDeliveryJson } from "../selling/gifts";
 import { inAppFigures } from "../analytics/sales";
 import { storeBillingSource } from "../store-billing/access";
 import { formatDate } from "@/i18n/format";
@@ -245,6 +246,8 @@ function orderJson(ctx: OwnerContext, order: CatalogOrder) {
     customer: order.customer ? { ...order.customer } : null,
     created_at: order.createdAt.toISOString(),
     paid_at: iso(order.paidAt),
+    // 131 The delivery day and slot, the sender and the recipient, the card, and the shipping's zone and fee.
+    delivery: ownerDeliveryJson(order),
     // 80.4 Shipping, with any carrier.
     shippable: shippable(order),
     shipment: shipmentJson(order.shipment),
@@ -253,6 +256,20 @@ function orderJson(ctx: OwnerContext, order: CatalogOrder) {
     pay_outside: order.manualPayment
       ? { method: order.manualPayment.method, name: order.manualPayment.method === "bank_transfer" ? ctx.k("Bank transfer") : order.manualPayment.name, due_at: order.manualPayment.dueAt }
       : null,
+  };
+}
+
+/** 131 An order's delivery as Yallapp Business shows it: both people clearly, the card, the day and slot, the zone and the fee. */
+function ownerDeliveryJson(order: CatalogOrder) {
+  const d = order.delivery;
+  const json = orderDeliveryJson(d, null);
+  if (!json || !d) return null;
+  return {
+    ...json,
+    fee: d.feeCents ? money(d.feeCents, order.currency) : null,
+    zone: d.shipping?.zone ?? null,
+    shipping_fee: d.shipping ? money(d.shipping.cents, order.currency) : null,
+    breakdown: d.shipping ? d.shipping.breakdown.map((l) => ({ label: l.label, rule: l.rule ?? null, amount: money(l.cents, order.currency) })) : [],
   };
 }
 

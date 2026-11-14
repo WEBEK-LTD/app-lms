@@ -115,6 +115,8 @@ export const DASHBOARD_PATHS: readonly (readonly [string, TeamPermission])[] = [
   ["/dashboard/analytics", "analytics"],
   ["/dashboard/orders", "orders"],
   ["/dashboard/catalog", "catalog"],
+  // 131 Delivery & offers of any store app.
+  ["/dashboard/selling", "catalog"],
   ["/dashboard/courses/questions", "messages"],
   ["/dashboard/courses", "catalog"],
   // 105.3 An academy's teachers, their applications, courses to review and statements are its catalog.

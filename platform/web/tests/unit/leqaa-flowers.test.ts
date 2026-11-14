@@ -21,7 +21,7 @@ import { ar as appAr, en as appEn, tr as appTr } from "@/lib/studio/app-words";
 import { CHECKOUT_LOOKS, parseCheckoutLook } from "@/lib/studio/checkout-look";
 import { checkoutWords } from "@/lib/studio/checkout-words";
 import { signatureDesign } from "@/lib/studio/demo-designs";
-import { COMMERCE, LEQAA_SECTIONS } from "@/lib/studio/demo-designs/leqaa-signature";
+import { DELIVERY_BLOCKS, LEQAA_COUPON, LEQAA_SECTIONS } from "@/lib/studio/demo-designs/leqaa-signature";
 import { DEMO_FACTS, DEMO_HOME_TEMPLATES, withDemoFacts } from "@/lib/studio/demo-templates";
 import { LOOK_HEADER, SYSTEM_LOOKS } from "@/lib/studio/premium-chrome";
 import { LANDING_TEMPLATES, landingPalette } from "@/lib/studio/premium-landings";
@@ -148,6 +148,30 @@ function started(look: "a" | "b", lang: "en" | "ar" | "tr" = "en") {
 }
 
 describe("131.20 its two Signature looks: whole store templates, marked new", () => {
+  it("writes every section title into a field the shop edits in each language (the app's words only its defaults)", () => {
+    const titles = ["lqAddOns", "lqSendToday", "lqGiftMsg", "lqBuildTitle", "lqBuildLine", "lqSendFlowers", "lqAsk", "lqEdit", "lqCollections", "lqLoved", "lqAtelier", "lqPriceList", "lqFlashTitle"] as const;
+    const seen = new Set<string>();
+    for (const look of ["a", "b"] as const) {
+      const { layout } = started(look);
+      const screens = demoStudioScreens(FLOWER_SHOP_DEMO, appUrl(), look);
+      void screens;
+      for (const page of layout.pages) {
+        for (const n of allNodes(page.studio ?? { body: { id: "x", type: "column" } })) {
+          for (const key of titles) {
+            const field = n.text === appEn[key] ? "text" : n.title === appEn[key] ? "title" : null;
+            if (!field) continue;
+            const t = n.translations as Record<string, Record<string, string>> | undefined;
+            expect(t?.ar?.[field], `${look} ${key}`).toBe(appAr[key]);
+            expect(t?.tr?.[field], `${look} ${key}`).toBe(appTr[key]);
+            seen.add(key);
+          }
+        }
+      }
+    }
+    // Each of them, in one look or the other (the cart's and the bouquet's too).
+    expect([...seen].sort()).toEqual([...titles].sort());
+  });
+
   it("are a store's first templates (never a restaurant's), recommended and new, every slider and section of theirs a ready section", () => {
     const store = templatesFor({ type: "store", vertical: null }).map((t) => t.id);
     expect(store.slice(0, 2)).toEqual(["flowers_signature_a", "flowers_signature_b"]);
@@ -185,7 +209,7 @@ describe("131.20 its two Signature looks: whole store templates, marked new", ()
     // The home's parts.
     const home = layout.pages[0]!.studio!;
     const types = allNodes(home).map((n) => n.type);
-    for (const t of look === "a" ? ["slider", "stories", "bento", "items", "testimonials", "marquee", "countdown"] : ["slider", "gallery", "timeline", "items", "testimonials", "marquee", "countdown"]) expect(types, t).toContain(t);
+    for (const t of look === "a" ? ["slider", "stories", "bento", "items", "testimonials", "marquee", "flash_sale", "coupon"] : ["slider", "gallery", "timeline", "items", "testimonials", "marquee", "flash_sale", "coupon"]) expect(types, t).toContain(t);
     if (look === "a") {
       const hero = allNodes(home).find((n) => n.type === "slider")!;
       expect(hero).toMatchObject({ ken_burns: true, indicator: "progress", autoplay: true });
@@ -199,11 +223,14 @@ describe("131.20 its two Signature looks: whole store templates, marked new", ()
     // cart), never a sticky Send flowers over it too.
     expect(types).not.toContain("cta_bar");
     expect(layout.tab_bar).toMatchObject({ design: "petal", center: "cart" });
-    // The commerce side's parts composed of today's elements, each in a block the integrator finds by its name.
+    // The shop's commerce, the real elements (131.15–131.17): its flash sale, its code shown in the app in a premium look, its sale on the cards; "Send today" with its day chips.
     const names = allNodes(home).map((n) => n.name);
-    expect(names).toContain(COMMERCE.sendToday);
-    expect(names).toContain(COMMERCE.flashSale);
-    expect(names).toContain(COMMERCE.deliveryDays);
+    expect(names).toContain(DELIVERY_BLOCKS.sendToday);
+    expect(names).toContain(DELIVERY_BLOCKS.deliveryDays);
+    expect(allNodes(home).find((n) => n.type === "flash_sale")).toMatchObject({ flash_sale: { look: look === "a" ? "banner" : "carousel", countdown: true, stock_bar: true } });
+    expect(allNodes(home).find((n) => n.type === "coupon")).toMatchObject({ code: LEQAA_COUPON, coupon: { look: look === "a" ? "ticket" : "glass", bind: "public" } });
+    expect(allNodes(home).some((n) => n.bind === "sale")).toBe(true);
+    expect(types).not.toContain("countdown");
     // Kind words: the owner's own, in brackets; never a review or number made up.
     const quotes = allNodes(home).find((n) => n.type === "testimonials")!;
     for (const e of quotes.entries!) {
@@ -273,16 +300,20 @@ describe("131.21–131.27 the flower shop's signature chrome, for every app", ()
     expect(contract).toContain("enum: [large, glass, photo, brand, search, petal]");
     expect(contract).toContain("float, dock, petal]");
     expect(contract).toContain("look: { type: string, enum: [large, glass, photo, brand, petal] }");
-    expect(contract).toContain("look: { type: string, enum: [gift] }");
+    // One CheckoutLook schema for both sides: the commerce side's fields, and the premium look by day and by night.
+    expect(contract).toContain('look: { type: string, enum: [gift], description: "131.25 The premium gift checkout in five steps; it implies `mode: gift`." }');
+    expect(contract).toContain("dark_accent: { type: [string, 'null']");
     expect(readFileSync(join(ROOT, "public/developers/openapi.yaml"), "utf8")).toBe(contract);
   });
 
-  it("keeps the gift checkout's look as saved (known looks only), serves it to the app and draws it on the cart's page", () => {
+  it("keeps the gift checkout's look as saved (known looks only, the gift checkout on with it), serves it to the app and draws it on the cart's page", () => {
     const problems: string[] = [];
-    expect(parseCheckoutLook({ look: "gift", accent: "#8e2445" }, problems)).toEqual({ look: "gift", accent: "#8E2445" });
+    expect(parseCheckoutLook({ look: "gift", accent: "#8e2445", dark_accent: "#f3a9c0" }, problems)).toEqual({ look: "gift", mode: "gift", accent: "#8E2445", dark_accent: "#F3A9C0" });
     expect(parseCheckoutLook({ look: "express" }, problems)).toBeNull();
-    expect(parseCheckoutLook({ look: "gift", accent: "pink" }, problems)).toEqual({ look: "gift" });
+    expect(parseCheckoutLook({ look: "gift", accent: "pink" }, problems)).toEqual({ look: "gift", mode: "gift" });
     expect(problems).toHaveLength(1);
+    // With the commerce side's own fields.
+    expect(parseCheckoutLook({ look: "gift", style: "steps", chips: "square", surface: "glass", radius: 14 })).toEqual({ look: "gift", mode: "gift", style: "steps", chips: "square", surface: "glass", radius: 14 });
     const app = { ...projectApp(), hostedSettings: { studioScreens: { checkout: { look: "gift" as const } } } } as unknown as App;
     expect(screensConfig(app).screens?.checkout).toEqual({ look: "gift" });
     expect(screenDrawing("cart", "store", { checkout: { look: "gift" } })).toEqual({ screen: "checkout", look: { look: "gift" } });

@@ -69,6 +69,8 @@ export const STUDIO_CONTENT_TYPES = [
   "segments",
   // 129.11–129.20 Premium content, trust and commerce.
   ...STUDIO_PREMIUM_CONTENT_TYPES,
+  // 131 A flash sale: its products at their sale price with a live countdown and a stock bar.
+  "flash_sale",
 ] as const;
 export const STUDIO_NODE_TYPES = [...STUDIO_LAYOUT_TYPES, ...STUDIO_CONTENT_TYPES] as const;
 /** 120 `title`: the page's title and its buttons, for the pages after the first. */
@@ -107,6 +109,9 @@ export const STUDIO_BINDS = [
   "badge",
   // 128.8 An entry's rating (a course's): the element's own text, a star and the rating; nothing without one.
   "rating",
+  // 131 A product's sale: the share off ("−20%"), and its price before it struck through; nothing when it isn't on sale.
+  "sale",
+  "was_price",
 ] as const;
 export const STUDIO_ENTERS = ["none", "fade", "slide_up", "slide_down", "slide_start", "slide_end", "zoom"] as const;
 export const STUDIO_PRESSES = ["none", "shrink", "bounce"] as const;
@@ -465,6 +470,10 @@ export interface Appearance {
   cards: CardStyle;
   /** 101 The header of the pages in the bottom tabs; missing: the template's. */
   header?: AppHeader;
+  /** 131.29 The background by night on every screen (#RRGGBB); missing: the app's own dark one. */
+  dark_background?: string;
+  /** 131.29 The cards and bars by night; missing: a little lighter than `dark_background`. */
+  dark_surface?: string;
 }
 
 /** 101 `AppHeader` in the app API: its layout and its buttons, from the start. */
@@ -1172,6 +1181,51 @@ export interface StudioCta {
   lead?: string | null;
 }
 
+// ——— 131 The flower shop: the flash sale element, the sale on product cards, the coupon's looks ———
+/**
+ * 131 A flash sale's looks: `banner` one wide card (the products in a row
+ * under the countdown), `carousel` the products' cards side by side to
+ * swipe, `grid` two columns.
+ */
+export const STUDIO_FLASH_LOOKS = ["banner", "carousel", "grid"] as const;
+export interface StudioFlashSale {
+  look?: (typeof STUDIO_FLASH_LOOKS)[number];
+  /** One of the shop's flash sales (`FlashSale.id`); missing or null: the one ending soonest, else the products on sale now. */
+  sale_id?: number | null;
+  /** How many products, 1 to 12; missing, 6. */
+  limit?: number;
+  /** The live countdown to `ends_at`; missing, true. */
+  countdown?: boolean;
+  /** The stock bar ("only 12 left") when the sale has a number of units; missing, true. */
+  stock_bar?: boolean;
+  /** The badges', the timer's and the bar's colour; missing, the app's main colour. */
+  accent?: string | null;
+}
+/** 131 What the servers fill in a flash sale element (`StudioNode.flash`): the sale it shows; its products are its `items`. */
+export interface StudioFlashServed {
+  id: number | null;
+  title: string | null;
+  starts_at: string | null;
+  ends_at: string | null;
+  percent_off: number | null;
+  remaining: number | null;
+  total: number | null;
+}
+/** 131 How a products element's built-in cards show a sale: a chip with the share off, a ribbon across the corner, or the price only; and a small countdown. */
+export const STUDIO_SALE_BADGES = ["chip", "ribbon", "price"] as const;
+export interface StudioSaleBadge {
+  style: (typeof STUDIO_SALE_BADGES)[number];
+  countdown?: boolean;
+  color?: string | null;
+}
+/** 131 A coupon's looks: `classic` (as before), `ticket` a perforated stub, `glass` a frosted card; `bind: "public"` one of the shop's coupons shown in the app. */
+export const STUDIO_COUPON_LOOKS = ["classic", "ticket", "glass"] as const;
+export interface StudioCoupon {
+  look?: (typeof STUDIO_COUPON_LOOKS)[number];
+  bind?: "public";
+}
+// ——— end 131 ———
+
 /** 129.18 A ticket's perforation: across (a pass, a waybill) or down (a stub beside a photo). */
 export const STUDIO_TICKET_AXES = ["horizontal", "vertical"] as const;
 /** 129.18 A texture over a layout: fine grain, a dot grid, a square grid or diagonal stripes. */
@@ -1296,6 +1350,17 @@ export interface StudioNode {
   style?: (typeof STUDIO_CATEGORY_STYLES)[number];
   /** 112.4 For `coupon`: the code people copy. */
   code?: string | null;
+  // ——— 131 The flower shop ———
+  /** 131 For `coupon`: its look, and whether it shows one of the shop's coupons shown in the app (`code` then picks which, else the first). */
+  coupon?: StudioCoupon | null;
+  /** 131 Filled by the servers for `coupon` bound to the shop's coupons (`PublicCoupon`); the element is left out when there is none. */
+  coupon_offer?: Record<string, unknown> | null;
+  /** 131 For `flash_sale`: its look and what it shows; the servers fill `flash` and `items`, and leave it out when no sale is on. */
+  flash_sale?: StudioFlashSale | null;
+  flash?: StudioFlashServed | null;
+  /** 131 For `items` of products: how the built-in cards show a sale. */
+  sale_badge?: StudioSaleBadge | null;
+  // ——— end 131 ———
   /** 112.4 For `items` of products: the ones this person opened lately, kept on the phone (the servers send none). */
   recent?: boolean;
   source?: ItemSource;

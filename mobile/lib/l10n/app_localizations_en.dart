@@ -868,13 +868,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get giftTheirPhone => 'Their phone';
 
   @override
-  String get giftCountry => 'Country';
-
-  @override
   String get giftCity => 'City';
-
-  @override
-  String get giftAddress => 'Street, building and floor';
 
   @override
   String get giftPin => 'Pin the door on the map';
@@ -904,16 +898,10 @@ class AppLocalizationsEn extends AppLocalizations {
   String get giftSlot => 'Time slot';
 
   @override
-  String get giftOccasion => 'Occasion';
-
-  @override
   String get giftReady => 'Ready messages';
 
   @override
   String get giftWrite => 'Or write your own';
-
-  @override
-  String get giftAnonymous => 'Send anonymously';
 
   @override
   String get giftAnonymousNote => 'Your name won\'t be on the card.';
@@ -11904,4 +11892,146 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get courseLookQuestions => 'Questions and answers';
+
+  @override
+  String saleOff(int percent) {
+    return '$percent% off';
+  }
+
+  @override
+  String saleEndsIn(String time) {
+    return 'Ends in $time';
+  }
+
+  @override
+  String saleLeft(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'Only $count left',
+      one: 'Only 1 left',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get saleSoldOut => 'Sold out';
+
+  @override
+  String get flashSaleTitle => 'Flash sale';
+
+  @override
+  String get flashEndsIn => 'Ends in';
+
+  @override
+  String couponOff(String amount) {
+    return '$amount off';
+  }
+
+  @override
+  String couponMinOrder(String amount) {
+    return 'On orders of $amount or more';
+  }
+
+  @override
+  String get deliveryWhen => 'When should it arrive?';
+
+  @override
+  String get deliveryToday => 'Today';
+
+  @override
+  String get deliveryTomorrow => 'Tomorrow';
+
+  @override
+  String get deliveryPickDate => 'Pick a date';
+
+  @override
+  String deliveryOrderBy(String time) {
+    return 'Order by $time for delivery today';
+  }
+
+  @override
+  String get deliveryTodayClosed => 'Orders for today have closed.';
+
+  @override
+  String get deliveryTimeTitle => 'Delivery time';
+
+  @override
+  String get deliverySlotFull => 'Full';
+
+  @override
+  String get deliveryChooseTime => 'Choose a delivery time to continue.';
+
+  @override
+  String get deliveryNoTimes =>
+      'No delivery times are left on this day. Please choose another day.';
+
+  @override
+  String get giftFromTitle => 'From';
+
+  @override
+  String get giftToTitle => 'To';
+
+  @override
+  String get giftYourName => 'Your name';
+
+  @override
+  String get giftYourPhone => 'Your phone';
+
+  @override
+  String get giftYourEmail => 'Your email';
+
+  @override
+  String get giftRecipientName => 'Recipient\'s name';
+
+  @override
+  String get giftRecipientPhone => 'Recipient\'s phone';
+
+  @override
+  String get giftAddress => 'Delivery address';
+
+  @override
+  String get giftCountry => 'Country';
+
+  @override
+  String get giftCardTitle => 'Your message';
+
+  @override
+  String get giftCardHint => 'Write your own, or tap a ready message.';
+
+  @override
+  String get giftOccasion => 'Occasion';
+
+  @override
+  String get giftAnonymous => 'Send anonymously';
+
+  @override
+  String get giftAnonymousHint => 'The card won\'t show your name.';
+
+  @override
+  String get giftSendToSomeone => 'Send it to someone else';
+
+  @override
+  String get giftNeedSender => 'Add your name, phone and email to continue.';
+
+  @override
+  String get giftNeedRecipient =>
+      'Add the recipient\'s name, phone and address to continue.';
+
+  @override
+  String orderDeliveryOn(String date) {
+    return 'Delivery: $date';
+  }
+
+  @override
+  String orderRecipient(String name) {
+    return 'For $name';
+  }
+
+  @override
+  String get giftUseLocation => 'Use my location for the delivery';
+
+  @override
+  String get giftLocationFailed =>
+      'Your location couldn\'t be found. Please try again.';
 }

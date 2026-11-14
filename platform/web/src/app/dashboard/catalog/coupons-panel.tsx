@@ -3,7 +3,7 @@ import { SubmitButton } from "@/components/form";
 import { Badge, EmptyState, Section, formatDate } from "@/components/ui";
 import { ItemList, ItemRow, Thumb } from "@/components/page-kit";
 import { Sheet, SheetButton } from "@/components/page-kit-client";
-import { formatCents } from "@/lib/catalog/money";
+import { centsToDecimal, formatCents } from "@/lib/catalog/money";
 import type { CatalogCoupon, CatalogCurrency } from "@/lib/data/types";
 import { dashboardText } from "@/lib/dashboard-lang";
 import { CouponForm } from "./forms";
@@ -37,10 +37,17 @@ export async function CouponsPanel({ coupons, currency, intro }: { coupons: Cata
                 data-coupon={c.code}
                 media={<Thumb icon="local_offer" shape="square" tint={i + 1} />}
                 title={<span dir="ltr">{c.code}</span>}
-                badges={!c.active ? <Badge tone="neutral">{t("shop.couponOff")}</Badge> : null}
+                badges={
+                  <>
+                    {!c.active ? <Badge tone="neutral">{t("shop.couponOff")}</Badge> : null}
+                    {/* 131 Shown on the app's coupon element. */}
+                    {c.active && c.public ? <Badge tone="info">{t("shop.couponShown")}</Badge> : null}
+                  </>
+                }
                 meta={[
                   c.kind === "percent" ? t("shop.couponPercentOff", { value: c.value }) : t("shop.couponAmountOff", { amount: money(c.value) }),
                   c.minOrderCents !== null ? t("shop.couponFrom", { amount: money(c.minOrderCents) }) : null,
+                  c.startsAt ? t("shop.couponFromDate", { date: formatDate(c.startsAt, lang) }) : null,
                   c.endsAt ? t("shop.couponUntil", { date: formatDate(c.endsAt, lang) }) : null,
                   c.maxUses !== null ? t("shop.couponUsesOf", { used: c.usedCount, max: c.maxUses }) : t("shop.couponUses", { used: c.usedCount }),
                 ]
@@ -48,6 +55,10 @@ export async function CouponsPanel({ coupons, currency, intro }: { coupons: Cata
                   .join(" · ")}
                 actions={
                   <>
+                    {/* 131 Its terms changed in a Sheet. */}
+                    <SheetButton target={`coupon-${c.id}`} variant="secondary" className="h-9 px-3.5 text-sm">
+                      {t("shop.couponEdit")}
+                    </SheetButton>
                     <form action={setCouponActiveAction}>
                       <input type="hidden" name="id" value={c.id} />
                       {c.active ? null : <input type="hidden" name="active" value="on" />}
@@ -75,6 +86,26 @@ export async function CouponsPanel({ coupons, currency, intro }: { coupons: Cata
       <Sheet id="new-coupon" inline={!has} title={t("shop.addCoupon")} description={t("shop.couponHint")}>
         <CouponForm currency={currency} />
       </Sheet>
+      {coupons.map((c) => (
+        <Sheet key={c.id} id={`coupon-${c.id}`} title={c.code}>
+          <CouponForm currency={currency} coupon={{ id: c.id, values: couponFormValues(c) }} />
+        </Sheet>
+      ))}
     </>
   );
+}
+
+/** 131 A saved coupon as the form shows it. */
+function couponFormValues(c: CatalogCoupon): Record<string, string> {
+  const day = (d: Date | null | undefined) => (d ? d.toISOString().slice(0, 10) : "");
+  return {
+    code: c.code,
+    kind: c.kind,
+    value: c.kind === "percent" ? String(c.value) : centsToDecimal(c.value),
+    minOrder: c.minOrderCents !== null ? centsToDecimal(c.minOrderCents) : "",
+    maxUses: c.maxUses !== null ? String(c.maxUses) : "",
+    startsOn: day(c.startsAt),
+    endsOn: day(c.endsAt),
+    public: c.public ? "on" : "",
+  };
 }

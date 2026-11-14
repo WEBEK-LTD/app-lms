@@ -101,6 +101,8 @@ interface OptionInput {
   id?: unknown;
   name?: unknown;
   price?: unknown;
+  /** 131 Its weight in kg, as typed. */
+  weight?: unknown;
 }
 
 /**
@@ -145,14 +147,18 @@ export function parseOptionGroups(json: string): { ok: true; value: CatalogOptio
     );
     if (options.length === 0) return { ok: false, error: `${name}: add at least one option.` };
     if (options.length > OPTIONS_PER_GROUP_MAX) return { ok: false, error: `${name}: use at most ${OPTIONS_PER_GROUP_MAX} options.` };
-    const parsed: { rawId: unknown; name: string; priceDeltaCents: number }[] = [];
+    const parsed: { rawId: unknown; name: string; priceDeltaCents: number; weightGrams: number }[] = [];
     for (const o of options) {
       const optionName = typeof o.name === "string" ? o.name.trim() : "";
       if (!optionName || optionName.length > NAME_MAX) return { ok: false, error: `${name}: every option needs a name of up to ${NAME_MAX} characters.` };
       const priceText = String(o.price ?? "").trim();
       const delta = priceText === "" ? 0 : parsePrice(priceText);
       if (delta === null) return { ok: false, error: `${name}: enter the extra price of “${optionName}” like 15 or 15.50, or leave it empty.` };
-      parsed.push({ rawId: o.id, name: optionName, priceDeltaCents: delta });
+      // 131 What it adds to the weight, in kg (shipping by weight).
+      const weightText = String(o.weight ?? "").trim().replace(",", ".");
+      const kg = weightText === "" ? 0 : Number(weightText);
+      if (!Number.isFinite(kg) || kg < 0 || kg > 1000) return { ok: false, error: `${name}: enter the weight of “${optionName}” in kg like 0.5, or leave it empty.` };
+      parsed.push({ rawId: o.id, name: optionName, priceDeltaCents: delta, weightGrams: Math.round(kg * 1000) });
     }
     const min = Number(g.min ?? 0);
     const max = Number(g.max ?? 1);
@@ -164,7 +170,7 @@ export function parseOptionGroups(json: string): { ok: true; value: CatalogOptio
       name,
       min,
       max,
-      options: parsed.map((o) => ({ id: keep(o.rawId, "o"), name: o.name, priceDeltaCents: o.priceDeltaCents })),
+      options: parsed.map((o) => ({ id: keep(o.rawId, "o"), name: o.name, priceDeltaCents: o.priceDeltaCents, ...(o.weightGrams > 0 ? { weightGrams: o.weightGrams } : {}) })),
     });
   }
   return { ok: true, value: out };

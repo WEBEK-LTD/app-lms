@@ -1,4 +1,4 @@
-import type { CatalogCurrency, CatalogVariants } from "../data/types";
+import type { CatalogCurrency, CatalogSettings, CatalogVariants } from "../data/types";
 import type { FlowerPhoto } from "./flower-photos";
 
 /**
@@ -18,6 +18,44 @@ export const FLOWER_CURRENCY: CatalogCurrency = "EGP";
 /** Delivery anywhere in Cairo, free from a bigger order (the commerce side's zones and slots come on top). */
 export const FLOWER_SHIPPING_CENTS = 90_00;
 export const FLOWER_FREE_SHIPPING_OVER_CENTS = 2500_00;
+
+/**
+ * 131 The shop's commerce, the real thing (the commerce side, 131.1–131.19):
+ * the gift checkout (who it is from, who it is for with the address, the
+ * day and slot, the card), same-day delivery until 4 pm in Cairo or the
+ * next day, four slots (the evening's dearer), Greater Cairo only (Cairo,
+ * Giza, New Cairo) priced by the distance from the shop (a base fee and a
+ * fee a km) and free over E£ 2,500.
+ */
+export const FLOWER_COMMERCE: Pick<CatalogSettings, "delivery" | "gifts" | "areas" | "shippingMode" | "distancePricing"> = {
+  delivery: {
+    enabled: true,
+    required: true,
+    sameDay: true,
+    cutoff: "16:00",
+    nextDay: true,
+    maxDays: 14,
+    closedWeekdays: [],
+    timezone: "Africa/Cairo",
+    slots: [
+      { id: "s1", start: "10:00", end: "13:00", capacity: null, feeCents: null },
+      { id: "s2", start: "13:00", end: "16:00", capacity: null, feeCents: null },
+      { id: "s3", start: "16:00", end: "19:00", capacity: null, feeCents: 50_00 },
+      { id: "s4", start: "19:00", end: "22:00", capacity: null, feeCents: 80_00 },
+    ],
+  },
+  gifts: { checkout: "gift", message: true, maxLength: 300, starters: [], recipient: true, anonymous: true },
+  areas: [{ country: "EG", cities: ["Cairo", "Giza", "New Cairo"] }],
+  shippingMode: "distance",
+  // From the shop in Zamalek.
+  distancePricing: { origin: { lat: 30.0626, lng: 31.2197 }, baseCents: 60_00, perKmCents: 5_00, maxKm: 40 },
+};
+
+/** The demo's flash sale: Blush Garden a quarter off for 26 hours (made again each day), 12 bouquets at that price. */
+export const FLOWER_FLASH_SALE = { title: "Blush hour", percent: 25, hours: 26, limit: 12, skus: ["LQ-101"] } as const;
+
+/** The demo's code shown in the app: 10% off a first bouquet from E£ 1,000 (the looks' coupon element). */
+export const FLOWER_COUPON = { code: "LEQAA10", percent: 10, minOrderCents: 1000_00 } as const;
 
 /** The collections, in the shop's order. */
 export const FLOWER_COLLECTIONS = ["Signature bouquets", "Roses", "In season", "Plants", "Gift sets", "Add-ons"] as const;
@@ -58,6 +96,8 @@ export function flowerVariants(p: FlowerProduct, money: (cents: number) => numbe
       sku: `${p.sku}-${["C", "D", "G"][i]}`,
       active: true,
     })),
+    // Deluxe chosen when its page opens.
+    defaultId: 2,
   };
 }
 

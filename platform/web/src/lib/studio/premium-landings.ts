@@ -495,7 +495,8 @@ function petalCover(m: Maker): StudioNode[] {
     cross: "center",
     padding: pad(18, 28, 14, 28),
     children: [
-      badge(m, "lqLdKicker", "outline", { icon: "local_florist", color: c.brand, dark_color: c.darkBrand }),
+      // The kind's own kicker (an academy's, a clinic's), never flower words on another kind.
+      badge(m, packWord(m.p, "Kicker"), "outline", { icon: "auto_awesome", color: c.brand, dark_color: c.darkBrand }),
       text(m, packWord(m.p, "Headline"), { text_align: "center", font: { size: 40, weight: 600, line_height: 1.04, letter_spacing: -1, family: "Fraunces" }, ...inkOf(m) }),
       text(m, packWord(m.p, "Line"), { text_align: "center", font: { size: 14.5, line_height: 1.5 }, ...mutedOf(m) }),
     ],

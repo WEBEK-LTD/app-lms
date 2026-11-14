@@ -95,13 +95,22 @@ class Store_Controller extends Controller {
 			)
 		);
 		$cart_args = array(
-			'platform' => self::platform_arg(),
+			'platform'      => self::platform_arg(),
 			// 91.1 A coupon code the customer typed.
-			'coupon'   => array(
+			'coupon'        => array(
 				'type'      => array( 'string', 'null' ),
 				'maxLength' => 50,
 			),
-			'lines'    => array(
+			// 131 The delivery day and slot once chosen: the quote adds the slot's fee.
+			'delivery_date' => array(
+				'type'    => array( 'string', 'null' ),
+				'pattern' => '^[0-9]{4}-[0-9]{2}-[0-9]{2}$',
+			),
+			'delivery_slot' => array(
+				'type'      => array( 'string', 'null' ),
+				'maxLength' => 16,
+			),
+			'lines'         => array(
 				'type'     => 'array',
 				'required' => true,
 				'minItems' => 1,
@@ -146,18 +155,115 @@ class Store_Controller extends Controller {
 				'args'                => array_merge(
 					$cart_args,
 					array(
-						'delivery_date' => array(
+						'delivery_date'  => array(
 							'type'    => array( 'string', 'null' ),
 							'pattern' => '^[0-9]{4}-[0-9]{2}-[0-9]{2}$',
 						),
-						'gift_message'  => array(
+						'gift_message'   => array(
 							'type'      => array( 'string', 'null' ),
 							'maxLength' => 500,
 						),
+						// 131 The slot, "send anonymously", the sender and the recipient (checked by Delivery_Rules).
+						'delivery_slot'  => array(
+							'type'      => array( 'string', 'null' ),
+							'maxLength' => 16,
+						),
+						'gift_anonymous' => array( 'type' => 'boolean' ),
+						'sender'         => array( 'type' => array( 'object', 'null' ) ),
+						'recipient'      => array( 'type' => array( 'object', 'null' ) ),
 					)
 				),
 			)
 		);
+		// 131 The delivery slots of a day, the card messages, the flash sale and the coupons shown in the app.
+		$this->route(
+			'/store/delivery-slots',
+			array(
+				'methods'             => WP_REST_Server::READABLE,
+				'callback'            => array( $this, 'delivery_slots' ),
+				'permission_callback' => $open,
+				'args'                => array(
+					'date' => array(
+						'type'     => 'string',
+						'required' => true,
+						'pattern'  => '^[0-9]{4}-[0-9]{2}-[0-9]{2}$',
+					),
+				),
+			)
+		);
+		$this->route(
+			'/store/gift-messages',
+			array(
+				'methods'             => WP_REST_Server::READABLE,
+				'callback'            => array( $this, 'gift_messages' ),
+				'permission_callback' => $open,
+			)
+		);
+		$this->route(
+			'/store/flash-sales',
+			array(
+				'methods'             => WP_REST_Server::READABLE,
+				'callback'            => array( $this, 'flash_sales' ),
+				'permission_callback' => $open,
+			)
+		);
+		$this->route(
+			'/store/coupons',
+			array(
+				'methods'             => WP_REST_Server::READABLE,
+				'callback'            => array( $this, 'coupons' ),
+				'permission_callback' => $open,
+			)
+		);
+	}
+
+	/**
+	 * 131 GET /store/delivery-slots.
+	 *
+	 * @param WP_REST_Request $request Request.
+	 * @return \WP_REST_Response
+	 */
+	public function delivery_slots( WP_REST_Request $request ) {
+		if ( ! Catalog::available() ) {
+			return self::unavailable();
+		}
+		$slots = $this->plugin->store_extras()->slots( $this->plugin->store_checkout()->config(), (string) $request['date'] );
+		return null === $slots ? self::error( 'not_found', __( 'This shop has no delivery days.', 'yallapp' ), 404 ) : $this->ok( $slots );
+	}
+
+	/**
+	 * 131 GET /store/gift-messages, in the app's language.
+	 *
+	 * @param WP_REST_Request $request Request.
+	 * @return \WP_REST_Response
+	 */
+	public function gift_messages( WP_REST_Request $request ) {
+		$language = strtolower( substr( (string) $request->get_header( 'accept_language' ), 0, 2 ) );
+		return $this->ok( $this->plugin->store_extras()->gift_messages( preg_match( '/^[a-z]{2}$/', $language ) ? $language : '' ) );
+	}
+
+	/**
+	 * 131 GET /store/flash-sales.
+	 *
+	 * @return \WP_REST_Response
+	 */
+	public function flash_sales() {
+		if ( ! Catalog::available() ) {
+			return self::unavailable();
+		}
+		return $this->ok( $this->plugin->store_extras()->flash_sales( new Catalog() ) );
+	}
+
+	/**
+	 * 131 GET /store/coupons.
+	 *
+	 * @return \WP_REST_Response
+	 */
+	public function coupons() {
+		if ( ! Catalog::available() ) {
+			return self::unavailable();
+		}
+		return $this->ok( \Yallapp\Store\Store_Extras::coupons() );
 	}
 
 	/**
@@ -336,7 +442,17 @@ class Store_Controller extends Controller {
 		if ( ! Catalog::available() ) {
 			return self::unavailable();
 		}
-		return $this->ok( $this->plugin->store_checkout()->quote( (array) $request['lines'], (string) $request['platform'], $request['coupon'] ) );
+		return $this->ok(
+			$this->plugin->store_checkout()->quote(
+				(array) $request['lines'],
+				(string) $request['platform'],
+				$request['coupon'],
+				array(
+					'delivery_date' => $request['delivery_date'],
+					'delivery_slot' => $request['delivery_slot'],
+				)
+			)
+		);
 	}
 
 	/**
@@ -355,9 +471,13 @@ class Store_Controller extends Controller {
 				(array) $request['lines'],
 				(string) $request['platform'],
 				array(
-					'delivery_date' => $request['delivery_date'],
-					'gift_message'  => $request['gift_message'],
-					'coupon'        => $request['coupon'],
+					'delivery_date'  => $request['delivery_date'],
+					'gift_message'   => $request['gift_message'],
+					'coupon'         => $request['coupon'],
+					'delivery_slot'  => $request['delivery_slot'],
+					'gift_anonymous' => true === $request['gift_anonymous'],
+					'sender'         => is_array( $request['sender'] ) ? $request['sender'] : null,
+					'recipient'      => is_array( $request['recipient'] ) ? $request['recipient'] : null,
 				)
 			)
 		);

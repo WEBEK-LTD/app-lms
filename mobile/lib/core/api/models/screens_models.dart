@@ -1,3 +1,5 @@
+import 'commerce_models.dart';
+
 import 'dart:ui' show Color;
 
 import 'course_screens_models.dart';
@@ -272,7 +274,8 @@ class StudioScreens {
     );
   }
 
-  /// 131.25 The store's checkout in a premium look; null, as before.
+  /// 131 How the store checkout is drawn, and the gift checkout (131.25
+  /// its premium five-step look too); null, the app's own.
   final CheckoutLook? checkout;
 
   /// 130.52 The academy's course screens in one premium look (the card, a
@@ -385,38 +388,3 @@ class SystemScreensLook {
       screens.containsKey(screen) ? screens[screen] : look;
 }
 // ——— end 130.21 ———
-
-// ——— 131.25 The store's checkout in a premium look ———
-
-/// 131.25 The checkout's looks (`Config.screens.checkout.look`): `gift`, a
-/// gift checkout in five steps on one screen.
-enum CheckoutLookName { gift }
-
-/// 131.25 `Config.screens.checkout`: the look and its colours by day and
-/// by night (null, the app's main colour).
-class CheckoutLook {
-  const CheckoutLook({required this.look, this.accent, this.darkAccent});
-
-  /// Null for none, or a look this app doesn't know.
-  static CheckoutLook? tryParse(Object? value) {
-    if (value is! Map) return null;
-    final look = CheckoutLookName.values
-        .where((l) => l.name == value['look'])
-        .firstOrNull;
-    if (look == null) return null;
-    return CheckoutLook(
-      look: look,
-      accent: _hex(value['accent'] as String?),
-      darkAccent: _hex(value['dark_accent'] as String?),
-    );
-  }
-
-  final CheckoutLookName look;
-  final Color? accent;
-  final Color? darkAccent;
-
-  /// The steps' colour, by day or by night; null, the app's main colour.
-  Color? accentFor({required bool dark}) =>
-      dark ? (darkAccent ?? accent) : accent;
-}
-// ——— end 131.25 ———

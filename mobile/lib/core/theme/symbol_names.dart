@@ -176,19 +176,23 @@ const symbolsByName = <String, IconData>{
   'barcode_scanner': Symbols.barcode_scanner_rounded,
   'radio_button_checked': Symbols.radio_button_checked_rounded,
   // end 130.1–130.6
-  // 131.20 Leqaa, the flower shop: its looks' occasions, delivery days and card.
-  'local_florist': Symbols.local_florist_rounded,
+  // 131 The card messages' occasions, and the flash sale.
   'cake': Symbols.cake_rounded,
   'celebration': Symbols.celebration_rounded,
+  'healing': Symbols.healing_rounded,
+  'sentiment_dissatisfied': Symbols.sentiment_dissatisfied_rounded,
+  'local_florist': Symbols.local_florist_rounded,
+  'nights_stay': Symbols.nights_stay_rounded,
+  // 131.20 Leqaa, the flower shop: its looks' delivery days and card.
   'wb_sunny': Symbols.wb_sunny_rounded,
   'edit_note': Symbols.edit_note_rounded,
   'diamond': Symbols.diamond_rounded,
-  'healing': Symbols.healing_rounded,
   'yard': Symbols.yard_rounded,
   'pin_drop': Symbols.pin_drop_rounded,
   'verified': Symbols.verified_rounded,
   'visibility_off': Symbols.visibility_off_rounded,
   'format_quote': Symbols.format_quote_rounded,
+  'auto_awesome': Symbols.auto_awesome_rounded,
 };
 
 /// Shown for a name the app doesn't have.

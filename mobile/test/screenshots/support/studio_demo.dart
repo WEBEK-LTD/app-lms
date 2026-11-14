@@ -145,6 +145,8 @@ class StudioDemo {
     required String appName,
     required String primaryColor,
     Map<String, List<Map<String, dynamic>>> items = const {},
+    Map<String, dynamic>? flashSale,
+    Map<String, dynamic>? couponOffer,
   }) {
     api.config = {
       ...api.config,
@@ -172,6 +174,23 @@ class StudioDemo {
       }
       if (node['card'] case final Map<String, dynamic> card) {
         out['card'] = served(card);
+      }
+      // 131 A flash sale as the servers fill it (its sale and products), a
+      // coupon bound to the shop's with the one it shows; else left out.
+      if (node['type'] == 'flash_sale') {
+        if (flashSale == null) {
+          return {'id': node['id'], 'type': 'spacer', 'height': 0};
+        }
+        out['flash'] = flashSale['flash'];
+        out['items'] = flashSale['items'];
+      }
+      if (node['type'] == 'coupon' &&
+          (node['coupon'] as Map?)?['bind'] == 'public') {
+        if (couponOffer == null) {
+          return {'id': node['id'], 'type': 'spacer', 'height': 0};
+        }
+        out['code'] = couponOffer['code'];
+        out['coupon_offer'] = couponOffer;
       }
       return out;
     }

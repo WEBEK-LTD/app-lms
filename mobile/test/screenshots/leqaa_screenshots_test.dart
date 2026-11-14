@@ -25,13 +25,10 @@ import 'package:flutter/rendering.dart';
 import 'package:flutter_riverpod/misc.dart' show Override;
 import 'package:flutter_test/flutter_test.dart';
 import 'package:yallapp/core/config/build_config_data.dart';
-import 'package:yallapp/core/l10n/l10n.dart';
-import 'package:yallapp/core/theme/app_theme.dart';
 import 'package:yallapp/core/theme/fonts/font_cache.dart';
 import 'package:yallapp/core/theme/fonts/remote_fonts.dart';
-import 'package:yallapp/modules/store/widgets/gift_checkout_look.dart';
+import 'package:yallapp/modules/shared/pages/studio_flash_sale.dart';
 
-import '../support/gift_checkout_sample.dart';
 import 'support/demo_api.dart';
 import 'support/leqaa.dart';
 import 'support/screens.dart';
@@ -74,9 +71,10 @@ Shot _leqaa(
   String primary = '#8E2445',
   Map<String, Object> preferences = const {},
   double scroll = 0,
+  Future<void> Function(WidgetTester tester)? then,
 }) => Shot(
   name,
-  api: () => leqaaStudioApi(look: demo, primaryColor: primary),
+  api: () => leqaaStudioApi(look: demo, primaryColor: primary, lang: language),
   appName: 'Leqaa',
   appType: AppType.store,
   dark: dark,
@@ -87,8 +85,91 @@ Shot _leqaa(
   designPictures: true,
   prepare: (tester) => demo.prepare(tester, leqaaPhotoPaths),
   shadows: true,
-  after: scroll <= 0 ? null : (tester, _) => _scrollPage(tester, scroll),
+  after: then != null
+      ? (tester, _) => then(tester)
+      : scroll <= 0
+      ? null
+      : (tester, _) => _scrollPage(tester, scroll),
 );
+
+/// The page scrolled so [target] is at its top (a section under the fold),
+/// in whichever of the page's lists holds it (a Studio page's, the cart's).
+Future<void> _scrollTo(WidgetTester tester, Finder target) async {
+  // The page's lists as they are now, the innermost first.
+  List<ScrollPosition> lists() => [
+    for (final e
+        in find
+            .byWidgetPredicate(
+              (w) => w is Scrollable && w.axisDirection == AxisDirection.down,
+            )
+            .evaluate()
+            .toList()
+            .reversed)
+      if (e.mounted) ((e as StatefulElement).state as ScrollableState).position,
+  ];
+  // From the top, unless it is in sight already.
+  if (target.evaluate().isEmpty) {
+    for (final p in lists().reversed) {
+      p.jumpTo(0);
+      await tester.pump();
+    }
+  }
+  for (var i = 0; target.evaluate().isEmpty && i < lists().length; i++) {
+    while (target.evaluate().isEmpty) {
+      final now = lists();
+      if (i >= now.length) break;
+      final position = now[i];
+      if (position.pixels >= position.maxScrollExtent) break;
+      position.jumpTo(
+        (position.pixels + 300).clamp(0.0, position.maxScrollExtent),
+      );
+      await tester.pump();
+    }
+  }
+  final element = target.evaluate().first;
+  final position = Scrollable.of(element).position;
+  final box = element.renderObject!;
+  final reveal = RenderAbstractViewport.of(box).getOffsetToReveal(box, 0);
+  position.jumpTo((reveal.offset - 96).clamp(0.0, position.maxScrollExtent));
+  await tester.pump(const Duration(milliseconds: 800));
+  await tester.pump(const Duration(milliseconds: 800));
+}
+
+/// 131.25 The gift checkout as a customer fills it in: who it is from, who
+/// it is for in Cairo, tomorrow afternoon, a birthday's ready message.
+Future<void> _fillGift(WidgetTester tester, String language) async {
+  final ar = language == 'ar';
+  Future<void> type(String key, String text) async {
+    await _scrollTo(tester, find.byKey(ValueKey(key)));
+    await tester.enterText(find.byKey(ValueKey(key)), text);
+    await tester.pump();
+  }
+
+  Future<void> tap(String key) async {
+    await _scrollTo(tester, find.byKey(ValueKey(key)));
+    await tester.tap(find.byKey(ValueKey(key)));
+    await tester.pump(const Duration(milliseconds: 600));
+  }
+
+  await type('gift-sender-name', ar ? 'عمر حسن' : 'Omar Hassan');
+  await type('gift-sender-phone', '+20 100 555 0142');
+  await type('gift-sender-email', 'omar@example.com');
+  await type('gift-recipient-name', ar ? 'سلمى عادل' : 'Salma Adel');
+  await type('gift-recipient-phone', '+20 122 555 0187');
+  await tap('gift-city');
+  await tester.tap(find.text(ar ? 'القاهرة' : 'Cairo').last);
+  await tester.pump(const Duration(milliseconds: 600));
+  await type(
+    'gift-recipient-address',
+    ar ? '12 شارع شجرة الدر، الزمالك' : '12 Shagaret El Dor St., Zamalek',
+  );
+  await tap('delivery-tomorrow');
+  await tap('delivery-slot-s2');
+  await tap('gift-occasion-birthday');
+  await tap('gift-template-birthday-t1');
+  FocusManager.instance.primaryFocus?.unfocus();
+  await tester.pump(const Duration(milliseconds: 600));
+}
 
 /// The page [by] further down (its sections under the fold).
 Future<void> _scrollPage(WidgetTester tester, double by) async {
@@ -115,6 +196,17 @@ List<Shot> get _website => [
       ),
   _leqaa('leqaa-home', leqaaDemo),
   _leqaa('leqaa-product', leqaaDemo, location: '/product/101'),
+  // 131.25 The premium gift checkout on the store's real one: the cart.
+  _leqaa(
+    'leqaa-checkout',
+    leqaaDemo,
+    location: '/page/cart',
+    preferences: leqaaCartPreferences(leqaaDemo),
+    then: (tester) async {
+      await _fillGift(tester, 'en');
+      await _scrollTo(tester, find.byKey(const ValueKey('gift-card-preview')));
+    },
+  ),
 ];
 
 /// The owner's gallery: each look's pages by day, by night and in Arabic.
@@ -148,10 +240,64 @@ List<Shot> get _galleryShots => [
           location: location,
           primary: look == 'a' ? '#8E2445' : '#2F5D50',
           preferences: page == 'cart'
-              ? leqaaCartPreferences(StudioDemo.signature('flowers', look))
+              ? leqaaCartPreferences(
+                  StudioDemo.signature('flowers', look),
+                  lang: language,
+                )
               : const {},
           scroll: scroll,
         ),
+  // 131.25 The premium gift checkout on the real cart, at each of its parts:
+  // the card and who it is from, who it is for, when, the card's message,
+  // the summary; 131 the flash sale on the home and on its bouquet's page.
+  for (final look in ['a', 'b'])
+    for (final (mode, dark, language) in [
+      ('light', false, 'en'),
+      ('dark', true, 'en'),
+      ('ar', false, 'ar'),
+    ]) ...[
+      for (final (step, key) in [
+        ('checkout', 'gift-card-preview'),
+        ('for', 'gift-recipient'),
+        ('when', 'delivery-picker'),
+        ('message', 'gift-card'),
+        ('summary', 'gift-arrives'),
+      ])
+        _leqaa(
+          'leqaa-$look-$step-$mode',
+          StudioDemo.signature('flowers', look),
+          dark: dark,
+          language: language,
+          location: '/page/cart',
+          primary: look == 'a' ? '#8E2445' : '#2F5D50',
+          preferences: leqaaCartPreferences(
+            StudioDemo.signature('flowers', look),
+            lang: language,
+          ),
+          then: (tester) async {
+            await _fillGift(tester, language);
+            await _scrollTo(tester, find.byKey(ValueKey(key)));
+          },
+        ),
+      _leqaa(
+        'leqaa-$look-flash-$mode',
+        StudioDemo.signature('flowers', look),
+        dark: dark,
+        language: language,
+        primary: look == 'a' ? '#8E2445' : '#2F5D50',
+        then: (tester) => _scrollTo(tester, find.byType(StudioFlashSale)),
+      ),
+      _leqaa(
+        'leqaa-$look-product-flash-$mode',
+        StudioDemo.signature('flowers', look),
+        dark: dark,
+        language: language,
+        location: '/product/101',
+        primary: look == 'a' ? '#8E2445' : '#2F5D50',
+        then: (tester) =>
+            _scrollTo(tester, find.byKey(const ValueKey('product-sale'))),
+      ),
+    ],
 ];
 
 /// 131.21–131.27 The petal chrome on another kind (test/support/
@@ -330,64 +476,6 @@ Future<void> _write(WidgetTester tester, String folder, String name) async {
   });
 }
 
-/// 131.25 The gift checkout's look in the app's theme, as its screen, from
-/// its step [at] (its top when null) under the steps.
-Future<void> _checkout(
-  WidgetTester tester, {
-  required bool dark,
-  required String language,
-  required Color brand,
-  required Color accent,
-  required String font,
-  required String photo,
-  String? at,
-}) async {
-  usePhone(tester);
-  final light = ValueNotifier(dark);
-  addTearDown(light.dispose);
-  await tester.pumpWidget(
-    withStatusBar(
-      MaterialApp(
-        debugShowCheckedModeBanner: false,
-        theme: buildAppTheme(
-          primary: brand,
-          secondary: accent,
-          brightness: dark ? Brightness.dark : Brightness.light,
-          template: AppTemplate.classic,
-          fontFamily: font,
-        ),
-        locale: Locale(language),
-        supportedLocales: const [Locale('en'), Locale('ar'), Locale('tr')],
-        localizationsDelegates: AppLocalizations.localizationsDelegates,
-        home: Scaffold(
-          body: GiftCheckoutLook(
-            data: giftSample(language: language, photoUrl: photo),
-            accent: brand,
-            top: statusBarHeight,
-          ),
-        ),
-      ),
-      lightIcons: light,
-    ),
-  );
-  await tester.pumpAndSettle();
-  if (at != null) {
-    final list = find
-        .descendant(
-          of: find.byType(ListView),
-          matching: find.byType(Scrollable),
-        )
-        .first;
-    final step = find.byKey(ValueKey(at));
-    await tester.scrollUntilVisible(step, 300, scrollable: list);
-    final position = tester.state<ScrollableState>(list).position;
-    final box = tester.renderObject(step);
-    final reveal = RenderAbstractViewport.of(box).getOffsetToReveal(box, 0);
-    position.jumpTo((reveal.offset - 12).clamp(0.0, position.maxScrollExtent));
-    await tester.pumpAndSettle();
-  }
-}
-
 void main() {
   setUpAll(() async {
     if (_screens || _gallery.isNotEmpty) await loadAppFonts();
@@ -403,23 +491,6 @@ void main() {
       debugDisableShadows = true;
     });
   }
-
-  testWidgets('leqaa-checkout', skip: !_screens || !photosReady, (
-    tester,
-  ) async {
-    final demo = leqaaDemo;
-    await demo.prepare(tester, leqaaPhotoPaths);
-    await _checkout(
-      tester,
-      dark: false,
-      language: 'en',
-      brand: const Color(0xFF8E2445),
-      accent: const Color(0xFFC89B6D),
-      font: 'DM Sans',
-      photo: '${demo.base}/flower-photos/blush-bouquet.jpg',
-    );
-    await _write(tester, _out, 'leqaa-checkout');
-  });
 
   final gallery = _gallery;
   for (final shot in _galleryShots) {
@@ -454,48 +525,6 @@ void main() {
         await shot.render(tester);
         await _write(tester, gallery, shot.name);
         debugDisableShadows = true;
-      },
-    );
-  }
-
-  // The gift checkout in each look: the order, the message step, the summary.
-  final checkouts = [
-    for (final look in ['a', 'b'])
-      for (final (mode, dark, language) in [
-        ('light', false, 'en'),
-        ('dark', true, 'en'),
-        ('ar', false, 'ar'),
-      ])
-        for (final (step, at) in [
-          ('checkout', null),
-          ('when', 'gift-when'),
-          ('message', 'gift-message'),
-          ('summary', 'gift-summary'),
-        ])
-          (look, mode, dark, language, step, at),
-  ];
-  for (final (look, mode, dark, language, step, at) in checkouts) {
-    testWidgets(
-      'gallery leqaa-$look-$step-$mode',
-      skip: gallery.isEmpty || !photosReady,
-      (tester) async {
-        final demo = StudioDemo.signature('flowers', look);
-        await demo.prepare(tester, leqaaPhotoPaths);
-        final a = look == 'a';
-        await _checkout(
-          tester,
-          dark: dark,
-          language: language,
-          brand: a
-              ? (dark ? const Color(0xFFF3A9C0) : const Color(0xFF8E2445))
-              : (dark ? const Color(0xFFB9D9C6) : const Color(0xFF2F5D50)),
-          accent: a ? const Color(0xFFC89B6D) : const Color(0xFFE8A486),
-          font: a ? 'DM Sans' : 'Manrope',
-          photo:
-              '${demo.base}/flower-photos/${a ? 'blush-bouquet' : 'ranunculus'}.jpg',
-          at: at,
-        );
-        await _write(tester, gallery, 'leqaa-$look-$step-$mode');
       },
     );
   }

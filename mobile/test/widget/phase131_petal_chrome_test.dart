@@ -326,13 +326,16 @@ void main() {
         },
       })!;
       expect(screens.checkout!.look, CheckoutLookName.gift);
-      expect(screens.checkout!.accentFor(dark: true), const Color(0xFFF3A9C0));
-      expect(
-        StudioScreens.fromJson({
-          'checkout': {'look': 'express'},
-        })!.checkout,
-        isNull,
-      );
+      // The premium gift look is the gift checkout too.
+      expect(screens.checkout!.gift, isTrue);
+      expect(screens.checkout!.accentFor(dark: true), '#F3A9C0');
+      expect(screens.checkout!.accentFor(dark: false), '#8E2445');
+      // A look this app doesn't know: the checkout as before.
+      final unknown = StudioScreens.fromJson({
+        'checkout': {'look': 'express'},
+      })!.checkout;
+      expect(unknown?.look, isNull);
+      expect(unknown?.gift ?? false, isFalse);
     });
   });
 }

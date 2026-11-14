@@ -10,6 +10,8 @@ export 'chat_models.dart';
 export 'checkin_models.dart';
 export 'class_models.dart';
 export 'community_models.dart';
+// 131
+export 'commerce_models.dart';
 export 'config_models.dart';
 export 'course_cart_models.dart';
 // 130.52

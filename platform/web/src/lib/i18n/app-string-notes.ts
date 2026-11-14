@@ -4995,6 +4995,162 @@ export const APP_STRING_NOTES: Record<string, { en?: string; ar: string; tr: str
     ar: "أسئلة الدورة، تُفتح من صفحتها.",
     tr: "Kursun soruları, sayfasından açılır.",
   },
+  "131 A product's share off on its sale badge.": {
+    ar: "نسبة الخصم على شارة تخفيض المنتج.",
+    tr: "Ürünün indirim etiketindeki indirim oranı.",
+  },
+  "131 How long a sale has left, on a product.": {
+    ar: "الوقت المتبقي على تخفيض المنتج.",
+    tr: "Bir üründeki indirimin kalan süresi.",
+  },
+  "131 The units left at a flash sale's price.": {
+    ar: "عدد القطع المتبقية بسعر العرض الخاطف.",
+    tr: "Flaş indirim fiyatıyla kalan adet.",
+  },
+  "131 A flash sale with no units left.": {
+    ar: "عرض خاطف لم تبق منه قطع.",
+    tr: "Hiç adedi kalmamış bir flaş indirim.",
+  },
+  "131 A flash sale element's title when it has none of its own.": {
+    ar: "عنوان عنصر العرض الخاطف حين لا يكون له عنوان خاص.",
+    tr: "Kendi başlığı olmayan flaş indirim öğesinin başlığı.",
+  },
+  "131 Before a flash sale's countdown.": {
+    ar: "قبل العدّاد التنازلي للعرض الخاطف.",
+    tr: "Flaş indirimin geri sayımından önce.",
+  },
+  "131 What a coupon takes off, on the coupon element.": {
+    ar: "قيمة خصم القسيمة على عنصر القسيمة.",
+    tr: "Kupon öğesinde kuponun indirimi.",
+  },
+  "131 A coupon's minimum order, on the coupon element.": {
+    ar: "الحد الأدنى للطلب في القسيمة، على عنصر القسيمة.",
+    tr: "Kupon öğesinde kuponun en az sipariş tutarı.",
+  },
+  "131 The delivery day picker's title in the cart.": {
+    ar: "عنوان اختيار يوم التوصيل في السلة.",
+    tr: "Sepetteki teslimat günü seçiminin başlığı.",
+  },
+  "131 Delivery today, in the day picker.": {
+    ar: "التوصيل اليوم، في اختيار اليوم.",
+    tr: "Gün seçiminde bugün teslimat.",
+  },
+  "131 Delivery tomorrow, in the day picker.": {
+    ar: "التوصيل غدًا، في اختيار اليوم.",
+    tr: "Gün seçiminde yarın teslimat.",
+  },
+  "131 Opens the calendar of delivery days.": {
+    ar: "يفتح تقويم أيام التوصيل.",
+    tr: "Teslimat günleri takvimini açar.",
+  },
+  "131 The same-day cut-off, under the day picker.": {
+    ar: "آخر موعد لطلبات اليوم، تحت اختيار اليوم.",
+    tr: "Gün seçiminin altında aynı gün son sipariş saati.",
+  },
+  "131 Today can't be chosen any more.": {
+    ar: "لم يعد اختيار اليوم ممكنًا.",
+    tr: "Bugün artık seçilemez.",
+  },
+  "131 The delivery slots' title in the cart.": {
+    ar: "عنوان أوقات التوصيل في السلة.",
+    tr: "Sepetteki teslimat saatlerinin başlığı.",
+  },
+  "131 A delivery slot that can't take more orders.": {
+    ar: "وقت توصيل لا يقبل طلبات أخرى.",
+    tr: "Daha fazla sipariş alamayan teslimat saati.",
+  },
+  "131 Under the cart's button while no slot is chosen.": {
+    ar: "تحت زر السلة ما دام وقت التوصيل غير محدد.",
+    tr: "Teslimat saati seçilmemişken sepet düğmesinin altında.",
+  },
+  "131 A day whose slots are all full or passed.": {
+    ar: "يوم امتلأت أوقاته كلها أو انقضت.",
+    tr: "Tüm saatleri dolmuş ya da geçmiş bir gün.",
+  },
+  "131 The gift checkout's sender section.": {
+    ar: "قسم المُرسِل في إتمام طلب الهدية.",
+    tr: "Hediye ödemesinde gönderen bölümü.",
+  },
+  "131 The gift checkout's recipient section.": {
+    ar: "قسم المستلم في إتمام طلب الهدية.",
+    tr: "Hediye ödemesinde alıcı bölümü.",
+  },
+  "131 The sender's name field.": {
+    ar: "حقل اسم المُرسِل.",
+    tr: "Gönderenin adı alanı.",
+  },
+  "131 The sender's phone field.": {
+    ar: "حقل هاتف المُرسِل.",
+    tr: "Gönderenin telefonu alanı.",
+  },
+  "131 The sender's email field.": {
+    ar: "حقل البريد الإلكتروني للمُرسِل.",
+    tr: "Gönderenin e-postası alanı.",
+  },
+  "131 The recipient's name field.": {
+    ar: "حقل اسم المستلم.",
+    tr: "Alıcının adı alanı.",
+  },
+  "131 The recipient's phone field.": {
+    ar: "حقل هاتف المستلم.",
+    tr: "Alıcının telefonu alanı.",
+  },
+  "131 The recipient's address field.": {
+    ar: "حقل عنوان المستلم.",
+    tr: "Alıcının adresi alanı.",
+  },
+  "131 The recipient's country, among the shop's.": {
+    ar: "دولة المستلم، من دول المتجر.",
+    tr: "Mağazanın ülkeleri arasından alıcının ülkesi.",
+  },
+  "131 The card message's section.": {
+    ar: "قسم رسالة البطاقة.",
+    tr: "Kart mesajı bölümü.",
+  },
+  "131 Under the card message's title.": {
+    ar: "تحت عنوان رسالة البطاقة.",
+    tr: "Kart mesajı başlığının altında.",
+  },
+  "131 The card messages' occasions.": {
+    ar: "مناسبات رسائل البطاقة.",
+    tr: "Kart mesajlarının vesileleri.",
+  },
+  "131 The card goes without the sender's name.": {
+    ar: "تُرسل البطاقة دون اسم المُرسِل.",
+    tr: "Kart gönderenin adı olmadan gider.",
+  },
+  "131 Under Send anonymously.": {
+    ar: "تحت خيار الإرسال دون اسم.",
+    tr: "İsimsiz gönder seçeneğinin altında.",
+  },
+  "131 Adds the recipient's name and phone.": {
+    ar: "يضيف اسم المستلم وهاتفه.",
+    tr: "Alıcının adını ve telefonunu ekler.",
+  },
+  "131 Under the cart's button while the sender is missing.": {
+    ar: "تحت زر السلة ما دامت بيانات المُرسِل ناقصة.",
+    tr: "Gönderen eksikken sepet düğmesinin altında.",
+  },
+  "131 Under the cart's button while the recipient is missing.": {
+    ar: "تحت زر السلة ما دامت بيانات المستلم ناقصة.",
+    tr: "Alıcı eksikken sepet düğmesinin altında.",
+  },
+  "131 An order's delivery day and time.": {
+    ar: "يوم توصيل الطلب ووقته.",
+    tr: "Siparişin teslimat günü ve saati.",
+  },
+  "131 Who an order goes to.": {
+    ar: "من يُرسل إليه الطلب.",
+    tr: "Siparişin gideceği kişi.",
+  },
+  "131 Sets where it goes from the phone's place, for shipping by distance.": {
+    ar: "يحدد مكان التوصيل من موقع الهاتف، للشحن حسب المسافة.",
+    tr: "Mesafeye göre kargo için teslimat yerini telefonun konumundan belirler.",
+  },
+  "131 The phone's place couldn't be read.": {
+    ar: "تعذّرت قراءة موقع الهاتف.",
+    tr: "Telefonun konumu okunamadı.",
+  },
 };
 
 /** A developer's description without the app's code names: "… lib/core/x.dart uses it …", "(vertical_wording.dart)", a leading roadmap number. */

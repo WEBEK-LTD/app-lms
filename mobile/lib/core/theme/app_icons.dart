@@ -237,6 +237,10 @@ abstract final class AppIcons {
   static const bookmarkAdd = Symbols.bookmark_add_rounded;
   static const leaderboard = Symbols.emoji_events_rounded;
   static const streak = Symbols.bolt_rounded;
+  // 131 A flash sale, a delivery slot, the card and its occasions.
+  static const flashSale = Symbols.bolt_rounded;
+  static const deliveryTime = Symbols.local_shipping_rounded;
+  static const occasion = Symbols.local_florist_rounded;
   static const discussion = Symbols.forum_rounded;
 }
 

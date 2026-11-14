@@ -1,3 +1,4 @@
+import type { CheckoutLook } from "../checkout-look";
 import type { Action, LayoutTab, StudioEntry, StudioFont, StudioNode, StudioPage, StudioSides } from "../../pages/types";
 import type { SectionContext, SectionInfo, SectionWord } from "../sections";
 import { idOf, screen } from "./parts";
@@ -32,14 +33,14 @@ import { inked, sides, sigEntry, sigImage, sigPhoto, sigTexts, signatureBar, sig
  * words; sage paper and forest ink in a light Outfit; a forest night
  * with peach and moss.
  *
- * The parts the commerce side brings (131.1–131.19: same-day delivery with
- * its cut-off and slots, flash sales with their countdown, the premium
- * `flash_sale` element and sale badges, coupon looks) are composed here
- * from what Studio has today, each in a block of its own named for the
- * integrator (`COMMERCE`): the countdown and the shop's products on sale,
- * the cut-off in the owner's brackets, the delivery days as chips.
- * Nothing is made up: no number, review or price is the template's; the
- * lists are the shop's own products.
+ * The shop's commerce (131.1–131.19) is the real thing: the premium
+ * `flash_sale` element (the shop's sale ending soonest, left out while none
+ * is on), the products lists' sale badges, the coupon in its premium look
+ * bound to a code the shop shows in the app, and the gift checkout's look
+ * (`screens.checkout`). "Send today" says the shop's cut-off in the owner's
+ * words (`lqCutoff`), its day chips opening the shop; the real day and
+ * slot are picked at checkout. Nothing is made up: no number, review or
+ * price is the template's; the lists are the shop's own products.
  */
 
 // ——— The two looks' colours and faces ———
@@ -104,16 +105,10 @@ const shop: Action = screen("search");
 const toCart: Action = screen("cart");
 const pageOf = (slug: string): Action => ({ type: "page", page_slug: slug });
 
-/**
- * 131.24 The commerce parts this template composes from today's elements,
- * by the name their block has in the layers (the integrator swaps each for
- * the commerce element: the same-day cut-off and its slots, the premium
- * flash sale with its countdown and sale badges, the delivery days).
- */
-export const COMMERCE = {
-  sendToday: "Send today · same-day cut-off (commerce)",
-  flashSale: "Flash sale · countdown and sale prices (commerce)",
-  deliveryDays: "Delivery days · today, tomorrow, a date (commerce)",
+/** 131.24 The delivery blocks' names in the layers: "Send today" with the shop's cut-off, and its day chips. */
+export const DELIVERY_BLOCKS = {
+  sendToday: "Send today · the shop's cut-off",
+  deliveryDays: "Delivery days · today, tomorrow, a date",
 } as const;
 
 // ——— What both looks are made of ———
@@ -171,38 +166,29 @@ function glassDisc(ctx: SectionContext, icon: string, action: Action, size = 42)
   };
 }
 
-/** A pill button: filled in the look's colour (or white over a photo), its words and an icon at its end. */
-function pill(ctx: SectionContext, word: SectionWord, action: Action, look: { background: string; dark_background?: string; color: string; dark_color?: string }, icon = "arrow_forward", height = 50): StudioNode {
-  const id = idOf(ctx);
+/** A compact button (its own width), its arrow at its end: the hero's and the shop's. */
+function heroButton(ctx: SectionContext, word: SectionWord, action: Action, look: { background: string; dark_background?: string; color: string; dark_color?: string }, margin: StudioSides, icon = "arrow_forward", height = 48): StudioNode {
   return {
-    id: id(),
-    type: "row",
+    id: idOf(ctx)(),
+    type: "button",
     name: ctx.w(word),
+    text: ctx.w(word),
+    icon,
+    icon_position: "end",
+    width: "hug",
     height,
     radius: height / 2,
-    gap: 10,
-    cross: "center",
-    width: "hug",
-    padding: sides(0, 8, 0, 22),
-    shadow: "medium",
-    action,
-    ...look,
+    padding: sides(0, 20, 0, 20),
+    self_align: "start",
+    background: look.background,
     dark_background: look.dark_background ?? look.background,
-    children: [
-      { id: id(), type: "text", text: ctx.w(word), font: { size: 15, weight: 700 }, color: look.color, ...(look.dark_color ? { dark_color: look.dark_color } : {}) },
-      {
-        id: id(),
-        type: "row",
-        width: height - 14,
-        height: height - 14,
-        radius: (height - 14) / 2,
-        align: "center",
-        cross: "center",
-        background: look.color,
-        dark_background: look.dark_color ?? look.color,
-        children: [{ id: id(), type: "icon", icon, icon_size: 19, color: look.background, ...(look.dark_background ? { dark_color: look.dark_background } : {}) }],
-      },
-    ],
+    color: look.color,
+    ...(look.dark_color ? { dark_color: look.dark_color } : { dark_color: look.color }),
+    font: { size: 15, weight: 700 },
+    shadow: "medium",
+    motion: { press: "shrink" },
+    action,
+    margin,
   };
 }
 
@@ -271,118 +257,60 @@ function occasionTicker(ctx: SectionContext, k: SignatureInk, family: string, lo
   };
 }
 
-/** COMMERCE The flash sale: its countdown and the shop's own products on sale (the commerce engineer's `flash_sale` takes its place). */
-function flashSale(ctx: SectionContext, look: { background: string; dark_background: string; raised: string; darkRaised: string; accent: string; family: string; kicker: string }, layout: "carousel" | "list" = "carousel"): StudioNode {
-  const id = idOf(ctx);
-  const white = "#FFFFFF";
+/** The code the shop shows in the app (131.17 bound to the shop's coupons: `LEQAA10`, else the first shown; left out without one), in its premium look. */
+function shopCoupon(ctx: SectionContext, color: string, look: "ticket" | "glass"): StudioNode {
+  return { id: idOf(ctx)(), type: "coupon", name: ctx.w("lqCoupon"), code: LEQAA_COUPON, coupon: { look, bind: "public" }, radius: 20, color, margin: sides(14, 16, 4, 16) };
+}
+
+/** The demo's code for a first bouquet (lib/demo/flowers.ts makes it, shown in the app). */
+export const LEQAA_COUPON = "LEQAA10";
+
+/**
+ * The flash sale: the shop's own (131.15 the `flash_sale` element: the sale
+ * ending soonest, its products at was and now prices with the share off, a
+ * live countdown and a stock bar; left out while no sale is on), in the
+ * look's colour, `banner` in A and the cards side by side in B.
+ */
+function flashSale(ctx: SectionContext, accent: string, look: "banner" | "carousel" = "banner"): StudioNode {
+  const t = sigTexts(ctx, { text: "lqFlashTitle" });
   return {
-    id: id(),
-    type: "column",
-    name: COMMERCE.flashSale,
-    gap: 12,
-    radius: 30,
-    padding: sides(18, 0, 18, 0),
+    id: idOf(ctx)(),
+    type: "flash_sale",
+    name: ctx.w("lqFlashKicker"),
+    text: t.text,
+    translations: t.translations,
+    flash_sale: { look, limit: 6, countdown: true, stock_bar: true, accent },
+    radius: 28,
     margin: sides(18, 16, 4, 16),
-    background: look.background,
-    dark_background: look.dark_background,
-    surface: { soft: 3, pattern: "grain", pattern_strength: 0.06 },
-    color: white,
-    children: [
-      {
-        id: id(),
-        type: "row",
-        gap: 12,
-        cross: "center",
-        padding: sides(0, 18, 0, 18),
-        children: [
-          { id: id(), type: "icon", icon: "bolt", icon_size: 22, color: look.accent, background: look.raised, dark_background: look.darkRaised, radius: 99, padding: sides(8, 8, 8, 8), motion: { loop: "pulse" } },
-          {
-            id: id(),
-            type: "column",
-            width: "fill",
-            gap: 2,
-            children: [
-              { id: id(), type: "text", text: ctx.w("lqFlashKicker"), color: look.kicker, font: { size: 11, weight: 700, letter_spacing: 2.2, uppercase: true } },
-              { id: id(), type: "text", text: ctx.w("lqFlashTitle"), color: white, max_lines: 2, font: display(look.family, 23) },
-            ],
-          },
-        ],
-      },
-      {
-        id: id(),
-        type: "row",
-        gap: 10,
-        cross: "center",
-        padding: sides(0, 18, 0, 18),
-        children: [
-          { id: id(), type: "text", text: ctx.w("lqEndsIn"), color: white, opacity: 0.8, font: { size: 12, weight: 600 } },
-          // The owner sets when it ends (the countdown's date); the commerce side's flash sale reads its own.
-          { id: id(), type: "countdown", width: "fill", ends_at: "2026-12-31T22:00:00.000Z", text: ctx.w("lqFlashEnded"), color: white, font: { family: "JetBrains Mono", size: 15, weight: 700 } },
-        ],
-      },
-      {
-        id: id(),
-        type: "items",
-        source: "products",
-        layout,
-        gap: 12,
-        padding: layout === "carousel" ? sides(0, 18, 0, 18) : sides(0, 14, 0, 14),
-        query: { limit: layout === "carousel" ? 8 : 3, category_id: null, featured: false, sort: "popular", ids: [], on_sale: true },
-        card:
-          layout === "carousel"
-            ? {
-                id: id(),
-                type: "column",
-                width: 150,
-                gap: 8,
-                children: [
-                  { id: id(), type: "image", bind: "image", width: 150, height: 176, radius: 20, fit: "cover" },
-                  { id: id(), type: "text", bind: "title", max_lines: 1, color: white, font: { size: 14, weight: 700 } },
-                  { id: id(), type: "text", bind: "price", max_lines: 1, color: look.accent, font: { size: 14, weight: 800 } },
-                ],
-              }
-            : {
-                id: id(),
-                type: "row",
-                gap: 12,
-                cross: "center",
-                padding: sides(8, 8, 8, 8),
-                radius: 18,
-                background: look.raised,
-                dark_background: look.darkRaised,
-                children: [
-                  { id: id(), type: "image", bind: "image", width: 64, height: 64, radius: 14, fit: "cover" },
-                  { id: id(), type: "text", bind: "title", width: "fill", max_lines: 2, color: white, font: { size: 14.5, weight: 700 } },
-                  { id: id(), type: "text", bind: "price", max_lines: 1, color: look.accent, font: { family: "JetBrains Mono", size: 14, weight: 700 } },
-                ],
-              },
-      },
-    ],
   };
 }
 
-/** COMMERCE The delivery days as chips: today, tomorrow, a date (the commerce side's day and slot picker takes their place). */
+/** The delivery days as chips: today, tomorrow, a date (each opens the shop; the day and slot are picked at checkout). */
 function dayChips(ctx: SectionContext, k: SignatureInk, onColour = false): StudioNode {
   const id = idOf(ctx);
   const chip = (word: SectionWord, lit: boolean, icon: string): StudioNode => ({
     id: id(),
     type: "row",
     name: ctx.w(word),
+    // Three equal chips in one row, never cut at the card's edge.
+    width: "fill",
     height: 36,
     radius: 18,
-    gap: 6,
+    gap: 5,
+    align: "center",
     cross: "center",
-    padding: sides(0, 14, 0, 12),
+    padding: sides(0, 6, 0, 6),
     action: shop,
     ...(lit
       ? { background: onColour ? "#FFFFFF" : k.fill, dark_background: onColour ? "#FFFFFF" : k.darkFill }
       : { border_color: onColour ? "#FFFFFF" : k.line, dark_border_color: onColour ? "#FFFFFF" : k.darkLine, border_width: 1 }),
+    // Today's bolt only: the three fit on the narrowest phone.
     children: [
-      { id: id(), type: "icon", icon, icon_size: 16, color: lit ? (onColour ? k.ink : k.onFill) : onColour ? "#FFFFFF" : k.ink, dark_color: lit ? (onColour ? k.ink : k.darkOnFill) : onColour ? "#FFFFFF" : k.darkInk },
-      { id: id(), type: "text", text: ctx.w(word), font: { size: 13, weight: 700 }, color: lit ? (onColour ? k.ink : k.onFill) : onColour ? "#FFFFFF" : k.ink, dark_color: lit ? (onColour ? k.ink : k.darkOnFill) : onColour ? "#FFFFFF" : k.darkInk },
+      ...(lit ? [{ id: id(), type: "icon", icon, icon_size: 15, color: onColour ? k.ink : k.onFill, dark_color: onColour ? k.ink : k.darkOnFill } satisfies StudioNode] : []),
+      { id: id(), type: "text", text: ctx.w(word), max_lines: 1, font: { size: 12.5, weight: 700 }, color: lit ? (onColour ? k.ink : k.onFill) : onColour ? "#FFFFFF" : k.ink, dark_color: lit ? (onColour ? k.ink : k.darkOnFill) : onColour ? "#FFFFFF" : k.darkInk },
     ],
   });
-  return { id: id(), type: "row", name: COMMERCE.deliveryDays, gap: 8, scroll: true, children: [chip("lqToday", true, "bolt"), chip("lqTomorrow", false, "wb_sunny"), chip("lqPickDate", false, "calendar_month")] };
+  return { id: id(), type: "row", name: DELIVERY_BLOCKS.deliveryDays, gap: 6, width: "fill", children: [chip("lqToday", true, "bolt"), chip("lqTomorrow", false, "wb_sunny"), chip("lqPickDate", false, "calendar_month")] };
 }
 
 /** The shop's products the most people take, as tall photo cards. */
@@ -410,11 +338,23 @@ function lovedCards(ctx: SectionContext, k: SignatureInk, family: string): Studi
           height: 214,
           children: [
             { id: id(), type: "image", bind: "image", width: 172, height: 214, radius: 26, fit: "cover", corners: { top_start: 86, top_end: 86, bottom_end: 26, bottom_start: 26 } },
-            { id: id(), type: "text", bind: "badge", font: { size: 11, weight: 800 }, color: k.onFill, background: k.fill, dark_color: k.darkOnFill, dark_background: k.darkFill, radius: 99, padding: sides(4, 10, 4, 10), place: { x: 30, y: 8 } },
+            // 131.16 The sale's share off ("−14%"), nothing when it isn't on sale.
+            // At the photo's foot, clear of the arch.
+            { id: id(), type: "text", bind: "sale", font: { size: 11, weight: 800 }, color: k.onFill, background: k.fill, dark_color: k.darkOnFill, dark_background: k.darkFill, radius: 99, padding: sides(4, 10, 4, 10), place: { x: 10, y: 92 } },
           ],
         },
-        { id: id(), type: "text", bind: "title", max_lines: 1, color: k.ink, dark_color: k.darkInk, font: display(family, 19, { letter_spacing: -0.2 }) },
-        { id: id(), type: "text", bind: "price", max_lines: 1, color: k.accent, dark_color: k.darkAccent, font: { size: 14, weight: 700 } },
+        { id: id(), type: "text", bind: "title", max_lines: 2, color: k.ink, dark_color: k.darkInk, font: display(family, 17, { letter_spacing: -0.2, line_height: 1.15 }) },
+        {
+          id: id(),
+          type: "row",
+          gap: 8,
+          cross: "center",
+          children: [
+            { id: id(), type: "text", bind: "price", max_lines: 1, color: k.accent, dark_color: k.darkAccent, font: { size: 14, weight: 700 } },
+            // Its price before, struck through, while on sale.
+            { id: id(), type: "text", bind: "was_price", max_lines: 1, color: k.muted, dark_color: k.darkMuted, font: { size: 12.5 } },
+          ],
+        },
       ],
     },
   };
@@ -475,11 +415,11 @@ function roseSlide(ctx: SectionContext, o: (typeof OCCASIONS)[number]): StudioNo
     type: "photo_hero",
     name: ctx.w(o.headline),
     image_url: sigPhoto(ctx, o.photo),
-    height: 600,
+    height: 520,
     background: ROSE_SHADE,
     scrim: { color: ROSE_SHADE, from: 0.55, middle: 0.12, at: 38, to: 0.9 },
     align: "end",
-    padding: sides(0, 22, 118, 22),
+    padding: sides(0, 22, 34, 22),
     action: shop,
     children: [
       {
@@ -496,8 +436,8 @@ function roseSlide(ctx: SectionContext, o: (typeof OCCASIONS)[number]): StudioNo
       },
       { id: id(), type: "text", text: ctx.w(o.headline), color: white, max_lines: 3, font: display(FRAUNCES, 50, { weight: 500, line_height: 0.98 }), margin: sides(14, 0, 0, 0) },
       { id: id(), type: "text", text: ctx.w("lqHeroLine"), color: white, opacity: 0.9, max_lines: 2, font: { size: 15, line_height: 1.4 }, margin: sides(10, 0, 0, 0) },
-      // The full width over the photo, its arrow at its end.
-      { ...pill(ctx, "lqSendFlowers", shop, { background: white, color: ROSE_SHADE }), align: "between", margin: sides(18, 0, 0, 0) },
+      // A compact button at the words' start edge, as far under them as they are from each other.
+      heroButton(ctx, "lqSendFlowers", shop, { background: white, color: ROSE_SHADE }, sides(16, 0, 0, 0)),
     ],
   };
 }
@@ -532,64 +472,54 @@ function roseHero(ctx: SectionContext): StudioNode {
     id: id(),
     type: "stack",
     name: ctx.w("lqHeroLove"),
-    cross: "end",
+    height: 520,
+    cross: "start",
     children: [
       {
         id: id(),
-        type: "column",
-        height: 648,
-        children: [
-          {
-            id: id(),
-            type: "stack",
-            height: 600,
-            cross: "start",
-            children: [
-              {
-                id: id(),
-                type: "slider",
-                name: ctx.w("lqOccasions"),
-                height: 600,
-                per_view: 1,
-                autoplay: true,
-                interval_ms: 5500,
-                indicator: "progress",
-                indicator_look: { at: "top", inset: 80, color: "#FFFFFF", count: "padded" },
-                ken_burns: true,
-                children: OCCASIONS.map((o) => roseSlide(ctx, o)),
-              },
-              roseTop(ctx),
-            ],
-          },
-        ],
-      },
-      {
-        id: id(),
-        type: "column",
+        type: "slider",
         name: ctx.w("lqOccasions"),
-        width: "fill",
-        radius: 28,
-        margin: sides(0, 14, 0, 14),
-        padding: sides(14, 6, 8, 6),
-        background: A.surface,
-        dark_background: A.darkSurface,
-        border_color: "#FFFFFF",
-        dark_border_color: "#3A2530",
-        border_width: 1,
-        surface: { glass: 22, tint: 0.88, soft: 3 },
-        children: [occasionStories(ctx, A, LEQAA_CHAMPAGNE)],
+        height: 520,
+        per_view: 1,
+        autoplay: true,
+        interval_ms: 5500,
+        indicator: "progress",
+        indicator_look: { at: "top", inset: 80, color: "#FFFFFF", count: "padded" },
+        ken_burns: true,
+        children: OCCASIONS.map((o) => roseSlide(ctx, o)),
       },
+      roseTop(ctx),
     ],
   };
 }
 
-/** COMMERCE "Send today": the owner's cut-off in brackets, the delivery days as chips, the courier's van on a champagne disc. */
+/** The occasions as story rings on a frosted card. */
+function roseOccasions(ctx: SectionContext): StudioNode {
+  return {
+    id: idOf(ctx)(),
+    type: "column",
+    name: ctx.w("lqOccasions"),
+    width: "fill",
+    radius: 28,
+    margin: sides(14, 14, 0, 14),
+    padding: sides(14, 6, 8, 6),
+    background: A.surface,
+    dark_background: A.darkSurface,
+    border_color: "#FFFFFF",
+    dark_border_color: "#3A2530",
+    border_width: 1,
+    surface: { glass: 22, tint: 0.88, soft: 3 },
+    children: [occasionStories(ctx, A, LEQAA_CHAMPAGNE)],
+  };
+}
+
+/** "Send today": the shop's cut-off in the owner's words, the delivery days as chips, the courier's van on a champagne disc. */
 function sendTodayA(ctx: SectionContext, margin: StudioSides = sides(18, 16, 4, 16)): StudioNode {
   const id = idOf(ctx);
   return {
     id: id(),
     type: "column",
-    name: COMMERCE.sendToday,
+    name: DELIVERY_BLOCKS.sendToday,
     gap: 12,
     radius: 26,
     padding: sides(16, 16, 16, 16),
@@ -655,12 +585,14 @@ function builderA(ctx: SectionContext, margin: StudioSides = sides(22, 16, 4, 16
     cross: "center",
     height: 32,
     radius: 16,
-    padding: sides(0, 12, 0, 6),
+    // The number's disc as far from the pill's edge as from its top and foot.
+    padding: sides(0, 12, 0, 5),
     surface: { glass: 12, tint: 0.2 },
     border_color: "#F6D3DD",
     border_width: 1,
     children: [
-      { id: id(), type: "text", text: n, width: 22, height: 22, radius: 11, text_align: "center", background: "#FFFFFF", color: ROSE_SHADE, font: { size: 11, weight: 800, line_height: 2 } },
+      // The number on a white disc, in plain figures (the serif's old-style 3 reads as a 5 when cut).
+      { id: id(), type: "row", width: 22, height: 22, radius: 11, align: "center", cross: "center", background: "#FFFFFF", dark_background: "#FFFFFF", children: [{ id: id(), type: "text", text: n, color: ROSE_SHADE, font: { family: "DM Sans", size: 12, weight: 800, line_height: 1 } }] },
       { id: id(), type: "text", text: ctx.w(word), color: white, font: { size: 12.5, weight: 700 } },
     ],
   });
@@ -683,7 +615,7 @@ function builderA(ctx: SectionContext, margin: StudioSides = sides(22, 16, 4, 16
       { id: id(), type: "text", text: ctx.w("lqBuildTitle"), color: white, width: 230, max_lines: 2, font: display(FRAUNCES, 36, { weight: 500 }), margin: sides(8, 0, 0, 0) },
       { id: id(), type: "text", text: ctx.w("lqBuildLine"), color: white, opacity: 0.88, width: 230, max_lines: 3, font: { size: 13.5, line_height: 1.4 }, margin: sides(8, 0, 0, 0) },
       { id: id(), type: "row", gap: 6, scroll: true, margin: sides(14, 0, 0, 0), children: [step("1", "lqStepFlowers"), step("2", "lqStepWrap"), step("3", "lqStepCard")] },
-      { ...pill(ctx, "lqBuildStart", shop, { background: white, color: ROSE_SHADE }, "arrow_forward", 44), margin: sides(16, 0, 0, 0) },
+      heroButton(ctx, "lqBuildStart", shop, { background: white, color: ROSE_SHADE }, sides(16, 0, 0, 0), "arrow_forward", 44),
     ],
   };
 }
@@ -700,8 +632,11 @@ export function leqaaAHome(ctx: SectionContext): StudioPage {
       padding: sides(0, 0, 96, 0),
       children: [
         roseHero(ctx),
+        // The flash sale's countdown in the first screen, right under the stories.
+        { ...flashSale(ctx, A.fill), margin: sides(14, 16, 4, 16) },
+        roseOccasions(ctx),
         sendTodayA(ctx),
-        flashSale(ctx, { background: "#4A1328", dark_background: "#2E0E1B", raised: "#5E2238", darkRaised: "#40182A", accent: "#FFC9A8", family: FRAUNCES, kicker: "#F5B9CB" }),
+        shopCoupon(ctx, A.fill, "ticket"),
         headOf(ctx, A, FRAUNCES, "lqCollections", { word: "lqShopAll", action: shop }, sides(28, 18, 12, 18), "lqOccasions"),
         collectionsBento(ctx),
         headOf(ctx, A, FRAUNCES, "lqLoved", { word: "lqShopAll", action: shop }),
@@ -749,8 +684,9 @@ function shopTop(ctx: SectionContext, k: SignatureInk, family: string, photo: st
       scroll: true,
       padding: sides(4, 16, 4, 16),
       children: [
-        { ...pill(ctx, "lqBouquetPage", pageOf("bouquet"), { background: k.fill, dark_background: k.darkFill, color: k.onFill, dark_color: k.darkOnFill }, "local_florist", 42) },
-        { ...pill(ctx, "lqWishlist", pageOf("wishlist"), { background: k.surface, dark_background: k.darkSurface, color: k.ink, dark_color: k.darkInk }, "favorite", 42) },
+        // Each its icon inside beside its words, the same space around both.
+        { ...heroButton(ctx, "lqBouquetPage", pageOf("bouquet"), { background: k.fill, dark_background: k.darkFill, color: k.onFill, dark_color: k.darkOnFill }, sides(0, 0, 0, 0), "local_florist", 42), icon_position: "start", shadow: "none", padding: sides(0, 16, 0, 16) },
+        { ...heroButton(ctx, "lqWishlist", pageOf("wishlist"), { background: k.surface, dark_background: k.darkSurface, color: k.ink, dark_color: k.darkInk }, sides(0, 0, 0, 0), "favorite", 42), icon_position: "start", shadow: "none", padding: sides(0, 16, 0, 16), border_color: k.line, dark_border_color: k.darkLine, border_width: 1 },
       ],
     },
   ];
@@ -937,7 +873,7 @@ function bouquetPage(ctx: SectionContext, k: SignatureInk, family: string, look:
         { ...dayChips(ctx, k), padding: sides(0, 16, 0, 16) },
         headOf(ctx, k, family, "lqGiftMsg", null, sides(20, 18, 10, 18)),
         card,
-        { ...pill(ctx, "lqChoose", shop, { background: k.fill, dark_background: k.darkFill, color: k.onFill, dark_color: k.darkOnFill }), align: "between", margin: sides(20, 18, 0, 18), self_align: "center" },
+        { ...heroButton(ctx, "lqChoose", shop, { background: k.fill, dark_background: k.darkFill, color: k.onFill, dark_color: k.darkOnFill }, sides(20, 18, 0, 18), "arrow_forward", 50), self_align: "center" },
       ],
     },
   };
@@ -991,7 +927,8 @@ function leqaaOver(k: SignatureInk, family: string, photo: string, shade: string
       case "courses":
         return shopTop(ctx, k, family, photo, shade, ring);
       case "cart":
-        return cartTop(ctx, k, family);
+        // 131.17 And the shop's code for a first bouquet, in the look's coupon.
+        return [...cartTop(ctx, k, family), shopCoupon(ctx, k.fill, k === A ? "ticket" : "glass")];
       case "orders":
         return ordersTop(ctx, k, family);
       default:
@@ -1051,8 +988,13 @@ export const LEQAA_A_BAR = signatureBar(A, { design: "petal", background: "#FFFF
 export const LEQAA_B_BAR = signatureBar(B, { design: "petal", background: FOREST, dark_background: "#14261F", active: "#F3EBDD", dark_active: "#F2B79E", inactive: "#B9CBBF", dark_inactive: "#94A99D", labels: "always", radius: 30, margin: 12, center: "cart" });
 
 /** 131.25 The gift checkout's look in each look's colours (`Config.screens.checkout`). */
-export const LEQAA_A_CHECKOUT = { look: "gift" as const, accent: A.fill, dark_accent: A.darkFill };
-export const LEQAA_B_CHECKOUT = { look: "gift" as const, accent: B.fill, dark_accent: B.darkFill };
+/**
+ * The looks' checkout: the premium gift checkout in five steps (the gift
+ * checkout's real parts, `mode: gift`), A's with round chips on plain
+ * cards, B's with square chips on frosted glass and smaller corners.
+ */
+export const LEQAA_A_CHECKOUT: CheckoutLook = { look: "gift", mode: "gift", style: "steps", chips: "pill", surface: "plain", radius: 24, accent: A.fill, dark_accent: A.darkFill };
+export const LEQAA_B_CHECKOUT: CheckoutLook = { look: "gift", mode: "gift", style: "steps", chips: "square", surface: "glass", radius: 14, accent: B.fill, dark_accent: B.darkFill };
 
 export const LEQAA_A: SignatureDesign = {
   demo: "flowers",
@@ -1068,7 +1010,8 @@ export const LEQAA_A: SignatureDesign = {
   isNew: true,
   project: {
     // Look A is the demo: its main colour the demo's (lib/demo/content.ts).
-    appearance: { secondary_color: LEQAA_CHAMPAGNE, font: "DM Sans", font_family: FRAUNCES },
+    // 131.29 Its plum night on every screen, the shop's and the account's too.
+    appearance: { secondary_color: LEQAA_CHAMPAGNE, font: "DM Sans", font_family: FRAUNCES, dark_background: A.darkPage, dark_surface: A.darkSurface },
     screens: (platform) => ({ ...LEQAA_A_SCREENS(platform), checkout: { ...LEQAA_A_CHECKOUT } }),
   },
 };
@@ -1130,24 +1073,25 @@ function editCard(ctx: SectionContext, photo: string, no: SectionWord, word: Sec
     padding: sides(18, 18, 22, 18),
     action: shop,
     children: [
-      { id: id(), type: "text", text: ctx.w(no), color: white, font: display(OUTFIT, 64, { weight: 400, line_height: 0.9 }) },
+      // Its number and its round arrow at its top, so nothing of it sits under the bar.
       {
         id: id(),
         type: "row",
-        gap: 10,
-        cross: "end",
+        align: "between",
+        cross: "start",
+        width: "fill",
         children: [
-          {
-            id: id(),
-            type: "column",
-            width: "fill",
-            gap: 4,
-            children: [
-              { id: id(), type: "text", text: ctx.w("lqEdit"), color: "#F6D7C8", font: { size: 11, weight: 700, letter_spacing: 2, uppercase: true } },
-              { id: id(), type: "text", text: ctx.w(word), color: white, max_lines: 2, font: display(OUTFIT, 32, { weight: 400 }) },
-            ],
-          },
-          { id: id(), type: "row", width: 48, height: 48, radius: 24, align: "center", cross: "center", background: white, shadow: "strong", children: [{ id: id(), type: "icon", icon: "arrow_forward", icon_size: 22, color: FOREST }] },
+          { id: id(), type: "text", text: ctx.w(no), color: white, font: display(OUTFIT, 64, { weight: 400, line_height: 0.9 }) },
+          { id: id(), type: "row", width: 48, height: 48, radius: 24, align: "center", cross: "center", background: white, dark_background: white, shadow: "strong", children: [{ id: id(), type: "icon", icon: "arrow_forward", icon_size: 22, color: FOREST }] },
+        ],
+      },
+      {
+        id: id(),
+        type: "column",
+        gap: 4,
+        children: [
+          { id: id(), type: "text", text: ctx.w("lqEdit"), color: "#F6D7C8", font: { size: 11, weight: 700, letter_spacing: 2, uppercase: true } },
+          { id: id(), type: "text", text: ctx.w(word), color: white, max_lines: 2, font: display(OUTFIT, 32, { weight: 400 }) },
         ],
       },
     ],
@@ -1160,7 +1104,8 @@ function editSlider(ctx: SectionContext): StudioNode {
     id: idOf(ctx)(),
     type: "slider",
     name: ctx.w("lqEdit"),
-    height: 430,
+    // Short enough to end above the bar on the first screen.
+    height: 372,
     per_view: 1.18,
     gap: 12,
     autoplay: true,
@@ -1172,13 +1117,13 @@ function editSlider(ctx: SectionContext): StudioNode {
   };
 }
 
-/** COMMERCE "Send today" as a ticket: the van on a peach disc and the owner's cut-off on its body, the days on its stub. */
+/** "Send today" as a ticket: the van on a peach disc and the owner's cut-off on its body, the days on its stub. */
 function sendTodayB(ctx: SectionContext, margin: StudioSides = sides(18, 16, 4, 16)): StudioNode {
   const id = idOf(ctx);
   return {
     id: id(),
     type: "column",
-    name: COMMERCE.sendToday,
+    name: DELIVERY_BLOCKS.sendToday,
     gap: 14,
     radius: 26,
     padding: sides(18, 18, 18, 18),
@@ -1276,7 +1221,8 @@ function priceList(ctx: SectionContext): StudioNode {
           gap: 2,
           children: [
             { id: id(), type: "text", bind: "title", max_lines: 1, color: B.ink, dark_color: B.darkInk, font: { family: OUTFIT, size: 21, weight: 400 } },
-            { id: id(), type: "text", bind: "badge", max_lines: 1, color: B.accent, dark_color: B.darkAccent, font: { size: 12, weight: 700 } },
+            // 131.16 The sale's share off, nothing when it isn't on sale.
+            { id: id(), type: "text", bind: "sale", max_lines: 1, color: B.accent, dark_color: B.darkAccent, font: { size: 12, weight: 700 } },
           ],
         },
         { id: id(), type: "text", bind: "price", max_lines: 1, color: B.ink, dark_color: B.darkInk, font: { family: "JetBrains Mono", size: 14, weight: 700 } },
@@ -1307,7 +1253,7 @@ function builderB(ctx: SectionContext, margin: StudioSides = sides(22, 16, 4, 16
       { id: id(), type: "text", text: ctx.w("lqBuildTitle"), color: "#FFFFFF", max_lines: 2, font: display(OUTFIT, 38, { weight: 400 }) },
       { id: id(), type: "text", text: ctx.w("lqBuildLine"), color: "#FFFFFF", opacity: 0.85, max_lines: 2, font: { size: 13.5, line_height: 1.4 } },
       { id: id(), type: "timeline", timeline: { style: "bars" }, color: "#FFFFFF", entries: [step("lqStepFlowers", true, "local_florist"), step("lqStepWrap", false, "redeem"), step("lqStepCard", false, "edit_note")], margin: sides(6, 0, 0, 0) },
-      { ...pill(ctx, "lqBuildStart", shop, { background: LEQAA_PEACH, color: FOREST }, "arrow_forward", 46), margin: sides(8, 0, 0, 0) },
+      heroButton(ctx, "lqBuildStart", shop, { background: LEQAA_PEACH, color: FOREST }, sides(8, 0, 0, 0), "arrow_forward", 46),
     ],
   };
 }
@@ -1325,9 +1271,11 @@ export function leqaaBHome(ctx: SectionContext): StudioPage {
       padding: sides(0, 0, 110, 0),
       children: [
         askB(ctx),
+        // The flash sale's countdown in the first screen, right under the occasion chips.
+        { ...flashSale(ctx, B.fill, "carousel"), margin: sides(14, 16, 4, 16) },
         { ...editSlider(ctx), margin: sides(14, 0, 0, 0) },
         sendTodayB(ctx),
-        flashSale(ctx, { background: FOREST, dark_background: FOREST_NIGHT, raised: "#2A4A40", darkRaised: "#1A3028", accent: LEQAA_PEACH, family: OUTFIT, kicker: "#BFD8C9" }, "list"),
+        shopCoupon(ctx, B.fill, "glass"),
         headOf(ctx, B, OUTFIT, "lqCollections", { word: "lqShopAll", action: shop }, sides(26, 18, 12, 18)),
         collectionArches(ctx),
         headOf(ctx, B, OUTFIT, "lqAtelier", null, sides(26, 18, 12, 18)),
@@ -1358,7 +1306,8 @@ export const LEQAA_B: SignatureDesign = {
   isNew: true,
   project: {
     primary: B.fill,
-    appearance: { secondary_color: LEQAA_PEACH, font: "Manrope" },
+    // 131.29 Its forest night on every screen, the shop's and the account's too.
+    appearance: { secondary_color: LEQAA_PEACH, font: "Manrope", dark_background: B.darkPage, dark_surface: B.darkSurface },
     screens: (platform) => ({ ...LEQAA_B_SCREENS(platform), checkout: { ...LEQAA_B_CHECKOUT } }),
   },
 };
@@ -1374,11 +1323,11 @@ const one = (make: (ctx: SectionContext) => StudioNode | StudioNode[]) => (ctx: 
 };
 
 export const LEQAA_SECTIONS: readonly SectionInfo[] = [
-  { id: "lq_story_hero", icon: "auto_stories", isNew: true, fits: STORE_PLAIN, make: one(roseHero) },
+  { id: "lq_story_hero", icon: "auto_stories", isNew: true, fits: STORE_PLAIN, make: one((ctx) => [roseHero(ctx), roseOccasions(ctx)]) },
   { id: "lq_occasions", icon: "favorite", isNew: true, fits: STORE_PLAIN, make: one((ctx) => ({ ...occasionStories(ctx, A, LEQAA_CHAMPAGNE), padding: sides(10, 12, 6, 12) })) },
   { id: "lq_send_today", icon: "local_shipping", isNew: true, fits: STORE_PLAIN, make: one((ctx) => sendTodayA(ctx)) },
   { id: "lq_send_ticket", icon: "confirmation_number", isNew: true, fits: STORE_PLAIN, make: one((ctx) => sendTodayB(ctx)) },
-  { id: "lq_flash", icon: "bolt", isNew: true, fits: STORE_PLAIN, make: one((ctx) => flashSale(ctx, { background: "#4A1328", dark_background: "#2E0E1B", raised: "#5E2238", darkRaised: "#40182A", accent: "#FFC9A8", family: FRAUNCES, kicker: "#F5B9CB" })) },
+  { id: "lq_flash", icon: "bolt", isNew: true, fits: STORE_PLAIN, make: one((ctx) => flashSale(ctx, A.fill)) },
   { id: "lq_collections", icon: "dashboard", isNew: true, fits: STORE_PLAIN, make: one((ctx) => [headOf(ctx, A, FRAUNCES, "lqCollections", { word: "lqShopAll", action: shop }), collectionsBento(ctx)]) },
   { id: "lq_arches", icon: "door_front", isNew: true, fits: STORE_PLAIN, make: one((ctx) => [headOf(ctx, B, OUTFIT, "lqCollections", { word: "lqShopAll", action: shop }), collectionArches(ctx)]) },
   { id: "lq_loved", icon: "workspace_premium", isNew: true, fits: STORE_PLAIN, make: one((ctx) => [headOf(ctx, A, FRAUNCES, "lqLoved", null), lovedCards(ctx, A, FRAUNCES)]) },

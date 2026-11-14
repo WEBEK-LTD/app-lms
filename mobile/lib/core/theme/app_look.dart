@@ -25,6 +25,8 @@ class AppLook {
     this.defaultThemeMode = ThemeMode.system,
     this.userCanChangeMode = true,
     this.header,
+    this.darkBackground,
+    this.darkSurface,
   });
 
   /// [ready]: the free fonts on the phone now (`remoteFontsProvider`).
@@ -67,6 +69,8 @@ class AppLook {
       },
       userCanChangeMode: appearance?.userCanChangeMode ?? true,
       header: appearance?.header,
+      darkBackground: parseHexColor(appearance?.darkBackground),
+      darkSurface: parseHexColor(appearance?.darkSurface),
     );
   }
 
@@ -93,6 +97,11 @@ class AppLook {
   /// 101 The header of the pages in the bottom tabs; null: the template's.
   final AppHeader? header;
 
+  /// 131.29 The look's own night (a Signature look's): the background and
+  /// the cards on every screen; null, the app's own.
+  final Color? darkBackground;
+  final Color? darkSurface;
+
   /// The student's choice when allowed and made, else the client's default.
   ThemeMode themeModeFor(LocalSettings settings) =>
       userCanChangeMode && settings.themeModeChosen
@@ -108,6 +117,8 @@ class AppLook {
     corners: corners,
     cards: cards,
     fallback: fallback,
+    darkBackground: darkBackground,
+    darkSurface: darkSurface,
   );
 }
 

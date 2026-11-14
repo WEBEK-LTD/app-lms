@@ -191,5 +191,11 @@ export async function runFrequentJobs(deps: {
   } catch (error) {
     console.error("[frequent] prime", error instanceof Error ? error.message : String(error));
   }
+  // 131 The deliveries asked for in the apps of connected shops are kept 60 days.
+  try {
+    await deps.store.deleteStoreDeliveriesBefore(new Date(deps.now.getTime() - 60 * 86_400_000));
+  } catch (error) {
+    console.error("[frequent] store deliveries", error instanceof Error ? error.message : String(error));
+  }
   return { notifications, announcements, ended, campaigns, automatic, builds, reviews, orders, storeProducts, storePurchases, rides, library, school, mail, prime };
 }

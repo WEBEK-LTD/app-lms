@@ -479,6 +479,7 @@ class License_Client {
 				'chat'                => null,
 				'store_billing'       => null,
 				'screens'             => null,
+				'gift_messages'       => null,
 				'switches'            => array(),
 				'expires_at'          => null,
 				'checked_at'          => null,
@@ -725,6 +726,8 @@ class License_Client {
 			'store_billing'       => \Yallapp\Billing\Store_Billing::of_status( $result ),
 			// 121 A Yallapp Studio project's sign-in screen and account menu.
 			'screens'             => \Yallapp\Pages\Studio_Screens::of_status( $result ),
+			// 131 A store's card messages by occasion, as the owner manages them in the Yallapp dashboard.
+			'gift_messages'       => \Yallapp\Store\Delivery_Rules::gift_status( $result['gift_messages'] ?? null ),
 			// 83.3 The team's switches for the app's modules and new features.
 			'switches'            => self::switches_of( $result ),
 			'expires_at'          => isset( $result['expires_at'] ) ? sanitize_text_field( (string) $result['expires_at'] ) : null,

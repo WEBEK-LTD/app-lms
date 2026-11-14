@@ -121,7 +121,11 @@ class Catalog {
 		}
 		if ( ! empty( $args['on_sale'] ) ) {
 			$sale = array_map( 'intval', wc_get_product_ids_on_sale() );
-			$ids  = null === $ids ? $sale : array_values( array_intersect( $ids, $sale ) );
+			// 131 With the plugin's flash sale's products while it is on.
+			if ( class_exists( \Yallapp\Plugin::class, false ) ) {
+				$sale = array_values( array_unique( array_merge( $sale, \Yallapp\Plugin::instance()->store_extras()->flash_product_ids() ) ) );
+			}
+			$ids = null === $ids ? $sale : array_values( array_intersect( $ids, $sale ) );
 		}
 		if ( ! empty( $args['featured'] ) ) {
 			$featured = array_map( 'intval', wc_get_featured_product_ids() );
@@ -239,8 +243,29 @@ class Catalog {
 				'related'                => $related,
 				'external_url'           => $product->is_type( 'external' ) && method_exists( $product, 'get_product_url' ) && '' !== (string) $product->get_product_url() ? esc_url_raw( (string) $product->get_product_url() ) : null,
 				'permalink'              => (string) $product->get_permalink(),
-			)
+			),
+			// 131 The variation chosen when its page opens (WooCommerce's default attributes).
+			self::default_attributes( $product )
 		);
+	}
+
+	/**
+	 * 131 A variable product's default attributes, by the attributes' slugs; none: nothing.
+	 *
+	 * @param WC_Product $product Product.
+	 * @return array
+	 */
+	private static function default_attributes( WC_Product $product ) {
+		if ( ! $product instanceof WC_Product_Variable || ! method_exists( $product, 'get_default_attributes' ) ) {
+			return array();
+		}
+		$out = array();
+		foreach ( (array) $product->get_default_attributes() as $slug => $value ) {
+			if ( is_string( $value ) && '' !== $value ) {
+				$out[ sanitize_title( (string) $slug ) ] = $value;
+			}
+		}
+		return $out ? array( 'default_attributes' => $out ) : array();
 	}
 
 	/**
@@ -254,18 +279,24 @@ class Catalog {
 		$types = array( 'simple', 'variable', 'grouped', 'external' );
 		$type  = (string) $product->get_type();
 		$count = (int) $product->get_rating_count();
-		return array(
+		$price = $this->price( $product );
+		$out   = array(
 			'id'           => (int) $product->get_id(),
 			'name'         => html_entity_decode( wp_strip_all_tags( (string) $product->get_name() ), ENT_QUOTES, 'UTF-8' ),
 			'type'         => in_array( $type, $types, true ) ? $type : 'other',
 			'image_url'    => $image ? $image : null,
-			'price'        => $this->price( $product ),
+			'price'        => $price,
 			'rating'       => $count ? round( (float) $product->get_average_rating(), 1 ) : null,
 			'rating_count' => $count,
 			'stock_status' => self::stock_status( $product ),
 			'purchasable'  => self::can_add_to_cart( $product ),
 			'digital'      => self::is_digital( $product ),
 		);
+		// 131 Its sale: the plugin's flash sale, else WooCommerce's own sale price with its scheduled end.
+		if ( class_exists( \Yallapp\Plugin::class, false ) ) {
+			$out['sale'] = \Yallapp\Plugin::instance()->store_extras()->sale( $product, $price );
+		}
+		return $out;
 	}
 
 	/**

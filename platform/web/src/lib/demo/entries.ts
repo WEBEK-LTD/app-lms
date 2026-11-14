@@ -59,7 +59,8 @@ import {
   type DemoStaff,
 } from "./content";
 import type { DemoPicture, PictureSize } from "./picture-assets";
-import { FLOWER_CATEGORIES, FLOWER_CURRENCY, FLOWER_PRODUCTS, flowerVariants } from "./flowers";
+import { FLOWER_CATEGORIES, FLOWER_COUPON, FLOWER_CURRENCY, FLOWER_FLASH_SALE, FLOWER_PRODUCTS, flowerVariants } from "./flowers";
+import { seedGiftOccasions } from "../selling/gift-messages";
 import { UFUQ_COURSES } from "./ufuq-courses";
 import { ACADEMY_CATEGORIES, ACADEMY_COURSES, TEACHERS_CURRENCY } from "./teachers";
 
@@ -200,6 +201,37 @@ export async function demoFlowerProducts(deps: EntryDeps, app: App): Promise<voi
   if (deps.sample) return;
   const skus = new Set(FLOWER_PRODUCTS.map((p) => p.sku));
   for (const p of products) if (!p.sku || !skus.has(p.sku)) await store.deleteCatalogProduct(app.id, p.id);
+}
+
+/**
+ * 131 Leqaa's commerce on the demo: its flash sale (the roses and the
+ * sunflowers a share off, ending in hours), its code shown in the app and its
+ * card messages by occasion (the store's starters). The settings (the gift
+ * checkout, the days and slots, the zones and the distance pricing) are its
+ * `catalogSettings` (lib/demo/flowers.ts `FLOWER_COMMERCE`).
+ */
+export async function demoFlowerCommerce(deps: EntryDeps, app: App): Promise<void> {
+  const { store, now } = deps;
+  await refreshFlowerSale(store, app, now);
+  if (!(await store.getCatalogCouponByCode(app.id, FLOWER_COUPON.code))) {
+    await store.createCatalogCoupon({ appId: app.id, code: FLOWER_COUPON.code, kind: "percent", value: FLOWER_COUPON.percent, minOrderCents: FLOWER_COUPON.minOrderCents, endsAt: null, maxUses: null, active: true, createdAt: now, startsAt: null, public: true });
+  }
+  await seedGiftOccasions(store, (await store.getAppById(app.id))!, now);
+}
+
+/**
+ * 131 Leqaa's flash sale from now, for a little over a day (made again by
+ * the daily job, lib/demo/cleanup.ts), so its countdown always shows hours
+ * left, never days; its units sold back to none.
+ */
+export async function refreshFlowerSale(store: DataStore, app: Pick<App, "id">, now: Date): Promise<void> {
+  const products = await store.listCatalogProducts(app.id);
+  const ids = products.filter((p) => p.sku !== null && (FLOWER_FLASH_SALE.skus as readonly string[]).includes(p.sku)).map((p) => p.id);
+  const endsAt = new Date(now.getTime() + FLOWER_FLASH_SALE.hours * 3_600_000);
+  const sale = (await store.listFlashSales(app.id)).find((f) => f.title === FLOWER_FLASH_SALE.title);
+  const terms = { productIds: ids, categoryId: null, discount: { kind: "percent" as const, percent: FLOWER_FLASH_SALE.percent }, startsAt: now, endsAt, limit: FLOWER_FLASH_SALE.limit, platformCode: null, active: true };
+  if (sale) await store.updateFlashSale(app.id, sale.id, { ...terms, sold: 0, updatedAt: now });
+  else await store.createFlashSale({ appId: app.id, title: FLOWER_FLASH_SALE.title, ...terms, createdAt: now, updatedAt: now });
 }
 
 // ——— Courses ———

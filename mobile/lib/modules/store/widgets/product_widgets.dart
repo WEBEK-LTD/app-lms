@@ -6,6 +6,7 @@ import '../../../core/theme/app_theme.dart';
 import '../../../core/theme/palette.dart';
 import '../../../core/widgets/buttons.dart';
 import '../../../core/widgets/common.dart';
+import '../../../core/widgets/sale_widgets.dart';
 import '../../../core/l10n/l10n.dart';
 
 /// The price as the shop shows it, with the regular price struck through
@@ -138,6 +139,14 @@ class ProductCard extends StatelessWidget {
                     top: 8,
                     child: _Tag(context.l10n.outOfStock, strong: false),
                   )
+                // 131 A sale with its share off.
+                else if (product.sale case final sale?
+                    when sale.liveAt(DateTime.now()))
+                  PositionedDirectional(
+                    start: 8,
+                    top: 8,
+                    child: SaleChip(percentOff: sale.percentOff),
+                  )
                 else if (product.price.onSale)
                   PositionedDirectional(
                     start: 8,
@@ -167,6 +176,12 @@ class ProductCard extends StatelessWidget {
                 ),
                 const SizedBox(height: 6),
                 ProductPriceLabel(product.price, size: 14),
+                // 131 A sale ending within a day: a small countdown.
+                if (product.sale case final sale?
+                    when sale.endsSoon(DateTime.now())) ...[
+                  const SizedBox(height: 3),
+                  SaleCountdown(endsAt: sale.endsAt!, compact: true),
+                ],
                 if (product.rating != null && product.ratingCount > 0) ...[
                   const SizedBox(height: 4),
                   Row(
@@ -353,6 +368,118 @@ class QuantityControl extends StatelessWidget {
           onPressed: quantity < max ? () => onChanged(quantity + 1) : null,
         ),
       ],
+    );
+  }
+}
+
+/// 131 Whether a shop's own word (an attribute's name) reads in the app's
+/// language's script: Arabic letters in an Arabic app, none in the others.
+bool Function(String) fitsLanguage(BuildContext context) {
+  final arabicApp = Localizations.localeOf(context).languageCode == 'ar';
+  final arabic = RegExp(r'[؀-ۿ]');
+  return (word) => arabic.hasMatch(word) == arabicApp;
+}
+
+/// 131.25 A choice of two or three (a bouquet's sizes) as equal cards in one
+/// row, the chosen one filled: a label "Deluxe · 24 stems" shows its first
+/// part as the name and the rest under it.
+class ChoiceCards extends StatelessWidget {
+  const ChoiceCards({
+    super.key,
+    required this.options,
+    required this.chosen,
+    required this.onTap,
+  });
+
+  /// (value, label) in order.
+  final List<(String, String)> options;
+  final String? chosen;
+  final ValueChanged<String> onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    final p = context.palette;
+    return IntrinsicHeight(
+      child: Row(
+        key: const ValueKey('product-choice-cards'),
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          for (final (i, (value, label)) in options.indexed) ...[
+            if (i > 0) const SizedBox(width: 10),
+            Expanded(
+              child: Builder(
+                builder: (context) {
+                  final on = value == chosen;
+                  final parts = label.split(' · ');
+                  final ink = on ? p.onPrimary : p.text;
+                  return Semantics(
+                    button: true,
+                    selected: on,
+                    label: label,
+                    excludeSemantics: true,
+                    child: Material(
+                      key: ValueKey('product-choice-$value'),
+                      color: on ? p.primary : p.surface,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(18),
+                        side: BorderSide(
+                          color: on ? p.primary : p.border,
+                          width: on ? 1.5 : 1,
+                        ),
+                      ),
+                      clipBehavior: Clip.antiAlias,
+                      child: InkWell(
+                        onTap: () => onTap(value),
+                        child: Padding(
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 6,
+                            vertical: 12,
+                          ),
+                          child: Column(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              AppIcon(
+                                AppIcons.florist,
+                                size: on ? 24 : 20,
+                                color: on ? p.onPrimary : p.primary,
+                              ),
+                              const SizedBox(height: 4),
+                              Text(
+                                parts.first,
+                                textAlign: TextAlign.center,
+                                maxLines: 1,
+                                overflow: TextOverflow.ellipsis,
+                                style: TextStyle(
+                                  fontSize: 14,
+                                  fontWeight: FontWeight.w800,
+                                  color: ink,
+                                ),
+                              ),
+                              if (parts.length > 1)
+                                Text(
+                                  parts.skip(1).join(' · '),
+                                  textAlign: TextAlign.center,
+                                  maxLines: 1,
+                                  overflow: TextOverflow.ellipsis,
+                                  style: TextStyle(
+                                    fontSize: 11.5,
+                                    color: on
+                                        ? p.onPrimary.withValues(alpha: 0.85)
+                                        : p.textSecondary,
+                                  ),
+                                ),
+                            ],
+                          ),
+                        ),
+                      ),
+                    ),
+                  );
+                },
+              ),
+            ),
+          ],
+        ],
+      ),
     );
   }
 }

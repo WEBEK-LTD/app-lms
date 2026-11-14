@@ -1,0 +1,395 @@
+"use client";
+
+import { useActionState, useState } from "react";
+import { saveAreasAction, saveCheckoutModeAction, saveDeliveryAction, saveFlashSaleAction, saveGiftsAction, saveOccasionAction, addOccasionAction, saveTemplateAction } from "@/app/actions/selling";
+import { Field, FormMessage, SubmitButton } from "@/components/form";
+import { FormActions } from "@/components/page-kit";
+import { useDashT } from "@/components/dashboard-i18n";
+import { initialFormState } from "@/lib/forms";
+
+/** 131 Store › Delivery & offers: its forms. */
+
+function Check({ name, label, hint, defaultChecked, value }: { name: string; label: string; hint?: string; defaultChecked: boolean; value?: string }) {
+  return (
+    <label className="flex cursor-pointer items-start gap-3">
+      <input type="checkbox" name={name} value={value ?? "on"} defaultChecked={defaultChecked} className="mt-1 h-4 w-4 accent-midnight" />
+      <span className="flex flex-col gap-0.5">
+        <span className="text-[15px] font-semibold">{label}</span>
+        {hint ? <span className="text-[13px] text-muted">{hint}</span> : null}
+      </span>
+    </label>
+  );
+}
+
+function Radio({ name, value, label, hint, defaultChecked }: { name: string; value: string; label: string; hint: string; defaultChecked: boolean }) {
+  return (
+    <label className="flex cursor-pointer items-start gap-3 rounded-xl border border-line-soft p-3">
+      <input type="radio" name={name} value={value} defaultChecked={defaultChecked} className="mt-1 h-4 w-4 accent-midnight" />
+      <span className="flex flex-col gap-0.5">
+        <span className="text-[15px] font-semibold">{label}</span>
+        <span className="text-[13px] text-muted">{hint}</span>
+      </span>
+    </label>
+  );
+}
+
+export function CheckoutModeForm({ mode }: { mode: "standard" | "gift" }) {
+  const t = useDashT();
+  const [state, action] = useActionState(saveCheckoutModeAction, initialFormState);
+  const value = state.values?.checkout ?? mode;
+  return (
+    <form action={action} className="flex flex-col gap-3" data-checkout-mode="">
+      <FormMessage message={state.message} ok={state.ok} />
+      <div className="grid gap-3 sm:grid-cols-2">
+        <Radio name="checkout" value="standard" label={t("selling.modeStandard")} hint={t("selling.modeStandardHint")} defaultChecked={value !== "gift"} />
+        <Radio name="checkout" value="gift" label={t("selling.modeGift")} hint={t("selling.modeGiftHint")} defaultChecked={value === "gift"} />
+      </div>
+      <div className="flex justify-end">
+        <SubmitButton variant="secondary" className="h-10" pendingText={t("common.saving")}>
+          {t("common.save")}
+        </SubmitButton>
+      </div>
+    </form>
+  );
+}
+
+const WEEKDAYS = [0, 1, 2, 3, 4, 5, 6];
+
+export function DeliveryForm({ values: saved, currency, timezones, weekdays, feesNote }: { values: Record<string, string>; currency: string; timezones: string[]; weekdays: string[]; feesNote: string | null }) {
+  const t = useDashT();
+  const [state, action] = useActionState(saveDeliveryAction, initialFormState);
+  const v = { ...saved, ...state.values };
+  const e = state.errors ?? {};
+  return (
+    <form action={action} noValidate className="flex flex-col gap-4" data-delivery-form="">
+      <FormMessage message={state.message} ok={state.ok} />
+      <Check name="enabled" label={t("selling.deliveryOn")} defaultChecked={v.enabled === "on"} />
+      <Check name="required" label={t("selling.deliveryRequired")} defaultChecked={v.required === "on"} />
+      <div className="grid gap-4 sm:grid-cols-3">
+        <Check name="sameDay" label={t("selling.sameDay")} defaultChecked={v.sameDay === "on"} />
+        <Field label={t("selling.cutoff")} name="cutoff" placeholder="14:00" dir="ltr" defaultValue={v.cutoff} hint={t("selling.cutoffHint")} error={e.cutoff} small />
+        <Check name="nextDay" label={t("selling.nextDay")} hint={t("selling.nextDayHint")} defaultChecked={v.nextDay === "on"} />
+      </div>
+      <div className="grid gap-4 sm:grid-cols-2">
+        <Field label={t("selling.maxDays")} name="maxDays" inputMode="numeric" defaultValue={v.maxDays} hint={t("selling.maxDaysHint")} error={e.maxDays} small />
+        <div className="flex flex-col gap-1.5">
+          <label htmlFor="f-timezone" className="text-sm font-semibold">
+            {t("selling.timezone")}
+          </label>
+          <select id="f-timezone" name="timezone" defaultValue={v.timezone} className="input input-sm" dir="ltr">
+            {timezones.map((z) => (
+              <option key={z} value={z}>
+                {z}
+              </option>
+            ))}
+          </select>
+        </div>
+      </div>
+      <fieldset className="m-0 flex flex-col gap-2 border-0 p-0">
+        <legend className="mb-1 text-sm font-semibold">{t("selling.closedDays")}</legend>
+        <div className="flex flex-wrap gap-3">
+          {WEEKDAYS.map((d) => (
+            <label key={d} className="flex items-center gap-2 text-sm">
+              <input type="checkbox" name={`closed${d}`} defaultChecked={v[`closed${d}`] === "on"} className="h-4 w-4 accent-midnight" />
+              {weekdays[d]}
+            </label>
+          ))}
+        </div>
+        {e.closed ? <p className="m-0 text-sm text-danger">{e.closed}</p> : null}
+      </fieldset>
+      <fieldset className="m-0 flex flex-col gap-2 border-0 p-0">
+        <legend className="mb-1 text-sm font-semibold">{t("selling.slots")}</legend>
+        <p className="m-0 text-[13px] text-muted">{t("selling.slotsHint")}</p>
+        {Array.from({ length: 6 }, (_, i) => (
+          <div key={i} className="grid grid-cols-2 gap-2 sm:grid-cols-4" data-slot-row={i}>
+            <input type="hidden" name={`slotId${i}`} value={v[`slotId${i}`] ?? ""} />
+            <Field label={t("selling.slotFrom")} name={`slotStart${i}`} placeholder="10:00" dir="ltr" defaultValue={v[`slotStart${i}`]} small />
+            <Field label={t("selling.slotTo")} name={`slotEnd${i}`} placeholder="13:00" dir="ltr" defaultValue={v[`slotEnd${i}`]} small />
+            <Field label={t("selling.slotCapacity")} name={`slotCapacity${i}`} inputMode="numeric" defaultValue={v[`slotCapacity${i}`]} small />
+            <Field label={t("selling.slotFee", { currency })} name={`slotFee${i}`} inputMode="decimal" defaultValue={v[`slotFee${i}`]} small error={e[`slot${i}`]} />
+          </div>
+        ))}
+        <p className="m-0 text-[13px] text-muted">{feesNote ?? t("selling.slotFull")}</p>
+      </fieldset>
+      <FormActions>
+        <SubmitButton className="h-10" pendingText={t("common.saving")}>
+          {t("selling.saveDelivery")}
+        </SubmitButton>
+      </FormActions>
+    </form>
+  );
+}
+
+export function AreasForm({
+  values: saved,
+  currency,
+  countries,
+  starters,
+}: {
+  values: Record<string, string>;
+  currency: string;
+  countries: { code: string; name: string }[];
+  starters: Record<string, string>;
+}) {
+  const t = useDashT();
+  const [state, action] = useActionState(saveAreasAction, initialFormState);
+  const v = { ...saved, ...state.values };
+  const e = state.errors ?? {};
+  const [mode, setMode] = useState(v.shippingMode || "flat");
+  const [picked, setPicked] = useState<string[]>(() => Array.from({ length: 4 }, (_, i) => v[`country${i}`] ?? ""));
+  return (
+    <form action={action} noValidate className="flex flex-col gap-4" data-areas-form="">
+      <FormMessage message={state.message} ok={state.ok} />
+      {picked.map((code, i) => (
+        <div key={i} className="grid gap-3 sm:grid-cols-[220px_1fr]" data-area-row={i}>
+          <div className="flex flex-col gap-1.5">
+            <label htmlFor={`f-country${i}`} className="text-sm font-semibold">
+              {t("selling.country")}
+            </label>
+            <select
+              id={`f-country${i}`}
+              name={`country${i}`}
+              value={code}
+              onChange={(ev) => setPicked((list) => list.map((c, n) => (n === i ? ev.target.value : c)))}
+              className="input input-sm"
+            >
+              <option value="">{t("selling.countryNone")}</option>
+              {countries.map((c) => (
+                <option key={c.code} value={c.code}>
+                  {c.name}
+                </option>
+              ))}
+            </select>
+            {e[`country${i}`] ? <p className="m-0 text-sm text-danger">{e[`country${i}`]}</p> : null}
+          </div>
+          <div className="flex flex-col gap-1.5">
+            <label htmlFor={`f-cities${i}`} className="text-sm font-semibold">
+              {t("selling.cities")}
+            </label>
+            <textarea id={`f-cities${i}`} name={`cities${i}`} rows={3} defaultValue={v[`cities${i}`]} className="input" placeholder={code && starters[code] ? starters[code]!.split(", ").slice(0, 3).join("\n") : ""} />
+            <span className="text-xs text-muted">
+              {t("selling.citiesHint")}
+              {code && starters[code] ? ` ${t("selling.suggested", { cities: starters[code]! })}` : ""}
+            </span>
+            {e[`cities${i}`] ? <p className="m-0 text-sm text-danger">{e[`cities${i}`]}</p> : null}
+          </div>
+        </div>
+      ))}
+      <fieldset className="m-0 flex flex-col gap-2 border-0 p-0">
+        <legend className="mb-1 text-sm font-semibold">{t("selling.pricing")}</legend>
+        <div className="grid gap-3 sm:grid-cols-3">
+          {(["flat", "city", "distance"] as const).map((m) => (
+            <label key={m} className="flex cursor-pointer items-start gap-3 rounded-xl border border-line-soft p-3">
+              <input type="radio" name="shippingMode" value={m} checked={mode === m} onChange={() => setMode(m)} className="mt-1 h-4 w-4 accent-midnight" />
+              <span className="flex flex-col gap-0.5">
+                <span className="text-[15px] font-semibold">{t(m === "flat" ? "selling.modeFlat" : m === "city" ? "selling.modeCity" : "selling.modeDistance")}</span>
+                <span className="text-[13px] text-muted">{t(m === "flat" ? "selling.modeFlatHint" : m === "city" ? "selling.modeCityHint" : "selling.modeDistanceHint")}</span>
+              </span>
+            </label>
+          ))}
+        </div>
+      </fieldset>
+      <div className="flex flex-col gap-1.5">
+        <label htmlFor="f-city-prices" className="text-sm font-semibold">
+          {t("selling.cityPrices")}
+        </label>
+        <textarea id="f-city-prices" name="cityPrices" rows={3} defaultValue={v.cityPrices} className="input" />
+        <span className="text-xs text-muted">{t("selling.cityPricesHint")}</span>
+        {e.cityPrices ? <p className="m-0 text-sm text-danger">{e.cityPrices}</p> : null}
+      </div>
+      {mode === "city" ? <Field label={t("selling.otherCity", { currency })} name="otherCity" inputMode="decimal" defaultValue={v.otherCity} hint={t("selling.otherCityHint")} error={e.otherCity} small /> : null}
+      {mode === "distance" ? (
+        <div className="grid gap-3 sm:grid-cols-3">
+          <Field label={t("selling.originLat")} name="originLat" inputMode="decimal" dir="ltr" defaultValue={v.originLat} hint={t("selling.originHint")} error={e.origin} small />
+          <Field label={t("selling.originLng")} name="originLng" inputMode="decimal" dir="ltr" defaultValue={v.originLng} small />
+          <Field label={t("selling.maxKm")} name="maxKm" inputMode="decimal" defaultValue={v.maxKm} hint={t("selling.maxKmHint")} error={e.maxKm} small />
+          <Field label={t("selling.baseFee", { currency })} name="baseFee" inputMode="decimal" defaultValue={v.baseFee} error={e.baseFee} small />
+          <Field label={t("selling.perKm", { currency })} name="perKm" inputMode="decimal" defaultValue={v.perKm} error={e.perKm} small />
+        </div>
+      ) : null}
+      <Check name="byWeight" label={t("selling.byWeight")} hint={t("selling.byWeightHint")} defaultChecked={v.byWeight === "on"} />
+      <div className="grid gap-3 sm:grid-cols-3">
+        <Field label={t("selling.perKg", { currency })} name="perKg" inputMode="decimal" defaultValue={v.perKg} error={e.perKg} small />
+        <Field label={t("selling.includedKg")} name="includedKg" inputMode="decimal" defaultValue={v.includedKg} error={e.includedKg} small />
+        <Field label={t("selling.minFee", { currency })} name="minFee" inputMode="decimal" defaultValue={v.minFee} hint={t("selling.minFeeHint")} error={e.minFee} small />
+      </div>
+      <FormActions>
+        <SubmitButton className="h-10" pendingText={t("common.saving")}>
+          {t("selling.saveAreas")}
+        </SubmitButton>
+      </FormActions>
+    </form>
+  );
+}
+
+export function GiftsForm({ values: saved }: { values: Record<string, string> }) {
+  const t = useDashT();
+  const [state, action] = useActionState(saveGiftsAction, initialFormState);
+  const v = { ...saved, ...state.values };
+  const e = state.errors ?? {};
+  return (
+    <form action={action} noValidate className="flex flex-col gap-4" data-gifts-form="">
+      <FormMessage message={state.message} ok={state.ok} />
+      <Check name="message" label={t("selling.giftMessage")} defaultChecked={v.message === "on"} />
+      <Field label={t("selling.giftLength")} name="maxLength" inputMode="numeric" defaultValue={v.maxLength} error={e.maxLength} small />
+      <div className="flex flex-col gap-1.5">
+        <label htmlFor="f-starters" className="text-sm font-semibold">
+          {t("selling.starters")}
+        </label>
+        <textarea id="f-starters" name="starters" rows={3} defaultValue={v.starters} className="input" />
+        <span className="text-xs text-muted">{t("selling.startersHint")}</span>
+        {e.starters ? <p className="m-0 text-sm text-danger">{e.starters}</p> : null}
+      </div>
+      <Check name="recipient" label={t("selling.recipient")} defaultChecked={v.recipient === "on"} />
+      <Check name="anonymous" label={t("selling.anonymous")} defaultChecked={v.anonymous === "on"} />
+      <div className="flex justify-end">
+        <SubmitButton variant="secondary" className="h-10" pendingText={t("common.saving")}>
+          {t("selling.saveGifts")}
+        </SubmitButton>
+      </div>
+    </form>
+  );
+}
+
+export function FlashSaleForm({
+  sale,
+  currency,
+  zone,
+  products,
+  categories,
+  platform,
+}: {
+  sale?: { id: number; values: Record<string, string> };
+  currency: string;
+  zone: string;
+  /** The shop's own products (checkboxes); null: a platform's, by number. */
+  products: { id: number; name: string }[] | null;
+  categories: { id: number; name: string }[];
+  platform: string | null;
+}) {
+  const t = useDashT();
+  const [state, action] = useActionState(saveFlashSaleAction, initialFormState);
+  const v = { ...(sale?.values ?? {}), ...(state.values ?? {}) };
+  const e = state.errors ?? {};
+  const chosen = new Set((v.productIds ?? "").split(",").filter(Boolean));
+  const f = (name: string) => `f-flash-${sale ? `${sale.id}-` : ""}${name}`;
+  return (
+    <form action={action} noValidate className="flex flex-col gap-4" key={!sale && state.ok ? state.message : "flash"} data-flash-form="">
+      <FormMessage message={state.message} ok={state.ok} />
+      {sale ? <input type="hidden" name="id" value={sale.id} /> : null}
+      <Field label={t("selling.flashName")} id={f("title")} name="title" maxLength={80} defaultValue={v.title} hint={t("selling.flashNameHint")} error={e.title} />
+      {products ? (
+        <fieldset className="m-0 flex max-h-56 flex-col gap-2 overflow-auto border-0 p-0">
+          <legend className="mb-1 text-sm font-semibold">{t("selling.flashProducts")}</legend>
+          {products.map((p) => (
+            <label key={p.id} className="flex items-center gap-2 text-sm">
+              <input type="checkbox" name="product" value={p.id} defaultChecked={chosen.has(String(p.id))} className="h-4 w-4 accent-midnight" />
+              {p.name}
+            </label>
+          ))}
+        </fieldset>
+      ) : (
+        <Field label={t("selling.flashProductIds")} id={f("ids")} name="productIds" dir="ltr" defaultValue={v.productIds} hint={t("selling.flashProductIdsHint")} small />
+      )}
+      {e.productIds ? <p className="m-0 text-sm text-danger">{e.productIds}</p> : null}
+      {categories.length ? (
+        <div className="flex flex-col gap-1.5">
+          <label htmlFor={f("category")} className="text-sm font-semibold">
+            {t("selling.flashCategory")}
+          </label>
+          <select id={f("category")} name="categoryId" defaultValue={v.categoryId ?? ""} className="input input-sm">
+            <option value="">{t("selling.countryNone")}</option>
+            {categories.map((c) => (
+              <option key={c.id} value={c.id}>
+                {c.name}
+              </option>
+            ))}
+          </select>
+        </div>
+      ) : null}
+      <div className="grid gap-3 sm:grid-cols-2">
+        <div className="flex flex-col gap-1.5">
+          <label htmlFor={f("kind")} className="text-sm font-semibold">
+            {t("selling.flashKind")}
+          </label>
+          <select id={f("kind")} name="kind" defaultValue={v.kind ?? "percent"} className="input input-sm">
+            <option value="percent">{t("selling.flashPercent")}</option>
+            <option value="price">{t("selling.flashPrice", { currency })}</option>
+          </select>
+        </div>
+        <Field label={t("selling.flashValue")} id={f("value")} name="value" inputMode="decimal" defaultValue={v.value} error={e.value} small />
+      </div>
+      <div className="grid gap-3 sm:grid-cols-3">
+        <Field label={t("selling.flashStarts")} id={f("starts")} name="startsAt" type="datetime-local" defaultValue={v.startsAt} hint={t("selling.flashTimezone", { zone })} error={e.startsAt} small />
+        <Field label={t("selling.flashEnds")} id={f("ends")} name="endsAt" type="datetime-local" defaultValue={v.endsAt} error={e.endsAt} small />
+        <Field label={t("selling.flashLimit")} id={f("limit")} name="limit" inputMode="numeric" defaultValue={v.limit} hint={t("selling.flashLimitHint")} error={e.limit} small />
+      </div>
+      {platform ? (
+        <Field label={t("selling.platformCode", { platform })} id={f("code")} name="platformCode" dir="ltr" defaultValue={v.platformCode} hint={t("selling.platformCodeHint", { platform })} error={e.platformCode} small />
+      ) : null}
+      <FormActions>
+        <SubmitButton className="h-10" pendingText={t("common.saving")}>
+          {t("selling.saveFlash")}
+        </SubmitButton>
+      </FormActions>
+    </form>
+  );
+}
+
+export function OccasionForm({ occasion, languages }: { occasion?: { id: number; names: Record<string, string> }; languages: string[] }) {
+  const t = useDashT();
+  const [state, action] = useActionState(occasion ? saveOccasionAction : addOccasionAction, initialFormState);
+  const v = state.values ?? {};
+  return (
+    <form action={action} noValidate className="flex flex-col gap-3" key={!occasion && state.ok ? state.message : "occasion"} data-occasion-form="">
+      <FormMessage message={state.message} ok={state.ok} />
+      {occasion ? <input type="hidden" name="id" value={occasion.id} /> : null}
+      <div className="grid gap-3 sm:grid-cols-3">
+        {languages.map((lang) => (
+          <Field key={lang} label={t("selling.occasionName", { lang: lang.toUpperCase() })} name={`name_${lang}`} maxLength={40} defaultValue={v[`name_${lang}`] ?? occasion?.names[lang] ?? ""} error={state.errors?.name} small />
+        ))}
+      </div>
+      <div className="flex justify-end">
+        <SubmitButton variant="secondary" className="h-9 px-3.5 text-sm" pendingText={t("common.saving")}>
+          {occasion ? t("selling.saveOccasion") : t("selling.addOccasion")}
+        </SubmitButton>
+      </div>
+    </form>
+  );
+}
+
+export function TemplateForm({ occasionId, template, languages }: { occasionId: number; template?: { id: string; texts: Record<string, string> }; languages: string[] }) {
+  const t = useDashT();
+  const [state, action] = useActionState(saveTemplateAction, initialFormState);
+  const v = state.values ?? {};
+  return (
+    <form action={action} noValidate className="flex flex-col gap-3" key={!template && state.ok ? state.message : "template"} data-template-form="">
+      <FormMessage message={state.message} ok={state.ok} />
+      <input type="hidden" name="occasionId" value={occasionId} />
+      {template ? <input type="hidden" name="templateId" value={template.id} /> : null}
+      {languages.map((lang) => (
+        <div key={lang} className="flex flex-col gap-1.5">
+          <label htmlFor={`f-text-${occasionId}-${template?.id ?? "new"}-${lang}`} className="text-sm font-semibold">
+            {t("selling.messageText", { lang: lang.toUpperCase() })}
+          </label>
+          <textarea
+            id={`f-text-${occasionId}-${template?.id ?? "new"}-${lang}`}
+            name={`text_${lang}`}
+            rows={2}
+            maxLength={500}
+            dir={lang === "ar" ? "rtl" : "auto"}
+            defaultValue={v[`text_${lang}`] ?? template?.texts[lang] ?? ""}
+            className="input"
+          />
+          {state.errors?.[`text_${lang}`] ? <p className="m-0 text-sm text-danger">{state.errors[`text_${lang}`]}</p> : null}
+        </div>
+      ))}
+      <span className="text-xs text-muted">{t("selling.messageHint")}</span>
+      <div className="flex justify-end">
+        <SubmitButton variant="secondary" className="h-9 px-3.5 text-sm" pendingText={t("common.saving")}>
+          {template ? t("selling.saveMessage") : t("selling.addMessage")}
+        </SubmitButton>
+      </div>
+    </form>
+  );
+}

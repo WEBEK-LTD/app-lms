@@ -163,6 +163,12 @@ class Pages {
 			'corners'              => $look['corners'],
 			'cards'                => $look['cards'],
 		);
+		// 131.29 The look's own colours by night, each only when it is a colour.
+		foreach ( array( 'dark_background', 'dark_surface' ) as $field ) {
+			if ( isset( $raw[ $field ] ) && is_string( $raw[ $field ] ) && preg_match( '/^#[0-9A-Fa-f]{6}$/', $raw[ $field ] ) ) {
+				$appearance[ $field ] = strtoupper( $raw[ $field ] );
+			}
+		}
 		// 97.1 A free font and the Arabic text's font, with their files on Yallapp: passed on as
 		// the platform sent them, each only when its name and files are well formed.
 		foreach ( self::FONTS as $name => $files ) {

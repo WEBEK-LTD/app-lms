@@ -3,6 +3,7 @@
 import { useActionState, useState } from "react";
 import {
   addCouponAction,
+  updateCouponAction,
   addCategoryAction,
   saveFulfilmentAction,
   savePaymentKeysAction,
@@ -29,6 +30,8 @@ export interface ProductFormValues {
   salePrice: string;
   stock: string;
   sku: string;
+  /** 131 Its weight in kg, as typed; missing: none. */
+  weight?: string;
   categoryIds: number[];
   images: { id: string; url: string }[];
   digital: boolean;
@@ -173,7 +176,7 @@ export interface EditorGroup {
   name: string;
   min: string;
   max: string;
-  options: { id?: string; name: string; price: string }[];
+  options: { id?: string; name: string; price: string; weight?: string }[];
 }
 
 function Check({ name, label, hint, defaultChecked }: { name: string; label: string; hint: string; defaultChecked: boolean }) {
@@ -274,6 +277,8 @@ export function ProductForm({
             error={state.errors?.stock}
           />
           <Field label={t("shop.sku")} name="sku" maxLength={64} defaultValue={v("sku", product.sku)} hint={t("shop.skuHint")} error={state.errors?.sku} />
+          {/* 131 Its weight, for shipping priced by weight. */}
+          <Field label={t("shop.weight")} name="weight" inputMode="decimal" defaultValue={v("weight", product.weight ?? "")} hint={t("shop.weightHint")} error={state.errors?.weight} />
         </div>
       </FormSection>
       <FormSection id="f-product-photos" title={t("shop.photos")} description={t("shop.formPhotosHint")}>
@@ -413,6 +418,15 @@ function OptionGroupsEditor({ initial, currency, restaurant, error }: { initial:
                     placeholder={`+ ${currency}`}
                     aria-label={t("shop.optionPriceAria", { n, k: k + 1 })}
                     onChange={(e) => updateOption(i, k, { price: e.target.value })}
+                  />
+                  {/* 131 What it adds to the weight. */}
+                  <input
+                    className="input input-sm w-[100px]"
+                    inputMode="decimal"
+                    value={option.weight ?? ""}
+                    placeholder={t("shop.optionWeightPlaceholder")}
+                    aria-label={t("shop.optionWeightAria", { n, k: k + 1 })}
+                    onChange={(e) => updateOption(i, k, { weight: e.target.value })}
                   />
                   <button
                     type="button"
@@ -583,34 +597,41 @@ export function FulfilmentForm({ current, timezones, currency }: { current: Reco
 }
 
 /** 91.1 A new coupon: a code, a share or an amount off, and its limits. */
-export function CouponForm({ currency }: { currency: string }) {
+/** 91.1 A new coupon; 131 or one to change (`coupon`: its id and saved values), with its start day and "Show in the app". */
+export function CouponForm({ currency, coupon }: { currency: string; coupon?: { id: number; values: Record<string, string> } }) {
   const t = useDashT();
-  const [state, action] = useActionState(addCouponAction, initialFormState);
-  const v = state.values ?? {};
+  const [state, action] = useActionState(coupon ? updateCouponAction : addCouponAction, initialFormState);
+  const v = { ...(coupon?.values ?? {}), ...(state.values ?? {}) };
   const e = state.errors ?? {};
+  const f = (name: string) => `f-coupon-${coupon ? `${coupon.id}-` : ""}${name}`;
   return (
-    <form action={action} noValidate className="flex flex-col gap-3" key={state.ok ? state.message : "coupon"}>
+    <form action={action} noValidate className="flex flex-col gap-3" key={!coupon && state.ok ? state.message : "coupon"}>
       <FormMessage message={state.message} ok={state.ok} />
+      {coupon ? <input type="hidden" name="id" value={coupon.id} /> : null}
       <div className="grid gap-3 sm:grid-cols-3">
-        <Field label={t("shop.couponCode")} id="f-coupon-code" name="code" placeholder="SPRING10" dir="ltr" defaultValue={v.code} error={e.code} small />
+        <Field label={t("shop.couponCode")} id={f("code")} name="code" placeholder="SPRING10" dir="ltr" defaultValue={v.code} error={e.code} small />
         <div className="flex flex-col gap-1.5">
-          <label htmlFor="f-coupon-kind" className="text-sm font-semibold">
+          <label htmlFor={f("kind")} className="text-sm font-semibold">
             {t("shop.couponKind")}
           </label>
-          <select id="f-coupon-kind" name="kind" defaultValue={v.kind ?? "percent"} className="input input-sm">
+          <select id={f("kind")} name="kind" defaultValue={v.kind ?? "percent"} className="input input-sm">
             <option value="percent">{t("shop.couponPercent")}</option>
             <option value="amount">{t("shop.couponAmount", { currency })}</option>
           </select>
         </div>
-        <Field label={t("shop.couponValue")} id="f-coupon-value" name="value" inputMode="decimal" defaultValue={v.value} error={e.value} small />
+        <Field label={t("shop.couponValue")} id={f("value")} name="value" inputMode="decimal" defaultValue={v.value} error={e.value} small />
       </div>
-      <div className="grid gap-3 sm:grid-cols-3">
-        <Field label={t("shop.couponMinOrder", { currency })} id="f-coupon-min-order" name="minOrder" inputMode="decimal" defaultValue={v.minOrder} hint={t("shop.optional")} error={e.minOrder} small />
-        <Field label={t("shop.couponEndsOn")} id="f-coupon-ends-on" name="endsOn" type="date" defaultValue={v.endsOn} hint={t("shop.optional")} error={e.endsOn} small />
-        <Field label={t("shop.couponMaxUses")} id="f-coupon-max-uses" name="maxUses" inputMode="numeric" defaultValue={v.maxUses} hint={t("shop.couponMaxUsesHint")} error={e.maxUses} small />
+      <div className="grid gap-3 sm:grid-cols-2">
+        <Field label={t("shop.couponMinOrder", { currency })} id={f("min-order")} name="minOrder" inputMode="decimal" defaultValue={v.minOrder} hint={t("shop.optional")} error={e.minOrder} small />
+        <Field label={t("shop.couponMaxUses")} id={f("max-uses")} name="maxUses" inputMode="numeric" defaultValue={v.maxUses} hint={t("shop.couponMaxUsesHint")} error={e.maxUses} small />
       </div>
+      <div className="grid gap-3 sm:grid-cols-2">
+        <Field label={t("shop.couponStartsOn")} id={f("starts-on")} name="startsOn" type="date" defaultValue={v.startsOn} hint={t("shop.couponStartsHint")} error={e.startsOn} small />
+        <Field label={t("shop.couponEndsOn")} id={f("ends-on")} name="endsOn" type="date" defaultValue={v.endsOn} hint={t("shop.optional")} error={e.endsOn} small />
+      </div>
+      <Check name="public" label={t("shop.couponShowInApp")} hint={t("shop.couponShowInAppHint")} defaultChecked={v.public === "on"} />
       <FormActions>
-        <SubmitButton className="h-10">{t("shop.addCoupon")}</SubmitButton>
+        <SubmitButton className="h-10">{coupon ? t("shop.couponSave") : t("shop.addCoupon")}</SubmitButton>
       </FormActions>
     </form>
   );

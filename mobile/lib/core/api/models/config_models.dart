@@ -791,6 +791,8 @@ class Appearance {
     this.primaryColor,
     this.logoUrl,
     this.header,
+    this.darkBackground,
+    this.darkSurface,
   });
 
   factory Appearance.fromJson(Json json) => Appearance(
@@ -810,7 +812,17 @@ class Appearance {
     header: json['header'] is Map
         ? AppHeader.fromJson(asJson(json['header'], 'header'))
         : null,
+    darkBackground: optString(json, 'dark_background'),
+    darkSurface: optString(json, 'dark_surface'),
   );
+
+  /// 131.29 The look's background by night, on every screen (#RRGGBB);
+  /// null, the app's own dark one.
+  final String? darkBackground;
+
+  /// 131.29 Its cards and bars by night; null, a little lighter than
+  /// [darkBackground].
+  final String? darkSurface;
 
   final AppTemplate? template;
   final AppearanceMode? themeMode;

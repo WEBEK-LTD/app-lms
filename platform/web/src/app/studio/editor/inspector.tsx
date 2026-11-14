@@ -64,6 +64,7 @@ import { LiveLookControls } from "./live-look-controls";
 import { BannerControls, BeforeAfterControls, GalleryControls, IndicatorLookControls, SegmentsControls, MarqueeControls, StoriesControls, type PremiumControlsProps } from "./premium-motion-controls";
 // 129.11–129.20 The premium elements' options and lists, and a layout's premium card style.
 import { PremiumControls, SurfaceControls } from "./premium-controls";
+import { CommerceControls } from "./commerce-controls";
 import { Glyph } from "./shared";
 
 /**
@@ -797,6 +798,8 @@ function DesignTab(props: Props & { node: StudioNode }) {
         actionFor={(id, action, change) => <TapAction id={id} action={action} onChange={change} pages={props.pages} sources={props.sources} screens={props.screens} pickable={props.pickable} />}
       />
       {layout ? <SurfaceControls node={node} onChange={onChange} /> : null}
+      {/* 131 The flash sale's, the coupon's and the sale badge's options. */}
+      {node.type === "flash_sale" || node.type === "coupon" ? <CommerceControls node={node} onChange={onChange} pickable={props.pickable} /> : null}
       {node.type === "coupon" ? (
         <label className="flex flex-col gap-1 font-bold">
           {t("studio.couponCode")}
@@ -1296,6 +1299,8 @@ function DataTab(props: Props & { node: StudioNode }) {
           </select>
         </label>
         <Segments label={t("studio.dataLayout")} value={node.layout ?? "grid"} onChange={(layout) => onChange({ layout })} options={[{ value: "grid", label: t("studio.layoutGrid") }, { value: "list", label: t("studio.layoutList") }, { value: "carousel", label: t("studio.layoutCarousel") }]} />
+        {/* 131 How the cards show a product's sale. */}
+        <CommerceControls node={node} onChange={onChange} pickable={props.pickable} />
         <RangeField label={t("studio.howMany")} value={q.limit} min={1} max={30} unit={t("studio.unitItems")} onChange={(limit) => onChange({ query: { ...q, limit } })} />
         <label className="flex items-center justify-between gap-2">
           {t("studio.sort")}
@@ -1412,6 +1417,9 @@ function DataTab(props: Props & { node: StudioNode }) {
               <option value="price">{t("studio.bindPrice")}</option>
               <option value="badge">{t("studio.bindBadge")}</option>
               <option value="rating">{t("studio.bindRating")}</option>
+              {/* 131 A product's sale: the share off, and its price before it. */}
+              <option value="sale">{t("studio.bindSale")}</option>
+              <option value="was_price">{t("studio.bindWasPrice")}</option>
             </>
           )}
         </select>

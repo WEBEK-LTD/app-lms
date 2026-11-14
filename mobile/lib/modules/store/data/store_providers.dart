@@ -82,18 +82,81 @@ final cartUsePointsProvider = NotifierProvider<CartUsePointsController, bool>(
   CartUsePointsController.new,
 );
 
+/// 131 The delivery day and slot and where it goes, as chosen in the cart so
+/// far: the quote prices the slot's fee and the shipping by place.
+typedef CartDelivery = ({
+  String? date,
+  String? slot,
+  String? country,
+  String? city,
+  double? lat,
+  double? lng,
+});
+
+class CartDeliveryController extends Notifier<CartDelivery> {
+  @override
+  CartDelivery build() =>
+      (date: null, slot: null, country: null, city: null, lat: null, lng: null);
+
+  void set(CartDelivery value) {
+    if (value != state) state = value;
+  }
+
+  void clear() => state = build();
+}
+
+final cartDeliveryProvider =
+    NotifierProvider<CartDeliveryController, CartDelivery>(
+      CartDeliveryController.new,
+    );
+
 /// The cart as the shop prices it now, with the customer's coupon (91.4 and
-/// points). Reloads when the cart, the coupon or the points choice changes.
+/// points). Reloads when the cart, the coupon or the points choice changes;
+/// 131 and the delivery day, slot and place.
 final cartQuoteProvider = FutureProvider.autoDispose<CartQuote?>((ref) {
   final items = ref.watch(cartProvider);
   final coupon = ref.watch(cartCouponProvider);
   final usePoints = ref.watch(cartUsePointsProvider);
+  final delivery = ref.watch(cartDeliveryProvider);
   if (items.isEmpty) return Future.value();
   return ref.contentApi.quoteCart(
     [for (final i in items) i.toInput()],
     coupon: coupon,
     usePoints: usePoints,
+    deliveryDate: delivery.date,
+    deliverySlot: delivery.date != null ? delivery.slot : null,
+    recipient:
+        delivery.country != null ||
+            delivery.city != null ||
+            delivery.lat != null
+        ? GiftPerson(
+            name: '',
+            phone: '',
+            country: delivery.country,
+            city: delivery.city,
+            lat: delivery.lat,
+            lng: delivery.lng,
+          )
+        : null,
   );
+});
+
+/// 131 A day's delivery times, and which can still be chosen. Asked again
+/// each time the day is chosen.
+final deliverySlotsProvider = FutureProvider.autoDispose
+    .family<DeliverySlots, String>(
+      (ref, date) => ref.contentApi.getDeliverySlots(date),
+    );
+
+/// 131 The card messages by occasion; none when the shop's API has none.
+final giftMessagesProvider = FutureProvider.autoDispose<List<GiftOccasion>>((
+  ref,
+) async {
+  try {
+    return await ref.contentApi.getGiftMessages();
+  } on Object {
+    return const [];
+  }
 });
 
 /// 26 Whether a restaurant's kitchen is open now and the times an order can

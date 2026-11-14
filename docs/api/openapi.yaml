@@ -3928,7 +3928,16 @@ paths:
         required: true
         content:
           application/json:
-            schema: { $ref: '#/components/schemas/CartInput' }
+            schema:
+              allOf:
+                - $ref: '#/components/schemas/CartInput'
+                - type: object
+                  description: "131 The delivery day and slot and where it goes, once chosen: the quote adds the slot's fee and prices shipping by place and weight (`Cart.shipping_breakdown`). The people and the card aren't checked here."
+                  properties:
+                    delivery_date: { type: [string, 'null'], format: date }
+                    delivery_slot: { type: [string, 'null'], maxLength: 16 }
+                    recipient: { $ref: '#/components/schemas/GiftRecipient' }
+                    delivery_address: { $ref: '#/components/schemas/DeliveryAddress' }
       responses:
         '200':
           description: The priced cart
@@ -3980,6 +3989,27 @@ paths:
         `invalid_request` (400) for a missing address or a time that isn't
         offered. The delivery fee is added to the order on our payment page.
         Prices, options and fees are always computed by the server.
+
+        Roadmap 131. Every store also takes the delivery day and slot, the
+        people and the card (`StoreDeliveryInput`): checked in the shop's time
+        zone (the cut-off, the closed weekdays, the days ahead, a slot not
+        started and not full), failing with `invalid_request` (400), or
+        `slot_full` (409) when the slot filled up (ask for the slots again).
+        In the gift checkout (`store.checkout_mode: gift`) the day, the slot,
+        the sender and the recipient's name, phone and address are required.
+        With `store.shipping`, the recipient's (or `delivery_address`'s)
+        `country` and `city` must be among its areas (`outside_delivery_area`,
+        400) and a pin is needed for prices by distance. Where they go:
+        Yallapp's own products keep them on the order (`Order.delivery`) and
+        add the slot's fee and the shipping to the total; WooCommerce keeps
+        them as order meta, the sender in the billing details and the
+        recipient in the shipping details, with the slot's fee as a fee line;
+        Shopify gets them as the cart's attributes and note, Wix as the buyer's
+        note; other connected platforms can't take them on their order, so
+        Yallapp keeps them for the owner (the dashboard's Deliveries from the
+        app). A product in a Yallapp flash sale with the platform's discount
+        code takes that code to the platform's checkout when the customer gave
+        none.
       security: [{}, { bearerAuth: [] }]
       parameters:
         - $ref: '#/components/parameters/Platform'
@@ -3990,10 +4020,9 @@ paths:
             schema:
               allOf:
                 - $ref: '#/components/schemas/CartInput'
+                - $ref: '#/components/schemas/StoreDeliveryInput'
                 - type: object
                   properties:
-                    delivery_date: { type: [string, 'null'], format: date, description: "Required when `store.delivery_date.required` is true." }
-                    gift_message: { type: [string, 'null'], maxLength: 500 }
                     fulfilment: { type: [string, 'null'], enum: [pickup, delivery, null], description: "Shops with `store.fulfilment` only (required there): how the customer gets the order." }
                     delivery_address: { $ref: '#/components/schemas/DeliveryAddress' }
                     scheduled_for:
@@ -4037,6 +4066,126 @@ paths:
           content:
             application/json:
               schema: { $ref: '#/components/schemas/OrderTimes' }
+        '404': { $ref: '#/components/responses/NotFound' }
+        '503': { $ref: '#/components/responses/Unavailable' }
+
+  /store/delivery-slots:
+    get:
+      tags: [Store]
+      operationId: getDeliverySlots
+      summary: The delivery times of a day, and which can still be chosen
+      description: |
+        Roadmap 131. For shops whose `store.delivery_date` has `slots`: the
+        day asked for (YYYY-MM-DD in the shop's time zone), whether the shop
+        delivers then (`open`, with why not: `cutoff` once today's orders have
+        closed, `closed` on a closed weekday, `too_soon`, `too_far`), and each
+        slot with whether it can still be chosen (`available`: the day is open,
+        today's slot hasn't started and it isn't `full`) and how many orders it
+        still takes (`remaining`, null without a limit). The checkout checks
+        the same again. `not_found` for shops without delivery days. A WordPress
+        site (plugin 0.4.44 and later) counts its WooCommerce orders; Yallapp
+        counts its own orders, and for a connected platform the checkouts
+        started in the app for that slot (the platform's own orders aren't
+        seen).
+      security: [{}, { bearerAuth: [] }]
+      parameters:
+        - name: date
+          in: query
+          required: true
+          schema: { type: string, format: date }
+      responses:
+        '200':
+          description: The day and its slots
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/DeliverySlots' }
+        '400': { $ref: '#/components/responses/BadRequest' }
+        '404': { $ref: '#/components/responses/NotFound' }
+
+  /store/gift-messages:
+    get:
+      tags: [Store]
+      operationId: listGiftMessages
+      summary: The card messages by occasion
+      description: |
+        Roadmap 131. Ready card messages the owner manages (Yallapp dashboard ›
+        Store › Card messages), by occasion (love, birthday, anniversary, …,
+        and the owner's own), in the language the app asks for with
+        `Accept-Language` (else the app's main one). In the checkout the
+        customer picks an occasion, taps a message to fill the card and may
+        change it (up to `store.gift_message.max_length`), or writes their own.
+        Hidden occasions and messages aren't sent. A store that never opened
+        them gets Yallapp's starting messages. The hosted API serves them for
+        every source; a WordPress site gets them with its license check and
+        serves them (plugin 0.4.44 and later). An own API serves its own, or
+        none (an empty list).
+      security: [{}, { bearerAuth: [] }]
+      responses:
+        '200':
+          description: The occasions and their messages
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/GiftMessages' }
+        '404': { $ref: '#/components/responses/NotFound' }
+        '503': { $ref: '#/components/responses/Unavailable' }
+
+  /store/flash-sales:
+    get:
+      tags: [Store]
+      operationId: listFlashSales
+      summary: The flash sales on now or starting within a day
+      description: |
+        Roadmap 131. Each sale with when it starts and ends, its share off
+        (when it is one), the units left at its price (`remaining`, null
+        without a limit) and its products, each with its `sale`. Soonest ending
+        first; sold-out and ended sales aren't listed. On Yallapp's own
+        products the sale price is charged at checkout; on a connected
+        platform its checkout charges its own prices unless the owner added
+        the platform's discount code to the sale. WordPress: WooCommerce's own
+        scheduled sale prices (plugin 0.4.44 and later).
+      security: [{}, { bearerAuth: [] }]
+      parameters:
+        - $ref: '#/components/parameters/PerPage'
+      responses:
+        '200':
+          description: Flash sales
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [items]
+                properties:
+                  items:
+                    type: array
+                    items: { $ref: '#/components/schemas/FlashSale' }
+        '404': { $ref: '#/components/responses/NotFound' }
+        '503': { $ref: '#/components/responses/Unavailable' }
+
+  /store/coupons:
+    get:
+      tags: [Store]
+      operationId: listPublicCoupons
+      summary: The coupons the shop shows in the app
+      description: |
+        Roadmap 131. Coupons the owner marked "Show in the app" that are valid
+        now (started, not ended, not used up), for the coupon element. The
+        customer still types or pastes the code in the cart (`CartInput.coupon`).
+        WordPress: WooCommerce coupons ticked "Show in the app" (plugin 0.4.44
+        and later). At most 20.
+      security: [{}, { bearerAuth: [] }]
+      responses:
+        '200':
+          description: Coupons
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [items]
+                properties:
+                  items:
+                    type: array
+                    maxItems: 20
+                    items: { $ref: '#/components/schemas/PublicCoupon' }
         '404': { $ref: '#/components/responses/NotFound' }
         '503': { $ref: '#/components/responses/Unavailable' }
 
@@ -12098,6 +12247,8 @@ components:
             - chat_not_available
             - chat_blocked
             - storage_full
+            - slot_full
+            - outside_delivery_area
             - too_big
             - update_required
             - access_ended
@@ -12458,6 +12609,7 @@ components:
                     code: { type: string, enum: [classic, large, glass, photo, brand, petal] }
                     states: { type: string, enum: [classic, large, glass, photo, brand, petal] }
                 image_url: { type: [string, 'null'], format: uri, description: "The `photo` look's photo." }
+            checkout: { $ref: '#/components/schemas/CheckoutLook' }
             courses:
               type: object
               description: |
@@ -12599,29 +12751,6 @@ components:
                 theme: { type: string, enum: [system, light, dark], description: "`system`: as the phone, and the app's own setting, are. Missing: `system`." }
                 main_color: { type: [string, 'null'], pattern: '^#[0-9A-Fa-f]{6}$', description: "Null: the app's main colour." }
                 second_color: { type: [string, 'null'], pattern: '^#[0-9A-Fa-f]{6}$', description: "Null: the app's second colour (its accent)." }
-            checkout:
-              type: object
-              description: |
-                131.25 A store's checkout in a premium look, for every store app. `gift`: a
-                gift checkout in five steps on one screen under a stepper (who it is from:
-                the sender's name, phone and email, never an address; who it is for: the
-                recipient's name, phone and delivery address, the country and city as pickers
-                of the places the shop delivers to and a map pin where delivery is priced by
-                the distance; when: the delivery day, today, tomorrow or a date after the
-                cut-off, and the time slot, required; the card's message: the occasion as
-                chips, its ready messages as cards that fill the message, the words the person
-                edits or writes, send anonymously; pay: the order with its add-ons, the
-                chosen day and slot, the discount code, the delivery fee with its breakdown
-                and the pay button), with the gift card's live preview and the bouquet's
-                photo. Its fields and rules are the store's gift checkout; this is only its
-                look, in `accent` (else the main colour), light and dark, right to left,
-                still for people who turn movement off. Missing, the cart and checkout as
-                before; an app that doesn't know the look keeps its own.
-              required: [look]
-              properties:
-                look: { type: string, enum: [gift] }
-                accent: { type: [string, 'null'], pattern: '^#[0-9A-Fa-f]{6}$', description: "The steps, chips and pay button; null, the main colour." }
-                dark_accent: { type: [string, 'null'], pattern: '^#[0-9A-Fa-f]{6}$', description: "By night; null, `accent`." }
         chat: { $ref: '#/components/schemas/ChatConfig' }
         store_billing: { $ref: '#/components/schemas/StoreBillingConfig' }
         purchases:
@@ -14282,6 +14411,7 @@ components:
       type: object
       required: [id, number, status, status_label, total, created_at, items]
       properties:
+        delivery: { $ref: '#/components/schemas/OrderDelivery' }
         return_request:
           oneOf:
             - $ref: '#/components/schemas/ReturnRequest'
@@ -14519,9 +14649,26 @@ components:
         guest_checkout: { type: boolean, description: Whether the shop allows checkout without an account. }
         checkout_opens_in: { type: string, enum: [in_app, browser] }
         reviews: { type: boolean, description: Whether product reviews are on. }
+        checkout_mode:
+          type: string
+          enum: [standard, gift]
+          default: standard
+          description: |
+            131 `gift`: the gift checkout (any store may turn it on; the flower
+            shop's looks do): it asks for exactly the sender's name, phone and
+            email, the recipient's name, phone and address (no address for the
+            sender), the delivery day (today, tomorrow or a date) and slot,
+            both required, and the card with "send anonymously"
+            (`StoreDeliveryInput`). Missing: `standard`, the checkout as before.
         delivery_date:
           type: object
-          description: The delivery date the customer picks in the app (for example a flower shop).
+          description: |
+            The delivery date the customer picks in the app (for example a flower shop).
+            131 With same-day and next-day delivery: `min_days` 0 offers today until
+            `same_day_cutoff` in the shop's `timezone` (after it, today isn't offered),
+            and `slots` the times of a day, chosen with the day (`GET /store/delivery-slots`
+            says which are full or passed). Apps that only know the date still work; the
+            server checks it all.
           required: [enabled, required, min_days, max_days, closed_weekdays]
           properties:
             enabled: { type: boolean }
@@ -14532,12 +14679,27 @@ components:
               type: array
               description: Weekdays without deliveries, 0 = Sunday.
               items: { type: integer, minimum: 0, maximum: 6 }
+            timezone: { type: [string, 'null'], description: "131 The shop's IANA time zone; the days, the cut-off and the slots count in it. Missing: the site's.", example: Europe/Istanbul }
+            same_day_cutoff: { type: [string, 'null'], pattern: '^([01][0-9]|2[0-3]):[0-5][0-9]$', description: "131 With `min_days` 0: orders for today until then; null for all day.", example: '14:00' }
+            slots:
+              type: array
+              description: "131 The delivery times; empty or missing: no time to choose."
+              maxItems: 8
+              items: { $ref: '#/components/schemas/DeliverySlot' }
         gift_message:
           type: object
           required: [enabled, max_length]
           properties:
             enabled: { type: boolean }
             max_length: { type: integer, minimum: 1, maximum: 500 }
+            starters:
+              type: array
+              maxItems: 6
+              description: "131 Beginnings the owner wrote, which the customer taps to start the card; the card messages by occasion are `GET /store/gift-messages`."
+              items: { type: string, maxLength: 80 }
+            recipient: { type: boolean, description: "131 The customer can give the recipient's name and phone (someone else than the buyer). Missing: false." }
+            anonymous: { type: boolean, description: "131 The customer can send it anonymously. Missing: false." }
+        shipping: { $ref: '#/components/schemas/StoreShipping' }
         fulfilment: { $ref: '#/components/schemas/FulfilmentConfig' }
         returns:
           type: [object, 'null']
@@ -14632,6 +14794,249 @@ components:
         address: { type: string, minLength: 5, maxLength: 300, description: "Street, building and flat." }
         district: { type: [string, 'null'], maxLength: 80, description: "One of `store.fulfilment.delivery_areas` when there are any." }
         notes: { type: [string, 'null'], maxLength: 300, description: "For the courier (floor, door code)." }
+        country: { type: [string, 'null'], pattern: '^[A-Z]{2}$', description: "131 Shops with `store.shipping`: one of its countries." }
+        city: { type: [string, 'null'], maxLength: 60, description: "131 One of its cities when the shop lists them." }
+        lat: { type: [number, 'null'], minimum: -90, maximum: 90, description: "131 The pin dropped on the map, for shipping priced by distance." }
+        lng: { type: [number, 'null'], minimum: -180, maximum: 180 }
+
+    StoreDeliveryInput:
+      type: object
+      description: |
+        Roadmap 131. The delivery day and slot, the people and the card, sent
+        with `POST /store/checkout-link` (and the day, slot and place with
+        `POST /store/cart`, which prices them). Every field is optional; what
+        the shop doesn't offer is left out. In the gift checkout
+        (`store.checkout_mode: gift`) `delivery_date`, `delivery_slot`,
+        `sender` and `recipient` (with its `address`) are required.
+      properties:
+        delivery_date: { type: [string, 'null'], format: date, description: "Required when `store.delivery_date.required` is true. A day in the shop's time zone that is open (`GET /store/delivery-slots`)." }
+        delivery_slot: { type: [string, 'null'], maxLength: 16, description: "131 One of `store.delivery_date.slots` `id`, required with a date when the shop has slots. Fails with `slot_full` (409) once it filled up." }
+        gift_message: { type: [string, 'null'], maxLength: 500, description: "The card's words, at most `store.gift_message.max_length` characters." }
+        gift_anonymous: { type: boolean, default: false, description: "131 Send it without the sender's name (`store.gift_message.anonymous`)." }
+        sender: { $ref: '#/components/schemas/GiftSender' }
+        recipient: { $ref: '#/components/schemas/GiftRecipient' }
+
+    GiftSender:
+      type: [object, 'null']
+      description: "131 The gift checkout's buyer, who sends it: their name (2–80 characters), phone (6–15 digits, + allowed) and email. On WooCommerce they fill the order's billing details."
+      required: [name, phone, email]
+      properties:
+        name: { type: string, minLength: 2, maxLength: 80, example: Ayşe Kaya }
+        phone: { type: string, maxLength: 30, example: '+905321234567' }
+        email: { type: string, format: email, maxLength: 120 }
+
+    GiftRecipient:
+      type: [object, 'null']
+      description: |
+        131 Who receives it (someone else than the buyer): their name and phone,
+        and in the gift checkout the delivery `address`. `country`, `city`,
+        `lat` and `lng` place it for `store.shipping` (a city of its list, the
+        pin dropped on the map for prices by distance). On WooCommerce they
+        fill the order's shipping details.
+      required: [name, phone]
+      properties:
+        name: { type: string, minLength: 2, maxLength: 80 }
+        phone: { type: string, maxLength: 30 }
+        address: { type: [string, 'null'], minLength: 5, maxLength: 300, description: "Street, building and flat. Required in the gift checkout." }
+        country: { type: [string, 'null'], pattern: '^[A-Z]{2}$', description: "One of `store.shipping.countries`." }
+        city: { type: [string, 'null'], maxLength: 60, description: "One of its `cities` when the shop lists them." }
+        lat: { type: [number, 'null'], minimum: -90, maximum: 90 }
+        lng: { type: [number, 'null'], minimum: -180, maximum: 180 }
+
+    DeliverySlot:
+      type: object
+      description: "131 A delivery time the customer picks, in the shop's time zone."
+      required: [id, start, end, label]
+      properties:
+        id: { type: string, maxLength: 16, example: s1 }
+        start: { type: string, pattern: '^([01][0-9]|2[0-3]):[0-5][0-9]$', example: '10:00' }
+        end: { type: string, pattern: '^([01][0-9]|2[0-3]):[0-5][0-9]$', example: '13:00' }
+        label: { type: string, example: '10:00–13:00' }
+        fee: { type: [string, 'null'], description: "Added to the order where the server checks out (Yallapp's own products, WooCommerce); null when free or when a connected platform's checkout charges its own.", example: '25.00' }
+        fee_formatted: { type: [string, 'null'], example: ₺25.00 }
+        capacity: { type: [integer, 'null'], minimum: 1, description: "Orders it takes a day; null for no limit." }
+
+    DeliverySlots:
+      type: object
+      required: [date, open, slots]
+      properties:
+        date: { type: string, format: date }
+        open: { type: boolean }
+        reason: { type: [string, 'null'], enum: [invalid, closed, cutoff, too_soon, too_far, null] }
+        slots:
+          type: array
+          items:
+            allOf:
+              - $ref: '#/components/schemas/DeliverySlot'
+              - type: object
+                required: [available, full]
+                properties:
+                  available: { type: boolean, description: "It can be chosen now: the day is open, today's slot hasn't started, it isn't full." }
+                  full: { type: boolean }
+                  remaining: { type: [integer, 'null'] }
+
+    StoreShipping:
+      type: object
+      description: |
+        131 Where the shop delivers and how it prices shipping (the cart's
+        quote computes the fee: `Cart.shipping`, `shipping_breakdown`). The
+        app's checkout takes an address in `countries` only, the city from its
+        `cities` (a picker) when they're listed, and asks for a pin on the map
+        when `needs_location`. `charged`: the fee is charged by the server's
+        checkout; false on a connected platform, whose checkout charges its own
+        shipping (the areas still apply in the app). Missing: anywhere, the
+        shop's shipping as before.
+      required: [mode, countries, needs_location, charged]
+      properties:
+        mode: { type: string, enum: [flat, city, distance], description: "`flat` one price; `city` a price per city; `distance` a base fee and a price per km. A city's own price wins in any mode; a price per kg of the products may add in any mode." }
+        countries:
+          type: array
+          items:
+            type: object
+            required: [code, cities]
+            properties:
+              code: { type: string, pattern: '^[A-Z]{2}$', example: TR }
+              names: { type: object, additionalProperties: { type: string }, description: "The country's name by language, when Yallapp has it." }
+              cities: { type: [array, 'null'], items: { type: string }, description: "Null: all its cities." }
+        needs_location: { type: boolean }
+        charged: { type: boolean }
+        free_over: { type: [string, 'null'], example: '1000.00' }
+        free_over_formatted: { type: [string, 'null'] }
+        max_km: { type: [number, 'null'] }
+
+    ProductSale:
+      type: [object, 'null']
+      description: |
+        Roadmap 131. The product's sale: its price before (`was`) and now, the
+        share off, when it ends (a flash sale's end, WooCommerce's scheduled
+        sale end; null when the source gives none) and the units left at this
+        price (null without a limit). Null or missing when it isn't on sale.
+        A Yallapp flash sale over a connected platform's product changes the
+        price the app shows; its `flash_sale_id` says which.
+      required: [was, was_formatted, now, now_formatted, percent_off, ends_at, remaining]
+      properties:
+        was: { type: string, example: '500.00' }
+        was_formatted: { type: string, example: ₺500.00 }
+        now: { type: string, example: '400.00' }
+        now_formatted: { type: string, example: ₺400.00 }
+        percent_off: { type: integer, minimum: 0, maximum: 100, example: 20 }
+        starts_at: { type: [string, 'null'], format: date-time }
+        ends_at: { type: [string, 'null'], format: date-time }
+        remaining: { type: [integer, 'null'], minimum: 0, example: 12 }
+        total: { type: [integer, 'null'], minimum: 1, description: "All the units of the sale, for the stock bar." }
+        flash_sale_id: { type: [integer, 'null'] }
+
+    FlashSale:
+      type: object
+      required: [id, title, starts_at, ends_at, live, remaining, products]
+      properties:
+        id: { type: integer }
+        title: { type: string, example: Mother's Day roses }
+        starts_at: { type: string, format: date-time }
+        ends_at: { type: string, format: date-time }
+        live: { type: boolean, description: "On now (else it starts within a day)." }
+        percent_off: { type: [integer, 'null'], description: "Its share off; null for one sale price." }
+        remaining: { type: [integer, 'null'] }
+        total: { type: [integer, 'null'] }
+        products:
+          type: array
+          maxItems: 24
+          items: { $ref: '#/components/schemas/ProductSummary' }
+
+    PublicCoupon:
+      type: object
+      required: [code, kind]
+      properties:
+        code: { type: string, example: SPRING10 }
+        kind: { type: string, enum: [percent, amount] }
+        percent_off: { type: [integer, 'null'] }
+        amount_off: { type: [string, 'null'] }
+        amount_off_formatted: { type: [string, 'null'] }
+        min_order: { type: [string, 'null'] }
+        min_order_formatted: { type: [string, 'null'] }
+        starts_at: { type: [string, 'null'], format: date-time }
+        ends_at: { type: [string, 'null'], format: date-time }
+        remaining: { type: [integer, 'null'], description: "Uses left; null for no limit." }
+
+    GiftMessages:
+      type: object
+      required: [occasions]
+      properties:
+        occasions:
+          type: array
+          items:
+            type: object
+            required: [id, name, icon, templates]
+            properties:
+              id: { type: string, description: "A built-in occasion (love, birthday, anniversary, congratulations, new_baby, get_well, thank_you, sorry, sympathy, eid_ramadan, mothers_day), or `c<n>` for the owner's own.", example: birthday }
+              name: { type: string, example: Birthday }
+              icon: { type: string, description: Material Symbols Rounded., example: cake }
+              templates:
+                type: array
+                items:
+                  type: object
+                  required: [id, text]
+                  properties:
+                    id: { type: string, example: t1 }
+                    text: { type: string, maxLength: 500 }
+
+    OrderDelivery:
+      type: [object, 'null']
+      description: "131 The order's delivery day and slot, who sends and receives it and the card; null or missing without any."
+      properties:
+        date: { type: [string, 'null'], format: date }
+        slot:
+          type: [object, 'null']
+          properties:
+            id: { type: string }
+            start: { type: string }
+            end: { type: string }
+            label: { type: string }
+        fee: { type: [string, 'null'], description: "The slot's fee, formatted (in the order's shipping)." }
+        sender: { $ref: '#/components/schemas/GiftSender' }
+        recipient: { $ref: '#/components/schemas/GiftRecipient' }
+        gift_message: { type: [string, 'null'] }
+        anonymous: { type: boolean }
+
+    CheckoutLook:
+      type: object
+      description: |
+        131 The store checkout's look (Studio › Screens), drawn without a new
+        build: `style` (`classic` one list, `cards` each part on a card,
+        `steps` one part at a time), the day and slot chips round or square,
+        the cards plain or frosted glass, the accent colour (the chosen chip
+        and the button; missing, the app's main colour), the corners, a photo
+        across the top and the title per language. `mode: gift` turns on the
+        gift checkout as `StoreConfig.checkout_mode` does (the flower shop's
+        looks set it). Missing: the app's own checkout.
+
+        131.25 `look: gift`, the premium gift checkout for every store app
+        (Leqaa's first, chosen in Studio › Screens): the gift checkout's parts
+        in five steps on one screen under a step bar that stays at the top
+        (who it is from: the sender's name, phone and email, never an address;
+        who it is for: the recipient's name, phone and delivery address, the
+        country and city among the places the shop delivers to, a map pin
+        where delivery is priced by the distance; when: the day, today,
+        tomorrow or a date after the cut-off, and the slot, required; the
+        card's message: the occasions as chips, their ready messages as cards
+        that fill it, the words the person edits or writes, send anonymously;
+        pay: the order, the chosen day and slot, the discount code, the
+        delivery fee with its parts and the pay button), with the gift card's
+        live preview and the bouquet's photo, in `accent` by day and
+        `dark_accent` by night, right to left, still for people who turn
+        movement off. It turns the gift checkout on as `mode: gift` does. An
+        app that doesn't know the look draws the `style` above.
+      properties:
+        mode: { type: string, enum: [gift] }
+        look: { type: string, enum: [gift], description: "131.25 The premium gift checkout in five steps; it implies `mode: gift`." }
+        dark_accent: { type: [string, 'null'], pattern: '^#[0-9A-Fa-f]{6}$', description: "131.25 The accent by night; null, `accent`." }
+        style: { type: string, enum: [classic, cards, steps] }
+        chips: { type: string, enum: [pill, square] }
+        surface: { type: string, enum: [plain, glass] }
+        accent: { type: [string, 'null'], pattern: '^#[0-9A-Fa-f]{6}$' }
+        radius: { type: integer, minimum: 0, maximum: 32 }
+        image_url: { type: [string, 'null'], format: uri }
+        title: { type: object, additionalProperties: { type: string, maxLength: 40 } }
 
     StoreHomeSection:
       type: object
@@ -14689,6 +15094,7 @@ components:
         stock_status: { type: string, enum: [in_stock, out_of_stock, on_backorder] }
         purchasable: { type: boolean, description: "Whether it can go in the app's cart: a purchasable simple or variable product." }
         digital: { type: boolean, description: "Virtual or downloadable. iOS apps don't sell digital products." }
+        sale: { $ref: '#/components/schemas/ProductSale' }
 
     ProductDetail:
       allOf:
@@ -14730,6 +15136,13 @@ components:
                       properties:
                         value: { type: string, example: large }
                         label: { type: string, example: Large }
+            default_attributes:
+              type: object
+              additionalProperties: { type: string }
+              description: >-
+                131 The variation chosen when the product's page opens, as its attributes' values by
+                slug (WooCommerce's default attributes; a shop without a website's default variation).
+                Missing: none is chosen. A value the product doesn't offer is ignored.
             variations:
               type: array
               items: { $ref: '#/components/schemas/ProductVariation' }
@@ -14894,6 +15307,26 @@ components:
             Roadmap 91.1. True when `total` is what the customer pays; false when the
             checkout still adds shipping or taxes (the cart says "plus shipping at
             checkout"). Missing on older servers means false.
+        delivery_fee: { type: [string, 'null'], description: "131 The chosen slot's extra fee, formatted (in `shipping`); null without one.", example: ₺25.00 }
+        delivery_zone: { type: [string, 'null'], description: "131 Where it goes as shipping priced it: the city, or the distance (\"Istanbul · 4.2 km\").", example: Istanbul }
+        shipping_breakdown:
+          type: [array, 'null']
+          description: "131 What made up `shipping`, each part with the rule that priced it: `city` (a city's own price, which wins over the rest), `flat`, `distance` (the base fee and the km), `other_city`, `weight` (the kg over the included ones), `minimum`, `free` (over the free-delivery total) and `slot` (the slot's fee)."
+          items:
+            type: object
+            required: [label, amount, formatted]
+            properties:
+              label: { type: string, example: 4.2 km }
+              rule: { type: [string, 'null'], enum: [city, flat, distance, other_city, weight, minimum, free, slot, null] }
+              amount: { type: string, example: '42.00' }
+              formatted: { type: string, example: ₺42.00 }
+        delivery_problem:
+          type: [object, 'null']
+          description: "131 Why the delivery chosen so far doesn't work (show `message`): the day, the slot or the place; null when it does."
+          required: [code, message]
+          properties:
+            code: { type: string, example: outside_delivery_area }
+            message: { type: string }
         points:
           type: [object, 'null']
           description: >-
@@ -15235,6 +15668,8 @@ components:
           description: The mode the app opens in.
         user_can_change_mode: { type: boolean, description: Shows the light and dark switch in Settings. }
         secondary_color: { type: [string, 'null'], pattern: '^#[0-9A-Fa-f]{6}$', example: '#E8B04B' }
+        dark_background: { type: [string, 'null'], pattern: '^#[0-9A-Fa-f]{6}$', description: "131.29 The app's background by night (#RRGGBB), on every screen; missing or null: the app's own dark background. A Signature look sets its own (Leqaa B's forest)." }
+        dark_surface: { type: [string, 'null'], pattern: '^#[0-9A-Fa-f]{6}$', description: "131.29 The cards and bars by night; missing or null: one a little lighter than `dark_background`, else the app's own." }
         font:
           type: string
           enum: [Bricolage Grotesque, Plus Jakarta Sans, Outfit, Manrope, DM Sans, Lexend]
@@ -15633,7 +16068,7 @@ components:
         id: { type: string, maxLength: 64 }
         type:
           type: string
-          enum: [row, column, stack, grid, slider, spacer, accordion, tabs, text, image, button, icon, items, categories, video, form, map, ratings, search, divider, countdown, bullets, coupon, market, learning, live_status, school, photo_hero, map_header, tracking, greeting, stories, marquee, video_hero, parallax_banner, gallery, before_after, segments, testimonials, pricing, stats, progress, timeline, profile_card, bento, badge_text, cta_bar]
+          enum: [row, column, stack, grid, slider, spacer, accordion, tabs, text, image, button, icon, items, categories, video, form, map, ratings, search, divider, countdown, bullets, coupon, market, learning, live_status, school, photo_hero, map_header, tracking, greeting, stories, marquee, video_hero, parallax_banner, gallery, before_after, segments, testimonials, pricing, stats, progress, timeline, profile_card, bento, badge_text, cta_bar, flash_sale]
         name: { type: [string, 'null'], maxLength: 80, description: "The owner's name for it in the editor's layers; not shown in the app." }
         children:
           type: array
@@ -15782,7 +16217,57 @@ components:
         source: { $ref: '#/components/schemas/ItemSource' }
         layout: { type: string, enum: [list, grid, carousel], default: grid, description: "For `items`." }
         card: { $ref: '#/components/schemas/StudioNode', description: "For `items`: the card drawn for each entry, its elements' `bind` filled from the entry. Missing, the app's own card." }
-        bind: { type: [string, 'null'], enum: [title, subtitle, image, price, badge, rating, null], description: "Inside an `items` card: this element's text (or a picture's address) comes from the entry. 128.8 `rating`: the element's own `text`, a star drawn as an icon and the entry's `rating` with one decimal; nothing when the entry has none." }
+        bind: { type: [string, 'null'], enum: [title, subtitle, image, price, badge, rating, sale, was_price, null], description: "Inside an `items` card: this element's text (or a picture's address) comes from the entry. 128.8 `rating`: the element's own `text`, a star drawn as an icon and the entry's `rating` with one decimal; nothing when the entry has none. 131 `sale`: the entry's share off (\"−20%\"), `was_price` its price before the sale struck through, and `price` its sale price; nothing when it isn't on sale (`Item.sale`)." }
+        flash_sale:
+          type: [object, 'null']
+          description: |
+            131 For `flash_sale`: a premium element with a flash sale's products
+            at their sale price (was and now, the share off), a live countdown to
+            `flash.ends_at` (it ticks every second; with reduced motion it only
+            changes its numbers) and a stock bar when the sale has a number of
+            units. Looks: `banner` one wide card, `carousel` cards to swipe,
+            `grid` two columns. `sale_id` one of the shop's flash sales; missing,
+            the one ending soonest, else the source's products on sale now. The
+            servers fill `flash` and `items` and leave the element out when no
+            sale is on; the app hides it once `ends_at` passes. Its `text` is
+            its title (missing: the sale's).
+          properties:
+            look: { type: string, enum: [banner, carousel, grid], default: banner }
+            sale_id: { type: [integer, 'null'] }
+            limit: { type: integer, minimum: 1, maximum: 12, default: 6 }
+            countdown: { type: boolean, default: true }
+            stock_bar: { type: boolean, default: true }
+            accent: { type: [string, 'null'], pattern: '^#[0-9A-Fa-f]{6}$' }
+        flash:
+          type: [object, 'null']
+          description: "131 Filled by the servers for `flash_sale`: the sale shown (null `id` for the source's own sales)."
+          properties:
+            id: { type: [integer, 'null'] }
+            title: { type: [string, 'null'] }
+            starts_at: { type: [string, 'null'], format: date-time }
+            ends_at: { type: [string, 'null'], format: date-time }
+            percent_off: { type: [integer, 'null'] }
+            remaining: { type: [integer, 'null'] }
+            total: { type: [integer, 'null'] }
+        sale_badge:
+          type: [object, 'null']
+          description: "131 For `items` of products: how the app's own cards show a sale (`Item.sale`): a `chip` with the share off, a `ribbon` across the corner, or the prices only (`price`); a small countdown when it ends within a day; its colour. Missing: a chip in the app's main colour."
+          required: [style]
+          properties:
+            style: { type: string, enum: [chip, ribbon, price] }
+            countdown: { type: boolean, default: false }
+            color: { type: [string, 'null'], pattern: '^#[0-9A-Fa-f]{6}$' }
+        coupon:
+          type: [object, 'null']
+          description: "131 For `coupon`: its premium look (`ticket` a perforated stub with the offer, `glass` a frosted card; missing, `classic`), and `bind: public`: one of the shop's coupons shown in the app (`GET /store/coupons`; the one with `code`, else the first), filled in `coupon_offer`; the element is left out when there is none."
+          properties:
+            look: { type: string, enum: [classic, ticket, glass], default: classic }
+            bind: { type: string, enum: [public] }
+        coupon_offer:
+          oneOf:
+            - $ref: '#/components/schemas/PublicCoupon'
+            - type: 'null'
+          description: "131 Filled by the servers for a coupon bound to the shop's coupons."
         items:
           type: array
           maxItems: 30
@@ -16476,6 +16961,7 @@ components:
         price_label: { type: [string, 'null'], description: Display text only. Never a purchase button on iOS., example: 'EGP 4,250,000' }
         badge: { type: [string, 'null'], example: Negotiable }
         rating: { type: [number, 'null'], minimum: 0, maximum: 5, description: "128.8 A course's average rating, for a card's `rating` element; null or missing without one.", example: 4.9 }
+        sale: { $ref: '#/components/schemas/ProductSale' }
         favorited: { type: boolean }
         action: { $ref: '#/components/schemas/Action' }
 

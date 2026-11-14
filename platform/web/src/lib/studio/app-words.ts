@@ -313,6 +313,8 @@ export const en = {
   newAnswer: "The answer, in a line or two.",
   newTab: "Tab",
   newEnded: "This offer has ended.",
+  // 131 A new flash sale element's title.
+  newFlash: "Flash sale",
   newBullets: "Free delivery\nPay on delivery\nReturns within 14 days",
   // 129.1–129.8 A new premium motion & media element's words (lib/studio/premium-motion.ts PremiumWord).
   motionKicker: "New season",
@@ -828,6 +830,7 @@ export const en = {
   lqPickDate: "Pick a date",
   lqFlashKicker: "Flash sale",
   lqFlashTitle: "Fresh picks at sale prices",
+  lqCoupon: "A code for your first bouquet",
   lqFlashEnded: "This sale has ended",
   lqEndsIn: "Ends in",
   lqCollections: "Collections",
@@ -895,7 +898,6 @@ export const en = {
   lqPicked: "Picked for you",
   lqSaved: "Your picks",
   lqCheckoutTeaser: "A gift checkout in five steps",
-  lqLdKicker: "In bloom",
   // ——— end 131.20–131.39 ———
   // ——— 130.60 Monochrome luxe, 130.62 the new landings ———
   pdMoIndex: "Index",
@@ -1212,6 +1214,7 @@ export const ar: Record<AppWord, string> = {
   newAnswer: "الإجابة، في سطر أو سطرين.",
   newTab: "تبويب",
   newEnded: "انتهى هذا العرض.",
+  newFlash: "عرض خاطف",
   newBullets: "توصيل مجاني\nالدفع عند الاستلام\nالإرجاع خلال ١٤ يومًا",
   motionKicker: "موسم جديد",
   motionHeadline: "صُمّم ليناسب أسلوب حياتك",
@@ -1724,6 +1727,7 @@ export const ar: Record<AppWord, string> = {
   lqPickDate: "اختر تاريخًا",
   lqFlashKicker: "تخفيضات سريعة",
   lqFlashTitle: "اختيارات طازجة بأسعار مخفّضة",
+  lqCoupon: "رمز لباقتك الأولى",
   lqFlashEnded: "انتهت هذه التخفيضات",
   lqEndsIn: "ينتهي خلال",
   lqCollections: "المجموعات",
@@ -1791,7 +1795,6 @@ export const ar: Record<AppWord, string> = {
   lqPicked: "اخترناها لك",
   lqSaved: "اختياراتك",
   lqCheckoutTeaser: "إتمام هدية في خمس خطوات",
-  lqLdKicker: "في أوج الإزهار",
   // ——— end 131.20–131.39 ———
   // ——— 130.60 Monochrome luxe, 130.62 the new landings ———
   pdMoIndex: "الفهرس",
@@ -2104,6 +2107,7 @@ export const tr: Record<AppWord, string> = {
   newAnswer: "Cevap, bir iki satırda.",
   newTab: "Sekme",
   newEnded: "Bu kampanya sona erdi.",
+  newFlash: "Flaş indirim",
   newBullets: "Ücretsiz teslimat\nKapıda ödeme\n14 gün içinde iade",
   motionKicker: "Yeni sezon",
   motionHeadline: "Yaşam tarzınıza göre",
@@ -2616,6 +2620,7 @@ export const tr: Record<AppWord, string> = {
   lqPickDate: "Tarih seçin",
   lqFlashKicker: "Flaş indirim",
   lqFlashTitle: "İndirimli taze seçimler",
+  lqCoupon: "İlk buketiniz için bir kod",
   lqFlashEnded: "Bu indirim sona erdi",
   lqEndsIn: "Bitimine",
   lqCollections: "Koleksiyonlar",
@@ -2683,7 +2688,6 @@ export const tr: Record<AppWord, string> = {
   lqPicked: "Sizin için seçtik",
   lqSaved: "Seçimleriniz",
   lqCheckoutTeaser: "Beş adımda hediye ödemesi",
-  lqLdKicker: "Çiçek açtı",
   // ——— end 131.20–131.39 ———
   // ——— 130.60 Monochrome luxe, 130.62 the new landings ———
   pdMoIndex: "Dizin",

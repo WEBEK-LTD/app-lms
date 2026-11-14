@@ -1,4 +1,6 @@
 import { parseSiteSales, saveSiteSales, type SiteSalesDay } from "../analytics/site-sales";
+import { giftMessagesStatus, giftOccasionsOf } from "../selling/gift-messages";
+import { appLanguagesOf } from "../selling/store";
 import { appSwitches, type AppSwitches } from "../app/switches";
 import { licenseStoreBilling } from "../store-billing/config";
 import { httpsSiteAddress, moveToWordpress } from "../app/wordpress-ready";
@@ -66,6 +68,12 @@ export interface LicenseStatusBody {
   store_billing: ReturnType<typeof licenseStoreBilling>;
   /** 121 A Studio project's sign-in screen and account menu (`Config.screens`), for the plugin to serve; null when none are designed. */
   screens: StudioScreens | null;
+  /**
+   * 131 A store's card messages by occasion, every language, for the plugin
+   * to serve at `GET /store/gift-messages` (the owner manages them in the
+   * Yallapp dashboard); null for other apps.
+   */
+  gift_messages: ReturnType<typeof giftMessagesStatus> | null;
   expires_at: string | null;
   checked_at: string;
   message: string | null;
@@ -258,6 +266,8 @@ interface AppFacts {
   app: App | null;
   /** 100.3 The app's store products, for `store_billing`. */
   storeProducts?: StoreProduct[];
+  /** 131 A store's card messages. */
+  giftMessages?: ReturnType<typeof giftMessagesStatus> | null;
 }
 
 function statusBody(
@@ -288,6 +298,7 @@ function statusBody(
     switches: appSwitches(facts.app ?? {}),
     store_billing: state === "active" && facts.app ? licenseStoreBilling(facts.app, plan, facts.storeProducts ?? [], appUrl()) : null,
     screens: facts.app ? (screensConfig(facts.app).screens ?? null) : null,
+    gift_messages: facts.giftMessages ?? null,
     expires_at: license ? license.expiresAt.toISOString() : null,
     checked_at: now.toISOString(),
     message,
@@ -323,6 +334,7 @@ async function appFactsOf(store: DataStore, license: License): Promise<AppFacts>
     hideVideoBranding: hidesVideoBranding(app),
     app,
     storeProducts: app.storeBilling?.enabled ? await store.listStoreProducts(app.id) : [],
+    giftMessages: app.appType === "store" ? giftMessagesStatus(await giftOccasionsOf(store, app, new Date()), (await appLanguagesOf(store, app)).default) : null,
   };
 }
 

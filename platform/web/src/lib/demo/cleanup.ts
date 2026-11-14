@@ -1,7 +1,8 @@
 import type { DataStore } from "../data/store";
 import type { App, DemoPurgeCounts, ListingInquiry } from "../data/types";
 import { listDemoApps } from "./apps";
-import { DEMO_RETENTION_HOURS, DEMO_SIGN_IN, DEMO_USER_NAME, demoIdOf } from "./constants";
+import { DEMO_RETENTION_HOURS, DEMO_SIGN_IN, DEMO_USER_NAME, demoIdOf, FLOWER_SHOP_DEMO } from "./constants";
+import { refreshFlowerSale } from "./entries";
 import { refreshMarketplaceDemo, savedZadPictures } from "./marketplace";
 import { refreshSchoolDay } from "./school";
 import { cleanDemoTeacher } from "./teachers";
@@ -39,6 +40,8 @@ export async function cleanDemoActivity(store: DataStore, now: Date): Promise<De
     if (id === "instructors") report.deleted += await cleanDemoTeacher(store, app, now);
     // 115.15 Zad: visitors' orders after a day; the seeded orders, complaints and refunds from today.
     if (id === "marketplace") report.deleted += await refreshMarketplaceDemo(store, app, now, { picture: savedZadPictures(store, { clientId: app.clientId }) });
+    // 131 Leqaa: its flash sale from today, hours left on its countdown.
+    if (id === FLOWER_SHOP_DEMO) await refreshFlowerSale(store, app, now);
     // 126 Safra: the flights twelve weeks ahead, and the demo number's trip from today.
     if (id === "travel") report.deleted += await refreshTravelDemo(store, app, await store.getHostedUserByPhone(app.id, DEMO_SIGN_IN.e164), now);
     // The shared account goes back to its name, should anything have changed it.

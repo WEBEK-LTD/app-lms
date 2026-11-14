@@ -46,19 +46,19 @@
         {
          "id": "lq-3",
          "type": "badge_text",
-         "text": "In bloom",
+         "text": "Learn anywhere",
          "translations": {
           "ar": {
-           "text": "في أوج الإزهار"
+           "text": "تعلّم في أي مكان"
           },
           "tr": {
-           "text": "Çiçek açtı"
+           "text": "Her yerde öğrenin"
           }
          },
          "badge": {
           "style": "outline"
          },
-         "icon": "local_florist",
+         "icon": "auto_awesome",
          "color": "#4338CA",
          "dark_color": "#857EDD"
         },
@@ -855,19 +855,19 @@
         {
          "id": "lq-3",
          "type": "badge_text",
-         "text": "In bloom",
+         "text": "Care, close to you",
          "translations": {
           "ar": {
-           "text": "في أوج الإزهار"
+           "text": "رعاية قريبة منك"
           },
           "tr": {
-           "text": "Çiçek açtı"
+           "text": "Size yakın bakım"
           }
          },
          "badge": {
           "style": "outline"
          },
-         "icon": "local_florist",
+         "icon": "auto_awesome",
          "color": "#0F766E",
          "dark_color": "#63A6A1"
         },

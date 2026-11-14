@@ -951,6 +951,8 @@ export class ShopifyConnector implements Connector {
         ...(user ? { buyerIdentity } : {}),
         // 91.1 The customer's coupon: Shopify's checkout applies it, or says why it can't.
         ...(coupon ? { discountCodes: [coupon] } : {}),
+        // 131 The delivery day and slot, the people and the card: on the order as its note and attributes.
+        ...(request.order ? { note: request.order.note.slice(0, 5000), attributes: request.order.attributes.map((a) => ({ key: a.key, value: a.value.slice(0, 1000) })) } : {}),
       },
     });
     const url = data.cartCreate.cart?.checkoutUrl;

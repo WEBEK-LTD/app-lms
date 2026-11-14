@@ -123,7 +123,7 @@ class Studio_Screens {
 		if ( $courses ) {
 			$out['courses'] = $courses;
 		}
-		// 131.25 The checkout's look.
+		// 131 The store checkout's look (and the gift checkout; 131.25 its premium gift look).
 		$checkout = is_array( $raw['checkout'] ?? null ) ? self::checkout( $raw['checkout'] ) : null;
 		if ( $checkout ) {
 			$out['checkout'] = $checkout;
@@ -132,24 +132,55 @@ class Studio_Screens {
 	}
 
 	/**
-	 * 131.25 The store's checkout look and its colours by day and by night; null for a look
-	 * this plugin doesn't know.
+	 * 131 The store checkout's look: the gift checkout, the style, the chips, the surface, the
+	 * accent (131.25 by night too), the corners, the photo and the title per language, and
+	 * 131.25 the premium gift look (`look`); unknown values are left out.
 	 *
 	 * @param array $raw The platform's.
 	 * @return array|null
 	 */
-	private static function checkout( array $raw ) {
-		if ( ! in_array( $raw['look'] ?? null, self::CHECKOUT_LOOKS, true ) ) {
-			return null;
+	public static function checkout( array $raw ) {
+		$out = array();
+		if ( 'gift' === ( $raw['mode'] ?? null ) ) {
+			$out['mode'] = 'gift';
 		}
-		$out = array( 'look' => $raw['look'] );
-		foreach ( array( 'accent', 'dark_accent' ) as $field ) {
-			$value = $raw[ $field ] ?? null;
-			if ( is_string( $value ) && preg_match( '/^#[0-9A-Fa-f]{6}$/', $value ) ) {
-				$out[ $field ] = strtoupper( $value );
+		// 131.25 The premium gift checkout in five steps: the gift checkout too.
+		if ( in_array( $raw['look'] ?? null, self::CHECKOUT_LOOKS, true ) ) {
+			$out['look'] = $raw['look'];
+			$out['mode'] = 'gift';
+		}
+		foreach ( array(
+			'style'   => array( 'classic', 'cards', 'steps' ),
+			'chips'   => array( 'pill', 'square' ),
+			'surface' => array( 'plain', 'glass' ),
+		) as $key => $allowed ) {
+			if ( in_array( $raw[ $key ] ?? null, $allowed, true ) ) {
+				$out[ $key ] = $raw[ $key ];
 			}
 		}
-		return $out;
+		foreach ( array( 'accent', 'dark_accent' ) as $field ) {
+			if ( is_string( $raw[ $field ] ?? null ) && preg_match( '/^#[0-9A-Fa-f]{6}$/', $raw[ $field ] ) ) {
+				$out[ $field ] = strtoupper( $raw[ $field ] );
+			}
+		}
+		if ( isset( $raw['radius'] ) && is_numeric( $raw['radius'] ) && $raw['radius'] >= 0 && $raw['radius'] <= 32 ) {
+			$out['radius'] = (int) $raw['radius'];
+		}
+		if ( is_string( $raw['image_url'] ?? null ) && preg_match( '#^https://\S{1,1000}$#', $raw['image_url'] ) ) {
+			$out['image_url'] = $raw['image_url'];
+		}
+		if ( is_array( $raw['title'] ?? null ) ) {
+			$title = array();
+			foreach ( $raw['title'] as $lang => $text ) {
+				if ( is_string( $lang ) && preg_match( '/^[a-z]{2,3}$/', $lang ) && is_string( $text ) && '' !== trim( $text ) ) {
+					$title[ $lang ] = function_exists( 'mb_substr' ) ? mb_substr( trim( $text ), 0, 40, 'UTF-8' ) : substr( trim( $text ), 0, 40 );
+				}
+			}
+			if ( $title ) {
+				$out['title'] = $title;
+			}
+		}
+		return $out ? $out : null;
 	}
 
 	/**

@@ -238,6 +238,22 @@ export function StudioEditor(props: StudioEditorProps) {
   };
   // 129.21–129.24 A premium map's sample words.
   const premiumMapWords: PremiumMapWords = premiumNew.map;
+  // 131 The flash sale's and the coupon's words on the canvas.
+  const commerceWords = {
+    flash: newFlashWord(),
+    left: t("studio.canvasLeft"),
+    soldOut: t("studio.canvasSoldOut"),
+    endsIn: t("studio.canvasEndsIn"),
+    copy: t("studio.copyCode"),
+    off: t("studio.canvasOff"),
+    days: t("studio.days"),
+    hours: t("studio.hours"),
+    minutes: t("studio.minutes"),
+    seconds: t("studio.seconds"),
+  };
+  function newFlashWord() {
+    return appWord(dashLang, "newFlash", app.name);
+  }
   // 128.11 A new element's words are the app's (lib/studio/app-words.ts), in the dashboard's language.
   const newText = (key: NewText) =>
     appWord(
@@ -254,6 +270,7 @@ export function StudioEditor(props: StudioEditorProps) {
           tab: "newTab",
           ended: "newEnded",
           bullets: "newBullets",
+          flash: "newFlash",
         } as const
       )[key],
       app.name,
@@ -1254,6 +1271,7 @@ export function StudioEditor(props: StudioEditorProps) {
           orders={props.kind.type === "food"}
           trips={props.kind.type === "delivery" || props.kind.type === "rides"}
           school={props.kind.type === "school"}
+          store={source === "products"}
           page={studio}
           selectedId={selectedId}
           onSelect={(id) => setSelectedId(id)}
@@ -1341,7 +1359,7 @@ export function StudioEditor(props: StudioEditorProps) {
             <div style={{ width: frame.width, height: frame.height, transform: `scale(${zoom / 100})`, transformOrigin: "top left", borderRadius: frame.radius, background: C.ink, padding: 10, boxSizing: "border-box", boxShadow: "0 30px 60px rgba(14,13,36,0.25)" }} dir="ltr">
               <div className="studio-screen" style={{ width: "100%", height: "100%", borderRadius: frame.radius - 9, overflow: "hidden auto", position: "relative", background: dark ? "#14121F" : "#FBF8F2" }}>
                 {studio ? (
-                  <StudioView page={studio} lang={editLang} defaultLang={def} dark={dark} look={look} pickable={props.pickable} market={props.market} editing={editing} words={words} learningWords={learningWords} liveWords={liveWords} schoolWords={{ ...schoolWords, date: greeting.date }} greeting={greeting} tablet={device === "tablet"} screenPart={screenPart} premiumWords={premiumWords} />
+                  <StudioView page={studio} lang={editLang} defaultLang={def} dark={dark} look={look} pickable={props.pickable} market={props.market} editing={editing} words={words} learningWords={learningWords} liveWords={liveWords} schoolWords={{ ...schoolWords, date: greeting.date }} greeting={greeting} tablet={device === "tablet"} screenPart={screenPart} premiumWords={premiumWords} commerceWords={commerceWords} />
                 ) : page ? (
                   <StartPage title={pageTitle(page)} regular={page.blocks.length > 0} onPick={applyTemplate} templates={kindTemplates} />
                 ) : null}

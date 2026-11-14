@@ -1042,6 +1042,9 @@ export class WixConnector implements PlatformConnector {
         catalogReference: { appId: WIX_STORES_APP_ID, catalogItemId: priced.refs[i]!.productId, options: { variantId: priced.refs[i]!.variantId } },
       })),
       channelType: "WEB",
+      // 131 The delivery day and slot, the people and the card, as the buyer's note to the shop.
+      // Unverified: that a checkout made with a visitor token keeps `buyerNote` on the order.
+      ...(request.order ? { buyerNote: request.order.note.slice(0, 1000) } : {}),
     });
     const checkoutId = created.checkout?.id;
     if (!checkoutId) return error(409, "cart_changed", "The shop couldn't start the checkout.");
