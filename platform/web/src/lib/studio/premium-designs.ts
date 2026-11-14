@@ -872,16 +872,18 @@ const INK = "#0B0B0B";
 export function monoTag(m: Maker, word: AppWord, colours: { background?: string; color?: string } = {}): StudioNode {
   const bg = colours.background ?? m.c.accent;
   const ink = colours.color ?? INK;
-  return {
+  // Held in a row of its own, so it is as wide as its word.
+  const chip: StudioNode = {
     id: m.id(),
     type: "row",
-    self_align: "start",
+    width: "hug",
     radius: 2,
     background: bg,
     dark_background: bg,
     padding: pad(5, 9),
     children: [text(m, word, { color: ink, dark_color: ink, max_lines: 1, font: { size: 11, weight: 800, letter_spacing: 1.6, uppercase: true, family: MONO_FONT } })],
   };
+  return { id: m.id(), type: "row", self_align: "start", children: [chip] };
 }
 
 /** 130.60 Monochrome luxe's index: the kind's four places in oversized type, numbered in mono, a hairline between them, each opening its screen. */
@@ -935,6 +937,7 @@ function monoHome(m: Maker, type: StudioHeaderType): StudioPage {
     background: c.deep,
     scrim: { color: c.shade, from: 0.2, middle: 0.08, at: 40, to: 0.92 },
     align: "end",
+    cross: "start",
     gap: 12,
     padding: pad(24, 22, 30, 22),
     children: [
@@ -991,6 +994,7 @@ function monoHome(m: Maker, type: StudioHeaderType): StudioPage {
     background: c.deep,
     scrim: { color: c.shade, from: 0.15, to: 0.6 },
     align: "end",
+    cross: "start",
     gap: 10,
     padding: pad(20, 20),
     children: [
@@ -1011,7 +1015,7 @@ function monoHome(m: Maker, type: StudioHeaderType): StudioPage {
     padding: pad(28, 22),
     margin: pad(24, 16, 0, 16),
     children: [
-      { id: m.id(), type: "text", text: "“", color: c.accent, dark_color: c.accent, font: { size: 64, weight: 800, line_height: 0.6, family: DISPLAY_FONT } },
+      { id: m.id(), type: "text", text: "“", color: c.accent, dark_color: c.accent, font: { size: 64, weight: 800, line_height: 0.8, family: DISPLAY_FONT } },
       text(m, "pdMoNote", { color: BONE, dark_color: c.darkInk, font: { size: 30, weight: 700, line_height: 1.1, letter_spacing: -0.8, family: DISPLAY_FONT } }),
       { id: m.id(), type: "row", height: 2, width: 48, background: c.accent, dark_background: c.accent, children: [] },
       text(m, "pdMoSign", { color: BONE, dark_color: c.darkMuted, opacity: 0.8, font: { size: 12, weight: 700, letter_spacing: 2, uppercase: true, family: MONO_FONT } }),
@@ -1027,7 +1031,7 @@ function monoHome(m: Maker, type: StudioHeaderType): StudioPage {
     ...(duo ? [duo] : []),
     banner,
     { ...quotesHead!, padding: pad(28, 20, 12, 20) },
-    { ...quotes!, background: INK, dark_background: c.darkSurface, color: BONE, dark_color: c.darkInk, radius: 4 },
+    { ...quotes!, radius: 4 },
     statement,
   ]);
 }

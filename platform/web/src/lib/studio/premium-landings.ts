@@ -210,7 +210,7 @@ function splitHero(m: Maker): StudioNode[] {
       { ...button(m, packWord(m.p, "Cta"), m.main, { background: c.brand, darkBackground: c.darkBrand, color: "#FFFFFF", darkColor: c.darkPage, icon: "arrow_forward" }), margin: pad(4, 0, 0, 0) },
     ],
   };
-  const arch: StudioNode = { id: m.id(), type: "image", image_url: m.photo(0), width: 148, height: 300, fit: "cover", corners: { top_start: 74, top_end: 74, bottom_end: 18, bottom_start: 18 }, background: c.deep, dark_background: c.deep, ken_burns: true };
+  const arch: StudioNode = { id: m.id(), type: "image", image_url: m.photo(0), width: 136, height: 300, fit: "cover", corners: { top_start: 74, top_end: 74, bottom_end: 18, bottom_start: 18 }, background: c.deep, dark_background: c.deep, ken_burns: true };
   const line = placesLine(m);
   const band: StudioNode = {
     id: m.id(),
@@ -378,7 +378,7 @@ function masthead(m: Maker): StudioNode[] {
 function magazine(ctx: SectionContext): StudioPage {
   const m = makerFor(ctx);
   const { c } = m;
-  return landing(m, header(m, "logo_center", "large", ["menu", "search", "account"]), [
+  return landing(m, header(m, "logo_actions", "glass", ["search", "account"]), [
     ...masthead(m),
     ticker(m, { chips: true, background: c.page, dark_background: c.darkPage, color: c.ink, dark_color: c.darkInk, margin: pad(16, 0, 0, 0) }),
     ...liveCard(m),
@@ -458,8 +458,9 @@ function luxe(ctx: SectionContext): StudioPage {
     cta: { style: "bar" },
     pin: "bottom",
     icon: "arrow_forward",
-    background: c.surface,
-    dark_background: c.darkSurface,
+    // Its button in the project's colour; the bar the page's card.
+    background: c.brand,
+    dark_background: c.brand,
     color: c.ink,
     dark_color: c.darkInk,
     ...(m.main ? { action: m.main } : {}),
