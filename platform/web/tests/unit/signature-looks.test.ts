@@ -112,7 +112,7 @@ describe("130 the Signature looks", () => {
     // Made in Arabic, its words are Arabic, with English and Turkish as translations.
     const { layout } = started(demo, look, "ar");
     const home = layout.pages[0]!.studio!;
-    const words = allNodes(home).filter((n): n is StudioNode & { text: string } => n.type === "text" && Boolean(n.text) && !/^[\d\s.,:·+%$£E-]+$/.test(n.text!));
+    const words = allNodes(home).filter((n): n is StudioNode & { text: string } => n.type === "text" && Boolean(n.text) && !/^[\d\s.,:·+%$£E-]+$/.test(n.text!) && !/^[A-Z0-9 ]+$/.test(n.text!));
     expect(words.length).toBeGreaterThan(2);
     for (const n of words) {
       expect(n.translations?.en?.text, n.text).toBeTruthy();

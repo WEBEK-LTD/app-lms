@@ -480,8 +480,9 @@ describe("templates = demos: the demos' pages in Arabic and Turkish", () => {
       expect(written.length, id).toBeGreaterThan(0);
       for (const n of written) {
         // Arabic on the Arabic page, with English and Turkish kept.
-        for (const value of [n.text, n.title].filter(Boolean)) expect(value, `${id}: ${value}`).toMatch(/[؀-ۿ]|^\d+$/);
-        if (/^\d+$/.test(n.text ?? "")) continue;
+        for (const value of [n.text, n.title].filter(Boolean)) expect(value, `${id}: ${value}`).toMatch(/[؀-ۿ]|^[\dA-Z :·]+$/);
+        // 130.12 Numbers, and the codes and times the same in every language (CAI, SFR 251, 06:30).
+        if (/^[\dA-Z :·]+$/.test(n.text ?? "")) continue;
         expect(Object.keys(n.translations ?? {}).sort(), `${id}: ${n.text ?? n.title}`).toEqual(["en", "tr"]);
       }
       const parsed = parseStudioPage(page, app, languages);
@@ -492,7 +493,7 @@ describe("templates = demos: the demos' pages in Arabic and Turkish", () => {
   it("gives the demo apps, made in English, their Arabic and Turkish too", () => {
     for (const id of STUDIO_DEMO_TYPES) {
       const page = demoStudioPage(id, demoStudioContext(id, appUrl(), itemSourcesFor(demoApp(id))[0] ?? null));
-      const titled = allNodes(page).filter((n) => (n.text && !/^\d+$/.test(n.text) && n.text !== DEMO_BRANDS[id].appName && n.bind !== "rating") || (n.type === "market" && n.title));
+      const titled = allNodes(page).filter((n) => (n.text && !/^[\dA-Z :·]+$/.test(n.text) && n.text !== DEMO_BRANDS[id].appName && n.bind !== "rating") || (n.type === "market" && n.title));
       for (const n of titled) {
         expect(n.translations?.ar, `${id}: ${n.text ?? n.title}`).toBeTruthy();
         expect(Object.values(n.translations!.ar!).join(" "), `${id}: ${n.text ?? n.title}`).toMatch(/[؀-ۿ]/);

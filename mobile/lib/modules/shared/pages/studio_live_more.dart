@@ -376,7 +376,7 @@ class _TripTicket extends StatelessWidget {
                               Expanded(child: _Dashes(color: accent)),
                               const SizedBox(width: 6),
                               Flexible(
-                                flex: 3,
+                                flex: 12,
                                 child: Text(
                                   [
                                     flight.number,

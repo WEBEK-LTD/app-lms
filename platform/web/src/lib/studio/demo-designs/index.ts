@@ -15,6 +15,7 @@ import { NAKHLA_LOOK, RAWAQ_LOOK, rawaqTabs, schoolPage } from "./school-looks";
 // 130 The Signature looks (./signature.ts): Masar's, Lamha's and Safra's.
 import { LAMHA_LOOKS } from "./lamha-signature";
 import { MASAR_LOOKS } from "./masar-signature";
+import { SAFRA_LOOKS } from "./safra-signature";
 import { SIGNATURE_LOOKS, signatureTemplateId, type SignatureDesign, type SignatureLook, type SignatureLooks } from "./signature";
 
 /**
@@ -134,6 +135,8 @@ const SIGNATURE_DESIGNS: Partial<Record<StudioDemoId, SignatureLooks>> = {
   rides: tabbed(MASAR_LOOKS, rideTabs),
   // 130.9 130.10 Lamha Taxi, taxi yellow and navy: A two inks, B a radar.
   taxi: tabbed(LAMHA_LOOKS, rideTabs),
+  // 130.12 Safra, ink and gold: A a cover story, B a bento atlas.
+  travel: SAFRA_LOOKS,
 };
 
 /** A demo's look; missing `look`, its look A (the demo). Undefined when the demo has no such look. */

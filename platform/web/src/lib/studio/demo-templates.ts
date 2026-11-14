@@ -1,4 +1,4 @@
-import type { LayoutBlock, StudioNode, StudioPage } from "../pages/types";
+import type { LayoutBlock, StudioEntry, StudioNode, StudioPage } from "../pages/types";
 import type { StudioDemoId } from "../demo/constants";
 import { ar as studioAr, en as studioEn, tr as studioTr } from "../../i18n/dashboard/studio";
 import { newNodeId } from "./elements";
@@ -37,7 +37,8 @@ export const DEMO_HOME_TEMPLATES: Record<StudioDemoId, string> = {
   school: "school_today",
   instructors: "teachers_photo",
   // 126 Safra's Explore: travel's own template (128 in the same registry, lib/studio/demo-designs/safra-travel.ts).
-  travel: "travel",
+  // 130.12 Safra is its Signature look A, the cover story (lib/studio/demo-designs/safra-signature.ts).
+  travel: "travel_signature_a",
   // 123 The premium academy's home is its template's.
   premium_academy: "academy_premium",
 };
@@ -139,6 +140,16 @@ export function translating(ctx: SectionContext): { ctx: SectionContext; transla
       out.translations = translations as StudioNode["translations"];
     }
     if (node.children) out.children = node.children.map(translate);
+    // 130.12 A premium element's entries (a bento's tiles): their words in Studio's other languages too.
+    if (node.entries) {
+      out.entries = node.entries.map((entry) => {
+        const fields = (["title", "subtitle", "text", "label"] as const).map((f) => [f, all(entry[f])] as const).filter(([, words]) => words);
+        if (!fields.length) return entry;
+        const translations: Record<string, Record<string, string>> = {};
+        for (const l of others) translations[l] = Object.fromEntries(fields.map(([f, words]) => [f, words![l]!]));
+        return { ...entry, translations: translations as StudioEntry["translations"] };
+      });
+    }
     if (node.card) out.card = translate(node.card);
     return out;
   };
@@ -199,6 +210,15 @@ export const DEMO_FACTS: Partial<Record<StudioDemoId, Partial<Record<SectionWord
     // 128 Where the approved home's route card picks up: the demo's own street, where its parcels leave from.
     deliveryFrom: { en: "Abbas El Akkad St.", ar: "شارع عباس العقاد", tr: "Abbas El Akkad Caddesi" },
   },
+  // 130.12 Safra's own stays on its look B's bento (lib/travel/samples.ts TRAVEL_HOTELS): their names and their nights' prices.
+  travel: {
+    sigStayOne: { en: "Safra Caldera Suites", ar: "Safra Caldera Suites", tr: "Safra Caldera Suites" },
+    sigStayOneText: { en: "Cave suites on the cliff · $262 a night", ar: "أجنحة كهفية على المنحدر · 262 دولارًا لليلة", tr: "Uçurumda mağara süitler · gecelik 262 $" },
+    sigStayTwo: { en: "Safra Skyline Hotel", ar: "Safra Skyline Hotel", tr: "Safra Skyline Hotel" },
+    sigStayTwoText: { en: "$134 a night", ar: "134 دولارًا لليلة", tr: "Gecelik 134 $" },
+    sigStayThree: { en: "Safra Old Town House", ar: "Safra Old Town House", tr: "Safra Old Town House" },
+    sigStayThreeText: { en: "$96 a night", ar: "96 دولارًا لليلة", tr: "Gecelik 96 $" },
+  },
 };
 
 /**
@@ -219,6 +239,21 @@ export function withDemoFacts(id: StudioDemoId, page: StudioPage, lang: DemoLang
     const out: StudioNode = words ? { ...node, text: words[lang], translations } : { ...node };
     if (node.children) out.children = node.children.map(fill);
     if (node.card) out.card = fill(node.card);
+    // 130.12 And a premium element's entries (Safra B's stays): their title and text.
+    if (node.entries) {
+      out.entries = node.entries.map((entry) => {
+        const own = (["title", "text"] as const).map((f) => [f, entry[f] ? byText.get(entry[f]!) : undefined] as const).filter(([, words]) => words);
+        if (!own.length) return entry;
+        const filled: StudioEntry = { ...entry };
+        const translations: Record<string, Record<string, string>> = {};
+        for (const l of others) translations[l] = { ...((entry.translations?.[l] as Record<string, string> | undefined) ?? {}) };
+        for (const [f, words] of own) {
+          filled[f] = words![lang];
+          for (const l of others) translations[l]![f] = words![l];
+        }
+        return { ...filled, translations: translations as StudioEntry["translations"] };
+      });
+    }
     return out;
   };
   return { ...page, body: fill(page.body) };

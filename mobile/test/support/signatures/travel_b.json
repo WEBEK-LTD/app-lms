@@ -1,0 +1,1544 @@
+{
+ "screens": {
+  "sign_in": {
+   "style": "premium",
+   "image_url": "http://localhost:3000/travel-photos/oia.jpg",
+   "title": {
+    "en": "Where next?",
+    "ar": "إلى أين بعد ذلك؟",
+    "tr": "Sırada neresi var?"
+   },
+   "subtitle": {
+    "en": "Your stays, flights and boarding passes, in one place.",
+    "ar": "إقاماتك ورحلاتك الجوية وبطاقات صعودك في مكان واحد.",
+    "tr": "Konaklamalarınız, uçuşlarınız ve biniş kartlarınız tek bir yerde."
+   },
+   "show_logo": true
+  },
+  "account_menu": {
+   "header": "night",
+   "accent": "#D8B57A",
+   "items": []
+  }
+ },
+ "layout": {
+  "appearance": {
+   "template": "classic",
+   "theme_mode": "system",
+   "user_can_change_mode": true,
+   "font": "Manrope",
+   "corners": "round",
+   "cards": "outlined",
+   "secondary_color": "#C9A063"
+  },
+  "languages": {
+   "default": "en",
+   "available": [
+    "en"
+   ]
+  },
+  "tabs": [
+   {
+    "id": "home",
+    "label": "Explore",
+    "icon": "travel_explore",
+    "target": {
+     "type": "page",
+     "page_slug": "home"
+    },
+    "translations": {
+     "ar": {
+      "label": "استكشف"
+     },
+     "tr": {
+      "label": "Keşfet"
+     }
+    }
+   },
+   {
+    "id": "trips",
+    "label": "Trips",
+    "icon": "luggage",
+    "target": {
+     "type": "page",
+     "page_slug": "trips"
+    },
+    "translations": {
+     "ar": {
+      "label": "الرحلات"
+     },
+     "tr": {
+      "label": "Seyahatler"
+     }
+    }
+   },
+   {
+    "id": "flights",
+    "label": "Flights",
+    "icon": "flight",
+    "target": {
+     "type": "page",
+     "page_slug": "flights"
+    },
+    "translations": {
+     "ar": {
+      "label": "الطيران"
+     },
+     "tr": {
+      "label": "Uçuşlar"
+     }
+    }
+   },
+   {
+    "id": "account",
+    "label": "Account",
+    "icon": "person",
+    "target": {
+     "type": "page",
+     "page_slug": "account"
+    },
+    "translations": {
+     "ar": {
+      "label": "حسابي"
+     },
+     "tr": {
+      "label": "Hesabım"
+     }
+    }
+   }
+  ],
+  "pages": [
+   {
+    "slug": "home",
+    "title": "Home",
+    "show_title": false,
+    "updated_at": "2026-11-13T18:00:00.000Z",
+    "blocks": [],
+    "studio": {
+     "background": "#F4EFE6",
+     "dark_background": "#0B0F1A",
+     "body": {
+      "id": "nysamjpa",
+      "type": "column",
+      "padding": {
+       "top": 8,
+       "bottom": 100
+      },
+      "children": [
+       {
+        "id": "n31iz8cg",
+        "type": "row",
+        "gap": 10,
+        "cross": "center",
+        "padding": {
+         "top": 0,
+         "end": 16,
+         "bottom": 0,
+         "start": 20
+        },
+        "children": [
+         {
+          "id": "n75ptvip",
+          "type": "greeting",
+          "width": "fill",
+          "color": "#5A5F6E",
+          "dark_color": "#AEB2BF",
+          "font": {
+           "size": 14,
+           "weight": 600
+          }
+         },
+         {
+          "id": "nf733r0g",
+          "type": "row",
+          "width": 44,
+          "height": 44,
+          "radius": 22,
+          "align": "center",
+          "cross": "center",
+          "action": {
+           "type": "screen",
+           "screen": "stays"
+          },
+          "self_align": "center",
+          "border_color": "#D8D2C7",
+          "dark_border_color": "#2A3148",
+          "border_width": 1,
+          "children": [
+           {
+            "id": "ncd0p3rj",
+            "type": "icon",
+            "icon": "search",
+            "icon_size": 22,
+            "color": "#0E1424",
+            "dark_color": "#F3EEE4"
+           }
+          ]
+         },
+         {
+          "id": "n6nydd4p",
+          "type": "row",
+          "width": 44,
+          "height": 44,
+          "radius": 22,
+          "align": "center",
+          "cross": "center",
+          "action": {
+           "type": "screen",
+           "screen": "account"
+          },
+          "self_align": "center",
+          "background": "#0E1424",
+          "dark_background": "#D8B57A",
+          "children": [
+           {
+            "id": "nvucb5tg",
+            "type": "icon",
+            "icon": "person",
+            "icon_size": 22,
+            "color": "#F7F3EC",
+            "dark_color": "#0E1424"
+           }
+          ]
+         }
+        ]
+       },
+       {
+        "id": "n9y5f87k",
+        "type": "text",
+        "text": "Where next?",
+        "color": "#0E1424",
+        "dark_color": "#F3EEE4",
+        "font": {
+         "size": 40,
+         "weight": 600,
+         "letter_spacing": -1.6,
+         "line_height": 1
+        },
+        "margin": {
+         "top": 6,
+         "end": 20,
+         "bottom": 14,
+         "start": 20
+        },
+        "translations": {
+         "ar": {
+          "text": "إلى أين بعد ذلك؟"
+         },
+         "tr": {
+          "text": "Sırada neresi var?"
+         }
+        }
+       },
+       {
+        "id": "n5p680lh",
+        "type": "column",
+        "name": "Your next trip",
+        "visibility": "signed_in",
+        "radius": 26,
+        "padding": {
+         "top": 16,
+         "end": 16,
+         "bottom": 16,
+         "start": 16
+        },
+        "margin": {
+         "top": 0,
+         "end": 16,
+         "bottom": 14,
+         "start": 16
+        },
+        "background": "#0E1424",
+        "dark_background": "#151C2E",
+        "border_color": "#0E1424",
+        "dark_border_color": "#4E4530",
+        "border_width": 1,
+        "shadow": "strong",
+        "children": [
+         {
+          "id": "nnwpxaiw",
+          "type": "tracking",
+          "tracking": {
+           "kind": "trip",
+           "style": "card"
+          },
+          "visibility": "signed_in",
+          "color": "#F3EEE4",
+          "dark_color": "#F3EEE4"
+         }
+        ]
+       },
+       {
+        "id": "n4a4smg1",
+        "type": "bento",
+        "name": "Stays with us",
+        "columns": 2,
+        "gap": 10,
+        "radius": 22,
+        "bento": {
+         "caption": "plain",
+         "row": 92
+        },
+        "margin": {
+         "top": 0,
+         "end": 16,
+         "bottom": 0,
+         "start": 16
+        },
+        "entries": [
+         {
+          "title": "Safra Caldera Suites",
+          "subtitle": "Santorini",
+          "text": "Cave suites on the cliff · $262 a night",
+          "image_url": "http://localhost:3000/travel-photos/oia.jpg",
+          "size": "tall",
+          "action": {
+           "type": "screen",
+           "screen": "stays"
+          },
+          "translations": {
+           "ar": {
+            "title": "Safra Caldera Suites",
+            "subtitle": "سانتوريني",
+            "text": "أجنحة كهفية على المنحدر · 262 دولارًا لليلة"
+           },
+           "tr": {
+            "title": "Safra Caldera Suites",
+            "subtitle": "Santorini",
+            "text": "Uçurumda mağara süitler · gecelik 262 $"
+           }
+          }
+         },
+         {
+          "title": "Safra Skyline Hotel",
+          "text": "$134 a night",
+          "image_url": "http://localhost:3000/travel-photos/skyline.jpg",
+          "size": "small",
+          "action": {
+           "type": "screen",
+           "screen": "stays"
+          },
+          "translations": {
+           "ar": {
+            "title": "Safra Skyline Hotel",
+            "text": "134 دولارًا لليلة"
+           },
+           "tr": {
+            "title": "Safra Skyline Hotel",
+            "text": "Gecelik 134 $"
+           }
+          }
+         },
+         {
+          "title": "Safra Old Town House",
+          "text": "$96 a night",
+          "image_url": "http://localhost:3000/travel-photos/city.jpg",
+          "size": "small",
+          "action": {
+           "type": "screen",
+           "screen": "stays"
+          },
+          "translations": {
+           "ar": {
+            "title": "Safra Old Town House",
+            "text": "96 دولارًا لليلة"
+           },
+           "tr": {
+            "title": "Safra Old Town House",
+            "text": "Gecelik 96 $"
+           }
+          }
+         }
+        ]
+       },
+       {
+        "id": "ndt0h9ko",
+        "type": "row",
+        "name": "Stay + flight, one price",
+        "height": 60,
+        "radius": 20,
+        "gap": 12,
+        "cross": "center",
+        "margin": {
+         "top": 12,
+         "end": 16,
+         "bottom": 0,
+         "start": 16
+        },
+        "padding": {
+         "top": 0,
+         "end": 12,
+         "bottom": 0,
+         "start": 10
+        },
+        "background": "#FFFFFF",
+        "dark_background": "#151C2E",
+        "border_color": "#D9C9A6",
+        "dark_border_color": "#5C5032",
+        "border_width": 1,
+        "action": {
+         "type": "screen",
+         "screen": "stays"
+        },
+        "children": [
+         {
+          "id": "n7a2b4mw",
+          "type": "row",
+          "width": 40,
+          "height": 40,
+          "radius": 20,
+          "align": "center",
+          "cross": "center",
+          "self_align": "center",
+          "background": "#0E1424",
+          "children": [
+           {
+            "id": "ntekau0f",
+            "type": "icon",
+            "icon": "flight",
+            "icon_size": 18,
+            "color": "#E6C58C",
+            "dark_color": "#E6C58C"
+           }
+          ]
+         },
+         {
+          "id": "nsl781le",
+          "type": "column",
+          "width": "fill",
+          "gap": 1,
+          "children": [
+           {
+            "id": "n1nfxwim",
+            "type": "text",
+            "text": "Stay + flight, one price",
+            "color": "#0E1424",
+            "dark_color": "#F3EEE4",
+            "font": {
+             "size": 14,
+             "weight": 800
+            },
+            "translations": {
+             "ar": {
+              "text": "إقامة + طيران بسعر واحد"
+             },
+             "tr": {
+              "text": "Konaklama + uçuş, tek fiyat"
+             }
+            }
+           },
+           {
+            "id": "njklg6qc",
+            "type": "text",
+            "text": "8% less when you book them together",
+            "color": "#5A5F6E",
+            "dark_color": "#AEB2BF",
+            "font": {
+             "size": 12,
+             "weight": 600
+            },
+            "max_lines": 1,
+            "translations": {
+             "ar": {
+              "text": "أقل بنسبة 8% حين تحجزهما معًا"
+             },
+             "tr": {
+              "text": "Birlikte ayırtınca %8 daha uygun"
+             }
+            }
+           }
+          ]
+         },
+         {
+          "id": "nmvq8u7v",
+          "type": "icon",
+          "icon": "arrow_forward",
+          "icon_size": 22,
+          "color": "#5A5F6E",
+          "dark_color": "#AEB2BF"
+         }
+        ]
+       },
+       {
+        "id": "nt5qkscv",
+        "type": "row",
+        "cross": "end",
+        "padding": {
+         "top": 18,
+         "end": 16,
+         "bottom": 6,
+         "start": 20
+        },
+        "children": [
+         {
+          "id": "naeqi6z6",
+          "type": "text",
+          "text": "Departures from Cairo",
+          "color": "#0E1424",
+          "dark_color": "#F3EEE4",
+          "font": {
+           "size": 16,
+           "weight": 800
+          },
+          "width": "fill",
+          "translations": {
+           "ar": {
+            "text": "الرحلات من القاهرة"
+           },
+           "tr": {
+            "text": "Kahire'den kalkışlar"
+           }
+          }
+         },
+         {
+          "id": "nlucs9ee",
+          "type": "text",
+          "text": "Safra",
+          "color": "#7A5C24",
+          "dark_color": "#D8B57A",
+          "font": {
+           "size": 10,
+           "weight": 700,
+           "letter_spacing": 1.4,
+           "uppercase": true,
+           "family": "JetBrains Mono"
+          },
+          "translations": {
+           "ar": {
+            "text": "Safra"
+           },
+           "tr": {
+            "text": "Safra"
+           }
+          }
+         }
+        ]
+       },
+       {
+        "id": "nolpprug",
+        "type": "column",
+        "name": "Departures from Cairo",
+        "padding": {
+         "top": 0,
+         "end": 16,
+         "bottom": 0,
+         "start": 16
+        },
+        "children": [
+         {
+          "id": "nydz7jdy",
+          "type": "row",
+          "height": 38,
+          "gap": 10,
+          "cross": "center",
+          "padding": {
+           "top": 0,
+           "end": 4,
+           "bottom": 0,
+           "start": 4
+          },
+          "border_color": "#D8D2C7",
+          "dark_border_color": "#2A3148",
+          "action": {
+           "type": "screen",
+           "screen": "flights"
+          },
+          "children": [
+           {
+            "id": "nbdtn241",
+            "type": "text",
+            "text": "SFR 251",
+            "color": "#5A5F6E",
+            "dark_color": "#AEB2BF",
+            "font": {
+             "size": 11,
+             "weight": 500,
+             "family": "JetBrains Mono"
+            },
+            "width": 58
+           },
+           {
+            "id": "nueyjtwp",
+            "type": "text",
+            "text": "IST",
+            "color": "#0E1424",
+            "dark_color": "#F3EEE4",
+            "font": {
+             "size": 15,
+             "weight": 700,
+             "family": "JetBrains Mono"
+            },
+            "width": 38
+           },
+           {
+            "id": "nldmfzrm",
+            "type": "row",
+            "width": "fill",
+            "gap": 4,
+            "children": [
+             {
+              "id": "n4pm6t52",
+              "type": "text",
+              "text": "Istanbul",
+              "color": "#5A5F6E",
+              "dark_color": "#AEB2BF",
+              "font": {
+               "size": 12,
+               "weight": 600
+              },
+              "translations": {
+               "ar": {
+                "text": "إسطنبول"
+               },
+               "tr": {
+                "text": "İstanbul"
+               }
+              }
+             },
+             {
+              "id": "nlwnufqc",
+              "type": "text",
+              "text": "·",
+              "color": "#5A5F6E",
+              "dark_color": "#AEB2BF",
+              "font": {
+               "size": 12
+              }
+             },
+             {
+              "id": "nzs4pr17",
+              "type": "text",
+              "text": "nonstop",
+              "color": "#5A5F6E",
+              "dark_color": "#AEB2BF",
+              "font": {
+               "size": 12,
+               "weight": 600
+              },
+              "translations": {
+               "ar": {
+                "text": "دون توقف"
+               },
+               "tr": {
+                "text": "aktarmasız"
+               }
+              }
+             }
+            ]
+           },
+           {
+            "id": "nc70br2g",
+            "type": "text",
+            "text": "06:30",
+            "color": "#0E1424",
+            "dark_color": "#F3EEE4",
+            "font": {
+             "size": 15,
+             "weight": 700,
+             "family": "JetBrains Mono"
+            }
+           }
+          ]
+         },
+         {
+          "id": "n4m6mmel",
+          "type": "row",
+          "height": 38,
+          "gap": 10,
+          "cross": "center",
+          "padding": {
+           "top": 0,
+           "end": 4,
+           "bottom": 0,
+           "start": 4
+          },
+          "border_color": "#D8D2C7",
+          "dark_border_color": "#2A3148",
+          "action": {
+           "type": "screen",
+           "screen": "flights"
+          },
+          "children": [
+           {
+            "id": "nehrh389",
+            "type": "text",
+            "text": "SFR 361",
+            "color": "#5A5F6E",
+            "dark_color": "#AEB2BF",
+            "font": {
+             "size": 11,
+             "weight": 500,
+             "family": "JetBrains Mono"
+            },
+            "width": 58
+           },
+           {
+            "id": "n26mpe5l",
+            "type": "text",
+            "text": "JTR",
+            "color": "#0E1424",
+            "dark_color": "#F3EEE4",
+            "font": {
+             "size": 15,
+             "weight": 700,
+             "family": "JetBrains Mono"
+            },
+            "width": 38
+           },
+           {
+            "id": "noy1dnpa",
+            "type": "row",
+            "width": "fill",
+            "gap": 4,
+            "children": [
+             {
+              "id": "nsy3yddj",
+              "type": "text",
+              "text": "Santorini",
+              "color": "#5A5F6E",
+              "dark_color": "#AEB2BF",
+              "font": {
+               "size": 12,
+               "weight": 600
+              },
+              "translations": {
+               "ar": {
+                "text": "سانتوريني"
+               },
+               "tr": {
+                "text": "Santorini"
+               }
+              }
+             },
+             {
+              "id": "nkq5i9dg",
+              "type": "text",
+              "text": "·",
+              "color": "#5A5F6E",
+              "dark_color": "#AEB2BF",
+              "font": {
+               "size": 12
+              }
+             },
+             {
+              "id": "nhurwsdf",
+              "type": "text",
+              "text": "via ATH",
+              "color": "#5A5F6E",
+              "dark_color": "#AEB2BF",
+              "font": {
+               "size": 12,
+               "weight": 600
+              },
+              "translations": {
+               "ar": {
+                "text": "عبر ATH"
+               },
+               "tr": {
+                "text": "ATH aktarmalı"
+               }
+              }
+             }
+            ]
+           },
+           {
+            "id": "nmpmn0dy",
+            "type": "text",
+            "text": "08:40",
+            "color": "#0E1424",
+            "dark_color": "#F3EEE4",
+            "font": {
+             "size": 15,
+             "weight": 700,
+             "family": "JetBrains Mono"
+            }
+           }
+          ]
+         },
+         {
+          "id": "nivsucrc",
+          "type": "row",
+          "height": 38,
+          "gap": 10,
+          "cross": "center",
+          "padding": {
+           "top": 0,
+           "end": 4,
+           "bottom": 0,
+           "start": 4
+          },
+          "border_color": "#D8D2C7",
+          "dark_border_color": "#2A3148",
+          "action": {
+           "type": "screen",
+           "screen": "flights"
+          },
+          "children": [
+           {
+            "id": "nsjomzb3",
+            "type": "text",
+            "text": "SFR 141",
+            "color": "#5A5F6E",
+            "dark_color": "#AEB2BF",
+            "font": {
+             "size": 11,
+             "weight": 500,
+             "family": "JetBrains Mono"
+            },
+            "width": 58
+           },
+           {
+            "id": "nhjm535d",
+            "type": "text",
+            "text": "DXB",
+            "color": "#0E1424",
+            "dark_color": "#F3EEE4",
+            "font": {
+             "size": 15,
+             "weight": 700,
+             "family": "JetBrains Mono"
+            },
+            "width": 38
+           },
+           {
+            "id": "n4csxxpw",
+            "type": "row",
+            "width": "fill",
+            "gap": 4,
+            "children": [
+             {
+              "id": "nqd1v0x6",
+              "type": "text",
+              "text": "Dubai",
+              "color": "#5A5F6E",
+              "dark_color": "#AEB2BF",
+              "font": {
+               "size": 12,
+               "weight": 600
+              },
+              "translations": {
+               "ar": {
+                "text": "دبي"
+               },
+               "tr": {
+                "text": "Dubai"
+               }
+              }
+             },
+             {
+              "id": "n32j5wm7",
+              "type": "text",
+              "text": "·",
+              "color": "#5A5F6E",
+              "dark_color": "#AEB2BF",
+              "font": {
+               "size": 12
+              }
+             },
+             {
+              "id": "nvvv8xi7",
+              "type": "text",
+              "text": "nonstop",
+              "color": "#5A5F6E",
+              "dark_color": "#AEB2BF",
+              "font": {
+               "size": 12,
+               "weight": 600
+              },
+              "translations": {
+               "ar": {
+                "text": "دون توقف"
+               },
+               "tr": {
+                "text": "aktarmasız"
+               }
+              }
+             }
+            ]
+           },
+           {
+            "id": "n4hh77uz",
+            "type": "text",
+            "text": "10:15",
+            "color": "#0E1424",
+            "dark_color": "#F3EEE4",
+            "font": {
+             "size": 15,
+             "weight": 700,
+             "family": "JetBrains Mono"
+            }
+           }
+          ]
+         }
+        ]
+       }
+      ]
+     }
+    }
+   },
+   {
+    "slug": "trips",
+    "title": "Trips",
+    "translations": {
+     "ar": {
+      "title": "الرحلات"
+     },
+     "tr": {
+      "title": "Seyahatler"
+     }
+    },
+    "studio": {
+     "body": {
+      "id": "nhorbvas",
+      "type": "column",
+      "children": [
+       {
+        "id": "nubgv67i",
+        "type": "tracking",
+        "tracking": {
+         "kind": "trip",
+         "style": "card"
+        },
+        "visibility": "signed_in",
+        "color": "#F3EEE4",
+        "dark_color": "#F3EEE4",
+        "background": "#0E1424",
+        "dark_background": "#151C2E",
+        "radius": 26,
+        "padding": {
+         "top": 16,
+         "end": 16,
+         "bottom": 16,
+         "start": 16
+        },
+        "margin": {
+         "top": 12,
+         "end": 16,
+         "bottom": 4,
+         "start": 16
+        }
+       }
+      ]
+     },
+     "screen": "trips",
+     "header": {
+      "type": "title",
+      "title": "Trips",
+      "buttons": [
+       "notifications"
+      ],
+      "translations": {
+       "ar": {
+        "title": "الرحلات"
+       },
+       "tr": {
+        "title": "Seyahatler"
+       }
+      },
+      "background": "#F4EFE6",
+      "color": "#0E1424",
+      "dark_background": "#0B0F1A",
+      "dark_color": "#F3EEE4"
+     },
+     "background": "#F4EFE6",
+     "dark_background": "#0B0F1A"
+    },
+    "show_title": false,
+    "updated_at": "2026-11-13T18:00:00.000Z",
+    "blocks": []
+   },
+   {
+    "slug": "flights",
+    "title": "Flights",
+    "translations": {
+     "ar": {
+      "title": "الطيران"
+     },
+     "tr": {
+      "title": "Uçuşlar"
+     }
+    },
+    "studio": {
+     "body": {
+      "id": "ng273xq0",
+      "type": "column",
+      "children": []
+     },
+     "screen": "flights",
+     "header": {
+      "type": "title",
+      "title": "Flights",
+      "buttons": [
+       "notifications"
+      ],
+      "translations": {
+       "ar": {
+        "title": "الطيران"
+       },
+       "tr": {
+        "title": "Uçuşlar"
+       }
+      },
+      "background": "#F4EFE6",
+      "color": "#0E1424",
+      "dark_background": "#0B0F1A",
+      "dark_color": "#F3EEE4"
+     },
+     "background": "#F4EFE6",
+     "dark_background": "#0B0F1A"
+    },
+    "show_title": false,
+    "updated_at": "2026-11-13T18:00:00.000Z",
+    "blocks": []
+   },
+   {
+    "slug": "account",
+    "title": "Account",
+    "translations": {
+     "ar": {
+      "title": "حسابي"
+     },
+     "tr": {
+      "title": "Hesabım"
+     }
+    },
+    "studio": {
+     "body": {
+      "id": "n8fpi9gy",
+      "type": "column",
+      "children": []
+     },
+     "screen": "account",
+     "background": "#F4EFE6",
+     "dark_background": "#0B0F1A"
+    },
+    "show_title": false,
+    "updated_at": "2026-11-13T18:00:00.000Z",
+    "blocks": []
+   },
+   {
+    "slug": "messages",
+    "title": "Messages",
+    "translations": {
+     "ar": {
+      "title": "الرسائل"
+     },
+     "tr": {
+      "title": "Mesajlar"
+     }
+    },
+    "studio": {
+     "body": {
+      "id": "n2fvvj7v",
+      "type": "column",
+      "children": []
+     },
+     "screen": "messages",
+     "header": {
+      "type": "title",
+      "title": "Messages",
+      "translations": {
+       "ar": {
+        "title": "الرسائل"
+       },
+       "tr": {
+        "title": "Mesajlar"
+       }
+      },
+      "background": "#F4EFE6",
+      "color": "#0E1424",
+      "dark_background": "#0B0F1A",
+      "dark_color": "#F3EEE4"
+     },
+     "background": "#F4EFE6",
+     "dark_background": "#0B0F1A"
+    },
+    "show_title": false,
+    "updated_at": "2026-11-13T18:00:00.000Z",
+    "blocks": []
+   },
+   {
+    "slug": "settings",
+    "title": "Settings",
+    "translations": {
+     "ar": {
+      "title": "الإعدادات"
+     },
+     "tr": {
+      "title": "Ayarlar"
+     }
+    },
+    "studio": {
+     "body": {
+      "id": "ngnb8axo",
+      "type": "column",
+      "children": []
+     },
+     "screen": "settings",
+     "header": {
+      "type": "title",
+      "title": "Settings",
+      "translations": {
+       "ar": {
+        "title": "الإعدادات"
+       },
+       "tr": {
+        "title": "Ayarlar"
+       }
+      },
+      "background": "#F4EFE6",
+      "color": "#0E1424",
+      "dark_background": "#0B0F1A",
+      "dark_color": "#F3EEE4"
+     },
+     "background": "#F4EFE6",
+     "dark_background": "#0B0F1A"
+    },
+    "show_title": false,
+    "updated_at": "2026-11-13T18:00:00.000Z",
+    "blocks": []
+   },
+   {
+    "slug": "notifications",
+    "title": "Notifications",
+    "translations": {
+     "ar": {
+      "title": "الإشعارات"
+     },
+     "tr": {
+      "title": "Bildirimler"
+     }
+    },
+    "studio": {
+     "body": {
+      "id": "nnxraezl",
+      "type": "column",
+      "children": []
+     },
+     "screen": "notifications",
+     "header": {
+      "type": "title",
+      "title": "Notifications",
+      "translations": {
+       "ar": {
+        "title": "الإشعارات"
+       },
+       "tr": {
+        "title": "Bildirimler"
+       }
+      },
+      "background": "#F4EFE6",
+      "color": "#0E1424",
+      "dark_background": "#0B0F1A",
+      "dark_color": "#F3EEE4"
+     },
+     "background": "#F4EFE6",
+     "dark_background": "#0B0F1A"
+    },
+    "show_title": false,
+    "updated_at": "2026-11-13T18:00:00.000Z",
+    "blocks": []
+   },
+   {
+    "slug": "edit-profile",
+    "title": "Edit profile",
+    "translations": {
+     "ar": {
+      "title": "تعديل الملف الشخصي"
+     },
+     "tr": {
+      "title": "Profili düzenle"
+     }
+    },
+    "studio": {
+     "body": {
+      "id": "ndu7s06n",
+      "type": "column",
+      "children": []
+     },
+     "screen": "edit_profile",
+     "header": {
+      "type": "title",
+      "title": "Edit profile",
+      "translations": {
+       "ar": {
+        "title": "تعديل الملف الشخصي"
+       },
+       "tr": {
+        "title": "Profili düzenle"
+       }
+      },
+      "background": "#F4EFE6",
+      "color": "#0E1424",
+      "dark_background": "#0B0F1A",
+      "dark_color": "#F3EEE4"
+     },
+     "background": "#F4EFE6",
+     "dark_background": "#0B0F1A"
+    },
+    "show_title": false,
+    "updated_at": "2026-11-13T18:00:00.000Z",
+    "blocks": []
+   },
+   {
+    "slug": "devices",
+    "title": "Devices",
+    "translations": {
+     "ar": {
+      "title": "الأجهزة"
+     },
+     "tr": {
+      "title": "Cihazlar"
+     }
+    },
+    "studio": {
+     "body": {
+      "id": "nj34fg6s",
+      "type": "column",
+      "children": []
+     },
+     "screen": "devices",
+     "header": {
+      "type": "title",
+      "title": "Devices",
+      "translations": {
+       "ar": {
+        "title": "الأجهزة"
+       },
+       "tr": {
+        "title": "Cihazlar"
+       }
+      },
+      "background": "#F4EFE6",
+      "color": "#0E1424",
+      "dark_background": "#0B0F1A",
+      "dark_color": "#F3EEE4"
+     },
+     "background": "#F4EFE6",
+     "dark_background": "#0B0F1A"
+    },
+    "show_title": false,
+    "updated_at": "2026-11-13T18:00:00.000Z",
+    "blocks": []
+   },
+   {
+    "slug": "change-password",
+    "title": "Change password",
+    "studio": {
+     "body": {
+      "id": "nw27q5if",
+      "type": "column",
+      "children": []
+     },
+     "screen": "change_password",
+     "background": "#F4EFE6",
+     "dark_background": "#0B0F1A"
+    },
+    "show_title": false,
+    "updated_at": "2026-11-13T18:00:00.000Z",
+    "blocks": []
+   },
+   {
+    "slug": "chat-conversation",
+    "title": "A conversation",
+    "studio": {
+     "body": {
+      "id": "nv2sybyn",
+      "type": "column",
+      "children": []
+     },
+     "screen": "chat_conversation",
+     "background": "#F4EFE6",
+     "dark_background": "#0B0F1A"
+    },
+    "show_title": false,
+    "updated_at": "2026-11-13T18:00:00.000Z",
+    "blocks": []
+   },
+   {
+    "slug": "travel-hotel",
+    "title": "A hotel's page",
+    "studio": {
+     "body": {
+      "id": "n8bj28fb",
+      "type": "column",
+      "children": []
+     },
+     "screen": "travel_hotel",
+     "background": "#F4EFE6",
+     "dark_background": "#0B0F1A"
+    },
+    "show_title": false,
+    "updated_at": "2026-11-13T18:00:00.000Z",
+    "blocks": []
+   },
+   {
+    "slug": "hotel-results",
+    "title": "Hotels found",
+    "studio": {
+     "body": {
+      "id": "nvcf5hmg",
+      "type": "column",
+      "children": []
+     },
+     "screen": "hotel_results",
+     "background": "#F4EFE6",
+     "dark_background": "#0B0F1A"
+    },
+    "show_title": false,
+    "updated_at": "2026-11-13T18:00:00.000Z",
+    "blocks": []
+   },
+   {
+    "slug": "hotel-map",
+    "title": "Hotels on the map",
+    "studio": {
+     "body": {
+      "id": "nvkuzl3b",
+      "type": "column",
+      "children": []
+     },
+     "screen": "hotel_map",
+     "background": "#F4EFE6",
+     "dark_background": "#0B0F1A"
+    },
+    "show_title": false,
+    "updated_at": "2026-11-13T18:00:00.000Z",
+    "blocks": []
+   },
+   {
+    "slug": "hotel-rooms",
+    "title": "A hotel's rooms",
+    "studio": {
+     "body": {
+      "id": "nazq7c1h",
+      "type": "column",
+      "children": []
+     },
+     "screen": "hotel_rooms",
+     "background": "#F4EFE6",
+     "dark_background": "#0B0F1A"
+    },
+    "show_title": false,
+    "updated_at": "2026-11-13T18:00:00.000Z",
+    "blocks": []
+   },
+   {
+    "slug": "hotel-checkout",
+    "title": "Booking a stay",
+    "studio": {
+     "body": {
+      "id": "ndyyo5mi",
+      "type": "column",
+      "children": []
+     },
+     "screen": "hotel_checkout",
+     "background": "#F4EFE6",
+     "dark_background": "#0B0F1A"
+    },
+    "show_title": false,
+    "updated_at": "2026-11-13T18:00:00.000Z",
+    "blocks": []
+   },
+   {
+    "slug": "flight-results",
+    "title": "Flights found",
+    "studio": {
+     "body": {
+      "id": "ntewdmc4",
+      "type": "column",
+      "children": []
+     },
+     "screen": "flight_results",
+     "background": "#F4EFE6",
+     "dark_background": "#0B0F1A"
+    },
+    "show_title": false,
+    "updated_at": "2026-11-13T18:00:00.000Z",
+    "blocks": []
+   },
+   {
+    "slug": "flight-fares",
+    "title": "A flight's fares",
+    "studio": {
+     "body": {
+      "id": "nt713tii",
+      "type": "column",
+      "children": []
+     },
+     "screen": "flight_fares",
+     "background": "#F4EFE6",
+     "dark_background": "#0B0F1A"
+    },
+    "show_title": false,
+    "updated_at": "2026-11-13T18:00:00.000Z",
+    "blocks": []
+   },
+   {
+    "slug": "price-calendar",
+    "title": "Prices by date",
+    "studio": {
+     "body": {
+      "id": "n6c9jwhd",
+      "type": "column",
+      "children": []
+     },
+     "screen": "price_calendar",
+     "background": "#F4EFE6",
+     "dark_background": "#0B0F1A"
+    },
+    "show_title": false,
+    "updated_at": "2026-11-13T18:00:00.000Z",
+    "blocks": []
+   },
+   {
+    "slug": "seat-map",
+    "title": "Choosing seats",
+    "studio": {
+     "body": {
+      "id": "nyl2xzmp",
+      "type": "column",
+      "children": []
+     },
+     "screen": "seat_map",
+     "background": "#F4EFE6",
+     "dark_background": "#0B0F1A"
+    },
+    "show_title": false,
+    "updated_at": "2026-11-13T18:00:00.000Z",
+    "blocks": []
+   },
+   {
+    "slug": "flight-extras",
+    "title": "Bags and meals",
+    "studio": {
+     "body": {
+      "id": "n0etrfy4",
+      "type": "column",
+      "children": []
+     },
+     "screen": "flight_extras",
+     "background": "#F4EFE6",
+     "dark_background": "#0B0F1A"
+    },
+    "show_title": false,
+    "updated_at": "2026-11-13T18:00:00.000Z",
+    "blocks": []
+   },
+   {
+    "slug": "trip-bundle",
+    "title": "Stay + Flight",
+    "studio": {
+     "body": {
+      "id": "n9i7xko7",
+      "type": "column",
+      "children": []
+     },
+     "screen": "trip_bundle",
+     "background": "#F4EFE6",
+     "dark_background": "#0B0F1A"
+    },
+    "show_title": false,
+    "updated_at": "2026-11-13T18:00:00.000Z",
+    "blocks": []
+   },
+   {
+    "slug": "trip-checkout",
+    "title": "Booking a trip",
+    "studio": {
+     "body": {
+      "id": "n8za4g4z",
+      "type": "column",
+      "children": []
+     },
+     "screen": "trip_checkout",
+     "background": "#F4EFE6",
+     "dark_background": "#0B0F1A"
+    },
+    "show_title": false,
+    "updated_at": "2026-11-13T18:00:00.000Z",
+    "blocks": []
+   },
+   {
+    "slug": "travel-trip",
+    "title": "A trip",
+    "studio": {
+     "body": {
+      "id": "nfcvjyvr",
+      "type": "column",
+      "children": []
+     },
+     "screen": "travel_trip",
+     "background": "#F4EFE6",
+     "dark_background": "#0B0F1A"
+    },
+    "show_title": false,
+    "updated_at": "2026-11-13T18:00:00.000Z",
+    "blocks": []
+   },
+   {
+    "slug": "boarding-pass",
+    "title": "Boarding passes",
+    "studio": {
+     "body": {
+      "id": "nlxih0e2",
+      "type": "column",
+      "children": []
+     },
+     "screen": "boarding_pass",
+     "background": "#F4EFE6",
+     "dark_background": "#0B0F1A"
+    },
+    "show_title": false,
+    "updated_at": "2026-11-13T18:00:00.000Z",
+    "blocks": []
+   },
+   {
+    "slug": "manage-booking",
+    "title": "Changing a booking",
+    "studio": {
+     "body": {
+      "id": "nub0u7em",
+      "type": "column",
+      "children": []
+     },
+     "screen": "manage_booking",
+     "background": "#F4EFE6",
+     "dark_background": "#0B0F1A"
+    },
+    "show_title": false,
+    "updated_at": "2026-11-13T18:00:00.000Z",
+    "blocks": []
+   },
+   {
+    "slug": "review-stay",
+    "title": "Reviewing a stay",
+    "studio": {
+     "body": {
+      "id": "n1dec9et",
+      "type": "column",
+      "children": []
+     },
+     "screen": "review_stay",
+     "background": "#F4EFE6",
+     "dark_background": "#0B0F1A"
+    },
+    "show_title": false,
+    "updated_at": "2026-11-13T18:00:00.000Z",
+    "blocks": []
+   }
+  ],
+  "tab_bar": {
+   "design": "float",
+   "margin": 16,
+   "radius": 30,
+   "labels": "always",
+   "background": "#0E1424",
+   "dark_background": "#151C2E",
+   "active": "#E6C58C",
+   "dark_active": "#E6C58C",
+   "inactive": "#D7DAE3",
+   "dark_inactive": "#D7DAE3"
+  }
+ }
+}
