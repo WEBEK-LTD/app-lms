@@ -883,7 +883,13 @@ function parseBlock(ctx: Context, where: string, value: unknown, allowed: string
       break;
     case "text": {
       const html = typeof v.html === "string" ? cleanBlockHtml(v.html) : "";
-      if (!html.replace(/<[^>]*>/g, "").trim()) c.fail(at, "add some text.");
+      // Its words without tags, stripped until none is left, only to see that there are some.
+      let words = html;
+      for (let before = ""; before !== words; ) {
+        before = words;
+        words = words.replace(/<[^>]*>/g, "");
+      }
+      if (!words.trim()) c.fail(at, "add some text.");
       if (html.length > LAYOUT_LIMITS.htmlChars) c.fail(at, `the text can have at most ${LAYOUT_LIMITS.htmlChars} characters.`);
       block.html = html;
       break;
