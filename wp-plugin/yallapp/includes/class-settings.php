@@ -102,6 +102,8 @@ class Settings {
 			// 131 A flash sale, applied through WooCommerce's own sale price.
 			'store_flash_sale'             => false,
 			'store_flash_title'            => '',
+			// 131 Its title in the app's other languages, one "ar: عرض خاطف" a line.
+			'store_flash_titles'           => '',
 			'store_flash_product_ids'      => array(),
 			'store_flash_category_id'      => 0,
 			'store_flash_kind'             => 'percent',
@@ -238,7 +240,7 @@ class Settings {
 			return sanitize_textarea_field( (string) $raw );
 		}
 		// 131 One slot or beginning a line; the cut-off and the flash sale's times as typed.
-		if ( 'store_delivery_slots' === $key || 'store_gift_starters' === $key ) {
+		if ( 'store_delivery_slots' === $key || 'store_gift_starters' === $key || 'store_flash_titles' === $key ) {
 			return sanitize_textarea_field( (string) $raw );
 		}
 		if ( 'store_delivery_cutoff' === $key ) {

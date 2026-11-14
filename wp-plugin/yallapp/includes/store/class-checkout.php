@@ -151,15 +151,26 @@ class Checkout {
 	 * @param string      $platform android or ios.
 	 * @param string|null $coupon   91.1 The coupon the customer typed.
 	 * @param array       $delivery 131 delivery_date and delivery_slot, once chosen.
-	 * @return array Cart shape.
+	 * @return array|WP_Error Cart shape; 131 addon_needs_item for add-ons alone.
 	 */
 	public function quote( array $lines, $platform, $coupon = null, array $delivery = array() ) {
 		$decimals = wc_get_price_decimals();
 		$items    = array();
 		$count    = 0;
 		$subtotal = 0.0;
-		foreach ( $lines as $line ) {
-			$checked  = $this->check_line( (array) $line, $platform );
+		// 131 Gift add-ons: never alone, each with a main item it goes with.
+		$lines  = array_values( $lines );
+		$addons = $this->addon_check( $lines );
+		if ( $addons['needs_item'] ) {
+			return new WP_Error( 'addon_needs_item', self::addon_messages()['needs_item'], array( 'status' => 400 ) );
+		}
+		foreach ( $lines as $index => $line ) {
+			$checked = $this->check_line( (array) $line, $platform );
+			if ( isset( $addons['problems'][ $index ] ) ) {
+				$checked['available'] = false;
+				$checked['problem']   = $addons['problems'][ $index ];
+			}
+			$product  = $checked['product'];
 			$product  = $checked['product'];
 			$quantity = $checked['quantity'];
 			$unit     = $product ? (float) wc_get_price_to_display( $product ) : 0.0;
@@ -181,7 +192,10 @@ class Checkout {
 				'problem'      => $checked['problem'],
 				'max_quantity' => $product ? Catalog::max_quantity( $product ) : null,
 				'digital'      => $product ? Catalog::is_digital( $product ) : false,
-			);
+			) + ( $addons['addon'][ $index ] ? array(
+				'addon'    => true,
+				'addon_of' => ! empty( $line['addon_of'] ) ? (int) $line['addon_of'] : null,
+			) : array() );
 		}
 		// 91.1 The coupon, and the total so far: shipping and taxes come from the checkout's address.
 		$checked = null !== $coupon && '' !== trim( (string) $coupon ) ? Coupon_Quote::check( $coupon, $subtotal, $count ) : null;
@@ -234,9 +248,15 @@ class Checkout {
 		if ( ! $user_id && 'yes' !== get_option( 'woocommerce_enable_guest_checkout' ) ) {
 			return new WP_Error( 'unauthorized', __( 'Please sign in to check out.', 'yallapp' ), array( 'status' => 401 ) );
 		}
+		// 131 Gift add-ons: never alone, each with a main item it goes with.
+		$lines  = array_values( $lines );
+		$addons = $this->addon_check( $lines );
+		if ( $addons['needs_item'] || $addons['problems'] ) {
+			return new WP_Error( 'addon_needs_item', $addons['needs_item'] ? self::addon_messages()['needs_item'] : (string) reset( $addons['problems'] ), array( 'status' => 400 ) );
+		}
 		$problems = array();
 		$filled   = array();
-		foreach ( $lines as $line ) {
+		foreach ( $lines as $index => $line ) {
 			$checked = $this->check_line( (array) $line, $platform );
 			if ( ! $checked['available'] || (int) ( $line['quantity'] ?? 0 ) !== $checked['quantity'] ) {
 				if ( $checked['digital_on_ios'] ) {
@@ -254,6 +274,8 @@ class Checkout {
 				'variation_id' => ! empty( $line['variation_id'] ) ? (int) $line['variation_id'] : 0,
 				'quantity'     => $checked['quantity'],
 				'attributes'   => $checked['attributes'],
+				// 131 A gift add-on: the product it goes with, on the order's line.
+				'addon_of'     => $addons['addon'][ $index ] && ! empty( $line['addon_of'] ) ? (int) $line['addon_of'] : 0,
 			);
 		}
 		if ( $problems ) {
@@ -333,7 +355,8 @@ class Checkout {
 		}
 		WC()->cart->empty_cart();
 		foreach ( $cart['lines'] as $line ) {
-			WC()->cart->add_to_cart( $line['product_id'], $line['quantity'], $line['variation_id'], $line['attributes'] );
+			$data = ! empty( $line['addon_of'] ) ? array( 'yallapp_addon_of' => (int) $line['addon_of'] ) : array();
+			WC()->cart->add_to_cart( $line['product_id'], $line['quantity'], $line['variation_id'], $line['attributes'], $data );
 		}
 		// 91.1 The app's coupon, as WooCommerce's checkout applies it (it says so when it can't).
 		if ( ! empty( $cart['coupon'] ) ) {
@@ -550,6 +573,53 @@ class Checkout {
 			'recipient'      => $gift['recipient'],
 			'gift_anonymous' => (bool) $gift['anonymous'],
 		);
+	}
+
+	/**
+	 * 131 The gift add-ons' messages.
+	 *
+	 * @return string[]
+	 */
+	private static function addon_messages() {
+		return array(
+			'needs_item'  => __( 'Add-ons go with a gift: add the item they go with to your cart first.', 'yallapp' ),
+			'not_offered' => __( 'This add-on doesn\'t go with the items in your cart.', 'yallapp' ),
+		);
+	}
+
+	/**
+	 * 131 A cart's gift add-ons checked: `needs_item` when nothing else is in it, each add-on
+	 * line's problem by its index, and which lines are add-ons.
+	 *
+	 * @param array $lines CartInput lines, indexed from 0.
+	 * @return array{needs_item: bool, problems: array<int, string>, addon: bool[]}
+	 */
+	private function addon_check( array $lines ) {
+		$catalog = new Catalog();
+		$shaped  = array();
+		$cats    = array();
+		foreach ( $lines as $line ) {
+			$id      = (int) ( $line['product_id'] ?? 0 );
+			$product = $catalog->product( $id );
+			$addon   = $product && Catalog::is_addon( $product );
+			if ( $product && ! $addon ) {
+				$cats[ $id ] = array_map( 'intval', $product->get_category_ids() );
+			}
+			$shaped[] = array(
+				'product_id' => $id,
+				'addon'      => $addon,
+				'addon_of'   => isset( $line['addon_of'] ) ? (int) $line['addon_of'] : 0,
+			);
+		}
+		$checked          = Addon_Rules::check_lines(
+			$shaped,
+			static function ( $index, $main ) use ( $shaped, $cats ) {
+				return Addon_Rules::offered_with( Catalog::addon_rule( $shaped[ $index ]['product_id'] ), $main, $cats[ $main ] ?? array() );
+			},
+			self::addon_messages()
+		);
+		$checked['addon'] = array_column( $shaped, 'addon' );
+		return $checked;
 	}
 
 	/**

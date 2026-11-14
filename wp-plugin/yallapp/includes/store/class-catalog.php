@@ -103,6 +103,8 @@ class Catalog {
 			'paged'               => max( 1, (int) ( $args['page'] ?? 1 ) ),
 			'ignore_sticky_posts' => true,
 			'tax_query'           => $this->visibility_query( '' !== $search ), // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_tax_query
+			// 131 Never a gift add-on: the app offers those with other products only.
+			'meta_query'          => self::not_addon_query(), // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_query
 		);
 		if ( '' !== $search ) {
 			$query['s'] = $search;
@@ -186,7 +188,8 @@ class Catalog {
 	 */
 	public function product( $product_id ) {
 		$product = $product_id ? wc_get_product( (int) $product_id ) : null;
-		if ( ! $product || $product->is_type( 'variation' ) || 'publish' !== $product->get_status() || 'hidden' === $product->get_catalog_visibility() ) {
+		// 131 A gift add-on the owner hid from the website's shop is still sold with its product in the app.
+		if ( ! $product || $product->is_type( 'variation' ) || 'publish' !== $product->get_status() || ( 'hidden' === $product->get_catalog_visibility() && ! self::is_addon( $product ) ) ) {
 			return null;
 		}
 		if ( post_password_required( $product->get_id() ) ) {
@@ -223,7 +226,7 @@ class Catalog {
 		$related = array();
 		foreach ( wc_get_related_products( $product->get_id(), 8 ) as $related_id ) {
 			$item = $this->product( (int) $related_id );
-			if ( $item ) {
+			if ( $item && ! self::is_addon( $item ) ) {
 				$related[] = $this->summary( $item );
 			}
 		}
@@ -241,6 +244,8 @@ class Catalog {
 				'variations'             => $product instanceof WC_Product_Variable ? $this->variations( $product ) : array(),
 				'categories'             => $categories,
 				'related'                => $related,
+				// 131 "Add a little more": the gift add-ons offered with it.
+				'addons'                 => self::is_addon( $product ) ? array() : $this->addons( $product ),
 				'external_url'           => $product->is_type( 'external' ) && method_exists( $product, 'get_product_url' ) && '' !== (string) $product->get_product_url() ? esc_url_raw( (string) $product->get_product_url() ) : null,
 				'permalink'              => (string) $product->get_permalink(),
 			)
@@ -270,6 +275,8 @@ class Catalog {
 			'stock_status' => self::stock_status( $product ),
 			'purchasable'  => self::can_add_to_cart( $product ),
 			'digital'      => self::is_digital( $product ),
+			// 131 A gift add-on, offered with other products only.
+			'addon'        => self::is_addon( $product ),
 		);
 		// 131 Its sale: the plugin's flash sale, else WooCommerce's own sale price with its scheduled end.
 		if ( class_exists( \Yallapp\Plugin::class, false ) ) {
@@ -377,6 +384,89 @@ class Catalog {
 				'counts'       => $shaped,
 			),
 		);
+	}
+
+	/**
+	 * 131 Whether a product is a gift add-on ("Sell only as an add-on in the app").
+	 *
+	 * @param WC_Product $product Product (a variation: its parent's).
+	 * @return bool
+	 */
+	public static function is_addon( WC_Product $product ) {
+		$id = $product->get_parent_id() ? (int) $product->get_parent_id() : (int) $product->get_id();
+		return 'yes' === get_post_meta( $id, Addon_Rules::META_ADDON, true );
+	}
+
+	/**
+	 * 131 What a gift add-on is offered with.
+	 *
+	 * @param int $product_id The add-on.
+	 * @return array{offer_with: string, category_ids: int[], product_ids: int[]}
+	 */
+	public static function addon_rule( $product_id ) {
+		return Addon_Rules::rule(
+			(string) get_post_meta( (int) $product_id, Addon_Rules::META_OFFER, true ),
+			(string) get_post_meta( (int) $product_id, Addon_Rules::META_CATEGORIES, true ),
+			(string) get_post_meta( (int) $product_id, Addon_Rules::META_PRODUCTS, true )
+		);
+	}
+
+	/**
+	 * 131 Lists leave the gift add-ons out.
+	 *
+	 * @return array
+	 */
+	private static function not_addon_query() {
+		return array(
+			'relation' => 'OR',
+			array(
+				'key'     => Addon_Rules::META_ADDON,
+				'compare' => 'NOT EXISTS',
+			),
+			array(
+				'key'     => Addon_Rules::META_ADDON,
+				'value'   => 'yes',
+				'compare' => '!=',
+			),
+		);
+	}
+
+	/**
+	 * 131 The gift add-ons offered with a product (null: those offered with every product), as
+	 * summaries; the website's own visibility doesn't hide them from the app.
+	 *
+	 * @param WC_Product|null $main The product.
+	 * @return array[]
+	 */
+	public function addons( $main ) {
+		$posts = get_posts(
+			array(
+				'post_type'      => 'product',
+				'post_status'    => 'publish',
+				'posts_per_page' => 50,
+				'fields'         => 'ids',
+				'meta_key'       => Addon_Rules::META_ADDON, // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_key -- The shop's few add-ons.
+				'meta_value'     => 'yes', // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_value -- The shop's few add-ons.
+				'orderby'        => 'menu_order title',
+				'order'          => 'ASC',
+			)
+		);
+		$items = array();
+		foreach ( $posts as $id ) {
+			$addon = wc_get_product( (int) $id );
+			if ( ! $addon || ( $main && (int) $addon->get_id() === (int) $main->get_id() ) || ! self::can_add_to_cart( $addon ) ) {
+				continue;
+			}
+			$rule = self::addon_rule( (int) $id );
+			$fits = $main ? Addon_Rules::offered_with( $rule, (int) $main->get_id(), array_map( 'intval', $main->get_category_ids() ) ) : 'all' === $rule['offer_with'];
+			if ( $fits ) {
+				$items[] = $this->summary( $addon );
+			}
+			if ( count( $items ) >= Addon_Rules::OFFERED ) {
+				break;
+			}
+		}
+		return $items;
 	}
 
 	/**

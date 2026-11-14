@@ -423,6 +423,22 @@ class Delivery_Rules {
 	}
 
 	/**
+	 * 131 Whether a flash sale has a product: one of its products, or its category's (a sale
+	 * on one product is on that one only).
+	 *
+	 * @param array $sale        product_ids, category_id.
+	 * @param int   $product_id  The product (a variation's parent).
+	 * @param bool  $in_category Whether the product is in the sale's category.
+	 * @return bool
+	 */
+	public static function flash_covers( array $sale, $product_id, $in_category ) {
+		if ( in_array( (int) $product_id, array_map( 'intval', (array) ( $sale['product_ids'] ?? array() ) ), true ) ) {
+			return true;
+		}
+		return (int) ( $sale['category_id'] ?? 0 ) > 0 && (bool) $in_category;
+	}
+
+	/**
 	 * ProductSale: was and now, the share off, when it ends and the units left.
 	 *
 	 * @param float    $was       Price before.

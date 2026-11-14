@@ -4189,6 +4189,49 @@ paths:
         '404': { $ref: '#/components/responses/NotFound' }
         '503': { $ref: '#/components/responses/Unavailable' }
 
+  /store/addons:
+    get:
+      tags: [Store]
+      operationId: listAddons
+      summary: The gift add-ons offered with a product
+      description: |
+        Roadmap 131. Products the shop sells only as gift add-ons
+        (chocolates, a greeting card, a vase), each with `addon: true`, that
+        go with `product_id` as the owner chose (every product, some
+        categories or some products): for "Add a little more" on the
+        product's page, in the cart and at checkout. Without `product_id`:
+        those offered with every product. An add-on is never in the product
+        lists, search, categories, home sections, related products or flash
+        sales' lists; it goes in the cart as a line with `addon_of` (the
+        product of the line it goes with), and a cart of add-ons only fails
+        with `addon_needs_item` (400). Yallapp's own products: the product's
+        "Sell only as an add-on"; WordPress: the WooCommerce product's "Sell
+        only as an add-on in the app" (plugin 0.4.44 and later, the website's
+        shop unchanged); a connected platform: the owner's list of its
+        products, one of its categories or (Shopify) a tag. At most 12.
+      security: [{}, { bearerAuth: [] }]
+      parameters:
+        - name: product_id
+          in: query
+          required: false
+          schema: { type: integer, minimum: 1 }
+      responses:
+        '200':
+          description: Add-ons
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [items]
+                properties:
+                  items:
+                    type: array
+                    maxItems: 12
+                    items: { $ref: '#/components/schemas/ProductSummary' }
+        '400': { $ref: '#/components/responses/BadRequest' }
+        '404': { $ref: '#/components/responses/NotFound' }
+        '503': { $ref: '#/components/responses/Unavailable' }
+
   /bookings/home:
     get:
       tags: [Bookings]
@@ -12249,6 +12292,7 @@ components:
             - storage_full
             - slot_full
             - outside_delivery_area
+            - addon_needs_item
             - too_big
             - update_required
             - access_ended
@@ -14481,6 +14525,7 @@ components:
                 type: array
                 description: The options chosen for this line (a dish's size or extras), as their names. Missing or empty for none.
                 items: { type: string }
+              addon_of: { type: [integer, 'null'], description: "131 A gift add-on: the product it went with. Missing: not an add-on." }
               total:
                 type: [string, 'null']
                 description: "Roadmap 110. What the line comes to (its price with its options, times its quantity), formatted. Null or missing on older servers."
@@ -14657,6 +14702,19 @@ components:
             sender), the delivery day (today, tomorrow or a date) and slot,
             both required, and the card with "send anonymously"
             (`StoreDeliveryInput`). Missing: `standard`, the checkout as before.
+        titles:
+          type: object
+          description: |
+            131 The owner's own titles, per language: the add-ons' section
+            (`addons`, "Add a little more"), the card message's (`gift_card`)
+            and the delivery picker's (`delivery`). A missing language or a
+            null title: the app's own words. A checkout look's titles
+            (`Config.screens.checkout`) win over these. Missing on older
+            servers.
+          properties:
+            addons: { type: [object, 'null'], additionalProperties: { type: string, maxLength: 40 }, example: { en: Make it extra special, ar: أضف لمسة أخرى } }
+            gift_card: { type: [object, 'null'], additionalProperties: { type: string, maxLength: 40 } }
+            delivery: { type: [object, 'null'], additionalProperties: { type: string, maxLength: 40 } }
         delivery_date:
           type: object
           description: |
@@ -14928,7 +14986,8 @@ components:
       required: [id, title, starts_at, ends_at, live, remaining, products]
       properties:
         id: { type: integer }
-        title: { type: string, example: Mother's Day roses }
+        title: { type: string, description: "In the app's language when the owner wrote it in that one (`titles`), else as named.", example: Mother's Day roses }
+        titles: { type: [object, 'null'], description: "131 Its title in the app's other languages, as the owner wrote them.", additionalProperties: { type: string, maxLength: 40 } }
         starts_at: { type: string, format: date-time }
         ends_at: { type: string, format: date-time }
         live: { type: boolean, description: "On now (else it starts within a day)." }
@@ -15015,6 +15074,9 @@ components:
         radius: { type: integer, minimum: 0, maximum: 32 }
         image_url: { type: [string, 'null'], format: uri }
         title: { type: object, additionalProperties: { type: string, maxLength: 40 } }
+        addons_title: { type: object, description: "131 The add-ons' title (\"Add a little more\") per language, over `StoreConfig.titles.addons`; a missing language: the store's, else the app's words.", additionalProperties: { type: string, maxLength: 40 } }
+        card_title: { type: object, description: "131 The card message's title per language, over `StoreConfig.titles.gift_card`.", additionalProperties: { type: string, maxLength: 40 } }
+        delivery_title: { type: object, description: "131 The delivery picker's title per language, over `StoreConfig.titles.delivery`.", additionalProperties: { type: string, maxLength: 40 } }
 
     StoreHomeSection:
       type: object
@@ -15073,6 +15135,9 @@ components:
         purchasable: { type: boolean, description: "Whether it can go in the app's cart: a purchasable simple or variable product." }
         digital: { type: boolean, description: "Virtual or downloadable. iOS apps don't sell digital products." }
         sale: { $ref: '#/components/schemas/ProductSale' }
+        addon:
+          type: boolean
+          description: "131 A gift add-on (`GET /store/addons`): only ever in a product's `addons` and the add-ons list, never bought alone. Missing: false."
 
     ProductDetail:
       allOf:
@@ -15122,6 +15187,11 @@ components:
               items: { $ref: '#/components/schemas/ProductCategory' }
             related:
               type: array
+              items: { $ref: '#/components/schemas/ProductSummary' }
+            addons:
+              type: array
+              maxItems: 12
+              description: "131 \"Add a little more\": the gift add-ons offered with this product (`GET /store/addons`), each `addon: true`. Missing or empty: none."
               items: { $ref: '#/components/schemas/ProductSummary' }
             external_url: { type: [string, 'null'], format: uri, description: "For external products, the page that sells it." }
             permalink: { type: string, format: uri }
@@ -15195,6 +15265,9 @@ components:
                 maxItems: 50
                 description: The `id`s of the chosen options of the product's `option_groups`. Lines of the same product with other options are separate lines.
                 items: { type: string, maxLength: 64 }
+              addon_of:
+                type: [integer, 'null']
+                description: "131 A gift add-on's line: the `product_id` of the line it goes with (removing that line removes it). A cart of add-ons only fails with `addon_needs_item` (400); an add-on whose line is missing or that doesn't go with it is `available: false` with its `problem`."
         coupon:
           type: [string, 'null']
           maxLength: 50
@@ -15229,6 +15302,8 @@ components:
               problem: { type: [string, 'null'], description: "Why the line can't be bought as it is, for the customer.", example: Only 2 left in stock. }
               max_quantity: { type: [integer, 'null'] }
               digital: { type: boolean }
+              addon: { type: boolean, description: "131 A gift add-on's line. Missing: false." }
+              addon_of: { type: [integer, 'null'], description: "131 The product of the line this add-on goes with, as sent." }
               options:
                 type: array
                 description: The chosen options, as priced (their prices are in `unit_price`).

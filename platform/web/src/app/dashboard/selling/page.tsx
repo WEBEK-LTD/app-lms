@@ -18,11 +18,11 @@ import { saleOn, unitsLeft } from "@/lib/selling/flash-sales";
 import { giftOccasionsOf } from "@/lib/selling/gift-messages";
 import { checkoutModeOf, giftsOf } from "@/lib/selling/gifts";
 import { SHIPPING_COUNTRIES, STARTER_CITIES } from "@/lib/selling/shipping";
-import { platformCarriesDetails } from "@/lib/selling/store";
+import { appLanguagesOf, platformCarriesDetails } from "@/lib/selling/store";
 import { localInput, shopZone } from "@/lib/selling/zone";
 import { checkoutLookOf } from "@/lib/studio/checkout-look";
 import { CouponsPanel } from "../catalog/coupons-panel";
-import { AreasForm, CheckoutModeForm, DeliveryForm, FlashSaleForm, GiftsForm } from "./forms";
+import { AddonsForm, AreasForm, CheckoutModeForm, DeliveryForm, FlashSaleForm, GiftsForm, TitlesForm } from "./forms";
 
 export async function generateMetadata(): Promise<Metadata> {
   return { title: (await dashboardText()).t("selling.title") };
@@ -64,14 +64,29 @@ export default async function SellingPage() {
   const gifts = giftsOf(app);
   const look = checkoutLookOf(app);
   const mode = checkoutModeOf(gifts, look);
-  const [sales, products, categories, coupons, deliveries, occasions] = await Promise.all([
+  const [sales, products, categories, coupons, deliveries, occasions, languages] = await Promise.all([
     store.listFlashSales(app.id),
     source.kind === "catalog" ? store.listCatalogProducts(app.id) : Promise.resolve([]),
     source.kind === "catalog" ? store.listCatalogCategories(app.id) : Promise.resolve([]),
     source.kind === "platform" ? store.listCatalogCoupons(app.id) : Promise.resolve([]),
     source.kind === "platform" ? store.listStoreDeliveries(app.id, 50) : Promise.resolve([]),
     giftOccasionsOf(store, app, now),
+    appLanguagesOf(store, app),
   ]);
+  // 131 The titles the owner words, in each of the app's languages.
+  const langs = languages.available.map((code) => ({ code, name: code.toUpperCase() }));
+  const titleValues: Record<string, string> = {};
+  for (const [key, text] of Object.entries(settings.titles ?? {})) for (const [code, words] of Object.entries((text ?? {}) as Record<string, string>)) titleValues[`${key}_${code}`] = words;
+  const addonSettings = settings.addons;
+  const addonValues: Record<string, string> = {
+    addonProductIds: (addonSettings?.productIds ?? []).join(", "),
+    addonCategoryId: addonSettings?.categoryId != null ? String(addonSettings.categoryId) : "",
+    addonTag: addonSettings?.tag ?? "",
+    offerWith: addonSettings?.offerWith.offerWith ?? "all",
+    offerCategoryIds: (addonSettings?.offerWith.categoryIds ?? []).join(", "),
+    offerProductIds: (addonSettings?.offerWith.productIds ?? []).join(", "),
+  };
+  const ownAddons = source.kind === "catalog" ? products.filter((p) => p.addon) : [];
   const weekdays = Array.from({ length: 7 }, (_, d) => new Intl.DateTimeFormat(lang === "ar" ? "ar-EG" : lang, { weekday: "short", timeZone: "UTC" }).format(new Date(Date.UTC(2026, 10, 15 + d))));
   const nameOf = (code: string) => (SHIPPING_COUNTRIES[code] as Record<string, string> | undefined)?.[lang] ?? code;
   const delivery = settings.delivery ?? DEFAULT_DELIVERY;
@@ -124,8 +139,11 @@ export default async function SellingPage() {
     endsAt: localInput(s.endsAt, zone),
     limit: s.limit !== null ? String(s.limit) : "",
     platformCode: s.platformCode ?? "",
+    ...Object.fromEntries(Object.entries(s.titles ?? {}).map(([code, text]) => [`title_${code}`, text])),
   });
-  const flashProducts = source.kind === "catalog" ? products.filter((p) => p.active).map((p) => ({ id: p.id, name: p.name })) : null;
+  const otherLangs = langs.filter((l) => l.code !== languages.default);
+  // 131 A flash sale's list never has a gift add-on.
+  const flashProducts = source.kind === "catalog" ? products.filter((p) => p.active && !p.addon).map((p) => ({ id: p.id, name: p.name })) : null;
   const flashCategories = categories.map((c) => ({ id: c.id, name: c.name }));
   const templatesCount = occasions.reduce((n, o) => n + o.templates.length, 0);
 
@@ -165,6 +183,35 @@ export default async function SellingPage() {
             />
           </Section>
         </PageGroup>
+      ) : null}
+
+      {/* 131 Gift add-ons: "Add a little more" with the products they go with. */}
+      {source.kind !== "own_api" && source.kind !== "none" ? (
+        <Section titleId="h-addons" title={t("selling.addonsTitle")} description={t("selling.addonsIntro")}>
+          {source.kind === "catalog" ? (
+            <>
+              <Notice tone="info">{richText(t("selling.addonsCatalog"), { link: (chunk) => <Link href="/dashboard/catalog">{chunk}</Link> })}</Notice>
+              <p className="m-0 text-[15px]" data-addons-count="">
+                {ownAddons.length ? t("selling.addonsCount", { count: ownAddons.length, names: ownAddons.slice(0, 5).map((p) => p.name).join(", ") }) : t("selling.addonsNone")}
+              </p>
+            </>
+          ) : null}
+          {source.kind === "wordpress" ? <Notice tone="info">{t("selling.addonsWordpress")}</Notice> : null}
+          {platform ? (
+            <>
+              <Notice tone="warn" icon="warning">
+                {t("selling.addonsPlatform", { platform })}
+              </Notice>
+              <AddonsForm values={addonValues} tags={app.connector?.kind === "shopify"} platform={platform} />
+            </>
+          ) : null}
+        </Section>
+      ) : null}
+
+      {source.kind !== "own_api" && source.kind !== "none" ? (
+        <Section titleId="h-titles" title={t("selling.titlesTitle")} description={t("selling.titlesIntro")}>
+          <TitlesForm values={titleValues} languages={langs} />
+        </Section>
       ) : null}
 
       <Section
@@ -252,11 +299,11 @@ export default async function SellingPage() {
             </Notice>
           ) : null}
           <Sheet id="new-flash" inline={!sales.length} title={t("selling.addFlash")}>
-            <FlashSaleForm currency={currency} zone={zone} products={flashProducts} categories={flashCategories} platform={platform} />
+            <FlashSaleForm currency={currency} zone={zone} products={flashProducts} categories={flashCategories} platform={platform} languages={otherLangs} />
           </Sheet>
           {sales.map((s) => (
             <Sheet key={s.id} id={`flash-${s.id}`} title={s.title}>
-              <FlashSaleForm sale={{ id: s.id, values: saleValues(s) }} currency={currency} zone={zone} products={flashProducts} categories={flashCategories} platform={platform} />
+              <FlashSaleForm sale={{ id: s.id, values: saleValues(s) }} currency={currency} zone={zone} products={flashProducts} categories={flashCategories} platform={platform} languages={otherLangs} />
             </Sheet>
           ))}
         </>

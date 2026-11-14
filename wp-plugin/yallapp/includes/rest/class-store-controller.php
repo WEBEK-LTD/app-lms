@@ -133,6 +133,8 @@ class Store_Controller extends Controller {
 							'type'                 => 'object',
 							'additionalProperties' => array( 'type' => 'string' ),
 						),
+						// 131 A gift add-on's line: the product of the line it goes with.
+						'addon_of'     => array( 'type' => array( 'integer', 'null' ) ),
 					),
 				),
 			),
@@ -215,6 +217,39 @@ class Store_Controller extends Controller {
 				'permission_callback' => $open,
 			)
 		);
+		$this->route(
+			'/store/addons',
+			array(
+				'methods'             => WP_REST_Server::READABLE,
+				'callback'            => array( $this, 'addons' ),
+				'permission_callback' => $open,
+				'args'                => array(
+					'product_id' => array(
+						'type'    => 'integer',
+						'minimum' => 1,
+					),
+				),
+			)
+		);
+	}
+
+	/**
+	 * 131 GET /store/addons: the gift add-ons offered with a product.
+	 *
+	 * @param WP_REST_Request $request Request.
+	 * @return \WP_REST_Response
+	 */
+	public function addons( WP_REST_Request $request ) {
+		if ( ! Catalog::available() ) {
+			return self::unavailable();
+		}
+		$catalog = new Catalog();
+		$id      = (int) $request['product_id'];
+		$main    = $id ? $catalog->product( $id ) : null;
+		if ( $id && ( ! $main || Catalog::is_addon( $main ) ) ) {
+			return self::error( 'not_found', __( 'Product not found.', 'yallapp' ), 404 );
+		}
+		return $this->ok( array( 'items' => $catalog->addons( $main ) ) );
 	}
 
 	/**
@@ -243,15 +278,17 @@ class Store_Controller extends Controller {
 	}
 
 	/**
-	 * 131 GET /store/flash-sales.
+	 * 131 GET /store/flash-sales, its title in the app's language.
 	 *
+	 * @param WP_REST_Request $request Request.
 	 * @return \WP_REST_Response
 	 */
-	public function flash_sales() {
+	public function flash_sales( WP_REST_Request $request ) {
 		if ( ! Catalog::available() ) {
 			return self::unavailable();
 		}
-		return $this->ok( $this->plugin->store_extras()->flash_sales( new Catalog() ) );
+		$language = strtolower( substr( (string) $request->get_header( 'accept_language' ), 0, 2 ) );
+		return $this->ok( $this->plugin->store_extras()->flash_sales( new Catalog(), preg_match( '/^[a-z]{2}$/', $language ) ? $language : '' ) );
 	}
 
 	/**
@@ -442,7 +479,7 @@ class Store_Controller extends Controller {
 		if ( ! Catalog::available() ) {
 			return self::unavailable();
 		}
-		return $this->ok(
+		return $this->result(
 			$this->plugin->store_checkout()->quote(
 				(array) $request['lines'],
 				(string) $request['platform'],

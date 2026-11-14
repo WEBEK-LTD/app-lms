@@ -149,3 +149,23 @@ export function inLanguage(text: LangText | null | undefined, lang: string | nul
   if (!text) return fallback;
   return (lang ? text[lang] : undefined) ?? fallback;
 }
+
+/**
+ * 131 The checkout look's own titles (Studio, `screens.checkout`): the
+ * add-ons', the card's and the delivery picker's, per language; over the
+ * store's (`StoreConfig.titles`), and the app's words when neither has one.
+ */
+export interface CheckoutTitles {
+  addons_title?: LangText;
+  card_title?: LangText;
+  delivery_title?: LangText;
+}
+
+export function parseCheckoutTitles(v: Record<string, unknown>): CheckoutTitles {
+  const out: CheckoutTitles = {};
+  for (const key of ["addons_title", "card_title", "delivery_title"] as const) {
+    const text = cleanLangText(v[key]);
+    if (text) out[key] = text;
+  }
+  return out;
+}

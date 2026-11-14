@@ -32,6 +32,11 @@ export interface ProductFormValues {
   sku: string;
   /** 131 Its weight in kg, as typed; missing: none. */
   weight?: string;
+  /** 131 Sold only as a gift add-on, and what it's offered with. */
+  addon?: boolean;
+  addonOfferWith?: "all" | "categories" | "products";
+  addonCategoryIds?: number[];
+  addonProductIds?: number[];
   categoryIds: number[];
   images: { id: string; url: string }[];
   digital: boolean;
@@ -191,15 +196,79 @@ function Check({ name, label, hint, defaultChecked }: { name: string; label: str
   );
 }
 
+/** 131 "Sell only as an add-on (gift extra)" and what it's offered with. */
+function AddonFields({
+  product,
+  categories,
+  products,
+  error,
+}: {
+  product: ProductFormValues;
+  categories: { id: number; name: string }[];
+  products: { id: number; name: string }[];
+  error?: string;
+}) {
+  const t = useDashT();
+  const [on, setOn] = useState(Boolean(product.addon));
+  const [offer, setOffer] = useState(product.addonOfferWith ?? "all");
+  const chip = "flex cursor-pointer items-center gap-2 rounded-full border border-line py-1.5 ps-2.5 pe-3.5 text-sm has-[:checked]:border-midnight has-[:checked]:bg-sand";
+  return (
+    <div className="flex flex-col gap-3" data-addon-fields>
+      <label className="flex cursor-pointer items-start gap-3">
+        <input type="checkbox" name="addon" checked={on} onChange={(e) => setOn(e.target.checked)} className="mt-1 h-4 w-4 accent-midnight" />
+        <span className="flex flex-col gap-0.5">
+          <span className="text-[15px] font-semibold">{t("shop.addon")}</span>
+          <span className="text-[13px] text-muted">{t("shop.addonHint")}</span>
+        </span>
+      </label>
+      {on ? (
+        <fieldset className="m-0 flex flex-col gap-2 border-0 p-0 ps-7">
+          <legend className="mb-1.5 text-sm font-semibold">{t("shop.addonOfferWith")}</legend>
+          {(["all", "categories", "products"] as const).map((k) => (
+            <label key={k} className="flex cursor-pointer items-center gap-2 text-sm">
+              <input type="radio" name="addonOfferWith" value={k} checked={offer === k} onChange={() => setOffer(k)} className="h-4 w-4 accent-midnight" />
+              {t(k === "all" ? "shop.addonWithAll" : k === "categories" ? "shop.addonWithCategories" : "shop.addonWithProducts")}
+            </label>
+          ))}
+          {offer === "categories" ? (
+            <div className="flex flex-wrap gap-2">
+              {categories.map((c) => (
+                <label key={c.id} className={chip}>
+                  <input type="checkbox" name="addonCategoryIds" value={c.id} defaultChecked={product.addonCategoryIds?.includes(c.id)} className="h-4 w-4 accent-midnight" />
+                  {c.name}
+                </label>
+              ))}
+            </div>
+          ) : null}
+          {offer === "products" ? (
+            <div className="flex max-h-56 flex-wrap gap-2 overflow-y-auto">
+              {products.map((p) => (
+                <label key={p.id} className={chip}>
+                  <input type="checkbox" name="addonProductIds" value={p.id} defaultChecked={product.addonProductIds?.includes(p.id)} className="h-4 w-4 accent-midnight" />
+                  {p.name}
+                </label>
+              ))}
+            </div>
+          ) : null}
+          <FieldError id="f-addon-error" error={error} />
+        </fieldset>
+      ) : null}
+    </div>
+  );
+}
+
 export function ProductForm({
   product,
   categories,
   currency,
   words = { add: "Add product", save: "Save product" },
   restaurant = false,
+  products = [],
 }: {
   product: ProductFormValues;
   categories: { id: number; name: string }[];
+  /** 131 The shop's other products, for an add-on offered with some of them. */
+  products?: { id: number; name: string }[];
   currency: string;
   /** 26 "Add dish" and "Save dish" for restaurants. */
   words?: { add: string; save: string };
@@ -331,6 +400,8 @@ export function ProductForm({
               defaultChecked={product.digital}
             />
           )}
+          {/* 131 A gift add-on: chocolates, a card, a vase. */}
+          {restaurant ? null : <AddonFields product={product} categories={categories} products={products} error={state.errors?.addonFor} />}
         </div>
       </FormSection>
       <FormActions>

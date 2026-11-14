@@ -1,7 +1,7 @@
 "use client";
 
 import { useActionState, useState } from "react";
-import { saveAreasAction, saveCheckoutModeAction, saveDeliveryAction, saveFlashSaleAction, saveGiftsAction, saveOccasionAction, addOccasionAction, saveTemplateAction } from "@/app/actions/selling";
+import { saveAddonsAction, saveAreasAction, saveCheckoutModeAction, saveDeliveryAction, saveFlashSaleAction, saveGiftsAction, saveOccasionAction, addOccasionAction, saveTemplateAction, saveTitlesAction } from "@/app/actions/selling";
 import { Field, FormMessage, SubmitButton } from "@/components/form";
 import { FormActions } from "@/components/page-kit";
 import { useDashT } from "@/components/dashboard-i18n";
@@ -258,6 +258,7 @@ export function FlashSaleForm({
   products,
   categories,
   platform,
+  languages = [],
 }: {
   sale?: { id: number; values: Record<string, string> };
   currency: string;
@@ -266,6 +267,8 @@ export function FlashSaleForm({
   products: { id: number; name: string }[] | null;
   categories: { id: number; name: string }[];
   platform: string | null;
+  /** 131 The app's other languages, for the title in each. */
+  languages?: { code: string; name: string }[];
 }) {
   const t = useDashT();
   const [state, action] = useActionState(saveFlashSaleAction, initialFormState);
@@ -278,6 +281,11 @@ export function FlashSaleForm({
       <FormMessage message={state.message} ok={state.ok} />
       {sale ? <input type="hidden" name="id" value={sale.id} /> : null}
       <Field label={t("selling.flashName")} id={f("title")} name="title" maxLength={80} defaultValue={v.title} hint={t("selling.flashNameHint")} error={e.title} />
+      {/* 131 Its title in the app's other languages; empty: the name above. */}
+      {languages.map((l) => (
+        <Field key={l.code} label={t("selling.flashNameIn", { language: l.name })} id={f(`title-${l.code}`)} name={`title_${l.code}`} maxLength={40} defaultValue={v[`title_${l.code}`]} small />
+      ))}
+      {e.titles ? <p className="m-0 text-sm text-danger">{e.titles}</p> : null}
       {products ? (
         <fieldset className="m-0 flex max-h-56 flex-col gap-2 overflow-auto border-0 p-0">
           <legend className="mb-1 text-sm font-semibold">{t("selling.flashProducts")}</legend>
@@ -388,6 +396,74 @@ export function TemplateForm({ occasionId, template, languages }: { occasionId: 
       <div className="flex justify-end">
         <SubmitButton variant="secondary" className="h-9 px-3.5 text-sm" pendingText={t("common.saving")}>
           {template ? t("selling.saveMessage") : t("selling.addMessage")}
+        </SubmitButton>
+      </div>
+    </form>
+  );
+}
+
+/** 131 A connected platform's gift add-ons: its product numbers, a category, a tag, and what they go with. */
+export function AddonsForm({ values: saved, tags, platform }: { values: Record<string, string>; tags: boolean; platform: string }) {
+  const t = useDashT();
+  const [state, action] = useActionState(saveAddonsAction, initialFormState);
+  const v = { ...saved, ...state.values };
+  const e = state.errors ?? {};
+  const [offer, setOffer] = useState(v.offerWith || "all");
+  return (
+    <form action={action} noValidate className="flex flex-col gap-4" data-addons-form="">
+      <FormMessage message={state.message} ok={state.ok} />
+      <Field label={t("selling.addonIds", { platform })} name="addonProductIds" dir="ltr" defaultValue={v.addonProductIds} hint={t("selling.addonIdsHint")} small />
+      <Field label={t("selling.addonCategory", { platform })} name="addonCategoryId" dir="ltr" inputMode="numeric" defaultValue={v.addonCategoryId} hint={t("selling.addonCategoryHint")} error={e.addonCategoryId} small />
+      {tags ? <Field label={t("selling.addonTag", { platform })} name="addonTag" dir="ltr" maxLength={40} defaultValue={v.addonTag} placeholder="yallapp-addon" hint={t("selling.addonTagHint", { platform })} error={e.addonTag} small /> : null}
+      <fieldset className="m-0 flex flex-col gap-2 border-0 p-0">
+        <legend className="mb-1.5 text-sm font-semibold">{t("shop.addonOfferWith")}</legend>
+        {(["all", "categories", "products"] as const).map((k) => (
+          <label key={k} className="flex cursor-pointer items-center gap-2 text-sm">
+            <input type="radio" name="offerWith" value={k} checked={offer === k} onChange={() => setOffer(k)} className="h-4 w-4 accent-midnight" />
+            {t(k === "all" ? "shop.addonWithAll" : k === "categories" ? "shop.addonWithCategories" : "shop.addonWithProducts")}
+          </label>
+        ))}
+        {offer === "categories" ? <Field label={t("selling.addonOfferCategories", { platform })} name="offerCategoryIds" dir="ltr" defaultValue={v.offerCategoryIds} small /> : null}
+        {offer === "products" ? <Field label={t("selling.addonOfferProducts", { platform })} name="offerProductIds" dir="ltr" defaultValue={v.offerProductIds} small /> : null}
+        {e.addonFor ? <p className="m-0 text-sm text-danger">{e.addonFor}</p> : null}
+      </fieldset>
+      <div className="flex justify-end">
+        <SubmitButton variant="secondary" className="h-10" pendingText={t("common.saving")}>
+          {t("selling.saveAddons")}
+        </SubmitButton>
+      </div>
+    </form>
+  );
+}
+
+/** 131 The titles of the add-ons, the card and the delivery picker, in each of the app's languages. */
+export function TitlesForm({ values: saved, languages }: { values: Record<string, string>; languages: { code: string; name: string }[] }) {
+  const t = useDashT();
+  const [state, action] = useActionState(saveTitlesAction, initialFormState);
+  const v = { ...saved, ...state.values };
+  const e = state.errors ?? {};
+  const parts = [
+    { key: "addons", label: t("selling.titleAddons") },
+    { key: "card", label: t("selling.titleCard") },
+    { key: "delivery", label: t("selling.titleDelivery") },
+  ];
+  return (
+    <form action={action} noValidate className="flex flex-col gap-4" data-titles-form="">
+      <FormMessage message={state.message} ok={state.ok} />
+      {parts.map((part) => (
+        <fieldset key={part.key} className="m-0 flex flex-col gap-2 border-0 p-0">
+          <legend className="mb-1 text-sm font-semibold">{part.label}</legend>
+          <div className="grid gap-3 sm:grid-cols-3">
+            {languages.map((l) => (
+              <Field key={l.code} label={l.name} name={`${part.key}_${l.code}`} maxLength={40} defaultValue={v[`${part.key}_${l.code}`]} placeholder={t("selling.titlePlaceholder")} small />
+            ))}
+          </div>
+        </fieldset>
+      ))}
+      {e.titles ? <p className="m-0 text-sm text-danger">{e.titles}</p> : null}
+      <div className="flex justify-end">
+        <SubmitButton variant="secondary" className="h-10" pendingText={t("common.saving")}>
+          {t("selling.saveTitles")}
         </SubmitButton>
       </div>
     </form>

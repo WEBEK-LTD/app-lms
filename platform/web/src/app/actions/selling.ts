@@ -16,6 +16,7 @@ import { parseShippingForm } from "@/lib/selling/shipping";
 import { appLanguagesOf } from "@/lib/selling/store";
 import { shopZone, zoneOffsetMinutes } from "@/lib/selling/zone";
 import { refreshSitesSoon } from "@/lib/license/refresh-soon";
+import { langTextOfForm, parseAddonSettings } from "@/lib/selling/addons";
 
 /**
  * 131 Store › Delivery & offers (app/dashboard/selling): the checkout, the
@@ -211,14 +212,17 @@ export async function saveFlashSaleAction(_: FormState, formData: FormData): Pro
   if (picked.length) v.productIds = picked.join(",");
   const zone = shopZone(app);
   const parsed = parseFlashSaleForm(v, zoneOffsetMinutes(zone, new Date()));
-  if (!parsed.ok) return { errors: parsed.errors, values: v };
+  // 131 Its title in the app's other languages.
   const store = await getStore();
+  const titles = langTextOfForm(v, "title", (await appLanguagesOf(store, app)).available);
+  if (!parsed.ok || titles.error) return { errors: { ...(parsed.ok ? {} : parsed.errors), ...(titles.error ? { titles: titles.error } : {}) }, values: v };
+  const sale = { ...parsed.value, titles: titles.value ?? undefined };
   const now = new Date();
   const id = Number(v.id);
   if (Number.isSafeInteger(id) && id > 0 && (await store.getFlashSale(app.id, id))) {
-    await store.updateFlashSale(app.id, id, { ...parsed.value, updatedAt: now });
+    await store.updateFlashSale(app.id, id, { ...sale, updatedAt: now });
   } else {
-    await store.createFlashSale({ appId: app.id, ...parsed.value, active: true, createdAt: now, updatedAt: now });
+    await store.createFlashSale({ appId: app.id, ...sale, active: true, createdAt: now, updatedAt: now });
   }
   await recordStaffChange(context, `Saved the flash sale “${parsed.value.title}”`);
   refresh();
@@ -233,4 +237,39 @@ export async function changeFlashSaleAction(formData: FormData): Promise<void> {
   if (what === "delete") await store.deleteFlashSale(app.id, id);
   else if (what === "on" || what === "off") await store.updateFlashSale(app.id, id, { active: what === "on", updatedAt: new Date() });
   refresh();
+}
+
+// 131 Gift add-ons and the titles the owner words
+
+/** A connected platform's gift add-ons: its products by ID, a category, a tag, and what they go with. */
+export async function saveAddonsAction(_: FormState, formData: FormData): Promise<FormState> {
+  const context = await requireStoreApp();
+  const v = values(formData);
+  const parsed = parseAddonSettings(v, { categoryIds: formData.getAll("offerCategoryIds").map(String), productIds: formData.getAll("offerProductIds").map(String) });
+  if (!parsed.ok) return { errors: parsed.errors, values: v };
+  const empty = !parsed.value.productIds.length && parsed.value.categoryId === null && !parsed.value.tag;
+  await saveSettings(context.app, { addons: empty ? null : parsed.value });
+  await recordStaffChange(context, "Changed the gift add-ons");
+  refresh();
+  return { ok: true, message: "Saved.", values: v };
+}
+
+/** The titles of the add-ons, the card and the delivery picker, per language (empty: the app's words). */
+export async function saveTitlesAction(_: FormState, formData: FormData): Promise<FormState> {
+  const context = await requireStoreApp();
+  const { app } = context;
+  const v = values(formData);
+  const languages = (await appLanguagesOf(await getStore(), app)).available;
+  const addons = langTextOfForm(v, "addons", languages);
+  const card = langTextOfForm(v, "card", languages);
+  const delivery = langTextOfForm(v, "delivery", languages);
+  const error = addons.error ?? card.error ?? delivery.error;
+  if (error) return { errors: { titles: error }, values: v };
+  const titles = { ...(addons.value ? { addons: addons.value } : {}), ...(card.value ? { card: card.value } : {}), ...(delivery.value ? { delivery: delivery.value } : {}) };
+  await saveSettings(app, { titles: Object.keys(titles).length ? titles : null });
+  await recordStaffChange(context, "Changed the store's section titles");
+  // A WordPress site gets them with its license status.
+  if (app.backend === "wordpress") refreshSitesSoon([app.id]);
+  refresh();
+  return { ok: true, message: "Saved.", values: v };
 }

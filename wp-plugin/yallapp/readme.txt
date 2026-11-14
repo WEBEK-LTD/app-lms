@@ -144,6 +144,7 @@ under the Apache License 2.0, included as inline SVG.
 
 = 0.4.44 =
 * For flower and gift shops: same-day delivery until a cut-off and delivery times (each with how many orders it takes and an extra fee on the checkout); a gift checkout (the sender's details as the order's billing, the recipient's as its shipping, the delivery day and time required, the card and "send anonymously"); card messages by occasion from your Yallapp dashboard; a flash sale through WooCommerce's own sale price with a countdown in the app; and coupons ticked "Show in the app".
+* Gift add-ons: tick "Sell only as an add-on in the app" on a WooCommerce product and choose what it goes with; the app offers it as "Add a little more", never alone, and your website's shop is unchanged. Titles you word in the Yallapp dashboard, a flash sale's name in each language.
 
 = 0.4.43 =
 * The new premium whole design and landings you pick in Yallapp Studio reach the app from your site: a photo shown in black and white (a picture, a list card's picture, a photo hero or a parallax banner), as the Monochrome luxe design and the new landings use it.
@@ -163,8 +164,5 @@ under the Apache License 2.0, included as inline SVG.
 
 = 0.4.38 =
 * The launch screen you choose in Yallapp Studio reaches the app from your site: one of five looks, its background in light and dark (a colour, a gradient or your photo made darker), the logo, the title and the line under it in each language, the loading sign and the colours. The app shows it the next time it opens.
-
-= 0.4.37 =
-* A lesson's content (its text, links and embedded frames) reaches the app even when another plugin of your site leaves it empty outside the website's own pages: the app then shows the content as it is saved, formatted as WordPress formats it.
 
 Earlier versions are listed in changelog.txt, next to this readme in the plugin's source.
