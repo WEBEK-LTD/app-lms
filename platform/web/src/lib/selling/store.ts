@@ -3,13 +3,14 @@ import { couponDiscount } from "../catalog/coupons";
 import { formatCents, centsToDecimal } from "../catalog/money";
 import type { DataStore } from "../data/store";
 import type { App, CatalogCoupon, CatalogCurrency, OrderDelivery, StoreFlashSale } from "../data/types";
-import { error, intParam } from "../hosted/connectors/common";
+import { cartLines, error, intParam } from "../hosted/connectors/common";
 import type { Connector, ConnectorRequest, ConnectorResult } from "../hosted/connectors/types";
 import { checkoutLookOf } from "../studio/checkout-look";
 import { checkDelivery, deliveryConfigJson, deliveryOf, deliverySlotsJson, slotLabel, type SlotCounts } from "./delivery";
 import { flashSaleJson, listedSales, withSale } from "./flash-sales";
 import { giftMessagesJson, giftOccasionsOf } from "./gift-messages";
 import { checkGift, checkoutModeOf, deliveryAttributes, deliveryNote, giftConfigJson, giftsOf, hasDeliveryDetails, type CheckoutMode } from "./gifts";
+import { ADDON_LIMITS, ADDON_NEEDS_ITEM, checkAddonLines, hasAddons, offeredWith, sectionTitlesJson } from "./addons";
 import { breakdownJson, needsPlace, placeOf, quoteShipping, SHIPPING_COUNTRIES, shippingRulesOf, type ShippingQuote } from "./shipping";
 
 /**
@@ -44,6 +45,8 @@ export function storeExtrasConfig(app: App, currency: string, opts: { fees: bool
     checkout_mode: mode,
     delivery_date: deliveryConfigJson(deliveryOf(app, mode === "gift"), currency, opts.fees),
     gift_message: giftConfigJson(giftsOf(app), mode),
+    // 131 The owner's titles of the add-ons, the card and the delivery picker, per language.
+    titles: sectionTitlesJson(catalogSettings(app).titles),
     ...(needsPlace(rules)
       ? {
           shipping: {
@@ -119,7 +122,7 @@ export async function handleStoreExtras(
       const items = [];
       for (const sale of listed) {
         const products = await deps.products(sale.productIds, sale.productIds.length ? null : sale.categoryId);
-        items.push(flashSaleJson(sale, products.slice(0, 24).map((p) => withSale(p as Parameters<typeof withSale>[0], sales, request.now)), request.now));
+        items.push(flashSaleJson(sale, products.slice(0, 24).map((p) => withSale(p as Parameters<typeof withSale>[0], sales, request.now)), request.now, request.lang));
       }
       return { status: 200, body: { items } };
     }
@@ -225,21 +228,95 @@ export function withStoreExtras(inner: Connector, deps: StoreExtrasDeps): Connec
   const counts = (date: string) => store.countStoreDeliveries(app.id, date);
   const call = (request: ConnectorRequest, path: string[], query: Record<string, string>) =>
     inner.handle({ ...request, method: "GET", path, query: new URLSearchParams(query), body: null });
+  const itemsOf = (r: ConnectorResult | null) => {
+    const items = r?.status === 200 ? (r.body as { items?: unknown[] } | undefined)?.items : undefined;
+    return Array.isArray(items) ? (items as { id: number; categories?: { id: number }[] }[]) : [];
+  };
+
+  // 131 The platform's products the owner made gift add-ons: their list, a category's, a tag's.
+  const addonSettings = catalogSettings(app).addons;
+  let addonIds: Promise<Set<number>> | null = null;
+  const addonSet = (request: ConnectorRequest) =>
+    (addonIds ??= (async () => {
+      const s = addonSettings;
+      if (!hasAddons(s)) return new Set<number>();
+      const set = new Set(s.productIds);
+      if (s.categoryId !== null) {
+        for (const p of itemsOf(await call(request, ["store", "products"], { category: String(s.categoryId), per_page: "50" }).catch(() => null))) set.add(p.id);
+      }
+      if (s.tag && inner.taggedProducts) {
+        for (const id of await inner.taggedProducts(s.tag).catch(() => [] as number[])) set.add(id);
+      }
+      return set;
+    })());
+  /** A product's categories, from its page (for add-ons offered with some categories). */
+  const categoriesOf = async (request: ConnectorRequest, id: number): Promise<number[]> => {
+    const r = await call(request, ["store", "products", String(id)], {}).catch(() => null);
+    const cats = r?.status === 200 ? (r.body as { categories?: { id: number }[] }).categories : undefined;
+    return Array.isArray(cats) ? cats.map((c) => c.id) : [];
+  };
+  /** The add-ons offered with a product (`main`; null: those offered with every product), as the app gets them. */
+  const addonsFor = async (request: ConnectorRequest, main: { id: number; categoryIds?: number[] } | null): Promise<unknown[]> => {
+    const set = await addonSet(request);
+    const s = addonSettings;
+    if (!set.size || !s || (main && set.has(main.id))) return [];
+    if (main ? !offeredWith(s.offerWith, main) : s.offerWith.offerWith !== "all") return [];
+    const list = itemsOf(await call(request, ["store", "products"], { ids: [...set].slice(0, 50).join(",") }).catch(() => null));
+    const sales = await flashSales();
+    return list.slice(0, ADDON_LIMITS.offered).map((p) => ({ ...(withSale(p as never, sales, request.now) as object), addon: true }));
+  };
 
   const overlay = async (result: ConnectorResult | null, request: ConnectorRequest): Promise<ConnectorResult | null> => {
     if (!result || result.status !== 200 || !result.body || typeof result.body !== "object") return result;
     const list = await flashSales();
-    const sale = <T,>(p: T): T => (p && typeof p === "object" && "id" in p ? (withSale(p as never, list, request.now) as T) : p);
+    // 131 The gift add-ons are never listed on their own.
+    const addons = await addonSet(request);
+    const listed = (p: unknown) => !(p && typeof p === "object" && "id" in p && addons.has((p as { id: number }).id));
+    const sale = <T,>(p: T): T => (p && typeof p === "object" && "id" in p ? ({ ...(withSale(p as never, list, request.now) as object), addon: false } as T) : p);
     const body = result.body as Record<string, unknown>;
-    if (Array.isArray(body.items)) return { ...result, body: { ...body, items: body.items.map(sale) } };
+    if (Array.isArray(body.items)) return { ...result, body: { ...body, items: body.items.filter(listed).map(sale) } };
     if (Array.isArray(body.sections)) {
-      return { ...result, body: { ...body, sections: (body.sections as Record<string, unknown>[]).map((s) => (Array.isArray(s.products) ? { ...s, products: s.products.map(sale) } : s)) } };
+      const hidden = addonSettings?.categoryId ?? null;
+      return {
+        ...result,
+        body: {
+          ...body,
+          sections: (body.sections as Record<string, unknown>[]).map((s) =>
+            Array.isArray(s.products)
+              ? { ...s, products: s.products.filter(listed).map(sale) }
+              : Array.isArray(s.categories) && hidden !== null
+                ? { ...s, categories: (s.categories as { id: number }[]).filter((c) => c.id !== hidden) }
+                : s,
+          ),
+        },
+      };
     }
     if (typeof body.id === "number" && body.price) {
-      const out = sale(body) as Record<string, unknown>;
-      return { ...result, body: Array.isArray(out.related) ? { ...out, related: out.related.map(sale) } : out };
+      const id = body.id;
+      const isAddon = addons.has(id);
+      const out: Record<string, unknown> = { ...(sale(body) as Record<string, unknown>), addon: isAddon };
+      const categoryIds = Array.isArray(body.categories) ? (body.categories as { id: number }[]).map((c) => c.id) : [];
+      const related = Array.isArray(out.related) ? (out.related as unknown[]).filter(listed).map(sale) : out.related;
+      return { ...result, body: { ...out, related, addons: isAddon ? [] : await addonsFor(request, { id, categoryIds }) } };
     }
     return result;
+  };
+
+  /** 131 A cart's add-on lines checked: none alone, each with a main item it goes with. */
+  const checkAddons = async (request: ConnectorRequest) => {
+    const lines = cartLines(request.body) ?? [];
+    const set = await addonSet(request);
+    if (!set.size) return { needsItem: false, problems: new Map<number, string>(), lines };
+    const rule = addonSettings!.offerWith;
+    const cats = new Map<number, number[]>();
+    for (const l of lines) {
+      if (rule.offerWith === "categories" && !set.has(l.product_id) && !cats.has(l.product_id) && cats.size < 5) cats.set(l.product_id, await categoriesOf(request, l.product_id));
+    }
+    const checked = checkAddonLines(
+      lines.map((l) => ({ productId: l.product_id, addonOf: l.addon_of ?? null, addon: set.has(l.product_id) })),
+      (_i, mainId) => offeredWith(rule, { id: mainId, categoryIds: cats.get(mainId) ?? [] }),
+    );
+    return { ...checked, lines };
   };
 
   return {
@@ -262,14 +339,17 @@ export function withStoreExtras(inner: Connector, deps: StoreExtrasDeps): Connec
           sales: await flashSales(),
           products: async (ids, categoryId) => {
             const r = await call(request, ["store", "products"], ids.length ? { ids: ids.join(",") } : { category: String(categoryId ?? ""), per_page: "24" });
-            const items = (r?.body as { items?: unknown[] } | undefined)?.items;
-            return Array.isArray(items) ? (items as { id: number }[]) : [];
+            // 131 A flash sale's list never shows a gift add-on.
+            const addons = await addonSet(request);
+            return itemsOf(r).filter((p) => !addons.has(p.id));
           },
         },
         request,
       );
       if (extra) return extra;
+      if (route === "GET /store/addons") return addonsRoute(request);
       if (route === "POST /store/checkout-link") return checkoutLink(request);
+      if (route === "POST /store/cart") return quote(request);
       const result = await inner.handle(request);
       if (request.method === "GET" && request.path[0] === "store" && (request.path[1] === "products" || request.path[1] === "home") && request.path.length <= 3) {
         return overlay(result, request);
@@ -278,7 +358,40 @@ export function withStoreExtras(inner: Connector, deps: StoreExtrasDeps): Connec
     },
   };
 
+  /** 131 `GET /store/addons?product_id=`. */
+  async function addonsRoute(request: ConnectorRequest): Promise<ConnectorResult> {
+    const raw = request.query.get("product_id");
+    const id = raw === null || raw === "" ? null : Number(raw);
+    if (id !== null && (!Number.isSafeInteger(id) || id < 1)) return error(400, "invalid_request", "Unknown product.");
+    const categoryIds = id !== null && addonSettings?.offerWith.offerWith === "categories" ? await categoriesOf(request, id) : [];
+    return { status: 200, body: { items: await addonsFor(request, id === null ? null : { id, categoryIds }) } };
+  }
+
+  /** 131 The platform's cart, with the add-ons checked. */
+  async function quote(request: ConnectorRequest): Promise<ConnectorResult | null> {
+    const addons = await checkAddons(request);
+    if (addons.needsItem) return error(400, "addon_needs_item", ADDON_NEEDS_ITEM);
+    const result = await inner.handle(request);
+    const set = await addonSet(request);
+    if (!set.size || result?.status !== 200 || !Array.isArray((result.body as { lines?: unknown })?.lines)) return result;
+    const body = result.body as { lines: Record<string, unknown>[] };
+    return {
+      ...result,
+      body: {
+        ...body,
+        lines: body.lines.map((l, i) => {
+          if (!set.has(Number(l.product_id))) return l;
+          const problem = addons.problems.get(i);
+          return { ...l, addon: true, addon_of: addons.lines[i]?.addon_of ?? null, ...(problem ? { available: false, problem } : {}) };
+        }),
+      },
+    };
+  }
+
   async function checkoutLink(request: ConnectorRequest): Promise<ConnectorResult | null> {
+    const addons = await checkAddons(request);
+    if (addons.needsItem) return error(400, "addon_needs_item", ADDON_NEEDS_ITEM);
+    if (addons.problems.size) return error(400, "addon_needs_item", [...addons.problems.values()][0]!);
     const checked = await checkStoreCheckout(app, request.body, request.now, { counts, fees: false, subtotalCents: 0, physical: true, requirePlace: needsPlace(shippingRulesOf(catalogSettings(app))) });
     if (!checked.ok) return error(checked.status, checked.code, checked.message);
     const details = hasDeliveryDetails(checked.delivery) ? checked.delivery : null;

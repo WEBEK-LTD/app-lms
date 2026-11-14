@@ -12,6 +12,7 @@ import type {
   // 131 The flower shop
   OrderDelivery,
   StoreFlashSale,
+  AddonRule,
   GiftOccasion,
   CatalogOptionGroup,
   CatalogCustomer,
@@ -749,6 +750,9 @@ export const catalogProducts = mysqlTable(
     variants: jsonText<CatalogVariants>("variants"),
     // 131 Its weight, for shipping priced by weight.
     weightGrams: int("weight_grams"),
+    // 131 A gift add-on (never listed or bought alone), and what it's offered with (JSON; null: everything).
+    addon: boolean("addon").notNull().default(false),
+    addonFor: jsonText<AddonRule>("addon_for"),
     salesCount: int("sales_count").notNull().default(0),
     // 110.2 A sample entry (lib/samples).
     sample: boolean("sample").notNull().default(false),
@@ -1123,7 +1127,7 @@ export const storeFlashSales = mysqlTable(
       .references(() => apps.id, { onDelete: "cascade" }),
     title: varchar("title", { length: 80 }).notNull(),
     // The products, the category, the discount and the platform's code (JSON).
-    data: jsonText<Pick<StoreFlashSale, "productIds" | "categoryId" | "discount" | "platformCode">>("data").notNull(),
+    data: jsonText<Pick<StoreFlashSale, "productIds" | "categoryId" | "discount" | "platformCode" | "titles">>("data").notNull(),
     startsAt: time("starts_at").notNull(),
     endsAt: time("ends_at").notNull(),
     unitLimit: int("unit_limit"),

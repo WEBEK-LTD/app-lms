@@ -1375,9 +1375,9 @@ export class MysqlStore implements DataStore {
   }
 
   async createFlashSale(input: Omit<StoreFlashSale, "id" | "sold">): Promise<StoreFlashSale> {
-    const { productIds, categoryId, discount, platformCode, limit, ...rest } = input;
+    const { productIds, categoryId, discount, platformCode, titles, limit, ...rest } = input;
     const [result] = await this.run((db) =>
-      db.insert(schema.storeFlashSales).values({ ...rest, unitLimit: limit, sold: 0, data: { productIds, categoryId, discount, platformCode } }),
+      db.insert(schema.storeFlashSales).values({ ...rest, unitLimit: limit, sold: 0, data: { productIds, categoryId, discount, platformCode, ...(titles ? { titles } : {}) } }),
     );
     return { ...input, id: Number(result.insertId), sold: 0 };
   }
@@ -1397,7 +1397,7 @@ export class MysqlStore implements DataStore {
           unitLimit: next.limit,
           active: next.active,
           updatedAt: next.updatedAt,
-          data: { productIds: next.productIds, categoryId: next.categoryId, discount: next.discount, platformCode: next.platformCode },
+          data: { productIds: next.productIds, categoryId: next.categoryId, discount: next.discount, platformCode: next.platformCode, ...(next.titles ? { titles: next.titles } : {}) },
           ...(patch.sold !== undefined ? { sold: patch.sold } : {}),
         })
         .where(and(eq(t.appId, appId), eq(t.id, id))),

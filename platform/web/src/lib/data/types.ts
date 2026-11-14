@@ -997,6 +997,10 @@ export interface CatalogSettings {
   weightPricing?: WeightPricing | null;
   /** 131 The least a computed fee comes to (not a city's own price); null: none. */
   shippingMinCents?: number | null;
+  /** 131 A connected platform's gift add-ons; null or missing: none (Yallapp's own products are marked one by one). */
+  addons?: StoreAddonSettings | null;
+  /** 131 The owner's titles of the add-ons, the card and the delivery picker; missing: the app's words. */
+  titles?: StoreSectionTitles | null;
 }
 
 /** 131 Shipping by weight: `perKgCents` a kg over the first `includedKg`. */
@@ -1136,6 +1140,8 @@ export interface StoreFlashSale {
   appId: string;
   /** "Mother's Day roses". */
   title: string;
+  /** 131 Its title in the app's other languages; missing: `title`. */
+  titles?: LangText;
   /** The products in it; empty with `categoryId`: that category's. */
   productIds: number[];
   categoryId: number | null;
@@ -1364,6 +1370,14 @@ export interface CatalogProduct {
   variants?: CatalogVariants | null;
   /** 131 Its weight in grams, for shipping priced by weight; null or missing: none. */
   weightGrams?: number | null;
+  /**
+   * 131 A gift add-on (chocolates, a card, a vase): never listed on its own,
+   * never bought alone, offered as "Add a little more" with the products of
+   * `addonFor`. False or missing: an ordinary product.
+   */
+  addon?: boolean;
+  /** 131 Which products an add-on goes with; null or missing: all of them. */
+  addonFor?: AddonRule | null;
   /** 110.2 A sample entry (lib/samples): saving it in the dashboard makes it the owner's. */
   sample?: boolean;
   salesCount: number;
@@ -1372,6 +1386,38 @@ export interface CatalogProduct {
 }
 
 export type CatalogProductInput = Omit<CatalogProduct, "id" | "salesCount" | "createdAt" | "updatedAt">;
+
+/** 131 What an add-on is offered with: every product, the products of some categories, or some products. */
+export interface AddonRule {
+  offerWith: "all" | "categories" | "products";
+  categoryIds: number[];
+  productIds: number[];
+}
+
+/** 131 Words the owner writes in each of the app's languages (code → text); a missing language: the app's own words. */
+export type LangText = Record<string, string>;
+
+/** 131 The titles of the store's sections the owner can word (each optional, per language). */
+export interface StoreSectionTitles {
+  /** "Add a little more": the add-ons offered with a product, in the cart and at checkout. */
+  addons?: LangText;
+  /** The card message's section. */
+  card?: LangText;
+  /** The delivery day and time picker. */
+  delivery?: LangText;
+}
+
+/**
+ * 131 A connected platform's add-ons (its own products): the owner's list,
+ * a category (a collection) of them, or a tag where the platform gives
+ * tags (Shopify), with what they're offered with.
+ */
+export interface StoreAddonSettings {
+  productIds: number[];
+  categoryId: number | null;
+  tag: string | null;
+  offerWith: AddonRule;
+}
 
 /** 91.5 A product's variations: up to three attributes, and the combinations the shop sells. */
 export interface CatalogVariants {
@@ -1415,6 +1461,8 @@ export interface CatalogOrderLine {
   flashSaleId?: number;
   /** 131 One unit's weight with its options, in grams (shipping by weight); missing: none. */
   weightGrams?: number;
+  /** 131 A gift add-on: the product of the line it goes with. */
+  addonOf?: number;
 }
 
 /**
