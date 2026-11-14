@@ -17,7 +17,7 @@ import '../../lms/teachers/teacher_widgets.dart' show LabeledField;
 import '../data/school_life_providers.dart';
 import '../data/school_providers.dart';
 import '../widgets/school_widgets.dart';
-import '../../../core/widgets/studio_screen_scope.dart';
+import '../../shared/staff_scaffold.dart';
 
 /// 113.8 The school's calendar (a month, or a list of what is coming), the
 /// exams' timetable and the behaviour record, for a student and each child
@@ -41,11 +41,11 @@ class _Page extends StatelessWidget {
   final Widget Function(BuildContext context, int? studentId) builder;
 
   @override
-  Widget build(BuildContext context) => Scaffold(
-    appBar: studioBar(
-      context,
-      AppBar(leading: appBarBack(context), title: Text(title)),
-    ),
+  Widget build(BuildContext context) => StaffScaffold(
+    title: title,
+    studioPage: true,
+    // 130.58 The teacher's own in the project's premium look.
+    staff: classroom,
     body: SafeArea(
       top: false,
       child: classroom
@@ -989,18 +989,11 @@ class ClassBehaviourScreen extends ConsumerWidget {
     final l10n = context.l10n;
     final async = ref.watch(classBehaviourProvider(classId));
     final me = ref.watch(classroomMeProvider).value?.name;
-    return Scaffold(
-      appBar: studioBar(
-        context,
-        AppBar(
-          leading: appBarBack(context),
-          title: Text(
-            async.value == null
-                ? l10n.schoolBehaviour
-                : '${l10n.schoolBehaviour} · ${async.value!.className}',
-          ),
-        ),
-      ),
+    return StaffScaffold(
+      title: async.value == null
+          ? l10n.schoolBehaviour
+          : '${l10n.schoolBehaviour} · ${async.value!.className}',
+      studioPage: true,
       body: SafeArea(
         top: false,
         child: switch (async) {

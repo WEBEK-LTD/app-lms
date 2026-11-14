@@ -31,10 +31,13 @@ String? systemPhotoOf(WidgetRef ref) {
 /// page's colour or the glass wash behind, and the screen's parts in the
 /// look ([SystemScreenArea]). Under a Studio page's header, the header is
 /// the page's.
+///
+/// 130.58 Without a [screen], one of the app's other screens (the staff's,
+/// the couriers', the drivers') in the project's look [look].
 class SystemScreenFrame extends ConsumerWidget {
   const SystemScreenFrame({
     super.key,
-    required this.screen,
+    this.screen,
     required this.look,
     required this.title,
     required this.child,
@@ -42,9 +45,11 @@ class SystemScreenFrame extends ConsumerWidget {
     this.scrollable = true,
     this.actions = const [],
     this.back = true,
+    this.floatingActionButton,
+    this.bottomNavigationBar,
   });
 
-  final SystemScreen screen;
+  final SystemScreen? screen;
   final SystemLook look;
   final String title;
   final Widget child;
@@ -52,6 +57,11 @@ class SystemScreenFrame extends ConsumerWidget {
   final bool scrollable;
   final List<Widget> actions;
   final bool back;
+
+  /// 130.58 The screen's own button and bar at the foot ([footer] is put
+  /// in the app's action bar for it).
+  final Widget? floatingActionButton;
+  final Widget? bottomNavigationBar;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -93,19 +103,21 @@ class SystemScreenFrame extends ConsumerWidget {
               child: content(glass ? openHeight : 0),
             ),
           );
-    return SystemScreenArea(
-      screen: screen,
-      child: Scaffold(
-        key: ValueKey('system-screen-${screen.wire}-${look.name}'),
-        backgroundColor: p.background,
-        body: DecoratedBox(
-          decoration: ChromeTones.backdrop(p, look),
-          child: body,
-        ),
-        bottomNavigationBar: footer == null
-            ? null
-            : BottomActionBar(child: footer!),
+    final scaffold = Scaffold(
+      key: ValueKey('system-screen-${screen?.wire ?? 'app'}-${look.name}'),
+      backgroundColor: p.background,
+      body: DecoratedBox(
+        decoration: ChromeTones.backdrop(p, look),
+        child: body,
       ),
+      floatingActionButton: floatingActionButton,
+      bottomNavigationBar:
+          bottomNavigationBar ??
+          (footer == null ? null : BottomActionBar(child: footer!)),
     );
+    final system = screen;
+    return system == null
+        ? SystemScreenArea.inLook(look: look, child: scaffold)
+        : SystemScreenArea(screen: system, child: scaffold);
   }
 }

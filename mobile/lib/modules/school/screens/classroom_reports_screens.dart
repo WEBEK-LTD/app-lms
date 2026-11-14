@@ -16,6 +16,7 @@ import '../../lms/teachers/teacher_widgets.dart' show LabeledField;
 import '../data/report_providers.dart';
 import '../data/school_providers.dart';
 import '../widgets/school_widgets.dart';
+import '../../shared/staff_scaffold.dart';
 
 /// 113.5 The teacher's side of the reports with the school: a class's
 /// progress through the syllabus of each subject they teach in it (a lesson
@@ -85,13 +86,8 @@ class SyllabusScreen extends ConsumerWidget {
     final p = context.palette;
     final l10n = context.l10n;
     final async = ref.watch(classSyllabusProvider(classId));
-    return Scaffold(
-      appBar: AppBar(
-        leading: appBarBack(context),
-        title: Text(
-          [l10n.classroomSyllabus, ?async.value?.className].join(' · '),
-        ),
-      ),
+    return StaffScaffold(
+      title: [l10n.classroomSyllabus, ?async.value?.className].join(' · '),
       body: SafeArea(
         top: false,
         child: switch (async) {
@@ -407,11 +403,8 @@ class _TeacherReportsScreenState extends ConsumerState<TeacherReportsScreen> {
   Widget build(BuildContext context) {
     final l10n = context.l10n;
     final status = _tabs[_tab];
-    return Scaffold(
-      appBar: AppBar(
-        leading: appBarBack(context),
-        title: Text(l10n.classroomReports),
-      ),
+    return StaffScaffold(
+      title: l10n.classroomReports,
       body: SafeArea(
         top: false,
         child: Column(
@@ -670,11 +663,8 @@ class TeacherReportScreen extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final l10n = context.l10n;
     final async = ref.watch(teacherReportProvider(reportId));
-    return Scaffold(
-      appBar: AppBar(
-        leading: appBarBack(context),
-        title: Text(async.value?.templateName ?? l10n.classroomReports),
-      ),
+    return StaffScaffold(
+      title: async.value?.templateName ?? l10n.classroomReports,
       body: SafeArea(
         top: false,
         child: switch (async) {

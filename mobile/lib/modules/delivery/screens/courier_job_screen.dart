@@ -15,6 +15,7 @@ import '../../taxi/widgets/trip_map.dart';
 import '../data/delivery_providers.dart';
 import '../widgets/delivery_widgets.dart';
 import '../../../core/format/bidi.dart';
+import '../../shared/staff_scaffold.dart';
 
 /// 104 One job as the courier works it: where to pick it up and drop it
 /// off (with directions; 112.2 its road on the map and "Navigate" in
@@ -156,13 +157,8 @@ class _CourierJobScreenState extends ConsumerState<CourierJobScreen> {
     final target = job == null
         ? null
         : (job.status.live ? job.dropoff : job.pickup);
-    return Scaffold(
-      appBar: AppBar(
-        leading: appBarBack(context),
-        title: Text(
-          job == null ? l10n.courierTitle : l10n.jobTitle(job.reference),
-        ),
-      ),
+    return StaffScaffold(
+      title: job == null ? l10n.courierTitle : l10n.jobTitle(job.reference),
       body: switch (async) {
         AsyncValue(value: final j?) => RefreshIndicator(
           onRefresh: () async =>

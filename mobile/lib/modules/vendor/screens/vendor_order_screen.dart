@@ -17,6 +17,7 @@ import '../../food/widgets/food_widgets.dart' show AmountRow;
 import '../../market/screens/market_orders_screen.dart' show marketStatusText;
 import '../data/vendor_providers.dart';
 import 'vendor_pick_screen.dart' show pickAmountText;
+import '../../shared/staff_scaffold.dart';
 
 /// The minutes a vendor may say an order takes.
 const vendorPrepChoices = [10, 15, 20, 30, 45, 60, 90];
@@ -252,15 +253,10 @@ class _VendorOrderScreenState extends ConsumerState<VendorOrderScreen> {
     final desk = ref.watch(vendorDeskProvider).value;
     final order = async.value;
     final actions = order == null ? const <Widget>[] : _actions(order, desk);
-    return Scaffold(
-      appBar: AppBar(
-        leading: appBarBack(context),
-        title: Text(
-          order == null
-              ? l10n.tabVendor
-              : l10n.foodOrderHeading(order.reference),
-        ),
-      ),
+    return StaffScaffold(
+      title: order == null
+          ? l10n.tabVendor
+          : l10n.foodOrderHeading(order.reference),
       body: switch (async) {
         AsyncValue(value: final o?) => RefreshIndicator(
           onRefresh: () async =>

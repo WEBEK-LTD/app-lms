@@ -13,6 +13,7 @@ import '../../../core/widgets/buttons.dart';
 import '../../../core/widgets/common.dart';
 import '../../market/data/market_providers.dart';
 import '../data/vendor_providers.dart';
+import '../../shared/staff_scaffold.dart';
 
 /// The amount as typed in the picking: whole units, or the weight with
 /// up to three decimals.
@@ -161,11 +162,8 @@ class _VendorPickScreenState extends ConsumerState<VendorPickScreen> {
     final order = async.value;
     final tolerance =
         ref.watch(marketConfigProvider)?.weightTolerancePercent ?? 0;
-    return Scaffold(
-      appBar: AppBar(
-        leading: appBarBack(context),
-        title: Text(l10n.vendorPickItems),
-      ),
+    return StaffScaffold(
+      title: l10n.vendorPickItems,
       body: switch (async) {
         AsyncValue(value: final o?) => ListView.separated(
           key: const ValueKey('vendor-pick-list'),

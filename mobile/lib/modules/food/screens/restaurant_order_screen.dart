@@ -14,6 +14,7 @@ import '../../../core/widgets/common.dart';
 import '../../delivery/widgets/delivery_widgets.dart' show CallButton;
 import '../data/food_providers.dart';
 import '../widgets/food_widgets.dart';
+import '../../shared/staff_scaffold.dart';
 
 /// The minutes a restaurant may say an order takes.
 const prepChoices = [10, 15, 20, 30, 45, 60];
@@ -157,15 +158,10 @@ class _RestaurantOrderScreenState extends ConsumerState<RestaurantOrderScreen> {
       ],
       _ => const <Widget>[],
     };
-    return Scaffold(
-      appBar: AppBar(
-        leading: appBarBack(context),
-        title: Text(
-          order == null
-              ? l10n.tabRestaurantDesk
-              : l10n.foodOrderHeading(order.reference),
-        ),
-      ),
+    return StaffScaffold(
+      title: order == null
+          ? l10n.tabRestaurantDesk
+          : l10n.foodOrderHeading(order.reference),
       body: switch (async) {
         AsyncValue(value: final o?) => RefreshIndicator(
           onRefresh: () async =>
