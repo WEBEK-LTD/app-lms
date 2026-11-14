@@ -138,7 +138,7 @@ class StudioPageView extends ConsumerWidget {
         StudioNodeView(node: scrolling, scope: scope, parent: null),
       ],
     );
-    return ColoredBox(
+    final view = ColoredBox(
       color: background,
       child: Stack(
         children: [
@@ -161,11 +161,18 @@ class StudioPageView extends ConsumerWidget {
               top: 0,
               start: 0,
               end: 0,
-              child: StudioHeaderView(
-                header: header!,
-                top: top,
-                scope: scope,
-                overCover: overCover,
+              // 128.11 Over a cover, once the page scrolls under it, the
+              // header takes the page's background, so the app's name never
+              // lies over the cover's own words.
+              child: Builder(
+                builder: (context) => StudioHeaderView(
+                  header: header!,
+                  top: top,
+                  scope: scope,
+                  overCover: overCover,
+                  scrolledUnder: overCover && _ScrolledUnder.of(context),
+                  pageBackground: overCover ? background : null,
+                ),
               ),
             ),
           if (pinnedTop.isNotEmpty)
@@ -191,6 +198,7 @@ class StudioPageView extends ConsumerWidget {
         ],
       ),
     );
+    return _ScrolledUnder(child: view);
   }
 
   /// 120 The page around the app's screen: its header (or the status bar's
@@ -400,6 +408,58 @@ bool studioStartsWithCover(StudioNode body) {
       first.scrim != null;
 }
 
+/// 128.11 Whether the page's own list has scrolled (its elements now go
+/// under a transparent header), for the header over a cover to take the
+/// page's background. Only the page's list counts: a slider or a row that
+/// scrolls sideways inside it doesn't.
+class _ScrolledUnder extends StatefulWidget {
+  const _ScrolledUnder({required this.child});
+
+  final Widget child;
+
+  /// Whether the page around [context] has scrolled under its header.
+  static bool of(BuildContext context) =>
+      context
+          .dependOnInheritedWidgetOfExactType<_ScrolledUnderScope>()
+          ?.notifier
+          ?.value ??
+      false;
+
+  @override
+  State<_ScrolledUnder> createState() => _ScrolledUnderState();
+}
+
+class _ScrolledUnderState extends State<_ScrolledUnder> {
+  final _under = ValueNotifier(false);
+
+  @override
+  void dispose() {
+    _under.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return NotificationListener<ScrollNotification>(
+      onNotification: (n) {
+        if (n.depth == 0 && n.metrics.axis == Axis.vertical) {
+          _under.value = n.metrics.pixels > studioScrolledUnderAt;
+        }
+        return false;
+      },
+      child: _ScrolledUnderScope(notifier: _under, child: widget.child),
+    );
+  }
+}
+
+class _ScrolledUnderScope extends InheritedNotifier<ValueNotifier<bool>> {
+  const _ScrolledUnderScope({required super.notifier, required super.child});
+}
+
+/// 128.11 How far the page scrolls before a transparent header over a cover
+/// takes the page's background (components/studio/view.tsx the same).
+const double studioScrolledUnderAt = 8;
+
 // ----------------------------------------------------------------- Header
 
 /// 103R The bar at the top of a Studio page: the logo in the middle, the
@@ -413,6 +473,8 @@ class StudioHeaderView extends ConsumerWidget {
     required this.scope,
     this.back = false,
     this.overCover = false,
+    this.scrolledUnder = false,
+    this.pageBackground,
   });
 
   final StudioHeader header;
@@ -423,11 +485,57 @@ class StudioHeaderView extends ConsumerWidget {
   /// logo) too; over anything else, its buttons alone, as before.
   final bool overCover;
 
+  /// 128.11 The page has scrolled under this transparent header over a
+  /// cover: it fades in [pageBackground] behind it, the status bar's too,
+  /// with its name and buttons in the colour that reads on it.
+  final bool scrolledUnder;
+  final Color? pageBackground;
+
   /// 120.4 Over a screen opened on top of the tabs: a back button first.
   final bool back;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final under = pageBackground;
+    if (header.type != StudioHeaderType.transparent ||
+        !overCover ||
+        under == null) {
+      return _header(context, ref, 0);
+    }
+    // 128.11 Faded in as the page goes under it (at once with reduced
+    // motion), the status bar's icons for what is behind them.
+    return TweenAnimationBuilder<double>(
+      tween: Tween(end: scrolledUnder ? 1 : 0),
+      duration: MediaQuery.disableAnimationsOf(context)
+          ? Duration.zero
+          : const Duration(milliseconds: 180),
+      builder: (context, t, _) {
+        // Behind the header, never in the way of a tap on the cover.
+        final behind = IgnorePointer(
+          child: ColoredBox(
+            key: const ValueKey('studio-header-scrolled-under'),
+            color: under.withValues(alpha: under.a * t),
+          ),
+        );
+        return Stack(
+          fit: StackFit.passthrough,
+          children: [
+            Positioned.fill(
+              child: t < 0.5
+                  ? behind
+                  : AnnotatedRegion<SystemUiOverlayStyle>(
+                      value: overlayStyleOn(under),
+                      child: behind,
+                    ),
+            ),
+            _header(context, ref, t),
+          ],
+        );
+      },
+    );
+  }
+
+  Widget _header(BuildContext context, WidgetRef ref, double under) {
     final p = context.palette;
     final build = ref.watch(appEnvironmentProvider).build;
     final config = ref.watch(appConfigProvider);
@@ -442,7 +550,7 @@ class StudioHeaderView extends ConsumerWidget {
                     : header.background,
               ) ??
               p.primary;
-    final color =
+    final own =
         parseHexColor(
           scope.dark ? (header.darkColor ?? header.color) : header.color,
         ) ??
@@ -451,6 +559,17 @@ class StudioHeaderView extends ConsumerWidget {
             : greeting
             ? p.text
             : p.onPrimary);
+    // 128.11 On the page's background once the page is under it: the
+    // colour that reads on that background.
+    final onPage = pageBackground == null
+        ? own
+        : ThemeData.estimateBrightnessForColor(pageBackground!) ==
+              Brightness.dark
+        ? Colors.white
+        : ThemeData.estimateBrightnessForColor(p.text) == Brightness.dark
+        ? p.text
+        : const Color(0xFF15131A);
+    final color = under == 0 ? own : Color.lerp(own, onPage, under)!;
     final title = header.title ?? build.appName;
     final logo =
         header.logoUrl ??

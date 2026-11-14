@@ -1216,3 +1216,10 @@ html {
     background: var(--tint-dark);
   }
 }
+
+/* 128.11 Studio's canvas: a transparent header's background over a cover appears at once with reduced motion. */
+@media (prefers-reduced-motion: reduce) {
+  [data-studio-header-under] {
+    transition: none !important;
+  }
+}

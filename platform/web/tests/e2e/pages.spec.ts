@@ -1031,7 +1031,7 @@ test("112.4 a store project starts from a full shop, with a store's sections and
 
 test("124.8 the premium academy's pages show the app's own screens on the canvas, drawn as the app draws them", async () => {
   await own.goto("/studio/new");
-  await own.locator("section#step-1 div.grid").first().getByRole("radio", { name: /^Premium academy / }).check();
+  await own.locator("section#step-1 div.grid").first().getByRole("radio", { name: "Premium academy", exact: true }).check();
   await own.getByLabel("Project name").fill("Ufuq Academy");
   await own.getByRole("radiogroup", { name: "3 · Where do you start?" }).getByRole("radio", { name: /Premium academy/ }).click();
   await own.getByRole("button", { name: "Next", exact: true }).click();
