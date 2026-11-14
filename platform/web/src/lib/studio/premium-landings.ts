@@ -210,7 +210,12 @@ function splitHero(m: Maker): StudioNode[] {
       { ...button(m, packWord(m.p, "Cta"), m.main, { background: c.brand, darkBackground: c.darkBrand, color: "#FFFFFF", darkColor: c.darkPage, icon: "arrow_forward" }), margin: pad(4, 0, 0, 0) },
     ],
   };
-  const arch: StudioNode = { id: m.id(), type: "image", image_url: m.photo(0), width: 136, height: 300, fit: "cover", corners: { top_start: 74, top_end: 74, bottom_end: 18, bottom_start: 18 }, background: c.deep, dark_background: c.deep, ken_burns: true };
+  // The kind's photo in an arch; without the platform's photos, the arch in the project's colours.
+  const shape = { width: 136, height: 300, corners: { top_start: 74, top_end: 74, bottom_end: 18, bottom_start: 18 } } as const;
+  const photo = m.photo(0);
+  const arch: StudioNode = photo
+    ? { id: m.id(), type: "image", image_url: photo, fit: "cover", background: c.deep, dark_background: c.deep, ken_burns: true, ...shape }
+    : { id: m.id(), type: "row", gradient: { from: c.brand, to: c.deep, angle: 160 }, children: [], ...shape };
   const line = placesLine(m);
   const band: StudioNode = {
     id: m.id(),
@@ -429,7 +434,9 @@ function heroProduct(m: Maker): StudioNode[] {
         },
         motion: rise(),
       }
-    : { id: m.id(), type: "image", image_url: m.photo(0), width: "fill", height: 360, radius: 32, fit: "cover", margin: pad(0, 20), background: c.deep, dark_background: c.deep, motion: rise() };
+    : m.photo(0)
+      ? { id: m.id(), type: "image", image_url: m.photo(0), width: "fill", height: 360, radius: 32, fit: "cover", margin: pad(0, 20), background: c.deep, dark_background: c.deep, motion: rise() }
+      : { id: m.id(), type: "row", width: "fill", height: 360, radius: 32, margin: pad(0, 20), gradient: { from: c.brand, to: c.deep, angle: 160 }, children: [], motion: rise() };
   return [intro, one, text(m, packWord(m.p, "Line"), { text_align: "center", padding: pad(14, 36, 6, 36), font: { size: 14.5, line_height: 1.55 }, ...mutedOf(m) })];
 }
 
