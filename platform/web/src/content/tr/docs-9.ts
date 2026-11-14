@@ -13,7 +13,7 @@ Panelinin menüsündeki **Yallapp Studio** ile aç. İlk sayfası **Studio'daki 
 
 - **Sayfalar**: normal uygulamalar blokları ve hazır tasarımlarıyla sayfa düzenleyicisini kullanır. Studio projeleri, her öğenin her yere konabildiği Studio düzenleyicisini kullanır.
 - **Uygulama türleri**: Studio, Yallapp'ın yaptığı her uygulama türünü ve teslimat şirketleri gibi yalnızca Studio'nun sunduğu proje türlerini yapar.
-- **Planlar**: ayrıdırlar. Normal bir uygulama normal planlardan biriyle, bir Studio projesi ise Studio'nun kendi planlarından biriyle ödenir.
+- **Planlar**: ayrıdırlar. Normal bir uygulama normal bir planla (Starter, Growth, Pro ya da Business), bir Studio projesi ise Studio'nun kendi planlarından biriyle ödenir.
 - **Hesabında**: normal uygulamaların panelde kalır; Studio projelerin Studio'dadır, her birinin kendi paneliyle.
 
 Derleme, kurulum adımları ve uygulama mağazalarında yayınlama ikisinde de aynı şekilde işler.

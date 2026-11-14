@@ -219,7 +219,7 @@ Open it from **Yallapp Studio** in your dashboard's menu. Its first page, **Your
 
 - **Pages**: regular apps use the page editor, with its blocks and ready-made designs. Studio projects use the Studio editor, where any element goes anywhere.
 - **Kinds of apps**: Studio makes every kind of app Yallapp makes, and the project types only Studio offers, like delivery companies.
-- **Plans**: they're separate. A regular app is paid on one of the regular plans, and a Studio project on one of Studio's own plans.
+- **Plans**: they're separate. A regular app is paid on a regular plan (Starter, Growth, Pro or Business), and a Studio project on one of Studio's own plans.
 - **In your account**: your regular apps stay in the dashboard; your Studio projects are in Studio, each with its own dashboard.
 
 Building, the setup steps and publishing on the app stores work the same way for both.
