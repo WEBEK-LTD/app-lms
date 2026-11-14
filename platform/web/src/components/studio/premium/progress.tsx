@@ -62,7 +62,7 @@ export function Progress(p: PremiumProps) {
                 </svg>
                 {e.image_url ? null : (
                   <span style={{ position: "absolute", inset: 0, display: "flex", alignItems: "center", justifyContent: "center", fontWeight: 900, fontSize: Math.max(13, size * 0.22), color: p.color ?? t.ink }}>
-                    {e.icon ? <Icon name={e.icon} size={Math.max(16, size * 0.34)} color={e.color ?? brand} /> : <bdi>{Math.round(value)}%</bdi>}
+                    {e.icon ? <Icon name={e.icon} size={Math.max(16, size * 0.34)} color={e.color ?? brand} rtl={rtl} /> : <bdi>{Math.round(value)}%</bdi>}
                   </span>
                 )}
                 {chip && e.image_url ? <span style={{ position: "absolute", left: "50%", bottom: stroke + gap + 10, transform: "translateX(-50%)", whiteSpace: "nowrap", display: "flex", alignItems: "center", gap: 6, padding: "6px 14px", borderRadius: 999, background: "rgba(14,13,36,0.62)", backdropFilter: "blur(10px)", color: "#FFFFFF", fontSize: 13, fontWeight: 700 }}>{chip}</span> : null}

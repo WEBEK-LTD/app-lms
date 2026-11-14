@@ -23,9 +23,8 @@ import { ELEMENTS, elementInfo, newNode, newNodeId, type NewText } from "@/lib/s
 import { ENTRANCE_EASING, entranceFrom } from "@/lib/studio/motion";
 // 129.11–129.20 The premium elements' words.
 import type { PremiumWords } from "@/components/studio/premium";
-import type { PremiumText } from "@/lib/studio/premium-content";
 import { SECTIONS, sectionsFor, TEMPLATES, templatesFor, type ProjectKind, type SectionContext, type TemplateInfo } from "@/lib/studio/sections";
-import { appWord, appWords } from "@/lib/studio/app-words";
+import { appWord, appWords, premiumAppWords } from "@/lib/studio/app-words";
 import { PAGE_TEMPLATES } from "@/lib/studio/page-templates";
 // 129.21–129.24 The Premium group's maps.
 import { PREMIUM_MAPS, type PremiumMapWords } from "@/lib/studio/premium-maps";
@@ -197,7 +196,9 @@ export function StudioEditor(props: StudioEditorProps) {
   const schoolWords = sample.school;
   // 129.11–129.20 The premium elements' words on the canvas, and their first words when added.
   const premiumWords = Object.fromEntries((["setPrice", "monthly", "yearly", "perMonth", "perYear", "popular", "addLabel", "reviewsNote"] as const).map((k) => [k, t(`studio.pmw_${k}` as DashKey)])) as unknown as PremiumWords;
-  const premiumText = (key: PremiumText) => t(`studio.pmn_${key}` as DashKey);
+  // 128.11 A new premium element's and premium map's words are the app's (lib/studio/app-words.ts), in the dashboard's language.
+  const premiumNew = premiumAppWords(dashLang, app.name);
+  const premiumText = premiumNew.content;
   // 124.8 The app's screen under the page: drawn as the app draws it in the look chosen in Studio › Screens, else said so.
   const screenName = studio?.screen ? known(props.pageScreens.find((s) => s.value === studio.screen)?.label ?? studio.screen) : "";
   const looksAt = screenLookSection(studio?.screen, props.kind.type);
@@ -229,7 +230,7 @@ export function StudioEditor(props: StudioEditorProps) {
     entries: source === "products" ? (props.pickable.items.products ?? []).slice(0, 3) : undefined,
   };
   // 129.21–129.24 A premium map's sample words.
-  const premiumMapWords: PremiumMapWords = (key) => t(`studio.pmapWord_${key}` as DashKey);
+  const premiumMapWords: PremiumMapWords = premiumNew.map;
   // 128.11 A new element's words are the app's (lib/studio/app-words.ts), in the dashboard's language.
   const newText = (key: NewText) =>
     appWord(
@@ -411,10 +412,10 @@ export function StudioEditor(props: StudioEditorProps) {
         brand: app.brand,
         text: newText,
         orders: props.kind.vertical === "marketplace" ? "market_order" : "food_order",
-        // 129 A premium look, and the premium elements' sample words in the dashboard's language: the motion & media
-        // elements' (129.1–129.8, `studio.pmNew_*`) and the content & commerce elements' (129.11–129.20, `studio.pmn_*`).
+        // 129 A premium look, and the premium elements' sample words in the dashboard's language (lib/studio/app-words.ts):
+        // the motion & media elements' (129.1–129.8, `motion…`) and the content & commerce elements' (129.11–129.20, `premium…`).
         preset: payload.preset,
-        premiumWords: (key) => t(`studio.pmNew_${key}` as DashKey),
+        premiumWords: premiumNew.motion,
         premium: premiumText,
       });
     if (payload.kind === "section") return SECTIONS.find((s) => s.id === payload.id)?.make(sectionContext) ?? null;

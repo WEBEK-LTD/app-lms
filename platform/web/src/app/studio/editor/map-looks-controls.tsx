@@ -1,8 +1,9 @@
 "use client";
 
-import { useDashT } from "@/components/dashboard-i18n";
+import { useDashLang, useDashT } from "@/components/dashboard-i18n";
 import type { DashKey } from "@/i18n/dashboard";
 import { IconPicker } from "@/app/dashboard/pages/controls";
+import { premiumAppWords } from "@/lib/studio/app-words";
 import { STUDIO_MAP_LIMITS, STUDIO_MAP_MARKERS, STUDIO_MAP_ROUTE_LIVE, STUDIO_MAP_STYLES, type StudioMapDrawing, type StudioMapRoute, type StudioPlace } from "@/lib/pages/types";
 import { RangeField } from "./controls";
 
@@ -86,6 +87,8 @@ const SPOTS: StudioPlace[] = [
 
 export function MapLooksControls({ drawing, set, id }: { drawing: StudioMapDrawing; set: (patch: Partial<StudioMapDrawing>) => void; id: string }) {
   const t = useDashT();
+  // 128.11 A new pin's or word's sample is the app's (lib/studio/app-words.ts), in the dashboard's language.
+  const sample = premiumAppWords(useDashLang(), "").map;
   const L = STUDIO_MAP_LIMITS;
   const places = drawing.places ?? [];
   const labels = drawing.labels ?? [];
@@ -111,7 +114,7 @@ export function MapLooksControls({ drawing, set, id }: { drawing: StudioMapDrawi
         <SpotIn label={t("studio.mapMeAt")} value={drawing.me_at ?? { x: 50, y: 56 }} onChange={(me_at) => set({ me_at })} />
       ) : null}
 
-      <RangeField label={t("studio.mapPlaces")} value={places.length} min={0} max={L.places} fallback={0} onChange={(n) => set({ places: n ? sized(places, n, (i) => ({ ...SPOTS[i % SPOTS.length]!, label: t("studio.pmapWord_home"), icon: "place" })) : undefined })} />
+      <RangeField label={t("studio.mapPlaces")} value={places.length} min={0} max={L.places} fallback={0} onChange={(n) => set({ places: n ? sized(places, n, (i) => ({ ...SPOTS[i % SPOTS.length]!, label: sample("home"), icon: "place" })) : undefined })} />
       {places.map((pin, i) => (
         <fieldset key={`p${i}`} className="m-0 flex flex-col gap-1.5 rounded-lg p-2" style={FIELD} data-map-place={i}>
           <TextIn label={t("studio.mapPlaceLabel")} value={pin.label} max={L.label} onChange={(label) => set({ places: places.map((x, k) => (k === i ? { ...x, label } : x)) })} />
@@ -120,7 +123,7 @@ export function MapLooksControls({ drawing, set, id }: { drawing: StudioMapDrawi
         </fieldset>
       ))}
 
-      <RangeField label={t("studio.mapLabels")} value={labels.length} min={0} max={L.labels} fallback={0} onChange={(n) => set({ labels: n ? sized(labels, n, (i) => ({ ...SPOTS[(i + 3) % SPOTS.length]!, text: t("studio.pmapWord_downtown") })) : undefined })} />
+      <RangeField label={t("studio.mapLabels")} value={labels.length} min={0} max={L.labels} fallback={0} onChange={(n) => set({ labels: n ? sized(labels, n, (i) => ({ ...SPOTS[(i + 3) % SPOTS.length]!, text: sample("downtown") })) : undefined })} />
       {labels.map((label, i) => (
         <fieldset key={`l${i}`} className="m-0 flex flex-col gap-1.5 rounded-lg p-2" style={FIELD} data-map-label={i}>
           <TextIn label={t("studio.mapLabelText")} value={label.text} max={L.label} onChange={(text) => set({ labels: labels.map((x, k) => (k === i ? { ...x, text } : x)) })} />

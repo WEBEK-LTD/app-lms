@@ -55,7 +55,7 @@ export function Bento(p: PremiumProps) {
             ) : null}
             {e.icon ? (
               <span style={{ position: "absolute", top: 12, insetInlineStart: 12, width: 34, height: 34, borderRadius: 11, display: "flex", alignItems: "center", justifyContent: "center", background: filled ? "rgba(255,255,255,0.22)" : alpha(e.color ?? brand, 0.14) }}>
-                <Icon name={e.icon} size={19} fill color={filled ? "#FFFFFF" : (e.color ?? brand)} />
+                <Icon name={e.icon} size={19} fill color={filled ? "#FFFFFF" : (e.color ?? brand)} rtl={lang === "ar"} />
               </span>
             ) : null}
             {chip ? <span data-studio-tile-chip="" style={{ position: "absolute", top: 12, insetInlineEnd: 12, padding: "4px 10px", borderRadius: 999, background: e.color ?? accent ?? "#E8B04B", color: "#0E0D24", fontSize: 11, fontWeight: 800 }}>{chip}</span> : null}
@@ -66,7 +66,7 @@ export function Bento(p: PremiumProps) {
             {label ? (
               <span style={{ position: "relative", display: "flex", alignItems: "center", gap: 4, fontSize: 12, fontWeight: 800, marginTop: 2, color: filled ? "#FFFFFF" : brand }}>
                 {label}
-                <Icon name="arrow_forward" size={15} style={{ transform: lang === "ar" ? "scaleX(-1)" : undefined }} />
+                <Icon name="arrow_forward" size={15} rtl={lang === "ar"} />
               </span>
             ) : null}
           </span>

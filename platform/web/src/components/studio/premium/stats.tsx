@@ -42,7 +42,7 @@ export function Stats(p: PremiumProps) {
           >
             {e.icon ? (
               <span style={{ width: 36, height: 36, borderRadius: 12, background: alpha(tone, 0.14), display: "flex", alignItems: "center", justifyContent: "center", marginBottom: 4 }}>
-                <Icon name={e.icon} size={20} fill color={tone} />
+                <Icon name={e.icon} size={20} fill color={tone} rtl={lang === "ar"} />
               </span>
             ) : null}
             <bdi style={{ fontSize: size, lineHeight: 1, fontWeight: node.font?.weight ?? 900, letterSpacing: big ? -1.5 : -0.5, color: p.color ?? (e.highlight ? tone : t.ink), fontVariantNumeric: "tabular-nums" }}>

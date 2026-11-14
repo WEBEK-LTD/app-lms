@@ -14,6 +14,7 @@ const MONO = "'JetBrains Mono', ui-monospace, SFMono-Regular, Menlo, monospace";
  */
 export function Timeline(p: PremiumProps) {
   const { node, dark, brand, lang, defaultLang } = p;
+  const rtl = lang === "ar";
   const t = tones(dark);
   const entries = node.entries ?? [];
   const active = entries.findIndex((e) => e.highlight);
@@ -39,7 +40,7 @@ export function Timeline(p: PremiumProps) {
         zIndex: 1,
       }}
     >
-      {done(i) ? <Icon name={i === active ? (icon ?? "radio_button_checked") : "check"} size={16} /> : icon ? <Icon name={icon} size={14} color={t.muted} /> : null}
+      {done(i) ? <Icon name={i === active ? (icon ?? "radio_button_checked") : "check"} size={16} rtl={rtl} /> : icon ? <Icon name={icon} size={14} color={t.muted} rtl={rtl} /> : null}
     </span>
   );
   if (o.style === "bars")
@@ -49,7 +50,7 @@ export function Timeline(p: PremiumProps) {
           <span key={i} aria-current={i === active ? "step" : undefined} style={{ flex: "1 1 0", minWidth: 0, display: "flex", flexDirection: "column", gap: 6 }}>
             <span style={{ height: 4, borderRadius: 2, background: done(i) ? brand : t.track, opacity: done(i) && i !== active ? 0.55 : 1 }} />
             <span style={{ display: "flex", alignItems: "center", gap: 5, fontSize: 13, fontWeight: 700, color: p.color ?? t.ink, whiteSpace: "nowrap", overflow: "hidden" }}>
-              {e.icon ? <Icon name={e.icon} size={16} color={done(i) ? brand : t.muted} /> : null}
+              {e.icon ? <Icon name={e.icon} size={16} color={done(i) ? brand : t.muted} rtl={rtl} /> : null}
               {entryText(e, "title", lang, defaultLang)}
             </span>
             <span style={{ fontSize: 11, color: t.muted, ...date }}>{entryText(e, "subtitle", lang, defaultLang)}</span>

@@ -10,6 +10,7 @@ import { alpha, Icon, tones, type PremiumProps } from "./shared";
  */
 export function BadgeText(p: PremiumProps) {
   const { node, dark, brand, accent } = p;
+  const rtl = p.lang === "ar";
   const t = tones(dark);
   const style = node.badge?.style ?? "pill";
   const g = brandGradient(node, brand, accent);
@@ -18,7 +19,7 @@ export function BadgeText(p: PremiumProps) {
   if (style === "text")
     return (
       <span data-studio-badge="text" style={{ display: "inline-flex", alignItems: "center", gap: 6, fontSize: node.font?.size ?? 28, fontWeight: node.font?.weight ?? 900, lineHeight: 1.15 }}>
-        {node.icon ? <Icon name={node.icon} size={(node.font?.size ?? 28) * 0.9} fill color={g.from} /> : null}
+        {node.icon ? <Icon name={node.icon} size={(node.font?.size ?? 28) * 0.9} fill color={g.from} rtl={rtl} /> : null}
         <span style={{ backgroundImage: `linear-gradient(${g.angle}deg, ${g.from}, ${g.to})`, WebkitBackgroundClip: "text", backgroundClip: "text", color: "transparent" }}>{text}</span>
       </span>
     );
@@ -32,7 +33,7 @@ export function BadgeText(p: PremiumProps) {
           : { background: alpha(tone, 0.14), color: tone };
   return (
     <span data-studio-badge={style} style={{ display: "inline-flex", alignItems: "center", gap: 5, padding: "5px 12px", borderRadius: 999, fontSize: node.font?.size ?? 12, fontWeight: node.font?.weight ?? 800, whiteSpace: "nowrap", ...look }}>
-      {node.icon ? <Icon name={node.icon} size={(node.font?.size ?? 12) + 3} fill /> : null}
+      {node.icon ? <Icon name={node.icon} size={(node.font?.size ?? 12) + 3} fill rtl={rtl} /> : null}
       {text}
     </span>
   );

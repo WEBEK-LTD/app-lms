@@ -19,6 +19,8 @@ import { AppScreen } from "./app-screens";
 // 128 The cover layouts and the live elements.
 import { Cover } from "./covers";
 import { GreetingText, TrackingCard } from "./tracking";
+// 128 The icons that point along the reading direction, mirrored in Arabic.
+import { mirrored } from "./mirrored";
 // 129 Premium motion & media.
 import { entranceMark, watchEntrances } from "@/lib/studio/motion";
 import { BeforeAfter, edge, GalleryGrid, MediaBanner, Marquee, PremiumMotionStyles, Segments, SliderCount, SliderPill, StoriesRow } from "./premium-motion";
@@ -566,17 +568,6 @@ function mixHex(a: string, b: string, t: number): string {
   const y = parseInt(b.slice(1), 16);
   const ch = (s: number) => Math.round(((x >> s) & 255) * (1 - t) + ((y >> s) & 255) * t);
   return `#${[16, 8, 0].map((s) => ch(s).toString(16).padStart(2, "0")).join("")}`.toUpperCase();
-}
-
-/**
- * 128 The icons that point along the reading direction, mirrored right to left as the app mirrors them (Material
- * Symbols' own matchTextDirection, mobile/lib/core/theme/app_icons.dart): an arrow forward points left in Arabic.
- */
-const MIRRORED = new Set(["arrow_forward", "arrow_back", "arrow_forward_ios", "arrow_back_ios", "arrow_back_ios_new", "chevron_right", "chevron_left", "navigate_next", "navigate_before", "keyboard_arrow_right", "keyboard_arrow_left", "arrow_right_alt", "send", "reply", "last_page", "first_page", "logout", "login", "trending_flat"]);
-
-/** The flip of an icon that points along the reading direction, in Arabic. */
-function mirrored(icon: string | null | undefined, rtl: boolean): CSSProperties {
-  return rtl && icon && MIRRORED.has(icon) ? { transform: "scaleX(-1)" } : {};
 }
 
 function Tag({ text }: { text: string }) {

@@ -8,8 +8,12 @@ import { demoStudioScreens } from "@/lib/demo/screens";
 import { demoLayout } from "@/lib/demo/setup";
 import { BUILT_IN_APP_DEFAULTS, defaultLayout } from "@/lib/pages/defaults";
 import { itemSourcesFor } from "@/lib/pages/sources";
-import { APP_WORDS, appWords } from "@/lib/studio/app-words";
+import { APP_WORDS, appWord, appWords, premiumAppWords, type AppWord } from "@/lib/studio/app-words";
 import { DEMO_FACTS } from "@/lib/studio/demo-templates";
+import { ELEMENTS, newNode, type NewText } from "@/lib/studio/elements";
+import { PREMIUM_MAPS } from "@/lib/studio/premium-maps";
+import { PREMIUM_WORDS_EN } from "@/lib/studio/premium-motion";
+import { premiumWordEn } from "@/lib/studio/premium-content";
 import { PAGE_TEMPLATES } from "@/lib/studio/page-templates";
 import { SECTIONS, templatesFor, type SectionContext } from "@/lib/studio/sections";
 import { startLayout } from "@/lib/studio/start";
@@ -173,6 +177,43 @@ describe("The Arabic that templates put into the app is Modern Standard Arabic (
     }
     expect(seen).toBeGreaterThan(1000);
     expect(bad).toEqual([]);
+  });
+
+  it("starts every premium element and premium map with the app's words, in Modern Standard Arabic (129)", () => {
+    const premium = ELEMENTS.filter((e) => e.group === "premium");
+    expect(premium.length).toBeGreaterThan(15);
+    const newText = (lang: string) => (key: NewText) => appWord(lang, `new${key.charAt(0).toUpperCase()}${key.slice(1)}` as AppWord, "نور");
+    // The English first words the app words keep, so none is left in English once the editor speaks another language.
+    const english = new Set(
+      Object.entries(APP_WORDS.en)
+        .filter(([key]) => /^(motion|premium|map)[A-Z]/.test(key))
+        .flatMap(([, text]) => [text, ...text.split("\n")]),
+    );
+    expect(english.size).toBeGreaterThan(50);
+    const made = (lang: string) => {
+      let n = 0;
+      const newId = () => `n${++n}`;
+      const w = premiumAppWords(lang, "نور");
+      return [
+        ...premium.map((e) => ({ at: `${e.type}${e.preset ? `:${e.preset}` : ""}`, node: newNode(e.type, { source: null, brand: "#1F4E5F", text: newText(lang), newId, preset: e.preset, premiumWords: w.motion, premium: w.content }) })),
+        ...PREMIUM_MAPS.map((m) => ({ at: `map:${m.id}`, node: m.make({ newId, words: w.map }) })),
+      ];
+    };
+    const bad: unknown[] = [];
+    let seen = 0;
+    const strings = (v: unknown): string[] => (typeof v === "string" ? [v] : Array.isArray(v) ? v.flatMap(strings) : v && typeof v === "object" ? Object.values(v).flatMap(strings) : []);
+    for (const { at: element, node } of made("ar")) {
+      seen += arabicIn(node).length;
+      for (const x of offending(node)) bad.push({ element, ...x });
+      for (const left of strings(node)) if (english.has(left)) bad.push({ element, english: left });
+    }
+    expect(seen).toBeGreaterThan(60);
+    expect(bad).toEqual([]);
+    // In English, the words they start with when the editor gives none.
+    const w = premiumAppWords("en", "نور");
+    for (const key of Object.keys(PREMIUM_WORDS_EN) as (keyof typeof PREMIUM_WORDS_EN)[]) expect(w.motion(key)).toBe(PREMIUM_WORDS_EN[key]);
+    for (const key of ["quote", "planFeatures", "ctaButton", "glassText"] as const) expect(w.content(key)).toBe(premiumWordEn(key));
+    expect(JSON.stringify(made("tr"))).not.toMatch(/[؀-ۿ]/u);
   });
 
   it.each(STUDIO_DEMO_TYPES)("the %s demo app's Arabic has no Egyptian form (its pages, tabs, note and sign-in screens)", async (id) => {

@@ -1,5 +1,6 @@
 import type { CSSProperties } from "react";
 import type { LanguageCode, StudioNode, StudioSurface } from "@/lib/pages/types";
+import { mirrored } from "../mirrored";
 
 /**
  * 129.11–129.20 What the premium elements share on the canvas, as the app
@@ -60,9 +61,10 @@ export function tones(dark: boolean) {
 /** A soft, wide shadow for the premium cards. */
 export const CARD_SHADOW = "0 10px 28px rgba(14,13,36,0.08)";
 
-export function Icon({ name, size = 20, fill = false, color, style }: { name: string; size?: number; fill?: boolean; color?: string; style?: CSSProperties }) {
+/** An icon; `rtl`, one that points along the reading direction mirrored, as the app's (../mirrored.ts). */
+export function Icon({ name, size = 20, fill = false, color, style, rtl = false }: { name: string; size?: number; fill?: boolean; color?: string; style?: CSSProperties; rtl?: boolean }) {
   return (
-    <span className="material-symbols-rounded" aria-hidden="true" style={{ fontSize: size, lineHeight: 1, color, fontVariationSettings: fill ? "'FILL' 1" : undefined, flex: "none", ...style }}>
+    <span className="material-symbols-rounded" aria-hidden="true" style={{ fontSize: size, lineHeight: 1, color, fontVariationSettings: fill ? "'FILL' 1" : undefined, flex: "none", ...mirrored(name, rtl), ...style }}>
       {name}
     </span>
   );

@@ -11,16 +11,17 @@ import { alpha, Icon, Placeholder, tones, type PremiumProps } from "./shared";
  */
 export function CtaBar(p: PremiumProps) {
   const { node, dark, brand, words, lang } = p;
+  const rtl = lang === "ar";
   const t = tones(dark);
   const label = own(p, "title");
   const button = own(p, "text");
   const background = (dark ? (node.dark_background ?? node.background) : node.background) ?? brand;
-  const arrow = node.icon ? <Icon name={node.icon} size={20} style={{ transform: lang === "ar" && node.icon.startsWith("arrow_") ? "scaleX(-1)" : undefined }} /> : null;
+  const arrow = node.icon ? <Icon name={node.icon} size={20} rtl={rtl} /> : null;
   if (node.cta?.style === "fab")
     return (
       <span data-studio-cta="fab" style={{ display: "flex", justifyContent: "flex-end", padding: "8px 16px 12px" }}>
         <span style={{ display: "inline-flex", alignItems: "center", gap: 8, height: 56, minWidth: 56, justifyContent: "center", padding: button ? "0 20px" : 0, borderRadius: 28, background, color: "#FFFFFF", fontWeight: 800, fontSize: 15, boxShadow: `0 12px 28px ${alpha(background, 0.4)}` }}>
-          {node.icon ? <Icon name={node.icon} size={24} /> : null}
+          {node.icon ? <Icon name={node.icon} size={24} rtl={rtl} /> : null}
           {button}
         </span>
       </span>
@@ -49,7 +50,7 @@ export function CtaBar(p: PremiumProps) {
     >
       {lead ? (
         <span style={{ width: 48, height: 48, borderRadius: 14, flex: "none", display: "flex", alignItems: "center", justifyContent: "center", background: alpha(brand, 0.14), color: brand }}>
-          <Icon name={lead} size={24} />
+          <Icon name={lead} size={24} rtl={rtl} />
         </span>
       ) : null}
       <span style={{ flex: "1 1 auto", minWidth: 0, display: "flex", flexDirection: "column", gap: 2 }}>
