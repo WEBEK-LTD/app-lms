@@ -19,6 +19,7 @@ import '../learning/learning_providers.dart';
 import '../learning/lesson_tools.dart' show showLessonNotes;
 import '../navigation.dart';
 import 'lesson_screen.dart';
+import '../studio_courses/course_look_kit.dart';
 
 /// 123 A lesson as the premium academy has it (`Config.screens.looks`
 /// `lesson: premium`): where it is in the course and its name large, the
@@ -38,7 +39,16 @@ class PremiumLessonBody extends ConsumerStatefulWidget {
     this.enrolled = false,
     this.videoPosition,
     this.textFirst = false,
+    this.studio,
+    this.topics,
   });
+
+  /// 130.52 Studio's course screens' look (`Config.screens.courses.lesson`):
+  /// how far through the course, previous and next, and the parts left out.
+  final CourseScreensLook? studio;
+
+  /// The course's curriculum, for how far through it the student is.
+  final List<Topic>? topics;
 
   final Lesson lesson;
   final LessonPosition position;
@@ -73,9 +83,16 @@ class _PremiumLessonBodyState extends ConsumerState<PremiumLessonBody> {
     final lesson = widget.lesson;
     final position = widget.position;
     final features = ref.watch(appConfigProvider).features;
-    final notes = widget.enrolled && features.notes;
+    final design = widget.studio?.lesson;
+    final notes =
+        widget.enrolled &&
+        features.notes &&
+        (design?.shows(LessonPart.notes) ?? true);
     final hasText = (lesson.html ?? '').trim().isNotEmpty;
-    final files = lesson.attachments;
+    final files = (design?.shows(LessonPart.resources) ?? true)
+        ? lesson.attachments
+        : const <Attachment>[];
+    final upNext = design?.shows(LessonPart.upNext) ?? true;
     final discussion = features.lessonDiscussion
         ? lesson.discussionCount
         : null;
@@ -122,6 +139,21 @@ class _PremiumLessonBodyState extends ConsumerState<PremiumLessonBody> {
           ],
         ),
         const SizedBox(height: 2),
+        // 130.52 How far through the course, and the way to the lessons
+        // either side.
+        if (widget.studio case final studio?) ...[
+          if (studio.lesson.shows(LessonPart.progress) &&
+              (widget.topics?.isNotEmpty ?? false)) ...[
+            const SizedBox(height: 8),
+            _CourseProgress(
+              look: studio,
+              topics: widget.topics!,
+              lessonId: lesson.id,
+              completed: widget.completed,
+            ),
+            const SizedBox(height: 14),
+          ],
+        ],
         Text(
           lesson.title,
           key: const ValueKey('premium-lesson-title'),
@@ -132,6 +164,11 @@ class _PremiumLessonBodyState extends ConsumerState<PremiumLessonBody> {
             color: p.text,
           ),
         ),
+        if (widget.studio != null &&
+            (position.previous != null || position.next != null)) ...[
+          const SizedBox(height: 14),
+          _Steps(position: position, courseId: lesson.courseId),
+        ],
         if (chips.isNotEmpty) ...[
           const SizedBox(height: 14),
           SizedBox(
@@ -145,7 +182,7 @@ class _PremiumLessonBodyState extends ConsumerState<PremiumLessonBody> {
                 final (label, icon) = switch (chip) {
                   _Chip.notes => (l10n.myNotes, Symbols.edit_note_rounded),
                   _Chip.files => (
-                    '${l10n.lessonFiles} ${files.length}',
+                    '${widget.studio != null ? l10n.courseLookResources : l10n.lessonFiles} ${files.length}',
                     Symbols.folder_rounded,
                   ),
                   _Chip.discussion => (
@@ -185,7 +222,7 @@ class _PremiumLessonBodyState extends ConsumerState<PremiumLessonBody> {
           ),
           _ => null,
         },
-        if (next != null && next.type == CurriculumItemType.lesson) ...[
+        if (upNext && next != null && next.type == CurriculumItemType.lesson) ...[
           const SizedBox(height: 12),
           _NextCard(
             item: next,
@@ -198,7 +235,7 @@ class _PremiumLessonBodyState extends ConsumerState<PremiumLessonBody> {
             ),
           ),
         ],
-        if (quiz != null) ...[
+        if (upNext && quiz != null) ...[
           const SizedBox(height: 12),
           _QuizCard(
             item: quiz,
@@ -224,6 +261,170 @@ class _PremiumLessonBodyState extends ConsumerState<PremiumLessonBody> {
             onPressed: widget.onComplete,
           ),
         ],
+      ],
+    );
+  }
+}
+
+/// 130.52 How far through the course the student is, as Studio's course
+/// screens draw it: a bar, a segment per lesson (the student's place half
+/// filled) or a ring, with the lessons done of all.
+class _CourseProgress extends StatelessWidget {
+  const _CourseProgress({
+    required this.look,
+    required this.topics,
+    required this.lessonId,
+    required this.completed,
+  });
+
+  final CourseScreensLook look;
+  final List<Topic> topics;
+  final int lessonId;
+  final bool completed;
+
+  @override
+  Widget build(BuildContext context) {
+    final p = context.palette;
+    final l10n = context.l10n;
+    final colors = CourseLookColors.of(context, look);
+    final items = [for (final t in topics) ...t.items];
+    final total = items.length;
+    final at = items.indexWhere(
+      (i) => i.type == CurriculumItemType.lesson && i.id == lessonId,
+    );
+    // This lesson counts once it is marked complete here.
+    final done =
+        items.where((i) => i.completed).length +
+        (completed && at >= 0 && !items[at].completed ? 1 : 0);
+    final share = total == 0 ? 0.0 : done / total;
+    final label = Text(
+      l10n.courseLookCourseProgress,
+      style: TextStyle(
+        fontSize: 11.5,
+        fontWeight: FontWeight.w800,
+        letterSpacing: 0.4,
+        color: p.textSecondary,
+      ),
+    );
+    final counts = Text(
+      l10n.lessonsDoneOf(done, total),
+      style: TextStyle(
+        fontSize: 12,
+        fontWeight: FontWeight.w800,
+        color: p.text,
+      ),
+    );
+    return Container(
+      key: ValueKey('studio-lesson-progress-${look.lesson.progress.name}'),
+      padding: const EdgeInsets.all(14),
+      decoration: BoxDecoration(
+        color: colors.card,
+        borderRadius: BorderRadius.circular(
+          look.look == CourseLook.faculty ? 12 : 20,
+        ),
+        border: Border.all(color: colors.line),
+      ),
+      child: switch (look.lesson.progress) {
+        LessonProgress.ring => Row(
+          children: [
+            CourseProgressRing(
+              value: share,
+              color: colors.accent,
+              track: colors.track,
+              size: 52,
+              stroke: 5,
+            ),
+            const SizedBox(width: 14),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [label, const SizedBox(height: 3), counts],
+              ),
+            ),
+          ],
+        ),
+        LessonProgress.segments => Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            Row(children: [Expanded(child: label), counts]),
+            const SizedBox(height: 10),
+            CourseSegments(
+              total: total,
+              done: done,
+              current: completed || at < 0 ? null : at,
+              color: colors.accent,
+              track: colors.track,
+              height: 6,
+            ),
+          ],
+        ),
+        LessonProgress.bar => Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            Row(
+              children: [
+                Expanded(child: label),
+                Text(
+                  '${(share * 100).round()}%',
+                  style: TextStyle(
+                    fontSize: 12,
+                    fontWeight: FontWeight.w800,
+                    color: colors.accent,
+                  ),
+                ),
+                const SizedBox(width: 8),
+                counts,
+              ],
+            ),
+            const SizedBox(height: 10),
+            CourseProgressBar(
+              value: share,
+              color: colors.accent,
+              track: colors.track,
+              height: 7,
+            ),
+          ],
+        ),
+      },
+    );
+  }
+}
+
+/// 130.52 The lessons either side: back to the one before, on to the next.
+class _Steps extends StatelessWidget {
+  const _Steps({required this.position, required this.courseId});
+
+  final LessonPosition position;
+  final int courseId;
+
+  @override
+  Widget build(BuildContext context) {
+    final l10n = context.l10n;
+    final previous = position.previous;
+    final next = position.next;
+    void go(CurriculumItem item) =>
+        openCurriculumItem(context, item, courseId: courseId, replace: true);
+    return Row(
+      children: [
+        Expanded(
+          child: SecondaryButton(
+            key: const ValueKey('studio-lesson-previous'),
+            label: l10n.previous,
+            icon: Symbols.arrow_back_rounded,
+            height: 46,
+            onPressed: previous == null ? null : () => go(previous),
+          ),
+        ),
+        const SizedBox(width: 10),
+        Expanded(
+          child: PrimaryButton(
+            key: const ValueKey('studio-lesson-next'),
+            label: l10n.nextLesson,
+            icon: Symbols.arrow_forward_rounded,
+            height: 46,
+            onPressed: next == null ? null : () => go(next),
+          ),
+        ),
       ],
     );
   }

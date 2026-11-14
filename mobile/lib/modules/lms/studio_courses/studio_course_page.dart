@@ -7,6 +7,7 @@ import '../../../core/api/models/models.dart';
 import '../../../core/l10n/l10n.dart';
 import '../../../core/routing/paths.dart';
 import '../../../core/services/share_links.dart';
+import '../../../core/theme/app_icons.dart';
 import '../../../core/theme/palette.dart';
 import '../../../core/widgets/common.dart';
 import '../../../core/format/dates.dart';
@@ -761,11 +762,10 @@ class _TeacherProfile extends StatelessWidget {
                       following: following,
                     )
                   else if (onTap != null)
-                    Icon(
+                    AppIcon(
                       Symbols.arrow_forward_rounded,
                       size: 20,
                       color: p.textSecondary,
-                      textDirection: Directionality.of(context),
                     ),
                 ],
               ),
@@ -1381,10 +1381,7 @@ class _Link extends StatelessWidget {
                   ),
                 ),
               ),
-              Icon(
-                Symbols.chevron_forward_rounded,
-                color: p.textSecondary,
-              ),
+              AppIcon(AppIcons.forward, color: p.textSecondary),
             ],
           ),
         ),

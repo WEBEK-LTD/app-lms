@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import 'premium_my_courses.dart';
+import '../studio_courses/studio_my_courses.dart';
 
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
@@ -62,6 +63,23 @@ class _MyCoursesScreenState extends ConsumerState<MyCoursesScreen> {
     final selected = tabs.contains(_tab) ? _tab : MyCoursesTab.inProgress;
     // 123 The premium academy's My courses.
     final gate = ref.watch(appGateProvider);
+    // 130.52 In Studio's course screens' look, in place of it.
+    if (gate is GateReady && gate.config.screens?.courses != null) {
+      return StudioMyCourses(
+        look: gate.config.screens!.courses!,
+        labels: [
+          for (final t in tabs)
+            switch (t) {
+              MyCoursesTab.inProgress => context.l10n.inProgress,
+              MyCoursesTab.completed => context.l10n.completed,
+              MyCoursesTab.wishlist => context.l10n.wishlist,
+            },
+        ],
+        selected: tabs.indexOf(selected),
+        onSelected: (i) => setState(() => _tab = tabs[i.clamp(0, tabs.length - 1)]),
+        wishlist: const _WishlistList(),
+      );
+    }
     if (gate is GateReady &&
         (gate.config.screens?.has(ScreenLookKey.myCourses) ?? false)) {
       return PremiumMyCourses(

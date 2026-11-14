@@ -235,12 +235,16 @@ class _Lessons extends StatelessWidget {
     children: [
       Icon(Symbols.play_lesson_rounded, size: 15, color: color),
       const SizedBox(width: 4),
-      Text(
-        context.l10n.lessonCount(count),
-        style: TextStyle(
-          fontSize: 12,
-          fontWeight: FontWeight.w600,
-          color: color,
+      Flexible(
+        child: Text(
+          context.l10n.lessonCount(count),
+          maxLines: 1,
+          overflow: TextOverflow.ellipsis,
+          style: TextStyle(
+            fontSize: 12,
+            fontWeight: FontWeight.w600,
+            color: color,
+          ),
         ),
       ),
     ],
@@ -479,14 +483,17 @@ class _Ticket extends StatelessWidget {
                       ),
                       const SizedBox(width: 10),
                     ],
-                    if (facts.lessons)
-                      Flexible(
-                        child: _Lessons(
-                          count: course.lessonCount,
-                          color: p.textSecondary,
-                        ),
-                      ),
-                    const Spacer(),
+                    Expanded(
+                      child: facts.lessons
+                          ? Align(
+                              alignment: AlignmentDirectional.centerStart,
+                              child: _Lessons(
+                                count: course.lessonCount,
+                                color: p.textSecondary,
+                              ),
+                            )
+                          : const SizedBox.shrink(),
+                    ),
                     if (facts.progress == null && facts.price)
                       CoursePriceText(
                         price: course.price,

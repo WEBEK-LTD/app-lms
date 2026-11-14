@@ -8,6 +8,7 @@ import 'package:material_symbols_icons/symbols.dart';
 import '../../../core/api/models/models.dart';
 import '../../../core/gate/app_gate.dart';
 import '../../../core/l10n/l10n.dart';
+import '../../../core/theme/app_icons.dart';
 import '../../../core/theme/palette.dart';
 
 /// 130.52 What the course screens' looks are made of (`Config.screens.
@@ -139,12 +140,17 @@ class CourseStars extends StatelessWidget {
             ),
           if (showNumber) ...[
             SizedBox(width: size * 0.35),
-            Text(
-              count > 0 ? '$number ($count)' : number,
-              style: TextStyle(
+            Flexible(
+              child: Text(
+                count > 0 ? '$number ($count)' : number,
+                maxLines: 1,
+                overflow: TextOverflow.fade,
+                softWrap: false,
+                style: TextStyle(
                 fontSize: size * 0.9,
                 fontWeight: FontWeight.w700,
-                color: textColor ?? context.palette.text,
+                  color: textColor ?? context.palette.text,
+                ),
               ),
             ),
           ],
@@ -444,10 +450,10 @@ class CourseRoundButton extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final p = context.palette;
-    final icon = Icon(
+    final icon = AppIcon(
       this.icon,
       size: 21,
-      fill: filled ? 1 : 0,
+      filled: filled,
       color: color ?? (onPhoto ? Colors.white : p.text),
     );
     final button = SizedBox.square(
