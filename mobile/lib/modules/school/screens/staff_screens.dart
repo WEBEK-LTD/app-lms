@@ -22,6 +22,7 @@ import '../widgets/school_widgets.dart';
 import 'checkin_screens.dart';
 import 'classroom_screens.dart' show BusDutyEntry, SchoolStaffEntries;
 import 'student_screens.dart' show FileTile, NewsCard;
+import '../../shared/staff_scaffold.dart';
 
 /// 113.3 The Staff tab, for the school's staff who don't teach (teachers
 /// have the same in the Classroom tab): today's check-in, 113.10 bus duty
@@ -231,11 +232,8 @@ class LeaveScreen extends ConsumerWidget {
     final l10n = context.l10n;
     final state = ref.watch(leaveRequestsProvider);
     final controller = ref.read(leaveRequestsProvider.notifier);
-    return Scaffold(
-      appBar: AppBar(
-        leading: appBarBack(context),
-        title: Text(l10n.staffLeave),
-      ),
+    return StaffScaffold(
+      title: l10n.staffLeave,
       floatingActionButton: FloatingActionButton.extended(
         key: const ValueKey('leave-ask'),
         onPressed: () async {
@@ -487,8 +485,8 @@ class _LeaveFormScreenState extends ConsumerState<LeaveFormScreen> {
     final l10n = context.l10n;
     final file = _file;
     final progress = _progress;
-    return Scaffold(
-      appBar: AppBar(leading: appBarBack(context), title: Text(l10n.leaveAsk)),
+    return StaffScaffold(
+      title: l10n.leaveAsk,
       body: SafeArea(
         top: false,
         child: ListView(
@@ -609,8 +607,8 @@ class StaffNewsScreen extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final l10n = context.l10n;
-    return Scaffold(
-      appBar: AppBar(leading: appBarBack(context), title: Text(l10n.staffNews)),
+    return StaffScaffold(
+      title: l10n.staffNews,
       body: SafeArea(
         top: false,
         child: PagedItems<SchoolAnnouncement>(

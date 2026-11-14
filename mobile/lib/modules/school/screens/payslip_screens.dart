@@ -9,11 +9,11 @@ import '../../../core/routing/paths.dart';
 import '../../../core/services/external_links.dart';
 import '../../../core/theme/app_icons.dart';
 import '../../../core/theme/palette.dart';
-import '../../../core/widgets/buttons.dart';
 import '../../../core/widgets/common.dart';
 import '../../../core/widgets/file_viewer.dart';
 import '../data/school_providers.dart';
 import '../widgets/school_widgets.dart';
+import '../../shared/staff_scaffold.dart';
 
 /// 113.12 The person's own payslips, in the Staff tab and the teacher's
 /// Classroom tab: each month's net and whether the school recorded it paid,
@@ -63,11 +63,8 @@ class PayslipsScreen extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final p = context.palette;
     final l10n = context.l10n;
-    return Scaffold(
-      appBar: AppBar(
-        leading: appBarBack(context),
-        title: Text(l10n.staffPayslips),
-      ),
+    return StaffScaffold(
+      title: l10n.staffPayslips,
       body: SafeArea(
         top: false,
         child: switch (ref.watch(payslipsProvider)) {
@@ -221,15 +218,10 @@ class PayslipScreen extends ConsumerWidget {
             ],
           ),
         );
-    return Scaffold(
-      appBar: AppBar(
-        leading: appBarBack(context),
-        title: Text(
-          async.value == null
-              ? l10n.staffPayslips
-              : payslipMonth(async.value!.month),
-        ),
-      ),
+    return StaffScaffold(
+      title: async.value == null
+          ? l10n.staffPayslips
+          : payslipMonth(async.value!.month),
       body: SafeArea(
         top: false,
         child: switch (async) {
