@@ -38,6 +38,7 @@ const LOOKS: readonly (readonly [StudioDemoId, SignatureLook, string])[] = [
   ["food", "b", "sofra"],
   ["marketplace", "a", "zad"],
   ["marketplace", "b", "zad"],
+  ["delivery", "a", "sahm"],
 ];
 
 const kindOf = (id: StudioDemoId) => ({ type: demoKind(id).engine, vertical: demoKind(id).vertical });
@@ -89,7 +90,7 @@ describe("130.1–130.6 the food, marketplace and delivery Signature looks", () 
     expect(JSON.stringify(page)).not.toContain("{app}");
     // Every word on it in Arabic and Turkish too (numbers and binds aside).
     for (const n of allNodes(page)) {
-      if (!n.text || /^\d+$/.test(n.text)) continue;
+      if (!n.text || !/\p{L}/u.test(n.text)) continue;
       expect(n.translations?.ar?.text, n.text).toBeTruthy();
       expect(n.translations?.tr?.text, n.text).toBeTruthy();
     }

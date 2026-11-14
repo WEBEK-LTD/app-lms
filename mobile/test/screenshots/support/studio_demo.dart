@@ -43,6 +43,7 @@ class StudioDemo {
   static final sigSofraB = StudioDemo._load('sig_sofra_b.json');
   static final sigZadA = StudioDemo._load('sig_zad_a.json');
   static final sigZadB = StudioDemo._load('sig_zad_b.json');
+  static final sigSahmA = StudioDemo._load('sig_sahm_a.json');
 
   final Map<String, dynamic> _demo;
 
@@ -293,8 +294,10 @@ Map<String, dynamic> _item(
 
 /// Sahm Express (Studio's delivery demo) as its app is: its three services
 /// on its home, with their drawn pictures (lib/demo/content.ts).
-DemoApi sahmStudioApi({bool courier = false}) {
-  final demo = StudioDemo.sahm;
+/// 130.5–130.6 Or a project from one of its Signature looks ([look],
+/// test/support/sig_sahm_<a|b>.json).
+DemoApi sahmStudioApi({bool courier = false, StudioDemo? look}) {
+  final demo = look ?? StudioDemo.sahm;
   const source = 'delivery_services';
   return demo.apply(
     DemoApi.sahm(courier: courier),

@@ -159,6 +159,7 @@ const symbolsByName = <String, IconData>{
   'add': Symbols.add_rounded,
   'my_location': Symbols.my_location_rounded,
   'barcode_scanner': Symbols.barcode_scanner_rounded,
+  'radio_button_checked': Symbols.radio_button_checked_rounded,
   // end 130.1–130.6
 };
 

@@ -247,6 +247,7 @@ export const ICON_NAMES = [
   // 130.1–130.6 The food, marketplace and delivery Signature looks.
   "add_circle",
   "barcode_scanner",
+  "radio_button_checked",
 ] as const;
 
 export type IconName = (typeof ICON_NAMES)[number];

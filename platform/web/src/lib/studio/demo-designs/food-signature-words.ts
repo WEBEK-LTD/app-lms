@@ -70,4 +70,19 @@ export type FoodSignatureWord =
   | "zadBHeadline"
   | "zadBMinutes"
   | "zadBMin"
-  | "zadBTo";
+  | "zadBTo"
+  // Sahm Express · A Waybill: the headline, the way, the services and their prices.
+  | "sigSahmA"
+  | "sahHead1"
+  | "sahHead2"
+  | "sahPickupLabel"
+  | "sahDropLabel"
+  | "sahSameDayTime"
+  | "sahSameDayPrice"
+  | "sahExpressTime"
+  | "sahExpressPrice"
+  | "sahDocuments"
+  | "sahDocumentsTime"
+  | "sahDocumentsPrice"
+  | "sahSendFrom"
+  | "sahOnTheWay";

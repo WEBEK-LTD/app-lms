@@ -690,6 +690,7 @@ class _Steps extends StatelessWidget {
               children: [
                 SizedBox(
                   height: 16,
+                  width: double.infinity,
                   child: Stack(
                     clipBehavior: Clip.none,
                     alignment: AlignmentDirectional.centerStart,

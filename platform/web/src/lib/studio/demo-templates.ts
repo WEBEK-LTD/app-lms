@@ -197,6 +197,8 @@ export const DEMO_FACTS: Partial<Record<StudioDemoId, Partial<Record<SectionWord
     },
     // 128 Where the approved home's route card picks up: the demo's own street, where its parcels leave from.
     deliveryFrom: { en: "Abbas El Akkad St.", ar: "شارع عباس العقاد", tr: "Abbas El Akkad Caddesi" },
+    // 130.5 The Waybill look's headline names the demo's city.
+    sahHead1: { en: "Across Cairo,", ar: "عبر القاهرة،", tr: "Kahire'nin her yerine," },
   },
 };
 
