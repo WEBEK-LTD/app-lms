@@ -18,7 +18,7 @@ export interface CanvasWords {
   school: Omit<SchoolWords, "date">;
 }
 
-const LEARNING = ["lessonOf", "minutesLeft", "streak", "days", "live", "liveWhen", "week", "weekChange", "sampleCourse", "sampleTeacher", "sampleLive", "weekdays", "photoChip", "liveAt", "photoCourse"] as const;
+const LEARNING = ["lessonOf", "minutesLeft", "streak", "days", "live", "liveWhen", "week", "weekChange", "sampleCourse", "sampleTeacher", "sampleLive", "weekdays", "photoChip", "liveAt", "photoCourse", "ringChip", "ringKicker", "ringLine", "ringResume"] as const;
 const SCHOOL = ["hello", "childOne", "childTwo", "checkedIn", "onTime", "now", "next", "bus", "busRoute"] as const;
 
 export function canvasWords(t: DashT): CanvasWords {

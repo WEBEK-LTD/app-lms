@@ -1,7 +1,7 @@
 import type { StudioNode, StudioPage, TabBarStyle } from "../../pages/types";
 import type { SectionContext, SectionWord } from "../sections";
 import { idOf, pad, photo, photoBanner, screen, type DemoInk } from "./parts";
-import { filler, glass, inked, inkIcon, roundOf, type SignatureDesign, type SignatureLooks } from "./signature";
+import { filler, glass, inked, inkIcon, roundOf, signatureScreens, type SignatureDesign } from "./signature";
 
 /**
  * 130.7 130.8 Masar Rides's Signature looks, map first (the R2-Masar
@@ -260,23 +260,27 @@ const A_BAR: TabBarStyle = {
 };
 
 const LIVING_MAP: SignatureDesign = {
+  demo: "rides",
+  variant: "a",
   template: { id: "rides_signature_a", icon: "map", fits: { types: ["rides"] } },
   home: masarAHome,
   over: masarAOver,
   look: { header: { background: A.page, color: A.ink, dark_background: A.darkPage, dark_color: A.darkInk }, background: A.page, dark_background: A.darkPage },
   bar: A_BAR,
-  screens: {
-    style: "premium",
-    photo: "/stories/rides/rides-night-city.jpg",
-    title: { en: "Where to today?", ar: "إلى أين اليوم؟", tr: "Bugün nereye?" },
-    subtitle: {
-      en: "Sign in to see the fare before you ride and follow your driver on the map.",
-      ar: "سجّل الدخول لترى الأجرة قبل أن تركب وتتابع سائقك على الخريطة.",
-      tr: "Binmeden önce ücreti görmek ve sürücünüzü haritada izlemek için giriş yapın.",
-    },
-    menu: "cover",
+  project: {
+    screens: signatureScreens({
+      style: "premium",
+      photo: "/stories/rides/rides-night-city.jpg",
+      title: { en: "Where to today?", ar: "إلى أين اليوم؟", tr: "Bugün nereye?" },
+      subtitle: {
+        en: "Sign in to see the fare before you ride and follow your driver on the map.",
+        ar: "سجّل الدخول لترى الأجرة قبل أن تركب وتتابع سائقك على الخريطة.",
+        tr: "Binmeden önce ücreti görmek ve sürücünüzü haritada izlemek için giriş yapın.",
+      },
+      menu: "cover",
+    }),
   },
-  chrome: { header: "glass", screens: "glass" },
+  chrome: { header: "glass", system: "glass" },
 };
 
 // ——— B: Horizon ———
@@ -492,25 +496,30 @@ const B_BAR: TabBarStyle = {
 };
 
 const HORIZON: SignatureDesign = {
+  demo: "rides",
+  variant: "b",
   template: { id: "rides_signature_b", icon: "landscape", fits: { types: ["rides"] } },
   home: masarBHome,
   over: masarBOver,
   look: { header: { background: B.page, color: B.ink, dark_background: B.darkPage, dark_color: B.darkInk }, background: B.page, dark_background: B.darkPage },
   bar: B_BAR,
-  screens: {
-    style: "photo",
-    photo: "/stories/rides/rides-arrive-home.jpg",
-    title: { en: "Where to, tonight?", ar: "إلى أين الليلة؟", tr: "Bu gece nereye?" },
-    subtitle: {
-      en: "Sign in to see the fare first and follow your driver to the door.",
-      ar: "سجّل الدخول لترى الأجرة أولًا وتتابع سائقك حتى الباب.",
-      tr: "Önce ücreti görmek ve sürücünüzü kapıya kadar izlemek için giriş yapın.",
-    },
-    menu: "night",
-    accent: "#5FD3C2",
+  project: {
+    screens: signatureScreens({
+      style: "photo",
+      photo: "/stories/rides/rides-arrive-home.jpg",
+      title: { en: "Where to, tonight?", ar: "إلى أين الليلة؟", tr: "Bu gece nereye?" },
+      subtitle: {
+        en: "Sign in to see the fare first and follow your driver to the door.",
+        ar: "سجّل الدخول لترى الأجرة أولًا وتتابع سائقك حتى الباب.",
+        tr: "Önce ücreti görmek ve sürücünüzü kapıya kadar izlemek için giriş yapın.",
+      },
+      menu: "night",
+      accent: "#5FD3C2",
+    }),
   },
-  chrome: { header: "large", screens: "large" },
+  chrome: { header: "large", system: "large" },
 };
 
-export const MASAR_LOOKS: SignatureLooks = { a: LIVING_MAP, b: HORIZON };
+export const MASAR_A = LIVING_MAP;
+export const MASAR_B = HORIZON;
 

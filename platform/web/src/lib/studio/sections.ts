@@ -6,9 +6,9 @@ import { DEMO_HOME_TEMPLATES, DEMO_ICONS, demoTemplateId, studioDemoOf, studioNo
 import { newNodeId } from "./elements";
 import { SLIDER_SECTIONS, STORE_SECTIONS } from "./store-sections";
 import { demoDesignTemplate, signatureTemplates } from "./demo-designs";
-// 130 The Signature looks: their type and the words of Masar's, Lamha's and Safra's.
+// 130 The Signature looks: which look, and the words they write into the app.
 import type { SignatureLook } from "./demo-designs/signature";
-import type { MoveWord } from "./demo-designs/move-words";
+import type { SignatureWord } from "./demo-designs/signature-words";
 import { peopleRow, photoHero, photoOf, photoTiles } from "./photo-sections";
 
 /**
@@ -299,8 +299,8 @@ export type SectionWord =
   | "rqP4i"
   | "tabTeachers"
   | "tipTeachers"
-  // 130 The Signature looks of Masar Rides, Lamha Taxi and Safra (lib/studio/demo-designs/move-words.ts).
-  | MoveWord;
+  // 130 The Signature looks (lib/studio/demo-designs/signature-words.ts).
+  | SignatureWord;
 
 export interface SectionContext {
   brand: string;
@@ -1171,6 +1171,8 @@ const DEMO_TEMPLATES: readonly TemplateInfo[] = (Object.keys(DEMO_ICONS) as (key
 export const TEMPLATES: readonly TemplateInfo[] = [
   // Templates = demos: each Studio demo's home, offered first for its kind.
   ...DEMO_TEMPLATES,
+  // 130 The Signature looks, two for each Studio demo (lib/studio/demo-designs/signature.ts): each the whole app in that look, offered first for its kind with its demo (look A is the demo itself).
+  ...signatureTemplates(),
   // 103R.7 Each project type's own templates come first in the lists.
   // 112.4 Three for a store: a full shop, one for offers and one for looks and brands.
   typed("shop", "storefront", STORE, ["search", "hero_slider", "category_circles", "flash_sale", "new_arrivals", "coupon", "best_sellers", "brands", "trust", "recent"], SHOP_HEADER, { word: "cta", action: screen("cart") }),
@@ -1232,8 +1234,6 @@ export const TEMPLATES: readonly TemplateInfo[] = [
   demoDesignTemplate("delivery"),
   demoDesignTemplate("rides"),
   demoDesignTemplate("taxi"),
-  // 130 The Signature looks, two for each Studio demo (lib/studio/demo-designs/signature.ts): each the whole app in that look, offered first for its kind with its demo.
-  ...signatureTemplates(),
   // For every project.
   { id: "brand", icon: "auto_awesome", make: (ctx) => pageOf(ctx, ["hero", "stats", "features", "review", "contact"], { type: "transparent", buttons: ["menu", "account"] }) },
   { id: "contact", icon: "call", make: (ctx) => pageOf(ctx, ["contact", "form"], { type: "title_search", buttons: [] }) },

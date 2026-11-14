@@ -3089,5 +3089,7 @@
   "studioTaxisAroundLive": "{count, plural, other{Çevrenizde {count} taksi, canlı}}",
   "studioTaxisFreeAround": "{count, plural, other{boş taksi çevrenizde.}}",
   "studioRideOnTheWayShort": "Yolda",
-  "studioTripVia": "{via} aktarmalı"
+  "studioTripVia": "{via} aktarmalı",
+  "learningResumeLesson": "Derse devam et",
+  "learningPercentOfCourse": "Kursun %{percent} kadarı"
 }

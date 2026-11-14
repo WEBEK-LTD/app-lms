@@ -35,6 +35,13 @@ class StudioDemo {
   // 128 Zad's whole project too: its photo-first home, its five tabs.
   static final zad = StudioDemo._load('zad_demo.json');
   static final safra = StudioDemo._load('safra_demo.json');
+  // 130.13–130.18 The Signature looks of Nakhla School, Rawaq Academy and
+  // Ufuq Academy: the projects their templates start
+  // (platform/web/tests/unit/studio-signature-learn.test.ts).
+  static final nakhlaSigA = StudioDemo._load('nakhla_sig_a.json');
+  static final nakhlaSigB = StudioDemo._load('nakhla_sig_b.json');
+  static final rawaqSigA = StudioDemo._load('rawaq_sig_a.json');
+  static final rawaqSigB = StudioDemo._load('rawaq_sig_b.json');
 
   /// 130 One of a demo's Signature looks: the project its template starts
   /// (test/support/signatures/`<demo>_<look>.json`, written by
@@ -693,7 +700,12 @@ DemoApi lamhaStudioApi({
 /// the gate at 07:42, Maths now and the bus home at 14:20; with
 /// [staffApp] its teachers work in the staff app, so this app has no
 /// Classroom tab (the approved bar).
-DemoApi nakhlaStudioApi({bool map = false, bool staffApp = false}) {
+DemoApi nakhlaStudioApi({
+  bool map = false,
+  bool staffApp = false,
+  // 130 A Signature look's project instead of the demo's.
+  StudioDemo? look,
+}) {
   String day(int ago) => DateTime.now()
       .subtract(Duration(days: ago, hours: 2))
       .toUtc()
@@ -752,7 +764,7 @@ DemoApi nakhlaStudioApi({bool map = false, bool staffApp = false}) {
       },
     ],
   };
-  return StudioDemo.nakhla.apply(
+  return (look ?? StudioDemo.nakhla).apply(
     api,
     appName: 'Nakhla School',
     primaryColor: '#1F4E79',
@@ -788,8 +800,12 @@ DemoApi nakhlaStudioApi({bool map = false, bool staffApp = false}) {
 /// on its home, each with its teacher and its picture. 128 With [staffApp]
 /// its teachers work in the staff app, so this app has no Teacher tab (the
 /// approved bar).
-DemoApi rawaqStudioApi({bool staffApp = false}) {
-  final demo = StudioDemo.rawaq;
+DemoApi rawaqStudioApi({
+  bool staffApp = false,
+  // 130 A Signature look's project instead of the demo's.
+  StudioDemo? look,
+}) {
+  final demo = look ?? StudioDemo.rawaq;
   Map<String, dynamic> course(
     int id,
     String title,

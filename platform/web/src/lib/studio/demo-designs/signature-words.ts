@@ -1,10 +1,9 @@
 /**
- * 130.7–130.12 The words of Masar Rides's, Lamha Taxi's and Safra's
- * Signature looks (`studio.w_<word>` in i18n/dashboard/studio.ts, in the
- * dashboard's English, Egyptian Arabic and Turkish): part of Studio's
- * `SectionWord` (lib/studio/sections.ts).
+ * 130 The words the Signature looks write into the app (lib/studio/app-words.ts,
+ * their Arabic in Modern Standard Arabic): part of Studio's `SectionWord`
+ * (lib/studio/sections.ts). Each demo's words in its own block.
  */
-export type MoveWord =
+export type SignatureWord =
   // 130.7 Masar A: the districts on the living map, the driver's minutes and the pickup, the fare a class starts from.
   | "sigZamalek"
   | "sigDowntown"
@@ -54,4 +53,43 @@ export type MoveWord =
   | "sigStayThreeText"
   | "sigBundleOne"
   | "sigBundleLess"
-  | "sigDepartures";
+  | "sigDepartures"
+  // 130.13–130.18 Nakhla School, Rawaq Academy and Ufuq Academy: the news, the passes, the faculty, on air, the Parent tab.
+  | "nkKicker"
+  | "nkNewsLabel"
+  | "nkNewsLines"
+  | "nkToday"
+  | "nkTimetable"
+  | "nkSign"
+  | "nkSignLines"
+  | "tabParent"
+  | "nbPass"
+  | "nbBus"
+  | "nbBusText"
+  | "nbToSign"
+  | "nbSlips"
+  | "nbNewsKicker"
+  | "raTitle1"
+  | "raTitle2"
+  | "raFaculty"
+  | "raT1"
+  | "raT1s"
+  | "raT2"
+  | "raT2s"
+  | "raT3"
+  | "raT3i"
+  | "raT3s"
+  | "raT4"
+  | "raT4s"
+  | "raLiveBadge"
+  | "raOnAir"
+  | "raLiveKicker"
+  | "raNewKicker"
+  | "raS1"
+  | "raS1Line"
+  | "raS2"
+  | "raS2Line"
+  | "raS3"
+  | "raS3Line"
+  | "raMeet"
+  | "raCourses";

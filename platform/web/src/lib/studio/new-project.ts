@@ -55,13 +55,14 @@ export async function makeStudioProject(store: DataStore, input: NewStudioProjec
   // 123 A template for the whole project starts it in its colour, with its screens.
   const project = template.project ?? null;
   const fresh = newApp(input.clientId, null, now, kind.engine, kind.vertical);
-  // 130 A Signature look's template: that look's sign-in screen and account menu.
+  // 130 A Signature look's template: that look's sign-in screen, account menu and premium system screens.
   const screens = demo ? demoStudioScreens(demo, appUrl(), template.look) : project ? project.screens(appUrl()) : null;
   const base: App = {
     ...fresh,
     section: "studio",
     appName: name,
-    ...(demo ? { primaryColor: DEMO_BRANDS[demo].primaryColor } : project ? { primaryColor: project.primary } : {}),
+    // 130 A Signature look's in its own main colour (missing, the demo's).
+    ...(demo ? { primaryColor: project?.primary ?? DEMO_BRANDS[demo].primaryColor } : project ? { primaryColor: project.primary } : {}),
     // 120 The demo's sign-in screen and account menu too (lib/studio/screens.ts), as the demo has them.
     ...(screens ? { hostedSettings: { ...DEFAULT_HOSTED_SETTINGS, ...(fresh.hostedSettings ?? {}), studioScreens: screens } } : {}),
     // 124.6 The template it started from, which App setup's Branding shows as chosen (lib/studio/project-templates.ts).

@@ -85,6 +85,7 @@ import {
   STUDIO_CATEGORY_STYLES,
   STUDIO_MARKET_KINDS,
   STUDIO_MARKET_SECTIONS,
+  STUDIO_LEARNING_DAYS,
   STUDIO_LEARNING_SECTIONS,
   STUDIO_LIVE_SOURCES,
   STUDIO_SCHOOL_SECTIONS,
@@ -1904,9 +1905,12 @@ function parseNode(ctx: Context, where: string, value: unknown, state: { count: 
         break;
       }
       node.learning = { section: l.section };
-      // 128.8 Its photo look; the card's own left out.
-      if (l.style === "photo") node.learning.style = "photo";
+      // 128.8 Its photo look; the card's own left out. 130.18 The gold ring.
+      if (l.style === "photo" || l.style === "ring") node.learning.style = l.style;
       else if (l.style !== undefined && l.style !== null && l.style !== "card") bad("choose how the student's card is drawn from the list.");
+      // 130.18 This week's days under a streak.
+      if (oneOf(STUDIO_LEARNING_DAYS, l.days)) node.learning.days = l.days;
+      else if (l.days !== undefined && l.days !== null) bad("choose how this week's days are drawn from the list.");
       break;
     }
     case "live_status": {

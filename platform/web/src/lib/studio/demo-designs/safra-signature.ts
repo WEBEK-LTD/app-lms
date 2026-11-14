@@ -1,7 +1,7 @@
 import type { LayoutTab, StudioNode, StudioPage, TabBarStyle } from "../../pages/types";
 import type { SectionContext, SectionWord } from "../sections";
 import { idOf, pad, photo, screen, type DemoInk } from "./parts";
-import { inked, inkIcon, roundOf, type SignatureDesign, type SignatureLooks } from "./signature";
+import { inked, inkIcon, roundOf, signatureScreens, type SignatureDesign } from "./signature";
 
 /**
  * 130.12 Safra's Signature looks (the R2-Safra boards), ink and gold: A
@@ -287,24 +287,28 @@ const A_BAR: TabBarStyle = {
 };
 
 const COVER_STORY: SignatureDesign = {
+  demo: "travel",
+  variant: "a",
   template: { id: "travel_signature_a", icon: "photo_camera", fits: { types: ["travel"] } },
   home: safraAHome,
   over: (screenName, ctx) => (screenName === "trips" ? tripOver(ctx, "card") : null),
   look: { header: { background: A.page, color: A.ink, dark_background: A.darkPage, dark_color: A.darkInk }, background: A.page, dark_background: A.darkPage },
   bar: A_BAR,
-  screens: {
-    style: "photo",
-    photo: "/travel-photos/room.jpg",
-    title: { en: "Where does the next story begin?", ar: "من أين تبدأ حكايتك القادمة؟", tr: "Sıradaki hikâye nerede başlıyor?" },
-    subtitle: {
-      en: "Sign in to book hotels and flights, together for one price.",
-      ar: "سجّل الدخول لتحجز الفنادق والطيران معًا بسعر واحد.",
-      tr: "Otelleri ve uçuşları tek fiyata birlikte ayırtmak için giriş yapın.",
-    },
-    menu: "night",
-    accent: "#D8B57A",
+  project: {
+    screens: signatureScreens({
+      style: "photo",
+      photo: "/travel-photos/room.jpg",
+      title: { en: "Where does the next story begin?", ar: "من أين تبدأ حكايتك القادمة؟", tr: "Sıradaki hikâye nerede başlıyor?" },
+      subtitle: {
+        en: "Sign in to book hotels and flights, together for one price.",
+        ar: "سجّل الدخول لتحجز الفنادق والطيران معًا بسعر واحد.",
+        tr: "Otelleri ve uçuşları tek fiyata birlikte ayırtmak için giriş yapın.",
+      },
+      menu: "night",
+      accent: "#D8B57A",
+    }),
   },
-  chrome: { header: "photo", screens: "photo" },
+  chrome: { header: "photo", system: "photo" },
 };
 
 // ——— B: Bento atlas ———
@@ -463,25 +467,30 @@ const B_BAR: TabBarStyle = {
 };
 
 const BENTO_ATLAS: SignatureDesign = {
+  demo: "travel",
+  variant: "b",
   template: { id: "travel_signature_b", icon: "dashboard", fits: { types: ["travel"] } },
   home: safraBHome,
   over: (screenName, ctx) => (screenName === "trips" ? tripOver(ctx, "card") : null),
   look: { header: { background: B.page, color: B.ink, dark_background: B.darkPage, dark_color: B.darkInk }, background: B.page, dark_background: B.darkPage },
   tabs: bentoTabs,
   bar: B_BAR,
-  screens: {
-    style: "premium",
-    photo: "/travel-photos/oia.jpg",
-    title: { en: "Where next?", ar: "إلى أين بعد ذلك؟", tr: "Sırada neresi var?" },
-    subtitle: {
-      en: "Your stays, flights and boarding passes, in one place.",
-      ar: "إقاماتك ورحلاتك الجوية وبطاقات صعودك في مكان واحد.",
-      tr: "Konaklamalarınız, uçuşlarınız ve biniş kartlarınız tek bir yerde.",
-    },
-    menu: "night",
-    accent: "#D8B57A",
+  project: {
+    screens: signatureScreens({
+      style: "premium",
+      photo: "/travel-photos/oia.jpg",
+      title: { en: "Where next?", ar: "إلى أين بعد ذلك؟", tr: "Sırada neresi var?" },
+      subtitle: {
+        en: "Your stays, flights and boarding passes, in one place.",
+        ar: "إقاماتك ورحلاتك الجوية وبطاقات صعودك في مكان واحد.",
+        tr: "Konaklamalarınız, uçuşlarınız ve biniş kartlarınız tek bir yerde.",
+      },
+      menu: "night",
+      accent: "#D8B57A",
+    }),
   },
-  chrome: { header: "large", screens: "large" },
+  chrome: { header: "large", system: "large" },
 };
 
-export const SAFRA_LOOKS: SignatureLooks = { a: COVER_STORY, b: BENTO_ATLAS };
+export const SAFRA_A = COVER_STORY;
+export const SAFRA_B = BENTO_ATLAS;

@@ -13,12 +13,15 @@ import { schoolTodayHome } from "../school-home";
 import { teachersPhotoHome } from "../teachers-home";
 import { NAKHLA_LOOK, RAWAQ_LOOK, rawaqTabs, schoolPage } from "./school-looks";
 // 130.23 The premium chrome of a demo's pages (lib/studio/demo-designs/chrome.ts).
-import { chromedHeader } from "./chrome";
-// 130 The Signature looks (./signature.ts): Masar's, Lamha's and Safra's.
-import { LAMHA_LOOKS } from "./lamha-signature";
-import { MASAR_LOOKS } from "./masar-signature";
-import { SAFRA_LOOKS } from "./safra-signature";
-import { SIGNATURE_LOOKS, signatureTemplateId, type SignatureDesign, type SignatureLook, type SignatureLooks } from "./signature";
+import { chromedHeader, type DemoChrome } from "./chrome";
+// 130 The Signature looks (./signature.ts), each demo's two in its own file.
+import { LAMHA_A, LAMHA_B } from "./lamha-signature";
+import { MASAR_A, MASAR_B } from "./masar-signature";
+import { NAKHLA_A, NAKHLA_B } from "./nakhla-signature";
+import { RAWAQ_A, RAWAQ_B } from "./rawaq-signature";
+import { SAFRA_A, SAFRA_B } from "./safra-signature";
+import { UFUQ_A, UFUQ_B } from "./ufuq-signature";
+import { SIGNATURE_LOOKS, signatureProject, signatureSystem, signatureTemplateId, type SignatureDesign, type SignatureLook } from "./signature";
 
 /**
  * 128 The Studio demos made premium and complete (the owner, 13 November
@@ -124,57 +127,93 @@ const STUDIO_DEMO_DESIGNS: Partial<Record<StudioDemoId, DemoDesign>> = {
   instructors: { template: { id: "teachers_photo", icon: "co_present", fits: { types: ["lms"], verticals: ["instructors"] } }, home: teachersPhotoHome, over: schoolPage(RAWAQ_LOOK), look: RAWAQ_LOOK, tabs: rawaqTabs, bar: { design: "classic", background: "#FFFFFF", dark_background: "#15221C", active: "#2E5E4E", dark_active: "#8FD1B6", inactive: "#5A665F", dark_inactive: "#A9B7AF" } },
 };
 
-// ——— 130 The Signature looks: each demo's two looks, A and B (./signature.ts) ———
+// ——— 130 The Signature looks: each demo's two looks, A and B (./signature.ts), in ONE list ———
 
-/** A demo's looks with its tabs as its own design has them. */
-function tabbed(looks: SignatureLooks, tabs: DemoDesign["tabs"]): SignatureLooks {
-  return Object.fromEntries(Object.entries(looks).map(([look, design]) => [look, { ...design, tabs: design.tabs ?? tabs }])) as SignatureLooks;
-}
-
-/** The looks of the demos that have them; a demo's look A is the demo itself. */
-const SIGNATURE_DESIGNS: Partial<Record<StudioDemoId, SignatureLooks>> = {
+/**
+ * Every Studio demo's looks A and B. A demo's look A is the demo itself:
+ * the demo app, `demo_<demo>`, "Like our demo" and Admin › Demo apps make
+ * it (`studioDemoDesign` without a look). A look without tabs of its own
+ * has its demo's (128's design's).
+ */
+const SIGNATURE_DESIGNS: Record<StudioDemoId, Record<SignatureLook, SignatureDesign>> = {
+  // 130.1–130.6 Sofra Eats, Zad and Sahm Express.
   // 130.7 130.8 Masar Rides, map first: A a living map, B a horizon.
-  rides: tabbed(MASAR_LOOKS, rideTabs),
+  rides: { a: MASAR_A, b: MASAR_B },
   // 130.9 130.10 Lamha Taxi, taxi yellow and navy: A two inks, B a radar.
-  taxi: tabbed(LAMHA_LOOKS, rideTabs),
+  taxi: { a: LAMHA_A, b: LAMHA_B },
   // 130.12 Safra, ink and gold: A a cover story, B a bento atlas.
-  travel: SAFRA_LOOKS,
-};
+  travel: { a: SAFRA_A, b: SAFRA_B },
+  // 130.13 130.14 Nakhla School: A the morning edition, B the family passes.
+  school: { a: NAKHLA_A, b: NAKHLA_B },
+  // 130.15 130.16 Rawaq Academy: A the faculty index, B on air.
+  instructors: { a: RAWAQ_A, b: RAWAQ_B },
+  // 130.17 130.18 Ufuq Academy (the premium academy): A night cinema, B the gold ring.
+  premium_academy: { a: UFUQ_A, b: UFUQ_B },
+} as Record<StudioDemoId, Record<SignatureLook, SignatureDesign>>;
+
+/** A look with its demo's own tabs when it has none of its own. */
+function withDemoTabs(d: SignatureDesign): SignatureDesign {
+  const tabs = d.tabs ?? STUDIO_DEMO_DESIGNS[d.demo]?.tabs;
+  return tabs ? { ...d, tabs } : d;
+}
 
 /** A demo's look; missing `look`, its look A (the demo). Undefined when the demo has no such look. */
 export function signatureDesign(demo: StudioDemoId, look?: SignatureLook): SignatureDesign | undefined {
-  return SIGNATURE_DESIGNS[demo]?.[look ?? "a"];
+  const d = SIGNATURE_DESIGNS[demo]?.[look ?? "a"];
+  return d ? withDemoTabs(d) : undefined;
 }
 
-/** The looks a demo has, in their order (none for a demo without Signature looks). */
+/** The looks a demo has, A then B (none for a demo without Signature looks). */
 export function signatureLooksOf(demo: StudioDemoId): SignatureLook[] {
   return SIGNATURE_LOOKS.filter((look) => SIGNATURE_DESIGNS[demo]?.[look]);
 }
 
-/** Each look as a template of its demo's kind (`<demo>_signature_<look>`): the whole app in that look (lib/studio/start.ts). */
+/** Every demo's looks, A before B, in the demos' order. */
+export function signatureDesigns(): SignatureDesign[] {
+  return (Object.keys(SIGNATURE_DESIGNS) as StudioDemoId[]).flatMap((demo) => signatureLooksOf(demo).map((look) => signatureDesign(demo, look)!));
+}
+
+/** A look's home: its header (one not lying over its cover) in the look's premium style. */
+function chromedHome(d: SignatureDesign, page: StudioPage): StudioPage {
+  const header = chromedHeader(page.header, d.chrome.home ?? d.chrome.header);
+  return header ? { ...page, header } : page;
+}
+
+/**
+ * Each look as a template of its demo's kind (`<demo>_signature_<look>`,
+ * lib/studio/sections.ts TEMPLATES): its home in the dashboard's language
+ * with Studio's others as translations, and the whole project with it
+ * (lib/studio/start.ts): every page after the home in the look (`demo`,
+ * `look`), its bar, tabs, colours, font, sign-in, account menu and premium
+ * system screens (`project`).
+ */
 export function signatureTemplates(): TemplateInfo[] {
-  return (Object.keys(SIGNATURE_DESIGNS) as StudioDemoId[]).flatMap((demo) =>
-    signatureLooksOf(demo).map((look): TemplateInfo => {
-      const d = signatureDesign(demo, look)!;
-      return {
-        id: signatureTemplateId(demo, look),
-        icon: d.template.icon,
-        fits: d.template.fits,
-        demo,
-        look,
-        recommended: true,
-        make: (ctx: SectionContext) => {
-          const { ctx: words, translate } = translating(ctx);
-          const page = d.home({ ...words, demo, look });
-          return { ...page, body: translate(page.body) };
-        },
-      };
+  return signatureDesigns().map(
+    (d): TemplateInfo => ({
+      id: signatureTemplateId(d.demo, d.variant),
+      icon: d.template.icon,
+      fits: d.template.fits,
+      demo: d.demo,
+      look: d.variant,
+      recommended: true,
+      project: signatureProject(d),
+      make: (ctx: SectionContext) => {
+        const { ctx: words, page } = translating({ ...ctx, demo: d.demo, look: d.variant });
+        return page(chromedHome(d, d.home(words)));
+      },
     }),
   );
 }
+
+/** 130.23 A demo's premium chrome: its look A's (the demo is its look A); none for a project not made from a demo. */
+export function demoChrome(demo: StudioDemoId | null | undefined): DemoChrome | null {
+  if (!demo) return null;
+  const d = signatureDesign(demo, "a");
+  return d ? { pages: d.chrome.header, system: signatureSystem(d, null) } : null;
+}
 // ——— end 130 ———
 
-/** The demo's own design, when it has one; 130 its Signature look `look` (missing, look A) when it has looks. */
+/** The demo's own design, when it has one; 130 its Signature look `look` (missing, look A: the demo) when it has looks. */
 export function studioDemoDesign(demo: StudioDemoId | undefined, look?: SignatureLook): DemoDesign | undefined {
   if (!demo) return undefined;
   return signatureDesign(demo, look) ?? STUDIO_DEMO_DESIGNS[demo];
@@ -222,8 +261,8 @@ export function designedDemoPage<P extends { studio: StudioPage }>(ctx: SectionC
   const { header: was, ...studio } = page.studio;
   const look = design.look && (!design.look.headed || was) ? design.look : undefined;
   const coloured = was && look ? { ...was, ...look.header } : was;
-  // 130.23 The pages after the home in the demo's premium header style.
-  const header = chromedHeader(coloured, ctx.demo);
+  // 130.23 The pages after the home in the premium header style of the look (130 a Signature look's), else the demo's.
+  const header = chromedHeader(coloured, (design as Partial<SignatureDesign>).chrome?.header ?? demoChrome(ctx.demo)?.pages);
   return {
     ...page,
     studio: {

@@ -1576,6 +1576,7 @@ class StudioNodeView extends ConsumerWidget {
           title: node.title,
           dark: scope.dark,
           style: node.learningStyle,
+          days: node.learningDays,
           ownPicture: node.imageBackgroundUrl != null,
         );
       case StudioNodeType.liveStatus:

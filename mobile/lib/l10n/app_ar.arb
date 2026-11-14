@@ -3089,5 +3089,7 @@
   "studioTaxisAroundLive": "{count, plural, =1{سيارة أجرة واحدة حولك الآن} =2{سيارتا أجرة حولك الآن} few{{count} سيارات أجرة حولك الآن} other{{count} سيارة أجرة حولك الآن}}",
   "studioTaxisFreeAround": "{count, plural, =1{سيارة أجرة متاحة حولك.} =2{سيارتا أجرة متاحتان حولك.} few{سيارات أجرة متاحة حولك.} other{سيارة أجرة متاحة حولك.}}",
   "studioRideOnTheWayShort": "في الطريق",
-  "studioTripVia": "عبر {via}"
+  "studioTripVia": "عبر {via}",
+  "learningResumeLesson": "تابع الدرس",
+  "learningPercentOfCourse": "{percent}% من الدورة"
 }

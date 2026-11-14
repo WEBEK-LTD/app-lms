@@ -802,10 +802,21 @@ export const STUDIO_LEARNING_SECTIONS = ["continue", "streak", "live", "week"] a
  * on one chip, how far they are in gold and a round play button, the
  * live class's time in gold over its name; the streak a compact figure.
  */
-export const STUDIO_LEARNING_STYLES = ["card", "photo"] as const;
+/**
+ * 130.18 `ring`: the course they are taking as its photo in a round frame,
+ * a gold ring round it filled to how far they are (ticks, a knob at its
+ * end), the lesson on a chip over the photo's foot, then the kicker, the
+ * course's name, the minutes left and how far they are, and a button that
+ * opens the lesson, centred; the other cards as on a photo.
+ */
+export const STUDIO_LEARNING_STYLES = ["card", "photo", "ring"] as const;
+/** 130.18 This week's days under a streak: round letters or short pills, the days learned filled, today ringed. */
+export const STUDIO_LEARNING_DAYS = ["letters", "pills"] as const;
 export interface StudioLearning {
   section: (typeof STUDIO_LEARNING_SECTIONS)[number];
   style?: (typeof STUDIO_LEARNING_STYLES)[number];
+  /** 130.18 For `streak`: this week's days under it; missing, none (the card look keeps its bars). */
+  days?: (typeof STUDIO_LEARNING_DAYS)[number];
 }
 
 /**
@@ -1301,9 +1312,23 @@ export interface StudioNode {
 export const STUDIO_TABLET_FIELDS = ["width", "height", "min_height", "padding", "margin", "gap", "columns", "per_view", "font", "text_align"] as const;
 export type StudioTablet = Partial<Pick<StudioNode, (typeof STUDIO_TABLET_FIELDS)[number]>>;
 
+// ——— 130 Premium page headers (the premium chrome engineer's: contract, validation, canvas and app; the Signature looks set them) ———
+/**
+ * 130 How a header is drawn over its type: `large` a big title that folds
+ * into a compact bar on scroll, `glass` a frosted bar over the content,
+ * `photo` a photo or brand cover with a scrim and the title, `brand` the
+ * logo or name centred with round glass buttons, `search` the title over a
+ * search pill. Missing, the type as it is drawn today.
+ */
+export const STUDIO_HEADER_STYLES = ["large", "glass", "photo", "brand", "search"] as const;
+export type StudioHeaderStyle = (typeof STUDIO_HEADER_STYLES)[number];
+// ——— end 130 premium page headers ———
+
 /** 103R The bar at the top of a Studio page (`StudioHeader`). */
 export interface StudioHeader {
   type: StudioHeaderType;
+  /** 130 Its premium style (`STUDIO_HEADER_STYLES`); missing, the type's own. */
+  style?: StudioHeaderStyle;
   title?: string | null;
   logo_url?: string | null;
   buttons?: StudioHeaderButton[];

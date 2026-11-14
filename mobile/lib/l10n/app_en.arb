@@ -12604,5 +12604,18 @@
         "type": "String"
       }
     }
+  },
+  "learningResumeLesson": "Resume lesson",
+  "@learningResumeLesson": {
+    "description": "130.18 The button under the course in its gold ring (the Signature looks)."
+  },
+  "learningPercentOfCourse": "{percent}% of the course",
+  "@learningPercentOfCourse": {
+    "description": "130.18 How far the student is in the course, under it in its gold ring.",
+    "placeholders": {
+      "percent": {
+        "type": "int"
+      }
+    }
   }
 }

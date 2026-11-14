@@ -1,7 +1,7 @@
 import type { StudioNode, StudioPage, TabBarStyle } from "../../pages/types";
 import type { SectionContext, SectionWord } from "../sections";
 import { idOf, pad, photo, photoBanner, screen, type DemoInk } from "./parts";
-import { filler, inked, inkIcon, roundOf, type SignatureDesign, type SignatureLooks } from "./signature";
+import { filler, inked, inkIcon, roundOf, signatureScreens, type SignatureDesign } from "./signature";
 
 /**
  * 130.9 130.10 Lamha Taxi's Signature looks (the R2-Lamha boards), taxi
@@ -275,24 +275,28 @@ const A_BAR: TabBarStyle = {
 };
 
 const TWO_INK: SignatureDesign = {
+  demo: "taxi",
+  variant: "a",
   template: { id: "taxi_signature_a", icon: "local_taxi", fits: { types: ["rides"] } },
   home: lamhaAHome,
   over: lamhaAOver,
   look: { header: { background: A.page, color: A.ink, dark_background: A.darkPage, dark_color: A.darkInk }, background: A.page, dark_background: A.darkPage },
   bar: A_BAR,
-  screens: {
-    style: "photo",
-    photo: "/stories/rides/rides-backseat.jpg",
-    title: { en: "A taxi, moments away", ar: "سيارة أجرة على بُعد لحظات", tr: "Taksiniz birkaç dakika uzakta" },
-    subtitle: {
-      en: "See the free taxis around you, live on the map.",
-      ar: "شاهد سيارات الأجرة المتاحة حولك مباشرةً على الخريطة.",
-      tr: "Etrafınızdaki boş taksileri haritada canlı görün.",
-    },
-    menu: "night",
-    accent: YELLOW,
+  project: {
+    screens: signatureScreens({
+      style: "photo",
+      photo: "/stories/rides/rides-backseat.jpg",
+      title: { en: "A taxi, moments away", ar: "سيارة أجرة على بُعد لحظات", tr: "Taksiniz birkaç dakika uzakta" },
+      subtitle: {
+        en: "See the free taxis around you, live on the map.",
+        ar: "شاهد سيارات الأجرة المتاحة حولك مباشرةً على الخريطة.",
+        tr: "Etrafınızdaki boş taksileri haritada canlı görün.",
+      },
+      menu: "night",
+      accent: YELLOW,
+    }),
   },
-  chrome: { header: "brand", screens: "brand" },
+  chrome: { header: "brand", system: "brand" },
 };
 
 // ——— B: Glance radar ———
@@ -486,24 +490,29 @@ const B_BAR: TabBarStyle = {
 };
 
 const GLANCE_RADAR: SignatureDesign = {
+  demo: "taxi",
+  variant: "b",
   template: { id: "taxi_signature_b", icon: "radar", fits: { types: ["rides"] } },
   home: lamhaBHome,
   over: lamhaBOver,
   look: { header: { background: B.page, color: B.ink, dark_background: B.darkPage, dark_color: B.darkInk }, background: B.page, dark_background: B.darkPage },
   bar: B_BAR,
-  screens: {
-    style: "premium",
-    photo: "/stories/rides/rides-waiting.jpg",
-    title: { en: "Taxis around you, at a glance", ar: "سيارات الأجرة حولك في لمحة", tr: "Çevrenizdeki taksiler bir bakışta" },
-    subtitle: {
-      en: "Sign in to see the free taxis near you and book the nearest.",
-      ar: "سجّل الدخول لترى سيارات الأجرة المتاحة قربك وتحجز الأقرب.",
-      tr: "Yakınınızdaki boş taksileri görmek ve en yakınını çağırmak için giriş yapın.",
-    },
-    menu: "night",
-    accent: YELLOW,
+  project: {
+    screens: signatureScreens({
+      style: "premium",
+      photo: "/stories/rides/rides-waiting.jpg",
+      title: { en: "Taxis around you, at a glance", ar: "سيارات الأجرة حولك في لمحة", tr: "Çevrenizdeki taksiler bir bakışta" },
+      subtitle: {
+        en: "Sign in to see the free taxis near you and book the nearest.",
+        ar: "سجّل الدخول لترى سيارات الأجرة المتاحة قربك وتحجز الأقرب.",
+        tr: "Yakınınızdaki boş taksileri görmek ve en yakınını çağırmak için giriş yapın.",
+      },
+      menu: "night",
+      accent: YELLOW,
+    }),
   },
-  chrome: { header: "large", screens: "large" },
+  chrome: { header: "large", system: "large" },
 };
 
-export const LAMHA_LOOKS: SignatureLooks = { a: TWO_INK, b: GLANCE_RADAR };
+export const LAMHA_A = TWO_INK;
+export const LAMHA_B = GLANCE_RADAR;

@@ -34,13 +34,15 @@ export const DEMO_HOME_TEMPLATES: Record<StudioDemoId, string> = {
   rides: "rides_signature_a",
   // 130.9 Lamha Taxi is its Signature look A, the two-ink cab (lib/studio/demo-designs/lamha-signature.ts).
   taxi: "taxi_signature_a",
-  school: "school_today",
-  instructors: "teachers_photo",
+  // 130.13 Nakhla School is its Signature look A, the morning edition (lib/studio/demo-designs/nakhla-signature.ts).
+  school: "school_signature_a",
+  // 130.15 Rawaq Academy is its Signature look A, the faculty index (lib/studio/demo-designs/rawaq-signature.ts).
+  instructors: "instructors_signature_a",
   // 126 Safra's Explore: travel's own template (128 in the same registry, lib/studio/demo-designs/safra-travel.ts).
   // 130.12 Safra is its Signature look A, the cover story (lib/studio/demo-designs/safra-signature.ts).
   travel: "travel_signature_a",
-  // 123 The premium academy's home is its template's.
-  premium_academy: "academy_premium",
+  // 123 The premium academy's home is its template's; 130.17 its Signature look A, night cinema (lib/studio/demo-designs/ufuq-signature.ts).
+  premium_academy: "premium_academy_signature_a",
 };
 
 const ENTITIES: Record<string, string> = { amp: "&", lt: "<", gt: ">", quot: '"', "#39": "'" };
@@ -178,24 +180,24 @@ export function translating(ctx: SectionContext): { ctx: SectionContext; transla
   const translate = (node: StudioNode): StudioNode => {
     const out: StudioNode = { ...node };
     const texts = all(node.text);
-    // 130.11 And a greeting's words without a name.
-    const titles = node.type === "market" || node.type === "greeting" ? all(node.title) : null;
+    // 130.11 And a greeting's words without a name; 130 any element's title the template wrote (a call to action's, a card's).
+    const titles = all(node.title);
     if (texts || titles) {
       const translations: Record<string, Record<string, string>> = {};
-      for (const l of others) translations[l] = { ...(texts ? { text: texts[l]! } : {}), ...(titles ? { title: titles[l]! } : {}) };
+      for (const l of others) translations[l] = { ...((node.translations?.[l] as Record<string, string> | undefined) ?? {}), ...(texts ? { text: texts[l]! } : {}), ...(titles ? { title: titles[l]! } : {}) };
       out.translations = translations as StudioNode["translations"];
     }
     if (node.children) out.children = node.children.map(translate);
-    // 130.12 A premium element's entries (a bento's tiles): their words in Studio's other languages too.
-    if (node.entries) {
-      out.entries = node.entries.map((entry) => {
-        const fields = (["title", "subtitle", "text", "label"] as const).map((f) => [f, all(entry[f])] as const).filter(([, words]) => words);
-        if (!fields.length) return entry;
-        const translations: Record<string, Record<string, string>> = {};
-        for (const l of others) translations[l] = Object.fromEntries(fields.map(([f, words]) => [f, words![l]!]));
-        return { ...entry, translations: translations as StudioEntry["translations"] };
-      });
-    }
+    // 130 A premium element's list (130.12 a bento's tiles, a story, a stat; a story's heading): their words in Studio's other languages too, keeping the ones they have.
+    const listed = <T extends { translations?: StudioEntry["translations"] }>(item: T, names: readonly string[]): T => {
+      const fields = names.map((f) => [f, all((item as Record<string, unknown>)[f] as string | null | undefined)] as const).filter(([, words]) => words);
+      if (!fields.length) return item;
+      const translations: Record<string, Record<string, string>> = {};
+      for (const l of others) translations[l] = { ...((item.translations?.[l] as Record<string, string> | undefined) ?? {}), ...Object.fromEntries(fields.map(([f, words]) => [f, words![l]!])) };
+      return { ...item, translations: translations as StudioEntry["translations"] };
+    };
+    if (node.entries) out.entries = node.entries.map((entry) => listed(entry, ["title", "subtitle", "text", "label"]));
+    if (node.slides) out.slides = node.slides.map((slide) => listed(slide, ["heading", "subheading", "label"]));
     if (node.card) out.card = translate(node.card);
     return out;
   };
@@ -251,6 +253,16 @@ export const DEMO_FACTS: Partial<Record<StudioDemoId, Partial<Record<SectionWord
   food: {
     fpArea: { en: "Home · Zamalek", ar: "المنزل · الزمالك", tr: "Ev · Zamalek" },
   },
+  // ——— 130.13–130.18 The Signature looks' brackets, in the demo's own words ———
+  // Nakhla School's week (lib/demo/school-life.ts): the parents' evening, the class trip, sports day.
+  school: {
+    nkNewsLines: {
+      en: "Parents' evening for Grade 5 in the main hall\nGrade 5 A: Science museum trip\nSports day: come in your sports kit",
+      ar: "لقاء أولياء أمور الصف الخامس في القاعة الرئيسية\nالصف 5 أ: رحلة إلى متحف العلوم\nاليوم الرياضي: تعالوا بالزي الرياضي",
+      tr: "5. sınıflar için veli akşamı ana salonda\n5 A: Bilim müzesi gezisi\nSpor günü: spor kıyafetinizle gelin",
+    },
+  },
+  // ——— end 130.13–130.18 ———
   // 128 Zad Market's own offer this week (lib/demo/marketplace.ts).
   marketplace: {
     mpOffer: { en: "Fresh fruit, 15% off", ar: "فاكهة طازجة بخصم 15%", tr: "Taze meyve %15 indirimli" },

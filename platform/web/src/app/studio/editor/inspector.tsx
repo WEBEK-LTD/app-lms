@@ -22,6 +22,7 @@ import {
   STUDIO_LIVE_SOURCES,
   STUDIO_SCHOOL_SECTIONS,
   STUDIO_LEARNING_STYLES,
+  STUDIO_LEARNING_DAYS,
   STUDIO_MARKET_SORTS,
   STUDIO_MARKET_STYLES,
   STUDIO_MARKET_CARD_FACTS,
@@ -1781,7 +1782,7 @@ function LearningControls({ node, onChange }: { node: StudioNode; onChange: (pat
         {t("studio.learningSection")}
         <select
           value={node.learning?.section ?? "continue"}
-          onChange={(e) => onChange({ learning: { section: e.target.value as Learning["section"], ...(style === "photo" ? { style } : {}) } })}
+          onChange={(e) => onChange({ learning: { ...node.learning, section: e.target.value as Learning["section"], ...(style !== "card" ? { style } : {}) } })}
           className="h-9 rounded-lg px-2 font-normal"
           style={{ border: "1px solid var(--studio-line)" }}
         >
@@ -1800,7 +1801,11 @@ function LearningControls({ node, onChange }: { node: StudioNode; onChange: (pat
         {t("studio.learningStyle")}
         <select
           value={style}
-          onChange={(e) => onChange({ learning: { section: node.learning?.section ?? "continue", ...(e.target.value === "photo" ? { style: "photo" as const } : {}) } })}
+          onChange={(e) => {
+            const { style: _old, ...rest } = node.learning ?? { section: "continue" as const };
+            void _old;
+            onChange({ learning: { ...rest, ...(e.target.value !== "card" ? { style: e.target.value as Learning["style"] } : {}) } });
+          }}
           className="h-9 rounded-lg px-2 font-normal"
           style={{ border: "1px solid var(--studio-line)" }}
         >
@@ -1811,6 +1816,29 @@ function LearningControls({ node, onChange }: { node: StudioNode; onChange: (pat
           ))}
         </select>
       </label>
+      {/* 130.18 This week's days under a streak. */}
+      {node.learning?.section === "streak" ? (
+        <label className="flex flex-col gap-1 font-bold">
+          {t("studio.learningDays")}
+          <select
+            value={node.learning.days ?? ""}
+            onChange={(e) => {
+              const { days: _old, ...rest } = node.learning!;
+              void _old;
+              onChange({ learning: { ...rest, ...(e.target.value ? { days: e.target.value as Learning["days"] } : {}) } });
+            }}
+            className="h-9 rounded-lg px-2 font-normal"
+            style={{ border: "1px solid var(--studio-line)" }}
+          >
+            <option value="">{t("studio.learningDays_none")}</option>
+            {STUDIO_LEARNING_DAYS.map((d) => (
+              <option key={d} value={d}>
+                {t(`studio.learningDays_${d}` as DashKey)}
+              </option>
+            ))}
+          </select>
+        </label>
+      ) : null}
     </div>
   );
 }

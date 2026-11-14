@@ -859,6 +859,17 @@ final websiteShots = <Shot>[
     appType: AppType.lms,
     after: (tester, router) async => router.go('/teacher-desk'),
   ),
+  // 130.17 130.18 Ufuq Academy's Signature looks' homes, by day and by night.
+  for (final letter in ['a', 'b'])
+    for (final dark in [false, true])
+      Shot(
+        'ufuq-sig-$letter-home${dark ? '-dark' : ''}',
+        dark: dark,
+        api: () => premiumAcademyApi(look: 'ufuq_sig_$letter.json'),
+        appType: AppType.lms,
+        prepare: preparePremiumAcademy,
+        overrides: premiumAcademyOverrides,
+      ),
   // 123 The premium academy's demo, Ufuq Academy (its story page too).
   for (final (name, location) in [
     ('premium-home', null),
@@ -1043,6 +1054,36 @@ final websiteShots = <Shot>[
     prepare: StudioDemo.nakhla.prepare,
     overrides: _nakhlaMorning,
   ),
+  // 130.13–130.18 The Signature looks' homes, by day and by night.
+  for (final (name, look) in [
+    ('nakhla-sig-a', StudioDemo.nakhlaSigA),
+    ('nakhla-sig-b', StudioDemo.nakhlaSigB),
+  ])
+    for (final dark in [false, true])
+      Shot(
+        '$name-home${dark ? '-dark' : ''}',
+        dark: dark,
+        api: () => nakhlaStudioApi(staffApp: true, look: look),
+        appName: 'Nakhla School',
+        appType: AppType.school,
+        prepare: look.prepare,
+        overrides: _nakhlaMorning,
+        shadows: true,
+      ),
+  for (final (name, look) in [
+    ('rawaq-sig-a', StudioDemo.rawaqSigA),
+    ('rawaq-sig-b', StudioDemo.rawaqSigB),
+  ])
+    for (final dark in [false, true])
+      Shot(
+        '$name-home${dark ? '-dark' : ''}',
+        dark: dark,
+        api: () => rawaqStudioApi(staffApp: true, look: look),
+        appName: 'Rawaq Academy',
+        appType: AppType.lms,
+        prepare: (tester) => look.prepare(tester, rawaqPhotos),
+        shadows: true,
+      ),
   Shot(
     'nakhla-parent',
     api: () => nakhlaStudioApi(staffApp: true),

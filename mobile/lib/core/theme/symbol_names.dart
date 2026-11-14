@@ -162,6 +162,13 @@ const symbolsByName = <String, IconData>{
   'qr_code_2': Symbols.qr_code_2_rounded,
   'radar': Symbols.radar_rounded,
   'landscape': Symbols.landscape_rounded,
+  // 130.13–130.18 The Signature looks of the school and the academies: the
+  // school bus, the forms to sign, a streak's flame, the live tab.
+  'directions_bus': Symbols.directions_bus_rounded,
+  'signature': Symbols.signature_rounded,
+  'local_fire_department': Symbols.local_fire_department_rounded,
+  'sensors': Symbols.sensors_rounded,
+  'north_east': Symbols.north_east_rounded,
 };
 
 /// Shown for a name the app doesn't have.
