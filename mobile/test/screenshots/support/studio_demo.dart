@@ -661,14 +661,21 @@ DemoApi _masarRide(DemoApi api) => api
   ];
 
 /// Lamha Taxi (Studio's live taxi demo): its car types on its home, the cars
-/// in their drawings (none of a six-seat car).
+/// in their drawings (none of a six-seat car). 130.51 And the driver's week
+/// ([earnings]), for the website's rides story.
 DemoApi lamhaStudioApi({
   bool driver = false,
   bool ride = true,
   bool onBoard = false,
+  bool earnings = false,
   StudioDemo? look,
 }) => (look ?? StudioDemo.lamha).apply(
-  DemoApi.taxi(driver: driver, ride: ride, onBoard: onBoard),
+  DemoApi.taxi(
+    driver: driver,
+    ride: ride,
+    onBoard: onBoard,
+    earnings: earnings,
+  ),
   appName: 'Lamha Taxi',
   primaryColor: '#1C2541',
   items: {

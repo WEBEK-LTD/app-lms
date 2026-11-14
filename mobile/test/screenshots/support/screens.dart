@@ -89,6 +89,9 @@ BuildConfigData _driverApp(BuildConfigData b) =>
 BuildConfigData _courierApp(BuildConfigData b) =>
     b.copyWith(role: AppRole.courier);
 
+/// 130.51 A school's staff app (116): its teachers' and staff's screens.
+BuildConfigData _staffApp(BuildConfigData b) => b.copyWith(role: AppRole.staff);
+
 /// The Sahm Express parcel's trip, Nasr City to Maadi: its middle, and its
 /// ends.
 const _sahmTrip = (lat: 30.0082, lng: 31.2935);
@@ -709,7 +712,7 @@ final websiteShots = <Shot>[
     after: (tester, router) async => router.go('/driver'),
   ),
   // The website's rides story: Ahmed on board, sharing the ride, and
-  // Hany's week.
+  // Hany's week (130.51 in Lamha Taxi's look A, as its drivers' app is).
   Shot(
     'taxi-on-ride',
     api: () => DemoApi.taxi(onBoard: true),
@@ -722,13 +725,15 @@ final websiteShots = <Shot>[
   ),
   Shot(
     'taxi-earnings',
-    api: () => DemoApi.taxi(driver: true, earnings: true),
+    api: () => lamhaStudioApi(driver: true, earnings: true),
     appName: 'Lamha Taxi Driver',
     build: _driverApp,
     appType: AppType.rides,
     template: AppTemplate.bold,
+    prepare: StudioDemo.lamha.prepare,
     overrides: _atTahrir,
     mapTiles: true,
+    shadows: true,
     after: (tester, router) async {
       router.go('/driver');
       await TestApp.settle(tester, 20);
@@ -739,56 +744,23 @@ final websiteShots = <Shot>[
       // The sheet up, for the week's days.
       await tester.drag(
         find.byKey(const ValueKey('driver-earnings')),
-        const Offset(0, -290),
+        const Offset(0, -350),
       );
     },
   ),
   Shot('school-today', api: DemoApi.school, appType: AppType.school),
-  Shot(
-    'school-homework',
-    api: DemoApi.school,
-    appType: AppType.school,
-    location: '/school/homework',
-  ),
   Shot(
     'school-classroom',
     api: DemoApi.school,
     appType: AppType.school,
     location: '/classroom/class/2/attendance',
   ),
-  // The website's school story: the parent's area, the bus coming, the
-  // fees, a teacher's payslip and the library (Nakhla School).
+  // The parent's area (Nakhla School).
   Shot(
     'school-parent',
     api: DemoApi.school,
     appType: AppType.school,
     after: (tester, router) async => router.go('/parent'),
-  ),
-  Shot(
-    'school-bus',
-    api: () => DemoApi.school(map: true),
-    appType: AppType.school,
-    location: '/school/bus?student=11',
-    mapTiles: true,
-    mapCenter: (lat: 29.9641, lng: 31.2531),
-  ),
-  Shot(
-    'school-fees',
-    api: DemoApi.school,
-    appType: AppType.school,
-    location: '/school/fees?student=11',
-  ),
-  Shot(
-    'school-payslip',
-    api: DemoApi.school,
-    appType: AppType.school,
-    location: '/staff/payslip/42',
-  ),
-  Shot(
-    'school-library',
-    api: DemoApi.school,
-    appType: AppType.school,
-    location: '/school/library',
   ),
   // The website's multi-vendor story: Zad's home, Bab El Sharq Grill's
   // menu, Zad Market's aisles by the kilo, and the groceries on their way.
@@ -1172,6 +1144,58 @@ final websiteShots = <Shot>[
         prepare: (tester) => look.prepare(tester, rawaqPhotos),
         shadows: true,
       ),
+  // 130.51 The website's school story: homework, the bus coming, the
+  // fees and the library, as Nakhla School's app is (its look A: each
+  // screen under the look's glass header), and a teacher's payslip in its
+  // staff app.
+  Shot(
+    'school-homework',
+    api: () => nakhlaStudioApi(staffApp: true),
+    appName: 'Nakhla School',
+    appType: AppType.school,
+    prepare: StudioDemo.nakhla.prepare,
+    location: '/school/homework',
+    shadows: true,
+  ),
+  Shot(
+    'school-bus',
+    api: () => nakhlaStudioApi(map: true, staffApp: true),
+    appName: 'Nakhla School',
+    appType: AppType.school,
+    prepare: StudioDemo.nakhla.prepare,
+    location: '/school/bus?student=11',
+    mapTiles: true,
+    mapCenter: (lat: 29.9641, lng: 31.2531),
+    shadows: true,
+  ),
+  Shot(
+    'school-fees',
+    api: () => nakhlaStudioApi(staffApp: true),
+    appName: 'Nakhla School',
+    appType: AppType.school,
+    prepare: StudioDemo.nakhla.prepare,
+    location: '/school/fees?student=11',
+    shadows: true,
+  ),
+  Shot(
+    'school-library',
+    api: () => nakhlaStudioApi(staffApp: true),
+    appName: 'Nakhla School',
+    appType: AppType.school,
+    prepare: StudioDemo.nakhla.prepare,
+    location: '/school/library',
+    shadows: true,
+  ),
+  Shot(
+    'school-payslip',
+    api: () => nakhlaStudioApi(staffApp: true),
+    appName: 'Nakhla School Staff',
+    build: _staffApp,
+    appType: AppType.school,
+    prepare: StudioDemo.nakhla.prepare,
+    location: '/staff/payslip/42',
+    shadows: true,
+  ),
   Shot(
     'nakhla-parent',
     api: () => nakhlaStudioApi(staffApp: true),
