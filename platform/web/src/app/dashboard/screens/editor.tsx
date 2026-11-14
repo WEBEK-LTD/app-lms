@@ -43,6 +43,10 @@ import { LaunchSection, newLaunch } from "./launch-section";
 // 130.21 The system screens' premium look.
 import { SystemSection } from "./system-section";
 import type { SystemScreensLook } from "@/lib/studio/premium-chrome";
+// 130.52 Studio's course screens.
+import { CourseScreensSection } from "./course-screens-section";
+import type { CourseScreens } from "@/lib/studio/course-screens";
+import type { PickableEntry } from "@/lib/hosted/pages/pickable";
 
 /** 118.3 The night look's card colour when the owner keeps the default. */
 const NIGHT_GOLD = "#D9B36C";
@@ -127,6 +131,7 @@ export function ScreensEditor({
   color,
   courses = false,
   brand,
+  sampleCourses,
 }: {
   initial: StudioScreens | null;
   languages: { code: string; name: string }[];
@@ -137,6 +142,8 @@ export function ScreensEditor({
   courses?: boolean;
   /** 124.15 The project's colours, name, logo and icon, for the launch screen's preview. */
   brand?: LaunchBrand;
+  /** 130.52 The courses the course screens' drawings show, by language (the project's, else the samples). */
+  sampleCourses?: Record<string, PickableEntry[]>;
 }) {
   const t = useDashT();
   const [state, action] = useActionState(saveStudioScreensAction, initialFormState);
@@ -158,6 +165,8 @@ export function ScreensEditor({
   const [launchOwn, setLaunchOwn] = useState(!!initial?.launch);
   // 130.21 The system screens' premium look; null, the app's own.
   const [system, setSystem] = useState<SystemScreensLook | null>(initial?.system ?? null);
+  // 130.52 The course screens' look; null, as before.
+  const [courseLook, setCourseLook] = useState<CourseScreens | null>(initial?.courses ?? null);
 
   const screens: StudioScreens = useMemo(
     () => ({
@@ -175,8 +184,10 @@ export function ScreensEditor({
       ...(launchOwn ? { launch: { ...launch, title: clean(launch.title), subtitle: clean(launch.subtitle) } } : {}),
       // 130.21
       ...(system ? { system } : {}),
+      // 130.52
+      ...(courses && courseLook ? { courses: courseLook } : {}),
     }),
-    [look, header, accent, entries, courses, card, coursePage, looks, launch, launchOwn, system],
+    [look, header, accent, entries, courses, card, coursePage, looks, launch, launchOwn, system, courseLook],
   );
 
   const move = (index: number, by: number) =>
@@ -424,6 +435,19 @@ export function ScreensEditor({
           <p className="m-0 text-sm text-muted">{t("studio.signOutLast")}</p>
         </section>
 
+        {/* 130.52 The academy's course screens in one premium look. */}
+        {courses ? (
+          <CourseScreensSection
+            value={courseLook}
+            onChange={setCourseLook}
+            languages={languages}
+            brand={brand?.main ?? color}
+            accent={brand?.second ?? null}
+            courses={sampleCourses?.[previewLang] ?? sampleCourses?.en ?? []}
+            lang={previewLang}
+            dark={previewDark}
+          />
+        ) : null}
         {courses ? (
           <section aria-labelledby="h-looks" className="flex flex-col gap-4 rounded-2xl border border-line bg-white p-5 sm:p-6">
             <div className="flex flex-col gap-1">

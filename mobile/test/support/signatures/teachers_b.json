@@ -183,6 +183,31 @@
    "code": "premium",
    "cart": "premium"
   },
+  "courses": {
+   "look": "on_air",
+   "card": {
+    "hide": []
+   },
+   "page": {
+    "hide": [],
+    "cta": {
+     "en": "Join now",
+     "ar": "انضم الآن",
+     "tr": "Hemen katıl"
+    }
+   },
+   "lesson": {
+    "hide": []
+   },
+   "my_courses": {
+    "hide": [],
+    "headline": {
+     "en": "Pick up where you left off.",
+     "ar": "تابع من حيث توقفت.",
+     "tr": "Kaldığınız yerden devam edin."
+    }
+   }
+  },
   "system": {
    "look": "glass"
   }

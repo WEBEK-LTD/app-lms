@@ -34,6 +34,8 @@
  * `course_page` and `looks`, which older apps still read).
  */
 
+import { appWord, type AppWord } from "./app-words";
+
 export const COURSE_LOOKS = ["cinema", "ring", "index", "on_air"] as const;
 export type CourseLook = (typeof COURSE_LOOKS)[number];
 
@@ -304,12 +306,22 @@ export function parseCourseScreens(value: unknown, problems: string[]): CourseSc
   return out;
 }
 
+/** Each look's words in the app (lib/studio/app-words.ts, Modern Standard Arabic). */
+const SIGNATURE_WORDS: Record<CourseLook, { cta: AppWord; line: AppWord }> = {
+  cinema: { cta: "csCtaCinema", line: "csLineCinema" },
+  ring: { cta: "csCtaRing", line: "csLineRing" },
+  index: { cta: "csCtaIndex", line: "csLineIndex" },
+  on_air: { cta: "csCtaOnAir", line: "csLineOnAir" },
+};
+
 /**
- * The academies' four Signature looks' course screens (130.15–130.18),
- * with their words (lib/studio/app-words.ts, Modern Standard Arabic) in
+ * The academies' four Signature looks' course screens (130.15–130.18:
+ * Ufuq A `cinema`, Ufuq B `ring`, Rawaq A `index`, Rawaq B `on_air`), each
+ * look's own options with its enrol button's words and My courses' line in
  * the languages given.
  */
-export function signatureCourseScreens(look: CourseLook, words: (lang: string) => { cta: string; headline: string }, langs: readonly string[] = ["en", "ar", "tr"]): CourseScreens {
-  const each = (key: "cta" | "headline"): CourseTexts => Object.fromEntries(langs.map((l) => [l, words(l)[key]]));
-  return { look, card: { hide: [] }, page: { hide: [], cta: each("cta") }, lesson: { hide: [] }, my_courses: { hide: [], headline: each("headline") } };
+export function signatureCourseScreens(look: CourseLook, langs: readonly string[] = ["en", "ar", "tr"]): CourseScreens {
+  const w = SIGNATURE_WORDS[look];
+  const each = (word: AppWord): CourseTexts => Object.fromEntries(langs.map((l) => [l, appWord(l, word, "")]));
+  return { look, card: { hide: [] }, page: { hide: [], cta: each(w.cta) }, lesson: { hide: [] }, my_courses: { hide: [], headline: each(w.line) } };
 }

@@ -131,10 +131,13 @@ DemoApi premiumAcademyApi({
   // 130.17 130.18 A Signature look's project instead of the demo's
   // (test/support/signatures/premium-academy_<a|b>.json).
   String? look,
+  // 130.52 The academy's courses in Arabic.
+  bool arabic = false,
 }) {
   final demo = look == null ? _demo : _looks[look] ??= _read(look);
   final layout = demo['layout'] as Map<String, dynamic>;
   final api = DemoApi.academy(
+    arabic: arabic,
     appearance: layout['appearance'] as Map<String, dynamic>,
   );
   api.config = {
