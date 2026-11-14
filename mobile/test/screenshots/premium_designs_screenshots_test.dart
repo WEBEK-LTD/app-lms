@@ -19,7 +19,6 @@ import 'dart:ui' as ui;
 
 import 'package:flutter/foundation.dart';
 import 'package:flutter/rendering.dart';
-import 'package:flutter/widgets.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:yallapp/core/config/build_config_data.dart';
 
@@ -42,8 +41,6 @@ const _size = Size(360, 1440);
 final Map<String, dynamic> _gallery = jsonDecode(
   File('test/support/premium_designs.json').readAsStringSync(),
 ) as Map<String, dynamic>;
-
-String get _base => _gallery['base'] as String;
 
 /// The page as the hosted API serves it: no translations, each list filled
 /// with the gallery's entries.
