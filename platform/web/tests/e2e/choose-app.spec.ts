@@ -91,7 +91,8 @@ test("a new account chooses Nour Academy and gets the whole demo in the app edit
   for (const id of EDITOR) await expect(own.locator(`[data-section="editor"] a[data-demo="${id}"]`)).toContainText("App editor");
   for (const id of STUDIO) await expect(own.locator(`[data-section="studio"] a[data-demo="${id}"]`)).toContainText("STUDIO");
   await expect(own.locator('a[data-demo="lms"] img')).toHaveAttribute("src", "/screens/academy-home.png");
-  await expect(own.locator('a[data-demo="premium_academy"] img')).toHaveAttribute("src", "/screens/premium-home.png");
+  // 130 A Studio card's first phone is its look A (the demo; the demo's screenshot until the look has its own picture), look B beside it.
+  await expect(own.locator('a[data-demo="premium_academy"] img').first()).toHaveAttribute("src", "/screens/premium-home.png");
   // Every card's screenshot is there to load.
   for (const src of await own.locator("a[data-demo] img").evaluateAll((imgs) => imgs.map((i) => i.getAttribute("src")!))) {
     const shot = await own.request.get(src);

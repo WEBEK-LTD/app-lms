@@ -153,8 +153,8 @@ function StudioSection({ text, ids, adding }: { text: DashboardText; ids: readon
               >
                 {/* 128.9 A soft gold light behind the phone. */}
                 <div className="relative h-[200px] overflow-hidden" style={{ background: `radial-gradient(circle at 50% 38%, rgba(230,194,110,0.24), rgba(230,194,110,0) 62%), ${STUDIO.tile}` }}>
-                  {second ? <Phone src={second.src} alt={second.alt} width={128} height={278} border={5} radius={20} frame={STUDIO.frame} className="absolute top-12 left-1/2 ml-[6px] rotate-[6deg] opacity-90 shadow-[0_18px_40px_rgba(0,0,0,0.35)]" style={{ zIndex: 0 }} /> : null}
                   <Phone src={looks[0]?.src ?? shot.src} alt={looks[0]?.alt ?? shot.alt} loop={demoLoop(id)} width={152} height={330} border={6} radius={24} frame={STUDIO.frame} className={`absolute top-6 left-1/2 shadow-[0_18px_40px_rgba(0,0,0,0.35)] ${second ? "-ml-[118px]" : "-ml-[76px]"}`} style={{ zIndex: 1 }} />
+                  {second ? <Phone src={second.src} alt={second.alt} width={128} height={278} border={5} radius={20} frame={STUDIO.frame} className="absolute top-12 left-1/2 ml-[6px] rotate-[6deg] opacity-90 shadow-[0_18px_40px_rgba(0,0,0,0.35)]" style={{ zIndex: 0 }} /> : null}
                   {second ? (
                     <span className="absolute end-3.5 top-3.5 z-[2] flex h-[26px] items-center rounded-[13px] px-2.5 text-xs font-bold" style={{ border: `1px solid ${STUDIO.goldLine}`, color: STUDIO.gold, background: STUDIO.card }} data-looks={looks.map((l) => l.look).join(" ")}>
                       {t("start.lookCount")}
