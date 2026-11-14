@@ -107,6 +107,7 @@ function RingCard({ dark, color, words, title }: { dark: boolean; color: string 
           <circle cx={118 + Math.cos(end) * r} cy={118 + Math.sin(end) * r} r={5} fill={dark ? "#15161D" : "#FFFFFF"} />
         </svg>
         <div style={{ position: "absolute", inset: 24, borderRadius: "50%", overflow: "hidden", background: "#1D2B4F" }}>
+          {/* eslint-disable-next-line @next/next/no-img-element */}
           <img src={SAMPLE_PHOTO} alt="" style={{ width: "100%", height: "100%", objectFit: "cover" }} />
           <span style={{ position: "absolute", left: "50%", bottom: 18, transform: "translateX(-50%)", height: 30, padding: "0 12px", borderRadius: 15, background: "rgba(20,22,38,0.7)", color: "#FFFFFF", fontSize: 12, fontWeight: 700, display: "flex", alignItems: "center", gap: 4, whiteSpace: "nowrap" }}>
             <span className="material-symbols-rounded" aria-hidden="true" style={{ fontSize: 16, color: "#E7C982", fontVariationSettings: "'FILL' 1" }}>
