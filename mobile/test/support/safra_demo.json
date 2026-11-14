@@ -194,7 +194,7 @@
           },
           "translations": {
            "ar": {
-            "text": "رحلتك الجاية تبدأ منين؟"
+            "text": "من أين تبدأ حكايتك القادمة؟"
            },
            "tr": {
             "text": "Bir sonraki hikâye nerede başlıyor?"
@@ -211,7 +211,7 @@
           "opacity": 0.85,
           "translations": {
            "ar": {
-            "text": "فنادق وطيران، أو الاتنين في رحلة واحدة بسعر واحد. رحلتك وكارت الصعود جوه الأبلكيشن."
+            "text": "فنادق وطيران، أو كلاهما في رحلة واحدة بسعر واحد. رحلتك وبطاقة الصعود داخل التطبيق."
            },
            "tr": {
             "text": "Konaklama, uçuş ya da ikisi tek seyahatte, tek fiyata. Seyahatiniz ve biniş kartınız uygulamada."
@@ -251,7 +251,7 @@
             },
             "translations": {
              "ar": {
-              "text": "دوّر على فندق"
+              "text": "ابحث عن إقامة"
              },
              "tr": {
               "text": "Konaklama bul"

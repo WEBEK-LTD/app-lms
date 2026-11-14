@@ -1178,9 +1178,8 @@ export const TEMPLATES: readonly TemplateInfo[] = [
     recommended: true,
     project: ACADEMY_PROJECT,
     make: (ctx: SectionContext) => {
-      const { ctx: words, translate } = translating(ctx);
-      const page = academyHome(words);
-      return { ...page, body: translate(page.body) };
+      const { ctx: words, page } = translating(ctx);
+      return page(academyHome(words));
     },
   },
   typed("courses", "school", { types: ["lms"] }, ["hero", "stats", "products", "review"], { type: "logo_actions", buttons: ["menu", "notifications", "account"] }, { word: "ctaLearn", action: screen("courses") }),

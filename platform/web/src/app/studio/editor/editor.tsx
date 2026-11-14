@@ -24,7 +24,8 @@ import { ENTRANCE_EASING, entranceFrom } from "@/lib/studio/motion";
 // 129.11–129.20 The premium elements' words.
 import type { PremiumWords } from "@/components/studio/premium";
 import type { PremiumText } from "@/lib/studio/premium-content";
-import { SECTIONS, sectionsFor, TEMPLATES, templatesFor, type ProjectKind, type SectionContext, type SectionWord, type TemplateInfo } from "@/lib/studio/sections";
+import { SECTIONS, sectionsFor, TEMPLATES, templatesFor, type ProjectKind, type SectionContext, type TemplateInfo } from "@/lib/studio/sections";
+import { appWord, appWords } from "@/lib/studio/app-words";
 import { PAGE_TEMPLATES } from "@/lib/studio/page-templates";
 // 129.21–129.24 The Premium group's maps.
 import { PREMIUM_MAPS, type PremiumMapWords } from "@/lib/studio/premium-maps";
@@ -220,7 +221,7 @@ export function StudioEditor(props: StudioEditorProps) {
   const sectionContext: SectionContext = {
     brand: app.brand,
     source,
-    w: (word: SectionWord) => t(`studio.w_${word}` as DashKey, { app: app.name }),
+    w: appWords(dashLang, app.name),
     app: app.name,
     lang: dashLang,
     // 112.4 Yallapp's pictures, and the products a look's spots open.
@@ -229,22 +230,25 @@ export function StudioEditor(props: StudioEditorProps) {
   };
   // 129.21–129.24 A premium map's sample words.
   const premiumMapWords: PremiumMapWords = (key) => t(`studio.pmapWord_${key}` as DashKey);
+  // 128.11 A new element's words are the app's (lib/studio/app-words.ts), in the dashboard's language.
   const newText = (key: NewText) =>
-    t(
+    appWord(
+      dashLang,
       (
         {
-          text: "studio.newText",
-          button: "studio.newButton",
-          search: "studio.search",
-          ratings: "studio.newRatings",
-          field: "studio.newField",
-          question: "studio.newQuestion",
-          answer: "studio.newAnswer",
-          tab: "studio.newTab",
-          ended: "studio.newEnded",
-          bullets: "studio.newBullets",
+          text: "newText",
+          button: "newButton",
+          search: "newSearch",
+          ratings: "newRatings",
+          field: "newField",
+          question: "newQuestion",
+          answer: "newAnswer",
+          tab: "newTab",
+          ended: "newEnded",
+          bullets: "newBullets",
         } as const
       )[key],
+      app.name,
     );
 
   // ——— Changes, undo and the draft saving itself ———

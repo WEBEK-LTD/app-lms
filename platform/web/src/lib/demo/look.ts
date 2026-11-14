@@ -6,8 +6,8 @@ import type { ItemSource, LayoutBlock } from "../pages/types";
 import { DEMO_BRANDS } from "./content";
 import { ALL_DEMO_TYPES, demoKind, isStudioDemo, PREMIUM_ACADEMY_DEMO, type DemoId, type StudioDemoId } from "./constants";
 import { DEMO_BANNER_ART } from "./design-art";
-import { en as studioWords } from "../../i18n/dashboard/studio";
-import type { SectionContext, SectionWord } from "../studio/sections";
+import { appWords } from "../studio/app-words";
+import type { SectionContext } from "../studio/sections";
 
 /**
  * Templates = demos. Each demo app's pages and look are this design, so the
@@ -105,7 +105,7 @@ export function demoStudioContext(id: StudioDemoId, pictureBase: string, source:
     source,
     app: brand.appName,
     lang: "en",
-    w: (word: SectionWord) => String(studioWords[`w_${word}`]).replaceAll("{app}", brand.appName),
+    w: appWords("en", brand.appName),
     picture: (file: string) => `${pictureBase}/design-pictures/${file}`,
     newId: () => `demo-${++n}`,
     // 128 Its own pages after the home, in its own look (lib/studio/demo-designs).

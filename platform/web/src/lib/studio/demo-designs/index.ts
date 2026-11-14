@@ -130,9 +130,8 @@ export function demoDesignTemplate(demo: StudioDemoId): TemplateInfo {
     icon: d.template.icon,
     fits: d.template.fits,
     make: (ctx: SectionContext) => {
-      const { ctx: words, translate } = translating(ctx);
-      const page = d.home(words);
-      return { ...page, body: translate(page.body) };
+      const { ctx: words, page } = translating(ctx);
+      return page(d.home(words));
     },
   };
 }

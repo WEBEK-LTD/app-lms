@@ -732,6 +732,13 @@ html {
   }
 }
 
+/* 128.11 Studio's canvas: a transparent header's background over a cover appears at once with reduced motion. */
+@media (prefers-reduced-motion: reduce) {
+  [data-studio-header-under] {
+    transition: none !important;
+  }
+}
+
 /*
  * The home page's hero (src/site/home.tsx, home-motion.tsx): a stage in the site's theme (Ivory light, Midnight dark)
  * with a slow Ember glow, a fine grid and a little grain; the title's

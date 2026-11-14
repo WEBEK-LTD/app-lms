@@ -1035,18 +1035,43 @@ class _HotelPage extends ConsumerWidget {
                                       crossAxisAlignment:
                                           CrossAxisAlignment.stretch,
                                       children: [
+                                        // 128.11 The name on its own line(s)
+                                        // and the score after its bar: the
+                                        // two never run into each other nor
+                                        // is a word cut, in Arabic too.
+                                        Text(
+                                          e.value,
+                                          maxLines: 2,
+                                          overflow: TextOverflow.ellipsis,
+                                          style: t.ui(
+                                            11.5,
+                                            weight: FontWeight.w700,
+                                            color: t.muted,
+                                          ),
+                                        ),
+                                        const SizedBox(height: 3),
                                         Row(
+                                          key: ValueKey('hotel-score-${e.key}'),
                                           children: [
                                             Expanded(
-                                              child: Text(
-                                                e.value,
-                                                style: t.ui(
-                                                  11.5,
-                                                  weight: FontWeight.w700,
-                                                  color: t.muted,
+                                              child: ClipRRect(
+                                                borderRadius:
+                                                    BorderRadius.circular(3),
+                                                child: LinearProgressIndicator(
+                                                  value:
+                                                      hotel.scores[e.key]! / 10,
+                                                  minHeight: 4,
+                                                  backgroundColor: t.dark
+                                                      ? t.line
+                                                      : const Color(0xFFEFE9DE),
+                                                  color:
+                                                      hotel.scores[e.key]! < 9
+                                                      ? t.gold
+                                                      : t.ink,
                                                 ),
                                               ),
                                             ),
+                                            const SizedBox(width: 8),
                                             Text(
                                               hotel.scores[e.key]!
                                                   .toStringAsFixed(1),
@@ -1056,22 +1081,6 @@ class _HotelPage extends ConsumerWidget {
                                               ),
                                             ),
                                           ],
-                                        ),
-                                        const SizedBox(height: 3),
-                                        ClipRRect(
-                                          borderRadius: BorderRadius.circular(
-                                            3,
-                                          ),
-                                          child: LinearProgressIndicator(
-                                            value: hotel.scores[e.key]! / 10,
-                                            minHeight: 4,
-                                            backgroundColor: t.dark
-                                                ? t.line
-                                                : const Color(0xFFEFE9DE),
-                                            color: hotel.scores[e.key]! < 9
-                                                ? t.gold
-                                                : t.ink,
-                                          ),
                                         ),
                                       ],
                                     ),

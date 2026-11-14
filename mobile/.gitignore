@@ -61,3 +61,5 @@ key.properties
 .env.*
 # 46 App Links intent filters, written by tool/apply_config.dart from a build config.
 android/app/src/links/
+# 128.11 The golden tests' failure images (flutter test writes them beside the test).
+**/failures/

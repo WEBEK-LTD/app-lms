@@ -199,9 +199,12 @@ export function StudioView(viewProps: ViewProps) {
   // 129.8 Each element's entrance plays once when it first comes into view (lib/studio/motion.ts).
   const root = useRef<HTMLDivElement>(null);
   useEffect(() => (root.current ? watchEntrances(root.current, rtl) : undefined), [rtl]);
+  const overCover = page.header?.type === "transparent" && !belowBar;
+  const { top: underMark, scrolled: scrolledUnder } = useScrolledUnder(overCover);
   return (
     <div ref={root} dir={rtl ? "rtl" : "ltr"} style={{ display: "flex", flexDirection: "column", minHeight: "100%", background: bg, color: dark ? "#F4EFE6" : "#0E0D24", fontFamily: `'${look.font}', 'Cairo', system-ui, sans-serif` }}>
-      {page.header ? <Header header={page.header} {...props} /> : null}
+      {overCover ? <span ref={underMark} aria-hidden="true" style={{ display: "block", flex: "none", height: SCROLLED_UNDER_AT, marginBottom: -SCROLLED_UNDER_AT }} /> : null}
+      {page.header ? <Header header={page.header} {...props} under={overCover ? { scrolled: scrolledUnder, background: bg } : undefined} /> : null}
       <div style={{ flex: "1 1 auto", display: "flex", flexDirection: "column", paddingTop: belowBar ? 30 : undefined }} data-studio-below-bar={belowBar ? "" : undefined}>
         <Node node={page.body} parentDir="column" {...props} />
         {page.screen ? <ScreenPart {...props} /> : null}
@@ -213,10 +216,38 @@ export function StudioView(viewProps: ViewProps) {
   );
 }
 
-function Header(props: ViewProps & { header: StudioHeader }) {
-  const { header, look, dark, editing } = props;
+/** 128.11 How far the page scrolls before a transparent header over a cover takes the page's background (the app's `studioScrolledUnderAt`). */
+const SCROLLED_UNDER_AT = 8;
+
+/**
+ * 128.11 Whether the page has scrolled under its transparent header over a cover, in the canvas's scrolling screen
+ * (the nearest scrolling box around the page): a mark as tall as `SCROLLED_UNDER_AT` at the page's top, seen or not.
+ * Where nothing scrolls the page (a template's small picture), never.
+ */
+function useScrolledUnder(on: boolean): { top: (mark: HTMLSpanElement | null) => void; scrolled: boolean } {
+  const [mark, top] = useState<HTMLSpanElement | null>(null);
+  const [scrolled, setScrolled] = useState(false);
+  useEffect(() => {
+    if (!on || !mark || typeof IntersectionObserver === "undefined") return;
+    let root = mark.parentElement;
+    while (root && !/(auto|scroll)/.test(getComputedStyle(root).overflowY)) root = root.parentElement;
+    if (!root) return;
+    const seen = new IntersectionObserver((entries) => setScrolled(!entries.at(-1)!.isIntersecting), { root });
+    seen.observe(mark);
+    return () => {
+      seen.disconnect();
+      setScrolled(false);
+    };
+  }, [on, mark]);
+  return { top, scrolled: on && scrolled };
+}
+
+function Header(props: ViewProps & { header: StudioHeader; under?: { scrolled: boolean; background: string } }) {
+  const { header, look, dark, editing, under } = props;
   const background = (dark ? (header.dark_background ?? header.background) : header.background) ?? look.brand;
-  const color = (dark ? (header.dark_color ?? header.color) : header.color) ?? "#FFFFFF";
+  // 128.11 Over a cover, once the page scrolls under it: on the page's background, in the colour that reads on it, as the app draws it.
+  const solid = !!under?.scrolled && /^#[0-9a-f]{6}$/i.test(under.background);
+  const color = solid ? onFill(under!.background) : ((dark ? (header.dark_color ?? header.color) : header.color) ?? "#FFFFFF");
   const title = (props.lang !== props.defaultLang ? (header.translations?.[props.lang]?.title as string | undefined) : undefined) ?? header.title ?? look.name;
   const buttons = header.buttons ?? [];
   const icons: Record<string, string> = { menu: "menu", search: "search", cart: "shopping_bag", notifications: "notifications", chat: "chat", account: "account_circle" };
@@ -269,7 +300,7 @@ function Header(props: ViewProps & { header: StudioHeader }) {
       </div>
     );
   }
-  return (
+  const bar = (
     <div style={wrap} onClick={editing ? (e) => (e.stopPropagation(), editing.onSelect("header")) : undefined} data-studio-header={header.type}>
       {header.type === "logo_center" ? (
         <>
@@ -301,6 +332,14 @@ function Header(props: ViewProps & { header: StudioHeader }) {
         </>
       )}
       {selected && editing ? <Tag text={editing.tagOf({ id: "header", type: "row" })} /> : null}
+    </div>
+  );
+  if (!under) return bar;
+  // 128.11 Over a cover it stays at the top of the screen as the page scrolls, as in the app, its background fading in once the page is under it.
+  return (
+    <div style={{ position: "sticky", top: 0, height: 0, zIndex: 2 }} data-studio-header-over-cover={solid ? "under" : "top"}>
+      <span aria-hidden="true" data-studio-header-under="" style={{ position: "absolute", top: 0, insetInline: 0, height: 78, pointerEvents: "none", background: solid ? under.background : "transparent", transition: "background-color 180ms ease" }} />
+      {bar}
     </div>
   );
 }

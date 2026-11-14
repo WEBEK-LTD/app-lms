@@ -293,7 +293,15 @@
        "notifications"
       ],
       "color": "#141A30",
-      "dark_color": "#EEF0F7"
+      "dark_color": "#EEF0F7",
+      "translations": {
+       "ar": {
+        "title": "ماذا ستتعلم اليوم؟"
+       },
+       "tr": {
+        "title": "Bugün ne öğreneceksin?"
+       }
+      }
      },
      "background": "#F5F3EF",
      "dark_background": "#0B0F1F",
@@ -478,7 +486,7 @@
           "dark_color": "#EEF0F7",
           "translations": {
            "ar": {
-            "text": "اختيارات لك"
+            "text": "مختارة لك"
            },
            "tr": {
             "text": "Senin için seçtiklerimiz"

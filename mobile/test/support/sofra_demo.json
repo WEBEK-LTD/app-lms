@@ -182,7 +182,7 @@
                   "color": "#FFFFFF",
                   "translations": {
                    "ar": {
-                    "text": "التوصيل لـ"
+                    "text": "التوصيل إلى"
                    },
                    "tr": {
                     "text": "Teslimat adresi"
@@ -350,7 +350,7 @@
             "dark_color": "#C5B2A6",
             "translations": {
              "ar": {
-              "text": "أطباق، مطاعم أو مطابخ"
+              "text": "أطباق أو مطاعم أو مطابخ"
              },
              "tr": {
               "text": "Yemekler, restoranlar ya da mutfaklar"
@@ -627,7 +627,7 @@
           "dark_color": "#F7EDE6",
           "translations": {
            "ar": {
-            "text": "الأكتر طلبًا جنبك"
+            "text": "الأكثر طلبًا بالقرب منك"
            },
            "tr": {
             "text": "Yakınınızda sevilenler"
@@ -650,7 +650,7 @@
           },
           "translations": {
            "ar": {
-            "text": "شوف الكل"
+            "text": "عرض الكل"
            },
            "tr": {
             "text": "Tümünü gör"

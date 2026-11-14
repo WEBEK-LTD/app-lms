@@ -2,7 +2,7 @@ import { mkdtempSync, rmSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { afterAll, beforeEach, describe, expect, it, vi } from "vitest";
-import { en as studioEn } from "@/i18n/dashboard/studio";
+import { en as appEn } from "@/lib/studio/app-words";
 import { kindById } from "@/lib/app/kinds";
 import { newApp } from "@/lib/app/setup";
 import { registerClient } from "@/lib/auth/accounts";
@@ -34,7 +34,7 @@ afterAll(() => rmSync(BLOBS, { recursive: true, force: true }));
 const NOW = new Date("2026-11-12T10:00:00Z");
 const TEMPLATE = TEMPLATES.find((t) => t.id === "academy_premium")!;
 const BLANK = TEMPLATES.find((t) => t.id === "blank")!;
-const words = (name: string) => ({ w: (word: SectionWord) => String(studioEn[`w_${word}`]).replaceAll("{app}", name), lang: "en" as const });
+const words = (name: string) => ({ w: (word: SectionWord) => String(appEn[word]).replaceAll("{app}", name), lang: "en" as const });
 
 let store: MemoryStore;
 let n = 0;

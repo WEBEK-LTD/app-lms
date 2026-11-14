@@ -26,7 +26,7 @@ export interface NewStudioProject {
   kind: KindInfo;
   source: StudioSource;
   template: TemplateInfo;
-  /** The template's words (`studio.w_<word>`) in the dashboard's language. */
+  /** The template's words (lib/studio/app-words.ts, 128.11 the app's own, not the dashboard's) in the dashboard's language. */
   words: (word: SectionWord) => string;
   lang: "en" | "ar" | "tr";
   /** What the owner chose besides (the app-builder bot: the main colour, the logo); never the project's kind or section. */

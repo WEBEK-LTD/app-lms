@@ -2,7 +2,7 @@ import { mkdtempSync, rmSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { afterAll, afterEach, beforeEach, describe, expect, it, vi, type MockInstance } from "vitest";
-import { en as studioEn } from "@/i18n/dashboard/studio";
+import { en as appEn } from "@/lib/studio/app-words";
 import { activateClient } from "@/lib/admin/clients";
 import { kindById } from "@/lib/app/kinds";
 import { newApp } from "@/lib/app/setup";
@@ -113,7 +113,7 @@ async function account(options: { activate?: boolean; plan?: Plan } = {}) {
   return client;
 }
 
-const words = (name: string) => (word: SectionWord) => String(studioEn[`w_${word}`]).replaceAll("{app}", name);
+const words = (name: string) => (word: SectionWord) => String(appEn[word]).replaceAll("{app}", name);
 
 /** A Studio marketplace project started from the Zad demo template, as /studio/new makes it: the demo's pages and its sample entries. */
 async function zadProject(clientId: string, name = "Zad"): Promise<App> {

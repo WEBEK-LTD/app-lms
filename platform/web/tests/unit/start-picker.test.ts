@@ -4,7 +4,7 @@ import { join } from "node:path";
 import { deflateSync, inflateSync } from "node:zlib";
 import { afterAll, describe, expect, it } from "vitest";
 import { ar as startAr, en as startEn, tr as startTr } from "@/i18n/dashboard/start";
-import { en as studioEn } from "@/i18n/dashboard/studio";
+import { en as appEn } from "@/lib/studio/app-words";
 import { BRAND_SWATCHES, dominantColour, encodeRgbPng, isDark, swatchesFor } from "@/lib/brand-colour";
 import { MemoryStore } from "@/lib/data/memory";
 import { ALL_DEMO_TYPES, DEMO_TYPES, demoKind, isStudioDemo, STUDIO_DEMO_TYPES } from "@/lib/demo/constants";
@@ -205,7 +205,7 @@ describe("starting from a demo", () => {
     const facts = DEMO_FACTS.delivery!.contactText!;
     expect(filled.body.children![0]).toMatchObject({ text: facts.ar, translations: { en: { text: facts.en }, tr: { text: facts.tr } } });
     // In English, as the demo app has always shown them.
-    expect(withDemoFacts("delivery", { body: { ...page.body, children: [{ id: "t", type: "text", text: String(studioEn.w_contactText) }] } }).body.children![0]).toMatchObject({ text: facts.en, translations: { ar: { text: facts.ar }, tr: { text: facts.tr } } });
+    expect(withDemoFacts("delivery", { body: { ...page.body, children: [{ id: "t", type: "text", text: String(appEn.contactText) }] } }).body.children![0]).toMatchObject({ text: facts.en, translations: { ar: { text: facts.ar }, tr: { text: facts.tr } } });
   });
 
   it("starts the first steps: shown until done or hidden, the name, logo and colour done", async () => {

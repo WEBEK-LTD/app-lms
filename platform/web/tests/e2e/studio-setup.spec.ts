@@ -301,8 +301,11 @@ test("124.6 Academy: the premium academy's whole project from App setup, then sh
 test("124.6 a new project: the premium academy among the Studio projects, its template already picked", async () => {
   await own.goto("/studio/new");
   const studioOnly = own.locator("section#step-1 div.grid").first();
-  const tile = studioOnly.getByRole("radio", { name: /^Premium academy / });
+  const tile = studioOnly.getByRole("radio", { name: "Premium academy", exact: true });
   await expect(tile).toBeVisible();
+  // 128.11 Every kind named by its visible name; a Studio project's line under it describes it.
+  await expect(tile).toHaveAccessibleDescription(/\S/);
+  for (const radio of await own.locator('input[name="kindChoice"]').all()) await expect(radio).toHaveAccessibleName(/\S/);
   await tile.check();
   await expect(own.locator('input[type=hidden][name="kind"]')).toHaveValue("academy");
   await expect(own.locator('input[type=hidden][name="template"]')).toHaveValue("academy_premium");
@@ -317,6 +320,26 @@ test("124.6 a new project: the premium academy among the Studio projects, its te
   await expect(own).toHaveURL(/\/studio\/project$/);
   await own.goto("/studio/project/setup?step=branding");
   await expectChosen("studio-academy_premium");
+});
+
+test("128.11 on the canvas a transparent header over a cover takes the page's background once the page scrolls under it", async () => {
+  await own.goto("/studio/new");
+  await own.getByRole("radio", { name: "An academy with many teachers", exact: true }).check();
+  await own.getByLabel("Project name").fill("Rawaq Scroll");
+  await own.getByRole("button", { name: "Next" }).click();
+  await own.getByRole("radiogroup", { name: "3 · Where do you start?" }).getByRole("radio", { name: /Our demo: Rawaq Academy/ }).click();
+  await own.getByRole("button", { name: "Next" }).click();
+  await expect(own).toHaveURL(/\/studio\/project$/);
+  await own.goto("/studio/editor");
+  const header = own.locator(".studio-screen [data-studio-header-over-cover]");
+  await expect(header).toHaveAttribute("data-studio-header-over-cover", "top");
+  await own.locator(".studio-screen").evaluate((screen) => screen.scrollTo(0, 320));
+  await expect(header).toHaveAttribute("data-studio-header-over-cover", "under");
+  // It stays at the top of the screen as the page goes under it.
+  const [top, screenTop] = await Promise.all([header.evaluate((el) => el.getBoundingClientRect().top), own.locator(".studio-screen").evaluate((el) => el.getBoundingClientRect().top)]);
+  expect(Math.abs(top - screenTop)).toBeLessThan(2);
+  await own.locator(".studio-screen").evaluate((screen) => screen.scrollTo(0, 0));
+  await expect(header).toHaveAttribute("data-studio-header-over-cover", "top");
 });
 
 const KINDS = [

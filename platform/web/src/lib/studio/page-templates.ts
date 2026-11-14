@@ -28,7 +28,7 @@ type PageWord =
   | "joinTitle"
   | "joinText";
 
-/** The editor's words come from `studio.w_<word>`, so these are looked up like the sections' own. */
+/** The templates' words come from lib/studio/app-words.ts, so these are looked up like the sections' own. */
 function word(ctx: SectionContext, w: PageWord): string {
   return ctx.w(w as unknown as SectionWord);
 }
