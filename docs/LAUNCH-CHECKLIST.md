@@ -1550,6 +1550,38 @@ routine every few years):
       that takes the signed notices: a purchase reaches it as
       `purchase.completed`, a refund as `purchase.revoked`.
 
+## 7z5. The documentation up to date (129.30)
+
+Nothing to migrate or set: the articles are in the code, and the team's
+edits in Admin › Website content still show over them.
+
+- [ ] After the deploy, open `/docs/studio-elements`,
+      `/docs/studio-premium-elements`, `/docs/studio-templates` and
+      `/docs/travel` in English, Arabic and Turkish (`/ar/docs/…`,
+      `/tr/docs/…`): each is in the menu, the search finds it ("seat map",
+      "Prime"), and its pictures show.
+- [ ] `/docs/travel` describes Phase 126: check it once Travel is deployed
+      (Dashboard › Hotels' Help opens it).
+- [ ] In Studio, **Help** opens `/docs/yallapp-studio` and the editor's
+      **Help** opens `/docs/studio-elements` in the dashboard's language.
+- [ ] Plugin 0.4.39's readme (WordPress.org) names the Studio academy's
+      screens; publish it with the plugin's release.
+
+## 7z6. The documentation for Phases 128–130 (130.48)
+
+Nothing to migrate or set: the articles and screenshots are in the code.
+
+- [ ] After the deploy, open `/docs/studio-premium-elements` and
+      `/docs/studio-templates` in English, Arabic and Turkish: the nine
+      demos, both looks of each, the six whole designs, the premium library,
+      the premium headers and the system screens are there, and the look B
+      pictures show.
+- [ ] The search finds "Golden hour", "Radar lens" and "System screens".
+- [ ] In a Studio project, **Sign-in and account**'s Help opens
+      `/docs/studio-premium-elements`.
+- [ ] Plugin 0.4.41's readme names the premium library and the Signature
+      looks; publish it with the plugin's release.
+
 ## 8. Accounts the remaining roadmap steps wait on
 
 | Step | What we need |

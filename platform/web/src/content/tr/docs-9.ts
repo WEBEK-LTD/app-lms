@@ -4,7 +4,7 @@ import type { DocTranslation } from "../translation-types";
 export const TR_DOCS_9: Record<string, DocTranslation> = {
   "yallapp-studio": {
     title: "Yallapp Studio: uygulamanı özgürce tasarla",
-    description: "Yallapp Studio nedir, projeleri normal uygulamalardan nasıl ayrılır, proje oluşturma, Studio düzenleyicisi, teslimat şirketleri, yolcu taşıma ve taksiler, çok öğretmenli akademiler, okullar ve üniversiteler ve Studio'nun kendi planları.",
+    description: "Yallapp Studio nedir, projeleri normal uygulamalardan nasıl ayrılır, proje oluşturma ya da bir demoyla başlama, Studio düzenleyicisi, teslimat şirketleri, yolcu taşıma ve taksiler, çok öğretmenli akademiler, okullar ve üniversiteler, seyahat şirketleri ve Studio'nun kendi planları.",
     body: `Yallapp Studio, hesabında öğe öğe tasarladığın projeler için ayrı bir alandır: satırlar, sütunlar, katmanlar, resimler, düğmeler ve tasarladığın kartlarda listeler; açık ve karanlık mod renkleri ve hareketle. Tasarladığın şey Android ve iOS uygulamanda web sayfası olarak değil, yerel olarak çizilir. Studio, kuryeleriyle bir teslimat şirketinin uygulaması gibi yalnızca kendisinin sunduğu proje türlerini de yapar.
 
 Panelinin menüsündeki **Yallapp Studio** ile aç. İlk sayfası **Studio'daki projeleriniz**, Studio projelerini normal uygulamalarından ayrı olarak listeler.
@@ -24,22 +24,26 @@ Derleme, kurulum adımları ve uygulama mağazalarında yayınlama ikisinde de a
 
 1. **Proje türü**: projenin ne olduğu. Önce **Yalnızca Studio projeleri**, ardından her uygulama türü gelir.
 2. **İçerik kaynağı**: içeriğin nereden geldiği, aynı türdeki normal bir uygulamada olduğu gibi. Teslimat şirketlerinin web sitesi yoktur: gönderileri, kuryeleri ve fiyatları projenin panelinden ayarlanır.
-3. **Başlangıç**: proje türün için yapılmış bir şablon ya da boş bir sayfa ve projenin adı.
+3. **Başlangıç**: proje türün için yapılmış bir şablon, örneğin demosunun iki Signature görünümü, ya da boş bir sayfa ve projenin adı.
 
 Projenin paneli, kendi türündeki normal bir uygulamayla aynı sayfalarla açılır. Bir plan seçmeden önce tasarlayıp deneyebilirsin. Yayınlamak için Studio planlarından biri gerekir.
+
+Tüm sayfaları, fotoğrafları ve kayıtlarıyla Studio'nun dokuz demosundan biriyle, iki görünümünden hangisiyle istersen, de başlayabilir, her birini önce canlı deneyebilirsin: [Hazır bölümler, şablonlar ve Studio'nun demoları](/docs/studio-templates) sayfasına bak.
 
 ## Studio düzenleyicisi
 
 **Düzenleyiciyi açın**'ı seç. Sayfa ortadaki telefonun içindedir; bir yanda **Öğeler**, **Hazır bölümler**, **Şablonlar** ve **Sayfa katmanları**, öbür yanda seçilen öğenin ayarları vardır.
 
-- **Öğeler**: sayfayı düzenlemek için Satır, Sütun, Katmanlar, Izgara, Kaydırıcı ve Boşluk; Metin, Resim, Düğme, Simge ve Ayırıcı; ürünlerin, kursların, hizmetlerin ya da diğer kayıtların için, tasarladığın bir kartta Liste; Kategoriler, Video, Form, Harita, Puanlar ve Arama. Herhangi bir öğeyi sürükle ve istediğin yere bırak.
+- **Öğeler**: sayfayı düzenlemek için Satır, Sütun, Katmanlar, Izgara, Kaydırıcı ve Boşluk; Metin, Resim, Düğme, Simge ve Ayırıcı; ürünlerin, kursların, hizmetlerin ya da diğer kayıtların için, tasarladığın bir kartta Liste; Kategoriler, Video, Form, Harita, Puanlar ve Arama; ve **Premium** grubu: kaydırıcılar, hikâyeler, kayan şeritler, video ve derinlikli vitrinler, galeriler, yorumlar, planlar, rakamlar, ilerleme, zaman çizelgeleri, bento ızgaralar, cam kartlar ve çizilmiş haritaların görünümleri. Herhangi bir öğeyi sürükle ve istediğin yere bırak.
 - **Boyut ve yer**: her öğe alanı doldurabilir (**Fill**), içeriğine göre olabilir (**İçeriğe göre**) ya da **Sabit** bir boyut alabilir; iç boşluk, dış boşluk ve aradaki boşlukla.
 - **Renkler**: bir arka plan, bir geçiş ya da arkasında bir resim ve bir metin rengi; her birinin **Koyu modda** kendi rengiyle. Yazı tipleri, köşeler, gölgeler ve kenarlıklar da.
-- **Hareket**: **Göründüğünde** (belirme, kayma ya da büyüme), **Dokunulurken** (küçülme ya da sekme) ve **Sürekli** (nabız, süzülme ya da sallanma) ne olacağı. Hareketi azaltmaya ayarlı telefonlar onu sabit gösterir.
+- **Hareket**: **Göründüğünde** (belirme, kayma ya da büyüme; kişi sayfayı kaydırıp öğeye ulaştığında), **Dokunulurken** (küçülme ya da sekme) ve **Sürekli** (nabız, süzülme ya da sallanma) ne olacağı. Hareketi azaltmaya ayarlı telefonlar onu sabit gösterir.
 - **Müşteri dokununca**: uygulamanın bir ekranını, bir sayfayı, bir web adresini ya da tek bir kaydı aç.
 - **Göründüğü yer**: Android, iOS ya da ikisi; **Kim görür**: herkes, giriş yapanlar ya da giriş yapmayanlar.
 
 Sayfayı küçük bir telefonda, büyük bir telefonda ve bir tablette, açık ve karanlık modda kontrol et. **Geri al** ve **Yinele** geri ve ileri gider, sayfa sen çalışırken kaydedilir. **Telefonda önizle** onu telefonunda denemeni sağlar; **Yayınla** onu uygulamana gönderir, uygulama bir sonraki açılışta gösterir. **Sayfayı kendi şablonum olarak kaydet** onu diğer sayfaların için **Şablonlarım**'da tutar.
+
+Her öğe ve ayarları [Studio düzenleyicisi: tüm öğeler](/docs/studio-elements) sayfasında, Studio demolarının yapıldığı premium öğeler, premium üst bilgiler ve premium görünümlü uygulama ekranlarıyla birlikte [Studio'nun premium öğeleri](/docs/studio-premium-elements) sayfasındadır.
 
 ## Teslimat şirketleri
 
@@ -59,9 +63,13 @@ Kursları birkaç öğretmenden gelen bir akademi. Öğretmenlerin uygulamada pr
 
 Öğrenciler, veliler, öğretmenler ve personel için, her birinin kendi bölümünü gördüğü bir okul uygulaması: ders programı, ödevler, notlar, devam, sınavlar, takvim ve duyurular. Velilerin her çocukları için ücretlerle birlikte bir Veli sekmesi vardır. Öğrenciler, öğretmenler ve personel okulun ekranındaki bir kodla kapıda giriş yapar; öğretmenler ve personel izin ister; okul servis güzergâhlarını ve kütüphanesini uygulamada yönetir ve isterse öğretmenlerle aileler arasında mesajlaşmaya izin verir. Maaşlar nakit ya da banka havalesiyle ödendi olarak elle kaydedilir; her kişi için her ay bir bordro olur. Üniversite modundaki bir okul projesi fakülteleri, bölümleri, programları, her dönem ders kaydını ve not ortalamasıyla sonuçları ekler.
 
+## Seyahat şirketleri
+
+Bir seyahat şirketinin uygulaması otellerini, sabit koltuklu uçuşlarını ya da ikisini tek bir seyahat olarak satar. Otelleri odaları, fiyat seçenekleri ve fiyatlarıyla, uçuşları da paketleri ve koltuk haritalarıyla eklersin; yolcular rezervasyon yapar, kendi ödeme sayfanda ya da otelde öder ve seyahatlerini ve biniş kartlarını uygulamada tutar. [Seyahat: oteller ve uçuşlar](/docs/travel) sayfasına bak.
+
 ## Studio planları
 
-Her Studio planında Studio düzenleyicisi, anlık bildirimler, kendi ödeme hesabın üzerinden kartla ödeme, çevrimdışı indirme, otomatik yeniden derleme, sohbet, sadakat puanları ve uygulama mağazaları üzerinden satılan kurslar ve üyelikler vardır. iOS uygulaması, senin için yayınlama, teslimat ve kuryeler, kuryeler için ikinci bir uygulama, hareket, şablonlar ve bir projedeki Studio sayfası sayısı plan plan seçilir.
+Her Studio planında Studio düzenleyicisi, anlık bildirimler, kendi ödeme hesabın üzerinden kartla ödeme, çevrimdışı indirme, otomatik yeniden derleme, sohbet, sadakat puanları ve uygulama mağazaları üzerinden satılan kurslar ve üyelikler vardır. iOS uygulaması, senin için yayınlama, teslimat ve kuryeler, kuryeler için ikinci bir uygulama, seyahat, hareket, şablonlar ve bir projedeki Studio sayfası sayısı plan plan seçilir.
 
 Studio planlarını [fiyatlar sayfasında](/pricing) ve [Yallapp Studio](/yallapp-studio)'da gör. **Talep üzerine** yazıyorsa WhatsApp'tan bize yaz, projene uyan planı önerelim.
 

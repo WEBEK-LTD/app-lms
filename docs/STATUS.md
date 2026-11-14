@@ -4,9 +4,36 @@ The current state of the project: what is released in the code, what still
 needs checking against real services, and what a deployment needs.
 `docs/ROADMAP.md` is the plan; this file is the current state.
 
-Last updated: 13 November 2026.
+Last updated: 14 November 2026.
 
 ## Current release
+
+Roadmap 130.48 (the documentation up to date for Phases 128–130) is
+complete: `studio-premium-elements` covers Studio's premium library
+(Phase 129: sliders, stories, the ticker, video and parallax banners, the
+gallery, before and after, motion as people scroll, testimonials, pricing,
+numbers, progress, the timeline, the profile card, the bento grid, glass,
+ticket and texture cards, the badge, the action bar, the small dock, the
+maps' looks and the live route) and Phase 130's options (the live cards'
+looks, the next trip, a greeting's words, the gold ring and this week's
+days, the places as a deck), the premium headers and the system screens'
+look; `studio-templates` covers the nine Studio demos as their look A, the
+eighteen Signature looks on /start and among the templates, the six premium
+whole designs and the app's words in Modern Standard Arabic; and
+`studio-elements`, `yallapp-studio`, `wordpress-plugin` (0.4.40, 0.4.41),
+`my-own-api` and `travel` follow, in English, Arabic and Turkish, with the
+nine look B homes as screenshots and Sign-in and account's help link.
+
+Roadmap 129.30 (the documentation up to date) is complete: the docs have
+articles for every element of Studio's editor (`studio-elements`), the
+premium elements of Phase 128 (`studio-premium-elements`, Phase 129's
+elements added as they land), ready sections, templates and Studio's
+demos with /start (`studio-templates`) and Travel (`travel`, Phase 126,
+the outside providers "Coming soon"), and `yallapp-business` (1.0.2: the
+Studio apps' tools, Prime and VIP), `yallapp-studio`, `wordpress-plugin`
+(0.4.39) and `my-own-api` brought up to date, in English, Arabic and
+Turkish, with the screenshots already in `public/screens`. The dashboard's
+Travel pages, Studio's Help and the editor's Help link to them.
 
 The website shows Yallapp Studio apart from the regular apps: its own page
 (`/yallapp-studio`) with the editor, apps made in it, the Studio-only project
