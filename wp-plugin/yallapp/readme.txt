@@ -143,7 +143,7 @@ under the Apache License 2.0, included as inline SVG.
 == Changelog ==
 
 = 0.4.44 =
-* For flower and gift shops: same-day delivery until a cut-off and delivery times (each with how many orders it takes and an extra fee on the checkout); a gift checkout (the sender's details as the order's billing, the recipient's as its shipping, the delivery day and time required, the card and "send anonymously"); card messages by occasion from your Yallapp dashboard; a flash sale through WooCommerce's own sale price with a countdown in the app; and coupons ticked "Show in the app".
+* For flower and gift shops: same-day delivery until a cut-off and delivery times (each with how many orders it takes and an extra fee on the checkout); a gift checkout (the sender's details as the order's billing, the recipient's as its shipping, the delivery day and time required, the card and "send anonymously"); card messages by occasion from your Yallapp dashboard; a flash sale through WooCommerce's own sale price with a countdown in the app; and coupons ticked "Show in the app". And Leqaa's premium look from Yallapp Studio reaches the app from your site: the petal header, the petal bottom bar and the petal account and system screens; the premium gift checkout in five steps with the gift card's live preview, by day and by night; a variable product's default choice (a bouquet's Deluxe) chosen when its page opens; and a look's own night colours on every screen.
 
 = 0.4.43 =
 * The new premium whole design and landings you pick in Yallapp Studio reach the app from your site: a photo shown in black and white (a picture, a list card's picture, a photo hero or a parallax banner), as the Monochrome luxe design and the new landings use it.
@@ -160,11 +160,5 @@ under the Apache License 2.0, included as inline SVG.
 = 0.4.39 =
 * The new academy home you design in Yallapp Studio reaches the app from your site: the student's cards (the course in progress, the live class and the streak) on a photo, a course card's rating from your reviews, and a card's border colour by night.
 * The new Studio elements reach the app from your site too: a photo hero and a map header with what they hold (they were left out with it), a greeting with the person's name, a photo's shade, and the live cards, which show nothing on a site that has no orders, rides or school day for them.
-
-= 0.4.38 =
-* The launch screen you choose in Yallapp Studio reaches the app from your site: one of five looks, its background in light and dark (a colour, a gradient or your photo made darker), the logo, the title and the line under it in each language, the loading sign and the colours. The app shows it the next time it opens.
-
-= 0.4.37 =
-* A lesson's content (its text, links and embedded frames) reaches the app even when another plugin of your site leaves it empty outside the website's own pages: the app then shows the content as it is saved, formatted as WordPress formats it.
 
 Earlier versions are listed in changelog.txt, next to this readme in the plugin's source.

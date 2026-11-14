@@ -27,7 +27,7 @@ class Studio_Screens {
 		'cart'       => 'premium',
 	);
 	// 130.21 The system screens' premium looks and the screens they apply to.
-	const SYSTEM_LOOKS   = array( 'large', 'glass', 'photo', 'brand', 'petal' );
+	const SYSTEM_LOOKS = array( 'large', 'glass', 'photo', 'brand', 'petal' );
 	// 131.25 The store's checkout looks.
 	const CHECKOUT_LOOKS = array( 'gift' );
 	const SYSTEM_SCREENS = array( 'account', 'settings', 'notifications', 'language', 'edit_profile', 'help', 'lists', 'sign_in', 'code', 'states' );

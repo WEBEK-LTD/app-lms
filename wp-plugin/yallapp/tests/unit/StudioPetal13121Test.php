@@ -89,8 +89,10 @@ class StudioPetal13121Test extends TestCase {
 		$this->assertSame( 'petal', $screens['system']['look'] );
 		$this->assertSame( array( 'sign_in' => 'photo' ), $screens['system']['screens'] );
 		$this->assertSame(
+			// 131.25 The premium gift look is the gift checkout too.
 			array(
 				'look'   => 'gift',
+				'mode'   => 'gift',
 				'accent' => '#8E2445',
 			),
 			$screens['checkout']
@@ -99,5 +101,37 @@ class StudioPetal13121Test extends TestCase {
 
 	public function test_an_unknown_checkout_look_is_left_out() {
 		$this->assertNull( Studio_Screens::of_status( array( 'screens' => array( 'checkout' => array( 'look' => 'express' ) ) ) ) );
+	}
+
+	/**
+	 * 131 One checkout look for both sides: the commerce side's fields and the premium gift look
+	 * by day and by night, which turns the gift checkout on; unknown values left out.
+	 */
+	public function test_keeps_one_checkout_look_for_both_sides() {
+		$this->assertSame(
+			array(
+				'look'        => 'gift',
+				'mode'        => 'gift',
+				'style'       => 'steps',
+				'chips'       => 'square',
+				'surface'     => 'glass',
+				'accent'      => '#2F5D50',
+				'dark_accent' => '#B9D9C6',
+				'radius'      => 14,
+			),
+			Studio_Screens::checkout(
+				array(
+					'look'        => 'gift',
+					'style'       => 'steps',
+					'chips'       => 'square',
+					'surface'     => 'glass',
+					'accent'      => '#2f5d50',
+					'dark_accent' => '#b9d9c6',
+					'radius'      => 14,
+				)
+			)
+		);
+		$this->assertSame( array( 'mode' => 'gift' ), Studio_Screens::checkout( array( 'mode' => 'gift' ) ) );
+		$this->assertNull( Studio_Screens::checkout( array( 'look' => 'express' ) ) );
 	}
 }

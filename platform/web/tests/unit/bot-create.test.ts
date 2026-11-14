@@ -72,8 +72,8 @@ function demoApp(id: StudioDemoId): App {
 }
 
 describe("the bot makes a Studio project: the chosen demo, exactly", () => {
-  // 123 The premium academy's demo is no kind of its own: the bot makes an academy, and the premium academy is a Studio template.
-  it.each(STUDIO_DEMO_TYPES.filter((id) => id !== "premium_academy"))("%s", async (id) => {
+  // 123 The premium academy's demo is no kind of its own: the bot makes an academy, and the premium academy is a Studio template; 131.20 Leqaa likewise (a shop, and its looks are a store's templates).
+  it.each(STUDIO_DEMO_TYPES.filter((id) => id !== "premium_academy" && id !== "flowers"))("%s", async (id) => {
     const store = new MemoryStore();
     const kind = demoKind(id);
     const { app, open, layout } = await make(store, { kind: kind.id, name: DEMO_BRANDS[id].appName });
