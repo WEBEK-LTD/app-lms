@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 
 import '../api/models/commerce_models.dart';
+import '../api/models/store_models.dart' show ProductPrice;
 import '../l10n/l10n.dart';
 import '../theme/app_icons.dart';
 import '../theme/palette.dart';
@@ -369,12 +370,19 @@ class ProductFlashSale extends StatefulWidget {
   const ProductFlashSale({
     super.key,
     required this.sale,
+    this.price,
     this.color,
     this.radius,
     this.now,
   });
 
   final ProductSale sale;
+
+  /// 131 The price of what is chosen on the page (a size's, as the shop
+  /// prices it with the sale): shown when it is one price on sale; a range
+  /// (no size chosen yet) or a price without its sale shows no price, only
+  /// the share off, the countdown and the stock. Missing: the sale's own.
+  final ProductPrice? price;
 
   /// The sale's colour (a Studio look's accent); missing, the app's.
   final Color? color;
@@ -389,6 +397,27 @@ class ProductFlashSale extends StatefulWidget {
 
 class _ProductFlashSaleState extends State<ProductFlashSale> {
   bool _ended = false;
+
+  /// The sale's prices to show: the chosen price's when it is one price on
+  /// sale (its own before and now); none for a range or a price without
+  /// its sale; the sale's own without a chosen price.
+  static ProductSale? _shown(ProductSale sale, ProductPrice? price) {
+    if (price == null) return sale;
+    final was = price.regularFormatted;
+    if (price.range || !price.onSale || was == null) return null;
+    return ProductSale(
+      was: price.regularAmount ?? sale.was,
+      wasFormatted: was,
+      now: price.amount,
+      nowFormatted: price.formatted,
+      percentOff: sale.percentOff,
+      startsAt: sale.startsAt,
+      endsAt: sale.endsAt,
+      remaining: sale.remaining,
+      total: sale.total,
+      flashSaleId: sale.flashSaleId,
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -449,8 +478,15 @@ class _ProductFlashSaleState extends State<ProductFlashSale> {
               ),
             ],
           ),
-          const SizedBox(height: 10),
-          SalePrice(sale: sale, size: 22),
+          // The price of what is chosen, never another size's.
+          if (_shown(sale, widget.price) case final shown?) ...[
+            const SizedBox(height: 10),
+            SalePrice(
+              key: const ValueKey('product-flash-price'),
+              sale: shown,
+              size: 22,
+            ),
+          ],
           if (sale.endsAt != null) ...[
             const SizedBox(height: 10),
             Text(

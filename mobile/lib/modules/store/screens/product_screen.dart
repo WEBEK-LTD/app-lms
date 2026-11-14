@@ -319,6 +319,12 @@ class _ProductViewState extends ConsumerState<_ProductView> {
                   const SizedBox(height: 12),
                   ProductFlashSale(
                     sale: sale,
+                    // A product with sizes: the chosen size's price, as
+                    // the top of the page shows it (one without: the
+                    // sale's own, its only price).
+                    price: product.summary.type == ProductType.variable
+                        ? price
+                        : null,
                     // 131.25 The look's colour by day and by night.
                     color: parseHexColor(
                       ref
