@@ -12,7 +12,7 @@ import { THEME_CHROME } from "./demo-designs/chrome";
 import { signatureDesign } from "./demo-designs";
 import { signatureTemplateId, type SignatureLook } from "./demo-designs/signature";
 // 130.30 The whole designs, premium for every kind.
-import { isPremiumDesign, premiumAbout, premiumCoverPath, premiumHome, PREMIUM_BARS, PREMIUM_PALETTES, type PremiumDesignId } from "./premium-designs";
+import { isPremiumDesign, NEW_PREMIUM_DESIGNS, premiumAbout, premiumCoverPath, premiumHome, PREMIUM_BARS, PREMIUM_COURSE_SCREENS, PREMIUM_PALETTES, type PremiumDesignId } from "./premium-designs";
 import { yallappPhoto } from "./photo-food";
 
 /**
@@ -40,7 +40,7 @@ export interface DesignLayout {
 }
 
 export interface DesignTheme {
-  id: "warm" | "fresh" | "evening" | "ocean" | "classic" | "rose" | "demo";
+  id: "warm" | "fresh" | "evening" | "ocean" | "classic" | "rose" | "mono" | "demo";
   /** The colour of buttons and highlights. */
   accent: string;
   /** The pages' background; null keeps the templates' own (a demo's). */
@@ -68,7 +68,14 @@ export const DESIGN_THEMES: readonly DesignTheme[] = [
   { id: "ocean", accent: PREMIUM_PALETTES.ocean.brand, background: PREMIUM_PALETTES.ocean.page, font: "Almarai", header: "logo_actions", round: 1.2, layout: { home: 0, items: "carousel", across: 2, categories: "pictures" } },
   { id: "classic", accent: PREMIUM_PALETTES.classic.brand, background: PREMIUM_PALETTES.classic.page, font: "Markazi Text", header: "logo_actions", round: 0.8, layout: { home: "brand", items: "list", across: 1, categories: "chips" } },
   { id: "rose", accent: PREMIUM_PALETTES.rose.brand, background: PREMIUM_PALETTES.rose.page, font: "El Messiri", header: "logo_center", round: 1.3, layout: { home: 1, items: "grid", across: 2, categories: "circles" } },
+  // 130.60 Monochrome luxe, new after the six: Bricolage Grotesque (the app has it), corners nearly square, the lists one under another.
+  { id: "mono", accent: PREMIUM_PALETTES.mono.brand, background: PREMIUM_PALETTES.mono.page, font: "Bricolage Grotesque", header: "logo_actions", round: 0.3, layout: { home: 0, items: "list", across: 1, categories: "chips" } },
 ];
+
+/** 130.60 Whether Studio marks a whole design as new (Monochrome luxe). */
+export function isNewDesign(design: Pick<WholeDesign, "demo" | "theme">): boolean {
+  return !design.demo && (NEW_PREMIUM_DESIGNS as readonly string[]).includes(design.theme.id);
+}
 
 /** 130.30 A premium design's home, made for the project's kind (lib/studio/premium-designs.ts), before the kind's own pages. */
 export const PREMIUM_HOME = "premium_home";
@@ -222,7 +229,9 @@ function premiumLook(theme: DesignTheme, kind: ProjectKind | null, ctx: SectionC
   const system = structuredClone(THEME_CHROME[id]!.system);
   const photo = system.look === "photo" ? yallappPhoto(ctx, premiumCoverPath(kind)) : null;
   if (photo) system.image_url = photo;
-  return { secondary_color: PREMIUM_PALETTES[id].accent, tab_bar: structuredClone(PREMIUM_BARS[id]), screens: { system } };
+  // 130.60 An academy's course screens in the look, where the design has them.
+  const courses = kind?.type === "lms" ? PREMIUM_COURSE_SCREENS[id] : undefined;
+  return { secondary_color: PREMIUM_PALETTES[id].accent, tab_bar: structuredClone(PREMIUM_BARS[id]), screens: { system, ...(courses ? structuredClone(courses) : {}) } };
 }
 
 export interface DesignWords {

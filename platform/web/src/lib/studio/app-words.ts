@@ -799,6 +799,17 @@ export const en = {
   csCtaOnAir: "Join now",
   csLineOnAir: "Every lesson, live or recorded.",
   // ——— end 130.52 ———
+  // ——— 130.60 Monochrome luxe, 130.62 the new landings ———
+  pdMoIndex: "Index",
+  pdMoNote: "[A line that says what you stand for]",
+  pdMoSign: "The {app} team",
+  pdLdStories: "Stories",
+  pdLdNumbers: "In numbers",
+  pdLdNew: "What's new",
+  pdLdNewLine: "[Your latest news in a line]",
+  pdLdIssue: "[This month's edition]",
+  pdLdPick: "Our pick",
+  // ——— end 130.60–130.62 ———
 } as const;
 
 /** A word a template writes into the app. */
@@ -1586,6 +1597,17 @@ export const ar: Record<AppWord, string> = {
   csCtaOnAir: "انضم الآن",
   csLineOnAir: "كل درس، مباشرًا أو مسجّلًا.",
   // ——— end 130.52 ———
+  // ——— 130.60 Monochrome luxe, 130.62 the new landings ———
+  pdMoIndex: "الفهرس",
+  pdMoNote: "[سطر يقول ما تمثّله علامتك]",
+  pdMoSign: "فريق {app}",
+  pdLdStories: "قصص",
+  pdLdNumbers: "بالأرقام",
+  pdLdNew: "الجديد",
+  pdLdNewLine: "[آخر أخبارك في سطر واحد]",
+  pdLdIssue: "[عدد هذا الشهر]",
+  pdLdPick: "اختيارنا",
+  // ——— end 130.60–130.62 ———
 };
 
 export const tr: Record<AppWord, string> = {
@@ -2369,6 +2391,17 @@ export const tr: Record<AppWord, string> = {
   csCtaOnAir: "Hemen katıl",
   csLineOnAir: "Her ders, canlı ya da kayıtlı.",
   // ——— end 130.52 ———
+  // ——— 130.60 Monochrome luxe, 130.62 the new landings ———
+  pdMoIndex: "Dizin",
+  pdMoNote: "[Neyi temsil ettiğinizi anlatan bir satır]",
+  pdMoSign: "{app} ekibi",
+  pdLdStories: "Hikâyeler",
+  pdLdNumbers: "Rakamlarla",
+  pdLdNew: "Yenilikler",
+  pdLdNewLine: "[Son haberiniz tek satırda]",
+  pdLdIssue: "[Bu ayın sayısı]",
+  pdLdPick: "Seçimimiz",
+  // ——— end 130.60–130.62 ———
 };
 
 /** The languages templates are written in; another one gets English. */

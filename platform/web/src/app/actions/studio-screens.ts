@@ -93,8 +93,9 @@ export async function applyDesignLookAction(input: { primary?: string | null; sc
   if (input.screens && studioScreensOn(app)) {
     const parsed = parseStudioScreens(input.screens);
     if (!parsed.problems.length) {
-      // 130.22 A whole design that brings only the system screens' look keeps the project's sign-in, menu and the rest.
-      const only = Object.keys(parsed.screens).every((k) => k === "system");
+      // 130.22 A whole design that brings only the system screens' look keeps the project's sign-in, menu and the rest;
+      // 130.60 its course screens too (an academy's card and course page in the design's look).
+      const only = Object.keys(parsed.screens).every((k) => k === "system" || k === "course_card" || k === "course_page");
       const screens = only ? { ...(app.hostedSettings?.studioScreens ?? {}), ...parsed.screens } : parsed.screens;
       update.hostedSettings = { ...DEFAULT_HOSTED_SETTINGS, ...(app.hostedSettings ?? {}), studioScreens: screens };
       out.screens = screens;

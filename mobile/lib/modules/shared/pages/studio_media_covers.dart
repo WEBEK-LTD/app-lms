@@ -55,7 +55,11 @@ class StudioMediaCover extends ConsumerWidget {
       parent: node,
     );
     if (node.glass) front = _Glass(child: front);
-    final photo = AppNetworkImage(url: node.imageUrl, seed: node.id.hashCode);
+    // 130.61 In black and white with `tone` mono.
+    final photo = studioToned(
+      node,
+      AppNetworkImage(url: node.imageUrl, seed: node.id.hashCode),
+    );
     // 129.1 The poster growing slowly with `ken_burns`.
     final poster = StudioKenBurns.wrap(context, photo);
     Widget layers(Widget? media, Widget? control) => Stack(

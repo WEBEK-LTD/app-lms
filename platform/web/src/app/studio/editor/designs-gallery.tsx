@@ -22,6 +22,8 @@ export interface GalleryDesign {
   pages: number;
   /** Templates = demos: the kind's demo, shown first and recommended. */
   recommended?: boolean;
+  /** 130.60 Added lately (Monochrome luxe), marked new. */
+  isNew?: boolean;
   /** Yallapp's are made here; the account's are opened when chosen. */
   file: DesignFile | null;
 }
@@ -150,6 +152,7 @@ export function DesignsGallery(props: {
                     {t("studio.designsPages", { count: d.pages })}
                     {d.kind !== "yallapp" ? <Tag>{t(d.kind === "saved" ? "studio.designsTagMine" : "studio.designsTagImported")}</Tag> : null}
                     {d.recommended ? <Tag>{t("studio.tplRecommended")}</Tag> : null}
+                    {d.isNew ? <Tag>{t("studio.designsTagNew")}</Tag> : null}
                   </span>
                 </button>
               );

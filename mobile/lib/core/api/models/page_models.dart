@@ -2681,6 +2681,7 @@ class StudioNode {
     this.learningDays = StudioLearningDays.none,
     // 129 Premium motion & media.
     this.kenBurns = false,
+    this.monoTone = false,
     this.slides = const [],
     this.storySize = 68,
     this.images = const [],
@@ -2869,6 +2870,8 @@ class StudioNode {
         hidden: boolOr(json, 'hidden', false),
         // 129 Premium motion & media.
         kenBurns: boolOr(json, 'ken_burns', false),
+        // 130.61 A photo in black and white (`tone` mono).
+        monoTone: json['tone'] == 'mono',
         slides: _entries(json, 'slides', StudioStoryEntry.tryParse),
         storySize: json['stories'] is Map
             ? (optDouble(asJson(json['stories']), 'size') ?? 68)
@@ -3046,6 +3049,10 @@ class StudioNode {
 
   /// 129.1 For a slider: the open slide's photo grows slowly (Ken Burns).
   final bool kenBurns;
+
+  /// 130.61 For a picture, a photo hero or a parallax banner: its photo in
+  /// black and white (`tone` mono); otherwise in colour.
+  final bool monoTone;
 
   /// 129.2 For [StudioNodeType.stories]: the stories, in order.
   final List<StudioStoryEntry> slides;

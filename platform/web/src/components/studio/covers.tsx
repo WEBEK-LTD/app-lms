@@ -1,6 +1,6 @@
 import type { CSSProperties, ReactNode } from "react";
 import type { StudioNode } from "@/lib/pages/types";
-import { scrimCss } from "@/lib/studio/scrim";
+import { scrimCss, toneStyle } from "@/lib/studio/scrim";
 // 129.21–129.24 The map's premium looks (a living map, a horizon, two inks, a lens; pins, words and a route).
 import { MapLooks, hasMapLooks } from "./map-looks";
 
@@ -89,7 +89,7 @@ export function Cover({ node, dark, rtl, front, last, lang = "en" }: { node: Stu
           <>
             {node.image_url ? (
               // eslint-disable-next-line @next/next/no-img-element -- the owner's photo, drawn as the app draws it
-              <img src={node.image_url} alt="" style={{ position: "absolute", inset: 0, width: "100%", height: "100%", objectFit: "cover", display: "block" }} />
+              <img src={node.image_url} alt="" data-studio-tone={node.tone} style={{ position: "absolute", inset: 0, width: "100%", height: "100%", objectFit: "cover", display: "block", ...toneStyle(node.tone) }} />
             ) : null}
             {node.scrim ? <span aria-hidden="true" data-studio-scrim="" style={{ position: "absolute", inset: 0, background: scrimCss(node.scrim, rtl) }} /> : null}
           </>

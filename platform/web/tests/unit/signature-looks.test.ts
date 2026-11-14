@@ -86,7 +86,7 @@ describe("130 the Signature looks: one registry, eighteen looks", () => {
       expect(designs.filter((d) => !d.demo).flatMap((d) => d.templates)).not.toContain(id);
       // (The premium academy is no kind's own demo: its looks are an academy's first templates instead.)
       if (demo !== "premium_academy") expect(designs.slice(0, 2).map((d) => d.templates)).toEqual([[`demo_${demo}`], [`${demo}_signature_b`]]);
-      expect(designs.slice(demo === "premium_academy" ? 0 : 2).map((d) => d.id)).toEqual(["yallapp-warm", "yallapp-fresh", "yallapp-evening", "yallapp-ocean", "yallapp-classic", "yallapp-rose"]);
+      expect(designs.slice(demo === "premium_academy" ? 0 : 2).map((d) => d.id)).toEqual(["yallapp-warm", "yallapp-fresh", "yallapp-evening", "yallapp-ocean", "yallapp-classic", "yallapp-rose", "yallapp-mono"]);
     }
   });
 
