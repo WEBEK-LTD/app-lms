@@ -29,6 +29,14 @@ const PREFIX = "studio-";
 /** The template's real picture, as the app draws its home (public/screens). */
 const PICTURES: Record<string, string> = {
   academy_premium: "/screens/premium-home.png",
+  // 130.13–130.18 The Signature looks of Nakhla School, Rawaq Academy and Ufuq Academy.
+  school_signature_a: "/screens/nakhla-sig-a-home.png",
+  school_signature_b: "/screens/nakhla-sig-b-home.png",
+  instructors_signature_a: "/screens/rawaq-sig-a-home.png",
+  instructors_signature_b: "/screens/rawaq-sig-b-home.png",
+  premium_academy_signature_a: "/screens/ufuq-sig-a-home.png",
+  premium_academy_signature_b: "/screens/ufuq-sig-b-home.png",
+  // ——— end 130.13–130.18 ———
 };
 
 /** The Branding step's id for a template (`studio-academy_premium`). */

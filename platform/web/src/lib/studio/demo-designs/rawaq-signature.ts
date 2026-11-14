@@ -348,7 +348,8 @@ export function rawaqOnAirHome(ctx: SectionContext): StudioPage {
     heading: ctx.w(t.name),
     subheading: null,
     action: TEACHERS,
-    label: ctx.w(t.initials),
+    // Initials, three letters at most ("SN", "س ن").
+    label: ctx.w(t.initials).slice(0, 3),
     color: t.color,
     ring: t.live ? "highlight" : "plain",
     ring_color: t.live ? "#E5484D" : "#B8893A",

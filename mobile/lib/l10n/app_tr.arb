@@ -3077,5 +3077,7 @@
   "studioMapSign": "TAKSİ",
   "studioMapMinutes": "{minutes} dk",
   "studioMapPickup": "Biniş",
-  "studioMapEta": "{name} · {minutes} dk"
+  "studioMapEta": "{name} · {minutes} dk",
+  "learningResumeLesson": "Derse devam et",
+  "learningPercentOfCourse": "Kursun %{percent} kadarı"
 }

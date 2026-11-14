@@ -11967,4 +11967,12 @@ class AppLocalizationsAr extends AppLocalizations {
   String studioMapEta(String name, int minutes) {
     return '$name · $minutes د';
   }
+
+  @override
+  String get learningResumeLesson => 'تابع الدرس';
+
+  @override
+  String learningPercentOfCourse(int percent) {
+    return '$percent% من الدورة';
+  }
 }

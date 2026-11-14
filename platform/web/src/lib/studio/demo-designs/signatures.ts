@@ -1,5 +1,6 @@
 import { NAKHLA_A, NAKHLA_B } from "./nakhla-signature";
 import { RAWAQ_A, RAWAQ_B } from "./rawaq-signature";
+import { UFUQ_A, UFUQ_B } from "./ufuq-signature";
 import { signatureTemplate, type SignatureLook } from "./signature";
 
 /**
@@ -13,6 +14,8 @@ export const SIGNATURE_LOOKS: readonly SignatureLook[] = [
   NAKHLA_B,
   RAWAQ_A,
   RAWAQ_B,
+  UFUQ_A,
+  UFUQ_B,
   // ——— end 130.13–130.18 ———
 ];
 

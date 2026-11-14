@@ -12258,4 +12258,13 @@ class OverlayLocalizations extends AppLocalizations {
   String studioMapEta(String name, int minutes) =>
       overlay.format('studioMapEta', {'name': name, 'minutes': minutes}) ??
       base.studioMapEta(name, minutes);
+
+  @override
+  String get learningResumeLesson =>
+      overlay.text('learningResumeLesson') ?? base.learningResumeLesson;
+
+  @override
+  String learningPercentOfCourse(int percent) =>
+      overlay.format('learningPercentOfCourse', {'percent': percent}) ??
+      base.learningPercentOfCourse(percent);
 }

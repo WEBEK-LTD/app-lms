@@ -2087,11 +2087,26 @@ enum StudioSchoolSection { greeting, children, today }
 enum StudioLearningSection { continueCourse, streak, live, week }
 
 /// 128.8 How a `learning` card is drawn: as 123 drew it, or on a photo
-/// (`StudioLearning.style` `photo`).
-enum StudioLearningStyle { card, photo }
+/// (`StudioLearning.style` `photo`). 130.18 `ring`: the course they are
+/// taking as its photo in a gold ring filled to how far they are.
+enum StudioLearningStyle { card, photo, ring }
 
-StudioLearningStyle studioLearningStyle(Object? value) =>
-    value == 'photo' ? StudioLearningStyle.photo : StudioLearningStyle.card;
+StudioLearningStyle studioLearningStyle(Object? value) => switch (value) {
+  'photo' => StudioLearningStyle.photo,
+  'ring' => StudioLearningStyle.ring,
+  _ => StudioLearningStyle.card,
+};
+
+/// 130.18 The week's days under a streak (`StudioLearning.days`): round
+/// letters or short pills, the days learned filled and today ringed; none
+/// when missing.
+enum StudioLearningDays { none, letters, pills }
+
+StudioLearningDays studioLearningDays(Object? value) => switch (value) {
+  'letters' => StudioLearningDays.letters,
+  'pills' => StudioLearningDays.pills,
+  _ => StudioLearningDays.none,
+};
 
 StudioLearningSection? studioLearningSection(Object? value) => switch (value) {
   'continue' => StudioLearningSection.continueCourse,
@@ -2624,6 +2639,7 @@ class StudioNode {
     this.overlap = 0,
     this.school,
     this.learningStyle = StudioLearningStyle.card,
+    this.learningDays = StudioLearningDays.none,
     // 129 Premium motion & media.
     this.kenBurns = false,
     this.slides = const [],
@@ -2785,6 +2801,9 @@ class StudioNode {
         learningStyle: json['learning'] is Map
             ? studioLearningStyle((json['learning'] as Map)['style'])
             : StudioLearningStyle.card,
+        learningDays: json['learning'] is Map
+            ? studioLearningDays((json['learning'] as Map)['days'])
+            : StudioLearningDays.none,
         // 129.11–129.20 A premium element's list and options; a layout's
         // premium card style.
         entries: StudioEntry.listFrom(json['entries']),
@@ -3108,6 +3127,9 @@ class StudioNode {
 
   /// 128.8 How that card is drawn.
   final StudioLearningStyle learningStyle;
+
+  /// 130.18 The week's days under a streak.
+  final StudioLearningDays learningDays;
 
   /// 129.11–129.20 A premium element's list (its quotes, plans, numbers,
   /// bars, steps or tiles) and its options.

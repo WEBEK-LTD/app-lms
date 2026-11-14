@@ -11508,4 +11508,12 @@ class AppLocalizationsTr extends AppLocalizations {
   String studioMapEta(String name, int minutes) {
     return '$name · $minutes dk';
   }
+
+  @override
+  String get learningResumeLesson => 'Derse devam et';
+
+  @override
+  String learningPercentOfCourse(int percent) {
+    return 'Kursun %$percent kadarı';
+  }
 }

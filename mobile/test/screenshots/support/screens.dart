@@ -849,6 +849,17 @@ final websiteShots = <Shot>[
     appType: AppType.lms,
     after: (tester, router) async => router.go('/teacher-desk'),
   ),
+  // 130.17 130.18 Ufuq Academy's Signature looks' homes, by day and by night.
+  for (final letter in ['a', 'b'])
+    for (final dark in [false, true])
+      Shot(
+        'ufuq-sig-$letter-home${dark ? '-dark' : ''}',
+        dark: dark,
+        api: () => premiumAcademyApi(look: 'ufuq_sig_$letter.json'),
+        appType: AppType.lms,
+        prepare: preparePremiumAcademy,
+        overrides: premiumAcademyOverrides,
+      ),
   // 123 The premium academy's demo, Ufuq Academy (its story page too).
   for (final (name, location) in [
     ('premium-home', null),

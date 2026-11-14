@@ -26,7 +26,8 @@ describe("103R.7 Studio's templates and sections for each project type", () => {
     // A restaurant gets its menu, not the shop.
     expect(ownTemplates(kindOf("restaurant")).map((t) => t.id)).toEqual(["menu", "brand", "contact", "blank"]);
     // 123 The premium academy first, then the courses.
-    expect(ownTemplates(kindOf("academy")).map((t) => t.id).slice(0, 2)).toEqual(["academy_premium", "courses"]);
+    // 130.17 130.18 Ufuq Academy's Signature looks first, then the premium academy.
+    expect(ownTemplates(kindOf("academy")).map((t) => t.id).slice(0, 4)).toEqual(["premium_academy_signature_a", "premium_academy_signature_b", "academy_premium", "courses"]);
     expect(ownTemplates(kindOf("bookings"))[0]!.id).toBe("services");
     expect(ownTemplates(kindOf("clinic"))[0]!.id).toBe("services");
     // 128 And the premium demo's home as a template of its own (lib/studio/demo-designs).
@@ -115,7 +116,7 @@ describe("103R.7 Studio's templates and sections for each project type", () => {
     expect(uniWords).not.toContain("schoolTitle");
     expect(sectionsFor(kindOf("school"))[0]!.id).toBe("school");
     expect(sectionsFor(kindOf("academy")).map((s) => s.id)).not.toContain("teachers");
-    const welcome = ownTemplates(kindOf("instructors"))[0]!.make({ brand: "#1F4E5F", source: "courses", w: (word) => word });
+    const welcome = ownTemplates(kindOf("instructors")).find((t) => t.id === "teachers")!.make({ brand: "#1F4E5F", source: "courses", w: (word) => word });
     expect(allNodes(welcome).map((n) => n.action?.screen).filter(Boolean)).toEqual(["teachers", "courses", "teachers"]);
     const words = allNodes(welcome).map((n) => n.text).filter(Boolean);
     expect(words).toEqual(expect.arrayContaining(["teachersStepOne", "teachersStepTwo", "teachersStepThree"]));

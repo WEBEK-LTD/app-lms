@@ -57,14 +57,16 @@ async function project(kind: string, template = BLANK): Promise<App> {
 describe("124.6 the premium academy in App setup", () => {
   it("is offered to a Studio academy only: not to a regular academy, an academy of many teachers or another kind", async () => {
     const studio = await project("academy");
-    expect(projectTemplatesFor(studio).map((t) => t.id)).toEqual(["academy_premium"]);
+    // 130.17 130.18 Ufuq Academy's Signature looks too, first.
+    expect(projectTemplatesFor(studio).map((t) => t.id)).toEqual(["premium_academy_signature_a", "premium_academy_signature_b", "academy_premium"]);
     expect(projectTemplateOf(studio, "studio-academy_premium")?.id).toBe("academy_premium");
     expect(projectDesignId("academy_premium")).toBe("studio-academy_premium");
     expect(projectTemplatePicture(TEMPLATE)).toBe("/screens/premium-home.png");
     const regular: App = newApp("c", null, NOW, "lms", null);
     expect(projectTemplatesFor(regular)).toEqual([]);
     expect(projectTemplateOf(regular, "studio-academy_premium")).toBeNull();
-    expect(projectTemplatesFor(await project("instructors"))).toEqual([]);
+    // 130.15 130.16 An academy of many teachers gets Rawaq Academy's Signature looks.
+    expect(projectTemplatesFor(await project("instructors")).map((t) => t.id)).toEqual(["instructors_signature_a", "instructors_signature_b"]);
     expect(projectTemplatesFor(await project("store"))).toEqual([]);
     // A page design's id or a made-up one isn't a template.
     expect(projectTemplateOf(studio, "academy-kids")).toBeNull();

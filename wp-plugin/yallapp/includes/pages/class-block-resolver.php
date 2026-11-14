@@ -1333,9 +1333,15 @@ class Block_Resolver {
 					return null;
 				}
 				$node['learning'] = array( 'section' => $section );
-				// 128.8 On a photo, as the approved academy home draws them.
-				if ( 'photo' === ( $raw['learning']['style'] ?? null ) ) {
-					$node['learning']['style'] = 'photo';
+				// 128.8 On a photo, as the approved academy home draws them; 130.18 in a gold ring.
+				$style = $raw['learning']['style'] ?? null;
+				if ( in_array( $style, array( 'photo', 'ring' ), true ) ) {
+					$node['learning']['style'] = $style;
+				}
+				// 130.18 This week's days under a streak.
+				$days = $raw['learning']['days'] ?? null;
+				if ( in_array( $days, array( 'letters', 'pills' ), true ) ) {
+					$node['learning']['days'] = $days;
 				}
 				break;
 			case 'live_status':

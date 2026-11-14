@@ -1876,6 +1876,17 @@ export const en = {
   w_raS3Line: "Design screens people understand at a glance.",
   w_raMeet: "Meet the teacher",
   w_raCourses: "The courses",
+  learningStyle_ring: "In a gold ring",
+  learningDays: "This week's days",
+  learningDays_none: "None",
+  learningDays_letters: "Round letters",
+  learningDays_pills: "Short pills",
+  lw_ringChip: "Lesson 12 of 18",
+  lw_ringKicker: "Continue learning",
+  lw_ringLine: "14 min left · 61% of the course",
+  lw_ringResume: "Resume lesson",
+  tpl_premium_academy_signature_a: "Night cinema",
+  tpl_premium_academy_signature_b: "Gold ring",
   // ——— end 130.13–130.18 The Signature looks of Nakhla School, Rawaq Academy and Ufuq Academy ———
 } as const;
 
@@ -3736,6 +3747,17 @@ export const ar: Messages = {
   w_raS3Line: "صمّم شاشات يفهمها الناس من النظرة الأولى.",
   w_raMeet: "تعرّف إلى المعلم",
   w_raCourses: "الدورات",
+  learningStyle_ring: "جوه حلقة دهبي",
+  learningDays: "أيام الأسبوع ده",
+  learningDays_none: "من غير",
+  learningDays_letters: "حروف في دواير",
+  learningDays_pills: "شرط صغيرة",
+  lw_ringChip: "الدرس 12 من 18",
+  lw_ringKicker: "كمّل التعلّم",
+  lw_ringLine: "فاضل 14 دقيقة · 61% من الكورس",
+  lw_ringResume: "كمّل الدرس",
+  tpl_premium_academy_signature_a: "سينما بالليل",
+  tpl_premium_academy_signature_b: "الحلقة الدهبي",
   // ——— end 130.13–130.18 The Signature looks of Nakhla School, Rawaq Academy and Ufuq Academy ———
 };
 
@@ -5594,5 +5616,16 @@ export const tr: Messages = {
   w_raS3Line: "İnsanların bir bakışta anladığı ekranlar tasarlayın.",
   w_raMeet: "Öğretmenle tanışın",
   w_raCourses: "Kurslar",
+  learningStyle_ring: "Altın halka içinde",
+  learningDays: "Bu haftanın günleri",
+  learningDays_none: "Yok",
+  learningDays_letters: "Yuvarlak harfler",
+  learningDays_pills: "Kısa çubuklar",
+  lw_ringChip: "Ders 12 / 18",
+  lw_ringKicker: "Öğrenmeye devam et",
+  lw_ringLine: "14 dk kaldı · kursun %61 kadarı",
+  lw_ringResume: "Derse devam et",
+  tpl_premium_academy_signature_a: "Gece sineması",
+  tpl_premium_academy_signature_b: "Altın halka",
   // ——— end 130.13–130.18 The Signature looks of Nakhla School, Rawaq Academy and Ufuq Academy ———
 };

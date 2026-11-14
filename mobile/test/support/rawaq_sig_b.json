@@ -1147,10 +1147,12 @@
           "ring_color": "#B8893A",
           "translations": {
            "ar": {
-            "heading": "هانا كلارك"
+            "heading": "هانا كلارك",
+            "label": "ه ك"
            },
            "tr": {
-            "heading": "Hannah Clarke"
+            "heading": "Hannah Clarke",
+            "label": "HC"
            }
           }
          },
@@ -1168,10 +1170,12 @@
           "ring_color": "#B8893A",
           "translations": {
            "ar": {
-            "heading": "دنيز كايا"
+            "heading": "دنيز كايا",
+            "label": "د ك"
            },
            "tr": {
-            "heading": "Deniz Kaya"
+            "heading": "Deniz Kaya",
+            "label": "DK"
            }
           }
          },
@@ -1189,10 +1193,12 @@
           "ring_color": "#E5484D",
           "translations": {
            "ar": {
-            "heading": "سلمى ناصر"
+            "heading": "سلمى ناصر",
+            "label": "س ن"
            },
            "tr": {
-            "heading": "Salma Nasser"
+            "heading": "Salma Nasser",
+            "label": "SN"
            }
           }
          },
@@ -1210,10 +1216,12 @@
           "ring_color": "#B8893A",
           "translations": {
            "ar": {
-            "heading": "عمر فاروق"
+            "heading": "عمر فاروق",
+            "label": "ع ف"
            },
            "tr": {
-            "heading": "Omar Farouk"
+            "heading": "Omar Farouk",
+            "label": "OF"
            }
           }
          }

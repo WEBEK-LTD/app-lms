@@ -192,7 +192,7 @@ export function StudioEditor(props: StudioEditorProps) {
   // 129.11–129.20 The premium elements' words on the canvas, and their first words when added.
   const premiumWords = Object.fromEntries((["setPrice", "monthly", "yearly", "perMonth", "perYear", "popular", "addLabel", "reviewsNote"] as const).map((k) => [k, t(`studio.pmw_${k}` as DashKey)])) as unknown as PremiumWords;
   const premiumText = (key: PremiumText) => t(`studio.pmn_${key}` as DashKey);
-  const learningWords = Object.fromEntries((["lessonOf", "minutesLeft", "streak", "days", "live", "liveWhen", "week", "weekChange", "sampleCourse", "sampleTeacher", "sampleLive", "weekdays", "photoChip", "liveAt", "photoCourse"] as const).map((k) => [k, t(`studio.lw_${k}` as DashKey)])) as unknown as LearningWords;
+  const learningWords = Object.fromEntries((["lessonOf", "minutesLeft", "streak", "days", "live", "liveWhen", "week", "weekChange", "sampleCourse", "sampleTeacher", "sampleLive", "weekdays", "photoChip", "liveAt", "photoCourse", "ringChip", "ringKicker", "ringLine", "ringResume"] as const).map((k) => [k, t(`studio.lw_${k}` as DashKey)])) as unknown as LearningWords;
   const greeting = { date: t("studio.greetingDate"), hello: t("studio.greetingHello") };
   // 128 The sample family of the school's cards, in Studio's language.
   const schoolWords = Object.fromEntries((["hello", "childOne", "childTwo", "checkedIn", "onTime", "now", "next", "bus", "busRoute"] as const).map((k) => [k, t(`studio.sw_${k}` as DashKey)])) as unknown as Omit<SchoolWords, "date">;

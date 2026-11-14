@@ -54,7 +54,8 @@ describe("123 the premium academy template", () => {
 
   it("is the academy's recommended start, offered first", () => {
     const list = templatesFor({ type: "lms", vertical: null });
-    expect(list[0]!.id).toBe("academy_premium");
+    // 130.17 130.18 After Ufuq Academy's two Signature looks.
+    expect(list.map((t) => t.id).slice(0, 3)).toEqual(["premium_academy_signature_a", "premium_academy_signature_b", "academy_premium"]);
     expect(list[0]!.recommended).toBe(true);
     expect(list.map((t) => t.id)).toContain("courses");
   });

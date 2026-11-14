@@ -3077,5 +3077,7 @@
   "studioMapSign": "تاكسي",
   "studioMapMinutes": "{minutes} د",
   "studioMapPickup": "نقطة الركوب",
-  "studioMapEta": "{name} · {minutes} د"
+  "studioMapEta": "{name} · {minutes} د",
+  "learningResumeLesson": "تابع الدرس",
+  "learningPercentOfCourse": "{percent}% من الدورة"
 }

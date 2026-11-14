@@ -15950,7 +15950,7 @@ components:
         section: { type: string, enum: [continue, streak, live, week] }
         style:
           type: string
-          enum: [card, photo]
+          enum: [card, photo, ring]
           description: |
             128.8 How the card is drawn; missing, `card` (as above). `photo`:
             `continue` over the element's picture (else the course's) under
@@ -15960,6 +15960,24 @@ components:
             `overlay`, the time it starts in gold over the class's name;
             `streak` the days in a row as one figure. Apps that don't know
             a style draw the card.
+            130.18 `ring`: `continue` as the course's photo in a round frame
+            with a gold ring round it filled to how far they are (ticks
+            round it, a knob at its end; mirrored right to left), the lesson
+            they are on on a chip over the photo's foot, then "Continue
+            learning", the course's name, the minutes left and how far they
+            are, and a button that opens the lesson, centred, in the
+            element's colour; the other sections as `photo`. Apps that don't
+            know it draw `photo`'s or the card.
+        days:
+          type: string
+          enum: [letters, pills]
+          description: |
+            130.18 For `streak`: this week's days under it, from the week's
+            first day where the student lives: `letters` each day's letter
+            in a circle, `pills` a short pill each; the days learned (the
+            streak's days when those aren't known) filled in gold, today
+            ringed, the days to come quiet. Missing, none (the `card` look
+            keeps its own bars). Apps that don't know it leave it out.
     StudioTracking:
       type: [object, 'null']
       description: |

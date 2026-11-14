@@ -16,6 +16,7 @@ import '../coursework/coursework_providers.dart';
 import '../data/lms_providers.dart';
 import '../learning/learning_providers.dart';
 import '../navigation.dart';
+import 'learning_ring.dart';
 import '../../shared/pages/content_blocks.dart' show pageClockProvider;
 
 /// 123 The student's own cards on an academy's Studio page (`learning`):
@@ -71,8 +72,12 @@ class StudioLearningCard extends ConsumerWidget {
     required this.title,
     required this.dark,
     this.style = StudioLearningStyle.card,
+    this.days = StudioLearningDays.none,
     this.ownPicture = false,
   });
+
+  /// 130.18 The week's days under a streak.
+  final StudioLearningDays days;
 
   final StudioLearningSection section;
 
@@ -92,7 +97,18 @@ class StudioLearningCard extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    if (style == StudioLearningStyle.photo) {
+    // 130.18 The days of this week the student learned on, when known.
+    Set<DateTime> learned() => {
+      for (final d in ref.watch(learningTimeProvider).value?.days ?? const [])
+        if (d.minutes > 0) DateUtils.dateOnly(d.date),
+    };
+    // 130.18 The ring: the course they are taking in a gold ring; its
+    // other cards as on a photo.
+    if (style == StudioLearningStyle.ring &&
+        section == StudioLearningSection.continueCourse) {
+      return RingContinueCard(course: _taking(ref)!, color: color, dark: dark);
+    }
+    if (style != StudioLearningStyle.card) {
       switch (section) {
         case StudioLearningSection.continueCourse:
           return PhotoContinueCard(
@@ -111,6 +127,10 @@ class StudioLearningCard extends ConsumerWidget {
             days: ref.watch(achievementsProvider).value?.streakDays ?? 0,
             color: color,
             title: title,
+            week: days,
+            learned: days == StudioLearningDays.none ? const {} : learned(),
+            now: ref.watch(pageClockProvider)(),
+            dark: dark,
           );
         case StudioLearningSection.week:
           break;
@@ -901,11 +921,22 @@ class CompactStreakCard extends StatelessWidget {
     required this.days,
     required this.color,
     required this.title,
+    this.week = StudioLearningDays.none,
+    this.learned = const {},
+    this.now,
+    this.dark = false,
   });
 
   final int days;
   final Color? color;
   final String? title;
+
+  /// 130.18 This week's days under the figure, the days learned filled and
+  /// today ringed.
+  final StudioLearningDays week;
+  final Set<DateTime> learned;
+  final DateTime? now;
+  final bool dark;
 
   @override
   Widget build(BuildContext context) {
@@ -951,6 +982,16 @@ class CompactStreakCard extends StatelessWidget {
               ),
             ),
           ),
+          if (week != StudioLearningDays.none) ...[
+            const SizedBox(height: 10),
+            StreakWeek(
+              style: week,
+              days: days,
+              learned: learned,
+              now: now ?? DateTime.now(),
+              dark: dark,
+            ),
+          ],
         ],
       ),
     );

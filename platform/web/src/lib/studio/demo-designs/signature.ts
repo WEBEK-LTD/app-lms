@@ -102,7 +102,7 @@ export function lookWords(ctx: SectionContext): { ctx: SectionContext; translate
     const own = of(node as unknown as Record<string, unknown>, ["text", "title"]);
     if (own) out.translations = own;
     if (node.entries) out.entries = node.entries.map((e) => ({ ...e, ...(of(e as Record<string, unknown>, ["title", "subtitle", "text", "label"]) ? { translations: of(e as Record<string, unknown>, ["title", "subtitle", "text", "label"])! } : {}) }));
-    if (node.slides) out.slides = node.slides.map((s) => ({ ...s, ...(of(s as unknown as Record<string, unknown>, ["heading", "subheading"]) ? { translations: of(s as unknown as Record<string, unknown>, ["heading", "subheading"])! } : {}) }));
+    if (node.slides) out.slides = node.slides.map((s) => ({ ...s, ...(of(s as unknown as Record<string, unknown>, ["heading", "subheading", "label"]) ? { translations: of(s as unknown as Record<string, unknown>, ["heading", "subheading", "label"])! } : {}) }));
     if (node.children) out.children = node.children.map(translate);
     if (node.card) out.card = translate(node.card);
     return out;
@@ -118,6 +118,8 @@ export function signatureTemplate(look: SignatureLook): TemplateInfo {
     fits: look.fits,
     look: look.id,
     project: look.project,
+    // Look A is the demo's own: recommended.
+    ...(look.letter === "a" ? { recommended: true } : {}),
     make: (ctx: SectionContext) => {
       const { ctx: words, translate } = lookWords(ctx);
       const page = look.home({ ...words, look: look.id });

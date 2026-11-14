@@ -18577,6 +18577,18 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'{name} · {minutes} min'**
   String studioMapEta(String name, int minutes);
+
+  /// 130.18 The button under the course in its gold ring (the Signature looks).
+  ///
+  /// In en, this message translates to:
+  /// **'Resume lesson'**
+  String get learningResumeLesson;
+
+  /// 130.18 How far the student is in the course, under it in its gold ring.
+  ///
+  /// In en, this message translates to:
+  /// **'{percent}% of the course'**
+  String learningPercentOfCourse(int percent);
 }
 
 class _AppLocalizationsDelegate

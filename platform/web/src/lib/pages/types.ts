@@ -790,10 +790,21 @@ export const STUDIO_LEARNING_SECTIONS = ["continue", "streak", "live", "week"] a
  * on one chip, how far they are in gold and a round play button, the
  * live class's time in gold over its name; the streak a compact figure.
  */
-export const STUDIO_LEARNING_STYLES = ["card", "photo"] as const;
+/**
+ * 130.18 `ring`: the course they are taking as its photo in a round frame,
+ * a gold ring round it filled to how far they are (ticks, a knob at its
+ * end), the lesson on a chip over the photo's foot, then the kicker, the
+ * course's name, the minutes left and how far they are, and a button that
+ * opens the lesson, centred; the other cards as on a photo.
+ */
+export const STUDIO_LEARNING_STYLES = ["card", "photo", "ring"] as const;
+/** 130.18 This week's days under a streak: round letters or short pills, the days learned filled, today ringed. */
+export const STUDIO_LEARNING_DAYS = ["letters", "pills"] as const;
 export interface StudioLearning {
   section: (typeof STUDIO_LEARNING_SECTIONS)[number];
   style?: (typeof STUDIO_LEARNING_STYLES)[number];
+  /** 130.18 For `streak`: this week's days under it; missing, none (the card look keeps its bars). */
+  days?: (typeof STUDIO_LEARNING_DAYS)[number];
 }
 
 /**

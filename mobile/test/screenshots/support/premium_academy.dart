@@ -28,7 +28,12 @@ final Map<String, dynamic> _demo = jsonDecode(
   File('test/support/premium_academy_demo.json').readAsStringSync(),
 ) as Map<String, dynamic>;
 
-Map<String, dynamic> get _layout => _demo['layout'] as Map<String, dynamic>;
+Map<String, dynamic> _read(String file) =>
+    jsonDecode(File('test/support/$file').readAsStringSync())
+        as Map<String, dynamic>;
+
+/// 130.17 130.18 The Signature looks' projects, read once.
+final _looks = <String, Map<String, dynamic>>{};
 
 /// Where the platform served the demo from (its pictures' addresses).
 String get _base => RegExp(r'^https?://[^/]+')
@@ -121,9 +126,16 @@ Map<String, dynamic> _served(Map<String, dynamic> node) {
 
 /// Ufuq Academy's app, signed in as Sara; [enrolled] in the course whose
 /// page and lesson show.
-DemoApi premiumAcademyApi({bool enrolled = true}) {
+DemoApi premiumAcademyApi({
+  bool enrolled = true,
+  // 130.17 130.18 A Signature look's project instead of the demo's
+  // (test/support/ufuq_sig_<a|b>.json).
+  String? look,
+}) {
+  final demo = look == null ? _demo : _looks[look] ??= _read(look);
+  final layout = demo['layout'] as Map<String, dynamic>;
   final api = DemoApi.academy(
-    appearance: _layout['appearance'] as Map<String, dynamic>,
+    appearance: layout['appearance'] as Map<String, dynamic>,
   );
   api.config = {
     ...api.config,
@@ -137,7 +149,7 @@ DemoApi premiumAcademyApi({bool enrolled = true}) {
       ...(api.config['content'] as Map<String, dynamic>),
       'watermark': 'off',
     },
-    'screens': _demo['screens'],
+    'screens': demo['screens'],
     'features': {
       ...(api.config['features'] as Map<String, dynamic>),
       'gamification': true,
@@ -275,7 +287,7 @@ DemoApi premiumAcademyApi({bool enrolled = true}) {
     },
   };
 
-  final pages = (_layout['pages'] as List).cast<Map<String, dynamic>>();
+  final pages = (layout['pages'] as List).cast<Map<String, dynamic>>();
   String? around(Map<String, dynamic> target) {
     if (target['type'] != 'page') return null;
     final page = pages.where((p) => p['slug'] == target['page_slug']).first;
@@ -285,7 +297,7 @@ DemoApi premiumAcademyApi({bool enrolled = true}) {
   api.navigation = {
     'version': '1',
     'tabs': [
-      for (final t in (_layout['tabs'] as List).cast<Map<String, dynamic>>())
+      for (final t in (layout['tabs'] as List).cast<Map<String, dynamic>>())
         {
           'id': t['id'],
           'label': t['label'],
@@ -297,7 +309,7 @@ DemoApi premiumAcademyApi({bool enrolled = true}) {
         },
     ],
     'more': <dynamic>[],
-    'tab_bar': _layout['tab_bar'],
+    'tab_bar': layout['tab_bar'],
     'menu': <dynamic>[],
     'pages': [
       for (final p in pages)
