@@ -77,6 +77,8 @@ export interface SignatureDesign extends DemoDesign {
   bar: TabBarStyle;
   project: SignatureProject;
   chrome: SignatureChrome;
+  /** 131.20 Marked new in Studio's lists (Leqaa's). */
+  isNew?: boolean;
 }
 
 /** The look's project as a template's (lib/studio/start.ts, lib/studio/new-project.ts). */

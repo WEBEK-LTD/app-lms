@@ -84,7 +84,12 @@ export const STUDIO_HEADER_BUTTONS = ["menu", "search", "cart", "notifications",
  * unread, the person's photo for the account) and a page opened over the tabs has a round glass back button.
  * Missing, the header is drawn by its `type` exactly as before.
  */
-export const STUDIO_HEADER_STYLES = ["large", "glass", "photo", "brand", "search"] as const;
+/**
+ * 131.21 `petal` (Leqaa's signature, for every app): a soft wash of the main and second colours (or `image_url` under a
+ * soft shade) with a curved petal edge at its foot, a fine floral line, the logo or the app's name as a centred wordmark
+ * between round glass buttons and the line under it; it folds into a compact bar with the title in the middle.
+ */
+export const STUDIO_HEADER_STYLES = ["large", "glass", "photo", "brand", "search", "petal"] as const;
 export type StudioHeaderStyle = (typeof STUDIO_HEADER_STYLES)[number];
 // ——— end 130.20 premium chrome ———
 export const STUDIO_ALIGNS = ["start", "center", "end", "between", "around"] as const;
@@ -1459,6 +1464,8 @@ export const TAB_BAR_DESIGNS = [
   "float",
   // 129 A small dock in the middle, icons only, the open tab a filled circle.
   "dock",
+  // 131.22 Leqaa's petal (for every app): a floating bar on a soft wash, the open tab a petal-shaped pill, the middle tab a raised bloom.
+  "petal",
 ] as const;
 export type TabBarDesign = (typeof TAB_BAR_DESIGNS)[number];
 export type TabLabels = (typeof TAB_LABELS)[number];

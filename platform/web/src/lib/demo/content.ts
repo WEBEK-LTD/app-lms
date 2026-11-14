@@ -366,6 +366,16 @@ export const DEMO_GUIDES: Record<DemoId, DemoGuide> = {
     ],
     screens: ["safra-explore", "safra-hotel", "safra-trip"],
   },
+  // 131.20 Leqaa, the flower shop: a store in Studio, its two Signature looks, the gift checkout.
+  flowers: {
+    summary: "A flower shop in Cairo: bouquets for every occasion in three sizes, a vase, chocolates or a card with them, delivered today or on the day you pick. Its photos are CC0 or public domain, from Wikimedia Commons.",
+    tryThis: [
+      "Tap an occasion on the home, open a bouquet and choose its size and what goes with it",
+      "In the cart, check out as a gift: who it's from, who it's for, the day and time, and the card's message",
+      "Follow your order in Orders, and switch the app to Arabic or to dark mode in the account",
+    ],
+    screens: ["leqaa-home", "leqaa-product", "leqaa-checkout"],
+  },
 };
 
 const PRIVACY_NOTE = "This is a demo app made by Yallapp to show what an app built with Yallapp can do. Everything in it is sample content.";
@@ -738,6 +748,26 @@ export const DEMO_BRANDS: Record<DemoId, DemoBrand> = {
     shortDescription: "Hotels and flights, booked together for one price.",
     fullDescription: `Safra brings its hotels and its own flights to your phone.\n\nSearch a stay by place and dates, on a list or the map, choose a room with breakfast and free cancellation, and pay now or at the hotel. Find a flight on the month's price calendar, choose your fare and your seat, and keep your boarding pass in the app. Book a stay and a flight together for one price, follow the whole trip in one place and watch a route's price.\n\n${PRIVACY_NOTE}`,
     welcome: "Hotels and flights, together for one price.",
+  },
+  // 131.20 Leqaa (لقاء, "a meeting"), the flower shop: its look A's garnet rose and champagne.
+  flowers: {
+    appName: "Leqaa",
+    shortName: "Leqaa",
+    primaryColor: "#8E2445",
+    splashColor: "#FBF3F0",
+    secondaryColor: "#C89B6D",
+    template: "classic",
+    font: "DM Sans",
+    corners: "round",
+    cards: "outlined",
+    languages: ["en", "ar", "tr"],
+    icon: "icon-store",
+    banner: { picture: "banner-store", heading: "Flowers for every moment", subheading: "Bouquets for every occasion, delivered across Cairo today or on the day you pick." },
+    androidPackage: "com.yallapp.demo.flowers",
+    storeTitle: "Leqaa Flowers",
+    shortDescription: "Bouquets for every occasion, delivered across Cairo with a card in your words.",
+    fullDescription: `Leqaa makes bouquets for every occasion: love, birthdays, a new baby, congratulations and sympathy.\n\nChoose a bouquet and its size, add a vase, chocolates or a card, and send it today or on the day you pick, with a message in your own words.\n\n${PRIVACY_NOTE}`,
+    welcome: "Bouquets for every occasion, made on the day they are delivered.",
   },
 };
 

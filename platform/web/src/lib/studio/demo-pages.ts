@@ -62,6 +62,8 @@ const TAB_WORDS: Record<string, SectionWord> = {
   Teachers: "tabTeachers",
   // 130 The Signature looks' own tab: a school's Parent.
   Parent: "tabParent",
+  // 131.20 Leqaa's shop.
+  Bouquets: "lqTabBouquets",
 };
 
 /** The word over a screen and its icon; a screen that is all its own (the search, the club, the ride map) has none. */

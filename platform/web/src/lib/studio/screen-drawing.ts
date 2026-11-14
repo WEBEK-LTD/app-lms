@@ -3,6 +3,8 @@ import type { CourseCardLook, CoursePageLook, StudioScreens } from "./screens";
 import { resolveCourseScreens, type ResolvedCourseScreens } from "./course-screens";
 // 130.21 The system screens' premium looks.
 import { systemLookFor, systemScreenOf, type SystemLook, type SystemScreenKey } from "./premium-chrome";
+// 131.25 The checkout's premium look.
+import type { CheckoutLook } from "./checkout-look";
 
 /**
  * 124.8 Which of the app's screens Studio's canvas draws as the app does,
@@ -26,7 +28,9 @@ export type ScreenDrawing =
   // 130.21 One of the app's system screens (the account, settings, notifications, editing the profile, the lists) in its premium look, in every kind of app.
   | { screen: "system"; key: SystemScreenKey; look: SystemLook; image: string | null }
   // 130.52 One of the academy's course screens in Studio's course screens' look (components/studio/course-screens.tsx).
-  | { screen: "courses"; part: "card" | "page" | "lesson" | "mine"; look: ResolvedCourseScreens };
+  | { screen: "courses"; part: "card" | "page" | "lesson" | "mine"; look: ResolvedCourseScreens }
+  // 131.25 A store's cart and checkout in the gift checkout's look (components/studio/gift-checkout.tsx).
+  | { screen: "checkout"; look: CheckoutLook };
 
 /** 130.52 The course screens Studio's course screens' look draws, by the app's screen. */
 const COURSE_PARTS = { courses: "card", course: "page", lesson: "lesson", my_courses: "mine" } as const;
@@ -37,6 +41,8 @@ export function screenDrawing(screen: string | null | undefined, appType: string
   const key = systemScreenOf(screen);
   const look = key ? systemLookFor(screens?.system, key) : null;
   if (key && look) return { screen: "system", key, look, image: screens?.system?.image_url ?? screens?.sign_in?.image_url ?? null };
+  // 131.25 The cart in the checkout's look, in a store.
+  if (screen === "cart" && appType === "store" && screens?.checkout) return { screen: "checkout", look: screens.checkout };
   if (!screen || appType !== "lms") return null;
   // 130.52 The course screens in Studio's course screens' look, before the older looks.
   const part = (COURSE_PARTS as Record<string, (typeof COURSE_PARTS)[keyof typeof COURSE_PARTS]>)[screen];
@@ -75,6 +81,8 @@ export function screenLookSection(screen: string | null | undefined, appType: st
   if (appType === "lms" && screens?.courses && screen && screen in COURSE_PARTS) return "h-course-screens";
   // 130.21 The system screens' look.
   if (systemScreenOf(screen) && screen !== "account") return "h-system-look";
+  // 131.25 The checkout's look.
+  if (screen === "cart" && appType === "store") return "h-checkout-look";
   if (screen === "account") return "h-account-menu";
   if (appType !== "lms") return null;
   if (screen === "courses" || screen === "my_courses" || screen === "lesson") return "h-looks";

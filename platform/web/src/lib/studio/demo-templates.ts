@@ -46,6 +46,8 @@ export const DEMO_HOME_TEMPLATES: Record<StudioDemoId, string> = {
   travel: "travel_signature_a",
   // 123 The premium academy's home is its template's; 130.17 its Signature look A, night cinema (lib/studio/demo-designs/ufuq-signature.ts).
   premium_academy: "premium_academy_signature_a",
+  // 131.20 Leqaa, the flower shop, is its Signature look A, rose hour (lib/studio/demo-designs/leqaa-signature.ts).
+  flowers: "flowers_signature_a",
 };
 
 const ENTITIES: Record<string, string> = { amp: "&", lt: "<", gt: ">", quot: '"', "#39": "'" };
@@ -104,6 +106,8 @@ export const DEMO_NOTE_COLORS: Record<StudioDemoId, { surface: string; nightSurf
   premium_academy: { surface: "#FFFFFF", nightSurface: "#161C33", line: "#E3DFD6", nightLine: "#262D48", muted: "#5A5F73", nightMuted: "#A8AEC4" },
   // 126 Safra's, its pages' (lib/studio/demo-designs/safra-travel.ts SAFRA_INK).
   travel: { surface: "#FFFFFF", nightSurface: "#1B2338", line: "#E6DFD2", nightLine: "#2A3350", muted: "#5F6472", nightMuted: "#B4B8C6" },
+  // 131.20 Leqaa's, its look A's (lib/studio/demo-designs/leqaa-signature.ts LEQAA_A_INK).
+  flowers: { surface: "#FFFFFF", nightSurface: "#21121A", line: "#F0DDD9", nightLine: "#3A2530", muted: "#7B5E67", nightMuted: "#C9AEB6" },
 };
 
 /**
@@ -217,7 +221,8 @@ export function translating(ctx: SectionContext): { ctx: SectionContext; transla
 }
 
 /** The demos' own templates; 123 the premium academy is a template already (lib/studio/sections.ts academy_premium). */
-export const DEMO_ICONS: Record<Exclude<StudioDemoId, "premium_academy">, string> = {
+/** 131.20 Leqaa (a template's demo, as the premium academy) has none: its looks are a store's first templates. */
+export const DEMO_ICONS: Record<Exclude<StudioDemoId, "premium_academy" | "flowers">, string> = {
   delivery: "local_shipping",
   food: "delivery_dining",
   marketplace: "storefront",
@@ -289,6 +294,13 @@ export const DEMO_FACTS: Partial<Record<StudioDemoId, Partial<Record<SectionWord
     // 130.5 The Waybill look's headline names the demo's city.
     sahHead1: { en: "Across Cairo,", ar: "عبر القاهرة،", tr: "Kahire'nin her yerine," },
   },
+  // 131.20 Leqaa's own words where its looks leave the owner brackets: its cut-off in Cairo, its signature bouquet (lib/demo/flowers.ts), its name in each language.
+  flowers: {
+    lqWordmark: { en: "Leqaa", ar: "لقاء", tr: "Leqaa" },
+    lqCutoff: { en: "Order before 4 pm and it arrives today, anywhere in Cairo.", ar: "اطلب قبل الرابعة عصرًا ويصل اليوم إلى أي مكان في القاهرة.", tr: "Saat 16.00'dan önce sipariş verin, bugün Kahire'nin her yerine ulaşsın." },
+    lqBouquetTitle: { en: "Blush Garden", ar: "حديقة الورد", tr: "Pembe Bahçe" },
+    lqBouquetLine: { en: "Blush roses, lisianthus and eucalyptus, made on the day it is delivered.", ar: "ورد وردي وليزيانثوس وأوكالبتوس، تُصنع في يوم توصيلها.", tr: "Pembe güller, lisianthus ve okaliptüs; teslim edildiği gün hazırlanır." },
+  },
   // 130.12 Safra's own stays on its look B's bento (lib/travel/samples.ts TRAVEL_HOTELS): their names and their nights' prices.
   travel: {
     sigStayOne: { en: "Safra Caldera Suites", ar: "Safra Caldera Suites", tr: "Safra Caldera Suites" },
@@ -311,6 +323,9 @@ export function withDemoFacts(id: StudioDemoId, page: StudioPage, lang: DemoLang
   if (!facts) return page;
   const byText = new Map<string, Record<DemoLang, string>>();
   for (const [word, words] of Object.entries(facts)) for (const l of DEMO_LANGS) byText.set(STUDIO_WORDS[l][word as SectionWord], words!);
+  // 131.20 A word with the app's name in it, as the demo's page has it (Leqaa's wordmark).
+  const named = DEMO_APP_NAMES[id];
+  if (named) for (const [word, words] of Object.entries(facts)) for (const l of DEMO_LANGS) byText.set(STUDIO_WORDS[l][word as SectionWord].replaceAll("{app}", named), words!);
   const others = DEMO_LANGS.filter((l) => l !== lang);
   const fill = (node: StudioNode): StudioNode => {
     const words = node.text ? byText.get(node.text) : undefined;
@@ -335,5 +350,12 @@ export function withDemoFacts(id: StudioDemoId, page: StudioPage, lang: DemoLang
     }
     return out;
   };
-  return { ...page, body: fill(page.body) };
+  // 131.20 And the header's title (Leqaa B's wordmark in its petal header).
+  const header = page.header;
+  const titled = header?.title ? byText.get(header.title) : undefined;
+  const filledHeader = header && titled ? { ...header, title: titled[lang], translations: Object.fromEntries(others.map((l) => [l, { ...(header.translations?.[l] ?? {}), title: titled[l] }])) as NonNullable<StudioPage["header"]>["translations"] } : header;
+  return { ...page, ...(filledHeader !== header ? { header: filledHeader } : {}), body: fill(page.body) };
 }
+
+/** 131.20 The demos whose words carry the app's name, by that name (the demo app's). */
+const DEMO_APP_NAMES: Partial<Record<StudioDemoId, string>> = { flowers: "Leqaa" };

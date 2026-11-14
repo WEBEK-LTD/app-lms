@@ -23,6 +23,7 @@ const STYLE_NAMES: Record<StudioHeaderStyle, DashKey> = {
   photo: "studio.chromeStyle_photo",
   brand: "studio.chromeStyle_brand",
   search: "studio.chromeStyle_search",
+  petal: "studio.chromeStyle_petal",
 };
 
 const LOOK_NAMES: Record<SystemLook, DashKey> = {
@@ -30,6 +31,7 @@ const LOOK_NAMES: Record<SystemLook, DashKey> = {
   glass: "studio.chromeLook_glass",
   photo: "studio.chromeLook_photo",
   brand: "studio.chromeLook_brand",
+  petal: "studio.chromeLook_petal",
 };
 
 export function HeaderStyleControls({ header, onChange, lang, defaultLang }: { header: StudioHeader; onChange: (patch: Partial<StudioHeader>) => void; lang: LanguageCode; defaultLang: LanguageCode }) {
@@ -71,7 +73,7 @@ export function HeaderStyleControls({ header, onChange, lang, defaultLang }: { h
               <input value={subtitle} maxLength={80} onChange={(e) => setSubtitle(e.target.value)} className="h-9 rounded-lg px-2" style={FIELD} />
             </label>
           ) : null}
-          {style === "photo" ? (
+          {style === "photo" || style === "petal" ? (
             <div className="flex flex-wrap items-center gap-2">
               <MediaPicker kind="image" share library onPick={(url) => onChange({ image_url: url })} label={t("studio.chromePhoto")} />
               {header.image_url ? (
@@ -84,7 +86,7 @@ export function HeaderStyleControls({ header, onChange, lang, defaultLang }: { h
               </span>
             </div>
           ) : null}
-          {style === "large" || style === "photo" || style === "search" ? (
+          {style === "large" || style === "photo" || style === "search" || style === "petal" ? (
             <label className="flex items-center gap-1.5">
               <input type="checkbox" checked={header.collapse !== false} onChange={(e) => onChange({ collapse: e.target.checked ? undefined : false })} style={{ accentColor: "#1F8A4C" }} />
               {t("studio.chromeCollapse")}

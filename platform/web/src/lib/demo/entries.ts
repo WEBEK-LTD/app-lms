@@ -59,6 +59,7 @@ import {
   type DemoStaff,
 } from "./content";
 import type { DemoPicture, PictureSize } from "./picture-assets";
+import { FLOWER_CATEGORIES, FLOWER_CURRENCY, FLOWER_PRODUCTS } from "./flowers";
 import { UFUQ_COURSES } from "./ufuq-courses";
 import { ACADEMY_CATEGORIES, ACADEMY_COURSES, TEACHERS_CURRENCY } from "./teachers";
 
@@ -144,6 +145,58 @@ export async function demoProducts(deps: EntryDeps, app: App, menu: boolean): Pr
   }
   if (deps.sample) return;
   const skus = new Set(seeds.map((p) => p.sku));
+  for (const p of products) if (!p.sku || !skus.has(p.sku)) await store.deleteCatalogProduct(app.id, p.id);
+}
+
+/**
+ * 131.20 Leqaa's bouquets and add-ons (lib/demo/flowers.ts), by SKU, each in
+ * its collection and the occasions it suits (the shop's categories, by
+ * name), its sizes and what goes with it as its options, its photo the
+ * platform's. The demo's are updated in place and what is no longer in the
+ * demo is removed; samples are only added.
+ */
+export async function demoFlowerProducts(deps: EntryDeps, app: App): Promise<void> {
+  const { store, now } = deps;
+  const currency = catalogSettings(app).currency;
+  const money = (cents: number) => priceFor(deps, cents, FLOWER_CURRENCY, currency);
+  const categories = await store.listCatalogCategories(app.id);
+  const categoryIds = new Map<string, number>();
+  for (const name of FLOWER_CATEGORIES) {
+    const found = categories.find((c) => c.name === name);
+    categoryIds.set(name, found ? found.id : (await store.createCatalogCategory({ appId: app.id, name, now, ...marked(deps) })).id);
+  }
+  if (!deps.sample) for (const c of categories) if (!FLOWER_CATEGORIES.includes(c.name)) await store.deleteCatalogCategory(app.id, c.id, now);
+  const products = await store.listCatalogProducts(app.id);
+  // Created last to first, so the newest-first lists show them in the demo's order.
+  for (const [i, seed] of [...FLOWER_PRODUCTS].reverse().entries()) {
+    const priceCents = money(seed.priceCents);
+    const sale = seed.salePriceCents === null ? null : money(seed.salePriceCents);
+    const input = {
+      appId: app.id,
+      name: seed.name,
+      description: seed.description,
+      priceCents,
+      salePriceCents: sale !== null && sale < priceCents ? sale : null,
+      categoryIds: [seed.collection, ...seed.occasions].map((name) => categoryIds.get(name)!),
+      imageAssetIds: [await deps.picture(seed.photo, "product")],
+      stock: null,
+      digital: false,
+      featured: seed.featured,
+      active: true,
+      sku: deps.sample ? null : seed.sku,
+      optionGroups: seed.optionGroups ? structuredClone(seed.optionGroups).map((g) => ({ ...g, options: g.options.map((o) => ({ ...o, priceDeltaCents: money(o.priceDeltaCents) })) })) : null,
+      ...marked(deps),
+    };
+    if (deps.sample) {
+      await store.createCatalogProduct(input, new Date(now.getTime() - (FLOWER_PRODUCTS.length - 1 - i) * 60_000));
+      continue;
+    }
+    const found = products.find((p) => p.sku === seed.sku);
+    if (found) await store.updateCatalogProduct(app.id, found.id, input, now);
+    else await store.createCatalogProduct(input, now);
+  }
+  if (deps.sample) return;
+  const skus = new Set(FLOWER_PRODUCTS.map((p) => p.sku));
   for (const p of products) if (!p.sku || !skus.has(p.sku)) await store.deleteCatalogProduct(app.id, p.id);
 }
 

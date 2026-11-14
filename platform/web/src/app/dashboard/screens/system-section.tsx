@@ -19,12 +19,14 @@ const LOOK_NAMES: Record<SystemLook, DashKey> = {
   glass: "studio.chromeLook_glass",
   photo: "studio.chromeLook_photo",
   brand: "studio.chromeLook_brand",
+  petal: "studio.chromeLook_petal",
 };
 const LOOK_HINTS: Record<SystemLook, DashKey> = {
   large: "studio.chromeLookHint_large",
   glass: "studio.chromeLookHint_glass",
   photo: "studio.chromeLookHint_photo",
   brand: "studio.chromeLookHint_brand",
+  petal: "studio.chromeLookHint_petal",
 };
 const SCREEN_NAMES: Record<SystemScreenKey, DashKey> = {
   account: "studio.chromeScreen_account",

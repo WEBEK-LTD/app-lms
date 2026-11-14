@@ -9,9 +9,12 @@ import { demoDesignTemplate, signatureTemplates } from "./demo-designs";
 // 130 The Signature looks: which look, and the words they write into the app.
 import type { SignatureLook } from "./demo-designs/signature";
 import type { SignatureWord } from "./demo-designs/signature-words";
+import type { AppWord } from "./app-words";
 import { peopleRow, photoHero, photoOf, photoTiles } from "./photo-sections";
 // 130.62 The new premium landings.
 import { LANDING_SECTIONS } from "./premium-landings";
+// 131.26 Leqaa's sections.
+import { LEQAA_SECTIONS } from "./demo-designs/leqaa-signature";
 
 /**
  * 103R Ready sections (dropped onto a page whole) and page templates (a
@@ -302,7 +305,9 @@ export type SectionWord =
   | "tabTeachers"
   | "tipTeachers"
   // 130 The Signature looks (lib/studio/demo-designs/signature-words.ts).
-  | SignatureWord;
+  | SignatureWord
+  // 131.20 Leqaa's looks, pages and sections (lib/studio/demo-designs/leqaa-signature.ts).
+  | Extract<AppWord, `lq${string}`>;
 
 export interface SectionContext {
   brand: string;
@@ -334,6 +339,8 @@ export interface SectionContext {
 export interface Fits {
   types?: readonly AppType[];
   verticals?: readonly AppVertical[];
+  /** 131.20 Only the type's own kind, without a vertical (a store, not a restaurant). */
+  plain?: boolean;
 }
 
 export interface SectionInfo {
@@ -1085,6 +1092,8 @@ export const SECTIONS: readonly SectionInfo[] = [
   },
   // 130.62 The new premium landings' openings, for every project (lib/studio/premium-landings.ts), at the end.
   ...LANDING_SECTIONS,
+  // 131.26 Every slider and section of Leqaa's two looks, for every store (lib/studio/demo-designs/leqaa-signature.ts).
+  ...LEQAA_SECTIONS,
 ];
 
 /** 103R.7 Whether a section or template is made for this project (or for every project). */
@@ -1092,6 +1101,7 @@ export function fitsKind(fits: Fits | undefined, kind: ProjectKind | null): bool
   if (!fits || !kind) return !fits;
   if (fits.types && !fits.types.includes(kind.type)) return false;
   if (fits.verticals && (kind.vertical === null || !fits.verticals.includes(kind.vertical))) return false;
+  if (fits.plain && kind.vertical) return false;
   return true;
 }
 

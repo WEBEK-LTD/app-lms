@@ -7,7 +7,7 @@ import type { App } from "../data/types";
 import { deliverySettingsOf } from "../delivery/settings";
 import { isStudioDemo, type DemoId } from "../demo/constants";
 import { studioDemoOf } from "../studio/demo-templates";
-import { DEMO_FOOD_CUISINES, demoArticles, demoBookingEntries, demoCampaigns, demoCourseEntries, demoDeliveryServices, demoEvents, demoListings, demoProducts, demoRestaurants, demoVehicleTypes, withCuisines, type BookingDemo, type EntryDeps } from "../demo/entries";
+import { DEMO_FOOD_CUISINES, demoArticles, demoBookingEntries, demoCampaigns, demoCourseEntries, demoDeliveryServices, demoEvents, demoFlowerProducts, demoListings, demoProducts, demoRestaurants, demoVehicleTypes, withCuisines, type BookingDemo, type EntryDeps } from "../demo/entries";
 import { marketCuisines, marketplaceSamples, savingZadPictures } from "../demo/marketplace";
 import { savePicture } from "../demo/picture-assets";
 import { syncSchoolStructure } from "../demo/school";
@@ -105,6 +105,8 @@ const DEMO_SAMPLES: Record<DemoId, Partial<Record<SampleList, DemoSeeder>>> = {
   // 123 The premium academy: the academy's courses.
   premium_academy: { courses: (m) => courses(m, false, true) },
   store: { products: products(false) },
+  // 131.20 Leqaa's bouquets and add-ons.
+  flowers: { products: async (m) => (await demoFlowerProducts(m.entries, m.app), true) },
   restaurant: { products: products(true) },
   booking: { services: bookings("salon") },
   clinic: { services: bookings("clinic") },

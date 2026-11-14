@@ -48,7 +48,7 @@ import type { SectionContext, SectionInfo, TemplateInfo } from "./sections";
  * as translations.
  */
 
-export const LANDING_IDS = ["land_cinema", "land_split", "land_stories", "land_bento", "land_magazine", "land_luxe"] as const;
+export const LANDING_IDS = ["land_cinema", "land_split", "land_stories", "land_bento", "land_magazine", "land_luxe", "land_petal"] as const;
 export type LandingId = (typeof LANDING_IDS)[number];
 
 // ——— The project's colour, by day and by night ———
@@ -475,10 +475,63 @@ function luxe(ctx: SectionContext): StudioPage {
   return landing(m, header(m, "logo_center", "glass", ["menu", "account"]), [...heroProduct(m), promises, ...testimonials(m, "carousel"), sticky]);
 }
 
+// ——— 7 · 131.27 Petal: Leqaa's landing, for every app ———
+
+/** A fine floral line: a hairline, a small flower, a hairline. */
+function floral(m: Maker): StudioNode {
+  const { c } = m;
+  const hair = (): StudioNode => ({ id: m.id(), type: "row", width: "fill", height: 1, background: c.line, dark_background: c.darkLine, children: [] });
+  return { id: m.id(), type: "row", gap: 10, cross: "center", padding: pad(10, 64, 10, 64), children: [hair(), { id: m.id(), type: "icon", icon: "local_florist", icon_size: 16, color: c.brand, dark_color: c.darkBrand }, hair()] };
+}
+
+/** The petal cover: the words in the middle over the kind's photo cut as a tall arch, the floral line and the main button. */
+function petalCover(m: Maker): StudioNode[] {
+  const { c } = m;
+  const arch = { top_start: 170, top_end: 170, bottom_end: 34, bottom_start: 34 };
+  const intro: StudioNode = {
+    id: m.id(),
+    type: "column",
+    gap: 10,
+    cross: "center",
+    padding: pad(18, 28, 14, 28),
+    children: [
+      badge(m, "lqLdKicker", "outline", { icon: "local_florist", color: c.brand, dark_color: c.darkBrand }),
+      text(m, packWord(m.p, "Headline"), { text_align: "center", font: { size: 40, weight: 600, line_height: 1.04, letter_spacing: -1, family: "Fraunces" }, ...inkOf(m) }),
+      text(m, packWord(m.p, "Line"), { text_align: "center", font: { size: 14.5, line_height: 1.5 }, ...mutedOf(m) }),
+    ],
+    motion: rise(),
+  };
+  const photo: StudioNode = m.photo(0)
+    ? { id: m.id(), type: "image", image_url: m.photo(0), width: "fill", height: 400, corners: arch, fit: "cover", ken_burns: true, margin: pad(0, 26), background: c.deep, dark_background: c.deep, shadow: "medium" }
+    : { id: m.id(), type: "row", width: "fill", height: 400, corners: arch, margin: pad(0, 26), gradient: { from: c.brand, to: c.deep, angle: 160 }, children: [] };
+  return [intro, photo, floral(m), { ...button(m, packWord(m.p, "Cta"), m.main, { background: c.brand, darkBackground: c.darkBrand, color: "#FFFFFF", darkColor: c.darkPage, icon: "arrow_forward", height: 52 }), self_align: "center", margin: pad(2, 0, 6, 0) }];
+}
+
+function petalLanding(ctx: SectionContext): StudioPage {
+  const m = makerFor(ctx);
+  const { c } = m;
+  const kick = m.say(packWord(m.p, "Kicker"), "title");
+  const cta = m.say(packWord(m.p, "Cta"));
+  const translations: Translations = {};
+  for (const l of LANGS) if (l !== m.lang) translations[l] = { ...kick.translations[l], ...cta.translations[l] };
+  // Pinned to the foot while the page scrolls, above the bar.
+  const sticky: StudioNode = { id: m.id(), type: "cta_bar", title: kick.value, text: cta.value, translations, cta: { style: "bar", lead: "local_florist" }, pin: "bottom", icon: "arrow_forward", background: c.brand, dark_background: c.darkBrand, color: c.ink, dark_color: c.darkInk, ...(m.main ? { action: m.main } : {}) };
+  return landing(m, header(m, "logo_center", "petal", ["menu", "account"]), [
+    ...petalCover(m),
+    stories(m, "highlight", 64),
+    head(m, "pdLdStories", null, { top: 18 }),
+    bento(m, { caption: "glass", row: 120 }),
+    ...items(m, "photo"),
+    floral(m),
+    ...testimonials(m, "stacked"),
+    sticky,
+  ]);
+}
+
 // ——— The templates and the sections ———
 
-const MAKE: Record<LandingId, (ctx: SectionContext) => StudioPage> = { land_cinema: cinema, land_split: split, land_stories: storiesFirst, land_bento: dashboard, land_magazine: magazine, land_luxe: luxe };
-const ICONS: Record<LandingId, string> = { land_cinema: "movie", land_split: "view_column", land_stories: "amp_stories", land_bento: "space_dashboard", land_magazine: "auto_stories", land_luxe: "workspace_premium" };
+const MAKE: Record<LandingId, (ctx: SectionContext) => StudioPage> = { land_cinema: cinema, land_split: split, land_stories: storiesFirst, land_bento: dashboard, land_magazine: magazine, land_luxe: luxe, land_petal: petalLanding };
+const ICONS: Record<LandingId, string> = { land_cinema: "movie", land_split: "view_column", land_stories: "amp_stories", land_bento: "space_dashboard", land_magazine: "auto_stories", land_luxe: "workspace_premium", land_petal: "local_florist" };
 /** Each landing's opening, as a ready section to drop on any page. */
 const OPENINGS: Record<LandingId, (m: Maker) => StudioNode[]> = {
   land_cinema: (m) => [cinemaCover(m), stories(m, "highlight", 70)],
@@ -487,6 +540,7 @@ const OPENINGS: Record<LandingId, (m: Maker) => StudioNode[]> = {
   land_bento: bentoOpening,
   land_magazine: masthead,
   land_luxe: heroProduct,
+  land_petal: petalCover,
 };
 
 /** 130.62 The six landings as page templates, for every project, marked new. */

@@ -24,6 +24,8 @@ import { SAHM_A, SAHM_B } from "./sahm-signature";
 import { SOFRA_A, SOFRA_B } from "./sofra-signature";
 import { UFUQ_A, UFUQ_B } from "./ufuq-signature";
 import { ZAD_A, ZAD_B } from "./zad-signature";
+// 131.20 Leqaa, the flower shop: A rose hour, B botanical press.
+import { LEQAA_A, LEQAA_B } from "./leqaa-signature";
 import { SIGNATURE_LOOKS, signatureProject, signatureSystem, signatureTemplateId, type SignatureDesign, type SignatureLook } from "./signature";
 
 /**
@@ -157,6 +159,8 @@ const SIGNATURE_DESIGNS: Record<StudioDemoId, Record<SignatureLook, SignatureDes
   instructors: { a: RAWAQ_A, b: RAWAQ_B },
   // 130.17 130.18 Ufuq Academy (the premium academy): A night cinema, B the gold ring.
   premium_academy: { a: UFUQ_A, b: UFUQ_B },
+  // 131.20 Leqaa, the flower shop (a store): A rose hour, B botanical press.
+  flowers: { a: LEQAA_A, b: LEQAA_B },
 };
 
 /** A look with its demo's own tabs when it has none of its own. */
@@ -204,6 +208,7 @@ export function signatureTemplates(): TemplateInfo[] {
       demo: d.demo,
       look: d.variant,
       recommended: true,
+      ...(d.isNew ? { isNew: true } : {}),
       project: signatureProject(d),
       make: (ctx: SectionContext) => {
         const { ctx: words, page } = translating({ ...ctx, demo: d.demo, look: d.variant });

@@ -41,6 +41,7 @@ export default async function ScreensPage() {
         appName={app.appName ?? ""}
         color={app.primaryColor ?? "#0E1424"}
         courses={app.appType === "lms"}
+        store={app.appType === "store"}
         sampleCourses={app.appType === "lms" ? Object.fromEntries(Object.entries(sampleEntries(new Date())).map(([l, e]) => [l, e?.courses ?? []])) : undefined}
         brand={{
           main: layout.appearance.primary_color ?? app.primaryColor ?? "#0E1424",

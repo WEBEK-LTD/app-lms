@@ -1696,6 +1696,9 @@ function TabDesignSample({ design, brand }: { design: TabBarDesign | undefined; 
       // 129 The dock: icons only, the open one a filled circle.
       case "dock":
         return open ? <span key={key} style={{ width: 14, height: 14, borderRadius: "50%", background: brand }} /> : <span key={key} style={{ width: 8, height: 8, borderRadius: 3, background: grey }} />;
+      // 131.22 The petal: the middle tab a raised bloom ringed in the bar's colour.
+      case "petal":
+        return open ? <span key={key} style={{ width: 16, height: 16, borderRadius: "50% 50% 50% 18%", transform: "rotate(-45deg)", marginTop: -12, background: `linear-gradient(135deg, ${brand}, #E8A486)`, boxShadow: "0 0 0 3px #FFF6F2, 0 3px 6px rgba(0,0,0,.2)" }} /> : <span key={key} style={{ width: 9, height: 9, borderRadius: "50% 50% 50% 20%", background: grey }} />;
       case "colours": {
         const c = ["#1F6F5C", "#B26A00", "#2F4FB5"][key] ?? brand;
         return <span key={key} style={{ width: 13, height: 13, borderRadius: "50%", background: `${c}26`, border: open ? `1.5px solid ${c}` : "1.5px solid transparent", display: "flex", alignItems: "center", justifyContent: "center" }}><span style={{ width: 5, height: 5, borderRadius: 2, background: c }} /></span>;
@@ -1709,6 +1712,8 @@ function TabDesignSample({ design, brand }: { design: TabBarDesign | undefined; 
       ? { margin: "0 14px", borderRadius: 999, background: "#121614" }
       : design === "dock"
         ? { margin: "0 22px", borderRadius: 999, background: "#FFFFFF", boxShadow: "0 3px 8px rgba(0,0,0,.18)" }
+      : design === "petal"
+        ? { margin: "0 6px", borderRadius: 12, background: "linear-gradient(180deg,#FFFFFF,#FBE9E4)", boxShadow: "0 3px 8px rgba(142,36,69,.18)" }
       : design === "float"
         ? { margin: "0 4px", borderRadius: 9, background: "#2A1810", boxShadow: "0 3px 8px rgba(0,0,0,.18)" }
       : design === "segment"

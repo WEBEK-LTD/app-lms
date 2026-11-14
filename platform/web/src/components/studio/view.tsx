@@ -31,6 +31,7 @@ import { BeforeAfter, edge, GalleryGrid, MediaBanner, Marquee, PremiumMotionStyl
 import { isPremiumContent, PREMIUM_WORDS_EN, PremiumElement, SurfaceExtras, surfaceStyle, type PremiumWords } from "./premium";
 // 130.20 The premium page headers.
 import { PremiumHeader, SystemScreen } from "./premium-chrome";
+import { GiftCheckout } from "./gift-checkout";
 
 /**
  * 103R A Studio page drawn in the editor's phone, as the app draws it: rows,
@@ -414,13 +415,15 @@ function Tabs({ look, dark, lang, defaultLang, editing }: ViewProps) {
               : "#FFFFFF");
   const labels = style.labels ?? "always";
   const middleOf = tabs.length % 2 === 1 && tabs.length >= 3 ? (tabs.length - 1) / 2 : -1;
-  const center = design === "notch" ? middleOf : middleOf >= 0 && style.center && tabs[middleOf]?.id === style.center ? middleOf : -1;
+  // 131.22 The petal: the middle tab is always its raised bloom, as the notch's button.
+  const petal = design === "petal";
+  const center = design === "notch" || petal ? middleOf : middleOf >= 0 && style.center && tabs[middleOf]?.id === style.center ? middleOf : -1;
   // 128 The floating pill floats too, 22 round unless the owner chose its corners.
   // 129 The dock: a small capsule in the middle, icons only.
   const dock = design === "dock";
-  const floatsItself = design === "glass" || design === "island" || design === "segment" || design === "float" || dock;
+  const floatsItself = design === "glass" || design === "island" || design === "segment" || design === "float" || dock || petal;
   const margin = style.margin ?? (floatsItself ? 12 : 0);
-  const radius = design === "island" || dock ? 999 : (style.radius ?? (design === "glass" ? 26 : design === "segment" ? 18 : design === "float" ? 22 : 0));
+  const radius = design === "island" || dock ? 999 : (style.radius ?? (design === "glass" ? 26 : design === "segment" ? 18 : design === "float" ? 22 : petal ? 30 : 0));
   const selected = editing?.selectedId === "tabs";
   const onBar = design === "folder" ? "rgba(255,255,255,0.78)" : design === "island" ? "#8F9A95" : inactiveColour;
   const colours = ["#1F6F5C", "#B26A00", "#2F4FB5", "#7A2E8E"].map((c) => (dark ? readableOnDark(c) : c));
@@ -435,12 +438,14 @@ function Tabs({ look, dark, lang, defaultLang, editing }: ViewProps) {
         margin: design === "island" ? `0 48px ${Math.max(margin, 12)}px` : dock ? `0 auto ${Math.max(margin, 12)}px` : margin ? `0 ${margin}px ${margin}px` : "0 10px 12px",
         alignSelf: dock ? "center" : undefined,
         gap: dock ? 6 : undefined,
-        padding: design === "segment" ? "5px" : design === "folder" ? "14px 6px 8px" : design === "float" ? "11px 6px" : dock ? "8px" : "8px 6px",
+        padding: design === "segment" ? "5px" : design === "folder" ? "14px 6px 8px" : design === "float" ? "11px 6px" : dock ? "8px" : petal ? "9px 6px 8px" : "8px 6px",
         borderRadius: margin || design === "island" ? radius : radius || 18,
-        background,
+        // 131.22 The petal: a soft wash of the open tab's colour toward the bar's foot, a hairline of light at its top.
+        background: petal ? `linear-gradient(180deg, ${background}, ${mixHex(background.startsWith("#") ? background : "#FFFFFF", activeColour, dark ? 0.1 : 0.07)})` : background,
+        borderTop: petal ? `1px solid ${dark ? "rgba(255,255,255,0.08)" : "rgba(255,255,255,0.9)"}` : undefined,
         backdropFilter: design === "glass" ? "blur(18px)" : undefined,
         border: design === "glass" ? `1px solid ${dark ? "rgba(255,255,255,0.14)" : "rgba(255,255,255,0.5)"}` : undefined,
-        boxShadow: design === "notch" ? undefined : design === "float" || dock ? "0 10px 30px rgba(0,0,0,0.18)" : "0 -2px 10px rgba(14,13,36,0.08)",
+        boxShadow: design === "notch" ? undefined : design === "float" || dock ? "0 10px 30px rgba(0,0,0,0.18)" : petal ? `0 14px 34px ${dark ? "rgba(0,0,0,0.45)" : "rgba(42,18,28,0.16)"}` : "0 -2px 10px rgba(14,13,36,0.08)",
         // 119 The notch: a curved cut in the bar's top for the middle button.
         WebkitMaskImage: design === "notch" && center >= 0 ? "radial-gradient(circle 30px at 50% -6px, transparent 29px, #000 30px)" : undefined,
         maskImage: design === "notch" && center >= 0 ? "radial-gradient(circle 30px at 50% -6px, transparent 29px, #000 30px)" : undefined,
@@ -471,6 +476,18 @@ function Tabs({ look, dark, lang, defaultLang, editing }: ViewProps) {
             {icon}
           </span>
         );
+        // 131.22 The petal's raised bloom: a petal-shaped button in the open colour's gradient, ringed in the page's colour, its name under it.
+        if (i === center && petal) {
+          return (
+            <div key={tab?.id ?? "more"} data-studio-tab-center="" data-studio-tab-design="petal" title={label} style={{ display: "flex", flex: 1.1, flexDirection: "column", alignItems: "center", gap: 3 }}>
+              <span style={{ position: "relative", marginTop: -34, width: 56, height: 56, display: "flex", alignItems: "center", justifyContent: "center" }}>
+                <span aria-hidden="true" style={{ position: "absolute", inset: 0, borderRadius: "50% 50% 50% 16%", transform: "rotate(-45deg)", background: `linear-gradient(135deg, ${mixHex(activeColour, "#FFFFFF", 0.18)}, ${activeColour} 55%, ${mixHex(activeColour, "#000000", 0.25)})`, boxShadow: `0 0 0 4px ${page}, 0 10px 22px ${dark ? "rgba(0,0,0,0.5)" : "rgba(42,18,28,0.28)"}` }} />
+                <span style={{ position: "relative", color: onFill(activeColour), display: "flex" }}>{glyph}</span>
+              </span>
+              {labels !== "never" ? <span data-studio-tab-name="" style={{ fontWeight: 700, color: activeColour, whiteSpace: "nowrap" }}>{label}</span> : null}
+            </div>
+          );
+        }
         if (i === center) {
           return (
             <div key={tab?.id ?? "more"} data-studio-tab-center="" title={label} style={{ display: "flex", flex: 1, justifyContent: "center" }}>
@@ -507,6 +524,15 @@ function Tabs({ look, dark, lang, defaultLang, editing }: ViewProps) {
                 {glyph}
                 {labels !== "never" ? name : null}
               </span>
+            </div>
+          );
+        }
+        // 131.22 The petal: the open tab on a petal-cut leaf of its colour with its name, the others quiet.
+        if (petal) {
+          return (
+            <div key={key} data-studio-tab={tabKey} data-studio-tab-design="petal" title={label} style={{ display: "flex", flex: 1, flexDirection: "column", alignItems: "center", gap: 2, minWidth: 0, color: active ? activeColour : undefined, fontWeight: active ? 700 : 500 }}>
+              <span style={{ display: "flex", padding: "3px 12px", borderRadius: "16px 16px 16px 5px", background: active ? tint(activeColour, dark ? 0.24 : 0.14) : "transparent" }}>{glyph}</span>
+              {showLabel ? name : null}
             </div>
           );
         }
@@ -1246,6 +1272,9 @@ function ScreenPart(props: ViewProps) {
             hidesTitle={Boolean(page.header)}
             top={page.header || page.body.children?.length || props.editing ? 0 : 30}
           />
+        ) : part.drawing.screen === "checkout" ? (
+          // 131.25 The store's checkout in the gift look (gift-checkout.tsx), drawn with a sample order.
+          <GiftCheckout look={part.drawing.look} dark={dark} lang={lang} brand={look.brand} photo="/flower-photos/blush-bouquet.jpg" top={page.header || page.body.children?.length || props.editing ? 0 : 30} />
         ) : part.drawing.screen === "courses" ? (
           // 130.52 A course screen in Studio's course screens' look.
           <CourseScreenDrawing

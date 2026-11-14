@@ -155,6 +155,13 @@ export const APP_SCREENS = [
   "school-sig-b-home-dark",
   "travel-sig-a-home-dark",
   "travel-sig-b-home-dark",
+  // 131.20 Leqaa, the flower shop: its guide's screens (look A) and its looks' homes.
+  "leqaa-home",
+  "leqaa-product",
+  "leqaa-checkout",
+  "flowers-sig-b-home",
+  "flowers-sig-a-home-dark",
+  "flowers-sig-b-home-dark",
 ] as const;
 export type AppScreen = (typeof APP_SCREENS)[number];
 
@@ -285,6 +292,12 @@ export const SCREEN_ALT: Record<AppScreen | DashboardScreen, string> = {
   "school-sig-b-home-dark": "Nakhla School in its second look, Family passes, by night: the chosen child's day as a pass, the school bus, the forms to sign and the school's news",
   "travel-sig-a-home-dark": "Safra in its first look, Cover story, by night: the next trip over the resort's photo, its flight as a boarding pass and the company's hotels with their price a night",
   "travel-sig-b-home-dark": "Safra in its second look, Bento atlas, by night: the days to the next trip over its legs, the stays as a bento, a stay and a flight at one price, and the departures",
+  "leqaa-home": "Leqaa, a flower shop, in its first look, Rose hour: the occasions as full-screen stories, Send today, the flash sale and the collections",
+  "leqaa-product": "A bouquet in Leqaa: its photos, its three sizes, what goes with it, when it arrives and the card",
+  "leqaa-checkout": "Leqaa's gift checkout: who it's from, who it's for, the delivery day and time, the card's message and the order",
+  "flowers-sig-b-home": "Leqaa in its second look, Botanical press: the petal header, who the flowers are for, the edit as cards and Send today as a ticket",
+  "flowers-sig-a-home-dark": "Leqaa in its first look, Rose hour, by night: the occasions as full-screen stories, Send today, the flash sale and the collections",
+  "flowers-sig-b-home-dark": "Leqaa in its second look, Botanical press, by night: the petal header, who the flowers are for, the edit as cards and Send today as a ticket",
   "studio-editor": "The Yallapp Studio editor: elements on the left, the page on the phone, its settings on the right",
   "studio-home": "Yallapp Studio's home with the account's projects",
   "studio-project": "A Studio project's dashboard",
