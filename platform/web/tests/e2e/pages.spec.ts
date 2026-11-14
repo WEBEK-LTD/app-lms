@@ -828,11 +828,13 @@ test("103R the team offers a Studio plan; the client makes a Studio project apar
   await own.getByRole("button", { name: "Redo" }).click();
   await expect(own.getByRole("status").filter({ hasText: "Saved just now" })).toBeVisible({ timeout: 10_000 });
 
-  // 108.7 Whole designs: the project type's own in six looks, applied to the whole project as one step; the project kept as one of its own.
+  // 108.7 Whole designs: the project type's own in seven looks (130.60 Monochrome luxe last, marked New), applied to the whole project as one step; the project kept as one of its own.
   await own.getByRole("tab", { name: "Templates" }).click();
-  await own.getByRole("button", { name: "See all designs (6)" }).click();
+  await own.getByRole("button", { name: "See all designs (7)" }).click();
   const designs = own.getByRole("dialog", { name: "Whole designs for your project (Academy)" });
-  await expect(designs.getByRole("button", { name: "All 6" })).toBeVisible();
+  await expect(designs.getByRole("button", { name: "All 7" })).toBeVisible();
+  await expect(designs.locator("[data-studio-design]").last()).toHaveAttribute("data-studio-design", "yallapp-mono");
+  await expect(designs.locator('[data-studio-design="yallapp-mono"]')).toContainText("New");
   await designs.locator('[data-studio-design="yallapp-fresh"]').click();
   // 130.30 Its premium home made for the academy, then its own pages, about and contact.
   await expect(designs.getByText(/^4 pages · /)).toBeVisible();
@@ -850,7 +852,7 @@ test("103R the team offers a Studio plan; the client makes a Studio project apar
   await own.getByRole("button", { name: "Redo" }).click();
   await expect(own.getByRole("status").filter({ hasText: "Saved just now" })).toBeVisible({ timeout: 10_000 });
   // Saved as the account's own, opened again, applied to one page, deleted.
-  await own.getByRole("button", { name: "See all designs (6)" }).click();
+  await own.getByRole("button", { name: "See all designs (7)" }).click();
   await designs.getByRole("button", { name: "Save this project as a design" }).click();
   await expect(designs.getByRole("status")).toHaveText("Saved in “Mine”.");
   await designs.getByRole("button", { name: "Mine 1" }).click();
@@ -858,7 +860,7 @@ test("103R the team offers a Studio plan; the client makes a Studio project apar
   await expect(designs.getByText(/^\d+ pages · /)).toBeVisible();
   await designs.getByRole("button", { name: "For the open page only" }).click();
   await expect(own.getByRole("status").filter({ hasText: "The design is applied." })).toBeVisible();
-  await own.getByRole("button", { name: "See all designs (7)" }).click();
+  await own.getByRole("button", { name: "See all designs (8)" }).click();
   await designs.getByRole("button", { name: "Mine 1" }).click();
   await designs.locator("[data-studio-design]").first().click();
   await designs.getByRole("button", { name: /^Delete / }).click();

@@ -336,11 +336,11 @@ describe("130.60–130.62 the words: the app's in English, Modern Standard Arabi
 
   it("names the design, the landings, their sections, the tone and the New tag in Studio's English, Egyptian Arabic and Turkish", () => {
     const keys = ["design_mono", "designsTagNew", "toneMono", ...LANDING_IDS.flatMap((id) => [`tpl_${id}`, `sec_${id}`])];
-    for (const dict of [studioEn, studioAr, studioTr] as Record<string, string>[]) for (const k of keys) expect(dict[k], k).toBeTruthy();
+    for (const dict of [studioEn, studioAr, studioTr] as unknown as Record<string, string>[]) for (const k of keys) expect(dict[k], k).toBeTruthy();
     expect(studioAr.design_mono).toMatch(/[؀-ۿ]/);
     expect(studioAr.designsTagNew).toBe("جديد");
     // Never Yallapp's own plan names or prices.
-    const all = JSON.stringify(keys.map((k) => [studioEn, studioAr, studioTr].map((d) => (d as Record<string, string>)[k])));
+    const all = JSON.stringify(keys.map((k) => [studioEn, studioAr, studioTr].map((d) => (d as unknown as Record<string, string>)[k])));
     expect(all).not.toMatch(/\b(Prime|VIP|Starter|Pro|Business)\b|₺|\$/);
   });
 });
