@@ -12,6 +12,8 @@ export interface Item {
   badge?: string | null;
   /** 128.8 A course's average rating, 0 to 5; null without reviews. */
   rating?: number | null;
+  /** 131 A product's sale (`ProductSale`): was and now, the share off, when it ends and what's left. */
+  sale?: Record<string, unknown> | null;
   favorited?: boolean;
   action?: Action;
 }

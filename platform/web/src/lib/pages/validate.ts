@@ -154,6 +154,13 @@ import {
   type Translations,
   // 129.11–129.20 Premium content.
   STUDIO_BADGE_STYLES,
+  // 131
+  STUDIO_COUPON_LOOKS,
+  STUDIO_FLASH_LOOKS,
+  STUDIO_SALE_BADGES,
+  type StudioCoupon,
+  type StudioFlashSale,
+  type StudioSaleBadge,
   STUDIO_CTA_STYLES,
   STUDIO_ENTRY_SIZES,
   STUDIO_ENTRY_TEXTS,
@@ -1807,11 +1814,49 @@ function parseNode(ctx: Context, where: string, value: unknown, state: { count: 
       break;
     }
     case "coupon": {
-      // 112.4 A code people copy with one tap.
+      // 112.4 A code people copy with one tap; 131 its premium looks, or one of the shop's coupons shown in the app.
+      const o = v.coupon !== undefined && v.coupon !== null ? record(v.coupon) : null;
+      if (v.coupon !== undefined && v.coupon !== null && !o) bad("the coupon's look isn't valid.");
+      const look: StudioCoupon = {};
+      if (o) {
+        if (o.look !== undefined && o.look !== null && !oneOf(STUDIO_COUPON_LOOKS, o.look)) bad("choose how the coupon looks.");
+        else if (o.look && o.look !== "classic") look.look = o.look as StudioCoupon["look"];
+        if (o.bind === "public") look.bind = "public";
+        else if (o.bind !== undefined && o.bind !== null) bad("choose which coupon it shows.");
+      }
+      if (Object.keys(look).length) node.coupon = look;
       const code = typeof v.code === "string" ? v.code.trim() : "";
-      if (!code) bad("add the coupon's code.");
-      else if (!COUPON_CODE.test(code)) bad(`the code can have letters, numbers, - and _, up to ${L.codeChars}.`);
-      else node.code = code;
+      if (!code && look.bind !== "public") bad("add the coupon's code.");
+      else if (code && !COUPON_CODE.test(code)) bad(`the code can have letters, numbers, - and _, up to ${L.codeChars}.`);
+      else if (code) node.code = code;
+      break;
+    }
+    case "flash_sale": {
+      // 131 A flash sale: its look, which sale, how many products, the countdown, the stock bar and its colour.
+      const o = v.flash_sale !== undefined && v.flash_sale !== null ? record(v.flash_sale) : {};
+      if (!o) {
+        bad("the flash sale's options aren't valid.");
+        break;
+      }
+      const sale: StudioFlashSale = {};
+      if (o.look !== undefined && o.look !== null && !oneOf(STUDIO_FLASH_LOOKS, o.look)) bad("choose how the flash sale looks.");
+      else if (o.look) sale.look = o.look as StudioFlashSale["look"];
+      if (o.sale_id !== undefined && o.sale_id !== null) {
+        if (typeof o.sale_id !== "number" || !Number.isSafeInteger(o.sale_id) || o.sale_id < 1) bad("choose the flash sale it shows.");
+        else sale.sale_id = o.sale_id;
+      }
+      const limit = studioNumber(o.limit, 1, 12);
+      if (limit !== undefined && Number.isNaN(limit)) bad("a flash sale shows 1 to 12 products.");
+      else if (limit !== undefined) sale.limit = Math.round(limit);
+      if (o.countdown === false) sale.countdown = false;
+      if (o.stock_bar === false) sale.stock_bar = false;
+      const accent = optionalColor(c, where, o.accent, "the flash sale's colour");
+      if (accent) sale.accent = accent;
+      node.flash_sale = sale;
+      const text = c.optionalText(where, v.text, L.titleChars, "The flash sale's title");
+      if (text) node.text = text;
+      const translations = parseTranslations(ctx, where, v.translations, TRANSLATABLE.studio, { text: L.titleChars, title: L.titleChars });
+      if (translations) node.translations = translations;
       break;
     }
     case "row":
@@ -1838,6 +1883,16 @@ function parseNode(ctx: Context, where: string, value: unknown, state: { count: 
       node.query = parseQuery(ctx, where, v.query, v.source);
       const columns = num("columns", 1, L.maxColumns, "the columns");
       if (columns) node.columns = Math.round(columns);
+      // 131 How the built-in cards show a product's sale.
+      if (v.sale_badge !== undefined && v.sale_badge !== null) {
+        const o = record(v.sale_badge);
+        if (!o || !oneOf(STUDIO_SALE_BADGES, o.style)) bad("choose how a sale shows on the cards.");
+        else if (v.source !== "products") bad("only products show a sale.");
+        else {
+          const color = optionalColor(c, where, o.color, "the sale's colour");
+          node.sale_badge = { style: o.style as StudioSaleBadge["style"], ...(o.countdown === true ? { countdown: true } : {}), ...(color ? { color } : {}) };
+        }
+      }
       // 112.4 The products this person opened lately, kept on the phone.
       if (v.recent === true) {
         if (v.source !== "products") bad("only products can show what was seen lately.");

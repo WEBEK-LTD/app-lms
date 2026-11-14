@@ -33,7 +33,7 @@ export function elementLabel(t: ReturnType<typeof useDashT>, type: StudioNode["t
 }
 
 /** Whether an element made for some projects only is offered in this one. */
-function offered(only: ElementInfo["only"], props: { marketplace?: boolean; academy?: boolean; orders?: boolean; trips?: boolean; school?: boolean }): boolean {
+function offered(only: ElementInfo["only"], props: { marketplace?: boolean; academy?: boolean; orders?: boolean; trips?: boolean; school?: boolean; store?: boolean }): boolean {
   if (!only) return true;
   return props[only] === true;
 }
@@ -48,6 +48,8 @@ export function LeftPanel(props: {
   academy?: boolean;
   /** 128 A food delivery project or a marketplace: the live order card is offered too. */
   orders?: boolean;
+  /** 131 An app that sells products: the flash sale is offered too. */
+  store?: boolean;
   /** 128 A delivery or ride app: the live card of the person's shipment or ride is offered too. */
   trips?: boolean;
   /** 128 A school: the family's school day (greeting, children, today) is offered too. */

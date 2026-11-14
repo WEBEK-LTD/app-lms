@@ -313,6 +313,8 @@ export const en = {
   newAnswer: "The answer, in a line or two.",
   newTab: "Tab",
   newEnded: "This offer has ended.",
+  // 131 A new flash sale element's title.
+  newFlash: "Flash sale",
   newBullets: "Free delivery\nPay on delivery\nReturns within 14 days",
   // 129.1–129.8 A new premium motion & media element's words (lib/studio/premium-motion.ts PremiumWord).
   motionKicker: "New season",
@@ -1103,6 +1105,7 @@ export const ar: Record<AppWord, string> = {
   newAnswer: "الإجابة، في سطر أو سطرين.",
   newTab: "تبويب",
   newEnded: "انتهى هذا العرض.",
+  newFlash: "عرض خاطف",
   newBullets: "توصيل مجاني\nالدفع عند الاستلام\nالإرجاع خلال ١٤ يومًا",
   motionKicker: "موسم جديد",
   motionHeadline: "صُمّم ليناسب أسلوب حياتك",
@@ -1886,6 +1889,7 @@ export const tr: Record<AppWord, string> = {
   newAnswer: "Cevap, bir iki satırda.",
   newTab: "Sekme",
   newEnded: "Bu kampanya sona erdi.",
+  newFlash: "Flaş indirim",
   newBullets: "Ücretsiz teslimat\nKapıda ödeme\n14 gün içinde iade",
   motionKicker: "Yeni sezon",
   motionHeadline: "Yaşam tarzınıza göre",
