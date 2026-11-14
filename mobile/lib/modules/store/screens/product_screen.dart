@@ -319,8 +319,13 @@ class _ProductViewState extends ConsumerState<_ProductView> {
                   const SizedBox(height: 12),
                   ProductFlashSale(
                     sale: sale,
+                    // 131.25 The look's colour by day and by night.
                     color: parseHexColor(
-                      ref.watch(appConfigProvider).screens?.checkout?.accent,
+                      ref
+                          .watch(appConfigProvider)
+                          .screens
+                          ?.checkout
+                          ?.accentFor(dark: p.isDark),
                     ),
                   ),
                 ] else if (product.summary.sale case final sale?

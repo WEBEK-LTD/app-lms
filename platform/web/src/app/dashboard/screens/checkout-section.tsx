@@ -11,7 +11,7 @@ import type { CheckoutLook } from "@/lib/studio/checkout-look";
  * card's message, pay), its colour the project's main one unless chosen.
  * The preview draws it with a sample order (components/studio/gift-checkout.tsx).
  */
-export function CheckoutSection({ value, onChange, brand, lang, dark }: { value: CheckoutLook | null; onChange: (next: CheckoutLook | null) => void; brand: string; lang: string; dark: boolean }) {
+export function CheckoutSection({ value, onChange, brand, lang, dark, languages = [] }: { value: CheckoutLook | null; onChange: (next: CheckoutLook | null) => void; brand: string; lang: string; dark: boolean; languages?: { code: string; name: string }[] }) {
   const t = useDashT();
   const option = (on: boolean, title: string, hint: string, pick: () => void) => (
     <button type="button" aria-pressed={on} onClick={pick} className="flex flex-col items-start gap-1 rounded-xl bg-white p-3 text-start" style={on ? { border: "2px solid #3D63FF" } : { border: "1px solid var(--color-line, #E6E3EF)" }}>
@@ -36,6 +36,41 @@ export function CheckoutSection({ value, onChange, brand, lang, dark }: { value:
         {option(!gift, t("studio.coLookNone"), t("studio.coLookNoneHint"), () => onChange(without(others)))}
         {option(!!gift, t("studio.coLook_gift"), t("studio.coLookHint_gift"), () => onChange({ ...others, look: "gift", mode: "gift" }))}
       </div>
+      {/* 131 The add-ons', the card's and the delivery picker's titles in the owner's words, per language (empty: the app's). */}
+      {languages.length ? (
+        <fieldset className="flex flex-col gap-3 rounded-xl border border-line p-3" data-checkout-titles="">
+          <legend className="px-1 text-sm font-bold">{t("studio.coTitles")}</legend>
+          <p className="m-0 text-sm text-muted">{t("studio.coTitlesHint")}</p>
+          {(["addons_title", "card_title", "delivery_title"] as const).map((key) => (
+            <div key={key} className="flex flex-col gap-1">
+              <span className="text-sm font-bold">{t(key === "addons_title" ? "studio.coTitle_addons" : key === "card_title" ? "studio.coTitle_card" : "studio.coTitle_delivery")}</span>
+              <div className="grid gap-2 sm:grid-cols-2">
+                {languages.map((l) => (
+                  <label key={l.code} className="flex flex-col gap-1 text-sm">
+                    <span className="text-muted">{l.name}</span>
+                    <input
+                      type="text"
+                      maxLength={40}
+                      dir="auto"
+                      value={value?.[key]?.[l.code] ?? ""}
+                      onChange={(e) => {
+                        const texts = { ...(value?.[key] ?? {}) } as Record<string, string>;
+                        if (e.target.value.trim()) texts[l.code] = e.target.value;
+                        else delete texts[l.code];
+                        const next: CheckoutLook = { ...(value ?? {}) };
+                        if (Object.keys(texts).length) next[key] = texts;
+                        else delete next[key];
+                        onChange(without(next));
+                      }}
+                      className="rounded-lg border border-line px-3 py-2"
+                    />
+                  </label>
+                ))}
+              </div>
+            </div>
+          ))}
+        </fieldset>
+      ) : null}
       {gift ? (
         <div className="flex flex-col gap-3 sm:flex-row sm:items-start">
           <label className="flex flex-col gap-1">

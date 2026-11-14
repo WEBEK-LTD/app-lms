@@ -188,6 +188,9 @@ export async function demoFlowerProducts(deps: EntryDeps, app: App): Promise<voi
       // A bouquet's sizes are its variations, each priced in the app's currency.
       variants: flowerVariants(seed, money),
       optionGroups: null,
+      // 131 The vase, the chocolates and the card: add-ons offered with every bouquet.
+      addon: seed.addon === true,
+      addonFor: null,
       ...marked(deps),
     };
     if (deps.sample) {
@@ -229,7 +232,8 @@ export async function refreshFlowerSale(store: DataStore, app: Pick<App, "id">, 
   const ids = products.filter((p) => p.sku !== null && (FLOWER_FLASH_SALE.skus as readonly string[]).includes(p.sku)).map((p) => p.id);
   const endsAt = new Date(now.getTime() + FLOWER_FLASH_SALE.hours * 3_600_000);
   const sale = (await store.listFlashSales(app.id)).find((f) => f.title === FLOWER_FLASH_SALE.title);
-  const terms = { productIds: ids, categoryId: null, discount: { kind: "percent" as const, percent: FLOWER_FLASH_SALE.percent }, startsAt: now, endsAt, limit: FLOWER_FLASH_SALE.limit, platformCode: null, active: true };
+  // 131 Its name in the app's other languages too.
+  const terms = { productIds: ids, categoryId: null, discount: { kind: "percent" as const, percent: FLOWER_FLASH_SALE.percent }, startsAt: now, endsAt, limit: FLOWER_FLASH_SALE.limit, platformCode: null, active: true, titles: { ...FLOWER_FLASH_SALE.titles } };
   const made = sale ?? (await store.createFlashSale({ appId: app.id, title: FLOWER_FLASH_SALE.title, ...terms, createdAt: now, updatedAt: now }));
   await store.updateFlashSale(app.id, made.id, { ...terms, sold: FLOWER_FLASH_SALE.sold, updatedAt: now });
 }

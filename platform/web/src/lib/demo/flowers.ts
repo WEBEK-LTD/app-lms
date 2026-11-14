@@ -53,7 +53,7 @@ export const FLOWER_COMMERCE: Pick<CatalogSettings, "delivery" | "gifts" | "area
 };
 
 /** The demo's flash sale: Blush Garden a quarter off for 26 hours (made again each day), 12 bouquets at that price and 8 of them gone (4 left, as the story tells it). */
-export const FLOWER_FLASH_SALE = { title: "Blush hour", percent: 25, hours: 26, limit: 12, sold: 8, skus: ["LQ-101"] } as const;
+export const FLOWER_FLASH_SALE = { title: "Blush hour", titles: { ar: "ساعة الورد", tr: "Pembe saat" }, percent: 25, hours: 26, limit: 12, sold: 8, skus: ["LQ-101"] } as const;
 
 /** The demo's code shown in the app: 10% off a first bouquet from E£ 1,000 (the looks' coupon element). */
 export const FLOWER_COUPON = { code: "LEQAA10", percent: 10, minOrderCents: 1000_00 } as const;
@@ -77,6 +77,8 @@ export interface FlowerProduct {
   description: string;
   /** A bouquet's bigger sizes, what each adds to its price (Classic is its own). */
   sizes?: { deluxe: number; grand: number };
+  /** 131 A gift add-on (a vase, chocolates, a card): offered as "Add a little more" with every bouquet, never listed on its own. */
+  addon?: boolean;
 }
 
 /** A bouquet's three sizes, by how many stems it has. */
@@ -230,6 +232,7 @@ export const FLOWER_PRODUCTS: readonly FlowerProduct[] = [
     salePriceCents: null,
     photo: "ceramic-vase",
     featured: false,
+    addon: true,
     description: "A white ceramic vase that fits a Classic or a Deluxe bouquet.",
   },
   {
@@ -241,6 +244,7 @@ export const FLOWER_PRODUCTS: readonly FlowerProduct[] = [
     salePriceCents: null,
     photo: null,
     featured: false,
+    addon: true,
     description: "A box of assorted chocolates to go with the flowers.",
   },
   {
@@ -252,6 +256,7 @@ export const FLOWER_PRODUCTS: readonly FlowerProduct[] = [
     salePriceCents: null,
     photo: null,
     featured: false,
+    addon: true,
     description: "A folded card with your message written in it by hand.",
   },
 ];

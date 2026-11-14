@@ -149,7 +149,7 @@ function started(look: "a" | "b", lang: "en" | "ar" | "tr" = "en") {
 
 describe("131.20 its two Signature looks: whole store templates, marked new", () => {
   it("writes every section title into a field the shop edits in each language (the app's words only its defaults)", () => {
-    const titles = ["lqAddOns", "lqSendToday", "lqGiftMsg", "lqBuildTitle", "lqBuildLine", "lqSendFlowers", "lqAsk", "lqEdit", "lqCollections", "lqLoved", "lqAtelier", "lqPriceList", "lqFlashTitle"] as const;
+    const titles = ["lqSendToday", "lqGiftMsg", "lqBuildTitle", "lqBuildLine", "lqSendFlowers", "lqAsk", "lqEdit", "lqCollections", "lqLoved", "lqAtelier", "lqPriceList", "lqFlashTitle"] as const;
     const seen = new Set<string>();
     for (const look of ["a", "b"] as const) {
       const { layout } = started(look);

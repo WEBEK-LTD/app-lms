@@ -77,6 +77,8 @@ class _CartScreenState extends ConsumerState<CartScreen> {
     if (list == null || box is! RenderBox || !box.attached) return;
     final line = box.size.height / 3;
     int? found;
+    // Above all the parts (the card's preview, the lines): the first part.
+    int? below;
     void visit(Element e) {
       final key = e.widget.key;
       if (key is ValueKey<String>) {
@@ -85,12 +87,14 @@ class _CartScreenState extends ConsumerState<CartScreen> {
         if (i >= 0 && render is RenderBox && render.attached) {
           final top = render.localToGlobal(Offset.zero, ancestor: box).dy;
           if (top <= line && (found == null || i > found!)) found = i;
+          if (top > line && (below == null || i < below!)) below = i;
         }
       }
       e.visitChildren(visit);
     }
 
     (list as Element).visitChildren(visit);
+    found ??= below;
     if (found != _inView && mounted) setState(() => _inView = found);
   }
 

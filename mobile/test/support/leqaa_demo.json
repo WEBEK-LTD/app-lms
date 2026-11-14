@@ -2718,11 +2718,11 @@
     },
     "studio": {
      "body": {
-      "id": "demo-188",
+      "id": "demo-170",
       "type": "column",
       "children": [
        {
-        "id": "demo-189",
+        "id": "demo-171",
         "type": "photo_hero",
         "name": "Find the right flowers",
         "image_url": "http://localhost:3000/flower-photos/blush-bouquet.jpg",
@@ -2753,7 +2753,7 @@
         "ken_burns": true,
         "children": [
          {
-          "id": "demo-190",
+          "id": "demo-172",
           "type": "text",
           "text": "Find the right flowers",
           "color": "#FFFFFF",
@@ -2776,7 +2776,7 @@
           }
          },
          {
-          "id": "demo-191",
+          "id": "demo-173",
           "type": "text",
           "text": "By occasion, by colour, by collection.",
           "color": "#FFFFFF",
@@ -2805,7 +2805,7 @@
         ]
        },
        {
-        "id": "demo-192",
+        "id": "demo-174",
         "type": "stories",
         "name": "Every occasion",
         "interval_ms": 5000,
@@ -2916,7 +2916,7 @@
         }
        },
        {
-        "id": "demo-193",
+        "id": "demo-175",
         "type": "row",
         "name": "The signature bouquet",
         "gap": 8,
@@ -2929,7 +2929,7 @@
         },
         "children": [
          {
-          "id": "demo-194",
+          "id": "demo-176",
           "type": "button",
           "name": "Our bouquet",
           "text": "Our bouquet",
@@ -2977,7 +2977,7 @@
           }
          },
          {
-          "id": "demo-195",
+          "id": "demo-177",
           "type": "button",
           "name": "Your picks",
           "text": "Your picks",
@@ -3072,11 +3072,11 @@
     },
     "studio": {
      "body": {
-      "id": "demo-196",
+      "id": "demo-178",
       "type": "column",
       "children": [
        {
-        "id": "demo-197",
+        "id": "demo-179",
         "type": "row",
         "name": "Pick the delivery day and write the card at checkout.",
         "gap": 12,
@@ -3101,7 +3101,7 @@
         "border_width": 1,
         "children": [
          {
-          "id": "demo-198",
+          "id": "demo-180",
           "type": "icon",
           "icon": "redeem",
           "icon_size": 22,
@@ -3118,7 +3118,7 @@
           }
          },
          {
-          "id": "demo-199",
+          "id": "demo-181",
           "type": "text",
           "text": "Pick the delivery day and write the card at checkout.",
           "font": {
@@ -3142,230 +3142,7 @@
         ]
        },
        {
-        "id": "demo-200",
-        "type": "row",
-        "name": "Add a little more",
-        "cross": "end",
-        "gap": 12,
-        "padding": {
-         "top": 16,
-         "end": 18,
-         "bottom": 8,
-         "start": 18
-        },
-        "children": [
-         {
-          "id": "demo-201",
-          "type": "column",
-          "width": "fill",
-          "gap": 4,
-          "children": [
-           {
-            "id": "demo-202",
-            "type": "text",
-            "text": "Add a little more",
-            "font": {
-             "family": "Fraunces",
-             "size": 27,
-             "weight": 600,
-             "line_height": 1.04,
-             "letter_spacing": -0.54
-            },
-            "color": "#2A121C",
-            "dark_color": "#F8EAEE",
-            "max_lines": 2,
-            "translations": {
-             "ar": {
-              "text": "أضف لمسة أخرى"
-             },
-             "tr": {
-              "text": "Biraz daha ekleyin"
-             }
-            }
-           }
-          ]
-         }
-        ]
-       },
-       {
-        "id": "demo-203",
-        "type": "row",
-        "name": "Add a little more",
-        "gap": 10,
-        "scroll": true,
-        "padding": {
-         "top": 0,
-         "end": 16,
-         "bottom": 6,
-         "start": 16
-        },
-        "children": [
-         {
-          "id": "demo-204",
-          "type": "column",
-          "name": "Ceramic vase",
-          "width": 104,
-          "gap": 6,
-          "cross": "center",
-          "action": {
-           "type": "screen",
-           "screen": "search"
-          },
-          "children": [
-           {
-            "id": "demo-205",
-            "type": "image",
-            "image_url": "http://localhost:3000/flower-photos/ceramic-vase.jpg",
-            "fit": "cover",
-            "width": 104,
-            "height": 104,
-            "radius": 24
-           },
-           {
-            "id": "demo-206",
-            "type": "text",
-            "text": "Ceramic vase",
-            "font": {
-             "size": 12.5,
-             "weight": 700
-            },
-            "color": "#2A121C",
-            "dark_color": "#F8EAEE",
-            "text_align": "center",
-            "max_lines": 2,
-            "translations": {
-             "ar": {
-              "text": "مزهرية خزفية"
-             },
-             "tr": {
-              "text": "Seramik vazo"
-             }
-            }
-           }
-          ]
-         },
-         {
-          "id": "demo-207",
-          "type": "column",
-          "name": "Chocolates",
-          "width": 104,
-          "gap": 6,
-          "cross": "center",
-          "action": {
-           "type": "screen",
-           "screen": "search"
-          },
-          "children": [
-           {
-            "id": "demo-208",
-            "type": "row",
-            "width": 104,
-            "height": 104,
-            "radius": 24,
-            "align": "center",
-            "cross": "center",
-            "background": "#FFFFFF",
-            "dark_background": "#21121A",
-            "border_color": "#F0DDD9",
-            "dark_border_color": "#3A2530",
-            "border_width": 1,
-            "children": [
-             {
-              "id": "demo-209",
-              "type": "icon",
-              "icon": "redeem",
-              "icon_size": 38,
-              "color": "#A8325A",
-              "dark_color": "#F3A9C0"
-             }
-            ]
-           },
-           {
-            "id": "demo-210",
-            "type": "text",
-            "text": "Chocolates",
-            "font": {
-             "size": 12.5,
-             "weight": 700
-            },
-            "color": "#2A121C",
-            "dark_color": "#F8EAEE",
-            "text_align": "center",
-            "max_lines": 2,
-            "translations": {
-             "ar": {
-              "text": "شوكولاتة"
-             },
-             "tr": {
-              "text": "Çikolata"
-             }
-            }
-           }
-          ]
-         },
-         {
-          "id": "demo-211",
-          "type": "column",
-          "name": "Greeting card",
-          "width": 104,
-          "gap": 6,
-          "cross": "center",
-          "action": {
-           "type": "screen",
-           "screen": "search"
-          },
-          "children": [
-           {
-            "id": "demo-212",
-            "type": "row",
-            "width": 104,
-            "height": 104,
-            "radius": 24,
-            "align": "center",
-            "cross": "center",
-            "background": "#FFFFFF",
-            "dark_background": "#21121A",
-            "border_color": "#F0DDD9",
-            "dark_border_color": "#3A2530",
-            "border_width": 1,
-            "children": [
-             {
-              "id": "demo-213",
-              "type": "icon",
-              "icon": "mail",
-              "icon_size": 38,
-              "color": "#A8325A",
-              "dark_color": "#F3A9C0"
-             }
-            ]
-           },
-           {
-            "id": "demo-214",
-            "type": "text",
-            "text": "Greeting card",
-            "font": {
-             "size": 12.5,
-             "weight": 700
-            },
-            "color": "#2A121C",
-            "dark_color": "#F8EAEE",
-            "text_align": "center",
-            "max_lines": 2,
-            "translations": {
-             "ar": {
-              "text": "بطاقة تهنئة"
-             },
-             "tr": {
-              "text": "Tebrik kartı"
-             }
-            }
-           }
-          ]
-         }
-        ]
-       },
-       {
-        "id": "demo-215",
+        "id": "demo-182",
         "type": "coupon",
         "name": "A code for your first bouquet",
         "code": "LEQAA10",
@@ -3425,11 +3202,11 @@
     },
     "studio": {
      "body": {
-      "id": "demo-216",
+      "id": "demo-183",
       "type": "column",
       "children": [
        {
-        "id": "demo-217",
+        "id": "demo-184",
         "type": "row",
         "name": "How your flowers travel",
         "cross": "end",
@@ -3442,13 +3219,13 @@
         },
         "children": [
          {
-          "id": "demo-218",
+          "id": "demo-185",
           "type": "column",
           "width": "fill",
           "gap": 4,
           "children": [
            {
-            "id": "demo-219",
+            "id": "demo-186",
             "type": "text",
             "text": "How your flowers travel",
             "font": {
@@ -3475,7 +3252,7 @@
         ]
        },
        {
-        "id": "demo-220",
+        "id": "demo-187",
         "type": "timeline",
         "name": "How your flowers travel",
         "timeline": {
@@ -3604,7 +3381,7 @@
     },
     "studio": {
      "body": {
-      "id": "demo-221",
+      "id": "demo-188",
       "type": "column",
       "children": []
      },
@@ -4026,230 +3803,7 @@
         ]
        },
        {
-        "id": "demo-146",
-        "type": "row",
-        "name": "Add a little more",
-        "cross": "end",
-        "gap": 12,
-        "padding": {
-         "top": 16,
-         "end": 18,
-         "bottom": 8,
-         "start": 18
-        },
-        "children": [
-         {
-          "id": "demo-147",
-          "type": "column",
-          "width": "fill",
-          "gap": 4,
-          "children": [
-           {
-            "id": "demo-148",
-            "type": "text",
-            "text": "Add a little more",
-            "font": {
-             "family": "Fraunces",
-             "size": 27,
-             "weight": 600,
-             "line_height": 1.04,
-             "letter_spacing": -0.54
-            },
-            "color": "#2A121C",
-            "dark_color": "#F8EAEE",
-            "max_lines": 2,
-            "translations": {
-             "ar": {
-              "text": "أضف لمسة أخرى"
-             },
-             "tr": {
-              "text": "Biraz daha ekleyin"
-             }
-            }
-           }
-          ]
-         }
-        ]
-       },
-       {
-        "id": "demo-149",
-        "type": "row",
-        "name": "Add a little more",
-        "gap": 10,
-        "scroll": true,
-        "padding": {
-         "top": 0,
-         "end": 16,
-         "bottom": 6,
-         "start": 16
-        },
-        "children": [
-         {
-          "id": "demo-150",
-          "type": "column",
-          "name": "Ceramic vase",
-          "width": 104,
-          "gap": 6,
-          "cross": "center",
-          "action": {
-           "type": "screen",
-           "screen": "search"
-          },
-          "children": [
-           {
-            "id": "demo-151",
-            "type": "image",
-            "image_url": "http://localhost:3000/flower-photos/ceramic-vase.jpg",
-            "fit": "cover",
-            "width": 104,
-            "height": 104,
-            "radius": 24
-           },
-           {
-            "id": "demo-152",
-            "type": "text",
-            "text": "Ceramic vase",
-            "font": {
-             "size": 12.5,
-             "weight": 700
-            },
-            "color": "#2A121C",
-            "dark_color": "#F8EAEE",
-            "text_align": "center",
-            "max_lines": 2,
-            "translations": {
-             "ar": {
-              "text": "مزهرية خزفية"
-             },
-             "tr": {
-              "text": "Seramik vazo"
-             }
-            }
-           }
-          ]
-         },
-         {
-          "id": "demo-153",
-          "type": "column",
-          "name": "Chocolates",
-          "width": 104,
-          "gap": 6,
-          "cross": "center",
-          "action": {
-           "type": "screen",
-           "screen": "search"
-          },
-          "children": [
-           {
-            "id": "demo-154",
-            "type": "row",
-            "width": 104,
-            "height": 104,
-            "radius": 24,
-            "align": "center",
-            "cross": "center",
-            "background": "#FFFFFF",
-            "dark_background": "#21121A",
-            "border_color": "#F0DDD9",
-            "dark_border_color": "#3A2530",
-            "border_width": 1,
-            "children": [
-             {
-              "id": "demo-155",
-              "type": "icon",
-              "icon": "redeem",
-              "icon_size": 38,
-              "color": "#A8325A",
-              "dark_color": "#F3A9C0"
-             }
-            ]
-           },
-           {
-            "id": "demo-156",
-            "type": "text",
-            "text": "Chocolates",
-            "font": {
-             "size": 12.5,
-             "weight": 700
-            },
-            "color": "#2A121C",
-            "dark_color": "#F8EAEE",
-            "text_align": "center",
-            "max_lines": 2,
-            "translations": {
-             "ar": {
-              "text": "شوكولاتة"
-             },
-             "tr": {
-              "text": "Çikolata"
-             }
-            }
-           }
-          ]
-         },
-         {
-          "id": "demo-157",
-          "type": "column",
-          "name": "Greeting card",
-          "width": 104,
-          "gap": 6,
-          "cross": "center",
-          "action": {
-           "type": "screen",
-           "screen": "search"
-          },
-          "children": [
-           {
-            "id": "demo-158",
-            "type": "row",
-            "width": 104,
-            "height": 104,
-            "radius": 24,
-            "align": "center",
-            "cross": "center",
-            "background": "#FFFFFF",
-            "dark_background": "#21121A",
-            "border_color": "#F0DDD9",
-            "dark_border_color": "#3A2530",
-            "border_width": 1,
-            "children": [
-             {
-              "id": "demo-159",
-              "type": "icon",
-              "icon": "mail",
-              "icon_size": 38,
-              "color": "#A8325A",
-              "dark_color": "#F3A9C0"
-             }
-            ]
-           },
-           {
-            "id": "demo-160",
-            "type": "text",
-            "text": "Greeting card",
-            "font": {
-             "size": 12.5,
-             "weight": 700
-            },
-            "color": "#2A121C",
-            "dark_color": "#F8EAEE",
-            "text_align": "center",
-            "max_lines": 2,
-            "translations": {
-             "ar": {
-              "text": "بطاقة تهنئة"
-             },
-             "tr": {
-              "text": "Tebrik kartı"
-             }
-            }
-           }
-          ]
-         }
-        ]
-       },
-       {
-        "id": "demo-161",
+        "id": "demo-143",
         "type": "row",
         "name": "Send today",
         "cross": "end",
@@ -4262,13 +3816,13 @@
         },
         "children": [
          {
-          "id": "demo-162",
+          "id": "demo-144",
           "type": "column",
           "width": "fill",
           "gap": 4,
           "children": [
            {
-            "id": "demo-163",
+            "id": "demo-145",
             "type": "text",
             "text": "Send today",
             "font": {
@@ -4295,7 +3849,7 @@
         ]
        },
        {
-        "id": "demo-164",
+        "id": "demo-146",
         "type": "text",
         "text": "Today or tomorrow, in the time slot you choose.",
         "font": {
@@ -4321,14 +3875,14 @@
         }
        },
        {
-        "id": "demo-165",
+        "id": "demo-147",
         "type": "row",
         "name": "Delivery days · today, tomorrow, a date",
         "gap": 6,
         "width": "fill",
         "children": [
          {
-          "id": "demo-166",
+          "id": "demo-148",
           "type": "row",
           "name": "Today",
           "width": "fill",
@@ -4351,7 +3905,7 @@
           "dark_background": "#F3A9C0",
           "children": [
            {
-            "id": "demo-167",
+            "id": "demo-149",
             "type": "icon",
             "icon": "bolt",
             "icon_size": 15,
@@ -4359,7 +3913,7 @@
             "dark_color": "#2A121C"
            },
            {
-            "id": "demo-168",
+            "id": "demo-150",
             "type": "text",
             "text": "Today",
             "max_lines": 1,
@@ -4381,7 +3935,7 @@
           ]
          },
          {
-          "id": "demo-169",
+          "id": "demo-151",
           "type": "row",
           "name": "Tomorrow",
           "width": "fill",
@@ -4405,7 +3959,7 @@
           "border_width": 1,
           "children": [
            {
-            "id": "demo-170",
+            "id": "demo-152",
             "type": "text",
             "text": "Tomorrow",
             "max_lines": 1,
@@ -4427,7 +3981,7 @@
           ]
          },
          {
-          "id": "demo-171",
+          "id": "demo-153",
           "type": "row",
           "name": "Pick a date",
           "width": "fill",
@@ -4451,7 +4005,7 @@
           "border_width": 1,
           "children": [
            {
-            "id": "demo-172",
+            "id": "demo-154",
             "type": "text",
             "text": "Pick a date",
             "max_lines": 1,
@@ -4481,7 +4035,7 @@
         }
        },
        {
-        "id": "demo-173",
+        "id": "demo-155",
         "type": "row",
         "name": "Your card",
         "cross": "end",
@@ -4494,13 +4048,13 @@
         },
         "children": [
          {
-          "id": "demo-174",
+          "id": "demo-156",
           "type": "column",
           "width": "fill",
           "gap": 4,
           "children": [
            {
-            "id": "demo-175",
+            "id": "demo-157",
             "type": "text",
             "text": "Your card",
             "font": {
@@ -4612,7 +4166,7 @@
         ]
        },
        {
-        "id": "demo-176",
+        "id": "demo-158",
         "type": "button",
         "name": "Choose this bouquet",
         "text": "Choose this bouquet",
@@ -4701,7 +4255,7 @@
      "background": "#FBF3F0",
      "dark_background": "#140A0F",
      "body": {
-      "id": "demo-177",
+      "id": "demo-159",
       "type": "column",
       "padding": {
        "top": 0,
@@ -4711,7 +4265,7 @@
       },
       "children": [
        {
-        "id": "demo-178",
+        "id": "demo-160",
         "type": "items",
         "name": "Lately viewed",
         "source": "products",
@@ -4742,7 +4296,7 @@
         }
        },
        {
-        "id": "demo-179",
+        "id": "demo-161",
         "type": "row",
         "name": "Picked for you",
         "cross": "end",
@@ -4755,13 +4309,13 @@
         },
         "children": [
          {
-          "id": "demo-180",
+          "id": "demo-162",
           "type": "column",
           "width": "fill",
           "gap": 4,
           "children": [
            {
-            "id": "demo-181",
+            "id": "demo-163",
             "type": "text",
             "text": "Picked for you",
             "font": {
@@ -4786,7 +4340,7 @@
           ]
          },
          {
-          "id": "demo-182",
+          "id": "demo-164",
           "type": "text",
           "text": "Shop all",
           "font": {
@@ -4817,7 +4371,7 @@
         ]
        },
        {
-        "id": "demo-183",
+        "id": "demo-165",
         "type": "items",
         "name": "Picked for you",
         "source": "products",
@@ -4838,12 +4392,12 @@
          "ids": []
         },
         "card": {
-         "id": "demo-184",
+         "id": "demo-166",
          "type": "column",
          "gap": 6,
          "children": [
           {
-           "id": "demo-185",
+           "id": "demo-167",
            "type": "image",
            "bind": "image",
            "width": "fill",
@@ -4852,7 +4406,7 @@
            "fit": "cover"
           },
           {
-           "id": "demo-186",
+           "id": "demo-168",
            "type": "text",
            "bind": "title",
            "max_lines": 1,
@@ -4867,7 +4421,7 @@
            }
           },
           {
-           "id": "demo-187",
+           "id": "demo-169",
            "type": "text",
            "bind": "price",
            "max_lines": 1,
@@ -4921,11 +4475,11 @@
     },
     "studio": {
      "body": {
-      "id": "demo-222",
+      "id": "demo-189",
       "type": "column",
       "children": [
        {
-        "id": "demo-229",
+        "id": "demo-196",
         "type": "photo_hero",
         "name": "Find the right flowers",
         "image_url": "http://localhost:3000/flower-photos/blush-bouquet.jpg",
@@ -4956,7 +4510,7 @@
         "ken_burns": true,
         "children": [
          {
-          "id": "demo-230",
+          "id": "demo-197",
           "type": "text",
           "text": "Find the right flowers",
           "color": "#FFFFFF",
@@ -4979,7 +4533,7 @@
           }
          },
          {
-          "id": "demo-231",
+          "id": "demo-198",
           "type": "text",
           "text": "By occasion, by colour, by collection.",
           "color": "#FFFFFF",
@@ -5008,7 +4562,7 @@
         ]
        },
        {
-        "id": "demo-232",
+        "id": "demo-199",
         "type": "stories",
         "name": "Every occasion",
         "interval_ms": 5000,
@@ -5119,7 +4673,7 @@
         }
        },
        {
-        "id": "demo-233",
+        "id": "demo-200",
         "type": "row",
         "name": "The signature bouquet",
         "gap": 8,
@@ -5132,7 +4686,7 @@
         },
         "children": [
          {
-          "id": "demo-234",
+          "id": "demo-201",
           "type": "button",
           "name": "Our bouquet",
           "text": "Our bouquet",
@@ -5180,7 +4734,7 @@
           }
          },
          {
-          "id": "demo-235",
+          "id": "demo-202",
           "type": "button",
           "name": "Your picks",
           "text": "Your picks",
@@ -5272,7 +4826,7 @@
     },
     "studio": {
      "body": {
-      "id": "demo-223",
+      "id": "demo-190",
       "type": "column",
       "children": []
      },
@@ -5314,7 +4868,7 @@
     },
     "studio": {
      "body": {
-      "id": "demo-224",
+      "id": "demo-191",
       "type": "column",
       "children": []
      },
@@ -5356,7 +4910,7 @@
     },
     "studio": {
      "body": {
-      "id": "demo-225",
+      "id": "demo-192",
       "type": "column",
       "children": []
      },
@@ -5398,7 +4952,7 @@
     },
     "studio": {
      "body": {
-      "id": "demo-226",
+      "id": "demo-193",
       "type": "column",
       "children": []
      },
@@ -5432,7 +4986,7 @@
     "title": "Change password",
     "studio": {
      "body": {
-      "id": "demo-227",
+      "id": "demo-194",
       "type": "column",
       "children": []
      },
@@ -5449,7 +5003,7 @@
     "title": "A conversation",
     "studio": {
      "body": {
-      "id": "demo-228",
+      "id": "demo-195",
       "type": "column",
       "children": []
      },

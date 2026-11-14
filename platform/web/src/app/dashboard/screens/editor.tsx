@@ -236,7 +236,7 @@ export function ScreensEditor({
         <SystemSection value={system} onChange={setSystem} />
 
         {/* 131.25 The store's checkout look. */}
-        {store ? <CheckoutSection value={checkout} onChange={setCheckout} brand={brand?.main ?? color} lang={previewLang} dark={previewDark} /> : null}
+        {store ? <CheckoutSection value={checkout} onChange={setCheckout} brand={brand?.main ?? color} lang={previewLang} dark={previewDark} languages={languages} /> : null}
 
         <section aria-labelledby="h-sign-in-look" className="flex flex-col gap-4 rounded-2xl border border-line bg-white p-5 sm:p-6">
           <h2 id="h-sign-in-look" className="m-0 text-lg font-bold">

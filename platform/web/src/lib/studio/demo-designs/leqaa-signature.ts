@@ -699,50 +699,9 @@ function shopTop(ctx: SectionContext, k: SignatureInk, family: string, photo: st
   ];
 }
 
-/** Over the cart: the gift checkout to come (pick the day, write the card) and the add-ons to take with the flowers. */
-function cartTop(ctx: SectionContext, k: SignatureInk, family: string): StudioNode[] {
+/** Over the cart: the gift checkout to come (pick the day, write the card); the add-ons are the cart's own. */
+function cartTop(ctx: SectionContext, k: SignatureInk): StudioNode[] {
   const id = idOf(ctx);
-  const addOn = (word: SectionWord, photo: string): StudioNode => ({
-    id: id(),
-    type: "column",
-    name: ctx.w(word),
-    width: 104,
-    gap: 6,
-    cross: "center",
-    action: shop,
-    children: [
-      { ...sigImage(ctx, k, photo, { width: 104, height: 104, radius: 24 }) },
-      inked(ctx, k, ctx.w(word), { size: 12.5, weight: 700 }, { text_align: "center", max_lines: 2 }),
-    ],
-  });
-  // An add-on with no fitting free photo: its symbol on a tile of the look's wash, as round as the photos.
-  const addOnTile = (word: SectionWord, icon: string): StudioNode => ({
-    id: id(),
-    type: "column",
-    name: ctx.w(word),
-    width: 104,
-    gap: 6,
-    cross: "center",
-    action: shop,
-    children: [
-      {
-        id: id(),
-        type: "row",
-        width: 104,
-        height: 104,
-        radius: 24,
-        align: "center",
-        cross: "center",
-        background: k.surface,
-        dark_background: k.darkSurface,
-        border_color: k.line,
-        dark_border_color: k.darkLine,
-        border_width: 1,
-        children: [{ id: id(), type: "icon", icon, icon_size: 38, color: k.accent, dark_color: k.darkAccent }],
-      },
-      inked(ctx, k, ctx.w(word), { size: 12.5, weight: 700 }, { text_align: "center", max_lines: 2 }),
-    ],
-  });
   return [
     {
       id: id(),
@@ -763,8 +722,6 @@ function cartTop(ctx: SectionContext, k: SignatureInk, family: string): StudioNo
         inked(ctx, k, ctx.w("lqCartNote"), { size: 13.5, weight: 600, line_height: 1.35 }, { width: "fill", max_lines: 3 }),
       ],
     },
-    { ...headOf(ctx, k, family, "lqAddOns", null, sides(16, 18, 8, 18)) },
-    { id: id(), type: "row", name: ctx.w("lqAddOns"), gap: 10, scroll: true, padding: sides(0, 16, 6, 16), children: [addOn("lqVase", P("ceramic-vase")), addOnTile("lqChocolates", "redeem"), addOnTile("lqCard", "mail")] },
   ];
 }
 
@@ -874,7 +831,6 @@ function bouquetPage(ctx: SectionContext, k: SignatureInk, family: string, look:
         },
         headOf(ctx, k, family, "lqSizes", null, sides(16, 18, 10, 18)),
         { id: id(), type: "row", name: ctx.w("lqSizes"), gap: 10, padding: sides(0, 16, 0, 16), children: [size("lqSizeClassic", "lqStems12", false), size("lqSizeDeluxe", "lqStems24", true), size("lqSizeGrand", "lqStems36", false)] },
-        ...cartTop(ctx, k, family).slice(1),
         headOf(ctx, k, family, "lqSendToday", null, sides(16, 18, 6, 18)),
         { ...say(ctx, k, "lqDeliveryLine", { size: 13.5, line_height: 1.4 }, { muted: true, max_lines: 2 }), padding: sides(0, 18, 10, 18) },
         { ...dayChips(ctx, k), padding: sides(0, 16, 0, 16) },
@@ -935,7 +891,8 @@ function leqaaOver(k: SignatureInk, family: string, photo: string, shade: string
         return shopTop(ctx, k, family, photo, shade, ring);
       case "cart":
         // 131.17 And the shop's code for a first bouquet, in the look's coupon.
-        return [...cartTop(ctx, k, family), shopCoupon(ctx, k.fill, k === A ? "ticket" : "glass")];
+        // The add-ons are the cart's own "Add a little more" (131.50), under the note.
+        return [...cartTop(ctx, k), shopCoupon(ctx, k.fill, k === A ? "ticket" : "glass")];
       case "orders":
         return ordersTop(ctx, k, family);
       default:

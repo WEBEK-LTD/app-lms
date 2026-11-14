@@ -127,7 +127,14 @@ Map<String, dynamic> _product(
     'sale': _sale(w, n, lang),
 };
 
-/// Leqaa's products as the shop lists them.
+/// 131 The gift add-ons (a vase, chocolates, a card): offered with every
+/// bouquet as "Add a little more", never in the shop's lists.
+List<Map<String, dynamic>> leqaaAddons(String base, {String lang = 'en'}) => [
+  for (final (id, pounds) in [(201, 350), (202, 320), (203, 60)])
+    {..._product(base, id, pounds, lang), 'addon': true},
+];
+
+/// Leqaa's products as the shop lists them (no add-ons).
 List<Map<String, dynamic>> leqaaProducts(String base, {String lang = 'en'}) => [
   _product(base, 101, 1088, lang, was: 1450),
   _product(base, 102, 1590, lang, was: 1850),
@@ -239,6 +246,8 @@ Map<String, dynamic> leqaaBouquet(String base, {String lang = 'en'}) {
     'default_attributes': {'a1': sizes[1]},
     'categories': [_categories(base, lang).first],
     'related': leqaaProducts(base, lang: lang).skip(1).take(3).toList(),
+    // 131 What goes with it.
+    'addons': leqaaAddons(base, lang: lang),
     'external_url': null,
     'permalink': 'https://leqaa.example/bouquets/blush-garden',
   };
@@ -256,6 +265,8 @@ String leqaaCart(String base, {String lang = 'en'}) => jsonEncode([
       'quantity': 1,
       'name': _pick(_names[id]!, lang),
       'attributes': {if (variation != null) 'a1': _pick(_sizes[1], lang)},
+      // 131 The card and the chocolates go with the bouquet.
+      if (id != 101) 'addon_of': 101,
       'image_url': _photos[id] == null
           ? null
           : '$base/flower-photos/${_photos[id]}.jpg',
@@ -283,6 +294,7 @@ Map<String, dynamic> _quote(String base, String lang) {
           'problem': null,
           'max_quantity': 5,
           'digital': false,
+          if (id != 101) 'addon_of': 101,
         },
     ],
     'item_count': 3,
@@ -465,7 +477,11 @@ DemoApi leqaaStudioApi({
           if (id == 's1') 'remaining': 0,
         },
     ]
-    ..giftOccasions = _occasions(lang);
+    ..giftOccasions = _occasions(lang)
+    ..addons = {
+      0: leqaaAddons(base, lang: lang),
+      101: leqaaAddons(base, lang: lang),
+    };
   api.config = {
     ...api.config,
     'store': {

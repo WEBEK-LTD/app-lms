@@ -60,6 +60,10 @@ class AddonPicker extends StatelessWidget {
               on: selected.contains(a.id),
               onChanged: (v) => onChanged(a, v),
               radius: look?.radius,
+              // 131.25 In the look's colour, by day and by night.
+              accent: parseHexColor(
+                look?.accentFor(dark: context.palette.isDark),
+              ),
             ),
           ],
         ],
@@ -74,6 +78,7 @@ class _AddonRow extends StatelessWidget {
     required this.on,
     required this.onChanged,
     this.radius,
+    this.accent,
   });
 
   final ProductSummary addon;
@@ -81,18 +86,27 @@ class _AddonRow extends StatelessWidget {
   final ValueChanged<bool> onChanged;
   final double? radius;
 
+  /// The look's colour; null, the app's second colour.
+  final Color? accent;
+
   @override
   Widget build(BuildContext context) {
     final p = context.palette;
     final sale = addon.sale?.liveAt(DateTime.now()) == true ? addon.sale : null;
     final r = BorderRadius.circular(radius ?? 14);
+    final tone = accent ?? p.accent;
     return Semantics(
       checked: on,
       label: context.l10n.addonAdd(addon.name),
       excludeSemantics: true,
       child: Material(
-        color: on ? p.accent.withValues(alpha: 0.08) : p.surfaceMuted,
-        borderRadius: r,
+        color: on ? tone.withValues(alpha: 0.10) : p.surfaceMuted,
+        shape: RoundedRectangleBorder(
+          borderRadius: r,
+          side: BorderSide(
+            color: on ? tone.withValues(alpha: 0.6) : Colors.transparent,
+          ),
+        ),
         child: InkWell(
           key: ValueKey('addon-${addon.id}'),
           borderRadius: r,
@@ -138,6 +152,7 @@ class _AddonRow extends StatelessWidget {
                 ),
                 Checkbox.adaptive(
                   value: on,
+                  activeColor: tone,
                   onChanged: (v) => onChanged(v ?? false),
                 ),
               ],

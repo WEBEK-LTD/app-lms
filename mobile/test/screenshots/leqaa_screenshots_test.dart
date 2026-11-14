@@ -311,6 +311,17 @@ List<Shot> get _galleryShots => [
         primary: look == 'a' ? '#8E2445' : '#2F5D50',
         then: (tester) => _scrollTo(tester, find.byType(StudioFlashSale)),
       ),
+      // 131.50 The bouquet's "Add a little more", in the look.
+      _leqaa(
+        'leqaa-$look-product-addons-$mode',
+        StudioDemo.signature('flowers', look),
+        dark: dark,
+        language: language,
+        location: '/product/101',
+        primary: look == 'a' ? '#8E2445' : '#2F5D50',
+        then: (tester) =>
+            _scrollTo(tester, find.byKey(const ValueKey('addons'))),
+      ),
       _leqaa(
         'leqaa-$look-product-flash-$mode',
         StudioDemo.signature('flowers', look),
@@ -319,7 +330,7 @@ List<Shot> get _galleryShots => [
         location: '/product/101',
         primary: look == 'a' ? '#8E2445' : '#2F5D50',
         then: (tester) =>
-            _scrollTo(tester, find.byKey(const ValueKey('product-sale'))),
+            _scrollTo(tester, find.byKey(const ValueKey('product-flash-sale'))),
       ),
     ],
 ];
