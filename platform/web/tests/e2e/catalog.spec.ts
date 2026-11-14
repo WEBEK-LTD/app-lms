@@ -406,6 +406,16 @@ test("91.5 a product in two colours, and KDV inside the prices, from the dashboa
 
 test("131 delivery times, the gift checkout and a flash sale, from Delivery & offers to the app", async ({ page, request }) => {
   await signIn(page, client.email, client.password);
+  // A box of roses with nothing to choose and no stock limit (the tulips sold out above).
+  await page.goto("/dashboard/catalog");
+  await page.getByRole("link", { name: "Add product" }).click();
+  await page.getByLabel("Name", { exact: true }).fill("Rose Box");
+  await page.getByLabel("Description").fill("Twelve red roses in a box.");
+  await page.getByLabel("Price (TRY)", { exact: true }).fill("300");
+  await page.locator('input[name="images"]').setInputFiles({ name: "roses.png", mimeType: "image/png", buffer: solidPng(64, 64, [200, 30, 60]) });
+  await page.getByRole("button", { name: "Add product" }).click();
+  await expect(page.getByRole("status")).toContainText("Saved “Rose Box”.");
+
   await page.goto("/dashboard/selling");
   await expect(page.getByRole("heading", { name: "Delivery & offers", level: 1 })).toBeVisible();
 
@@ -419,12 +429,12 @@ test("131 delivery times, the gift checkout and a flash sale, from Delivery & of
   await delivery.getByRole("button", { name: "Save delivery times" }).click();
   await expect(delivery.getByText("Saved.")).toBeVisible();
 
-  // A flash sale on the first product, on now in the shop's time zone.
+  // A flash sale on the roses, on now in the shop's time zone.
   const local = (at: Date) => new Intl.DateTimeFormat("sv-SE", { timeZone: "Europe/Istanbul", year: "numeric", month: "2-digit", day: "2-digit", hour: "2-digit", minute: "2-digit" }).format(at).replace(" ", "T");
   const flash = page.locator("[data-flash-form]").first();
   await flash.getByLabel("Name").fill("Weekend tulips");
-  await flash.getByRole("checkbox").first().check();
-  await flash.getByLabel("Value").fill("10");
+  await flash.getByLabel("Rose Box", { exact: true }).check();
+  await flash.getByLabel("Value").fill("20");
   await flash.getByLabel("Starts").fill(local(new Date(Date.now() - 3_600_000)));
   await flash.getByLabel("Ends").fill(local(new Date(Date.now() + 86_400_000)));
   await flash.getByLabel("Units on sale").fill("5");
@@ -435,9 +445,9 @@ test("131 delivery times, the gift checkout and a flash sale, from Delivery & of
   expect(config.store).toMatchObject({ checkout_mode: "gift", delivery_date: { enabled: true, required: true, min_days: 0, timezone: "Europe/Istanbul" }, gift_message: { enabled: true, recipient: true, anonymous: true } });
   expect(config.store.delivery_date.slots.map((s: { label: string }) => s.label)).toEqual(["10:00–13:00", "13:00–16:00", "16:00–20:00"]);
   const sales = await (await request.get(`${api}/store/flash-sales`)).json();
-  expect(sales.items[0]).toMatchObject({ title: "Weekend tulips", live: true, remaining: 5, total: 5, percent_off: 10 });
+  expect(sales.items[0]).toMatchObject({ title: "Weekend tulips", live: true, remaining: 5, total: 5, percent_off: 20 });
   const product = sales.items[0].products[0] as { id: number; sale: { percent_off: number; remaining: number } };
-  expect(product.sale).toMatchObject({ percent_off: 10, remaining: 5 });
+  expect(product.sale).toMatchObject({ was: "300.00", now: "240.00", percent_off: 20, remaining: 5 });
 
   // Tomorrow, the last slot: the gift checkout refuses an order without the sender, then takes it.
   const tomorrow = new Intl.DateTimeFormat("sv-SE", { timeZone: "Europe/Istanbul" }).format(new Date(Date.now() + 86_400_000));
@@ -450,12 +460,12 @@ test("131 delivery times, the gift checkout and a flash sale, from Delivery & of
     gift_anonymous: true,
   };
   const refused = await request.post(`${api}/store/checkout-link?platform=android`, { data: { lines, ...gift } });
-  expect(refused.status()).toBe(400);
+  expect(refused.status(), await refused.text()).toBe(400);
   expect((await refused.json()).message).toBe("Enter your name.");
   const slots = await (await request.get(`${api}/store/delivery-slots?date=${tomorrow}`)).json();
   expect(slots).toMatchObject({ date: tomorrow, open: true });
   const link = await request.post(`${api}/store/checkout-link?platform=android`, { data: { lines, ...gift, sender: { name: "Ayşe Kaya", phone: "+905321111111", email: "ayse@example.com" } } });
-  expect(link.status()).toBe(200);
+  expect(link.status(), await link.text()).toBe(200);
   await page.goto(((await link.json()) as { url: string }).url);
   await expect(page.locator("[data-pay-delivery]")).toContainText("16:00–20:00 to Leyla Demir");
   await expect(page.getByLabel("Full name")).toHaveValue("Ayşe Kaya");
