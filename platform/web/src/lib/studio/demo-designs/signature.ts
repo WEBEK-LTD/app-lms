@@ -1,5 +1,6 @@
 import type { StudioDemoId } from "../../demo/constants";
-import type { Action, StudioFont, StudioHeader, StudioNode, StudioSides, TabBarStyle } from "../../pages/types";
+import type { Action, StudioEntry, StudioFont, StudioHeader, StudioNode, StudioSides, TabBarStyle, Translations } from "../../pages/types";
+import { ar as studioAr, en as studioEn, tr as studioTr } from "../../../i18n/dashboard/studio";
 import type { TemplateProject } from "../academy";
 import { ACCOUNT_ITEMS, type AccountHeader, type SignInStyle, type StudioScreens } from "../screens";
 import type { SectionContext, SectionWord } from "../sections";
@@ -148,6 +149,23 @@ export function surfaceDisc(ctx: SectionContext, k: SignatureInk, icon: string, 
     action,
     children: [{ id: id(), type: "icon", icon, icon_size: 22, color: k.ink, dark_color: k.darkInk }],
   };
+}
+
+const STUDIO_WORDS = { en: studioEn, ar: studioAr, tr: studioTr };
+
+/**
+ * An entry of a premium element's list (a bento tile, a story, a stat) in
+ * Studio's words: its texts in the dashboard's language, Studio's other
+ * two as its translations (entries keep their own, not the element's).
+ */
+export function sigEntry(ctx: SectionContext, words: Partial<Record<"title" | "subtitle" | "text" | "label", SectionWord>>, rest: Omit<StudioEntry, "title" | "subtitle" | "text" | "label" | "translations"> = {}): StudioEntry {
+  const lang = ctx.lang ?? "en";
+  const translations: Record<string, Record<string, string>> = {};
+  for (const l of (["en", "ar", "tr"] as const).filter((x) => x !== lang)) {
+    translations[l] = Object.fromEntries(Object.entries(words).map(([field, word]) => [field, String(STUDIO_WORDS[l][`w_${word!}`]).replaceAll("{app}", ctx.app ?? "")]));
+  }
+  const own = Object.fromEntries(Object.entries(words).map(([field, word]) => [field, ctx.w(word!)]));
+  return { ...own, ...rest, translations: translations as Translations };
 }
 
 /** One of Yallapp's photos, or (without the platform's address at hand) none. */

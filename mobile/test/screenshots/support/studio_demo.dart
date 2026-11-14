@@ -40,6 +40,7 @@ class StudioDemo {
   // a project started from each (written by
   // platform/web/tests/unit/studio-signature-food.test.ts).
   static final sigSofraA = StudioDemo._load('sig_sofra_a.json');
+  static final sigSofraB = StudioDemo._load('sig_sofra_b.json');
 
   final Map<String, dynamic> _demo;
 

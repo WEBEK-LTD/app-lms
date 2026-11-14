@@ -1,7 +1,7 @@
 import type { Action, LayoutTab, StudioNode, StudioPage } from "../../pages/types";
 import type { SectionContext, SectionWord } from "../sections";
 import { idOf, screen } from "./parts";
-import { glassDisc, inked, sides, sigImage, sigPhoto, signatureBar, signatureHead, signatureHeader, signatureScreens, type SignatureDesign, type SignatureInk } from "./signature";
+import { glassDisc, inked, sides, sigEntry, sigImage, sigPhoto, signatureBar, signatureHead, signatureHeader, signatureScreens, surfaceDisc, type SignatureDesign, type SignatureInk } from "./signature";
 
 /**
  * 130.1–130.2 Sofra Eats's Signature looks (the owner approved both on
@@ -373,5 +373,240 @@ export const SOFRA_A: SignatureDesign = {
     appearance: { secondary_color: A.darkAccent, font: "DM Sans" },
     tabs: (tabs) => sofraTabs(tabs),
     screens: SOFRA_A_SCREENS,
+  },
+};
+
+// ——— B · Bento table ———
+
+/**
+ * B · Bento table (board R2-Sofra-B): the evening's question large under a
+ * greeting, the order on its way on its own dish's photo darkened, the
+ * dish in a gold progress ring; the cuisines as a bento of photos with
+ * frosted labels (the grill large, pizza and desserts beside it, the
+ * Egyptian table across); a tilted band of the demo's dishes and prices
+ * running; the restaurants near you as wide cards; a dark floating pill
+ * with the open tab in gold.
+ */
+export const SOFRA_B_INK: SignatureInk = {
+  page: "#F2EFEA",
+  darkPage: "#0C0A09",
+  surface: "#FFFFFF",
+  darkSurface: "#181412",
+  ink: "#15110E",
+  darkInk: "#F4EEE8",
+  muted: "#5F5750",
+  darkMuted: "#B5ACA3",
+  line: "#E3DED6",
+  darkLine: "#2A2420",
+  accent: "#875800",
+  darkAccent: "#F4B63F",
+  fill: "#F4B63F",
+  darkFill: "#F4B63F",
+  onFill: "#1C1307",
+  darkOnFill: "#1C1307",
+};
+const B = SOFRA_B_INK;
+const GOLD = "#F4B63F";
+const OUTFIT = "Outfit";
+
+/** The greeting with the person's name (the time of day's), the evening's question large, the search and the account. */
+function sofraBTop(ctx: SectionContext): StudioNode {
+  const id = idOf(ctx);
+  return {
+    id: id(),
+    type: "row",
+    name: ctx.w("sofDinner"),
+    gap: 8,
+    cross: "center",
+    padding: sides(20, 16, 0, 16),
+    children: [
+      {
+        id: id(),
+        type: "column",
+        width: "fill",
+        gap: 2,
+        children: [
+          { id: id(), type: "greeting", font: { size: 13, weight: 600 }, color: B.muted, dark_color: B.darkMuted },
+          inked(ctx, B, ctx.w("sofDinner"), { family: OUTFIT, size: 26, weight: 700, line_height: 1.1, letter_spacing: -0.7 }),
+        ],
+      },
+      surfaceDisc(ctx, B, "search", restaurants),
+      surfaceDisc(ctx, B, "person", screen("account")),
+    ],
+  };
+}
+
+/** The order on its way on the dish's photo darkened, the dish in a gold ring filled as far as it is, the minutes large. */
+export function sofraBOrder(ctx: SectionContext, margin = sides(14, 16, 0, 16)): StudioNode {
+  return {
+    id: idOf(ctx)(),
+    type: "live_status",
+    name: ctx.w("sofOnItsWay"),
+    live_status: { source: "food_order", style: "ring", accent: GOLD, dark_accent: GOLD },
+    image_url: sigPhoto(ctx, "/demo-photos/kofta.jpg"),
+    image_background_url: sigPhoto(ctx, "/demo-photos/kofta.jpg"),
+    scrim: { color: "#120A06", from: 0.82, middle: 0.68, at: 50, to: 0.86, angle: 90 },
+    background: "#2A1A10",
+    visibility: "signed_in",
+    width: "fill",
+    radius: 26,
+    color: "#FFFFFF",
+    shadow: "strong",
+    padding: sides(18, 18, 18, 16),
+    margin,
+  };
+}
+
+/** The cuisines as a bento of photos, each with its name on a frosted label: the grill large with its dish, pizza and desserts beside it, the Egyptian table across. */
+function cuisineBento(ctx: SectionContext, margin = sides(16, 16, 0, 16)): StudioNode {
+  return {
+    id: idOf(ctx)(),
+    type: "bento",
+    name: ctx.w("sofGrill"),
+    columns: 3,
+    gap: 8,
+    radius: 22,
+    margin,
+    bento: { caption: "glass", row: 92 },
+    entries: [
+      sigEntry(ctx, { title: "sofGrill", text: "sofSahara", subtitle: "sofGrillChip" }, { size: "large", image_url: sigPhoto(ctx, "/demo-photos/cover-grill.jpg"), action: restaurants }),
+      sigEntry(ctx, { title: "sofPizza" }, { size: "small", image_url: sigPhoto(ctx, "/demo-photos/cover-pizza.jpg"), action: restaurants }),
+      sigEntry(ctx, { title: "sofDesserts" }, { size: "small", image_url: sigPhoto(ctx, "/demo-photos/chocolate-brownie.jpg"), action: restaurants }),
+      sigEntry(ctx, { title: "sofEgyptian", text: "sofEgyptianLine" }, { size: "full", image_url: sigPhoto(ctx, "/demo-screens/sofra-mezze.jpg"), action: restaurants }),
+    ],
+  };
+}
+
+/** The demo's dishes and their prices on a tilted band (ink with gold words by day, gold by night), running. */
+function priceBand(ctx: SectionContext): StudioNode {
+  return {
+    id: idOf(ctx)(),
+    type: "marquee",
+    name: ctx.w("sofFromMenus"),
+    text: ctx.w("sofTicker"),
+    marquee: { speed: 36, direction: "start", tilt: -2, dot: true },
+    gap: 18,
+    height: 34,
+    background: B.ink,
+    dark_background: GOLD,
+    color: GOLD,
+    dark_color: "#1C1307",
+    font: { family: OUTFIT, size: 13, weight: 700, letter_spacing: 1, uppercase: true },
+    margin: sides(22, 0, 0, 0),
+  };
+}
+
+/** The restaurants near you as wide cards: the cover at the start, the name, cuisine and rating. */
+function wideCards(ctx: SectionContext): StudioNode {
+  const id = idOf(ctx);
+  return {
+    id: id(),
+    type: "items",
+    name: ctx.w("sofNearYou"),
+    source: "restaurants",
+    layout: "carousel",
+    gap: 10,
+    padding: sides(0, 16, 0, 16),
+    query: { limit: 6, category_id: null, featured: false, sort: "popular", ids: [] },
+    card: {
+      id: id(),
+      type: "row",
+      width: 262,
+      height: 96,
+      radius: 22,
+      background: B.surface,
+      dark_background: B.darkSurface,
+      border_color: B.line,
+      dark_border_color: B.darkLine,
+      border_width: 1,
+      shadow: "medium",
+      children: [
+        { id: id(), type: "image", bind: "image", width: 96, height: 96, fit: "cover" },
+        {
+          id: id(),
+          type: "column",
+          width: "fill",
+          gap: 2,
+          align: "center",
+          padding: sides(12, 14, 12, 14),
+          children: [
+            { id: id(), type: "text", bind: "title", max_lines: 1, font: { size: 16, weight: 800 }, color: B.ink, dark_color: B.darkInk },
+            { id: id(), type: "text", bind: "subtitle", max_lines: 1, font: { size: 12 }, color: B.muted, dark_color: B.darkMuted },
+            { id: id(), type: "text", bind: "badge", font: { size: 12, weight: 700 }, color: B.accent, dark_color: B.darkAccent, margin: sides(6, 0, 0, 0) },
+          ],
+        },
+      ],
+    },
+  };
+}
+
+/** The approved home: the evening's question, the order on its way, the cuisines' bento, the dishes' band, the restaurants near you. */
+export function sofraBHome(ctx: SectionContext): StudioPage {
+  return {
+    background: B.page,
+    dark_background: B.darkPage,
+    body: {
+      id: idOf(ctx)(),
+      type: "column",
+      padding: sides(0, 0, 24, 0),
+      children: [
+        sofraBTop(ctx),
+        sofraBOrder(ctx),
+        cuisineBento(ctx),
+        priceBand(ctx),
+        signatureHead(ctx, B, ctx.w("sofNearYou"), { family: OUTFIT, size: 20, weight: 700, letter_spacing: -0.4 }, { text: ctx.w("seeAll"), action: restaurants }),
+        wideCards(ctx),
+      ],
+    },
+  };
+}
+
+/** The look on the pages after the home: the cuisines' bento over the restaurants, the order in its ring over the orders. */
+export function sofraBPage(screenName: string, ctx: SectionContext): StudioNode[] | null {
+  switch (screenName) {
+    case "restaurants":
+      return [cuisineBento(ctx, sides(8, 16, 8, 16))];
+    case "food_orders":
+      return [sofraBOrder(ctx, sides(10, 16, 6, 16))];
+    default:
+      return null;
+  }
+}
+
+/** The welcome over the table of mezze; the account's top a dark card in gold. */
+const SOFRA_B_SCREENS = signatureScreens({
+  style: "photo",
+  photo: "/demo-screens/sofra-mezze.jpg",
+  title: { en: "What’s for dinner?", ar: "ماذا على العشاء؟", tr: "Akşam yemeğinde ne var?" },
+  subtitle: {
+    en: "Sign in to order from the restaurants near you.",
+    ar: "سجّل الدخول لتطلب من المطاعم القريبة منك.",
+    tr: "Yakınınızdaki restoranlardan sipariş vermek için giriş yapın.",
+  },
+  menu: "night",
+  accent: GOLD,
+  first: ["food_orders", "notifications", "settings", "help", "privacy", "terms"],
+});
+
+/** A dark floating pill by day and by night, the open tab gold with its name. */
+const SOFRA_B_BAR = signatureBar(B, { design: "float", background: "#15110E", dark_background: "#28221E", active: GOLD, dark_active: GOLD, inactive: "#D9D2CA", dark_inactive: "#C9C0B7", labels: "active", radius: 30, margin: 14 });
+
+export const SOFRA_B: SignatureDesign = {
+  demo: "food",
+  variant: "b",
+  name: "sigSofraB",
+  template: { id: "food_signature_b", icon: "grid_view", fits: { types: ["food"] } },
+  home: sofraBHome,
+  over: sofraBPage,
+  tabs: sofraTabs,
+  bar: SOFRA_B_BAR,
+  look: { header: signatureHeader(B, "glass"), background: B.page, dark_background: B.darkPage },
+  chrome: { header: "glass", screens: "photo" },
+  project: {
+    primary: "#875800",
+    tab_bar: SOFRA_B_BAR,
+    appearance: { secondary_color: GOLD, font: "Manrope" },
+    tabs: (tabs) => sofraTabs(tabs),
+    screens: SOFRA_B_SCREENS,
   },
 };

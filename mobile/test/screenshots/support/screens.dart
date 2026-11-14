@@ -963,6 +963,20 @@ final websiteShots = <Shot>[
       prepare: (tester) => StudioDemo.sigSofraA.prepare(tester, sofraPhotos),
       shadows: true,
     ),
+  for (final dark in [false, true])
+    Shot(
+      'food-sig-b-home${dark ? '-dark' : ''}',
+      dark: dark,
+      api: () => sofraStudioApi(
+        look: StudioDemo.sigSofraB,
+        primaryColor: '#875800',
+      ),
+      appName: 'Sofra Eats',
+      appType: AppType.food,
+      template: AppTemplate.bold,
+      prepare: (tester) => StudioDemo.sigSofraB.prepare(tester, sofraPhotos),
+      shadows: true,
+    ),
   // end 130.1–130.6
   // A ride app opens on its Ride tab; its Studio home is the next tab.
   Shot(

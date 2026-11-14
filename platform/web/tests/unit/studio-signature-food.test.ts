@@ -35,6 +35,7 @@ const LANGS = { default: "en" as const, available: ["en" as const, "ar" as const
 /** The looks this file checks, as [demo, look, brand for the screenshots' file]. */
 const LOOKS: readonly (readonly [StudioDemoId, SignatureLook, string])[] = [
   ["food", "a", "sofra"],
+  ["food", "b", "sofra"],
 ];
 
 const kindOf = (id: StudioDemoId) => ({ type: demoKind(id).engine, vertical: demoKind(id).vertical });

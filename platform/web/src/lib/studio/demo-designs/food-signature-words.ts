@@ -29,4 +29,15 @@ export type FoodSignatureWord =
   | "sofShish"
   | "sofSahara"
   | "sofPrice140"
-  | "sofPrice150";
+  | "sofPrice150"
+  // B · Bento table: the evening's question, the cuisines' bento and the band of dishes.
+  | "sigSofraB"
+  | "sofDinner"
+  | "sofGrill"
+  | "sofGrillChip"
+  | "sofPizza"
+  | "sofDesserts"
+  | "sofEgyptian"
+  | "sofEgyptianLine"
+  | "sofTicker"
+  | "sofNearYou";

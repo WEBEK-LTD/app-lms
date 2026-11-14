@@ -15,7 +15,7 @@ import { NAKHLA_LOOK, RAWAQ_LOOK, rawaqTabs, schoolPage } from "./school-looks";
 // 130 The Signature looks (signature.ts): each demo's looks A and B, in their own files.
 import type { SignatureDesign, SignatureLook } from "./signature";
 // 130.1–130.6 Sofra Eats's, Zad's and Sahm Express's looks.
-import { SOFRA_A } from "./sofra-signature";
+import { SOFRA_A, SOFRA_B } from "./sofra-signature";
 
 /**
  * 128 The Studio demos made premium and complete (the owner, 13 November
@@ -129,7 +129,7 @@ export function studioDemoDesign(demo: StudioDemoId | undefined): DemoDesign | u
 // ——— 130 The Signature looks: each Studio demo's looks A and B (signature.ts), whole project templates ———
 const SIGNATURE_DESIGNS: Partial<Record<StudioDemoId, Partial<Record<SignatureLook, SignatureDesign>>>> = {
   // 130.1–130.6 Sofra Eats, Zad and Sahm Express (sofra-signature.ts, zad-signature.ts, sahm-signature.ts).
-  food: { a: SOFRA_A },
+  food: { a: SOFRA_A, b: SOFRA_B },
 };
 
 /** A demo's look, when it has it. */

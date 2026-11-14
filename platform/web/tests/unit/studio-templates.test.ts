@@ -35,7 +35,7 @@ describe("103R.7 Studio's templates and sections for each project type", () => {
     // 105.1.6 Three ready-made designs for a food delivery company, and its welcome section first.
     // 128 And Sofra Eats's photo-first home.
     // 130.1–130.2 Its Signature looks first, whole project templates.
-    expect(ownTemplates(kindOf("food")).map((t) => t.id)).toEqual(["food_signature_a", "food", "food_offers", "food_brand", "food_photo", "brand", "contact", "blank"]);
+    expect(ownTemplates(kindOf("food")).map((t) => t.id)).toEqual(["food_signature_a", "food_signature_b", "food", "food_offers", "food_brand", "food_photo", "brand", "contact", "blank"]);
     expect(sectionsFor(kindOf("food"))[0]!.id).toBe("food");
     expect(sectionsFor(kindOf("delivery")).map((s) => s.id)).not.toContain("food");
     // The delivery company's sections come first, and only for it.
