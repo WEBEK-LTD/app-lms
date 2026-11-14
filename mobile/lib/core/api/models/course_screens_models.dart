@@ -32,7 +32,11 @@ enum MyCoursesProgress { rings, bars }
 
 enum MyCoursesPart { continueLearning, completed, week }
 
-T? _pick<T extends Enum>(List<T> values, Object? wire, [String Function(T)? name]) {
+T? _pick<T extends Enum>(
+  List<T> values,
+  Object? wire, [
+  String Function(T)? name,
+]) {
   for (final v in values) {
     if ((name?.call(v) ?? _snake(v.name)) == wire) return v;
   }
@@ -175,8 +179,7 @@ class CourseScreensLook {
     final accent = value['accent'];
     return CourseScreensLook(
       look: look,
-      accent:
-          accent is String && RegExp(r'^#[0-9a-fA-F]{6}$').hasMatch(accent)
+      accent: accent is String && RegExp(r'^#[0-9a-fA-F]{6}$').hasMatch(accent)
           ? Color(int.parse('FF${accent.substring(1)}', radix: 16))
           : null,
       card: CourseCardDesign(
@@ -199,7 +202,8 @@ class CourseScreensLook {
         hide: _parts(LessonPart.values, l['hide']),
       ),
       myCourses: MyCoursesDesign(
-        layout: _pick(MyCoursesLayout.values, m['layout']) ?? d.myCourses.layout,
+        layout:
+            _pick(MyCoursesLayout.values, m['layout']) ?? d.myCourses.layout,
         progress:
             _pick(MyCoursesProgress.values, m['progress']) ??
             d.myCourses.progress,

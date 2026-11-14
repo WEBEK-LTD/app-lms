@@ -239,7 +239,10 @@ describe("The Arabic that templates put into the app is Modern Standard Arabic (
     // As /start makes it from the demo: the demo's own words in the template's brackets.
     const filled = { ...layout, pages: layout.pages.map((p) => (p.studio ? { ...p, studio: withDemoFacts(demo, p.studio, "ar") } : p)) };
     const screens = demoStudioScreens(demo, "https://files.test", look);
-    const project = { layout: filled, screens: { sign_in: { title: screens.sign_in?.title.ar, subtitle: screens.sign_in?.subtitle.ar } } };
+    // 130.52 With the academies' course screens' words (the enrol button, My courses' line).
+    const courses = screens.courses ? { cta: screens.courses.page?.cta?.ar, headline: screens.courses.my_courses?.headline?.ar } : undefined;
+    if (screens.courses) expect(courses?.cta && courses.headline && /[؀-ۿ]/u.test(courses.cta + courses.headline), `${demo} ${look} course screens' Arabic`).toBe(true);
+    const project = { layout: filled, screens: { sign_in: { title: screens.sign_in?.title.ar, subtitle: screens.sign_in?.subtitle.ar }, courses } };
     expect(arabicIn(project).length).toBeGreaterThan(10);
     expect(offending(project)).toEqual([]);
     // No word of the app's left in English (or Turkish) where the Arabic is written: every text, title and list entry the app shows.

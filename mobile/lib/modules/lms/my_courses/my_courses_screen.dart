@@ -76,7 +76,8 @@ class _MyCoursesScreenState extends ConsumerState<MyCoursesScreen> {
             },
         ],
         selected: tabs.indexOf(selected),
-        onSelected: (i) => setState(() => _tab = tabs[i.clamp(0, tabs.length - 1)]),
+        onSelected: (i) =>
+            setState(() => _tab = tabs[i.clamp(0, tabs.length - 1)]),
         wishlist: const _WishlistList(),
       );
     }

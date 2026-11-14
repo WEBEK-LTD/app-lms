@@ -120,8 +120,15 @@ void main() {
     test("every option left out is the look's own; unknown values too", () {
       final look = CourseScreensLook.tryParse({
         'look': 'index',
-        'card': {'layout': 'carousel', 'scrim': 200, 'hide': ['price', 'x']},
-        'lesson': {'progress': 'ring', 'hide': ['up_next']},
+        'card': {
+          'layout': 'carousel',
+          'scrim': 200,
+          'hide': ['price', 'x'],
+        },
+        'lesson': {
+          'progress': 'ring',
+          'hide': ['up_next'],
+        },
         'my_courses': {
           'hide': ['continue'],
           'headline': {'en': ' Keep going '},
@@ -175,7 +182,10 @@ void main() {
       final fake = api(courses: {'look': 'on_air'});
       fake.catalogEnrolled = true;
       await open(tester, fake, '/courses');
-      expect(find.byKey(const ValueKey('studio-course-card-glass-1')), findsOneWidget);
+      expect(
+        find.byKey(const ValueKey('studio-course-card-glass-1')),
+        findsOneWidget,
+      );
       expect(find.text('60%'), findsOneWidget);
       expect(find.text('₺450'), findsNothing);
     });
@@ -193,7 +203,10 @@ void main() {
         ),
         '/courses',
       );
-      expect(find.byKey(const ValueKey('studio-course-card-row-1')), findsOneWidget);
+      expect(
+        find.byKey(const ValueKey('studio-course-card-row-1')),
+        findsOneWidget,
+      );
       expect(find.text('Deniz Kaya'), findsNothing);
       expect(find.text('₺450'), findsNothing);
       expect(find.bySemanticsLabel(RegExp('out of 5 stars')), findsNothing);
@@ -207,55 +220,64 @@ void main() {
       ('index', 'split', 'solid'),
     ]) {
       for (final (dark, language) in [(false, 'en'), (true, 'ar')]) {
-        testWidgets(
-          '$look: the $hero hero, the sections and the $bar bar, '
-          '${dark ? 'dark, right to left' : 'light'}',
-          (tester) async {
-            await open(
-              tester,
-              api(courses: {'look': look}),
-              '/course/1',
-              dark: dark,
-              language: language,
-            );
+        testWidgets('$look: the $hero hero, the sections and the $bar bar, '
+            '${dark ? 'dark, right to left' : 'light'}', (tester) async {
+          await open(
+            tester,
+            api(courses: {'look': look}),
+            '/course/1',
+            dark: dark,
+            language: language,
+          );
+          expect(
+            find.byKey(ValueKey('studio-course-hero-$hero')),
+            findsOneWidget,
+          );
+          expect(
+            find.byKey(const ValueKey('studio-course-sections')),
+            findsOneWidget,
+          );
+          expect(find.text('UI Design Fundamentals'), findsWidgets);
+          expect(find.text('Lay out a screen on a grid'), findsOneWidget);
+          expect(find.byKey(const ValueKey('cta-checkout')), findsOneWidget);
+          if (bar == 'floating') {
             expect(
-              find.byKey(ValueKey('studio-course-hero-$hero')),
+              find.byKey(const ValueKey('bottom-bar-floating')),
               findsOneWidget,
             );
-            expect(find.byKey(const ValueKey('studio-course-sections')), findsOneWidget);
-            expect(find.text('UI Design Fundamentals'), findsWidgets);
-            expect(find.text('Lay out a screen on a grid'), findsOneWidget);
-            expect(find.byKey(const ValueKey('cta-checkout')), findsOneWidget);
-            if (bar == 'floating') {
-              expect(find.byKey(const ValueKey('bottom-bar-floating')), findsOneWidget);
-            } else if (bar == 'glass') {
-              expect(find.byKey(const ValueKey('bottom-bar-glass')), findsOneWidget);
-            }
-            if (language == 'ar') {
-              final back = tester.getCenter(
-                find.byKey(const ValueKey('studio-course-back')),
-              );
-              expect(back.dx, greaterThan(300));
-            }
-            // The curriculum as a timeline, the student's place on it.
-            await tester.scrollUntilVisible(
-              find.byKey(const ValueKey('studio-curriculum')),
-              300,
-              scrollable: find
-                  .descendant(
-                    of: find.byKey(const ValueKey('studio-course-page')),
-                    matching: find.byType(Scrollable),
-                  )
-                  .first,
-            );
+          } else if (bar == 'glass') {
             expect(
-              find.byKey(const ValueKey('studio-curriculum-lesson-102')),
+              find.byKey(const ValueKey('bottom-bar-glass')),
               findsOneWidget,
             );
-            expect(find.byKey(const ValueKey('studio-course-reviews')), findsOneWidget);
-            expect(tester.takeException(), isNull);
-          },
-        );
+          }
+          if (language == 'ar') {
+            final back = tester.getCenter(
+              find.byKey(const ValueKey('studio-course-back')),
+            );
+            expect(back.dx, greaterThan(300));
+          }
+          // The curriculum as a timeline, the student's place on it.
+          await tester.scrollUntilVisible(
+            find.byKey(const ValueKey('studio-curriculum')),
+            300,
+            scrollable: find
+                .descendant(
+                  of: find.byKey(const ValueKey('studio-course-page')),
+                  matching: find.byType(Scrollable),
+                )
+                .first,
+          );
+          expect(
+            find.byKey(const ValueKey('studio-curriculum-lesson-102')),
+            findsOneWidget,
+          );
+          expect(
+            find.byKey(const ValueKey('studio-course-reviews')),
+            findsOneWidget,
+          );
+          expect(tester.takeException(), isNull);
+        });
       }
     }
 
@@ -289,39 +311,39 @@ void main() {
       ('index', 'framed', 'bar'),
     ]) {
       for (final (dark, language) in [(false, 'en'), (true, 'ar')]) {
-        testWidgets(
-          '$look: the $player player and the $progress progress, '
-          '${dark ? 'dark, right to left' : 'light'}',
-          (tester) async {
-            await open(
-              tester,
-              api(courses: {'look': look}, enrolled: true),
-              '/lesson/102',
-              dark: dark,
-              language: language,
-            );
-            expect(
-              find.byKey(ValueKey('studio-lesson-$player')),
-              findsOneWidget,
-            );
-            expect(
-              find.byKey(ValueKey('studio-lesson-progress-$progress')),
-              findsOneWidget,
-            );
-            expect(
-              find.text(language == 'ar' ? '1 من 4' : '1 of 4'),
-              findsOneWidget,
-            );
-            expect(find.byKey(const ValueKey('studio-lesson-previous')), findsOneWidget);
-            expect(find.byKey(const ValueKey('studio-lesson-next')), findsOneWidget);
-            // The resources as a chip with how many.
-            expect(
-              find.text(language == 'ar' ? 'الموارد 1' : 'Resources 1'),
-              findsOneWidget,
-            );
-            expect(tester.takeException(), isNull);
-          },
-        );
+        testWidgets('$look: the $player player and the $progress progress, '
+            '${dark ? 'dark, right to left' : 'light'}', (tester) async {
+          await open(
+            tester,
+            api(courses: {'look': look}, enrolled: true),
+            '/lesson/102',
+            dark: dark,
+            language: language,
+          );
+          expect(find.byKey(ValueKey('studio-lesson-$player')), findsOneWidget);
+          expect(
+            find.byKey(ValueKey('studio-lesson-progress-$progress')),
+            findsOneWidget,
+          );
+          expect(
+            find.text(language == 'ar' ? '1 من 4' : '1 of 4'),
+            findsOneWidget,
+          );
+          expect(
+            find.byKey(const ValueKey('studio-lesson-previous')),
+            findsOneWidget,
+          );
+          expect(
+            find.byKey(const ValueKey('studio-lesson-next')),
+            findsOneWidget,
+          );
+          // The resources as a chip with how many.
+          expect(
+            find.text(language == 'ar' ? 'الموارد 1' : 'Resources 1'),
+            findsOneWidget,
+          );
+          expect(tester.takeException(), isNull);
+        });
       }
     }
 
@@ -339,8 +361,14 @@ void main() {
         ),
         '/lesson/102',
       );
-      expect(find.byKey(const ValueKey('studio-lesson-cinema')), findsOneWidget);
-      expect(find.byKey(const ValueKey('studio-lesson-progress-segments')), findsNothing);
+      expect(
+        find.byKey(const ValueKey('studio-lesson-cinema')),
+        findsOneWidget,
+      );
+      expect(
+        find.byKey(const ValueKey('studio-lesson-progress-segments')),
+        findsNothing,
+      );
       expect(find.text('Spacing guide.pdf'), findsNothing);
       expect(find.byKey(const ValueKey('premium-next')), findsNothing);
     });
@@ -349,48 +377,48 @@ void main() {
   group('My courses', () {
     for (final (look, layout) in [('cinema', 'list'), ('ring', 'grid')]) {
       for (final (dark, language) in [(false, 'en'), (true, 'ar')]) {
-        testWidgets(
-          '$look: continue learning and the $layout, '
-          '${dark ? 'dark, right to left' : 'light'}',
-          (tester) async {
-            await open(
-              tester,
-              api(
-                courses: {
-                  'look': look,
-                  'my_courses': {
-                    'headline': {
-                      'en': 'Pick up where you left off.',
-                      'ar': 'تابع من حيث توقفت.',
-                    },
+        testWidgets('$look: continue learning and the $layout, '
+            '${dark ? 'dark, right to left' : 'light'}', (tester) async {
+          await open(
+            tester,
+            api(
+              courses: {
+                'look': look,
+                'my_courses': {
+                  'headline': {
+                    'en': 'Pick up where you left off.',
+                    'ar': 'تابع من حيث توقفت.',
                   },
                 },
-              ),
-              '/my-courses',
-              dark: dark,
-              language: language,
-            );
-            expect(
-              find.byKey(ValueKey('studio-my-courses-$layout')),
-              findsOneWidget,
-            );
-            expect(
-              find.byKey(const ValueKey('studio-my-courses-continue')),
-              findsOneWidget,
-            );
-            expect(
-              find.text(
-                language == 'ar'
-                    ? 'تابع من حيث توقفت.'
-                    : 'Pick up where you left off.',
-              ),
-              findsOneWidget,
-            );
-            expect(find.byKey(const ValueKey('studio-my-course-1')), findsOneWidget);
-            expect(find.text('60%'), findsWidgets);
-            expect(tester.takeException(), isNull);
-          },
-        );
+              },
+            ),
+            '/my-courses',
+            dark: dark,
+            language: language,
+          );
+          expect(
+            find.byKey(ValueKey('studio-my-courses-$layout')),
+            findsOneWidget,
+          );
+          expect(
+            find.byKey(const ValueKey('studio-my-courses-continue')),
+            findsOneWidget,
+          );
+          expect(
+            find.text(
+              language == 'ar'
+                  ? 'تابع من حيث توقفت.'
+                  : 'Pick up where you left off.',
+            ),
+            findsOneWidget,
+          );
+          expect(
+            find.byKey(const ValueKey('studio-my-course-1')),
+            findsOneWidget,
+          );
+          expect(find.text('60%'), findsWidgets);
+          expect(tester.takeException(), isNull);
+        });
       }
     }
 
@@ -399,7 +427,11 @@ void main() {
       fake.completedCourses = [
         {
           ...myCourseJson(),
-          'course': courseSummaryJson(id: 2, title: 'Business English', enrolled: true),
+          'course': courseSummaryJson(
+            id: 2,
+            title: 'Business English',
+            enrolled: true,
+          ),
           'progress': {
             'course_id': 2,
             'completed_items': 20,
@@ -436,9 +468,18 @@ void main() {
         ),
         '/my-courses',
       );
-      expect(find.byKey(const ValueKey('studio-my-courses-continue')), findsNothing);
-      expect(find.byKey(const ValueKey('studio-my-courses-week')), findsNothing);
-      expect(find.byKey(const ValueKey('studio-my-courses-chip-1')), findsOneWidget);
+      expect(
+        find.byKey(const ValueKey('studio-my-courses-continue')),
+        findsNothing,
+      );
+      expect(
+        find.byKey(const ValueKey('studio-my-courses-week')),
+        findsNothing,
+      );
+      expect(
+        find.byKey(const ValueKey('studio-my-courses-chip-1')),
+        findsOneWidget,
+      );
       expect(find.textContaining('Completed'), findsNothing);
     });
   });
@@ -448,7 +489,10 @@ void main() {
   ) async {
     final fake = api();
     final app = await open(tester, fake, '/courses');
-    expect(find.byKey(const ValueKey('studio-course-card-poster-1')), findsNothing);
+    expect(
+      find.byKey(const ValueKey('studio-course-card-poster-1')),
+      findsNothing,
+    );
     app.container.read(appRouterProvider).push('/course/1');
     await TestApp.settle(tester, 20);
     expect(find.byKey(const ValueKey('studio-course-page')), findsNothing);

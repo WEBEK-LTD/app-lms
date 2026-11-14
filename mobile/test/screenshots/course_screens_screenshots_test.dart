@@ -114,10 +114,24 @@ void _courseDay(
     'topics': [
       {
         'id': 1,
-        'title': arabic ? 'الوحدة الأولى: التفكير كمصمم' : 'Unit 1: Thinking like a designer',
+        'title': arabic
+            ? 'الوحدة الأولى: التفكير كمصمم'
+            : 'Unit 1: Thinking like a designer',
         'items': [
-          item(291, 'lesson', arabic ? 'ما التصميم ولماذا' : 'What design is for', 10, done: true),
-          item(292, 'lesson', arabic ? 'أدوات المصمم' : "The designer's tools", 12, done: true),
+          item(
+            291,
+            'lesson',
+            arabic ? 'ما التصميم ولماذا' : 'What design is for',
+            10,
+            done: true,
+          ),
+          item(
+            292,
+            'lesson',
+            arabic ? 'أدوات المصمم' : "The designer's tools",
+            12,
+            done: true,
+          ),
           item(300, 'lesson', arabic ? 'الألوان' : 'Colour', 15, done: true),
         ],
       },
@@ -125,9 +139,26 @@ void _courseDay(
         'id': 2,
         'title': arabic ? 'الوحدة الثانية: التخطيط' : 'Unit 2: Layout',
         'items': [
-          item(301, 'lesson', arabic ? 'مبادئ التخطيط' : 'Layout principles', 18),
-          item(302, 'lesson', arabic ? 'الشبكات والمسافات' : 'Grids and spacing', 22),
-          item(401, 'quiz', arabic ? 'اختبار الوحدة الثانية' : 'Unit 2 quiz', null, questions: 10, locked: true),
+          item(
+            301,
+            'lesson',
+            arabic ? 'مبادئ التخطيط' : 'Layout principles',
+            18,
+          ),
+          item(
+            302,
+            'lesson',
+            arabic ? 'الشبكات والمسافات' : 'Grids and spacing',
+            22,
+          ),
+          item(
+            401,
+            'quiz',
+            arabic ? 'اختبار الوحدة الثانية' : 'Unit 2 quiz',
+            null,
+            questions: 10,
+            locked: true,
+          ),
         ],
       },
     ],
@@ -194,15 +225,20 @@ void _courseDay(
       'percent': (done * 100 / total).round(),
       'course_completed': done == total,
     },
-    'next_item': next == null
-        ? null
-        : item(301, 'lesson', next, 18),
+    'next_item': next == null ? null : item(301, 'lesson', next, 18),
     'certificate_url': certificate,
   };
   api.myCourseLists = {
     MyCoursesStatus.inProgress: [
       mine(0, 3, 8, next: arabic ? 'مبادئ التخطيط' : 'Layout principles'),
-      mine(1, 11, 18, next: arabic ? 'حرف الألف والباء بخط النسخ' : 'Alif and Ba in Naskh script'),
+      mine(
+        1,
+        11,
+        18,
+        next: arabic
+            ? 'حرف الألف والباء بخط النسخ'
+            : 'Alif and Ba in Naskh script',
+      ),
       mine(4, 5, 26, next: arabic ? 'قصص تبيع' : 'Stories that sell'),
       mine(3, 14, 21, next: arabic ? 'الضوء الطبيعي' : 'Natural light'),
     ],
@@ -238,7 +274,9 @@ const _screens = {
 Shot _shot(_Look look, String screen, String variant) {
   final arabic = variant == 'ar';
   final location = _screens[screen]!;
-  final rawaq = look.ufuq ? null : StudioDemo.signature('teachers', look.letter);
+  final rawaq = look.ufuq
+      ? null
+      : StudioDemo.signature('teachers', look.letter);
   return Shot(
     'course-$screen-${look.name}-$variant',
     dark: variant == 'dark',
@@ -310,9 +348,7 @@ void main() {
           );
           final png = await tester.runAsync(() async {
             final image = await boundary.toImage(pixelRatio: _ratio);
-            final data = await image.toByteData(
-              format: ui.ImageByteFormat.png,
-            );
+            final data = await image.toByteData(format: ui.ImageByteFormat.png);
             image.dispose();
             return Uint8List.view(data!.buffer);
           });

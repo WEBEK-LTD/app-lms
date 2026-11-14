@@ -642,9 +642,8 @@ class BottomActionBar extends StatelessWidget {
                 borderRadius: BorderRadius.circular(28),
                 boxShadow: [
                   BoxShadow(
-                    color: const Color(0xFF0E0D24).withValues(
-                      alpha: p.isDark ? 0.5 : 0.18,
-                    ),
+                    color: const Color(0xFF0E0D24)
+                        .withValues(alpha: p.isDark ? 0.5 : 0.18),
                     blurRadius: 30,
                     offset: const Offset(0, 12),
                   ),

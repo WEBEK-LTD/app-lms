@@ -388,7 +388,15 @@ class _CourseDetailScreenState extends ConsumerState<CourseDetailScreen>
     ].single;
     // 130.52 The page in Studio's course screens' look.
     if (config.screens?.courses case final studio?) {
-      return _studioPage(context, course, studio, topics, bar, wishlisted, showQna);
+      return _studioPage(
+        context,
+        course,
+        studio,
+        topics,
+        bar,
+        wishlisted,
+        showQna,
+      );
     }
     final glass = look.bar == CoursePageBar.glass;
     final page = <Widget>[
@@ -817,6 +825,7 @@ class _CourseDetailScreenState extends ConsumerState<CourseDetailScreen>
       ),
     );
   }
+
   /// 130.52 The course's page in Studio's course screens' look: the hero,
   /// the student's own parts (the bundles, the finished banner, saving it
   /// for offline, what to finish first, the final score, their notes and
@@ -944,7 +953,12 @@ class _CourseDetailScreenState extends ConsumerState<CourseDetailScreen>
       ),
     );
     final body = !over
-        ? Column(children: [Expanded(child: list), styled])
+        ? Column(
+            children: [
+              Expanded(child: list),
+              styled,
+            ],
+          )
         : Stack(
             children: [
               Positioned.fill(child: list),
@@ -1520,7 +1534,8 @@ class _CtaBar extends StatelessWidget {
                 child: PrimaryButton(
                   key: const ValueKey('cta-enroll-free'),
                   // 130.52 The owner's words, where Studio's course screens have them.
-                  label: CourseCtaWords.of(context) ?? context.l10n.enrollForFree,
+                  label:
+                      CourseCtaWords.of(context) ?? context.l10n.enrollForFree,
                   height: 54,
                   loading: busy,
                   onPressed: onEnrollFree,

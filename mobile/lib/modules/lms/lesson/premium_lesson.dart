@@ -222,7 +222,9 @@ class _PremiumLessonBodyState extends ConsumerState<PremiumLessonBody> {
           ),
           _ => null,
         },
-        if (upNext && next != null && next.type == CurriculumItemType.lesson) ...[
+        if (upNext &&
+            next != null &&
+            next.type == CurriculumItemType.lesson) ...[
           const SizedBox(height: 12),
           _NextCard(
             item: next,
@@ -346,7 +348,12 @@ class _CourseProgress extends StatelessWidget {
         LessonProgress.segments => Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            Row(children: [Expanded(child: label), counts]),
+            Row(
+              children: [
+                Expanded(child: label),
+                counts,
+              ],
+            ),
             const SizedBox(height: 10),
             CourseSegments(
               total: total,
