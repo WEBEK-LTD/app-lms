@@ -117,7 +117,9 @@ export default async function OrdersPage({ searchParams }: { searchParams: Promi
                   </div>
                   <ul className="m-0 flex list-none flex-col gap-1 p-0 text-[15px]">
                     {order.lines.map((l, i) => (
-                      <li key={i}>
+                      <li key={i} className={l.addonOf ? "ps-4 text-muted" : undefined} data-order-addon={l.addonOf ? "" : undefined}>
+                        {/* 131 A gift add-on, under the item it went with. */}
+                        {l.addonOf ? `+ ${t("shop.addonBadge")}: ` : null}
                         {l.name} × {l.quantity}
                       </li>
                     ))}

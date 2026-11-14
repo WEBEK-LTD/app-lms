@@ -1,3 +1,4 @@
+import 'addon_models.dart';
 import 'json.dart';
 
 /// 131 The flower shop's commerce in the app API: a product's sale, the
@@ -426,6 +427,7 @@ class CheckoutLook {
     this.title = const {},
     this.look,
     this.darkAccent,
+    this.titles = const SectionTitles(),
   });
 
   static CheckoutLook? tryParse(Object? value) {
@@ -455,6 +457,8 @@ class CheckoutLook {
           for (final e in (json['title'] as Map).entries)
             if (e.value is String) '${e.key}': e.value as String,
       },
+      // 131 The add-ons', the card's and the delivery picker's titles.
+      titles: SectionTitles.fromLook(json),
     );
   }
 
@@ -476,6 +480,10 @@ class CheckoutLook {
   /// 131.25 The accent by day or by night, as the app draws it.
   String? accentFor({required bool dark}) =>
       dark ? (darkAccent ?? accent) : accent;
+
+  /// 131 The look's own titles of the add-ons, the card and the delivery
+  /// picker, over the store's.
+  final SectionTitles titles;
 }
 
 /// The gift checkout's people, as the customer typed them.

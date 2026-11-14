@@ -179,10 +179,12 @@ export function parseFlashSaleForm(
 }
 
 /** `FlashSale` in the contract (`GET /store/flash-sales`). */
-export function flashSaleJson(sale: StoreFlashSale, products: unknown[], now: Date) {
+export function flashSaleJson(sale: StoreFlashSale, products: unknown[], now: Date, lang?: string | null) {
   return {
     id: sale.id,
-    title: sale.title,
+    // 131 In the app's language when the owner wrote it there.
+    title: (lang ? sale.titles?.[lang] : undefined) ?? sale.title,
+    titles: sale.titles ?? null,
     starts_at: sale.startsAt.toISOString(),
     ends_at: sale.endsAt.toISOString(),
     live: saleOn(sale, now),

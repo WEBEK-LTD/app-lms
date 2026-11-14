@@ -59,6 +59,8 @@ export interface Connector {
   }>;
   /** The response for a content endpoint, or null when it isn't one of this connector's. */
   handle(request: ConnectorRequest): Promise<ConnectorResult | null>;
+  /** 131 The IDs of the platform's products with a tag (the owner's gift add-ons); only where the platform gives tags (Shopify). */
+  taggedProducts?(tag: string): Promise<number[]>;
 }
 
 export class ConnectorError extends Error {

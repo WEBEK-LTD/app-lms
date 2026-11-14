@@ -1,4 +1,5 @@
 import type { App } from "../data/types";
+import { parseCheckoutTitles, type CheckoutTitles } from "../selling/addons";
 
 /**
  * 131 The store checkout's look in Studio (`Config.screens.checkout`), for
@@ -43,7 +44,7 @@ export type CheckoutLookName = (typeof CHECKOUT_LOOKS)[number];
 export const GIFT_STEPS = ["from", "to", "when", "message", "pay"] as const;
 export type GiftStep = (typeof GIFT_STEPS)[number];
 
-export interface CheckoutLook {
+export interface CheckoutLook extends CheckoutTitles {
   mode?: "gift";
   style?: CheckoutStyle;
   chips?: (typeof CHECKOUT_CHIPS)[number];
@@ -97,6 +98,8 @@ export function parseCheckoutLook(input: unknown, problems: string[] = []): Chec
     }
     if (Object.keys(title).length) out.title = title;
   }
+  // 131 The add-ons', the card's and the delivery picker's titles per language.
+  Object.assign(out, parseCheckoutTitles(v));
   return Object.keys(out).length ? out : null;
 }
 

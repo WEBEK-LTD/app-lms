@@ -128,6 +128,8 @@ const QUERIES = {
         products(first: $first, after: $after, sortKey: $sortKey, reverse: $reverse) { ${PAGE} }
       }
     }`,
+  // 131 The gift add-ons by their tag.
+  taggedProducts: `query($query: String!) { products(first: 50, query: $query) { nodes { id } } }`,
   productsByIds: `${PRODUCT_SUMMARY}
     query($ids: [ID!]!) { nodes(ids: $ids) { ... on Product { ...Summary } } }`,
   product: `${PRODUCT_SUMMARY}
@@ -558,6 +560,14 @@ export class ShopifyConnector implements Connector {
       },
       features: { orders: this.admin !== null },
     };
+  }
+
+  /** 131 The shop's products with a tag (its gift add-ons): Shopify's product search, at most 50. */
+  async taggedProducts(tag: string): Promise<number[]> {
+    const safe = tag.replace(/["\\]/g, "");
+    if (!safe) return [];
+    const data = await this.client.query<{ products: { nodes: { id: string }[] } }>(QUERIES.taggedProducts, { query: `tag:"${safe}"` });
+    return data.products.nodes.map((n) => numericId(n.id)).filter((id) => id > 0);
   }
 
   async handle(request: ConnectorRequest): Promise<ConnectorResult | null> {

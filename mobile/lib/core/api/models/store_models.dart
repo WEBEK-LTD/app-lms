@@ -1,3 +1,4 @@
+import 'addon_models.dart';
 import 'commerce_models.dart';
 import 'config_models.dart';
 import 'json.dart';
@@ -17,6 +18,7 @@ class StoreConfig {
     this.loyalty,
     this.giftCheckout = false,
     this.shipping,
+    this.titles = const SectionTitles(),
   });
 
   factory StoreConfig.fromJson(Json json) => StoreConfig(
@@ -39,7 +41,12 @@ class StoreConfig {
     loyalty: optObject(json, 'loyalty', LoyaltyRules.fromJson),
     giftCheckout: json['checkout_mode'] == 'gift',
     shipping: StoreShippingRules.tryParse(json['shipping']),
+    titles: SectionTitles.fromStore(json['titles']),
   );
+
+  /// 131 The owner's titles of the add-ons, the card and the delivery
+  /// picker; a missing language: the app's words.
+  final SectionTitles titles;
 
   /// 131 The gift checkout: the sender, the recipient and the address, the
   /// day and the slot (both required) and the card.
@@ -366,6 +373,7 @@ class ProductSummary {
     this.rating,
     this.ratingCount = 0,
     this.sale,
+    this.addon = false,
   });
 
   factory ProductSummary.fromJson(Json json) => ProductSummary(
@@ -384,7 +392,11 @@ class ProductSummary {
     purchasable: reqBool(json, 'purchasable'),
     digital: boolOr(json, 'digital', false),
     sale: ProductSale.tryParse(json['sale']),
+    addon: boolOr(json, 'addon', false),
   );
+
+  /// 131 A gift add-on: offered with other products, never bought alone.
+  final bool addon;
 
   /// 131 Its sale (a flash sale's, or the shop's own sale price); null when
   /// it isn't on sale.
@@ -517,6 +529,7 @@ class ProductDetail {
     this.externalUrl,
     this.optionGroups = const [],
     this.defaultAttributes = const {},
+    this.addons = const [],
   });
 
   factory ProductDetail.fromJson(Json json) => ProductDetail(
@@ -539,7 +552,11 @@ class ProductDetail {
           if (e.value is String && (e.value as String).isNotEmpty)
             '${e.key}': e.value as String,
     },
+    addons: listOf(json, 'addons', ProductSummary.fromJson),
   );
+
+  /// 131 "Add a little more": the gift add-ons offered with it.
+  final List<ProductSummary> addons;
 
   final ProductSummary summary;
   final String descriptionHtml;
@@ -635,6 +652,7 @@ class CartLineInput {
     this.variationId,
     this.attributes = const {},
     this.options = const [],
+    this.addonOf,
   });
 
   final int productId;
@@ -645,12 +663,16 @@ class CartLineInput {
   /// 26 The IDs of the chosen options.
   final List<String> options;
 
+  /// 131 A gift add-on's line: the product of the line it goes with.
+  final int? addonOf;
+
   Json toJson() => {
     'product_id': productId,
     if (variationId != null) 'variation_id': variationId,
     'quantity': quantity,
     if (attributes.isNotEmpty) 'attributes': attributes,
     if (options.isNotEmpty) 'options': options,
+    if (addonOf != null) 'addon_of': addonOf,
   };
 }
 
@@ -786,6 +808,8 @@ class CartQuoteLine {
     this.maxQuantity,
     this.digital = false,
     this.options = const [],
+    this.addon = false,
+    this.addonOf,
   });
 
   factory CartQuoteLine.fromJson(Json json) => CartQuoteLine(
@@ -801,7 +825,13 @@ class CartQuoteLine {
     maxQuantity: optInt(json, 'max_quantity'),
     digital: boolOr(json, 'digital', false),
     options: listOf(json, 'options', CartLineOption.fromJson),
+    addon: boolOr(json, 'addon', false),
+    addonOf: optInt(json, 'addon_of'),
   );
+
+  /// 131 A gift add-on's line, and the product of the line it goes with.
+  final bool addon;
+  final int? addonOf;
 
   final int productId;
   final int? variationId;

@@ -1,5 +1,6 @@
 import { parseSiteSales, saveSiteSales, type SiteSalesDay } from "../analytics/site-sales";
 import { giftMessagesStatus, giftOccasionsOf } from "../selling/gift-messages";
+import { sectionTitlesJson } from "../selling/addons";
 import { appLanguagesOf } from "../selling/store";
 import { appSwitches, type AppSwitches } from "../app/switches";
 import { licenseStoreBilling } from "../store-billing/config";
@@ -74,6 +75,8 @@ export interface LicenseStatusBody {
    * Yallapp dashboard); null for other apps.
    */
   gift_messages: ReturnType<typeof giftMessagesStatus> | null;
+  /** 131 A store's titles of the add-ons, the card and the delivery picker, per language (`StoreConfig.titles`, the plugin serves them); null for other apps. */
+  store_titles: ReturnType<typeof sectionTitlesJson> | null;
   expires_at: string | null;
   checked_at: string;
   message: string | null;
@@ -299,6 +302,7 @@ function statusBody(
     store_billing: state === "active" && facts.app ? licenseStoreBilling(facts.app, plan, facts.storeProducts ?? [], appUrl()) : null,
     screens: facts.app ? (screensConfig(facts.app).screens ?? null) : null,
     gift_messages: facts.giftMessages ?? null,
+    store_titles: facts.app?.appType === "store" ? sectionTitlesJson(facts.app.catalogSettings?.titles) : null,
     expires_at: license ? license.expiresAt.toISOString() : null,
     checked_at: now.toISOString(),
     message,

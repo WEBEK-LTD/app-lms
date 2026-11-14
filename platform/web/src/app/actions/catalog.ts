@@ -33,6 +33,7 @@ import { checkAccount, isPaymentProvider, PROVIDER_NAME, type PaymentAccount } f
 import { recordStaffChange } from "@/lib/admin/audit";
 import { serviceAccountOf } from "@/lib/hosted/notify";
 import { askAfterOwnEntry } from "@/lib/samples/lists";
+import { parseAddonRule } from "@/lib/selling/addons";
 
 const PRODUCT_IMAGE_MAX_BYTES = 2 * 1024 * 1024;
 const PRODUCT_IMAGES_MAX = 6;
@@ -167,6 +168,12 @@ export async function saveProductAction(_: FormState, formData: FormData): Promi
     }
     uploads.push({ data, type });
   }
+  // 131 A gift add-on, and what it's offered with.
+  const addon = formData.get("addon") === "on" && app.vertical !== "restaurant";
+  const addonFor = addon
+    ? parseAddonRule({ offerWith: str(formData, "addonOfferWith"), categoryIds: formData.getAll("addonCategoryIds").map(String), productIds: formData.getAll("addonProductIds").map(String) })
+    : null;
+  if (addonFor && !addonFor.ok) Object.assign(errors, addonFor.errors);
   if (Object.keys(errors).length > 0) return { errors, values };
 
   const imageAssetIds = [...kept];
@@ -201,6 +208,8 @@ export async function saveProductAction(_: FormState, formData: FormData): Promi
     sku: values.sku || null,
     // 131 Its weight, for shipping by weight.
     weightGrams: numbers.weightGrams,
+    addon,
+    addonFor: addonFor?.ok && addonFor.value.offerWith !== "all" ? addonFor.value : null,
     optionGroups: optionGroups.ok && optionGroups.value.length > 0 ? optionGroups.value : null,
     variants: variants.ok ? variants.variants : null,
     // 110.2 A sample product saved here is the owner's from now on.

@@ -1282,6 +1282,19 @@ components:
                       properties:
                         id: { type: string }
                         texts: { type: object, additionalProperties: { type: string, maxLength: 500 } }
+        store_titles:
+          type: [object, 'null']
+          description: |
+            131 A store's titles of the add-ons ("Add a little more"), the card
+            message and the delivery picker, per language, as the owner words
+            them in the Yallapp dashboard (Store › Delivery & offers): the
+            plugin serves them as `StoreConfig.titles`. A missing language or a
+            null title: the app's own words. Null for other apps; missing on
+            older platforms.
+          properties:
+            addons: { type: [object, 'null'], additionalProperties: { type: string, maxLength: 40 } }
+            gift_card: { type: [object, 'null'], additionalProperties: { type: string, maxLength: 40 } }
+            delivery: { type: [object, 'null'], additionalProperties: { type: string, maxLength: 40 } }
         store_billing:
           type: [object, 'null']
           description: |

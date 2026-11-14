@@ -190,6 +190,8 @@ describe("saves that change what the license status carries ask the site", () =>
     ["app/actions/selling.ts", "changeOccasionAction"],
     ["app/actions/selling.ts", "saveTemplateAction"],
     ["app/actions/selling.ts", "changeTemplateAction"],
+    // 131 A store's titles of the add-ons, the card and the delivery picker.
+    ["app/actions/selling.ts", "saveTitlesAction"],
   ])("%s %s", (file, name) => {
     expect(body(file, name)).toContain("refreshSitesSoon(");
   });
@@ -223,6 +225,8 @@ describe("saves that change what the license status carries ask the site", () =>
       "screens",
       // 131 A store's card messages (Store › Card messages).
       "gift_messages",
+      // 131 A store's section titles (Store › Delivery & offers › Titles in the app).
+      "store_titles",
       "expires_at",
       "checked_at",
       "message",

@@ -159,6 +159,17 @@ final giftMessagesProvider = FutureProvider.autoDispose<List<GiftOccasion>>((
   }
 });
 
+/// 131 The gift add-ons offered with a product ("Add a little more" in the
+/// cart); none when the shop's API has none.
+final addonsProvider = FutureProvider.autoDispose
+    .family<List<ProductSummary>, int>((ref, productId) async {
+      try {
+        return await ref.contentApi.getAddons(productId: productId);
+      } on Object {
+        return const [];
+      }
+    });
+
 /// 26 Whether a restaurant's kitchen is open now and the times an order can
 /// be for. Asked again whenever the cart opens.
 final orderTimesProvider = FutureProvider.autoDispose<OrderTimes>(

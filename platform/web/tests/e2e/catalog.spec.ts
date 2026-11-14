@@ -471,3 +471,40 @@ test("131 delivery times, the gift checkout and a flash sale, from Delivery & of
   await expect(page.getByLabel("Full name")).toHaveValue("Ayşe Kaya");
   await expect(page.getByLabel("Address")).toHaveValue("Moda Cd. 12, Kadıköy");
 });
+
+test("131 a gift add-on goes only with a product, and a flash sale on one product shows on that one", async ({ page, request }) => {
+  await signIn(page, client.email, client.password);
+  // A greeting card sold only as an add-on, offered with every product.
+  await page.goto("/dashboard/catalog");
+  await page.getByRole("link", { name: "Add product" }).click();
+  await page.getByLabel("Name", { exact: true }).fill("Greeting card");
+  await page.getByLabel("Description").fill("A card with your words.");
+  await page.getByLabel("Price (TRY)", { exact: true }).fill("25");
+  await page.getByLabel("Sell only as an add-on (gift extra)").check();
+  await expect(page.getByLabel("Every product")).toBeChecked();
+  await page.getByRole("button", { name: "Add product" }).click();
+  await expect(page.getByRole("status")).toContainText("Saved “Greeting card”.");
+  await expect(page.getByRole("link", { name: /Greeting card/ })).toContainText("Add-on");
+
+  // Never listed on its own; offered with the roses.
+  const products = (await (await request.get(`${api}/store/products?per_page=50`)).json()) as { items: { id: number; name: string; sale: { flash_sale_id: number | null } | null }[] };
+  expect(products.items.map((p) => p.name)).not.toContain("Greeting card");
+  const roses = products.items.find((p) => p.name === "Rose Box")!;
+  const detail = (await (await request.get(`${api}/store/products/${roses.id}`)).json()) as { addons: { id: number; name: string; addon: boolean }[] };
+  const card = detail.addons.find((a) => a.name === "Greeting card")!;
+  expect(card.addon).toBe(true);
+  const addons = (await (await request.get(`${api}/store/addons?product_id=${roses.id}`)).json()) as { items: { name: string }[] };
+  expect(addons.items.map((a) => a.name)).toContain("Greeting card");
+
+  // Alone it's refused; with the roses it goes on the order, linked to them.
+  const alone = await request.post(`${api}/store/checkout-link?platform=android`, { data: { lines: [{ product_id: card.id, quantity: 1, addon_of: roses.id }] } });
+  expect(alone.status()).toBe(400);
+  expect((await alone.json()).code).toBe("addon_needs_item");
+  const cart = (await (await request.post(`${api}/store/cart`, { data: { lines: [{ product_id: roses.id, quantity: 1 }, { product_id: card.id, quantity: 1, addon_of: roses.id }] } })).json()) as { lines: { available: boolean; addon?: boolean; addon_of?: number }[] };
+  expect(cart.lines[1]).toMatchObject({ available: true, addon: true, addon_of: roses.id });
+
+  // The flash sale is on the roses alone: the tulips keep their own sale price, without the flash sale.
+  expect(roses.sale?.flash_sale_id).toEqual(expect.any(Number));
+  const tulips = products.items.find((p) => p.name === "Tulip Bouquet")!;
+  expect(tulips.sale?.flash_sale_id ?? null).toBeNull();
+});

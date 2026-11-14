@@ -3168,5 +3168,10 @@
   "orderDeliveryOn": "التوصيل: {date}",
   "orderRecipient": "إلى {name}",
   "giftUseLocation": "استخدم موقعي للتوصيل",
-  "giftLocationFailed": "تعذّر تحديد موقعك. يُرجى المحاولة مرة أخرى."
+  "giftLocationFailed": "تعذّر تحديد موقعك. يُرجى المحاولة مرة أخرى.",
+  "addonsTitle": "أضف لمسة إضافية",
+  "addonsHint": "تُرسَل مع هديتك",
+  "addonWith": "مع {name}",
+  "addonAdd": "أضف {name}",
+  "salePercentBadge": "−{percent}٪"
 }

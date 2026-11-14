@@ -732,6 +732,10 @@ abstract class YallappApi {
   /// 131 The card messages by occasion, in the app's language.
   Future<List<GiftOccasion>> getGiftMessages();
 
+  /// 131 The gift add-ons offered with [productId] ("Add a little more");
+  /// without one, those offered with every product.
+  Future<List<ProductSummary>> getAddons({int? productId});
+
   /// 91.4 The customer's loyalty points and their latest changes.
   Future<PointsAccount> getMyPoints();
 
@@ -2624,6 +2628,14 @@ class HttpYallappApi implements YallappApi {
     '/store/gift-messages',
     _public,
     (json) => listOf(json, 'occasions', GiftOccasion.fromJson),
+  );
+
+  @override
+  Future<List<ProductSummary>> getAddons({int? productId}) => _get(
+    '/store/addons',
+    _public,
+    (json) => listOf(json, 'items', ProductSummary.fromJson),
+    query: {'product_id': ?productId},
   );
 
   @override

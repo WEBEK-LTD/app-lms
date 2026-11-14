@@ -19117,6 +19117,36 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Your location couldn\'t be found. Please try again.'**
   String get giftLocationFailed;
+
+  /// 131 The gift add-ons offered with a product, in the cart and at checkout (chocolates, a card, a vase); the owner may word it their own way.
+  ///
+  /// In en, this message translates to:
+  /// **'Add a little more'**
+  String get addonsTitle;
+
+  /// 131 Under the add-ons' title: they're sent with the gift.
+  ///
+  /// In en, this message translates to:
+  /// **'Goes with your gift'**
+  String get addonsHint;
+
+  /// 131 A gift add-on's line in the cart, under the item it goes with.
+  ///
+  /// In en, this message translates to:
+  /// **'With {name}'**
+  String addonWith(String name);
+
+  /// 131 Screen readers: the checkbox that adds a gift add-on.
+  ///
+  /// In en, this message translates to:
+  /// **'Add {name}'**
+  String addonAdd(String name);
+
+  /// 131 A flash sale's share off on its badge, like −25%.
+  ///
+  /// In en, this message translates to:
+  /// **'−{percent}%'**
+  String salePercentBadge(int percent);
 }
 
 class _AppLocalizationsDelegate

@@ -4325,6 +4325,7 @@ components:
               options:
                 type: array
                 items: { type: string }
+              addon_of: { type: integer, description: "131 A gift add-on's line: the product it went with. Missing: not an add-on." }
         customer:
           type: [object, 'null']
           properties:
@@ -4572,6 +4573,7 @@ components:
         available: { type: boolean, description: Shown in the app (false is a restaurant's "sold out"). }
         image_url: { type: [string, 'null'], format: uri }
         sales: { type: integer }
+        addon: { type: boolean, description: "131 Sold only as a gift add-on (never listed or bought alone in the app). Missing on older servers." }
 
     ProductPatch:
       type: object

@@ -22,6 +22,25 @@ import '../data/store_providers.dart';
 
 /// A part of the checkout, in the look: a card (or frosted glass), with
 /// its number in the `steps` style.
+/// 131 A section's title as the owner worded it, in the app's language: the
+/// checkout look's (Studio), else the store's; null: the app's own words.
+String? ownedTitle(
+  BuildContext context,
+  SectionTitle which, {
+  CheckoutLook? look,
+  StoreConfig? store,
+}) {
+  final lang = Localizations.localeOf(context).languageCode;
+  final text = sectionTitle(
+    which,
+    lang,
+    '',
+    look: look?.titles,
+    store: store?.titles,
+  );
+  return text.isEmpty ? null : text;
+}
+
 class CheckoutSection extends StatelessWidget {
   const CheckoutSection({
     super.key,
@@ -228,7 +247,11 @@ class DeliveryPicker extends ConsumerWidget {
     this.look,
     this.step,
     this.now,
+    this.title,
   });
+
+  /// 131 The owner's title; null: the app's words.
+  final String? title;
 
   final DeliveryDateRules rules;
   final DateTime? date;
@@ -365,7 +388,7 @@ class DeliveryPicker extends ConsumerWidget {
     }
     return CheckoutSection(
       key: const ValueKey('delivery-picker'),
-      title: l10n.deliveryWhen,
+      title: title ?? l10n.deliveryWhen,
       look: look,
       step: step,
       icon: AppIcons.deliveryTime,
@@ -488,7 +511,11 @@ class GiftDetailsPanel extends ConsumerStatefulWidget {
     this.look,
     this.firstStep = 1,
     this.between,
+    this.cardTitle,
   });
+
+  /// 131 The owner's title of the card; null: the app's words.
+  final String? cardTitle;
 
   /// Shown before the card (the gift checkout's delivery day and slot): it
   /// takes the step after the recipient's.
@@ -741,7 +768,7 @@ class _GiftDetailsPanelState extends ConsumerState<GiftDetailsPanel> {
           textCapitalization: TextCapitalization.sentences,
           onChanged: (_) => widget.onChanged(),
           decoration: InputDecoration(
-            labelText: l10n.giftMessage,
+            labelText: widget.cardTitle ?? l10n.giftMessage,
             hintText: l10n.giftMessageHint,
             prefixIcon: AppIcon(
               AppIcons.gift,
@@ -766,7 +793,9 @@ class _GiftDetailsPanelState extends ConsumerState<GiftDetailsPanel> {
       parts.add(
         CheckoutSection(
           key: const ValueKey('gift-card'),
-          title: gift ? l10n.giftCardTitle : l10n.giftMessage,
+          title:
+              widget.cardTitle ??
+              (gift ? l10n.giftCardTitle : l10n.giftMessage),
           subtitle: occasions.isNotEmpty || widget.rules.starters.isNotEmpty
               ? l10n.giftCardHint
               : null,
@@ -849,7 +878,9 @@ class _GiftDetailsPanelState extends ConsumerState<GiftDetailsPanel> {
                 textCapitalization: TextCapitalization.sentences,
                 onChanged: (_) => widget.onChanged(),
                 decoration: InputDecoration(
-                  labelText: gift ? l10n.giftCardTitle : l10n.giftMessage,
+                  labelText:
+                      widget.cardTitle ??
+                      (gift ? l10n.giftCardTitle : l10n.giftMessage),
                   hintText: l10n.giftMessageHint,
                 ),
               ),

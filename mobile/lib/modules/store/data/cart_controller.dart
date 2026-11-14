@@ -25,6 +25,7 @@ class CartItem {
     this.maxQuantity,
     this.options = const [],
     this.optionNames = const [],
+    this.addonOf,
   });
 
   factory CartItem.fromJson(Json json) => CartItem(
@@ -48,7 +49,14 @@ class CartItem {
       for (final o in (json['option_names'] as List? ?? const []))
         if (o is String) o,
     ],
+    addonOf: optInt(json, 'addon_of'),
   );
+
+  /// 131 A gift add-on: the product of the line it goes with (removed with
+  /// it); null for an ordinary line.
+  final int? addonOf;
+
+  bool get isAddon => addonOf != null;
 
   final int productId;
   final int? variationId;
@@ -76,6 +84,7 @@ class CartItem {
       variationId ?? 0,
       for (final k in keys) '$k=${attributes[k]}',
       if (chosen.isNotEmpty) 'o=${chosen.join(',')}',
+      if (addonOf != null) 'a=$addonOf',
     ].join('|');
   }
 
@@ -90,6 +99,7 @@ class CartItem {
     maxQuantity: maxQuantity,
     options: options,
     optionNames: optionNames,
+    addonOf: addonOf,
   );
 
   CartLineInput toInput() => CartLineInput(
@@ -98,6 +108,7 @@ class CartItem {
     quantity: quantity,
     attributes: attributes,
     options: options,
+    addonOf: addonOf,
   );
 
   Json toJson() => {
@@ -111,6 +122,7 @@ class CartItem {
     'max_quantity': maxQuantity,
     if (options.isNotEmpty) 'options': options,
     if (optionNames.isNotEmpty) 'option_names': optionNames,
+    if (addonOf != null) 'addon_of': addonOf,
   };
 }
 
@@ -187,10 +199,40 @@ class CartController extends Notifier<List<CartItem>> {
     ]);
   }
 
-  void remove(String key) => _save([
-    for (final i in state)
-      if (i.key != key) i,
-  ]);
+  /// Removes a line; 131 a main item's last line takes its add-ons with it.
+  void remove(String key) {
+    final gone = state.where((i) => i.key == key).firstOrNull;
+    final rest = [
+      for (final i in state)
+        if (i.key != key) i,
+    ];
+    final main = gone != null && !gone.isAddon ? gone.productId : null;
+    final orphaned =
+        main != null && !rest.any((i) => !i.isAddon && i.productId == main);
+    _save([
+      for (final i in rest)
+        if (!(orphaned && i.addonOf == main)) i,
+    ]);
+  }
+
+  /// 131 Adds or removes a gift add-on linked to [mainId]'s line.
+  bool toggleAddon(CartItem addon, int mainId, bool on) {
+    final linked = CartItem(
+      productId: addon.productId,
+      quantity: addon.quantity,
+      name: addon.name,
+      imageUrl: addon.imageUrl,
+      price: addon.price,
+      maxQuantity: addon.maxQuantity,
+      addonOf: mainId,
+    );
+    if (on) {
+      if (state.any((i) => i.key == linked.key)) return true;
+      return add(linked);
+    }
+    remove(linked.key);
+    return true;
+  }
 
   void clear() => _save(const []);
 }

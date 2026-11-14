@@ -1113,6 +1113,18 @@ class FakeApi implements YallappApi {
     () => [for (final o in giftOccasions) GiftOccasion.fromJson(o)],
   );
 
+  /// 131 `GET /store/addons`, by the product they go with (0: every product).
+  Map<int, List<Map<String, dynamic>>> addons = {};
+
+  @override
+  Future<List<ProductSummary>> getAddons({int? productId}) => _answer(
+    'getAddons',
+    () => [
+      for (final a in addons[productId ?? 0] ?? const <Map<String, dynamic>>[])
+        ProductSummary.fromJson(a),
+    ],
+  );
+
   /// 26 How the last restaurant checkout wanted the order.
   ({
     FulfilmentType? fulfilment,

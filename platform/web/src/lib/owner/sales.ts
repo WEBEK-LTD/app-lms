@@ -242,7 +242,8 @@ function orderJson(ctx: OwnerContext, order: CatalogOrder) {
     kitchen: order.fulfilment && step && order.status !== "pending" ? { type: order.fulfilment.type, step, step_label: ctx.k(FULFILMENT_LABELS[step]) } : null,
     total: money(order.totalCents, order.currency),
     refunded: order.refundedCents ? money(order.refundedCents, order.currency) : null,
-    lines: order.lines.map((l) => ({ name: l.name, quantity: l.quantity, unit: money(l.unitCents, order.currency), options: (l.options ?? []).map((o) => `${o.group}: ${o.name}`) })),
+    // 131 A gift add-on's line says the product it went with.
+    lines: order.lines.map((l) => ({ name: l.name, quantity: l.quantity, unit: money(l.unitCents, order.currency), options: (l.options ?? []).map((o) => `${o.group}: ${o.name}`), ...(l.addonOf ? { addon_of: l.addonOf } : {}) })),
     customer: order.customer ? { ...order.customer } : null,
     created_at: order.createdAt.toISOString(),
     paid_at: iso(order.paidAt),

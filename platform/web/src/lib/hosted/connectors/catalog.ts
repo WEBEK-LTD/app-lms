@@ -22,6 +22,7 @@ import { bestSale, unitsLeft, withSale } from "../../selling/flash-sales";
 import { orderDeliveryJson } from "../../selling/gifts";
 import { needsPlace, shippingRulesOf } from "../../selling/shipping";
 import { checkStoreCheckout, handleStoreExtras, quoteDeliveryJson, storeExtrasConfig } from "../../selling/store";
+import { ADDON_NEEDS_ITEM, checkAddonLines, offeredWith, ownAddonsFor } from "../../selling/addons";
 
 /**
  * The shop of an app without a website: products, categories and orders the
@@ -151,7 +152,8 @@ export class CatalogConnector implements Connector {
         counts: (date) => this.deps.store.countCatalogDeliveries(this.deps.app.id, date, new Date(request.now.getTime() - PAY_LINK_MINUTES * 60_000)),
         sales: this.flash,
         products: async (ids, categoryId) => {
-          const all = await this.active();
+          // 131 A flash sale's list never shows an add-on.
+          const all = await this.listed();
           const list = ids.length ? ids.map((id) => all.find((p) => p.id === id)).filter((p): p is CatalogProduct => Boolean(p)) : all.filter((p) => categoryId !== null && p.categoryIds.includes(categoryId));
           return list.map((p) => this.summary(p, request.now));
         },
@@ -176,6 +178,8 @@ export class CatalogConnector implements Connector {
         return this.points(request);
       case "GET /store/order-times":
         return this.fulfilment ? { status: 200, body: orderTimesJson(this.fulfilment, request.now) } : error(404, "not_found", "Not found.");
+      case "GET /store/addons":
+        return this.addons(request.query);
     }
     if (request.method === "GET" && request.path.length === 3 && request.path[0] === "me" && request.path[1] === "orders") {
       return this.order(request, Number(request.path[2]));
@@ -257,6 +261,8 @@ export class CatalogConnector implements Connector {
       stock_status: inStock ? "in_stock" : "out_of_stock",
       purchasable: inStock && this.canSell,
       digital: p.digital,
+      // 131 A gift add-on: offered with other products, never on its own.
+      addon: Boolean(p.addon),
     };
   }
 
@@ -272,8 +278,25 @@ export class CatalogConnector implements Connector {
     return (await this.deps.store.listCatalogProducts(this.deps.app.id)).filter((p) => p.active);
   }
 
+  /** 131 What the app lists: the active products but the gift add-ons. */
+  private async listed(): Promise<CatalogProduct[]> {
+    return (await this.active()).filter((p) => !p.addon);
+  }
+
+  /** 131 `GET /store/addons?product_id=`: the add-ons offered with a product (without one: those offered with every product). */
+  private async addons(query: URLSearchParams): Promise<ConnectorResult> {
+    const raw = query.get("product_id");
+    const id = raw === null || raw === "" ? null : Number(raw);
+    if (id !== null && (!Number.isSafeInteger(id) || id < 1)) return error(400, "invalid_request", "Unknown product.");
+    const all = await this.active();
+    const main = id === null ? null : all.find((p) => p.id === id && !p.addon);
+    if (id !== null && !main) return error(404, "not_found", "Product not found.");
+    const list = main ? ownAddonsFor(all, main) : all.filter((p) => p.addon && (p.addonFor ?? { offerWith: "all" }).offerWith === "all").slice(0, 12);
+    return { status: 200, body: { items: list.map((p) => this.summary(p)) } };
+  }
+
   private async categories() {
-    const [categories, products] = await Promise.all([this.deps.store.listCatalogCategories(this.deps.app.id), this.active()]);
+    const [categories, products] = await Promise.all([this.deps.store.listCatalogCategories(this.deps.app.id), this.listed()]);
     return categories
       .map((c) => this.category(c, products.filter((p) => p.categoryIds.includes(c.id)).length, products))
       .filter((c) => c.count > 0);
@@ -299,7 +322,8 @@ export class CatalogConnector implements Connector {
   private async products(query: URLSearchParams): Promise<ConnectorResult> {
     const page = intParam(query, "page", 1, 10_000);
     const perPage = intParam(query, "per_page", 20, 50);
-    const all = await this.active();
+    // 131 Never a gift add-on, even asked for by its ID.
+    const all = await this.listed();
     const ids = (query.get("ids") ?? "")
       .split(",")
       .map((v) => Number(v.trim()))
@@ -340,7 +364,7 @@ export class CatalogConnector implements Connector {
   }
 
   private async home() {
-    const [categories, products] = await Promise.all([this.categories(), this.active()]);
+    const [categories, products] = await Promise.all([this.categories(), this.listed()]);
     const section = (type: string, list: CatalogProduct[]) =>
       list.length > 0 ? [{ type, title: null, products: list.slice(0, 10).map((p) => this.summary(p)) }] : [];
     return [
@@ -358,8 +382,10 @@ export class CatalogConnector implements Connector {
     if (!product || !product.active) return error(404, "not_found", "Product not found.");
     const [categories, all] = await Promise.all([store.listCatalogCategories(app.id), this.active()]);
     const related = all
-      .filter((p) => p.id !== id && p.categoryIds.some((c) => product.categoryIds.includes(c)))
+      .filter((p) => !p.addon && p.id !== id && p.categoryIds.some((c) => product.categoryIds.includes(c)))
       .slice(0, 8);
+    // 131 "Add a little more": the add-ons offered with it (none on an add-on's own page).
+    const addons = product.addon ? [] : ownAddonsFor(all, product);
     const variants = variantsOf(product);
     return {
       status: 200,
@@ -408,6 +434,7 @@ export class CatalogConnector implements Connector {
           : [],
         categories: categories.filter((c) => product.categoryIds.includes(c.id)).map((c) => this.category(c, 0)),
         related: related.map((p) => this.summary(p, now)),
+        addons: addons.map((p) => this.summary(p, now)),
         external_url: null,
         permalink: productUrl(this.deps.platformUrl, app.id, product.id),
         option_groups: optionGroupsJson(optionGroupsOf(product), this.settings.currency),
@@ -463,10 +490,6 @@ export class CatalogConnector implements Connector {
       // 131 A unit's weight with its options, for shipping by weight.
       const optionGrams = chosen.reduce((sum, o) => sum + (optionGroupsOf(product).flatMap((g) => g.options).find((x) => x.id === o.id)?.weightGrams ?? 0), 0);
       const weightGrams = (product.weightGrams ?? 0) + optionGrams;
-      if (available) {
-        subtotal += unit * quantity;
-        count += quantity;
-      }
       return {
         line: {
           product_id: product.id,
@@ -487,6 +510,8 @@ export class CatalogConnector implements Connector {
           max_quantity: max !== null && max > 0 ? max : null,
           digital: product.digital,
           ...(chosen.length > 0 ? { options: chosen.map((o) => ({ id: o.id, name: o.name, group: o.group })) } : {}),
+          // 131 A gift add-on, and the product of the line it goes with.
+          ...(product.addon ? { addon: true, addon_of: line.addon_of ?? null } : {}),
         },
         product,
         variant,
@@ -496,8 +521,27 @@ export class CatalogConnector implements Connector {
         weightGrams,
       };
     });
+    // 131 Gift add-ons: each with a main line in the cart that it goes with.
+    const addons = checkAddonLines(
+      out.map((o, i) => ({ productId: lines[i]!.product_id, addonOf: lines[i]!.addon_of ?? null, addon: Boolean(o.product?.addon) })),
+      (i, mainId) => {
+        const main = byId.get(mainId);
+        return main ? offeredWith(out[i]!.product?.addonFor, main) : false;
+      },
+    );
+    for (const [i, problem] of addons.problems) {
+      const line = out[i]!.line as { available: boolean; problem: string | null };
+      line.available = false;
+      line.problem = problem;
+    }
+    for (const o of out) {
+      if (!o.line.available) continue;
+      subtotal += o.unit * o.line.quantity;
+      count += o.line.quantity;
+    }
     return {
       out,
+      needsItem: addons.needsItem,
       // 131 The order's weight, for shipping by weight.
       weightGrams: out.reduce((sum, o) => sum + (o.line.available ? o.weightGrams * o.line.quantity : 0), 0),
       cart: {
@@ -557,6 +601,7 @@ export class CatalogConnector implements Connector {
     const lines = cartLines(request.body);
     if (!lines) return error(400, "invalid_request", "The cart is empty or invalid.");
     const priced = await this.priced(lines, request.now);
+    if (priced.needsItem) return error(400, "addon_needs_item", ADDON_NEEDS_ITEM);
     const coupon = await this.coupon(request.body, priced.subtotal, request.now);
     const physical = priced.out.some((o) => o.line.available && !o.line.digital);
     // 131 The delivery day's slot fee and shipping by place and weight, once the app sends them.
@@ -625,6 +670,7 @@ export class CatalogConnector implements Connector {
       return error(503, "shop_unavailable", "This shop can't take orders yet. Please try again later.");
     }
     const priced = await this.priced(lines, request.now);
+    if (priced.needsItem) return error(400, "addon_needs_item", ADDON_NEEDS_ITEM);
     if (priced.out.some((o) => !o.line.available || o.line.problem)) {
       return error(409, "cart_changed", "Something in your cart changed. Please check it and try again.");
     }
@@ -644,6 +690,8 @@ export class CatalogConnector implements Connector {
       // 131 Bought at a flash sale's price; its weight.
       ...(flashSaleId !== null ? { flashSaleId } : {}),
       ...(weightGrams > 0 ? { weightGrams } : {}),
+      // 131 A gift add-on: the line it goes with.
+      ...(product!.addon && "addon_of" in line && line.addon_of ? { addonOf: line.addon_of } : {}),
     }));
     // 26 A restaurant's order: pickup or delivery at a time its kitchen takes it; the delivery fee is its shipping.
     let fulfilment: CatalogOrder["fulfilment"] = null;
@@ -757,6 +805,8 @@ export class CatalogConnector implements Connector {
         quantity: l.quantity,
         image_url: l.imageAssetId ? this.deps.assetUrl(l.imageAssetId) : null,
         ...(l.options?.length ? { options: l.options.map((o) => o.name) } : {}),
+        // 131 A gift add-on: the product it went with.
+        ...(l.addonOf ? { addon_of: l.addonOf } : {}),
         // 110 What the line comes to.
         total: formatCents(l.unitCents * l.quantity, order.currency),
       })),

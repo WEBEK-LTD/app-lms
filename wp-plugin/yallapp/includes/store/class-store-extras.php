@@ -87,6 +87,90 @@ class Store_Extras {
 		// "Show in the app" on a coupon.
 		add_action( 'woocommerce_coupon_options', array( $this, 'coupon_option' ), 10, 2 );
 		add_action( 'woocommerce_coupon_options_save', array( $this, 'save_coupon_option' ) );
+		// 131 "Sell only as an add-on in the app" on WooCommerce's product screen.
+		add_action( 'woocommerce_product_options_general_product_data', array( $this, 'addon_fields' ) );
+		add_action( 'woocommerce_admin_process_product_object', array( $this, 'save_addon_fields' ) );
+	}
+
+	/**
+	 * 131 The gift add-on's fields on WooCommerce's product screen (General).
+	 *
+	 * @return void
+	 */
+	public function addon_fields() {
+		global $post;
+		$id   = $post ? (int) $post->ID : 0;
+		$on   = 'yes' === get_post_meta( $id, Addon_Rules::META_ADDON, true );
+		$rule = Catalog::addon_rule( $id );
+		echo '<div class="options_group yallapp-addon">';
+		woocommerce_wp_checkbox(
+			array(
+				'id'          => 'yallapp_addon',
+				'label'       => __( 'Sell only as an add-on in the app', 'yallapp' ),
+				'description' => __( 'A gift extra, like chocolates, a card or a vase: the Yallapp app never lists it on its own or sells it alone, and offers it as "Add a little more" with the products below. Your website\'s shop keeps showing it unless you hide it there (Catalog visibility).', 'yallapp' ),
+				'value'       => $on ? 'yes' : 'no',
+			)
+		);
+		woocommerce_wp_select(
+			array(
+				'id'      => 'yallapp_addon_offer',
+				'label'   => __( 'Offer it with', 'yallapp' ),
+				'value'   => $rule['offer_with'],
+				'options' => array(
+					'all'        => __( 'Every product', 'yallapp' ),
+					'categories' => __( 'The products of some categories', 'yallapp' ),
+					'products'   => __( 'Some products', 'yallapp' ),
+				),
+			)
+		);
+		woocommerce_wp_text_input(
+			array(
+				'id'          => 'yallapp_addon_categories',
+				'label'       => __( 'Their category IDs', 'yallapp' ),
+				'description' => __( 'For "The products of some categories", separated by commas.', 'yallapp' ),
+				'desc_tip'    => true,
+				'value'       => implode( ', ', $rule['category_ids'] ),
+			)
+		);
+		woocommerce_wp_text_input(
+			array(
+				'id'          => 'yallapp_addon_products',
+				'label'       => __( 'Their product IDs', 'yallapp' ),
+				'description' => __( 'For "Some products", separated by commas.', 'yallapp' ),
+				'desc_tip'    => true,
+				'value'       => implode( ', ', $rule['product_ids'] ),
+			)
+		);
+		echo '</div>';
+	}
+
+	/**
+	 * 131 Saves the gift add-on's fields.
+	 *
+	 * @param WC_Product $product The product being saved.
+	 * @return void
+	 */
+	public function save_addon_fields( $product ) {
+		// phpcs:disable WordPress.Security.NonceVerification.Missing -- WooCommerce checked the product form's nonce.
+		$on         = isset( $_POST['yallapp_addon'] ) && 'yes' === sanitize_text_field( wp_unslash( $_POST['yallapp_addon'] ) );
+		$offer      = isset( $_POST['yallapp_addon_offer'] ) ? sanitize_key( wp_unslash( $_POST['yallapp_addon_offer'] ) ) : 'all';
+		$categories = isset( $_POST['yallapp_addon_categories'] ) ? sanitize_text_field( wp_unslash( $_POST['yallapp_addon_categories'] ) ) : '';
+		$products   = isset( $_POST['yallapp_addon_products'] ) ? sanitize_text_field( wp_unslash( $_POST['yallapp_addon_products'] ) ) : '';
+		// phpcs:enable
+		if ( ! $product instanceof WC_Product ) {
+			return;
+		}
+		if ( ! $on ) {
+			foreach ( array( Addon_Rules::META_ADDON, Addon_Rules::META_OFFER, Addon_Rules::META_CATEGORIES, Addon_Rules::META_PRODUCTS ) as $key ) {
+				$product->delete_meta_data( $key );
+			}
+			return;
+		}
+		$rule = Addon_Rules::rule( $offer, $categories, $products );
+		$product->update_meta_data( Addon_Rules::META_ADDON, 'yes' );
+		$product->update_meta_data( Addon_Rules::META_OFFER, $rule['offer_with'] );
+		$product->update_meta_data( Addon_Rules::META_CATEGORIES, implode( ',', $rule['category_ids'] ) );
+		$product->update_meta_data( Addon_Rules::META_PRODUCTS, implode( ',', $rule['product_ids'] ) );
 	}
 
 	/**
@@ -163,6 +247,9 @@ class Store_Extras {
 			'recipient'  => (bool) $this->settings->get( 'store_gift_recipient' ) || $gift,
 			'anonymous'  => (bool) $this->settings->get( 'store_gift_anonymous' ) || $gift,
 		);
+		// 131 The owner's titles of the add-ons, the card and the delivery picker (the Yallapp dashboard's).
+		$status           = (array) call_user_func( $this->status );
+		$config['titles'] = Addon_Rules::titles( $status['store_titles'] ?? null );
 		return $config;
 	}
 
@@ -249,6 +336,7 @@ class Store_Extras {
 		$sale = array(
 			'enabled'     => (bool) $this->settings->get( 'store_flash_sale' ),
 			'title'       => (string) $this->settings->get( 'store_flash_title' ),
+			'titles'      => Addon_Rules::lang_lines( (string) $this->settings->get( 'store_flash_titles' ) ),
 			'product_ids' => array_map( 'intval', (array) $this->settings->get( 'store_flash_product_ids' ) ),
 			'category_id' => (int) $this->settings->get( 'store_flash_category_id' ),
 			'kind'        => 'price' === $this->settings->get( 'store_flash_kind' ) ? 'price' : 'percent',
@@ -280,10 +368,8 @@ class Store_Extras {
 			return false;
 		}
 		$id = $product->get_parent_id() ? (int) $product->get_parent_id() : (int) $product->get_id();
-		if ( in_array( $id, $sale['product_ids'], true ) ) {
-			return true;
-		}
-		return $sale['category_id'] > 0 && has_term( $sale['category_id'], 'product_cat', $id );
+		// 131 A sale on one product is on that one only; a category's on its products.
+		return Delivery_Rules::flash_covers( $sale, $id, $sale['category_id'] > 0 && has_term( $sale['category_id'], 'product_cat', $id ) );
 	}
 
 	/**
@@ -382,6 +468,10 @@ class Store_Extras {
 		if ( $product instanceof WC_Product && $this->flash_covers( $product ) ) {
 			$item->add_meta_data( self::META_FLASH_ITEM, $this->flash()['key'], true );
 		}
+		// 131 A gift add-on from the app: the product it went with.
+		if ( ! empty( $values['yallapp_addon_of'] ) ) {
+			$item->add_meta_data( Addon_Rules::META_ADDON_OF, (int) $values['yallapp_addon_of'], true );
+		}
 	}
 
 	/**
@@ -443,10 +533,11 @@ class Store_Extras {
 	/**
 	 * GET /store/flash-sales: the plugin's flash sale while it is on or starts within a day.
 	 *
-	 * @param Catalog $catalog Catalog.
+	 * @param Catalog $catalog  Catalog.
+	 * @param string  $language 131 The app's language, for the sale's title in it.
 	 * @return array
 	 */
-	public function flash_sales( Catalog $catalog ) {
+	public function flash_sales( Catalog $catalog, $language = '' ) {
 		$sale = $this->flash();
 		$now  = time();
 		if ( ! $sale['enabled'] || $sale['ends'] <= $now || $sale['starts'] > $now + DAY_IN_SECONDS || ( $sale['limit'] > 0 && $sale['sold'] >= $sale['limit'] ) ) {
@@ -464,7 +555,8 @@ class Store_Extras {
 			'items' => array(
 				array(
 					'id'          => 1,
-					'title'       => '' !== $sale['title'] ? $sale['title'] : __( 'Flash sale', 'yallapp' ),
+					'title'       => $sale['titles'][ $language ] ?? ( '' !== $sale['title'] ? $sale['title'] : __( 'Flash sale', 'yallapp' ) ),
+					'titles'      => $sale['titles'],
 					'starts_at'   => gmdate( 'Y-m-d\TH:i:s\Z', $sale['starts'] ),
 					'ends_at'     => gmdate( 'Y-m-d\TH:i:s\Z', $sale['ends'] ),
 					'live'        => Delivery_Rules::flash_on( $sale, $now ),
