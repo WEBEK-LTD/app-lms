@@ -289,3 +289,280 @@ export const SAHM_A: SignatureDesign = {
   },
 };
 
+
+// ——— B · Live route ———
+
+/**
+ * B · Live route (board R2-Sahm-B): the city as a living map full-bleed,
+ * the person's shipment drawn on it (`map_drawing.route` `live`: done
+ * solid to the courier's photo, dashed to the drop-off, the pickup's
+ * street on a chip, the courier's minutes in a bubble), the name on a
+ * frosted chip and the location and bell over it; a sheet hanging over
+ * the map's foot with the shipment's reference, the minutes large and its
+ * stages as segments (`tracking` `hero`), a dark command to send a parcel
+ * from the street with its lowest price, and the services as photo tiles
+ * with their times and prices; a dark floating pill, gold by night.
+ */
+export const SAHM_B_INK: SignatureInk = {
+  page: "#F7F9FC",
+  darkPage: "#08111C",
+  surface: "#FFFFFF",
+  darkSurface: "#15243A",
+  ink: "#0D1B2A",
+  darkInk: "#EAF1F8",
+  muted: "#526070",
+  darkMuted: "#9FB0C2",
+  line: "#C3CDD8",
+  darkLine: "#2C3D52",
+  accent: "#1F6FB2",
+  darkAccent: "#6DB3F2",
+  fill: "#F2B544",
+  darkFill: "#F2B544",
+  onFill: "#0D1B2A",
+  darkOnFill: "#0D1B2A",
+};
+const B = SAHM_B_INK;
+const OUTFIT = "Outfit";
+
+/** A frosted chip or round button over the map. */
+function mapChip(ctx: SectionContext, child: StudioNode, extra: Partial<StudioNode>): StudioNode {
+  return {
+    id: idOf(ctx)(),
+    type: "row",
+    height: 44,
+    cross: "center",
+    align: "center",
+    background: B.surface,
+    dark_background: "#0C1623",
+    border_color: "#FFFFFF",
+    dark_border_color: "#22334A",
+    border_width: 1,
+    shadow: "medium",
+    surface: { glass: 14, tint: 0.78 },
+    ...extra,
+    children: [child],
+  };
+}
+
+/** The person's shipment on its way in the sheet: its reference and state, the courier and the minutes, its stages as segments. */
+export function sahmBShipment(ctx: SectionContext, margin = sides(0, 0, 0, 0)): StudioNode {
+  return {
+    id: idOf(ctx)(),
+    type: "tracking",
+    name: ctx.w("sahOnTheWay"),
+    tracking: { kind: "shipment", style: "hero", accent: B.accent, dark_accent: B.darkAccent },
+    visibility: "signed_in",
+    width: "fill",
+    color: B.ink,
+    dark_color: B.darkInk,
+    margin,
+  };
+}
+
+/** A service as a photo tile: its time large and its name over a shade, its price on a gold chip. */
+function servicePhoto(ctx: SectionContext, path: string, time: SectionWord, name: SectionWord, price: SectionWord | null): StudioNode {
+  const id = idOf(ctx);
+  return {
+    id: id(),
+    type: "photo_hero",
+    name: ctx.w(name),
+    image_url: sigPhoto(ctx, path),
+    width: "fill",
+    height: 96,
+    radius: 22,
+    background: "#0D1B2A",
+    scrim: { color: "#000000", from: 0.05, middle: 0.2, at: 40, to: 0.8 },
+    align: "between",
+    padding: sides(8, 8, 10, 10),
+    action: send,
+    children: [
+      price
+        ? { id: id(), type: "text", text: ctx.w(price), self_align: "end", color: "#0D1B2A", background: GOLD, radius: 12, padding: sides(3, 8, 3, 8), font: { size: 11, weight: 800 } }
+        : { id: id(), type: "spacer", height: 18 },
+      {
+        id: id(),
+        type: "column",
+        children: [
+          { id: id(), type: "text", text: ctx.w(time), color: "#FFFFFF", font: { family: OUTFIT, size: 20, weight: 700, line_height: 1 } },
+          { id: id(), type: "text", text: ctx.w(name), color: "#FFFFFF", max_lines: 1, font: { size: 12, weight: 700 } },
+        ],
+      },
+    ],
+  };
+}
+
+/** The dark command to send a parcel: a gold tile with the arrow, the street it leaves from, the lowest price. */
+function sendCommand(ctx: SectionContext): StudioNode {
+  const id = idOf(ctx);
+  return {
+    id: id(),
+    type: "row",
+    name: ctx.w("deliverySend"),
+    gap: 12,
+    cross: "center",
+    radius: 26,
+    background: "#0D1B2A",
+    dark_background: GOLD,
+    shadow: "strong",
+    padding: sides(8, 16, 8, 8),
+    margin: sides(14, 0, 0, 0),
+    action: send,
+    children: [
+      {
+        id: id(),
+        type: "row",
+        width: 48,
+        height: 48,
+        radius: 16,
+        align: "center",
+        cross: "center",
+        background: GOLD,
+        dark_background: "#0D1B2A",
+        children: [{ id: id(), type: "icon", icon: "send", icon_size: 22, color: "#0D1B2A", dark_color: GOLD }],
+      },
+      {
+        id: id(),
+        type: "column",
+        width: "fill",
+        children: [
+          { id: id(), type: "text", text: ctx.w("deliverySend"), color: "#FFFFFF", dark_color: "#0D1B2A", font: { family: OUTFIT, size: 17, weight: 700 } },
+          { id: id(), type: "text", text: ctx.w("sahFromStreet"), color: "#B9C6D4", dark_color: "#4A3A12", max_lines: 1, font: { size: 12 } },
+        ],
+      },
+      { id: id(), type: "text", text: ctx.w("sahFrom40"), color: "#FFFFFF", dark_color: "#0D1B2A", font: { family: MONO, size: 12, weight: 700 } },
+    ],
+  };
+}
+
+/** The sheet over the map's foot: the shipment, the command, the services. */
+function sheet(ctx: SectionContext): StudioNode {
+  const id = idOf(ctx);
+  return {
+    id: id(),
+    type: "column",
+    name: ctx.w("deliverySend"),
+    width: "fill",
+    corners: { top_start: 28, top_end: 28, bottom_end: 0, bottom_start: 0 },
+    background: B.page,
+    dark_background: B.darkPage,
+    shadow: "strong",
+    padding: sides(12, 16, 8, 16),
+    children: [
+      { id: id(), type: "row", width: 40, height: 4, radius: 2, self_align: "center", background: B.line, dark_background: B.darkLine, margin: sides(0, 0, 12, 0), children: [] },
+      sahmBShipment(ctx),
+      sendCommand(ctx),
+      {
+        id: id(),
+        type: "row",
+        name: ctx.w("deliverySameDay"),
+        gap: 8,
+        margin: sides(12, 0, 0, 0),
+        children: [
+          servicePhoto(ctx, "/stories/delivery/delivery-boxes.jpg", "sahSameDayTime", "deliverySameDay", null),
+          servicePhoto(ctx, "/stories/delivery/delivery-rider.jpg", "sahExpressTime", "deliveryExpress", "sahExpressPrice"),
+          servicePhoto(ctx, "/stories/delivery/delivery-handover.jpg", "sahDocumentsTime", "sahDocuments", "sahDocumentsPrice"),
+        ],
+      },
+    ],
+  };
+}
+
+/** The living map with the shipment's route, the chips over it, the sheet over its foot. */
+function routeMap(ctx: SectionContext): StudioNode {
+  const id = idOf(ctx);
+  return {
+    id: id(),
+    type: "map_header",
+    name: ctx.w("sahOnTheWay"),
+    height: 470,
+    background: "#E8EDF2",
+    dark_background: "#0C1623",
+    padding: sides(18, 16, 16, 16),
+    align: "start",
+    overlap: 28,
+    image_url: sigPhoto(ctx, "/stories/delivery/delivery-rider.jpg"),
+    map_drawing: {
+      style: "natural",
+      accent: GOLD,
+      chip: "#0D1B2A",
+      route: {
+        points: [
+          { x: 78, y: 26 },
+          { x: 78, y: 62 },
+          { x: 30, y: 62 },
+        ],
+        at: 48,
+        eta: ctx.w("sahEta"),
+        icon: "two_wheeler",
+        color: B.accent,
+        dark_color: B.darkAccent,
+        live: "shipment",
+      },
+    },
+    children: [
+      {
+        id: id(),
+        type: "row",
+        gap: 8,
+        cross: "center",
+        children: [
+          mapChip(ctx, inked(ctx, B, ctx.w("brandName"), { size: 18, weight: 800, letter_spacing: -0.6 }, { max_lines: 1 }), { radius: 22, padding: sides(0, 16, 0, 16) }),
+          { id: id(), type: "spacer", width: "fill", height: 1 },
+          mapChip(ctx, { id: id(), type: "icon", icon: "notifications", icon_size: 22, color: B.ink, dark_color: B.darkInk }, { width: 44, radius: 22, action: screen("notifications") }),
+        ],
+      },
+      sheet(ctx),
+    ],
+  };
+}
+
+/** The approved home: the living map with the shipment's route and the sheet over its foot. */
+export function sahmBHome(ctx: SectionContext): StudioPage {
+  return {
+    background: B.page,
+    dark_background: B.darkPage,
+    body: { id: idOf(ctx)(), type: "column", padding: sides(0, 0, 24, 0), children: [routeMap(ctx)] },
+  };
+}
+
+/** Over sending, the dark command's services; over the shipments, the one on its way in the sheet's look. */
+export function sahmBPage(screenName: string, ctx: SectionContext): StudioNode[] | null {
+  switch (screenName) {
+    case "send_parcel":
+    case "shipments":
+      return [{ ...sahmBShipment(ctx, sides(10, 16, 6, 16)), background: B.surface, dark_background: B.darkSurface, radius: 22, padding: sides(14, 16, 12, 16) }];
+    default:
+      return null;
+  }
+}
+
+const SAHM_B_SCREENS = signatureScreens({
+  style: "photo",
+  photo: "/stories/delivery/delivery-rider.jpg",
+  ...SAHM_SIGN_IN,
+  menu: "night",
+  accent: GOLD,
+  first: ["shipments", "notifications", "settings", "help", "privacy", "terms"],
+});
+
+const SAHM_B_BAR = signatureBar(B, { design: "float", background: "#0D1B2A", dark_background: "#15243A", active: GOLD, dark_active: GOLD, inactive: "#C9D4E0", dark_inactive: "#C2CFDD", labels: "active", radius: 30, margin: 14 });
+
+export const SAHM_B: SignatureDesign = {
+  demo: "delivery",
+  variant: "b",
+  name: "sigSahmB",
+  template: { id: "delivery_signature_b", icon: "route", fits: { types: ["delivery"] } },
+  home: sahmBHome,
+  over: sahmBPage,
+  tabs: sahmTabs,
+  bar: SAHM_B_BAR,
+  look: { header: signatureHeader(B, "glass"), background: B.page, dark_background: B.darkPage },
+  chrome: { header: "glass", screens: "photo" },
+  project: {
+    primary: B.accent,
+    tab_bar: SAHM_B_BAR,
+    appearance: { secondary_color: GOLD, font: "DM Sans" },
+    tabs: (tabs) => sahmTabs(tabs),
+    screens: SAHM_B_SCREENS,
+  },
+};

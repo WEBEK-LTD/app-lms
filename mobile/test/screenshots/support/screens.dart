@@ -1014,6 +1014,17 @@ final websiteShots = <Shot>[
       prepare: StudioDemo.sigSahmA.prepare,
       shadows: true,
     ),
+  for (final dark in [false, true])
+    Shot(
+      'delivery-sig-b-home${dark ? '-dark' : ''}',
+      dark: dark,
+      api: () => sahmStudioApi(look: StudioDemo.sigSahmB),
+      appName: 'Sahm Express',
+      appType: AppType.delivery,
+      template: AppTemplate.bold,
+      prepare: StudioDemo.sigSahmB.prepare,
+      shadows: true,
+    ),
   // end 130.1–130.6
   // A ride app opens on its Ride tab; its Studio home is the next tab.
   Shot(

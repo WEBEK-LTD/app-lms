@@ -44,6 +44,7 @@ class StudioDemo {
   static final sigZadA = StudioDemo._load('sig_zad_a.json');
   static final sigZadB = StudioDemo._load('sig_zad_b.json');
   static final sigSahmA = StudioDemo._load('sig_sahm_a.json');
+  static final sigSahmB = StudioDemo._load('sig_sahm_b.json');
 
   final Map<String, dynamic> _demo;
 

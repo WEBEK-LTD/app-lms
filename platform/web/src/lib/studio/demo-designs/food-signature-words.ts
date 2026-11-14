@@ -85,4 +85,9 @@ export type FoodSignatureWord =
   | "sahDocumentsTime"
   | "sahDocumentsPrice"
   | "sahSendFrom"
-  | "sahOnTheWay";
+  | "sahOnTheWay"
+  // Sahm Express · B Live route: the courier's bubble and the command to send.
+  | "sigSahmB"
+  | "sahEta"
+  | "sahFromStreet"
+  | "sahFrom40";

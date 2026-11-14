@@ -39,6 +39,7 @@ const LOOKS: readonly (readonly [StudioDemoId, SignatureLook, string])[] = [
   ["marketplace", "a", "zad"],
   ["marketplace", "b", "zad"],
   ["delivery", "a", "sahm"],
+  ["delivery", "b", "sahm"],
 ];
 
 const kindOf = (id: StudioDemoId) => ({ type: demoKind(id).engine, vertical: demoKind(id).vertical });
