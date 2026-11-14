@@ -227,7 +227,7 @@ describe("131.20 its two Signature looks: whole store templates, marked new", ()
     const names = allNodes(home).map((n) => n.name);
     expect(names).toContain(DELIVERY_BLOCKS.sendToday);
     expect(names).toContain(DELIVERY_BLOCKS.deliveryDays);
-    expect(allNodes(home).find((n) => n.type === "flash_sale")).toMatchObject({ flash_sale: { look: look === "a" ? "banner" : "carousel", countdown: true, stock_bar: true } });
+    expect(allNodes(home).find((n) => n.type === "flash_sale")).toMatchObject({ flash_sale: { look: "banner", countdown: true, stock_bar: true } });
     expect(allNodes(home).find((n) => n.type === "coupon")).toMatchObject({ code: LEQAA_COUPON, coupon: { look: look === "a" ? "ticket" : "glass", bind: "public" } });
     expect(allNodes(home).some((n) => n.bind === "sale")).toBe(true);
     expect(types).not.toContain("countdown");

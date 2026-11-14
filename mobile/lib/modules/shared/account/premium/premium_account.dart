@@ -5,7 +5,6 @@ import '../../../../core/api/models/models.dart';
 import '../../../../core/l10n/l10n.dart';
 import '../../../../core/theme/app_icons.dart';
 import '../../../../core/theme/palette.dart';
-import '../../../../core/widgets/app_nav_bar.dart' show AppNavBar;
 import '../../../../core/widgets/common.dart';
 import '../../../../core/widgets/premium_chrome.dart';
 import '../../../../core/widgets/studio_screen_scope.dart';
@@ -381,16 +380,9 @@ class _PetalPerson extends StatelessWidget {
             key: const ValueKey('chrome-account-edit'),
             onPressed: onEdit,
             style: TextButton.styleFrom(
-              // By night a dark main colour is lightened, so Edit reads.
-              foregroundColor: p.isDark
-                  ? AppNavBar.readableOnDark(p.primary)
-                  : p.primary,
-              backgroundColor: p.isDark
-                  ? Color.alphaBlend(
-                      Colors.white.withValues(alpha: 0.10),
-                      p.surface,
-                    )
-                  : p.surface,
+              // By night filled in the main colour, so Edit reads.
+              foregroundColor: p.isDark ? p.onPrimary : p.primary,
+              backgroundColor: p.isDark ? p.primary : p.surface,
               shape: const StadiumBorder(),
               padding: const EdgeInsets.symmetric(horizontal: 18),
             ),

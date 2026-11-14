@@ -1272,7 +1272,7 @@ export function leqaaBHome(ctx: SectionContext): StudioPage {
       children: [
         askB(ctx),
         // The flash sale's countdown in the first screen, right under the occasion chips.
-        { ...flashSale(ctx, B.fill, "carousel"), margin: sides(14, 16, 4, 16) },
+        { ...flashSale(ctx, B.fill), margin: sides(14, 16, 4, 16) },
         { ...editSlider(ctx), margin: sides(14, 0, 0, 0) },
         sendTodayB(ctx),
         shopCoupon(ctx, B.fill, "glass"),

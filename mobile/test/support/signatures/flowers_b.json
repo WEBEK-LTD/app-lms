@@ -553,7 +553,7 @@
          }
         },
         "flash_sale": {
-         "look": "carousel",
+         "look": "banner",
          "limit": 6,
          "countdown": true,
          "stock_bar": true,

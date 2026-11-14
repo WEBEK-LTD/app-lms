@@ -246,6 +246,30 @@ List<Shot> get _galleryShots => [
                 )
               : const {},
           scroll: scroll,
+          // The cart as a customer has it ready: the gift filled in, the
+          // checkout button on.
+          then: page == 'cart'
+              ? (tester) async {
+                  await _fillGift(tester, language);
+                  // Back at the top of the page and of the cart.
+                  for (final e
+                      in find
+                          .byWidgetPredicate(
+                            (w) =>
+                                w is Scrollable &&
+                                w.axisDirection == AxisDirection.down,
+                          )
+                          .evaluate()
+                          .toList()
+                          .reversed) {
+                    if (!e.mounted) continue;
+                    ((e as StatefulElement).state as ScrollableState).position
+                        .jumpTo(0);
+                    await tester.pump();
+                  }
+                  await tester.pump(const Duration(milliseconds: 800));
+                }
+              : null,
         ),
   // 131.25 The premium gift checkout on the real cart, at each of its parts:
   // the card and who it is from, who it is for, when, the card's message,
