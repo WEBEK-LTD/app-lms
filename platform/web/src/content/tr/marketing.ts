@@ -551,7 +551,7 @@ export const TR_MARKETING: MarketingTranslation = {
         },
         {
           title: "Hediye ve çiçek için tasarlandı",
-          text: "WooCommerce ile müşteriler teslimat tarihi seçip hediye notu ekleyebilir; kapalı günleri ve ne kadar ileriye sipariş verilebileceğini siz belirlersiniz.",
+          text: "WooCommerce ile müşteriler teslimat tarihi seçip hediye notu ekleyebilir; kapalı günleri ve ne kadar ileriye sipariş verilebileceğini siz belirlersiniz. Her mağaza uygulamasında ayrıca belirlediğiniz son saate kadar aynı gün teslimat, teslimat saatleri, hediye ödemesi, vesileye göre kart mesajları, flaş indirimler ve hediye ekleri olabilir.",
         },
         {
           title: "iOS kurallarına baştan uygun",
@@ -564,12 +564,14 @@ export const TR_MARKETING: MarketingTranslation = {
         "Giriş yaparak ya da mağazanız izin veriyorsa misafir olarak ödeme",
         "Siparişlerini görme",
         "Kampanyalar ve yeni ürünler hakkında bildirim alma",
+        "Teslimat gününü ve saatini seçme, kartıyla hediye gönderme ve biraz daha ekleme",
       ],
       forYou: [
         "Mağazanızı bugün nerede işletiyorsanız orada işletmeye devam edin ya da panelden ürün ekleyin",
         "Web sitesi yok: kargo ücretleri, belirli bir tutardan itibaren ücretsiz kargo, stok ve indirimli fiyatlar",
         "Web sitesi yok: siparişleri görün, tamamlandı veya iade edildi olarak işaretleyin, her ödenen sipariş için e-posta alın",
         "Müşteriler doğrudan kendi ödeme hesabınıza öder",
+        "Teslimat günleri ve saatleri, nereye teslim ettiğiniz ve ne kadar tuttuğu, kart mesajları, flaş indirimler ve hediye ekleri; mağazanız nerede olursa olsun",
       ],
       docs: [
         "Shopify'ı bağlayın",
@@ -578,6 +580,7 @@ export const TR_MARKETING: MarketingTranslation = {
         "Salla mağazanızı bağlayın",
         "Zid mağazanızı bağlayın",
         "Ürünler, siparişler ve kargo",
+        "Teslimat günleri, hediyeler ve flaş indirimler",
         "iyzico, Kashier, Fawaterk, Stripe veya PayPal ile kartla ödeme",
       ],
     },
@@ -1003,7 +1006,7 @@ export const TR_MARKETING: MarketingTranslation = {
         "Sensei LMS": { text: "Kurslar, dersler, sınavlar ve ilerleme." },
         Masteriyo: { text: "Kurslar, dersler, sınavlar ve ilerleme." },
         LearnDash: { text: "Kurslar, dersler, sınavlar ve ilerleme." },
-        WooCommerce: { text: "Ürünler, kategoriler, değerlendirmeler, sepet fiyatlandırması ve ödeme; teslimat tarihleri ve hediye notlarıyla. Ücretli kursların ödemesi de buradan." },
+        WooCommerce: { text: "Ürünler, kategoriler, değerlendirmeler, sepet fiyatlandırması ve ödeme; teslimat tarihleri ve hediye notlarıyla. Ücretli kursların ödemesi de buradan. Eklenti 0.4.44 ile aynı gün teslimat saatleri, hediye ödemesi, bir flaş indirim ve hediye ekleri." },
         Amelia: { text: "Hizmetler, çalışanlar, boş saatler ve randevular." },
         BookingPress: { text: "Hizmetler, boş saatler ve randevular." },
         LatePoint: { text: "Hizmetler, çalışanlar, boş saatler ve randevular." },
@@ -1164,6 +1167,16 @@ export const TR_MARKETING: MarketingTranslation = {
           title: "iOS kuralları yerleşik",
           text: "iPhone uygulaması ücretli kurslar veya dijital ürünler için asla satın alma düğmesi göstermez; böylece App Store incelemesi sorunsuz geçer.",
           details: ["Ücretli kurslar Android'de satın alınır", "Fiziksel ürünler Android ve iOS'ta satılır", "Ücretsiz kurslar: ikisinde de tek dokunuşla kayıt"],
+        },
+        {
+          title: "Teslimat günleri, hediyeler ve flaş indirimler",
+          text: "Her mağaza uygulaması bir gün ve saat için satış yapabilir: son saatinize kadar aynı gün teslimat, kartıyla hediye ödemesi ve geri sayımlı flaş indirimler.",
+          details: [
+            "Günde en fazla 8 teslimat saati; her biri aldığı sipariş sayısı ve bir ek ücretle",
+            "Nereye teslim ettiğiniz; Yallapp'taki ürünler için tek fiyat, şehre, mesafeye ya da ağırlığa göre",
+            "Uygulamanızın her dilinde, vesileye göre kart mesajları",
+            "“Biraz daha ekleyin” olarak sunulan hediye ekleri ve uygulamada gösterilen kodlar",
+          ],
         },
       ],
     },

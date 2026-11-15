@@ -14,6 +14,8 @@ describe("93.2 help with each dashboard page", () => {
     expect(helpSlug("/dashboard/publishing/links")).toBe("app-links");
     expect(helpSlug("/dashboard/catalog/12/edit")).toBe("store-orders");
     expect(helpSlug("/dashboard/notifications/campaigns/new")).toBe("push-notifications");
+    // 131.54 Delivery & offers and its Card messages.
+    expect(helpSlug("/dashboard/selling/messages")).toBe("delivery-and-offers");
     expect(helpSlug("/dashboard-old")).toBeNull();
   });
 
@@ -32,6 +34,12 @@ describe("93.2 search of the documentation", () => {
     expect(hits[0]!.slug).toBe("store-orders");
     expect(hits[0]!.snippet.toLowerCase()).toContain("loyalty points");
     expect(searchDocs(docs, "coupon").length).toBeGreaterThan(1);
+    // 131.54 The flower shop's words find their article.
+    expect(searchDocs(docs, "delivery times")[0]!.slug).toBe("delivery-and-offers");
+    expect(searchDocs(docs, "gift add-ons")[0]!.slug).toBe("delivery-and-offers");
+    // 130.52–130.64, documented with 131.54.
+    expect(searchDocs(docs, "Monochrome luxe")[0]!.slug).toBe("studio-templates");
+    expect(searchDocs(docs, "photo in black and white")[0]!.slug).toBe("studio-premium-elements");
     // Every word must appear.
     expect(searchDocs(docs, "coupon zzqx")).toEqual([]);
     expect(searchDocs(docs, " ")).toEqual([]);

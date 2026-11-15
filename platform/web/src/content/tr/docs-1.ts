@@ -78,6 +78,8 @@ Kurslar, dersler, sınavlar, ilerleme ve sertifikalar. Öğrenciler kursları ge
 
 Ürünler, sepet, ödeme ve siparişler; çiçek ve hediye mağazaları için teslimat tarihleri ve hediye notlarıyla. İçerik WooCommerce, Shopify, ikas, Ticimax, IdeaSoft, kendi API'niz ya da panelden eklediğiniz ürünlerden gelir. [Mağaza çözümüne](/solutions/store) bakın.
 
+Her mağaza uygulamasında aynı gün teslimat ve teslimat saatleri, hediye ödemesi, vesileye göre kart mesajları, flaş indirimler ve hediye ekleri de olabilir: bkz. [Teslimat günleri, hediyeler ve flaş indirimler](/docs/delivery-and-offers).
+
 ## Restoran ve kafe
 
 Yemek için bir mağaza: kategorileri sekmeler halinde menünüz, seçenekli yemekler (boyut, yan ürün, ekstralar), şimdi ya da sonrası için gel-al veya teslimat ve her adımda bildirimle sipariş takibi. Müşteriler Android ve iPhone'da uygulama içinde kartla öder. Seçenekler, çalışma saatleri, gel-al, teslimat ve mutfak şimdilik web sitesi olmayan restoranlar içindir; WooCommerce ile yemekler ürün varyasyonlarını kullanır. [Restoranlar ve kafeler](/docs/restaurants) rehberine ve [Restoran ve kafe çözümüne](/solutions/restaurant) bakın.
@@ -200,7 +202,8 @@ Eklentinin ayarları uygulamanızın nasıl davranacağını belirler. En öneml
 - **Purchases**: Android'deki **Enroll now** düğmesi, ücretsiz kayıt ve ödeme sayfasının uygulama içinde mi yoksa telefonun tarayıcısında mı açılacağı
 - **Video & content protection**: ekran görüntüsü ve ekran kaydını engelleme, video filigranı, video bağlantılarının ne kadar geçerli olacağı ve zorunlu izleme süresi
 - **Lesson content (HTML & code)**: derslerin nasıl gösterileceği, gömülü araçların yüksekliği ve kod renklendirme
-- **Store app**: banner, teslimat tarihleri ve hediye notları
+- **Store app**: banner, teslimat tarihleri ve hediye notları; eklenti 0.4.44 ile bir saate kadar aynı gün siparişleri, teslimat saatleri ve hediye ödemesi (bkz. [Teslimat günleri, hediyeler ve flaş indirimler](/docs/delivery-and-offers))
+- **Flash sale**: WooCommerce'in kendi indirimli fiyatıyla, uygulamada geri sayımlı bir flaş indirim (eklenti 0.4.44). Eklenti 0.4.45'in ayarlarının söylediği gibi uygulama WordPress'te aynı anda bir tane çalıştırır: onu bir sonrakiyle değiştirmek satılan adetleri sıfırdan başlatır
 - **Notifications (Firebase)**: [Firebase ile anlık bildirimler](/docs/push-notifications) rehberine bakın
 - **Updates & maintenance**: en düşük uygulama sürümü ve mesajlı bakım modu
 
@@ -212,7 +215,9 @@ Yallapp panelinizde **Uygulama kurulumu › Web sitesi**'ni açın, **WordPress 
 
 ## Yallapp Studio'da tasarlanan uygulamalar
 
-Bir WordPress akademisi bir [Yallapp Studio](/docs/yallapp-studio) projesi olabilir. Studio'da tasarladığınız şey, kendi kurslarınızla doldurularak eklenti üzerinden uygulamaya ulaşır: sayfalar ve sekmeler, giriş ekranı, hesap menüsü, açılış ekranı ve premium akademinin ekranlarının görünümleri. Eklenti 0.4.39 yeni akademi ana sayfasını ekler: fotoğraf üzerinde öğrenci kartları (aldığı kurs, sıradaki canlı dersi ve öğrenme serisi), her kurs kartında kurs değerlendirmelerinizden gelen puan ve koyu modda kartın kenarlık rengi. Eklenti 0.4.40 Studio'nun premium kitaplığını ekler: hikâyeler, kayan şerit, video ve derinlikli vitrinler, galeri, önce ve sonra, ilerleme bölümleri ve kaydırıcının yeni görünümleri; yorumlar, planlar, rakamlar, ilerleme, zaman çizelgesi, profil kartı, bento ızgara, rozetler, eylem çubuğu ve cam, bilet ve doku kart stilleri; ve iğneleri, yazıları ve canlı rotasıyla çizilmiş haritanın premium görünümleri. Eklenti 0.4.41 Signature görünümlerini ve premium ekranları ekler: satırı, fotoğrafı ve katlanmasıyla bir üst bilginin premium stili, uygulamanın kendi ekranlarının görünümü, canlı kartların yeni görünümleri, biniş kartı ya da büyük bir geri sayım olarak sıradaki seyahat, kendi sözlerinizle bir selamlama ve bu haftanın günleriyle altın bir halkada devam eden kurs. [Studio'nun premium öğeleri](/docs/studio-premium-elements) sayfasına bakın.
+Bir WordPress akademisi bir [Yallapp Studio](/docs/yallapp-studio) projesi olabilir. Studio'da tasarladığınız şey, kendi kurslarınızla doldurularak eklenti üzerinden uygulamaya ulaşır: sayfalar ve sekmeler, giriş ekranı, hesap menüsü, açılış ekranı ve premium akademinin ekranlarının görünümleri. Eklenti 0.4.39 yeni akademi ana sayfasını ekler: fotoğraf üzerinde öğrenci kartları (aldığı kurs, sıradaki canlı dersi ve öğrenme serisi), her kurs kartında kurs değerlendirmelerinizden gelen puan ve koyu modda kartın kenarlık rengi. Eklenti 0.4.40 Studio'nun premium kitaplığını ekler: hikâyeler, kayan şerit, video ve derinlikli vitrinler, galeri, önce ve sonra, ilerleme bölümleri ve kaydırıcının yeni görünümleri; yorumlar, planlar, rakamlar, ilerleme, zaman çizelgesi, profil kartı, bento ızgara, rozetler, eylem çubuğu ve cam, bilet ve doku kart stilleri; ve iğneleri, yazıları ve canlı rotasıyla çizilmiş haritanın premium görünümleri. Eklenti 0.4.41 Signature görünümlerini ve premium ekranları ekler: satırı, fotoğrafı ve katlanmasıyla bir üst bilginin premium stili, uygulamanın kendi ekranlarının görünümü, canlı kartların yeni görünümleri, biniş kartı ya da büyük bir geri sayım olarak sıradaki seyahat, kendi sözlerinizle bir selamlama ve bu haftanın günleriyle altın bir halkada devam eden kurs. Eklenti 0.4.42 kurs ekranlarını (kurs kartı, kurs sayfası, ders ve Kurslarım, her biri kendi seçenekleriyle) tek bir premium görünümde, 0.4.43 ise Monokrom lüks tasarımını ve yeni ana sayfaları siyah beyaz fotoğraflarıyla ekler. [Studio'nun premium öğeleri](/docs/studio-premium-elements) sayfasına bakın.
+
+Bir WooCommerce mağazası da, Studio'nun çiçekçisi Leqaa gibi, bir Studio projesi olabilir. Eklenti 0.4.44 onun görünümünü sitenizden sunar: taç yaprağı üst bilgi, taç yaprağı alt çubuk, taç yaprağı hesap ve sistem ekranları, kartın canlı önizlemesiyle beş adımlı hediye ödemesi görünümü, sayfası açılınca seçilen değişken ürünün varsayılan seçeneği ve görünümün kendi gece renkleri her ekranda.
 
 Eklentiyi **Eklentiler**'den güncel tutun, ardından Studio'da **Yayınla**'yı seçin: uygulama bunu yeni bir derleme olmadan bir sonraki açılışında gösterir.
 
@@ -231,6 +236,7 @@ WooCommerce ile müşteriler siparişlerini uygulamada görür ve biri değişti
 
 - **Kargo takibi**: şimdi yaptığınız gibi **WooCommerce Shipment Tracking** veya **Advanced Shipment Tracking** ile ekleyin. Müşteri bir bildirim alır; uygulamadaki sipariş kargo firmasını, takip numarasını ve **Kargoyu takip et** düğmesini gösterir. Takip bilgisini değiştirmek müşteriyi yeniden bilgilendirir.
 - **Tamamlandı, iptal edildi veya iade edildi**: siparişin durumunu değiştirdiğinizde müşteri bir bildirim alır.
+- **Teslimat ve hediyeler** (eklenti 0.4.44): teslimat günü ve saati, gönderen, alıcı ve kart **WooCommerce › Orders**'daki siparişte görünür; hediye ödemesinde gönderen siparişin fatura bilgileri, alıcı ise teslimat bilgileridir.
 
 - **İadeler**: eklentinin **Settings › Store app** bölümünde **Returns in the app** alanına, bir sipariş tamamlandıktan sonra müşterilerin kaç gün içinde iade isteyebileceğini yazın (iade yoksa 0). Müşteri uygulamadaki siparişte bir neden seçer ve not ekleyebilir. Size e-posta gelir ve talebi **WooCommerce › Orders** içindeki siparişte görürsünüz; orada bir yanıtla onaylar veya reddedersiniz, müşteriye uygulamada bildirilir. Ürün size ulaştığında iadeyi WooCommerce'te yapın. Yallapp eklentisi 0.4.17 veya sonrası.
 

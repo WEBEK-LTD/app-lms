@@ -431,7 +431,7 @@ const SOLUTION_COPY: SolutionCopy[] = [
       {
         icon: "local_offer",
         title: "Built for gifts and flowers",
-        text: "With WooCommerce, customers can pick a delivery date and add a gift message, with closed days and how far ahead set by you.",
+        text: "With WooCommerce, customers can pick a delivery date and add a gift message, with closed days and how far ahead set by you. Every store app can also have same-day delivery until your cut-off, delivery times, a gift checkout, card messages by occasion, flash sales and gift add-ons.",
       },
       {
         icon: "phone_iphone",
@@ -445,12 +445,14 @@ const SOLUTION_COPY: SolutionCopy[] = [
       "Check out signed in, or as a guest when your shop allows it",
       "See their orders",
       "Get notifications about offers and new arrivals",
+      "Choose the delivery day and time, send a gift with a card, and add a little more",
     ],
     forYou: [
       "Keep running your shop where you do today, or add products in the dashboard",
       "No website: set shipping fees, free shipping from an amount, stock and sale prices",
       "No website: see orders, mark them completed or refunded, get an email for each paid order",
       "Customers pay straight into your own payment account",
+      "Delivery days and times, where you deliver and what it costs, card messages, flash sales and gift add-ons, whatever your shop is on",
     ],
     docs: [
       { href: "/docs/shopify", label: "Connect Shopify" },
@@ -459,6 +461,7 @@ const SOLUTION_COPY: SolutionCopy[] = [
       { href: "/docs/salla", label: "Connect your Salla store" },
       { href: "/docs/zid", label: "Connect your Zid store" },
       { href: "/docs/store-orders", label: "Products, orders and shipping" },
+      { href: "/docs/delivery-and-offers", label: "Delivery days, gifts and flash sales" },
       { href: "/docs/card-payments", label: "Card payments with iyzico, Kashier, Fawaterk, Stripe or PayPal" },
     ],
   },
@@ -1515,7 +1518,7 @@ export const INTEGRATION_GROUPS: IntegrationGroup[] = [
       {
         name: "WooCommerce",
         types: ["Store", "Academy"],
-        text: "Products, categories, reviews, cart pricing and checkout, with delivery dates and gift messages. Also the checkout for paid courses.",
+        text: "Products, categories, reviews, cart pricing and checkout, with delivery dates and gift messages. Also the checkout for paid courses. With plugin 0.4.44, same-day delivery times, the gift checkout, a flash sale and gift add-ons.",
         docs: "/docs/wordpress-plugin",
       },
       { name: "Amelia", types: ["Bookings"], text: "Services, staff, free times and appointments.", docs: "/docs/wordpress-plugin" },
@@ -1777,6 +1780,17 @@ export const FEATURE_GROUPS: FeatureGroup[] = [
           "Paid courses are bought on Android",
           "Physical products sell on Android and iOS",
           "Free courses: enroll in one tap on both",
+        ],
+      },
+      {
+        icon: "local_shipping",
+        title: "Delivery days, gifts and flash sales",
+        text: "Every store app can sell for a day and a time: same-day delivery until your cut-off, a gift checkout with the card, and flash sales with a countdown.",
+        details: [
+          "Up to 8 delivery times a day, each with how many orders it takes and an extra fee",
+          "Where you deliver, and for products in Yallapp a price that's flat, by city, by distance or by weight",
+          "Card messages by occasion, in each of your app's languages",
+          "Gift add-ons offered as “Add a little more”, and codes shown in the app",
         ],
       },
     ],
