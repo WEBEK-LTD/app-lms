@@ -1,3 +1,18 @@
+// 106 Studio Market
+import type {
+  MarketTemplate,
+  MarketTemplatePatch,
+  MarketTemplateReview,
+  MarketTemplateReviewInput,
+  MarketTemplateStatus,
+  MarketTemplateVersion,
+  TemplateApplication,
+  TemplateApplicationPatch,
+  TemplateDesigner,
+  TemplateDesignerPatch,
+  TemplateLicence,
+  TemplateLicencePatch,
+} from "./types";
 import { clientAccountState, longestLicense } from "../license/status";
 import { newId } from "../crypto/tokens";
 import { membershipActive, membershipFreezeSet, membershipToUse } from "../bookings/memberships";
@@ -8558,6 +8573,193 @@ export class MemoryStore implements DataStore {
     const next = { ...call, ...clone(patch) };
     if (next.status !== "cancelled" && this.holdsTime(next, id)) return false;
     this.managerCalls.set(id, next);
+    return true;
+  }
+
+  // ——— 106 Studio Market ———
+
+  private templateDesigners = new Map<string, TemplateDesigner>();
+  private marketTemplates = new Map<string, MarketTemplate>();
+  private marketVersions = new Map<string, MarketTemplateVersion>();
+  private marketReviews: MarketTemplateReview[] = [];
+  private nextMarketReviewId = 1;
+  private templateLicences = new Map<string, TemplateLicence>();
+  private templateApplications = new Map<string, TemplateApplication>();
+
+  async getTemplateDesignerByClient(clientId: string): Promise<TemplateDesigner | null> {
+    const found = [...this.templateDesigners.values()].find((d) => d.clientId === clientId);
+    return found ? clone(found) : null;
+  }
+
+  async getTemplateDesigner(id: string): Promise<TemplateDesigner | null> {
+    const found = this.templateDesigners.get(id);
+    return found ? clone(found) : null;
+  }
+
+  async getTemplateDesignerBySlug(slug: string): Promise<TemplateDesigner | null> {
+    const found = [...this.templateDesigners.values()].find((d) => d.slug === slug.toLowerCase());
+    return found ? clone(found) : null;
+  }
+
+  async createTemplateDesigner(designer: TemplateDesigner): Promise<TemplateDesigner | null> {
+    if ([...this.templateDesigners.values()].some((d) => d.slug === designer.slug || d.clientId === designer.clientId)) return null;
+    this.templateDesigners.set(designer.id, clone(designer));
+    return clone(designer);
+  }
+
+  async updateTemplateDesigner(id: string, patch: TemplateDesignerPatch, now: Date): Promise<boolean> {
+    const found = this.templateDesigners.get(id);
+    if (!found) return false;
+    if (patch.slug && [...this.templateDesigners.values()].some((d) => d.id !== id && d.slug === patch.slug)) return false;
+    this.templateDesigners.set(id, { ...found, ...clone(patch), updatedAt: now });
+    return true;
+  }
+
+  async listTemplateDesigners(ids?: readonly string[]): Promise<TemplateDesigner[]> {
+    return [...this.templateDesigners.values()]
+      .filter((d) => !ids || ids.includes(d.id))
+      .sort((a, b) => a.createdAt.getTime() - b.createdAt.getTime())
+      .map(clone);
+  }
+
+  async createMarketTemplate(template: MarketTemplate): Promise<MarketTemplate | null> {
+    if ([...this.marketTemplates.values()].some((t) => t.slug === template.slug)) return null;
+    this.marketTemplates.set(template.id, clone(template));
+    return clone(template);
+  }
+
+  async getMarketTemplate(id: string): Promise<MarketTemplate | null> {
+    const found = this.marketTemplates.get(id);
+    return found ? clone(found) : null;
+  }
+
+  async getMarketTemplateBySlug(slug: string): Promise<MarketTemplate | null> {
+    const found = [...this.marketTemplates.values()].find((t) => t.slug === slug);
+    return found ? clone(found) : null;
+  }
+
+  async updateMarketTemplate(id: string, patch: MarketTemplatePatch, now: Date): Promise<boolean> {
+    const found = this.marketTemplates.get(id);
+    if (!found) return false;
+    if (patch.slug && [...this.marketTemplates.values()].some((t) => t.id !== id && t.slug === patch.slug)) return false;
+    this.marketTemplates.set(id, { ...found, ...clone(patch), updatedAt: now });
+    return true;
+  }
+
+  async moveMarketTemplate(id: string, from: MarketTemplateStatus, patch: MarketTemplatePatch & { status: MarketTemplateStatus }, now: Date): Promise<boolean> {
+    const found = this.marketTemplates.get(id);
+    if (!found || found.status !== from) return false;
+    this.marketTemplates.set(id, { ...found, ...clone(patch), updatedAt: now });
+    return true;
+  }
+
+  async listMarketTemplates(filter: { designerId?: string; statuses?: readonly MarketTemplateStatus[]; ids?: readonly string[] }): Promise<MarketTemplate[]> {
+    return [...this.marketTemplates.values()]
+      .filter((t) => (!filter.designerId || t.designerId === filter.designerId) && (!filter.statuses || filter.statuses.includes(t.status)) && (!filter.ids || filter.ids.includes(t.id)))
+      .sort((a, b) => b.updatedAt.getTime() - a.updatedAt.getTime())
+      .map(clone);
+  }
+
+  async deleteMarketTemplate(id: string): Promise<boolean> {
+    const found = this.marketTemplates.get(id);
+    if (!found || found.currentVersionId || found.status === "published") return false;
+    this.marketTemplates.delete(id);
+    for (const [key, v] of this.marketVersions) if (v.templateId === id) this.marketVersions.delete(key);
+    this.marketReviews = this.marketReviews.filter((r) => r.templateId !== id);
+    return true;
+  }
+
+  async addMarketTemplateView(id: string): Promise<void> {
+    const found = this.marketTemplates.get(id);
+    if (found) found.views += 1;
+  }
+
+  async createMarketTemplateVersion(version: MarketTemplateVersion): Promise<void> {
+    this.marketVersions.set(version.id, clone(version));
+  }
+
+  async getMarketTemplateVersion(id: string): Promise<MarketTemplateVersion | null> {
+    const found = this.marketVersions.get(id);
+    return found ? clone(found) : null;
+  }
+
+  async listMarketTemplateVersions(ids: readonly string[]): Promise<MarketTemplateVersion[]> {
+    return ids.flatMap((id) => (this.marketVersions.has(id) ? [clone(this.marketVersions.get(id)!)] : []));
+  }
+
+  async lastMarketTemplateVersion(templateId: string): Promise<number> {
+    return Math.max(0, ...[...this.marketVersions.values()].filter((v) => v.templateId === templateId).map((v) => v.number));
+  }
+
+  async createMarketTemplateReview(review: MarketTemplateReviewInput): Promise<MarketTemplateReview> {
+    const saved: MarketTemplateReview = { ...clone(review), id: this.nextMarketReviewId++ };
+    this.marketReviews.push(saved);
+    return clone(saved);
+  }
+
+  async listMarketTemplateReviews(templateId: string): Promise<MarketTemplateReview[]> {
+    return this.marketReviews
+      .filter((r) => r.templateId === templateId)
+      .sort((a, b) => b.createdAt.getTime() - a.createdAt.getTime() || b.id - a.id)
+      .map(clone);
+  }
+
+  async createTemplateLicence(licence: TemplateLicence): Promise<void> {
+    this.templateLicences.set(licence.id, clone(licence));
+  }
+
+  async getTemplateLicence(id: string): Promise<TemplateLicence | null> {
+    const found = this.templateLicences.get(id);
+    return found ? clone(found) : null;
+  }
+
+  async listTemplateLicences(filter: { clientId?: string; templateId?: string; appId?: string }): Promise<TemplateLicence[]> {
+    return [...this.templateLicences.values()]
+      .filter((l) => (!filter.clientId || l.clientId === filter.clientId) && (!filter.templateId || l.templateId === filter.templateId) && (!filter.appId || l.appId === filter.appId))
+      .sort((a, b) => b.createdAt.getTime() - a.createdAt.getTime())
+      .map(clone);
+  }
+
+  async updateTemplateLicence(id: string, patch: TemplateLicencePatch, now: Date): Promise<boolean> {
+    const found = this.templateLicences.get(id);
+    if (!found) return false;
+    this.templateLicences.set(id, { ...found, ...clone(patch), updatedAt: now });
+    return true;
+  }
+
+  async moveTemplateLicence(id: string, from: string, to: string, notSince: Date, now: Date): Promise<boolean> {
+    const found = this.templateLicences.get(id);
+    if (!found || found.appId !== from || (found.movedAt && found.movedAt.getTime() > notSince.getTime())) return false;
+    this.templateLicences.set(id, { ...found, appId: to, movedAt: now, updatedAt: now });
+    return true;
+  }
+
+  async countTemplateLicences(since?: Date): Promise<Record<string, number>> {
+    const out: Record<string, number> = {};
+    for (const l of this.templateLicences.values()) if (!since || l.createdAt.getTime() >= since.getTime()) out[l.templateId] = (out[l.templateId] ?? 0) + 1;
+    return out;
+  }
+
+  async createTemplateApplication(application: TemplateApplication): Promise<void> {
+    this.templateApplications.set(application.id, clone(application));
+  }
+
+  async getTemplateApplication(id: string): Promise<TemplateApplication | null> {
+    const found = this.templateApplications.get(id);
+    return found ? clone(found) : null;
+  }
+
+  async listTemplateApplications(filter: { licenceId?: string; appId?: string; open?: boolean }): Promise<TemplateApplication[]> {
+    return [...this.templateApplications.values()]
+      .filter((a) => (!filter.licenceId || a.licenceId === filter.licenceId) && (!filter.appId || a.appId === filter.appId) && (filter.open === undefined || (a.endedAt === null) === filter.open))
+      .sort((a, b) => b.appliedAt.getTime() - a.appliedAt.getTime())
+      .map(clone);
+  }
+
+  async updateTemplateApplication(id: string, patch: TemplateApplicationPatch): Promise<boolean> {
+    const found = this.templateApplications.get(id);
+    if (!found || found.endedAt) return false;
+    this.templateApplications.set(id, { ...found, ...clone(patch) });
     return true;
   }
 }

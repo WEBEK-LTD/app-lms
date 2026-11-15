@@ -1223,3 +1223,16 @@ html {
     background: var(--tint-dark);
   }
 }
+
+/* 106 Studio Market: the dotted board behind a template's phones, as Studio's projects grid draws it. */
+.market-board {
+  background-color: #ebe5da;
+  background-image: radial-gradient(#d6cfc1 1.2px, transparent 1.3px);
+  background-size: 16px 16px;
+}
+.market-board {
+  @variant in-dark {
+    background-color: #1a1935;
+    background-image: radial-gradient(#2c2a4b 1.2px, transparent 1.3px);
+  }
+}
