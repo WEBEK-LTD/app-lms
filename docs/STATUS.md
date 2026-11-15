@@ -4,9 +4,45 @@ The current state of the project: what is released in the code, what still
 needs checking against real services, and what a deployment needs.
 `docs/ROADMAP.md` is the plan; this file is the current state.
 
-Last updated: 14 November 2026.
+Last updated: 15 November 2026.
 
 ## Current release
+
+Roadmap 131.54 (the documentation up to date for Phase 131) is complete:
+a new article `delivery-and-offers` ("Delivery days, gifts and flash
+sales", Delivery & offers' help link) explains the checkout, delivery days
+and times, where the shop delivers and what it costs, gifts, card messages
+by occasion, gift add-ons, the titles in the app, flash sales, the codes
+shown in the app, Deliveries from the app and plugin 0.4.44's settings,
+with what each source supports and what it doesn't; `studio-premium-elements`
+adds the Flash sale element, sales on the cards, the coupon's premium looks,
+the petal header, bar and system screens and the gift checkout's look;
+`studio-templates` has Studio's ten demos with Leqaa's two looks, its ready
+sections and the Petal home; and `studio-elements`, `yallapp-studio`,
+`store-orders`, `app-types`, `wordpress-plugin` (and the plugin's readme)
+and `my-own-api` follow, with the store's solution and features on the
+website, in English, Arabic and Turkish.
+
+Phase 131 (the flower shop) is complete: every store app, whatever its
+source, has Delivery & offers (`lib/selling`, migrations
+`0128_flower_shop` and `0129_gift_addons`): delivery days and times (a
+same-day cut-off in the shop's time zone, next day, the days ahead, closed
+weekdays, up to 8 slots with a capacity and a fee), the gift checkout (the
+sender, the recipient with the address, the day and slot required, the
+card), card messages by occasion (a starting set in English, Arabic and
+Turkish), where the shop delivers and what it costs (flat, by city, by
+distance, by weight, a city's own price, a minimum, free over an amount),
+flash sales, coupons shown in the app and gift add-ons, with titles the
+owner words. Yallapp's own products get all of it at Yallapp's checkout;
+WooCommerce through plugin 0.4.44, its own shipping zones pricing
+shipping; the connected platforms through `withStoreExtras`, their own
+checkout charging their prices and shipping (Shopify and Wix keep the
+details on their order, the others in Deliveries from the app for 60
+days). In Studio, Leqaa (لقاء) is the tenth demo, a store with two
+Signature looks (Rose hour, Botanical press); every app can take its
+petal header, bar and system screens, the gift checkout's look, the
+Petal home landing, the Flash sale element, sale badges and the coupon's
+ticket and glass looks; its story is `/yallapp-studio/flowers`.
 
 Roadmap 130.48 (the documentation up to date for Phases 128–130) is
 complete: `studio-premium-elements` covers Studio's premium library
@@ -325,6 +361,16 @@ test environment:
 
 ## Known gaps
 
+- 131 The app asks where an order goes (the country, the city and, priced
+  by distance, the phone's location) only in the gift checkout: a store on
+  the standard checkout with delivery areas, a city's price or distance
+  pricing has its checkout refused ("Choose the country it goes to."), and
+  the docs say to use the gift checkout with them. Distance pricing takes
+  the phone's location, not a pin on a map. A flash sale's units aren't
+  counted from a connected platform's orders. A Studio project's menu has
+  no link to Delivery & offers yet (the page is at
+  `/studio/project/selling`).
+
 - 126 Travel: the outside providers are not connected (Admin shows them as
   coming soon); the hotel map is drawn by the app from the hotels' places,
   without map tiles; a trip can't be split into several payments, and the
@@ -358,6 +404,10 @@ test environment:
 ## Deployment
 
 - Migrations up to `0097` (`npm run db:migrate` in `platform/web`).
+- 131 Migrations `0128_flower_shop` and `0129_gift_addons` run with the
+  others. Plugin 0.4.44 goes to sites after the app update with the
+  delivery picker, the gift checkout, "Add a little more" and the petal
+  chrome.
 - Delivery apps (Phase 104): turn on the plan features `delivery` and,
   for a second courier app, `courier_app`, with their prices, in Admin ›
   Plans; set the map tiles (an address with `{z}`, `{x}`, `{y}` and its

@@ -164,6 +164,8 @@ Courses, lessons, quizzes, progress and certificates. Students browse courses, c
 
 Products, a cart, checkout and orders, with delivery dates and gift messages for flower and gift shops. Content from WooCommerce, Shopify, ikas, Ticimax, IdeaSoft, your own API, or products you add in the dashboard. See [the Store solution](/solutions/store).
 
+Every store app can also have same-day delivery and delivery times, a gift checkout, card messages by occasion, flash sales and gift add-ons: see [Delivery days, gifts and flash sales](/docs/delivery-and-offers).
+
 ## Restaurant & café
 
 A store for food: your menu with its categories as tabs, dishes with options (a size, a side, extras), pickup or delivery, now or for later, and order tracking with a notification at each step. Customers pay by card in the app, on Android and iPhone. Options, opening hours, pickup, delivery and the kitchen are for restaurants without a website for now; with WooCommerce, dishes use product variations. See [Restaurants and cafés](/docs/restaurants) and [the Restaurant & café solution](/solutions/restaurant).
@@ -235,7 +237,9 @@ Choose **New project**. It takes three steps:
 
 The project's dashboard opens, with the same pages as a regular app of its kind. You can design and try before you choose a plan. Publishing needs one of Studio's plans.
 
-You can also start from one of Studio's nine demos, in either of its two looks, with all its pages, photos and entries, and try each one live first: see [Ready sections, templates and Studio's demos](/docs/studio-templates).
+You can also start from one of Studio's ten demos, in either of its two looks, with all its pages, photos and entries, and try each one live first: see [Ready sections, templates and Studio's demos](/docs/studio-templates).
+
+A shop can start from Leqaa, Studio's flower shop, with its gift checkout, delivery days and times, card messages and flash sales, which every store app can use: see [Delivery days, gifts and flash sales](/docs/delivery-and-offers). Its story, **Flower shop app**, is among the stories on [Yallapp Studio](/yallapp-studio).
 
 ## The Studio editor
 
@@ -375,7 +379,8 @@ The plugin's settings decide how your app behaves. The most important ones:
 - **Purchases**: the **Enroll now** button on Android, free enrollment, and whether checkout opens inside the app or in the phone's browser
 - **Video & content protection**: blocking screenshots and screen recording, the video watermark, how long video links last, and a required watch time
 - **Lesson content (HTML & code)**: how lessons are shown, the height of embedded tools, code highlighting
-- **Store app**: the banner, delivery dates and gift messages
+- **Store app**: the banner, delivery dates and gift messages; with plugin 0.4.44, same-day orders until a time, delivery times and the gift checkout (see [Delivery days, gifts and flash sales](/docs/delivery-and-offers))
+- **Flash sale**: a flash sale through WooCommerce's own sale price, with a countdown in the app (plugin 0.4.44)
 - **Notifications (Firebase)**: see [Push notifications with Firebase](/docs/push-notifications)
 - **Updates & maintenance**: a minimum app version, and maintenance mode with a message
 
@@ -388,6 +393,8 @@ In your Yallapp dashboard, open **App setup › Website**, choose **My WordPress
 ## Apps designed in Yallapp Studio
 
 A WordPress academy can be a [Yallapp Studio](/docs/yallapp-studio) project. What you design in Studio reaches the app through the plugin, filled with your own courses: the pages and tabs, the sign-in screen, the account menu, the launch screen and the looks of the premium academy's screens. Plugin 0.4.39 adds the new academy home: the student's cards (the course they're taking, their next live class and their streak) on a photo, each course card's rating from your course reviews, and a card's border colour in dark mode. Plugin 0.4.40 adds Studio's premium library: stories, the ticker, the video and parallax banners, the gallery, before and after, progress segments and the slider's new looks; quotes, plans, numbers, progress, the timeline, the profile card, the bento grid, badges, the action bar and the glass, ticket and texture card styles; and the drawn map's premium looks with their pins, words and live route. Plugin 0.4.41 adds the Signature looks and premium screens: a header's premium style with its line, photo and folding, the look of the app's own screens, the live cards' new looks, the next trip as a boarding pass or a big countdown, a greeting in your own words, and the course in progress in a gold ring with this week's days. See [Premium elements in Studio](/docs/studio-premium-elements).
+
+A WooCommerce shop can be a Studio project too, like Leqaa, Studio's flower shop. Plugin 0.4.44 serves its look from your site: the petal header, the petal bottom bar, the petal account and system screens, the gift checkout's look in five steps with the card's live preview, a variable product's default choice chosen when its page opens, and a look's own night colours on every screen.
 
 Keep the plugin up to date in **Plugins**, then select **Publish** in Studio: the app shows it the next time it opens, without a new build.
 
@@ -406,6 +413,7 @@ With WooCommerce, customers see their orders in the app and are told when one ch
 
 - **Tracking**: add it with **WooCommerce Shipment Tracking** or **Advanced Shipment Tracking**, as you do now. The customer gets a notification, and the order in the app shows the carrier, the tracking number and a **Track shipment** button. Changing the tracking tells them again.
 - **Completed, cancelled or refunded**: the customer gets a notification when you change the order's status.
+- **Delivery and gifts** (plugin 0.4.44): the delivery day and time, the sender, the recipient and the card are on the order in **WooCommerce › Orders**; in the gift checkout the sender is the order's billing and the recipient its shipping.
 
 - **Returns**: in the plugin's **Settings › Store app**, set **Returns in the app** to the number of days after an order is completed that customers may ask to return it (0 for none). They choose a reason and can add a note on the order in the app. You get an email and see the request on the order in **WooCommerce › Orders**, where you approve or decline it with a reply; the customer is told in the app. Refund it in WooCommerce when you get it back. Yallapp plugin 0.4.17 or later.
 
@@ -997,7 +1005,8 @@ They hold other elements and place them.
 - **Divider**: a line between parts.
 - **Countdown**: the days, hours, minutes and seconds until **Ends at**. **Once the time is up** shows your words, or nothing when it's empty.
 - A **List** with an icon on each line: **One line each**, and the **Icon of each line**.
-- **Coupon code**: **The code** (letters, numbers, - and _), which people copy with one tap.
+- **Coupon code**: **The code** (letters, numbers, - and _), which people copy with one tap. Its **Look** is **Classic**, **Ticket** or **Glass**, and **One of your shop's coupons** shows one of your shop's codes instead, left out while none is valid.
+- **Flash sale**, in the **Premium** group of a project that sells products: your flash sale with its countdown, on [Premium elements in Studio](/docs/studio-premium-elements).
 - **Greeting**, **Live order**, **Live card**, **School day** and the **Student's card**: drawn from the person signed in, on [Premium elements in Studio](/docs/studio-premium-elements).
 - In the **Premium** group: **Stories**, **Ticker**, **Gallery**, **Before and after**, **Progress segments**, **Testimonials**, **Pricing**, **Numbers**, **Progress**, **Timeline**, **Bento grid**, **Badge**, **Action bar**, and under **Maps** the drawn maps in their premium looks, on the same page.
 - In a multi-vendor app, **the multi-vendor section**: the address and search, the kinds of places, the offers, the cuisines and departments, the club, the places or order again, filled from your places. For places, choose the look, which places (all, restaurants or groceries), the order, a tag, free delivery only, how many (up to 40) and what each place's card leaves out (the offer, rating, delivery time, delivery fee or smallest order).
@@ -1010,6 +1019,7 @@ On the **Data** tab, a list has:
 - **How many**, and **Order**: newest, most popular, lowest or highest price.
 - **Featured only**, one **Category**, **On sale only**, and for products **What this person opened lately**, kept on their phone and hidden until they open a product.
 - **Card**: **The app's card**, or **My own card**. **Design the card** opens one entry's card: lay it out with any elements, and set each one's **Shows from the entry** to **The title**, **The line under it**, **The picture**, **The price**, **The badge** or **The rating**. Every entry is drawn with your card.
+- For products, **Sale on the cards**: **A chip with the share off**, **A ribbon across the corner** or **The prices only**, with **A small countdown when the sale ends soon** and its **Sale colour**. In your own card, an element can show **The share off (sale)** or **The price before the sale**.
 
 Studio's page shows your own entries, or sample ones until you add yours, so you see the real card.
 
@@ -1029,9 +1039,9 @@ Check each page on a **Small phone**, a **Large phone** and a **Tablet**, in lig
 
 ## The page, its header and its tabs
 
-- **Header**: **No header**, or one of six: **1 Logo in the middle**, **2 Title + search**, **3 Logo + cart + account**, **4 Clear over the picture**, **5 The page's title and buttons** and **6 Greeting with the person's name**. Choose its buttons (menu, search, cart, notifications, chat, account) and its colours, in dark mode too. A clear header lies over the page's first element, from the very top. A **Premium style** (a large title, frosted glass, a photo cover, your brand in the middle, or a title with search) is drawn in place of the type: see [Premium elements in Studio](/docs/studio-premium-elements).
+- **Header**: **No header**, or one of six: **1 Logo in the middle**, **2 Title + search**, **3 Logo + cart + account**, **4 Clear over the picture**, **5 The page's title and buttons** and **6 Greeting with the person's name**. Choose its buttons (menu, search, cart, notifications, chat, account) and its colours, in dark mode too. A clear header lies over the page's first element, from the very top. A **Premium style** (a large title, frosted glass, a photo cover, your brand in the middle, or a title with search; and **Petal**) is drawn in place of the type: see [Premium elements in Studio](/docs/studio-premium-elements).
 - **Page background**, **Bottom tabs under this page**, and **The app's screen under this page**: the app draws one of its own screens (its lists, forms or map) under your elements, and your header becomes its title.
-- **Bottom tabs**: up to ten. Up to five show in the bar; with more, the fifth becomes More and holds the rest. Each tab has its name and icon. Under **How the bar looks**, choose the **Design** (Classic, Pill, Minimal, Dot, Line, Bubble, Glass, Notch, Lift, Outline, Square, Names only, Island, Segment, Folder tab, Drop, Glow, Colours, **Floating pill** or **Small dock**), the **Open tab** and **Other tabs** colours, **Corners**, **Space around it (floating)**, the names' font, **Names** (always, open tab only or icons only), a **Round button in the middle** and **The account tab shows the person's photo**.
+- **Bottom tabs**: up to ten. Up to five show in the bar; with more, the fifth becomes More and holds the rest. Each tab has its name and icon. Under **How the bar looks**, choose the **Design** (Classic, Pill, Minimal, Dot, Line, Bubble, Glass, Notch, Lift, Outline, Square, Names only, Island, Segment, Folder tab, Drop, Glow, Colours, **Floating pill** or **Small dock**; and **Petal with a raised bloom**), the **Open tab** and **Other tabs** colours, **Corners**, **Space around it (floating)**, the names' font, **Names** (always, open tab only or icons only), a **Round button in the middle** and **The account tab shows the person's photo**.
 - **System screens' look**, with nothing selected: the look of the app's own screens (the account, settings, notifications, sign-in and more) for the whole project.
 
 ## Working faster
@@ -1182,26 +1192,46 @@ Once an element has a **Border**, **In dark mode** gives it its own border colou
 
 Under **Bottom tabs**, two designs float over the page in their own colours, and the page goes on under them. **Floating pill**: the open tab a filled pill with its name, the others icons only. **Small dock**: a capsule in the middle as wide as its icons, the open tab a filled circle.
 
+**Petal with a raised bloom**, Leqaa's bar, floats too: a bar on a soft wash of the open tab's colour toward its foot, the open tab on a petal-shaped leaf of its colour with its name, and the middle tab (of three or five) a raised bloom, a petal-shaped button in its colour ringed in the page's colour, with its name under it. Leqaa's middle tab is Send, its cart.
+
 ## Places as chips, a deck and the address bar
 
 In a multi-vendor app, the places can show as **Chips** (each place's photo beside its name, rating and time), or as a **Deck of cards**: the open place in front with its club benefit or offer, the next two peeking behind it, and a swipe bringing the next one. The address and search can show as a **Bar** with the soonest time an open place delivers in.
+
+## Flash sale
+
+In a project that sells products, the **Flash sale** element in the **Premium** group shows one of your flash sales from **Delivery & offers**: its products with the price before and after, the share off, a live countdown and, when the sale has a number of units, a stock bar. Choose its **Look** (**Banner**, **Carousel** or **Grid**), **Which sale** (**The one ending soonest**, or one of yours by its name), **How many** products (1 to 12), the **Live countdown**, the **Stock bar (when the sale has a number of units)** and its **Colour**. Without a flash sale, it shows the products on sale now. It's left out of the app while nothing is on sale, and hides once the sale is over. The countdown ticks every second; on phones set to reduce motion, only the numbers change. A sale on one product shows as one wide card: its photo beside its name, its prices and the share off. Your flash sales are set on [Delivery days, gifts and flash sales](/docs/delivery-and-offers).
+
+## Sales on the cards
+
+A product's sale shows wherever the product does. On a list of products, **Sale on the cards** sets how: **A chip with the share off**, **A ribbon across the corner** or **The prices only**, with **A small countdown when the sale ends soon** and its **Sale colour**. In a card you design, set an element's **Shows from the entry** to **The share off (sale)** or **The price before the sale**. The app's own product cards and product page show the sale price, the price before it, the countdown and the stock bar.
+
+## Coupons in a premium look
+
+The **Coupon code** element's **Look** can be **Ticket** or **Glass**, besides **Classic**, each with a button to copy the code. With **One of your shop's coupons**, it shows the coupon with the code you write, or your first one with **Show in the app**, and it's left out while none is valid.
 
 ## Premium headers
 
 Select the page's **Header** and choose a **Premium style**, drawn in place of the header's type: **Large title**, a big title with a **Line under the title**; **Frosted glass**, a bar the page scrolls under; **Photo cover**, a photo under a shade with the title over its foot (**Choose the photo**, or your main and second colours); **Brand in the middle**, your logo on your main colour; or **Title + search**, the title over a search pill that stays. The large title, the photo and the search fold into a small bar as the page scrolls, unless you turn off **Folds into a small bar on scroll**. Their buttons are round and glassy: the bell has a dot while the person has unread notifications, the account shows their photo, and a page opened over the tabs has a round back button. **None (the type above)** keeps the header's type.
 
+**Petal**, Leqaa's header, is a soft wash of your main and second colours, or **Choose the photo** under a soft shade, with your title or logo as a wordmark in the middle between round glass buttons, its line under it, a fine floral line (a hairline, a small flower, a hairline) and a curved petal edge at its foot. It folds into a small bar with the title in the middle as the page scrolls too, unless you turn off **Folds into a small bar on scroll**.
+
 ## The app's own screens in a premium look
 
-With nothing selected, the page's settings have the **System screens' look**, for the whole project. It's also under **System screens** on **Sign-in and account** in your project's menu, where you design the sign-in screen and the account menu. Choose **The app's own** (every screen as it is today), **Large title**, **Frosted glass**, **Photo hero** (a photo under a shade at the top: choose one, or the sign-in's photo shows) or **Brand hero** (your main colour across the top with your logo).
+With nothing selected, the page's settings have the **System screens' look**, for the whole project. It's also under **System screens** on **Sign-in and account** in your project's menu, where you design the sign-in screen and the account menu. Choose **The app's own** (every screen as it is today), **Large title**, **Frosted glass**, **Photo hero** (a photo under a shade at the top: choose one, or the sign-in's photo shows) or **Brand hero** (your main colour across the top with your logo). **Petal**, Leqaa's, puts the person in the middle in a double ring over a soft arch of your two colours with a petal edge, with their name and number, the floral line and Edit; the quick numbers hang over the arch's foot, the rows sit in soft cards with petal-shaped icon tiles on a blush wash of your main colour, the screens' header is the petal one, and sign-in and the code screen show the photo under a soft rose shade.
 
 The look is for the account (the person on a card, a few numbers from their own data and your entries grouped, with Sign out last), settings, notifications, the language, editing the profile, help, about and the legal pages, the lists of orders, bookings and trips, sign-in and the code screen, and the empty and loading states, which load as a shimmer in your colours. **Another look for one screen** gives one screen a look of its own. The app shows it the next time it opens, with no new build. Existing projects keep their screens until you choose a look; projects made from a demo, one of its looks or a whole design start with theirs.
+
+## The gift checkout's look
+
+In a store project, **Sign-in and account** has **Checkout**: how your store's checkout looks. **As before** keeps the cart and the checkout as they are. **Gift checkout, step by step** turns on the gift checkout and lays it out in five steps on one screen, with a bar at the top that follows the order: who it's from, who it's for, when (the day and time, required), the card's message, then the payment. Beside them, the gift card's live preview shows the first item's photo, who it's for, the words as they're typed, who it's from and a wax seal, and the summary always shows the day, the time and the delivery fee. Choose the **Steps' colour**, or **Use the project's main colour**. **The titles in your words** sets the add-ons', the card's and the delivery's titles in each of the project's languages, over those on **Delivery & offers**. Studio draws it with a sample order; the app shows it on the real cart, with your rules, places, times and card messages, by day and by night. Leqaa's two looks start with it. See [Delivery days, gifts and flash sales](/docs/delivery-and-offers).
 `,
   }),
   doc({
     slug: "studio-templates",
     section: "Your app",
     title: "Ready sections, templates and Studio's demos",
-    description: "Add ready-made sections and whole pages in Yallapp Studio, keep your own templates and designs, use the six premium whole designs, and start from one of Studio's nine demos in either of its two looks, trying each one live before you choose.",
+    description: "Add ready-made sections and whole pages in Yallapp Studio, keep your own templates and designs, use the six premium whole designs, and start from one of Studio's ten demos in either of its two looks, trying each one live before you choose.",
     steps: false,
     figures: ["safra-explore", "travel-sig-b-home", "rawaq-home", "teachers-sig-b-home"],
     body: `You don't have to build every page from single elements. In the [Studio editor](/docs/studio-elements), **Ready sections** adds a whole part of a page, **Templates** a whole page, and **Whole designs** every page at once. And a new project can start as one of Studio's demos, in either of its two looks, with all its pages, photos and entries.
@@ -1210,13 +1240,15 @@ The look is for the account (the person on a card, a few numbers from their own 
 
 Drag a section onto the page, or click it to add it at the end. Each one is made of ordinary elements you change one by one.
 
-- **For every project**: Welcome, Offer banner, Categories, List, Button, Features, Numbers, A review, Find us, Contact form, Search bar, How it works, Questions and Offer countdown; and the photo-first sections **Photo with words**, **Photo tiles** and **People in circles**.
-- **For shops**: Big slider, Cards slider, Picture and words slider, Offers slider, Flash sale, Categories in pictures, Round categories, New arrivals, Best sellers, On sale, Deal of the day, Shop the look, Brands, Why buy here, Coupon and Recently viewed.
+- **For every project**: Welcome, Offer banner, Categories, List, Button, Features, Numbers, A review, Find us, Contact form, Search bar, How it works, Questions and Offer countdown; and the photo-first sections **Photo with words**, **Photo tiles** and **People in circles**; and **Petal arch cover**, marked **New**, the opening of the Petal home.
+- **For shops**: Big slider, Cards slider, Picture and words slider, Offers slider, Flash sale, Categories in pictures, Round categories, New arrivals, Best sellers, On sale, Deal of the day, Shop the look, Brands, Why buy here, Coupon and Recently viewed; and Leqaa's, marked **New**: **Occasions as full-screen stories**, **Occasion rings**, **Send today with the cut-off**, **Send today as a ticket**, **Flash sale with a countdown**, **Collections as a bento**, **Collections as arches**, **Loved most, tall cards**, **The edit, numbered cards**, **Build your bouquet**, **The bouquet's three steps**, **From the atelier, filmstrip**, **The price list**, **Kind words in brackets**, **Occasions ticker** and **Sticky Send flowers**.
 - **For each kind of project**: Send a parcel, Food delivery, Rides, Teachers, School and University; and, in a multi-vendor app, the address and search, the kinds of places, offers, cuisines, supermarket departments, the club, places near you, best rated, fastest, groceries, free delivery and order again.
 
 ## Templates
 
-**Templates** starts the open page from a whole page; its elements are replaced, and **Undo** brings them back. Your kind of project's templates come first: its demo, marked **Recommended** (like **Our demo: Sofra Eats**), then the demo's two Signature looks, each the whole app in that look, then the kind's other templates, like **Food, photo first**, **Market, photo tiles**, **Courier in the city**, **Ride at night**, **Taxi map**, **Today at school**, **Real teachers** or **Premium academy**. An academy starts with Ufuq Academy's two looks, **Night cinema** and **Gold ring**. **Brand**, **Contact** and **Blank page** fit every project.
+**Templates** starts the open page from a whole page; its elements are replaced, and **Undo** brings them back. Your kind of project's templates come first: its demo, marked **Recommended** (like **Our demo: Sofra Eats**), then the demo's two Signature looks, each the whole app in that look, then the kind's other templates, like **Food, photo first**, **Market, photo tiles**, **Courier in the city**, **Ride at night**, **Taxi map**, **Today at school**, **Real teachers** or **Premium academy**. An academy starts with Ufuq Academy's two looks, **Night cinema** and **Gold ring**. A shop, other than a restaurant or café, starts with Leqaa's two looks, **Rose hour** and **Botanical press**, marked **New**. **Brand**, **Contact** and **Blank page** fit every project.
+
+**Petal home**, marked **New**, fits every project too: your words in the middle over your kind's photo cut as a tall arch, the floral line, the main button, your kind's stories, the person's live card, a bento, your kind's list, kind words in [brackets] and a sticky action bar, under the petal header, in your project's own colour with a night made for it.
 
 The Signature looks are also offered on the **Branding** step of App setup, each with its picture, and when you make a new project.
 
@@ -1241,7 +1273,7 @@ Each one's home comes first, then your kind's own pages, an about page and conta
 
 The words a template, a ready section, a whole design or a look puts into your app (its headlines, buttons, section titles, tabs and sign-in lines) are your app's own, in English, Arabic and Turkish: written in your dashboard's language, with the others as translations. In Arabic they're in Modern Standard Arabic, like the rest of your app; Studio's editor itself speaks your dashboard's language.
 
-## Studio's nine demos
+## Studio's ten demos
 
 Each demo is a real app made in Studio, in English, Arabic and Turkish, light and dark, with real photos, and each one is its look A. Starting from one gives you all of it: its pages, tabs, bar, look, sign-in screen, account menu, entries, premium headers and the look of the app's own screens.
 
@@ -1254,6 +1286,7 @@ Each demo is a real app made in Studio, in English, Arabic and Turkish, light an
 - **Lamha Taxi**, a live taxi app: the free taxis around the person on a map in two inks, the nearest one's minutes, where to, the classes and the airport's set price.
 - **Nakhla School**, a school: the school gate's photo with the children to switch between and the family's greeting, the school's news running, today at school for the chosen child and the forms to sign.
 - **Safra**, a travel company: the resort's photo with Explore, Trips, Flights and Saved, the person's next trip as a boarding pass, the company's hotels with their price a night and its flights.
+- **Leqaa**, a flower shop in Cairo: the five occasions as full-screen stories with their rings on a frosted card over their foot, Send today with the shop's cut-off and the delivery days, the flash sale, the collections as a bento, what's loved most, Build your bouquet and kind words; Home, Bouquets, Send, Orders and Account on the petal bar, every page under the petal header, with the petal account and the gift checkout. Its shop runs on the real settings: the gift checkout, same-day delivery until a cut-off, delivery times, Greater Cairo priced by the distance, card messages by occasion, a flash sale and a code shown in the app.
 
 Each demo's earlier home is also a template for its kind of project, so any project can start a page like it.
 
@@ -1270,6 +1303,7 @@ Every demo has two Signature looks. Look A is the demo itself; look B is another
 - **Nakhla School**: **Morning edition**, and **Family passes** (the chosen child's day as a pass, the school bus, the forms to sign and the news).
 - **Rawaq Academy**: **Faculty index**, and **On air** (the teachers in a full-screen slider, the teachers in rings and the popular courses in a grid).
 - **Ufuq Academy**: **Night cinema**, and **Gold ring** (the course in a gold ring, the streak with this week's days, the live class and the picked courses in a list, with a dock).
+- **Leqaa**: **Rose hour**, in blush and plum, and **Botanical press** (the petal header over the page, "Who are the flowers for?" with the occasions as chips, the edit as numbered cards, Send today as a ticket, the flash sale on forest green, the collections as arches, a filmstrip from the atelier, the price list and the bouquet's three steps, in sage and forest with peach, the petal bar as a forest capsule).
 
 ## Starting from a demo
 
@@ -2386,6 +2420,8 @@ Select **New product** and fill in:
 - **Digital product**: nothing to ship, like a gift card. No shipping is charged, and the iPhone app doesn't sell it (Apple's rules)
 - **Featured**: shown first on the app's home screen
 - **Show in the app**: turn it off to hide a product without deleting it
+- **Weight (kg)**: for shipping priced by weight. Each option can add its own weight
+- **Sell only as an add-on (gift extra)**: a gift extra like chocolates, a card or a vase, never listed or bought on its own; choose what it's offered with under **Offer with**
 
 Every product also has its own web page to share.
 
@@ -2401,6 +2437,8 @@ Group your products, like "Bouquets" or "Gifts". Customers browse them in the ap
 
 Set a **Shipping fee** for orders with physical products (leave it empty for free shipping) and, optionally, **Free shipping from** an order amount.
 
+Delivery days and times, where you deliver, prices by city, distance or weight, and a minimum fee are on **Delivery & offers**: see [Delivery days, gifts and flash sales](/docs/delivery-and-offers).
+
 ## Tax
 
 If you charge VAT, KDV or a similar tax, set its **Tax rate (%)** and **Tax name** under **Shop settings** on the **Products** page. With **My prices include the tax** ticked (the usual way in Türkiye), the totals stay as they are and the cart, the receipt and your order email show how much of the total is tax. Untick it to add the tax on top, to the products after a coupon or points and to the shipping: the cart shows the tax as its own line and the payment charges the total with it. Leave the rate empty for no tax.
@@ -2408,6 +2446,8 @@ If you charge VAT, KDV or a similar tax, set its **Tax rate (%)** and **Tax name
 ## Coupons
 
 Under **Coupons** on the **Products** page, add codes your customers type in the app's cart, like SPRING10: a **Percentage off** or an **Amount off** the products (shipping stays as it is), with an optional **Minimum order**, **Last day** and number of **Uses**. The cart shows what the coupon takes off and the total, or why it doesn't apply, and the payment page charges the total less the discount. Each paid order counts one use. **Turn off** stops a coupon for now; orders show the coupon they used.
+
+A coupon can also have a day it **Starts on** (empty: from today), and **Show in the app** shows it on the coupon element of your pages while it's valid. **Edit** changes a coupon you made.
 
 Apps on WooCommerce work the same way with your WooCommerce coupons: the cart checks the code, and your checkout applies it (Yallapp plugin 0.4.15 or later). Apps on Shopify send the code with the order to your shop's checkout; on other connected platforms the cart reminds customers to enter it at checkout.
 
@@ -2433,6 +2473,162 @@ On every plan but Starter, give your customers points: under **Loyalty points** 
 - Customers see their balance and history under **Account › My points**, and each order shows the points it used and earned, here and in the app.
 
 Turning points off hides them in the app; customers keep their points for when you turn them on again.
+`,
+  }),
+  // 131.54 Delivery & offers for every store app (Phase 131): delivery days and times, where the shop delivers and what it costs, gifts and card messages, gift add-ons, flash sales and the codes shown in the app.
+  doc({
+    slug: "delivery-and-offers",
+    section: "Selling and bookings",
+    title: "Delivery days, gifts and flash sales",
+    description: "Set delivery days and times, where you deliver and what it costs, the gift checkout, card messages by occasion, gift add-ons, flash sales and the discount codes shown in the app, for every store app, and what each way of connecting your shop supports.",
+    steps: false,
+    figures: ["leqaa-product", "leqaa-checkout"],
+    body: `Every store app has a **Delivery & offers** page in the dashboard's menu, beside **Products** and **Orders** when your products are in Yallapp. It's made for flower and gift shops, and works for any shop: when and where you deliver and what it costs, gifts and their card, gift add-ons, flash sales and the discount codes shown in the app.
+
+Each part of the page shows only where it works with your shop's source, and says how. A restaurant's or café's orders keep their kitchen's times: delivery days and the gift checkout aren't for them (see [Restaurants and cafés](/docs/restaurants)).
+
+## What works with your shop's source
+
+- **Products in Yallapp** (no website): everything on this page. Yallapp's checkout charges the delivery time's extra fee, the delivery price and the flash sale's price.
+- **WordPress with WooCommerce**: the delivery days and times, the gift checkout, gifts and the flash sale are in the Yallapp plugin's settings in WordPress (plugin 0.4.44, see On WordPress below). WooCommerce's own shipping zones price shipping. The card messages and the titles in the app come from this page, and gift add-ons are set on WooCommerce's products.
+- **Shopify, Wix, ikas, Ticimax, IdeaSoft, Salla and Zid**: the app asks for the delivery day and time, the gift details and where it goes, and its checkout opens on your platform, which charges its own prices, shipping and fees. Shopify keeps the day, the time, the people and the card on its order (the cart's attributes and note), and Wix in the buyer's note to the shop. The other platforms' orders can't take them: you see them on this page, under **Deliveries from the app**.
+- **Your own API**: your API serves these, each one optional, as the API reference describes them. See [Connect your own API](/docs/my-own-api).
+
+## The checkout
+
+Under **Checkout**, choose how the app's checkout asks for the order:
+
+- **Standard checkout**: the cart, the delivery day if you turn it on, and the payment.
+- **Gift checkout**: for gifts and flowers. The customer gives their own name, phone and email, the recipient's name, phone and address, the delivery day and time (both required) and the card.
+
+In a Yallapp Studio project, a look with the gift checkout (like Leqaa's) turns it on too, and the page says so. Its look is on [Premium elements in Studio](/docs/studio-premium-elements).
+
+## Delivery days and times
+
+Under **Delivery days and times**, turn on **Customers choose the delivery day**, and choose whether **A day (and a time) must be chosen**. Then set:
+
+- **Same-day delivery**, with **Orders for today until** a time like 14:00. Empty: all day.
+- **Next-day delivery**. With same-day delivery off, tomorrow is the first day; with both off, the day after.
+- **Days ahead**: the last day customers can choose, counted from today, up to 60.
+- **Days you don't deliver**, like Fridays. At least one day stays open.
+- **Time zone**: the cut-off and the days are counted in it.
+- **Delivery times**: up to 8, each **From** and **To**, with how many **Orders** it takes and an **Extra fee**, both optional.
+
+Select **Save delivery times**. The app shows only what can still be chosen: today until the cut-off, a time of today until it starts, and a full time as full. Yallapp checks the day and the time again when the order is placed, whatever the app sends. The gift checkout always asks for the day and the time.
+
+With a connected platform, a time's orders are counted from the checkouts started in the app, and its extra fee isn't charged: the platform's checkout charges its own fees.
+
+## Where you deliver and what it costs
+
+Under **Where you deliver and what it costs**, choose up to four countries, then all their cities or some, one city a line. The page suggests the largest cities of Turkey, Egypt, Saudi Arabia, the United Arab Emirates, Kuwait, Qatar, Bahrain and Oman, and you can write any city's name. Then choose the **Shipping price**:
+
+- **One price everywhere**: your **Shipping fee** in **Shop settings** on the **Products** page, free over the amount set there.
+- **A price per city**: each city's price, and one for your **Other cities**. Leave that one empty to deliver only to the cities with a price.
+- **By distance**: a **Base fee** and a price **Per km** from your shop's latitude and longitude to where the order goes, in a straight line, **Up to (km)** a distance you choose.
+
+In any of them:
+
+- **Cities with their own price**: one city a line, with its price after a colon. A city's own price replaces the whole computed fee.
+- **Add a price per kg**: the weight of the products and their options, over the **First kg included**. Set each product's **Weight (kg)** on its page in **Products**, and each option's weight with the options; the page says how many products have none.
+- **Minimum fee**: the least a computed fee comes to.
+- Free delivery over the amount set in **Shop settings**, as before.
+
+Select **Save where you deliver**. The cart shows the delivery fee line by line: the base, the distance, the weight, the delivery time's extra fee, or free over your amount.
+
+In the app, the gift checkout asks for the country (when you deliver to more than one), the city (from your list when you chose cities) and the address. Priced by distance, it takes the place from the phone's location (**Use my location for the delivery**). The standard checkout doesn't ask where the order goes yet, so use the gift checkout with delivery areas, a city's price or pricing by distance. A price per kg alone works with either checkout.
+
+With a connected platform, its checkout charges its own shipping: here you choose where the app takes addresses. On WordPress, WooCommerce's shipping zones price shipping.
+
+## Gifts
+
+Under **Gifts**, choose what customers can say about a gift at checkout, all of it optional for them:
+
+- **A card message**, up to the **Longest message (characters)** you set, from 20 to 500.
+- **Beginnings to tap**: up to 6, one a line, like "Happy birthday!".
+- **The recipient's name and phone**: in the standard checkout, the customer turns on **Send it to someone else**.
+- **“Send anonymously”**: the card doesn't show the sender's name.
+
+The gift checkout always offers the card, the recipient and "Send anonymously".
+
+## Card messages by occasion
+
+**Manage card messages** opens **Card messages**: ready messages by occasion, in each of your app's languages. The first time you open it, it fills with Yallapp's starting set in English, Arabic and Turkish: two or three messages for each of 11 occasions (love, birthday, anniversary, congratulations, new baby, get well, thank you, sorry, sympathy, Eid and Ramadan, and Mother's Day). They're yours from then on: **Edit**, **Move up**, **Move down**, **Hide** or **Delete** each occasion and each message, **Add an occasion** of your own, and **Add a message** to any of them. You can have up to 30 occasions, each with up to 12 messages of up to 500 characters; a language left empty shows the app's main one.
+
+In the checkout, customers pick an occasion, tap a message to fill the card and change it as they like, or write their own. Card messages work with products in Yallapp, WordPress (with the site's next license check) and the connected platforms.
+
+## Gift add-ons
+
+Chocolates, a card, a vase: a gift add-on is sold only with another product. It's never in the app's lists, search, home sections, related products or a flash sale, and never bought alone. The app offers it as **Add a little more** on a product's page and in the cart, up to 12 at a time, and the cart shows it under the item it goes with ("With …"); removing the item removes its add-ons.
+
+- **Products in Yallapp**: on a product's page in **Products**, turn on **Sell only as an add-on (gift extra)**, then choose **Offer with**: **Every product**, **The products of some categories** or **Some products**. Products and the order's lines mark it **Add-on**.
+- **WooCommerce**: on the WooCommerce product's page, in the Yallapp box, tick **Sell only as an add-on in the app** and choose **Offer it with**. Your website's own shop keeps showing it unless you hide it there (Catalog visibility).
+- **Shopify**: under **Gift add-ons** on this page, give your add-ons' Shopify product numbers, all the products of a Shopify category (that category is hidden from the app), or the products with a Shopify tag, like yallapp-addon (up to 50 products); then choose what they're offered with.
+- **Wix, ikas, Ticimax, IdeaSoft, Salla and Zid**: the same, by product numbers or a category, without tags.
+
+On a connected platform, the add-ons stay ordinary products there, and the platform's own checkout sells the cart as it is.
+
+## Titles in the app
+
+Under **Titles in the app**, word three titles your own way, in each of the app's languages, up to 40 characters each: **The add-ons (“Add a little more”)**, **The card message** and **The delivery day and time**. Left empty, the app uses its own words. In a Studio project, the checkout's look can have its own titles, which come first.
+
+## Flash sales
+
+Under **Flash sales**, select **Add a flash sale**: this price instead of that one, between two times, with a countdown in the app.
+
+- **Name**, shown in the app, like "Mother's Day roses", and its name in each of the app's other languages.
+- **Products**, or **Or a whole category**. With a connected platform, write its **Product numbers**.
+- **Discount**: **A share off (%)**, from 1 to 90, or **A sale price**.
+- **Starts** and **Ends**, in your time zone.
+- **Units on sale**: a number for "only 12 left", or empty for as many as sell.
+
+Each sale shows as **On now**, **Starts** with its date, **Ended** or **Sold out**, with how many have sold. **Edit** changes it; **Turn off**, **Turn on** and **Delete** do as they say.
+
+In the app, a product on sale shows the sale price with the price before it struck through, and the cards show the sale's countdown. A product's page has the flash sale's own box: the share off, the price, the countdown in hours, minutes and seconds, and the units left with a stock bar, gone once the sale ends. In Studio, the **Flash sale** element and the cards' sale badges show your sales on any page (see [Premium elements in Studio](/docs/studio-premium-elements)).
+
+- **Products in Yallapp**: the checkout charges the flash price while units are left, and an order counts its units once it's paid.
+- **A connected platform**: the app shows the sale, but the platform's checkout charges its own price. Make the same discount on your platform as a code and write it in the sale's discount code field: the app's checkout passes it on, so customers pay the sale price. Without it, customers see the sale in the app but pay the platform's price, and the dashboard says so. The units left aren't counted from the platform's orders. A product's own compare-at price on the platform shows as its sale too.
+- **WordPress**: the flash sale uses WooCommerce's own sale price and schedule, in the plugin's settings.
+
+## Discount codes in the app
+
+A discount code can show in the app on Studio's coupon element, with a button to copy it:
+
+- **Products in Yallapp**: your codes are under **Coupons** on the **Products** page (see [Products, orders and shipping](/docs/store-orders)). Turn on **Show in the app** to show one.
+- **A connected platform**: your platform's checkout applies its own codes, and the app passes on the code the customer types. Under **Discount codes**, add the codes to show in the app, with the same terms as on your platform.
+- **WooCommerce**: tick **Show in the app** on a coupon in WooCommerce.
+
+A code shows while it's on, has started, hasn't ended and isn't used up.
+
+## Deliveries from the app
+
+With a connected platform, **Deliveries from the app** lists each checkout started in the app with a delivery day or gift details, kept 60 days: the recipient, the day and time, the sender, the address, the card, whether it's sent anonymously, and the items. Each one shows whether it's on the platform's order or **Only here**. Match them to your platform's orders.
+
+## Orders
+
+With products in Yallapp, an order's delivery shows on **Orders**: the day and time, the zone and the fee, the sender with their phone and email, the recipient with their phone and address, and the card, with "Sent anonymously" when asked. A gift add-on shows under the item it went with. The payment page is filled from the sender, with the recipient's address.
+
+## On WordPress
+
+Plugin 0.4.44 adds these to the plugin's **Store app** settings in WordPress, beside **Ask for a delivery date in the cart** and the earliest and latest days:
+
+- **Same-day orders until**, with the earliest delivery at 0 days.
+- **Delivery times, one a line**, like "10:00-13:00 | 20": the time, then how many orders it takes and its extra fee, both optional. Full times show as full in the app, counted from the site's orders, and the fee is added on the checkout.
+- **Checkout in the app**: **Standard**, or the gift checkout. The sender's details are the WooCommerce order's billing details and the recipient's its shipping details, both kept on the order too.
+- **Gift message beginnings, one a line (up to 6)**, **Ask for the recipient's name and phone** and **Let customers send it anonymously**.
+
+And a **Flash sale** card, for one flash sale at a time: **Run a flash sale**, its name in the app and in the app's other languages, its **Products** or **Or a whole category**, **A share off (%)** or **One sale price**, when it **Starts** (the site's time zone) and **Ends**, and the **Units on sale**. While it's on, its products cost the sale price everywhere, in the shop, the cart and the checkout, as WooCommerce's own sale price. WooCommerce's scheduled sale prices show their end in the app too.
+
+See [Install the WordPress plugin](/docs/wordpress-plugin).
+
+## In the app
+
+- **When should it arrive?**: **Today**, **Tomorrow** or **Pick a date**, with the cut-off ("Order by 14:00 for delivery today", or "Orders for today have closed.") and the day's times as chips with their extra fee, the full ones greyed out.
+- The gift checkout: who it's from, who it's for, when, the card, then the payment, with the delivery fee line by line. With Studio's gift checkout look, in five steps on one screen (**From**, **For**, **When**, **Message** and **Pay**), with the card's live preview.
+- The card: the occasions, their ready messages, and **Send anonymously**.
+- **Add a little more** on a product's page and in the cart.
+- Flash sales with their countdown, and the codes you show.
+
+In English, Arabic and Turkish, light and dark, right to left in Arabic. An app built before these features keeps its delivery date and card message as they were until its next build.
 `,
   }),
   doc({

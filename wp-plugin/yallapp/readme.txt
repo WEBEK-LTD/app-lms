@@ -39,6 +39,7 @@ Digits if you prefer (with its REST API add-on). Digits is optional.
 * Push notifications through Firebase for new lessons, announcements and enrollments.
 * The pages, tabs, look and languages you publish in your Yallapp dashboard, filled with your own courses, products and posts.
 * For an academy designed in Yallapp Studio: its pages, sign-in screen, account menu, launch screen and premium screens, the student's cards on a photo or in a ring (the course in progress, the next live class and the streak with this week's days), each course card's rating from your reviews, and borders in dark mode; Studio's premium library (stories, tickers, video and parallax banners, galleries, quotes, plans, numbers, progress, timelines, bento grids, glass cards and the drawn maps' looks); and the Signature looks' premium headers and the look of the app's own screens. The guide: [Premium elements in Studio](https://yallapp.com.tr/docs/studio-premium-elements).
+* For a WooCommerce shop: same-day delivery until a cut-off and delivery times with how many orders each takes and its extra fee, a gift checkout (the sender as the order's billing, the recipient as its shipping), card messages by occasion from your Yallapp dashboard, a flash sale through WooCommerce's own sale price with a countdown in the app, coupons ticked "Show in the app", and gift add-ons offered as "Add a little more". The guide: [Delivery days, gifts and flash sales](https://yallapp.com.tr/docs/delivery-and-offers).
 
 = Privacy =
 

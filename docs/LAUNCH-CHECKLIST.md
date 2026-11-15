@@ -1582,6 +1582,37 @@ Nothing to migrate or set: the articles and screenshots are in the code.
 - [ ] Plugin 0.4.41's readme names the premium library and the Signature
       looks; publish it with the plugin's release.
 
+## 7z7. Delivery days, gifts and flash sales; Leqaa (Phase 131, 131.54)
+
+- Migrations `0128_flower_shop` (flash sales, card messages, deliveries
+  from the app, a coupon's start day and "Show in the app", an order's
+  delivery) and `0129_gift_addons` (a product's weight and add-on) run with
+  the others at deploy. The frequent job removes deliveries from the app
+  older than 60 days.
+- [ ] Release plugin **0.4.44** in Admin › Plugin releases once the app
+      update with the delivery picker, the gift checkout, "Add a little
+      more" and the petal chrome is in the stores.
+- [ ] With a test shop on products in Yallapp: on Delivery & offers turn
+      on the gift checkout, same-day delivery with a cut-off, two delivery
+      times (one taking 1 order, one with an extra fee) and one delivery
+      area; order a gift in the app: the order's page shows the sender,
+      the recipient, the card, the day, the time and the fee, and a second
+      order for the full time is refused.
+- [ ] With a Shopify test store: the order carries the day, the time, the
+      people and the card in its attributes and note; with another
+      platform (say ikas), the checkout shows under Deliveries from the app.
+- [ ] A flash sale with the platform's discount code: the platform's
+      checkout charges the sale price.
+- [ ] After the deploy, open `/docs/delivery-and-offers` in English, Arabic
+      and Turkish: it's in the menu under Selling and bookings, its pictures
+      show, the search finds "delivery times" and "gift add-ons", and
+      Delivery & offers' Help opens it in the dashboard's language.
+- [ ] `/docs/studio-templates` lists Studio's ten demos with Leqaa's two
+      looks; `/docs/studio-premium-elements` has the Flash sale element,
+      the petal header, bar and screens and the gift checkout's look.
+- [ ] Plugin 0.4.44's readme names the shop features; publish it with the
+      plugin's release.
+
 ## 8. Accounts the remaining roadmap steps wait on
 
 | Step | What we need |

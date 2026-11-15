@@ -58,6 +58,8 @@ Gerekli: \`GET /store/home\`, \`GET /store/categories\`, \`GET /store/products\`
 
 İsteğe bağlı: ürün değerlendirmeleri (\`store.reviews\` açıkken \`GET /store/products/{product_id}/reviews\`) ve müşterinin siparişleri (\`features.orders\` açıkken \`GET /me/orders\`).
 
+Çiçekçiler, hediyelik eşya mağazaları ve diğer her mağaza için şunlar da isteğe bağlıdır: teslimat günleri ve saatleri (\`same_day_cutoff\` ve \`slots\` ile \`store.delivery_date\`, ve \`GET /store/delivery-slots\`), hediye ödemesi (\`store.checkout_mode\`, ödemede \`sender\` ve \`recipient\` ile), vesileye göre kart mesajları (\`GET /store/gift-messages\`), teslimat yerleri (\`store.shipping\`), flaş indirimler (\`GET /store/flash-sales\` ve her ürünün \`sale\` alanı), uygulamada gösterilen kuponlar (\`GET /store/coupons\`) ve hediye ekleri (\`GET /store/addons\`, ürünün \`addon\` ve \`addons\` alanları, sepet satırının \`addon_of\` alanı). Her alan isteğe bağlıdır: bunları göndermezseniz uygulama eskisi gibi çalışır. Bkz. [Teslimat günleri, hediyeler ve flaş indirimler](/docs/delivery-and-offers).
+
 ### Randevu uygulamaları
 
 Gerekli: \`GET /bookings/home\`, \`GET /bookings/categories\`, \`GET /bookings/services\`, \`GET /bookings/services/{service_id}\`, \`GET /bookings/availability\`, \`POST /bookings/appointments\`, \`GET /me/appointments\`, \`GET /me/appointments/{appointment_id}\` ve \`POST /me/appointments/{appointment_id}/cancel\`. \`/config\`, \`bookings\` içermelidir.

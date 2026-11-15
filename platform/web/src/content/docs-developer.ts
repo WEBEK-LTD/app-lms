@@ -52,6 +52,8 @@ Required: \`GET /store/home\`, \`GET /store/categories\`, \`GET /store/products\
 
 Optional: product reviews (\`GET /store/products/{product_id}/reviews\`, with \`store.reviews\` on) and the customer's orders (\`GET /me/orders\`, with \`features.orders\` on).
 
+Also optional, for flower and gift shops and any other: delivery days and times (\`store.delivery_date\` with \`same_day_cutoff\` and \`slots\`, and \`GET /store/delivery-slots\`), the gift checkout (\`store.checkout_mode\`, with \`sender\` and \`recipient\` at checkout), card messages by occasion (\`GET /store/gift-messages\`), where you deliver (\`store.shipping\`), flash sales (\`GET /store/flash-sales\` and each product's \`sale\`), the coupons shown in the app (\`GET /store/coupons\`) and gift add-ons (\`GET /store/addons\`, a product's \`addon\` and \`addons\`, a cart line's \`addon_of\`). Every field is optional: leave them out, and the app works as before. See [Delivery days, gifts and flash sales](/docs/delivery-and-offers).
+
 ### Bookings apps
 
 Required: \`GET /bookings/home\`, \`GET /bookings/categories\`, \`GET /bookings/services\`, \`GET /bookings/services/{service_id}\`, \`GET /bookings/availability\`, \`POST /bookings/appointments\`, \`GET /me/appointments\`, \`GET /me/appointments/{appointment_id}\` and \`POST /me/appointments/{appointment_id}/cancel\`. \`/config\` must include \`bookings\`.

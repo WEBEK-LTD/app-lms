@@ -58,6 +58,8 @@ Accept-Language: en
 
 اختياري: تقييمات المنتجات (\`GET /store/products/{product_id}/reviews\`، مع تفعيل \`store.reviews\`) وطلبات العميل (\`GET /me/orders\`، مع تفعيل \`features.orders\`).
 
+واختياري أيضًا، لمحلات الزهور والهدايا ولأي متجر آخر: أيام التوصيل ومواعيده (\`store.delivery_date\` مع \`same_day_cutoff\` و\`slots\`، و\`GET /store/delivery-slots\`)، وإتمام طلب الهدايا (\`store.checkout_mode\`، مع \`sender\` و\`recipient\` عند الدفع)، ورسائل البطاقات حسب المناسبة (\`GET /store/gift-messages\`)، وأماكن التوصيل (\`store.shipping\`)، والعروض الخاطفة (\`GET /store/flash-sales\` و\`sale\` في كل منتج)، والقسائم التي تظهر في التطبيق (\`GET /store/coupons\`)، وإضافات الهدايا (\`GET /store/addons\`، و\`addon\` و\`addons\` في المنتج، و\`addon_of\` في بند السلة). وكل حقل منها اختياري: اتركها، ويعمل التطبيق كما كان. اطّلع على [أيام التوصيل والهدايا والعروض الخاطفة](/docs/delivery-and-offers).
+
 ### تطبيقات الحجوزات
 
 المطلوب: \`GET /bookings/home\` و\`GET /bookings/categories\` و\`GET /bookings/services\` و\`GET /bookings/services/{service_id}\` و\`GET /bookings/availability\` و\`POST /bookings/appointments\` و\`GET /me/appointments\` و\`GET /me/appointments/{appointment_id}\` و\`POST /me/appointments/{appointment_id}/cancel\`. ويجب أن يتضمن \`/config\` الحقل \`bookings\`.
