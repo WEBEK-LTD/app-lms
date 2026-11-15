@@ -3945,9 +3945,12 @@ Where the documentation lives, for whoever brings it up to date next:
   `lib/studio/elements.ts` and the inspector), `studio-premium-elements`
   (the photo-first elements, the premium library, the maps' looks, the live
   cards' options, the premium headers and the system screens' look; new
-  premium elements go there), `studio-templates` (`lib/studio/sections.ts`,
-  `lib/studio/premium-designs.ts`, the demos, their Signature looks
-  (`lib/studio/demo-designs/`) and /start). A look's home picture is
+  premium elements go there; since 131.54 also the academy's course
+  screens, `lib/studio/course-screens.ts`, the team's screens in the look
+  and photos in black and white), `studio-templates` (`lib/studio/sections.ts`,
+  `lib/studio/premium-designs.ts` with its seven whole designs,
+  `lib/studio/premium-landings.ts` with every landing, the demos, their
+  Signature looks (`lib/studio/demo-designs/`) and /start). A look's home picture is
   `public/screens/<demo's address>-sig-<a|b>-home.png`; the look B ones are
   in `APP_SCREENS` with their words in the three languages.
 - **Elsewhere**: `docs/*.md`, the plugin's `wp-plugin/yallapp/readme.txt`,

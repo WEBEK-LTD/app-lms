@@ -28,7 +28,7 @@ Başka öğeleri içerir ve yerleştirirler.
 ## İçerik öğeleri
 
 - **Metin**: yazılarınız; **Yazı tipi**, **Kalınlık**, **Boyut**, **Satır yüksekliği**, **Harf aralığı**, **İtalik**, **Altı çizili**, **Üstü çizili** (eski bir fiyat), **Büyük harf**, metnin hizası ve **En fazla satır** ile. **Yazı stili** onu projenin stillerinden birine (başlık, alt başlık, metin ya da düğme) bağlar.
-- **Resim**: Medyanızdan ya da Yallapp'ın görsellerinden. **Sığdırma** **Alanı doldur** ya da **Tamamını göster**'dir; **Oran** şeklini korur; **Yoğunluk** ile **Resmin üstünde renk** ve **Yazılar için gölge** üzerindeki yazıları kolay okunur kılar.
+- **Resim**: Medyanızdan ya da Yallapp'ın görsellerinden. **Sığdırma** **Alanı doldur** ya da **Tamamını göster**'dir; **Oran** şeklini korur; **Yoğunluk** ile **Resmin üstünde renk** ve **Yazılar için gölge** üzerindeki yazıları kolay okunur kılar. **Fotoğraf siyah beyaz** onu siyah beyaz gösterir.
 - **Düğme**: yazısı, başta ya da sonda bir **Simge** ve **Simge boyutu**, ve **Müşteri dokununca** altında açtığı şey.
 - **Simge**: seçtiğiniz boyutta tek bir simge.
 - **Liste**: kayıtlarınız, bir kartta. Gösterdiğine göre adlanır: ürünler, kurslar, hizmetler, makaleler, yazılar, ilanlar, etkinlikler, kampanyalar, teslimat hizmetleri, restoranlar, araç türleri, okul haberleri ya da kurs paketleri. Sonraki bölüme bakın.
@@ -105,6 +105,10 @@ Her sayfayı **Küçük telefon**, **Büyük telefon** ve **Tablet**'te, açık 
 ## Yazılar için gölge
 
 Üstündeki yazılar okunsun diye bir resmin üstünde gölge: fotoğraflı vitrinde, bir **Resim**'de ya da **Arkadaki resim**'i olan herhangi bir öğede. Rengini, **Başta** ve **Sonda** ne kadar koyu olduğunu seçin; yukarıdan aşağı yerine bir yandan karartmak için **Yatay, baştan**'ı seçin.
+
+## Siyah beyaz fotoğraflar
+
+Bir **Resim**, bir **Fotoğraflı vitrin** ya da bir **Derinlikli vitrin** fotoğrafını siyah beyaz gösterebilir: **Fotoğraf siyah beyaz**'ı açın. Tasarladığınız bir liste kartında kayıttan gelen bir resim de bunu yapabilir. Öğenin gölgesi altında fotoğraf iki tonlu görünür. Monokrom lüks bütün fotoğraflarını böyle gösterir; daha önce kaydedilmiş sayfalardaki fotoğraflar renkli kalır.
 
 ## Vitrin kaydırıcı ve kart karuseli
 
@@ -254,6 +258,28 @@ Hiçbir şey seçili değilken sayfanın ayarlarında tüm proje için **Sistem 
 
 Görünüm şunlar içindir: hesap (bir kartta kişi, kendi verilerinden birkaç sayı ve gruplanmış girişleriniz, en sonda Çıkış yap), ayarlar, bildirimler, dil, profili düzenleme, yardım, hakkında ve yasal sayfalar, sipariş, rezervasyon ve seyahat listeleri, giriş ve kod ekranı, ayrıca renklerinizde parıltıyla yüklenen boş ve yükleniyor durumları. **Bir ekran için başka bir görünüm** bir ekrana kendi görünümünü verir. Uygulama bunu bir sonraki açılışta, yeni derleme olmadan gösterir. Mevcut projeler siz bir görünüm seçene kadar ekranlarını korur; bir demodan, onun görünümlerinden birinden ya da bir tüm tasarımdan yapılan projeler kendi görünümleriyle başlar.
 
+## Görünümdeki ekip ekranları
+
+Ekibinizin uygulamada, sekmelerin üstünde ve çevresinde bir Studio sayfası olmadan açtığı ekranlar da uygulamanın kendi ekranlarının görünümünü alır: görünümün büyük başlıklı, cam, fotoğraflı ya da markalı üst bilgisi, yuvarlak cam bir geri düğmesiyle; sayfa kayarken katlanır; arka planı ve kartları, görünümün yazı tipleri ve renkleriyle, açık ve koyu, Arapçada sağdan sola. Bunlar okul personelinin ve öğretmenlerin ekranları (bir maaş bordrosu ve bordrolar, izinler ve izin isteme, personel haberleri, giriş kaydı, servis ekibinin görevi ve seferleri, bir sınıf, yoklama, ödevler, notlar, not defteri, bir sınıfın davranışı, takvim ve sınavlar, müfredat ve raporlar, ayrıca bir üniversite öğretim üyesinin şubesi, onun yoklaması ve danışmanlık öğrencileri), bir akademi eğitmeninin kursu, bir kuryenin işi, bir sürücünün yolculuğu, bir restoran masasının siparişi ve bir satıcının siparişleri, hazırlığı, hesap dökümleri, şikâyetleri ve çalışma saatleridir. Görünüm yoksa ya da bir Studio sayfasının üst bilgisi altındaysa klasik çubuğu korurlar; öğrencilerin ve ailelerin ekranları eskisi gibidir.
+
+## Kurs ekranları
+
+Bir akademi projesinde **Giriş ve hesap** sayfasında **Kurs ekranları** bölümü vardır: kurs kartı, kurs sayfası, ders ve Kurslarım tek bir premium görünümde, her biri kendi seçenekleriyle. **Önceki gibi**'yi (kart, kurs sayfası ve altındaki görünümler oldukları gibi) ya da dört görünümden birini seçin:
+
+- **Gece sineması**: koyu bir gölge altında afişler, tam genişlikte bir kapak, altın bölümlerle siyah üzerinde ders.
+- **Altın halka**: kompakt satırlar, çerçeveli bir kapak, yüzen bir kayıt kartı ve ilerleme için altın halkalar.
+- **Eğitmen dizini**: delikli biletler, bilgilerin sütunlarda durduğu editoryal bir kapak, ince çizgiler ve numaralar.
+- **Canlı yayın**: fotoğrafların üstünde buzlu etiketler, kırmızı canlı rozetleri, bir sinema kapağı ve ızgarada halkalar.
+
+**Vurgu rengi** yıldızları, ilerlemeyi ve düğmeleri renklendirir; siz bir renk seçene kadar projenin ikinci rengidir (**Projenin ikinci rengini kullan** onu geri getirir). Sonra her ekranı değiştirin ya da görünümün kendi ayarını koruyun:
+
+- **Kurs kartı**: **Kart** (**Afiş**, **Bilet**, **Buzlu cam** ya da **Kompakt satır**), **Fotoğraf** (**Geniş (16:9)**, **Uzun (4:3)** ya da **Kare**), **Fotoğrafın üzerindeki gölge** (%0 ile %90 arası), **Köşeler** (0 ile 32 arası) ve **Gösterir**: eğitmen, yıldızlarla puan, dersler, fiyat (indirimde eski fiyat üstü çizili) ve kayıtlı bir öğrenci için fiyatın yerinde ilerlemesi.
+- **Kurs sayfası**: **Sayfanın üstü** (**Sinema kapağı**, **Çerçeveli fotoğraf** ya da **Editoryal**), **Kayıt çubuğu** (**Buzlu**, **Düz** ya da **Yüzen kart**), eğitmen profilini, neler öğreneceğinizi, zaman çizelgesi olarak müfredatı, yorumları ve açıklamayı gösterip göstermeyeceği ve her dilde en fazla 24 karakterle **Kayıt düğmesinin yazısı** (boş: uygulamanın kendi yazısı, Hemen katıl).
+- **Ders**: **Oynatıcı** (**Siyah üzerinde tam genişlik** ya da **Sayfada çerçeveli**), **Kurstaki ilerleme** (**Çubuk**, **Her ders için bir bölüm** ya da **Halka**) ve bu ilerlemeyi, notları, kaynakları ve sıradakini gösterip göstermeyeceği.
+- **Kurslarım**: **Kurslar** **Izgara** ya da **Liste** halinde, **İlerleme** **Halkalar** ya da **Çubuklar** olarak; öğrenmeye devam etmeyi, tamamlanan kursları ve bu haftanın öğrenmesini gösterip göstermeyeceği ve her dilde en fazla 60 karakterle **Kurslarım'ın altında bir satır**.
+
+Bu ekranların gösterdiği her şey kursun kendisinden (fotoğrafı, eğitmeni, puanı, dersleri, fiyatı, müfredatı ve yorumları) ve öğrencinin kendi ilerlemesinden gelir; gösterecek bir şeyi olmayan bölüm görünmez. Studio kurs ekranlarını görünümle, çevrelerindeki sayfalarla birlikte çizer; uygulama onları bir sonraki açılışta, açık ve koyu, Arapçada sağdan sola gösterir. Ufuq Academy'nin iki görünümü **Gece sineması** ve **Altın halka**'yı, Rawaq Academy'ninkiler **Eğitmen dizini** ve **Canlı yayın**'ı kullanır.
+
 ## Hediye ödemesinin görünümü
 
 Bir mağaza projesinde **Giriş ve hesap** sayfasında **Ödeme** bölümü vardır: mağazanızın ödeme ekranının görünümü. **Önceki gibi**, sepeti ve ödemeyi oldukları gibi bırakır. **Adım adım hediye ödemesi** hediye ödemesini açar ve onu, üstte siparişi izleyen bir çubukla tek ekranda beş adıma yerleştirir: kimden, kime, ne zaman (gün ve saat, zorunlu), kartın mesajı, sonra ödeme. Yanlarında hediye kartının canlı önizlemesi ilk ürünün fotoğrafını, kime olduğunu, yazıldıkça sözcükleri, kimden olduğunu ve bir mühür gösterir; özet de günü, saati ve teslimat ücretini her zaman gösterir. **Adımların rengi**'ni seçin ya da **Projenin ana rengini kullan**'ı seçin. **Kendi sözlerinizle başlıklar**, eklerin, kartın ve teslimatın başlıklarını projenin her dilinde belirler; bunlar **Teslimat ve fırsatlar**'dakilerden önce gelir. Studio onu örnek bir siparişle çizer; uygulama ise onu kurallarınız, yerleriniz, saatleriniz ve kart mesajlarınızla gerçek sepette, gündüz ve gece gösterir. Leqaa'nın iki görünümü onunla başlar. Bkz. [Teslimat günleri, hediyeler ve flaş indirimler](/docs/delivery-and-offers).
@@ -261,14 +287,14 @@ Bir mağaza projesinde **Giriş ve hesap** sayfasında **Ödeme** bölümü vard
   },
   "studio-templates": {
     title: "Hazır bölümler, şablonlar ve Studio'nun demoları",
-    description: "Yallapp Studio'da hazır bölümler ve tüm sayfalar ekleyin, kendi şablonlarınızı ve tasarımlarınızı saklayın, altı premium tüm tasarımı kullanın ve Studio'nun on demosundan biriyle, iki görünümünden hangisiyle isterseniz başlayın; seçmeden önce her birini canlı deneyin.",
+    description: "Yallapp Studio'da hazır bölümler ve tüm sayfalar ekleyin, kendi şablonlarınızı ve tasarımlarınızı saklayın, yedi premium tüm tasarımı kullanın ve Studio'nun on demosundan biriyle, iki görünümünden hangisiyle isterseniz başlayın; seçmeden önce her birini canlı deneyin.",
     body: `Her sayfayı tek tek öğelerden kurmanız gerekmez. [Studio düzenleyicisi](/docs/studio-elements)'nde **Hazır bölümler** bir sayfanın bütün bir bölümünü, **Şablonlar** bütün bir sayfayı, **Tüm tasarımlar** da tüm sayfaları birden ekler. Yeni bir proje de tüm sayfaları, fotoğrafları ve kayıtlarıyla, iki görünümünden biriyle Studio'nun demolarından biri olarak başlayabilir.
 
 ## Hazır bölümler
 
 Bir bölümü sayfaya sürükleyin ya da sonuna eklemek için tıklayın. Her biri tek tek değiştirdiğiniz sıradan öğelerden yapılmıştır.
 
-- **Her proje için**: Karşılama, Kampanya afişi, Kategoriler, Liste, Düğme, Özellikler, Rakamlar, Bir yorum, Bize ulaşın, İletişim formu, Arama çubuğu, Nasıl çalışır, Sorular ve Geri sayımlı kampanya; ve fotoğraf öncelikli bölümler **Üzerinde yazı olan fotoğraf**, **Fotoğraf kutuları** ve **Yuvarlak içinde kişiler**; ve Taç yaprağı ana sayfanın açılışı olan, **Yeni** işaretli **Taç yaprağı kemer kapak**.
+- **Her proje için**: Karşılama, Kampanya afişi, Kategoriler, Liste, Düğme, Özellikler, Rakamlar, Bir yorum, Bize ulaşın, İletişim formu, Arama çubuğu, Nasıl çalışır, Sorular ve Geri sayımlı kampanya; ve fotoğraf öncelikli bölümler **Üzerinde yazı olan fotoğraf**, **Fotoğraf kutuları** ve **Yuvarlak içinde kişiler**; ve her biri **Yeni** işaretli yeni ana sayfaların açılışları: **Sinematik kapak ve hikâyeler**, **Bölünmüş açılış ve bant**, **Hikâyeler ve tam kapak**, **Canlı kart ve bento**, **Dergi başlığı**, **Tek yıldız ürün** ve **Taç yaprağı kemer kapak**.
 - **Mağazalar için**: Büyük slayt, Kart slaytı, Görsel ve yazı slaytı, Kampanya slaytı, Flaş indirim, Görselli kategoriler, Yuvarlak kategoriler, Yeni gelenler, Çok satanlar, İndirimdekiler, Günün fırsatı, Görünümü satın al, Markalar, Neden bizden, Kupon ve Son baktıkların; ve **Yeni** işaretli Leqaa bölümleri: **Tam ekran hikâyeler olarak vesileler**, **Vesile halkaları**, **Son saatiyle Bugün gönder**, **Bilet olarak Bugün gönder**, **Geri sayımlı flaş indirim**, **Bento olarak koleksiyonlar**, **Kemerler halinde koleksiyonlar**, **En sevilenler, uzun kartlar**, **Seçki, numaralı kartlar**, **Buketini oluştur**, **Buketin üç adımı**, **Atölyeden, film şeridi**, **Fiyat listesi**, **Köşeli parantezde güzel sözler**, **Vesile şeridi** ve **Sabit Çiçek gönder**.
 - **Her proje türü için**: Kargo gönder, Yemek siparişi, Yolculuk, Eğitmenler, Okul ve Üniversite; çok satıcılı bir uygulamada da adres ve arama, yer türleri, kampanyalar, mutfaklar, market reyonları, kulüp, yakınınızdaki yerler, en yüksek puanlılar, en hızlılar, marketler, ücretsiz teslimat ve tekrar sipariş.
 
@@ -276,7 +302,15 @@ Bir bölümü sayfaya sürükleyin ya da sonuna eklemek için tıklayın. Her bi
 
 **Şablonlar** açık sayfayı bütün bir sayfadan başlatır; öğeleri değişir, **Geri al** onları geri getirir. Önce proje türünüzün şablonları gelir: **Önerilen** olarak işaretli demosu (örneğin **Demomuz: Sofra Eats**), sonra demonun her biri o görünümde uygulamanın tamamı olan iki Signature görünümü, sonra türün diğer şablonları; örneğin **Önce fotoğraf: yemek**, **Fotoğraflı pazar**, **Şehirde kurye**, **Gece yolculuğu**, **Taksi haritası**, **Bugün okulda**, **Gerçek öğretmenler** ya da **Premium akademi**. Bir akademi Ufuq Academy'nin iki görünümüyle başlar: **Gece sineması** ve **Altın halka**. Restoran ya da kafe olmayan bir mağaza, **Yeni** işaretli Leqaa'nın iki görünümüyle başlar: **Gül saati** ve **Botanik baskı**. **Marka**, **İletişim** ve **Boş sayfa** her projeye uyar.
 
-**Yeni** işaretli **Taç yaprağı ana sayfa** da her projeye uyar: türünüzün uzun bir kemer biçiminde kesilmiş fotoğrafı üstünde ortada sözleriniz, çiçek çizgisi, ana düğme, türünüzün hikâyeleri, kişinin canlı kartı, bir bento, türünüzün listesi, [köşeli parantez] içinde güzel sözler ve sabit bir işlem çubuğu; taç yaprağı üst bilginin altında, projenizin kendi renginde ve ona göre tasarlanmış bir geceyle.
+Her biri **Yeni** işaretli yedi ana sayfa da her projeye uyar: projenizin ana renginde, her biri için tasarlanmış bir geceyle, proje türünüz için yapılmış sayfalar (fotoğrafları, sözleri, ekranları ve listesi). Canlı kart yalnızca kişinin kendi kursunu, çocuğunu, siparişini, paketini ya da yolculuğunu, giriş yapmışken gösterir. Hiçbir şey uydurulmaz: sayıları, yorumları ve vaatleri [köşeli parantez] içinde siz yazarsınız.
+
+- **Sinematik ana sayfa**: şeffaf bir üst bilginin altında tam ekran türünüzün fotoğrafı, camda bir giriş satırı ve büyük bir manşetle; hikâyeler, her slayt için bir çizgi ve “01/03” ile bir hikâye kaydırıcı, sayılarınız, canlı kart, liste ve yorumlar.
+- **Bölünmüş editoryal ana sayfa**: türünüzün kemer içindeki fotoğrafının yanında sözler, çipler halinde türünüzün yerlerinden bir kayan şerit, dizin olarak liste ve bento bir galeri.
+- **Önce hikâyeler ana sayfası**: markanızın çubuğu altında büyük hikâye halkaları, sonra tam genişlikte ilk hikâye, bir film şeridi, uzun kartlar ve bir kayan şerit.
+- **Bento panosu ana sayfası**: üstte selam, önce kişinin canlı kartı, bento kutuları olarak türünüzün yerleri, bir fotoğrafın üstünde cam üzerinde “Yenilikler”, liste ve nasıl çalışır.
+- **Dergi kapağı ana sayfası**: uygulamanızın adıyla künye, [köşeli parantez] içinde sayı ve çizgiler, derinlikli bir vitrin üstünde kapak, bir kayan şerit, dizin olarak liste ve duvar örgüsü bir galeri.
+- **Minimal lüks ana sayfa**: “Seçimimiz”, listenizin öne çıkan ilk kaydı büyük, adı ve uygulamadaki fiyatıyla; birkaç sakin söz, vaatleriniz, bir yorum ve sayfanın altına sabitlenmiş bir düğme.
+- **Taç yaprağı ana sayfa**: türünüzün uzun bir kemer biçiminde kesilmiş fotoğrafı üstünde ortada sözleriniz, çiçek çizgisi, ana düğme, türünüzün hikâyeleri, kişinin canlı kartı, bir bento, türünüzün listesi, [köşeli parantez] içinde güzel sözler ve sabit bir işlem çubuğu; taç yaprağı üst bilginin altında.
 
 Signature görünümleri, her biri resmiyle, Uygulama kurulumunun **Marka** adımında ve yeni bir proje oluştururken de sunulur.
 
@@ -284,7 +318,7 @@ Signature görünümleri, her biri resmiyle, Uygulama kurulumunun **Marka** adı
 
 ## Tüm tasarımlar
 
-**Tüm tasarımlar** tüm sayfaları, üst bilgiyi ve görünümü birden değiştirir. Studio'da demosu olan bir proje türünde önce demo (**Demomuz gibi: …**), sonra kendi adıyla ikinci görünümü gelir. Ardından, hangisi olursa olsun proje türünüz için yapılmış altı premium tasarım gelir:
+**Tüm tasarımlar** tüm sayfaları, üst bilgiyi ve görünümü birden değiştirir. Studio'da demosu olan bir proje türünde önce demo (**Demomuz gibi: …**), sonra kendi adıyla ikinci görünümü gelir. Ardından, hangisi olursa olsun proje türünüz için yapılmış yedi premium tasarım gelir:
 
 - **Altın saat**: üst bilginin kapağı olarak türünüzün fotoğrafı, hikâyeler, canlı kart, başlıklı bir geçişli kart, fotoğraf kartlarında liste, fotoğraflardan bir bento ve yorumlar.
 - **Bahçe**: büyük bir başlık, kaydırılan fotoğraf kartları, türünüzün küçük kartları, canlı kart, ızgarada liste, zaman çizelgesi olarak nasıl çalışır ve yorumlar.
@@ -292,8 +326,9 @@ Signature görünümleri, her biri resmiyle, Uygulama kurulumunun **Marka** adı
 - **Berrak su**: aramasıyla başlık, yazıları cam üstünde derinlikli bir fotoğraf, hikâyeler, canlı kart, yumuşak satırlarda liste, cam bir kartta nasıl çalışır ve bir bento.
 - **Editoryal**: büyük bir başlık, altın geçişli yazıyla manşet, fotoğraflı bir hikâye, çerçeveli sözcüklerden bir kayan şerit, canlı kart, dizin olarak liste, yerin kartı ve yorumlar.
 - **Çiçek**: ortada adıyla markanızın çubuğu, hikâyeler, manşetin üstünde geçişli bir rozet ve iki düğme, canlı kart, fotoğraflardan bir duvar örgüsü, yuvarlak kartlar ve yorumlar.
+- **Yeni** işaretli **Monokrom lüks**: mürekkep siyahı ve kemik rengi, tek bir parlak limon sarısıyla; çok büyük dizilmiş kalın bir yazı tipi, rakamlar ve küçük yazılar için eş aralıklı bir yazı tipi, neredeyse kare köşeler ve siyah beyaz her fotoğraf. Ana sayfası: koyu bir gölge altında yavaşça yakınlaşan tam genişlikte türünüzün fotoğrafı, limon sarısı bir etiket üstünde giriş satırı, limon sarısı bir düğme ve çerçeveli bir düğmeyle büyük bir manşet; koyu bir bant üstünde büyük harflerle türünüzün satırlarından bir kayan şerit; canlı kart; 01'den 04'e numaralı, her biri kendi ekranını açan, iri yazılmış türünüzün dört yerinden bir dizin; siyah beyaz afişler olarak liste; yan yana iki fotoğraf panosu; yazıları cam üstünde derinlikli bir vitrin; yorumlar; ve koyu zemin üstünde büyük yazılmış kendi sözünüz.
 
-Her birinin ana sayfası önce gelir, sonra türünüzün kendi sayfaları, bir hakkında sayfası ve iletişim; her sayfada premium bir üst bilgi, gündüz tasarımın renkleriyle ve onun için tasarlanmış bir geceyle. Tüm projeye uygulandığında yüzen çubuğunu (Altın saat ve Çiçek'te kapsül, Gün batımından sonra ve Editoryal'de küçük dok, Bahçe ve Berrak su'da cam), ikinci rengini, yazı tipini ve uygulamanın kendi ekranlarının görünümünü de ayarlar. Fotoğrafları proje türünüz için ücretsiz fotoğraflardır. Hiçbir şey uydurulmaz: sayı, fiyat ya da puan yoktur; yorumları ve vaatleri [köşeli parantez] içinde siz yazarsınız, canlı kartlar yalnızca kişinin kendi siparişini, yolculuğunu, paketini, kursunu ya da çocuğunu gösterir. Bu tasarımlardan birini daha önce uygulamış bir proje kaydettiğini korur; yeniden uygulamak yenisini verir.
+Her birinin ana sayfası önce gelir, sonra türünüzün kendi sayfaları, bir hakkında sayfası ve iletişim; her sayfada premium bir üst bilgi, gündüz tasarımın renkleriyle ve onun için tasarlanmış bir geceyle. Tüm projeye uygulandığında yüzen çubuğunu (Altın saat ve Çiçek'te kapsül, Gün batımından sonra ve Editoryal'de küçük dok, Bahçe ve Berrak su'da cam, Monokrom lüks'te açık sekmesi limon sarısı koyu bir dok), ikinci rengini, yazı tipini ve uygulamanın kendi ekranlarının görünümünü de ayarlar. Fotoğrafları proje türünüz için ücretsiz fotoğraflardır; Monokrom lüks'te siyah beyazdır ve bu tasarım bir akademinin kurs kartını ve sayfasını da ayarlar: her kurs üstünde adıyla tam bir fotoğraf, kursun sayfası ise satın almanın cam üstünde durduğu uzun bir fotoğraf olur. Hiçbir şey uydurulmaz: sayı, fiyat ya da puan yoktur; yorumları ve vaatleri [köşeli parantez] içinde siz yazarsınız, canlı kartlar yalnızca kişinin kendi siparişini, yolculuğunu, paketini, kursunu ya da çocuğunu gösterir. Bu tasarımlardan birini daha önce uygulamış bir proje kaydettiğini korur; yeniden uygulamak yenisini verir.
 
 **Tüm projenin tasarımını değiştir**'i seçin ya da **Yalnızca açık sayfa için** kullanın; isterseniz **Değiştirdiğim metinleri ve resimleri koru**'yu da seçin. **Bu projeyi tasarım olarak kaydet** onu **Benim** altında saklar. Uygulamada yayınlanan, siz **Yayınla**'yı seçene kadar değişmez; **Geri al** eski tasarımı geri getirir.
 

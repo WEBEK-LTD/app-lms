@@ -37,6 +37,9 @@ describe("93.2 search of the documentation", () => {
     // 131.54 The flower shop's words find their article.
     expect(searchDocs(docs, "delivery times")[0]!.slug).toBe("delivery-and-offers");
     expect(searchDocs(docs, "gift add-ons")[0]!.slug).toBe("delivery-and-offers");
+    // 130.52–130.64, documented with 131.54.
+    expect(searchDocs(docs, "Monochrome luxe")[0]!.slug).toBe("studio-templates");
+    expect(searchDocs(docs, "photo in black and white")[0]!.slug).toBe("studio-premium-elements");
     // Every word must appear.
     expect(searchDocs(docs, "coupon zzqx")).toEqual([]);
     expect(searchDocs(docs, " ")).toEqual([]);

@@ -254,7 +254,7 @@ Choose **Open the editor**. The page sits in the phone in the middle; **Elements
 
 Check the page on a small phone, a large phone and a tablet, in light and dark. **Undo** and **Redo** go back and forward, and the page is saved as you go. **Preview on the phone** lets you try it on your phone; **Publish** sends it to your app, which shows it the next time it opens. **Save the page as my own template** keeps it in **My templates** for your other pages.
 
-Every element and its settings are on [The Studio editor: every element](/docs/studio-elements), and the premium ones Studio's demos are made of, with the premium headers and the app's own screens in a premium look, on [Premium elements in Studio](/docs/studio-premium-elements).
+Every element and its settings are on [The Studio editor: every element](/docs/studio-elements), and the premium ones Studio's demos are made of, with the premium headers and the app's own screens in a premium look, on [Premium elements in Studio](/docs/studio-premium-elements). An academy's course screens (the course card, the course page, the lesson and My courses) have premium looks too, on the same page.
 
 ## Delivery companies
 
@@ -392,7 +392,7 @@ In your Yallapp dashboard, open **App setup › Website**, choose **My WordPress
 
 ## Apps designed in Yallapp Studio
 
-A WordPress academy can be a [Yallapp Studio](/docs/yallapp-studio) project. What you design in Studio reaches the app through the plugin, filled with your own courses: the pages and tabs, the sign-in screen, the account menu, the launch screen and the looks of the premium academy's screens. Plugin 0.4.39 adds the new academy home: the student's cards (the course they're taking, their next live class and their streak) on a photo, each course card's rating from your course reviews, and a card's border colour in dark mode. Plugin 0.4.40 adds Studio's premium library: stories, the ticker, the video and parallax banners, the gallery, before and after, progress segments and the slider's new looks; quotes, plans, numbers, progress, the timeline, the profile card, the bento grid, badges, the action bar and the glass, ticket and texture card styles; and the drawn map's premium looks with their pins, words and live route. Plugin 0.4.41 adds the Signature looks and premium screens: a header's premium style with its line, photo and folding, the look of the app's own screens, the live cards' new looks, the next trip as a boarding pass or a big countdown, a greeting in your own words, and the course in progress in a gold ring with this week's days. See [Premium elements in Studio](/docs/studio-premium-elements).
+A WordPress academy can be a [Yallapp Studio](/docs/yallapp-studio) project. What you design in Studio reaches the app through the plugin, filled with your own courses: the pages and tabs, the sign-in screen, the account menu, the launch screen and the looks of the premium academy's screens. Plugin 0.4.39 adds the new academy home: the student's cards (the course they're taking, their next live class and their streak) on a photo, each course card's rating from your course reviews, and a card's border colour in dark mode. Plugin 0.4.40 adds Studio's premium library: stories, the ticker, the video and parallax banners, the gallery, before and after, progress segments and the slider's new looks; quotes, plans, numbers, progress, the timeline, the profile card, the bento grid, badges, the action bar and the glass, ticket and texture card styles; and the drawn map's premium looks with their pins, words and live route. Plugin 0.4.41 adds the Signature looks and premium screens: a header's premium style with its line, photo and folding, the look of the app's own screens, the live cards' new looks, the next trip as a boarding pass or a big countdown, a greeting in your own words, and the course in progress in a gold ring with this week's days. Plugin 0.4.42 adds the course screens in one premium look (the course card, the course page, the lesson and My courses, each with its options), and 0.4.43 the Monochrome luxe design and the landing pages, with their photos in black and white. See [Premium elements in Studio](/docs/studio-premium-elements).
 
 A WooCommerce shop can be a Studio project too, like Leqaa, Studio's flower shop. Plugin 0.4.44 serves its look from your site: the petal header, the petal bottom bar, the petal account and system screens, the gift checkout's look in five steps with the card's live preview, a variable product's default choice chosen when its page opens, and a look's own night colours on every screen.
 
@@ -992,7 +992,7 @@ They hold other elements and place them.
 ## Content elements
 
 - **Text**: your words, with the **Font**, **Weight**, **Size**, **Line height**, **Letter spacing**, **Italic**, **Underline**, **Struck through** (an old price), **Capitals**, where the text lines up and **Lines at most**. **Text style** makes it follow one of the project's styles (**Heading**, **Subheading**, **Body text** or **Button**).
-- **Picture**: from your Media or from Yallapp's pictures. **Fit** is **Fill the space** or **Show it whole**; **Proportions** keeps its shape; **Colour over the picture**, with its **Strength**, and **Shade for the words** keep words on it easy to read.
+- **Picture**: from your Media or from Yallapp's pictures. **Fit** is **Fill the space** or **Show it whole**; **Proportions** keeps its shape; **Colour over the picture**, with its **Strength**, and **Shade for the words** keep words on it easy to read. **Photo in black and white** shows it in black and white.
 - **Button**: its words, an **Icon** first or last with its **Icon size**, and what it opens under **When the customer taps**.
 - **Icon**: one icon, at the size you choose.
 - **List**: your entries, in a card. It is named after what it shows: products, courses, services, articles, posts, listings, events, campaigns, delivery services, restaurants, vehicle types, school news or course bundles. See the next part.
@@ -1073,6 +1073,10 @@ A photo with a shade and elements over it: a big welcome, a photo tile with its 
 ## Shade for the words
 
 A shade over a picture so the words on it read: on a photo hero, a **Picture**, or any element with a **Picture behind it**. Choose its colour, how dark it is **At the start** and **At the end**, and **Across, from the start** to darken it from one side instead of top to bottom.
+
+## Photos in black and white
+
+A **Picture**, a **Photo hero** or a **Parallax banner** can show its photo in black and white: turn on **Photo in black and white**. A picture in a list's own card, bound to the entry, can too. Under the element's shade it reads as two tones. Monochrome luxe shows every photo this way; pages saved before keep their photos in colour.
 
 ## Hero slider and card carousel
 
@@ -1222,6 +1226,28 @@ With nothing selected, the page's settings have the **System screens' look**, fo
 
 The look is for the account (the person on a card, a few numbers from their own data and your entries grouped, with Sign out last), settings, notifications, the language, editing the profile, help, about and the legal pages, the lists of orders, bookings and trips, sign-in and the code screen, and the empty and loading states, which load as a shimmer in your colours. **Another look for one screen** gives one screen a look of its own. The app shows it the next time it opens, with no new build. Existing projects keep their screens until you choose a look; projects made from a demo, one of its looks or a whole design start with theirs.
 
+## The team's screens in the look
+
+The screens your team opens in the app, over the tabs and with no Studio page around them, take the look of the app's own screens too: its large, glass, photo or brand header with a round glass back button, folding as the page scrolls, its background and its cards, in the look's fonts and colours, light and dark, right to left in Arabic. They are the school staff's and teachers' screens (a payslip and the payslips, leave and asking for it, the staff's news, checking in, the bus crew's duty and runs, a class, attendance, homework, scores, the gradebook, a class's behaviour, the calendar and exams, the syllabus and reports, and a university lecturer's section, its attendance and the advisees), an academy teacher's course, a courier's job, a driver's ride, a restaurant desk's order, and a vendor's orders, picking, statements, complaints and hours. Without a look, or under a Studio page's header, they keep the classic bar; the students' and families' screens are as they were.
+
+## Course screens
+
+In an academy's project, **Sign-in and account** has **Course screens**: the course card, the course page, the lesson and My courses in one premium look, each with its own options. Choose **As before** (the card, the course page and the looks below it, as they are) or one of four looks:
+
+- **Night cinema**: posters under a deep shade, a full-width cover, the lesson on black with gold segments.
+- **Gold ring**: compact rows, a framed cover, a floating enrol card and gold rings for progress.
+- **Faculty index**: tickets with a perforation, an editorial cover with the facts in columns, hairlines and numbers.
+- **On air**: frosted labels over photos, live red badges, a cinema cover and rings in a grid.
+
+Its **Accent** colours the stars, the progress and the buttons; until you choose one, it's the project's second colour (**Use the project's second colour** takes it back). Then change each screen, or keep the look's own:
+
+- **Course card**: the **Card** (**Poster**, **Ticket**, **Frosted glass** or **Compact row**), the **Photo** (**Wide (16:9)**, **Tall (4:3)** or **Square**), the **Shade over the photo** (0 to 90%), the **Corners** (0 to 32), and what it **Shows**: the teacher, the rating as stars, the lessons, the price (the old one struck through on a sale) and, for an enrolled student, their progress in its place.
+- **Course page**: the **Top of the page** (**Cinema cover**, **Framed photo** or **Editorial**), the **Enrol bar** (**Frosted**, **Solid** or **Floating card**), whether it shows the teacher's profile, what you'll learn, the curriculum as a timeline, the reviews and the description, and **The enrol button's words** in each language, up to 24 characters (empty: the app's own, Join now).
+- **Lesson**: the **Player** (**Full width on black** or **Framed on the page**), the **Progress through the course** (**Bar**, **A segment per lesson** or **Ring**), and whether it shows that progress, the notes, the resources and what's up next.
+- **My courses**: the **Courses** in a **Grid** or a **List**, their **Progress** as **Rings** or **Bars**, whether it shows continue learning, the completed courses and this week's learning, and **A line under My courses** in each language, up to 60 characters.
+
+Everything they show is the course's own (its photo, teacher, rating, lessons, price, curriculum and reviews) and the student's own progress, and a part with nothing to show is left out. Studio draws the course screens in the look on the pages around them; the app shows them the next time it opens, light and dark, right to left in Arabic. Ufuq Academy's two looks use **Night cinema** and **Gold ring**, and Rawaq Academy's **Faculty index** and **On air**.
+
 ## The gift checkout's look
 
 In a store project, **Sign-in and account** has **Checkout**: how your store's checkout looks. **As before** keeps the cart and the checkout as they are. **Gift checkout, step by step** turns on the gift checkout and lays it out in five steps on one screen, with a bar at the top that follows the order: who it's from, who it's for, when (the day and time, required), the card's message, then the payment. Beside them, the gift card's live preview shows the first item's photo, who it's for, the words as they're typed, who it's from and a wax seal, and the summary always shows the day, the time and the delivery fee. Choose the **Steps' colour**, or **Use the project's main colour**. **The titles in your words** sets the add-ons', the card's and the delivery's titles in each of the project's languages, over those on **Delivery & offers**. Studio draws it with a sample order; the app shows it on the real cart, with your rules, places, times and card messages, by day and by night. Leqaa's two looks start with it. See [Delivery days, gifts and flash sales](/docs/delivery-and-offers).
@@ -1231,7 +1257,7 @@ In a store project, **Sign-in and account** has **Checkout**: how your store's c
     slug: "studio-templates",
     section: "Your app",
     title: "Ready sections, templates and Studio's demos",
-    description: "Add ready-made sections and whole pages in Yallapp Studio, keep your own templates and designs, use the six premium whole designs, and start from one of Studio's ten demos in either of its two looks, trying each one live before you choose.",
+    description: "Add ready-made sections and whole pages in Yallapp Studio, keep your own templates and designs, use the seven premium whole designs, and start from one of Studio's ten demos in either of its two looks, trying each one live before you choose.",
     steps: false,
     figures: ["safra-explore", "travel-sig-b-home", "rawaq-home", "teachers-sig-b-home"],
     body: `You don't have to build every page from single elements. In the [Studio editor](/docs/studio-elements), **Ready sections** adds a whole part of a page, **Templates** a whole page, and **Whole designs** every page at once. And a new project can start as one of Studio's demos, in either of its two looks, with all its pages, photos and entries.
@@ -1240,7 +1266,7 @@ In a store project, **Sign-in and account** has **Checkout**: how your store's c
 
 Drag a section onto the page, or click it to add it at the end. Each one is made of ordinary elements you change one by one.
 
-- **For every project**: Welcome, Offer banner, Categories, List, Button, Features, Numbers, A review, Find us, Contact form, Search bar, How it works, Questions and Offer countdown; and the photo-first sections **Photo with words**, **Photo tiles** and **People in circles**; and **Petal arch cover**, marked **New**, the opening of the Petal home.
+- **For every project**: Welcome, Offer banner, Categories, List, Button, Features, Numbers, A review, Find us, Contact form, Search bar, How it works, Questions and Offer countdown; and the photo-first sections **Photo with words**, **Photo tiles** and **People in circles**; and the landing pages' openings, each marked **New**: **Cinematic cover and stories**, **Split opening and ticker**, **Stories and full cover**, **Live card and bento**, **Magazine masthead**, **One hero product** and **Petal arch cover**.
 - **For shops**: Big slider, Cards slider, Picture and words slider, Offers slider, Flash sale, Categories in pictures, Round categories, New arrivals, Best sellers, On sale, Deal of the day, Shop the look, Brands, Why buy here, Coupon and Recently viewed; and Leqaa's, marked **New**: **Occasions as full-screen stories**, **Occasion rings**, **Send today with the cut-off**, **Send today as a ticket**, **Flash sale with a countdown**, **Collections as a bento**, **Collections as arches**, **Loved most, tall cards**, **The edit, numbered cards**, **Build your bouquet**, **The bouquet's three steps**, **From the atelier, filmstrip**, **The price list**, **Kind words in brackets**, **Occasions ticker** and **Sticky Send flowers**.
 - **For each kind of project**: Send a parcel, Food delivery, Rides, Teachers, School and University; and, in a multi-vendor app, the address and search, the kinds of places, offers, cuisines, supermarket departments, the club, places near you, best rated, fastest, groceries, free delivery and order again.
 
@@ -1248,7 +1274,15 @@ Drag a section onto the page, or click it to add it at the end. Each one is made
 
 **Templates** starts the open page from a whole page; its elements are replaced, and **Undo** brings them back. Your kind of project's templates come first: its demo, marked **Recommended** (like **Our demo: Sofra Eats**), then the demo's two Signature looks, each the whole app in that look, then the kind's other templates, like **Food, photo first**, **Market, photo tiles**, **Courier in the city**, **Ride at night**, **Taxi map**, **Today at school**, **Real teachers** or **Premium academy**. An academy starts with Ufuq Academy's two looks, **Night cinema** and **Gold ring**. A shop, other than a restaurant or café, starts with Leqaa's two looks, **Rose hour** and **Botanical press**, marked **New**. **Brand**, **Contact** and **Blank page** fit every project.
 
-**Petal home**, marked **New**, fits every project too: your words in the middle over your kind's photo cut as a tall arch, the floral line, the main button, your kind's stories, the person's live card, a bento, your kind's list, kind words in [brackets] and a sticky action bar, under the petal header, in your project's own colour with a night made for it.
+Seven landing pages, each marked **New**, fit every project too: home pages in your project's own main colour with a night made for each, made for your kind of project (its photos, words, screens and list). The live card shows only the person's own course, child, order, parcel or ride, when they're signed in. Nothing is made up: the numbers, quotes and promises are yours to write, in [brackets].
+
+- **Cinematic home**: your kind's photo full screen under a clear header, with a glass kicker and a large headline; stories, a story slider with a line for each slide and "01/03", your numbers, the live card, the list and quotes.
+- **Split editorial home**: the words beside your kind's photo in an arch, a ticker of your kind's places as chips, the list as an index and a bento gallery.
+- **Stories-first home**: large story rings under your brand's bar, then the first story full width, a filmstrip, tall cards and a ticker.
+- **Bento dashboard home**: the greeting at the top, the person's live card first, your kind's places as bento tiles, "What's new" on glass over a photo, the list and how it works.
+- **Magazine cover home**: the masthead with your app's name, the edition in [brackets] and rules, the cover on a parallax banner, a ticker, the list as an index and a masonry gallery.
+- **Minimal luxe home**: "Our pick", your list's first featured entry large with its name and price as the app has them, a few quiet words, your promises, a quote and a button pinned to the foot.
+- **Petal home**: your words in the middle over your kind's photo cut as a tall arch, the floral line, the main button, your kind's stories, the person's live card, a bento, your kind's list, kind words in [brackets] and a sticky action bar, under the petal header.
 
 The Signature looks are also offered on the **Branding** step of App setup, each with its picture, and when you make a new project.
 
@@ -1256,7 +1290,7 @@ The Signature looks are also offered on the **Branding** step of App setup, each
 
 ## Whole designs
 
-**Whole designs** changes every page, the header and the look at once. A kind of project with a Studio demo has the demo first (**Like our demo: …**) and its second look by its own name. Then come six premium designs, each made for your kind of project, whatever it is:
+**Whole designs** changes every page, the header and the look at once. A kind of project with a Studio demo has the demo first (**Like our demo: …**) and its second look by its own name. Then come seven premium designs, each made for your kind of project, whatever it is:
 
 - **Golden hour**: your kind's photo as the header's cover, stories, the live card, a gradient card with the headline, the list in photo cards, a bento of photos and quotes.
 - **Garden**: a large title, photo cards to swipe, your kind's chips, the live card, the list in a grid, how it works as a timeline and quotes.
@@ -1264,8 +1298,9 @@ The Signature looks are also offered on the **Branding** step of App setup, each
 - **Clear water**: the title with its search, a parallax photo with its words on glass, stories, the live card, the list in soft rows, how it works on a glass card and a bento.
 - **Editorial**: a large title, the headline in gold gradient words, a photo story, a ticker of outlined words, the live card, the list as an index, the place's card and quotes.
 - **Bloom**: your brand's bar with the name in the middle, stories, a gradient badge over the headline with two buttons, the live card, a masonry of photos, rounded cards and quotes.
+- **Monochrome luxe**, marked **New**: ink and bone with one electric citron, a bold type set huge with a monospaced type for figures and small print, corners nearly square and every photo in black and white. Its home: your kind's photo full width and slowly zooming under an ink shade, the kicker on a citron tag, a large headline with a citron button and an outlined one; a ticker of your kind's lines in capitals on an ink band; the live card; an index of your kind's four places in oversized type, numbered 01 to 04, each opening its screen; the list as black-and-white posters; two photo panels side by side; a parallax banner with its words on glass; quotes; and your own statement set large on ink.
 
-Each one's home comes first, then your kind's own pages, an about page and contact, every page with a premium header, in the design's colours by day and a night made for it. Applied to the whole project, it also sets its floating bar (a pill for Golden hour and Bloom, the small dock for After dark and Editorial, glass for Garden and Clear water), its second colour, its font and the look of the app's own screens. Its photos are free photos for your kind of project. Nothing is made up: no number, price or rating; the quotes and promises are yours to write, in [brackets], and the live cards show only the person's own order, ride, parcel, course or child. A project that applied one of these designs before keeps what it saved; applying it again gives the new one.
+Each one's home comes first, then your kind's own pages, an about page and contact, every page with a premium header, in the design's colours by day and a night made for it. Applied to the whole project, it also sets its floating bar (a pill for Golden hour and Bloom, the small dock for After dark and Editorial, glass for Garden and Clear water, and an ink dock with the open tab in citron for Monochrome luxe), its second colour, its font and the look of the app's own screens. Its photos are free photos for your kind of project, in black and white in Monochrome luxe, which also gives an academy its course card and page: each course a full photo with its name over it, and a course's page a tall photo with the purchase on glass. Nothing is made up: no number, price or rating; the quotes and promises are yours to write, in [brackets], and the live cards show only the person's own order, ride, parcel, course or child. A project that applied one of these designs before keeps what it saved; applying it again gives the new one.
 
 **Replace the whole project's design**, or use it **For the open page only**, and **Keep the texts and pictures I changed** if you like. **Save this project as a design** keeps it under **Mine**. What's published in the app doesn't change until you select **Publish**, and **Undo** brings the old design back.
 

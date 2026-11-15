@@ -45,7 +45,7 @@ Bir mağaza, Studio'nun çiçekçisi Leqaa'dan da başlayabilir; hediye ödemesi
 
 Sayfayı küçük bir telefonda, büyük bir telefonda ve bir tablette, açık ve karanlık modda kontrol et. **Geri al** ve **Yinele** geri ve ileri gider, sayfa sen çalışırken kaydedilir. **Telefonda önizle** onu telefonunda denemeni sağlar; **Yayınla** onu uygulamana gönderir, uygulama bir sonraki açılışta gösterir. **Sayfayı kendi şablonum olarak kaydet** onu diğer sayfaların için **Şablonlarım**'da tutar.
 
-Her öğe ve ayarları [Studio düzenleyicisi: tüm öğeler](/docs/studio-elements) sayfasında, Studio demolarının yapıldığı premium öğeler, premium üst bilgiler ve premium görünümlü uygulama ekranlarıyla birlikte [Studio'nun premium öğeleri](/docs/studio-premium-elements) sayfasındadır.
+Her öğe ve ayarları [Studio düzenleyicisi: tüm öğeler](/docs/studio-elements) sayfasında, Studio demolarının yapıldığı premium öğeler, premium üst bilgiler ve premium görünümlü uygulama ekranlarıyla birlikte [Studio'nun premium öğeleri](/docs/studio-premium-elements) sayfasındadır. Akademinin kurs ekranlarının (kurs kartı, kurs sayfası, ders ve Kurslarım) premium görünümleri de aynı sayfadadır.
 
 ## Teslimat şirketleri
 

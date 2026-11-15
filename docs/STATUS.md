@@ -21,7 +21,11 @@ the petal header, bar and system screens and the gift checkout's look;
 sections and the Petal home; and `studio-elements`, `yallapp-studio`,
 `store-orders`, `app-types`, `wordpress-plugin` (and the plugin's readme)
 and `my-own-api` follow, with the store's solution and features on the
-website, in English, Arabic and Turkish.
+website, in English, Arabic and Turkish. Phase 130's last items are
+documented too: the academy's course screens (130.52–130.57), the team's
+screens in the look (130.58), Monochrome luxe as the seventh premium
+whole design, the seven landings (130.62 and Petal home) and photos in
+black and white (130.61), with plugin 0.4.42 and 0.4.43.
 
 Phase 131 (the flower shop) is complete: every store app, whatever its
 source, has Delivery & offers (`lib/selling`, migrations

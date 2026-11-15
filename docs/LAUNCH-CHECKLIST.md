@@ -1612,6 +1612,11 @@ Nothing to migrate or set: the articles and screenshots are in the code.
       the petal header, bar and screens and the gift checkout's look.
 - [ ] Plugin 0.4.44's readme names the shop features; publish it with the
       plugin's release.
+- [ ] `/docs/studio-premium-elements` has the course screens, the team's
+      screens in the look and photos in black and white, and
+      `/docs/studio-templates` the seven whole designs (Monochrome luxe)
+      and the seven landings, in English, Arabic and Turkish; the search
+      finds "Monochrome luxe", "Course screens" and "Minimal luxe home".
 
 ## 8. Accounts the remaining roadmap steps wait on
 
