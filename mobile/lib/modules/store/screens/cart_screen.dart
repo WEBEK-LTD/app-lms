@@ -22,6 +22,7 @@ import '../data/store_providers.dart';
 import '../widgets/fulfilment_widgets.dart';
 import '../../shared/auth/country_codes.dart' show ltrIsolate;
 import '../widgets/addon_widgets.dart';
+import '../widgets/delivery_place.dart';
 import '../widgets/gift_checkout.dart';
 import '../widgets/gift_checkout_look.dart';
 import '../widgets/product_widgets.dart';
@@ -261,6 +262,16 @@ class _CartScreenState extends ConsumerState<CartScreen> {
                 ? _giftForm.recipient(address: gift)
                 : null,
             giftAnonymous: _giftForm.anonymous,
+            // 131 Where it goes, for the shop's shipping (the gift
+            // checkout's is the recipient's).
+            place: !gift && fulfilment == null && store.shipping != null
+                ? DeliveryPlace(
+                    country: _giftForm.country,
+                    city: _giftForm.chosenCity,
+                    lat: _giftForm.pin?.lat,
+                    lng: _giftForm.pin?.lng,
+                  )
+                : null,
             fulfilment: fulfilment != null ? type : null,
             deliveryAddress: type == FulfilmentType.delivery
                 ? DeliveryAddress(
@@ -437,13 +448,17 @@ class _CartScreenState extends ConsumerState<CartScreen> {
       whenDone: !needsDate && !needsSlot,
       messageDone: _gift.text.trim().isNotEmpty,
     );
+    // 131 Where it goes, for the shop's shipping (either checkout).
+    final placeProblem = store.fulfilment == null
+        ? DeliveryPlaceFields.problem(context, _giftForm, store.shipping)
+        : null;
     final giftProblem = needsSlot
         ? context.l10n.deliveryChooseTime
         : needsSender
         ? context.l10n.giftNeedSender
         : needsRecipient
         ? context.l10n.giftNeedRecipient
-        : null;
+        : placeProblem;
     // 26 A restaurant: pickup or delivery, the address and when.
     final fulfilment = store.fulfilment;
     final times = fulfilment != null
@@ -571,6 +586,28 @@ class _CartScreenState extends ConsumerState<CartScreen> {
                             _later = true;
                             _slot = s;
                           }),
+                        ),
+                      ],
+                      // 131 Where it goes, for the shop's shipping, in the
+                      // standard checkout's look (the gift checkout asks it
+                      // with the recipient).
+                      if (!gift &&
+                          fulfilment == null &&
+                          store.shipping != null) ...[
+                        const SizedBox(height: 8),
+                        CheckoutSection(
+                          key: const ValueKey('delivery-place'),
+                          title: context.l10n.deliveryPlaceTitle,
+                          look: look,
+                          icon: AppIcons.location,
+                          child: DeliveryPlaceFields(
+                            form: _giftForm,
+                            shipping: store.shipping!,
+                            onChanged: () {
+                              setState(() {});
+                              _syncDelivery();
+                            },
+                          ),
                         ),
                       ],
                       // 131 The delivery day and slot, the gift details and

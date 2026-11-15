@@ -20,7 +20,8 @@ export const en = {
   srcRecords: "{platform}'s order can't take these details: you see them below, under Deliveries from the app.",
   srcWordpress:
     "Your shop is on WordPress: the delivery day, slots, gifts and flash sales are in the Yallapp plugin's settings in WordPress (Settings › Yallapp › Store). WooCommerce's own shipping zones price shipping. The card messages below reach your site with its next license check.",
-  srcOwnApi: "Your app uses your own API: it implements these as the Yallapp API describes them. The card messages below are served by Yallapp.",
+  srcOwnApi: "Your app uses your own API: your API serves all of this as the Yallapp API describes it, the card messages too (GET /store/gift-messages), and your app reads them from it. What you set here and in Card messages doesn't reach your app. <link>See the Store endpoints in the developer docs</link>.",
+  messagesOwnApi: "Your app reads its card messages from your own API (GET /store/gift-messages), not from here: the messages on this page don't reach it. <link>See the endpoint in the developer docs</link>.",
   // Checkout
   checkoutTitle: "Checkout",
   checkoutIntro: "How the app's checkout asks for the order.",
@@ -262,7 +263,8 @@ export const ar: Messages = {
   srcRecords: "طلب {platform} مايقدرش ياخد التفاصيل دي: هتلاقيها تحت في «توصيلات من التطبيق».",
   srcWordpress:
     "متجرك على WordPress: يوم التوصيل والمواعيد والهدايا وعروض الفلاش موجودين في إعدادات إضافة Yallapp في WordPress (الإعدادات › Yallapp › المتجر). ومناطق الشحن بتاعة WooCommerce هي اللي بتحسب الشحن. ورسايل الكروت اللي تحت بتوصل موقعك مع أول مراجعة للترخيص.",
-  srcOwnApi: "تطبيقك شغّال على الـ API بتاعك: بينفّذ الحاجات دي زي ما API بتاع Yallapp بيوصفها. ورسايل الكروت اللي تحت Yallapp هو اللي بيقدّمها.",
+  srcOwnApi: "تطبيقك شغّال على الـ API بتاعك: الـ API بتاعك هو اللي بيقدّم كل ده زي ما API بتاع Yallapp بيوصفه، ورسايل الكروت كمان (GET /store/gift-messages)، وتطبيقك بيقراها منه. اللي بتظبطه هنا وفي رسايل الكروت مش بيوصل لتطبيقك. <link>شوف روابط المتجر في وثائق المطوّرين</link>.",
+  messagesOwnApi: "تطبيقك بيقرا رسايل الكروت من الـ API بتاعك (GET /store/gift-messages)، مش من هنا: الرسايل اللي في الصفحة دي مش بتوصل له. <link>شوف الرابط ده في وثائق المطوّرين</link>.",
   checkoutTitle: "إتمام الطلب",
   checkoutIntro: "إزاي صفحة إتمام الطلب في التطبيق بتسأل عن الطلب.",
   modeStandard: "إتمام طلب عادي",
@@ -489,7 +491,8 @@ export const tr: Messages = {
   srcRecords: "{platform} siparişi bu bilgileri alamıyor: aşağıda, Uygulamadan gelen teslimatlar altında görürsünüz.",
   srcWordpress:
     "Mağazanız WordPress'te: teslimat günü, saatler, hediyeler ve flaş indirimler WordPress'teki Yallapp eklentisinin ayarlarında (Ayarlar › Yallapp › Mağaza). Kargoyu WooCommerce'in kendi kargo bölgeleri fiyatlar. Aşağıdaki kart mesajları sitenize bir sonraki lisans kontrolüyle ulaşır.",
-  srcOwnApi: "Uygulamanız kendi API'nizi kullanıyor: bunları Yallapp API'sinin anlattığı gibi uygular. Aşağıdaki kart mesajlarını Yallapp sunar.",
+  srcOwnApi: "Uygulamanız kendi API'nizi kullanıyor: bunların hepsini, kart mesajlarını da (GET /store/gift-messages) Yallapp API'sinin anlattığı gibi sizin API'niz sunar ve uygulamanız onları oradan okur. Burada ve Kart mesajları'nda ayarladıklarınız uygulamanıza ulaşmaz. <link>Geliştirici belgelerinde Store uç noktalarına bakın</link>.",
+  messagesOwnApi: "Uygulamanız kart mesajlarını buradan değil, kendi API'nizden (GET /store/gift-messages) okur: bu sayfadaki mesajlar ona ulaşmaz. <link>Geliştirici belgelerinde bu uç noktaya bakın</link>.",
   checkoutTitle: "Ödeme",
   checkoutIntro: "Uygulamanın ödeme sayfası siparişi nasıl sorsun.",
   modeStandard: "Standart ödeme",

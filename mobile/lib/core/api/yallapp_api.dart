@@ -724,6 +724,7 @@ abstract class YallappApi {
     String? deliveryDate,
     String? deliverySlot,
     GiftPerson? recipient,
+    DeliveryPlace? place,
   });
 
   /// 131 A day's delivery times, and which can still be chosen.
@@ -755,6 +756,7 @@ abstract class YallappApi {
     GiftPerson? sender,
     GiftPerson? recipient,
     bool giftAnonymous = false,
+    DeliveryPlace? place,
   });
 
   /// 26 Whether a restaurant's kitchen is open and when an order can be for.
@@ -2551,6 +2553,7 @@ class HttpYallappApi implements YallappApi {
     String? deliveryDate,
     String? deliverySlot,
     GiftPerson? recipient,
+    DeliveryPlace? place,
   }) => _send(
     'POST',
     '/store/cart',
@@ -2562,6 +2565,7 @@ class HttpYallappApi implements YallappApi {
       'delivery_date': ?deliveryDate,
       'delivery_slot': ?deliverySlot,
       if (recipient != null) 'recipient': recipient.toRecipient(),
+      if (place != null && !place.isEmpty) 'place': place.toJson(),
       'coupon': ?coupon,
       if (usePoints) 'use_points': true,
     },
@@ -2586,6 +2590,7 @@ class HttpYallappApi implements YallappApi {
     GiftPerson? sender,
     GiftPerson? recipient,
     bool giftAnonymous = false,
+    DeliveryPlace? place,
   }) => preview
       ? _noCheckoutInPreview()
       : _send(
@@ -2611,6 +2616,8 @@ class HttpYallappApi implements YallappApi {
             if (sender != null) 'sender': sender.toSender(),
             if (recipient != null) 'recipient': recipient.toRecipient(),
             if (giftAnonymous) 'gift_anonymous': true,
+            // 131 Where it goes, for the shop's shipping (the standard checkout).
+            if (place != null && !place.isEmpty) 'place': place.toJson(),
           },
           query: {'platform': platform.name},
         );

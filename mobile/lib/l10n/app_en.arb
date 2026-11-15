@@ -13025,5 +13025,29 @@
         "type": "int"
       }
     }
+  },
+  "deliveryPlaceTitle": "Where it goes",
+  "@deliveryPlaceTitle": {
+    "description": "131 The standard checkout's section for the country, the city and the place on the map, for the shop's shipping."
+  },
+  "deliveryPinChoose": "Pin the delivery place on the map",
+  "@deliveryPinChoose": {
+    "description": "131 Opens the map to pin where the order goes, for shipping priced by distance."
+  },
+  "deliveryPinSet": "Pinned on the map",
+  "@deliveryPinSet": {
+    "description": "131 The place the order goes is pinned on the map."
+  },
+  "deliveryPinChange": "Change",
+  "@deliveryPinChange": {
+    "description": "131 Opens the map again to move the pinned delivery place."
+  },
+  "deliveryNeedPlace": "Choose where it goes.",
+  "@deliveryNeedPlace": {
+    "description": "131 Under the cart's button while the country or the city is missing."
+  },
+  "deliveryNeedPin": "Pin where it goes on the map.",
+  "@deliveryNeedPin": {
+    "description": "131 Under the cart's button while the place isn't pinned for shipping priced by distance."
   }
 }

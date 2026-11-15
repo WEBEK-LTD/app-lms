@@ -19147,6 +19147,42 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'−{percent}%'**
   String salePercentBadge(int percent);
+
+  /// 131 The standard checkout's section for the country, the city and the place on the map, for the shop's shipping.
+  ///
+  /// In en, this message translates to:
+  /// **'Where it goes'**
+  String get deliveryPlaceTitle;
+
+  /// 131 Opens the map to pin where the order goes, for shipping priced by distance.
+  ///
+  /// In en, this message translates to:
+  /// **'Pin the delivery place on the map'**
+  String get deliveryPinChoose;
+
+  /// 131 The place the order goes is pinned on the map.
+  ///
+  /// In en, this message translates to:
+  /// **'Pinned on the map'**
+  String get deliveryPinSet;
+
+  /// 131 Opens the map again to move the pinned delivery place.
+  ///
+  /// In en, this message translates to:
+  /// **'Change'**
+  String get deliveryPinChange;
+
+  /// 131 Under the cart's button while the country or the city is missing.
+  ///
+  /// In en, this message translates to:
+  /// **'Choose where it goes.'**
+  String get deliveryNeedPlace;
+
+  /// 131 Under the cart's button while the place isn't pinned for shipping priced by distance.
+  ///
+  /// In en, this message translates to:
+  /// **'Pin where it goes on the map.'**
+  String get deliveryNeedPin;
 }
 
 class _AppLocalizationsDelegate
