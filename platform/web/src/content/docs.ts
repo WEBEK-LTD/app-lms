@@ -380,7 +380,7 @@ The plugin's settings decide how your app behaves. The most important ones:
 - **Video & content protection**: blocking screenshots and screen recording, the video watermark, how long video links last, and a required watch time
 - **Lesson content (HTML & code)**: how lessons are shown, the height of embedded tools, code highlighting
 - **Store app**: the banner, delivery dates and gift messages; with plugin 0.4.44, same-day orders until a time, delivery times and the gift checkout (see [Delivery days, gifts and flash sales](/docs/delivery-and-offers))
-- **Flash sale**: a flash sale through WooCommerce's own sale price, with a countdown in the app (plugin 0.4.44)
+- **Flash sale**: a flash sale through WooCommerce's own sale price, with a countdown in the app (plugin 0.4.44). The app runs one at a time on WordPress, as plugin 0.4.45's settings say: changing it for the next starts its units sold again from zero
 - **Notifications (Firebase)**: see [Push notifications with Firebase](/docs/push-notifications)
 - **Updates & maintenance**: a minimum app version, and maintenance mode with a message
 
@@ -2518,7 +2518,7 @@ Turning points off hides them in the app; customers keep their points for when y
     description: "Set delivery days and times, where you deliver and what it costs, the gift checkout, card messages by occasion, gift add-ons, flash sales and the discount codes shown in the app, for every store app, and what each way of connecting your shop supports.",
     steps: false,
     figures: ["leqaa-product", "leqaa-checkout"],
-    body: `Every store app has a **Delivery & offers** page in the dashboard's menu, beside **Products** and **Orders** when your products are in Yallapp. It's made for flower and gift shops, and works for any shop: when and where you deliver and what it costs, gifts and their card, gift add-ons, flash sales and the discount codes shown in the app.
+    body: `Every store app has a **Delivery & offers** page in the dashboard's menu, beside **Products** and **Orders** when your products are in Yallapp; a Yallapp Studio project has it in its menu too, with **Card messages**. It's made for flower and gift shops, and works for any shop: when and where you deliver and what it costs, gifts and their card, gift add-ons, flash sales and the discount codes shown in the app.
 
 Each part of the page shows only where it works with your shop's source, and says how. A restaurant's or café's orders keep their kitchen's times: delivery days and the gift checkout aren't for them (see [Restaurants and cafés](/docs/restaurants)).
 
@@ -2527,7 +2527,7 @@ Each part of the page shows only where it works with your shop's source, and say
 - **Products in Yallapp** (no website): everything on this page. Yallapp's checkout charges the delivery time's extra fee, the delivery price and the flash sale's price.
 - **WordPress with WooCommerce**: the delivery days and times, the gift checkout, gifts and the flash sale are in the Yallapp plugin's settings in WordPress (plugin 0.4.44, see On WordPress below). WooCommerce's own shipping zones price shipping. The card messages and the titles in the app come from this page, and gift add-ons are set on WooCommerce's products.
 - **Shopify, Wix, ikas, Ticimax, IdeaSoft, Salla and Zid**: the app asks for the delivery day and time, the gift details and where it goes, and its checkout opens on your platform, which charges its own prices, shipping and fees. Shopify keeps the day, the time, the people and the card on its order (the cart's attributes and note), and Wix in the buyer's note to the shop. The other platforms' orders can't take them: you see them on this page, under **Deliveries from the app**.
-- **Your own API**: your API serves these, each one optional, as the API reference describes them. See [Connect your own API](/docs/my-own-api).
+- **Your own API**: your API serves all of this, each part optional, as the API reference describes it, the card messages too (\`GET /store/gift-messages\`), and your app reads them from there: what you set on this page and in **Card messages** doesn't reach your app. See [the Store endpoints](/developers#store) and [Connect your own API](/docs/my-own-api).
 
 ## The checkout
 
@@ -2570,7 +2570,7 @@ In any of them:
 
 Select **Save where you deliver**. The cart shows the delivery fee line by line: the base, the distance, the weight, the delivery time's extra fee, or free over your amount.
 
-In the app, the gift checkout asks for the country (when you deliver to more than one), the city (from your list when you chose cities) and the address. Priced by distance, it takes the place from the phone's location (**Use my location for the delivery**). The standard checkout doesn't ask where the order goes yet, so use the gift checkout with delivery areas, a city's price or pricing by distance. A price per kg alone works with either checkout.
+In the app, both checkouts ask where the order goes when you deliver to some places only or price by city or distance: the standard checkout in its **Where it goes** part, the gift checkout with the recipient and their address. The customer chooses the country (when you deliver to more than one) and the city, from your list when you chose cities, else typed. Priced by distance, they also pin the place on a map: **Pin the delivery place on the map** opens a full-screen map with a pin that stays in the middle while the map moves under it, a search by address where the map offers it, and **My location** as one choice; **Use this place** keeps it. Yallapp measures the distance from your shop to the pin. Where no map is available, the app takes the phone's position instead. A shop without delivery areas or prices by place keeps its checkout as it was.
 
 With a connected platform, its checkout charges its own shipping: here you choose where the app takes addresses. On WordPress, WooCommerce's shipping zones price shipping.
 
@@ -2589,7 +2589,7 @@ The gift checkout always offers the card, the recipient and "Send anonymously".
 
 **Manage card messages** opens **Card messages**: ready messages by occasion, in each of your app's languages. The first time you open it, it fills with Yallapp's starting set in English, Arabic and Turkish: two or three messages for each of 11 occasions (love, birthday, anniversary, congratulations, new baby, get well, thank you, sorry, sympathy, Eid and Ramadan, and Mother's Day). They're yours from then on: **Edit**, **Move up**, **Move down**, **Hide** or **Delete** each occasion and each message, **Add an occasion** of your own, and **Add a message** to any of them. You can have up to 30 occasions, each with up to 12 messages of up to 500 characters; a language left empty shows the app's main one.
 
-In the checkout, customers pick an occasion, tap a message to fill the card and change it as they like, or write their own. Card messages work with products in Yallapp, WordPress (with the site's next license check) and the connected platforms.
+In the checkout, customers pick an occasion, tap a message to fill the card and change it as they like, or write their own. Card messages work with products in Yallapp, WordPress (with the site's next license check) and the connected platforms; an app on its own API reads them from its own API instead, and the page says so.
 
 ## Gift add-ons
 
@@ -2622,7 +2622,7 @@ In the app, a product on sale shows the sale price with the price before it stru
 
 - **Products in Yallapp**: the checkout charges the flash price while units are left, and an order counts its units once it's paid.
 - **A connected platform**: the app shows the sale, but the platform's checkout charges its own price. Make the same discount on your platform as a code and write it in the sale's discount code field: the app's checkout passes it on, so customers pay the sale price. Without it, customers see the sale in the app but pay the platform's price, and the dashboard says so. The units left aren't counted from the platform's orders. A product's own compare-at price on the platform shows as its sale too.
-- **WordPress**: the flash sale uses WooCommerce's own sale price and schedule, in the plugin's settings.
+- **WordPress**: the flash sale uses WooCommerce's own sale price and schedule, in the plugin's settings, one at a time: changing it for the next starts its units sold again from zero.
 
 ## Discount codes in the app
 
@@ -2651,12 +2651,13 @@ Plugin 0.4.44 adds these to the plugin's **Store app** settings in WordPress, be
 - **Checkout in the app**: **Standard**, or the gift checkout. The sender's details are the WooCommerce order's billing details and the recipient's its shipping details, both kept on the order too.
 - **Gift message beginnings, one a line (up to 6)**, **Ask for the recipient's name and phone** and **Let customers send it anonymously**.
 
-And a **Flash sale** card, for one flash sale at a time: **Run a flash sale**, its name in the app and in the app's other languages, its **Products** or **Or a whole category**, **A share off (%)** or **One sale price**, when it **Starts** (the site's time zone) and **Ends**, and the **Units on sale**. While it's on, its products cost the sale price everywhere, in the shop, the cart and the checkout, as WooCommerce's own sale price. WooCommerce's scheduled sale prices show their end in the app too.
+And a **Flash sale** card, for one flash sale at a time (plugin 0.4.45's settings say so; changing it for the next starts its units sold again from zero): **Run a flash sale**, its name in the app and in the app's other languages, its **Products** or **Or a whole category**, **A share off (%)** or **One sale price**, when it **Starts** (the site's time zone) and **Ends**, and the **Units on sale**. While it's on, its products cost the sale price everywhere, in the shop, the cart and the checkout, as WooCommerce's own sale price. WooCommerce's scheduled sale prices show their end in the app too.
 
 See [Install the WordPress plugin](/docs/wordpress-plugin).
 
 ## In the app
 
+- **Where it goes**: the country, the city and, priced by distance, the place pinned on the map.
 - **When should it arrive?**: **Today**, **Tomorrow** or **Pick a date**, with the cut-off ("Order by 14:00 for delivery today", or "Orders for today have closed.") and the day's times as chips with their extra fee, the full ones greyed out.
 - The gift checkout: who it's from, who it's for, when, the card, then the payment, with the delivery fee line by line. With Studio's gift checkout look, in five steps on one screen (**From**, **For**, **When**, **Message** and **Pay**), with the card's live preview.
 - The card: the occasions, their ready messages, and **Send anonymously**.

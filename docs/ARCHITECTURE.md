@@ -3888,10 +3888,14 @@ its source, in `lib/selling`:
   owner opens them, `GET /store/gift-messages`, and WordPress's copy with
   the license status (`gift_messages`).
 - `shipping.ts`: the areas (countries and the owner's own city names), the
-  price flat, by city or by distance (straight-line, no geocoding), per kg
-  in any mode, a city's own price over the whole fee, a minimum, free over
-  an amount, and the quote's breakdown. The app sends the place (country,
-  city, latitude and longitude) from the gift checkout only.
+  price flat, by city or by distance (straight-line from the shop to the
+  pin), per kg in any mode, a city's own price over the whole fee, a
+  minimum, free over an amount, and the quote's breakdown. Both checkouts
+  send where the order goes (131.55: the standard checkout's `place`,
+  `DeliveryPlace`; the gift checkout's as the recipient's), priced by
+  distance pinned on the map (131.56: the app's `DeliveryPinScreen` from
+  `store.shipping.map` and `center`, searched through the `/maps/*`
+  routes; the phone's position without the platform's map tiles).
 - `flash-sales.ts` (`store_flash_sales`) and each product's `sale`; the
   units counted when Yallapp's own order is paid (`lib/catalog/payment.ts`).
 - `addons.ts`: gift add-ons (`catalog_products.addon`, `addon_for`; a
@@ -3904,7 +3908,8 @@ its source, in `lib/selling`:
   and note, Wix's note, and `store_deliveries` (kept 60 days by the
   frequent job) for the owner either way.
 
-WooCommerce gets the same from plugin 0.4.44 (`includes/store/class-delivery-rules.php`,
+WooCommerce gets the same from plugin 0.4.44 (one flash sale at a time,
+which 0.4.45's settings say; `includes/store/class-delivery-rules.php`,
 `class-store-extras.php`, `class-addon-rules.php`; the settings' Store app
 and Flash sale cards), its own shipping zones pricing shipping. In the app,
 `modules/store/widgets/gift_checkout.dart`, `addon_widgets.dart` and

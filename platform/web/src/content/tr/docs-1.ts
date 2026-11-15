@@ -203,7 +203,7 @@ Eklentinin ayarları uygulamanızın nasıl davranacağını belirler. En öneml
 - **Video & content protection**: ekran görüntüsü ve ekran kaydını engelleme, video filigranı, video bağlantılarının ne kadar geçerli olacağı ve zorunlu izleme süresi
 - **Lesson content (HTML & code)**: derslerin nasıl gösterileceği, gömülü araçların yüksekliği ve kod renklendirme
 - **Store app**: banner, teslimat tarihleri ve hediye notları; eklenti 0.4.44 ile bir saate kadar aynı gün siparişleri, teslimat saatleri ve hediye ödemesi (bkz. [Teslimat günleri, hediyeler ve flaş indirimler](/docs/delivery-and-offers))
-- **Flash sale**: WooCommerce'in kendi indirimli fiyatıyla, uygulamada geri sayımlı bir flaş indirim (eklenti 0.4.44)
+- **Flash sale**: WooCommerce'in kendi indirimli fiyatıyla, uygulamada geri sayımlı bir flaş indirim (eklenti 0.4.44). Eklenti 0.4.45'in ayarlarının söylediği gibi uygulama WordPress'te aynı anda bir tane çalıştırır: onu bir sonrakiyle değiştirmek satılan adetleri sıfırdan başlatır
 - **Notifications (Firebase)**: [Firebase ile anlık bildirimler](/docs/push-notifications) rehberine bakın
 - **Updates & maintenance**: en düşük uygulama sürümü ve mesajlı bakım modu
 

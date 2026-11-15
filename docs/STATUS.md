@@ -365,15 +365,8 @@ test environment:
 
 ## Known gaps
 
-- 131 The app asks where an order goes (the country, the city and, priced
-  by distance, the phone's location) only in the gift checkout: a store on
-  the standard checkout with delivery areas, a city's price or distance
-  pricing has its checkout refused ("Choose the country it goes to."), and
-  the docs say to use the gift checkout with them. Distance pricing takes
-  the phone's location, not a pin on a map. A flash sale's units aren't
-  counted from a connected platform's orders. A Studio project's menu has
-  no link to Delivery & offers yet (the page is at
-  `/studio/project/selling`).
+- 131 A flash sale's units aren't counted from a connected platform's
+  orders (its own checkout sells them).
 
 - 126 Travel: the outside providers are not connected (Admin shows them as
   coming soon); the hotel map is drawn by the app from the hotels' places,
@@ -409,9 +402,9 @@ test environment:
 
 - Migrations up to `0097` (`npm run db:migrate` in `platform/web`).
 - 131 Migrations `0128_flower_shop` and `0129_gift_addons` run with the
-  others. Plugin 0.4.44 goes to sites after the app update with the
-  delivery picker, the gift checkout, "Add a little more" and the petal
-  chrome.
+  others. Plugins 0.4.44 and 0.4.45 go to sites after the app update with
+  the delivery picker, the gift checkout, "Where it goes" with the pin
+  map, "Add a little more" and the petal chrome.
 - Delivery apps (Phase 104): turn on the plan features `delivery` and,
   for a second courier app, `courier_app`, with their prices, in Admin ›
   Plans; set the map tiles (an address with `{z}`, `{x}`, `{y}` and its

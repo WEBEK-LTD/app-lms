@@ -1589,9 +1589,16 @@ Nothing to migrate or set: the articles and screenshots are in the code.
   delivery) and `0129_gift_addons` (a product's weight and add-on) run with
   the others at deploy. The frequent job removes deliveries from the app
   older than 60 days.
-- [ ] Release plugin **0.4.44** in Admin › Plugin releases once the app
-      update with the delivery picker, the gift checkout, "Add a little
-      more" and the petal chrome is in the stores.
+- [ ] Release plugins **0.4.44** and **0.4.45** (WordPress's one flash
+      sale at a time) in Admin › Plugin releases once the app update with
+      the delivery picker, the gift checkout, "Where it goes" with the pin
+      map, "Add a little more" and the petal chrome is in the stores.
+- [ ] On the standard checkout of a test shop with a delivery area priced
+      by distance (Admin › Settings › Maps' tiles set): the app asks
+      "Where it goes", the pin map opens and finds an address, and the
+      fee follows the pin; without tiles, the phone's position is used.
+- [ ] In a Studio store project, the menu has Delivery & offers and Card
+      messages, and their Help opens `/docs/delivery-and-offers`.
 - [ ] With a test shop on products in Yallapp: on Delivery & offers turn
       on the gift checkout, same-day delivery with a cut-off, two delivery
       times (one taking 1 order, one with an extra fee) and one delivery

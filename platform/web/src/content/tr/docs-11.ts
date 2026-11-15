@@ -5,7 +5,7 @@ export const TR_DOCS_11: Record<string, DocTranslation> = {
   "delivery-and-offers": {
     title: "Teslimat günleri, hediyeler ve flaş indirimler",
     description: "Her mağaza uygulamasında teslimat günlerini ve saatlerini, nereye teslim ettiğinizi ve ücretini, hediye ödemesini, vesileye göre kart mesajlarını, hediye eklerini, flaş indirimleri ve uygulamadaki indirim kodlarını ayarlayın; her bağlantı yolunun neleri desteklediğini görün.",
-    body: `Her mağaza uygulamasının panel menüsünde, ürünleriniz Yallapp'tayken **Ürünler** ve **Siparişler**'in yanında bir **Teslimat ve fırsatlar** sayfası vardır. Çiçekçiler ve hediyelik eşya mağazaları için yapıldı, her mağazada çalışır: ne zaman ve nereye teslim ettiğiniz ve ne kadar tuttuğu, hediyeler ve kartları, hediye ekleri, flaş indirimler ve uygulamada gösterilen indirim kodları.
+    body: `Her mağaza uygulamasının panel menüsünde, ürünleriniz Yallapp'tayken **Ürünler** ve **Siparişler**'in yanında bir **Teslimat ve fırsatlar** sayfası vardır; bir Yallapp Studio projesinin menüsünde de **Kart mesajları** ile birlikte yer alır. Çiçekçiler ve hediyelik eşya mağazaları için yapıldı, her mağazada çalışır: ne zaman ve nereye teslim ettiğiniz ve ne kadar tuttuğu, hediyeler ve kartları, hediye ekleri, flaş indirimler ve uygulamada gösterilen indirim kodları.
 
 Sayfanın her bölümü yalnızca mağazanızın kaynağıyla çalıştığı yerde görünür ve nasıl çalıştığını söyler. Restoran ve kafelerin siparişleri mutfaklarının saatlerini korur: teslimat günleri ve hediye ödemesi onlar için değildir (bkz. [Restoranlar ve kafeler](/docs/restaurants)).
 
@@ -14,7 +14,7 @@ Sayfanın her bölümü yalnızca mağazanızın kaynağıyla çalıştığı ye
 - **Yallapp'taki ürünler** (web sitesi olmadan): bu sayfadaki her şey. Yallapp'ın ödeme sayfası teslimat saatinin ek ücretini, teslimat fiyatını ve flaş indirim fiyatını alır.
 - **WooCommerce ile WordPress**: teslimat günleri ve saatleri, hediye ödemesi, hediyeler ve flaş indirim WordPress'teki Yallapp eklentisinin ayarlarındadır (eklenti 0.4.44; aşağıdaki WordPress'te bölümüne bakın). Kargoyu WooCommerce'in kendi kargo bölgeleri fiyatlar. Kart mesajları ve uygulamadaki başlıklar bu sayfadan gelir; hediye ekleri WooCommerce ürünlerinde ayarlanır.
 - **Shopify, Wix, ikas, Ticimax, IdeaSoft, Salla ve Zid**: uygulama teslimat gününü ve saatini, hediye bilgilerini ve siparişin nereye gideceğini sorar; ödeme sayfası platformunuzda açılır ve kendi fiyatlarını, kargosunu ve ücretlerini alır. Shopify günü, saati, kişileri ve kartı kendi siparişinde (sepetin özniteliklerinde ve notunda), Wix ise alıcının mağazaya notunda tutar. Diğer platformların siparişleri bunları alamaz: onları bu sayfada, **Uygulamadan gelen teslimatlar** altında görürsünüz.
-- **Kendi API'niz**: bunları, her biri isteğe bağlı olarak, API başvurusunun anlattığı gibi API'niz sunar. Bkz. [Kendi API'nizi bağlayın](/docs/my-own-api).
+- **Kendi API'niz**: bunların hepsini, her bölümü isteğe bağlı olarak ve kart mesajları da dahil (\`GET /store/gift-messages\`), API başvurusunun anlattığı gibi API'niz sunar; uygulamanız onları oradan okur: bu sayfada ve **Kart mesajları**'nda ayarladıklarınız uygulamanıza ulaşmaz. Bkz. [Geliştirici belgelerindeki Store uç noktaları](/developers#store) ve [Kendi API'nizi bağlayın](/docs/my-own-api).
 
 ## Ödeme
 
@@ -57,7 +57,7 @@ Hepsinde:
 
 **Teslimat yerlerini kaydet**'i seçin. Sepet teslimat ücretini kalem kalem gösterir: taban ücret, mesafe, ağırlık, teslimat saatinin ek ücreti ya da tutarınızın üzerinde ücretsiz.
 
-Uygulamada hediye ödemesi ülkeyi (birden fazla ülkeye teslim ediyorsanız), şehri (şehir seçtiyseniz listenizden) ve adresi sorar. Mesafeye göre fiyatlandırmada yeri telefonun konumundan alır (**Teslimat için konumumu kullan**). Standart ödeme henüz siparişin nereye gideceğini sormaz; bu yüzden teslimat bölgeleri, bir şehrin kendi fiyatı ya da mesafeye göre fiyat için hediye ödemesini kullanın. Tek başına kg başına fiyat iki ödemeyle de çalışır.
+Uygulamada, yalnızca bazı yerlere teslim ettiğinizde ya da fiyatı şehre veya mesafeye göre belirlediğinizde iki ödeme de siparişin nereye gideceğini sorar: standart ödeme **Teslimat yeri** bölümünde, hediye ödemesi alıcı ve adresiyle birlikte. Müşteri ülkeyi (birden fazla ülkeye teslim ediyorsanız) ve şehri seçer; şehir seçtiyseniz listenizden, yoksa yazarak. Mesafeye göre fiyatlandırmada yeri ayrıca bir haritada işaretler: **Teslimat yerini haritada işaretleyin** tam ekran bir harita açar; harita altında kayarken ortada kalan bir iğne, haritanın sunduğu yerlerde adresle arama ve seçeneklerden biri olarak **Konumum** vardır; **Bu yeri kullan** onu kaydeder. Yallapp mesafeyi mağazanızdan iğneye kadar ölçer. Harita olmayan yerlerde uygulama bunun yerine telefonun konumunu alır. Teslimat bölgesi ya da yere göre fiyatı olmayan bir mağazanın ödemesi eskisi gibi kalır.
 
 Bağlı bir platformda kargosunu platformun ödeme sayfası alır: burada uygulamanın adresleri nereden alacağını seçersiniz. WordPress'te kargoyu WooCommerce'in kargo bölgeleri fiyatlar.
 
@@ -76,7 +76,7 @@ Hediye ödemesi kartı, alıcıyı ve isimsiz gönderme seçeneğini her zaman s
 
 **Kart mesajlarını yönet**, **Kart mesajları** sayfasını açar: uygulamanızın her dilinde, vesileye göre hazır mesajlar. İlk açtığınızda Yallapp'ın İngilizce, Arapça ve Türkçe başlangıç setiyle dolar: 11 vesilenin her biri için iki ya da üç mesaj (aşk, doğum günü, yıl dönümü, tebrikler, yeni bebek, geçmiş olsun, teşekkürler, özür, başsağlığı, bayram ve Ramazan, Anneler Günü). O andan itibaren sizindir: her vesile ve her mesaj için **Düzenle**, **Yukarı taşı**, **Aşağı taşı**, **Gizle** ve **Sil** vardır; **Vesile ekle** kendi vesilenizi, **Mesaj ekle** herhangi birine yeni bir mesaj ekler. En fazla 30 vesile, her birinde en fazla 12 mesaj olabilir; her mesaj en fazla 500 karakterdir ve boş bırakılan bir dil uygulamanın ana dilini gösterir.
 
-Ödemede müşteriler bir vesile seçer, kartı doldurmak için bir mesaja dokunup istedikleri gibi değiştirir ya da kendi mesajlarını yazar. Kart mesajları Yallapp'taki ürünlerle, WordPress'le (sitenin bir sonraki lisans kontrolüyle) ve bağlı platformlarla çalışır.
+Ödemede müşteriler bir vesile seçer, kartı doldurmak için bir mesaja dokunup istedikleri gibi değiştirir ya da kendi mesajlarını yazar. Kart mesajları Yallapp'taki ürünlerle, WordPress'le (sitenin bir sonraki lisans kontrolüyle) ve bağlı platformlarla çalışır; kendi API'sindeki bir uygulama ise onları kendi API'sinden okur ve sayfa bunu söyler.
 
 ## Hediye ekleri
 
@@ -109,7 +109,7 @@ Uygulamada indirimdeki bir ürün indirimli fiyatını, önceki fiyatın üstü 
 
 - **Yallapp'taki ürünler**: ödeme, adet kaldıkça flaş fiyatı alır ve bir sipariş adetlerini ödendiğinde sayar.
 - **Bağlı bir platform**: uygulama indirimi gösterir ama platformun ödemesi kendi fiyatını alır. Aynı indirimi platformunuzda bir kod olarak yapın ve indirimin indirim kodu alanına yazın: uygulamanın ödemesi onu iletir, müşteriler indirimli fiyatı öder. Kod olmadan müşteriler indirimi uygulamada görür ama platformun fiyatını öder; panel de bunu söyler. Kalan adetler platformun siparişlerinden sayılmaz. Ürünün platformdaki kendi karşılaştırma fiyatı da onun indirimi olarak görünür.
-- **WordPress**: flaş indirim, eklentinin ayarlarında, WooCommerce'in kendi indirimli fiyatını ve zamanlamasını kullanır.
+- **WordPress**: flaş indirim, eklentinin ayarlarında, WooCommerce'in kendi indirimli fiyatını ve zamanlamasını kullanır; aynı anda bir tane: onu bir sonrakiyle değiştirmek satılan adetleri sıfırdan başlatır.
 
 ## Uygulamadaki indirim kodları
 
@@ -138,12 +138,13 @@ Eklenti 0.4.44, WordPress'te eklentinin **Store app** ayarlarına, **Ask for a d
 - **Checkout in the app**: **Standard** ya da hediye ödemesi. Gönderenin bilgileri WooCommerce siparişinin fatura bilgileri, alıcınınkiler teslimat bilgileri olur; ikisi de siparişte ayrıca saklanır.
 - **Gift message beginnings, one a line (up to 6)**, **Ask for the recipient's name and phone** ve **Let customers send it anonymously**.
 
-Bir de aynı anda tek bir flaş indirim için **Flash sale** kartı: **Run a flash sale**, uygulamadaki adı ve uygulamanın diğer dillerindeki adı, **Products** ya da **Or a whole category**, **A share off (%)** ya da **One sale price**, ne zaman **Starts** (sitenin saat dilimi) ve **Ends** olduğu ve **Units on sale**. İndirim açıkken ürünleri her yerde, mağazada, sepette ve ödemede, WooCommerce'in kendi indirimli fiyatı olarak indirimli fiyattan satılır. WooCommerce'in zamanlanmış indirimli fiyatları da bitişlerini uygulamada gösterir.
+Bir de aynı anda tek bir flaş indirim için **Flash sale** kartı (eklenti 0.4.45'in ayarları bunu söyler; onu bir sonrakiyle değiştirmek satılan adetleri sıfırdan başlatır): **Run a flash sale**, uygulamadaki adı ve uygulamanın diğer dillerindeki adı, **Products** ya da **Or a whole category**, **A share off (%)** ya da **One sale price**, ne zaman **Starts** (sitenin saat dilimi) ve **Ends** olduğu ve **Units on sale**. İndirim açıkken ürünleri her yerde, mağazada, sepette ve ödemede, WooCommerce'in kendi indirimli fiyatı olarak indirimli fiyattan satılır. WooCommerce'in zamanlanmış indirimli fiyatları da bitişlerini uygulamada gösterir.
 
 Bkz. [WordPress eklentisini kurun](/docs/wordpress-plugin).
 
 ## Uygulamada
 
+- **Teslimat yeri**: ülke, şehir ve mesafeye göre fiyatlandırmada haritada işaretlenen yer.
 - **Ne zaman ulaşsın?**: **Bugün**, **Yarın** ya da **Tarih seç**; son sipariş saatiyle (“Bugün teslimat için saat 14:00'e kadar sipariş verin” ya da “Bugün için siparişler kapandı.”) ve o günün saatleri ek ücretleriyle çipler halinde, dolu olanlar soluk.
 - Hediye ödemesi: kimden, kime, ne zaman, kart, sonra ödeme; teslimat ücreti kalem kalem. Studio'nun hediye ödemesi görünümüyle tek ekranda beş adımda (**Kimden**, **Kime**, **Ne zaman**, **Mesaj** ve **Ödeme**), kartın canlı önizlemesiyle.
 - Kart: vesileler, hazır mesajları ve **İsimsiz gönder**.
