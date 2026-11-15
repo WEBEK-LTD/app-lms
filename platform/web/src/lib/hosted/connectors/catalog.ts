@@ -21,7 +21,7 @@ import type { StoreFlashSale } from "../../data/types";
 import { bestSale, unitsLeft, withSale } from "../../selling/flash-sales";
 import { orderDeliveryJson } from "../../selling/gifts";
 import { needsPlace, shippingRulesOf } from "../../selling/shipping";
-import { checkStoreCheckout, handleStoreExtras, quoteDeliveryJson, storeExtrasConfig } from "../../selling/store";
+import { checkStoreCheckout, handleStoreExtras, quoteDeliveryJson, storeExtrasConfig, storeMap, storeMapRoute } from "../../selling/store";
 import { ADDON_NEEDS_ITEM, checkAddonLines, offeredWith, ownAddonsFor } from "../../selling/addons";
 
 /**
@@ -127,7 +127,7 @@ export class CatalogConnector implements Connector {
         checkout_opens_in: "in_app",
         reviews: false,
         // 131 The delivery day and slot, the gifts and the gift checkout, where it delivers (charged here).
-        ...storeExtrasConfig(this.deps.app, this.settings.currency, { fees: true }),
+        ...storeExtrasConfig(this.deps.app, this.settings.currency, { fees: true, map: await storeMap(this.deps.store, this.deps.app) }),
         ...(this.fulfilment ? { fulfilment: fulfilmentConfigJson(this.fulfilment, this.settings.currency) } : {}),
         // 91.3 Returns asked for in the app (never a restaurant's).
         returns: !this.fulfilment && returnDays(this.settings) !== null ? { enabled: true, days: returnDays(this.settings)! } : null,
@@ -161,6 +161,9 @@ export class CatalogConnector implements Connector {
       request,
     );
     if (extra) return extra;
+    // 131 The map's place search, for a shop priced by distance.
+    const map = await storeMapRoute({ store: this.deps.store, app: this.deps.app }, request);
+    if (map) return map;
     switch (route) {
       case "GET /store/home":
         return { status: 200, body: { sections: await this.home() } };
