@@ -138,12 +138,16 @@ ThemeData buildAppTheme({
   CornerStyle? corners,
   CardStyle? cards,
   List<String> fallback = fontFallback,
+  Color? darkBackground,
+  Color? darkSurface,
 }) {
   final p = AppPalette.build(
     primary: primary,
     secondary: secondary,
     brightness: brightness,
     template: template,
+    darkBackground: darkBackground,
+    darkSurface: darkSurface,
   );
   final shapes = AppShapes.forTemplate(
     template,

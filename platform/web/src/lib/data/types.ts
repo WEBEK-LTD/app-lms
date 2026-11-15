@@ -971,6 +971,212 @@ export interface CatalogSettings {
   tax?: CatalogTax | null;
   /** 96.2 Bank transfer and the owner's own method, paid outside Yallapp; null or missing: none. */
   manualPayments?: ManualPaymentSettings | null;
+  /**
+   * 131 Same-day and next-day delivery for any store app on the hosted API
+   * (its own products or a connected platform's): the days, the cut-off and
+   * the time slots the customer picks at checkout; null or missing: off.
+   */
+  delivery?: DeliveryScheduleSettings | null;
+  /** 131 The card message, the recipient and "send anonymously"; null or missing: off. */
+  gifts?: GiftSettings | null;
+  /** 131 Where the shop delivers: countries, each with all its cities or some; null or empty: anywhere. */
+  areas?: DeliveryArea[] | null;
+  /**
+   * 131 How shipping is priced: `flat` (`shippingCents`, as before), `city`
+   * (a price per city, `otherCityCents` for the other allowed ones) or
+   * `distance` (a base fee and a price per km from the shop's location).
+   * `freeShippingOverCents` makes any of them free. Missing: `flat`.
+   */
+  shippingMode?: "flat" | "city" | "distance";
+  cityPrices?: { country: string; city: string; cents: number }[] | null;
+  /** 131 `city`: the price for an allowed city without its own; null: those cities aren't delivered to. */
+  otherCityCents?: number | null;
+  /** 131 `distance`: from the shop's location, straight-line to the pin the customer drops. */
+  distancePricing?: DistancePricing | null;
+  /** 131 A price per kg of the order's products (their weights, and their options'), in any mode; null: off. */
+  weightPricing?: WeightPricing | null;
+  /** 131 The least a computed fee comes to (not a city's own price); null: none. */
+  shippingMinCents?: number | null;
+  /** 131 A connected platform's gift add-ons; null or missing: none (Yallapp's own products are marked one by one). */
+  addons?: StoreAddonSettings | null;
+  /** 131 The owner's titles of the add-ons, the card and the delivery picker; missing: the app's words. */
+  titles?: StoreSectionTitles | null;
+}
+
+/** 131 Shipping by weight: `perKgCents` a kg over the first `includedKg`. */
+export interface WeightPricing {
+  perKgCents: number;
+  includedKg: number;
+}
+
+/** 131 One country the shop delivers to: all its cities (null) or these. */
+export interface DeliveryArea {
+  /** ISO 3166-1 alpha-2, upper case ("TR"). */
+  country: string;
+  cities: string[] | null;
+}
+
+/** 131 Shipping by distance: `baseCents` plus `perKmCents` a km, up to `maxKm`. */
+export interface DistancePricing {
+  origin: { lat: number; lng: number };
+  baseCents: number;
+  perKmCents: number;
+  maxKm: number | null;
+}
+
+/** 131 One delivery time the customer picks ("10:00–13:00"), with how many orders it takes and what it adds. */
+export interface DeliverySlot {
+  /** Short and stable: what the order keeps ("s1"). */
+  id: string;
+  /** "HH:MM" in the shop's time zone, `start` before `end`. */
+  start: string;
+  end: string;
+  /** Orders it takes per day; null: no limit. */
+  capacity: number | null;
+  /** Added to the order where Yallapp checks out; null: free. */
+  feeCents: number | null;
+}
+
+/**
+ * 131 When the shop delivers: today until the cut-off, tomorrow, or a day
+ * up to `maxDays` ahead, never on its closed weekdays, at one of its slots.
+ */
+export interface DeliveryScheduleSettings {
+  enabled: boolean;
+  /** The customer must choose a day (and a slot, when there are slots). */
+  required: boolean;
+  /** Orders for today. */
+  sameDay: boolean;
+  /** "HH:MM": orders for today are taken until then; null: all day. */
+  cutoff: string | null;
+  /** Orders for tomorrow (with `sameDay` off, the first day). */
+  nextDay: boolean;
+  /** The last day offered, in days from today: 0 to 60. */
+  maxDays: number;
+  /** 0 = Sunday. */
+  closedWeekdays: number[];
+  /** IANA; the days, the cut-off and the slots count in it. */
+  timezone: string;
+  slots: DeliverySlot[];
+}
+
+/** 131 What a customer may say about a gift at checkout. */
+export interface GiftSettings {
+  /**
+   * `gift`: the gift checkout (any store app may turn it on; the flower
+   * shop's looks do): the sender's name, phone and email, the recipient's
+   * name, phone and address, the day and slot and the card. Missing: `standard`.
+   */
+  checkout?: "standard" | "gift";
+  /** The card message. */
+  message: boolean;
+  /** 1 to 500. */
+  maxLength: number;
+  /** Beginnings the customer can tap ("Happy birthday!"), at most 6 of 80 characters. */
+  starters: string[];
+  /** The recipient's name and phone (someone else than the buyer). */
+  recipient: boolean;
+  /** "Send anonymously": the card goes without the buyer's name. */
+  anonymous: boolean;
+  /** The ready messages were copied into the store (Store › Gift messages); missing: Yallapp's starters are served. */
+  messagesSeeded?: boolean;
+}
+
+/**
+ * 131 A card message occasion of the store (love, birthday, … or one the
+ * owner added), with its ready messages in each of the app's languages.
+ */
+export interface GiftOccasion {
+  id: number;
+  appId: string;
+  /** A built-in occasion ("birthday"): its name in Yallapp's languages when the owner didn't write one; null for the owner's own. */
+  key: string | null;
+  /** By language code: the owner's name for it. */
+  names: Record<string, string>;
+  /** Material Symbols Rounded. */
+  icon: string;
+  position: number;
+  hidden: boolean;
+  templates: GiftTemplate[];
+  createdAt: Date;
+  updatedAt: Date;
+}
+
+/** 131 One ready card message: its words in each language (the app's default language at least). */
+export interface GiftTemplate {
+  /** Short and stable ("t1"). */
+  id: string;
+  texts: Record<string, string>;
+  hidden: boolean;
+}
+
+/** 131 The day, slot and gift details of an order, as the customer chose them. */
+export interface OrderDelivery {
+  /** YYYY-MM-DD in the shop's time zone; null: no day chosen. */
+  date: string | null;
+  slot: { id: string; start: string; end: string } | null;
+  /** The slot's fee, in the order's shipping. */
+  feeCents: number;
+  /** The gift checkout's buyer: who sends it (the card is signed with their name unless `anonymous`). */
+  sender: { name: string; phone: string; email: string } | null;
+  /** Who receives it; `address` in the gift checkout (where it goes), else null. */
+  recipient: { name: string; phone: string; address: string | null } | null;
+  /** 131 Where it goes, as the shop's delivery areas and prices read it (the country, the city, the pin); null: not asked. */
+  place?: { country: string | null; city: string | null; lat: number | null; lng: number | null } | null;
+  /** 131 The shipping as quoted: the zone ("Istanbul", "4.2 km") and what made it up. */
+  shipping?: { cents: number; zone: string | null; rule?: string; breakdown: { label: string; cents: number; rule?: string }[] } | null;
+  message: string | null;
+  anonymous: boolean;
+}
+
+/**
+ * 131 A flash sale: products (or a category's) at a lower price between two
+ * times, maybe for a limited number of units. Yallapp applies it to its own
+ * products and shows it over a connected platform's; WordPress uses
+ * WooCommerce's own sale price (the plugin).
+ */
+export interface StoreFlashSale {
+  id: number;
+  appId: string;
+  /** "Mother's Day roses". */
+  title: string;
+  /** 131 Its title in the app's other languages; missing: `title`. */
+  titles?: LangText;
+  /** The products in it; empty with `categoryId`: that category's. */
+  productIds: number[];
+  categoryId: number | null;
+  /** A share off (1–90), or one price for each product in it (cents). */
+  discount: { kind: "percent"; percent: number } | { kind: "price"; cents: number };
+  startsAt: Date;
+  endsAt: Date;
+  /** Units at the sale price; null: as many as sell. */
+  limit: number | null;
+  /** Units sold at the sale price (paid orders). */
+  sold: number;
+  /** Connected platforms: the platform's own discount code with the same terms, applied with the checkout link; null: none. */
+  platformCode: string | null;
+  active: boolean;
+  createdAt: Date;
+  updatedAt: Date;
+}
+
+/**
+ * 131 A checkout started in the app of a shop on a connected platform with a
+ * delivery day or gift details: kept so a slot's capacity counts it and the
+ * owner sees what the platform's order may not carry. Deleted after 60 days.
+ */
+export interface StoreDelivery {
+  id: number;
+  appId: string;
+  userId: number | null;
+  delivery: OrderDelivery;
+  /** The products, as "2 × Red roses". */
+  lines: string[];
+  /** The buyer as the app knows them. */
+  buyer: { name: string | null; phone: string | null; email: string | null };
+  /** Whether the platform's order carries the details (Shopify's attributes, Wix's note). */
+  passed: boolean;
+  createdAt: Date;
 }
 
 /** 96.2 How a customer may pay outside the card page: the owner writes the details, and marks the order paid once the money arrives. */
@@ -1048,6 +1254,8 @@ export interface CatalogOption {
   name: string;
   /** Added to the unit price. */
   priceDeltaCents: number;
+  /** 131 Added to the product's weight (a vase, a box of chocolates), in grams; missing: none. */
+  weightGrams?: number;
 }
 
 export interface OwnIyzicoPayment {
@@ -1160,6 +1368,16 @@ export interface CatalogProduct {
   optionGroups?: CatalogOptionGroup[] | null;
   /** 91.5 Variations (size, colour): what the customer chooses, and each combination's price and stock; null or missing for none. */
   variants?: CatalogVariants | null;
+  /** 131 Its weight in grams, for shipping priced by weight; null or missing: none. */
+  weightGrams?: number | null;
+  /**
+   * 131 A gift add-on (chocolates, a card, a vase): never listed on its own,
+   * never bought alone, offered as "Add a little more" with the products of
+   * `addonFor`. False or missing: an ordinary product.
+   */
+  addon?: boolean;
+  /** 131 Which products an add-on goes with; null or missing: all of them. */
+  addonFor?: AddonRule | null;
   /** 110.2 A sample entry (lib/samples): saving it in the dashboard makes it the owner's. */
   sample?: boolean;
   salesCount: number;
@@ -1169,11 +1387,45 @@ export interface CatalogProduct {
 
 export type CatalogProductInput = Omit<CatalogProduct, "id" | "salesCount" | "createdAt" | "updatedAt">;
 
+/** 131 What an add-on is offered with: every product, the products of some categories, or some products. */
+export interface AddonRule {
+  offerWith: "all" | "categories" | "products";
+  categoryIds: number[];
+  productIds: number[];
+}
+
+/** 131 Words the owner writes in each of the app's languages (code → text); a missing language: the app's own words. */
+export type LangText = Record<string, string>;
+
+/** 131 The titles of the store's sections the owner can word (each optional, per language). */
+export interface StoreSectionTitles {
+  /** "Add a little more": the add-ons offered with a product, in the cart and at checkout. */
+  addons?: LangText;
+  /** The card message's section. */
+  card?: LangText;
+  /** The delivery day and time picker. */
+  delivery?: LangText;
+}
+
+/**
+ * 131 A connected platform's add-ons (its own products): the owner's list,
+ * a category (a collection) of them, or a tag where the platform gives
+ * tags (Shopify), with what they're offered with.
+ */
+export interface StoreAddonSettings {
+  productIds: number[];
+  categoryId: number | null;
+  tag: string | null;
+  offerWith: AddonRule;
+}
+
 /** 91.5 A product's variations: up to three attributes, and the combinations the shop sells. */
 export interface CatalogVariants {
   /** "Size: S, M, L", "Colour: Red, Blue" (1 to 3). */
   attributes: { name: string; values: string[] }[];
   items: CatalogVariant[];
+  /** 131 The variation chosen when the product's page opens (`ProductDetail.default_attributes`); missing or null: none. */
+  defaultId?: number | null;
 }
 
 /** 91.5 One combination: a value of each attribute, in their order. */
@@ -1207,6 +1459,12 @@ export interface CatalogOrderLine {
   variant?: string;
   /** 113.1 A course bundle bought (`productId` is the bundle's ID): its courses as they were then. */
   bundle?: OrderBundle;
+  /** 131 Bought at a flash sale's price: the sale (its units sold go up when paid). */
+  flashSaleId?: number;
+  /** 131 One unit's weight with its options, in grams (shipping by weight); missing: none. */
+  weightGrams?: number;
+  /** 131 A gift add-on: the product of the line it goes with. */
+  addonOf?: number;
 }
 
 /**
@@ -1282,6 +1540,10 @@ export interface CatalogOrder {
   manualPayment?: OrderManualPayment | null;
   /** 96.4 The app's language when the customer checked out ("ar"), for their receipt; null or missing: the app's. */
   lang?: string | null;
+  /** 131 The delivery day and slot and the gift details; null or missing: none. */
+  delivery?: OrderDelivery | null;
+  /** 131 `delivery.date`, kept apart so a slot's orders are counted quickly. */
+  deliveryDate?: string | null;
 }
 
 /** 91.4 An order's loyalty points. */
@@ -1347,6 +1609,10 @@ export interface CatalogCoupon {
   usedCount: number;
   active: boolean;
   createdAt: Date;
+  /** 131 Valid from then; null or missing: from when it is made. */
+  startsAt?: Date | null;
+  /** 131 Shown in the app (the coupon element, `GET /store/coupons`); missing: false. */
+  public?: boolean;
 }
 
 /**

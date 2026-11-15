@@ -35,9 +35,9 @@ class Pages {
 	const HEADER_ICONS   = array( 'search', 'cart', 'notifications', 'chat', 'account' );
 
 	/**
-	 * 119 The bottom bar's designs (`TabBar.design`); 128 the floating pill, 129 the small dock.
+	 * 119 The bottom bar's designs (`TabBar.design`); 128 the floating pill, 129 the small dock, 131.22 the petal.
 	 */
-	const TAB_BAR_DESIGNS = array( 'classic', 'pill', 'minimal', 'dot', 'line', 'bubble', 'glass', 'notch', 'lift', 'outline', 'square', 'text', 'island', 'segment', 'folder', 'drop', 'glow', 'colours', 'float', 'dock' );
+	const TAB_BAR_DESIGNS = array( 'classic', 'pill', 'minimal', 'dot', 'line', 'bubble', 'glass', 'notch', 'lift', 'outline', 'square', 'text', 'island', 'segment', 'folder', 'drop', 'glow', 'colours', 'float', 'dock', 'petal' );
 
 	/**
 	 * 97.1 The Appearance fields naming a free font, each with the field of its files.
@@ -163,6 +163,12 @@ class Pages {
 			'corners'              => $look['corners'],
 			'cards'                => $look['cards'],
 		);
+		// 131.29 The look's own colours by night, each only when it is a colour.
+		foreach ( array( 'dark_background', 'dark_surface' ) as $field ) {
+			if ( isset( $raw[ $field ] ) && is_string( $raw[ $field ] ) && preg_match( '/^#[0-9A-Fa-f]{6}$/', $raw[ $field ] ) ) {
+				$appearance[ $field ] = strtoupper( $raw[ $field ] );
+			}
+		}
 		// 97.1 A free font and the Arabic text's font, with their files on Yallapp: passed on as
 		// the platform sent them, each only when its name and files are well formed.
 		foreach ( self::FONTS as $name => $files ) {

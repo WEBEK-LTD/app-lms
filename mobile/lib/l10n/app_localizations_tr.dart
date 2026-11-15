@@ -823,6 +823,36 @@ class AppLocalizationsTr extends AppLocalizations {
   String get edit => 'Düzenle';
 
   @override
+  String get giftStepFrom => 'Kimden';
+
+  @override
+  String get giftStepFor => 'Kime';
+
+  @override
+  String get giftStepWhen => 'Ne zaman';
+
+  @override
+  String get giftStepMessage => 'Mesaj';
+
+  @override
+  String get giftStepPay => 'Ödeme';
+
+  @override
+  String get giftCard => 'Kart';
+
+  @override
+  String get giftTo => 'Kime';
+
+  @override
+  String get giftFrom => 'Kimden';
+
+  @override
+  String get giftSomeone => 'Seni düşünen biri';
+
+  @override
+  String get giftArrives => 'Varış';
+
+  @override
   String get shopping => 'Alışveriş';
 
   @override
@@ -11677,4 +11707,168 @@ class AppLocalizationsTr extends AppLocalizations {
 
   @override
   String get courseLookQuestions => 'Sorular ve cevaplar';
+
+  @override
+  String saleOff(int percent) {
+    return '%$percent indirim';
+  }
+
+  @override
+  String saleEndsIn(String time) {
+    return '$time içinde bitiyor';
+  }
+
+  @override
+  String saleLeft(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'Son $count adet',
+      one: 'Son 1 adet',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get saleSoldOut => 'Tükendi';
+
+  @override
+  String get flashSaleTitle => 'Flaş indirim';
+
+  @override
+  String get flashEndsIn => 'Bitmesine';
+
+  @override
+  String couponOff(String amount) {
+    return '$amount indirim';
+  }
+
+  @override
+  String couponMinOrder(String amount) {
+    return '$amount ve üzeri siparişlerde';
+  }
+
+  @override
+  String get deliveryWhen => 'Ne zaman ulaşsın?';
+
+  @override
+  String get deliveryToday => 'Bugün';
+
+  @override
+  String get deliveryTomorrow => 'Yarın';
+
+  @override
+  String get deliveryPickDate => 'Tarih seç';
+
+  @override
+  String deliveryOrderBy(String time) {
+    return 'Bugün teslimat için saat $time\'e kadar sipariş verin';
+  }
+
+  @override
+  String get deliveryTodayClosed => 'Bugün için siparişler kapandı.';
+
+  @override
+  String get deliveryTimeTitle => 'Teslimat saati';
+
+  @override
+  String get deliverySlotFull => 'Dolu';
+
+  @override
+  String get deliveryChooseTime => 'Devam etmek için bir teslimat saati seçin.';
+
+  @override
+  String get deliveryNoTimes =>
+      'Bu günde teslimat saati kalmadı. Lütfen başka bir gün seçin.';
+
+  @override
+  String get giftFromTitle => 'Gönderen';
+
+  @override
+  String get giftToTitle => 'Alıcı';
+
+  @override
+  String get giftYourName => 'Adınız';
+
+  @override
+  String get giftYourPhone => 'Telefonunuz';
+
+  @override
+  String get giftYourEmail => 'E-postanız';
+
+  @override
+  String get giftRecipientName => 'Alıcının adı';
+
+  @override
+  String get giftRecipientPhone => 'Alıcının telefonu';
+
+  @override
+  String get giftAddress => 'Teslimat adresi';
+
+  @override
+  String get giftCountry => 'Ülke';
+
+  @override
+  String get giftCardTitle => 'Mesajınız';
+
+  @override
+  String get giftCardHint => 'Kendiniz yazın ya da hazır bir mesaja dokunun.';
+
+  @override
+  String get giftOccasion => 'Vesile';
+
+  @override
+  String get giftAnonymous => 'İsimsiz gönder';
+
+  @override
+  String get giftAnonymousHint => 'Kartta adınız görünmez.';
+
+  @override
+  String get giftSendToSomeone => 'Başka birine gönder';
+
+  @override
+  String get giftNeedSender =>
+      'Devam etmek için adınızı, telefonunuzu ve e-postanızı ekleyin.';
+
+  @override
+  String get giftNeedRecipient =>
+      'Devam etmek için alıcının adını, telefonunu ve adresini ekleyin.';
+
+  @override
+  String orderDeliveryOn(String date) {
+    return 'Teslimat: $date';
+  }
+
+  @override
+  String orderRecipient(String name) {
+    return 'Alıcı: $name';
+  }
+
+  @override
+  String get giftUseLocation => 'Teslimat için konumumu kullan';
+
+  @override
+  String get giftLocationFailed =>
+      'Konumunuz bulunamadı. Lütfen tekrar deneyin.';
+
+  @override
+  String get addonsTitle => 'Biraz daha ekleyin';
+
+  @override
+  String get addonsHint => 'Hediyenizle birlikte gider';
+
+  @override
+  String addonWith(String name) {
+    return '$name ile';
+  }
+
+  @override
+  String addonAdd(String name) {
+    return '$name ekle';
+  }
+
+  @override
+  String salePercentBadge(int percent) {
+    return '−%$percent';
+  }
 }

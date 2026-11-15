@@ -849,6 +849,36 @@ class AppLocalizationsAr extends AppLocalizations {
   String get edit => 'تعديل';
 
   @override
+  String get giftStepFrom => 'من';
+
+  @override
+  String get giftStepFor => 'إلى';
+
+  @override
+  String get giftStepWhen => 'متى';
+
+  @override
+  String get giftStepMessage => 'الرسالة';
+
+  @override
+  String get giftStepPay => 'الدفع';
+
+  @override
+  String get giftCard => 'البطاقة';
+
+  @override
+  String get giftTo => 'إلى';
+
+  @override
+  String get giftFrom => 'من';
+
+  @override
+  String get giftSomeone => 'شخص يهتم بك';
+
+  @override
+  String get giftArrives => 'يصل';
+
+  @override
   String get shopping => 'التسوق';
 
   @override
@@ -3392,16 +3422,16 @@ class AppLocalizationsAr extends AppLocalizations {
   String get pageWebsite => 'الموقع الإلكتروني';
 
   @override
-  String get countdownDays => 'أيام';
+  String get countdownDays => 'ي';
 
   @override
-  String get countdownHours => 'ساعات';
+  String get countdownHours => 'س';
 
   @override
-  String get countdownMinutes => 'دقائق';
+  String get countdownMinutes => 'د';
 
   @override
-  String get countdownSeconds => 'ثوانٍ';
+  String get countdownSeconds => 'ث';
 
   @override
   String get socialWhatsappChannel => 'قناة واتساب';
@@ -12155,4 +12185,169 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get courseLookQuestions => 'الأسئلة والأجوبة';
+
+  @override
+  String saleOff(int percent) {
+    return 'خصم $percent%';
+  }
+
+  @override
+  String saleEndsIn(String time) {
+    return 'ينتهي خلال $time';
+  }
+
+  @override
+  String saleLeft(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'بقيت $count قطعة',
+      many: 'بقيت $count قطعة',
+      few: 'بقيت $count قطع',
+      two: 'بقيت قطعتان',
+      one: 'بقيت قطعة واحدة',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get saleSoldOut => 'نفدت الكمية';
+
+  @override
+  String get flashSaleTitle => 'عرض خاطف';
+
+  @override
+  String get flashEndsIn => 'ينتهي خلال';
+
+  @override
+  String couponOff(String amount) {
+    return 'خصم $amount';
+  }
+
+  @override
+  String couponMinOrder(String amount) {
+    return 'للطلبات بقيمة $amount أو أكثر';
+  }
+
+  @override
+  String get deliveryWhen => 'متى يصل الطلب؟';
+
+  @override
+  String get deliveryToday => 'اليوم';
+
+  @override
+  String get deliveryTomorrow => 'غدًا';
+
+  @override
+  String get deliveryPickDate => 'اختر تاريخًا';
+
+  @override
+  String deliveryOrderBy(String time) {
+    return 'اطلب قبل $time للتوصيل اليوم';
+  }
+
+  @override
+  String get deliveryTodayClosed => 'انتهى وقت طلبات اليوم.';
+
+  @override
+  String get deliveryTimeTitle => 'وقت التوصيل';
+
+  @override
+  String get deliverySlotFull => 'ممتلئ';
+
+  @override
+  String get deliveryChooseTime => 'اختر وقت التوصيل للمتابعة.';
+
+  @override
+  String get deliveryNoTimes =>
+      'لا توجد أوقات توصيل متبقية في هذا اليوم. يُرجى اختيار يوم آخر.';
+
+  @override
+  String get giftFromTitle => 'من';
+
+  @override
+  String get giftToTitle => 'إلى';
+
+  @override
+  String get giftYourName => 'اسمك';
+
+  @override
+  String get giftYourPhone => 'رقم هاتفك';
+
+  @override
+  String get giftYourEmail => 'بريدك الإلكتروني';
+
+  @override
+  String get giftRecipientName => 'اسم المستلم';
+
+  @override
+  String get giftRecipientPhone => 'هاتف المستلم';
+
+  @override
+  String get giftAddress => 'عنوان التوصيل';
+
+  @override
+  String get giftCountry => 'الدولة';
+
+  @override
+  String get giftCardTitle => 'رسالتك';
+
+  @override
+  String get giftCardHint => 'اكتب رسالتك أو اختر رسالة جاهزة.';
+
+  @override
+  String get giftOccasion => 'المناسبة';
+
+  @override
+  String get giftAnonymous => 'أرسلها دون ذكر اسمي';
+
+  @override
+  String get giftAnonymousHint => 'لن يظهر اسمك على البطاقة.';
+
+  @override
+  String get giftSendToSomeone => 'أرسلها إلى شخص آخر';
+
+  @override
+  String get giftNeedSender => 'أضف اسمك وهاتفك وبريدك الإلكتروني للمتابعة.';
+
+  @override
+  String get giftNeedRecipient => 'أضف اسم المستلم وهاتفه وعنوانه للمتابعة.';
+
+  @override
+  String orderDeliveryOn(String date) {
+    return 'التوصيل: $date';
+  }
+
+  @override
+  String orderRecipient(String name) {
+    return 'إلى $name';
+  }
+
+  @override
+  String get giftUseLocation => 'استخدم موقعي للتوصيل';
+
+  @override
+  String get giftLocationFailed =>
+      'تعذّر تحديد موقعك. يُرجى المحاولة مرة أخرى.';
+
+  @override
+  String get addonsTitle => 'أضف لمسة إضافية';
+
+  @override
+  String get addonsHint => 'تُرسَل مع هديتك';
+
+  @override
+  String addonWith(String name) {
+    return 'مع $name';
+  }
+
+  @override
+  String addonAdd(String name) {
+    return 'أضف $name';
+  }
+
+  @override
+  String salePercentBadge(int percent) {
+    return '−$percent٪';
+  }
 }

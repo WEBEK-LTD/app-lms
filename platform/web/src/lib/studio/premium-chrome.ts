@@ -24,6 +24,10 @@ import type { StudioHeader, StudioHeaderStyle } from "../pages/types";
  *   over its foot.
  * - `brand`: the main colour across the top with the logo (or the app's
  *   name) in the middle between round glass buttons, the cards over it.
+ * - 131.23 `petal` (Leqaa's, for every app): a soft wash of the main and
+ *   second colours with a curved petal edge, the person in a double ring
+ *   in the middle over a fine floral line, the cards with petal-cut icon
+ *   tiles on a blush page.
  *
  * The app draws them in the project's colours and fonts, by day and by
  * night, mirrored right to left, and still for people who turn movement
@@ -31,7 +35,7 @@ import type { StudioHeader, StudioHeaderStyle } from "../pages/types";
  */
 
 /** The premium looks of the system screens; `classic` (only per screen) is the app's own. */
-export const SYSTEM_LOOKS = ["large", "glass", "photo", "brand"] as const;
+export const SYSTEM_LOOKS = ["large", "glass", "photo", "brand", "petal"] as const;
 export type SystemLook = (typeof SYSTEM_LOOKS)[number];
 export type SystemScreenLook = SystemLook | "classic";
 
@@ -49,7 +53,7 @@ export interface SystemScreensLook {
 }
 
 /** The premium header each system look goes with (the screens' own bars, and a demo's pages). */
-export const LOOK_HEADER: Record<SystemLook, StudioHeaderStyle> = { large: "large", glass: "glass", photo: "photo", brand: "brand" };
+export const LOOK_HEADER: Record<SystemLook, StudioHeaderStyle> = { large: "large", glass: "glass", photo: "photo", brand: "brand", petal: "petal" };
 
 /** The look one system screen has in this project; null, the app's own. */
 export function systemLookFor(system: SystemScreensLook | null | undefined, screen: SystemScreenKey): SystemLook | null {
@@ -122,7 +126,7 @@ export function premiumHeader(header: StudioHeader, style: StudioHeaderStyle): S
   return { ...header, style };
 }
 
-/** 130.20 Whether a header's style collapses on scroll (`large`, `photo`, `search`), unless `collapse` is false. */
+/** 130.20 Whether a header's style collapses on scroll (`large`, `photo`, `search`, 131.21 `petal`), unless `collapse` is false. */
 export function headerCollapses(header: Pick<StudioHeader, "style" | "collapse">): boolean {
-  return (header.style === "large" || header.style === "photo" || header.style === "search") && header.collapse !== false;
+  return (header.style === "large" || header.style === "photo" || header.style === "search" || header.style === "petal") && header.collapse !== false;
 }

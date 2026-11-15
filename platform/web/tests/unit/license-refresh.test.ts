@@ -184,6 +184,14 @@ describe("saves that change what the license status carries ask the site", () =>
     // 121 A Studio project's sign-in screen and account menu, and the demo's taken.
     ["app/actions/studio-screens.ts", "saveStudioScreensAction"],
     ["app/actions/studio-screens.ts", "applyDemoScreensAction"],
+    // 131 A store's card messages.
+    ["app/actions/selling.ts", "addOccasionAction"],
+    ["app/actions/selling.ts", "saveOccasionAction"],
+    ["app/actions/selling.ts", "changeOccasionAction"],
+    ["app/actions/selling.ts", "saveTemplateAction"],
+    ["app/actions/selling.ts", "changeTemplateAction"],
+    // 131 A store's titles of the add-ons, the card and the delivery picker.
+    ["app/actions/selling.ts", "saveTitlesAction"],
   ])("%s %s", (file, name) => {
     expect(body(file, name)).toContain("refreshSitesSoon(");
   });
@@ -215,6 +223,10 @@ describe("saves that change what the license status carries ask the site", () =>
       "store_billing",
       // 121 A Studio project's sign-in screen and account menu (Studio › Screens).
       "screens",
+      // 131 A store's card messages (Store › Card messages).
+      "gift_messages",
+      // 131 A store's section titles (Store › Delivery & offers › Titles in the app).
+      "store_titles",
       "expires_at",
       "checked_at",
       "message",

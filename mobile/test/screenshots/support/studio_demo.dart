@@ -43,6 +43,9 @@ class StudioDemo {
   static StudioDemo signature(String demo, String look) =>
       StudioDemo._load('signatures/${demo}_$look.json');
 
+  /// 131.20 Another of test/support's projects (leqaa_demo.json).
+  static StudioDemo file(String name) => StudioDemo._load(name);
+
   final Map<String, dynamic> _demo;
 
   /// The language the demo's texts are served in, as the hosted API picks
@@ -50,17 +53,47 @@ class StudioDemo {
   static String language = 'en';
 
   /// [node]'s texts in [language], without its translations.
+  /// 131.20 Its entries' and its lists' too (a story's heading, a step of
+  /// a timeline), as the hosted API serves them (lib/hosted/pages).
   static Map<String, dynamic> localized(Map<String, dynamic> node) {
     final out = {...node}..remove('translations');
     final texts = (node['translations'] as Map?)?[language] as Map?;
-    if (texts == null) return out;
-    for (final MapEntry(:key, :value) in texts.entries) {
-      if (value is String && value.trim().isNotEmpty && out.containsKey(key)) {
-        out[key as String] = value;
+    if (texts != null) {
+      for (final MapEntry(:key, :value) in texts.entries) {
+        if (value is String &&
+            value.trim().isNotEmpty &&
+            out.containsKey(key)) {
+          out[key as String] = value;
+        }
+      }
+    }
+    for (final list in _entryLists) {
+      if (out[list] case final List entries) {
+        out[list] = [
+          for (final e in entries)
+            e is Map<String, dynamic> && e.containsKey('translations')
+                ? localized(e)
+                : e,
+        ];
       }
     }
     return out;
   }
+
+  /// The lists whose entries have texts of their own (lib/pages/types.ts
+  /// `TRANSLATABLE_ENTRIES`, and a node's `entries`).
+  static const _entryLists = [
+    'entries',
+    'slides',
+    'links',
+    'quotes',
+    'questions',
+    'people',
+    'stats',
+    'cards',
+    'images',
+    'fields',
+  ];
 
   Map<String, dynamic> get _layout => _demo['layout'] as Map<String, dynamic>;
 
@@ -112,6 +145,8 @@ class StudioDemo {
     required String appName,
     required String primaryColor,
     Map<String, List<Map<String, dynamic>>> items = const {},
+    Map<String, dynamic>? flashSale,
+    Map<String, dynamic>? couponOffer,
   }) {
     api.config = {
       ...api.config,
@@ -139,6 +174,23 @@ class StudioDemo {
       }
       if (node['card'] case final Map<String, dynamic> card) {
         out['card'] = served(card);
+      }
+      // 131 A flash sale as the servers fill it (its sale and products), a
+      // coupon bound to the shop's with the one it shows; else left out.
+      if (node['type'] == 'flash_sale') {
+        if (flashSale == null) {
+          return {'id': node['id'], 'type': 'spacer', 'height': 0};
+        }
+        out['flash'] = flashSale['flash'];
+        out['items'] = flashSale['items'];
+      }
+      if (node['type'] == 'coupon' &&
+          (node['coupon'] as Map?)?['bind'] == 'public') {
+        if (couponOffer == null) {
+          return {'id': node['id'], 'type': 'spacer', 'height': 0};
+        }
+        out['code'] = couponOffer['code'];
+        out['coupon_offer'] = couponOffer;
       }
       return out;
     }
@@ -206,7 +258,7 @@ class StudioDemo {
   /// their path, read once.
   static final _photos = <String, ui.Image>{};
   static final _photoPath = RegExp(
-    r'^https?://[^/]+(/(?:demo-photos|demo-screens|stories|travel-photos)/[^"]+\.jpg)$',
+    r'^https?://[^/]+(/(?:demo-photos|demo-screens|stories|travel-photos|flower-photos)/[^"]+\.jpg)$',
   );
 
   /// The paths of the photos [json] names.

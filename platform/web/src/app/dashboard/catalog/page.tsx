@@ -156,6 +156,7 @@ export default async function CatalogPage({ searchParams }: { searchParams: Prom
                     <>
                       <SampleBadge sample={p.sample} />
                       {p.featured ? <Badge tone="info">{t("shop.featured")}</Badge> : null}
+                      {p.addon ? <Badge tone="info">{t("shop.addonBadge")}</Badge> : null}
                     </>
                   }
                   meta={[

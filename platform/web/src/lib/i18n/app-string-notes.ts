@@ -4764,9 +4764,262 @@ export const APP_STRING_NOTES: Record<string, { en?: string; ar: string; tr: str
     ar: "يفتح كل تقييمات الدورة.",
     tr: "Kursun tüm değerlendirmelerini açar.",
   },
+  // ——— 131.25 The gift checkout's look ———
+  "131.25 The gift checkout's stepper: the step for who the gift is from.": {
+    en: "In the gift checkout's steps: the step for who the gift is from.",
+    ar: "في خطوات الدفع كهدية: خطوة المُرسِل.",
+    tr: "Hediye ödemesinin adımlarında: hediyenin kimden olduğu adımı.",
+  },
+  "131.25 The stepper: who the gift is for.": {
+    en: "In the gift checkout's steps: who the gift is for.",
+    ar: "في خطوات الدفع كهدية: لمن الهدية.",
+    tr: "Hediye ödemesinin adımlarında: hediyenin kime olduğu.",
+  },
+  "131.25 The stepper: the delivery day and time.": {
+    en: "In the gift checkout's steps: the delivery day and time.",
+    ar: "في خطوات الدفع كهدية: يوم التوصيل وموعده.",
+    tr: "Hediye ödemesinin adımlarında: teslimat günü ve saati.",
+  },
+  "131.25 The stepper: the card's message.": {
+    en: "In the gift checkout's steps: the card's message.",
+    ar: "في خطوات الدفع كهدية: رسالة البطاقة.",
+    tr: "Hediye ödemesinin adımlarında: kartın mesajı.",
+  },
+  "131.25 The stepper: the order and the payment.": {
+    en: "In the gift checkout's steps: the order and the payment.",
+    ar: "في خطوات الدفع كهدية: الطلب والدفع.",
+    tr: "Hediye ödemesinin adımlarında: sipariş ve ödeme.",
+  },
+  "131.25 The recipient's country picker, limited to where the shop delivers.": {
+    en: "The recipient's country, chosen from the places the shop delivers to.",
+    ar: "دولة المستلم، من الأماكن التي يوصّل إليها المتجر.",
+    tr: "Alıcının ülkesi, mağazanın teslim ettiği yerlerden seçilir.",
+  },
+  "131.25 The recipient's address field.": {
+    en: "The recipient's street, building and floor.",
+    ar: "شارع المستلم ومبناه وطابقه.",
+    tr: "Alıcının sokağı, binası ve katı.",
+  },
+  "131.25 The occasion chips over the ready messages.": {
+    en: "Over the occasions for the card's ready messages.",
+    ar: "فوق المناسبات لرسائل البطاقة الجاهزة.",
+    tr: "Kartın hazır mesajları için vesilelerin üstünde.",
+  },
+  "131.25 The switch that leaves the sender's name off the card.": {
+    en: "The switch that leaves the sender's name off the card.",
+    ar: "مفتاح يحذف اسم المُرسِل من البطاقة.",
+    tr: "Gönderenin adını karttan çıkaran anahtar.",
+  },
+  "131.25 The gift card's live preview.": {
+    en: "The gift card's live preview.",
+    ar: "معاينة بطاقة الهدية وهي تُكتب.",
+    tr: "Hediye kartının canlı önizlemesi.",
+  },
+  "131.25 On the card: before the recipient's name.": {
+    en: "On the card's preview, before the recipient's name.",
+    ar: "في معاينة البطاقة، قبل اسم المستلم.",
+    tr: "Kartın önizlemesinde, alıcının adından önce.",
+  },
+  "131.25 On the card: before the sender's name.": {
+    en: "On the card's preview, before the sender's name.",
+    ar: "في معاينة البطاقة، قبل اسم المُرسِل.",
+    tr: "Kartın önizlemesinde, gönderenin adından önce.",
+  },
+  "131.25 On the card instead of the sender's name when sent anonymously.": {
+    en: "On the card instead of the sender's name when sent anonymously.",
+    ar: "على البطاقة بدل اسم المُرسِل حين تُرسل دون اسم.",
+    tr: "İsimsiz gönderildiğinde kartta gönderenin adı yerine.",
+  },
+  "131.25 In the summary, before the chosen day and time slot.": {
+    en: "In the order summary, before the chosen delivery day and time.",
+    ar: "في ملخص الطلب، قبل يوم التوصيل وموعده المختارين.",
+    tr: "Sipariş özetinde, seçilen teslimat günü ve saatinden önce.",
+  },
+  // ——— end 131.25 ———
   "130.52 The course's questions, opened from its page.": {
     ar: "أسئلة الدورة، تُفتح من صفحتها.",
     tr: "Kursun soruları, sayfasından açılır.",
+  },
+  "131 A product's share off on its sale badge.": {
+    ar: "نسبة الخصم على شارة تخفيض المنتج.",
+    tr: "Ürünün indirim etiketindeki indirim oranı.",
+  },
+  "131 How long a sale has left, on a product.": {
+    ar: "الوقت المتبقي على تخفيض المنتج.",
+    tr: "Bir üründeki indirimin kalan süresi.",
+  },
+  "131 The units left at a flash sale's price.": {
+    ar: "عدد القطع المتبقية بسعر العرض الخاطف.",
+    tr: "Flaş indirim fiyatıyla kalan adet.",
+  },
+  "131 A flash sale with no units left.": {
+    ar: "عرض خاطف لم تبق منه قطع.",
+    tr: "Hiç adedi kalmamış bir flaş indirim.",
+  },
+  "131 A flash sale element's title when it has none of its own.": {
+    ar: "عنوان عنصر العرض الخاطف حين لا يكون له عنوان خاص.",
+    tr: "Kendi başlığı olmayan flaş indirim öğesinin başlığı.",
+  },
+  "131 Before a flash sale's countdown.": {
+    ar: "قبل العدّاد التنازلي للعرض الخاطف.",
+    tr: "Flaş indirimin geri sayımından önce.",
+  },
+  "131 What a coupon takes off, on the coupon element.": {
+    ar: "قيمة خصم القسيمة على عنصر القسيمة.",
+    tr: "Kupon öğesinde kuponun indirimi.",
+  },
+  "131 A coupon's minimum order, on the coupon element.": {
+    ar: "الحد الأدنى للطلب في القسيمة، على عنصر القسيمة.",
+    tr: "Kupon öğesinde kuponun en az sipariş tutarı.",
+  },
+  "131 The delivery day picker's title in the cart.": {
+    ar: "عنوان اختيار يوم التوصيل في السلة.",
+    tr: "Sepetteki teslimat günü seçiminin başlığı.",
+  },
+  "131 Delivery today, in the day picker.": {
+    ar: "التوصيل اليوم، في اختيار اليوم.",
+    tr: "Gün seçiminde bugün teslimat.",
+  },
+  "131 Delivery tomorrow, in the day picker.": {
+    ar: "التوصيل غدًا، في اختيار اليوم.",
+    tr: "Gün seçiminde yarın teslimat.",
+  },
+  "131 Opens the calendar of delivery days.": {
+    ar: "يفتح تقويم أيام التوصيل.",
+    tr: "Teslimat günleri takvimini açar.",
+  },
+  "131 The same-day cut-off, under the day picker.": {
+    ar: "آخر موعد لطلبات اليوم، تحت اختيار اليوم.",
+    tr: "Gün seçiminin altında aynı gün son sipariş saati.",
+  },
+  "131 Today can't be chosen any more.": {
+    ar: "لم يعد اختيار اليوم ممكنًا.",
+    tr: "Bugün artık seçilemez.",
+  },
+  "131 The delivery slots' title in the cart.": {
+    ar: "عنوان أوقات التوصيل في السلة.",
+    tr: "Sepetteki teslimat saatlerinin başlığı.",
+  },
+  "131 A delivery slot that can't take more orders.": {
+    ar: "وقت توصيل لا يقبل طلبات أخرى.",
+    tr: "Daha fazla sipariş alamayan teslimat saati.",
+  },
+  "131 Under the cart's button while no slot is chosen.": {
+    ar: "تحت زر السلة ما دام وقت التوصيل غير محدد.",
+    tr: "Teslimat saati seçilmemişken sepet düğmesinin altında.",
+  },
+  "131 A day whose slots are all full or passed.": {
+    ar: "يوم امتلأت أوقاته كلها أو انقضت.",
+    tr: "Tüm saatleri dolmuş ya da geçmiş bir gün.",
+  },
+  "131 The gift checkout's sender section.": {
+    ar: "قسم المُرسِل في إتمام طلب الهدية.",
+    tr: "Hediye ödemesinde gönderen bölümü.",
+  },
+  "131 The gift checkout's recipient section.": {
+    ar: "قسم المستلم في إتمام طلب الهدية.",
+    tr: "Hediye ödemesinde alıcı bölümü.",
+  },
+  "131 The sender's name field.": {
+    ar: "حقل اسم المُرسِل.",
+    tr: "Gönderenin adı alanı.",
+  },
+  "131 The sender's phone field.": {
+    ar: "حقل هاتف المُرسِل.",
+    tr: "Gönderenin telefonu alanı.",
+  },
+  "131 The sender's email field.": {
+    ar: "حقل البريد الإلكتروني للمُرسِل.",
+    tr: "Gönderenin e-postası alanı.",
+  },
+  "131 The recipient's name field.": {
+    ar: "حقل اسم المستلم.",
+    tr: "Alıcının adı alanı.",
+  },
+  "131 The recipient's phone field.": {
+    ar: "حقل هاتف المستلم.",
+    tr: "Alıcının telefonu alanı.",
+  },
+  "131 The recipient's address field.": {
+    ar: "حقل عنوان المستلم.",
+    tr: "Alıcının adresi alanı.",
+  },
+  "131 The recipient's country, among the shop's.": {
+    ar: "دولة المستلم، من دول المتجر.",
+    tr: "Mağazanın ülkeleri arasından alıcının ülkesi.",
+  },
+  "131 The card message's section.": {
+    ar: "قسم رسالة البطاقة.",
+    tr: "Kart mesajı bölümü.",
+  },
+  "131 Under the card message's title.": {
+    ar: "تحت عنوان رسالة البطاقة.",
+    tr: "Kart mesajı başlığının altında.",
+  },
+  "131 The card messages' occasions.": {
+    ar: "مناسبات رسائل البطاقة.",
+    tr: "Kart mesajlarının vesileleri.",
+  },
+  "131 The card goes without the sender's name.": {
+    ar: "تُرسل البطاقة دون اسم المُرسِل.",
+    tr: "Kart gönderenin adı olmadan gider.",
+  },
+  "131 Under Send anonymously.": {
+    ar: "تحت خيار الإرسال دون اسم.",
+    tr: "İsimsiz gönder seçeneğinin altında.",
+  },
+  "131 Adds the recipient's name and phone.": {
+    ar: "يضيف اسم المستلم وهاتفه.",
+    tr: "Alıcının adını ve telefonunu ekler.",
+  },
+  "131 Under the cart's button while the sender is missing.": {
+    ar: "تحت زر السلة ما دامت بيانات المُرسِل ناقصة.",
+    tr: "Gönderen eksikken sepet düğmesinin altında.",
+  },
+  "131 Under the cart's button while the recipient is missing.": {
+    ar: "تحت زر السلة ما دامت بيانات المستلم ناقصة.",
+    tr: "Alıcı eksikken sepet düğmesinin altında.",
+  },
+  "131 An order's delivery day and time.": {
+    ar: "يوم توصيل الطلب ووقته.",
+    tr: "Siparişin teslimat günü ve saati.",
+  },
+  "131 Who an order goes to.": {
+    ar: "من يُرسل إليه الطلب.",
+    tr: "Siparişin gideceği kişi.",
+  },
+  "131 Sets where it goes from the phone's place, for shipping by distance.": {
+    ar: "يحدد مكان التوصيل من موقع الهاتف، للشحن حسب المسافة.",
+    tr: "Mesafeye göre kargo için teslimat yerini telefonun konumundan belirler.",
+  },
+  "131 The phone's place couldn't be read.": {
+    ar: "تعذّرت قراءة موقع الهاتف.",
+    tr: "Telefonun konumu okunamadı.",
+  },
+  "131 The gift add-ons offered with a product, in the cart and at checkout (chocolates, a card, a vase); the owner may word it their own way.": {
+    en: "The gift add-ons offered with a product, in the cart and at checkout (chocolates, a card, a vase); you can word it your own way in Delivery & offers.",
+    ar: "إضافات الهدايا اللي بتتعرض مع المنتج وفي السلة وعند الدفع (شوكولاتة، كارت، فازة)؛ وتقدر تكتب العنوان بطريقتك في التوصيل والعروض.",
+    tr: "Bir ürünle, sepette ve ödemede sunulan hediye ekleri (çikolata, kart, vazo); başlığı Teslimat ve fırsatlar'da kendi sözlerinizle yazabilirsiniz.",
+  },
+  "131 Under the add-ons' title: they're sent with the gift.": {
+    en: "Under the add-ons' title: they're sent with the gift.",
+    ar: "تحت عنوان الإضافات: بتتبعت مع الهدية.",
+    tr: "Ek ürünlerin başlığının altında: hediyeyle birlikte gönderilirler.",
+  },
+  "131 A gift add-on's line in the cart, under the item it goes with.": {
+    en: "A gift add-on's line in the cart, under the item it goes with.",
+    ar: "سطر إضافة الهدية في السلة، تحت المنتج اللي معاه.",
+    tr: "Sepette bir hediye ekinin satırı, birlikte gittiği ürünün altında.",
+  },
+  "131 Screen readers: the checkbox that adds a gift add-on.": {
+    en: "Read aloud by screen readers: the checkbox that adds a gift add-on.",
+    ar: "بتتقري لقارئ الشاشة: خانة الاختيار اللي بتضيف إضافة الهدية.",
+    tr: "Ekran okuyucular için: bir hediye ekini ekleyen onay kutusu.",
+  },
+  "131 A flash sale's share off on its badge, like −25%.": {
+    en: "A flash sale's share off on its badge, like −25%.",
+    ar: "نسبة خصم عرض الفلاش على الشارة بتاعته، زي −25%.",
+    tr: "Flaş indirimin rozetindeki indirim oranı, örneğin −%25.",
   },
 };
 

@@ -11,11 +11,12 @@ import type { SampleList } from "../samples/lists";
 import { TEMPLATES, type TemplateInfo } from "../studio/sections";
 import { startLayout } from "../studio/start";
 import { SIGNATURE_LOOKS, type SignatureLook } from "../studio/demo-designs/signature";
-import { DEMO_SLUGS, DEMO_TYPES, demoKind, demoTypeOfSlug, isStudioDemo, PREMIUM_ACADEMY_DEMO, PREMIUM_ACADEMY_TEMPLATE, STUDIO_DEMO_TYPES, type DemoId, type StudioDemoId } from "./constants";
+import { DEMO_SLUGS, DEMO_TYPES, demoKind, demoTypeOfSlug, FLOWER_SHOP_DEMO, isStudioDemo, PREMIUM_ACADEMY_DEMO, PREMIUM_ACADEMY_TEMPLATE, STUDIO_DEMO_TYPES, type DemoId, type StudioDemoId } from "./constants";
 import { CLINIC_SERVICES, DEMO_ARTICLES, DEMO_BRANDS, DEMO_CAMPAIGNS, DEMO_DELIVERY_SERVICES, DEMO_DISHES, DEMO_EVENTS, DEMO_GUIDES, DEMO_LISTINGS, DEMO_PRODUCTS, DEMO_RESTAURANTS, DEMO_SERVICES, FITNESS_SERVICES, RIDES_DEMO_TYPES, TAXI_DEMO_TYPES } from "./content";
 import { demoCourseSeeds } from "./entries";
 import { demoDesign } from "./look";
 import { MARKET_VENDORS } from "./marketplace";
+import { FLOWER_PRODUCTS } from "./flowers";
 import { SCHOOL_CLASSES } from "./school";
 import { TRAVEL_HOTELS } from "@/lib/travel/samples";
 
@@ -37,6 +38,7 @@ export function productOf(id: DemoId): PickerProduct {
 
 /** Studio's demos in the approved order (13 November 2026): the teaching ones first; one not named here comes after them. */
 const STUDIO_ORDER: readonly DemoId[] = [PREMIUM_ACADEMY_DEMO, "instructors", "food", "marketplace", "delivery", "rides", "taxi", "school"];
+// 131.20 Leqaa, the newest, comes after them (with Safra), as STUDIO_DEMO_TYPES has it.
 
 const ordered = (ids: readonly DemoId[], order: readonly DemoId[]) =>
   ids
@@ -74,6 +76,8 @@ const DEMO_BUSINESS: Partial<Record<DemoId, string>> = {
   taxi: "rides",
   school: "school",
   travel: "travel",
+  // 131.20 Leqaa is a shop, with the store's own demo and Zad.
+  flowers: "shop",
 };
 
 export function businessOf(id: DemoId): string {
@@ -148,6 +152,8 @@ const DEMO_ITEMS: Record<DemoId, () => DemoItems> = {
   school: () => ({ list: "school", noun: "schoolClasses", count: SCHOOL_CLASSES.length }),
   // 126 Safra: its hotels (each with its rooms; its flights come with them).
   travel: () => ({ list: "hotels", noun: "hotels", count: TRAVEL_HOTELS.length }),
+  // 131.20 Leqaa: its bouquets and add-ons.
+  flowers: () => ({ list: "products", noun: "products", count: FLOWER_PRODUCTS.length }),
 };
 
 export function demoItems(id: DemoId): DemoItems {
@@ -162,7 +168,8 @@ export function demoItems(id: DemoId): DemoItems {
  * from its look A.
  */
 export function studioDemoTemplate(id: StudioDemoId, look?: SignatureLook): TemplateInfo {
-  const own = TEMPLATES.find((t) => t.demo === id && t.look === (look ?? (id === PREMIUM_ACADEMY_DEMO ? "a" : undefined)));
+  // 131.20 Leqaa too (a template's demo, as the premium academy): its look A.
+  const own = TEMPLATES.find((t) => t.demo === id && t.look === (look ?? (id === PREMIUM_ACADEMY_DEMO || id === FLOWER_SHOP_DEMO ? "a" : undefined)));
   if (own) return own;
   return TEMPLATES.find((t) => t.demo === id && !t.look) ?? TEMPLATES.find((t) => t.id === PREMIUM_ACADEMY_TEMPLATE)!;
 }

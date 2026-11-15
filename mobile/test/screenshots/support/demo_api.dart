@@ -25,6 +25,13 @@ class DemoApi extends FakeApi {
   /// 26 The café's menu instead of the flower shop's products.
   final bool restaurant;
 
+  /// 131.20 Leqaa's bouquets and collections instead of Lale Flowers' (leqaa.dart).
+  List<Map<String, dynamic>>? shopProducts;
+  List<Map<String, dynamic>>? shopCategories;
+
+  /// 131.20 Leqaa, the flower shop in Cairo (its products: leqaa.dart).
+  factory DemoApi.leqaa() => DemoApi.store(primary: '#8E2445');
+
   /// An academy with Yallapp's default colors.
   factory DemoApi.academy({
     bool arabic = false,
@@ -2973,7 +2980,10 @@ class DemoApi extends FakeApi {
   Future<List<ProductCategory>> listProductCategories() =>
       super.listProductCategories().then(
         (_) => [
-          for (final c in restaurant ? _menuCategories : _productCategories)
+          for (final c
+              in restaurant
+                  ? _menuCategories
+                  : (shopCategories ?? _productCategories))
             ProductCategory.fromJson(c),
         ],
       );
@@ -2990,7 +3000,7 @@ class DemoApi extends FakeApi {
                       if (query.category == null || query.category == category)
                         dish,
                   ]
-                : _products,
+                : (shopProducts ?? _products),
           ),
           ProductSummary.fromJson,
         ),

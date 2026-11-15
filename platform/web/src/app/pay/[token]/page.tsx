@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { deliveryDayLabel } from "@/lib/selling/delivery";
 import { taxLabel } from "@/lib/catalog/tax";
 import { redirect } from "next/navigation";
 import { formatCents } from "@/lib/catalog/money";
@@ -143,6 +144,13 @@ export default async function PayPage({
                 : ""}
           </p>
         ) : null}
+        {/* 131 The delivery day and slot, and who receives it. */}
+        {order.delivery && (order.delivery.date || order.delivery.recipient) ? (
+          <p className="m-0 border-t border-line-soft pt-2 text-[15px] text-ink-4" data-pay-delivery="">
+            {order.delivery.date ? `Delivery ${deliveryDayLabel(order.delivery.date, "en")}${order.delivery.slot ? `, ${order.delivery.slot.start}–${order.delivery.slot.end}` : ""}` : "Delivery"}
+            {order.delivery.recipient ? ` to ${order.delivery.recipient.name}` : ""}
+          </p>
+        ) : null}
       </section>
       {app.demo ? (
         <form action={demoPayAction.bind(null, token)} className="flex flex-col gap-3">
@@ -163,7 +171,15 @@ export default async function PayPage({
             total={money(order.totalCents)}
             color={color}
             textColor={textOn(color)}
-            defaults={order.customer ?? (order.fulfilment?.address ? { address: order.fulfilment.address.address, city: order.fulfilment.address.district ?? "" } : undefined)}
+            defaults={
+              order.customer ??
+              (order.fulfilment?.address
+                ? { address: order.fulfilment.address.address, city: order.fulfilment.address.district ?? "" }
+                : // 131 The gift checkout's sender pays, and it goes to the recipient's address.
+                  order.delivery?.sender
+                  ? { name: order.delivery.sender.name, phone: order.delivery.sender.phone, email: order.delivery.sender.email, address: order.delivery.recipient?.address ?? "", city: order.delivery.place?.city ?? "" }
+                  : undefined)
+            }
           />
           {checkout ? <p className="m-0 text-center text-[13px] text-muted">Card payments are processed securely by {PROVIDER_NAME[checkout.account.provider]}.</p> : null}
         </>

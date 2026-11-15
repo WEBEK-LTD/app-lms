@@ -507,6 +507,47 @@
   "logOutMessage": "You'll need a verification code to sign in again.",
   "logOut": "Log out",
   "edit": "Edit",
+  "giftStepFrom": "From",
+  "@giftStepFrom": {
+    "description": "131.25 The gift checkout's stepper: the step for who the gift is from."
+  },
+  "giftStepFor": "For",
+  "@giftStepFor": {
+    "description": "131.25 The stepper: who the gift is for."
+  },
+  "giftStepWhen": "When",
+  "@giftStepWhen": {
+    "description": "131.25 The stepper: the delivery day and time."
+  },
+  "giftStepMessage": "Message",
+  "@giftStepMessage": {
+    "description": "131.25 The stepper: the card's message."
+  },
+  "giftStepPay": "Pay",
+  "@giftStepPay": {
+    "description": "131.25 The stepper: the order and the payment."
+  },
+  "giftCard": "The card",
+  "@giftCard": {
+    "description": "131.25 The gift card's live preview."
+  },
+  "giftTo": "To",
+  "@giftTo": {
+    "description": "131.25 On the card: before the recipient's name."
+  },
+  "giftFrom": "From",
+  "@giftFrom": {
+    "description": "131.25 On the card: before the sender's name."
+  },
+  "giftSomeone": "Someone who cares",
+  "@giftSomeone": {
+    "description": "131.25 On the card instead of the sender's name when sent anonymously."
+  },
+  "giftArrives": "Arrives",
+  "@giftArrives": {
+    "description": "131.25 In the summary, before the chosen day and time slot."
+  },
+
   "shopping": "Shopping",
   "learning": "Learning",
   "wishlist": "Wishlist",
@@ -12753,5 +12794,236 @@
   "courseLookQuestions": "Questions and answers",
   "@courseLookQuestions": {
     "description": "130.52 The course's questions, opened from its page."
+  },
+  "saleOff": "{percent}% off",
+  "@saleOff": {
+    "description": "131 A product's share off on its sale badge.",
+    "placeholders": {
+      "percent": {
+        "type": "int"
+      }
+    }
+  },
+  "saleEndsIn": "Ends in {time}",
+  "@saleEndsIn": {
+    "description": "131 How long a sale has left, on a product.",
+    "placeholders": {
+      "time": {
+        "type": "String"
+      }
+    }
+  },
+  "saleLeft": "{count, plural, =1{Only 1 left} other{Only {count} left}}",
+  "@saleLeft": {
+    "description": "131 The units left at a flash sale's price.",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "saleSoldOut": "Sold out",
+  "@saleSoldOut": {
+    "description": "131 A flash sale with no units left."
+  },
+  "flashSaleTitle": "Flash sale",
+  "@flashSaleTitle": {
+    "description": "131 A flash sale element's title when it has none of its own."
+  },
+  "flashEndsIn": "Ends in",
+  "@flashEndsIn": {
+    "description": "131 Before a flash sale's countdown."
+  },
+  "couponOff": "{amount} off",
+  "@couponOff": {
+    "description": "131 What a coupon takes off, on the coupon element.",
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+  "couponMinOrder": "On orders of {amount} or more",
+  "@couponMinOrder": {
+    "description": "131 A coupon's minimum order, on the coupon element.",
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+  "deliveryWhen": "When should it arrive?",
+  "@deliveryWhen": {
+    "description": "131 The delivery day picker's title in the cart."
+  },
+  "deliveryToday": "Today",
+  "@deliveryToday": {
+    "description": "131 Delivery today, in the day picker."
+  },
+  "deliveryTomorrow": "Tomorrow",
+  "@deliveryTomorrow": {
+    "description": "131 Delivery tomorrow, in the day picker."
+  },
+  "deliveryPickDate": "Pick a date",
+  "@deliveryPickDate": {
+    "description": "131 Opens the calendar of delivery days."
+  },
+  "deliveryOrderBy": "Order by {time} for delivery today",
+  "@deliveryOrderBy": {
+    "description": "131 The same-day cut-off, under the day picker.",
+    "placeholders": {
+      "time": {
+        "type": "String"
+      }
+    }
+  },
+  "deliveryTodayClosed": "Orders for today have closed.",
+  "@deliveryTodayClosed": {
+    "description": "131 Today can't be chosen any more."
+  },
+  "deliveryTimeTitle": "Delivery time",
+  "@deliveryTimeTitle": {
+    "description": "131 The delivery slots' title in the cart."
+  },
+  "deliverySlotFull": "Full",
+  "@deliverySlotFull": {
+    "description": "131 A delivery slot that can't take more orders."
+  },
+  "deliveryChooseTime": "Choose a delivery time to continue.",
+  "@deliveryChooseTime": {
+    "description": "131 Under the cart's button while no slot is chosen."
+  },
+  "deliveryNoTimes": "No delivery times are left on this day. Please choose another day.",
+  "@deliveryNoTimes": {
+    "description": "131 A day whose slots are all full or passed."
+  },
+  "giftFromTitle": "From",
+  "@giftFromTitle": {
+    "description": "131 The gift checkout's sender section."
+  },
+  "giftToTitle": "To",
+  "@giftToTitle": {
+    "description": "131 The gift checkout's recipient section."
+  },
+  "giftYourName": "Your name",
+  "@giftYourName": {
+    "description": "131 The sender's name field."
+  },
+  "giftYourPhone": "Your phone",
+  "@giftYourPhone": {
+    "description": "131 The sender's phone field."
+  },
+  "giftYourEmail": "Your email",
+  "@giftYourEmail": {
+    "description": "131 The sender's email field."
+  },
+  "giftRecipientName": "Recipient's name",
+  "@giftRecipientName": {
+    "description": "131 The recipient's name field."
+  },
+  "giftRecipientPhone": "Recipient's phone",
+  "@giftRecipientPhone": {
+    "description": "131 The recipient's phone field."
+  },
+  "giftAddress": "Delivery address",
+  "@giftAddress": {
+    "description": "131 The recipient's address field."
+  },
+  "giftCountry": "Country",
+  "@giftCountry": {
+    "description": "131 The recipient's country, among the shop's."
+  },
+  "giftCardTitle": "Your message",
+  "@giftCardTitle": {
+    "description": "131 The card message's section."
+  },
+  "giftCardHint": "Write your own, or tap a ready message.",
+  "@giftCardHint": {
+    "description": "131 Under the card message's title."
+  },
+  "giftOccasion": "Occasion",
+  "@giftOccasion": {
+    "description": "131 The card messages' occasions."
+  },
+  "giftAnonymous": "Send anonymously",
+  "@giftAnonymous": {
+    "description": "131 The card goes without the sender's name."
+  },
+  "giftAnonymousHint": "The card won't show your name.",
+  "@giftAnonymousHint": {
+    "description": "131 Under Send anonymously."
+  },
+  "giftSendToSomeone": "Send it to someone else",
+  "@giftSendToSomeone": {
+    "description": "131 Adds the recipient's name and phone."
+  },
+  "giftNeedSender": "Add your name, phone and email to continue.",
+  "@giftNeedSender": {
+    "description": "131 Under the cart's button while the sender is missing."
+  },
+  "giftNeedRecipient": "Add the recipient's name, phone and address to continue.",
+  "@giftNeedRecipient": {
+    "description": "131 Under the cart's button while the recipient is missing."
+  },
+  "orderDeliveryOn": "Delivery: {date}",
+  "@orderDeliveryOn": {
+    "description": "131 An order's delivery day and time.",
+    "placeholders": {
+      "date": {
+        "type": "String"
+      }
+    }
+  },
+  "orderRecipient": "For {name}",
+  "@orderRecipient": {
+    "description": "131 Who an order goes to.",
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "giftUseLocation": "Use my location for the delivery",
+  "@giftUseLocation": {
+    "description": "131 Sets where it goes from the phone's place, for shipping by distance."
+  },
+  "giftLocationFailed": "Your location couldn't be found. Please try again.",
+  "@giftLocationFailed": {
+    "description": "131 The phone's place couldn't be read."
+  },
+  "addonsTitle": "Add a little more",
+  "@addonsTitle": {
+    "description": "131 The gift add-ons offered with a product, in the cart and at checkout (chocolates, a card, a vase); the owner may word it their own way."
+  },
+  "addonsHint": "Goes with your gift",
+  "@addonsHint": {
+    "description": "131 Under the add-ons' title: they're sent with the gift."
+  },
+  "addonWith": "With {name}",
+  "@addonWith": {
+    "description": "131 A gift add-on's line in the cart, under the item it goes with.",
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "addonAdd": "Add {name}",
+  "@addonAdd": {
+    "description": "131 Screen readers: the checkbox that adds a gift add-on.",
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "salePercentBadge": "−{percent}%",
+  "@salePercentBadge": {
+    "description": "131 A flash sale's share off on its badge, like −25%.",
+    "placeholders": {
+      "percent": {
+        "type": "int"
+      }
+    }
   }
 }

@@ -4,6 +4,9 @@ import 'package:material_symbols_icons/symbols.dart';
 /// Every icon the app uses: Google Material Symbols, Rounded style only.
 abstract final class AppIcons {
   static const home = Symbols.home_rounded;
+
+  /// 131.21 The petal chrome's floral line, Leqaa's flower.
+  static const florist = Symbols.local_florist_rounded;
   static const sideMenu = Symbols.menu_rounded;
   static const courses = Symbols.menu_book_rounded;
   static const myCourses = Symbols.play_circle_rounded;
@@ -234,6 +237,10 @@ abstract final class AppIcons {
   static const bookmarkAdd = Symbols.bookmark_add_rounded;
   static const leaderboard = Symbols.emoji_events_rounded;
   static const streak = Symbols.bolt_rounded;
+  // 131 A flash sale, a delivery slot, the card and its occasions.
+  static const flashSale = Symbols.bolt_rounded;
+  static const deliveryTime = Symbols.local_shipping_rounded;
+  static const occasion = Symbols.local_florist_rounded;
   static const discussion = Symbols.forum_rounded;
 }
 

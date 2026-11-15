@@ -121,7 +121,8 @@ class AppNavBar extends StatelessWidget {
 
   /// 109 The raised round button, or 119 with the notch, the middle tab.
   int? get _middle {
-    if (design == TabBarDesign.notch) {
+    // 131.22 The petal's middle tab is always its raised bloom.
+    if (design == TabBarDesign.notch || design == TabBarDesign.petal) {
       final n = destinations.length;
       return n.isOdd && n >= 3 ? n ~/ 2 : null;
     }
@@ -157,6 +158,10 @@ class AppNavBar extends StatelessWidget {
       case TabBarDesign.dock:
         if (margin == 0) margin = 12;
         radius = 999;
+      // 131.22 The petal floats of itself, 30 round unless set.
+      case TabBarDesign.petal:
+        if (margin == 0) margin = 12;
+        if (radius == 0) radius = 30;
       default:
         break;
     }
@@ -239,6 +244,7 @@ class AppNavBar extends StatelessWidget {
         null,
       ),
       TabBarDesign.dock => (62.0, const EdgeInsets.all(8), null),
+      TabBarDesign.petal => (70.0, const EdgeInsets.fromLTRB(8, 8, 8, 8), null),
       TabBarDesign.folder => (
         76.0,
         const EdgeInsets.fromLTRB(8, 14, 8, 10),
@@ -288,8 +294,23 @@ class AppNavBar extends StatelessWidget {
     );
     final glass = design == TabBarDesign.glass;
     final notch = design == TabBarDesign.notch && _middle != null;
+    // 131.22 The petal: a soft wash of the open tab's colour toward its foot.
+    final petal = design == TabBarDesign.petal;
     final decoration = BoxDecoration(
-      color: notch ? null : background,
+      color: notch || petal ? null : background,
+      gradient: petal
+          ? LinearGradient(
+              begin: Alignment.topCenter,
+              end: Alignment.bottomCenter,
+              colors: [
+                background,
+                Color.alphaBlend(
+                  active.withValues(alpha: dark ? 0.10 : 0.07),
+                  background,
+                ),
+              ],
+            )
+          : null,
       borderRadius: floating
           ? BorderRadius.circular(radius)
           : radius > 0
@@ -299,6 +320,12 @@ class AppNavBar extends StatelessWidget {
           ? Border.all(
               color: dark ? const Color(0x24FFFFFF) : const Color(0x80FFFFFF),
             )
+          : petal
+          ? Border(
+              top: BorderSide(
+                color: dark ? const Color(0x14FFFFFF) : const Color(0xE6FFFFFF),
+              ),
+            )
           : border == null || floating || radius > 0
           ? null
           : Border(top: BorderSide(color: border)),
@@ -306,9 +333,19 @@ class AppNavBar extends StatelessWidget {
           ? [
               BoxShadow(
                 // A shadow shows on a light page; a dark one gets a darker one.
-                color: dark ? const Color(0x66000000) : const Color(0x1F0E0D24),
-                blurRadius: design == TabBarDesign.island ? 22 : 18,
-                offset: const Offset(0, 4),
+                color: petal
+                    ? (dark
+                          ? const Color(0x73000000)
+                          : active.withValues(alpha: 0.16))
+                    : dark
+                    ? const Color(0x66000000)
+                    : const Color(0x1F0E0D24),
+                blurRadius: petal
+                    ? 30
+                    : design == TabBarDesign.island
+                    ? 22
+                    : 18,
+                offset: Offset(0, petal ? 12 : 4),
               ),
             ]
           : null,
@@ -359,7 +396,31 @@ class AppNavBar extends StatelessWidget {
       container: true,
       label: context.l10n.mainNavigation,
       explicitChildNodes: true,
-      child: floating
+      child: floating && design == TabBarDesign.petal
+          // 131.22 The petal fades what scrolls under it into the page's
+          // colour below it (behind its lower half, so nothing shows
+          // through under it and nothing clouds the page above it).
+          ? DecoratedBox(
+              key: const ValueKey('nav-petal-fade'),
+              decoration: BoxDecoration(
+                gradient: LinearGradient(
+                  begin: Alignment.topCenter,
+                  end: Alignment.bottomCenter,
+                  colors: [
+                    p.background.withValues(alpha: 0),
+                    p.background.withValues(alpha: 0),
+                    p.background,
+                  ],
+                  stops: const [0, 0.5, 0.78],
+                ),
+              ),
+              child: SafeArea(
+                top: false,
+                minimum: EdgeInsets.all(margin),
+                child: bar,
+              ),
+            )
+          : floating
           ? SafeArea(top: false, minimum: EdgeInsets.all(margin), child: bar)
           : notch
           ? CustomPaint(
@@ -462,7 +523,74 @@ class AppNavBar extends StatelessWidget {
     final tone = active ?? p.primary;
     final quiet = inactive ?? p.textSecondary;
     final Widget content;
-    if (index == _middle) {
+    if (index == _middle && design == TabBarDesign.petal) {
+      // 131.22 The petal's raised bloom: a petal-shaped button in the open
+      // colour's gradient, ringed in the page's colour, rising over the
+      // bar, its name under it.
+      final fill = active ?? p.primary;
+      final onIt = active == null ? p.onPrimary : onFill(active);
+      content = Stack(
+        clipBehavior: Clip.none,
+        alignment: Alignment.center,
+        children: [
+          Positioned(
+            top: -28,
+            child: SizedBox(
+              key: const ValueKey('nav-petal-bloom'),
+              width: 58,
+              height: 58,
+              child: Stack(
+                alignment: Alignment.center,
+                children: [
+                  Transform.rotate(
+                    angle: -0.785398,
+                    child: Container(
+                      width: 52,
+                      height: 52,
+                      decoration: BoxDecoration(
+                        borderRadius: const BorderRadius.only(
+                          topLeft: Radius.circular(26),
+                          topRight: Radius.circular(26),
+                          bottomRight: Radius.circular(26),
+                          bottomLeft: Radius.circular(9),
+                        ),
+                        gradient: LinearGradient(
+                          begin: Alignment.topLeft,
+                          end: Alignment.bottomRight,
+                          colors: [
+                            Color.lerp(fill, Colors.white, 0.18)!,
+                            fill,
+                            Color.lerp(fill, Colors.black, 0.22)!,
+                          ],
+                        ),
+                        border: Border.all(color: p.background, width: 4),
+                        boxShadow: [
+                          BoxShadow(
+                            color: dark
+                                ? const Color(0x80000000)
+                                : fill.withValues(alpha: 0.32),
+                            blurRadius: 18,
+                            offset: const Offset(0, 8),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                  icon(24, onIt, filled: true),
+                ],
+              ),
+            ),
+          ),
+          if (labels != TabLabels.never)
+            Positioned(
+              bottom: 0,
+              left: 0,
+              right: 0,
+              child: name(fill, size: 11.5, bold: true),
+            ),
+        ],
+      );
+    } else if (index == _middle) {
       // 109 The tab in the middle: a round button raised above the bar;
       // 119 with the notch, sitting in its cut.
       final notch = design == TabBarDesign.notch;
@@ -582,6 +710,38 @@ class AppNavBar extends StatelessWidget {
                   ),
                 )
               : Center(child: icon(24, other));
+        // 131.22 The petal: the open tab on a petal-cut leaf of its colour
+        // with its name, the others quiet.
+        case TabBarDesign.petal:
+          final color = selected ? tone : quiet;
+          content = Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Container(
+                key: selected ? mark : null,
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 13,
+                  vertical: 3,
+                ),
+                decoration: BoxDecoration(
+                  color: selected
+                      ? tone.withValues(alpha: dark ? 0.24 : 0.14)
+                      : Colors.transparent,
+                  borderRadius: const BorderRadiusDirectional.only(
+                    topStart: Radius.circular(16),
+                    topEnd: Radius.circular(16),
+                    bottomEnd: Radius.circular(16),
+                    bottomStart: Radius.circular(5),
+                  ),
+                ),
+                child: icon(22, color, filled: selected),
+              ),
+              if (showLabel) ...[
+                const SizedBox(height: 2),
+                name(color, size: 11.5, bold: selected),
+              ],
+            ],
+          );
         // 129 The dock: icons only, the open tab a filled circle.
         case TabBarDesign.dock:
           content = Center(

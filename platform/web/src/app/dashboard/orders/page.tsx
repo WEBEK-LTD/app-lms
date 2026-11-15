@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { deliveryDayLabel, slotLabel } from "@/lib/selling/delivery";
 import { taxLabel } from "@/lib/catalog/tax";
 import Link from "next/link";
 import { decideReturnAction, setOrderStatusAction } from "@/app/actions/catalog";
@@ -116,7 +117,9 @@ export default async function OrdersPage({ searchParams }: { searchParams: Promi
                   </div>
                   <ul className="m-0 flex list-none flex-col gap-1 p-0 text-[15px]">
                     {order.lines.map((l, i) => (
-                      <li key={i}>
+                      <li key={i} className={l.addonOf ? "ps-4 text-muted" : undefined} data-order-addon={l.addonOf ? "" : undefined}>
+                        {/* 131 A gift add-on, under the item it went with. */}
+                        {l.addonOf ? `+ ${t("shop.addonBadge")}: ` : null}
                         {l.name} × {l.quantity}
                       </li>
                     ))}
@@ -163,6 +166,50 @@ export default async function OrdersPage({ searchParams }: { searchParams: Promi
                         {order.customer.address}, {order.customer.city}
                       </span>
                     </div>
+                  ) : null}
+                  {/* 131 The delivery day and slot, the sender and the recipient, the card, the zone and the fee. */}
+                  {order.delivery && (order.delivery.date || order.delivery.sender || order.delivery.recipient || order.delivery.message) ? (
+                    <section aria-label={t("selling.when")} className="grid gap-3 rounded-xl border border-line-soft p-3.5 text-[15px] sm:grid-cols-2" data-order-delivery={order.id}>
+                      {order.delivery.date ? (
+                        <p className="m-0 sm:col-span-2">
+                          <span className="font-semibold">{t("selling.when")}:</span> {deliveryDayLabel(order.delivery.date, lang)}
+                          {order.delivery.slot ? ` · ${slotLabel(order.delivery.slot)}` : ""}
+                          {order.delivery.shipping?.zone ? ` · ${t("selling.zone")}: ${order.delivery.shipping.zone}` : ""}
+                          {order.shippingCents > 0 ? ` · ${t("selling.fee")}: ${formatCents(order.shippingCents, order.currency)}` : ""}
+                        </p>
+                      ) : null}
+                      {order.delivery.sender ? (
+                        <div className="flex flex-col gap-0.5" data-order-sender="">
+                          <span className="text-[13px] font-bold text-muted uppercase">{t("selling.sender")}</span>
+                          <span className="font-semibold">{order.delivery.sender.name}</span>
+                          <a href={`tel:${order.delivery.sender.phone}`} dir="ltr">
+                            {order.delivery.sender.phone}
+                          </a>
+                          <a href={`mailto:${order.delivery.sender.email}`}>{order.delivery.sender.email}</a>
+                        </div>
+                      ) : null}
+                      {order.delivery.recipient ? (
+                        <div className="flex flex-col gap-0.5" data-order-recipient="">
+                          <span className="text-[13px] font-bold text-muted uppercase">{t("selling.recipientLabel")}</span>
+                          <span className="font-semibold">{order.delivery.recipient.name}</span>
+                          <a href={`tel:${order.delivery.recipient.phone}`} dir="ltr">
+                            {order.delivery.recipient.phone}
+                          </a>
+                          {order.delivery.recipient.address ? (
+                            <span className="text-ink-4">
+                              {order.delivery.recipient.address}
+                              {order.delivery.place?.city ? `, ${order.delivery.place.city}` : ""}
+                            </span>
+                          ) : null}
+                        </div>
+                      ) : null}
+                      {order.delivery.message ? (
+                        <p className="m-0 whitespace-pre-line rounded-lg bg-sand p-3 sm:col-span-2" dir="auto">
+                          <span className="font-semibold">{t("selling.card")}:</span> {order.delivery.message}
+                          {order.delivery.anonymous ? <span className="block text-[13px] text-muted">{t("selling.anonymousYes")}</span> : null}
+                        </p>
+                      ) : null}
+                    </section>
                   ) : null}
                   {/* 80.4 Shipping: any carrier, a tracking link, number or waybill. */}
                   {shippable(order) ? (

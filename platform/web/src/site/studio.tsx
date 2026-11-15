@@ -62,6 +62,8 @@ const STUDIO_SHOWCASE: { demo: StudioDemoId; key: LookShotKey }[] = [
   { demo: "school", key: "b" },
   { demo: "premium_academy", key: "a-dark" },
   { demo: "rides", key: "b" },
+  // 131.20 Leqaa, the flower shop, in its look B by night.
+  { demo: "flowers", key: "b-dark" },
 ];
 
 /** The team's film at the top of the Studio page: the Arabic one on the Arabic page, the English one in English and Turkish. */

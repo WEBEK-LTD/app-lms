@@ -114,7 +114,48 @@ class PremiumAccountLook extends ConsumerWidget {
             ),
           );
 
-    final Widget hero = banner
+    // 131.23 The petal: the person in the middle in a double ring over a
+    // soft arch of the two colours with a petal edge, the floral line, Edit.
+    final petal = look == SystemLook.petal;
+    final Widget petalHero = ClipPath(
+      key: const ValueKey('chrome-account-hero-petal'),
+      clipper: const PetalEdgeClipper(34),
+      child: DecoratedBox(
+        decoration: BoxDecoration(
+          color: Color.alphaBlend(
+            p.primary.withValues(alpha: p.isDark ? 0.26 : 0.10),
+            p.background,
+          ),
+          gradient: RadialGradient(
+            center: const Alignment(0, -1.1),
+            radius: 1.2,
+            colors: [
+              Color.alphaBlend(
+                p.primary.withValues(alpha: p.isDark ? 0.42 : 0.22),
+                p.background,
+              ),
+              Color.alphaBlend(
+                p.accent.withValues(alpha: p.isDark ? 0.18 : 0.14),
+                p.background,
+              ),
+            ],
+          ),
+        ),
+        child: Padding(
+          padding: EdgeInsets.fromLTRB(
+            20,
+            (hidden ? 18 : top) + 26,
+            20,
+            stats == null ? 52 : 78,
+          ),
+          child: _PetalPerson(user: user, onEdit: onEdit),
+        ),
+      ),
+    );
+
+    final Widget hero = petal
+        ? petalHero
+        : banner
         ? Stack(
             clipBehavior: Clip.none,
             children: [
@@ -184,7 +225,7 @@ class PremiumAccountLook extends ConsumerWidget {
       key: const ValueKey('chrome-account'),
       padding: EdgeInsets.zero,
       children: [
-        if (!banner && !hidden)
+        if (!banner && !petal && !hidden)
           Padding(
             padding: EdgeInsets.fromLTRB(20, top + 18, 20, 14),
             child: Semantics(
@@ -200,20 +241,20 @@ class PremiumAccountLook extends ConsumerWidget {
               ),
             ),
           ),
-        if (!banner && hidden) const SizedBox(height: 12),
+        if (!banner && !petal && hidden) const SizedBox(height: 12),
         hero,
         if (stats != null)
           Transform.translate(
-            offset: Offset(0, banner ? -40 : 0),
+            offset: Offset(0, banner || petal ? -40 : 0),
             child: Padding(
-              padding: EdgeInsets.fromLTRB(16, banner ? 0 : 12, 16, 0),
+              padding: EdgeInsets.fromLTRB(16, banner || petal ? 0 : 12, 16, 0),
               child: stats,
             ),
           ),
         Padding(
           padding: EdgeInsets.fromLTRB(
             16,
-            banner && stats != null ? 0 : 18,
+            (banner || petal) && stats != null ? 0 : 18,
             16,
             28,
           ),
@@ -250,6 +291,108 @@ class PremiumAccountLook extends ConsumerWidget {
           child: list,
         ),
       ),
+    );
+  }
+}
+
+/// 131.23 The petal account's person: their photo in a double ring (the
+/// page's colour, then the second colour), their name and number in the
+/// middle, the floral line and Edit as a soft pill.
+class _PetalPerson extends StatelessWidget {
+  const _PetalPerson({required this.user, this.onEdit});
+
+  final User? user;
+  final VoidCallback? onEdit;
+
+  @override
+  Widget build(BuildContext context) {
+    final p = context.palette;
+    final l10n = context.l10n;
+    final url = user?.avatarUrl;
+    return Column(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        Container(
+          width: 88,
+          height: 88,
+          decoration: BoxDecoration(
+            shape: BoxShape.circle,
+            border: Border.all(
+              color: p.accent.withValues(alpha: 0.8),
+              width: 2,
+            ),
+          ),
+          padding: const EdgeInsets.all(4),
+          child: Container(
+            decoration: BoxDecoration(
+              shape: BoxShape.circle,
+              gradient: ChromeTones.brand(p),
+              boxShadow: [
+                BoxShadow(
+                  color: p.primary.withValues(alpha: 0.30),
+                  blurRadius: 22,
+                  offset: const Offset(0, 10),
+                ),
+              ],
+            ),
+            clipBehavior: Clip.antiAlias,
+            alignment: Alignment.center,
+            child: url != null
+                ? AppNetworkImage(url: url, width: 80, height: 80)
+                : const AppIcon(
+                    AppIcons.account,
+                    size: 38,
+                    color: Colors.white,
+                    filled: true,
+                  ),
+          ),
+        ),
+        const SizedBox(height: 12),
+        Semantics(
+          header: true,
+          child: Text(
+            user?.name ?? '',
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
+            textAlign: TextAlign.center,
+            style: TextStyle(
+              fontSize: 22,
+              fontWeight: FontWeight.w700,
+              letterSpacing: 0.2,
+              color: p.text,
+            ),
+          ),
+        ),
+        const SizedBox(height: 2),
+        Text(
+          ltrIsolate(formatPhone(user?.phone ?? '')),
+          style: TextStyle(fontSize: 13.5, color: p.textSecondary),
+        ),
+        const SizedBox(height: 10),
+        ChromeFloralLine(
+          color: p.text.withValues(alpha: 0.16),
+          flower: p.accent,
+          width: 150,
+        ),
+        if (onEdit != null) ...[
+          const SizedBox(height: 10),
+          TextButton(
+            key: const ValueKey('chrome-account-edit'),
+            onPressed: onEdit,
+            style: TextButton.styleFrom(
+              // By night filled in the main colour, so Edit reads.
+              foregroundColor: p.isDark ? p.onPrimary : p.primary,
+              backgroundColor: p.isDark ? p.primary : p.surface,
+              shape: const StadiumBorder(),
+              padding: const EdgeInsets.symmetric(horizontal: 18),
+            ),
+            child: Text(
+              l10n.edit,
+              style: const TextStyle(fontWeight: FontWeight.w700),
+            ),
+          ),
+        ],
+      ],
     );
   }
 }

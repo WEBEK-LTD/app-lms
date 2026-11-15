@@ -23,7 +23,8 @@ import { demoDesign, demoStudioContext } from "./look";
 import { DEMO_TAB_BARS, demoStudioScreens } from "./screens";
 import type { LayoutBlock, LayoutContent } from "../pages/types";
 import { clearPlatformSettingsCache, platformSetting } from "../settings/platform";
-import { ALL_DEMO_TYPES, DEMO_ACCOUNT, DEMO_LICENSE_UNTIL, DEMO_SIGN_IN, DEMO_USER_NAME, demoIdOf, demoKind, isStudioDemo, PREMIUM_ACADEMY_DEMO, PREMIUM_ACADEMY_TEMPLATE, type DemoId } from "./constants";
+import { ALL_DEMO_TYPES, DEMO_ACCOUNT, DEMO_LICENSE_UNTIL, DEMO_SIGN_IN, DEMO_USER_NAME, demoIdOf, demoKind, FLOWER_SHOP_DEMO, FLOWER_SHOP_TEMPLATE, isStudioDemo, PREMIUM_ACADEMY_DEMO, PREMIUM_ACADEMY_TEMPLATE, type DemoId } from "./constants";
+import { FLOWER_COMMERCE, FLOWER_CURRENCY, FLOWER_FREE_SHIPPING_OVER_CENTS, FLOWER_SHIPPING_CENTS } from "./flowers";
 import {
   BOOKING_RULES,
   CLINIC_INTAKE,
@@ -45,7 +46,7 @@ import {
   STORE_FREE_SHIPPING_OVER_CENTS,
   STORE_SHIPPING_CENTS,
 } from "./content";
-import { demoArticles, demoBookingEntries, demoCampaigns, demoCourseEntries, demoDeliveryServices, demoEvents, demoListings, demoProducts, demoRestaurants, demoVehicleTypes, type EntryDeps } from "./entries";
+import { demoArticles, demoBookingEntries, demoCampaigns, demoCourseEntries, demoDeliveryServices, demoEvents, demoFlowerCommerce, demoFlowerProducts, demoListings, demoProducts, demoRestaurants, demoVehicleTypes, type EntryDeps } from "./entries";
 import { savePicture, type DemoPicture, type PictureSize } from "./picture-assets";
 import { refreshMarketplaceDemo, savingZadPictures } from "./marketplace";
 import { refreshSchoolDay, syncSchoolStructure } from "./school";
@@ -158,6 +159,8 @@ async function setupApp(deps: DemoSetupDeps, client: Client, id: DemoId): Promis
     ...(isStudioDemo(id) ? { section: "studio" as const } : {}),
     // 123 The premium academy keeps the template it started from, which tells it apart from the academy's own demo.
     ...(id === PREMIUM_ACADEMY_DEMO ? { design: PREMIUM_ACADEMY_TEMPLATE } : {}),
+    // 131.20 Leqaa keeps its look A, which tells it apart from the store's own demo.
+    ...(id === FLOWER_SHOP_DEMO ? { design: FLOWER_SHOP_TEMPLATE } : {}),
     appName: brand.appName,
     shortName: brand.shortName,
     iconAssetId,
@@ -204,6 +207,9 @@ async function setupApp(deps: DemoSetupDeps, client: Client, id: DemoId): Promis
       payment: null,
       fulfilment: { ...RESTAURANT_FULFILMENT, hours: RESTAURANT_FULFILMENT.hours.map((d) => d.map((r) => ({ ...r }))), deliveryAreas: [...RESTAURANT_FULFILMENT.deliveryAreas] },
     };
+  } else if (content === "catalog" && id === FLOWER_SHOP_DEMO) {
+    // 131.20 Leqaa in Cairo: Egyptian pounds, free from a bigger order; 131 the gift checkout, its days and slots, Greater Cairo by the distance.
+    patch.catalogSettings = { currency: FLOWER_CURRENCY, shippingCents: FLOWER_SHIPPING_CENTS, freeShippingOverCents: FLOWER_FREE_SHIPPING_OVER_CENTS, payment: null, ...structuredClone(FLOWER_COMMERCE) };
   } else if (content === "catalog") {
     patch.catalogSettings = { currency: STORE_CURRENCY, shippingCents: STORE_SHIPPING_CENTS, freeShippingOverCents: STORE_FREE_SHIPPING_OVER_CENTS, payment: null };
   } else if (content === "bookings" && id === "fitness") {
@@ -228,7 +234,13 @@ async function setupApp(deps: DemoSetupDeps, client: Client, id: DemoId): Promis
     await activateClient(store, { clientId: client.id, appId: saved.id, plan: "business", activeUntil: DEMO_LICENSE_UNTIL, paymentNote: "" }, deps.encryptionKey, now);
   }
 
-  if (content === "catalog") await syncProducts(deps, client.id, saved, id === "restaurant");
+  // 131.20 Leqaa's bouquets and add-ons.
+  if (content === "catalog" && id === FLOWER_SHOP_DEMO) {
+    await demoFlowerProducts(entryDeps(deps, client.id), saved);
+    // 131 Its flash sale, its code shown in the app, its card messages.
+    await demoFlowerCommerce(entryDeps(deps, client.id), saved);
+  }
+  else if (content === "catalog") await syncProducts(deps, client.id, saved, id === "restaurant");
   // Studio's demos: a parcel company, food delivery from three restaurants, rides.
   if (content === "deliveries") await syncDelivery(deps, client.id, saved);
   // 115.15 Zad: two restaurants and a supermarket, offers, the club, the wallet, and the demo number's orders and complaints.

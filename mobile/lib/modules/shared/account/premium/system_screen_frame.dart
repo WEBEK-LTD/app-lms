@@ -14,6 +14,7 @@ ChromeHeaderStyle chromeStyleOf(SystemLook look) => switch (look) {
   SystemLook.glass => ChromeHeaderStyle.glass,
   SystemLook.photo => ChromeHeaderStyle.photo,
   SystemLook.brand => ChromeHeaderStyle.brand,
+  SystemLook.petal => ChromeHeaderStyle.petal,
 };
 
 /// 130.21 The photo of the photo look: the system look's own, else the
@@ -69,6 +70,8 @@ class SystemScreenFrame extends ConsumerWidget {
     final top = MediaQuery.paddingOf(context).top;
     final style = chromeStyleOf(look);
     final glass = style == ChromeHeaderStyle.glass;
+    // 131.23 The petal's screens on its wash, never over the photo.
+    final petal = style == ChromeHeaderStyle.petal;
     final onColour = ChromeHeaderBar.onColourOf(style);
     final hidden = StudioScreenScope.hidesTitleOf(context);
     final photo = systemPhotoOf(ref);
@@ -78,7 +81,7 @@ class SystemScreenFrame extends ConsumerWidget {
       title: title,
       top: top,
       fold: fold,
-      imageUrl: photo,
+      imageUrl: petal ? null : photo,
       leading: [if (canPop) ChromeBackButton(onColour: onColour)],
       trailing: actions,
     );

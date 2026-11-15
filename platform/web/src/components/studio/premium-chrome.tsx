@@ -132,6 +132,47 @@ export function PremiumHeader(props: PremiumHeaderProps) {
         </div>
       </div>
     );
+  } else if (style === "petal") {
+    // 131.21 The petal: a soft wash of the main and second colours (or the photo under a soft shade), the wordmark in the middle,
+    // its line under it, a fine floral line and a curved petal edge at the foot.
+    const base = own ?? page;
+    const onPhoto = Boolean(header.image_url);
+    const pInk = onPhoto ? "#FFFFFF" : ink;
+    const wash = onPhoto
+      ? `linear-gradient(180deg, rgba(0,0,0,0.30), rgba(0,0,0,0.46)), url("${header.image_url}") center / cover no-repeat`
+      : `radial-gradient(130% 95% at 50% -10%, ${alpha(p.primary, dark ? 0.36 : 0.2)}, transparent 62%), radial-gradient(70% 60% at 100% 0%, ${alpha(accent, dark ? 0.26 : 0.2)}, transparent 70%), ${base}`;
+    const hair = <span style={{ flex: 1, height: 1, background: onPhoto ? "rgba(255,255,255,0.45)" : alpha(pInk, 0.16) }} />;
+    const petalGlass = (name: string) => <GlassButton key={name} name={name} onColour={onPhoto} dark={dark} accent={accent} dot={name === "notifications"} rtl={rtl} />;
+    body = (
+      <div style={{ position: "relative", paddingBottom: 22 }}>
+        <div style={{ position: "relative", padding: "34px 14px 14px", background: wash, display: "flex", flexDirection: "column", alignItems: "stretch", gap: 6, overflow: "hidden" }}>
+          <div style={{ display: "flex", alignItems: "center", gap: 8, minHeight: 40 }}>
+            {lead.map(petalGlass)}
+            <span style={{ flex: 1, minWidth: 0, display: "flex", justifyContent: "center" }}>
+              {props.logoUrl && header.type !== "title" ? (
+                // eslint-disable-next-line @next/next/no-img-element
+                <img src={props.logoUrl} alt="" style={{ height: 30, maxWidth: 150, objectFit: "contain" }} />
+              ) : (
+                <span role="heading" aria-level={1} style={{ fontWeight: 600, fontSize: 27, letterSpacing: "0.01em", color: pInk, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>
+                  {props.title}
+                </span>
+              )}
+            </span>
+            {buttons.map(petalGlass)}
+          </div>
+          {line ? <span style={{ textAlign: "center", fontSize: 13, color: onPhoto ? "rgba(255,255,255,0.85)" : alpha(pInk, 0.66) }}>{props.subtitle}</span> : null}
+          <span data-chrome-floral="" aria-hidden="true" style={{ display: "flex", alignItems: "center", gap: 8, padding: "2px 70px 0" }}>
+            {hair}
+            <Icon name="local_florist" size={14} color={onPhoto ? "#FFFFFF" : accent} fill />
+            {hair}
+          </span>
+        </div>
+        <svg aria-hidden="true" viewBox="0 0 360 22" preserveAspectRatio="none" style={{ position: "absolute", left: 0, right: 0, bottom: 0, width: "100%", height: 22, display: "block" }}>
+          <path d="M0 0 H360 V2 C300 2 240 22 180 22 C120 22 60 2 0 2 Z" fill={onPhoto ? "rgba(0,0,0,0.46)" : base} />
+          {!onPhoto ? <path d="M0 0 H360 V2 C300 2 240 22 180 22 C120 22 60 2 0 2 Z" fill={alpha(p.primary, dark ? 0.1 : 0.05)} /> : null}
+        </svg>
+      </div>
+    );
   } else if (style === "brand") {
     const fill = own ?? p.primary;
     body = (
@@ -181,6 +222,8 @@ function tint(t: Tone, i: number): string {
 }
 
 function cardStyle(t: Tone): CSSProperties {
+  // 131.23 The petal: soft white cards with a rose-tinted hairline and a warm shadow; by night the plum surface.
+  if (t.look === "petal") return { background: t.p.surface, borderRadius: 24, border: `1px solid ${alpha(t.p.primary, t.p.dark ? 0.22 : 0.1)}`, boxShadow: t.p.dark ? "0 10px 26px rgba(0,0,0,0.35)" : `0 12px 28px ${alpha(t.p.primary, 0.1)}` };
   if (t.look === "glass") return { background: t.p.dark ? "rgba(36,34,63,0.55)" : "rgba(255,255,255,0.62)", backdropFilter: "blur(18px) saturate(1.4)", WebkitBackdropFilter: "blur(18px) saturate(1.4)", border: `1px solid ${t.p.dark ? "rgba(255,255,255,0.10)" : "rgba(255,255,255,0.8)"}`, borderRadius: 22, boxShadow: t.p.dark ? "0 10px 26px rgba(0,0,0,0.35)" : "0 10px 26px rgba(14,13,36,0.08)" };
   return { background: t.p.surface, borderRadius: 22, border: `1px solid ${t.p.dark ? t.p.border : "rgba(14,13,36,0.05)"}`, boxShadow: t.p.dark ? "none" : "0 8px 22px rgba(14,13,36,0.06)" };
 }
@@ -189,7 +232,7 @@ function Row({ t, icon, i, title, value, danger, end }: { t: Tone; icon: string;
   const c = danger ? t.p.danger : tint(t, i);
   return (
     <div style={{ display: "flex", alignItems: "center", gap: 12, padding: "11px 14px", minHeight: 56, boxSizing: "border-box" }}>
-      <span style={{ width: 34, height: 34, borderRadius: 11, flex: "none", display: "flex", alignItems: "center", justifyContent: "center", background: alpha(c, t.p.dark ? 0.22 : 0.13) }}>
+      <span style={{ width: 34, height: 34, borderRadius: t.look === "petal" ? "13px 13px 13px 4px" : 11, flex: "none", display: "flex", alignItems: "center", justifyContent: "center", background: alpha(c, t.p.dark ? 0.22 : 0.13) }}>
         <Icon name={icon} size={19} color={c} fill />
       </span>
       <span style={{ flex: 1, minWidth: 0, fontSize: 15, fontWeight: danger ? 650 : 550, color: danger ? t.p.danger : t.p.text, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{title}</span>
@@ -255,6 +298,28 @@ function ProfileHero({ t, image }: { t: Tone; image: string | null }) {
       {stat("340", w.stats[2])}
     </div>
   );
+  // 131.23 The petal: the person in the middle in a double ring over a soft arch of the two colours, a floral line, the numbers hanging over its foot.
+  if (t.look === "petal") {
+    const arch = `radial-gradient(120% 90% at 50% 0%, ${alpha(p.primary, p.dark ? 0.42 : 0.24)}, transparent 65%), radial-gradient(60% 70% at 100% 10%, ${alpha(t.accent, p.dark ? 0.3 : 0.24)}, transparent 70%), ${p.dark ? mix(p.primary, "#000000", 0.78) : mix(p.primary, "#FFFFFF", 0.9)}`;
+    return (
+      <div style={{ display: "flex", flexDirection: "column" }}>
+        <div data-chrome-hero="petal" style={{ position: "relative", padding: "46px 18px 64px", background: arch, borderEndStartRadius: "50% 34px", borderEndEndRadius: "50% 34px", display: "flex", flexDirection: "column", alignItems: "center", gap: 8 }}>
+          <span style={{ width: 84, height: 84, borderRadius: 42, display: "flex", alignItems: "center", justifyContent: "center", background: `linear-gradient(140deg, ${p.primary}, ${mix(p.primary, t.accent, 0.55)})`, boxShadow: `0 0 0 4px ${p.dark ? "#1A0F15" : "#FFFFFF"}, 0 0 0 6px ${alpha(t.accent, 0.7)}, 0 14px 28px ${alpha(p.primary, 0.3)}` }}>
+            <Icon name="person" size={40} color="#FFFFFF" fill />
+          </span>
+          <b style={{ fontSize: 22, fontWeight: 700, color: p.text, marginTop: 6 }}>{w.sampleName}</b>
+          <span dir="ltr" style={{ fontSize: 13, color: p.textSecondary }}>{w.samplePhone}</span>
+          <span aria-hidden="true" style={{ display: "flex", alignItems: "center", gap: 8, width: 160, marginTop: 4 }}>
+            <span style={{ flex: 1, height: 1, background: alpha(p.text, 0.18) }} />
+            <Icon name="local_florist" size={14} color={t.accent} fill />
+            <span style={{ flex: 1, height: 1, background: alpha(p.text, 0.18) }} />
+          </span>
+          <span style={{ padding: "6px 16px", borderRadius: 999, fontSize: 13, fontWeight: 700, background: p.surface, color: p.primary, boxShadow: `0 6px 14px ${alpha(p.primary, 0.14)}` }}>{w.edit}</span>
+        </div>
+        <div style={{ margin: "-38px 16px 0", position: "relative" }}>{stats}</div>
+      </div>
+    );
+  }
   if (t.look === "photo" || t.look === "brand") {
     const bg = t.look === "photo" && image ? `url("${image}") center / cover no-repeat` : gradient;
     return (
@@ -298,8 +363,8 @@ export function SystemScreen(props: SystemScreenProps) {
   const t: Tone = { p, w, look: props.look, rtl: props.lang === "ar", accent: props.accent ?? "#FF5A1F" };
   const fallback = props.screen === "account" ? w.account : props.screen === "settings" ? w.settings : props.screen === "notifications" ? w.notifications : props.screen === "edit_profile" ? w.editProfile : w.myOrders;
   const title = props.title?.trim() || fallback;
-  const wash = props.look === "glass" ? `radial-gradient(120% 60% at 0% 0%, ${alpha(p.primary, p.dark ? 0.35 : 0.18)}, transparent 60%), radial-gradient(90% 50% at 100% 30%, ${alpha(t.accent, p.dark ? 0.25 : 0.14)}, transparent 60%), ${p.background}` : p.background;
-  const heroFirst = props.screen === "account" && (props.look === "photo" || props.look === "brand");
+  const wash = props.look === "petal" ? `radial-gradient(120% 50% at 50% 0%, ${alpha(p.primary, p.dark ? 0.22 : 0.1)}, transparent 70%), ${p.background}` : props.look === "glass" ? `radial-gradient(120% 60% at 0% 0%, ${alpha(p.primary, p.dark ? 0.35 : 0.18)}, transparent 60%), radial-gradient(90% 50% at 100% 30%, ${alpha(t.accent, p.dark ? 0.25 : 0.14)}, transparent 60%), ${p.background}` : p.background;
+  const heroFirst = props.screen === "account" && (props.look === "photo" || props.look === "brand" || props.look === "petal");
   const largeTitle = !props.hidesTitle && !heroFirst ? (
     <div style={{ padding: "14px 20px 6px", display: "flex", flexDirection: "column", gap: 10 }}>
       <span role="heading" aria-level={1} style={{ fontWeight: 800, fontSize: 30, letterSpacing: "-0.02em", color: p.text }}>

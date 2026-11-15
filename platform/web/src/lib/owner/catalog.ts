@@ -38,6 +38,8 @@ function productJson(ctx: OwnerContext, app: App, p: CatalogProduct) {
     available: p.active,
     image_url: assetLink(ctx.deps.baseUrl, p.imageAssetIds[0]),
     sales: p.salesCount,
+    // 131 Sold only as a gift add-on.
+    addon: Boolean(p.addon),
   };
 }
 

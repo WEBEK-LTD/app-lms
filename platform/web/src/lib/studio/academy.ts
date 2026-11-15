@@ -228,7 +228,7 @@ export interface TemplateProject {
   /** The colours of the header of its pages after the home; one left out, the app's own. */
   page_header?: Pick<StudioHeader, "background" | "color" | "dark_background" | "dark_color">;
   /** 128.8 A font the app bundles is `font` alone (lib/fonts/look.ts `withLook` drops the project's free font for it). */
-  appearance: Partial<Pick<Appearance, "secondary_color" | "font" | "font_family" | "arabic_font">>;
+  appearance: Partial<Pick<Appearance, "secondary_color" | "font" | "font_family" | "arabic_font" | "dark_background" | "dark_surface">>;
   /** The kind's tabs as the template has them; `site` the owner's website, when known. */
   tabs: (tabs: readonly LayoutTab[], site: string | null) => LayoutTab[];
   /** The sign-in screen, the account menu and the courses' looks; `platform` Yallapp's address, for its pictures. */

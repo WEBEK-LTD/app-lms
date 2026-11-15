@@ -1250,7 +1250,51 @@ components:
             API, the same shape): the plugin serves it as `Config.screens` as
             it is. Null when none are designed or the app isn't a Studio
             project. Missing on older platforms.
+            131 With the store checkout's look (`checkout`; `mode: gift`
+            turns on the gift checkout, and so does 131.25 `look: gift`, the
+            premium five-step gift checkout).
           additionalProperties: true
+        gift_messages:
+          type: [object, 'null']
+          description: |
+            131 A store's card messages by occasion in every language, as the
+            owner manages them in the Yallapp dashboard: the plugin serves
+            them at `GET /store/gift-messages` in the language the app asks
+            for (else `default_language`). Null for other apps; missing on
+            older platforms.
+          required: [default_language, occasions]
+          properties:
+            default_language: { type: string, example: ar }
+            occasions:
+              type: array
+              items:
+                type: object
+                required: [id, icon, names, templates]
+                properties:
+                  id: { type: string, example: birthday }
+                  icon: { type: string, example: cake }
+                  names: { type: object, additionalProperties: { type: string } }
+                  templates:
+                    type: array
+                    items:
+                      type: object
+                      required: [id, texts]
+                      properties:
+                        id: { type: string }
+                        texts: { type: object, additionalProperties: { type: string, maxLength: 500 } }
+        store_titles:
+          type: [object, 'null']
+          description: |
+            131 A store's titles of the add-ons ("Add a little more"), the card
+            message and the delivery picker, per language, as the owner words
+            them in the Yallapp dashboard (Store › Delivery & offers): the
+            plugin serves them as `StoreConfig.titles`. A missing language or a
+            null title: the app's own words. Null for other apps; missing on
+            older platforms.
+          properties:
+            addons: { type: [object, 'null'], additionalProperties: { type: string, maxLength: 40 } }
+            gift_card: { type: [object, 'null'], additionalProperties: { type: string, maxLength: 40 } }
+            delivery: { type: [object, 'null'], additionalProperties: { type: string, maxLength: 40 } }
         store_billing:
           type: [object, 'null']
           description: |

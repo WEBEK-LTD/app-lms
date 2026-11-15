@@ -9,6 +9,11 @@ import type {
   CatalogCurrency,
   CatalogFulfilment,
   LoyaltyReason, OrderPoints, OrderReturn, OrderShipment, CatalogVariants, CatalogOrder, OrderManualPayment,
+  // 131 The flower shop
+  OrderDelivery,
+  StoreFlashSale,
+  AddonRule,
+  GiftOccasion,
   CatalogOptionGroup,
   CatalogCustomer,
   CatalogOrderLine,
@@ -743,6 +748,11 @@ export const catalogProducts = mysqlTable(
     optionGroups: jsonText<CatalogOptionGroup[]>("option_groups"),
     // 91.5 Variations: attributes and combinations, each with its price and stock (JSON).
     variants: jsonText<CatalogVariants>("variants"),
+    // 131 Its weight, for shipping priced by weight.
+    weightGrams: int("weight_grams"),
+    // 131 A gift add-on (never listed or bought alone), and what it's offered with (JSON; null: everything).
+    addon: boolean("addon").notNull().default(false),
+    addonFor: jsonText<AddonRule>("addon_for"),
     salesCount: int("sales_count").notNull().default(0),
     // 110.2 A sample entry (lib/samples).
     sample: boolean("sample").notNull().default(false),
@@ -800,9 +810,14 @@ export const catalogOrders = mysqlTable(
     manualPayment: jsonText<OrderManualPayment>("manual_payment"),
     // 96.4 The app's language at checkout, for the customer's receipt.
     lang: varchar("lang", { length: 8 }),
+    // 131 The delivery day and slot and the gift details (JSON), and the day apart for counting a slot's orders.
+    delivery: jsonText<OrderDelivery>("delivery"),
+    deliveryDate: varchar("delivery_date", { length: 10 }),
   },
   (t) => [
     uniqueIndex("catalog_orders_token_unique").on(t.tokenHash),
+    // 131 A day's deliveries, for the slots' capacity.
+    index("catalog_orders_delivery_idx").on(t.appId, t.deliveryDate),
     // 80.3 Payments still pending, oldest first.
     index("catalog_orders_pending_idx").on(t.status, t.createdAt),
     index("catalog_orders_app_idx").on(t.appId, t.createdAt),
@@ -1095,8 +1110,69 @@ export const catalogCoupons = mysqlTable(
     usedCount: int("used_count").notNull().default(0),
     active: boolean("active").notNull().default(true),
     createdAt: time("created_at").notNull(),
+    // 131 Valid from then (null: from when it was made), and shown in the app.
+    startsAt: time("starts_at"),
+    public: boolean("in_app").notNull().default(false),
   },
   (t) => [uniqueIndex("catalog_coupons_code_unique").on(t.appId, t.code)],
+);
+
+// 131 The flower shop: flash sales of every store app, and the deliveries asked for in apps of connected shops.
+export const storeFlashSales = mysqlTable(
+  "store_flash_sales",
+  {
+    id: autoId("id").primaryKey(),
+    appId: id("app_id")
+      .notNull()
+      .references(() => apps.id, { onDelete: "cascade" }),
+    title: varchar("title", { length: 80 }).notNull(),
+    // The products, the category, the discount and the platform's code (JSON).
+    data: jsonText<Pick<StoreFlashSale, "productIds" | "categoryId" | "discount" | "platformCode" | "titles">>("data").notNull(),
+    startsAt: time("starts_at").notNull(),
+    endsAt: time("ends_at").notNull(),
+    unitLimit: int("unit_limit"),
+    sold: int("sold").notNull().default(0),
+    active: boolean("active").notNull().default(true),
+    createdAt: time("created_at").notNull(),
+    updatedAt: time("updated_at").notNull(),
+  },
+  (t) => [index("store_flash_sales_app_idx").on(t.appId, t.endsAt)],
+);
+
+export const storeGiftOccasions = mysqlTable(
+  "store_gift_occasions",
+  {
+    id: autoId("id").primaryKey(),
+    appId: id("app_id")
+      .notNull()
+      .references(() => apps.id, { onDelete: "cascade" }),
+    // A built-in occasion ("birthday"); null for the owner's own.
+    occasionKey: varchar("occasion_key", { length: 24 }),
+    position: int("position").notNull(),
+    hidden: boolean("hidden").notNull().default(false),
+    // Its names and ready messages by language, and its icon (JSON).
+    data: jsonText<Pick<GiftOccasion, "names" | "icon" | "templates">>("data").notNull(),
+    createdAt: time("created_at").notNull(),
+    updatedAt: time("updated_at").notNull(),
+  },
+  (t) => [index("store_gift_occasions_app_idx").on(t.appId, t.position)],
+);
+
+export const storeDeliveries = mysqlTable(
+  "store_deliveries",
+  {
+    id: autoId("id").primaryKey(),
+    appId: id("app_id")
+      .notNull()
+      .references(() => apps.id, { onDelete: "cascade" }),
+    userId: bigint("user_id", { mode: "number", unsigned: true }).references(() => hostedUsers.id, { onDelete: "set null" }),
+    deliveryDate: varchar("delivery_date", { length: 10 }),
+    slotId: varchar("slot_id", { length: 16 }),
+    // The delivery, the products, the buyer and whether the platform's order carries them (JSON).
+    data: jsonText<{ delivery: OrderDelivery; lines: string[]; buyer: { name: string | null; phone: string | null; email: string | null }; passed: boolean }>("data").notNull(),
+    createdAt: time("created_at").notNull(),
+  },
+  (t) => [index("store_deliveries_day_idx").on(t.appId, t.deliveryDate), index("store_deliveries_created_idx").on(t.appId, t.createdAt)],
 );
 
 export const quizAttempts = mysqlTable(

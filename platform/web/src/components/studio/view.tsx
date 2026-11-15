@@ -1,5 +1,6 @@
 "use client";
 
+import { COMMERCE_WORDS_EN, CouponCanvas, FlashSaleCanvas, type CommerceWords } from "./commerce";
 import { useEffect, useRef, useState, type CSSProperties, type DragEvent, type MouseEvent, type PointerEvent, type ReactNode } from "react";
 import type { LanguageCode } from "@/lib/pages/types";
 import { resized, snapped } from "@/lib/studio/resize";
@@ -31,6 +32,7 @@ import { BeforeAfter, edge, GalleryGrid, MediaBanner, Marquee, PremiumMotionStyl
 import { isPremiumContent, PREMIUM_WORDS_EN, PremiumElement, SurfaceExtras, surfaceStyle, type PremiumWords } from "./premium";
 // 130.20 The premium page headers.
 import { PremiumHeader, SystemScreen } from "./premium-chrome";
+import { GiftCheckout } from "./gift-checkout";
 
 /**
  * 103R A Studio page drawn in the editor's phone, as the app draws it: rows,
@@ -104,6 +106,8 @@ interface ViewProps {
   screenPart?: ScreenPartInfo;
   /** 129.11–129.20 The editor's words of the premium elements (an empty price, the plans' switch); missing, English. */
   premiumWords?: PremiumWords;
+  /** 131 The flash sale's and the coupon's words (lib/studio/app-words.ts); missing, English. */
+  commerceWords?: CommerceWords;
 }
 
 /** 124.8 The app's screen under a page's elements in the canvas. */
@@ -414,13 +418,15 @@ function Tabs({ look, dark, lang, defaultLang, editing }: ViewProps) {
               : "#FFFFFF");
   const labels = style.labels ?? "always";
   const middleOf = tabs.length % 2 === 1 && tabs.length >= 3 ? (tabs.length - 1) / 2 : -1;
-  const center = design === "notch" ? middleOf : middleOf >= 0 && style.center && tabs[middleOf]?.id === style.center ? middleOf : -1;
+  // 131.22 The petal: the middle tab is always its raised bloom, as the notch's button.
+  const petal = design === "petal";
+  const center = design === "notch" || petal ? middleOf : middleOf >= 0 && style.center && tabs[middleOf]?.id === style.center ? middleOf : -1;
   // 128 The floating pill floats too, 22 round unless the owner chose its corners.
   // 129 The dock: a small capsule in the middle, icons only.
   const dock = design === "dock";
-  const floatsItself = design === "glass" || design === "island" || design === "segment" || design === "float" || dock;
+  const floatsItself = design === "glass" || design === "island" || design === "segment" || design === "float" || dock || petal;
   const margin = style.margin ?? (floatsItself ? 12 : 0);
-  const radius = design === "island" || dock ? 999 : (style.radius ?? (design === "glass" ? 26 : design === "segment" ? 18 : design === "float" ? 22 : 0));
+  const radius = design === "island" || dock ? 999 : (style.radius ?? (design === "glass" ? 26 : design === "segment" ? 18 : design === "float" ? 22 : petal ? 30 : 0));
   const selected = editing?.selectedId === "tabs";
   const onBar = design === "folder" ? "rgba(255,255,255,0.78)" : design === "island" ? "#8F9A95" : inactiveColour;
   const colours = ["#1F6F5C", "#B26A00", "#2F4FB5", "#7A2E8E"].map((c) => (dark ? readableOnDark(c) : c));
@@ -435,12 +441,14 @@ function Tabs({ look, dark, lang, defaultLang, editing }: ViewProps) {
         margin: design === "island" ? `0 48px ${Math.max(margin, 12)}px` : dock ? `0 auto ${Math.max(margin, 12)}px` : margin ? `0 ${margin}px ${margin}px` : "0 10px 12px",
         alignSelf: dock ? "center" : undefined,
         gap: dock ? 6 : undefined,
-        padding: design === "segment" ? "5px" : design === "folder" ? "14px 6px 8px" : design === "float" ? "11px 6px" : dock ? "8px" : "8px 6px",
+        padding: design === "segment" ? "5px" : design === "folder" ? "14px 6px 8px" : design === "float" ? "11px 6px" : dock ? "8px" : petal ? "9px 6px 8px" : "8px 6px",
         borderRadius: margin || design === "island" ? radius : radius || 18,
-        background,
+        // 131.22 The petal: a soft wash of the open tab's colour toward the bar's foot, a hairline of light at its top.
+        background: petal ? `linear-gradient(180deg, ${background}, ${mixHex(background.startsWith("#") ? background : "#FFFFFF", activeColour, dark ? 0.1 : 0.07)})` : background,
+        borderTop: petal ? `1px solid ${dark ? "rgba(255,255,255,0.08)" : "rgba(255,255,255,0.9)"}` : undefined,
         backdropFilter: design === "glass" ? "blur(18px)" : undefined,
         border: design === "glass" ? `1px solid ${dark ? "rgba(255,255,255,0.14)" : "rgba(255,255,255,0.5)"}` : undefined,
-        boxShadow: design === "notch" ? undefined : design === "float" || dock ? "0 10px 30px rgba(0,0,0,0.18)" : "0 -2px 10px rgba(14,13,36,0.08)",
+        boxShadow: design === "notch" ? undefined : design === "float" || dock ? "0 10px 30px rgba(0,0,0,0.18)" : petal ? `0 14px 34px ${dark ? "rgba(0,0,0,0.45)" : "rgba(42,18,28,0.16)"}` : "0 -2px 10px rgba(14,13,36,0.08)",
         // 119 The notch: a curved cut in the bar's top for the middle button.
         WebkitMaskImage: design === "notch" && center >= 0 ? "radial-gradient(circle 30px at 50% -6px, transparent 29px, #000 30px)" : undefined,
         maskImage: design === "notch" && center >= 0 ? "radial-gradient(circle 30px at 50% -6px, transparent 29px, #000 30px)" : undefined,
@@ -471,6 +479,18 @@ function Tabs({ look, dark, lang, defaultLang, editing }: ViewProps) {
             {icon}
           </span>
         );
+        // 131.22 The petal's raised bloom: a petal-shaped button in the open colour's gradient, ringed in the page's colour, its name under it.
+        if (i === center && petal) {
+          return (
+            <div key={tab?.id ?? "more"} data-studio-tab-center="" data-studio-tab-design="petal" title={label} style={{ display: "flex", flex: 1.1, flexDirection: "column", alignItems: "center", gap: 3 }}>
+              <span style={{ position: "relative", marginTop: -34, width: 56, height: 56, display: "flex", alignItems: "center", justifyContent: "center" }}>
+                <span aria-hidden="true" style={{ position: "absolute", inset: 0, borderRadius: "50% 50% 50% 16%", transform: "rotate(-45deg)", background: `linear-gradient(135deg, ${mixHex(activeColour, "#FFFFFF", 0.18)}, ${activeColour} 55%, ${mixHex(activeColour, "#000000", 0.25)})`, boxShadow: `0 0 0 4px ${page}, 0 10px 22px ${dark ? "rgba(0,0,0,0.5)" : "rgba(42,18,28,0.28)"}` }} />
+                <span style={{ position: "relative", color: onFill(activeColour), display: "flex" }}>{glyph}</span>
+              </span>
+              {labels !== "never" ? <span data-studio-tab-name="" style={{ fontWeight: 700, color: activeColour, whiteSpace: "nowrap" }}>{label}</span> : null}
+            </div>
+          );
+        }
         if (i === center) {
           return (
             <div key={tab?.id ?? "more"} data-studio-tab-center="" title={label} style={{ display: "flex", flex: 1, justifyContent: "center" }}>
@@ -507,6 +527,15 @@ function Tabs({ look, dark, lang, defaultLang, editing }: ViewProps) {
                 {glyph}
                 {labels !== "never" ? name : null}
               </span>
+            </div>
+          );
+        }
+        // 131.22 The petal: the open tab on a petal-cut leaf of its colour with its name, the others quiet.
+        if (petal) {
+          return (
+            <div key={key} data-studio-tab={tabKey} data-studio-tab-design="petal" title={label} style={{ display: "flex", flex: 1, flexDirection: "column", alignItems: "center", gap: 2, minWidth: 0, color: active ? activeColour : undefined, fontWeight: active ? 700 : 500 }}>
+              <span style={{ display: "flex", padding: "3px 12px", borderRadius: "16px 16px 16px 5px", background: active ? tint(activeColour, dark ? 0.24 : 0.14) : "transparent" }}>{glyph}</span>
+              {showLabel ? name : null}
             </div>
           );
         }
@@ -781,18 +810,11 @@ function Node(props: ViewProps & { node: StudioNode; parentDir: Dir; inStack?: I
       case "slider":
         return Slider(p);
       case "coupon":
-        // 112.4 The code in a dashed frame, with a button that copies it in the app.
-        return (
-          <span dir="ltr" data-studio-coupon="" style={{ display: "flex", alignItems: "center", gap: 8, border: `1.5px dashed ${color ?? look.brand}`, borderRadius: "inherit", padding: "6px 6px 6px 14px", background: dark ? "rgba(255,255,255,0.06)" : "#FFFFFF" }}>
-            <span style={{ flex: "1 1 auto", fontWeight: 800, fontSize: 16, letterSpacing: 2, fontFamily: "ui-monospace, SFMono-Regular, Menlo, monospace", color: color ?? look.brand }}>{n.code}</span>
-            <span style={{ display: "flex", alignItems: "center", gap: 4, padding: "6px 12px", borderRadius: 8, background: color ?? look.brand, color: "#FFFFFF", fontSize: 12, fontWeight: 700 }}>
-              <span className="material-symbols-rounded" aria-hidden="true" style={{ fontSize: 16 }}>
-                content_copy
-              </span>
-              {p.words.copy}
-            </span>
-          </span>
-        );
+        // 112.4 The code in a dashed frame, with a button that copies it in the app; 131 a ticket or glass, the shop's own coupon when bound.
+        return <CouponCanvas node={n} pickable={p.pickable} dark={dark} brand={look.brand} color={color ?? null} words={{ ...(p.commerceWords ?? COMMERCE_WORDS_EN), copy: p.words.copy }} />;
+      case "flash_sale":
+        // 131 The flash sale: its products at their sale price, the live countdown and the stock bar.
+        return <FlashSaleCanvas node={n} title={text} pickable={p.pickable} dark={dark} brand={look.brand} words={p.commerceWords ?? COMMERCE_WORDS_EN} />;
       case "learning":
         // 123 The student's card as the app draws it, with sample learning.
         return <LearningCard node={n} dark={dark} color={color ?? null} words={p.learningWords ?? LEARNING_WORDS_EN} title={((lang !== defaultLang ? (n.translations?.[lang]?.title as string | undefined) : undefined) ?? n.title) || null} />;
@@ -1118,7 +1140,7 @@ function Node(props: ViewProps & { node: StudioNode; parentDir: Dir; inStack?: I
         {shown.map((entry, i) =>
           n.card ? (
             <span key={entry.id} style={layout === "carousel" ? { flex: "0 0 60%" } : undefined}>
-              <CardOf {...p} node={n.card} entry={{ id: entry.id, title: entry.title, price: entry.price ?? "", subtitle: entry.subtitle ?? "", imageUrl: entry.imageUrl ?? null, badge: entry.badge ?? "", rating: entry.rating ?? null }} />
+              <CardOf {...p} node={n.card} entry={{ id: entry.id, title: entry.title, price: entry.price ?? "", subtitle: entry.subtitle ?? "", imageUrl: entry.imageUrl ?? null, badge: entry.badge ?? "", rating: entry.rating ?? null, sale: entry.sale ?? null }} />
             </span>
           ) : (
             <span key={entry.id} data-studio-entry={entry.id} style={{ background: dark ? "#22203A" : "#FFFFFF", borderRadius: 14, padding: 8, boxShadow: "0 2px 6px rgba(20,54,31,0.08)", display: layout === "list" ? "flex" : "block", gap: 8, minWidth: 0, ...(layout === "carousel" ? { flex: "0 0 60%" } : {}) }}>
@@ -1131,11 +1153,24 @@ function Node(props: ViewProps & { node: StudioNode; parentDir: Dir; inStack?: I
                     image
                   </span>
                 ) : null}
-                {entry.badge && layout !== "list" ? <span style={{ position: "absolute", top: 6, insetInlineStart: 6, maxWidth: "calc(100% - 12px)", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap", background: look.brand, color: "#FFFFFF", fontSize: 10, fontWeight: 700, padding: "2px 7px", borderRadius: 999 }}>{entry.badge}</span> : null}
+                {entry.badge && layout !== "list" && !entry.sale ? <span style={{ position: "absolute", top: 6, insetInlineStart: 6, maxWidth: "calc(100% - 12px)", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap", background: look.brand, color: "#FFFFFF", fontSize: 10, fontWeight: 700, padding: "2px 7px", borderRadius: 999 }}>{entry.badge}</span> : null}
+                {/* 131 The sale on the card, as the products element's `sale_badge` says (a chip by default). */}
+                {entry.sale && layout !== "list" && n.sale_badge?.style !== "price" ? (
+                  <span data-studio-sale-badge={n.sale_badge?.style ?? "chip"} style={n.sale_badge?.style === "ribbon" ? { position: "absolute", top: 10, insetInlineEnd: -22, transform: "rotate(45deg)", background: n.sale_badge.color ?? look.brand, color: "#FFFFFF", fontSize: 10, fontWeight: 800, padding: "2px 26px" } : { position: "absolute", top: 6, insetInlineStart: 6, background: n.sale_badge?.color ?? look.brand, color: "#FFFFFF", fontSize: 10, fontWeight: 800, padding: "2px 7px", borderRadius: 999 }}>
+                    −{entry.sale.percentOff}%
+                  </span>
+                ) : null}
               </span>
               <span style={{ display: "block", minWidth: 0 }}>
                 <span style={{ display: "block", fontSize: 12, fontWeight: 700, marginTop: layout === "list" ? 0 : 6, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{entry.title}</span>
-                {entry.price || entry.subtitle ? <span style={{ display: "block", fontSize: 11, opacity: 0.7, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{entry.price || entry.subtitle}</span> : null}
+                {entry.sale ? (
+                  <span style={{ display: "flex", gap: 5, alignItems: "baseline", fontSize: 11 }}>
+                    <span style={{ fontWeight: 800, color: n.sale_badge?.color ?? look.brand }}>{entry.sale.now}</span>
+                    <span style={{ textDecoration: "line-through", opacity: 0.55 }}>{entry.sale.was}</span>
+                  </span>
+                ) : entry.price || entry.subtitle ? (
+                  <span style={{ display: "block", fontSize: 11, opacity: 0.7, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{entry.price || entry.subtitle}</span>
+                ) : null}
               </span>
             </span>
           ),
@@ -1156,12 +1191,26 @@ function Node(props: ViewProps & { node: StudioNode; parentDir: Dir; inStack?: I
 }
 
 /** An items element's card for one entry: its bound elements show the entry. */
-function CardOf(props: ViewProps & { node: StudioNode; entry: { id: string; title: string; price: string; subtitle: string; imageUrl: string | null; badge: string; rating?: number | null } }) {
+function CardOf(props: ViewProps & { node: StudioNode; entry: { id: string; title: string; price: string; subtitle: string; imageUrl: string | null; badge: string; rating?: number | null; sale?: PickableEntry["sale"] } }) {
   const { entry } = props;
+  // 131 A product's sale: the share off and its price before it; nothing when it isn't on sale.
+  const sale = (node: StudioNode): string => (node.bind === "sale" ? (entry.sale ? `−${entry.sale.percentOff}%` : "") : entry.sale ? entry.sale.was : "");
   // 128.8 A rating: the element's own text, a star and the rating; nothing without one.
   const rating = (node: StudioNode): string => (entry.rating ? `${node.text ? `${node.text} ` : ""}★ ${entry.rating.toFixed(1)}` : "");
   const bound = (node: StudioNode): string | null =>
-    node.bind === "title" ? entry.title : node.bind === "price" ? entry.price : node.bind === "subtitle" ? entry.subtitle : node.bind === "badge" ? entry.badge : node.bind === "rating" ? rating(node) : null;
+    node.bind === "title"
+      ? entry.title
+      : node.bind === "price"
+        ? (entry.sale?.now ?? entry.price)
+        : node.bind === "subtitle"
+          ? entry.subtitle
+          : node.bind === "badge"
+            ? entry.badge
+            : node.bind === "rating"
+              ? rating(node)
+              : node.bind === "sale" || node.bind === "was_price"
+                ? sale(node)
+                : null;
   const fill = (node: StudioNode): StudioNode => ({
     ...node,
     ...(bound(node) !== null ? { text: bound(node)!, translations: undefined } : {}),
@@ -1246,6 +1295,9 @@ function ScreenPart(props: ViewProps) {
             hidesTitle={Boolean(page.header)}
             top={page.header || page.body.children?.length || props.editing ? 0 : 30}
           />
+        ) : part.drawing.screen === "checkout" ? (
+          // 131.25 The store's checkout in the gift look (gift-checkout.tsx), drawn with a sample order.
+          <GiftCheckout look={part.drawing.look} dark={dark} lang={lang} brand={look.brand} photo="/flower-photos/blush-bouquet.jpg" top={page.header || page.body.children?.length || props.editing ? 0 : 30} />
         ) : part.drawing.screen === "courses" ? (
           // 130.52 A course screen in Studio's course screens' look.
           <CourseScreenDrawing

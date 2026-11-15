@@ -6,7 +6,7 @@
  * (icons, screens, photos, numbers) is in ./stories.ts, item by item.
  */
 
-export const STORY_IDS = ["school", "rides", "delivery", "multi-vendor", "academy"] as const;
+export const STORY_IDS = ["school", "rides", "delivery", "multi-vendor", "academy", "flowers"] as const;
 export type StoryId = (typeof STORY_IDS)[number];
 
 export function isStoryId(value: string): value is StoryId {
@@ -140,6 +140,24 @@ export interface StoryArtText {
   liveMap: string;
   /** Five first names in the drawn class register. */
   registerNames: [string, string, string, string, string];
+  /** 131.40 The flower shop's drawn cards: the day and slot, the flash sale, the card and the fee. */
+  when: string;
+  today: string;
+  todayClosed: string;
+  tomorrow: string;
+  pickDate: string;
+  slotFull: string;
+  flashSale: string;
+  flashItem: string;
+  onlyLeft: string;
+  cardTo: string;
+  cardFrom: string;
+  /** The card's words with their quotation marks, as each language writes them. */
+  cardMessage: string;
+  cardOccasion: string;
+  codeApplied: string;
+  feeTitle: string;
+  feeParts: [string, string, string, string];
 }
 
 export interface StoryCopy {

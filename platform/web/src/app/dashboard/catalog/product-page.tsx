@@ -21,9 +21,10 @@ export async function ProductPage({ id }: { id: number | null }) {
   const { app } = await requireClient("catalog");
   if (!app || app.connector?.kind !== "catalog") notFound();
   const store = await getStore();
-  const [product, categories] = await Promise.all([
+  const [product, categories, all] = await Promise.all([
     id !== null ? store.getCatalogProduct(app.id, id) : Promise.resolve(null),
     store.listCatalogCategories(app.id),
+    store.listCatalogProducts(app.id),
   ]);
   if (id !== null && !product) notFound();
   const restaurant = app.vertical === "restaurant";
@@ -36,7 +37,7 @@ export async function ProductPage({ id }: { id: number | null }) {
         name: g.name,
         min: String(g.min),
         max: String(g.max),
-        options: g.options.map((o) => ({ id: o.id, name: o.name, price: o.priceDeltaCents ? centsToDecimal(o.priceDeltaCents) : "" })),
+        options: g.options.map((o) => ({ id: o.id, name: o.name, price: o.priceDeltaCents ? centsToDecimal(o.priceDeltaCents) : "", weight: o.weightGrams ? String(o.weightGrams / 1000) : "" })),
       }))
     : [];
   // 91.5 The variations as the editor shows them.
@@ -63,6 +64,13 @@ export async function ProductPage({ id }: { id: number | null }) {
         salePrice: product.salePriceCents !== null ? centsToDecimal(product.salePriceCents) : "",
         stock: product.stock !== null ? String(product.stock) : "",
         sku: product.sku ?? "",
+        // 131 Its weight in kg.
+        weight: product.weightGrams ? String(product.weightGrams / 1000) : "",
+        // 131 A gift add-on, and what it goes with.
+        addon: Boolean(product.addon),
+        addonOfferWith: product.addonFor?.offerWith ?? "all",
+        addonCategoryIds: product.addonFor?.categoryIds ?? [],
+        addonProductIds: product.addonFor?.productIds ?? [],
         categoryIds: product.categoryIds,
         images: product.imageAssetIds.map((a) => ({ id: a, url: assetUrl(a) })),
         digital: product.digital,
@@ -80,6 +88,7 @@ export async function ProductPage({ id }: { id: number | null }) {
         currency={catalogSettings(app).currency}
         words={{ add: t("shop.add", { kind }), save: t("shop.save", { kind }) }}
         restaurant={restaurant}
+        products={all.filter((p) => !p.addon && p.id !== product?.id).map((p) => ({ id: p.id, name: p.name }))}
       />
     </section>
   );

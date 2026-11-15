@@ -33,6 +33,7 @@ import { checkAccount, isPaymentProvider, PROVIDER_NAME, type PaymentAccount } f
 import { recordStaffChange } from "@/lib/admin/audit";
 import { serviceAccountOf } from "@/lib/hosted/notify";
 import { askAfterOwnEntry } from "@/lib/samples/lists";
+import { parseAddonRule } from "@/lib/selling/addons";
 
 const PRODUCT_IMAGE_MAX_BYTES = 2 * 1024 * 1024;
 const PRODUCT_IMAGES_MAX = 6;
@@ -45,7 +46,7 @@ const PRODUCT_IMAGES_MAX = 6;
 /** 104–105.4 Apps whose card payments go to the owner's own account without a shop: delivery, food, ride and school apps. */
 const OWN_MONEY_KINDS = ["deliveries", "restaurants", "rides", "school"];
 
-async function requireCatalogApp(options: { courses?: boolean; campaigns?: boolean; ownMoney?: boolean } = {}, permission: TeamPermission = "catalog"): Promise<ClientContext & { app: App }> {
+async function requireCatalogApp(options: { courses?: boolean; campaigns?: boolean; ownMoney?: boolean; store?: boolean } = {}, permission: TeamPermission = "catalog"): Promise<ClientContext & { app: App }> {
   const context = await clientFor(permission);
   if (!context) redirect("/sign-in");
   if (!mayUseDashboard(context)) redirect("/pending");
@@ -56,6 +57,8 @@ async function requireCatalogApp(options: { courses?: boolean; campaigns?: boole
       kind === "catalog" ||
       (options.courses && (kind === "courses" || kind === "bookings" || kind === "events")) ||
       (options.campaigns && kind === "campaigns") ||
+      // 131 Any store app's coupons (shown in the app; a connected platform's checkout applies its own).
+      (options.store && context.app.appType === "store") ||
       (options.ownMoney && kind !== undefined && OWN_MONEY_KINDS.includes(kind))
     )
   )
@@ -67,6 +70,7 @@ const str = (formData: FormData, name: string) => String(formData.get(name) ?? "
 
 function refresh() {
   revalidatePath("/dashboard/catalog", "layout");
+  revalidatePath("/dashboard/selling", "layout");
   revalidatePath("/dashboard/courses", "layout");
   revalidatePath("/dashboard/memberships");
   revalidatePath("/dashboard/events", "layout");
@@ -120,12 +124,12 @@ export async function saveProductAction(_: FormState, formData: FormData): Promi
   if (id !== null && !existing) return { message: "This product doesn't exist anymore." };
 
   const values: Record<string, string> = {};
-  for (const key of ["name", "description", "price", "salePrice", "stock", "sku"]) values[key] = str(formData, key);
+  for (const key of ["name", "description", "price", "salePrice", "stock", "sku", "weight"]) values[key] = str(formData, key);
   const errors: Record<string, string> = {};
   if (!values.name) errors.name = "Enter the product name.";
   else if (values.name.length > 120) errors.name = "Use at most 120 characters.";
   if (values.description!.length > 5000) errors.description = "Use at most 5000 characters.";
-  const numbers = readProductNumbers({ price: values.price!, salePrice: values.salePrice!, stock: values.stock! });
+  const numbers = readProductNumbers({ price: values.price!, salePrice: values.salePrice!, stock: values.stock!, weight: values.weight });
   Object.assign(errors, numbers.errors);
   const { priceCents: price, salePriceCents: salePrice, stock } = numbers;
   if (values.sku!.length > 64) errors.sku = "Use at most 64 characters.";
@@ -164,6 +168,12 @@ export async function saveProductAction(_: FormState, formData: FormData): Promi
     }
     uploads.push({ data, type });
   }
+  // 131 A gift add-on, and what it's offered with.
+  const addon = formData.get("addon") === "on" && app.vertical !== "restaurant";
+  const addonFor = addon
+    ? parseAddonRule({ offerWith: str(formData, "addonOfferWith"), categoryIds: formData.getAll("addonCategoryIds").map(String), productIds: formData.getAll("addonProductIds").map(String) })
+    : null;
+  if (addonFor && !addonFor.ok) Object.assign(errors, addonFor.errors);
   if (Object.keys(errors).length > 0) return { errors, values };
 
   const imageAssetIds = [...kept];
@@ -196,6 +206,10 @@ export async function saveProductAction(_: FormState, formData: FormData): Promi
     featured: formData.get("featured") === "on",
     active: formData.get("active") === "on",
     sku: values.sku || null,
+    // 131 Its weight, for shipping by weight.
+    weightGrams: numbers.weightGrams,
+    addon,
+    addonFor: addonFor?.ok && addonFor.value.offerWith !== "all" ? addonFor.value : null,
     optionGroups: optionGroups.ok && optionGroups.value.length > 0 ? optionGroups.value : null,
     variants: variants.ok ? variants.variants : null,
     // 110.2 A sample product saved here is the owner's from now on.
@@ -306,8 +320,8 @@ export async function saveManualPaymentsAction(_: FormState, formData: FormData)
 
 /** 91.1 A coupon for the shop's customers. */
 export async function addCouponAction(_: FormState, formData: FormData): Promise<FormState> {
-  const { app } = await requireCatalogApp({ courses: true });
-  const values = { code: str(formData, "code"), kind: str(formData, "kind"), value: str(formData, "value"), minOrder: str(formData, "minOrder"), endsOn: str(formData, "endsOn"), maxUses: str(formData, "maxUses") };
+  const { app } = await requireCatalogApp({ courses: true, store: true });
+  const values = couponValues(formData);
   const now = new Date();
   const parsed = parseCoupon(values, now);
   if (!parsed.ok) return { errors: parsed.errors, values };
@@ -317,14 +331,38 @@ export async function addCouponAction(_: FormState, formData: FormData): Promise
   return { ok: true, message: `Added the coupon ${created.code}.` };
 }
 
+const couponValues = (formData: FormData) => ({
+  code: str(formData, "code"),
+  kind: str(formData, "kind"),
+  value: str(formData, "value"),
+  minOrder: str(formData, "minOrder"),
+  startsOn: str(formData, "startsOn"),
+  endsOn: str(formData, "endsOn"),
+  maxUses: str(formData, "maxUses"),
+  public: formData.get("public") === "on" ? "on" : "",
+});
+
+/** 131 Changes a coupon's terms (its uses so far stay). */
+export async function updateCouponAction(_: FormState, formData: FormData): Promise<FormState> {
+  const { app } = await requireCatalogApp({ courses: true, store: true });
+  const id = Number(formData.get("id"));
+  const values = couponValues(formData);
+  const parsed = parseCoupon(values, new Date(), { editing: true });
+  if (!parsed.ok) return { errors: parsed.errors, values };
+  const saved = await (await getStore()).updateCatalogCoupon(app.id, id, parsed.value);
+  if (!saved) return { errors: { code: "You already have a coupon with this code." }, values };
+  refresh();
+  return { ok: true, message: `Saved the coupon ${parsed.value.code}.`, values };
+}
+
 export async function setCouponActiveAction(formData: FormData): Promise<void> {
-  const { app } = await requireCatalogApp({ courses: true });
+  const { app } = await requireCatalogApp({ courses: true, store: true });
   await (await getStore()).setCatalogCouponActive(app.id, Number(formData.get("id")), formData.get("active") === "on");
   refresh();
 }
 
 export async function deleteCouponAction(formData: FormData): Promise<void> {
-  const { app } = await requireCatalogApp({ courses: true });
+  const { app } = await requireCatalogApp({ courses: true, store: true });
   await (await getStore()).deleteCatalogCoupon(app.id, Number(formData.get("id")));
   refresh();
 }

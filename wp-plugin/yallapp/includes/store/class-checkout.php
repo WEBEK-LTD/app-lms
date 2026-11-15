@@ -34,6 +34,8 @@ class Checkout {
 	const META_GIFT_MESSAGE  = '_yallapp_gift_message';
 	const SESSION_DELIVERY   = 'yallapp_delivery_date';
 	const SESSION_GIFT       = 'yallapp_gift_message';
+	// 131 The slot (and its fee), the sender, the recipient and "send anonymously".
+	const SESSION_EXTRA = 'yallapp_delivery_extra';
 
 	/**
 	 * Settings.
@@ -43,12 +45,21 @@ class Checkout {
 	private $settings;
 
 	/**
+	 * 131 The delivery slots, the gift checkout and the flash sale.
+	 *
+	 * @var Store_Extras|null
+	 */
+	private $extras;
+
+	/**
 	 * Constructor.
 	 *
-	 * @param Settings $settings Settings.
+	 * @param Settings          $settings Settings.
+	 * @param Store_Extras|null $extras   131 The flower shop's extras.
 	 */
-	public function __construct( Settings $settings ) {
+	public function __construct( Settings $settings, $extras = null ) {
 		$this->settings = $settings;
+		$this->extras   = $extras instanceof Store_Extras ? $extras : null;
 	}
 
 	/**
@@ -65,6 +76,39 @@ class Checkout {
 		add_action( 'woocommerce_order_details_after_order_table', array( $this, 'customer_details' ) );
 		add_filter( 'woocommerce_email_order_meta_fields', array( $this, 'email_fields' ), 10, 3 );
 		add_filter( 'woocommerce_get_customer_payment_tokens', array( Saved_Cards::class, 'choose' ), 10, 3 );
+		// 131 The delivery slot's fee, and the gift checkout's recipient as the shipping address.
+		add_action( 'woocommerce_cart_calculate_fees', array( $this, 'slot_fee' ) );
+		add_filter( 'woocommerce_ship_to_different_address_checked', array( $this, 'ship_to_recipient' ) );
+	}
+
+	/**
+	 * 131 The chosen delivery slot's extra fee, as a fee line on WooCommerce's checkout.
+	 *
+	 * @param \WC_Cart $cart Cart.
+	 * @return void
+	 */
+	public function slot_fee( $cart ) {
+		if ( ! function_exists( 'WC' ) || ! WC()->session ) {
+			return;
+		}
+		$extra = (array) WC()->session->get( self::SESSION_EXTRA );
+		if ( ! empty( $extra['fee'] ) && (float) $extra['fee'] > 0 ) {
+			/* translators: %s: the delivery time, like 10:00–13:00. */
+			$cart->add_fee( sprintf( __( 'Delivery time %s', 'yallapp' ), (string) ( $extra['slot_label'] ?? '' ) ), (float) $extra['fee'] );
+		}
+	}
+
+	/**
+	 * 131 The gift checkout ships to the recipient.
+	 *
+	 * @param bool $checked WooCommerce's choice.
+	 * @return bool
+	 */
+	public function ship_to_recipient( $checked ) {
+		if ( function_exists( 'WC' ) && WC()->session && ! empty( ( (array) WC()->session->get( self::SESSION_EXTRA ) )['recipient']['address'] ) ) {
+			return true;
+		}
+		return $checked;
 	}
 
 	/**
@@ -74,7 +118,7 @@ class Checkout {
 	 */
 	public function config() {
 		$returns = Order_Returns::days( $this->settings->get( 'store_return_days' ) );
-		return array(
+		$config  = array(
 			'currency'          => (string) get_woocommerce_currency(),
 			'guest_checkout'    => 'yes' === get_option( 'woocommerce_enable_guest_checkout' ),
 			'checkout_opens_in' => (string) $this->settings->get( 'checkout_opens_in' ),
@@ -96,6 +140,8 @@ class Checkout {
 				'days'    => $returns,
 			) : null,
 		);
+		// 131 The gift checkout, the cut-off and the slots, the gifts.
+		return $this->extras ? $this->extras->config( $config ) : $config;
 	}
 
 	/**
@@ -104,15 +150,27 @@ class Checkout {
 	 * @param array       $lines    CartInput lines.
 	 * @param string      $platform android or ios.
 	 * @param string|null $coupon   91.1 The coupon the customer typed.
-	 * @return array Cart shape.
+	 * @param array       $delivery 131 delivery_date and delivery_slot, once chosen.
+	 * @return array|WP_Error Cart shape; 131 addon_needs_item for add-ons alone.
 	 */
-	public function quote( array $lines, $platform, $coupon = null ) {
+	public function quote( array $lines, $platform, $coupon = null, array $delivery = array() ) {
 		$decimals = wc_get_price_decimals();
 		$items    = array();
 		$count    = 0;
 		$subtotal = 0.0;
-		foreach ( $lines as $line ) {
-			$checked  = $this->check_line( (array) $line, $platform );
+		// 131 Gift add-ons: never alone, each with a main item it goes with.
+		$lines  = array_values( $lines );
+		$addons = $this->addon_check( $lines );
+		if ( $addons['needs_item'] ) {
+			return new WP_Error( 'addon_needs_item', self::addon_messages()['needs_item'], array( 'status' => 400 ) );
+		}
+		foreach ( $lines as $index => $line ) {
+			$checked = $this->check_line( (array) $line, $platform );
+			if ( isset( $addons['problems'][ $index ] ) ) {
+				$checked['available'] = false;
+				$checked['problem']   = $addons['problems'][ $index ];
+			}
+			$product  = $checked['product'];
 			$product  = $checked['product'];
 			$quantity = $checked['quantity'];
 			$unit     = $product ? (float) wc_get_price_to_display( $product ) : 0.0;
@@ -134,25 +192,44 @@ class Checkout {
 				'problem'      => $checked['problem'],
 				'max_quantity' => $product ? Catalog::max_quantity( $product ) : null,
 				'digital'      => $product ? Catalog::is_digital( $product ) : false,
-			);
+			) + ( $addons['addon'][ $index ] ? array(
+				'addon'    => true,
+				'addon_of' => ! empty( $line['addon_of'] ) ? (int) $line['addon_of'] : null,
+			) : array() );
 		}
 		// 91.1 The coupon, and the total so far: shipping and taxes come from the checkout's address.
 		$checked = null !== $coupon && '' !== trim( (string) $coupon ) ? Coupon_Quote::check( $coupon, $subtotal, $count ) : null;
 		$off     = $checked ? (float) $checked['discount'] : 0.0;
-		$total   = max( 0.0, $subtotal - $off );
+		// 131 The chosen slot's fee (WooCommerce's zones price the shipping at checkout).
+		$slot_fee = 0.0;
+		$problem  = null;
+		if ( $this->extras && ! empty( $delivery['delivery_date'] ) ) {
+			$day = Delivery_Rules::check_day( $this->extras->delivery_rules( $this->config()['delivery_date'] ), (string) $delivery['delivery_date'], (string) ( $delivery['delivery_slot'] ?? '' ), Store_Extras::now(), array( Store_Extras::class, 'slot_counts' ) );
+			if ( isset( $day['error'] ) ) {
+				$problem = array(
+					'code'    => $day['code'],
+					'message' => $day['error'],
+				);
+			} else {
+				$slot_fee = (float) $day['fee'];
+			}
+		}
+		$total = max( 0.0, $subtotal - $off ) + $slot_fee;
 		return array(
-			'lines'           => $items,
-			'item_count'      => $count,
-			'subtotal'        => Money::plain( wc_price( $subtotal ) ),
-			'subtotal_amount' => number_format( $subtotal, $decimals, '.', '' ),
-			'currency'        => (string) get_woocommerce_currency(),
-			'coupon'          => $checked ? $checked['json'] : null,
-			'discount'        => $off > 0 ? Money::plain( wc_price( $off ) ) : null,
-			'shipping'        => null,
-			'tax'             => null,
-			'total'           => Money::plain( wc_price( $total ) ),
-			'total_amount'    => number_format( $total, $decimals, '.', '' ),
-			'total_final'     => false,
+			'lines'            => $items,
+			'item_count'       => $count,
+			'subtotal'         => Money::plain( wc_price( $subtotal ) ),
+			'subtotal_amount'  => number_format( $subtotal, $decimals, '.', '' ),
+			'currency'         => (string) get_woocommerce_currency(),
+			'coupon'           => $checked ? $checked['json'] : null,
+			'discount'         => $off > 0 ? Money::plain( wc_price( $off ) ) : null,
+			'shipping'         => null,
+			'tax'              => null,
+			'total'            => Money::plain( wc_price( $total ) ),
+			'total_amount'     => number_format( $total, $decimals, '.', '' ),
+			'total_final'      => false,
+			'delivery_fee'     => $slot_fee > 0 ? Money::plain( wc_price( $slot_fee ) ) : null,
+			'delivery_problem' => $problem,
 		);
 	}
 
@@ -171,9 +248,15 @@ class Checkout {
 		if ( ! $user_id && 'yes' !== get_option( 'woocommerce_enable_guest_checkout' ) ) {
 			return new WP_Error( 'unauthorized', __( 'Please sign in to check out.', 'yallapp' ), array( 'status' => 401 ) );
 		}
+		// 131 Gift add-ons: never alone, each with a main item it goes with.
+		$lines  = array_values( $lines );
+		$addons = $this->addon_check( $lines );
+		if ( $addons['needs_item'] || $addons['problems'] ) {
+			return new WP_Error( 'addon_needs_item', $addons['needs_item'] ? self::addon_messages()['needs_item'] : (string) reset( $addons['problems'] ), array( 'status' => 400 ) );
+		}
 		$problems = array();
 		$filled   = array();
-		foreach ( $lines as $line ) {
+		foreach ( $lines as $index => $line ) {
 			$checked = $this->check_line( (array) $line, $platform );
 			if ( ! $checked['available'] || (int) ( $line['quantity'] ?? 0 ) !== $checked['quantity'] ) {
 				if ( $checked['digital_on_ios'] ) {
@@ -191,6 +274,8 @@ class Checkout {
 				'variation_id' => ! empty( $line['variation_id'] ) ? (int) $line['variation_id'] : 0,
 				'quantity'     => $checked['quantity'],
 				'attributes'   => $checked['attributes'],
+				// 131 A gift add-on: the product it goes with, on the order's line.
+				'addon_of'     => $addons['addon'][ $index ] && ! empty( $line['addon_of'] ) ? (int) $line['addon_of'] : 0,
 			);
 		}
 		if ( $problems ) {
@@ -270,7 +355,8 @@ class Checkout {
 		}
 		WC()->cart->empty_cart();
 		foreach ( $cart['lines'] as $line ) {
-			WC()->cart->add_to_cart( $line['product_id'], $line['quantity'], $line['variation_id'], $line['attributes'] );
+			$data = ! empty( $line['addon_of'] ) ? array( 'yallapp_addon_of' => (int) $line['addon_of'] ) : array();
+			WC()->cart->add_to_cart( $line['product_id'], $line['quantity'], $line['variation_id'], $line['attributes'], $data );
 		}
 		// 91.1 The app's coupon, as WooCommerce's checkout applies it (it says so when it can't).
 		if ( ! empty( $cart['coupon'] ) ) {
@@ -284,6 +370,19 @@ class Checkout {
 		}
 		WC()->session->set( self::SESSION_DELIVERY, $cart['extras']['delivery_date'] );
 		WC()->session->set( self::SESSION_GIFT, $cart['extras']['gift_message'] );
+		// 131 The slot and its fee, the sender and the recipient: the checkout's billing and shipping details.
+		WC()->session->set(
+			self::SESSION_EXTRA,
+			array(
+				'slot'       => $cart['extras']['delivery_slot'] ?? null,
+				'slot_label' => $cart['extras']['slot_label'] ?? null,
+				'fee'        => (float) ( $cart['extras']['fee'] ?? 0 ),
+				'sender'     => $cart['extras']['sender'] ?? null,
+				'recipient'  => $cart['extras']['recipient'] ?? null,
+				'anonymous'  => ! empty( $cart['extras']['gift_anonymous'] ),
+			)
+		);
+		self::fill_customer( (array) $cart['extras'] );
 		if ( ! is_user_logged_in() ) {
 			WC()->session->set_customer_session_cookie( true );
 		}
@@ -296,6 +395,45 @@ class Checkout {
 		}
 		wp_safe_redirect( wc_get_checkout_url() );
 		exit;
+	}
+
+	/**
+	 * 131 The gift checkout's sender in the checkout's billing details, and the recipient in
+	 * its shipping details (the customer can still change them there).
+	 *
+	 * @param array $extras sender, recipient.
+	 * @return void
+	 */
+	private static function fill_customer( array $extras ) {
+		$customer = WC()->customer;
+		if ( ! $customer ) {
+			return;
+		}
+		$sender    = is_array( $extras['sender'] ?? null ) ? $extras['sender'] : null;
+		$recipient = is_array( $extras['recipient'] ?? null ) ? $extras['recipient'] : null;
+		if ( $sender ) {
+			$customer->set_billing_first_name( $sender['name'] );
+			$customer->set_billing_last_name( '' );
+			$customer->set_billing_phone( $sender['phone'] );
+			$customer->set_billing_email( $sender['email'] );
+		}
+		if ( $recipient && ! empty( $recipient['address'] ) ) {
+			$customer->set_shipping_first_name( $recipient['name'] );
+			$customer->set_shipping_last_name( '' );
+			$customer->set_shipping_address_1( $recipient['address'] );
+			if ( '' !== (string) ( $recipient['city'] ?? '' ) ) {
+				$customer->set_shipping_city( $recipient['city'] );
+			}
+			if ( '' !== (string) ( $recipient['country'] ?? '' ) ) {
+				$customer->set_shipping_country( $recipient['country'] );
+			}
+			if ( method_exists( $customer, 'set_shipping_phone' ) ) {
+				$customer->set_shipping_phone( $recipient['phone'] );
+			}
+		}
+		if ( $sender || $recipient ) {
+			$customer->save();
+		}
 	}
 
 	/**
@@ -316,8 +454,31 @@ class Checkout {
 		if ( '' !== $gift ) {
 			$order->update_meta_data( self::META_GIFT_MESSAGE, $gift );
 		}
+		// 131 The slot, the sender and the recipient as order meta (the checkout's billing and shipping have them too).
+		$extra = (array) WC()->session->get( self::SESSION_EXTRA );
+		if ( ! empty( $extra['slot'] ) ) {
+			$order->update_meta_data( Store_Extras::META_SLOT, (string) $extra['slot'] );
+			$order->update_meta_data( Store_Extras::META_SLOT_LABEL, (string) ( $extra['slot_label'] ?? '' ) );
+		}
+		if ( ! empty( $extra['sender'] ) ) {
+			$order->update_meta_data( Store_Extras::META_SENDER, $extra['sender'] );
+		}
+		if ( ! empty( $extra['recipient'] ) ) {
+			$order->update_meta_data( Store_Extras::META_RECIPIENT, $extra['recipient'] );
+			if ( ! empty( $extra['recipient']['address'] ) && '' === (string) $order->get_shipping_address_1() ) {
+				$order->set_shipping_first_name( $extra['recipient']['name'] );
+				$order->set_shipping_address_1( $extra['recipient']['address'] );
+				if ( method_exists( $order, 'set_shipping_phone' ) ) {
+					$order->set_shipping_phone( $extra['recipient']['phone'] );
+				}
+			}
+		}
+		if ( ! empty( $extra['anonymous'] ) ) {
+			$order->update_meta_data( Store_Extras::META_ANONYMOUS, '1' );
+		}
 		WC()->session->set( self::SESSION_DELIVERY, null );
 		WC()->session->set( self::SESSION_GIFT, null );
+		WC()->session->set( self::SESSION_EXTRA, null );
 	}
 
 	/**
@@ -379,42 +540,86 @@ class Checkout {
 	}
 
 	/**
-	 * Checks the delivery date and gift message against the settings.
+	 * Checks the delivery date and gift message against the settings; 131 the delivery slot
+	 * (the cut-off, a slot not started and not full), and the gift details: the card, the
+	 * recipient, "send anonymously" and, in the gift checkout, the sender and the
+	 * recipient's address, strictly.
 	 *
-	 * @param array $extras delivery_date, gift_message.
+	 * @param array $extras delivery_date, delivery_slot, gift_message, gift_anonymous, sender, recipient.
 	 * @return array|WP_Error Clean values.
 	 */
 	public function check_extras( array $extras ) {
 		$config = $this->config();
-		$date   = trim( (string) ( $extras['delivery_date'] ?? '' ) );
-		$gift   = trim( sanitize_textarea_field( (string) ( $extras['gift_message'] ?? '' ) ) );
-		if ( ! $config['delivery_date']['enabled'] ) {
-			$date = '';
+		$rules  = $this->extras ? $this->extras->delivery_rules( $config['delivery_date'] ) : $config['delivery_date'];
+		if ( ! isset( $rules['slots'] ) ) {
+			$rules['slots'] = array();
 		}
-		if ( ! $config['gift_message']['enabled'] ) {
-			$gift = '';
+		$day = Delivery_Rules::check_day( $rules, (string) ( $extras['delivery_date'] ?? '' ), (string) ( $extras['delivery_slot'] ?? '' ), new \DateTimeImmutable( 'now', wp_timezone() ), array( Store_Extras::class, 'slot_counts' ) );
+		if ( isset( $day['error'] ) ) {
+			return new WP_Error( $day['code'], $day['error'], array( 'status' => $day['status'] ) );
 		}
-		if ( '' === $date && $config['delivery_date']['required'] ) {
-			return new WP_Error( 'invalid_request', __( 'Choose a delivery date.', 'yallapp' ), array( 'status' => 400 ) );
-		}
-		if ( '' !== $date ) {
-			$day = \DateTimeImmutable::createFromFormat( '!Y-m-d', $date, wp_timezone() );
-			if ( ! $day || $day->format( 'Y-m-d' ) !== $date ) {
-				return new WP_Error( 'invalid_request', __( 'Choose a valid delivery date.', 'yallapp' ), array( 'status' => 400 ) );
-			}
-			$today = new \DateTimeImmutable( 'today', wp_timezone() );
-			$days  = (int) $today->diff( $day )->format( '%r%a' );
-			if ( $days < $config['delivery_date']['min_days'] || $days > $config['delivery_date']['max_days'] || in_array( (int) $day->format( 'w' ), $config['delivery_date']['closed_weekdays'], true ) ) {
-				return new WP_Error( 'invalid_request', __( 'We can not deliver on that date. Please choose another day.', 'yallapp' ), array( 'status' => 400 ) );
-			}
-		}
-		if ( function_exists( 'mb_strlen' ) ? mb_strlen( $gift ) > $config['gift_message']['max_length'] : strlen( $gift ) > $config['gift_message']['max_length'] ) {
-			return new WP_Error( 'invalid_request', __( 'The gift message is too long.', 'yallapp' ), array( 'status' => 400 ) );
+		$mode = isset( $config['checkout_mode'] ) ? (string) $config['checkout_mode'] : 'standard';
+		$gift = Delivery_Rules::check_gift( $config['gift_message'], 'gift' === $mode, $extras );
+		if ( isset( $gift['error'] ) ) {
+			return new WP_Error( $gift['code'], $gift['error'], array( 'status' => $gift['status'] ) );
 		}
 		return array(
-			'delivery_date' => '' !== $date ? $date : null,
-			'gift_message'  => '' !== $gift ? $gift : null,
+			'delivery_date'  => $day['date'],
+			'gift_message'   => null !== $gift['message'] ? sanitize_textarea_field( $gift['message'] ) : null,
+			'delivery_slot'  => $day['slot'] ? $day['slot']['id'] : null,
+			'slot_label'     => $day['slot'] ? $day['slot']['start'] . '–' . $day['slot']['end'] : null,
+			'fee'            => (float) $day['fee'],
+			'sender'         => $gift['sender'],
+			'recipient'      => $gift['recipient'],
+			'gift_anonymous' => (bool) $gift['anonymous'],
 		);
+	}
+
+	/**
+	 * 131 The gift add-ons' messages.
+	 *
+	 * @return string[]
+	 */
+	private static function addon_messages() {
+		return array(
+			'needs_item'  => __( 'Add-ons go with a gift: add the item they go with to your cart first.', 'yallapp' ),
+			'not_offered' => __( 'This add-on doesn\'t go with the items in your cart.', 'yallapp' ),
+		);
+	}
+
+	/**
+	 * 131 A cart's gift add-ons checked: `needs_item` when nothing else is in it, each add-on
+	 * line's problem by its index, and which lines are add-ons.
+	 *
+	 * @param array $lines CartInput lines, indexed from 0.
+	 * @return array{needs_item: bool, problems: array<int, string>, addon: bool[]}
+	 */
+	private function addon_check( array $lines ) {
+		$catalog = new Catalog();
+		$shaped  = array();
+		$cats    = array();
+		foreach ( $lines as $line ) {
+			$id      = (int) ( $line['product_id'] ?? 0 );
+			$product = $catalog->product( $id );
+			$addon   = $product && Catalog::is_addon( $product );
+			if ( $product && ! $addon ) {
+				$cats[ $id ] = array_map( 'intval', $product->get_category_ids() );
+			}
+			$shaped[] = array(
+				'product_id' => $id,
+				'addon'      => $addon,
+				'addon_of'   => isset( $line['addon_of'] ) ? (int) $line['addon_of'] : 0,
+			);
+		}
+		$checked          = Addon_Rules::check_lines(
+			$shaped,
+			static function ( $index, $main ) use ( $shaped, $cats ) {
+				return Addon_Rules::offered_with( Catalog::addon_rule( $shaped[ $index ]['product_id'] ), $main, $cats[ $main ] ?? array() );
+			},
+			self::addon_messages()
+		);
+		$checked['addon'] = array_column( $shaped, 'addon' );
+		return $checked;
 	}
 
 	/**
@@ -576,10 +781,32 @@ class Checkout {
 				'value' => self::format_date( $date ),
 			);
 		}
+		// 131 The slot, the sender and the recipient, "send anonymously".
+		$slot = (string) $order->get_meta( Store_Extras::META_SLOT_LABEL );
+		if ( '' !== $slot ) {
+			$details['delivery_slot'] = array(
+				'label' => __( 'Delivery time', 'yallapp' ),
+				'value' => $slot,
+			);
+		}
+		$sender = $order->get_meta( Store_Extras::META_SENDER );
+		if ( is_array( $sender ) && ! empty( $sender['name'] ) ) {
+			$details['sender'] = array(
+				'label' => __( 'Sender', 'yallapp' ),
+				'value' => implode( "\n", array_filter( array( (string) $sender['name'], (string) ( $sender['phone'] ?? '' ), (string) ( $sender['email'] ?? '' ) ) ) ),
+			);
+		}
+		$recipient = $order->get_meta( Store_Extras::META_RECIPIENT );
+		if ( is_array( $recipient ) && ! empty( $recipient['name'] ) ) {
+			$details['recipient'] = array(
+				'label' => __( 'Recipient', 'yallapp' ),
+				'value' => implode( "\n", array_filter( array( (string) $recipient['name'], (string) ( $recipient['phone'] ?? '' ), (string) ( $recipient['address'] ?? '' ) ) ) ),
+			);
+		}
 		if ( '' !== $gift ) {
 			$details['gift_message'] = array(
 				'label' => __( 'Gift message', 'yallapp' ),
-				'value' => $gift,
+				'value' => $gift . ( $order->get_meta( Store_Extras::META_ANONYMOUS ) ? "\n(" . __( 'Send anonymously', 'yallapp' ) . ')' : '' ),
 			);
 		}
 		return $details;
@@ -618,7 +845,7 @@ class Checkout {
 		$lines = array();
 		if ( ! empty( $extras['delivery_date'] ) ) {
 			/* translators: %s: delivery date. */
-			$lines[] = sprintf( __( 'Delivery date: %s', 'yallapp' ), self::format_date( (string) $extras['delivery_date'] ) );
+			$lines[] = sprintf( __( 'Delivery date: %s', 'yallapp' ), self::format_date( (string) $extras['delivery_date'] ) . ( ! empty( $extras['slot_label'] ) ? ', ' . $extras['slot_label'] : '' ) );
 		}
 		if ( ! empty( $extras['gift_message'] ) ) {
 			/* translators: %s: gift message. */

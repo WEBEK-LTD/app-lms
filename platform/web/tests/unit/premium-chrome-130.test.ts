@@ -158,7 +158,7 @@ describe("130.23 the defaults", () => {
   it("writes the system look into the demo-design registry and the contract", () => {
     const contract = readFileSync(join(__dirname, "../../../../docs/api/openapi.yaml"), "utf8");
     expect(contract).toContain("130.21 The premium look of the app's own system screens");
-    expect(contract).toContain("style: { type: string, enum: [large, glass, photo, brand, search]");
+    expect(contract).toContain("style: { type: string, enum: [large, glass, photo, brand, search, petal]");
     expect(readFileSync(join(__dirname, "../../public/developers/openapi.yaml"), "utf8")).toBe(contract);
   });
 });

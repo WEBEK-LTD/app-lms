@@ -68,14 +68,16 @@ describe("124.8 which drawing for which screen and look", () => {
     expect(screenLookSection("lesson", "lms")).toBe("h-looks");
     expect(screenLookSection("course", "lms")).toBe("h-course-page");
     expect(screenLookSection("account", "lms")).toBe("h-account-menu");
-    // Every app's account menu; nothing for a shop's cart or a school's timetable.
+    // Every app's account menu; 131.25 a shop's cart, its checkout's look; nothing for a school's timetable.
     expect(screenLookSection("account", "store")).toBe("h-account-menu");
-    expect(screenLookSection("cart", "store")).toBeNull();
+    expect(screenLookSection("cart", "store")).toBe("h-checkout-look");
     expect(screenLookSection("school_timetable", "school")).toBeNull();
     expect(screenLookSection("courses", "store")).toBeNull();
     // Those ids are Studio › Screens' headings.
     const editor = readFileSync(path.resolve(__dirname, "../../src/app/dashboard/screens/editor.tsx"), "utf8");
     for (const id of ["h-looks", "h-course-page", "h-account-menu"]) expect(editor).toContain(`id="${id}"`);
+    // 131.25 The checkout's look, in its own section.
+    expect(readFileSync(path.resolve(__dirname, "../../src/app/dashboard/screens/checkout-section.tsx"), "utf8")).toContain('id="h-checkout-look"');
   });
 
   it("speaks the app's words in English, Arabic and Turkish, English for another language", () => {

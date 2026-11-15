@@ -161,6 +161,9 @@ function fakeShop(options: { down?: boolean } = {}) {
     } else if (query.includes("collection(id: $id, handle: $handle)")) {
       const inCollection = v.handle === "frontpage" ? [PRODUCTS[0]!] : v.id === "gid://shopify/Collection/201" ? [PRODUCTS[0]!] : [];
       data = { collection: v.id === "gid://shopify/Collection/999" ? null : { products: page(inCollection.map(summary), v.first, v.after) } };
+    } else if (query.includes("products(first: 50, query: $query)")) {
+      // 131 The gift add-ons by their tag: the second product has it.
+      data = { products: { nodes: v.query === 'tag:"yallapp-addon"' ? [{ id: PRODUCTS[1]!.id }] : [] } };
     } else if (query.includes("products(first: $first")) {
       const list = v.query ? PRODUCTS.filter((p) => p.title.toLowerCase().includes(String(v.query).toLowerCase())) : PRODUCTS;
       data = { products: page(list.map(summary), v.first, v.after) };
@@ -333,6 +336,12 @@ describe("Shopify connector", () => {
       features: { orders: false },
     });
     expect(await connector.check()).toBe("Rose Shop");
+  });
+
+  it("131 finds the gift add-ons by their tag", async () => {
+    expect(await connector.taggedProducts("yallapp-addon")).toEqual([Number(PRODUCTS[1]!.id.split("/").pop())]);
+    expect(shop.calls.at(-1)!.variables).toEqual({ query: 'tag:"yallapp-addon"' });
+    expect(await connector.taggedProducts('other"')).toEqual([]);
   });
 
   it("lists collections with products as categories", async () => {

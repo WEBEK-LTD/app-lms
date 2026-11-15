@@ -5,6 +5,8 @@ import { ICON_NAME } from "../pages/icons";
 import { parseSystemLook, type SystemScreensLook } from "./premium-chrome";
 // 130.52 Studio's course screens.
 import { parseCourseScreens, type CourseScreens } from "./course-screens";
+// 131 The store checkout's look (131.25 its premium gift look too).
+import { parseCheckoutLook, type CheckoutLook } from "./checkout-look";
 
 /**
  * 118.3 Yallapp Studio: the sign-in screen's look and the account menu, as
@@ -146,6 +148,8 @@ export interface StudioScreens {
   system?: SystemScreensLook | null;
   /** 130.52 The academy's course screens in one premium look (lib/studio/course-screens.ts); missing, as above. */
   courses?: CourseScreens | null;
+  /** 131 The store checkout's look, and the gift checkout (131.25 its premium five-step look; lib/studio/checkout-look.ts); missing, the app's own. */
+  checkout?: CheckoutLook | null;
 }
 
 /**
@@ -452,6 +456,9 @@ export function parseStudioScreens(input: unknown): { screens: StudioScreens; pr
   // 130.52 The course screens' look.
   const courses = parseCourseScreens(v.courses, problems);
   if (courses) screens.courses = courses;
+  // 131 The store checkout's look (131.25 its premium gift look too).
+  const checkout = parseCheckoutLook(v.checkout, problems);
+  if (checkout) screens.checkout = checkout;
   return { screens, problems: [...new Set(problems)] };
 }
 
@@ -482,5 +489,7 @@ export function screensConfig(app: Pick<App, "section" | "backend"> & { hostedSe
   if (saved.system) screens.system = saved.system;
   // 130.52 The course screens' look.
   if (saved.courses) screens.courses = saved.courses;
+  // 131 The store checkout's look (131.25 its premium gift look too).
+  if (saved.checkout) screens.checkout = saved.checkout;
   return Object.keys(screens).length ? { screens } : {};
 }

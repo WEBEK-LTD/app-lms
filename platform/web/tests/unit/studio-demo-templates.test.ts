@@ -4,7 +4,7 @@ import { describe, expect, it } from "vitest";
 import { KINDS } from "@/lib/app/kinds";
 import { newApp } from "@/lib/app/setup";
 import { ar as appAr, en as appEn } from "@/lib/studio/app-words";
-import { demoKind, PREMIUM_ACADEMY_DEMO, PREMIUM_ACADEMY_TEMPLATE, STUDIO_DEMO_TYPES, type StudioDemoId } from "@/lib/demo/constants";
+import { demoKind, FLOWER_SHOP_DEMO, FLOWER_SHOP_TEMPLATE, PREMIUM_ACADEMY_DEMO, PREMIUM_ACADEMY_TEMPLATE, STUDIO_DEMO_TYPES, type StudioDemoId } from "@/lib/demo/constants";
 import { DEMO_BRANDS } from "@/lib/demo/content";
 import { demoDesign, demoStudioContext } from "@/lib/demo/look";
 import { designLayout } from "@/lib/pages/layout";
@@ -44,12 +44,13 @@ const LANGS = { default: "en" as const, available: ["en" as const, "ar" as const
 function demoApp(id: StudioDemoId): App {
   const kind = demoKind(id);
   // 123 The premium academy's demo keeps the template it started from.
-  const design = id === PREMIUM_ACADEMY_DEMO ? { design: PREMIUM_ACADEMY_TEMPLATE } : {};
+  // 131.20 And Leqaa's its look A.
+  const design = id === PREMIUM_ACADEMY_DEMO ? { design: PREMIUM_ACADEMY_TEMPLATE } : id === FLOWER_SHOP_DEMO ? { design: FLOWER_SHOP_TEMPLATE } : {};
   return { ...newApp("demo-client", null, NOW, kind.engine, kind.vertical), demo: true, section: "studio", backend: "hosted", appName: DEMO_BRANDS[id].appName, primaryColor: DEMO_BRANDS[id].primaryColor, brandingDoneAt: NOW, ...design };
 }
 
-/** The demos that are their kind's own template; 123 the premium academy is a template's demo (below). */
-const KIND_DEMOS = STUDIO_DEMO_TYPES.filter((id) => id !== PREMIUM_ACADEMY_DEMO);
+/** The demos that are their kind's own template; 123 the premium academy is a template's demo (below), 131.20 and Leqaa (leqaa-flowers.test.ts). */
+const KIND_DEMOS = STUDIO_DEMO_TYPES.filter((id) => id !== PREMIUM_ACADEMY_DEMO && id !== FLOWER_SHOP_DEMO);
 
 /** A client's new Studio project of the demo's kind, named as the demo so the two can be compared. */
 function projectApp(id: StudioDemoId): App {

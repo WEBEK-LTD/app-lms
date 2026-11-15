@@ -59,6 +59,8 @@ import {
   type DemoStaff,
 } from "./content";
 import type { DemoPicture, PictureSize } from "./picture-assets";
+import { FLOWER_CATEGORIES, FLOWER_COUPON, FLOWER_CURRENCY, FLOWER_FLASH_SALE, FLOWER_PRODUCTS, flowerVariants } from "./flowers";
+import { seedGiftOccasions } from "../selling/gift-messages";
 import { UFUQ_COURSES } from "./ufuq-courses";
 import { ACADEMY_CATEGORIES, ACADEMY_COURSES, TEACHERS_CURRENCY } from "./teachers";
 
@@ -145,6 +147,95 @@ export async function demoProducts(deps: EntryDeps, app: App, menu: boolean): Pr
   if (deps.sample) return;
   const skus = new Set(seeds.map((p) => p.sku));
   for (const p of products) if (!p.sku || !skus.has(p.sku)) await store.deleteCatalogProduct(app.id, p.id);
+}
+
+/**
+ * 131.20 Leqaa's bouquets and add-ons (lib/demo/flowers.ts), by SKU, each in
+ * its collection and the occasions it suits (the shop's categories, by
+ * name), its sizes and what goes with it as its options, its photo the
+ * platform's. The demo's are updated in place and what is no longer in the
+ * demo is removed; samples are only added.
+ */
+export async function demoFlowerProducts(deps: EntryDeps, app: App): Promise<void> {
+  const { store, now } = deps;
+  const currency = catalogSettings(app).currency;
+  const money = (cents: number) => priceFor(deps, cents, FLOWER_CURRENCY, currency);
+  const categories = await store.listCatalogCategories(app.id);
+  const categoryIds = new Map<string, number>();
+  for (const name of FLOWER_CATEGORIES) {
+    const found = categories.find((c) => c.name === name);
+    categoryIds.set(name, found ? found.id : (await store.createCatalogCategory({ appId: app.id, name, now, ...marked(deps) })).id);
+  }
+  if (!deps.sample) for (const c of categories) if (!FLOWER_CATEGORIES.includes(c.name)) await store.deleteCatalogCategory(app.id, c.id, now);
+  const products = await store.listCatalogProducts(app.id);
+  // Created last to first, so the newest-first lists show them in the demo's order.
+  for (const [i, seed] of [...FLOWER_PRODUCTS].reverse().entries()) {
+    const priceCents = money(seed.priceCents);
+    const sale = seed.salePriceCents === null ? null : money(seed.salePriceCents);
+    const input = {
+      appId: app.id,
+      name: seed.name,
+      description: seed.description,
+      priceCents,
+      salePriceCents: sale !== null && sale < priceCents ? sale : null,
+      categoryIds: [seed.collection, ...seed.occasions].map((name) => categoryIds.get(name)!),
+      imageAssetIds: seed.photo ? [await deps.picture(seed.photo, "product")] : [],
+      stock: null,
+      digital: false,
+      featured: seed.featured,
+      active: true,
+      sku: deps.sample ? null : seed.sku,
+      // A bouquet's sizes are its variations, each priced in the app's currency.
+      variants: flowerVariants(seed, money),
+      optionGroups: null,
+      // 131 The vase, the chocolates and the card: add-ons offered with every bouquet.
+      addon: seed.addon === true,
+      addonFor: null,
+      ...marked(deps),
+    };
+    if (deps.sample) {
+      await store.createCatalogProduct(input, new Date(now.getTime() - (FLOWER_PRODUCTS.length - 1 - i) * 60_000));
+      continue;
+    }
+    const found = products.find((p) => p.sku === seed.sku);
+    if (found) await store.updateCatalogProduct(app.id, found.id, input, now);
+    else await store.createCatalogProduct(input, now);
+  }
+  if (deps.sample) return;
+  const skus = new Set(FLOWER_PRODUCTS.map((p) => p.sku));
+  for (const p of products) if (!p.sku || !skus.has(p.sku)) await store.deleteCatalogProduct(app.id, p.id);
+}
+
+/**
+ * 131 Leqaa's commerce on the demo: its flash sale (the roses and the
+ * sunflowers a share off, ending in hours), its code shown in the app and its
+ * card messages by occasion (the store's starters). The settings (the gift
+ * checkout, the days and slots, the zones and the distance pricing) are its
+ * `catalogSettings` (lib/demo/flowers.ts `FLOWER_COMMERCE`).
+ */
+export async function demoFlowerCommerce(deps: EntryDeps, app: App): Promise<void> {
+  const { store, now } = deps;
+  await refreshFlowerSale(store, app, now);
+  if (!(await store.getCatalogCouponByCode(app.id, FLOWER_COUPON.code))) {
+    await store.createCatalogCoupon({ appId: app.id, code: FLOWER_COUPON.code, kind: "percent", value: FLOWER_COUPON.percent, minOrderCents: FLOWER_COUPON.minOrderCents, endsAt: null, maxUses: null, active: true, createdAt: now, startsAt: null, public: true });
+  }
+  await seedGiftOccasions(store, (await store.getAppById(app.id))!, now);
+}
+
+/**
+ * 131 Leqaa's flash sale from now, for a little over a day (made again by
+ * the daily job, lib/demo/cleanup.ts), so its countdown always shows hours
+ * left, never days; its units sold back to the demo's own.
+ */
+export async function refreshFlowerSale(store: DataStore, app: Pick<App, "id">, now: Date): Promise<void> {
+  const products = await store.listCatalogProducts(app.id);
+  const ids = products.filter((p) => p.sku !== null && (FLOWER_FLASH_SALE.skus as readonly string[]).includes(p.sku)).map((p) => p.id);
+  const endsAt = new Date(now.getTime() + FLOWER_FLASH_SALE.hours * 3_600_000);
+  const sale = (await store.listFlashSales(app.id)).find((f) => f.title === FLOWER_FLASH_SALE.title);
+  // 131 Its name in the app's other languages too.
+  const terms = { productIds: ids, categoryId: null, discount: { kind: "percent" as const, percent: FLOWER_FLASH_SALE.percent }, startsAt: now, endsAt, limit: FLOWER_FLASH_SALE.limit, platformCode: null, active: true, titles: { ...FLOWER_FLASH_SALE.titles } };
+  const made = sale ?? (await store.createFlashSale({ appId: app.id, title: FLOWER_FLASH_SALE.title, ...terms, createdAt: now, updatedAt: now }));
+  await store.updateFlashSale(app.id, made.id, { ...terms, sold: FLOWER_FLASH_SALE.sold, updatedAt: now });
 }
 
 // ——— Courses ———

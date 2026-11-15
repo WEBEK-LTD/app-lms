@@ -15,6 +15,7 @@ import '../../../core/theme/palette.dart';
 import '../../../core/theme/symbol_names.dart';
 import '../../../core/web/web_page_screen.dart';
 import '../../../core/widgets/buttons.dart';
+import '../../../core/widgets/sale_widgets.dart';
 import '../../../core/widgets/common.dart';
 import '../../../core/widgets/star_text.dart';
 import '../../chat/data/chat_providers.dart';
@@ -632,13 +633,16 @@ class _ItemImage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final p = context.palette;
-    final badge = showBadge ? item.badge?.trim() : null;
+    // 131 A product on sale shows its sale instead of its badge.
+    final sale = item.sale?.liveAt(DateTime.now()) == true ? item.sale : null;
+    final badge = showBadge && sale == null ? item.badge?.trim() : null;
     return ClipRRect(
       borderRadius: BorderRadius.circular(radius),
       child: Stack(
         fit: StackFit.expand,
         children: [
           AppNetworkImage(url: item.imageUrl, seed: item.id.hashCode),
+          if (sale != null && showBadge) SaleCorner(sale: sale),
           if (badge != null && badge.isNotEmpty)
             PositionedDirectional(
               top: 8,
@@ -714,7 +718,9 @@ class _ItemText extends StatelessWidget {
   Widget build(BuildContext context) {
     final p = context.palette;
     final subtitle = item.subtitle?.trim();
-    final price = item.priceLabel?.trim();
+    // 131 A product on sale: its sale price and the price before it.
+    final sale = item.sale?.liveAt(DateTime.now()) == true ? item.sale : null;
+    final price = sale != null ? null : item.priceLabel?.trim();
     final badge = showBadge ? item.badge?.trim() : null;
     return Column(
       mainAxisSize: MainAxisSize.min,
@@ -739,6 +745,16 @@ class _ItemText extends StatelessWidget {
             overflow: TextOverflow.ellipsis,
             style: TextStyle(fontSize: 13, color: p.textSecondary),
           ),
+        ],
+        if (sale != null) ...[
+          const SizedBox(height: 4),
+          SalePrice(
+            sale: sale,
+            color: parseHexColor(SaleBadgeScope.of(context).color),
+          ),
+          // A flash sale's countdown, whenever it has an end.
+          if (SaleBadgeScope.of(context).countdown && sale.endsAt != null)
+            SaleCountdown(endsAt: sale.endsAt!, compact: true),
         ],
         if (price != null && price.isNotEmpty) ...[
           const SizedBox(height: 4),

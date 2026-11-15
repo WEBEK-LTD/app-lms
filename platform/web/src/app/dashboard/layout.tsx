@@ -110,7 +110,12 @@ export default async function DashboardLayout({ children }: { children: React.Re
         ...(app && (storeBillingSource(app) || needsYallappSignIn(app)) && contextCan(context, "settings") ? [{ href: "/dashboard/in-app-purchases", label: t("inapp.nav"), icon: "shopping_bag" as const }] : []),
       ],
     },
-    ...(content ? [{ label: k(content.label), items: content.items.map((item) => ({ ...item, label: k(item.label) })) }] : []),
+    // 131 Every store app, whatever its source: delivery, gifts, card messages, flash sales and discount codes.
+    ...(content
+      ? [{ label: k(content.label), items: [...content.items.map((item) => ({ ...item, label: k(item.label) })), ...(app?.appType === "store" ? [{ href: "/dashboard/selling", label: t("selling.nav"), icon: "local_shipping" as const }] : [])] }]
+      : app?.appType === "store"
+        ? [{ label: t("selling.nav"), items: [{ href: "/dashboard/selling", label: t("selling.nav"), icon: "local_shipping" as const }] }]
+        : []),
     ...(app?.backend === "hosted"
       ? [
           {

@@ -37,6 +37,9 @@ import 'page_blocks.dart';
 import 'premium/studio_premium.dart';
 import 'recently_viewed.dart';
 import 'side_menu.dart';
+import '../../../core/widgets/sale_widgets.dart';
+import 'studio_coupon_looks.dart';
+import 'studio_flash_sale.dart';
 import 'studio_covers.dart';
 import 'studio_live.dart';
 import 'studio_live_status.dart';
@@ -1074,6 +1077,8 @@ class StudioNodeView extends ConsumerWidget {
         node.source == ItemSource.products &&
             ref.watch(recentlyViewedProvider).isNotEmpty,
       StudioNodeType.coupon => (node.code ?? '').isNotEmpty,
+      // 131 A flash sale while it is on and has products on sale.
+      StudioNodeType.flashSale => StudioFlashSale.shows(node, DateTime.now()),
       // 129 Premium motion & media, with something to show.
       StudioNodeType.stories => node.slides.isNotEmpty,
       StudioNodeType.marquee =>
@@ -1355,11 +1360,18 @@ class StudioNodeView extends ConsumerWidget {
       return switch (node.bind!) {
         StudioBind.title => entry.title,
         StudioBind.subtitle => entry.subtitle,
-        StudioBind.price => entry.priceLabel,
+        // 131 A product on sale: its sale price.
+        StudioBind.price => entry.sale?.nowFormatted ?? entry.priceLabel,
         StudioBind.badge => entry.badge,
         StudioBind.image => null,
         // 128.8 Drawn with its star by [_StudioRating]; none, nothing.
         StudioBind.rating => entry.rating?.toStringAsFixed(1),
+        // 131 The share off and the price before it; nothing when not on sale.
+        StudioBind.sale => switch (entry.sale) {
+          final sale? => currentL10n.saleOff(sale.percentOff),
+          null => '',
+        },
+        StudioBind.wasPrice => entry.sale?.wasFormatted ?? '',
       };
     }
     return node.text;
@@ -1573,10 +1585,15 @@ class StudioNodeView extends ConsumerWidget {
             ? ref.watch(recentlyViewedProvider).take(30).toList()
             : node.items;
         if (node.card == null) {
-          return PageBlockView(
+          final block = PageBlockView(
             block: _itemsBlock(node, entries),
             pageSlug: scope.pageSlug,
           );
+          // 131 How the cards show a product's sale.
+          final badge = node.commerce?.saleBadge;
+          return badge == null
+              ? block
+              : SaleBadgeScope(badge: badge, child: block);
         }
         return _CustomCards(node: node, scope: scope, entries: entries);
       case StudioNodeType.learning:
@@ -1641,11 +1658,25 @@ class StudioNodeView extends ConsumerWidget {
       case StudioNodeType.videoHero || StudioNodeType.parallaxBanner:
         return const SizedBox.shrink();
       case StudioNodeType.coupon:
+        // 131 A ticket or glass, and the shop's coupon it shows.
+        final commerce = node.commerce;
+        if (commerce != null && commerce.couponLook != CouponLook.classic) {
+          return StudioCouponLook(
+            code: node.code ?? '',
+            look: commerce.couponLook,
+            color: color ?? p.primary,
+            radius: node.radius > 0 ? node.radius : 16,
+            offer: commerce.couponOffer,
+          );
+        }
         return _StudioCoupon(
           code: node.code ?? '',
           color: color ?? p.primary,
           radius: node.radius > 0 ? node.radius : 12,
         );
+      // 131 The flash sale: was and now, the countdown and the stock bar.
+      case StudioNodeType.flashSale:
+        return StudioFlashSale(node: node, title: _text(), color: color);
       case StudioNodeType.categories:
         return PageBlockView(
           block: _categoriesBlock(node),

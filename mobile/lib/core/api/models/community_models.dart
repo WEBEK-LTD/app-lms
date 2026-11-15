@@ -1,3 +1,4 @@
+import 'commerce_models.dart';
 import 'catalog_models.dart';
 import 'json.dart';
 import 'restaurant_models.dart';
@@ -305,6 +306,7 @@ class Order {
     this.returnRequest,
     this.canReturn = false,
     this.points,
+    this.delivery,
   });
 
   factory Order.fromJson(Json json) => Order(
@@ -328,7 +330,11 @@ class Order {
     returnRequest: optObject(json, 'return_request', ReturnRequest.fromJson),
     canReturn: boolOr(json, 'can_return', false),
     points: optObject(json, 'points', OrderPoints.fromJson),
+    delivery: OrderDelivery.tryParse(json['delivery']),
   );
+
+  /// 131 The delivery day and slot, who receives it and the card.
+  final OrderDelivery? delivery;
 
   final int id;
   final String number;

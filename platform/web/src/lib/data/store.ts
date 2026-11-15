@@ -1,3 +1,4 @@
+import type { GiftOccasion, StoreDelivery, StoreFlashSale } from "./types";
 import type {
   Activation,
   App,
@@ -780,6 +781,35 @@ export interface DataStore {
   deleteCatalogCoupon(appId: string, id: number): Promise<void>;
   /** Counts one use of a paid order; false when it was used up. */
   useCatalogCoupon(appId: string, id: number): Promise<boolean>;
+  /** 131 Changes a coupon's terms; false when another of the shop's coupons has the new code. */
+  updateCatalogCoupon(appId: string, id: number, patch: Partial<Omit<CatalogCoupon, "id" | "appId" | "usedCount" | "createdAt">>): Promise<boolean>;
+  // 131 The flower shop: flash sales, and the deliveries asked for in the app.
+  /** Newest first. */
+  listFlashSales(appId: string): Promise<StoreFlashSale[]>;
+  getFlashSale(appId: string, id: number): Promise<StoreFlashSale | null>;
+  createFlashSale(input: Omit<StoreFlashSale, "id" | "sold">): Promise<StoreFlashSale>;
+  updateFlashSale(appId: string, id: number, patch: Partial<Omit<StoreFlashSale, "id" | "appId" | "createdAt">>): Promise<void>;
+  deleteFlashSale(appId: string, id: number): Promise<void>;
+  /** Adds units sold at the sale's price (a paid order), in one statement. */
+  addFlashSaleSold(appId: string, id: number, units: number): Promise<void>;
+  /**
+   * The shop's own orders for a delivery day, by slot ("" for those without
+   * one): paid, waiting for a bank transfer or the owner's own method, or
+   * still being paid when made after `pendingSince`.
+   */
+  countCatalogDeliveries(appId: string, date: string, pendingSince: Date): Promise<Record<string, number>>;
+  createStoreDelivery(input: Omit<StoreDelivery, "id">): Promise<StoreDelivery>;
+  /** The checkouts started in the app for a delivery day, by slot ("" for those without one). */
+  countStoreDeliveries(appId: string, date: string): Promise<Record<string, number>>;
+  /** Newest first. */
+  listStoreDeliveries(appId: string, limit: number): Promise<StoreDelivery[]>;
+  /** Deletes those made before `before` (kept 60 days); how many. */
+  deleteStoreDeliveriesBefore(before: Date): Promise<number>;
+  /** 131 The store's card message occasions, in their order. */
+  listGiftOccasions(appId: string): Promise<GiftOccasion[]>;
+  createGiftOccasion(input: Omit<GiftOccasion, "id">): Promise<GiftOccasion>;
+  updateGiftOccasion(appId: string, id: number, patch: Partial<Omit<GiftOccasion, "id" | "appId" | "createdAt">>): Promise<void>;
+  deleteGiftOccasion(appId: string, id: number): Promise<void>;
   createCatalogOrder(input: Omit<CatalogOrder, "id">): Promise<CatalogOrder>;
   getCatalogOrder(appId: string, id: number): Promise<CatalogOrder | null>;
   getCatalogOrderByToken(tokenHash: string): Promise<CatalogOrder | null>;

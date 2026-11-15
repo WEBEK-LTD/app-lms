@@ -1,3 +1,5 @@
+import 'addon_models.dart';
+import 'commerce_models.dart';
 import 'config_models.dart';
 import 'json.dart';
 import 'restaurant_models.dart';
@@ -14,6 +16,9 @@ class StoreConfig {
     this.fulfilment,
     this.returns,
     this.loyalty,
+    this.giftCheckout = false,
+    this.shipping,
+    this.titles = const SectionTitles(),
   });
 
   factory StoreConfig.fromJson(Json json) => StoreConfig(
@@ -34,7 +39,21 @@ class StoreConfig {
     fulfilment: optObject(json, 'fulfilment', FulfilmentConfig.fromJson),
     returns: optObject(json, 'returns', ReturnRules.fromJson),
     loyalty: optObject(json, 'loyalty', LoyaltyRules.fromJson),
+    giftCheckout: json['checkout_mode'] == 'gift',
+    shipping: StoreShippingRules.tryParse(json['shipping']),
+    titles: SectionTitles.fromStore(json['titles']),
   );
+
+  /// 131 The owner's titles of the add-ons, the card and the delivery
+  /// picker; a missing language: the app's words.
+  final SectionTitles titles;
+
+  /// 131 The gift checkout: the sender, the recipient and the address, the
+  /// day and the slot (both required) and the card.
+  final bool giftCheckout;
+
+  /// 131 Where the shop delivers; null: anywhere, as before.
+  final StoreShippingRules? shipping;
 
   final String currency;
   final bool guestCheckout;
@@ -176,6 +195,9 @@ class DeliveryDateRules {
     required this.minDays,
     required this.maxDays,
     this.closedWeekdays = const [],
+    this.timezone,
+    this.sameDayCutoff,
+    this.slots = const [],
   });
 
   factory DeliveryDateRules.fromJson(Json json) => DeliveryDateRules(
@@ -187,7 +209,38 @@ class DeliveryDateRules {
       for (final day in (json['closed_weekdays'] as List? ?? const []))
         if (day is num) day.toInt(),
     ],
+    timezone: optString(json, 'timezone'),
+    sameDayCutoff: optString(json, 'same_day_cutoff'),
+    slots: listOf(json, 'slots', DeliverySlot.fromJson),
   );
+
+  /// 131 The shop's time zone (the days and the cut-off count in it).
+  final String? timezone;
+
+  /// 131 "14:00": orders for today until then; null: all day.
+  final String? sameDayCutoff;
+
+  /// 131 The delivery times, chosen with the day.
+  final List<DeliverySlot> slots;
+
+  /// 131 The cut-off in minutes past midnight, or null.
+  int? get cutoffMinutes {
+    final c = sameDayCutoff;
+    if (c == null) return null;
+    final parts = c.split(':');
+    if (parts.length != 2) return null;
+    final h = int.tryParse(parts[0]);
+    final m = int.tryParse(parts[1]);
+    return h == null || m == null ? null : h * 60 + m;
+  }
+
+  /// 131 Whether today can be chosen at [shopNow] (the shop's local time):
+  /// open today, and before the cut-off.
+  bool todayOpen(DateTime shopNow) {
+    if (!allows(shopNow, shopNow)) return false;
+    final cutoff = cutoffMinutes;
+    return cutoff == null || shopNow.hour * 60 + shopNow.minute < cutoff;
+  }
 
   final bool enabled;
   final bool required;
@@ -220,15 +273,33 @@ class DeliveryDateRules {
 }
 
 class GiftMessageRules {
-  const GiftMessageRules({required this.enabled, required this.maxLength});
+  const GiftMessageRules({
+    required this.enabled,
+    required this.maxLength,
+    this.starters = const [],
+    this.recipient = false,
+    this.anonymous = false,
+  });
 
   factory GiftMessageRules.fromJson(Json json) => GiftMessageRules(
     enabled: reqBool(json, 'enabled'),
     maxLength: intOr(json, 'max_length', 200),
+    starters: stringList(json, 'starters'),
+    recipient: boolOr(json, 'recipient', false),
+    anonymous: boolOr(json, 'anonymous', false),
   );
 
   final bool enabled;
   final int maxLength;
+
+  /// 131 Beginnings the owner wrote, which fill the card when tapped.
+  final List<String> starters;
+
+  /// 131 The recipient's name and phone can be given.
+  final bool recipient;
+
+  /// 131 "Send anonymously" is offered.
+  final bool anonymous;
 }
 
 class ProductCategory {
@@ -301,6 +372,8 @@ class ProductSummary {
     this.imageUrl,
     this.rating,
     this.ratingCount = 0,
+    this.sale,
+    this.addon = false,
   });
 
   factory ProductSummary.fromJson(Json json) => ProductSummary(
@@ -318,7 +391,16 @@ class ProductSummary {
     ),
     purchasable: reqBool(json, 'purchasable'),
     digital: boolOr(json, 'digital', false),
+    sale: ProductSale.tryParse(json['sale']),
+    addon: boolOr(json, 'addon', false),
   );
+
+  /// 131 A gift add-on: offered with other products, never bought alone.
+  final bool addon;
+
+  /// 131 Its sale (a flash sale's, or the shop's own sale price); null when
+  /// it isn't on sale.
+  final ProductSale? sale;
 
   final int id;
   final String name;
@@ -446,6 +528,8 @@ class ProductDetail {
     this.maxQuantity,
     this.externalUrl,
     this.optionGroups = const [],
+    this.defaultAttributes = const {},
+    this.addons = const [],
   });
 
   factory ProductDetail.fromJson(Json json) => ProductDetail(
@@ -462,7 +546,17 @@ class ProductDetail {
     externalUrl: optString(json, 'external_url'),
     permalink: reqString(json, 'permalink'),
     optionGroups: listOf(json, 'option_groups', OptionGroup.fromJson),
+    defaultAttributes: {
+      if (json['default_attributes'] case final Map d)
+        for (final e in d.entries)
+          if (e.value is String && (e.value as String).isNotEmpty)
+            '${e.key}': e.value as String,
+    },
+    addons: listOf(json, 'addons', ProductSummary.fromJson),
   );
+
+  /// 131 "Add a little more": the gift add-ons offered with it.
+  final List<ProductSummary> addons;
 
   final ProductSummary summary;
   final String descriptionHtml;
@@ -479,6 +573,10 @@ class ProductDetail {
 
   /// 26 Choices made before adding it to the cart (a dish's size or extras).
   final List<OptionGroup> optionGroups;
+
+  /// 131 The variation chosen when the page opens, as its attributes'
+  /// values by slug (`default_attributes`); empty: none.
+  final Map<String, String> defaultAttributes;
 
   int get id => summary.id;
   String get name => summary.name;
@@ -554,6 +652,7 @@ class CartLineInput {
     this.variationId,
     this.attributes = const {},
     this.options = const [],
+    this.addonOf,
   });
 
   final int productId;
@@ -564,12 +663,16 @@ class CartLineInput {
   /// 26 The IDs of the chosen options.
   final List<String> options;
 
+  /// 131 A gift add-on's line: the product of the line it goes with.
+  final int? addonOf;
+
   Json toJson() => {
     'product_id': productId,
     if (variationId != null) 'variation_id': variationId,
     'quantity': quantity,
     if (attributes.isNotEmpty) 'attributes': attributes,
     if (options.isNotEmpty) 'options': options,
+    if (addonOf != null) 'addon_of': addonOf,
   };
 }
 
@@ -590,6 +693,10 @@ class CartQuote {
     this.points,
     this.taxIncluded,
     this.taxLabel,
+    this.deliveryFee,
+    this.deliveryZone,
+    this.breakdown = const [],
+    this.deliveryProblem,
   });
 
   factory CartQuote.fromJson(Json json) => CartQuote(
@@ -607,7 +714,31 @@ class CartQuote {
     points: optObject(json, 'points', CartPoints.fromJson),
     taxIncluded: optString(json, 'tax_included'),
     taxLabel: optString(json, 'tax_label'),
+    deliveryFee: optString(json, 'delivery_fee'),
+    deliveryZone: optString(json, 'delivery_zone'),
+    breakdown: [
+      for (final line in (json['shipping_breakdown'] as List? ?? const []))
+        if (line is Map &&
+            line['label'] is String &&
+            line['formatted'] is String)
+          (label: line['label'] as String, amount: line['formatted'] as String),
+    ],
+    deliveryProblem: json['delivery_problem'] is Map
+        ? optString(asJson(json['delivery_problem']), 'message')
+        : null,
   );
+
+  /// 131 The chosen slot's fee, formatted (in [shipping]).
+  final String? deliveryFee;
+
+  /// 131 Where it goes as shipping priced it ("Istanbul · 4.2 km").
+  final String? deliveryZone;
+
+  /// 131 What made up [shipping].
+  final List<({String label, String amount})> breakdown;
+
+  /// 131 Why the delivery chosen so far doesn't work, for the customer.
+  final String? deliveryProblem;
 
   final List<CartQuoteLine> lines;
   final int itemCount;
@@ -677,6 +808,8 @@ class CartQuoteLine {
     this.maxQuantity,
     this.digital = false,
     this.options = const [],
+    this.addon = false,
+    this.addonOf,
   });
 
   factory CartQuoteLine.fromJson(Json json) => CartQuoteLine(
@@ -692,7 +825,13 @@ class CartQuoteLine {
     maxQuantity: optInt(json, 'max_quantity'),
     digital: boolOr(json, 'digital', false),
     options: listOf(json, 'options', CartLineOption.fromJson),
+    addon: boolOr(json, 'addon', false),
+    addonOf: optInt(json, 'addon_of'),
   );
+
+  /// 131 A gift add-on's line, and the product of the line it goes with.
+  final bool addon;
+  final int? addonOf;
 
   final int productId;
   final int? variationId;

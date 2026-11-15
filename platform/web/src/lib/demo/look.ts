@@ -4,7 +4,7 @@ import { BUILT_IN_APP_DEFAULTS, defaultLayout } from "../pages/defaults";
 import { picture, type Design } from "../pages/designs/build";
 import type { ItemSource, LayoutBlock } from "../pages/types";
 import { DEMO_BRANDS } from "./content";
-import { ALL_DEMO_TYPES, demoKind, isStudioDemo, PREMIUM_ACADEMY_DEMO, type DemoId, type StudioDemoId } from "./constants";
+import { ALL_DEMO_TYPES, demoKind, FLOWER_SHOP_DEMO, isStudioDemo, PREMIUM_ACADEMY_DEMO, type DemoId, type StudioDemoId } from "./constants";
 import { DEMO_BANNER_ART } from "./design-art";
 import { appWords } from "../studio/app-words";
 import type { SectionContext } from "../studio/sections";
@@ -79,8 +79,8 @@ export function demoDesign(id: DemoId): Design {
   };
 }
 
-/** 123 The demos with a design of pages: all but the premium academy, whose design is its Studio template (`academy_premium`), never a page design an academy's owner would take. */
-export const DEMO_DESIGN_TYPES: readonly DemoId[] = ALL_DEMO_TYPES.filter((id) => id !== PREMIUM_ACADEMY_DEMO);
+/** 123 The demos with a design of pages: all but the premium academy, whose design is its Studio template (`academy_premium`), never a page design an academy's owner would take; 131.20 nor Leqaa (its looks are a store's templates). */
+export const DEMO_DESIGN_TYPES: readonly DemoId[] = ALL_DEMO_TYPES.filter((id) => id !== PREMIUM_ACADEMY_DEMO && id !== FLOWER_SHOP_DEMO);
 
 /** Every demo's design, in the demos' order. */
 export const DEMO_DESIGNS: readonly Design[] = DEMO_DESIGN_TYPES.map(demoDesign);

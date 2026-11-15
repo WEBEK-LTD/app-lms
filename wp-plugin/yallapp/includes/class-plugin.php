@@ -94,6 +94,8 @@ class Plugin {
 		( new App_Links( $this->license(), new Link_Paths( $this ) ) )->register();
 		$this->layout_client()->register();
 		$this->store_checkout()->register();
+		// 131 Delivery slots, the gift checkout, card messages, flash sales and coupons shown in the app.
+		$this->store_extras()->register();
 		// 91.2 Order updates in the app (WooCommerce).
 		( new Commerce\Order_Updates( $this ) )->register();
 		( new Commerce\Order_Returns( $this ) )->register();
@@ -492,7 +494,26 @@ class Plugin {
 		return $this->service(
 			'store_checkout',
 			function () {
-				return new Store\Checkout( $this->settings() );
+				return new Store\Checkout( $this->settings(), $this->store_extras() );
+			}
+		);
+	}
+
+	/**
+	 * 131 The flower shop's extras of a WooCommerce store.
+	 *
+	 * @return Store\Store_Extras
+	 */
+	public function store_extras() {
+		return $this->service(
+			'store_extras',
+			function () {
+				return new Store\Store_Extras(
+					$this->settings(),
+					function () {
+						return $this->license()->status();
+					}
+				);
 			}
 		);
 	}

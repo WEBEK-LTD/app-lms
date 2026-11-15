@@ -5,6 +5,7 @@ import type { AnalyticsDailyRecord, AnalyticsDailyRow, AnalyticsEventRow, Analyt
 import type { AppAuthKey, AppLayoutRecord, AppLayoutVersion, AppLayoutVersionSummary, OwnFont, PendingPayment, SavedSection, StudioTemplate, StudioDesign, StoreProduct, StorePurchaseRecord, StorePurchaseEvent, StoreBillingItem, BillingSession } from "./types";
 import type { CampaignSend, HostedCart, HostedOrderWatch, NotificationCampaign, NotificationCampaignPatch, NotificationCampaignStatus } from "./types";
 import type { LoyaltyEntry, LoyaltyReason } from "./types";
+import type { GiftOccasion, StoreDelivery, StoreFlashSale } from "./types";
 import type {
   AppPatch,
   BuildPatch,
@@ -1129,6 +1130,114 @@ export class MemoryStore implements DataStore {
     if (!found || (found.maxUses !== null && found.usedCount >= found.maxUses)) return false;
     found.usedCount += 1;
     return true;
+  }
+
+  async updateCatalogCoupon(appId: string, id: number, patch: Partial<Omit<CatalogCoupon, "id" | "appId" | "usedCount" | "createdAt">>): Promise<boolean> {
+    const found = this.catalogCoupons.find((c) => c.appId === appId && c.id === id);
+    if (!found) return true;
+    if (patch.code !== undefined && this.catalogCoupons.some((c) => c.appId === appId && c.id !== id && c.code === patch.code)) return false;
+    Object.assign(found, clone(patch));
+    return true;
+  }
+
+  // 131 The flower shop
+
+  private flashSales: StoreFlashSale[] = [];
+  private storeDeliveries: StoreDelivery[] = [];
+
+  async listFlashSales(appId: string): Promise<StoreFlashSale[]> {
+    return this.flashSales.filter((f) => f.appId === appId).map(clone).sort((a, b) => b.id - a.id);
+  }
+
+  async getFlashSale(appId: string, id: number): Promise<StoreFlashSale | null> {
+    const found = this.flashSales.find((f) => f.appId === appId && f.id === id);
+    return found ? clone(found) : null;
+  }
+
+  async createFlashSale(input: Omit<StoreFlashSale, "id" | "sold">): Promise<StoreFlashSale> {
+    const sale: StoreFlashSale = { ...clone(input), id: this.flashSales.length + 1, sold: 0 };
+    this.flashSales.push(sale);
+    return clone(sale);
+  }
+
+  async updateFlashSale(appId: string, id: number, patch: Partial<Omit<StoreFlashSale, "id" | "appId" | "createdAt">>): Promise<void> {
+    const found = this.flashSales.find((f) => f.appId === appId && f.id === id);
+    if (found) Object.assign(found, clone(patch));
+  }
+
+  async deleteFlashSale(appId: string, id: number): Promise<void> {
+    this.flashSales = this.flashSales.filter((f) => !(f.appId === appId && f.id === id));
+  }
+
+  async addFlashSaleSold(appId: string, id: number, units: number): Promise<void> {
+    const found = this.flashSales.find((f) => f.appId === appId && f.id === id);
+    if (found) found.sold += units;
+  }
+
+  async countCatalogDeliveries(appId: string, date: string, pendingSince: Date): Promise<Record<string, number>> {
+    const counts: Record<string, number> = {};
+    for (const o of this.catalogOrders.values()) {
+      if (o.appId !== appId || o.deliveryDate !== date) continue;
+      const counted =
+        o.status === "processing" || o.status === "completed" || (o.status === "pending" && (Boolean(o.manualPayment) || o.createdAt.getTime() > pendingSince.getTime()));
+      if (!counted) continue;
+      const slot = o.delivery?.slot?.id ?? "";
+      counts[slot] = (counts[slot] ?? 0) + 1;
+    }
+    return counts;
+  }
+
+  async createStoreDelivery(input: Omit<StoreDelivery, "id">): Promise<StoreDelivery> {
+    const row: StoreDelivery = { ...clone(input), id: this.storeDeliveries.length + 1 };
+    this.storeDeliveries.push(row);
+    return clone(row);
+  }
+
+  async countStoreDeliveries(appId: string, date: string): Promise<Record<string, number>> {
+    const counts: Record<string, number> = {};
+    for (const d of this.storeDeliveries) {
+      if (d.appId !== appId || d.delivery.date !== date) continue;
+      const slot = d.delivery.slot?.id ?? "";
+      counts[slot] = (counts[slot] ?? 0) + 1;
+    }
+    return counts;
+  }
+
+  async listStoreDeliveries(appId: string, limit: number): Promise<StoreDelivery[]> {
+    return this.storeDeliveries
+      .filter((d) => d.appId === appId)
+      .sort((a, b) => b.createdAt.getTime() - a.createdAt.getTime() || b.id - a.id)
+      .slice(0, limit)
+      .map(clone);
+  }
+
+  async deleteStoreDeliveriesBefore(before: Date): Promise<number> {
+    const kept = this.storeDeliveries.filter((d) => d.createdAt.getTime() >= before.getTime());
+    const removed = this.storeDeliveries.length - kept.length;
+    this.storeDeliveries = kept;
+    return removed;
+  }
+
+  private giftOccasions: GiftOccasion[] = [];
+  private nextGiftOccasionId = 1;
+
+  async listGiftOccasions(appId: string): Promise<GiftOccasion[]> {
+    return this.giftOccasions.filter((o) => o.appId === appId).map(clone).sort((a, b) => a.position - b.position || a.id - b.id);
+  }
+
+  async createGiftOccasion(input: Omit<GiftOccasion, "id">): Promise<GiftOccasion> {
+    const row: GiftOccasion = { ...clone(input), id: this.nextGiftOccasionId++ };
+    this.giftOccasions.push(row);
+    return clone(row);
+  }
+
+  async updateGiftOccasion(appId: string, id: number, patch: Partial<Omit<GiftOccasion, "id" | "appId" | "createdAt">>): Promise<void> {
+    const found = this.giftOccasions.find((o) => o.appId === appId && o.id === id);
+    if (found) Object.assign(found, clone(patch));
+  }
+
+  async deleteGiftOccasion(appId: string, id: number): Promise<void> {
+    this.giftOccasions = this.giftOccasions.filter((o) => !(o.appId === appId && o.id === id));
   }
 
   async createCatalogOrder(input: Omit<CatalogOrder, "id">): Promise<CatalogOrder> {

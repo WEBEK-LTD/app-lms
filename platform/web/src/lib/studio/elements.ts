@@ -21,7 +21,7 @@ export interface ElementInfo {
   /** Words people search for, besides its name, in English. */
   keywords: string;
   /** 115.14 Offered only in projects of this kind (a marketplace's sections). */
-  only?: "marketplace" | "academy" | "orders" | "trips" | "school";
+  only?: "marketplace" | "academy" | "orders" | "trips" | "school" | "store";
   /**
    * 129 A premium look of an existing element offered as its own entry (a hero slider, a card carousel: the slider's
    * looks; a glass card: a column with a card style). Named `studio.el_<preset>`.
@@ -87,6 +87,8 @@ export const ELEMENTS: readonly ElementInfo[] = [
   { type: "badge_text", group: "premium", icon: "new_releases", keywords: "badge chip pill tag label gradient text heading" },
   { type: "cta_bar", group: "premium", icon: "call_to_action", keywords: "call to action sticky bottom bar button floating action button fab price" },
   // ——— end 129.11–129.20 ———
+  // 131 A flash sale from the shop's own: was and now prices, the share off, a live countdown and a stock bar.
+  { type: "flash_sale", group: "premium", icon: "bolt", keywords: "flash sale offer deal discount countdown timer price was now percent off stock left limited", only: "store" },
 ];
 
 export function elementInfo(type: StudioNodeType): ElementInfo {
@@ -103,7 +105,7 @@ export function newNodeId(): string {
  * dropped. `source` is the app's main list for `items` and `categories`;
  * `brand` the app's main colour.
  */
-export type NewText = "text" | "button" | "search" | "ratings" | "field" | "question" | "answer" | "tab" | "ended" | "bullets";
+export type NewText = "text" | "button" | "search" | "ratings" | "field" | "question" | "answer" | "tab" | "ended" | "bullets" | "flash";
 
 export function newNode(
   type: StudioNodeType,
@@ -200,6 +202,9 @@ export function newNode(
       return { id, type, text: options.text("bullets"), icon: "check_circle", icon_size: 20, gap: 8, padding: { top: 8, end: 16, bottom: 8, start: 16 } };
     case "coupon":
       return { id, type, code: "SAVE10", radius: 10, color: options.brand, margin: { top: 8, end: 16, bottom: 8, start: 16 } };
+    // 131 The flash sale ending soonest, as a banner with its countdown and stock bar.
+    case "flash_sale":
+      return { id, type, text: options.text("flash"), flash_sale: { look: "banner" }, radius: 22, margin: { top: 10, end: 16, bottom: 10, start: 16 } };
     case "market":
       return { id, type, market: { section: "vendors" }, margin: { top: 8, end: 0, bottom: 8, start: 0 } };
     case "live_status":

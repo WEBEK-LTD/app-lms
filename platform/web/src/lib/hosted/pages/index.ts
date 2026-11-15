@@ -101,10 +101,70 @@ async function servedStudio(pc: PageContext, studio: StudioPage): Promise<Studio
       const list = (await resolveBlock(pc, { id: node.id, type: "categories", visibility: "everyone", title: null, source: node.source })) as { categories?: unknown[] } | null;
       return list?.categories ? ({ ...shown, categories: list.categories } as StudioNode) : null;
     }
+    // 131 A flash sale with its sale and products; a coupon bound to the shop's coupons with the one it shows; else left out.
+    if (node.type === "flash_sale") return servedFlashSale(pc, shown as StudioNode);
+    if (node.type === "coupon" && node.coupon?.bind === "public") return servedCoupon(pc, shown as StudioNode);
     return shown as StudioNode;
   });
   const header = studio.header ? (({ translations: _h, ...rest }) => (void _h, rest))(translated(studio.header, pc.lang, def)) : studio.header;
   return { ...studio, ...(header !== undefined ? { header } : {}), body: body ?? studio.body };
+}
+
+/** 131 A store route of the app's connector (`GET /store/flash-sales`, `/store/products`, `/store/coupons`), or null. */
+async function storeRead(pc: PageContext, path: string[], query: Record<string, string>): Promise<Record<string, unknown> | null> {
+  const connector = pc.ctx.connector;
+  if (!connector) return null;
+  try {
+    const result = await connector.handle({ method: "GET", path, query: new URLSearchParams({ platform: pc.platform, ...query }), body: null, user: pc.user, now: pc.ctx.now, lang: pc.lang });
+    return result?.status === 200 && result.body && typeof result.body === "object" ? (result.body as Record<string, unknown>) : null;
+  } catch (e) {
+    if (e instanceof ConnectorError) return null;
+    throw e;
+  }
+}
+
+/**
+ * 131 A flash sale element as the app gets it: the sale it shows (`flash`)
+ * and its products (`items`, each with its `sale`); the one it names, else
+ * the one ending soonest, else the products on sale now without a sale's
+ * end; left out when nothing is on sale.
+ */
+async function servedFlashSale(pc: PageContext, node: StudioNode): Promise<StudioNode | null> {
+  const limit = node.flash_sale?.limit ?? 6;
+  const sales = ((await storeRead(pc, ["store", "flash-sales"], {}))?.items as Record<string, unknown>[] | undefined) ?? [];
+  const live = sales.filter((s) => s.live === true);
+  const sale = (node.flash_sale?.sale_id ? live.find((s) => s.id === node.flash_sale?.sale_id) : null) ?? live[0];
+  if (sale) {
+    const items = ((sale.products as Record<string, unknown>[]) ?? []).map((p) => productItem(p, pc.lang)).filter((x): x is Item => x !== null).slice(0, limit);
+    if (!items.length) return null;
+    return {
+      ...node,
+      flash: {
+        id: sale.id as number,
+        title: (sale.title as string) ?? null,
+        starts_at: (sale.starts_at as string) ?? null,
+        ends_at: (sale.ends_at as string) ?? null,
+        percent_off: (sale.percent_off as number | null) ?? null,
+        remaining: (sale.remaining as number | null) ?? null,
+        total: (sale.total as number | null) ?? null,
+      },
+      items,
+    } as StudioNode;
+  }
+  if (node.flash_sale?.sale_id) return null;
+  // The source's own products on sale (their compare-at price): the soonest end any of them has.
+  const onSale = (((await storeRead(pc, ["store", "products"], { on_sale: "true", per_page: String(limit) }))?.items as Record<string, unknown>[] | undefined) ?? []).filter((p) => p.sale);
+  if (!onSale.length) return null;
+  const ends = onSale.map((p) => (p.sale as { ends_at?: string | null }).ends_at).filter((e): e is string => typeof e === "string").sort()[0] ?? null;
+  const items = onSale.map((p) => productItem(p, pc.lang)).filter((x): x is Item => x !== null);
+  return { ...node, flash: { id: null, title: null, starts_at: null, ends_at: ends, percent_off: null, remaining: null, total: null }, items } as StudioNode;
+}
+
+/** 131 A coupon element bound to the shop's coupons: the one with its code, else the first shown in the app; left out without one. */
+async function servedCoupon(pc: PageContext, node: StudioNode): Promise<StudioNode | null> {
+  const coupons = ((await storeRead(pc, ["store", "coupons"], {}))?.items as { code: string }[] | undefined) ?? [];
+  const offer = node.code ? coupons.find((c) => c.code.toUpperCase() === node.code!.toUpperCase()) : coupons[0];
+  return offer ? ({ ...node, code: offer.code, coupon_offer: offer } as StudioNode) : null;
 }
 
 /**
@@ -318,6 +378,8 @@ function productItem(product: Record<string, unknown>, lang: LanguageCode): Item
     image_url: str(product.image_url),
     price_label: str(price.formatted),
     badge: product.stock_status === "out_of_stock" ? itemWords(lang).outOfStock : price.on_sale ? itemWords(lang).sale : null,
+    // 131 Its sale, for the cards' sale badge, the `sale` and `was_price` elements and the flash sale.
+    ...(product.sale && typeof product.sale === "object" ? { sale: product.sale as Record<string, unknown> } : {}),
     action: { type: "item", item: { source: "products", id: String(id) } },
   };
 }

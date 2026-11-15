@@ -721,7 +721,20 @@ abstract class YallappApi {
     List<CartLineInput> lines, {
     String? coupon,
     bool usePoints = false,
+    String? deliveryDate,
+    String? deliverySlot,
+    GiftPerson? recipient,
   });
+
+  /// 131 A day's delivery times, and which can still be chosen.
+  Future<DeliverySlots> getDeliverySlots(String date);
+
+  /// 131 The card messages by occasion, in the app's language.
+  Future<List<GiftOccasion>> getGiftMessages();
+
+  /// 131 The gift add-ons offered with [productId] ("Add a little more");
+  /// without one, those offered with every product.
+  Future<List<ProductSummary>> getAddons({int? productId});
 
   /// 91.4 The customer's loyalty points and their latest changes.
   Future<PointsAccount> getMyPoints();
@@ -738,6 +751,10 @@ abstract class YallappApi {
     DateTime? scheduledFor,
     String? coupon,
     bool usePoints = false,
+    String? deliverySlot,
+    GiftPerson? sender,
+    GiftPerson? recipient,
+    bool giftAnonymous = false,
   });
 
   /// 26 Whether a restaurant's kitchen is open and when an order can be for.
@@ -2531,6 +2548,9 @@ class HttpYallappApi implements YallappApi {
     List<CartLineInput> lines, {
     String? coupon,
     bool usePoints = false,
+    String? deliveryDate,
+    String? deliverySlot,
+    GiftPerson? recipient,
   }) => _send(
     'POST',
     '/store/cart',
@@ -2538,6 +2558,10 @@ class HttpYallappApi implements YallappApi {
     (data) => CartQuote.fromJson(asJson(data)),
     body: {
       'lines': [for (final l in lines) l.toJson()],
+      // 131 The day, the slot and where it goes, once chosen: priced here.
+      'delivery_date': ?deliveryDate,
+      'delivery_slot': ?deliverySlot,
+      if (recipient != null) 'recipient': recipient.toRecipient(),
       'coupon': ?coupon,
       if (usePoints) 'use_points': true,
     },
@@ -2558,6 +2582,10 @@ class HttpYallappApi implements YallappApi {
     DateTime? scheduledFor,
     String? coupon,
     bool usePoints = false,
+    String? deliverySlot,
+    GiftPerson? sender,
+    GiftPerson? recipient,
+    bool giftAnonymous = false,
   }) => preview
       ? _noCheckoutInPreview()
       : _send(
@@ -2578,9 +2606,37 @@ class HttpYallappApi implements YallappApi {
               'scheduled_for': scheduledFor.toUtc().toIso8601String(),
             'coupon': ?coupon,
             if (usePoints) 'use_points': true,
+            // 131 The slot, the people and "send anonymously".
+            'delivery_slot': ?deliverySlot,
+            if (sender != null) 'sender': sender.toSender(),
+            if (recipient != null) 'recipient': recipient.toRecipient(),
+            if (giftAnonymous) 'gift_anonymous': true,
           },
           query: {'platform': platform.name},
         );
+
+  @override
+  Future<DeliverySlots> getDeliverySlots(String date) => _get(
+    '/store/delivery-slots',
+    _public,
+    DeliverySlots.fromJson,
+    query: {'date': date},
+  );
+
+  @override
+  Future<List<GiftOccasion>> getGiftMessages() => _get(
+    '/store/gift-messages',
+    _public,
+    (json) => listOf(json, 'occasions', GiftOccasion.fromJson),
+  );
+
+  @override
+  Future<List<ProductSummary>> getAddons({int? productId}) => _get(
+    '/store/addons',
+    _public,
+    (json) => listOf(json, 'items', ProductSummary.fromJson),
+    query: {'product_id': ?productId},
+  );
 
   @override
   Future<OrderTimes> getOrderTimes() =>

@@ -18,6 +18,8 @@ export interface CartLineInput {
   quantity: number;
   /** 26 The IDs of the chosen options of the product's option groups (empty for none). */
   options?: string[];
+  /** 131 A gift add-on: the product of the line it goes with. */
+  addon_of?: number;
 }
 
 /**
@@ -55,7 +57,10 @@ export function cartLines(body: unknown): CartLineInput[] | null {
     if (!Number.isInteger(quantity) || quantity < 1 || quantity > 9999) return null;
     const options = lineOptionIds(line?.options);
     if (options === null) return null;
-    out.push({ product_id: productId, variation_id: variationId, quantity, ...(options.length > 0 ? { options } : {}) });
+    // 131 The line a gift add-on goes with (an older app sends none).
+    const addonOf = Number(line?.addon_of);
+    const linked = Number.isSafeInteger(addonOf) && addonOf > 0 ? { addon_of: addonOf } : {};
+    out.push({ product_id: productId, variation_id: variationId, quantity, ...(options.length > 0 ? { options } : {}), ...linked });
   }
   return out;
 }

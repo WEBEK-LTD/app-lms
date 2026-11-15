@@ -2,7 +2,7 @@ import type { DataStore } from "../data/store";
 import type { App, AppLayoutRecord } from "../data/types";
 import { DEFAULT_HOSTED_SETTINGS } from "../data/types";
 import { appUrl } from "../env";
-import { withLook } from "../fonts/look";
+import { withLook, withProjectLook } from "../fonts/look";
 import { defaultLayout } from "../pages/defaults";
 import { appDefaults, loadLayout, saveDraft, type DesignMode } from "../pages/layout";
 import { itemSourcesFor } from "../pages/sources";
@@ -117,7 +117,7 @@ export async function applyProjectTemplate(
   const look = options.look ?? {};
   if (options.mode === "look") {
     const record = await loadLayout(store, app, now);
-    return saveDraft(store, app, { ...record.draft, appearance: withLook(withLook(record.draft.appearance, project.appearance), look) }, now);
+    return saveDraft(store, app, { ...record.draft, appearance: withLook(withProjectLook(record.draft.appearance, project.appearance), look) }, now);
   }
   const saved = await saveDraft(store, app, await projectTemplateLayout(store, app, template, now, words, look), now);
   if (!saved.ok) return saved;

@@ -67,6 +67,18 @@ export function servedAppearance(look: Appearance, base: string, own: readonly P
   return { ...stored, ...(files.length ? { font_files: files } : {}), ...(arabic.length ? { arabic_font_files: arabic } : {}) };
 }
 
+/**
+ * 131.29 A template's look over `base`: as [withLook], the night colours of
+ * the template the app had before never staying (a template sets its own,
+ * or none: the app's own dark ones).
+ */
+export function withProjectLook<T extends Pick<Appearance, "font" | "font_family" | "dark_background" | "dark_surface">>(base: T, look: Partial<Appearance>): T {
+  const { dark_background: _night, dark_surface: _surface, ...rest } = base;
+  void _night;
+  void _surface;
+  return withLook(rest as T, look);
+}
+
 /** `look` over `base`: a new `font` without a `font_family` replaces the base's free font too. */
 export function withLook<T extends Pick<Appearance, "font" | "font_family">>(base: T, look: Partial<Appearance>): T {
   const { font_family: _drop, ...rest } = base;

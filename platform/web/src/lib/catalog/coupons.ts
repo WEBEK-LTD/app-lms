@@ -23,6 +23,8 @@ export type CouponCheck = { ok: true; discountCents: number } | { ok: false; mes
 /** What a coupon takes off a subtotal now, or why it doesn't apply. Never more than the subtotal. */
 export function couponDiscount(coupon: CatalogCoupon | null, subtotalCents: number, currency: CatalogCurrency, now: Date): CouponCheck {
   if (!coupon || !coupon.active) return { ok: false, message: "This coupon doesn't exist." };
+  // 131 A coupon valid from a day on.
+  if (coupon.startsAt && coupon.startsAt.getTime() > now.getTime()) return { ok: false, message: "This coupon isn't valid yet." };
   if (coupon.endsAt && coupon.endsAt.getTime() <= now.getTime()) return { ok: false, message: "This coupon has expired." };
   if (coupon.maxUses !== null && coupon.usedCount >= coupon.maxUses) return { ok: false, message: "This coupon has been used up." };
   if (coupon.minOrderCents !== null && subtotalCents < coupon.minOrderCents) {
@@ -52,8 +54,8 @@ export function spreadDiscount(lineCents: number[], discountCents: number): numb
 
 type Parsed<T> = { ok: true; value: T } | { ok: false; errors: Record<string, string> };
 
-/** The dashboard's "Add a coupon" form. */
-export function parseCoupon(v: Record<string, string>, now: Date): Parsed<Omit<CatalogCoupon, "id" | "appId" | "usedCount" | "createdAt" | "active">> {
+/** The dashboard's "Add a coupon" form; 131 `editing` an existing one (its end may be today). */
+export function parseCoupon(v: Record<string, string>, now: Date, options: { editing?: boolean } = {}): Parsed<Omit<CatalogCoupon, "id" | "appId" | "usedCount" | "createdAt" | "active">> {
   const errors: Record<string, string> = {};
   const code = normalizeCouponCode(v.code ?? "");
   if (!code) errors.code = "Use 2 to 50 letters, digits or dashes, like SPRING10.";
@@ -74,11 +76,19 @@ export function parseCoupon(v: Record<string, string>, now: Date): Parsed<Omit<C
   let endsAt: Date | null = null;
   if (endsText !== "") {
     endsAt = /^\d{4}-\d{2}-\d{2}$/.test(endsText) ? new Date(`${endsText}T23:59:59Z`) : null;
-    if (!endsAt || Number.isNaN(endsAt.getTime()) || endsAt.getTime() <= now.getTime()) errors.endsOn = "Choose a day from today on, or leave it empty.";
+    if (!endsAt || Number.isNaN(endsAt.getTime()) || (!options.editing && endsAt.getTime() <= now.getTime())) errors.endsOn = "Choose a day from today on, or leave it empty.";
+  }
+  // 131 Valid from a day on (in UTC, as its end), and shown in the app.
+  const startsText = (v.startsOn ?? "").trim();
+  let startsAt: Date | null = null;
+  if (startsText !== "") {
+    startsAt = /^\d{4}-\d{2}-\d{2}$/.test(startsText) ? new Date(`${startsText}T00:00:00Z`) : null;
+    if (!startsAt || Number.isNaN(startsAt.getTime())) errors.startsOn = "Choose a day, or leave it empty.";
+    else if (endsAt && startsAt.getTime() > endsAt.getTime()) errors.startsOn = "It must start before it ends.";
   }
   const usesText = (v.maxUses ?? "").trim();
   const maxUses = usesText === "" ? null : Number(usesText);
   if (maxUses !== null && (!Number.isInteger(maxUses) || maxUses < 1 || maxUses > 1_000_000)) errors.maxUses = "Enter a number of uses, or leave it empty for no limit.";
   if (Object.keys(errors).length) return { ok: false, errors };
-  return { ok: true, value: { code: code!, kind, value, minOrderCents, endsAt, maxUses } };
+  return { ok: true, value: { code: code!, kind, value, minOrderCents, endsAt, maxUses, startsAt, public: v.public === "on" } };
 }

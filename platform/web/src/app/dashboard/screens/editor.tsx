@@ -42,6 +42,9 @@ import type { LaunchBrand } from "./launch-preview";
 import { LaunchSection, newLaunch } from "./launch-section";
 // 130.21 The system screens' premium look.
 import { SystemSection } from "./system-section";
+// 131.25 The store's checkout look.
+import { CheckoutSection } from "./checkout-section";
+import type { CheckoutLook } from "@/lib/studio/checkout-look";
 import type { SystemScreensLook } from "@/lib/studio/premium-chrome";
 // 130.52 Studio's course screens.
 import { CourseScreensSection } from "./course-screens-section";
@@ -132,6 +135,7 @@ export function ScreensEditor({
   courses = false,
   brand,
   sampleCourses,
+  store = false,
 }: {
   initial: StudioScreens | null;
   languages: { code: string; name: string }[];
@@ -144,6 +148,8 @@ export function ScreensEditor({
   brand?: LaunchBrand;
   /** 130.52 The courses the course screens' drawings show, by language (the project's, else the samples). */
   sampleCourses?: Record<string, PickableEntry[]>;
+  /** 131.25 A store: its checkout's look is chosen here too. */
+  store?: boolean;
 }) {
   const t = useDashT();
   const [state, action] = useActionState(saveStudioScreensAction, initialFormState);
@@ -167,6 +173,8 @@ export function ScreensEditor({
   const [system, setSystem] = useState<SystemScreensLook | null>(initial?.system ?? null);
   // 130.52 The course screens' look; null, as before.
   const [courseLook, setCourseLook] = useState<CourseScreens | null>(initial?.courses ?? null);
+  // 131.25 The checkout's look; null, as before.
+  const [checkout, setCheckout] = useState<CheckoutLook | null>(initial?.checkout ?? null);
 
   const screens: StudioScreens = useMemo(
     () => ({
@@ -186,8 +194,10 @@ export function ScreensEditor({
       ...(system ? { system } : {}),
       // 130.52
       ...(courses && courseLook ? { courses: courseLook } : {}),
+      // 131.25
+      ...(store && checkout ? { checkout } : {}),
     }),
-    [look, header, accent, entries, courses, card, coursePage, looks, launch, launchOwn, system, courseLook],
+    [look, header, accent, entries, courses, card, coursePage, looks, launch, launchOwn, system, courseLook, store, checkout],
   );
 
   const move = (index: number, by: number) =>
@@ -224,6 +234,9 @@ export function ScreensEditor({
 
         {/* 130.21 The system screens' premium look. */}
         <SystemSection value={system} onChange={setSystem} />
+
+        {/* 131.25 The store's checkout look. */}
+        {store ? <CheckoutSection value={checkout} onChange={setCheckout} brand={brand?.main ?? color} lang={previewLang} dark={previewDark} languages={languages} /> : null}
 
         <section aria-labelledby="h-sign-in-look" className="flex flex-col gap-4 rounded-2xl border border-line bg-white p-5 sm:p-6">
           <h2 id="h-sign-in-look" className="m-0 text-lg font-bold">

@@ -16,6 +16,13 @@ import { cartLines, error, intParam, type CartLineInput } from "./common";
 import type { Connector, ConnectorRequest, ConnectorResult } from "./types";
 import { signingSecret } from "../../env";
 import { orderReceiptUrl } from "../../receipts/links";
+// 131 The flower shop: delivery days, gifts, shipping by place and weight, flash sales and the coupons shown in the app.
+import type { StoreFlashSale } from "../../data/types";
+import { bestSale, unitsLeft, withSale } from "../../selling/flash-sales";
+import { orderDeliveryJson } from "../../selling/gifts";
+import { needsPlace, shippingRulesOf } from "../../selling/shipping";
+import { checkStoreCheckout, handleStoreExtras, quoteDeliveryJson, storeExtrasConfig } from "../../selling/store";
+import { ADDON_NEEDS_ITEM, checkAddonLines, offeredWith, ownAddonsFor } from "../../selling/addons";
 
 /**
  * The shop of an app without a website: products, categories and orders the
@@ -107,6 +114,10 @@ export class CatalogConnector implements Connector {
     return paymentsSetUp(this.deps.app) && this.deps.cardPayments !== false;
   }
 
+  /** 131 The shop's flash sales (loaded once a request), and the request's time they're on at. */
+  private flash: StoreFlashSale[] = [];
+  private now: Date = new Date();
+
   async config() {
     return {
       store: {
@@ -115,8 +126,8 @@ export class CatalogConnector implements Connector {
         guest_checkout: this.fulfilment === null,
         checkout_opens_in: "in_app",
         reviews: false,
-        delivery_date: { enabled: false, required: false, min_days: 0, max_days: 0, closed_weekdays: [] },
-        gift_message: { enabled: false, max_length: 200 },
+        // 131 The delivery day and slot, the gifts and the gift checkout, where it delivers (charged here).
+        ...storeExtrasConfig(this.deps.app, this.settings.currency, { fees: true }),
         ...(this.fulfilment ? { fulfilment: fulfilmentConfigJson(this.fulfilment, this.settings.currency) } : {}),
         // 91.3 Returns asked for in the app (never a restaurant's).
         returns: !this.fulfilment && returnDays(this.settings) !== null ? { enabled: true, days: returnDays(this.settings)! } : null,
@@ -129,6 +140,27 @@ export class CatalogConnector implements Connector {
 
   async handle(request: ConnectorRequest): Promise<ConnectorResult | null> {
     const route = `${request.method} /${request.path.join("/")}`;
+    // 131 The flash sales on now price the products below.
+    this.now = request.now;
+    if (request.path[0] === "store") this.flash = await this.deps.store.listFlashSales(this.deps.app.id);
+    const extra = await handleStoreExtras(
+      {
+        store: this.deps.store,
+        app: this.deps.app,
+        currency: this.settings.currency,
+        fees: true,
+        counts: (date) => this.deps.store.countCatalogDeliveries(this.deps.app.id, date, new Date(request.now.getTime() - PAY_LINK_MINUTES * 60_000)),
+        sales: this.flash,
+        products: async (ids, categoryId) => {
+          // 131 A flash sale's list never shows an add-on.
+          const all = await this.listed();
+          const list = ids.length ? ids.map((id) => all.find((p) => p.id === id)).filter((p): p is CatalogProduct => Boolean(p)) : all.filter((p) => categoryId !== null && p.categoryIds.includes(categoryId));
+          return list.map((p) => this.summary(p, request.now));
+        },
+      },
+      request,
+    );
+    if (extra) return extra;
     switch (route) {
       case "GET /store/home":
         return { status: 200, body: { sections: await this.home() } };
@@ -146,6 +178,8 @@ export class CatalogConnector implements Connector {
         return this.points(request);
       case "GET /store/order-times":
         return this.fulfilment ? { status: 200, body: orderTimesJson(this.fulfilment, request.now) } : error(404, "not_found", "Not found.");
+      case "GET /store/addons":
+        return this.addons(request.query);
     }
     if (request.method === "GET" && request.path.length === 3 && request.path[0] === "me" && request.path[1] === "orders") {
       return this.order(request, Number(request.path[2]));
@@ -156,7 +190,7 @@ export class CatalogConnector implements Connector {
     if (request.method === "GET" && request.path[0] === "store" && request.path[1] === "products" && request.path[2]) {
       const id = Number(request.path[2]);
       if (!Number.isSafeInteger(id) || id < 1) return error(404, "not_found", "Product not found.");
-      if (request.path.length === 3) return this.product(id);
+      if (request.path.length === 3) return this.product(id, request.now);
       if (request.path.length === 4 && request.path[3] === "reviews") {
         return error(403, "feature_disabled", "Reviews aren't available in this shop.");
       }
@@ -199,7 +233,20 @@ export class CatalogConnector implements Connector {
     };
   }
 
-  private summary(p: CatalogProduct) {
+  /** 131 The flash sale on now that prices a unit costing `regularCents` lowest, for `quantity` of them; null for none. */
+  private flashFor(p: CatalogProduct, regularCents: number, now: Date, quantity = 1) {
+    const best = bestSale(this.flash, { id: p.id, categoryIds: p.categoryIds }, regularCents, now);
+    if (!best) return null;
+    const left = unitsLeft(best.sale);
+    return left === null || left >= quantity ? best : null;
+  }
+
+  private summary(p: CatalogProduct, now: Date = this.now) {
+    // 131 With its sale: a flash sale on now over its price, else its own sale price.
+    return withSale(this.plainSummary(p), this.flash, now, p.categoryIds);
+  }
+
+  private plainSummary(p: CatalogProduct) {
     // 91.5 A product with variations is in stock while one of them is.
     const variable = variantsOf(p) !== null;
     const inStock = variable ? sellableVariants(p).length > 0 : p.stock === null || p.stock > 0;
@@ -214,6 +261,8 @@ export class CatalogConnector implements Connector {
       stock_status: inStock ? "in_stock" : "out_of_stock",
       purchasable: inStock && this.canSell,
       digital: p.digital,
+      // 131 A gift add-on: offered with other products, never on its own.
+      addon: Boolean(p.addon),
     };
   }
 
@@ -229,8 +278,25 @@ export class CatalogConnector implements Connector {
     return (await this.deps.store.listCatalogProducts(this.deps.app.id)).filter((p) => p.active);
   }
 
+  /** 131 What the app lists: the active products but the gift add-ons. */
+  private async listed(): Promise<CatalogProduct[]> {
+    return (await this.active()).filter((p) => !p.addon);
+  }
+
+  /** 131 `GET /store/addons?product_id=`: the add-ons offered with a product (without one: those offered with every product). */
+  private async addons(query: URLSearchParams): Promise<ConnectorResult> {
+    const raw = query.get("product_id");
+    const id = raw === null || raw === "" ? null : Number(raw);
+    if (id !== null && (!Number.isSafeInteger(id) || id < 1)) return error(400, "invalid_request", "Unknown product.");
+    const all = await this.active();
+    const main = id === null ? null : all.find((p) => p.id === id && !p.addon);
+    if (id !== null && !main) return error(404, "not_found", "Product not found.");
+    const list = main ? ownAddonsFor(all, main) : all.filter((p) => p.addon && (p.addonFor ?? { offerWith: "all" }).offerWith === "all").slice(0, 12);
+    return { status: 200, body: { items: list.map((p) => this.summary(p)) } };
+  }
+
   private async categories() {
-    const [categories, products] = await Promise.all([this.deps.store.listCatalogCategories(this.deps.app.id), this.active()]);
+    const [categories, products] = await Promise.all([this.deps.store.listCatalogCategories(this.deps.app.id), this.listed()]);
     return categories
       .map((c) => this.category(c, products.filter((p) => p.categoryIds.includes(c.id)).length, products))
       .filter((c) => c.count > 0);
@@ -256,7 +322,8 @@ export class CatalogConnector implements Connector {
   private async products(query: URLSearchParams): Promise<ConnectorResult> {
     const page = intParam(query, "page", 1, 10_000);
     const perPage = intParam(query, "per_page", 20, 50);
-    const all = await this.active();
+    // 131 Never a gift add-on, even asked for by its ID.
+    const all = await this.listed();
     const ids = (query.get("ids") ?? "")
       .split(",")
       .map((v) => Number(v.trim()))
@@ -277,7 +344,8 @@ export class CatalogConnector implements Connector {
         (p) =>
           (category === null || p.categoryIds.includes(category)) &&
           (!flag("featured") || p.featured) &&
-          (!flag("on_sale") || priceOf(p) < p.priceCents) &&
+          // 131 With the products of a flash sale on now.
+          (!flag("on_sale") || priceOf(p) < p.priceCents || this.flashFor(p, p.priceCents, this.now) !== null) &&
           (search === "" || `${p.name} ${p.description}`.toLocaleLowerCase("tr").includes(search)),
       ),
       orderParam && ORDERS.includes(orderParam) ? orderParam : "newest",
@@ -296,31 +364,33 @@ export class CatalogConnector implements Connector {
   }
 
   private async home() {
-    const [categories, products] = await Promise.all([this.categories(), this.active()]);
+    const [categories, products] = await Promise.all([this.categories(), this.listed()]);
     const section = (type: string, list: CatalogProduct[]) =>
       list.length > 0 ? [{ type, title: null, products: list.slice(0, 10).map((p) => this.summary(p)) }] : [];
     return [
       ...(categories.length > 0 ? [{ type: "categories", title: null, categories: categories.slice(0, 12) }] : []),
       ...section("featured_products", products.filter((p) => p.featured)),
-      ...section("sale_products", products.filter((p) => priceOf(p) < p.priceCents)),
+      ...section("sale_products", products.filter((p) => priceOf(p) < p.priceCents || this.flashFor(p, p.priceCents, this.now) !== null)),
       ...section("new_products", products),
       ...section("best_sellers", this.sorted(products.filter((p) => p.salesCount > 0), "popular")),
     ];
   }
 
-  private async product(id: number): Promise<ConnectorResult> {
+  private async product(id: number, now: Date = this.now): Promise<ConnectorResult> {
     const { store, app } = this.deps;
     const product = await store.getCatalogProduct(app.id, id);
     if (!product || !product.active) return error(404, "not_found", "Product not found.");
     const [categories, all] = await Promise.all([store.listCatalogCategories(app.id), this.active()]);
     const related = all
-      .filter((p) => p.id !== id && p.categoryIds.some((c) => product.categoryIds.includes(c)))
+      .filter((p) => !p.addon && p.id !== id && p.categoryIds.some((c) => product.categoryIds.includes(c)))
       .slice(0, 8);
+    // 131 "Add a little more": the add-ons offered with it (none on an add-on's own page).
+    const addons = product.addon ? [] : ownAddonsFor(all, product);
     const variants = variantsOf(product);
     return {
       status: 200,
       body: {
-        ...this.summary(product),
+        ...this.summary(product, now),
         description_html: descriptionHtml(product.description),
         short_description_html: null,
         images: product.imageAssetIds.map((assetId) => ({ url: this.deps.assetUrl(assetId), alt: product.name })),
@@ -328,12 +398,20 @@ export class CatalogConnector implements Connector {
         max_quantity: product.stock !== null && product.stock > 0 ? product.stock : null,
         // 91.5 Its variations, as WooCommerce's.
         attributes: variants ? attributesJson(variants) : [],
+        // 131 The one chosen when its page opens (a bouquet's Deluxe), when the shop set one it sells.
+        ...(() => {
+          const chosen = variants?.defaultId != null ? variants.items.find((v) => v.id === variants.defaultId && v.active) : undefined;
+          return chosen && variants ? { default_attributes: variationAttributes(variants, chosen) } : {};
+        })(),
         variations: variants
           ? variants.items
               .filter((v) => v.active)
               .map((v) => {
                 const max = variantMax(product, v);
-                const prices = variantPrices(product, v);
+                const own = variantPrices(product, v);
+                // 131 A flash sale on now lowers each variation's price too.
+                const flash = this.flashFor(product, own.regular, now);
+                const prices = flash && flash.cents < own.now ? { now: flash.cents, regular: own.regular } : own;
                 const onSale = prices.now < prices.regular;
                 return {
                   id: v.id,
@@ -355,7 +433,8 @@ export class CatalogConnector implements Connector {
               })
           : [],
         categories: categories.filter((c) => product.categoryIds.includes(c.id)).map((c) => this.category(c, 0)),
-        related: related.map((p) => this.summary(p)),
+        related: related.map((p) => this.summary(p, now)),
+        addons: addons.map((p) => this.summary(p, now)),
         external_url: null,
         permalink: productUrl(this.deps.platformUrl, app.id, product.id),
         option_groups: optionGroupsJson(optionGroupsOf(product), this.settings.currency),
@@ -365,7 +444,7 @@ export class CatalogConnector implements Connector {
 
   // Cart and checkout
 
-  private async priced(lines: CartLineInput[]) {
+  private async priced(lines: CartLineInput[], now: Date = this.now) {
     const byId = new Map((await this.active()).map((p) => [p.id, p]));
     let subtotal = 0;
     let count = 0;
@@ -393,6 +472,8 @@ export class CatalogConnector implements Connector {
           variant: undefined,
           unit: 0,
           chosen: [] as ChosenOption[],
+          flashSaleId: null as number | null,
+          weightGrams: 0,
         };
       }
       const max = variant ? variantMax(product, variant) : product.stock !== null ? product.stock : null;
@@ -400,12 +481,15 @@ export class CatalogConnector implements Connector {
       const options = checkOptions(optionGroupsOf(product), line.options ?? []);
       const available = (max === null || max > 0) && options.ok;
       const quantity = max !== null && max > 0 ? Math.min(line.quantity, max) : line.quantity;
-      const unit = (variant ? variantPrices(product, variant).now : priceOf(product)) + (options.ok ? options.deltaCents : 0);
+      // 131 A flash sale on now prices it lower, while it has units enough left for this line.
+      const own = variant ? variantPrices(product, variant) : { now: priceOf(product), regular: product.priceCents };
+      const flash = this.flashFor(product, own.regular, now, quantity);
+      const base = flash && flash.cents < own.now ? flash.cents : own.now;
+      const unit = base + (options.ok ? options.deltaCents : 0);
       const chosen = options.ok ? options.chosen : [];
-      if (available) {
-        subtotal += unit * quantity;
-        count += quantity;
-      }
+      // 131 A unit's weight with its options, for shipping by weight.
+      const optionGrams = chosen.reduce((sum, o) => sum + (optionGroupsOf(product).flatMap((g) => g.options).find((x) => x.id === o.id)?.weightGrams ?? 0), 0);
+      const weightGrams = (product.weightGrams ?? 0) + optionGrams;
       return {
         line: {
           product_id: product.id,
@@ -426,15 +510,40 @@ export class CatalogConnector implements Connector {
           max_quantity: max !== null && max > 0 ? max : null,
           digital: product.digital,
           ...(chosen.length > 0 ? { options: chosen.map((o) => ({ id: o.id, name: o.name, group: o.group })) } : {}),
+          // 131 A gift add-on, and the product of the line it goes with.
+          ...(product.addon ? { addon: true, addon_of: line.addon_of ?? null } : {}),
         },
         product,
         variant,
         unit,
         chosen,
+        flashSaleId: flash && flash.cents < own.now ? flash.sale.id : null,
+        weightGrams,
       };
     });
+    // 131 Gift add-ons: each with a main line in the cart that it goes with.
+    const addons = checkAddonLines(
+      out.map((o, i) => ({ productId: lines[i]!.product_id, addonOf: lines[i]!.addon_of ?? null, addon: Boolean(o.product?.addon) })),
+      (i, mainId) => {
+        const main = byId.get(mainId);
+        return main ? offeredWith(out[i]!.product?.addonFor, main) : false;
+      },
+    );
+    for (const [i, problem] of addons.problems) {
+      const line = out[i]!.line as { available: boolean; problem: string | null };
+      line.available = false;
+      line.problem = problem;
+    }
+    for (const o of out) {
+      if (!o.line.available) continue;
+      subtotal += o.unit * o.line.quantity;
+      count += o.line.quantity;
+    }
     return {
       out,
+      needsItem: addons.needsItem,
+      // 131 The order's weight, for shipping by weight.
+      weightGrams: out.reduce((sum, o) => sum + (o.line.available ? o.weightGrams * o.line.quantity : 0), 0),
       cart: {
         lines: out.map((o) => o.line),
         item_count: count,
@@ -491,10 +600,23 @@ export class CatalogConnector implements Connector {
   private async quote(request: ConnectorRequest): Promise<ConnectorResult> {
     const lines = cartLines(request.body);
     if (!lines) return error(400, "invalid_request", "The cart is empty or invalid.");
-    const priced = await this.priced(lines);
+    const priced = await this.priced(lines, request.now);
+    if (priced.needsItem) return error(400, "addon_needs_item", ADDON_NEEDS_ITEM);
     const coupon = await this.coupon(request.body, priced.subtotal, request.now);
+    const physical = priced.out.some((o) => o.line.available && !o.line.digital);
+    // 131 The delivery day's slot fee and shipping by place and weight, once the app sends them.
+    const delivery = this.fulfilment ? null : await this.deliveryOf(request, priced.subtotal, physical, priced.weightGrams, false);
+    const placed = delivery?.ok ? delivery : null;
     // 91.1 The real total: a restaurant's delivery fee depends on how the order is collected, chosen at checkout.
-    const shipping = this.fulfilment ? null : shippingFor(this.settings, priced.subtotal, priced.out.some((o) => o.line.available && !o.line.digital));
+    // 131 Shipping priced by place waits for the place.
+    const byPlace = needsPlace(shippingRulesOf(this.settings));
+    const shipping = this.fulfilment
+      ? null
+      : placed?.shipping
+        ? placed.shipping.cents + placed.delivery.feeCents
+        : byPlace && physical
+          ? null
+          : shippingFor(this.settings, priced.subtotal, physical) + (placed?.delivery.feeCents ?? 0);
     // 91.4 The customer's points, on what the products cost after the coupon.
     const points = await this.cartPoints(request, priced.subtotal - coupon.discountCents, priced.out.length);
     const before = priced.subtotal - coupon.discountCents - points.discountCents + (shipping ?? 0);
@@ -515,8 +637,25 @@ export class CatalogConnector implements Connector {
         total: this.money(total),
         total_amount: centsToDecimal(total),
         total_final: shipping !== null,
+        // 131 The slot's fee, where it goes and what made up its shipping; why the delivery doesn't work yet.
+        ...quoteDeliveryJson(placed?.delivery ?? null, this.settings.currency),
+        delivery_problem: delivery && !delivery.ok ? { code: delivery.code, message: delivery.message } : null,
       },
     };
+  }
+
+  /** 131 The checkout's delivery and gift, checked; `final`: the checkout itself (the place is needed then). */
+  private deliveryOf(request: ConnectorRequest, subtotalCents: number, physical: boolean, weightGrams: number, final: boolean) {
+    // The quote checks only what the app sent: the day and the place once chosen, never the people yet.
+    return checkStoreCheckout(this.deps.app, request.body, request.now, {
+      quote: !final,
+      counts: (date) => this.deps.store.countCatalogDeliveries(this.deps.app.id, date, new Date(request.now.getTime() - PAY_LINK_MINUTES * 60_000)),
+      fees: true,
+      subtotalCents,
+      physical,
+      requirePlace: final && needsPlace(shippingRulesOf(this.settings)) && physical,
+      weightGrams,
+    });
   }
 
   private async checkoutLink(request: ConnectorRequest): Promise<ConnectorResult> {
@@ -530,14 +669,15 @@ export class CatalogConnector implements Connector {
     if (!paymentsSetUp(this.deps.app)) {
       return error(503, "shop_unavailable", "This shop can't take orders yet. Please try again later.");
     }
-    const priced = await this.priced(lines);
+    const priced = await this.priced(lines, request.now);
+    if (priced.needsItem) return error(400, "addon_needs_item", ADDON_NEEDS_ITEM);
     if (priced.out.some((o) => !o.line.available || o.line.problem)) {
       return error(409, "cart_changed", "Something in your cart changed. Please check it and try again.");
     }
     if (platform === "ios" && priced.out.some((o) => o.line.digital)) {
       return error(403, "purchase_not_allowed", "Digital products can't be bought in the iPhone app.");
     }
-    const orderLines: CatalogOrderLine[] = priced.out.map(({ line, product, variant, unit, chosen }) => ({
+    const orderLines: CatalogOrderLine[] = priced.out.map(({ line, product, variant, unit, chosen, flashSaleId, weightGrams }) => ({
       productId: product!.id,
       // 91.5 The variation bought, in its name too ("Tee - Red, L").
       name: variant ? `${product!.name} - ${variantLabel(variant)}` : product!.name,
@@ -547,6 +687,11 @@ export class CatalogConnector implements Connector {
       imageAssetId: product!.imageAssetIds[0] ?? null,
       digital: product!.digital,
       ...(chosen.length > 0 ? { options: chosen.map((o) => ({ group: o.group, name: o.name, priceDeltaCents: o.priceDeltaCents })) } : {}),
+      // 131 Bought at a flash sale's price; its weight.
+      ...(flashSaleId !== null ? { flashSaleId } : {}),
+      ...(weightGrams > 0 ? { weightGrams } : {}),
+      // 131 A gift add-on: the line it goes with.
+      ...(product!.addon && "addon_of" in line && line.addon_of ? { addonOf: line.addon_of } : {}),
     }));
     // 26 A restaurant's order: pickup or delivery at a time its kitchen takes it; the delivery fee is its shipping.
     let fulfilment: CatalogOrder["fulfilment"] = null;
@@ -558,6 +703,16 @@ export class CatalogConnector implements Connector {
       shipping = checked.feeCents;
     } else {
       shipping = shippingFor(this.settings, priced.subtotal, orderLines.some((l) => !l.digital));
+    }
+    // 131 The delivery day and slot (its fee), the sender, the recipient and the card; shipping by place and weight.
+    let delivery: CatalogOrder["delivery"] = null;
+    if (!this.fulfilment) {
+      const physical = orderLines.some((l) => !l.digital);
+      const checked = await this.deliveryOf(request, priced.subtotal, physical, priced.weightGrams, true);
+      if (!checked.ok) return error(checked.status, checked.code, checked.message);
+      delivery = checked.delivery;
+      if (checked.shipping) shipping = checked.shipping.cents;
+      shipping += checked.delivery.feeCents;
     }
     // 91.1 A coupon that no longer applies is left out, never an error.
     const coupon = await this.coupon(request.body, priced.subtotal, request.now);
@@ -593,6 +748,8 @@ export class CatalogConnector implements Connector {
       payoutApprovedAt: null,
       fulfilment,
       fulfilmentStatus: fulfilment ? "received" : null,
+      delivery,
+      deliveryDate: delivery?.date ?? null,
     });
     return {
       status: 200,
@@ -630,6 +787,8 @@ export class CatalogConnector implements Connector {
       can_return: canReturn(order, this.settings, now),
       // 91.4 The points used on it and earned by it.
       points: orderPointsJson(order.points, order.currency),
+      // 131 The delivery day and slot, who sends and receives it and the card.
+      delivery: orderDeliveryJson(order.delivery, order.delivery?.feeCents ? formatCents(order.delivery.feeCents, order.currency) : null),
       // 47 What the shop refunded of it; all of it: the status is "refunded".
       refunded_total: order.refundedCents ? formatCents(order.refundedCents, order.currency) : null,
       // 71 The receipt as a PDF, from a signed link.
@@ -646,6 +805,8 @@ export class CatalogConnector implements Connector {
         quantity: l.quantity,
         image_url: l.imageAssetId ? this.deps.assetUrl(l.imageAssetId) : null,
         ...(l.options?.length ? { options: l.options.map((o) => o.name) } : {}),
+        // 131 A gift add-on: the product it went with.
+        ...(l.addonOf ? { addon_of: l.addonOf } : {}),
         // 110 What the line comes to.
         total: formatCents(l.unitCents * l.quantity, order.currency),
       })),

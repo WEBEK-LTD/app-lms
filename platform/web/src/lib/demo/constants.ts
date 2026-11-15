@@ -63,11 +63,26 @@ export const PREMIUM_ACADEMY_DEMO = "premium_academy" as const;
 /** The premium academy's template (lib/studio/sections.ts), which its demo app keeps as its design. */
 export const PREMIUM_ACADEMY_TEMPLATE = "academy_premium";
 
-export type StudioDemoId = Extract<AppType, "delivery" | "food" | "rides" | "school" | "travel"> | Extract<AppVertical, "taxi" | "instructors" | "marketplace"> | typeof PREMIUM_ACADEMY_DEMO;
+/**
+ * 131.20 Leqaa, the flower shop (lib/studio/demo-designs/leqaa-signature.ts):
+ * a Studio demo of the store kind (the store engine, no vertical), as the
+ * premium academy is of the academy's: a store needs nothing a flower shop
+ * doesn't (its products, sizes and add-ons are the store's own options, its
+ * delivery date the store's), so it takes every source a store does (the
+ * products kept in Yallapp, WooCommerce through the plugin, Shopify, ikas,
+ * Ticimax, IdeaSoft, Wix, Salla, Zid, its own API). It is told apart from
+ * the store's own demo (the App editor's Lale Flowers) by the template it
+ * started from (`App.design`), its Signature look A.
+ */
+export const FLOWER_SHOP_DEMO = "flowers" as const;
+/** 131.20 Leqaa's look A, the template its demo app keeps as its design. */
+export const FLOWER_SHOP_TEMPLATE = "flowers_signature_a";
+
+export type StudioDemoId = Extract<AppType, "delivery" | "food" | "rides" | "school" | "travel"> | Extract<AppVertical, "taxi" | "instructors" | "marketplace"> | typeof PREMIUM_ACADEMY_DEMO | typeof FLOWER_SHOP_DEMO;
 export type DemoId = Exclude<AppType, StudioDemoId> | Extract<AppVertical, "clinic" | "restaurant" | "fitness"> | StudioDemoId;
 
 /** The kinds only Studio offers (lib/studio/section.ts STUDIO_ONLY_KINDS). */
-const STUDIO_DEMO_KINDS: readonly string[] = ["delivery", "food", "rides", "taxi", "school", "instructors", "marketplace", "travel", PREMIUM_ACADEMY_DEMO];
+const STUDIO_DEMO_KINDS: readonly string[] = ["delivery", "food", "rides", "taxi", "school", "instructors", "marketplace", "travel", PREMIUM_ACADEMY_DEMO, FLOWER_SHOP_DEMO];
 
 export function isStudioDemo(id: DemoId): id is StudioDemoId {
   return STUDIO_DEMO_KINDS.includes(id);
@@ -77,6 +92,8 @@ export function isStudioDemo(id: DemoId): id is StudioDemoId {
 export function demoKind(id: DemoId): KindInfo {
   // 123 The premium academy is an academy.
   if (id === PREMIUM_ACADEMY_DEMO) return defaultKind("lms");
+  // 131.20 Leqaa is a store.
+  if (id === FLOWER_SHOP_DEMO) return defaultKind("store");
   return isAppType(id) ? defaultKind(id) : KINDS.find((k) => k.vertical === id)!;
 }
 
@@ -89,6 +106,8 @@ export const ALL_DEMO_TYPES: readonly DemoId[] = [
   ...KINDS.filter((k) => demoSlugOfKind(k) !== null).map((k) => (defaultKind(k.engine) === k ? (k.engine as DemoId) : (k.vertical as DemoId))),
   // 123 The premium academy, a template's demo rather than a kind's.
   PREMIUM_ACADEMY_DEMO,
+  // 131.20 Leqaa, the flower shop, a template's demo too (the store's).
+  FLOWER_SHOP_DEMO,
 ];
 
 /** The regular apps' demos, on /demo. */
@@ -98,7 +117,7 @@ export const DEMO_TYPES: readonly DemoId[] = ALL_DEMO_TYPES.filter((id) => !isSt
 export const STUDIO_DEMO_TYPES: readonly StudioDemoId[] = ALL_DEMO_TYPES.filter(isStudioDemo);
 
 /** Each demo's address on /demo (or /demo/studio) and of its download: /demo/download/<slug> (lib/app/kinds.ts). */
-export const DEMO_SLUGS = Object.fromEntries(ALL_DEMO_TYPES.map((id) => [id, id === PREMIUM_ACADEMY_DEMO ? "premium-academy" : demoSlugOfKind(demoKind(id))!])) as Record<DemoId, string>;
+export const DEMO_SLUGS = Object.fromEntries(ALL_DEMO_TYPES.map((id) => [id, id === PREMIUM_ACADEMY_DEMO ? "premium-academy" : id === FLOWER_SHOP_DEMO ? "flowers" : demoSlugOfKind(demoKind(id))!])) as Record<DemoId, string>;
 
 export function demoTypeOfSlug(slug: string): DemoId | null {
   return ALL_DEMO_TYPES.find((id) => DEMO_SLUGS[id] === slug) ?? null;
@@ -108,6 +127,8 @@ export function demoTypeOfSlug(slug: string): DemoId | null {
 export function demoIdOf(app: Pick<App, "appType"> & { vertical?: AppVertical | null; design?: string | null }): DemoId {
   // 123 The premium academy's demo keeps its template as its design.
   if (app.appType === "lms" && !app.vertical && app.design === PREMIUM_ACADEMY_TEMPLATE) return PREMIUM_ACADEMY_DEMO;
+  // 131.20 Leqaa's demo keeps its look A as its design.
+  if (app.appType === "store" && !app.vertical && app.design === FLOWER_SHOP_TEMPLATE) return FLOWER_SHOP_DEMO;
   const vertical = app.vertical ?? null;
   return vertical && (ALL_DEMO_TYPES as readonly string[]).includes(vertical) ? (vertical as DemoId) : (app.appType as DemoId);
 }

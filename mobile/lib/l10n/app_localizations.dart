@@ -1288,6 +1288,66 @@ abstract class AppLocalizations {
   /// **'Edit'**
   String get edit;
 
+  /// 131.25 The gift checkout's stepper: the step for who the gift is from.
+  ///
+  /// In en, this message translates to:
+  /// **'From'**
+  String get giftStepFrom;
+
+  /// 131.25 The stepper: who the gift is for.
+  ///
+  /// In en, this message translates to:
+  /// **'For'**
+  String get giftStepFor;
+
+  /// 131.25 The stepper: the delivery day and time.
+  ///
+  /// In en, this message translates to:
+  /// **'When'**
+  String get giftStepWhen;
+
+  /// 131.25 The stepper: the card's message.
+  ///
+  /// In en, this message translates to:
+  /// **'Message'**
+  String get giftStepMessage;
+
+  /// 131.25 The stepper: the order and the payment.
+  ///
+  /// In en, this message translates to:
+  /// **'Pay'**
+  String get giftStepPay;
+
+  /// 131.25 The gift card's live preview.
+  ///
+  /// In en, this message translates to:
+  /// **'The card'**
+  String get giftCard;
+
+  /// 131.25 On the card: before the recipient's name.
+  ///
+  /// In en, this message translates to:
+  /// **'To'**
+  String get giftTo;
+
+  /// 131.25 On the card: before the sender's name.
+  ///
+  /// In en, this message translates to:
+  /// **'From'**
+  String get giftFrom;
+
+  /// 131.25 On the card instead of the sender's name when sent anonymously.
+  ///
+  /// In en, this message translates to:
+  /// **'Someone who cares'**
+  String get giftSomeone;
+
+  /// 131.25 In the summary, before the chosen day and time slot.
+  ///
+  /// In en, this message translates to:
+  /// **'Arrives'**
+  String get giftArrives;
+
   /// No description provided for @shopping.
   ///
   /// In en, this message translates to:
@@ -18823,6 +18883,270 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Questions and answers'**
   String get courseLookQuestions;
+
+  /// 131 A product's share off on its sale badge.
+  ///
+  /// In en, this message translates to:
+  /// **'{percent}% off'**
+  String saleOff(int percent);
+
+  /// 131 How long a sale has left, on a product.
+  ///
+  /// In en, this message translates to:
+  /// **'Ends in {time}'**
+  String saleEndsIn(String time);
+
+  /// 131 The units left at a flash sale's price.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{Only 1 left} other{Only {count} left}}'**
+  String saleLeft(int count);
+
+  /// 131 A flash sale with no units left.
+  ///
+  /// In en, this message translates to:
+  /// **'Sold out'**
+  String get saleSoldOut;
+
+  /// 131 A flash sale element's title when it has none of its own.
+  ///
+  /// In en, this message translates to:
+  /// **'Flash sale'**
+  String get flashSaleTitle;
+
+  /// 131 Before a flash sale's countdown.
+  ///
+  /// In en, this message translates to:
+  /// **'Ends in'**
+  String get flashEndsIn;
+
+  /// 131 What a coupon takes off, on the coupon element.
+  ///
+  /// In en, this message translates to:
+  /// **'{amount} off'**
+  String couponOff(String amount);
+
+  /// 131 A coupon's minimum order, on the coupon element.
+  ///
+  /// In en, this message translates to:
+  /// **'On orders of {amount} or more'**
+  String couponMinOrder(String amount);
+
+  /// 131 The delivery day picker's title in the cart.
+  ///
+  /// In en, this message translates to:
+  /// **'When should it arrive?'**
+  String get deliveryWhen;
+
+  /// 131 Delivery today, in the day picker.
+  ///
+  /// In en, this message translates to:
+  /// **'Today'**
+  String get deliveryToday;
+
+  /// 131 Delivery tomorrow, in the day picker.
+  ///
+  /// In en, this message translates to:
+  /// **'Tomorrow'**
+  String get deliveryTomorrow;
+
+  /// 131 Opens the calendar of delivery days.
+  ///
+  /// In en, this message translates to:
+  /// **'Pick a date'**
+  String get deliveryPickDate;
+
+  /// 131 The same-day cut-off, under the day picker.
+  ///
+  /// In en, this message translates to:
+  /// **'Order by {time} for delivery today'**
+  String deliveryOrderBy(String time);
+
+  /// 131 Today can't be chosen any more.
+  ///
+  /// In en, this message translates to:
+  /// **'Orders for today have closed.'**
+  String get deliveryTodayClosed;
+
+  /// 131 The delivery slots' title in the cart.
+  ///
+  /// In en, this message translates to:
+  /// **'Delivery time'**
+  String get deliveryTimeTitle;
+
+  /// 131 A delivery slot that can't take more orders.
+  ///
+  /// In en, this message translates to:
+  /// **'Full'**
+  String get deliverySlotFull;
+
+  /// 131 Under the cart's button while no slot is chosen.
+  ///
+  /// In en, this message translates to:
+  /// **'Choose a delivery time to continue.'**
+  String get deliveryChooseTime;
+
+  /// 131 A day whose slots are all full or passed.
+  ///
+  /// In en, this message translates to:
+  /// **'No delivery times are left on this day. Please choose another day.'**
+  String get deliveryNoTimes;
+
+  /// 131 The gift checkout's sender section.
+  ///
+  /// In en, this message translates to:
+  /// **'From'**
+  String get giftFromTitle;
+
+  /// 131 The gift checkout's recipient section.
+  ///
+  /// In en, this message translates to:
+  /// **'To'**
+  String get giftToTitle;
+
+  /// 131 The sender's name field.
+  ///
+  /// In en, this message translates to:
+  /// **'Your name'**
+  String get giftYourName;
+
+  /// 131 The sender's phone field.
+  ///
+  /// In en, this message translates to:
+  /// **'Your phone'**
+  String get giftYourPhone;
+
+  /// 131 The sender's email field.
+  ///
+  /// In en, this message translates to:
+  /// **'Your email'**
+  String get giftYourEmail;
+
+  /// 131 The recipient's name field.
+  ///
+  /// In en, this message translates to:
+  /// **'Recipient\'s name'**
+  String get giftRecipientName;
+
+  /// 131 The recipient's phone field.
+  ///
+  /// In en, this message translates to:
+  /// **'Recipient\'s phone'**
+  String get giftRecipientPhone;
+
+  /// 131 The recipient's address field.
+  ///
+  /// In en, this message translates to:
+  /// **'Delivery address'**
+  String get giftAddress;
+
+  /// 131 The recipient's country, among the shop's.
+  ///
+  /// In en, this message translates to:
+  /// **'Country'**
+  String get giftCountry;
+
+  /// 131 The card message's section.
+  ///
+  /// In en, this message translates to:
+  /// **'Your message'**
+  String get giftCardTitle;
+
+  /// 131 Under the card message's title.
+  ///
+  /// In en, this message translates to:
+  /// **'Write your own, or tap a ready message.'**
+  String get giftCardHint;
+
+  /// 131 The card messages' occasions.
+  ///
+  /// In en, this message translates to:
+  /// **'Occasion'**
+  String get giftOccasion;
+
+  /// 131 The card goes without the sender's name.
+  ///
+  /// In en, this message translates to:
+  /// **'Send anonymously'**
+  String get giftAnonymous;
+
+  /// 131 Under Send anonymously.
+  ///
+  /// In en, this message translates to:
+  /// **'The card won\'t show your name.'**
+  String get giftAnonymousHint;
+
+  /// 131 Adds the recipient's name and phone.
+  ///
+  /// In en, this message translates to:
+  /// **'Send it to someone else'**
+  String get giftSendToSomeone;
+
+  /// 131 Under the cart's button while the sender is missing.
+  ///
+  /// In en, this message translates to:
+  /// **'Add your name, phone and email to continue.'**
+  String get giftNeedSender;
+
+  /// 131 Under the cart's button while the recipient is missing.
+  ///
+  /// In en, this message translates to:
+  /// **'Add the recipient\'s name, phone and address to continue.'**
+  String get giftNeedRecipient;
+
+  /// 131 An order's delivery day and time.
+  ///
+  /// In en, this message translates to:
+  /// **'Delivery: {date}'**
+  String orderDeliveryOn(String date);
+
+  /// 131 Who an order goes to.
+  ///
+  /// In en, this message translates to:
+  /// **'For {name}'**
+  String orderRecipient(String name);
+
+  /// 131 Sets where it goes from the phone's place, for shipping by distance.
+  ///
+  /// In en, this message translates to:
+  /// **'Use my location for the delivery'**
+  String get giftUseLocation;
+
+  /// 131 The phone's place couldn't be read.
+  ///
+  /// In en, this message translates to:
+  /// **'Your location couldn\'t be found. Please try again.'**
+  String get giftLocationFailed;
+
+  /// 131 The gift add-ons offered with a product, in the cart and at checkout (chocolates, a card, a vase); the owner may word it their own way.
+  ///
+  /// In en, this message translates to:
+  /// **'Add a little more'**
+  String get addonsTitle;
+
+  /// 131 Under the add-ons' title: they're sent with the gift.
+  ///
+  /// In en, this message translates to:
+  /// **'Goes with your gift'**
+  String get addonsHint;
+
+  /// 131 A gift add-on's line in the cart, under the item it goes with.
+  ///
+  /// In en, this message translates to:
+  /// **'With {name}'**
+  String addonWith(String name);
+
+  /// 131 Screen readers: the checkbox that adds a gift add-on.
+  ///
+  /// In en, this message translates to:
+  /// **'Add {name}'**
+  String addonAdd(String name);
+
+  /// 131 A flash sale's share off on its badge, like −25%.
+  ///
+  /// In en, this message translates to:
+  /// **'−{percent}%'**
+  String salePercentBadge(int percent);
 }
 
 class _AppLocalizationsDelegate

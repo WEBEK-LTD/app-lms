@@ -53,12 +53,25 @@ class AppPalette extends ThemeExtension<AppPalette> {
     required Brightness brightness,
     AppTemplate template = AppTemplate.classic,
     Color? secondary,
+    Color? darkBackground,
+    Color? darkSurface,
   }) {
-    final palette = AppPalette._base(
+    var palette = AppPalette._base(
       primary: primary,
       brightness: brightness,
       template: template,
     );
+    // 131.29 A look's own night: its background and cards on every screen.
+    if (brightness == Brightness.dark && darkBackground != null) {
+      palette = palette._withNight(
+        darkBackground,
+        darkSurface ??
+            Color.alphaBlend(
+              Colors.white.withValues(alpha: 0.06),
+              darkBackground,
+            ),
+      );
+    }
     return secondary == null ? palette : palette._withAccent(secondary);
   }
 
@@ -163,6 +176,44 @@ class AppPalette extends ThemeExtension<AppPalette> {
 
   /// Uses the client's secondary color instead of Ember for accents, with
   /// accent text darkened or lightened until it reads on the background.
+  /// 131.29 This dark palette on [background] and [surface]: the muted
+  /// surfaces, lines and fields mixed from them.
+  AppPalette _withNight(Color background, Color surface) {
+    Color mix(double white) =>
+        Color.alphaBlend(Colors.white.withValues(alpha: white), surface);
+    return AppPalette(
+      brightness: brightness,
+      primary: visibleOn(primary, surface),
+      onPrimary: onPrimary,
+      primarySoft: Color.alphaBlend(primary.withValues(alpha: 0.35), surface),
+      onPrimarySoft: onPrimarySoft,
+      onPrimaryMuted: onPrimaryMuted,
+      primaryTrack: mix(0.10),
+      background: background,
+      surface: surface,
+      surfaceMuted: mix(0.04),
+      segment: mix(0.07),
+      border: mix(0.12),
+      divider: mix(0.07),
+      inputBorder: mix(0.16),
+      text: text,
+      textBody: textBody,
+      textSecondary: textSecondary,
+      textTertiary: textTertiary,
+      accent: accent,
+      accentSoft: accentSoft,
+      link: link,
+      success: success,
+      successSoft: successSoft,
+      danger: danger,
+      star: star,
+      timerSoft: timerSoft,
+      onTimerSoft: onTimerSoft,
+      inlineCode: mix(0.07),
+      placeholders: placeholders,
+    );
+  }
+
   AppPalette _withAccent(Color secondary) {
     final soft = Color.alphaBlend(
       secondary.withValues(alpha: isDark ? 0.22 : 0.14),
