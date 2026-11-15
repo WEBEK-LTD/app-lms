@@ -4,14 +4,15 @@ import { createContext, useActionState, useCallback, useContext, useEffect, useM
 import Link from "next/link";
 import { applyTemplateAction } from "@/app/actions/studio-market";
 import { useDashT, useKnownText } from "@/components/dashboard-i18n";
-import { FormMessage, SubmitButton } from "@/components/form";
+import { useFormStatus } from "react-dom";
+import { FormMessage } from "@/components/form";
 import { Icon } from "@/components/icon";
 import { btn } from "@/components/ui";
 import type { Pickable } from "@/lib/hosted/pages/pickable";
 import { initialFormState } from "@/lib/forms";
 import type { CoverView } from "@/lib/studio-market/catalog";
 import { Board } from "./parts";
-import { MarketPhones, PageThumb, TemplatePhone } from "./phone";
+import { MarketPhones, TemplatePhone } from "./phone";
 
 /**
  * 106.1 A template's page in the dashboard: its pages drawn in phones, in
@@ -86,69 +87,91 @@ function Seg<T extends string>({ label, value, options, onChange, small = true }
   );
 }
 
-/** The pictures: three pages side by side, their thumbnails, light or dark, each language. */
-export function TemplateGallery() {
+/** The pools of light under the stage's phones in the dark theme (B): ember in the middle, then violet. */
+const POOLS = ["rgba(255,130,90,.7)", "rgba(255,90,31,.45)", "rgba(120,98,255,.5)"];
+
+/**
+ * The stage at the top of a template's page: its first three pages in
+ * phones on the wall (A) or under the night's light (B), the template's
+ * name beside them, and its own light/dark and language switches (the
+ * phones' mode, not the dashboard's). A phone opens the demo on its page.
+ */
+export function TemplateStage({ crumbs, intro }: { crumbs: ReactNode; intro: ReactNode }) {
   const t = useDashT();
   const { pages, languages, open } = useDemo();
   const [dark, setDark] = useState(false);
   const [lang, setLang] = useState(languages[0] ?? "en");
-  const [start, setStart] = useState(0);
-  const shown = pages.slice(start, start + 3);
-  const thumbs = pages.slice(0, 4);
+  const shown = pages.slice(0, 3);
+  // On the stage: the second page, the first in the middle, the third.
+  const order = shown.length === 3 ? [1, 0, 2] : shown.length === 2 ? [1, 0] : [0];
   return (
-    <section aria-label={t("studioMarket.stepScreens")} className="market-board flex flex-col gap-4 rounded-[20px] border border-line py-4 sm:gap-5 sm:px-6 sm:py-5">
-      <div className="flex items-center justify-between gap-3 px-4 sm:px-0">
-        <Seg
-          label={t("studioMarket.lightDark")}
-          value={dark ? "dark" : "light"}
-          onChange={(v) => setDark(v === "dark")}
-          options={[
-            { value: "light", label: t("studioMarket.light"), icon: "light_mode" },
-            { value: "dark", label: t("studioMarket.dark"), icon: "dark_mode" },
-          ]}
-        />
-        <div className="flex items-center gap-2">
-          {languages.length > 1 ? <Seg label={t("nav.languages")} value={lang} onChange={setLang} options={languages.map((l) => ({ value: l, label: LANG_NAMES[l] ?? l.toUpperCase() }))} /> : null}
-          <button type="button" onClick={() => open({ mine: null, page: start })} className="inline-flex h-[34px] w-[34px] cursor-pointer items-center justify-center rounded-[10px] border border-line-strong bg-white text-midnight">
-            <Icon name="fullscreen" size={19} />
-            <span className="sr-only">{t("studioMarket.fullScreen")}</span>
-          </button>
-        </div>
-      </div>
-      <div className="flex items-start gap-3.5 overflow-x-auto px-4 sm:justify-center sm:gap-5 sm:overflow-visible sm:px-0">
-        {shown.map((p, i) => (
-          <button key={p.slug} type="button" onClick={() => open({ mine: null, page: start + i })} className="flex-none cursor-pointer border-0 bg-transparent p-0" style={{ transform: shown.length > 1 && i !== 1 ? "translateY(14px)" : undefined }}>
-            <span className="sr-only">{t("studioMarket.showPage", { page: p.title })}</span>
-            <TemplatePhone view={p.view} width={178} dark={dark} lang={lang} />
-          </button>
-        ))}
-      </div>
-      <div className="flex flex-wrap items-center justify-between gap-3 px-4 pt-1.5 sm:px-0">
-        <div className="flex gap-2">
-          {thumbs.map((p, i) => (
-            <button
-              key={p.slug}
-              type="button"
-              onClick={() => setStart(Math.min(i, Math.max(0, pages.length - 3)))}
-              aria-pressed={i >= start && i < start + 3}
-              className={`relative h-[66px] w-[46px] cursor-pointer overflow-hidden rounded-[9px] border-2 bg-white p-0 outline outline-1 outline-line ${i === start ? "border-ember" : "border-transparent"}`}
-            >
-              <span className="sr-only">{t("studioMarket.showPage", { page: p.title })}</span>
-              <PageThumb view={p.view} width={42} height={62} dark={dark} lang={lang} />
-            </button>
-          ))}
-          {pages.length > 4 ? (
-            <button type="button" onClick={() => open({ mine: null, page: 4 })} className="flex h-[66px] w-[46px] cursor-pointer items-center justify-center rounded-[9px] border border-line bg-white text-[13px] font-bold text-muted">
-              {t("studioMarket.morePages", { count: pages.length - 4 })}
-            </button>
+    <>
+      <div className="flex flex-wrap items-center justify-between gap-3">
+        {crumbs}
+        <div className="flex flex-wrap items-center gap-2">
+          {languages.length > 1 ? (
+            <div role="group" aria-label={t("nav.languages")} className="mk-seg">
+              {languages.map((l) => (
+                <button key={l} type="button" aria-pressed={lang === l} onClick={() => setLang(l)} lang={l} className="h-[32px] px-3">
+                  {LANG_NAMES[l] ?? l.toUpperCase()}
+                </button>
+              ))}
+            </div>
           ) : null}
+          <div role="group" aria-label={t("studioMarket.lightDark")} className="mk-seg">
+            {(["light", "dark"] as const).map((mode) => (
+              <button key={mode} type="button" aria-pressed={(mode === "dark") === dark} onClick={() => setDark(mode === "dark")} className="h-[32px] px-3.5">
+                <Icon name={mode === "dark" ? "dark_mode" : "light_mode"} size={17} />
+                {t(mode === "dark" ? "studioMarket.dark" : "studioMarket.light")}
+              </button>
+            ))}
+          </div>
         </div>
-        <button type="button" onClick={() => open({ mine: null })} className={`${btn.secondary} h-11 cursor-pointer`}>
-          <Icon name="play_circle" size={20} />
-          {t("studioMarket.tryDemo")}
-        </button>
       </div>
-    </section>
+      <div className="grid items-end gap-2 pt-6 lg:grid-cols-[minmax(0,440px)_minmax(0,1fr)] lg:gap-5 lg:pt-3">
+        <div className="flex flex-col gap-5 lg:pb-12">{intro}</div>
+        <div className="mk-stagebox relative -mx-5 h-[410px] md:mx-0 lg:h-[600px]" data-stage={dark ? "dark" : "light"}>
+          <span className="mk-stage-wash" aria-hidden="true" />
+          <div className="absolute inset-x-0 bottom-9 flex origin-bottom scale-[0.66] items-end justify-center lg:bottom-10 lg:scale-100">
+            {order.map((index) => {
+              const p = shown[index]!;
+              const side = order.length > 1 && index !== 0;
+              const first = order.indexOf(index) === 0;
+              return (
+                <button
+                  key={p.slug}
+                  type="button"
+                  onClick={() => open({ mine: null, page: index })}
+                  className={`relative flex-none cursor-pointer border-0 bg-transparent p-0 ${side ? (first ? "z-[1] -me-10 mb-[30px] -rotate-6 rtl:rotate-6" : "z-[2] -ms-10 mb-[30px] rotate-6 rtl:-rotate-6") : "z-[3]"}`}
+                >
+                  <span className="sr-only">{t("studioMarket.showPage", { page: p.title })}</span>
+                  <span className="mk-glow" style={{ "--mk-pool": POOLS[index] } as React.CSSProperties} />
+                  <TemplatePhone view={p.view} width={side ? 200 : 250} dark={dark} lang={lang} className="mk-reflect" />
+                </button>
+              );
+            })}
+          </div>
+          <span className="mk-plinth bottom-3 w-[80%] lg:w-[520px]" />
+        </div>
+      </div>
+    </>
+  );
+}
+
+/** The template's pages by name; each opens the demo on it. */
+export function PageChips() {
+  const t = useDashT();
+  const { pages, open } = useDemo();
+  return (
+    <ul aria-label={t("studioMarket.pagesList")} className="m-0 flex list-none flex-wrap gap-2 p-0">
+      {pages.map((p, i) => (
+        <li key={p.slug}>
+          <button type="button" onClick={() => open({ mine: null, page: i })} className="mk-chip h-[34px] px-3.5 text-[13px]">
+            {p.title}
+          </button>
+        </li>
+      ))}
+    </ul>
   );
 }
 
@@ -157,8 +180,8 @@ export function DemoButton({ className = "" }: { className?: string }) {
   const t = useDashT();
   const { open } = useDemo();
   return (
-    <button type="button" onClick={() => open({ mine: null })} className={`${btn.secondary} h-11 cursor-pointer ${className}`}>
-      <Icon name="play_circle" size={20} />
+    <button type="button" onClick={() => open({ mine: null })} className={`mk-btn mk-btn-ghost ${className}`}>
+      <Icon name="play_circle" size={22} filled />
       {t("studioMarket.tryDemo")}
     </button>
   );
@@ -284,15 +307,15 @@ export function ApplyForm({ slug, apps, label }: { slug: string; apps: { id: str
       ) : null}
       {state.ok ? null : (
         <>
-          <SubmitButton variant="main" className="h-[52px] w-full text-base">
+          <ApplySubmit>
             <Icon name="format_paint" size={22} />
             {label.apply}
-          </SubmitButton>
-          <button type="button" onClick={() => open({ mine: chosen || null })} className={`${btn.secondary} h-11 w-full cursor-pointer`}>
-            <Icon name="visibility" size={20} />
+          </ApplySubmit>
+          <button type="button" onClick={() => open({ mine: chosen || null })} className="mk-btn mk-btn-ghost w-full">
+            <Icon name="visibility" size={21} />
             {t("studioMarket.previewMine")}
           </button>
-          <label className="flex items-center justify-center gap-1.5 text-[13px] text-muted">
+          <label className="mk-muted flex items-center justify-center gap-1.5 text-[13px]">
             <Icon name="smartphone" size={16} />
             {t("studioMarket.forLabel")}
             {apps.length > 1 ? (
@@ -305,14 +328,31 @@ export function ApplyForm({ slug, apps, label }: { slug: string; apps: { id: str
               </select>
             ) : (
               <>
-                <b className="text-midnight">{apps[0]?.name}</b>
+                <b className="text-[var(--mk-ink)]">{apps[0]?.name}</b>
                 <input type="hidden" name="app" value={apps[0]?.id ?? ""} />
               </>
             )}
           </label>
-          <p className="m-0 text-center text-[12.5px] leading-relaxed text-muted">{t("studioMarket.applyKeeps")}</p>
         </>
       )}
     </form>
+  );
+}
+
+/** The ember "Apply to my app", busy while it is applied. */
+function ApplySubmit({ children }: { children: ReactNode }) {
+  const t = useDashT();
+  const { pending } = useFormStatus();
+  return (
+    <button type="submit" disabled={pending} className="mk-btn mk-btn-ember mk-btn-lg w-full">
+      {pending ? (
+        <>
+          <Icon name="progress_activity" size={22} className="animate-spin" />
+          {t("studioMarket.applying")}
+        </>
+      ) : (
+        children
+      )}
+    </button>
   );
 }

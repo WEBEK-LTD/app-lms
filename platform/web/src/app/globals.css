@@ -1224,15 +1224,1080 @@ html {
   }
 }
 
-/* 106 Studio Market: the dotted board behind a template's phones, as Studio's projects grid draws it. */
-.market-board {
-  background-color: #ebe5da;
-  background-image: radial-gradient(#d6cfc1 1.2px, transparent 1.3px);
-  background-size: 16px 16px;
+/* 106 Studio Market, in the components layer so the markup's utilities can adjust it. */
+@layer components {
+  /* 106 Studio Market: the dotted board behind a template's phones, as Studio's projects grid draws it. */
+  .market-board {
+    background-color: #ebe5da;
+    background-image: radial-gradient(#d6cfc1 1.2px, transparent 1.3px);
+    background-size: 16px 16px;
+  }
+  .market-board {
+    @variant in-dark {
+      background-color: #1a1935;
+      background-image: radial-gradient(#2c2a4b 1.2px, transparent 1.3px);
+    }
+  }
+
+  /*
+   * 106 Studio Market's art direction, chosen by the owner: A "Gallery" in
+   * light (the ivory wall, framed prints, phones on soft floor shadows, thin
+   * countdown numerals) and B "Night showroom" in dark (midnight with ember and
+   * violet light, glowing phones, glass cards). One markup for both: the theme
+   * switches it here, in CSS only. Where the two compositions differ, both are
+   * rendered and one is shown (`.mk-only-a`, `.mk-only-b`).
+   */
+  .mk {
+    --mk-bg: #f4efe6;
+    --mk-ink: #0e0d24;
+    --mk-ink2: #34314a;
+    --mk-muted: #6b6779;
+    --mk-faint: #9a95a6;
+    --mk-hair: rgba(14, 13, 36, 0.12);
+    --mk-hair2: rgba(14, 13, 36, 0.07);
+    --mk-frame: #ffffff;
+    --mk-mat: #efe8dc;
+    --mk-wall: #ece5d8;
+    --mk-floor: rgba(14, 13, 36, 0.1);
+    --mk-card-shadow: 0 1px 1px rgba(14, 13, 36, 0.04), 0 24px 48px -28px rgba(14, 13, 36, 0.3);
+    --mk-lift-shadow: 0 2px 2px rgba(14, 13, 36, 0.05), 0 44px 70px -30px rgba(14, 13, 36, 0.42);
+    --mk-accent: #c2410c;
+    --mk-chip: #ffffff;
+    --mk-glass: rgba(255, 255, 255, 0.045);
+    --mk-glass2: rgba(255, 255, 255, 0.075);
+    --mk-glass-b: rgba(255, 255, 255, 0.1);
+    --mk-glass-hi: rgba(255, 255, 255, 0.16);
+    color: var(--mk-ink);
+  }
+  .mk {
+    @variant in-dark {
+      --mk-bg: #08071c;
+      --mk-ink: #f4efe6;
+      --mk-ink2: #ddd8e8;
+      --mk-muted: #a9a4bb;
+      --mk-faint: #7f7a93;
+      --mk-hair: rgba(255, 255, 255, 0.1);
+      --mk-hair2: rgba(255, 255, 255, 0.06);
+      --mk-frame: rgba(255, 255, 255, 0.05);
+      --mk-mat: rgba(255, 255, 255, 0.04);
+      --mk-accent: #ff9a6e;
+      --mk-chip: rgba(255, 255, 255, 0.06);
+    }
+  }
+  .mk-bare {
+    background: var(--mk-bg);
+    min-height: 100%;
+    /* Clipped, not a scroll box: the template page's panel and bar stay sticky. */
+    overflow: clip;
+    position: relative;
+  }
+  .mk-only-b {
+    display: none;
+  }
+  .mk-only-a,
+  .mk-only-b {
+    @variant in-dark {
+      display: none;
+    }
+  }
+  .mk-only-b {
+    @variant in-dark {
+      display: block;
+    }
+  }
+  .mk-in {
+    max-width: 1120px;
+    margin-inline: auto;
+  }
+  .mk-sec {
+    padding-inline: 20px;
+  }
+  @media (min-width: 768px) {
+    .mk-sec {
+      padding-inline: 56px;
+    }
+  }
+
+  /* Type */
+  .mk-display {
+    font-weight: 800;
+    letter-spacing: -0.045em;
+    line-height: 0.98;
+  }
+  .mk-display:lang(ar) {
+    line-height: 1.2;
+  }
+  .mk-h2 {
+    font-size: 30px;
+    font-weight: 800;
+    letter-spacing: -0.035em;
+    line-height: 1.06;
+    margin: 0;
+  }
+  @media (min-width: 768px) {
+    .mk-h2 {
+      font-size: 44px;
+    }
+  }
+  .mk-h2:lang(ar) {
+    line-height: 1.25;
+  }
+  .mk-eyebrow {
+    font-size: 12px;
+    font-weight: 700;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: var(--mk-accent);
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+  }
+  .mk-eyebrow:lang(ar) {
+    letter-spacing: 0;
+    font-size: 14px;
+    text-transform: none;
+  }
+  .mk-eyebrow::before {
+    content: "";
+    width: 28px;
+    height: 1px;
+    background: currentColor;
+    display: inline-block;
+  }
+  .mk-eyebrow {
+    @variant in-dark {
+      &::before {
+        display: none;
+      }
+    }
+  }
+  .mk-lead {
+    font-size: 16px;
+    line-height: 1.6;
+    color: var(--mk-muted);
+  }
+  @media (min-width: 768px) {
+    .mk-lead {
+      font-size: 19px;
+    }
+  }
+  .mk-small {
+    font-size: 12px;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    font-weight: 700;
+    color: var(--mk-muted);
+  }
+  .mk-small:lang(ar) {
+    letter-spacing: 0;
+    text-transform: none;
+    font-size: 13px;
+  }
+  .mk-muted {
+    color: var(--mk-muted);
+  }
+  .mk-link {
+    color: var(--mk-ink);
+    font-weight: 700;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 15px;
+    border-bottom: 1px solid var(--mk-hair);
+    padding-bottom: 3px;
+    text-decoration: none;
+  }
+  .mk-link:hover {
+    color: var(--mk-accent);
+  }
+  .mk-gradtext {
+    @variant in-dark {
+      background: linear-gradient(180deg, #ffffff 10%, #ffd9c6 70%, #ff9a6e 100%);
+      -webkit-background-clip: text;
+      background-clip: text;
+      color: transparent;
+    }
+  }
+
+  /* Buttons: pills */
+  .mk-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    height: 52px;
+    padding: 0 26px;
+    border-radius: 999px;
+    font-size: 16px;
+    font-weight: 700;
+    white-space: nowrap;
+    flex: none;
+    text-decoration: none;
+    cursor: pointer;
+    border: 1px solid transparent;
+    transition:
+      transform 0.2s ease,
+      box-shadow 0.2s ease;
+  }
+  .mk-btn:disabled {
+    opacity: 0.55;
+    cursor: not-allowed;
+  }
+  .mk-btn-sm {
+    height: 42px;
+    padding: 0 18px;
+    font-size: 14px;
+  }
+  .mk-btn-lg {
+    height: 60px;
+    padding: 0 32px;
+    font-size: 17px;
+  }
+  .mk-btn-ember {
+    background: #ff5a1f;
+    color: #0e0d24;
+    font-weight: 800;
+    box-shadow:
+      0 14px 30px -14px rgba(255, 90, 31, 0.85),
+      inset 0 1px 0 rgba(255, 255, 255, 0.35);
+  }
+  .mk-btn-ember:hover {
+    color: #0e0d24;
+    transform: translateY(-1px);
+  }
+  .mk-btn-ink {
+    background: var(--mk-ink);
+    color: var(--mk-bg);
+  }
+  .mk-btn-ink:hover {
+    color: var(--mk-bg);
+  }
+  .mk-btn-ink {
+    @variant in-dark {
+      background: #ff5a1f;
+      color: #0e0d24;
+      font-weight: 800;
+      box-shadow: 0 14px 30px -14px rgba(255, 90, 31, 0.85);
+    }
+  }
+  .mk-btn-ghost {
+    border-color: var(--mk-hair);
+    color: var(--mk-ink);
+    background: transparent;
+  }
+  .mk-btn-ghost:hover {
+    color: var(--mk-ink);
+    border-color: var(--mk-ink);
+  }
+  .mk-btn-ghost {
+    @variant in-dark {
+      background: var(--mk-glass);
+      border-color: var(--mk-glass-b);
+      backdrop-filter: blur(12px);
+    }
+  }
+
+  /* Chips and segments */
+  .mk-chip {
+    height: 44px;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 0 18px;
+    border-radius: 99px;
+    font-size: 14.5px;
+    font-weight: 600;
+    white-space: nowrap;
+    flex: none;
+    border: 1px solid var(--mk-hair);
+    color: var(--mk-ink);
+    background: var(--mk-chip);
+    text-decoration: none;
+  }
+  .mk-chip:hover {
+    color: var(--mk-ink);
+    border-color: var(--mk-ink);
+  }
+  .mk-chip[aria-current],
+  .mk-chip.on {
+    background: var(--mk-ink);
+    color: var(--mk-bg);
+    border-color: var(--mk-ink);
+  }
+  .mk-chip .mk-c {
+    color: var(--mk-faint);
+    font-size: 13px;
+    font-weight: 500;
+  }
+  .mk-chip[aria-current] .mk-c {
+    color: inherit;
+    opacity: 0.6;
+  }
+  .mk-chip {
+    @variant in-dark {
+      backdrop-filter: blur(10px);
+      border-color: var(--mk-glass-b);
+    }
+  }
+  .mk-seg {
+    display: inline-flex;
+    padding: 4px;
+    border-radius: 99px;
+    background: var(--mk-chip);
+    border: 1px solid var(--mk-hair);
+    gap: 2px;
+  }
+  .mk-seg > * {
+    height: 36px;
+    padding: 0 16px;
+    border-radius: 99px;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--mk-muted);
+    white-space: nowrap;
+    text-decoration: none;
+    border: 0;
+    background: transparent;
+    cursor: pointer;
+  }
+  .mk-seg > [aria-current],
+  .mk-seg > [aria-pressed="true"] {
+    background: var(--mk-ink);
+    color: var(--mk-bg);
+    font-weight: 700;
+  }
+  .mk-seg {
+    @variant in-dark {
+      background: rgba(255, 255, 255, 0.06);
+      border-color: rgba(255, 255, 255, 0.12);
+    }
+  }
+
+  /* Search */
+  .mk-search {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    height: 64px;
+    padding-inline: 22px 8px;
+    border-radius: 999px;
+    background: #ffffff;
+    border: 1px solid var(--mk-hair);
+    box-shadow: 0 20px 40px -26px rgba(14, 13, 36, 0.35);
+  }
+  .mk-search input {
+    flex: 1;
+    min-width: 0;
+    height: 100%;
+    border: 0;
+    background: transparent;
+    outline: none;
+    font-size: 17px;
+    color: var(--mk-ink);
+  }
+  .mk-search input::placeholder {
+    color: var(--mk-faint);
+  }
+  .mk-search {
+    @variant in-dark {
+      background: rgba(255, 255, 255, 0.06);
+      border-color: rgba(255, 255, 255, 0.14);
+      backdrop-filter: blur(20px);
+      box-shadow:
+        inset 0 1px 0 rgba(255, 255, 255, 0.12),
+        0 20px 50px -20px rgba(0, 0, 0, 0.8);
+    }
+  }
+
+  /* Surfaces: a framed panel in A, glass in B */
+  .mk-panel {
+    background: var(--color-white);
+    border-radius: 22px;
+    box-shadow: var(--mk-card-shadow);
+    border: 1px solid transparent;
+  }
+  .mk-panel {
+    @variant in-dark {
+      background: linear-gradient(180deg, var(--mk-glass2), var(--mk-glass));
+      border-color: var(--mk-glass-b);
+      box-shadow: inset 0 1px 0 var(--mk-glass-hi);
+    }
+  }
+  .mk-tile {
+    background: var(--mk-mat);
+  }
+  .mk-tile {
+    @variant in-dark {
+      background: rgba(255, 90, 31, 0.14);
+      color: #ff9a6e;
+      box-shadow: 0 0 24px -6px rgba(255, 90, 31, 0.6);
+    }
+  }
+
+  /* The atmosphere of a page in B: ember and violet light at its top */
+  .mk-page {
+    position: relative;
+  }
+  .mk-page::before {
+    content: none;
+  }
+  .mk-page {
+    @variant in-dark {
+      &::before {
+        content: "";
+        position: absolute;
+        inset: -40px 0 auto;
+        height: 520px;
+        pointer-events: none;
+        z-index: 0;
+        background:
+          radial-gradient(40% 60% at 85% 0%, rgba(110, 92, 255, 0.22), transparent 70%),
+          radial-gradient(45% 55% at 10% 10%, rgba(255, 90, 31, 0.16), transparent 70%);
+      }
+      & > * {
+        position: relative;
+        z-index: 1;
+      }
+    }
+  }
+
+  /* Phones: on a soft floor shadow in A, glowing in B */
+  .mk-phone {
+    position: relative;
+    flex: none;
+  }
+  .mk-glow {
+    display: none;
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    translate: -50% -50%;
+    width: 160%;
+    height: 120%;
+    border-radius: 999px;
+    pointer-events: none;
+    background: radial-gradient(closest-side, var(--mk-pool, rgba(255, 120, 80, 0.6)), transparent);
+  }
+  .mk-glow {
+    @variant in-dark {
+      display: block;
+    }
+  }
+  .mk-plinth {
+    position: absolute;
+    left: 50%;
+    translate: -50% 0;
+    height: 34px;
+    border-radius: 50%;
+    background: radial-gradient(closest-side, var(--mk-floor), transparent);
+    pointer-events: none;
+  }
+  .mk-plinth {
+    @variant in-dark {
+      display: none;
+    }
+  }
+
+  /* The wall (A) and the night stage (B) */
+  .mk-wall {
+    background:
+      radial-gradient(90% 70% at 50% 0%, rgba(255, 255, 255, 0.75), transparent 70%),
+      var(--mk-wall);
+    border-bottom: 1px solid var(--mk-hair2);
+  }
+  .mk-wall {
+    @variant in-dark {
+      background: radial-gradient(120% 90% at 50% 0%, #1b1840 0%, #0b0a22 55%, #06051a 100%);
+      color: #f4efe6;
+      border-bottom: 0;
+    }
+  }
+  .mk-night {
+    position: relative;
+    background: radial-gradient(120% 90% at 50% 0%, #1b1840 0%, #0b0a22 55%, #06051a 100%);
+    color: #f4efe6;
+    overflow: hidden;
+  }
+  .mk-atmos {
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    overflow: hidden;
+    display: none;
+  }
+  .mk-night .mk-atmos {
+    display: block;
+  }
+  .mk-atmos {
+    @variant in-dark {
+      display: block;
+    }
+  }
+  .mk-atmos .mk-g1,
+  .mk-atmos .mk-g2 {
+    position: absolute;
+    border-radius: 999px;
+  }
+  .mk-atmos .mk-g1 {
+    width: 900px;
+    height: 700px;
+    background: radial-gradient(closest-side, rgba(255, 90, 31, 0.3), transparent);
+  }
+  .mk-atmos .mk-g2 {
+    width: 800px;
+    height: 700px;
+    background: radial-gradient(closest-side, rgba(110, 92, 255, 0.24), transparent);
+  }
+  .mk-atmos .mk-beam {
+    position: absolute;
+    top: -120px;
+    width: 520px;
+    height: 900px;
+    background: conic-gradient(from 180deg at 50% 0%, transparent 160deg, rgba(255, 214, 190, 0.13) 180deg, transparent 200deg);
+  }
+  .mk-atmos .mk-floor {
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    height: 240px;
+    background:
+      linear-gradient(180deg, transparent, rgba(255, 255, 255, 0.035)),
+      repeating-linear-gradient(90deg, rgba(255, 255, 255, 0.05) 0 1px, transparent 1px 80px);
+    mask-image: linear-gradient(transparent, #000 60%);
+    transform: perspective(500px) rotateX(58deg);
+    transform-origin: bottom;
+  }
+  .mk-atmos .mk-stars {
+    position: absolute;
+    inset: 0;
+    background-image:
+      radial-gradient(1px 1px at 20% 30%, rgba(255, 255, 255, 0.5), transparent),
+      radial-gradient(1px 1px at 70% 20%, rgba(255, 255, 255, 0.35), transparent),
+      radial-gradient(1px 1px at 85% 60%, rgba(255, 255, 255, 0.3), transparent),
+      radial-gradient(1px 1px at 40% 70%, rgba(255, 255, 255, 0.25), transparent),
+      radial-gradient(1.5px 1.5px at 60% 45%, rgba(255, 200, 170, 0.5), transparent);
+  }
+  .mk-glasspill {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    height: 34px;
+    padding: 0 14px;
+    border-radius: 99px;
+    font-size: 13px;
+    font-weight: 700;
+    background: rgba(255, 255, 255, 0.1);
+    color: #f4efe6;
+    border: 1px solid rgba(255, 255, 255, 0.14);
+    backdrop-filter: blur(10px);
+  }
+
+  /* A template's card: a framed print in A, a glass case with a light pool in B */
+  .mk-card {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    min-width: 0;
+  }
+  .mk-card-frame {
+    position: relative;
+    background: var(--color-white);
+    padding: 12px;
+    border-radius: 4px;
+    box-shadow: var(--mk-card-shadow);
+    transition:
+      transform 0.3s ease,
+      box-shadow 0.3s ease;
+  }
+  .mk-card-stage {
+    position: relative;
+    height: 300px;
+    overflow: hidden;
+    display: flex;
+    justify-content: center;
+    padding-top: 30px;
+    background:
+      radial-gradient(80% 60% at 50% 30%, rgba(255, 255, 255, 0.7), transparent 70%),
+      #efe8dc;
+  }
+  .mk-card-phone {
+    position: relative;
+    transition: transform 0.4s ease;
+  }
+  .mk-card-tags {
+    position: absolute;
+    top: 12px;
+    inset-inline-start: 12px;
+    z-index: 3;
+    display: flex;
+    gap: 6px;
+  }
+  .mk-pill {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    height: 26px;
+    padding: 0 10px;
+    border-radius: 99px;
+    font-size: 12px;
+    font-weight: 800;
+    white-space: nowrap;
+  }
+  .mk-pill-free {
+    background: #1c7c4a;
+    color: #fff;
+  }
+  .mk-pill-ink {
+    background: #0e0d24;
+    color: #f4efe6;
+  }
+  .mk-card-hover {
+    position: absolute;
+    bottom: 22px;
+    left: 50%;
+    translate: -50% 0;
+    z-index: 3;
+    height: 40px;
+    padding: 0 18px;
+    border-radius: 99px;
+    background: #0e0d24;
+    color: #f4efe6;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 14px;
+    font-weight: 700;
+    white-space: nowrap;
+    opacity: 0;
+    transition: opacity 0.25s ease;
+    pointer-events: none;
+  }
+  .mk-card-cap {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    padding: 0 2px;
+  }
+  .mk-card-name {
+    font-size: 20px;
+    font-weight: 800;
+    letter-spacing: -0.02em;
+    line-height: 1.2;
+    color: var(--mk-ink);
+    text-decoration: none;
+  }
+  .mk-card-name:hover {
+    color: var(--mk-ink);
+  }
+  .mk-card-by {
+    font-size: 12px;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    font-weight: 700;
+    color: var(--mk-muted);
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    min-width: 0;
+  }
+  .mk-card-by:lang(ar) {
+    letter-spacing: 0;
+    text-transform: none;
+    font-size: 13px;
+  }
+  .mk-card-foot {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 10px;
+    border-top: 1px solid var(--mk-hair);
+    padding-top: 10px;
+    margin-top: 4px;
+  }
+  .mk-card:hover .mk-card-frame,
+  .mk-card:focus-within .mk-card-frame {
+    transform: translateY(-8px);
+    box-shadow: var(--mk-lift-shadow);
+  }
+  .mk-card:hover .mk-card-phone {
+    transform: perspective(900px) rotateY(-10deg) rotateX(3deg) translateY(-6px);
+  }
+  .mk-card:hover .mk-card-hover,
+  .mk-card:focus-within .mk-card-hover {
+    opacity: 1;
+  }
+  .mk-card {
+    @variant in-dark {
+      gap: 0;
+      border-radius: 26px;
+      background: linear-gradient(180deg, var(--mk-glass2), var(--mk-glass));
+      border: 1px solid var(--mk-glass-b);
+      box-shadow:
+        inset 0 1px 0 var(--mk-glass-hi),
+        0 30px 60px -40px rgba(0, 0, 0, 0.9);
+      overflow: hidden;
+      transition:
+        transform 0.3s ease,
+        box-shadow 0.3s ease,
+        border-color 0.3s ease;
+      .mk-card-frame {
+        background: transparent;
+        padding: 0;
+        border-radius: 0;
+        box-shadow: none;
+      }
+      .mk-card-stage {
+        background: none;
+        padding-top: 34px;
+      }
+      .mk-card-stage::before {
+        content: "";
+        position: absolute;
+        left: 50%;
+        top: 58%;
+        width: 220px;
+        height: 220px;
+        translate: -50% -50%;
+        border-radius: 999px;
+        background: radial-gradient(closest-side, var(--mk-pool, rgba(255, 90, 31, 0.42)), transparent);
+      }
+      .mk-card-stage::after {
+        content: "";
+        position: absolute;
+        inset: auto 0 0;
+        height: 90px;
+        background: linear-gradient(transparent, rgba(8, 7, 28, 0.85));
+        z-index: 2;
+      }
+      .mk-card-cap {
+        padding: 16px 20px 20px;
+        gap: 8px;
+      }
+      .mk-card-name {
+        font-size: 19px;
+      }
+      .mk-card-by {
+        letter-spacing: 0;
+        text-transform: none;
+        font-size: 13px;
+        font-weight: 500;
+      }
+      .mk-card-foot {
+        border-top-color: var(--mk-hair2);
+        align-items: center;
+      }
+      .mk-card-hover {
+        background: #f4efe6;
+        color: #0e0d24;
+      }
+      .mk-pill-ink {
+        background: rgba(255, 255, 255, 0.1);
+        color: #f4efe6;
+        border: 1px solid rgba(255, 255, 255, 0.14);
+        backdrop-filter: blur(10px);
+      }
+      &:hover,
+      &:focus-within {
+        border-color: rgba(255, 154, 110, 0.45);
+        box-shadow:
+          inset 0 1px 0 var(--mk-glass-hi),
+          0 0 0 1px rgba(255, 90, 31, 0.25),
+          0 40px 80px -30px rgba(255, 90, 31, 0.35);
+        transform: translateY(-8px);
+        .mk-card-frame {
+          transform: none;
+          box-shadow: none;
+        }
+        .mk-card-stage::before {
+          --mk-pool: rgba(255, 90, 31, 0.7);
+        }
+      }
+      &:hover .mk-card-phone {
+        transform: perspective(900px) rotateY(-12deg) rotateX(4deg) translateY(-6px);
+      }
+    }
+  }
+
+  /* A designer's monogram on the wall (A) or under a beam of light (B) */
+  .mk-mono {
+    position: relative;
+    overflow: hidden;
+    border-radius: 4px;
+    box-shadow: var(--mk-card-shadow);
+    background:
+      radial-gradient(70% 60% at 50% 30%, rgba(255, 255, 255, 0.8), transparent 70%),
+      var(--mk-wall);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .mk-mono {
+    @variant in-dark {
+      border-radius: 28px;
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      box-shadow: none;
+      background:
+        conic-gradient(from 180deg at 50% -10%, transparent 150deg, rgba(255, 220, 200, 0.22) 180deg, transparent 210deg),
+        radial-gradient(60% 60% at 50% 60%, rgba(255, 90, 31, 0.25), transparent 70%),
+        #0c0b24;
+    }
+  }
+
+  /* The dark band of A (and B's own night), for one collection */
+  .mk-band {
+    background:
+      radial-gradient(70% 60% at 50% 0%, rgba(255, 237, 214, 0.07), transparent 70%),
+      #0e0d24;
+    color: #f4efe6;
+    --mk-ink: #f4efe6;
+    --mk-muted: #a9a4bb;
+    --mk-faint: #7f7a93;
+    --mk-hair: rgba(244, 239, 230, 0.14);
+    --mk-accent: #ff9a6e;
+    --mk-card-shadow: 0 24px 48px -28px rgba(0, 0, 0, 0.8);
+    --color-white: #161530;
+  }
+  .mk-band .mk-card-stage {
+    background:
+      radial-gradient(80% 60% at 50% 20%, rgba(255, 237, 214, 0.06), transparent 70%),
+      #1c1b38;
+  }
+  .mk-band {
+    @variant in-dark {
+      background: transparent;
+    }
+  }
+
+  /* Numbered lists: thin numerals in A, ember outlines in B */
+  .mk-rank {
+    font-size: 34px;
+    font-weight: 250;
+    letter-spacing: -0.04em;
+    line-height: 1;
+    font-variant-numeric: tabular-nums;
+    flex: none;
+    width: 46px;
+  }
+  @media (min-width: 768px) {
+    .mk-rank {
+      font-size: 52px;
+      width: 72px;
+    }
+  }
+  .mk-rank {
+    @variant in-dark {
+      font-weight: 800;
+      color: transparent;
+      -webkit-text-stroke: 1.2px rgba(255, 154, 110, 0.9);
+    }
+  }
+  .mk-kpi {
+    font-size: 42px;
+    font-weight: 800;
+    letter-spacing: -0.04em;
+    line-height: 1;
+    font-variant-numeric: tabular-nums;
+  }
+
+  /* The step being filled in: an ink edge (A), an ember one (B) */
+  .mk-current {
+    border: 2px solid var(--mk-ink);
+    box-shadow: var(--mk-lift-shadow);
+  }
+  .mk-current {
+    @variant in-dark {
+      border-color: rgba(255, 154, 110, 0.7);
+      box-shadow:
+        inset 0 1px 0 var(--mk-glass-hi),
+        0 0 34px -10px rgba(255, 90, 31, 0.55);
+    }
+  }
+
+  /* The designers' pitch: the dark band of A, a glass case in B */
+  .mk-pitch {
+    background: #0e0d24;
+    border: 1px solid #2c2a49;
+  }
+  .mk-pitch {
+    @variant in-dark {
+      background: linear-gradient(180deg, var(--mk-glass2), var(--mk-glass));
+      border-color: var(--mk-glass-b);
+      box-shadow: inset 0 1px 0 var(--mk-glass-hi);
+    }
+  }
+
+  /* A template's stage: its own light/dark switch dims the wall (A) or lights the night (B) behind the phones. */
+  .mk-stage-wash {
+    position: absolute;
+    inset: 4% 0 0;
+    border-radius: 50%;
+    pointer-events: none;
+    opacity: 0;
+    transition: opacity 0.5s ease;
+    background: radial-gradient(closest-side, rgba(14, 13, 36, 0.2), transparent 78%);
+  }
+  .mk-stagebox[data-stage="dark"] .mk-stage-wash {
+    opacity: 1;
+  }
+  .mk-stagebox {
+    @variant in-dark {
+      .mk-stage-wash {
+        opacity: 1;
+        background: radial-gradient(closest-side, rgba(255, 237, 214, 0.13), transparent 78%);
+      }
+      &[data-stage="dark"] .mk-stage-wash {
+        opacity: 0;
+      }
+    }
+  }
+
+  /* What's included: a hairline grid on the wall (A), glass tiles (B) */
+  .mk-incl {
+    border-top: 1px solid var(--mk-hair);
+    border-inline-start: 1px solid var(--mk-hair);
+  }
+  .mk-incl > * {
+    border-bottom: 1px solid var(--mk-hair);
+    border-inline-end: 1px solid var(--mk-hair);
+  }
+  .mk-incl {
+    @variant in-dark {
+      border: 0;
+      gap: 12px;
+      & > * {
+        border: 1px solid rgba(255, 255, 255, 0.08);
+        border-radius: 20px;
+        background: rgba(255, 255, 255, 0.04);
+      }
+    }
+  }
+
+  /* A plan to choose: ink when chosen (A), an ember edge (B) */
+  .mk-plan {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    padding: 14px 14px 12px;
+    border-radius: 16px;
+    background: var(--color-white);
+    border: 1px solid var(--mk-hair);
+  }
+  .mk-plan[aria-current] {
+    background: var(--mk-ink);
+    color: var(--mk-bg);
+    border-color: var(--mk-ink);
+  }
+  .mk-plan {
+    @variant in-dark {
+      background: rgba(255, 255, 255, 0.04);
+      border-color: rgba(255, 255, 255, 0.1);
+      &[aria-current] {
+        background: linear-gradient(180deg, rgba(255, 90, 31, 0.22), rgba(255, 90, 31, 0.08));
+        border-color: rgba(255, 154, 110, 0.7);
+        box-shadow: 0 0 30px -8px rgba(255, 90, 31, 0.6);
+        color: var(--mk-ink);
+      }
+    }
+  }
+
+  /* The phone's bar at the bottom of a template's page */
+  .mk-buybar {
+    background: var(--color-white);
+    border-top: 1px solid var(--mk-hair);
+    box-shadow: 0 -16px 30px -20px rgba(14, 13, 36, 0.5);
+  }
+  .mk-buybar {
+    @variant in-dark {
+      background: rgba(14, 13, 36, 0.92);
+      backdrop-filter: blur(16px);
+    }
+  }
+
+  /* Motion, only for those who want it: B's phones float; A's hero drifts as the page scrolls. */
+  @media (prefers-reduced-motion: no-preference) {
+    .mk-float {
+      animation: mk-float 6s ease-in-out infinite;
+    }
+    .mk-float:nth-child(2n) {
+      animation-delay: -2s;
+    }
+    .mk-float:nth-child(3n) {
+      animation-delay: -4s;
+    }
+    @supports (animation-timeline: view()) {
+      .mk-drift {
+        animation: mk-drift linear both;
+        animation-timeline: view();
+        animation-range: exit 0% exit 100%;
+      }
+      .mk-drift-slow {
+        animation: mk-drift-slow linear both;
+        animation-timeline: view();
+        animation-range: exit 0% exit 100%;
+      }
+    }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .mk-card,
+    .mk-card-frame,
+    .mk-card-phone,
+    .mk-btn {
+      transition: none;
+    }
+    .mk-card:hover .mk-card-phone {
+      transform: none;
+    }
+  }
 }
-.market-board {
+
+/* Its phones' shadows over the frame's own (.phone-body above, outside the layers). */
+.mk-phone .phone-body {
+  box-shadow:
+    inset 0 1px 1px rgba(255, 255, 255, 0.18),
+    inset 0 0 0 1.5px var(--color-phone-edge),
+    inset 0 0 0 2.5px #0a0a0c,
+    0 2px 4px rgba(14, 13, 36, 0.12),
+    0 50px 80px -34px rgba(14, 13, 36, 0.55),
+    0 22px 30px -20px rgba(14, 13, 36, 0.35);
+}
+.mk-phone {
   @variant in-dark {
-    background-color: #1a1935;
-    background-image: radial-gradient(#2c2a4b 1.2px, transparent 1.3px);
+    .phone-body {
+      box-shadow:
+        inset 0 1px 1px rgba(255, 255, 255, 0.22),
+        inset 0 0 0 1.5px #5a5a66,
+        inset 0 0 0 2.5px #0a0a0c,
+        0 2px 4px rgba(0, 0, 0, 0.4),
+        0 50px 90px -30px rgba(0, 0, 0, 0.9);
+    }
+  }
+}
+.mk-reflect .phone {
+  -webkit-box-reflect: below 10px linear-gradient(transparent 80%, rgba(255, 255, 255, 0.22));
+}
+
+@keyframes mk-float {
+  0%,
+  100% {
+    translate: 0 0;
+  }
+  50% {
+    translate: 0 -12px;
+  }
+}
+@keyframes mk-drift {
+  to {
+    translate: 0 -60px;
+  }
+}
+@keyframes mk-drift-slow {
+  to {
+    translate: 0 -24px;
   }
 }

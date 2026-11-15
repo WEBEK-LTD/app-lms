@@ -8,7 +8,8 @@ import type { IconName } from "@/components/icon-names";
 import { ConfirmSubmit } from "@/components/studio-market/confirm";
 import { Board } from "@/components/studio-market/parts";
 import { MarketPhones, TemplatePhone } from "@/components/studio-market/phone";
-import { EmptyState, Notice, PageHeader, btn, formatDate } from "@/components/ui";
+import { EmptyState, Notice, btn, formatDate } from "@/components/ui";
+import { MarketHeader } from "@/components/studio-market/header";
 import { appLabel } from "@/lib/app/label";
 import { kindOf } from "@/lib/app/kinds";
 import { requireClient } from "@/lib/auth/session";
@@ -52,17 +53,12 @@ export default async function MyTemplatesPage({ searchParams }: PageProps<"/dash
   const error = notice(params.error);
 
   const header = (
-    <PageHeader
-      eyebrow={
-        <span className="inline-flex items-center gap-1.5 text-[13px] font-bold text-accent">
-          <Icon name="storefront" size={18} filled />
-          {t("studioMarket.nav")}
-        </span>
-      }
+    <MarketHeader
+      eyebrow={t("studioMarket.nav")}
       title={t("studioMarket.mineTitle")}
-      description={t("studioMarket.mineIntro")}
+      lead={t("studioMarket.mineIntro")}
       actions={
-        <Link href="/dashboard/studio-market" className={`${btn.primary} h-11`}>
+        <Link href="/dashboard/studio-market" className="mk-btn mk-btn-ink mk-btn-sm">
           <Icon name="storefront" size={20} />
           {t("studioMarket.browse")}
         </Link>
@@ -72,7 +68,7 @@ export default async function MyTemplatesPage({ searchParams }: PageProps<"/dash
 
   if (!rows.length) {
     return (
-      <>
+      <div className="mk mk-page flex flex-col gap-6">
         {header}
         {done ? <Notice tone="success" icon="check_circle" role="status">{done}</Notice> : null}
         <EmptyState
@@ -86,7 +82,7 @@ export default async function MyTemplatesPage({ searchParams }: PageProps<"/dash
         >
           {t("studioMarket.mineEmptyText")}
         </EmptyState>
-      </>
+      </div>
     );
   }
 
@@ -241,6 +237,7 @@ export default async function MyTemplatesPage({ searchParams }: PageProps<"/dash
 
   return (
     <MarketPhones pickable={{ items: {}, categories: {}, samples: sampleEntries(now) }}>
+      <div className="mk mk-page flex flex-col gap-6">
       {header}
       {done ? <Notice tone="success" icon="check_circle" role="status">{done}</Notice> : null}
       {error ? (
@@ -258,12 +255,12 @@ export default async function MyTemplatesPage({ searchParams }: PageProps<"/dash
             ["event_busy", "text-danger", counts.ended, t("studioMarket.statEnded")],
           ] as [IconName, string, number, string][]
         ).map(([icon, tone, value, label]) => (
-          <div key={label} className="flex flex-col gap-1.5 rounded-2xl border border-line bg-white px-[18px] py-4">
+          <div key={label} className="flex flex-col gap-1.5 mk-panel px-[18px] py-4">
             <span className="flex items-center gap-1.5 text-[13px] font-semibold text-muted">
               <Icon name={icon} size={18} filled className={tone} />
               {label}
             </span>
-            <span className="text-[26px] leading-tight font-extrabold tabular-nums">{value}</span>
+            <span className="mk-kpi text-[30px] md:text-[36px]">{value}</span>
           </div>
         ))}
       </div>
@@ -284,7 +281,7 @@ export default async function MyTemplatesPage({ searchParams }: PageProps<"/dash
         {/* Phones: one card per template. */}
         <div className="flex flex-col gap-3 lg:hidden">
           {shown.map((r) => (
-            <article key={r.licence.id} className="flex flex-col gap-3 rounded-2xl border border-line bg-white p-3.5">
+            <article key={r.licence.id} className="flex flex-col gap-3 mk-panel p-3.5">
               <div className="flex items-start gap-3">
                 {thumb(r)}
                 <div className="flex min-w-0 flex-1 flex-col gap-1">
@@ -293,7 +290,7 @@ export default async function MyTemplatesPage({ searchParams }: PageProps<"/dash
                   <span className="self-start">{badge(r.state)}</span>
                 </div>
               </div>
-              <div className="flex flex-col gap-2 rounded-xl bg-sand px-3 py-2.5 text-[13px]">
+              <div className="flex flex-col gap-2 rounded-xl bg-[var(--mk-mat)] px-3 py-2.5 text-[13px]">
                 <div className="flex items-center justify-between gap-2">
                   <span className="text-muted">{t("studioMarket.colApp")}</span>
                   {r.app ? appChip(r.app) : <span className="text-muted">—</span>}
@@ -314,16 +311,16 @@ export default async function MyTemplatesPage({ searchParams }: PageProps<"/dash
           ))}
         </div>
         {/* Computers: a table. */}
-        <section className="hidden overflow-hidden rounded-2xl border border-line bg-white lg:block">
+        <section className="mk-panel hidden overflow-hidden lg:block">
           <table className="w-full border-collapse text-sm">
             <thead>
               <tr>
                 {[t("studioMarket.colTemplate"), t("studioMarket.colApp"), t("studioMarket.colPlan"), t("studioMarket.colStatus")].map((h, i) => (
-                  <th key={h} className={`border-b border-line-soft bg-sand px-4 py-3 text-start text-[13px] font-semibold whitespace-nowrap text-muted ${i === 0 ? "ps-6" : ""}`}>
+                  <th key={h} className={`border-b border-[var(--mk-hair2)] bg-[var(--mk-mat)] px-4 py-3 text-start text-[13px] font-semibold whitespace-nowrap text-muted ${i === 0 ? "ps-6" : ""}`}>
                     {h}
                   </th>
                 ))}
-                <th className="border-b border-line-soft bg-sand py-3 ps-4 pe-6 text-end text-[13px] font-semibold text-muted">{t("studioMarket.colActions")}</th>
+                <th className="border-b border-[var(--mk-hair2)] bg-[var(--mk-mat)] py-3 ps-4 pe-6 text-end text-[13px] font-semibold text-muted">{t("studioMarket.colActions")}</th>
               </tr>
             </thead>
             <tbody>
@@ -341,7 +338,7 @@ export default async function MyTemplatesPage({ searchParams }: PageProps<"/dash
         </section>
       </div>
       {moving && moveFrom ? (
-        <section id="switch" aria-labelledby="h-switch" className="flex scroll-mt-6 flex-col rounded-2xl border border-line bg-white">
+        <section id="switch" aria-labelledby="h-switch" className="mk-panel flex scroll-mt-6 flex-col">
           <div className="border-b border-line-soft px-5 pt-5 pb-4 sm:px-6">
             <h2 id="h-switch" className="m-0 text-lg font-bold">
               {t("studioMarket.switchTitle")}
@@ -381,6 +378,7 @@ export default async function MyTemplatesPage({ searchParams }: PageProps<"/dash
           </div>
         </section>
       ) : null}
+      </div>
     </MarketPhones>
   );
 }

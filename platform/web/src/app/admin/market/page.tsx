@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { Icon } from "@/components/icon";
+import { MarketHeader } from "@/components/studio-market/header";
 import { PageThumb, MarketPhones } from "@/components/studio-market/phone";
 import { formatDateTime } from "@/components/ui";
 import { adminCan, requireAdmin } from "@/lib/auth/session";
@@ -66,45 +67,42 @@ export default async function MarketReviewPage({ searchParams }: PageProps<"/adm
   const done = params.done === "approved" ? "Approved and published. The designer was emailed." : params.done === "changes" ? "Changes requested. The designer was emailed with your notes." : null;
 
   const header = (
-    <header className="flex flex-wrap items-end justify-between gap-4">
-      <div className="flex max-w-[720px] flex-col gap-1.5">
-        <span className="inline-flex items-center gap-1.5 text-[13px] font-bold text-accent">
-          <Icon name="storefront" size={18} filled />
-          Studio Market
-        </span>
-        <h1 className="m-0 text-[30px] leading-tight font-extrabold tracking-[-0.5px]">Review queue</h1>
-        <p className="m-0 text-[15px] leading-relaxed text-ink-4">Templates designers sent us for their first publish, oldest first. We answer within 2 working days; later updates go live without a review.</p>
-      </div>
-      <div className="flex flex-wrap gap-2.5">
-        <span className="inline-flex items-center gap-1 rounded-xl bg-warn-bg px-3 py-1.5 text-[13px] font-bold text-warn">
-          <Icon name="hourglass_top" size={16} filled />
-          {queue.length} waiting{queue[0] ? ` · oldest ${waited(queue[0].submittedAt, now)}` : ""}
-        </span>
-        <span className="inline-flex items-center gap-1 rounded-xl bg-success-bg px-3 py-1.5 text-[13px] font-bold text-success">
-          <Icon name="task_alt" size={16} filled />
-          {approvedThisWeek} approved this week
-        </span>
-      </div>
-    </header>
+    <MarketHeader
+      eyebrow="Studio Market"
+      title="Review queue"
+      lead="Templates designers sent us for their first publish, oldest first. We answer within 2 working days; later updates go live without a review."
+      actions={
+        <>
+          <span className="inline-flex items-center gap-1 rounded-xl bg-warn-bg px-3 py-1.5 text-[13px] font-bold text-warn">
+            <Icon name="hourglass_top" size={16} filled />
+            {queue.length} waiting{queue[0] ? ` · oldest ${waited(queue[0].submittedAt, now)}` : ""}
+          </span>
+          <span className="inline-flex items-center gap-1 rounded-xl bg-success-bg px-3 py-1.5 text-[13px] font-bold text-success">
+            <Icon name="task_alt" size={16} filled />
+            {approvedThisWeek} approved this week
+          </span>
+        </>
+      }
+    />
   );
 
   if (!selected) {
     return (
-      <>
+      <div className="mk mk-page flex flex-col gap-6">
         {header}
         {done ? (
           <p role="status" className="m-0 rounded-xl bg-success-bg px-4 py-3 text-[15px] font-semibold text-success">
             {done}
           </p>
         ) : null}
-        <div className="flex flex-col items-center gap-2.5 rounded-xl border border-dashed border-line-strong bg-sand px-5 py-10 text-center">
+        <div className="mk-panel flex flex-col items-center gap-2.5 px-5 py-10 text-center">
           <span className="flex h-12 w-12 items-center justify-center rounded-full bg-white text-muted">
             <Icon name="task_alt" size={26} />
           </span>
           <p className="m-0 text-base font-bold">Nothing waiting</p>
           <p className="m-0 max-w-[440px] text-sm text-muted">Templates designers send for their first publish show here, oldest first.</p>
         </div>
-      </>
+      </div>
     );
   }
 
@@ -130,6 +128,7 @@ export default async function MarketReviewPage({ searchParams }: PageProps<"/adm
 
   return (
     <MarketPhones pickable={{ items: {}, categories: {}, samples: sampleEntries(now) }}>
+      <div className="mk mk-page flex flex-col gap-6">
       {header}
       {done ? (
         <p role="status" className="m-0 rounded-xl bg-success-bg px-4 py-3 text-[15px] font-semibold text-success">
@@ -137,7 +136,7 @@ export default async function MarketReviewPage({ searchParams }: PageProps<"/adm
         </p>
       ) : null}
       <div className="grid items-start gap-5 lg:grid-cols-[288px_minmax(0,1fr)]">
-        <aside aria-label="Waiting" className="flex flex-col gap-0.5 rounded-2xl border border-line bg-white p-2 lg:sticky lg:top-20">
+        <aside aria-label="Waiting" className="mk-panel flex flex-col gap-0.5 p-2 lg:sticky lg:top-20">
           <div className="flex items-center justify-between px-2.5 pt-2.5 pb-2">
             <b className="text-[15px]">
               Waiting <span className="font-medium text-muted">{queue.length}</span>
@@ -180,7 +179,7 @@ export default async function MarketReviewPage({ searchParams }: PageProps<"/adm
           })}
         </aside>
         <div className="flex min-w-0 flex-col gap-4">
-          <section aria-label={text.title} className="flex flex-col gap-4 rounded-2xl border border-line bg-white px-[22px] py-5">
+          <section aria-label={text.title} className="mk-panel flex flex-col gap-4 px-[22px] py-5">
             <div className="flex flex-wrap items-start justify-between gap-4">
               <div className="flex flex-col gap-1.5">
                 <span className="flex flex-wrap items-center gap-2">
@@ -233,6 +232,7 @@ export default async function MarketReviewPage({ searchParams }: PageProps<"/adm
           </section>
           <DecisionForm id={selected.id} checks={REVIEW_CHECKS.map((key) => ({ key, label: REVIEW_CHECK_LABELS[key] }))} next={next?.id ?? null} mayDecide={mayDecide} />
         </div>
+      </div>
       </div>
     </MarketPhones>
   );

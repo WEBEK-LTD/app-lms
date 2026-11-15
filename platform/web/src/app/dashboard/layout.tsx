@@ -14,6 +14,7 @@ import { ThemeSwitch } from "@/components/theme-switch";
 import { SignOutButton } from "@/components/sign-out";
 import { AppSwitcher } from "@/components/app-switcher";
 import { SectionSwitch } from "@/components/section-switch";
+import { DashboardMain } from "@/components/dashboard-main";
 import { BusinessSwitcher } from "@/components/business-switcher";
 import { UpdatesBell } from "@/components/updates-bell";
 import { dashboardMessages, knownEnglish } from "@/i18n/dashboard";
@@ -257,11 +258,13 @@ export default async function DashboardLayout({ children }: { children: React.Re
           <header className="flex items-center gap-3 bg-midnight px-4 py-2.5 sm:px-8 lg:px-10">
             <SectionSwitch label={t("studio.section")} words={{ regular: t("studio.regularApps"), studio: t("studio.title"), market: t("studioMarket.nav"), newTag: t("studioMarket.newTag") }} />
           </header>
-          <main id="main" tabIndex={-1} className="min-w-0 flex-1 px-4 pt-6 pb-16 outline-none sm:px-8 sm:pt-8 lg:px-10">
-            <div className="mx-auto flex max-w-[1120px] flex-col gap-6">
-              {/* 93.2 Help with this page. */}
+          <DashboardMain
+            help={
+              /* 93.2 Help with this page. */
               <PageHelp links={helpLinks(lang)} label={t("nav.pageHelp")} />
-              {staff ? (
+            }
+            banner={
+              staff ? (
                 <div role="status" className="flex flex-wrap items-center justify-between gap-3 rounded-xl bg-midnight px-4 py-3 text-sm text-white">
                   <span className="flex items-center gap-2">
                     <Icon name="key" size={20} />
@@ -277,10 +280,11 @@ export default async function DashboardLayout({ children }: { children: React.Re
                     </SubmitButton>
                   </form>
                 </div>
-              ) : null}
-              {children}
-            </div>
-          </main>
+              ) : null
+            }
+          >
+            {children}
+          </DashboardMain>
         </div>
       </div>
     </DashboardI18n>

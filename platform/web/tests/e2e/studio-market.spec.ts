@@ -260,9 +260,10 @@ test("an owner applies it to one of their apps, moves it to the other and goes b
   // The market: in the dashboard's dark bar and its own menu.
   await own.goto("/dashboard/studio-market");
   await expect(own.getByRole("link", { name: "Studio Market" }).first()).toHaveAttribute("aria-current", "page");
-  await expect(own.getByRole("heading", { name: "Whole app designs, ready to apply" })).toBeVisible();
-  await own.getByLabel("Search templates").fill(suffix);
-  await own.getByLabel("Search templates").press("Enter");
+  await expect(own.getByRole("heading", { name: "Designs worth opening." })).toBeVisible();
+  // Two heroes, one per theme: the search shown is the one to use.
+  await own.getByRole("searchbox", { name: "Search templates" }).fill(suffix);
+  await own.getByRole("searchbox", { name: "Search templates" }).press("Enter");
   await expect(own.getByRole("heading", { name: "1 template" })).toBeVisible();
   await own.getByRole("link", { name: title }).first().click();
   await expect(own).toHaveURL(/\/dashboard\/studio-market\/t\//);
@@ -323,7 +324,7 @@ test("the designer can't get their own template, and the market's pages read in 
   await own.goto("/dashboard/studio-market");
   await own.getByRole("button", { name: "العربية" }).first().click();
   await expect(own.locator("html")).toHaveAttribute("dir", "rtl");
-  await expect(own.getByRole("heading", { name: "تصميمات كاملة لتطبيقك، جاهزة تتطبّق" })).toBeVisible();
+  await expect(own.getByRole("heading", { name: "تصميمات تستاهل تتفتح." })).toBeVisible();
   await expect(own.getByRole("link", { name: /ماركت Studio/ }).first()).toBeVisible();
   await own.getByRole("button", { name: "English" }).first().click();
   expect(problems).toEqual([]);

@@ -136,7 +136,7 @@ export default async function DesignerLayout({ children }: { children: React.Rea
             </nav>
           </header>
           <main id="main" tabIndex={-1} className="min-w-0 flex-1 px-4 pt-6 pb-16 outline-none sm:px-8 sm:pt-8 lg:px-10">
-            <div className="mx-auto flex max-w-[1120px] flex-col gap-6">{children}</div>
+            <div className="mk mk-page mx-auto flex max-w-[1120px] flex-col gap-6">{children}</div>
           </main>
         </div>
       </div>

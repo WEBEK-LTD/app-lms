@@ -97,7 +97,7 @@ export function JoinForm({ profile, countries, joined, host }: { profile: JoinPr
   );
 
   return (
-    <section className="flex flex-col rounded-3xl border border-line bg-white px-5 py-6 shadow-[0_1px_2px_rgba(14,13,36,0.04),0_8px_24px_-16px_rgba(14,13,36,0.18)] sm:px-8 sm:py-[30px]">
+    <section className="mk-panel flex flex-col rounded-[28px] px-5 py-6 sm:px-8 sm:py-[30px]">
       <div className="flex flex-col gap-2 pb-1.5">
         <span className="flex justify-between gap-3 text-[13px]">
           <span className="font-bold text-accent">{t("studioMarket.stepOf", { n: progress, total: 4 })}</span>
@@ -108,7 +108,7 @@ export function JoinForm({ profile, countries, joined, host }: { profile: JoinPr
             <span key={n} className={`h-1.5 flex-1 rounded-full ${n < progress || (member && n <= 4) ? "bg-success" : n === progress ? "bg-ember" : "bg-line-soft"}`} />
           ))}
         </div>
-        <h1 className="m-0 mt-2.5 text-[28px] font-extrabold tracking-[-0.5px]">{t("studioMarket.joinTitle")}</h1>
+        <h1 className="mk-display mk-gradtext m-0 mt-2.5 text-[30px] sm:text-[34px]">{t("studioMarket.joinTitle")}</h1>
         <p className="m-0 text-[15px] text-ink-4">{t("studioMarket.joinIntro")}</p>
       </div>
 

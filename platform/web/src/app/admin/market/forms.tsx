@@ -80,7 +80,7 @@ export function DecisionForm({ id, checks, next, mayDecide }: { id: string; chec
   return (
     <form action={action} className="grid items-start gap-4 lg:grid-cols-2">
       <input type="hidden" name="id" value={id} />
-      <section className="flex flex-col rounded-2xl border border-line bg-white px-[22px] py-5">
+      <section className="mk-panel flex flex-col px-[22px] py-5">
         <div className="flex items-center justify-between pb-2">
           <b className="text-base">Checklist</b>
           <span className="text-[13px] text-muted tabular-nums">
@@ -109,7 +109,7 @@ export function DecisionForm({ id, checks, next, mayDecide }: { id: string; chec
           </label>
         ))}
       </section>
-      <section className="flex flex-col gap-3.5 rounded-2xl border border-line bg-white px-[22px] py-5">
+      <section className="mk-panel flex flex-col gap-3.5 px-[22px] py-5">
         <label htmlFor="f-notes" className="text-base font-bold">
           Notes to the designer
         </label>

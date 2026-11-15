@@ -392,6 +392,7 @@ test environment:
 - More Studio project types (Phase 105): see `docs/ROADMAP.md`.
 - Studio Market, the Studio template marketplace (Phase 106), no longer
   postponed: stage 1 (designers, free templates reviewed once, applying,
-  moving and going back to the previous design) is built; paid plans and
+  moving and going back to the previous design) is built, in the look the
+  owner chose ("Gallery" in light, "Night showroom" in dark); paid plans and
   checkout, the designers' money, and discounts with the public
   `/templates` page follow (see `docs/ROADMAP.md`).

@@ -61,8 +61,8 @@ export default async function JoinPage({ searchParams }: PageProps<"/designer/jo
   let card: React.ReactNode;
   if (!context) {
     card = (
-      <section className="flex flex-col gap-4 rounded-3xl border border-line bg-white px-5 py-6 sm:px-8 sm:py-[30px]">
-        <h1 className="m-0 text-[28px] font-extrabold tracking-[-0.5px]">{t("studioMarket.joinTitle")}</h1>
+      <section className="mk-panel flex flex-col gap-4 rounded-[28px] px-5 py-6 sm:px-8 sm:py-[30px]">
+        <h1 className="mk-display mk-gradtext m-0 text-[30px] sm:text-[34px]">{t("studioMarket.joinTitle")}</h1>
         <p className="m-0 text-[15px] text-ink-4">{t("studioMarket.joinIntro")}</p>
         <div className="flex flex-col gap-1 rounded-2xl bg-sand p-[18px]">
           <b className="text-base">{t("studioMarket.signedOutTitle")}</b>
@@ -81,8 +81,8 @@ export default async function JoinPage({ searchParams }: PageProps<"/designer/jo
     );
   } else if (!owner) {
     card = (
-      <section className="flex flex-col gap-4 rounded-3xl border border-line bg-white px-5 py-6 sm:px-8 sm:py-[30px]">
-        <h1 className="m-0 text-[28px] font-extrabold tracking-[-0.5px]">{t("studioMarket.joinTitle")}</h1>
+      <section className="mk-panel flex flex-col gap-4 rounded-[28px] px-5 py-6 sm:px-8 sm:py-[30px]">
+        <h1 className="mk-display mk-gradtext m-0 text-[30px] sm:text-[34px]">{t("studioMarket.joinTitle")}</h1>
         <Notice tone="neutral" icon="lock">
           {t("studioMarket.ownerOnly")}
         </Notice>
@@ -102,7 +102,7 @@ export default async function JoinPage({ searchParams }: PageProps<"/designer/jo
   return (
     <DashboardI18n lang={lang} messages={dashboardMessages(lang)} knownEnglish={lang === "en" ? {} : knownEnglish()}>
       <DocumentLang lang={lang} />
-      <div lang={lang} dir={dir} data-site-theme="" className="min-h-screen bg-ivory">
+      <div lang={lang} dir={dir} data-site-theme="" className="mk mk-bare mk-page min-h-screen">
         <header className="mx-auto flex max-w-[1200px] flex-wrap items-center gap-4 px-4 py-[22px] sm:px-8">
           <Link href={designer ? "/designer/templates" : "/dashboard/studio-market"} className="flex rounded-md">
             <Logo height={28} adaptive alt={t("nav.logoAlt")} />
@@ -121,13 +121,10 @@ export default async function JoinPage({ searchParams }: PageProps<"/designer/jo
           </span>
         </header>
         <main id="main" className="mx-auto grid max-w-[1200px] items-start gap-8 px-4 pt-2 pb-16 sm:px-8 lg:grid-cols-[460px_minmax(0,1fr)]">
-          <aside className="on-dark relative flex flex-col gap-[26px] overflow-hidden rounded-[28px] border border-[#2c2a49] bg-midnight px-6 pt-10 sm:px-9">
+          <aside className="mk-pitch on-dark relative flex flex-col gap-[26px] overflow-hidden rounded-[28px] px-6 pt-10 sm:px-9">
             <div aria-hidden="true" className="absolute -start-[120px] -bottom-[140px] h-[420px] w-[420px] rounded-full bg-[radial-gradient(closest-side,rgba(255,90,31,0.28),transparent)]" />
-            <span className="relative flex items-center gap-2 text-[13px] font-bold tracking-[0.06em] text-[#ff7a45] uppercase">
-              <Icon name="draw" size={18} />
-              {t("studioMarket.forDesigners")}
-            </span>
-            <h2 className="relative m-0 text-[32px] leading-[1.12] font-extrabold tracking-[-0.8px] text-ivory sm:text-[38px]">{t("studioMarket.pitchTitle")}</h2>
+            <span className="mk-eyebrow relative text-[#ff9a6e]">{t("studioMarket.forDesigners")}</span>
+            <h2 className="mk-display relative m-0 text-[34px] text-ivory sm:text-[42px]">{t("studioMarket.pitchTitle")}</h2>
             <p className="relative m-0 text-base leading-relaxed text-night-text">{t("studioMarket.pitchText")}</p>
             <div className="relative flex flex-col gap-5">
               {benefit("payments", t("studioMarket.benefit1Title"), t("studioMarket.benefit1Text"))}
