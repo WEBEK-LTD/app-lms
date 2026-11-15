@@ -12,6 +12,7 @@ import { getStore } from "@/lib/data";
 import type { App, StoreFlashSale } from "@/lib/data/types";
 import { dashboardText } from "@/lib/dashboard-lang";
 import { richText } from "@/i18n/rich";
+import { localePath } from "@/i18n/paths";
 import { platformDefinition } from "@/lib/hosted/connectors/platforms";
 import { DEFAULT_DELIVERY, slotLabel } from "@/lib/selling/delivery";
 import { saleOn, unitsLeft } from "@/lib/selling/flash-sales";
@@ -159,7 +160,9 @@ export default async function SellingPage() {
         </Notice>
       ) : null}
       {source.kind === "wordpress" ? <Notice tone="info">{t("selling.srcWordpress")}</Notice> : null}
-      {source.kind === "own_api" ? <Notice tone="info">{t("selling.srcOwnApi")}</Notice> : null}
+      {source.kind === "own_api" ? (
+        <Notice tone="info">{richText(t("selling.srcOwnApi"), { link: (chunk) => <Link href={`${localePath(lang, "/developers")}#store`}>{chunk}</Link> })}</Notice>
+      ) : null}
 
       {hosted ? (
         <PageGroup title={t("selling.checkoutTitle")}>

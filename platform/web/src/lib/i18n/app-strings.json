@@ -3170,4 +3170,10 @@
 {"key":"addonsHint","en":"Goes with your gift","ar":"تُرسَل مع هديتك","tr":"Hediyenizle birlikte gider","description":"131 Under the add-ons' title: they're sent with the gift."},
 {"key":"addonWith","en":"With {name}","ar":"مع {name}","tr":"{name} ile","description":"131 A gift add-on's line in the cart, under the item it goes with.","placeholders":{"name":"String"}},
 {"key":"addonAdd","en":"Add {name}","ar":"أضف {name}","tr":"{name} ekle","description":"131 Screen readers: the checkbox that adds a gift add-on.","placeholders":{"name":"String"}},
-{"key":"salePercentBadge","en":"−{percent}%","ar":"−{percent}٪","tr":"−%{percent}","description":"131 A flash sale's share off on its badge, like −25%.","placeholders":{"percent":"int"}}]}
+{"key":"salePercentBadge","en":"−{percent}%","ar":"−{percent}٪","tr":"−%{percent}","description":"131 A flash sale's share off on its badge, like −25%.","placeholders":{"percent":"int"}},
+{"key":"deliveryPlaceTitle","en":"Where it goes","ar":"مكان التوصيل","tr":"Teslimat yeri","description":"131 The standard checkout's section for the country, the city and the place on the map, for the shop's shipping."},
+{"key":"deliveryPinChoose","en":"Pin the delivery place on the map","ar":"حدّد مكان التوصيل على الخريطة","tr":"Teslimat yerini haritada işaretleyin","description":"131 Opens the map to pin where the order goes, for shipping priced by distance."},
+{"key":"deliveryPinSet","en":"Pinned on the map","ar":"تم تحديد المكان على الخريطة","tr":"Haritada işaretlendi","description":"131 The place the order goes is pinned on the map."},
+{"key":"deliveryPinChange","en":"Change","ar":"تغيير","tr":"Değiştir","description":"131 Opens the map again to move the pinned delivery place."},
+{"key":"deliveryNeedPlace","en":"Choose where it goes.","ar":"اختر مكان التوصيل.","tr":"Teslimat yerini seçin.","description":"131 Under the cart's button while the country or the city is missing."},
+{"key":"deliveryNeedPin","en":"Pin where it goes on the map.","ar":"حدّد مكان التوصيل على الخريطة.","tr":"Teslimat yerini haritada işaretleyin.","description":"131 Under the cart's button while the place isn't pinned for shipping priced by distance."}]}

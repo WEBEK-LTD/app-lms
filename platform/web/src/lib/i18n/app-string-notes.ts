@@ -5021,6 +5021,36 @@ export const APP_STRING_NOTES: Record<string, { en?: string; ar: string; tr: str
     ar: "نسبة خصم عرض الفلاش على الشارة بتاعته، زي −25%.",
     tr: "Flaş indirimin rozetindeki indirim oranı, örneğin −%25.",
   },
+  "131 The standard checkout's section for the country, the city and the place on the map, for the shop's shipping.": {
+    en: "The standard checkout's part for the country, the city and the place on the map, for the shop's shipping.",
+    ar: "جزء الدفع العادي للبلد والمدينة والمكان على الخريطة، علشان شحن المتجر.",
+    tr: "Standart ödemenin ülke, şehir ve haritadaki yer bölümü, mağazanın kargosu için.",
+  },
+  "131 Opens the map to pin where the order goes, for shipping priced by distance.": {
+    en: "Opens the map to pin where the order goes, for shipping priced by distance.",
+    ar: "بيفتح الخريطة علشان تحدّد مكان الطلب، للشحن حسب المسافة.",
+    tr: "Mesafeye göre kargo için siparişin gideceği yeri işaretlemek üzere haritayı açar.",
+  },
+  "131 The place the order goes is pinned on the map.": {
+    en: "The place the order goes is pinned on the map.",
+    ar: "مكان الطلب متحدّد على الخريطة.",
+    tr: "Siparişin gideceği yer haritada işaretlendi.",
+  },
+  "131 Opens the map again to move the pinned delivery place.": {
+    en: "Opens the map again to move the pinned delivery place.",
+    ar: "بيفتح الخريطة تاني علشان تحرّك مكان التوصيل.",
+    tr: "İşaretlenen teslimat yerini taşımak için haritayı yeniden açar.",
+  },
+  "131 Under the cart's button while the country or the city is missing.": {
+    en: "Under the cart's button while the country or the city is missing.",
+    ar: "تحت زرار السلة طول ما البلد أو المدينة ناقصين.",
+    tr: "Ülke ya da şehir eksikken sepet düğmesinin altında.",
+  },
+  "131 Under the cart's button while the place isn't pinned for shipping priced by distance.": {
+    en: "Under the cart's button while the place isn't pinned for shipping priced by distance.",
+    ar: "تحت زرار السلة طول ما المكان مش متحدّد للشحن حسب المسافة.",
+    tr: "Mesafeye göre kargoda yer işaretlenmemişken sepet düğmesinin altında.",
+  },
 };
 
 /** A developer's description without the app's code names: "… lib/core/x.dart uses it …", "(vertical_wording.dart)", a leading roadmap number. */

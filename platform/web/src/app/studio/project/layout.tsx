@@ -32,6 +32,9 @@ export default async function StudioProjectLayout({ children }: { children: Reac
   const content = contentNavOf(app);
   // Each link as the dashboard's page it shows, so the team's permissions apply as there.
   const item = (dashboardHref: string, label: string, icon: string) => ({ dashboardHref, href: inStudio(dashboardHref), label, icon });
+  // 131 A store project's delivery, gifts, flash sales and discount codes, and its card messages, next to its products and orders.
+  const storeExtras =
+    app.appType === "store" ? [item("/dashboard/selling", t("selling.nav"), "local_shipping"), item("/dashboard/selling/messages", t("selling.messagesTitle"), "redeem")] : [];
   const groups = [
     { items: [item("/dashboard", t("studio.overview"), "space_dashboard"), { ...item("/dashboard/pages", t("studio.navEditor"), "draw"), href: "/studio/editor" }] },
     ...(app.appType === "delivery"
@@ -50,8 +53,10 @@ export default async function StudioProjectLayout({ children }: { children: Reac
           },
         ]
       : content
-        ? [{ label: k(content.label), items: content.items.map((i) => item(i.href, k(i.label), i.icon)) }]
-        : []),
+        ? [{ label: k(content.label), items: [...content.items.map((i) => item(i.href, k(i.label), i.icon)), ...storeExtras] }]
+        : storeExtras.length
+          ? [{ label: t("selling.nav"), items: storeExtras }]
+          : []),
     {
       label: t("studio.groupApp"),
       items: [
