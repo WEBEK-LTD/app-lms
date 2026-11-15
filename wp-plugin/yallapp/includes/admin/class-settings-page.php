@@ -1257,7 +1257,7 @@ class Settings_Page {
 		$this->close();
 		// 131 A flash sale, through WooCommerce's own sale price.
 		$this->open( 'flash', __( 'Flash sale', 'yallapp' ) );
-		$this->toggle( 'store_flash_sale', __( 'Run a flash sale', 'yallapp' ), __( 'While it is on, its products cost the sale price everywhere (the shop, the cart and the checkout, as WooCommerce\'s own sale price), with a countdown in the app. WooCommerce\'s scheduled sale prices show their end in the app too.', 'yallapp' ) );
+		$this->toggle( 'store_flash_sale', __( 'Run a flash sale', 'yallapp' ), __( 'While it is on, its products cost the sale price everywhere (the shop, the cart and the checkout, as WooCommerce\'s own sale price), with a countdown in the app. WooCommerce\'s scheduled sale prices show their end in the app too.', 'yallapp' ) . ' ' . __( 'On WordPress the app runs one flash sale at a time: change this one for the next (its units sold start again from zero).', 'yallapp' ) );
 		$this->text( 'store_flash_title', __( 'Its name in the app', 'yallapp' ) );
 		$this->textarea( 'store_flash_titles', __( 'Its name in the app\'s other languages', 'yallapp' ), __( 'One language a line, its code first, like "ar: عرض خاطف". A language left out shows the name above.', 'yallapp' ), 'tr: Flaş indirim' );
 		$this->checks( 'store_flash_product_ids', __( 'Products', 'yallapp' ), $this->product_options() );

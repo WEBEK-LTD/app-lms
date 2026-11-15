@@ -8,9 +8,9 @@ import '../../../core/theme/app_icons.dart';
 import '../../../core/theme/palette.dart';
 import '../../../core/theme/symbol_names.dart';
 import '../../../core/widgets/common.dart';
-import '../../delivery/data/delivery_providers.dart';
 import '../../shared/auth/country_codes.dart' show ltrIsolate;
 import '../data/store_providers.dart';
+import 'delivery_place.dart';
 
 /// 131 The store checkout's premium parts, for every store app: the
 /// delivery day (Today, Tomorrow or a date, the cut-off counted) and slot
@@ -577,13 +577,6 @@ class _GiftDetailsPanelState extends ConsumerState<GiftDetailsPanel> {
     final f = widget.form;
     final look = widget.look;
     final gift = widget.giftCheckout;
-    final lang = Localizations.localeOf(context).languageCode;
-    final countries = widget.shipping?.countries ?? const <ShippingCountry>[];
-    if (f.country == null && countries.length == 1) {
-      f.country = countries.first.code;
-    }
-    final country = countries.where((c) => c.code == f.country).firstOrNull;
-    final cities = country?.cities;
     var step = widget.firstStep;
     final parts = <Widget>[];
 
@@ -637,46 +630,14 @@ class _GiftDetailsPanelState extends ConsumerState<GiftDetailsPanel> {
           keyName: 'gift-recipient-phone',
         ),
         if (gift) ...[
-          if (countries.length > 1)
-            Padding(
-              padding: const EdgeInsets.only(bottom: 10),
-              child: DropdownButtonFormField<String>(
-                key: const ValueKey('gift-country'),
-                initialValue: f.country,
-                decoration: InputDecoration(labelText: l10n.giftCountry),
-                items: [
-                  for (final c in countries)
-                    DropdownMenuItem(
-                      value: c.code,
-                      child: Text(c.nameIn(lang)),
-                    ),
-                ],
-                onChanged: (v) => setState(() {
-                  f.country = v;
-                  f.city = null;
-                  widget.onChanged();
-                }),
-              ),
+          // 131 Where it goes (the country, the city, the pin for a fee by
+          // distance), as in the standard checkout.
+          if (widget.shipping case final shipping?)
+            DeliveryPlaceFields(
+              form: f,
+              shipping: shipping,
+              onChanged: () => setState(widget.onChanged),
             ),
-          if (cities != null)
-            Padding(
-              padding: const EdgeInsets.only(bottom: 10),
-              child: DropdownButtonFormField<String>(
-                key: const ValueKey('gift-city'),
-                initialValue: f.city,
-                decoration: InputDecoration(labelText: l10n.city),
-                items: [
-                  for (final c in cities)
-                    DropdownMenuItem(value: c, child: Text(c)),
-                ],
-                onChanged: (v) => setState(() {
-                  f.city = v;
-                  widget.onChanged();
-                }),
-              ),
-            )
-          else if (widget.shipping != null)
-            _field(f.recipientCity, l10n.city, keyName: 'gift-recipient-city'),
           _field(
             f.recipientAddress,
             l10n.giftAddress,
@@ -686,30 +647,6 @@ class _GiftDetailsPanelState extends ConsumerState<GiftDetailsPanel> {
             keyName: 'gift-recipient-address',
             icon: AppIcons.location,
           ),
-          // Shipping by distance: the pin where it goes (the phone's place).
-          if (widget.shipping?.needsLocation ?? false)
-            Align(
-              alignment: AlignmentDirectional.centerStart,
-              child: TextButton.icon(
-                key: const ValueKey('gift-location'),
-                icon: AppIcon(
-                  f.pin == null ? AppIcons.pinDrop : AppIcons.checkCircle,
-                  size: 18,
-                ),
-                label: Text(l10n.giftUseLocation),
-                onPressed: () async {
-                  final found = await ref.read(locatorProvider).current();
-                  final at = found.position;
-                  if (!context.mounted) return;
-                  if (at == null) {
-                    showMessage(context, l10n.giftLocationFailed);
-                    return;
-                  }
-                  setState(() => f.pin = (lat: at.lat, lng: at.lng));
-                  widget.onChanged();
-                },
-              ),
-            ),
         ],
       ],
     );

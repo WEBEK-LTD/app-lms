@@ -11871,4 +11871,22 @@ class AppLocalizationsTr extends AppLocalizations {
   String salePercentBadge(int percent) {
     return '−%$percent';
   }
+
+  @override
+  String get deliveryPlaceTitle => 'Teslimat yeri';
+
+  @override
+  String get deliveryPinChoose => 'Teslimat yerini haritada işaretleyin';
+
+  @override
+  String get deliveryPinSet => 'Haritada işaretlendi';
+
+  @override
+  String get deliveryPinChange => 'Değiştir';
+
+  @override
+  String get deliveryNeedPlace => 'Teslimat yerini seçin.';
+
+  @override
+  String get deliveryNeedPin => 'Teslimat yerini haritada işaretleyin.';
 }

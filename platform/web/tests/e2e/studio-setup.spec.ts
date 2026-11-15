@@ -581,3 +581,18 @@ test("every step on a phone in English, and no console errors or hydration warni
   await expect(toggle).toBeHidden();
   expect(problems).toEqual([]);
 });
+
+test("131 a store project's menu leads to Delivery & offers and the card messages, another kind's doesn't", async () => {
+  await newProject("Store", "Leqaa menu");
+  const nav = own.getByRole("navigation", { name: "Project dashboard" });
+  await nav.getByRole("link", { name: "Delivery & offers", exact: true }).click();
+  await expect(own).toHaveURL(/\/studio\/project\/selling$/);
+  await expect(own.getByRole("heading", { name: "Delivery & offers", level: 1 })).toBeVisible();
+  await expect(nav.getByRole("link", { name: "Delivery & offers", exact: true })).toHaveAttribute("aria-current", "page");
+  await nav.getByRole("link", { name: "Card messages", exact: true }).click();
+  await expect(own).toHaveURL(/\/studio\/project\/selling\/messages$/);
+  await expect(own.getByRole("heading", { name: "Card messages", level: 1 })).toBeVisible();
+  await newProject("An academy with many teachers", "No shop menu");
+  await expect(nav.getByRole("link", { name: "Delivery & offers" })).toHaveCount(0);
+  await expect(nav.getByRole("link", { name: "Card messages" })).toHaveCount(0);
+});

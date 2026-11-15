@@ -2,7 +2,10 @@ import { catalogSettings } from "../catalog/settings";
 import { couponDiscount } from "../catalog/coupons";
 import { formatCents, centsToDecimal } from "../catalog/money";
 import type { DataStore } from "../data/store";
-import type { App, CatalogCoupon, CatalogCurrency, OrderDelivery, StoreFlashSale } from "../data/types";
+import type { App, CatalogCoupon, CatalogCurrency, MapTilesSetting, OrderDelivery, StoreFlashSale } from "../data/types";
+import { mapConfigJson } from "../delivery/service";
+import { handleMapRequest, isMapRequest, platformMapEndpoints } from "../hosted/connectors/maps";
+import { platformSetting } from "../settings/platform";
 import { cartLines, error, intParam } from "../hosted/connectors/common";
 import type { Connector, ConnectorRequest, ConnectorResult } from "../hosted/connectors/types";
 import { checkoutLookOf } from "../studio/checkout-look";
@@ -38,7 +41,7 @@ export function checkoutModeOfApp(app: App): CheckoutMode {
  * `StoreConfig`'s parts for these (merged over the source's own): `fees`
  * whether the slot's and shipping's fees are charged (Yallapp's checkout).
  */
-export function storeExtrasConfig(app: App, currency: string, opts: { fees: boolean }) {
+export function storeExtrasConfig(app: App, currency: string, opts: { fees: boolean; map?: MapTilesSetting | null }) {
   const mode = checkoutModeOfApp(app);
   const rules = shippingRulesOf(catalogSettings(app));
   return {
@@ -57,6 +60,14 @@ export function storeExtrasConfig(app: App, currency: string, opts: { fees: bool
             free_over: rules.freeOverCents !== null ? centsToDecimal(rules.freeOverCents) : null,
             free_over_formatted: rules.freeOverCents !== null ? formatCents(rules.freeOverCents, currency as CatalogCurrency) : null,
             max_km: rules.mode === "distance" ? (rules.distance?.maxKm ?? null) : null,
+            // 131 Priced by distance: the map the customer pins the place on (the platform's
+            // tiles, and whether its search works at `/maps/places`), starting at the shop.
+            ...(rules.mode === "distance"
+              ? {
+                  map: mapConfigJson(opts.map ?? null),
+                  center: rules.distance ? { lat: rules.distance.origin.lat, lng: rules.distance.origin.lng } : null,
+                }
+              : {}),
           },
         }
       : {}),
@@ -164,11 +175,13 @@ export async function checkStoreCheckout(
   if (!day.ok) return day;
   const gift = opts.quote ? ({ ok: true, sender: null, recipient: null, message: null, anonymous: false } as const) : checkGift(gifts, mode, body);
   if (!gift.ok) return gift;
-  const input = (body ?? {}) as { recipient?: unknown; delivery_address?: unknown };
+  // 131 The gift checkout's place is the recipient's; the standard checkout's is its `place`
+  // (or a delivery address's), the recipient's for an older app.
+  const input = (body ?? {}) as { recipient?: unknown; delivery_address?: unknown; place?: unknown };
   const rules = shippingRulesOf(catalogSettings(app));
   const byPlace = needsPlace(rules);
   // A price per kg needs no place: with flat shipping anywhere it's priced as it is.
-  const place = byPlace || rules.weight ? placeOf(mode === "gift" ? input.recipient : (input.delivery_address ?? input.recipient)) : null;
+  const place = byPlace || rules.weight ? placeOf(mode === "gift" ? (input.recipient ?? input.place) : (input.place ?? input.delivery_address ?? input.recipient)) : null;
   let shipping: Extract<ShippingQuote, { ok: true }> | null = null;
   if (place && (!byPlace || opts.requirePlace || place.country || place.city || place.lat !== null)) {
     const quoted = quoteShipping(rules, { subtotalCents: opts.subtotalCents, physical: opts.physical, place, weightGrams: opts.weightGrams });
@@ -327,10 +340,13 @@ export function withStoreExtras(inner: Connector, deps: StoreExtrasDeps): Connec
       const own = base.store as { currency?: string } | undefined;
       if (!own) return base;
       currency = own.currency ?? currency;
-      return { ...base, store: { ...own, ...storeExtrasConfig(app, currency, { fees: false }) } };
+      return { ...base, store: { ...own, ...storeExtrasConfig(app, currency, { fees: false, map: await storeMap(store, app) }) } };
     },
     async handle(request) {
       const route = `${request.method} /${request.path.join("/")}`;
+      // 131 The map's place search, for a shop priced by distance.
+      const map = await storeMapRoute({ store, app }, request);
+      if (map) return map;
       const extra = await handleStoreExtras(
         {
           store,
@@ -424,4 +440,20 @@ export function withStoreExtras(inner: Connector, deps: StoreExtrasDeps): Connec
     }
     return result;
   }
+}
+
+/** 131 The platform's map, for a store's config (its tiles, when priced by distance). */
+export async function storeMap(store: DataStore, app: App): Promise<MapTilesSetting | null> {
+  if (shippingRulesOf(catalogSettings(app)).mode !== "distance") return null;
+  return (await platformSetting(store, "maps").catch(() => null))?.value ?? null;
+}
+
+/**
+ * 131 A store priced by distance searches the place on the map (`/maps/places`, the
+ * place's position, the address at the customer's pin), through the platform's map;
+ * null for any other request or store.
+ */
+export async function storeMapRoute(deps: StoreExtrasDeps, request: ConnectorRequest): Promise<ConnectorResult | null> {
+  if (!isMapRequest(request.path) || shippingRulesOf(catalogSettings(deps.app)).mode !== "distance") return null;
+  return handleMapRequest(platformMapEndpoints({ store: deps.store, app: deps.app }), request);
 }

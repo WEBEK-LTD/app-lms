@@ -3938,6 +3938,7 @@ paths:
                     delivery_slot: { type: [string, 'null'], maxLength: 16 }
                     recipient: { $ref: '#/components/schemas/GiftRecipient' }
                     delivery_address: { $ref: '#/components/schemas/DeliveryAddress' }
+                    place: { $ref: '#/components/schemas/DeliveryPlace' }
       responses:
         '200':
           description: The priced cart
@@ -8393,7 +8394,8 @@ paths:
         app's map: the company's Google Maps (Places) or OpenStreetMap
         search server, or the platform's search server, or 112.6 MapTiler's
         geocoding with the tiles' key (`search` in
-        `TaxiConfig.map`, `DeliveryConfig.map`, `FoodConfig.map`). A Google
+        `TaxiConfig.map`, `DeliveryConfig.map`, `FoodConfig.map`, 131
+        `StoreConfig.shipping.map` for a shop priced by distance). A Google
         place comes without its position: ask `GET /maps/places/{place_id}`
         when the person picks it. `feature_disabled` (403) when the app's map
         has no search.
@@ -14873,6 +14875,24 @@ components:
         gift_anonymous: { type: boolean, default: false, description: "131 Send it without the sender's name (`store.gift_message.anonymous`)." }
         sender: { $ref: '#/components/schemas/GiftSender' }
         recipient: { $ref: '#/components/schemas/GiftRecipient' }
+        place: { $ref: '#/components/schemas/DeliveryPlace' }
+
+    DeliveryPlace:
+      type: [object, 'null']
+      description: |
+        131 Where the order goes, for `store.shipping`, in the standard
+        checkout (the gift checkout's is the recipient's): the country among
+        `store.shipping.countries`, the city (one of its `cities` when they're
+        listed) and, when `store.shipping.needs_location`, the pin dropped on
+        the map, from which the server measures the distance to the shop.
+        Required with `store.shipping` at checkout (`invalid_request` naming
+        the country or city, `outside_delivery_area`); missing for shops
+        without it. Older apps sent it as the recipient's, which still works.
+      properties:
+        country: { type: [string, 'null'], pattern: '^[A-Z]{2}$', example: TR }
+        city: { type: [string, 'null'], maxLength: 60, example: İstanbul }
+        lat: { type: [number, 'null'], minimum: -90, maximum: 90 }
+        lng: { type: [number, 'null'], minimum: -180, maximum: 180 }
 
     GiftSender:
       type: [object, 'null']
@@ -14961,6 +14981,22 @@ components:
         free_over: { type: [string, 'null'], example: '1000.00' }
         free_over_formatted: { type: [string, 'null'] }
         max_km: { type: [number, 'null'] }
+        map:
+          type: object
+          required: [tiles_url, attribution, search, routes]
+          description: "131 With `needs_location`: the map the customer pins the place on, as `DeliveryConfig.map` (the platform's tiles; `search`: places by name at `GET /maps/places`, the address at a pin at `GET /maps/address`). `tiles_url` null: no map yet, the phone's own position only."
+          properties:
+            tiles_url: { type: [string, 'null'] }
+            attribution: { type: [string, 'null'] }
+            search: { type: boolean }
+            routes: { type: boolean }
+        center:
+          type: [object, 'null']
+          description: "131 With `needs_location`: where the map opens, the shop."
+          required: [lat, lng]
+          properties:
+            lat: { type: number }
+            lng: { type: number }
 
     ProductSale:
       type: [object, 'null']

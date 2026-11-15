@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import Link from "next/link";
 import { changeOccasionAction, changeTemplateAction } from "@/app/actions/selling";
 import { SubmitButton } from "@/components/form";
 import { Icon } from "@/components/icon";
@@ -10,6 +11,8 @@ import { dashboardText } from "@/lib/dashboard-lang";
 import { occasionName, seedGiftOccasions } from "@/lib/selling/gift-messages";
 import { giftsOf } from "@/lib/selling/gifts";
 import { appLanguagesOf } from "@/lib/selling/store";
+import { localePath } from "@/i18n/paths";
+import { richText } from "@/i18n/rich";
 import { OccasionForm, TemplateForm } from "../forms";
 
 export async function generateMetadata(): Promise<Metadata> {
@@ -57,6 +60,12 @@ export default async function GiftMessagesPage() {
           </SheetButton>
         }
       />
+      {/* 131 An app on its own API reads its card messages from there. */}
+      {app.backend === "custom_api" ? (
+        <Notice tone="warn" icon="warning">
+          {richText(t("selling.messagesOwnApi"), { link: (chunk) => <Link href={`${localePath(lang, "/developers")}#store`}>{chunk}</Link> })}
+        </Notice>
+      ) : null}
       {fresh ? <Notice tone="info">{t("selling.messagesStarters")}</Notice> : null}
       <Sheet id="new-occasion" title={t("selling.addOccasion")}>
         <OccasionForm languages={languages.available} />

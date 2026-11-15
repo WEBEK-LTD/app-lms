@@ -3173,5 +3173,11 @@
   "addonsHint": "Hediyenizle birlikte gider",
   "addonWith": "{name} ile",
   "addonAdd": "{name} ekle",
-  "salePercentBadge": "−%{percent}"
+  "salePercentBadge": "−%{percent}",
+  "deliveryPlaceTitle": "Teslimat yeri",
+  "deliveryPinChoose": "Teslimat yerini haritada işaretleyin",
+  "deliveryPinSet": "Haritada işaretlendi",
+  "deliveryPinChange": "Değiştir",
+  "deliveryNeedPlace": "Teslimat yerini seçin.",
+  "deliveryNeedPin": "Teslimat yerini haritada işaretleyin."
 }
