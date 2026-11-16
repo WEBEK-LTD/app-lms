@@ -189,7 +189,7 @@ export default async function SellingPage({ searchParams }: { searchParams: Prom
                   <CheckoutModeForm mode={gifts.checkout === "gift" ? "gift" : "standard"} />
                 </Section>
             ) : null}
-            {source.kind !== "own_api" && source.kind !== "none" ? (
+            {titled ? (
               <Section titleId="h-titles" title={t("selling.titlesTitle")} description={t("selling.titlesIntro")}>
                 <TitlesForm values={titleValues} languages={langs} />
               </Section>
@@ -240,7 +240,7 @@ export default async function SellingPage({ searchParams }: { searchParams: Prom
         {titled ? (
           <TabPanel tab="addons">
             {/* 131 Gift add-ons: "Add a little more" with the products they go with. */}
-            {source.kind !== "own_api" && source.kind !== "none" ? (
+            {titled ? (
               <Section titleId="h-addons" title={t("selling.addonsTitle")} description={t("selling.addonsIntro")}>
                 {source.kind === "catalog" ? (
                   <>
