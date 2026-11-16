@@ -33,7 +33,7 @@ export function CourseEditorTabs({ tabs, initial, label, children }: { tabs: Edi
     setTab(next);
     const url = new URL(window.location.href);
     url.searchParams.set("tab", next);
-    window.history.replaceState(window.history.state, "", `${url.pathname}${url.search}`);
+    window.history.replaceState(null, "", `${url.pathname}${url.search}`);
   }, []);
   const mark = useCallback((id: string, state: { dirty?: boolean; error?: boolean }) => {
     setMarks((all) => (all[id]?.dirty === state.dirty && all[id]?.error === state.error ? all : { ...all, [id]: state }));

@@ -289,9 +289,9 @@ export function SortableList<T>({
   const [said, setSaid] = useState("");
   // The entry whose handle is held: only it can be dragged (so text in it can still be chosen).
   const [armed, setArmed] = useState<string | number | null>(null);
-  const dragging = useRef(false);
-  const hintId = `sortable-hint-${useId()}`;
-  const listRef = useRef<HTMLUListElement & HTMLOListElement>(null);
+  const uid = useId();
+  const hintId = `sortable-hint-${uid}`;
+  const listId = `sortable-${uid}`;
   // A new list from the server (saved, or changed elsewhere) is the order now.
   const [from, setFrom] = useState(items);
   if (from !== items) {
@@ -305,7 +305,7 @@ export function SortableList<T>({
     if (focusId !== undefined) {
       const place = next.findIndex((x) => idOf(x) === focusId) + 1;
       setSaid(moved(place, next.length));
-      requestAnimationFrame(() => listRef.current?.querySelector<HTMLElement>(`[data-sortable-id="${String(focusId)}"] [data-sortable-handle]`)?.focus());
+      requestAnimationFrame(() => document.getElementById(listId)?.querySelector<HTMLElement>(`[data-sortable-id="${String(focusId)}"] [data-sortable-handle]`)?.focus());
     }
   };
   const move = (from: number, to: number) => {
@@ -324,7 +324,7 @@ export function SortableList<T>({
       <span role="status" aria-live="polite" className="sr-only">
         {said}
       </span>
-      <List ref={listRef} className={className}>
+      <List id={listId} className={className}>
         {order.map((item, index) => {
           const id = idOf(item);
           const isOver = over?.id === id && dragId !== null && dragId !== id;
@@ -338,7 +338,6 @@ export function SortableList<T>({
                   event.preventDefault();
                   return;
                 }
-                dragging.current = true;
                 event.dataTransfer.effectAllowed = "move";
                 event.dataTransfer.setData("text/plain", String(id));
                 setDragId(id);
@@ -361,7 +360,6 @@ export function SortableList<T>({
                 move(from, to);
               }}
               onDragEnd={() => {
-                dragging.current = false;
                 setArmed(null);
                 setDragId(null);
                 setOver(null);
@@ -382,8 +380,9 @@ export function SortableList<T>({
                 handle: {
                   onPointerDown: () => {
                     setArmed(id);
+                    // A drag that starts ends with dragend instead (the browser sends no pointerup).
                     const release = () => {
-                      if (!dragging.current) setArmed(null);
+                      setArmed(null);
                       window.removeEventListener("pointerup", release);
                     };
                     window.addEventListener("pointerup", release);

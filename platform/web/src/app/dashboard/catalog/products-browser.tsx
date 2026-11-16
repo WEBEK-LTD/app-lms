@@ -115,7 +115,7 @@ export function ProductsBrowser({ products, categories, restaurant, initial }: {
     put("sort", f.sort === "newest" ? null : f.sort);
     params.delete("saved");
     const query = params.toString();
-    window.history.replaceState(window.history.state, "", `${window.location.pathname}${query ? `?${query}` : ""}`);
+    window.history.replaceState(null, "", `${window.location.pathname}${query ? `?${query}` : ""}`);
   }, [f]);
 
 
