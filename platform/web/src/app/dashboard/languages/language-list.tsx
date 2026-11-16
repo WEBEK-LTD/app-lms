@@ -2,6 +2,7 @@
 
 import { useState, useSyncExternalStore } from "react";
 import { Badge, btn } from "@/components/ui";
+import { KitStatus, kit } from "@/components/studio-page";
 import { Icon } from "@/components/icon";
 import { isBuiltInLanguage, isRtl, languageName, LOCALES, localeInfo } from "@/lib/i18n/locales";
 import type { Languages } from "@/lib/pages/types";
@@ -23,6 +24,7 @@ export function LanguageList({
   full,
   max,
   idPrefix = "languages",
+  look = "card",
 }: {
   languages: Languages;
   /** `defaultTo`: the default changed to this language (the parent moves the texts). */
@@ -31,7 +33,12 @@ export function LanguageList({
   full: boolean;
   max: number;
   idPrefix?: string;
+  /** 132.137 "kit": the Languages page's premium look (rows on hairlines, pills); Pages & look keeps its cards. */
+  look?: "card" | "kit";
 }) {
+  const premium = look === "kit";
+  const Pill = premium ? KitStatus : Badge;
+  const iconButton = premium ? `${kit.icon} disabled:cursor-not-allowed disabled:opacity-40` : iconBtn;
   const t = useDashT();
   const dashLang = useDashLang();
   const nameOf = (code: string) => appLanguageName(code, dashLang);
@@ -65,43 +72,47 @@ export function LanguageList({
 
   return (
     <div className="flex flex-col gap-4">
-      <ol className="m-0 flex list-none flex-col gap-2 p-0" aria-label={t("languages.inApp")}>
+      <ol className={`m-0 flex list-none flex-col p-0 ${premium ? "" : "gap-2"}`} aria-label={t("languages.inApp")}>
         {list.map((code, i) => {
           const info = localeInfo(code);
           const name = info ? nameOf(code) : code;
           const isDefault = code === languages.default;
           return (
-            <li key={code} className="flex flex-wrap items-center justify-between gap-3 rounded-xl border border-line px-4 py-3" data-language={code}>
+            <li
+              key={code}
+              className={premium ? "flex flex-wrap items-center justify-between gap-3 border-t border-(--sp-line-soft) py-3.5 first:border-t-0 first:pt-0" : "flex flex-wrap items-center justify-between gap-3 rounded-xl border border-line px-4 py-3"}
+              data-language={code}
+            >
               <div className="flex min-w-0 flex-[1_1_220px] flex-col gap-1">
                 <span className="flex flex-wrap items-center gap-2 text-[15px] font-semibold">
                   {name}
                   {info && info.nativeName !== name ? (
-                    <span lang={code} dir={isRtl(code) ? "rtl" : "ltr"} className="font-normal text-muted">
+                    <span lang={code} dir={isRtl(code) ? "rtl" : "ltr"} className={`font-normal ${premium ? "text-(--sp-muted)" : "text-muted"}`}>
                       {info.nativeName}
                     </span>
                   ) : null}
                 </span>
                 <span className="flex flex-wrap gap-1.5">
-                  {isDefault ? <Badge tone="info">{t("languages.default")}</Badge> : null}
-                  {isRtl(code) ? <Badge tone="neutral">{t("languages.rtl")}</Badge> : null}
-                  {isBuiltInLanguage(code) ? <Badge tone="success">{t("languages.byYallapp")}</Badge> : <Badge tone="warn">{t("languages.youTranslate")}</Badge>}
+                  {isDefault ? <Pill tone="info">{t("languages.default")}</Pill> : null}
+                  {isRtl(code) ? <Pill tone="neutral">{t("languages.rtl")}</Pill> : null}
+                  {isBuiltInLanguage(code) ? <Pill tone="success">{t("languages.byYallapp")}</Pill> : <Pill tone="warn">{t("languages.youTranslate")}</Pill>}
                 </span>
               </div>
               <div className="flex flex-wrap items-center gap-2">
                 {isDefault ? null : (
-                  <button type="button" className={`${btn.secondary} h-9 px-3 text-sm`} onClick={() => onChange({ default: code, available: list }, code)}>
+                  <button type="button" className={premium ? kit.row : `${btn.secondary} h-9 px-3 text-sm`} onClick={() => onChange({ default: code, available: list }, code)}>
                     {t("languages.makeDefault")}
                   </button>
                 )}
-                <button type="button" className={iconBtn} aria-label={t("languages.moveUp", { name })} disabled={i === 0} onClick={() => move(code, -1)}>
+                <button type="button" className={iconButton} aria-label={t("languages.moveUp", { name })} disabled={i === 0} onClick={() => move(code, -1)}>
                   <Icon name="arrow_upward" size={18} />
                 </button>
-                <button type="button" className={iconBtn} aria-label={t("languages.moveDown", { name })} disabled={i === list.length - 1} onClick={() => move(code, 1)}>
+                <button type="button" className={iconButton} aria-label={t("languages.moveDown", { name })} disabled={i === list.length - 1} onClick={() => move(code, 1)}>
                   <Icon name="arrow_downward" size={18} />
                 </button>
                 <button
                   type="button"
-                  className={iconBtn}
+                  className={iconButton}
                   aria-label={t("languages.remove", { name })}
                   disabled={isDefault}
                   title={isDefault ? t("languages.defaultFirst") : undefined}
@@ -128,12 +139,12 @@ export function LanguageList({
             ))}
           </select>
         </div>
-        <button type="button" className={`${btn.secondary} h-10 px-4 text-sm`} disabled={!adding || full || atMax} onClick={add}>
+        <button type="button" className={premium ? kit.quiet : `${btn.secondary} h-10 px-4 text-sm`} disabled={!adding || full || atMax} onClick={add}>
           <Icon name="add" size={18} />
           {t("common.add")}
         </button>
       </div>
-      <p className="m-0 text-sm text-muted">
+      <p className={`m-0 text-sm ${premium ? "text-(--sp-muted)" : "text-muted"}`}>
         {t("languages.listText")}
         {atMax ? ` ${t("languages.atMax", { max })}` : ""}
       </p>

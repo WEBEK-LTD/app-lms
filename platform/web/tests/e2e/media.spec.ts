@@ -123,13 +123,15 @@ test("the owner uploads a video in chunks and a picture to Media", async () => {
   await expect(own.locator("[data-storage-used]")).toContainText("6 MB of 2 GB used");
 
   // 132.147 Open plays the video right on the page, in a drawer, from the gate's signed link.
+  // (Since 132.138 a file's actions are in its drawer.)
+  await files.locator('[data-media="Lesson one.mp4"] button[aria-haspopup=dialog]').first().click();
   await files.locator('[data-media="Lesson one.mp4"]').getByRole("button", { name: "Open" }).click();
-  const viewer = own.getByRole("dialog", { name: "Lesson one.mp4" });
+  const viewer = own.getByRole("dialog", { name: "Lesson one.mp4" }).last();
   await expect(viewer.locator("[data-media-viewer=video] video")).toBeVisible();
   await expect(viewer.getByRole("link", { name: "Download" })).toHaveAttribute("href", /dl=1/);
   const open = (await viewer.locator("video").getAttribute("src"))!;
   await viewer.getByRole("button", { name: "Close" }).click();
-  await expect(viewer).toBeHidden();
+  await own.keyboard.press("Escape");
   // The signed link plays the file with range requests, straight from the gate.
   expect(new URL(open).pathname).toMatch(/^\/media\/v\/[0-9a-f-]{36}\/[0-9a-f-]{36}\/mp4$/);
   // Opened on its own, it isn't sandboxed (a sandboxed page's player stays at 0:00).
@@ -145,10 +147,12 @@ test("the owner uploads a video in chunks and a picture to Media", async () => {
   // Its own link: a picture opens for anyone, a lesson's video doesn't.
   // 64b The file's ID is the segment before the extension: `/<app>/<id>/<ext>`.
   const videoId = new URL(open).pathname.split("/").at(-2)!;
+  await files.locator('[data-media="Cover.png"] button[aria-haspopup=dialog]').first().click();
   await files.locator('[data-media="Cover.png"]').getByRole("button", { name: "Open" }).click();
-  const pictureViewer = own.getByRole("dialog", { name: "Cover.png" });
+  const pictureViewer = own.getByRole("dialog", { name: "Cover.png" }).last();
   const pictureOpen = (await pictureViewer.getByRole("img", { name: "Cover.png" }).getAttribute("src"))!;
   await pictureViewer.getByRole("button", { name: "Close" }).click();
+  await own.keyboard.press("Escape");
   expect((await own.request.head(pictureOpen)).headers()["content-security-policy"]).toContain("sandbox");
   const pictureId = new URL(pictureOpen).pathname.split("/").at(-2)!;
   const picture = await own.request.get(`/m/${pictureId}`, { maxRedirects: 0 });
@@ -158,6 +162,7 @@ test("the owner uploads a video in chunks and a picture to Media", async () => {
 
   // Renamed.
   const row = files.locator('[data-media="Lesson one.mp4"]');
+  await row.locator("button[aria-haspopup=dialog]").click();
   await row.getByRole("button", { name: "Rename Lesson one.mp4" }).click();
   await row.getByLabel("Name").fill("Lesson 1 - Hello.mp4");
   await row.getByRole("button", { name: "Save name" }).click();
@@ -277,6 +282,8 @@ test("the owner buys a storage pack by card, then uploads", async () => {
 
   await own.goto("/dashboard/media");
   const buy = own.getByRole("region", { name: "Buy more storage" });
+  // 132.138 The packs and the form open under one line.
+  await buy.locator("summary").click();
   await expect(buy.getByText("+25 GB")).toBeVisible();
   await expect(buy).toContainText("$5 a month");
   await expect(buy.locator("[data-charge-line]")).toHaveText(/^You'll be charged EGP\s[\d,]+ \(about \$\d+\); your bank may convert it\.$/);
@@ -345,6 +352,7 @@ test("renewing the plan by card renews the pack with it", async () => {
 test("deleting a file frees its space", async () => {
   await own.goto("/dashboard/media");
   const files = own.getByRole("list", { name: "Files" });
+  await files.locator('[data-media="Lesson two.mp4"] button[aria-haspopup=dialog]').click();
   await files.locator('[data-media="Lesson two.mp4"]').getByRole("button", { name: "Delete" }).click();
   await expect(files.locator('[data-media="Lesson two.mp4"]')).toHaveCount(0);
   await expect(own.locator("[data-storage-used]")).toContainText("6 MB of 25 GB used");

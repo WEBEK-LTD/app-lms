@@ -93,6 +93,8 @@ test("the owner of an own API app lets Yallapp sign people in", async () => {
   await own.getByText("Phone number or email address").click();
   await own.getByRole("button", { name: "Save sign-in methods" }).click();
   await expect(own.getByText("Saved. The app shows it the next time it opens")).toBeVisible();
+  // 132.136 The rules' form opens under its row.
+  await own.locator('details[data-fold="rules"] > summary').click();
   await own.getByLabel("Review phone number").fill("+90 532 000 00 34");
   await own.getByLabel("Review code").fill("343434");
   await own.getByRole("region", { name: "Sign-in rules" }).getByRole("button", { name: "Save", exact: true }).click();

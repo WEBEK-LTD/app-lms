@@ -93,6 +93,8 @@ test("93.2 every page links to its help article", async () => {
 
 test("Test asks the website now and keeps the result", async () => {
   const website = card(own, "website");
+  // 132.139 The last test, the test and the errors open under the connection's row.
+  await website.locator("summary").click();
   await website.getByRole("button", { name: "Test" }).click();
   await expect(website.getByRole("alert")).toContainText("It didn't work. The details are below.");
   await own.reload();
@@ -109,6 +111,7 @@ test("the page comes in Arabic", async () => {
   await expect(own.getByRole("heading", { level: 1, name: "التكاملات" })).toBeVisible();
   // 93.2 Help with this page, in the dashboard's language.
   await expect(own.getByRole("link", { name: "مساعدة في هذه الصفحة" })).toHaveAttribute("href", "/ar/docs/integrations");
+  await card(own, "website").locator("summary").click();
   await expect(card(own, "website").getByRole("button", { name: "اختبار" })).toBeVisible();
   await own.locator("[data-dashboard-languages]").getByRole("button", { name: "English" }).click();
 });
