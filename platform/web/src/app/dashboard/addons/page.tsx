@@ -3,12 +3,14 @@ import Link from "next/link";
 import { Icon } from "@/components/icon";
 import type { IconName } from "@/components/icon-names";
 import { formatDate } from "@/components/ui";
-import { KitCallout, KitEmpty, KitHeader, KitList, KitPage, KitRow, KitSection, KitStatus, KitThumb, kit } from "@/components/studio-page";
+import { KitCallout, KitEmpty, KitHeader, KitHero, KitList, KitMore, KitPage, KitRow, KitSection, KitStat, KitStatus, KitThumb, kit } from "@/components/studio-page";
 import { requireClient } from "@/lib/auth/session";
 import { getStore } from "@/lib/data";
 import { dashboardText } from "@/lib/dashboard-lang";
 import { encryptionKey } from "@/lib/env";
 import { appPlan } from "@/lib/entitlements";
+import { formatStorage } from "@/lib/plans";
+import { addonTotals } from "@/lib/addons/effects";
 import { getPlans, platformSetting, yallappPlanAccount } from "@/lib/settings/platform";
 import { priceView } from "@/lib/billing/display";
 import { formatMoney, offerFor, shownPrice } from "@/lib/billing/prices";
@@ -75,8 +77,25 @@ export default async function AddonsPage({ searchParams }: PageProps<"/dashboard
   const name = (a: Pick<AddonDef, "en" | "ar" | "tr"> | null, fallback: string) => (a ? addonText(a, lang).name : fallback);
   const billingWord = (b: AddonBilling) => t(BILLING_KEY[b]);
   const { payment } = query;
-  // 132.144 The premium kit: the header with the plan as a quiet link; what is being paid for first, then the app's add-ons and
-  // the ones offered as rows (a name, its prices, one pill or one action), the long explanation behind "?".
+  // 132.175 The app's limits as they are now (its plan with its add-ons), with what the add-ons add to each.
+  const running = owned.filter((o) => addonRunning(o, now));
+  const extra = addonTotals(owned, now);
+  const limitTiles = plan
+    ? (
+        [
+          app?.backend === "hosted" ? { key: "appUsers", icon: "group", label: t("license.usageAppUsers"), value: plan.limits.appUsers, size: false } : null,
+          { key: "storageGb", icon: "photo_library", label: t("license.usageStorage"), value: plan.limits.storageGb, size: true },
+          { key: "languages", icon: "translate", label: t("license.usageLanguages"), value: plan.limits.languages, size: false },
+          family === "studio" && plan.limits.studioPages != null ? { key: "pages", icon: "description", label: t("license.usagePages"), value: plan.limits.studioPages, size: false } : null,
+        ] as const
+      )
+        .filter((tile) => tile !== null)
+        .slice(0, 3)
+    : [];
+  const limitValue = (value: number | null, size: boolean) => (value === null ? <span className="text-[0.6em] tracking-[-0.3px]">{t("license.unlimited")}</span> : size ? <bdi dir="ltr">{formatStorage(value)}</bdi> : text.num(value));
+  // 132.144 The premium kit: what is being paid for first, then the app's add-ons and the ones offered as rows (a name, its prices,
+  // one pill or one action), the long explanation behind "?". 132.175 The console's look: the plan in the "⋯" menu, the add-ons
+  // and the limits they raise as tiles.
   return (
     <KitPage>
       <KitHeader
@@ -86,12 +105,37 @@ export default async function AddonsPage({ searchParams }: PageProps<"/dashboard
         help={t("addons.intro")}
         helpLabel={t("studioPage.help")}
         actions={
-          <Link href={licensePath(app)} className={kit.ghost}>
-            <Icon name="workspace_premium" size={20} />
-            {t("addons.plan")}
-          </Link>
+          <KitMore label={t("studioPage.more")}>
+            <Link href={licensePath(app)} className={kit.menuItem}>
+              <Icon name="workspace_premium" size={18} />
+              {t("addons.plan")}
+            </Link>
+          </KitMore>
         }
       />
+      {license && plan ? (
+        <KitHero
+          label={t("addons.title")}
+          stats={
+            <>
+              <KitStat icon="widgets" label={t("addons.yours")} value={text.num(running.length)} hint={t("addons.offeredCount", { count: offered.length })} href={owned.length ? "#h-my-addons" : "#h-offered"} />
+              {limitTiles.map((tile) => {
+                const more = extra.get(tile.key) ?? 0;
+                return (
+                  <KitStat
+                    key={tile.key}
+                    icon={tile.icon as IconName}
+                    tone={more ? "success" : "neutral"}
+                    label={tile.label}
+                    value={limitValue(tile.value, tile.size)}
+                    hint={more ? t("addons.withAddons", { amount: tile.size ? formatStorage(more) : text.num(more) }) : undefined}
+                  />
+                );
+              })}
+            </>
+          }
+        />
+      ) : null}
       {payment === "paid" ? (
         <KitCallout tone="success" icon="check_circle" role="status">
           {t("addons.paid")}

@@ -26,6 +26,12 @@ export const en = {
   passwordNote: "Changing your password also signs out every phone.",
   statPhones: "Phones signed in",
   count: "{count, plural, one {{count} phone} other {{count} phones}}",
+  withNotifications: "With notifications: {count}",
+  colPhone: "Phone",
+  colSystem: "System",
+  colLastUsed: "Last used",
+  colSignedIn: "Signed in",
+  colNotifications: "Notifications",
   needs: {
     ordersInProgress: "{count, plural, one {{count} order in progress} other {{count} orders in progress}}",
     awaitingPayment: "{count, plural, one {{count} order waiting for its payment} other {{count} orders waiting for their payment}}",
@@ -172,6 +178,12 @@ export const ar: Messages = {
   passwordNote: "تغيير كلمة المرور يسجّل الخروج من كل الهواتف أيضًا.",
   statPhones: "الهواتف المسجّل دخولها",
   count: "{count, plural, zero {لا هواتف} one {هاتف واحد} two {هاتفان} few {{count} هواتف} many {{count} هاتفًا} other {{count} هاتف}}",
+  withNotifications: "بالإشعارات: {count}",
+  colPhone: "التليفون",
+  colSystem: "النظام",
+  colLastUsed: "آخر استخدام",
+  colSignedIn: "دخل يوم",
+  colNotifications: "الإشعارات",
   needs: {
     ordersInProgress:
       "{count, plural, one {طلب واحد قيد التنفيذ} two {طلبان قيد التنفيذ} few {{count} طلبات قيد التنفيذ} other {طلبات قيد التنفيذ: {count}}}",
@@ -314,6 +326,12 @@ export const tr: Messages = {
   passwordNote: "Şifrenizi değiştirmek de tüm telefonlarda oturumu kapatır.",
   statPhones: "Oturum açık telefonlar",
   count: "{count, plural, one {{count} telefon} other {{count} telefon}}",
+  withNotifications: "Bildirimli: {count}",
+  colPhone: "Telefon",
+  colSystem: "Sistem",
+  colLastUsed: "Son kullanım",
+  colSignedIn: "Giriş",
+  colNotifications: "Bildirimler",
   needs: {
     ordersInProgress: "{count, plural, one {Hazırlanan {count} sipariş} other {Hazırlanan {count} sipariş}}",
     awaitingPayment: "{count, plural, one {Ödemesi beklenen {count} sipariş} other {Ödemesi beklenen {count} sipariş}}",

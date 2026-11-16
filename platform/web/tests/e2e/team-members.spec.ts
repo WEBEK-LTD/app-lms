@@ -241,6 +241,8 @@ test("the member completes the order on the dashboard, and the owner sees who di
   // The order's own pill (the page's numbers name "Completed" too).
   await expect(member.getByRole("listitem").filter({ hasText: "Copper pot" })).toContainText("Completed");
   await own.goto("/dashboard/team");
+  // 132.176 The activity is folded under the team.
+  await own.locator("summary", { hasText: "Activity" }).click();
   await expect(own.getByTestId("team-activity")).toContainText(`${staff.name} · Order`);
   await expect(own.getByTestId("team-activity")).toContainText("Completed");
   await expect(own.locator(`[data-member="${staff.email}"]`)).toContainText("Orders & kitchen");
@@ -276,10 +278,12 @@ test("the member's phone sees only Orders in the Owner API", async ({ request })
 test("the owner removes the member, and their session ends everywhere", async ({ request }) => {
   await own.goto("/dashboard/team");
   const row = own.locator(`[data-member="${staff.email}"]`);
-  // 132.142 Changing someone's access and removing them are in their drawer, opened from their row.
+  // 132.142 Changing someone's access and removing them are in their drawer, opened from their row (132.176 the inspector).
   await row.getByRole("button", { name: new RegExp(`^${staff.name}`) }).click();
-  await row.getByLabel(`Remove ${staff.name} from the team`).click();
-  await row.getByRole("button", { name: "Yes, remove" }).click();
+  // 132.176 Their details open in the inspector beside the page.
+  const inspector = own.locator(`[data-inspector-member="${staff.email}"]`);
+  await inspector.getByLabel(`Remove ${staff.name} from the team`).click();
+  await inspector.getByRole("button", { name: "Yes, remove" }).click();
   await expect(own.getByRole("status")).toContainText(`${staff.name} is off the team and signed out everywhere.`);
   await expect(own.locator(`[data-member="${staff.email}"]`)).toHaveCount(0);
   // The website: the next page asks them to sign in.

@@ -6,7 +6,8 @@ import type { ReactNode } from "react";
 import { BUILD_STATUS_LABEL, BUILD_TONE, BuildStages } from "@/components/build-status";
 import { Icon } from "@/components/icon";
 import type { IconName } from "@/components/icon-names";
-import { KitCallout, KitEmpty, KitFold, KitHeader, KitHero, KitList, KitNext, KitPage, KitRow, KitSection, KitSettingRow, KitSettings, KitStatus, KitThumb, kit } from "@/components/studio-page";
+import { KitCallout, KitEmpty, KitFold, KitHeader, KitHero, KitList, KitMore, KitNext, KitPage, KitRow, KitSection, KitSettingRow, KitSettings, KitStatus, KitThumb, kit } from "@/components/studio-page";
+import { KitInspectorHead, KitTable, KitTableRow } from "@/components/studio-page/table";
 import { formatDate, formatDateTime } from "@/components/ui";
 import { firebaseListsCourierApp, firebaseListsStaffApp, firebaseListsVendorApp, hasStoreKeys, isSetupComplete, nextStep } from "@/lib/app/setup";
 import { failedApiCheck } from "@/lib/app/api-check-notice";
@@ -372,13 +373,46 @@ export default async function BuildsPage({ searchParams }: PageProps<"/dashboard
     )),
   });
   const stagedOn = Boolean(app.stagedRelease?.androidPercent != null || app.stagedRelease?.iosPhased);
+  const fileRows = (
+    <>
+      {FILES.map((file) => (
+        <DownloadRow key={file.kind} id={file.kind} icon={FILE_ICON[file.kind]} t={t} title={k(ARTIFACT_LABEL[file.kind])} text={k(fileDescription(file.kind, autoPublish))} highlight={file.highlight} {...fileRow(file.kind)} />
+      ))}
+      {plugin ? (
+        <DownloadRow
+          id="plugin"
+          icon={FILE_ICON.plugin}
+          t={t}
+          title={t("builds.plugin")}
+          text={release ? t("builds.pluginVersion", { version: release.version }) : t("builds.pluginKey")}
+          href={release && state === "active" ? "/api/dashboard/plugin" : null}
+          unavailable={!release ? t("builds.noRelease") : t("builds.pluginActive")}
+        />
+      ) : null}
+      <DownloadRow id="store_assets" icon={FILE_ICON.store_assets} t={t} title={k(ARTIFACT_LABEL.store_assets)} text={k(fileDescription("store_assets", autoPublish))} {...fileRow("store_assets")} />
+    </>
+  );
   return (
     <KitPage>
       <KitHeader
         icon="build"
         title={t("builds.title")}
         description={t("builds.intro", { app: appLabel(app) === "Untitled app" ? k("Untitled app") : appLabel(app), plan: plan ? k(planName(plan, plans)) : t("overview.noPlan") })}
-        actions={<StartBuildForm suggestedVersion={suggestedVersion(current)} disabledReason={disabledReason} />}
+        actions={
+          <div className="flex items-start gap-2 max-sm:w-full max-sm:flex-col">
+            <StartBuildForm suggestedVersion={suggestedVersion(current)} disabledReason={disabledReason} />
+            <KitMore label={t("studioPage.more")}>
+              <Link href="/dashboard/publishing" className={kit.menuItem}>
+                <Icon name="publish" size={18} />
+                {t("builds.publishing")}
+              </Link>
+              <a href="#h-guides" className={kit.menuItem}>
+                <Icon name="menu_book" size={18} />
+                {t("builds.guides")}
+              </a>
+            </KitMore>
+          </div>
+        }
       />
       {/* 110.2 Sample entries left: nothing goes to the stores. */}
       <SamplesStoreNotice app={app} />
@@ -576,31 +610,117 @@ export default async function BuildsPage({ searchParams }: PageProps<"/dashboard
         </KitSection>
       ) : null}
 
-      <KitSection
-        titleId="h-files"
-        id="files"
-        title={filesTitle}
-        description={lastReady ? t("builds.filesFinished", { date: formatDateTime(lastReady.finishedAt ?? lastReady.updatedAt, lang) }) : t("builds.filesAppear")}
-        flush
-      >
-        <ul className="m-0 flex list-none flex-col px-2 sm:px-4">
-          {FILES.map((file) => (
-            <DownloadRow key={file.kind} id={file.kind} icon={FILE_ICON[file.kind]} t={t} title={k(ARTIFACT_LABEL[file.kind])} text={k(fileDescription(file.kind, autoPublish))} highlight={file.highlight} {...fileRow(file.kind)} />
-          ))}
-          {plugin ? (
-            <DownloadRow
-              id="plugin"
-              icon={FILE_ICON.plugin}
-              t={t}
-              title={t("builds.plugin")}
-              text={release ? t("builds.pluginVersion", { version: release.version }) : t("builds.pluginKey")}
-              href={release && state === "active" ? "/api/dashboard/plugin" : null}
-              unavailable={!release ? t("builds.noRelease") : t("builds.pluginActive")}
-            />
-          ) : null}
-          <DownloadRow id="store_assets" icon={FILE_ICON.store_assets} t={t} title={k(ARTIFACT_LABEL.store_assets)} text={k(fileDescription("store_assets", autoPublish))} {...fileRow("store_assets")} />
-        </ul>
-      </KitSection>
+      {/* 132.172 The builds as a table (the version, the platforms, when, the state); a build's details, its stages, what went
+          wrong and its log, and making it again, in the inspector. */}
+      {builds.length ? (
+        <KitSection titleId="h-history" title={t("builds.history")} description={t("builds.historyText")} flush>
+          <KitTable
+            label={t("builds.history")}
+            closeLabel={t("common.close")}
+            media
+            name={t("builds.colVersion")}
+            columns={[
+              { label: t("builds.colPlatform"), width: "150px", wide: true },
+              { label: t("builds.queued"), width: "170px" },
+            ]}
+            end={{ label: t("builds.colState"), width: "140px" }}
+          >
+            {builds.map((build) => {
+              const took = formatDuration(build.startedAt, build.finishedAt);
+              const platforms = (["android", "ios"] as const).filter((key) => build.stages[key] && build.stages[key] !== "skipped");
+              const remake = build.status === "ready" && build.sourceCommit && !licenseProblem && !running;
+              return (
+                <KitTableRow
+                  key={build.id}
+                  id={build.id}
+                  data-build={build.number}
+                  media={<KitThumb icon={build.status === "ready" ? "task_alt" : build.status === "failed" ? "error" : "schedule"} size={40} />}
+                  name={
+                    <span className="min-w-0 truncate">
+                      #{build.number} · <bdi dir="ltr">{build.versionName}</bdi> <span className="text-[13px] font-normal text-(--sp-muted)">({build.versionCode})</span>
+                    </span>
+                  }
+                  line={formatDateTime(build.createdAt, lang)}
+                  cells={[
+                    <span key="p" className="flex items-center gap-1.5 text-(--sp-ink-2)">
+                      {platforms.map((key) => (
+                        <span key={key} className="inline-flex items-center gap-1">
+                          <Icon name={key === "android" ? "android" : "phone_iphone"} size={17} className="text-(--sp-muted)" />
+                          {key === "android" ? "Android" : "iOS"}
+                        </span>
+                      ))}
+                    </span>,
+                    formatDateTime(build.createdAt, lang),
+                  ]}
+                  end={<BuildPill build={build} text={text} />}
+                  inspector={{
+                    label: t("builds.buildTitle", { number: build.number, version: build.versionName }),
+                    title: t("builds.colVersion"),
+                    // 87.3 A ready build made from known code can be made again as it was; 89.3 an earlier one gone back to.
+                    footer: remake ? (
+                      <div className="flex flex-wrap items-center gap-2">
+                        <RebuildForm buildId={build.id} number={build.number} />
+                        {build.id !== builds[0]?.id ? <GoBackForm buildId={build.id} number={build.number} /> : null}
+                      </div>
+                    ) : undefined,
+                  }}
+                >
+                  <div className="flex flex-col gap-4" data-inspector-build={build.number}>
+                    <KitInspectorHead
+                      top={<BuildPill build={build} text={text} />}
+                      title={t("builds.buildTitle", { number: build.number, version: build.versionName })}
+                      line={t("builds.versionCode", { code: build.versionCode })}
+                    />
+                    <Times build={build} now={now} text={text} />
+                    {took ? <p className="m-0 text-[13px] text-(--sp-muted)">{t("builds.tookTime", { time: k(took) })}</p> : null}
+                    <BuildStages stages={build.stages} lang={lang} look="pills" />
+                    {build.status === "queued" || build.status === "building" ? <p className="m-0 text-sm text-(--sp-muted)">{k(statusExplanation(build, now))}</p> : null}
+                    {build.status === "failed" ? (
+                      <KitCallout tone="danger" icon="error">
+                        {k(failureReason(build))}
+                      </KitCallout>
+                    ) : null}
+                    {build.status === "ready" && build.message ? (
+                      <KitCallout tone={Object.values(build.stages).includes("failed") ? "warn" : "info"} icon="info">
+                        {k(build.message)}
+                      </KitCallout>
+                    ) : null}
+                    {build.rebuildOf ? <p className="m-0 text-[13px] text-(--sp-muted)">{t("builds.rebuildOf", { number: build.rebuildOf })}</p> : null}
+                    {build.failure?.log ? (
+                      <KitFold summary={t("builds.failureLog")} icon="code">
+                        <p className="m-0 text-xs text-(--sp-muted)">{t("builds.failureLogText")}</p>
+                        <pre dir="ltr" className="m-0 max-h-[320px] overflow-auto rounded-xl bg-midnight p-3 text-xs leading-relaxed whitespace-pre-wrap text-white">
+                          {build.failure.log}
+                        </pre>
+                      </KitFold>
+                    ) : null}
+                    {build.id === lastReady?.id ? (
+                      <a href="#files" className={`${kit.quiet} self-start`}>
+                        <Icon name="download" size={18} />
+                        {filesTitle}
+                      </a>
+                    ) : null}
+                  </div>
+                </KitTableRow>
+              );
+            })}
+          </KitTable>
+        </KitSection>
+      ) : null}
+
+      {/* The files of the latest ready build; 132.172 folded until a build is ready. */}
+      {lastReady ? (
+        <KitSection titleId="h-files" id="files" title={filesTitle} description={t("builds.filesFinished", { date: formatDateTime(lastReady.finishedAt ?? lastReady.updatedAt, lang) })} flush>
+          <ul className="m-0 flex list-none flex-col px-2 sm:px-4">{fileRows}</ul>
+        </KitSection>
+      ) : (
+        <div id="files" className="scroll-mt-6">
+          <KitFold summary={filesTitle} icon="download">
+            <p className="m-0 text-[13.5px] text-(--sp-muted)">{t("builds.filesAppear")}</p>
+            <ul className="m-0 flex list-none flex-col rounded-xl border border-(--sp-line) bg-(--sp-surface) p-0">{fileRows}</ul>
+          </KitFold>
+        </div>
+      )}
 
       {courier ? (
         // 105.2 A ride company's second app is its drivers'.
@@ -671,44 +791,6 @@ export default async function BuildsPage({ searchParams }: PageProps<"/dashboard
           text={text}
         />
       ) : null}
-
-      {/* The stores: Publishing, then the step-by-step guides (folded), and 31 Apple's rules for what this app sells (nothing for apps that sell nothing). */}
-      <KitSection titleId="h-stores" title={t("builds.stores")} flush>
-        <KitList label={t("builds.stores")}>
-          <KitRow href="/dashboard/publishing" media={<KitThumb icon="publish" size={40} />} title={t("builds.publishing")} meta={t("builds.publishingText")} />
-        </KitList>
-        <div className="flex flex-col gap-2 px-4 pt-1 pb-3 sm:px-6">
-          <KitFold summary={t("builds.guides")} icon="menu_book">
-            <ul className="m-0 flex list-none flex-col gap-1 p-0">
-              {(
-                [
-                  ["/docs/google-play", "builds.guideGoogle"],
-                  ["/docs/app-store", "builds.guideApple"],
-                  ["/docs/galaxy-store", "builds.guideGalaxy"],
-                  ["/docs/huawei-appgallery", "builds.guideHuawei"],
-                  ["/docs/xiaomi-getapps", "builds.guideXiaomi"],
-                ] as const
-              ).map(([href, label]) => (
-                <li key={href}>
-                  <Link href={localePath(lang, href)} className="flex items-center gap-3 rounded-xl px-2 py-2 font-semibold text-(--sp-ink) no-underline hover:bg-(--sp-tile) hover:text-(--sp-ink)">
-                    <Icon name="menu_book" size={18} className="text-(--sp-muted)" />
-                    <span className="min-w-0 flex-1">
-                      {t(label)}
-                      <span className="block text-[13px] font-normal text-(--sp-muted)">{t("builds.stepByStep")}</span>
-                    </span>
-                    <Icon name="chevron_right" size={18} className="text-(--sp-muted) rtl:-scale-x-100" />
-                  </Link>
-                </li>
-              ))}
-            </ul>
-          </KitFold>
-          {wordsOf(app).iphone ? (
-            <KitFold summary={t("builds.iphoneRules")} icon="phone_iphone">
-              <p className="m-0">{k(wordsOf(app).iphone!)}</p>
-            </KitFold>
-          ) : null}
-        </div>
-      </KitSection>
 
       <KitSettings label={t("builds.settings")}>
         {/* 89.2 Staged releases, with "We publish for you". */}
@@ -793,34 +875,36 @@ export default async function BuildsPage({ searchParams }: PageProps<"/dashboard
           helpLabel={t("studioPage.helpSection")}
         >
           {inUse.length > 0 ? (
-            <table className="w-full max-w-[520px] border-collapse text-sm" aria-label={t("builds.inUse")}>
-              <caption className="pb-2 text-start text-[15px] font-bold">{t("builds.inUse")}</caption>
-              <thead>
-                <tr className="text-(--sp-muted)">
-                  <th scope="col" className="py-1.5 pe-4 text-start font-semibold">
-                    {t("builds.colVersion")}
-                  </th>
-                  <th scope="col" className="py-1.5 pe-4 text-start font-semibold">
-                    {t("builds.inUsePhones")}
-                  </th>
-                  <th scope="col" className="py-1.5 text-start font-semibold">
-                    {t("builds.inUseShare")}
-                  </th>
-                </tr>
-              </thead>
-              <tbody>
-                {inUse.map((row) => (
-                  <tr key={row.version} className="border-t border-(--sp-line-soft)" data-version={row.version}>
-                    <td className="py-1.5 pe-4">
-                      <span dir="ltr">{row.version === "unknown" ? t("builds.inUseUnknown") : row.version}</span>
-                      {row.belowMinimum ? <span className="ms-2 text-xs font-semibold text-danger">{t("builds.inUseBelow")}</span> : null}
-                    </td>
-                    <td className="py-1.5 pe-4">{text.num(row.phones)}</td>
-                    <td className="py-1.5">{text.num(row.share, { style: "percent", maximumFractionDigits: 0 })}</td>
+            <KitFold summary={t("builds.inUse")} icon="smartphone">
+              <table className="w-full max-w-[520px] border-collapse text-sm" aria-label={t("builds.inUse")}>
+                <caption className="sr-only">{t("builds.inUse")}</caption>
+                <thead>
+                  <tr className="text-(--sp-muted)">
+                    <th scope="col" className="py-1.5 pe-4 text-start font-semibold">
+                      {t("builds.colVersion")}
+                    </th>
+                    <th scope="col" className="py-1.5 pe-4 text-start font-semibold">
+                      {t("builds.inUsePhones")}
+                    </th>
+                    <th scope="col" className="py-1.5 text-start font-semibold">
+                      {t("builds.inUseShare")}
+                    </th>
                   </tr>
-                ))}
-              </tbody>
-            </table>
+                </thead>
+                <tbody>
+                  {inUse.map((row) => (
+                    <tr key={row.version} className="border-t border-(--sp-line-soft)" data-version={row.version}>
+                      <td className="py-1.5 pe-4">
+                        <span dir="ltr">{row.version === "unknown" ? t("builds.inUseUnknown") : row.version}</span>
+                        {row.belowMinimum ? <span className="ms-2 text-xs font-semibold text-danger">{t("builds.inUseBelow")}</span> : null}
+                      </td>
+                      <td className="py-1.5 pe-4">{text.num(row.phones)}</td>
+                      <td className="py-1.5">{text.num(row.share, { style: "percent", maximumFractionDigits: 0 })}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </KitFold>
           ) : (
             <p className="m-0 text-sm text-(--sp-muted)">{t("builds.inUseNone")}</p>
           )}
@@ -849,47 +933,39 @@ export default async function BuildsPage({ searchParams }: PageProps<"/dashboard
         ) : null}
       </KitSettings>
 
-      <KitSection titleId="h-history" title={t("builds.history")} description={builds.length ? t("builds.historyText") : undefined} flush>
-        {builds.length === 0 ? (
-          <p className="m-0 px-5 pb-5 text-sm text-(--sp-muted) sm:px-8">{t("builds.noBuilds")}</p>
-        ) : (
-          <KitList label={t("builds.history")}>
-            {builds.map((build) => {
-              const took = formatDuration(build.startedAt, build.finishedAt);
-              return (
-                <KitRow
-                  key={build.id}
-                  data-build={build.number}
-                  media={<KitThumb icon={build.status === "ready" ? "task_alt" : build.status === "failed" ? "error" : "schedule"} size={40} />}
-                  title={
-                    <>
-                      #{build.number} · <bdi dir="ltr">{build.versionName}</bdi> <span className="text-[13px] font-normal text-(--sp-muted)">({build.versionCode})</span>
-                    </>
-                  }
-                  meta={
-                    <>
-                      {t("builds.queued")} {formatDateTime(build.createdAt, lang)} · {t("builds.finished")} {build.finishedAt ? formatDateTime(build.finishedAt, lang) : t("builds.notYet")}
-                      {took ? ` · ${t("builds.tookTime", { time: k(took) })}` : null}
-                      {build.status === "failed" ? <span className="block">{k(failureReason(build))}</span> : null}
-                      {build.rebuildOf ? <span className="block">{t("builds.rebuildOf", { number: build.rebuildOf })}</span> : null}
-                    </>
-                  }
-                  aside={<BuildPill build={build} text={text} />}
-                  actions={
-                    // 87.3 A ready build made from known code can be made again as it was.
-                    build.status === "ready" && build.sourceCommit && !licenseProblem && !running ? (
-                      <>
-                        <RebuildForm buildId={build.id} number={build.number} />
-                        {build.id !== builds[0]?.id ? <GoBackForm buildId={build.id} number={build.number} /> : null}
-                      </>
-                    ) : null
-                  }
-                />
-              );
-            })}
-          </KitList>
-        )}
-      </KitSection>
+      {/* The step-by-step guides for each store, and 31 Apple's rules for what this app sells (nothing for apps that sell nothing), folded. */}
+      <div id="h-guides" className="flex scroll-mt-6 flex-col gap-2">
+        <h2 className="m-0 px-1 text-[13px] font-bold text-(--sp-muted)">{t("builds.stores")}</h2>
+        <KitFold summary={t("builds.guides")} icon="menu_book">
+          <ul className="m-0 flex list-none flex-col gap-1 p-0">
+            {(
+              [
+                ["/docs/google-play", "builds.guideGoogle"],
+                ["/docs/app-store", "builds.guideApple"],
+                ["/docs/galaxy-store", "builds.guideGalaxy"],
+                ["/docs/huawei-appgallery", "builds.guideHuawei"],
+                ["/docs/xiaomi-getapps", "builds.guideXiaomi"],
+              ] as const
+            ).map(([href, label]) => (
+              <li key={href}>
+                <Link href={localePath(lang, href)} className="flex items-center gap-3 rounded-xl px-2 py-2 font-semibold text-(--sp-ink) no-underline hover:bg-(--sp-tile) hover:text-(--sp-ink)">
+                  <Icon name="menu_book" size={18} className="text-(--sp-muted)" />
+                  <span className="min-w-0 flex-1">
+                    {t(label)}
+                    <span className="block text-[13px] font-normal text-(--sp-muted)">{t("builds.stepByStep")}</span>
+                  </span>
+                  <Icon name="chevron_right" size={18} className="text-(--sp-muted)" />
+                </Link>
+              </li>
+            ))}
+          </ul>
+        </KitFold>
+        {wordsOf(app).iphone ? (
+          <KitFold summary={t("builds.iphoneRules")} icon="phone_iphone">
+            <p className="m-0">{k(wordsOf(app).iphone!)}</p>
+          </KitFold>
+        ) : null}
+      </div>
     </KitPage>
   );
 }

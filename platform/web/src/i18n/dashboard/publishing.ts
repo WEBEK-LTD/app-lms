@@ -5,6 +5,8 @@ export const en = {
   title: "Publishing",
   intro: "{app} on Google Play, the App Store, Samsung Galaxy Store, Huawei AppGallery and Xiaomi GetApps.",
   links: "Links to your app",
+  tabStores: "Stores",
+  store: "Store",
   groupYours: "What you do",
   groupMore: "More",
   passwords:
@@ -332,6 +334,8 @@ export const ar: Messages = {
   title: "النشر",
   intro: "{app} على Google Play وApp Store وSamsung Galaxy Store وHuawei AppGallery وXiaomi GetApps.",
   links: "روابط تطبيقك",
+  tabStores: "المتاجر",
+  store: "المتجر",
   groupYours: "اللي عليك",
   groupMore: "أكتر",
   passwords:
@@ -645,6 +649,8 @@ export const tr: Messages = {
   title: "Yayınlama",
   intro: "Google Play, App Store, Samsung Galaxy Store, Huawei AppGallery ve Xiaomi GetApps'te {app}.",
   links: "Uygulamanıza bağlantılar",
+  tabStores: "Mağazalar",
+  store: "Mağaza",
   groupYours: "Sizin yapacaklarınız",
   groupMore: "Daha fazla",
   passwords:

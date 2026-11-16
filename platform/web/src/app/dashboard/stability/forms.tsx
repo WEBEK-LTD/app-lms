@@ -4,11 +4,15 @@ import { useActionState } from "react";
 import { saveAppHealthAction } from "@/app/actions/app-links";
 import { FormMessage, SubmitButton } from "@/components/form";
 import { KitSettingRow, KitSettings, KitStatus } from "@/components/studio-page";
-import { KitSwitch } from "@/components/studio-page/switch";
+import { KitFormSwitch } from "@/components/studio-page/switch";
 import { initialFormState } from "@/lib/forms";
 import { useDashT } from "@/components/dashboard-i18n";
 
-/** 46 The owner's switches: the store's own rating prompt and crash reports. 132.143 Each a settings row, its explanation behind "?". */
+/**
+ * 46 The owner's switches: the store's own rating prompt and crash reports.
+ * 132.143 Each a settings row, its explanation behind "?"; 132.173 the
+ * console's switch at the row's end, saved with the form's button.
+ */
 export function AppHealthForm({ reviewPrompt, crashReports }: { reviewPrompt: boolean; crashReports: boolean }) {
   const t = useDashT();
   const [state, action] = useActionState(saveAppHealthAction, initialFormState);
@@ -24,21 +28,30 @@ export function AppHealthForm({ reviewPrompt, crashReports }: { reviewPrompt: bo
           status={pill(reviewPrompt)}
           help={t("health.askRatingText")}
           helpLabel={t("studioPage.helpSection")}
-          action={<KitSwitch name="reviewPrompt" defaultChecked={reviewPrompt} label={t("health.askRating")} />}
+          action={<KitFormSwitch name="reviewPrompt" defaultChecked={reviewPrompt} labelledBy="h-rating" />}
         />
         <KitSettingRow
           titleId="h-crash-reports"
           icon="monitoring"
-          // The row's name isn't the switch's, so the switch alone answers to "Send crash reports".
           title={t("health.crashReportsTitle")}
           status={pill(crashReports)}
           help={t("health.crashReportsText")}
           helpLabel={t("studioPage.helpSection")}
-          action={<KitSwitch name="crashReports" defaultChecked={crashReports} label={t("health.crashReports")} />}
+          action={
+            <>
+              {/* The row's name isn't the switch's, so the switch alone answers to "Send crash reports". */}
+              <span id="sw-crash-reports" className="sr-only">
+                {t("health.crashReports")}
+              </span>
+              <KitFormSwitch name="crashReports" defaultChecked={crashReports} labelledBy="sw-crash-reports" />
+            </>
+          }
         />
       </KitSettings>
       <div>
-        <SubmitButton className="h-11">{t("common.save")}</SubmitButton>
+        <SubmitButton variant="secondary" className="h-10">
+          {t("common.save")}
+        </SubmitButton>
       </div>
     </form>
   );

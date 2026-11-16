@@ -6,24 +6,27 @@ import { E2E } from "../../playwright.config";
 import { solidPng } from "../e2e/png";
 
 /**
- * 132.140–132.144 Screenshots of the second set of Studio's premium pages
- * (components/studio-page): a Studio store set up and published for its
- * owner (Google Play live, the App Store in review), its builds (one that
- * didn't finish, then a ready one), crash reports, the team's add-ons and
- * announcements, a team member and an invitation, two phones on Yallapp
- * Business; Invoices before the first payment is the empty state. In Arabic,
- * light and dark at 1440×900 and light at 390 wide. Not part of the test
- * suite; run it with
- * `SCREENS_OUT=<dir> SCREENS_PREFIX=after npx playwright test --config playwright.screens.config.ts studio-premium-b`
- * (SCREENS_PREFIX=before on the commit before, to compare: it works with both designs).
+ * 132.170–132.179 Screenshots of group B's pages in Studio's console:
+ * Publishing, Builds, Stability, Invoices, Add-ons, Team, Updates from
+ * Yallapp and Your phones. A Studio store set up and published for its
+ * owner (Google Play live, the App Store in review), two invoices recorded
+ * by bank transfer, crash reports, the team's add-ons (one given with no
+ * charge) and announcements, a team member and an invitation, two phones on
+ * Yallapp Business; a regular app's builds (one that didn't finish, then a
+ * ready one) on the dashboard's Builds. In Arabic, light and dark at
+ * 1440×900 and light at 390 wide, PNG at twice the pixels, and each page
+ * once with its inspector or a fold open. Not part of the test suite; run it
+ * with `SCREENS_OUT=<dir> SCREENS_PREFIX=after npx playwright test --config
+ * playwright.screens.config.ts studio-console-b` (SCREENS_PREFIX=before on
+ * main: the opened states are skipped where the page has none).
  */
 test.describe.configure({ mode: "serial" });
 
 const OUT = process.env.SCREENS_OUT ?? path.resolve(__dirname, "../../test-results/screens");
 const PREFIX = process.env.SCREENS_PREFIX ?? "after";
 const suffix = Date.now().toString(36);
-const owner = { name: "Nour Adel", email: `nour-b-${suffix}@studio.test`, password: "nour-premium-b-strong-password-1" };
-const staff = { name: "Omar Hassan", email: `omar-b-${suffix}@studio.test`, password: "omar-premium-b-strong-password-1" };
+const owner = { name: "Nour Adel", email: `nour-cb-${suffix}@studio.test`, password: "nour-console-b-strong-password-1" };
+const staff = { name: "Omar Hassan", email: `omar-cb-${suffix}@studio.test`, password: "omar-console-b-strong-password-1" };
 const teamEmail = `publishing-${suffix}@yallapp.test`;
 const extraHTTPHeaders = { "x-forwarded-for": "198.51.100.141" };
 const pipeline = { authorization: `Bearer ${E2E.pipelineToken}` };
@@ -57,18 +60,33 @@ async function signIn(page: Page, email: string, password: string) {
 /** The page's top (the viewport) for the report, and all of it beside it to review. */
 async function shoot(page: Page, name: string) {
   await page.evaluate(() => document.fonts.ready);
-  await page.waitForTimeout(700);
+  await page.waitForTimeout(800);
   fs.mkdirSync(path.join(OUT, "full"), { recursive: true });
-  await page.screenshot({ path: path.join(OUT, `${PREFIX}-${name}.jpg`), type: "jpeg", quality: 85 });
-  await page.screenshot({ path: path.join(OUT, "full", `${PREFIX}-${name}.jpg`), type: "jpeg", quality: 70, fullPage: true });
+  await page.screenshot({ path: path.join(OUT, `${PREFIX}-${name}.png`) });
+  await page.screenshot({ path: path.join(OUT, "full", `${PREFIX}-${name}.png`), fullPage: true });
 }
 
-const sideMenu = (page: Page) => page.locator("nav:has([data-studio-search])").first();
+/** Opens what the page keeps closed (an inspector, a fold), or nothing where the page has none of it (main, before). */
+async function opened(page: Page, href: string, name: string, open: (page: Page) => Promise<unknown>) {
+  await page.setViewportSize({ width: 1440, height: 900 });
+  await page.emulateMedia({ colorScheme: "light" });
+  await page.goto(href);
+  try {
+    await open(page);
+  } catch {
+    return;
+  }
+  await shoot(page, `${name}-ar-open-1440`);
+}
 
 async function language(page: Page, lang: "en" | "ar") {
   await page.setViewportSize({ width: 1440, height: 900 });
   await page.goto("/studio/project");
-  await sideMenu(page).getByRole("button", { name: lang === "ar" ? "العربية" : "English" }).click();
+  await page
+    .locator("[data-dashboard-languages] button", { hasText: lang === "ar" ? "العربية" : "English" })
+    .filter({ visible: true })
+    .first()
+    .click();
   await expect(page.locator("html")).toHaveAttribute("lang", lang);
 }
 
@@ -77,14 +95,14 @@ async function pageShots(page: Page, href: string, name: string) {
   await page.setViewportSize({ width: 1440, height: 900 });
   await page.emulateMedia({ colorScheme: "light" });
   await page.goto(href);
-  await shoot(page, `${name}-ar-light-desktop`);
+  await shoot(page, `${name}-ar-light-1440`);
   await page.emulateMedia({ colorScheme: "dark" });
   await page.reload();
-  await shoot(page, `${name}-ar-dark-desktop`);
+  await shoot(page, `${name}-ar-dark-1440`);
   await page.emulateMedia({ colorScheme: "light" });
   await page.setViewportSize({ width: 390, height: 844 });
   await page.reload();
-  await shoot(page, `${name}-ar-light-phone`);
+  await shoot(page, `${name}-ar-light-390`);
   const width = await page.evaluate(() => document.documentElement.scrollWidth);
   fs.appendFileSync(path.join(OUT, `${PREFIX}-widths.txt`), `${name} phone scrollWidth ${width}\n`);
   await page.setViewportSize({ width: 1440, height: 900 });
@@ -104,11 +122,15 @@ async function announce(admin: Page, kind: "Update" | "Maintenance" | "Offer", w
   await expect(admin.getByText("Announcement published.")).toBeVisible();
 }
 
-async function addon(admin: Page, id: string, icon: string, en: [string, string], ar: [string, string], prices: [string, string][]) {
+async function addon(admin: Page, id: string, icon: string, en: [string, string], ar: [string, string], prices: [string, string][], quantity?: { limit: string; amount: string }) {
   await admin.goto("/admin/addons?addon=new");
   const form = admin.getByRole("form", { name: "New add-on" });
   await form.getByLabel("Id", { exact: true }).fill(id);
-  await form.getByLabel("Type", { exact: true }).selectOption("service");
+  await form.getByLabel("Type", { exact: true }).selectOption(quantity ? "quantity" : "service");
+  if (quantity) {
+    await form.getByLabel("Adds to").selectOption(quantity.limit);
+    await form.getByLabel("How much one adds").fill(quantity.amount);
+  }
   await form.getByLabel("Icon").selectOption(icon);
   await form.locator('input[name="enName"]').fill(en[0]);
   await form.locator('textarea[name="enDescription"]').fill(en[1]);
@@ -164,7 +186,7 @@ async function invite(page: Page, name: string, email: string, area: string) {
   await expect(form.getByRole("status")).toContainText(`Invitation sent to ${email}.`);
 }
 
-test("Studio's premium pages, the second set", async ({ page, browser, request }) => {
+test("group B's pages in Studio's console", async ({ page, browser, request }) => {
   test.setTimeout(1_200_000);
   await page.goto("/sign-up");
   await page.getByLabel("Full name").fill(owner.name);
@@ -201,10 +223,11 @@ test("Studio's premium pages, the second set", async ({ page, browser, request }
 
   await announce(admin, "Update", { en: ["Faster Android builds", "Android builds now take **half** the time."], ar: ["إصدارات Android أسرع", "إصدارات Android بقت بتاخد **نص** الوقت."] }, false);
   await announce(admin, "Maintenance", { en: ["Planned maintenance tonight", "Builds pause tonight from 22:00 to 23:00 UTC."], ar: ["صيانة مجدولة النهارده بالليل", "الإصدارات هتقف النهارده من 22:00 لـ 23:00 بتوقيت UTC."] }, true);
-  await announce(admin, "Offer", { en: ["20% off a year of Studio", "This week only: pay for a year of your Studio plan and save 20%."], ar: ["خصم 20% على سنة Studio", "الأسبوع ده بس: ادفع سنة من باقة Studio ووفّر 20%."] }, true);
+  await announce(admin, "Offer", { en: ["Store screenshots, on us this week", "This week only: our designers make your store screenshots when we publish your app."], ar: ["صور المتجر علينا الأسبوع ده", "الأسبوع ده بس: مصممينا هيعملوا صور المتجر بتاعتك لما ننشر تطبيقك."] }, true);
 
   await addon(admin, `shots-${suffix}`, "photo_camera", ["Store screenshots, designed", "Our designers make your store screenshots and feature graphic."], ["تصميم صور المتجر", "مصممينا بيعملوا صور المتجر وصورة العرض بتاعة تطبيقك."], [["once", "1500"]]);
   await addon(admin, `care-${suffix}`, "support_agent", ["Priority support", "A reply within 2 hours on WhatsApp, every day."], ["دعم سريع", "رد خلال ساعتين على WhatsApp، كل يوم."], [["1", "400"], ["12", "4000"]]);
+  await addon(admin, `space-${suffix}`, "photo_library", ["5 GB more for media", "Five more gigabytes for your app's videos, pictures and PDFs."], ["5 جيجا زيادة للوسائط", "خمسة جيجا زيادة لفيديوهات وصور وملفات PDF بتاعة تطبيقك."], [["12", "600"]], { limit: "storageGb", amount: "5" });
 
   // The owner's Studio store, blank, activated on Studio plan 1.
   await signIn(page, owner.email, owner.password);
@@ -223,6 +246,28 @@ test("Studio's premium pages, the second set", async ({ page, browser, request }
   await license.getByLabel("Plan").selectOption("studio_1");
   await license.getByRole("button", { name: "Activate & send license" }).click();
   await expect(admin.getByRole("status")).toContainText("Activated");
+  // The storage add-on, given with no charge.
+  const give = admin.getByRole("form", { name: "Give an add-on" });
+  await give.locator("#grant-addon").selectOption(`space-${suffix}`);
+  await give.getByRole("button", { name: "Give with no charge" }).click();
+  await expect(admin.locator("body")).toContainText("5 GB more for media");
+
+  // Two invoices: bank transfers the team recorded.
+  for (const [months, amount, reference] of [
+    ["6", "1000", `NF-${suffix}-1`],
+    ["12", "1800", `NF-${suffix}-2`],
+  ] as const) {
+    await admin.goto(`/admin/invoices?client=${encodeURIComponent(owner.email)}`);
+    const bank = admin.getByRole("region", { name: "New invoice for a bank transfer" });
+    await bank.getByLabel("App", { exact: true }).selectOption({ label: "Nour Flowers" });
+    await bank.getByLabel("Plan", { exact: true }).selectOption("studio_1");
+    await bank.getByLabel("Pays for").selectOption(months);
+    await bank.getByLabel("Amount that arrived").fill(amount);
+    await bank.getByLabel("Currency").selectOption("EGP");
+    await bank.getByLabel("Bank reference").fill(reference);
+    await bank.getByRole("button", { name: "Record the transfer and send the invoice" }).click();
+    await expect(admin).toHaveURL(/\/admin\/invoices\?recorded=/);
+  }
 
   // The setup, to its end: "Publish it for me".
   await page.goto("/studio/project/setup?step=website");
@@ -385,37 +430,33 @@ test("Studio's premium pages, the second set", async ({ page, browser, request }
   await lina.locator("[data-dashboard-languages]").getByRole("button", { name: "العربية" }).first().click();
   await expect(lina.locator("html")).toHaveAttribute("lang", "ar");
   await pageShots(lina, "/dashboard/builds", "builds-dashboard");
+  await opened(lina, "/dashboard/builds", "builds-dashboard", (p) => p.locator('[data-build="2"] button[aria-haspopup=dialog]').click({ timeout: 5_000 }));
   await pageShots(lina, "/dashboard/publishing", "publishing-dashboard");
   await lina.context().close();
   await admin.close();
 
   await language(page, "ar");
-  // The empty state: Invoices before the first payment.
-  await pageShots(page, "/studio/project/invoices", "invoices-empty");
+  const row = (selector: string) => (p: Page) => p.locator(`${selector} button[aria-haspopup=dialog]`).first().click({ timeout: 5_000 });
   await pageShots(page, "/studio/project/publishing", "publishing");
+  await opened(page, "/studio/project/publishing", "publishing", (p) => p.locator('[data-store-tile="android"]').click({ timeout: 5_000 }));
   // Builds before the first build: what it would trip over (the builds with their files: builds-dashboard).
   await pageShots(page, "/studio/project/builds", "builds-studio");
   await pageShots(page, "/studio/project/stability", "stability");
+  await opened(page, "/studio/project/stability", "stability", row("[data-crash-issue]"));
+  await pageShots(page, "/studio/project/invoices", "invoices");
+  await opened(page, "/studio/project/invoices", "invoices", row("[data-invoice]"));
   await pageShots(page, "/studio/project/addons", "addons");
+  await opened(page, "/studio/project/addons", "addons", (p) => p.locator("[data-kit-header] button[aria-controls]").first().click({ timeout: 5_000 }));
   await pageShots(page, "/studio/team", "team");
+  await opened(page, "/studio/team", "team", row(`[data-member="${staff.email}"]`));
   await pageShots(page, "/studio/project/phones", "phones");
+  await opened(page, "/studio/project/phones", "phones", row("[data-device]"));
   await pageShots(page, "/studio/project/announcements", "announcements");
-
-  // What opens on demand (132.142 on): a member's drawer, the invite drawer, the long help behind "?".
+  await opened(page, "/studio/project/announcements", "announcements", row("[data-update]"));
+  // A phone with an inspector open: the drawer from the end side.
+  await page.setViewportSize({ width: 390, height: 844 });
   await page.goto("/studio/team");
-  const member = page.locator(`[data-member="${staff.email}"] button[aria-haspopup=dialog]`);
-  if (await member.count()) {
-    await member.click();
-    await shoot(page, "team-drawer-ar-light-desktop");
-    await page.keyboard.press("Escape");
-    await page.locator("[data-kit-header] button[aria-haspopup=dialog]").first().click();
-    await shoot(page, "team-invite-ar-light-desktop");
-    await page.keyboard.press("Escape");
-    await page.goto("/studio/project/builds");
-    await page.locator("[data-kit-header] button[aria-expanded]").first().click().catch(() => {});
-    await page.goto("/studio/project/publishing");
-    await page.locator("summary", { hasText: "متاجر Android تانية" }).click();
-    await shoot(page, "publishing-more-stores-ar-light-desktop");
-  }
+  await row(`[data-member="${staff.email}"]`)(page).catch(() => {});
+  await shoot(page, "team-ar-open-390");
   await language(page, "en");
 });

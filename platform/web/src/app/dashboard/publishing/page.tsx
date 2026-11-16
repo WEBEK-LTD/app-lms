@@ -1,11 +1,13 @@
 import type { Metadata } from "next";
+import type { CSSProperties, ReactNode } from "react";
 import Link from "next/link";
 import { redirect } from "next/navigation";
 import { chooseMoreStoresAction, choosePublishingModeAction } from "@/app/actions/publishing";
 import { SubmitButton } from "@/components/form";
 import { Icon } from "@/components/icon";
 import { formatDateTime } from "@/components/ui";
-import { KitCallout, KitFact, KitFacts, KitFold, KitHeader, KitHero, KitList, KitNext, KitPage, KitRow, KitSection, KitStatus, kit } from "@/components/studio-page";
+import { KitBar, KitCallout, KitFact, KitFacts, KitFold, KitHeader, KitHero, KitList, KitNext, KitPage, KitRow, KitSection, KitStatus, kit } from "@/components/studio-page";
+import { KitInspectButton, KitInspectGroup, KitInspectorHead } from "@/components/studio-page/table";
 import { appLabel, licensePageName } from "@/lib/app/label";
 import { hasStoreKeys } from "@/lib/app/setup";
 import { requireClient } from "@/lib/auth/session";
@@ -37,6 +39,7 @@ import { reviewNotesFor, suggestedReviewNotes } from "@/lib/publishing/review-no
 import { ChecklistForm, ListingForm } from "./forms";
 import { ReadySection } from "./ready";
 import { ReviewSection } from "./review-section";
+import { PublishingTabs } from "./tabs";
 import { courierAppNameOf, hasCourierJobs, secondAppRoleOf } from "@/lib/delivery/courier-app";
 import { reviewNotes } from "@/lib/delivery/review";
 import { schoolReviewNotes } from "@/lib/school/review";
@@ -132,29 +135,15 @@ export default async function PublishingPage({ searchParams }: PageProps<"/dashb
 
   // 41 Every store Yallapp publishes to.
   // 46 Links that open the app: the Play signing fingerprint and the Team ID live on their own page.
-  // 132.140 The premium kit: the header with the sub-pages as its quiet links; where it stands and the next store step in one
-  // hero card; the steps, the listing, the review account and the stores' checks as cards, their long guides folded.
-  const header = (
+  // 132.171 The console's look: the title with one main action in Ember (the store texts when our team publishes, the
+  // builds when the owner does), Publishing's own pages as tabs under it; where it stands as tiles, each store opening in
+  // the inspector; the steps, the listing, the review account and the stores' checks as cards, their long guides folded.
+  const header = (main: ReactNode) => (
     <>
-      <KitHeader
-        icon="rocket_launch"
-        title={t("publishing.title")}
-        description={t("publishing.intro", { app: name })}
-        actions={
-          <>
-            <Link href="/dashboard/publishing/links" className={kit.ghost}>
-              <Icon name="link" size={20} />
-              {t("publishing.links")}
-            </Link>
-            {mode === "self" ? (
-              <Link href="/dashboard/publishing/more-stores" className={kit.ghost}>
-                <Icon name="storefront" size={20} />
-                {t("publishing.moreStores")}
-              </Link>
-            ) : null}
-          </>
-        }
-      />
+      <KitHeader icon="rocket_launch" title={t("publishing.title")} description={t("publishing.intro", { app: name })} actions={main} />
+      <KitBar>
+        <PublishingTabs more={mode === "self"} />
+      </KitBar>
       {/* 110.2 Sample entries left: nothing goes to the stores. */}
       <SamplesStoreNotice app={app} />
     </>
@@ -167,7 +156,7 @@ export default async function PublishingPage({ searchParams }: PageProps<"/dashb
   if (!mode || !request || (mode === "managed" && request.mode !== "managed")) {
     return (
       <KitPage>
-        {header}
+        {header(null)}
         {query.error === "not-included" ? (
           <KitCallout tone="warn" icon="warning" role="alert">
             {richText(t("publishing.notIncludedAlert"), { wa: (chunk) => <a href={contact.whatsappUrl}>{chunk}</a>, upgrade: (chunk) => <Link href="/dashboard/license#change-plan">{chunk}</Link> })}
@@ -202,7 +191,12 @@ export default async function PublishingPage({ searchParams }: PageProps<"/dashb
     const keys = hasStoreKeys(app);
     return (
       <KitPage>
-        {header}
+        {header(
+          <Link href="/dashboard/builds" className={kit.main}>
+            <Icon name="build" size={20} />
+            {t("builds.title")}
+          </Link>,
+        )}
         {query.chosen === "self" ? (
           <KitCallout tone="success" icon="check_circle" role="status">
             {t("publishing.savedSelf", { app: name })}
@@ -213,19 +207,7 @@ export default async function PublishingPage({ searchParams }: PageProps<"/dashb
           titleId="h-self"
           title={t("publishing.selfTitle")}
           description={t("publishing.selfText")}
-          next={
-            <KitNext
-              icon="download"
-              action={
-                <Link href="/dashboard/builds" className={kit.quiet}>
-                  <Icon name="build" size={18} />
-                  {t("builds.title")}
-                </Link>
-              }
-            >
-              {richText(t("publishing.selfStep1"), { link: (chunk) => <Link href="/dashboard/builds">{chunk}</Link> })}
-            </KitNext>
-          }
+          next={<KitNext icon="download">{richText(t("publishing.selfStep1"), { link: (chunk) => <Link href="/dashboard/builds">{chunk}</Link> })}</KitNext>}
         >
           <KitFold summary={t("studioPage.howItWorks")} icon="menu_book">
             <ol className="m-0 list-decimal space-y-2 ps-5 text-[15px] leading-relaxed marker:font-bold">
@@ -350,73 +332,133 @@ export default async function PublishingPage({ searchParams }: PageProps<"/dashb
     </KitNext>
   );
 
+  const DOT = { success: "bg-success", danger: "bg-danger", warn: "bg-warn", info: "bg-(--sp-ink-2)", neutral: "bg-(--sp-faint)" } as const;
   return (
     <KitPage>
-      {header}
+      {header(
+        <Link href="/dashboard/setup?step=listing" className={kit.main}>
+          <Icon name="edit" size={20} />
+          {t("publishing.editTexts")}
+        </Link>,
+      )}
       {query.chosen === "managed" ? (
         <KitCallout tone="success" icon="check_circle" role="status">
           {t("publishing.thanks")}
         </KitCallout>
       ) : null}
 
-      {/* Where it stands: each store a row with its state as a pill, then the one next step. */}
-      <KitHero
-        titleId="h-status"
-        heading={t("publishing.whereStands")}
-        status={<KitStatus tone={live === stores.length ? "success" : "info"}>{t("publishing.liveOn", { live, total: stores.length })}</KitStatus>}
-        next={next}
-      >
-        <ul className="m-0 -mt-2 flex list-none flex-col p-0">
-          {stores.map((which) => {
-            const track = trackOf(request, which);
-            return (
-              <li key={which} className="border-t border-(--sp-line-soft) first:border-t-0">
-                <section aria-label={STORE_TITLE[which]} className="flex flex-col gap-2.5 py-4">
-                  <div className="flex flex-wrap items-center gap-x-4 gap-y-2">
-                    <span aria-hidden="true" className="flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl bg-(--sp-tile) text-(--sp-ink)">
-                      <Icon name={STORE_ICON[which]} size={22} />
-                    </span>
-                    <span className="flex min-w-0 flex-[1_1_220px] flex-col gap-0.5">
-                      <span className="text-[15px] font-bold text-(--sp-ink)">{STORE_TITLE[which]}</span>
-                      <span className="text-sm leading-relaxed text-(--sp-muted)">{publishingStatusIn(lang, which, track.status).text}</span>
-                    </span>
-                    <KitStatus tone={statusTone(track.status)}>{k(CLIENT_STATUS_LABEL[track.status])}</KitStatus>
-                  </div>
-                  <div className="flex flex-col gap-2 sm:ps-15">
-                    {/* 88.3 Why the store turned it down, what to do and where. */}
-                    {track.status === "rejected" && track.rejection ? (
-                      <div className="flex flex-col gap-1.5 rounded-2xl bg-danger-bg px-4 py-3 text-sm leading-relaxed text-(--sp-ink)" data-rejection={track.rejection}>
-                        <span className="font-semibold">{t("publishing.reject.why", { reason: t(`publishing.reject.${track.rejection}`) })}</span>
-                        <span>{t("publishing.reject.whatToDo", { fix: t(`publishing.reject.${track.rejection}Fix`) })}</span>
-                        {REJECTION_LINK[track.rejection] ? (
-                          <Link href={REJECTION_LINK[track.rejection]!} className="self-start font-semibold">
-                            {t("publishing.reject.fixIt")}
-                          </Link>
-                        ) : null}
-                      </div>
-                    ) : null}
-                    {track.note ? (
-                      <p className="m-0 rounded-2xl bg-(--sp-soft) px-4 py-3 text-sm leading-relaxed text-(--sp-ink)">
-                        {richText(t("publishing.noteFromTeam", { note: track.note }), { b: (chunk) => <span className="font-semibold">{chunk}</span> })}
-                      </p>
-                    ) : null}
-                    <span className="flex flex-wrap items-center gap-x-4 gap-y-1 text-xs text-(--sp-muted)">
-                      {track.status === "live" && track.storeUrl ? (
-                        <a href={track.storeUrl} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-1 text-sm font-semibold">
+      {/* Where it stands: the stores live as the first tile with its bar, then each store as a tile that opens in the inspector
+          (what its state means, why a store turned it down and what to do, our team's note, its link), then the one next step. */}
+      <section aria-labelledby="h-status" className="flex min-w-0 flex-col gap-3" data-stores="">
+        <h2 id="h-status" className="sr-only">
+          {t("publishing.whereStands")}
+        </h2>
+        <KitInspectGroup closeLabel={t("common.close")}>
+          <div className="kit-bento @max-[561px]/kit-page:grid-cols-2!" style={{ ["--kit-rest" as string]: stores.length } as CSSProperties}>
+            <div className="kit-tile">
+              <span className="kit-tile-hd">
+                <span className="kit-tile-ib" aria-hidden="true">
+                  <Icon name="public" size={18} />
+                </span>
+                <span className="min-w-0">{t("publishing.whereStands")}</span>
+              </span>
+              <span className="kit-tile-v">{text.num(live)}</span>
+              <span className="kit-tile-ft">
+                <span className="min-w-0">{t("publishing.liveOn", { live, total: stores.length })}</span>
+                <span className="kit-tile-bar" aria-hidden="true">
+                  <i style={{ width: `${Math.round((live / stores.length) * 100)}%` }} />
+                </span>
+              </span>
+            </div>
+            {stores.map((which) => {
+              const track = trackOf(request, which);
+              const tone = statusTone(track.status);
+              const label = k(CLIENT_STATUS_LABEL[track.status]);
+              const when = track.updatedAt ? t("publishing.updated", { date: formatDateTime(track.updatedAt, lang) }) : t("publishing.asked", { date: formatDateTime(request.requestedAt, lang) });
+              return (
+                <KitInspectButton
+                  key={which}
+                  id={which}
+                  data-store-tile={which}
+                  className="kit-tile cursor-pointer border-0 text-start [font:inherit] transition-shadow hover:shadow-[inset_0_0_0_1px_var(--sp-line)] data-open:shadow-[inset_0_0_0_2px_#ff5a1f]"
+                  inspector={{
+                    label: STORE_TITLE[which],
+                    title: t("publishing.store"),
+                    footer:
+                      track.status === "live" && track.storeUrl ? (
+                        <a href={track.storeUrl} target="_blank" rel="noopener noreferrer" className={`${kit.main} w-full`}>
                           {t("publishing.seeOn", { store: STORE_TITLE[which] })}
-                          <Icon name="open_in_new" size={16} />
+                          <Icon name="open_in_new" size={18} />
                         </a>
+                      ) : track.status === "rejected" && track.rejection && REJECTION_LINK[track.rejection] ? (
+                        <Link href={REJECTION_LINK[track.rejection]!} className={`${kit.main} w-full`}>
+                          {t("publishing.reject.fixIt")}
+                        </Link>
+                      ) : undefined,
+                  }}
+                  details={
+                    <div className="flex flex-col gap-4" data-inspector-store={which}>
+                      <KitInspectorHead
+                        top={
+                          <>
+                            <span aria-hidden="true" className="me-1 flex h-11 w-11 items-center justify-center rounded-[14px] bg-(--sp-tile) text-(--sp-ink)">
+                              <Icon name={STORE_ICON[which]} size={22} />
+                            </span>
+                            <KitStatus tone={tone}>{label}</KitStatus>
+                          </>
+                        }
+                        title={STORE_TITLE[which]}
+                        line={when}
+                      />
+                      <p className="m-0 text-[14.5px] leading-relaxed text-(--sp-ink)">{publishingStatusIn(lang, which, track.status).text}</p>
+                      {/* 88.3 Why the store turned it down, what to do and where. */}
+                      {track.status === "rejected" && track.rejection ? (
+                        <div className="flex flex-col gap-1.5 rounded-[14px] bg-danger-bg px-4 py-3 text-sm leading-relaxed text-(--sp-ink)" data-rejection={track.rejection}>
+                          <span className="font-semibold">{t("publishing.reject.why", { reason: t(`publishing.reject.${track.rejection}`) })}</span>
+                          <span>{t("publishing.reject.whatToDo", { fix: t(`publishing.reject.${track.rejection}Fix`) })}</span>
+                          {REJECTION_LINK[track.rejection] ? (
+                            <Link href={REJECTION_LINK[track.rejection]!} className="self-start font-semibold">
+                              {t("publishing.reject.fixIt")}
+                            </Link>
+                          ) : null}
+                        </div>
                       ) : null}
-                      <span>{track.updatedAt ? t("publishing.updated", { date: formatDateTime(track.updatedAt, lang) }) : t("publishing.asked", { date: formatDateTime(request.requestedAt, lang) })}</span>
-                      {which === "ios" && track.checkedAt && track.storeState ? <span data-store-checked="">{t("publishing.reject.checked", { date: formatDateTime(track.checkedAt, lang) })}</span> : null}
+                      {track.note ? (
+                        <p className="m-0 rounded-[14px] bg-(--sp-soft) px-4 py-3 text-sm leading-relaxed text-(--sp-ink)">
+                          {richText(t("publishing.noteFromTeam", { note: track.note }), { b: (chunk) => <span className="font-semibold">{chunk}</span> })}
+                        </p>
+                      ) : null}
+                      {which === "ios" && track.checkedAt && track.storeState ? (
+                        <p className="m-0 text-[13px] text-(--sp-muted)" data-store-checked="">
+                          {t("publishing.reject.checked", { date: formatDateTime(track.checkedAt, lang) })}
+                        </p>
+                      ) : null}
+                    </div>
+                  }
+                >
+                  <span className="kit-tile-hd">
+                    <span className="kit-tile-ib" aria-hidden="true">
+                      <Icon name={STORE_ICON[which]} size={18} />
                     </span>
-                  </div>
-                </section>
-              </li>
-            );
-          })}
-        </ul>
-      </KitHero>
+                    <span className="min-w-0">{STORE_TITLE[which]}</span>
+                  </span>
+                  <span className="kit-tile-v flex items-center gap-2 text-[22px]! tracking-[-0.3px]! @max-[561px]/kit-page:text-[18px]!">
+                    <span aria-hidden="true" className={`h-2.5 w-2.5 shrink-0 rounded-full ${DOT[tone]}`} />
+                    <span className="min-w-0">{label}</span>
+                  </span>
+                  <span className="kit-tile-ft">
+                    <span className="min-w-0">{when}</span>
+                  </span>
+                  <span className="kit-tile-go" aria-hidden="true">
+                    <Icon name="chevron_right" size={18} />
+                  </span>
+                </KitInspectButton>
+              );
+            })}
+          </div>
+        </KitInspectGroup>
+        <div className="flex flex-wrap items-center gap-x-4 gap-y-3 rounded-[14px] bg-(--sp-soft) px-4 py-3">{next}</div>
+      </section>
 
       <KitSection
         titleId="h-checklist"

@@ -46,6 +46,15 @@ app into any account. Migration `0130_app_moves` (the requests, and
 `apps.moved_at`, `apps.moved_to_client_id` for the read-only record an app
 leaves behind).
 
+Roadmap 132.170–132.179 (group B in Studio's console): Publishing,
+Builds, Stability, Invoices, Add-ons, Team, Updates from Yallapp and Your
+phones are in the console's look: one main action in Ember with the rest
+behind "⋯", Publishing's own pages as tabs, the figures as tiles (a store's
+tile opens it), and their lists as tables whose rows open in the inspector
+(`components/studio-page/table.tsx`); the settings switches are the
+console's KitSwitch (`studio-page/switch.tsx` puts it in a form).
+`tests/screens/studio-console-b.screens.ts` takes their pictures.
+
 Roadmap 132.150–132.153 (Studio's console): every Studio project page and
 Your account and Team are in Studio's console (`app/studio/console.tsx`): a
 midnight frame with an icon rail of the menu's groups and a panel of the
@@ -73,7 +82,7 @@ kit is on Publishing, Builds, Stability, Invoices, Add-ons, Team, Updates
 from Yallapp and Your phones too (each the dashboard's page, in Studio's
 frame), with a settings switch (`studio-page/switch.tsx`) and a build's
 stages as small pills (`BuildStages look="pills"`).
-`tests/screens/studio-premium-b.screens.ts` takes their pictures.
+Their pictures: `tests/screens/studio-console-b.screens.ts` (132.179).
 
 Roadmap 132.1–132.8 (Studio dashboard fixes): a Studio project's menu has
 every page of the dashboard that applies to the project, behind the
