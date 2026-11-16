@@ -925,6 +925,13 @@
       "when": 1794805218968,
       "tag": "0132_app_moves",
       "breakpoints": true
+    },
+    {
+      "idx": 133,
+      "version": "5",
+      "when": 1794830038803,
+      "tag": "0133_customer_currency",
+      "breakpoints": true
     }
   ]
 }

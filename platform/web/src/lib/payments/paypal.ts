@@ -34,8 +34,22 @@ interface Options {
 
 export const PAYPAL_URLS = { live: "https://api-m.paypal.com", sandbox: "https://api-m.sandbox.paypal.com" };
 
-/** The currencies Yallapp sells in that PayPal takes (it has no Turkish lira, Egyptian pound, riyal or dirham). */
-export const PAYPAL_CURRENCIES = ["USD", "EUR"] as const;
+/**
+ * The currencies Yallapp sells in that PayPal takes (it has no Turkish lira,
+ * Egyptian pound, riyal or dirham). 133.4 Every one PayPal's REST API lists
+ * (developer.paypal.com/reference/currency-codes); BRL, CNY and MYR only for
+ * accounts in those countries, as PayPal says when it refuses one.
+ */
+export const PAYPAL_CURRENCIES = ["USD", "EUR", "GBP", "AUD", "BRL", "CAD", "CHF", "CNY", "CZK", "DKK", "HKD", "HUF", "ILS", "JPY", "MXN", "MYR", "NOK", "NZD", "PHP", "PLN", "SEK", "SGD", "THB", "TWD"] as const;
+
+/** 133.2 PayPal writes these without decimals (¥1250, not ¥1250.00). */
+const PAYPAL_WHOLE: ReadonlySet<string> = new Set(["HUF", "JPY", "TWD"]);
+
+/** Our cents as PayPal's amount ("12.50", "1250"); null for a fraction of a currency PayPal writes whole. */
+export function paypalValue(cents: number, currency: string): string | null {
+  if (PAYPAL_WHOLE.has(currency.toUpperCase())) return cents % 100 === 0 ? String(cents / 100) : null;
+  return (cents / 100).toFixed(2);
+}
 
 export function paypalBaseUrl(keys: Pick<PaypalKeys, "sandbox">, override?: string | null): string {
   return (override || (keys.sandbox ? PAYPAL_URLS.sandbox : PAYPAL_URLS.live)).replace(/\/+$/, "");
@@ -108,7 +122,11 @@ async function call(
   );
 }
 
-const decimal = (cents: number) => (cents / 100).toFixed(2);
+const decimal = (cents: number, currency: string) => {
+  const value = paypalValue(cents, currency);
+  if (value === null) throw new PaypalError(`PayPal takes ${currency} in whole amounts only.`);
+  return value;
+};
 
 export interface PaypalOrderRequest {
   /** Our reference ("order-<id>"): the purchase unit's custom_id and reference_id. */
@@ -132,7 +150,7 @@ export async function createPaypalOrder(keys: PaypalKeys, request: PaypalOrderRe
           reference_id: request.reference.slice(0, 256),
           custom_id: request.reference.slice(0, 127),
           description: request.description.slice(0, 127),
-          amount: { currency_code: request.currency, value: decimal(request.amountCents) },
+          amount: { currency_code: request.currency, value: decimal(request.amountCents, request.currency) },
         },
       ],
       payment_source: {
@@ -203,7 +221,7 @@ export async function refundPaypalCapture(
     keys,
     "POST",
     `/v2/payments/captures/${encodeURIComponent(request.captureId)}/refund`,
-    { amount: { value: decimal(request.cents), currency_code: request.currency }, note_to_payer: request.note.slice(0, 255) || undefined },
+    { amount: { value: decimal(request.cents, request.currency), currency_code: request.currency }, note_to_payer: request.note.slice(0, 255) || undefined },
     { ...options, requestId: request.key },
   );
   const id = text(json?.id);

@@ -1,5 +1,6 @@
 "use client";
 
+import { CurrencyPicker } from "@/components/currency-picker";
 import { useActionState } from "react";
 import {
   addCourseCategoryAction,
@@ -13,7 +14,6 @@ import {
   saveQuestionBankAction,
 } from "@/app/actions/courses";
 import { Field, FieldError, FormMessage, SubmitButton } from "@/components/form";
-import { CATALOG_CURRENCIES } from "@/lib/catalog/money";
 import { initialFormState } from "@/lib/forms";
 import { MediaPickButton } from "@/components/media-picker";
 import { useDashT } from "@/components/dashboard-i18n";
@@ -277,16 +277,8 @@ export function CurrencyForm({ currency }: { currency: string }) {
   const [state, action] = useActionState(saveCourseCurrencyAction, initialFormState);
   return (
     <form action={action} noValidate className="flex flex-wrap items-end gap-3">
-      <div className="flex flex-col gap-1.5">
-        <label htmlFor="f-currency" className="text-sm font-semibold">
-          {t("courses.currency")}
-        </label>
-        <select id="f-currency" name="currency" defaultValue={currency} className="input input-sm w-[140px]">
-          {CATALOG_CURRENCIES.map((c) => (
-            <option key={c}>{c}</option>
-          ))}
-        </select>
-      </div>
+      {/* 133.3 Any currency: searched by name, code or sign, the usual ones first. */}
+      <CurrencyPicker id="f-currency" label={t("courses.currency")} defaultValue={currency} className="min-w-[280px] flex-1" />
       <SubmitButton variant="secondary" className="h-11">
         {t("common.save")}
       </SubmitButton>

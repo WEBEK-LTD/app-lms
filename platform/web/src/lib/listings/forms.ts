@@ -59,9 +59,10 @@ export function parseListingForm(values: Record<string, string>, now: Date): Res
   if (purpose !== "sale" && purpose !== "rent") errors.purpose = "Choose for sale or for rent.";
   const type = v("type");
   if (!isPropertyType(type)) errors.type = "Choose the property type.";
-  const price = parsePrice(v("price"));
-  if (price === null || price === 0) errors.price = "Enter the price, like 4250000.";
   const currency = v("currency");
+  // 133.2 In the listing's currency, with its digits.
+  const price = parsePrice(v("price"), currency || null);
+  if (price === null || price === 0) errors.price = "Enter the price, like 4250000.";
   if (!(LISTING_CURRENCIES as readonly string[]).includes(currency)) errors.currency = "Choose a currency.";
   const period = v("period");
   if (purpose === "rent" && period !== "month" && period !== "year") errors.period = "Choose per month or per year.";

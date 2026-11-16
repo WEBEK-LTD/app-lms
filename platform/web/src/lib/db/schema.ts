@@ -11,6 +11,7 @@ import type {
   LoyaltyReason, OrderPoints, OrderReturn, OrderShipment, CatalogVariants, CatalogOrder, OrderManualPayment,
   // 131 The flower shop
   OrderDelivery,
+  OrderCustomerCurrency,
   StoreFlashSale,
   AddonRule,
   GiftOccasion,
@@ -821,6 +822,8 @@ export const catalogOrders = mysqlTable(
     // 131 The delivery day and slot and the gift details (JSON), and the day apart for counting a slot's orders.
     delivery: jsonText<OrderDelivery>("delivery"),
     deliveryDate: varchar("delivery_date", { length: 10 }),
+    // 133.7 The total in the customer's currency at checkout, its rate and day, and whether the card was charged in it (JSON).
+    customerCurrency: jsonText<OrderCustomerCurrency>("customer_currency"),
   },
   (t) => [
     uniqueIndex("catalog_orders_token_unique").on(t.tokenHash),

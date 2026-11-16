@@ -1,5 +1,6 @@
 "use client";
 
+import { CurrencyPicker } from "@/components/currency-picker";
 import { useActionState, useState, type ReactNode } from "react";
 import { saveRideSettingsAction } from "@/app/actions/rides";
 import { Field, FieldError, FormMessage, SubmitButton } from "@/components/form";
@@ -12,7 +13,6 @@ import { Choices, SecondAppFields } from "../delivery/forms";
 /** 105.2 How fares are worked out, how rides reach drivers, cancelling, safety, payment, areas, promo codes and (112.3) the drivers' app. */
 export function RideSettingsForm({
   values,
-  currencies,
   timezones,
   bundleAllowed,
   bundleOff,
@@ -22,7 +22,8 @@ export function RideSettingsForm({
   before,
 }: {
   values: Record<string, string>;
-  currencies: readonly string[];
+  /** 133.1 Any ISO 4217 currency now: the picker lists them all. */
+  currencies?: readonly string[];
   timezones: readonly string[];
   bundleAllowed: boolean;
   /** Shown under the second app when the plan doesn't have it. */
@@ -65,19 +66,8 @@ export function RideSettingsForm({
       <TabPanel tab="fares" className="flex flex-col gap-6">
         <section className="flex flex-col gap-4">
           <div className="grid gap-4 sm:grid-cols-2">
-            <div className="flex flex-col gap-1.5">
-              <label htmlFor="f-currency" className="text-sm font-semibold">
-                {t("rides.currency")}
-              </label>
-              <select id="f-currency" name="currency" defaultValue={currency} onChange={(e) => setCurrency(e.target.value)} className="input">
-                {currencies.map((c) => (
-                  <option key={c} value={c}>
-                    {c}
-                  </option>
-                ))}
-              </select>
-              <FieldError id="f-currency-error" error={state.errors?.currency} />
-            </div>
+            {/* 133.3 Any currency: searched by name, code or sign, the usual ones first. */}
+            <CurrencyPicker id="f-currency" label={t("rides.currency")} defaultValue={currency} onChange={setCurrency} error={state.errors?.currency} />
             <div className="flex flex-col gap-1.5">
               <label htmlFor="f-timezone" className="text-sm font-semibold">
                 {t("rides.timezone")}
