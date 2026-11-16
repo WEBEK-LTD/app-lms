@@ -86,7 +86,8 @@ async function openProject(p: Page, name: string): Promise<void> {
 /** Every text on a project's home page as the app gets its draft. */
 async function homeTexts(p: Page, request: APIRequestContext, name: string): Promise<string[]> {
   await openProject(p, name);
-  await p.goto("/studio/project/setup?step=website");
+  // Opening the project may still be finishing its own navigation: once more if this one was cut short.
+  await p.goto("/studio/project/setup?step=website").catch(() => p.goto("/studio/project/setup?step=website"));
   const api = (await p.locator("code").filter({ hasText: "/api/app/" }).first().textContent())!.trim();
   // Only the preview's address (its draft token) is needed: the app itself isn't loaded in it.
   await p.route("**/preview-app/**", (r) => r.fulfill({ status: 200, contentType: "text/html", body: "<!doctype html><title>Preview</title>" }));
