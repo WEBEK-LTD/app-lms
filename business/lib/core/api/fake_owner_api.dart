@@ -106,6 +106,8 @@ class FakeOwnerApi with _FakeStudio implements OwnerApi {
   static const deliveryId = _FakeStudio.deliveryId;
   static const ridesId = _FakeStudio.ridesId;
   static const schoolId = _FakeStudio.schoolId;
+  // 132 A Studio store with the gift checkout.
+  static const flowersId = _FakeStudio.flowersId;
 
   @override
   List<AppSummary> get _appsForVip => apps;
@@ -367,6 +369,7 @@ class FakeOwnerApi with _FakeStudio implements OwnerApi {
     _seedCommunity();
     _seedGym();
     _seedStudio();
+    _orders[flowersId] = _flowerOrders();
 
     devicesList
       ..clear()
@@ -469,6 +472,17 @@ class FakeOwnerApi with _FakeStudio implements OwnerApi {
           city: 'Istanbul',
           address: type == 'delivery' ? 'Moda Cd. 12, Kadıköy' : null,
         ),
+        // 132 A delivery goes to the address chosen in the app.
+        deliverTo: type == 'delivery'
+            ? const DeliverTo(
+                person: 'customer',
+                address: 'Moda Cd. 12, Kadıköy',
+                city: 'Istanbul',
+                lat: 40.9869,
+                lng: 29.0254,
+                notes: 'Third floor, ring twice',
+              )
+            : null,
         createdAt: _ago(ago),
         paidAt: _ago(ago),
         nextStatuses: status == 'processing' ? next : const [],
@@ -1370,6 +1384,8 @@ class FakeOwnerApi with _FakeStudio implements OwnerApi {
     final f = app.features;
     final orders = _orders[appId] ?? const [];
     final processing = orders.where((o) => o.status == 'processing').length;
+    // 132 Waiting for a bank transfer or the owner's own method.
+    final unpaid = orders.where((o) => o.status == 'pending').length;
     final toConfirm = (_appointments[appId] ?? const [])
         .where((a) => a.status == 'pending')
         .length;
@@ -1409,6 +1425,14 @@ class FakeOwnerApi with _FakeStudio implements OwnerApi {
             title: processing == 1
                 ? '1 order in progress'
                 : '$processing orders in progress',
+          ),
+        if (unpaid > 0)
+          NeedsYou(
+            kind: 'orders_awaiting_payment',
+            count: unpaid,
+            title: unpaid == 1
+                ? '1 order waiting for its payment'
+                : '$unpaid orders waiting for their payment',
           ),
         if (toConfirm > 0)
           NeedsYou(
@@ -1477,20 +1501,8 @@ class FakeOwnerApi with _FakeStudio implements OwnerApi {
     final refunded = o.refunds.fold(0, (n, r) => n + r.amount.amountCents);
     final left = o.total.amountCents - refunded;
     final refundable = left > 0 && o.status != 'cancelled';
-    return Order(
-      id: o.id,
-      number: o.number,
-      status: o.status,
-      statusLabel: o.statusLabel,
-      kitchen: o.kitchen,
-      total: o.total,
+    return o.copyWith(
       refunded: refunded > 0 ? money(refunded, o.total.currency) : null,
-      lines: o.lines,
-      customer: o.customer,
-      createdAt: o.createdAt,
-      paidAt: o.paidAt,
-      nextStatuses: o.nextStatuses,
-      refunds: o.refunds,
       refund: RefundOptions(
         refundable: refundable,
         why: refundable ? null : 'Nothing is left to refund on this order.',
@@ -1594,9 +1606,7 @@ class FakeOwnerApi with _FakeStudio implements OwnerApi {
             'out_for_delivery' => ['completed', 'cancelled'],
             _ => const <String>[],
           };
-    final updated = Order(
-      id: o.id,
-      number: o.number,
+    final updated = o.copyWith(
       status: finalStatus,
       statusLabel: _statusLabel(finalStatus),
       kitchen: kitchen == null
@@ -1605,15 +1615,9 @@ class FakeOwnerApi with _FakeStudio implements OwnerApi {
               type: kitchen.type,
               step: status,
               stepLabel: _stepLabel(status),
+              scheduledFor: kitchen.scheduledFor,
             ),
-      total: o.total,
-      refunded: o.refunded,
-      lines: o.lines,
-      customer: o.customer,
-      createdAt: o.createdAt,
-      paidAt: o.paidAt,
       nextStatuses: next,
-      refunds: o.refunds,
     );
     _replace(appId, updated);
     return _detail(appId, updated);
@@ -1658,17 +1662,9 @@ class FakeOwnerApi with _FakeStudio implements OwnerApi {
     final whole =
         refunds.fold(0, (n, r) => n + r.amount.amountCents) >=
         o.total.amountCents;
-    final updated = Order(
-      id: o.id,
-      number: o.number,
+    final updated = o.copyWith(
       status: whole ? 'refunded' : o.status,
       statusLabel: _statusLabel(whole ? 'refunded' : o.status),
-      kitchen: o.kitchen,
-      total: o.total,
-      lines: o.lines,
-      customer: o.customer,
-      createdAt: o.createdAt,
-      paidAt: o.paidAt,
       nextStatuses: whole ? const [] : o.nextStatuses,
       refunds: refunds,
     );

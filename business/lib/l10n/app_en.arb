@@ -1495,7 +1495,6 @@
   },
   "noRestaurants": "No restaurants yet",
   "refundDue": "A refund is due on this order.",
-  "callCustomer": "Call customer",
   "courierLabel": "Courier",
   "onDuty": "On duty",
   "onTheWay": "On the way",
@@ -2086,6 +2085,144 @@
   "pushPrimeAlertHelp": "Prime: when something waits too long.",
   "pushBrief": "Morning brief",
   "pushBriefHelp": "Prime: yesterday in one notification.",
+  "deliverTo": "Deliver to",
+  "whenTitle": "When",
+  "giftCardTitle": "Gift card message",
+  "giftOrder": "Gift",
+  "giftSender": "Sender",
+  "giftFor": "For {name}",
+  "@giftFor": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "fromAccount": "From their account in the app",
+  "noName": "No name given",
+  "asSoonAsPossible": "As soon as possible",
+  "signedBy": "Signed: {name}",
+  "@signedBy": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "sentAnonymously": "Send anonymously: the card doesn't show the sender's name.",
+  "zoneLabel": "Zone: {zone}",
+  "@zoneLabel": {
+    "placeholders": {
+      "zone": {
+        "type": "String"
+      }
+    }
+  },
+  "pinnedOnMap": "Pinned on the map",
+  "openInMaps": "Open in Maps",
+  "copyAddress": "Copy address",
+  "addressCopied": "Address copied",
+  "addonLine": "Add-on",
+  "flashSaleTag": "Flash sale",
+  "subtotalLabel": "Subtotal",
+  "discountLabel": "Discount",
+  "couponLabel": "Coupon {code}",
+  "@couponLabel": {
+    "placeholders": {
+      "code": {
+        "type": "String"
+      }
+    }
+  },
+  "pointsLabel": "Points ({points})",
+  "@pointsLabel": {
+    "placeholders": {
+      "points": {
+        "type": "String"
+      }
+    }
+  },
+  "deliveryFeeLabel": "Delivery fee",
+  "feeBase": "Base fee",
+  "feeMinimum": "Minimum fee",
+  "feeFree": "Free delivery",
+  "slotFeeLabel": "Delivery time",
+  "taxIncludedLabel": "{label} (included)",
+  "@taxIncludedLabel": {
+    "placeholders": {
+      "label": {
+        "type": "String"
+      }
+    }
+  },
+  "payOutsideWaiting": "Waiting for payment: {method}",
+  "@payOutsideWaiting": {
+    "placeholders": {
+      "method": {
+        "type": "String"
+      }
+    }
+  },
+  "payOutsideDue": "Waiting for payment: {method}, by {date}",
+  "@payOutsideDue": {
+    "placeholders": {
+      "method": {
+        "type": "String"
+      },
+      "date": {
+        "type": "String"
+      }
+    }
+  },
+  "shippedTitle": "Shipped",
+  "trackShipment": "Track the shipment",
+  "senderLabel": "Sender",
+  "packageLabel": "Package",
+  "packageSmall": "Small",
+  "packageMedium": "Medium",
+  "packageLarge": "Large",
+  "serviceLabel": "Service: {name}",
+  "@serviceLabel": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "payCash": "Cash on delivery",
+  "payCard": "Card",
+  "payWallet": "Wallet",
+  "payApplePay": "Apple Pay",
+  "payGooglePay": "Google Pay",
+  "payUnpaid": "Not paid yet",
+  "payPaid": "Paid",
+  "payRefunded": "Refunded",
+  "payPartlyRefunded": "Partly refunded",
+  "lineItems": "Items",
+  "lineItemDiscounts": "Item discounts",
+  "lineCoupon": "Coupon",
+  "lineClub": "Club discount",
+  "lineDelivery": "Delivery",
+  "lineDeliveryDiscount": "Delivery discount",
+  "lineTax": "Tax",
+  "lineTip": "Tip",
+  "lineWallet": "Paid from the wallet",
+  "scheduledAt": "Scheduled: {time}",
+  "@scheduledAt": {
+    "placeholders": {
+      "time": {
+        "type": "String"
+      }
+    }
+  },
+  "couponUsed": "Coupon: {code}",
+  "@couponUsed": {
+    "placeholders": {
+      "code": {
+        "type": "String"
+      }
+    }
+  },
   "minutesAgo": "{count} min ago",
   "@minutesAgo": {
     "placeholders": {
@@ -2398,6 +2535,14 @@
   },
   "pointsChange": "{count, plural, =1{1 point} other{{count} points}}",
   "@pointsChange": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "needsAwaitingPayment": "{count, plural, =1{1 order waiting for its payment} other{{count} orders waiting for their payment}}",
+  "@needsAwaitingPayment": {
     "placeholders": {
       "count": {
         "type": "int"

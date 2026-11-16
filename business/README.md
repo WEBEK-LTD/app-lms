@@ -146,6 +146,24 @@ Prime app. Pushes open food orders, shipments, rides, complaints, market
 orders and the school's excuses, reports and leave. The demo has Yalla Food,
 Yalla Market, Hızlı Kurye, Yalla Taxi and Green Hill School.
 
+Roadmap 132 (Yallapp Business 1.0.3): an order shows everything the owner
+needs to send it. Its page has who ordered (the payment page's details, the
+gift checkout's sender, or the app's account of the person; Call, WhatsApp,
+the email), where it goes (the gift's recipient with their phone, the
+restaurant's or the buyer's address, the place's zone and pin; Open in Maps
+with the phone's own map app, Copy address), when (the delivery day and
+slot, a restaurant's time asked for or as soon as possible), the gift card
+(signed, or sent anonymously: the owner still sees the sender), the items
+with their options, flash sale and add-ons indented under their item, the
+payment (subtotal, coupon, points, the delivery fee with what made it up and
+the time slot's fee, tax, total, refunded), the notes and the shipment's
+tracking; the next steps stay at the screen's foot. The list shows who
+ordered, for whom, the day and slot, and the total; "In progress" lists the
+orders waiting for a bank transfer or the owner's own method too. Food,
+marketplace, shipment and ride pages have each person with Call and WhatsApp
+and each place with the map and Copy address (`lib/core/widgets/contact.dart`).
+The demo has Leqaa, a Studio flower shop with gift orders.
+
 Each screen and quick action is shown only when the app has it
 (`AppSummary.features`): the second tab is the app's main tool (Events,
 Appointments, Orders, Donations or its catalog), Inbox and Stats appear when

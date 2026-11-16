@@ -97,6 +97,12 @@ void main() {
     expect(find.text('F-1048'), findsOneWidget);
     expect(find.text('Burger Lab'), findsOneWidget);
     expect(find.text('Bağdat Cd. 214, Kadıköy'), findsOneWidget);
+    // 132 The customer's part (Call, WhatsApp, the map) comes before the items.
+    await tester.scrollUntilVisible(
+      find.text('No onions · Extra cheddar'),
+      200,
+      scrollable: down(),
+    );
     expect(find.text('No onions · Extra cheddar'), findsOneWidget);
     expect(find.text('₺412.00'), findsWidgets);
     expect(

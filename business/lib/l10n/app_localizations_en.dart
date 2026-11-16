@@ -2395,9 +2395,6 @@ class AppLocalizationsEn extends AppLocalizations {
   String get refundDue => 'A refund is due on this order.';
 
   @override
-  String get callCustomer => 'Call customer';
-
-  @override
   String get courierLabel => 'Courier';
 
   @override
@@ -3177,6 +3174,203 @@ class AppLocalizationsEn extends AppLocalizations {
   String get pushBriefHelp => 'Prime: yesterday in one notification.';
 
   @override
+  String get deliverTo => 'Deliver to';
+
+  @override
+  String get whenTitle => 'When';
+
+  @override
+  String get giftCardTitle => 'Gift card message';
+
+  @override
+  String get giftOrder => 'Gift';
+
+  @override
+  String get giftSender => 'Sender';
+
+  @override
+  String giftFor(String name) {
+    return 'For $name';
+  }
+
+  @override
+  String get fromAccount => 'From their account in the app';
+
+  @override
+  String get noName => 'No name given';
+
+  @override
+  String get asSoonAsPossible => 'As soon as possible';
+
+  @override
+  String signedBy(String name) {
+    return 'Signed: $name';
+  }
+
+  @override
+  String get sentAnonymously =>
+      'Send anonymously: the card doesn\'t show the sender\'s name.';
+
+  @override
+  String zoneLabel(String zone) {
+    return 'Zone: $zone';
+  }
+
+  @override
+  String get pinnedOnMap => 'Pinned on the map';
+
+  @override
+  String get openInMaps => 'Open in Maps';
+
+  @override
+  String get copyAddress => 'Copy address';
+
+  @override
+  String get addressCopied => 'Address copied';
+
+  @override
+  String get addonLine => 'Add-on';
+
+  @override
+  String get flashSaleTag => 'Flash sale';
+
+  @override
+  String get subtotalLabel => 'Subtotal';
+
+  @override
+  String get discountLabel => 'Discount';
+
+  @override
+  String couponLabel(String code) {
+    return 'Coupon $code';
+  }
+
+  @override
+  String pointsLabel(String points) {
+    return 'Points ($points)';
+  }
+
+  @override
+  String get deliveryFeeLabel => 'Delivery fee';
+
+  @override
+  String get feeBase => 'Base fee';
+
+  @override
+  String get feeMinimum => 'Minimum fee';
+
+  @override
+  String get feeFree => 'Free delivery';
+
+  @override
+  String get slotFeeLabel => 'Delivery time';
+
+  @override
+  String taxIncludedLabel(String label) {
+    return '$label (included)';
+  }
+
+  @override
+  String payOutsideWaiting(String method) {
+    return 'Waiting for payment: $method';
+  }
+
+  @override
+  String payOutsideDue(String method, String date) {
+    return 'Waiting for payment: $method, by $date';
+  }
+
+  @override
+  String get shippedTitle => 'Shipped';
+
+  @override
+  String get trackShipment => 'Track the shipment';
+
+  @override
+  String get senderLabel => 'Sender';
+
+  @override
+  String get packageLabel => 'Package';
+
+  @override
+  String get packageSmall => 'Small';
+
+  @override
+  String get packageMedium => 'Medium';
+
+  @override
+  String get packageLarge => 'Large';
+
+  @override
+  String serviceLabel(String name) {
+    return 'Service: $name';
+  }
+
+  @override
+  String get payCash => 'Cash on delivery';
+
+  @override
+  String get payCard => 'Card';
+
+  @override
+  String get payWallet => 'Wallet';
+
+  @override
+  String get payApplePay => 'Apple Pay';
+
+  @override
+  String get payGooglePay => 'Google Pay';
+
+  @override
+  String get payUnpaid => 'Not paid yet';
+
+  @override
+  String get payPaid => 'Paid';
+
+  @override
+  String get payRefunded => 'Refunded';
+
+  @override
+  String get payPartlyRefunded => 'Partly refunded';
+
+  @override
+  String get lineItems => 'Items';
+
+  @override
+  String get lineItemDiscounts => 'Item discounts';
+
+  @override
+  String get lineCoupon => 'Coupon';
+
+  @override
+  String get lineClub => 'Club discount';
+
+  @override
+  String get lineDelivery => 'Delivery';
+
+  @override
+  String get lineDeliveryDiscount => 'Delivery discount';
+
+  @override
+  String get lineTax => 'Tax';
+
+  @override
+  String get lineTip => 'Tip';
+
+  @override
+  String get lineWallet => 'Paid from the wallet';
+
+  @override
+  String scheduledAt(String time) {
+    return 'Scheduled: $time';
+  }
+
+  @override
+  String couponUsed(String code) {
+    return 'Coupon: $code';
+  }
+
+  @override
   String minutesAgo(int count) {
     return '$count min ago';
   }
@@ -3585,6 +3779,17 @@ class AppLocalizationsEn extends AppLocalizations {
       locale: localeName,
       other: '$count points',
       one: '1 point',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String needsAwaitingPayment(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count orders waiting for their payment',
+      one: '1 order waiting for its payment',
     );
     return '$_temp0';
   }

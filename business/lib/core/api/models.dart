@@ -916,12 +916,18 @@ class Paged<T> {
 }
 
 class OrderKitchen {
-  const OrderKitchen({required this.type, required this.step, this.stepLabel});
+  const OrderKitchen({
+    required this.type,
+    required this.step,
+    this.stepLabel,
+    this.scheduledFor,
+  });
 
   factory OrderKitchen.fromJson(Json json) => OrderKitchen(
     type: str(json, 'type', 'pickup'),
     step: str(json, 'step', 'received'),
     stepLabel: optStr(json, 'step_label'),
+    scheduledFor: optDate(json, 'scheduled_for'),
   );
 
   /// pickup or delivery.
@@ -930,6 +936,20 @@ class OrderKitchen {
   /// received, preparing, ready, out_for_delivery, completed, cancelled.
   final String step;
   final String? stepLabel;
+
+  /// 132 The time the customer asked for; null: as soon as possible.
+  final DateTime? scheduledFor;
+}
+
+/// 132 A line bought at a flash sale's price.
+class LineSale {
+  const LineSale({this.title, this.percent});
+
+  factory LineSale.fromJson(Json json) =>
+      LineSale(title: optStr(json, 'title'), percent: optInt(json, 'percent'));
+
+  final String? title;
+  final int? percent;
 }
 
 class OrderLine {
@@ -938,23 +958,52 @@ class OrderLine {
     required this.quantity,
     required this.unit,
     this.options = const [],
+    this.productId,
+    this.total,
+    this.variant,
+    this.addonOf,
+    this.flashSale,
   });
 
-  factory OrderLine.fromJson(Json json) => OrderLine(
-    name: str(json, 'name'),
-    quantity: integer(json, 'quantity', 1),
-    unit: Money.fromJson(optObject(json, 'unit') ?? const {}),
-    options: strings(json, 'options'),
-  );
+  factory OrderLine.fromJson(Json json) {
+    final sale = optObject(json, 'flash_sale');
+    return OrderLine(
+      name: str(json, 'name'),
+      quantity: integer(json, 'quantity', 1),
+      unit: Money.fromJson(optObject(json, 'unit') ?? const {}),
+      options: strings(json, 'options'),
+      productId: optInt(json, 'product_id'),
+      total: Money.opt(json, 'total'),
+      variant: optStr(json, 'variant'),
+      addonOf: optInt(json, 'addon_of'),
+      flashSale: sale == null ? null : LineSale.fromJson(sale),
+    );
+  }
 
   final String name;
   final int quantity;
   final Money unit;
   final List<String> options;
+
+  /// 132 The product; an add-on's [addonOf] is its item's.
+  final int? productId;
+  final Money? total;
+  final String? variant;
+
+  /// 131 A gift add-on: the product of the line it goes with.
+  final int? addonOf;
+  final LineSale? flashSale;
 }
 
 class Customer {
-  const Customer({this.name, this.phone, this.email, this.city, this.address});
+  const Customer({
+    this.name,
+    this.phone,
+    this.email,
+    this.city,
+    this.address,
+    this.source,
+  });
 
   factory Customer.fromJson(Json json) => Customer(
     name: optStr(json, 'name'),
@@ -962,6 +1011,7 @@ class Customer {
     email: optStr(json, 'email'),
     city: optStr(json, 'city'),
     address: optStr(json, 'address'),
+    source: optStr(json, 'source'),
   );
 
   final String? name;
@@ -969,6 +1019,225 @@ class Customer {
   final String? email;
   final String? city;
   final String? address;
+
+  /// 132 checkout (the payment page), sender (the gift checkout) or account
+  /// (the app's account of the person who checked out).
+  final String? source;
+}
+
+/// 132 Where an order goes and who takes it: the gift's recipient, or the
+/// customer at their address; the place's pin for the map.
+class DeliverTo {
+  const DeliverTo({
+    required this.person,
+    this.name,
+    this.phone,
+    this.address,
+    this.city,
+    this.country,
+    this.lat,
+    this.lng,
+    this.notes,
+  });
+
+  factory DeliverTo.fromJson(Json json) => DeliverTo(
+    person: str(json, 'person', 'customer'),
+    name: optStr(json, 'name'),
+    phone: optStr(json, 'phone'),
+    address: optStr(json, 'address'),
+    city: optStr(json, 'city'),
+    country: optStr(json, 'country'),
+    lat: optNumber(json, 'lat'),
+    lng: optNumber(json, 'lng'),
+    notes: optStr(json, 'notes'),
+  );
+
+  /// customer or recipient.
+  final String person;
+  final String? name;
+  final String? phone;
+  final String? address;
+  final String? city;
+  final String? country;
+  final double? lat;
+  final double? lng;
+  final String? notes;
+
+  bool get isRecipient => person == 'recipient';
+
+  /// "14 Brazil St, Zamalek, Cairo": what to copy or look up.
+  String get line => [
+    address,
+    if (city != null && !(address ?? '').contains(city!)) city,
+  ].whereType<String>().join(', ');
+}
+
+/// 131 A delivery's people: the gift checkout's sender or its recipient.
+class GiftPerson {
+  const GiftPerson({required this.name, this.phone, this.email, this.address});
+
+  factory GiftPerson.fromJson(Json json) => GiftPerson(
+    name: str(json, 'name'),
+    phone: optStr(json, 'phone'),
+    email: optStr(json, 'email'),
+    address: optStr(json, 'address'),
+  );
+
+  final String name;
+  final String? phone;
+  final String? email;
+  final String? address;
+}
+
+/// 131 The delivery day and slot, the gift's people and card, the place,
+/// the shipping's zone and the fee with what made it up.
+class OrderDelivery {
+  const OrderDelivery({
+    this.date,
+    this.slotLabel,
+    this.fee,
+    this.sender,
+    this.recipient,
+    this.giftMessage,
+    this.anonymous = false,
+    this.signedBy,
+    this.zone,
+    this.shippingFee,
+    this.breakdown = const [],
+  });
+
+  factory OrderDelivery.fromJson(Json json) {
+    final slot = optObject(json, 'slot');
+    final sender = optObject(json, 'sender');
+    final recipient = optObject(json, 'recipient');
+    return OrderDelivery(
+      date: optStr(json, 'date'),
+      slotLabel: slot == null
+          ? null
+          : optStr(slot, 'label') ??
+                '${str(slot, 'start')}–${str(slot, 'end')}',
+      fee: Money.opt(json, 'fee'),
+      sender: sender == null ? null : GiftPerson.fromJson(sender),
+      recipient: recipient == null ? null : GiftPerson.fromJson(recipient),
+      giftMessage: optStr(json, 'gift_message'),
+      anonymous: boolean(json, 'anonymous'),
+      signedBy: optStr(json, 'signed_by'),
+      zone: optStr(json, 'zone'),
+      shippingFee: Money.opt(json, 'shipping_fee'),
+      breakdown: [
+        for (final b in jsonList(json, 'breakdown'))
+          (
+            label: str(b, 'label'),
+            rule: optStr(b, 'rule'),
+            amount: Money.fromJson(optObject(b, 'amount') ?? const {}),
+          ),
+      ],
+    );
+  }
+
+  /// YYYY-MM-DD in the shop's time zone.
+  final String? date;
+
+  /// "13:00–16:00".
+  final String? slotLabel;
+
+  /// The slot's own fee.
+  final Money? fee;
+  final GiftPerson? sender;
+  final GiftPerson? recipient;
+  final String? giftMessage;
+
+  /// The card goes without the sender's name (the owner still sees them).
+  final bool anonymous;
+  final String? signedBy;
+  final String? zone;
+  final Money? shippingFee;
+  final List<({String label, String? rule, Money amount})> breakdown;
+
+  bool get hasWhen => date != null || slotLabel != null;
+  bool get hasCard => giftMessage != null || anonymous;
+}
+
+/// 132 What an order's total is made of.
+class OrderAmounts {
+  const OrderAmounts({
+    required this.subtotal,
+    required this.total,
+    this.discount,
+    this.couponCode,
+    this.points,
+    this.pointsUsed,
+    this.shipping,
+    this.tax,
+    this.taxLabel,
+    this.taxIncluded = false,
+  });
+
+  factory OrderAmounts.fromJson(Json json) {
+    final discount = optObject(json, 'discount');
+    final points = optObject(json, 'points');
+    final tax = optObject(json, 'tax');
+    return OrderAmounts(
+      subtotal: Money.fromJson(optObject(json, 'subtotal') ?? const {}),
+      total: Money.fromJson(optObject(json, 'total') ?? const {}),
+      discount: discount == null ? null : Money.opt(discount, 'amount'),
+      couponCode: discount == null ? null : optStr(discount, 'code'),
+      points: points == null ? null : Money.opt(points, 'amount'),
+      pointsUsed: points == null ? null : optInt(points, 'used'),
+      shipping: Money.opt(json, 'shipping'),
+      tax: tax == null ? null : Money.opt(tax, 'amount'),
+      taxLabel: tax == null ? null : optStr(tax, 'label'),
+      taxIncluded: tax != null && boolean(tax, 'included'),
+    );
+  }
+
+  final Money subtotal;
+  final Money total;
+  final Money? discount;
+  final String? couponCode;
+  final Money? points;
+  final int? pointsUsed;
+  final Money? shipping;
+  final Money? tax;
+  final String? taxLabel;
+  final bool taxIncluded;
+}
+
+/// 96.2 To be paid by bank transfer or the owner's own method.
+class PayOutside {
+  const PayOutside({required this.method, required this.name, this.dueAt});
+
+  factory PayOutside.fromJson(Json json) => PayOutside(
+    method: str(json, 'method'),
+    name: str(json, 'name'),
+    dueAt: optDate(json, 'due_at'),
+  );
+
+  final String method;
+  final String name;
+  final DateTime? dueAt;
+}
+
+/// 80.4 How it was shipped.
+class OrderShipment {
+  const OrderShipment({
+    this.carrier,
+    this.trackingNumber,
+    this.trackingUrl,
+    this.shippedAt,
+  });
+
+  factory OrderShipment.fromJson(Json json) => OrderShipment(
+    carrier: optStr(json, 'carrier'),
+    trackingNumber: optStr(json, 'tracking_number'),
+    trackingUrl: optStr(json, 'tracking_url'),
+    shippedAt: optDate(json, 'shipped_at'),
+  );
+
+  final String? carrier;
+  final String? trackingNumber;
+  final String? trackingUrl;
+  final DateTime? shippedAt;
 }
 
 class Takeable {
@@ -1074,12 +1343,22 @@ class Order {
     this.paidAt,
     this.refund,
     this.refunds = const [],
+    this.deliverTo,
+    this.delivery,
+    this.amounts,
+    this.payOutside,
+    this.shipment,
   });
 
   factory Order.fromJson(Json json) {
     final kitchen = optObject(json, 'kitchen');
     final customer = optObject(json, 'customer');
     final refund = optObject(json, 'refund');
+    final deliverTo = optObject(json, 'deliver_to');
+    final delivery = optObject(json, 'delivery');
+    final amounts = optObject(json, 'amounts');
+    final outside = optObject(json, 'pay_outside');
+    final shipment = optObject(json, 'shipment');
     return Order(
       id: integer(json, 'id'),
       number: str(json, 'number'),
@@ -1095,6 +1374,11 @@ class Order {
       nextStatuses: strings(json, 'next_statuses'),
       refund: refund == null ? null : RefundOptions.fromJson(refund),
       refunds: listOf(json, 'refunds', Refund.fromJson),
+      deliverTo: deliverTo == null ? null : DeliverTo.fromJson(deliverTo),
+      delivery: delivery == null ? null : OrderDelivery.fromJson(delivery),
+      amounts: amounts == null ? null : OrderAmounts.fromJson(amounts),
+      payOutside: outside == null ? null : PayOutside.fromJson(outside),
+      shipment: shipment == null ? null : OrderShipment.fromJson(shipment),
     );
   }
 
@@ -1106,7 +1390,7 @@ class Order {
   /// "#1042", as the dashboard shows it.
   String get label => number.startsWith('#') ? number : '#$number';
 
-  /// processing, completed, cancelled, refunded.
+  /// pending (96.2), processing, completed, cancelled, refunded.
   final String status;
   final String? statusLabel;
   final OrderKitchen? kitchen;
@@ -1120,7 +1404,53 @@ class Order {
   final RefundOptions? refund;
   final List<Refund> refunds;
 
+  /// 132 Where it goes and who takes it.
+  final DeliverTo? deliverTo;
+
+  /// 131 The day and slot, the gift's people and card, the fees.
+  final OrderDelivery? delivery;
+
+  /// 132 What the total is made of.
+  final OrderAmounts? amounts;
+  final PayOutside? payOutside;
+  final OrderShipment? shipment;
+
   int get itemCount => lines.fold(0, (sum, line) => sum + line.quantity);
+
+  /// 132 Who ordered: the customer, else the gift's sender.
+  String? get buyerName => customer?.name ?? delivery?.sender?.name;
+
+  /// The same order with what changed (the fake API's moves and refunds).
+  Order copyWith({
+    String? status,
+    String? statusLabel,
+    OrderKitchen? kitchen,
+    bool clearKitchen = false,
+    Money? refunded,
+    List<String>? nextStatuses,
+    RefundOptions? refund,
+    List<Refund>? refunds,
+  }) => Order(
+    id: id,
+    number: number,
+    status: status ?? this.status,
+    statusLabel: statusLabel ?? this.statusLabel,
+    kitchen: clearKitchen ? null : (kitchen ?? this.kitchen),
+    total: total,
+    refunded: refunded ?? this.refunded,
+    lines: lines,
+    customer: customer,
+    createdAt: createdAt,
+    paidAt: paidAt,
+    nextStatuses: nextStatuses ?? this.nextStatuses,
+    refund: refund ?? this.refund,
+    refunds: refunds ?? this.refunds,
+    deliverTo: deliverTo,
+    delivery: delivery,
+    amounts: amounts,
+    payOutside: payOutside,
+    shipment: shipment,
+  );
 }
 
 class RefundRequest {

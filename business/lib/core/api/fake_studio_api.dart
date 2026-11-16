@@ -16,6 +16,9 @@ mixin _FakeStudio implements OwnerApi {
   static const ridesId = 'dddddddd-dddd-4ddd-8ddd-dddddddddddd';
   static const schoolId = 'eeeeeeee-eeee-4eee-8eee-eeeeeeeeeeee';
 
+  /// 132 A Studio store with the gift checkout (Leqaa, the flower shop).
+  static const flowersId = 'ffffffff-ffff-4fff-8fff-ffffffffffff';
+
   /// VIP: the business has an account manager (tests turn it off).
   bool accountManagerOn = true;
 
@@ -213,6 +216,26 @@ mixin _FakeStudio implements OwnerApi {
         ),
       ),
       AppSummary(
+        id: flowersId,
+        name: 'Leqaa',
+        type: 'store',
+        typeName: 'Store',
+        backend: 'hosted',
+        state: AccountState.active,
+        plan: studio,
+        features: const AppFeatures(
+          orders: true,
+          products: true,
+          appUsers: true,
+          notifications: true,
+          media: true,
+          analytics: true,
+          preview: true,
+          builds: true,
+          prime: true,
+        ),
+      ),
+      AppSummary(
         id: schoolId,
         name: 'Green Hill School',
         type: 'school',
@@ -232,6 +255,293 @@ mixin _FakeStudio implements OwnerApi {
           vip: true,
         ),
       ),
+    ];
+  }
+
+  /// 132 Leqaa's orders as the server writes them (read back with
+  /// `Order.fromJson`): two gift orders (one sent anonymously) with their
+  /// day and slot, recipient, card, add-ons, flash sale, coupon and fees;
+  /// one from a customer's account; one waiting for cash on delivery.
+  List<Order> _flowerOrders() {
+    Json m(int cents) => _money(cents, 'EGP');
+    final tomorrow = _isoDay(now.add(const Duration(days: 1)));
+    final today = _isoDay(now);
+    Json line(
+      int productId,
+      String name,
+      int unit, {
+      int quantity = 1,
+      List<String> options = const [],
+      int? addonOf,
+      Json? sale,
+    }) => {
+      'product_id': productId,
+      'name': name,
+      'quantity': quantity,
+      'unit': m(unit),
+      'total': m(unit * quantity),
+      'options': options,
+      'variant': null,
+      'digital': false,
+      'addon_of': ?addonOf,
+      'flash_sale': sale,
+    };
+    Json order({
+      required int number,
+      required String status,
+      required Duration ago,
+      required List<Json> lines,
+      required Json amounts,
+      Json? customer,
+      Json? deliverTo,
+      Json? delivery,
+      Json? payOutside,
+      List<String> next = const [],
+    }) => {
+      'id': number,
+      'number': '$number',
+      'status': status,
+      'status_label': switch (status) {
+        'pending' => 'Waiting for payment',
+        'completed' => 'Completed',
+        _ => 'In progress',
+      },
+      'kitchen': null,
+      'total': amounts['total'],
+      'refunded': null,
+      'lines': lines,
+      'customer': customer,
+      'deliver_to': deliverTo,
+      'amounts': amounts,
+      'created_at': _at(ago),
+      'paid_at': status == 'pending' ? null : _at(ago),
+      'delivery': delivery,
+      'shippable': false,
+      'shipment': null,
+      'next_statuses': next,
+      'pay_outside': payOutside,
+    };
+    return [
+      for (final j in [
+        order(
+          number: 2051,
+          status: 'processing',
+          ago: const Duration(minutes: 12),
+          lines: [
+            line(
+              11,
+              'Blush Garden - Deluxe',
+              180000,
+              options: const ['Wrap: Kraft paper'],
+              sale: {'id': 4, 'title': "Mother's Day roses", 'percent': 25},
+            ),
+            line(21, 'Belgian chocolate box', 25000, addonOf: 11),
+            line(22, 'Greeting card', 4500, addonOf: 11),
+          ],
+          amounts: {
+            'subtotal': m(209500),
+            'discount': {'code': 'LEQAA10', 'amount': m(20950)},
+            'points': null,
+            'shipping': m(15000),
+            'tax': null,
+            'total': m(203550),
+          },
+          customer: {
+            'name': 'Omar Nabil',
+            'phone': '+20 100 123 4567',
+            'email': 'omar.nabil@example.com',
+            'city': null,
+            'address': null,
+            'source': 'sender',
+          },
+          deliverTo: {
+            'person': 'recipient',
+            'name': 'Salma Nabil',
+            'phone': '+20 100 765 4321',
+            'address': '14 Brazil St, Zamalek',
+            'city': 'Cairo',
+            'country': 'EG',
+            'lat': 30.0626,
+            'lng': 31.2197,
+            'notes': null,
+          },
+          delivery: {
+            'date': tomorrow,
+            'slot': {
+              'id': 'afternoon',
+              'start': '13:00',
+              'end': '16:00',
+              'label': '13:00–16:00',
+            },
+            'fee': m(5000),
+            'sender': {
+              'name': 'Omar Nabil',
+              'phone': '+20 100 123 4567',
+              'email': 'omar.nabil@example.com',
+            },
+            'recipient': {
+              'name': 'Salma Nabil',
+              'phone': '+20 100 765 4321',
+              'address': '14 Brazil St, Zamalek',
+            },
+            'gift_message': 'Happy birthday, Mama! With all my love.',
+            'anonymous': false,
+            'signed_by': 'Omar Nabil',
+            'place': {
+              'country': 'EG',
+              'city': 'Cairo',
+              'lat': 30.0626,
+              'lng': 31.2197,
+            },
+            'zone': '4.2 km',
+            'shipping_fee': m(10000),
+            'breakdown': [
+              {'label': 'Base fee', 'rule': 'distance', 'amount': m(6000)},
+              {'label': '4.2 km', 'rule': 'distance', 'amount': m(4000)},
+            ],
+          },
+          next: const ['completed', 'cancelled'],
+        ),
+        order(
+          number: 2050,
+          status: 'processing',
+          ago: const Duration(hours: 2),
+          lines: [line(12, 'White Peony Vase', 95000)],
+          amounts: {
+            'subtotal': m(95000),
+            'discount': null,
+            'points': null,
+            'shipping': m(8000),
+            'tax': null,
+            'total': m(103000),
+          },
+          customer: {
+            'name': 'Karim Adel',
+            'phone': '+20 111 222 3344',
+            'email': 'karim@example.com',
+            'city': 'Giza',
+            'address': '3 Nile St, Dokki',
+            'source': 'checkout',
+          },
+          deliverTo: {
+            'person': 'recipient',
+            'name': 'Hana Fathy',
+            'phone': '+20 122 333 4455',
+            'address': '22 Road 9, Maadi',
+            'city': 'Cairo',
+            'country': 'EG',
+            'lat': null,
+            'lng': null,
+            'notes': null,
+          },
+          delivery: {
+            'date': today,
+            'slot': {
+              'id': 'evening',
+              'start': '16:00',
+              'end': '19:00',
+              'label': '16:00–19:00',
+            },
+            'fee': null,
+            'sender': {
+              'name': 'Karim Adel',
+              'phone': '+20 111 222 3344',
+              'email': 'karim@example.com',
+            },
+            'recipient': {
+              'name': 'Hana Fathy',
+              'phone': '+20 122 333 4455',
+              'address': '22 Road 9, Maadi',
+            },
+            'gift_message': 'Get well soon.',
+            'anonymous': true,
+            'signed_by': null,
+            'place': {
+              'country': 'EG',
+              'city': 'Cairo',
+              'lat': null,
+              'lng': null,
+            },
+            'zone': 'Cairo',
+            'shipping_fee': m(8000),
+            'breakdown': const [],
+          },
+          next: const ['completed', 'cancelled'],
+        ),
+        order(
+          number: 2048,
+          status: 'pending',
+          ago: const Duration(hours: 5),
+          lines: [line(13, 'Sunflower bunch', 40000, quantity: 2)],
+          amounts: {
+            'subtotal': m(80000),
+            'discount': null,
+            'points': null,
+            'shipping': m(6000),
+            'tax': null,
+            'total': m(86000),
+          },
+          customer: {
+            'name': 'Nour Hany',
+            'phone': '+20 100 555 0101',
+            'email': 'nour@example.com',
+            'city': 'Giza',
+            'address': null,
+            'source': 'account',
+          },
+          deliverTo: {
+            'person': 'customer',
+            'name': 'Nour Hany',
+            'phone': '+20 100 555 0101',
+            'address': null,
+            'city': 'Giza',
+            'country': 'EG',
+            'lat': null,
+            'lng': null,
+            'notes': null,
+          },
+          payOutside: {
+            'method': 'custom',
+            'name': 'Cash on delivery',
+            'due_at': _in(const Duration(days: 2)),
+          },
+          next: const ['processing', 'cancelled'],
+        ),
+        order(
+          number: 2047,
+          status: 'completed',
+          ago: const Duration(days: 1),
+          lines: [line(14, 'Red Roses · 12 stems', 70000)],
+          amounts: {
+            'subtotal': m(70000),
+            'discount': null,
+            'points': null,
+            'shipping': m(6000),
+            'tax': null,
+            'total': m(76000),
+          },
+          customer: {
+            'name': 'Mariam Said',
+            'phone': '+20 100 999 8877',
+            'email': 'mariam@example.com',
+            'city': 'Cairo',
+            'address': '8 Tahrir St, Downtown',
+            'source': 'checkout',
+          },
+          deliverTo: {
+            'person': 'customer',
+            'name': 'Mariam Said',
+            'phone': '+20 100 999 8877',
+            'address': '8 Tahrir St, Downtown',
+            'city': 'Cairo',
+            'country': null,
+            'lat': null,
+            'lng': null,
+            'notes': null,
+          },
+        ),
+      ])
+        Order.fromJson(j),
     ];
   }
 
@@ -325,6 +635,9 @@ mixin _FakeStudio implements OwnerApi {
         'phone': '+90 532 000 00 00',
         'address': customer.$2,
         'note': customer.$3,
+        'details': null,
+        'lat': 41.0422,
+        'lng': 29.0083,
       },
       'restaurant_address': restaurant.$3,
       'timeline': [
@@ -478,8 +791,20 @@ mixin _FakeStudio implements OwnerApi {
     'reference': 'S-$number',
     'status': status,
     'status_label': statusLabel,
-    'pickup': {'name': pickup.$1, 'address': pickup.$2},
-    'dropoff': {'name': recipient, 'address': dropoff.$2},
+    'pickup': {
+      'name': pickup.$1,
+      'address': pickup.$2,
+      'details': null,
+      'lat': 41.0369,
+      'lng': 28.9850,
+    },
+    'dropoff': {
+      'name': recipient,
+      'address': dropoff.$2,
+      'details': 'Apt 4, 2nd floor',
+      'lat': 41.0151,
+      'lng': 29.0266,
+    },
     'distance_km': distance,
     'price': _money(price),
     'payment': {
@@ -500,6 +825,9 @@ mixin _FakeStudio implements OwnerApi {
     ],
     'note': null,
     'recipient': {'name': recipient, 'phone': '+90 532 111 22 33'},
+    'sender': {'name': pickup.$1, 'phone': '+90 532 444 55 66'},
+    'package': {'size': 'small', 'description': 'Documents'},
+    'service': 'Same day',
   };
 
   static List<String> _shipmentNext(String status) => switch (status) {
@@ -693,12 +1021,26 @@ mixin _FakeStudio implements OwnerApi {
     'status': status,
     'status_label': statusLabel,
     'vehicle_type': type,
-    'pickup': {'name': pickup.$1, 'address': pickup.$2},
-    'dropoff': {'name': dropoff.$1, 'address': dropoff.$2},
+    'pickup': {
+      'name': pickup.$1,
+      'address': pickup.$2,
+      'details': null,
+      'lat': 41.0370,
+      'lng': 28.9857,
+    },
+    'dropoff': {
+      'name': dropoff.$1,
+      'address': dropoff.$2,
+      'details': null,
+      'lat': 40.9909,
+      'lng': 29.0303,
+    },
     'distance_km': distance,
     'quoted': _money(quoted),
     'final': finalPrice == null ? null : _money(finalPrice),
     'rider_name': rider,
+    'rider': {'name': rider, 'phone': '+90 535 700 00 01'},
+    'notes': null,
     'payment_label': 'cash',
     'driver': driver == null
         ? null
@@ -941,6 +1283,24 @@ mixin _FakeStudio implements OwnerApi {
           'total': _money(total),
         },
       ],
+      'customer': {
+        'name': customer,
+        'phone': '+90 534 600 00 02',
+        'address': 'Bağdat Cd. 210, Caddebostan, Flat 6',
+        'note': 'Leave it with the doorman',
+        'details': 'Flat 6',
+        'lat': 40.9660,
+        'lng': 29.0640,
+      },
+      'scheduled_for': null,
+      'payment': {'method': 'card', 'status': 'paid'},
+      'coupon_code': null,
+      'amounts': [
+        {'kind': 'items', 'amount': _money(total - 2500)},
+        {'kind': 'delivery', 'amount': _money(2500)},
+        {'kind': 'total', 'amount': _money(total)},
+      ],
+      'courier': null,
       'timeline': [
         {'status': 'placed', 'label': 'Placed', 'at': _at(ago), 'by': customer},
       ],

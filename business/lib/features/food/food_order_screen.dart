@@ -6,6 +6,7 @@ import '../../core/providers.dart';
 import '../../core/session.dart';
 import '../../core/theme/icons.dart';
 import '../../core/theme/theme.dart';
+import '../../core/widgets/contact.dart';
 import '../../core/widgets/l10n.dart';
 import '../../core/widgets/states.dart';
 import '../studio/studio_widgets.dart';
@@ -138,10 +139,11 @@ class _Body extends ConsumerWidget {
     final c = context.yb;
     final o = detail.order;
     final customer = detail.customer;
-    final address = [
-      if (customer.address.isNotEmpty) isolate(customer.address),
-      if (customer.note != null) '“${isolate(customer.note!)}”',
-    ].join(' · ');
+    final courier =
+        detail.courier ??
+        (o.courier == null
+            ? null
+            : CourierContact(id: o.courier!.id, name: o.courier!.name));
     final placed = context.time(o.placedAt);
     final history = o.status == 'placed'
         ? l10n.placedWaiting(placed)
@@ -167,17 +169,34 @@ class _Body extends ConsumerWidget {
                 title: o.restaurant.name,
                 text: detail.restaurantAddress,
               ),
-              const SizedBox(height: 10),
-              _Place(
-                icon: AppIcons.location,
-                title: [
-                  isolate(
-                    customer.name.isEmpty ? o.customerName : customer.name,
-                  ),
-                  if (o.distanceKm != null) km(context, o.distanceKm!),
-                ].join(' · '),
-                text: address,
+            ],
+          ),
+        ),
+        // 132 The customer: Call and WhatsApp, the address with the map and Copy.
+        SectionTitle(l10n.customer),
+        Box(
+          radius: 18,
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              PersonCard(
+                name: customer.name.isEmpty ? o.customerName : customer.name,
+                phone: customer.phone,
+                note: customer.note == null
+                    ? null
+                    : '“${isolate(customer.note!)}”',
               ),
+              if (customer.address.isNotEmpty || customer.lat != null) ...[
+                Divider(height: 28, color: c.line),
+                PlaceCard(
+                  address: customer.address,
+                  lat: customer.lat,
+                  lng: customer.lng,
+                  detail: o.distanceKm == null
+                      ? null
+                      : km(context, o.distanceKm!),
+                ),
+              ],
             ],
           ),
         ),
@@ -307,13 +326,13 @@ class _Body extends ConsumerWidget {
             ),
           ),
         ],
-        if (o.courier != null) ...[
+        if (courier != null) ...[
           const SizedBox(height: 12),
           Box(
             radius: 18,
             child: Row(
               children: [
-                Initials(initialsOf(o.courier!.name)),
+                Initials(initialsOf(courier.name)),
                 const SizedBox(width: 12),
                 Expanded(
                   child: Column(
@@ -324,7 +343,7 @@ class _Body extends ConsumerWidget {
                         style: TextStyle(fontSize: 12, color: c.ink2),
                       ),
                       Text(
-                        o.courier!.name,
+                        courier.name,
                         style: const TextStyle(
                           fontSize: 15,
                           fontWeight: FontWeight.w600,
@@ -333,6 +352,12 @@ class _Body extends ConsumerWidget {
                     ],
                   ),
                 ),
+                if (courier.phone != null)
+                  IconButton(
+                    tooltip: l10n.call,
+                    icon: const Icon(AppIcons.phone),
+                    onPressed: () => callNumber(context, ref, courier.phone),
+                  ),
               ],
             ),
           ),
@@ -340,18 +365,6 @@ class _Body extends ConsumerWidget {
         if (detail.timeline.length > 1 && o.status != 'placed') ...[
           SectionTitle(l10n.historyTitle),
           TimelineList(entries: detail.timeline),
-        ],
-        if (customer.phone != null) ...[
-          const SizedBox(height: 16),
-          Align(
-            alignment: AlignmentDirectional.centerStart,
-            child: SmallButton(
-              label: l10n.callCustomer,
-              icon: AppIcons.phone,
-              quiet: true,
-              onPressed: () => callNumber(context, ref, customer.phone),
-            ),
-          ),
         ],
       ],
     );

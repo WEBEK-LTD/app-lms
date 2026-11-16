@@ -27,6 +27,7 @@ export const en = {
   count: "{count, plural, one {# phone} other {# phones}}",
   needs: {
     ordersInProgress: "{count, plural, one {{count} order in progress} other {{count} orders in progress}}",
+    awaitingPayment: "{count, plural, one {{count} order waiting for its payment} other {{count} orders waiting for their payment}}",
     toConfirm: "{count, plural, one {{count} appointment to confirm} other {{count} appointments to confirm}}",
     unanswered: "{count, plural, one {{count} conversation waiting for your reply} other {{count} conversations waiting for your reply}}",
     questions: "{count, plural, one {{count} course question to answer} other {{count} course questions to answer}}",
@@ -163,6 +164,8 @@ export const ar: Messages = {
   needs: {
     ordersInProgress:
       "{count, plural, one {طلب واحد قيد التنفيذ} two {طلبان قيد التنفيذ} few {{count} طلبات قيد التنفيذ} other {طلبات قيد التنفيذ: {count}}}",
+    awaitingPayment:
+      "{count, plural, one {طلب واحد مستني الدفع} two {طلبين مستنيين الدفع} few {{count} طلبات مستنية الدفع} other {طلبات مستنية الدفع: {count}}}",
     toConfirm: "{count, plural, one {موعد واحد بانتظار التأكيد} two {موعدان بانتظار التأكيد} few {{count} مواعيد بانتظار التأكيد} other {مواعيد بانتظار التأكيد: {count}}}",
     unanswered:
       "{count, plural, one {محادثة واحدة بانتظار ردّك} two {محادثتان بانتظار ردّك} few {{count} محادثات بانتظار ردّك} other {محادثات بانتظار ردّك: {count}}}",
@@ -293,6 +296,7 @@ export const tr: Messages = {
   count: "{count, plural, one {# telefon} other {# telefon}}",
   needs: {
     ordersInProgress: "{count, plural, one {Hazırlanan {count} sipariş} other {Hazırlanan {count} sipariş}}",
+    awaitingPayment: "{count, plural, one {Ödemesi beklenen {count} sipariş} other {Ödemesi beklenen {count} sipariş}}",
     toConfirm: "{count, plural, one {Onay bekleyen {count} randevu} other {Onay bekleyen {count} randevu}}",
     unanswered: "{count, plural, one {Yanıtınızı bekleyen {count} konuşma} other {Yanıtınızı bekleyen {count} konuşma}}",
     questions: "{count, plural, one {Yanıtlanacak {count} kurs sorusu} other {Yanıtlanacak {count} kurs sorusu}}",

@@ -2397,9 +2397,6 @@ class AppLocalizationsTr extends AppLocalizations {
   String get refundDue => 'Bu sipariş için iade gerekiyor.';
 
   @override
-  String get callCustomer => 'Müşteriyi ara';
-
-  @override
   String get courierLabel => 'Kurye';
 
   @override
@@ -3181,6 +3178,202 @@ class AppLocalizationsTr extends AppLocalizations {
   String get pushBriefHelp => 'Prime: dün tek bir bildirimde.';
 
   @override
+  String get deliverTo => 'Teslimat adresi';
+
+  @override
+  String get whenTitle => 'Ne zaman';
+
+  @override
+  String get giftCardTitle => 'Hediye kartı mesajı';
+
+  @override
+  String get giftOrder => 'Hediye';
+
+  @override
+  String get giftSender => 'Gönderen';
+
+  @override
+  String giftFor(String name) {
+    return '$name için';
+  }
+
+  @override
+  String get fromAccount => 'Uygulamadaki hesabından';
+
+  @override
+  String get noName => 'İsim verilmedi';
+
+  @override
+  String get asSoonAsPossible => 'En kısa sürede';
+
+  @override
+  String signedBy(String name) {
+    return 'İmza: $name';
+  }
+
+  @override
+  String get sentAnonymously => 'İsimsiz gönder: kartta gönderenin adı yazmaz.';
+
+  @override
+  String zoneLabel(String zone) {
+    return 'Bölge: $zone';
+  }
+
+  @override
+  String get pinnedOnMap => 'Haritada işaretli';
+
+  @override
+  String get openInMaps => 'Haritada aç';
+
+  @override
+  String get copyAddress => 'Adresi kopyala';
+
+  @override
+  String get addressCopied => 'Adres kopyalandı';
+
+  @override
+  String get addonLine => 'Ek ürün';
+
+  @override
+  String get flashSaleTag => 'Flaş indirim';
+
+  @override
+  String get subtotalLabel => 'Ara toplam';
+
+  @override
+  String get discountLabel => 'İndirim';
+
+  @override
+  String couponLabel(String code) {
+    return 'Kupon $code';
+  }
+
+  @override
+  String pointsLabel(String points) {
+    return 'Puanlar ($points)';
+  }
+
+  @override
+  String get deliveryFeeLabel => 'Teslimat ücreti';
+
+  @override
+  String get feeBase => 'Temel ücret';
+
+  @override
+  String get feeMinimum => 'Asgari ücret';
+
+  @override
+  String get feeFree => 'Ücretsiz teslimat';
+
+  @override
+  String get slotFeeLabel => 'Teslimat saati';
+
+  @override
+  String taxIncludedLabel(String label) {
+    return '$label (dahil)';
+  }
+
+  @override
+  String payOutsideWaiting(String method) {
+    return 'Ödeme bekleniyor: $method';
+  }
+
+  @override
+  String payOutsideDue(String method, String date) {
+    return 'Ödeme bekleniyor: $method, $date tarihine kadar';
+  }
+
+  @override
+  String get shippedTitle => 'Kargo';
+
+  @override
+  String get trackShipment => 'Gönderiyi takip et';
+
+  @override
+  String get senderLabel => 'Gönderen';
+
+  @override
+  String get packageLabel => 'Paket';
+
+  @override
+  String get packageSmall => 'Küçük';
+
+  @override
+  String get packageMedium => 'Orta';
+
+  @override
+  String get packageLarge => 'Büyük';
+
+  @override
+  String serviceLabel(String name) {
+    return 'Hizmet: $name';
+  }
+
+  @override
+  String get payCash => 'Kapıda nakit';
+
+  @override
+  String get payCard => 'Kart';
+
+  @override
+  String get payWallet => 'Cüzdan';
+
+  @override
+  String get payApplePay => 'Apple Pay';
+
+  @override
+  String get payGooglePay => 'Google Pay';
+
+  @override
+  String get payUnpaid => 'Henüz ödenmedi';
+
+  @override
+  String get payPaid => 'Ödendi';
+
+  @override
+  String get payRefunded => 'İade edildi';
+
+  @override
+  String get payPartlyRefunded => 'Kısmen iade edildi';
+
+  @override
+  String get lineItems => 'Ürünler';
+
+  @override
+  String get lineItemDiscounts => 'Ürün indirimleri';
+
+  @override
+  String get lineCoupon => 'Kupon';
+
+  @override
+  String get lineClub => 'Kulüp indirimi';
+
+  @override
+  String get lineDelivery => 'Teslimat';
+
+  @override
+  String get lineDeliveryDiscount => 'Teslimat indirimi';
+
+  @override
+  String get lineTax => 'Vergi';
+
+  @override
+  String get lineTip => 'Bahşiş';
+
+  @override
+  String get lineWallet => 'Cüzdandan ödenen';
+
+  @override
+  String scheduledAt(String time) {
+    return 'Planlı: $time';
+  }
+
+  @override
+  String couponUsed(String code) {
+    return 'Kupon: $code';
+  }
+
+  @override
   String minutesAgo(int count) {
     return '$count dk önce';
   }
@@ -3516,6 +3709,17 @@ class AppLocalizationsTr extends AppLocalizations {
       locale: localeName,
       other: '$count puan',
       one: '1 puan',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String needsAwaitingPayment(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'Ödemesi beklenen $count sipariş',
+      one: 'Ödemesi beklenen 1 sipariş',
     );
     return '$_temp0';
   }

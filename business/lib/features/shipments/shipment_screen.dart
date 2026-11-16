@@ -8,6 +8,7 @@ import '../../core/routing/paths.dart';
 import '../../core/session.dart';
 import '../../core/theme/icons.dart';
 import '../../core/theme/theme.dart';
+import '../../core/widgets/contact.dart';
 import '../../core/widgets/l10n.dart';
 import '../../core/widgets/states.dart';
 import '../food/food_sheets.dart';
@@ -29,6 +30,17 @@ String shipmentStep(BuildContext context, String status) {
     'failed' => l10n.shipFailed,
     'cancelled' => l10n.shipCancel,
     _ => status,
+  };
+}
+
+/// 132 "Small", "Medium", "Large".
+String packageSizeLabel(BuildContext context, String size) {
+  final l10n = context.l10n;
+  return switch (size) {
+    'small' => l10n.packageSmall,
+    'medium' => l10n.packageMedium,
+    'large' => l10n.packageLarge,
+    _ => size,
   };
 }
 
@@ -187,62 +199,93 @@ class _ShipmentBody extends ConsumerWidget {
       physics: const AlwaysScrollableScrollPhysics(),
       padding: const EdgeInsets.fromLTRB(16, 4, 16, 24),
       children: [
+        // 132 Each end: the person with Call and WhatsApp, the place with the map and Copy.
+        SectionTitle(l10n.pickupLabel),
         Box(
           radius: 18,
           child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
+            crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
-              Text(
-                l10n.pickupLabel,
-                style: TextStyle(fontSize: 12, color: c.ink2),
+              PersonCard(
+                name: detail.senderName ?? s.pickup.name,
+                label: l10n.senderLabel,
+                phone: detail.senderPhone,
+                icon: AppIcons.origin,
               ),
-              IconLine(
-                AppIcons.origin,
-                [
-                  s.pickup.name,
-                  s.pickup.address,
-                ].where((t) => t.isNotEmpty).map(isolate).join(' · '),
-              ),
-              const SizedBox(height: 10),
-              Text(
-                l10n.dropoffLabel,
-                style: TextStyle(fontSize: 12, color: c.ink2),
-              ),
-              IconLine(
-                AppIcons.location,
-                [
-                  isolate(s.dropoff.address),
-                  if (s.distanceKm != null) km(context, s.distanceKm!),
-                ].join(' · '),
-              ),
-              const SizedBox(height: 10),
-              Text(
-                l10n.recipientLabel,
-                style: TextStyle(fontSize: 12, color: c.ink2),
-              ),
-              Row(
-                children: [
-                  Expanded(
-                    child: Text(
-                      detail.recipientName,
-                      style: const TextStyle(
-                        fontSize: 15,
-                        fontWeight: FontWeight.w600,
-                      ),
-                    ),
-                  ),
-                  if (detail.recipientPhone != null)
-                    IconButton(
-                      tooltip: l10n.call,
-                      icon: const Icon(AppIcons.phone),
-                      onPressed: () =>
-                          callNumber(context, ref, detail.recipientPhone),
-                    ),
-                ],
+              Divider(height: 28, color: c.line),
+              PlaceCard(
+                address: s.pickup.full,
+                lat: s.pickup.lat,
+                lng: s.pickup.lng,
               ),
             ],
           ),
         ),
+        SectionTitle(l10n.dropoffLabel),
+        Box(
+          radius: 18,
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              PersonCard(
+                name: detail.recipientName,
+                label: l10n.recipientLabel,
+                phone: detail.recipientPhone,
+              ),
+              Divider(height: 28, color: c.line),
+              PlaceCard(
+                address: s.dropoff.full,
+                lat: s.dropoff.lat,
+                lng: s.dropoff.lng,
+                detail: s.distanceKm == null
+                    ? null
+                    : km(context, s.distanceKm!),
+              ),
+            ],
+          ),
+        ),
+        if (detail.packageSize != null ||
+            detail.packageDescription != null ||
+            detail.service != null) ...[
+          const SizedBox(height: 12),
+          Box(
+            radius: 18,
+            child: Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Icon(AppIcons.package, color: c.accentText),
+                const SizedBox(width: 12),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        l10n.packageLabel,
+                        style: TextStyle(fontSize: 12, color: c.ink2),
+                      ),
+                      Text(
+                        [
+                          if (detail.packageSize != null)
+                            packageSizeLabel(context, detail.packageSize!),
+                          ?detail.packageDescription,
+                        ].join(' · '),
+                        style: const TextStyle(
+                          fontSize: 15,
+                          fontWeight: FontWeight.w600,
+                        ),
+                      ),
+                      if (detail.service != null)
+                        Text(
+                          l10n.serviceLabel(isolate(detail.service!)),
+                          style: TextStyle(fontSize: 13, color: c.ink2),
+                        ),
+                    ],
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ],
         const SizedBox(height: 12),
         Box(
           radius: 18,

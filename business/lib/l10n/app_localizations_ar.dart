@@ -2381,9 +2381,6 @@ class AppLocalizationsAr extends AppLocalizations {
   String get refundDue => 'يستحق هذا الطلب استردادًا.';
 
   @override
-  String get callCustomer => 'الاتصال بالعميل';
-
-  @override
   String get courierLabel => 'المندوب';
 
   @override
@@ -3164,6 +3161,203 @@ class AppLocalizationsAr extends AppLocalizations {
   String get pushBriefHelp => 'برايم: أمسِ في إشعار واحد.';
 
   @override
+  String get deliverTo => 'التوصيل إلى';
+
+  @override
+  String get whenTitle => 'الموعد';
+
+  @override
+  String get giftCardTitle => 'رسالة بطاقة الهدية';
+
+  @override
+  String get giftOrder => 'هدية';
+
+  @override
+  String get giftSender => 'المُرسِل';
+
+  @override
+  String giftFor(String name) {
+    return 'إلى $name';
+  }
+
+  @override
+  String get fromAccount => 'من حسابه في التطبيق';
+
+  @override
+  String get noName => 'لم يُذكر اسم';
+
+  @override
+  String get asSoonAsPossible => 'في أقرب وقت ممكن';
+
+  @override
+  String signedBy(String name) {
+    return 'التوقيع: $name';
+  }
+
+  @override
+  String get sentAnonymously =>
+      'إرسال دون ذكر الاسم: لا تُظهر البطاقة اسم المُرسِل.';
+
+  @override
+  String zoneLabel(String zone) {
+    return 'المنطقة: $zone';
+  }
+
+  @override
+  String get pinnedOnMap => 'محدّد على الخريطة';
+
+  @override
+  String get openInMaps => 'فتح في الخرائط';
+
+  @override
+  String get copyAddress => 'نسخ العنوان';
+
+  @override
+  String get addressCopied => 'تم نسخ العنوان';
+
+  @override
+  String get addonLine => 'إضافة';
+
+  @override
+  String get flashSaleTag => 'عرض سريع';
+
+  @override
+  String get subtotalLabel => 'المجموع الفرعي';
+
+  @override
+  String get discountLabel => 'الخصم';
+
+  @override
+  String couponLabel(String code) {
+    return 'القسيمة $code';
+  }
+
+  @override
+  String pointsLabel(String points) {
+    return 'النقاط ($points)';
+  }
+
+  @override
+  String get deliveryFeeLabel => 'رسوم التوصيل';
+
+  @override
+  String get feeBase => 'الرسوم الأساسية';
+
+  @override
+  String get feeMinimum => 'الحد الأدنى للرسوم';
+
+  @override
+  String get feeFree => 'توصيل مجاني';
+
+  @override
+  String get slotFeeLabel => 'موعد التوصيل';
+
+  @override
+  String taxIncludedLabel(String label) {
+    return '$label (مشمولة)';
+  }
+
+  @override
+  String payOutsideWaiting(String method) {
+    return 'بانتظار الدفع: $method';
+  }
+
+  @override
+  String payOutsideDue(String method, String date) {
+    return 'بانتظار الدفع: $method، حتى $date';
+  }
+
+  @override
+  String get shippedTitle => 'الشحن';
+
+  @override
+  String get trackShipment => 'تتبّع الشحنة';
+
+  @override
+  String get senderLabel => 'المُرسِل';
+
+  @override
+  String get packageLabel => 'الطرد';
+
+  @override
+  String get packageSmall => 'صغير';
+
+  @override
+  String get packageMedium => 'متوسط';
+
+  @override
+  String get packageLarge => 'كبير';
+
+  @override
+  String serviceLabel(String name) {
+    return 'الخدمة: $name';
+  }
+
+  @override
+  String get payCash => 'الدفع عند الاستلام';
+
+  @override
+  String get payCard => 'بطاقة';
+
+  @override
+  String get payWallet => 'المحفظة';
+
+  @override
+  String get payApplePay => 'Apple Pay';
+
+  @override
+  String get payGooglePay => 'Google Pay';
+
+  @override
+  String get payUnpaid => 'لم يُدفع بعد';
+
+  @override
+  String get payPaid => 'مدفوع';
+
+  @override
+  String get payRefunded => 'مُسترد';
+
+  @override
+  String get payPartlyRefunded => 'مُسترد جزئيًا';
+
+  @override
+  String get lineItems => 'المنتجات';
+
+  @override
+  String get lineItemDiscounts => 'خصومات المنتجات';
+
+  @override
+  String get lineCoupon => 'القسيمة';
+
+  @override
+  String get lineClub => 'خصم النادي';
+
+  @override
+  String get lineDelivery => 'التوصيل';
+
+  @override
+  String get lineDeliveryDiscount => 'خصم التوصيل';
+
+  @override
+  String get lineTax => 'الضريبة';
+
+  @override
+  String get lineTip => 'الإكرامية';
+
+  @override
+  String get lineWallet => 'مدفوع من المحفظة';
+
+  @override
+  String scheduledAt(String time) {
+    return 'مجدول: $time';
+  }
+
+  @override
+  String couponUsed(String code) {
+    return 'القسيمة: $code';
+  }
+
+  @override
   String minutesAgo(int count) {
     return 'قبل $count دقيقة';
   }
@@ -3684,6 +3878,20 @@ class AppLocalizationsAr extends AppLocalizations {
       few: '$count نقاط',
       two: 'نقطتان',
       one: 'نقطة واحدة',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String needsAwaitingPayment(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count طلب بانتظار الدفع',
+      many: '$count طلبًا بانتظار الدفع',
+      few: '$count طلبات بانتظار الدفع',
+      two: 'طلبان بانتظار الدفع',
+      one: 'طلب واحد بانتظار الدفع',
     );
     return '$_temp0';
   }

@@ -427,6 +427,8 @@ String needsYouTitle(BuildContext context, NeedsYou item) {
   final l10n = context.l10n;
   return switch (item.kind) {
     'orders_in_progress' => l10n.needsOrdersInProgress(item.count),
+    // 132 Waiting for a bank transfer or the owner's own method.
+    'orders_awaiting_payment' => l10n.needsAwaitingPayment(item.count),
     'appointments_to_confirm' => l10n.needsToConfirm(item.count),
     'unanswered_messages' => l10n.needsUnanswered(item.count),
     'questions_to_answer' => l10n.needsQuestions(item.count),
@@ -444,7 +446,8 @@ String needsYouTitle(BuildContext context, NeedsYou item) {
 
 /// Where a "Needs you now" item opens.
 String needsTarget(String kind) => switch (kind) {
-  'orders_in_progress' => '${Paths.orders}?status=processing',
+  'orders_in_progress' ||
+  'orders_awaiting_payment' => '${Paths.orders}?status=processing',
   'appointments_to_confirm' => Paths.appointments,
   'unanswered_messages' => Paths.inboxTab('messages'),
   'questions_to_answer' => Paths.inboxTab('questions'),
@@ -461,6 +464,7 @@ String needsTarget(String kind) => switch (kind) {
 
 IconData needsIcon(String kind) => switch (kind) {
   'orders_in_progress' || 'food_orders_new' => AppIcons.orders,
+  'orders_awaiting_payment' => AppIcons.sales,
   'appointments_to_confirm' => AppIcons.appointments,
   'unanswered_messages' => AppIcons.inbox,
   'questions_to_answer' => AppIcons.question,

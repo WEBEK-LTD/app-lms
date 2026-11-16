@@ -290,6 +290,19 @@ test("a customer buys in the shop; the owner's phone hears of it, sees today and
   expect(orders).toMatchObject({ total: 1, items: [{ status: "processing", next_statuses: ["completed", "cancelled"], lines: [{ name: "Tea set" }], customer: { name: "Mona Adel" } }] });
   const orderId = orders.items[0].id as number;
   expect(Number(push.message.data.order_id)).toBe(orderId);
+  // 132 Who ordered, where it goes and what the total is made of, as the payment page took them.
+  const detail = await (await request.get(`${owner}/apps/${shopId}/orders/${orderId}`, { headers: bearer() })).json();
+  expect(detail).toMatchObject({
+    customer: { name: "Mona Adel", phone: "+905327650158", email: `mona-${suffix}@example.com`, city: "Istanbul", address: "Moda Cd. 12", source: "checkout" },
+    deliver_to: { person: "customer", name: "Mona Adel", address: "Moda Cd. 12", city: "Istanbul" },
+    lines: [{ product_id: products.items[0].id, name: "Tea set", quantity: 1, total: { amount_cents: 45000 }, flash_sale: null }],
+    amounts: { subtotal: { amount_cents: 45000 }, discount: null, total: { amount_cents: 45000, formatted: "₺450.00" } },
+  });
+  // The order is the shop's only: through another app, or an app that isn't the owner's, it isn't found.
+  expect((await request.get(`${owner}/apps/${academyId}/orders/${orderId}`, { headers: bearer() })).status()).toBe(404);
+  const elsewhere = await request.get(`${owner}/apps/3f1c2d4e-5a6b-4c7d-8e9f-0a1b2c3d4e5f/orders/${orderId}`, { headers: bearer() });
+  expect(elsewhere.status()).toBe(404);
+  expect(await elsewhere.text()).not.toContain("Mona");
   const done = await request.post(`${owner}/apps/${shopId}/orders/${orderId}/status`, { headers: bearer(), data: { status: "completed" } });
   expect(done.status()).toBe(200);
   expect(await done.json()).toMatchObject({ status: "completed", next_statuses: [], refund: { refundable: true } });

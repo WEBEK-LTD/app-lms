@@ -7,8 +7,11 @@ import '../../core/providers.dart';
 import '../../core/session.dart';
 import '../../core/theme/icons.dart';
 import '../../core/theme/theme.dart';
+import '../../core/widgets/contact.dart';
 import '../../core/widgets/l10n.dart';
 import '../../core/widgets/states.dart';
+import '../food/food_sheets.dart' show FootPanel;
+import '../studio/studio_widgets.dart' show IconLine;
 import 'order_actions.dart';
 
 final orderProvider = FutureProvider.autoDispose.family<Order, int>(
@@ -16,7 +19,10 @@ final orderProvider = FutureProvider.autoDispose.family<Order, int>(
 );
 
 /// 59 One order: the customer, the address, the items, the payment and its
-/// refunds; moving it on, and refunding it as the API allows.
+/// refunds; moving it on, and refunding it as the API allows. 132 In clear
+/// parts: who ordered, where it goes (Open in Maps, Copy address), when,
+/// the gift card, the items with their add-ons under them, the payment
+/// with the discounts and fees, the notes; the next steps at the foot.
 class OrderScreen extends ConsumerWidget {
   const OrderScreen({super.key, required this.orderId});
 
@@ -26,8 +32,18 @@ class OrderScreen extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final l10n = context.l10n;
     final order = ref.watch(orderProvider(orderId));
+    final loaded = order.value;
     return Scaffold(
-      appBar: AppBar(title: Text(order.value?.label ?? l10n.order)),
+      appBar: AppBar(title: Text(loaded?.label ?? l10n.order)),
+      bottomNavigationBar: loaded == null || loaded.nextStatuses.isEmpty
+          ? null
+          : FootPanel(
+              child: OrderActions(
+                order: loaded,
+                large: true,
+                onChanged: (_) => ref.invalidate(orderProvider(orderId)),
+              ),
+            ),
       body: RefreshIndicator(
         onRefresh: pullToRefresh(
           context,
@@ -43,6 +59,12 @@ class OrderScreen extends ConsumerWidget {
   }
 }
 
+/// 132 "Tue, Oct 13 · 13:00–16:00", the day in the person's language.
+String deliveryWhen(BuildContext context, OrderDelivery d) => [
+  if (d.date != null) context.day(d.date!),
+  if (d.slotLabel != null) isolate(d.slotLabel!),
+].join(' · ');
+
 class _OrderBody extends ConsumerWidget {
   const _OrderBody({required this.order});
 
@@ -52,19 +74,34 @@ class _OrderBody extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final l10n = context.l10n;
     final theme = Theme.of(context);
-    final c = order.customer;
+    final c = context.yb;
+    final customer = order.customer;
+    final to = order.deliverTo;
+    final d = order.delivery;
+    final kitchen = order.kitchen;
     final refund = order.refund;
     void changed(Order _) => ref.invalidate(orderProvider(order.id));
 
-    Widget row(String label, String value) => Padding(
-      padding: const EdgeInsets.symmetric(vertical: 4),
-      child: Row(
-        children: [
-          Expanded(child: Text(label, style: theme.textTheme.bodyMedium)),
-          Text(value, style: theme.textTheme.titleSmall),
-        ],
-      ),
-    );
+    // Who ordered: a gift's sender is marked as such, an account's too.
+    final customerLabel = d?.recipient != null
+        ? l10n.giftSender
+        : customer?.source == 'account'
+        ? l10n.fromAccount
+        : null;
+    final buyerPhone = customer?.phone ?? d?.sender?.phone;
+    final buyerEmail = customer?.email ?? d?.sender?.email;
+    // An address with nothing to deliver (a course bought) stays with the customer.
+    final customerAddress = to == null
+        ? [customer?.address, customer?.city].whereType<String>().join(', ')
+        : '';
+
+    final when = d != null && d.hasWhen
+        ? deliveryWhen(context, d)
+        : kitchen != null
+        ? (kitchen.scheduledFor != null
+              ? context.dateTime(kitchen.scheduledFor!)
+              : l10n.asSoonAsPossible)
+        : null;
 
     return ListView(
       padding: const EdgeInsets.fromLTRB(16, 8, 16, 32),
@@ -73,118 +110,173 @@ class _OrderBody extends ConsumerWidget {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Row(
+              Wrap(
+                spacing: 8,
+                runSpacing: 6,
                 children: [
                   StatusChip(
                     orderStatusLabel(context, order),
                     tone: StatusChip.toneOf(orderTone(order)),
                   ),
-                  if (order.kitchen != null) ...[
-                    const SizedBox(width: 8),
+                  if (kitchen != null)
                     StatusChip(
-                      order.kitchen!.type == 'delivery'
-                          ? l10n.delivery
-                          : l10n.pickup,
+                      kitchen.type == 'delivery' ? l10n.delivery : l10n.pickup,
                     ),
-                  ],
+                  if (to?.isRecipient ?? false)
+                    StatusChip(l10n.giftOrder, tone: Tone.accent),
                 ],
               ),
               const SizedBox(height: 10),
               Text(
-                l10n.paidAt(context.dateTime(order.paidAt ?? order.createdAt)),
+                order.paidAt == null
+                    ? l10n.placedAt(context.dateTime(order.createdAt))
+                    : l10n.paidAt(context.dateTime(order.paidAt!)),
                 style: theme.textTheme.bodySmall,
               ),
-              if (order.nextStatuses.isNotEmpty) ...[
-                const SizedBox(height: 14),
-                OrderActions(order: order, onChanged: changed),
+              if (order.payOutside != null) ...[
+                const SizedBox(height: 8),
+                Text(
+                  order.payOutside!.dueAt == null
+                      ? l10n.payOutsideWaiting(isolate(order.payOutside!.name))
+                      : l10n.payOutsideDue(
+                          isolate(order.payOutside!.name),
+                          context.date(order.payOutside!.dueAt!),
+                        ),
+                  style: TextStyle(
+                    color: c.warning,
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
               ],
             ],
           ),
         ),
-        if (c != null) ...[
+        if (customer != null || d?.sender != null) ...[
           SectionTitle(l10n.customer),
           Panel(
-            padding: const EdgeInsets.symmetric(vertical: 4),
             child: Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
-                if (c.name != null)
-                  ListTile(
-                    leading: const Icon(AppIcons.person),
-                    title: Text(c.name!),
+                PersonCard(
+                  name: order.buyerName,
+                  label: customerLabel,
+                  phone: buyerPhone,
+                  email: buyerEmail,
+                ),
+                if (customerAddress.isNotEmpty) ...[
+                  const SizedBox(height: 12),
+                  IconLine(AppIcons.location, customerAddress),
+                ],
+              ],
+            ),
+          ),
+        ],
+        if (to != null) ...[
+          SectionTitle(l10n.deliverTo),
+          Panel(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                if (to.isRecipient) ...[
+                  PersonCard(
+                    name: to.name,
+                    label: l10n.recipientLabel,
+                    phone: to.phone,
+                    icon: AppIcons.gift,
                   ),
-                if (c.phone != null)
-                  ListTile(
-                    leading: const Icon(AppIcons.phone),
-                    title: Text(c.phone!, textDirection: TextDirection.ltr),
-                    onTap: () => openLink(
-                      context,
-                      ref,
-                      'tel:${c.phone!.replaceAll(' ', '')}',
+                  Divider(height: 28, color: c.line),
+                ],
+                PlaceCard(
+                  address: to.line,
+                  lat: to.lat,
+                  lng: to.lng,
+                  detail: [
+                    if (d?.zone != null) l10n.zoneLabel(isolate(d!.zone!)),
+                    if (to.lat != null && to.lng != null) l10n.pinnedOnMap,
+                  ].join(' · ').emptyToNull,
+                ),
+              ],
+            ),
+          ),
+        ],
+        if (when != null) ...[
+          SectionTitle(l10n.whenTitle),
+          Panel(child: IconText(AppIcons.when, when)),
+        ],
+        if (d != null && d.hasCard) ...[
+          SectionTitle(l10n.giftCardTitle),
+          Panel(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                if (d.giftMessage != null)
+                  Text(
+                    '“${isolate(d.giftMessage!)}”',
+                    style: theme.textTheme.bodyLarge?.copyWith(
+                      fontStyle: FontStyle.italic,
+                      height: 1.4,
                     ),
                   ),
-                if (c.email != null)
-                  ListTile(
-                    leading: const Icon(AppIcons.email),
-                    title: Text(c.email!),
-                    onTap: () => openLink(context, ref, 'mailto:${c.email}'),
-                  ),
-                if (c.address != null || c.city != null)
-                  ListTile(
-                    leading: const Icon(AppIcons.location),
-                    title: Text(
-                      [c.address, c.city].whereType<String>().join(', '),
-                    ),
-                  ),
+                const SizedBox(height: 10),
+                IconText(
+                  d.anonymous ? AppIcons.hidden : AppIcons.giftCard,
+                  d.anonymous
+                      ? l10n.sentAnonymously
+                      : l10n.signedBy(
+                          isolate(d.signedBy ?? order.buyerName ?? ''),
+                        ),
+                  color: d.anonymous ? c.warning : c.ink2,
+                ),
               ],
             ),
           ),
         ],
         SectionTitle(l10n.items),
-        Panel(
-          child: Column(
-            children: [
-              for (final line in order.lines)
-                Padding(
-                  padding: const EdgeInsets.symmetric(vertical: 6),
-                  child: Row(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        isolate('${line.quantity} ×'),
-                        style: theme.textTheme.titleSmall,
-                      ),
-                      const SizedBox(width: 10),
-                      Expanded(
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(line.name, style: theme.textTheme.bodyLarge),
-                            if (line.options.isNotEmpty)
-                              Text(
-                                line.options.join(', '),
-                                style: theme.textTheme.bodySmall,
-                              ),
-                          ],
-                        ),
-                      ),
-                      Text(isolate(line.unit.formatted)),
-                    ],
-                  ),
+        Panel(child: OrderLines(order: order)),
+        SectionTitle(l10n.paymentLabel),
+        Panel(child: OrderPayment(order: order)),
+        if (to?.notes != null) ...[
+          SectionTitle(l10n.notes),
+          Panel(child: IconText(AppIcons.note, to!.notes!)),
+        ],
+        if (order.shipment != null) ...[
+          SectionTitle(l10n.shippedTitle),
+          Panel(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                IconText(
+                  AppIcons.shipping,
+                  [
+                    order.shipment!.carrier,
+                    order.shipment!.trackingNumber,
+                    if (order.shipment!.shippedAt != null)
+                      context.date(order.shipment!.shippedAt!),
+                  ].whereType<String>().map(isolate).join(' · '),
                 ),
-              const Divider(height: 20),
-              row(l10n.total, order.total.formatted),
-              if (order.refunded != null)
-                row(l10n.refunded, order.refunded!.formatted),
-            ],
+                if (order.shipment!.trackingUrl != null) ...[
+                  const SizedBox(height: 10),
+                  Align(
+                    alignment: AlignmentDirectional.centerStart,
+                    child: ActionPill(
+                      icon: AppIcons.web,
+                      label: l10n.trackShipment,
+                      onPressed: () =>
+                          openLink(context, ref, order.shipment!.trackingUrl),
+                    ),
+                  ),
+                ],
+              ],
+            ),
           ),
-        ),
+        ],
         if (order.refunds.isNotEmpty) ...[
           SectionTitle(l10n.refunds),
           Panel(
             child: Column(
               children: [
                 for (final r in order.refunds)
-                  row(
+                  AmountRow(
                     '${context.date(r.createdAt)} · ${r.method == 'manual' ? l10n.refundManual : l10n.refundByProvider}',
                     r.amount.formatted,
                   ),
@@ -218,12 +310,285 @@ class _OrderBody extends ConsumerWidget {
                   )
                 : Text(
                     refund.why ?? l10n.notRefundable,
-                    style: theme.textTheme.bodyMedium?.copyWith(
-                      color: context.yb.ink2,
-                    ),
+                    style: theme.textTheme.bodyMedium?.copyWith(color: c.ink2),
                   ),
           ),
         ],
+      ],
+    );
+  }
+}
+
+/// 132 A part of the delivery fee in the person's language: the server
+/// words the shop's rules in English ("Base fee", "Minimum fee") and the
+/// rest are the shop's own (a city, "4.2 km", "2.5 kg").
+String breakdownLabel(BuildContext context, String label, String? rule) {
+  final l10n = context.l10n;
+  return switch ((rule, label)) {
+    ('free', _) => l10n.feeFree,
+    ('minimum', _) => l10n.feeMinimum,
+    ('flat', _) || ('other_city', 'Delivery') => l10n.deliveryFeeLabel,
+    ('distance', 'Base fee') => l10n.feeBase,
+    _ => isolate(label),
+  };
+}
+
+extension on String {
+  String? get emptyToNull => isEmpty ? null : this;
+}
+
+/// An icon and a line of text beside it.
+class IconText extends StatelessWidget {
+  const IconText(this.icon, this.text, {super.key, this.color});
+
+  final IconData icon;
+  final String text;
+  final Color? color;
+
+  @override
+  Widget build(BuildContext context) => Row(
+    crossAxisAlignment: CrossAxisAlignment.start,
+    children: [
+      Icon(icon, size: 20, color: color ?? context.yb.ink2),
+      const SizedBox(width: 10),
+      Expanded(
+        child: Text(text, style: TextStyle(fontSize: 15, color: color)),
+      ),
+    ],
+  );
+}
+
+/// A label and its amount on one line; [strong] for the total.
+class AmountRow extends StatelessWidget {
+  const AmountRow(
+    this.label,
+    this.amount, {
+    super.key,
+    this.strong = false,
+    this.quiet = false,
+    this.indent = false,
+  });
+
+  final String label;
+  final String amount;
+  final bool strong;
+  final bool quiet;
+  final bool indent;
+
+  @override
+  Widget build(BuildContext context) {
+    final c = context.yb;
+    final style = TextStyle(
+      fontSize: strong ? 16 : (quiet ? 13 : 14),
+      fontWeight: strong ? FontWeight.w700 : FontWeight.w400,
+      color: quiet ? c.ink2 : null,
+    );
+    return Padding(
+      padding: EdgeInsetsDirectional.only(
+        top: 4,
+        bottom: 4,
+        start: indent ? 16 : 0,
+      ),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Expanded(child: Text(label, style: style)),
+          const SizedBox(width: 12),
+          // An amount reads left to right in Arabic too ("−E£209.50").
+          Text(amount, style: style, textDirection: TextDirection.ltr),
+        ],
+      ),
+    );
+  }
+}
+
+/// 132 The order's lines: each item with its options, and its add-ons
+/// indented under it ("Add-on"); a flash sale's price marked.
+class OrderLines extends StatelessWidget {
+  const OrderLines({super.key, required this.order});
+
+  final Order order;
+
+  @override
+  Widget build(BuildContext context) {
+    final lines = order.lines;
+    final items = lines.where((l) => l.addonOf == null).toList();
+    final placed = <OrderLine>{};
+    final rows = <Widget>[];
+    for (final item in items) {
+      rows.add(_LineRow(line: item));
+      placed.add(item);
+      for (final addon in lines.where(
+        (l) =>
+            l.addonOf != null &&
+            l.addonOf == item.productId &&
+            !placed.contains(l),
+      )) {
+        rows.add(_LineRow(line: addon, addon: true));
+        placed.add(addon);
+      }
+    }
+    // An add-on whose item isn't on the order (older orders): still listed.
+    for (final rest in lines.where((l) => !placed.contains(l))) {
+      rows.add(_LineRow(line: rest, addon: rest.addonOf != null));
+    }
+    return Column(children: rows);
+  }
+}
+
+class _LineRow extends StatelessWidget {
+  const _LineRow({required this.line, this.addon = false});
+
+  final OrderLine line;
+  final bool addon;
+
+  @override
+  Widget build(BuildContext context) {
+    final l10n = context.l10n;
+    final c = context.yb;
+    final theme = Theme.of(context);
+    final sale = line.flashSale;
+    final details = [
+      if (line.variant != null && !line.name.contains(line.variant!))
+        line.variant!,
+      ...line.options,
+    ];
+    return Padding(
+      padding: EdgeInsetsDirectional.only(
+        top: 6,
+        bottom: 6,
+        start: addon ? 22 : 0,
+      ),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          if (addon) ...[
+            DirectionalIcon(AppIcons.addon, size: 18, color: c.ink2),
+            const SizedBox(width: 6),
+          ],
+          Text(
+            isolate('${context.number(line.quantity)} ×'),
+            style: theme.textTheme.titleSmall,
+          ),
+          const SizedBox(width: 10),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(line.name, style: theme.textTheme.bodyLarge),
+                if (details.isNotEmpty)
+                  Text(details.join(', '), style: theme.textTheme.bodySmall),
+                if (addon)
+                  Text(
+                    l10n.addonLine,
+                    style: TextStyle(fontSize: 12, color: c.ink2),
+                  ),
+                if (sale != null)
+                  Padding(
+                    padding: const EdgeInsets.only(top: 4),
+                    child: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Icon(AppIcons.flashSale, size: 16, color: c.accentText),
+                        const SizedBox(width: 4),
+                        Flexible(
+                          child: Text(
+                            [
+                              sale.title == null
+                                  ? l10n.flashSaleTag
+                                  : isolate(sale.title!),
+                              if (sale.percent != null)
+                                isolate('−${context.number(sale.percent!)}%'),
+                            ].join(' · '),
+                            style: TextStyle(
+                              fontSize: 12,
+                              fontWeight: FontWeight.w600,
+                              color: c.accentText,
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+              ],
+            ),
+          ),
+          const SizedBox(width: 10),
+          Text(
+            (line.total ?? line.unit).formatted,
+            textDirection: TextDirection.ltr,
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+/// 132 What the total is made of: the products, the coupon and points
+/// taken off, the delivery fee with what made it up (the zone, the
+/// distance, the time slot), the tax; the total and what was refunded.
+class OrderPayment extends StatelessWidget {
+  const OrderPayment({super.key, required this.order});
+
+  final Order order;
+
+  @override
+  Widget build(BuildContext context) {
+    final l10n = context.l10n;
+    final a = order.amounts;
+    final d = order.delivery;
+    String minus(Money m) => '−${m.formatted.replaceFirst('-', '')}';
+    final parts = <Widget>[
+      if (a != null) ...[
+        AmountRow(l10n.subtotalLabel, a.subtotal.formatted),
+        if (a.discount != null)
+          AmountRow(
+            a.couponCode == null
+                ? l10n.discountLabel
+                : l10n.couponLabel(isolate(a.couponCode!)),
+            minus(a.discount!),
+          ),
+        if (a.points != null)
+          AmountRow(
+            l10n.pointsLabel(context.number(a.pointsUsed ?? 0)),
+            minus(a.points!),
+          ),
+        if (a.shipping != null) ...[
+          AmountRow(l10n.deliveryFeeLabel, a.shipping!.formatted),
+          if (d != null) ...[
+            for (final b in d.breakdown)
+              AmountRow(
+                breakdownLabel(context, b.label, b.rule),
+                b.amount.formatted,
+                quiet: true,
+                indent: true,
+              ),
+            if (d.fee != null)
+              AmountRow(
+                l10n.slotFeeLabel,
+                d.fee!.formatted,
+                quiet: true,
+                indent: true,
+              ),
+          ],
+        ],
+        if (a.tax != null)
+          AmountRow(
+            a.taxIncluded
+                ? l10n.taxIncludedLabel(isolate(a.taxLabel ?? ''))
+                : (a.taxLabel ?? ''),
+            a.tax!.formatted,
+            quiet: a.taxIncluded,
+          ),
+      ],
+    ];
+    return Column(
+      children: [
+        ...parts,
+        if (parts.isNotEmpty) const Divider(height: 20),
+        AmountRow(l10n.total, order.total.formatted, strong: true),
+        if (order.refunded != null)
+          AmountRow(l10n.refunded, order.refunded!.formatted),
       ],
     );
   }

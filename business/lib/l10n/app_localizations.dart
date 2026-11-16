@@ -4330,12 +4330,6 @@ abstract class AppLocalizations {
   /// **'A refund is due on this order.'**
   String get refundDue;
 
-  /// No description provided for @callCustomer.
-  ///
-  /// In en, this message translates to:
-  /// **'Call customer'**
-  String get callCustomer;
-
   /// No description provided for @courierLabel.
   ///
   /// In en, this message translates to:
@@ -5698,6 +5692,354 @@ abstract class AppLocalizations {
   /// **'Prime: yesterday in one notification.'**
   String get pushBriefHelp;
 
+  /// No description provided for @deliverTo.
+  ///
+  /// In en, this message translates to:
+  /// **'Deliver to'**
+  String get deliverTo;
+
+  /// No description provided for @whenTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'When'**
+  String get whenTitle;
+
+  /// No description provided for @giftCardTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Gift card message'**
+  String get giftCardTitle;
+
+  /// No description provided for @giftOrder.
+  ///
+  /// In en, this message translates to:
+  /// **'Gift'**
+  String get giftOrder;
+
+  /// No description provided for @giftSender.
+  ///
+  /// In en, this message translates to:
+  /// **'Sender'**
+  String get giftSender;
+
+  /// No description provided for @giftFor.
+  ///
+  /// In en, this message translates to:
+  /// **'For {name}'**
+  String giftFor(String name);
+
+  /// No description provided for @fromAccount.
+  ///
+  /// In en, this message translates to:
+  /// **'From their account in the app'**
+  String get fromAccount;
+
+  /// No description provided for @noName.
+  ///
+  /// In en, this message translates to:
+  /// **'No name given'**
+  String get noName;
+
+  /// No description provided for @asSoonAsPossible.
+  ///
+  /// In en, this message translates to:
+  /// **'As soon as possible'**
+  String get asSoonAsPossible;
+
+  /// No description provided for @signedBy.
+  ///
+  /// In en, this message translates to:
+  /// **'Signed: {name}'**
+  String signedBy(String name);
+
+  /// No description provided for @sentAnonymously.
+  ///
+  /// In en, this message translates to:
+  /// **'Send anonymously: the card doesn\'t show the sender\'s name.'**
+  String get sentAnonymously;
+
+  /// No description provided for @zoneLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Zone: {zone}'**
+  String zoneLabel(String zone);
+
+  /// No description provided for @pinnedOnMap.
+  ///
+  /// In en, this message translates to:
+  /// **'Pinned on the map'**
+  String get pinnedOnMap;
+
+  /// No description provided for @openInMaps.
+  ///
+  /// In en, this message translates to:
+  /// **'Open in Maps'**
+  String get openInMaps;
+
+  /// No description provided for @copyAddress.
+  ///
+  /// In en, this message translates to:
+  /// **'Copy address'**
+  String get copyAddress;
+
+  /// No description provided for @addressCopied.
+  ///
+  /// In en, this message translates to:
+  /// **'Address copied'**
+  String get addressCopied;
+
+  /// No description provided for @addonLine.
+  ///
+  /// In en, this message translates to:
+  /// **'Add-on'**
+  String get addonLine;
+
+  /// No description provided for @flashSaleTag.
+  ///
+  /// In en, this message translates to:
+  /// **'Flash sale'**
+  String get flashSaleTag;
+
+  /// No description provided for @subtotalLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Subtotal'**
+  String get subtotalLabel;
+
+  /// No description provided for @discountLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Discount'**
+  String get discountLabel;
+
+  /// No description provided for @couponLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Coupon {code}'**
+  String couponLabel(String code);
+
+  /// No description provided for @pointsLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Points ({points})'**
+  String pointsLabel(String points);
+
+  /// No description provided for @deliveryFeeLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Delivery fee'**
+  String get deliveryFeeLabel;
+
+  /// No description provided for @feeBase.
+  ///
+  /// In en, this message translates to:
+  /// **'Base fee'**
+  String get feeBase;
+
+  /// No description provided for @feeMinimum.
+  ///
+  /// In en, this message translates to:
+  /// **'Minimum fee'**
+  String get feeMinimum;
+
+  /// No description provided for @feeFree.
+  ///
+  /// In en, this message translates to:
+  /// **'Free delivery'**
+  String get feeFree;
+
+  /// No description provided for @slotFeeLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Delivery time'**
+  String get slotFeeLabel;
+
+  /// No description provided for @taxIncludedLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'{label} (included)'**
+  String taxIncludedLabel(String label);
+
+  /// No description provided for @payOutsideWaiting.
+  ///
+  /// In en, this message translates to:
+  /// **'Waiting for payment: {method}'**
+  String payOutsideWaiting(String method);
+
+  /// No description provided for @payOutsideDue.
+  ///
+  /// In en, this message translates to:
+  /// **'Waiting for payment: {method}, by {date}'**
+  String payOutsideDue(String method, String date);
+
+  /// No description provided for @shippedTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Shipped'**
+  String get shippedTitle;
+
+  /// No description provided for @trackShipment.
+  ///
+  /// In en, this message translates to:
+  /// **'Track the shipment'**
+  String get trackShipment;
+
+  /// No description provided for @senderLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Sender'**
+  String get senderLabel;
+
+  /// No description provided for @packageLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Package'**
+  String get packageLabel;
+
+  /// No description provided for @packageSmall.
+  ///
+  /// In en, this message translates to:
+  /// **'Small'**
+  String get packageSmall;
+
+  /// No description provided for @packageMedium.
+  ///
+  /// In en, this message translates to:
+  /// **'Medium'**
+  String get packageMedium;
+
+  /// No description provided for @packageLarge.
+  ///
+  /// In en, this message translates to:
+  /// **'Large'**
+  String get packageLarge;
+
+  /// No description provided for @serviceLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Service: {name}'**
+  String serviceLabel(String name);
+
+  /// No description provided for @payCash.
+  ///
+  /// In en, this message translates to:
+  /// **'Cash on delivery'**
+  String get payCash;
+
+  /// No description provided for @payCard.
+  ///
+  /// In en, this message translates to:
+  /// **'Card'**
+  String get payCard;
+
+  /// No description provided for @payWallet.
+  ///
+  /// In en, this message translates to:
+  /// **'Wallet'**
+  String get payWallet;
+
+  /// No description provided for @payApplePay.
+  ///
+  /// In en, this message translates to:
+  /// **'Apple Pay'**
+  String get payApplePay;
+
+  /// No description provided for @payGooglePay.
+  ///
+  /// In en, this message translates to:
+  /// **'Google Pay'**
+  String get payGooglePay;
+
+  /// No description provided for @payUnpaid.
+  ///
+  /// In en, this message translates to:
+  /// **'Not paid yet'**
+  String get payUnpaid;
+
+  /// No description provided for @payPaid.
+  ///
+  /// In en, this message translates to:
+  /// **'Paid'**
+  String get payPaid;
+
+  /// No description provided for @payRefunded.
+  ///
+  /// In en, this message translates to:
+  /// **'Refunded'**
+  String get payRefunded;
+
+  /// No description provided for @payPartlyRefunded.
+  ///
+  /// In en, this message translates to:
+  /// **'Partly refunded'**
+  String get payPartlyRefunded;
+
+  /// No description provided for @lineItems.
+  ///
+  /// In en, this message translates to:
+  /// **'Items'**
+  String get lineItems;
+
+  /// No description provided for @lineItemDiscounts.
+  ///
+  /// In en, this message translates to:
+  /// **'Item discounts'**
+  String get lineItemDiscounts;
+
+  /// No description provided for @lineCoupon.
+  ///
+  /// In en, this message translates to:
+  /// **'Coupon'**
+  String get lineCoupon;
+
+  /// No description provided for @lineClub.
+  ///
+  /// In en, this message translates to:
+  /// **'Club discount'**
+  String get lineClub;
+
+  /// No description provided for @lineDelivery.
+  ///
+  /// In en, this message translates to:
+  /// **'Delivery'**
+  String get lineDelivery;
+
+  /// No description provided for @lineDeliveryDiscount.
+  ///
+  /// In en, this message translates to:
+  /// **'Delivery discount'**
+  String get lineDeliveryDiscount;
+
+  /// No description provided for @lineTax.
+  ///
+  /// In en, this message translates to:
+  /// **'Tax'**
+  String get lineTax;
+
+  /// No description provided for @lineTip.
+  ///
+  /// In en, this message translates to:
+  /// **'Tip'**
+  String get lineTip;
+
+  /// No description provided for @lineWallet.
+  ///
+  /// In en, this message translates to:
+  /// **'Paid from the wallet'**
+  String get lineWallet;
+
+  /// No description provided for @scheduledAt.
+  ///
+  /// In en, this message translates to:
+  /// **'Scheduled: {time}'**
+  String scheduledAt(String time);
+
+  /// No description provided for @couponUsed.
+  ///
+  /// In en, this message translates to:
+  /// **'Coupon: {code}'**
+  String couponUsed(String code);
+
   /// No description provided for @minutesAgo.
   ///
   /// In en, this message translates to:
@@ -5931,6 +6273,12 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'{count, plural, =1{1 point} other{{count} points}}'**
   String pointsChange(int count);
+
+  /// No description provided for @needsAwaitingPayment.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{1 order waiting for its payment} other{{count} orders waiting for their payment}}'**
+  String needsAwaitingPayment(int count);
 }
 
 class _AppLocalizationsDelegate

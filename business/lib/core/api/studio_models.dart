@@ -28,18 +28,58 @@ class ItemRef {
   final String name;
 }
 
-/// A pickup or a drop-off: `{name, address}`.
+/// A pickup or a drop-off: `{name, address}`; 132 its details and pin.
 class Place {
-  const Place({required this.name, required this.address});
+  const Place({
+    required this.name,
+    required this.address,
+    this.details,
+    this.lat,
+    this.lng,
+  });
 
-  factory Place.fromJson(Json json) =>
-      Place(name: str(json, 'name'), address: str(json, 'address'));
+  factory Place.fromJson(Json json) => Place(
+    name: str(json, 'name'),
+    address: str(json, 'address'),
+    details: optStr(json, 'details'),
+    lat: optNumber(json, 'lat'),
+    lng: optNumber(json, 'lng'),
+  );
 
   static Place read(Json json, String key) =>
       Place.fromJson(optObject(json, key) ?? const {});
 
   final String name;
   final String address;
+  final String? details;
+  final double? lat;
+  final double? lng;
+
+  /// The address with its details ("9 Maadi Rd, Cairo, Gate 2").
+  String get full => [
+    address,
+    if (details != null && !address.contains(details!)) details,
+  ].whereType<String>().where((t) => t.isNotEmpty).join(', ');
+}
+
+/// 132 A courier on an order, with their phone.
+class CourierContact {
+  const CourierContact({required this.name, this.id, this.phone});
+
+  factory CourierContact.fromJson(Json json) => CourierContact(
+    id: optStr(json, 'id'),
+    name: str(json, 'name'),
+    phone: optStr(json, 'phone'),
+  );
+
+  static CourierContact? opt(Json json, String key) {
+    final value = optObject(json, key);
+    return value == null ? null : CourierContact.fromJson(value);
+  }
+
+  final String? id;
+  final String name;
+  final String? phone;
 }
 
 /// One step of an item's history: `{status, label, at, by}`.
@@ -185,6 +225,8 @@ class FoodCustomer {
     required this.address,
     this.phone,
     this.note,
+    this.lat,
+    this.lng,
   });
 
   factory FoodCustomer.fromJson(Json json) => FoodCustomer(
@@ -192,12 +234,20 @@ class FoodCustomer {
     phone: optStr(json, 'phone'),
     address: str(json, 'address'),
     note: optStr(json, 'note'),
+    lat: optNumber(json, 'lat'),
+    lng: optNumber(json, 'lng'),
   );
 
   final String name;
   final String? phone;
+
+  /// With its details (building, floor).
   final String address;
   final String? note;
+
+  /// 132 The drop-off's pin.
+  final double? lat;
+  final double? lng;
 }
 
 /// `{id, label}`: a reason to reject, a decision, a choice.
@@ -224,6 +274,7 @@ class FoodOrderDetail {
     this.prepChoices = const [10, 15, 20, 30, 45],
     this.rejectionReasons = const [],
     this.cashToCollect,
+    this.courier,
   });
 
   factory FoodOrderDetail.fromJson(Json json) {
@@ -245,10 +296,14 @@ class FoodOrderDetail {
           : const [10, 15, 20, 30, 45],
       rejectionReasons: listOf(json, 'rejection_reasons', Choice.fromJson),
       cashToCollect: Money.opt(json, 'cash_to_collect'),
+      courier: CourierContact.opt(json, 'courier'),
     );
   }
 
   final FoodOrder order;
+
+  /// 132 The courier with their phone.
+  final CourierContact? courier;
   final List<FoodLine> lines;
   final Money subtotal;
   final Money deliveryFee;
@@ -387,16 +442,30 @@ class ShipmentDetail {
     this.timeline = const [],
     this.note,
     this.recipientPhone,
+    this.senderName,
+    this.senderPhone,
+    this.packageSize,
+    this.packageDescription,
+    this.service,
   });
 
   factory ShipmentDetail.fromJson(Json json) {
     final recipient = optObject(json, 'recipient') ?? const {};
+    final sender = optObject(json, 'sender');
+    final package = optObject(json, 'package');
     return ShipmentDetail(
       shipment: Shipment.fromJson(json),
       timeline: listOf(json, 'timeline', TimelineEntry.fromJson),
       note: optStr(json, 'note'),
       recipientName: str(recipient, 'name'),
       recipientPhone: optStr(recipient, 'phone'),
+      senderName: sender == null ? null : optStr(sender, 'name'),
+      senderPhone: sender == null ? null : optStr(sender, 'phone'),
+      packageSize: package == null ? null : optStr(package, 'size'),
+      packageDescription: package == null
+          ? null
+          : optStr(package, 'description'),
+      service: optStr(json, 'service'),
     );
   }
 
@@ -405,6 +474,15 @@ class ShipmentDetail {
   final String? note;
   final String recipientName;
   final String? recipientPhone;
+
+  /// 132 Who sends it, what it is, which service.
+  final String? senderName;
+  final String? senderPhone;
+
+  /// small, medium, large.
+  final String? packageSize;
+  final String? packageDescription;
+  final String? service;
 }
 
 class Courier {
@@ -549,15 +627,29 @@ class Ride {
 }
 
 class RideDetail {
-  const RideDetail({required this.ride, this.timeline = const []});
+  const RideDetail({
+    required this.ride,
+    this.timeline = const [],
+    this.riderPhone,
+    this.notes,
+  });
 
-  factory RideDetail.fromJson(Json json) => RideDetail(
-    ride: Ride.fromJson(json),
-    timeline: listOf(json, 'timeline', TimelineEntry.fromJson),
-  );
+  factory RideDetail.fromJson(Json json) {
+    final rider = optObject(json, 'rider');
+    return RideDetail(
+      ride: Ride.fromJson(json),
+      timeline: listOf(json, 'timeline', TimelineEntry.fromJson),
+      riderPhone: rider == null ? null : optStr(rider, 'phone'),
+      notes: optStr(json, 'notes'),
+    );
+  }
 
   final Ride ride;
   final List<TimelineEntry> timeline;
+
+  /// 132 The rider to call, and their note to the driver.
+  final String? riderPhone;
+  final String? notes;
 }
 
 class Driver {
@@ -688,17 +780,61 @@ class MarketOrderDetail {
     required this.order,
     this.lines = const [],
     this.timeline = const [],
+    this.customer,
+    this.scheduledFor,
+    this.paymentMethod,
+    this.paymentStatus,
+    this.couponCode,
+    this.amounts = const [],
+    this.courier,
   });
 
-  factory MarketOrderDetail.fromJson(Json json) => MarketOrderDetail(
-    order: MarketOrder.fromJson(json),
-    lines: listOf(json, 'lines', FoodLine.fromJson),
-    timeline: listOf(json, 'timeline', TimelineEntry.fromJson),
-  );
+  factory MarketOrderDetail.fromJson(Json json) {
+    final customer = optObject(json, 'customer');
+    final payment = optObject(json, 'payment');
+    return MarketOrderDetail(
+      order: MarketOrder.fromJson(json),
+      lines: listOf(json, 'lines', FoodLine.fromJson),
+      timeline: listOf(json, 'timeline', TimelineEntry.fromJson),
+      customer: customer == null
+          ? null
+          : FoodCustomer.fromJson({
+              ...customer,
+              'address': customer['address'] ?? '',
+            }),
+      scheduledFor: optDate(json, 'scheduled_for'),
+      paymentMethod: payment == null ? null : optStr(payment, 'method'),
+      paymentStatus: payment == null ? null : optStr(payment, 'status'),
+      couponCode: optStr(json, 'coupon_code'),
+      amounts: [
+        for (final a in jsonList(json, 'amounts'))
+          (
+            kind: str(a, 'kind'),
+            amount: Money.fromJson(optObject(a, 'amount') ?? const {}),
+          ),
+      ],
+      courier: CourierContact.opt(json, 'courier'),
+    );
+  }
 
   final MarketOrder order;
   final List<FoodLine> lines;
   final List<TimelineEntry> timeline;
+
+  /// 132 The customer as the app's support sees them, where it goes.
+  final FoodCustomer? customer;
+  final DateTime? scheduledFor;
+
+  /// cash, card, apple_pay, google_pay, wallet.
+  final String? paymentMethod;
+
+  /// unpaid, paid, partly_refunded, refunded.
+  final String? paymentStatus;
+  final String? couponCode;
+
+  /// What the customer saw, in order (discounts negative), ending with the total.
+  final List<({String kind, Money amount})> amounts;
+  final CourierContact? courier;
 }
 
 class Complaint {

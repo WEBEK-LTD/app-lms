@@ -4238,7 +4238,7 @@ components:
       type: object
       required: [kind, count, title]
       properties:
-        kind: { type: string, enum: [orders_in_progress, appointments_to_confirm, unanswered_messages, questions_to_answer, notice, food_orders_new, shipments_waiting, rides_searching, complaints_waiting, school_excuses, school_reports, school_leave], description: '125 adds the Studio apps'' lists: they open food orders (new), shipments (waiting), rides (now), complaints (waiting), and the school''s excuses, reports and leave.' }
+        kind: { type: string, enum: [orders_in_progress, orders_awaiting_payment, appointments_to_confirm, unanswered_messages, questions_to_answer, notice, food_orders_new, shipments_waiting, rides_searching, complaints_waiting, school_excuses, school_reports, school_leave], description: '125 adds the Studio apps'' lists: they open food orders (new), shipments (waiting), rides (now), complaints (waiting), and the school''s excuses, reports and leave. 132 `orders_awaiting_payment`: orders to be paid by bank transfer or the owner''s own method, to mark paid (Orders › In progress).' }
         count: { type: integer }
         title: { type: string, description: In the person's language. }
         notice_id: { type: [integer, 'null'] }
@@ -4282,7 +4282,16 @@ components:
                 phone: { type: string }
                 address: { type: [string, 'null'] }
             gift_message: { type: [string, 'null'] }
-            anonymous: { type: boolean }
+            anonymous: { type: boolean, description: 'The card is sent without the sender''s name. The owner still sees the sender.' }
+            signed_by: { type: [string, 'null'], description: '132 The name the card is signed with: the sender''s (or the buyer''s), null when sent anonymously or there is no card. Missing on older servers.' }
+            place:
+              type: [object, 'null']
+              description: 132 Where it goes as the checkout read it (the country, the city, the pin on the map); null when not asked. Missing on older servers.
+              properties:
+                country: { type: [string, 'null'], example: EG }
+                city: { type: [string, 'null'], example: Giza }
+                lat: { type: [number, 'null'] }
+                lng: { type: [number, 'null'] }
             zone: { type: [string, 'null'], example: Istanbul }
             shipping_fee: { oneOf: [{ $ref: '#/components/schemas/Money' }, { type: 'null' }] }
             breakdown:
@@ -4308,6 +4317,7 @@ components:
             type: { type: string, enum: [pickup, delivery] }
             step: { type: string, enum: [received, preparing, ready, out_for_delivery, completed, cancelled] }
             step_label: { type: string }
+            scheduled_for: { type: [string, 'null'], format: date-time, description: '132 The time the customer asked for; null: as soon as possible. Missing on older servers.' }
         total: { $ref: '#/components/schemas/Money' }
         refunded:
           oneOf:
@@ -4325,15 +4335,81 @@ components:
               options:
                 type: array
                 items: { type: string }
-              addon_of: { type: integer, description: "131 A gift add-on's line: the product it went with. Missing: not an add-on." }
+              addon_of: { type: integer, description: "131 A gift add-on's line: the product it went with (another line's `product_id`). Missing: not an add-on." }
+              product_id: { type: integer, description: 132 Missing on older servers. }
+              total: { $ref: '#/components/schemas/Money' }
+              variant: { type: [string, 'null'], example: 'Red, Large' }
+              digital: { type: boolean }
+              flash_sale:
+                type: [object, 'null']
+                description: 132 Bought at a flash sale's price (`unit` is that price); null otherwise.
+                properties:
+                  id: { type: integer }
+                  title: { type: [string, 'null'], description: "In the person's language when the shop wrote it; null once the sale was deleted." }
+                  percent: { type: [integer, 'null'], description: 'The share off, for a sale by percent.' }
         customer:
           type: [object, 'null']
+          description: |
+            Who ordered: the payment page's details; 132 else the gift
+            checkout's sender, else the app's own account of the person who
+            checked out (`source`). Null when nothing is known.
           properties:
             name: { type: string }
-            phone: { type: string }
-            email: { type: string }
-            city: { type: string }
-            address: { type: string }
+            phone: { type: [string, 'null'] }
+            email: { type: [string, 'null'] }
+            city: { type: [string, 'null'] }
+            address: { type: [string, 'null'] }
+            source: { type: string, enum: [checkout, sender, account], description: 132 Missing on older servers. }
+        deliver_to:
+          type: [object, 'null']
+          description: |
+            132 Where it goes and who takes it: the gift's recipient
+            (`person: recipient`), a restaurant's delivery address, or the
+            buyer's address, with the place's country and pin. Null for a
+            pickup or an order with nothing to deliver. Missing on older servers.
+          required: [person, name, phone, address, city, country, lat, lng, notes]
+          properties:
+            person: { type: string, enum: [customer, recipient] }
+            name: { type: [string, 'null'] }
+            phone: { type: [string, 'null'] }
+            address: { type: [string, 'null'] }
+            city: { type: [string, 'null'] }
+            country: { type: [string, 'null'] }
+            lat: { type: [number, 'null'] }
+            lng: { type: [number, 'null'] }
+            notes: { type: [string, 'null'], description: 'Building, floor, a landmark.' }
+        amounts:
+          type: object
+          description: 132 What the total is made of. Missing on older servers.
+          required: [subtotal, discount, points, shipping, tax, total]
+          properties:
+            subtotal: { $ref: '#/components/schemas/Money' }
+            discount:
+              type: [object, 'null']
+              description: The coupon and what it took off.
+              required: [code, amount]
+              properties:
+                code: { type: [string, 'null'] }
+                amount: { $ref: '#/components/schemas/Money' }
+            points:
+              type: [object, 'null']
+              required: [used, amount]
+              properties:
+                used: { type: integer }
+                amount: { $ref: '#/components/schemas/Money' }
+            shipping:
+              description: Shipping with the delivery slot's fee (`delivery.fee`, `delivery.breakdown`); a restaurant's delivery fee.
+              oneOf:
+                - $ref: '#/components/schemas/Money'
+                - type: 'null'
+            tax:
+              type: [object, 'null']
+              required: [label, included, amount]
+              properties:
+                label: { type: string }
+                included: { type: boolean }
+                amount: { $ref: '#/components/schemas/Money' }
+            total: { $ref: '#/components/schemas/Money' }
         created_at: { type: string, format: date-time }
         paid_at: { type: [string, 'null'], format: date-time }
         shippable:
@@ -5222,6 +5298,9 @@ components:
       properties:
         name: { type: string, description: 'Who or what is there (the restaurant, the sender, the recipient); for a ride, the first part of the address.' }
         address: { type: string }
+        details: { type: [string, 'null'], description: '132 Building, floor, flat, a landmark. Missing on older servers.' }
+        lat: { type: [number, 'null'], description: 132 Missing on older servers. }
+        lng: { type: [number, 'null'] }
 
     Stage:
       type: object
@@ -5306,8 +5385,16 @@ components:
               properties:
                 name: { type: string }
                 phone: { type: [string, 'null'] }
-                address: { type: string }
+                address: { type: string, description: 'With its details.' }
                 note: { type: [string, 'null'] }
+                details: { type: [string, 'null'], description: 132 Missing on older servers. }
+                lat: { type: [number, 'null'] }
+                lng: { type: [number, 'null'] }
+            courier:
+              description: 132 The courier with their phone. Missing on older servers.
+              oneOf:
+                - $ref: '#/components/schemas/CourierContact'
+                - type: 'null'
             restaurant_address: { type: [string, 'null'] }
             timeline:
               type: array
@@ -5422,6 +5509,29 @@ components:
               properties:
                 name: { type: string }
                 phone: { type: [string, 'null'] }
+            sender:
+              type: object
+              description: 132 Missing on older servers.
+              required: [name, phone]
+              properties:
+                name: { type: string }
+                phone: { type: [string, 'null'] }
+            package:
+              type: object
+              description: 132 Missing on older servers.
+              required: [size, description]
+              properties:
+                size: { type: string, enum: [small, medium, large] }
+                description: { type: [string, 'null'] }
+            service: { type: [string, 'null'], description: 132 The delivery service chosen. Missing on older servers. }
+
+    CourierContact:
+      type: object
+      required: [id, name, phone]
+      properties:
+        id: { type: [integer, 'null'] }
+        name: { type: string }
+        phone: { type: [string, 'null'] }
 
     Courier:
       type: object
@@ -5483,6 +5593,14 @@ components:
             timeline:
               type: array
               items: { $ref: '#/components/schemas/Stage' }
+            rider:
+              type: object
+              description: 132 Missing on older servers.
+              required: [name, phone]
+              properties:
+                name: { type: string }
+                phone: { type: [string, 'null'] }
+            notes: { type: [string, 'null'], description: "132 The rider's note to the driver." }
 
     Driver:
       type: object
@@ -5546,6 +5664,41 @@ components:
             timeline:
               type: array
               items: { $ref: '#/components/schemas/Stage' }
+            customer:
+              type: object
+              description: "132 The customer as the app's support sees them (the places never see the number). Missing on older servers."
+              required: [name, phone, address, note, details, lat, lng]
+              properties:
+                name: { type: string }
+                phone: { type: [string, 'null'] }
+                address: { type: [string, 'null'], description: 'Where it goes, with its details; null for a pickup.' }
+                note: { type: [string, 'null'] }
+                details: { type: [string, 'null'] }
+                lat: { type: [number, 'null'] }
+                lng: { type: [number, 'null'] }
+            scheduled_for: { type: [string, 'null'], format: date-time, description: 132 Missing on older servers. }
+            payment:
+              type: object
+              description: 132 Missing on older servers.
+              required: [method, status]
+              properties:
+                method: { type: string, enum: [cash, card, apple_pay, google_pay, wallet] }
+                status: { type: string, enum: [unpaid, paid, partly_refunded, refunded] }
+            coupon_code: { type: [string, 'null'] }
+            amounts:
+              type: array
+              description: '132 What the customer saw, in order (discounts negative), ending with the total. Missing on older servers.'
+              items:
+                type: object
+                required: [kind, amount]
+                properties:
+                  kind: { type: string, enum: [items, item_discounts, coupon, club, delivery, delivery_discount, tax, tip, wallet, total] }
+                  amount: { $ref: '#/components/schemas/Money' }
+            courier:
+              description: 132 The app's courier on it.
+              oneOf:
+                - $ref: '#/components/schemas/CourierContact'
+                - type: 'null'
 
     Complaint:
       type: object

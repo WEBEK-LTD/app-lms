@@ -1,5 +1,5 @@
 import { morningBriefJson } from "./prime-jobs";
-import { orderDeliveryJson } from "../selling/gifts";
+import { deliverToJson, orderAmountsJson, orderCustomerJson, orderExtras, orderLinesJson, ownerDeliveryJson, type OrderExtras } from "./order-details";
 import { inAppFigures } from "../analytics/sales";
 import { storeBillingSource } from "../store-billing/access";
 import { formatDate } from "@/i18n/format";
@@ -115,6 +115,9 @@ export async function today(ctx: OwnerContext, params: Record<string, string>): 
     counts.orders = paid.count;
     const waiting = (await store.listCatalogOrders({ appId: app.id, statuses: ["processing"], offset: 0, limit: 1 })).total;
     if (waiting) needs.push({ kind: "orders_in_progress", count: waiting, title: ctx.t("owner.needs.ordersInProgress", { count: waiting }), notice_id: null });
+    // 132 Orders waiting for a bank transfer or the owner's own method: the owner marks them paid.
+    const unpaid = (await store.listCatalogOrders({ appId: app.id, statuses: [], awaitingManual: true, offset: 0, limit: 1 })).total;
+    if (unpaid) needs.push({ kind: "orders_awaiting_payment", count: unpaid, title: ctx.t("owner.needs.awaitingPayment", { count: unpaid }), notice_id: null });
   }
   if (areas.appointments) {
     counts.appointments = (await store.listBookingAppointments({ appId: app.id, statuses: ["pending", "approved"], startFrom: day.start, startBefore: day.end, offset: 0, limit: 1 })).total;
@@ -231,24 +234,32 @@ const NO_SALES = { orders: false, appointments: false, donations: false, foodOrd
 
 // Orders
 
-function orderJson(ctx: OwnerContext, order: CatalogOrder) {
+function orderJson(ctx: OwnerContext, order: CatalogOrder, extras: OrderExtras) {
   const step = order.fulfilment ? (order.fulfilmentStatus ?? null) : null;
+  // 132 Who ordered: the payment page's details, else the gift's sender, else the app's account of the person.
+  const customer = orderCustomerJson(order, order.userId !== null ? extras.accounts.get(order.userId) : null);
   return {
     id: order.id,
     number: orderNumber(order),
     status: order.status,
     status_label: ctx.k(ORDER_STATUS_LABELS[order.status]),
     // 96.2 An order waiting for its payment reaches the kitchen once marked paid.
-    kitchen: order.fulfilment && step && order.status !== "pending" ? { type: order.fulfilment.type, step, step_label: ctx.k(FULFILMENT_LABELS[step]) } : null,
+    kitchen:
+      order.fulfilment && step && order.status !== "pending"
+        ? { type: order.fulfilment.type, step, step_label: ctx.k(FULFILMENT_LABELS[step]), scheduled_for: order.fulfilment.scheduledFor ?? null }
+        : null,
     total: money(order.totalCents, order.currency),
     refunded: order.refundedCents ? money(order.refundedCents, order.currency) : null,
-    // 131 A gift add-on's line says the product it went with.
-    lines: order.lines.map((l) => ({ name: l.name, quantity: l.quantity, unit: money(l.unitCents, order.currency), options: (l.options ?? []).map((o) => `${o.group}: ${o.name}`), ...(l.addonOf ? { addon_of: l.addonOf } : {}) })),
-    customer: order.customer ? { ...order.customer } : null,
+    // 131 A gift add-on's line says the product it went with; 132 each line its product, total and flash sale.
+    lines: orderLinesJson(order, extras),
+    customer,
+    // 132 Where it goes and who takes it, the place's pin; what the total is made of.
+    deliver_to: deliverToJson(order, customer),
+    amounts: orderAmountsJson(order),
     created_at: order.createdAt.toISOString(),
     paid_at: iso(order.paidAt),
     // 131 The delivery day and slot, the sender and the recipient, the card, and the shipping's zone and fee.
-    delivery: ownerDeliveryJson(order),
+    delivery: ownerDeliveryJson(order, customer),
     // 80.4 Shipping, with any carrier.
     shippable: shippable(order),
     shipment: shipmentJson(order.shipment),
@@ -260,29 +271,19 @@ function orderJson(ctx: OwnerContext, order: CatalogOrder) {
   };
 }
 
-/** 131 An order's delivery as Yallapp Business shows it: both people clearly, the card, the day and slot, the zone and the fee. */
-function ownerDeliveryJson(order: CatalogOrder) {
-  const d = order.delivery;
-  const json = orderDeliveryJson(d, null);
-  if (!json || !d) return null;
-  return {
-    ...json,
-    fee: d.feeCents ? money(d.feeCents, order.currency) : null,
-    zone: d.shipping?.zone ?? null,
-    shipping_fee: d.shipping ? money(d.shipping.cents, order.currency) : null,
-    breakdown: d.shipping ? d.shipping.breakdown.map((l) => ({ label: l.label, rule: l.rule ?? null, amount: money(l.cents, order.currency) })) : [],
-  };
-}
-
 function refundDeps(ctx: OwnerContext): RefundDeps {
   const { deps } = ctx;
   return { store: deps.store, key: deps.encryptionKey, urls: deps.paymentUrls, now: deps.now, ip: deps.ip, actor: { id: ctx.user.id, email: ctx.user.email }, mail: deps.mail };
 }
 
 async function orderDetail(ctx: OwnerContext, app: App, order: CatalogOrder) {
-  const [options, refunds] = await Promise.all([orderRefundOptions(refundDeps(ctx), app, order), ctx.deps.store.listRefunds(app.id, "order", [order.id])]);
+  const [options, refunds, extras] = await Promise.all([
+    orderRefundOptions(refundDeps(ctx), app, order),
+    ctx.deps.store.listRefunds(app.id, "order", [order.id]),
+    orderExtras(ctx.deps.store, app.id, [order], ctx.lang),
+  ]);
   return {
-    ...orderJson(ctx, order),
+    ...orderJson(ctx, order, extras),
     refund: {
       refundable: options.refundable,
       why: options.why ? ctx.k(options.why) : null,
@@ -321,7 +322,8 @@ export async function listOrders(ctx: OwnerContext, params: Record<string, strin
     offset: page.offset,
     limit: page.perPage,
   });
-  return { status: 200, body: { ...pageJson(page, total), items: items.map((o) => orderJson(ctx, o)) } };
+  const extras = await orderExtras(ctx.deps.store, app.id, items, ctx.lang);
+  return { status: 200, body: { ...pageJson(page, total), items: items.map((o) => orderJson(ctx, o, extras)) } };
 }
 
 export async function getOrder(ctx: OwnerContext, params: Record<string, string>): Promise<OwnerResult> {
