@@ -48,6 +48,7 @@ class FakeStorage implements MediaStorage {
   async listApps() {
     return [];
   }
+  async copy() {}
 }
 
 function academy(): CourseSetup {

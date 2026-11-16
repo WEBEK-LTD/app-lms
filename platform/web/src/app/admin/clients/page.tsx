@@ -94,6 +94,8 @@ export default async function ClientsPage({ searchParams }: PageProps<"/admin/cl
   const selectedId = typeof params.client === "string" ? params.client : null;
   const adding = params.add === "1" && may("clients.edit");
   const done = typeof params.done === "string" ? DONE[params.done] : undefined;
+  // 132.110 A client page opened when the team member isn't working in a client's account any more.
+  const workingEnded = params.working === "ended";
 
   const store = await getStore();
   const plans = await getPlans(store);
@@ -179,6 +181,11 @@ export default async function ClientsPage({ searchParams }: PageProps<"/admin/cl
       {done ? (
         <Notice tone="success" icon="check_circle" role="status">
           {done}
+        </Notice>
+      ) : null}
+      {workingEnded ? (
+        <Notice tone="warn" icon="info" role="status">
+          You&apos;re not working in a client&apos;s account any more: its 8 hours ended, or you went back to the admin. Open the client and choose &ldquo;Open as the client&rdquo; to work in their account again.
         </Notice>
       ) : null}
 

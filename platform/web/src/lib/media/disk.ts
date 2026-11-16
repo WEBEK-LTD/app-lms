@@ -1,5 +1,5 @@
 import { createReadStream, createWriteStream } from "node:fs";
-import { mkdir, readdir, rename, rm, stat, truncate } from "node:fs/promises";
+import { copyFile, mkdir, readdir, rename, rm, stat, truncate } from "node:fs/promises";
 import path from "node:path";
 import { Readable } from "node:stream";
 import { pipeline } from "node:stream/promises";
@@ -51,6 +51,13 @@ export class MediaDisk {
   async deleteApp(appId: string): Promise<void> {
     if (!APP_ID.test(appId)) throw new Error("Invalid app ID");
     await rm(path.join(this.root, appId), { recursive: true, force: true });
+  }
+
+  /** 132.114 A finished file copied to another key (a copied app's Media library). */
+  async copy(fromKey: string, toKey: string): Promise<void> {
+    const target = this.file(toKey);
+    await mkdir(path.dirname(target), { recursive: true });
+    await copyFile(this.file(fromKey), target);
   }
 
   /** 62 The app folders on disk. */

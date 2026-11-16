@@ -4,20 +4,19 @@ import { helpLinks } from "@/lib/docs/help";
 import { appProblems } from "@/lib/app/problems-load";
 import Link from "next/link";
 import { Logo } from "@/components/brand";
-import { stopManagingAction } from "@/app/actions/admin";
-import { SubmitButton } from "@/components/form";
 import { Icon } from "@/components/icon";
 import { DashboardSidebar, type DashboardNavGroup } from "@/components/dashboard-nav";
 import { DashboardI18n, DocumentLang } from "@/components/dashboard-i18n";
 import { DashboardLanguage } from "@/components/dashboard-language";
 import { ThemeSwitch } from "@/components/theme-switch";
 import { SignOutButton } from "@/components/sign-out";
+import { MovedAppNotice } from "@/components/moved-app";
+import { WorkingInAccount } from "@/components/working-in-account";
 import { AppSwitcher } from "@/components/app-switcher";
 import { SectionSwitch } from "@/components/section-switch";
 import { BusinessSwitcher } from "@/components/business-switcher";
 import { UpdatesBell } from "@/components/updates-bell";
 import { dashboardMessages, knownEnglish } from "@/i18n/dashboard";
-import { richText } from "@/i18n/rich";
 import { appLabel, licensePageName, MAX_APPS_PER_CLIENT } from "@/lib/app/label";
 import { appTypeName, contentNavOf, kindOf, usersLabelOf } from "@/lib/app/kinds";
 import { chatSessionKind } from "@/lib/chat/access";
@@ -43,7 +42,7 @@ export async function generateMetadata(): Promise<Metadata> {
 export default async function DashboardLayout({ children }: { children: React.ReactNode }) {
   const contact = await getVisitorContact();
   const context = await requireClient();
-  const { user, staff, member, app, client, licenses, state, businesses } = context;
+  const { user, member, app, client, licenses, state, businesses } = context;
   // 103R A Yallapp Studio project lives in Studio: its pages open there (the same page in Studio's frame).
   if (app?.section === "studio") {
     const path = (await headers()).get("x-yallapp-path") ?? "";
@@ -65,7 +64,8 @@ export default async function DashboardLayout({ children }: { children: React.Re
   const switcherApps = apps.map((a) => ({
     id: a.id,
     label: appLabel(a) === "Untitled app" ? k("Untitled app") : appLabel(a),
-    detail: t("nav.switcherDetail", { type: k(appTypeName(a)), state: k(ACCOUNT_STATE_LABEL[appState(client, licenses.find((l) => l.appId === a.id) ?? null, now)]) }),
+    // 132.112 An app that moved to another account stays here to read.
+    detail: t("nav.switcherDetail", { type: k(appTypeName(a)), state: a.movedAt ? t("working.moved") : k(ACCOUNT_STATE_LABEL[appState(client, licenses.find((l) => l.appId === a.id) ?? null, now)]) }),
   }));
   const currentApp = app
     ? {
@@ -189,7 +189,6 @@ export default async function DashboardLayout({ children }: { children: React.Re
   const allowed = groups
     .map((group) => ({ ...group, items: group.items.filter((item) => item.external || contextCan(context, pathPermission(item.href))) }))
     .filter((group) => group.items.length);
-  const bold = { b: (chunk: string) => <strong>{chunk}</strong> };
 
   return (
     <DashboardI18n lang={lang} messages={dashboardMessages(lang)} knownEnglish={lang === "en" ? {} : knownEnglish()}>
@@ -263,23 +262,10 @@ export default async function DashboardLayout({ children }: { children: React.Re
             <div className="mx-auto flex max-w-[1120px] flex-col gap-6">
               {/* 93.2 Help with this page. */}
               <PageHelp links={helpLinks(lang)} label={t("nav.pageHelp")} />
-              {staff ? (
-                <div role="status" className="flex flex-wrap items-center justify-between gap-3 rounded-xl bg-midnight px-4 py-3 text-sm text-white">
-                  <span className="flex items-center gap-2">
-                    <Icon name="key" size={20} />
-                    <span>
-                      {app && apps.length > 1
-                        ? richText(t("nav.staffApp", { name: user.name, app: appLabel(app) }), bold)
-                        : richText(t("nav.staff", { name: user.name }), bold)}
-                    </span>
-                  </span>
-                  <form action={stopManagingAction}>
-                    <SubmitButton variant="secondary" className="h-9 px-3 text-sm">
-                      {t("nav.backToAdmin")}
-                    </SubmitButton>
-                  </form>
-                </div>
-              ) : null}
+              {/* 132.110 Our team in a client's account: whose it is, and the way back. */}
+              <WorkingInAccount context={context} text={text} />
+              {/* 132.112 An app that moved to another account stays to read. */}
+              <MovedAppNotice app={app} text={text} />
               {children}
             </div>
           </main>

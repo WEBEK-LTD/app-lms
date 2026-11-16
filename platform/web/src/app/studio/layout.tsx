@@ -2,6 +2,8 @@ import type { Metadata } from "next";
 import localFont from "next/font/local";
 import { DashboardI18n, DocumentLang } from "@/components/dashboard-i18n";
 import { dashboardMessages, knownEnglish } from "@/i18n/dashboard";
+import { WorkingInAccount } from "@/components/working-in-account";
+import { getClientContext } from "@/lib/auth/session";
 import { dashboardText } from "@/lib/dashboard-lang";
 
 /**
@@ -36,11 +38,20 @@ export async function generateMetadata(): Promise<Metadata> {
  * dashboard's language.
  */
 export default async function StudioLayout({ children }: { children: React.ReactNode }) {
-  const { lang } = await dashboardText();
+  const text = await dashboardText();
+  const { lang, dir } = text;
+  // 132.110 Our team in a client's account: the banner on every Studio page (the editor keeps its full height below it).
+  const context = await getClientContext();
+  const team = Boolean(context?.staff);
   return (
     <DashboardI18n lang={lang} messages={dashboardMessages(lang)} knownEnglish={lang === "en" ? {} : knownEnglish()}>
       <DocumentLang lang={lang} />
-      <div style={{ ["--font-studio" as string]: studioFont, ["--studio-line" as string]: "#DDD8CC", ["--studio-ink" as string]: "#0E0D24", ["--studio-muted" as string]: "#5E5B70" }}>
+      <div style={{ ["--font-studio" as string]: studioFont, ["--studio-line" as string]: "#DDD8CC", ["--studio-ink" as string]: "#0E0D24", ["--studio-muted" as string]: "#5E5B70", ["--team-bar" as string]: team ? "72px" : "0px" }}>
+        {context && team ? (
+          <div lang={lang} dir={dir} className="box-border flex min-h-[72px] items-center bg-[#0E0D24] px-3 sm:px-4" style={{ fontFamily: "var(--font-studio), 'Cairo', system-ui, sans-serif" }}>
+            <WorkingInAccount context={context} text={text} className="w-full py-2" />
+          </div>
+        ) : null}
         {children}
       </div>
     </DashboardI18n>

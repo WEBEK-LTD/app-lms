@@ -13,7 +13,7 @@ import { dashboardMessages, knownEnglish, type DashKey } from "@/i18n/dashboard"
 import { switchBusinessAction } from "@/app/actions/team";
 import { SubmitButton } from "@/components/form";
 import { richText } from "@/i18n/rich";
-import { contextCan, getAdminRole, getClientContext, getCurrentUser, signInPath } from "@/lib/auth/session";
+import { contextCan, getAdminRole, getClientContext, getCurrentUser, signInPath, teamOutsideClientPath } from "@/lib/auth/session";
 import { cardPlanOptions } from "@/lib/billing/card-plans";
 import { getSwitches } from "@/lib/switches";
 import { getStore } from "@/lib/data";
@@ -36,7 +36,8 @@ export default async function PendingPage({ searchParams }: PageProps<"/pending"
   const contact = await getVisitorContact();
   const user = await getCurrentUser();
   if (!user) redirect(await signInPath());
-  if (await getAdminRole()) redirect("/admin");
+  // 132.110 Our team in a client's account sets it up from the dashboard, whatever its state; outside one, the admin says why.
+  if (await getAdminRole()) redirect((await getClientContext()) ? "/dashboard" : await teamOutsideClientPath());
   const text = await dashboardText();
   const { t, k, lang, dir } = text;
   const signOut = t("nav.signOut");

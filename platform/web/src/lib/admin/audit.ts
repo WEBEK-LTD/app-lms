@@ -117,6 +117,9 @@ export async function recordStaffChange(
   after?: unknown,
 ): Promise<void> {
   if (!context.staff) return;
+  // 132.110 This request's change is logged: no general entry for it (lib/admin/staff-trail.ts).
+  const { markStaffChangeLogged } = await import("./staff-trail");
+  await markStaffChangeLogged();
   await recordAudit({
     actor: context.staff,
     action: "client.app_settings",
