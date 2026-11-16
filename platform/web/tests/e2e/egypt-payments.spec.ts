@@ -233,6 +233,8 @@ test("a shop with its own Kashier keys takes an order", async ({ page, request }
   // 132.33 Kashier's signed webhook was noted; 132.34 Test connection with the saved keys says it all works.
   expect(kashier.webhooks.at(-1)!.status).toBe(200);
   await page.getByRole("link", { name: "Products", exact: true }).click();
+  // 132.10 The shop's payments are on their own tab.
+  await page.getByRole("navigation", { name: "Products", exact: true }).getByRole("link", { name: /^Payments/ }).click();
   const saved = page.getByRole("region", { name: "Card payments" });
   await expect(saved.getByTestId("gateway-saved")).toContainText("Saved: Kashier");
   await expect(saved.getByTestId("gateway-saved")).toContainText("Webhook working · last one");
