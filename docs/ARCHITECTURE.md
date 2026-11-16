@@ -697,11 +697,30 @@ mobile/
   secret; `custom_id` our reference; the customer approves on PayPal and the
   read-back captures the order (`PayPal-Request-Id` keeps it to one capture)
   before checking the capture; refunds by
-  `POST /v2/payments/captures/{id}/refund`. Neither sends a webhook here:
+  `POST /v2/payments/captures/{id}/refund`. PayPal sends no webhook here:
   the customer's return and the pending-payments job read the payment back.
   Their currencies: Stripe TRY, USD, EUR, EGP, SAR, AED; PayPal USD, EUR.
   Test runs point `STRIPE_API_URL` and `PAYPAL_API_URL` at fakes (refused on
   Netlify).
+  132.30–132.36 Stripe takes the publishable key too (`publishableKey`, not
+  a secret; both keys of one mode, `lib/payments/stripe-keys.ts`) and the
+  signing secret of the owner's webhook endpoint (`webhookSecretEncrypted`,
+  same context). Every request sends `Stripe-Version: 2025-09-30.clover`
+  and every create an `Idempotency-Key`; amounts go in the currency's own
+  units (`stripeAmount`: zero-, two- and three-decimal) and never under
+  Stripe's least for a settlement currency. Each app has its own endpoint,
+  `POST /api/pay/stripe/webhook/<app id>` (`lib/payments/webhooks.ts`): the
+  raw body's `Stripe-Signature` (HMAC-SHA256 of `t.body`, any `v1`, 5
+  minutes) is checked with that secret, and `checkout.session.completed` or
+  `.async_payment_succeeded` settles the order or donation named by
+  `client_reference_id`, read back from Stripe like any trigger. The last
+  webhook of Stripe, Kashier and Fawaterk is kept on the account
+  (`webhook`, at most once a minute). "Test connection"
+  (`lib/payments/connection.ts`, `testPaymentKeysAction`, 10 per 10 minutes)
+  makes each gateway's read-only calls with the typed or saved keys and
+  returns coded checks the dashboard words; saved secrets are shown masked
+  only. The owner's gateway also has its own page, `/dashboard/payments`
+  (in Studio `/studio/project/payments`).
   96.2 Bank transfer and the client's own method (`lib/catalog/manual.ts`,
   `catalogSettings.manualPayments`, migration `0086_manual_payments`): paid
   outside Yallapp, never checked by it. The pay page offers them next to the

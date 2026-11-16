@@ -1275,6 +1275,8 @@ export interface OwnKashierPayment {
   secretKeyEncrypted: string;
   /** Test keys (Kashier's test API). */
   sandbox: boolean;
+  /** 132.33 The last webhook Kashier posted for this account (lib/payments/webhooks.ts); missing: none yet. */
+  webhook?: PaymentWebhookReceipt | null;
 }
 
 /** 37 The client's own Fawaterk account: its API key (encrypted like iyzico's). */
@@ -1283,14 +1285,42 @@ export interface OwnFawaterkPayment {
   apiKeyEncrypted: string;
   /** A staging key (Fawaterk's staging API). */
   sandbox: boolean;
+  /** 132.33 The last webhook Fawaterk posted for this account; missing: none yet. */
+  webhook?: PaymentWebhookReceipt | null;
 }
 
 /** 96.1 The client's own Stripe account: its secret key (encrypted like the others); test keys run on test data. */
 export interface OwnStripePayment {
   provider: "stripe";
+  /** The secret key (sk_…) or a restricted key (rk_…). */
   secretKeyEncrypted: string;
   /** A test key (sk_test_…). */
   sandbox: boolean;
+  /** 132.30 The publishable key (pk_test_… or pk_live_…, not a secret, same mode as the secret key); missing on keys saved before. */
+  publishableKey?: string | null;
+  /** 132.31 The signing secret of the owner's webhook endpoint (whsec_…), encrypted like the key; missing: no webhook. */
+  webhookSecretEncrypted?: string | null;
+  /** 132.33 The last webhook Stripe sent to /api/pay/stripe/webhook/<app id>; missing: none yet. */
+  webhook?: PaymentWebhookReceipt | null;
+}
+
+/**
+ * 132.33 The last webhook a gateway sent for the owner's account: when one
+ * with a good signature arrived and its event, and when one whose signature
+ * didn't match last arrived (a wrong signing secret), for the page to say
+ * "Webhook working" or what to fix. Never the body or any key.
+ */
+export interface PaymentWebhookReceipt {
+  /** When the last webhook with a good signature arrived (ISO); null: none yet. */
+  at: string | null;
+  /** Its event type ("checkout.session.completed", Kashier's "pay", Fawaterk's "paid"). */
+  event: string | null;
+  /** Stripe: whether that event came from live mode. */
+  livemode?: boolean | null;
+  /** When one was refused since (ISO); null: none since the last good one. */
+  failedAt?: string | null;
+  /** Why: its signature didn't match, or no signing secret was saved to check it. */
+  failure?: "signature" | "no_secret" | null;
 }
 
 /** 96.1 The client's own PayPal REST app: its client ID (not a secret) and secret. */

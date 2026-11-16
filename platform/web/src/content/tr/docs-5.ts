@@ -129,12 +129,12 @@ WooCommerce ile satış yapan restoranlar menü ifadelerini kullanır ve ürün 
 - **iyzico**: iyzico üye işyeri panelinde Settings altındaki **API key** ve **Secret key**. Fiyatlar TRY, USD veya EUR.
 - **Kashier**: Kashier panelinde Integrate now altındaki **Merchant ID** (MID-…), **Payment API key** ve **Secret key**. Fiyatlar EGP, USD veya EUR.
 - **Fawaterk**: Fawaterk panelinde Integrations altındaki **API key**. Fiyatlar EGP, USD, SAR, AED veya EUR.
-- **Stripe**: Stripe Dashboard'da Developers › API keys altındaki **Secret key**. Test anahtarı (sk_test_…) deneme ödemeleri, canlı anahtar (sk_live_…) gerçek ödemeler alır. Fiyatlar TRY, USD, EUR, EGP, SAR veya AED.
+- **Stripe**: Stripe Dashboard'da Developers › API keys altındaki **Publishable key** ve **Secret key** (ya da kısıtlı bir anahtar, rk_…): deneme ödemeleri için ikisi de test (pk_test_…, sk_test_…), gerçek ödemeler için ikisi de canlı (pk_live_…, sk_live_…). Sonra Developers › Webhooks altında sayfanın gösterdiği adresle ve saydığı olaylarla bir uç nokta ekleyin ve **Webhook imzalama sırrı**nı (whsec_…) yapıştırın: Stripe bir ödeme gerçekleştiği anda Yallapp'e bildirir. Fiyatlar TRY, USD, EUR, EGP, SAR veya AED.
 - **PayPal**: PayPal Developer Dashboard'da Apps & Credentials altında oluşturduğunuz bir REST uygulamasının **Client ID** ve **Secret** bilgileri. Fiyatlar USD veya EUR. Müşteriler PayPal sayfasında PayPal hesaplarıyla ya da kartla öder.
 
 Fiyatlarınızı sağlayıcınızın kabul ettiği bir para biriminde belirleyin: eşleşmediklerinde **Kartla ödemeler** kutusu sizi uyarır.
 
-> Önce denemek için test anahtarını (**Sandbox keys**, **Test mode keys**, **Staging key** veya **Sandbox credentials**; Stripe'ın test anahtarları bunu kendileri belirtir) açın, sağlayıcının test anahtarlarını yapıştırın ve test kartlarıyla ödeyin. Canlı anahtarlarınızı yapıştırdığınızda kapatın: test ve canlı anahtarlar farklıdır.
+> Önce denemek için test anahtarını (**Sandbox keys**, **Test mode keys**, **Staging key** veya **Sandbox credentials**; Stripe'ın test anahtarları bunu kendileri belirtir) açın, sağlayıcının test anahtarlarını yapıştırın ve test kartlarıyla ödeyin. Canlı anahtarlarınızı yapıştırdığınızda kapatın: test ve canlı anahtarlar farklıdır. **Bağlantıyı test et**, anahtarları sağlayıcınızla satır satır (anahtarlar, mod, para birimi, webhook) kontrol eder; hiçbir şey kaydedilmez, kimseden para çekilmez.
 
 ## Yallapp müşterilerinizin ödemelerini asla almaz
 
