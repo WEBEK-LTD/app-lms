@@ -69,6 +69,7 @@ export function SheetButton({ target, children, icon = "add", variant = "main", 
     <button
       type="button"
       aria-haspopup="dialog"
+      aria-controls={target}
       className={`${btn[variant]} ${className}`}
       onClick={() => {
         const el = document.getElementById(target);

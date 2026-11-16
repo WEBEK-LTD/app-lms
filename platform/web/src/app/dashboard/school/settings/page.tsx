@@ -6,7 +6,8 @@ import { Field, SubmitButton } from "@/components/form";
 import { Icon } from "@/components/icon";
 import { mayDo, OwnerOnly } from "@/components/owner-only";
 import { Notice } from "@/components/ui";
-import { FormSection, PageGroup } from "@/components/page-kit";
+import { FormSection } from "@/components/page-kit";
+import { PageTabs, TabPanel } from "@/components/page-tabs";
 import { requireClient } from "@/lib/auth/session";
 import { CATALOG_CURRENCIES } from "@/lib/catalog/money";
 import { catalogSettings, isOwnPayment } from "@/lib/catalog/settings";
@@ -65,7 +66,7 @@ async function SchoolPayments({ app }: { app: App }) {
 }
 
 /** 105.4 The school's time zone, currency and current term, absence alerts and fees by card. */
-export default async function SchoolSettingsPage() {
+export default async function SchoolSettingsPage({ searchParams }: { searchParams: Promise<{ tab?: string }> }) {
   const { app, license } = await requireClient("settings");
   const { t } = await dashboardText();
   if (!isSchool(app)) return <NotSchool title={t("school.settings")} t={t} />;
@@ -85,12 +86,26 @@ export default async function SchoolSettingsPage() {
     </label>
   );
   const zones = [...new Set([settings.timezone, ...SCHOOL_TIMEZONES])];
+  const payments = settings.feesByCard || isOwnPayment(catalogSettings(app).payment);
+  // 132.21 `?tab=` opens one (an old link to a part, `#payments`, too).
+  const asked = (await searchParams).tab ?? "";
+  const tab = ["school", "messages", ...(payments ? ["payments"] : [])].includes(asked) ? asked : "school";
 
   return (
     <div className="flex flex-col gap-6">
       <PageHead title={t("school.settings")} intro={t("school.settingsIntro")} />
       <SchoolPlanNotice plan={plan} demo={app.demo === true} t={t} />
-      <PageGroup title={t("school.groupSchool")}>
+      {/* 132.21 The school, its messages and its payments, each in a tab. */}
+      <PageTabs
+        label={t("school.settings")}
+        initial={tab}
+        tabs={[
+          { id: "school", label: t("school.groupSchool"), icon: "school" },
+          { id: "messages", label: t("school.groupMessages"), icon: "forum" },
+          ...(payments ? [{ id: "payments", label: t("school.groupPayments"), icon: "payments" as const }] : []),
+        ]}
+      >
+      <TabPanel tab="school">
         <Panel id="h-settings" title={t("school.settings")}>
           <SchoolForm action={saveSchoolSettingsAction} submit={t("school.saveSettings")}>
             {/* The page kit: the form in its parts. */}
@@ -125,8 +140,8 @@ export default async function SchoolSettingsPage() {
             </FormSection>
           </SchoolForm>
         </Panel>
-      </PageGroup>
-      <PageGroup title={t("school.groupMessages")}>
+      </TabPanel>
+      <TabPanel tab="messages">
       <Panel id="h-messages" title={t("school.messages")} intro={t("school.messagesIntro")}>
         {chatAvailable(app, plan) ? null : <Notice icon="info">{t("school.messagesNeedChat")}</Notice>}
         <SchoolForm action={saveSchoolMessagesAction} submit={t("school.saveMessages")}>
@@ -174,12 +189,13 @@ export default async function SchoolSettingsPage() {
           {check("adminReads", t("school.messagesAdminReads"), t("school.messagesAdminReadsHint"))}
         </SchoolForm>
       </Panel>
-      </PageGroup>
-      {settings.feesByCard || isOwnPayment(catalogSettings(app).payment) ? (
-        <PageGroup title={t("school.groupPayments")}>
+      </TabPanel>
+      {payments ? (
+        <TabPanel tab="payments">
           <SchoolPayments app={app} />
-        </PageGroup>
+        </TabPanel>
       ) : null}
+      </PageTabs>
     </div>
   );
 }

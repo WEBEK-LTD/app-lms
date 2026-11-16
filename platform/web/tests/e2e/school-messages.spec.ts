@@ -76,7 +76,9 @@ test("People: a teacher in a department", async () => {
 });
 
 test("School settings › Messages: whom teachers write to, who starts, the hours, a class at once", async () => {
+  // 132.21 The messages have their own tab.
   await own.goto("/dashboard/school/settings");
+  await own.getByRole("tab", { name: "Teachers and families" }).click();
   const messages = own.getByRole("region", { name: "Messages" });
   await expect(messages.getByLabel("Teachers may write to", { exact: true })).toHaveValue("none");
   await messages.getByLabel("Teachers may write to", { exact: true }).selectOption({ label: "Parents" });
