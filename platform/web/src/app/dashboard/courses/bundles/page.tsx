@@ -11,6 +11,7 @@ import { courseSetup } from "@/lib/courses/setup";
 import { dashboardText } from "@/lib/dashboard-lang";
 import { BundleForm } from "./forms";
 import { bundleChoices, bundleSums } from "./parts";
+import { CoursesTabs } from "../tabs";
 
 export async function generateMetadata(): Promise<Metadata> {
   return { title: (await dashboardText()).t("lms.bundlesTitle") };
@@ -42,6 +43,8 @@ export default async function BundlesPage() {
           ) : null
         }
       />
+      {/* 132.13 */}
+      <CoursesTabs app={app} />
       <Notice tone="neutral" icon="local_offer">
         {t("lms.bundleCoupons")}
       </Notice>
