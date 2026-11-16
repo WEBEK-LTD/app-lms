@@ -95,8 +95,10 @@ export function CommandPalette({ open, onClose, items, appName }: { open: boolea
         </span>
         <input
           ref={input}
-          type="search"
+          type="text"
           role="combobox"
+          enterKeyHint="go"
+          autoComplete="off"
           aria-expanded="true"
           aria-controls={listId}
           aria-activedescendant={found.length ? `${listId}-${shown}` : undefined}
@@ -115,6 +117,10 @@ export function CommandPalette({ open, onClose, items, appName }: { open: boolea
             } else if (e.key === "ArrowUp") {
               e.preventDefault();
               setActive((i) => (found.length ? (Math.min(i, found.length - 1) - 1 + found.length) % found.length : 0));
+            } else if (e.key === "Escape") {
+              // Closes at once (a search field would only empty itself first).
+              e.preventDefault();
+              onClose();
             } else if (e.key === "Enter") {
               e.preventDefault();
               const hit = found[shown];

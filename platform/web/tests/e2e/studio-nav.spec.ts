@@ -152,6 +152,13 @@ test("the quick search, the groups, the phone's sheet, Arabic and the dark frame
     await own.keyboard.press("Control+k");
     await expect(search).toBeFocused({ timeout: 1000 });
   }).toPass();
+  // Esc closes it, typed or not; then again, and a page by its name.
+  await search.fill("xyz");
+  await search.press("Escape");
+  await expect(own.locator("[data-studio-palette]")).toBeHidden();
+  await own.keyboard.press("Control+k");
+  await expect(search).toBeFocused();
+  await expect(search).toHaveValue("");
   await search.fill("med");
   await expect(own.locator("[data-studio-palette] [role=option]").first()).toHaveAttribute("data-palette-href", "/studio/project/media");
   await search.press("Enter");
