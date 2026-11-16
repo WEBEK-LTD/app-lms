@@ -73,7 +73,8 @@ function Timer({ endsAt, accent, words, onDark }: { endsAt: string | null; accen
     <span dir="ltr" data-studio-flash-timer="" style={{ display: "inline-flex", gap: 4, alignItems: "center" }}>
       {parts.map((v, i) =>
         i === 0 && v === 0 ? null : (
-          <span key={i} style={{ display: "inline-flex", alignItems: "baseline", gap: 1, padding: "3px 6px", borderRadius: 8, background: onDark ? "rgba(255,255,255,0.16)" : accent, color: "#FFFFFF", fontWeight: 800, fontSize: 13, fontVariantNumeric: "tabular-nums" }}>
+          // 132.58 The second can tick between the server's drawing and the browser's: not a mismatch to report.
+          <span key={i} suppressHydrationWarning style={{ display: "inline-flex", alignItems: "baseline", gap: 1, padding: "3px 6px", borderRadius: 8, background: onDark ? "rgba(255,255,255,0.16)" : accent, color: "#FFFFFF", fontWeight: 800, fontSize: 13, fontVariantNumeric: "tabular-nums" }}>
             {pad(v)}
             <span style={{ fontSize: 9, fontWeight: 600, opacity: 0.8 }}>{units[i]}</span>
           </span>
