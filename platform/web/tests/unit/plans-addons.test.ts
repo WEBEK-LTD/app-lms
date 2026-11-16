@@ -11,6 +11,7 @@ import type { AddonDef, AppAddon } from "@/lib/addons/types";
 import { checkCoupon } from "@/lib/billing/coupons";
 import { cardPeriods } from "@/lib/billing/card-plans";
 import { periodPrices, periodsAmong, startPeriod } from "@/lib/billing/period-prices";
+import { suggestedPrice } from "@/lib/billing/suggested-prices";
 import { isLifetimeEnd, LIFETIME_END, monthsLabel, perMonth, periodEnd, periodOfMonths, savingPercent, savingReference, shownPeriods } from "@/lib/billing/periods";
 import { creditDays, lifetimeLocked, planChangeFor, scheduleDowngrade } from "@/lib/billing/plan-change";
 import { completePlanPayment } from "@/lib/billing/plan-payment";
@@ -28,6 +29,8 @@ import {
   lowestPlanWith,
   mainPeriodOf,
   pagesLimitOf,
+  periodIsSuggested,
+  periodLeftToSuggestion,
   PLAN_INFO,
   planOffered,
   planPayableFor,
@@ -41,6 +44,7 @@ import {
   plansShown,
   plansWith,
   REGULAR_PLANS,
+  suggestedPlanPrice,
   type PlanInfo,
   type PlanSetting,
 } from "@/lib/plans";
@@ -53,6 +57,7 @@ function edit(plan: keyof typeof PLAN_INFO, patch: Partial<PlanSetting>): PlanSe
 }
 
 // Prices the tests type in, the way the team would in Admin › Plans: none of them is Yallapp's.
+// Lifetime is switched on without a price: it has its suggested one (4 years of the yearly price).
 const GROWTH_PERIODS = edit("growth", {
   priceCents: 150000,
   usdCents: null,
@@ -72,15 +77,16 @@ describe("133 billing periods", () => {
     const plans = plansWith({ growth: GROWTH_PERIODS });
     const growth = plans.growth;
     expect(mainPeriodOf(growth)).toBe("12");
-    // 36 months is off, lifetime has no price yet: neither is offered.
+    // 36 months is switched off: not offered; lifetime is on without a price: its suggested one.
     expect(planPeriods(growth).map((p) => [p.key, p.price.egpCents])).toEqual([
       ["1", 15000],
       ["6", 80000],
       ["12", 150000],
       ["24", 270000],
+      ["lifetime", 600000],
     ]);
     expect(planPriceOf(growth, "36")).toBeNull();
-    expect(planPriceOf(growth, "lifetime")).toBeNull();
+    expect(planPriceOf(growth, "lifetime")).toEqual({ egpCents: 600000, usdCents: null });
     expect(planPriceOf(growth)).toEqual({ egpCents: 150000, usdCents: null });
     expect(planPrice(growth, { display: "EGP", egpPerUsd: null }, "6")).toEqual({ price: "EGP 800".replace(" ", " "), period: "6 months" });
     // A period the plan doesn't have shows its main price.
@@ -88,11 +94,13 @@ describe("133 billing periods", () => {
   });
 
   it("keeps the prices saved before periods exactly as they were", () => {
-    // An edit from before Phase 133: a yearly price, nothing else.
+    // An edit from before Phase 133: a yearly price, nothing else. Its other periods have their suggested prices.
     const legacy: PlanSetting = { ...edit("pro", {}), priceCents: 480000, usdCents: 9600, onRequest: false, billingMonths: 12 };
     delete legacy.periods;
     const pro = plansWith({ pro: legacy }).pro;
-    expect(planPeriods(pro)).toEqual([{ key: "12", price: { egpCents: 480000, usdCents: 9600 } }]);
+    expect(planPriceOf(pro)).toEqual({ egpCents: 480000, usdCents: 9600 });
+    expect(planPeriods(pro).find((p) => p.key === "12")).toEqual({ key: "12", price: { egpCents: 480000, usdCents: 9600 } });
+    expect(planPeriods(pro).filter((p) => periodIsSuggested(pro, p.key)).map((p) => p.key)).toEqual(["1", "6", "24", "36", "lifetime"]);
     expect(planPrice(pro, { display: "USD", egpPerUsd: 50 })).toEqual({ price: "$96", period: "year" });
     // Saved again unchanged, it's the same plan.
     expect(plansWith({ pro: planSettingOf(pro) }).pro).toMatchObject({ priceCents: 480000, usdCents: 9600, billingMonths: 12, onRequest: false });
@@ -137,15 +145,17 @@ describe("133 billing periods", () => {
       ["6", "$16", "$2.67", 11],
       ["12", "$30", "$2.50", 16],
       ["24", "$54", "$2.25", 25],
+      ["lifetime", "$120", null, null],
     ]);
     expect(cardPeriods(growth, abroad, "kashier").map((p) => [p.key, p.charge])).toEqual([
       ["1", "You'll be charged EGP 150 (about $3); your bank may convert it."],
       ["6", "You'll be charged EGP 800 (about $16); your bank may convert it."],
       ["12", "You'll be charged EGP 1,500 (about $30); your bank may convert it."],
       ["24", "You'll be charged EGP 2,700 (about $54); your bank may convert it."],
+      ["lifetime", "You'll be charged EGP 6,000 (about $120); your bank may convert it."],
     ]);
     // The page starts on the period asked for, else the main one most plans have.
-    expect(periodsAmong([growth], abroad)).toEqual(["1", "6", "12", "24"]);
+    expect(periodsAmong([growth], abroad)).toEqual(["1", "6", "12", "24", "lifetime"]);
     expect(startPeriod([growth], abroad, "6")).toBe("6");
     expect(startPeriod([growth], abroad, "36")).toBe("12");
   });
@@ -165,8 +175,88 @@ describe("133 billing periods", () => {
   });
 });
 
+describe("133 suggested prices", () => {
+  // A plan priced only by the year, the way the team would type it: EGP 1,500 a year.
+  const yearly = (patch: Partial<PlanSetting> = {}) => plansWith({ growth: edit("growth", { priceCents: 150000, usdCents: null, onRequest: false, billingMonths: 12, ...patch }) }).growth;
+  const egpOf = (plan: PlanInfo) => Object.fromEntries(planPeriods(plan).map((p) => [p.key, p.price.egpCents]));
+
+  it("works out each period the team hasn't priced from the plan's own yearly price, rounded to EGP 50", () => {
+    const growth = yearly();
+    // M = 1,500 / 12 × 1.25 = 156.25 → 150; 6 months M × 6 × 0.9 = 843.75 → 850 (under the cap, 1,500 × 0.6 = 900);
+    // 2 years 1,500 × 2 × 0.85 = 2,550; 3 years 1,500 × 3 × 0.75 = 3,375 → 3,400 (half up, exactly); lifetime 1,500 × 4 = 6,000.
+    expect(egpOf(growth)).toEqual({ "1": 15000, "6": 85000, "12": 150000, "24": 255000, "36": 340000, lifetime: 600000 });
+    expect(planPeriods(growth).filter((p) => periodIsSuggested(growth, p.key)).map((p) => p.key)).toEqual(["1", "6", "24", "36", "lifetime"]);
+    expect(periodIsSuggested(growth, "12")).toBe(false);
+    // Without dollar prices of its own, the dollars stay the pounds at the team's rate.
+    expect(suggestedPlanPrice(growth, "6")).toEqual({ egpCents: 85000, usdCents: null });
+    expect(periodPrices(growth, { display: "USD", egpPerUsd: 50 }).map((p) => [p.key, p.price])).toEqual([
+      ["1", "$3"],
+      ["6", "$17"],
+      ["12", "$30"],
+      ["24", "$51"],
+      ["36", "$68"],
+      ["lifetime", "$120"],
+    ]);
+    expect(planPrice(growth, { display: "EGP", egpPerUsd: null }, "36")).toEqual({ price: "EGP 3,400", period: "3 years" });
+  });
+
+  it("works out the year from a monthly price, and caps 6 months at 0.6 of the year", () => {
+    // Monthly EGP 200: Y = 200 × 12 × 0.8 = 1,920 → 1,900; 6 months 200 × 6 × 0.9 = 1,080 → 1,100; 2 years 3,264 → 3,250; 3 years 4,320 → 4,300; lifetime 7,680 → 7,700.
+    const monthly = yearly({ priceCents: 20000, billingMonths: 1 });
+    expect(egpOf(monthly)).toEqual({ "1": 20000, "6": 110000, "12": 190000, "24": 325000, "36": 430000, lifetime: 770000 });
+    // Both typed (EGP 300 a month, EGP 2,000 a year): 6 months would be 1,620, capped at 2,000 × 0.6 = 1,200.
+    const both = yearly({ priceCents: 200000, periods: { "1": { on: true, egpCents: 30000, usdCents: null } } });
+    expect(planPriceOf(both, "6")).toEqual({ egpCents: 120000, usdCents: null });
+    expect(planPriceOf(both, "1")).toEqual({ egpCents: 30000, usdCents: null });
+  });
+
+  it("works out dollars only from the plan's own dollar prices, rounded to the dollar", () => {
+    // $30 a year: a month 3.125 → $3; 6 months 16.875 → $17; 2 years $51; 3 years 67.5 → $68; lifetime $120.
+    const growth = yearly({ usdCents: 3000 });
+    expect(planPeriods(growth).map((p) => [p.key, p.price.usdCents])).toEqual([
+      ["1", 300],
+      ["6", 1700],
+      ["12", 3000],
+      ["24", 5100],
+      ["36", 6800],
+      ["lifetime", 12000],
+    ]);
+    expect(suggestedPrice({ month: null, year: 3000 }, "36", "USD")).toBe(6800);
+    expect(suggestedPrice({ month: 1200, year: null }, "12", "USD")).toBe(11500);
+  });
+
+  it("never beats what the team typed: its prices win, a period switched off stays off", () => {
+    const growth = plansWith({ growth: GROWTH_PERIODS }).growth;
+    // Typed: 1, 6 and 24 months; 36 switched off; lifetime on without a price: the only suggestion.
+    expect(planPriceOf(growth, "6")).toEqual({ egpCents: 80000, usdCents: null });
+    expect(planPriceOf(growth, "36")).toBeNull();
+    expect(periodLeftToSuggestion(growth, "36")).toBe(false);
+    expect(periodLeftToSuggestion(growth, "lifetime")).toBe(true);
+    expect(planPeriods(growth).filter((p) => periodIsSuggested(growth, p.key)).map((p) => p.key)).toEqual(["lifetime"]);
+    // 3 years would be 3,375 → 3,400, but the team switched it off; the main period is never suggested.
+    expect(suggestedPlanPrice(growth, "36")).toEqual({ egpCents: 340000, usdCents: null });
+    expect(periodIsSuggested(growth, "36")).toBe(false);
+    expect(suggestedPlanPrice(growth, "12")).toBeNull();
+    // A period switched off without a price stays off too.
+    expect(planPriceOf(yearly({ periods: { lifetime: { on: false, egpCents: null, usdCents: null } } }), "lifetime")).toBeNull();
+  });
+
+  it("leaves On request on request, and suggests nothing without a monthly or yearly price", () => {
+    expect(planPeriods(yearly({ onRequest: true }))).toEqual([]);
+    expect(suggestedPlanPrice(yearly({ onRequest: true }), "lifetime")).toBeNull();
+    // Billed every 6 months, nothing else typed: nothing to work from.
+    const six = yearly({ billingMonths: 6, priceCents: 90000 });
+    expect(planPeriods(six).map((p) => p.key)).toEqual(["6"]);
+    // A price too small to round to EGP 50 isn't suggested.
+    expect(suggestedPrice({ month: 1000, year: null }, "1", "EGP")).toBeNull();
+    expect(suggestedPrice({ month: null, year: null }, "lifetime", "EGP")).toBeNull();
+  });
+});
+
 describe("133 lifetime", () => {
-  const plans = plansWith({ growth: GROWTH_PERIODS, pro: edit("pro", { priceCents: 400000, usdCents: null, onRequest: false, billingMonths: 12 }) });
+  // Pro's 1 and 6 months switched off: no suggested prices for them.
+  const off = { on: false, egpCents: null, usdCents: null };
+  const plans = plansWith({ growth: GROWTH_PERIODS, pro: edit("pro", { priceCents: 400000, usdCents: null, onRequest: false, billingMonths: 12, periods: { "1": off, "6": off } }) });
   const license = (patch: Partial<License> = {}): License => ({
     id: "l1",
     clientId: "c1",
@@ -193,7 +283,7 @@ describe("133 lifetime", () => {
     // 100 days of Growth (EGP 1,500 a year) on 6 months of Pro priced like its year: the days carry their value.
     const yearly = creditDays(plans.growth, plans.pro, 100 * 86_400_000, NOW);
     expect(yearly).toBe(37);
-    // Pro has no 6-month price: its yearly one is used, the same days.
+    // Pro's 6 months are off: its yearly price is used, the same days.
     expect(creditDays(plans.growth, plans.pro, 100 * 86_400_000, NOW, 6)).toBe(yearly);
   });
 
@@ -302,11 +392,14 @@ function owned(addon: AddonDef, patch: Partial<AppAddon> = {}): AppAddon {
 }
 
 describe("133 add-ons", () => {
-  it("come with the publishing service, off and unpriced until the owner prices it", () => {
+  it("come with the publishing service at suggested prices, not offered until the owner switches it on", () => {
     const publishing = addonsOf(null).find((a) => a.id === PUBLISHING_ADDON_ID)!;
     expect(publishing).toMatchObject({ kind: "service", feature: "auto_publish", active: false, rule: { belowTop: true } });
-    expect(addonBillings(publishing)).toEqual([]);
-    expect(Object.values(publishing.prices).every((p) => p?.egpCents === null)).toBe(true);
+    expect(addonBillings(publishing)).toEqual([
+      { billing: "1", price: { egpCents: 50000, usdCents: 1200 } },
+      { billing: "12", price: { egpCents: 500000, usdCents: 12000 } },
+      { billing: "lifetime", price: { egpCents: 1250000, usdCents: 30000 } },
+    ]);
     expect(addonText(publishing, "ar").name).toBe(BUILT_IN_ADDONS[0]!.ar!.name);
     // The team's edit replaces it.
     expect(addonsOf({ addons: [{ ...publishing, active: true }] }).find((a) => a.id === PUBLISHING_ADDON_ID)?.active).toBe(true);

@@ -4,7 +4,10 @@
  * UTF-8, with or without its byte order mark), or a feed: a product feed in
  * RSS or Atom (Google Merchant Center's, which most shop platforms make, with
  * its `g:` fields), or a link to a CSV (a Google Sheet published as CSV).
+ * Wix's product export is a CSV too (lib/import/wix.ts).
  */
+
+import { isWixExport } from "./wix";
 
 export interface Table {
   /** The header row, as written. */
@@ -14,6 +17,8 @@ export interface Table {
 
 export const IMPORT_MAX_BYTES = 2 * 1024 * 1024;
 export const IMPORT_MAX_ROWS = 500;
+/** A Wix export takes several lines per product (its variants and pictures): its products are counted against IMPORT_MAX_ROWS instead (lib/import/wix.ts). */
+export const IMPORT_MAX_LINES = 5000;
 
 export class ImportFormatError extends Error {
   constructor(
@@ -66,7 +71,7 @@ export function parseCsv(input: string): Table {
       records.push(record);
       record = [];
       field = "";
-      if (records.length > IMPORT_MAX_ROWS + 1) throw new ImportFormatError("too_many_rows", `Import at most ${IMPORT_MAX_ROWS} rows at a time.`);
+      if (records.length > IMPORT_MAX_LINES + 1) throw new ImportFormatError("too_many_rows", `Import at most ${IMPORT_MAX_ROWS} rows at a time.`);
     } else field += char;
   }
   if (field !== "" || record.length) {
@@ -76,7 +81,8 @@ export function parseCsv(input: string): Table {
   const filled = records.filter((r) => r.some((cell) => cell.trim() !== ""));
   const [header, ...rows] = filled;
   if (!header || header.length < 2) throw new ImportFormatError("not_a_table", "This isn't a table with a header row. Save your spreadsheet as CSV, with the column names in the first row.");
-  if (rows.length > IMPORT_MAX_ROWS) throw new ImportFormatError("too_many_rows", `Import at most ${IMPORT_MAX_ROWS} rows at a time.`);
+  // A Wix export's products are counted once grouped (lib/import/plan.ts).
+  if (rows.length > IMPORT_MAX_ROWS && !isWixExport(header)) throw new ImportFormatError("too_many_rows", `Import at most ${IMPORT_MAX_ROWS} rows at a time.`);
   return { columns: header.map((c) => c.trim()), rows: rows.map((r) => header.map((_, i) => (r[i] ?? "").trim())) };
 }
 

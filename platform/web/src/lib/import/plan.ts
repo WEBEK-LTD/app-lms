@@ -2,7 +2,9 @@ import { parseService } from "../bookings/forms";
 import { readProductNumbers } from "../catalog/product-fields";
 import { parseCourse } from "../courses/forms";
 import { DEFAULT_BOOKING_SETUP, DEFAULT_COURSE_SETUP } from "../data/types";
-import type { Table } from "./table";
+import { centsToDecimal } from "../catalog/money";
+import { IMPORT_MAX_ROWS, ImportFormatError, type Table } from "./table";
+import { isWixExport, readWix, wixDescriptionHtml, type WixProduct, type WixSummary } from "./wix";
 
 /**
  * 81.4 Import: a table (lib/import/table.ts) read as products (a shop's, or
@@ -81,6 +83,8 @@ export interface ImportItem {
   values: Partial<Record<ImportField, string>>;
   /** What's wrong, in the form's words; empty when it can be imported. */
   errors: string[];
+  /** A Wix export's product, as it comes in (its variations, options, pictures and categories). */
+  wix?: WixProduct;
 }
 
 export interface ImportPlan {
@@ -90,6 +94,8 @@ export interface ImportPlan {
   /** Required fields no column was found for: nothing can be imported. */
   missing: ImportField[];
   items: ImportItem[];
+  /** Wix's product export: what it holds, and what can't be kept. */
+  wix?: WixSummary;
 }
 
 const NO = /^(no|false|0|hidden|draft|inactive|archived|hayır|hayir|pasif|taslak|yok|لا|مخفي|غير منشور|مسودة)$/i;
@@ -159,8 +165,31 @@ function checkRow(kind: ImportKind, v: Partial<Record<ImportField, string>>, cur
   return parsed.ok ? [] : Object.values(parsed.errors);
 }
 
+/** Wix's product export, one item per product (its variants and pictures are its own lines). */
+function planWix(table: Table, currency?: string | null): ImportPlan {
+  const { products, summary } = readWix(table, currency);
+  if (products.length > IMPORT_MAX_ROWS) throw new ImportFormatError("too_many_rows", `Import at most ${IMPORT_MAX_ROWS} products at a time.`);
+  const items: ImportItem[] = products.map((p) => {
+    const values: Partial<Record<ImportField, string>> = {
+      name: plainText(p.name),
+      description: plainText(wixDescriptionHtml(p.descriptionHtml)).slice(0, 5000),
+      price: p.priceCents !== null ? centsToDecimal(p.priceCents) : "",
+      ...(p.salePriceCents !== null ? { salePrice: centsToDecimal(p.salePriceCents) } : {}),
+      ...(p.categories.length ? { category: p.categories.join(", ") } : {}),
+      ...(p.sku ? { sku: p.sku } : {}),
+      ...(p.stock !== null ? { stock: String(p.stock) } : {}),
+      ...(p.pictures[0] ? { image: p.pictures[0].url } : {}),
+      active: p.active ? "yes" : "no",
+    };
+    return { row: p.row, name: values.name!, values, errors: [...checkRow("products", values, currency), ...p.errors], wix: p };
+  });
+  return { kind: "products", columns: [], missing: [], items, wix: summary };
+}
+
 /** 135.2 `currency`: the shop's, for its prices' digits (1.250 KWD). */
 export function planImport(kind: ImportKind, table: Table, currency?: string | null): ImportPlan {
+  // Wix's own export, for a shop of Yallapp's own products (no connection to the Wix site needed).
+  if (kind === "products" && isWixExport(table.columns)) return planWix(table, currency);
   const map = mapColumns(kind, table.columns);
   const missing = REQUIRED[kind].filter((f) => map[f] === undefined);
   const columns = KIND_FIELDS[kind].filter((f) => map[f] !== undefined).map((field) => ({ field, column: table.columns[map[field]!]! }));

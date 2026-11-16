@@ -14,6 +14,7 @@ import { importKindOf } from "@/lib/import/kinds";
 import { planImport, type ImportField, type ImportKind, type ImportPlan } from "@/lib/import/plan";
 import { ImportSourceError, readImportUrl } from "@/lib/import/source";
 import { IMPORT_MAX_BYTES, ImportFormatError, parseImport, type Table } from "@/lib/import/table";
+import type { WixSummary } from "@/lib/import/wix";
 import { hitRateLimit, RATE_LIMITS } from "@/lib/rate-limit";
 import { fetchSiteImage } from "@/lib/scan/site-scan";
 import { siteScanDeps } from "@/lib/scan/start";
@@ -45,8 +46,10 @@ export interface ImportPreview {
   missing: ImportField[];
   total: number;
   ready: number;
-  /** The first rows, as they'd be imported. */
-  sample: { row: number; name: string; price: string | null; category: string | null; picture: boolean }[];
+  /** The first rows, as they'd be imported (a Wix product's variations and pictures). */
+  sample: { row: number; name: string; price: string | null; category: string | null; picture: boolean; variants?: number; pictures?: number }[];
+  /** Wix's own product export: its products, variations and pictures, and what can't be kept. */
+  wix?: WixSummary;
   /** Rows that can't be imported, with why (the first 20). */
   problems: { row: number; name: string; errors: string[] }[];
 }
@@ -54,7 +57,7 @@ export interface ImportPreview {
 export type ImportState =
   | { step: "start"; error?: string }
   | { step: "checked"; preview: ImportPreview }
-  | { step: "done"; report: ImportReport; kind: ImportKind };
+  | { step: "done"; report: ImportReport; kind: ImportKind; wix?: boolean };
 
 async function readSource(formData: FormData): Promise<Table> {
   const file = formData.get("file");
@@ -100,7 +103,15 @@ async function checkImport(context: ClientContext & { app: App; kind: ImportKind
       missing: plan.missing,
       total: plan.items.length,
       ready: ok.length,
-      sample: ok.slice(0, 8).map((i) => ({ row: i.row, name: i.name, price: i.values.price || null, category: i.values.category || null, picture: Boolean(i.values.image) })),
+      sample: ok.slice(0, 8).map((i) => ({
+        row: i.row,
+        name: i.name,
+        price: i.values.price || null,
+        category: i.values.category || null,
+        picture: Boolean(i.values.image),
+        ...(i.wix ? { variants: i.wix.variants?.items.length ?? 0, pictures: i.wix.pictures.length } : {}),
+      })),
+      ...(plan.wix ? { wix: plan.wix } : {}),
       problems: plan.items
         .filter((i) => i.errors.length)
         .slice(0, 20)
@@ -131,5 +142,5 @@ async function runImport(context: ClientContext & { app: App; kind: ImportKind }
   revalidatePath("/dashboard/catalog", "layout");
   revalidatePath("/dashboard/services");
   revalidatePath("/dashboard/courses", "layout");
-  return { step: "done", report, kind: context.kind };
+  return { step: "done", report, kind: context.kind, ...(planned.plan.wix ? { wix: true } : {}) };
 }

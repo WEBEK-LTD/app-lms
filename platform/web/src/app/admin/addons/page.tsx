@@ -52,6 +52,9 @@ export default async function AddonsAdminPage({ searchParams }: PageProps<"/admi
     platformSetting(store, "planExtras", { fresh: true }),
   ]);
   const addons = addonsOf(setting?.value);
+  // 133 A built-in add-on the team hasn't saved yet: its prices are Yallapp's suggestions.
+  const savedIds = new Set((Array.isArray(setting?.value?.addons) ? setting.value.addons : []).map((a) => (a && typeof a === "object" ? a.id : null)));
+  const suggested = (a: AddonDef) => isBuiltInAddon(a.id) && !savedIds.has(a.id);
   const editing = typeof query.addon === "string" ? (query.addon === "new" ? "new" : (addons.find((a) => a.id === query.addon) ?? null)) : null;
   const shownPlans = [...plansInOrder(plansShown("regular", editsSetting?.value), plans), ...plansInOrder(plansShown("studio", editsSetting?.value), plans)];
   const limitDefs = cleanLimitDefs(extras?.value);
@@ -148,7 +151,7 @@ export default async function AddonsAdminPage({ searchParams }: PageProps<"/admi
               </div>
               <AddonForm
                 key={editing === "new" ? "new" : editing.id}
-                addon={formValues(editing === "new" ? null : editing)}
+                addon={formValues(editing === "new" ? null : editing, editing !== "new" && suggested(editing))}
                 iconNames={ICON_NAMES}
                 limits={[...BUILT_IN_ADDON_LIMITS.map((id) => ({ id, label: LIMIT_LABEL[id] })), ...limitDefs.map((d) => ({ id: `x:${d.id}`, label: `${d.name} (your own limit)` }))]}
                 features={PLAN_FEATURES.map((f) => ({ id: f.id, label: f.label }))}
@@ -198,7 +201,7 @@ export default async function AddonsAdminPage({ searchParams }: PageProps<"/admi
                           </Link>
                         </td>
                         <td className="px-4 py-3">{effectOf(a, limitDefs)}</td>
-                        <td className="px-4 py-3">{pricesOf(a)}</td>
+                        <td className="px-4 py-3">{pricesOf(a, suggested(a))}</td>
                         <td className="px-4 py-3">{ruleOf(a, plans)}</td>
                         <td className="px-4 py-3">{a.active ? "Yes" : "No"}</td>
                       </tr>
@@ -223,13 +226,13 @@ function effectOf(a: AddonDef, defs: { id: string; name: string }[]): string {
   return feature ? `${KIND_LABEL[a.kind]} · ${feature}` : KIND_LABEL[a.kind];
 }
 
-function pricesOf(a: AddonDef): string {
+function pricesOf(a: AddonDef, suggested: boolean): string {
   const list = ADDON_BILLINGS.flatMap((b) => {
     const p = a.prices[b];
     if (!p?.on) return [];
     return [`${billingLabel(b)}: ${p.egpCents ? formatMoney({ cents: p.egpCents, currency: "EGP" }) : "no price yet"}`];
   });
-  return list.length ? list.join(" · ") : "Not priced";
+  return list.length ? `${list.join(" · ")}${suggested ? " (suggested prices)" : ""}` : "Not priced";
 }
 
 function ruleOf(a: AddonDef, plans: Awaited<ReturnType<typeof getPlans>>): string {
@@ -240,7 +243,7 @@ function ruleOf(a: AddonDef, plans: Awaited<ReturnType<typeof getPlans>>): strin
   return parts.join(", ");
 }
 
-function formValues(a: AddonDef | null): AddonFormValues {
+function formValues(a: AddonDef | null, suggestedPrices = false): AddonFormValues {
   return {
     original: a?.id ?? "",
     id: a?.id ?? "",
@@ -261,6 +264,7 @@ function formValues(a: AddonDef | null): AddonFormValues {
     repeatable: a?.repeatable ?? false,
     active: a?.active ?? false,
     order: a ? String(a.order) : "",
+    suggestedPrices,
     prices: Object.fromEntries(ADDON_BILLINGS.map((b) => [b, { on: a?.prices[b]?.on ?? false, egp: a?.prices[b]?.egpCents ? centsToDecimal(a.prices[b]!.egpCents!) : "", usd: a?.prices[b]?.usdCents ? centsToDecimal(a.prices[b]!.usdCents!) : "" }])),
   };
 }
