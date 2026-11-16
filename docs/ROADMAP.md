@@ -3360,3 +3360,28 @@ The owner (14 November) asked for a premium flower shop in Studio, with its demo
 | [x] | 131.57 A Studio store project's menu has Delivery & offers and Card messages next to Products and Orders, as the dashboard's has (another kind's doesn't) | `studio-setup.spec.ts` |
 | [x] | 131.58 An app on its own API: Delivery & offers and Card messages say that its API serves these, the card messages too (`GET /store/gift-messages`), and that what is set here doesn't reach the app, with a link to the Store endpoints in the developer docs; the other sources' notices checked | `dashboard-i18n.test.ts` |
 | [x] | 131.59 Plugin 0.4.45: the WordPress settings say that the app runs one flash sale at a time there | `composer lint` |
+
+## Phase 132: Studio dashboard fixes
+
+The owner (16 November) asked for every problem in the Studio dashboard to be found and fixed, the ones not named too, and for Studio to be premium, easy and uncomplicated. Several developers share the phase; 132.50–132.99 are the audit of the Studio and regular dashboards (in English, Arabic and Turkish, light and dark, at 1440 and 390 pixels) and its fixes.
+
+| Status | Item | Tests |
+|---|---|---|
+| [x] | 132.50 Counts read as numbers: the dashboard's formatter never fills `#` in a plural, so "# pages" (Studio's overview), "# invoices", "# campaigns", "# updates", "# add-ons" and the owner's phones showed a hash; the 21 messages use `{count}` in the three languages. Your account and Team open in Studio's own frame (`/studio/account`, `/studio/team`: the way back to the project, the two as tabs) while a Studio project is open, the dashboard's addresses and links going there, instead of the regular dashboard's menu around a Studio project | `studio-polish-132.test.ts`, `studio-polish.spec.ts` |
+| [x] | 132.51 Studio's account menu on the dark bar (home, project, account pages): the name and email, the dashboard's language, Your account, Team (for those allowed), the regular apps, help and signing out; across the screen under its button on phones | `studio-polish.spec.ts` |
+| [x] | 132.52 The editor's bar on one line at 1280 pixels and wider in the three languages (Publish no longer alone on a second line): tighter gaps below 1366, Help as its icon below 1536, Preview as its icon below 1440, their names kept for screen readers | `studio-polish.spec.ts` |
+| [x] | 132.53 Ctrl+S (⌘S) in the editor saves the draft at once, in a field too, or says "Everything is saved", instead of the browser's "Save page as"; listed in Shortcuts | `studio-polish.spec.ts` |
+| [x] | 132.54 A publish that didn't reach the server says so on the bar, whatever the draft's state | `eslint` |
+| [x] | 132.55 Deleting one of My templates or a kept whole design asks first (neither can be brought back) and says when it didn't go | `eslint` |
+| [x] | 132.56 The editor's search says what it looks through on each tab (elements, ready sections, templates, pictures), and Ready sections and Templates say when nothing matches | `studio-polish.spec.ts` |
+| [x] | 132.57 The editor's heading for screen readers ("Editor · <project>") | `studio-polish.spec.ts` |
+| [x] | 132.58 A countdown on Studio's phones (the flash sale, the countdown element) no longer breaks hydration on `/studio` and the overview: the second can tick between the server's drawing and the browser's | `studio-polish.spec.ts` |
+| [x] | 132.59 A project with no plan yet: Notifications says it isn't activated yet (not that its plan ended) and links to its plan; Notifications, Builds, More stores, Chat and In-app purchases offer Studio's plans to a Studio project, never the regular Starter | `studio-polish.spec.ts` |
+| [x] | 132.60 Studio's "Preview on the phone" and "Try it on your phone" open the draft until the project's first publish (what was designed in the editor), Published a tap away (`?pages=published`) | `studio-polish.spec.ts` |
+| [x] | 132.61 "Open on my phone" in the editor: the QR code of the app's preview with the saved draft, the same one-hour link as the Preview page | `studio-polish.spec.ts` |
+| [x] | 132.62 The overview's "Before you publish": the owner's own products, courses, menu… (the demo's samples don't count) for projects whose content is kept in Yallapp, and publishing the design from the editor | `studio-polish.spec.ts` |
+| [x] | 132.63 Analytics of an app with no plan yet says what it keeps until it has one, not "Your Starter plan"; what it keeps is unchanged | `studio-polish.spec.ts` |
+| [x] | 132.64 The overview's numbers in Latin digits in Arabic, as everywhere in the dashboard | `studio-polish.spec.ts` |
+| [x] | 132.65 The Studio-only kinds in Arabic (Egyptian) and Turkish: their names and descriptions, the setup's content choice and its next step (the page names kept bold), the store listing's description and rating example, card payments, their plan features on the regular overview, and School settings, Travel settings, People and Hotels in their menus | `studio-polish-132.test.ts`, `dashboard-i18n.test.ts` |
+| [x] | 132.66 Languages hydrates in Arabic and Turkish: the languages to add are named the same on the server and in the browser until the page is live (Node's and Chrome's language names differ), then in the dashboard's language and sorted | `studio-polish.spec.ts` |
+| [x] | 132.67 Languages: translations typed and not saved ask before the page is left (a menu link, reload, closing the tab) | `studio-polish.spec.ts` |
