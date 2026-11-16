@@ -1,7 +1,7 @@
 "use server";
 
 import { redirect } from "next/navigation";
-import { clientFor, requestIp } from "@/lib/auth/session";
+import { clientFor, requestIp, TEAM_CANT_PAY } from "@/lib/auth/session";
 import { cardPlans, readBilling, startPlanPayment, activateWithFreeCoupon } from "@/lib/billing/plan-payment";
 import { COUPON_CHECK_LIMIT, CouponUsedUpError, findCoupon, type CouponCheck } from "@/lib/billing/coupons";
 import { sendPlanPaidMail } from "@/lib/billing/plan-mail";
@@ -20,8 +20,9 @@ import { featureOn, getSwitches } from "@/lib/switches";
 import { revalidatePath } from "next/cache";
 import { recordStaffChange } from "@/lib/admin/audit";
 import { licensePath } from "@/lib/studio/section";
-import { cancelScheduledPlan, scheduleDowngrade } from "@/lib/billing/plan-change";
-import { isPlan, planFitsSection, planOffered, planPriceOf } from "@/lib/plans";
+import { cancelScheduledPlan, currentPlanId, lifetimeLocked, scheduleDowngrade } from "@/lib/billing/plan-change";
+import { isPeriodKey, paymentMonthsOf } from "@/lib/billing/periods";
+import { isPlan, planFitsSection, planPayableFor, planPeriodOr, planPeriods, planPriceOf } from "@/lib/plans";
 
 /**
  * The client pays the current app's plan by card: off to the provider's payment
@@ -31,9 +32,11 @@ import { isPlan, planFitsSection, planOffered, planPriceOf } from "@/lib/plans";
 export async function payPlanAction(_: FormState, formData: FormData): Promise<FormState> {
   const context = await clientFor("billing");
   if (!context) redirect("/sign-in");
+  // 132.110 Our team in a client's account doesn't pay in the client's name: the admin activates or records a transfer.
+  if (context.staff) return { message: TEAM_CANT_PAY };
   if (context.client.status === "suspended") return { message: "This account is suspended. Message us on WhatsApp." };
   const values: Record<string, string> = {};
-  for (const name of ["plan", "city", "address", "coupon", "renewStorage", "showOnSite"]) values[name] = String(formData.get(name) ?? "").trim();
+  for (const name of ["plan", "period", "city", "address", "coupon", "renewStorage", "showOnSite"]) values[name] = String(formData.get(name) ?? "").trim();
   // The form names the app it was shown for: never pay for another app because the switcher changed in another tab.
   if (String(formData.get("appId") ?? "") !== (context.app?.id ?? "")) {
     return { message: "You switched to another app in the meantime. Reload the page and check which app you're paying for.", values };
@@ -41,10 +44,17 @@ export async function payPlanAction(_: FormState, formData: FormData): Promise<F
   const store = await getStore();
   const plans = await getPlans(store);
   const plan = isPlan(values.plan) ? plans[values.plan] : null;
-  const price = plan ? planPriceOf(plan) : null;
-  if (!plan || !price) return { errors: { plan: "Choose a plan." }, values };
-  // 103R A Studio project is paid on a Studio plan the team offers, a regular app on a regular plan.
-  if (!planFitsSection(plan.id, context.app?.section) || !planOffered(plan)) return { errors: { plan: "Choose a plan." }, values };
+  // 133 The period the client chose, one the plan offers (its main one when none was sent).
+  if (values.period && !isPeriodKey(values.period)) return { errors: { plan: "Choose how long you pay for." }, values };
+  const period = plan ? (isPeriodKey(values.period) ? values.period : planPeriodOr(plan, null)) : null;
+  const price = plan && period ? planPriceOf(plan, period) : null;
+  if (!plan || !period) return { errors: { plan: "Choose a plan." }, values };
+  if (!price) return { errors: { plan: "Choose how long you pay for." }, values };
+  // 133 A lifetime plan is changed by the team.
+  if (lifetimeLocked(context.license)) return { message: "Your plan is for life. Message us on WhatsApp to change it.", values };
+  // 103R A Studio project is paid on a Studio plan the team offers, a regular app on a regular plan; 133 an archived plan only by the apps on it.
+  const current = context.license ? currentPlanId(context.license, new Date()) : null;
+  if (!planFitsSection(plan.id, context.app?.section) || !planPayableFor(plan, current)) return { errors: { plan: "Choose a plan." }, values };
   // 11.5 Switches: card payments can be switched off, for everyone or per plan.
   if (!featureOn(await getSwitches(store), "plan_card_payments", plan.id)) {
     return { message: "Card payments aren't available for this plan. Message us on WhatsApp to pay.", values };
@@ -67,17 +77,18 @@ export async function payPlanAction(_: FormState, formData: FormData): Promise<F
   // The price comes from the plan and the coupon here, never from the browser.
   let coupon: Extract<CouponCheck, { ok: true }> | undefined;
   if (values.coupon) {
-    const check = await findCoupon(store, { code: values.coupon, plan, charged: offer.charged, client: context.client, license: context.license, now });
+    const check = await findCoupon(store, { code: values.coupon, plan, months: paymentMonthsOf(period), charged: offer.charged, client: context.client, license: context.license, now });
     if (!check.ok) return { errors: { coupon: check.error }, values };
     coupon = check;
   }
   // 51 The app's storage packs renewed with the plan, when the owner left them ticked: for the plan's months, charged with it.
+  // 133 Not with a lifetime payment: a pack runs month by month.
   const storagePacks =
-    values.renewStorage === "on" && context.app
+    values.renewStorage === "on" && context.app && period !== "lifetime"
       ? renewablePacks(await store.listStoragePacks(context.app.id), packOffers((await platformSetting(store, "storagePacks", { fresh: true }))?.value), {
           provider: account.provider,
           view,
-          months: plan.billingMonths,
+          months: paymentMonthsOf(period),
           now,
         })
       : null;
@@ -90,6 +101,7 @@ export async function payPlanAction(_: FormState, formData: FormData): Promise<F
         client: context.client,
         app: context.app,
         plan,
+        period,
         coupon,
         charged: offer.charged,
         encryptionKey: encryptionKey(),
@@ -116,6 +128,7 @@ export async function payPlanAction(_: FormState, formData: FormData): Promise<F
       app: context.app,
       user: context.user,
       plan,
+      period,
       billing: billing.billing,
       ip: await requestIp(),
       callbackUrls: (token) => callbackUrls(appUrl(), "plan", account.provider, token),
@@ -138,7 +151,7 @@ export interface CouponState {
   error?: string;
   /** "20% off" and the price per plan with the coupon. */
   message?: string;
-  /** 52 In the client's currency; `charge`: the line about the charge in pounds, when the price shows in dollars. */
+  /** 52 In the client's currency; `charge`: the line about the charge in pounds, when the price shows in dollars. 133 By "plan:period". */
   prices?: Record<string, { price: string; was: string; free: boolean; charge: string | null }>;
 }
 
@@ -156,22 +169,26 @@ export async function checkCouponAction(_: CouponState, formData: FormData): Pro
   // 52 The prices as the form shows them: the client's currency, lowered from the charge in pounds.
   const [{ planProvider }, view] = await Promise.all([yallappBilling(store, { fresh: true }), priceView(store, context.client, { fresh: true })]);
   // 103R The plans of the app's family the clients may see (a regular app's before the first app).
-  const plans = cardPlans(await getPlans(store), planProvider, view.egpPerUsd).filter((p) => planFitsSection(p.id, context.app?.section) && planOffered(p));
+  const current = context.license ? currentPlanId(context.license, now) : null;
+  const plans = cardPlans(await getPlans(store), planProvider, view.egpPerUsd).filter((p) => planFitsSection(p.id, context.app?.section) && planPayableFor(p, current));
   const prices: NonNullable<CouponState["prices"]> = {};
   let firstError: string | undefined;
+  // 133 Each period of each plan.
   for (const plan of plans) {
-    const offer = offerFor(planPriceOf(plan)!, view.display, planProvider, view.egpPerUsd);
-    if (!offer) continue;
-    const check = await findCoupon(store, { code, plan, charged: offer.charged, client: context.client, license: context.license, now });
-    if (!check.ok) {
-      firstError ??= check.error;
-      continue;
+    for (const { key, price } of planPeriods(plan)) {
+      const offer = offerFor(price, view.display, planProvider, view.egpPerUsd);
+      if (!offer) continue;
+      const check = await findCoupon(store, { code, plan, months: paymentMonthsOf(key), charged: offer.charged, client: context.client, license: context.license, now });
+      if (!check.ok) {
+        firstError ??= check.error;
+        continue;
+      }
+      const lowered = loweredOffer(offer, check.amountCents);
+      prices[`${plan.id}:${key}`] = { price: formatMoney(lowered.shown), was: formatMoney(offer.shown), free: check.amountCents === 0, charge: lowered.line };
     }
-    const lowered = loweredOffer(offer, check.amountCents);
-    prices[plan.id] = { price: formatMoney(lowered.shown), was: formatMoney(offer.shown), free: check.amountCents === 0, charge: lowered.line };
   }
   if (!Object.keys(prices).length) return { error: firstError ?? "This coupon code isn't valid." };
-  const applies = plans.filter((p) => prices[p.id]).map((p) => p.name);
+  const applies = plans.filter((p) => Object.keys(prices).some((k) => k.startsWith(`${p.id}:`))).map((p) => p.name);
   return {
     code: code.toUpperCase(),
     prices,

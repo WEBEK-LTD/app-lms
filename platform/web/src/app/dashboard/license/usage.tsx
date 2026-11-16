@@ -10,6 +10,8 @@ const LABEL: Record<UsageRow["key"], DashKey> = {
   app_users: "license.usageAppUsers",
   languages: "license.usageLanguages",
   storage: "license.usageStorage",
+  // 133
+  pages: "license.usagePages",
 };
 
 export interface AccountAppRow {

@@ -2,7 +2,8 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { Icon } from "@/components/icon";
 import { Badge, EmptyState, Notice, PageHeader, Section, btn } from "@/components/ui";
-import { ItemRow, PageGroup, Stat, StatRow, Thumb } from "@/components/page-kit";
+import { ItemRow, Stat, StatRow, Thumb } from "@/components/page-kit";
+import { PageTabs, TabPanel } from "@/components/page-tabs";
 import { FilterList } from "@/components/page-kit-client";
 import { assetUrl } from "@/lib/assets";
 import { requireClient } from "@/lib/auth/session";
@@ -21,7 +22,7 @@ export async function generateMetadata(): Promise<Metadata> {
 }
 
 /** The properties of a Real estate app, and the office's settings. */
-export default async function ListingsPage({ searchParams }: { searchParams: Promise<{ saved?: string } & SampleQuery> }) {
+export default async function ListingsPage({ searchParams }: { searchParams: Promise<{ saved?: string; tab?: string } & SampleQuery> }) {
   const { app } = await requireClient("catalog");
   const { t } = await dashboardText();
   if (!app || app.connector?.kind !== "listings") {
@@ -77,6 +78,16 @@ export default async function ListingsPage({ searchParams }: { searchParams: Pro
         </StatRow>
       ) : null}
 
+      {/* 132.23 The listings and the office's settings, each in a tab. */}
+      <PageTabs
+        label={t("listings.title")}
+        initial={query.tab === "office" ? "office" : "listings"}
+        tabs={[
+          { id: "listings", label: t("listings.title"), icon: "home_work", count: all.length },
+          { id: "office", label: t("listings.office"), icon: "apartment" },
+        ]}
+      >
+      <TabPanel tab="listings">
       <Section titleId="h-listings" title={t("listings.count", { count: all.length })} flush>
         {has ? (
           <FilterList
@@ -125,8 +136,9 @@ export default async function ListingsPage({ searchParams }: { searchParams: Pro
           </div>
         )}
       </Section>
+      </TabPanel>
 
-      <PageGroup title={t("listings.groupSettings")}>
+      <TabPanel tab="office">
         <Section titleId="h-office" title={t("listings.office")} description={t("listings.officeIntro")}>
           <OfficeForm
             office={{
@@ -142,7 +154,8 @@ export default async function ListingsPage({ searchParams }: { searchParams: Pro
             units={AREA_UNITS.map((u) => ({ key: u.key, label: t(`listings.units.${u.key}`) }))}
           />
         </Section>
-      </PageGroup>
+      </TabPanel>
+      </PageTabs>
     </div>
   );
 }

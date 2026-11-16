@@ -10,7 +10,7 @@ describe("admin roles", () => {
   const MATRIX: Record<AdminRole, AdminPermission[]> = {
     owner: [...ADMIN_PERMISSIONS],
     admin: ADMIN_PERMISSIONS.filter((p) => p !== "team.manage"),
-    support: ["view", "clients.license", "clients.edit", "clients.email", "builds.manage", "publishing.manage", "bot.edit", "market.review"],
+    support: ["view", "clients.license", "clients.edit", "clients.email", "builds.manage", "publishing.manage", "bot.edit", "market.review", "addons.tasks"],
     viewer: ["view"],
   };
 
@@ -22,7 +22,7 @@ describe("admin roles", () => {
 
   it("support can activate clients but can't touch prices, payments, settings or releases", () => {
     expect(can("support", "clients.license")).toBe(true);
-    for (const p of ["plans.edit", "payments.manage", "settings.edit", "releases.manage", "switches.edit", "team.manage", "clients.suspend"] as const) {
+    for (const p of ["plans.edit", "addons.edit", "payments.manage", "settings.edit", "releases.manage", "switches.edit", "team.manage", "clients.suspend"] as const) {
       expect(can("support", p)).toBe(false);
     }
   });

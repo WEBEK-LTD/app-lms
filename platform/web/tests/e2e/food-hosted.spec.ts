@@ -86,6 +86,8 @@ test("Delivery settings: not on the plan yet, one price, the cuisines, no parcel
   await expect(own.getByText("Food delivery isn't included in this app's plan yet")).toBeVisible();
   await expect(own.getByRole("heading", { name: "Services" })).toHaveCount(0);
   await own.getByLabel("Price (EGP)", { exact: true }).fill("30");
+  // 132.20 A food company's orders have their own tab.
+  await own.getByRole("tab", { name: "Food orders" }).click();
   await own.getByLabel("Cuisines").fill("Koshari\nGrill");
   await own.getByRole("radio", { name: "When the food is ready" }).check();
   await own.getByRole("button", { name: "Save settings" }).click();
@@ -108,12 +110,16 @@ test("Restaurants: one added with its hours, a section, a dish with choices and 
   await expect(own).toHaveURL(/\/studio\/project\/restaurants\/\d+\?added=1$/);
   await expect(own.getByText("Added. Now set its opening hours")).toBeVisible();
   await expect(own.getByText("No opening hours yet")).toBeVisible();
+  // 132.17 A new restaurant opens on its Opening hours tab; its menu, details and staff have their own.
+  await expect(own.getByRole("tab", { name: "Opening hours" })).toHaveAttribute("aria-selected", "true");
 
   await own.getByLabel("Monday Opens").first().fill("10:00");
   await own.getByLabel("Monday Closes").first().fill("23:30");
   await own.getByRole("button", { name: "Save hours" }).click();
   await expect(own.getByText("Saved.").first()).toBeVisible();
 
+  await own.getByRole("tab", { name: /^Menu/ }).click();
+  await expect(own).toHaveURL(/tab=menu/);
   const menu = own.getByRole("region", { name: "Menu" });
   await menu.getByPlaceholder("Mains, Sandwiches, Drinks").last().fill("Mains");
   await menu.getByRole("button", { name: "Add", exact: true }).last().click();
@@ -129,9 +135,15 @@ test("Restaurants: one added with its hours, a section, a dish with choices and 
   await expect(menu.getByText("Edit Koshari")).toBeVisible();
   await own.reload();
   await expect(menu.getByText("E£50.00 · Size")).toBeVisible();
+  // Each dish is changed in a sheet from the side.
+  await menu.getByRole("button", { name: "Edit Koshari" }).click();
+  const sheet = own.getByRole("dialog", { name: "Koshari" });
+  await expect(sheet.getByLabel("Dish name")).toHaveValue("Koshari");
+  await sheet.getByRole("button", { name: "Close" }).click();
   await menu.getByRole("button", { name: "Sold out", exact: true }).click();
   await expect(own.getByRole("button", { name: "Available again" })).toBeVisible();
 
+  await own.getByRole("tab", { name: /^Staff/ }).click();
   const staff = own.getByRole("region", { name: "Staff" });
   await staff.getByLabel("Mobile number").fill("+20 111 222 3335");
   await staff.getByLabel("Name", { exact: true }).fill("Chef Ali");

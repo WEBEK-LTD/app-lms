@@ -133,14 +133,14 @@ export function Inspector(props: Props) {
   const title = props.tabsSelected ? t("studio.tabBar") : props.headerSelected ? t("studio.header") : node ? (node.name ?? elementLabel(t, node.type, source)) : t("studio.pageBackground");
   const icon = props.tabsSelected ? "tab" : props.headerSelected ? "web_asset" : node ? "smart_button" : "description";
   return (
-    <aside aria-label={t("studio.design")} className="flex min-h-0 flex-col bg-white text-[13px]" style={{ flex: "1 1 300px", maxWidth: 330, minWidth: 260, borderInlineStart: "1px solid var(--studio-line)" }}>
-      <div className="flex items-center gap-2 px-4 py-3.5" style={{ borderBottom: "1px solid var(--studio-line)" }}>
+    <aside aria-label={t("studio.design")} className="flex min-h-0 flex-col bg-white text-[13px]" style={{ flex: "1 1 300px", maxWidth: 330, minWidth: 260, borderInlineStart: "1px solid var(--sf-line)" }}>
+      <div className="flex items-center gap-2 px-4 py-3.5" style={{ borderBottom: "1px solid var(--sf-line)" }}>
         <span style={{ color: "#3D63FF" }}>
           <Glyph name={icon} />
         </span>
         <div className="min-w-0 flex-1">
           <div className="truncate text-[15px] font-extrabold">{node && (node.type === "button" || node.type === "text") && !node.name ? `${elementLabel(t, node.type, source)} «${node.text ?? ""}»` : title}</div>
-          <div className="text-xs" style={{ color: "var(--studio-muted)" }}>
+          <div className="text-xs" style={{ color: "var(--sf-muted)" }}>
             {node ? t("studio.inside", { parent: props.parentLabel }) : null}
           </div>
         </div>
@@ -173,7 +173,7 @@ export function Inspector(props: Props) {
                 aria-selected={props.tab === tab}
                 onClick={() => props.onTab(tab)}
                 className="h-[34px] flex-1 border-0 bg-transparent text-[13px]"
-                style={{ borderBottom: `2px solid ${props.tab === tab ? "var(--studio-ink)" : "transparent"}`, fontWeight: props.tab === tab ? 700 : 400, color: props.tab === tab ? "var(--studio-ink)" : "var(--studio-muted)" }}
+                style={{ borderBottom: `2px solid ${props.tab === tab ? "var(--sf-ink)" : "transparent"}`, fontWeight: props.tab === tab ? 700 : 400, color: props.tab === tab ? "var(--sf-ink)" : "var(--sf-muted)" }}
               >
                 {t(`studio.${tab}` as DashKey)}
               </button>
@@ -199,17 +199,17 @@ function Tools(props: Props & { node: StudioNode }) {
   const place = root ? null : placeOf(props.page.body, node.id);
   const siblings = place?.parent.children?.length ?? 0;
   const text = (label: string, onClick: () => void, disabled = false) => (
-    <button type="button" onClick={onClick} disabled={disabled} className="rounded-md bg-white px-2 py-0.5 disabled:opacity-40" style={{ border: "1px solid var(--studio-line)" }}>
+    <button type="button" onClick={onClick} disabled={disabled} className="rounded-md bg-white px-2 py-0.5 disabled:opacity-40" style={{ border: "1px solid var(--sf-line)" }}>
       {label}
     </button>
   );
   const glyph = (name: string, label: string, onClick: () => void, disabled = false) => (
-    <button type="button" aria-label={label} title={label} onClick={onClick} disabled={disabled} className="flex h-7 w-7 items-center justify-center rounded-md bg-white disabled:opacity-40" style={{ border: "1px solid var(--studio-line)" }}>
+    <button type="button" aria-label={label} title={label} onClick={onClick} disabled={disabled} className="flex h-7 w-7 items-center justify-center rounded-md bg-white disabled:opacity-40" style={{ border: "1px solid var(--sf-line)" }}>
       <Glyph name={name} size={16} flip={name === "subdirectory_arrow_left"} />
     </button>
   );
   return (
-    <div role="toolbar" aria-label={t("studio.tools")} className="flex flex-wrap items-center gap-1.5 px-4 py-2 text-xs" style={{ borderBottom: "1px solid var(--studio-line)" }}>
+    <div role="toolbar" aria-label={t("studio.tools")} className="flex flex-wrap items-center gap-1.5 px-4 py-2 text-xs" style={{ borderBottom: "1px solid var(--sf-line)" }}>
       {root ? null : text(t("studio.copy"), tools.onCopy)}
       {root ? null : text(t("studio.cut"), tools.onCut)}
       {text(t("studio.paste"), tools.onPaste, !tools.canPaste)}
@@ -230,20 +230,20 @@ function Tools(props: Props & { node: StudioNode }) {
 
 function Heading({ children }: { children: ReactNode }) {
   return (
-    <div className="text-xs font-bold" style={{ color: "var(--studio-muted)" }}>
+    <div className="text-xs font-bold" style={{ color: "var(--sf-muted)" }}>
       {children}
     </div>
   );
 }
 
 function Rule() {
-  return <div className="h-px" style={{ background: "var(--studio-line)" }} />;
+  return <div className="h-px" style={{ background: "var(--sf-line)" }} />;
 }
 
 function Box({ label, children }: { label: string; children: ReactNode }) {
   return (
-    <label className="flex h-[34px] min-w-0 items-center justify-between gap-1 rounded-lg px-2" style={{ border: "1px solid var(--studio-line)" }}>
-      <span className="min-w-0 truncate whitespace-nowrap" style={{ color: "var(--studio-muted)" }}>
+    <label className="flex h-[34px] min-w-0 items-center justify-between gap-1 rounded-lg px-2" style={{ border: "1px solid var(--sf-line)" }}>
+      <span className="min-w-0 truncate whitespace-nowrap" style={{ color: "var(--sf-muted)" }}>
         {label}
       </span>
       {children}
@@ -282,7 +282,7 @@ function Segments<T extends string>({ value, options, onChange, label }: { value
           aria-checked={value === o.value}
           onClick={() => onChange(o.value)}
           className="rounded-md bg-white px-2 py-0.5 text-[13px]"
-          style={value === o.value ? { border: "2px solid #3D63FF", color: "var(--studio-select-ink)", fontWeight: 700 } : { border: "1px solid var(--studio-line)" }}
+          style={value === o.value ? { border: "2px solid #3D63FF", color: "var(--sf-select-ink)", fontWeight: 700 } : { border: "1px solid var(--sf-line)" }}
         >
           {o.label}
         </button>
@@ -317,12 +317,12 @@ function Colors({ rows, palette }: { rows: ColorChoice[]; palette: string[] }) {
           aria-pressed={rows.length > 1 ? row === active : undefined}
           onClick={() => setIndex(i)}
           className="-mx-1.5 flex items-center justify-between rounded-md border-0 bg-transparent px-1.5 py-0.5 text-start"
-          style={rows.length > 1 && row === active ? { background: "var(--studio-hover)" } : undefined}
+          style={rows.length > 1 && row === active ? { background: "var(--sf-soft)" } : undefined}
         >
           <span>{row.label}</span>
           <span className="flex items-center gap-2" dir="ltr">
-            <span className="inline-block h-[22px] w-[22px] rounded-md" style={{ background: row.value ?? "transparent", border: "1px solid var(--studio-line)" }} />
-            <span style={{ color: row.value ? undefined : "var(--studio-muted)" }}>{row.value ?? t("studio.none")}</span>
+            <span className="inline-block h-[22px] w-[22px] rounded-md" style={{ background: row.value ?? "transparent", border: "1px solid var(--sf-line)" }} />
+            <span style={{ color: row.value ? undefined : "var(--sf-muted)" }}>{row.value ?? t("studio.none")}</span>
           </span>
         </button>
       ))}
@@ -335,10 +335,10 @@ function Colors({ rows, palette }: { rows: ColorChoice[]; palette: string[] }) {
             aria-pressed={active.value === hex}
             onClick={() => active.onChange(active.value === hex ? null : hex)}
             className="h-[26px] w-[26px] rounded-full"
-            style={{ background: hex, border: "1px solid var(--studio-line)", outline: active.value === hex ? "2px solid #3D63FF" : undefined, outlineOffset: 2 }}
+            style={{ background: hex, border: "1px solid var(--sf-line)", outline: active.value === hex ? "2px solid #3D63FF" : undefined, outlineOffset: 2 }}
           />
         ))}
-        <label htmlFor={pickId} title={t("studio.addColor")} className="relative flex h-[26px] w-[26px] cursor-pointer items-center justify-center rounded-full" style={{ border: "1px dashed var(--studio-muted)" }}>
+        <label htmlFor={pickId} title={t("studio.addColor")} className="relative flex h-[26px] w-[26px] cursor-pointer items-center justify-center rounded-full" style={{ border: "1px dashed var(--sf-muted)" }}>
           <Glyph name="add" size={16} />
           <input id={pickId} type="color" aria-label={`${active.label}: ${t("studio.addColor")}`} value={active.value ?? "#FFFFFF"} onChange={(e) => active.onChange(e.target.value.toUpperCase())} className="absolute inset-0 cursor-pointer opacity-0" />
         </label>
@@ -399,9 +399,9 @@ function SaveTemplate({ onSave }: { onSave: (name: string) => Promise<string | n
     >
       <label className="flex flex-col gap-1 font-bold">
         {t("studio.templateName")}
-        <input value={name} onChange={(e) => setName(e.target.value)} maxLength={60} required className="h-9 rounded-lg px-2.5 font-normal" style={{ border: "1px solid var(--studio-line)" }} />
+        <input value={name} onChange={(e) => setName(e.target.value)} maxLength={60} required className="h-9 rounded-lg px-2.5 font-normal" style={{ border: "1px solid var(--sf-line)" }} />
       </label>
-      <button type="submit" className="h-10 rounded-[10px] border-0 font-bold" style={{ background: "var(--studio-ink)", color: "var(--studio-surface)" }}>
+      <button type="submit" className="h-10 rounded-[10px] border-0 font-bold" style={{ background: "var(--sf-ink)", color: "var(--sf-surface)" }}>
         {t("studio.saveAsTemplate")}
       </button>
     </form>
@@ -411,13 +411,13 @@ function SaveTemplate({ onSave }: { onSave: (name: string) => Promise<string | n
         type="button"
         onClick={() => setNaming(true)}
         className="mt-1 flex h-[42px] items-center justify-center gap-1.5 rounded-[10px] text-[13px] font-bold"
-        style={{ border: "1.5px dashed var(--studio-ink)", background: "var(--studio-hover)" }}
+        style={{ border: "1.5px dashed var(--sf-ink)", background: "var(--sf-soft)" }}
       >
         <Glyph name="bookmark_add" size={18} />
         {t("studio.saveAsTemplate")}
       </button>
       {note ? (
-        <p role="status" className="m-0 text-xs" style={{ color: "var(--studio-muted)" }}>
+        <p role="status" className="m-0 text-xs" style={{ color: "var(--sf-muted)" }}>
           {note}
         </p>
       ) : null}
@@ -457,7 +457,7 @@ function TapAction({ id, action, onChange, pages, sources, screens, pickable }: 
     else onChange({ type: "item", item: { source: entrySources[0] ?? "products", id: "" } });
   };
   const field = "h-[34px] w-full rounded-lg bg-white px-2.5 text-[13px]";
-  const line = { border: "1px solid var(--studio-line)" };
+  const line = { border: "1px solid var(--sf-line)" };
   const entries = action?.type === "item" && action.item ? (pickable.items[action.item.source] ?? []) : [];
   return (
     <div className="flex flex-col gap-2">
@@ -548,8 +548,8 @@ function WebLookControls({ look, onChange }: { look: WebPageLook | undefined; on
     onChange(Object.keys(next).length ? next : undefined);
   };
   return (
-    <div className="flex flex-col gap-1.5 rounded-lg p-2.5" style={{ background: "var(--studio-soft, #F6F4FB)" }}>
-      <span className="text-xs" style={{ color: "var(--studio-muted)" }}>
+    <div className="flex flex-col gap-1.5 rounded-lg p-2.5" style={{ background: "var(--sf-tint, #F6F4FB)" }}>
+      <span className="text-xs" style={{ color: "var(--sf-muted)" }}>
         {t("studio.webHint")}
       </span>
       <Check label={t("studio.webHideHeader")} checked={look?.hide_header === true} onChange={(on) => set({ hide_header: on })} />
@@ -557,7 +557,7 @@ function WebLookControls({ look, onChange }: { look: WebPageLook | undefined; on
       <Check label={t("studio.webLinksInside")} checked={look?.links_inside === true} onChange={(on) => set({ links_inside: on })} />
       <label className="flex flex-col gap-1 text-xs font-bold">
         {t("studio.webHideMore")}
-        <input dir="ltr" value={look?.hide ?? ""} maxLength={300} placeholder=".newsletter, #cookie-banner" onChange={(e) => set({ hide: e.target.value })} className="h-[34px] w-full rounded-lg bg-white px-2.5 text-[13px] font-normal" style={{ border: "1px solid var(--studio-line)" }} />
+        <input dir="ltr" value={look?.hide ?? ""} maxLength={300} placeholder=".newsletter, #cookie-banner" onChange={(e) => set({ hide: e.target.value })} className="h-[34px] w-full rounded-lg bg-white px-2.5 text-[13px] font-normal" style={{ border: "1px solid var(--sf-line)" }} />
       </label>
     </div>
   );
@@ -624,14 +624,14 @@ function DesignTab(props: Props & { node: StudioNode }) {
   return (
     <>
       {props.tablet ? (
-        <div role="note" className="flex flex-col gap-1.5 rounded-lg p-2.5 text-xs" style={{ background: "var(--studio-select-fill)", color: "var(--studio-ink)" }}>
+        <div role="note" className="flex flex-col gap-1.5 rounded-lg p-2.5 text-xs" style={{ background: "var(--sf-select-fill)", color: "var(--sf-ink)" }}>
           <span className="flex items-center gap-1.5 font-bold">
             <Glyph name="tablet" size={16} />
             {t("studio.tabletEditing")}
           </span>
-          <span style={{ color: "var(--studio-muted)" }}>{t("studio.tabletHint")}</span>
+          <span style={{ color: "var(--sf-muted)" }}>{t("studio.tabletHint")}</span>
           {props.tablet.changed ? (
-            <button type="button" onClick={props.tablet.onReset} className="h-7 self-start rounded-md bg-white px-2 font-semibold" style={{ border: "1px solid var(--studio-line)" }}>
+            <button type="button" onClick={props.tablet.onReset} className="h-7 self-start rounded-md bg-white px-2 font-semibold" style={{ border: "1px solid var(--sf-line)" }}>
               {t("studio.tabletReset")}
             </button>
           ) : null}
@@ -640,8 +640,8 @@ function DesignTab(props: Props & { node: StudioNode }) {
       {titled || listTitled ? (
         <label className="flex flex-col gap-1 font-bold">
           {t(listTitled && !titled ? "studio.listTitleLabel" : "studio.itemTitle")}
-          <input value={titleOf(node, props.lang, props.defaultLang)} maxLength={120} onChange={(e) => onChange(withTitle(node, e.target.value, props.lang, props.defaultLang))} placeholder={props.lang === props.defaultLang ? undefined : (node.title ?? "")} className="h-9 rounded-lg px-2.5 font-normal" style={{ border: "1px solid var(--studio-line)" }} />
-          <span className="text-xs font-normal" style={{ color: "var(--studio-muted)" }}>
+          <input value={titleOf(node, props.lang, props.defaultLang)} maxLength={120} onChange={(e) => onChange(withTitle(node, e.target.value, props.lang, props.defaultLang))} placeholder={props.lang === props.defaultLang ? undefined : (node.title ?? "")} className="h-9 rounded-lg px-2.5 font-normal" style={{ border: "1px solid var(--sf-line)" }} />
+          <span className="text-xs font-normal" style={{ color: "var(--sf-muted)" }}>
             {t(node.type === "market" ? "studio.marketTitleHint" : listTitled && !titled ? "studio.recentHint" : "studio.itemTitleHint")}
           </span>
         </label>
@@ -649,13 +649,13 @@ function DesignTab(props: Props & { node: StudioNode }) {
       {node.type === "countdown" ? (
         <label className="flex flex-col gap-1 font-bold">
           {t("studio.endsAt")}
-          <input type="datetime-local" dir="ltr" value={localInput(node.ends_at)} onChange={(e) => e.target.value && onChange({ ends_at: new Date(e.target.value).toISOString() })} className="h-9 rounded-lg px-2.5 font-normal" style={{ border: "1px solid var(--studio-line)" }} />
+          <input type="datetime-local" dir="ltr" value={localInput(node.ends_at)} onChange={(e) => e.target.value && onChange({ ends_at: new Date(e.target.value).toISOString() })} className="h-9 rounded-lg px-2.5 font-normal" style={{ border: "1px solid var(--sf-line)" }} />
         </label>
       ) : null}
       {textual && node.type !== "bullets" && node.type !== "countdown" ? (
         <label className="flex flex-col gap-1 font-bold">
           {t("studio.text")}
-          <textarea value={textOf(node, props.lang, props.defaultLang)} onChange={(e) => onChange(withText(node, e.target.value, props.lang, props.defaultLang))} rows={node.type === "text" ? 3 : 1} maxLength={2000} placeholder={node.type === "text" ? undefined : node.text ?? ""} className="rounded-lg px-2.5 py-1.5 font-normal" style={{ border: "1px solid var(--studio-line)" }} data-studio-text="" />
+          <textarea value={textOf(node, props.lang, props.defaultLang)} onChange={(e) => onChange(withText(node, e.target.value, props.lang, props.defaultLang))} rows={node.type === "text" ? 3 : 1} maxLength={2000} placeholder={node.type === "text" ? undefined : node.text ?? ""} className="rounded-lg px-2.5 py-1.5 font-normal" style={{ border: "1px solid var(--sf-line)" }} data-studio-text="" />
         </label>
       ) : null}
       {/* 130.11 A greeting's own words ({name} the person's first name) and its words without a name. */}
@@ -663,15 +663,15 @@ function DesignTab(props: Props & { node: StudioNode }) {
         <div className="flex flex-col gap-2" data-greeting-words="">
           <label className="flex flex-col gap-1 font-bold">
             {t("studio.greetingWords")}
-            <input value={textOf(node, props.lang, props.defaultLang)} maxLength={200} onChange={(e) => onChange(withText(node, e.target.value, props.lang, props.defaultLang))} className="h-9 rounded-lg px-2.5 font-normal" style={{ border: "1px solid var(--studio-line)" }} />
-            <span className="text-xs font-normal" style={{ color: "var(--studio-muted)" }}>
+            <input value={textOf(node, props.lang, props.defaultLang)} maxLength={200} onChange={(e) => onChange(withText(node, e.target.value, props.lang, props.defaultLang))} className="h-9 rounded-lg px-2.5 font-normal" style={{ border: "1px solid var(--sf-line)" }} />
+            <span className="text-xs font-normal" style={{ color: "var(--sf-muted)" }}>
               {t("studio.greetingWordsHint", { name: "{name}" })}
             </span>
           </label>
           <label className="flex flex-col gap-1 font-bold">
             {t("studio.greetingAlone")}
-            <input value={titleOf(node, props.lang, props.defaultLang)} maxLength={120} onChange={(e) => onChange(withTitle(node, e.target.value, props.lang, props.defaultLang))} className="h-9 rounded-lg px-2.5 font-normal" style={{ border: "1px solid var(--studio-line)" }} />
-            <span className="text-xs font-normal" style={{ color: "var(--studio-muted)" }}>
+            <input value={titleOf(node, props.lang, props.defaultLang)} maxLength={120} onChange={(e) => onChange(withTitle(node, e.target.value, props.lang, props.defaultLang))} className="h-9 rounded-lg px-2.5 font-normal" style={{ border: "1px solid var(--sf-line)" }} />
+            <span className="text-xs font-normal" style={{ color: "var(--sf-muted)" }}>
               {t("studio.greetingAloneHint")}
             </span>
           </label>
@@ -680,9 +680,9 @@ function DesignTab(props: Props & { node: StudioNode }) {
       {node.type === "bullets" || node.type === "countdown" ? (
         <label className="flex flex-col gap-1 font-bold">
           {t(node.type === "bullets" ? "studio.bulletLines" : "studio.endedText")}
-          <textarea value={textOf(node, props.lang, props.defaultLang)} onChange={(e) => onChange(withText(node, e.target.value, props.lang, props.defaultLang))} rows={node.type === "bullets" ? 4 : 2} maxLength={2000} className="rounded-lg px-2.5 py-1.5 font-normal" style={{ border: "1px solid var(--studio-line)" }} data-studio-text="" />
+          <textarea value={textOf(node, props.lang, props.defaultLang)} onChange={(e) => onChange(withText(node, e.target.value, props.lang, props.defaultLang))} rows={node.type === "bullets" ? 4 : 2} maxLength={2000} className="rounded-lg px-2.5 py-1.5 font-normal" style={{ border: "1px solid var(--sf-line)" }} data-studio-text="" />
           {node.type === "countdown" ? (
-            <span className="text-xs font-normal" style={{ color: "var(--studio-muted)" }}>
+            <span className="text-xs font-normal" style={{ color: "var(--sf-muted)" }}>
               {t("studio.endedTextHint")}
             </span>
           ) : null}
@@ -700,7 +700,7 @@ function DesignTab(props: Props & { node: StudioNode }) {
           <div className="flex items-center gap-2">
             <MediaPicker kind="image" share library onPick={(url) => onChange({ image_url: url })} label={t("studio.choosePicture")} />
             {node.image_url ? (
-              <button type="button" onClick={() => onChange({ image_url: null })} className="rounded-md bg-white px-2 py-0.5" style={{ border: "1px solid var(--studio-line)" }}>
+              <button type="button" onClick={() => onChange({ image_url: null })} className="rounded-md bg-white px-2 py-0.5" style={{ border: "1px solid var(--sf-line)" }}>
                 {t("studio.removePicture")}
               </button>
             ) : null}
@@ -720,7 +720,7 @@ function DesignTab(props: Props & { node: StudioNode }) {
       {node.type === "video" ? (
         <label className="flex flex-col gap-1 font-bold">
           {t("studio.videoUrl")}
-          <input dir="ltr" type="url" value={node.video_url ?? ""} onChange={(e) => onChange({ video_url: e.target.value || null })} className="h-9 rounded-lg px-2.5 font-normal" style={{ border: "1px solid var(--studio-line)" }} />
+          <input dir="ltr" type="url" value={node.video_url ?? ""} onChange={(e) => onChange({ video_url: e.target.value || null })} className="h-9 rounded-lg px-2.5 font-normal" style={{ border: "1px solid var(--sf-line)" }} />
           <Check label={t("studio.autoplay")} checked={Boolean(node.autoplay)} onChange={(autoplay) => onChange({ autoplay: autoplay || undefined })} />
         </label>
       ) : null}
@@ -735,7 +735,7 @@ function DesignTab(props: Props & { node: StudioNode }) {
               <NumberIn label={t("studio.lng")} value={node.map?.lng} min={-180} max={180} step={0.0001} onChange={(lng) => onChange({ map: { ...(node.map ?? { lat: 0, lng: 0 }), lng: lng ?? 0 } })} />
             </Box>
           </div>
-          <input aria-label={t("studio.mapLabel")} placeholder={t("studio.mapLabel")} value={node.map?.label ?? ""} onChange={(e) => onChange({ map: { ...(node.map ?? { lat: 0, lng: 0 }), label: e.target.value || null } })} className="h-9 rounded-lg px-2.5" style={{ border: "1px solid var(--studio-line)" }} />
+          <input aria-label={t("studio.mapLabel")} placeholder={t("studio.mapLabel")} value={node.map?.label ?? ""} onChange={(e) => onChange({ map: { ...(node.map ?? { lat: 0, lng: 0 }), label: e.target.value || null } })} className="h-9 rounded-lg px-2.5" style={{ border: "1px solid var(--sf-line)" }} />
         </div>
       ) : null}
       {node.type === "ratings" ? <RangeField label={t("studio.stars")} value={node.rating ?? 5} min={0} max={5} step={0.5} unit="★" fallback={5} onChange={(rating) => onChange({ rating })} /> : null}
@@ -803,8 +803,8 @@ function DesignTab(props: Props & { node: StudioNode }) {
       {node.type === "coupon" ? (
         <label className="flex flex-col gap-1 font-bold">
           {t("studio.couponCode")}
-          <input dir="ltr" value={node.code ?? ""} maxLength={40} onChange={(e) => onChange({ code: e.target.value.replace(/\s+/g, "").toUpperCase() })} className="h-9 rounded-lg px-2.5 font-normal" style={{ border: "1px solid var(--studio-line)" }} />
-          <span className="text-xs font-normal" style={{ color: "var(--studio-muted)" }}>
+          <input dir="ltr" value={node.code ?? ""} maxLength={40} onChange={(e) => onChange({ code: e.target.value.replace(/\s+/g, "").toUpperCase() })} className="h-9 rounded-lg px-2.5 font-normal" style={{ border: "1px solid var(--sf-line)" }} />
+          <span className="text-xs font-normal" style={{ color: "var(--sf-muted)" }}>
             {t("studio.couponHint")}
           </span>
         </label>
@@ -816,7 +816,7 @@ function DesignTab(props: Props & { node: StudioNode }) {
             <>
               <RangeField label={t("studio.placeX")} value={node.place.x} min={0} max={100} unit="%" onChange={(x) => onChange({ place: { ...node.place!, x } })} />
               <RangeField label={t("studio.placeY")} value={node.place.y} min={0} max={100} unit="%" onChange={(y) => onChange({ place: { ...node.place!, y } })} />
-              <span className="text-xs" style={{ color: "var(--studio-muted)" }}>
+              <span className="text-xs" style={{ color: "var(--sf-muted)" }}>
                 {t("studio.placeHint")}
               </span>
             </>
@@ -876,7 +876,7 @@ function DesignTab(props: Props & { node: StudioNode }) {
             aria-pressed={alignValue === value}
             onClick={() => onChange({ [alignField]: alignValue === value && !textual ? undefined : value } as Partial<StudioNode>)}
             className="h-8 flex-1 rounded-lg"
-            style={alignValue === value ? { background: "var(--studio-ink)", color: "var(--studio-surface)", border: "1px solid var(--studio-ink)" } : { background: "var(--studio-surface)", border: "1px solid var(--studio-line)" }}
+            style={alignValue === value ? { background: "var(--sf-ink)", color: "var(--sf-surface)", border: "1px solid var(--sf-ink)" } : { background: "var(--sf-surface)", border: "1px solid var(--sf-line)" }}
           >
             <Glyph name={icon} size={18} flip />
           </button>
@@ -888,7 +888,7 @@ function DesignTab(props: Props & { node: StudioNode }) {
           aria-pressed={Boolean(node.pin && node.pin !== "none")}
           onClick={() => onChange({ pin: node.pin === "bottom" || node.pin === "top" ? undefined : "bottom" })}
           className="h-8 flex-1 rounded-lg"
-          style={node.pin && node.pin !== "none" ? { background: "var(--studio-ink)", color: "var(--studio-surface)", border: "1px solid var(--studio-ink)" } : { background: "var(--studio-surface)", border: "1px solid var(--studio-line)" }}
+          style={node.pin && node.pin !== "none" ? { background: "var(--sf-ink)", color: "var(--sf-surface)", border: "1px solid var(--sf-ink)" } : { background: "var(--sf-surface)", border: "1px solid var(--sf-line)" }}
         >
           <Glyph name="push_pin" size={18} />
         </button>
@@ -898,7 +898,7 @@ function DesignTab(props: Props & { node: StudioNode }) {
         <div className="grid grid-cols-2 gap-2">
           <label className="flex flex-col gap-1">
             {t("studio.spread")}
-            <select value={node.align ?? "start"} onChange={(e) => onChange({ align: e.target.value === "start" ? undefined : (e.target.value as StudioNode["align"]) })} className="h-8 rounded-lg px-1.5" style={{ border: "1px solid var(--studio-line)" }}>
+            <select value={node.align ?? "start"} onChange={(e) => onChange({ align: e.target.value === "start" ? undefined : (e.target.value as StudioNode["align"]) })} className="h-8 rounded-lg px-1.5" style={{ border: "1px solid var(--sf-line)" }}>
               <option value="start">{t("studio.spreadStart")}</option>
               <option value="center">{t("studio.spreadCenter")}</option>
               <option value="end">{t("studio.spreadEnd")}</option>
@@ -908,7 +908,7 @@ function DesignTab(props: Props & { node: StudioNode }) {
           </label>
           <label className="flex flex-col gap-1">
             {t("studio.lineUp")}
-            <select value={node.cross ?? "stretch"} onChange={(e) => onChange({ cross: e.target.value === "stretch" ? undefined : (e.target.value as StudioNode["cross"]) })} className="h-8 rounded-lg px-1.5" style={{ border: "1px solid var(--studio-line)" }}>
+            <select value={node.cross ?? "stretch"} onChange={(e) => onChange({ cross: e.target.value === "stretch" ? undefined : (e.target.value as StudioNode["cross"]) })} className="h-8 rounded-lg px-1.5" style={{ border: "1px solid var(--sf-line)" }}>
               <option value="stretch">{t("studio.stretch")}</option>
               <option value="start">{t("studio.spreadStart")}</option>
               <option value="center">{t("studio.spreadCenter")}</option>
@@ -919,9 +919,9 @@ function DesignTab(props: Props & { node: StudioNode }) {
       ) : null}
       {node.id !== props.page.body.id ? (
         <div className="flex flex-wrap items-center gap-1.5">
-          <span style={{ color: "var(--studio-muted)" }}>{t("studio.wrapIn")}</span>
+          <span style={{ color: "var(--sf-muted)" }}>{t("studio.wrapIn")}</span>
           {(["row", "column", "stack"] as const).map((type) => (
-            <button key={type} type="button" onClick={() => props.onWrap(type)} className="rounded-md bg-white px-2 py-0.5" style={{ border: "1px solid var(--studio-line)" }}>
+            <button key={type} type="button" onClick={() => props.onWrap(type)} className="rounded-md bg-white px-2 py-0.5" style={{ border: "1px solid var(--sf-line)" }}>
               {t(`studio.el_${type}` as DashKey)}
             </button>
           ))}
@@ -977,7 +977,7 @@ function DesignTab(props: Props & { node: StudioNode }) {
           <div className="flex items-center gap-2">
             <MediaPicker kind="image" share library onPick={(url) => onChange({ image_background_url: url })} label={t("studio.choosePicture")} />
             {node.image_background_url ? (
-              <button type="button" onClick={() => onChange({ image_background_url: undefined })} className="rounded-md bg-white px-2 py-0.5" style={{ border: "1px solid var(--studio-line)" }}>
+              <button type="button" onClick={() => onChange({ image_background_url: undefined })} className="rounded-md bg-white px-2 py-0.5" style={{ border: "1px solid var(--sf-line)" }}>
                 {t("studio.none")}
               </button>
             ) : null}
@@ -999,7 +999,7 @@ function DesignTab(props: Props & { node: StudioNode }) {
                 onChange(style ? followStyle(style, props.textStyles) : { text_style: undefined });
               }}
               className="h-[34px] w-full cursor-pointer appearance-none rounded-lg bg-white ps-2.5 pe-7 text-[13px]"
-              style={{ border: "1px solid var(--studio-line)" }}
+              style={{ border: "1px solid var(--sf-line)" }}
             >
               <option value="">{t("studio.textStyleNone")}</option>
               {STUDIO_TEXT_STYLES.map((style) => (
@@ -1015,7 +1015,7 @@ function DesignTab(props: Props & { node: StudioNode }) {
             <FontPicker key={node.id} id={`font-${node.id}`} label={t("studio.font")} value={node.font?.family ?? ""} labels={props.fontLabels} compact placeholder={t("studio.appFont")} onChange={(family) => setFont({ family: family || null })} />
             <label className="relative flex">
               <span className="sr-only">{t("studio.weight")}</span>
-              <select value={node.font?.weight ?? ""} onChange={(e) => setFont({ weight: e.target.value ? (Number(e.target.value) as 400) : undefined })} className="h-[34px] w-full cursor-pointer appearance-none rounded-lg bg-white ps-2.5 pe-7 text-[13px]" style={{ border: "1px solid var(--studio-line)" }}>
+              <select value={node.font?.weight ?? ""} onChange={(e) => setFont({ weight: e.target.value ? (Number(e.target.value) as 400) : undefined })} className="h-[34px] w-full cursor-pointer appearance-none rounded-lg bg-white ps-2.5 pe-7 text-[13px]" style={{ border: "1px solid var(--sf-line)" }}>
                 <option value="">{t("studio.weight")}</option>
                 {[300, 400, 500, 600, 700, 800, 900].map((w) => (
                   <option key={w} value={w}>
@@ -1117,7 +1117,7 @@ function DesignTab(props: Props & { node: StudioNode }) {
       {node.id !== props.page.body.id ? <Check label={t("studio.hideInApp")} checked={Boolean(node.hidden)} onChange={(hidden) => onChange({ hidden: hidden || undefined })} /> : null}
       <label className="flex items-center justify-between gap-2">
         {t("studio.whoSees")}
-        <select value={node.visibility ?? "everyone"} onChange={(e) => onChange({ visibility: e.target.value === "everyone" ? undefined : (e.target.value as "signed_in") })} className="h-8 rounded-lg px-1.5" style={{ border: "1px solid var(--studio-line)" }}>
+        <select value={node.visibility ?? "everyone"} onChange={(e) => onChange({ visibility: e.target.value === "everyone" ? undefined : (e.target.value as "signed_in") })} className="h-8 rounded-lg px-1.5" style={{ border: "1px solid var(--sf-line)" }}>
           <option value="everyone">{t("studio.everyone")}</option>
           <option value="signed_in">{t("studio.signedIn")}</option>
           <option value="signed_out">{t("studio.signedOut")}</option>
@@ -1125,7 +1125,7 @@ function DesignTab(props: Props & { node: StudioNode }) {
       </label>
       <label className="flex flex-col gap-1">
         {t("studio.name")}
-        <input value={node.name ?? ""} maxLength={80} onChange={(e) => onChange({ name: e.target.value || undefined })} className="h-9 rounded-lg px-2.5" style={{ border: "1px solid var(--studio-line)" }} />
+        <input value={node.name ?? ""} maxLength={80} onChange={(e) => onChange({ name: e.target.value || undefined })} className="h-9 rounded-lg px-2.5" style={{ border: "1px solid var(--sf-line)" }} />
       </label>
     </>
   );
@@ -1139,10 +1139,10 @@ function FormEditor({ node, onChange }: { node: StudioNode; onChange: (patch: Pa
     <div className="flex flex-col gap-2">
       <Heading>{t("studio.formQuestions")}</Heading>
       {form.fields.map((f, i) => (
-        <div key={f.id} className="flex flex-col gap-1 rounded-lg p-2" style={{ border: "1px solid var(--studio-line)" }}>
-          <input aria-label={t("studio.question")} value={f.label} onChange={(e) => set({ fields: form.fields.map((x, j) => (j === i ? { ...x, label: e.target.value } : x)) })} className="h-8 rounded-md px-2" style={{ border: "1px solid var(--studio-line)" }} />
+        <div key={f.id} className="flex flex-col gap-1 rounded-lg p-2" style={{ border: "1px solid var(--sf-line)" }}>
+          <input aria-label={t("studio.question")} value={f.label} onChange={(e) => set({ fields: form.fields.map((x, j) => (j === i ? { ...x, label: e.target.value } : x)) })} className="h-8 rounded-md px-2" style={{ border: "1px solid var(--sf-line)" }} />
           <div className="flex items-center justify-between gap-2">
-            <select aria-label={t("studio.question")} value={f.kind} onChange={(e) => set({ fields: form.fields.map((x, j) => (j === i ? { ...x, kind: e.target.value as typeof f.kind } : x)) })} className="h-8 rounded-md px-1" style={{ border: "1px solid var(--studio-line)" }}>
+            <select aria-label={t("studio.question")} value={f.kind} onChange={(e) => set({ fields: form.fields.map((x, j) => (j === i ? { ...x, kind: e.target.value as typeof f.kind } : x)) })} className="h-8 rounded-md px-1" style={{ border: "1px solid var(--sf-line)" }}>
               {(["text", "long_text", "email", "phone", "number"] as const).map((k) => (
                 <option key={k} value={k}>
                   {k}
@@ -1157,19 +1157,19 @@ function FormEditor({ node, onChange }: { node: StudioNode; onChange: (patch: Pa
         </div>
       ))}
       {form.fields.length < 10 ? (
-        <button type="button" onClick={() => set({ fields: [...form.fields, { id: newNodeId(), kind: "text", label: t("studio.question"), required: false, options: null }] })} className="rounded-md bg-white px-2 py-1" style={{ border: "1px dashed var(--studio-muted)" }}>
+        <button type="button" onClick={() => set({ fields: [...form.fields, { id: newNodeId(), kind: "text", label: t("studio.question"), required: false, options: null }] })} className="rounded-md bg-white px-2 py-1" style={{ border: "1px dashed var(--sf-muted)" }}>
           {t("studio.addQuestion")}
         </button>
       ) : null}
       <label className="flex items-center justify-between gap-2">
         {t("studio.sendTo")}
-        <select value={form.send_to} onChange={(e) => set({ send_to: e.target.value as "email" | "chat" })} className="h-8 rounded-lg px-1.5" style={{ border: "1px solid var(--studio-line)" }}>
+        <select value={form.send_to} onChange={(e) => set({ send_to: e.target.value as "email" | "chat" })} className="h-8 rounded-lg px-1.5" style={{ border: "1px solid var(--sf-line)" }}>
           <option value="email">{t("studio.sendEmail")}</option>
           <option value="chat">{t("studio.sendChat")}</option>
         </select>
       </label>
-      <input aria-label={t("studio.submitLabel")} placeholder={t("studio.submitLabel")} value={form.submit_label ?? ""} onChange={(e) => set({ submit_label: e.target.value || null })} className="h-8 rounded-md px-2" style={{ border: "1px solid var(--studio-line)" }} />
-      <input aria-label={t("studio.successText")} placeholder={t("studio.successText")} value={form.success_text ?? ""} onChange={(e) => set({ success_text: e.target.value || null })} className="h-8 rounded-md px-2" style={{ border: "1px solid var(--studio-line)" }} />
+      <input aria-label={t("studio.submitLabel")} placeholder={t("studio.submitLabel")} value={form.submit_label ?? ""} onChange={(e) => set({ submit_label: e.target.value || null })} className="h-8 rounded-md px-2" style={{ border: "1px solid var(--sf-line)" }} />
+      <input aria-label={t("studio.successText")} placeholder={t("studio.successText")} value={form.success_text ?? ""} onChange={(e) => set({ success_text: e.target.value || null })} className="h-8 rounded-md px-2" style={{ border: "1px solid var(--sf-line)" }} />
     </div>
   );
 }
@@ -1199,7 +1199,7 @@ function MotionTab(props: Props & { node: StudioNode }) {
     <>
       <label className="flex flex-col gap-1 font-bold">
         {t("studio.enter")}
-        <select value={m.enter ?? "none"} onChange={(e) => set({ enter: e.target.value as (typeof STUDIO_ENTERS)[number] })} className="h-9 rounded-lg px-1.5 font-normal" style={{ border: "1px solid var(--studio-line)" }}>
+        <select value={m.enter ?? "none"} onChange={(e) => set({ enter: e.target.value as (typeof STUDIO_ENTERS)[number] })} className="h-9 rounded-lg px-1.5 font-normal" style={{ border: "1px solid var(--sf-line)" }}>
           {STUDIO_ENTERS.map((v) => (
             <option key={v} value={v}>
               {t(`studio.enter${words[v]}` as DashKey)}
@@ -1210,7 +1210,7 @@ function MotionTab(props: Props & { node: StudioNode }) {
       {m.enter && m.enter !== "none" ? (
         <>
           {/* 129.8 Played once when it first shows, in the app and on the canvas. */}
-          <p className="m-0 text-xs" style={{ color: "var(--studio-muted)" }}>
+          <p className="m-0 text-xs" style={{ color: "var(--sf-muted)" }}>
             {t("studio.pmEnterHint")}
           </p>
           <RangeField label={t("studio.duration")} value={m.duration_ms ?? 400} scale={1000} min={0.1} max={3} step={0.1} unit={t("studio.unitSeconds")} fallback={400} onChange={(duration_ms) => set({ duration_ms: Math.round(duration_ms) })} />
@@ -1225,11 +1225,11 @@ function MotionTab(props: Props & { node: StudioNode }) {
         {t("studio.loop")}
         <Segments label={t("studio.loop")} value={m.loop ?? "none"} onChange={(loop) => set({ loop })} options={STUDIO_LOOPS.map((v) => ({ value: v, label: t(`studio.loop${v === "none" ? "None" : v[0]!.toUpperCase() + v.slice(1)}` as DashKey) }))} />
       </div>
-      <button type="button" onClick={props.onPlayMotion} className="flex h-9 items-center justify-center gap-1.5 rounded-[10px] bg-white font-bold" style={{ border: "1px solid var(--studio-line)" }}>
+      <button type="button" onClick={props.onPlayMotion} className="flex h-9 items-center justify-center gap-1.5 rounded-[10px] bg-white font-bold" style={{ border: "1px solid var(--sf-line)" }}>
         <Glyph name="play_arrow" size={18} />
         {t("studio.playMotion")}
       </button>
-      <p className="m-0 text-xs" style={{ color: "var(--studio-muted)" }}>
+      <p className="m-0 text-xs" style={{ color: "var(--sf-muted)" }}>
         {t("studio.reduceMotion")}
       </p>
     </>
@@ -1272,7 +1272,7 @@ function SlidesControl({ node, onChange }: { node: StudioNode; onChange: (patch:
           onChange={(v) => onChange({ children: slides.map((c) => (c.image_background_url || c.overlay ? { ...c, overlay: v ? { color: c.overlay?.color ?? "#000000", opacity: v / 100 } : undefined } : c)) })}
         />
       ) : null}
-      <span className="text-xs" style={{ color: "var(--studio-muted)" }}>
+      <span className="text-xs" style={{ color: "var(--sf-muted)" }}>
         {t("studio.slidesHint")}
       </span>
     </div>
@@ -1290,7 +1290,7 @@ function DataTab(props: Props & { node: StudioNode }) {
       <>
         <label className="flex flex-col gap-1 font-bold">
           {t("studio.dataFrom")}
-          <select value={node.source ?? ""} onChange={(e) => onChange({ source: e.target.value as ItemSource, query: { ...q, category_id: null, ids: [] } })} className="h-9 rounded-lg px-1.5 font-normal" style={{ border: "1px solid var(--studio-line)" }}>
+          <select value={node.source ?? ""} onChange={(e) => onChange({ source: e.target.value as ItemSource, query: { ...q, category_id: null, ids: [] } })} className="h-9 rounded-lg px-1.5 font-normal" style={{ border: "1px solid var(--sf-line)" }}>
             {props.sources.map((s) => (
               <option key={s} value={s}>
                 {t(`studio.el_items_${s}` as DashKey)}
@@ -1304,7 +1304,7 @@ function DataTab(props: Props & { node: StudioNode }) {
         <RangeField label={t("studio.howMany")} value={q.limit} min={1} max={30} unit={t("studio.unitItems")} onChange={(limit) => onChange({ query: { ...q, limit } })} />
         <label className="flex items-center justify-between gap-2">
           {t("studio.sort")}
-          <select value={q.sort} onChange={(e) => onChange({ query: { ...q, sort: e.target.value as typeof q.sort } })} className="h-8 rounded-lg px-1.5" style={{ border: "1px solid var(--studio-line)" }}>
+          <select value={q.sort} onChange={(e) => onChange({ query: { ...q, sort: e.target.value as typeof q.sort } })} className="h-8 rounded-lg px-1.5" style={{ border: "1px solid var(--sf-line)" }}>
             {ITEMS_SORTS.map((s) => (
               <option key={s} value={s}>
                 {sortKey[s] ? t(`studio.${sortKey[s]}` as DashKey) : s}
@@ -1315,7 +1315,7 @@ function DataTab(props: Props & { node: StudioNode }) {
         {cats.length ? (
           <label className="flex items-center justify-between gap-2">
             {t("studio.category")}
-            <select value={q.category_id ?? ""} onChange={(e) => onChange({ query: { ...q, category_id: e.target.value || null } })} className="h-8 rounded-lg px-1.5" style={{ border: "1px solid var(--studio-line)" }}>
+            <select value={q.category_id ?? ""} onChange={(e) => onChange({ query: { ...q, category_id: e.target.value || null } })} className="h-8 rounded-lg px-1.5" style={{ border: "1px solid var(--sf-line)" }}>
               <option value="">{t("studio.anyCategory")}</option>
               {cats.map((c) => (
                 <option key={c.id} value={c.id}>
@@ -1331,7 +1331,7 @@ function DataTab(props: Props & { node: StudioNode }) {
             <Check label={t("studio.onlyOnSale")} checked={q.on_sale === true} onChange={(on) => onChange({ query: { ...q, on_sale: on || undefined } })} />
             <Check label={t("studio.recentOnly")} checked={node.recent === true} onChange={(recent) => onChange({ recent: recent || undefined })} />
             {node.recent ? (
-              <span className="text-xs" style={{ color: "var(--studio-muted)" }}>
+              <span className="text-xs" style={{ color: "var(--sf-muted)" }}>
                 {t("studio.recentHint")}
               </span>
             ) : null}
@@ -1378,7 +1378,7 @@ function DataTab(props: Props & { node: StudioNode }) {
       <>
         <label className="flex flex-col gap-1 font-bold">
           {t("studio.dataFrom")}
-          <select value={node.source ?? ""} onChange={(e) => onChange({ source: e.target.value as ItemSource })} className="h-9 rounded-lg px-1.5 font-normal" style={{ border: "1px solid var(--studio-line)" }}>
+          <select value={node.source ?? ""} onChange={(e) => onChange({ source: e.target.value as ItemSource })} className="h-9 rounded-lg px-1.5 font-normal" style={{ border: "1px solid var(--sf-line)" }}>
             {props.categorySources.map((s) => (
               <option key={s} value={s}>
                 {t(`studio.el_items_${s}` as DashKey)}
@@ -1406,7 +1406,7 @@ function DataTab(props: Props & { node: StudioNode }) {
     return (
       <label className="flex flex-col gap-1 font-bold">
         {t("studio.bind")}
-        <select value={node.bind ?? ""} onChange={(e) => onChange({ bind: (e.target.value || null) as StudioNode["bind"] })} className="h-9 rounded-lg px-1.5 font-normal" style={{ border: "1px solid var(--studio-line)" }}>
+        <select value={node.bind ?? ""} onChange={(e) => onChange({ bind: (e.target.value || null) as StudioNode["bind"] })} className="h-9 rounded-lg px-1.5 font-normal" style={{ border: "1px solid var(--sf-line)" }}>
           <option value="">{t("studio.bindNone")}</option>
           {node.type === "image" ? (
             <option value="image">{t("studio.bindImage")}</option>
@@ -1427,7 +1427,7 @@ function DataTab(props: Props & { node: StudioNode }) {
     );
   }
   return (
-    <p className="m-0" style={{ color: "var(--studio-muted)" }}>
+    <p className="m-0" style={{ color: "var(--sf-muted)" }}>
       {t("studio.noData")}
     </p>
   );
@@ -1444,11 +1444,11 @@ function HeaderPanel(props: Props) {
         <Heading>{t("studio.headerTypeLabel")}</Heading>
         <div className="flex flex-col gap-1.5">
           {STUDIO_HEADER_TYPES.map((type, i) => (
-            <button key={type} type="button" aria-pressed={header.type === type} onClick={() => set({ type })} className="rounded-lg bg-white px-2.5 py-1.5 text-start" style={header.type === type ? { border: "2px solid #3D63FF", color: "var(--studio-select-ink)", fontWeight: 700 } : { border: "1px solid var(--studio-line)" }}>
+            <button key={type} type="button" aria-pressed={header.type === type} onClick={() => set({ type })} className="rounded-lg bg-white px-2.5 py-1.5 text-start" style={header.type === type ? { border: "2px solid #3D63FF", color: "var(--sf-select-ink)", fontWeight: 700 } : { border: "1px solid var(--sf-line)" }}>
               {t(`studio.header${i + 1}` as DashKey)}
             </button>
           ))}
-          <button type="button" onClick={() => props.onHeader(null)} className="rounded-lg bg-white px-2.5 py-1.5 text-start" style={{ border: "1px solid var(--studio-line)" }}>
+          <button type="button" onClick={() => props.onHeader(null)} className="rounded-lg bg-white px-2.5 py-1.5 text-start" style={{ border: "1px solid var(--sf-line)" }}>
             {t("studio.noHeader")}
           </button>
         </div>
@@ -1532,11 +1532,11 @@ function TabsPanel(props: Props) {
   const shown = tabs.length > LAYOUT_LIMITS.shownTabs ? LAYOUT_LIMITS.shownTabs : tabs.length;
   const middle = shown % 2 === 1 && shown >= 3 ? tabs[(shown - 1) / 2] : undefined;
   const field = "h-[34px] w-full rounded-lg bg-white px-2.5 text-[13px]";
-  const line = { border: "1px solid var(--studio-line)" };
+  const line = { border: "1px solid var(--sf-line)" };
   return (
     <div className="min-h-0 flex-1 overflow-y-auto">
       <div className="flex flex-col gap-3.5 px-4 py-3.5">
-        <p className="m-0 text-xs" style={{ color: "var(--studio-muted)" }}>
+        <p className="m-0 text-xs" style={{ color: "var(--sf-muted)" }}>
           {t("studio.tabBarHint")}
         </p>
         <ol className="m-0 flex list-none flex-col gap-2.5 p-0">
@@ -1545,7 +1545,7 @@ function TabsPanel(props: Props) {
               <div className="flex items-center gap-1">
                 <b className="flex-1">{t("studio.tabN", { n: i + 1 })}</b>
                 {tabs.length > LAYOUT_LIMITS.shownTabs && i >= LAYOUT_LIMITS.shownTabs - 1 ? (
-                  <span className="rounded-full px-2 py-px text-[11px]" style={{ background: "var(--studio-hover)" }}>
+                  <span className="rounded-full px-2 py-px text-[11px]" style={{ background: "var(--sf-soft)" }}>
                     {t("studio.tabInMore")}
                   </span>
                 ) : null}
@@ -1567,7 +1567,7 @@ function TabsPanel(props: Props) {
                 </button>
               </div>
               <label className="flex flex-col gap-1">
-                <span style={{ color: "var(--studio-muted)" }}>{t("studio.tabName")}</span>
+                <span style={{ color: "var(--sf-muted)" }}>{t("studio.tabName")}</span>
                 <input value={labelOf(tab)} placeholder={other ? tab.label : undefined} maxLength={24} onChange={(e) => setLabel(i, e.target.value)} className={field} style={line} dir={props.lang === "ar" ? "rtl" : undefined} />
               </label>
               <IconPicker id={`tab-${tab.id}-icon`} label={t("studio.tabIcon")} value={tab.icon} onChange={(icon) => setTab(i, { icon: icon ?? tab.icon })} />
@@ -1590,7 +1590,7 @@ function TabsPanel(props: Props) {
         <Rule />
         <Heading>{t("studio.tabBarLook")}</Heading>
         <div role="group" aria-label={t("studio.tabBarDesign")} className="flex flex-col gap-1.5">
-          <span style={{ color: "var(--studio-muted)" }}>{t("studio.tabBarDesign")}</span>
+          <span style={{ color: "var(--sf-muted)" }}>{t("studio.tabBarDesign")}</span>
           <div className="grid grid-cols-2 gap-1.5">
             {([undefined, ...TAB_BAR_DESIGNS] as const).map((design) => {
               const on = style.design === design;
@@ -1602,7 +1602,7 @@ function TabsPanel(props: Props) {
                   data-tab-design={design ?? "template"}
                   onClick={() => setStyle({ design })}
                   className="flex flex-col items-stretch gap-1 rounded-lg bg-white p-1.5 text-start text-xs"
-                  style={on ? { border: "2px solid #3D63FF", color: "var(--studio-select-ink)", fontWeight: 700 } : line}
+                  style={on ? { border: "2px solid #3D63FF", color: "var(--sf-select-ink)", fontWeight: 700 } : line}
                 >
                   <TabDesignSample design={design} brand={style.active ?? props.palette[0] ?? "#3D63FF"} />
                   {t(`studio.tabDesign_${design ?? "template"}` as DashKey)}
@@ -1630,7 +1630,7 @@ function TabsPanel(props: Props) {
                 { label: t("studio.tabInactive"), value: style.dark_inactive, onChange: (dark_inactive) => setStyle({ dark_inactive }) },
               ]}
             />
-            <p className="m-0 text-xs" style={{ color: "var(--studio-muted)" }}>
+            <p className="m-0 text-xs" style={{ color: "var(--sf-muted)" }}>
               {t("studio.tabBarDarkHint")}
             </p>
           </div>
@@ -1639,12 +1639,12 @@ function TabsPanel(props: Props) {
         <RangeField label={t("studio.tabBarMargin")} value={style.margin ?? 0} min={0} max={24} unit="px" fallback={0} onChange={(margin) => setStyle({ margin })} />
         <FontPicker id="tab-bar-font" label={t("studio.tabBarFont")} value={style.font ?? ""} labels={props.fontLabels} compact placeholder={t("studio.appFont")} onChange={(family) => setStyle({ font: family || null })} />
         <div role="group" aria-label={t("studio.tabLabels")} className="flex flex-col gap-1.5">
-          <span style={{ color: "var(--studio-muted)" }}>{t("studio.tabLabels")}</span>
+          <span style={{ color: "var(--sf-muted)" }}>{t("studio.tabLabels")}</span>
           <div className="flex gap-1">
             {TAB_LABELS.map((when) => {
               const on = (style.labels ?? "always") === when;
               return (
-                <button key={when} type="button" aria-pressed={on} onClick={() => setStyle({ labels: when })} className="h-8 flex-1 rounded-lg bg-white px-1.5 text-xs" style={on ? { border: "2px solid #3D63FF", color: "var(--studio-select-ink)", fontWeight: 700 } : line}>
+                <button key={when} type="button" aria-pressed={on} onClick={() => setStyle({ labels: when })} className="h-8 flex-1 rounded-lg bg-white px-1.5 text-xs" style={on ? { border: "2px solid #3D63FF", color: "var(--sf-select-ink)", fontWeight: 700 } : line}>
                   {t(`studio.tabLabels_${when}` as DashKey)}
                 </button>
               );
@@ -1653,7 +1653,7 @@ function TabsPanel(props: Props) {
         </div>
         {middle ? <Check label={t("studio.tabCenter")} checked={style.center === middle.id} onChange={(on) => setStyle({ center: on ? middle.id : null })} /> : null}
         <Check label={t("studio.tabAvatar")} checked={style.avatar === true} onChange={(on) => setStyle({ avatar: on || undefined })} />
-        <p className="m-0 text-xs" style={{ color: "var(--studio-muted)" }}>
+        <p className="m-0 text-xs" style={{ color: "var(--sf-muted)" }}>
           {middle ? `${t("studio.tabCenterHint")} ` : ""}
           {t("studio.tabBarApp")}
         </p>
@@ -1743,7 +1743,7 @@ function PagePanel(props: Props) {
   return (
     <div className="min-h-0 flex-1 overflow-y-auto">
       <div className="flex flex-col gap-3.5 px-4 py-3.5">
-        <p className="m-0" style={{ color: "var(--studio-muted)" }}>
+        <p className="m-0" style={{ color: "var(--sf-muted)" }}>
           {t("studio.nothingSelected")}
         </p>
         <Rule />
@@ -1766,7 +1766,7 @@ function PagePanel(props: Props) {
               props.onPage({ screen, ...(screen && props.page.header?.type === "transparent" ? { header: { ...props.page.header, type: "title_search" } } : {}) });
             }}
             className="h-9 rounded-lg px-2 font-normal"
-            style={{ border: "1px solid var(--studio-line)" }}
+            style={{ border: "1px solid var(--sf-line)" }}
           >
             <option value="">{t("studio.pageScreenNone")}</option>
             {props.pageScreens.map((s) => (
@@ -1775,13 +1775,13 @@ function PagePanel(props: Props) {
                 </option>
               ))}
           </select>
-          <span className="text-xs font-normal" style={{ color: "var(--studio-muted)" }}>
+          <span className="text-xs font-normal" style={{ color: "var(--sf-muted)" }}>
             {t("studio.pageScreenHint")}
           </span>
         </label>
         {/* 130.21 The look of the app's system screens, for the whole project. */}
         {props.system ? <SystemLookControl look={props.system.look} onLook={props.system.onLook} busy={props.system.busy} /> : null}
-        <p className="m-0 text-xs" style={{ color: "var(--studio-muted)" }}>
+        <p className="m-0 text-xs" style={{ color: "var(--sf-muted)" }}>
           {t("studio.keyboard")}
         </p>
       </div>
@@ -1803,7 +1803,7 @@ function LearningControls({ node, onChange }: { node: StudioNode; onChange: (pat
           value={node.learning?.section ?? "continue"}
           onChange={(e) => onChange({ learning: { ...node.learning, section: e.target.value as Learning["section"], ...(style !== "card" ? { style } : {}) } })}
           className="h-9 rounded-lg px-2 font-normal"
-          style={{ border: "1px solid var(--studio-line)" }}
+          style={{ border: "1px solid var(--sf-line)" }}
         >
           {STUDIO_LEARNING_SECTIONS.map((s) => (
             <option key={s} value={s}>
@@ -1811,7 +1811,7 @@ function LearningControls({ node, onChange }: { node: StudioNode; onChange: (pat
             </option>
           ))}
         </select>
-        <span className="text-xs font-normal" style={{ color: "var(--studio-muted)" }}>
+        <span className="text-xs font-normal" style={{ color: "var(--sf-muted)" }}>
           {t("studio.learningHint")}
         </span>
       </label>
@@ -1826,7 +1826,7 @@ function LearningControls({ node, onChange }: { node: StudioNode; onChange: (pat
             onChange({ learning: { ...rest, ...(e.target.value !== "card" ? { style: e.target.value as Learning["style"] } : {}) } });
           }}
           className="h-9 rounded-lg px-2 font-normal"
-          style={{ border: "1px solid var(--studio-line)" }}
+          style={{ border: "1px solid var(--sf-line)" }}
         >
           {STUDIO_LEARNING_STYLES.map((s) => (
             <option key={s} value={s}>
@@ -1847,7 +1847,7 @@ function LearningControls({ node, onChange }: { node: StudioNode; onChange: (pat
               onChange({ learning: { ...rest, ...(e.target.value ? { days: e.target.value as Learning["days"] } : {}) } });
             }}
             className="h-9 rounded-lg px-2 font-normal"
-            style={{ border: "1px solid var(--studio-line)" }}
+            style={{ border: "1px solid var(--sf-line)" }}
           >
             <option value="">{t("studio.learningDays_none")}</option>
             {STUDIO_LEARNING_DAYS.map((d) => (
@@ -1888,14 +1888,14 @@ function SchoolControls({ node, onChange }: { node: StudioNode; onChange: (patch
   return (
     <label className="flex flex-col gap-1 font-bold">
       {t("studio.schoolSection")}
-      <select value={node.school?.section ?? "today"} onChange={(e) => onChange({ school: { section: e.target.value as NonNullable<StudioNode["school"]>["section"] } })} className="h-9 rounded-lg px-2 font-normal" style={{ border: "1px solid var(--studio-line)" }}>
+      <select value={node.school?.section ?? "today"} onChange={(e) => onChange({ school: { section: e.target.value as NonNullable<StudioNode["school"]>["section"] } })} className="h-9 rounded-lg px-2 font-normal" style={{ border: "1px solid var(--sf-line)" }}>
         {STUDIO_SCHOOL_SECTIONS.map((s) => (
           <option key={s} value={s}>
             {t(`studio.school_${s}` as DashKey)}
           </option>
         ))}
       </select>
-      <span className="text-xs font-normal" style={{ color: "var(--studio-muted)" }}>
+      <span className="text-xs font-normal" style={{ color: "var(--sf-muted)" }}>
         {t("studio.schoolHint")}
       </span>
     </label>
@@ -1910,21 +1910,21 @@ function LiveStatusControls({ node, onChange }: { node: StudioNode; onChange: (p
     <div className="flex flex-col gap-2">
       <label className="flex flex-col gap-1 font-bold">
         {t("studio.liveSource")}
-        <select value={live.source} onChange={(e) => onChange({ live_status: { ...live, source: e.target.value as NonNullable<StudioNode["live_status"]>["source"] } })} className="h-9 rounded-lg px-2 font-normal" style={{ border: "1px solid var(--studio-line)" }}>
+        <select value={live.source} onChange={(e) => onChange({ live_status: { ...live, source: e.target.value as NonNullable<StudioNode["live_status"]>["source"] } })} className="h-9 rounded-lg px-2 font-normal" style={{ border: "1px solid var(--sf-line)" }}>
           {STUDIO_LIVE_SOURCES.map((s) => (
             <option key={s} value={s}>
               {t(`studio.live_${s}` as DashKey)}
             </option>
           ))}
         </select>
-        <span className="text-xs font-normal" style={{ color: "var(--studio-muted)" }}>
+        <span className="text-xs font-normal" style={{ color: "var(--sf-muted)" }}>
           {t("studio.liveHint")}
         </span>
       </label>
       {/* 130 The live cards' premium looks. */}
       <label className="flex flex-col gap-1 font-bold">
         {t("studio.liveLook")}
-        <select value={live.style ?? "card"} onChange={(e) => onChange({ live_status: { ...live, style: e.target.value === "card" ? undefined : (e.target.value as NonNullable<typeof live.style>) } })} className="h-9 rounded-lg px-2 font-normal" style={{ border: "1px solid var(--studio-line)" }}>
+        <select value={live.style ?? "card"} onChange={(e) => onChange({ live_status: { ...live, style: e.target.value === "card" ? undefined : (e.target.value as NonNullable<typeof live.style>) } })} className="h-9 rounded-lg px-2 font-normal" style={{ border: "1px solid var(--sf-line)" }}>
           {STUDIO_LIVE_STATUS_STYLES.map((s) => (
             <option key={s} value={s}>
               {t(`studio.liveLook_${s}` as DashKey)}
@@ -1952,14 +1952,14 @@ function MarketControls({ node, onChange }: { node: StudioNode; onChange: (patch
     <div className="flex flex-col gap-2">
       <label className="flex flex-col gap-1 font-bold">
         {t("studio.marketSection")}
-        <select value={market.section} onChange={(e) => onChange({ market: { section: e.target.value as StudioMarket["section"] } })} className="h-9 rounded-lg px-2 font-normal" style={{ border: "1px solid var(--studio-line)" }}>
+        <select value={market.section} onChange={(e) => onChange({ market: { section: e.target.value as StudioMarket["section"] } })} className="h-9 rounded-lg px-2 font-normal" style={{ border: "1px solid var(--sf-line)" }}>
           {STUDIO_MARKET_SECTIONS.map((s) => (
             <option key={s} value={s}>
               {t(`studio.market_${s}` as DashKey)}
             </option>
           ))}
         </select>
-        <span className="text-xs font-normal" style={{ color: "var(--studio-muted)" }}>
+        <span className="text-xs font-normal" style={{ color: "var(--sf-muted)" }}>
           {t("studio.marketHint")}
         </span>
       </label>
@@ -1973,7 +1973,7 @@ function MarketControls({ node, onChange }: { node: StudioNode; onChange: (patch
           <Segments label={t("studio.marketKind")} value={market.kind ?? "all"} onChange={(kind) => set({ kind: kind === "all" ? undefined : kind })} options={STUDIO_MARKET_KINDS.map((v) => ({ value: v, label: t(`studio.marketKind_${v}` as DashKey) }))} />
           <label className="flex flex-col gap-1 font-bold">
             {t("studio.marketSort")}
-            <select value={market.sort ?? "recommended"} onChange={(e) => set({ sort: e.target.value === "recommended" ? undefined : (e.target.value as StudioMarket["sort"]) })} className="h-9 rounded-lg px-2 font-normal" style={{ border: "1px solid var(--studio-line)" }}>
+            <select value={market.sort ?? "recommended"} onChange={(e) => set({ sort: e.target.value === "recommended" ? undefined : (e.target.value as StudioMarket["sort"]) })} className="h-9 rounded-lg px-2 font-normal" style={{ border: "1px solid var(--sf-line)" }}>
               {STUDIO_MARKET_SORTS.map((s) => (
                 <option key={s} value={s}>
                   {t(`studio.marketSort_${s}` as DashKey)}
@@ -1983,8 +1983,8 @@ function MarketControls({ node, onChange }: { node: StudioNode; onChange: (patch
           </label>
           <label className="flex flex-col gap-1 font-bold">
             {t("studio.marketTag")}
-            <input value={market.tag ?? ""} maxLength={60} onChange={(e) => set({ tag: e.target.value.trim() ? e.target.value : undefined })} className="h-9 rounded-lg px-2.5 font-normal" style={{ border: "1px solid var(--studio-line)" }} />
-            <span className="text-xs font-normal" style={{ color: "var(--studio-muted)" }}>
+            <input value={market.tag ?? ""} maxLength={60} onChange={(e) => set({ tag: e.target.value.trim() ? e.target.value : undefined })} className="h-9 rounded-lg px-2.5 font-normal" style={{ border: "1px solid var(--sf-line)" }} />
+            <span className="text-xs font-normal" style={{ color: "var(--sf-muted)" }}>
               {t("studio.marketTagHint")}
             </span>
           </label>

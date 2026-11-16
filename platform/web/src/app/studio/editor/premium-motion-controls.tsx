@@ -29,7 +29,7 @@ export interface PremiumControlsProps {
   link: (id: string, action: Action | null, onChange: (action: Action | null) => void) => ReactNode;
 }
 
-const box = { border: "1px solid var(--studio-line)" } as const;
+const box = { border: "1px solid var(--sf-line)" } as const;
 
 /** An entry's text in the language being edited. */
 function textOf(entry: Entry, field: string, lang: LanguageCode, def: LanguageCode): string {
@@ -147,11 +147,11 @@ export function SegmentsControls({ node, onChange }: PremiumControlsProps) {
       <RangeField label={t("studio.pmSegmentsDone")} value={s.done ?? 0} min={0} max={s.count ?? 5} fallback={0} onChange={(done) => set({ done: done || undefined })} />
       <RangeField label={t("studio.pmSegmentPart")} value={Math.round((s.part ?? 0) * 100)} min={0} max={100} step={5} unit="%" fallback={0} onChange={(v) => set({ part: v ? v / 100 : undefined })} />
       <RangeField label={t("studio.pmSegmentHeight")} value={s.height ?? 3} min={2} max={10} unit="px" fallback={3} onChange={(height) => set({ height: height === 3 ? undefined : height })} />
-      <p className="m-0 text-xs" style={{ color: "var(--studio-muted)" }}>
+      <p className="m-0 text-xs" style={{ color: "var(--sf-muted)" }}>
         {t("studio.pmSegmentsHint")}
       </p>
       {/* 129 Not the Progress element's segmented bars (129.14, `progress.style` `segments`). */}
-      <p className="m-0 text-xs" style={{ color: "var(--studio-muted)" }} data-studio-hint="segments-vs-progress">
+      <p className="m-0 text-xs" style={{ color: "var(--sf-muted)" }} data-studio-hint="segments-vs-progress">
         {t("studio.pmSegmentsOther")}
       </p>
     </div>
@@ -255,7 +255,7 @@ export function MarqueeControls(props: PremiumControlsProps) {
       <Tick label={t("studio.pmChips")} checked={Boolean(m.chips)} onChange={(on) => set({ chips: on || undefined })} />
       {node.images?.length ? <RangeField label={t("studio.pmPictureHeight")} value={m.size ?? 36} min={P.logoMin} max={P.logoMax} step={2} unit="px" fallback={36} onChange={(size) => set({ size: size === 36 ? undefined : size })} /> : null}
       <IconPicker id={`marquee-icon-${node.id}`} label={t("studio.pmTickerIcon")} value={node.icon ?? null} optional onChange={(icon) => onChange({ icon: icon ?? undefined })} />
-      <p className="m-0 text-xs" style={{ color: "var(--studio-muted)" }}>
+      <p className="m-0 text-xs" style={{ color: "var(--sf-muted)" }}>
         {t("studio.reduceMotion")}
       </p>
     </div>
@@ -281,7 +281,7 @@ export function BannerControls({ node, onChange }: PremiumControlsProps) {
             {node.video_url ? remove("video_url", t("studio.pmRemoveVideo")) : null}
           </div>
           {node.video_url ? (
-            <span dir="ltr" className="truncate text-xs font-normal" style={{ color: "var(--studio-muted)" }}>
+            <span dir="ltr" className="truncate text-xs font-normal" style={{ color: "var(--sf-muted)" }}>
               {node.video_url}
             </span>
           ) : null}
@@ -301,14 +301,14 @@ export function BannerControls({ node, onChange }: PremiumControlsProps) {
       {video ? (
         <>
           <Tick label={t("studio.pmVideoByItself")} checked={Boolean(node.autoplay)} onChange={(on) => onChange({ autoplay: on || undefined })} />
-          <p className="m-0 text-xs" style={{ color: "var(--studio-muted)" }}>
+          <p className="m-0 text-xs" style={{ color: "var(--sf-muted)" }}>
             {t("studio.pmVideoHint")}
           </p>
         </>
       ) : (
         <>
           <RangeField label={t("studio.pmParallaxSpeed")} value={Math.round((node.parallax?.speed ?? 0.5) * 100)} min={10} max={90} step={5} unit="%" fallback={50} onChange={(v) => onChange({ parallax: v === 50 ? undefined : { speed: v / 100 } })} />
-          <p className="m-0 text-xs" style={{ color: "var(--studio-muted)" }}>
+          <p className="m-0 text-xs" style={{ color: "var(--sf-muted)" }}>
             {t("studio.pmParallaxHint")}
           </p>
         </>
@@ -342,7 +342,7 @@ export function GalleryControls(props: PremiumControlsProps) {
         {t("studio.pmPhotos")}
         <PhotosList {...props} min={1} captionLabel={t("studio.pmCaption")} links />
       </div>
-      <p className="m-0 text-xs" style={{ color: "var(--studio-muted)" }}>
+      <p className="m-0 text-xs" style={{ color: "var(--sf-muted)" }}>
         {t("studio.pmGalleryHint")}
       </p>
     </div>
@@ -379,7 +379,7 @@ export function BeforeAfterControls({ node, onChange, lang, defaultLang }: Premi
       {slot(0)}
       {slot(1)}
       <RangeField label={t("studio.pmDividerAt")} value={node.compare?.at ?? 50} min={5} max={95} unit="%" fallback={50} onChange={(at) => onChange({ compare: at === 50 ? undefined : { at } })} />
-      <p className="m-0 text-xs" style={{ color: "var(--studio-muted)" }}>
+      <p className="m-0 text-xs" style={{ color: "var(--sf-muted)" }}>
         {t("studio.pmCompareHint")}
       </p>
     </div>

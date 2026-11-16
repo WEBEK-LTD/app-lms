@@ -84,6 +84,8 @@ test("the office picks Real estate, sets up the office and publishes a listing",
 
   await own.getByRole("link", { name: "Listings", exact: true }).click();
   await expect(own.getByText("No listings yet.")).toBeVisible();
+  // 132.23 The office's settings have their own tab.
+  await own.getByRole("tab", { name: "Your office" }).click();
   const office = own.getByRole("region", { name: "Your office" });
   await office.getByLabel("Office name").fill("Nile Homes Maadi");
   await office.getByLabel("Phone", { exact: true }).fill("0100");
@@ -96,6 +98,7 @@ test("the office picks Real estate, sets up the office and publishes a listing",
   await office.getByRole("button", { name: "Save office" }).click();
   await expect(office.getByText("Office settings saved.")).toBeVisible();
 
+  await own.getByRole("tab", { name: /^Listings/ }).click();
   await own.getByRole("link", { name: "Add listing" }).click();
   await own.getByRole("button", { name: "Publish" }).click();
   await expect(own.getByText("Enter a title.")).toBeVisible();

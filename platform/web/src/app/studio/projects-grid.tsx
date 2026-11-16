@@ -123,7 +123,7 @@ export function ProjectsGrid({ cards, words, samples }: { cards: ProjectCardView
         <Link
           href="/start?new=1&for=studio"
           className="flex min-h-[330px] flex-col items-center justify-center gap-2.5 rounded-[18px] no-underline"
-          style={{ border: "2px dashed var(--color-line-strong)", color: C.ink, background: "color-mix(in srgb, var(--studio-surface) 40%, transparent)" }}
+          style={{ border: "2px dashed var(--color-line-strong)", color: C.ink, background: "color-mix(in srgb, var(--sf-surface) 40%, transparent)" }}
         >
           <span className="flex h-14 w-14 items-center justify-center rounded-full" style={{ background: C.accent, color: C.onAccent }}>
             <Glyph name="add" size={30} />

@@ -1,9 +1,10 @@
 import { chooseApp, getClientContext } from "@/lib/auth/session";
 import { appUrl } from "@/lib/env";
 import { isPlan } from "@/lib/plans";
+import { isPeriodKey } from "@/lib/billing/periods";
 
 /**
- * GET /dashboard/open?app=<id>&to=renew|change-plan|users|app-sign-in|media|builds|chat: the links in the
+ * GET /dashboard/open?app=<id>&to=renew|change-plan|users|app-sign-in|media|builds|chat|addons: the links in the
  * owner emails and dashboard notices (13.2, 13.4). Opens the dashboard on
  * that app (only one of the signed-in client's own) and goes to the page.
  */
@@ -15,7 +16,12 @@ export async function GET(request: Request): Promise<Response> {
   const app = context.apps.find((a) => a.id === url.searchParams.get("app"));
   if (app) await chooseApp(app.id);
   const plan = url.searchParams.get("plan");
-  const query = isPlan(plan) ? `?plan=${plan}` : "";
+  // 133 And the period to start on.
+  const period = url.searchParams.get("period");
+  const params = new URLSearchParams();
+  if (isPlan(plan)) params.set("plan", plan);
+  if (isPeriodKey(period)) params.set("period", period);
+  const query = params.size ? `?${params.toString()}` : "";
   switch (url.searchParams.get("to")) {
     case "renew":
       return go(`/dashboard/license${query}#renew`);
@@ -33,6 +39,9 @@ export async function GET(request: Request): Promise<Response> {
     // 77 From the "chat messages deleted soon" email and notice, and a new message.
     case "chat":
       return go("/dashboard/chat");
+    // 133 From the add-on emails and notices.
+    case "addons":
+      return go("/dashboard/addons");
     default:
       return go("/dashboard");
   }

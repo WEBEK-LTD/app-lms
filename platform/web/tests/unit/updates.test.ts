@@ -1,4 +1,5 @@
 import { describe, expect, it } from "vitest";
+import { PLAN_INFO as ALL_PLAN_INFO, planNamesOf } from "@/lib/plans";
 import { MemoryStore } from "@/lib/data/memory";
 import type { Announcement, App, Build, OwnerNotice, PlanPayment } from "@/lib/data/types";
 import { accountItems, BELL_LIMIT, buildUpdates, isUpdateKey, loadUpdates, markRead, summaryOf, type AccountSources, type UpdatesInput } from "@/lib/updates";
@@ -127,7 +128,7 @@ describe("57 the bell's items", () => {
         build({ appId: APP_B.id, finishedAt: days(-15) }),
       ],
       payments: [payment({ paidAt: days(-3) }), payment({ status: "pending", paidAt: null }), payment({ paidAt: days(-31) }), payment({ purpose: "storage", storagePacks: [{ offer: "plus25", gb: 25 }] as PlanPayment["storagePacks"], amountCents: 25000 })],
-      planNames: { starter: "Starter", growth: "Growth+", pro: "Pro", business: "Business", studio_1: "Studio 1", studio_2: "Studio 2", studio_3: "Studio 3", studio_4: "Studio 4", studio_5: "Studio 5", studio_6: "Studio 6", studio_7: "Studio 7", studio_8: "Studio 8" },
+      planNames: { ...planNamesOf(ALL_PLAN_INFO), starter: "Starter", growth: "Growth+", pro: "Pro", business: "Business", studio_1: "Studio 1", studio_2: "Studio 2", studio_3: "Studio 3", studio_4: "Studio 4", studio_5: "Studio 5", studio_6: "Studio 6", studio_7: "Studio 7", studio_8: "Studio 8" },
     };
     const items = accountItems(sources, NOW);
     expect(items.map((i) => i.topic)).toEqual(["plan", "storage", "build_ready", "build_failed", "build_ready", "payment", "payment"]);

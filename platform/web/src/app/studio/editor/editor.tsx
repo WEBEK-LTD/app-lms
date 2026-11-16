@@ -686,6 +686,8 @@ export function StudioEditor(props: StudioEditorProps) {
   function dragGhost(e: DragEvent, label: string, icon: string) {
     const ghost = document.createElement("div");
     ghost.dir = dashLang === "ar" ? "rtl" : "ltr";
+    // 132.70 Drawn on the page's body, outside the editor: a frame of its own, so it takes Studio's light or dark (`--sf-…`).
+    ghost.setAttribute("data-studio-frame", "");
     ghost.setAttribute("style", `position:fixed;top:-200px;inset-inline-start:-200px;display:flex;align-items:center;gap:8px;background:${C.surface};border:1px solid ${C.accent};border-radius:12px;padding:8px 12px;font:700 13px Cairo,system-ui,sans-serif;color:${C.ink};box-shadow:0 10px 24px rgba(14,13,36,0.18);transform:rotate(-4deg)`);
     ghost.innerHTML = `<span class="material-symbols-rounded" style="color:${C.accent};font-size:20px">${icon}</span><span></span><span class="material-symbols-rounded" style="font-size:18px;color:${C.muted}">drag_indicator</span>`;
     (ghost.children[1] as HTMLElement).textContent = label;
@@ -1161,7 +1163,7 @@ export function StudioEditor(props: StudioEditorProps) {
   const languages = layout.languages.available;
 
   return (
-    <div data-site-theme="" data-studio-frame="" className="studio flex min-h-dvh flex-col lg:h-dvh lg:overflow-hidden" style={{ fontFamily: "var(--font-studio), 'Cairo', system-ui, sans-serif", color: C.ink, background: C.board }} onDragEnd={endDrag}>
+    <div data-site-theme="" data-studio-frame="" className="studio flex min-h-dvh flex-col lg:h-[calc(100dvh-var(--team-bar,0px))] lg:overflow-hidden" style={{ fontFamily: "var(--font-studio), 'Cairo', system-ui, sans-serif", color: C.ink, background: C.board }} onDragEnd={endDrag}>
       {/* 132.52 One line at 1280px and wider: gaps a little tighter, Help and Preview as their icons below 1536px (132.73 the history beside Undo and Redo). */}
       <header className="flex flex-wrap items-center gap-2 px-4 py-2.5 min-[1366px]:gap-3 min-[1366px]:px-5" style={{ background: C.bar, color: C.barText }}>
         <Link href="/studio/project" className="flex items-center gap-2.5 no-underline" style={{ color: C.barText }} title={t("studio.back")}>

@@ -1,5 +1,8 @@
 import type { OrderMoney } from "../market/money";
-import type { Plan, PlanSetting } from "../plans";
+import type { Plan, PlanExtrasSetting, PlanSetting } from "../plans";
+import type { PeriodMonths } from "../billing/periods";
+import type { AddonsSetting, PaidAddon } from "../addons/types";
+export type { AppAddon, AppAddonPatch, AddonTaskStatus } from "../addons/types";
 import type { BuildConfig } from "../build-config/types";
 import type { AppDefaultsSetting, Layout, LayoutBlock, LayoutContent, StudioPage } from "../pages/types";
 import type { Design } from "../pages/designs/build";
@@ -636,6 +639,13 @@ export interface App {
    */
   deletedAt?: Date | null;
   deletedBy?: string | null;
+  /**
+   * 132.112 The app moved to another account (`movedToClientId`) and this one
+   * stayed behind with what didn't move with it (its customers and orders,
+   * or its plan): it stays to read, nothing in it changes. Null: not moved.
+   */
+  movedAt?: Date | null;
+  movedToClientId?: string | null;
   createdAt: Date;
   updatedAt: Date;
 }
@@ -1781,6 +1791,10 @@ export interface PlatformSettingValues {
   billing: YallappBillingSetting;
   /** The team's edits to the plans; plans without one keep the defaults in code. */
   plans: Partial<Record<Plan, PlanSetting>>;
+  /** 133 The team's own plan limits (Admin › Plans › Limits; each plan's values are in its edit) and the lifetime offer's note. */
+  planExtras: PlanExtrasSetting;
+  /** 133 The add-ons (Admin › Add-ons) and the top plan of each family. */
+  addons: AddonsSetting;
   /** Shops selling through Yallapp's iyzico account; off until set. */
   marketplace: MarketplaceSetting;
   /** How clients reach Yallapp, shown across the website and the dashboard. */
@@ -1822,8 +1836,8 @@ export interface PlanPayment {
   /** The app whose plan it pays; null when paid before the account's first app existed (creating that app fills it in). */
   appId: string | null;
   plan: Plan;
-  /** How long the payment extends the license. */
-  months: 1 | 12;
+  /** How long the payment extends the license: 133 1, 6, 12, 24 or 36 months, or 0 for life (an add-on's: 0 also for a one-time payment). */
+  months: PeriodMonths;
   amountCents: number;
   currency: CatalogCurrency;
   status: PlanPaymentStatus;
@@ -1861,6 +1875,8 @@ export interface PlanPayment {
    * default). Null or missing: not allowed.
    */
   showOnSite?: boolean | null;
+  /** 133 An add-on payment (purpose "addon"): the add-on and how it's paid. */
+  addon?: PaidAddon | null;
 }
 
 /** 95.2 "bank_transfer": the client paid into Yallapp's bank account and the team recorded it. */
@@ -3142,8 +3158,10 @@ export interface Coupon {
   discount: CouponDiscount;
   /** The plans it applies to; null for every plan. */
   plans: Plan[] | null;
-  /** Billing periods in months it applies to; null for every period. */
-  periods: (1 | 12)[] | null;
+  /** Billing periods in months it applies to (133 any of them; 0: lifetime or one-time); null for every period. */
+  periods: PeriodMonths[] | null;
+  /** 133 The add-ons it applies to; null or missing: none (it's for plans). */
+  addons?: string[] | null;
   validFrom: Date | null;
   validUntil: Date | null;
   /** Uses across every client; null for no limit. */
@@ -3415,7 +3433,9 @@ export type OwnerNoticeKind =
   // 77 Chat messages are deleted within 30 days unless the business keeps them.
   | "chat_expiring"
   // 80.2 A daily check found one of the app's connections broken (one per connection; `integration_failed:<key>:<n>`).
-  | "integration_failed";
+  | "integration_failed"
+  // 133 An add-on ends in 7 days (`addon_ends_7:<addon row>:<end>`).
+  | "addon_ends_7";
 
 export interface OwnerNotice {
   id: number;
@@ -5104,7 +5124,8 @@ export interface StoragePack {
 
 export type StoragePackPatch = Partial<Pick<StoragePack, "activeUntil" | "paymentId" | "updatedAt" | "endedNoticeAt">>;
 
-export type PlanPaymentPurpose = "plan" | "storage";
+/** 133 "addon": one of the app's add-ons (lib/addons). */
+export type PlanPaymentPurpose = "plan" | "storage" | "addon";
 
 /** One storage pack a card payment pays for. */
 export interface PaidStoragePack {
@@ -5456,6 +5477,49 @@ export type AccountDeletionStatus = "pending" | "done" | "cancelled";
 export type AppDeletionStatus = "waiting" | "restored" | "purged";
 
 /** 73 The record of an app's deletion: it has no foreign keys, so it outlives the app. */
+/** 132.115 What a request moves: the app to another account, or only its plan to another app. */
+export type AppMoveKind = "app" | "plan";
+
+/** 132.112 Where a request to move an app to another account is. */
+export type AppMoveStatus = "waiting" | "approved" | "moved" | "declined" | "cancelled" | "expired" | "failed";
+
+/**
+ * 132.112 Our team moving an app to another account, with the owner's
+ * approval: a 6-digit code emailed to the owner of the account it leaves
+ * (stored hashed), 15 minutes and 5 tries; one waiting request per app.
+ */
+export interface AppMoveRequest {
+  id: string;
+  /** "app": the app moves to `toClientId`; "plan": only its plan moves, to the app `toAppId` (in `toClientId`). */
+  kind: AppMoveKind;
+  appId: string;
+  fromClientId: string;
+  toClientId: string;
+  /** "plan": the app the plan goes to; null for "app". */
+  toAppId: string | null;
+  /** The app's customers, orders, bookings and messages go with it; else they stay, archived, in the account it leaves. */
+  moveData: boolean;
+  /** Its plan (license, storage packs, renewal) goes with it; else the account it leaves keeps it. */
+  moveSubscription: boolean;
+  /** HMAC-SHA256 of the request's ID and the code (lib/apps/move.ts). */
+  codeHash: string;
+  attempts: number;
+  status: AppMoveStatus;
+  /** The team member who asked. */
+  requestedBy: string;
+  requestedByEmail: string;
+  requestedByName: string;
+  createdAt: Date;
+  expiresAt: Date;
+  closedAt: Date | null;
+  /** Who approved, declined or cancelled it: "owner" (on their page), "team" (the code typed in the admin) or an email. */
+  closedBy: string | null;
+  /** The app in the other account once moved (the same app, or its copy when something stayed behind). */
+  resultAppId: string | null;
+  /** Why it failed, in a line. */
+  note: string | null;
+}
+
 export interface AppDeletion {
   id: string;
   appId: string;

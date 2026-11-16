@@ -174,7 +174,7 @@ export function ImportDialog(props: {
                 className="flex cursor-pointer flex-col items-center gap-2 rounded-2xl px-6 py-8 text-center"
                 style={{ border: `2px dashed ${over ? C.select : C.dot}`, background: C.hover }}
               >
-                <Glyph name="cloud_upload" size={40} className="text-[var(--studio-muted)]" />
+                <Glyph name="cloud_upload" size={40} className="text-[var(--sf-muted)]" />
                 <b className="text-base">{busy ? t("studio.importReading") : read ? read.file : t("studio.importDrop")}</b>
                 <span style={{ color: C.muted }}>{t("studio.importTools")}</span>
                 <span className="flex flex-wrap justify-center gap-1.5" dir="ltr">
@@ -353,7 +353,7 @@ function Found(props: Parameters<typeof ImportDialog>[0] & { read: ImportRead; o
                 >
                   <MiniPhone>{props.preview({ ...page.studio, body: withPictures(page.studio.body, shown) })}</MiniPhone>
                   <span className="flex items-center gap-1">
-                    <Glyph name={on ? "check_circle" : "radio_button_unchecked"} size={18} className={on ? "text-[#3D63FF]" : "text-[var(--studio-muted)]"} />
+                    <Glyph name={on ? "check_circle" : "radio_button_unchecked"} size={18} className={on ? "text-[#3D63FF]" : "text-[var(--sf-muted)]"} />
                     {page.title}
                   </span>
                 </button>
@@ -589,11 +589,11 @@ function FigmaTab({ languages, onReady }: { languages: Languages; onReady: (read
                     <img src={f.thumbnail} alt="" className="h-[150px] w-full rounded-lg object-contain" style={{ background: C.ivory }} />
                   ) : (
                     <span className="flex h-[150px] w-full items-center justify-center rounded-lg" style={{ background: C.ivory }}>
-                      <Glyph name="smartphone" size={28} className="text-[var(--studio-muted)]" />
+                      <Glyph name="smartphone" size={28} className="text-[var(--sf-muted)]" />
                     </span>
                   )}
                   <span className="flex w-full items-center gap-1 text-xs">
-                    <Glyph name={on ? "check_circle" : "radio_button_unchecked"} size={16} className={on ? "text-[#3D63FF]" : "text-[var(--studio-muted)]"} />
+                    <Glyph name={on ? "check_circle" : "radio_button_unchecked"} size={16} className={on ? "text-[#3D63FF]" : "text-[var(--sf-muted)]"} />
                     <span className="truncate">{f.name}</span>
                   </span>
                 </button>

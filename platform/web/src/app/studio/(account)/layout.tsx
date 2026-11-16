@@ -18,6 +18,7 @@ export default async function StudioAccountLayout({ children }: { children: Reac
   const { t, lang, dir } = await dashboardText();
   const project = context.app && isStudioProject(context.app) ? context.app : null;
   return (
+    // 132.4 132.70 Light or dark like the project's frame and the dashboard (every StudioScreen is).
     <StudioScreen dir={dir} lang={lang}>
       {/* The pages' links to the dashboard open the same page in Studio's frame. */}
       {project ? <StudioDashboardLinks /> : null}

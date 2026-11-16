@@ -136,6 +136,11 @@ export const en = {
   kind_live: "Live class",
   otherLessons: "The lessons before and after it",
   deleteItemNote: "Students' progress and grades on it go with it.",
+  // 132.25 Delivery & offers' tabs
+  deliveryTab: "Delivery times",
+  areasTab: "Areas and fees",
+  giftsTab: "Gifts and cards",
+  offersTab: "Flash sales and codes",
   known: {
     // app/actions/catalog.ts, the Products list's bulk actions
     chooseOp: "Choose what to do with the products.",
@@ -272,6 +277,10 @@ export const ar: Messages = {
   kind_live: "حصة لايف",
   otherLessons: "الدروس اللي قبله واللي بعده",
   deleteItemNote: "تقدّم الطلاب ودرجاتهم فيه هتتمسح معاه.",
+  deliveryTab: "مواعيد التوصيل",
+  areasTab: "المناطق والرسوم",
+  giftsTab: "الهدايا والكروت",
+  offersTab: "العروض السريعة والأكواد",
   known: {
     chooseOp: "اختار هتعمل إيه في المنتجات.",
     chooseOne: "اختار منتج واحد على الأقل.",
@@ -404,6 +413,10 @@ export const tr: Messages = {
   kind_live: "Canlı ders",
   otherLessons: "Öncesindeki ve sonrasındaki dersler",
   deleteItemNote: "Öğrencilerin buradaki ilerlemesi ve notları da silinir.",
+  deliveryTab: "Teslimat zamanları",
+  areasTab: "Bölgeler ve ücretler",
+  giftsTab: "Hediyeler ve kartlar",
+  offersTab: "Flaş indirimler ve kodlar",
   known: {
     chooseOp: "Ürünlerle ne yapılacağını seçin.",
     chooseOne: "En az bir ürün seçin.",

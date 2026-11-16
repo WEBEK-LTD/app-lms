@@ -89,6 +89,7 @@ test("the clinic sets up doctors and an intake form, in a clinic's words", async
   await services.getByRole("button", { name: "Add service" }).click();
   await expect(services.getByText("Dental check-up", { exact: true })).toBeVisible();
 
+  await own.getByRole("tab", { name: /^Doctors/ }).click();
   const doctors = own.getByRole("region", { name: "Doctors" });
   await doctors.getByLabel("Name", { exact: true }).fill("Dr. Kerem Aksoy");
   await doctors.getByLabel("Role").fill("Dentist");
@@ -102,6 +103,7 @@ test("the clinic sets up doctors and an intake form, in a clinic's words", async
   await doctors.getByRole("button", { name: "Add doctor" }).click();
   await expect(doctors.getByText("General dentistry · Children's dentistry")).toBeVisible();
 
+  await own.getByRole("tab", { name: /^Intake form/ }).click();
   const intake = own.getByRole("region", { name: "Intake form" });
   await expect(intake.getByText("never put in emails or notifications")).toBeVisible();
   await intake.getByText("Add a question").click();
@@ -123,6 +125,7 @@ test("the clinic sets up doctors and an intake form, in a clinic's words", async
   await expect(intake.getByText("Added “First visit?”.")).toBeVisible();
   await expect(intake.locator("summary").getByText("One of a list")).toBeVisible();
 
+  await own.getByRole("tab", { name: /^Booking rules/ }).click();
   const rules = own.getByRole("region", { name: "Booking rules" });
   await rules.getByLabel("Book at least (hours ahead)").fill("0");
   await rules.getByRole("button", { name: "Save rules" }).click();

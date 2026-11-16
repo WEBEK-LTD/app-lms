@@ -215,6 +215,7 @@ test("132.67 translations typed and not saved: leaving by the menu asks first", 
 });
 
 test("132.68 a project's page that isn't there says so in Studio's frame, with the way back", async () => {
+  // Not found before the product's loading screen (catalog/[id]/layout.tsx), so the browser never has to finish it (React's #419).
   await own.goto("/studio/project/catalog/999999");
   await expect(own.locator("[data-dashboard-not-found]")).toBeVisible();
   await expect(own.getByRole("heading", { level: 1, name: "This page isn't here" })).toBeVisible();
@@ -247,10 +248,16 @@ test("132.70 132.77 Studio follows the dashboard's dark mode; its bar stays dark
   expect(await own.locator("[data-studio-frame]").first().evaluate((el) => getComputedStyle(el).getPropertyValue("--color-accent").trim())).toBe("#a8360a");
   await own.emulateMedia({ colorScheme: "dark" });
   await own.reload();
-  expect(await frameBackground()).toBe("rgb(16, 15, 38)");
+  // The frame's own tokens (132.4 `--sf-…`) on every Studio screen: the project, the editor, the account's pages and Studio's home.
+  expect(await frameBackground()).toBe("rgb(11, 10, 29)");
   expect(await barBackground()).toBe("rgb(14, 13, 36)");
   await own.goto("/studio/editor");
-  expect(await frameBackground()).toBe("rgb(16, 15, 38)");
+  expect(await frameBackground()).toBe("rgb(11, 10, 29)");
+  expect(await barBackground()).toBe("rgb(14, 13, 36)");
+  await own.goto("/studio/account");
+  expect(await frameBackground()).toBe("rgb(11, 10, 29)");
+  await own.goto("/studio");
+  expect(await frameBackground()).toBe("rgb(11, 10, 29)");
   // The switch in the account menu: light again, whatever the system says.
   await own.goto("/studio/project");
   await own.locator("[data-studio-account] summary").click();

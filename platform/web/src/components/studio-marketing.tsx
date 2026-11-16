@@ -66,8 +66,15 @@ export function StudioPlans({ lang, plans, view, contact }: { lang: Lang; plans:
                     <Icon name="dashboard_customize" size={16} />
                     {m.studio}
                   </span>
-                  <h3 className="m-0 text-xl font-extrabold tracking-[-0.3px]">{plan.name}</h3>
-                  {plan.tagline ? <span className="text-sm leading-snug text-muted">{plan.tagline}</span> : null}
+                  {/* 133 The team's words keep their own direction on a page in another script. */}
+                  <h3 className="m-0 text-xl font-extrabold tracking-[-0.3px]">
+                    <bdi>{plan.name}</bdi>
+                  </h3>
+                  {plan.tagline ? (
+                    <span dir="auto" className="text-sm leading-snug text-muted">
+                      {plan.tagline}
+                    </span>
+                  ) : null}
                 </div>
                 <div className="flex flex-wrap items-baseline gap-x-1.5">
                   <span dir={shown.period ? "ltr" : undefined} className={`font-extrabold tracking-[-0.5px] ${shown.period ? "text-[34px]" : "text-[26px]"}`}>

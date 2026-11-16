@@ -27,23 +27,25 @@ export function Glyph({ name, size = 20, flip = false, className = "" }: { name:
 
 /**
  * The editor's colours, from the approved design. 132.70 Those of the
- * board, the panels and the words are the design tokens of globals.css
- * (`--studio-*`), light and dark; the dark bar on top (`bar…`) and the
- * accent keep theirs in both.
+ * board, the panels and the words are the Studio frame's tokens (132.4
+ * `--sf-…`, globals.css `[data-studio-frame]`), light and dark, with the
+ * light ones as they were outside a frame; the dark bar on top (`bar…`) and
+ * the accent keep theirs in both.
  */
 export const STUDIO_COLORS = {
-  ink: "var(--studio-ink)",
-  ivory: "var(--studio-ivory)",
-  board: "var(--studio-board)",
-  dot: "var(--studio-dot)",
-  line: "var(--studio-line)",
-  muted: "var(--studio-muted)",
+  ink: "var(--sf-ink, #0E0D24)",
+  /** A soft fill: the item open, a chip, a quiet box. */
+  ivory: "var(--sf-soft, #F4EFE6)",
+  board: "var(--sf-board, #E9E5DC)",
+  dot: "var(--sf-dot, #CFC9BC)",
+  line: "var(--sf-line, #DDD8CC)",
+  muted: "var(--sf-muted, #5E5B70)",
   /** 132.70 Panels, menus and cards (white in light). */
-  surface: "var(--studio-surface)",
+  surface: "var(--sf-surface, #FFFFFF)",
   /** 132.70 A hovered or chosen item's fill. */
-  hover: "var(--studio-hover)",
+  hover: "var(--sf-soft, #F4EFE6)",
   /** 132.70 The words of what's chosen in blue (the header type, the layer). */
-  selectInk: "var(--studio-select-ink)",
+  selectInk: "var(--sf-select-ink, #1F3FB8)",
   accent: "#FF5A1F",
   /** 132.70 Words on the accent: always dark. */
   onAccent: "#0E0D24",

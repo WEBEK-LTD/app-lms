@@ -13,9 +13,10 @@ import type {
   TemplateLicence,
   TemplateLicencePatch,
 } from "./types";
-import { and, asc, count, desc, eq, getTableColumns, gt, gte, inArray, isNotNull, isNull, like, lt, lte, ne, not, or, sql, type SQL } from "drizzle-orm";
+import { and, asc, count, desc, eq, getTableColumns, getTableName, gt, gte, inArray, is, isNotNull, isNull, like, lt, lte, ne, not, or, sql, type SQL } from "drizzle-orm";
 import { drizzle, type MySql2Database } from "drizzle-orm/mysql2";
-import type { AnyMySqlColumn, MySqlTable } from "drizzle-orm/mysql-core";
+import { getTableConfig, MySqlTable as MySqlTableClass, type AnyMySqlColumn, type MySqlTable } from "drizzle-orm/mysql-core";
+import { APP_TABLES, type AppTableRole } from "../apps/app-tables";
 import mysql from "mysql2/promise";
 import type { DatabaseConfig } from "../env";
 import { newId } from "../crypto/tokens";
@@ -95,7 +96,7 @@ import type {
 } from "./types";
 import { holdsOf, holdsOn } from "../travel/holds";
 import { alertData, bookingColumns, bookingData, flightData, hotelData, reviewData, roomData, type TravelAlertData, type TravelBookingData, type TravelFlightData, type TravelHotelData, type TravelReviewData, type TravelRoomData } from "../travel/rows";
-import type { AppDeletion, AppDeletionStatus, KeptBillingRecord } from "./types";
+import type { AppDeletion, AppDeletionStatus, AppMoveRequest, AppMoveStatus, KeptBillingRecord } from "./types";
 import type { GiftOccasion, StoreDelivery, StoreFlashSale } from "./types";
 import type { CourierAccount, CourierChallenge, CourierDevice, CourierDevicePatch } from "./types";
 // 114 Email campaigns
@@ -194,6 +195,7 @@ import type { Courier, CourierInput, CourierPatch, DeliveryService, DeliveryServ
 import type { UniAttendance, UniCourse, UniDepartment, UniEnrolment, UniEnrolmentStatus, UniFaculty, UniProgram, UniRegistration, UniRegistrationStatus, UniSection, UniSettings, UniStudent, UniTerm } from "./types";
 // 51 Media and storage
 import type { MediaFile, MediaFilePatch, MediaKind, MediaStatus, StoragePack, StoragePackPatch } from "./types";
+import type { AddonTaskStatus, AppAddon, AppAddonPatch } from "../addons/types";
 import type { OwnerNotice, OwnerNoticeKind, OwnerNoticePatch } from "./types";
 import type { DemoPurgeCounts } from "./types";
 // 46 Links and crash reports
@@ -7950,6 +7952,35 @@ export class MysqlStore implements DataStore {
     await this.run((db) => db.delete(p).where(and(eq(p.appId, appId), eq(p.id, id))));
   }
 
+  // 133 Add-ons each app has
+  async createAppAddon(addon: AppAddon): Promise<void> {
+    await this.run((db) => db.insert(schema.appAddons).values(addon));
+  }
+
+  async getAppAddon(id: string): Promise<AppAddon | null> {
+    const a = schema.appAddons;
+    const [row] = await this.run((db) => db.select().from(a).where(eq(a.id, id)).limit(1));
+    return row ? appAddonOf(row) : null;
+  }
+
+  async listAppAddons(filter: { appId?: string; clientId?: string; addonId?: string; taskStatus?: AddonTaskStatus[]; endingBefore?: Date; limit?: number }): Promise<AppAddon[]> {
+    const a = schema.appAddons;
+    const where = and(
+      filter.appId !== undefined ? eq(a.appId, filter.appId) : undefined,
+      filter.clientId !== undefined ? eq(a.clientId, filter.clientId) : undefined,
+      filter.addonId !== undefined ? eq(a.addonId, filter.addonId) : undefined,
+      filter.taskStatus !== undefined ? (filter.taskStatus.length ? inArray(a.taskStatus, filter.taskStatus) : sql`false`) : undefined,
+      filter.endingBefore !== undefined ? and(eq(a.status, "active"), isNotNull(a.activeUntil), lt(a.activeUntil, filter.endingBefore)) : undefined,
+    );
+    const rows = await this.run((db) => db.select().from(a).where(where).orderBy(desc(a.createdAt), desc(a.id)).limit(filter.limit ?? 200));
+    return rows.map(appAddonOf);
+  }
+
+  async updateAppAddon(id: string, patch: AppAddonPatch): Promise<void> {
+    if (!Object.keys(patch).length) return;
+    await this.run((db) => db.update(schema.appAddons).set(patch).where(eq(schema.appAddons.id, id)));
+  }
+
   async listEndedStoragePacks(now: Date, limit: number): Promise<StoragePack[]> {
     const p = schema.storagePacks;
     return this.run((db) =>
@@ -8854,6 +8885,127 @@ export class MysqlStore implements DataStore {
   }
 
   // 73 Deleting a Yallapp account
+
+  // 132.112 Moving an app to another account
+
+  async createAppMoveRequest(request: AppMoveRequest): Promise<boolean> {
+    try {
+      // `open_app_id` is unique: of two requests for one app at once, one is saved.
+      await this.run((db) => db.insert(schema.appMoveRequests).values({ ...request, openAppId: request.status === "waiting" ? request.appId : null }));
+      return true;
+    } catch (error) {
+      if (errorCode(error) === "ER_DUP_ENTRY") return false;
+      throw error;
+    }
+  }
+
+  async getAppMoveRequest(id: string): Promise<AppMoveRequest | null> {
+    const rows = await this.run((db) => db.select().from(schema.appMoveRequests).where(eq(schema.appMoveRequests.id, id)).limit(1));
+    return rows[0] ? toAppMove(rows[0]) : null;
+  }
+
+  async getOpenAppMoveRequest(appId: string): Promise<AppMoveRequest | null> {
+    const rows = await this.run((db) => db.select().from(schema.appMoveRequests).where(eq(schema.appMoveRequests.openAppId, appId)).limit(1));
+    return rows[0] ? toAppMove(rows[0]) : null;
+  }
+
+  async listAppMoveRequests(input: { clientId?: string; limit: number }): Promise<AppMoveRequest[]> {
+    const m = schema.appMoveRequests;
+    const rows = await this.run((db) =>
+      db
+        .select()
+        .from(m)
+        .where(input.clientId ? or(eq(m.fromClientId, input.clientId), eq(m.toClientId, input.clientId)) : undefined)
+        .orderBy(desc(m.createdAt), desc(m.id))
+        .limit(input.limit),
+    );
+    return rows.map(toAppMove);
+  }
+
+  async addAppMoveAttempt(id: string): Promise<number | null> {
+    const m = schema.appMoveRequests;
+    return this.run((db) =>
+      db.transaction(async (tx) => {
+        const [result] = await tx.update(m).set({ attempts: sql`${m.attempts} + 1` }).where(and(eq(m.id, id), eq(m.status, "waiting")));
+        if (result.affectedRows !== 1) return null;
+        const [row] = await tx.select({ attempts: m.attempts }).from(m).where(eq(m.id, id));
+        return row?.attempts ?? null;
+      }),
+    );
+  }
+
+  async updateAppMoveRequest(id: string, from: AppMoveStatus, patch: Partial<Pick<AppMoveRequest, "status" | "closedAt" | "closedBy" | "resultAppId" | "note">>): Promise<boolean> {
+    const m = schema.appMoveRequests;
+    const open = patch.status === undefined ? {} : { openAppId: patch.status === "waiting" ? undefined : null };
+    const [result] = await this.run((db) => db.update(m).set({ ...patch, ...open }).where(and(eq(m.id, id), eq(m.status, from))));
+    return result.affectedRows === 1;
+  }
+
+  async moveAppToClient(appId: string, toClientId: string, now: Date): Promise<void> {
+    const s = schema;
+    await this.run((db) =>
+      db.transaction(async (tx) => {
+        await tx.update(s.apps).set({ clientId: toClientId, updatedAt: now }).where(eq(s.apps.id, appId));
+        await tx.update(s.licenses).set({ clientId: toClientId, updatedAt: now }).where(eq(s.licenses.appId, appId));
+        await tx.update(s.builds).set({ clientId: toClientId }).where(eq(s.builds.appId, appId));
+        await tx.update(s.storagePacks).set({ clientId: toClientId }).where(eq(s.storagePacks.appId, appId));
+        await tx.update(s.ownerNotices).set({ clientId: toClientId }).where(eq(s.ownerNotices.appId, appId));
+        await tx.update(s.appErrors).set({ clientId: toClientId }).where(eq(s.appErrors.appId, appId));
+        await tx.update(s.publishingRequests).set({ clientId: toClientId }).where(eq(s.publishingRequests.appId, appId));
+      }),
+    );
+  }
+
+  async repointAppRows(fromAppId: string, toAppId: string, group: "plan" | "payments" | "builds" | "data", now: Date): Promise<void> {
+    const s = schema;
+    await this.run((db) =>
+      db.transaction(async (tx) => {
+        const [to] = await tx.select({ clientId: s.apps.clientId }).from(s.apps).where(eq(s.apps.id, toAppId));
+        if (!to) return;
+        if (group === "plan") {
+          await tx.update(s.licenses).set({ appId: toAppId, clientId: to.clientId, updatedAt: now }).where(eq(s.licenses.appId, fromAppId));
+          await tx.update(s.storagePacks).set({ appId: toAppId, clientId: to.clientId }).where(eq(s.storagePacks.appId, fromAppId));
+          // 133 The app's add-ons go with its plan, like its storage packs.
+          await tx.update(s.appAddons).set({ appId: toAppId, clientId: to.clientId }).where(eq(s.appAddons.appId, fromAppId));
+        } else if (group === "payments") {
+          await tx.update(s.planPayments).set({ appId: toAppId }).where(eq(s.planPayments.appId, fromAppId));
+        } else if (group === "data") {
+          // Every table of the app's people, orders, messages and activity (lib/apps/app-tables.ts) that names its app.
+          for (const table of appScopedTables(["customers", "orders", "messages", "activity"])) {
+            await tx.execute(sql`update ${table} set ${sql.identifier("app_id")} = ${toAppId} where ${sql.identifier("app_id")} = ${fromAppId}`);
+          }
+        } else {
+          await tx.update(s.builds).set({ appId: toAppId, clientId: to.clientId }).where(eq(s.builds.appId, fromAppId));
+          await tx.update(s.publishingRequests).set({ appId: toAppId, clientId: to.clientId }).where(eq(s.publishingRequests.appId, fromAppId));
+          await tx.update(s.publishingEvents).set({ appId: toAppId }).where(eq(s.publishingEvents.appId, fromAppId));
+          await tx.update(s.storeProducts).set({ appId: toAppId }).where(eq(s.storeProducts.appId, fromAppId));
+          await tx.update(s.storeBillingItems).set({ appId: toAppId }).where(eq(s.storeBillingItems.appId, fromAppId));
+        }
+      }),
+    );
+  }
+
+  async replaceAssetIds(appId: string, ids: Record<string, string>): Promise<void> {
+    const pairs = Object.entries(ids);
+    if (!pairs.length) return;
+    // The app's own row, then each text column of its content and listing tables (the asset IDs are UUIDs: nothing else matches).
+    const swapped = (column: string) => pairs.reduce<SQL>((acc, [from, to]) => sql`replace(${acc}, ${from}, ${to})`, sql`${sql.identifier(column)}`);
+    const anyOf = (column: string) => or(...pairs.map(([from]) => sql`${sql.identifier(column)} like ${`%${from}%`}`))!;
+    await this.run((db) =>
+      db.transaction(async (tx) => {
+        for (const { table, columns, key } of assetTextColumns()) {
+          for (const column of columns) {
+            await tx.execute(sql`update ${table} set ${sql.identifier(column)} = ${swapped(column)} where ${sql.identifier(key)} = ${appId} and (${anyOf(column)})`);
+          }
+        }
+      }),
+    );
+  }
+
+  async reassignAssets(ids: string[], toClientId: string): Promise<void> {
+    if (!ids.length) return;
+    await this.run((db) => db.update(schema.assets).set({ clientId: toClientId }).where(inArray(schema.assets.id, ids)));
+  }
 
   async keepBillingRecords(records: KeptBillingRecord[]): Promise<void> {
     if (!records.length) return;
@@ -10764,6 +10916,35 @@ function liveLicense() {
   return sql`(${l.appId} is null or ${l.appId} not in (select ${a.id} from ${a} where ${a.deletedAt} is not null))`;
 }
 
+/** 132.112 The tables by their names. */
+const TABLES_BY_NAME = new Map<string, MySqlTable>(
+  (Object.values(schema) as unknown[])
+    .filter((value): value is MySqlTable => is(value, MySqlTableClass))
+    .map((table) => [getTableName(table), table]),
+);
+
+/** 132.112 The tables of these roles (lib/apps/app-tables.ts) that have an `app_id` column. */
+function appScopedTables(roles: AppTableRole[]): MySqlTable[] {
+  return Object.entries(APP_TABLES)
+    .filter(([, role]) => roles.includes(role))
+    .map(([name]) => TABLES_BY_NAME.get(name))
+    .filter((table): table is MySqlTable => Boolean(table && getTableConfig(table).columns.some((c) => c.name === "app_id")));
+}
+
+/** 132.112 Where an app's rows can name an asset: its own row (by `id`), and the text columns of its content and listing tables (by `app_id`). */
+function assetTextColumns(): { table: MySqlTable; key: string; columns: string[] }[] {
+  const text = (table: MySqlTable) => getTableConfig(table).columns.filter((c) => /char|text|json/i.test(c.getSQLType())).map((c) => c.name);
+  return [
+    { table: schema.apps, key: "id", columns: text(schema.apps).filter((c) => c !== "id" && c !== "client_id") },
+    ...appScopedTables(["content", "builds"]).map((table) => ({ table, key: "app_id", columns: text(table).filter((c) => c !== "app_id" && c !== "id") })),
+  ];
+}
+
+function toAppMove({ openAppId: _open, ...row }: typeof schema.appMoveRequests.$inferSelect): AppMoveRequest {
+  void _open;
+  return row;
+}
+
 function toAppDeletionRow(deletion: AppDeletion): typeof schema.appDeletions.$inferInsert {
   return { ...deletion, openAppId: deletion.status === "waiting" ? deletion.appId : null };
 }
@@ -10918,4 +11099,9 @@ function vendorDefaults<T extends RestaurantInput>(input: T): T & Required<Pick<
     closedDates: input.closedDates ?? null,
     vendorEdit: input.vendorEdit ?? null,
   };
+}
+
+/** 133 An add-on row as the store returns it (the amount as a number). */
+function appAddonOf(row: typeof schema.appAddons.$inferSelect): AppAddon {
+  return { ...row, amount: row.amount === null ? null : Number(row.amount) };
 }

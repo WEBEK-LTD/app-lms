@@ -15,7 +15,7 @@ import { RangeField } from "./controls";
  * what it follows live in the app).
  */
 
-const FIELD = { border: "1px solid var(--studio-line)" } as const;
+const FIELD = { border: "1px solid var(--sf-line)" } as const;
 const INPUT = "h-8 min-w-0 rounded-lg px-2 font-normal";
 
 function Select<T extends string>({ label, value, options, onChange }: { label: string; value: T; options: { value: T; label: string }[]; onChange: (v: T) => void }) {
@@ -47,7 +47,7 @@ function SpotIn({ label, value, onChange }: { label: string; value: StudioPlace;
   const t = useDashT();
   const num = (v: number, set: (n: number) => void, what: string) => (
     <label className="flex flex-1 items-center gap-1">
-      <span className="text-xs" style={{ color: "var(--studio-muted)" }}>
+      <span className="text-xs" style={{ color: "var(--sf-muted)" }}>
         {what}
       </span>
       <input type="number" min={0} max={100} step={1} value={v} onChange={(e) => set(Math.max(0, Math.min(100, Number(e.target.value) || 0)))} className={`${INPUT} w-16`} style={FIELD} />
@@ -160,7 +160,7 @@ export function MapLooksControls({ drawing, set, id }: { drawing: StudioMapDrawi
           />
         </fieldset>
       ) : null}
-      <span className="text-xs" style={{ color: "var(--studio-muted)" }}>
+      <span className="text-xs" style={{ color: "var(--sf-muted)" }}>
         {t("studio.mapLooksHint")}
       </span>
     </div>

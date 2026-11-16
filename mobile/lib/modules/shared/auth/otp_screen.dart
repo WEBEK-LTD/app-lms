@@ -22,8 +22,7 @@ import 'sign_in_screen.dart';
 import 'signup_screen.dart';
 import '../../../core/l10n/l10n.dart';
 // 130.24 The code screen in the project's premium look.
-import '../../../core/widgets/premium_chrome.dart';
-import 'premium_auth_frame.dart';
+import 'auth_look.dart';
 
 class OtpArgs {
   const OtpArgs({
@@ -203,15 +202,16 @@ class _OtpScreenState extends ConsumerState<OtpScreen> {
           formatPhone(widget.args.phone, dialCode: widget.args.countryCode),
     );
     final resendIn = _resendIn;
-    // 130.24 The system screens' premium look.
-    final chrome = SystemLookScope.lookOf(context, SystemScreen.code);
-    if (chrome != null) return _chrome(context, chrome, number, resendIn);
-    // 123 The premium academy's code screen.
     final gate = ref.watch(appGateProvider);
-    if (gate is GateReady &&
-        (gate.config.screens?.has(ScreenLookKey.code) ?? false)) {
+    final screens = gate is GateReady ? gate.config.screens : null;
+    // 130.24 The system screens' premium look; 132.6 else sign-in's own.
+    final look = AuthLook.of(context, screens, SystemScreen.code);
+    if (look is AuthChromeLook) return _chrome(context, look, number, resendIn);
+    // 123 The premium academy's code screen.
+    if (screens?.has(ScreenLookKey.code) ?? false) {
       return _premium(context, number, resendIn);
     }
+    if (look != null) return _chrome(context, look, number, resendIn);
     final sentTo = parts(context.l10n.codeSentTo);
     final resendParts = parts(context.l10n.resendCodeIn);
     return Scaffold(
@@ -353,10 +353,11 @@ class _OtpScreenState extends ConsumerState<OtpScreen> {
 
   /// 130.24 The code screen in the project's premium look: the title and
   /// where the code went on the hero, the boxes and sending again on its
-  /// sheet, the button at the foot.
+  /// sheet, the button at the foot. 132.6 Also in sign-in's own look (a
+  /// photo, a card, minimal or premium), and on the look's photo.
   Widget _chrome(
     BuildContext context,
-    SystemLook look,
+    AuthLook look,
     String number,
     Duration resendIn,
   ) {
@@ -365,36 +366,23 @@ class _OtpScreenState extends ConsumerState<OtpScreen> {
     final sentTo = parts(l10n.codeSentTo);
     final resendParts = parts(l10n.resendCodeIn);
     final email = widget.args.email;
-    return PremiumAuthFrame(
+    return AuthLookFrame(
       look: look,
-      compact: true,
       title: l10n.enterCode,
       subtitle: [
         sentTo.first,
         number,
         if (sentTo.length > 1) sentTo.last,
       ].join(),
-      leading: [
-        ChromeBackButton(
-          onColour: look != SystemLook.large,
-          onPressed: () => context.pop(),
-        ),
-      ],
-      footer: SafeArea(
-        top: false,
-        child: Padding(
-          padding: const EdgeInsets.fromLTRB(24, 0, 24, 16),
-          child: PrimaryButton(
-            label: l10n.verifyAndSignIn,
-            loading: _verifying,
-            onPressed: _code.text.length == _length ? _verify : null,
-          ),
-        ),
+      onBack: () => context.pop(),
+      footer: PrimaryButton(
+        label: l10n.verifyAndSignIn,
+        loading: _verifying,
+        onPressed: _code.text.length == _length ? _verify : null,
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          const SizedBox(height: 16),
           CodeBoxes(
             controller: _code,
             focusNode: _focus,

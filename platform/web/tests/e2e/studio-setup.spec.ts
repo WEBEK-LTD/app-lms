@@ -119,8 +119,10 @@ async function uploadIcon(): Promise<void> {
 async function draftPages(request: APIRequestContext): Promise<{ tabs: string[]; home: string }> {
   await own.goto("/studio/project/setup?step=website");
   const api = (await own.locator("code").filter({ hasText: "/api/app/" }).textContent())!.trim();
-  await own.goto("/studio/project/preview?pages=draft");
-  const src = (await own.locator("iframe[data-testid=app-preview]").getAttribute("src"))!;
+  // The draft token as the preview page's server sends it, without starting the preview's own app here: the next page
+  // opened while that app downloaded its fonts, cutting them short (the app itself opens in preview.spec.ts).
+  const html = await (await own.request.get("/studio/project/preview?pages=draft")).text();
+  const src = /<iframe[^>]*\ssrc="([^"]+)"[^>]*data-testid="app-preview"/.exec(html)![1]!.replaceAll("&amp;", "&");
   const headers = { "x-yallapp-preview": new URL(src, E2E.baseURL).searchParams.get("token")! };
   const nav = await request.get(`${api}/pages?platform=android`, { headers });
   const home = await request.get(`${api}/pages/home?platform=android`, { headers });

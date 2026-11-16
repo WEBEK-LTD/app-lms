@@ -13,7 +13,7 @@ export function isStudioProject(app: Pick<App, "section"> | null | undefined): b
 
 /** Dashboard pages that belong to the account rather than one app (the guide makes a new app): a Studio project leaves them where they are. */
 /** 106 Studio Market's pages (the market, a template, My templates) belong to the account too: templates go on Studio projects. */
-const ACCOUNT_PAGES = new Set(["app-type", "builder", "businesses", "account", "team", "open", "studio-market"]);
+const ACCOUNT_PAGES = new Set(["app-type", "builder", "businesses", "account", "team", "open", "studio-market", "app-moves"]);
 
 /**
  * Where a dashboard address opens for a Studio project: the same page in
@@ -50,6 +50,11 @@ export function studioAccountPathFor(path: string): string | null {
  */
 export function licensePath(app: Pick<App, "section"> | null | undefined, rest = ""): string {
   return `${isStudioProject(app) ? "/studio/project/license" : "/dashboard/license"}${rest}`;
+}
+
+/** 133 The app's Add-ons page, in its own section: a Studio project's in Studio's frame. */
+export function addonsPath(app: Pick<App, "section"> | null | undefined, rest = ""): string {
+  return `${isStudioProject(app) ? "/studio/project/addons" : "/dashboard/addons"}${rest}`;
 }
 
 /** 103R.3 Where a new Studio project's content comes from, as the new project's second step offers it. */

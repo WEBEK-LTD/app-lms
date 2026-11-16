@@ -1,5 +1,6 @@
 /* eslint-disable @next/next/no-img-element -- the app icon is a small uploaded PNG served by our own route. */
 import { AllSamples } from "@/components/samples";
+import { isLifetimeEnd } from "@/lib/billing/periods";
 import { plansIn } from "@/lib/marketing-lang";
 import type { Metadata } from "next";
 import Link from "next/link";
@@ -257,8 +258,8 @@ export default async function OverviewPage({ searchParams }: PageProps<"/dashboa
   // 73 The app just deleted.
   const deleted = typeof query.deleted === "string" ? query.deleted : null;
   if (!contextCan(context, "settings") || (!app && !contextCan(context, "apps"))) return <MemberOverview context={context} denied={denied} />;
-  // 121 Without an app yet: the choice between the regular editor and Yallapp Studio (our team, managing it, goes on to the app's type).
-  if (!app) redirect(deleted ? `/dashboard/app-type?deleted=${encodeURIComponent(deleted)}` : context.staff ? "/dashboard/app-type" : "/start");
+  // 121 Without an app yet: the choice between the regular editor and Yallapp Studio (132.110 our team in the account too).
+  if (!app) redirect(deleted ? `/dashboard/app-type?deleted=${encodeURIComponent(deleted)}` : "/start");
   const canBilling = contextCan(context, "billing");
   const text = await dashboardText();
   const { t, k, lang, date, num } = text;
@@ -418,7 +419,10 @@ export default async function OverviewPage({ searchParams }: PageProps<"/dashboa
                 {license
                   ? state === "expired"
                     ? t("overview.planEnded", { plan: planName(plan, plans), date: date(license.expiresAt) })
-                    : t("overview.planDaysLeft", { plan: planName(plan, plans), days: daysLeft })
+                    : // 133 A plan paid for life has no days to count.
+                      isLifetimeEnd(license.expiresAt)
+                      ? t("addons.planForLife", { plan: planName(plan, plans) })
+                      : t("overview.planDaysLeft", { plan: planName(plan, plans), days: daysLeft })
                   : t("overview.noPlan")}
               </span>
             </div>

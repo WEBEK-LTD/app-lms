@@ -2,6 +2,7 @@
 
 import { cookies, headers } from "next/headers";
 import { redirect } from "next/navigation";
+import { NEXT_COOKIE, safeNext } from "@/lib/apps/move-link";
 import { authenticate, registerClient } from "@/lib/auth/accounts";
 import { hashPassword } from "@/lib/auth/password";
 import { completePasswordReset, createPasswordReset } from "@/lib/auth/reset";
@@ -111,8 +112,12 @@ async function signIn(formData: FormData, lang: Lang): Promise<FormState> {
   const user = await authenticate(store, parsed.data.email, parsed.data.password, now);
   if (!user) return { message: "The email or password is incorrect.", values };
   await rememberLang(lang, user);
-  // 70 Signed in now, or first the code from their authenticator app; 106.1 back to "Become a designer" when they came from it.
-  redirect(await afterPassword(user, { lang, next: afterSignInFor((await cookies()).get(DESIGNER_JOIN_COOKIE)?.value) }));
+  // 70 Signed in now, or first the code from their authenticator app; 106.1 back to "Become a designer" when they came from it;
+  // 132.113 back to the page of a move they opened from its email.
+  const jar = await cookies();
+  const next = safeNext(jar.get(NEXT_COOKIE)?.value) ?? afterSignInFor(jar.get(DESIGNER_JOIN_COOKIE)?.value);
+  jar.delete(NEXT_COOKIE);
+  redirect(await afterPassword(user, { lang, next }));
 }
 
 /**

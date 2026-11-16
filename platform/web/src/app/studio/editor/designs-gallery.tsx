@@ -244,7 +244,7 @@ function Tag({ children }: { children: ReactNode }) {
 function Empty() {
   return (
     <span className="flex h-full w-full items-center justify-center" style={{ background: C.ivory }}>
-      <Glyph name="dashboard_customize" size={60} className="text-[var(--studio-muted)]" />
+      <Glyph name="dashboard_customize" size={60} className="text-[var(--sf-muted)]" />
     </span>
   );
 }

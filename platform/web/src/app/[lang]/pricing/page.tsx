@@ -9,6 +9,8 @@ export async function generateMetadata({ params }: { params: Promise<{ lang: str
   return pricingMetadata(await routeLang(params));
 }
 
-export default async function Page({ params }: { params: Promise<{ lang: string }> }) {
-  return <PricingPage lang={await routeLang(params)} />;
+export default async function Page({ params, searchParams }: { params: Promise<{ lang: string }>; searchParams: Promise<Record<string, string | string[] | undefined>> }) {
+  // 133 The billing period the visitor chose (?period=6).
+  const { period } = await searchParams;
+  return <PricingPage lang={await routeLang(params)} period={typeof period === "string" ? period : null} />;
 }

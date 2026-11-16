@@ -19,7 +19,7 @@ export function BankTransferForm({
   apps: { id: string; label: string }[];
   plans: { id: Plan; name: string }[];
   currencies: CatalogCurrency[];
-  defaults: { appId: string; plan: Plan; months: "1" | "12"; amount: string; currency: CatalogCurrency };
+  defaults: { appId: string; plan: Plan; months: string; amount: string; currency: CatalogCurrency };
 }) {
   const [state, action] = useActionState(recordBankTransferAction, initialFormState);
   const v = state.values ?? {};
@@ -52,7 +52,19 @@ export function BankTransferForm({
       <div className="grid gap-3.5 sm:grid-cols-2">
         {select("appId", "App", apps.map((a) => ({ value: a.id, label: a.label })), defaults.appId)}
         {select("plan", "Plan", plans.map((p) => ({ value: p.id, label: p.name })), defaults.plan)}
-        {select("months", "Pays for", [{ value: "1", label: "1 month" }, { value: "12", label: "1 year" }], defaults.months)}
+        {select(
+          "months",
+          "Pays for",
+          [
+            { value: "1", label: "1 month" },
+            { value: "6", label: "6 months" },
+            { value: "12", label: "1 year" },
+            { value: "24", label: "2 years" },
+            { value: "36", label: "3 years" },
+            { value: "0", label: "Lifetime" },
+          ],
+          defaults.months,
+        )}
         <div className="grid grid-cols-[1fr_auto] gap-2">
           <Field label="Amount that arrived" name="amount" inputMode="decimal" required defaultValue={v.amount ?? defaults.amount} error={state.errors?.amount} small />
           {select("currency", "Currency", currencies.map((c) => ({ value: c, label: c })), defaults.currency)}

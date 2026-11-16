@@ -18,7 +18,7 @@ export function AccountTabs({ labels, team }: { labels: { group: string; account
             href={tab.href}
             aria-current={on ? "page" : undefined}
             className="flex h-9 items-center rounded-lg px-4 text-sm no-underline"
-            style={{ background: on ? C.ink : "transparent", color: on ? C.surface : C.ink, fontWeight: on ? 700 : 500 }}
+            style={{ background: on ? C.ink : "transparent", color: on ? C.board : C.ink, fontWeight: on ? 700 : 500 }}
           >
             {tab.label}
           </Link>

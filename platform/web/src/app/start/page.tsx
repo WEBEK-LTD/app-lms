@@ -4,7 +4,7 @@ import { redirect } from "next/navigation";
 import { startFromWebsiteAction } from "@/app/actions/dashboard";
 import { SignOutButton } from "@/components/sign-out";
 import { MAX_APPS_PER_CLIENT } from "@/lib/app/label";
-import { getAdminRole, getClientContext, getCurrentUser, signInPath } from "@/lib/auth/session";
+import { getAdminRole, getClientContext, getCurrentUser, mayUseDashboard, signInPath, teamOutsideClientPath } from "@/lib/auth/session";
 import { dashboardText, type DashboardText } from "@/lib/dashboard-lang";
 import type { DemoId } from "@/lib/demo/constants";
 import { demoLoop } from "@/lib/demo/loops";
@@ -30,9 +30,10 @@ export async function generateMetadata(): Promise<Metadata> {
 export default async function StartPage({ searchParams }: PageProps<"/start">) {
   const user = await getCurrentUser();
   if (!user) redirect(await signInPath());
-  if (await getAdminRole()) redirect("/admin");
   const context = await getClientContext();
-  if (!context || context.client.status !== "active") redirect("/pending");
+  // 132.110 Our team works in a client's account as the client does; outside one, the admin says why.
+  if (!context && (await getAdminRole())) redirect(await teamOutsideClientPath());
+  if (!context || !mayUseDashboard(context)) redirect("/pending");
   const query = await searchParams;
   const adding = query.new === "1" && context.apps.length > 0;
   if (context.apps.length && !adding) redirect(context.app?.section === "studio" ? "/studio" : "/dashboard");
@@ -40,7 +41,8 @@ export default async function StartPage({ searchParams }: PageProps<"/start">) {
   const { t } = text;
   const initial: PickerShow = query.for === "studio" ? "studio" : query.for === "editor" ? "editor" : "all";
   const sections = pickerSections();
-  const first = (user.name ?? "").trim().split(/\s+/)[0] ?? "";
+  // 132.110 The account's owner, also when our team works in it.
+  const first = (context.user.name ?? "").trim().split(/\s+/)[0] ?? "";
   const full = adding && context.apps.length >= MAX_APPS_PER_CLIENT;
   return (
     <PickerShell step={1} gap="gap-9">

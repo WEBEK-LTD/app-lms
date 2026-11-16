@@ -23,7 +23,7 @@ import { LiveLookControls } from "./live-look-controls";
 
 type Change = (patch: Partial<StudioNode>) => void;
 
-const FIELD = { border: "1px solid var(--studio-line)" } as const;
+const FIELD = { border: "1px solid var(--sf-line)" } as const;
 
 function ColorIn({ label, value, onChange }: { label: string; value: string | null | undefined; onChange: (v: string) => void }) {
   return (
@@ -78,7 +78,7 @@ export function CoverControls({ node, onChange }: { node: StudioNode; onChange: 
         {/* 129.21–129.24 Its premium look, pins, words and route. */}
         <MapLooksControls drawing={drawing} set={set} id={node.id} />
         {overlap}
-        <span className="text-xs" style={{ color: "var(--studio-muted)" }}>
+        <span className="text-xs" style={{ color: "var(--sf-muted)" }}>
           {t("studio.coverHint")}
         </span>
       </div>
@@ -95,7 +95,7 @@ export function CoverControls({ node, onChange }: { node: StudioNode; onChange: 
         ) : null}
       </div>
       {overlap}
-      <span className="text-xs" style={{ color: "var(--studio-muted)" }}>
+      <span className="text-xs" style={{ color: "var(--sf-muted)" }}>
         {t("studio.coverHint")}
       </span>
     </div>
@@ -140,7 +140,7 @@ export function TrackingControls({ node, onChange }: { node: StudioNode; onChang
       ) : null}
       {/* 130 The live cards' premium looks: their accent and photo. */}
       <LiveLookControls node={node} onChange={onChange} />
-      <span className="text-xs" style={{ color: "var(--studio-muted)" }}>
+      <span className="text-xs" style={{ color: "var(--sf-muted)" }}>
         {t("studio.trackingHint")}
       </span>
     </div>
