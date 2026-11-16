@@ -32,8 +32,8 @@ function places(root: StudioNode): Map<string, Place> {
 
 /** A node's own settings, without its children: what "changed" compares. */
 function own(node: StudioNode): string {
-  const { children: _children, ...rest } = node;
-  return JSON.stringify(rest);
+  // JSON leaves out a key whose value is undefined.
+  return JSON.stringify({ ...node, children: undefined });
 }
 
 const titleOf = (page: LayoutPage) => page.title || page.slug;
