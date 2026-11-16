@@ -19,9 +19,12 @@ Admin; a lifetime offer card on the pricing page (`/pricing#lifetime`) and
 the Plan page; and an add-ons store (Admin › Add-ons, Dashboard ›
 Add-ons, migration `0133_plans_addons`) whose quantity and feature
 add-ons raise the app's limits and switch features on wherever its plan
-is read, and whose services are tasks for the team. Nothing is priced:
-the new periods, the lifetime offer and the publishing service wait for
-the owner's prices (roadmap 133.12).
+is read, and whose services are tasks for the team. At the owner's
+request, the periods a plan's team hasn't priced, its lifetime offer
+included, have suggested prices worked out from the plan's own monthly
+or yearly price, and the publishing service has suggested prices (still
+not offered); Admin shows them prefilled for the owner to edit or keep
+(roadmap 133.12, 133.13).
 
 Roadmap 132.110–132.115 (Admin working in a client's account, and apps
 made, moved and copied for clients) is complete: our team's create paths

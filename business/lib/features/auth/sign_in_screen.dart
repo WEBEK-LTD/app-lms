@@ -63,6 +63,7 @@ class _SignInScreenState extends ConsumerState<SignInScreen> {
             _email.text.trim(),
             _password.text,
             otp: _needsCode ? _code.text.trim() : null,
+            lockReason: context.l10n.lockTurnOnReason,
           );
     } on ApiException catch (e) {
       if (!mounted) return;

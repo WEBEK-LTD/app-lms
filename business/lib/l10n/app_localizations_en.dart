@@ -1147,10 +1147,6 @@ class AppLocalizationsEn extends AppLocalizations {
   String get biometricLock => 'Unlock with fingerprint or face';
 
   @override
-  String get biometricLockHelp =>
-      'Asked when the app opens, and after 5 minutes away.';
-
-  @override
   String get biometricUnavailable =>
       'This phone has no fingerprint, face or screen lock set up.';
 
@@ -2395,9 +2391,6 @@ class AppLocalizationsEn extends AppLocalizations {
   String get refundDue => 'A refund is due on this order.';
 
   @override
-  String get callCustomer => 'Call customer';
-
-  @override
   String get courierLabel => 'Courier';
 
   @override
@@ -3177,6 +3170,837 @@ class AppLocalizationsEn extends AppLocalizations {
   String get pushBriefHelp => 'Prime: yesterday in one notification.';
 
   @override
+  String get deliverTo => 'Deliver to';
+
+  @override
+  String get whenTitle => 'When';
+
+  @override
+  String get giftCardTitle => 'Gift card message';
+
+  @override
+  String get giftOrder => 'Gift';
+
+  @override
+  String get giftSender => 'Sender';
+
+  @override
+  String giftFor(String name) {
+    return 'For $name';
+  }
+
+  @override
+  String get fromAccount => 'From their account in the app';
+
+  @override
+  String get noName => 'No name given';
+
+  @override
+  String get asSoonAsPossible => 'As soon as possible';
+
+  @override
+  String signedBy(String name) {
+    return 'Signed: $name';
+  }
+
+  @override
+  String get sentAnonymously =>
+      'Send anonymously: the card doesn\'t show the sender\'s name.';
+
+  @override
+  String zoneLabel(String zone) {
+    return 'Zone: $zone';
+  }
+
+  @override
+  String get pinnedOnMap => 'Pinned on the map';
+
+  @override
+  String get openInMaps => 'Open in Maps';
+
+  @override
+  String get copyAddress => 'Copy address';
+
+  @override
+  String get addressCopied => 'Address copied';
+
+  @override
+  String get addonLine => 'Add-on';
+
+  @override
+  String get flashSaleTag => 'Flash sale';
+
+  @override
+  String get subtotalLabel => 'Subtotal';
+
+  @override
+  String get discountLabel => 'Discount';
+
+  @override
+  String couponLabel(String code) {
+    return 'Coupon $code';
+  }
+
+  @override
+  String pointsLabel(String points) {
+    return 'Points ($points)';
+  }
+
+  @override
+  String get deliveryFeeLabel => 'Delivery fee';
+
+  @override
+  String get feeBase => 'Base fee';
+
+  @override
+  String get feeMinimum => 'Minimum fee';
+
+  @override
+  String get feeFree => 'Free delivery';
+
+  @override
+  String get slotFeeLabel => 'Delivery time';
+
+  @override
+  String taxIncludedLabel(String label) {
+    return '$label (included)';
+  }
+
+  @override
+  String payOutsideWaiting(String method) {
+    return 'Waiting for payment: $method';
+  }
+
+  @override
+  String payOutsideDue(String method, String date) {
+    return 'Waiting for payment: $method, by $date';
+  }
+
+  @override
+  String get shippedTitle => 'Shipped';
+
+  @override
+  String get trackShipment => 'Track the shipment';
+
+  @override
+  String get senderLabel => 'Sender';
+
+  @override
+  String get packageLabel => 'Package';
+
+  @override
+  String get packageSmall => 'Small';
+
+  @override
+  String get packageMedium => 'Medium';
+
+  @override
+  String get packageLarge => 'Large';
+
+  @override
+  String serviceLabel(String name) {
+    return 'Service: $name';
+  }
+
+  @override
+  String get payCash => 'Cash on delivery';
+
+  @override
+  String get payCard => 'Card';
+
+  @override
+  String get payWallet => 'Wallet';
+
+  @override
+  String get payApplePay => 'Apple Pay';
+
+  @override
+  String get payGooglePay => 'Google Pay';
+
+  @override
+  String get payUnpaid => 'Not paid yet';
+
+  @override
+  String get payPaid => 'Paid';
+
+  @override
+  String get payRefunded => 'Refunded';
+
+  @override
+  String get payPartlyRefunded => 'Partly refunded';
+
+  @override
+  String get lineItems => 'Items';
+
+  @override
+  String get lineItemDiscounts => 'Item discounts';
+
+  @override
+  String get lineCoupon => 'Coupon';
+
+  @override
+  String get lineClub => 'Club discount';
+
+  @override
+  String get lineDelivery => 'Delivery';
+
+  @override
+  String get lineDeliveryDiscount => 'Delivery discount';
+
+  @override
+  String get lineTax => 'Tax';
+
+  @override
+  String get lineTip => 'Tip';
+
+  @override
+  String get lineWallet => 'Paid from the wallet';
+
+  @override
+  String scheduledAt(String time) {
+    return 'Scheduled: $time';
+  }
+
+  @override
+  String couponUsed(String code) {
+    return 'Coupon: $code';
+  }
+
+  @override
+  String get ratingCardTitle => 'Customer\'s rating';
+
+  @override
+  String get ratingReplyHelp =>
+      'The customer sees it under their rating in the app, in your business\'s name, and is told the first time.';
+
+  @override
+  String ratingCourierLine(String stars) {
+    return 'Courier: $stars/5';
+  }
+
+  @override
+  String get replyEdited => 'Edited';
+
+  @override
+  String get removeReplyTitle => 'Remove your reply?';
+
+  @override
+  String get removeReplyText =>
+      'The customer won\'t see it under their rating any more.';
+
+  @override
+  String get stageTitle => 'Delivery';
+
+  @override
+  String get stageNotStarted =>
+      'Not on its way yet. Mark it as shipped when it leaves: the customer is told.';
+
+  @override
+  String get stagePreparing => 'Preparing';
+
+  @override
+  String get stageShipped => 'Out for delivery';
+
+  @override
+  String get stagePostponed => 'Postponed';
+
+  @override
+  String get stageFailed => 'Delivery failed';
+
+  @override
+  String get stageReturned => 'Returned to shop';
+
+  @override
+  String get stageDelivered => 'Delivered';
+
+  @override
+  String get doPreparing => 'Preparing';
+
+  @override
+  String get doShipped => 'Mark as shipped';
+
+  @override
+  String get doPostpone => 'Postpone';
+
+  @override
+  String get doFailed => 'Delivery failed';
+
+  @override
+  String get doReturned => 'Returned to shop';
+
+  @override
+  String get doDelivered => 'Mark delivered';
+
+  @override
+  String shipSheetTitle(String order) {
+    return 'Mark $order as shipped';
+  }
+
+  @override
+  String postponeSheetTitle(String order) {
+    return 'Postpone $order';
+  }
+
+  @override
+  String failedSheetTitle(String order) {
+    return 'Delivery of $order failed';
+  }
+
+  @override
+  String get courierNameField => 'Courier\'s name (optional)';
+
+  @override
+  String get courierPhoneField => 'Courier\'s phone (optional)';
+
+  @override
+  String get trackingLinkField => 'Tracking link (optional)';
+
+  @override
+  String get stageWhy => 'Why';
+
+  @override
+  String get stageNewDay => 'New day';
+
+  @override
+  String get stageTime => 'Time';
+
+  @override
+  String get stageAnotherDay => 'Another day';
+
+  @override
+  String stageSlotFull(String slot) {
+    return '$slot · full';
+  }
+
+  @override
+  String get stageNextStep => 'What\'s next';
+
+  @override
+  String get stageTeamNote => 'Note for your team';
+
+  @override
+  String get stageTeamNoteHint => 'The customer doesn\'t see it.';
+
+  @override
+  String get reasonCustomerAsked => 'Customer asked';
+
+  @override
+  String get reasonRecipientAway => 'Recipient not available';
+
+  @override
+  String get reasonShopAsked => 'Shop asked';
+
+  @override
+  String get reasonWeather => 'Weather';
+
+  @override
+  String get reasonWrongAddress => 'Wrong or incomplete address';
+
+  @override
+  String get reasonRefused => 'Recipient refused';
+
+  @override
+  String get reasonUnreachable => 'Couldn\'t reach by phone';
+
+  @override
+  String get reasonOther => 'Other';
+
+  @override
+  String get nextRetry => 'Try again on another day';
+
+  @override
+  String get nextReturn => 'Return to shop';
+
+  @override
+  String get nextCancel => 'Cancel the order';
+
+  @override
+  String stageCancelRefundsNow(String amount) {
+    return 'Cancelling refunds $amount to the customer now.';
+  }
+
+  @override
+  String stageCancelRefundYou(String amount) {
+    return 'Cancelling marks the order Needs a refund: pay back $amount yourself, then mark it refunded.';
+  }
+
+  @override
+  String get needsRefund => 'Needs a refund';
+
+  @override
+  String get refundWhyOutside =>
+      'It was paid outside the app: pay it back the same way.';
+
+  @override
+  String get refundWhyProvider =>
+      'Its payment provider can\'t refund it from here: refund it in the provider\'s panel.';
+
+  @override
+  String needsRefundText(String amount) {
+    return 'Pay back $amount to the customer, then mark it refunded.';
+  }
+
+  @override
+  String refundedAutoText(String amount) {
+    return '$amount went back to the customer when the order was cancelled.';
+  }
+
+  @override
+  String refundRecordedText(String name) {
+    return 'Marked refunded by $name.';
+  }
+
+  @override
+  String get markRefundedButton => 'I refunded it';
+
+  @override
+  String markRefundedTitle(String order) {
+    return 'Mark $order refunded?';
+  }
+
+  @override
+  String markRefundedText(String amount) {
+    return 'Only if you paid the $amount back yourself. The customer is told.';
+  }
+
+  @override
+  String refundMarkedDone(String order) {
+    return '$order: marked refunded. The customer was told.';
+  }
+
+  @override
+  String deliveredConfirmTitle(String order) {
+    return 'Mark $order delivered?';
+  }
+
+  @override
+  String get deliveredConfirmText =>
+      'It completes the order and tells the customer.';
+
+  @override
+  String stageToldCustomer(String order, String stage) {
+    return '$order: $stage. The customer was told.';
+  }
+
+  @override
+  String stageSaved(String order, String stage) {
+    return '$order: $stage.';
+  }
+
+  @override
+  String stageNewDayLine(String day) {
+    return 'New day: $day';
+  }
+
+  @override
+  String stageNextLine(String step) {
+    return 'Next: $step';
+  }
+
+  @override
+  String stageCourierLine(String name) {
+    return 'Courier: $name';
+  }
+
+  @override
+  String get stageChooseDay => 'Choose the new day.';
+
+  @override
+  String get stageChooseWhy => 'Choose why.';
+
+  @override
+  String get stageChooseNext => 'Choose what happens next.';
+
+  @override
+  String get stageWriteNote => 'Write the reason in the note.';
+
+  @override
+  String get stAwaitingPayment => 'Waiting for payment';
+
+  @override
+  String get stAccepted => 'Accepted';
+
+  @override
+  String get stReadyForCourier => 'Ready for the courier';
+
+  @override
+  String get stPicking => 'Being picked';
+
+  @override
+  String get stPickedUp => 'Picked up';
+
+  @override
+  String get stOnTheWay => 'On the way';
+
+  @override
+  String get stDelivered => 'Delivered';
+
+  @override
+  String get stTurnedDown => 'Turned down';
+
+  @override
+  String get stNotDelivered => 'Couldn\'t be delivered';
+
+  @override
+  String get stWaitingCourier => 'Waiting for a courier';
+
+  @override
+  String get stCourierToPickup => 'Courier on the way to pick up';
+
+  @override
+  String get stForLater => 'For later';
+
+  @override
+  String get stBookedLater => 'Booked for later';
+
+  @override
+  String get stSearching => 'Looking for a driver';
+
+  @override
+  String get stDriverComing => 'Driver on the way';
+
+  @override
+  String get stDriverAtPickup => 'Driver at the pickup';
+
+  @override
+  String get stOnRide => 'On the way';
+
+  @override
+  String get stNoDriver => 'No driver found';
+
+  @override
+  String get csOpen => 'New';
+
+  @override
+  String get csInReview => 'In review';
+
+  @override
+  String get csResolved => 'Resolved';
+
+  @override
+  String get csRejected => 'Closed without refund';
+
+  @override
+  String feeDistance(String km) {
+    return 'Distance $km km';
+  }
+
+  @override
+  String feeWeight(String kg) {
+    return 'Weight $kg kg';
+  }
+
+  @override
+  String feeWeightIncluded(String kg, String included) {
+    return 'Weight $kg kg ($included kg included)';
+  }
+
+  @override
+  String get unlockWithFaceId => 'Unlock with Face ID';
+
+  @override
+  String get unlockWithFace => 'Unlock with your face';
+
+  @override
+  String get unlockWithFingerprint => 'Unlock with fingerprint';
+
+  @override
+  String get unlockWithPin => 'Unlock with the phone\'s PIN';
+
+  @override
+  String get usePhonePin => 'Use phone PIN';
+
+  @override
+  String get lockLockedOut =>
+      'Too many tries. Use your phone\'s PIN, or wait a little and try again.';
+
+  @override
+  String get lockUsePin =>
+      'Face and fingerprint are blocked for now. Use your phone\'s PIN.';
+
+  @override
+  String get lockNotEnrolled =>
+      'No face or fingerprint is set up on this phone. Use your phone\'s PIN, or set one up in the phone\'s settings.';
+
+  @override
+  String get lockNoScreenLock =>
+      'This phone has no screen lock. Set a PIN, pattern or password in the phone\'s settings, or sign out and use your password.';
+
+  @override
+  String get lockUnavailable =>
+      'The phone can\'t unlock the app right now. Try again, or sign out and use your password.';
+
+  @override
+  String get lockHelp =>
+      'Asked when the app opens and when you come back to it. The app is hidden in the app switcher.';
+
+  @override
+  String get lockTurnOnReason => 'Turn on the app lock';
+
+  @override
+  String get lockTurnOffReason => 'Turn off the app lock';
+
+  @override
+  String get lockTurnedOn => 'The app lock is on.';
+
+  @override
+  String get lockTurnedOff => 'The app lock is off.';
+
+  @override
+  String get lockNotChanged =>
+      'That didn\'t match, so the app lock wasn\'t changed.';
+
+  @override
+  String get lockAfterTitle => 'Lock again';
+
+  @override
+  String get lockImmediately => 'Immediately';
+
+  @override
+  String get customersInsights => 'Customers';
+
+  @override
+  String get productsInsights => 'Products';
+
+  @override
+  String get reviewsRatings => 'Ratings and reviews';
+
+  @override
+  String get aCustomer => 'A customer';
+
+  @override
+  String lastOrder(String when) {
+    return 'last order $when';
+  }
+
+  @override
+  String get customersLabel => 'Customers';
+
+  @override
+  String get newCustomers => 'New';
+
+  @override
+  String get cameBack => 'Came back';
+
+  @override
+  String get topCustomers => 'Best customers';
+
+  @override
+  String get noCustomersYet => 'No customers in this period yet.';
+
+  @override
+  String get nobodyAway => 'Nobody here: they keep coming back.';
+
+  @override
+  String get namesHidden =>
+      'Names show to the team members who may see orders.';
+
+  @override
+  String get soldOutTag => 'Sold out';
+
+  @override
+  String get nothingSoldYet => 'Nothing sold in this period yet.';
+
+  @override
+  String get slowMovers => 'Slow movers';
+
+  @override
+  String get nothingSlow => 'Every product is selling.';
+
+  @override
+  String get runningLow => 'Running low or sold out';
+
+  @override
+  String get stockFine => 'Stock is fine for everything.';
+
+  @override
+  String get priceAndStock => 'Prices, stock and what shows';
+
+  @override
+  String get priceAndStockHelp => 'Change a product in Catalog';
+
+  @override
+  String get averageRating => 'Average rating';
+
+  @override
+  String get ratingsCount => 'Ratings';
+
+  @override
+  String get noReviewsYet => 'No ratings yet';
+
+  @override
+  String get replyInInbox => 'Reply in Inbox';
+
+  @override
+  String get repliedInInbox => 'Replied · open in Inbox';
+
+  @override
+  String get newCoupon => 'New coupon';
+
+  @override
+  String get newCouponHelp => 'A code for a share or an amount off';
+
+  @override
+  String couponSaved(String code) {
+    return 'Coupon $code is ready.';
+  }
+
+  @override
+  String get couponCode => 'Code';
+
+  @override
+  String get percentOff => 'Percent off';
+
+  @override
+  String get amountOff => 'Amount off';
+
+  @override
+  String get percentValueField => 'Percent off (1–100)';
+
+  @override
+  String get amountValueField => 'Amount off';
+
+  @override
+  String get newFlashSale => 'New flash sale';
+
+  @override
+  String get newFlashSaleHelp => 'A share off some products, starting now';
+
+  @override
+  String flashSaleSaved(String title) {
+    return '$title is on.';
+  }
+
+  @override
+  String get saleName => 'Name';
+
+  @override
+  String get saleLasts => 'It lasts';
+
+  @override
+  String get saleProducts => 'Products on sale';
+
+  @override
+  String get deliveryToday => 'Today\'s delivery times';
+
+  @override
+  String get slotOpen => 'Open';
+
+  @override
+  String get slotClosedToday => 'Closed today';
+
+  @override
+  String get slotClosed => 'Closed for today: the app no longer offers it.';
+
+  @override
+  String get slotOpened => 'Open again.';
+
+  @override
+  String get busyMode => 'Busy mode';
+
+  @override
+  String busyFor(String name) {
+    return '$name is busy';
+  }
+
+  @override
+  String get busyHelp =>
+      'It takes no new orders for a while; the customers see when it opens again.';
+
+  @override
+  String get takeOrdersNow => 'Take orders now';
+
+  @override
+  String takingOrders(String name) {
+    return '$name takes orders again.';
+  }
+
+  @override
+  String get takingOrdersShort => 'Taking orders';
+
+  @override
+  String busyUntilShort(String time) {
+    return 'Busy until $time';
+  }
+
+  @override
+  String get noQuickActions => 'Your app has no quick actions.';
+
+  @override
+  String get goalReached => 'Goal reached!';
+
+  @override
+  String goalProgress(String current, String target) {
+    return '$current of $target';
+  }
+
+  @override
+  String get primeGift => 'Prime · Gift from Yallapp';
+
+  @override
+  String primeGiftUntil(String date) {
+    return 'Prime · Gift from Yallapp until $date';
+  }
+
+  @override
+  String get alertLowStock => 'Low stock';
+
+  @override
+  String get alertSalesGoal => 'Sales goal';
+
+  @override
+  String goalWhen(String amount, String period) {
+    return '$amount a $period';
+  }
+
+  @override
+  String get periodDay => 'day';
+
+  @override
+  String get periodWeek => 'week';
+
+  @override
+  String get periodMonth => 'month';
+
+  @override
+  String get goalNotSet => 'Set an amount for the day, week or month';
+
+  @override
+  String get goalPeriodField => 'Each';
+
+  @override
+  String get thresholdField => 'Tell me at this many left';
+
+  @override
+  String get weeklyReport => 'Weekly report by email';
+
+  @override
+  String weeklyReportHelp(String email) {
+    return 'Every Monday to $email: sales, orders, best sellers and customers.';
+  }
+
+  @override
+  String get primeMoreCustomersHelp =>
+      'New and returning, the best, the ones who stopped coming';
+
+  @override
+  String get primeMoreProductsHelp => 'Best sellers, slow movers, low stock';
+
+  @override
+  String get primeMoreReviewsHelp => 'Every rating, and replies';
+
+  @override
+  String get primeMoreActionsHelp =>
+      'Coupons, flash sales, delivery times, busy mode';
+
+  @override
+  String get primeGoalsHelp =>
+      'A goal for the day, week or month, with a ring on Today';
+
+  @override
+  String get primeWeeklyHelp => 'A summary by email every Monday';
+
+  @override
   String minutesAgo(int count) {
     return '$count min ago';
   }
@@ -3585,6 +4409,121 @@ class AppLocalizationsEn extends AppLocalizations {
       locale: localeName,
       other: '$count points',
       one: '1 point',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String ordersCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count orders',
+      one: '1 order',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String away30(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count away 30 to 60 days',
+      one: '1 away 30 to 60 days',
+      zero: 'Away 30 to 60 days',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String away60(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count away more than 60 days',
+      one: '1 away more than 60 days',
+      zero: 'Away more than 60 days',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String leftCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count left',
+      one: '1 left',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String unitsSold(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count sold',
+      one: '1 sold',
+      zero: 'None sold',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String starsOf(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count stars out of 5',
+      one: '1 star out of 5',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String hoursShort(int hours) {
+    String _temp0 = intl.Intl.pluralLogic(
+      hours,
+      locale: localeName,
+      other: '$hours hours',
+      one: '1 hour',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String lowStockAlertHint(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'Low stock in Smart alerts tells you at $count left.',
+      one: 'Low stock in Smart alerts tells you at 1 left.',
+      zero:
+          'Turn on Low stock in Smart alerts to hear when something sells out.',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String lockAfterMinutes(int minutes) {
+    String _temp0 = intl.Intl.pluralLogic(
+      minutes,
+      locale: localeName,
+      other: 'After $minutes minutes away',
+      one: 'After 1 minute away',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String needsAwaitingPayment(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count orders waiting for their payment',
+      one: '1 order waiting for its payment',
     );
     return '$_temp0';
   }

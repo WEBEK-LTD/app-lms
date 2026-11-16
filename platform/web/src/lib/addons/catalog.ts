@@ -7,11 +7,14 @@ import { ADDON_BILLINGS, ADDON_KINDS, BUILT_IN_ADDON_LIMITS, type AddonBilling, 
 /**
  * 133 The add-ons the team defined (Admin › Add-ons), as saved in the
  * setting "addons", and the ones that come with Yallapp (`BUILT_IN_ADDONS`)
- * until the team edits them. Nothing here sets a price: an add-on without
- * one is never offered.
+ * until the team edits them. An add-on without a price is never offered.
  */
 
-/** 133 "We publish your app to the stores for you": off and unpriced until the owner prices and switches it on. */
+/**
+ * 133 "We publish your app to the stores for you": not offered until the
+ * owner switches it on. Its prices are suggestions the owner asked for
+ * (Admin › Add-ons shows them as such until the add-on is saved).
+ */
 export const PUBLISHING_ADDON_ID = "publishing";
 
 export const BUILT_IN_ADDONS: readonly AddonDef[] = [
@@ -33,8 +36,8 @@ export const BUILT_IN_ADDONS: readonly AddonDef[] = [
     },
     // While it runs, the Publishing step offers "Publish it for me".
     feature: "auto_publish",
-    // Monthly, yearly or for life, as the owner asked; no price until the owner sets one.
-    prices: { "1": { on: true, egpCents: null, usdCents: null }, "12": { on: true, egpCents: null, usdCents: null }, lifetime: { on: true, egpCents: null, usdCents: null } },
+    // Monthly, yearly or for life, as the owner asked, at suggested prices: EGP 500 / $12 a month, EGP 5,000 / $120 a year, EGP 12,500 / $300 for life.
+    prices: { "1": { on: true, egpCents: 50_000, usdCents: 1_200 }, "12": { on: true, egpCents: 500_000, usdCents: 12_000 }, lifetime: { on: true, egpCents: 1_250_000, usdCents: 30_000 } },
     rule: { family: "both", belowTop: true, plans: null },
     repeatable: false,
     active: false,

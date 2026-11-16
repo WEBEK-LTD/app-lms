@@ -66,6 +66,8 @@ import { travelSettingsOf } from "@/lib/travel/settings";
 import { FLIGHT_SOURCES, HOTEL_SOURCES } from "@/lib/travel/sources";
 import { LANGUAGE_NAMES } from "@/lib/pages/types";
 import { TravelPartsForm } from "./travel-form";
+import { PrimeGiftCard } from "./prime-gift";
+import { isPrimeLicense } from "@/lib/owner/sales";
 // 132.111–132.115
 import { CreateAppForm, type StartGroup } from "./app-forms";
 import { moveWaiting } from "@/lib/apps/move";
@@ -373,6 +375,20 @@ export default async function ClientPage({ params, searchParams }: PageProps<"/a
             </Card>
           );
         })}
+
+        {/* 132 Prime as a gift, whatever the plan. */}
+        {await panel(client.id, { id: "h-prime-gift", title: "Prime as a gift" }, async () => (
+          <PrimeGiftCard
+            clientId={client.id}
+            apps={apps.filter((a) => !a.deletedAt)}
+            gifts={await store.listPrimeGifts(client.id)}
+            primeByPlan={new Set(apps.filter((a) => isPrimeLicense(licenses.find((l) => l.appId === a.id) ?? null, now)).map((a) => a.id))}
+            edit={may("prime.gift")}
+            error={typeof query.gift_error === "string" ? query.gift_error : null}
+            done={typeof query.done === "string" ? query.done : null}
+            now={now}
+          />
+        ))}
 
         {await panel(client.id, { id: "h-account", title: "Account" }, () => (
           <Card id="h-account" title="Account">

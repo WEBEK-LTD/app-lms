@@ -87,6 +87,11 @@ abstract final class Paths {
   static const insights = '/prime-insights';
   static const smartAlerts = '/prime-alerts';
   static const look = '/prime-look';
+  // 132 Prime's second set.
+  static const primeCustomers = '/prime-customers';
+  static const primeProducts = '/prime-products';
+  static const primeReviews = '/prime-reviews';
+  static const quickActions = '/prime-actions';
   static const vip = '/vip';
 }
 

@@ -102,7 +102,6 @@ S = [
 ("notificationSettings", "Notifications", "الإشعارات", "Bildirimler"),
 ("signedInDevices", "Signed-in devices", "الأجهزة المسجّل دخولها", "Oturum açık cihazlar"),
 ("biometricLock", "Unlock with fingerprint or face", "الفتح ببصمة الإصبع أو الوجه", "Parmak izi veya yüzle aç"),
-("biometricLockHelp", "Asked when the app opens, and after 5 minutes away.", "يُطلب عند فتح التطبيق، وبعد الابتعاد عنه 5 دقائق.", "Uygulama açılırken ve 5 dakika uzak kaldıktan sonra sorulur."),
 ("biometricUnavailable", "This phone has no fingerprint, face or screen lock set up.", "لا توجد بصمة إصبع أو وجه أو قفل شاشة على هذا الهاتف.", "Bu telefonda parmak izi, yüz veya ekran kilidi ayarlı değil."),
 ("help", "Help", "المساعدة", "Yardım"),
 ("helpWhatsapp", "Talk to us on WhatsApp", "تحدث معنا عبر واتساب", "WhatsApp'tan bize yazın"),
@@ -156,8 +155,8 @@ S = [
 
 # Plurals: (key, placeholder, English, Arabic, Turkish).
 P = [
-("minutesAgo", "count", "{count} min ago", "قبل {count} دقيقة", "{count} dk önce"),
-("hoursAgo", "count", "{count} h ago", "قبل {count} ساعة", "{count} sa önce"),
+("minutesAgo", "count", "{count} min ago", "{count, plural, =1{قبل دقيقة} =2{قبل دقيقتين} few{قبل {count} دقائق} many{قبل {count} دقيقة} other{قبل {count} دقيقة}}", "{count} dk önce"),
+("hoursAgo", "count", "{count} h ago", "{count, plural, =1{قبل ساعة} =2{قبل ساعتين} few{قبل {count} ساعات} many{قبل {count} ساعة} other{قبل {count} ساعة}}", "{count} sa önce"),
 ("donorsCount", "count", "{count, plural, =1{1 donor} other{{count} donors}}", "{count, plural, =0{لا متبرعين} =1{متبرع واحد} =2{متبرعان} few{{count} متبرعين} many{{count} متبرعًا} other{{count} متبرع}}", "{count} bağışçı"),
 ("lessonsCount", "count", "{count, plural, =1{1 lesson} other{{count} lessons}}", "{count, plural, =0{لا دروس} =1{درس واحد} =2{درسان} few{{count} دروس} many{{count} درسًا} other{{count} درس}}", "{count} ders"),
 ("studentsCount", "count", "{count, plural, =1{1 student} other{{count} students}}", "{count, plural, =0{لا طلاب} =1{طالب واحد} =2{طالبان} few{{count} طلاب} many{{count} طالبًا} other{{count} طالب}}", "{count} öğrenci"),

@@ -353,10 +353,8 @@ class _BookCallState extends ConsumerState<_BookCall> {
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(14),
                     ),
-                    textStyle: const TextStyle(
-                      fontSize: 15,
-                      fontWeight: FontWeight.w600,
-                    ),
+                    textStyle: Theme.of(context).textTheme.labelLarge
+                        ?.copyWith(fontSize: 15, fontWeight: FontWeight.w600),
                   ),
                   onPressed: _busy || time == null
                       ? null

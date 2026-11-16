@@ -10,7 +10,9 @@ import { startFakeKashier, type FakeGateway } from "./fake-gateways";
  * the owner would); a visitor in Egypt sees the periods on the pricing page,
  * with the price per month, the saving and the lifetime card; a client
  * chooses 6 months on the Plan page and pays on (a fake) Kashier in pounds,
- * and gets the invoice; the team defines the add-on "+10 pages"; the client
+ * and gets the invoice. A plan priced only by the year gets suggested prices
+ * for its other periods (the owner's request), which the team edits, keeps
+ * or switches off. The team defines the add-on "+10 pages"; the client
  * buys it on Dashboard › Add-ons and the app's page limit rises. The team
  * puts everything back at the end (the plan archived: a client is on it).
  */
@@ -131,6 +133,79 @@ test("the pricing page offers the periods, with the price per month, the saving 
   await visitor.close();
 });
 
+test("a plan priced only by the year gets suggested prices for its other periods: the team edits, keeps or switches them off", async ({ browser }) => {
+  await admin.goto("/admin/plans?plan=growth");
+  const plan = admin.getByRole("region", { name: "Growth", exact: true });
+  await plan.getByLabel("A price").check();
+  await plan.getByLabel("Price in EGP").fill("1500");
+  await plan.getByLabel("Billed").selectOption("12");
+  // Worked out from EGP 1,500 a year as it's typed (a month 156.25), rounded to EGP 50, and marked as suggested.
+  for (const [period, key, price] of [
+    ["1 month", "1", "150.00"],
+    ["6 months", "6", "850.00"],
+    ["2 years", "24", "2550.00"],
+    ["3 years", "36", "3400.00"],
+    ["lifetime", "lifetime", "6000.00"],
+  ] as const) {
+    await expect(plan.getByLabel(`Offer ${period}`)).toBeChecked();
+    await expect(plan.getByLabel(`EGP for ${period}`, { exact: true })).toHaveValue(price);
+    await expect(plan.locator(`[data-period-suggested="${key}"]`)).toHaveText("Suggested: edit or keep");
+  }
+  await expect(plan.locator('[data-period-status="6"]')).toHaveText(/^EGP\s141\.67 a month · saves 5% against 1 month$/);
+  // The team edits 3 years, switches 2 years off and leaves lifetime to its suggestion (on, no price typed).
+  await plan.getByLabel("EGP for 3 years", { exact: true }).fill("3300");
+  await expect(plan.locator('[data-period-suggested="36"]')).toHaveCount(0);
+  await plan.getByLabel("Offer 2 years").uncheck();
+  await plan.getByLabel("EGP for lifetime", { exact: true }).fill("");
+  await plan.getByRole("button", { name: "Save plan" }).click();
+  await expect(admin.getByText("Growth saved. The pricing page shows it now.")).toBeVisible();
+  await admin.reload();
+  const growth = admin.getByRole("region", { name: "Growth", exact: true });
+  await expect(growth).toContainText("Clients choose: 1 month · 6 months · 1 year · 3 years · Lifetime (1 at a suggested price)");
+  // The suggestions kept are the team's own now; 2 years stays off; lifetime is suggested again.
+  await expect(growth.getByLabel("EGP for 6 months", { exact: true })).toHaveValue("850.00");
+  await expect(growth.locator('[data-period-suggested="6"]')).toHaveCount(0);
+  await expect(growth.getByLabel("EGP for 3 years", { exact: true })).toHaveValue("3300.00");
+  await expect(growth.getByLabel("Offer 2 years")).not.toBeChecked();
+  await expect(growth.getByLabel("EGP for lifetime", { exact: true })).toHaveValue("6000.00");
+  await expect(growth.locator('[data-period-suggested="lifetime"]')).toBeVisible();
+
+  // Clients are offered them like any price.
+  const visitor = await browser.newPage({ extraHTTPHeaders });
+  await visitor.goto("/pricing?period=6");
+  await expect(visitor.locator('#regular [data-plan="growth"]')).toContainText(/EGP\s850\s*\/ 6 months/);
+  await visitor.goto("/pricing?period=36");
+  await expect(visitor.locator('#regular [data-plan="growth"]')).toContainText(/EGP\s3,300\s*\/ 3 years/);
+  // 2 years off: its yearly price.
+  await visitor.goto("/pricing?period=24");
+  await expect(visitor.locator('#regular [data-plan="growth"]')).toContainText(/EGP\s1,500\s*\/ year/);
+  await expect(visitor.locator('#lifetime [data-lifetime-plan="growth"]')).toContainText(/EGP\s6,000/);
+  await visitor.goto("/ar/pricing?period=6");
+  await expect(visitor.locator('#regular [data-plan="growth"]')).toContainText("850");
+  await visitor.close();
+  if (SCREENS) {
+    mkdirSync(SCREENS, { recursive: true });
+    for (const scheme of ["light", "dark"] as const) {
+      const context = await browser.newContext({ colorScheme: scheme, deviceScaleFactor: 2, viewport: { width: 1280, height: 900 }, extraHTTPHeaders });
+      const page = await context.newPage();
+      await page.goto("/ar/pricing?period=6");
+      await page.locator("#regular").screenshot({ path: path.join(SCREENS, `pricing-suggested-ar-${scheme}.jpg`), type: "jpeg", quality: 85 });
+      await page.goto("/ar/pricing?period=lifetime");
+      await page.locator("#lifetime").screenshot({ path: path.join(SCREENS, `lifetime-suggested-ar-${scheme}.jpg`), type: "jpeg", quality: 85 });
+      await context.close();
+    }
+    await admin.goto("/admin/plans?plan=growth");
+    await admin.locator('[data-plan-periods]').screenshot({ path: path.join(SCREENS, "admin-suggested-periods-en.jpg"), type: "jpeg", quality: 85 });
+  }
+
+  // Back to Growth as it comes (On request) for the steps after.
+  await admin.goto("/admin/plans?plan=growth");
+  await admin.getByRole("button", { name: "Back to the default plan" }).click();
+  await expect(admin.getByRole("button", { name: "Back to the default plan" })).toHaveCount(0);
+  await admin.reload();
+  await expect(admin.getByRole("region", { name: "Growth", exact: true }).getByRole("radio", { name: "On request" })).toBeChecked();
+});
+
 test("a client chooses 6 months on the Plan page, pays EGP 650 on Kashier and gets the invoice", async ({ browser }) => {
   own = await browser.newPage({ extraHTTPHeaders });
   await own.goto("/sign-up");
@@ -196,9 +271,15 @@ test("the team defines the add-on +10 pages; the client buys it and the app's pa
   await expect(form.getByText("+10 pages saved and offered to the clients its rules allow.")).toBeVisible();
   await admin.goto("/admin/addons");
   await expect(admin.locator('[data-addon-row="pages-10"]')).toContainText("+10 · Pages");
-  // The publishing service comes with Yallapp: off and unpriced until the owner prices it.
-  await expect(admin.locator('[data-addon-row="publishing"]')).toContainText("1 month: no price yet · 1 year: no price yet · Lifetime: no price yet");
+  // The publishing service comes with Yallapp at suggested prices, not offered until the owner switches it on.
+  await expect(admin.locator('[data-addon-row="publishing"]')).toContainText(/1 month: EGP\s500 · 1 year: EGP\s5,000 · Lifetime: EGP\s12,500 \(suggested prices\)/);
   await expect(admin.locator('[data-addon-row="publishing"]')).toContainText("below the top plan");
+  await admin.goto("/admin/addons?addon=publishing");
+  const publishing = admin.getByRole("form", { name: "Add-on We publish your app to the stores for you" });
+  await expect(publishing.locator("[data-addon-suggested]")).toHaveCount(3);
+  await expect(publishing.getByLabel("EGP, 1 year", { exact: true })).toHaveValue("5000.00");
+  await expect(publishing.getByLabel("USD, lifetime (optional)", { exact: true })).toHaveValue("300.00");
+  await expect(publishing.getByLabel("Offered to clients")).not.toBeChecked();
 
   await own.goto("/dashboard/addons");
   const card = own.locator('[data-addon="pages-10"]');

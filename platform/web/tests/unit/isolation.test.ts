@@ -119,7 +119,7 @@ function kindFor(pattern: string[]): keyof Kinds {
   if (part === "articles") return "news";
   if (part === "listings" || part === "inquiries") return "estate";
   // 125 The Studio apps' tools.
-  if (part === "food-orders" || part === "restaurants" || part === "market") return "food";
+  if (part === "food-orders" || part === "restaurants" || part === "market" || part === "ratings") return "food";
   if (part === "shipments" || part === "couriers") return "delivery";
   if (part === "rides" || part === "drivers") return "rides";
   if (part === "school") return "k12";
@@ -790,6 +790,11 @@ describe("79.3 one client never reaches another's data through the Owner API", (
       excuse_id: String(theirExcuse.id),
       school_report_id: String(theirReport.id),
       leave_id: String(leave.id),
+      // 132 A delivery slot of their shop's (Prime's quick actions).
+      slot_id: "s1",
+      // 132 Their food order's rating, for the reply under it.
+      source: "food",
+      rating_id: String(foodOrder.id),
     });
     theirCustomerIds = [customerDevice, conversation.id];
   });

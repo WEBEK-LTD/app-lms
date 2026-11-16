@@ -97,6 +97,12 @@ void main() {
     expect(find.text('F-1048'), findsOneWidget);
     expect(find.text('Burger Lab'), findsOneWidget);
     expect(find.text('Bağdat Cd. 214, Kadıköy'), findsOneWidget);
+    // 132 The customer's part (Call, WhatsApp, the map) comes before the items.
+    await tester.scrollUntilVisible(
+      find.text('No onions · Extra cheddar'),
+      200,
+      scrollable: down(),
+    );
     expect(find.text('No onions · Extra cheddar'), findsOneWidget);
     expect(find.text('₺412.00'), findsWidgets);
     expect(
@@ -115,7 +121,15 @@ void main() {
     );
     await tapOn(tester, find.widgetWithText(FilledButton, 'Accept · 15 min'));
     expect(app.api.calls, contains('foodOrderStep:accept'));
-    expect(find.text('Preparing'), findsOneWidget);
+    // The tag in the title bar, and the step in the history.
+    expect(
+      find.descendant(
+        of: find.byType(AppBar),
+        matching: find.text('Preparing'),
+      ),
+      findsOneWidget,
+    );
+    expect(find.text('Preparing'), findsNWidgets(2));
     // Now it can be marked ready, or cancelled after asking.
     await tapOn(tester, find.widgetWithText(FilledButton, 'Ready'));
     expect(app.api.calls, contains('foodOrderStep:ready'));
