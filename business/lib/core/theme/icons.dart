@@ -152,6 +152,10 @@ abstract final class AppIcons {
   static const shipping = Symbols.local_shipping_rounded;
   static const note = Symbols.sticky_note_2_rounded;
   static const package = Symbols.package_2_rounded;
+  // 132 The app lock.
+  static const face = Symbols.face_rounded;
+  static const pin = Symbols.pin_rounded;
+  static const timer = Symbols.timer_rounded;
 }
 
 /// Icons that point a way (back, forward, send) turn round in Arabic.

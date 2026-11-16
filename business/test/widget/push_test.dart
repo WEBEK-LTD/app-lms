@@ -93,7 +93,7 @@ void main() {
     await app.pump(tester);
     expect(find.text('Yallapp Business is locked'), findsOneWidget);
     bio.succeed = true;
-    await tapOn(tester, find.text('Unlock'));
+    await tapOn(tester, find.text('Unlock with fingerprint'));
     expect(find.text('#1041'), findsOneWidget);
   });
 

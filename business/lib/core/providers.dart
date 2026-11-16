@@ -17,6 +17,7 @@ import 'services/chime.dart';
 import 'services/device.dart';
 import 'services/links.dart';
 import 'services/media_picker.dart';
+import 'services/privacy.dart';
 import 'services/push.dart';
 import 'services/screen_wake.dart';
 import 'services/settings.dart';
@@ -40,6 +41,11 @@ final settingsProvider = Provider<LocalSettings>(
 final tokenStoreProvider = Provider<TokenStore>((ref) => SecureTokenStore());
 
 final biometricsProvider = Provider<Biometrics>((ref) => LocalBiometrics());
+
+/// 132 Hidden in the app switcher while the lock is on.
+final privacyProvider = Provider<PrivacyGuard>(
+  (ref) => const PlatformPrivacyGuard(),
+);
 
 final pushServiceProvider = Provider<PushService>(
   (ref) => const NoPushService(),

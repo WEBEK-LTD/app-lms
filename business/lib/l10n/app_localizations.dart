@@ -2194,12 +2194,6 @@ abstract class AppLocalizations {
   /// **'Unlock with fingerprint or face'**
   String get biometricLock;
 
-  /// No description provided for @biometricLockHelp.
-  ///
-  /// In en, this message translates to:
-  /// **'Asked when the app opens, and after 5 minutes away.'**
-  String get biometricLockHelp;
-
   /// No description provided for @biometricUnavailable.
   ///
   /// In en, this message translates to:
@@ -6040,6 +6034,114 @@ abstract class AppLocalizations {
   /// **'Coupon: {code}'**
   String couponUsed(String code);
 
+  /// No description provided for @unlockWithFaceId.
+  ///
+  /// In en, this message translates to:
+  /// **'Unlock with Face ID'**
+  String get unlockWithFaceId;
+
+  /// No description provided for @unlockWithFace.
+  ///
+  /// In en, this message translates to:
+  /// **'Unlock with your face'**
+  String get unlockWithFace;
+
+  /// No description provided for @unlockWithFingerprint.
+  ///
+  /// In en, this message translates to:
+  /// **'Unlock with fingerprint'**
+  String get unlockWithFingerprint;
+
+  /// No description provided for @unlockWithPin.
+  ///
+  /// In en, this message translates to:
+  /// **'Unlock with the phone\'s PIN'**
+  String get unlockWithPin;
+
+  /// No description provided for @usePhonePin.
+  ///
+  /// In en, this message translates to:
+  /// **'Use phone PIN'**
+  String get usePhonePin;
+
+  /// No description provided for @lockLockedOut.
+  ///
+  /// In en, this message translates to:
+  /// **'Too many tries. Use your phone\'s PIN, or wait a little and try again.'**
+  String get lockLockedOut;
+
+  /// No description provided for @lockUsePin.
+  ///
+  /// In en, this message translates to:
+  /// **'Face and fingerprint are blocked for now. Use your phone\'s PIN.'**
+  String get lockUsePin;
+
+  /// No description provided for @lockNotEnrolled.
+  ///
+  /// In en, this message translates to:
+  /// **'No face or fingerprint is set up on this phone. Use your phone\'s PIN, or set one up in the phone\'s settings.'**
+  String get lockNotEnrolled;
+
+  /// No description provided for @lockNoScreenLock.
+  ///
+  /// In en, this message translates to:
+  /// **'This phone has no screen lock. Set a PIN, pattern or password in the phone\'s settings, or sign out and use your password.'**
+  String get lockNoScreenLock;
+
+  /// No description provided for @lockUnavailable.
+  ///
+  /// In en, this message translates to:
+  /// **'The phone can\'t unlock the app right now. Try again, or sign out and use your password.'**
+  String get lockUnavailable;
+
+  /// No description provided for @lockHelp.
+  ///
+  /// In en, this message translates to:
+  /// **'Asked when the app opens and when you come back to it. The app is hidden in the app switcher.'**
+  String get lockHelp;
+
+  /// No description provided for @lockTurnOnReason.
+  ///
+  /// In en, this message translates to:
+  /// **'Turn on the app lock'**
+  String get lockTurnOnReason;
+
+  /// No description provided for @lockTurnOffReason.
+  ///
+  /// In en, this message translates to:
+  /// **'Turn off the app lock'**
+  String get lockTurnOffReason;
+
+  /// No description provided for @lockTurnedOn.
+  ///
+  /// In en, this message translates to:
+  /// **'The app lock is on.'**
+  String get lockTurnedOn;
+
+  /// No description provided for @lockTurnedOff.
+  ///
+  /// In en, this message translates to:
+  /// **'The app lock is off.'**
+  String get lockTurnedOff;
+
+  /// No description provided for @lockNotChanged.
+  ///
+  /// In en, this message translates to:
+  /// **'That didn\'t match, so the app lock wasn\'t changed.'**
+  String get lockNotChanged;
+
+  /// No description provided for @lockAfterTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Lock again'**
+  String get lockAfterTitle;
+
+  /// No description provided for @lockImmediately.
+  ///
+  /// In en, this message translates to:
+  /// **'Immediately'**
+  String get lockImmediately;
+
   /// No description provided for @minutesAgo.
   ///
   /// In en, this message translates to:
@@ -6273,6 +6375,12 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'{count, plural, =1{1 point} other{{count} points}}'**
   String pointsChange(int count);
+
+  /// No description provided for @lockAfterMinutes.
+  ///
+  /// In en, this message translates to:
+  /// **'{minutes, plural, =1{After 1 minute away} other{After {minutes} minutes away}}'**
+  String lockAfterMinutes(int minutes);
 
   /// No description provided for @needsAwaitingPayment.
   ///

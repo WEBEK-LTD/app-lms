@@ -102,7 +102,6 @@ S = [
 ("notificationSettings", "Notifications", "الإشعارات", "Bildirimler"),
 ("signedInDevices", "Signed-in devices", "الأجهزة المسجّل دخولها", "Oturum açık cihazlar"),
 ("biometricLock", "Unlock with fingerprint or face", "الفتح ببصمة الإصبع أو الوجه", "Parmak izi veya yüzle aç"),
-("biometricLockHelp", "Asked when the app opens, and after 5 minutes away.", "يُطلب عند فتح التطبيق، وبعد الابتعاد عنه 5 دقائق.", "Uygulama açılırken ve 5 dakika uzak kaldıktan sonra sorulur."),
 ("biometricUnavailable", "This phone has no fingerprint, face or screen lock set up.", "لا توجد بصمة إصبع أو وجه أو قفل شاشة على هذا الهاتف.", "Bu telefonda parmak izi, yüz veya ekran kilidi ayarlı değil."),
 ("help", "Help", "المساعدة", "Yardım"),
 ("helpWhatsapp", "Talk to us on WhatsApp", "تحدث معنا عبر واتساب", "WhatsApp'tan bize yazın"),

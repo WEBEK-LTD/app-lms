@@ -14,6 +14,8 @@ class LocalSettings {
   static const _language = 'yb.language';
   static const _uploads = 'yb.pending_uploads';
   static const _theme = 'yb.theme';
+  static const _lockAfter = 'yb.lock_after_minutes';
+  static const _business = 'yb.business_name';
 
   String? get selectedApp => _prefs.getString(_app);
   Future<void> setSelectedApp(String? id) =>
@@ -23,6 +25,26 @@ class LocalSettings {
   /// that can use it.
   bool? get biometricLock => _prefs.getBool(_biometric);
   Future<void> setBiometricLock(bool on) => _prefs.setBool(_biometric, on);
+
+  /// 132 The choices for how long the app may stay in the background before
+  /// the lock asks again (0: as soon as it leaves the screen).
+  static const lockAfterChoices = [0, 1, 5, 15];
+
+  /// 132 Minutes in the background before the lock asks again; 1 unless chosen.
+  int get lockAfterMinutes {
+    final value = _prefs.getInt(_lockAfter);
+    return lockAfterChoices.contains(value) ? value! : 1;
+  }
+
+  Future<void> setLockAfterMinutes(int minutes) =>
+      _prefs.setInt(_lockAfter, minutes);
+
+  /// 132 The business last open on this phone, for the lock screen (shown
+  /// before the account loads).
+  String? get businessName => _prefs.getString(_business);
+  Future<void> setBusinessName(String? name) => name == null
+      ? _prefs.remove(_business)
+      : _prefs.setString(_business, name);
 
   /// The language picked on this phone before signing in (en, ar, tr).
   String? get language => _prefs.getString(_language);
@@ -69,6 +91,7 @@ class LocalSettings {
 
   Future<void> clearAccount() async {
     await _prefs.remove(_app);
+    await _prefs.remove(_business);
     await _prefs.remove(_uploads);
   }
 }

@@ -1147,10 +1147,6 @@ class AppLocalizationsEn extends AppLocalizations {
   String get biometricLock => 'Unlock with fingerprint or face';
 
   @override
-  String get biometricLockHelp =>
-      'Asked when the app opens, and after 5 minutes away.';
-
-  @override
   String get biometricUnavailable =>
       'This phone has no fingerprint, face or screen lock set up.';
 
@@ -3371,6 +3367,67 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
+  String get unlockWithFaceId => 'Unlock with Face ID';
+
+  @override
+  String get unlockWithFace => 'Unlock with your face';
+
+  @override
+  String get unlockWithFingerprint => 'Unlock with fingerprint';
+
+  @override
+  String get unlockWithPin => 'Unlock with the phone\'s PIN';
+
+  @override
+  String get usePhonePin => 'Use phone PIN';
+
+  @override
+  String get lockLockedOut =>
+      'Too many tries. Use your phone\'s PIN, or wait a little and try again.';
+
+  @override
+  String get lockUsePin =>
+      'Face and fingerprint are blocked for now. Use your phone\'s PIN.';
+
+  @override
+  String get lockNotEnrolled =>
+      'No face or fingerprint is set up on this phone. Use your phone\'s PIN, or set one up in the phone\'s settings.';
+
+  @override
+  String get lockNoScreenLock =>
+      'This phone has no screen lock. Set a PIN, pattern or password in the phone\'s settings, or sign out and use your password.';
+
+  @override
+  String get lockUnavailable =>
+      'The phone can\'t unlock the app right now. Try again, or sign out and use your password.';
+
+  @override
+  String get lockHelp =>
+      'Asked when the app opens and when you come back to it. The app is hidden in the app switcher.';
+
+  @override
+  String get lockTurnOnReason => 'Turn on the app lock';
+
+  @override
+  String get lockTurnOffReason => 'Turn off the app lock';
+
+  @override
+  String get lockTurnedOn => 'The app lock is on.';
+
+  @override
+  String get lockTurnedOff => 'The app lock is off.';
+
+  @override
+  String get lockNotChanged =>
+      'That didn\'t match, so the app lock wasn\'t changed.';
+
+  @override
+  String get lockAfterTitle => 'Lock again';
+
+  @override
+  String get lockImmediately => 'Immediately';
+
+  @override
   String minutesAgo(int count) {
     return '$count min ago';
   }
@@ -3779,6 +3836,17 @@ class AppLocalizationsEn extends AppLocalizations {
       locale: localeName,
       other: '$count points',
       one: '1 point',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String lockAfterMinutes(int minutes) {
+    String _temp0 = intl.Intl.pluralLogic(
+      minutes,
+      locale: localeName,
+      other: 'After $minutes minutes away',
+      one: 'After 1 minute away',
     );
     return '$_temp0';
   }

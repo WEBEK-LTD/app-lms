@@ -164,6 +164,23 @@ marketplace, shipment and ride pages have each person with Call and WhatsApp
 and each place with the map and Copy address (`lib/core/widgets/contact.dart`).
 The demo has Leqaa, a Studio flower shop with gift orders.
 
+The app lock (132): Settings › Unlock with fingerprint or face turns it on
+and off only after the phone said it's the person (`local_auth`: a face or
+a fingerprint with the phone's PIN, pattern or password as the fallback;
+Android's `FlutterFragmentActivity` and `USE_BIOMETRIC`, iOS's
+`NSFaceIDUsageDescription`). It asks on launch and when the app comes back
+after the time chosen (immediately, 1, 5 or 15 minutes away). The lock
+screen shows the app's mark and the business's name, "Unlock with Face ID"
+(or fingerprint, or the phone's PIN when nothing else is set up) and "Use
+phone PIN", and says what to do when no face or fingerprint is set up, when
+the phone is locked out after too many tries, or when the phone has no
+screen lock any more (it stays locked; signing out is the way). Back does
+nothing there, links and pushes wait for the unlock. While the lock is on
+the app is hidden in the app switcher: a cover of its own while it isn't in
+front, Android 13's `setRecentsScreenshotEnabled(false)` (older Android:
+`FLAG_SECURE`) and an iOS blur (`AppDelegate.swift`), through the
+`tr.com.yallapp.business/privacy` channel (`lib/core/services/privacy.dart`).
+
 Each screen and quick action is shown only when the app has it
 (`AppSummary.features`): the second tab is the app's main tool (Events,
 Appointments, Orders, Donations or its catalog), Inbox and Stats appear when

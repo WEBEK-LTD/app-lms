@@ -4,6 +4,8 @@ import 'package:go_router/go_router.dart';
 
 import '../../core/providers.dart';
 import '../../core/routing/paths.dart';
+import '../../core/services/biometrics.dart';
+import '../../core/services/settings.dart';
 import '../../core/session.dart';
 import '../../core/theme/icons.dart';
 import '../../core/theme/theme.dart';
@@ -450,15 +452,76 @@ class _BiometricTile extends ConsumerStatefulWidget {
   ConsumerState<_BiometricTile> createState() => _BiometricTileState();
 }
 
+/// 132 The app lock: turned on or off only after the phone said it's them;
+/// when it asks again after the app was away (immediately, 1, 5 or 15
+/// minutes); why it can't be used on this phone.
 class _BiometricTileState extends ConsumerState<_BiometricTile> {
-  bool? _available;
+  LockSupport? _support;
+  bool _busy = false;
 
   @override
   void initState() {
     super.initState();
-    ref.read(biometricsProvider).available().then((v) {
-      if (mounted) setState(() => _available = v);
+    ref.read(biometricsProvider).support().then((v) {
+      if (mounted) setState(() => _support = v);
     });
+  }
+
+  Future<void> _toggle(bool on) async {
+    final l10n = context.l10n;
+    setState(() => _busy = true);
+    final result = await ref
+        .read(sessionProvider.notifier)
+        .setLock(on, on ? l10n.lockTurnOnReason : l10n.lockTurnOffReason);
+    if (!mounted) return;
+    setState(() => _busy = false);
+    final message = switch (result) {
+      UnlockResult.success => on ? l10n.lockTurnedOn : l10n.lockTurnedOff,
+      UnlockResult.cancelled => null,
+      UnlockResult.lockedOut => l10n.lockLockedOut,
+      UnlockResult.lockedOutUntilPin => l10n.lockUsePin,
+      UnlockResult.notEnrolled => l10n.lockNotEnrolled,
+      UnlockResult.noCredentials => l10n.lockNoScreenLock,
+      UnlockResult.unavailable => l10n.lockUnavailable,
+      UnlockResult.failed => l10n.lockNotChanged,
+    };
+    if (message != null) showMessage(context, message);
+  }
+
+  Future<void> _chooseAfter() async {
+    final settings = ref.read(settingsProvider);
+    final chosen = await showModalBottomSheet<int>(
+      context: context,
+      showDragHandle: true,
+      builder: (sheet) => SafeArea(
+        child: RadioGroup<int>(
+          groupValue: settings.lockAfterMinutes,
+          onChanged: (v) => Navigator.of(sheet).pop(v),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              Padding(
+                padding: const EdgeInsets.fromLTRB(16, 0, 16, 8),
+                child: Text(
+                  sheet.l10n.lockAfterTitle,
+                  style: Theme.of(sheet).textTheme.titleLarge,
+                ),
+              ),
+              for (final minutes in LocalSettings.lockAfterChoices)
+                RadioListTile<int>(
+                  value: minutes,
+                  title: Text(lockAfterLabel(sheet, minutes)),
+                ),
+              const SizedBox(height: 8),
+            ],
+          ),
+        ),
+      ),
+    );
+    if (chosen == null) return;
+    await settings.setLockAfterMinutes(chosen);
+    if (mounted) setState(() {});
   }
 
   @override
@@ -466,28 +529,40 @@ class _BiometricTileState extends ConsumerState<_BiometricTile> {
     final l10n = context.l10n;
     final settings = ref.watch(settingsProvider);
     final on = settings.biometricLock ?? false;
-    final available = _available ?? false;
-    return SwitchListTile(
-      secondary: const Icon(AppIcons.fingerprint),
-      title: Text(l10n.biometricLock),
-      subtitle: Text(
-        available ? l10n.biometricLockHelp : l10n.biometricUnavailable,
-      ),
-      value: available && on,
-      onChanged: !available
-          ? null
-          : (v) async {
-              if (v) {
-                final ok = await ref
-                    .read(biometricsProvider)
-                    .authenticate(l10n.unlockReason);
-                if (!ok) return;
-              }
-              await settings.setBiometricLock(v);
-              if (mounted) setState(() {});
-            },
+    final usable = _support?.usable ?? false;
+    final why = switch (_support) {
+      LockSupport.noCredentials => l10n.lockNoScreenLock,
+      LockSupport.unavailable => l10n.biometricUnavailable,
+      _ => null,
+    };
+    return Column(
+      children: [
+        SwitchListTile(
+          secondary: const Icon(AppIcons.fingerprint),
+          title: Text(l10n.biometricLock),
+          subtitle: Text(why ?? l10n.lockHelp),
+          // On stays shown on a phone that lost its screen lock: turning it
+          // off still needs the phone (or signing out).
+          value: on,
+          onChanged: _busy || (!usable && !on) ? null : _toggle,
+        ),
+        if (on)
+          ListTile(
+            leading: const Icon(AppIcons.timer),
+            title: Text(l10n.lockAfterTitle),
+            subtitle: Text(lockAfterLabel(context, settings.lockAfterMinutes)),
+            trailing: const DirectionalIcon(AppIcons.forward),
+            onTap: _chooseAfter,
+          ),
+      ],
     );
   }
+}
+
+/// 132 "Immediately", "After 1 minute", "After 5 minutes".
+String lockAfterLabel(BuildContext context, int minutes) {
+  final l10n = context.l10n;
+  return minutes == 0 ? l10n.lockImmediately : l10n.lockAfterMinutes(minutes);
 }
 
 /// 60 The businesses the person works on; choosing one reloads the app on it.

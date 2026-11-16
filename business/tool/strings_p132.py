@@ -61,9 +61,29 @@ S = [
 ("lineWallet", "Paid from the wallet", "مدفوع من المحفظة", "Cüzdandan ödenen"),
 ("scheduledAt", "Scheduled: {time}", "مجدول: {time}", "Planlı: {time}"),
 ("couponUsed", "Coupon: {code}", "القسيمة: {code}", "Kupon: {code}"),
+# The app lock
+("unlockWithFaceId", "Unlock with Face ID", "فتح القفل بـ Face ID", "Face ID ile kilidi aç"),
+("unlockWithFace", "Unlock with your face", "فتح القفل ببصمة الوجه", "Yüzünüzle kilidi açın"),
+("unlockWithFingerprint", "Unlock with fingerprint", "فتح القفل ببصمة الإصبع", "Parmak izi ile kilidi aç"),
+("unlockWithPin", "Unlock with the phone's PIN", "فتح القفل برمز الهاتف", "Telefonun PIN koduyla aç"),
+("usePhonePin", "Use phone PIN", "استخدام رمز الهاتف", "Telefon PIN kodunu kullan"),
+("lockLockedOut", "Too many tries. Use your phone's PIN, or wait a little and try again.", "محاولات كثيرة. استخدم رمز هاتفك، أو انتظر قليلًا ثم حاول مجددًا.", "Çok fazla deneme. Telefonunuzun PIN kodunu kullanın ya da biraz bekleyip yeniden deneyin."),
+("lockUsePin", "Face and fingerprint are blocked for now. Use your phone's PIN.", "بصمة الوجه والإصبع محظورتان مؤقتًا. استخدم رمز هاتفك.", "Yüz ve parmak izi şimdilik kapalı. Telefonunuzun PIN kodunu kullanın."),
+("lockNotEnrolled", "No face or fingerprint is set up on this phone. Use your phone's PIN, or set one up in the phone's settings.", "لا توجد بصمة وجه أو إصبع على هذا الهاتف. استخدم رمز هاتفك، أو أضف بصمة من إعدادات الهاتف.", "Bu telefonda yüz veya parmak izi tanımlı değil. Telefonunuzun PIN kodunu kullanın ya da telefon ayarlarından ekleyin."),
+("lockNoScreenLock", "This phone has no screen lock. Set a PIN, pattern or password in the phone's settings, or sign out and use your password.", "لا يوجد قفل شاشة على هذا الهاتف. اضبط رمزًا أو نمطًا أو كلمة مرور من إعدادات الهاتف، أو سجّل الخروج واستخدم كلمة مرورك.", "Bu telefonda ekran kilidi yok. Telefon ayarlarından bir PIN, desen veya şifre belirleyin ya da çıkış yapıp şifrenizi kullanın."),
+("lockUnavailable", "The phone can't unlock the app right now. Try again, or sign out and use your password.", "لا يستطيع الهاتف فتح التطبيق الآن. حاول مجددًا، أو سجّل الخروج واستخدم كلمة مرورك.", "Telefon uygulamanın kilidini şu an açamıyor. Yeniden deneyin ya da çıkış yapıp şifrenizi kullanın."),
+("lockHelp", "Asked when the app opens and when you come back to it. The app is hidden in the app switcher.", "يُطلب عند فتح التطبيق وعند العودة إليه، ويُخفى محتواه في قائمة التطبيقات المفتوحة.", "Uygulama açılırken ve ona döndüğünüzde sorulur. Açık uygulamalar ekranında içeriği gizlenir."),
+("lockTurnOnReason", "Turn on the app lock", "تفعيل قفل التطبيق", "Uygulama kilidini aç"),
+("lockTurnOffReason", "Turn off the app lock", "إيقاف قفل التطبيق", "Uygulama kilidini kapat"),
+("lockTurnedOn", "The app lock is on.", "تم تفعيل قفل التطبيق.", "Uygulama kilidi açık."),
+("lockTurnedOff", "The app lock is off.", "تم إيقاف قفل التطبيق.", "Uygulama kilidi kapalı."),
+("lockNotChanged", "That didn't match, so the app lock wasn't changed.", "لم تتطابق البصمة، لذا لم يتغير قفل التطبيق.", "Eşleşmedi, bu yüzden uygulama kilidi değişmedi."),
+("lockAfterTitle", "Lock again", "إعادة القفل", "Yeniden kilitle"),
+("lockImmediately", "Immediately", "فورًا", "Hemen"),
 
 ]
 
 P = [
+("lockAfterMinutes", "minutes", "{minutes, plural, =1{After 1 minute away} other{After {minutes} minutes away}}", "{minutes, plural, =1{بعد دقيقة من الخروج} =2{بعد دقيقتين من الخروج} few{بعد {minutes} دقائق من الخروج} many{بعد {minutes} دقيقة من الخروج} other{بعد {minutes} دقيقة من الخروج}}", "{minutes, plural, =1{1 dakika uzaktayken} other{{minutes} dakika uzaktayken}}"),
 ("needsAwaitingPayment", "count", "{count, plural, =1{1 order waiting for its payment} other{{count} orders waiting for their payment}}", "{count, plural, =1{طلب واحد بانتظار الدفع} =2{طلبان بانتظار الدفع} few{{count} طلبات بانتظار الدفع} many{{count} طلبًا بانتظار الدفع} other{{count} طلب بانتظار الدفع}}", "{count, plural, =1{Ödemesi beklenen 1 sipariş} other{Ödemesi beklenen {count} sipariş}}"),
 ]

@@ -2,4 +2,4 @@
 "NSCameraUsageDescription" = "يستخدم Yallapp Business الكاميرا لمسح التذاكر ورموز الأعضاء عند الباب، ولالتقاط الصور والفيديوهات لتطبيقك.";
 "NSMicrophoneUsageDescription" = "يسجّل Yallapp Business الصوت مع الفيديوهات التي تصوّرها لتطبيقك.";
 "NSPhotoLibraryUsageDescription" = "يرفع Yallapp Business الصور والفيديوهات التي تختارها إلى وسائط تطبيقك.";
-"NSFaceIDUsageDescription" = "يمكن فتح Yallapp Business باستخدام Face ID بدلًا من كلمة المرور.";
+"NSFaceIDUsageDescription" = "يستخدم Yallapp Business تقنية Face ID لفتح قفل التطبيق، فلا يفتح نشاطك التجاري على هذا الهاتف أحدٌ سواك.";

@@ -600,7 +600,6 @@
   "notificationSettings": "Notifications",
   "signedInDevices": "Signed-in devices",
   "biometricLock": "Unlock with fingerprint or face",
-  "biometricLockHelp": "Asked when the app opens, and after 5 minutes away.",
   "biometricUnavailable": "This phone has no fingerprint, face or screen lock set up.",
   "help": "Help",
   "helpWhatsapp": "Talk to us on WhatsApp",
@@ -2223,6 +2222,24 @@
       }
     }
   },
+  "unlockWithFaceId": "Unlock with Face ID",
+  "unlockWithFace": "Unlock with your face",
+  "unlockWithFingerprint": "Unlock with fingerprint",
+  "unlockWithPin": "Unlock with the phone's PIN",
+  "usePhonePin": "Use phone PIN",
+  "lockLockedOut": "Too many tries. Use your phone's PIN, or wait a little and try again.",
+  "lockUsePin": "Face and fingerprint are blocked for now. Use your phone's PIN.",
+  "lockNotEnrolled": "No face or fingerprint is set up on this phone. Use your phone's PIN, or set one up in the phone's settings.",
+  "lockNoScreenLock": "This phone has no screen lock. Set a PIN, pattern or password in the phone's settings, or sign out and use your password.",
+  "lockUnavailable": "The phone can't unlock the app right now. Try again, or sign out and use your password.",
+  "lockHelp": "Asked when the app opens and when you come back to it. The app is hidden in the app switcher.",
+  "lockTurnOnReason": "Turn on the app lock",
+  "lockTurnOffReason": "Turn off the app lock",
+  "lockTurnedOn": "The app lock is on.",
+  "lockTurnedOff": "The app lock is off.",
+  "lockNotChanged": "That didn't match, so the app lock wasn't changed.",
+  "lockAfterTitle": "Lock again",
+  "lockImmediately": "Immediately",
   "minutesAgo": "{count} min ago",
   "@minutesAgo": {
     "placeholders": {
@@ -2537,6 +2554,14 @@
   "@pointsChange": {
     "placeholders": {
       "count": {
+        "type": "int"
+      }
+    }
+  },
+  "lockAfterMinutes": "{minutes, plural, =1{After 1 minute away} other{After {minutes} minutes away}}",
+  "@lockAfterMinutes": {
+    "placeholders": {
+      "minutes": {
         "type": "int"
       }
     }

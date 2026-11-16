@@ -1147,10 +1147,6 @@ class AppLocalizationsTr extends AppLocalizations {
   String get biometricLock => 'Parmak izi veya yüzle aç';
 
   @override
-  String get biometricLockHelp =>
-      'Uygulama açılırken ve 5 dakika uzak kaldıktan sonra sorulur.';
-
-  @override
   String get biometricUnavailable =>
       'Bu telefonda parmak izi, yüz veya ekran kilidi ayarlı değil.';
 
@@ -3374,6 +3370,67 @@ class AppLocalizationsTr extends AppLocalizations {
   }
 
   @override
+  String get unlockWithFaceId => 'Face ID ile kilidi aç';
+
+  @override
+  String get unlockWithFace => 'Yüzünüzle kilidi açın';
+
+  @override
+  String get unlockWithFingerprint => 'Parmak izi ile kilidi aç';
+
+  @override
+  String get unlockWithPin => 'Telefonun PIN koduyla aç';
+
+  @override
+  String get usePhonePin => 'Telefon PIN kodunu kullan';
+
+  @override
+  String get lockLockedOut =>
+      'Çok fazla deneme. Telefonunuzun PIN kodunu kullanın ya da biraz bekleyip yeniden deneyin.';
+
+  @override
+  String get lockUsePin =>
+      'Yüz ve parmak izi şimdilik kapalı. Telefonunuzun PIN kodunu kullanın.';
+
+  @override
+  String get lockNotEnrolled =>
+      'Bu telefonda yüz veya parmak izi tanımlı değil. Telefonunuzun PIN kodunu kullanın ya da telefon ayarlarından ekleyin.';
+
+  @override
+  String get lockNoScreenLock =>
+      'Bu telefonda ekran kilidi yok. Telefon ayarlarından bir PIN, desen veya şifre belirleyin ya da çıkış yapıp şifrenizi kullanın.';
+
+  @override
+  String get lockUnavailable =>
+      'Telefon uygulamanın kilidini şu an açamıyor. Yeniden deneyin ya da çıkış yapıp şifrenizi kullanın.';
+
+  @override
+  String get lockHelp =>
+      'Uygulama açılırken ve ona döndüğünüzde sorulur. Açık uygulamalar ekranında içeriği gizlenir.';
+
+  @override
+  String get lockTurnOnReason => 'Uygulama kilidini aç';
+
+  @override
+  String get lockTurnOffReason => 'Uygulama kilidini kapat';
+
+  @override
+  String get lockTurnedOn => 'Uygulama kilidi açık.';
+
+  @override
+  String get lockTurnedOff => 'Uygulama kilidi kapalı.';
+
+  @override
+  String get lockNotChanged =>
+      'Eşleşmedi, bu yüzden uygulama kilidi değişmedi.';
+
+  @override
+  String get lockAfterTitle => 'Yeniden kilitle';
+
+  @override
+  String get lockImmediately => 'Hemen';
+
+  @override
   String minutesAgo(int count) {
     return '$count dk önce';
   }
@@ -3709,6 +3766,17 @@ class AppLocalizationsTr extends AppLocalizations {
       locale: localeName,
       other: '$count puan',
       one: '1 puan',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String lockAfterMinutes(int minutes) {
+    String _temp0 = intl.Intl.pluralLogic(
+      minutes,
+      locale: localeName,
+      other: '$minutes dakika uzaktayken',
+      one: '1 dakika uzaktayken',
     );
     return '$_temp0';
   }

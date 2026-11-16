@@ -1145,10 +1145,6 @@ class AppLocalizationsAr extends AppLocalizations {
   String get biometricLock => 'الفتح ببصمة الإصبع أو الوجه';
 
   @override
-  String get biometricLockHelp =>
-      'يُطلب عند فتح التطبيق، وبعد الابتعاد عنه 5 دقائق.';
-
-  @override
   String get biometricUnavailable =>
       'لا توجد بصمة إصبع أو وجه أو قفل شاشة على هذا الهاتف.';
 
@@ -3358,6 +3354,66 @@ class AppLocalizationsAr extends AppLocalizations {
   }
 
   @override
+  String get unlockWithFaceId => 'فتح القفل بـ Face ID';
+
+  @override
+  String get unlockWithFace => 'فتح القفل ببصمة الوجه';
+
+  @override
+  String get unlockWithFingerprint => 'فتح القفل ببصمة الإصبع';
+
+  @override
+  String get unlockWithPin => 'فتح القفل برمز الهاتف';
+
+  @override
+  String get usePhonePin => 'استخدام رمز الهاتف';
+
+  @override
+  String get lockLockedOut =>
+      'محاولات كثيرة. استخدم رمز هاتفك، أو انتظر قليلًا ثم حاول مجددًا.';
+
+  @override
+  String get lockUsePin =>
+      'بصمة الوجه والإصبع محظورتان مؤقتًا. استخدم رمز هاتفك.';
+
+  @override
+  String get lockNotEnrolled =>
+      'لا توجد بصمة وجه أو إصبع على هذا الهاتف. استخدم رمز هاتفك، أو أضف بصمة من إعدادات الهاتف.';
+
+  @override
+  String get lockNoScreenLock =>
+      'لا يوجد قفل شاشة على هذا الهاتف. اضبط رمزًا أو نمطًا أو كلمة مرور من إعدادات الهاتف، أو سجّل الخروج واستخدم كلمة مرورك.';
+
+  @override
+  String get lockUnavailable =>
+      'لا يستطيع الهاتف فتح التطبيق الآن. حاول مجددًا، أو سجّل الخروج واستخدم كلمة مرورك.';
+
+  @override
+  String get lockHelp =>
+      'يُطلب عند فتح التطبيق وعند العودة إليه، ويُخفى محتواه في قائمة التطبيقات المفتوحة.';
+
+  @override
+  String get lockTurnOnReason => 'تفعيل قفل التطبيق';
+
+  @override
+  String get lockTurnOffReason => 'إيقاف قفل التطبيق';
+
+  @override
+  String get lockTurnedOn => 'تم تفعيل قفل التطبيق.';
+
+  @override
+  String get lockTurnedOff => 'تم إيقاف قفل التطبيق.';
+
+  @override
+  String get lockNotChanged => 'لم تتطابق البصمة، لذا لم يتغير قفل التطبيق.';
+
+  @override
+  String get lockAfterTitle => 'إعادة القفل';
+
+  @override
+  String get lockImmediately => 'فورًا';
+
+  @override
   String minutesAgo(int count) {
     return 'قبل $count دقيقة';
   }
@@ -3878,6 +3934,20 @@ class AppLocalizationsAr extends AppLocalizations {
       few: '$count نقاط',
       two: 'نقطتان',
       one: 'نقطة واحدة',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String lockAfterMinutes(int minutes) {
+    String _temp0 = intl.Intl.pluralLogic(
+      minutes,
+      locale: localeName,
+      other: 'بعد $minutes دقيقة من الخروج',
+      many: 'بعد $minutes دقيقة من الخروج',
+      few: 'بعد $minutes دقائق من الخروج',
+      two: 'بعد دقيقتين من الخروج',
+      one: 'بعد دقيقة من الخروج',
     );
     return '$_temp0';
   }
