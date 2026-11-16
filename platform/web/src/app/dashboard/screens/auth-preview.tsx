@@ -19,11 +19,11 @@ import type { SignInLook } from "@/lib/studio/screens";
 
 export type AuthScreen = "sign_in" | "code" | "signup";
 
-/** 119 The app's colours in light or dark mode, for the previews. */
+/** 119 The app's colours in light or dark mode, for the previews; 132.9 the app's own (mobile/lib/core/theme/palette.dart). */
 export function previewTheme(dark: boolean) {
   return dark
-    ? { page: "#121614", surface: "#1C2320", text: "#EEF1EF", muted: "#A3ADA8", line: "#2A322E", field: "#151B18", fieldLine: "#36403B", placeholder: "#3A4440" }
-    : { page: "#F7F3EC", surface: "#FFFFFF", text: "#0E1424", muted: "#5B6470", line: "#EFE9DE", field: "#FFFFFF", fieldLine: "#D9D3C7", placeholder: "#D9D3C7" };
+    ? { page: "#0B0A1C", surface: "#17162E", text: "#F4EFE6", muted: "#B9B5CA", line: "#24223F", field: "#17162E", fieldLine: "#3A3756", placeholder: "#34314F" }
+    : { page: "#F4EFE6", surface: "#FFFFFF", text: "#0E0D24", muted: "#5E5B70", line: "#EDE7DC", field: "#FFFFFF", fieldLine: "#D9D1C3", placeholder: "#D9D1C3" };
 }
 
 type Theme = ReturnType<typeof previewTheme>;
@@ -242,6 +242,14 @@ function OwnAuthPreview({ screen, look, photo, title, subtitle, appName, color, 
           {line ? <span className="leading-snug opacity-80">{line}</span> : null}
         </div>
         <div className="absolute inset-x-2 bottom-2 flex flex-col gap-1.5 rounded-xl border p-2.5 shadow" style={{ background: th.surface, borderColor: th.line, color: th.text }} data-preview-premium-card="">
+          {screen === "sign_in" ? (
+            <>
+              <span className="text-[11px] font-extrabold">{w.phoneTitle}</span>
+              <span className="-mt-1 text-[7.5px] leading-snug" style={{ color: th.muted }}>
+                {w.codeNote}
+              </span>
+            </>
+          ) : null}
           <Form screen={screen} th={th} color={color} gold w={w} />
         </div>
       </Frame>
@@ -253,13 +261,15 @@ function OwnAuthPreview({ screen, look, photo, title, subtitle, appName, color, 
   const panel = look.style === "photo" && hasPhoto;
   const card = look.style === "card" && hasPhoto;
   const minimal = look.style === "minimal";
+  const plain = !panel && !card && !minimal;
   return (
     <Frame dark={dark} th={th} style={hasPhoto || !needsPhoto ? look.style : "classic"} rtl={rtl}>
       {hasPhoto ? <Photo url={shown} placeholder={placeholder} color={color} className={`absolute inset-x-0 top-0 w-full ${look.style === "photo" ? "h-full" : "h-[38%]"}`} thumb={thumb} /> : null}
       {panel ? <span className="absolute inset-0 bg-gradient-to-b from-black/20 to-black/70" /> : null}
-      <TopRow screen={screen} onColour={hasPhoto} th={th} w={w} />
+      {/* The classic page: the logo, the name and "Not now" in one row on top, as the app has them. */}
+      {plain && screen === "sign_in" ? null : <TopRow screen={screen} onColour={hasPhoto} th={th} w={w} />}
       <div
-        className={`absolute inset-x-2.5 flex flex-col gap-1.5 ${card ? "top-[33%] rounded-xl p-2.5 shadow" : minimal ? "top-[22%] items-center text-center" : panel ? "bottom-3 rounded-xl p-2.5" : "bottom-4"}`}
+        className={`absolute inset-x-2.5 flex flex-col gap-1.5 ${card ? "top-[33%] rounded-xl p-2.5 shadow" : minimal ? "top-[22%] items-center text-center" : panel ? "bottom-3 rounded-xl p-2.5" : plain && screen === "sign_in" ? "top-[3%]" : "top-[12%]"}`}
         style={{ color: th.text, background: card ? th.page : panel ? th.surface : undefined }}
         data-preview-form={panel ? "over-photo" : card ? "card-under-photo" : minimal ? "centred" : "page"}
       >
@@ -269,11 +279,16 @@ function OwnAuthPreview({ screen, look, photo, title, subtitle, appName, color, 
           ) : (
             <span className="flex items-center gap-1.5">
               <Logo url={logoUrl} appName={appName} color={color} />
-              <span className="truncate text-[11px] font-bold">{appName}</span>
+              <span className="min-w-0 flex-1 truncate text-[11px] font-bold">{appName}</span>
+              {plain ? (
+                <span data-testid="preview-not-now" className="text-[8px] font-bold">
+                  {w.notNow}
+                </span>
+              ) : null}
             </span>
           )
         ) : null}
-        <span className="text-[13px] leading-tight font-extrabold">{heading}</span>
+        <span className={`leading-tight font-extrabold ${plain && screen === "sign_in" ? "mt-5 text-[15px]" : "text-[13px]"}`}>{heading}</span>
         {line ? (
           <span className="leading-snug" style={{ color: th.muted }}>
             {line}

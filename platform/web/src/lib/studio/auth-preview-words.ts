@@ -9,8 +9,10 @@ export interface AuthWords {
   intro: string;
   mobileNumber: string;
   sendCode: string;
-  /** The premium look's button. */
+  /** The premium look's button, and its card's heading and line. */
   continueAction: string;
+  phoneTitle: string;
+  codeNote: string;
   notNow: string;
   enterCode: string;
   codeSent: string;
@@ -26,6 +28,8 @@ const EN: AuthWords = {
   mobileNumber: "Mobile number",
   sendCode: "Send code",
   continueAction: "Continue",
+  phoneTitle: "Sign in with your phone",
+  codeNote: "We send you a code to sign in, no password.",
   notNow: "Not now",
   enterCode: "Enter verification code",
   codeSent: "We sent a code to +90 532 123 45 67",
@@ -41,6 +45,8 @@ const AR: AuthWords = {
   mobileNumber: "رقم الجوال",
   sendCode: "إرسال الرمز",
   continueAction: "متابعة",
+  phoneTitle: "الدخول برقم الهاتف",
+  codeNote: "نرسل لك رمزًا للدخول، بلا كلمة مرور.",
   notNow: "ليس الآن",
   enterCode: "أدخل رمز التحقق",
   codeSent: "أرسلنا رمزًا إلى ‎+90 532 123 45 67",
@@ -56,6 +62,8 @@ const TR: AuthWords = {
   mobileNumber: "Cep telefonu numarası",
   sendCode: "Kodu gönder",
   continueAction: "Devam et",
+  phoneTitle: "Telefonla giriş",
+  codeNote: "Giriş için bir kod göndeririz, şifre gerekmez.",
   notNow: "Şimdi değil",
   enterCode: "Doğrulama kodunu girin",
   codeSent: "+90 532 123 45 67 numarasına bir kod gönderdik",

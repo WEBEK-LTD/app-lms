@@ -17,14 +17,13 @@ export function LookChoice({ name, value, checked, onChange, title, hint, pictur
       data-checked={checked ? "" : undefined}
     >
       <input type="radio" name={name} value={value} checked={checked} onChange={onChange} className="sr-only" />
-      <span className="relative block">
-        {picture}
-        {checked ? (
-          <span aria-hidden="true" className="absolute end-1.5 top-1.5 flex h-6 w-6 items-center justify-center rounded-full bg-midnight text-white shadow-md">
-            <Icon name="check" size={16} />
-          </span>
-        ) : null}
-      </span>
+      <span className="relative block">{picture}</span>
+      {checked ? (
+        // On the card's corner, clear of the picture's own buttons.
+        <span aria-hidden="true" className="absolute -end-2 -top-2 z-[1] flex h-7 w-7 items-center justify-center rounded-full bg-midnight text-white shadow-md ring-2 ring-white">
+          <Icon name="check" size={17} />
+        </span>
+      ) : null}
       <span className="text-sm leading-snug font-bold">{title}</span>
       {hint ? <span className="text-xs leading-snug text-muted">{hint}</span> : null}
     </label>
