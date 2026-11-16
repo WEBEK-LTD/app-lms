@@ -58,6 +58,9 @@ describe("56 texts from shared code", () => {
     expect(ar("Your app build is ready")).toBe("إصدار تطبيقك جاهز");
     expect(ar("Version 1.2.0 (12) is ready to download and publish.")).toBe("الإصدار 1.2.0 (12) جاهز للتنزيل والنشر.");
     expect(knownTranslator("tr")("Choose a plan.")).toBe("Bir paket seçin.");
+    // 132.154 The console's rail names every kind's people group in the language.
+    expect([ar("Riders"), ar("Students"), ar("Your travel")]).toEqual(["الركاب", "الطلاب", "رحلاتك"]);
+    expect(["Riders", "Students", "Your travel"].map(knownTranslator("tr"))).toEqual(["Yolcular", "Öğrenciler", "Seyahatiniz"]);
     // Unknown texts (and what the owner typed) stay as they are.
     expect(ar("My course")).toBe("My course");
     expect(knownTranslator("en")("Pending activation")).toBe("Pending activation");
