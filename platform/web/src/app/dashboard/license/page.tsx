@@ -17,7 +17,7 @@ import { dashboardText, type DashboardText } from "@/lib/dashboard-lang";
 import { encryptionKey } from "@/lib/env";
 import { latestRelease } from "@/lib/license/service";
 import { ACCOUNT_STATE_LABEL } from "@/lib/license/status";
-import { comparePlans, formatStorage, hasFeature, isPlan, lowestPlanWith, planFeaturesFor, planName, planOffered, planPrice, plansInOrder, plansOfFamily, STUDIO_ONLY_FEATURES, lifetimeNoteOf, limitDefName, cleanLimitDefs, formatLimit, type Plan, type PlanInfo, type PlanLimitDef } from "@/lib/plans";
+import { comparePlans, formatStorage, hasFeature, isPlan, lowestPlanWith, planFeaturesFor, planName, planOffered, planPrice, plansInOrder, plansOfFamily, STUDIO_ONLY_FEATURES, lifetimeNoteOf, limitDefName, cleanLimitDefs, formatLimit, mainPeriodOf, type Plan, type PlanInfo, type PlanLimitDef } from "@/lib/plans";
 import { isLifetimeEnd, isPeriodKey, paymentMonthsOf, PERIOD_KEYS, type PeriodKey } from "@/lib/billing/periods";
 import { cardPeriods, startingPeriod } from "@/lib/billing/card-plans";
 import { lifetimeLocked } from "@/lib/billing/plan-change";
@@ -419,7 +419,8 @@ export default async function LicensePage({ searchParams }: PageProps<"/dashboar
             const isCurrent = id === currentId;
             const direction = currentId ? comparePlans(currentId, id, plans) : 1;
             const canPay = payable.some((p) => p.id === id);
-            const periodQuery = shownPeriod ? `&period=${shownPeriod.key}` : "";
+            // The period chosen on the cards, when it isn't the plan's main one (the form starts there anyway).
+            const periodQuery = shownPeriod && shownPeriod.key !== mainPeriodOf(plans[id]) ? `&period=${shownPeriod.key}` : "";
             return (
               <div
                 key={id}
