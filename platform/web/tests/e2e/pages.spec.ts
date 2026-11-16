@@ -550,7 +550,8 @@ test("103R the team offers a Studio plan; the client makes a Studio project apar
   // The dashboard's pages open in Studio's frame for a Studio project, and its plans are Studio's.
   await own.goto("/dashboard/license");
   await expect(own).toHaveURL(/\/studio\/project\/license$/);
-  await expect(own.getByText("Studio Start").first()).toBeVisible();
+  // 132.132 Studio's plans as the page's cards (the plan a feature needs is named in a fold too).
+  await expect(own.locator("[data-plan]").filter({ hasText: "Studio Start" }).first()).toBeVisible();
 
   await own.getByRole("link", { name: "Open the editor" }).first().click();
   await expect(own).toHaveURL(/\/studio\/editor$/);
