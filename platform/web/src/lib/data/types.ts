@@ -949,8 +949,12 @@ export interface HostedNotification {
 
 // Catalog: products managed in the dashboard for apps without a website.
 
-/** 37 EGP, SAR and AED for the Egyptian providers; each provider takes some of these (lib/payments/provider.ts). */
-export type CatalogCurrency = "TRY" | "USD" | "EUR" | "EGP" | "SAR" | "AED";
+/**
+ * 37 EGP, SAR and AED for the Egyptian providers; each provider takes some
+ * (lib/payments/provider.ts). 135.1 Any active ISO 4217 code ("KWD", "JPY"),
+ * checked with isCurrencyCode (lib/money/currencies.ts) where it comes in.
+ */
+export type CatalogCurrency = string;
 
 /** 37 Who takes a card payment: iyzico, Kashier, Fawaterk, Stripe or PayPal. */
 /** 96.1 Stripe and PayPal: only clients' own accounts; Yallapp's plans stay on iyzico, Kashier, Fawaterk, Stripe or PayPal. */
@@ -960,7 +964,15 @@ export type PaymentProviderId = "iyzico" | "kashier" | "fawaterk" | "stripe" | "
 export type YallappProviderId = "iyzico" | "kashier" | "fawaterk";
 
 export interface CatalogSettings {
+  /** 135.1 The shop's one currency (any ISO 4217 code): its prices, orders and dashboard. */
   currency: CatalogCurrency;
+  /**
+   * 135.7 Charge a customer in their own currency (the one the app shows
+   * prices in) when the card gateway takes it, at the day's rate; missing
+   * or false: everyone pays in `currency`, the converted amount shown as
+   * approximate.
+   */
+  chargeInCustomerCurrency?: boolean;
   /** Flat shipping for orders with physical products. */
   shippingCents: number;
   /** Orders at or above this subtotal ship free; null means never. */
@@ -1596,6 +1608,20 @@ export interface CatalogCustomer {
  * link; the payment page fills in the customer and turns it "processing" once
  * the card payment succeeds.
  */
+/** 135.7 An order's total in the customer's currency, as shown at checkout. */
+export interface OrderCustomerCurrency {
+  /** "USD". */
+  currency: CatalogCurrency;
+  /** The total in it, in its cents, rounded to its digits (whole yen). */
+  totalCents: number;
+  /** Units of it for one unit of the order's currency on the day ("1 EGP = 0.0206 USD"). */
+  rate: number;
+  /** The rates' day, "2026-11-16". */
+  rateDate: string;
+  /** Whether the card was charged in it; false: `totalCents` was shown as approximate and the order's currency charged. */
+  charged: boolean;
+}
+
 export interface CatalogOrder {
   id: number;
   appId: string;
@@ -1608,6 +1634,13 @@ export interface CatalogOrder {
   shippingCents: number;
   totalCents: number;
   currency: CatalogCurrency;
+  /**
+   * 135.7 The customer's own currency at checkout (when the app showed
+   * prices in another one): the total in it, the rate and its day, and
+   * whether the card was charged in it (then refunds go back in it); null
+   * or missing: the order's currency only.
+   */
+  customerCurrency?: OrderCustomerCurrency | null;
   customer: CatalogCustomer | null;
   paymentId: string | null;
   createdAt: Date;
@@ -1865,7 +1898,7 @@ export interface CatalogFulfilment {
 export type CatalogOrderPatch = Partial<
   Pick<
     CatalogOrder,
-    "status" | "customer" | "updatedAt" | "commissionCents" | "itemTransactionIds" | "payoutApprovedAt" | "fulfilmentStatus" | "paymentProvider" | "providerRef" | "shipment" | "returnRequest" | "points" | "manualPayment" | "delivery" | "deliveryDate" | "deliveryStage" | "stageLog" | "stageRefund"
+    "status" | "customer" | "updatedAt" | "commissionCents" | "itemTransactionIds" | "payoutApprovedAt" | "fulfilmentStatus" | "paymentProvider" | "providerRef" | "shipment" | "returnRequest" | "points" | "manualPayment" | "delivery" | "deliveryDate" | "deliveryStage" | "stageLog" | "stageRefund" | "customerCurrency"
   >
 > &
   // 134 A connected store's payment, priced again by its platform for the address before it is paid.
@@ -5444,6 +5477,30 @@ export interface CourierHubSetting {
 
 export interface PlatformSettingValues {
   courierHub: CourierHubSetting;
+}
+
+/** 135.6 The day's exchange rates (lib/money/rates.ts): units of each currency for one US dollar. */
+export interface ExchangeRatesSetting {
+  rates: Record<string, number>;
+  /** The source's day, "2026-11-16" (UTC). */
+  date: string;
+  /** When they were read (ISO). */
+  fetchedAt: string;
+  /** "ExchangeRate-API". */
+  source: string;
+  /** The last failed read since (ISO) and why; the rates above stay. */
+  failedAt?: string | null;
+  failure?: string | null;
+}
+
+/** 135.6 The team's own rates for some currencies (units for one US dollar), over the day's. */
+export interface RateOverridesSetting {
+  rates: Record<string, number>;
+}
+
+export interface PlatformSettingValues {
+  exchangeRates: ExchangeRatesSetting;
+  rateOverrides: RateOverridesSetting;
 }
 
 // 61 Notifications to an app's users sent later, and today's numbers by query.

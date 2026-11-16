@@ -1,7 +1,7 @@
 {
   "version": "5",
   "dialect": "mysql",
-  "id": "cacecb98-8abb-4bee-a2ea-f579d46fa125",
+  "id": "e1450df3-74bc-45a5-a368-334f7d5b5293",
   "prevId": "fc743b93-c3ff-4d37-b516-e2d7103afb57",
   "tables": {
     "account_deletion_requests": {
@@ -5009,6 +5009,13 @@
         },
         "stage_refund": {
           "name": "stage_refund",
+          "type": "longtext",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
+        "customer_currency": {
+          "name": "customer_currency",
           "type": "longtext",
           "primaryKey": false,
           "notNull": false,
@@ -25605,152 +25612,6 @@
       "compositePrimaryKeys": {
         "store_gift_occasions_id": {
           "name": "store_gift_occasions_id",
-          "columns": [
-            "id"
-          ]
-        }
-      },
-      "uniqueConstraints": {},
-      "checkConstraint": {}
-    },
-    "store_platform_orders": {
-      "name": "store_platform_orders",
-      "columns": {
-        "id": {
-          "name": "id",
-          "type": "bigint unsigned",
-          "primaryKey": false,
-          "notNull": true,
-          "autoincrement": true
-        },
-        "app_id": {
-          "name": "app_id",
-          "type": "varchar(36)",
-          "primaryKey": false,
-          "notNull": true,
-          "autoincrement": false
-        },
-        "order_id": {
-          "name": "order_id",
-          "type": "bigint unsigned",
-          "primaryKey": false,
-          "notNull": true,
-          "autoincrement": false
-        },
-        "platform": {
-          "name": "platform",
-          "type": "varchar(24)",
-          "primaryKey": false,
-          "notNull": true,
-          "autoincrement": false
-        },
-        "status": {
-          "name": "status",
-          "type": "varchar(24)",
-          "primaryKey": false,
-          "notNull": true,
-          "autoincrement": false
-        },
-        "platform_order_id": {
-          "name": "platform_order_id",
-          "type": "varchar(64)",
-          "primaryKey": false,
-          "notNull": false,
-          "autoincrement": false
-        },
-        "platform_order_number": {
-          "name": "platform_order_number",
-          "type": "varchar(64)",
-          "primaryKey": false,
-          "notNull": false,
-          "autoincrement": false
-        },
-        "attempts": {
-          "name": "attempts",
-          "type": "int",
-          "primaryKey": false,
-          "notNull": true,
-          "autoincrement": false,
-          "default": 0
-        },
-        "data": {
-          "name": "data",
-          "type": "longtext",
-          "primaryKey": false,
-          "notNull": true,
-          "autoincrement": false
-        },
-        "created_at": {
-          "name": "created_at",
-          "type": "datetime(3)",
-          "primaryKey": false,
-          "notNull": true,
-          "autoincrement": false
-        },
-        "updated_at": {
-          "name": "updated_at",
-          "type": "datetime(3)",
-          "primaryKey": false,
-          "notNull": true,
-          "autoincrement": false
-        }
-      },
-      "indexes": {
-        "store_platform_orders_order_unique": {
-          "name": "store_platform_orders_order_unique",
-          "columns": [
-            "order_id"
-          ],
-          "isUnique": true
-        },
-        "store_platform_orders_app_idx": {
-          "name": "store_platform_orders_app_idx",
-          "columns": [
-            "app_id",
-            "created_at"
-          ],
-          "isUnique": false
-        },
-        "store_platform_orders_status_idx": {
-          "name": "store_platform_orders_status_idx",
-          "columns": [
-            "status",
-            "updated_at"
-          ],
-          "isUnique": false
-        }
-      },
-      "foreignKeys": {
-        "store_platform_orders_app_id_apps_id_fk": {
-          "name": "store_platform_orders_app_id_apps_id_fk",
-          "tableFrom": "store_platform_orders",
-          "tableTo": "apps",
-          "columnsFrom": [
-            "app_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
-          "onDelete": "cascade",
-          "onUpdate": "no action"
-        },
-        "store_platform_orders_order_id_catalog_orders_id_fk": {
-          "name": "store_platform_orders_order_id_catalog_orders_id_fk",
-          "tableFrom": "store_platform_orders",
-          "tableTo": "catalog_orders",
-          "columnsFrom": [
-            "order_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
-          "onDelete": "cascade",
-          "onUpdate": "no action"
-        }
-      },
-      "compositePrimaryKeys": {
-        "store_platform_orders_id": {
-          "name": "store_platform_orders_id",
           "columns": [
             "id"
           ]

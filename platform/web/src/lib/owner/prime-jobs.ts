@@ -8,11 +8,9 @@ import type { App, PrimeAlerts, PrimeAlertSetting } from "../data/types";
 import { shipmentReference } from "../delivery/service";
 import { foodOrderReference } from "../food/service";
 import { queueTimers } from "../market/complaints";
-import { formatMinor } from "../market/currency";
 import { marketOrderReference } from "../market/json";
 import { orderNumber } from "../catalog/settings";
 import { rideReference } from "../rides/service";
-import { CATALOG_CURRENCIES } from "../catalog/money";
 import type { CatalogCurrency } from "../data/types";
 import { mainCurrency, saleEvents } from "./prime";
 import { pushMorningBrief, pushPrimeAlert, type OwnerPushDeps, type Words } from "./push";
@@ -42,8 +40,9 @@ const RATING_HOURS = 24;
 /** Claimed pushes are kept this long. */
 const KEEP_DAYS = 3;
 
+/** 135.2 Sales are in cents in every currency (lib/owner/prime.ts), written with its digits. */
 function amount(cents: number, currency: string): string {
-  return (CATALOG_CURRENCIES as readonly string[]).includes(currency) ? formatCents(cents, currency as CatalogCurrency) : formatMinor(cents, currency);
+  return formatCents(cents, currency as CatalogCurrency);
 }
 
 const minutesSince = (from: Date, now: Date) => Math.floor((now.getTime() - from.getTime()) / 60_000);

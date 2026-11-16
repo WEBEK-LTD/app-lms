@@ -1,3 +1,4 @@
+import { CurrencyPicker } from "@/components/currency-picker";
 import type { Metadata } from "next";
 import { DetailLayout } from "@/components/page-kit";
 import Link from "next/link";
@@ -5,14 +6,14 @@ import { notFound } from "next/navigation";
 import { advancePlanAction, deleteAdvanceAction, giveAdvanceAction, removeSalaryAction, repayAdvanceAction, saveSalaryAction } from "@/app/actions/school-salaries";
 import { Field } from "@/components/form";
 import { requireClient } from "@/lib/auth/session";
-import { CATALOG_CURRENCIES, formatCents } from "@/lib/catalog/money";
+import { formatCents } from "@/lib/catalog/money";
 import { dashboardText } from "@/lib/dashboard-lang";
 import { getStore } from "@/lib/data";
 import { advanceBalance, isWorkerRole, SALARY_LIMITS } from "@/lib/school/salaries";
 import { salaryFormValues } from "@/lib/school/salary-forms";
 import { schoolCurrency, schoolSettingsOf } from "@/lib/school/settings";
 import { schoolToday } from "@/lib/school/service";
-import { Choice, SchoolForm } from "../../../forms";
+import { SchoolForm } from "../../../forms";
 import { AddSheet, isSchool, NotSchool, PageHead, Panel } from "../../../parts";
 import { monthLabel, PayFields, RecordLine, SheetBadge } from "../../parts";
 
@@ -54,7 +55,7 @@ export default async function SalaryPersonPage({ params }: { params: Promise<{ i
               <input type="hidden" name="personId" value={person.id} />
               <div className="grid gap-4 sm:grid-cols-2">
                 <Field id="f-monthly" label={t("salaries.monthly")} name="monthly" defaultValue={values.monthly} inputMode="decimal" dir="ltr" required />
-                <Choice id="f-currency" name="currency" label={t("salaries.currency")} options={CATALOG_CURRENCIES.map((c) => ({ value: c, label: c }))} defaultValue={values.currency} />
+                <CurrencyPicker id="f-currency" label={t("salaries.currency")} defaultValue={values.currency} className="sm:col-span-2" />
               </div>
               <fieldset className="m-0 flex flex-col gap-3 border-0 p-0">
                 <legend className="mb-1 text-sm font-semibold">{t("salaries.allowances")}</legend>

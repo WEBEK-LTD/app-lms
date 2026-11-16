@@ -36,6 +36,7 @@ Dio createHttpClient({
   HttpClientAdapter? adapter,
   String Function()? language,
   OfflineCache? offline,
+  String? Function()? currency,
 }) {
   final dio = Dio(
     BaseOptions(
@@ -50,6 +51,7 @@ Dio createHttpClient({
   );
   if (adapter != null) dio.httpClientAdapter = adapter;
   if (language != null) dio.interceptors.add(LanguageInterceptor(language));
+  if (currency != null) dio.interceptors.add(CurrencyInterceptor(currency));
   dio.interceptors.add(AuthInterceptor(dio: dio, tokens: tokens));
   if (offline != null) dio.interceptors.add(OfflineCacheInterceptor(offline));
   if (onGateError != null) dio.interceptors.add(GateInterceptor(onGateError));
@@ -66,6 +68,21 @@ class LanguageInterceptor extends Interceptor {
   @override
   void onRequest(RequestOptions options, RequestInterceptorHandler handler) {
     options.headers['Accept-Language'] = _language();
+    handler.next(options);
+  }
+}
+
+/// 135.5 Sends the customer's currency as `X-Currency` (when there is one),
+/// so prices also come back in it; an older server ignores it.
+class CurrencyInterceptor extends Interceptor {
+  CurrencyInterceptor(this._currency);
+
+  final String? Function() _currency;
+
+  @override
+  void onRequest(RequestOptions options, RequestInterceptorHandler handler) {
+    final code = _currency();
+    if (code != null && code.isNotEmpty) options.headers['X-Currency'] = code;
     handler.next(options);
   }
 }

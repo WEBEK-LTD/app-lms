@@ -211,6 +211,16 @@ class _OrderScreenState extends ConsumerState<OrderScreen> {
               value: order.total,
               strong: true,
             ),
+            // 135.7 In the customer's currency, on the day it was placed.
+            if (order.customerCurrency case final cc?)
+              Text(
+                cc.charged
+                    ? l10n.orderPaidIn(cc.total)
+                    : l10n.orderInYourCurrency(cc.total),
+                key: const Key('order-customer-currency'),
+                textAlign: TextAlign.end,
+                style: TextStyle(fontSize: 13, color: p.textSecondary),
+              ),
             // 91.4 The loyalty points used on it, and those it earned.
             if (order.points case final points?) ...[
               if (points.used > 0)

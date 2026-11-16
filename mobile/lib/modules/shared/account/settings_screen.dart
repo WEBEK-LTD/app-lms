@@ -6,6 +6,7 @@ import '../../../core/api/api_exception.dart';
 import '../../../core/auth/auth_controller.dart';
 import '../../../core/config/build_config_data.dart';
 import '../../../core/gate/app_gate.dart';
+import '../../../core/l10n/currency.dart';
 import '../../../core/l10n/language.dart';
 import '../../../core/providers.dart';
 import '../../../core/purchase/store_billing.dart';
@@ -22,6 +23,7 @@ import '../../../core/widgets/buttons.dart';
 import '../../../core/widgets/common.dart';
 import '../../lms/data/lms_providers.dart';
 import 'account_scaffold.dart';
+import 'currency_picker.dart';
 // 130.21 The language in the project's premium look.
 import '../../../core/widgets/premium_chrome.dart';
 import 'premium/premium_choice_sheet.dart';
@@ -149,6 +151,10 @@ class SettingsScreen extends ConsumerWidget {
     final orderUpdates = env.build.appType == AppType.store;
     final languages = ref.watch(availableLanguagesProvider);
     final language = ref.watch(appLanguageProvider);
+    // 135.5 Apps selling from Yallapp show prices in the customer's currency too.
+    final sells = shopCurrencyOf(ref.watch(appConfigProvider)) != null;
+    final currency = ref.watch(appCurrencyProvider);
+    final currencyPicked = settings.currency != null;
     // 100 Courses and memberships bought through Google Play or the App Store.
     final storeBilling = ref.watch(storeClientProvider) != null;
     final restoring = ref.watch(
@@ -162,10 +168,23 @@ class SettingsScreen extends ConsumerWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          if (look.userCanChangeMode || languages.length > 1) ...[
+          if (look.userCanChangeMode || languages.length > 1 || sells) ...[
             SettingsGroup(
               title: l10n.display,
               children: [
+                // 135.5 The currency prices also show in.
+                if (sells)
+                  SettingsTile(
+                    key: const ValueKey('currency-tile'),
+                    icon: AppIcons.currency,
+                    title: l10n.currencyLabel,
+                    value: currency == null
+                        ? null
+                        : currencyPicked
+                        ? currency
+                        : l10n.currencyFromRegion(currency),
+                    onTap: () => showCurrencyPicker(context),
+                  ),
                 if (languages.length > 1)
                   SettingsTile(
                     key: const ValueKey('language-tile'),
@@ -227,7 +246,7 @@ class SettingsScreen extends ConsumerWidget {
             ),
           ],
           if (lms) ...[
-            if (look.userCanChangeMode || languages.length > 1)
+            if (look.userCanChangeMode || languages.length > 1 || sells)
               const SizedBox(height: 16),
             SettingsGroup(
               title: l10n.video,

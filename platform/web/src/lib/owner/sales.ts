@@ -14,7 +14,8 @@ import { BOOKING_STATUS_LABELS, bookingSetup } from "../bookings/setup";
 import { notifyAppointmentConfirmed } from "../hosted/auto-notifications";
 import { localToUtc, utcToLocal } from "../bookings/time";
 import { FULFILMENT_LABELS } from "../catalog/fulfilment";
-import { formatCents } from "../catalog/money";
+import { BILLING_CURRENCIES, formatCents } from "../catalog/money";
+import { formatMinor } from "../market/currency";
 import { countOpenQuestions } from "../courses/community";
 import { changeOrderStatus, nextOrderStatuses } from "../catalog/order-status";
 import { nextStages, parseStageInput, setOrderStage } from "../catalog/order-stages";
@@ -37,8 +38,6 @@ import { appStateOf, requireActive } from "./account";
 import { bodyObject, intParam, invalid, iso, notAllowed, notAvailable, notFound, OwnerError, pageJson, paging, type OwnerContext, type OwnerResult } from "./http";
 import { allowedAreas, APP_AREA_PERMISSION, teamCan } from "../team/permissions";
 import { currentPlanId } from "../billing/plan-change";
-import { CATALOG_CURRENCIES } from "../catalog/money";
-import { formatMinor } from "../market/currency";
 import { isPlan, planFamily } from "../plans";
 import { saleEvents, todayCompare } from "./prime";
 import { todayGoalJson } from "./prime-plus";
@@ -89,10 +88,24 @@ export function appScope(ctx: OwnerContext, appId: string | undefined, area?: ke
   return { app, license: ctx.licenses.find((l) => l.appId === app.id) ?? null, state: appStateOf(ctx, app), areas: allowedAreas(has, ctx.access, app.id) };
 }
 
-/** `Money`: 125 a currency outside the catalog's (a marketplace's: any ISO currency, 0, 2 or 3 decimals) is written with its own decimals. */
+/**
+ * `Money`: 125 a currency outside the catalog's (a marketplace's: any ISO
+ * currency, 0, 2 or 3 decimals) is written with its own decimals. 135.2
+ * Every amount here is in cents (a marketplace's sales too, lib/owner/prime.ts),
+ * written with its currency's digits (KWD 1.250, ¥1,250).
+ */
 export function money(cents: number, currency: string) {
-  const catalog = (CATALOG_CURRENCIES as readonly string[]).includes(currency);
-  return { amount_cents: cents, currency, formatted: catalog ? formatCents(cents, currency as CatalogCurrency) : formatMinor(cents, currency) };
+  return { amount_cents: cents, currency, formatted: formatCents(cents, currency as CatalogCurrency) };
+}
+
+/**
+ * 135.2 `Money` of a marketplace's amounts, kept in the currency's own minor
+ * units (fils, yen; lib/market/currency.ts): written as before 135, the six
+ * currencies Yallapp knew then with their sign, the others with their code.
+ */
+export function minorMoney(minor: number, currency: string) {
+  const known = (BILLING_CURRENCIES as readonly string[]).includes(currency);
+  return { amount_cents: minor, currency, formatted: known ? formatCents(minor, currency as CatalogCurrency) : formatMinor(minor, currency) };
 }
 
 function addTo(totals: Map<string, number>, currency: string, cents: number) {

@@ -10,7 +10,9 @@ import '../../../core/widgets/sale_widgets.dart';
 import '../../../core/l10n/l10n.dart';
 
 /// The price as the shop shows it, with the regular price struck through
-/// when on sale.
+/// when on sale. 135.5 With the customer's currency: the price in it first
+/// ("≈ \$12.40"), approximate, and the shop's own under it (on a card, only
+/// the converted one fits; it is read out with the shop's).
 class ProductPriceLabel extends StatelessWidget {
   const ProductPriceLabel(this.price, {super.key, this.size = 15});
 
@@ -20,13 +22,21 @@ class ProductPriceLabel extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final p = context.palette;
-    final regular = price.regularFormatted;
-    return Wrap(
+    final shown = price.display?.formatted;
+    final regular = shown != null
+        ? (price.display?.regularFormatted ?? price.regularFormatted)
+        : price.regularFormatted;
+    final main = shown != null
+        ? context.l10n.approxPrice(shown)
+        : price.formatted;
+    final compact = size <= 14;
+    final row = Wrap(
       crossAxisAlignment: WrapCrossAlignment.center,
       spacing: 6,
       children: [
         Text(
-          price.formatted,
+          main,
+          semanticsLabel: shown != null ? '$main, ${price.formatted}' : null,
           style: TextStyle(
             fontSize: size,
             fontWeight: FontWeight.w800,
@@ -43,6 +53,19 @@ class ProductPriceLabel extends StatelessWidget {
               decoration: TextDecoration.lineThrough,
             ),
           ),
+      ],
+    );
+    if (shown == null || compact) return row;
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        row,
+        const SizedBox(height: 2),
+        Text(
+          price.formatted,
+          style: TextStyle(fontSize: size - 4, color: p.textSecondary),
+        ),
       ],
     );
   }
@@ -86,6 +109,9 @@ class _Tag extends StatelessWidget {
 
 String _a11y(ProductSummary product) => [
   product.name,
+  // 135.5 In the customer's currency, approximate, then the shop's.
+  if (product.price.display?.formatted case final shown?)
+    currentL10n.approxPrice(shown),
   product.price.formatted,
   if (product.price.onSale) currentL10n.onSaleLower,
   if (product.stockStatus == StockStatus.outOfStock)

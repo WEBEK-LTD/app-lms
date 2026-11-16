@@ -11,7 +11,7 @@ import { OwnGatewayForm } from "../payments/own-gateway";
 import { manualChoices, PAY_WITHIN_DAYS } from "@/lib/catalog/manual";
 import { dashboardText } from "@/lib/dashboard-lang";
 import { formatList } from "@/i18n/format";
-import { PROVIDER_CURRENCIES } from "@/lib/payments/provider";
+import { takenCurrencies, type PROVIDER_CURRENCIES } from "@/lib/payments/provider";
 
 /**
  * Card payments of an app selling from the dashboard: always the shop's own
@@ -29,7 +29,7 @@ export async function CardPayments({ app, currency, wide = false }: { app: App; 
   const ended = payment?.provider === "yallapp";
   const sells = currency ?? settings.currency;
   const { t, lang } = await dashboardText();
-  const list = (p: keyof typeof PROVIDER_CURRENCIES) => (lang === "en" ? currencyList(p) : formatList(lang, PROVIDER_CURRENCIES[p], "disjunction"));
+  const list = (p: keyof typeof PROVIDER_CURRENCIES) => (lang === "en" ? currencyList(p) : formatList(lang, takenCurrencies(p), "disjunction"));
   return (
     // The page kit: a Section, its state on a soft line, then the account's keys.
     // 132.120 On the one Payments page wide, the gateways side by side; on the pages where the app sells, in their column.

@@ -502,7 +502,7 @@ test environment:
 
 ## Deployment
 
-- 134 Migration `0136_connected_pay` (the table `store_platform_orders`).
+- 134 Migration `0137_connected_pay` (the table `store_platform_orders`).
   Plugin 0.4.47 (pay inside the app) goes to sites with the app update
   that knows `StoreConfig.checkout_payment`; an older app or plugin keeps
   the store's own checkout.

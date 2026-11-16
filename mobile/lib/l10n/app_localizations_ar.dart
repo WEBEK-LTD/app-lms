@@ -12441,4 +12441,64 @@ class AppLocalizationsAr extends AppLocalizations {
   String ratingReplyFrom(String business) {
     return 'ردّ من $business';
   }
+
+  @override
+  String get currencyLabel => 'العملة';
+
+  @override
+  String currencyFromRegion(String currency) {
+    return '$currency · عملة منطقتك';
+  }
+
+  @override
+  String get currencyPickerHint =>
+      'تظهر الأسعار أيضًا بهذه العملة بسعر صرف اليوم. تدفع بعملة المتجر ما لم تذكر صفحة الدفع غير ذلك.';
+
+  @override
+  String get currencySearch => 'ابحث عن عملة';
+
+  @override
+  String get currencyShop => 'عملة المتجر';
+
+  @override
+  String get currencyYourRegion => 'منطقتك';
+
+  @override
+  String get currencyAll => 'كل العملات';
+
+  @override
+  String get currencyNoMatch => 'لا توجد عملة مطابقة.';
+
+  @override
+  String get currencyUseRegion => 'استخدم عملة منطقتي';
+
+  @override
+  String approxPrice(String amount) {
+    return '≈ $amount';
+  }
+
+  @override
+  String youPayApprox(String converted, String total) {
+    return '≈ $converted · ستدفع $total';
+  }
+
+  @override
+  String youPayIn(String total) {
+    return 'ستدفع $total';
+  }
+
+  @override
+  String youPayShopCurrency(String total, String currency) {
+    return 'ستدفع $total: الدفع بالبطاقة في المتجر لا يقبل $currency.';
+  }
+
+  @override
+  String orderInYourCurrency(String total) {
+    return '≈ $total بعملتك';
+  }
+
+  @override
+  String orderPaidIn(String total) {
+    return 'تم دفع $total';
+  }
 }

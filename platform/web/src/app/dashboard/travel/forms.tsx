@@ -1,5 +1,6 @@
 "use client";
 
+import { CurrencyPicker } from "@/components/currency-picker";
 import { useActionState, type ReactNode } from "react";
 import { saveFlightStatusAction, saveTravelFlightAction, saveTravelHotelAction, saveTravelRoomAction, saveTravelSettingsAction } from "@/app/actions/travel";
 import { Field, FieldError, FormMessage, SubmitButton } from "@/components/form";
@@ -16,7 +17,6 @@ const BOARDS = ["room_only", "breakfast", "half_board", "full_board", "all_inclu
 const FARES = ["light", "standard", "flex"] as const;
 const FLIGHT_AMENITIES = ["wifi", "meal", "power", "entertainment", "lounge"] as const;
 const STATUSES = ["scheduled", "on_time", "delayed", "boarding", "departed", "landed", "cancelled"] as const;
-const CURRENCIES = ["USD", "EUR", "EGP", "TRY", "SAR", "AED"] as const;
 const RATE_ROWS = 6;
 
 function useForm(action: (state: FormState, data: FormData) => Promise<FormState>, values: Record<string, string>) {
@@ -355,7 +355,8 @@ export function TravelSettingsForm({ values, zones }: { values: Record<string, s
     <form action={run} noValidate className="flex flex-col gap-5">
       <FormMessage message={state.message} ok={state.ok} />
       <FormSection id="ts-pay" title={t("travel.payment")}>
-        <Select id="ts-currency" name="currency" label={t("travel.currency")} value={value("currency")} options={CURRENCIES.map((c) => ({ value: c, label: c }))} error={e.currency} />
+        {/* 135.3 Any currency, searched (before 135: USD, EUR, EGP, TRY, SAR, AED). */}
+        <CurrencyPicker id="ts-currency" label={t("travel.currency")} defaultValue={value("currency")} error={e.currency} />
         <Check name="payNow" label={t("travel.payNow")} hint={t("travel.payNowHint")} checked={checked("payNow")} />
         <Check name="payAtHotel" label={t("travel.payAtHotelSetting")} checked={checked("payAtHotel")} />
         <FieldError id="ts-pay-error" error={e.payNow} />

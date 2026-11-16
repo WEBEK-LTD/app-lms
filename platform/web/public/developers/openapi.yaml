@@ -2412,6 +2412,8 @@ paths:
         `receipt_url`, and the app shows them under My orders (Events and
         gyms on both platforms).
       parameters:
+        - $ref: '#/components/parameters/DisplayCurrency'
+        - $ref: '#/components/parameters/DisplayCurrencyHeader'
         - $ref: '#/components/parameters/Page'
         - $ref: '#/components/parameters/PerPage'
       responses:
@@ -2449,6 +2451,8 @@ paths:
         after a checkout from the app, every 15 minutes). `not_found` for
         someone else's order.
       parameters:
+        - $ref: '#/components/parameters/DisplayCurrency'
+        - $ref: '#/components/parameters/DisplayCurrencyHeader'
         - $ref: '#/components/parameters/OrderId'
       responses:
         '200':
@@ -2740,6 +2744,8 @@ paths:
         they find it in `GET /me/courses` (50).
       security: [{}, { bearerAuth: [] }]
       parameters:
+        - $ref: '#/components/parameters/DisplayCurrency'
+        - $ref: '#/components/parameters/DisplayCurrencyHeader'
         - $ref: '#/components/parameters/Page'
         - $ref: '#/components/parameters/PerPage'
         - name: search
@@ -3775,6 +3781,26 @@ paths:
         '401': { $ref: '#/components/responses/Unauthorized' }
         '503': { $ref: '#/components/responses/Unavailable' }
 
+  /currencies:
+    get:
+      tags: [Store]
+      operationId: listCurrencies
+      summary: The currencies prices can be shown in
+      description: >-
+        135.5 Every currency with a day's rate, for the app's currency picker (the shop's
+        own first, then the customer's region's, then these): named in the
+        `Accept-Language` language. Send the one picked as `X-Currency` (or `?currency=`).
+        Rates are read once a day by Yallapp, never per request.
+      security: [{}, { bearerAuth: [] }]
+      responses:
+        '200':
+          description: The currencies
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/CurrencyList' }
+        '404': { $ref: '#/components/responses/NotFound' }
+        '503': { $ref: '#/components/responses/Unavailable' }
+
   /store/home:
     get:
       tags: [Store]
@@ -3782,6 +3808,9 @@ paths:
       summary: Get the store home screen sections
       description: Sections in the order chosen in the plugin settings. Only sections with content are returned.
       security: [{}, { bearerAuth: [] }]
+      parameters:
+        - $ref: '#/components/parameters/DisplayCurrency'
+        - $ref: '#/components/parameters/DisplayCurrencyHeader'
       responses:
         '200':
           description: Home sections
@@ -3827,6 +3856,8 @@ paths:
       description: Published products the shop shows (catalog visibility "shop" or "shop and search"; "search" when `search` is given).
       security: [{}, { bearerAuth: [] }]
       parameters:
+        - $ref: '#/components/parameters/DisplayCurrency'
+        - $ref: '#/components/parameters/DisplayCurrencyHeader'
         - $ref: '#/components/parameters/Page'
         - $ref: '#/components/parameters/PerPage'
         - name: search
@@ -3873,6 +3904,8 @@ paths:
       summary: Get a product
       security: [{}, { bearerAuth: [] }]
       parameters:
+        - $ref: '#/components/parameters/DisplayCurrency'
+        - $ref: '#/components/parameters/DisplayCurrencyHeader'
         - $ref: '#/components/parameters/ProductId'
       responses:
         '200':
@@ -3923,6 +3956,8 @@ paths:
         added on the site's checkout.
       security: [{}, { bearerAuth: [] }]
       parameters:
+        - $ref: '#/components/parameters/DisplayCurrency'
+        - $ref: '#/components/parameters/DisplayCurrencyHeader'
         - $ref: '#/components/parameters/Platform'
       requestBody:
         required: true
@@ -4030,6 +4065,8 @@ paths:
         as before, with `payment: platform` when the app asked.
       security: [{}, { bearerAuth: [] }]
       parameters:
+        - $ref: '#/components/parameters/DisplayCurrency'
+        - $ref: '#/components/parameters/DisplayCurrencyHeader'
         - $ref: '#/components/parameters/Platform'
       requestBody:
         required: true
@@ -4069,6 +4106,7 @@ paths:
                     description: "134 When the app sent `payment`: `in_app`, `url` is Yallapp's payment page (open it in the app; it ends on `order-received` with `shop_order`); `platform`, the platform's checkout as before. Missing when the app sent nothing."
                   payment_id: { type: [string, 'null'], description: "134 `in_app`: the payment's number on Yallapp's page." }
                   gateway: { type: [string, 'null'], enum: [iyzico, kashier, fawaterk, stripe, paypal, null], description: "134 `in_app`: the owner's gateway that takes the payment." }
+                  charge: { $ref: '#/components/schemas/CartCharge' }
         '400': { $ref: '#/components/responses/BadRequest' }
         '401': { $ref: '#/components/responses/Unauthorized' }
         '403': { $ref: '#/components/responses/Forbidden' }
@@ -4173,6 +4211,8 @@ paths:
         scheduled sale prices (plugin 0.4.44 and later).
       security: [{}, { bearerAuth: [] }]
       parameters:
+        - $ref: '#/components/parameters/DisplayCurrency'
+        - $ref: '#/components/parameters/DisplayCurrencyHeader'
         - $ref: '#/components/parameters/PerPage'
       responses:
         '200':
@@ -4239,6 +4279,8 @@ paths:
         products, one of its categories or (Shopify) a tag. At most 12.
       security: [{}, { bearerAuth: [] }]
       parameters:
+        - $ref: '#/components/parameters/DisplayCurrency'
+        - $ref: '#/components/parameters/DisplayCurrencyHeader'
         - name: product_id
           in: query
           required: false
@@ -4312,6 +4354,8 @@ paths:
       description: Services customers can book online, in the booking plugin's order.
       security: []
       parameters:
+        - $ref: '#/components/parameters/DisplayCurrency'
+        - $ref: '#/components/parameters/DisplayCurrencyHeader'
         - $ref: '#/components/parameters/Page'
         - $ref: '#/components/parameters/PerPage'
         - name: search
@@ -4344,6 +4388,8 @@ paths:
       summary: Get a service and the staff who provide it
       security: []
       parameters:
+        - $ref: '#/components/parameters/DisplayCurrency'
+        - $ref: '#/components/parameters/DisplayCurrencyHeader'
         - $ref: '#/components/parameters/ServiceId'
       responses:
         '200':
@@ -5011,6 +5057,8 @@ paths:
         `EventsConfig.time_zone`, both included.
       security: [{}, { bearerAuth: [] }]
       parameters:
+        - $ref: '#/components/parameters/DisplayCurrency'
+        - $ref: '#/components/parameters/DisplayCurrencyHeader'
         - $ref: '#/components/parameters/Page'
         - $ref: '#/components/parameters/PerPage'
         - { name: from, in: query, schema: { type: string, format: date }, description: 'Events that end on or after this day.' }
@@ -5765,6 +5813,8 @@ paths:
       description: The restaurant and its menu in sections, the company's order. Sold-out dishes are listed with `available` false.
       security: [{}, { bearerAuth: [] }]
       parameters:
+        - $ref: '#/components/parameters/DisplayCurrency'
+        - $ref: '#/components/parameters/DisplayCurrencyHeader'
         - $ref: '#/components/parameters/RestaurantId'
         - { name: lat, in: query, schema: { type: number, minimum: -90, maximum: 90 } }
         - { name: lng, in: query, schema: { type: number, minimum: -180, maximum: 180 } }
@@ -5797,6 +5847,9 @@ paths:
         content:
           application/json:
             schema: { $ref: '#/components/schemas/FoodCartInput' }
+      parameters:
+        - $ref: '#/components/parameters/DisplayCurrency'
+        - $ref: '#/components/parameters/DisplayCurrencyHeader'
       responses:
         '200':
           description: The cart's prices
@@ -12045,6 +12098,24 @@ components:
       bearerFormat: JWT
 
   parameters:
+    DisplayCurrency:
+      name: currency
+      in: query
+      required: false
+      description: >-
+        135.5 The customer's currency (an active ISO 4217 code, the phone's region by default,
+        the customer's pick in the app). Prices Yallapp sells itself (shops without a website,
+        menus, courses, events, bookings) then also come in it as `display`, at the day's rate,
+        with the rate and its date; the amounts stay in the shop's currency. Same as the
+        `X-Currency` header. Missing, the shop's own, or a currency without a rate: the shop's
+        prices only, as before. Never for a connected platform's prices.
+      schema: { type: string, pattern: '^[A-Za-z]{3}$', example: USD }
+    DisplayCurrencyHeader:
+      name: X-Currency
+      in: header
+      required: false
+      description: 135.5 The customer's currency, as the `currency` query parameter (the parameter wins when both are sent).
+      schema: { type: string, pattern: '^[A-Za-z]{3}$', example: USD }
     Platform:
       name: platform
       in: query
@@ -13236,6 +13307,7 @@ components:
         sale_amount: { type: [string, 'null'] }
         currency: { type: [string, 'null'], example: TRY }
         formatted: { type: [string, 'null'], example: ₺450 }
+        display: { $ref: '#/components/schemas/DisplayMoney' }
 
     CourseSummary:
       type: object
@@ -14606,6 +14678,7 @@ components:
       type: object
       required: [id, number, status, status_label, total, created_at, items]
       properties:
+        customer_currency: { $ref: '#/components/schemas/OrderCustomerCurrency' }
         delivery: { $ref: '#/components/schemas/OrderDelivery' }
         return_request:
           oneOf:
@@ -15381,6 +15454,81 @@ components:
         parent_id: { type: [integer, 'null'] }
         image_url: { type: [string, 'null'], format: uri }
 
+    DisplayMoney:
+      type: [object, 'null']
+      description: >-
+        135.5 The same money in the customer's currency (the request's `currency` or
+        `X-Currency`), at the day's rate: each amount of the object it is on with its
+        formatted text, under the same names (`amount` and `formatted`, `total_amount` and
+        `total`…), the currency's own digits (KWD 1.250, ¥1250). Approximate: the customer
+        pays the shop's amount unless `charge` says otherwise. Missing or null: none asked,
+        the shop's own currency, or no rate for it.
+      required: [currency, rate, rate_date]
+      properties:
+        currency: { type: string, pattern: '^[A-Z]{3}$', example: USD }
+        rate: { type: number, description: "Units of the customer's currency for one of the shop's.", example: 0.0206 }
+        rate_date: { type: [string, 'null'], format: date, description: "The rates' day.", example: '2026-11-16' }
+        amount: { type: string, example: '12.40' }
+        formatted: { type: string, example: $12.40 }
+        regular_amount: { type: string }
+        regular_formatted: { type: string }
+        max_amount: { type: string, description: "A range's dearest end." }
+        subtotal_amount: { type: string }
+        subtotal: { type: string }
+        total_amount: { type: string }
+        total: { type: string }
+      additionalProperties: { type: string }
+
+    CartCharge:
+      type: object
+      description: >-
+        135.7 What the card is charged at checkout, and in which currency: the shop's, or
+        the customer's when the shop charges in it and its card gateway takes it (at the
+        day's rate). `reason` `gateway`: the shop charges in the customer's currency but its
+        gateway doesn't take this one, so the shop's is charged (say so).
+      required: [currency, total, total_amount, in_customer_currency, reason]
+      properties:
+        currency: { type: string, pattern: '^[A-Z]{3}$', example: EGP }
+        total: { type: string, example: E£600.00 }
+        total_amount: { type: string, example: '600.00' }
+        in_customer_currency: { type: boolean }
+        reason: { type: [string, 'null'], enum: [gateway, null] }
+        display: { type: 'null' }
+
+    OrderCustomerCurrency:
+      type: [object, 'null']
+      description: >-
+        135.7 The order's total in the customer's currency on the day it was placed, its rate
+        and day, and whether the card was charged in it (refunds then go back in it). Null:
+        the order had only the shop's currency.
+      required: [currency, total, total_amount, rate, rate_date, charged]
+      properties:
+        currency: { type: string, pattern: '^[A-Z]{3}$', example: USD }
+        total: { type: string, example: $12.40 }
+        total_amount: { type: string, example: '12.40' }
+        rate: { type: number, example: 0.0206 }
+        rate_date: { type: string, format: date }
+        charged: { type: boolean }
+        display: { type: 'null' }
+
+    CurrencyList:
+      type: object
+      required: [rate_date, items]
+      properties:
+        rate_date: { type: [string, 'null'], format: date, description: "The rates' day; null before the first rates are read." }
+        items:
+          type: array
+          description: "Every currency with a rate, named in the request's language; the usual ones (EGP, SAR, AED, KWD, QAR, BHD, OMR, JOD, TRY, USD, EUR, GBP) first, then A–Z."
+          items:
+            type: object
+            required: [code, name, symbol, digits, usual]
+            properties:
+              code: { type: string, pattern: '^[A-Z]{3}$', example: KWD }
+              name: { type: string, example: Kuwaiti Dinar }
+              symbol: { type: string, description: 'The short sign, or the code where the language has none.', example: KWD }
+              digits: { type: integer, enum: [0, 2, 3], description: Digits after the point (ISO 4217 minor units). }
+              usual: { type: boolean }
+
     ProductPrice:
       type: object
       required: [amount, currency, formatted, on_sale, range]
@@ -15392,6 +15540,8 @@ components:
         formatted: { type: string, description: "As the shop shows it, including ranges.", example: ₺400 – ₺550 }
         on_sale: { type: boolean }
         range: { type: boolean, description: Whether variations have different prices. }
+        max_amount: { type: string, description: "135.5 A range's dearest price (missing when it isn't a range)." }
+        display: { $ref: '#/components/schemas/DisplayMoney' }
 
     ProductSummary:
       type: object
@@ -15627,6 +15777,8 @@ components:
           example: KDV 20%
         total: { type: string, description: "Roadmap 91.1. Formatted: the subtotal less the discount, plus shipping and taxes when known. Missing on older servers.", example: ₺845.00 }
         total_amount: { type: string, example: '845.00' }
+        display: { $ref: '#/components/schemas/DisplayMoney' }
+        charge: { $ref: '#/components/schemas/CartCharge' }
         total_final:
           type: boolean
           description: >-
@@ -15863,6 +16015,7 @@ components:
         currency: { type: string, example: TRY }
         formatted: { type: string, example: ₺450.00 }
         free: { type: boolean }
+        display: { $ref: '#/components/schemas/DisplayMoney' }
 
     ServiceSummary:
       type: object
@@ -18332,7 +18485,7 @@ components:
       description: Settings for Charity & donations apps (roadmap 29).
       required: [currency, ios_mode, monthly, updates_push]
       properties:
-        currency: { type: string, enum: [TRY, USD, EUR, EGP, SAR, AED], description: "EGP, SAR and AED are for charities paid through Kashier or Fawaterk (roadmap 37)." }
+        currency: { type: string, pattern: '^[A-Z]{3}$', description: "135.1 Any active ISO 4217 code (KWD, JPY…); each gateway takes some (EGP, SAR and AED: Kashier or Fawaterk, roadmap 37)." }
         ios_mode:
           type: string
           enum: [browser, 'off']
@@ -18358,7 +18511,7 @@ components:
         raised: { type: string, description: 'Confirmed donations so far, as a decimal string.', example: '12450.00' }
         raised_formatted: { type: string, example: '₺12,450.00' }
         donor_count: { type: integer, description: 'People who gave, counted once per email address.' }
-        currency: { type: string, enum: [TRY, USD, EUR, EGP, SAR, AED], description: "EGP, SAR and AED are for charities paid through Kashier or Fawaterk (roadmap 37)." }
+        currency: { type: string, pattern: '^[A-Z]{3}$', description: "135.1 Any active ISO 4217 code (KWD, JPY…); each gateway takes some (EGP, SAR and AED: Kashier or Fawaterk, roadmap 37)." }
         progress: { type: [number, 'null'], minimum: 0, description: 'raised / goal (1 = reached, may be more than 1); null without a goal.' }
         ends_at: { type: [string, 'null'], format: date-time }
         status: { type: string, enum: [open, closed], description: '`closed` once the charity closes it or `ends_at` has passed: it takes no donations.' }
@@ -18424,7 +18577,7 @@ components:
         campaign_title: { type: string }
         amount: { type: string, example: '250.00' }
         amount_formatted: { type: string, example: '₺250.00' }
-        currency: { type: string, enum: [TRY, USD, EUR, EGP, SAR, AED], description: "EGP, SAR and AED are for charities paid through Kashier or Fawaterk (roadmap 37)." }
+        currency: { type: string, pattern: '^[A-Z]{3}$', description: "135.1 Any active ISO 4217 code (KWD, JPY…); each gateway takes some (EGP, SAR and AED: Kashier or Fawaterk, roadmap 37)." }
         recurring: { type: string, enum: [none, monthly] }
         anonymous: { type: boolean }
         created_at: { type: string, format: date-time, description: 'When the payment was confirmed.' }
@@ -18452,7 +18605,7 @@ components:
       description: Settings for delivery and courier apps (roadmap 104).
       required: [currency, pricing, zones, max_distance_km, payment, tracking, assignment, courier_app, map]
       properties:
-        currency: { type: string, enum: [TRY, USD, EUR, EGP, SAR, AED] }
+        currency: { type: string, pattern: '^[A-Z]{3}$', description: '135.1 Any active ISO 4217 code (KWD, JPY…), with its own digits after the point.' }
         pricing:
           type: string
           enum: [distance, zone, fixed]
@@ -18552,7 +18705,7 @@ components:
       properties:
         price: { type: string, example: '85.00' }
         price_formatted: { type: string, example: 'EGP 85.00' }
-        currency: { type: string, enum: [TRY, USD, EUR, EGP, SAR, AED] }
+        currency: { type: string, pattern: '^[A-Z]{3}$', description: '135.1 Any active ISO 4217 code (KWD, JPY…), with its own digits after the point.' }
         distance_km: { type: [number, 'null'], description: 'The straight-line distance, when both places have coordinates.' }
 
     ShipmentInput:
@@ -18622,7 +18775,7 @@ components:
         notes: { type: [string, 'null'] }
         price: { type: string, example: '85.00' }
         price_formatted: { type: string, example: 'EGP 85.00' }
-        currency: { type: string, enum: [TRY, USD, EUR, EGP, SAR, AED] }
+        currency: { type: string, pattern: '^[A-Z]{3}$', description: '135.1 Any active ISO 4217 code (KWD, JPY…), with its own digits after the point.' }
         payment:
           type: object
           required: [method, status]
@@ -18717,7 +18870,7 @@ components:
       description: Settings for food delivery apps from many restaurants (roadmap 105.1).
       required: [currency, timezone, cuisines, payment, tracking, courier_job, courier_app, map]
       properties:
-        currency: { type: string, enum: [TRY, USD, EUR, EGP, SAR, AED] }
+        currency: { type: string, pattern: '^[A-Z]{3}$', description: '135.1 Any active ISO 4217 code (KWD, JPY…), with its own digits after the point.' }
         timezone: { type: string, description: "The company's IANA time zone: restaurants' opening hours are in it.", example: Africa/Cairo }
         cuisines:
           type: array
@@ -18824,6 +18977,8 @@ components:
         image_url: { type: [string, 'null'], format: uri }
         price: { type: string, description: 'Before choices, as a decimal string.', example: '65.00' }
         price_formatted: { type: string, example: 'EGP 65.00' }
+        currency: { type: string, pattern: '^[A-Z]{3}$', description: "135.5 The restaurant's currency (missing on older servers)." }
+        display: { $ref: '#/components/schemas/DisplayMoney' }
         available: { type: boolean, description: 'False while sold out.' }
         popular: { type: boolean }
         choice_groups:
@@ -18887,7 +19042,8 @@ components:
         delivery_fee_formatted: { type: string, example: 'EGP 25.00' }
         total: { type: string, example: '205.00' }
         total_formatted: { type: string, example: 'EGP 205.00' }
-        currency: { type: string, enum: [TRY, USD, EUR, EGP, SAR, AED] }
+        currency: { type: string, pattern: '^[A-Z]{3}$', description: '135.1 Any active ISO 4217 code (KWD, JPY…), with its own digits after the point.' }
+        display: { $ref: '#/components/schemas/DisplayMoney' }
         distance_km: { type: [number, 'null'] }
         delivery_minutes: { type: [integer, 'null'], description: 'Preparing and delivering, roughly.' }
 
@@ -18948,7 +19104,7 @@ components:
         delivery_fee_formatted: { type: string }
         total: { type: string, example: '205.00' }
         total_formatted: { type: string, example: 'EGP 205.00' }
-        currency: { type: string, enum: [TRY, USD, EUR, EGP, SAR, AED] }
+        currency: { type: string, pattern: '^[A-Z]{3}$', description: '135.1 Any active ISO 4217 code (KWD, JPY…), with its own digits after the point.' }
         payment:
           type: object
           required: [method, status]
@@ -19786,7 +19942,7 @@ components:
       description: Settings for ride hailing apps (roadmap 105.2). Every amount is the company's.
       required: [currency, timezone, vehicle_types, payment, fare_mode, scheduling, matching, areas, cancellation, pin, emergency_phone, driver_app, map]
       properties:
-        currency: { type: string, enum: [TRY, USD, EUR, EGP, SAR, AED] }
+        currency: { type: string, pattern: '^[A-Z]{3}$', description: '135.1 Any active ISO 4217 code (KWD, JPY…), with its own digits after the point.' }
         timezone: { type: string, description: "The company's IANA time zone, for scheduled rides and the drivers' earnings.", example: Africa/Cairo }
         vehicle_types:
           type: array
@@ -19966,7 +20122,7 @@ components:
       properties:
         distance_km: { type: number, description: 'By road, estimated.' }
         minutes: { type: integer, description: 'The ride, estimated.' }
-        currency: { type: string, enum: [TRY, USD, EUR, EGP, SAR, AED] }
+        currency: { type: string, pattern: '^[A-Z]{3}$', description: '135.1 Any active ISO 4217 code (KWD, JPY…), with its own digits after the point.' }
         discount_formatted: { type: [string, 'null'], description: 'What the promo code takes off (shown on each fare already).' }
         previous_fee_formatted: { type: [string, 'null'], description: 'An unpaid cancellation fee from the rider''s last ride, added to each fare.' }
         options:
@@ -20024,7 +20180,7 @@ components:
         fare: { type: string, description: 'The fare given when asked, or once completed the final one (with waiting, discount and any previous fee).', example: '96.00' }
         fare_formatted: { type: string }
         final: { type: boolean, description: 'The fare is final (completed, or a cancellation fee).' }
-        currency: { type: string, enum: [TRY, USD, EUR, EGP, SAR, AED] }
+        currency: { type: string, pattern: '^[A-Z]{3}$', description: '135.1 Any active ISO 4217 code (KWD, JPY…), with its own digits after the point.' }
         payment:
           type: object
           required: [method, status]
@@ -20420,7 +20576,7 @@ components:
       required: [timezone, currency, term, absence_alerts, fees_by_card]
       properties:
         timezone: { type: string, description: "The school's IANA time zone, for today's lessons and attendance.", example: Africa/Cairo }
-        currency: { type: string, enum: [TRY, USD, EUR, EGP, SAR, AED] }
+        currency: { type: string, pattern: '^[A-Z]{3}$', description: '135.1 Any active ISO 4217 code (KWD, JPY…), with its own digits after the point.' }
         term:
           description: The current term, when the school set one; attendance and grades default to it.
           oneOf:
@@ -22315,7 +22471,7 @@ components:
         mode: { type: string, enum: [both, hotels, flights] }
         hotels: { type: boolean }
         flights: { type: boolean }
-        currency: { type: string, enum: [TRY, USD, EUR, EGP, SAR, AED] }
+        currency: { type: string, pattern: '^[A-Z]{3}$', description: '135.1 Any active ISO 4217 code (KWD, JPY…), with its own digits after the point.' }
         single_hotel_id: { type: [integer, 'null'], description: 'The one hotel of a company with only one: the app opens on its page instead of the search, which then asks for the dates only.' }
         payment:
           type: object
