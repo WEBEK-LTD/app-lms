@@ -68,7 +68,7 @@ async function shoot(page: Page, name: string) {
   await page.evaluate(() => document.fonts.ready);
   await page.waitForTimeout(700);
   fs.mkdirSync(path.join(OUT, "full"), { recursive: true });
-  await page.screenshot({ path: path.join(OUT, `${PREFIX}-${name}.png`) });
+  await page.screenshot({ path: path.join(OUT, `${PREFIX}-${name}.jpg`), type: "jpeg", quality: 90 });
   await page.screenshot({ path: path.join(OUT, "full", `${PREFIX}-${name}.jpg`), type: "jpeg", quality: 70, fullPage: true });
 }
 

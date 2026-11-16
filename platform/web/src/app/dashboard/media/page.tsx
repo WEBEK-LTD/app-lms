@@ -73,6 +73,8 @@ export default async function MediaPage({ searchParams }: PageProps<"/dashboard/
   if (!app) redirect("/dashboard/app-type");
   const { t, k, lang, num } = await dashboardText();
   const date = (d: Date | null | undefined) => formatDate(d, lang);
+  // 132.169 A size reads as one piece in Arabic ("2 MB", not "MB 2"), and the numbers around it keep their places.
+  const size = (bytes: number) => (lang === "ar" ? `\u2066${formatBytes(bytes)}\u2069` : formatBytes(bytes));
   const query = await searchParams;
   const asked = GROUPS.find((g) => g.id === query.kind)?.id;
   const store = await getStore();
@@ -125,7 +127,7 @@ export default async function MediaPage({ searchParams }: PageProps<"/dashboard/
   const rows: KitTableRow[] = files.map((f) => {
     const link = mediaLink(appUrl(), f.id);
     const open = storage && f.status === "ready" ? fileUrl(storage, f, { ttlSeconds: 3600 }).url : null;
-    const line = t("media.fileLine", { kind: t(KIND_LABEL[f.kind]), size: formatBytes(f.sizeBytes), date: date(f.createdAt) });
+    const line = t("media.fileLine", { kind: t(KIND_LABEL[f.kind]), size: size(f.sizeBytes), date: date(f.createdAt) });
     const copyable = f.status === "ready" && f.source !== "chat";
     const plays = f.kind === "image" || f.kind === "video" || f.kind === "audio";
     return {
@@ -191,7 +193,7 @@ export default async function MediaPage({ searchParams }: PageProps<"/dashboard/
             <KitInspectorFacts
               facts={[
                 [t("media.kind"), t(KIND_LABEL[f.kind])],
-                [t("media.size"), formatBytes(f.sizeBytes)],
+                [t("media.size"), size(f.sizeBytes)],
                 [t("media.added"), date(f.createdAt)],
                 [t("media.whoOpens"), who(f)],
               ]}
@@ -219,7 +221,7 @@ export default async function MediaPage({ searchParams }: PageProps<"/dashboard/
         help={
           <span className="flex flex-col gap-2">
             <span>{t("media.storageText")}</span>
-            <span>{MEDIA_KINDS.map((m) => t(LIMIT_LABEL[m.kind]!, { size: formatBytes(m.maxBytes) })).join(" · ")}</span>
+            <span>{MEDIA_KINDS.map((m) => t(LIMIT_LABEL[m.kind]!, { size: size(m.maxBytes) })).join(" · ")}</span>
             <span>{t("media.parts")}</span>
           </span>
         }
@@ -270,10 +272,10 @@ export default async function MediaPage({ searchParams }: PageProps<"/dashboard/
                   {limit === null ? null : usage.over ? <KitStatus tone="danger">{t("license.usageFull")}</KitStatus> : share >= 0.8 ? <KitStatus tone="warn">{t("license.usageNear")}</KitStatus> : null}
                 </span>
               }
-              value={formatBytes(usage.usedBytes)}
+              value={size(usage.usedBytes)}
               hint={
                 <span data-storage-used="">
-                  {limit === null ? richText(t("media.used", { used: formatBytes(usage.usedBytes) }), plain) : richText(t("media.usedOf", { used: formatBytes(usage.usedBytes), limit: formatBytes(limit) }), plain)}
+                  {limit === null ? richText(t("media.used", { used: size(usage.usedBytes) }), plain) : richText(t("media.usedOf", { used: size(usage.usedBytes), limit: size(limit) }), plain)}
                 </span>
               }
               progress={limit === null ? undefined : share}
