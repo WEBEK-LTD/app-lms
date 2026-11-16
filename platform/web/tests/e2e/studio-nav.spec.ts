@@ -180,8 +180,8 @@ test("the quick search, the groups, the phone's sheet, Arabic and the dark frame
   await own.getByRole("button", { name: "Menu" }).click();
   const sheet = own.getByRole("dialog", { name: "Project dashboard" });
   await expect(sheet.getByRole("link", { name: "Media" })).toHaveAttribute("aria-current", "page");
-  await sheet.getByRole("link", { name: "Team" }).click();
-  await expect(own).toHaveURL(/\/studio\/project\/team$/);
+  await sheet.getByRole("link", { name: "Languages" }).click();
+  await expect(own).toHaveURL(/\/studio\/project\/languages$/);
   await expect(sheet).toBeHidden();
   const width = await own.evaluate(() => document.documentElement.scrollWidth);
   expect(width).toBeLessThanOrEqual(390);
