@@ -66,7 +66,8 @@ export function addonRefusal(
   if (addon.rule.plans && !addon.rule.plans.includes(input.plan.id)) return "plan";
   if (addon.rule.belowTop && !belowTop(input.plans, input.plan.id, input.setting)) return "top_plan";
   if (!addon.repeatable && input.owned.some((o) => o.addonId === addon.id && addonRunning(o, input.now))) return "owned";
-  if (addon.kind === "feature" && addon.feature && hasFeature(input.plan, addon.feature)) return "included";
+  // A feature the plan has already (a service that switches it on too: the publishing service on a plan that publishes).
+  if (addon.kind !== "quantity" && addon.feature && hasFeature(input.plan, addon.feature)) return "included";
   if (addon.kind === "quantity" && addon.limit && limitValue(input.plan, addon.limit, input.family) === null) return "included";
   return null;
 }

@@ -53,6 +53,20 @@ export function newAppAddon(input: { client: Pick<Client, "id">; appId: string; 
   };
 }
 
+/** What a payment buys, kept on it: the add-on, how it's paid, and what it does as it is now. */
+export function paidAddonOf(addon: AddonDef, billing: AddonBilling, renews: Pick<AppAddon, "id"> | null): PaidAddon {
+  return {
+    addonId: addon.id,
+    billing,
+    renews: renews?.id ?? null,
+    name: addon.en.name.slice(0, 120),
+    kind: addon.kind,
+    limit: addon.kind === "quantity" ? (addon.limit ?? null) : null,
+    amount: addon.kind === "quantity" ? (addon.amount ?? null) : null,
+    feature: addon.kind !== "quantity" ? (addon.feature ?? null) : null,
+  };
+}
+
 /** Records the add-on's payment and starts it on the provider's page; returns the page to send the client to. */
 export async function startAddonPayment(deps: {
   store: DataStore;
@@ -80,7 +94,7 @@ export async function startAddonPayment(deps: {
   if (offer.charged.cents <= 0) throw new Error("A free payment doesn't go to the provider");
   if (coupon && offer.charged.cents !== coupon.amountCents) throw new Error("The offer isn't the coupon's price");
   const token = randomToken(24);
-  const paid: PaidAddon = { addonId: addon.id, billing: deps.billing, renews: deps.renews?.id ?? null, name: addon.en.name.slice(0, 120) };
+  const paid = paidAddonOf(addon, deps.billing, deps.renews);
   const payment: PlanPayment = {
     id: newId(),
     clientId: client.id,
@@ -163,7 +177,7 @@ export async function addonWithFreeCoupon(deps: {
     createdAt: now,
     paidAt: now,
     purpose: "addon",
-    addon: { addonId: deps.addon.id, billing: deps.billing, renews: deps.renews?.id ?? null, name: deps.addon.en.name.slice(0, 120) },
+    addon: paidAddonOf(deps.addon, deps.billing, deps.renews),
   };
   if (!(await store.claimCouponRedemption(redemptionOf(coupon, payment, "redeemed", now), couponClaimLimits(coupon.coupon, now), payment))) throw new CouponUsedUpError(false);
   return { payment, addon: await applyPaidAddon(store, payment, now, deps.addon) };
@@ -186,10 +200,17 @@ export async function applyPaidAddon(store: DataStore, payment: PlanPayment, now
     }
   }
   const definition = def ?? (await addonFromSettings(store, paid.addonId));
-  const addon = definition
-    ? newAppAddon({ client: { id: payment.clientId }, appId: payment.appId, addon: definition, billing: paid.billing, paymentId: payment.id, grantedBy: null, now })
-    : // The team removed it after the payment started: kept as a service for the team to look at.
-      { ...newAppAddon({ client: { id: payment.clientId }, appId: payment.appId, addon: { id: paid.addonId, kind: "service", icon: "widgets", en: { name: paid.name, description: "" }, prices: {}, rule: { family: "both", belowTop: false, plans: null }, repeatable: false, active: false, order: 0 }, billing: paid.billing, paymentId: payment.id, grantedBy: null, now }) };
+  // What the client paid for: the payment's own copy (an edit since doesn't change it), else the add-on as it is;
+  // without either (the team removed it, before 133 kept copies), a service for the team to look at.
+  const kind = paid.kind ?? definition?.kind ?? "service";
+  const base: AddonDef = definition ?? { id: paid.addonId, kind, icon: "widgets", en: { name: paid.name, description: "" }, prices: {}, rule: { family: "both", belowTop: false, plans: null }, repeatable: false, active: false, order: 0 };
+  const bought: AddonDef = {
+    ...base,
+    kind,
+    en: { ...base.en, name: paid.name || base.en.name },
+    ...(paid.kind ? { limit: paid.limit ?? undefined, amount: paid.amount ?? undefined, feature: paid.feature ?? undefined } : {}),
+  };
+  const addon = newAppAddon({ client: { id: payment.clientId }, appId: payment.appId, addon: bought, billing: paid.billing, paymentId: payment.id, grantedBy: null, now });
   await store.createAppAddon(addon);
   return addon;
 }

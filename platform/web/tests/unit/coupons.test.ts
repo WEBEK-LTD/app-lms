@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { PLANS } from "@/lib/plans";
+import { PLANS as EVERY_PLAN } from "@/lib/plans";
 import { checkCoupon, couponFormValues, couponPrice, CouponUsedUpError, findCoupon, MIN_CARD_CENTS, readCouponForm } from "@/lib/billing/coupons";
 import { activateWithFreeCoupon, completePlanPayment, startPlanPayment } from "@/lib/billing/plan-payment";
 import { sha256Hex } from "@/lib/crypto/tokens";
@@ -121,7 +121,7 @@ describe("coupon rules", () => {
 });
 
 // 103R.3 Every plan of both families (the regular apps' and Studio's); 133 the regular ones the team can add too.
-const ALL: string[] = [...PLANS];
+const ALL: string[] = [...EVERY_PLAN];
 // 133 Every billing period (0: lifetime or one-time).
 const ALL_PERIODS = ["1", "6", "12", "24", "36", "0"];
 

@@ -39,6 +39,8 @@ const GROUPS: { file: string; all?: unknown; only?: Expected; skip?: string[] }[
   { file: "articles", all: "catalog" },
   { file: "bookings", all: "bookings" },
   { file: "billing", all: "billing", only: { dismissNoticeAction: "settings" } },
+  // 133 Add-ons are bought like the plan.
+  { file: "addons", all: "billing" },
   {
     file: "catalog",
     all: "catalog",

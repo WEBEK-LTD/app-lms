@@ -134,4 +134,9 @@ export interface PaidAddon {
   renews: string | null;
   /** The add-on's English name, for the receipt. */
   name: string;
+  /** What it does, as it was when the payment started: what the client paid for, whatever the team edits later. */
+  kind?: AddonKind;
+  limit?: AddonLimit | null;
+  amount?: number | null;
+  feature?: PlanFeature | null;
 }

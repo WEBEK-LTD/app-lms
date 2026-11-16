@@ -58,3 +58,9 @@ export function allows(plan: PlanInfo | null, feature: PlanFeature): boolean {
 export function withinLimit(limit: number | null, used: number): boolean {
   return limit === null || used < limit;
 }
+
+/** 133 The plans with the app's own plan carrying its add-ons: for code that reads the plan from the record (the license API). */
+export async function plansForApp(store: DataStore, plans: Record<Plan, PlanInfo>, license: Pick<License, "plan" | "nextPlan" | "nextPlanAt" | "appId"> | null, now: Date): Promise<Record<Plan, PlanInfo>> {
+  const plan = await appPlanFrom(store, plans, license, now);
+  return plan && license && plan !== plans[currentPlanId(license, now)] ? { ...plans, [currentPlanId(license, now)]: plan } : plans;
+}
