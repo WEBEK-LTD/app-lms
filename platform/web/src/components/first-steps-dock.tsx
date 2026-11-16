@@ -3,8 +3,8 @@
 import { useState, type ReactNode } from "react";
 import { Icon } from "./icon";
 
-/** 132.72 The cookie that remembers the first steps folded or open in this browser. */
-export const STEPS_DOCK_COOKIE = "yallapp_steps_dock";
+/** 132.72 The cookie that remembers the first steps folded or open in this browser (components/first-steps.tsx reads it). */
+const STEPS_DOCK_COOKIE = "yallapp_steps_dock";
 export type DockState = "open" | "folded";
 
 /**

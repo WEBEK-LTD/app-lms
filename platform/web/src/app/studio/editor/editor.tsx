@@ -1175,7 +1175,7 @@ export function StudioEditor(props: StudioEditorProps) {
         </span>
 
         <div className="relative">
-          <button type="button" aria-expanded={pagesOpen} aria-haspopup="true" onClick={() => setPagesOpen((v) => !v)} className="flex items-center gap-1.5 rounded-[10px] border-0 px-3 py-1.5 text-sm" style={{ background: C.barSoft, color: C.ivory }}>
+          <button type="button" aria-expanded={pagesOpen} aria-haspopup="true" onClick={() => setPagesOpen((v) => !v)} className="flex items-center gap-1.5 rounded-[10px] border-0 px-3 py-1.5 text-sm" style={{ background: C.barSoft, color: C.barText }}>
             <Glyph name="description" size={18} />
             <span>{t("studio.page", { page: page ? pageTitle(page) : "" })}</span>
             <Glyph name="expand_more" size={18} />

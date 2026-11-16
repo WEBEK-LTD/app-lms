@@ -231,7 +231,7 @@ test("132.69 an app with no plan says so the same way everywhere: No plan yet", 
   await own.goto("/studio/project/setup?step=branding");
   await expect(own.getByText("Plan: No plan yet", { exact: false })).toBeVisible();
   await own.goto("/studio/project/license");
-  await expect(own.getByText("Not set", { exact: true })).toHaveCount(0);
+  await expect(own.locator("dl").first()).toContainText("No plan yet");
 });
 
 test("132.70 132.77 Studio follows the dashboard's dark mode; its bar stays dark, its links meet AA in light", async () => {

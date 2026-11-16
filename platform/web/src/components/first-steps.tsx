@@ -4,7 +4,7 @@ import type { ReactNode } from "react";
 import { removeAllSamplesAction } from "@/app/actions/samples";
 import { firstStepsAction } from "@/app/actions/start";
 import { Icon } from "@/components/icon";
-import { FirstStepsDock, STEPS_DOCK_COOKIE } from "@/components/first-steps-dock";
+import { FirstStepsDock } from "@/components/first-steps-dock";
 import type { DashKey } from "@/i18n/dashboard";
 import { richText } from "@/i18n/rich";
 import { getStore } from "@/lib/data";
@@ -146,7 +146,8 @@ export async function FirstSteps({ app, editor }: { app: App; editor: "/dashboar
   );
   if (studio) {
     // 132.72 Docked on the elements' side, folded or open as this browser left it.
-    const chosen = (await cookies()).get(STEPS_DOCK_COOKIE)?.value;
+    // The cookie's name written here: a "use client" module's constants are references on the server.
+    const chosen = (await cookies()).get("yallapp_steps_dock")?.value;
     return (
       <FirstStepsDock
         initial={chosen === "open" || chosen === "folded" ? chosen : null}
