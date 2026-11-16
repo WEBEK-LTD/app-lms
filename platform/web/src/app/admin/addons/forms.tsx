@@ -58,13 +58,14 @@ const pounds = (c: number) => new Intl.NumberFormat("en-US", { style: "currency"
  */
 export function AddonForm({
   addon,
-  icons,
+  iconNames,
   limits,
   features,
   plans,
 }: {
   addon: AddonFormValues;
-  icons: readonly string[];
+  /** The Material Symbols the site's font has. */
+  iconNames: readonly string[];
   limits: { id: string; label: string }[];
   features: { id: string; label: string }[];
   plans: { id: string; name: string; family: string }[];
@@ -174,7 +175,7 @@ export function AddonForm({
                 <Icon name={icon as IconName} size={22} />
               </span>
               <select id="addon-icon" name="icon" value={icon} onChange={(e) => setIcon(e.target.value)} className="input input-sm">
-                {icons.map((name) => (
+                {iconNames.map((name) => (
                   <option key={name} value={name}>
                     {name.replace(/_/g, " ")}
                   </option>

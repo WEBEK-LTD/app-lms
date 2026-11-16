@@ -149,7 +149,7 @@ export default async function AddonsAdminPage({ searchParams }: PageProps<"/admi
               <AddonForm
                 key={editing === "new" ? "new" : editing.id}
                 addon={formValues(editing === "new" ? null : editing)}
-                icons={ICON_NAMES}
+                iconNames={ICON_NAMES}
                 limits={[...BUILT_IN_ADDON_LIMITS.map((id) => ({ id, label: LIMIT_LABEL[id] })), ...limitDefs.map((d) => ({ id: `x:${d.id}`, label: `${d.name} (your own limit)` }))]}
                 features={PLAN_FEATURES.map((f) => ({ id: f.id, label: f.label }))}
                 plans={shownPlans.map((id) => ({ id, name: plans[id].name, family: id.startsWith("studio") ? "studio" : "regular" }))}

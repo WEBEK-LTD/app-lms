@@ -466,9 +466,10 @@ export default async function ClientPage({ params, searchParams }: PageProps<"/a
         })}
 
         {/* 133 The apps' add-ons, and giving one by hand. */}
-        {await panel(client.id, { id: "h-client-addons", title: "Add-ons" }, () => (
-          <ClientAddons store={store} clientId={client.id} apps={apps} canGrant={may("clients.license")} notice={typeof query.addon === "string" ? query.addon : null} />
-        ))}
+        {/* Called here, not rendered later: a failure stays in its own panel. */}
+        {await panel(client.id, { id: "h-client-addons", title: "Add-ons" }, () =>
+          ClientAddons({ store, clientId: client.id, apps, canGrant: may("clients.license"), notice: typeof query.addon === "string" ? query.addon : null }),
+        )}
 
         {await panel(client.id, { id: "h-setup-request", title: "Set-up requests" }, () => (
           <Card id="h-setup-request" title="Set-up requests">
