@@ -223,6 +223,137 @@ test("132.68 a project's page that isn't there says so in Studio's frame, with t
   problems.splice(0, problems.length, ...problems.filter((p) => !p.includes("404")));
 });
 
+// ——— Round 2 (132.69–132.77) ———
+
+test("132.69 an app with no plan says so the same way everywhere: No plan yet", async () => {
+  await own.goto("/studio/project");
+  await expect(own.getByRole("group", { name: "The project in numbers" })).toContainText("No plan yet");
+  await own.goto("/studio/project/setup?step=branding");
+  await expect(own.getByText("Plan: No plan yet", { exact: false })).toBeVisible();
+  await own.goto("/studio/project/license");
+  await expect(own.getByText("Not set", { exact: true })).toHaveCount(0);
+});
+
+test("132.70 132.77 Studio follows the dashboard's dark mode; its bar stays dark, its links meet AA in light", async () => {
+  const frameBackground = () => own.locator("[data-studio-frame]").first().evaluate((el) => getComputedStyle(el).backgroundColor);
+  const barBackground = () => own.locator("header").first().evaluate((el) => getComputedStyle(el).backgroundColor);
+  await own.goto("/studio/project");
+  expect(await frameBackground()).toBe("rgb(233, 229, 220)");
+  // A deeper accent on the board: 5.2:1.
+  expect(await own.locator("[data-studio-frame]").first().evaluate((el) => getComputedStyle(el).getPropertyValue("--color-accent").trim())).toBe("#a8360a");
+  await own.emulateMedia({ colorScheme: "dark" });
+  await own.reload();
+  expect(await frameBackground()).toBe("rgb(16, 15, 38)");
+  expect(await barBackground()).toBe("rgb(14, 13, 36)");
+  await own.goto("/studio/editor");
+  expect(await frameBackground()).toBe("rgb(16, 15, 38)");
+  // The switch in the account menu: light again, whatever the system says.
+  await own.goto("/studio/project");
+  await own.locator("[data-studio-account] summary").click();
+  await own.locator("[data-studio-account]").getByRole("button", { name: "Dark mode" }).click();
+  await expect(own.locator("html")).toHaveAttribute("data-theme", "light");
+  expect(await frameBackground()).toBe("rgb(233, 229, 220)");
+  await own.evaluate(() => localStorage.removeItem("yallapp-theme"));
+  await own.emulateMedia({ colorScheme: "light" });
+});
+
+test("132.71 the preview can be shared: a signed link for a week", async () => {
+  await own.goto("/studio/project/preview");
+  const link = own.getByRole("textbox", { name: "The link to share" });
+  const url = await link.inputValue();
+  expect(url).toMatch(/\/preview-app\/index\.html\?token=p1\./);
+  const expires = Number(decodeURIComponent(url.split("token=")[1]!).split(".")[2]);
+  expect(expires * 1000 - Date.now()).toBeGreaterThan(6 * 86_400_000);
+  await expect(own.locator("[data-preview-share]").getByRole("button", { name: "Copy the link" })).toBeVisible();
+  // The editor's phone popover offers it too.
+  await own.goto("/studio/editor");
+  await own.getByRole("button", { name: "Open on my phone" }).click();
+  await expect(own.locator("[data-studio-share]")).toHaveAttribute("data-studio-share", /token=p1\./);
+  await own.keyboard.press("Escape");
+});
+
+test("132.73 132.74 the editor: a template seen before it's used, and the changes named with a click to go back", async () => {
+  await own.goto("/studio/editor");
+  const layers = own.locator('[role="tree"] [role="treeitem"]');
+  const before = await layers.count();
+  // A template: previewed, cancelled, nothing changed; then used.
+  await own.getByRole("tab", { name: "Templates" }).click();
+  await own.locator("[data-studio-template]").first().click();
+  const preview = own.getByRole("dialog", { name: /^Preview: / });
+  await expect(preview).toBeVisible();
+  await preview.getByRole("button", { name: "Cancel" }).click();
+  await expect(preview).toHaveCount(0);
+  await own.getByRole("tab", { name: "Elements" }).click();
+  await expect(layers).toHaveCount(before);
+  await own.getByRole("tab", { name: "Templates" }).click();
+  await own.locator("[data-studio-template]").first().click();
+  await preview.getByRole("button", { name: "Use this template" }).click();
+  await expect(preview).toHaveCount(0);
+  // The changes, newest first; back to the first step in one click.
+  await own.getByRole("tab", { name: "Elements" }).click();
+  await own.getByRole("button", { name: "Text", exact: true }).first().click();
+  await own.getByRole("button", { name: "Changes" }).click();
+  const changes = own.getByRole("dialog", { name: "Changes" });
+  await expect(changes.locator("[data-history-step]").first()).toContainText("Added Text");
+  await expect(changes.locator('[aria-current="step"]')).toContainText("Added Text");
+  await expect(changes).toContainText("Started Home from a template");
+  await changes.locator("[data-history-step]").filter({ hasText: "Opened the editor" }).click();
+  await expect(layers).toHaveCount(before);
+  await own.getByRole("button", { name: "Redo" }).click();
+  await own.getByRole("button", { name: "Undo" }).click();
+});
+
+test("132.75 Setup: a change not saved asks before the page is left", async () => {
+  await own.goto("/studio/project/setup?step=branding");
+  await own.getByLabel("App name", { exact: true }).fill("Polish Store Two");
+  const overview = own.getByRole("navigation", { name: "Project dashboard" }).getByRole("link", { name: "Overview" });
+  own.once("dialog", (dialog) => {
+    expect(dialog.message()).toBe("Leave without saving your changes?");
+    void dialog.dismiss();
+  });
+  await overview.click();
+  await expect(own).toHaveURL(/step=branding$/);
+  await expect(own.getByLabel("App name", { exact: true })).toHaveValue("Polish Store Two");
+  own.once("dialog", (dialog) => void dialog.accept());
+  await overview.click();
+  await expect(own).toHaveURL(/\/studio\/project$/);
+});
+
+test("132.72 a project from a demo: the first steps docked beside the elements, folded and remembered", async () => {
+  await own.goto("/start/rides/make?new=1");
+  await own.getByLabel("Your app's name").fill("Polish Rides");
+  await own.getByRole("button", { name: "Create my app" }).click();
+  await expect(own).toHaveURL(/\/studio\/editor\?from=demo$/);
+  const dock = own.locator("[data-first-steps-dock]");
+  const panel = own.locator("[data-first-steps-float]");
+  await expect(panel).toBeVisible();
+  // On the elements' side: its far edge stops before the inspector.
+  const box = await panel.boundingBox();
+  const inspector = await own.getByRole("complementary", { name: "Design" }).boundingBox().catch(() => null);
+  if (inspector) expect(box!.x + box!.width).toBeLessThanOrEqual(inspector.x + 1);
+  await own.locator("[data-first-steps-fold]").click();
+  await expect(panel).toBeHidden();
+  await expect(own.locator("[data-first-steps-pill]")).toBeVisible();
+  await own.reload();
+  await expect(dock).toHaveAttribute("data-first-steps-dock", "folded");
+  await expect(panel).toBeHidden();
+  await own.locator("[data-first-steps-pill]").click();
+  await expect(panel).toBeVisible();
+});
+
+test("132.76 the dashboard's Arabic is Egyptian on Setup", async () => {
+  await own.goto("/studio/project");
+  await menu().locator("summary").click();
+  await menu().locator("[data-dashboard-languages]").getByRole("button", { name: "العربية" }).click();
+  await expect(own.locator("html")).toHaveAttribute("dir", "rtl");
+  await own.goto("/studio/project/setup?step=branding");
+  await expect(own.getByRole("button", { name: "احفظ وكمّل" })).toBeVisible();
+  await own.goto("/studio/project");
+  if (!(await menu().evaluate((d) => (d as HTMLDetailsElement).open))) await menu().locator("summary").click();
+  await menu().locator("[data-dashboard-languages]").getByRole("button", { name: "English" }).click();
+  await expect(own.locator("html")).toHaveAttribute("dir", "ltr");
+});
+
 test("the pages opened here had no console errors", async () => {
   expect(problems).toEqual([]);
 });
