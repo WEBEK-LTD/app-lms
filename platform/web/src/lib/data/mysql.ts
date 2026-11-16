@@ -93,6 +93,7 @@ import type { ChatConversation, ChatConversationKind, ChatConversationPatch, Cha
 import type { AppError, ClientMilestone, JobRun, MilestoneKind, ProductDay, RekeyCell, TeamAlert, TeamAlertKind, WatchedJob } from "./types";
 import { candidatesIn, needsRekey } from "../crypto/rekey";
 import { assetIdsIn } from "./asset-ids";
+import { categoryOrder } from "../catalog/bulk";
 import type { PushAudience } from "./types";
 import type { CourseAnswer, CourseAnswerInput, CourseQuestion, CourseQuestionInput, CourseQuestionStatus, CourseReview, CourseReviewPatch, MemberCheckIn } from "./types";
 import type { MoreStore, MoreStoresRow, PublishingEvent, PublishingRequest, PublishingTrack, ReviewsRow } from "./types";
@@ -1243,6 +1244,18 @@ export class MysqlStore implements DataStore {
         .set({ name })
         .where(and(eq(schema.catalogCategories.appId, appId), eq(schema.catalogCategories.id, id))),
     );
+  }
+
+  async reorderCatalogCategories(appId: string, ids: number[]): Promise<void> {
+    const ordered = categoryOrder(await this.listCatalogCategories(appId), ids);
+    for (const [position, id] of ordered.entries()) {
+      await this.run((db) =>
+        db
+          .update(schema.catalogCategories)
+          .set({ position })
+          .where(and(eq(schema.catalogCategories.appId, appId), eq(schema.catalogCategories.id, id))),
+      );
+    }
   }
 
   async deleteCatalogCategory(appId: string, id: number, now: Date): Promise<void> {

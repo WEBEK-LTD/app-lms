@@ -58,6 +58,9 @@ test("the academy adds a course with a lesson", async () => {
   await add.getByRole("button", { name: "Add course" }).click();
   await expect(own.getByRole("heading", { level: 1, name: "Turkish for Beginners" })).toBeVisible();
 
+  // 132.13 The course's editor in tabs; 132.14 its curriculum, each lesson on its own page.
+  await own.getByRole("tab", { name: /^Curriculum/ }).click();
+  await expect(own).toHaveURL(/\?tab=curriculum$/);
   const curriculum = own.getByRole("region", { name: "Sections and lessons" });
   await curriculum.getByLabel("New section").fill("Hello");
   await curriculum.getByRole("button", { name: "Add section" }).click();
@@ -66,15 +69,22 @@ test("the academy adds a course with a lesson", async () => {
   await curriculum.getByRole("button", { name: "Add lesson" }).click();
   await expect(curriculum.getByText("Add a video address or some text.")).toBeVisible();
   await curriculum.getByLabel("Video address").fill("https://www.youtube.com/watch?v=abc123");
-  await curriculum.getByLabel("Minutes", { exact: true }).fill("8");
-  await curriculum.getByLabel("Free preview for everyone").check();
   await curriculum.getByRole("button", { name: "Add lesson" }).click();
-  await expect(curriculum.getByText("Video · 8 min · free preview")).toBeVisible();
+  await expect(curriculum.locator('[data-kind="lesson"]')).toContainText("Video");
+  await curriculum.getByRole("link", { name: /Greetings/ }).click();
+  await expect(own.getByRole("heading", { level: 1, name: "Greetings" })).toBeVisible();
+  await own.getByLabel("Minutes", { exact: true }).fill("8");
+  await own.getByLabel("Free preview for everyone").check();
+  await expect(own.locator('[data-save-bar="unsaved"]')).toContainText("Unsaved changes");
+  await own.getByRole("button", { name: "Save lesson" }).click();
+  await expect(own.getByText("Saved “Greetings”.")).toBeVisible();
+  await own.getByRole("link", { name: "Turkish for Beginners", exact: true }).click();
+  await expect(own.getByRole("region", { name: "Sections and lessons" }).getByText("Video · 8 min · free preview")).toBeVisible();
 
-  const details = own.getByRole("region", { name: "Details" });
-  await details.getByLabel("Price (TRY)").fill("450");
-  await details.getByRole("button", { name: "Save course" }).click();
-  await expect(details.getByText("Saved “Turkish for Beginners”.")).toBeVisible();
+  await own.getByRole("tab", { name: "Pricing and access" }).click();
+  await own.getByLabel("Price (TRY)").fill("450");
+  await own.getByRole("button", { name: "Save course" }).click();
+  await expect(own.getByText("Saved “Turkish for Beginners”.")).toBeVisible();
   await own.getByRole("link", { name: "Courses", exact: true }).first().click();
   await expect(own.getByText("Paid courses can't be bought until you set up")).toBeVisible();
   await expect(own.getByRole("link", { name: /Turkish for Beginners/ })).toContainText("₺450.00 · 1 lesson · 0 students");
@@ -140,7 +150,8 @@ test("45 offline downloads come with the plan, and the owner turns them off and 
     reason: before.downloads ? "video_site" : "disabled",
   });
 
-  await own.goto("/dashboard/courses");
+  // 132.13 On the academy's settings.
+  await own.goto("/dashboard/courses/settings");
   const section = own.getByRole("region", { name: "Offline downloads" });
   await expect(section).toContainText("never in the phone's gallery or files");
   // Courses managed in Yallapp have no plugin setting to follow.

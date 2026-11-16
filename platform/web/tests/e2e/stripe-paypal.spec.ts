@@ -86,11 +86,14 @@ test("a shop takes an order on its own Stripe, then on its own PayPal", async ({
   await page.getByRole("button", { name: "Save & continue" }).click();
   await expect(page.getByRole("heading", { name: "Branding" })).toBeVisible();
   await page.getByRole("link", { name: "Products", exact: true }).click();
+  // 132.10 Products has its own pages: the shop's settings, payments and the products.
+  await page.getByRole("navigation", { name: "Products", exact: true }).getByRole("link", { name: /^Settings/ }).click();
   await page.getByLabel("Currency").selectOption("USD");
   await page.getByRole("button", { name: "Save settings" }).click();
   await expect(page.getByText("Shop settings saved.")).toBeVisible();
 
   // Stripe: the secret key alone, test or live by its prefix (no switch to tick).
+  await page.getByRole("navigation", { name: "Products", exact: true }).getByRole("link", { name: /^Payments/ }).click();
   const payments = page.getByRole("region", { name: "Card payments" });
   await expect(payments).toContainText("iyzico, Kashier, Fawaterk, Stripe or PayPal");
   await expect(payments).toContainText("Yallapp never takes any of it.");
@@ -105,12 +108,13 @@ test("a shop takes an order on its own Stripe, then on its own PayPal", async ({
   await expect(payments.getByText("Stripe keys saved.")).toBeVisible();
   await expect(payments.getByText("On · your Stripe account · sandbox (test payments)")).toBeVisible();
 
+  await page.getByRole("navigation", { name: "Products", exact: true }).getByRole("link", { name: /^Products/ }).click();
   await page.getByRole("link", { name: "Add product" }).click();
   await page.getByLabel("Name", { exact: true }).fill("Harbour Mug");
   await page.getByLabel("Price (USD)", { exact: true }).fill("12.50");
   await page.locator('input[name="images"]').setInputFiles({ name: "mug.png", mimeType: "image/png", buffer: solidPng(64, 64, [40, 90, 160]) });
   await page.getByRole("button", { name: "Add product" }).click();
-  await expect(page.getByRole("status")).toContainText("Saved “Harbour Mug”.");
+  await expect(page.getByRole("status").filter({ hasText: "Saved" })).toContainText("Saved “Harbour Mug”.");
   await page.getByRole("link", { name: /Harbour Mug/ }).click();
   const link = (await page.getByRole("link", { name: /\/shop\// }).textContent())!;
   api = `${E2E.baseURL}/api/app/${/\/shop\/([0-9a-f-]{36})\//.exec(link)![1]}`;
@@ -124,6 +128,7 @@ test("a shop takes an order on its own Stripe, then on its own PayPal", async ({
 
   // PayPal: the REST app's client ID and secret, with the sandbox switch. Back from the product's page by its header's link.
   await page.getByRole("main").getByRole("link", { name: "Products", exact: true }).click();
+  await page.getByRole("navigation", { name: "Products", exact: true }).getByRole("link", { name: /^Payments/ }).click();
   await payments.getByLabel("Payment provider").selectOption("paypal");
   await payments.getByLabel("Client ID").fill("AYharbour-client");
   await payments.getByLabel("Secret").fill("harbour-paypal-secret");

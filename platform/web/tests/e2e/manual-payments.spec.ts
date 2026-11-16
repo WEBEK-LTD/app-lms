@@ -81,6 +81,8 @@ test("a shop takes a bank transfer, marks it paid, and cancels an unpaid order",
   await page.getByRole("button", { name: "Save & continue" }).click();
   await expect(page.getByRole("heading", { name: "Branding" })).toBeVisible();
   await page.getByRole("link", { name: "Products", exact: true }).click();
+  // 132.10 Payments have their own page under Products.
+  await page.getByRole("navigation", { name: "Products", exact: true }).getByRole("link", { name: /^Payments/ }).click();
 
   // No card keys: the bank details and the shop's own method.
   const other = page.getByRole("region", { name: "Bank transfer and your own method" });
@@ -94,6 +96,7 @@ test("a shop takes a bank transfer, marks it paid, and cancels an unpaid order",
   await expect(other.getByText("Payment methods saved.")).toBeVisible();
   await expect(other.getByText("On: Bank transfer and Cash on delivery")).toBeVisible();
   // With these, the shop takes orders: no "can't pay" warning.
+  await page.getByRole("navigation", { name: "Products", exact: true }).getByRole("link", { name: /^Products/ }).click();
   await expect(page.getByText("can't pay for them until you set up")).toHaveCount(0);
 
   await page.getByRole("link", { name: "Add product" }).click();
@@ -101,7 +104,7 @@ test("a shop takes a bank transfer, marks it paid, and cancels an unpaid order",
   await page.getByLabel("Price (TRY)", { exact: true }).fill("450");
   await page.locator('input[name="images"]').setInputFiles({ name: "atlas.png", mimeType: "image/png", buffer: solidPng(64, 64, [30, 80, 140]) });
   await page.getByRole("button", { name: "Add product" }).click();
-  await expect(page.getByRole("status")).toContainText("Saved “Atlas of Harbours”.");
+  await expect(page.getByRole("status").filter({ hasText: "Saved" })).toContainText("Saved “Atlas of Harbours”.");
   await page.getByRole("link", { name: /Atlas of Harbours/ }).click();
   const link = (await page.getByRole("link", { name: /\/shop\// }).textContent())!;
   api = `${E2E.baseURL}/api/app/${/\/shop\/([0-9a-f-]{36})\//.exec(link)![1]}`;

@@ -34,6 +34,7 @@ import { recordStaffChange } from "@/lib/admin/audit";
 import { serviceAccountOf } from "@/lib/hosted/notify";
 import { askAfterOwnEntry } from "@/lib/samples/lists";
 import { parseAddonRule } from "@/lib/selling/addons";
+import { changedPrices, isBulkOp, orderedImages, parsePercent } from "@/lib/catalog/bulk";
 
 const PRODUCT_IMAGE_MAX_BYTES = 2 * 1024 * 1024;
 const PRODUCT_IMAGES_MAX = 6;
@@ -111,6 +112,14 @@ export async function deleteCategoryAction(formData: FormData): Promise<void> {
   refresh();
 }
 
+/** 132.12 The categories in the order they were dragged to (the app's menu and tabs follow it). */
+export async function reorderCategoriesAction(ids: number[]): Promise<void> {
+  const { app } = await requireCatalogApp();
+  const list = (Array.isArray(ids) ? ids : []).map(Number).filter((id) => Number.isSafeInteger(id) && id > 0).slice(0, 200);
+  if (list.length) await (await getStore()).reorderCatalogCategories(app.id, list);
+  refresh();
+}
+
 // Products
 
 
@@ -149,7 +158,11 @@ export async function saveProductAction(_: FormState, formData: FormData): Promi
     .filter((c) => categories.has(c));
 
   const remove = new Set(formData.getAll("removeImage").map(String));
-  const kept = (existing?.imageAssetIds ?? []).filter((a) => !remove.has(a));
+  // 132.11 In the order the editor put them (the first is the cover).
+  const kept = orderedImages(
+    (existing?.imageAssetIds ?? []).filter((a) => !remove.has(a)),
+    String(formData.get("imageOrder") ?? "").split(",").filter(Boolean),
+  );
   const files = formData.getAll("images").filter((f): f is File => typeof f !== "string" && f.size > 0);
   // 51 Pictures chosen from the Media library.
   const fromMedia = (await chosenPictures(store, app.id, formData)).filter((id) => !kept.includes(id));
@@ -229,6 +242,41 @@ export async function deleteProductAction(formData: FormData): Promise<void> {
   if (Number.isSafeInteger(id)) await (await getStore()).deleteCatalogProduct(app.id, id);
   refresh();
   redirect("/dashboard/catalog");
+}
+
+/**
+ * 132.11 The Products list's bulk actions on the chosen products: shown in
+ * the app or hidden, deleted, put in one category (or none), their prices
+ * changed by a percent. The list words what happened (`values.done`).
+ */
+export async function bulkProductsAction(_: FormState, formData: FormData): Promise<FormState> {
+  const { app } = await requireCatalogApp();
+  const op = String(formData.get("op") ?? "");
+  if (!isBulkOp(op)) return { message: "Choose what to do with the products." };
+  const ids = new Set(formData.getAll("ids").map(Number).filter((id) => Number.isSafeInteger(id) && id > 0));
+  const store = await getStore();
+  const products = (await store.listCatalogProducts(app.id)).filter((p) => ids.has(p.id));
+  if (!products.length) return { message: "Choose at least one product." };
+  const now = new Date();
+  if (op === "delete") {
+    for (const p of products) await store.deleteCatalogProduct(app.id, p.id);
+  } else if (op === "publish" || op === "hide") {
+    for (const p of products) await store.updateCatalogProduct(app.id, p.id, { active: op === "publish" }, now);
+  } else if (op === "category") {
+    const value = String(formData.get("value") ?? "");
+    const categories = new Set((await store.listCatalogCategories(app.id)).map((c) => c.id));
+    const id = Number(value);
+    if (value !== "none" && !categories.has(id)) return { message: "Choose a category." };
+    for (const p of products) await store.updateCatalogProduct(app.id, p.id, { categoryIds: value === "none" ? [] : [id] }, now);
+  } else {
+    const percent = parsePercent(String(formData.get("value") ?? ""));
+    if (percent === null) return { errors: { value: "Enter a percent from -90 to 500, like 10 or -15." } };
+    const changes = products.map((p) => ({ id: p.id, prices: changedPrices(p, percent) }));
+    if (changes.some((c) => c.prices === null)) return { errors: { value: "A price would be over 9,999,999.99. Choose a smaller percent." } };
+    for (const c of changes) await store.updateCatalogProduct(app.id, c.id, c.prices!, now);
+  }
+  refresh();
+  return { ok: true, values: { done: op, count: String(products.length) } };
 }
 
 // Shop settings

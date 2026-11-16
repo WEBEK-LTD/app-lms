@@ -64,7 +64,7 @@ const cents = (text: string): number | null | string => {
 const whole = (text: string): number | null | string => (text.trim() === "" ? null : /^\d{1,7}$/.test(text.trim()) ? Number(text.trim()) : text.trim());
 
 /** 91.5 The variations of a shop's product (not a restaurant's): Size and Colour, and each combination's price and stock. */
-function VariantsEditor({ initial, currency, error }: { initial: EditorVariants; currency: string; error?: string }) {
+export function VariantsEditor({ initial, currency, error }: { initial: EditorVariants; currency: string; error?: string }) {
   const t = useDashT();
   const [attributes, setAttributes] = useState(initial.attributes);
   const [items, setItems] = useState(initial.items);
@@ -184,7 +184,7 @@ export interface EditorGroup {
   options: { id?: string; name: string; price: string; weight?: string }[];
 }
 
-function Check({ name, label, hint, defaultChecked }: { name: string; label: string; hint: string; defaultChecked: boolean }) {
+export function Check({ name, label, hint, defaultChecked }: { name: string; label: string; hint: string; defaultChecked: boolean }) {
   return (
     <label className="flex cursor-pointer items-start gap-3">
       <input type="checkbox" name={name} defaultChecked={defaultChecked} className="mt-1 h-4 w-4 accent-midnight" />
@@ -197,7 +197,7 @@ function Check({ name, label, hint, defaultChecked }: { name: string; label: str
 }
 
 /** 131 "Sell only as an add-on (gift extra)" and what it's offered with. */
-function AddonFields({
+export function AddonFields({
   product,
   categories,
   products,
@@ -420,7 +420,7 @@ const blankOption = () => ({ name: "", price: "" });
  * choose (at least and at most) and its options with an extra price. Sent as
  * one JSON field and checked on the server (lib/catalog/options.ts).
  */
-function OptionGroupsEditor({ initial, currency, restaurant, error }: { initial: EditorGroup[]; currency: string; restaurant: boolean; error?: string }) {
+export function OptionGroupsEditor({ initial, currency, restaurant, error }: { initial: EditorGroup[]; currency: string; restaurant: boolean; error?: string }) {
   const t = useDashT();
   const sr = { sr: (chunk: string) => <span className="sr-only">{chunk}</span> };
   const [groups, setGroups] = useState<EditorGroup[]>(initial);

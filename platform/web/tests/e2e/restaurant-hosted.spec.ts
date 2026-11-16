@@ -111,11 +111,16 @@ test("the café sets up its menu with options, pickup and delivery", async () =>
   await expect(nav.getByRole("link", { name: "Products" })).toHaveCount(0);
   await nav.getByRole("link", { name: "Menu", exact: true }).click();
   await expect(own.getByRole("heading", { name: "Menu", level: 1 })).toBeVisible();
+  // 132.10 The menu has its own pages: dishes, categories, coupons, pickup and delivery, payments and settings.
+  const tabs = own.getByRole("navigation", { name: "Menu", exact: true });
+  await expect(tabs.getByRole("link", { name: /^Dishes/ })).toHaveAttribute("aria-current", "page");
 
+  await tabs.getByRole("link", { name: /^Categories/ }).click();
   await own.getByLabel("New category").fill("Mains");
   await own.getByRole("button", { name: "Add", exact: true }).click();
   await expect(own.getByLabel("Category name")).toHaveValue("Mains");
 
+  await tabs.getByRole("link", { name: /^Payments/ }).click();
   await own.getByLabel("API key").fill("sandbox-api-key");
   await own.getByLabel("Secret key").fill("sandbox-secret-key");
   await own.getByText("Sandbox keys").click();
@@ -123,6 +128,7 @@ test("the café sets up its menu with options, pickup and delivery", async () =>
   await expect(own.getByText("iyzico keys saved.")).toBeVisible();
 
   // Pickup and delivery: open all day (so the test never runs while closed), a fee, a minimum and two districts.
+  await tabs.getByRole("link", { name: /^Pickup and delivery/ }).click();
   const kitchen = own.getByRole("region", { name: "Pickup and delivery" });
   for (const day of ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"]) {
     await kitchen.getByLabel(`${day} opens at`).fill("00:00");
@@ -135,6 +141,7 @@ test("the café sets up its menu with options, pickup and delivery", async () =>
   await kitchen.getByRole("button", { name: "Save pickup and delivery" }).click();
   await expect(kitchen.getByText("Pickup and delivery saved.")).toBeVisible();
 
+  await tabs.getByRole("link", { name: /^Dishes/ }).click();
   await own.getByRole("link", { name: "Add dish" }).click();
   await expect(own.getByRole("heading", { name: "New dish" })).toBeVisible();
   await expect(own.getByText("Digital product")).toHaveCount(0);
@@ -158,11 +165,13 @@ test("the café sets up its menu with options, pickup and delivery", async () =>
   // Three extras out of two isn't possible: the server says so and keeps what was typed.
   await expect(own.getByText('Extras: "at most" can be 1 to 2.')).toBeVisible();
   await own.getByLabel("Group 2 at most").fill("2");
-  // The category tick starts again after a refused save (React resets the form's own fields).
-  await own.getByLabel("Mains").check();
+  // 132.11 The editor keeps everything typed after a refused save, the category's tick too.
+  await expect(own.getByLabel("Mains")).toBeChecked();
   await own.getByRole("button", { name: "Add dish" }).click();
-  await expect(own.getByRole("status")).toContainText("Saved “Defne Burger”.");
-  await expect(own.getByRole("link", { name: /Defne Burger/ })).toContainText("₺460.00 · 2 option groups · Mains");
+  await expect(own.getByRole("status").filter({ hasText: "Saved" })).toContainText("Saved “Defne Burger”.");
+  const dish = own.locator('[data-product="Defne Burger"]');
+  await expect(dish.getByRole("link", { name: /Defne Burger/ })).toContainText("Mains · 2 option groups");
+  await expect(dish).toContainText("₺460.00");
 
   // The options come back in the editor as saved.
   await own.getByRole("link", { name: /Defne Burger/ }).click();
