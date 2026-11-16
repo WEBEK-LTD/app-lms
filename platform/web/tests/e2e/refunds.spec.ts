@@ -157,6 +157,8 @@ test("a shop refunds an order in part, then the rest, through Kashier", async ({
   await page.goto("/dashboard/orders");
   const order = page.getByRole("listitem").filter({ hasText: "Nour Adel" });
   await expect(order).toContainText("E£1,700.00");
+  // 132.132 The order's details, its refunds with them, open in a drawer from its row.
+  await order.getByRole("button", { name: /^Order \d+/ }).click();
   await order.locator("summary", { hasText: "Refund" }).click();
   const form = order.getByRole("form", { name: /^Refund order \d+$/ });
   await expect(form.getByLabel("Amount (EGP)")).toHaveValue("1700.00");
@@ -179,6 +181,7 @@ test("a shop refunds an order in part, then the rest, through Kashier", async ({
   await page.reload();
   const after = page.getByRole("listitem").filter({ hasText: "Nour Adel" });
   await expect(after).toContainText("Refunded E£300.00 of E£1,700.00");
+  await after.getByRole("button", { name: /^Order \d+/ }).click();
   await expect(after.getByRole("list", { name: "Refunds" })).toContainText(`Refunded E£300.00 on`);
   await expect(after.getByRole("list", { name: "Refunds" })).toContainText(`by ${shop.email}: The customer asked (Damaged cover) · through Kashier · reference RF-1`);
   await expect.poll(async () => (await mailsTo(customer)).map((m) => m.subject).join("\n")).toMatch(/refunded E£300\.00 of order \d+/);

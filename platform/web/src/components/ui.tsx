@@ -15,6 +15,8 @@ export const btn = {
     "inline-flex items-center justify-center gap-2 rounded-[10px] px-4 text-[15px] font-semibold text-midnight no-underline hover:bg-white/60 hover:text-midnight",
   danger:
     "inline-flex items-center justify-center gap-2 rounded-[10px] border border-danger bg-white px-5 text-[15px] font-semibold text-danger no-underline hover:bg-danger-bg disabled:opacity-60",
+  /** 132.130 A row's one quiet action (the premium kit): a small outlined pill. */
+  pill: "inline-flex items-center justify-center gap-1.5 rounded-full border border-line-strong bg-white px-4 text-[13px] font-bold whitespace-nowrap text-midnight no-underline transition-colors hover:border-midnight hover:text-midnight disabled:cursor-not-allowed disabled:opacity-60",
   /** A page's one main action, in Ember as Studio's "New project" (the text stays dark in both themes). */
   main: "inline-flex items-center justify-center gap-2 rounded-xl bg-ember px-5 text-[15px] font-extrabold text-[#0e0d24] no-underline shadow-[0_1px_0_rgba(14,13,36,0.08)] hover:bg-[#ff7a45] hover:text-[#0e0d24] disabled:cursor-not-allowed disabled:opacity-60",
 };

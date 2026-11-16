@@ -2,6 +2,7 @@ import Link from "next/link";
 import { removeAllSamplesAction, removeSamplesAction } from "@/app/actions/samples";
 import { SubmitButton } from "@/components/form";
 import { Badge, Notice, btn } from "@/components/ui";
+import { KitCallout } from "@/components/studio-page";
 import { getStore } from "@/lib/data";
 import { getClientContext } from "@/lib/auth/session";
 import { DEMO_BRANDS } from "@/lib/demo/content";
@@ -64,11 +65,10 @@ export async function SampleEntries({ app, list, query }: { app: App; list: Samp
   return (
     <div data-samples={list} className="flex flex-col gap-3">
       {done}
-      <Notice tone="info" icon="info">
-        <p className="m-0 font-bold">{t("samples.banner", { count: samples })}</p>
-        <p className="m-0">{t("samples.bannerText")}</p>
-        <div className="mt-3">{form(t("samples.removeAll"), "secondary")}</div>
-      </Notice>
+      {/* 132.130 A quiet strip (the premium kit): what they are, and removing them at its end. */}
+      <KitCallout icon="info" title={t("samples.banner", { count: samples })} action={form(t("samples.removeAll"), "secondary")}>
+        {t("samples.bannerText")}
+      </KitCallout>
     </div>
   );
 }

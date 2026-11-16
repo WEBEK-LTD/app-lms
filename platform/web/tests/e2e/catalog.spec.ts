@@ -206,6 +206,8 @@ test("a customer pays in the app and the order reaches the dashboard", async ({ 
   await expect(order).toContainText("₺750.00");
   await expect(order).toContainText("Tulip Bouquet × 2");
   await expect(order).toContainText("Moda Cd. 12, Kadikoy, Istanbul");
+  // 132.132 An order's details open in a drawer from its row.
+  await order.getByRole("button", { name: /^Order \d+/ }).click();
   // 80.4 Shipped with any carrier: a tracking number or link is needed; the customer gets an email.
   const shipping = order.getByRole("region", { name: "Shipping" });
   await shipping.getByLabel("Carrier").fill("Aras Kargo");
@@ -218,10 +220,13 @@ test("a customer pays in the app and the order reaches the dashboard", async ({ 
   await page.reload();
   const shippedOrder = page.getByRole("listitem").filter({ hasText: "Sara Yilmaz" });
   await expect(shippedOrder).toContainText("Shipped");
+  await shippedOrder.getByRole("button", { name: /^Order \d+/ }).click();
   await expect(shippedOrder.getByRole("region", { name: "Shipping" })).toContainText("3815602243");
   await expect(shippedOrder.getByRole("link", { name: "Open tracking" })).toHaveAttribute("href", "https://kargotakip.example/track?code=3815602243");
   await expect.poll(async () => (await mailsWithFiles("sara@example.com")).some((m) => /^Your order \d+ from .+ was shipped$/.test(m.subject)), { timeout: 15_000 }).toBe(true);
 
+  // The drawer closed, the row's one action.
+  await page.keyboard.press("Escape");
   await shippedOrder.getByRole("button", { name: "Mark completed" }).click();
   await expect(shippedOrder).toContainText("Completed");
 });
@@ -283,6 +288,7 @@ test("91.3 a signed-in customer asks to return a completed order, and the shop a
 
   await page.reload();
   const order = page.getByRole("listitem").filter({ hasText: "Ece Kaya" });
+  await order.getByRole("button", { name: /^Order \d+/ }).click();
   const ret = order.getByRole("region", { name: /^Return/ });
   await expect(ret).toContainText("Asked");
   await expect(ret).toContainText("It arrived damaged");

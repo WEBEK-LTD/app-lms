@@ -206,6 +206,91 @@ html {
     --color-accent-hover: #ffbb9c;
   }
 }
+/*
+ * 132.130 The premium page kit (components/studio-page): its few colours,
+ * the dashboard's own outside Studio and the Studio frame's (`--sf-…`) in
+ * it, light and dark, so one page reads right in both. Surfaces are told
+ * apart by a hairline (`--sp-edge`) and space; only the page's hero card
+ * lifts, by day.
+ */
+:root {
+  --sp-surface: var(--color-white);
+  --sp-soft: var(--color-sand);
+  --sp-line: var(--color-line);
+  --sp-line-soft: var(--color-line-soft);
+  --sp-edge: rgba(14, 13, 36, 0.07);
+  --sp-ink: var(--color-midnight);
+  --sp-muted: var(--color-muted);
+  --sp-tile: var(--color-ivory);
+  --sp-glow: rgba(255, 90, 31, 0.07);
+  --sp-lift: 0 1px 2px rgba(14, 13, 36, 0.04), 0 18px 40px -24px rgba(14, 13, 36, 0.22);
+  @variant yallapp-dark {
+    --sp-edge: rgba(244, 239, 230, 0.08);
+    --sp-glow: rgba(255, 154, 110, 0.09);
+    --sp-lift: 0 0 #0000;
+  }
+}
+[data-studio-frame] {
+  --sp-surface: var(--sf-surface);
+  --sp-soft: color-mix(in srgb, var(--sf-soft) 60%, var(--sf-surface));
+  --sp-line: var(--sf-line);
+  --sp-line-soft: color-mix(in srgb, var(--sf-line) 65%, var(--sf-surface));
+  --sp-ink: var(--sf-ink);
+  --sp-muted: var(--sf-muted);
+  --sp-tile: var(--sf-soft);
+}
+/* The hero card's warm light in one corner. */
+.kit-hero {
+  background-image: radial-gradient(90% 120% at 100% 0%, var(--sp-glow), transparent 60%);
+}
+.kit-hero:dir(rtl) {
+  background-image: radial-gradient(90% 120% at 0% 0%, var(--sp-glow), transparent 60%);
+}
+/* A drawer slides in from the page's end side; what a fold opens fades in. */
+.kit-drawer[open] {
+  animation: kit-drawer-in 0.24s cubic-bezier(0.22, 1, 0.36, 1);
+}
+.kit-drawer[open]::backdrop {
+  animation: kit-fade-in 0.24s ease-out;
+}
+.kit-drawer:dir(rtl)[open] {
+  animation-name: kit-drawer-in-rtl;
+}
+details[open] > .kit-fold-body,
+.kit-reveal:not([hidden]) {
+  animation: kit-reveal 0.2s ease-out;
+}
+@keyframes kit-drawer-in {
+  from {
+    transform: translateX(32px);
+    opacity: 0;
+  }
+}
+@keyframes kit-drawer-in-rtl {
+  from {
+    transform: translateX(-32px);
+    opacity: 0;
+  }
+}
+@keyframes kit-fade-in {
+  from {
+    opacity: 0;
+  }
+}
+@keyframes kit-reveal {
+  from {
+    transform: translateY(-4px);
+    opacity: 0;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .kit-drawer[open],
+  .kit-drawer[open]::backdrop,
+  details[open] > .kit-fold-body,
+  .kit-reveal:not([hidden]) {
+    animation: none;
+  }
+}
 /* 73 What shows only in one of the two (the adaptive logo). */
 .theme-dark-only {
   display: none;
