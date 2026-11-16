@@ -174,6 +174,9 @@ class _Push implements PushService {
     initial = null;
     return data;
   }
+
+  @override
+  Stream<Map<String, dynamic>> get receivedMessages => const Stream.empty();
 }
 
 class _Hub {

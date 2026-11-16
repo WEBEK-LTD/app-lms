@@ -1,6 +1,7 @@
 import 'package:flutter/widgets.dart';
 
 import '../../../../core/api/models/models.dart';
+import '../../account/order_journey.dart';
 import 'premium_badge.dart';
 import 'premium_bento.dart';
 import 'premium_cta_bar.dart';
@@ -26,6 +27,9 @@ Widget? studioPremiumContent(
   StudioNodeType.pricing => PremiumPricing(node: node, dark: dark),
   StudioNodeType.stats => PremiumStats(node: node, dark: dark),
   StudioNodeType.progress => PremiumProgress(node: node, dark: dark),
+  // 132.160 Steps that follow the person's newest order on its way.
+  StudioNodeType.timeline when node.premium?.followsLatestOrder ?? false =>
+    OrderJourneyTimeline(node: node, dark: dark),
   StudioNodeType.timeline => PremiumTimeline(node: node, dark: dark),
   StudioNodeType.profileCard => PremiumProfileCard(
     node: node,

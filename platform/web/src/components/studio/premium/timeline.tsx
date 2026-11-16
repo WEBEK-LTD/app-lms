@@ -1,4 +1,5 @@
 import type { CSSProperties } from "react";
+import { journeyEntryIndex, orderJourneyStep, SAMPLE_JOURNEY_ORDER } from "@/lib/studio/order-journey";
 import { entryText } from "@/lib/studio/premium-content";
 import { alpha, CARD_SHADOW, Icon, tones, type PremiumProps } from "./shared";
 
@@ -13,11 +14,26 @@ const MONO = "'JetBrains Mono', ui-monospace, SFMono-Regular, Menlo, monospace";
  * (`bars`). Dates in a monospaced font with `mono`.
  */
 export function Timeline(p: PremiumProps) {
+  const steps = <Steps {...p} />;
+  // 132.160 Following the person's newest order: a sample order out for delivery, and a note that the app shows theirs.
+  if (p.node.timeline?.source !== "latest_order") return steps;
+  return (
+    <span data-studio-timeline-source="latest_order" style={{ display: "flex", flexDirection: "column", gap: 10 }}>
+      <span style={{ alignSelf: "flex-start", display: "inline-flex", alignItems: "center", gap: 5, padding: "3px 10px", borderRadius: 999, background: alpha(p.brand, 0.12), color: p.brand, fontSize: 11, fontWeight: 800 }}>
+        <Icon name="local_shipping" size={14} rtl={p.lang === "ar"} />
+        {p.words.orderNote}
+      </span>
+      {steps}
+    </span>
+  );
+}
+
+function Steps(p: PremiumProps) {
   const { node, dark, brand, lang, defaultLang } = p;
   const rtl = lang === "ar";
   const t = tones(dark);
   const entries = node.entries ?? [];
-  const active = entries.findIndex((e) => e.highlight);
+  const active = node.timeline?.source === "latest_order" ? journeyEntryIndex(orderJourneyStep(SAMPLE_JOURNEY_ORDER), entries.length) : entries.findIndex((e) => e.highlight);
   const done = (i: number) => active >= 0 && i <= active;
   const o = node.timeline ?? {};
   const date: CSSProperties = o.mono ? { fontFamily: MONO, letterSpacing: 0.2 } : {};

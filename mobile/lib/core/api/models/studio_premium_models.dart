@@ -121,6 +121,7 @@ class StudioPremium {
     this.times = false,
     this.mono = false,
     this.activeCard = false,
+    this.followsLatestOrder = false,
     this.glassCaptions = false,
     this.rowHeight = 112,
     this.ctaCard = false,
@@ -190,6 +191,8 @@ class StudioPremium {
       times: timeline['times'] == true,
       mono: timeline['mono'] == true,
       activeCard: timeline['card'] == true,
+      // 132.160 Any other source (a newer one) keeps the steps as drawn.
+      followsLatestOrder: timeline['source'] == 'latest_order',
       glassCaptions: bento['caption'] == 'glass',
       rowHeight: number(bento, 'row', 60, 240) ?? 112,
       ctaCard: of('cta')?['style'] == 'card',
@@ -216,6 +219,11 @@ class StudioPremium {
   final bool times;
   final bool mono;
   final bool activeCard;
+
+  /// 132.160 The steps follow the signed-in person's newest order still on
+  /// its way (`timeline.source: latest_order`): its step is the active one.
+  /// With none, the steps as drawn.
+  final bool followsLatestOrder;
 
   /// 129.17 Tiles' words on frosted glass; a row's height.
   final bool glassCaptions;

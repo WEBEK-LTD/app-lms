@@ -39,6 +39,10 @@ abstract class PushService {
 
   /// The `data` of the notification that launched the app, if any.
   Future<Map<String, dynamic>?> initialMessage();
+
+  /// 132.160 The `data` of notifications that arrive while the app is open
+  /// (in the front), shown or not: an order's update refreshes the order.
+  Stream<Map<String, dynamic>> get receivedMessages;
 }
 
 /// Where tapping a notification goes, from its `data`:
@@ -264,6 +268,9 @@ class NoopPushService implements PushService {
 
   @override
   Future<Map<String, dynamic>?> initialMessage() async => null;
+
+  @override
+  Stream<Map<String, dynamic>> get receivedMessages => const Stream.empty();
 }
 
 class FirebasePushService implements PushService {
@@ -331,6 +338,11 @@ class FirebasePushService implements PushService {
       return null;
     }
   }
+
+  @override
+  Stream<Map<String, dynamic>> get receivedMessages => _ready
+      ? FirebaseMessaging.onMessage.map((m) => m.data)
+      : const Stream.empty();
 }
 
 /// Picks the Firebase push service for this platform from the build config.
@@ -519,6 +531,16 @@ class HmsPushService implements PushService {
   @override
   Future<Map<String, dynamic>?> initialMessage() async =>
       _ready ? _bridge.initialMessage() : null;
+
+  /// 132.160 Push Kit's data messages while the app runs
+  /// (`{"type": "received", "data": {…}}`), when the bridge sends them.
+  @override
+  Stream<Map<String, dynamic>> get receivedMessages => _ready
+      ? _bridge.events
+            .where((e) => e['type'] == 'received' && e['data'] is Map)
+            .map((e) => HmsPushBridge.messageData(e['data']! as Map))
+            .where((data) => data.containsKey('type'))
+      : const Stream.empty();
 }
 
 /// Must be overridden with the instance created at start-up.

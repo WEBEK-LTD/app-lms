@@ -30,6 +30,9 @@ class _Push implements PushService {
 
   @override
   Future<Map<String, dynamic>?> initialMessage() async => null;
+
+  @override
+  Stream<Map<String, dynamic>> get receivedMessages => const Stream.empty();
 }
 
 void main() {

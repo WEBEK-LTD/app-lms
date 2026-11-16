@@ -16895,12 +16895,13 @@ components:
 
     StudioTimeline:
       type: [object, 'null']
-      description: "129.15 For `timeline`: down the page (missing), across it, or `bars`, across with a bar over each step filled up to the active one (a trip's legs). Down the page, `times` puts each step's `subtitle` in a column at the start, and `card` draws the active step as a card with its `label` as a chip and its `value` (0 to 100) as a bar; `mono` writes the dates in a monospaced font."
+      description: "129.15 For `timeline`: down the page (missing), across it, or `bars`, across with a bar over each step filled up to the active one (a trip's legs). Down the page, `times` puts each step's `subtitle` in a column at the start, and `card` draws the active step as a card with its `label` as a chip and its `value` (0 to 100) as a bar; `mono` writes the dates in a monospaced font. 132.160 `source: latest_order` makes the steps follow the signed-in person's newest order still on its way (`GET /me/orders`, an order whose `status` is `pending`, `processing` or `on_hold`): its journey's step is the active one instead of the `highlight`ed entry. The journey has four steps spread over the entries: ordered or paid (no `stage` yet), prepared (`stage.code` `preparing`, `postponed` or `returned`), on its way (`shipped` or `failed`, a `shipment`, or `fulfilment_status` `out_for_delivery`) and delivered (`delivered`, or `status` `completed`). Signed out, with no order on its way, and in apps that don't know the source, the steps show as drawn."
       properties:
         style: { type: string, enum: [vertical, horizontal, bars], default: vertical }
         times: { type: boolean, default: false }
         mono: { type: boolean, default: false }
         card: { type: boolean, default: false }
+        source: { type: string, enum: [latest_order], description: "132.160 What the steps follow; missing, the steps as drawn. Apps ignore a source they don't know." }
 
     StudioBento:
       type: [object, 'null']

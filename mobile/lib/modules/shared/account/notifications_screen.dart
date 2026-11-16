@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
@@ -260,11 +262,29 @@ class _NotificationTile extends StatelessWidget {
 
 /// The student's orders from the website's checkout. Android only: the iOS
 /// app doesn't sell courses.
-class OrdersScreen extends ConsumerWidget {
+class OrdersScreen extends ConsumerStatefulWidget {
   const OrdersScreen({super.key});
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  ConsumerState<OrdersScreen> createState() => _OrdersScreenState();
+}
+
+class _OrdersScreenState extends ConsumerState<OrdersScreen> {
+  @override
+  void initState() {
+    super.initState();
+    // 132.160 Opened while the list was kept (the Orders tab's timeline, a
+    // screen under it): asked again, its rows shown until the answer comes.
+    Future.microtask(() {
+      if (!mounted || !ref.exists(ordersProvider)) return;
+      if (ref.read(ordersProvider).items.isNotEmpty) {
+        unawaited(ref.read(ordersProvider.notifier).reload());
+      }
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
     final state = ref.watch(ordersProvider);
     final notifier = ref.read(ordersProvider.notifier);
     final store =
