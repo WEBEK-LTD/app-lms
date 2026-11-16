@@ -46,7 +46,8 @@ export default async function StudioLayout({ children }: { children: React.React
   return (
     <DashboardI18n lang={lang} messages={dashboardMessages(lang)} knownEnglish={lang === "en" ? {} : knownEnglish()}>
       <DocumentLang lang={lang} />
-      <div style={{ ["--font-studio" as string]: studioFont, ["--studio-line" as string]: "#DDD8CC", ["--studio-ink" as string]: "#0E0D24", ["--studio-muted" as string]: "#5E5B70", ["--team-bar" as string]: team ? "72px" : "0px" }}>
+      {/* 132.4 132.70 Studio's colours are its frame's tokens (`--sf-…`, globals.css), light and dark: every Studio screen is a frame (`StudioScreen`, the editor). */}
+      <div style={{ ["--font-studio" as string]: studioFont, ["--team-bar" as string]: team ? "72px" : "0px" }}>
         {context && team ? (
           <div lang={lang} dir={dir} className="box-border flex min-h-[72px] items-center bg-[#0E0D24] px-3 sm:px-4" style={{ fontFamily: "var(--font-studio), 'Cairo', system-ui, sans-serif" }}>
             <WorkingInAccount context={context} text={text} className="w-full py-2" />

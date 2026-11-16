@@ -41,7 +41,7 @@ import { Glyph } from "./shared";
 type Change = (patch: Partial<StudioNode>) => void;
 type EntryField = "title" | "subtitle" | "text" | "label" | "prefix" | "suffix";
 
-const FIELD = { border: "1px solid var(--studio-line)" } as const;
+const FIELD = { border: "1px solid var(--sf-line)" } as const;
 
 interface Props {
   node: StudioNode;
@@ -210,7 +210,7 @@ function EntriesEditor({ node, onChange, lang, defaultLang, actionFor }: Props) 
                 <>
                   <PriceIn label={t("studio.pm_priceMonth")} cents={e.price} onChange={(price) => set(i, { price })} />
                   {yearly ? <PriceIn label={t("studio.pm_priceYear")} cents={e.price_yearly} onChange={(price_yearly) => set(i, { price_yearly })} /> : null}
-                  <span className="text-xs" style={{ color: "var(--studio-muted)" }}>
+                  <span className="text-xs" style={{ color: "var(--sf-muted)" }}>
                     {t("studio.pm_priceHint")}
                   </span>
                 </>
@@ -311,7 +311,7 @@ export function PremiumControls(props: Props) {
               {picks.length ? (
                 <Choice label={t("studio.pm_reviewsWhich")} value={reviews.id} options={picks.map((e) => ({ value: e.id, label: e.title }))} onChange={(id) => onChange({ testimonials: { ...node.testimonials, reviews: { ...reviews, id } } })} />
               ) : null}
-              <span className="text-xs" style={{ color: "var(--studio-muted)" }}>
+              <span className="text-xs" style={{ color: "var(--sf-muted)" }}>
                 {t("studio.pm_realReviewsHint")}
               </span>
             </>
@@ -335,7 +335,7 @@ export function PremiumControls(props: Props) {
           <Toggle label={t("studio.pm_dividers")} checked={node.stats?.dividers === true} onChange={(dividers) => onChange({ stats: { ...node.stats, dividers: dividers || undefined } })} />
           <Toggle label={t("studio.pm_still")} checked={node.stats?.still === true} onChange={(still) => onChange({ stats: { ...node.stats, still: still || undefined } })} />
           <Toggle label={t("studio.pm_statsStart")} checked={node.stats?.start === true} onChange={(start) => onChange({ stats: { ...node.stats, start: start || undefined } })} />
-          <span className="text-xs" style={{ color: "var(--studio-muted)" }}>
+          <span className="text-xs" style={{ color: "var(--sf-muted)" }}>
             {t("studio.pm_countHint")} {t("studio.pm_statsFontHint")}
           </span>
           <EntriesEditor {...props} />
@@ -356,7 +356,7 @@ export function PremiumControls(props: Props) {
             <>
               <RangeField label={t("studio.pm_segments")} value={node.progress.segments ?? 4} min={2} max={40} unit="" fallback={4} onChange={(segments) => onChange({ progress: { ...node.progress, segments: segments === 4 ? undefined : segments } })} />
               {/* 129 Not the Progress segments element (129.1, `segments`): one bar on its own. */}
-              <span className="text-xs" style={{ color: "var(--studio-muted)" }} data-studio-hint="progress-vs-segments">
+              <span className="text-xs" style={{ color: "var(--sf-muted)" }} data-studio-hint="progress-vs-segments">
                 {t("studio.pm_progressSegmentsHint")}
               </span>
             </>
@@ -421,7 +421,7 @@ export function PremiumControls(props: Props) {
               {t("studio.pm_addSocial")}
             </button>
           ) : null}
-          <span className="text-xs" style={{ color: "var(--studio-muted)" }}>
+          <span className="text-xs" style={{ color: "var(--sf-muted)" }}>
             {t("studio.pm_profileHint")}
           </span>
         </div>
@@ -433,7 +433,7 @@ export function PremiumControls(props: Props) {
           <OwnText {...props} field="text" label={t("studio.pm_badgeWords")} max={200} />
           <Choice label={t("studio.pm_look")} value={node.badge?.style ?? "pill"} options={styles("pm_badge", STUDIO_BADGE_STYLES)} onChange={(style) => onChange({ badge: { style } })} />
           <IconPicker id={`icon-${node.id}`} label={t("studio.icon")} value={node.icon ?? null} optional onChange={(icon) => onChange({ icon: icon ?? undefined })} />
-          <span className="text-xs" style={{ color: "var(--studio-muted)" }}>
+          <span className="text-xs" style={{ color: "var(--sf-muted)" }}>
             {t("studio.pm_badgeHint")}
           </span>
         </div>
@@ -445,7 +445,7 @@ export function PremiumControls(props: Props) {
           {node.cta?.style !== "fab" ? (
             <>
               <OwnText {...props} field="title" label={t("studio.pm_ctaLabel")} max={120} rows={2} />
-              <span className="text-xs" style={{ color: "var(--studio-muted)" }}>
+              <span className="text-xs" style={{ color: "var(--sf-muted)" }}>
                 {t("studio.pm_ctaLabelHint")}
               </span>
               <IconPicker id={`lead-${node.id}`} label={t("studio.pm_ctaLead")} value={node.cta?.lead ?? null} optional onChange={(lead) => onChange({ cta: { style: node.cta?.style ?? "bar", lead: lead ?? undefined } })} />
@@ -454,7 +454,7 @@ export function PremiumControls(props: Props) {
           <OwnText {...props} field="text" label={t("studio.pm_buttonWords")} max={200} />
           <IconPicker id={`icon-${node.id}`} label={t("studio.icon")} value={node.icon ?? null} optional={node.cta?.style !== "fab"} onChange={(icon) => onChange({ icon: icon ?? undefined })} />
           <Toggle label={t("studio.pm_ctaPinned")} checked={node.pin === "bottom"} onChange={(on) => onChange({ pin: on ? "bottom" : undefined })} />
-          <span className="text-xs" style={{ color: "var(--studio-muted)" }}>
+          <span className="text-xs" style={{ color: "var(--sf-muted)" }}>
             {t("studio.pm_ctaHint")}
           </span>
         </div>
@@ -505,7 +505,7 @@ export function SurfaceControls({ node, onChange }: { node: StudioNode; onChange
         ) : null}
         <Choice label={t("studio.pm_pattern")} value={s.pattern ?? "none"} options={(["none", ...STUDIO_PATTERNS] as const).map((v) => ({ value: v, label: t(`studio.pm_pattern_${v}` as DashKey) }))} onChange={(v) => set({ pattern: v === "none" ? undefined : v, pattern_strength: v === "none" ? undefined : s.pattern_strength })} />
         {s.pattern ? <RangeField label={t("studio.pm_patternStrength")} value={s.pattern_strength ?? 0.08} scale={0.01} min={2} max={40} unit="%" fallback={0.08} onChange={(v) => set({ pattern_strength: v === 0.08 ? undefined : v })} /> : null}
-        <span className="text-xs font-normal" style={{ color: "var(--studio-muted)" }}>
+        <span className="text-xs font-normal" style={{ color: "var(--sf-muted)" }}>
           {t("studio.pm_cardStyleHint")}
         </span>
       </div>

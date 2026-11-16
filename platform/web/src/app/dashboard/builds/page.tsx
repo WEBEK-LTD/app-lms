@@ -262,7 +262,7 @@ export default async function BuildsPage({ searchParams }: PageProps<"/dashboard
       {/* The page kit: the header with New build, the build now, the stores as cards, then the history. */}
       <PageHeader
         title={t("builds.title")}
-        description={t("builds.intro", { app: appLabel(app) === "Untitled app" ? k("Untitled app") : appLabel(app), plan: k(planName(plan, plans)) })}
+        description={t("builds.intro", { app: appLabel(app) === "Untitled app" ? k("Untitled app") : appLabel(app), plan: plan ? k(planName(plan, plans)) : t("overview.noPlan") })}
         actions={<StartBuildForm suggestedVersion={suggestedVersion(current)} disabledReason={disabledReason} />}
       />
       {/* 110.2 Sample entries left: nothing goes to the stores. */}

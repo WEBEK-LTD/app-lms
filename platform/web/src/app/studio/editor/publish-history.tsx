@@ -40,7 +40,7 @@ export function PublishHistory({ entries, busy, onRestore }: { entries: LayoutHi
         aria-expanded={open}
         onClick={() => setOpen(!open)}
         className="flex size-9 items-center justify-center rounded-lg border-0 bg-transparent"
-        style={{ color: C.ivory }}
+        style={{ color: C.barText }}
       >
         <Glyph name="schedule" />
       </button>

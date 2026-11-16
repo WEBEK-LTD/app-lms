@@ -45,6 +45,8 @@ import { download, fileName, fromBase64, readFont, readPicture, type OwnFontFile
 import { fontUpload, ImportDialog, type ImportChoice } from "./import-dialog";
 import { Inspector, type InspectorTab } from "./inspector";
 import { LeftPanel, NewTag, elementLabel, type LeftTab, type MyTemplate } from "./left-panel";
+import { HistoryPanel } from "./history-panel";
+import { describeStep } from "@/lib/studio/history-labels";
 import { DRAG_TYPE, Glyph, STUDIO_COLORS as C, StudioMark, type DragPayload } from "./shared";
 import { seedSamplesAction } from "@/app/actions/samples";
 import { applyDemoScreensAction, applyDesignLookAction } from "@/app/actions/studio-screens";
@@ -89,6 +91,8 @@ export interface StudioEditorProps {
   previewHref: string;
   /** 132.61 The QR code of the app's preview with the saved draft (drawn on the server), for the phone. */
   phoneQr?: ReactNode;
+  /** 132.71 The same preview for 7 days, to send to the team. */
+  shareUrl?: string;
   fontCount: number;
   startSlug: string | null;
   studioOnPlan: boolean;
@@ -152,6 +156,8 @@ export function StudioEditor(props: StudioEditorProps) {
   const [pagesOpen, setPagesOpen] = useState(false);
   const [newTitle, setNewTitle] = useState("");
   const [shortcutsOpen, setShortcutsOpen] = useState(false);
+  // 132.74 A template seen before it replaces the page: its page, made once, is the one used.
+  const [previewing, setPreviewing] = useState<{ title: string; page: StudioPage } | null>(null);
   // 132.61 "On my phone": the preview's QR code under its button.
   const [phoneOpen, setPhoneOpen] = useState(false);
   const [importOpen, setImportOpen] = useState(false);
@@ -309,6 +315,21 @@ export function StudioEditor(props: StudioEditorProps) {
       }, key),
     [change, slug],
   );
+
+  // 132.73 Back (or forward) to one step of the history, as so many presses of Undo or Redo.
+  function jumpTo(index: number) {
+    lastChange.current = { at: 0, key: "" };
+    setHistory((h) => {
+      let x = h;
+      while (x.past.length > index && x.past.length) x = undo(x);
+      while (x.past.length < index && x.future.length) x = redo(x);
+      return x;
+    });
+    setNotice(null);
+    edits.current += 1;
+    dirty.current = true;
+    setStatus("unsaved");
+  }
 
   function step(back: boolean) {
     lastChange.current = { at: 0, key: "" };
@@ -648,6 +669,7 @@ export function StudioEditor(props: StudioEditorProps) {
         setZoomOpen(false);
         setShortcutsOpen(false);
         setPhoneOpen(false);
+        setPreviewing(null);
       } else if (selectedId && (e.key === "ArrowUp" || e.key === "ArrowDown" || e.key === "ArrowLeft" || e.key === "ArrowRight")) {
         e.preventDefault();
         const rtl = editLang === "ar";
@@ -664,7 +686,9 @@ export function StudioEditor(props: StudioEditorProps) {
   function dragGhost(e: DragEvent, label: string, icon: string) {
     const ghost = document.createElement("div");
     ghost.dir = dashLang === "ar" ? "rtl" : "ltr";
-    ghost.setAttribute("style", `position:fixed;top:-200px;inset-inline-start:-200px;display:flex;align-items:center;gap:8px;background:#FFFFFF;border:1px solid ${C.accent};border-radius:12px;padding:8px 12px;font:700 13px Cairo,system-ui,sans-serif;color:${C.ink};box-shadow:0 10px 24px rgba(14,13,36,0.18);transform:rotate(-4deg)`);
+    // 132.70 Drawn on the page's body, outside the editor: a frame of its own, so it takes Studio's light or dark (`--sf-…`).
+    ghost.setAttribute("data-studio-frame", "");
+    ghost.setAttribute("style", `position:fixed;top:-200px;inset-inline-start:-200px;display:flex;align-items:center;gap:8px;background:${C.surface};border:1px solid ${C.accent};border-radius:12px;padding:8px 12px;font:700 13px Cairo,system-ui,sans-serif;color:${C.ink};box-shadow:0 10px 24px rgba(14,13,36,0.18);transform:rotate(-4deg)`);
     ghost.innerHTML = `<span class="material-symbols-rounded" style="color:${C.accent};font-size:20px">${icon}</span><span></span><span class="material-symbols-rounded" style="font-size:18px;color:${C.muted}">drag_indicator</span>`;
     (ghost.children[1] as HTMLElement).textContent = label;
     document.body.appendChild(ghost);
@@ -1079,6 +1103,26 @@ export function StudioEditor(props: StudioEditorProps) {
 
   const headerNumber = (type: StudioHeader["type"]) => STUDIO_HEADER_TYPES.indexOf(type) + 1;
   const nodeLabel = (node: StudioNode) => node.name || elementLabel(t, node.type, node.source ?? source);
+  // 132.73 The undo history in words: each step read from the draft before and after it.
+  const stepLabel = (before: LayoutContent | null, after: LayoutContent): string => {
+    if (!before) return t("studioKit.histStart");
+    const s2 = describeStep(before, after);
+    switch (s2.kind) {
+      case "added":
+      case "deleted":
+      case "moved":
+      case "changed":
+        return t(`studioKit.hist_${s2.kind}` as DashKey, { name: nodeLabel(s2.node) });
+      case "header":
+      case "page":
+      case "replaced":
+      case "page_added":
+      case "page_deleted":
+        return t(`studioKit.hist_${s2.kind}` as DashKey, { page: s2.page });
+      default:
+        return t(`studioKit.hist_${s2.kind}` as DashKey);
+    }
+  };
   const tagOf = (node: StudioNode) => (node.id === "tabs" ? t("studio.tabBar") : node.id === "header" && studio?.header ? t("studio.headerType", { n: headerNumber(studio.header.type) }) : nodeLabel(node));
   const parentLabel = (() => {
     if (!studio || !selected) return "";
@@ -1114,13 +1158,15 @@ export function StudioEditor(props: StudioEditorProps) {
   })();
 
   const frame = DEVICES[device];
+  // 132.73 Every step kept: those undone, the one on screen, those that can be done again.
+  const timeline = [...history.past, history.present, ...history.future];
   const languages = layout.languages.available;
 
   return (
-    <div className="studio flex min-h-dvh flex-col lg:h-[calc(100dvh-var(--team-bar,0px))] lg:overflow-hidden" style={{ fontFamily: "var(--font-studio), 'Cairo', system-ui, sans-serif", color: C.ink, background: C.board }} onDragEnd={endDrag}>
-      {/* 132.52 One line at 1280px and wider: gaps a little tighter, Help as its icon below 1536px, Preview below 1440px. */}
-      <header className="flex flex-wrap items-center gap-2 px-4 py-2.5 min-[1366px]:gap-3 min-[1366px]:px-5 2xl:gap-4" style={{ background: C.ink, color: C.ivory }}>
-        <Link href="/studio/project" className="flex items-center gap-2.5 no-underline" style={{ color: C.ivory }} title={t("studio.back")}>
+    <div data-site-theme="" data-studio-frame="" className="studio flex min-h-dvh flex-col lg:h-[calc(100dvh-var(--team-bar,0px))] lg:overflow-hidden" style={{ fontFamily: "var(--font-studio), 'Cairo', system-ui, sans-serif", color: C.ink, background: C.board }} onDragEnd={endDrag}>
+      {/* 132.52 One line at 1280px and wider: gaps a little tighter, Help and Preview as their icons below 1536px (132.73 the history beside Undo and Redo). */}
+      <header className="flex flex-wrap items-center gap-2 px-4 py-2.5 min-[1366px]:gap-3 min-[1366px]:px-5" style={{ background: C.bar, color: C.barText }}>
+        <Link href="/studio/project" className="flex items-center gap-2.5 no-underline" style={{ color: C.barText }} title={t("studio.back")}>
           <StudioMark />
         </Link>
         {/* 132.57 The screen's heading, for screen readers: the editor and the project. */}
@@ -1131,7 +1177,7 @@ export function StudioEditor(props: StudioEditorProps) {
         </span>
 
         <div className="relative">
-          <button type="button" aria-expanded={pagesOpen} aria-haspopup="true" onClick={() => setPagesOpen((v) => !v)} className="flex items-center gap-1.5 rounded-[10px] border-0 px-3 py-1.5 text-sm" style={{ background: C.barSoft, color: C.ivory }}>
+          <button type="button" aria-expanded={pagesOpen} aria-haspopup="true" onClick={() => setPagesOpen((v) => !v)} className="flex items-center gap-1.5 rounded-[10px] border-0 px-3 py-1.5 text-sm" style={{ background: C.barSoft, color: C.barText }}>
             <Glyph name="description" size={18} />
             <span>{t("studio.page", { page: page ? pageTitle(page) : "" })}</span>
             <Glyph name="expand_more" size={18} />
@@ -1191,7 +1237,7 @@ export function StudioEditor(props: StudioEditorProps) {
                   ))}
                 {/* 124 The open page deleted, never the home. */}
                 {page && page.slug !== "home" && page !== layout.pages[0] ? (
-                  <button type="button" role="menuitem" onClick={() => deletePage()} className="flex items-center gap-2 rounded-lg border-0 bg-transparent px-2.5 py-2 text-start" style={{ color: "#B3261E" }}>
+                  <button type="button" role="menuitem" onClick={() => deletePage()} className="flex items-center gap-2 rounded-lg border-0 bg-transparent px-2.5 py-2 text-start" style={{ color: "var(--color-danger)" }}>
                     <Glyph name="delete" size={18} />
                     <span className="min-w-0 flex-1 truncate">{t("studio.deletePage")}</span>
                   </button>
@@ -1224,7 +1270,7 @@ export function StudioEditor(props: StudioEditorProps) {
               aria-pressed={device === d}
               onClick={() => setDevice(d)}
               className="flex h-8 w-9 items-center justify-center rounded-lg border-0"
-              style={{ background: device === d ? C.ivory : "transparent", color: device === d ? C.ink : C.barMuted }}
+              style={{ background: device === d ? C.barText : "transparent", color: device === d ? C.bar : C.barMuted }}
             >
               <Glyph name={DEVICES[d].icon} size={DEVICES[d].iconSize} />
             </button>
@@ -1240,7 +1286,7 @@ export function StudioEditor(props: StudioEditorProps) {
               aria-pressed={editLang === code}
               onClick={() => setLang(code)}
               className="h-8 rounded-lg border-0 px-2.5 text-[13px]"
-              style={{ background: editLang === code ? C.ivory : "transparent", color: editLang === code ? C.ink : C.barMuted, fontWeight: editLang === code ? 700 : 400 }}
+              style={{ background: editLang === code ? C.barText : "transparent", color: editLang === code ? C.bar : C.barMuted, fontWeight: editLang === code ? 700 : 400 }}
             >
               {code === "ar" ? "عربي" : code.toUpperCase()}
             </button>
@@ -1249,12 +1295,13 @@ export function StudioEditor(props: StudioEditorProps) {
 
         <div style={{ flex: "1 1 20px" }} />
 
-        <button type="button" aria-label={t("studio.undo")} title={t("studio.undo")} disabled={!history.past.length} onClick={() => step(true)} className="flex size-9 items-center justify-center rounded-lg border-0 bg-transparent" style={{ color: history.past.length ? C.ivory : C.barMuted }}>
+        <button type="button" aria-label={t("studio.undo")} title={t("studio.undo")} disabled={!history.past.length} onClick={() => step(true)} className="flex size-9 items-center justify-center rounded-lg border-0 bg-transparent" style={{ color: history.past.length ? C.barText : C.barMuted }}>
           <Glyph name="undo" />
         </button>
-        <button type="button" aria-label={t("studio.redo")} title={t("studio.redo")} disabled={!history.future.length} onClick={() => step(false)} className="flex size-9 items-center justify-center rounded-lg border-0 bg-transparent" style={{ color: history.future.length ? C.ivory : C.barMuted }}>
+        <button type="button" aria-label={t("studio.redo")} title={t("studio.redo")} disabled={!history.future.length} onClick={() => step(false)} className="flex size-9 items-center justify-center rounded-lg border-0 bg-transparent" style={{ color: history.future.length ? C.barText : C.barMuted }}>
           <Glyph name="redo" />
         </button>
+        <HistoryPanel count={timeline.length} current={history.past.length} labelOf={(i) => stepLabel(i ? timeline[i - 1]! : null, timeline[i]!)} onJump={jumpTo} />
         <TextStylesPanel styles={textStyles} use={textStyleCount} fontLabels={fontLabels} onChange={(style, font) => change((l) => applyTextStyle(l, style, font), `text_style:${style}`)} />
         <PublishHistory entries={publishes} busy={restoring} onRestore={(entry) => void restorePublish(entry)} />
         <div role="status" aria-live="polite" className="flex max-w-[320px] items-center gap-1.5 text-[13px]" style={{ color: status === "invalid" ? "#FFB49A" : C.barMuted }}>
@@ -1264,7 +1311,7 @@ export function StudioEditor(props: StudioEditorProps) {
           </span>
         </div>
         {status === "unsaved" && problem ? (
-          <button type="button" onClick={() => void save(layout)} className="flex h-[30px] items-center gap-1 rounded-lg px-2.5 text-[13px] font-semibold" style={{ border: `1px solid ${C.barLine}`, background: "transparent", color: C.ivory }}>
+          <button type="button" onClick={() => void save(layout)} className="flex h-[30px] items-center gap-1 rounded-lg px-2.5 text-[13px] font-semibold" style={{ border: `1px solid ${C.barLine}`, background: "transparent", color: C.barText }}>
             <Glyph name="cloud_upload" size={16} />
             {t("studio.saveNow")}
           </button>
@@ -1285,7 +1332,7 @@ export function StudioEditor(props: StudioEditorProps) {
               title={t("studioKit.phoneButton")}
               onClick={() => setPhoneOpen((v) => !v)}
               className="flex size-9 items-center justify-center rounded-lg border-0"
-              style={{ background: phoneOpen ? C.ivory : "transparent", color: phoneOpen ? C.ink : C.ivory }}
+              style={{ background: phoneOpen ? C.barText : "transparent", color: phoneOpen ? C.bar : C.barText }}
               data-studio-phone-qr=""
             >
               <Glyph name="qr_code_2" />
@@ -1300,6 +1347,7 @@ export function StudioEditor(props: StudioEditorProps) {
                 <b className="text-[15px]">{t("studioKit.phoneTitle")}</b>
                 {props.phoneQr}
                 <span style={{ color: C.muted }}>{t("studioKit.phoneText")}</span>
+                {props.shareUrl ? <ShareLink url={props.shareUrl} label={t("studioKit.shareTeam", { days: 7 })} done={t("common.copied")} /> : null}
                 <button type="button" onClick={() => setPhoneOpen(false)} className="h-8 rounded-lg px-3 text-[13px] font-semibold" style={{ border: `1px solid ${C.line}`, background: "transparent", color: C.ink }}>
                   {t("studio.close")}
                 </button>
@@ -1307,16 +1355,62 @@ export function StudioEditor(props: StudioEditorProps) {
             ) : null}
           </div>
         ) : null}
-        <a href={props.previewHref} target="_blank" rel="noopener" title={t("studio.previewOnPhone")} className="flex h-[38px] items-center gap-1.5 rounded-[10px] px-3.5 text-sm font-semibold no-underline max-[1440px]:px-2.5" style={{ border: `1px solid ${C.barLine}`, color: C.ivory }}>
+        <a href={props.previewHref} target="_blank" rel="noopener" title={t("studio.previewOnPhone")} className="flex h-[38px] items-center gap-1.5 rounded-[10px] px-3.5 text-sm font-semibold no-underline max-2xl:px-2.5" style={{ border: `1px solid ${C.barLine}`, color: C.barText }}>
           <Glyph name="play_arrow" size={18} />
-          <span className="max-[1440px]:sr-only">{t("studio.previewOnPhone")}</span>
+          <span className="max-2xl:sr-only">{t("studio.previewOnPhone")}</span>
           <span className="sr-only">{t("common.opensInNewTab")}</span>
         </a>
-        <button type="button" onClick={() => void publish()} disabled={publishing || status === "invalid"} className="flex h-[38px] items-center gap-1.5 rounded-[10px] border-0 px-[18px] text-sm font-extrabold disabled:opacity-60" style={{ background: C.accent, color: C.ink }}>
+        <button type="button" onClick={() => void publish()} disabled={publishing || status === "invalid"} className="flex h-[38px] items-center gap-1.5 rounded-[10px] border-0 px-[18px] text-sm font-extrabold disabled:opacity-60" style={{ background: C.accent, color: C.onAccent }}>
           <Glyph name="rocket_launch" size={18} />
           {publishing ? t("studio.publishing") : t("studio.publish")}
         </button>
       </header>
+
+      {previewing ? (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-[rgba(14,13,36,0.55)] p-4" onClick={() => setPreviewing(null)} data-template-preview="">
+          <div
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="template-preview-title"
+            onClick={(e) => e.stopPropagation()}
+            className="flex max-h-full w-[min(400px,100%)] flex-col gap-3 overflow-hidden rounded-2xl p-4 shadow-[0_30px_70px_rgba(14,13,36,0.35)]"
+            style={{ background: C.surface, color: C.ink, border: `1px solid ${C.line}` }}
+          >
+            <h2 id="template-preview-title" className="m-0 text-lg font-extrabold">
+              {t("studioKit.tplPreviewTitle", { name: previewing.title })}
+            </h2>
+            <div className="mx-auto min-h-0 flex-none rounded-[34px] p-2" style={{ background: C.bar }} dir="ltr">
+              <div className="overflow-x-hidden overflow-y-auto rounded-[26px]" style={{ width: 288, height: "min(560px, calc(100dvh - 260px))", background: dark ? "#14121F" : "#FBF8F2" }}>
+                {/* Drawn at the phone's 360 pixels, then zoomed to fit: it scrolls as tall as it is. */}
+                <div style={{ width: 360, zoom: 0.8, pointerEvents: "none" }}>
+                  <StudioView page={previewing.page} lang={editLang} defaultLang={layout.languages.default} dark={dark} look={look} pickable={props.pickable} market={props.market} words={words} learningWords={learningWords} liveWords={liveWords} schoolWords={{ ...schoolWords, date: greeting.date }} greeting={greeting} premiumWords={premiumWords} commerceWords={commerceWords} />
+                </div>
+              </div>
+            </div>
+            <p className="m-0 text-[13px]" style={{ color: C.muted }}>
+              {t("studio.templatesIntro")}
+            </p>
+            <div className="flex flex-wrap justify-end gap-2">
+              <button type="button" onClick={() => setPreviewing(null)} className="h-10 rounded-[10px] px-4 text-sm font-semibold" style={{ border: `1px solid ${C.line}`, background: "transparent", color: C.ink }}>
+                {t("common.cancel")}
+              </button>
+              <button
+                type="button"
+                autoFocus
+                onClick={() => {
+                  const chosen = previewing.page;
+                  setPreviewing(null);
+                  startWith(() => chosen);
+                }}
+                className="h-10 rounded-[10px] border-0 px-4 text-sm font-extrabold"
+                style={{ background: C.accent, color: C.onAccent }}
+              >
+                {t("studioKit.tplUse")}
+              </button>
+            </div>
+          </div>
+        </div>
+      ) : null}
 
       <div className="flex min-h-0 flex-auto flex-wrap items-stretch lg:flex-nowrap">
         <LeftPanel
@@ -1335,10 +1429,14 @@ export function StudioEditor(props: StudioEditorProps) {
           onAddElement={(type, preset) => add({ kind: "new", type, ...(preset ? { preset } : {}) })}
           onAddPremiumMap={(id) => add({ kind: "premium_map", id })}
           onAddSection={(id) => add({ kind: "section", id })}
-          onUseTemplate={applyTemplate}
+          onUseTemplate={(id) => {
+            // 132.74 Seen first, full size, then used or not.
+            const tpl = TEMPLATES.find((x) => x.id === id) ?? PAGE_TEMPLATES.find((x) => x.id === id);
+            if (tpl) setPreviewing({ title: t(`studio.tpl_${id}` as DashKey), page: tpl.make(sectionContext) });
+          }}
           onAddPicture={(payload) => add(payload)}
           onLayerChange={(id, patch) => changePage((p) => updateNode(p, id, patch))}
-          onUseMyTemplate={(tpl) => startWith(() => structuredClone(tpl.page))}
+          onUseMyTemplate={(tpl) => setPreviewing({ title: tpl.name, page: structuredClone(tpl.page) })}
           onDeleteMyTemplate={(id) => void deleteTemplate(id)}
           myTemplates={myTemplates}
           sections={kindSections}
@@ -1413,12 +1511,12 @@ export function StudioEditor(props: StudioEditorProps) {
           </div>
 
           <div style={{ width: frame.width * (zoom / 100), height: frame.height * (zoom / 100), flex: "none" }}>
-            <div style={{ width: frame.width, height: frame.height, transform: `scale(${zoom / 100})`, transformOrigin: "top left", borderRadius: frame.radius, background: C.ink, padding: 10, boxSizing: "border-box", boxShadow: "0 30px 60px rgba(14,13,36,0.25)" }} dir="ltr">
+            <div style={{ width: frame.width, height: frame.height, transform: `scale(${zoom / 100})`, transformOrigin: "top left", borderRadius: frame.radius, background: C.bar, padding: 10, boxSizing: "border-box", boxShadow: "0 30px 60px rgba(14,13,36,0.25)" }} dir="ltr">
               <div className="studio-screen" style={{ width: "100%", height: "100%", borderRadius: frame.radius - 9, overflow: "hidden auto", position: "relative", background: dark ? "#14121F" : "#FBF8F2" }}>
                 {studio ? (
                   <StudioView page={studio} lang={editLang} defaultLang={def} dark={dark} look={look} pickable={props.pickable} market={props.market} editing={editing} words={words} learningWords={learningWords} liveWords={liveWords} schoolWords={{ ...schoolWords, date: greeting.date }} greeting={greeting} tablet={device === "tablet"} screenPart={screenPart} premiumWords={premiumWords} commerceWords={commerceWords} />
                 ) : page ? (
-                  <StartPage title={pageTitle(page)} regular={page.blocks.length > 0} onPick={applyTemplate} templates={kindTemplates} />
+                  <StartPage title={pageTitle(page)} regular={page.blocks.length > 0} onPick={applyTemplate} templates={kindTemplates} dark={dark} />
                 ) : null}
               </div>
             </div>
@@ -1440,7 +1538,7 @@ export function StudioEditor(props: StudioEditorProps) {
                         setSelectedId("header");
                       }}
                       className="rounded-lg bg-white"
-                      style={on ? { border: `2px solid ${C.select}`, padding: "2px 7px", color: "#1F3FB8", fontWeight: 700 } : { border: `1px solid ${C.line}`, padding: "3px 8px" }}
+                      style={on ? { border: `2px solid ${C.select}`, padding: "2px 7px", color: C.selectInk, fontWeight: 700 } : { border: `1px solid ${C.line}`, padding: "3px 8px" }}
                     >
                       {t(`studio.header${i + 1}` as DashKey)}
                     </button>
@@ -1637,7 +1735,7 @@ function readPayload(e: DragEvent): DragPayload | null {
 
 /** The white pills above the phone. */
 function Chip(props: { icon: string; children: ReactNode; onClick?: (e: MouseEvent) => void; label?: string; pressed?: boolean; expanded?: boolean }) {
-  const style = { background: "#FFFFFF", border: `1px solid ${C.line}`, color: C.ink };
+  const style = { background: C.surface, border: `1px solid ${C.line}`, color: C.ink };
   const inner = (
     <>
       <Glyph name={props.icon} size={16} />
@@ -1658,24 +1756,51 @@ function Chip(props: { icon: string; children: ReactNode; onClick?: (e: MouseEve
   );
 }
 
+/** 132.71 Copies the shared preview's link, and says so. */
+function ShareLink({ url, label, done }: { url: string; label: string; done: string }) {
+  const [copied, setCopied] = useState(false);
+  return (
+    <button
+      type="button"
+      data-studio-share={url}
+      onClick={() => {
+        void navigator.clipboard?.writeText(url).then(
+          () => setCopied(true),
+          () => setCopied(false),
+        );
+      }}
+      className="flex h-8 items-center gap-1.5 rounded-lg px-3 text-[13px] font-semibold"
+      style={{ border: `1px solid ${C.line}`, background: "transparent", color: C.ink }}
+    >
+      <Glyph name={copied ? "check" : "content_copy"} size={16} />
+      {copied ? done : label}
+    </button>
+  );
+}
+
 /** A page that isn't designed in Studio yet: how it starts. */
-function StartPage({ title, regular, onPick, templates }: { title: string; regular: boolean; onPick: (id: string) => void; templates: readonly TemplateInfo[] }) {
+function StartPage({ title, regular, onPick, templates, dark }: { title: string; regular: boolean; onPick: (id: string) => void; templates: readonly TemplateInfo[]; dark: boolean }) {
   const t = useDashT();
   const rtl = useDashLang() === "ar";
+  // 132.70 It is drawn on the phone's screen: in the screen's light or dark (the canvas switch), never Studio's own theme.
+  const ink = dark ? "#F4EFE6" : "#0E0D24";
+  const muted = dark ? "#B4AFC4" : "#5E5B70";
+  const card = dark ? "#1F1D2E" : "#FFFFFF";
+  const line = dark ? "#34314A" : "#DDD8CC";
   return (
-    <div className="flex flex-col gap-3 px-4 pt-10 pb-6" dir={rtl ? "rtl" : "ltr"} style={{ color: C.ink }}>
+    <div className="flex flex-col gap-3 px-4 pt-10 pb-6" dir={rtl ? "rtl" : "ltr"} style={{ color: ink }}>
       <h2 className="m-0 text-lg font-extrabold">{t("studio.startTitle", { page: title })}</h2>
-      <p className="m-0 text-[13px]" style={{ color: C.muted }}>
+      <p className="m-0 text-[13px]" style={{ color: muted }}>
         {t("studio.startIntro")}
       </p>
       {regular ? (
-        <p className="m-0 rounded-xl px-3 py-2 text-xs" style={{ background: C.ivory, color: C.muted }}>
+        <p className="m-0 rounded-xl px-3 py-2 text-xs" style={{ background: dark ? "#26233A" : "#F4EFE6", color: muted }}>
           {t("studio.regularPage", { page: title })}
         </p>
       ) : null}
       <div className="grid grid-cols-2 gap-2">
         {templates.map((tpl) => (
-          <button key={tpl.id} type="button" onClick={() => onPick(tpl.id)} className="flex flex-col items-center gap-1.5 rounded-xl bg-white px-2 py-3 text-[13px] font-bold" style={{ border: `1px solid ${C.line}` }}>
+          <button key={tpl.id} type="button" onClick={() => onPick(tpl.id)} className="flex flex-col items-center gap-1.5 rounded-xl px-2 py-3 text-[13px] font-bold" style={{ border: `1px solid ${line}`, background: card, color: ink }}>
             <Glyph name={tpl.icon} size={26} className="text-[#FF5A1F]" />
             {t(`studio.tpl_${tpl.id}` as DashKey)}
             {tpl.isNew ? <NewTag label={t("studio.designsTagNew")} /> : null}

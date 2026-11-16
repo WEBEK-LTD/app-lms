@@ -13,7 +13,7 @@ import { RangeField } from "./controls";
  */
 
 type Change = (patch: Partial<StudioNode>) => void;
-const FIELD = { border: "1px solid var(--studio-line)" } as const;
+const FIELD = { border: "1px solid var(--sf-line)" } as const;
 
 function Toggle({ label, checked, onChange }: { label: string; checked: boolean; onChange: (on: boolean) => void }) {
   return (
@@ -68,7 +68,7 @@ export function CommerceControls({ node, onChange, pickable }: { node: StudioNod
               </option>
             ))}
           </select>
-          <span className="text-xs font-normal" style={{ color: "var(--studio-muted)" }}>
+          <span className="text-xs font-normal" style={{ color: "var(--sf-muted)" }}>
             {t("studio.flashHint")}
           </span>
         </label>
@@ -95,7 +95,7 @@ export function CommerceControls({ node, onChange, pickable }: { node: StudioNod
           </select>
         </label>
         <Toggle label={t("studio.couponPublic")} checked={o.bind === "public"} onChange={(on) => set({ bind: on ? "public" : undefined })} />
-        <span className="text-xs" style={{ color: "var(--studio-muted)" }}>
+        <span className="text-xs" style={{ color: "var(--sf-muted)" }}>
           {o.bind === "public" ? t("studio.couponPublicHint") : t("studio.couponOwnHint")}
         </span>
       </div>

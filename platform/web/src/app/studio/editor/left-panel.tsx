@@ -109,13 +109,13 @@ export function LeftPanel(props: {
     props.tab === "sections" ? "studioKit.searchSections" : props.tab === "templates" ? "studioKit.searchTemplates" : props.tab === "pictures" ? "studioKit.searchPictures" : "studio.searchElements",
   );
   const noResults = (
-    <p className="m-0 text-[13px]" style={{ color: "var(--studio-muted)" }} data-studio-no-results="">
+    <p className="m-0 text-[13px]" style={{ color: "var(--sf-muted)" }} data-studio-no-results="">
       {t("studio.noResults", { query })}
     </p>
   );
 
   return (
-    <aside aria-label={t("studio.elements")} className="studio-left flex min-h-0 flex-col border-line bg-white" style={{ flex: "1 1 260px", maxWidth: 300, minWidth: 240, borderInlineEnd: "1px solid var(--studio-line)" }}>
+    <aside aria-label={t("studio.elements")} className="studio-left flex min-h-0 flex-col border-line bg-white" style={{ flex: "1 1 260px", maxWidth: 300, minWidth: 240, borderInlineEnd: "1px solid var(--sf-line)" }}>
       <div role="tablist" aria-label={t("studio.elements")} className="flex gap-1 px-3 pt-2.5">
         {tabs.map((tab) => (
           <button
@@ -125,14 +125,14 @@ export function LeftPanel(props: {
             aria-selected={props.tab === tab.id}
             onClick={() => props.onTab(tab.id)}
             className="h-[38px] flex-1 border-0 bg-transparent text-sm"
-            style={{ borderBottom: `2px solid ${props.tab === tab.id ? "var(--studio-ink)" : "transparent"}`, fontWeight: props.tab === tab.id ? 700 : 400, color: props.tab === tab.id ? "var(--studio-ink)" : "var(--studio-muted)" }}
+            style={{ borderBottom: `2px solid ${props.tab === tab.id ? "var(--sf-ink)" : "transparent"}`, fontWeight: props.tab === tab.id ? 700 : 400, color: props.tab === tab.id ? "var(--sf-ink)" : "var(--sf-muted)" }}
           >
             {tab.label}
           </button>
         ))}
       </div>
       <div className="p-3">
-        <label className="flex h-[38px] items-center gap-2 rounded-[10px] px-2.5 text-[13px]" style={{ border: "1px solid var(--studio-line)", color: "var(--studio-muted)" }}>
+        <label className="flex h-[38px] items-center gap-2 rounded-[10px] px-2.5 text-[13px]" style={{ border: "1px solid var(--sf-line)", color: "var(--sf-muted)" }}>
           <Glyph name="search" size={18} />
           <span className="sr-only">{searchLabel}</span>
           <input type="search" value={query} onChange={(e) => setQuery(e.target.value)} placeholder={searchLabel} className="min-w-0 flex-1 border-0 bg-transparent text-[13px] outline-none" />
@@ -148,7 +148,7 @@ export function LeftPanel(props: {
               if (!items.length && !maps.length) return null;
               return (
                 <div key={group.id}>
-                  <div className="px-3 text-xs font-bold" style={{ color: "var(--studio-muted)" }}>
+                  <div className="px-3 text-xs font-bold" style={{ color: "var(--sf-muted)" }}>
                     {group.label}
                   </div>
                   <div className="grid grid-cols-3 gap-2 px-3 pt-2 pb-3">
@@ -160,7 +160,7 @@ export function LeftPanel(props: {
                         onDragStart={(ev) => props.onDragStart(ev, { kind: "new", type: e.type, ...(e.preset ? { preset: e.preset } : {}) })}
                         onClick={() => props.onAddElement(e.type, e.preset)}
                         className="studio-tile flex flex-col items-center rounded-[10px] bg-white px-1 py-2.5 text-center text-xs"
-                        style={{ border: "1px solid var(--studio-line)", cursor: "grab" }}
+                        style={{ border: "1px solid var(--sf-line)", cursor: "grab" }}
                         data-studio-element={e.preset ?? e.type}
                       >
                         <Glyph name={e.icon} size={20} />
@@ -170,7 +170,7 @@ export function LeftPanel(props: {
                   </div>
                   {maps.length ? (
                     <div data-studio-premium-maps="">
-                      <div className="px-3 text-[11px] font-bold" style={{ color: "var(--studio-muted)" }}>
+                      <div className="px-3 text-[11px] font-bold" style={{ color: "var(--sf-muted)" }}>
                         {t("studio.pmapGroup")}
                       </div>
                       <div className="grid grid-cols-3 gap-2 px-3 pt-2 pb-3">
@@ -182,7 +182,7 @@ export function LeftPanel(props: {
                             onDragStart={(ev) => props.onDragStart(ev, { kind: "premium_map", id: m.id })}
                             onClick={() => props.onAddPremiumMap?.(m.id)}
                             className="studio-tile flex flex-col items-center rounded-[10px] bg-white px-1 py-2.5 text-center text-xs"
-                            style={{ border: "1px solid var(--studio-line)", cursor: "grab" }}
+                            style={{ border: "1px solid var(--sf-line)", cursor: "grab" }}
                             data-studio-premium-map={m.id}
                           >
                             <Glyph name={m.icon} size={20} />
@@ -197,7 +197,7 @@ export function LeftPanel(props: {
             })
           : null}
         {props.tab === "elements" && q && !ELEMENTS.some((e) => offered(e.only, props) && matches(elementLabel(t, e.type, props.source, e.preset), e.keywords)) && !premiumMaps.length ? (
-          <p className="m-0 px-3 pb-3 text-[13px]" style={{ color: "var(--studio-muted)" }}>
+          <p className="m-0 px-3 pb-3 text-[13px]" style={{ color: "var(--sf-muted)" }}>
             {t("studio.noResults", { query })}
           </p>
         ) : null}
@@ -206,7 +206,7 @@ export function LeftPanel(props: {
 
         {props.tab === "sections" ? (
           <div className="flex flex-col gap-2 px-3 pb-3">
-            <p className="m-0 text-[13px]" style={{ color: "var(--studio-muted)" }}>
+            <p className="m-0 text-[13px]" style={{ color: "var(--sf-muted)" }}>
               {t("studio.sectionsIntro")}
             </p>
             {q && !sections.length ? noResults : null}
@@ -218,7 +218,7 @@ export function LeftPanel(props: {
                 onDragStart={(ev) => props.onDragStart(ev, { kind: "section", id: s.id })}
                 onClick={() => props.onAddSection(s.id)}
                 className="studio-tile flex items-center gap-2.5 rounded-[10px] bg-white px-3 py-2.5 text-start text-[13px] font-semibold"
-                style={{ border: "1px solid var(--studio-line)", cursor: "grab" }}
+                style={{ border: "1px solid var(--sf-line)", cursor: "grab" }}
                 data-studio-section={s.id}
               >
                 <Glyph name={s.icon} size={20} />
@@ -232,32 +232,32 @@ export function LeftPanel(props: {
         {props.tab === "templates" ? (
           <div className="flex flex-col gap-2 px-3 pb-3">
             {/* 108.7 Whole designs: every page at once. */}
-            <div className="mb-1 flex flex-col gap-1.5 rounded-xl p-2.5" style={{ background: C.ivory, border: "1px solid var(--studio-line)" }}>
+            <div className="mb-1 flex flex-col gap-1.5 rounded-xl p-2.5" style={{ background: C.ivory, border: "1px solid var(--sf-line)" }}>
               <b className="text-[15px]">{t("studio.designsWhole")}</b>
-              <span className="text-xs" style={{ color: "var(--studio-muted)" }}>
+              <span className="text-xs" style={{ color: "var(--sf-muted)" }}>
                 {t("studio.designsWholeHint")}
               </span>
-              <button type="button" onClick={props.onOpenDesigns} className="studio-tile flex items-center gap-2 rounded-[10px] bg-white px-3 py-2 text-start text-[13px] font-bold" style={{ border: "1px solid var(--studio-line)" }}>
+              <button type="button" onClick={props.onOpenDesigns} className="studio-tile flex items-center gap-2 rounded-[10px] bg-white px-3 py-2 text-start text-[13px] font-bold" style={{ border: "1px solid var(--sf-line)" }}>
                 <Glyph name="dashboard_customize" size={18} />
                 {t("studio.designsSeeAll", { count: props.designsCount })}
               </button>
             </div>
-            <p className="m-0 text-[13px]" style={{ color: "var(--studio-muted)" }}>
+            <p className="m-0 text-[13px]" style={{ color: "var(--sf-muted)" }}>
               {t("studio.templatesIntro")}
             </p>
             {q && !templates.length ? noResults : null}
             {templates.map((tpl) => (
-              <button key={tpl.id} type="button" onClick={() => props.onUseTemplate(tpl.id)} className="studio-tile flex items-center gap-2.5 rounded-[10px] bg-white px-3 py-2.5 text-start text-[13px] font-semibold" style={{ border: "1px solid var(--studio-line)" }} data-studio-template={tpl.id}>
+              <button key={tpl.id} type="button" onClick={() => props.onUseTemplate(tpl.id)} className="studio-tile flex items-center gap-2.5 rounded-[10px] bg-white px-3 py-2.5 text-start text-[13px] font-semibold" style={{ border: "1px solid var(--sf-line)" }} data-studio-template={tpl.id}>
                 <Glyph name={tpl.icon} size={20} />
                 {t(`studio.tpl_${tpl.id}` as DashKey)}
                 {tpl.isNew ? <NewTag label={t("studio.designsTagNew")} /> : null}
               </button>
             ))}
-            <div className="pt-2 text-xs font-bold" style={{ color: "var(--studio-muted)" }}>
+            <div className="pt-2 text-xs font-bold" style={{ color: "var(--sf-muted)" }}>
               {t("studio.myTemplates")}
             </div>
             {props.myTemplates.length === 0 ? (
-              <p className="m-0 text-[13px]" style={{ color: "var(--studio-muted)" }}>
+              <p className="m-0 text-[13px]" style={{ color: "var(--sf-muted)" }}>
                 {t("studio.noMyTemplates")}
               </p>
             ) : (
@@ -265,11 +265,11 @@ export function LeftPanel(props: {
                 .filter((m) => matches(m.name, ""))
                 .map((m) => (
                   <div key={m.id} className="flex items-stretch gap-1.5">
-                    <button type="button" onClick={() => props.onUseMyTemplate(m)} className="studio-tile flex min-w-0 flex-1 items-center gap-2.5 rounded-[10px] bg-white px-3 py-2.5 text-start text-[13px] font-semibold" style={{ border: "1px solid var(--studio-line)" }}>
+                    <button type="button" onClick={() => props.onUseMyTemplate(m)} className="studio-tile flex min-w-0 flex-1 items-center gap-2.5 rounded-[10px] bg-white px-3 py-2.5 text-start text-[13px] font-semibold" style={{ border: "1px solid var(--sf-line)" }}>
                       <Glyph name="bookmark" size={20} />
                       <span className="truncate">{m.name}</span>
                     </button>
-                    <button type="button" aria-label={`${t("studio.delete")}: ${m.name}`} title={t("studio.delete")} onClick={() => props.onDeleteMyTemplate(m.id)} className="flex w-9 flex-none items-center justify-center rounded-[10px] bg-white" style={{ border: "1px solid var(--studio-line)", color: "var(--studio-muted)" }}>
+                    <button type="button" aria-label={`${t("studio.delete")}: ${m.name}`} title={t("studio.delete")} onClick={() => props.onDeleteMyTemplate(m.id)} className="flex w-9 flex-none items-center justify-center rounded-[10px] bg-white" style={{ border: "1px solid var(--sf-line)", color: "var(--sf-muted)" }}>
                       <Glyph name="delete" size={18} />
                     </button>
                   </div>
@@ -279,7 +279,7 @@ export function LeftPanel(props: {
         ) : null}
 
         {/* The page's layers. */}
-        <div className="flex justify-between px-3 pt-3 pb-1.5 text-xs font-bold" style={{ borderTop: "1px solid var(--studio-line)", color: "var(--studio-muted)" }}>
+        <div className="flex justify-between px-3 pt-3 pb-1.5 text-xs font-bold" style={{ borderTop: "1px solid var(--sf-line)", color: "var(--sf-muted)" }}>
           <span id="studio-layers">{t("studio.layers")}</span>
           <button
             type="button"
@@ -299,7 +299,7 @@ export function LeftPanel(props: {
               }
             }}
             className="border-0 bg-transparent"
-            style={{ color: "var(--studio-muted)" }}
+            style={{ color: "var(--sf-muted)" }}
           >
             <Glyph name={folded.size ? "unfold_more" : "unfold_less"} size={18} />
           </button>
@@ -336,7 +336,7 @@ function HeaderLayer({ header, selected, folded, onFold, onSelect }: { header: S
   const buttons = (header.buttons ?? []).filter((b) => b !== "menu");
   return (
     <>
-      <li role="treeitem" aria-selected={selected} aria-expanded={!folded} className="flex items-center gap-1.5 rounded-lg px-2 py-1.5" style={selected ? { background: "#E8EEFF", color: "#1F3FB8", fontWeight: 700 } : undefined}>
+      <li role="treeitem" aria-selected={selected} aria-expanded={!folded} className="flex items-center gap-1.5 rounded-lg px-2 py-1.5" style={selected ? { background: "var(--sf-select-fill)", color: "var(--sf-select-ink)", fontWeight: 700 } : undefined}>
         <button type="button" onClick={onFold} aria-label={folded ? t("studio.expandAll") : t("studio.collapseAll")} className="border-0 bg-transparent p-0" style={{ color: "inherit" }}>
           <Glyph name={folded ? "chevron_left" : "expand_more"} size={16} flip />
         </button>
@@ -347,12 +347,12 @@ function HeaderLayer({ header, selected, folded, onFold, onSelect }: { header: S
       </li>
       {folded ? null : (
         <>
-          <li className="flex items-center gap-1.5 rounded-lg px-2 py-1.5" style={{ marginInlineStart: 22, color: "var(--studio-muted)" }}>
+          <li className="flex items-center gap-1.5 rounded-lg px-2 py-1.5" style={{ marginInlineStart: 22, color: "var(--sf-muted)" }}>
             <Glyph name="image" size={16} />
             {t("studio.layerLogo")}
           </li>
           {buttons.length ? (
-            <li className="flex items-center gap-1.5 rounded-lg px-2 py-1.5" style={{ marginInlineStart: 22, color: "var(--studio-muted)" }}>
+            <li className="flex items-center gap-1.5 rounded-lg px-2 py-1.5" style={{ marginInlineStart: 22, color: "var(--sf-muted)" }}>
               <Glyph name="widgets" size={16} />
               {t("studio.layerIcons", { list: buttons.map((b) => t(`studio.btn_${b}` as DashKey)).join("، ") })}
             </li>
@@ -396,7 +396,7 @@ function Layer(props: {
         onDrop={props.onLayerDrop}
         data-studio-layer={node.id}
         className="flex items-center gap-1.5 rounded-lg px-2 py-1.5"
-        style={{ marginInlineStart: props.depth * 22, ...(selected ? { background: "#E8EEFF", color: "#1F3FB8", fontWeight: 700 } : {}) }}
+        style={{ marginInlineStart: props.depth * 22, ...(selected ? { background: "var(--sf-select-fill)", color: "var(--sf-select-ink)", fontWeight: 700 } : {}) }}
       >
         {kids.length ? (
           <button type="button" onClick={() => props.onFold(node.id)} aria-label={folded ? t("studio.expandAll") : t("studio.collapseAll")} className="border-0 bg-transparent p-0" style={{ color: "inherit" }}>
@@ -418,7 +418,7 @@ function Layer(props: {
             title={node.locked ? t("studio.unlockLayer") : t("studio.lockLayer")}
             onClick={() => props.onLayerChange(node.id, { locked: node.locked ? undefined : true })}
             className="flex size-6 items-center justify-center rounded-md border-0 bg-transparent p-0"
-            style={{ color: node.locked ? "inherit" : "var(--studio-muted)" }}
+            style={{ color: node.locked ? "inherit" : "var(--sf-muted)" }}
           >
             <Glyph name="lock" size={15} />
           </button>
@@ -429,7 +429,7 @@ function Layer(props: {
             title={node.hidden ? t("studio.hiddenInApp") : t("studio.hideInApp")}
             onClick={() => props.onLayerChange(node.id, { hidden: node.hidden ? undefined : true })}
             className="flex size-6 items-center justify-center rounded-md border-0 bg-transparent p-0"
-            style={{ color: node.hidden ? "inherit" : "var(--studio-muted)" }}
+            style={{ color: node.hidden ? "inherit" : "var(--sf-muted)" }}
           >
             <Glyph name={node.hidden ? "visibility_off" : "visibility"} size={15} />
           </button>

@@ -163,7 +163,17 @@ html {
     --color-midnight: #0e0d24;
   }
 }
-/* 132.4 A Studio project's frame (app/studio/chrome.tsx, `themed`): its board, menu and search, by day and by night. */
+/*
+ * 132.4 A Studio frame (app/studio/chrome.tsx StudioScreen, and the
+ * editor's own): its board, menu and search, by day and by night. 132.70
+ * Every Studio screen is one (home, a new project, the account's and a
+ * project's pages, the editor), and all of Studio's colours are these
+ * tokens (app/studio/editor/shared.tsx STUDIO_COLORS reads them): the
+ * board and its dots, the panels, the lines, the words, the soft fills and
+ * what's chosen in blue. The dark bar on top keeps its own colours in both;
+ * the app's screens drawn on the canvas keep the app's own theme (they never
+ * read these).
+ */
 [data-studio-frame] {
   --sf-board: #e9e5dc;
   --sf-surface: #ffffff;
@@ -172,6 +182,14 @@ html {
   --sf-muted: #5e5b70;
   --sf-line: #ddd8cc;
   --sf-accent: #e0480f;
+  /* 132.70 The board's dots, a panel's quiet tint, and the words and fill of what's chosen (the header type, a layer). */
+  --sf-dot: #cfc9bc;
+  --sf-tint: #f6f4fb;
+  --sf-select-ink: #1f3fb8;
+  --sf-select-fill: #e8eeff;
+  /* 132.77 Links on Studio's board meet WCAG AA (4.5:1): a deeper accent in light, the dashboard's own in dark. */
+  --color-accent: #a8360a;
+  --color-accent-hover: #8a2c08;
   @variant in-dark {
     --sf-board: #0b0a1d;
     --sf-surface: #161530;
@@ -180,6 +198,12 @@ html {
     --sf-muted: #a9a4bb;
     --sf-line: #2c2a49;
     --sf-accent: #ff9a6e;
+    --sf-dot: #2e2c4a;
+    --sf-tint: #1c1a36;
+    --sf-select-ink: #a9b8ff;
+    --sf-select-fill: #1e2650;
+    --color-accent: #ff9a6e;
+    --color-accent-hover: #ffbb9c;
   }
 }
 /* 73 What shows only in one of the two (the adaptive logo). */

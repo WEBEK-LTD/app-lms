@@ -81,6 +81,8 @@ export default async function StudioEditorPage({ searchParams }: PageProps<"/stu
       // 17 The real app with the saved draft on the hosted API, else with what's published.
       previewHref={app.backend === "hosted" ? "/studio/project/preview?pages=draft" : "/studio/project/preview"}
       // 132.61 The same preview on the phone, by its QR code (the link lasts an hour, as on the Preview page).
+      // 132.71 And a week-long link of the same preview for the team.
+      shareUrl={`${appUrl()}${previewAppPath(createPreviewToken({ appId: app.id, draft: draftPreviewSupported(app) }, previewKey(signingSecret()), now, 7 * 86_400))}`}
       phoneQr={<QrCode value={`${appUrl()}${previewAppPath(createPreviewToken({ appId: app.id, draft: draftPreviewSupported(app) }, previewKey(signingSecret()), now))}`} label={t("preview.qr", { app: app.appName ?? t("setup.yourApp") })} size={168} />}
       fontCount={FREE_FONT_COUNT}
       startSlug={typeof query.page === "string" ? query.page : null}

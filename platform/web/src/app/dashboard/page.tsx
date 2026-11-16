@@ -592,7 +592,7 @@ export default async function OverviewPage({ searchParams }: PageProps<"/dashboa
           }
         >
           <span className="flex flex-wrap items-center gap-2 text-2xl font-extrabold">
-            {planName(plan, plans)} <AppStateBadge state={state} lang={lang} />
+            {plan ? planName(plan, plans) : t("overview.noPlan")} <AppStateBadge state={state} lang={lang} />
           </span>
           <span className="text-sm text-muted">
             {license

@@ -1,5 +1,6 @@
 "use client";
 
+import { useFormLeaveGuard } from "@/components/leave-guard";
 import { useActionState, useState } from "react";
 import { saveAutoNotificationsAction } from "@/app/actions/campaigns";
 import { editScheduledNotificationAction, saveServiceAccountAction, sendNotificationAction } from "@/app/actions/notifications";
@@ -9,12 +10,14 @@ import { useDashT } from "@/components/dashboard-i18n";
 
 export function SendNotificationForm({ titleMax, bodyMax, zone, today }: { titleMax: number; bodyMax: number; zone: string; today: string }) {
   const t = useDashT();
+  // 132.75 A message typed and not sent asks before the page is left.
+  const guard = useFormLeaveGuard(t("common.leaveUnsaved"));
   const [state, action] = useActionState(sendNotificationAction, initialFormState);
   // 61 Now, or later at a date and time in the app's time zone.
   const [later, setLater] = useState(false);
   const keep = (name: string) => (state.ok ? "" : state.values?.[name]);
   return (
-    <form action={action} noValidate className="flex flex-col gap-4">
+    <form action={action} noValidate className="flex flex-col gap-4" {...guard}>
       <FormMessage message={state.message} ok={state.ok} />
       <Field label={t("notify.titleLabel")} name="title" required maxLength={titleMax} defaultValue={keep("title")} placeholder={t("notify.titlePlaceholder")} error={state.errors?.title} />
       <div className="flex flex-col gap-1.5">

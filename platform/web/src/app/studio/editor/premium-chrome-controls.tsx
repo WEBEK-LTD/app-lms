@@ -15,7 +15,7 @@ import { SYSTEM_LOOKS, type SystemLook } from "@/lib/studio/premium-chrome";
  * with Studio › Screens and drawn on the canvas at once.
  */
 
-const FIELD = { border: "1px solid var(--studio-line)" } as const;
+const FIELD = { border: "1px solid var(--sf-line)" } as const;
 
 const STYLE_NAMES: Record<StudioHeaderStyle, DashKey> = {
   large: "studio.chromeStyle_large",
@@ -54,15 +54,15 @@ export function HeaderStyleControls({ header, onChange, lang, defaultLang }: { h
       <span className="font-bold">{t("studio.chromeStyleLabel")}</span>
       <div className="grid grid-cols-2 gap-1.5">
         {STUDIO_HEADER_STYLES.map((s) => (
-          <button key={s} type="button" aria-pressed={style === s} onClick={() => onChange({ style: s })} className="rounded-lg bg-white px-2.5 py-1.5 text-start" style={style === s ? { border: "2px solid #3D63FF", color: "#1F3FB8", fontWeight: 700 } : FIELD}>
+          <button key={s} type="button" aria-pressed={style === s} onClick={() => onChange({ style: s })} className="rounded-lg bg-white px-2.5 py-1.5 text-start" style={style === s ? { border: "2px solid #3D63FF", color: "var(--sf-select-ink)", fontWeight: 700 } : FIELD}>
             {t(STYLE_NAMES[s])}
           </button>
         ))}
-        <button type="button" aria-pressed={!style} onClick={() => onChange({ style: undefined })} className="rounded-lg bg-white px-2.5 py-1.5 text-start" style={!style ? { border: "2px solid #3D63FF", color: "#1F3FB8", fontWeight: 700 } : FIELD}>
+        <button type="button" aria-pressed={!style} onClick={() => onChange({ style: undefined })} className="rounded-lg bg-white px-2.5 py-1.5 text-start" style={!style ? { border: "2px solid #3D63FF", color: "var(--sf-select-ink)", fontWeight: 700 } : FIELD}>
           {t("studio.chromeStyleNone")}
         </button>
       </div>
-      <span className="text-xs" style={{ color: "var(--studio-muted)" }}>
+      <span className="text-xs" style={{ color: "var(--sf-muted)" }}>
         {t("studio.chromeStyleHint")}
       </span>
       {style ? (
@@ -81,7 +81,7 @@ export function HeaderStyleControls({ header, onChange, lang, defaultLang }: { h
                   {t("studio.removePicture")}
                 </button>
               ) : null}
-              <span className="text-xs" style={{ color: "var(--studio-muted)" }}>
+              <span className="text-xs" style={{ color: "var(--sf-muted)" }}>
                 {t("studio.chromePhotoHint")}
               </span>
             </div>
@@ -111,7 +111,7 @@ export function SystemLookControl({ look, onLook, busy }: { look: SystemLook | n
           </option>
         ))}
       </select>
-      <span className="text-xs font-normal" style={{ color: "var(--studio-muted)" }}>
+      <span className="text-xs font-normal" style={{ color: "var(--sf-muted)" }}>
         {t("studio.chromeSystemLookHint")}
       </span>
     </label>

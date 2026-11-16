@@ -106,7 +106,7 @@ describe("88.1 ready to submit", () => {
         expect(text).not.toMatch(/\{\w+\}/);
         expect(t(`publishing.ready.${item.key}` as never)).not.toMatch(/^publishing\./);
       }
-      expect(t("publishing.ready.notReady", { count: 2 })).toMatch(/2|أمران/);
+      expect(t("publishing.ready.notReady", { count: 2 })).toMatch(/2|أمران|حاجتين/);
     }
   });
 
