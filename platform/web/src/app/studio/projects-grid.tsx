@@ -40,7 +40,7 @@ export function ProjectsGrid({ cards, words, samples }: { cards: ProjectCardView
         aria-pressed={on}
         onClick={() => setFilter(value)}
         className="h-10 cursor-pointer rounded-full px-3.5 text-[13px]"
-        style={{ border: `1px solid ${on ? C.ink : C.line}`, background: on ? C.ink : "#FFFFFF", color: on ? C.ivory : C.ink, fontWeight: on ? 700 : 400, fontFamily: "inherit" }}
+        style={{ border: `1px solid ${on ? C.ink : C.line}`, background: on ? C.ink : C.surface, color: on ? C.surface : C.ink, fontWeight: on ? 700 : 400, fontFamily: "inherit" }}
       >
         {t(key, { count: counts[value] })}
       </button>
@@ -81,7 +81,7 @@ export function ProjectsGrid({ cards, words, samples }: { cards: ProjectCardView
             <div className="flex flex-col gap-2 px-4 pt-3.5 pb-4">
               <div className="flex items-center justify-between gap-2">
                 <h2 className="m-0 truncate text-[17px] font-extrabold">{card.name}</h2>
-                <span className="rounded-full px-2.5 py-0.5 text-xs font-bold whitespace-nowrap" style={card.published ? { background: "#DDEBD7", color: "#1F5A32" } : { background: C.ivory, color: C.muted }}>
+                <span className="rounded-full px-2.5 py-0.5 text-xs font-bold whitespace-nowrap" style={card.published ? { background: "var(--color-success-bg)", color: "var(--color-success)" } : { background: C.ivory, color: C.muted }}>
                   {t(card.published ? "studio.statePublished" : "studio.stateDraft")}
                 </span>
               </div>
@@ -123,9 +123,9 @@ export function ProjectsGrid({ cards, words, samples }: { cards: ProjectCardView
         <Link
           href="/start?new=1&for=studio"
           className="flex min-h-[330px] flex-col items-center justify-center gap-2.5 rounded-[18px] no-underline"
-          style={{ border: "2px dashed #B9B3A5", color: C.ink, background: "rgba(255,255,255,0.4)" }}
+          style={{ border: "2px dashed var(--color-line-strong)", color: C.ink, background: "color-mix(in srgb, var(--studio-surface) 40%, transparent)" }}
         >
-          <span className="flex h-14 w-14 items-center justify-center rounded-full" style={{ background: C.accent }}>
+          <span className="flex h-14 w-14 items-center justify-center rounded-full" style={{ background: C.accent, color: C.onAccent }}>
             <Glyph name="add" size={30} />
           </span>
           <span className="text-base font-extrabold">{t("studio.newProject")}</span>

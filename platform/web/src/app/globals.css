@@ -163,6 +163,53 @@ html {
     --color-midnight: #0e0d24;
   }
 }
+/*
+ * 132.70 Yallapp Studio's colours as tokens (app/studio/editor/shared.tsx
+ * STUDIO_COLORS reads them), light and dark like the dashboard: the board,
+ * its dots, the panels, the lines, the words and the soft fills. The dark
+ * bar on top keeps its own colours in both. The app's screens drawn on the
+ * canvas keep the app's own theme (they never read these).
+ */
+:root {
+  --studio-ink: #0e0d24;
+  --studio-ivory: #f4efe6;
+  --studio-board: #e9e5dc;
+  --studio-dot: #cfc9bc;
+  --studio-line: #ddd8cc;
+  --studio-muted: #5e5b70;
+  --studio-surface: #ffffff;
+  --studio-hover: #f4efe6;
+  --studio-select-ink: #1f3fb8;
+  --studio-select-fill: #e8eeff;
+  --studio-soft: #f6f4fb;
+}
+html {
+  @variant yallapp-dark {
+    --studio-ink: #f4efe6;
+    --studio-ivory: #24223f;
+    --studio-board: #100f26;
+    --studio-dot: #2e2c4a;
+    --studio-line: #2e2c4a;
+    --studio-muted: #aaa5bc;
+    --studio-surface: #161530;
+    --studio-hover: #24223f;
+    --studio-select-ink: #a9b8ff;
+    --studio-select-fill: #1e2650;
+    --studio-soft: #1c1a36;
+  }
+}
+/* 132.77 Links on Studio's board meet WCAG AA (4.5:1): a deeper accent in light, the dashboard's own in dark. */
+[data-studio-frame] {
+  --color-accent: #a8360a;
+  --color-accent-hover: #8a2c08;
+}
+[data-studio-frame] {
+  @variant in-dark {
+    --color-accent: #ff9a6e;
+    --color-accent-hover: #ffbb9c;
+  }
+}
+
 /* 73 What shows only in one of the two (the adaptive logo). */
 .theme-dark-only {
   display: none;

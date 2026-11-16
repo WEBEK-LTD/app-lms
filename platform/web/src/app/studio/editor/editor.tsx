@@ -664,7 +664,7 @@ export function StudioEditor(props: StudioEditorProps) {
   function dragGhost(e: DragEvent, label: string, icon: string) {
     const ghost = document.createElement("div");
     ghost.dir = dashLang === "ar" ? "rtl" : "ltr";
-    ghost.setAttribute("style", `position:fixed;top:-200px;inset-inline-start:-200px;display:flex;align-items:center;gap:8px;background:#FFFFFF;border:1px solid ${C.accent};border-radius:12px;padding:8px 12px;font:700 13px Cairo,system-ui,sans-serif;color:${C.ink};box-shadow:0 10px 24px rgba(14,13,36,0.18);transform:rotate(-4deg)`);
+    ghost.setAttribute("style", `position:fixed;top:-200px;inset-inline-start:-200px;display:flex;align-items:center;gap:8px;background:${C.surface};border:1px solid ${C.accent};border-radius:12px;padding:8px 12px;font:700 13px Cairo,system-ui,sans-serif;color:${C.ink};box-shadow:0 10px 24px rgba(14,13,36,0.18);transform:rotate(-4deg)`);
     ghost.innerHTML = `<span class="material-symbols-rounded" style="color:${C.accent};font-size:20px">${icon}</span><span></span><span class="material-symbols-rounded" style="font-size:18px;color:${C.muted}">drag_indicator</span>`;
     (ghost.children[1] as HTMLElement).textContent = label;
     document.body.appendChild(ghost);
@@ -1117,10 +1117,10 @@ export function StudioEditor(props: StudioEditorProps) {
   const languages = layout.languages.available;
 
   return (
-    <div className="studio flex min-h-dvh flex-col lg:h-dvh lg:overflow-hidden" style={{ fontFamily: "var(--font-studio), 'Cairo', system-ui, sans-serif", color: C.ink, background: C.board }} onDragEnd={endDrag}>
+    <div data-site-theme="" data-studio-frame="" className="studio flex min-h-dvh flex-col lg:h-dvh lg:overflow-hidden" style={{ fontFamily: "var(--font-studio), 'Cairo', system-ui, sans-serif", color: C.ink, background: C.board }} onDragEnd={endDrag}>
       {/* 132.52 One line at 1280px and wider: gaps a little tighter, Help as its icon below 1536px, Preview below 1440px. */}
-      <header className="flex flex-wrap items-center gap-2 px-4 py-2.5 min-[1366px]:gap-3 min-[1366px]:px-5 2xl:gap-4" style={{ background: C.ink, color: C.ivory }}>
-        <Link href="/studio/project" className="flex items-center gap-2.5 no-underline" style={{ color: C.ivory }} title={t("studio.back")}>
+      <header className="flex flex-wrap items-center gap-2 px-4 py-2.5 min-[1366px]:gap-3 min-[1366px]:px-5 2xl:gap-4" style={{ background: C.bar, color: C.barText }}>
+        <Link href="/studio/project" className="flex items-center gap-2.5 no-underline" style={{ color: C.barText }} title={t("studio.back")}>
           <StudioMark />
         </Link>
         {/* 132.57 The screen's heading, for screen readers: the editor and the project. */}
@@ -1191,7 +1191,7 @@ export function StudioEditor(props: StudioEditorProps) {
                   ))}
                 {/* 124 The open page deleted, never the home. */}
                 {page && page.slug !== "home" && page !== layout.pages[0] ? (
-                  <button type="button" role="menuitem" onClick={() => deletePage()} className="flex items-center gap-2 rounded-lg border-0 bg-transparent px-2.5 py-2 text-start" style={{ color: "#B3261E" }}>
+                  <button type="button" role="menuitem" onClick={() => deletePage()} className="flex items-center gap-2 rounded-lg border-0 bg-transparent px-2.5 py-2 text-start" style={{ color: "var(--color-danger)" }}>
                     <Glyph name="delete" size={18} />
                     <span className="min-w-0 flex-1 truncate">{t("studio.deletePage")}</span>
                   </button>
@@ -1224,7 +1224,7 @@ export function StudioEditor(props: StudioEditorProps) {
               aria-pressed={device === d}
               onClick={() => setDevice(d)}
               className="flex h-8 w-9 items-center justify-center rounded-lg border-0"
-              style={{ background: device === d ? C.ivory : "transparent", color: device === d ? C.ink : C.barMuted }}
+              style={{ background: device === d ? C.barText : "transparent", color: device === d ? C.bar : C.barMuted }}
             >
               <Glyph name={DEVICES[d].icon} size={DEVICES[d].iconSize} />
             </button>
@@ -1240,7 +1240,7 @@ export function StudioEditor(props: StudioEditorProps) {
               aria-pressed={editLang === code}
               onClick={() => setLang(code)}
               className="h-8 rounded-lg border-0 px-2.5 text-[13px]"
-              style={{ background: editLang === code ? C.ivory : "transparent", color: editLang === code ? C.ink : C.barMuted, fontWeight: editLang === code ? 700 : 400 }}
+              style={{ background: editLang === code ? C.barText : "transparent", color: editLang === code ? C.bar : C.barMuted, fontWeight: editLang === code ? 700 : 400 }}
             >
               {code === "ar" ? "عربي" : code.toUpperCase()}
             </button>
@@ -1249,10 +1249,10 @@ export function StudioEditor(props: StudioEditorProps) {
 
         <div style={{ flex: "1 1 20px" }} />
 
-        <button type="button" aria-label={t("studio.undo")} title={t("studio.undo")} disabled={!history.past.length} onClick={() => step(true)} className="flex size-9 items-center justify-center rounded-lg border-0 bg-transparent" style={{ color: history.past.length ? C.ivory : C.barMuted }}>
+        <button type="button" aria-label={t("studio.undo")} title={t("studio.undo")} disabled={!history.past.length} onClick={() => step(true)} className="flex size-9 items-center justify-center rounded-lg border-0 bg-transparent" style={{ color: history.past.length ? C.barText : C.barMuted }}>
           <Glyph name="undo" />
         </button>
-        <button type="button" aria-label={t("studio.redo")} title={t("studio.redo")} disabled={!history.future.length} onClick={() => step(false)} className="flex size-9 items-center justify-center rounded-lg border-0 bg-transparent" style={{ color: history.future.length ? C.ivory : C.barMuted }}>
+        <button type="button" aria-label={t("studio.redo")} title={t("studio.redo")} disabled={!history.future.length} onClick={() => step(false)} className="flex size-9 items-center justify-center rounded-lg border-0 bg-transparent" style={{ color: history.future.length ? C.barText : C.barMuted }}>
           <Glyph name="redo" />
         </button>
         <TextStylesPanel styles={textStyles} use={textStyleCount} fontLabels={fontLabels} onChange={(style, font) => change((l) => applyTextStyle(l, style, font), `text_style:${style}`)} />
@@ -1264,7 +1264,7 @@ export function StudioEditor(props: StudioEditorProps) {
           </span>
         </div>
         {status === "unsaved" && problem ? (
-          <button type="button" onClick={() => void save(layout)} className="flex h-[30px] items-center gap-1 rounded-lg px-2.5 text-[13px] font-semibold" style={{ border: `1px solid ${C.barLine}`, background: "transparent", color: C.ivory }}>
+          <button type="button" onClick={() => void save(layout)} className="flex h-[30px] items-center gap-1 rounded-lg px-2.5 text-[13px] font-semibold" style={{ border: `1px solid ${C.barLine}`, background: "transparent", color: C.barText }}>
             <Glyph name="cloud_upload" size={16} />
             {t("studio.saveNow")}
           </button>
@@ -1285,7 +1285,7 @@ export function StudioEditor(props: StudioEditorProps) {
               title={t("studioKit.phoneButton")}
               onClick={() => setPhoneOpen((v) => !v)}
               className="flex size-9 items-center justify-center rounded-lg border-0"
-              style={{ background: phoneOpen ? C.ivory : "transparent", color: phoneOpen ? C.ink : C.ivory }}
+              style={{ background: phoneOpen ? C.barText : "transparent", color: phoneOpen ? C.bar : C.barText }}
               data-studio-phone-qr=""
             >
               <Glyph name="qr_code_2" />
@@ -1307,12 +1307,12 @@ export function StudioEditor(props: StudioEditorProps) {
             ) : null}
           </div>
         ) : null}
-        <a href={props.previewHref} target="_blank" rel="noopener" title={t("studio.previewOnPhone")} className="flex h-[38px] items-center gap-1.5 rounded-[10px] px-3.5 text-sm font-semibold no-underline max-[1440px]:px-2.5" style={{ border: `1px solid ${C.barLine}`, color: C.ivory }}>
+        <a href={props.previewHref} target="_blank" rel="noopener" title={t("studio.previewOnPhone")} className="flex h-[38px] items-center gap-1.5 rounded-[10px] px-3.5 text-sm font-semibold no-underline max-[1440px]:px-2.5" style={{ border: `1px solid ${C.barLine}`, color: C.barText }}>
           <Glyph name="play_arrow" size={18} />
           <span className="max-[1440px]:sr-only">{t("studio.previewOnPhone")}</span>
           <span className="sr-only">{t("common.opensInNewTab")}</span>
         </a>
-        <button type="button" onClick={() => void publish()} disabled={publishing || status === "invalid"} className="flex h-[38px] items-center gap-1.5 rounded-[10px] border-0 px-[18px] text-sm font-extrabold disabled:opacity-60" style={{ background: C.accent, color: C.ink }}>
+        <button type="button" onClick={() => void publish()} disabled={publishing || status === "invalid"} className="flex h-[38px] items-center gap-1.5 rounded-[10px] border-0 px-[18px] text-sm font-extrabold disabled:opacity-60" style={{ background: C.accent, color: C.onAccent }}>
           <Glyph name="rocket_launch" size={18} />
           {publishing ? t("studio.publishing") : t("studio.publish")}
         </button>
@@ -1413,12 +1413,12 @@ export function StudioEditor(props: StudioEditorProps) {
           </div>
 
           <div style={{ width: frame.width * (zoom / 100), height: frame.height * (zoom / 100), flex: "none" }}>
-            <div style={{ width: frame.width, height: frame.height, transform: `scale(${zoom / 100})`, transformOrigin: "top left", borderRadius: frame.radius, background: C.ink, padding: 10, boxSizing: "border-box", boxShadow: "0 30px 60px rgba(14,13,36,0.25)" }} dir="ltr">
+            <div style={{ width: frame.width, height: frame.height, transform: `scale(${zoom / 100})`, transformOrigin: "top left", borderRadius: frame.radius, background: C.bar, padding: 10, boxSizing: "border-box", boxShadow: "0 30px 60px rgba(14,13,36,0.25)" }} dir="ltr">
               <div className="studio-screen" style={{ width: "100%", height: "100%", borderRadius: frame.radius - 9, overflow: "hidden auto", position: "relative", background: dark ? "#14121F" : "#FBF8F2" }}>
                 {studio ? (
                   <StudioView page={studio} lang={editLang} defaultLang={def} dark={dark} look={look} pickable={props.pickable} market={props.market} editing={editing} words={words} learningWords={learningWords} liveWords={liveWords} schoolWords={{ ...schoolWords, date: greeting.date }} greeting={greeting} tablet={device === "tablet"} screenPart={screenPart} premiumWords={premiumWords} commerceWords={commerceWords} />
                 ) : page ? (
-                  <StartPage title={pageTitle(page)} regular={page.blocks.length > 0} onPick={applyTemplate} templates={kindTemplates} />
+                  <StartPage title={pageTitle(page)} regular={page.blocks.length > 0} onPick={applyTemplate} templates={kindTemplates} dark={dark} />
                 ) : null}
               </div>
             </div>
@@ -1440,7 +1440,7 @@ export function StudioEditor(props: StudioEditorProps) {
                         setSelectedId("header");
                       }}
                       className="rounded-lg bg-white"
-                      style={on ? { border: `2px solid ${C.select}`, padding: "2px 7px", color: "#1F3FB8", fontWeight: 700 } : { border: `1px solid ${C.line}`, padding: "3px 8px" }}
+                      style={on ? { border: `2px solid ${C.select}`, padding: "2px 7px", color: C.selectInk, fontWeight: 700 } : { border: `1px solid ${C.line}`, padding: "3px 8px" }}
                     >
                       {t(`studio.header${i + 1}` as DashKey)}
                     </button>
@@ -1637,7 +1637,7 @@ function readPayload(e: DragEvent): DragPayload | null {
 
 /** The white pills above the phone. */
 function Chip(props: { icon: string; children: ReactNode; onClick?: (e: MouseEvent) => void; label?: string; pressed?: boolean; expanded?: boolean }) {
-  const style = { background: "#FFFFFF", border: `1px solid ${C.line}`, color: C.ink };
+  const style = { background: C.surface, border: `1px solid ${C.line}`, color: C.ink };
   const inner = (
     <>
       <Glyph name={props.icon} size={16} />
@@ -1659,23 +1659,28 @@ function Chip(props: { icon: string; children: ReactNode; onClick?: (e: MouseEve
 }
 
 /** A page that isn't designed in Studio yet: how it starts. */
-function StartPage({ title, regular, onPick, templates }: { title: string; regular: boolean; onPick: (id: string) => void; templates: readonly TemplateInfo[] }) {
+function StartPage({ title, regular, onPick, templates, dark }: { title: string; regular: boolean; onPick: (id: string) => void; templates: readonly TemplateInfo[]; dark: boolean }) {
   const t = useDashT();
   const rtl = useDashLang() === "ar";
+  // 132.70 It is drawn on the phone's screen: in the screen's light or dark (the canvas switch), never Studio's own theme.
+  const ink = dark ? "#F4EFE6" : "#0E0D24";
+  const muted = dark ? "#B4AFC4" : "#5E5B70";
+  const card = dark ? "#1F1D2E" : "#FFFFFF";
+  const line = dark ? "#34314A" : "#DDD8CC";
   return (
-    <div className="flex flex-col gap-3 px-4 pt-10 pb-6" dir={rtl ? "rtl" : "ltr"} style={{ color: C.ink }}>
+    <div className="flex flex-col gap-3 px-4 pt-10 pb-6" dir={rtl ? "rtl" : "ltr"} style={{ color: ink }}>
       <h2 className="m-0 text-lg font-extrabold">{t("studio.startTitle", { page: title })}</h2>
-      <p className="m-0 text-[13px]" style={{ color: C.muted }}>
+      <p className="m-0 text-[13px]" style={{ color: muted }}>
         {t("studio.startIntro")}
       </p>
       {regular ? (
-        <p className="m-0 rounded-xl px-3 py-2 text-xs" style={{ background: C.ivory, color: C.muted }}>
+        <p className="m-0 rounded-xl px-3 py-2 text-xs" style={{ background: dark ? "#26233A" : "#F4EFE6", color: muted }}>
           {t("studio.regularPage", { page: title })}
         </p>
       ) : null}
       <div className="grid grid-cols-2 gap-2">
         {templates.map((tpl) => (
-          <button key={tpl.id} type="button" onClick={() => onPick(tpl.id)} className="flex flex-col items-center gap-1.5 rounded-xl bg-white px-2 py-3 text-[13px] font-bold" style={{ border: `1px solid ${C.line}` }}>
+          <button key={tpl.id} type="button" onClick={() => onPick(tpl.id)} className="flex flex-col items-center gap-1.5 rounded-xl px-2 py-3 text-[13px] font-bold" style={{ border: `1px solid ${line}`, background: card, color: ink }}>
             <Glyph name={tpl.icon} size={26} className="text-[#FF5A1F]" />
             {t(`studio.tpl_${tpl.id}` as DashKey)}
             {tpl.isNew ? <NewTag label={t("studio.designsTagNew")} /> : null}

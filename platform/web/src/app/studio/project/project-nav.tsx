@@ -38,7 +38,7 @@ function MenuLinks({ groups, current, onPick }: { groups: ProjectNavGroup[]; cur
             href={item.href}
             onClick={onPick}
             aria-current={on ? "page" : undefined}
-            className="flex items-center gap-2.5 rounded-[10px] px-3 py-[9px] no-underline hover:bg-[#F4EFE6]"
+            className="flex items-center gap-2.5 rounded-[10px] px-3 py-[9px] no-underline hover:bg-[var(--studio-hover)]"
             style={{ background: on ? C.ivory : undefined, fontWeight: on ? 700 : 400, color: C.ink }}
           >
             <Glyph name={item.icon} size={20} />
@@ -137,7 +137,7 @@ export function ProjectNav({ label, menuLabel, closeLabel, groups }: { label: st
               type="button"
               onClick={() => setOpen(false)}
               aria-label={closeLabel}
-              className="flex h-10 w-10 shrink-0 cursor-pointer items-center justify-center rounded-[10px] border-0 bg-transparent hover:bg-[#F4EFE6]"
+              className="flex h-10 w-10 shrink-0 cursor-pointer items-center justify-center rounded-[10px] border-0 bg-transparent hover:bg-[var(--studio-hover)]"
               style={{ color: C.ink }}
             >
               <Glyph name="close" size={22} />

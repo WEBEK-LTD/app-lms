@@ -109,7 +109,7 @@ export default async function StudioProjectLayout({ children }: { children: Reac
                 <button
                   type="submit"
                   aria-current={p.id === app.id ? "true" : undefined}
-                  className="flex w-full cursor-pointer items-center gap-2 rounded-lg border-0 px-3 py-2 text-start text-sm hover:bg-[#F4EFE6]"
+                  className="flex w-full cursor-pointer items-center gap-2 rounded-lg border-0 px-3 py-2 text-start text-sm hover:bg-[var(--studio-hover)]"
                   style={{ background: p.id === app.id ? C.ivory : "transparent", fontWeight: p.id === app.id ? 700 : 400, color: C.ink, fontFamily: "inherit" }}
                 >
                   <Glyph name={kindOf(p).icon} size={18} />
@@ -117,19 +117,19 @@ export default async function StudioProjectLayout({ children }: { children: Reac
                 </button>
               </form>
             ))}
-            <Link href="/studio" className="flex items-center gap-2 rounded-lg px-3 py-2 text-sm no-underline hover:bg-[#F4EFE6]" style={{ color: C.ink }}>
+            <Link href="/studio" className="flex items-center gap-2 rounded-lg px-3 py-2 text-sm no-underline hover:bg-[var(--studio-hover)]" style={{ color: C.ink }}>
               <Glyph name="apps" size={18} />
               {t("studio.yourProjects")}
             </Link>
           </div>
         </details>
         <div className="flex-[1_1_20px]" />
-        <Link href="/studio/project/preview" className="flex h-[38px] items-center gap-1.5 rounded-[10px] px-3.5 text-sm font-semibold no-underline max-sm:px-2.5" style={{ border: `1px solid ${C.barLine}`, color: C.ivory }}>
+        <Link href="/studio/project/preview" className="flex h-[38px] items-center gap-1.5 rounded-[10px] px-3.5 text-sm font-semibold no-underline max-sm:px-2.5" style={{ border: `1px solid ${C.barLine}`, color: C.barText }}>
           <Glyph name="play_arrow" size={18} />
           {/* On phones the bar's two links as their icons, so the bar stays one line. */}
           <span className="max-sm:sr-only">{t("studio.previewOnPhone")}</span>
         </Link>
-        <Link href="/studio/editor" className="flex h-[38px] items-center gap-1.5 rounded-[10px] px-[18px] text-sm font-extrabold no-underline max-sm:px-2.5" style={{ background: C.accent, color: C.ink }}>
+        <Link href="/studio/editor" className="flex h-[38px] items-center gap-1.5 rounded-[10px] px-[18px] text-sm font-extrabold no-underline max-sm:px-2.5" style={{ background: C.accent, color: C.onAccent }}>
           <Glyph name="draw" size={18} />
           <span className="max-sm:sr-only">{t("studio.openEditor")}</span>
         </Link>
@@ -144,7 +144,7 @@ export default async function StudioProjectLayout({ children }: { children: Reac
         </Suspense>
         <main id="main" tabIndex={-1} className="box-border flex min-w-0 flex-[999_1_560px] flex-col gap-5 p-4 outline-none sm:p-6">
           {staff ? (
-            <div role="status" className="flex flex-wrap items-center justify-between gap-3 rounded-xl px-4 py-3 text-sm text-white" style={{ background: C.ink }}>
+            <div role="status" className="flex flex-wrap items-center justify-between gap-3 rounded-xl px-4 py-3 text-sm text-white" style={{ background: C.bar }}>
               <span className="flex items-center gap-2">
                 <Glyph name="key" />
                 <span>{richText(t("nav.staffApp", { name: user.name, app: name }), bold)}</span>

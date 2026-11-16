@@ -124,7 +124,7 @@ export function RangeField({
                 aria-pressed={on}
                 onClick={() => onChange(round(p.value, step) * scale)}
                 className="min-h-[28px] rounded-md bg-white px-2 text-[12px]"
-                style={on ? { border: "2px solid #3D63FF", color: "#1F3FB8", fontWeight: 700 } : { border: "1px solid var(--studio-line)" }}
+                style={on ? { border: "2px solid #3D63FF", color: "var(--studio-select-ink)", fontWeight: 700 } : { border: "1px solid var(--studio-line)" }}
               >
                 {p.label ?? `${p.value}${unit && unit !== "%" && unit !== "°" ? "" : (unit ?? "")}`}
               </button>
@@ -209,7 +209,7 @@ export function SidesField({ label, value, onChange }: { label: string; value: S
               aria-pressed={on}
               onClick={() => emit({ top: n, end: n, bottom: n, start: n })}
               className="min-h-[28px] min-w-[32px] rounded-md bg-white px-1.5 text-[12px]"
-              style={on ? { border: "2px solid #3D63FF", color: "#1F3FB8", fontWeight: 700 } : { border: "1px solid var(--studio-line)" }}
+              style={on ? { border: "2px solid #3D63FF", color: "var(--studio-select-ink)", fontWeight: 700 } : { border: "1px solid var(--studio-line)" }}
             >
               {n}
             </button>

@@ -172,9 +172,9 @@ export function ImportDialog(props: {
                   void take(e.dataTransfer.files);
                 }}
                 className="flex cursor-pointer flex-col items-center gap-2 rounded-2xl px-6 py-8 text-center"
-                style={{ border: `2px dashed ${over ? C.select : "#CFC9BC"}`, background: "#FBF8F2" }}
+                style={{ border: `2px dashed ${over ? C.select : C.dot}`, background: C.hover }}
               >
-                <Glyph name="cloud_upload" size={40} className="text-[#5E5B70]" />
+                <Glyph name="cloud_upload" size={40} className="text-[var(--studio-muted)]" />
                 <b className="text-base">{busy ? t("studio.importReading") : read ? read.file : t("studio.importDrop")}</b>
                 <span style={{ color: C.muted }}>{t("studio.importTools")}</span>
                 <span className="flex flex-wrap justify-center gap-1.5" dir="ltr">
@@ -187,7 +187,7 @@ export function ImportDialog(props: {
                 <input ref={input} type="file" multiple accept={IMPORT_FORMATS.join(",")} aria-label={t("studio.importChoose")} className="sr-only" onChange={(e) => void take(e.target.files)} />
               </label>
               {problem ? (
-                <p role="alert" className="m-0 rounded-xl px-3 py-2" style={{ background: "#FDECEA", color: "#B3261E" }}>
+                <p role="alert" className="m-0 rounded-xl px-3 py-2" style={{ background: "var(--color-danger-bg)", color: "var(--color-danger)" }}>
                   {problem}
                 </p>
               ) : null}
@@ -217,7 +217,7 @@ export function ImportDialog(props: {
 function Steps({ step }: { step: 1 | 2 }) {
   const t = useDashT();
   const dot = (n: 1 | 2) => (
-    <span className="inline-flex size-[22px] items-center justify-center rounded-full font-extrabold" style={n === step ? { background: C.ink, color: "#FFFFFF" } : { background: C.ivory, border: `1px solid ${C.line}` }}>
+    <span className="inline-flex size-[22px] items-center justify-center rounded-full font-extrabold" style={n === step ? { background: C.ink, color: C.surface } : { background: C.ivory, border: `1px solid ${C.line}` }}>
       {n}
     </span>
   );
@@ -239,7 +239,7 @@ function Button(props: { children: ReactNode; onClick?: () => void; primary?: bo
       onClick={props.onClick}
       disabled={props.disabled}
       className="inline-flex h-10 items-center gap-1.5 rounded-[10px] px-[18px] text-sm font-bold disabled:opacity-50"
-      style={props.primary ? { background: C.ink, color: C.ivory, border: `1px solid ${C.ink}` } : { background: "#FFFFFF", color: C.ink, border: `1px solid ${C.line}` }}
+      style={props.primary ? { background: C.ink, color: C.surface, border: `1px solid ${C.ink}` } : { background: C.surface, color: C.ink, border: `1px solid ${C.line}` }}
     >
       {props.icon ? <Glyph name={props.icon} size={18} /> : null}
       {props.children}
@@ -328,12 +328,12 @@ function Found(props: Parameters<typeof ImportDialog>[0] & { read: ImportRead; o
             {t("studio.importFoundHint")}
           </span>
           {props.read.missing ? (
-            <span className="text-xs" style={{ color: "#B3261E" }}>
+            <span className="text-xs" style={{ color: "var(--color-danger)" }}>
               {t("studio.importFigmaMissing", { count: props.read.missing })}
             </span>
           ) : null}
           {props.read.cut ? (
-            <span className="text-xs" style={{ color: "#B3261E" }}>
+            <span className="text-xs" style={{ color: "var(--color-danger)" }}>
               {t("studio.importCut", { count: props.read.cut })}
             </span>
           ) : null}
@@ -353,7 +353,7 @@ function Found(props: Parameters<typeof ImportDialog>[0] & { read: ImportRead; o
                 >
                   <MiniPhone>{props.preview({ ...page.studio, body: withPictures(page.studio.body, shown) })}</MiniPhone>
                   <span className="flex items-center gap-1">
-                    <Glyph name={on ? "check_circle" : "radio_button_unchecked"} size={18} className={on ? "text-[#3D63FF]" : "text-[#5E5B70]"} />
+                    <Glyph name={on ? "check_circle" : "radio_button_unchecked"} size={18} className={on ? "text-[#3D63FF]" : "text-[var(--studio-muted)]"} />
                     {page.title}
                   </span>
                 </button>
@@ -373,7 +373,7 @@ function Found(props: Parameters<typeof ImportDialog>[0] & { read: ImportRead; o
               </label>
             ))}
             {place === "this_page" && chosen.length !== 1 && !section ? (
-              <span className="text-xs" style={{ color: "#B3261E" }}>
+              <span className="text-xs" style={{ color: "var(--color-danger)" }}>
                 {t("studio.importOneForThisPage")}
               </span>
             ) : null}
@@ -437,7 +437,7 @@ function Found(props: Parameters<typeof ImportDialog>[0] & { read: ImportRead; o
                 </span>
               ) : null}
               {fontProblem ? (
-                <span role="alert" className="text-xs" style={{ color: "#B3261E" }}>
+                <span role="alert" className="text-xs" style={{ color: "var(--color-danger)" }}>
                   {fontProblem}
                 </span>
               ) : null}
@@ -487,7 +487,7 @@ function FontTag({ state, swapped, added }: { state: FontState; swapped: boolean
   const ok = !swapped && (state === "free" || state === "own" || state === "in_file");
   const label = added ? t("studio.importFontAdded") : swapped && state !== "missing" ? t("studio.importFontAppFont") : t(state === "free" ? "studio.importFontFree" : state === "own" ? "studio.importFontOwn" : state === "in_file" ? "studio.importFontInFile" : "studio.importFontMissing");
   return (
-    <span className="inline-flex items-center gap-1 rounded-full bg-white px-2.5 py-0.5 text-xs" style={{ border: `1px solid ${C.line}`, color: ok ? "#1F8A4C" : state === "missing" ? "#B3261E" : C.muted }}>
+    <span className="inline-flex items-center gap-1 rounded-full bg-white px-2.5 py-0.5 text-xs" style={{ border: `1px solid ${C.line}`, color: ok ? "var(--color-success)" : state === "missing" ? "var(--color-danger)" : C.muted }}>
       <Glyph name={ok ? "check" : state === "missing" ? "warning" : "title"} size={16} />
       {label}
     </span>
@@ -564,7 +564,7 @@ function FigmaTab({ languages, onReady }: { languages: Languages; onReady: (read
         </Button>
       </div>
       {problem ? (
-        <p role="alert" className="m-0 rounded-xl px-3 py-2" style={{ background: "#FDECEA", color: "#B3261E" }}>
+        <p role="alert" className="m-0 rounded-xl px-3 py-2" style={{ background: "var(--color-danger-bg)", color: "var(--color-danger)" }}>
           {problem}
         </p>
       ) : null}
@@ -589,11 +589,11 @@ function FigmaTab({ languages, onReady }: { languages: Languages; onReady: (read
                     <img src={f.thumbnail} alt="" className="h-[150px] w-full rounded-lg object-contain" style={{ background: C.ivory }} />
                   ) : (
                     <span className="flex h-[150px] w-full items-center justify-center rounded-lg" style={{ background: C.ivory }}>
-                      <Glyph name="smartphone" size={28} className="text-[#5E5B70]" />
+                      <Glyph name="smartphone" size={28} className="text-[var(--studio-muted)]" />
                     </span>
                   )}
                   <span className="flex w-full items-center gap-1 text-xs">
-                    <Glyph name={on ? "check_circle" : "radio_button_unchecked"} size={16} className={on ? "text-[#3D63FF]" : "text-[#5E5B70]"} />
+                    <Glyph name={on ? "check_circle" : "radio_button_unchecked"} size={16} className={on ? "text-[#3D63FF]" : "text-[var(--studio-muted)]"} />
                     <span className="truncate">{f.name}</span>
                   </span>
                 </button>
@@ -668,7 +668,7 @@ function OwnFontBox({ onAdded }: { onAdded: (family: string) => void }) {
         </div>
       ) : null}
       {message ? (
-        <span role={message.ok ? "status" : "alert"} className="text-xs" style={{ color: message.ok ? "#1F8A4C" : "#B3261E" }}>
+        <span role={message.ok ? "status" : "alert"} className="text-xs" style={{ color: message.ok ? "var(--color-success)" : "var(--color-danger)" }}>
           {message.text}
         </span>
       ) : null}
@@ -680,7 +680,7 @@ function OwnFontBox({ onAdded }: { onAdded: (family: string) => void }) {
 function MiniPhone({ children }: { children: ReactNode }) {
   const scale = 0.3;
   return (
-    <span aria-hidden="true" className="block overflow-hidden" style={{ width: 360 * scale, height: 640 * scale, borderRadius: 14, border: `5px solid ${C.ink}`, background: "#FBF8F2", pointerEvents: "none" }}>
+    <span aria-hidden="true" className="block overflow-hidden" style={{ width: 360 * scale, height: 640 * scale, borderRadius: 14, border: `5px solid ${C.bar}`, background: "#FBF8F2", pointerEvents: "none" }}>
       <span className="block" style={{ width: 360, height: 640, transform: `scale(${scale})`, transformOrigin: "top left", overflow: "hidden" }}>
         {children}
       </span>

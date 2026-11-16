@@ -40,7 +40,8 @@ export default async function StudioLayout({ children }: { children: React.React
   return (
     <DashboardI18n lang={lang} messages={dashboardMessages(lang)} knownEnglish={lang === "en" ? {} : knownEnglish()}>
       <DocumentLang lang={lang} />
-      <div style={{ ["--font-studio" as string]: studioFont, ["--studio-line" as string]: "#DDD8CC", ["--studio-ink" as string]: "#0E0D24", ["--studio-muted" as string]: "#5E5B70" }}>
+      {/* 132.70 Studio's colours (--studio-line, --studio-ink, --studio-muted…) are globals.css's tokens, light and dark. */}
+      <div style={{ ["--font-studio" as string]: studioFont }}>
         {children}
       </div>
     </DashboardI18n>

@@ -54,11 +54,11 @@ export function HeaderStyleControls({ header, onChange, lang, defaultLang }: { h
       <span className="font-bold">{t("studio.chromeStyleLabel")}</span>
       <div className="grid grid-cols-2 gap-1.5">
         {STUDIO_HEADER_STYLES.map((s) => (
-          <button key={s} type="button" aria-pressed={style === s} onClick={() => onChange({ style: s })} className="rounded-lg bg-white px-2.5 py-1.5 text-start" style={style === s ? { border: "2px solid #3D63FF", color: "#1F3FB8", fontWeight: 700 } : FIELD}>
+          <button key={s} type="button" aria-pressed={style === s} onClick={() => onChange({ style: s })} className="rounded-lg bg-white px-2.5 py-1.5 text-start" style={style === s ? { border: "2px solid #3D63FF", color: "var(--studio-select-ink)", fontWeight: 700 } : FIELD}>
             {t(STYLE_NAMES[s])}
           </button>
         ))}
-        <button type="button" aria-pressed={!style} onClick={() => onChange({ style: undefined })} className="rounded-lg bg-white px-2.5 py-1.5 text-start" style={!style ? { border: "2px solid #3D63FF", color: "#1F3FB8", fontWeight: 700 } : FIELD}>
+        <button type="button" aria-pressed={!style} onClick={() => onChange({ style: undefined })} className="rounded-lg bg-white px-2.5 py-1.5 text-start" style={!style ? { border: "2px solid #3D63FF", color: "var(--studio-select-ink)", fontWeight: 700 } : FIELD}>
           {t("studio.chromeStyleNone")}
         </button>
       </div>

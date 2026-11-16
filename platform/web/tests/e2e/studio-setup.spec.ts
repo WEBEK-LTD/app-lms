@@ -138,7 +138,8 @@ test("Academy in Studio: every step, its links in Studio, and moving between the
   await own.goto("/studio/project/setup");
   // Content kept in Yallapp: the Website step is done, so Branding comes first.
   await expect(own.getByRole("heading", { name: "Branding", exact: true })).toBeVisible();
-  await expect(own.getByText("Plan: Not set", { exact: false })).toBeVisible();
+  // 132.69 One wording for an app without a plan.
+  await expect(own.getByText("Plan: No plan yet", { exact: false })).toBeVisible();
 
   // The steps and the page's links open Studio's pages; the kind was chosen when the project was made.
   const steps = own.getByRole("list", { name: "Setup steps" });

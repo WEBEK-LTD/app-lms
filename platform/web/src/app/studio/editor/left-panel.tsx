@@ -336,7 +336,7 @@ function HeaderLayer({ header, selected, folded, onFold, onSelect }: { header: S
   const buttons = (header.buttons ?? []).filter((b) => b !== "menu");
   return (
     <>
-      <li role="treeitem" aria-selected={selected} aria-expanded={!folded} className="flex items-center gap-1.5 rounded-lg px-2 py-1.5" style={selected ? { background: "#E8EEFF", color: "#1F3FB8", fontWeight: 700 } : undefined}>
+      <li role="treeitem" aria-selected={selected} aria-expanded={!folded} className="flex items-center gap-1.5 rounded-lg px-2 py-1.5" style={selected ? { background: "var(--studio-select-fill)", color: "var(--studio-select-ink)", fontWeight: 700 } : undefined}>
         <button type="button" onClick={onFold} aria-label={folded ? t("studio.expandAll") : t("studio.collapseAll")} className="border-0 bg-transparent p-0" style={{ color: "inherit" }}>
           <Glyph name={folded ? "chevron_left" : "expand_more"} size={16} flip />
         </button>
@@ -396,7 +396,7 @@ function Layer(props: {
         onDrop={props.onLayerDrop}
         data-studio-layer={node.id}
         className="flex items-center gap-1.5 rounded-lg px-2 py-1.5"
-        style={{ marginInlineStart: props.depth * 22, ...(selected ? { background: "#E8EEFF", color: "#1F3FB8", fontWeight: 700 } : {}) }}
+        style={{ marginInlineStart: props.depth * 22, ...(selected ? { background: "var(--studio-select-fill)", color: "var(--studio-select-ink)", fontWeight: 700 } : {}) }}
       >
         {kids.length ? (
           <button type="button" onClick={() => props.onFold(node.id)} aria-label={folded ? t("studio.expandAll") : t("studio.collapseAll")} className="border-0 bg-transparent p-0" style={{ color: "inherit" }}>

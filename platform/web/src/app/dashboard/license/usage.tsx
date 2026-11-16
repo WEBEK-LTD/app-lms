@@ -128,7 +128,7 @@ export function UsageSection({
                       {a.name}
                       {a.current ? <span className="text-[13px] font-normal text-muted"> ({t("license.usageThisApp")})</span> : null}
                     </td>
-                    <td className="py-2 pe-3">{a.plan ?? t("license.usageNone")}</td>
+                    <td className="py-2 pe-3">{a.plan ?? t("overview.noPlan")}</td>
                     <td className="py-2 pe-3">{a.until ?? "–"}</td>
                     <td className="py-2">
                       <bdi dir="ltr">{a.price ?? "–"}</bdi>

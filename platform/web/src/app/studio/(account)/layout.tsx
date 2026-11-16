@@ -25,7 +25,7 @@ export default async function StudioAccountLayout({ children }: { children: Reac
         <Link
           href={project ? "/studio/project" : "/studio"}
           className="flex h-[34px] min-w-0 items-center gap-1.5 rounded-[10px] px-3 text-sm no-underline"
-          style={{ background: C.barSoft, color: C.ivory }}
+          style={{ background: C.barSoft, color: C.barText }}
           data-studio-back=""
         >
           <Glyph name="arrow_back" size={18} flip />

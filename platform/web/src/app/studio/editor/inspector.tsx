@@ -237,7 +237,7 @@ function Heading({ children }: { children: ReactNode }) {
 }
 
 function Rule() {
-  return <div className="h-px" style={{ background: "#EDE8DD" }} />;
+  return <div className="h-px" style={{ background: "var(--studio-line)" }} />;
 }
 
 function Box({ label, children }: { label: string; children: ReactNode }) {
@@ -282,7 +282,7 @@ function Segments<T extends string>({ value, options, onChange, label }: { value
           aria-checked={value === o.value}
           onClick={() => onChange(o.value)}
           className="rounded-md bg-white px-2 py-0.5 text-[13px]"
-          style={value === o.value ? { border: "2px solid #3D63FF", color: "#1F3FB8", fontWeight: 700 } : { border: "1px solid var(--studio-line)" }}
+          style={value === o.value ? { border: "2px solid #3D63FF", color: "var(--studio-select-ink)", fontWeight: 700 } : { border: "1px solid var(--studio-line)" }}
         >
           {o.label}
         </button>
@@ -317,7 +317,7 @@ function Colors({ rows, palette }: { rows: ColorChoice[]; palette: string[] }) {
           aria-pressed={rows.length > 1 ? row === active : undefined}
           onClick={() => setIndex(i)}
           className="-mx-1.5 flex items-center justify-between rounded-md border-0 bg-transparent px-1.5 py-0.5 text-start"
-          style={rows.length > 1 && row === active ? { background: "#F4EFE6" } : undefined}
+          style={rows.length > 1 && row === active ? { background: "var(--studio-hover)" } : undefined}
         >
           <span>{row.label}</span>
           <span className="flex items-center gap-2" dir="ltr">
@@ -401,7 +401,7 @@ function SaveTemplate({ onSave }: { onSave: (name: string) => Promise<string | n
         {t("studio.templateName")}
         <input value={name} onChange={(e) => setName(e.target.value)} maxLength={60} required className="h-9 rounded-lg px-2.5 font-normal" style={{ border: "1px solid var(--studio-line)" }} />
       </label>
-      <button type="submit" className="h-10 rounded-[10px] border-0 font-bold" style={{ background: "#0E0D24", color: "#F4EFE6" }}>
+      <button type="submit" className="h-10 rounded-[10px] border-0 font-bold" style={{ background: "var(--studio-ink)", color: "var(--studio-surface)" }}>
         {t("studio.saveAsTemplate")}
       </button>
     </form>
@@ -411,7 +411,7 @@ function SaveTemplate({ onSave }: { onSave: (name: string) => Promise<string | n
         type="button"
         onClick={() => setNaming(true)}
         className="mt-1 flex h-[42px] items-center justify-center gap-1.5 rounded-[10px] text-[13px] font-bold"
-        style={{ border: "1.5px dashed #0E0D24", background: "#F4EFE6" }}
+        style={{ border: "1.5px dashed var(--studio-ink)", background: "var(--studio-hover)" }}
       >
         <Glyph name="bookmark_add" size={18} />
         {t("studio.saveAsTemplate")}
@@ -624,7 +624,7 @@ function DesignTab(props: Props & { node: StudioNode }) {
   return (
     <>
       {props.tablet ? (
-        <div role="note" className="flex flex-col gap-1.5 rounded-lg p-2.5 text-xs" style={{ background: "#EEF1FF", color: "var(--studio-ink)" }}>
+        <div role="note" className="flex flex-col gap-1.5 rounded-lg p-2.5 text-xs" style={{ background: "var(--studio-select-fill)", color: "var(--studio-ink)" }}>
           <span className="flex items-center gap-1.5 font-bold">
             <Glyph name="tablet" size={16} />
             {t("studio.tabletEditing")}
@@ -876,7 +876,7 @@ function DesignTab(props: Props & { node: StudioNode }) {
             aria-pressed={alignValue === value}
             onClick={() => onChange({ [alignField]: alignValue === value && !textual ? undefined : value } as Partial<StudioNode>)}
             className="h-8 flex-1 rounded-lg"
-            style={alignValue === value ? { background: "#0E0D24", color: "#F4EFE6", border: "1px solid #0E0D24" } : { background: "#FFFFFF", border: "1px solid var(--studio-line)" }}
+            style={alignValue === value ? { background: "var(--studio-ink)", color: "var(--studio-surface)", border: "1px solid var(--studio-ink)" } : { background: "var(--studio-surface)", border: "1px solid var(--studio-line)" }}
           >
             <Glyph name={icon} size={18} flip />
           </button>
@@ -888,7 +888,7 @@ function DesignTab(props: Props & { node: StudioNode }) {
           aria-pressed={Boolean(node.pin && node.pin !== "none")}
           onClick={() => onChange({ pin: node.pin === "bottom" || node.pin === "top" ? undefined : "bottom" })}
           className="h-8 flex-1 rounded-lg"
-          style={node.pin && node.pin !== "none" ? { background: "#0E0D24", color: "#F4EFE6", border: "1px solid #0E0D24" } : { background: "#FFFFFF", border: "1px solid var(--studio-line)" }}
+          style={node.pin && node.pin !== "none" ? { background: "var(--studio-ink)", color: "var(--studio-surface)", border: "1px solid var(--studio-ink)" } : { background: "var(--studio-surface)", border: "1px solid var(--studio-line)" }}
         >
           <Glyph name="push_pin" size={18} />
         </button>
@@ -1444,7 +1444,7 @@ function HeaderPanel(props: Props) {
         <Heading>{t("studio.headerTypeLabel")}</Heading>
         <div className="flex flex-col gap-1.5">
           {STUDIO_HEADER_TYPES.map((type, i) => (
-            <button key={type} type="button" aria-pressed={header.type === type} onClick={() => set({ type })} className="rounded-lg bg-white px-2.5 py-1.5 text-start" style={header.type === type ? { border: "2px solid #3D63FF", color: "#1F3FB8", fontWeight: 700 } : { border: "1px solid var(--studio-line)" }}>
+            <button key={type} type="button" aria-pressed={header.type === type} onClick={() => set({ type })} className="rounded-lg bg-white px-2.5 py-1.5 text-start" style={header.type === type ? { border: "2px solid #3D63FF", color: "var(--studio-select-ink)", fontWeight: 700 } : { border: "1px solid var(--studio-line)" }}>
               {t(`studio.header${i + 1}` as DashKey)}
             </button>
           ))}
@@ -1545,7 +1545,7 @@ function TabsPanel(props: Props) {
               <div className="flex items-center gap-1">
                 <b className="flex-1">{t("studio.tabN", { n: i + 1 })}</b>
                 {tabs.length > LAYOUT_LIMITS.shownTabs && i >= LAYOUT_LIMITS.shownTabs - 1 ? (
-                  <span className="rounded-full px-2 py-px text-[11px]" style={{ background: "#F4EFE6" }}>
+                  <span className="rounded-full px-2 py-px text-[11px]" style={{ background: "var(--studio-hover)" }}>
                     {t("studio.tabInMore")}
                   </span>
                 ) : null}
@@ -1602,7 +1602,7 @@ function TabsPanel(props: Props) {
                   data-tab-design={design ?? "template"}
                   onClick={() => setStyle({ design })}
                   className="flex flex-col items-stretch gap-1 rounded-lg bg-white p-1.5 text-start text-xs"
-                  style={on ? { border: "2px solid #3D63FF", color: "#1F3FB8", fontWeight: 700 } : line}
+                  style={on ? { border: "2px solid #3D63FF", color: "var(--studio-select-ink)", fontWeight: 700 } : line}
                 >
                   <TabDesignSample design={design} brand={style.active ?? props.palette[0] ?? "#3D63FF"} />
                   {t(`studio.tabDesign_${design ?? "template"}` as DashKey)}
@@ -1644,7 +1644,7 @@ function TabsPanel(props: Props) {
             {TAB_LABELS.map((when) => {
               const on = (style.labels ?? "always") === when;
               return (
-                <button key={when} type="button" aria-pressed={on} onClick={() => setStyle({ labels: when })} className="h-8 flex-1 rounded-lg bg-white px-1.5 text-xs" style={on ? { border: "2px solid #3D63FF", color: "#1F3FB8", fontWeight: 700 } : line}>
+                <button key={when} type="button" aria-pressed={on} onClick={() => setStyle({ labels: when })} className="h-8 flex-1 rounded-lg bg-white px-1.5 text-xs" style={on ? { border: "2px solid #3D63FF", color: "var(--studio-select-ink)", fontWeight: 700 } : line}>
                   {t(`studio.tabLabels_${when}` as DashKey)}
                 </button>
               );

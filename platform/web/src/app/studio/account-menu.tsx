@@ -2,6 +2,7 @@ import Link from "next/link";
 import { openRegularAppsAction } from "@/app/actions/studio-projects";
 import { DashboardLanguage } from "@/components/dashboard-language";
 import { SignOutButton } from "@/components/sign-out";
+import { ThemeSwitch } from "@/components/theme-switch";
 import { localePath } from "@/i18n/paths";
 import { contextCan, getClientContext } from "@/lib/auth/session";
 import { dashboardText } from "@/lib/dashboard-lang";
@@ -19,14 +20,14 @@ export async function StudioAccountMenu() {
   if (!context) return null;
   const { t, lang } = await dashboardText();
   const me = context.member ?? context.user;
-  const item = "flex items-center gap-2.5 rounded-lg px-3 py-2 text-sm no-underline hover:bg-[#F4EFE6]";
+  const item = "flex items-center gap-2.5 rounded-lg px-3 py-2 text-sm no-underline hover:bg-[var(--studio-hover)]";
   return (
     <details className="relative" data-studio-account="">
       <summary
         aria-label={t("studioKit.accountMenu")}
         title={t("studioKit.accountMenu")}
         className="flex h-[38px] cursor-pointer list-none items-center gap-2 rounded-[10px] ps-1 pe-2 text-sm"
-        style={{ color: C.ivory }}
+        style={{ color: C.barText }}
       >
         <span className="flex h-8 w-8 flex-none items-center justify-center rounded-full font-bold" style={{ background: C.barLine }} aria-hidden="true">
           {(me.name.trim()[0] ?? "?").toUpperCase()}
@@ -45,8 +46,12 @@ export async function StudioAccountMenu() {
             {me.email}
           </span>
         </div>
-        <div className="px-1.5 py-1.5" style={{ borderBottom: `1px solid ${C.line}` }}>
-          <DashboardLanguage lang={lang} label={t("nav.languageList")} />
+        {/* The dashboard's language, and 132.70 light or dark (the dashboard's switch, remembered in this browser). */}
+        <div className="flex items-center gap-2 px-1.5 py-1.5" style={{ borderBottom: `1px solid ${C.line}` }}>
+          <div className="min-w-0 flex-1">
+            <DashboardLanguage lang={lang} label={t("nav.languageList")} />
+          </div>
+          <ThemeSwitch label={t("nav.darkMode")} className="h-9 w-9" />
         </div>
         <Link href="/studio/account" className={item} style={{ color: C.ink }}>
           <Glyph name="person" size={18} />

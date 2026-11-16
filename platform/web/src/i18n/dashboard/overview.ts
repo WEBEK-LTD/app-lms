@@ -184,7 +184,7 @@ export const ar: Messages = {
   editPages: "تعديل صفحات تطبيقك",
   planEnded: "باقة {plan} · انتهت في {date}",
   planDaysLeft: "باقة {plan} · المتبقي: {days, plural, zero{{days} يوم} one{يوم واحد} two{يومان} few{{days} أيام} many{{days} يومًا} other{{days} يوم}}",
-  noPlan: "لا توجد باقة بعد",
+  noPlan: "لسه مفيش باقة",
   preview: "معاينة تطبيقك",
   setup: "إعداد التطبيق",
   continueSetup: "متابعة الإعداد",

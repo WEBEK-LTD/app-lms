@@ -25,16 +25,32 @@ export function Glyph({ name, size = 20, flip = false, className = "" }: { name:
   );
 }
 
-/** The editor's colours, from the approved design. */
+/**
+ * The editor's colours, from the approved design. 132.70 Those of the
+ * board, the panels and the words are the design tokens of globals.css
+ * (`--studio-*`), light and dark; the dark bar on top (`bar…`) and the
+ * accent keep theirs in both.
+ */
 export const STUDIO_COLORS = {
-  ink: "#0E0D24",
-  ivory: "#F4EFE6",
-  board: "#E9E5DC",
-  dot: "#CFC9BC",
-  line: "#DDD8CC",
-  muted: "#5E5B70",
+  ink: "var(--studio-ink)",
+  ivory: "var(--studio-ivory)",
+  board: "var(--studio-board)",
+  dot: "var(--studio-dot)",
+  line: "var(--studio-line)",
+  muted: "var(--studio-muted)",
+  /** 132.70 Panels, menus and cards (white in light). */
+  surface: "var(--studio-surface)",
+  /** 132.70 A hovered or chosen item's fill. */
+  hover: "var(--studio-hover)",
+  /** 132.70 The words of what's chosen in blue (the header type, the layer). */
+  selectInk: "var(--studio-select-ink)",
   accent: "#FF5A1F",
+  /** 132.70 Words on the accent: always dark. */
+  onAccent: "#0E0D24",
   select: "#3D63FF",
+  /** 132.70 The dark bar on top of every Studio screen, the same in light and dark. */
+  bar: "#0E0D24",
+  barText: "#F4EFE6",
   barSoft: "#1E1C3A",
   barMuted: "#A7A3C2",
   barLine: "#3A3760",
