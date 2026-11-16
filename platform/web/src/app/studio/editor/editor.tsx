@@ -1118,8 +1118,8 @@ export function StudioEditor(props: StudioEditorProps) {
 
   return (
     <div className="studio flex min-h-dvh flex-col lg:h-dvh lg:overflow-hidden" style={{ fontFamily: "var(--font-studio), 'Cairo', system-ui, sans-serif", color: C.ink, background: C.board }} onDragEnd={endDrag}>
-      {/* 132.52 One line at 1280px and wider: gaps a little tighter, Help as its icon below 1536px, Preview below 1400px. */}
-      <header className="flex flex-wrap items-center gap-3 px-5 py-2.5 2xl:gap-4" style={{ background: C.ink, color: C.ivory }}>
+      {/* 132.52 One line at 1280px and wider: gaps a little tighter, Help as its icon below 1536px, Preview below 1440px. */}
+      <header className="flex flex-wrap items-center gap-2 px-4 py-2.5 min-[1366px]:gap-3 min-[1366px]:px-5 2xl:gap-4" style={{ background: C.ink, color: C.ivory }}>
         <Link href="/studio/project" className="flex items-center gap-2.5 no-underline" style={{ color: C.ivory }} title={t("studio.back")}>
           <StudioMark />
         </Link>
@@ -1307,9 +1307,9 @@ export function StudioEditor(props: StudioEditorProps) {
             ) : null}
           </div>
         ) : null}
-        <a href={props.previewHref} target="_blank" rel="noopener" title={t("studio.previewOnPhone")} className="flex h-[38px] items-center gap-1.5 rounded-[10px] px-3.5 text-sm font-semibold no-underline max-[1400px]:px-2.5" style={{ border: `1px solid ${C.barLine}`, color: C.ivory }}>
+        <a href={props.previewHref} target="_blank" rel="noopener" title={t("studio.previewOnPhone")} className="flex h-[38px] items-center gap-1.5 rounded-[10px] px-3.5 text-sm font-semibold no-underline max-[1440px]:px-2.5" style={{ border: `1px solid ${C.barLine}`, color: C.ivory }}>
           <Glyph name="play_arrow" size={18} />
-          <span className="max-[1400px]:sr-only">{t("studio.previewOnPhone")}</span>
+          <span className="max-[1440px]:sr-only">{t("studio.previewOnPhone")}</span>
           <span className="sr-only">{t("common.opensInNewTab")}</span>
         </a>
         <button type="button" onClick={() => void publish()} disabled={publishing || status === "invalid"} className="flex h-[38px] items-center gap-1.5 rounded-[10px] border-0 px-[18px] text-sm font-extrabold disabled:opacity-60" style={{ background: C.accent, color: C.ink }}>

@@ -35,7 +35,8 @@ export async function StudioAccountMenu() {
         <Glyph name="expand_more" size={18} className="max-md:hidden" />
       </summary>
       <div
-        className="absolute end-0 top-[calc(100%+6px)] z-30 flex w-[280px] max-w-[calc(100vw-24px)] flex-col gap-0.5 rounded-xl bg-white p-1.5 shadow-lg"
+        // On phones the bar wraps: the menu spans the screen under its button instead of running off one side.
+        className="absolute end-0 top-[calc(100%+6px)] z-30 flex w-[280px] max-w-[calc(100vw-24px)] flex-col gap-0.5 rounded-xl bg-white p-1.5 shadow-lg max-sm:fixed max-sm:inset-x-3 max-sm:top-auto max-sm:mt-1.5 max-sm:w-auto max-sm:max-w-none"
         style={{ border: `1px solid ${C.line}`, color: C.ink }}
       >
         <div className="flex flex-col px-3 pt-2 pb-2.5" style={{ borderBottom: `1px solid ${C.line}` }}>
