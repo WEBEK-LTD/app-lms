@@ -3798,6 +3798,8 @@ paths:
           content:
             application/json:
               schema: { $ref: '#/components/schemas/CurrencyList' }
+        '404': { $ref: '#/components/responses/NotFound' }
+        '503': { $ref: '#/components/responses/Unavailable' }
 
   /store/home:
     get:
@@ -15352,7 +15354,7 @@ components:
             properties:
               code: { type: string, pattern: '^[A-Z]{3}$', example: KWD }
               name: { type: string, example: Kuwaiti Dinar }
-              symbol: { type: string, description: The short sign, or the code where the language has none., example: KWD }
+              symbol: { type: string, description: 'The short sign, or the code where the language has none.', example: KWD }
               digits: { type: integer, enum: [0, 2, 3], description: Digits after the point (ISO 4217 minor units). }
               usual: { type: boolean }
 
