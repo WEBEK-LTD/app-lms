@@ -141,13 +141,13 @@ export async function saveProductAction(_: FormState, formData: FormData): Promi
   if (!values.name) errors.name = "Enter the product name.";
   else if (values.name.length > 120) errors.name = "Use at most 120 characters.";
   if (values.description!.length > 5000) errors.description = "Use at most 5000 characters.";
-  const numbers = readProductNumbers({ price: values.price!, salePrice: values.salePrice!, stock: values.stock!, weight: values.weight });
+  const numbers = readProductNumbers({ price: values.price!, salePrice: values.salePrice!, stock: values.stock!, weight: values.weight, currency: catalogSettings(app).currency });
   Object.assign(errors, numbers.errors);
   const { priceCents: price, salePriceCents: salePrice, stock } = numbers;
   if (values.sku!.length > 64) errors.sku = "Use at most 64 characters.";
   // 26 Option groups (a dish's size, sauce or extras), from the options editor as JSON.
   values.optionGroups = String(formData.get("optionGroups") ?? "");
-  const optionGroups = parseOptionGroups(values.optionGroups);
+  const optionGroups = parseOptionGroups(values.optionGroups, catalogSettings(app).currency);
   if (!optionGroups.ok) errors.optionGroups = optionGroups.error;
   // 91.5 Variations (size, colour), from the variations editor as JSON.
   values.variants = String(formData.get("variants") ?? "");
@@ -297,9 +297,10 @@ export async function saveShopSettingsAction(_: FormState, formData: FormData): 
   };
   const errors: Record<string, string> = {};
   if (!CATALOG_CURRENCIES.includes(values.currency as CatalogCurrency)) errors.currency = "Choose a currency.";
-  const shipping = values.shipping ? parsePrice(values.shipping) : 0;
+  // 133.2 In the currency chosen, with its digits (1.250 KWD, ¥1250).
+  const shipping = values.shipping ? parsePrice(values.shipping, values.currency) : 0;
   if (shipping === null) errors.shipping = "Enter an amount, or leave it empty for free shipping.";
-  const freeOver = values.freeOver ? parsePrice(values.freeOver) : null;
+  const freeOver = values.freeOver ? parsePrice(values.freeOver, values.currency) : null;
   if (values.freeOver && freeOver === null) errors.freeOver = "Enter an amount, or leave it empty.";
   // 91.3 Returns asked for in the app: days after an order is completed; empty for none.
   const returnDays = values.returnDays.trim() === "" ? null : Number(values.returnDays.trim());
@@ -336,14 +337,24 @@ export async function saveShopSettingsAction(_: FormState, formData: FormData): 
   return { ok: true, message: "Shop settings saved.", values };
 }
 
+/** 133.7 Customers' currencies: whether a customer is charged in their own currency when the card gateway takes it. */
+export async function saveCustomerCurrenciesAction(_: FormState, formData: FormData): Promise<FormState> {
+  const { app } = await requireCatalogApp();
+  const charge = formData.get("chargeInCustomerCurrency") === "on";
+  const settings = catalogSettings(app);
+  await (await getStore()).updateApp(app.id, { catalogSettings: { ...settings, chargeInCustomerCurrency: charge } }, new Date());
+  refresh();
+  return { ok: true, message: "Customers' currencies saved.", values: { chargeInCustomerCurrency: charge ? "on" : "" } };
+}
+
 /** 91.4 The shop's loyalty points: on or off, what earns a point, what a point is worth, the fewest used at once. */
 export async function saveLoyaltyAction(_: FormState, formData: FormData): Promise<FormState> {
   const { app } = await requireCatalogApp();
   const values = { on: formData.get("on") === "on" ? "on" : "", spend: str(formData, "spend"), value: str(formData, "value"), minPoints: str(formData, "minPoints") };
   const errors: Record<string, string> = {};
-  const spend = parsePrice(values.spend);
+  const spend = parsePrice(values.spend, catalogSettings(app).currency);
   if (spend === null || spend < 1 || spend > LOYALTY_LIMITS.spendMaxCents) errors.spend = "Enter an amount, like 10.";
-  const value = parsePrice(values.value);
+  const value = parsePrice(values.value, catalogSettings(app).currency);
   if (value === null || value < 1 || value > LOYALTY_LIMITS.valueMaxCents) errors.value = "Enter an amount, like 0.10.";
   const minPoints = Number(values.minPoints.trim());
   if (!/^\d+$/.test(values.minPoints.trim()) || minPoints < 1 || minPoints > LOYALTY_LIMITS.minPointsMax) errors.minPoints = "Enter a number of points, like 100.";
@@ -374,7 +385,7 @@ export async function addCouponAction(_: FormState, formData: FormData): Promise
   const { app } = await requireCatalogApp({ courses: true, store: true });
   const values = couponValues(formData);
   const now = new Date();
-  const parsed = parseCoupon(values, now);
+  const parsed = parseCoupon(values, now, { currency: catalogSettings(app).currency });
   if (!parsed.ok) return { errors: parsed.errors, values };
   const created = await (await getStore()).createCatalogCoupon({ appId: app.id, ...parsed.value, active: true, createdAt: now });
   if (!created) return { errors: { code: "You already have a coupon with this code." }, values };
@@ -398,7 +409,7 @@ export async function updateCouponAction(_: FormState, formData: FormData): Prom
   const { app } = await requireCatalogApp({ courses: true, store: true });
   const id = Number(formData.get("id"));
   const values = couponValues(formData);
-  const parsed = parseCoupon(values, new Date(), { editing: true });
+  const parsed = parseCoupon(values, new Date(), { editing: true, currency: catalogSettings(app).currency });
   if (!parsed.ok) return { errors: parsed.errors, values };
   const saved = await (await getStore()).updateCatalogCoupon(app.id, id, parsed.value);
   if (!saved) return { errors: { code: "You already have a coupon with this code." }, values };
@@ -424,7 +435,7 @@ export async function saveFulfilmentAction(_: FormState, formData: FormData): Pr
   const values: Record<string, string> = {};
   for (const [key, value] of formData.entries()) if (typeof value === "string" && !key.startsWith("$")) values[key] = value;
   if (app.vertical !== "restaurant") return { message: "Pickup and delivery are for restaurants and cafés.", values };
-  const parsed = parseFulfilmentForm(values);
+  const parsed = parseFulfilmentForm(values, catalogSettings(app).currency);
   if (!parsed.ok) return { errors: parsed.errors, values };
   await (await getStore()).updateApp(app.id, { catalogSettings: { ...catalogSettings(app), fulfilment: parsed.value } }, new Date());
   refresh();

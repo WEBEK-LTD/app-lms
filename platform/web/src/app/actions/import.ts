@@ -71,7 +71,7 @@ async function planFrom(context: ClientContext & { kind: ImportKind }, formData:
   // Each check reads a file or someone's link: limited like other reads of an address given.
   if (!(await hitRateLimit(await getStore(), RATE_LIMITS.importRead, context.client.id)).allowed) return { error: "You've checked many files this hour. Try again later." };
   try {
-    return { plan: planImport(context.kind, await readSource(formData)) };
+    return { plan: planImport(context.kind, await readSource(formData), context.kind === "products" ? (context.app?.catalogSettings?.currency ?? null) : null) };
   } catch (error) {
     if (error instanceof ImportFormatError || error instanceof ImportSourceError) return { error: error.message };
     console.error("[import]", error instanceof Error ? error.message : String(error));

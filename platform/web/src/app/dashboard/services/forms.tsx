@@ -1,5 +1,6 @@
 "use client";
 
+import { CurrencyPicker } from "@/components/currency-picker";
 import { useActionState } from "react";
 import {
   addBookingCategoryAction,
@@ -9,7 +10,6 @@ import {
   saveIntakeFieldAction,
 } from "@/app/actions/bookings";
 import { Field, FieldError, FormMessage, SubmitButton } from "@/components/form";
-import { CATALOG_CURRENCIES } from "@/lib/catalog/money";
 import { INTAKE_TYPE_LABELS, INTAKE_TYPES } from "@/lib/bookings/intake";
 import { initialFormState } from "@/lib/forms";
 import { useDashLang, useDashT, useKnownText } from "@/components/dashboard-i18n";
@@ -55,7 +55,8 @@ export function RulesForm({ current, timezones }: { current: Record<string, stri
       <FormMessage message={state.message} ok={state.ok} />
       <div className="grid gap-4 sm:grid-cols-3">
         <Select label={t("shop.timeZone")} name="timezone" value={v.timezone ?? ""} options={timezones.map((t) => ({ value: t, label: t }))} error={e.timezone} />
-        <Select label={t("shop.currency")} name="currency" value={v.currency ?? "TRY"} options={CATALOG_CURRENCIES.map((c) => ({ value: c, label: c }))} error={e.currency} />
+        {/* 133.3 Any currency: searched by name, code or sign, the usual ones first. */}
+        <CurrencyPicker label={t("shop.currency")} defaultValue={v.currency ?? "TRY"} error={e.currency} className="sm:col-span-3" />
         <Select
           label={t("bookings.slotEvery")}
           name="slotStep"

@@ -1,3 +1,4 @@
+import { roundToCurrency } from "../money/currencies";
 import { recordAudit } from "../admin/audit";
 import { undoOrderPoints } from "../catalog/loyalty";
 import { formatCents } from "../catalog/money";
@@ -304,6 +305,19 @@ interface Target {
   /** "order 1042", "donation D-1042". */
   label: string;
   customer: { name: string; email: string } | null;
+  /** 133.7 Charged in the customer's currency: its total there; refunds go back in it, in proportion. */
+  charged?: { currency: string; totalCents: number } | null;
+}
+
+/**
+ * 133.7 Of an order charged in the customer's currency, what `cents` of its
+ * own currency come to there: in proportion to the charged total, rounded
+ * to the currency's digits, the whole order exactly the charged total (so
+ * refunds in parts add up to it).
+ */
+export function chargedShare(cents: number, totalCents: number, charged: { currency: string; totalCents: number }): number {
+  if (cents >= totalCents) return charged.totalCents;
+  return Math.min(charged.totalCents, roundToCurrency(Math.round((cents * charged.totalCents) / totalCents), charged.currency));
 }
 
 async function refund(
@@ -329,18 +343,23 @@ async function refund(
         ok: false,
         message: `The ${PROVIDER_NAME[target.provider]} keys this payment was taken with aren't set. Refund it in the provider's panel and record it here.`,
       };
+    // 133.7 Charged in the customer's currency: refunded in it, the same share of it.
+    const charged = target.charged ?? null;
+    const before = charged ? chargedShare(target.refundedCents, target.totalCents, charged) : target.refundedCents;
+    const asked = charged ? chargedShare(target.refundedCents + input.cents, target.totalCents, charged) - before : input.cents;
+    if (asked <= 0) return { ok: false, message: "That's too little to refund in the currency it was paid in." };
     const done = await refundThroughProvider(
       account,
       {
         conversationId: target.conversationId,
         paymentId: target.paymentId,
         providerRef: target.providerRef,
-        currency: target.currency,
-        paidCents: target.totalCents,
+        currency: charged?.currency ?? target.currency,
+        paidCents: charged?.totalCents ?? target.totalCents,
         paidAt: target.paidAt,
-        cents: input.cents,
+        cents: asked,
         earlier: (await deps.store.listRefunds(app.id, target.kind, [target.id])).flatMap((r) => r.parts),
-        refundedBeforeCents: target.refundedCents,
+        refundedBeforeCents: before,
         reason: input.reason,
         note: input.note ?? "",
         ip: deps.ip,
@@ -356,7 +375,17 @@ async function refund(
         message: `Nothing was refunded. ${done.error ?? ""}`.trim(),
       };
   }
-  const cents = input.method === "api" ? parts.reduce((sum, p) => sum + p.cents, 0) : input.cents;
+  // The parts are in the currency charged; what is recorded is in the order's own.
+  const partsCents = parts.reduce((sum, p) => sum + p.cents, 0);
+  const chargedIn = target.charged ?? null;
+  const cents =
+    input.method !== "api"
+      ? input.cents
+      : chargedIn
+        ? partsCents >= chargedShare(target.refundedCents + input.cents, target.totalCents, chargedIn) - chargedShare(target.refundedCents, target.totalCents, chargedIn)
+          ? input.cents
+          : Math.min(input.cents, Math.round((partsCents * target.totalCents) / chargedIn.totalCents))
+        : partsCents;
   const all = target.refundedCents + cents === target.totalCents;
   const revoked = await extra.takeBack(all);
   const refunded = await deps.store.recordRefund({
@@ -462,6 +491,7 @@ export async function refundOrder(deps: RefundDeps, app: App, order: CatalogOrde
       conversationId: `order-${orderNumber(order)}`,
       label: `order ${orderNumber(order)}`,
       customer: order.customer ? { name: order.customer.name, email: order.customer.email } : null,
+      charged: order.customerCurrency?.charged ? { currency: order.customerCurrency.currency, totalCents: order.customerCurrency.totalCents } : null,
     },
     account,
     input,

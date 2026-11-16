@@ -85,6 +85,13 @@ export function settingsSummary(settings: Map<PlatformSettingKey, PlatformSettin
     "/admin/settings/store-platforms": { now: partners === 2 ? "Salla and Zid are set." : partners === 1 ? (get("sallaApp") ? "Salla is set, Zid isn't." : "Zid is set, Salla isn't.") : "Neither is set.", attention: false },
     "/admin/settings/app-defaults": { now: get("appDefaults") ? "Set here." : "The built-in defaults.", attention: false },
     "/admin/settings/maps": { now: get("maps") ? "Set: ride, delivery and food apps show the map." : "No map: ride, delivery and food apps draw the places without one.", attention: !get("maps") },
+    // 133.6 The day's rates customers see prices with; a failed read keeps the last good ones.
+    "/admin/settings/currencies": {
+      now: get("exchangeRates")
+        ? `Rates of ${get("exchangeRates")!.value.date}${get("exchangeRates")!.value.failedAt ? ", the last read failed" : ""}${get("rateOverrides") ? `; ${Object.keys(get("rateOverrides")!.value.rates).length} set by the team` : ""}.`
+        : "No rates yet: customers see the shops' own currencies.",
+      attention: !get("exchangeRates") || Boolean(get("exchangeRates")!.value.failedAt),
+    },
     // 104.8.2 Without a review account, the stores can't review Yallapp Courier.
     "/admin/settings/yallapp-courier": {
       now: get("courierHub")?.value.reviewCode ? "The review account is set." : "No review account yet: the stores can't review Yallapp Courier.",

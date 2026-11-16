@@ -11,6 +11,8 @@ import { appUrl, encryptionKey, iyzicoApiUrl, mediaBaseUrl, mediaSigningSecret, 
 import { initialFormState, type FormState } from "@/lib/forms";
 import { sendMail } from "@/lib/mail";
 import { parsePrice } from "@/lib/catalog/money";
+import { isCurrencyCode } from "@/lib/money/currencies";
+import { refreshRates } from "@/lib/money/rates";
 import { otpSenderFrom } from "@/lib/hosted/otp-sender";
 import { checkTestCode, OTP_TEST_TTL_SECONDS, sendTestCode, type OtpTestTicket } from "@/lib/hosted/otp-test";
 import { parseAnyPhone } from "@/lib/hosted/phone";
@@ -70,6 +72,8 @@ const SETTING_LABELS: Partial<Record<PlatformSettingKey, string>> = {
   storagePacks: "storage packs",
   maps: "the map for ride, delivery and food apps",
   courierHub: "Yallapp Courier",
+  exchangeRates: "the day's exchange rates",
+  rateOverrides: "the team's exchange rates",
 };
 
 /** Saves a setting (null: back to the defaults) and logs it, secrets redacted; `audit` replaces parts of the log entry. */
@@ -845,4 +849,38 @@ export async function saveMapsSettingAction(_: FormState, formData: FormData): P
   if (values.routingUrl && !routingUrl) return { errors: { routingUrl: "Enter the routing server's https address, without ? or #." }, values };
   await save("maps", { tilesUrl: values.tilesUrl, attribution: values.attribution || null, searchUrl, routingUrl }, admin);
   return { ok: true, message: "Saved. Ride, delivery and food apps show the map the next time they open.", values };
+}
+
+
+// 133.6 Currencies: the day's rates (read now) and the team's own rates.
+
+/** "Refresh now": reads the day's rates from the source at once; the last good ones stay when it fails. */
+export async function refreshRatesAction(_: FormState): Promise<FormState> {
+  const admin = await requireAdmin("settings.edit");
+  const store = await getStore();
+  const result = await refreshRates({ store, now: new Date(), by: admin.email });
+  clearPlatformSettingsCache();
+  await recordAudit({ actor: admin, action: "settings.save", target: { type: "setting", id: "exchangeRates" }, summary: result.ok ? `Read the day's exchange rates (${result.date})` : `The exchange rates couldn't be read: ${result.error}` });
+  revalidatePath("/admin/settings", "layout");
+  return result.ok
+    ? { ok: true, message: `The rates of ${result.date} are in: ${result.currencies} currencies.` }
+    : { message: `The rates couldn't be read: ${result.error} ${result.date ? `The rates of ${result.date} stay.` : "There are no rates yet."}` };
+}
+
+/** The team's rate for a currency (units for one US dollar), over the day's; an empty rate removes it. */
+export async function saveRateOverrideAction(_: FormState, formData: FormData): Promise<FormState> {
+  const admin = await requireAdmin("settings.edit");
+  const values = { code: str(formData, "code").toUpperCase(), rate: str(formData, "rate").replace(",", ".") };
+  if (!isCurrencyCode(values.code) || values.code === "USD") return { errors: { code: "Choose a currency other than USD." }, values };
+  const rate = values.rate === "" ? null : Number(values.rate);
+  if (rate !== null && (!/^\d{1,9}(\.\d{1,10})?$/.test(values.rate) || !(rate > 0))) return { errors: { rate: "Enter how many of it make one US dollar, like 48.75, or leave it empty to use the day's rate." }, values };
+  const store = await getStore();
+  const current = (await platformSetting(store, "rateOverrides", { fresh: true }))?.value?.rates ?? {};
+  const rates = { ...current };
+  if (rate === null) delete rates[values.code];
+  else rates[values.code] = rate;
+  await save("rateOverrides", Object.keys(rates).length ? { rates } : null, admin, {
+    summary: rate === null ? `Removed the team's rate for ${values.code}` : `Set ${values.code} at ${rate} for one US dollar`,
+  });
+  return { ok: true, message: rate === null ? `${values.code} uses the day's rate again.` : `Saved: 1 USD = ${rate} ${values.code}, until removed.`, values: { code: "", rate: "" } };
 }

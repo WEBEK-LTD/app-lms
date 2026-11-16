@@ -1,3 +1,4 @@
+import { ISO_CURRENCIES } from "../money/currencies";
 import { createHmac, timingSafeEqual } from "node:crypto";
 import { PaymentError } from "./errors";
 import { stripeTestKey, validStripeKey } from "./stripe-keys";
@@ -50,8 +51,14 @@ interface Options {
 
 export const STRIPE_URL = "https://api.stripe.com";
 
-/** The currencies Yallapp sells in that Stripe charges (all of them). */
-export const STRIPE_CURRENCIES = ["TRY", "USD", "EUR", "EGP", "SAR", "AED"] as const;
+/**
+ * The currencies Yallapp sells in that Stripe charges (all of them). 133.4
+ * Every active ISO 4217 currency but the few Stripe doesn't list
+ * (docs.stripe.com/currencies): it has no Iraqi or Libyan dinar, Iranian,
+ * Syrian, Sudanese or North Korean money, among others below.
+ */
+const STRIPE_LEAVES_OUT: ReadonlySet<string> = new Set(["BTN", "CUP", "ERN", "IQD", "IRR", "KPW", "LYD", "MRU", "SDG", "SSP", "STN", "SVC", "SYP", "TMT", "VED", "VES", "ZWG"]);
+export const STRIPE_CURRENCIES: readonly string[] = ISO_CURRENCIES.filter((code) => !STRIPE_LEAVES_OUT.has(code));
 
 /**
  * 132.32 How Stripe counts amounts (docs.stripe.com/currencies): most

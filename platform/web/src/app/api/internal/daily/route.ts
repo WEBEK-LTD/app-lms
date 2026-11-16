@@ -27,6 +27,7 @@ import type { DataStore } from "@/lib/data/store";
 import { APP_ERROR_DAYS } from "@/lib/watch/app-errors";
 import { MAIL_HISTORY_MONTHS } from "@/lib/mailing/types";
 import { pruneDemoVisits } from "@/lib/live-activity/demo";
+import { refreshRates } from "@/lib/money/rates";
 
 /**
  * POST /api/internal/daily (roadmap 13.4): the daily job. Netlify's scheduled
@@ -51,7 +52,8 @@ import { pruneDemoVisits } from "@/lib/live-activity/demo";
  * (to Wednesday), each active app's weekly summary goes to its owner. 78.3 Each run is
  * recorded; job runs older than 30 days go, and the watch checks that the
  * frequent job runs (lib/watch). Demo sign-ins kept for the website's live
- * activity card go after 7 days (lib/live-activity/demo.ts). Safe to call again.
+ * activity card go after 7 days (lib/live-activity/demo.ts). 133.6 First, the
+ * day's exchange rates are read (lib/money/rates.ts). Safe to call again.
  */
 export async function POST(request: Request): Promise<Response> {
   if (!hasBearerToken(request, internalJobSecret())) {
@@ -65,6 +67,11 @@ export async function POST(request: Request): Promise<Response> {
 
 async function runDaily(store: DataStore, now: Date) {
   const deps = { store, baseUrl: appUrl(), mail: sendTemplate, now };
+  // 133.6 The day's exchange rates, read once a day (the last good ones stay when it fails).
+  const rates = await refreshRates({ store, now }).catch((e: unknown) => {
+    console.error(`[daily] exchange rates: ${e instanceof Error ? e.message : String(e)}`);
+    return null;
+  });
   const report = await runDailyNotices(deps);
   // 47 Each app's days in its time zone.
   const analytics = await runAnalyticsNightly(store, now, undefined, async (appId) => {
@@ -137,5 +144,5 @@ async function runDaily(store: DataStore, now: Date) {
     return null;
   });
   const watch = await runWatch({ store, now, mail: teamMail, jobs: ["frequent"], dispatch: dispatchSet() });
-  return { ...report, mailHistory, marketplace, analytics: { ...analytics, history: analyticsHistory, weekly }, media, chat, milestones, productDay, ownerDevicesPurged, sessionsPurged, deleted: { apps, accounts }, jobRunsPurged, appErrorsPurged, botUnmatchedPurged, demoVisitsPurged, watch };
+  return { ...report, rates, mailHistory, marketplace, analytics: { ...analytics, history: analyticsHistory, weekly }, media, chat, milestones, productDay, ownerDevicesPurged, sessionsPurged, deleted: { apps, accounts }, jobRunsPurged, appErrorsPurged, botUnmatchedPurged, demoVisitsPurged, watch };
 }

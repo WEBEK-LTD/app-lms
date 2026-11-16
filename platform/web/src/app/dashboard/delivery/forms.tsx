@@ -1,5 +1,6 @@
 "use client";
 
+import { CurrencyPicker } from "@/components/currency-picker";
 import { useActionState, useState, type ReactNode } from "react";
 import { saveDeliveryServiceAction, saveDeliverySettingsAction } from "@/app/actions/delivery";
 import { Field, FieldError, FormMessage, SubmitButton } from "@/components/form";
@@ -172,7 +173,6 @@ export interface FoodSettingsValues {
 /** 104 How the company prices, takes payment, follows parcels, gives out jobs and (112.3) its couriers' app. 105.1 A food company's too, with its cuisines, when a courier gets an order and its time zone. */
 export function DeliverySettingsForm({
   settings,
-  currencies,
   bundleAllowed,
   bundleOff,
   before,
@@ -180,7 +180,8 @@ export function DeliverySettingsForm({
   hub,
 }: {
   settings: SettingsFormValues;
-  currencies: readonly string[];
+  /** 133.1 Any ISO 4217 currency now: the picker lists them all. */
+  currencies?: readonly string[];
   bundleAllowed: boolean;
   /** Shown under the second app when the plan doesn't have it. */
   bundleOff: ReactNode;
@@ -205,19 +206,8 @@ export function DeliverySettingsForm({
       {/* The page kit: the form in parts; 132.20 in the page's tabs (Prices, Tracking and jobs, Food orders). */}
       <TabPanel tab="prices">
         <FormSection id="f-delivery-pricing" title={t("delivery.pricing")} description={t("delivery.pricingHint")}>
-          <div className="flex flex-col gap-1.5">
-            <label htmlFor="f-currency" className="text-sm font-semibold">
-              {t("delivery.currency")}
-            </label>
-            <select id="f-currency" name="currency" defaultValue={currency} onChange={(e) => setCurrency(e.target.value)} className="input max-w-[200px]">
-              {currencies.map((c) => (
-                <option key={c} value={c}>
-                  {c}
-                </option>
-              ))}
-            </select>
-            <FieldError id="f-currency-error" error={state.errors?.currency} />
-          </div>
+          {/* 133.3 Any currency: searched by name, code or sign, the usual ones first. */}
+          <CurrencyPicker id="f-currency" label={t("delivery.currency")} defaultValue={currency} onChange={setCurrency} error={state.errors?.currency} />
           <Choices
             legend={t("delivery.pricingMode")}
             name="pricing"

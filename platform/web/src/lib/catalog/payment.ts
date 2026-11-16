@@ -1,3 +1,5 @@
+import { allocate } from "../market/currency";
+import { centsStep } from "../money/currencies";
 import { announceWaiting } from "../delivery/flow";
 import { payShipmentOrder } from "../delivery/payment";
 import { announceOrder } from "../food/flow";
@@ -99,14 +101,16 @@ export async function startPayment(
   if (order.tax && !order.tax.included && order.tax.cents > 0) {
     lines.push({ id: "tax", name: order.tax.label, cents: order.tax.cents, category: "Tax", digital: true });
   }
+  // 133.7 Charged in the customer's currency: the total there, the lines in proportion (still adding up to it).
+  const charge = chargedAmount(order);
   const started = await startCheckout(
     account,
     {
       reference: `order-${order.id}`,
-      amountCents: order.totalCents,
-      currency: order.currency,
+      amountCents: charge.cents,
+      currency: charge.currency,
       description: `Order ${orderNumber(order)}${deps.app.appName ? ` from ${deps.app.appName}` : ""}`,
-      lines,
+      lines: charge.charged ? chargedLines(lines, charge.cents, charge.currency) : lines,
       customer: {
         id: order.userId !== null ? `customer-${order.userId}` : `guest-${order.id}`,
         name: customer.name,
@@ -134,6 +138,23 @@ export async function startPayment(
     updatedAt: deps.now,
   });
   return started.url;
+}
+
+/**
+ * 133.7 What the card is charged for an order: its total in the customer's
+ * currency when the order was set to be charged in it (the shop's setting,
+ * a gateway that takes it), else its own total and currency.
+ */
+export function chargedAmount(order: Pick<CatalogOrder, "totalCents" | "currency" | "customerCurrency">): { cents: number; currency: string; charged: boolean } {
+  const cc = order.customerCurrency;
+  return cc?.charged ? { cents: cc.totalCents, currency: cc.currency, charged: true } : { cents: order.totalCents, currency: order.currency, charged: false };
+}
+
+/** 133.7 The lines in the charged currency: in proportion, in whole units of it (whole yen), adding up to `total`. */
+export function chargedLines(lines: CheckoutLine[], total: number, currency: string): CheckoutLine[] {
+  const step = centsStep(currency);
+  const shares = allocate(Math.round(total / step), lines.map((l) => l.cents));
+  return lines.map((l, i) => ({ ...l, cents: shares[i]! * step, subMerchant: undefined }));
 }
 
 /** 37 "pending": Kashier or Fawaterk haven't confirmed it (yet); their webhook may still do. */
@@ -165,8 +186,9 @@ export async function completePayment(
       deps.account.account,
       {
         reference: `order-${order.id}`,
-        amountCents: order.totalCents,
-        currency: order.currency,
+        // 133.7 What was charged: the customer's currency when the order was charged in it.
+        amountCents: chargedAmount(order).cents,
+        currency: chargedAmount(order).currency,
         providerRef: deps.providerRef ?? order.providerRef ?? null,
         ...(deps.iyzicoToken ? { iyzico: { token: deps.iyzicoToken, conversationId: `order-${orderNumber(order)}`, basketId: String(order.id) } } : {}),
       },

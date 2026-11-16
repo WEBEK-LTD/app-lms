@@ -5,7 +5,8 @@ import { checkIyzicoKeys } from "./iyzico";
 import { checkKashierKeys, validKashierMerchantId } from "./kashier";
 import { accountOf } from "./owner-keys";
 import { checkPaypalKeys } from "./paypal";
-import { PROVIDER_CURRENCIES, PROVIDER_NAME, providerTakes, type PaymentAccount, type ProviderOptions } from "./provider";
+import { PROVIDER_NAME, providerTakes, takenCurrencies, type PaymentAccount, type ProviderOptions } from "./provider";
+import { centsToDecimal } from "../catalog/money";
 import { listStripeWebhookEndpoints, probeStripeCheckout, readStripeAccount, scrubStripeText, StripeError, stripeMinimumCents, stripeTestPayment, type StripeProbe } from "./stripe";
 import { STRIPE_WEBHOOK_EVENTS, stripeKeysProblem, validStripeWebhookSecret } from "./stripe-keys";
 
@@ -137,11 +138,11 @@ function accepts(account: PaymentAccount, options: ProviderOptions): Promise<boo
 
 function currencyChecks(provider: PaymentProviderId, currency: string): ConnectionCheck[] {
   const name = PROVIDER_NAME[provider];
-  if (!providerTakes(provider, currency)) return [check("fail", "currencyNo", { provider: name, currency, list: PROVIDER_CURRENCIES[provider].join(", ") })];
+  if (!providerTakes(provider, currency)) return [check("fail", "currencyNo", { provider: name, currency, list: takenCurrencies(provider).join(", ") })];
   const out = [check("ok", "currencyOk", { provider: name, currency })];
   if (provider === "stripe") {
     const least = stripeMinimumCents(currency);
-    if (least !== null) out.push(check("info", "minimum", { amount: `${(least / 100).toFixed(2)} ${currency}` }));
+    if (least !== null) out.push(check("info", "minimum", { amount: `${centsToDecimal(least, currency)} ${currency}` }));
   }
   return out;
 }

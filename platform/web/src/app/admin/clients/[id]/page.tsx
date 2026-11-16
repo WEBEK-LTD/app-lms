@@ -909,7 +909,7 @@ async function AppEntry({
                   flightSource={travel.flightSource}
                   hotelSources={HOTEL_SOURCES.map((s) => ({ ...s }))}
                   flightSources={FLIGHT_SOURCES.map((s) => ({ ...s }))}
-                  currency={CATALOG_CURRENCIES.join(" · ")}
+                  currency={`Every currency (${CATALOG_CURRENCIES.length})`}
                   languages={languages}
                 />
               </Card>

@@ -63,6 +63,7 @@ export async function updateProduct(ctx: OwnerContext, params: Record<string, st
     price: has("price") ? text(body.price) : centsToDecimal(product.priceCents),
     salePrice: has("sale_price") ? text(body.sale_price) : product.salePriceCents !== null ? centsToDecimal(product.salePriceCents) : "",
     stock: has("stock") ? text(body.stock) : product.stock !== null ? String(product.stock) : "",
+    currency: app.catalogSettings?.currency ?? null,
   });
   const errors: Record<string, string> = {};
   if (numbers.errors.price) errors.price = numbers.errors.price;

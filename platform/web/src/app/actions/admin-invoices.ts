@@ -10,7 +10,7 @@ import { BANK_REFERENCE_MAX, recordBankTransfer } from "@/lib/billing/bank-trans
 import { sendPlanPaidMail } from "@/lib/billing/plan-mail";
 import { formatAmount } from "@/lib/billing/prices";
 import { receiptNumber } from "@/lib/billing/receipt";
-import { CATALOG_CURRENCIES, parsePrice } from "@/lib/catalog/money";
+import { BILLING_CURRENCIES, parsePrice } from "@/lib/catalog/money";
 import { getStore } from "@/lib/data";
 import type { CatalogCurrency } from "@/lib/data/types";
 import { encryptionKey } from "@/lib/env";
@@ -28,7 +28,7 @@ const bankTransferSchema = z.object({
   plan: z.enum(PLANS, "Choose a plan."),
   months: z.enum(["1", "12"], "Choose how long it pays for."),
   amount: z.string().trim().min(1, "Enter the amount that arrived."),
-  currency: z.enum(CATALOG_CURRENCIES as [CatalogCurrency, ...CatalogCurrency[]], "Choose the currency."),
+  currency: z.enum(BILLING_CURRENCIES as [CatalogCurrency, ...CatalogCurrency[]], "Choose the currency."),
   reference: z
     .string()
     .trim()

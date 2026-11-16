@@ -140,13 +140,13 @@ export function firstImage(value: string): string | null {
   return url ?? null;
 }
 
-function checkRow(kind: ImportKind, v: Partial<Record<ImportField, string>>): string[] {
+function checkRow(kind: ImportKind, v: Partial<Record<ImportField, string>>, currency?: string | null): string[] {
   if (kind === "products") {
     const errors: string[] = [];
     const name = v.name ?? "";
     if (!name) errors.push("Enter the product name.");
     else if (name.length > 120) errors.push("The name: use at most 120 characters.");
-    const numbers = readProductNumbers({ price: priceText(v.price ?? ""), salePrice: priceText(v.salePrice ?? ""), stock: v.stock ?? "" });
+    const numbers = readProductNumbers({ price: priceText(v.price ?? ""), salePrice: priceText(v.salePrice ?? ""), stock: v.stock ?? "", currency });
     errors.push(...Object.values(numbers.errors));
     if ((v.sku ?? "").length > 64) errors.push("The SKU: use at most 64 characters.");
     return errors;
@@ -159,7 +159,8 @@ function checkRow(kind: ImportKind, v: Partial<Record<ImportField, string>>): st
   return parsed.ok ? [] : Object.values(parsed.errors);
 }
 
-export function planImport(kind: ImportKind, table: Table): ImportPlan {
+/** 133.2 `currency`: the shop's, for its prices' digits (1.250 KWD). */
+export function planImport(kind: ImportKind, table: Table, currency?: string | null): ImportPlan {
   const map = mapColumns(kind, table.columns);
   const missing = REQUIRED[kind].filter((f) => map[f] === undefined);
   const columns = KIND_FIELDS[kind].filter((f) => map[f] !== undefined).map((field) => ({ field, column: table.columns[map[field]!]! }));
@@ -171,7 +172,7 @@ export function planImport(kind: ImportKind, table: Table): ImportPlan {
     // A feed says "out of stock" where a sheet gives the number left.
     if (!values.stock && values.availability && /out[ _]of[ _]stock|tükendi|stokta yok|غير متوفر|نفد/i.test(values.availability)) values.stock = "0";
     if (values.duration) values.duration = values.duration.replace(/[^\d]/g, "");
-    return { row: i + 2, name: values.name ?? "", values, errors: missing.length ? [] : checkRow(kind, values) };
+    return { row: i + 2, name: values.name ?? "", values, errors: missing.length ? [] : checkRow(kind, values, currency) };
   });
   return { kind, columns, missing, items };
 }

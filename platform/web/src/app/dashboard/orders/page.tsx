@@ -1,3 +1,4 @@
+import { rateText } from "@/lib/money/rates";
 import type { Metadata } from "next";
 import { deliveryDayLabel, slotLabel } from "@/lib/selling/delivery";
 import { taxLabel } from "@/lib/catalog/tax";
@@ -112,6 +113,15 @@ export default async function OrdersPage({ searchParams }: { searchParams: Promi
                         {t("orders.paidOn", { date: formatDateTime(order.paidAt, lang) })}
                         {order.refundedCents && order.status !== "refunded" ? ` · ${k(refundedLine(order.refundedCents, order.totalCents, order.currency) ?? "")}` : ""}
                       </span>
+                      {/* 133.7 Paid in the customer's own currency: what the card was charged, at the day's rate. */}
+                      {order.customerCurrency?.charged ? (
+                        <span className="text-[13px] font-semibold text-ink-4" title={t("money.chargedHint")} data-order-charged="">
+                          {t("money.charged", {
+                            amount: formatCents(order.customerCurrency.totalCents, order.customerCurrency.currency),
+                            rate: rateText(order.customerCurrency.rate, order.currency, order.customerCurrency.currency),
+                          })}
+                        </span>
+                      ) : null}
                     </span>
                     <Badge tone={TONES[order.status]}>{order.shipment && order.status === "processing" ? k("Shipped") : k(ORDER_STATUS_LABELS[order.status])}</Badge>
                   </div>

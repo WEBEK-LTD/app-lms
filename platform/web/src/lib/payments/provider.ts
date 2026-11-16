@@ -29,7 +29,10 @@ export const PROVIDER_NAME: Record<PaymentProviderId, string> = { iyzico: "iyzic
  * The currencies each provider takes. iyzico: Turkish lira, dollars, euros.
  * Kashier: Egyptian pounds, dollars, euros. Fawaterk: Egyptian pounds and
  * the Gulf currencies its vendors enable. 96.1 Stripe: all of them. PayPal:
- * dollars and euros (it has no lira, pound, riyal or dirham).
+ * dollars and euros (it has no lira, pound, riyal or dirham). 133.4 Since
+ * an app sells in any currency: Stripe takes nearly every one, PayPal its
+ * 24; iyzico, Kashier and Fawaterk keep the ones above (their documented
+ * lists), and a checkout never sends any other (checkout() refuses it).
  */
 export const PROVIDER_CURRENCIES: Record<PaymentProviderId, CatalogCurrency[]> = {
   iyzico: ["TRY", "USD", "EUR"],
@@ -52,9 +55,15 @@ export function providerTakes(provider: PaymentProviderId, currency: string): bo
   return (PROVIDER_CURRENCIES[provider] as string[]).includes(currency);
 }
 
-/** "EGP, USD or EUR" */
-export function currencyList(provider: PaymentProviderId): string {
+/** 133.4 The currencies to name in a sentence: all of a short list; the first 8 and "+N" of a long one (Stripe's 150, PayPal's 24). */
+export function takenCurrencies(provider: PaymentProviderId): string[] {
   const list = PROVIDER_CURRENCIES[provider];
+  return list.length > 10 ? [...list.slice(0, 8), `+${list.length - 8}`] : [...list];
+}
+
+/** "EGP, USD or EUR"; "USD, EUR, GBP, … or +16" for a long list. */
+export function currencyList(provider: PaymentProviderId): string {
+  const list = takenCurrencies(provider);
   return list.length > 1 ? `${list.slice(0, -1).join(", ")} or ${list[list.length - 1]}` : list.join("");
 }
 

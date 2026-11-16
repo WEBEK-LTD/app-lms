@@ -1,3 +1,5 @@
+import { currencyDecimals } from "../market/currency";
+import { minorToCents } from "../money/currencies";
 import type { Lang } from "@/i18n/config";
 import { formatDate } from "@/i18n/format";
 import { addDays, dayOf } from "../analytics/days";
@@ -75,7 +77,8 @@ export async function saleEvents(store: DataStore, app: App, areas: Pick<AppArea
     const { items } = await store.listMarketOrders({ appId: app.id, createdSince: from, order: "newest", limit: READ_MAX, offset: 0 });
     for (const o of items) {
       if (!inRange(o.createdAt, from, to) || ["awaiting_payment", "rejected", "cancelled"].includes(o.status)) continue;
-      out.push({ at: o.createdAt, cents: o.money.total, currency: o.currency, names: [o.vendorName], customer: who(o.userId, o.customerPhone) });
+      // 133.2 The marketplace keeps minor units (fils, yen): as cents, like every other sale.
+      out.push({ at: o.createdAt, cents: minorToCents(o.money.total, currencyDecimals(o.currency)), currency: o.currency, names: [o.vendorName], customer: who(o.userId, o.customerPhone) });
     }
   }
   // A delivery company's shipments (a food company's courier jobs are its food orders' already).
