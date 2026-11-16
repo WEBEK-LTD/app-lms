@@ -4,6 +4,7 @@ import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { recordStaffChange } from "@/lib/admin/audit";
 import { MAX_APPS_PER_CLIENT } from "@/lib/app/label";
+import { ownerLang } from "@/lib/app/owner-lang";
 import { chooseApp, clientFor, mayUseDashboard } from "@/lib/auth/session";
 import { getStore } from "@/lib/data";
 import { DEFAULT_HOSTED_SETTINGS } from "@/lib/data/types";
@@ -63,7 +64,8 @@ export async function startFromDemoAction(formData: FormData): Promise<void> {
   try {
     const made = await makeFromDemo(
       store,
-      { clientId: context.client.id, plan: await appPlan(store, license, now) },
+      // 132.40 In the owner's language: an Arabic or Turkish dashboard's app has it as its main one.
+      { clientId: context.client.id, plan: await appPlan(store, license, now), lang: await ownerLang(context) },
       { demo, name, colour, logoAssetId: logoAssetId || null, iconAssetId: iconAssetId || null, ...(look ? { look } : {}) },
       now,
     );
