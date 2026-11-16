@@ -26,6 +26,8 @@ export default async function AdminLayout({ children }: { children: React.ReactN
   const deletedApps = (await store.listAppDeletions({ statuses: ["waiting"], limit: 200 })).length;
   // 78.3 The bell: open alerts of the platform's watch.
   const openAlerts = await store.countOpenTeamAlerts();
+  // 106 Studio Market templates waiting for their first review.
+  const marketWaiting = (await store.listMarketTemplates({ statuses: ["in_review"] })).length;
   return (
     // 73 Light or dark like the website (globals.css); the menu stays dark.
     <div data-site-theme="" className="flex min-h-screen flex-col bg-ivory md:flex-row">
@@ -46,6 +48,11 @@ export default async function AdminLayout({ children }: { children: React.ReactN
                 { href: "/admin/product", label: "Product", icon: "rocket_launch" },
                 { href: "/admin/watching", label: "Watching", icon: "monitoring", badge: { count: openAlerts, label: openAlerts === 1 ? "open alert" : "open alerts" } },
               ],
+            },
+            // 106 Studio Market: templates designers sent for their first publish.
+            {
+              label: "Studio Market",
+              items: [{ href: "/admin/market", label: "Review queue", icon: "fact_check", badge: { count: marketWaiting, label: marketWaiting === 1 ? "template waiting" : "templates waiting" } }],
             },
             {
               label: "Clients and apps",
