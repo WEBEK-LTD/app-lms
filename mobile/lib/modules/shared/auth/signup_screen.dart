@@ -8,6 +8,7 @@ import '../../../core/gate/owner_contact.dart';
 import '../../../core/gate/app_gate.dart';
 import '../../../core/theme/palette.dart';
 import '../../../core/widgets/buttons.dart';
+import 'auth_look.dart';
 import 'password_screens.dart';
 import 'sign_in_screen.dart';
 import '../../../core/l10n/l10n.dart';
@@ -100,6 +101,108 @@ class _SignupScreenState extends ConsumerState<SignupScreen> {
     final showPassword = _required.contains(SignupField.password);
     final min =
         ref.watch(appConfigProvider).auth.passwordSignIn?.minLength ?? 8;
+    final fields = <Widget>[
+      _Field(
+        label: context.l10n.fullName,
+        controller: _name,
+        autofill: AutofillHints.name,
+        capitalization: TextCapitalization.words,
+        validator: (v) =>
+            (v == null || v.trim().length < 2) ? context.l10n.enterName : null,
+      ),
+      if (showEmail) ...[
+        const SizedBox(height: 18),
+        _Field(
+          label: context.l10n.email,
+          controller: _email,
+          autofill: AutofillHints.email,
+          keyboard: TextInputType.emailAddress,
+          validator: (v) {
+            final value = v?.trim() ?? '';
+            if (value.isEmpty) return context.l10n.enterEmail;
+            return RegExp(r'^[^@\s]+@[^@\s]+\.[^@\s]+$').hasMatch(value)
+                ? null
+                : context.l10n.enterValidEmail;
+          },
+        ),
+      ],
+      if (showCity) ...[
+        const SizedBox(height: 18),
+        _Field(
+          label: context.l10n.city,
+          controller: _city,
+          autofill: AutofillHints.addressCity,
+          capitalization: TextCapitalization.words,
+          validator: (v) =>
+              (v == null || v.trim().isEmpty) ? context.l10n.enterCity : null,
+        ),
+      ],
+      if (showUsername) ...[
+        const SizedBox(height: 18),
+        _Field(
+          label: context.l10n.username,
+          controller: _username,
+          autofill: AutofillHints.newUsername,
+          hint: context.l10n.usernameHint,
+          validator: (v) =>
+              _usernamePattern.hasMatch((v ?? '').trim().toLowerCase())
+              ? null
+              : context.l10n.enterUsername,
+        ),
+      ],
+      if (showPassword) ...[
+        const SizedBox(height: 18),
+        Text(
+          context.l10n.password,
+          style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w600),
+        ),
+        const SizedBox(height: 8),
+        PasswordField(
+          controller: _password,
+          label: context.l10n.passwordTooShort(min),
+          newPassword: true,
+          action: TextInputAction.next,
+          validator: (v) => newPasswordProblem(context, v, min),
+        ),
+        const SizedBox(height: 12),
+        PasswordField(
+          controller: _confirm,
+          label: context.l10n.confirmPassword,
+          newPassword: true,
+          validator: (v) =>
+              v == _password.text ? null : context.l10n.passwordsDontMatch,
+          onSubmitted: (_) => _submit(),
+        ),
+      ],
+      if (_error != null) ...[const SizedBox(height: 14), InlineError(_error!)],
+    ];
+    final submit = PrimaryButton(
+      label: context.l10n.createAccount,
+      loading: _saving,
+      onPressed: _submit,
+    );
+    // 132.6 A new account in sign-in's look: the system screens' look, or
+    // sign-in's own (a photo, a card, minimal or premium).
+    final look = AuthLook.of(
+      context,
+      ref.watch(appConfigProvider).screens,
+      SystemScreen.signIn,
+    );
+    if (look != null) {
+      return Form(
+        key: _form,
+        child: AuthLookFrame(
+          look: look,
+          title: context.l10n.createYourAccount,
+          subtitle: context.l10n.signupIntro(site),
+          footer: submit,
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: fields,
+          ),
+        ),
+      );
+    }
     return Scaffold(
       body: SafeArea(
         child: Form(
@@ -131,102 +234,14 @@ class _SignupScreenState extends ConsumerState<SignupScreen> {
                             ?.copyWith(color: context.palette.textSecondary),
                       ),
                       const SizedBox(height: 28),
-                      _Field(
-                        label: context.l10n.fullName,
-                        controller: _name,
-                        autofill: AutofillHints.name,
-                        capitalization: TextCapitalization.words,
-                        validator: (v) => (v == null || v.trim().length < 2)
-                            ? context.l10n.enterName
-                            : null,
-                      ),
-                      if (showEmail) ...[
-                        const SizedBox(height: 18),
-                        _Field(
-                          label: context.l10n.email,
-                          controller: _email,
-                          autofill: AutofillHints.email,
-                          keyboard: TextInputType.emailAddress,
-                          validator: (v) {
-                            final value = v?.trim() ?? '';
-                            if (value.isEmpty) return context.l10n.enterEmail;
-                            return RegExp(r'^[^@\s]+@[^@\s]+\.[^@\s]+$')
-                                    .hasMatch(value)
-                                ? null
-                                : context.l10n.enterValidEmail;
-                          },
-                        ),
-                      ],
-                      if (showCity) ...[
-                        const SizedBox(height: 18),
-                        _Field(
-                          label: context.l10n.city,
-                          controller: _city,
-                          autofill: AutofillHints.addressCity,
-                          capitalization: TextCapitalization.words,
-                          validator: (v) => (v == null || v.trim().isEmpty)
-                              ? context.l10n.enterCity
-                              : null,
-                        ),
-                      ],
-                      if (showUsername) ...[
-                        const SizedBox(height: 18),
-                        _Field(
-                          label: context.l10n.username,
-                          controller: _username,
-                          autofill: AutofillHints.newUsername,
-                          hint: context.l10n.usernameHint,
-                          validator: (v) =>
-                              _usernamePattern.hasMatch(
-                                (v ?? '').trim().toLowerCase(),
-                              )
-                              ? null
-                              : context.l10n.enterUsername,
-                        ),
-                      ],
-                      if (showPassword) ...[
-                        const SizedBox(height: 18),
-                        Text(
-                          context.l10n.password,
-                          style: const TextStyle(
-                            fontSize: 14,
-                            fontWeight: FontWeight.w600,
-                          ),
-                        ),
-                        const SizedBox(height: 8),
-                        PasswordField(
-                          controller: _password,
-                          label: context.l10n.passwordTooShort(min),
-                          newPassword: true,
-                          action: TextInputAction.next,
-                          validator: (v) => newPasswordProblem(context, v, min),
-                        ),
-                        const SizedBox(height: 12),
-                        PasswordField(
-                          controller: _confirm,
-                          label: context.l10n.confirmPassword,
-                          newPassword: true,
-                          validator: (v) => v == _password.text
-                              ? null
-                              : context.l10n.passwordsDontMatch,
-                          onSubmitted: (_) => _submit(),
-                        ),
-                      ],
-                      if (_error != null) ...[
-                        const SizedBox(height: 14),
-                        InlineError(_error!),
-                      ],
+                      ...fields,
                     ],
                   ),
                 ),
               ),
               Padding(
                 padding: const EdgeInsets.fromLTRB(24, 0, 24, 24),
-                child: PrimaryButton(
-                  label: context.l10n.createAccount,
-                  loading: _saving,
-                  onPressed: _submit,
-                ),
+                child: submit,
               ),
             ],
           ),

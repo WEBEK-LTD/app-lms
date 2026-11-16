@@ -14,6 +14,7 @@ import '../../../core/format/bidi.dart';
 import '../../../core/gate/app_gate.dart';
 import '../../../core/preview/preview_widgets.dart';
 import '../../../core/providers.dart';
+import '../../../core/routing/app_router.dart';
 import '../../../core/routing/paths.dart';
 import '../../../core/services/external_links.dart';
 import '../../../core/storage/local_settings.dart';
@@ -368,10 +369,20 @@ class _SignInScreenState extends ConsumerState<SignInScreen> {
     if (picked != null) setState(() => _dialCode = picked);
   }
 
+  /// "Not now": back to the screen sign-in was opened over, else into the
+  /// app as a guest, at its start (132.7).
   void _browse() {
+    if (context.canPop()) {
+      context.pop();
+      return;
+    }
     ref.read(localSettingsProvider.notifier).setGuestMode(true);
-    context.go(Paths.home);
+    context.go(ref.read(guestStartProvider) ?? Paths.home);
   }
+
+  /// 132.7 Whether "Not now" shows: without a screen to go back to, only
+  /// where a guest can use the app.
+  bool get _canSkip => ref.read(guestStartProvider) != null;
 
   /// The email address, and the password on a WordPress site.
   List<Widget> _emailFields(BuildContext context) {
@@ -507,8 +518,9 @@ class _SignInScreenState extends ConsumerState<SignInScreen> {
               ),
             ),
           ),
-          if (!canGoBack)
+          if (!canGoBack && _canSkip)
             TextButton(
+              key: const ValueKey('sign-in-not-now'),
               onPressed: _browse,
               style: TextButton.styleFrom(foregroundColor: p.text),
               child: Text(context.l10n.notNow),
@@ -673,7 +685,7 @@ class _SignInScreenState extends ConsumerState<SignInScreen> {
           if (canGoBack) ChromeBackButton(onColour: chrome != SystemLook.large),
         ],
         trailing: [
-          if (!canGoBack)
+          if (!canGoBack && _canSkip)
             TextButton(
               key: const ValueKey('chrome-not-now'),
               onPressed: _browse,
@@ -1025,8 +1037,9 @@ class _SignInScreenState extends ConsumerState<SignInScreen> {
                                 ),
                               ),
                             ),
-                            if (!canGoBack)
+                            if (!canGoBack && _canSkip)
                               TextButton(
+                                key: const ValueKey('premium-not-now'),
                                 onPressed: _browse,
                                 style: TextButton.styleFrom(
                                   foregroundColor: white,
