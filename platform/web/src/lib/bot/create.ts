@@ -7,6 +7,8 @@ import type { App } from "../data/types";
 import { demoIdOf } from "../demo/constants";
 import { demoDesignId, demoOfDesign } from "../demo/look";
 import { designsForApp } from "../pages/designs/catalog";
+import { wordsLangOf } from "../app/start-language";
+import { inMainLanguage } from "../pages/builtin";
 import { loadLayout, saveDesignDraft, saveDraft } from "../pages/layout";
 import { languagesForPlan } from "../pages/plan";
 import type { Languages } from "../pages/types";
@@ -14,6 +16,7 @@ import { planFitsSection, type PlanInfo } from "../plans";
 import { seedForDesign } from "../samples/server";
 import { makeStudioProject } from "../studio/new-project";
 import { STUDIO_ONLY_KINDS } from "../studio/section";
+import { appWords } from "../studio/app-words";
 import { templatesFor, TEMPLATES, type SectionWord } from "../studio/sections";
 import type { BotAnswers } from "./answers";
 import { featureSettings } from "./features";
@@ -65,6 +68,9 @@ async function makeStudio(store: DataStore, maker: BotMaker, answers: BotAnswers
   // The kind's demo (its template is the whole demo), or a university's own.
   const template = (answers.university ? templates.find((t) => t.id === "university") : templates.find((t) => t.demo)) ?? templates[0] ?? TEMPLATES.find((t) => t.id === "blank")!;
   const features = featureSettings({ appType: kind.engine, backend: "hosted", connector: null, catalogSettings: null }, answers.features, plan);
+  // 132.40 The template's words in the app's main language (the first one chosen) when Studio has words in it, else the dashboard's.
+  const languages = languagesOf(answers, plan);
+  const lang = wordsLangOf(languages, maker.lang);
   const app = await makeStudioProject(
     store,
     {
@@ -73,15 +79,15 @@ async function makeStudio(store: DataStore, maker: BotMaker, answers: BotAnswers
       kind,
       source: "catalog",
       template,
-      words: maker.words,
-      lang: maker.lang,
+      words: lang === maker.lang ? maker.words : appWords(lang, answers.name),
+      lang,
       extra: {
         ...(answers.colour ? { primaryColor: answers.colour } : {}),
         logoAssetId: answers.logoAssetId,
         chatSettings: features.chatSettings,
         reviewPrompt: features.reviewPrompt,
       },
-      languages: languagesOf(answers, plan),
+      languages,
     },
     now,
   );
@@ -96,9 +102,9 @@ async function makeRegular(store: DataStore, maker: BotMaker, answers: BotAnswer
   const base: App = answers.website ? named : { ...named, siteUrl: null, backend: "hosted", ...ownContentSetup(ENGINES[kind.engine].ownContent.kind, named), websiteDoneAt: now };
   const app: App = { ...base, ...featureSettings(base, answers.features, plan) };
   await store.createApp(app);
-  // The languages first: the design keeps the draft's, and the samples are written in the main one.
+  // The languages first: the design keeps the draft's, and the samples are written in the main one (132.40 Yallapp's texts too).
   const record = await loadLayout(store, app, now);
-  await saveDraft(store, app, { ...record.draft, languages: languagesOf(answers, plan) }, now);
+  await saveDraft(store, app, inMainLanguage({ ...record.draft, languages: languagesOf(answers, plan) }), now);
   await startFromDemoDesign(store, app, now, { colour: answers.colour !== null });
   return { app: (await store.getAppById(app.id)) ?? app, open: "/dashboard/pages?from=bot" };
 }

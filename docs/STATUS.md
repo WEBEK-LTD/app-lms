@@ -365,6 +365,13 @@ test environment:
 
 ## Known gaps
 
+- 132.40 An app started from a demo in Arabic or Turkish has its pages,
+  tabs and template words in that language, but the demo's own entries
+  (its products, dishes, places, courses, listings) stay in English: they
+  are one-language records. The sign-in code and receipt emails to an
+  app's users are in English. The app picks the phone's language when it
+  offers it, and its main language only otherwise.
+
 - 131 A flash sale's units aren't counted from a connected platform's
   orders (its own checkout sells them).
 
@@ -436,5 +443,10 @@ test environment:
 
 ## Planned (to agree on before any work)
 
-- More Studio project types (Phase 105) and the Studio template
-  marketplace (Phase 106, postponed): see `docs/ROADMAP.md`.
+- More Studio project types (Phase 105): see `docs/ROADMAP.md`.
+- Studio Market, the Studio template marketplace (Phase 106), no longer
+  postponed: stage 1 (designers, free templates reviewed once, applying,
+  moving and going back to the previous design) is built, in the look the
+  owner chose ("Gallery" in light, "Night showroom" in dark); paid plans and
+  checkout, the designers' money, and discounts with the public
+  `/templates` page follow (see `docs/ROADMAP.md`).

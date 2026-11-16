@@ -156,8 +156,8 @@ export default async function PagesPage({ searchParams }: PageProps<"/dashboard/
         ready={{ pages: ready.pages, tabs: ready.tabs }}
         // 43 The preview shows Yallapp's Arabic and Turkish where the owner wrote none, as the app does.
         builtin={builtInSuggestions(app.appName ?? null, ["ar", "tr"])}
-        // 82.1 The real app with the draft beside the editor (apps on the hosted API).
-        live={draftPreviewSupported(app) ? previewAppPath(createPreviewToken({ appId: app.id, draft: true }, previewKey(signingSecret()), now)) : null}
+        // 82.1 The real app with the draft beside the editor (apps on the hosted API); 132.40 in the app's main language, not the browser's.
+        live={draftPreviewSupported(app) ? `${previewAppPath(createPreviewToken({ appId: app.id, draft: true }, previewKey(signingSecret()), now))}&lang=${encodeURIComponent(record.draft.languages.default)}` : null}
       />
     </div>
   );

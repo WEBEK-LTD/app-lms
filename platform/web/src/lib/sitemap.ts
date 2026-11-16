@@ -33,6 +33,8 @@ export const PRIVATE_PATHS = [
   "/partner/",
   // 115.12 A marketplace's joining forms: shared by the owner, never listed.
   "/join/",
+  // 106 Studio Market's designer area and its joining form.
+  "/designer/",
 ];
 
 const MONTHS = ["january", "february", "march", "april", "may", "june", "july", "august", "september", "october", "november", "december"];
