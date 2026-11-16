@@ -25,6 +25,7 @@ import { localePath } from "@/i18n/paths";
 import { draftPreviewSupported, missingSteps, previewContentSource, previewWaitingFor } from "@/lib/preview/config";
 import { wordpressPluginConnected } from "@/lib/preview/service";
 import { createPreviewToken, previewAppPath, previewKey } from "@/lib/preview/token";
+import { isStudioProject } from "@/lib/studio/section";
 import { courierAppNameOf, hasCourierJobs, hasSecondApp, secondAppRoleOf } from "@/lib/delivery/courier-app";
 import { deliverySettingsOf } from "@/lib/delivery/settings";
 import { PreviewPanel } from "./panel";
@@ -59,7 +60,10 @@ export default async function PreviewPage({ searchParams }: PageProps<"/dashboar
   const plan = planId ? plans[planId] : null;
   const draftSupported = draftPreviewSupported(app);
   const params = await searchParams;
-  const draft = draftSupported && params.pages === "draft";
+  // 132.60 A Studio project that hasn't published yet opens on its draft, what was designed in the editor; Published stays a tap away.
+  const studio = isStudioProject(app);
+  const unpublished = draftSupported && studio && params.pages === undefined && !(await store.getAppLayout(app.id))?.published;
+  const draft = draftSupported && (params.pages === "draft" || unpublished);
   const token = createPreviewToken({ appId: app.id, draft }, previewKey(signingSecret()), now);
   const path = previewAppPath(token);
   // 112.3 A delivery, food, ride or taxi project: its couriers' (drivers') app too, with its own link.
@@ -152,7 +156,7 @@ export default async function PreviewPage({ searchParams }: PageProps<"/dashboar
           <span className="text-sm font-semibold text-muted">{t("preview.pages")}</span>
           <span className="flex flex-wrap gap-1 rounded-xl border border-line bg-white p-1">
             {[
-              { href: "/dashboard/preview", on: !draft, label: t("preview.published") },
+              { href: studio ? "/dashboard/preview?pages=published" : "/dashboard/preview", on: !draft, label: t("preview.published") },
               { href: "/dashboard/preview?pages=draft", on: draft, label: t("preview.draft") },
             ].map((choice) => (
               <Link

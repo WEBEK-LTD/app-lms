@@ -15,6 +15,7 @@ import { encryptionKey } from "@/lib/env";
 import { NOTIFICATION_BODY_MAX, NOTIFICATION_TITLE_MAX, serviceAccountOf } from "@/lib/hosted/notify";
 import { PLAN_ENDED_MESSAGE } from "@/lib/hosted/send-notification";
 import { appIsActive } from "@/lib/license/status";
+import { isStudioProject } from "@/lib/studio/section";
 import { AutoNotificationsForm, EditScheduledForm, ServiceAccountForm, SendNotificationForm } from "./forms";
 import { autoKindsFor, autoOn } from "@/lib/hosted/auto-notifications";
 import { dayOf } from "@/lib/analytics/days";
@@ -68,7 +69,8 @@ export default async function NotificationsPage() {
   const plans = plansIn(lang, await effectivePlans(store));
   const planId = license ? currentPlanId(license, new Date()) : null;
   const push = planId ? hasFeature(plans[planId], "push") : false;
-  const upgrade = lowestPlanWith(plans, (p) => hasFeature(p, "push"), planId);
+  // 132.59 A Studio project without a plan yet is offered Studio's plans, never the regular ones.
+  const upgrade = lowestPlanWith(plans, (p) => hasFeature(p, "push"), planId, isStudioProject(app) ? "studio" : undefined);
   // 68 Nothing goes out once the app's plan has ended (lib/hosted/send-notification.ts).
   const ended = !appIsActive(license, client, now);
   // 85.3 The automatic ones: on or off, and the last 30 days' people and opens.
@@ -96,7 +98,16 @@ export default async function NotificationsPage() {
       />
       {ended ? (
         <Notice tone="warn" icon="warning" role="status">
-          {k(PLAN_ENDED_MESSAGE)} <Link href="/dashboard/license">{t("notify.renewPlan")}</Link>
+          {/* 132.59 An app that never had a plan isn't told its plan has ended. */}
+          {license ? (
+            <>
+              {k(PLAN_ENDED_MESSAGE)} <Link href="/dashboard/license">{t("notify.renewPlan")}</Link>
+            </>
+          ) : (
+            <>
+              {t("studioKit.notifyNotActive")} <Link href="/dashboard/license">{t("studioKit.seePlan")}</Link>
+            </>
+          )}
         </Notice>
       ) : null}
 

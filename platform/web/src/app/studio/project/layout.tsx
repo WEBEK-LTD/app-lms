@@ -11,6 +11,7 @@ import { pathPermission } from "@/lib/team/permissions";
 import { C, Glyph, StudioBar, StudioScreen } from "../chrome";
 import { ProjectNav, type ProjectNavGroup } from "./project-nav";
 import { StudioDashboardLinks } from "./dashboard-links";
+import { StudioAccountMenu } from "../account-menu";
 import { studioScreensOn } from "@/lib/studio/screens";
 
 /** A dashboard address in the project's own frame. */
@@ -130,6 +131,8 @@ export default async function StudioProjectLayout({ children }: { children: Reac
           <Glyph name="draw" size={18} />
           <span className="max-sm:sr-only">{t("studio.openEditor")}</span>
         </Link>
+        {/* 132.51 The language, the account, the team and signing out. */}
+        <StudioAccountMenu />
       </StudioBar>
 
       {/* Below lg the menu is a bar above the page: its line keeps its own height. */}

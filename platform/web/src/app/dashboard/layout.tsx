@@ -27,7 +27,7 @@ import type { DashKey } from "@/i18n/dashboard";
 import { getVisitorContact } from "@/lib/contact";
 import { headers } from "next/headers";
 import { redirect } from "next/navigation";
-import { studioPathFor } from "@/lib/studio/section";
+import { studioAccountPathFor, studioPathFor } from "@/lib/studio/section";
 import { bellWords, dashboardText } from "@/lib/dashboard-lang";
 import { getStore } from "@/lib/data";
 import { ACCOUNT_STATE_LABEL, appState } from "@/lib/license/status";
@@ -45,7 +45,9 @@ export default async function DashboardLayout({ children }: { children: React.Re
   const { user, member, app, client, licenses, state, businesses } = context;
   // 103R A Yallapp Studio project lives in Studio: its pages open there (the same page in Studio's frame).
   if (app?.section === "studio") {
-    const target = studioPathFor((await headers()).get("x-yallapp-path") ?? "");
+    const path = (await headers()).get("x-yallapp-path") ?? "";
+    // 132.50 The account and the team too, in Studio's own frame.
+    const target = studioPathFor(path) ?? studioAccountPathFor(path);
     if (target) redirect(target);
   }
   // 103R The regular apps only: Studio projects have their own home.
