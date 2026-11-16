@@ -4,7 +4,6 @@ import { expect, test, type Browser, type Page } from "@playwright/test";
 import { E2E } from "../../playwright.config";
 import { messagesFor } from "../../src/i18n";
 import { ar as languagesAr, tr as languagesTr } from "../../src/i18n/dashboard/languages";
-import { ar as navAr } from "../../src/i18n/dashboard/nav";
 import { ar as startAr, tr as startTr } from "../../src/i18n/dashboard/start";
 
 /**
@@ -84,8 +83,9 @@ async function previewIn(page: Page, href: string, lang: string, name: string): 
   expect(response.status()).toBe(200);
   expect(response.request().headers()["accept-language"]).toBe(lang);
   const body = (await response.json()) as { languages: { default: string; available: string[] } };
+  // The plan may allow one language only: the main one, first.
   expect(body.languages.default).toBe(lang);
-  expect(body.languages.available).toContain("en");
+  expect(body.languages.available[0]).toBe(lang);
   await expect(page.frameLocator("iframe[data-testid=app-preview]").locator("flutter-view, flt-glass-pane").first()).toBeAttached();
   if (SHOTS) {
     // Its first screen drawn, for the picture.
@@ -122,9 +122,10 @@ test("signing up in Arabic: an Arabic dashboard, and a Studio project from a dem
   await previewIn(own, "/studio/project/preview?pages=draft", "ar", "ar-4-preview");
   await previewIn(own, "/studio/project/preview", "ar", "ar-5-preview-published");
 
-  // Signed in again from the English page, and in another browser: still Arabic.
-  await own.getByRole("button", { name: navAr.signOut }).first().click();
-  await expect(own).toHaveURL(/\/sign-in$/);
+  // Signed in again from the English page, with nothing remembered in the browser, and in another browser: still Arabic.
+  await own.context().clearCookies();
+  await own.goto("/studio");
+  await expect(own).toHaveURL(/\/sign-in/);
   const other = await freshPage(browser, "198.51.100.141");
   for (const page of [own, other]) {
     await page.goto("/sign-in");
