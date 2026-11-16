@@ -212,6 +212,17 @@ test("132.67 translations typed and not saved: leaving by the menu asks first", 
   await expect(own).toHaveURL(/\/studio\/project$/);
 });
 
+test("132.68 a project's page that isn't there says so in Studio's frame, with the way back", async () => {
+  await own.goto("/studio/project/catalog/999999");
+  await expect(own.locator("[data-dashboard-not-found]")).toBeVisible();
+  await expect(own.getByRole("heading", { level: 1, name: "This page isn't here" })).toBeVisible();
+  await expect(own.getByRole("navigation", { name: "Project dashboard" })).toBeVisible();
+  await own.getByRole("link", { name: "Back to the overview" }).click();
+  await expect(own).toHaveURL(/\/studio\/project$/);
+  // A 404's own console error isn't one of the page's.
+  problems.splice(0, problems.length, ...problems.filter((p) => !p.includes("404")));
+});
+
 test("the pages opened here had no console errors", async () => {
   expect(problems).toEqual([]);
 });

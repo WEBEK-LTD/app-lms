@@ -102,6 +102,10 @@ export const en = {
     feat_university_desc: "A school runs as a university: faculties, programs, course registration each term approved by the advisor, lecturers' grades, the GPA and the transcript in the app.",
     feat_taxi_desc: "Riders see the free taxis around them move on the map and follow their driver second by second, on your own Google Maps or OpenStreetMap and your own Firebase.",
   },
+  // 132.68 A page that isn't there.
+  notFoundTitle: "This page isn't here",
+  notFoundText: "It may have been deleted, or the link is old. Everything else is in the menu.",
+  notFoundBack: "Back to the overview",
 } as const;
 
 type Messages = Strings<typeof en>;
@@ -191,6 +195,9 @@ export const ar: Messages = {
     feat_university_desc: "مدرسة بتشتغل زي الجامعة: كليات وبرامج وتسجيل مواد كل ترم بموافقة المرشد الأكاديمي، ودرجات المحاضرين، والمعدّل وكشف الدرجات في التطبيق.",
     feat_taxi_desc: "الركاب بيشوفوا التاكسيات الفاضية حواليهم بتتحرك على الخريطة ويتابعوا السواق ثانية بثانية، على Google Maps أو OpenStreetMap بتاعك وFirebase بتاعك.",
   },
+  notFoundTitle: "الصفحة دي مش موجودة",
+  notFoundText: "يمكن اتمسحت، أو اللينك قديم. كل حاجة تانية موجودة في القايمة.",
+  notFoundBack: "ارجع للنظرة العامة",
 };
 
 export const tr: Messages = {
@@ -278,4 +285,7 @@ export const tr: Messages = {
     feat_university_desc: "Üniversite gibi işleyen bir okul: fakülteler, programlar, her dönem danışman onaylı ders kaydı, öğretim üyelerinin notları, not ortalaması ve transkript uygulamada.",
     feat_taxi_desc: "Yolcular çevrelerindeki boş taksilerin haritada hareket ettiğini görür ve sürücülerini saniye saniye takip eder; kendi Google Maps ya da OpenStreetMap'iniz ve kendi Firebase'iniz üzerinde.",
   },
+  notFoundTitle: "Bu sayfa burada değil",
+  notFoundText: "Silinmiş ya da bağlantı eski olabilir. Geri kalan her şey menüde.",
+  notFoundBack: "Genel bakışa dön",
 };
