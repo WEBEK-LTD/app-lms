@@ -696,6 +696,11 @@ $create = array_merge(
 		),
 	)
 );
+// WooCommerce holds an order's stock while it's paid for (its INSERT … SELECT … FOR UPDATE), and that statement
+// doesn't run on this SQLite test site: with 3 in stock, none held and no reservations, it still refused 2.
+// The order made here is already paid, so the hold is switched off for it and put back after; on MySQL it runs as usual.
+$hold_minutes = wp_eval( 'echo (string) get_option( "woocommerce_hold_stock_minutes" );' );
+wp_eval( 'update_option( "woocommerce_hold_stock_minutes", "0" );' );
 $r     = $paid_order( $create, $paid_key );
 $order = (int) ( $r['json']['order_id'] ?? 0 );
 // When it isn't made, the product's stock as WooCommerce counts it for an order (its held stock and reservations) says why.
@@ -713,7 +718,7 @@ check( '134 the order carries "Paid in the app via Stripe, reference …"', in_a
 check( '134 the stock went down', $stock_before - 2 === (int) wp_eval( 'echo wc_get_product( ' . (int) $seed['chocolates'] . ' )->get_stock_quantity();' ) );
 $r = $paid_order( $create, $paid_key );
 check( '134 the same payment again never makes a second order', 200 === $r['status'] && $order === (int) ( $r['json']['order_id'] ?? 0 ) && false === ( $r['json']['created'] ?? null ), $r['raw'] );
-wp_eval( 'wc_get_order( ' . $order . ' )->delete( true ); wc_update_product_stock( ' . (int) $seed['chocolates'] . ', ' . $stock_before . ' ); Yallapp\Plugin::instance()->settings()->update( array( "license_key" => "' . $saved_key . '" ) );' );
+wp_eval( 'wc_get_order( ' . $order . ' )->delete( true ); wc_update_product_stock( ' . (int) $seed['chocolates'] . ', ' . $stock_before . ' ); Yallapp\Plugin::instance()->settings()->update( array( "license_key" => "' . $saved_key . '" ) ); update_option( "woocommerce_hold_stock_minutes", "' . $hold_minutes . '" );' );
 
 printf( "\n%d checks, %d failed\n", $count, $fails );
 exit( $fails ? 1 : 0 );
