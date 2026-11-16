@@ -186,8 +186,10 @@ test("a shop with its own Kashier keys takes an order", async ({ page, request }
   await expect(page.getByText("Shop settings saved.")).toBeVisible();
 
   await page.getByRole("navigation", { name: "Products", exact: true }).getByRole("link", { name: /^Payments/ }).click();
+  // 132.120 The Products tab opens the one Payments page.
+  await expect(page).toHaveURL(/\/(dashboard|studio\/project)\/payments$/);
   const payments = page.getByRole("region", { name: "Card payments" });
-  await payments.getByLabel("Payment provider").selectOption("kashier");
+  await payments.locator('[data-gateway="kashier"]').click();
   await payments.getByLabel("Merchant ID").fill("MID-7777-001");
   await payments.getByLabel("Payment API key").fill("shop-kashier-api-key");
   await payments.getByLabel("Secret key").fill("shop-kashier-secret");
@@ -196,7 +198,8 @@ test("a shop with its own Kashier keys takes an order", async ({ page, request }
   await expect(payments.getByText("Kashier keys saved.")).toBeVisible();
   await expect(payments.getByText("On · your Kashier account · sandbox (test payments)")).toBeVisible();
 
-  await page.getByRole("navigation", { name: "Products", exact: true }).getByRole("link", { name: /^Products/ }).click();
+  // 132.120 Back from the one Payments page by the menu.
+  await page.getByRole("link", { name: "Products", exact: true }).click();
   await page.getByRole("link", { name: "Add product" }).click();
   await page.getByLabel("Name", { exact: true }).fill("Lotus Bouquet");
   await page.getByLabel("Price (EGP)", { exact: true }).fill("850");

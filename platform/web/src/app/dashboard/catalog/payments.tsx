@@ -20,7 +20,7 @@ import { PROVIDER_CURRENCIES } from "@/lib/payments/provider";
  * payments for its clients: a shop that had joined the old marketplace is
  * told to add its own account, and takes no payments until it does.
  */
-export async function CardPayments({ app, currency }: { app: App; currency?: CatalogCurrency }) {
+export async function CardPayments({ app, currency, wide = false }: { app: App; currency?: CatalogCurrency; wide?: boolean }) {
   // 60 Where the money goes is the owner's: the team sees that it's theirs to set.
   if (!(await mayDo("billing"))) return <OwnerOnly id="h-payments" title={(await dashboardText()).t("shop.cardPayments")} />;
   const settings = catalogSettings(app);
@@ -32,7 +32,8 @@ export async function CardPayments({ app, currency }: { app: App; currency?: Cat
   const list = (p: keyof typeof PROVIDER_CURRENCIES) => (lang === "en" ? currencyList(p) : formatList(lang, PROVIDER_CURRENCIES[p], "disjunction"));
   return (
     // The page kit: a Section, its state on a soft line, then the account's keys.
-    <Section titleId="h-payments" title={t("shop.cardPayments")} description={t("shop.cardIntro")} className="max-w-[640px]">
+    // 132.120 On the one Payments page wide, the gateways side by side; on the pages where the app sells, in their column.
+    <Section titleId="h-payments" title={t("shop.cardPayments")} description={t("shop.cardIntro")} className={wide ? "" : "max-w-[760px]"}>
       {own ? (
         <div className="flex flex-wrap items-center justify-between gap-3 rounded-xl bg-success-bg px-4 py-3">
           <p className="m-0 flex items-center gap-2 text-[15px] font-semibold text-success">
@@ -56,17 +57,15 @@ export async function CardPayments({ app, currency }: { app: App; currency?: Cat
           {t("shop.currencyWarn", { provider: PROVIDER_NAME[own.provider], list: list(own.provider), currency: sells })}
         </Notice>
       ) : null}
-      <details className="group rounded-xl border border-line-soft bg-sand p-4" open>
-        <summary className="flex cursor-pointer list-none items-center gap-2 text-[15px] font-bold [&::-webkit-details-marker]:hidden">
+      {/* 132.120 Slot: the world currencies' notice of what the gateway charges in goes here, beside the currency warning. */}
+      <div className="flex flex-col gap-1">
+        <h3 className="m-0 flex items-center gap-2 text-[15px] font-bold">
           <Icon name="credit_card" size={20} className="text-muted" />
-          <span className="flex-1">{t("shop.ownAccount")}</span>
-          <Icon name="expand_more" size={20} className="text-muted transition-transform group-open:rotate-180" />
-        </summary>
-        <div className="flex flex-col gap-4 pt-3">
-          <p className="m-0 text-sm leading-relaxed text-ink-4">{t("shop.ownText")}</p>
-          <OwnGatewayForm app={app} currency={sells} />
-        </div>
-      </details>
+          {t("shop.ownAccount")}
+        </h3>
+        <p className="m-0 text-sm leading-relaxed text-ink-4">{t("shop.ownText")}</p>
+      </div>
+      <OwnGatewayForm app={app} currency={sells} />
     </Section>
   );
 }
@@ -76,14 +75,14 @@ export async function CardPayments({ app, currency }: { app: App; currency?: Cat
  * customer picks one on the payment page and pays the business directly;
  * the order waits on Orders until the owner marks it paid.
  */
-export async function OtherPayments({ app }: { app: App }) {
+export async function OtherPayments({ app, wide = false }: { app: App; wide?: boolean }) {
   if (!(await mayDo("billing"))) return null;
   const { t, lang } = await dashboardText();
   const manual = catalogSettings(app).manualPayments ?? null;
   const on = manualChoices(manual);
   const names = on.map((c) => (c.method === "bank_transfer" ? t("orders.bankTransfer") : c.name));
   return (
-    <Section titleId="h-other-payments" title={t("shop.otherPayments")} description={t("shop.otherIntro")} className="max-w-[640px]">
+    <Section titleId="h-other-payments" title={t("shop.otherPayments")} description={t("shop.otherIntro")} className={wide ? "" : "max-w-[760px]"}>
       {on.length > 0 ? (
         <p className="m-0 flex items-center gap-2 rounded-xl bg-success-bg px-4 py-3 text-[15px] font-semibold text-success">
           <Icon name="check_circle" size={20} filled />

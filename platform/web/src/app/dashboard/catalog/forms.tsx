@@ -12,6 +12,7 @@ import {
   saveManualPaymentsAction,
 } from "@/app/actions/catalog";
 import { Field, FieldError, FormMessage, SubmitButton } from "@/components/form";
+import { Icon } from "@/components/icon";
 import { btn } from "@/components/ui";
 import { FormActions, FormSection } from "@/components/page-kit";
 import { initialFormState } from "@/lib/forms";
@@ -885,18 +886,44 @@ export function ManualPaymentsForm({ values: saved }: { values: { bankTransfer: 
   return (
     <form action={action} noValidate className="flex flex-col gap-4">
       <FormMessage message={state.message} ok={state.ok} />
-      <TextArea name="bankTransfer" label={t("shop.bankDetails")} hint={t("shop.bankDetailsHint")} value={values.bankTransfer} error={state.errors?.bankTransfer} />
-      <Field label={t("shop.customName")} name="customName" maxLength={40} defaultValue={values.customName} hint={t("shop.customNameHint")} error={state.errors?.customName} />
-      <TextArea name="customInstructions" label={t("shop.customInstructions")} hint={t("shop.customInstructionsHint")} value={values.customInstructions} error={state.errors?.customInstructions} rows={3} />
-      <Field
-        label={t("shop.payWithinDays")}
-        name="payWithinDays"
-        inputMode="numeric"
-        className="max-w-[220px]"
-        defaultValue={values.payWithinDays}
-        hint={t("shop.payWithinDaysHint")}
-        error={state.errors?.payWithinDays}
-      />
+      {/* 132.120 Each way to pay on its own card: bank transfer, then the owner's own method (cash on delivery, …); the days to pay for both. */}
+      <div className="grid gap-4 lg:grid-cols-2">
+        <section aria-labelledby="h-bank-transfer" className="flex min-w-0 flex-col gap-3 rounded-2xl border border-line bg-white p-4 sm:p-5" data-way-to-pay="bank_transfer">
+          <h3 id="h-bank-transfer" className="m-0 flex items-center gap-2 text-[16px] font-extrabold">
+            <span className="flex h-9 w-9 flex-none items-center justify-center rounded-xl bg-ivory">
+              <Icon name="receipt_long" size={20} className="text-muted" />
+            </span>
+            {t("orders.bankTransfer")}
+          </h3>
+          <TextArea name="bankTransfer" label={t("shop.bankDetails")} hint={t("shop.bankDetailsHint")} value={values.bankTransfer} error={state.errors?.bankTransfer} />
+        </section>
+        <section aria-labelledby="h-own-method" className="flex min-w-0 flex-col gap-3 rounded-2xl border border-line bg-white p-4 sm:p-5" data-way-to-pay="custom">
+          <h3 id="h-own-method" className="m-0 flex items-center gap-2 text-[16px] font-extrabold">
+            <span className="flex h-9 w-9 flex-none items-center justify-center rounded-xl bg-ivory">
+              <Icon name="storefront" size={20} className="text-muted" />
+            </span>
+            {t("gateways.ownMethod")}
+          </h3>
+          <Field label={t("shop.customName")} name="customName" maxLength={40} defaultValue={values.customName} hint={t("shop.customNameHint")} error={state.errors?.customName} />
+          <TextArea name="customInstructions" label={t("shop.customInstructions")} hint={t("shop.customInstructionsHint")} value={values.customInstructions} error={state.errors?.customInstructions} rows={3} />
+        </section>
+      </div>
+      <div className="flex flex-wrap items-start gap-3 rounded-2xl border border-line-soft bg-sand p-4">
+        <Icon name="hourglass_top" size={20} className="mt-8 text-muted" />
+        <Field
+          label={
+            <>
+              {t("shop.payWithinDays")} <span className="font-normal text-muted">· {t("gateways.bothMethods")}</span>
+            </>
+          }
+          name="payWithinDays"
+          inputMode="numeric"
+          className="max-w-[260px] flex-1"
+          defaultValue={values.payWithinDays}
+          hint={t("shop.payWithinDaysHint")}
+          error={state.errors?.payWithinDays}
+        />
+      </div>
       <div className="flex justify-end">
         <SubmitButton variant="secondary" className="h-10" pendingText={t("common.saving")}>
           {t("shop.saveManual")}

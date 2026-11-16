@@ -107,7 +107,7 @@ test("a client without a website sets up their shop", async ({ page }) => {
   await expect(page.getByText("can't pay for them until you set up Card payments.")).toBeVisible();
   await expect(page.getByRole("navigation", { name: "Products", exact: true }).getByRole("link", { name: /^Payments/ })).toBeVisible();
   await page.goto("/dashboard");
-  await expect(page.getByText("can't pay for them until you set up Card payments on the Products page")).toBeVisible();
+  await expect(page.getByText("can't pay for them until you set up Card payments on the Payments page")).toBeVisible();
   await page.getByRole("link", { name: "Products", exact: true }).click();
   await page.getByRole("navigation", { name: "Products", exact: true }).getByRole("link", { name: /^Categories/ }).click();
   await expect(page).toHaveURL(/\/dashboard\/catalog\/categories$/);
@@ -121,6 +121,8 @@ test("a client without a website sets up their shop", async ({ page }) => {
   await expect(page.getByText("Shop settings saved.")).toBeVisible();
 
   await page.getByRole("navigation", { name: "Products", exact: true }).getByRole("link", { name: /^Payments/ }).click();
+  // 132.120 The Products tab opens the one Payments page.
+  await expect(page).toHaveURL(/\/(dashboard|studio\/project)\/payments$/);
   await page.getByLabel("API key").fill("sandbox-api-key");
   await page.getByLabel("Secret key").fill("sandbox-secret-key");
   await page.getByText("Sandbox keys").click();
@@ -128,7 +130,8 @@ test("a client without a website sets up their shop", async ({ page }) => {
   await expect(page.getByText("iyzico keys saved.")).toBeVisible();
   await expect(page.getByText("On · your iyzico account · sandbox (test payments)")).toBeVisible();
 
-  await page.getByRole("navigation", { name: "Products", exact: true }).getByRole("link", { name: /^Products/ }).click();
+  // 132.120 Back from the one Payments page by the menu.
+  await page.getByRole("link", { name: "Products", exact: true }).click();
   await page.getByRole("link", { name: "Add product" }).click();
   await page.getByLabel("Name", { exact: true }).fill("Tulip Bouquet");
   await page.getByLabel("Description").fill("Twenty fresh tulips.");
