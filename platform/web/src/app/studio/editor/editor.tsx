@@ -156,6 +156,8 @@ export function StudioEditor(props: StudioEditorProps) {
   const [pagesOpen, setPagesOpen] = useState(false);
   const [newTitle, setNewTitle] = useState("");
   const [shortcutsOpen, setShortcutsOpen] = useState(false);
+  // 132.74 A template seen before it replaces the page: its page, made once, is the one used.
+  const [previewing, setPreviewing] = useState<{ title: string; page: StudioPage } | null>(null);
   // 132.61 "On my phone": the preview's QR code under its button.
   const [phoneOpen, setPhoneOpen] = useState(false);
   const [importOpen, setImportOpen] = useState(false);
@@ -667,6 +669,7 @@ export function StudioEditor(props: StudioEditorProps) {
         setZoomOpen(false);
         setShortcutsOpen(false);
         setPhoneOpen(false);
+        setPreviewing(null);
       } else if (selectedId && (e.key === "ArrowUp" || e.key === "ArrowDown" || e.key === "ArrowLeft" || e.key === "ArrowRight")) {
         e.preventDefault();
         const rtl = editLang === "ar";
@@ -1361,6 +1364,52 @@ export function StudioEditor(props: StudioEditorProps) {
         </button>
       </header>
 
+      {previewing ? (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-[rgba(14,13,36,0.55)] p-4" onClick={() => setPreviewing(null)} data-template-preview="">
+          <div
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="template-preview-title"
+            onClick={(e) => e.stopPropagation()}
+            className="flex max-h-full w-[min(400px,100%)] flex-col gap-3 overflow-hidden rounded-2xl p-4 shadow-[0_30px_70px_rgba(14,13,36,0.35)]"
+            style={{ background: C.surface, color: C.ink, border: `1px solid ${C.line}` }}
+          >
+            <h2 id="template-preview-title" className="m-0 text-lg font-extrabold">
+              {t("studioKit.tplPreviewTitle", { name: previewing.title })}
+            </h2>
+            <div className="mx-auto min-h-0 flex-none rounded-[34px] p-2" style={{ background: C.bar }} dir="ltr">
+              <div className="overflow-x-hidden overflow-y-auto rounded-[26px]" style={{ width: 288, height: "min(560px, calc(100dvh - 260px))", background: dark ? "#14121F" : "#FBF8F2" }}>
+                {/* Drawn at the phone's 360 pixels, then zoomed to fit: it scrolls as tall as it is. */}
+                <div style={{ width: 360, zoom: 0.8, pointerEvents: "none" }}>
+                  <StudioView page={previewing.page} lang={editLang} defaultLang={layout.languages.default} dark={dark} look={look} pickable={props.pickable} market={props.market} words={words} learningWords={learningWords} liveWords={liveWords} schoolWords={{ ...schoolWords, date: greeting.date }} greeting={greeting} premiumWords={premiumWords} commerceWords={commerceWords} />
+                </div>
+              </div>
+            </div>
+            <p className="m-0 text-[13px]" style={{ color: C.muted }}>
+              {t("studio.templatesIntro")}
+            </p>
+            <div className="flex flex-wrap justify-end gap-2">
+              <button type="button" onClick={() => setPreviewing(null)} className="h-10 rounded-[10px] px-4 text-sm font-semibold" style={{ border: `1px solid ${C.line}`, background: "transparent", color: C.ink }}>
+                {t("common.cancel")}
+              </button>
+              <button
+                type="button"
+                autoFocus
+                onClick={() => {
+                  const chosen = previewing.page;
+                  setPreviewing(null);
+                  startWith(() => chosen);
+                }}
+                className="h-10 rounded-[10px] border-0 px-4 text-sm font-extrabold"
+                style={{ background: C.accent, color: C.onAccent }}
+              >
+                {t("studioKit.tplUse")}
+              </button>
+            </div>
+          </div>
+        </div>
+      ) : null}
+
       <div className="flex min-h-0 flex-auto flex-wrap items-stretch lg:flex-nowrap">
         <LeftPanel
           tab={leftTab}
@@ -1378,10 +1427,14 @@ export function StudioEditor(props: StudioEditorProps) {
           onAddElement={(type, preset) => add({ kind: "new", type, ...(preset ? { preset } : {}) })}
           onAddPremiumMap={(id) => add({ kind: "premium_map", id })}
           onAddSection={(id) => add({ kind: "section", id })}
-          onUseTemplate={applyTemplate}
+          onUseTemplate={(id) => {
+            // 132.74 Seen first, full size, then used or not.
+            const tpl = TEMPLATES.find((x) => x.id === id) ?? PAGE_TEMPLATES.find((x) => x.id === id);
+            if (tpl) setPreviewing({ title: t(`studio.tpl_${id}` as DashKey), page: tpl.make(sectionContext) });
+          }}
           onAddPicture={(payload) => add(payload)}
           onLayerChange={(id, patch) => changePage((p) => updateNode(p, id, patch))}
-          onUseMyTemplate={(tpl) => startWith(() => structuredClone(tpl.page))}
+          onUseMyTemplate={(tpl) => setPreviewing({ title: tpl.name, page: structuredClone(tpl.page) })}
           onDeleteMyTemplate={(id) => void deleteTemplate(id)}
           myTemplates={myTemplates}
           sections={kindSections}

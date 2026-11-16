@@ -135,6 +135,9 @@ export const en = {
   hist_look: "Changed the look",
   hist_languages: "Changed the languages",
   hist_other: "Changed the design",
+  // 132.74 A template seen before it's used.
+  tplPreviewTitle: "Preview: {name}",
+  tplUse: "Use this template",
 } as const;
 
 type Messages = Strings<typeof en>;
@@ -253,6 +256,8 @@ export const ar: Messages = {
   hist_look: "غيّرت الشكل",
   hist_languages: "غيّرت اللغات",
   hist_other: "غيّرت التصميم",
+  tplPreviewTitle: "معاينة: {name}",
+  tplUse: "استخدم القالب ده",
 };
 
 export const tr: Messages = {
@@ -369,4 +374,6 @@ export const tr: Messages = {
   hist_look: "Görünüm değiştirildi",
   hist_languages: "Diller değiştirildi",
   hist_other: "Tasarım değiştirildi",
+  tplPreviewTitle: "Önizleme: {name}",
+  tplUse: "Bu şablonu kullan",
 };
