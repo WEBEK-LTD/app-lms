@@ -58,6 +58,7 @@ import type {
   // 73 Deleted apps and kept billing records
   AppDeletion,
   AppDeletionStatus,
+  AppMoveKind,
   AppMoveStatus,
   KeptBillingRecord,
   // 77 Chat
@@ -3482,9 +3483,12 @@ export const appMoveRequests = mysqlTable(
   "app_move_requests",
   {
     id: id("id").primaryKey(),
+    // 132.115 "app", or "plan": only the app's plan moves, to `to_app_id`.
+    kind: varchar("kind", { length: 8 }).notNull().default("app").$type<AppMoveKind>(),
     appId: id("app_id")
       .notNull()
       .references(() => apps.id, { onDelete: "cascade" }),
+    toAppId: id("to_app_id").references(() => apps.id, { onDelete: "cascade" }),
     fromClientId: id("from_client_id")
       .notNull()
       .references(() => clients.id, { onDelete: "cascade" }),

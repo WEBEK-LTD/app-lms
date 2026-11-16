@@ -1,6 +1,8 @@
 CREATE TABLE `app_move_requests` (
 	`id` varchar(36) NOT NULL,
+	`kind` varchar(8) NOT NULL DEFAULT 'app',
 	`app_id` varchar(36) NOT NULL,
+	`to_app_id` varchar(36),
 	`from_client_id` varchar(36) NOT NULL,
 	`to_client_id` varchar(36) NOT NULL,
 	`move_data` boolean NOT NULL,
@@ -25,6 +27,7 @@ CREATE TABLE `app_move_requests` (
 ALTER TABLE `apps` ADD `moved_at` datetime(3);--> statement-breakpoint
 ALTER TABLE `apps` ADD `moved_to_client_id` varchar(36);--> statement-breakpoint
 ALTER TABLE `app_move_requests` ADD CONSTRAINT `app_move_requests_app_id_apps_id_fk` FOREIGN KEY (`app_id`) REFERENCES `apps`(`id`) ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
+ALTER TABLE `app_move_requests` ADD CONSTRAINT `app_move_requests_to_app_id_apps_id_fk` FOREIGN KEY (`to_app_id`) REFERENCES `apps`(`id`) ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
 ALTER TABLE `app_move_requests` ADD CONSTRAINT `app_move_requests_from_client_id_clients_id_fk` FOREIGN KEY (`from_client_id`) REFERENCES `clients`(`id`) ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
 ALTER TABLE `app_move_requests` ADD CONSTRAINT `app_move_requests_to_client_id_clients_id_fk` FOREIGN KEY (`to_client_id`) REFERENCES `clients`(`id`) ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
 CREATE INDEX `app_move_requests_from_idx` ON `app_move_requests` (`from_client_id`,`created_at`);--> statement-breakpoint

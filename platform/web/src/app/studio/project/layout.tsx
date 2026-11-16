@@ -1,10 +1,8 @@
 import { Suspense } from "react";
 import Link from "next/link";
 import { redirect } from "next/navigation";
-import { stopManagingAction } from "@/app/actions/admin";
 import { openStudioProjectAction } from "@/app/actions/studio-projects";
-import { SubmitButton } from "@/components/form";
-import { richText } from "@/i18n/rich";
+import { MovedAppNotice } from "@/components/moved-app";
 import { contentNavOf, kindOf } from "@/lib/app/kinds";
 import { contextCan, requireClient } from "@/lib/auth/session";
 import { dashboardText } from "@/lib/dashboard-lang";
@@ -25,9 +23,10 @@ const inStudio = (href: string) => href.replace(/^\/dashboard/, "/studio/project
  */
 export default async function StudioProjectLayout({ children }: { children: React.ReactNode }) {
   const context = await requireClient();
-  const { app, staff, user } = context;
+  const { app } = context;
   if (!app || !isStudioProject(app)) redirect("/studio");
-  const { t, k, lang, dir } = await dashboardText();
+  const text = await dashboardText();
+  const { t, k, lang, dir } = text;
   const projects = context.apps.filter(isStudioProject);
   const content = contentNavOf(app);
   // Each link as the dashboard's page it shows, so the team's permissions apply as there.
@@ -90,7 +89,6 @@ export default async function StudioProjectLayout({ children }: { children: Reac
     .map((group) => ({ ...group, items: group.items.filter((i) => contextCan(context, pathPermission(i.dashboardHref))).map(({ href, label, icon }) => ({ href, label, icon })) }))
     .filter((group) => group.items.length);
   const name = app.appName ?? t("studio.untitledProject");
-  const bold = { b: (chunk: string) => <strong>{chunk}</strong> };
   return (
     <StudioScreen dir={dir} lang={lang}>
       <StudioDashboardLinks />
@@ -140,19 +138,8 @@ export default async function StudioProjectLayout({ children }: { children: Reac
           <ProjectNav label={t("studio.projectDashboard")} menuLabel={t("studio.projectMenu")} closeLabel={t("studio.closeProjectMenu")} groups={allowed} />
         </Suspense>
         <main id="main" tabIndex={-1} className="box-border flex min-w-0 flex-[999_1_560px] flex-col gap-5 p-4 outline-none sm:p-6">
-          {staff ? (
-            <div role="status" className="flex flex-wrap items-center justify-between gap-3 rounded-xl px-4 py-3 text-sm text-white" style={{ background: C.ink }}>
-              <span className="flex items-center gap-2">
-                <Glyph name="key" />
-                <span>{richText(t("nav.staffApp", { name: user.name, app: name }), bold)}</span>
-              </span>
-              <form action={stopManagingAction}>
-                <SubmitButton variant="secondary" className="h-9 px-3 text-sm">
-                  {t("nav.backToAdmin")}
-                </SubmitButton>
-              </form>
-            </div>
-          ) : null}
+          {/* 132.112 An app that moved to another account stays to read. */}
+          <MovedAppNotice app={app} text={text} />
           {children}
         </main>
       </div>

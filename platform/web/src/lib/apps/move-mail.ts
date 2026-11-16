@@ -37,6 +37,8 @@ export interface MoveMailInput {
   subscription: boolean;
   /** The team member moving it. */
   member: string;
+  /** 132.115 Only the app's plan moves, to this other app: the plan's words instead of the app's. */
+  plan?: { toApp: string; name?: string; until?: string; next?: string | null };
   /** approval: the 6-digit code and the page to approve or decline on. */
   code?: string;
   reviewUrl?: string;
@@ -77,6 +79,19 @@ type Words = {
   safety: string;
   movedOn: string;
   doneNote: Record<"moved_out" | "added", string>;
+  /** 132.115 Moving only a plan. */
+  plan: {
+    eyebrow: Record<MoveMailKind, string>;
+    subject: Record<MoveMailKind, string>;
+    preview: Record<MoveMailKind, string>;
+    title: Record<MoveMailKind, string>;
+    intro: Record<MoveMailKind, string>;
+    label: string;
+    until: string;
+    leaves: string;
+    arrives: string;
+    invoices: string;
+  };
 };
 
 const WORDS: Record<Lang, Words> = {
@@ -120,6 +135,22 @@ const WORDS: Record<Lang, Words> = {
       moved_out: "If you didn't expect this, contact Yallapp support.",
       added: "You can find it in your app switcher. If you didn't expect this, contact Yallapp support.",
     },
+    plan: {
+      eyebrow: { approval: "Plan move request", moved_out: "Plan moved", added: "Plan added" },
+      subject: { approval: "Move your plan from {app} to {toApp}", moved_out: "Your plan moved from {app} to {toApp}", added: "A plan was added to {toApp}" },
+      preview: { approval: "Your approval code is inside. It expires in {minutes} minutes.", moved_out: "The plan of {app} is now on {toApp}.", added: "{toApp} has a plan now." },
+      title: { approval: "Approve moving your plan", moved_out: "Your plan has moved", added: "A plan was added to your app" },
+      intro: {
+        approval: "{member} from the Yallapp team is moving the plan of {app} to {toApp}. Nothing moves until you approve it.",
+        moved_out: "The plan of {app} is now on {toApp}.",
+        added: "The Yallapp team moved a plan to {toApp} from {from}'s account.",
+      },
+      label: "Plan",
+      until: "Until",
+      leaves: "{app} goes back to having no plan, like a new app.",
+      arrives: "{toApp} gets the plan with the same end date and renewal.",
+      invoices: "Past invoices stay where they are.",
+    },
   },
   ar: {
     eyebrow: { approval: "طلب نقل تطبيق", moved_out: "نُقل التطبيق", added: "أُضيف تطبيق" },
@@ -161,6 +192,22 @@ const WORDS: Record<Lang, Words> = {
       moved_out: "إن لم تكن تتوقع ذلك، فتواصل مع دعم Yallapp.",
       added: "ستجده في قائمة تطبيقاتك. وإن لم تكن تتوقع ذلك، فتواصل مع دعم Yallapp.",
     },
+    plan: {
+      eyebrow: { approval: "طلب نقل خطة", moved_out: "نُقلت الخطة", added: "أُضيفت خطة" },
+      subject: { approval: "انقل خطتك من {app} إلى {toApp}", moved_out: "نُقلت خطتك من {app} إلى {toApp}", added: "أُضيفت خطة إلى {toApp}" },
+      preview: { approval: "رمز الموافقة في هذه الرسالة، وتنتهي صلاحيته خلال {minutes} دقيقة.", moved_out: "أصبحت خطة {app} على {toApp}.", added: "أصبح لدى {toApp} خطة الآن." },
+      title: { approval: "وافِق على نقل خطتك", moved_out: "نُقلت خطتك", added: "أُضيفت خطة إلى تطبيقك" },
+      intro: {
+        approval: "يعمل {member} من فريق Yallapp على نقل خطة {app} إلى {toApp}، ولن يُنقل أي شيء قبل موافقتك.",
+        moved_out: "أصبحت خطة {app} الآن على {toApp}.",
+        added: "نقل فريق Yallapp خطةً إلى {toApp} من حساب {from}.",
+      },
+      label: "الخطة",
+      until: "حتى",
+      leaves: "يعود {app} بلا خطة، مثل أي تطبيق جديد.",
+      arrives: "يحصل {toApp} على الخطة بتاريخ الانتهاء والتجديد نفسيهما.",
+      invoices: "تبقى الفواتير السابقة في مكانها.",
+    },
   },
   tr: {
     eyebrow: { approval: "Uygulama taşıma isteği", moved_out: "Uygulama taşındı", added: "Uygulama eklendi" },
@@ -201,6 +248,22 @@ const WORDS: Record<Lang, Words> = {
     doneNote: {
       moved_out: "Bunu beklemiyorsanız Yallapp desteğiyle iletişime geçin.",
       added: "Uygulama değiştiricinizde bulabilirsiniz. Bunu beklemiyorsanız Yallapp desteğiyle iletişime geçin.",
+    },
+    plan: {
+      eyebrow: { approval: "Plan taşıma isteği", moved_out: "Plan taşındı", added: "Plan eklendi" },
+      subject: { approval: "Planınızı {app} uygulamasından {toApp} uygulamasına taşıyın", moved_out: "Planınız {app} uygulamasından {toApp} uygulamasına taşındı", added: "{toApp} uygulamasına bir plan eklendi" },
+      preview: { approval: "Onay kodunuz içeride. {minutes} dakika geçerlidir.", moved_out: "{app} uygulamasının planı artık {toApp} üzerinde.", added: "{toApp} artık bir plana sahip." },
+      title: { approval: "Planınızın taşınmasını onaylayın", moved_out: "Planınız taşındı", added: "Uygulamanıza bir plan eklendi" },
+      intro: {
+        approval: "Yallapp ekibinden {member}, {app} uygulamasının planını {toApp} uygulamasına taşıyor. Siz onaylamadan hiçbir şey taşınmaz.",
+        moved_out: "{app} uygulamasının planı artık {toApp} üzerinde.",
+        added: "Yallapp ekibi, {from} adlı kişinin hesabından {toApp} uygulamasına bir plan taşıdı.",
+      },
+      label: "Plan",
+      until: "Bitiş",
+      leaves: "{app}, yeni bir uygulama gibi plansız kalır.",
+      arrives: "{toApp}, planı aynı bitiş tarihi ve yenilemeyle alır.",
+      invoices: "Geçmiş faturalar oldukları yerde kalır.",
     },
   },
 };
@@ -322,10 +385,12 @@ export function moveMail(input: MoveMailInput): MoveMail {
   const base = input.assetBase.replace(/\/+$/, "");
   const minutes = String(input.minutes ?? 15);
   const date = input.at ? new Intl.DateTimeFormat(input.lang === "en" ? "en-GB" : LANG_INFO[input.lang].intl, { day: "numeric", month: "long", year: "numeric", hour: "2-digit", minute: "2-digit", hourCycle: "h23", timeZone: "Europe/Istanbul" }).format(input.at) : "";
-  const values = { app: input.app.name, member: input.member, from: input.from.name, to: input.to.name, minutes, date };
-  const subject = fill(w.subject[input.kind], values);
-  const title = w.title[input.kind];
-  const intro = fill(w.intro[input.kind], values);
+  const plan = input.plan ?? null;
+  const values = { app: input.app.name, member: input.member, from: input.from.name, to: input.to.name, minutes, date, toApp: plan?.toApp ?? "" };
+  const words = plan ? w.plan : w;
+  const subject = fill(words.subject[input.kind], values);
+  const title = words.title[input.kind];
+  const intro = fill(words.intro[input.kind], values);
   const button = w.button[input.kind];
   const href = input.kind === "approval" ? (input.reviewUrl ?? "") : (input.dashboardUrl ?? "");
   const arrow = rtl ? "&larr;" : "&rarr;";
@@ -342,9 +407,12 @@ export function moveMail(input: MoveMailInput): MoveMail {
     `<!--[if !mso]><!--><div class="ym-down" style="display:none;max-height:0;overflow:hidden;padding:0 0 12px 0;font-family:${SANS};font-size:22px;line-height:22px;font-weight:700;color:${C.emberText};text-align:${start};" aria-hidden="true"><span class="ym-link" style="color:${C.emberText};">&darr;</span></div><!--<![endif]-->` +
     `${account(w.to, input.to, start, font)}</td></tr></table>`;
 
-  const pills =
-    `<div style="padding-top:20px;text-align:${start};" dir="${dir}">${pill(w.data, input.data ? w.moves : w.stays, input.data, font)}${pill(w.subscription, input.subscription ? w.moves : w.stays, input.subscription, font)}</div>` +
-    `<div class="ym-muted" style="padding-top:4px;font-family:${font};font-size:14px;line-height:22px;color:${C.muted};text-align:${start};">${esc(input.data ? w.dataMoves : w.dataStays)}<br />${esc(input.subscription ? w.subMoves : w.subStays)}<br />${esc(w.invoices)}</div>`;
+  const pills = plan
+    ? // 132.115 A plan moving: the plan and its end, and what each app is after.
+      `<div style="padding-top:20px;text-align:${start};" dir="${dir}">${plan.name ? pill(w.plan.label, plan.name, true, font) : ""}${plan.until ? pill(w.plan.until, plan.until, false, font) : ""}</div>` +
+      `<div class="ym-muted" style="padding-top:4px;font-family:${font};font-size:14px;line-height:22px;color:${C.muted};text-align:${start};">${plan.next ? `${esc(plan.next)}<br />` : ""}${esc(fill(w.plan.leaves, values))}<br />${esc(fill(w.plan.arrives, values))}<br />${esc(w.plan.invoices)}</div>`
+    : `<div style="padding-top:20px;text-align:${start};" dir="${dir}">${pill(w.data, input.data ? w.moves : w.stays, input.data, font)}${pill(w.subscription, input.subscription ? w.moves : w.stays, input.subscription, font)}</div>` +
+      `<div class="ym-muted" style="padding-top:4px;font-family:${font};font-size:14px;line-height:22px;color:${C.muted};text-align:${start};">${esc(input.data ? w.dataMoves : w.dataStays)}<br />${esc(input.subscription ? w.subMoves : w.subStays)}<br />${esc(w.invoices)}</div>`;
 
   const code =
     input.kind === "approval" && input.code
@@ -381,7 +449,7 @@ export function moveMail(input: MoveMailInput): MoveMail {
     `<!DOCTYPE html>\n<html lang="${input.lang}" dir="${dir}" xmlns="http://www.w3.org/1999/xhtml" xmlns:v="urn:schemas-microsoft-com:vml" xmlns:o="urn:schemas-microsoft-com:office:office">` +
     head(subject) +
     `<body class="ym-page" dir="${dir}" style="margin:0;padding:0;background-color:${C.page};" bgcolor="${C.page}">` +
-    preheader(fill(w.preview[input.kind], values)) +
+    preheader(fill(words.preview[input.kind], values)) +
     `<table role="presentation" class="ym-page" width="100%" border="0" cellpadding="0" cellspacing="0" bgcolor="${C.page}" style="background-color:${C.page};"><tr><td align="center" style="padding:32px 12px 28px 12px;">` +
     `<!--[if mso]><table role="presentation" width="600" align="center" border="0" cellpadding="0" cellspacing="0"><tr><td><![endif]-->` +
     `<table role="presentation" class="ym-wrap" width="600" border="0" cellpadding="0" cellspacing="0" dir="${dir}" style="width:100%;max-width:600px;">` +
@@ -389,7 +457,7 @@ export function moveMail(input: MoveMailInput): MoveMail {
     `<tr><td class="ym-band" bgcolor="${C.band}" style="background-color:${C.band};border-radius:20px 20px 0 0;padding:26px 40px;">` +
     `<table role="presentation" width="100%" border="0" cellpadding="0" cellspacing="0"><tr>` +
     `<td align="${start}" valign="middle"><a href="${esc(site)}" target="_blank" style="text-decoration:none;"><img src="${esc(base)}/email/yallapp-logo-reversed.png" width="99" height="32" alt="${COMPANY.name}" style="display:block;width:99px;height:32px;" /></a></td>` +
-    `<td align="${end}" valign="middle" style="font-family:${font};font-size:12px;line-height:16px;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;color:#C9C4DE;">${esc(w.eyebrow[input.kind])}</td>` +
+    `<td align="${end}" valign="middle" style="font-family:${font};font-size:12px;line-height:16px;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;color:#C9C4DE;">${esc(words.eyebrow[input.kind])}</td>` +
     `</tr></table></td></tr>` +
     `<tr><td height="4" bgcolor="${C.ember}" style="height:4px;line-height:4px;font-size:0;background-color:${C.ember};">&nbsp;</td></tr>` +
     // The card.
@@ -422,9 +490,9 @@ export function moveMail(input: MoveMailInput): MoveMail {
     "",
     `${w.from}: ${input.from.name} <${input.from.email}>`,
     `${w.to}: ${input.to.name} <${input.to.email}>`,
-    `${w.data}: ${input.data ? w.moves : w.stays}. ${input.data ? w.dataMoves : w.dataStays}`,
-    `${w.subscription}: ${input.subscription ? w.moves : w.stays}. ${input.subscription ? w.subMoves : w.subStays}`,
-    w.invoices,
+    ...(plan
+      ? [...(plan.name ? [`${w.plan.label}: ${plan.name}${plan.until ? ` · ${w.plan.until} ${plan.until}` : ""}`] : []), ...(plan.next ? [plan.next] : []), fill(w.plan.leaves, values), fill(w.plan.arrives, values), w.plan.invoices]
+      : [`${w.data}: ${input.data ? w.moves : w.stays}. ${input.data ? w.dataMoves : w.dataStays}`, `${w.subscription}: ${input.subscription ? w.moves : w.stays}. ${input.subscription ? w.subMoves : w.subStays}`, w.invoices]),
     "",
     ...(input.kind === "approval" && input.code ? [`${w.codeLabel}: ${input.code}`, fill(w.expires, values), ""] : []),
     ...(href ? [`${button}: ${href}`, ""] : []),

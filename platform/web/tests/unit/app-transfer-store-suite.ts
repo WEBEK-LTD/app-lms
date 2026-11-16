@@ -3,7 +3,7 @@ import { expect, it } from "vitest";
 import { activateClient } from "@/lib/admin/clients";
 import { newApp } from "@/lib/app/setup";
 import { copyApp, type CopyDeps } from "@/lib/apps/copy";
-import { approveMove, performMove, requestAppMove, type PerformDeps } from "@/lib/apps/move";
+import { approveMove, checkMoveCode, performMove, performPlanMove, requestAppMove, requestPlanMove, type PerformDeps } from "@/lib/apps/move";
 import { registerClient } from "@/lib/auth/accounts";
 import type { DataStore } from "@/lib/data/store";
 import type { App, AppMoveRequest, Build, MediaFile } from "@/lib/data/types";
@@ -296,6 +296,44 @@ export function appTransferStoreSuite(store: () => DataStore) {
     expect(await s.countHostedUsers(app.id)).toBe(1);
   });
 
+  it("moves only a plan to another app: the app it leaves has none, the other gets the same end and change", async () => {
+    const s = store();
+    const a = await account("Omar Haddad");
+    const b = await account("Lina Farouk");
+    const source = await shop(a.client.id);
+    const before = (await s.getLicenseForApp(a.client.id, source.app.id))!;
+    await s.updateLicense(before.id, { nextPlan: "starter", nextPlanAt: before.expiresAt }, NOW);
+    await s.createStoragePack({ id: randomUUID(), appId: source.app.id, clientId: a.client.id, offer: "gb10", gb: 10, activeUntil: before.expiresAt, paymentId: null, createdAt: NOW, updatedAt: NOW, endedNoticeAt: null });
+    const target: App = { ...newApp(b.client.id, null, NOW, "store"), backend: "hosted" };
+    await s.createApp(target);
+    const deps = { store: s, now: NOW, secret: SECRET, newLicenseKey: async () => {} };
+    const asked = await requestPlanMove(deps, { app: source.app, toApp: target, by: { id: randomUUID(), email: "selin@yallapp.test", name: "Selin" } });
+    if (!asked.ok) throw new Error(asked.reason);
+    expect(asked.request).toMatchObject({ kind: "plan", toAppId: target.id, toClientId: b.client.id });
+    const approved = await checkMoveCode(deps, asked.request.id, asked.code, "team");
+    if (!approved.ok) throw new Error(approved.reason);
+    const done = await performPlanMove(deps, approved.request);
+    expect(done.ok).toBe(true);
+    expect(await s.getLicenseForApp(a.client.id, source.app.id)).toBeNull();
+    const after = (await s.getLicenseForApp(b.client.id, target.id))!;
+    expect(after).toMatchObject({ id: before.id, clientId: b.client.id, plan: "growth", nextPlan: "starter" });
+    expect(after.expiresAt.getTime()).toBe(before.expiresAt.getTime());
+    expect((await s.listStoragePacks(target.id)).map((p) => p.gb)).toEqual([10]);
+    expect(await s.listStoragePacks(source.app.id)).toEqual([]);
+    // The invoices stay where they were; the app itself didn't move.
+    expect((await s.listPlanPayments({ clientId: a.client.id, limit: 10 })).map((p) => p.appId)).toEqual([source.app.id]);
+    expect((await s.getAppById(source.app.id))!.clientId).toBe(a.client.id);
+    // An app with a plan takes no other.
+    const again = await requestPlanMove(deps, { app: target, toApp: { ...source.app }, by: { id: randomUUID(), email: "selin@yallapp.test", name: "Selin" } });
+    expect(again.ok).toBe(true);
+    const busy: App = { ...newApp(b.client.id, null, NOW, "store"), backend: "hosted" };
+    await s.createApp(busy);
+    await activateClient(s, { clientId: b.client.id, appId: busy.id, plan: "pro", activeUntil: NOW, paymentNote: "test" }, KEY, NOW);
+    const third: App = { ...newApp(a.client.id, null, NOW, "store"), backend: "hosted" };
+    await s.createApp(third);
+    expect(await requestPlanMove(deps, { app: busy, toApp: target, by: { id: randomUUID(), email: "x@yallapp.test", name: "X" } })).toEqual({ ok: false, reason: "target_has_plan" });
+  });
+
   it("keeps one waiting move per app, its tries and its closing once", async () => {
     const s = store();
     const a = await account("Ada");
@@ -304,9 +342,11 @@ export function appTransferStoreSuite(store: () => DataStore) {
     await s.createApp(app);
     const request: AppMoveRequest = {
       id: randomUUID(),
+      kind: "app",
       appId: app.id,
       fromClientId: a.client.id,
       toClientId: b.client.id,
+      toAppId: null,
       moveData: true,
       moveSubscription: false,
       codeHash: "h".repeat(43),

@@ -41,7 +41,8 @@ export default async function StartPage({ searchParams }: PageProps<"/start">) {
   const { t } = text;
   const initial: PickerShow = query.for === "studio" ? "studio" : query.for === "editor" ? "editor" : "all";
   const sections = pickerSections();
-  const first = (user.name ?? "").trim().split(/\s+/)[0] ?? "";
+  // 132.110 The account's owner, also when our team works in it.
+  const first = (context.user.name ?? "").trim().split(/\s+/)[0] ?? "";
   const full = adding && context.apps.length >= MAX_APPS_PER_CLIENT;
   return (
     <PickerShell step={1} gap="gap-9">

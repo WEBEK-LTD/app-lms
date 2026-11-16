@@ -336,6 +336,10 @@ export async function clientFor(permission: TeamPermission | readonly TeamPermis
   return context;
 }
 
+/** 132.110 Why our team can't pay by card in a client's account (i18n/dashboard/working.ts known.teamCantPay translates it). */
+export const TEAM_CANT_PAY =
+  "Our team can't pay by card from a client's account: the payment would be made in the client's name and on their card. Activate or extend the plan in Admin › Clients, or record the client's bank transfer there.";
+
 /**
  * 132.110 Where our team goes when a client page or action needs a client's
  * account and they aren't working in one: the admin's page that says why

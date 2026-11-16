@@ -169,9 +169,9 @@ test("our team member sees the client's dashboard in their own language, and the
   await expect(html(admin)).toHaveAttribute("lang", "en");
   await languages(admin).getByRole("button", { name: "العربية" }).click();
   await expect(html(admin)).toHaveAttribute("dir", "rtl");
-  await expect(admin.getByRole("button", { name: "العودة إلى الإدارة" })).toBeVisible();
+  await expect(admin.getByRole("button", { name: "ارجع للإدارة" })).toBeVisible();
 
-  await admin.getByRole("button", { name: "العودة إلى الإدارة" }).click();
+  await admin.getByRole("button", { name: "ارجع للإدارة" }).click();
   await expect(admin).toHaveURL(/\/admin\/clients\//);
   await expect(html(admin)).toHaveAttribute("lang", "en");
   await expect(html(admin)).not.toHaveAttribute("dir", "rtl");

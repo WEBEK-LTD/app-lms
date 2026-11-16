@@ -2,6 +2,7 @@
 
 import { cookies, headers } from "next/headers";
 import { redirect } from "next/navigation";
+import { NEXT_COOKIE, safeNext } from "@/lib/apps/move-link";
 import { authenticate, registerClient } from "@/lib/auth/accounts";
 import { hashPassword } from "@/lib/auth/password";
 import { completePasswordReset, createPasswordReset } from "@/lib/auth/reset";
@@ -106,8 +107,12 @@ async function signIn(formData: FormData, lang: Lang): Promise<FormState> {
   const user = await authenticate(store, parsed.data.email, parsed.data.password, now);
   if (!user) return { message: "The email or password is incorrect.", values };
   await rememberLang(lang, user);
+  // 132.113 Back to the page of a move they opened from its email, if that's where they were going.
+  const jar = await cookies();
+  const next = safeNext(jar.get(NEXT_COOKIE)?.value);
+  jar.delete(NEXT_COOKIE);
   // 70 Signed in now, or first the code from their authenticator app.
-  redirect(await afterPassword(user, { lang }));
+  redirect(await afterPassword(user, { lang, next }));
 }
 
 /**

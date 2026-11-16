@@ -42,6 +42,10 @@ export const ADMIN_PERMISSIONS = [
   "marketing.send",
   /** The app-builder bot's dictionary: add, remove or switch off phrases, and map or ignore what owners typed that it didn't understand. */
   "bot.edit",
+  /** 132.112 Move a client's app, or 132.115 its plan, to another account or app, with the owner's approval code. */
+  "apps.transfer",
+  /** 132.114 Copy a client's app into another account or the same one. */
+  "apps.copy",
 ] as const;
 export type AdminPermission = (typeof ADMIN_PERMISSIONS)[number];
 
@@ -58,7 +62,7 @@ export const ROLE_LABELS: Record<AdminRole, string> = { owner: "Owner", admin: "
 
 export const ROLE_DESCRIPTIONS: Record<AdminRole, string> = {
   owner: "Everything, and manages the team.",
-  admin: "Everything except the team.",
+  admin: "Everything except the team, including moving and copying clients' apps.",
   support: "Sees everything; activates and extends licenses, changes clients' apps, publishes them for clients, sends their emails and teaches the app-builder bot. No prices, plans, payments, settings, releases, demo apps or email campaigns.",
   viewer: "Sees everything, changes nothing.",
 };

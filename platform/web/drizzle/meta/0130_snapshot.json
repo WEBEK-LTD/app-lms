@@ -1,7 +1,7 @@
 {
   "version": "5",
   "dialect": "mysql",
-  "id": "7b780d72-ad02-4458-9185-f093e5a2d8f3",
+  "id": "1c37a736-75af-408f-8f89-6a2543a31158",
   "prevId": "21b96007-b400-4e8b-a6d0-cb3a4536a792",
   "tables": {
     "account_deletion_requests": {
@@ -1771,11 +1771,26 @@
           "notNull": true,
           "autoincrement": false
         },
+        "kind": {
+          "name": "kind",
+          "type": "varchar(8)",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false,
+          "default": "'app'"
+        },
         "app_id": {
           "name": "app_id",
           "type": "varchar(36)",
           "primaryKey": false,
           "notNull": true,
+          "autoincrement": false
+        },
+        "to_app_id": {
+          "name": "to_app_id",
+          "type": "varchar(36)",
+          "primaryKey": false,
+          "notNull": false,
           "autoincrement": false
         },
         "from_client_id": {
@@ -1931,6 +1946,19 @@
           "tableTo": "apps",
           "columnsFrom": [
             "app_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "cascade",
+          "onUpdate": "no action"
+        },
+        "app_move_requests_to_app_id_apps_id_fk": {
+          "name": "app_move_requests_to_app_id_apps_id_fk",
+          "tableFrom": "app_move_requests",
+          "tableTo": "apps",
+          "columnsFrom": [
+            "to_app_id"
           ],
           "columnsTo": [
             "id"

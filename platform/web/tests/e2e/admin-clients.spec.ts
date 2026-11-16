@@ -63,8 +63,12 @@ test("the team edits a client's details", async () => {
 test("the team sets up a pending client's app from their dashboard", async () => {
   await openClient();
   await page.getByRole("button", { name: "Manage their app" }).click();
+  // 132.110 The client's own start, in their account (no bounce to the admin), with the banner.
+  await expect(page).toHaveURL(/\/start$/);
+  await expect(page.locator("[data-working-in-account]")).toContainText(`You're working in ${client.name}'s account`);
+  await page.getByRole("link", { name: "Start from an empty app" }).click();
   await expect(page).toHaveURL(/\/dashboard\/app-type$/);
-  await expect(page.getByRole("status")).toContainText(`You're managing ${client.name}'s dashboard as Yallapp staff`);
+  await expect(page.locator("[data-working-in-account]")).toContainText(`You're working in ${client.name}'s account`);
 
   await page.getByText("Store", { exact: true }).click();
   await page.getByRole("button", { name: "Continue" }).click();
@@ -89,7 +93,7 @@ test("the team sets up a pending client's app from their dashboard", async () =>
   await expect(page.getByLabel("Devices per customer")).toHaveValue("3");
   await expect(page.getByLabel("City")).toBeChecked();
 
-  await page.getByRole("button", { name: "Back to admin" }).click();
+  await page.getByRole("button", { name: "Back to Admin" }).click();
   await expect(page).toHaveURL(/\/admin\/clients\/[0-9a-f-]{36}$/);
   await expect(page.getByRole("region", { name: "App", exact: true })).toContainText("No website: products in the dashboard");
   // The admin's own pages no longer show the client's dashboard.

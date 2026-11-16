@@ -5433,6 +5433,9 @@ export type AccountDeletionStatus = "pending" | "done" | "cancelled";
 export type AppDeletionStatus = "waiting" | "restored" | "purged";
 
 /** 73 The record of an app's deletion: it has no foreign keys, so it outlives the app. */
+/** 132.115 What a request moves: the app to another account, or only its plan to another app. */
+export type AppMoveKind = "app" | "plan";
+
 /** 132.112 Where a request to move an app to another account is. */
 export type AppMoveStatus = "waiting" | "approved" | "moved" | "declined" | "cancelled" | "expired" | "failed";
 
@@ -5443,9 +5446,13 @@ export type AppMoveStatus = "waiting" | "approved" | "moved" | "declined" | "can
  */
 export interface AppMoveRequest {
   id: string;
+  /** "app": the app moves to `toClientId`; "plan": only its plan moves, to the app `toAppId` (in `toClientId`). */
+  kind: AppMoveKind;
   appId: string;
   fromClientId: string;
   toClientId: string;
+  /** "plan": the app the plan goes to; null for "app". */
+  toAppId: string | null;
   /** The app's customers, orders, bookings and messages go with it; else they stay, archived, in the account it leaves. */
   moveData: boolean;
   /** Its plan (license, storage packs, renewal) goes with it; else the account it leaves keeps it. */

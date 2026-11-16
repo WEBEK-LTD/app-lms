@@ -42,7 +42,19 @@ export function moveWaiting(request: Pick<AppMoveRequest, "status" | "expiresAt"
   return request.status === "waiting" && request.expiresAt.getTime() > now.getTime();
 }
 
-export type MoveRefusal = "same_account" | "no_account" | "not_the_account" | "moved" | "waiting" | "payment_pending" | "too_many";
+export type MoveRefusal =
+  | "same_account"
+  | "no_account"
+  | "not_the_account"
+  | "moved"
+  | "waiting"
+  | "payment_pending"
+  | "too_many"
+  | "no_plan"
+  | "same_app"
+  | "no_app"
+  | "target_has_plan"
+  | "plan_section";
 
 export const MOVE_REFUSALS: Record<MoveRefusal, string> = {
   same_account: "The app is already in that account. Choose another account.",
@@ -53,6 +65,12 @@ export const MOVE_REFUSALS: Record<MoveRefusal, string> = {
   payment_pending:
     "A payment of this app's plan is still pending. Moving it now could put that payment on the wrong account, so nothing was sent. Wait until the payment is paid or has failed, then try again.",
   too_many: "Too many approval codes for this account in the last hour. Try again later.",
+  no_plan: "This app has no plan to move.",
+  same_app: "Choose another app: the plan is on this one already.",
+  no_app: "That app wasn't found, or it has moved or been deleted.",
+  target_has_plan:
+    "That app has a plan (or had one) already. An app has one plan, and there is no safe way to join two plans into one: it would mean working out days and money. Move the plan to an app without one, or ask the owner of Yallapp what to do.",
+  plan_section: "A Yallapp Studio plan goes on a Studio project, and a regular plan on a regular app. Choose an app of the same kind.",
 };
 
 export interface MoveDeps {
@@ -82,9 +100,11 @@ export async function requestAppMove(
   const code = newMoveCode();
   const request: AppMoveRequest = {
     id,
+    kind: "app",
     appId: app.id,
     fromClientId: app.clientId,
     toClientId: input.toClientId,
+    toAppId: null,
     moveData: input.moveData,
     moveSubscription: input.moveSubscription,
     codeHash: moveCodeHash(deps.secret, id, code),
@@ -172,6 +192,7 @@ export async function performMove(deps: PerformDeps, request: AppMoveRequest): P
     return { ok: false as const, note };
   };
   if (request.status !== "approved") return { ok: false, note: "The request isn't approved." };
+  if (request.kind !== "app") return { ok: false, note: "This request moves a plan, not an app." };
   const app = await store.getAppById(request.appId);
   if (!app || app.clientId !== request.fromClientId || app.movedAt) return fail("The app isn't in the account it was asked from any more.");
   if (!(await store.getClientById(request.toClientId))) return fail("The account it goes to no longer exists.");
@@ -241,4 +262,95 @@ export function moveSummary(options: { moveData: boolean; moveSubscription: bool
   (options.moveData ? moves : stays).push(options.moveData ? "Its data: customers and users, orders, bookings, payments, messages and activity" : "Its data: customers and users, orders, bookings, payments, messages and activity, archived and readable");
   (options.moveSubscription ? moves : stays).push(options.moveSubscription ? "Its subscription: the plan or license, storage packs and renewal" : "Its subscription: the plan or license, storage packs and renewal (the app starts in the new account without a plan)");
   return { moves, stays };
+}
+
+/**
+ * 132.115 Moving only an app's plan to another app (of the same account or
+ * another one), for example when the client wants their paid plan on a
+ * different app. The app it leaves goes back to no plan, as a new app; the
+ * other app gets the same plan, end date and scheduled change, with the
+ * storage packs bought with it. Past invoices stay where they are. The
+ * other app must have no plan (an app has one license, and joining two
+ * would mean working out days and money: refused); nothing is charged or
+ * refunded, so a pending payment of either app stops it.
+ */
+export async function requestPlanMove(
+  deps: MoveDeps,
+  input: { app: App; toApp: App; by: Pick<User, "id" | "email" | "name"> },
+): Promise<{ ok: true; request: AppMoveRequest; code: string } | { ok: false; reason: MoveRefusal }> {
+  const { store, now } = deps;
+  const { app, toApp } = input;
+  const refusal = await planMoveRefusal(store, app, toApp);
+  if (refusal) return { ok: false, reason: refusal };
+  if (await store.getOpenAppMoveRequest(app.id)) return { ok: false, reason: "waiting" };
+  if (!(await hitRateLimit(store, RATE_LIMITS.appMoveCode, app.clientId, now)).allowed) return { ok: false, reason: "too_many" };
+  const id = newId();
+  const code = newMoveCode();
+  const request: AppMoveRequest = {
+    id,
+    kind: "plan",
+    appId: app.id,
+    fromClientId: app.clientId,
+    toClientId: toApp.clientId,
+    toAppId: toApp.id,
+    moveData: false,
+    moveSubscription: true,
+    codeHash: moveCodeHash(deps.secret, id, code),
+    attempts: 0,
+    status: "waiting",
+    requestedBy: input.by.id,
+    requestedByEmail: input.by.email,
+    requestedByName: input.by.name,
+    createdAt: now,
+    expiresAt: new Date(now.getTime() + MOVE_CODE_MINUTES * 60_000),
+    closedAt: null,
+    closedBy: null,
+    resultAppId: null,
+    note: null,
+  };
+  if (!(await store.createAppMoveRequest(request))) return { ok: false, reason: "waiting" };
+  return { ok: true, request, code };
+}
+
+/** Why a plan can't move from `app` to `toApp` now; null when it can. */
+export async function planMoveRefusal(store: DataStore, app: App, toApp: App | null): Promise<MoveRefusal | null> {
+  if (app.movedAt) return "moved";
+  if (!toApp || toApp.movedAt || toApp.deletedAt) return "no_app";
+  if (toApp.id === app.id) return "same_app";
+  const license = await store.getLicenseForApp(app.clientId, app.id);
+  if (!license) return "no_plan";
+  if (await store.getLicenseForApp(toApp.clientId, toApp.id)) return "target_has_plan";
+  if ((app.section === "studio") !== (toApp.section === "studio")) return "plan_section";
+  for (const id of [app.id, toApp.id]) if ((await store.listPlanPayments({ appId: id, status: "pending", limit: 1 })).length) return "payment_pending";
+  return null;
+}
+
+/**
+ * Moves the plan of an approved plan request. A license a website had
+ * activated is released from it, and the key is replaced
+ * (`newLicenseKey`): the old site can't take the plan back.
+ */
+export async function performPlanMove(
+  deps: MoveDeps & { newLicenseKey: (clientId: string, appId: string) => Promise<void> },
+  request: AppMoveRequest,
+): Promise<{ ok: true; from: App; to: App } | { ok: false; note: string }> {
+  const { store, now } = deps;
+  const fail = async (note: string) => {
+    await store.updateAppMoveRequest(request.id, "approved", { status: "failed", note });
+    return { ok: false as const, note };
+  };
+  if (request.status !== "approved" || request.kind !== "plan" || !request.toAppId) return { ok: false, note: "This request doesn't move a plan." };
+  const [app, toApp] = await Promise.all([store.getAppById(request.appId), store.getAppById(request.toAppId)]);
+  if (!app || app.clientId !== request.fromClientId) return fail(MOVE_REFUSALS.no_app);
+  const refusal = await planMoveRefusal(store, app, toApp);
+  if (refusal) return fail(MOVE_REFUSALS[refusal]);
+  const license = (await store.getLicenseForApp(app.clientId, app.id))!;
+  const activated = Boolean(await store.getActivation(license.id));
+  await store.repointAppRows(app.id, toApp!.id, "plan", now);
+  if (activated) {
+    await store.deleteActivation(license.id);
+    await deps.newLicenseKey(toApp!.clientId, toApp!.id);
+  }
+  await store.updateAppMoveRequest(request.id, "approved", { status: "moved", resultAppId: toApp!.id, note: activated ? "The website was released and the license key replaced." : null });
+  return { ok: true, from: app, to: toApp! };
 }
