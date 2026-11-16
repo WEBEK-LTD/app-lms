@@ -16,7 +16,7 @@ import { hidesVideoBranding } from "../app/video-branding";
 import { chosenEmailSignIn, chosenSignInMethods } from "../hosted/sign-in-methods";
 import type { Plan, PlanFeature, PlanInfo } from "../plans";
 import { currentPlanId } from "../billing/plan-change";
-import { effectivePlans } from "../entitlements";
+import { effectivePlans, plansForApp } from "../entitlements";
 import { compareVersions, parseVersion, VERSION_PATTERN } from "../semver";
 import { hashLicenseKey, isWellFormedLicenseKey } from "./key";
 import { normalizeSiteUrl } from "./site-url";
@@ -364,10 +364,11 @@ export interface ActivationOptions {
 }
 
 export async function activateLicense(store: DataStore, site: SiteInfo, now: Date, options: ActivationOptions = {}): Promise<ApiResult<LicenseStatusBody>> {
-  const plans = await effectivePlans(store);
   const found = await findLicense(store, site.licenseKey);
   if (!found) return notFound;
   const { license, client } = found;
+  // 133 The app's plan with its add-ons (a feature switched on, more of a limit).
+  const plans = await plansForApp(store, await effectivePlans(store), license, now);
   const facts = await appFactsOf(store, license);
   const state = licenseState(client, license, now);
   if (state !== "active") {
@@ -413,10 +414,11 @@ export async function activateLicense(store: DataStore, site: SiteInfo, now: Dat
 }
 
 export async function checkLicense(store: DataStore, site: SiteInfo, now: Date): Promise<ApiResult<LicenseStatusBody>> {
-  const plans = await effectivePlans(store);
   const found = await findLicense(store, site.licenseKey);
   if (!found) return notFound;
   const { license, client } = found;
+  // 133 The app's plan with its add-ons.
+  const plans = await plansForApp(store, await effectivePlans(store), license, now);
   const facts = await appFactsOf(store, license);
   const state = licenseState(client, license, now);
   if (state !== "active") {

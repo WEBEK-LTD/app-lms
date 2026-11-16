@@ -99,6 +99,10 @@ export const DASHBOARD_PATHS: readonly (readonly [string, TeamPermission])[] = [
   ["/dashboard/team", "team"],
   ["/dashboard/license", "billing"],
   ["/dashboard/invoices", "billing"],
+  // 133.8 Add-ons are bought like the plan (the page asks for billing).
+  ["/dashboard/addons", "billing"],
+  // 133 Add-ons are bought like the plan.
+  ["/dashboard/addons", "billing"],
   ["/dashboard/app-type", "apps"],
   // The app-builder guide makes a new app, like the app type step.
   ["/dashboard/builder", "apps"],
@@ -171,6 +175,8 @@ export const DASHBOARD_PATHS: readonly (readonly [string, TeamPermission])[] = [
   // applying, moving and going back to a design) for the owner only, like its plans.
   ["/dashboard/studio-market", "settings"],
   ["/dashboard/studio-market/mine", "billing"],
+  // 106.2 Paying for a template, or renewing one: the account's owner.
+  ["/dashboard/studio-market/checkout", "billing"],
   ["/dashboard", "dashboard"],
 ];
 

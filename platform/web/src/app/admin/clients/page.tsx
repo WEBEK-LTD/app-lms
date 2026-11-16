@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { isLifetimeEnd } from "@/lib/billing/periods";
 import Link from "next/link";
 import {
   manageClientAction,
@@ -94,6 +95,8 @@ export default async function ClientsPage({ searchParams }: PageProps<"/admin/cl
   const selectedId = typeof params.client === "string" ? params.client : null;
   const adding = params.add === "1" && may("clients.edit");
   const done = typeof params.done === "string" ? DONE[params.done] : undefined;
+  // 132.110 A client page opened when the team member isn't working in a client's account any more.
+  const workingEnded = params.working === "ended";
 
   const store = await getStore();
   const plans = await getPlans(store);
@@ -179,6 +182,11 @@ export default async function ClientsPage({ searchParams }: PageProps<"/admin/cl
       {done ? (
         <Notice tone="success" icon="check_circle" role="status">
           {done}
+        </Notice>
+      ) : null}
+      {workingEnded ? (
+        <Notice tone="warn" icon="info" role="status">
+          You&apos;re not working in a client&apos;s account any more: its 8 hours ended, or you went back to the admin. Open the client and choose &ldquo;Open as the client&rdquo; to work in their account again.
         </Notice>
       ) : null}
 
@@ -374,7 +382,7 @@ async function ClientPanel({ row, now, may }: { row: ClientRow; now: Date; may: 
                       <li key={e.app!.id} className="flex flex-wrap items-center gap-1.5">
                         <span className="font-semibold">{appLabel(e.app)}</span>
                         <Badge tone={stateTone(appStateNow)}>{ACCOUNT_STATE_LABEL[appStateNow]}</Badge>
-                        <span className="text-muted">{e.license ? `${planName(e.license.plan, plans)} until ${formatDate(e.license.expiresAt)}` : "No plan yet"}</span>
+                        <span className="text-muted">{e.license ? `${planName(e.license.plan, plans)} ${isLifetimeEnd(e.license.expiresAt) ? "for life" : `until ${formatDate(e.license.expiresAt)}`}` : "No plan yet"}</span>
                       </li>
                     );
                   })}
@@ -391,7 +399,7 @@ async function ClientPanel({ row, now, may }: { row: ClientRow; now: Date; may: 
           <>
             <dt className="text-muted">Plan</dt>
             <dd className="m-0">
-              {planName(license.plan, plans)} until {formatDate(license.expiresAt)}
+              {planName(license.plan, plans)} {isLifetimeEnd(license.expiresAt) ? "for life" : `until ${formatDate(license.expiresAt)}`}
             </dd>
             <dt className="text-muted">License</dt>
             <dd className="m-0 font-mono text-[13px] break-all">{key}</dd>

@@ -5087,6 +5087,67 @@ export const APP_STRING_NOTES: Record<string, { en?: string; ar: string; tr: str
     ar: "عنوان صفحة الدفع لما العميل يدفع جوه التطبيق.",
     tr: "Müşteri uygulama içinde öderken ödeme sayfasının başlığı.",
   },
+  "132 Above the business's reply under the customer's rating of a food order or a ride.": {
+    en: "Above your reply under a customer's rating of a food order or a ride.",
+    ar: "فوق ردّك تحت تقييم العميل لأوردر أكل أو مشوار.",
+    tr: "Bir müşterinin yemek siparişi veya yolculuk değerlendirmesinin altındaki yanıtınızın üstünde.",
+  },
+  // 132 Delivery stages on the customer's order.
+  "132 On an order's screen: its delivery stage, the shop is preparing it.": {
+    en: "On an order's page: where its delivery is, the shop is preparing it.",
+    ar: "في صفحة الأوردر: التوصيل فين، المحل بيجهّزه.",
+    tr: "Sipariş sayfasında: teslimatın durumu, mağaza hazırlıyor.",
+  },
+  "132 On an order's screen: its delivery stage, the order is on its way.": {
+    en: "On an order's page: where its delivery is, the order is on its way.",
+    ar: "في صفحة الأوردر: التوصيل فين، الأوردر في الطريق.",
+    tr: "Sipariş sayfasında: teslimatın durumu, sipariş yolda.",
+  },
+  "132 On an order's screen: its delivery stage, the shop moved the delivery to another day.": {
+    en: "On an order's page: where its delivery is, the shop moved it to another day.",
+    ar: "في صفحة الأوردر: التوصيل فين، المحل أجّله ليوم تاني.",
+    tr: "Sipariş sayfasında: teslimatın durumu, mağaza başka bir güne erteledi.",
+  },
+  "132 On an order's screen: its delivery stage, a delivery attempt failed.": {
+    en: "On an order's page: where its delivery is, a delivery attempt failed.",
+    ar: "في صفحة الأوردر: التوصيل فين، محاولة توصيل ماتمّتش.",
+    tr: "Sipariş sayfasında: teslimatın durumu, bir teslimat denemesi başarısız oldu.",
+  },
+  "132 On an order's screen: its delivery stage, the order went back to the shop after a failed delivery.": {
+    en: "On an order's page: where its delivery is, the order went back to the shop after a failed delivery.",
+    ar: "في صفحة الأوردر: التوصيل فين، الأوردر رجع للمحل بعد توصيل ماتمّش.",
+    tr: "Sipariş sayfasında: teslimatın durumu, başarısız teslimattan sonra sipariş mağazaya döndü.",
+  },
+  "132 On an order's screen: its delivery stage, the order was delivered.": {
+    en: "On an order's page: where its delivery is, the order was delivered.",
+    ar: "في صفحة الأوردر: التوصيل فين، الأوردر اتسلّم.",
+    tr: "Sipariş sayfasında: teslimatın durumu, sipariş teslim edildi.",
+  },
+  "132 Under a postponed delivery: the new day and time.": {
+    en: "Under a postponed delivery: the new day and time.",
+    ar: "تحت توصيل متأجّل: اليوم والميعاد الجداد.",
+    tr: "Ertelenen bir teslimatın altında: yeni gün ve saat.",
+  },
+  "132 Under a failed delivery: the day the shop tries again.": {
+    en: "Under a failed delivery: the day the shop tries again.",
+    ar: "تحت توصيل ماتمّش: اليوم اللي المحل هيحاول فيه تاني.",
+    tr: "Başarısız bir teslimatın altında: mağazanın tekrar deneyeceği gün.",
+  },
+  "132 Under an order out for delivery: who brings it.": {
+    en: "Under an order out for delivery: who brings it.",
+    ar: "تحت أوردر خرج للتوصيل: مين اللي جايبه.",
+    tr: "Dağıtımdaki bir siparişin altında: kimin getirdiği.",
+  },
+  "132 Button under an order out for delivery: calls the courier.": {
+    en: "Button under an order out for delivery: calls the courier.",
+    ar: "زرار تحت أوردر خرج للتوصيل: بيتصل بالمندوب.",
+    tr: "Dağıtımdaki bir siparişin altındaki düğme: kuryeyi arar.",
+  },
+  "132 Button under an order out for delivery: opens the shop's tracking link.": {
+    en: "Button under an order out for delivery: opens the shop's tracking link.",
+    ar: "زرار تحت أوردر خرج للتوصيل: بيفتح لينك التتبع بتاع المحل.",
+    tr: "Dağıtımdaki bir siparişin altındaki düğme: mağazanın takip bağlantısını açar.",
+  },
 };
 
 /** A developer's description without the app's code names: "… lib/core/x.dart uses it …", "(vertical_wording.dart)", a leading roadmap number. */

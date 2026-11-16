@@ -644,6 +644,8 @@ describe("125 the Owner API for the Studio apps, Prime and VIP", () => {
       ["shipment_unassigned", false],
       ["sales_low", false],
       ["low_rating", false],
+      // 132 A sales goal for every app that sells.
+      ["sales_goal", false],
     ]);
     expect(got.body.morning_brief).toEqual({ on: false, time: "08:30" });
     const put = (body: unknown) => call("PUT", "/apps/{app_id}/prime/alerts", { token, params: { app_id: food.id }, body });
@@ -651,7 +653,7 @@ describe("125 the Owner API for the Studio apps, Prime and VIP", () => {
     expect((await put({ items: [{ kind: "order_waiting", minutes: 0 }] })).status).toBe(400);
     expect((await put({ morning_brief: { time: "8:30" } })).status).toBe(400);
     const saved = await put({ items: [{ kind: "order_waiting", on: true, minutes: 5 }], morning_brief: { on: true, time: "08:30" } });
-    expect((saved.body.items as unknown as { kind: string; on: boolean }[])[0]).toEqual({ kind: "order_waiting", on: true, minutes: 5, amount_cents: null, by_time: null, stars: null });
+    expect((saved.body.items as unknown as { kind: string; on: boolean }[])[0]).toEqual({ kind: "order_waiting", on: true, minutes: 5, amount_cents: null, by_time: null, stars: null, threshold: null, period: null });
 
     // The owner's phone.
     const device = (await store.listOwnerDevices(user.id))[0]!;

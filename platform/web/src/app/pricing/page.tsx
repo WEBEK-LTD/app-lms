@@ -11,6 +11,8 @@ export const dynamic = "force-dynamic";
 
 export const metadata: Metadata = pricingMetadata("en");
 
-export default function Page() {
-  return <PricingPage lang="en" />;
+export default async function Page({ searchParams }: PageProps<"/pricing">) {
+  // 133 The billing period the visitor chose (?period=6).
+  const { period } = await searchParams;
+  return <PricingPage lang="en" period={typeof period === "string" ? period : null} />;
 }

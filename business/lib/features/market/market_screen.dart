@@ -11,6 +11,7 @@ import '../../core/theme/theme.dart';
 import '../../core/widgets/l10n.dart';
 import '../../core/widgets/paged_list.dart';
 import '../../core/widgets/states.dart';
+import '../studio/status_words.dart';
 import '../studio/studio_widgets.dart';
 import 'complaint_screen.dart';
 
@@ -29,7 +30,7 @@ Tone marketTone(String status) => switch (status) {
     'you' => (l10n.waitingForYou, Tone.bad),
     'vendor' => (l10n.withVendor, Tone.info),
     'customer' => (l10n.waitingCustomer, Tone.warn),
-    _ => (c.statusLabel, Tone.neutral),
+    _ => (complaintStatusLabel(context, c.status, c.statusLabel), Tone.neutral),
   };
 }
 
@@ -325,7 +326,12 @@ class _MarketOrderCard extends StatelessWidget {
                 ),
               ),
               const SizedBox(width: 8),
-              Flexible(child: Tag(o.statusLabel, tone: marketTone(o.status))),
+              Flexible(
+                child: Tag(
+                  marketStatusLabel(context, o.status, o.statusLabel),
+                  tone: marketTone(o.status),
+                ),
+              ),
               const Spacer(),
               Text(
                 context.ago(o.placedAt),

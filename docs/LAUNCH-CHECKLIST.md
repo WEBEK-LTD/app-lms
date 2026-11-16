@@ -1654,7 +1654,7 @@ Nothing to migrate or set: the articles and screenshots are in the code.
 
 ## Phase 134: Pay inside the app for connected stores (Demo)
 
-- [ ] Migration `0137_connected_pay` runs with the others at deploy.
+- [ ] Migration `0136_connected_pay` runs with the others at deploy.
 - [ ] Release plugin **0.4.47** in Admin › Plugin releases once the app
       update that knows `StoreConfig.checkout_payment` is in the stores.
 - [ ] On a WooCommerce test shop with Stripe in test mode: Payments › How

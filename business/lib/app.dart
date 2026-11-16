@@ -10,6 +10,7 @@ import 'core/routing/router.dart';
 import 'core/services/push.dart';
 import 'core/session.dart';
 import 'core/theme/theme.dart';
+import 'features/auth/lock_screen.dart' show AppMark;
 import 'features/prime/prime_state.dart';
 import 'features/prime/prime_today.dart';
 import 'l10n/app_localizations.dart';
@@ -28,8 +29,9 @@ class _BusinessAppState extends ConsumerState<BusinessApp>
   final _messenger = GlobalKey<ScaffoldMessengerState>();
   DateTime? _backgroundAt;
 
-  /// After this long in the background the lock asks again.
-  static const _relock = Duration(minutes: 5);
+  /// 132 The app isn't in front (the app switcher, a call): its content is
+  /// covered while the lock is on.
+  bool _away = false;
 
   @override
   void initState() {
@@ -40,6 +42,12 @@ class _BusinessAppState extends ConsumerState<BusinessApp>
       ..add(push.opened.listen(_open))
       ..add(push.foreground.listen(_foreground));
     unawaited(push.initial().then((data) => data == null ? null : _open(data)));
+    // 132 Hidden in the app switcher while the lock is on.
+    unawaited(
+      ref
+          .read(privacyProvider)
+          .setSecure(ref.read(settingsProvider).biometricLock == true),
+    );
   }
 
   @override
@@ -51,15 +59,31 @@ class _BusinessAppState extends ConsumerState<BusinessApp>
     super.dispose();
   }
 
+  /// 132 Locks again after the time the owner chose in Settings
+  /// (immediately, 1, 5 or 15 minutes) away; the system's own unlock prompt
+  /// taking the screen isn't being away.
   @override
   void didChangeAppLifecycleState(AppLifecycleState state) {
-    if (state == AppLifecycleState.paused) {
-      _backgroundAt = DateTime.now();
+    final session = ref.read(sessionProvider.notifier);
+    final lockOn = ref.read(settingsProvider).biometricLock == true;
+    final away = state != AppLifecycleState.resumed;
+    if (lockOn && away != _away && !session.authenticating) {
+      setState(() => _away = away);
+    } else if (!away && _away) {
+      setState(() => _away = false);
+    }
+    if (state == AppLifecycleState.hidden ||
+        state == AppLifecycleState.paused) {
+      if (!session.authenticating) _backgroundAt ??= DateTime.now();
     } else if (state == AppLifecycleState.resumed) {
+      session.settled();
       final since = _backgroundAt;
       _backgroundAt = null;
-      if (since != null && DateTime.now().difference(since) > _relock) {
-        ref.read(sessionProvider.notifier).lockIfOn();
+      final after = Duration(
+        minutes: ref.read(settingsProvider).lockAfterMinutes,
+      );
+      if (since != null && DateTime.now().difference(since) >= after) {
+        session.lockIfOn();
       }
     }
   }
@@ -136,6 +160,11 @@ class _BusinessAppState extends ConsumerState<BusinessApp>
         look: look,
       ),
       themeMode: ref.watch(themeModeProvider),
+      // 132 The cover over everything while the app isn't in front.
+      builder: (context, child) => Stack(
+        fit: StackFit.expand,
+        children: [?child, if (_away) const PrivacyCover()],
+      ),
     );
   }
 }
@@ -209,6 +238,19 @@ Future<bool> openTarget(WidgetRef ref, PushTarget target) async {
     router.push(target.location);
   }
   return switched;
+}
+
+/// 132 What the app switcher shows of the app while the lock is on: the
+/// app's mark on its background, nothing of the business's data.
+class PrivacyCover extends StatelessWidget {
+  const PrivacyCover({super.key});
+
+  @override
+  Widget build(BuildContext context) => ColoredBox(
+    key: const ValueKey('privacy-cover'),
+    color: context.yb.background,
+    child: const Center(child: AppMark(size: 88)),
+  );
 }
 
 /// While the session loads.

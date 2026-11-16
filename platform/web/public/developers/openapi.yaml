@@ -14694,6 +14694,50 @@ components:
             orders that aren't followed this way. On WordPress it follows the
             WooCommerce status (processing is preparing, completed and
             cancelled are themselves).
+        stage:
+          type: [object, 'null']
+          description: |
+            132 Where a store order's delivery is: preparing, out for delivery
+            (`shipped`, with the courier and a tracking link when the shop gave
+            them), postponed (the new `date` and `slot`, and a short `reason`),
+            a failed attempt (`failed`: the reason and the `next_step`: another
+            day, back to the shop, or cancelled), returned to the shop, or
+            delivered. `status` stays `processing` until it is delivered
+            (then `completed`), so an app that doesn't know stages, or a
+            stage, shows the order as in progress. The shop's own notes and
+            who changed it are never here. Null or missing before its first
+            stage, for orders that aren't delivered in stages and on older
+            servers. On WordPress, from the plugin's WooCommerce statuses
+            (0.4.46: Shipped, Delivery postponed, Delivery failed, Returned to
+            shop), with the shop's latest note to the customer as the reason
+            and no date or slot; Shopify and the other platforms have none.
+          required: [code, label]
+          properties:
+            code: { type: string, enum: [preparing, shipped, postponed, failed, returned, delivered] }
+            label: { type: string, description: "In the language the app asks in.", example: Delivery postponed }
+            at: { type: [string, 'null'], format: date-time }
+            reason: { type: [string, 'null'], description: "Why, in the customer's words; null for none.", example: The recipient isn't available }
+            date: { type: [string, 'null'], format: date, description: "The new delivery day (postponed, or tried again)." }
+            slot:
+              type: [object, 'null']
+              required: [start, end, label]
+              properties:
+                id: { type: string }
+                start: { type: string, example: '10:00' }
+                end: { type: string, example: '13:00' }
+                label: { type: string, example: 10:00–13:00 }
+            next_step:
+              type: [object, 'null']
+              required: [code, label]
+              properties:
+                code: { type: string, enum: [retry, return, cancel] }
+                label: { type: string, example: We'll try again }
+            courier:
+              type: [object, 'null']
+              properties:
+                name: { type: [string, 'null'] }
+                phone: { type: [string, 'null'] }
+            tracking_url: { type: [string, 'null'], format: uri }
         shipment:
           type: [object, 'null']
           description: |
@@ -18947,6 +18991,13 @@ components:
             restaurant: { type: integer }
             courier: { type: [integer, 'null'] }
             comment: { type: [string, 'null'] }
+            reply:
+              type: [object, 'null']
+              description: 132 The business's reply under the rating, shown in the business's name (the app's); null or missing for none and on older servers.
+              required: [text, at]
+              properties:
+                text: { type: string, maxLength: 2000 }
+                at: { type: string, format: date-time, description: 'When it was written, or last changed.' }
         timeline:
           type: array
           description: The stages it went through, oldest first.
@@ -19403,6 +19454,14 @@ components:
           properties:
             vendor: { type: integer }
             courier: { type: [integer, 'null'] }
+            comment: { type: [string, 'null'], description: "132 The customer's words; missing on older servers." }
+            reply:
+              type: [object, 'null']
+              description: 132 The business's reply under the rating, shown in the business's name (the app's); null or missing for none and on older servers.
+              required: [text, at]
+              properties:
+                text: { type: string, maxLength: 2000 }
+                at: { type: string, format: date-time, description: 'When it was written, or last changed.' }
         can_cancel: { type: boolean }
         can_complain: { type: boolean, description: 'From placing it until 48 hours after it arrived, with no complaint open.' }
         complaint_id: { type: [integer, 'null'], description: 'Its latest complaint.' }
@@ -20014,6 +20073,13 @@ components:
           properties:
             driver: { type: integer }
             comment: { type: [string, 'null'] }
+            reply:
+              type: [object, 'null']
+              description: 132 The business's reply under the rating, shown in the business's name (the app's); null or missing for none and on older servers.
+              required: [text, at]
+              properties:
+                text: { type: string, maxLength: 2000 }
+                at: { type: string, format: date-time, description: 'When it was written, or last changed.' }
         timeline:
           type: array
           description: The stages it went through, oldest first.

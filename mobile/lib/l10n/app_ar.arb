@@ -208,7 +208,6 @@
   "giftFrom": "من",
   "giftSomeone": "شخص يهتم بك",
   "giftArrives": "يصل",
-
   "shopping": "التسوق",
   "learning": "التعلّم",
   "wishlist": "قائمة الرغبات",
@@ -3188,5 +3187,17 @@
   "inAppNotPaidBody": "لم يُخصم أي مبلغ. ما زالت سلتك محفوظة، ويمكنك المحاولة مرة أخرى.",
   "inAppViewOrders": "عرض طلباتي",
   "inAppBackToCart": "العودة إلى السلة",
-  "inAppPayTitle": "الدفع"
+  "inAppPayTitle": "الدفع",
+  "orderStagePreparing": "يجري تجهيز طلبك",
+  "orderStageShipped": "خرج طلبك للتوصيل",
+  "orderStagePostponed": "تم تأجيل التوصيل",
+  "orderStageFailed": "تعذّر التوصيل",
+  "orderStageReturned": "عاد الطلب إلى المتجر",
+  "orderStageDelivered": "تم التوصيل",
+  "orderStageNewDay": "موعد التوصيل الجديد: {day}",
+  "orderStageTryAgain": "سنحاول التوصيل مجددًا يوم {day}",
+  "orderStageCourier": "المندوب: {name}",
+  "orderStageCallCourier": "الاتصال بالمندوب",
+  "orderStageFollow": "تتبّع التوصيل",
+  "ratingReplyFrom": "ردّ من {business}"
 }

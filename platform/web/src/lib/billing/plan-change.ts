@@ -1,6 +1,8 @@
 import type { DataStore } from "../data/store";
 import type { License } from "../data/types";
-import { comparePlans, isPlan, planPriceOf, type Plan, type PlanInfo } from "../plans";
+import { comparePlans, isPlan, mainPeriodOf, planPeriods, type Plan, type PlanInfo } from "../plans";
+import { getPlans } from "../settings/platform";
+import { isLifetimeEnd, LIFETIME_MONTHS, monthsOfPeriod, periodEnd, periodOfMonths } from "./periods";
 
 /**
  * Moving an app to another plan (roadmap 13.3).
@@ -19,19 +21,25 @@ import { comparePlans, isPlan, planPriceOf, type Plan, type PlanInfo } from "../
  * - **Same plan**, or any plan after the license ended: the period is added
  *   after the current end (or from today), as before. Paying for the current
  *   plan cancels a scheduled downgrade.
+ * - 133 **Periods**: any of the plan's periods (1, 6, 12, 24 or 36 months,
+ *   or for life). A lifetime payment's end is for life (`LIFETIME_END`); an
+ *   upgrade to a lifetime period starts now, a downgrade to one when the
+ *   paid period ends. A lifetime license is changed by the team only
+ *   (`lifetimeLocked`): what it is worth against another plan is the
+ *   owner's call.
  */
 
 const DAY = 86_400_000;
 
-/** The new end date: `months` after the later of now and the current end. */
-export function extendedUntil(currentEnd: Date | null, months: 1 | 12, now: Date): Date {
-  const base = new Date(Math.max(now.getTime(), currentEnd?.getTime() ?? 0));
-  const end = new Date(base);
-  end.setUTCMonth(end.getUTCMonth() + months);
+/** The new end date: `months` after the later of now and the current end (133 for life with 0 months, or after a lifetime). */
+export function extendedUntil(currentEnd: Date | null, months: number, now: Date): Date {
   // A month after 31 January is the last day of February, not 3 March.
-  if (end.getUTCDate() !== base.getUTCDate()) end.setUTCDate(0);
-  end.setUTCHours(23, 59, 59, 999);
-  return end;
+  return periodEnd(currentEnd, months, now);
+}
+
+/** 133 A license paid for life: plan changes go through the team. */
+export function lifetimeLocked(license: Pick<License, "expiresAt"> | null | undefined): boolean {
+  return isLifetimeEnd(license?.expiresAt);
 }
 
 /** The plan a license is on now: a scheduled downgrade counts from its date, even before the daily job writes it. */
@@ -51,15 +59,28 @@ function active(license: Pick<License, "expiresAt"> | null, now: Date): license 
   return license !== null && license.expiresAt.getTime() > now.getTime();
 }
 
-/** Days of `to` that the time left on `from` is worth (see the rule above). */
-export function creditDays(from: PlanInfo, to: PlanInfo, remainingMs: number, now: Date): number {
+/**
+ * What a day of the plan is worth, in piastres: its main price over its
+ * days (133 its shortest timed period's when the main one is lifetime);
+ * null without a timed price.
+ */
+function perDayOf(plan: PlanInfo, now: Date, months?: number): number | null {
+  const periods = planPeriods(plan).filter((p) => p.key !== "lifetime");
+  const wanted = months !== undefined ? periodOfMonths(months) : mainPeriodOf(plan);
+  const period = periods.find((p) => p.key === wanted) ?? periods[0];
+  const m = period ? monthsOfPeriod(period.key) : null;
+  if (!period || !m) return null;
+  return period.price.egpCents / ((extendedUntil(null, m, now).getTime() - now.getTime()) / DAY);
+}
+
+/** Days of `to` that the time left on `from` is worth (see the rule above); 133 at the paid period's price of `to`. */
+export function creditDays(from: PlanInfo, to: PlanInfo, remainingMs: number, now: Date, months?: number): number {
   if (remainingMs <= 0) return 0;
   const remainingDays = remainingMs / DAY;
   // 52 Both priced in pounds (the charged price), or the days as they are.
-  const [a, b] = [planPriceOf(from), planPriceOf(to)];
+  const [a, b] = [perDayOf(from, now), perDayOf(to, now, months)];
   if (!a || !b) return Math.floor(remainingDays);
-  const perDay = (plan: PlanInfo, egpCents: number) => egpCents / ((extendedUntil(null, plan.billingMonths, now).getTime() - now.getTime()) / DAY);
-  return Math.floor((remainingDays * perDay(from, a.egpCents)) / perDay(to, b.egpCents));
+  return Math.floor((remainingDays * a) / b);
 }
 
 export type PlanChangeKind = "activate" | "renew" | "upgrade" | "downgrade";
@@ -78,12 +99,12 @@ export interface PlanChange {
 
 /**
  * What a paid period of `paid` does to the app's license (none yet: its
- * first activation). `months` is the payment's period.
+ * first activation). `months` is the payment's period (133 0: for life).
  */
 export function planChangeFor(
   license: Pick<License, "plan" | "expiresAt" | "nextPlan" | "nextPlanAt"> | null,
   paid: PlanInfo,
-  months: 1 | 12,
+  months: number,
   plans: Record<Plan, PlanInfo>,
   now: Date,
 ): PlanChange {
@@ -91,12 +112,14 @@ export function planChangeFor(
     return { kind: license ? "renew" : "activate", plan: paid.id, activeUntil: extendedUntil(license?.expiresAt ?? null, months, now), nextPlan: null, nextPlanAt: null, creditDays: 0 };
   }
   const current = currentPlanId(license, now);
-  const direction = comparePlans(current, paid.id);
+  const direction = comparePlans(current, paid.id, plans);
   if (direction === 0) {
     return { kind: "renew", plan: current, activeUntil: extendedUntil(license.expiresAt, months, now), nextPlan: null, nextPlanAt: null, creditDays: 0 };
   }
   if (direction > 0) {
-    const credit = creditDays(plans[current], paid, license.expiresAt.getTime() - now.getTime(), now);
+    // 133 For life from today: nothing to credit.
+    if (months === LIFETIME_MONTHS) return { kind: "upgrade", plan: paid.id, activeUntil: extendedUntil(null, months, now), nextPlan: null, nextPlanAt: null, creditDays: 0 };
+    const credit = creditDays(plans[current], paid, license.expiresAt.getTime() - now.getTime(), now, months);
     const end = extendedUntil(null, months, now);
     return { kind: "upgrade", plan: paid.id, activeUntil: new Date(end.getTime() + credit * DAY), nextPlan: null, nextPlanAt: null, creditDays: credit };
   }
@@ -115,7 +138,9 @@ export type ScheduleResult = { ok: true; at: Date } | { ok: false; error: string
 /** A downgrade without paying now: the app moves to `to` when the paid period ends. */
 export async function scheduleDowngrade(store: DataStore, license: License, to: Plan, now: Date): Promise<ScheduleResult> {
   if (!active(license, now)) return { ok: false, error: "This plan has ended. Choose a plan and pay for it to start again." };
-  if (comparePlans(currentPlanId(license, now), to) >= 0) return { ok: false, error: "Choose a lower plan, or upgrade by card." };
+  // 133 A lifetime license never reaches its end: the team changes it.
+  if (lifetimeLocked(license)) return { ok: false, error: "Your plan is for life. Message us on WhatsApp to change it." };
+  if (comparePlans(currentPlanId(license, now), to, await getPlans(store)) >= 0) return { ok: false, error: "Choose a lower plan, or upgrade by card." };
   await store.updateLicense(license.id, { nextPlan: to, nextPlanAt: license.expiresAt }, now);
   return { ok: true, at: license.expiresAt };
 }

@@ -156,6 +156,11 @@ void main() {
       find.textContaining('Your app “Bab Al Sham” is on the regular editor.'),
       findsOneWidget,
     );
+    // 132 It lists Prime's second set too: the end is further down.
+    await tester.scrollUntilVisible(
+      find.text('Nothing is sold in this app.'),
+      200,
+    );
     expect(find.text('Nothing is sold in this app.'), findsOneWidget);
     await tapOn(tester, find.text('Learn more on the website'));
     expect(app.opened.last, 'https://yallapp.com.tr/yallapp-studio');

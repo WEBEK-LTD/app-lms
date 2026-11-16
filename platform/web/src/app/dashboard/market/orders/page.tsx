@@ -1,3 +1,4 @@
+import { RatingReply } from "../../rating-reply";
 import type { Metadata } from "next";
 import { Icon } from "@/components/icon";
 import { Badge, EmptyState, formatDateTime, PageHeader, Section } from "@/components/ui";
@@ -126,6 +127,32 @@ export default async function MarketOrdersPage({ searchParams }: { searchParams:
           pageLabel={t("common.page", { page, pages })}
         />
       </Section>
+      {/* 132 The customers' ratings on this page's orders, with the business's reply under each. */}
+      {items.some((o) => o.rating) ? (
+        <Section titleId="h-ratings" title={t("market.ratingsTitle")}>
+          <ul className="m-0 flex list-none flex-col gap-4 p-0">
+            {items
+              .filter((o) => o.rating)
+              .map((o) => (
+                <li key={o.id} className="flex flex-col gap-2 border-t border-line-soft pt-4 first:border-t-0 first:pt-0" data-market-rating={o.id}>
+                  <span className="flex flex-wrap items-center gap-1.5 text-[15px]">
+                    <Icon name="star" size={18} filled className="text-ember" />
+                    <span className="font-semibold">{t("market.ratingLine", { stars: o.rating!.vendor, vendor: o.vendorName })}</span>
+                    <bdi dir="ltr" className="text-muted">
+                      {marketOrderReference(o)}
+                    </bdi>
+                  </span>
+                  {o.rating!.comment ? (
+                    <p className="m-0 text-[15px] text-ink-4" dir="auto">
+                      “{o.rating!.comment}”
+                    </p>
+                  ) : null}
+                  <RatingReply source="market" id={o.id} reply={o.rating!.reply?.text ?? null} />
+                </li>
+              ))}
+          </ul>
+        </Section>
+      ) : null}
     </div>
   );
 }

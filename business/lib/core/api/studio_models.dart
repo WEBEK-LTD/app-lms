@@ -28,18 +28,58 @@ class ItemRef {
   final String name;
 }
 
-/// A pickup or a drop-off: `{name, address}`.
+/// A pickup or a drop-off: `{name, address}`; 132 its details and pin.
 class Place {
-  const Place({required this.name, required this.address});
+  const Place({
+    required this.name,
+    required this.address,
+    this.details,
+    this.lat,
+    this.lng,
+  });
 
-  factory Place.fromJson(Json json) =>
-      Place(name: str(json, 'name'), address: str(json, 'address'));
+  factory Place.fromJson(Json json) => Place(
+    name: str(json, 'name'),
+    address: str(json, 'address'),
+    details: optStr(json, 'details'),
+    lat: optNumber(json, 'lat'),
+    lng: optNumber(json, 'lng'),
+  );
 
   static Place read(Json json, String key) =>
       Place.fromJson(optObject(json, key) ?? const {});
 
   final String name;
   final String address;
+  final String? details;
+  final double? lat;
+  final double? lng;
+
+  /// The address with its details ("9 Maadi Rd, Cairo, Gate 2").
+  String get full => [
+    address,
+    if (details != null && !address.contains(details!)) details,
+  ].whereType<String>().where((t) => t.isNotEmpty).join(', ');
+}
+
+/// 132 A courier on an order, with their phone.
+class CourierContact {
+  const CourierContact({required this.name, this.id, this.phone});
+
+  factory CourierContact.fromJson(Json json) => CourierContact(
+    id: optStr(json, 'id'),
+    name: str(json, 'name'),
+    phone: optStr(json, 'phone'),
+  );
+
+  static CourierContact? opt(Json json, String key) {
+    final value = optObject(json, key);
+    return value == null ? null : CourierContact.fromJson(value);
+  }
+
+  final String? id;
+  final String name;
+  final String? phone;
 }
 
 /// One step of an item's history: `{status, label, at, by}`.
@@ -185,6 +225,8 @@ class FoodCustomer {
     required this.address,
     this.phone,
     this.note,
+    this.lat,
+    this.lng,
   });
 
   factory FoodCustomer.fromJson(Json json) => FoodCustomer(
@@ -192,12 +234,20 @@ class FoodCustomer {
     phone: optStr(json, 'phone'),
     address: str(json, 'address'),
     note: optStr(json, 'note'),
+    lat: optNumber(json, 'lat'),
+    lng: optNumber(json, 'lng'),
   );
 
   final String name;
   final String? phone;
+
+  /// With its details (building, floor).
   final String address;
   final String? note;
+
+  /// 132 The drop-off's pin.
+  final double? lat;
+  final double? lng;
 }
 
 /// `{id, label}`: a reason to reject, a decision, a choice.
@@ -224,6 +274,8 @@ class FoodOrderDetail {
     this.prepChoices = const [10, 15, 20, 30, 45],
     this.rejectionReasons = const [],
     this.cashToCollect,
+    this.courier,
+    this.rating,
   });
 
   factory FoodOrderDetail.fromJson(Json json) {
@@ -245,10 +297,18 @@ class FoodOrderDetail {
           : const [10, 15, 20, 30, 45],
       rejectionReasons: listOf(json, 'rejection_reasons', Choice.fromJson),
       cashToCollect: Money.opt(json, 'cash_to_collect'),
+      courier: CourierContact.opt(json, 'courier'),
+      rating: CustomerRating.opt(json, 'rating'),
     );
   }
 
   final FoodOrder order;
+
+  /// 132 The customer's rating, with the business's reply.
+  final CustomerRating? rating;
+
+  /// 132 The courier with their phone.
+  final CourierContact? courier;
   final List<FoodLine> lines;
   final Money subtotal;
   final Money deliveryFee;
@@ -387,16 +447,30 @@ class ShipmentDetail {
     this.timeline = const [],
     this.note,
     this.recipientPhone,
+    this.senderName,
+    this.senderPhone,
+    this.packageSize,
+    this.packageDescription,
+    this.service,
   });
 
   factory ShipmentDetail.fromJson(Json json) {
     final recipient = optObject(json, 'recipient') ?? const {};
+    final sender = optObject(json, 'sender');
+    final package = optObject(json, 'package');
     return ShipmentDetail(
       shipment: Shipment.fromJson(json),
       timeline: listOf(json, 'timeline', TimelineEntry.fromJson),
       note: optStr(json, 'note'),
       recipientName: str(recipient, 'name'),
       recipientPhone: optStr(recipient, 'phone'),
+      senderName: sender == null ? null : optStr(sender, 'name'),
+      senderPhone: sender == null ? null : optStr(sender, 'phone'),
+      packageSize: package == null ? null : optStr(package, 'size'),
+      packageDescription: package == null
+          ? null
+          : optStr(package, 'description'),
+      service: optStr(json, 'service'),
     );
   }
 
@@ -405,6 +479,15 @@ class ShipmentDetail {
   final String? note;
   final String recipientName;
   final String? recipientPhone;
+
+  /// 132 Who sends it, what it is, which service.
+  final String? senderName;
+  final String? senderPhone;
+
+  /// small, medium, large.
+  final String? packageSize;
+  final String? packageDescription;
+  final String? service;
 }
 
 class Courier {
@@ -549,15 +632,34 @@ class Ride {
 }
 
 class RideDetail {
-  const RideDetail({required this.ride, this.timeline = const []});
+  const RideDetail({
+    required this.ride,
+    this.timeline = const [],
+    this.riderPhone,
+    this.notes,
+    this.rating,
+  });
 
-  factory RideDetail.fromJson(Json json) => RideDetail(
-    ride: Ride.fromJson(json),
-    timeline: listOf(json, 'timeline', TimelineEntry.fromJson),
-  );
+  factory RideDetail.fromJson(Json json) {
+    final rider = optObject(json, 'rider');
+    return RideDetail(
+      ride: Ride.fromJson(json),
+      timeline: listOf(json, 'timeline', TimelineEntry.fromJson),
+      riderPhone: rider == null ? null : optStr(rider, 'phone'),
+      notes: optStr(json, 'notes'),
+      rating: CustomerRating.opt(json, 'rating'),
+    );
+  }
+
+  /// 132 The rider's rating, with the business's reply.
+  final CustomerRating? rating;
 
   final Ride ride;
   final List<TimelineEntry> timeline;
+
+  /// 132 The rider to call, and their note to the driver.
+  final String? riderPhone;
+  final String? notes;
 }
 
 class Driver {
@@ -688,17 +790,66 @@ class MarketOrderDetail {
     required this.order,
     this.lines = const [],
     this.timeline = const [],
+    this.customer,
+    this.scheduledFor,
+    this.paymentMethod,
+    this.paymentStatus,
+    this.couponCode,
+    this.amounts = const [],
+    this.courier,
+    this.rating,
   });
 
-  factory MarketOrderDetail.fromJson(Json json) => MarketOrderDetail(
-    order: MarketOrder.fromJson(json),
-    lines: listOf(json, 'lines', FoodLine.fromJson),
-    timeline: listOf(json, 'timeline', TimelineEntry.fromJson),
-  );
+  factory MarketOrderDetail.fromJson(Json json) {
+    final customer = optObject(json, 'customer');
+    final payment = optObject(json, 'payment');
+    return MarketOrderDetail(
+      order: MarketOrder.fromJson(json),
+      lines: listOf(json, 'lines', FoodLine.fromJson),
+      timeline: listOf(json, 'timeline', TimelineEntry.fromJson),
+      customer: customer == null
+          ? null
+          : FoodCustomer.fromJson({
+              ...customer,
+              'address': customer['address'] ?? '',
+            }),
+      scheduledFor: optDate(json, 'scheduled_for'),
+      paymentMethod: payment == null ? null : optStr(payment, 'method'),
+      paymentStatus: payment == null ? null : optStr(payment, 'status'),
+      couponCode: optStr(json, 'coupon_code'),
+      amounts: [
+        for (final a in jsonList(json, 'amounts'))
+          (
+            kind: str(a, 'kind'),
+            amount: Money.fromJson(optObject(a, 'amount') ?? const {}),
+          ),
+      ],
+      courier: CourierContact.opt(json, 'courier'),
+      rating: CustomerRating.opt(json, 'rating'),
+    );
+  }
+
+  /// 132 The customer's rating, with the business's reply.
+  final CustomerRating? rating;
 
   final MarketOrder order;
   final List<FoodLine> lines;
   final List<TimelineEntry> timeline;
+
+  /// 132 The customer as the app's support sees them, where it goes.
+  final FoodCustomer? customer;
+  final DateTime? scheduledFor;
+
+  /// cash, card, apple_pay, google_pay, wallet.
+  final String? paymentMethod;
+
+  /// unpaid, paid, partly_refunded, refunded.
+  final String? paymentStatus;
+  final String? couponCode;
+
+  /// What the customer saw, in order (discounts negative), ending with the total.
+  final List<({String kind, Money amount})> amounts;
+  final CourierContact? courier;
 }
 
 class Complaint {
@@ -1320,6 +1471,8 @@ class AlertSetting {
     this.amountCents,
     this.byTime,
     this.stars,
+    this.threshold,
+    this.period,
   });
 
   factory AlertSetting.fromJson(Json json) => AlertSetting(
@@ -1329,6 +1482,8 @@ class AlertSetting {
     amountCents: optInt(json, 'amount_cents'),
     byTime: optStr(json, 'by_time'),
     stars: optInt(json, 'stars'),
+    threshold: optInt(json, 'threshold'),
+    period: optStr(json, 'period'),
   );
 
   /// order_waiting, shipment_unassigned, sales_low, message_unanswered,
@@ -1342,12 +1497,20 @@ class AlertSetting {
   final String? byTime;
   final int? stars;
 
+  /// 132 low_stock: told at this many left or fewer.
+  final int? threshold;
+
+  /// 132 sales_goal: day, week or month (its amount in [amountCents]).
+  final String? period;
+
   AlertSetting copyWith({
     bool? on,
     int? minutes,
     int? amountCents,
     String? byTime,
     int? stars,
+    int? threshold,
+    String? period,
   }) => AlertSetting(
     kind: kind,
     on: on ?? this.on,
@@ -1355,6 +1518,8 @@ class AlertSetting {
     amountCents: amountCents ?? this.amountCents,
     byTime: byTime ?? this.byTime,
     stars: stars ?? this.stars,
+    threshold: threshold ?? this.threshold,
+    period: period ?? this.period,
   );
 
   Json toJson() => {
@@ -1364,6 +1529,8 @@ class AlertSetting {
     'amount_cents': amountCents,
     'by_time': byTime,
     'stars': stars,
+    if (kind == 'low_stock') 'threshold': threshold,
+    if (kind == 'sales_goal') 'period': period,
   };
 }
 
@@ -1480,4 +1647,282 @@ class BookedCall {
 
   /// requested, confirmed…
   final String status;
+}
+
+// 132 Prime's second set.
+
+/// A customer in the insights (their name only for those who may see orders).
+class PrimePerson {
+  const PrimePerson({
+    required this.orders,
+    required this.spend,
+    required this.lastOrderAt,
+    this.name,
+  });
+
+  factory PrimePerson.fromJson(Json json) => PrimePerson(
+    name: optStr(json, 'name'),
+    orders: integer(json, 'orders'),
+    spend: Money.fromJson(optObject(json, 'spend') ?? const {}),
+    lastOrderAt: date(json, 'last_order_at'),
+  );
+
+  final String? name;
+  final int orders;
+  final Money spend;
+  final DateTime lastOrderAt;
+}
+
+class PrimeCustomers {
+  const PrimeCustomers({
+    required this.period,
+    required this.customers,
+    required this.fresh,
+    required this.returning,
+    this.top = const [],
+    this.lapsed30 = 0,
+    this.lapsed30People = const [],
+    this.lapsed60 = 0,
+    this.lapsed60People = const [],
+    this.namesShown = true,
+  });
+
+  factory PrimeCustomers.fromJson(Json json) {
+    final l30 = optObject(json, 'lapsed_30') ?? const {};
+    final l60 = optObject(json, 'lapsed_60') ?? const {};
+    return PrimeCustomers(
+      period: str(json, 'period', 'month'),
+      customers: integer(json, 'customers'),
+      fresh: integer(json, 'new'),
+      returning: integer(json, 'returning'),
+      top: listOf(json, 'top', PrimePerson.fromJson),
+      lapsed30: integer(l30, 'count'),
+      lapsed30People: listOf(l30, 'people', PrimePerson.fromJson),
+      lapsed60: integer(l60, 'count'),
+      lapsed60People: listOf(l60, 'people', PrimePerson.fromJson),
+      namesShown: boolean(json, 'names_shown', true),
+    );
+  }
+
+  final String period;
+  final int customers;
+  final int fresh;
+  final int returning;
+  final List<PrimePerson> top;
+  final int lapsed30;
+  final List<PrimePerson> lapsed30People;
+  final int lapsed60;
+  final List<PrimePerson> lapsed60People;
+  final bool namesShown;
+}
+
+class PrimeProduct {
+  const PrimeProduct({
+    required this.id,
+    required this.name,
+    required this.units,
+    required this.total,
+    this.stock,
+  });
+
+  factory PrimeProduct.fromJson(Json json) => PrimeProduct(
+    id: str(json, 'id'),
+    name: str(json, 'name'),
+    units: integer(json, 'units'),
+    total: Money.fromJson(optObject(json, 'total') ?? const {}),
+    stock: optInt(json, 'stock'),
+  );
+
+  final String id;
+  final String name;
+  final int units;
+  final Money total;
+  final int? stock;
+}
+
+class PrimeProducts {
+  const PrimeProducts({
+    required this.period,
+    required this.threshold,
+    this.best = const [],
+    this.slow = const [],
+    this.lowStock = const [],
+    this.outOfStock = const [],
+  });
+
+  factory PrimeProducts.fromJson(Json json) => PrimeProducts(
+    period: str(json, 'period', 'month'),
+    threshold: integer(json, 'threshold', 3),
+    best: listOf(json, 'best', PrimeProduct.fromJson),
+    slow: listOf(json, 'slow', PrimeProduct.fromJson),
+    lowStock: listOf(json, 'low_stock', PrimeProduct.fromJson),
+    outOfStock: listOf(json, 'out_of_stock', PrimeProduct.fromJson),
+  );
+
+  final String period;
+  final int threshold;
+  final List<PrimeProduct> best;
+  final List<PrimeProduct> slow;
+  final List<PrimeProduct> lowStock;
+  final List<PrimeProduct> outOfStock;
+}
+
+class PrimeReview {
+  const PrimeReview({
+    required this.source,
+    required this.id,
+    required this.rating,
+    required this.at,
+    required this.about,
+    this.comment,
+    this.name,
+    this.canReply = false,
+    this.reply,
+  });
+
+  factory PrimeReview.fromJson(Json json) => PrimeReview(
+    source: str(json, 'source'),
+    id: str(json, 'id'),
+    rating: integer(json, 'rating'),
+    comment: optStr(json, 'comment'),
+    at: date(json, 'at'),
+    name: optStr(json, 'name'),
+    about: str(json, 'about'),
+    canReply: boolean(json, 'can_reply'),
+    reply: optStr(json, 'reply'),
+  );
+
+  /// food, market, ride or course.
+  final String source;
+  final String id;
+  final int rating;
+  final String? comment;
+  final DateTime at;
+  final String? name;
+  final String about;
+  final bool canReply;
+  final String? reply;
+}
+
+class PrimeReviews {
+  const PrimeReviews({
+    required this.count,
+    this.average,
+    this.items = const [],
+  });
+
+  factory PrimeReviews.fromJson(Json json) => PrimeReviews(
+    average: optNumber(json, 'average'),
+    count: integer(json, 'count'),
+    items: listOf(json, 'items', PrimeReview.fromJson),
+  );
+
+  final double? average;
+  final int count;
+  final List<PrimeReview> items;
+}
+
+class WeeklyReport {
+  const WeeklyReport({required this.on, this.email});
+
+  factory WeeklyReport.fromJson(Json json) =>
+      WeeklyReport(on: boolean(json, 'on'), email: optStr(json, 'email'));
+
+  final bool on;
+  final String? email;
+}
+
+/// A day's delivery slots, each open or closed by the owner.
+class SlotsDay {
+  const SlotsDay({
+    required this.date,
+    required this.dateLabel,
+    this.slots = const [],
+  });
+
+  factory SlotsDay.fromJson(Json json) => SlotsDay(
+    date: str(json, 'date'),
+    dateLabel: str(json, 'date_label'),
+    slots: [
+      for (final s in jsonList(json, 'slots'))
+        (
+          id: str(s, 'id'),
+          label: str(s, 'label'),
+          closed: boolean(s, 'closed'),
+        ),
+    ],
+  );
+
+  final String date;
+  final String dateLabel;
+  final List<({String id, String label, bool closed})> slots;
+}
+
+/// 132 A customer's rating of a food or marketplace order or a ride, and
+/// the business's reply under it (one per rating; the customer sees it in
+/// the app in the business's name).
+class CustomerRating {
+  const CustomerRating({
+    required this.stars,
+    required this.at,
+    this.courier,
+    this.comment,
+    this.reply,
+    this.replyAt,
+    this.replyEditedAt,
+    this.replyBy,
+  });
+
+  factory CustomerRating.fromJson(Json json) {
+    final reply = optObject(json, 'reply');
+    return CustomerRating(
+      stars: integer(json, 'stars'),
+      courier: optInt(json, 'courier'),
+      comment: optStr(json, 'comment'),
+      at: date(json, 'at'),
+      reply: reply == null ? null : str(reply, 'text'),
+      replyAt: reply == null ? null : optDate(reply, 'at'),
+      replyEditedAt: reply == null ? null : optDate(reply, 'edited_at'),
+      replyBy: reply == null ? null : optStr(reply, 'by'),
+    );
+  }
+
+  static CustomerRating? opt(Json json, String key) {
+    final o = optObject(json, key);
+    return o == null ? null : CustomerRating.fromJson(o);
+  }
+
+  final int stars;
+  final int? courier;
+  final String? comment;
+  final DateTime at;
+  final String? reply;
+  final DateTime? replyAt;
+  final DateTime? replyEditedAt;
+  final String? replyBy;
+}
+
+/// 132 What replying under a rating answers: the rating with its reply.
+class RatedItem {
+  const RatedItem({
+    required this.source,
+    required this.id,
+    required this.reference,
+    required this.about,
+    required this.rating,
+  });
+
+  factory RatedItem.fromJson(Json json) => RatedItem(
+    source: str(json, 'source'),
+    id: integer(json, 'id'),
+    reference: str(json, 'reference'),
+    about: str(json, 'about'),
+    rating: CustomerRating.fromJson(optObject(json, 'rating') ?? const {}),
+  );
+
+  final String source;
+  final int id;
+  final String reference;
+  final String about;
+  final CustomerRating rating;
 }

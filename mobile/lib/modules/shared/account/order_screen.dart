@@ -141,6 +141,11 @@ class _OrderScreenState extends ConsumerState<OrderScreen> {
                 style: TextStyle(fontSize: 13, color: p.textSecondary),
               ),
             ],
+            // 132 Where a store order's delivery is: the new day, why, what's next.
+            if (order.stage != null) ...[
+              OrderStageCard(stage: order.stage!),
+              const SizedBox(height: 12),
+            ],
             // 80.4 How the shop shipped it: the carrier, and its tracking.
             if (order.shipment != null) ...[
               _ShipmentCard(shipment: order.shipment!),
@@ -287,12 +292,16 @@ class OrderStatusChip extends StatelessWidget {
     final step = order.status == OrderStatus.refunded
         ? null
         : order.fulfilmentStatus;
+    // 132 A store order on its way says where its delivery is.
+    final stage = order.status == OrderStatus.processing ? order.stage : null;
     final status = step != null
         ? OrderSteps.label(
             context,
             step,
             order.fulfilment?.type ?? FulfilmentType.pickup,
           )
+        : stage != null
+        ? orderStageTitle(context, stage)
         : order.statusLabel;
     return Container(
       key: const ValueKey('order-status'),
@@ -314,6 +323,120 @@ class OrderStatusChip extends StatelessWidget {
           fontWeight: FontWeight.w700,
           color: good ? p.success : p.text,
         ),
+      ),
+    );
+  }
+}
+
+/// 132 A delivery stage in the app's words.
+String orderStageTitle(BuildContext context, OrderStage s) {
+  final l10n = context.l10n;
+  return switch (s.code) {
+    'preparing' => l10n.orderStagePreparing,
+    'shipped' => l10n.orderStageShipped,
+    'postponed' => l10n.orderStagePostponed,
+    'failed' => l10n.orderStageFailed,
+    'returned' => l10n.orderStageReturned,
+    'delivered' => l10n.orderStageDelivered,
+    _ => s.label,
+  };
+}
+
+/// 132 A store order's delivery stage: out for delivery with the courier
+/// to call and the shop's tracking link; postponed with the new day and
+/// why; a failed attempt with why and what's next; back at the shop;
+/// delivered. In the app's words, the shop's short reason as it wrote it.
+class OrderStageCard extends ConsumerWidget {
+  const OrderStageCard({super.key, required this.stage});
+
+  final OrderStage stage;
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final p = context.palette;
+    final l10n = context.l10n;
+    final s = stage;
+    final day = [
+      if (s.day != null) isoDayLabel(s.day!),
+      if (s.slotLabel != null) '\u2068${s.slotLabel!}\u2069',
+    ].join(', ');
+    final title = orderStageTitle(context, s);
+    final (icon, bad) = switch (s.code) {
+      'preparing' => (AppIcons.bundle, false),
+      'shipped' => (AppIcons.shipping, false),
+      'postponed' => (AppIcons.calendar, true),
+      'failed' => (AppIcons.error, true),
+      'returned' => (AppIcons.returnOrder, true),
+      _ => (AppIcons.checkCircle, false),
+    };
+    final lines = <String>[
+      if (s.code == 'postponed' && day.isNotEmpty) l10n.orderStageNewDay(day),
+      if (s.code == 'failed' && s.nextStep == 'retry' && day.isNotEmpty)
+        l10n.orderStageTryAgain(day)
+      else if (s.code == 'failed' && s.nextStepLabel != null)
+        s.nextStepLabel!,
+      if (s.reason != null) s.reason!,
+      if (s.code == 'shipped' && s.courierName != null)
+        l10n.orderStageCourier(s.courierName!),
+    ];
+    return Container(
+      key: const ValueKey('order-stage'),
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: bad ? p.accentSoft : p.surface,
+        border: Border.all(color: p.border),
+        borderRadius: BorderRadius.circular(16),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              AppIcon(icon, color: p.text),
+              const SizedBox(width: 10),
+              Expanded(
+                child: Text(
+                  title,
+                  style: TextStyle(
+                    fontSize: 16,
+                    fontWeight: FontWeight.w700,
+                    color: p.text,
+                  ),
+                ),
+              ),
+            ],
+          ),
+          for (final line in lines) ...[
+            const SizedBox(height: 6),
+            Text(line, style: TextStyle(fontSize: 14, color: p.textSecondary)),
+          ],
+          if (s.code == 'shipped' &&
+              (s.courierPhone != null || s.trackingUrl != null)) ...[
+            const SizedBox(height: 8),
+            Wrap(
+              spacing: 8,
+              children: [
+                if (s.courierPhone != null)
+                  TextButton.icon(
+                    onPressed: () => ref.read(openExternalProvider)(
+                      'tel:${s.courierPhone!.replaceAll(RegExp(r'[^0-9+]'), '')}',
+                    ),
+                    icon: AppIcon(AppIcons.call, size: 18, color: p.link),
+                    label: Text(l10n.orderStageCallCourier),
+                    style: TextButton.styleFrom(foregroundColor: p.link),
+                  ),
+                if (s.trackingUrl != null)
+                  TextButton.icon(
+                    onPressed: () =>
+                        ref.read(openExternalProvider)(s.trackingUrl!),
+                    icon: AppIcon(AppIcons.openInNew, size: 18, color: p.link),
+                    label: Text(l10n.orderStageFollow),
+                    style: TextButton.styleFrom(foregroundColor: p.link),
+                  ),
+              ],
+            ),
+          ],
+        ],
       ),
     );
   }

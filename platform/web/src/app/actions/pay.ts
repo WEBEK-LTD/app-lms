@@ -22,6 +22,8 @@ import { noteAppError } from "@/lib/watch/app-errors";
 import { revalidatePath } from "next/cache";
 import { quoteBeforePayment } from "@/lib/selling/in-app-pay";
 import { inAppPayDeps } from "@/lib/selling/in-app-pay-env";
+import { pushNewOrder } from "@/lib/owner/push";
+import { pushOwnerSafely } from "@/lib/owner/push-env";
 
 /** 16 A demo app's payment page: places the order without taking any payment. */
 export async function demoPayAction(token: string): Promise<void> {
@@ -64,6 +66,8 @@ export async function payAction(token: string, _: FormState, formData: FormData)
     if (!chosen) return { message: "This payment method isn't offered any more. Choose another one.", values };
     const placed = await store.getCatalogOrder(app.id, order.id);
     if (placed) await sendManualOrderMails(store, app, placed, chosen);
+    // 132 The owner's phones hear of it too: it waits for them to mark it paid.
+    if (placed) await pushOwnerSafely((d) => pushNewOrder(d, app, placed), store);
     redirect(`/pay/${token}/order-received`);
   }
   const account = app ? await checkoutAccount(store, app, encryptionKey()) : null;

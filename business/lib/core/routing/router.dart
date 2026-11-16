@@ -48,6 +48,7 @@ import '../../features/market/market_screen.dart';
 import '../../features/prime/alerts_screen.dart';
 import '../../features/prime/insights_screen.dart';
 import '../../features/prime/look_screen.dart';
+import '../../features/prime/prime_more.dart';
 import '../../features/prime/prime_locked_screen.dart';
 import '../../features/rides/ride_screen.dart';
 import '../../features/rides/rides_screen.dart';
@@ -347,6 +348,10 @@ final routerProvider = Provider<GoRouter>((ref) {
       full(Paths.insights, (_) => const InsightsScreen()),
       full(Paths.smartAlerts, (_) => const AlertsScreen()),
       full(Paths.look, (_) => const LookScreen()),
+      full(Paths.primeCustomers, (_) => const PrimeCustomersScreen()),
+      full(Paths.primeProducts, (_) => const PrimeProductsScreen()),
+      full(Paths.primeReviews, (_) => const PrimeReviewsScreen()),
+      full(Paths.quickActions, (_) => const QuickActionsScreen()),
       full(Paths.vip, (_) => const VipScreen()),
     ],
   );

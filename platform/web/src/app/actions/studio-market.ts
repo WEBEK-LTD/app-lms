@@ -10,6 +10,14 @@ import { appPlan } from "@/lib/entitlements";
 import type { FormState } from "@/lib/forms";
 import { APPLY_MESSAGES, applyTemplate, moveTemplate, restorePrevious, updateToLatest, type MarketDeps } from "@/lib/studio-market/apply";
 import { templateText } from "@/lib/studio-market/templates";
+import { pictureCopying } from "@/lib/studio-market/media-read";
+import { CHECKOUT_MESSAGES, startTemplateCheckout } from "@/lib/studio-market/checkout";
+import { countryName } from "@/lib/account/country";
+import { appUrl, encryptionKey, paymentApiUrls } from "@/lib/env";
+import { callbackUrls } from "@/lib/payments/routes";
+import { hitRateLimit, RATE_LIMITS } from "@/lib/rate-limit";
+import { yallappBilling, yallappPlanAccount } from "@/lib/settings/platform";
+import { requestIp } from "@/lib/auth/session";
 import { en } from "@/i18n/dashboard/studio-market";
 
 /**
@@ -28,7 +36,8 @@ async function owner(): Promise<ClientContext> {
 }
 
 async function deps(): Promise<MarketDeps> {
-  return { store: await getStore(), blobs: getBlobStore(), now: new Date() };
+  // 106.2 The template's pictures copied into the buyer's account, its fonts made the app's own.
+  return { store: await getStore(), blobs: getBlobStore(), now: new Date(), ...pictureCopying() };
 }
 
 /** The plan of the app it is applied on: its published layout keeps to it. */
@@ -118,4 +127,45 @@ export async function updateTemplateAction(formData: FormData): Promise<void> {
   await recordStaffChange({ ...context, app: context.apps.find((a) => a.id === application.appId) ?? null }, `Updated the Studio Market template “${templateText(template, "en").title}”`);
   revalidatePath("/dashboard/studio-market", "layout");
   back({ done: noticeKey(APPLY_MESSAGES.updated) });
+}
+
+/**
+ * 106.2 Checkout: a plan of a paid template for one of the buyer's apps (or
+ * to apply later), or a renewal of their licence; off to the gateway's page
+ * (Yallapp's own account), the no-refunds consent required. The price comes
+ * from the template here, never from the browser.
+ */
+export async function checkoutTemplateAction(_: FormState, formData: FormData): Promise<FormState> {
+  const context = await owner();
+  const store = await getStore();
+  const now = new Date();
+  const values = { plan: String(formData.get("plan") ?? ""), app: String(formData.get("app") ?? ""), consent: formData.get("consent") === "on" ? "on" : "" };
+  const template = await store.getMarketTemplateBySlug(String(formData.get("template") ?? ""));
+  if (!template) return { message: APPLY_MESSAGES.notPublished, values };
+  const renewId = String(formData.get("renew") ?? "");
+  const renew = renewId ? await store.getTemplateLicence(renewId) : null;
+  if (renewId && (!renew || renew.clientId !== context.client.id)) return { message: CHECKOUT_MESSAGES.renewal, values };
+  if (context.client.status === "suspended") return { message: CHECKOUT_MESSAGES.unavailable, values };
+  const account = await yallappPlanAccount(store, encryptionKey());
+  if (!account) return { message: CHECKOUT_MESSAGES.unavailable, values };
+  if (!(await hitRateLimit(store, RATE_LIMITS.planPayment, `template:${context.client.id}`, now)).allowed) return { message: CHECKOUT_MESSAGES.busy, values };
+  const started = await startTemplateCheckout(
+    { store, account, egpPerUsd: (await yallappBilling(store, { fresh: true })).egpPerUsd, urls: paymentApiUrls(), now },
+    {
+      client: context.client,
+      user: context.user,
+      apps: context.apps,
+      template,
+      plan: values.plan,
+      appId: renew || values.app === "later" || !values.app ? null : values.app,
+      renew,
+      consent: values.consent === "on",
+      city: context.client.country ? countryName(context.client.country, "en") : "",
+      ip: await requestIp(),
+      callbackUrls: (token) => callbackUrls(appUrl(), "template", account.provider, token),
+    },
+  );
+  if (!started.ok) return { message: started.message, ...(started.field ? { errors: { [started.field]: started.message } } : {}), values };
+  await recordStaffChange({ ...context, app: null }, `Started a payment for the Studio Market template “${templateText(template, "en").title}”`);
+  redirect(started.url);
 }

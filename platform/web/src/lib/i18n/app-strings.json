@@ -3185,4 +3185,16 @@
 {"key":"inAppNotPaidBody","en":"Nothing was charged. Your cart is kept, so you can try again.","ar":"لم يُخصم أي مبلغ. ما زالت سلتك محفوظة، ويمكنك المحاولة مرة أخرى.","tr":"Herhangi bir ücret alınmadı. Sepetiniz duruyor, yeniden deneyebilirsiniz.","description":"134 Under the title when the payment page inside the app was closed before paying."},
 {"key":"inAppViewOrders","en":"View my orders","ar":"عرض طلباتي","tr":"Siparişlerimi gör","description":"134 Opens the customer's orders after paying inside the app."},
 {"key":"inAppBackToCart","en":"Back to cart","ar":"العودة إلى السلة","tr":"Sepete dön","description":"134 Closes the note and goes back to the cart when the payment wasn't completed."},
-{"key":"inAppPayTitle","en":"Payment","ar":"الدفع","tr":"Ödeme","description":"134 The title of the payment page when the customer pays inside the app."}]}
+{"key":"inAppPayTitle","en":"Payment","ar":"الدفع","tr":"Ödeme","description":"134 The title of the payment page when the customer pays inside the app."},
+{"key":"orderStagePreparing","en":"Your order is being prepared","ar":"يجري تجهيز طلبك","tr":"Siparişiniz hazırlanıyor","description":"132 On an order's screen: its delivery stage, the shop is preparing it."},
+{"key":"orderStageShipped","en":"Out for delivery","ar":"خرج طلبك للتوصيل","tr":"Siparişiniz dağıtımda","description":"132 On an order's screen: its delivery stage, the order is on its way."},
+{"key":"orderStagePostponed","en":"Delivery postponed","ar":"تم تأجيل التوصيل","tr":"Teslimat ertelendi","description":"132 On an order's screen: its delivery stage, the shop moved the delivery to another day."},
+{"key":"orderStageFailed","en":"We couldn't deliver","ar":"تعذّر التوصيل","tr":"Teslim edemedik","description":"132 On an order's screen: its delivery stage, a delivery attempt failed."},
+{"key":"orderStageReturned","en":"Back at the shop","ar":"عاد الطلب إلى المتجر","tr":"Sipariş mağazaya döndü","description":"132 On an order's screen: its delivery stage, the order went back to the shop after a failed delivery."},
+{"key":"orderStageDelivered","en":"Delivered","ar":"تم التوصيل","tr":"Teslim edildi","description":"132 On an order's screen: its delivery stage, the order was delivered."},
+{"key":"orderStageNewDay","en":"New delivery day: {day}","ar":"موعد التوصيل الجديد: {day}","tr":"Yeni teslimat günü: {day}","description":"132 Under a postponed delivery: the new day and time.","placeholders":{"day":"String"}},
+{"key":"orderStageTryAgain","en":"We'll try again on {day}","ar":"سنحاول التوصيل مجددًا يوم {day}","tr":"{day} tekrar deneyeceğiz","description":"132 Under a failed delivery: the day the shop tries again.","placeholders":{"day":"String"}},
+{"key":"orderStageCourier","en":"Courier: {name}","ar":"المندوب: {name}","tr":"Kurye: {name}","description":"132 Under an order out for delivery: who brings it.","placeholders":{"name":"String"}},
+{"key":"orderStageCallCourier","en":"Call the courier","ar":"الاتصال بالمندوب","tr":"Kuryeyi ara","description":"132 Button under an order out for delivery: calls the courier."},
+{"key":"orderStageFollow","en":"Follow the delivery","ar":"تتبّع التوصيل","tr":"Teslimatı takip et","description":"132 Button under an order out for delivery: opens the shop's tracking link."},
+{"key":"ratingReplyFrom","en":"Reply from {business}","ar":"ردّ من {business}","tr":"{business} yanıtı","description":"132 Above the business's reply under the customer's rating of a food order or a ride.","placeholders":{"business":"String"}}]}

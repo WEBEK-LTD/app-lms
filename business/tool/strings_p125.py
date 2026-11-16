@@ -65,7 +65,6 @@ S = [
 ("opensAt", "Opens {time}", "يفتح {time}", "{time} açılır"),
 ("noRestaurants", "No restaurants yet", "لا توجد مطاعم بعد", "Henüz restoran yok"),
 ("refundDue", "A refund is due on this order.", "يستحق هذا الطلب استردادًا.", "Bu sipariş için iade gerekiyor."),
-("callCustomer", "Call customer", "الاتصال بالعميل", "Müşteriyi ara"),
 ("courierLabel", "Courier", "المندوب", "Kurye"),
 # Shipments and couriers
 ("onDuty", "On duty", "في الخدمة", "Görevde"),

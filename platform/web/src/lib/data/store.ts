@@ -12,6 +12,10 @@ import type {
   TemplateDesignerPatch,
   TemplateLicence,
   TemplateLicencePatch,
+  TemplateLicencePeriod,
+  TemplateOrder,
+  TemplateOrderPatch,
+  TemplateOrderStatus,
 } from "./types";
 import type { GiftOccasion, StoreDelivery, StoreFlashSale, StorePlatformOrder, StorePlatformOrderStatus } from "./types";
 import type {
@@ -79,6 +83,7 @@ import type {
   AccountManagerCallPatch,
   AccountManagerCallStatus,
   PrimeAlerts,
+  PrimeGift,
   StaffProfile,
   AdminMemberRow,
   AuditEntry,
@@ -243,6 +248,7 @@ import type { ApiWebhook, ApiWebhookEvent, ApiWebhookPatch } from "./types";
 import type { PaymentRefund, RefundKind } from "./types";
 // 51 Media and storage
 import type { MediaFile, MediaFilePatch, MediaKind, MediaStatus, StoragePack, StoragePackPatch } from "./types";
+import type { AddonTaskStatus, AppAddon, AppAddonPatch } from "../addons/types";
 // 10.7 Listings
 // 58 Yallapp Business
 import type { OwnerDevice, OwnerDevicePatch } from "./types";
@@ -265,7 +271,7 @@ import type { LoyaltyEntry, LoyaltyReason } from "./types";
 // 66 Deleting a Yallapp account
 import type { AccountDeletionClose, AccountDeletionRequest, AccountDeletionStatus } from "./types";
 // 73 Deleting an app, and the billing records kept when an account goes
-import type { AppDeletion, AppDeletionStatus, KeptBillingRecord } from "./types";
+import type { AppDeletion, AppDeletionStatus, AppMoveRequest, AppMoveStatus, KeptBillingRecord } from "./types";
 import type { ChatConversation, ChatConversationKind, ChatConversationPatch, ChatMember, ChatMemberSource, ChatMessage, ChatParticipant, ChatReport, ChatReportOutcome, ChatSession, ChatUploadInfo } from "./types";
 import type { CouponClaimLimits, UserSession, UserTwoFactor } from "./types";
 import type { AppError, ClientMilestone, JobRun, MilestoneKind, ProductDay, RekeyCell, TeamAlert, TeamAlertKind, WatchedJob } from "./types";
@@ -779,6 +785,8 @@ export interface DataStore {
   /** 110.2 `sample`: a category made with the sample products. */
   createCatalogCategory(input: { appId: string; name: string; now: Date; sample?: boolean }): Promise<CatalogCategory>;
   renameCatalogCategory(appId: string, id: number, name: string): Promise<void>;
+  /** 132.12 The categories in this order (their `position`); ids of other apps or missing ones are skipped, the rest keep their place after these. */
+  reorderCatalogCategories(appId: string, ids: number[]): Promise<void>;
   /** Also removes the category from its products. */
   deleteCatalogCategory(appId: string, id: number, now: Date): Promise<void>;
   /** Every product of the app, newest first. */
@@ -1816,6 +1824,17 @@ export interface DataStore {
   /** Packs of every app that ended before `now` and whose end the owner wasn't told of yet. */
   listEndedStoragePacks(now: Date, limit: number): Promise<StoragePack[]>;
 
+  // 133 Add-ons each app has (lib/addons)
+  createAppAddon(addon: AppAddon): Promise<void>;
+  getAppAddon(id: string): Promise<AppAddon | null>;
+  /**
+   * Add-ons, newest first: an app's or an account's, of one add-on, with a
+   * service task in one of `taskStatus`, or (`endingBefore`) still active and
+   * ending before that date; at most `limit` (default 200).
+   */
+  listAppAddons(filter: { appId?: string; clientId?: string; addonId?: string; taskStatus?: AddonTaskStatus[]; endingBefore?: Date; limit?: number }): Promise<AppAddon[]>;
+  updateAppAddon(id: string, patch: AppAddonPatch): Promise<void>;
+
   // 58 Yallapp Business: devices signed in with the dashboard's account (lib/owner)
   createOwnerDevice(device: OwnerDevice): Promise<void>;
   getOwnerDevice(id: string): Promise<OwnerDevice | null>;
@@ -2060,6 +2079,38 @@ export interface DataStore {
   listAppAssetReferences(appId: string): Promise<string[]>;
   listAssetsByClient(clientId: string): Promise<Asset[]>;
   deleteAsset(id: string): Promise<void>;
+
+  // 132.112 Moving an app to another account (lib/apps/move.ts)
+  /** Saves a waiting request; false when the app has one waiting already (of two at once, one wins). */
+  createAppMoveRequest(request: AppMoveRequest): Promise<boolean>;
+  getAppMoveRequest(id: string): Promise<AppMoveRequest | null>;
+  /** The app's waiting request, or null. */
+  getOpenAppMoveRequest(appId: string): Promise<AppMoveRequest | null>;
+  /** Newest first: the requests of apps leaving the account or coming to it (everyone's without `clientId`). */
+  listAppMoveRequests(input: { clientId?: string; limit: number }): Promise<AppMoveRequest[]>;
+  /** One more try of a waiting request's code (atomic): the tries now, or null when it isn't waiting. */
+  addAppMoveAttempt(id: string): Promise<number | null>;
+  /** Changes a request that is in `from` (atomic, once): false when it isn't any more. */
+  updateAppMoveRequest(id: string, from: AppMoveStatus, patch: Partial<Pick<AppMoveRequest, "status" | "closedAt" | "closedBy" | "resultAppId" | "note">>): Promise<boolean>;
+  /**
+   * The app goes to another account with the rows of it that name their
+   * account: its license and storage packs, builds, publishing requests,
+   * owner notices and errors. Plan payments stay with whoever paid them.
+   */
+  moveAppToClient(appId: string, toClientId: string, now: Date): Promise<void>;
+  /**
+   * Gives one app's rows to another app (and that app's account): its plan
+   * (`plan`: license and storage packs), its plan payments' app (`payments`:
+   * the payer stays), or its builds and store listing (`builds`: builds,
+   * publishing requests and events, in-app products and the store billing
+   * items), or its data (`data`: its people, orders, bookings, payments,
+   * messages and activity, lib/apps/app-tables.ts).
+   */
+  repointAppRows(fromAppId: string, toAppId: string, group: "plan" | "payments" | "builds" | "data", now: Date): Promise<void>;
+  /** Every mention of these assets in the app's rows (its own row too) names the new ones: old ID → new ID. */
+  replaceAssetIds(appId: string, ids: Record<string, string>): Promise<void>;
+  /** These assets belong to another account now. */
+  reassignAssets(ids: string[], toClientId: string): Promise<void>;
 
   // 73 Deleting a Yallapp account (lib/account/purge.ts)
   /** Saves billing records kept when an account is deleted (again: replaced). */
@@ -2394,6 +2445,11 @@ export interface DataStore {
   savePrimeAlerts(alerts: PrimeAlerts): Promise<void>;
   /** Everyone's saved alerts with something on (an alert or the brief), for the frequent job. */
   listPrimeAlerts(): Promise<PrimeAlerts[]>;
+  /** 132 Prime given as a gift: an app's, a client's apps', set (one per app) and removed. */
+  getPrimeGift(appId: string): Promise<PrimeGift | null>;
+  listPrimeGifts(clientId: string): Promise<PrimeGift[]>;
+  savePrimeGift(gift: PrimeGift): Promise<void>;
+  deletePrimeGift(appId: string): Promise<boolean>;
   /** Takes a push (an item's alert on a day, a person's brief on a day) once: false when it was taken already. */
   claimPrimeSend(key: string, now: Date): Promise<boolean>;
   /** Taken pushes from before then go. How many. */
@@ -2460,6 +2516,33 @@ export interface DataStore {
   moveTemplateLicence(id: string, from: string, to: string, notSince: Date, now: Date): Promise<boolean>;
   /** How many licences each template has (since then, when given): by template id. */
   countTemplateLicences(since?: Date): Promise<Record<string, number>>;
+  /** 106.2 Active licences with an end date by then, soonest first: the daily job's reminders and ends. */
+  listTemplateLicencesEndingBy(before: Date): Promise<TemplateLicence[]>;
+  /** 106.2 Notes a reminder for this end date once: false when it went out for it already, or the licence has another end date or ended. */
+  markTemplateLicenceReminder(id: string, which: "early" | "last", endsAt: Date, now: Date): Promise<boolean>;
+  /** 106.2 Ends the licence's plan only while it is active with this end date (not renewed meanwhile). False otherwise. */
+  endTemplateLicence(id: string, endsAt: Date, now: Date): Promise<boolean>;
+  /**
+   * 106.2 A renewal: the licence gets its new plan and end date only while
+   * its end date still is `from` (two renewals paid at once: each extends
+   * from the other's end). Active again if it had ended. False otherwise.
+   */
+  extendTemplateLicence(id: string, from: Date | null, patch: Pick<TemplateLicence, "plan" | "endsAt" | "afterEnd">, now: Date): Promise<boolean>;
+  createTemplateLicencePeriod(period: TemplateLicencePeriod): Promise<void>;
+  /** Oldest first. */
+  listTemplateLicencePeriods(licenceId: string): Promise<TemplateLicencePeriod[]>;
+  createTemplateOrder(order: TemplateOrder): Promise<void>;
+  getTemplateOrder(id: string): Promise<TemplateOrder | null>;
+  getTemplateOrderByToken(tokenHash: string): Promise<TemplateOrder | null>;
+  /** Newest first; by buyer, designer, template, licence or status. */
+  listTemplateOrders(filter: { clientId?: string; designerId?: string; templateId?: string; licenceId?: string; status?: TemplateOrderStatus }): Promise<TemplateOrder[]>;
+  /** Paid only while it is pending (the gateway's webhook and the buyer's return arriving together: one wins). False otherwise. */
+  payTemplateOrder(id: string, paymentId: string | null, now: Date): Promise<boolean>;
+  /** Failed only while it is pending. */
+  failTemplateOrder(id: string): Promise<boolean>;
+  updateTemplateOrder(id: string, patch: TemplateOrderPatch): Promise<boolean>;
+  /** Records the period a paid order gave, once: false when it has one already (its receipt went out). */
+  markTemplateOrderDelivered(id: string, startsAt: Date, endsAt: Date | null): Promise<boolean>;
   createTemplateApplication(application: TemplateApplication): Promise<void>;
   getTemplateApplication(id: string): Promise<TemplateApplication | null>;
   /** Newest first; by licence or app, and only those not ended (`open`). */

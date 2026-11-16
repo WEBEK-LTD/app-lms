@@ -13,6 +13,9 @@ export const AUDIT_ACTIONS = {
   "client.wordpress_ready": "WordPress site ready",
   "client.app_switches": "App switches",
   "client.travel_parts": "Travel parts",
+  // 132
+  "client.prime_gift": "Prime given as a gift",
+  "client.prime_gift_remove": "Prime gift removed",
   "design.add": "Design added",
   "design.edit": "Design edited",
   "design.delete": "Design deleted",
@@ -21,6 +24,17 @@ export const AUDIT_ACTIONS = {
   "client.release_site": "Website released",
   "client.manage_app": "Client's dashboard opened",
   "client.app_settings": "Client's app changed",
+  // 132.110 Working in a client's account; 132.111 to 132.114 apps made, moved and copied for clients.
+  "client.staff_action": "Action in a client's account",
+  "client.app_created": "App created for a client",
+  "app.move_requested": "App move: approval code sent",
+  "app.move_approved": "App move approved",
+  "app.move_declined": "App move declined",
+  "app.move_cancelled": "App move cancelled",
+  "app.move_expired": "App move expired",
+  "app.move_code_failed": "App move: wrong code",
+  "app.moved": "App moved to another account",
+  "app.copied": "App copied",
   "client.email": "Email sent again",
   "client.app_users": "App users changed",
   "client.notification": "Notification sent",
@@ -47,6 +61,19 @@ export const AUDIT_ACTIONS = {
   "plan.reset": "Plan back to default",
   "plan.limits": "Plan features and limits changed",
   "plan.availability": "Plan availability changed",
+  // 133 Plans for both families: added, copied, ordered, archived; the team's own limits; add-ons.
+  "plan.add": "Plan added",
+  "plan.duplicate": "Plan duplicated",
+  "plan.order": "Plans reordered",
+  "plan.archive": "Plan archived",
+  "plan.unarchive": "Plan brought back",
+  "plan.extras": "Plans' own limits or lifetime note changed",
+  "addon.save": "Add-on saved",
+  "addon.delete": "Add-on removed",
+  "addon.top": "Top plans for add-ons changed",
+  "addon.grant": "Add-on given to a client",
+  "addon.cancel": "Client's add-on ended by the team",
+  "addon.task": "Add-on task updated",
   "switches.save": "Switches changed",
   "team.invite": "Team member invited",
   "team.role": "Team role changed",
@@ -130,6 +157,9 @@ export const AUDIT_ACTIONS = {
   // 106 Studio Market: the team's review of a template's first publish
   "market.approve": "Studio Market template approved and published",
   "market.changes": "Studio Market template sent back with notes",
+  // 106.2 The daily job: a buyer's plan for a template ended; and the team changing a licence's end date.
+  "market.licence_ended": "Studio Market plan ended (daily job)",
+  "market.licence_end_date": "Studio Market licence end date changed",
 } as const;
 
 export type AuditAction = keyof typeof AUDIT_ACTIONS;
@@ -165,6 +195,9 @@ export const AUDIT_TARGETS = {
   review: "Customer review",
   // 106
   market_template: "Studio Market template",
+  market_licence: "Studio Market licence",
+  // 133
+  addon: "Add-on",
 } as const;
 
 export type AuditTargetType = keyof typeof AUDIT_TARGETS;

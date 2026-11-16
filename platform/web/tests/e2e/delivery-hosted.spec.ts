@@ -98,18 +98,21 @@ test("Delivery settings: not on the plan yet, one price, a service", async () =>
   await expect(own).toHaveURL(/\/studio\/project\/delivery$/);
   await expect(own.getByRole("heading", { name: "Delivery settings", level: 1 })).toBeVisible();
   await expect(own.getByText("Delivery & couriers isn't included in this app's plan yet")).toBeVisible();
-  // 112.3 Couriers always work in their own app, which every Studio plan has unless the team unticks it: no choice of where.
+  // 132.20 Each part in its tab. 112.3 Couriers always work in their own app, which every Studio plan has unless the team unticks it: no choice of where.
+  await own.getByRole("tab", { name: "Tracking and jobs" }).click();
   await expect(own.getByRole("heading", { name: "Your couriers' app" })).toBeVisible();
   await expect(own.getByText(`Your couriers work in their own app, ${client.name} Courier`)).toBeVisible();
   await expect(own.getByText("The couriers' app isn't in your plan yet")).toHaveCount(0);
   await expect(own.getByRole("radio", { name: "In your app" })).toHaveCount(0);
 
+  await own.getByRole("tab", { name: "Prices" }).click();
   await own.getByLabel("Price (EGP)", { exact: true }).fill("45");
   await own.getByRole("button", { name: "Save settings" }).click();
   await expect(own.getByText("Saved. The app shows it the next time it opens.")).toBeVisible();
   await own.reload();
   await expect(own.getByLabel("Price (EGP)", { exact: true })).toHaveValue("45.00");
 
+  await own.getByRole("tab", { name: /^Services/ }).click();
   await own.getByLabel("Name", { exact: true }).fill("Same-day");
   await own.getByLabel("How long it takes (optional)").fill("Within 4 hours");
   await own.getByRole("button", { name: "Save service" }).click();
@@ -191,7 +194,7 @@ test("112.2 Live map: the couriers and the jobs, on a plain background until Yal
 });
 
 test("104.8.3 Delivery settings: the couriers can work in Yallapp Courier instead, and the Couriers page says so", async () => {
-  await own.goto("/dashboard/delivery");
+  await own.goto("/dashboard/delivery?tab=jobs");
   const work = own.getByRole("group", { name: "Where your couriers work" });
   await expect(work.getByRole("radio", { name: `In your couriers' app, ${client.name} Courier` })).toBeChecked();
   await work.getByRole("radio", { name: "In Yallapp Courier" }).check();
@@ -202,6 +205,7 @@ test("104.8.3 Delivery settings: the couriers can work in Yallapp Courier instea
   await own.reload();
   await expect(own.getByRole("radio", { name: "In Yallapp Courier" })).toBeChecked();
   // The prices stay as they were.
+  await own.getByRole("tab", { name: "Prices" }).click();
   await expect(own.getByLabel("Price (EGP)", { exact: true })).toHaveValue("45.00");
 
   await own.goto("/dashboard/couriers");

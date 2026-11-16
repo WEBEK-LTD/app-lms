@@ -5,6 +5,7 @@ import { formatAmount } from "../billing/prices";
 import { sendPlanPaidMail } from "../billing/plan-mail";
 import { completePlanPayment } from "../billing/plan-payment";
 import { sendStoragePaidMail } from "../media/mail";
+import { afterAddonPaid } from "../addons/notify";
 import { fulfilmentOf } from "../catalog/fulfilment";
 import { completePayment, deliverPaidOrder, newOrderMailValues } from "../catalog/payment";
 import { accountForOrder } from "../catalog/settings";
@@ -69,8 +70,8 @@ export async function settlePlanPayment(token: string, trigger: Trigger): Promis
 /** 80.3 A plan payment found by the pending-payments check, or by its link's token. */
 export async function settlePlanRecord(store: DataStore, payment: PlanPayment, trigger: Trigger): Promise<Settled> {
   const client = await store.getClientById(payment.clientId);
-  // 51 Storage packs come back to the Media page.
-  const page = client?.status !== "active" ? "/pending" : payment.purpose === "storage" ? "/dashboard/media" : "/dashboard/license";
+  // 51 Storage packs come back to the Media page; 133 add-ons to the Add-ons page.
+  const page = client?.status !== "active" ? "/pending" : payment.purpose === "storage" ? "/dashboard/media" : payment.purpose === "addon" ? "/dashboard/addons" : "/dashboard/license";
   const failed: Settled = { status: "failed", path: `${page}?payment=failed` };
   if ((payment.paymentProvider ?? "iyzico") !== trigger.provider) return failed;
   const account = await yallappAccountFor(store, trigger.provider, encryptionKey());
@@ -97,13 +98,21 @@ export async function settlePlanRecord(store: DataStore, payment: PlanPayment, t
     await sendStoragePaidMail(store, client, outcome);
     return { status: "paid", path: "/dashboard/media?payment=paid", paidApp: payment.appId };
   }
+  // 133 An add-on: the client's email and phone, and the team's task for a service.
+  if (outcome.kind === "addon_paid") {
+    const app = payment.appId ? await store.getAppById(payment.appId) : null;
+    if (app) await afterAddonPaid(store, client, app, outcome.payment, outcome.addon);
+    // 31 A feature it switches on reaches the app's WordPress site at once.
+    refreshSitesSoon([payment.appId]);
+    return { status: "paid", path: "/dashboard/addons?payment=paid", paidApp: payment.appId };
+  }
   if (outcome.kind === "paid") await sendPlanPaidMail(store, client, outcome);
   // The dashboard opens on the app that was paid for.
   const paidApp = outcome.kind === "paid" ? (outcome.activation.app?.id ?? null) : payment.appId;
   // 31 A new plan's features reach the app's WordPress site at once.
   if (outcome.kind === "paid") refreshSitesSoon([paidApp]);
-  // 51 A storage payment confirmed before (Kashier's and Fawaterk's webhook usually arrives first) also comes back to Media.
-  return { status: outcome.kind, path: payment.purpose === "storage" ? "/dashboard/media?payment=paid" : "/dashboard/license?payment=paid", paidApp };
+  // 51 A storage payment confirmed before (Kashier's and Fawaterk's webhook usually arrives first) also comes back to Media; 133 an add-on to Add-ons.
+  return { status: outcome.kind, path: payment.purpose === "storage" ? "/dashboard/media?payment=paid" : payment.purpose === "addon" ? "/dashboard/addons?payment=paid" : "/dashboard/license?payment=paid", paidApp };
 }
 
 /**

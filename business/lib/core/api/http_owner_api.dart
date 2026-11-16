@@ -297,6 +297,44 @@ class HttpOwnerApi implements OwnerApi {
   );
 
   @override
+  Future<RatedItem> replyRating(
+    String appId,
+    String source,
+    String id,
+    String text,
+  ) async => RatedItem.fromJson(
+    await _put('${_app(appId)}/ratings/$source/$id/reply', {'text': text}),
+  );
+
+  @override
+  Future<RatedItem> deleteRatingReply(
+    String appId,
+    String source,
+    String id,
+  ) async => RatedItem.fromJson(
+    await _delete('${_app(appId)}/ratings/$source/$id/reply'),
+  );
+
+  @override
+  Future<Order> markRefunded(String appId, int orderId) async =>
+      Order.fromJson(await _post('${_app(appId)}/orders/$orderId/refund-done'));
+
+  @override
+  Future<Order> setOrderStage(
+    String appId,
+    int orderId,
+    StageRequest request,
+  ) async => Order.fromJson(
+    await _post('${_app(appId)}/orders/$orderId/stage', request.toJson()),
+  );
+
+  @override
+  Future<DeliveryDay> stageSlots(String appId, {String? date}) async =>
+      DeliveryDay.fromJson(
+        await _get('${_app(appId)}/delivery-slots', query: {'date': ?date}),
+      );
+
+  @override
   Future<RefundResult> refundOrder(
     String appId,
     int orderId,
@@ -1263,6 +1301,81 @@ class HttpOwnerApi implements OwnerApi {
       PrimeAlerts.fromJson(
         await _put('${_app(appId)}/prime/alerts', alerts.toJson()),
       );
+
+  // 132 Prime's second set.
+
+  @override
+  Future<PrimeCustomers> primeCustomers(
+    String appId, {
+    String period = 'month',
+  }) async => PrimeCustomers.fromJson(
+    await _get('${_app(appId)}/prime/customers', query: {'period': period}),
+  );
+
+  @override
+  Future<PrimeProducts> primeProducts(
+    String appId, {
+    String period = 'month',
+  }) async => PrimeProducts.fromJson(
+    await _get('${_app(appId)}/prime/products', query: {'period': period}),
+  );
+
+  @override
+  Future<PrimeReviews> primeReviews(String appId) async =>
+      PrimeReviews.fromJson(await _get('${_app(appId)}/prime/reviews'));
+
+  @override
+  Future<WeeklyReport> weeklyReport(String appId) async =>
+      WeeklyReport.fromJson(await _get('${_app(appId)}/prime/weekly-report'));
+
+  @override
+  Future<WeeklyReport> setWeeklyReport(String appId, bool on) async =>
+      WeeklyReport.fromJson(
+        await _put('${_app(appId)}/prime/weekly-report', {'on': on}),
+      );
+
+  @override
+  Future<String> createCoupon(String appId, Json coupon) async =>
+      str(await _post('${_app(appId)}/prime/coupons', coupon), 'code');
+
+  @override
+  Future<String> createFlashSale(String appId, Json sale) async =>
+      str(await _post('${_app(appId)}/prime/flash-sales', sale), 'title');
+
+  @override
+  Future<SlotsDay> deliverySlots(String appId, {String? date}) async =>
+      SlotsDay.fromJson(
+        await _get(
+          '${_app(appId)}/prime/delivery-slots',
+          query: {'date': ?date},
+        ),
+      );
+
+  @override
+  Future<SlotsDay> setSlotClosed(
+    String appId,
+    String slotId, {
+    required String date,
+    required bool closed,
+  }) async => SlotsDay.fromJson(
+    await _put(
+      '${_app(appId)}/prime/delivery-slots/${Uri.encodeComponent(slotId)}',
+      {'date': date, 'closed': closed},
+    ),
+  );
+
+  @override
+  Future<DateTime?> setRestaurantBusy(
+    String appId,
+    String restaurantId,
+    int minutes,
+  ) async => optDate(
+    await _put(
+      '${_app(appId)}/restaurants/${Uri.encodeComponent(restaurantId)}/busy',
+      {'minutes': minutes},
+    ),
+    'busy_until',
+  );
 
   // 125 VIP.
 

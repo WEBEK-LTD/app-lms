@@ -4,15 +4,19 @@ import { decideReturn } from "@/lib/catalog/returns";
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { actorOf, clientFor, mayUseDashboard, type ClientContext } from "@/lib/auth/session";
-import { recordOrderStatus } from "@/lib/team/activity";
+import { recordOrderStatus, recordRefund } from "@/lib/team/activity";
 import type { TeamPermission } from "@/lib/team/permissions";
 import { getBlobStore } from "@/lib/blobs";
 import { parseCoupon } from "@/lib/catalog/coupons";
 import { parseFulfilmentForm } from "@/lib/catalog/fulfilment";
 import { changeOrderStatus, inKitchen } from "@/lib/catalog/order-status";
+import { parseStageInput, setOrderStage } from "@/lib/catalog/order-stages";
+import { markStageRefunded, refundAfterFailedDelivery, type StageRefundDeps } from "@/lib/catalog/stage-refunds";
+import { headers } from "next/headers";
+import { ipFromHeaders } from "@/lib/http";
 import { parseShipment, shipOrder, shippable } from "@/lib/catalog/shipping";
 import { sendTemplate } from "@/lib/email/send";
-import { CATALOG_CURRENCIES, parsePrice } from "@/lib/catalog/money";
+import { CATALOG_CURRENCIES, formatCents, parsePrice } from "@/lib/catalog/money";
 import { LOYALTY_LIMITS } from "@/lib/catalog/loyalty";
 import { awaitingManualPayment, readManualPayments } from "@/lib/catalog/manual";
 import { TAX_RATE_MAX_BPS } from "@/lib/catalog/tax";
@@ -37,6 +41,7 @@ import { recordStaffChange } from "@/lib/admin/audit";
 import { serviceAccountOf } from "@/lib/hosted/notify";
 import { askAfterOwnEntry } from "@/lib/samples/lists";
 import { parseAddonRule } from "@/lib/selling/addons";
+import { changedPrices, isBulkOp, orderedImages, parsePercent } from "@/lib/catalog/bulk";
 import { testedOnSaved } from "@/lib/selling/in-app-pay";
 
 const PRODUCT_IMAGE_MAX_BYTES = 2 * 1024 * 1024;
@@ -115,6 +120,14 @@ export async function deleteCategoryAction(formData: FormData): Promise<void> {
   refresh();
 }
 
+/** 132.12 The categories in the order they were dragged to (the app's menu and tabs follow it). */
+export async function reorderCategoriesAction(ids: number[]): Promise<void> {
+  const { app } = await requireCatalogApp();
+  const list = (Array.isArray(ids) ? ids : []).map(Number).filter((id) => Number.isSafeInteger(id) && id > 0).slice(0, 200);
+  if (list.length) await (await getStore()).reorderCatalogCategories(app.id, list);
+  refresh();
+}
+
 // Products
 
 
@@ -153,7 +166,11 @@ export async function saveProductAction(_: FormState, formData: FormData): Promi
     .filter((c) => categories.has(c));
 
   const remove = new Set(formData.getAll("removeImage").map(String));
-  const kept = (existing?.imageAssetIds ?? []).filter((a) => !remove.has(a));
+  // 132.11 In the order the editor put them (the first is the cover).
+  const kept = orderedImages(
+    (existing?.imageAssetIds ?? []).filter((a) => !remove.has(a)),
+    String(formData.get("imageOrder") ?? "").split(",").filter(Boolean),
+  );
   const files = formData.getAll("images").filter((f): f is File => typeof f !== "string" && f.size > 0);
   // 51 Pictures chosen from the Media library.
   const fromMedia = (await chosenPictures(store, app.id, formData)).filter((id) => !kept.includes(id));
@@ -233,6 +250,41 @@ export async function deleteProductAction(formData: FormData): Promise<void> {
   if (Number.isSafeInteger(id)) await (await getStore()).deleteCatalogProduct(app.id, id);
   refresh();
   redirect("/dashboard/catalog");
+}
+
+/**
+ * 132.11 The Products list's bulk actions on the chosen products: shown in
+ * the app or hidden, deleted, put in one category (or none), their prices
+ * changed by a percent. The list words what happened (`values.done`).
+ */
+export async function bulkProductsAction(_: FormState, formData: FormData): Promise<FormState> {
+  const { app } = await requireCatalogApp();
+  const op = String(formData.get("op") ?? "");
+  if (!isBulkOp(op)) return { message: "Choose what to do with the products." };
+  const ids = new Set(formData.getAll("ids").map(Number).filter((id) => Number.isSafeInteger(id) && id > 0));
+  const store = await getStore();
+  const products = (await store.listCatalogProducts(app.id)).filter((p) => ids.has(p.id));
+  if (!products.length) return { message: "Choose at least one product." };
+  const now = new Date();
+  if (op === "delete") {
+    for (const p of products) await store.deleteCatalogProduct(app.id, p.id);
+  } else if (op === "publish" || op === "hide") {
+    for (const p of products) await store.updateCatalogProduct(app.id, p.id, { active: op === "publish" }, now);
+  } else if (op === "category") {
+    const value = String(formData.get("value") ?? "");
+    const categories = new Set((await store.listCatalogCategories(app.id)).map((c) => c.id));
+    const id = Number(value);
+    if (value !== "none" && !categories.has(id)) return { message: "Choose a category." };
+    for (const p of products) await store.updateCatalogProduct(app.id, p.id, { categoryIds: value === "none" ? [] : [id] }, now);
+  } else {
+    const percent = parsePercent(String(formData.get("value") ?? ""));
+    if (percent === null) return { errors: { value: "Enter a percent from -90 to 500, like 10 or -15." } };
+    const changes = products.map((p) => ({ id: p.id, prices: changedPrices(p, percent) }));
+    if (changes.some((c) => c.prices === null)) return { errors: { value: "A price would be over 9,999,999.99. Choose a smaller percent." } };
+    for (const c of changes) await store.updateCatalogProduct(app.id, c.id, c.prices!, now);
+  }
+  refresh();
+  return { ok: true, values: { done: op, count: String(products.length) } };
 }
 
 // Shop settings
@@ -485,6 +537,11 @@ export async function setOrderStatusAction(formData: FormData): Promise<void> {
   if (order && !inKitchen(order) && (await changeOrderStatus({ store, app, now, key: encryptionKey(), urls: paymentApiUrls(), account: null }, order, status))) {
     // 60 Who moved it, on the Team page.
     await recordOrderStatus(store, { clientId: context.client.id, appId: app.id, actor: actorOf(context), orderId: order.id, to: awaitingManualPayment(order) && status === "processing" ? "paid" : status }, now);
+    // 132 Cancelled after a failed delivery: the money goes back (or the order needs the owner's refund).
+    if (status === "cancelled") {
+      const cancelled = await store.getCatalogOrder(app.id, order.id);
+      if (cancelled) await refundAfterFailedDelivery(await stageRefundDepsOf(context, app), cancelled);
+    }
   }
   refresh();
 }
@@ -539,6 +596,71 @@ export async function shipOrderAction(_: FormState, formData: FormData): Promise
   await recordOrderStatus(store, { clientId: context.client.id, appId: app.id, actor: actorOf(context), orderId: order.id, to: "shipped" }, now);
   refresh();
   return { ok: true, message: order.shipment ? "Tracking saved. The customer was told." : "Marked shipped. The customer was told." };
+}
+
+/**
+ * 132 The Orders page's Delivery: a store order's next stage (shipped with
+ * the courier, postponed with why and the new day, a failed attempt with
+ * why and what's next, returned, delivered), kept with who made it; the
+ * customer is told at shipped, postponed, failed and delivered.
+ */
+export async function setOrderStageAction(_: FormState, formData: FormData): Promise<FormState> {
+  const context = await requireCatalogApp({}, "orders");
+  const { app } = context;
+  const store = await getStore();
+  const id = Number(formData.get("id"));
+  const order = Number.isSafeInteger(id) ? await store.getCatalogOrder(app.id, id) : null;
+  const raw = Object.fromEntries(["stage", "reason", "note", "courier_name", "courier_phone", "tracking_url", "date", "slot_id", "next_step"].map((name) => [name, str(formData, name)]));
+  const values = raw;
+  if (!order) return { ok: false, message: "Not found.", values };
+  const parsed = parseStageInput(raw);
+  if (!parsed.ok) return { errors: parsed.errors, values };
+  const now = new Date();
+  const user = actorOf(context);
+  const done = await setOrderStage(
+    { store, app, now, key: encryptionKey(), urls: paymentApiUrls(), account: serviceAccountOf(app, encryptionKey()) },
+    order,
+    parsed.input,
+    { userId: user.id, name: user.name?.trim() || user.email, via: "dashboard" },
+    await stageRefundDepsOf(context, app),
+  );
+  if (!done.ok) return done.errors ? { errors: done.errors, values } : { ok: false, message: done.message, values };
+  await recordOrderStatus(store, { clientId: context.client.id, appId: app.id, actor: user, orderId: order.id, to: parsed.input.stage }, now);
+  refresh();
+  const told = ["shipped", "postponed", "failed", "delivered"].includes(parsed.input.stage);
+  return { ok: true, message: told ? "Saved. The customer was told." : "Saved." };
+}
+
+/** 132 What giving the money back after a failed delivery needs, from the dashboard. */
+async function stageRefundDepsOf(context: ClientContext, app: App): Promise<StageRefundDeps> {
+  const who = actorOf(context);
+  return {
+    store: await getStore(),
+    key: encryptionKey(),
+    urls: paymentApiUrls(),
+    now: new Date(),
+    ip: ipFromHeaders(await headers()),
+    actor: { id: who.id, email: who.email },
+    mail: (key, to, values, mailApp) => sendTemplate(key, to, values, { app: mailApp }),
+    app,
+    account: serviceAccountOf(app, encryptionKey()),
+    baseUrl: appUrl(),
+  };
+}
+
+/** 132 "I refunded it": the owner paid back an order cancelled after a failed delivery themselves. */
+export async function markStageRefundedAction(formData: FormData): Promise<void> {
+  const context = await requireCatalogApp({}, "orders");
+  const { app } = context;
+  const store = await getStore();
+  const id = Number(formData.get("id"));
+  const order = Number.isSafeInteger(id) ? await store.getCatalogOrder(app.id, id) : null;
+  if (order) {
+    const user = actorOf(context);
+    const done = await markStageRefunded(await stageRefundDepsOf(context, app), order, user.name?.trim() || user.email);
+    if (done.ok && order.stageRefund) await recordRefund(store, { clientId: context.client.id, appId: app.id, actor: user, kind: "order", id: order.id, amount: formatCents(order.stageRefund.cents, order.currency) }, new Date());
+  }
+  refresh();
 }
 
 /**

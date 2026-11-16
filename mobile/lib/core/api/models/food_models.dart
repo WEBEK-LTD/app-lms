@@ -538,6 +538,7 @@ class FoodOrder {
     this.courierPhone,
     this.courierPosition,
     this.ratedRestaurant,
+    this.ratingReply,
     this.ratedCourier,
     this.timeline = const [],
   });
@@ -589,6 +590,9 @@ class FoodOrder {
       ),
       ratedRestaurant: rating == null ? null : optInt(rating, 'restaurant'),
       ratedCourier: rating == null ? null : optInt(rating, 'courier'),
+      ratingReply: rating == null
+          ? null
+          : optObject(rating, 'reply', RatingReply.fromJson),
       timeline: listOf(json, 'timeline', FoodOrderStage.fromJson),
       createdAt: reqDate(json, 'created_at'),
     );
@@ -624,6 +628,9 @@ class FoodOrder {
   /// The stars given, once rated.
   final int? ratedRestaurant;
   final int? ratedCourier;
+
+  /// 132 The business's reply under the rating; null for none.
+  final RatingReply? ratingReply;
   final List<FoodOrderStage> timeline;
   final DateTime createdAt;
 
@@ -737,4 +744,16 @@ class RestaurantOrder {
   final String? courierPhone;
   final DateTime createdAt;
   final List<FoodOrderStage> timeline;
+}
+
+/// 132 The business's reply under a customer's rating (a food order's, a
+/// ride's), shown in the business's name.
+class RatingReply {
+  const RatingReply({required this.text, this.at});
+
+  factory RatingReply.fromJson(Json json) =>
+      RatingReply(text: reqString(json, 'text'), at: optDate(json, 'at'));
+
+  final String text;
+  final DateTime? at;
 }

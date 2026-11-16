@@ -6,6 +6,7 @@ import { kindById } from "../app/kinds";
 import { designerInitials, designerTint } from "./designers";
 import { getsUpdates, mayMove, nextMoveAt } from "./apply";
 import { templateText } from "./templates";
+import { offeredPlans, priceTag, type PriceTag } from "./plans";
 
 /**
  * 106 What the market's pages show: the templates' cards (their cover page
@@ -57,7 +58,10 @@ export interface TemplateCard {
   title: string;
   short: string;
   kinds: { id: string; name: string; icon: string }[];
+  /** Free (no plan to buy), as its price tag says. */
   free: boolean;
+  /** 106.2 "Free", "From $X/mo" (the lowest per month) or "$X once" (lifetime only). */
+  price: PriceTag;
   designer: DesignerChip;
   cover: CoverView | null;
   /** Apps that took it, and in the last 30 days. */
@@ -78,13 +82,15 @@ function kindsOf(template: Pick<MarketTemplate, "kinds">): TemplateCard["kinds"]
 
 export function templateCard(template: MarketTemplate, designer: TemplateDesigner, version: MarketTemplateVersion | null, lang: string, counts: { all: number; recent: number }, now: Date): TemplateCard {
   const text = templateText(template, lang);
+  const price = priceTag(template);
   return {
     id: template.id,
     slug: template.slug,
     title: text.title,
     short: text.short,
     kinds: kindsOf(template),
-    free: template.free,
+    free: price.kind === "free",
+    price,
     designer: designerChip(designer),
     cover: version ? coverView(version.cover, version.languages, lang, text.title) : null,
     applies: counts.all,
@@ -172,7 +178,10 @@ export function filterCards(cards: readonly TemplateCard[], query: MarketQuery):
 
 // ——— A buyer's templates ———
 
-export type LicenceState = "active" | "not_applied" | "replaced" | "ended";
+export type LicenceState = "active" | "ending" | "not_applied" | "replaced" | "ended";
+
+/** 106.2 A plan ending within these days shows as ending soon (the first reminder goes out then too). */
+export const ENDING_SOON_DAYS = 14;
 
 export interface LicenceRow {
   licence: TemplateLicence;
@@ -186,6 +195,8 @@ export interface LicenceRow {
   update: boolean;
   mayMove: boolean;
   nextMove: Date | null;
+  /** 106.2 A plan for a time (not free, not lifetime): it can be renewed, or bought again once ended. */
+  renewable: boolean;
 }
 
 /** The buyer's licences with their templates and the app each one is on. */
@@ -215,7 +226,8 @@ export async function buyerLicences(store: DataStore, clientId: string, apps: re
       const nextTemplate = next ? (templateOf.get(next.templateId) ?? (await store.getMarketTemplate(next.templateId))) : null;
       replacedBy = { title: nextTemplate ? templateText(nextTemplate, lang).title : "", at: last.endedAt };
     }
-    const state: LicenceState = licence.status === "ended" ? "ended" : open && app ? "active" : replacedBy ? "replaced" : "not_applied";
+    const ending = licence.endsAt !== null && licence.endsAt.getTime() - now.getTime() <= ENDING_SOON_DAYS * DAY;
+    const state: LicenceState = licence.status === "ended" ? "ended" : open && app ? (ending ? "ending" : "active") : replacedBy ? "replaced" : "not_applied";
     rows.push({
       licence,
       template,
@@ -227,6 +239,7 @@ export async function buyerLicences(store: DataStore, clientId: string, apps: re
       update: Boolean(open && template.currentVersionId && template.currentVersionId !== open.versionId && getsUpdates(licence, now)),
       mayMove: mayMove(licence, now),
       nextMove: nextMoveAt(licence),
+      renewable: licence.plan !== "free" && licence.plan !== "life" && offeredPlans(template).length > 0 && template.status === "published",
     });
   }
   return rows;

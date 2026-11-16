@@ -3,7 +3,7 @@ import { hashLicenseKey } from "../license/key";
 import type { SiteInfo } from "../license/service";
 import { licenseUsesSite } from "../license/site";
 import { licenseState } from "../license/status";
-import { effectivePlans, planOfLicense } from "../entitlements";
+import { effectivePlans, appPlanFrom } from "../entitlements";
 import { withLanguageList } from "../i18n/packs";
 import { withBuiltInTexts } from "./builtin";
 import { servedAppearance, shownAppearance } from "../fonts/look";
@@ -58,7 +58,7 @@ export async function pluginLayout(store: DataStore, site: SiteInfo, ifNoneMatch
   };
   void _mode;
   void _figma;
-  const planned = withBuiltInTexts(layoutForPlan(shown, app, planOfLicense(await effectivePlans(store), license, now), await appDefaults(store)));
+  const planned = withBuiltInTexts(layoutForPlan(shown, app, await appPlanFrom(store, await effectivePlans(store), license, now), await appDefaults(store)));
   const { strings: _strings, ...served } = planned;
   void _strings;
   // 110.3 A Location block still at the design's sample place isn't the business's: the plugin never gets it.

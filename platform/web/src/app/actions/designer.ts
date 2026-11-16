@@ -25,6 +25,8 @@ import {
   TEMPLATE_MESSAGES,
 } from "@/lib/studio-market/templates";
 import { DESIGNER_JOIN_COOKIE } from "@/lib/studio-market/join";
+import { pictureCopying } from "@/lib/studio-market/media-read";
+import { MARKET_PERIODS, readPlans } from "@/lib/studio-market/plans";
 import { en } from "@/i18n/dashboard/studio-market";
 
 /**
@@ -124,8 +126,11 @@ export async function saveTemplateStepAction(_: FormState, formData: FormData): 
     if (!kinds || !tags) return { errors, values: { tags: text(formData, "tags") } };
     patch = { kinds, tags };
   } else if (step === "plans") {
-    // 106.2 Paid plans come with checkout: every template is free for now.
-    patch = { free: true, plans: [] };
+    // 106.2 Free, or the plans offered with their prices; a published template's go live at once (for the next purchases).
+    const prices = Object.fromEntries(MARKET_PERIODS.map((p) => [p, text(formData, `price_${p}`)]));
+    const read = readPlans({ free: formData.get("free") === "on", offered: formData.getAll("offer").map(String), prices });
+    if (!read.ok) return { errors: read.errors, values: Object.fromEntries(MARKET_PERIODS.map((p) => [`price_${p}`, prices[p] ?? ""])) };
+    patch = { free: read.free, plans: read.plans };
   } else if (step === "after_end") {
     const afterEnd = readAfterEnd(formData.get("afterEnd"));
     if (!afterEnd) return { errors: { afterEnd: TEMPLATE_MESSAGES.afterEnd } };
@@ -143,7 +148,7 @@ export async function sendTemplateAction(_: FormState, formData: FormData): Prom
   const template = await ownTemplate(designer, formData.get("id"));
   const project = ownProject(context.apps, designer, template.sourceAppId);
   const values = { note: text(formData, "note") };
-  const sent = await sendForReview({ store: await getStore(), blobs: getBlobStore(), now: new Date() }, template, project, { rights: formData.get("rights") === "on", note: values.note }, actorOf(context).email);
+  const sent = await sendForReview({ store: await getStore(), blobs: getBlobStore(), now: new Date(), ...pictureCopying() }, template, project, { rights: formData.get("rights") === "on", note: values.note }, actorOf(context).email);
   if (!sent.ok) return { message: sent.message, ...(sent.errors ? { errors: { details: sent.errors.join("\n") } } : {}), values };
   revalidatePath("/designer", "layout");
   redirect("/designer/templates?sent=1");
@@ -155,7 +160,7 @@ export async function publishTemplateUpdateAction(_: FormState, formData: FormDa
   const designer = await designerOf(context);
   const template = await ownTemplate(designer, formData.get("id"));
   const project = ownProject(context.apps, designer, template.sourceAppId);
-  const sent = await publishUpdate({ store: await getStore(), blobs: getBlobStore(), now: new Date() }, template, project, actorOf(context).email);
+  const sent = await publishUpdate({ store: await getStore(), blobs: getBlobStore(), now: new Date(), ...pictureCopying() }, template, project, actorOf(context).email);
   if (!sent.ok) return { message: sent.message, ...(sent.errors ? { errors: { details: sent.errors.join("\n") } } : {}) };
   revalidatePath("/designer", "layout");
   revalidatePath("/dashboard/studio-market", "layout");

@@ -6,6 +6,7 @@ import { AvailabilityFields, type AvailabilityGroup } from "./availability";
 import { Field, FieldError, FormMessage, SubmitButton } from "@/components/form";
 import { btn } from "@/components/ui";
 import { initialFormState, type FormState } from "@/lib/forms";
+import { suggestedPrice } from "@/lib/billing/suggested-prices";
 
 export interface PlanFormValues {
   id: string;
@@ -29,7 +30,47 @@ export interface PlanFormValues {
   trTagline: string;
   trHighlights: string;
   trPrice: string;
+  /** 133 The badge on the card, and whether the card is highlighted. */
+  featured: boolean;
+  badge: string;
+  arBadge: string;
+  trBadge: string;
+  /** 133 Regular plans: shown to clients (null: the form doesn't show it, a Studio plan's "Offered" does). */
+  offered: boolean | null;
+  /** 133 The other periods as saved: on, and the prices as decimals; or left to the suggested price (prefilled, the team edits or keeps it). */
+  periods: Record<string, PeriodRow>;
 }
+
+interface PeriodRow {
+  on: boolean;
+  egp: string;
+  usd: string;
+  /** 133 The prices are the suggested ones, worked out from the plan's monthly and yearly prices as they are typed, until the team edits them. */
+  suggested?: boolean;
+}
+
+/** 133 The periods, in order, with their names in the admin. */
+const PERIODS = [
+  { key: "1", months: 1, name: "1 month" },
+  { key: "6", months: 6, name: "6 months" },
+  { key: "12", months: 12, name: "1 year" },
+  { key: "24", months: 24, name: "2 years" },
+  { key: "36", months: 36, name: "3 years" },
+  { key: "lifetime", months: 0, name: "Lifetime" },
+] as const;
+
+/** 133 "1500" or "1,499.50" as piastres; null when it isn't a price. */
+function cents(text: string): number | null {
+  const v = text.trim().replace(/,/g, "");
+  if (!/^\d{1,9}(\.\d{1,2})?$/.test(v)) return null;
+  const n = Math.round(Number(v) * 100);
+  return n > 0 ? n : null;
+}
+
+/** 133 Piastres or cents as the price fields show them. */
+const decimal = (c: number) => (c / 100).toFixed(2);
+
+const pounds = (c: number) => new Intl.NumberFormat("en-US", { style: "currency", currency: "EGP", currencyDisplay: "code", maximumFractionDigits: c % 100 === 0 ? 0 : 2 }).format(c / 100);
 
 const TEXT_LANGS = [
   { code: "ar", name: "Arabic", dir: "rtl" },
@@ -48,7 +89,8 @@ export function PlanForm({ plan }: { plan: PlanFormValues }) {
     <form action={action} noValidate className="flex flex-col gap-4">
       <input type="hidden" name="plan" value={plan.id} />
       <FormMessage message={state.message} ok={state.ok} />
-      <PlanTextFields plan={plan} state={state} />
+      {/* 133 Drawn afresh after a save, from the plan as saved: a suggested price kept is the team's own from then on. */}
+      <PlanTextFields key={`texts-${state.ok ? (state.round ?? 0) : 0}`} plan={plan} state={state} />
       <div className="flex justify-end">
         <SubmitButton className="h-10" pendingText="Saving…">
           Save plan
@@ -63,6 +105,58 @@ function PlanTextFields({ plan, state, highlightsHint = "One line per point on t
   const v = (name: keyof PlanFormValues & string, fallback: string) => state.values?.[name] ?? fallback;
   const id = (name: string) => `${plan.id}-${name}`;
   const [pricing, setPricing] = useState(v("pricing", plan.pricing));
+  // 133 The main price's period, and the other periods' prices as typed: their per month and saving are worked out here, never typed.
+  const [months, setMonths] = useState(v("months", plan.months));
+  const [mainEgp, setMainEgp] = useState(v("egpPrice", plan.egpPrice));
+  const [mainUsd, setMainUsd] = useState(v("usdPrice", plan.usdPrice));
+  const [others, setOthers] = useState<Record<string, PeriodRow>>(() =>
+    Object.fromEntries(
+      PERIODS.map((p) => {
+        // The main period's row (shown when "Billed" changes) starts on its suggested price.
+        const saved = plan.periods[p.key] ?? { on: true, egp: "", usd: "", suggested: true };
+        return [
+          p.key,
+          {
+            on: state.values ? state.values[`period_${p.key}_on`] === "on" : saved.on,
+            egp: state.values?.[`period_${p.key}_egp`] ?? saved.egp,
+            usd: state.values?.[`period_${p.key}_usd`] ?? saved.usd,
+            suggested: state.values ? state.values[`period_${p.key}_suggested`] === "1" : saved.suggested === true,
+          },
+        ];
+      }),
+    ),
+  );
+  const mainKey = PERIODS.find((p) => String(p.months) === months)?.key ?? "12";
+  // 133 The plan's own monthly and yearly prices as typed (the main price, or a period priced here), which the suggested ones are worked out from.
+  const own = (key: "1" | "12", currency: "egp" | "usd") => {
+    if (key === mainKey) return pricing === "price" && cents(mainEgp) ? cents(currency === "egp" ? mainEgp : mainUsd) : null;
+    const row = others[key]!;
+    return !row.suggested && row.on && cents(row.egp) ? cents(row[currency]) : null;
+  };
+  const rows: Record<string, PeriodRow> = Object.fromEntries(
+    PERIODS.map((p) => {
+      const row = others[p.key]!;
+      const egp = row.suggested ? suggestedPrice({ month: own("1", "egp"), year: own("12", "egp") }, p.key, "EGP") : null;
+      if (!egp) return [p.key, { ...row, suggested: false }];
+      const usd = suggestedPrice({ month: own("1", "usd"), year: own("12", "usd") }, p.key, "USD");
+      return [p.key, { ...row, egp: decimal(egp), usd: usd ? decimal(usd) : "", suggested: true }];
+    }),
+  );
+  // Every period with a price in pounds, the main one included, for the maths.
+  const priced = PERIODS.flatMap((p) => {
+    const c = p.key === mainKey ? cents(mainEgp) : rows[p.key]?.on ? cents(rows[p.key]!.egp) : null;
+    return c ? [{ ...p, cents: c }] : [];
+  });
+  const reference = priced.filter((p) => p.months > 0).sort((a, b) => a.months - b.months)[0];
+  const maths = (key: string) => {
+    const p = priced.find((x) => x.key === key);
+    if (!p) return null;
+    if (!p.months) return "Paid once, never renewed.";
+    const month = p.months > 1 ? `${pounds(Math.round(p.cents / p.months))} a month` : null;
+    const full = reference && reference.key !== p.key ? (reference.cents * p.months) / reference.months : null;
+    const saving = full && full > p.cents ? Math.floor(((full - p.cents) / full) * 100) : 0;
+    return [month, saving >= 1 ? `saves ${saving}% against ${reference!.name.toLowerCase()}` : null].filter(Boolean).join(" · ") || null;
+  };
   return (
     <>
       <div className="grid gap-4 sm:grid-cols-[minmax(0,1fr)_minmax(0,2fr)]">
@@ -109,7 +203,8 @@ function PlanTextFields({ plan, state, highlightsHint = "One line per point on t
           label="Price in EGP"
           name="egpPrice"
           inputMode="decimal"
-          defaultValue={v("egpPrice", plan.egpPrice)}
+          value={mainEgp}
+          onChange={(e) => setMainEgp(e.target.value)}
           hint="Charged to everyone; shown in Egypt."
           error={state.errors?.egpPrice}
         />
@@ -118,7 +213,8 @@ function PlanTextFields({ plan, state, highlightsHint = "One line per point on t
           label="Price in USD (optional)"
           name="usdPrice"
           inputMode="decimal"
-          defaultValue={v("usdPrice", plan.usdPrice)}
+          value={mainUsd}
+          onChange={(e) => setMainUsd(e.target.value)}
           hint={plan.usdAtRate ? `Shown outside Egypt. Empty: ${plan.usdAtRate} at the rate.` : "Shown outside Egypt. Empty: the EGP price at the rate."}
           error={state.errors?.usdPrice}
         />
@@ -126,12 +222,71 @@ function PlanTextFields({ plan, state, highlightsHint = "One line per point on t
           <label htmlFor={id("months")} className="text-sm font-semibold">
             Billed
           </label>
-          <select id={id("months")} name="months" defaultValue={v("months", plan.months)} className="input">
+          <select id={id("months")} name="months" value={months} onChange={(e) => setMonths(e.target.value)} className="input">
             <option value="1">Monthly</option>
+            <option value="6">Every 6 months</option>
             <option value="12">Yearly</option>
+            <option value="24">Every 2 years</option>
+            <option value="36">Every 3 years</option>
+            <option value="0">Once, for life</option>
           </select>
         </div>
       </div>
+      {maths(mainKey) ? <p className="m-0 -mt-2 text-[13px] text-muted" data-period-maths={mainKey}>{maths(mainKey)}</p> : null}
+      {/* 133 The other periods clients can choose: each switched on and priced here. Without a price in pounds, a period isn't offered. */}
+      <fieldset className="m-0 flex flex-col gap-3 rounded-xl border border-line-soft bg-white/60 p-3.5" data-plan-periods="">
+        <legend className="px-1 text-sm font-semibold">Other billing periods</legend>
+        <p className="m-0 text-[13px] text-muted">
+          Clients choose among the periods with a price. A period you haven&apos;t priced starts on a suggested price, worked out from the plan&apos;s monthly or yearly
+          price: edit it or keep it, and saving keeps it as yours. The price per month and the saving are worked out from the prices, against the shortest period.
+        </p>
+        {PERIODS.filter((p) => p.key !== mainKey).map((p) => {
+          const row = rows[p.key]!;
+          // Toggling keeps the suggestion; typing a price makes the row the team's own, with the other price as it showed.
+          const set = (patch: Partial<PeriodRow>) =>
+            setOthers((all) => ({ ...all, [p.key]: { ...all[p.key]!, ...("egp" in patch || "usd" in patch ? { egp: row.egp, usd: row.usd, suggested: false } : {}), ...patch } }));
+          const status = !row.on ? "Off" : cents(row.egp) ? maths(p.key) : "No price yet: not offered";
+          return (
+            <div key={p.key} data-period-row={p.key} className={`grid items-start gap-3 rounded-lg border px-3 py-2.5 sm:grid-cols-[150px_1fr_1fr] ${p.key === "lifetime" ? "border-ember/40 bg-peach-soft" : "border-line-soft"}`}>
+              <label className="flex min-h-10 cursor-pointer items-center gap-2 text-[15px] font-semibold">
+                <input type="checkbox" name={`period_${p.key}_on`} checked={row.on} onChange={(e) => set({ on: e.target.checked })} className="h-4 w-4 accent-midnight" />
+                Offer {p.name.toLowerCase()}
+              </label>
+              <Field
+                id={id(`period-${p.key}-egp`)}
+                label={`EGP for ${p.name.toLowerCase()}`}
+                name={`period_${p.key}_egp`}
+                inputMode="decimal"
+                value={row.egp}
+                onChange={(e) => set({ egp: e.target.value })}
+                error={state.errors?.[`period_${p.key}_egp`]}
+                small
+              />
+              <Field
+                id={id(`period-${p.key}-usd`)}
+                label={`USD for ${p.name.toLowerCase()} (optional)`}
+                name={`period_${p.key}_usd`}
+                inputMode="decimal"
+                value={row.usd}
+                onChange={(e) => set({ usd: e.target.value })}
+                error={state.errors?.[`period_${p.key}_usd`]}
+                small
+              />
+              {row.suggested ? <input type="hidden" name={`period_${p.key}_suggested`} value="1" /> : null}
+              {status || row.suggested ? (
+                <span className="flex flex-wrap items-center gap-2 text-[13px] text-muted sm:col-span-3">
+                  {row.suggested ? (
+                    <span className="rounded-full bg-sand px-2 py-0.5 text-xs font-semibold text-ink-2" data-period-suggested={p.key}>
+                      Suggested: edit or keep
+                    </span>
+                  ) : null}
+                  {status ? <span data-period-status={p.key}>{status}</span> : null}
+                </span>
+              ) : null}
+            </div>
+          );
+        })}
+      </fieldset>
       <Field
         id={id("price")}
         label="Price text"
@@ -142,26 +297,47 @@ function PlanTextFields({ plan, state, highlightsHint = "One line per point on t
         error={state.errors?.price}
       />
       </div>
+      {/* 133 The highlighted card and its badge; whether clients see a regular plan. */}
+      <div className="grid gap-4 rounded-xl border border-line-soft p-3.5 sm:grid-cols-2">
+        <label className="flex cursor-pointer items-center gap-2 text-[15px]">
+          <input type="checkbox" name="featured" defaultChecked={state.values ? state.values.featured === "on" : plan.featured} className="h-4 w-4 accent-midnight" />
+          Highlight this plan, with a badge
+        </label>
+        <Field id={id("badge")} label="Badge text" name="badge" maxLength={24} placeholder="Most popular" defaultValue={v("badge", plan.badge)} hint="Empty: Most popular." error={state.errors?.badge} small />
+        {plan.offered !== null ? (
+          <>
+            <input type="hidden" name="visibility" value="1" />
+            <label className="flex cursor-pointer items-start gap-2 text-[15px] sm:col-span-2">
+              <input type="checkbox" name="offered" defaultChecked={state.values ? state.values.offered === "on" : plan.offered} className="mt-1 h-4 w-4 accent-midnight" />
+              <span className="flex flex-col gap-0.5">
+                Shown to clients
+                <span className="text-[13px] text-muted">On the pricing page and in the dashboard. Hidden: clients don&apos;t see it or pay for it; apps on it keep it.</span>
+              </span>
+            </label>
+          </>
+        ) : null}
+      </div>
       {/* 62 The website and the dashboard in Arabic and Turkish show these; empty: the built-in translation of the default texts, else the English. */}
       {TEXT_LANGS.map((lang) => {
-        const key = (field: "Name" | "Tagline" | "Highlights" | "Price") => `${lang.code}${field}` as keyof PlanFormValues & string;
+        const key = (field: "Name" | "Tagline" | "Highlights" | "Price" | "Badge") => `${lang.code}${field}` as keyof PlanFormValues & string;
         return (
-          <details key={lang.code} className="rounded-xl border border-line-soft px-3.5 py-3" open={Boolean(plan[key("Name")] || plan[key("Tagline")] || plan[key("Highlights")] || plan[key("Price")])}>
+          <details key={lang.code} className="rounded-xl border border-line-soft px-3.5 py-3" open={Boolean(plan[key("Name")] || plan[key("Tagline")] || plan[key("Highlights")] || plan[key("Price")] || plan[key("Badge")])}>
             <summary className="cursor-pointer text-sm font-semibold">In {lang.name} (optional)</summary>
             <div role="group" aria-label={`${lang.name} texts`} className="mt-3 flex flex-col gap-4" lang={lang.code} dir={lang.dir}>
               <p className="m-0 text-[13px] text-muted" lang="en" dir="ltr">
                 Shown on the {lang.name} website and dashboard. An empty field shows the built-in {lang.name} text of the default plan, else the English above.
               </p>
-              <Field id={id(key("Name"))} label="Name" name={key("Name")} maxLength={30} defaultValue={v(key("Name"), plan[key("Name")])} error={state.errors?.[key("Name")]} />
-              <Field id={id(key("Tagline"))} label="Tagline" name={key("Tagline")} maxLength={80} defaultValue={v(key("Tagline"), plan[key("Tagline")])} error={state.errors?.[key("Tagline")]} />
+              <Field id={id(key("Name"))} label="Name" name={key("Name")} maxLength={30} defaultValue={v(key("Name"), plan[key("Name")] as string)} error={state.errors?.[key("Name")]} />
+              <Field id={id(key("Tagline"))} label="Tagline" name={key("Tagline")} maxLength={80} defaultValue={v(key("Tagline"), plan[key("Tagline")] as string)} error={state.errors?.[key("Tagline")]} />
               <div className="flex flex-col gap-1.5">
                 <label htmlFor={id(key("Highlights"))} className="text-sm font-semibold">
                   What&apos;s included
                 </label>
-                <textarea id={id(key("Highlights"))} name={key("Highlights")} rows={4} defaultValue={v(key("Highlights"), plan[key("Highlights")])} className="input min-h-24 py-3" />
+                <textarea id={id(key("Highlights"))} name={key("Highlights")} rows={4} defaultValue={v(key("Highlights"), plan[key("Highlights")] as string)} className="input min-h-24 py-3" />
                 <FieldError id={`${id(key("Highlights"))}-error`} error={state.errors?.[key("Highlights")]} />
               </div>
-              <Field id={id(key("Price"))} label="Price text" name={key("Price")} maxLength={30} defaultValue={v(key("Price"), plan[key("Price")])} error={state.errors?.[key("Price")]} />
+              <Field id={id(key("Price"))} label="Price text" name={key("Price")} maxLength={30} defaultValue={v(key("Price"), plan[key("Price")] as string)} error={state.errors?.[key("Price")]} />
+              <Field id={id(key("Badge"))} label="Badge text" name={key("Badge")} maxLength={24} defaultValue={v(key("Badge"), plan[key("Badge")] as string)} hint="Empty: the built-in translation of Most popular, or the English badge." error={state.errors?.[key("Badge")]} />
             </div>
           </details>
         );
@@ -236,6 +412,9 @@ export interface PlanLimitsValues {
   support: string;
   accountManager: boolean;
   customFeatures: boolean;
+  /** 133 A regular plan's pages; the team's own limits by id ("" not on the plan, "unlimited", or a number). */
+  pages: string;
+  extra: Record<string, string>;
 }
 
 /**
@@ -243,13 +422,13 @@ export interface PlanLimitsValues {
  * limits; empty means no limit. Team members, support, the account manager
  * and custom features are display-only: shown to clients, handled by the team.
  */
-export function PlanLimitsForm({ plan, features, limits, supportLevels }: LimitsProps) {
+export function PlanLimitsForm({ plan, features, limits, supportLevels, extraDefs }: LimitsProps) {
   const [state, action] = useActionState(savePlanLimitsAction, initialFormState);
   return (
     <form action={action} noValidate className="flex flex-col gap-4" aria-label={`${plan.name}: features and limits`}>
       <input type="hidden" name="plan" value={plan.id} />
       <FormMessage message={state.message} ok={state.ok} />
-      <PlanLimitsFields plan={plan} state={state} features={features} limits={limits} supportLevels={supportLevels} />
+      <PlanLimitsFields plan={plan} state={state} features={features} limits={limits} supportLevels={supportLevels} extraDefs={extraDefs} />
       <div className="flex justify-end">
         <SubmitButton className="h-10" pendingText="Saving…">
           Save features and limits
@@ -262,12 +441,14 @@ export function PlanLimitsForm({ plan, features, limits, supportLevels }: Limits
 type LimitsProps = {
   plan: PlanLimitsValues;
   features: { id: string; label: string; description: string; enforced: string }[];
-  limits: { id: "appUsers" | "languages" | "sources" | "storageGb" | "analyticsMonths"; label: string; unlimited: string; enforced: string }[];
+  limits: { id: "appUsers" | "languages" | "sources" | "storageGb" | "analyticsMonths" | "pages"; label: string; unlimited: string; enforced: string }[];
   supportLevels: { id: string; label: string }[];
+  /** 133 The team's own limits (Admin › Plans › Limits). */
+  extraDefs?: { id: string; name: string }[];
 };
 
 /** A plan's features and limits; `extra`, a Studio plan's own limit, next to the others. */
-function PlanLimitsFields({ plan, state, features, limits, supportLevels, extra }: LimitsProps & { state: FormState; extra?: React.ReactNode }) {
+function PlanLimitsFields({ plan, state, features, limits, supportLevels, extra, extraDefs = [] }: LimitsProps & { state: FormState; extra?: React.ReactNode }) {
   const v = (name: string, fallback: string) => state.values?.[name] ?? fallback;
   const checked = state.values ? (state.values.features ?? "").split(",") : plan.features;
   const id = (name: string) => `${plan.id}-limits-${name}`;
@@ -296,13 +477,39 @@ function PlanLimitsFields({ plan, state, features, limits, supportLevels, extra 
             name={l.id}
             inputMode="numeric"
             defaultValue={v(l.id, plan[l.id])}
-            hint={l.id === "analyticsMonths" ? `Empty: ${l.unlimited.toLowerCase()}. Daily totals; single events are kept 90 days on every plan.` : "Empty: no limit."}
+            hint={
+              l.id === "analyticsMonths"
+                ? `Empty: ${l.unlimited.toLowerCase()}. Daily totals; single events are kept 90 days on every plan.`
+                : l.id === "pages"
+                  ? "Empty: no limit (the simple page editor keeps its template's 6 pages)."
+                  : "Empty: no limit."
+            }
             error={state.errors?.[l.id]}
             small
           />
         ))}
         {extra}
       </div>
+      {/* 133 The team's own limits: shown to clients, handled by the team; add them in Plans › Limits. */}
+      {extraDefs.length ? (
+        <fieldset className="m-0 flex flex-col gap-3 rounded-xl border border-line-soft p-3.5" data-extra-limits="">
+          <legend className="px-1 text-sm font-semibold">Your own limits (handled by the team)</legend>
+          <div className="grid gap-4 sm:grid-cols-3">
+            {extraDefs.map((d) => (
+              <Field
+                key={d.id}
+                id={id(`extra-${d.id}`)}
+                label={d.name}
+                name={`extra_${d.id}`}
+                defaultValue={v(`extra_${d.id}`, plan.extra[d.id] ?? "")}
+                hint="Empty: not on this plan. “unlimited”: no limit."
+                error={state.errors?.[`extra_${d.id}`]}
+                small
+              />
+            ))}
+          </div>
+        </fieldset>
+      ) : null}
       <fieldset className="m-0 flex flex-col gap-3 rounded-xl border border-line-soft p-3.5">
         <legend className="px-1 text-sm font-semibold">Shown to clients only (handled by the team)</legend>
         <div className="grid gap-4 sm:grid-cols-2">

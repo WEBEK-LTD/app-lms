@@ -52,6 +52,14 @@ export const TEAM_ACTIONS = [
   "school.excuse",
   "school.report",
   "school.leave",
+  // 132 Prime's quick actions and the weekly report from Yallapp Business.
+  "restaurant.busy",
+  "prime.coupon",
+  "prime.flash_sale",
+  "prime.slot",
+  "prime.weekly_report",
+  // 132 The business's reply under a food order's, a marketplace order's or a ride's rating.
+  "rating.reply",
 ] as const;
 export type TeamAction = (typeof TEAM_ACTIONS)[number];
 
@@ -99,6 +107,11 @@ const ORDER_STEP_WORDS: Record<string, string> = {
   out_for_delivery: "Out for delivery",
   // 80.4 Marked shipped, or its tracking changed.
   shipped: "Shipped",
+  // 132 The delivery stages.
+  postponed: "Delivery postponed",
+  failed: "Delivery failed",
+  returned: "Returned to shop",
+  delivered: "Delivered",
   // 96.2 Paid by bank transfer or the owner's own method.
   paid: "Marked paid",
   // 91.3 The answer to a return the customer asked for.

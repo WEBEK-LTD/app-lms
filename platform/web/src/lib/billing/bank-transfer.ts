@@ -4,6 +4,7 @@ import type { DataStore } from "../data/store";
 import type { App, CatalogCurrency, Client, PlanPayment } from "../data/types";
 import { noteMilestones } from "../milestones/record";
 import type { Plan } from "../plans";
+import type { PeriodMonths } from "./periods";
 import { getPlans } from "../settings/platform";
 import { planChangeFor } from "./plan-change";
 import type { PlanPaymentOutcome } from "./plan-payment";
@@ -24,7 +25,8 @@ export interface BankTransferInput {
   /** The app whose plan it pays; null before the account's first app (creating that app takes it, as with a card payment). */
   app: Pick<App, "id"> | null;
   plan: Plan;
-  months: 1 | 12;
+  /** 133 1, 6, 12, 24 or 36 months, or 0 for life. */
+  months: PeriodMonths;
   amountCents: number;
   currency: CatalogCurrency;
   /** The bank's reference for the transfer. */

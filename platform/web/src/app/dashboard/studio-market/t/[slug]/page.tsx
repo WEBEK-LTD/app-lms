@@ -5,7 +5,7 @@ import { Icon } from "@/components/icon";
 import type { IconName } from "@/components/icon-names";
 import { PageThumb } from "@/components/studio-market/phone";
 import { DesignerAvatar } from "@/components/studio-market/parts";
-import { ApplyForm, DemoButton, PageChips, TemplateDemo, TemplateStage, type DemoPage, type MineApp } from "@/components/studio-market/template-view";
+import { ApplyForm, DemoButton, PageChips, PlanPicker, TemplateDemo, TemplateStage, type DemoPage, type MineApp, type PlanChoice } from "@/components/studio-market/template-view";
 import { Notice, formatDate } from "@/components/ui";
 import { countryName } from "@/lib/account/country";
 import { appLabel } from "@/lib/app/label";
@@ -21,6 +21,7 @@ import { designerChip, coverView } from "@/lib/studio-market/catalog";
 import { templateFits, templateKinds } from "@/lib/studio-market/kinds";
 import { versionDesign } from "@/lib/studio-market/snapshot";
 import { templateText } from "@/lib/studio-market/templates";
+import { formatUsd, ltr, offeredPlans, perMonthCents, priceTag } from "@/lib/studio-market/plans";
 import { sampleEntries } from "@/lib/studio/sample-entries";
 
 export async function generateMetadata({ params }: PageProps<"/dashboard/studio-market/t/[slug]">): Promise<Metadata> {
@@ -63,6 +64,19 @@ export default async function TemplatePage({ params, searchParams }: PageProps<"
   const onApp = context.apps.find((a) => licences.some((l) => l.status === "active" && l.appId === a.id)) ?? null;
   const apps = fitting.filter((a) => a.id !== onApp?.id);
   const counts = await store.countTemplateLicences();
+  // 106.2 Paid plans: each one's billed price and per month; a licence bought to apply later is applied here.
+  const paid = offeredPlans(template);
+  const tag = priceTag(template);
+  const bought = licences.find((l) => l.status === "active" && !l.appId) ?? null;
+  const monthly = paid.flatMap((p) => {
+    const cents = perMonthCents(p);
+    return cents === null ? [] : [{ period: p.period, cents }];
+  });
+  const bestPlan = monthly.length > 1 ? monthly.reduce((a, b) => (b.cents < a.cents ? b : a)).period : null;
+  const planRows: PlanChoice[] = paid.map((p) => {
+    const month = perMonthCents(p);
+    return { period: p.period, name: t(`studioMarket.plan_${p.period}`), price: ltr(formatUsd(p.cents), lang), sub: month === null ? t("studioMarket.lifeHint") : t("studioMarket.perMonth", { price: ltr(formatUsd(month), lang) }), best: p.period === bestPlan };
+  });
   const designerTemplates = (await store.listMarketTemplates({ designerId: designer.id, statuses: ["published"] })).filter((x) => x.currentVersionId);
   const chip = designerChip(designer);
 
@@ -208,7 +222,9 @@ export default async function TemplatePage({ params, searchParams }: PageProps<"
             </Link>
           </Notice>
         ) : null}
-        {apps.length ? (
+        {paid.length && !bought ? (
+          <PlanPicker slug={template.slug} plans={planRows} initial={bestPlan ?? planRows[0]!.period} />
+        ) : apps.length ? (
           <ApplyForm slug={template.slug} apps={apps.map((a) => ({ id: a.id, name: appLabel(a) }))} label={{ apply: t("studioMarket.apply") }} />
         ) : onApp ? null : (
           <Notice tone="neutral" icon="smartphone">
@@ -224,28 +240,40 @@ export default async function TemplatePage({ params, searchParams }: PageProps<"
     );
   }
 
-  const know: [IconName, string][] = [
-    ["new_releases", t("studioMarket.knowFree")],
-    ["history", t("studioMarket.knowKeep")],
-    ["compare", t("studioMarket.knowMove")],
-    ["verified", t("studioMarket.knowReview")],
-  ];
+  // 106.2 A paid template: no automatic renewal, what happens at the end (the designer's choice), moving, no refunds.
+  const know: [IconName, string][] = paid.length
+    ? [
+        [template.afterEnd === "restore" ? "undo" : "history", t(template.afterEnd === "restore" ? "studioMarket.knowEndRestore" : "studioMarket.knowEndKeep")],
+        ["event", t("studioMarket.knowRenew")],
+        ["compare", t("studioMarket.knowMove")],
+        ["block", t("studioMarket.knowRefund")],
+      ]
+    : [
+        ["new_releases", t("studioMarket.knowFree")],
+        ["history", t("studioMarket.knowKeep")],
+        ["compare", t("studioMarket.knowMove")],
+        ["verified", t("studioMarket.knowReview")],
+      ];
   const panel = (
     <aside id="apply" aria-label={t("studioMarket.planLabel")} className="mk-panel flex scroll-mt-6 flex-col gap-[22px] rounded-[28px] px-5 py-6 md:p-[30px]">
       <div className="flex flex-col gap-1">
-        <span className="mk-small">{t("studioMarket.fromLabel")}</span>
-        <b className="text-[40px] leading-none tracking-[-0.04em]">{t("studioMarket.free")}</b>
+        <span className="mk-small">{t(paid.length ? "studioMarket.fromWord" : "studioMarket.fromLabel")}</span>
+        <b data-price-tag className="text-[40px] leading-none tracking-[-0.04em]">
+          {tag.kind === "free" ? t("studioMarket.free") : tag.kind === "from" ? t("studioMarket.perMonth", { price: ltr(formatUsd(tag.cents), lang) }) : t("studioMarket.oncePrice", { price: ltr(formatUsd(tag.cents), lang) })}
+        </b>
       </div>
-      <div className="flex flex-col gap-2.5">
-        <span className="mk-small">{t("studioMarket.planLabel")}</span>
-        <div className="mk-plan" aria-current="true">
-          <span className="flex items-center justify-between gap-2">
-            <b className="text-[22px] tracking-[-0.02em]">{t("studioMarket.free")}</b>
-            <Icon name="check_circle" size={22} filled />
-          </span>
-          <span className="text-[13px] opacity-75">{t("studioMarket.freePlanHint")}</span>
+      {paid.length ? null : (
+        <div className="flex flex-col gap-2.5">
+          <span className="mk-small">{t("studioMarket.planLabel")}</span>
+          <div className="mk-plan" aria-current="true">
+            <span className="flex items-center justify-between gap-2">
+              <b className="text-[22px] tracking-[-0.02em]">{t("studioMarket.free")}</b>
+              <Icon name="check_circle" size={22} filled />
+            </span>
+            <span className="text-[13px] opacity-75">{t("studioMarket.freePlanHint")}</span>
+          </div>
         </div>
-      </div>
+      )}
       {action}
       <ul className="m-0 flex list-none flex-col border-t border-[var(--mk-hair)] p-0">
         {know.map(([icon, line]) => (
@@ -347,7 +375,7 @@ export default async function TemplatePage({ params, searchParams }: PageProps<"
         {owner && !own && apps.length ? (
           <div className="mk-buybar sticky bottom-0 z-30 flex items-center gap-3 px-5 py-3.5 lg:hidden">
             <span className="flex min-w-0 flex-1 flex-col">
-              <b className="text-lg leading-tight">{t("studioMarket.free")}</b>
+              <b className="text-lg leading-tight">{tag.kind === "free" ? t("studioMarket.free") : tag.kind === "from" ? t("studioMarket.fromPrice", { price: ltr(formatUsd(tag.cents), lang) }) : t("studioMarket.oncePrice", { price: ltr(formatUsd(tag.cents), lang) })}</b>
               <span className="mk-muted truncate text-xs">{t("studioMarket.knowReview")}</span>
             </span>
             <a href="#apply" className="mk-btn mk-btn-ember h-[50px] px-5 text-[15px]">

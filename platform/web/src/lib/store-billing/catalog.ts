@@ -1,6 +1,6 @@
 import { randomUUID } from "node:crypto";
 import type { DataStore } from "../data/store";
-import { allows, effectivePlans, planOfLicense } from "../entitlements";
+import { allows, effectivePlans, appPlanFrom } from "../entitlements";
 import { siteApp, type Fail } from "../license/chat";
 import { parseSiteInfo } from "../license/service";
 import { reconcileProducts, wantedFromCatalog, type BillingCatalog } from "./products";
@@ -57,7 +57,7 @@ export async function receiveSiteCatalog(store: DataStore, body: unknown, now: D
   if (!catalog.ok) return fail(400, catalog.message);
   const found = await siteApp(store, site.value, now);
   if (!found.ok) return found.result;
-  const plan = planOfLicense(await effectivePlans(store), found.license, now);
+  const plan = await appPlanFrom(store, await effectivePlans(store), found.license, now);
   if (!allows(plan, "store_billing")) return { status: 204 };
   const existing = await store.listStoreProducts(found.app.id);
   for (const product of reconcileProducts(found.app.id, existing, wantedFromCatalog(catalog.value), now, randomUUID)) {

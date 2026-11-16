@@ -103,18 +103,24 @@ test("a client without a website sets up their shop", async ({ page }) => {
 
   // 19 Without card payments, the owner is told customers can't pay yet (here and on the overview).
   await page.getByRole("link", { name: "Products", exact: true }).click();
-  await expect(page.getByText("can't pay for them until you set up Card payments below")).toBeVisible();
+  // 132.10 Products has its own pages now: products, categories, coupons, payments and settings.
+  await expect(page.getByText("can't pay for them until you set up Card payments.")).toBeVisible();
+  await expect(page.getByRole("navigation", { name: "Products", exact: true }).getByRole("link", { name: /^Payments/ })).toBeVisible();
   await page.goto("/dashboard");
   await expect(page.getByText("can't pay for them until you set up Card payments on the Products page")).toBeVisible();
   await page.getByRole("link", { name: "Products", exact: true }).click();
+  await page.getByRole("navigation", { name: "Products", exact: true }).getByRole("link", { name: /^Categories/ }).click();
+  await expect(page).toHaveURL(/\/dashboard\/catalog\/categories$/);
   await page.getByLabel("New category").fill("Bouquets");
   await page.getByRole("button", { name: "Add", exact: true }).click();
   await expect(page.getByLabel("Category name")).toHaveValue("Bouquets");
 
+  await page.getByRole("navigation", { name: "Products", exact: true }).getByRole("link", { name: /^Settings/ }).click();
   await page.getByLabel("Shipping fee").fill("50");
   await page.getByRole("button", { name: "Save settings" }).click();
   await expect(page.getByText("Shop settings saved.")).toBeVisible();
 
+  await page.getByRole("navigation", { name: "Products", exact: true }).getByRole("link", { name: /^Payments/ }).click();
   await page.getByLabel("API key").fill("sandbox-api-key");
   await page.getByLabel("Secret key").fill("sandbox-secret-key");
   await page.getByText("Sandbox keys").click();
@@ -122,6 +128,7 @@ test("a client without a website sets up their shop", async ({ page }) => {
   await expect(page.getByText("iyzico keys saved.")).toBeVisible();
   await expect(page.getByText("On · your iyzico account · sandbox (test payments)")).toBeVisible();
 
+  await page.getByRole("navigation", { name: "Products", exact: true }).getByRole("link", { name: /^Products/ }).click();
   await page.getByRole("link", { name: "Add product" }).click();
   await page.getByLabel("Name", { exact: true }).fill("Tulip Bouquet");
   await page.getByLabel("Description").fill("Twenty fresh tulips.");
@@ -134,8 +141,12 @@ test("a client without a website sets up their shop", async ({ page }) => {
   await page.getByLabel("Bouquets").check();
   await page.locator('input[name="images"]').setInputFiles({ name: "tulips.png", mimeType: "image/png", buffer: solidPng(64, 64, [230, 80, 120]) });
   await page.getByRole("button", { name: "Add product" }).click();
-  await expect(page.getByRole("status")).toContainText("Saved “Tulip Bouquet”.");
-  await expect(page.getByRole("link", { name: /Tulip Bouquet/ })).toContainText("₺350.00 · 5 in stock · Bouquets");
+  await expect(page.getByRole("status").filter({ hasText: "Saved" })).toContainText("Saved “Tulip Bouquet”.");
+  const row = page.locator('[data-product="Tulip Bouquet"]');
+  await expect(row.getByRole("link", { name: /Tulip Bouquet/ })).toContainText("Bouquets");
+  await expect(row).toContainText("₺350.00");
+  await expect(row).toContainText("₺400.00");
+  await expect(row).toContainText("5 in stock");
 
   await page.goto("/dashboard/setup?step=website");
   await expect(page.getByRole("radio", { name: /I don't have a website/ })).toBeChecked();
@@ -215,6 +226,7 @@ test("a customer pays in the app and the order reaches the dashboard", async ({ 
 test("91.3 a signed-in customer asks to return a completed order, and the shop approves it", async ({ page, request }) => {
   await signIn(page, client.email, client.password);
   await page.getByRole("link", { name: "Products", exact: true }).click();
+  await page.getByRole("navigation", { name: "Products", exact: true }).getByRole("link", { name: /^Settings/ }).click();
   await page.getByLabel("Returns in the app (days)").fill("400");
   await page.getByRole("button", { name: "Save settings" }).click();
   await expect(page.getByText("Enter a number of days from 1 to 365, or leave it empty for no returns in the app.")).toBeVisible();
@@ -285,7 +297,9 @@ test("91.3 a signed-in customer asks to return a completed order, and the shop a
 
 test("91.4 a customer earns loyalty points on a completed order and uses them on the next", async ({ page, request }) => {
   await signIn(page, client.email, client.password);
-  await page.getByRole("link", { name: "Products", exact: true }).click();
+  await page.goto("/dashboard/catalog#h-loyalty");
+  // 132.10 The old address of the loyalty points opens the settings, where they are now.
+  await expect(page).toHaveURL(/\/dashboard\/catalog\/settings$/);
   const loyalty = page.getByRole("region", { name: "Loyalty points" });
   await loyalty.getByText("Give loyalty points").click();
   await loyalty.getByLabel("Spend for one point (TRY)").fill("10");
@@ -347,7 +361,7 @@ test("91.4 a customer earns loyalty points on a completed order and uses them on
 
 test("91.5 a product in two colours, and KDV inside the prices, from the dashboard to the payment", async ({ page, request }) => {
   await signIn(page, client.email, client.password);
-  await page.getByRole("link", { name: "Products", exact: true }).click();
+  await page.goto("/dashboard/catalog/settings");
   await page.getByLabel("Tax rate (%)").fill("twenty");
   await page.getByRole("button", { name: "Save settings" }).click();
   await expect(page.getByText("Enter the tax rate as a percentage, like 20 or 7.5, or leave it empty for no tax.")).toBeVisible();
@@ -357,6 +371,7 @@ test("91.5 a product in two colours, and KDV inside the prices, from the dashboa
   await page.getByRole("button", { name: "Save settings" }).click();
   await expect(page.getByText("Shop settings saved.")).toBeVisible();
 
+  await page.getByRole("navigation", { name: "Products", exact: true }).getByRole("link", { name: /^Products/ }).click();
   await page.getByRole("link", { name: "Add product" }).click();
   await page.getByLabel("Name", { exact: true }).fill("Tulip Vase");
   await page.getByLabel("Price (TRY)", { exact: true }).fill("200");
@@ -367,7 +382,7 @@ test("91.5 a product in two colours, and KDV inside the prices, from the dashboa
   await page.getByLabel("Price of White", { exact: true }).fill("240");
   await page.getByLabel("Stock of Red").fill("1");
   await page.getByRole("button", { name: "Add product" }).click();
-  await expect(page.getByRole("status")).toContainText("Saved “Tulip Vase”.");
+  await expect(page.getByRole("status").filter({ hasText: "Saved" })).toContainText("Saved “Tulip Vase”.");
 
   const products = (await (await request.get(`${api}/store/products`)).json()) as { items: { id: number; name: string; type: string; price: { formatted: string } }[] };
   const vase = products.items.find((p) => p.name === "Tulip Vase")!;
@@ -414,7 +429,7 @@ test("131 delivery times, the gift checkout and a flash sale, from Delivery & of
   await page.getByLabel("Price (TRY)", { exact: true }).fill("300");
   await page.locator('input[name="images"]').setInputFiles({ name: "roses.png", mimeType: "image/png", buffer: solidPng(64, 64, [200, 30, 60]) });
   await page.getByRole("button", { name: "Add product" }).click();
-  await expect(page.getByRole("status")).toContainText("Saved “Rose Box”.");
+  await expect(page.getByRole("status").filter({ hasText: "Saved" })).toContainText("Saved “Rose Box”.");
 
   await page.goto("/dashboard/selling");
   await expect(page.getByRole("heading", { name: "Delivery & offers", level: 1 })).toBeVisible();
@@ -424,6 +439,8 @@ test("131 delivery times, the gift checkout and a flash sale, from Delivery & of
   await mode.getByLabel(/^Gift checkout/).check();
   await mode.getByRole("button", { name: "Save" }).click();
   await expect(mode.getByText("Saved.")).toBeVisible();
+  // 132.25 Each part in its tab.
+  await page.getByRole("tab", { name: "Delivery times" }).click();
   const delivery = page.locator("[data-delivery-form]");
   await delivery.getByLabel("Customers choose the delivery day").check();
   await delivery.getByRole("button", { name: "Save delivery times" }).click();
@@ -431,6 +448,7 @@ test("131 delivery times, the gift checkout and a flash sale, from Delivery & of
 
   // A flash sale on the roses, on now in the shop's time zone.
   const local = (at: Date) => new Intl.DateTimeFormat("sv-SE", { timeZone: "Europe/Istanbul", year: "numeric", month: "2-digit", day: "2-digit", hour: "2-digit", minute: "2-digit" }).format(at).replace(" ", "T");
+  await page.getByRole("tab", { name: /^Flash sales and codes/ }).click();
   const flash = page.locator("[data-flash-form]").first();
   await flash.getByLabel("Name").fill("Weekend tulips");
   await flash.getByLabel("Rose Box", { exact: true }).check();
@@ -483,7 +501,7 @@ test("131 a gift add-on goes only with a product, and a flash sale on one produc
   await page.getByLabel("Sell only as an add-on (gift extra)").check();
   await expect(page.getByLabel("Every product")).toBeChecked();
   await page.getByRole("button", { name: "Add product" }).click();
-  await expect(page.getByRole("status")).toContainText("Saved “Greeting card”.");
+  await expect(page.getByRole("status").filter({ hasText: "Saved" })).toContainText("Saved “Greeting card”.");
   await expect(page.getByRole("link", { name: /Greeting card/ })).toContainText("Add-on");
 
   // Never listed on its own; offered with the roses.

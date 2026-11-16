@@ -19,6 +19,9 @@ import { MediaPickButton } from "@/components/media-picker";
 import { useDashT } from "@/components/dashboard-i18n";
 import { FormActions, FormSection } from "@/components/page-kit";
 import { CohortSelect } from "./builder-forms";
+import { FormSaveBar } from "@/components/manage-kit-client";
+import { useAfterSave, type ItemPage } from "./item-page";
+
 
 function Check({ name, label, checked }: { name: string; label: string; checked: boolean }) {
   return (
@@ -42,6 +45,164 @@ function TextArea({ id, label, name, value, rows, error, hint }: { id: string; l
   );
 }
 
+/** 132.13 The course form's fields, in parts the "Add a course" form and the course editor's tabs share. `v` is what the form shows, `e` its errors, `k` its ids' start. */
+type Part = { v: Record<string, string>; e: Record<string, string>; k: string };
+
+export function CourseAboutFields({ v, e, categories, imageUrl }: Part & { categories: { id: number; name: string }[]; imageUrl: string | null }) {
+  const t = useDashT();
+  const chosen = new Set((v.categoryIds ?? "").split(",").filter(Boolean).map(Number));
+  return (
+    <>
+      <Field label={t("common.title")} name="title" defaultValue={v.title} error={e.title} small />
+      <TextArea id="f-course-description" label={t("common.description")} name="description" value={v.description} rows={4} error={e.description} />
+      <div className="flex flex-col gap-1.5">
+        <label htmlFor="f-course-image" className="text-sm font-semibold">
+          {t("courses.coverImage")}
+        </label>
+        {imageUrl ? (
+          // eslint-disable-next-line @next/next/no-img-element -- A small preview of an uploaded file.
+          <img src={imageUrl} alt="" className="h-24 w-40 rounded-lg border border-line object-cover" />
+        ) : null}
+        <input id="f-course-image" type="file" name="image" accept="image/png,image/jpeg" className="text-sm" />
+        <span className="text-[13px] text-muted">{t("courses.imageHint")}</span>
+        {imageUrl ? <Check name="removeImage" label={t("courses.removeImage")} checked={false} /> : null}
+        <FieldError id="f-course-image-error" error={e.image} />
+      </div>
+      {categories.length ? (
+        <fieldset className="m-0 flex flex-col gap-2 border-0 p-0">
+          <legend className="mb-1.5 text-sm font-semibold">{t("courses.categories")}</legend>
+          <div className="flex flex-wrap gap-2">
+            {categories.map((c) => (
+              <label key={c.id} className="flex cursor-pointer items-center gap-2 rounded-full border border-line py-1.5 ps-2.5 pe-3.5 text-sm has-[:checked]:border-midnight has-[:checked]:bg-sand">
+                <input type="checkbox" name="categoryIds" value={c.id} defaultChecked={chosen.has(c.id)} className="h-4 w-4 accent-midnight" />
+                {c.name}
+              </label>
+            ))}
+          </div>
+        </fieldset>
+      ) : null}
+    </>
+  );
+}
+
+export function CoursePriceField({ v, e, currency }: Part & { currency: string }) {
+  const t = useDashT();
+  return <Field label={t("courses.priceIn", { currency })} name="price" inputMode="decimal" defaultValue={v.price} hint={t("courses.priceHint")} error={e.price} small />;
+}
+
+export function CourseTeachingFields({ v, e }: Part) {
+  const t = useDashT();
+  return (
+    <>
+      <Field label={t("courses.instructor")} name="instructor" defaultValue={v.instructor} error={e.instructor} small />
+      <Field label={t("courses.level")} name="level" placeholder={t("courses.levelPlaceholder")} defaultValue={v.level} error={e.level} small />
+    </>
+  );
+}
+
+/** 90.1 Certificates; 112.5 who signs them. */
+export function CourseCertificateFields({ v, e }: Part) {
+  const t = useDashT();
+  return (
+    <>
+      <div className="flex flex-col gap-1">
+        <Check name="certificate" label={t("courses.certificate")} checked={v.certificate === "on"} />
+        <span className="ps-6 text-[13px] text-muted">{t("courses.certificateHint")}</span>
+      </div>
+      <Field
+        label={t("lms.certificateSigner")}
+        name="certificateSigner"
+        defaultValue={v.certificateSigner}
+        placeholder={t("lms.certificateSignerPlaceholder")}
+        hint={t("lms.certificateSignerHint")}
+        error={e.certificateSigner}
+        className="sm:max-w-[420px]"
+        small
+      />
+    </>
+  );
+}
+
+/** 112.5 A course taken in order. */
+export function CourseSequentialField({ v }: Part) {
+  const t = useDashT();
+  return (
+    <div className="flex flex-col gap-1">
+      <Check name="sequential" label={t("lms.sequential")} checked={v.sequential === "on"} />
+      <span className="ps-6 text-[13px] text-muted">{t("lms.sequentialHint")}</span>
+    </div>
+  );
+}
+
+/** 113.7 The rules to complete the course (and earn its certificate). */
+export function CourseCompletionFields({ v, e, k }: Part) {
+  const t = useDashT();
+  return (
+    <fieldset className="m-0 flex flex-col gap-3 rounded-xl border border-line-soft bg-sand p-3.5">
+      <legend className="px-1 text-sm font-semibold">{t("learning.completeTitle")}</legend>
+      <div className="grid gap-3 sm:grid-cols-2">
+        <div className="flex flex-col gap-1.5">
+          <label htmlFor={`${k}-complete`} className="text-sm font-semibold">
+            {t("learning.completeWhen")}
+          </label>
+          <select id={`${k}-complete`} name="completeWhen" defaultValue={v.completeWhen || "all"} className="input input-sm">
+            <option value="lessons">{t("learning.completeLessons")}</option>
+            <option value="quizzes">{t("learning.completeQuizzes")}</option>
+            <option value="all">{t("learning.completeAll")}</option>
+          </select>
+        </div>
+        <Field label={t("learning.minFinalScore")} name="minFinalScore" id={`${k}-min-score`} inputMode="numeric" defaultValue={v.minFinalScore} hint={t("learning.minFinalScoreHint")} error={e.minFinalScore} small />
+      </div>
+    </fieldset>
+  );
+}
+
+/** 113.7 The courses it needs first. */
+export function CoursePrerequisitesField({ v, e, k, others }: Part & { others: { id: number; title: string }[] }) {
+  const t = useDashT();
+  const needed = new Set((v.prerequisiteIds ?? "").split(",").filter(Boolean).map(Number));
+  if (!others.length) return null;
+  return (
+    <fieldset className="m-0 flex flex-col gap-2 border-0 p-0">
+      <legend className="mb-1.5 text-sm font-semibold">{t("learning.prerequisites")}</legend>
+      <span className="text-[13px] text-muted">{t("learning.prerequisitesHint")}</span>
+      <div className="flex flex-wrap gap-x-5 gap-y-2">
+        {others.map((c) => (
+          <label key={c.id} className="flex cursor-pointer items-center gap-2 text-[15px]">
+            <input type="checkbox" name="prerequisiteIds" value={c.id} defaultChecked={needed.has(c.id)} className="h-4 w-4 accent-midnight" />
+            {c.title}
+          </label>
+        ))}
+      </div>
+      <FieldError id={`${k}-prerequisites-error`} error={e.prerequisites} />
+    </fieldset>
+  );
+}
+
+/** 90.1 Access that ends. */
+export function CourseAccessDaysField({ v, e }: Part) {
+  const t = useDashT();
+  return (
+    <Field label={t("courses.accessDays")} name="accessDays" inputMode="numeric" defaultValue={v.accessDays} hint={t("courses.accessDaysHint")} error={e.accessDays} className="sm:max-w-[320px]" small />
+  );
+}
+
+/** 73 Students can start it again. */
+export function CourseRestartField({ v }: Part) {
+  const t = useDashT();
+  return (
+    <div className="flex flex-col gap-1">
+      <Check name="restart" label={t("courses.restart")} checked={v.restart !== ""} />
+      <span className="ps-6 text-[13px] text-muted">{t("courses.restartHint")}</span>
+    </div>
+  );
+}
+
+export function CourseVisibleField({ v }: Part) {
+  const t = useDashT();
+  return <Check name="active" label={t("courses.visible")} checked={v.active !== ""} />;
+}
+
 export function CourseForm({
   current,
   categories,
@@ -62,139 +223,32 @@ export function CourseForm({
   const [state, action] = useActionState(saveCourseAction, initialFormState);
   const v = state.values ?? current;
   const e = state.errors ?? {};
-  const chosen = new Set((v.categoryIds ?? "").split(",").filter(Boolean).map(Number));
-  const needed = new Set((v.prerequisiteIds ?? "").split(",").filter(Boolean).map(Number));
   const key = `f-course-${current.id || "new"}`;
+  const part = { v, e, k: key };
   return (
     <form action={action} noValidate className="flex flex-col gap-5" key={JSON.stringify(v)}>
       <FormMessage message={state.message} ok={state.ok} />
       <input type="hidden" name="id" value={current.id ?? ""} />
       {/* The page kit: the form in four parts. */}
       <FormSection id={`${key}-about`} title={t("courses.formAbout")} description={t("courses.formAboutHint")}>
-        <Field label={t("common.title")} name="title" defaultValue={v.title} error={e.title} small />
-        <TextArea id="f-course-description" label={t("common.description")} name="description" value={v.description} rows={4} error={e.description} />
-        <div className="flex flex-col gap-1.5">
-          <label htmlFor="f-course-image" className="text-sm font-semibold">
-            {t("courses.coverImage")}
-          </label>
-          {imageUrl ? (
-            // eslint-disable-next-line @next/next/no-img-element -- A small preview of an uploaded file.
-            <img src={imageUrl} alt="" className="h-24 w-40 rounded-lg border border-line object-cover" />
-          ) : null}
-          <input id="f-course-image" type="file" name="image" accept="image/png,image/jpeg" className="text-sm" />
-          <span className="text-[13px] text-muted">{t("courses.imageHint")}</span>
-          {imageUrl ? <Check name="removeImage" label={t("courses.removeImage")} checked={false} /> : null}
-          <FieldError id="f-course-image-error" error={e.image} />
-        </div>
-        {categories.length ? (
-          <fieldset className="m-0 flex flex-col gap-2 border-0 p-0">
-            <legend className="mb-1.5 text-sm font-semibold">{t("courses.categories")}</legend>
-            <div className="flex flex-wrap gap-2">
-              {categories.map((c) => (
-                <label key={c.id} className="flex cursor-pointer items-center gap-2 rounded-full border border-line py-1.5 ps-2.5 pe-3.5 text-sm has-[:checked]:border-midnight has-[:checked]:bg-sand">
-                  <input type="checkbox" name="categoryIds" value={c.id} defaultChecked={chosen.has(c.id)} className="h-4 w-4 accent-midnight" />
-                  {c.name}
-                </label>
-              ))}
-            </div>
-          </fieldset>
-        ) : null}
+        <CourseAboutFields {...part} categories={categories} imageUrl={imageUrl} />
       </FormSection>
       <FormSection id={`${key}-selling`} title={t("courses.formSelling")}>
         <div className="grid gap-4 sm:grid-cols-3">
-          <Field
-            label={t("courses.priceIn", { currency })}
-            name="price"
-            inputMode="decimal"
-            defaultValue={v.price}
-            hint={t("courses.priceHint")}
-            error={e.price}
-            small
-          />
-          <Field label={t("courses.instructor")} name="instructor" defaultValue={v.instructor} error={e.instructor} small />
-          <Field label={t("courses.level")} name="level" placeholder={t("courses.levelPlaceholder")} defaultValue={v.level} error={e.level} small />
+          <CoursePriceField {...part} currency={currency} />
+          <CourseTeachingFields {...part} />
         </div>
       </FormSection>
       <FormSection id={`${key}-finish`} title={t("courses.formFinish")} description={t("courses.formFinishHint")}>
-        {/* 90.1 Certificates. */}
-        <div className="flex flex-col gap-1">
-          <Check name="certificate" label={t("courses.certificate")} checked={v.certificate === "on"} />
-          <span className="ps-6 text-[13px] text-muted">{t("courses.certificateHint")}</span>
-        </div>
-        {/* 112.5 Who signs the certificate, and a course taken in order. */}
-        <Field
-          label={t("lms.certificateSigner")}
-          name="certificateSigner"
-          defaultValue={v.certificateSigner}
-          placeholder={t("lms.certificateSignerPlaceholder")}
-          hint={t("lms.certificateSignerHint")}
-          error={e.certificateSigner}
-          className="sm:max-w-[420px]"
-          small
-        />
-        <div className="flex flex-col gap-1">
-          <Check name="sequential" label={t("lms.sequential")} checked={v.sequential === "on"} />
-          <span className="ps-6 text-[13px] text-muted">{t("lms.sequentialHint")}</span>
-        </div>
-        {/* 113.7 The rules to complete the course (and earn its certificate), and the courses it needs first. */}
-        <fieldset className="m-0 flex flex-col gap-3 rounded-xl border border-line-soft bg-sand p-3.5">
-          <legend className="px-1 text-sm font-semibold">{t("learning.completeTitle")}</legend>
-          <div className="grid gap-3 sm:grid-cols-2">
-            <div className="flex flex-col gap-1.5">
-              <label htmlFor={`${key}-complete`} className="text-sm font-semibold">
-                {t("learning.completeWhen")}
-              </label>
-              <select id={`${key}-complete`} name="completeWhen" defaultValue={v.completeWhen || "all"} className="input input-sm">
-                <option value="lessons">{t("learning.completeLessons")}</option>
-                <option value="quizzes">{t("learning.completeQuizzes")}</option>
-                <option value="all">{t("learning.completeAll")}</option>
-              </select>
-            </div>
-            <Field
-              label={t("learning.minFinalScore")}
-              name="minFinalScore"
-              id={`${key}-min-score`}
-              inputMode="numeric"
-              defaultValue={v.minFinalScore}
-              hint={t("learning.minFinalScoreHint")}
-              error={e.minFinalScore}
-              small
-            />
-          </div>
-        </fieldset>
-        {others.length ? (
-          <fieldset className="m-0 flex flex-col gap-2 border-0 p-0">
-            <legend className="mb-1.5 text-sm font-semibold">{t("learning.prerequisites")}</legend>
-            <span className="text-[13px] text-muted">{t("learning.prerequisitesHint")}</span>
-            <div className="flex flex-wrap gap-x-5 gap-y-2">
-              {others.map((c) => (
-                <label key={c.id} className="flex cursor-pointer items-center gap-2 text-[15px]">
-                  <input type="checkbox" name="prerequisiteIds" value={c.id} defaultChecked={needed.has(c.id)} className="h-4 w-4 accent-midnight" />
-                  {c.title}
-                </label>
-              ))}
-            </div>
-            <FieldError id={`${key}-prerequisites-error`} error={e.prerequisites} />
-          </fieldset>
-        ) : null}
+        <CourseCertificateFields {...part} />
+        <CourseSequentialField {...part} />
+        <CourseCompletionFields {...part} />
+        <CoursePrerequisitesField {...part} others={others} />
       </FormSection>
       <FormSection id={`${key}-access`} title={t("courses.formAccess")}>
-        {/* 90.1 Access that ends. */}
-        <Field
-          label={t("courses.accessDays")}
-          name="accessDays"
-          inputMode="numeric"
-          defaultValue={v.accessDays}
-          hint={t("courses.accessDaysHint")}
-          error={e.accessDays}
-          className="sm:max-w-[320px]"
-          small
-        />
-        <div className="flex flex-col gap-1">
-          <Check name="restart" label={t("courses.restart")} checked={v.restart !== ""} />
-          <span className="ps-6 text-[13px] text-muted">{t("courses.restartHint")}</span>
-        </div>
-        <Check name="active" label={t("courses.visible")} checked={v.active !== ""} />
+        <CourseAccessDaysField {...part} />
+        <CourseRestartField {...part} />
+        <CourseVisibleField {...part} />
       </FormSection>
       <FormActions>
         <SubmitButton className="h-10" pendingText={t("common.saving")}>
@@ -255,9 +309,10 @@ export function TopicForm({ courseId }: { courseId: number }) {
   );
 }
 
-export function LessonForm({ courseId, topicId, current, submit }: { courseId: number; topicId: number; current: Record<string, string>; submit: string }) {
+export function LessonForm({ courseId, topicId, current, submit, saveBar, afterSave }: { courseId: number; topicId: number; current: Record<string, string>; submit: string } & ItemPage) {
   const t = useDashT();
   const [state, action] = useActionState(saveLessonAction, initialFormState);
+  useAfterSave(state, !current.id, afterSave);
   const v = state.values ?? current;
   const e = state.errors ?? {};
   const key = `lesson-${current.id ?? `new-${topicId}`}`;
@@ -297,18 +352,22 @@ export function LessonForm({ courseId, topicId, current, submit }: { courseId: n
       </div>
       <div className="flex flex-wrap items-center justify-between gap-3">
         <Check name="preview" label={t("courses.freePreview")} checked={v.preview === "on"} />
-        <SubmitButton className="h-10" pendingText={t("common.saving")}>
-          {submit}
-        </SubmitButton>
+        {saveBar ? null : (
+          <SubmitButton className="h-10" pendingText={t("common.saving")}>
+            {submit}
+          </SubmitButton>
+        )}
       </div>
+      {saveBar ? <FormSaveBar saveLabel={submit} cancel={saveBar.cancel} /> : null}
     </form>
   );
 }
 
 /** 90.1 A quiz at the end of a section, its questions written as text. */
-export function QuizForm({ courseId, topicId, current, submit }: { courseId: number; topicId: number; current: Record<string, string>; submit: string }) {
+export function QuizForm({ courseId, topicId, current, submit, saveBar, afterSave }: { courseId: number; topicId: number; current: Record<string, string>; submit: string } & ItemPage) {
   const t = useDashT();
   const [state, action] = useActionState(saveQuizAction, initialFormState);
+  useAfterSave(state, !current.id, afterSave);
   const v = state.values ?? current;
   const e = state.errors ?? {};
   const key = `quiz-${current.id ?? `new-${topicId}`}`;
@@ -381,11 +440,15 @@ export function QuizForm({ courseId, topicId, current, submit }: { courseId: num
           <Check name="resultsAfterClose" label={t("learning.resultsAfterClose")} checked={v.resultsAfterClose === "on"} />
         </div>
       </details>
-      <div className="flex justify-end">
-        <SubmitButton className="h-10" pendingText={t("common.saving")}>
-          {submit}
-        </SubmitButton>
-      </div>
+      {saveBar ? (
+        <FormSaveBar saveLabel={submit} cancel={saveBar.cancel} />
+      ) : (
+        <div className="flex justify-end">
+          <SubmitButton className="h-10" pendingText={t("common.saving")}>
+            {submit}
+          </SubmitButton>
+        </div>
+      )}
     </form>
   );
 }

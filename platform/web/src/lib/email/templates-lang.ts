@@ -35,6 +35,9 @@ export type ClientEmailKey = Extract<
   | "plan_ends_today"
   | "storage_pack_added"
   | "storage_pack_ended"
+  // 133
+  | "addon_added"
+  | "addon_ends_soon"
   | "chat_expiring"
   | "integration_failed"
   | "own_whatsapp_failed"
@@ -47,6 +50,9 @@ export type ClientEmailKey = Extract<
   | "weekly_summary"
   | "market_template_published"
   | "market_template_changes"
+  | "market_template_receipt"
+  | "market_template_reminder"
+  | "market_template_ended"
 >;
 
 const AR: Record<ClientEmailKey, TemplateText> = {
@@ -169,6 +175,15 @@ const AR: Record<ClientEmailKey, TemplateText> = {
       "جدّد بالبطاقة: {{renew_url}}" +
       SIGNATURE_AR,
   },
+  // 133 Add-ons
+  addon_added: {
+    subject: "{{app_name}}: أُضيف {{addon}}",
+    body: "مرحبًا {{name}}،\n\nشكرًا على الدفع. أصبح لدى {{app_name}} الآن {{addon}} ({{period}}).\n\n{{until_line}}{{payment_line}}إضافاتك: {{addons_url}}" + SIGNATURE_AR,
+  },
+  addon_ends_soon: {
+    subject: "{{app_name}}: ينتهي {{addon}} في {{end_date}}",
+    body: "مرحبًا {{name}}،\n\nينتهي {{addon}} الخاص بتطبيق {{app_name}} في {{end_date}}. للإبقاء عليه، جدّده من صفحة الإضافات:\n{{addons_url}}" + SIGNATURE_AR,
+  },
   storage_pack_added: {
     subject: "{{app_name}}: أُضيفت مساحة تخزين {{pack}}",
     body:
@@ -276,6 +291,22 @@ const AR: Record<ClientEmailKey, TemplateText> = {
       "مرحبًا {{name}}،\n\nراجع فريقنا {{template_name}}. هناك أشياء تحتاج إلى تعديل قبل نشره على ماركت Studio:\n\n{{notes}}\n\n" +
       "عدّلها في Studio، ثم أرسله مرة أخرى من تمبلتاتك:\n{{templates_url}}" +
       SIGNATURE_AR,
+  },
+  market_template_receipt: {
+    subject: "إيصال: {{template_name}} على ماركت Studio",
+    body:
+      "مرحبًا {{name}}،\n\nشكرًا لك. استلمنا دفعتك مقابل {{template_name}} من تصميم {{designer_name}}.\n\n" +
+      "الخطة: {{plan}}\nالمدفوع: {{amount_line}}\nالمرجع: {{order_id}}\n\n{{ends_line}}\n{{app_line}}\n\n" +
+      "هذا محتوى رقمي يُطبَّق فورًا: وكما وافقت عند الدفع، لا يمكن استرداد ثمنه.\n\nتمبلتاتك:\n{{templates_url}}" +
+      SIGNATURE_AR,
+  },
+  market_template_reminder: {
+    subject: "{{template_name}}: تنتهي خطتك في {{end_date}}",
+    body: "مرحبًا {{name}}،\n\n{{intro_line}} لا تتجدد التمبلتات تلقائيًا.\n\n{{after_line}}\n\nجدّدها من هنا:\n{{renew_url}}" + SIGNATURE_AR,
+  },
+  market_template_ended: {
+    subject: "{{template_name}}: انتهت خطتك",
+    body: "مرحبًا {{name}}،\n\n{{intro_line}}\n\n{{after_line}}\n\nيمكنك شراؤه مرة أخرى في أي وقت:\n{{renew_url}}" + SIGNATURE_AR,
   },
 };
 
@@ -399,6 +430,15 @@ const TR: Record<ClientEmailKey, TemplateText> = {
       "Kartla yenileyin: {{renew_url}}" +
       SIGNATURE_TR,
   },
+  // 133 Add-ons
+  addon_added: {
+    subject: "{{app_name}}: {{addon}} eklendi",
+    body: "Merhaba {{name}},\n\nÖdemeniz için teşekkürler. {{app_name}} artık {{addon}} ({{period}}) içeriyor.\n\n{{until_line}}{{payment_line}}Eklentileriniz: {{addons_url}}" + SIGNATURE_TR,
+  },
+  addon_ends_soon: {
+    subject: "{{app_name}}: {{addon}} {{end_date}} tarihinde bitiyor",
+    body: "Merhaba {{name}},\n\n{{app_name}} uygulamasının {{addon}} eklentisi {{end_date}} tarihinde bitiyor. Devam etmesi için Eklentiler sayfanızdan yenileyin:\n{{addons_url}}" + SIGNATURE_TR,
+  },
   storage_pack_added: {
     subject: "{{app_name}}: {{pack}} depolama alanı eklendi",
     body:
@@ -506,6 +546,22 @@ const TR: Record<ClientEmailKey, TemplateText> = {
       "Merhaba {{name}},\n\nEkibimiz {{template_name}} şablonuna baktı. Studio Market’te yayınlanmadan önce değişmesi gereken birkaç şey var:\n\n{{notes}}\n\n" +
       "Bunları Studio’da düzeltin, sonra şablonlarınızdan yeniden gönderin:\n{{templates_url}}" +
       SIGNATURE_TR,
+  },
+  market_template_receipt: {
+    subject: "Makbuz: Studio Market’te {{template_name}}",
+    body:
+      "Merhaba {{name}},\n\nTeşekkürler. {{designer_name}} tasarımı {{template_name}} için ödemenizi aldık.\n\n" +
+      "Plan: {{plan}}\nÖdenen: {{amount_line}}\nReferans: {{order_id}}\n\n{{ends_line}}\n{{app_line}}\n\n" +
+      "Bu, hemen uygulanan dijital içeriktir: ödeme sırasında kabul ettiğiniz gibi iadesi yapılamaz.\n\nŞablonlarınız:\n{{templates_url}}" +
+      SIGNATURE_TR,
+  },
+  market_template_reminder: {
+    subject: "{{template_name}}: planınız {{end_date}} tarihinde bitiyor",
+    body: "Merhaba {{name}},\n\n{{intro_line}} Şablonlar kendiliğinden yenilenmez.\n\n{{after_line}}\n\nBuradan yenileyin:\n{{renew_url}}" + SIGNATURE_TR,
+  },
+  market_template_ended: {
+    subject: "{{template_name}}: planınız bitti",
+    body: "Merhaba {{name}},\n\n{{intro_line}}\n\n{{after_line}}\n\nİstediğiniz zaman yeniden satın alabilirsiniz:\n{{renew_url}}" + SIGNATURE_TR,
   },
 };
 

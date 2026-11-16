@@ -192,18 +192,23 @@ test("the owner picks the video for a lesson, and the app plays it from a signed
   await add.getByLabel("Title").fill("Turkish with Defne");
   await add.getByRole("button", { name: "Add course" }).click();
   await expect(own.getByRole("heading", { level: 1, name: "Turkish with Defne" })).toBeVisible();
+  // 132.14 The curriculum's tab; the lesson with all its details on its own page.
+  await own.getByRole("tab", { name: /^Curriculum/ }).click();
   const curriculum = own.getByRole("region", { name: "Sections and lessons" });
   await curriculum.getByLabel("New section").fill("Hello");
   await curriculum.getByRole("button", { name: "Add section" }).click();
   await expect(curriculum.getByRole("heading", { name: "Hello" })).toBeVisible();
-  await curriculum.getByLabel("Lesson title").fill("Greetings");
-  await curriculum.getByRole("button", { name: "Choose from Media" }).click();
+  await curriculum.getByRole("link", { name: "Lesson", exact: true }).click();
+  // The lesson's own page first: the curriculum's quick lesson has a "Lesson title" too, and typing there was lost on a slow runner.
+  await expect(own.getByRole("heading", { level: 1, name: "Add a lesson to Hello" })).toBeVisible();
+  await own.getByLabel("Lesson title").fill("Greetings");
+  await own.getByRole("button", { name: "Choose from Media" }).click();
   const dialog = own.getByRole("dialog", { name: "Your videos" });
   await dialog.getByRole("button", { name: "Use Lesson 1 - Hello.mp4" }).click();
   await expect(dialog).toBeHidden();
-  await expect(curriculum.getByLabel("Video address")).toHaveValue(/\/m\/[0-9a-f-]{36}$/);
-  await curriculum.getByLabel("Free preview for everyone").check();
-  await curriculum.getByRole("button", { name: "Add lesson" }).click();
+  await expect(own.getByLabel("Video address")).toHaveValue(/\/m\/[0-9a-f-]{36}$/);
+  await own.getByLabel("Free preview for everyone").check();
+  await own.getByRole("button", { name: "Add lesson" }).click();
   await expect(curriculum.getByText("Video · free preview")).toBeVisible();
 
   const courses = await (await request.get(`${api}/courses`)).json();

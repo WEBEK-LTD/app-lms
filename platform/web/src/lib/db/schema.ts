@@ -11,6 +11,9 @@ import type {
   LoyaltyReason, OrderPoints, OrderReturn, OrderShipment, CatalogVariants, CatalogOrder, OrderManualPayment,
   // 131 The flower shop
   OrderDelivery,
+  DeliveryStage,
+  OrderStageEntry,
+  OrderStageRefund,
   StorePlatformOrder,
   StorePlatformOrderStatus,
   StoreFlashSale,
@@ -60,6 +63,8 @@ import type {
   // 73 Deleted apps and kept billing records
   AppDeletion,
   AppDeletionStatus,
+  AppMoveKind,
+  AppMoveStatus,
   KeptBillingRecord,
   // 77 Chat
   ChatSettings,
@@ -74,7 +79,10 @@ import type {
 import type { BuildFailure, BuildRelease, BuildVariant, ListingTranslation, ReviewsRow, RolloutState, ScreenshotFrame, StagedRelease } from "../data/types";
 import type { ApiWebhookData, OwnFontFile, StorePurchaseEventKind, StoreAccountSource, StoreBillingItem, StoreBillingSettings, StorePlatform, StoreProductKind, StoreProductSync } from "../data/types";
 import type { AnnouncementAudience, AnnouncementKind, AnnouncementSeverity, CouponDiscount, CouponRedemption } from "../data/types";
-import type { Plan } from "../plans";
+import type { Plan, PlanFeature } from "../plans";
+// 133 Add-ons
+import type { AddonBilling, AddonKind, AddonLimit, AddonTaskStatus, AppAddonStatus, PaidAddon } from "../addons/types";
+import type { PeriodMonths } from "../billing/periods";
 import type { ArabicTag, MatchedStep, PhraseLang } from "../bot/intents";
 import type { BotUnmatchedStatus } from "../bot/types";
 import type { MailAudience, MailCampaignStatus, MailContactSource, MailContents, MailEventKind, MailLang, MailRecipientStatus, MailSuppressionReason } from "../mailing/types";
@@ -120,6 +128,8 @@ import type {
   DeliverySettings,
   FoodOrderLine,
   FoodOrderStage,
+  FoodOrder,
+  Ride,
   DriverDetails,
   RideCancellation,
   RideFareMode,
@@ -432,6 +442,9 @@ export const apps = mysqlTable(
     // 73 Deleted by the owner (null: not deleted): left out of every read, purged after 7 days unless restored.
     deletedAt: time("deleted_at"),
     deletedBy: varchar("deleted_by", { length: 191 }),
+    // 132.112 Moved to another account; this app stayed behind with what didn't move, to read.
+    movedAt: time("moved_at"),
+    movedToClientId: id("moved_to_client_id"),
     createdAt: time("created_at").notNull(),
     updatedAt: time("updated_at").notNull(),
   },
@@ -818,6 +831,11 @@ export const catalogOrders = mysqlTable(
     // 131 The delivery day and slot and the gift details (JSON), and the day apart for counting a slot's orders.
     delivery: jsonText<OrderDelivery>("delivery"),
     deliveryDate: varchar("delivery_date", { length: 10 }),
+    // 132 Where its delivery is, and every change of it (JSON).
+    deliveryStage: varchar("delivery_stage", { length: 16 }).$type<DeliveryStage>(),
+    stageLog: jsonText<OrderStageEntry[]>("stage_log"),
+    // 132 The money back after a failed delivery cancelled it (JSON).
+    stageRefund: jsonText<OrderStageRefund>("stage_refund"),
   },
   (t) => [
     uniqueIndex("catalog_orders_token_unique").on(t.tokenHash),
@@ -851,7 +869,8 @@ export const planPayments = mysqlTable(
     /** The app whose plan it pays; null for a payment before the account's first app (creating it fills this in). */
     appId: id("app_id").references(() => apps.id, { onDelete: "set null" }),
     plan: varchar("plan", { length: 16 }).notNull().$type<Plan>(),
-    months: int("months").notNull().$type<1 | 12>(),
+    // 133 1, 6, 12, 24 or 36 months, or 0 for life (an add-on's one-time payment too).
+    months: int("months").notNull().$type<PeriodMonths>(),
     amountCents: bigint("amount_cents", { mode: "number", unsigned: true }).notNull(),
     currency: varchar("currency", { length: 3 }).notNull().$type<CatalogCurrency>(),
     status: varchar("status", { length: 16 }).notNull().$type<PlanPaymentStatus>(),
@@ -876,6 +895,8 @@ export const planPayments = mysqlTable(
     recordedBy: varchar("recorded_by", { length: 191 }),
     // The website's live activity card: the client allowed their first name and plan on the website (null: not allowed).
     showOnSite: boolean("show_on_site"),
+    // 133 An add-on payment: which add-on and how it's paid (null: a plan or storage packs).
+    addon: jsonText<PaidAddon>("addon"),
   },
   (t) => [
     uniqueIndex("plan_payments_token_unique").on(t.tokenHash),
@@ -2118,7 +2139,7 @@ export const foodOrders = mysqlTable(
     readyAt: time("ready_at"),
     rejection: jsonText<{ reason: FoodRejection; note: string | null } | null>("rejection"),
     shipmentId: bigint("shipment_id", { mode: "number", unsigned: true }),
-    rating: jsonText<{ restaurant: number; courier: number | null; comment: string | null; at: string } | null>("rating"),
+    rating: jsonText<FoodOrder["rating"]>("rating"),
     timeline: jsonText<FoodOrderStage[]>("timeline").notNull(),
     lang: varchar("lang", { length: 8 }),
     createdAt: time("created_at").notNull(),
@@ -2207,7 +2228,7 @@ export const rides = mysqlTable(
     cancellation: jsonText<RideCancellation | null>("cancellation"),
     feeCarriedTo: bigint("fee_carried_to", { mode: "number", unsigned: true }),
     shareToken: varchar("share_token", { length: 40 }),
-    rating: jsonText<{ driver: number; comment: string | null; at: string } | null>("rating"),
+    rating: jsonText<Ride["rating"]>("rating"),
     timeline: jsonText<RideStage[]>("timeline").notNull(),
     lang: varchar("lang", { length: 8 }),
     createdAt: time("created_at").notNull(),
@@ -2584,7 +2605,10 @@ export const coupons = mysqlTable(
     note: varchar("note", { length: 200 }).notNull(),
     discount: jsonText<CouponDiscount>("discount").notNull(),
     plans: jsonText<Plan[] | null>("plans"),
-    periods: jsonText<(1 | 12)[] | null>("periods"),
+    // 133 Any of the billing periods (0: lifetime or one-time).
+    periods: jsonText<PeriodMonths[] | null>("periods"),
+    // 133 The add-ons it applies to; null: none (coupons from before were for plans only).
+    addons: jsonText<string[] | null>("addons"),
     validFrom: time("valid_from"),
     validUntil: time("valid_until"),
     maxRedemptions: int("max_redemptions"),
@@ -2961,6 +2985,46 @@ export const storagePacks = mysqlTable(
     endedNoticeAt: time("ended_notice_at"),
   },
   (t) => [index("storage_packs_app_idx").on(t.appId, t.activeUntil), index("storage_packs_until_idx").on(t.activeUntil)],
+);
+
+/**
+ * 133 The add-ons each app has (Admin › Add-ons defines them): bought by
+ * card through Yallapp's plan gateway, or given by the team. A service's
+ * task for the team is kept on its row.
+ */
+export const appAddons = mysqlTable(
+  "app_addons",
+  {
+    id: id("id").primaryKey(),
+    clientId: id("client_id")
+      .notNull()
+      .references(() => clients.id, { onDelete: "cascade" }),
+    appId: id("app_id")
+      .notNull()
+      .references(() => apps.id, { onDelete: "cascade" }),
+    addonId: varchar("addon_id", { length: 40 }).notNull(),
+    kind: varchar("kind", { length: 12 }).notNull().$type<AddonKind>(),
+    name: varchar("name", { length: 191 }).notNull(),
+    limit: varchar("limit_key", { length: 48 }).$type<AddonLimit>(),
+    amount: double("amount"),
+    feature: varchar("feature", { length: 32 }).$type<PlanFeature>(),
+    billing: varchar("billing", { length: 12 }).notNull().$type<AddonBilling>(),
+    activeUntil: time("active_until"),
+    status: varchar("status", { length: 12 }).notNull().$type<AppAddonStatus>(),
+    paymentId: id("payment_id"),
+    grantedBy: varchar("granted_by", { length: 191 }),
+    taskStatus: varchar("task_status", { length: 12 }).$type<AddonTaskStatus>(),
+    taskNote: text("task_note"),
+    remindedFor: time("reminded_for"),
+    createdAt: time("created_at").notNull(),
+    updatedAt: time("updated_at").notNull(),
+  },
+  (t) => [
+    index("app_addons_app_idx").on(t.appId, t.createdAt),
+    index("app_addons_client_idx").on(t.clientId, t.createdAt),
+    index("app_addons_until_idx").on(t.activeUntil),
+    index("app_addons_task_idx").on(t.taskStatus, t.createdAt),
+  ],
 );
 
 // 58 Yallapp Business
@@ -3498,6 +3562,50 @@ export const accountDeletionRequests = mysqlTable(
  * outlives the app). `open_app_id` is set while it waits, so an app has one
  * waiting deletion; the daily job purges it after `purge_after`.
  */
+/**
+ * 132.112 Moving an app to another account, approved by the owner of the
+ * account it leaves with a 6-digit code (its HMAC kept). `open_app_id` is set
+ * while it waits, so an app has one waiting request.
+ */
+export const appMoveRequests = mysqlTable(
+  "app_move_requests",
+  {
+    id: id("id").primaryKey(),
+    // 132.115 "app", or "plan": only the app's plan moves, to `to_app_id`.
+    kind: varchar("kind", { length: 8 }).notNull().default("app").$type<AppMoveKind>(),
+    appId: id("app_id")
+      .notNull()
+      .references(() => apps.id, { onDelete: "cascade" }),
+    toAppId: id("to_app_id").references(() => apps.id, { onDelete: "cascade" }),
+    fromClientId: id("from_client_id")
+      .notNull()
+      .references(() => clients.id, { onDelete: "cascade" }),
+    toClientId: id("to_client_id")
+      .notNull()
+      .references(() => clients.id, { onDelete: "cascade" }),
+    moveData: boolean("move_data").notNull(),
+    moveSubscription: boolean("move_subscription").notNull(),
+    codeHash: varchar("code_hash", { length: 64 }).notNull(),
+    attempts: int("attempts").notNull().default(0),
+    status: varchar("status", { length: 12 }).notNull().$type<AppMoveStatus>(),
+    openAppId: id("open_app_id"),
+    requestedBy: id("requested_by").notNull(),
+    requestedByEmail: varchar("requested_by_email", { length: 191 }).notNull(),
+    requestedByName: varchar("requested_by_name", { length: 120 }).notNull(),
+    createdAt: time("created_at").notNull(),
+    expiresAt: time("expires_at").notNull(),
+    closedAt: time("closed_at"),
+    closedBy: varchar("closed_by", { length: 191 }),
+    resultAppId: id("result_app_id"),
+    note: varchar("note", { length: 255 }),
+  },
+  (t) => [
+    uniqueIndex("app_move_requests_open_unique").on(t.openAppId),
+    index("app_move_requests_from_idx").on(t.fromClientId, t.createdAt),
+    index("app_move_requests_to_idx").on(t.toClientId, t.createdAt),
+  ],
+);
+
 export const appDeletions = mysqlTable(
   "app_deletions",
   {
@@ -5246,6 +5354,25 @@ export const primeAlerts = mysqlTable(
   (t) => [primaryKey({ columns: [t.userId, t.appId] }), index("prime_alerts_app_idx").on(t.appId)],
 );
 
+/** 132 Prime given by Yallapp's team as a gift to one app (Admin › client), whatever its plan. */
+export const primeGifts = mysqlTable(
+  "prime_gifts",
+  {
+    appId: id("app_id")
+      .primaryKey()
+      .references(() => apps.id, { onDelete: "cascade" }),
+    clientId: id("client_id")
+      .notNull()
+      .references(() => clients.id, { onDelete: "cascade" }),
+    until: time("until"),
+    note: text("note"),
+    givenBy: varchar("given_by", { length: 191 }).notNull(),
+    createdAt: time("created_at").notNull(),
+    updatedAt: time("updated_at").notNull(),
+  },
+  (t) => [index("prime_gifts_client_idx").on(t.clientId)],
+);
+
 /** The alerts and briefs pushed, each once (an item's alert on a day, a person's brief on a day); kept a few days. */
 export const primeSends = mysqlTable(
   "prime_sends",
@@ -5558,6 +5685,11 @@ export const studioMarketLicences = mysqlTable(
     startsAt: time("starts_at").notNull(),
     endsAt: time("ends_at"),
     movedAt: time("moved_at"),
+    // 106.2 The plan's end: what happens then (as bought), the reminders sent for an end date, when it ended.
+    afterEnd: varchar("after_end", { length: 8 }),
+    remindedEarlyFor: time("reminded_early_for"),
+    remindedLastFor: time("reminded_last_for"),
+    endedAt: time("ended_at"),
     createdAt: time("created_at").notNull(),
     updatedAt: time("updated_at").notNull(),
   },
@@ -5566,6 +5698,70 @@ export const studioMarketLicences = mysqlTable(
     index("studio_market_licences_client_idx").on(t.clientId, t.createdAt),
     index("studio_market_licences_template_idx").on(t.templateId, t.createdAt),
     index("studio_market_licences_app_idx").on(t.appId),
+    // 106.2 The daily job: active licences by end date.
+    index("studio_market_licences_ends_idx").on(t.status, t.endsAt),
+  ],
+);
+
+/** 106.2 Each paid period of a licence (a purchase or a renewal). */
+export const studioMarketLicencePeriods = mysqlTable(
+  "studio_market_licence_periods",
+  {
+    id: id("id").primaryKey(),
+    licenceId: id("licence_id").notNull(),
+    orderId: id("order_id").notNull(),
+    plan: varchar("plan", { length: 8 }).notNull(),
+    startsAt: time("starts_at").notNull(),
+    endsAt: time("ends_at"),
+    createdAt: time("created_at").notNull(),
+  },
+  (t) => [
+    foreignKey({ name: "studio_market_periods_licence_fk", columns: [t.licenceId], foreignColumns: [studioMarketLicences.id] }).onDelete("cascade"),
+    index("studio_market_periods_licence_idx").on(t.licenceId, t.startsAt),
+  ],
+);
+
+/**
+ * 106.2 The payments for templates (purchases and renewals) through Yallapp's
+ * own payment account, with each sale's split (the designer's 75%, Yallapp's
+ * 25%). Kept when a template, a buyer or a designer is gone: they are sales.
+ */
+export const studioMarketOrders = mysqlTable(
+  "studio_market_orders",
+  {
+    id: id("id").primaryKey(),
+    templateId: id("template_id").notNull(),
+    designerId: id("designer_id").notNull(),
+    clientId: id("client_id").notNull(),
+    kind: varchar("kind", { length: 8 }).notNull().$type<"buy" | "renew">(),
+    licenceId: id("licence_id"),
+    plan: varchar("plan", { length: 8 }).notNull(),
+    appId: id("app_id"),
+    grossCents: bigint("gross_cents", { mode: "number", unsigned: true }).notNull(),
+    designerCents: bigint("designer_cents", { mode: "number", unsigned: true }).notNull(),
+    yallappCents: bigint("yallapp_cents", { mode: "number", unsigned: true }).notNull(),
+    amountCents: bigint("amount_cents", { mode: "number", unsigned: true }).notNull(),
+    currency: varchar("currency", { length: 3 }).notNull(),
+    egpPerUsd: double("egp_per_usd"),
+    status: varchar("status", { length: 8 }).notNull().$type<"pending" | "paid" | "failed">(),
+    tokenHash: varchar("token_hash", { length: 64 }).notNull(),
+    paymentProvider: varchar("payment_provider", { length: 16 }).notNull(),
+    providerRef: varchar("provider_ref", { length: 191 }),
+    paymentId: varchar("payment_id", { length: 191 }),
+    consentAt: time("consent_at").notNull(),
+    startsAt: time("starts_at"),
+    endsAt: time("ends_at"),
+    appliedAt: time("applied_at"),
+    applyError: varchar("apply_error", { length: 191 }),
+    createdAt: time("created_at").notNull(),
+    paidAt: time("paid_at"),
+  },
+  (t) => [
+    uniqueIndex("studio_market_orders_token_idx").on(t.tokenHash),
+    index("studio_market_orders_client_idx").on(t.clientId, t.createdAt),
+    index("studio_market_orders_designer_idx").on(t.designerId, t.status, t.paidAt),
+    index("studio_market_orders_template_idx").on(t.templateId, t.createdAt),
+    index("studio_market_orders_licence_idx").on(t.licenceId),
   ],
 );
 

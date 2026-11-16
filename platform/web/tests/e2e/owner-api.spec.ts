@@ -163,18 +163,19 @@ test("the owner runs a shop, an academy and an events app with a free ticket", a
   await own.getByRole("button", { name: "Continue" }).click();
   shopApi = await setUpApp("Selin Shop", "I don't have a website");
   shopId = appIdOf(shopApi);
-  await own.goto("/dashboard/catalog");
+  // 132.10 Payments have their own page under Products.
+  await own.goto("/dashboard/catalog/payments");
   await own.getByLabel("API key").fill("sandbox-api-key");
   await own.getByLabel("Secret key").fill("sandbox-secret-key");
   await own.getByText("Sandbox keys").click();
   await own.getByRole("button", { name: "Save keys" }).click();
   await expect(own.getByText("iyzico keys saved.")).toBeVisible();
-  await own.getByRole("link", { name: "Add product" }).click();
+  await own.goto("/dashboard/catalog/new");
   await own.getByLabel("Name", { exact: true }).fill("Tea set");
   await own.getByLabel("Price (TRY)", { exact: true }).fill("450");
   await own.getByLabel("Stock").fill("5");
   await own.getByRole("button", { name: "Add product" }).click();
-  await expect(own.getByRole("status")).toContainText("Saved “Tea set”.");
+  await expect(own.getByRole("status").filter({ hasText: "Saved" })).toContainText("Saved “Tea set”.");
 
   await own.goto("/dashboard/app-type?new=1");
   await own.getByText("Academy", { exact: true }).click();
@@ -189,6 +190,8 @@ test("the owner runs a shop, an academy and an events app with a free ticket", a
   await add.getByRole("button", { name: "Add course" }).click();
   await expect(own.getByRole("heading", { level: 1, name: "Turkish for Beginners" })).toBeVisible();
   courseId = Number(new URL(own.url()).pathname.split("/").pop());
+  // 132.14 The curriculum's tab.
+  await own.getByRole("tab", { name: /^Curriculum/ }).click();
   const curriculum = own.getByRole("region", { name: "Sections and lessons" });
   await curriculum.getByLabel("New section").fill("Hello");
   await curriculum.getByRole("button", { name: "Add section" }).click();
@@ -290,9 +293,43 @@ test("a customer buys in the shop; the owner's phone hears of it, sees today and
   expect(orders).toMatchObject({ total: 1, items: [{ status: "processing", next_statuses: ["completed", "cancelled"], lines: [{ name: "Tea set" }], customer: { name: "Mona Adel" } }] });
   const orderId = orders.items[0].id as number;
   expect(Number(push.message.data.order_id)).toBe(orderId);
-  const done = await request.post(`${owner}/apps/${shopId}/orders/${orderId}/status`, { headers: bearer(), data: { status: "completed" } });
+  // 132 Who ordered, where it goes and what the total is made of, as the payment page took them.
+  const detail = await (await request.get(`${owner}/apps/${shopId}/orders/${orderId}`, { headers: bearer() })).json();
+  expect(detail).toMatchObject({
+    customer: { name: "Mona Adel", phone: "+905327650158", email: `mona-${suffix}@example.com`, city: "Istanbul", address: "Moda Cd. 12", source: "checkout" },
+    deliver_to: { person: "customer", name: "Mona Adel", address: "Moda Cd. 12", city: "Istanbul" },
+    lines: [{ product_id: products.items[0].id, name: "Tea set", quantity: 1, total: { amount_cents: 45000 }, flash_sale: null }],
+    amounts: { subtotal: { amount_cents: 45000 }, discount: null, total: { amount_cents: 45000, formatted: "₺450.00" } },
+  });
+  // The order is the shop's only: through another app, or an app that isn't the owner's, it isn't found.
+  expect((await request.get(`${owner}/apps/${academyId}/orders/${orderId}`, { headers: bearer() })).status()).toBe(404);
+  const elsewhere = await request.get(`${owner}/apps/3f1c2d4e-5a6b-4c7d-8e9f-0a1b2c3d4e5f/orders/${orderId}`, { headers: bearer() });
+  expect(elsewhere.status()).toBe(404);
+  expect(await elsewhere.text()).not.toContain("Mona");
+  // 132 Its delivery in stages: shipped with the courier, postponed with why (the team's note stays the team's), then delivered.
+  expect(detail).toMatchObject({ stage: null, stage_history: [], next_stages: ["preparing", "shipped", "postponed", "delivered"] });
+  const shipped = await request.post(`${owner}/apps/${shopId}/orders/${orderId}/stage`, { headers: bearer(), data: { stage: "shipped", courier_name: "Ali", courier_phone: "+90 532 000 11 22" } });
+  expect(shipped.status()).toBe(200);
+  expect(await shipped.json()).toMatchObject({ status: "processing", stage: { stage: "shipped", by: "Selin Arslan", courier: { name: "Ali" } }, next_stages: ["delivered", "postponed", "failed"] });
+  const tomorrow = new Intl.DateTimeFormat("en-CA", { timeZone: "Europe/Istanbul" }).format(new Date(Date.now() + 86_400_000));
+  const postponed = await request.post(`${owner}/apps/${shopId}/orders/${orderId}/stage`, { headers: bearer(), data: { stage: "postponed", reason: "weather", note: "Storm on the coast road", date: tomorrow } });
+  expect(postponed.status()).toBe(200);
+  expect(await postponed.json()).toMatchObject({ stage: { stage: "postponed", reason: { code: "weather" }, note: "Storm on the coast road", date: tomorrow }, delivery: { date: tomorrow } });
+  const followed = await request.get(`${shopApi}/me/orders/${orderId}`, { headers: customer });
+  expect(await followed.json()).toMatchObject({ status: "processing", stage: { code: "postponed", reason: "Because of the weather", date: tomorrow } });
+  expect(JSON.stringify(await followed.json())).not.toContain("Storm");
+  const done = await request.post(`${owner}/apps/${shopId}/orders/${orderId}/stage`, { headers: bearer(), data: { stage: "delivered" } });
   expect(done.status()).toBe(200);
-  expect(await done.json()).toMatchObject({ status: "completed", next_statuses: [], refund: { refundable: true } });
+  expect(await done.json()).toMatchObject({ status: "completed", next_statuses: [], next_stages: [], refund: { refundable: true } });
+  // Delivered can't go back to shipped.
+  const back = await request.post(`${owner}/apps/${shopId}/orders/${orderId}/stage`, { headers: bearer(), data: { stage: "shipped" } });
+  expect(back.status()).toBe(409);
+  expect(await back.json()).toMatchObject({ code: "invalid_stage" });
+  // A delivered order owes nothing back.
+  expect(await done.json()).toMatchObject({ refund_due: null });
+  const owed = await request.post(`${owner}/apps/${shopId}/orders/${orderId}/refund-done`, { headers: bearer() });
+  expect(owed.status()).toBe(409);
+  expect(await owed.json()).toMatchObject({ code: "no_refund_due" });
   const again = await request.post(`${owner}/apps/${shopId}/orders/${orderId}/status`, { headers: bearer(), data: { status: "cancelled" } });
   expect(again.status()).toBe(409);
   // The customer's app shows it completed too: the same order in the same store.
@@ -450,6 +487,37 @@ test("the owner sends a notification to the app's users from the phone", async (
   expect(inbox.items.map((n: { title: string }) => n.title)).toContain("New tea sets");
   const listed = await (await request.get(`${owner}/apps/${shopId}/notifications`, { headers: bearer() })).json();
   expect(listed).toMatchObject({ push: false, items: [{ title: "New tea sets" }] });
+});
+
+test("132 Yallapp's team gives Prime as a gift from Admin, and takes it back", async ({ request }) => {
+  const shopOf = async () => {
+    const me = await (await request.get(`${owner}/me`, { headers: bearer() })).json();
+    return me.apps.find((a: { id: string }) => a.id === shopId) as { features: { prime: boolean }; prime_gift: { until: string | null } | null };
+  };
+  expect(await shopOf()).toMatchObject({ features: { prime: false }, prime_gift: null });
+  expect((await request.get(`${owner}/apps/${shopId}/prime/insights`, { headers: bearer() })).status()).toBe(404);
+
+  await admin.goto(`/admin/clients?q=${encodeURIComponent(client.email)}`);
+  await admin.getByRole("link", { name: client.name, exact: true }).click();
+  await admin.waitForURL(/\/admin\/clients\/[0-9a-f-]{36}$/);
+  const card = admin.getByRole("region", { name: "Prime as a gift" });
+  await expect(card).toContainText("Selin Shop · No Prime");
+  await card.getByLabel("App").selectOption({ label: "Selin Shop" });
+  await card.getByLabel("Note for the team (optional)").fill("Launch week");
+  await card.getByRole("button", { name: "Give Prime as a gift" }).click();
+  await expect(admin.getByRole("status").filter({ hasText: "Prime given as a gift." })).toBeVisible();
+  await expect(card).toContainText("Selin Shop · Prime as a gift until removed · Launch week");
+
+  // The phone has Prime on the shop now, its plan untouched.
+  expect(await shopOf()).toMatchObject({ features: { prime: true }, prime_gift: { until: null } });
+  expect((await request.get(`${owner}/apps/${shopId}/prime/insights`, { headers: bearer() })).status()).toBe(200);
+  await admin.goto("/admin/audit");
+  await expect(admin.getByText("Prime given as a gift to Selin Shop until removed")).toBeVisible();
+
+  await admin.goBack();
+  await admin.getByRole("button", { name: "Remove the Prime gift of Selin Shop" }).click();
+  await expect(admin.getByRole("status").filter({ hasText: "Prime gift removed." })).toBeVisible();
+  expect(await shopOf()).toMatchObject({ features: { prime: false }, prime_gift: null });
 });
 
 test("the dashboard lists the phone and signs it out; the app signs out too", async ({ request }) => {

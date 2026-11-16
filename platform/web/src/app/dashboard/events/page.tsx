@@ -2,7 +2,8 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { Icon } from "@/components/icon";
 import { Badge, EmptyState, Notice, PageHeader, Section, btn } from "@/components/ui";
-import { ItemRow, LinkCards, PageGroup, Stat, StatRow, Thumb } from "@/components/page-kit";
+import { ItemRow, Stat, StatRow, Thumb } from "@/components/page-kit";
+import { PageTabs, TabPanel } from "@/components/page-tabs";
 import { FilterList } from "@/components/page-kit-client";
 import { assetUrl } from "@/lib/assets";
 import { requireClient } from "@/lib/auth/session";
@@ -21,7 +22,7 @@ export async function generateMetadata(): Promise<Metadata> {
 }
 
 /** 28 The events of an Events & tickets app, its event settings and card payments. */
-export default async function EventsPage({ searchParams }: { searchParams: Promise<{ deleted?: string } & SampleQuery> }) {
+export default async function EventsPage({ searchParams }: { searchParams: Promise<{ deleted?: string; tab?: string } & SampleQuery> }) {
   const { app } = await requireClient("events");
   const { t, lang, num } = await dashboardText();
   if (!app || app.connector?.kind !== "events") {
@@ -54,7 +55,20 @@ export default async function EventsPage({ searchParams }: { searchParams: Promi
   return (
     <div className="flex flex-col gap-6">
       {/* The page kit: the header and its one main action, the numbers, the door, the events, then the settings and payments. */}
-      <PageHeader title={t("events.title")} description={t("events.intro")} actions={has ? addLink : null} />
+      <PageHeader
+        title={t("events.title")}
+        description={t("events.intro")}
+        actions={
+          <>
+            {/* The door: tickets checked at the entrance. */}
+            <Link href="/dashboard/check-in" className={`${btn.secondary} h-11`}>
+              <Icon name="qr_code_scanner" size={20} />
+              {t("events.checkIn")}
+            </Link>
+            {has ? addLink : null}
+          </>
+        }
+      />
 
       {deleted ? (
         <p role="status" className="m-0 rounded-xl bg-success-bg px-4 py-3 text-[15px] font-semibold text-success">
@@ -78,67 +92,77 @@ export default async function EventsPage({ searchParams }: { searchParams: Promi
         </StatRow>
       ) : null}
 
-      <LinkCards
-        label={t("events.toolsLabel")}
-        items={[{ href: "/dashboard/check-in", icon: "qr_code_scanner", label: t("events.checkIn"), hint: t("events.checkInHint") }]}
-      />
 
-      <Section titleId="h-events" title={t("events.count", { count: data.events.length })} flush>
-        {has ? (
-          <FilterList
-            allLabel={t("events.all")}
-            searchLabel={t("events.search")}
-            noMatch={t("events.nothingHere")}
-            filters={[
-              { value: "upcoming", label: t("events.comingUp") },
-              { value: "draft", label: t("events.drafts") },
-              { value: "past", label: t("events.past") },
-            ]}
-            items={events.map((e, i) => {
-              const left = placesLeft(data, e).event;
-              return {
-                id: e.id,
-                text: [e.title, e.venueName].filter(Boolean).join(" "),
-                group: groupOf(e),
-                node: (
-                  <ItemRow
-                    href={`/dashboard/events/${e.id}`}
-                    media={<Thumb src={e.imageAssetIds[0] ? assetUrl(e.imageAssetIds[0]) : null} icon="event" tint={i} />}
-                    title={e.title}
-                    badges={<SampleBadge sample={e.sample} />}
-                    meta={[
-                      eventWhenIn(lang, e.startAt, data.settings.timeZone),
-                      e.venueName ?? t("events.online"),
-                      t("events.tickets", { count: sold.get(e.id) ?? 0 }),
-                      left !== null ? t("events.left", { count: num(left) }) : null,
-                    ]
-                      .filter(Boolean)
-                      .join(" · ")}
-                    aside={
-                      <>
-                        {phaseOf(e, now) === "ended" ? <Badge tone="neutral">{t("events.ended")}</Badge> : null}
-                        <EventStatusBadge status={e.status} t={t} />
-                      </>
-                    }
-                  />
-                ),
-              };
-            })}
-          />
-        ) : (
-          <div className="p-5 sm:p-6">
-            <EmptyState icon="event" title={t("events.noEvents")} action={addLink} />
-          </div>
-        )}
-      </Section>
-
-      <PageGroup title={t("events.groupSettings")}>
-        <Section titleId="h-event-settings" title={t("events.settings")} description={t("events.settingsText")} className="max-w-[640px]">
-          <EventSettingsForm settings={data.settings} currencies={CATALOG_CURRENCIES} />
-        </Section>
-        <CardPayments app={app} currency={data.settings.currency} />
-        <OtherPayments app={app} />
-      </PageGroup>
+      {/* 132.19 The events, their settings and payments, each in a tab. */}
+      <PageTabs
+        label={t("events.title")}
+        initial={["events", "settings", "payments"].includes(query.tab ?? "") ? query.tab! : "events"}
+        tabs={[
+          { id: "events", label: t("events.title"), icon: "event", count: data.events.length },
+          { id: "settings", label: t("events.settings"), icon: "settings" },
+          { id: "payments", label: t("manage.payments"), icon: "payments" },
+        ]}
+      >
+        <TabPanel tab="events">
+          <Section titleId="h-events" title={t("events.count", { count: data.events.length })} flush>
+            {has ? (
+              <FilterList
+                allLabel={t("events.all")}
+                searchLabel={t("events.search")}
+                noMatch={t("events.nothingHere")}
+                filters={[
+                  { value: "upcoming", label: t("events.comingUp") },
+                  { value: "draft", label: t("events.drafts") },
+                  { value: "past", label: t("events.past") },
+                ]}
+                items={events.map((e, i) => {
+                  const left = placesLeft(data, e).event;
+                  return {
+                    id: e.id,
+                    text: [e.title, e.venueName].filter(Boolean).join(" "),
+                    group: groupOf(e),
+                    node: (
+                      <ItemRow
+                        href={`/dashboard/events/${e.id}`}
+                        media={<Thumb src={e.imageAssetIds[0] ? assetUrl(e.imageAssetIds[0]) : null} icon="event" tint={i} />}
+                        title={e.title}
+                        badges={<SampleBadge sample={e.sample} />}
+                        meta={[
+                          eventWhenIn(lang, e.startAt, data.settings.timeZone),
+                          e.venueName ?? t("events.online"),
+                          t("events.tickets", { count: sold.get(e.id) ?? 0 }),
+                          left !== null ? t("events.left", { count: num(left) }) : null,
+                        ]
+                          .filter(Boolean)
+                          .join(" · ")}
+                        aside={
+                          <>
+                            {phaseOf(e, now) === "ended" ? <Badge tone="neutral">{t("events.ended")}</Badge> : null}
+                            <EventStatusBadge status={e.status} t={t} />
+                          </>
+                        }
+                      />
+                    ),
+                  };
+                })}
+              />
+            ) : (
+              <div className="p-5 sm:p-6">
+                <EmptyState icon="event" title={t("events.noEvents")} action={addLink} />
+              </div>
+            )}
+          </Section>
+        </TabPanel>
+        <TabPanel tab="settings">
+          <Section titleId="h-event-settings" title={t("events.settings")} description={t("events.settingsText")} className="max-w-[640px]">
+            <EventSettingsForm settings={data.settings} currencies={CATALOG_CURRENCIES} />
+          </Section>
+        </TabPanel>
+        <TabPanel tab="payments" className="flex flex-col gap-5 [&>*]:max-w-[760px]">
+          <CardPayments app={app} currency={data.settings.currency} />
+          <OtherPayments app={app} />
+        </TabPanel>
+      </PageTabs>
     </div>
   );
 }

@@ -1,3 +1,4 @@
+import { appReplyJson } from "../owner/reply-json";
 import { centsToDecimal, formatCents } from "../catalog/money";
 import type { Courier, DeliverySettings, Dish, FoodOrder, MapTilesSetting, Restaurant, RestaurantMenu, Shipment, ShipmentPlace } from "../data/types";
 import { COURIER_ACTIVE, mapConfigJson, readPlace, visibleLocation } from "../delivery/service";
@@ -145,7 +146,8 @@ export function foodOrderJson(
     rejection: order.rejection ? { reason: order.rejection.reason, note: order.rejection.note } : null,
     courier: courierOf(job, extra.courier ?? null),
     courier_location: job && extra.settings && extra.now ? visibleLocation(job, extra.courier ?? null, extra.settings, extra.now, { demo: extra.demo }) : null,
-    rating: order.rating ? { restaurant: order.rating.restaurant, courier: order.rating.courier, comment: order.rating.comment } : null,
+    // 132 With the business's reply under it.
+    rating: order.rating ? { restaurant: order.rating.restaurant, courier: order.rating.courier, comment: order.rating.comment, reply: appReplyJson(order.rating.reply) } : null,
     timeline: stagesJson(order),
     created_at: order.createdAt.toISOString(),
   };
