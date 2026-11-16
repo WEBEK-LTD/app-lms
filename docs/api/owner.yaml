@@ -702,6 +702,108 @@ paths:
         '404': { $ref: '#/components/responses/NotFound' }
         '409': { $ref: '#/components/responses/Conflict' }
 
+  /apps/{app_id}/orders/{order_id}/stage:
+    post:
+      tags: [Orders]
+      operationId: setOrderStage
+      summary: Move a store order's delivery to another stage
+      description: |
+        132 One of the order's `next_stages`. `shipped` may give the courier
+        (`courier_name`, `courier_phone`) and a `tracking_url`. `postponed`
+        needs a `reason` (`customer_asked`, `recipient_away`, `shop_asked`,
+        `weather`, `other`), the new `date` and, when the shop has delivery
+        times, a `slot_id` (`GET …/delivery-slots`); the order moves to that
+        day. `failed` needs a `reason` (`recipient_away`, `wrong_address`,
+        `refused`, `unreachable`, `other`) and a `next_step`: `retry` (with
+        the new `date` and `slot_id`), `return` (then `returned` when it's
+        back), or `cancel` (the order is cancelled, as `POST …/status`
+        `cancelled` does: no refund by itself). `other` needs the `note`. The
+        `note` is the team's own, never shown to the customer. `delivered`
+        completes the order (as `POST …/status` `completed`). The customer is
+        told (inbox, push in the app's language) at shipped, postponed, a
+        failed attempt and delivered, with the short reason and the new day,
+        never the note. Only Yallapp's own store products: a WordPress shop
+        sets these as WooCommerce statuses (the plugin, 0.4.46); orders on
+        Shopify and the other connected platforms stay on the platform.
+        A stage the order can't move to (`delivered` to `shipped`) is 409
+        `invalid_stage`; missing or wrong fields are 400 with `errors`.
+      parameters:
+        - $ref: '#/components/parameters/AppId'
+        - $ref: '#/components/parameters/OrderId'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [stage]
+              properties:
+                stage: { $ref: '#/components/schemas/DeliveryStage' }
+                reason: { type: string, enum: [customer_asked, recipient_away, shop_asked, weather, wrong_address, refused, unreachable, other] }
+                note: { type: [string, 'null'], maxLength: 500 }
+                courier_name: { type: [string, 'null'], maxLength: 80 }
+                courier_phone: { type: [string, 'null'], maxLength: 30 }
+                tracking_url: { type: [string, 'null'], format: uri, maxLength: 500 }
+                date: { type: string, format: date }
+                slot_id: { type: string }
+                next_step: { type: string, enum: [retry, return, cancel] }
+      responses:
+        '200':
+          description: The order as it is now
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/OrderDetail' }
+        '400': { $ref: '#/components/responses/BadRequest' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '403': { $ref: '#/components/responses/AccountNotActive' }
+        '404': { $ref: '#/components/responses/NotFound' }
+        '409': { $ref: '#/components/responses/Conflict' }
+
+  /apps/{app_id}/delivery-slots:
+    get:
+      tags: [Orders]
+      operationId: listDeliverySlots
+      summary: A day's delivery times, to postpone an order
+      description: |
+        132 The shop's delivery times on `date` (default: today in the shop's
+        time zone), each with how many orders it has, whether it's full,
+        closed for the day or already started. A store app only (else 404
+        `not_available`).
+      parameters:
+        - $ref: '#/components/parameters/AppId'
+        - name: date
+          in: query
+          schema: { type: string, format: date }
+      responses:
+        '200':
+          description: The day and its delivery times
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [date, date_label, slots]
+                properties:
+                  date: { type: string, format: date }
+                  date_label: { type: string, example: Fri 20 Nov }
+                  slots:
+                    type: array
+                    items:
+                      type: object
+                      required: [id, label, start, end, orders, full, closed, started]
+                      properties:
+                        id: { type: string }
+                        label: { type: string, example: 10:00–13:00 }
+                        start: { type: string }
+                        end: { type: string }
+                        orders: { type: integer, minimum: 0 }
+                        full: { type: boolean }
+                        closed: { type: boolean }
+                        started: { type: boolean }
+        '400': { $ref: '#/components/responses/BadRequest' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '403': { $ref: '#/components/responses/AccountNotActive' }
+        '404': { $ref: '#/components/responses/NotFound' }
+
   /apps/{app_id}/orders/{order_id}/shipment:
     put:
       tags: [Orders]
@@ -4686,6 +4788,78 @@ components:
           type: array
           items: { type: string }
           description: What `POST …/status` accepts now.
+        stage:
+          oneOf:
+            - $ref: '#/components/schemas/OrderStage'
+            - type: 'null'
+          description: |
+            132 Where a store order's delivery is (Yallapp's own products): the
+            latest change of its stage. Null before its first stage (the order
+            is in progress), and for orders that aren't delivered in stages
+            (a restaurant's, digital ones, courses, bookings, tickets). Missing
+            on older servers.
+        stage_history:
+          type: array
+          items: { $ref: '#/components/schemas/OrderStage' }
+          description: 132 Every change of its delivery stage, newest first. Missing on older servers.
+        next_stages:
+          type: array
+          items: { $ref: '#/components/schemas/DeliveryStage' }
+          description: |
+            132 What `POST …/stage` accepts now: none once the order is
+            completed, cancelled or refunded, or still waiting for its payment.
+            Missing on older servers.
+
+    DeliveryStage:
+      type: string
+      enum: [preparing, shipped, postponed, failed, returned, delivered]
+      description: |
+        132 Preparing; shipped (out for delivery); postponed to another day; a
+        failed delivery attempt; returned to the shop; delivered (the order is
+        completed). An app that doesn't know a stage shows the order as in
+        progress.
+
+    OrderStage:
+      type: object
+      required: [stage, label, at, by, reason, note, courier, tracking_url, date, date_label, slot, next_step]
+      description: 132 One change of an order's delivery stage, with who made it, why and the team's note (never shown to the customer).
+      properties:
+        stage: { $ref: '#/components/schemas/DeliveryStage' }
+        label: { type: string, example: Delivery postponed }
+        at: { type: string, format: date-time }
+        by: { type: [string, 'null'], description: "The team member's name (else their email); null: the system.", example: Leyla }
+        reason:
+          type: [object, 'null']
+          required: [code, label]
+          properties:
+            code: { type: string, enum: [customer_asked, recipient_away, shop_asked, weather, wrong_address, refused, unreachable, other] }
+            label: { type: string, example: Recipient not available }
+        note: { type: [string, 'null'], maxLength: 500 }
+        courier:
+          type: [object, 'null']
+          description: Shipped, when the shop gave them.
+          required: [name, phone]
+          properties:
+            name: { type: [string, 'null'], maxLength: 80 }
+            phone: { type: [string, 'null'], maxLength: 30 }
+        tracking_url: { type: [string, 'null'], format: uri, maxLength: 500 }
+        date: { type: [string, 'null'], format: date, description: 'Postponed, or a failed attempt tried again: the new delivery day.' }
+        date_label: { type: [string, 'null'], example: Fri 20 Nov }
+        slot:
+          type: [object, 'null']
+          required: [id, start, end, label]
+          properties:
+            id: { type: string }
+            start: { type: string, example: '10:00' }
+            end: { type: string, example: '13:00' }
+            label: { type: string, example: 10:00–13:00 }
+        next_step:
+          type: [object, 'null']
+          description: A failed attempt — what happens next.
+          required: [code, label]
+          properties:
+            code: { type: string, enum: [retry, return, cancel] }
+            label: { type: string, example: Try again on another day }
 
     Shipment:
       type: object

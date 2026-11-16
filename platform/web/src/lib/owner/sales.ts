@@ -17,6 +17,9 @@ import { FULFILMENT_LABELS } from "../catalog/fulfilment";
 import { formatCents } from "../catalog/money";
 import { countOpenQuestions } from "../courses/community";
 import { changeOrderStatus, nextOrderStatuses } from "../catalog/order-status";
+import { nextStages, parseStageInput, setOrderStage } from "../catalog/order-stages";
+import { ownerStageHistoryJson, ownerStageJson } from "../catalog/stage-json";
+import { deliveryDayLabel, deliveryOf, shopToday, slotClosed, slotLabel, slotStarted } from "../selling/delivery";
 import { awaitingManualPayment } from "../catalog/manual";
 import { ORDER_STATUS_LABELS, orderNumber } from "../catalog/settings";
 import { parseShipment, shipmentJson, shipOrder, shippable } from "../catalog/shipping";
@@ -277,6 +280,10 @@ function orderJson(ctx: OwnerContext, order: CatalogOrder, extras: OrderExtras) 
     shippable: shippable(order),
     shipment: shipmentJson(order.shipment),
     next_statuses: nextOrderStatuses(order),
+    // 132 Where its delivery is, every change of it, and where it may go next (store orders).
+    stage: ownerStageJson(order, ctx.lang),
+    stage_history: ownerStageHistoryJson(order, ctx.lang),
+    next_stages: stagesOf(ctx, order),
     // 96.2 To pay by bank transfer or the owner's own method: waiting (status pending) until marked paid.
     pay_outside: order.manualPayment
       ? { method: order.manualPayment.method, name: order.manualPayment.method === "bank_transfer" ? ctx.k("Bank transfer") : order.manualPayment.name, due_at: order.manualPayment.dueAt }
@@ -359,6 +366,70 @@ export async function changeOrder(ctx: OwnerContext, params: Record<string, stri
   // 60 Who moved it, on the dashboard's Team page.
   await recordOrderStatus(deps.store, { clientId: ctx.client.id, appId: app.id, actor: ctx.user, orderId: order.id, to: awaitingManualPayment(order) && status === "processing" ? "paid" : status }, deps.now);
   return { status: 200, body: await orderDetail(ctx, app, (await deps.store.getCatalogOrder(app.id, order.id))!) };
+}
+
+/** 132 The stages an order's delivery may move to, for the person (the orders permission of its app). */
+function stagesOf(ctx: OwnerContext, order: CatalogOrder): string[] {
+  const app = ctx.apps.find((a) => a.id === order.appId);
+  return app ? nextStages(app, order) : [];
+}
+
+/**
+ * 132 Moves a store order's delivery to another stage: shipped (the courier,
+ * a tracking link), postponed (why, the new day and slot), a failed attempt
+ * (why, what's next), returned to shop, delivered (completes it). The
+ * customer is told; the change is kept with who made it.
+ */
+export async function setStage(ctx: OwnerContext, params: Record<string, string>): Promise<OwnerResult> {
+  const { app, order } = await ownOrder(ctx, params);
+  const parsed = parseStageInput(bodyObject(ctx.req.body));
+  if (!parsed.ok) throw invalid(parsed.errors);
+  const { deps } = ctx;
+  const done = await setOrderStage(
+    { store: deps.store, app, now: deps.now, key: deps.encryptionKey, urls: deps.paymentUrls, account: serviceAccountOf(app, deps.encryptionKey), send: deps.sendPush },
+    order,
+    parsed.input,
+    { userId: ctx.user.id, name: ctx.user.name?.trim() || ctx.user.email, via: "business" },
+  );
+  if (!done.ok) {
+    if (done.errors) throw invalid(done.errors);
+    throw new OwnerError(done.status, done.code, done.message);
+  }
+  await recordOrderStatus(deps.store, { clientId: ctx.client.id, appId: app.id, actor: ctx.user, orderId: order.id, to: parsed.input.stage }, deps.now);
+  return { status: 200, body: await orderDetail(ctx, app, done.order) };
+}
+
+/** 132 A day's delivery slots for postponing an order: each with whether it's taken, full or closed. */
+export async function stageSlots(ctx: OwnerContext, params: Record<string, string>): Promise<OwnerResult> {
+  const { app } = appScope(ctx, params.app_id, "orders");
+  if (app.connector?.kind !== "catalog") throw notAvailable();
+  const settings = deliveryOf(app, true);
+  const zone = settings?.timezone ?? "Europe/Istanbul";
+  const date = ctx.req.query.get("date") || shopToday({ timezone: zone }, ctx.deps.now).date;
+  if (!/^\d{4}-\d{2}-\d{2}$/.test(date) || Number.isNaN(Date.parse(`${date}T00:00:00Z`))) throw invalid({ date: "The request isn't valid." });
+  const counts = await ctx.deps.store.countCatalogDeliveries(app.id, date, new Date(ctx.deps.now.getTime() - 30 * 60_000));
+  const own = deliveryOf(app);
+  return {
+    status: 200,
+    body: {
+      date,
+      date_label: deliveryDayLabel(date, ctx.lang),
+      // The shop's own slots when it has delivery days on, else the gift checkout's.
+      slots: (own ?? settings!).slots.map((s) => {
+        const used = counts[s.id] ?? 0;
+        return {
+          id: s.id,
+          label: slotLabel(s),
+          start: s.start,
+          end: s.end,
+          orders: used,
+          full: s.capacity !== null && used >= s.capacity,
+          closed: slotClosed(own ?? settings!, s, date),
+          started: slotStarted(own ?? settings!, s, date, ctx.deps.now),
+        };
+      }),
+    },
+  };
 }
 
 /** 80.4 Marks an order shipped, or changes its tracking: any carrier, no carrier account; the customer is told. */

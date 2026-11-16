@@ -4,7 +4,7 @@ Tags: lms, mobile app, tutor lms, digits, otp
 Requires at least: 6.0
 Tested up to: 7.1
 Requires PHP: 7.4
-Stable tag: 0.4.45
+Stable tag: 0.4.46
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -143,6 +143,9 @@ Symbols Rounded by Google (the material-design-icons project),
 under the Apache License 2.0, included as inline SVG.
 
 == Changelog ==
+
+= 0.4.46 =
+* Delivery stages for your shop's orders: Shipped, Delivery postponed, Delivery failed and Returned to shop are order statuses in WooCommerce (Completed is delivered). The app shows the stage on the order, with your latest note to the customer as its reason, and tells the customer when their order ships, when its delivery is postponed and when a delivery fails; the order's notes keep what they were told. Apps that don't know the stages yet still show the order as Processing.
 
 = 0.4.45 =
 * The Yallapp plugin's settings say that the app runs one flash sale at a time on WordPress: change it for the next one.
