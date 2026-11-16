@@ -44,10 +44,11 @@ async function approval(email: string, count: number): Promise<{ code: string; l
   return { code: mail.text.match(/Your approval code: (\d{6})/)![1]!, link: mail.text.match(/Review and approve: (\S+)/)![1]!, subject: mail.subject };
 }
 
-async function shot(page: Page, name: string) {
+async function shot(page: Page, name: string, fullPage = false) {
   if (!SHOTS) return;
   await mkdir(SHOTS, { recursive: true });
-  await page.screenshot({ path: path.join(SHOTS, `${name}.jpg`), type: "jpeg", quality: 85, fullPage: false });
+  await page.evaluate(() => window.scrollTo(0, 0));
+  await page.screenshot({ path: path.join(SHOTS, `${name}.jpg`), type: "jpeg", quality: 85, fullPage });
 }
 
 async function signUp(browser: Browser, who: typeof omar) {
@@ -125,7 +126,7 @@ test("the team opens a client's account and makes an app from /start as the clie
   // Outside a client's account, a client page says why instead of bouncing silently.
   await admin.goto("/start");
   await expect(admin).toHaveURL(/\/admin\/clients\?working=ended$/);
-  await expect(admin.getByRole("status").first()).toContainText("not working in a client's account");
+  await expect(admin.getByText(/not working in a client.s account any more/)).toBeVisible();
 });
 
 test("the team makes an app for the client from their admin page and opens it as the client", async () => {
@@ -153,10 +154,10 @@ test("the team copies an app from Omar's account into Lina's: what's copied and 
   await dialog.getByRole("link", { name: new RegExp(lina.name) }).click();
   await expect(dialog).toContainText(`${lina.name} (${lina.email})`);
   await dialog.getByLabel("The copy's name").fill("Petal House Copy");
-  await shot(admin, "copy-dialog");
+  await shot(admin, "copy-dialog", true);
   await dialog.getByRole("button", { name: "Copy the app" }).click();
   await expect(admin).toHaveURL(new RegExp(`/admin/clients/${linaId}\\?done=copied$`));
-  await expect(admin.getByRole("status").first()).toContainText("The app was copied into this account");
+  await expect(admin.getByText("The app was copied into this account.")).toBeVisible();
   await expect(appRow("Petal House Copy")).toContainText("no plan");
   // Omar keeps his app.
   await admin.goto(`/admin/clients/${omarId}`);
@@ -174,7 +175,7 @@ test("the team moves an app from Omar to Lina with the code Omar gives them; fiv
   await dialog.getByLabel(/Move the subscription/).uncheck();
   await expect(dialog.locator("[data-move-summary]")).toContainText("Past invoices, with the account that paid them");
   await expect(dialog.getByRole("note")).toContainText("Ask the client before moving data or subscriptions.");
-  await shot(admin, "move-dialog");
+  await shot(admin, "move-dialog", true);
   await dialog.getByRole("button", { name: "Send approval code to the client" }).click();
   await expect(admin).toHaveURL(/sent=1/);
   const first = await approval(omar.email, 1);
@@ -189,7 +190,7 @@ test("the team moves an app from Omar to Lina with the code Omar gives them; fiv
   await admin.getByLabel("The client's code").fill(wrong);
   await admin.getByRole("button", { name: "Move it now" }).click();
   await expect(admin).toHaveURL(/closed=attempts/);
-  await expect(admin.getByRole("status").first()).toContainText("closed after 5 wrong codes");
+  await expect(admin.getByText(/closed after 5 wrong codes/)).toBeVisible();
 
   // A new code, given by Omar and typed by the team: it moves now.
   await admin.goto(`/admin/clients/${omarId}/move?app=${haddad}&to=${linaId}`);
@@ -215,7 +216,7 @@ test("the owner approves a move on their own page, and declines another", async 
   await admin.goto(`/admin/clients/${linaId}/move?app=${copy}&to=${omarId}`);
   await admin.getByRole("button", { name: "Send approval code to the client" }).click();
   const mail = await approval(lina.email, 1);
-  const own = await (await browser.newContext({ extraHTTPHeaders })).newPage();
+  const own = await (await browser.newContext({ extraHTTPHeaders, viewport: { width: 1280, height: 900 }, deviceScaleFactor: 2 })).newPage();
   // Signed out: the sign-in first, then back to the page.
   await own.goto(mail.link);
   await expect(own).toHaveURL(/\/sign-in$/);
@@ -224,8 +225,9 @@ test("the owner approves a move on their own page, and declines another", async 
   await own.getByRole("button", { name: "Sign in" }).click();
   await expect(own).toHaveURL(/\/dashboard\/app-moves\/[0-9a-f-]{36}\?expires=/);
   await expect(own.getByRole("heading", { name: "Approve moving your app" })).toBeVisible();
+  await shot(own, "owner-approval-page", true);
   await own.getByRole("button", { name: "Approve the move" }).click();
-  await expect(own.getByRole("status").first()).toContainText("Approved. Petal House Copy has moved.");
+  await expect(own.getByText("Approved. Petal House Copy has moved.")).toBeVisible();
   await admin.goto(`/admin/clients/${omarId}`);
   await expect(appRow("Petal House Copy")).toBeVisible();
 
@@ -242,10 +244,10 @@ test("the owner approves a move on their own page, and declines another", async 
   await omarPage.waitForURL((url) => !url.pathname.startsWith("/sign-in"));
   await omarPage.goto(decline.link);
   await omarPage.getByRole("button", { name: "Decline" }).click();
-  await expect(omarPage.getByRole("status").first()).toContainText("Declined. Nothing moved");
+  await expect(omarPage.getByText(/Declined\. Nothing moved/)).toBeVisible();
   // Lina can't approve Omar's move, even with its link.
   await own.goto(decline.link);
-  await expect(own.getByRole("alert").first()).toContainText("Only the owner of the account the app leaves can approve this.");
+  await expect(own.getByText("Only the owner of the account the app leaves can approve this. Sign in with that account.")).toBeVisible();
   await admin.goto(`/admin/clients/${omarId}`);
   await expect(appRow("Petal House")).not.toContainText("Moved");
   await own.context().close();
@@ -256,7 +258,7 @@ test("the team moves a plan to another app with the owner's code", async () => {
   await admin.goto(`/admin/clients/${omarId}`);
   const petal = admin.getByRole("region", { name: "Petal House", exact: true });
   await petal.getByRole("region", { name: "Plan and license" }).getByRole("button", { name: "Activate & send license" }).click();
-  await expect(admin.getByRole("status").first()).toContainText("Activated");
+  await expect(admin.getByText(/^Activated\./).first()).toBeVisible();
   const from = await appIdOf("Petal House");
   const to = await appIdOf("Petal House Copy");
   await admin.goto(`/admin/clients/${omarId}/plan?app=${from}`);

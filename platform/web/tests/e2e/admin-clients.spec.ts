@@ -96,9 +96,9 @@ test("the team sets up a pending client's app from their dashboard", async () =>
   await page.getByRole("button", { name: "Back to Admin" }).click();
   await expect(page).toHaveURL(/\/admin\/clients\/[0-9a-f-]{36}$/);
   await expect(page.getByRole("region", { name: "App", exact: true })).toContainText("No website: products in the dashboard");
-  // The admin's own pages no longer show the client's dashboard.
+  // The admin's own pages no longer show the client's dashboard: 132.110 the admin says why.
   await page.goto("/dashboard");
-  await expect(page).toHaveURL(/\/admin$/);
+  await expect(page).toHaveURL(/\/admin\/clients\?working=ended$/);
 });
 
 test("the client sees what the team set", async ({ browser }) => {

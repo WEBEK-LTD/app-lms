@@ -10,11 +10,11 @@ import * as schema from "@/lib/db/schema";
  * a table added to the schema without one fails here, and so does a
  * content table without a copier (lib/apps/copy.ts).
  */
-const tables = Object.values(schema).filter((value): value is MySqlTable => is(value, MySqlTable));
+const tables = (Object.values(schema) as unknown[]).filter((value): value is MySqlTable => is(value, MySqlTable));
 
 describe("132 the tables of an app, for copies and moves", () => {
   it("places every table of the schema", () => {
-    const names = tables.map((t) => getTableName(t)).sort();
+    const names: string[] = tables.map((t) => getTableName(t)).sort();
     expect(names.filter((name) => !(name in APP_TABLES))).toEqual([]);
     expect(Object.keys(APP_TABLES).filter((name) => !names.includes(name))).toEqual([]);
   });

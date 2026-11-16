@@ -357,7 +357,7 @@ function appMark(app: MoveMailInput["app"]): string {
     return `<img src="${esc(app.iconUrl)}" width="56" height="56" alt="${esc(app.name)}" style="display:block;width:56px;height:56px;border-radius:14px;border:1px solid ${C.line};" />`;
   }
   const letter = esc(Array.from(app.name.trim())[0]?.toUpperCase() ?? "A");
-  return `<table role="presentation" border="0" cellpadding="0" cellspacing="0"><tr><td width="56" height="56" align="center" valign="middle" bgcolor="${colour}" style="width:56px;height:56px;border-radius:14px;background-color:${colour};color:#FFFFFF;font-size:24px;font-weight:800;line-height:56px;" aria-hidden="true">${letter}</td></tr></table>`;
+  return `<table role="presentation" border="0" cellpadding="0" cellspacing="0"><tr><td width="56" height="56" align="center" valign="middle" bgcolor="${colour}" style="width:56px;height:56px;border-radius:14px;background-color:${colour};color:#FFFFFF;font-family:${SANS};font-size:24px;font-weight:800;line-height:56px;" aria-hidden="true">${letter}</td></tr></table>`;
 }
 
 function pill(label: string, value: string, moves: boolean, font: string): string {

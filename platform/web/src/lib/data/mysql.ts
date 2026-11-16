@@ -8898,7 +8898,7 @@ export class MysqlStore implements DataStore {
     );
   }
 
-  async repointAppRows(fromAppId: string, toAppId: string, group: "plan" | "payments" | "builds", now: Date): Promise<void> {
+  async repointAppRows(fromAppId: string, toAppId: string, group: "plan" | "payments" | "builds" | "data", now: Date): Promise<void> {
     const s = schema;
     await this.run((db) =>
       db.transaction(async (tx) => {
@@ -10629,7 +10629,7 @@ function liveLicense() {
 
 /** 132.112 The tables by their names. */
 const TABLES_BY_NAME = new Map<string, MySqlTable>(
-  Object.values(schema)
+  (Object.values(schema) as unknown[])
     .filter((value): value is MySqlTable => is(value, MySqlTableClass))
     .map((table) => [getTableName(table), table]),
 );

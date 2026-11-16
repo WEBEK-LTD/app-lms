@@ -53,7 +53,7 @@ export function appTransferStoreSuite(store: () => DataStore) {
     const icon = randomUUID();
     await s.createAsset({ id: icon, clientId, kind: "icon", blobKey: `assets/${icon}.png`, contentType: "image/png", size: 10, createdAt: NOW });
     const photo = randomUUID();
-    await s.createAsset({ id: photo, clientId, kind: "product", blobKey: `assets/${photo}.jpg`, contentType: "image/jpeg", size: 10, createdAt: NOW });
+    await s.createAsset({ id: photo, clientId, kind: "product_image", blobKey: `assets/${photo}.jpg`, contentType: "image/jpeg", size: 10, createdAt: NOW });
     const app: App = {
       ...newApp(clientId, null, NOW, "store"),
       backend: "hosted",
@@ -107,7 +107,7 @@ export function appTransferStoreSuite(store: () => DataStore) {
       appId: app.id,
       tokenHash: randomUUID().replace(/-/g, ""),
       userId: user!.id,
-      status: "paid",
+      status: "completed",
       lines: [{ productId: red.id, name: "Red roses", quantity: 1, unitCents: 1000, imageAssetId: null, digital: false }],
       subtotalCents: 1000,
       shippingCents: 0,
@@ -127,7 +127,7 @@ export function appTransferStoreSuite(store: () => DataStore) {
       clientId,
       appId: app.id,
       versionName: "1.0.0",
-      status: "succeeded",
+      status: "ready",
       stages: { queued: "done", android: "done", ios: "skipped", upload_play: "skipped", upload_testflight: "skipped" },
       config: {} as Build["config"],
       storeListing: { storeTitle: "", shortDescription: "", fullDescription: "", supportEmail: "", privacyUrl: "" },

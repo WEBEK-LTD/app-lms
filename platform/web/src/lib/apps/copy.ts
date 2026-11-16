@@ -352,7 +352,7 @@ export const COPIERS: { tables: string[]; copy: Copier }[] = [
       const { store, now } = ctx;
       const to = ctx.to.id;
       for (const r of oldestFirst(await store.listRestaurants(ctx.from.id))) {
-        const menu = (await store.getRestaurantMenu(ctx.from.id, r.id)) ?? { sections: [] };
+        const menu = (await store.getRestaurantMenu(ctx.from.id, r.id)) ?? { sections: [], nextId: 1 };
         const made = await store.createRestaurant(u(ctx, { ...omit(r, "id", "busyUntil", "ratingSum", "ratingCount", "createdAt", "updatedAt"), appId: to }), u(ctx, menu), now);
         mapOf(ctx, "restaurants").set(r.id, made.id);
         count(ctx, "restaurants");
@@ -549,8 +549,8 @@ export const COPIERS: { tables: string[]; copy: Copier }[] = [
       }
       for (const c of oldestFirst(await store.listUniCourses(from))) {
         const made = await store.saveUniCourse({ ...omit(c, "id", "createdAt", "updatedAt"), id: null, appId: to, departmentId: idIn(ctx, "uni_departments", c.departmentId) }, now);
-        if (!made) continue;
-        mapOf(ctx, "uni_courses").set(c.id, made.id);
+        if (!made.ok) continue;
+        mapOf(ctx, "uni_courses").set(c.id, made.course.id);
         count(ctx, "uni_courses");
       }
       for (const p of oldestFirst(await store.listUniPrograms(from))) {

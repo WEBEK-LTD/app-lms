@@ -33,7 +33,7 @@ export default async function AppMovePage({ params, searchParams }: PageProps<"/
   // Signed out: they sign in and come back here.
   if (!user) redirect(`/api/app-moves/sign-in?to=${encodeURIComponent(`/dashboard/app-moves/${id}?expires=${link.expires}&sig=${link.sig}`)}`);
   const text = await dashboardText();
-  const { t, lang } = text;
+  const { t } = text;
   const store = await getStore();
   const request = UUID.test(id) ? await store.getAppMoveRequest(id) : null;
   const from = request ? await store.getClientById(request.fromClientId) : null;
@@ -130,7 +130,7 @@ export default async function AppMovePage({ params, searchParams }: PageProps<"/
             )}
             {open ? (
               <>
-                <p className="m-0 text-sm text-muted">{t("working.expires", { time: new Intl.DateTimeFormat(lang === "en" ? "en-GB" : lang, { hour: "2-digit", minute: "2-digit", hourCycle: "h23" }).format(request.expiresAt) })}</p>
+                <p className="m-0 text-sm text-muted">{t("working.expires", { minutes: Math.max(1, Math.ceil((request.expiresAt.getTime() - now.getTime()) / 60_000)) })}</p>
                 <div className="flex flex-wrap gap-3">
                   <form action={approveMoveAction}>
                     <Hidden id={request.id} link={link} />

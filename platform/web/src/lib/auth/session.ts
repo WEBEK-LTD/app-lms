@@ -13,6 +13,7 @@ import { businessesOf, businessName } from "../team/service";
 import { OWNER_ACCESS, scopedApps, teamCan, type TeamAccess, type TeamPermission, type TeamRole } from "../team/permissions";
 import { randomToken, sha256Hex } from "../crypto/tokens";
 import { recordStaffAction } from "../admin/staff-trail";
+import { safeNext } from "../apps/move-link";
 import { platformSetting } from "../settings/platform";
 import { SESSION_TTL_SECONDS, TWO_STEP_TTL_SECONDS, sealSession, sealTwoStep, unsealSession, unsealTwoStep, type TwoStepClaims } from "./session-token";
 import { SIGNED_IN_COOKIE } from "./signed-in-cookie";
@@ -272,7 +273,8 @@ export const getClientContext = cache(async (): Promise<ClientContext | null> =>
   const apps = scopedApps(access, allApps);
   // The switcher's choice, only when it is one of this client's apps; else their first app.
   const chosen = jar.get(APP_COOKIE)?.value;
-  const app = apps.find((a) => a.id === chosen) ?? apps[0] ?? null;
+  // 132.112 An app that moved away (kept to read) is never the one chosen for them.
+  const app = apps.find((a) => a.id === chosen) ?? apps.find((a) => !a.movedAt) ?? apps[0] ?? null;
   const license = licenses.find((l) => l.appId === (app?.id ?? null)) ?? null;
   const now = new Date();
   return {
@@ -331,7 +333,8 @@ export async function clientFor(permission: TeamPermission | readonly TeamPermis
   // A list: any one of them (the Media picker serves the catalog's and the pages' forms too).
   const wanted = typeof permission === "string" ? [permission] : permission;
   if (!wanted.some((p) => contextCan(context, p))) redirect(`/dashboard?denied=${wanted[0]}`);
-  if (context.app?.movedAt && !wanted.includes("dashboard")) redirect(`${context.app.section === "studio" ? "/studio/project" : "/dashboard"}?archived=1`);
+  // Switching to another app and adding one stay open; nothing in the moved app changes.
+  if (context.app?.movedAt && !wanted.includes("dashboard") && !wanted.includes("apps")) redirect(`${context.app.section === "studio" ? "/studio/project" : "/dashboard"}?archived=1`);
   if (context.staff) recordStaffAction(context, wanted[0]!);
   return context;
 }
@@ -386,6 +389,9 @@ export async function requireClient(permission: TeamPermission = "dashboard"): P
     const user = await getCurrentUser();
     // 132.110 Our team outside a client's account: the admin says why.
     if (user && (await getAdminRole())) redirect(await teamOutsideClientPath());
+    // 132.113 A move's page opened from its email: back to it once signed in.
+    const asked = safeNext((await headers()).get("x-yallapp-path"));
+    if (!user && asked) redirect(`/api/app-moves/sign-in?to=${encodeURIComponent(asked)}`);
     redirect(user ? "/sign-in" : await signInPath());
   }
   if (!mayUseDashboard(context)) redirect("/pending");

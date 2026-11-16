@@ -1,7 +1,7 @@
 import { randomUUID } from "node:crypto";
 import { describe, expect, it } from "vitest";
 import { newApp } from "@/lib/app/setup";
-import { approveMove, checkMoveCode, closeMove, MOVE_MAX_ATTEMPTS, moveCodeHash, moveSummary, moveWaiting, newMoveCode, requestAppMove, type MoveDeps } from "@/lib/apps/move";
+import { approveMove, checkMoveCode, closeMove, MOVE_MAX_ATTEMPTS, moveCodeHash, moveSummary, moveWaiting, newMoveCode, planMoveRefusal, requestAppMove, type MoveDeps } from "@/lib/apps/move";
 import { moveMail } from "@/lib/apps/move-mail";
 import { registerClient } from "@/lib/auth/accounts";
 import { MemoryStore } from "@/lib/data/memory";
@@ -104,6 +104,21 @@ describe("132.112 the approval code of a move", () => {
     void ask;
   });
 
+  it("132.115 refuses moving a plan from an app without one, onto an app of the other product, or onto itself", async () => {
+    const { store, app, b } = await setup();
+    const studio: App = { ...newApp(b.client.id, null, NOW, "store"), section: "studio", backend: "hosted" };
+    await store.createApp(studio);
+    expect(await planMoveRefusal(store, app, studio)).toBe("no_plan");
+    expect(await planMoveRefusal(store, app, app)).toBe("same_app");
+    expect(await planMoveRefusal(store, app, null)).toBe("no_app");
+    const { activateClient } = await import("@/lib/admin/clients");
+    await activateClient(store, { clientId: app.clientId, appId: app.id, plan: "growth", activeUntil: new Date(NOW.getTime() + 86_400_000), paymentNote: "test" }, Buffer.alloc(32, 7), NOW);
+    expect(await planMoveRefusal(store, app, studio)).toBe("plan_section");
+    const regular: App = { ...newApp(b.client.id, null, NOW, "lms"), backend: "hosted" };
+    await store.createApp(regular);
+    expect(await planMoveRefusal(store, app, regular)).toBeNull();
+  });
+
   it("says what moves and what stays", () => {
     expect(moveSummary({ moveData: true, moveSubscription: false })).toMatchObject({
       moves: expect.arrayContaining([expect.stringMatching(/^Its data/)]),
@@ -157,6 +172,16 @@ describe("132.113 the emails of a move", () => {
     const tr = moveMail({ ...input, kind: "approval", lang: "tr" });
     expect(tr.subject).toBe("Petal House uygulamasının başka bir hesaba taşınmasını onaylayın");
     expect(tr.html).toContain('dir="ltr"');
+  });
+
+  it("132.115 names the plan and both apps when only a plan moves", () => {
+    const mail = moveMail({ ...input, kind: "approval", lang: "en", plan: { toApp: "Petal Kids", name: "Growth", until: "16 December 2026", next: null } });
+    expect(mail.subject).toBe("Move your plan from Petal House to Petal Kids");
+    expect(mail.html).toContain("Plan: Growth");
+    expect(mail.html).toContain("Petal House goes back to having no plan, like a new app.");
+    expect(mail.html).toContain("Past invoices stay where they are.");
+    expect(mail.html).not.toContain("Data: ");
+    expect(moveMail({ ...input, kind: "approval", lang: "ar", plan: { toApp: "Petal Kids" } }).subject).toBe("انقل خطتك من Petal House إلى Petal Kids");
   });
 
   it("says it's done to both accounts, without a code", () => {
