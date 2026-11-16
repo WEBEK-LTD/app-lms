@@ -1070,6 +1070,8 @@ export interface DeliveryScheduleSettings {
   /** IANA; the days, the cut-off and the slots count in it. */
   timezone: string;
   slots: DeliverySlot[];
+  /** 132 A slot closed on a day by the owner (Yallapp Business › Prime › Quick actions); missing: none. */
+  closedSlots?: { date: string; slotId: string }[];
 }
 
 /** 131 What a customer may say about a gift at checkout. */
@@ -1586,6 +1588,86 @@ export interface CatalogOrder {
   delivery?: OrderDelivery | null;
   /** 131 `delivery.date`, kept apart so a slot's orders are counted quickly. */
   deliveryDate?: string | null;
+  /** 132 Where its delivery is (Yallapp's own store orders); null or missing: not started (in progress). */
+  deliveryStage?: DeliveryStage | null;
+  /** 132 Every change of its delivery stage, oldest first; null or missing: none. */
+  stageLog?: OrderStageEntry[] | null;
+  /** 132 Its money back after a failed delivery cancelled it: refunded, or needing the owner's refund; null or missing: none. */
+  stageRefund?: OrderStageRefund | null;
+}
+
+/**
+ * 132 The customer's money after a failed delivery cancelled the order (the
+ * owner's rule): refunded through the payment's provider when it can be
+ * ("refunded"); else the owner refunds it themselves and the order says
+ * "Needs a refund" until they do ("needed", then "recorded").
+ */
+export interface OrderStageRefund {
+  status: "refunded" | "needed" | "recorded";
+  cents: number;
+  /** ISO time the order was cancelled. */
+  at: string;
+  /** Why it couldn't be refunded by itself (in English, a `known` text). */
+  why: string | null;
+  /** The same as a code: paid outside the app, no refunds through the provider, or what the provider answered. */
+  whyCode?: "paid_outside" | "no_provider" | "provider_refused" | null;
+  /** The refund made (payment_refunds); null: none yet. */
+  refundId: number | null;
+  /** When the owner marked it refunded, and who. */
+  doneAt: string | null;
+  doneBy: string | null;
+}
+
+/**
+ * 132 A store order's delivery, after it is paid: preparing, shipped (out
+ * for delivery), postponed to another day, a failed attempt, back at the
+ * shop, or delivered (the order is then completed).
+ */
+export const DELIVERY_STAGES = ["preparing", "shipped", "postponed", "failed", "returned", "delivered"] as const;
+export type DeliveryStage = (typeof DELIVERY_STAGES)[number];
+/** 132 Why a delivery was postponed. */
+export const POSTPONE_REASONS = ["customer_asked", "recipient_away", "shop_asked", "weather", "other"] as const;
+export type PostponeReason = (typeof POSTPONE_REASONS)[number];
+/** 132 Why a delivery attempt failed. */
+export const FAILED_REASONS = ["recipient_away", "wrong_address", "refused", "unreachable", "other"] as const;
+export type FailedReason = (typeof FAILED_REASONS)[number];
+/** 132 What happens after a failed attempt: another day, back to the shop, or the order cancelled. */
+export const FAILED_NEXT_STEPS = ["retry", "return", "cancel"] as const;
+export type FailedNextStep = (typeof FAILED_NEXT_STEPS)[number];
+
+/**
+ * 132 The business's public reply under a customer's rating of a food or
+ * marketplace order or a ride: one per rating, edited in place, shown under
+ * the rating in the app in the business's name.
+ */
+export interface RatingReply {
+  text: string;
+  /** ISO time it was first written. */
+  at: string;
+  /** ISO time it was last changed; null: never. */
+  editedAt: string | null;
+  /** The team member's name; never shown to the customer. */
+  by: string | null;
+}
+
+/** 132 One change of an order's delivery stage: who, when, why, and what it set. */
+export interface OrderStageEntry {
+  stage: DeliveryStage;
+  /** ISO time. */
+  at: string;
+  /** Who changed it: the team member (their name, else their email) and where; null: the system. */
+  by: { userId: string | null; name: string; via: "business" | "dashboard" | "api" } | null;
+  reason: PostponeReason | FailedReason | null;
+  /** The team's own note; never shown to the customer. */
+  note: string | null;
+  /** Shipped: who brings it and where to follow it. */
+  courier: { name: string | null; phone: string | null } | null;
+  trackingUrl: string | null;
+  /** Postponed, or a failed attempt tried again: the new day (YYYY-MM-DD) and slot. */
+  date: string | null;
+  slot: { id: string; start: string; end: string } | null;
+  /** A failed attempt: what happens next. */
+  next: FailedNextStep | null;
 }
 
 /** 91.4 An order's loyalty points. */
@@ -1721,7 +1803,7 @@ export interface CatalogFulfilment {
 export type CatalogOrderPatch = Partial<
   Pick<
     CatalogOrder,
-    "status" | "customer" | "updatedAt" | "commissionCents" | "itemTransactionIds" | "payoutApprovedAt" | "fulfilmentStatus" | "paymentProvider" | "providerRef" | "shipment" | "returnRequest" | "points" | "manualPayment"
+    "status" | "customer" | "updatedAt" | "commissionCents" | "itemTransactionIds" | "payoutApprovedAt" | "fulfilmentStatus" | "paymentProvider" | "providerRef" | "shipment" | "returnRequest" | "points" | "manualPayment" | "delivery" | "deliveryDate" | "deliveryStage" | "stageLog" | "stageRefund"
   >
 >;
 
@@ -2985,7 +3067,7 @@ export type AccountManagerCallInput = Omit<AccountManagerCall, "id">;
 export type AccountManagerCallPatch = Partial<Pick<AccountManagerCall, "date" | "time" | "status" | "note" | "updatedAt">>;
 
 /** 125 Prime's smart alerts (Yallapp Business, docs/api/owner.yaml `PrimeAlertKind`). */
-export const PRIME_ALERT_KINDS = ["order_waiting", "shipment_unassigned", "sales_low", "message_unanswered", "low_rating", "ride_no_driver"] as const;
+export const PRIME_ALERT_KINDS = ["order_waiting", "shipment_unassigned", "sales_low", "message_unanswered", "low_rating", "ride_no_driver", "low_stock", "sales_goal"] as const;
 export type PrimeAlertKind = (typeof PRIME_ALERT_KINDS)[number];
 
 export interface PrimeAlertSetting {
@@ -2996,6 +3078,12 @@ export interface PrimeAlertSetting {
   /** "18:00", in the app's time zone. */
   byTime: string | null;
   stars: number | null;
+  /** 132 `low_stock`: told when a product has this many left or fewer (0: only when sold out). */
+  threshold?: number | null;
+  /** 132 `sales_goal`: the goal's period, its amount in `amountCents`. */
+  period?: "day" | "week" | "month" | null;
+  /** 132 `sales_goal`: the period the goal was reached in (its first day), told once. */
+  reachedFor?: string | null;
 }
 
 /** 125 One person's smart alerts and morning brief on one app. */
@@ -3007,6 +3095,24 @@ export interface PrimeAlerts {
   briefOn: boolean;
   /** "08:30", in the app's time zone. */
   briefTime: string;
+  updatedAt: Date;
+}
+
+/**
+ * 132 Prime given by Yallapp's team as a gift to one app, whatever its
+ * plan: it counts as Prime everywhere Prime is checked while it lasts. It
+ * never charges anything and never changes the plan or the invoices.
+ */
+export interface PrimeGift {
+  appId: string;
+  clientId: string;
+  /** The end (exclusive); null: until it is removed. */
+  until: Date | null;
+  /** The team's own note, never shown to the client. */
+  note: string | null;
+  /** The admin who gave it (their email). */
+  givenBy: string;
+  createdAt: Date;
   updatedAt: Date;
 }
 
@@ -3436,6 +3542,8 @@ export type OwnerNoticeKind =
   | "chat_expiring"
   // 80.2 A daily check found one of the app's connections broken (one per connection; `integration_failed:<key>:<n>`).
   | "integration_failed"
+  // 132 A store order cancelled after a failed delivery whose payment the owner refunds themselves.
+  | "order_refund_due"
   // 133 An add-on ends in 7 days (`addon_ends_7:<addon row>:<end>`).
   | "addon_ends_7";
 
@@ -4394,7 +4502,7 @@ export interface FoodOrder {
   rejection: { reason: FoodRejection; note: string | null } | null;
   /** Its courier job, once made. */
   shipmentId: number | null;
-  rating: { restaurant: number; courier: number | null; comment: string | null; at: string } | null;
+  rating: { restaurant: number; courier: number | null; comment: string | null; at: string; reply?: RatingReply | null } | null;
   timeline: FoodOrderStage[];
   lang: string | null;
   createdAt: Date;
@@ -4470,7 +4578,7 @@ export interface MarketOrder {
   rejection: { reason: "closing" | "too_busy" | "items_unavailable" | "outside_area" | "other"; note: string | null } | null;
   /** The app's courier job, once made. */
   shipmentId: number | null;
-  rating: { vendor: number; courier: number | null; comment: string | null; at: string } | null;
+  rating: { vendor: number; courier: number | null; comment: string | null; at: string; reply?: RatingReply | null } | null;
   timeline: MarketOrderStage[];
   /** When it was delivered or picked up (statements count it then). */
   completedAt: Date | null;
@@ -4978,7 +5086,7 @@ export interface Ride {
   feeCarriedTo: number | null;
   /** For the share link; null once the ride ended. */
   shareToken: string | null;
-  rating: { driver: number; comment: string | null; at: string } | null;
+  rating: { driver: number; comment: string | null; at: string; reply?: RatingReply | null } | null;
   timeline: RideStage[];
   lang: string | null;
   createdAt: Date;

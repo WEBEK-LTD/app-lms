@@ -61,6 +61,12 @@ void main() {
     expect(find.widgetWithText(NavigationDestination, 'Orders'), findsNothing);
     await go(tester, app, '/shipments/2028');
     expect(find.text('S-2028'), findsOneWidget);
+    // 132 The sender and the recipient come first, the courier under them.
+    await tester.scrollUntilVisible(
+      find.text('Ayşe Demir'),
+      200,
+      scrollable: down(),
+    );
     expect(find.text('Ayşe Demir'), findsOneWidget);
     await tapOn(tester, find.widgetWithText(FilledButton, 'Delivered'));
     expect(app.api.calls, contains('moveShipment:delivered'));
@@ -106,7 +112,7 @@ void main() {
     await tapOn(tester, find.widgetWithText(NavigationDestination, 'Rides'));
     expect(find.text('Free drivers'), findsOneWidget);
     expect(find.text('R-551'), findsOneWidget);
-    expect(find.text('Searching · 3 min'), findsOneWidget);
+    expect(find.text('Looking for a driver · 3 min'), findsOneWidget);
     expect(find.textContaining('quoted'), findsWidgets);
     await tester.scrollUntilVisible(
       find.text(
@@ -139,7 +145,7 @@ void main() {
     await app.pump(tester);
     await go(tester, app, '/rides/551');
     expect(find.text('R-551'), findsOneWidget);
-    expect(find.text('Deniz Çelik'), findsOneWidget);
+    expect(find.text(isolate('Deniz Çelik')), findsOneWidget);
     await tapOn(tester, find.widgetWithText(OutlinedButton, 'Cancel ride'));
     expect(find.text('Cancel R-551?'), findsOneWidget);
     await tapOn(tester, find.widgetWithText(FilledButton, 'Cancel ride'));

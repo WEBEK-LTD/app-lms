@@ -447,6 +447,8 @@ function readPlanTexts(formData: FormData, opts: { emptyHighlights?: boolean } =
     values[`period_${key}_on`] = formData.get(`period_${key}_on`) === "on" ? "on" : "";
     values[`period_${key}_egp`] = str(formData, `period_${key}_egp`);
     values[`period_${key}_usd`] = str(formData, `period_${key}_usd`);
+    // Whether the row still showed its suggested price, kept for the form after an error.
+    values[`period_${key}_suggested`] = formData.get(`period_${key}_suggested`) === "1" ? "1" : "";
   }
   const errors: Record<string, string> = {};
   if (!values.name || values.name.length > 30) errors.name = "Enter a name of up to 30 characters.";
@@ -467,7 +469,8 @@ function readPlanTexts(formData: FormData, opts: { emptyHighlights?: boolean } =
   if (!(values.months! in BILLED)) errors.months = "Choose how long the price is for.";
   const billingMonths = BILLED[values.months!] ?? 12;
   const mainKey = periodOfMonths(billingMonths) ?? "12";
-  // 133 The other periods: on or off, with a price in pounds (and dollars) the team typed, or none yet (then not offered).
+  // 133 The other periods: on or off, with a price in pounds (and dollars) the team typed or kept from the suggestion, or none
+  // (then the suggested price, while it's on). Each period the form showed is kept, so one switched off stays off.
   const periods: PlanPeriods = {};
   for (const key of PERIOD_KEYS) {
     if (key === mainKey) continue;
@@ -479,7 +482,7 @@ function readPlanTexts(formData: FormData, opts: { emptyHighlights?: boolean } =
     if (egpText && (egpCents === null || egpCents === 0)) errors[`period_${key}_egp`] = "Enter a price in Egyptian pounds, like 1500, or leave it empty.";
     if (usdText && (usd === null || usd === 0)) errors[`period_${key}_usd`] = "Enter a price in US dollars, like 29, or leave it empty to use the rate.";
     else if (usd && !egpCents) errors[`period_${key}_egp`] = "Enter the price in Egyptian pounds too: that's what is charged.";
-    if (on || egpCents || usd) periods[key] = { on, egpCents: egpCents || null, usdCents: usd || null };
+    if (formData.has(`period_${key}_egp`) || on || egpCents || usd) periods[key] = { on, egpCents: egpCents || null, usdCents: usd || null };
   }
   const badge = values.badge!;
   if (badge.length > 24) errors.badge = "Use at most 24 characters.";

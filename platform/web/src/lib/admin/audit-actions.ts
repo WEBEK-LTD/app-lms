@@ -13,6 +13,9 @@ export const AUDIT_ACTIONS = {
   "client.wordpress_ready": "WordPress site ready",
   "client.app_switches": "App switches",
   "client.travel_parts": "Travel parts",
+  // 132
+  "client.prime_gift": "Prime given as a gift",
+  "client.prime_gift_remove": "Prime gift removed",
   "design.add": "Design added",
   "design.edit": "Design edited",
   "design.delete": "Design deleted",

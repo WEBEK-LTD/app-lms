@@ -126,6 +126,11 @@ export function deliveryConfigJson(s: DeliveryScheduleSettings | null, currency:
 /** How many orders each slot of a day has (by slot id; "" those without a slot). */
 export type SlotCounts = Record<string, number>;
 
+/** 132 Whether the owner closed the slot on that day. */
+export function slotClosed(s: Pick<DeliveryScheduleSettings, "closedSlots">, slot: Pick<DeliverySlot, "id">, date: string): boolean {
+  return (s.closedSlots ?? []).some((c) => c.date === date && c.slotId === slot.id);
+}
+
 /** `GET /store/delivery-slots`: the day, whether it is open, each slot with whether it can still be chosen. */
 export function deliverySlotsJson(s: DeliveryScheduleSettings, date: string, counts: SlotCounts, now: Date, currency: string, fees: boolean) {
   const open = dayOpen(s, date, now);
@@ -137,7 +142,9 @@ export function deliverySlotsJson(s: DeliveryScheduleSettings, date: string, cou
       const used = counts[slot.id] ?? 0;
       const remaining = slot.capacity !== null ? Math.max(0, slot.capacity - used) : null;
       const started = slotStarted(s, slot, date, now);
-      return { ...slotJson(slot, currency, fees), available: open.ok && !started && remaining !== 0, full: remaining === 0, remaining };
+      // 132 Closed for the day by the owner.
+      const closed = slotClosed(s, slot, date);
+      return { ...slotJson(slot, currency, fees), available: open.ok && !started && !closed && remaining !== 0, full: remaining === 0, remaining };
     }),
   };
 }
@@ -183,6 +190,7 @@ export async function checkDelivery(
   const slot = s.slots.find((x) => x.id === rawSlot);
   if (!slot) return bad("Choose one of the shop's delivery times.");
   if (slotStarted(s, slot, rawDate, now)) return bad("That delivery time has started. Please choose a later one.");
+  if (slotClosed(s, slot, rawDate)) return bad("That delivery time is closed on that day. Please choose another time or day.", "slot_full", 409);
   if (slot.capacity !== null) {
     const used = (await counts(rawDate))[slot.id] ?? 0;
     if (used >= slot.capacity) return bad("That delivery time is full. Please choose another time or day.", "slot_full", 409);
@@ -248,7 +256,8 @@ export function parseDeliveryForm(v: Record<string, string>, current: DeliverySc
   if (Object.keys(errors).length) return { ok: false, errors };
   return {
     ok: true,
-    value: { enabled: on("enabled"), required: on("required"), sameDay, cutoff: sameDay && cutoffText !== "" ? cutoffText : null, nextDay, maxDays, closedWeekdays, timezone, slots },
+    // 132 The slots closed for a day from Yallapp Business stay closed.
+    value: { enabled: on("enabled"), required: on("required"), sameDay, cutoff: sameDay && cutoffText !== "" ? cutoffText : null, nextDay, maxDays, closedWeekdays, timezone, slots, ...(current?.closedSlots?.length ? { closedSlots: current.closedSlots.filter((c) => slots.some((x) => x.id === c.slotId)) } : {}) },
   };
 }
 

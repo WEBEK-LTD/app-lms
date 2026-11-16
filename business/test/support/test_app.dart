@@ -14,6 +14,7 @@ import 'package:yallapp_business/core/providers.dart';
 import 'package:yallapp_business/core/services/biometrics.dart';
 import 'package:yallapp_business/core/services/chime.dart';
 import 'package:yallapp_business/core/services/media_picker.dart';
+import 'package:yallapp_business/core/services/privacy.dart';
 import 'package:yallapp_business/core/services/push.dart';
 import 'package:yallapp_business/core/services/screen_wake.dart';
 import 'package:yallapp_business/features/events/camera_scanner.dart';
@@ -52,6 +53,7 @@ class TestApp {
   final bool opening;
 
   final opened = <String>[];
+  final privacy = FakePrivacy();
   final chime = FakeChime();
   final wake = FakeWake();
   final picker = FakePicker();
@@ -79,6 +81,7 @@ class TestApp {
     ),
     apiProvider.overrideWithValue(api),
     uploadTransportProvider.overrideWithValue(api.transport),
+    privacyProvider.overrideWithValue(privacy),
     biometricsProvider.overrideWithValue(
       biometrics ?? FakeBiometrics(isAvailable: false),
     ),
@@ -175,21 +178,54 @@ Future<void> tapOn(WidgetTester tester, Finder finder) async {
   await settle(tester);
 }
 
-class FakeBiometrics implements Biometrics {
-  FakeBiometrics({this.isAvailable = true, this.succeed = true});
+class FakeBiometrics extends Biometrics {
+  FakeBiometrics({
+    this.isAvailable = true,
+    this.succeed = true,
+    this.supportOf,
+    this.kindOf = BiometricKind.fingerprint,
+    this.result,
+  });
 
+  /// A face or a fingerprint (or a PIN) to unlock with.
   bool isAvailable;
+
+  /// The next unlocks succeed (else they don't match).
   bool succeed;
+
+  /// 132 What the phone has; null: [isAvailable]'s biometric or unavailable.
+  LockSupport? supportOf;
+  BiometricKind kindOf;
+
+  /// 132 How the next unlocks end, over [succeed] (locked out, cancelled…).
+  UnlockResult? result;
   int prompts = 0;
+  final pinOnly = <bool>[];
 
   @override
-  Future<bool> available() async => isAvailable;
+  Future<LockSupport> support() async =>
+      supportOf ??
+      (isAvailable ? LockSupport.biometric : LockSupport.unavailable);
 
   @override
-  Future<bool> authenticate(String reason) async {
+  Future<BiometricKind> kind() async => kindOf;
+
+  @override
+  Future<UnlockResult> unlock(String reason, {bool pinOnly = false}) async {
     prompts += 1;
-    return succeed;
+    this.pinOnly.add(pinOnly);
+    return result ?? (succeed ? UnlockResult.success : UnlockResult.failed);
   }
+}
+
+/// 132 The app's privacy on this phone: hidden in the app switcher.
+class FakePrivacy implements PrivacyGuard {
+  final calls = <bool>[];
+
+  bool get secure => calls.isNotEmpty && calls.last;
+
+  @override
+  Future<void> setSecure(bool on) async => calls.add(on);
 }
 
 /// 61 The screen kept on, as Kitchen mode asks.

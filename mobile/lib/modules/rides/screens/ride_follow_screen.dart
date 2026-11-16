@@ -16,6 +16,7 @@ import '../../../core/theme/palette.dart';
 import '../../../core/web/web_page_screen.dart';
 import '../../../core/widgets/buttons.dart';
 import '../../../core/widgets/common.dart';
+import '../../../core/widgets/rating_reply.dart';
 import '../../delivery/widgets/delivery_map.dart';
 import '../../delivery/widgets/delivery_widgets.dart'
     show CallButton, PlaceRow, pointUrl;
@@ -671,10 +672,18 @@ class _RideView extends ConsumerWidget {
         if (r.status == RideStatus.completed && driver != null) ...[
           const SizedBox(height: 16),
           r.rated != null
-              ? Text(
-                  l10n.rideRated(r.rated!),
-                  key: const ValueKey('ride-rated'),
-                  style: value(),
+              ? Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      l10n.rideRated(r.rated!),
+                      key: const ValueKey('ride-rated'),
+                      style: value(),
+                    ),
+                    // 132 The business's reply under it.
+                    if (r.ratingReply != null)
+                      RatingReplyBox(reply: r.ratingReply!),
+                  ],
                 )
               : _RateCard(ride: r, onRated: onRated),
         ],

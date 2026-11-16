@@ -12,6 +12,7 @@ import '../../core/widgets/l10n.dart';
 import '../../core/widgets/paged_list.dart';
 import '../../core/widgets/states.dart';
 import '../food/food_sheets.dart';
+import '../studio/status_words.dart';
 import '../studio/studio_widgets.dart';
 
 Tone shipmentTone(Shipment s) => switch (s.status) {
@@ -180,7 +181,9 @@ class ShipmentCard extends ConsumerWidget {
               const SizedBox(width: 8),
               Flexible(
                 child: Tag(
-                  s.needsCourier ? l10n.needsCourier : s.statusLabel,
+                  s.needsCourier
+                      ? l10n.needsCourier
+                      : shipmentStatusLabel(context, s.status, s.statusLabel),
                   tone: shipmentTone(s),
                 ),
               ),

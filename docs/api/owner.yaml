@@ -702,6 +702,136 @@ paths:
         '404': { $ref: '#/components/responses/NotFound' }
         '409': { $ref: '#/components/responses/Conflict' }
 
+  /apps/{app_id}/orders/{order_id}/stage:
+    post:
+      tags: [Orders]
+      operationId: setOrderStage
+      summary: Move a store order's delivery to another stage
+      description: |
+        132 One of the order's `next_stages`. `shipped` may give the courier
+        (`courier_name`, `courier_phone`) and a `tracking_url`. `postponed`
+        needs a `reason` (`customer_asked`, `recipient_away`, `shop_asked`,
+        `weather`, `other`), the new `date` and, when the shop has delivery
+        times, a `slot_id` (`GET …/delivery-slots`); the order moves to that
+        day. `failed` needs a `reason` (`recipient_away`, `wrong_address`,
+        `refused`, `unreachable`, `other`) and a `next_step`: `retry` (with
+        the new `date` and `slot_id`), `return` (then `returned` when it's
+        back), or `cancel` (the order is cancelled, and the customer's money
+        goes back: refunded at once through the payment's provider when it
+        can be, else the order's `refund_due` is `needed` for the owner, with
+        a notice, until `POST …/refund-done`). `other` needs the `note`. The
+        `note` is the team's own, never shown to the customer. `delivered`
+        completes the order (as `POST …/status` `completed`). The customer is
+        told (inbox, push in the app's language) at shipped, postponed, a
+        failed attempt and delivered, with the short reason and the new day,
+        never the note. Only Yallapp's own store products: a WordPress shop
+        sets these as WooCommerce statuses (the plugin, 0.4.46); orders on
+        Shopify and the other connected platforms stay on the platform.
+        A stage the order can't move to (`delivered` to `shipped`) is 409
+        `invalid_stage`; missing or wrong fields are 400 with `errors`.
+      parameters:
+        - $ref: '#/components/parameters/AppId'
+        - $ref: '#/components/parameters/OrderId'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [stage]
+              properties:
+                stage: { $ref: '#/components/schemas/DeliveryStage' }
+                reason: { type: string, enum: [customer_asked, recipient_away, shop_asked, weather, wrong_address, refused, unreachable, other] }
+                note: { type: [string, 'null'], maxLength: 500 }
+                courier_name: { type: [string, 'null'], maxLength: 80 }
+                courier_phone: { type: [string, 'null'], maxLength: 30 }
+                tracking_url: { type: [string, 'null'], format: uri, maxLength: 500 }
+                date: { type: string, format: date }
+                slot_id: { type: string }
+                next_step: { type: string, enum: [retry, return, cancel] }
+      responses:
+        '200':
+          description: The order as it is now
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/OrderDetail' }
+        '400': { $ref: '#/components/responses/BadRequest' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '403': { $ref: '#/components/responses/AccountNotActive' }
+        '404': { $ref: '#/components/responses/NotFound' }
+        '409': { $ref: '#/components/responses/Conflict' }
+
+  /apps/{app_id}/orders/{order_id}/refund-done:
+    post:
+      tags: [Orders]
+      operationId: markOrderRefunded
+      summary: Mark an order that needs a refund as refunded
+      description: |
+        132 "I refunded it": for an order whose `refund_due` is `needed`, the
+        owner paid the money back themselves (in the provider's panel, by
+        bank transfer, in cash). It is recorded as a refund made outside the
+        app when the order's refunds allow it, `refund_due` becomes
+        `recorded`, and the customer is told. An order that needs no refund
+        is 409 `no_refund_due`.
+      parameters:
+        - $ref: '#/components/parameters/AppId'
+        - $ref: '#/components/parameters/OrderId'
+      responses:
+        '200':
+          description: The order as it is now
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/OrderDetail' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '403': { $ref: '#/components/responses/AccountNotActive' }
+        '404': { $ref: '#/components/responses/NotFound' }
+        '409': { $ref: '#/components/responses/Conflict' }
+
+  /apps/{app_id}/delivery-slots:
+    get:
+      tags: [Orders]
+      operationId: listDeliverySlots
+      summary: A day's delivery times, to postpone an order
+      description: |
+        132 The shop's delivery times on `date` (default: today in the shop's
+        time zone), each with how many orders it has, whether it's full,
+        closed for the day or already started. A store app only (else 404
+        `not_available`).
+      parameters:
+        - $ref: '#/components/parameters/AppId'
+        - name: date
+          in: query
+          schema: { type: string, format: date }
+      responses:
+        '200':
+          description: The day and its delivery times
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [date, date_label, slots]
+                properties:
+                  date: { type: string, format: date }
+                  date_label: { type: string, example: Fri 20 Nov }
+                  slots:
+                    type: array
+                    items:
+                      type: object
+                      required: [id, label, start, end, orders, full, closed, started]
+                      properties:
+                        id: { type: string }
+                        label: { type: string, example: 10:00–13:00 }
+                        start: { type: string }
+                        end: { type: string }
+                        orders: { type: integer, minimum: 0 }
+                        full: { type: boolean }
+                        closed: { type: boolean }
+                        started: { type: boolean }
+        '400': { $ref: '#/components/responses/BadRequest' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '403': { $ref: '#/components/responses/AccountNotActive' }
+        '404': { $ref: '#/components/responses/NotFound' }
+
   /apps/{app_id}/orders/{order_id}/shipment:
     put:
       tags: [Orders]
@@ -2016,6 +2146,61 @@ paths:
             application/json:
               schema: { $ref: '#/components/schemas/Review' }
         '400': { $ref: '#/components/responses/BadRequest' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '403': { $ref: '#/components/responses/AccountNotActive' }
+        '404': { $ref: '#/components/responses/NotFound' }
+
+  /apps/{app_id}/ratings/{source}/{rating_id}/reply:
+    put:
+      tags: [Reviews]
+      operationId: replyRating
+      summary: Reply under a customer's rating, or change the reply
+      description: |
+        132 One reply per rating of a food order, a marketplace order or a
+        ride, as long as a course review's (2000 characters); written again,
+        it replaces the reply. The customer sees it under their rating in the
+        app, in the business's name, and is told the first time ("Burger Lab
+        replied to your review", in their language). The person needs the
+        app's food orders, marketplace or rides. Ratings have no moderation
+        or reports of their own. A rating that isn't there is 404; an empty
+        or too long reply is 400.
+      parameters:
+        - $ref: '#/components/parameters/AppId'
+        - $ref: '#/components/parameters/RatedSource'
+        - $ref: '#/components/parameters/RatingId'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [text]
+              properties:
+                text: { type: string, minLength: 1, maxLength: 2000 }
+      responses:
+        '200':
+          description: The rating with its reply
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/RatedItem' }
+        '400': { $ref: '#/components/responses/BadRequest' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '403': { $ref: '#/components/responses/AccountNotActive' }
+        '404': { $ref: '#/components/responses/NotFound' }
+    delete:
+      tags: [Reviews]
+      operationId: deleteRatingReply
+      summary: Remove the reply under a customer's rating
+      parameters:
+        - $ref: '#/components/parameters/AppId'
+        - $ref: '#/components/parameters/RatedSource'
+        - $ref: '#/components/parameters/RatingId'
+      responses:
+        '200':
+          description: The rating without a reply
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/RatedItem' }
         '401': { $ref: '#/components/responses/Unauthorized' }
         '403': { $ref: '#/components/responses/AccountNotActive' }
         '404': { $ref: '#/components/responses/NotFound' }
@@ -3621,6 +3806,251 @@ paths:
         '403': { $ref: '#/components/responses/AccountNotActive' }
         '404': { $ref: '#/components/responses/NotFound' }
 
+  /apps/{app_id}/prime/customers:
+    get:
+      tags: [Prime]
+      operationId: getPrimeCustomers
+      summary: 132 Customer insights
+      description: |
+        New and returning customers in the period, the best customers by spend
+        (their orders and last order), and those who haven't ordered in 30 or
+        60 days. Names only for those who may see orders or the app's users
+        (`names_shown`).
+      parameters:
+        - $ref: '#/components/parameters/AppId'
+        - name: period
+          in: query
+          schema: { type: string, enum: [week, month], default: month }
+      responses:
+        '200':
+          description: Done
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/PrimeCustomers' }
+        '400': { $ref: '#/components/responses/BadRequest' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '403': { $ref: '#/components/responses/AccountNotActive' }
+        '404': { $ref: '#/components/responses/NotFound' }
+
+  /apps/{app_id}/prime/products:
+    get:
+      tags: [Prime]
+      operationId: getPrimeProducts
+      summary: 132 Product insights
+      description: |
+        A store's own products: the best sellers, the slow movers (listed the
+        whole period, sold least), those running low (at the person's
+        `low_stock` threshold or fewer) and those sold out.
+      parameters:
+        - $ref: '#/components/parameters/AppId'
+        - name: period
+          in: query
+          schema: { type: string, enum: [week, month], default: month }
+      responses:
+        '200':
+          description: Done
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/PrimeProducts' }
+        '400': { $ref: '#/components/responses/BadRequest' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '403': { $ref: '#/components/responses/AccountNotActive' }
+        '404': { $ref: '#/components/responses/NotFound' }
+
+  /apps/{app_id}/prime/reviews:
+    get:
+      tags: [Prime]
+      operationId: getPrimeReviews
+      summary: 132 Ratings and reviews
+      description: |
+        The last 90 days' ratings of food and marketplace orders and rides, and
+        the course reviews (answered with `PUT /apps/{app_id}/reviews/{review_id}/reply`).
+      parameters:
+        - $ref: '#/components/parameters/AppId'
+      responses:
+        '200':
+          description: Done
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/PrimeReviews' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '403': { $ref: '#/components/responses/AccountNotActive' }
+        '404': { $ref: '#/components/responses/NotFound' }
+
+  /apps/{app_id}/prime/weekly-report:
+    get:
+      tags: [Prime]
+      operationId: getWeeklyReport
+      summary: 132 The weekly report by email
+      description: |
+        The app's weekly summary (every Monday, to the account's owner, in their
+        language), with Prime's parts: the best sellers and the customers.
+      parameters:
+        - $ref: '#/components/parameters/AppId'
+      responses:
+        '200':
+          description: Done
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/WeeklyReport' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '403': { $ref: '#/components/responses/AccountNotActive' }
+        '404': { $ref: '#/components/responses/NotFound' }
+    put:
+      tags: [Prime]
+      operationId: setWeeklyReport
+      summary: 132 Turn the weekly report on or off
+      description: |
+        The same switch as Dashboard › Analytics › Weekly summary by email.
+      parameters:
+        - $ref: '#/components/parameters/AppId'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { type: object, required: [on], properties: { on: { type: boolean } } }
+      responses:
+        '200':
+          description: Done
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/WeeklyReport' }
+        '400': { $ref: '#/components/responses/BadRequest' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '403': { $ref: '#/components/responses/AccountNotActive' }
+        '404': { $ref: '#/components/responses/NotFound' }
+
+  /apps/{app_id}/prime/coupons:
+    post:
+      tags: [Prime]
+      operationId: createPrimeCoupon
+      summary: '132 Quick action: a coupon'
+      description: |
+        A store's coupon with the dashboard's rules (Store › Coupons). The Catalog area.
+      parameters:
+        - $ref: '#/components/parameters/AppId'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/CouponRequest' }
+      responses:
+        '201':
+          description: Done
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Coupon' }
+        '400': { $ref: '#/components/responses/BadRequest' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '403': { $ref: '#/components/responses/AccountNotActive' }
+        '404': { $ref: '#/components/responses/NotFound' }
+
+  /apps/{app_id}/prime/flash-sales:
+    post:
+      tags: [Prime]
+      operationId: createPrimeFlashSale
+      summary: '132 Quick action: a flash sale'
+      description: |
+        A store's flash sale with the dashboard's rules (Store › Delivery & offers);
+        `starts_at` and `ends_at` in the shop's time zone (`YYYY-MM-DDTHH:MM`).
+      parameters:
+        - $ref: '#/components/parameters/AppId'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/FlashSaleRequest' }
+      responses:
+        '201':
+          description: Done
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/FlashSale' }
+        '400': { $ref: '#/components/responses/BadRequest' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '403': { $ref: '#/components/responses/AccountNotActive' }
+        '404': { $ref: '#/components/responses/NotFound' }
+
+  /apps/{app_id}/prime/delivery-slots:
+    get:
+      tags: [Prime]
+      operationId: getPrimeDeliverySlots
+      summary: 132 A day's delivery slots, open or closed
+      description: |
+        A store with delivery days.
+      parameters:
+        - $ref: '#/components/parameters/AppId'
+        - name: date
+          in: query
+          schema: { type: string, format: date }
+          description: Today in the shop's zone when left out.
+      responses:
+        '200':
+          description: Done
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/DeliverySlotsDay' }
+        '400': { $ref: '#/components/responses/BadRequest' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '403': { $ref: '#/components/responses/AccountNotActive' }
+        '404': { $ref: '#/components/responses/NotFound' }
+
+  /apps/{app_id}/prime/delivery-slots/{slot_id}:
+    put:
+      tags: [Prime]
+      operationId: setPrimeDeliverySlot
+      summary: '132 Quick action: close a delivery slot for a day, or open it again'
+      description: |
+        The checkout stops offering it that day (`slot_full`, 409, if sent).
+      parameters:
+        - $ref: '#/components/parameters/AppId'
+        - name: slot_id
+          in: path
+          required: true
+          schema: { type: string }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { type: object, required: [date, closed], properties: { date: { type: string, format: date }, closed: { type: boolean } } }
+      responses:
+        '200':
+          description: Done
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/DeliverySlotsDay' }
+        '400': { $ref: '#/components/responses/BadRequest' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '403': { $ref: '#/components/responses/AccountNotActive' }
+        '404': { $ref: '#/components/responses/NotFound' }
+
+  /apps/{app_id}/restaurants/{restaurant_id}/busy:
+    put:
+      tags: [Prime]
+      operationId: setRestaurantBusy
+      summary: '132 Quick action: busy mode'
+      description: |
+        A restaurant takes no new orders for `minutes` (0 opens it again), as its
+        own desk does. Prime food apps.
+      parameters:
+        - $ref: '#/components/parameters/AppId'
+        - $ref: '#/components/parameters/RestaurantId'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { type: object, required: [minutes], properties: { minutes: { type: integer, enum: [0, 15, 30, 45, 60, 90] } } }
+      responses:
+        '200':
+          description: Done
+          content:
+            application/json:
+              schema: { type: object, required: [id, busy_until], properties: { id: { type: integer }, busy_until: { type: [string, 'null'], format: date-time } } }
+        '400': { $ref: '#/components/responses/BadRequest' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '403': { $ref: '#/components/responses/AccountNotActive' }
+        '404': { $ref: '#/components/responses/NotFound' }
+
   /me/account-manager/slots:
     get:
       tags: [Account manager]
@@ -3682,6 +4112,18 @@ components:
       description: The access token from sign-in or refresh (15 minutes).
 
   parameters:
+    RatedSource:
+      name: source
+      in: path
+      required: true
+      description: 132 What was rated.
+      schema: { type: string, enum: [food, market, ride] }
+    RatingId:
+      name: rating_id
+      in: path
+      required: true
+      description: 132 The food order, marketplace order or ride that was rated.
+      schema: { type: integer }
     AppId:
       name: app_id
       in: path
@@ -4047,7 +4489,7 @@ components:
       properties:
         id: { type: string, format: uuid }
         name: { type: string }
-        type: { type: string, enum: [lms, store, booking, real_estate, news, events, donations, delivery, food, rides, school], description: '125 adds the Studio apps (delivery, food, rides and school).' }
+        type: { type: string, enum: [lms, store, booking, real_estate, news, events, donations, delivery, food, rides, school, travel], description: '125 adds the Studio apps (delivery, food, rides and school); 132 travel (its bookings are on the dashboard).' }
         vertical: { type: [string, 'null'], enum: [restaurant, clinic, fitness, charity, services, instructors, taxi, marketplace, null], description: '125 adds instructors, taxi and marketplace.' }
         type_name: { type: string, example: Restaurant, description: The kind's name in the person's language. }
         backend: { type: [string, 'null'], enum: [wordpress, hosted, custom_api, setup_requested, null] }
@@ -4059,6 +4501,12 @@ components:
             - type: 'null'
         features: { $ref: '#/components/schemas/AppFeatures' }
         access: { $ref: '#/components/schemas/AppAccess' }
+        prime_gift:
+          type: [object, 'null']
+          description: '132 Prime given by Yallapp as a gift, whatever the plan (`features.prime` is true while it lasts); null when the app is Prime by its plan, or not Prime. Missing on older servers.'
+          required: [until]
+          properties:
+            until: { type: [string, 'null'], format: date-time, description: 'When the gift ends; null: until Yallapp removes it.' }
 
     PlanSummary:
       type: object
@@ -4234,12 +4682,23 @@ components:
           properties:
             title: { type: string }
             text: { type: string }
+        goal:
+          description: 132 Prime apps only. The person's sales goal (a `sales_goal` alert) and how far it is; null without one. Missing on older servers.
+          type: [object, 'null']
+          required: [period, target, current, pct, reached, label]
+          properties:
+            period: { type: string, enum: [day, week, month] }
+            target: { $ref: '#/components/schemas/Money' }
+            current: { $ref: '#/components/schemas/Money' }
+            pct: { type: integer, minimum: 0, maximum: 100 }
+            reached: { type: boolean }
+            label: { type: string, example: "Today's goal" }
 
     NeedsYou:
       type: object
       required: [kind, count, title]
       properties:
-        kind: { type: string, enum: [orders_in_progress, appointments_to_confirm, unanswered_messages, questions_to_answer, notice, food_orders_new, shipments_waiting, rides_searching, complaints_waiting, school_excuses, school_reports, school_leave], description: '125 adds the Studio apps'' lists: they open food orders (new), shipments (waiting), rides (now), complaints (waiting), and the school''s excuses, reports and leave.' }
+        kind: { type: string, enum: [orders_in_progress, orders_awaiting_payment, appointments_to_confirm, unanswered_messages, questions_to_answer, notice, food_orders_new, shipments_waiting, rides_searching, complaints_waiting, school_excuses, school_reports, school_leave], description: '125 adds the Studio apps'' lists: they open food orders (new), shipments (waiting), rides (now), complaints (waiting), and the school''s excuses, reports and leave. 132 `orders_awaiting_payment`: orders to be paid by bank transfer or the owner''s own method, to mark paid (Orders › In progress).' }
         count: { type: integer }
         title: { type: string, description: In the person's language. }
         notice_id: { type: [integer, 'null'] }
@@ -4283,7 +4742,16 @@ components:
                 phone: { type: string }
                 address: { type: [string, 'null'] }
             gift_message: { type: [string, 'null'] }
-            anonymous: { type: boolean }
+            anonymous: { type: boolean, description: 'The card is sent without the sender''s name. The owner still sees the sender.' }
+            signed_by: { type: [string, 'null'], description: '132 The name the card is signed with: the sender''s (or the buyer''s), null when sent anonymously or there is no card. Missing on older servers.' }
+            place:
+              type: [object, 'null']
+              description: 132 Where it goes as the checkout read it (the country, the city, the pin on the map); null when not asked. Missing on older servers.
+              properties:
+                country: { type: [string, 'null'], example: EG }
+                city: { type: [string, 'null'], example: Giza }
+                lat: { type: [number, 'null'] }
+                lng: { type: [number, 'null'] }
             zone: { type: [string, 'null'], example: Istanbul }
             shipping_fee: { oneOf: [{ $ref: '#/components/schemas/Money' }, { type: 'null' }] }
             breakdown:
@@ -4309,6 +4777,7 @@ components:
             type: { type: string, enum: [pickup, delivery] }
             step: { type: string, enum: [received, preparing, ready, out_for_delivery, completed, cancelled] }
             step_label: { type: string }
+            scheduled_for: { type: [string, 'null'], format: date-time, description: '132 The time the customer asked for; null: as soon as possible. Missing on older servers.' }
         total: { $ref: '#/components/schemas/Money' }
         refunded:
           oneOf:
@@ -4326,15 +4795,81 @@ components:
               options:
                 type: array
                 items: { type: string }
-              addon_of: { type: integer, description: "131 A gift add-on's line: the product it went with. Missing: not an add-on." }
+              addon_of: { type: integer, description: "131 A gift add-on's line: the product it went with (another line's `product_id`). Missing: not an add-on." }
+              product_id: { type: integer, description: 132 Missing on older servers. }
+              total: { $ref: '#/components/schemas/Money' }
+              variant: { type: [string, 'null'], example: 'Red, Large' }
+              digital: { type: boolean }
+              flash_sale:
+                type: [object, 'null']
+                description: 132 Bought at a flash sale's price (`unit` is that price); null otherwise.
+                properties:
+                  id: { type: integer }
+                  title: { type: [string, 'null'], description: "In the person's language when the shop wrote it; null once the sale was deleted." }
+                  percent: { type: [integer, 'null'], description: 'The share off, for a sale by percent.' }
         customer:
           type: [object, 'null']
+          description: |
+            Who ordered: the payment page's details; 132 else the gift
+            checkout's sender, else the app's own account of the person who
+            checked out (`source`). Null when nothing is known.
           properties:
             name: { type: string }
-            phone: { type: string }
-            email: { type: string }
-            city: { type: string }
-            address: { type: string }
+            phone: { type: [string, 'null'] }
+            email: { type: [string, 'null'] }
+            city: { type: [string, 'null'] }
+            address: { type: [string, 'null'] }
+            source: { type: string, enum: [checkout, sender, account], description: 132 Missing on older servers. }
+        deliver_to:
+          type: [object, 'null']
+          description: |
+            132 Where it goes and who takes it: the gift's recipient
+            (`person: recipient`), a restaurant's delivery address, or the
+            buyer's address, with the place's country and pin. Null for a
+            pickup or an order with nothing to deliver. Missing on older servers.
+          required: [person, name, phone, address, city, country, lat, lng, notes]
+          properties:
+            person: { type: string, enum: [customer, recipient] }
+            name: { type: [string, 'null'] }
+            phone: { type: [string, 'null'] }
+            address: { type: [string, 'null'] }
+            city: { type: [string, 'null'] }
+            country: { type: [string, 'null'] }
+            lat: { type: [number, 'null'] }
+            lng: { type: [number, 'null'] }
+            notes: { type: [string, 'null'], description: 'Building, floor, a landmark.' }
+        amounts:
+          type: object
+          description: 132 What the total is made of. Missing on older servers.
+          required: [subtotal, discount, points, shipping, tax, total]
+          properties:
+            subtotal: { $ref: '#/components/schemas/Money' }
+            discount:
+              type: [object, 'null']
+              description: The coupon and what it took off.
+              required: [code, amount]
+              properties:
+                code: { type: [string, 'null'] }
+                amount: { $ref: '#/components/schemas/Money' }
+            points:
+              type: [object, 'null']
+              required: [used, amount]
+              properties:
+                used: { type: integer }
+                amount: { $ref: '#/components/schemas/Money' }
+            shipping:
+              description: Shipping with the delivery slot's fee (`delivery.fee`, `delivery.breakdown`); a restaurant's delivery fee.
+              oneOf:
+                - $ref: '#/components/schemas/Money'
+                - type: 'null'
+            tax:
+              type: [object, 'null']
+              required: [label, included, amount]
+              properties:
+                label: { type: string }
+                included: { type: boolean }
+                amount: { $ref: '#/components/schemas/Money' }
+            total: { $ref: '#/components/schemas/Money' }
         created_at: { type: string, format: date-time }
         paid_at: { type: [string, 'null'], format: date-time }
         shippable:
@@ -4349,6 +4884,99 @@ components:
           type: array
           items: { type: string }
           description: What `POST …/status` accepts now.
+        stage:
+          oneOf:
+            - $ref: '#/components/schemas/OrderStage'
+            - type: 'null'
+          description: |
+            132 Where a store order's delivery is (Yallapp's own products): the
+            latest change of its stage. Null before its first stage (the order
+            is in progress), and for orders that aren't delivered in stages
+            (a restaurant's, digital ones, courses, bookings, tickets). Missing
+            on older servers.
+        stage_history:
+          type: array
+          items: { $ref: '#/components/schemas/OrderStage' }
+          description: 132 Every change of its delivery stage, newest first. Missing on older servers.
+        refund_due:
+          type: [object, 'null']
+          description: |
+            132 The customer's money after a failed delivery ended with the
+            order cancelled (the failed attempt's `cancel`, or `POST …/status`
+            `cancelled` after a failed or returned stage): `refunded` through
+            the payment's provider at once; `needed` when it couldn't be (paid
+            outside the app, a provider without refunds, a payment in
+            Yallapp's account, the provider refused), until the owner refunds
+            it (`POST …/refunds`) or marks it refunded (`POST …/refund-done`),
+            then `recorded`. Null when nothing was owed. Missing on older
+            servers.
+          required: [status, amount, at, why, why_code, done_at, done_by]
+          properties:
+            status: { type: string, enum: [refunded, needed, recorded] }
+            why_code: { type: [string, 'null'], enum: [paid_outside, no_provider, provider_refused, null], description: "`why` as a code, for the app's own words; `provider_refused` says the provider's own answer in `why`." }
+            amount: { $ref: '#/components/schemas/Money' }
+            at: { type: string, format: date-time, description: When the order was cancelled. }
+            why: { type: [string, 'null'], description: "Why it couldn't go back by itself." }
+            done_at: { type: [string, 'null'], format: date-time }
+            done_by: { type: [string, 'null'] }
+        next_stages:
+          type: array
+          items: { $ref: '#/components/schemas/DeliveryStage' }
+          description: |
+            132 What `POST …/stage` accepts now: none once the order is
+            completed, cancelled or refunded, or still waiting for its payment.
+            Missing on older servers.
+
+    DeliveryStage:
+      type: string
+      enum: [preparing, shipped, postponed, failed, returned, delivered]
+      description: |
+        132 Preparing; shipped (out for delivery); postponed to another day; a
+        failed delivery attempt; returned to the shop; delivered (the order is
+        completed). An app that doesn't know a stage shows the order as in
+        progress.
+
+    OrderStage:
+      type: object
+      required: [stage, label, at, by, reason, note, courier, tracking_url, date, date_label, slot, next_step]
+      description: 132 One change of an order's delivery stage, with who made it, why and the team's note (never shown to the customer).
+      properties:
+        stage: { $ref: '#/components/schemas/DeliveryStage' }
+        label: { type: string, example: Delivery postponed }
+        at: { type: string, format: date-time }
+        by: { type: [string, 'null'], description: "The team member's name (else their email); null: the system.", example: Leyla }
+        reason:
+          type: [object, 'null']
+          required: [code, label]
+          properties:
+            code: { type: string, enum: [customer_asked, recipient_away, shop_asked, weather, wrong_address, refused, unreachable, other] }
+            label: { type: string, example: Recipient not available }
+        note: { type: [string, 'null'], maxLength: 500 }
+        courier:
+          type: [object, 'null']
+          description: Shipped, when the shop gave them.
+          required: [name, phone]
+          properties:
+            name: { type: [string, 'null'], maxLength: 80 }
+            phone: { type: [string, 'null'], maxLength: 30 }
+        tracking_url: { type: [string, 'null'], format: uri, maxLength: 500 }
+        date: { type: [string, 'null'], format: date, description: 'Postponed, or a failed attempt tried again: the new delivery day.' }
+        date_label: { type: [string, 'null'], example: Fri 20 Nov }
+        slot:
+          type: [object, 'null']
+          required: [id, start, end, label]
+          properties:
+            id: { type: string }
+            start: { type: string, example: '10:00' }
+            end: { type: string, example: '13:00' }
+            label: { type: string, example: 10:00–13:00 }
+        next_step:
+          type: [object, 'null']
+          description: A failed attempt — what happens next.
+          required: [code, label]
+          properties:
+            code: { type: string, enum: [retry, return, cancel] }
+            label: { type: string, example: Try again on another day }
 
     Shipment:
       type: object
@@ -5223,6 +5851,9 @@ components:
       properties:
         name: { type: string, description: 'Who or what is there (the restaurant, the sender, the recipient); for a ride, the first part of the address.' }
         address: { type: string }
+        details: { type: [string, 'null'], description: '132 Building, floor, flat, a landmark. Missing on older servers.' }
+        lat: { type: [number, 'null'], description: 132 Missing on older servers. }
+        lng: { type: [number, 'null'] }
 
     Stage:
       type: object
@@ -5289,6 +5920,11 @@ components:
         - type: object
           required: [lines, subtotal, delivery_fee, customer, restaurant_address, timeline, refund_due, prep_choices, rejection_reasons, cash_to_collect]
           properties:
+            rating:
+              oneOf:
+                - $ref: '#/components/schemas/CustomerRating'
+                - type: 'null'
+              description: 132 The customer's rating and the business's reply under it; null until rated. Missing on older servers.
             lines:
               type: array
               items:
@@ -5307,8 +5943,16 @@ components:
               properties:
                 name: { type: string }
                 phone: { type: [string, 'null'] }
-                address: { type: string }
+                address: { type: string, description: 'With its details.' }
                 note: { type: [string, 'null'] }
+                details: { type: [string, 'null'], description: 132 Missing on older servers. }
+                lat: { type: [number, 'null'] }
+                lng: { type: [number, 'null'] }
+            courier:
+              description: 132 The courier with their phone. Missing on older servers.
+              oneOf:
+                - $ref: '#/components/schemas/CourierContact'
+                - type: 'null'
             restaurant_address: { type: [string, 'null'] }
             timeline:
               type: array
@@ -5423,6 +6067,29 @@ components:
               properties:
                 name: { type: string }
                 phone: { type: [string, 'null'] }
+            sender:
+              type: object
+              description: 132 Missing on older servers.
+              required: [name, phone]
+              properties:
+                name: { type: string }
+                phone: { type: [string, 'null'] }
+            package:
+              type: object
+              description: 132 Missing on older servers.
+              required: [size, description]
+              properties:
+                size: { type: string, enum: [small, medium, large] }
+                description: { type: [string, 'null'] }
+            service: { type: [string, 'null'], description: 132 The delivery service chosen. Missing on older servers. }
+
+    CourierContact:
+      type: object
+      required: [id, name, phone]
+      properties:
+        id: { type: [integer, 'null'] }
+        name: { type: string }
+        phone: { type: [string, 'null'] }
 
     Courier:
       type: object
@@ -5481,9 +6148,22 @@ components:
         - type: object
           required: [timeline]
           properties:
+            rating:
+              oneOf:
+                - $ref: '#/components/schemas/CustomerRating'
+                - type: 'null'
+              description: 132 The customer's rating and the business's reply under it; null until rated. Missing on older servers.
             timeline:
               type: array
               items: { $ref: '#/components/schemas/Stage' }
+            rider:
+              type: object
+              description: 132 Missing on older servers.
+              required: [name, phone]
+              properties:
+                name: { type: string }
+                phone: { type: [string, 'null'] }
+            notes: { type: [string, 'null'], description: "132 The rider's note to the driver." }
 
     Driver:
       type: object
@@ -5534,6 +6214,11 @@ components:
         - type: object
           required: [lines, timeline]
           properties:
+            rating:
+              oneOf:
+                - $ref: '#/components/schemas/CustomerRating'
+                - type: 'null'
+              description: 132 The customer's rating and the business's reply under it; null until rated. Missing on older servers.
             lines:
               type: array
               items:
@@ -5547,6 +6232,41 @@ components:
             timeline:
               type: array
               items: { $ref: '#/components/schemas/Stage' }
+            customer:
+              type: object
+              description: "132 The customer as the app's support sees them (the places never see the number). Missing on older servers."
+              required: [name, phone, address, note, details, lat, lng]
+              properties:
+                name: { type: string }
+                phone: { type: [string, 'null'] }
+                address: { type: [string, 'null'], description: 'Where it goes, with its details; null for a pickup.' }
+                note: { type: [string, 'null'] }
+                details: { type: [string, 'null'] }
+                lat: { type: [number, 'null'] }
+                lng: { type: [number, 'null'] }
+            scheduled_for: { type: [string, 'null'], format: date-time, description: 132 Missing on older servers. }
+            payment:
+              type: object
+              description: 132 Missing on older servers.
+              required: [method, status]
+              properties:
+                method: { type: string, enum: [cash, card, apple_pay, google_pay, wallet] }
+                status: { type: string, enum: [unpaid, paid, partly_refunded, refunded] }
+            coupon_code: { type: [string, 'null'] }
+            amounts:
+              type: array
+              description: '132 What the customer saw, in order (discounts negative), ending with the total. Missing on older servers.'
+              items:
+                type: object
+                required: [kind, amount]
+                properties:
+                  kind: { type: string, enum: [items, item_discounts, coupon, club, delivery, delivery_discount, tax, tip, wallet, total] }
+                  amount: { $ref: '#/components/schemas/Money' }
+            courier:
+              description: 132 The app's courier on it.
+              oneOf:
+                - $ref: '#/components/schemas/CourierContact'
+                - type: 'null'
 
     Complaint:
       type: object
@@ -5918,14 +6638,17 @@ components:
 
     PrimeAlertKind:
       type: string
-      enum: [order_waiting, shipment_unassigned, sales_low, message_unanswered, low_rating, ride_no_driver]
+      enum: [order_waiting, shipment_unassigned, sales_low, message_unanswered, low_rating, ride_no_driver, low_stock, sales_goal]
       description: |
         `order_waiting` a new order waits for `minutes` (default 5);
         `shipment_unassigned` a job without a courier for `minutes` (10);
         `sales_low` the day's sales below `amount_cents` by `by_time` (18:00);
         `message_unanswered` a message or complaint waits `minutes` (10);
         `low_rating` a rating of `stars` or fewer (2); `ride_no_driver` a ride
-        looks for a driver for `minutes` (3).
+        looks for a driver for `minutes` (3). 132 `low_stock` a store's product
+        at `threshold` left or fewer (3), sold out on its own; `sales_goal` the
+        sales of the `period` (day, week from Monday, month) reach
+        `amount_cents`, told once per period (Today's `goal` shows how far).
 
     PrimeAlert:
       type: object
@@ -5937,6 +6660,8 @@ components:
         amount_cents: { type: [integer, 'null'] }
         by_time: { type: [string, 'null'], example: '18:00' }
         stars: { type: [integer, 'null'] }
+        threshold: { type: [integer, 'null'], description: 132 `low_stock`. Missing on older servers. }
+        period: { type: [string, 'null'], enum: [day, week, month, null], description: 132 `sales_goal`. Missing on older servers. }
 
     MorningBrief:
       type: object
@@ -5969,11 +6694,200 @@ components:
               amount_cents: { type: [integer, 'null'], minimum: 0 }
               by_time: { type: [string, 'null'] }
               stars: { type: [integer, 'null'], minimum: 1, maximum: 4 }
+              threshold: { type: [integer, 'null'], minimum: 0, maximum: 1000 }
+              period: { type: [string, 'null'], enum: [day, week, month, null] }
         morning_brief:
           type: object
           properties:
             on: { type: boolean }
             time: { type: string }
+
+    PrimePerson:
+      type: object
+      required: [name, orders, spend, last_order_at]
+      properties:
+        name: { type: [string, 'null'], description: 'Null for those who may not see orders, or a sale without one.' }
+        orders: { type: integer }
+        spend: { $ref: '#/components/schemas/Money' }
+        last_order_at: { type: string, format: date-time }
+
+    PrimeCustomers:
+      type: object
+      required: [period, customers, new, returning, top, lapsed_30, lapsed_60, names_shown]
+      properties:
+        period: { type: string, enum: [week, month] }
+        customers: { type: integer }
+        new: { type: integer }
+        returning: { type: integer }
+        top:
+          type: array
+          items: { $ref: '#/components/schemas/PrimePerson' }
+        lapsed_30:
+          type: object
+          description: Last ordered 30 to 60 days ago.
+          required: [count, people]
+          properties:
+            count: { type: integer }
+            people: { type: array, items: { $ref: '#/components/schemas/PrimePerson' } }
+        lapsed_60:
+          type: object
+          description: Last ordered 60 to 180 days ago.
+          required: [count, people]
+          properties:
+            count: { type: integer }
+            people: { type: array, items: { $ref: '#/components/schemas/PrimePerson' } }
+        names_shown: { type: boolean }
+
+    PrimeProduct:
+      type: object
+      required: [id, name, units, total, stock]
+      properties:
+        id: { type: integer }
+        name: { type: string }
+        units: { type: integer }
+        total: { $ref: '#/components/schemas/Money' }
+        stock: { type: [integer, 'null'] }
+
+    PrimeProducts:
+      type: object
+      required: [period, threshold, best, slow, low_stock, out_of_stock]
+      properties:
+        period: { type: string, enum: [week, month] }
+        threshold: { type: integer }
+        best: { type: array, items: { $ref: '#/components/schemas/PrimeProduct' } }
+        slow: { type: array, items: { $ref: '#/components/schemas/PrimeProduct' } }
+        low_stock: { type: array, items: { $ref: '#/components/schemas/PrimeProduct' } }
+        out_of_stock: { type: array, items: { $ref: '#/components/schemas/PrimeProduct' } }
+
+    CustomerRating:
+      type: object
+      required: [stars, courier, comment, at, reply]
+      description: 132 A customer's rating of a food or marketplace order or a ride, and the business's reply under it (one per rating).
+      properties:
+        stars: { type: integer, minimum: 1, maximum: 5, description: "The restaurant's, the place's or the driver's." }
+        courier: { type: [integer, 'null'], minimum: 1, maximum: 5 }
+        comment: { type: [string, 'null'] }
+        at: { type: string, format: date-time }
+        reply:
+          type: [object, 'null']
+          required: [text, at, edited_at, by]
+          properties:
+            text: { type: string, maxLength: 2000 }
+            at: { type: string, format: date-time }
+            edited_at: { type: [string, 'null'], format: date-time }
+            by: { type: [string, 'null'], description: "The team member who wrote it (never shown to the customer)." }
+
+    RatedItem:
+      type: object
+      required: [source, id, reference, about, rating]
+      properties:
+        source: { type: string, enum: [food, market, ride] }
+        id: { type: integer }
+        reference: { type: string, example: F-1042 }
+        about: { type: string, description: 'The restaurant, the place, the driver.' }
+        rating: { $ref: '#/components/schemas/CustomerRating' }
+
+    PrimeReviews:
+      type: object
+      required: [average, count, items]
+      properties:
+        average: { type: [number, 'null'] }
+        count: { type: integer }
+        items:
+          type: array
+          items:
+            type: object
+            required: [source, id, rating, comment, at, name, about, can_reply, reply]
+            properties:
+              source: { type: string, enum: [food, market, ride, course] }
+              id: { type: integer, description: 'The food order, marketplace order, ride or course review.' }
+              rating: { type: integer, minimum: 1, maximum: 5 }
+              comment: { type: [string, 'null'] }
+              at: { type: string, format: date-time }
+              name: { type: [string, 'null'] }
+              about: { type: string, description: 'The restaurant, the place, the driver.' }
+              can_reply: { type: boolean }
+              reply: { type: [string, 'null'] }
+
+    WeeklyReport:
+      type: object
+      required: [on, email]
+      properties:
+        on: { type: boolean }
+        email: { type: [string, 'null'], format: email, description: "Where it goes: the account's owner." }
+
+    CouponRequest:
+      type: object
+      required: [code, kind, value]
+      properties:
+        code: { type: string, example: SPRING10 }
+        kind: { type: string, enum: [percent, amount] }
+        value: { type: string, description: 'The percentage (1–100), or the amount in major units.', example: '10' }
+        min_order: { type: string }
+        starts_on: { type: string, format: date }
+        ends_on: { type: string, format: date }
+        max_uses: { type: integer }
+        public: { type: boolean, description: 'Shown in the app.' }
+
+    Coupon:
+      type: object
+      required: [id, code, kind, value, amount, min_order, starts_at, ends_at, max_uses, public]
+      properties:
+        id: { type: integer }
+        code: { type: string }
+        kind: { type: string, enum: [percent, amount] }
+        value: { type: [integer, 'null'] }
+        amount: { oneOf: [{ $ref: '#/components/schemas/Money' }, { type: 'null' }] }
+        min_order: { oneOf: [{ $ref: '#/components/schemas/Money' }, { type: 'null' }] }
+        starts_at: { type: [string, 'null'], format: date-time }
+        ends_at: { type: [string, 'null'], format: date-time }
+        max_uses: { type: [integer, 'null'] }
+        public: { type: boolean }
+
+    FlashSaleRequest:
+      type: object
+      required: [title, kind, value, starts_at, ends_at]
+      properties:
+        title: { type: string, maxLength: 80 }
+        product_ids: { type: array, items: { type: integer } }
+        category_id: { type: [integer, 'null'] }
+        kind: { type: string, enum: [percent, price] }
+        value: { type: string, description: 'The share off (1–90), or the sale price in major units.' }
+        starts_at: { type: string, example: '2026-11-20T10:00' }
+        ends_at: { type: string, example: '2026-11-21T22:00' }
+        limit: { type: [integer, 'null'] }
+
+    FlashSale:
+      type: object
+      required: [id, title, product_ids, category_id, percent, price, starts_at, ends_at, limit, sold, active]
+      properties:
+        id: { type: integer }
+        title: { type: string }
+        product_ids: { type: array, items: { type: integer } }
+        category_id: { type: [integer, 'null'] }
+        percent: { type: [integer, 'null'] }
+        price: { oneOf: [{ $ref: '#/components/schemas/Money' }, { type: 'null' }] }
+        starts_at: { type: string, format: date-time }
+        ends_at: { type: string, format: date-time }
+        limit: { type: [integer, 'null'] }
+        sold: { type: integer }
+        active: { type: boolean }
+
+    DeliverySlotsDay:
+      type: object
+      required: [date, date_label, slots]
+      properties:
+        date: { type: string, format: date }
+        date_label: { type: string }
+        slots:
+          type: array
+          items:
+            type: object
+            required: [id, label, closed]
+            properties:
+              id: { type: string }
+              label: { type: string, example: '13:00–16:00' }
+              closed: { type: boolean }
 
     AccountManager:
       type: object

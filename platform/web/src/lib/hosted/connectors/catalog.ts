@@ -23,6 +23,7 @@ import { orderDeliveryJson } from "../../selling/gifts";
 import { needsPlace, shippingRulesOf } from "../../selling/shipping";
 import { checkStoreCheckout, handleStoreExtras, quoteDeliveryJson, storeExtrasConfig, storeMap, storeMapRoute } from "../../selling/store";
 import { ADDON_NEEDS_ITEM, checkAddonLines, offeredWith, ownAddonsFor } from "../../selling/addons";
+import { appStageJson } from "../../catalog/stage-json";
 
 /**
  * The shop of an app without a website: products, categories and orders the
@@ -775,7 +776,7 @@ export class CatalogConnector implements Connector {
     }
   }
 
-  private orderJson(order: CatalogOrder, now: Date) {
+  private orderJson(order: CatalogOrder, now: Date, lang?: string | null) {
     return {
       id: order.id,
       number: orderNumber(order),
@@ -813,6 +814,8 @@ export class CatalogConnector implements Connector {
         // 110 What the line comes to.
         total: formatCents(l.unitCents * l.quantity, order.currency),
       })),
+      // 132 Where a store order's delivery is: the stage, the new day, a short reason and what's next.
+      stage: appStageJson(order, lang),
       // 26 A restaurant's order: how it's collected and where it is.
       ...(order.fulfilment
         ? {
@@ -836,7 +839,7 @@ export class CatalogConnector implements Connector {
     const order = Number.isSafeInteger(id) && id > 0 ? await this.deps.store.getCatalogOrder(this.deps.app.id, id) : null;
     // 96.2 And one waiting for a bank transfer or the shop's own method.
     if (!order || order.userId !== request.user.id || !(LISTED_STATUSES.includes(order.status) || awaitingManualPayment(order))) return error(404, "not_found", "Order not found.");
-    return { status: 200, body: this.orderJson(order, request.now) };
+    return { status: 200, body: this.orderJson(order, request.now, request.lang) };
   }
 
   /** 91.4 GET /me/points: the customer's balance and its latest changes. */
@@ -867,7 +870,7 @@ export class CatalogConnector implements Connector {
     const saved = await requestReturn(this.deps.store, this.deps.app, order, this.settings, input, request.now);
     if (!saved) return error(403, "forbidden", "This order can't be returned from the app. Contact the shop.");
     await this.deps.onReturnRequested?.(saved);
-    return { status: 200, body: this.orderJson(saved, request.now) };
+    return { status: 200, body: this.orderJson(saved, request.now, request.lang) };
   }
 
   private async orders(request: ConnectorRequest): Promise<ConnectorResult> {
@@ -890,7 +893,7 @@ export class CatalogConnector implements Connector {
         per_page: perPage,
         total,
         total_pages: Math.max(1, Math.ceil(total / perPage)),
-        items: items.map((o) => this.orderJson(o, request.now)),
+        items: items.map((o) => this.orderJson(o, request.now, request.lang)),
       },
     };
   }

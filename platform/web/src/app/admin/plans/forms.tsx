@@ -6,6 +6,7 @@ import { AvailabilityFields, type AvailabilityGroup } from "./availability";
 import { Field, FieldError, FormMessage, SubmitButton } from "@/components/form";
 import { btn } from "@/components/ui";
 import { initialFormState, type FormState } from "@/lib/forms";
+import { suggestedPrice } from "@/lib/billing/suggested-prices";
 
 export interface PlanFormValues {
   id: string;
@@ -36,8 +37,16 @@ export interface PlanFormValues {
   trBadge: string;
   /** 133 Regular plans: shown to clients (null: the form doesn't show it, a Studio plan's "Offered" does). */
   offered: boolean | null;
-  /** 133 The other periods as saved: on, and the prices as decimals. */
-  periods: Record<string, { on: boolean; egp: string; usd: string }>;
+  /** 133 The other periods as saved: on, and the prices as decimals; or left to the suggested price (prefilled, the team edits or keeps it). */
+  periods: Record<string, PeriodRow>;
+}
+
+interface PeriodRow {
+  on: boolean;
+  egp: string;
+  usd: string;
+  /** 133 The prices are the suggested ones, worked out from the plan's monthly and yearly prices as they are typed, until the team edits them. */
+  suggested?: boolean;
 }
 
 /** 133 The periods, in order, with their names in the admin. */
@@ -58,6 +67,9 @@ function cents(text: string): number | null {
   return n > 0 ? n : null;
 }
 
+/** 133 Piastres or cents as the price fields show them. */
+const decimal = (c: number) => (c / 100).toFixed(2);
+
 const pounds = (c: number) => new Intl.NumberFormat("en-US", { style: "currency", currency: "EGP", currencyDisplay: "code", maximumFractionDigits: c % 100 === 0 ? 0 : 2 }).format(c / 100);
 
 const TEXT_LANGS = [
@@ -77,7 +89,8 @@ export function PlanForm({ plan }: { plan: PlanFormValues }) {
     <form action={action} noValidate className="flex flex-col gap-4">
       <input type="hidden" name="plan" value={plan.id} />
       <FormMessage message={state.message} ok={state.ok} />
-      <PlanTextFields plan={plan} state={state} />
+      {/* 133 Drawn afresh after a save, from the plan as saved: a suggested price kept is the team's own from then on. */}
+      <PlanTextFields key={`texts-${state.ok ? (state.round ?? 0) : 0}`} plan={plan} state={state} />
       <div className="flex justify-end">
         <SubmitButton className="h-10" pendingText="Saving…">
           Save plan
@@ -95,22 +108,43 @@ function PlanTextFields({ plan, state, highlightsHint = "One line per point on t
   // 133 The main price's period, and the other periods' prices as typed: their per month and saving are worked out here, never typed.
   const [months, setMonths] = useState(v("months", plan.months));
   const [mainEgp, setMainEgp] = useState(v("egpPrice", plan.egpPrice));
-  const [others, setOthers] = useState<Record<string, { on: boolean; egp: string; usd: string }>>(() =>
+  const [mainUsd, setMainUsd] = useState(v("usdPrice", plan.usdPrice));
+  const [others, setOthers] = useState<Record<string, PeriodRow>>(() =>
     Object.fromEntries(
-      PERIODS.map((p) => [
-        p.key,
-        {
-          on: state.values ? state.values[`period_${p.key}_on`] === "on" : (plan.periods[p.key]?.on ?? false),
-          egp: state.values?.[`period_${p.key}_egp`] ?? plan.periods[p.key]?.egp ?? "",
-          usd: state.values?.[`period_${p.key}_usd`] ?? plan.periods[p.key]?.usd ?? "",
-        },
-      ]),
+      PERIODS.map((p) => {
+        // The main period's row (shown when "Billed" changes) starts on its suggested price.
+        const saved = plan.periods[p.key] ?? { on: true, egp: "", usd: "", suggested: true };
+        return [
+          p.key,
+          {
+            on: state.values ? state.values[`period_${p.key}_on`] === "on" : saved.on,
+            egp: state.values?.[`period_${p.key}_egp`] ?? saved.egp,
+            usd: state.values?.[`period_${p.key}_usd`] ?? saved.usd,
+            suggested: state.values ? state.values[`period_${p.key}_suggested`] === "1" : saved.suggested === true,
+          },
+        ];
+      }),
     ),
   );
   const mainKey = PERIODS.find((p) => String(p.months) === months)?.key ?? "12";
+  // 133 The plan's own monthly and yearly prices as typed (the main price, or a period priced here), which the suggested ones are worked out from.
+  const own = (key: "1" | "12", currency: "egp" | "usd") => {
+    if (key === mainKey) return pricing === "price" && cents(mainEgp) ? cents(currency === "egp" ? mainEgp : mainUsd) : null;
+    const row = others[key]!;
+    return !row.suggested && row.on && cents(row.egp) ? cents(row[currency]) : null;
+  };
+  const rows: Record<string, PeriodRow> = Object.fromEntries(
+    PERIODS.map((p) => {
+      const row = others[p.key]!;
+      const egp = row.suggested ? suggestedPrice({ month: own("1", "egp"), year: own("12", "egp") }, p.key, "EGP") : null;
+      if (!egp) return [p.key, { ...row, suggested: false }];
+      const usd = suggestedPrice({ month: own("1", "usd"), year: own("12", "usd") }, p.key, "USD");
+      return [p.key, { ...row, egp: decimal(egp), usd: usd ? decimal(usd) : "", suggested: true }];
+    }),
+  );
   // Every period with a price in pounds, the main one included, for the maths.
   const priced = PERIODS.flatMap((p) => {
-    const c = p.key === mainKey ? cents(mainEgp) : others[p.key]?.on ? cents(others[p.key]!.egp) : null;
+    const c = p.key === mainKey ? cents(mainEgp) : rows[p.key]?.on ? cents(rows[p.key]!.egp) : null;
     return c ? [{ ...p, cents: c }] : [];
   });
   const reference = priced.filter((p) => p.months > 0).sort((a, b) => a.months - b.months)[0];
@@ -179,7 +213,8 @@ function PlanTextFields({ plan, state, highlightsHint = "One line per point on t
           label="Price in USD (optional)"
           name="usdPrice"
           inputMode="decimal"
-          defaultValue={v("usdPrice", plan.usdPrice)}
+          value={mainUsd}
+          onChange={(e) => setMainUsd(e.target.value)}
           hint={plan.usdAtRate ? `Shown outside Egypt. Empty: ${plan.usdAtRate} at the rate.` : "Shown outside Egypt. Empty: the EGP price at the rate."}
           error={state.errors?.usdPrice}
         />
@@ -202,11 +237,14 @@ function PlanTextFields({ plan, state, highlightsHint = "One line per point on t
       <fieldset className="m-0 flex flex-col gap-3 rounded-xl border border-line-soft bg-white/60 p-3.5" data-plan-periods="">
         <legend className="px-1 text-sm font-semibold">Other billing periods</legend>
         <p className="m-0 text-[13px] text-muted">
-          Clients choose among the periods with a price. The price per month and the saving are worked out from the prices, against the shortest period. A period without a price in EGP isn&apos;t offered.
+          Clients choose among the periods with a price. A period you haven&apos;t priced starts on a suggested price, worked out from the plan&apos;s monthly or yearly
+          price: edit it or keep it, and saving keeps it as yours. The price per month and the saving are worked out from the prices, against the shortest period.
         </p>
         {PERIODS.filter((p) => p.key !== mainKey).map((p) => {
-          const row = others[p.key]!;
-          const set = (patch: Partial<typeof row>) => setOthers((all) => ({ ...all, [p.key]: { ...all[p.key]!, ...patch } }));
+          const row = rows[p.key]!;
+          // Toggling keeps the suggestion; typing a price makes the row the team's own, with the other price as it showed.
+          const set = (patch: Partial<PeriodRow>) =>
+            setOthers((all) => ({ ...all, [p.key]: { ...all[p.key]!, ...("egp" in patch || "usd" in patch ? { egp: row.egp, usd: row.usd, suggested: false } : {}), ...patch } }));
           const status = !row.on ? "Off" : cents(row.egp) ? maths(p.key) : "No price yet: not offered";
           return (
             <div key={p.key} data-period-row={p.key} className={`grid items-start gap-3 rounded-lg border px-3 py-2.5 sm:grid-cols-[150px_1fr_1fr] ${p.key === "lifetime" ? "border-ember/40 bg-peach-soft" : "border-line-soft"}`}>
@@ -234,7 +272,17 @@ function PlanTextFields({ plan, state, highlightsHint = "One line per point on t
                 error={state.errors?.[`period_${p.key}_usd`]}
                 small
               />
-              {status ? <span className="text-[13px] text-muted sm:col-span-3" data-period-status={p.key}>{status}</span> : null}
+              {row.suggested ? <input type="hidden" name={`period_${p.key}_suggested`} value="1" /> : null}
+              {status || row.suggested ? (
+                <span className="flex flex-wrap items-center gap-2 text-[13px] text-muted sm:col-span-3">
+                  {row.suggested ? (
+                    <span className="rounded-full bg-sand px-2 py-0.5 text-xs font-semibold text-ink-2" data-period-suggested={p.key}>
+                      Suggested: edit or keep
+                    </span>
+                  ) : null}
+                  {status ? <span data-period-status={p.key}>{status}</span> : null}
+                </span>
+              ) : null}
             </div>
           );
         })}

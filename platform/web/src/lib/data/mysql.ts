@@ -268,6 +268,7 @@ import type {
   AccountManagerCallPatch,
   AccountManagerCallStatus,
   PrimeAlerts,
+  PrimeGift,
   PrimeAlertSetting,
   StaffHours,
   StaffProfile,
@@ -8965,6 +8966,8 @@ export class MysqlStore implements DataStore {
         if (group === "plan") {
           await tx.update(s.licenses).set({ appId: toAppId, clientId: to.clientId, updatedAt: now }).where(eq(s.licenses.appId, fromAppId));
           await tx.update(s.storagePacks).set({ appId: toAppId, clientId: to.clientId }).where(eq(s.storagePacks.appId, fromAppId));
+          // 132 Prime given as a gift, kept by its app.
+          await tx.update(s.primeGifts).set({ appId: toAppId, clientId: to.clientId, updatedAt: now }).where(eq(s.primeGifts.appId, fromAppId));
           // 133 The app's add-ons go with its plan, like its storage packs.
           await tx.update(s.appAddons).set({ appId: toAppId, clientId: to.clientId }).where(eq(s.appAddons.appId, fromAppId));
         } else if (group === "payments") {
@@ -10580,6 +10583,27 @@ export class MysqlStore implements DataStore {
   async listPrimeAlerts(): Promise<PrimeAlerts[]> {
     const rows = await this.run((db) => db.select().from(schema.primeAlerts));
     return rows.map((row) => ({ ...row, alerts: row.alerts as PrimeAlertSetting[] })).filter((a) => a.briefOn || a.alerts.some((x) => x.on));
+  }
+
+  async getPrimeGift(appId: string): Promise<PrimeGift | null> {
+    const [row] = await this.run((db) => db.select().from(schema.primeGifts).where(eq(schema.primeGifts.appId, appId)).limit(1));
+    return row ?? null;
+  }
+
+  async listPrimeGifts(clientId: string): Promise<PrimeGift[]> {
+    return this.run((db) => db.select().from(schema.primeGifts).where(eq(schema.primeGifts.clientId, clientId)));
+  }
+
+  async savePrimeGift(gift: PrimeGift): Promise<void> {
+    const { appId, createdAt, ...rest } = gift;
+    void appId;
+    void createdAt;
+    await this.run((db) => db.insert(schema.primeGifts).values(gift).onDuplicateKeyUpdate({ set: rest }));
+  }
+
+  async deletePrimeGift(appId: string): Promise<boolean> {
+    const [result] = await this.run((db) => db.delete(schema.primeGifts).where(eq(schema.primeGifts.appId, appId)));
+    return result.affectedRows > 0;
   }
 
   async claimPrimeSend(key: string, now: Date): Promise<boolean> {

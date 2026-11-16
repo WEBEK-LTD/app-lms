@@ -1,5 +1,6 @@
 import { knownTranslator } from "@/i18n/dashboard";
 import { localePath } from "@/i18n/paths";
+import * as ratings from "./ratings";
 import * as account from "./account";
 import { authenticateRequest, refresh, signIn } from "./auth";
 import * as catalog from "./catalog";
@@ -15,6 +16,7 @@ import * as team from "./team";
 import * as engines from "./engines";
 import * as market from "./market";
 import * as prime from "./prime";
+import * as primePlus from "./prime-plus";
 import * as school from "./school";
 import * as vip from "./vip";
 import { teamCan } from "../team/permissions";
@@ -55,6 +57,9 @@ export const ROUTES: Route[] = [
   route("GET", "apps/:app_id/orders/:order_id", sales.getOrder),
   route("POST", "apps/:app_id/orders/:order_id/status", sales.changeOrder),
   route("PUT", "apps/:app_id/orders/:order_id/shipment", sales.shipOne),
+  route("POST", "apps/:app_id/orders/:order_id/stage", sales.setStage),
+  route("POST", "apps/:app_id/orders/:order_id/refund-done", sales.markRefunded),
+  route("GET", "apps/:app_id/delivery-slots", sales.stageSlots),
   route("POST", "apps/:app_id/orders/:order_id/refunds", sales.refund),
   route("GET", "apps/:app_id/appointments", sales.listAppointments),
   route("POST", "apps/:app_id/appointments/:appointment_id/status", sales.changeAppointment),
@@ -87,6 +92,9 @@ export const ROUTES: Route[] = [
   route("GET", "apps/:app_id/reviews", community.listReviews),
   route("PATCH", "apps/:app_id/reviews/:review_id", community.updateReview),
   route("PUT", "apps/:app_id/reviews/:review_id/reply", community.replyReview),
+  // 132 Replies under the ratings of food and marketplace orders and rides.
+  route("PUT", "apps/:app_id/ratings/:source/:rating_id/reply", ratings.replyRating),
+  route("DELETE", "apps/:app_id/ratings/:source/:rating_id/reply", ratings.deleteRatingReply),
   route("DELETE", "apps/:app_id/reviews/:review_id/reply", community.deleteReviewReply),
   route("GET", "apps/:app_id/members", members.listMembers),
   route("POST", "apps/:app_id/members/check-in", members.checkInMember),
@@ -158,6 +166,17 @@ export const ROUTES: Route[] = [
   route("GET", "apps/:app_id/prime/insights", prime.getPrimeInsights),
   route("GET", "apps/:app_id/prime/alerts", prime.getPrimeAlerts),
   route("PUT", "apps/:app_id/prime/alerts", prime.setPrimeAlerts),
+  // 132 Prime's second set: customers, products, reviews, the weekly report, quick actions.
+  route("GET", "apps/:app_id/prime/customers", primePlus.getPrimeCustomers),
+  route("GET", "apps/:app_id/prime/products", primePlus.getPrimeProducts),
+  route("GET", "apps/:app_id/prime/reviews", primePlus.getPrimeReviews),
+  route("GET", "apps/:app_id/prime/weekly-report", primePlus.getWeeklyReport),
+  route("PUT", "apps/:app_id/prime/weekly-report", primePlus.setWeeklyReport),
+  route("POST", "apps/:app_id/prime/coupons", primePlus.createCoupon),
+  route("POST", "apps/:app_id/prime/flash-sales", primePlus.createFlashSale),
+  route("GET", "apps/:app_id/prime/delivery-slots", primePlus.getDeliverySlots),
+  route("PUT", "apps/:app_id/prime/delivery-slots/:slot_id", primePlus.setSlotClosed),
+  route("PUT", "apps/:app_id/restaurants/:restaurant_id/busy", primePlus.setRestaurantBusy),
   // 60 The owner's team.
   route("GET", "team", team.getTeam, { permission: "team" }),
   route("POST", "team/invitations", team.invite, { permission: "team" }),

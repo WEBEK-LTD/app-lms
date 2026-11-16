@@ -1147,10 +1147,6 @@ class AppLocalizationsTr extends AppLocalizations {
   String get biometricLock => 'Parmak izi veya yüzle aç';
 
   @override
-  String get biometricLockHelp =>
-      'Uygulama açılırken ve 5 dakika uzak kaldıktan sonra sorulur.';
-
-  @override
   String get biometricUnavailable =>
       'Bu telefonda parmak izi, yüz veya ekran kilidi ayarlı değil.';
 
@@ -2397,9 +2393,6 @@ class AppLocalizationsTr extends AppLocalizations {
   String get refundDue => 'Bu sipariş için iade gerekiyor.';
 
   @override
-  String get callCustomer => 'Müşteriyi ara';
-
-  @override
   String get courierLabel => 'Kurye';
 
   @override
@@ -3181,6 +3174,837 @@ class AppLocalizationsTr extends AppLocalizations {
   String get pushBriefHelp => 'Prime: dün tek bir bildirimde.';
 
   @override
+  String get deliverTo => 'Teslimat adresi';
+
+  @override
+  String get whenTitle => 'Ne zaman';
+
+  @override
+  String get giftCardTitle => 'Hediye kartı mesajı';
+
+  @override
+  String get giftOrder => 'Hediye';
+
+  @override
+  String get giftSender => 'Gönderen';
+
+  @override
+  String giftFor(String name) {
+    return '$name için';
+  }
+
+  @override
+  String get fromAccount => 'Uygulamadaki hesabından';
+
+  @override
+  String get noName => 'İsim verilmedi';
+
+  @override
+  String get asSoonAsPossible => 'En kısa sürede';
+
+  @override
+  String signedBy(String name) {
+    return 'İmza: $name';
+  }
+
+  @override
+  String get sentAnonymously => 'İsimsiz gönder: kartta gönderenin adı yazmaz.';
+
+  @override
+  String zoneLabel(String zone) {
+    return 'Bölge: $zone';
+  }
+
+  @override
+  String get pinnedOnMap => 'Haritada işaretli';
+
+  @override
+  String get openInMaps => 'Haritada aç';
+
+  @override
+  String get copyAddress => 'Adresi kopyala';
+
+  @override
+  String get addressCopied => 'Adres kopyalandı';
+
+  @override
+  String get addonLine => 'Ek ürün';
+
+  @override
+  String get flashSaleTag => 'Flaş indirim';
+
+  @override
+  String get subtotalLabel => 'Ara toplam';
+
+  @override
+  String get discountLabel => 'İndirim';
+
+  @override
+  String couponLabel(String code) {
+    return 'Kupon $code';
+  }
+
+  @override
+  String pointsLabel(String points) {
+    return 'Puanlar ($points)';
+  }
+
+  @override
+  String get deliveryFeeLabel => 'Teslimat ücreti';
+
+  @override
+  String get feeBase => 'Temel ücret';
+
+  @override
+  String get feeMinimum => 'Asgari ücret';
+
+  @override
+  String get feeFree => 'Ücretsiz teslimat';
+
+  @override
+  String get slotFeeLabel => 'Teslimat saati';
+
+  @override
+  String taxIncludedLabel(String label) {
+    return '$label (dahil)';
+  }
+
+  @override
+  String payOutsideWaiting(String method) {
+    return 'Ödeme bekleniyor: $method';
+  }
+
+  @override
+  String payOutsideDue(String method, String date) {
+    return 'Ödeme bekleniyor: $method, $date tarihine kadar';
+  }
+
+  @override
+  String get shippedTitle => 'Kargo';
+
+  @override
+  String get trackShipment => 'Gönderiyi takip et';
+
+  @override
+  String get senderLabel => 'Gönderen';
+
+  @override
+  String get packageLabel => 'Paket';
+
+  @override
+  String get packageSmall => 'Küçük';
+
+  @override
+  String get packageMedium => 'Orta';
+
+  @override
+  String get packageLarge => 'Büyük';
+
+  @override
+  String serviceLabel(String name) {
+    return 'Hizmet: $name';
+  }
+
+  @override
+  String get payCash => 'Kapıda nakit';
+
+  @override
+  String get payCard => 'Kart';
+
+  @override
+  String get payWallet => 'Cüzdan';
+
+  @override
+  String get payApplePay => 'Apple Pay';
+
+  @override
+  String get payGooglePay => 'Google Pay';
+
+  @override
+  String get payUnpaid => 'Henüz ödenmedi';
+
+  @override
+  String get payPaid => 'Ödendi';
+
+  @override
+  String get payRefunded => 'İade edildi';
+
+  @override
+  String get payPartlyRefunded => 'Kısmen iade edildi';
+
+  @override
+  String get lineItems => 'Ürünler';
+
+  @override
+  String get lineItemDiscounts => 'Ürün indirimleri';
+
+  @override
+  String get lineCoupon => 'Kupon';
+
+  @override
+  String get lineClub => 'Kulüp indirimi';
+
+  @override
+  String get lineDelivery => 'Teslimat';
+
+  @override
+  String get lineDeliveryDiscount => 'Teslimat indirimi';
+
+  @override
+  String get lineTax => 'Vergi';
+
+  @override
+  String get lineTip => 'Bahşiş';
+
+  @override
+  String get lineWallet => 'Cüzdandan ödenen';
+
+  @override
+  String scheduledAt(String time) {
+    return 'Planlı: $time';
+  }
+
+  @override
+  String couponUsed(String code) {
+    return 'Kupon: $code';
+  }
+
+  @override
+  String get ratingCardTitle => 'Müşterinin değerlendirmesi';
+
+  @override
+  String get ratingReplyHelp =>
+      'Müşteri bunu uygulamada değerlendirmesinin altında işletmenizin adıyla görür ve ilk seferde bildirim alır.';
+
+  @override
+  String ratingCourierLine(String stars) {
+    return 'Kurye: $stars/5';
+  }
+
+  @override
+  String get replyEdited => 'Düzenlendi';
+
+  @override
+  String get removeReplyTitle => 'Yanıtınız kaldırılsın mı?';
+
+  @override
+  String get removeReplyText =>
+      'Müşteri artık bunu değerlendirmesinin altında görmeyecek.';
+
+  @override
+  String get stageTitle => 'Teslimat';
+
+  @override
+  String get stageNotStarted =>
+      'Henüz yola çıkmadı. Çıkınca kargoya verildi olarak işaretleyin: müşteriye bildirilir.';
+
+  @override
+  String get stagePreparing => 'Hazırlanıyor';
+
+  @override
+  String get stageShipped => 'Dağıtımda';
+
+  @override
+  String get stagePostponed => 'Ertelendi';
+
+  @override
+  String get stageFailed => 'Teslim edilemedi';
+
+  @override
+  String get stageReturned => 'Mağazaya döndü';
+
+  @override
+  String get stageDelivered => 'Teslim edildi';
+
+  @override
+  String get doPreparing => 'Hazırlanıyor';
+
+  @override
+  String get doShipped => 'Kargoya verildi';
+
+  @override
+  String get doPostpone => 'Ertele';
+
+  @override
+  String get doFailed => 'Teslim edilemedi';
+
+  @override
+  String get doReturned => 'Mağazaya döndü';
+
+  @override
+  String get doDelivered => 'Teslim edildi';
+
+  @override
+  String shipSheetTitle(String order) {
+    return '$order kargoya verildi';
+  }
+
+  @override
+  String postponeSheetTitle(String order) {
+    return '$order teslimatını ertele';
+  }
+
+  @override
+  String failedSheetTitle(String order) {
+    return '$order teslim edilemedi';
+  }
+
+  @override
+  String get courierNameField => 'Kuryenin adı (isteğe bağlı)';
+
+  @override
+  String get courierPhoneField => 'Kuryenin telefonu (isteğe bağlı)';
+
+  @override
+  String get trackingLinkField => 'Takip bağlantısı (isteğe bağlı)';
+
+  @override
+  String get stageWhy => 'Neden';
+
+  @override
+  String get stageNewDay => 'Yeni gün';
+
+  @override
+  String get stageTime => 'Saat';
+
+  @override
+  String get stageAnotherDay => 'Başka gün';
+
+  @override
+  String stageSlotFull(String slot) {
+    return '$slot · dolu';
+  }
+
+  @override
+  String get stageNextStep => 'Sonraki adım';
+
+  @override
+  String get stageTeamNote => 'Ekibiniz için not';
+
+  @override
+  String get stageTeamNoteHint => 'Müşteri görmez.';
+
+  @override
+  String get reasonCustomerAsked => 'Müşteri istedi';
+
+  @override
+  String get reasonRecipientAway => 'Alıcı müsait değil';
+
+  @override
+  String get reasonShopAsked => 'Mağaza istedi';
+
+  @override
+  String get reasonWeather => 'Hava durumu';
+
+  @override
+  String get reasonWrongAddress => 'Adres yanlış veya eksik';
+
+  @override
+  String get reasonRefused => 'Alıcı teslim almadı';
+
+  @override
+  String get reasonUnreachable => 'Telefonla ulaşılamadı';
+
+  @override
+  String get reasonOther => 'Diğer';
+
+  @override
+  String get nextRetry => 'Başka gün tekrar dene';
+
+  @override
+  String get nextReturn => 'Mağazaya geri gönder';
+
+  @override
+  String get nextCancel => 'Siparişi iptal et';
+
+  @override
+  String stageCancelRefundsNow(String amount) {
+    return 'İptal edince $amount müşteriye hemen iade edilir.';
+  }
+
+  @override
+  String stageCancelRefundYou(String amount) {
+    return 'İptal edince sipariş «İade gerekiyor» olur: $amount tutarını kendiniz geri ödeyin, sonra iade edildi olarak işaretleyin.';
+  }
+
+  @override
+  String get needsRefund => 'İade gerekiyor';
+
+  @override
+  String get refundWhyOutside =>
+      'Uygulama dışında ödendi: aynı yolla geri ödeyin.';
+
+  @override
+  String get refundWhyProvider =>
+      'Ödeme sağlayıcısı bunu buradan iade edemez: sağlayıcının panelinden iade edin.';
+
+  @override
+  String needsRefundText(String amount) {
+    return 'Müşteriye $amount geri ödeyin, sonra iade edildi olarak işaretleyin.';
+  }
+
+  @override
+  String refundedAutoText(String amount) {
+    return 'Sipariş iptal edilince $amount müşteriye iade edildi.';
+  }
+
+  @override
+  String refundRecordedText(String name) {
+    return '$name iade edildi olarak işaretledi.';
+  }
+
+  @override
+  String get markRefundedButton => 'İade ettim';
+
+  @override
+  String markRefundedTitle(String order) {
+    return '$order iade edildi olarak işaretlensin mi?';
+  }
+
+  @override
+  String markRefundedText(String amount) {
+    return 'Yalnızca $amount tutarını kendiniz geri ödediyseniz. Müşteriye bildirilir.';
+  }
+
+  @override
+  String refundMarkedDone(String order) {
+    return '$order: iade edildi olarak işaretlendi. Müşteriye bildirildi.';
+  }
+
+  @override
+  String deliveredConfirmTitle(String order) {
+    return '$order teslim edildi mi?';
+  }
+
+  @override
+  String get deliveredConfirmText =>
+      'Sipariş tamamlanır ve müşteriye bildirilir.';
+
+  @override
+  String stageToldCustomer(String order, String stage) {
+    return '$order: $stage. Müşteriye bildirildi.';
+  }
+
+  @override
+  String stageSaved(String order, String stage) {
+    return '$order: $stage.';
+  }
+
+  @override
+  String stageNewDayLine(String day) {
+    return 'Yeni gün: $day';
+  }
+
+  @override
+  String stageNextLine(String step) {
+    return 'Sonraki: $step';
+  }
+
+  @override
+  String stageCourierLine(String name) {
+    return 'Kurye: $name';
+  }
+
+  @override
+  String get stageChooseDay => 'Yeni günü seçin.';
+
+  @override
+  String get stageChooseWhy => 'Nedeni seçin.';
+
+  @override
+  String get stageChooseNext => 'Sonraki adımı seçin.';
+
+  @override
+  String get stageWriteNote => 'Nedeni nota yazın.';
+
+  @override
+  String get stAwaitingPayment => 'Ödeme bekleniyor';
+
+  @override
+  String get stAccepted => 'Kabul edildi';
+
+  @override
+  String get stReadyForCourier => 'Kuryeye hazır';
+
+  @override
+  String get stPicking => 'Toplanıyor';
+
+  @override
+  String get stPickedUp => 'Teslim alındı';
+
+  @override
+  String get stOnTheWay => 'Yolda';
+
+  @override
+  String get stDelivered => 'Teslim edildi';
+
+  @override
+  String get stTurnedDown => 'Reddedildi';
+
+  @override
+  String get stNotDelivered => 'Teslim edilemedi';
+
+  @override
+  String get stWaitingCourier => 'Kurye bekleniyor';
+
+  @override
+  String get stCourierToPickup => 'Kurye almaya geliyor';
+
+  @override
+  String get stForLater => 'Sonraya';
+
+  @override
+  String get stBookedLater => 'Sonrası için ayrıldı';
+
+  @override
+  String get stSearching => 'Sürücü aranıyor';
+
+  @override
+  String get stDriverComing => 'Sürücü yolda';
+
+  @override
+  String get stDriverAtPickup => 'Sürücü alış noktasında';
+
+  @override
+  String get stOnRide => 'Yolculukta';
+
+  @override
+  String get stNoDriver => 'Sürücü bulunamadı';
+
+  @override
+  String get csOpen => 'Yeni';
+
+  @override
+  String get csInReview => 'İnceleniyor';
+
+  @override
+  String get csResolved => 'Çözüldü';
+
+  @override
+  String get csRejected => 'İadesiz kapandı';
+
+  @override
+  String feeDistance(String km) {
+    return 'Mesafe $km km';
+  }
+
+  @override
+  String feeWeight(String kg) {
+    return 'Ağırlık $kg kg';
+  }
+
+  @override
+  String feeWeightIncluded(String kg, String included) {
+    return 'Ağırlık $kg kg ($included kg dahil)';
+  }
+
+  @override
+  String get unlockWithFaceId => 'Face ID ile kilidi aç';
+
+  @override
+  String get unlockWithFace => 'Yüzünüzle kilidi açın';
+
+  @override
+  String get unlockWithFingerprint => 'Parmak izi ile kilidi aç';
+
+  @override
+  String get unlockWithPin => 'Telefonun PIN koduyla aç';
+
+  @override
+  String get usePhonePin => 'Telefon PIN kodunu kullan';
+
+  @override
+  String get lockLockedOut =>
+      'Çok fazla deneme. Telefonunuzun PIN kodunu kullanın ya da biraz bekleyip yeniden deneyin.';
+
+  @override
+  String get lockUsePin =>
+      'Yüz ve parmak izi şimdilik kapalı. Telefonunuzun PIN kodunu kullanın.';
+
+  @override
+  String get lockNotEnrolled =>
+      'Bu telefonda yüz veya parmak izi tanımlı değil. Telefonunuzun PIN kodunu kullanın ya da telefon ayarlarından ekleyin.';
+
+  @override
+  String get lockNoScreenLock =>
+      'Bu telefonda ekran kilidi yok. Telefon ayarlarından bir PIN, desen veya şifre belirleyin ya da çıkış yapıp şifrenizi kullanın.';
+
+  @override
+  String get lockUnavailable =>
+      'Telefon uygulamanın kilidini şu an açamıyor. Yeniden deneyin ya da çıkış yapıp şifrenizi kullanın.';
+
+  @override
+  String get lockHelp =>
+      'Uygulama açılırken ve ona döndüğünüzde sorulur. Açık uygulamalar ekranında içeriği gizlenir.';
+
+  @override
+  String get lockTurnOnReason => 'Uygulama kilidini aç';
+
+  @override
+  String get lockTurnOffReason => 'Uygulama kilidini kapat';
+
+  @override
+  String get lockTurnedOn => 'Uygulama kilidi açık.';
+
+  @override
+  String get lockTurnedOff => 'Uygulama kilidi kapalı.';
+
+  @override
+  String get lockNotChanged =>
+      'Eşleşmedi, bu yüzden uygulama kilidi değişmedi.';
+
+  @override
+  String get lockAfterTitle => 'Yeniden kilitle';
+
+  @override
+  String get lockImmediately => 'Hemen';
+
+  @override
+  String get customersInsights => 'Müşteriler';
+
+  @override
+  String get productsInsights => 'Ürünler';
+
+  @override
+  String get reviewsRatings => 'Puanlar ve yorumlar';
+
+  @override
+  String get aCustomer => 'Bir müşteri';
+
+  @override
+  String lastOrder(String when) {
+    return 'son sipariş $when';
+  }
+
+  @override
+  String get customersLabel => 'Müşteri';
+
+  @override
+  String get newCustomers => 'Yeni';
+
+  @override
+  String get cameBack => 'Geri gelen';
+
+  @override
+  String get topCustomers => 'En iyi müşteriler';
+
+  @override
+  String get noCustomersYet => 'Bu dönemde henüz müşteri yok.';
+
+  @override
+  String get nobodyAway => 'Burada kimse yok: hepsi geri geliyor.';
+
+  @override
+  String get namesHidden =>
+      'İsimler, siparişleri görebilen ekip üyelerine gösterilir.';
+
+  @override
+  String get soldOutTag => 'Tükendi';
+
+  @override
+  String get nothingSoldYet => 'Bu dönemde henüz satış yok.';
+
+  @override
+  String get slowMovers => 'Yavaş satanlar';
+
+  @override
+  String get nothingSlow => 'Her ürün satılıyor.';
+
+  @override
+  String get runningLow => 'Azalan veya tükenen';
+
+  @override
+  String get stockFine => 'Tüm ürünlerin stoku yeterli.';
+
+  @override
+  String get priceAndStock => 'Fiyat, stok ve görünürlük';
+
+  @override
+  String get priceAndStockHelp => 'Katalog\'da bir ürünü değiştirin';
+
+  @override
+  String get averageRating => 'Ortalama puan';
+
+  @override
+  String get ratingsCount => 'Puan';
+
+  @override
+  String get noReviewsYet => 'Henüz puan yok';
+
+  @override
+  String get replyInInbox => 'Gelen Kutusu\'nda yanıtla';
+
+  @override
+  String get repliedInInbox => 'Yanıtlandı · Gelen Kutusu\'nda aç';
+
+  @override
+  String get newCoupon => 'Yeni kupon';
+
+  @override
+  String get newCouponHelp => 'Yüzde veya tutar indirimi için kod';
+
+  @override
+  String couponSaved(String code) {
+    return '$code kuponu hazır.';
+  }
+
+  @override
+  String get couponCode => 'Kod';
+
+  @override
+  String get percentOff => 'Yüzde indirim';
+
+  @override
+  String get amountOff => 'Tutar indirimi';
+
+  @override
+  String get percentValueField => 'İndirim yüzdesi (1–100)';
+
+  @override
+  String get amountValueField => 'İndirim tutarı';
+
+  @override
+  String get newFlashSale => 'Yeni flaş indirim';
+
+  @override
+  String get newFlashSaleHelp => 'Bazı ürünlerde şimdi başlayan indirim';
+
+  @override
+  String flashSaleSaved(String title) {
+    return '$title başladı.';
+  }
+
+  @override
+  String get saleName => 'Ad';
+
+  @override
+  String get saleLasts => 'Süre';
+
+  @override
+  String get saleProducts => 'İndirimdeki ürünler';
+
+  @override
+  String get deliveryToday => 'Bugünün teslimat saatleri';
+
+  @override
+  String get slotOpen => 'Açık';
+
+  @override
+  String get slotClosedToday => 'Bugün kapalı';
+
+  @override
+  String get slotClosed => 'Bugün için kapatıldı: uygulama artık sunmuyor.';
+
+  @override
+  String get slotOpened => 'Yeniden açık.';
+
+  @override
+  String get busyMode => 'Yoğun modu';
+
+  @override
+  String busyFor(String name) {
+    return '$name yoğun';
+  }
+
+  @override
+  String get busyHelp =>
+      'Bir süre yeni sipariş almaz; müşteriler ne zaman açılacağını görür.';
+
+  @override
+  String get takeOrdersNow => 'Şimdi sipariş al';
+
+  @override
+  String takingOrders(String name) {
+    return '$name yeniden sipariş alıyor.';
+  }
+
+  @override
+  String get takingOrdersShort => 'Sipariş alıyor';
+
+  @override
+  String busyUntilShort(String time) {
+    return '$time saatine kadar yoğun';
+  }
+
+  @override
+  String get noQuickActions => 'Uygulamanızda hızlı işlem yok.';
+
+  @override
+  String get goalReached => 'Hedefe ulaşıldı!';
+
+  @override
+  String goalProgress(String current, String target) {
+    return '$target hedefinin $current kadarı';
+  }
+
+  @override
+  String get primeGift => 'Prime · Yallapp\'ten hediye';
+
+  @override
+  String primeGiftUntil(String date) {
+    return 'Prime · $date tarihine kadar Yallapp\'ten hediye';
+  }
+
+  @override
+  String get alertLowStock => 'Düşük stok';
+
+  @override
+  String get alertSalesGoal => 'Satış hedefi';
+
+  @override
+  String goalWhen(String amount, String period) {
+    return '$period başına $amount';
+  }
+
+  @override
+  String get periodDay => 'gün';
+
+  @override
+  String get periodWeek => 'hafta';
+
+  @override
+  String get periodMonth => 'ay';
+
+  @override
+  String get goalNotSet => 'Gün, hafta veya ay için bir tutar belirleyin';
+
+  @override
+  String get goalPeriodField => 'Her';
+
+  @override
+  String get thresholdField => 'Bu kadar kaldığında haber ver';
+
+  @override
+  String get weeklyReport => 'E-postayla haftalık rapor';
+
+  @override
+  String weeklyReportHelp(String email) {
+    return 'Her pazartesi $email adresine: satışlar, siparişler, en çok satanlar ve müşteriler.';
+  }
+
+  @override
+  String get primeMoreCustomersHelp =>
+      'Yeni ve geri gelenler, en iyiler, gelmeyi bırakanlar';
+
+  @override
+  String get primeMoreProductsHelp =>
+      'En çok satanlar, yavaş satanlar, düşük stok';
+
+  @override
+  String get primeMoreReviewsHelp => 'Tüm puanlar ve yanıtlar';
+
+  @override
+  String get primeMoreActionsHelp =>
+      'Kuponlar, flaş indirimler, teslimat saatleri, yoğun modu';
+
+  @override
+  String get primeGoalsHelp =>
+      'Gün, hafta veya ay için hedef, Bugün\'de halkasıyla';
+
+  @override
+  String get primeWeeklyHelp => 'Her pazartesi e-postayla özet';
+
+  @override
   String minutesAgo(int count) {
     return '$count dk önce';
   }
@@ -3516,6 +4340,114 @@ class AppLocalizationsTr extends AppLocalizations {
       locale: localeName,
       other: '$count puan',
       one: '1 puan',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String ordersCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count sipariş',
+      one: '1 sipariş',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String away30(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '30–60 gündür gelmeyen $count kişi',
+      zero: '30–60 gündür gelmeyenler',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String away60(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '60 günden fazla gelmeyen $count kişi',
+      zero: '60 günden fazla gelmeyenler',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String leftCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count kaldı',
+      one: '1 kaldı',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String unitsSold(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count satıldı',
+      zero: 'Satış yok',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String starsOf(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '5 üzerinden $count yıldız',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String hoursShort(int hours) {
+    String _temp0 = intl.Intl.pluralLogic(
+      hours,
+      locale: localeName,
+      other: '$hours saat',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String lowStockAlertHint(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'Akıllı uyarılar\'daki Düşük stok, $count kaldığında haber verir.',
+      zero: 'Bir ürün tükendiğinde haber almak için Akıllı uyarılar\'da Düşük stok\'u açın.',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String lockAfterMinutes(int minutes) {
+    String _temp0 = intl.Intl.pluralLogic(
+      minutes,
+      locale: localeName,
+      other: '$minutes dakika uzaktayken',
+      one: '1 dakika uzaktayken',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String needsAwaitingPayment(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'Ödemesi beklenen $count sipariş',
+      one: 'Ödemesi beklenen 1 sipariş',
     );
     return '$_temp0';
   }

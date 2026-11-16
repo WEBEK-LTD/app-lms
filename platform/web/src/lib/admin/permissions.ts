@@ -48,6 +48,8 @@ export const ADMIN_PERMISSIONS = [
   "bot.edit",
   /** 106 Studio Market: review templates sent for their first publish (approve and publish them, or send them back with notes). */
   "market.review",
+  /** 132 Give Prime to a client's apps as a gift (never charged, the plan and invoices unchanged), and take it back. */
+  "prime.gift",
   /** 132.112 Move a client's app, or 132.115 its plan, to another account or app, with the owner's approval code. */
   "apps.transfer",
   /** 132.114 Copy a client's app into another account or the same one. */

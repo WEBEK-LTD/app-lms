@@ -18,14 +18,19 @@ class Woo_Orders {
 	 * WooCommerce statuses (without the wc- prefix) to the API's.
 	 */
 	const STATUSES = array(
-		'pending'        => 'pending',
-		'checkout-draft' => 'pending',
-		'processing'     => 'processing',
-		'on-hold'        => 'on_hold',
-		'completed'      => 'completed',
-		'cancelled'      => 'cancelled',
-		'refunded'       => 'refunded',
-		'failed'         => 'failed',
+		'pending'         => 'pending',
+		'checkout-draft'  => 'pending',
+		'processing'      => 'processing',
+		'on-hold'         => 'on_hold',
+		'completed'       => 'completed',
+		'cancelled'       => 'cancelled',
+		'refunded'        => 'refunded',
+		'failed'          => 'failed',
+		// 132 The delivery stages (Delivery_Stages): still in progress for the apps that don't know them.
+		'shipped'         => 'processing',
+		'postponed'       => 'processing',
+		'failed-delivery' => 'processing',
+		'returned'        => 'processing',
 	);
 
 	/**
@@ -34,12 +39,17 @@ class Woo_Orders {
 	 * Unpaid orders have no step.
 	 */
 	const FULFILMENT = array(
-		'on-hold'    => 'received',
-		'processing' => 'preparing',
-		'completed'  => 'completed',
-		'cancelled'  => 'cancelled',
-		'refunded'   => 'cancelled',
-		'failed'     => 'cancelled',
+		'on-hold'         => 'received',
+		'processing'      => 'preparing',
+		'completed'       => 'completed',
+		'cancelled'       => 'cancelled',
+		'refunded'        => 'cancelled',
+		'failed'          => 'cancelled',
+		// 132 The delivery stages.
+		'shipped'         => 'out_for_delivery',
+		'postponed'       => 'preparing',
+		'failed-delivery' => 'preparing',
+		'returned'        => 'preparing',
 	);
 
 	/**
@@ -175,6 +185,8 @@ class Woo_Orders {
 			$shape['fulfilment_status'] = self::fulfilment_status( $status );
 			// 91.2 Its tracking, from the tracking plugins.
 			$shape['shipment'] = Order_Tracking::of_order( $order );
+			// 132 Its delivery stage, with the shop's note to the customer as the reason.
+			$shape['stage'] = Delivery_Stages::of_order( $order );
 			// 91.3 Its return, and whether one can be asked for now.
 			$days                    = Order_Returns::days( \Yallapp\Plugin::instance()->settings()->get( 'store_return_days' ) );
 			$shape['return_request'] = Order_Returns::json( $order );

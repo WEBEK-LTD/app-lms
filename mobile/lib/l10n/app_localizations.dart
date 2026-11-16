@@ -19183,6 +19183,78 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Pin where it goes on the map.'**
   String get deliveryNeedPin;
+
+  /// 132 On an order's screen: its delivery stage, the shop is preparing it.
+  ///
+  /// In en, this message translates to:
+  /// **'Your order is being prepared'**
+  String get orderStagePreparing;
+
+  /// 132 On an order's screen: its delivery stage, the order is on its way.
+  ///
+  /// In en, this message translates to:
+  /// **'Out for delivery'**
+  String get orderStageShipped;
+
+  /// 132 On an order's screen: its delivery stage, the shop moved the delivery to another day.
+  ///
+  /// In en, this message translates to:
+  /// **'Delivery postponed'**
+  String get orderStagePostponed;
+
+  /// 132 On an order's screen: its delivery stage, a delivery attempt failed.
+  ///
+  /// In en, this message translates to:
+  /// **'We couldn\'t deliver'**
+  String get orderStageFailed;
+
+  /// 132 On an order's screen: its delivery stage, the order went back to the shop after a failed delivery.
+  ///
+  /// In en, this message translates to:
+  /// **'Back at the shop'**
+  String get orderStageReturned;
+
+  /// 132 On an order's screen: its delivery stage, the order was delivered.
+  ///
+  /// In en, this message translates to:
+  /// **'Delivered'**
+  String get orderStageDelivered;
+
+  /// 132 Under a postponed delivery: the new day and time.
+  ///
+  /// In en, this message translates to:
+  /// **'New delivery day: {day}'**
+  String orderStageNewDay(String day);
+
+  /// 132 Under a failed delivery: the day the shop tries again.
+  ///
+  /// In en, this message translates to:
+  /// **'We\'ll try again on {day}'**
+  String orderStageTryAgain(String day);
+
+  /// 132 Under an order out for delivery: who brings it.
+  ///
+  /// In en, this message translates to:
+  /// **'Courier: {name}'**
+  String orderStageCourier(String name);
+
+  /// 132 Button under an order out for delivery: calls the courier.
+  ///
+  /// In en, this message translates to:
+  /// **'Call the courier'**
+  String get orderStageCallCourier;
+
+  /// 132 Button under an order out for delivery: opens the shop's tracking link.
+  ///
+  /// In en, this message translates to:
+  /// **'Follow the delivery'**
+  String get orderStageFollow;
+
+  /// 132 Above the business's reply under the customer's rating of a food order or a ride.
+  ///
+  /// In en, this message translates to:
+  /// **'Reply from {business}'**
+  String ratingReplyFrom(String business);
 }
 
 class _AppLocalizationsDelegate

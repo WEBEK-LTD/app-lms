@@ -56,7 +56,13 @@ export interface OrderMoveDeps {
  * (the customer is told). Completing a marketplace order releases the
  * shop's share. False (nothing changed) otherwise.
  */
-export async function changeOrderStatus(deps: OrderMoveDeps, order: CatalogOrder, status: string): Promise<boolean> {
+export async function changeOrderStatus(
+  deps: OrderMoveDeps,
+  order: CatalogOrder,
+  status: string,
+  // 132 What the customer is told instead: "delivered" for a delivered order, false for nothing (its stage told them).
+  opts: { notice?: "delivered" | false } = {},
+): Promise<boolean> {
   const { store, app, now } = deps;
   // 96.2 Marked paid (then delivered like a card payment, the customer gets their receipt) or cancelled.
   if (awaitingManualPayment(order)) {
@@ -71,7 +77,7 @@ export async function changeOrderStatus(deps: OrderMoveDeps, order: CatalogOrder
     moved = true;
     // 91.2 The customer hears of it (a restaurant's kitchen tells its own steps).
     try {
-      await notifyOrderUpdate({ store, key: deps.key, now, send: deps.send }, app, order, status as "completed" | "cancelled");
+      if (opts.notice !== false) await notifyOrderUpdate({ store, key: deps.key, now, send: deps.send }, app, order, opts.notice ?? (status as "completed" | "cancelled"));
     } catch (e) {
       console.error(`[orders] the order update failed: ${e instanceof Error ? e.message : String(e)}`.slice(0, 400));
     }

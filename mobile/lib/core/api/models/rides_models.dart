@@ -1,4 +1,5 @@
 import 'delivery_models.dart';
+import 'food_models.dart' show RatingReply;
 import 'json.dart';
 
 /// 105.2 Ride hailing: `Config.rides`, the fares before asking, the
@@ -366,6 +367,7 @@ class Ride {
     this.shareUrl,
     this.cancellation,
     this.rated,
+    this.ratingReply,
     this.timeline = const [],
     required this.createdAt,
   });
@@ -405,6 +407,9 @@ class Ride {
       shareUrl: optString(json, 'share_url'),
       cancellation: optObject(json, 'cancellation', RideCancellation.fromJson),
       rated: rating == null ? null : intOr(rating, 'driver', 5),
+      ratingReply: rating == null
+          ? null
+          : optObject(rating, 'reply', RatingReply.fromJson),
       timeline: listOf(json, 'timeline', RideStage.fromJson),
       createdAt: reqDate(json, 'created_at'),
     );
@@ -438,6 +443,9 @@ class Ride {
 
   /// The stars the rider gave, once rated.
   final int? rated;
+
+  /// 132 The business's reply under the rating; null for none.
+  final RatingReply? ratingReply;
   final List<RideStage> timeline;
   final DateTime createdAt;
 

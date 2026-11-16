@@ -11,6 +11,9 @@ import type {
   LoyaltyReason, OrderPoints, OrderReturn, OrderShipment, CatalogVariants, CatalogOrder, OrderManualPayment,
   // 131 The flower shop
   OrderDelivery,
+  DeliveryStage,
+  OrderStageEntry,
+  OrderStageRefund,
   StoreFlashSale,
   AddonRule,
   GiftOccasion,
@@ -123,6 +126,8 @@ import type {
   DeliverySettings,
   FoodOrderLine,
   FoodOrderStage,
+  FoodOrder,
+  Ride,
   DriverDetails,
   RideCancellation,
   RideFareMode,
@@ -824,6 +829,11 @@ export const catalogOrders = mysqlTable(
     // 131 The delivery day and slot and the gift details (JSON), and the day apart for counting a slot's orders.
     delivery: jsonText<OrderDelivery>("delivery"),
     deliveryDate: varchar("delivery_date", { length: 10 }),
+    // 132 Where its delivery is, and every change of it (JSON).
+    deliveryStage: varchar("delivery_stage", { length: 16 }).$type<DeliveryStage>(),
+    stageLog: jsonText<OrderStageEntry[]>("stage_log"),
+    // 132 The money back after a failed delivery cancelled it (JSON).
+    stageRefund: jsonText<OrderStageRefund>("stage_refund"),
   },
   (t) => [
     uniqueIndex("catalog_orders_token_unique").on(t.tokenHash),
@@ -2103,7 +2113,7 @@ export const foodOrders = mysqlTable(
     readyAt: time("ready_at"),
     rejection: jsonText<{ reason: FoodRejection; note: string | null } | null>("rejection"),
     shipmentId: bigint("shipment_id", { mode: "number", unsigned: true }),
-    rating: jsonText<{ restaurant: number; courier: number | null; comment: string | null; at: string } | null>("rating"),
+    rating: jsonText<FoodOrder["rating"]>("rating"),
     timeline: jsonText<FoodOrderStage[]>("timeline").notNull(),
     lang: varchar("lang", { length: 8 }),
     createdAt: time("created_at").notNull(),
@@ -2192,7 +2202,7 @@ export const rides = mysqlTable(
     cancellation: jsonText<RideCancellation | null>("cancellation"),
     feeCarriedTo: bigint("fee_carried_to", { mode: "number", unsigned: true }),
     shareToken: varchar("share_token", { length: 40 }),
-    rating: jsonText<{ driver: number; comment: string | null; at: string } | null>("rating"),
+    rating: jsonText<Ride["rating"]>("rating"),
     timeline: jsonText<RideStage[]>("timeline").notNull(),
     lang: varchar("lang", { length: 8 }),
     createdAt: time("created_at").notNull(),
@@ -5316,6 +5326,25 @@ export const primeAlerts = mysqlTable(
     updatedAt: time("updated_at").notNull(),
   },
   (t) => [primaryKey({ columns: [t.userId, t.appId] }), index("prime_alerts_app_idx").on(t.appId)],
+);
+
+/** 132 Prime given by Yallapp's team as a gift to one app (Admin › client), whatever its plan. */
+export const primeGifts = mysqlTable(
+  "prime_gifts",
+  {
+    appId: id("app_id")
+      .primaryKey()
+      .references(() => apps.id, { onDelete: "cascade" }),
+    clientId: id("client_id")
+      .notNull()
+      .references(() => clients.id, { onDelete: "cascade" }),
+    until: time("until"),
+    note: text("note"),
+    givenBy: varchar("given_by", { length: 191 }).notNull(),
+    createdAt: time("created_at").notNull(),
+    updatedAt: time("updated_at").notNull(),
+  },
+  (t) => [index("prime_gifts_client_idx").on(t.clientId)],
 );
 
 /** The alerts and briefs pushed, each once (an item's alert on a day, a person's brief on a day); kept a few days. */

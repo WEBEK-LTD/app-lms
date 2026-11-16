@@ -13,6 +13,7 @@ import '../../core/widgets/paged_list.dart';
 import '../../core/widgets/states.dart';
 import '../food/food_sheets.dart';
 import '../shipments/shipments_screen.dart' show PersonChoice;
+import '../studio/status_words.dart';
 import '../studio/studio_widgets.dart';
 
 Tone rideTone(String status) => switch (status) {
@@ -24,9 +25,12 @@ Tone rideTone(String status) => switch (status) {
 };
 
 /// A ride's tag: its status, with how long it has searched.
-String rideTag(BuildContext context, Ride r) => r.searchingMinutes == null
-    ? r.statusLabel
-    : '${r.statusLabel} · ${context.l10n.minutesShort(r.searchingMinutes!)}';
+String rideTag(BuildContext context, Ride r) {
+  final label = rideStatusLabel(context, r.status, r.statusLabel);
+  return r.searchingMinutes == null
+      ? label
+      : '$label · ${context.l10n.minutesShort(r.searchingMinutes!)}';
+}
 
 /// 125 Rides and taxi (the Rides board): free drivers, rides on the way and
 /// searching; a searching ride is given to a driver or cancelled.
