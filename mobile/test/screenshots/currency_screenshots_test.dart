@@ -143,7 +143,7 @@ final _shots = <Shot>[
   ),
   Shot(
     'currency-picker-ar',
-    api: () => _shop(base: 'EGP', shown: null),
+    api: () => _shop(base: 'EGP', shown: null)..currencies = _arabicCurrencies,
     appType: AppType.store,
     appName: 'حلواني دانة',
     language: 'ar',
@@ -156,6 +156,48 @@ final _shots = <Shot>[
     },
   ),
 ];
+
+/// `GET /currencies` in Arabic, as the server names them for `Accept-Language: ar`.
+const _arabicCurrencies = <String, dynamic>{
+  'rate_date': '2026-11-16',
+  'items': [
+    {
+      'code': 'EGP',
+      'name': 'جنيه مصري',
+      'symbol': 'E£',
+      'digits': 2,
+      'usual': true,
+    },
+    {
+      'code': 'SAR',
+      'name': 'ريال سعودي',
+      'symbol': 'ر.س.',
+      'digits': 2,
+      'usual': true,
+    },
+    {
+      'code': 'KWD',
+      'name': 'دينار كويتي',
+      'symbol': 'د.ك.',
+      'digits': 3,
+      'usual': true,
+    },
+    {
+      'code': 'USD',
+      'name': 'دولار أمريكي',
+      'symbol': 'US\$',
+      'digits': 2,
+      'usual': true,
+    },
+    {
+      'code': 'JPY',
+      'name': 'ين ياباني',
+      'symbol': 'JP¥',
+      'digits': 0,
+      'usual': false,
+    },
+  ],
+};
 
 Future<Uint8List> _png(WidgetTester tester) async {
   final boundary = tester.renderObject<RenderRepaintBoundary>(

@@ -14,7 +14,8 @@ import { BOOKING_STATUS_LABELS, bookingSetup } from "../bookings/setup";
 import { notifyAppointmentConfirmed } from "../hosted/auto-notifications";
 import { localToUtc, utcToLocal } from "../bookings/time";
 import { FULFILMENT_LABELS } from "../catalog/fulfilment";
-import { formatCents } from "../catalog/money";
+import { BILLING_CURRENCIES, formatCents } from "../catalog/money";
+import { formatMinor } from "../market/currency";
 import { countOpenQuestions } from "../courses/community";
 import { changeOrderStatus, nextOrderStatuses } from "../catalog/order-status";
 import { awaitingManualPayment } from "../catalog/manual";
@@ -83,6 +84,16 @@ export function appScope(ctx: OwnerContext, appId: string | undefined, area?: ke
  */
 export function money(cents: number, currency: string) {
   return { amount_cents: cents, currency, formatted: formatCents(cents, currency as CatalogCurrency) };
+}
+
+/**
+ * 133.2 `Money` of a marketplace's amounts, kept in the currency's own minor
+ * units (fils, yen; lib/market/currency.ts): written as before 133, the six
+ * currencies Yallapp knew then with their sign, the others with their code.
+ */
+export function minorMoney(minor: number, currency: string) {
+  const known = (BILLING_CURRENCIES as readonly string[]).includes(currency);
+  return { amount_cents: minor, currency, formatted: known ? formatCents(minor, currency as CatalogCurrency) : formatMinor(minor, currency) };
 }
 
 function addTo(totals: Map<string, number>, currency: string, cents: number) {

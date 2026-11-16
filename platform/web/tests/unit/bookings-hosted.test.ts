@@ -436,7 +436,7 @@ describe("Services & team forms", () => {
       ok: true,
       value: { timezone: "Europe/Istanbul", currency: "TRY", slotStepMinutes: 15, minMinutesAhead: 120, maxDaysAhead: 30, cancelBeforeMinutes: null, notes: true, autoApprove: false },
     });
-    const badRules = parseRules({ timezone: "Mars/Base", currency: "GBP", slotStep: "7", minHoursAhead: "x", maxDaysAhead: "0", cancelHours: "-1" });
+    const badRules = parseRules({ timezone: "Mars/Base", currency: "XXX", slotStep: "7", minHoursAhead: "x", maxDaysAhead: "0", cancelHours: "-1" });
     expect(badRules.ok ? [] : Object.keys(badRules.errors).sort()).toEqual(["cancelHours", "currency", "maxDaysAhead", "minHoursAhead", "slotStep", "timezone"]);
 
     const setup = salon();

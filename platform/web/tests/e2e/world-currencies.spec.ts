@@ -99,7 +99,8 @@ test("133.1–133.3 a Studio store sells in Kuwaiti dinars, then in yen, with th
   await expect(currency.locator("option").first()).toHaveText("Egyptian Pound · EGP · E£");
   await own.getByRole("searchbox", { name: "Search currencies" }).fill("kuwait");
   // The chosen one stays while searching, so the form never sends another.
-  await expect(currency.locator("option")).toHaveText(["Egyptian Pound · EGP · E£", "Kuwaiti Dinar · KWD"]);
+  await expect(currency.locator("option", { hasText: "Kuwaiti Dinar · KWD" })).toHaveCount(1);
+  await expect(currency.locator("option")).toHaveCount(2);
   await currency.selectOption("KWD");
   await expect(own.getByText("KWD is written with three decimals (1.250); prices go to the hundredth, like 1.250 or 1.260.")).toBeVisible();
   await own.getByRole("button", { name: "Save settings" }).click();

@@ -12,7 +12,7 @@ import type { OwnerDeps } from "@/lib/owner/http";
 import { runPrimeChecks } from "@/lib/owner/prime-jobs";
 import { pushLeaveRequested, pushNewComplaint, pushNewOrder, pushShipmentWaiting, type OwnerPushDeps } from "@/lib/owner/push";
 import { announceOrder } from "@/lib/food/flow";
-import { money } from "@/lib/owner/sales";
+import { minorMoney, money } from "@/lib/owner/sales";
 import { handleOwner } from "@/lib/owner/service";
 import type { Plan } from "@/lib/plans";
 import { APP_AREA_PERMISSION, PUSH_PERMISSION } from "@/lib/team/permissions";
@@ -238,8 +238,13 @@ describe("125.2 areas, features and the bug fixes", () => {
   });
 
   it("writes amounts with their currency's own decimals", () => {
-    expect(money(12_500, "KWD")).toEqual({ amount_cents: 12_500, currency: "KWD", formatted: "KWD 12.500" });
-    expect(money(1500, "JPY").formatted).toBe("JPY 1,500");
+    // A marketplace's amounts are in the currency's minor units (fils, yen).
+    expect(minorMoney(12_500, "KWD")).toEqual({ amount_cents: 12_500, currency: "KWD", formatted: "KWD 12.500" });
+    expect(minorMoney(1500, "JPY").formatted).toBe("JPY 1,500");
+    expect(minorMoney(125_000, "TRY").formatted).toBe("₺1,250.00");
+    // 133.2 Every other amount is in cents (hundredths), whatever the currency.
+    expect(money(1_250, "KWD")).toEqual({ amount_cents: 1_250, currency: "KWD", formatted: "KWD\u00a012.500" });
+    expect(money(150_000, "JPY").formatted).toBe("¥1,500");
     expect(money(125_000, "TRY").formatted).toBe("₺1,250.00");
   });
 

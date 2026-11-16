@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../core/api/models/models.dart';
+import '../../../core/format/bidi.dart';
 import '../../../core/gate/app_gate.dart';
 import '../../../core/l10n/currency.dart';
 import '../../../core/l10n/l10n.dart';
@@ -167,10 +168,11 @@ class _CurrencyPickerSheetState extends ConsumerState<CurrencyPickerSheet> {
                         minTileHeight: 52,
                         title: Text(c.name),
                         subtitle: Text(
-                          c.symbol == c.code
-                              ? c.code
-                              : '${c.code} · ${c.symbol}',
-                          textDirection: TextDirection.ltr,
+                          isolate(
+                            c.symbol == c.code
+                                ? c.code
+                                : '${c.code} · ${c.symbol}',
+                          ),
                         ),
                         trailing: c.code == current
                             ? AppIcon(AppIcons.check, color: p.text)

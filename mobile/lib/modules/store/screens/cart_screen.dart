@@ -1466,8 +1466,9 @@ class _CouponCardState extends ConsumerState<_CouponCard> {
 String? chargeLine(BuildContext context, CartQuote quote) {
   final l10n = context.l10n;
   final charge = quote.charge;
-  if (charge != null && charge.inCustomerCurrency)
+  if (charge != null && charge.inCustomerCurrency) {
     return l10n.youPayIn(charge.total);
+  }
   final display = quote.display;
   final converted = display?.total ?? display?.subtotal;
   if (display == null || converted == null) return null;
