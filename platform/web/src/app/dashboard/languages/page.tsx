@@ -15,6 +15,7 @@ import { contentRows, interfaceRows, progress } from "@/lib/i18n/translations";
 import { hasUnpublishedChanges, loadLayout } from "@/lib/pages/layout";
 import { draftPreviewSupported } from "@/lib/preview/config";
 import { lowestPlanWith } from "@/lib/plans";
+import { withMainLanguage } from "@/lib/app/start-language";
 import { LanguagesEditor } from "./editor";
 
 export async function generateMetadata(): Promise<Metadata> {
@@ -62,6 +63,8 @@ export default async function LanguagesPage({ searchParams }: PageProps<"/dashbo
     return { code, name: languageName(code), nativeName: localeInfo(code)?.nativeName ?? code, done: p.done, total: p.total };
   });
   const hosted = draftPreviewSupported(app);
+  // 132.40 "Make Arabic the main language": a dashboard in Arabic or Turkish, for an app whose main language is another.
+  const main = dashLang !== "en" && languages.default !== dashLang ? withMainLanguage(languages, dashLang, plan?.limits.languages ?? null) : null;
   const toTranslate = summaries.reduce((sum, s) => sum + Math.max(0, s.total - s.done), 0);
 
   return (
@@ -77,6 +80,7 @@ export default async function LanguagesPage({ searchParams }: PageProps<"/dashbo
         languages={{ default: languages.default, available: languages.available }}
         lang={{ code: lang, name: languageName(lang), rtl: isRtl(lang), builtIn: isBuiltInLanguage(lang), isDefault: lang === languages.default }}
         defaultName={languageName(languages.default)}
+        main={main ? { code: dashLang, name: languageName(dashLang), languages: main.languages, dropped: main.dropped ? languageName(main.dropped) : null } : null}
         rows={rows}
         summaries={summaries}
         published={record.published?.version ?? null}
