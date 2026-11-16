@@ -7,6 +7,7 @@ import { verifyKashierWebhook } from "./kashier";
 import { noteWebhook } from "./webhooks";
 import { PAYMENT_KINDS, type PaymentKind } from "./routes";
 import { settleDonationPayment, settleOrderPayment, settlePlanPayment, type Settled, type Trigger } from "./settle";
+import { settleTemplatePayment } from "../studio-market/payment";
 
 /**
  * 37 /api/pay/kashier/<kind>/<token> and /api/pay/fawaterk/<kind>/<token>;
@@ -29,6 +30,8 @@ type ReturnOnly = Provider | "stripe" | "paypal";
 function settle(kind: PaymentKind, token: string, trigger: Trigger): Promise<Settled> {
   if (kind === "plan") return settlePlanPayment(token, trigger);
   if (kind === "order") return settleOrderPayment(token, trigger);
+  // 106.2 A Studio Market template (Yallapp's own account).
+  if (kind === "template") return settleTemplatePayment(token, trigger);
   return settleDonationPayment(token, trigger);
 }
 

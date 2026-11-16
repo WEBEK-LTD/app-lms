@@ -157,6 +157,9 @@ export const AUDIT_ACTIONS = {
   // 106 Studio Market: the team's review of a template's first publish
   "market.approve": "Studio Market template approved and published",
   "market.changes": "Studio Market template sent back with notes",
+  // 106.2 The daily job: a buyer's plan for a template ended; and the team changing a licence's end date.
+  "market.licence_ended": "Studio Market plan ended (daily job)",
+  "market.licence_end_date": "Studio Market licence end date changed",
 } as const;
 
 export type AuditAction = keyof typeof AUDIT_ACTIONS;
@@ -192,6 +195,7 @@ export const AUDIT_TARGETS = {
   review: "Customer review",
   // 106
   market_template: "Studio Market template",
+  market_licence: "Studio Market licence",
   // 133
   addon: "Add-on",
 } as const;

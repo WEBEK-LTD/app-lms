@@ -8,7 +8,9 @@ import { categorySourcesFor, itemSourcesFor, screenOptionsFor } from "../pages/s
 import type { Layout, LayoutContent } from "../pages/types";
 import { parseLayoutContent } from "../pages/validate";
 import type { PlanInfo } from "../plans";
-import { designPages, picturesIn, type DesignFile } from "../studio/design-file";
+import { designPages, fontsIn, picturesIn, withoutFonts, type DesignFile } from "../studio/design-file";
+import { effectivePlans } from "../entitlements";
+import { copyPictures, designPictures, installTemplateFonts, movePictures, ownFamily, readTemplateFonts, type PictureDeps } from "./assets";
 import { applyWholeDesign } from "../studio/designs";
 import { newNodeId } from "../studio/elements";
 import { parseStudioScreens, studioScreensOn, type StudioScreens } from "../studio/screens";
@@ -61,7 +63,19 @@ export const APPLY_MESSAGES = {
   updated: "Updated to the newest version.",
 } as const;
 
-export type MarketDeps = { store: DataStore; blobs: BlobStore; now: Date };
+export type MarketDeps = {
+  store: DataStore;
+  blobs: BlobStore;
+  now: Date;
+  /**
+   * 106.2 The platform's address and the Media library's reader: the
+   * template's pictures at it are copied into the buyer's account, and its
+   * fonts made the app's own (lib/studio-market/assets.ts). Without it the
+   * design keeps its addresses (tests).
+   */
+  baseUrl?: string;
+  readMedia?: PictureDeps["readMedia"];
+};
 
 /** The design an app had before a template: kept to go back to. */
 export interface PreviousDesign {
@@ -221,7 +235,24 @@ export async function applyTemplate(deps: MarketDeps, input: ApplyInput): Promis
   if (!done.ok) return done;
 
   if (!licence) {
-    licence = { id: newId(), templateId: template.id, clientId: input.clientId, plan: "free", status: "active", appId: app.id, versionId: loaded.version.id, startsAt: now, endsAt: null, movedAt: null, createdAt: now, updatedAt: now };
+    licence = {
+      id: newId(),
+      templateId: template.id,
+      clientId: input.clientId,
+      plan: "free",
+      status: "active",
+      appId: app.id,
+      versionId: loaded.version.id,
+      startsAt: now,
+      endsAt: null,
+      movedAt: null,
+      afterEnd: null,
+      remindedEarlyFor: null,
+      remindedLastFor: null,
+      endedAt: null,
+      createdAt: now,
+      updatedAt: now,
+    };
     await store.createTemplateLicence(licence);
   } else {
     await store.updateTemplateLicence(licence.id, { appId: app.id, versionId: loaded.version.id }, now);
@@ -246,7 +277,7 @@ async function putOn(
 ): Promise<MarketResult<{ application: Omit<TemplateApplication, "licenceId" | "templateId">; live: boolean }>> {
   const { store, now } = deps;
   const record = await loadLayout(store, app, now);
-  const next = designedLayout(app, record.draft, loaded.file, now);
+  const next = designedLayout(app, record.draft, await ownCopy(deps, app, loaded, by), now);
   const problems = await check(store, app, next, now);
   if (problems) return fail(APPLY_MESSAGES.invalid, problems);
   const id = newId();
@@ -267,6 +298,23 @@ async function putOn(
     }
   }
   return { ok: true, live: saved.live, application: { id, appId: app.id, versionId: loaded.version.id, previousKey, replacedId, appliedAt: now, endedAt: null, endReason: null, appliedBy: by } };
+}
+
+/**
+ * 106.2 The version's design as the buyer's own: its pictures copied into
+ * the buyer's account (the design pointing to the copies), its fonts made
+ * the app's own fonts (or, when one can't be, the app's font there).
+ */
+async function ownCopy(deps: MarketDeps, app: App, loaded: { version: MarketTemplateVersion; file: DesignFile }, by: string): Promise<DesignFile> {
+  if (!deps.baseUrl) return loaded.file;
+  let file = movePictures(loaded.file, await copyPictures({ ...deps, baseUrl: deps.baseUrl }, designPictures(loaded.file), app.clientId, "buyer"));
+  const families = [file.look?.font, file.look?.arabic_font, ...file.pages.flatMap((p) => fontsIn(p.studio))].filter((f): f is string => Boolean(f) && ownFamily(f!));
+  if (families.length) {
+    const fonts = await readTemplateFonts(deps.blobs, loaded.version);
+    const { failed } = await installTemplateFonts({ ...deps, plans: await effectivePlans(deps.store) }, app, fonts, families, by);
+    file = withoutFonts(file, new Set(failed));
+  }
+  return file;
 }
 
 /** Whether the buyer gets the template's new versions: free, lifetime or a plan still running. */
@@ -344,6 +392,20 @@ export async function restorePrevious(deps: MarketDeps, input: OwnedInput & { ap
 }
 
 /**
+ * 106.2 A plan's end when the template said "back to the previous design"
+ * (the daily job): the app gets the design it had before, the template
+ * comes off it, and a template it replaced comes back.
+ */
+export async function takeOffAtEnd(deps: MarketDeps, licence: TemplateLicence, application: TemplateApplication, app: App, plan: PlanInfo | null): Promise<MarketResult> {
+  const back = await putBack(deps, app, application, "Studio Market", plan);
+  if (!back.ok) return back;
+  if (!(await deps.store.updateTemplateApplication(application.id, { endedAt: deps.now, endReason: "ended" }))) return fail(APPLY_MESSAGES.gone);
+  if (licence.appId === app.id) await deps.store.updateTemplateLicence(licence.id, { appId: null }, deps.now);
+  await reopenReplaced(deps, app, application);
+  return { ok: true };
+}
+
+/**
  * Moves the template to another of the buyer's apps of the same kind, once
  * every 30 days (kept by the database: two moves at once, one wins), with
  * the same end date; the first app goes back to the design it had before.
@@ -366,7 +428,9 @@ export async function moveTemplate(deps: MarketDeps, input: OwnedInput & { licen
   const loaded = await loadVersion(deps, getsUpdates(licence, now) ? (input.template.currentVersionId ?? licence.versionId) : licence.versionId);
   if (!loaded) return fail(APPLY_MESSAGES.design);
   const target = await loadLayout(store, to, now);
-  const problems = await check(store, to, designedLayout(to, target.draft, loaded.file, now), now);
+  // Checked as it is, its own fonts aside (the copies are made, and the fonts added, when it goes on).
+  const families = [loaded.file.look?.font, loaded.file.look?.arabic_font, ...loaded.file.pages.flatMap((p) => fontsIn(p.studio))].filter((f): f is string => Boolean(f) && ownFamily(f!));
+  const problems = await check(store, to, designedLayout(to, target.draft, withoutFonts(loaded.file, new Set(families)), now), now);
   if (problems) return fail(APPLY_MESSAGES.invalid, problems);
   // The move rule, in the database.
   if (!(await store.moveTemplateLicence(licence.id, from.id, to.id, new Date(now.getTime() - MOVE_EVERY_DAYS * DAY), now))) return fail(APPLY_MESSAGES.tooSoon);
@@ -400,7 +464,7 @@ export async function updateToLatest(deps: MarketDeps, input: OwnedInput & { app
   const loaded = await loadVersion(deps, input.template.currentVersionId);
   if (!loaded) return fail(APPLY_MESSAGES.design);
   const record = await loadLayout(store, owned.app, now);
-  const next = designedLayout(owned.app, record.draft, loaded.file, now, true);
+  const next = designedLayout(owned.app, record.draft, await ownCopy(deps, owned.app, loaded, input.by), now, true);
   const problems = await check(store, owned.app, next, now);
   if (problems) return fail(APPLY_MESSAGES.invalid, problems);
   const saved = await saveAndPublish(deps, owned.app, next, input.by, input.plan);

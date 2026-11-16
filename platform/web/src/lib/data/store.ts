@@ -12,6 +12,10 @@ import type {
   TemplateDesignerPatch,
   TemplateLicence,
   TemplateLicencePatch,
+  TemplateLicencePeriod,
+  TemplateOrder,
+  TemplateOrderPatch,
+  TemplateOrderStatus,
 } from "./types";
 import type { GiftOccasion, StoreDelivery, StoreFlashSale } from "./types";
 import type {
@@ -2504,6 +2508,33 @@ export interface DataStore {
   moveTemplateLicence(id: string, from: string, to: string, notSince: Date, now: Date): Promise<boolean>;
   /** How many licences each template has (since then, when given): by template id. */
   countTemplateLicences(since?: Date): Promise<Record<string, number>>;
+  /** 106.2 Active licences with an end date by then, soonest first: the daily job's reminders and ends. */
+  listTemplateLicencesEndingBy(before: Date): Promise<TemplateLicence[]>;
+  /** 106.2 Notes a reminder for this end date once: false when it went out for it already, or the licence has another end date or ended. */
+  markTemplateLicenceReminder(id: string, which: "early" | "last", endsAt: Date, now: Date): Promise<boolean>;
+  /** 106.2 Ends the licence's plan only while it is active with this end date (not renewed meanwhile). False otherwise. */
+  endTemplateLicence(id: string, endsAt: Date, now: Date): Promise<boolean>;
+  /**
+   * 106.2 A renewal: the licence gets its new plan and end date only while
+   * its end date still is `from` (two renewals paid at once: each extends
+   * from the other's end). Active again if it had ended. False otherwise.
+   */
+  extendTemplateLicence(id: string, from: Date | null, patch: Pick<TemplateLicence, "plan" | "endsAt" | "afterEnd">, now: Date): Promise<boolean>;
+  createTemplateLicencePeriod(period: TemplateLicencePeriod): Promise<void>;
+  /** Oldest first. */
+  listTemplateLicencePeriods(licenceId: string): Promise<TemplateLicencePeriod[]>;
+  createTemplateOrder(order: TemplateOrder): Promise<void>;
+  getTemplateOrder(id: string): Promise<TemplateOrder | null>;
+  getTemplateOrderByToken(tokenHash: string): Promise<TemplateOrder | null>;
+  /** Newest first; by buyer, designer, template, licence or status. */
+  listTemplateOrders(filter: { clientId?: string; designerId?: string; templateId?: string; licenceId?: string; status?: TemplateOrderStatus }): Promise<TemplateOrder[]>;
+  /** Paid only while it is pending (the gateway's webhook and the buyer's return arriving together: one wins). False otherwise. */
+  payTemplateOrder(id: string, paymentId: string | null, now: Date): Promise<boolean>;
+  /** Failed only while it is pending. */
+  failTemplateOrder(id: string): Promise<boolean>;
+  updateTemplateOrder(id: string, patch: TemplateOrderPatch): Promise<boolean>;
+  /** Records the period a paid order gave, once: false when it has one already (its receipt went out). */
+  markTemplateOrderDelivered(id: string, startsAt: Date, endsAt: Date | null): Promise<boolean>;
   createTemplateApplication(application: TemplateApplication): Promise<void>;
   getTemplateApplication(id: string): Promise<TemplateApplication | null>;
   /** Newest first; by licence or app, and only those not ended (`open`). */

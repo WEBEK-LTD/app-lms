@@ -3,7 +3,7 @@ import Link from "next/link";
 import { Icon } from "@/components/icon";
 import type { IconName } from "@/components/icon-names";
 import { MarketPhones, PageThumb, TemplatePhone } from "@/components/studio-market/phone";
-import { DesignerAvatar, FreePrice, TemplateCardView } from "@/components/studio-market/parts";
+import { DesignerAvatar, PriceTagView, TemplateCardView } from "@/components/studio-market/parts";
 import { countryName } from "@/lib/account/country";
 import { contextCan, requireClient } from "@/lib/auth/session";
 import { getBlobStore } from "@/lib/blobs";
@@ -132,7 +132,7 @@ export default async function StudioMarketPage({ searchParams }: PageProps<"/das
               </b>
               <span dir="auto">{featured.designer.name}</span>
               <span>{[featured.kinds[0] ? k(featured.kinds[0].name) : null, t("studioMarket.screens", { count: featuredScreens })].filter(Boolean).join(" · ")}</span>
-              <FreePrice />
+              <PriceTagView price={featured.price} />
             </div>
             {page(1) ? (
               <div className="mk-drift absolute start-0 bottom-[58px] -rotate-[4deg]">
@@ -441,7 +441,7 @@ export default async function StudioMarketPage({ searchParams }: PageProps<"/das
                           {card.designer.name}
                         </span>
                       </span>
-                      <FreePrice />
+                      <PriceTagView price={card.price} />
                     </li>
                   ))}
                 </ol>

@@ -1,10 +1,11 @@
 "use client";
 
 import Link from "next/link";
-import { useDashT, useKnownText } from "@/components/dashboard-i18n";
+import { useDashLang, useDashT, useKnownText } from "@/components/dashboard-i18n";
 import { Icon } from "@/components/icon";
 import type { IconName } from "@/components/icon-names";
 import type { CoverView, DesignerCard, DesignerChip, TemplateCard } from "@/lib/studio-market/catalog";
+import { formatUsd, ltr, type PriceTag } from "@/lib/studio-market/plans";
 import { TemplatePhone } from "./phone";
 import "./market.css";
 
@@ -37,6 +38,18 @@ export function KindTag({ kind }: { kind: { name: string; icon: string } }) {
 export function FreePrice({ big = false }: { big?: boolean }) {
   const t = useDashT();
   return <span className={`font-extrabold whitespace-nowrap text-success ${big ? "text-lg" : "text-[15px]"}`}>{t("studioMarket.free")}</span>;
+}
+
+/** 106.2 A template's price on its card: "Free", "From $4/mo" or "$149 once". */
+export function PriceTagView({ price, big = false }: { price: PriceTag; big?: boolean }) {
+  const t = useDashT();
+  const lang = useDashLang();
+  if (price.kind === "free") return <FreePrice big={big} />;
+  return (
+    <span data-price={price.kind} className={`font-extrabold whitespace-nowrap text-[var(--mk-ink)] ${big ? "text-lg" : "text-[15px]"}`}>
+      {t(price.kind === "from" ? "studioMarket.fromPrice" : "studioMarket.oncePrice", { price: ltr(formatUsd(price.cents), lang) })}
+    </span>
+  );
 }
 
 /** The dotted board behind a template's phones (Studio's projects grid). */
@@ -94,7 +107,7 @@ export function TemplateCardView({ card, rank, phone = 170, height, pool }: { ca
           ) : null}
         </span>
         <div className="mk-card-foot">
-          <FreePrice />
+          <PriceTagView price={card.price} />
           <Icon name="arrow_forward" size={18} className="mk-muted" />
         </div>
       </div>

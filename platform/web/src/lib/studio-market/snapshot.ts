@@ -6,17 +6,19 @@ import { freeFont } from "../fonts/catalog";
 import { loadLayout, ownFontNames } from "../pages/layout";
 import type { LayoutPage, StudioNode } from "../pages/types";
 import { parseLayoutContent } from "../pages/validate";
-import { readDesignFile, withoutFonts, writeDesignFile, type DesignFile } from "../studio/design-file";
+import { fontsIn, readDesignFile, withoutFonts, writeDesignFile, type DesignFile } from "../studio/design-file";
+import { copyPictures, copyProjectFonts, designPictures, fontsKey, movePictures, type PictureDeps } from "./assets";
 import { screensConfig } from "../studio/screens";
 
 /**
  * 106.1 A template's version: a snapshot of its Studio project's design,
  * made as a whole project's design file (lib/studio/design-file.ts) with
- * its pages, tabs, tab bar, colours, fonts and screens' looks. Its pictures
- * stay at their addresses (already saved with the designer's account); the
- * project's own fonts aren't in it, so buyers' apps show the app's font
- * there instead. Buyers get a copy as it is when it is sent: later changes
- * in Studio reach them only when the designer sends an update.
+ * its pages, tabs, tab bar, colours, fonts and screens' looks. 106.2 Its
+ * pictures kept on Yallapp are copied for the template, and the project's
+ * uploaded fonts it uses are kept next to it (lib/studio-market/assets.ts),
+ * so the designer's later changes to their files never reach it. Buyers get
+ * a copy as it is when it is sent: later changes in Studio reach them only
+ * when the designer sends an update.
  */
 
 /** The largest design file a version keeps (no pictures inside it). */
@@ -38,9 +40,10 @@ export function orderedPages(pages: readonly LayoutPage[], order: readonly strin
 
 /**
  * The project's design now, as a design file, checked by the page checker
- * first (what a buyer gets must open in an app). Its own fonts are left out.
+ * first (what a buyer gets must open in an app). With `keepFonts`, its own
+ * fonts stay named in it (the snapshot copies them); without, they're left out.
  */
-export async function projectDesign(store: DataStore, app: App, name: string, order: readonly string[], now: Date): Promise<{ ok: true; file: DesignFile } | { ok: false; error: SnapshotError; errors?: string[] }> {
+export async function projectDesign(store: DataStore, app: App, name: string, order: readonly string[], now: Date, keepFonts: ReadonlySet<string> = new Set()): Promise<{ ok: true; file: DesignFile } | { ok: false; error: SnapshotError; errors?: string[] }> {
   const record = await loadLayout(store, app, now);
   const own = await ownFontNames(store, app.id);
   const checked = parseLayoutContent(record.draft, { app, now, ownFonts: own });
@@ -69,8 +72,8 @@ export async function projectDesign(store: DataStore, app: App, name: string, or
     pictures: {},
     fonts: [],
   };
-  // The project's own fonts stay with the project: a buyer's app shows its own font there.
-  const ownUsed = new Set(own.filter((family) => !freeFont(family)));
+  // The project's own fonts not kept with the template stay with the project: a buyer's app shows its own font there.
+  const ownUsed = new Set(own.filter((family) => !freeFont(family) && !keepFonts.has(family)));
   return { ok: true, file: withoutFonts(file, ownUsed) };
 }
 
@@ -93,34 +96,45 @@ export interface SnapshotDeps {
   store: DataStore;
   blobs: BlobStore;
   now: Date;
+  /** 106.2 The platform's address and the Media library's reader: the pictures at it are copied for the template (left as they are without it). */
+  baseUrl?: string;
+  readMedia?: PictureDeps["readMedia"];
 }
 
 /** Takes the project's design as the template's next version (kept in the file store). */
 export async function takeSnapshot(
   deps: SnapshotDeps,
-  template: Pick<MarketTemplate, "id" | "screens" | "texts" | "slug">,
+  template: Pick<MarketTemplate, "id" | "screens" | "texts" | "slug"> & Partial<Pick<MarketTemplate, "clientId">>,
   app: App,
   by: string | null,
 ): Promise<{ ok: true; version: MarketTemplateVersion } | { ok: false; error: SnapshotError; errors?: string[] }> {
-  const made = await projectDesign(deps.store, app, template.texts.en?.title ?? template.slug, template.screens, deps.now);
+  // 106.2 The project's uploaded fonts with files go with the template; the others are left out.
+  const ownFonts = (await deps.store.listOwnFonts(app.id)).filter((f) => !freeFont(f.family) && f.files.length);
+  const made = await projectDesign(deps.store, app, template.texts.en?.title ?? template.slug, template.screens, deps.now, new Set(ownFonts.map((f) => f.family)));
   if (!made.ok) return made;
-  const text = writeDesignFile(made.file);
+  let file = made.file;
+  // 106.2 Its pictures at Yallapp copied for the template.
+  if (deps.baseUrl) file = movePictures(file, await copyPictures({ ...deps, baseUrl: deps.baseUrl }, designPictures(file), template.clientId ?? app.clientId, `template-${template.id}`, true));
+  const used = new Set([file.look?.font, file.look?.arabic_font, ...file.pages.flatMap((p) => fontsIn(p.studio))].filter((f): f is string => Boolean(f)));
+  const fonts = await copyProjectFonts(deps, template.id, ownFonts.filter((f) => used.has(f.family)));
+  const text = writeDesignFile(file);
   if (text.length > SNAPSHOT_BYTES) return { ok: false, error: "too_big" };
   const number = (await deps.store.lastMarketTemplateVersion(template.id)) + 1;
   const id = newId();
   const blobKey = `studio-market/${template.id}/v${number}-${id}.json`;
   const data = Buffer.from(text, "utf8");
   await deps.blobs.put(blobKey, data, "application/json");
+  if (fonts.fonts.length) await deps.blobs.put(fontsKey({ blobKey }), Buffer.from(JSON.stringify(fonts), "utf8"), "application/json");
   const version: MarketTemplateVersion = {
     id,
     templateId: template.id,
     number,
     blobKey,
     sizeBytes: data.length,
-    pages: made.file.pages.length,
-    elements: made.file.pages.reduce((n, p) => n + elementCount(p.studio.body), 0),
-    languages: made.file.languages.available,
-    cover: coverOf(made.file),
+    pages: file.pages.length,
+    elements: file.pages.reduce((n, p) => n + elementCount(p.studio.body), 0),
+    languages: file.languages.available,
+    cover: coverOf(file),
     createdAt: deps.now,
     createdBy: by,
   };

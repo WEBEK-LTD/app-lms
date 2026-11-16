@@ -175,6 +175,8 @@ export const DASHBOARD_PATHS: readonly (readonly [string, TeamPermission])[] = [
   // applying, moving and going back to a design) for the owner only, like its plans.
   ["/dashboard/studio-market", "settings"],
   ["/dashboard/studio-market/mine", "billing"],
+  // 106.2 Paying for a template, or renewing one: the account's owner.
+  ["/dashboard/studio-market/checkout", "billing"],
   ["/dashboard", "dashboard"],
 ];
 
