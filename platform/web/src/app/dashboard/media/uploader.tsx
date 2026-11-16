@@ -1,10 +1,11 @@
 "use client";
 
 import { useRouter } from "next/navigation";
-import { useCallback, useEffect, useRef, useState, useSyncExternalStore } from "react";
+import { useCallback, useEffect, useRef, useState, useSyncExternalStore, type ReactNode } from "react";
 import { cancelMediaUploadAction, completeMediaUploadAction, resumeMediaUploadAction, startMediaUploadAction } from "@/app/actions/media";
 import { Icon } from "@/components/icon";
-import { btn, ProgressBar } from "@/components/ui";
+import { ProgressBar } from "@/components/ui";
+import { kit } from "@/components/studio-page/classes";
 import { useDashT, useKnownText } from "@/components/dashboard-i18n";
 import { chunkOutcome, chunkUrl, failureOf, FRESH_LINKS_IN_A_ROW, offsetOf, type UploadFailure } from "@/lib/media/upload-client";
 
@@ -93,7 +94,22 @@ class GateAnswer extends Error {
 
 const noSubscribe = () => () => {};
 
-export function MediaUploader({ appId, accept, disabled }: { appId: string; accept: string; disabled: string | null }) {
+/** 132.160 The page's Upload (the console's main action): it opens the uploader's file picker (`inputId`). */
+export function UploadButton({ inputId, label, className }: { inputId: string; label: string; className: string }) {
+  return (
+    <button type="button" className={className} onClick={() => document.getElementById(inputId)?.click()}>
+      <Icon name="upload" size={20} />
+      {label}
+    </button>
+  );
+}
+
+/**
+ * 132.160 The uploader around the files' table (`children`): files dropped
+ * anywhere on it upload, the page's Upload opens its picker (`inputId`), and
+ * the uploads under way show above the table.
+ */
+export function MediaUploader({ appId, accept, disabled, inputId, children }: { appId: string; accept: string; disabled: string | null; inputId: string; children: ReactNode }) {
   const t = useDashT();
   const known = useKnownText();
   const router = useRouter();
@@ -272,29 +288,22 @@ export function MediaUploader({ appId, accept, disabled }: { appId: string; acce
   };
 
   return (
-    <div className="flex flex-col gap-3">
-      <div
-        onDragOver={(e) => {
-          e.preventDefault();
-          setDragging(true);
-        }}
-        onDragLeave={() => setDragging(false)}
-        onDrop={(e) => {
-          e.preventDefault();
-          setDragging(false);
-          if (!disabled) add(e.dataTransfer.files);
-        }}
-        className={`flex flex-col items-center gap-2 rounded-2xl border border-dashed px-5 py-6 text-center ${dragging ? "border-(--sp-ink) bg-(--sp-tile)" : "border-(--sp-line) bg-(--sp-soft)"}`}
-      >
-        <Icon name="upload" size={26} className="text-(--sp-muted)" />
-        <p className="m-0 text-[15px] font-semibold text-(--sp-ink)">{t("media.drop")}</p>
-        {/* 132.138 A quiet button: the page's Upload is its one main action. */}
-        <label className={`${btn.secondary} h-10 cursor-pointer rounded-xl px-4 text-sm ${disabled ? "pointer-events-none opacity-60" : ""}`}>
-          {t("media.choose")}
-          <input ref={input} type="file" multiple accept={accept} disabled={disabled !== null || !hydrated} className="sr-only" onChange={(e) => add(e.target.files)} />
-        </label>
-        <span className="text-[13px] text-(--sp-muted)">{disabled ?? t("media.parts")}</span>
-      </div>
+    <div
+      className="relative flex flex-col gap-3"
+      onDragOver={(e) => {
+        e.preventDefault();
+        setDragging(true);
+      }}
+      onDragLeave={(e) => {
+        if (!e.currentTarget.contains(e.relatedTarget as Node | null)) setDragging(false);
+      }}
+      onDrop={(e) => {
+        e.preventDefault();
+        setDragging(false);
+        if (!disabled) add(e.dataTransfer.files);
+      }}
+    >
+      <input ref={input} id={inputId} type="file" multiple accept={accept} disabled={disabled !== null || !hydrated} aria-label={t("media.choose")} className="sr-only" onChange={(e) => add(e.target.files)} />
       {jobs.length ? (
         <ul className="m-0 flex list-none flex-col gap-2 p-0" aria-label={t("media.uploads")}>
           {jobs.map((job) => {
@@ -303,7 +312,7 @@ export function MediaUploader({ appId, accept, disabled }: { appId: string; acce
               <li key={job.key} className="flex flex-col gap-1.5 rounded-2xl border border-(--sp-edge) bg-(--sp-surface) px-4 py-3" data-upload={job.file.name}>
                 <div className="flex flex-wrap items-center justify-between gap-2">
                   <span className="min-w-0 flex-1 truncate text-[15px] font-semibold">{job.file.name}</span>
-                  <span className="text-[13px] text-muted" aria-live="polite">
+                  <span className="text-[13px] text-(--sp-muted)" aria-live="polite">
                     {job.status === "done"
                       ? t("media.uploaded")
                       : job.status === "checking"
@@ -317,19 +326,19 @@ export function MediaUploader({ appId, accept, disabled }: { appId: string; acce
                               : t("media.percent", { percent })}
                   </span>
                   {job.status === "uploading" ? (
-                    <button type="button" onClick={() => pause(job)} className={`${btn.ghost} h-8 px-2 text-sm`}>
+                    <button type="button" onClick={() => pause(job)} className={`${kit.ghost} h-8 px-2 text-[13px]`}>
                       <Icon name="pause_circle" size={18} />
                       {t("media.pause")}
                     </button>
                   ) : null}
                   {job.status === "paused" || (job.status === "failed" && !job.storageFull && job.id) ? (
-                    <button type="button" onClick={() => resume(job)} className={`${btn.ghost} h-8 px-2 text-sm`}>
+                    <button type="button" onClick={() => resume(job)} className={`${kit.ghost} h-8 px-2 text-[13px]`}>
                       <Icon name="play_circle" size={18} />
                       {t("media.resume")}
                     </button>
                   ) : null}
                   {job.status !== "done" && job.status !== "checking" ? (
-                    <button type="button" onClick={() => void cancel(job)} className={`${btn.ghost} h-8 px-2 text-sm`} aria-label={t("media.cancelNamed", { name: job.file.name })}>
+                    <button type="button" onClick={() => void cancel(job)} className={`${kit.ghost} h-8 px-2 text-[13px]`} aria-label={t("media.cancelNamed", { name: job.file.name })}>
                       <Icon name="close" size={18} />
                       {t("media.cancel")}
                     </button>
@@ -337,7 +346,7 @@ export function MediaUploader({ appId, accept, disabled }: { appId: string; acce
                 </div>
                 {job.status !== "failed" || job.offset > 0 ? <ProgressBar value={job.offset} max={job.file.size || 1} label={t("media.uploading", { name: job.file.name })} tone={job.status === "done" ? "success" : "accent"} /> : null}
                 {job.message ? (
-                  <p role={job.status === "failed" ? "alert" : undefined} className={`m-0 text-[13px] ${job.status === "failed" ? "text-danger" : "text-muted"}`}>
+                  <p role={job.status === "failed" ? "alert" : undefined} className={`m-0 text-[13px] ${job.status === "failed" ? "text-danger" : "text-(--sp-muted)"}`}>
                     {known(job.message)}
                     {job.storageFull ? (
                       <>
@@ -351,6 +360,13 @@ export function MediaUploader({ appId, accept, disabled }: { appId: string; acce
             );
           })}
         </ul>
+      ) : null}
+      {children}
+      {dragging && !disabled ? (
+        <div aria-hidden="true" className="pointer-events-none absolute inset-0 z-10 flex flex-col items-center justify-center gap-2 rounded-[18px] border-2 border-dashed border-(--sp-ink) bg-(--sp-surface)/85 text-[15px] font-semibold text-(--sp-ink)">
+          <Icon name="upload" size={28} />
+          {t("media.drop")}
+        </div>
       ) : null}
     </div>
   );

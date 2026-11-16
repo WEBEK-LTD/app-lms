@@ -1,14 +1,15 @@
 import { plansIn } from "@/lib/marketing-lang";
 import type { Metadata } from "next";
-import Link from "next/link";
 import { redirect } from "next/navigation";
 import { deleteMediaAction, setMediaPublicAction } from "@/app/actions/media";
 import { CopyButton } from "@/components/copy-button";
 import { SubmitButton } from "@/components/form";
 import { Icon } from "@/components/icon";
-import { SheetButton } from "@/components/page-kit-client";
+import type { IconName } from "@/components/icon-names";
 import { formatDate } from "@/components/ui";
-import { KitCallout, KitDrawer, KitEmpty, KitFact, KitFacts, KitFold, KitHeader, KitHero, KitNext, KitPage, KitSection, KitStatus, KitThumb, kit } from "@/components/studio-page";
+import { KitCallout, KitEmpty, KitFold, KitHeader, KitHero, KitMore, KitNext, KitPage, KitSection, KitStat, KitStatus, KitThumb, kit } from "@/components/studio-page";
+import { KitInspectorBody, KitInspectorFacts, KitInspectorHead, KitInspectorPart } from "@/components/studio-page/parts";
+import { KitTable, type KitTableRow } from "@/components/studio-page/table";
 import { appLabel } from "@/lib/app/label";
 import { contextCan, requireClient } from "@/lib/auth/session";
 import { OwnerOnly } from "@/components/owner-only";
@@ -17,7 +18,7 @@ import { richText } from "@/i18n/rich";
 import type { DashKey } from "@/i18n/dashboard";
 import { getVisitorContact } from "@/lib/contact";
 import { getStore } from "@/lib/data";
-import type { MediaKind } from "@/lib/data/types";
+import type { MediaFile, MediaKind } from "@/lib/data/types";
 import { effectivePlans } from "@/lib/entitlements";
 import { appUrl, encryptionKey } from "@/lib/env";
 import { fileUrl, isPublic, MEDIA_ACCEPT, MEDIA_KINDS, mediaLink } from "@/lib/media/files";
@@ -33,41 +34,47 @@ import { formatMoney } from "@/lib/billing/prices";
 import { platformSetting, yallappPlanAccount } from "@/lib/settings/platform";
 import { UpgradeHint } from "@/components/upgrade";
 import { BuyStorageForm, RenameForm } from "./forms";
-import { MediaUploader } from "./uploader";
-import { MediaViewer } from "./viewer";
+import { MediaUploader, UploadButton } from "./uploader";
+import { MediaPreview } from "./viewer";
 
 export async function generateMetadata(): Promise<Metadata> {
   return { title: (await dashboardText()).t("media.title") };
 }
 export const dynamic = "force-dynamic";
 
-const FILTERS: { id: MediaKind | "all" | "chat"; label: DashKey; none: DashKey }[] = [
-  { id: "all", label: "media.all", none: "media.noFiles" },
-  { id: "video", label: "media.videos", none: "media.noVideos" },
-  { id: "image", label: "media.pictures", none: "media.noPictures" },
-  { id: "pdf", label: "media.pdfs", none: "media.noPdfs" },
-  // 77 Photos, videos, voice messages and files people sent in the chat.
-  { id: "chat", label: "media.fromChat", none: "media.noChat" },
+/** The files' groups, behind Filters (77 the chat's photos, videos, voice messages and files too). */
+const GROUPS: { id: MediaKind | "chat"; label: DashKey }[] = [
+  { id: "video", label: "media.videos" },
+  { id: "image", label: "media.pictures" },
+  { id: "pdf", label: "media.pdfs" },
+  { id: "chat", label: "media.fromChat" },
 ];
 
 const KIND_LABEL: Record<MediaKind, DashKey> = { video: "media.video", image: "media.picture", pdf: "media.pdf", audio: "media.voice", file: "media.document" };
 /** What the library takes (77: voice messages and documents come from the chat only). */
 const LIMIT_LABEL: Partial<Record<MediaKind, DashKey>> = { video: "media.limitVideos", image: "media.limitPictures", pdf: "media.limitPdfs" };
+const KIND_ICON: Record<MediaKind, IconName> = { video: "smart_display", image: "image", audio: "mic", file: "description", pdf: "picture_as_pdf" };
+const INPUT = "media-files";
 
 /**
  * 51 Media: the app's videos, pictures and PDFs, kept on Yallapp's own
  * server. Videos used in lessons play in the app's own player (nothing shows
  * where they're hosted); pictures go in pages, products and listings.
  * Storage comes with the plan, and packs add to it.
+ * 132.160 The console's look: Upload as the main action (files dropped on
+ * the table upload too), the storage as the dark tile with its bar and the
+ * files by kind beside it, the files as a table (the kinds behind Filters),
+ * a file's picture or player, its link, Open, Rename, sharing and Delete in
+ * its inspector; more storage folded at the end.
  */
 export default async function MediaPage({ searchParams }: PageProps<"/dashboard/media">) {
   const context = await requireClient("media");
   const { app, client, license, state } = context;
   if (!app) redirect("/dashboard/app-type");
-  const { t, k, lang } = await dashboardText();
+  const { t, k, lang, num } = await dashboardText();
   const date = (d: Date | null | undefined) => formatDate(d, lang);
   const query = await searchParams;
-  const filter = FILTERS.find((f) => f.id === query.kind)?.id ?? "all";
+  const asked = GROUPS.find((g) => g.id === query.kind)?.id;
   const store = await getStore();
   const now = new Date();
   const plans = plansIn(lang, await effectivePlans(store));
@@ -75,7 +82,7 @@ export default async function MediaPage({ searchParams }: PageProps<"/dashboard/
   // 52 Packs are paid like the plans (the plans' gateway, in pounds) and shown in the client's currency.
   const [usage, files, account, packsSetting, contact, view] = await Promise.all([
     appStorage(store, app, plans, now),
-    store.listMediaFiles(app.id, filter === "all" || filter === "chat" ? {} : { kind: filter }).then((list) => (filter === "chat" ? list.filter((f) => f.source === "chat") : list)),
+    store.listMediaFiles(app.id, {}),
     yallappPlanAccount(store, encryptionKey()),
     platformSetting(store, "storagePacks"),
     getVisitorContact(),
@@ -85,15 +92,24 @@ export default async function MediaPage({ searchParams }: PageProps<"/dashboard/
   const buyBlocked = cannotBuy(license, now);
   const limit = usage.limitBytes;
   const share = limit === null ? 0 : Math.min(1, usage.share);
-  const tone = usage.over ? "bg-danger" : share >= 0.8 ? "bg-warn" : "bg-ember";
   const bigger = usage.plan ? lowestPlanWith(plans, (p) => p.limits.storageGb === null || p.limits.storageGb > (usage.plan?.limits.storageGb ?? 0), usage.plan.id) : null;
   const disabled = !storage ? t("media.notAvailable") : state !== "active" ? t("media.notActive") : usage.over ? t("media.over") : null;
-  const muted = { muted: (chunk: string) => <span className="text-base font-semibold text-(--sp-muted)">{chunk}</span> };
+  const plain = { muted: (chunk: string) => chunk };
   const payment = typeof query.payment === "string" ? query.payment : null;
   const canBuy = contextCan(context, "billing");
-  const closeLabel = t("common.close");
-  const kindIcon = (kind: MediaKind) => (kind === "video" ? "smart_display" : kind === "image" ? "image" : kind === "audio" ? "mic" : kind === "file" ? "description" : "picture_as_pdf");
-  const who = (f: (typeof files)[number]) =>
+  const more = t("studioPage.more");
+  const planLine = (
+    <>
+      {usage.plan
+        ? t("media.planStorage", {
+            plan: usage.plan.name,
+            storage: usage.plan.limits.storageGb === null ? t("media.unlimited") : formatStorage(usage.plan.limits.storageGb),
+          })
+        : t("media.noPlan")}
+      {usage.active.map((p) => t("media.packUntil", { pack: offerName(p), date: date(p.activeUntil) })).join("")}
+    </>
+  );
+  const who = (f: MediaFile) =>
     f.status === "uploading" ? (
       <KitStatus tone="warn">{t("media.notFinished")}</KitStatus>
     ) : f.source === "chat" ? (
@@ -103,20 +119,123 @@ export default async function MediaPage({ searchParams }: PageProps<"/dashboard/
     ) : (
       <KitStatus tone="info">{t("media.lessonsOnly")}</KitStatus>
     );
+  const count = (kind: MediaKind) => files.filter((f) => f.kind === kind && f.source !== "chat").length;
 
-  // 132.138 The premium kit: the header with Upload, the storage in one hero card (with what to do when it's full), the files in one card with the upload on top (each file's details and actions in its drawer, its link one tap away), then more storage folded.
+  // 132.160 A file as a row: its picture or icon, its name, its kind, size and day; who can open it at the end. The rest in its inspector.
+  const rows: KitTableRow[] = files.map((f) => {
+    const link = mediaLink(appUrl(), f.id);
+    const open = storage && f.status === "ready" ? fileUrl(storage, f, { ttlSeconds: 3600 }).url : null;
+    const line = t("media.fileLine", { kind: t(KIND_LABEL[f.kind]), size: formatBytes(f.sizeBytes), date: date(f.createdAt) });
+    const copyable = f.status === "ready" && f.source !== "chat";
+    const plays = f.kind === "image" || f.kind === "video" || f.kind === "audio";
+    return {
+      id: f.id,
+      name: f.name,
+      group: f.source === "chat" ? "chat" : f.kind,
+      data: { "data-media": f.name },
+      cells: [
+        <>
+          <KitThumb src={f.kind === "image" ? open : null} icon={KIND_ICON[f.kind]} size={40} />
+          <span className="flex min-w-0 flex-col gap-0.5">
+            <span className="truncate text-[14.5px] font-bold" dir="auto">
+              {f.name}
+            </span>
+            <span className="truncate text-[12.5px] font-normal text-(--sp-muted)">{line}</span>
+          </span>
+        </>,
+        <span key="d" className="text-[13px]">
+          {date(f.createdAt)}
+        </span>,
+        <span key="w">{who(f)}</span>,
+      ],
+      inspector: {
+        title: t("media.file"),
+        actions: (
+          <KitMore label={more} look="row">
+            <form action={deleteMediaAction} className="flex">
+              <input type="hidden" name="id" value={f.id} />
+              <button type="submit" className={`${kit.menuItem} text-danger hover:text-danger`}>
+                <Icon name="delete" size={18} />
+                {f.status === "uploading" ? t("media.cancelUpload") : t("common.delete")}
+              </button>
+            </form>
+          </KitMore>
+        ),
+        footer: copyable ? <CopyButton value={link} label={t("media.copyLink")} copiedLabel={t("common.copied")} className={`${kit.main} w-full`} /> : undefined,
+        body: (
+          <KitInspectorBody data-inspector-media={f.name}>
+            <KitInspectorHead media={<MediaPreview kind={f.kind} src={plays ? open : null} name={f.name} icon={KIND_ICON[f.kind]} />} title={<span className="break-all">{f.name}</span>} line={line} badges={who(f)} />
+            {f.status === "uploading" ? <KitCallout icon="upload">{t("media.carryOn")}</KitCallout> : null}
+            <div className="flex flex-wrap items-center gap-2">
+              {open && storage && plays ? (
+                <a href={fileUrl(storage, f, { ttlSeconds: 3600, download: true }).url} className={kit.quiet} download>
+                  <Icon name="download" size={18} />
+                  {t("common.download")}
+                </a>
+              ) : open ? (
+                <a href={open} target="_blank" rel="noopener noreferrer" className={kit.quiet}>
+                  <Icon name="open_in_new" size={18} />
+                  {t("media.open")}
+                </a>
+              ) : null}
+              {f.status === "ready" && f.kind !== "image" && f.source !== "chat" ? (
+                <form action={setMediaPublicAction}>
+                  <input type="hidden" name="id" value={f.id} />
+                  <input type="hidden" name="public" value={f.public ? "" : "on"} />
+                  <SubmitButton variant="pill" className="h-[38px]">
+                    {f.public ? t("media.lessonsOnly") : t("media.share")}
+                  </SubmitButton>
+                </form>
+              ) : null}
+            </div>
+            <KitInspectorFacts
+              facts={[
+                [t("media.kind"), t(KIND_LABEL[f.kind])],
+                [t("media.size"), formatBytes(f.sizeBytes)],
+                [t("media.added"), date(f.createdAt)],
+                [t("media.whoOpens"), who(f)],
+              ]}
+            />
+            {copyable ? (
+              <KitInspectorPart title={t("media.fileLink")}>
+                <code className="block rounded-xl bg-(--sp-soft) px-3.5 py-2.5 text-[13px] break-all text-(--sp-ink)" dir="ltr">
+                  {link}
+                </code>
+              </KitInspectorPart>
+            ) : null}
+            {f.status === "ready" ? <RenameForm id={f.id} name={f.name} /> : null}
+          </KitInspectorBody>
+        ),
+      },
+    };
+  });
+
   return (
     <KitPage>
       <KitHeader
         icon="photo_library"
         title={t("media.title")}
         description={t("media.intro", { app: appLabel(app) === "Untitled app" ? k("Untitled app") : appLabel(app) })}
+        help={
+          <span className="flex flex-col gap-2">
+            <span>{t("media.storageText")}</span>
+            <span>{MEDIA_KINDS.map((m) => t(LIMIT_LABEL[m.kind]!, { size: formatBytes(m.maxBytes) })).join(" · ")}</span>
+            <span>{t("media.parts")}</span>
+          </span>
+        }
+        helpLabel={t("studioPage.help")}
         actions={
-          disabled ? null : (
-            <SheetButton target="upload" icon="upload" variant="main" className="h-11">
-              {t("media.upload")}
-            </SheetButton>
-          )
+          <>
+            {canBuy ? (
+              <KitMore label={more}>
+                <a href="#buy-storage" className={kit.menuItem}>
+                  <Icon name="add_circle" size={18} />
+                  {t("media.buy")}
+                </a>
+              </KitMore>
+            ) : null}
+            {disabled ? null : <UploadButton inputId={INPUT} label={t("media.upload")} className={kit.main} />}
+          </>
         }
       />
       {payment === "paid" ? (
@@ -138,18 +257,32 @@ export default async function MediaPage({ searchParams }: PageProps<"/dashboard/
         </KitCallout>
       ) : null}
 
+      {/* The storage as the dark tile with its bar (Full or Nearly full on it), the files by kind beside it. */}
       <KitHero
-        titleId="h-storage"
-        heading={t("media.storage")}
-        status={limit === null ? null : usage.over ? <KitStatus tone="danger">{t("license.usageFull")}</KitStatus> : share >= 0.8 ? <KitStatus tone="warn">{t("license.usageNear")}</KitStatus> : null}
-        title={
-          <span data-storage-used="">
-            {limit === null
-              ? richText(t("media.used", { used: formatBytes(usage.usedBytes) }), muted)
-              : richText(t("media.usedOf", { used: formatBytes(usage.usedBytes), limit: formatBytes(limit) }), muted)}
-          </span>
+        label={t("media.storage")}
+        stats={
+          <>
+            <KitStat
+              icon="cloud_done"
+              label={
+                <span className="flex flex-wrap items-center gap-2">
+                  {t("media.storage")}
+                  {limit === null ? null : usage.over ? <KitStatus tone="danger">{t("license.usageFull")}</KitStatus> : share >= 0.8 ? <KitStatus tone="warn">{t("license.usageNear")}</KitStatus> : null}
+                </span>
+              }
+              value={formatBytes(usage.usedBytes)}
+              hint={
+                <span data-storage-used="">
+                  {limit === null ? richText(t("media.used", { used: formatBytes(usage.usedBytes) }), plain) : richText(t("media.usedOf", { used: formatBytes(usage.usedBytes), limit: formatBytes(limit) }), plain)}
+                </span>
+              }
+              progress={limit === null ? undefined : share}
+            />
+            <KitStat icon="folder" label={t("media.files")} value={num(files.length)} />
+            <KitStat icon="smart_display" label={t("media.videos")} value={num(count("video"))} />
+            <KitStat icon="image" label={t("media.pictures")} value={num(count("image"))} />
+          </>
         }
-        description={t("media.storageText")}
         next={
           usage.over ? (
             <KitNext
@@ -167,141 +300,45 @@ export default async function MediaPage({ searchParams }: PageProps<"/dashboard/
             </KitNext>
           ) : disabled ? (
             <KitNext icon="info">{disabled}</KitNext>
-          ) : undefined
-        }
-      >
-        <div className="flex flex-col gap-2.5">
-          {limit === null ? (
-            <span className="text-sm text-(--sp-muted)">{t("media.noLimit")}</span>
           ) : (
-            <div className="h-2.5 rounded-full bg-(--sp-soft)" role="progressbar" aria-valuemin={0} aria-valuemax={100} aria-valuenow={Math.round(share * 100)} aria-label={t("media.storageBar", { used: formatBytes(usage.usedBytes), limit: formatBytes(limit) })}>
-              <div className={`h-full rounded-full ${tone}`} style={{ width: `${share * 100}%` }} />
-            </div>
-          )}
-          <span className="text-sm text-(--sp-muted)">
-            {usage.plan
-              ? t("media.planStorage", {
-                  plan: usage.plan.name,
-                  storage: usage.plan.limits.storageGb === null ? t("media.unlimited") : formatStorage(usage.plan.limits.storageGb),
-                })
-              : t("media.noPlan")}
-            {usage.active.map((p) => t("media.packUntil", { pack: offerName(p), date: date(p.activeUntil) })).join("")}
-          </span>
-        </div>
-      </KitHero>
-
-      <KitSection
-        titleId="h-files"
-        title={t("media.yourFiles")}
-        flush
-        actions={
-          <nav aria-label={t("media.show")} className="flex flex-wrap gap-1.5">
-            {FILTERS.map((f) => (
-              <Link key={f.id} href={f.id === "all" ? "/dashboard/media" : `/dashboard/media?kind=${f.id}`} aria-current={filter === f.id ? "page" : undefined} className={`${kit.chip(filter === f.id)} no-underline hover:text-inherit`}>
-                {t(f.label)}
-              </Link>
-            ))}
-          </nav>
+            <KitNext
+              icon="workspace_premium"
+              action={
+                canBuy ? (
+                  <a href="#buy-storage" className={kit.quiet}>
+                    {t("media.buy")}
+                  </a>
+                ) : undefined
+              }
+            >
+              {planLine}
+            </KitNext>
+          )
         }
-      >
-        {/* The upload, on top of the files it adds to (the header's Upload brings it into view). */}
-        <div id="upload" aria-labelledby="h-upload" role="group" className="flex scroll-mt-6 flex-col gap-2 px-5 pb-5 sm:px-8">
-          <h3 id="h-upload" className="sr-only">
-            {t("media.upload")}
-          </h3>
-          <MediaUploader appId={app.id} accept={MEDIA_ACCEPT} disabled={disabled} />
-          <p className="m-0 text-xs text-(--sp-muted)">{MEDIA_KINDS.map((m) => t(LIMIT_LABEL[m.kind]!, { size: formatBytes(m.maxBytes) })).join(" · ")}</p>
-        </div>
-        {files.length === 0 ? (
-          <div className="border-t border-(--sp-line-soft)">
-            <KitEmpty icon="photo_library" title={t(FILTERS.find((f) => f.id === filter)!.none)}>
-              {t("media.emptyText")}
+      />
+      {limit === null ? <p className="-mt-2 m-0 px-1 text-[13px] text-(--sp-muted)">{t("media.noLimit")}</p> : null}
+
+      <MediaUploader appId={app.id} accept={MEDIA_ACCEPT} disabled={disabled} inputId={INPUT}>
+        <KitTable
+          label={t("media.files")}
+          title={t("media.yourFiles")}
+          titleId="h-files"
+          search={t("media.search")}
+          noMatch={t("media.noMatch")}
+          groups={{ label: t("media.show"), all: t("media.all"), items: GROUPS.map((g) => ({ id: g.id, label: t(g.label) })), initial: asked }}
+          columns={[
+            { label: t("media.file"), width: "minmax(0,1fr)" },
+            { label: t("media.added"), width: "130px", wide: true },
+            { label: t("media.whoOpens"), width: "minmax(130px,auto)", phone: "end" },
+          ]}
+          rows={rows}
+          empty={
+            <KitEmpty icon="photo_library" title={t("media.noFiles")} action={disabled ? null : <UploadButton inputId={INPUT} label={t("media.upload")} className={kit.quiet} />}>
+              {disabled ?? t("media.emptyText")}
             </KitEmpty>
-          </div>
-        ) : (
-          <ul className="m-0 flex list-none flex-col border-t border-(--sp-line-soft) px-2 pt-1 sm:px-4" aria-label={t("media.files")}>
-            {files.map((f) => {
-              const link = mediaLink(appUrl(), f.id);
-              const open = storage && f.status === "ready" ? fileUrl(storage, f, { ttlSeconds: 3600 }).url : null;
-              const line = t("media.fileLine", { kind: t(KIND_LABEL[f.kind]), size: formatBytes(f.sizeBytes), date: date(f.createdAt) });
-              const copyable = f.status === "ready" && f.source !== "chat";
-              return (
-                <li key={f.id} data-media={f.name} className="flex flex-wrap items-center gap-x-3 gap-y-2 border-t border-(--sp-line-soft) px-1 py-2.5 first:border-t-0 sm:px-2">
-                  <KitDrawer
-                    closeLabel={closeLabel}
-                    title={<span className="break-all">{f.name}</span>}
-                    description={line}
-                    triggerClassName="group -mx-2 flex min-w-0 flex-[1_1_300px] cursor-pointer flex-wrap items-center gap-x-4 gap-y-2 rounded-2xl border-0 bg-transparent px-2 py-1.5 text-start text-(--sp-ink) transition-colors hover:bg-(--sp-soft) sm:flex-nowrap"
-                    trigger={
-                      <>
-                        <KitThumb src={f.kind === "image" ? open : null} icon={kindIcon(f.kind)} />
-                        <span className="flex min-w-0 flex-1 flex-col gap-1">
-                          <span className="text-[15px] font-semibold break-all">{f.name}</span>
-                          <span className="text-[13px] text-(--sp-muted)">{line}</span>
-                        </span>
-                        <span className="flex shrink-0 items-center max-sm:basis-full max-sm:ps-16">{who(f)}</span>
-                      </>
-                    }
-                  >
-                    {f.kind === "image" && open ? (
-                      // eslint-disable-next-line @next/next/no-img-element -- An uploaded picture, already sized by the platform.
-                      <img src={open} alt="" className="max-h-64 w-full rounded-2xl bg-(--sp-soft) object-contain" />
-                    ) : null}
-                    {f.status === "uploading" ? <KitCallout icon="upload">{t("media.carryOn")}</KitCallout> : null}
-                    <KitFacts>
-                      <KitFact label={t("common.status")}>{who(f)}</KitFact>
-                      {copyable ? (
-                        <KitFact label={t("studioPage.fileLink")}>
-                          <code className="text-[13px] break-all" dir="ltr">
-                            {link}
-                          </code>
-                        </KitFact>
-                      ) : null}
-                    </KitFacts>
-                    <div className="flex flex-wrap items-center gap-2">
-                      {open && storage && (f.kind === "image" || f.kind === "video" || f.kind === "audio") ? (
-                        <MediaViewer
-                          kind={f.kind}
-                          src={open}
-                          download={fileUrl(storage, f, { ttlSeconds: 3600, download: true }).url}
-                          name={f.name}
-                          openLabel={t("media.open")}
-                          closeLabel={t("common.close")}
-                          downloadLabel={t("common.download")}
-                        />
-                      ) : open ? (
-                        <a href={open} target="_blank" rel="noopener noreferrer" className={kit.quiet}>
-                          <Icon name="open_in_new" size={18} />
-                          {t("media.open")}
-                        </a>
-                      ) : null}
-                      {f.status === "ready" && f.kind !== "image" && f.source !== "chat" ? (
-                        <form action={setMediaPublicAction}>
-                          <input type="hidden" name="id" value={f.id} />
-                          <input type="hidden" name="public" value={f.public ? "" : "on"} />
-                          <SubmitButton variant="secondary" className="h-10 px-4 text-sm">
-                            {f.public ? t("media.lessonsOnly") : t("media.share")}
-                          </SubmitButton>
-                        </form>
-                      ) : null}
-                      {f.status === "ready" ? <RenameForm id={f.id} name={f.name} /> : null}
-                    </div>
-                    <form action={deleteMediaAction} className="border-t border-(--sp-line-soft) pt-5">
-                      <input type="hidden" name="id" value={f.id} />
-                      <SubmitButton variant="danger" className="h-10 px-4 text-sm">
-                        <Icon name="delete" size={18} />
-                        {f.status === "uploading" ? t("media.cancelUpload") : t("common.delete")}
-                      </SubmitButton>
-                    </form>
-                  </KitDrawer>
-                  {/* The one action on the row: the file's link. */}
-                  {copyable ? <CopyButton value={link} label={t("media.copyLink")} copiedLabel={t("common.copied")} className={kit.row} /> : null}
-                </li>
-              );
-            })}
-          </ul>
-        )}
-      </KitSection>
+          }
+        />
+      </MediaUploader>
 
       {/* 60 Storage packs are paid for by the owner. */}
       {!canBuy ? (
@@ -321,7 +358,7 @@ export default async function MediaPage({ searchParams }: PageProps<"/dashboard/
           {buyBlocked ? (
             <p className="m-0 text-[15px] text-(--sp-muted)">{k(buyBlocked)}</p>
           ) : offers.length && account && license ? (
-            <KitFold icon="add_circle" summary={t("studioPage.mediaChoosePack")} open={usage.over || payment === "failed" ? true : undefined} data-buy-storage="">
+            <KitFold icon="add_circle" summary={t("media.choosePack")} open={usage.over || payment === "failed" ? true : undefined} data-buy-storage="">
               <BuyStorageForm
                 appId={app.id}
                 provider={PROVIDER_NAME[account.provider]}

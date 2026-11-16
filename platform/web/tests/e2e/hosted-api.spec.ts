@@ -133,6 +133,8 @@ test("the app signs a customer in and receives notifications", async ({ page, re
   await signIn(page, client.email, client.password);
   await page.getByRole("link", { name: "App notifications" }).click();
   await expect(page.getByText("1 customer has signed in so far.")).toBeVisible();
+  // 132.160 The form opens from New notification.
+  await page.getByRole("button", { name: "New notification" }).click();
   await page.getByLabel("Title").fill("Tulip week");
   await page.getByLabel("Message").fill("Fresh tulips every morning this week.");
   await page.getByRole("button", { name: "Send to everyone" }).click();
@@ -156,6 +158,8 @@ test("61 a notification sent later waits in Scheduled, can be changed and cancel
   // The overview's "Untitled app" also matches "Title" until the page has changed.
   await page.waitForURL(/\/dashboard\/notifications/);
   const date = new Date(Date.now() + 3 * 86_400_000).toISOString().slice(0, 10);
+  // 132.160 The form opens from New notification.
+  await page.getByRole("button", { name: "New notification" }).click();
   await page.getByLabel("Title", { exact: true }).fill("Weekend market");
   await page.getByLabel("Message").fill("Tulips on Saturday from 9.");
   await page.getByRole("radio", { name: "Later" }).check();
@@ -164,14 +168,17 @@ test("61 a notification sent later waits in Scheduled, can be changed and cancel
   await page.getByLabel("Time").fill("09:30");
   await page.getByRole("button", { name: "Schedule" }).click();
   await expect(page.getByRole("status")).toContainText(`Scheduled for ${date} at 09:30.`);
+  await page.keyboard.press("Escape");
   const scheduled = page.getByRole("region", { name: "Scheduled" });
   await expect(scheduled).toContainText("Weekend market");
   await expect(scheduled).toContainText("at 09:30");
 
-  await scheduled.locator("summary").click();
-  await scheduled.getByLabel("Time").fill("10:15");
-  await scheduled.getByRole("button", { name: "Save changes" }).click();
-  await expect(scheduled.getByRole("status")).toContainText(`Scheduled for ${date} at 10:15.`);
+  // 132.160 A scheduled one is changed and cancelled in its inspector, opened from its row.
+  const inspector = page.locator('[data-inspector-scheduled="Weekend market"]');
+  await scheduled.getByRole("button", { name: "Weekend market" }).click();
+  await inspector.getByLabel("Time").fill("10:15");
+  await inspector.getByRole("button", { name: "Save changes" }).click();
+  await expect(inspector.getByRole("status")).toContainText(`Scheduled for ${date} at 10:15.`);
   await page.reload();
   await expect(scheduled).toContainText("at 10:15");
 
@@ -184,7 +191,8 @@ test("61 a notification sent later waits in Scheduled, can be changed and cancel
   await expect(scheduled).toContainText("Weekend market");
   await expect(page.getByRole("region", { name: "Sent" })).not.toContainText("Weekend market");
 
-  await scheduled.getByRole("button", { name: "Cancel “Weekend market”" }).click();
+  await scheduled.getByRole("button", { name: "Weekend market" }).click();
+  await inspector.getByRole("button", { name: "Cancel “Weekend market”" }).click();
   await expect(scheduled.getByText(/Nothing scheduled\./)).toBeVisible();
 });
 
@@ -202,6 +210,8 @@ test("85 a campaign goes to the people chosen, opens a web page, and a weekly on
 
   await signIn(page, client.email, client.password);
   await page.goto("/dashboard/notifications");
+  // 132.160 Campaigns are behind the header's "⋯".
+  await page.getByRole("button", { name: "More options" }).click();
   await page.getByRole("link", { name: /^Campaigns/ }).click();
   await expect(page.getByRole("heading", { name: "Campaigns", level: 1 })).toBeVisible();
   await expect(page.getByText("No campaigns yet.")).toBeVisible();

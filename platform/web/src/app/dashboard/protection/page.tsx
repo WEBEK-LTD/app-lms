@@ -61,7 +61,7 @@ export default async function ScreenProtectionPage() {
           titleId="h-video-branding"
           icon="smart_display"
           title={t("health.videoBranding")}
-          status={choosesVideoBranding(app) ? <KitStatus tone={hidden ? "warn" : "neutral"}>{hidden ? t("common.hidden") : t("studioPage.shown")}</KitStatus> : null}
+          status={choosesVideoBranding(app) ? <KitStatus tone={hidden ? "warn" : "neutral"}>{hidden ? t("common.hidden") : t("health.shownState")}</KitStatus> : null}
           help={t("health.videoBrandingText")}
           helpLabel={t("studioPage.helpSection")}
         >

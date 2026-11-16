@@ -237,7 +237,7 @@ export default async function AppSignInPage() {
             titleId="h-methods"
             icon="login"
             title={t("signin.howSignIn")}
-            status={<KitStatus tone="info">{studio ? t("studioPage.signinWays", { count: ways }) : t(choice === "both" ? "studioPage.signinBoth" : choice === "email" ? "studioPage.signinEmail" : "studioPage.signinPhone")}</KitStatus>}
+            status={<KitStatus tone="info">{studio ? t("signin.waysCount", { count: ways }) : t(choice === "both" ? "signin.wayBoth" : choice === "email" ? "signin.wayEmail" : "signin.wayPhone")}</KitStatus>}
           >
             {/* 118 Yallapp Studio apps: codes and passwords, any of them. */}
             {studio ? (
@@ -260,10 +260,10 @@ export default async function AppSignInPage() {
               titleId="h-rules"
               icon="tune"
               title={t("signin.rules")}
-              status={rules.signupAllowed === "on" ? <KitStatus tone="success">{t("studioPage.signupsOpen")}</KitStatus> : <KitStatus tone="neutral">{t("studioPage.signupsClosed")}</KitStatus>}
-              description={t("studioPage.rulesLine")}
+              status={rules.signupAllowed === "on" ? <KitStatus tone="success">{t("signin.signupsOpen")}</KitStatus> : <KitStatus tone="neutral">{t("signin.signupsClosed")}</KitStatus>}
+              description={t("signin.rulesLine")}
             >
-              <KitFold summary={t("studioPage.rulesOpen")} icon="tune" data-fold="rules">
+              <KitFold summary={t("signin.rulesOpen")} icon="tune" data-fold="rules">
                 <AppSignInForm current={rules} emailOnly={methods.length === 1 && methods[0] === "email"} />
               </KitFold>
             </KitSettingRow>
@@ -277,7 +277,7 @@ export default async function AppSignInPage() {
             titleId="h-whatsapp"
             icon="chat"
             title={t("signin.whatsappTitle")}
-            status={failedAt ? <KitStatus tone="warn">{t("studioPage.failed")}</KitStatus> : sender ? <KitStatus tone="success">{t("studioPage.ownNumber")}</KitStatus> : <KitStatus tone="neutral">{t("studioPage.yallappNumber")}</KitStatus>}
+            status={failedAt ? <KitStatus tone="warn">{t("signin.failedState")}</KitStatus> : sender ? <KitStatus tone="success">{t("signin.ownNumber")}</KitStatus> : <KitStatus tone="neutral">{t("signin.yallappNumber")}</KitStatus>}
           >
             {failedAt ? (
               <KitCallout tone="warn" icon="warning" role="status">
@@ -288,7 +288,7 @@ export default async function AppSignInPage() {
               connected={sender ? { keyLast4: sender.keyLast4, instanceId: sender.instanceId } : null}
               defaultPhone={client.whatsapp ?? ""}
               wordpress={wordpress}
-              fold={{ summary: sender ? t("studioPage.whatsappChange") : t("studioPage.whatsappOwn"), open: failedAt !== null }}
+              fold={{ summary: sender ? t("signin.whatsappChange") : t("signin.whatsappOwnFold"), open: failedAt !== null }}
             />
           </KitSettingRow>
 
@@ -296,7 +296,7 @@ export default async function AppSignInPage() {
             titleId="h-app-mail"
             icon="mail"
             title={t("signin.appEmail")}
-            status={mailFailedAt ? <KitStatus tone="warn">{t("studioPage.failed")}</KitStatus> : mailServer ? <KitStatus tone="success">{t("studioPage.ownServer")}</KitStatus> : <KitStatus tone="neutral">{t("studioPage.yallappAddress")}</KitStatus>}
+            status={mailFailedAt ? <KitStatus tone="warn">{t("signin.failedState")}</KitStatus> : mailServer ? <KitStatus tone="success">{t("signin.ownServerState")}</KitStatus> : <KitStatus tone="neutral">{t("signin.yallappAddress")}</KitStatus>}
           >
             {mailFailedAt ? (
               <KitCallout tone="warn" icon="warning" role="status">
@@ -311,7 +311,7 @@ export default async function AppSignInPage() {
               defaultTestTo={user.email}
               production={isProduction()}
               wordpress={wordpress}
-              fold={{ summary: mailServer ? t("studioPage.mailChange") : t("studioPage.mailOwn"), open: mailFailedAt !== null }}
+              fold={{ summary: mailServer ? t("signin.mailChange") : t("signin.mailOwnFold"), open: mailFailedAt !== null }}
             />
           </KitSettingRow>
         </KitSettings>

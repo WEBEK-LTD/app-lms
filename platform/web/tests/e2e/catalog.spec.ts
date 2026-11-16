@@ -463,7 +463,9 @@ test("131 delivery times, the gift checkout and a flash sale, from Delivery & of
   // A flash sale on the roses, on now in the shop's time zone.
   const local = (at: Date) => new Intl.DateTimeFormat("sv-SE", { timeZone: "Europe/Istanbul", year: "numeric", month: "2-digit", day: "2-digit", hour: "2-digit", minute: "2-digit" }).format(at).replace(" ", "T");
   await page.getByRole("tab", { name: /^Flash sales and codes/ }).click();
-  const flash = page.locator("[data-flash-form]").first();
+  // 132.160 The form opens from the header's Add a flash sale.
+  await page.getByRole("button", { name: "Add a flash sale" }).click();
+  const flash = page.getByRole("dialog", { name: "Add a flash sale" }).locator("[data-flash-form]");
   await flash.getByLabel("Name").fill("Weekend tulips");
   await flash.getByLabel("Rose Box", { exact: true }).check();
   await flash.getByLabel("Value").fill("20");

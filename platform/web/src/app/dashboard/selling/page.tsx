@@ -1,16 +1,20 @@
 import type { Metadata } from "next";
 import Link from "next/link";
+import type { ReactNode } from "react";
+import { deleteCouponAction, setCouponActiveAction } from "@/app/actions/catalog";
 import { changeFlashSaleAction } from "@/app/actions/selling";
 import { formatDate } from "@/components/ui";
-import { KitCallout, KitEmpty, KitHeader, KitHero, KitList, KitMore, KitNext, KitPage, KitRow, KitSection, KitStat, KitStatus, KitThumb, kit } from "@/components/studio-page";
+import { KitBar, KitCallout, KitDrawer, KitEmpty, KitHeader, KitHero, KitList, KitMore, KitNext, KitPage, KitRow, KitSection, KitStat, KitStatus, KitThumb, kit } from "@/components/studio-page";
+import { KitBadge, KitInspectorBody, KitInspectorFacts, KitInspectorHead } from "@/components/studio-page/parts";
+import { KitTable, type KitTableRow } from "@/components/studio-page/table";
+import { KitTabPanel, KitTabs } from "@/components/studio-page/tabs";
 import { Icon } from "@/components/icon";
-import { PageTabs, TabPanel } from "@/components/page-tabs";
-import { Sheet, SheetButton } from "@/components/page-kit-client";
+import type { IconName } from "@/components/icon-names";
 import { requireClient } from "@/lib/auth/session";
 import { centsToDecimal, formatCents } from "@/lib/catalog/money";
 import { catalogSettings } from "@/lib/catalog/settings";
 import { getStore } from "@/lib/data";
-import type { App, StoreFlashSale } from "@/lib/data/types";
+import type { App, CatalogCoupon, StoreFlashSale } from "@/lib/data/types";
 import { dashboardText } from "@/lib/dashboard-lang";
 import { richText } from "@/i18n/rich";
 import { localePath } from "@/i18n/paths";
@@ -23,8 +27,9 @@ import { SHIPPING_COUNTRIES, STARTER_CITIES } from "@/lib/selling/shipping";
 import { appLanguagesOf, platformCarriesDetails } from "@/lib/selling/store";
 import { localInput, shopZone } from "@/lib/selling/zone";
 import { checkoutLookOf } from "@/lib/studio/checkout-look";
-import { CouponsPanel } from "../catalog/coupons-panel";
+import { CouponForm } from "../catalog/forms";
 import { AddonsForm, AreasForm, CheckoutModeForm, DeliveryForm, FlashSaleForm, GiftsForm, TitlesForm } from "./forms";
+import { SellingTabs } from "./tabs";
 
 export async function generateMetadata(): Promise<Metadata> {
   return { title: (await dashboardText()).t("selling.title") };
@@ -46,7 +51,7 @@ function sourceOf(app: App): Source {
 /** 131 Store › Delivery & offers, for every store app whatever its source. */
 export default async function SellingPage({ searchParams }: { searchParams: Promise<{ tab?: string }> }) {
   const { app } = await requireClient("catalog");
-  const { t, lang, num } = await dashboardText();
+  const { t, lang, num, date } = await dashboardText();
   if (!app || app.appType !== "store") {
     return (
       <KitPage>
@@ -130,8 +135,6 @@ export default async function SellingPage({ searchParams }: { searchParams: Prom
   });
   const startersOf = Object.fromEntries(Object.entries(STARTER_CITIES).map(([code, cities]) => [code, cities.map((c) => (c as Record<string, string>)[lang] ?? c.en).join(", ")]));
   const noWeight = source.kind === "catalog" && settings.weightPricing ? products.filter((p) => p.active && !p.digital && !p.weightGrams).length : 0;
-  const saleState = (s: StoreFlashSale) =>
-    !s.active ? <KitStatus tone="neutral">{t("selling.turnOff")}</KitStatus> : unitsLeft(s) === 0 ? <KitStatus tone="warn">{t("selling.soldOut")}</KitStatus> : saleOn(s, now) ? <KitStatus tone="success">{t("selling.live")}</KitStatus> : s.endsAt <= now ? <KitStatus tone="neutral">{t("selling.ended")}</KitStatus> : <KitStatus tone="info">{t("selling.scheduled", { date: formatDate(s.startsAt, lang) })}</KitStatus>;
   const saleValues = (s: StoreFlashSale): Record<string, string> => ({
     title: s.title,
     productIds: s.productIds.join(","),
@@ -153,13 +156,13 @@ export default async function SellingPage({ searchParams }: { searchParams: Prom
   const titled = source.kind !== "own_api" && source.kind !== "none";
   const offers = hosted || source.kind === "wordpress";
   const tabs = [
-    ...(hosted || titled ? [{ id: "checkout", label: t("selling.checkoutTitle"), icon: "shopping_cart" as const }] : []),
-    ...(hosted ? [{ id: "delivery", label: t("manage.deliveryTab"), icon: "schedule" as const }] : []),
-    ...(hosted ? [{ id: "areas", label: t("manage.areasTab"), icon: "pin_drop" as const }] : []),
-    { id: "gifts", label: t("manage.giftsTab"), icon: "redeem" as const },
-    ...(titled ? [{ id: "addons", label: t("selling.addonsTitle"), icon: "add_circle" as const }] : []),
-    ...(offers ? [{ id: "flash", label: t("manage.offersTab"), icon: "bolt" as const, count: sales.length }] : []),
-    ...(platform ? [{ id: "deliveries", label: t("selling.deliveriesTitle"), icon: "local_shipping" as const, count: deliveries.length }] : []),
+    ...(hosted || titled ? [{ id: "checkout", label: t("selling.checkoutTitle") }] : []),
+    ...(hosted ? [{ id: "delivery", label: t("manage.deliveryTab") }] : []),
+    ...(hosted ? [{ id: "areas", label: t("manage.areasTab") }] : []),
+    { id: "gifts", label: t("manage.giftsTab") },
+    ...(titled ? [{ id: "addons", label: t("selling.addonsTitle") }] : []),
+    ...(offers ? [{ id: "flash", label: t("manage.offersTab"), count: sales.length }] : []),
+    ...(platform ? [{ id: "deliveries", label: t("selling.deliveriesTitle"), count: deliveries.length }] : []),
   ];
   const tab = tabs.some((x) => x.id === asked) ? asked : tabs[0]!.id;
 
@@ -168,29 +171,264 @@ export default async function SellingPage({ searchParams }: { searchParams: Prom
   const sourceNote =
     source.kind === "catalog" ? t("selling.srcCatalog") : source.kind === "wordpress" ? t("selling.srcWordpress") : source.kind === "own_api" ? richText(t("selling.srcOwnApi"), { link: (chunk) => <Link href={`${localePath(lang, "/developers")}#store`}>{chunk}</Link> }) : null;
   const statValue = (text: string) => <span className="text-[19px] leading-snug tracking-normal">{text}</span>;
+  const more = t("studioPage.more");
+  const close = t("common.close");
+  /** 132.160 A flash sale's or a code's discount, its percent read the same way in every language ("خصم 20%", "%20 indirim"). */
+  const percentOff = (percent: number) => <bdi>{t("manage.percentOff", { percent: num(percent) })}</bdi>;
+  const discountOf = (s: StoreFlashSale) => (s.discount.kind === "percent" ? percentOff(s.discount.percent) : <bdi>{t("selling.salePrice", { price: money(s.discount.cents) })}</bdi>);
+  const when = (d: Date) => date(d, { day: "numeric", month: "short", hour: "2-digit", minute: "2-digit", hourCycle: "h23", timeZone: zone });
+  const saleState = (s: StoreFlashSale) =>
+    !s.active ? <KitStatus tone="neutral">{t("selling.turnOff")}</KitStatus> : unitsLeft(s) === 0 ? <KitStatus tone="warn">{t("selling.soldOut")}</KitStatus> : saleOn(s, now) ? <KitStatus tone="success">{t("selling.live")}</KitStatus> : s.endsAt <= now ? <KitStatus tone="neutral">{t("selling.ended")}</KitStatus> : <KitStatus tone="info">{t("selling.scheduled", { date: formatDate(s.startsAt, lang) })}</KitStatus>;
+  const productName = new Map(products.map((p) => [p.id, p.name]));
+  const categoryName = new Map(categories.map((c) => [c.id, c.name]));
+  const whatsIn = (s: StoreFlashSale) =>
+    s.productIds.length ? t("selling.productsCount", { count: s.productIds.length }) : s.categoryId !== null ? t("selling.categoryNamed", { name: categoryName.get(s.categoryId) ?? String(s.categoryId) }) : null;
+  const thumb = (icon: IconName, dim = false) => <KitThumb icon={icon} size={40} dim={dim} />;
+  const name = (text: ReactNode, line?: ReactNode) => (
+    <span className="flex min-w-0 flex-col gap-0.5">
+      <span className="truncate text-[14.5px] font-bold" dir="auto">
+        {text}
+      </span>
+      {line ? <span className="truncate text-[12.5px] font-normal text-(--sp-muted)">{line}</span> : null}
+    </span>
+  );
+  const change = (action: (formData: FormData) => Promise<void>, fields: Record<string, string | number>, label: string, icon: IconName, danger = false) => (
+    <form action={action} className="flex">
+      {Object.entries(fields).map(([field, value]) => (
+        <input key={field} type="hidden" name={field} value={value} />
+      ))}
+      <button type="submit" className={`${kit.menuItem} ${danger ? "text-danger hover:text-danger" : ""}`}>
+        <Icon name={icon} size={18} />
+        {label}
+      </button>
+    </form>
+  );
+  const addFlash = (
+    <KitDrawer
+      title={t("selling.addFlash")}
+      closeLabel={close}
+      triggerClassName={kit.main}
+      trigger={
+        <>
+          <Icon name="add" size={20} />
+          {t("selling.addFlash")}
+        </>
+      }
+    >
+      <FlashSaleForm currency={currency} zone={zone} products={flashProducts} categories={flashCategories} platform={platform} languages={otherLangs} />
+    </KitDrawer>
+  );
 
-  // 132.135 The premium kit: the header with its one main action, what the shop does now in one hero card with the next step, then each part in its tab.
+  // 132.160 A flash sale as a row of the table: its name and what's in it, its discount, when, how many sold, its state; the rest in its inspector.
+  const flashRows: KitTableRow[] = sales.map((s) => ({
+    id: String(s.id),
+    name: s.title,
+    data: { "data-flash-sale": String(s.id) },
+    cells: [
+      <>
+        {thumb("bolt", !s.active)}
+        {name(s.title, whatsIn(s))}
+      </>,
+      <KitBadge key="d" tone="peach">
+        {discountOf(s)}
+      </KitBadge>,
+      <span key="w" className="text-[13px]">
+        {formatDate(s.startsAt, lang)} – {formatDate(s.endsAt, lang)}
+      </span>,
+      <span key="s" className="font-sans tabular-nums">
+        {s.limit !== null ? t("selling.soldOf", { sold: num(s.sold), limit: num(s.limit) }) : t("selling.soldCount", { sold: num(s.sold) })}
+      </span>,
+      <span key="st" className="flex flex-wrap gap-1.5">
+        {saleState(s)}
+        {platform && !s.platformCode ? <KitStatus tone="warn">{t("selling.platformCode", { platform })}</KitStatus> : null}
+      </span>,
+    ],
+    inspector: {
+      title: t("selling.flashSale"),
+      actions: (
+        <KitMore label={more} look="row">
+          {change(changeFlashSaleAction, { id: s.id, change: s.active ? "off" : "on" }, s.active ? t("selling.turnOff") : t("selling.turnOn"), s.active ? "pause_circle" : "play_circle")}
+          {change(changeFlashSaleAction, { id: s.id, change: "delete" }, t("common.delete"), "delete", true)}
+        </KitMore>
+      ),
+      footer: (
+        <KitDrawer
+          title={s.title}
+          closeLabel={close}
+          triggerClassName={`${kit.main} w-full`}
+          trigger={
+            <>
+              <Icon name="edit" size={18} />
+              {t("shop.couponEdit")}
+            </>
+          }
+        >
+          <FlashSaleForm sale={{ id: s.id, values: saleValues(s) }} currency={currency} zone={zone} products={flashProducts} categories={flashCategories} platform={platform} languages={otherLangs} />
+        </KitDrawer>
+      ),
+      body: (
+        <KitInspectorBody data-inspector-flash-sale={s.title}>
+          <KitInspectorHead
+            icon="bolt"
+            title={s.title}
+            badges={
+              <>
+                <KitBadge tone="peach">{discountOf(s)}</KitBadge>
+                {saleState(s)}
+              </>
+            }
+            line={whatsIn(s)}
+          />
+          <KitInspectorFacts
+            facts={[
+              [t("selling.flashKind"), discountOf(s)],
+              [t("selling.flashStarts"), when(s.startsAt)],
+              [t("selling.flashEnds"), when(s.endsAt)],
+              [t("selling.flashLimit"), s.limit !== null ? t("selling.soldOf", { sold: num(s.sold), limit: num(s.limit) }) : t("selling.soldCount", { sold: num(s.sold) })],
+              ...(s.productIds.length
+                ? ([[t("selling.flashProducts"), s.productIds.map((id) => productName.get(id) ?? `#${id}`).join(" · ")]] as [string, string][])
+                : s.categoryId !== null
+                  ? ([[t("manage.filterCategory"), categoryName.get(s.categoryId) ?? String(s.categoryId)]] as [string, string][])
+                  : []),
+              ...(platform ? ([[t("selling.platformCode", { platform }), s.platformCode ? <bdi dir="ltr">{s.platformCode}</bdi> : t("studioPage.notSet")]] as [string, ReactNode][]) : []),
+            ]}
+          />
+          {platform && !s.platformCode ? (
+            <KitCallout tone="warn" icon="warning">
+              {t("selling.platformNoCode", { platform })}
+            </KitCallout>
+          ) : null}
+          <p className="m-0 text-[13px] text-(--sp-muted)">{t("selling.flashTimezone", { zone })}</p>
+        </KitInspectorBody>
+      ),
+    },
+  }));
+
+  // 132.160 A platform's discount codes shown in the app, as a table too.
+  const couponTerms = (c: CatalogCoupon) => (c.kind === "percent" ? percentOff(c.value) : <bdi>{t("shop.couponAmountOff", { amount: money(c.value) })}</bdi>);
+  const couponRows: KitTableRow[] = coupons.map((c) => ({
+    id: String(c.id),
+    name: c.code,
+    data: { "data-coupon": c.code },
+    cells: [
+      <>
+        {thumb("local_offer", !c.active)}
+        {name(<bdi dir="ltr">{c.code}</bdi>, c.endsAt ? t("shop.couponUntil", { date: formatDate(c.endsAt, lang) }) : null)}
+      </>,
+      <KitBadge key="d" tone="peach">
+        {couponTerms(c)}
+      </KitBadge>,
+      <span key="u" className="font-sans tabular-nums">
+        {c.maxUses !== null ? t("shop.couponUsesOf", { used: c.usedCount, max: c.maxUses }) : t("shop.couponUses", { used: c.usedCount })}
+      </span>,
+      <span key="st" className="flex flex-wrap gap-1.5">
+        {c.active ? <KitStatus tone="success">{t("selling.live")}</KitStatus> : <KitStatus tone="neutral">{t("shop.couponOff")}</KitStatus>}
+        {c.active && c.public ? <KitStatus tone="info">{t("shop.couponShown")}</KitStatus> : null}
+      </span>,
+    ],
+    inspector: {
+      title: t("selling.coupon"),
+      actions: (
+        <KitMore label={more} look="row">
+          {change(setCouponActiveAction, c.active ? { id: c.id } : { id: c.id, active: "on" }, c.active ? t("shop.couponTurnOff") : t("shop.couponTurnOn"), c.active ? "pause_circle" : "play_circle")}
+          {change(deleteCouponAction, { id: c.id }, t("common.delete"), "delete", true)}
+        </KitMore>
+      ),
+      footer: (
+        <KitDrawer
+          title={<bdi dir="ltr">{c.code}</bdi>}
+          closeLabel={close}
+          triggerClassName={`${kit.main} w-full`}
+          trigger={
+            <>
+              <Icon name="edit" size={18} />
+              {t("shop.couponEdit")}
+            </>
+          }
+        >
+          <CouponForm currency={currency} coupon={{ id: c.id, values: couponValues(c) }} />
+        </KitDrawer>
+      ),
+      body: (
+        <KitInspectorBody data-inspector-coupon={c.code}>
+          <KitInspectorHead icon="local_offer" title={<bdi dir="ltr">{c.code}</bdi>} badges={<KitBadge tone="peach">{couponTerms(c)}</KitBadge>} />
+          <KitInspectorFacts
+            facts={[
+              [t("selling.flashKind"), couponTerms(c)],
+              ...(c.minOrderCents !== null ? ([[t("selling.minOrder"), money(c.minOrderCents)]] as [string, string][]) : []),
+              ...(c.startsAt ? ([[t("selling.flashStarts"), formatDate(c.startsAt, lang)]] as [string, string][]) : []),
+              ...(c.endsAt ? ([[t("selling.flashEnds"), formatDate(c.endsAt, lang)]] as [string, string][]) : []),
+              [t("selling.uses"), c.maxUses !== null ? t("shop.couponUsesOf", { used: c.usedCount, max: c.maxUses }) : t("shop.couponUses", { used: c.usedCount })],
+              [t("shop.couponShown"), c.public ? t("common.on") : t("common.off")],
+            ]}
+          />
+        </KitInspectorBody>
+      ),
+    },
+  }));
+
+  // 132.160 The deliveries a platform's shop got from the app, each one's details in its inspector.
+  const deliveryRows: KitTableRow[] = deliveries.map((d) => {
+    const who = d.delivery.recipient ? d.delivery.recipient.name : (d.buyer.name ?? d.buyer.phone ?? "—");
+    const day = d.delivery.date ? `${d.delivery.date}${d.delivery.slot ? ` ${slotLabel(d.delivery.slot)}` : ""}` : "—";
+    return {
+      id: String(d.id),
+      name: who,
+      data: { "data-store-delivery": String(d.id) },
+      cells: [
+        <>
+          {thumb(d.delivery.recipient ? "redeem" : "local_shipping")}
+          {name(who, d.lines.join(", "))}
+        </>,
+        <bdi key="w" dir="ltr" className="font-sans text-[13px] tabular-nums">
+          {day}
+        </bdi>,
+        <span key="c" className="text-[13px]">
+          {formatDate(d.createdAt, lang)}
+        </span>,
+        d.passed ? <KitStatus key="p" tone="success">{t("selling.passed", { platform: platform ?? "" })}</KitStatus> : <KitStatus key="p" tone="neutral">{t("selling.notPassed")}</KitStatus>,
+      ],
+      inspector: {
+        title: t("selling.when"),
+        body: (
+          <KitInspectorBody data-inspector-delivery={String(d.id)}>
+            <KitInspectorHead icon={d.delivery.recipient ? "redeem" : "local_shipping"} title={who} line={d.lines.join(", ")} badges={d.passed ? <KitStatus tone="success">{t("selling.passed", { platform: platform ?? "" })}</KitStatus> : <KitStatus tone="neutral">{t("selling.notPassed")}</KitStatus>} />
+            <KitInspectorFacts
+              facts={[
+                [t("selling.when"), <bdi key="w" dir="ltr">{day}</bdi>],
+                ...(d.delivery.recipient ? ([[t("selling.recipientLabel"), `${d.delivery.recipient.name} · ${d.delivery.recipient.phone}`]] as [string, string][]) : []),
+                ...(d.delivery.recipient?.address ? ([[t("selling.address"), d.delivery.recipient.address]] as [string, string][]) : []),
+                ...(d.delivery.sender ? ([[t("selling.sender"), `${d.delivery.sender.name} · ${d.delivery.sender.phone} · ${d.delivery.sender.email}`]] as [string, string][]) : []),
+                ...(d.delivery.message ? ([[t("selling.card"), d.delivery.message]] as [string, string][]) : []),
+                ...(d.delivery.anonymous ? ([[t("selling.card"), t("selling.anonymousYes")]] as [string, string][]) : []),
+                [t("common.date"), formatDate(d.createdAt, lang)],
+              ]}
+            />
+          </KitInspectorBody>
+        ),
+      },
+    };
+  });
+
+  // 132.160 The console's look: the title with Add a flash sale, Delivery & offers and Card messages side by side, the numbers as tiles, then each part in its segment.
   return (
     <KitPage>
       <KitHeader
-          icon="local_shipping"
-          title={t("selling.title")}
-          description={t("studioPage.sellingLine")}
-          help={
-            <span className="flex flex-col gap-2">
-              <span>{t("selling.intro")}</span>
-              {sourceNote ? <span>{sourceNote}</span> : null}
-            </span>
-          }
-          helpLabel={t("studioPage.help")}
-          actions={
-            hosted ? (
-              <SheetButton target="new-flash" variant="main" className="h-11">
-                {t("selling.addFlash")}
-              </SheetButton>
-            ) : null
-          }
-        />
+        icon="local_shipping"
+        title={t("selling.title")}
+        description={t("selling.line")}
+        help={
+          <span className="flex flex-col gap-2">
+            <span>{t("selling.intro")}</span>
+            {sourceNote ? <span>{sourceNote}</span> : null}
+          </span>
+        }
+        helpLabel={t("studioPage.help")}
+        actions={hosted ? addFlash : null}
+      />
+      <KitBar>
+        <SellingTabs messages={templatesCount} />
+      </KitBar>
       {platform ? (
         <KitCallout tone="warn" icon="warning">
           {t("selling.srcPlatform", { platform })} {platformCarriesDetails(app) ? t("selling.srcCarries", { platform }) : t("selling.srcRecords", { platform })}
@@ -202,10 +440,10 @@ export default async function SellingPage({ searchParams }: { searchParams: Prom
           label={t("selling.title")}
           stats={
             <>
+              <KitStat icon="bolt" label={t("selling.flashTitle")} value={num(live)} hint={t("selling.live")} />
+              <KitStat icon="edit_note" label={t("selling.messagesTitle")} value={num(templatesCount)} hint={t("selling.occasions", { count: occasions.length })} href="/dashboard/selling/messages" />
               <KitStat icon={mode === "gift" ? "redeem" : "shopping_cart"} label={t("selling.checkoutTitle")} value={statValue(mode === "gift" ? t("selling.modeGift") : t("selling.modeStandard"))} />
-              <KitStat icon="schedule" tone={delivery.enabled ? "success" : "neutral"} label={t("studioPage.deliveryDays")} value={statValue(delivery.enabled ? t("common.on") : t("common.off"))} />
-              <KitStat icon="bolt" tone="accent" label={t("selling.flashTitle")} value={num(live)} hint={t("selling.live")} />
-              <KitStat icon="edit_note" label={t("selling.messagesTitle")} value={num(templatesCount)} hint={t("studioPage.occasions", { count: occasions.length })} href="/dashboard/selling/messages" />
+              <KitStat icon="schedule" tone={delivery.enabled ? "success" : "neutral"} label={t("selling.deliveryDays")} value={statValue(delivery.enabled ? t("common.on") : t("common.off"))} />
             </>
           }
           next={
@@ -214,21 +452,21 @@ export default async function SellingPage({ searchParams }: { searchParams: Prom
                 icon="schedule"
                 action={
                   <button type="button" aria-controls="h-delivery" className={kit.quiet}>
-                    {t("studioPage.sellingSetDelivery")}
+                    {t("selling.setDelivery")}
                   </button>
                 }
               >
-                {t("studioPage.sellingNoDelivery")}
+                {t("selling.noDeliveryDay")}
               </KitNext>
             )
           }
         />
       ) : null}
 
-      {/* 132.25 Each part in its tab (those the source uses): the checkout, delivery times, where it goes and its fees, gifts and card messages, add-ons, flash sales and codes, and the deliveries a platform's shop gets. */}
-      <PageTabs label={t("selling.title")} initial={tab} tabs={tabs}>
+      {/* 132.25 Each part in its segment (those the source uses): the checkout, delivery times, where it goes and its fees, gifts and card messages, add-ons, flash sales and codes, and the deliveries a platform's shop gets. */}
+      <KitTabs label={t("selling.title")} initial={tab} tabs={tabs}>
         {hosted || titled ? (
-          <TabPanel tab="checkout">
+          <KitTabPanel tab="checkout">
             {hosted ? (
               <KitSection titleId="h-checkout" title={t("selling.checkoutTitle")} description={t("selling.checkoutIntro")}>
                 {look?.mode === "gift" ? <KitCallout icon="info">{t("selling.lookGift")}</KitCallout> : null}
@@ -240,18 +478,18 @@ export default async function SellingPage({ searchParams }: { searchParams: Prom
                 <TitlesForm values={titleValues} languages={langs} />
               </KitSection>
             ) : null}
-          </TabPanel>
+          </KitTabPanel>
         ) : null}
         {hosted ? (
-          <TabPanel tab="delivery">
+          <KitTabPanel tab="delivery">
             <KitSection titleId="h-delivery" title={t("selling.deliveryTitle")} description={t("selling.deliveryIntro")}>
               {mode === "gift" ? <p className="m-0 text-[13px] text-(--sp-muted)">{t("selling.giftForces")}</p> : null}
               <DeliveryForm values={deliveryValues} currency={currency} timezones={TIMEZONES.includes(delivery.timezone) ? TIMEZONES : [delivery.timezone, ...TIMEZONES]} weekdays={weekdays} feesNote={platform ? t("selling.feesPlatform", { platform }) : null} />
             </KitSection>
-          </TabPanel>
+          </KitTabPanel>
         ) : null}
         {hosted ? (
-          <TabPanel tab="areas">
+          <KitTabPanel tab="areas">
             <KitSection titleId="h-areas" title={t("selling.areasTitle")} description={t("selling.areasIntro")}>
               {platform ? (
                 <KitCallout tone="warn" icon="warning">
@@ -266,9 +504,9 @@ export default async function SellingPage({ searchParams }: { searchParams: Prom
               ) : null}
               <AreasForm values={areaValues} currency={currency} countries={Object.keys(SHIPPING_COUNTRIES).map((code) => ({ code, name: nameOf(code) }))} starters={startersOf} />
             </KitSection>
-          </TabPanel>
+          </KitTabPanel>
         ) : null}
-        <TabPanel tab="gifts">
+        <KitTabPanel tab="gifts">
           {hosted ? (
             <KitSection titleId="h-gifts" title={t("selling.giftsTitle")} description={t("selling.giftsIntro")}>
               <GiftsForm
@@ -290,9 +528,9 @@ export default async function SellingPage({ searchParams }: { searchParams: Prom
               />
             </KitList>
           </KitSection>
-        </TabPanel>
+        </KitTabPanel>
         {titled ? (
-          <TabPanel tab="addons">
+          <KitTabPanel tab="addons">
             {/* 131 Gift add-ons: "Add a little more" with the products they go with. */}
             <KitSection titleId="h-addons" title={t("selling.addonsTitle")} description={t("selling.addonsIntro")}>
               {source.kind === "catalog" ? (
@@ -313,140 +551,117 @@ export default async function SellingPage({ searchParams }: { searchParams: Prom
                 </>
               ) : null}
             </KitSection>
-          </TabPanel>
+          </KitTabPanel>
         ) : null}
         {offers ? (
-          <TabPanel tab="flash">
+          <KitTabPanel tab="flash">
             {hosted ? (
               <>
-                <KitSection
-                  titleId="h-flash"
+                <KitTable
+                  label={t("selling.flashTitle")}
                   title={t("selling.flashTitle")}
-                  description={t("selling.flashIntro")}
-                  actions={
-                    sales.length ? (
-                      <SheetButton target="new-flash" variant="pill" className="h-9">
-                        {t("selling.addFlash")}
-                      </SheetButton>
-                    ) : null
+                  titleId="h-flash"
+                  columns={[
+                    { label: t("selling.flashSale"), width: "minmax(0,1fr)" },
+                    { label: t("selling.flashKind"), width: "minmax(96px,auto)", phone: "sub" },
+                    { label: t("selling.colWhen"), width: "190px", wide: true },
+                    { label: t("selling.colSold"), width: "110px", wide: true },
+                    { label: t("common.status"), width: "minmax(110px,auto)", phone: "end" },
+                  ]}
+                  rows={flashRows}
+                  empty={
+                    <KitEmpty icon="bolt" title={t("selling.noFlash")}>
+                      {t("selling.flashIntro")}
+                    </KitEmpty>
                   }
-                  flush
-                >
-                  {sales.length ? (
-                    <KitList>
-                      {sales.map((s) => (
-                        <KitRow
-                          key={s.id}
-                          data-flash-sale={s.id}
-                          media={<KitThumb icon="bolt" />}
-                          title={s.title}
-                          meta={[
-                            s.discount.kind === "percent" ? `−${num(s.discount.percent)}%` : money(s.discount.cents),
-                            `${formatDate(s.startsAt, lang)} – ${formatDate(s.endsAt, lang)}`,
-                            s.limit !== null ? t("selling.soldOf", { sold: num(s.sold), limit: num(s.limit) }) : t("selling.soldCount", { sold: num(s.sold) }),
-                          ].join(" · ")}
-                          aside={
-                            <>
-                              {saleState(s)}
-                              {platform && !s.platformCode ? <KitStatus tone="warn">{t("selling.platformCode", { platform })}</KitStatus> : null}
-                            </>
-                          }
-                          actions={
-                            <>
-                              <SheetButton target={`flash-${s.id}`} variant="pill" className="h-9" icon="edit">
-                                {t("shop.couponEdit")}
-                              </SheetButton>
-                              <KitMore label={t("studioPage.more")}>
-                                <form action={changeFlashSaleAction} className="flex">
-                                  <input type="hidden" name="id" value={s.id} />
-                                  <input type="hidden" name="change" value={s.active ? "off" : "on"} />
-                                  <button type="submit" className={kit.menuItem}>
-                                    <Icon name={s.active ? "pause_circle" : "play_circle"} size={18} />
-                                    {s.active ? t("selling.turnOff") : t("selling.turnOn")}
-                                  </button>
-                                </form>
-                                <form action={changeFlashSaleAction} className="flex">
-                                  <input type="hidden" name="id" value={s.id} />
-                                  <input type="hidden" name="change" value="delete" />
-                                  <button type="submit" className={`${kit.menuItem} text-danger hover:text-danger`}>
-                                    <Icon name="delete" size={18} />
-                                    {t("common.delete")}
-                                  </button>
-                                </form>
-                              </KitMore>
-                            </>
-                          }
-                        />
-                      ))}
-                    </KitList>
-                  ) : (
-                    <KitEmpty icon="bolt" title={t("selling.noFlash")} />
-                  )}
-                </KitSection>
+                />
+                {sales.length ? <p className="-mt-2 m-0 px-1 text-[13px] text-(--sp-muted)">{t("selling.flashIntro")}</p> : null}
                 {platform && sales.some((s) => !s.platformCode) ? (
                   <KitCallout tone="warn" icon="warning">
                     {t("selling.platformNoCode", { platform })}
                   </KitCallout>
                 ) : null}
-                <Sheet id="new-flash" inline={!sales.length} title={t("selling.addFlash")}>
-                  <FlashSaleForm currency={currency} zone={zone} products={flashProducts} categories={flashCategories} platform={platform} languages={otherLangs} />
-                </Sheet>
-                {sales.map((s) => (
-                  <Sheet key={s.id} id={`flash-${s.id}`} title={s.title}>
-                    <FlashSaleForm sale={{ id: s.id, values: saleValues(s) }} currency={currency} zone={zone} products={flashProducts} categories={flashCategories} platform={platform} languages={otherLangs} />
-                  </Sheet>
-                ))}
               </>
             ) : source.kind === "wordpress" ? (
               <KitCallout icon="info">{t("selling.flashWordpress")}</KitCallout>
             ) : null}
-            <KitSection titleId="h-codes" title={t("selling.couponsTitle")}>
-              {source.kind === "catalog" ? <KitCallout icon="local_offer">{richText(t("selling.couponsCatalog"), { link: (chunk) => <Link href="/dashboard/catalog/coupons">{chunk}</Link> })}</KitCallout> : null}
-              {source.kind === "wordpress" ? <KitCallout icon="local_offer">{t("selling.couponsWordpress")}</KitCallout> : null}
-              {platform ? (
-                <>
-                  <KitCallout tone="warn" icon="warning">
-                    {t("selling.couponsPlatform", { platform })}
-                  </KitCallout>
-                  <CouponsPanel coupons={coupons} currency={currency} />
-                </>
-              ) : null}
-            </KitSection>
-          </TabPanel>
+            {platform ? (
+              <>
+                <KitCallout tone="warn" icon="warning">
+                  {t("selling.couponsPlatform", { platform })}
+                </KitCallout>
+                <KitTable
+                  label={t("selling.couponsTitle")}
+                  title={t("selling.couponsTitle")}
+                  titleId="h-codes"
+                  actions={
+                    <KitDrawer
+                      title={t("shop.addCoupon")}
+                      description={t("shop.couponHint")}
+                      closeLabel={close}
+                      triggerClassName={kit.quiet}
+                      trigger={
+                        <>
+                          <Icon name="add" size={18} />
+                          {t("shop.addCoupon")}
+                        </>
+                      }
+                    >
+                      <CouponForm currency={currency} />
+                    </KitDrawer>
+                  }
+                  columns={[
+                    { label: t("shop.couponCode"), width: "minmax(0,1fr)" },
+                    { label: t("selling.flashKind"), width: "minmax(96px,auto)", phone: "sub" },
+                    { label: t("selling.uses"), width: "140px", wide: true },
+                    { label: t("common.status"), width: "minmax(110px,auto)", phone: "end" },
+                  ]}
+                  rows={couponRows}
+                  empty={<KitEmpty icon="local_offer" title={t("shop.couponsNone")} />}
+                />
+              </>
+            ) : (
+              <KitSection titleId="h-codes" title={t("selling.couponsTitle")}>
+                {source.kind === "catalog" ? <KitCallout icon="local_offer">{richText(t("selling.couponsCatalog"), { link: (chunk) => <Link href="/dashboard/catalog/coupons">{chunk}</Link> })}</KitCallout> : null}
+                {source.kind === "wordpress" ? <KitCallout icon="local_offer">{t("selling.couponsWordpress")}</KitCallout> : null}
+              </KitSection>
+            )}
+          </KitTabPanel>
         ) : null}
         {platform ? (
-          <TabPanel tab="deliveries">
-            <KitSection titleId="h-deliveries" title={t("selling.deliveriesTitle")} description={t("selling.deliveriesIntro", { platform })} flush>
-              {deliveries.length ? (
-                <KitList>
-                  {deliveries.map((d) => (
-                    <KitRow
-                      key={d.id}
-                      data-store-delivery={d.id}
-                      media={<KitThumb icon="local_shipping" />}
-                      title={d.delivery.recipient ? `${t("selling.recipientLabel")}: ${d.delivery.recipient.name} · ${d.delivery.recipient.phone}` : (d.buyer.name ?? d.buyer.phone ?? "—")}
-                      aside={d.passed ? <KitStatus tone="success">{t("selling.passed", { platform })}</KitStatus> : <KitStatus tone="neutral">{t("selling.notPassed")}</KitStatus>}
-                      meta={[
-                        d.delivery.date ? `${t("selling.when")}: ${d.delivery.date}${d.delivery.slot ? ` ${slotLabel(d.delivery.slot)}` : ""}` : null,
-                        d.delivery.sender ? `${t("selling.sender")}: ${d.delivery.sender.name} · ${d.delivery.sender.phone} · ${d.delivery.sender.email}` : null,
-                        d.delivery.recipient?.address ?? null,
-                        d.delivery.message ? `${t("selling.card")}: ${d.delivery.message}` : null,
-                        d.delivery.anonymous ? t("selling.anonymousYes") : null,
-                        d.lines.join(", "),
-                        formatDate(d.createdAt, lang),
-                      ]
-                        .filter(Boolean)
-                        .join(" · ")}
-                    />
-                  ))}
-                </KitList>
-              ) : (
-                <KitEmpty icon="local_shipping" title={t("selling.noDeliveries")} />
-              )}
-            </KitSection>
-          </TabPanel>
+          <KitTabPanel tab="deliveries">
+            <p className="m-0 px-1 text-[14px] text-(--sp-muted)">{t("selling.deliveriesIntro", { platform })}</p>
+            <KitTable
+              label={t("selling.deliveriesTitle")}
+              title={t("selling.deliveriesTitle")}
+              titleId="h-deliveries"
+              columns={[
+                { label: t("selling.recipientLabel"), width: "minmax(0,1fr)" },
+                { label: t("selling.when"), width: "170px", phone: "sub" },
+                { label: t("common.date"), width: "120px", wide: true },
+                { label: t("common.status"), width: "minmax(120px,auto)", phone: "end" },
+              ]}
+              rows={deliveryRows}
+              empty={<KitEmpty icon="local_shipping" title={t("selling.noDeliveries")} />}
+            />
+          </KitTabPanel>
         ) : null}
-      </PageTabs>
+      </KitTabs>
     </KitPage>
   );
+}
+
+/** 131 A saved coupon as the form shows it. */
+function couponValues(c: CatalogCoupon): Record<string, string> {
+  const day = (d: Date | null | undefined) => (d ? d.toISOString().slice(0, 10) : "");
+  return {
+    code: c.code,
+    kind: c.kind,
+    value: c.kind === "percent" ? String(c.value) : centsToDecimal(c.value),
+    minOrder: c.minOrderCents !== null ? centsToDecimal(c.minOrderCents) : "",
+    maxUses: c.maxUses !== null ? String(c.maxUses) : "",
+    startsOn: day(c.startsAt),
+    endsOn: day(c.endsAt),
+    public: c.public ? "on" : "",
+  };
 }

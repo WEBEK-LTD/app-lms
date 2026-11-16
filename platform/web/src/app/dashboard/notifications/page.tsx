@@ -1,12 +1,13 @@
 import { plansIn } from "@/lib/marketing-lang";
 import type { Metadata } from "next";
 import Link from "next/link";
+import type { ReactNode } from "react";
 import { cancelScheduledNotificationAction, removeServiceAccountAction } from "@/app/actions/notifications";
 import { SubmitButton } from "@/components/form";
 import { Icon } from "@/components/icon";
-import { LinkCards } from "@/components/page-kit";
-import { formatDateTime } from "@/components/ui";
-import { KitEmpty, KitFold, KitHeader, KitHero, KitList, KitNext, KitPage, KitRow, KitSection, KitSettingRow, KitSettings, KitStat, KitStatus, KitThumb, kit } from "@/components/studio-page";
+import { KitCallout, KitDrawer, KitEmpty, KitFold, KitHeader, KitHero, KitList, KitMore, KitNext, KitPage, KitRow, KitSection, KitSettingRow, KitSettings, KitStat, KitStatus, KitThumb, kit } from "@/components/studio-page";
+import { KitInspectorBody, KitInspectorFacts, KitInspectorHead } from "@/components/studio-page/parts";
+import { KitTable, type KitTableRow } from "@/components/studio-page/table";
 import { formatDate } from "@/i18n/format";
 import { requireClient } from "@/lib/auth/session";
 import { dashboardText } from "@/lib/dashboard-lang";
@@ -35,7 +36,7 @@ export async function generateMetadata(): Promise<Metadata> {
 /** Notifications for apps on the hosted API. Apps on WordPress send them from the plugin. */
 export default async function NotificationsPage() {
   const { app, license, client } = await requireClient("notifications");
-  const { t, k, lang, num } = await dashboardText();
+  const { t, k, lang, num, date } = await dashboardText();
   if (!app || app.backend !== "hosted") {
     return (
       <KitPage>
@@ -50,7 +51,11 @@ export default async function NotificationsPage() {
         />
         {/* 85.4 Campaigns go through the WordPress site. */}
         {app?.backend === "wordpress" ? (
-          <LinkCards label={t("notify.title")} items={[{ href: "/dashboard/notifications/campaigns", icon: "campaign", label: t("campaigns.open"), hint: t("campaigns.wordpressAudience") }]} />
+          <KitSection titleId="h-campaigns" title={t("notify.title")} flush>
+            <KitList>
+              <KitRow href="/dashboard/notifications/campaigns" media={<KitThumb icon="campaign" />} title={t("campaigns.open")} meta={t("campaigns.wordpressAudience")} />
+            </KitList>
+          </KitSection>
         ) : null}
       </KitPage>
     );
@@ -58,7 +63,7 @@ export default async function NotificationsPage() {
   const store = await getStore();
   const [customers, sent, scheduled, zone] = await Promise.all([
     store.countHostedUsers(app.id),
-    store.listHostedBroadcasts(app.id, 20),
+    store.listHostedBroadcasts(app.id, 50),
     store.listScheduledNotifications(app.id, [...LISTED_STATUSES]),
     appZone(store, app),
   ]);
@@ -88,8 +93,149 @@ export default async function NotificationsPage() {
   const onCount = kinds.filter((kind) => autoOn(app, kind)).length;
   const pushOn = push && account !== null;
   const sr = { sr: (chunk: string) => <span className="sr-only">{chunk}</span> };
+  const close = t("common.close");
+  const more = t("studioPage.more");
 
-  // 132.139 The premium kit: the header with New campaign (Campaigns beside it), the numbers in one hero card with what stops notifications as its next step, the form, push and the automatic ones as settings rows, then what's waiting and what went out.
+  // 132.160 What went out in the last 30 days and how many opened it: the phones each one reached, and the phones that opened it (Analytics' numbers).
+  const pushed = new Map<string, number>();
+  const opens = new Map<string, number>();
+  for (const row of await store.listAnalyticsDaily(app.id, dayOf(new Date(now.getTime() - 90 * 86_400_000), zone), dayOf(now, zone), ["push_sent", "push_open"])) {
+    if (row.metric === "push_sent") pushed.set(row.key, (pushed.get(row.key) ?? 0) + row.value);
+    else if (row.key.startsWith("id:")) opens.set(row.key.slice(3), (opens.get(row.key.slice(3)) ?? 0) + row.value);
+  }
+  const month = now.getTime() - 30 * 86_400_000;
+  const recent = sent.filter((n) => n.createdAt.getTime() >= month);
+  const reached = recent.reduce((sum, n) => sum + (pushed.get(String(n.id)) ?? 0), 0);
+  const opened = recent.reduce((sum, n) => sum + (opens.get(String(n.id)) ?? 0), 0);
+  const rate = (open: number, of: number) => (of > 0 ? Math.min(1, open / of) : null);
+  const percent = (value: number | null) => (value === null ? "—" : t("notify.openRate", { percent: num(Math.round(value * 100)) }));
+  const whenSent = (d: Date) => date(d, { day: "numeric", month: "short", year: "numeric", hour: "2-digit", minute: "2-digit", hourCycle: "h23", timeZone: zone });
+
+  const sentRows: KitTableRow[] = sent.map((n) => {
+    const id = String(n.id);
+    const phones = pushed.get(id) ?? 0;
+    const opensOf = opens.get(id) ?? 0;
+    const icon = n.targeted ? "campaign" : n.data?.type ? "notifications" : "send";
+    return {
+      id,
+      name: n.title,
+      text: `${n.title} ${n.body}`,
+      data: { "data-notification": id },
+      cells: [
+        <>
+          <KitThumb icon={icon} size={40} />
+          <span className="flex min-w-0 flex-col gap-0.5">
+            <span className="truncate text-[14.5px] font-bold" dir="auto">
+              {n.title}
+            </span>
+            <span className="truncate text-[12.5px] font-normal text-(--sp-muted)" dir="auto">
+              {n.body}
+            </span>
+          </span>
+        </>,
+        <span key="w" className="text-[13px]">
+          {whenSent(n.createdAt)}
+        </span>,
+        <span key="p" className="font-sans tabular-nums">
+          {num(phones)}
+        </span>,
+        <span key="o" className="font-sans font-semibold tabular-nums">
+          {num(opensOf)}
+        </span>,
+      ],
+      inspector: {
+        title: t("notify.notification"),
+        body: (
+          <KitInspectorBody data-inspector-notification={n.title}>
+            <KitInspectorHead
+              media={
+                n.imageUrl ? (
+                  // eslint-disable-next-line @next/next/no-img-element -- the campaign's own picture, a full address
+                  <img src={n.imageUrl} alt="" className="block aspect-[16/9] w-full rounded-[14px] bg-(--sp-soft) object-cover" />
+                ) : undefined
+              }
+              icon={icon}
+              title={n.title}
+              line={whenSent(n.createdAt)}
+              badges={n.targeted ? <KitStatus tone="info">{t("notify.toAudience")}</KitStatus> : <KitStatus tone="neutral">{t("notify.toEveryone")}</KitStatus>}
+            />
+            <p className="m-0 rounded-[14px] bg-(--sp-soft) px-4 py-3 text-[14.5px] leading-relaxed whitespace-pre-wrap text-(--sp-ink)" dir="auto">
+              {n.body}
+            </p>
+            <KitInspectorFacts
+              facts={[
+                [t("notify.colSent"), whenSent(n.createdAt)],
+                [t("notify.to"), n.targeted ? t("notify.toAudience") : t("notify.toEveryone")],
+                [t("notify.reached"), num(phones)],
+                [t("notify.opened"), num(opensOf)],
+                [t("notify.openRateLabel"), percent(rate(opensOf, phones))],
+                ...(n.link ? ([[t("notify.opens"), <bdi key="l" dir="ltr" className="break-all">{n.link}</bdi>]] as [string, ReactNode][]) : []),
+              ]}
+            />
+            {n.targeted ? (
+              <Link href="/dashboard/notifications/campaigns" className="text-[13.5px] font-semibold">
+                {t("campaigns.open")}
+              </Link>
+            ) : null}
+          </KitInspectorBody>
+        ),
+      },
+    };
+  });
+
+  const scheduledRows: KitTableRow[] = scheduled.map((n) => {
+    const local = localSendAt(n, zone);
+    const goes = t("notify.goesOut", { date: formatDate(lang, n.sendAt, { weekday: "short", day: "numeric", month: "short", year: "numeric", timeZone: zone }), time: local.time });
+    const state = n.status === "scheduled" ? <KitStatus tone="info">{t("notify.scheduled")}</KitStatus> : <KitStatus tone={n.status === "failed" ? "danger" : "warn"}>{t(n.status === "failed" ? "notify.statusFailed" : "notify.statusSending")}</KitStatus>;
+    return {
+      id: String(n.id),
+      name: n.title,
+      data: { "data-scheduled": String(n.id) },
+      cells: [
+        <>
+          <KitThumb icon="schedule" size={40} />
+          <span className="flex min-w-0 flex-col gap-0.5">
+            <span className="truncate text-[14.5px] font-bold" dir="auto">
+              {n.title}
+            </span>
+            <span className="truncate text-[12.5px] font-normal text-(--sp-muted)" dir="auto">
+              {n.body}
+            </span>
+          </span>
+        </>,
+        <span key="g" className="text-[13px]">
+          {goes}
+        </span>,
+        <span key="s">{state}</span>,
+      ],
+      inspector: {
+        title: t("notify.scheduled"),
+        body: (
+          <KitInspectorBody data-inspector-scheduled={n.title}>
+            <KitInspectorHead icon="schedule" title={n.title} line={goes} badges={state} />
+            {n.result && n.status === "failed" ? <KitCallout tone="danger" icon="error">{k(n.result)}</KitCallout> : null}
+            {n.status === "scheduled" ? (
+              <>
+                <EditScheduledForm item={{ id: n.id, title: n.title, body: n.body, date: local.date, time: local.time }} titleMax={NOTIFICATION_TITLE_MAX} bodyMax={NOTIFICATION_BODY_MAX} zone={zoneName} today={today} />
+                <form action={cancelScheduledNotificationAction} className="border-t border-(--sp-line) pt-4">
+                  <input type="hidden" name="id" value={n.id} />
+                  <SubmitButton variant="pill" className="h-9 text-danger hover:text-danger" pendingText={t("common.saving")}>
+                    {richText(t("notify.cancelScheduled", { title: n.title }), sr)}
+                  </SubmitButton>
+                </form>
+              </>
+            ) : (
+              <p className="m-0 rounded-[14px] bg-(--sp-soft) px-4 py-3 text-[14.5px] leading-relaxed whitespace-pre-wrap text-(--sp-ink)" dir="auto">
+                {n.body}
+              </p>
+            )}
+          </KitInspectorBody>
+        ),
+      },
+    };
+  });
+
+  // 132.160 The console's look: New notification as the main action (Campaigns behind "⋯"), what went out and was opened as tiles, what waits and what went out as tables (a notification's details in the inspector), then push and the automatic ones as settings rows.
   return (
     <KitPage>
       <KitHeader
@@ -99,14 +245,29 @@ export default async function NotificationsPage() {
         actions={
           <>
             {/* 85.2 Campaigns: to some of the customers, with a picture, a page to open and a weekly time. */}
-            <Link href="/dashboard/notifications/campaigns" className={kit.ghost} title={t("campaigns.openText")}>
-              <Icon name="campaign" size={20} />
-              {t("campaigns.open")}
-            </Link>
-            <Link href="/dashboard/notifications/campaigns/new" className={kit.main}>
-              <Icon name="add" size={20} />
-              {t("campaigns.newCampaign")}
-            </Link>
+            <KitMore label={more}>
+              <Link href="/dashboard/notifications/campaigns" className={kit.menuItem} title={t("campaigns.openText")}>
+                <Icon name="campaign" size={18} />
+                {t("campaigns.open")}
+              </Link>
+              <Link href="/dashboard/notifications/campaigns/new" className={kit.menuItem}>
+                <Icon name="add" size={18} />
+                {t("campaigns.newCampaign")}
+              </Link>
+            </KitMore>
+            <KitDrawer
+              title={t("notify.newNotification")}
+              closeLabel={close}
+              triggerClassName={kit.main}
+              trigger={
+                <>
+                  <Icon name="add" size={20} />
+                  {t("notify.newNotification")}
+                </>
+              }
+            >
+              <SendNotificationForm titleMax={NOTIFICATION_TITLE_MAX} bodyMax={NOTIFICATION_BODY_MAX} zone={zoneName} today={today} />
+            </KitDrawer>
           </>
         }
       />
@@ -115,9 +276,10 @@ export default async function NotificationsPage() {
         label={t("notify.title")}
         stats={
           <>
+            <KitStat icon="send" label={t("notify.sent")} value={num(recent.length)} hint={reached ? t("notify.reachedPhones", { count: reached }) : t("notify.last30")} progress={rate(opened, reached) ?? undefined} />
+            <KitStat icon="touch_app" tone="accent" label={t("notify.opened")} value={num(opened)} hint={percent(rate(opened, reached))} />
+            <KitStat icon="schedule" label={t("notify.scheduled")} value={num(scheduled.length)} />
             <KitStat icon="groups" label={t("notify.statCustomers")} value={num(customers)} />
-            <KitStat icon="schedule" tone="accent" label={t("notify.scheduled")} value={num(scheduled.length)} />
-            <KitStat icon="notifications" tone={pushOn ? "success" : "warn"} label={t("notify.push")} value={<span className="text-[19px] leading-snug tracking-normal">{pushOn ? t("notify.statPushOn") : t("notify.statPushOff")}</span>} />
           </>
         }
         next={
@@ -141,19 +303,48 @@ export default async function NotificationsPage() {
               icon="notifications"
               action={
                 <a href="#h-push" className={kit.quiet}>
-                  {t("studioPage.notifyAddKey")}
+                  {t("notify.addKeyAction")}
                 </a>
               }
             >
-              {t("studioPage.notifyPushOff")}
+              {t("notify.pushOffLine")}
             </KitNext>
           ) : undefined
         }
       />
 
-      <KitSection id="send" titleId="h-send" title={t("notify.newNotification")}>
-        <SendNotificationForm titleMax={NOTIFICATION_TITLE_MAX} bodyMax={NOTIFICATION_BODY_MAX} zone={zoneName} today={today} />
-      </KitSection>
+      <KitTable
+        label={t("notify.scheduled")}
+        title={t("notify.scheduled")}
+        titleId="h-scheduled"
+        columns={[
+          { label: t("notify.notification"), width: "minmax(0,1fr)" },
+          { label: t("notify.goesOutCol"), width: "minmax(180px,auto)", phone: "sub" },
+          { label: t("common.status"), width: "minmax(100px,auto)", phone: "end" },
+        ]}
+        rows={scheduledRows}
+        empty={<p className="m-0 px-5 py-4 text-[14px] text-(--sp-muted)">{t("notify.nothingScheduled", { zone: zoneName })}</p>}
+      />
+
+      <KitTable
+        label={t("notify.sent")}
+        title={t("notify.sent")}
+        titleId="h-sent"
+        search={sent.length > 5 ? t("notify.search") : undefined}
+        noMatch={t("notify.noMatch")}
+        columns={[
+          { label: t("notify.notification"), width: "minmax(0,1fr)" },
+          { label: t("notify.colSent"), width: "170px", wide: true },
+          { label: t("notify.reached"), width: "80px", wide: true },
+          { label: t("notify.opened"), width: "80px", phone: "end" },
+        ]}
+        rows={sentRows}
+        empty={
+          <KitEmpty icon="notifications" title={t("notify.nothingSent")}>
+            {t("notify.nothingSentText")}
+          </KitEmpty>
+        }
+      />
 
       <KitSettings>
         <KitSettingRow
@@ -178,7 +369,7 @@ export default async function NotificationsPage() {
             </UpgradeHint>
           )}
           {account ? null : (
-            <KitFold icon="key" summary={t("studioPage.notifyAddKey")} data-fold="push-key">
+            <KitFold icon="key" summary={t("notify.addKeyAction")} data-fold="push-key">
               <ServiceAccountForm />
             </KitFold>
           )}
@@ -189,11 +380,11 @@ export default async function NotificationsPage() {
             titleId="h-auto"
             icon="campaign"
             title={t("campaigns.autoTitle")}
-            status={<KitStatus tone={onCount ? "success" : "neutral"}>{t("studioPage.onOf", { on: onCount, total: kinds.length })}</KitStatus>}
+            status={<KitStatus tone={onCount ? "success" : "neutral"}>{t("notify.onOf", { on: onCount, total: kinds.length })}</KitStatus>}
             help={t("campaigns.autoIntro")}
             helpLabel={t("studioPage.helpSection")}
           >
-            <KitFold icon="tune" summary={t("studioPage.notifyAutoOpen")} data-fold="auto">
+            <KitFold icon="tune" summary={t("notify.autoOpen")} data-fold="auto">
               <AutoNotificationsForm
                 kinds={kinds.map((kind) => ({
                   kind,
@@ -207,65 +398,6 @@ export default async function NotificationsPage() {
           </KitSettingRow>
         ) : null}
       </KitSettings>
-
-      <KitSection titleId="h-scheduled" title={t("notify.scheduled")} flush>
-        {scheduled.length === 0 ? (
-          <p className="m-0 px-5 pb-5 text-[15px] text-(--sp-muted) sm:px-8">{t("notify.nothingScheduled", { zone: zoneName })}</p>
-        ) : (
-          <KitList>
-            {scheduled.map((n) => {
-              const local = localSendAt(n, zone);
-              return (
-                <li key={n.id} className="flex flex-col gap-3 border-t border-(--sp-line-soft) px-3 py-4 first:border-t-0 sm:px-4">
-                  <div className="flex flex-wrap items-center gap-x-4 gap-y-2">
-                    <KitThumb icon="schedule" />
-                    <div className="flex min-w-0 flex-[1_1_220px] flex-col gap-1">
-                      <span className="flex flex-wrap items-center gap-2">
-                        <span className="text-[15px] font-semibold text-(--sp-ink)">{n.title}</span>
-                        {n.status === "scheduled" ? null : <KitStatus tone={n.status === "failed" ? "danger" : "warn"}>{t(n.status === "failed" ? "notify.statusFailed" : "notify.statusSending")}</KitStatus>}
-                      </span>
-                      <span className="text-sm text-(--sp-muted)">{n.body}</span>
-                      <span className="text-[13px] font-semibold text-(--sp-ink)">
-                        {t("notify.goesOut", { date: formatDate(lang, n.sendAt, { weekday: "short", day: "numeric", month: "short", year: "numeric", timeZone: zone }), time: local.time })}
-                      </span>
-                      {n.result && n.status === "failed" ? <span className="text-[13px] text-danger">{k(n.result)}</span> : null}
-                    </div>
-                    {n.status === "scheduled" ? (
-                      <form action={cancelScheduledNotificationAction} className="max-sm:ms-16">
-                        <input type="hidden" name="id" value={n.id} />
-                        <SubmitButton variant="pill" className="h-9" pendingText={t("common.saving")}>
-                          {richText(t("notify.cancelScheduled", { title: n.title }), sr)}
-                        </SubmitButton>
-                      </form>
-                    ) : null}
-                  </div>
-                  {n.status === "scheduled" ? (
-                    <div className="sm:ps-16">
-                      <KitFold icon="edit" summary={richText(t("notify.edit", { title: n.title }), sr)}>
-                        <EditScheduledForm item={{ id: n.id, title: n.title, body: n.body, date: local.date, time: local.time }} titleMax={NOTIFICATION_TITLE_MAX} bodyMax={NOTIFICATION_BODY_MAX} zone={zoneName} today={today} />
-                      </KitFold>
-                    </div>
-                  ) : null}
-                </li>
-              );
-            })}
-          </KitList>
-        )}
-      </KitSection>
-
-      <KitSection titleId="h-sent" title={t("notify.sent")} flush>
-        {sent.length === 0 ? (
-          <KitEmpty icon="notifications" title={t("notify.nothingSent")}>
-            {t("notify.nothingSentText")}
-          </KitEmpty>
-        ) : (
-          <KitList>
-            {sent.map((n) => (
-              <KitRow key={n.id} media={<KitThumb icon="send" />} title={n.title} meta={n.body} aside={<span className="text-[13px] text-(--sp-muted)">{formatDateTime(n.createdAt, lang)}</span>} />
-            ))}
-          </KitList>
-        )}
-      </KitSection>
     </KitPage>
   );
 }

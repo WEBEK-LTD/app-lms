@@ -5,7 +5,6 @@ import { useRouter } from "next/navigation";
 import { useLayoutEffect, useMemo, useRef, useState, type ChangeEvent } from "react";
 import { publishTranslationsAction, saveLanguagesAction, saveTranslationsAction, type TranslationsResult } from "@/app/actions/translations";
 import { Icon } from "@/components/icon";
-import { btn } from "@/components/ui";
 import { formatDateTime, ProgressBar } from "@/components/ui";
 import { KitCallout, KitHeader, KitHero, KitMore, KitNext, KitSection, KitStat, KitStatus, kit } from "@/components/studio-page";
 import { UpgradeHint } from "@/components/upgrade";
@@ -139,6 +138,9 @@ export function LanguagesEditor({
   const visible = shown.slice(at * PAGE_SIZE, at * PAGE_SIZE + PAGE_SIZE);
 
   const summary = summaries.find((s) => s.code === lang.code);
+  // 132.160 Every language's texts together: how much of the app is translated.
+  const totals = summaries.reduce((sum, x) => ({ done: sum.done + Math.min(x.done, x.total), total: sum.total + x.total }), { done: 0, total: 0 });
+  const share = totals.total ? Math.floor((totals.done / totals.total) * 100) : 100;
   const contentCount = rows.filter((r) => r.kind === "content").length;
 
   function edit(id: string, value: string) {
@@ -252,8 +254,6 @@ export function LanguagesEditor({
     setFilter("all");
   }
 
-  const chip = (on: boolean) =>
-    `flex flex-col items-start gap-0.5 rounded-2xl border px-3.5 py-2 text-sm no-underline transition-colors ${on ? "border-(--sp-ink) bg-(--sp-ink) text-(--sp-surface) hover:text-(--sp-surface)" : "border-(--sp-line) bg-(--sp-surface) text-(--sp-ink) hover:border-(--sp-muted) hover:text-(--sp-ink)"}`;
   const label = "text-[13px] font-semibold text-(--sp-muted)";
 
   // 132.137 The premium kit: the header with Publish, the draft and its numbers in one hero card (making the dashboard's language the main one as its next step), the languages, then the texts.
@@ -262,7 +262,7 @@ export function LanguagesEditor({
       <KitHeader
         icon="translate"
         title={t("languages.title")}
-        description={t("studioPage.languagesLine")}
+        description={t("languages.line")}
         help={t("languages.intro")}
         helpLabel={t("studioPage.help")}
         actions={
@@ -273,38 +273,13 @@ export function LanguagesEditor({
         }
       />
 
+      {/* 132.160 The console's look: how much is translated as the dark tile with its bar, the languages and what's left beside it; the draft's state on one line under them. */}
       <KitHero
-        label={t("languages.draftSection")}
-        heading={t("languages.draftSection")}
-        titleId="h-languages-draft"
-        status={status.changes ? <KitStatus tone="warn">{t("languages.unpublished")}</KitStatus> : status.published ? <KitStatus tone="success">{t("languages.publishedVersion", { version: status.published })}</KitStatus> : <KitStatus tone="neutral">{t("languages.notPublished")}</KitStatus>}
-        title={
-          <span role="status">
-            {busy ? t("languages.working") : pending ? t("languages.unsaved", { count: pending }) : t("languages.savedAt", { date: formatDateTime(new Date(status.savedAt), dashLang) })}
-          </span>
-        }
-        description={
-          <>
-            {status.changes && status.published ? <span className="block">{t("languages.publishedVersion", { version: status.published })}</span> : null}
-            {previewDraft ? null : <span className="block">{t("languages.previewPublished")}</span>}
-          </>
-        }
-        aside={
-          <>
-            <a href={previewHref} target="_blank" rel="noopener" className={kit.ghost}>
-              <Icon name="visibility" size={18} />
-              {t("languages.previewIn", { language: lang.name })}
-              <Icon name="open_in_new" size={16} />
-              <span className="sr-only">{t("common.opensInNewTab")}</span>
-            </a>
-            <button type="button" className={kit.quiet} disabled={busy || !pending || blocking > 0} onClick={() => void save()}>
-              {t("languages.saveTranslations")}
-            </button>
-          </>
-        }
+        label={t("languages.title")}
         stats={
           <>
-            <KitStat icon="translate" label={t("languages.inApp")} value={num(stats.inApp)} hint={plan.languages ? `${plan.name}: ${num(plan.languages)}` : undefined} />
+            <KitStat icon="translate" label={t("languages.statTranslatedShare")} value={`${num(share)}%`} hint={t("languages.textsDone", { done: num(totals.done), total: num(totals.total) })} progress={totals.total ? totals.done / totals.total : 0} />
+            <KitStat icon="language" label={t("languages.inApp")} value={num(stats.inApp)} hint={plan.languages ? `${plan.name}: ${num(plan.languages)}` : undefined} />
             <KitStat icon="check_circle" tone="success" label={t("languages.statTranslated")} value={num(stats.translated)} />
             <KitStat icon="edit" tone={stats.toTranslate ? "warn" : "neutral"} label={t("languages.statToTranslate")} value={num(stats.toTranslate)} />
           </>
@@ -328,6 +303,30 @@ export function LanguagesEditor({
           ) : undefined
         }
       />
+      <section aria-labelledby="h-languages-draft" className={`${kit.card} flex flex-wrap items-center gap-x-4 gap-y-2.5 px-4 py-3`}>
+        <span className="flex min-w-0 flex-[1_1_300px] flex-wrap items-center gap-x-2.5 gap-y-1">
+          <h2 id="h-languages-draft" className="m-0 text-[13px] font-bold text-(--sp-muted)">
+            {t("languages.draftSection")}
+          </h2>
+          {status.changes ? <KitStatus tone="warn">{t("languages.unpublished")}</KitStatus> : status.published ? <KitStatus tone="success">{t("languages.publishedVersion", { version: status.published })}</KitStatus> : <KitStatus tone="neutral">{t("languages.notPublished")}</KitStatus>}
+          <span role="status" className="text-[14px] font-semibold text-(--sp-ink)">
+            {busy ? t("languages.working") : pending ? t("languages.unsaved", { count: pending }) : t("languages.savedAt", { date: formatDateTime(new Date(status.savedAt), dashLang) })}
+          </span>
+          {status.changes && status.published ? <span className="text-[13px] text-(--sp-muted)">{t("languages.publishedVersion", { version: status.published })}</span> : null}
+          {previewDraft ? null : <span className="basis-full text-[13px] text-(--sp-muted)">{t("languages.previewPublished")}</span>}
+        </span>
+        <span className="flex flex-wrap items-center gap-2">
+          <a href={previewHref} target="_blank" rel="noopener" className={kit.ghost}>
+            <Icon name="visibility" size={18} />
+            {t("languages.previewIn", { language: lang.name })}
+            <Icon name="open_in_new" size={16} />
+            <span className="sr-only">{t("common.opensInNewTab")}</span>
+          </a>
+          <button type="button" className={kit.quiet} disabled={busy || !pending || blocking > 0} onClick={() => void save()}>
+            {t("languages.saveTranslations")}
+          </button>
+        </span>
+      </section>
       {errors.length ? (
         <div role="alert" className="rounded-2xl bg-danger-bg px-5 py-4 text-[15px] text-danger">
           <p className="m-0 font-semibold">{t("languages.fix")}</p>
@@ -359,7 +358,7 @@ export function LanguagesEditor({
         title={t("languages.translations")}
         description={t("languages.translationsText")}
         actions={
-          <KitMore label={t("studioPage.exportImport")}>
+          <KitMore label={t("languages.exportImport")} look="row">
             <span className="px-3 pt-1.5 pb-1 text-xs font-semibold text-(--sp-muted)">{t("languages.export")}</span>
             {(["csv", "json", "xliff"] as const).map((f) => (
               <button key={f} type="button" className={kit.menuItem} onClick={() => exportAs(f)}>
@@ -382,24 +381,29 @@ export function LanguagesEditor({
           aria-label={t("languages.importLabel")}
           onChange={(e) => void importFile(e)}
         />
-        <nav aria-label={t("languages.toTranslate")} className="flex flex-wrap gap-2">
-          {summaries.map((s) => {
-            const current = s.code === lang.code;
-            return (
-              <Link
-                key={s.code}
-                href={`/dashboard/languages?lang=${encodeURIComponent(s.code)}`}
-                aria-current={current ? "page" : undefined}
-                onClick={(e) => {
-                  if (pending && !current && !window.confirm(t("common.leaveUnsaved"))) e.preventDefault();
-                }}
-                className={chip(current)}
-              >
-                <span className="font-semibold">{s.name}</span>
-                <span className={current ? "opacity-80" : "text-(--sp-muted)"}>{t("languages.doneOf", { done: s.done, total: s.total })}</span>
-              </Link>
-            );
-          })}
+        <nav aria-label={t("languages.toTranslate")} className="max-w-full min-w-0">
+          <ul className="m-0 flex w-fit max-w-full list-none gap-0.5 overflow-x-auto rounded-[13px] bg-(--sp-seg-track) p-1 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
+            {summaries.map((s) => {
+              const current = s.code === lang.code;
+              return (
+                <li key={s.code} className="shrink-0">
+                  <Link
+                    href={`/dashboard/languages?lang=${encodeURIComponent(s.code)}`}
+                    aria-current={current ? "page" : undefined}
+                    onClick={(e) => {
+                      if (pending && !current && !window.confirm(t("common.leaveUnsaved"))) e.preventDefault();
+                    }}
+                    className={`flex h-[34px] items-center gap-[7px] rounded-[10px] px-3.5 text-[13.5px] font-semibold whitespace-nowrap no-underline transition-colors ${
+                      current ? "bg-(--sp-seg-on) text-(--sp-ink) shadow-(--sp-shadow) hover:text-(--sp-ink)" : "text-(--sp-muted) hover:text-(--sp-ink)"
+                    }`}
+                  >
+                    {s.name}
+                    <span className="font-sans text-[11px] font-semibold text-(--sp-faint) tabular-nums">{t("languages.doneOf", { done: s.done, total: s.total })}</span>
+                  </Link>
+                </li>
+              );
+            })}
+          </ul>
         </nav>
 
         <div className="flex flex-col gap-2">
@@ -516,7 +520,7 @@ export function LanguagesEditor({
 
         <div className="sticky bottom-3 z-10 flex flex-wrap items-center justify-end gap-3">
           {blocking ? <span className="text-sm font-semibold text-danger">{t("languages.fixBefore", { count: blocking })}</span> : null}
-          <button type="button" className={`${btn.primary} h-11 shadow-(--sp-lift)`} disabled={busy || !pending || blocking > 0} onClick={() => void save()}>
+          <button type="button" className="inline-flex h-11 cursor-pointer items-center justify-center gap-2 rounded-xl border-0 bg-(--sp-ink) px-5 text-[14.5px] font-bold text-(--sp-surface) shadow-(--sp-lift) transition-opacity hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-45" disabled={busy || !pending || blocking > 0} onClick={() => void save()}>
             {pending ? t("languages.saveCount", { count: num(pending) }) : t("languages.saveTranslations")}
           </button>
         </div>

@@ -141,6 +141,9 @@ export const en = {
     gone: "This conversation doesn't exist any more.",
     notLibrary: "This file isn't in your Media library.",
   },
+  // 132.160 The console: the conversations as a table, the one open in the inspector.
+  conversation: "Conversation",
+  lastMessage: "Last message",
 };
 
 type Messages = Strings<typeof en>;
@@ -281,6 +284,8 @@ export const ar: Messages = {
     gone: "لم تعد هذه المحادثة موجودة.",
     notLibrary: "هذا الملف ليس في مكتبة الوسائط الخاصة بك.",
   },
+  conversation: "المحادثة",
+  lastMessage: "آخر رسالة",
 };
 
 export const tr: Messages = {
@@ -418,4 +423,6 @@ export const tr: Messages = {
     gone: "Bu sohbet artık yok.",
     notLibrary: "Bu dosya Medya kitaplığınızda değil.",
   },
+  conversation: "Sohbet",
+  lastMessage: "Son mesaj",
 };

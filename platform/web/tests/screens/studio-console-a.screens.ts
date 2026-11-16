@@ -6,24 +6,23 @@ import { expect, test, type APIRequestContext, type Page } from "@playwright/tes
 import { E2E } from "../../playwright.config";
 
 /**
- * 132.135–132.139 Screenshots of the premium kit's second set of Studio
- * pages: Delivery & offers and Card messages, Languages, Media, Screen
- * protection, Integrations, App sign-in, Notifications and Chat, in a Studio
- * shop from the Shop template with flash sales, a second language, files in
- * Media, customers signed in by phone who wrote in the chat, notifications
- * sent and one scheduled; in Arabic (light and dark at 1440×900, light at 390
- * wide); Chat's empty state before the first message. Not part of the test
- * suite; run it with
- * `SCREENS_OUT=<dir> SCREENS_PREFIX=after npx playwright test --config playwright.screens.config.ts studio-premium-a`
- * (SCREENS_PREFIX=before on the commit before, to compare).
+ * 132.160–132.169 Screenshots of group A's pages in Studio's console:
+ * Delivery & offers and Card messages, Languages, Media, Screen protection,
+ * Integrations, App sign-in, Notifications and Chat, in a Studio shop from
+ * the Shop template with flash sales, two more languages, files in Media,
+ * customers signed in by phone who wrote in the chat, notifications sent and
+ * one scheduled; in Arabic (light and dark at 1440×900, light at 390 wide),
+ * then what opens on demand (a row's inspector, a fold). Not part of the
+ * test suite; run it with
+ * `SCREENS_OUT=<dir> npx playwright test --config playwright.screens.config.ts studio-console-a`.
  */
 test.describe.configure({ mode: "serial" });
 
 const OUT = process.env.SCREENS_OUT ?? path.resolve(__dirname, "../../test-results/screens");
 const PREFIX = process.env.SCREENS_PREFIX ?? "after";
 const suffix = Date.now().toString(36);
-const owner = { name: "Nour Adel", email: `nour-premium-a-${suffix}@studio.test`, password: "nour-premium-a-strong-password-1" };
-const extraHTTPHeaders = { "x-forwarded-for": "198.51.100.170" };
+const owner = { name: "Nour Adel", email: `nour-console-a-${suffix}@studio.test`, password: "nour-console-a-strong-password-1" };
+const extraHTTPHeaders = { "x-forwarded-for": "198.51.100.171" };
 const CUSTOMERS = [
   { name: "Sara Yilmaz", phone: "532 123 45 67", text: "Hello! Can the roses arrive on Friday before 6?" },
   { name: "Omar Hassan", phone: "532 222 33 44", text: "Do you deliver to Kadıköy on Sundays?" },
@@ -69,7 +68,7 @@ async function shoot(page: Page, name: string) {
   await page.evaluate(() => document.fonts.ready);
   await page.waitForTimeout(700);
   fs.mkdirSync(path.join(OUT, "full"), { recursive: true });
-  await page.screenshot({ path: path.join(OUT, `${PREFIX}-${name}.jpg`), type: "jpeg", quality: 85 });
+  await page.screenshot({ path: path.join(OUT, `${PREFIX}-${name}.png`) });
   await page.screenshot({ path: path.join(OUT, "full", `${PREFIX}-${name}.jpg`), type: "jpeg", quality: 70, fullPage: true });
 }
 
@@ -102,8 +101,8 @@ async function pageShots(page: Page, href: string, name: string) {
 
 /** A customer signs up in the app by phone, then writes to the shop. */
 async function customer(request: APIRequestContext, api: string, who: (typeof CUSTOMERS)[number], i: number) {
-  const headers = { "x-forwarded-for": `198.51.100.${180 + i}` };
-  const device = { id: `premium-a-${suffix}-${i}`, platform: "android", name: "Pixel 8", app_version: "1.0.0" };
+  const headers = { "x-forwarded-for": `198.51.100.${190 + i}` };
+  const device = { id: `console-a-${suffix}-${i}`, platform: "android", name: "Pixel 8", app_version: "1.0.0" };
   const phone = `+90${who.phone.replace(/\s/g, "")}`;
   const requested = await request.post(`${api}/auth/otp/request`, { data: { country_code: "+90", phone: who.phone }, headers });
   expect(requested.status(), await requested.text()).toBe(200);
@@ -117,20 +116,16 @@ async function customer(request: APIRequestContext, api: string, who: (typeof CU
   const list = (await (await request.get(`${api}/chat/conversations`, { headers: auth })).json()) as { items: { id: string; kind: string }[] };
   const direct = list.items.find((c) => c.kind === "direct");
   if (!direct) return;
-  const sent = await request.post(`${api}/chat/conversations/${direct.id}/messages`, { headers: auth, data: { client_id: `premium-a-${suffix}-${i}`, text: who.text } });
+  const sent = await request.post(`${api}/chat/conversations/${direct.id}/messages`, { headers: auth, data: { client_id: `console-a-${suffix}-${i}`, text: who.text } });
   expect(sent.status(), await sent.text()).toBe(201);
 }
 
-/** A flash sale from Delivery & offers: the first in the tab's own form, the next in its sheet. */
+/** A flash sale from Delivery & offers: its form opens from the header's Add a flash sale. */
 async function flashSale(page: Page, name: string, value: string, startsIn: number, endsIn: number, units: string) {
   await page.goto("/studio/project/selling?tab=flash");
   const local = (at: Date) => new Intl.DateTimeFormat("sv-SE", { timeZone: "Europe/Istanbul", year: "numeric", month: "2-digit", day: "2-digit", hour: "2-digit", minute: "2-digit" }).format(at).replace(" ", "T");
-  const sheet = page.locator("dialog#new-flash");
-  let form = page.locator("section#new-flash [data-flash-form]");
-  if (await sheet.count()) {
-    await page.getByRole("button", { name: "Add a flash sale" }).last().click();
-    form = sheet.locator("[data-flash-form]");
-  }
+  await page.getByRole("button", { name: "Add a flash sale" }).click();
+  const form = page.getByRole("dialog", { name: "Add a flash sale" }).locator("[data-flash-form]");
   await form.getByLabel("Name", { exact: true }).fill(name);
   await form.locator("input[name=product]").nth(0).check();
   await form.locator("input[name=product]").nth(1).check();
@@ -142,7 +137,7 @@ async function flashSale(page: Page, name: string, value: string, startsIn: numb
   await expect(page.locator("[data-flash-sale]").filter({ hasText: name })).toHaveCount(1);
 }
 
-test("Studio's premium pages, the second set", async ({ page, browser, request }) => {
+test("Group A's pages in Studio's console", async ({ page, browser, request }) => {
   test.setTimeout(1_200_000);
   await page.goto("/sign-up");
   await page.getByLabel("Full name").fill(owner.name);
@@ -239,11 +234,15 @@ test("Studio's premium pages, the second set", async ({ page, browser, request }
     ["Fresh tulips today", "Pink and white tulips, in the shop and the app until 8 pm."],
     ["Free delivery this weekend", "Every order over 500 is delivered free on Saturday and Sunday."],
   ]) {
+    await page.goto("/studio/project/notifications");
+    await page.getByRole("button", { name: "New notification" }).click();
     await page.getByLabel("Title", { exact: true }).fill(title!);
     await page.getByLabel("Message").fill(body!);
     await page.getByRole("button", { name: "Send to everyone" }).click();
     await expect(page.getByRole("region", { name: "Sent" })).toContainText(title!);
   }
+  await page.goto("/studio/project/notifications");
+  await page.getByRole("button", { name: "New notification" }).click();
   await page.getByLabel("Title", { exact: true }).fill("Mother's Day is Sunday");
   await page.getByLabel("Message").fill("Order before Saturday noon for a Sunday morning delivery.");
   await page.getByRole("radio", { name: "Later" }).check();
@@ -251,6 +250,7 @@ test("Studio's premium pages, the second set", async ({ page, browser, request }
   await page.getByLabel("Time", { exact: true }).fill("10:00");
   await page.getByRole("button", { name: "Schedule" }).click();
   await expect(page.getByRole("region", { name: "Scheduled" })).toContainText("Mother's Day is Sunday");
+  await page.keyboard.press("Escape");
 
   await language(page, "ar");
   await pageShots(page, "/studio/project/selling", "selling");
@@ -264,25 +264,54 @@ test("Studio's premium pages, the second set", async ({ page, browser, request }
   await pageShots(page, "/studio/project/notifications", "notifications");
   await pageShots(page, "/studio/project/chat", "chat");
 
-  // What opens on demand (132.135 on): a file's drawer, the sign-in rules, a flash sale's "⋯".
-  await page.goto("/studio/project/media");
-  const drawer = page.locator("[data-media] button[aria-haspopup=dialog]").first();
-  if (await drawer.count()) {
-    await drawer.click();
-    await shoot(page, "media-drawer-ar-light-desktop");
-    await page.keyboard.press("Escape");
-  }
-  await page.goto("/studio/project/app-sign-in");
-  const rules = page.locator('details[data-fold="rules"] > summary');
-  if (await rules.count()) {
+  // What opens on demand: a row's inspector on each page with a table, a fold on the settings pages.
+  const open = async (href: string, name: string, act: () => Promise<void>) => {
+    await page.setViewportSize({ width: 1440, height: 900 });
+    await page.emulateMedia({ colorScheme: "light" });
+    await page.goto(href);
+    await act();
+    await shoot(page, `${name}-ar-light-desktop`);
+  };
+  const firstRow = (scope: string) => async () => {
+    await page.locator(`${scope} .kit-tr-open`).first().click();
+    await expect(page.locator("[data-kit-inspector=docked]")).toBeVisible();
+  };
+  await open("/studio/project/selling?tab=flash", "selling-flash-inspector", firstRow("[data-flash-sale]"));
+  await open("/studio/project/selling/messages", "messages-inspector", firstRow("[data-occasion]"));
+  await open("/studio/project/media", "media-inspector", async () => {
+    await page.locator('[data-media="Red roses.jpg"] .kit-tr-open').click();
+    await expect(page.locator("[data-kit-inspector=docked]")).toBeVisible();
+  });
+  await open("/studio/project/notifications", "notifications-inspector", firstRow("[data-notification]"));
+  await open("/studio/project/chat", "chat-inspector", firstRow("[data-conversation]"));
+  await open("/studio/project/integrations", "integrations-fold", async () => {
+    await page.locator("[data-integration] summary").first().click();
+  });
+  await open("/studio/project/app-sign-in", "app-sign-in-rules", async () => {
+    const rules = page.locator('details[data-fold="rules"] > summary');
     await rules.click();
     await rules.scrollIntoViewIfNeeded();
-    await shoot(page, "app-sign-in-rules-ar-light-desktop");
-  }
-  await page.goto("/studio/project/selling?tab=flash");
-  const more = page.locator("[data-flash-sale] summary").first();
-  if (await more.count()) {
-    await more.click();
-    await shoot(page, "selling-more-ar-light-desktop");
-  }
+  });
+  await open("/studio/project/protection", "protection-fold", async () => {
+    const fold = page.locator("details summary").last();
+    await fold.click();
+    await fold.scrollIntoViewIfNeeded();
+  });
+  await open("/studio/project/languages", "languages-menu", async () => {
+    await page.getByRole("button", { name: "تصدير أو استيراد" }).click();
+  });
+  await open("/studio/project/selling?tab=flash", "selling-add-flash", async () => {
+    await page.getByRole("button", { name: "ضيف عرض فلاش" }).click();
+  });
+  // A phone: a row's details as a drawer.
+  await page.setViewportSize({ width: 390, height: 844 });
+  await page.goto("/studio/project/chat");
+  await page.locator("[data-conversation] .kit-tr-open").first().click();
+  await expect(page.locator("dialog[data-kit-inspector=drawer][open]")).toBeVisible();
+  await shoot(page, "chat-inspector-ar-light-phone");
+  await page.setViewportSize({ width: 390, height: 844 });
+  await page.goto("/studio/project/media");
+  await page.locator('[data-media="Red roses.jpg"] .kit-tr-open').click();
+  await expect(page.locator("dialog[data-kit-inspector=drawer][open]")).toBeVisible();
+  await shoot(page, "media-inspector-ar-light-phone");
 });
