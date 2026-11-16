@@ -139,60 +139,79 @@ class PremiumAuthFrame extends StatelessWidget {
                     ],
                   ),
                 ),
-                PositionedDirectional(
-                  top: top + 8,
-                  start: 12,
-                  end: 12,
-                  child: Row(
-                    children: [...leading, const Spacer(), ...trailing],
-                  ),
-                ),
                 SingleChildScrollView(
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.stretch,
                     children: [
                       SizedBox(
                         height: hero,
-                        child: Padding(
-                          padding: const EdgeInsets.fromLTRB(24, 0, 24, 26),
-                          child: Column(
-                            mainAxisAlignment: MainAxisAlignment.end,
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              if (logo != null) ...[
-                                logo!,
-                                const SizedBox(height: 14),
-                              ],
-                              Semantics(
-                                header: true,
-                                child: Text(
-                                  title,
-                                  maxLines: 3,
-                                  overflow: TextOverflow.ellipsis,
-                                  style: TextStyle(
-                                    fontSize: compact ? 28 : 34,
-                                    height: 1.12,
-                                    fontWeight: FontWeight.w800,
-                                    letterSpacing: -0.7,
-                                    color: ink,
-                                  ),
+                        child: Stack(
+                          children: [
+                            Positioned.fill(
+                              child: Padding(
+                                padding: const EdgeInsets.fromLTRB(
+                                  24,
+                                  0,
+                                  24,
+                                  26,
+                                ),
+                                child: Column(
+                                  mainAxisAlignment: MainAxisAlignment.end,
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    if (logo != null) ...[
+                                      logo!,
+                                      const SizedBox(height: 14),
+                                    ],
+                                    Semantics(
+                                      header: true,
+                                      child: Text(
+                                        title,
+                                        maxLines: 3,
+                                        overflow: TextOverflow.ellipsis,
+                                        style: TextStyle(
+                                          fontSize: compact ? 28 : 34,
+                                          height: 1.12,
+                                          fontWeight: FontWeight.w800,
+                                          letterSpacing: -0.7,
+                                          color: ink,
+                                        ),
+                                      ),
+                                    ),
+                                    if (subtitle != null &&
+                                        subtitle!.isNotEmpty) ...[
+                                      const SizedBox(height: 8),
+                                      Text(
+                                        subtitle!,
+                                        maxLines: 3,
+                                        overflow: TextOverflow.ellipsis,
+                                        style: TextStyle(
+                                          fontSize: 15.5,
+                                          height: 1.45,
+                                          color: ink.withValues(alpha: 0.82),
+                                        ),
+                                      ),
+                                    ],
+                                  ],
                                 ),
                               ),
-                              if (subtitle != null && subtitle!.isNotEmpty) ...[
-                                const SizedBox(height: 8),
-                                Text(
-                                  subtitle!,
-                                  maxLines: 3,
-                                  overflow: TextOverflow.ellipsis,
-                                  style: TextStyle(
-                                    fontSize: 15.5,
-                                    height: 1.45,
-                                    color: ink.withValues(alpha: 0.82),
-                                  ),
-                                ),
-                              ],
-                            ],
-                          ),
+                            ),
+                            // 132.7 The back and "Not now" buttons on the
+                            // hero, in the scroll view with it: under the
+                            // scroll view they never got a tap.
+                            PositionedDirectional(
+                              top: top + 8,
+                              start: 12,
+                              end: 12,
+                              child: Row(
+                                children: [
+                                  ...leading,
+                                  const Spacer(),
+                                  ...trailing,
+                                ],
+                              ),
+                            ),
+                          ],
                         ),
                       ),
                       ConstrainedBox(

@@ -41,11 +41,15 @@ import {
 import type { LaunchBrand } from "./launch-preview";
 import { LaunchSection, newLaunch } from "./launch-section";
 // 130.21 The system screens' premium look.
-import { SystemSection } from "./system-section";
+import { LOOK_NAMES, SystemSection } from "./system-section";
+// 132.6 Sign-in, the code and a new account as the app draws them; the account in the system screens' look.
+import { AuthPreview, previewTheme, type AuthScreen } from "./auth-preview";
+import { SystemScreen } from "@/components/studio/premium-chrome";
 // 131.25 The store's checkout look.
 import { CheckoutSection } from "./checkout-section";
 import type { CheckoutLook } from "@/lib/studio/checkout-look";
-import type { SystemScreensLook } from "@/lib/studio/premium-chrome";
+import { systemLookFor, type SystemScreensLook } from "@/lib/studio/premium-chrome";
+import { authLookOf, followedLook, withOwnScreens } from "@/lib/studio/sign-in-look";
 // 130.52 Studio's course screens.
 import { CourseScreensSection } from "./course-screens-section";
 import type { CourseScreens } from "@/lib/studio/course-screens";
@@ -175,6 +179,27 @@ export function ScreensEditor({
   const [courseLook, setCourseLook] = useState<CourseScreens | null>(initial?.courses ?? null);
   // 131.25 The checkout's look; null, as before.
   const [checkout, setCheckout] = useState<CheckoutLook | null>(initial?.checkout ?? null);
+  // 132.6 Which screen the preview shows: sign-in, the code or a new account.
+  const [previewAuth, setPreviewAuth] = useState<AuthScreen>("sign_in");
+  // 132.6 With a system screens' look, sign-in (and the code, and a new account) follows it unless given its own; the account too.
+  const signInChrome = systemLookFor(system, "sign_in");
+  const accountChrome = systemLookFor(system, "account");
+  const pickSignInStyle = (style: SignInStyle) => {
+    setLook((l) => ({ ...l, style }));
+    // Sign-in and the code screen alike (a new account follows sign-in).
+    if (system) setSystem(withOwnScreens(system, { sign_in: "classic", code: "classic" }));
+  };
+  const followSignIn = () => {
+    if (system) setSystem(withOwnScreens(system, { sign_in: null, code: null }));
+  };
+  const pickHeader = (h: AccountHeader) => {
+    setHeader(h);
+    if (system) setSystem(withOwnScreens(system, { account: "classic" }));
+  };
+  // What the app draws sign-in in (lib/studio/sign-in-look.ts, as the app's AuthLook): the preview draws the same.
+  const drawn = authLookOf({ sign_in: look, system }, previewAuth === "code" ? "code" : "sign_in");
+  const chromePhoto = signInChrome === "photo" || signInChrome === "petal";
+  const shownPhoto = signInChrome ? (system?.image_url ?? look.image_url ?? null) : look.image_url;
 
   const screens: StudioScreens = useMemo(
     () => ({
@@ -242,13 +267,24 @@ export function ScreensEditor({
           <h2 id="h-sign-in-look" className="m-0 text-lg font-bold">
             {t("studio.signInLook")}
           </h2>
+          {/* 132.6 With a system screens' look: sign-in follows it, or has its own. */}
+          {system ? (
+            <label className={`flex cursor-pointer items-start gap-3 rounded-xl border p-3 ${signInChrome ? "border-2 border-midnight" : "border-line"}`} data-sign-in-follow="">
+              <input type="radio" name="sign_in_style" value="system" checked={Boolean(signInChrome)} onChange={followSignIn} className="mt-1 h-4 w-4 accent-midnight" />
+              <span className="flex flex-col gap-0.5">
+                <span className="text-sm font-bold">{t("studio.followSystem", { look: t(LOOK_NAMES[followedLook(system, "sign_in")]) })}</span>
+                <span className="text-xs text-muted">{t("studio.signInFollowHint")}</span>
+              </span>
+            </label>
+          ) : null}
+          {system && signInChrome ? <p className="m-0 text-sm text-muted">{t("studio.signInOwnNote")}</p> : null}
           <fieldset className="m-0 grid grid-cols-2 gap-3 border-0 p-0 sm:grid-cols-5">
             <legend className="sr-only">{t("studio.signInLook")}</legend>
             {SIGN_IN_STYLES.map((style) => {
-              const on = look.style === style;
+              const on = !signInChrome && look.style === style;
               return (
                 <label key={style} className={`flex cursor-pointer flex-col gap-2 rounded-xl border p-3 ${on ? "border-2 border-midnight" : "border-line"}`}>
-                  <input type="radio" name="sign_in_style" value={style} checked={on} onChange={() => setLook((l) => ({ ...l, style }))} className="sr-only" />
+                  <input type="radio" name="sign_in_style" value={style} checked={on} onChange={() => pickSignInStyle(style)} className="sr-only" />
                   <StyleThumb style={style} color={color} />
                   <span className="text-sm font-bold">{t(STYLE_WORDS[style].label)}</span>
                   <span className="text-xs text-muted">{t(STYLE_WORDS[style].hint)}</span>
@@ -257,7 +293,7 @@ export function ScreensEditor({
             })}
           </fieldset>
 
-          {look.style === "photo" || look.style === "card" || look.style === "premium" ? (
+          {!signInChrome && (look.style === "photo" || look.style === "card" || look.style === "premium") ? (
             <div className="flex flex-wrap items-center gap-3">
               {look.image_url ? (
                 // eslint-disable-next-line @next/next/no-img-element
@@ -269,6 +305,30 @@ export function ScreensEditor({
                   {t("studio.removePhoto")}
                 </button>
               ) : null}
+            </div>
+          ) : null}
+          {/* 132.6 Following the Photo hero or Petal look: the photo behind the welcome is the look's (the app draws it first). */}
+          {system && signInChrome && chromePhoto ? (
+            <div className="flex flex-wrap items-center gap-3" data-sign-in-chrome-photo="">
+              {shownPhoto ? (
+                // eslint-disable-next-line @next/next/no-img-element
+                <img src={shownPhoto} alt="" className="h-20 w-14 rounded-lg object-cover" />
+              ) : null}
+              <MediaPicker kind="image" library onPick={(url) => setSystem({ ...system, image_url: url })} label={t("studio.signInPhoto")} />
+              {shownPhoto ? (
+                <button
+                  type="button"
+                  className={`${btn.ghost} h-10 text-sm`}
+                  onClick={() => {
+                    setSystem({ ...system, image_url: null });
+                    // A photo or card look keeps needing its photo: without one it is the classic look, as the app draws it.
+                    setLook((l) => ({ ...l, image_url: null, style: l.style === "photo" || l.style === "card" ? "classic" : l.style }));
+                  }}
+                >
+                  {t("studio.removePhoto")}
+                </button>
+              ) : null}
+              <span className="text-sm text-muted">{t("studio.signInFollowPhoto")}</span>
             </div>
           ) : null}
 
@@ -311,13 +371,23 @@ export function ScreensEditor({
           <fieldset className="m-0 border-0 p-0">
             <legend className="mb-2 text-[15px] font-bold">{t("studio.menuTop")}</legend>
             <div className="grid grid-cols-2 gap-2.5 sm:grid-cols-3 xl:grid-cols-5">
+              {/* 132.6 With a system screens' look the account follows it, or has the top chosen here. */}
+              {system ? (
+                <label className={`flex cursor-pointer flex-col gap-1 rounded-xl border p-3 text-[14px] ${accountChrome ? "border-midnight ring-1 ring-midnight" : "border-line"}`} data-menu-follow="">
+                  <span className="flex items-center gap-2 font-semibold">
+                    <input type="radio" name="menu_header" checked={Boolean(accountChrome)} onChange={() => setSystem(withOwnScreens(system, { account: null }))} className="h-4 w-4 accent-midnight" />
+                    {t("studio.followSystem", { look: t(LOOK_NAMES[followedLook(system, "account")]) })}
+                  </span>
+                  <span className="text-[13px] text-muted">{t("studio.menuTopFollowHint")}</span>
+                </label>
+              ) : null}
               {ACCOUNT_HEADERS.map((h) => (
                 <label
                   key={h}
-                  className={`flex cursor-pointer flex-col gap-1 rounded-xl border p-3 text-[14px] ${header === h ? "border-midnight ring-1 ring-midnight" : "border-line"}`}
+                  className={`flex cursor-pointer flex-col gap-1 rounded-xl border p-3 text-[14px] ${!accountChrome && header === h ? "border-midnight ring-1 ring-midnight" : "border-line"}`}
                 >
                   <span className="flex items-center gap-2 font-semibold">
-                    <input type="radio" name="menu_header" checked={header === h} onChange={() => setHeader(h)} className="h-4 w-4 accent-midnight" />
+                    <input type="radio" name="menu_header" checked={!accountChrome && header === h} onChange={() => pickHeader(h)} className="h-4 w-4 accent-midnight" />
                     {t(HEADER_NAMES[h])}
                   </span>
                   <span className="text-[13px] text-muted">{t(HEADER_HINTS[h])}</span>
@@ -614,9 +684,38 @@ export function ScreensEditor({
             </select>
           ) : null}
         </div>
+        {/* 132.6 Sign-in, the code and a new account: the three screens in the look they have. */}
+        <div role="group" aria-label={t("studio.previewScreens")} className="flex self-start rounded-lg border border-line-strong p-0.5 text-sm">
+          {(["sign_in", "code", "signup"] as const).map((s) => (
+            <button key={s} type="button" aria-pressed={previewAuth === s} data-preview-auth={s} onClick={() => setPreviewAuth(s)} className={`h-8 rounded-md px-2.5 ${previewAuth === s ? "bg-midnight font-bold text-white" : ""}`}>
+              {t(s === "sign_in" ? "studio.previewTabSignIn" : s === "code" ? "studio.previewTabCode" : "studio.previewTabSignup")}
+            </button>
+          ))}
+        </div>
         <div className="grid grid-cols-2 gap-3">
-          <SignInPreview look={look} title={shownTitle} subtitle={shownSubtitle} appName={appName} color={color} dark={previewDark} t={t} />
-          <MenuPreview entries={entries.filter((e) => !e.hidden)} header={header} color={color} accent={accent} dark={previewDark} nameOf={nameOf} iconOf={iconOf} t={t} />
+          <AuthPreview
+            screen={previewAuth}
+            look={drawn.kind === "own" ? { ...look, style: drawn.style } : look}
+            chrome={drawn.kind === "system" ? drawn.look : null}
+            photo={drawn.image}
+            title={shownTitle}
+            subtitle={shownSubtitle}
+            appName={appName}
+            color={brand?.main ?? color}
+            second={brand?.second ?? null}
+            dark={previewDark}
+            t={t}
+          />
+          {accountChrome ? (
+            // 130.21 The account in the system screens' look, as Studio's canvas draws it, made small.
+            <div className="relative aspect-[9/19] overflow-hidden rounded-[22px] border-[5px] border-midnight" data-testid="menu-preview" data-header={`system-${accountChrome}`} data-dark={previewDark ? "" : undefined}>
+              <div className="pointer-events-none absolute start-0 top-0 flex w-[390px] origin-top-left flex-col rtl:origin-top-right" style={{ transform: "scale(0.39)", height: 820 }}>
+                <SystemScreen screen="account" look={accountChrome} dark={previewDark} lang={previewLang} brand={brand?.main ?? color} accent={brand?.second ?? null} image={system?.image_url ?? look.image_url ?? null} title={null} hidesTitle={false} top={44} />
+              </div>
+            </div>
+          ) : (
+            <MenuPreview entries={entries.filter((e) => !e.hidden)} header={header} color={color} accent={accent} dark={previewDark} nameOf={nameOf} iconOf={iconOf} t={t} />
+          )}
         </div>
       </aside>
     </div>
@@ -654,79 +753,6 @@ function StyleThumb({ style, color }: { style: SignInStyle; color: string }) {
         <span className="block h-2 w-full rounded" style={{ background: color }} />
       </span>
     </span>
-  );
-}
-
-/** 119 The app's colours in light or dark mode, for the previews. */
-function previewTheme(dark: boolean) {
-  return dark
-    ? { page: "#121614", surface: "#1C2320", text: "#EEF1EF", muted: "#A3ADA8", line: "#2A322E", field: "#151B18", fieldLine: "#36403B", placeholder: "#3A4440" }
-    : { page: "#F7F3EC", surface: "#FFFFFF", text: "#0E1424", muted: "#5B6470", line: "#EFE9DE", field: "#FFFFFF", fieldLine: "#D9D3C7", placeholder: "#D9D3C7" };
-}
-
-function SignInPreview({ look, title, subtitle, appName, color, dark, t }: { look: SignInLook; title: string; subtitle: string; appName: string; color: string; dark: boolean; t: ReturnType<typeof useDashT> }) {
-  const th = previewTheme(dark);
-  if (look.style === "premium") return <PremiumSignInPreview look={look} title={title} subtitle={subtitle} appName={appName} color={color} dark={dark} t={t} />;
-  const photo = (look.style === "photo" || look.style === "card") && look.image_url;
-  const panel = look.style === "photo" && photo;
-  return (
-    <div className="relative aspect-[9/19] overflow-hidden rounded-[22px] border-[5px] border-midnight text-[10px]" style={{ background: th.page }} data-testid="sign-in-preview" data-dark={dark ? "" : undefined}>
-      {photo ? (
-        // eslint-disable-next-line @next/next/no-img-element
-        <img src={look.image_url!} alt="" className={`absolute inset-x-0 top-0 w-full object-cover ${look.style === "photo" ? "h-full" : "h-[42%]"}`} />
-      ) : null}
-      {panel ? <span className="absolute inset-0 bg-gradient-to-b from-black/20 to-black/70" /> : null}
-      <div
-        className={`absolute inset-x-2.5 flex flex-col gap-1.5 ${look.style === "card" ? "top-[36%] rounded-xl p-2.5 shadow" : look.style === "minimal" ? "top-[24%] items-center text-center" : panel ? "bottom-3 rounded-xl p-2.5" : "bottom-4"}`}
-        style={{ color: th.text, background: look.style === "card" ? th.page : panel ? th.surface : undefined, opacity: 1 }}
-      >
-        {look.show_logo ? (
-          <span className="flex h-7 w-7 items-center justify-center rounded-lg text-[11px] font-extrabold text-white" style={{ background: color }}>
-            {(appName || "A").slice(0, 1)}
-          </span>
-        ) : null}
-        <span className="text-[13px] leading-tight font-extrabold">{title}</span>
-        <span className="leading-snug" style={{ color: th.muted }}>
-          {subtitle}
-        </span>
-        <span className="mt-1 block h-6 w-full rounded-md border" style={{ borderColor: th.fieldLine, background: th.field }} />
-        <span className="flex h-6 w-full items-center justify-center rounded-md font-bold text-white" style={{ background: color }}>
-          {t("studio.previewButton")}
-        </span>
-      </div>
-    </div>
-  );
-}
-
-/** 123 The premium sign-in: the welcome large in white over the photo (or the app's colours), the form on a card at the foot with the button in gold. */
-function PremiumSignInPreview({ look, title, subtitle, appName, color, dark, t }: { look: SignInLook; title: string; subtitle: string; appName: string; color: string; dark: boolean; t: ReturnType<typeof useDashT> }) {
-  const th = previewTheme(dark);
-  return (
-    <div className="relative aspect-[9/19] overflow-hidden rounded-[22px] border-[5px] border-midnight text-[10px]" style={{ background: th.page }} data-testid="sign-in-preview" data-dark={dark ? "" : undefined}>
-      {look.image_url ? (
-        // eslint-disable-next-line @next/next/no-img-element
-        <img src={look.image_url} alt="" className="absolute inset-0 h-full w-full object-cover" />
-      ) : (
-        <span className="absolute inset-0" style={{ background: `linear-gradient(200deg,#D9B36C 0%,${color} 45%,#0E1424 100%)` }} />
-      )}
-      <span className="absolute inset-0" style={{ background: `linear-gradient(180deg,transparent 0%,transparent 35%,${th.page} 72%)` }} />
-      <div className="absolute inset-x-3 top-4 flex flex-col gap-1.5 text-white">
-        {look.show_logo ? (
-          <span className="flex items-center gap-1.5 font-extrabold">
-            <span className="flex h-6 w-6 items-center justify-center rounded-md bg-white/20 text-[10px]">{(appName || "A").slice(0, 1)}</span>
-            {appName}
-          </span>
-        ) : null}
-        <span className="mt-2 text-[17px] leading-tight font-black">{title}</span>
-        <span className="leading-snug opacity-80">{subtitle}</span>
-      </div>
-      <div className="absolute inset-x-2 bottom-2 flex flex-col gap-1.5 rounded-xl border p-2.5 shadow" style={{ background: th.surface, borderColor: th.line, color: th.text }}>
-        <span className="block h-6 w-full rounded-md border" style={{ borderColor: th.fieldLine, background: th.field }} />
-        <span className="flex h-6 w-full items-center justify-center rounded-md font-bold" style={{ background: "linear-gradient(90deg,#E7C982,#B8893A)", color: "#2A1D05" }}>
-          {t("studio.previewButton")}
-        </span>
-      </div>
-    </div>
   );
 }
 
