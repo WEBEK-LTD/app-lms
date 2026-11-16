@@ -1,3 +1,18 @@
+// 106 Studio Market
+import type {
+  MarketTemplate,
+  MarketTemplatePatch,
+  MarketTemplateReview,
+  MarketTemplateReviewInput,
+  MarketTemplateStatus,
+  MarketTemplateVersion,
+  TemplateApplication,
+  TemplateApplicationPatch,
+  TemplateDesigner,
+  TemplateDesignerPatch,
+  TemplateLicence,
+  TemplateLicencePatch,
+} from "./types";
 import { and, asc, count, desc, eq, getTableColumns, gt, gte, inArray, isNotNull, isNull, like, lt, lte, ne, not, or, sql, type SQL } from "drizzle-orm";
 import { drizzle, type MySql2Database } from "drizzle-orm/mysql2";
 import type { AnyMySqlColumn, MySqlTable } from "drizzle-orm/mysql-core";
@@ -10479,10 +10494,239 @@ export class MysqlStore implements DataStore {
     }
   }
 
+  // ——— 106 Studio Market ———
 
+  private designerRow(row: typeof schema.studioMarketDesigners.$inferSelect): TemplateDesigner {
+    return { ...row, status: row.status === "suspended" ? "suspended" : "active" };
+  }
 
+  async getTemplateDesignerByClient(clientId: string): Promise<TemplateDesigner | null> {
+    const t = schema.studioMarketDesigners;
+    const [row] = await this.run((db) => db.select().from(t).where(eq(t.clientId, clientId)).limit(1));
+    return row ? this.designerRow(row) : null;
+  }
 
+  async getTemplateDesigner(id: string): Promise<TemplateDesigner | null> {
+    const t = schema.studioMarketDesigners;
+    const [row] = await this.run((db) => db.select().from(t).where(eq(t.id, id)).limit(1));
+    return row ? this.designerRow(row) : null;
+  }
 
+  async getTemplateDesignerBySlug(slug: string): Promise<TemplateDesigner | null> {
+    const t = schema.studioMarketDesigners;
+    const [row] = await this.run((db) => db.select().from(t).where(eq(t.slug, slug.toLowerCase())).limit(1));
+    return row ? this.designerRow(row) : null;
+  }
+
+  async createTemplateDesigner(designer: TemplateDesigner): Promise<TemplateDesigner | null> {
+    try {
+      await this.run((db) => db.insert(schema.studioMarketDesigners).values(designer));
+      return designer;
+    } catch (error) {
+      if (errorCode(error) === "ER_DUP_ENTRY") return null;
+      throw error;
+    }
+  }
+
+  async updateTemplateDesigner(id: string, patch: TemplateDesignerPatch, now: Date): Promise<boolean> {
+    const t = schema.studioMarketDesigners;
+    try {
+      const [result] = await this.run((db) => db.update(t).set({ ...patch, updatedAt: now }).where(eq(t.id, id)));
+      return result.affectedRows > 0;
+    } catch (error) {
+      if (errorCode(error) === "ER_DUP_ENTRY") return false;
+      throw error;
+    }
+  }
+
+  async listTemplateDesigners(ids?: readonly string[]): Promise<TemplateDesigner[]> {
+    if (ids && !ids.length) return [];
+    const t = schema.studioMarketDesigners;
+    const rows = await this.run((db) => db.select().from(t).where(ids ? inArray(t.id, [...ids]) : undefined).orderBy(asc(t.createdAt), asc(t.id)));
+    return rows.map((r) => this.designerRow(r));
+  }
+
+  private templateRow(row: typeof schema.studioMarketTemplates.$inferSelect): MarketTemplate {
+    return { ...row, status: row.status as MarketTemplate["status"], afterEnd: row.afterEnd === "restore" ? "restore" : "keep" };
+  }
+
+  async createMarketTemplate(template: MarketTemplate): Promise<MarketTemplate | null> {
+    try {
+      await this.run((db) => db.insert(schema.studioMarketTemplates).values(template));
+      return template;
+    } catch (error) {
+      if (errorCode(error) === "ER_DUP_ENTRY") return null;
+      throw error;
+    }
+  }
+
+  async getMarketTemplate(id: string): Promise<MarketTemplate | null> {
+    const t = schema.studioMarketTemplates;
+    const [row] = await this.run((db) => db.select().from(t).where(eq(t.id, id)).limit(1));
+    return row ? this.templateRow(row) : null;
+  }
+
+  async getMarketTemplateBySlug(slug: string): Promise<MarketTemplate | null> {
+    const t = schema.studioMarketTemplates;
+    const [row] = await this.run((db) => db.select().from(t).where(eq(t.slug, slug)).limit(1));
+    return row ? this.templateRow(row) : null;
+  }
+
+  async updateMarketTemplate(id: string, patch: MarketTemplatePatch, now: Date): Promise<boolean> {
+    const t = schema.studioMarketTemplates;
+    try {
+      const [result] = await this.run((db) => db.update(t).set({ ...patch, updatedAt: now }).where(eq(t.id, id)));
+      return result.affectedRows > 0;
+    } catch (error) {
+      if (errorCode(error) === "ER_DUP_ENTRY") return false;
+      throw error;
+    }
+  }
+
+  async moveMarketTemplate(id: string, from: MarketTemplateStatus, patch: MarketTemplatePatch & { status: MarketTemplateStatus }, now: Date): Promise<boolean> {
+    const t = schema.studioMarketTemplates;
+    const [result] = await this.run((db) => db.update(t).set({ ...patch, updatedAt: now }).where(and(eq(t.id, id), eq(t.status, from))));
+    return result.affectedRows > 0;
+  }
+
+  async listMarketTemplates(filter: { designerId?: string; statuses?: readonly MarketTemplateStatus[]; ids?: readonly string[] }): Promise<MarketTemplate[]> {
+    if ((filter.statuses && !filter.statuses.length) || (filter.ids && !filter.ids.length)) return [];
+    const t = schema.studioMarketTemplates;
+    const where = and(
+      filter.designerId ? eq(t.designerId, filter.designerId) : undefined,
+      filter.statuses ? inArray(t.status, [...filter.statuses]) : undefined,
+      filter.ids ? inArray(t.id, [...filter.ids]) : undefined,
+    );
+    const rows = await this.run((db) => db.select().from(t).where(where).orderBy(desc(t.updatedAt)));
+    return rows.map((r) => this.templateRow(r));
+  }
+
+  async deleteMarketTemplate(id: string): Promise<boolean> {
+    const t = schema.studioMarketTemplates;
+    const [result] = await this.run((db) => db.delete(t).where(and(eq(t.id, id), isNull(t.currentVersionId), ne(t.status, "published"))));
+    return result.affectedRows > 0;
+  }
+
+  async addMarketTemplateView(id: string): Promise<void> {
+    const t = schema.studioMarketTemplates;
+    await this.run((db) => db.update(t).set({ views: sql`${t.views} + 1` }).where(eq(t.id, id)));
+  }
+
+  async createMarketTemplateVersion(version: MarketTemplateVersion): Promise<void> {
+    await this.run((db) => db.insert(schema.studioMarketVersions).values(version));
+  }
+
+  async getMarketTemplateVersion(id: string): Promise<MarketTemplateVersion | null> {
+    const t = schema.studioMarketVersions;
+    const [row] = await this.run((db) => db.select().from(t).where(eq(t.id, id)).limit(1));
+    return row ?? null;
+  }
+
+  async listMarketTemplateVersions(ids: readonly string[]): Promise<MarketTemplateVersion[]> {
+    if (!ids.length) return [];
+    const t = schema.studioMarketVersions;
+    const rows = await this.run((db) => db.select().from(t).where(inArray(t.id, [...ids])));
+    const byId = new Map(rows.map((r) => [r.id, r]));
+    return ids.flatMap((id) => (byId.has(id) ? [byId.get(id)!] : []));
+  }
+
+  async lastMarketTemplateVersion(templateId: string): Promise<number> {
+    const t = schema.studioMarketVersions;
+    const [row] = await this.run((db) => db.select({ number: sql<number | null>`max(${t.number})` }).from(t).where(eq(t.templateId, templateId)));
+    return Number(row?.number ?? 0);
+  }
+
+  async createMarketTemplateReview(review: MarketTemplateReviewInput): Promise<MarketTemplateReview> {
+    const [result] = await this.run((db) => db.insert(schema.studioMarketReviews).values(review));
+    return { ...review, id: Number(result.insertId) };
+  }
+
+  async listMarketTemplateReviews(templateId: string): Promise<MarketTemplateReview[]> {
+    const t = schema.studioMarketReviews;
+    const rows = await this.run((db) => db.select().from(t).where(eq(t.templateId, templateId)).orderBy(desc(t.createdAt), desc(t.id)));
+    return rows.map((r) => ({ ...r, decision: r.decision === "approved" ? "approved" : "changes_requested" }));
+  }
+
+  private licenceRow(row: typeof schema.studioMarketLicences.$inferSelect): TemplateLicence {
+    return { ...row, plan: row.plan as TemplateLicence["plan"], status: row.status === "ended" ? "ended" : "active" };
+  }
+
+  async createTemplateLicence(licence: TemplateLicence): Promise<void> {
+    await this.run((db) => db.insert(schema.studioMarketLicences).values(licence));
+  }
+
+  async getTemplateLicence(id: string): Promise<TemplateLicence | null> {
+    const t = schema.studioMarketLicences;
+    const [row] = await this.run((db) => db.select().from(t).where(eq(t.id, id)).limit(1));
+    return row ? this.licenceRow(row) : null;
+  }
+
+  async listTemplateLicences(filter: { clientId?: string; templateId?: string; appId?: string }): Promise<TemplateLicence[]> {
+    const t = schema.studioMarketLicences;
+    const where = and(filter.clientId ? eq(t.clientId, filter.clientId) : undefined, filter.templateId ? eq(t.templateId, filter.templateId) : undefined, filter.appId ? eq(t.appId, filter.appId) : undefined);
+    const rows = await this.run((db) => db.select().from(t).where(where).orderBy(desc(t.createdAt)));
+    return rows.map((r) => this.licenceRow(r));
+  }
+
+  async updateTemplateLicence(id: string, patch: TemplateLicencePatch, now: Date): Promise<boolean> {
+    const t = schema.studioMarketLicences;
+    const [result] = await this.run((db) => db.update(t).set({ ...patch, updatedAt: now }).where(eq(t.id, id)));
+    return result.affectedRows > 0;
+  }
+
+  async moveTemplateLicence(id: string, from: string, to: string, notSince: Date, now: Date): Promise<boolean> {
+    const t = schema.studioMarketLicences;
+    const [result] = await this.run((db) =>
+      db
+        .update(t)
+        .set({ appId: to, movedAt: now, updatedAt: now })
+        .where(and(eq(t.id, id), eq(t.appId, from), or(isNull(t.movedAt), lte(t.movedAt, notSince)))),
+    );
+    return result.affectedRows > 0;
+  }
+
+  async countTemplateLicences(since?: Date): Promise<Record<string, number>> {
+    const t = schema.studioMarketLicences;
+    const rows = await this.run((db) =>
+      db
+        .select({ templateId: t.templateId, n: count() })
+        .from(t)
+        .where(since ? gte(t.createdAt, since) : undefined)
+        .groupBy(t.templateId),
+    );
+    return Object.fromEntries(rows.map((r) => [r.templateId, Number(r.n)]));
+  }
+
+  private applicationRow(row: typeof schema.studioMarketApplications.$inferSelect): TemplateApplication {
+    return { ...row, endReason: row.endReason as TemplateApplication["endReason"] };
+  }
+
+  async createTemplateApplication(application: TemplateApplication): Promise<void> {
+    await this.run((db) => db.insert(schema.studioMarketApplications).values(application));
+  }
+
+  async getTemplateApplication(id: string): Promise<TemplateApplication | null> {
+    const t = schema.studioMarketApplications;
+    const [row] = await this.run((db) => db.select().from(t).where(eq(t.id, id)).limit(1));
+    return row ? this.applicationRow(row) : null;
+  }
+
+  async listTemplateApplications(filter: { licenceId?: string; appId?: string; open?: boolean }): Promise<TemplateApplication[]> {
+    const t = schema.studioMarketApplications;
+    const where = and(
+      filter.licenceId ? eq(t.licenceId, filter.licenceId) : undefined,
+      filter.appId ? eq(t.appId, filter.appId) : undefined,
+      filter.open === undefined ? undefined : filter.open ? isNull(t.endedAt) : isNotNull(t.endedAt),
+    );
+    const rows = await this.run((db) => db.select().from(t).where(where).orderBy(desc(t.appliedAt)));
+    return rows.map((r) => this.applicationRow(r));
+  }
+
+  async updateTemplateApplication(id: string, patch: TemplateApplicationPatch): Promise<boolean> {
+    const t = schema.studioMarketApplications;
+    const [result] = await this.run((db) => db.update(t).set(patch).where(and(eq(t.id, id), isNull(t.endedAt))));
+    return result.affectedRows > 0;
+  }
 }
 
 /** 125 The time a call holds while it isn't cancelled (unique in the table); null frees it. */

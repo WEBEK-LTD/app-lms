@@ -863,6 +863,11 @@ test("103R the team offers a Studio plan; the client makes a Studio project apar
   await own.getByRole("button", { name: "See all designs (8)" }).click();
   await designs.getByRole("button", { name: "Mine 1" }).click();
   await designs.locator("[data-studio-design]").first().click();
+  // 132.55 A kept design can't be brought back: deleting it asks first.
+  own.once("dialog", (dialog) => {
+    expect(dialog.message()).toMatch(/^Delete your design .+\? It can't be brought back\.$/);
+    void dialog.accept();
+  });
   await designs.getByRole("button", { name: /^Delete / }).click();
   await expect(designs.getByRole("button", { name: "Mine 0" })).toBeVisible();
   await designs.getByRole("button", { name: "Close" }).click();

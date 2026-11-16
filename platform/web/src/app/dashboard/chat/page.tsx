@@ -18,6 +18,7 @@ import { dashboardText } from "@/lib/dashboard-lang";
 import { appPlan, effectivePlans } from "@/lib/entitlements";
 import { plansIn } from "@/lib/marketing-lang";
 import { hasFeature, lowestPlanWith } from "@/lib/plans";
+import { isStudioProject } from "@/lib/studio/section";
 import { AutoRefresh } from "../orders/refresh";
 import { adminSchoolConversations, departmentsOf } from "@/lib/school/messages";
 import { SchoolForm } from "../school/forms";
@@ -67,7 +68,8 @@ export default async function ChatPage({ searchParams }: PageProps<"/dashboard/c
   }
   if (!planHasChat(plan)) {
     const plans = plansIn(lang, await effectivePlans(store));
-    const to = lowestPlanWith(plans, (p) => hasFeature(p, "chat"), plan?.id ?? null);
+    // 132.59 A Studio project is offered Studio's plans, never the regular ones.
+    const to = lowestPlanWith(plans, (p) => hasFeature(p, "chat"), plan?.id ?? null, isStudioProject(app) ? "studio" : undefined);
     return (
       <>
         {header}

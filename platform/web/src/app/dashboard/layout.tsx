@@ -13,6 +13,7 @@ import { DashboardLanguage } from "@/components/dashboard-language";
 import { ThemeSwitch } from "@/components/theme-switch";
 import { SignOutButton } from "@/components/sign-out";
 import { AppSwitcher } from "@/components/app-switcher";
+import { SectionSwitch } from "@/components/section-switch";
 import { BusinessSwitcher } from "@/components/business-switcher";
 import { UpdatesBell } from "@/components/updates-bell";
 import { dashboardMessages, knownEnglish } from "@/i18n/dashboard";
@@ -27,7 +28,7 @@ import type { DashKey } from "@/i18n/dashboard";
 import { getVisitorContact } from "@/lib/contact";
 import { headers } from "next/headers";
 import { redirect } from "next/navigation";
-import { studioFramePath } from "@/lib/studio/section";
+import { studioAccountPathFor, studioPathFor } from "@/lib/studio/section";
 import { bellWords, dashboardText } from "@/lib/dashboard-lang";
 import { getStore } from "@/lib/data";
 import { ACCOUNT_STATE_LABEL, appState } from "@/lib/license/status";
@@ -45,8 +46,9 @@ export default async function DashboardLayout({ children }: { children: React.Re
   const { user, staff, member, app, client, licenses, state, businesses } = context;
   // 103R A Yallapp Studio project lives in Studio: its pages open there (the same page in Studio's frame).
   if (app?.section === "studio") {
-    // 132.3 The account and team pages too: Studio has them in its frame.
-    const target = studioFramePath((await headers()).get("x-yallapp-path") ?? "");
+    const path = (await headers()).get("x-yallapp-path") ?? "";
+    // 132.50 The account and the team too, in Studio's own frame.
+    const target = studioPathFor(path) ?? studioAccountPathFor(path);
     if (target) redirect(target);
   }
   // 103R The regular apps only: Studio projects have their own home.
@@ -80,6 +82,8 @@ export default async function DashboardLayout({ children }: { children: React.Re
   // Only what the current app uses: its content pages, and the app users pages on the hosted API (21 in the kind's words).
   const content = app ? contentNavOf(app) : null;
   const problems = app && contextCan(context, "settings") ? await appProblems(app) : [];
+  // 106 The templates the account has from Studio Market, next to My templates.
+  const licences = contextCan(context, "billing") ? (await (await getStore()).listTemplateLicences({ clientId: client.id })).length : 0;
   const groups: DashboardNavGroup[] = [
     {
       items: [
@@ -141,6 +145,21 @@ export default async function DashboardLayout({ children }: { children: React.Re
             },
           ]
         : []),
+    // 106 Studio Market: the templates to browse, the ones the account has, and selling its own designs (the owner).
+    {
+      label: t("studioMarket.nav"),
+      isNew: t("studioMarket.newTag"),
+      items: [
+        { href: "/dashboard/studio-market", label: t("studioMarket.navBrowse"), icon: "storefront", exact: true, prefix: "/dashboard/studio-market/t" },
+        {
+          href: "/dashboard/studio-market/mine",
+          label: t("studioMarket.navMine"),
+          icon: "dashboard_customize",
+          ...(licences ? { badge: { count: licences, label: t("studioMarket.navMineCount", { count: licences }), tone: "soft" as const } } : {}),
+        },
+        ...(contextCan(context, "billing") ? [{ href: "/designer", label: t("studioMarket.navSell"), icon: "draw" as const }] : []),
+      ],
+    },
     {
       label: t("nav.publish"),
       items: [
@@ -236,18 +255,9 @@ export default async function DashboardLayout({ children }: { children: React.Re
           }
         />
         <div className="flex min-w-0 flex-1 flex-col">
-          {/* 103R.3 The regular apps and Yallapp Studio, switched from a dark bar like Studio's own. */}
+          {/* 103R.3 The regular apps and Yallapp Studio, switched from a dark bar like Studio's own; 106 and Studio Market. */}
           <header className="flex items-center gap-3 bg-midnight px-4 py-2.5 sm:px-8 lg:px-10">
-            <nav aria-label={t("studio.section")} className="flex items-center gap-1 rounded-[10px] bg-night-2 p-1">
-              <Link href="/dashboard" aria-current="page" className="flex h-8 items-center gap-1.5 rounded-lg bg-ivory px-3 text-[13px] font-bold text-midnight no-underline hover:text-midnight">
-                <Icon name="apps" size={18} />
-                {t("studio.regularApps")}
-              </Link>
-              <Link href="/studio" className="flex h-8 items-center gap-1.5 rounded-lg px-3 text-[13px] text-night-text no-underline hover:bg-night-line hover:text-white">
-                <Icon name="draw" size={18} />
-                {t("studio.title")}
-              </Link>
-            </nav>
+            <SectionSwitch label={t("studio.section")} words={{ regular: t("studio.regularApps"), studio: t("studio.title"), market: t("studioMarket.nav"), newTag: t("studioMarket.newTag") }} />
           </header>
           <main id="main" tabIndex={-1} className="min-w-0 flex-1 px-4 pt-6 pb-16 outline-none sm:px-8 sm:pt-8 lg:px-10">
             <div className="mx-auto flex max-w-[1120px] flex-col gap-6">

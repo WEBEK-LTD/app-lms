@@ -5,6 +5,9 @@ import { newApp } from "../app/setup";
 import { startFromDemoDesign } from "../bot/create";
 import type { DataStore } from "../data/store";
 import { DEFAULT_HOSTED_SETTINGS, type App, type FirstSteps } from "../data/types";
+import type { Lang } from "@/i18n/config";
+import { startLanguages, wordsLangOf } from "../app/start-language";
+import { inMainLanguage } from "../pages/builtin";
 import { loadLayout, saveDraft } from "../pages/layout";
 import { languagesForPlan } from "../pages/plan";
 import type { Languages } from "../pages/types";
@@ -44,16 +47,12 @@ export interface DemoMaker {
   clientId: string;
   /** The new app's plan, when one is known already (the account's first app); null otherwise. */
   plan: PlanInfo | null;
-  /** The language Studio's template words are written in: the app's main one, the demo's first, unless given. */
-  lang?: StudioLang;
-}
-
-type StudioLang = "en" | "ar" | "tr";
-
-/** The demo's main language, when Studio has its words in it (else English). */
-function mainLang(demo: DemoId): StudioLang {
-  const first = DEMO_BRANDS[demo].languages[0];
-  return first === "ar" || first === "tr" ? first : "en";
+  /**
+   * 132.40 The language of the person it is made for (lib/app/owner-lang.ts): an Arabic or
+   * Turkish owner's app has it as its main language, the demo's after it; English, or
+   * missing, the demo's own.
+   */
+  lang?: Lang;
 }
 
 export interface DemoMade {
@@ -64,10 +63,10 @@ export interface DemoMade {
 
 export const DEMO_NAME_MAX = 30;
 
-/** The demo's languages, at most the plan's. */
-function demoLanguages(demo: DemoId, plan: PlanInfo | null): Languages {
+/** The demo's languages (132.40 the owner's first), at most the plan's. */
+export function demoLanguages(demo: DemoId, plan: PlanInfo | null, lang: Lang = "en"): Languages {
   const [first, ...rest] = DEMO_BRANDS[demo].languages;
-  return languagesForPlan({ default: first!, available: [first!, ...rest] }, plan);
+  return languagesForPlan(startLanguages(lang, { default: first!, available: [first!, ...rest] }), plan);
 }
 
 /** The name under the icon: the name when it fits, else its first word, cut to fit. */
@@ -102,8 +101,9 @@ export async function makeFromDemo(store: DataStore, maker: DemoMaker, input: De
   };
   if (isStudioDemo(input.demo)) {
     const plan = maker.plan && planFitsSection(maker.plan.id, "studio") ? maker.plan : null;
-    // The template's words in the app's main language (the demo's), the others kept as translations.
-    const lang = maker.lang ?? mainLang(input.demo);
+    const languages = demoLanguages(input.demo, plan, maker.lang);
+    // The template's words in the app's main language, the others kept as translations.
+    const lang = wordsLangOf(languages, "en");
     const made = await makeStudioProject(
       store,
       {
@@ -114,7 +114,7 @@ export async function makeFromDemo(store: DataStore, maker: DemoMaker, input: De
         template: studioDemoTemplate(input.demo, input.look),
         words: appWords(lang, input.name),
         lang,
-        languages: demoLanguages(input.demo, plan),
+        languages,
         fromDemo: input.demo,
         // The owner's colour in the pages the template draws, not the demo's.
         extra: { primaryColor: input.colour, splashColor: brand.splashColor, logoAssetId: input.logoAssetId, ...(input.iconAssetId ? { brandingDoneAt: now } : {}) },
@@ -139,9 +139,9 @@ export async function makeFromDemo(store: DataStore, maker: DemoMaker, input: De
     hostedSettings: { ...DEFAULT_HOSTED_SETTINGS, ...(named.hostedSettings ?? {}), firstSteps: steps },
   };
   await store.createApp(app);
-  // The languages first: the design keeps the draft's, and the entries are the demo's.
+  // The languages first: the design keeps the draft's (132.40 writing Yallapp's texts in the main one), and the entries are the demo's.
   const record = await loadLayout(store, app, now);
-  await saveDraft(store, app, { ...record.draft, languages: demoLanguages(input.demo, plan) }, now);
+  await saveDraft(store, app, inMainLanguage({ ...record.draft, languages: demoLanguages(input.demo, plan, maker.lang) }), now);
   await startFromDemoDesign(store, app, now, { colour: true });
   return { app: (await store.getAppById(app.id)) ?? app, open: "/dashboard/pages?from=demo" };
 }

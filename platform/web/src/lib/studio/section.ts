@@ -12,7 +12,8 @@ export function isStudioProject(app: Pick<App, "section"> | null | undefined): b
 }
 
 /** Dashboard pages that belong to the account rather than one app (the guide makes a new app): a Studio project leaves them where they are. */
-const ACCOUNT_PAGES = new Set(["app-type", "builder", "businesses", "account", "team", "open"]);
+/** 106 Studio Market's pages (the market, a template, My templates) belong to the account too: templates go on Studio projects. */
+const ACCOUNT_PAGES = new Set(["app-type", "builder", "businesses", "account", "team", "open", "studio-market"]);
 
 /**
  * Where a dashboard address opens for a Studio project: the same page in
@@ -30,27 +31,6 @@ export function studioPathFor(path: string): string | null {
   if (!first) return "/studio/project";
   if (first === "pages") return "/studio/editor";
   return `/studio/project${rest}${query}`;
-}
-
-/** 132.3 The account's pages Studio shows in its own frame too, from its menu and its pages' links. */
-const FRAMED_ACCOUNT_PAGES = new Set(["account", "team"]);
-
-/**
- * 132.3 Where a link to a dashboard page goes from a Studio project's page:
- * as [studioPathFor], and the account and team pages in Studio's frame
- * too (the dashboard itself still leaves them where they are, so their old
- * addresses keep working there).
- */
-export function studioFramePath(path: string): string | null {
-  const target = studioPathFor(path);
-  if (target) return target;
-  const m = /^\/(?:ar\/|tr\/)?dashboard\/([^/?#]+)([^#]*)/.exec(path);
-  return m && FRAMED_ACCOUNT_PAGES.has(m[1]!) ? `/studio/project/${m[1]}${m[2] ?? ""}` : null;
-}
-
-/** 132.3 The team page in the project's section: a Studio project's in Studio's frame. */
-export function teamPath(app: Pick<App, "section"> | null | undefined, rest = ""): string {
-  return `${isStudioProject(app) ? "/studio/project/team" : "/dashboard/team"}${rest}`;
 }
 
 /**

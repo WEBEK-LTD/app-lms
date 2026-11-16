@@ -13,6 +13,7 @@ import { MAX_LANGUAGES } from "@/lib/i18n/locales";
 import type { TranslationRow } from "@/lib/i18n/translations";
 import type { Plan } from "@/lib/plans";
 import { LanguageList } from "./language-list";
+import { useLeaveGuard } from "@/components/leave-guard";
 import { useDashFormat, useDashLang, useDashT, useKnownText } from "@/components/dashboard-i18n";
 import { appLanguageName } from "@/lib/i18n/language-names";
 import type { DashT } from "@/i18n/dashboard";
@@ -48,6 +49,7 @@ export function LanguagesEditor({
   languages,
   lang,
   defaultName,
+  main,
   rows,
   summaries,
   published,
@@ -60,6 +62,8 @@ export function LanguagesEditor({
   languages: { default: string; available: string[] };
   lang: LangInfo;
   defaultName: string;
+  /** 132.40 The dashboard's language as the app's main one, when it isn't: the languages that makes, and the one it replaces when the plan is full. */
+  main: { code: string; name: string; languages: { default: string; available: string[] }; dropped: string | null } | null;
   rows: TranslationRow[];
   summaries: { code: string; name: string; nativeName: string; done: number; total: number }[];
   published: string | null;
@@ -98,6 +102,8 @@ export function LanguagesEditor({
   const englishName = appLanguageName("en", dashLang);
   const full = plan.languages !== null && languages.available.length >= plan.languages;
   const pending = Object.keys(edits).length;
+  // 132.67 Translations typed and not saved yet: leaving the page asks first.
+  useLeaveGuard(pending > 0, t("common.leaveUnsaved"));
   const valueOf = (row: TranslationRow) => edits[row.id] ?? row.value;
 
   const problems = useMemo(() => {
@@ -244,6 +250,18 @@ export function LanguagesEditor({
   return (
     <div className="flex flex-col gap-6">
       <Section id="app-languages" titleId="h-app-languages" title={t("languages.yourLanguages")} description={t("languages.orderText")}>
+        {main ? (
+          <div data-main-language={main.code} className="flex flex-wrap items-center justify-between gap-3 rounded-xl border border-line bg-sand px-4 py-3">
+            <p className="m-0 min-w-0 flex-[1_1_320px] text-[15px] leading-relaxed">
+              {main.dropped
+                ? t("languages.mainSwap", { current: defaultName, language: main.name, dropped: main.dropped })
+                : t("languages.mainKeep", { current: defaultName, language: main.name })}
+            </p>
+            <button type="button" className={`${btn.primary} h-10 px-4 text-sm`} disabled={busy} onClick={() => void changeLanguages(main.languages)}>
+              {t("languages.makeMain", { language: main.name })}
+            </button>
+          </div>
+        ) : null}
         <LanguageList languages={languages} onChange={(next) => void changeLanguages(next)} full={full} max={MAX_LANGUAGES} />
         {full && plan.languages !== null ? (
           <UpgradeHint title={t("pages.moreLanguages")} to={plan.upgrade} cta={plan.upgrade ? t("overview.upgradeTo", { plan: plan.upgrade.name }) : undefined}>

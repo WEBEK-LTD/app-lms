@@ -7,7 +7,7 @@ import { ownContentSetup } from "@/lib/app/own-content";
 import type { App } from "@/lib/data/types";
 import { dashboardTextFor } from "@/lib/dashboard-words";
 import { inStudioFrame, studioJumpTargets, studioProjectNav, type StudioNavInput } from "@/lib/studio/project-nav";
-import { studioFramePath, studioPathFor, teamPath } from "@/lib/studio/section";
+import { studioAccountPathFor, studioPathFor } from "@/lib/studio/section";
 import { teamCan, type TeamAccess, type TeamPermission } from "@/lib/team/permissions";
 import { matchPages, searchable } from "@/app/studio/project/command-palette";
 import { NOW } from "./helpers";
@@ -37,9 +37,11 @@ const hrefs = (app: App, can?: StudioNavInput["can"]) => studioProjectNav(input(
 describe("132.1 the Studio project's menu", () => {
   it("has the pages the owner missed, in Studio's frame", () => {
     const shown = hrefs(project("store"));
-    for (const page of ["media", "chat", "integrations", "team", "protection", "preview", "stability", "announcements", "phones", "account", "screens", "app-sign-in", "notifications", "languages", "publishing", "builds", "license", "invoices"]) {
+    for (const page of ["media", "chat", "integrations", "protection", "preview", "stability", "announcements", "phones", "screens", "app-sign-in", "notifications", "languages", "publishing", "builds", "license", "invoices"]) {
       expect(shown, page).toContain(`/studio/project/${page}`);
     }
+    // 132.51 The account's own pages in Studio's account frame.
+    expect(shown).toEqual(expect.arrayContaining(["/studio/account", "/studio/team"]));
     expect(shown).toContain("/studio/project");
     expect(shown).toContain("/studio/editor");
     // A store's own pages, its delivery and offers, its card messages.
@@ -57,7 +59,7 @@ describe("132.1 the Studio project's menu", () => {
     expect(new Set(shown).size).toBe(shown.length);
     for (const href of shown) {
       const route = href.split("?")[0]!;
-      const file = route === "/studio/editor" ? "src/app/studio/editor/page.tsx" : `src/app${route}/page.tsx`;
+      const file = route === "/studio/editor" ? "src/app/studio/editor/page.tsx" : /^\/studio\/(account|team)$/.test(route) ? `src/app/studio/(account)${route.slice(7)}/page.tsx` : `src/app${route}/page.tsx`;
       expect(existsSync(path.join(WEB, file)), `${href} has a page`).toBe(true);
     }
     // The kind's own group first after the start, with the dashboard's own pages of it.
@@ -74,7 +76,8 @@ describe("132.1 the Studio project's menu", () => {
       .filter((d) => d.isDirectory() && existsSync(path.join(WEB, "src/app/dashboard", d.name, "page.tsx")))
       .map((d) => d.name);
     // The account's pages for a new app or another business, and the regular editor (Studio has its own).
-    const elsewhere = new Set(["app-type", "builder", "businesses", "pages"]);
+    // 106 Studio Market belongs to the account, apart from any project.
+    const elsewhere = new Set(["app-type", "builder", "businesses", "pages", "studio-market"]);
     const reached = new Set<string>();
     const apps = [
       ...KINDS.map((k) => project(k.id)),
@@ -84,11 +87,17 @@ describe("132.1 the Studio project's menu", () => {
     ];
     for (const app of apps) {
       for (const href of [...hrefs(app), ...studioJumpTargets(input(app)).map((i) => i.href)]) {
-        const first = /^\/studio\/project\/([^/?]+)/.exec(href)?.[1];
+        const first = /^\/studio\/(?:project\/)?([^/?]+)/.exec(href)?.[1];
         if (first) reached.add(first);
       }
     }
     expect(routes.filter((r) => !elsewhere.has(r) && !reached.has(r))).toEqual([]);
+  });
+
+  it("115 a food company's marketplace pages", () => {
+    for (const id of ["food", "marketplace"]) {
+      expect(hrefs(project(id)), id).toEqual(expect.arrayContaining(["/studio/project/market/orders", "/studio/project/market/offers", "/studio/project/market/joining", "/studio/project/market/complaints", "/studio/project/market/statements", "/studio/project/market/settings"]));
+    }
   });
 
   it("keeps the dashboard's gates", () => {
@@ -116,7 +125,7 @@ describe("132.1 the Studio project's menu", () => {
     const shown = groups.flatMap((g) => g.items.map((i) => i.href));
     expect(shown).toContain("/studio/project/orders");
     expect(shown).toContain("/studio/project/catalog");
-    expect(shown).not.toContain("/studio/project/team");
+    expect(shown).not.toContain("/studio/team");
     expect(shown).not.toContain("/studio/project/screens");
     expect(shown).not.toContain("/studio/project/invoices");
     // A group left empty goes.
@@ -133,6 +142,16 @@ describe("132.1 the Studio project's menu", () => {
     }
     const ar = studioProjectNav({ ...input(project("store")), text: dashboardTextFor("ar") }).flatMap((g) => g.items.map((i) => i.label));
     expect(ar).toContain("الوسائط");
+    // Every kind's own pages in Arabic and Turkish too (the school's Classes by its own word, not the gym's).
+    for (const lang of ["ar", "tr"] as const) {
+      for (const id of new Set(KINDS.map((k) => k.id))) {
+        const en = studioProjectNav(input(project(id))).find((g) => g.id === "kind")?.items ?? [];
+        const there = studioProjectNav({ ...input(project(id)), text: dashboardTextFor(lang) }).find((g) => g.id === "kind")?.items ?? [];
+        const same = there.filter((i, n) => i.label === en[n]?.label).map((i) => i.label);
+        expect(same, `${id} in ${lang}`).toEqual([]);
+      }
+    }
+    expect(studioProjectNav({ ...input(project("school")), text: dashboardTextFor("ar") }).flatMap((g) => g.items).find((i) => i.href === "/studio/project/school/classes")?.label).toBe("الفصول");
   });
 });
 
@@ -141,14 +160,11 @@ describe("132.3 the account's pages in Studio's frame", () => {
     expect(inStudioFrame("/dashboard")).toBe("/studio/project");
     expect(inStudioFrame("/dashboard/pages")).toBe("/studio/editor");
     expect(inStudioFrame("/dashboard/setup?step=branding")).toBe("/studio/project/setup?step=branding");
-    expect(studioFramePath("/dashboard/team?done=cancelled")).toBe("/studio/project/team?done=cancelled");
-    expect(studioFramePath("/ar/dashboard/account")).toBe("/studio/project/account");
-    expect(studioFramePath("/dashboard/media")).toBe("/studio/project/media");
-    // The account's other pages stay where they are, and the dashboard's own mapping is as before.
-    expect(studioFramePath("/dashboard/businesses")).toBeNull();
+    // 132.51 The account's own pages in Studio's account frame; the dashboard's own mapping as before.
+    expect(inStudioFrame("/dashboard/team")).toBe("/studio/team");
+    expect(inStudioFrame("/dashboard/account")).toBe("/studio/account");
+    expect(studioAccountPathFor("/dashboard/team?done=cancelled")).toBe("/studio/team?done=cancelled");
     expect(studioPathFor("/dashboard/team")).toBeNull();
-    expect(teamPath({ section: "studio" }, "?done=closed")).toBe("/studio/project/team?done=closed");
-    expect(teamPath({ section: null } as never)).toBe("/dashboard/team");
   });
 });
 

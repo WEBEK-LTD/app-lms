@@ -9,6 +9,7 @@ import { appPlan } from "@/lib/entitlements";
 import { isLanguageCode } from "@/lib/i18n/locales";
 import { applyTranslations } from "@/lib/i18n/translations";
 import { refreshSitesSoon } from "@/lib/license/refresh-soon";
+import { inMainLanguage } from "@/lib/pages/builtin";
 import { hasUnpublishedChanges, loadLayout, publishLayout, saveDraft } from "@/lib/pages/layout";
 import { switchDefaultLanguage } from "@/lib/pages/model";
 
@@ -28,7 +29,10 @@ function done(record: AppLayoutRecord, message: string): TranslationsResult {
   return { ok: true, message, savedAt: record.draftUpdatedAt.toISOString(), changes: hasUnpublishedChanges(record), published: record.published?.version ?? null };
 }
 
-/** The languages in the app's order, and the default; a new default takes its translations as the main texts. */
+/**
+ * The languages in the app's order, and the default; a new default takes its translations as the main texts
+ * (132.40 and Yallapp's own texts in it, as the app shows them: "Make Arabic the main language").
+ */
 export async function saveLanguagesAction(input: { available: string[]; default: string }): Promise<TranslationsResult> {
   const { app } = await requireApp();
   const available = Array.isArray(input?.available) ? input.available.filter(isLanguageCode) : [];
@@ -36,8 +40,9 @@ export async function saveLanguagesAction(input: { available: string[]; default:
   const store = await getStore();
   const now = new Date();
   const record = await loadLayout(store, app, now);
-  const switched = input.default === record.draft.languages.default ? record.draft : switchDefaultLanguage(record.draft, input.default);
-  const saved = await saveDraft(store, app, { ...switched, strings: switched.strings ?? {}, languages: { default: input.default, available } }, now);
+  const languages = { default: input.default, available };
+  const switched = input.default === record.draft.languages.default ? record.draft : inMainLanguage({ ...switchDefaultLanguage(record.draft, input.default), languages });
+  const saved = await saveDraft(store, app, { ...switched, strings: switched.strings ?? {}, languages }, now);
   if (!saved.ok) return saved;
   revalidatePath("/dashboard/languages");
   return done(saved.value, "Languages saved to your draft. Publish to send them to your app.");

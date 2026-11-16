@@ -90,15 +90,15 @@ describe("103R.3 Studio's own section", () => {
     expect(studioPathFor("/dashboard/pages")).toBe("/studio/editor");
     expect(studioPathFor("/dashboard/catalog/products?page=2")).toBe("/studio/project/catalog/products?page=2");
     expect(studioPathFor("/dashboard/setup?step=branding")).toBe("/studio/project/setup?step=branding");
-    // The account's own pages stay where they are.
-    for (const page of ["app-type", "builder", "businesses", "account", "team", "open"]) expect(studioPathFor(`/dashboard/${page}`)).toBeNull();
+    // The account's own pages stay where they are (106 Studio Market too: its templates go on Studio projects).
+    for (const page of ["app-type", "builder", "businesses", "account", "team", "open", "studio-market", "studio-market/mine"]) expect(studioPathFor(`/dashboard/${page}`)).toBeNull();
   });
 
   it("has every dashboard page of an app in Studio's frame too", () => {
     const root = path.join(process.cwd(), "src/app/dashboard");
     const pages = (readdirSync(root, { recursive: true }) as string[]).filter((f) => f.endsWith("page.tsx")).map((f) => path.dirname(f)).filter((d) => d !== ".");
     // The account's own pages (the app-builder guide makes a new app), and the regular page editor (Studio has its own), stay in the dashboard.
-    const own = pages.filter((d) => !["app-type", "builder", "businesses", "account", "team", "open", "pages"].includes(d.split(path.sep)[0]!));
+    const own = pages.filter((d) => !["app-type", "builder", "businesses", "account", "team", "open", "pages", "studio-market"].includes(d.split(path.sep)[0]!));
     expect(own.length).toBeGreaterThan(50);
     expect(own.filter((d) => !existsSync(path.join(process.cwd(), "src/app/studio/project", d, "page.tsx")))).toEqual([]);
   });
