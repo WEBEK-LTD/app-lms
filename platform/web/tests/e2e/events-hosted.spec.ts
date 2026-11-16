@@ -180,7 +180,8 @@ test("the hosted API serves the event; free tickets are taken, never more than t
 });
 
 test("the door checks a ticket in once, on a phone", async ({ browser }) => {
-  await own.goto(`/dashboard/events/${eventId}`);
+  // 132.19 The attendees have their own tab.
+  await own.goto(`/dashboard/events/${eventId}?tab=attendees`);
   const attendees = own.getByRole("region", { name: "Attendees" });
   await expect(attendees.getByRole("row", { name: /Ali Adel/ })).toContainText("Valid");
   const download = await own.request.get(`/api/dashboard/events/${eventId}/attendees`);

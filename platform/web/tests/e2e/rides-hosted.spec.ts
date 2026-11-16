@@ -124,7 +124,8 @@ test("Ride settings are saved; Rides is empty; the app's ride routes wait for th
   await expect(own.getByText("Saved. The app shows it the next time it opens.")).toBeVisible();
   await own.reload();
   await expect(own.getByRole("radio", { name: "By the meter" })).toBeChecked();
-  // 112.3 Drivers always work in their own app: no choice of where, only its name, icon and iPhone Firebase file.
+  // 112.3 Drivers always work in their own app: no choice of where, only its name, icon and iPhone Firebase file. 132.22 In its own tab.
+  await own.getByRole("tab", { name: "Your drivers' app" }).click();
   await expect(own.getByRole("heading", { name: "Your drivers' app" })).toBeVisible();
   await expect(own.getByRole("radio", { name: "In this app" })).toHaveCount(0);
   await expect(own.getByLabel("The drivers' app's icon (optional)")).toBeVisible();
