@@ -5,8 +5,8 @@ import { releaseSiteAction } from "@/app/actions/dashboard";
 import { CopyButton } from "@/components/copy-button";
 import { Icon } from "@/components/icon";
 import { SubmitButton } from "@/components/form";
-import { Badge, Notice, PageHeader, Section, btn, formatDate, formatDateTime } from "@/components/ui";
-import { ItemList, ItemRow, PageGroup, Thumb } from "@/components/page-kit";
+import { btn, formatDate, formatDateTime } from "@/components/ui";
+import { KitCallout, KitFact, KitFacts, KitHeader, KitHero, KitList, KitNext, KitPage, KitRow, KitSection, KitSettingRow, KitSettings, KitStatus, KitThumb, kit } from "@/components/studio-page";
 import { localePath } from "@/i18n/paths";
 import { richText } from "@/i18n/rich";
 import { countryName } from "@/lib/account/country";
@@ -47,15 +47,6 @@ import { siteMatch, siteRunsLine } from "@/lib/app/site-match";
 export async function generateMetadata(): Promise<Metadata> {
   const { app } = await requireClient("billing");
   return { title: (await dashboardText()).k(licensePageName(app)) };
-}
-
-function Row({ label, children }: { label: string; children: React.ReactNode }) {
-  return (
-    <div className="flex flex-wrap items-baseline gap-x-4 gap-y-1 border-t border-line-soft py-3 first:border-t-0">
-      <dt className="w-[150px] flex-none text-sm text-muted">{label}</dt>
-      <dd className="m-0 min-w-0 flex-1 text-[15px] font-semibold break-words">{children}</dd>
-    </div>
-  );
 }
 
 const SUPPORT_KEY = {
@@ -219,15 +210,18 @@ export default async function LicensePage({ searchParams }: PageProps<"/dashboar
   };
 
   const payTitle = state === "pending" ? t("license.payByCard") : state === "expired" ? t("license.renewByCard") : t("license.extend");
+  const stateTone = state === "active" ? "success" : state === "expired" ? "danger" : "warn";
+  // 132.134 The premium kit: the header with paying as its one main action, the plan in one hero card with its next step,
+  // what it includes, changing it, paying, then the payments; every long explanation behind "?".
   return (
-    <div className="flex flex-col gap-6">
-      {/* The page kit: the header with paying as its main action, then the plan, changing it, and the payments in labelled groups. */}
-      <PageHeader
+    <KitPage>
+      <KitHeader
+        icon="workspace_premium"
         title={k(licensePageName(app))}
         description={apps.length > 1 ? richText(t(plugin ? "license.manyApps" : "license.manyAppsPlan", { app: name }), tags) : plugin ? t("license.pluginText") : t("license.planText")}
         actions={
           payable.length ? (
-            <a href="#renew" className={`${btn.main} h-11`}>
+            <a href="#renew" className={kit.main}>
               <Icon name="credit_card" size={20} />
               {state === "pending" ? t("license.payByCard") : t("license.renewByCard")}
             </a>
@@ -236,106 +230,106 @@ export default async function LicensePage({ searchParams }: PageProps<"/dashboar
       />
 
       {released ? (
-        <Notice tone="success" icon="check_circle" role="status">
+        <KitCallout tone="success" icon="check_circle" role="status">
           {t("license.released")}
-        </Notice>
+        </KitCallout>
       ) : null}
       {payment === "paid" ? (
-        <Notice tone="success" icon="check_circle" role="status">
+        <KitCallout tone="success" icon="check_circle" role="status">
           {t("license.paid", { date: date(license?.expiresAt) })}
-        </Notice>
+        </KitCallout>
       ) : null}
       {payment === "failed" ? (
-        <Notice tone="danger" icon="error" role="alert">
+        <KitCallout tone="danger" icon="error" role="alert">
           {t("license.failed")}
-        </Notice>
+        </KitCallout>
       ) : null}
       {payment === "pending" ? (
-        <Notice icon="schedule" role="status">
+        <KitCallout icon="schedule" role="status">
           {t("license.pendingPayment")}
-        </Notice>
+        </KitCallout>
       ) : null}
       {planChange === "scheduled" && scheduled ? (
-        <Notice tone="success" icon="check_circle" role="status">
+        <KitCallout tone="success" icon="check_circle" role="status">
           {t("license.scheduledDone", { app: name, plan: effective[scheduled.plan].name, date: date(scheduled.at) })}
-        </Notice>
+        </KitCallout>
       ) : null}
       {planChange === "kept" ? (
-        <Notice tone="success" icon="check_circle" role="status">
+        <KitCallout tone="success" icon="check_circle" role="status">
           {t("license.kept", { app: name, plan: planName(currentId, effective) })}
-        </Notice>
+        </KitCallout>
       ) : null}
       {planChange === "refused" || planChange === "switched" ? (
-        <Notice tone="warn" icon="warning" role="alert">
+        <KitCallout tone="warn" icon="warning" role="alert">
           {planChange === "switched" ? t("license.switched") : t("license.refused")}
-        </Notice>
-      ) : null}
-      {state === "pending" ? (
-        <Notice tone="warn" icon="hourglass_top">
-          {richText(t(plugin ? (payable.length ? "license.notActivatedPay" : "license.notActivated") : payable.length ? "license.notActivatedPayPlan" : "license.notActivatedPlan"), tags)}
-        </Notice>
-      ) : null}
-      {state === "expired" ? (
-        <Notice tone="warn" icon="warning">
-          {richText(
-            t(plugin ? (payable.length ? "license.expiredPay" : "license.expired") : payable.length ? "license.expiredPayPlan" : "license.expiredPlan", { date: date(license?.expiresAt) }),
-            tags,
-          )}
-        </Notice>
+        </KitCallout>
       ) : null}
 
-      <PageGroup title={plugin ? t("license.license") : t("license.plan")}>
-      <section aria-labelledby="h-license" className="flex flex-col gap-4 rounded-2xl border border-line bg-white p-5 sm:p-6">
-        <div className="flex flex-wrap items-center justify-between gap-3">
-          <h2 id="h-license" className="m-0 text-lg font-bold">
-            {plugin ? t("license.license") : t("license.plan")}
-          </h2>
-          <Badge tone={state === "active" ? "success" : state === "expired" ? "danger" : "warn"}>{k(ACCOUNT_STATE_LABEL[state])}</Badge>
-        </div>
-        {app ? <p className="m-0 text-sm text-muted">{richText(t("license.app", { app: name }), { b: (chunk) => <span className="font-semibold text-ink-2">{chunk}</span> })}</p> : null}
+      {/* The plan at a glance: its state, what it is and until when, and the one next step. */}
+      <KitHero
+        titleId="h-license"
+        heading={plugin ? t("license.license") : t("license.plan")}
+        status={<KitStatus tone={stateTone}>{k(ACCOUNT_STATE_LABEL[state])}</KitStatus>}
+        description={app ? richText(t("license.app", { app: name }), { b: (chunk) => <span className="font-semibold text-(--sp-ink)">{chunk}</span> }) : undefined}
+        next={
+          state === "pending" ? (
+            <KitNext icon="hourglass_top" tone="warn">
+              {richText(t(plugin ? (payable.length ? "license.notActivatedPay" : "license.notActivated") : payable.length ? "license.notActivatedPayPlan" : "license.notActivatedPlan"), tags)}
+            </KitNext>
+          ) : state === "expired" ? (
+            <KitNext icon="warning" tone="warn">
+              {richText(
+                t(plugin ? (payable.length ? "license.expiredPay" : "license.expired") : payable.length ? "license.expiredPayPlan" : "license.expiredPlan", { date: date(license?.expiresAt) }),
+                tags,
+              )}
+            </KitNext>
+          ) : activation ? (
+            <form action={releaseSiteAction} className="flex min-w-0 flex-1 flex-wrap items-center gap-x-4 gap-y-2">
+              <span className="min-w-0 flex-[1_1_260px] text-sm text-(--sp-muted)">{t("license.releaseText")}</span>
+              <SubmitButton variant="secondary" className="h-10" pendingText={t("license.releasing")}>
+                <Icon name="link_off" size={18} />
+                {t("license.release")}
+              </SubmitButton>
+            </form>
+          ) : undefined
+        }
+      >
         {key ? (
-          <div className="flex flex-wrap items-center gap-3 rounded-xl bg-ivory px-4 py-3">
+          <div className="flex flex-wrap items-center gap-3 rounded-2xl bg-(--sp-soft) px-4 py-3">
             <code dir="ltr" className="min-w-0 flex-1 font-mono text-lg font-bold tracking-wider break-all" aria-label={t("license.licenseKey")}>
               {key}
             </code>
             <CopyButton value={key} label={t("license.copyKey")} copiedLabel={t("common.copied")} />
           </div>
         ) : null}
-        <dl className="m-0">
-          <Row label={t("license.plan")}>
-            {currentId ? planName(currentId, effective) : t("overview.noPlan")}
-            {scheduled ? (
-              <span className="block text-[13px] font-normal text-muted">{t("license.movesTo", { plan: effective[scheduled.plan].name, date: date(scheduled.at) })}</span>
-            ) : null}
-          </Row>
+        <KitFacts columns>
+          <KitFact stacked label={t("license.plan")}>
+            <span className="text-[24px] leading-tight tracking-[-0.3px] sm:text-[26px]">{currentId ? planName(currentId, effective) : t("overview.noPlan")}</span>
+            {scheduled ? <span className="mt-1 block text-[13px] font-normal text-(--sp-muted)">{t("license.movesTo", { plan: effective[scheduled.plan].name, date: date(scheduled.at) })}</span> : null}
+          </KitFact>
           {/* 133 A lifetime plan never ends. */}
-          <Row label={t("license.activeUntil")}>{isLifetimeEnd(license?.expiresAt) ? t("license.forLife") : date(license?.expiresAt)}</Row>
+          <KitFact stacked label={t("license.activeUntil")}>
+            {isLifetimeEnd(license?.expiresAt) ? t("license.forLife") : date(license?.expiresAt)}
+          </KitFact>
           {plugin || activation ? (
-            <Row label={t("license.activatedOn")}>
+            <KitFact stacked label={t("license.activatedOn")}>
               {activation ? (
                 <span className="flex flex-col gap-0.5">
-                  <bdi dir="ltr">{activation.siteUrl}</bdi>
-                  <span className="text-[13px] font-normal text-muted">
+                  <bdi dir="ltr" className="text-[15px]">
+                    {activation.siteUrl}
+                  </bdi>
+                  <span className="text-[13px] font-normal text-(--sp-muted)">
                     {t("license.pluginCheck", { version: activation.pluginVersion ?? "", date: formatDateTime(activation.lastCheckedAt, lang) })}
                   </span>
-                  {site?.reported ? <span className="text-[13px] font-normal text-muted">{k(siteRunsLine(site))}</span> : null}
+                  {site?.reported ? <span className="text-[13px] font-normal text-(--sp-muted)">{k(siteRunsLine(site))}</span> : null}
                 </span>
               ) : (
-                <span className="font-normal text-muted">{t("license.notActivatedSite")}</span>
+                <span className="text-[15px] font-normal text-(--sp-muted)">{t("license.notActivatedSite")}</span>
               )}
-            </Row>
+            </KitFact>
           ) : null}
-        </dl>
-        {activation ? (
-          <form action={releaseSiteAction} className="flex flex-wrap items-center gap-3 border-t border-line-soft pt-4">
-            <SubmitButton variant="secondary" className="h-10" pendingText={t("license.releasing")}>
-              <Icon name="link_off" size={18} />
-              {t("license.release")}
-            </SubmitButton>
-            <span className="text-[13px] text-muted">{t("license.releaseText")}</span>
-          </form>
-        ) : null}
-      </section>
+        </KitFacts>
+      </KitHero>
 
       {app ? (
         <UsageSection
@@ -357,28 +351,29 @@ export default async function LicensePage({ searchParams }: PageProps<"/dashboar
         />
       ) : null}
 
-      </PageGroup>
-
-      <PageGroup title={t("license.groupChange")}>
-      <section id="change-plan" aria-labelledby="h-change-plan" className="flex scroll-mt-6 flex-col gap-4 rounded-2xl border border-line bg-white p-5 sm:p-6">
-        <div className="flex flex-col gap-1">
-          <h2 id="h-change-plan" className="m-0 text-lg font-bold">
-            {currentId ? t("license.changePlan") : t("license.plans")}
-          </h2>
-          <p className="m-0 text-sm text-muted">
+      <KitSection
+        id="change-plan"
+        titleId="h-change-plan"
+        title={currentId ? t("license.changePlan") : t("license.plans")}
+        description={
+          // 73 The account's country decides the currency shown (52.9).
+          <span data-country={client.country ?? ""}>
+            {richText(client.country ? t("license.pricesFor", { country: countryName(client.country, lang) }) : t("license.pricesHere"), {
+              account: (chunk) => <Link href="/dashboard/account#h-country">{chunk}</Link>,
+            })}
+          </span>
+        }
+        help={
+          <>
             {active ? t("license.changeActive") : t("license.changeInactive")}{" "}
             {/* 103R The pricing page shows the regular plans only. */}
             {family === "regular" ? <Link href={localePath(lang, "/pricing")}>{t("license.compare")}</Link> : null}
-          </p>
-            {/* 73 The account's country decides the currency shown (52.9). */}
-            <p className="m-0 text-sm text-muted" data-country={client.country ?? ""}>
-              {richText(client.country ? t("license.pricesFor", { country: countryName(client.country, lang) }) : t("license.pricesHere"), {
-                account: (chunk) => <Link href="/dashboard/account#h-country">{chunk}</Link>,
-              })}
-            </p>
-        </div>
+          </>
+        }
+        helpLabel={t("studioPage.helpSection")}
+      >
         {scheduled && client.status !== "suspended" ? (
-          <form action={cancelScheduledPlanAction} className="flex flex-wrap items-center justify-between gap-3 rounded-xl bg-ivory px-4 py-3">
+          <form action={cancelScheduledPlanAction} className="flex flex-wrap items-center justify-between gap-3 rounded-2xl bg-(--sp-soft) px-4 py-3">
             <input type="hidden" name="appId" value={app?.id ?? ""} />
             <span className="text-[15px]">{richText(t("license.movingTo", { plan: effective[scheduled.plan].name, date: date(scheduled.at) }), tags)}</span>
             <SubmitButton variant="secondary" className="h-9 px-3 text-sm">
@@ -388,7 +383,7 @@ export default async function LicensePage({ searchParams }: PageProps<"/dashboar
         ) : null}
         {/* 133 How long to pay for: the cards show the period's price, what it comes to per month and the saving. */}
         {periodsOffered.length > 1 ? (
-          <nav aria-label={t("license.periodsLabel")} className="flex flex-wrap gap-2" data-period-tabs="">
+          <nav aria-label={t("license.periodsLabel")} className="flex w-fit max-w-full flex-wrap gap-1 rounded-2xl bg-(--sp-soft) p-1" data-period-tabs="">
             {periodsOffered.map((key) => (
               <Link
                 key={key}
@@ -396,13 +391,11 @@ export default async function LicensePage({ searchParams }: PageProps<"/dashboar
                 scroll={false}
                 aria-current={key === cardsPeriod ? "true" : undefined}
                 data-period={key}
-                className={`flex h-9 items-center gap-1.5 rounded-full border px-3.5 text-sm font-semibold no-underline ${
-                  key === "lifetime"
-                    ? "on-dark border-ember bg-midnight text-white hover:text-white"
-                    : key === cardsPeriod
-                      ? "border-midnight bg-midnight text-white hover:text-white"
-                      : "border-line text-ink-2 hover:border-line-strong hover:text-ink"
-                } ${key === "lifetime" && key === cardsPeriod ? "ring-2 ring-ember/50" : ""}`}
+                className={`flex h-9 items-center gap-1.5 rounded-xl px-3.5 text-sm font-semibold no-underline transition-colors ${
+                  key === cardsPeriod
+                    ? "bg-(--sp-surface) text-(--sp-ink) shadow-[0_1px_3px_rgba(14,13,36,0.12)] hover:text-(--sp-ink)"
+                    : "text-(--sp-muted) hover:text-(--sp-ink)"
+                } ${key === "lifetime" && key === cardsPeriod ? "ring-1 ring-ember/60" : ""}`}
               >
                 {key === "lifetime" ? <Icon name="diamond" size={16} filled className="text-ember" /> : null}
                 {periodWord(key)}
@@ -410,7 +403,7 @@ export default async function LicensePage({ searchParams }: PageProps<"/dashboar
             ))}
           </nav>
         ) : null}
-        <div className="grid gap-3 [grid-template-columns:repeat(auto-fit,minmax(min(210px,100%),1fr))]">
+        <div className="grid gap-4 [grid-template-columns:repeat(auto-fill,minmax(min(250px,100%),1fr))]">
           {shownIds.map((id) => {
             const plan = effective[id];
             const periods = cardPeriodsOf.get(id)!;
@@ -425,29 +418,29 @@ export default async function LicensePage({ searchParams }: PageProps<"/dashboar
               <div
                 key={id}
                 data-plan={id}
-                className={`flex flex-col gap-2.5 rounded-xl border p-4 ${isCurrent ? "border-2 border-midnight bg-ivory" : "border-line"}`}
+                className={`flex flex-col gap-3 rounded-3xl p-5 ${isCurrent ? "bg-(--sp-soft) ring-1 ring-(--sp-line)" : "border border-(--sp-edge) bg-(--sp-surface)"}`}
               >
                 <div className="flex flex-wrap items-center justify-between gap-2">
                   <bdi className="text-[17px] font-bold">{plan.name}</bdi>
                   {isCurrent ? (
-                    <Badge tone="success">{t("license.currentPlan")}</Badge>
+                    <KitStatus tone="success">{t("license.currentPlan")}</KitStatus>
                   ) : scheduled?.plan === id ? (
-                    <Badge tone="warn">{t("license.from", { date: date(scheduled.at) })}</Badge>
+                    <KitStatus tone="warn">{t("license.from", { date: date(scheduled.at) })}</KitStatus>
                   ) : null}
                 </div>
-                <span className="text-[15px] font-bold">
+                <span className="text-[22px] leading-tight font-bold tracking-[-0.3px]">
                   <bdi dir="ltr">{shown.price}</bdi>
-                  {shown.period ? <span className="font-normal text-muted"> / {k(shown.period)}</span> : null}
+                  {shown.period ? <span className="text-sm font-normal tracking-normal text-(--sp-muted)"> / {k(shown.period)}</span> : null}
                 </span>
                 {shownPeriod?.perMonth || shownPeriod?.saving ? (
-                  <span className="flex flex-wrap items-center gap-1.5 text-[12px] text-muted" data-per-month="">
+                  <span className="flex flex-wrap items-center gap-1.5 text-[12px] text-(--sp-muted)" data-per-month="">
                     {shownPeriod.perMonth ? <bdi>{t("license.perMonthIs", { price: shownPeriod.perMonth })}</bdi> : null}
                     {shownPeriod.saving ? <span className="rounded-full bg-success-bg px-2 py-0.5 font-bold text-success">{t("license.save", { percent: shownPeriod.saving })}</span> : null}
                   </span>
                 ) : null}
-                <ul className="m-0 flex list-none flex-col gap-1 p-0 text-[13px] text-ink-4">
+                <ul className="m-0 flex list-none flex-col gap-1.5 border-t border-(--sp-line-soft) p-0 pt-3 text-[13px] text-(--sp-muted)">
                   {planLines(plan, text, limitDefs).map((line) => (
-                    <li key={line} className="flex items-start gap-1.5">
+                    <li key={line} className="flex items-start gap-2">
                       <Icon name="check" size={16} className="mt-px text-success" />
                       {/* 133 A limit the team named in English keeps its order on an Arabic page. */}
                       <bdi className="min-w-0">{line}</bdi>
@@ -460,13 +453,13 @@ export default async function LicensePage({ searchParams }: PageProps<"/dashboar
                       <form action={scheduleDowngradeAction}>
                         <input type="hidden" name="appId" value={app?.id ?? ""} />
                         <input type="hidden" name="plan" value={id} />
-                        <SubmitButton variant="secondary" className="min-h-9 w-full px-3 py-1.5 text-sm leading-snug">
+                        <SubmitButton variant="secondary" className="min-h-10 w-full px-3 py-1.5 text-sm leading-snug">
                           {t("license.switchAtEnd")}
                         </SubmitButton>
                       </form>
                     )
                   ) : canPay ? (
-                    <Link href={licensePath(app, `?plan=${id}${periodQuery}#renew`)} className={`${direction > 0 ? btn.primary : btn.secondary} h-9 w-full px-3 text-sm`}>
+                    <Link href={licensePath(app, `?plan=${id}${periodQuery}#renew`)} className={`${direction > 0 ? btn.primary : btn.secondary} h-10 w-full px-3 text-sm`}>
                       {direction > 0 && currentId ? (
                         <>
                           <Icon name="upgrade" size={18} />
@@ -477,7 +470,7 @@ export default async function LicensePage({ searchParams }: PageProps<"/dashboar
                       )}
                     </Link>
                   ) : (
-                    <a href={contact.whatsappUrl} className={`${btn.secondary} h-9 w-full px-3 text-sm`}>
+                    <a href={contact.whatsappUrl} className={`${kit.quiet} w-full`}>
                       {t("license.askWhatsapp")}
                     </a>
                   )}
@@ -486,7 +479,7 @@ export default async function LicensePage({ searchParams }: PageProps<"/dashboar
             );
           })}
         </div>
-      </section>
+      </KitSection>
 
       {/* 133 Sold for life: its own card, dark with ember, to stand out. */}
       {lifetimePlans.length && !locked ? (
@@ -511,19 +504,13 @@ export default async function LicensePage({ searchParams }: PageProps<"/dashboar
       ) : null}
 
       {locked ? (
-        <Notice icon="diamond" role="status">
+        <KitCallout icon="diamond" role="status">
           {richText(t("license.lifetimeLocked"), tags)}
-        </Notice>
+        </KitCallout>
       ) : null}
 
       {payable.length ? (
-        <section id="renew" aria-labelledby="h-pay" className="flex scroll-mt-6 flex-col gap-4 rounded-2xl border border-line bg-white p-5 sm:p-6">
-          <div className="flex flex-col gap-1">
-            <h2 id="h-pay" className="m-0 text-lg font-bold">
-              {payTitle}
-            </h2>
-            <p className="m-0 text-sm text-muted">{state === "pending" ? t("license.payPending", { app: name }) : t("license.payActive")}</p>
-          </div>
+        <KitSection id="renew" titleId="h-pay" title={payTitle} description={state === "pending" ? t("license.payPending", { app: name }) : t("license.payActive")}>
           <PlanPaymentForm
             key={`${selected ?? "none"}:${askedPeriod ?? ""}`}
             plans={notes}
@@ -534,38 +521,33 @@ export default async function LicensePage({ searchParams }: PageProps<"/dashboar
             provider={yallappAccount ? PROVIDER_NAME[yallappAccount.provider] : "iyzico"}
             storageRenewal={storageRenewal}
           />
-        </section>
+        </KitSection>
       ) : null}
 
-      {/* 133 Add-ons for the app: services, more of a limit, a feature. */}
+      {/* 133 Add-ons for the app, 71 the payments with their receipts, and the plugin: short rows. */}
       {app && license ? (
-        <section aria-labelledby="h-addons-link" className="flex flex-wrap items-center justify-between gap-3 rounded-2xl border border-line bg-white p-5 sm:p-6">
-          <div className="flex min-w-0 items-start gap-3">
-            <Icon name="widgets" size={24} className="mt-0.5 text-accent" />
-            <div className="flex flex-col gap-0.5">
-              <h2 id="h-addons-link" className="m-0 text-lg font-bold">
-                {t("addons.title")}
-              </h2>
-              <p className="m-0 text-sm text-muted">{t("addons.planLink")}</p>
-            </div>
-          </div>
-          <Link href={addonsPath(app)} className={`${btn.secondary} h-10`}>
-            {t("addons.open")}
-          </Link>
-        </section>
+        <KitSettings>
+          <KitSettingRow
+            titleId="h-addons-link"
+            icon="widgets"
+            title={t("addons.title")}
+            description={t("addons.planLink")}
+            action={
+              <Link href={addonsPath(app)} className={kit.quiet}>
+                {t("addons.open")}
+              </Link>
+            }
+          />
+        </KitSettings>
       ) : null}
 
-      </PageGroup>
-
-      {paid.length || plugin ? (
-      <PageGroup title={t("license.groupPaid")}>
       {paid.length ? (
-        <Section titleId="h-payments" title={t("license.payments")} flush>
-          <ItemList>
-            {paid.map((p, i) => (
-              <ItemRow
+        <KitSection titleId="h-payments" title={t("license.payments")} flush>
+          <KitList>
+            {paid.map((p) => (
+              <KitRow
                 key={p.id}
-                media={<Thumb icon="receipt_long" shape="square" tint={i} />}
+                media={<KitThumb icon="receipt_long" size={40} />}
                 title={
                   <>
                     {k(paymentWhat(p, planName(p.plan, effective)))} · <bdi dir="ltr">{formatAmount(p.amountCents, p.currency)}</bdi>
@@ -573,34 +555,31 @@ export default async function LicensePage({ searchParams }: PageProps<"/dashboar
                 }
                 meta={t("license.paidOn", { date: date(p.paidAt ?? p.createdAt) })}
                 actions={
-                <>
-                  <Link href={licensePath(app, `/receipts/${p.id}`)} className={`${btn.secondary} h-9 px-3 text-sm`}>
-                    <Icon name="receipt_long" size={18} />
-                    {t("license.receipt")}
-                  </Link>
-                  {/* 71 The receipt as a PDF. */}
-                  <a href={`/dashboard/license/receipts/${p.id}/pdf`} download className={`${btn.secondary} h-9 px-3 text-sm`}>
-                    <Icon name="download" size={18} />
-                    {t("license.downloadPdf")}
-                  </a>
-                </>
+                  <>
+                    <Link href={licensePath(app, `/receipts/${p.id}`)} className={kit.ghost}>
+                      <Icon name="receipt_long" size={18} />
+                      {t("license.receipt")}
+                    </Link>
+                    {/* 71 The receipt as a PDF. */}
+                    <a href={`/dashboard/license/receipts/${p.id}/pdf`} download className={kit.ghost}>
+                      <Icon name="download" size={18} />
+                      {t("license.downloadPdf")}
+                    </a>
+                  </>
                 }
               />
             ))}
-          </ItemList>
-        </Section>
+          </KitList>
+        </KitSection>
       ) : null}
 
       {plugin ? (
-        <section aria-labelledby="h-plugin" className="flex flex-col gap-4 rounded-2xl border border-line bg-white p-5 sm:p-6">
-          <h2 id="h-plugin" className="m-0 text-lg font-bold">
-            {t("license.plugin")}
-          </h2>
+        <KitSection titleId="h-plugin" title={t("license.plugin")} help={richText(t("license.pluginUpdates"), tags)} helpLabel={t("studioPage.helpSection")}>
           {release ? (
             <div className="flex flex-wrap items-center justify-between gap-3">
               <div className="flex flex-col gap-0.5">
                 <span className="text-[15px] font-bold">{t("license.pluginVersion", { version: release.version })}</span>
-                <span className="text-[13px] text-muted">{t("license.requires", { wp: release.requiresWp, php: release.requiresPhp, date: date(release.createdAt) })}</span>
+                <span className="text-[13px] text-(--sp-muted)">{t("license.requires", { wp: release.requiresWp, php: release.requiresPhp, date: date(release.createdAt) })}</span>
               </div>
               {state === "active" ? (
                 // A file download from an API route, not a page.
@@ -610,17 +589,14 @@ export default async function LicensePage({ searchParams }: PageProps<"/dashboar
                   {t("license.downloadPlugin")}
                 </a>
               ) : (
-                <span className="text-sm text-muted">{t("license.needsActive")}</span>
+                <span className="text-sm text-(--sp-muted)">{t("license.needsActive")}</span>
               )}
             </div>
           ) : (
-            <p className="m-0 text-[15px] text-muted">{t("license.pluginSoon")}</p>
+            <p className="m-0 text-[15px] text-(--sp-muted)">{t("license.pluginSoon")}</p>
           )}
-          <p className="m-0 text-sm text-muted">{richText(t("license.pluginUpdates"), tags)}</p>
-        </section>
+        </KitSection>
       ) : null}
-      </PageGroup>
-      ) : null}
-    </div>
+    </KitPage>
   );
 }

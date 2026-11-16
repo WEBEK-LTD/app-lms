@@ -231,7 +231,10 @@ test("the member joins from the email, and sees only Orders", async ({ browser }
 
 test("the member completes the order on the dashboard, and the owner sees who did it", async () => {
   await member.goto("/dashboard/orders");
+  // 132.132 The order's lines are in its drawer; completing it is the row's one action.
+  await member.getByRole("button", { name: /^Order \d+/ }).click();
   await expect(member.getByText("Copper pot")).toBeVisible();
+  await member.keyboard.press("Escape");
   await member.getByRole("button", { name: "Mark completed" }).click();
   await expect(member.getByText("Completed").first()).toBeVisible();
   await own.goto("/dashboard/team");
