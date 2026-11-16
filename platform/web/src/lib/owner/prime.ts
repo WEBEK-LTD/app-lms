@@ -357,14 +357,15 @@ export async function setPrimeAlerts(ctx: OwnerContext, params: Record<string, s
     } else if (next.kind === "low_stock") {
       // 132 Told at this many left or fewer.
       const value = item.threshold;
-      if (value !== undefined) {
+      if (value !== undefined && value !== null) {
         if (typeof value !== "number" || !Number.isInteger(value) || value < 0 || value > 1000) errors[`items[${i}].threshold`] = "The request isn't valid.";
         else next.threshold = value;
       }
     } else if (next.kind === "sales_goal") {
       // 132 A goal for the day, the week (Monday to Sunday) or the month, in the app's main currency.
-      n("amount_cents", 1, 1_000_000_000_000, "amountCents", true);
-      if (item.period !== undefined) {
+      // Saved at 0 while off (the app sends every alert); on needs an amount.
+      n("amount_cents", 0, 1_000_000_000_000, "amountCents", true);
+      if (item.period !== undefined && item.period !== null) {
         if (item.period !== "day" && item.period !== "week" && item.period !== "month") errors[`items[${i}].period`] = "The request isn't valid.";
         else if (item.period !== next.period) {
           next.period = item.period;
@@ -372,6 +373,7 @@ export async function setPrimeAlerts(ctx: OwnerContext, params: Record<string, s
         }
       }
       if (item.amount_cents !== undefined && item.amount_cents !== current.alerts[at]!.amountCents) next.reachedFor = null;
+      if (next.on && (next.amountCents ?? 0) <= 0) errors[`items[${i}].amount_cents`] = "Enter the goal's amount.";
     } else {
       n("minutes", 1, 240, "minutes", true);
     }

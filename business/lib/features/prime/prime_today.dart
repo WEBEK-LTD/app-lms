@@ -12,6 +12,7 @@ import '../../core/widgets/l10n.dart';
 import '../../core/widgets/states.dart';
 import '../account/apps_screen.dart';
 import '../studio/studio_widgets.dart';
+import 'prime_more.dart' show GiftBadge;
 import 'prime_widgets.dart';
 
 /// 125 A Prime app's smart alerts (Today's tile and their screen).
@@ -158,6 +159,15 @@ class PrimeHeader extends ConsumerWidget {
                             app.typeName,
                             style: TextStyle(fontSize: 12, color: c.onHead2),
                           ),
+                          // 132 Prime given by Yallapp as a gift.
+                          if (app.primeGift)
+                            Padding(
+                              padding: const EdgeInsets.only(top: 4),
+                              child: GiftBadge(
+                                until: app.primeGiftUntil,
+                                onDark: true,
+                              ),
+                            ),
                         ],
                       ),
                     ),
@@ -315,6 +325,14 @@ class PrimeTiles extends ConsumerWidget {
               ? l10n.alertsHelp
               : l10n.alertsOnCount(alerts.onCount),
           onTap: () => context.push(Paths.smartAlerts),
+        ),
+        // 132 Who buys (the quick actions are in More).
+        InfoTile(
+          icon: AppIcons.users,
+          iconColor: c.gold,
+          title: l10n.customersInsights,
+          text: l10n.primeMoreCustomersHelp,
+          onTap: () => context.push(Paths.primeCustomers),
         ),
       ],
     );

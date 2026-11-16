@@ -1264,6 +1264,81 @@ class HttpOwnerApi implements OwnerApi {
         await _put('${_app(appId)}/prime/alerts', alerts.toJson()),
       );
 
+  // 132 Prime's second set.
+
+  @override
+  Future<PrimeCustomers> primeCustomers(
+    String appId, {
+    String period = 'month',
+  }) async => PrimeCustomers.fromJson(
+    await _get('${_app(appId)}/prime/customers', query: {'period': period}),
+  );
+
+  @override
+  Future<PrimeProducts> primeProducts(
+    String appId, {
+    String period = 'month',
+  }) async => PrimeProducts.fromJson(
+    await _get('${_app(appId)}/prime/products', query: {'period': period}),
+  );
+
+  @override
+  Future<PrimeReviews> primeReviews(String appId) async =>
+      PrimeReviews.fromJson(await _get('${_app(appId)}/prime/reviews'));
+
+  @override
+  Future<WeeklyReport> weeklyReport(String appId) async =>
+      WeeklyReport.fromJson(await _get('${_app(appId)}/prime/weekly-report'));
+
+  @override
+  Future<WeeklyReport> setWeeklyReport(String appId, bool on) async =>
+      WeeklyReport.fromJson(
+        await _put('${_app(appId)}/prime/weekly-report', {'on': on}),
+      );
+
+  @override
+  Future<String> createCoupon(String appId, Json coupon) async =>
+      str(await _post('${_app(appId)}/prime/coupons', coupon), 'code');
+
+  @override
+  Future<String> createFlashSale(String appId, Json sale) async =>
+      str(await _post('${_app(appId)}/prime/flash-sales', sale), 'title');
+
+  @override
+  Future<SlotsDay> deliverySlots(String appId, {String? date}) async =>
+      SlotsDay.fromJson(
+        await _get(
+          '${_app(appId)}/prime/delivery-slots',
+          query: {'date': ?date},
+        ),
+      );
+
+  @override
+  Future<SlotsDay> setSlotClosed(
+    String appId,
+    String slotId, {
+    required String date,
+    required bool closed,
+  }) async => SlotsDay.fromJson(
+    await _put(
+      '${_app(appId)}/prime/delivery-slots/${Uri.encodeComponent(slotId)}',
+      {'date': date, 'closed': closed},
+    ),
+  );
+
+  @override
+  Future<DateTime?> setRestaurantBusy(
+    String appId,
+    String restaurantId,
+    int minutes,
+  ) async => optDate(
+    await _put(
+      '${_app(appId)}/restaurants/${Uri.encodeComponent(restaurantId)}/busy',
+      {'minutes': minutes},
+    ),
+    'busy_until',
+  );
+
   // 125 VIP.
 
   @override

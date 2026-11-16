@@ -3428,6 +3428,250 @@ class AppLocalizationsEn extends AppLocalizations {
   String get lockImmediately => 'Immediately';
 
   @override
+  String get customersInsights => 'Customers';
+
+  @override
+  String get productsInsights => 'Products';
+
+  @override
+  String get reviewsRatings => 'Ratings and reviews';
+
+  @override
+  String get aCustomer => 'A customer';
+
+  @override
+  String lastOrder(String when) {
+    return 'last order $when';
+  }
+
+  @override
+  String get customersLabel => 'Customers';
+
+  @override
+  String get newCustomers => 'New';
+
+  @override
+  String get cameBack => 'Came back';
+
+  @override
+  String get topCustomers => 'Best customers';
+
+  @override
+  String get noCustomersYet => 'No customers in this period yet.';
+
+  @override
+  String get nobodyAway => 'Nobody here: they keep coming back.';
+
+  @override
+  String get namesHidden =>
+      'Names show to the team members who may see orders.';
+
+  @override
+  String get soldOutTag => 'Sold out';
+
+  @override
+  String get nothingSoldYet => 'Nothing sold in this period yet.';
+
+  @override
+  String get slowMovers => 'Slow movers';
+
+  @override
+  String get nothingSlow => 'Every product is selling.';
+
+  @override
+  String get runningLow => 'Running low or sold out';
+
+  @override
+  String get stockFine => 'Stock is fine for everything.';
+
+  @override
+  String get priceAndStock => 'Prices, stock and what shows';
+
+  @override
+  String get priceAndStockHelp => 'Change a product in Catalog';
+
+  @override
+  String get averageRating => 'Average rating';
+
+  @override
+  String get ratingsCount => 'Ratings';
+
+  @override
+  String get noReviewsYet => 'No ratings yet';
+
+  @override
+  String get replyInInbox => 'Reply in Inbox';
+
+  @override
+  String get repliedInInbox => 'Replied · open in Inbox';
+
+  @override
+  String get newCoupon => 'New coupon';
+
+  @override
+  String get newCouponHelp => 'A code for a share or an amount off';
+
+  @override
+  String couponSaved(String code) {
+    return 'Coupon $code is ready.';
+  }
+
+  @override
+  String get couponCode => 'Code';
+
+  @override
+  String get percentOff => 'Percent off';
+
+  @override
+  String get amountOff => 'Amount off';
+
+  @override
+  String get percentValueField => 'Percent off (1–100)';
+
+  @override
+  String get amountValueField => 'Amount off';
+
+  @override
+  String get newFlashSale => 'New flash sale';
+
+  @override
+  String get newFlashSaleHelp => 'A share off some products, starting now';
+
+  @override
+  String flashSaleSaved(String title) {
+    return '$title is on.';
+  }
+
+  @override
+  String get saleName => 'Name';
+
+  @override
+  String get saleLasts => 'It lasts';
+
+  @override
+  String get saleProducts => 'Products on sale';
+
+  @override
+  String get deliveryToday => 'Today\'s delivery times';
+
+  @override
+  String get slotOpen => 'Open';
+
+  @override
+  String get slotClosedToday => 'Closed today';
+
+  @override
+  String get slotClosed => 'Closed for today: the app no longer offers it.';
+
+  @override
+  String get slotOpened => 'Open again.';
+
+  @override
+  String get busyMode => 'Busy mode';
+
+  @override
+  String busyFor(String name) {
+    return '$name is busy';
+  }
+
+  @override
+  String get busyHelp =>
+      'It takes no new orders for a while; the customers see when it opens again.';
+
+  @override
+  String get takeOrdersNow => 'Take orders now';
+
+  @override
+  String takingOrders(String name) {
+    return '$name takes orders again.';
+  }
+
+  @override
+  String get takingOrdersShort => 'Taking orders';
+
+  @override
+  String busyUntilShort(String time) {
+    return 'Busy until $time';
+  }
+
+  @override
+  String get noQuickActions => 'Your app has no quick actions.';
+
+  @override
+  String get goalReached => 'Goal reached!';
+
+  @override
+  String goalProgress(String current, String target) {
+    return '$current of $target';
+  }
+
+  @override
+  String get primeGift => 'Prime · Gift from Yallapp';
+
+  @override
+  String primeGiftUntil(String date) {
+    return 'Prime · Gift from Yallapp until $date';
+  }
+
+  @override
+  String get alertLowStock => 'Low stock';
+
+  @override
+  String get alertSalesGoal => 'Sales goal';
+
+  @override
+  String goalWhen(String amount, String period) {
+    return '$amount a $period';
+  }
+
+  @override
+  String get periodDay => 'day';
+
+  @override
+  String get periodWeek => 'week';
+
+  @override
+  String get periodMonth => 'month';
+
+  @override
+  String get goalNotSet => 'Set an amount for the day, week or month';
+
+  @override
+  String get goalPeriodField => 'Each';
+
+  @override
+  String get thresholdField => 'Tell me at this many left';
+
+  @override
+  String get weeklyReport => 'Weekly report by email';
+
+  @override
+  String weeklyReportHelp(String email) {
+    return 'Every Monday to $email: sales, orders, best sellers and customers.';
+  }
+
+  @override
+  String get primeMoreCustomersHelp =>
+      'New and returning, the best, the ones who stopped coming';
+
+  @override
+  String get primeMoreProductsHelp => 'Best sellers, slow movers, low stock';
+
+  @override
+  String get primeMoreReviewsHelp => 'Every rating, and replies';
+
+  @override
+  String get primeMoreActionsHelp =>
+      'Coupons, flash sales, delivery times, busy mode';
+
+  @override
+  String get primeGoalsHelp =>
+      'A goal for the day, week or month, with a ring on Today';
+
+  @override
+  String get primeWeeklyHelp => 'A summary by email every Monday';
+
+  @override
   String minutesAgo(int count) {
     return '$count min ago';
   }
@@ -3836,6 +4080,99 @@ class AppLocalizationsEn extends AppLocalizations {
       locale: localeName,
       other: '$count points',
       one: '1 point',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String ordersCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count orders',
+      one: '1 order',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String away30(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count away 30 to 60 days',
+      one: '1 away 30 to 60 days',
+      zero: 'Away 30 to 60 days',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String away60(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count away more than 60 days',
+      one: '1 away more than 60 days',
+      zero: 'Away more than 60 days',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String leftCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count left',
+      one: '1 left',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String unitsSold(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count sold',
+      one: '1 sold',
+      zero: 'None sold',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String starsOf(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count stars out of 5',
+      one: '1 star out of 5',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String hoursShort(int hours) {
+    String _temp0 = intl.Intl.pluralLogic(
+      hours,
+      locale: localeName,
+      other: '$hours hours',
+      one: '1 hour',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String lowStockAlertHint(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'Low stock in Smart alerts tells you at $count left.',
+      one: 'Low stock in Smart alerts tells you at 1 left.',
+      zero:
+          'Turn on Low stock in Smart alerts to hear when something sells out.',
     );
     return '$_temp0';
   }

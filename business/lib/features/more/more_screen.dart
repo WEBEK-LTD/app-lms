@@ -276,6 +276,34 @@ class MoreScreen extends ConsumerWidget {
                 l10n.lookTitle,
                 () => context.push(Paths.look),
               ),
+              // 132 Prime's second set, where the app has each.
+              tile(
+                AppIcons.users,
+                l10n.customersInsights,
+                () => context.push(Paths.primeCustomers),
+                subtitle: l10n.primeMoreCustomersHelp,
+              ),
+              if (f.products)
+                tile(
+                  AppIcons.products,
+                  l10n.productsInsights,
+                  () => context.push(Paths.primeProducts),
+                  subtitle: l10n.primeMoreProductsHelp,
+                ),
+              if (f.foodOrders || f.market || f.rides || f.reviews)
+                tile(
+                  AppIcons.star,
+                  l10n.reviewsRatings,
+                  () => context.push(Paths.primeReviews),
+                  subtitle: l10n.primeMoreReviewsHelp,
+                ),
+              if (f.products || f.restaurants)
+                tile(
+                  AppIcons.priority,
+                  l10n.quickActions,
+                  () => context.push(Paths.quickActions),
+                  subtitle: l10n.primeMoreActionsHelp,
+                ),
               if (me.accountManager != null)
                 tile(
                   AppIcons.vip,

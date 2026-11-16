@@ -436,6 +436,36 @@ abstract class OwnerApi {
   Future<PrimeAlerts> primeAlerts(String appId);
   Future<PrimeAlerts> setPrimeAlerts(String appId, PrimeAlerts alerts);
 
+  // 132 Prime's second set: insights, reviews, the weekly report, quick actions.
+  Future<PrimeCustomers> primeCustomers(
+    String appId, {
+    String period = 'month',
+  });
+  Future<PrimeProducts> primeProducts(String appId, {String period = 'month'});
+  Future<PrimeReviews> primeReviews(String appId);
+  Future<WeeklyReport> weeklyReport(String appId);
+  Future<WeeklyReport> setWeeklyReport(String appId, bool on);
+
+  /// A coupon: its code once saved (field errors as [ApiException.fieldErrors]).
+  Future<String> createCoupon(String appId, Json coupon);
+
+  /// A flash sale: its title once saved.
+  Future<String> createFlashSale(String appId, Json sale);
+  Future<SlotsDay> deliverySlots(String appId, {String? date});
+  Future<SlotsDay> setSlotClosed(
+    String appId,
+    String slotId, {
+    required String date,
+    required bool closed,
+  });
+
+  /// A restaurant's busy time (0: open again); when it ends.
+  Future<DateTime?> setRestaurantBusy(
+    String appId,
+    String restaurantId,
+    int minutes,
+  );
+
   // 125 VIP: the account manager's free times, and a call booked.
   Future<List<CallDay>> accountManagerSlots();
   Future<BookedCall> bookAccountManagerCall({

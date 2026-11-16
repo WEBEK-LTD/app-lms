@@ -649,6 +649,25 @@ class FakeOwnerApi with _FakeStudio implements OwnerApi {
         ),
     ];
 
+    // 132 Leqaa's bouquets and its add-ons (never on a flash sale).
+    _products[flowersId] = [
+      for (final (id, name, cents, stock, sales, addon) in const [
+        (11, 'Blush Garden', 180000, 18, 42, false),
+        (12, 'White Peony Vase', 95000, 6, 12, false),
+        (13, 'Sunflower bunch', 40000, 0, 22, false),
+        (14, 'Red Roses · 12 stems', 70000, 2, 31, false),
+        (21, 'Belgian chocolate box', 25000, 40, 19, true),
+      ])
+        Product(
+          id: id,
+          name: name,
+          price: money(cents, 'EGP'),
+          stock: stock,
+          available: true,
+          sales: sales,
+          addon: addon,
+        ),
+    ];
     _products[restaurantId] = [
       Product(
         id: 401,
@@ -1400,7 +1419,12 @@ class FakeOwnerApi with _FakeStudio implements OwnerApi {
     return Today(
       date: _day(now),
       timeZone: 'Europe/Istanbul',
-      sales: f.orders ? [money(orders.length * 48500)] : const [],
+      // 132 Leqaa sells in Egyptian pounds: its orders' own total.
+      sales: !f.orders
+          ? const []
+          : appId == flowersId
+          ? [money(orders.fold(0, (n, o) => n + o.total.amountCents), 'EGP')]
+          : [money(orders.length * 48500)],
       donations: f.donations ? [money(185000, 'EGP')] : const [],
       counts: TodayCounts(
         orders: f.orders ? orders.length : null,
@@ -1417,6 +1441,20 @@ class FakeOwnerApi with _FakeStudio implements OwnerApi {
         appOpens: f.analytics ? 342 : null,
       ),
       hasAppOpens: f.analytics,
+      // 132 A Prime store's goal ring and comparison.
+      compare: f.prime
+          ? const TodayCompare(
+              salesChangePct: 18,
+              ordersChangePct: 9,
+              label: 'vs last week',
+            )
+          : null,
+      goal: f.prime
+          ? _goalOf(
+              appId,
+              money(orders.fold(0, (n, o) => n + o.total.amountCents), 'EGP'),
+            )
+          : null,
       needsYou: [
         if (processing > 0)
           NeedsYou(

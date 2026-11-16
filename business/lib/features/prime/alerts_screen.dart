@@ -80,6 +80,39 @@ class _AlertsScreenState extends ConsumerState<AlertsScreen> {
 
   Future<void> _edit(PrimeAlerts all, AlertSetting a) async {
     final l10n = context.l10n;
+    // 132 A goal: its amount and its period.
+    if (a.kind == 'sales_goal') {
+      final result = await showFootSheet<(int, String)>(
+        context,
+        (sheet) => _GoalForm(
+          currency: _currency(),
+          amountCents: a.amountCents ?? 0,
+          period: a.period ?? 'day',
+        ),
+      );
+      if (result == null || !mounted) return;
+      await _save(
+        _with(
+          all,
+          a.copyWith(on: true, amountCents: result.$1, period: result.$2),
+        ),
+      );
+      return;
+    }
+    if (a.kind == 'low_stock') {
+      final picked = await showFootSheet<int>(
+        context,
+        (sheet) => _NumberForm(
+          label: l10n.thresholdField,
+          value: a.threshold ?? 3,
+          min: 0,
+          max: 1000,
+        ),
+      );
+      if (picked == null || !mounted) return;
+      await _save(_with(all, a.copyWith(on: true, threshold: picked)));
+      return;
+    }
     if (a.kind == 'sales_low') {
       final result = await showFootSheet<(int, String)>(
         context,
@@ -172,9 +205,18 @@ class _AlertsScreenState extends ConsumerState<AlertsScreen> {
                               : () => _edit(all, all.items[i]),
                           onChanged: _saving
                               ? null
-                              : (on) => _save(
-                                  _with(all, all.items[i].copyWith(on: on)),
-                                ),
+                              // 132 A goal without its amount asks for it first.
+                              : (on) =>
+                                    on &&
+                                        all.items[i].kind == 'sales_goal' &&
+                                        (all.items[i].amountCents ?? 0) <= 0
+                                    ? _edit(all, all.items[i])
+                                    : _save(
+                                        _with(
+                                          all,
+                                          all.items[i].copyWith(on: on),
+                                        ),
+                                      ),
                         ),
                     ],
                   ),
@@ -223,6 +265,8 @@ class _AlertsScreenState extends ConsumerState<AlertsScreen> {
                 ),
               ),
               const SizedBox(height: 12),
+              const _WeeklyReportTile(),
+              const SizedBox(height: 12),
               Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 4),
                 child: Text(
@@ -245,6 +289,14 @@ class _AlertsScreenState extends ConsumerState<AlertsScreen> {
         a.byTime ?? '18:00',
       ),
       'low_rating' => l10n.starsOrLess(a.stars ?? 2),
+      'low_stock' => l10n.leftCount(a.threshold ?? 3),
+      'sales_goal' =>
+        (a.amountCents ?? 0) <= 0
+            ? l10n.goalNotSet
+            : l10n.goalWhen(
+                _amount(a.amountCents!),
+                periodWord(context, a.period ?? 'day'),
+              ),
       _ => l10n.afterMinutes(a.minutes ?? 5),
     };
   }
@@ -260,6 +312,9 @@ class _AlertsScreenState extends ConsumerState<AlertsScreen> {
     'message_unanswered' => (AppIcons.inbox, l10n.alertMessage),
     'low_rating' => (AppIcons.lowRating, l10n.alertLowRating),
     'ride_no_driver' => (AppIcons.rides, l10n.alertNoDriver),
+    // 132
+    'low_stock' => (AppIcons.products, l10n.alertLowStock),
+    'sales_goal' => (AppIcons.trendUp, l10n.alertSalesGoal),
     _ => (AppIcons.smartAlerts, kind),
   };
 }
@@ -448,6 +503,170 @@ class _SalesFormState extends State<_SalesForm> {
           },
         ),
       ],
+    );
+  }
+}
+
+/// 132 "day", "week", "month".
+String periodWord(BuildContext context, String period) {
+  final l10n = context.l10n;
+  return switch (period) {
+    'week' => l10n.periodWeek,
+    'month' => l10n.periodMonth,
+    _ => l10n.periodDay,
+  };
+}
+
+/// 132 A sales goal: the amount and whether it's for the day, the week or
+/// the month.
+class _GoalForm extends StatefulWidget {
+  const _GoalForm({
+    required this.currency,
+    required this.amountCents,
+    required this.period,
+  });
+
+  final String currency;
+  final int amountCents;
+  final String period;
+
+  @override
+  State<_GoalForm> createState() => _GoalFormState();
+}
+
+class _GoalFormState extends State<_GoalForm> {
+  late final _amount = TextEditingController(
+    text: widget.amountCents > 0 ? '${widget.amountCents ~/ 100}' : '',
+  );
+  late String _period = widget.period;
+  String? _error;
+
+  @override
+  void dispose() {
+    _amount.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final l10n = context.l10n;
+    return Column(
+      mainAxisSize: MainAxisSize.min,
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        Text(
+          l10n.alertSalesGoal,
+          style: Theme.of(context).textTheme.titleLarge,
+        ),
+        const SizedBox(height: 12),
+        TextField(
+          controller: _amount,
+          autofocus: true,
+          keyboardType: TextInputType.number,
+          inputFormatters: [FilteringTextInputFormatter.digitsOnly],
+          decoration: InputDecoration(
+            labelText: l10n.amountField(widget.currency),
+            errorText: _error,
+          ),
+        ),
+        const SizedBox(height: 12),
+        Text(
+          l10n.goalPeriodField,
+          style: Theme.of(context).textTheme.titleSmall,
+        ),
+        const SizedBox(height: 6),
+        SegmentedButton<String>(
+          segments: [
+            for (final p in const ['day', 'week', 'month'])
+              ButtonSegment(value: p, label: Text(periodWord(context, p))),
+          ],
+          selected: {_period},
+          onSelectionChanged: (v) => setState(() => _period = v.first),
+        ),
+        const SizedBox(height: 12),
+        BigButton(
+          label: l10n.save,
+          onPressed: () {
+            final n = int.tryParse(_amount.text);
+            if (n == null || n <= 0) {
+              setState(() => _error = l10n.amountField(widget.currency));
+              return;
+            }
+            Navigator.pop(context, (n * 100, _period));
+          },
+        ),
+      ],
+    );
+  }
+}
+
+final _weeklyProvider = FutureProvider.autoDispose<WeeklyReport>(
+  (ref) => ref.watch(apiProvider).weeklyReport(ref.watch(appIdProvider)),
+);
+
+/// 132 The weekly report by email: on or off for this app.
+class _WeeklyReportTile extends ConsumerStatefulWidget {
+  const _WeeklyReportTile();
+
+  @override
+  ConsumerState<_WeeklyReportTile> createState() => _WeeklyReportTileState();
+}
+
+class _WeeklyReportTileState extends ConsumerState<_WeeklyReportTile> {
+  bool _busy = false;
+
+  @override
+  Widget build(BuildContext context) {
+    final l10n = context.l10n;
+    final c = context.yb;
+    final report = ref.watch(_weeklyProvider).value;
+    if (report == null) return const SizedBox.shrink();
+    return Box(
+      radius: 18,
+      padding: const EdgeInsetsDirectional.fromSTEB(14, 4, 14, 4),
+      child: Row(
+        children: [
+          Icon(AppIcons.email, color: c.gold),
+          const SizedBox(width: 12),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  l10n.weeklyReport,
+                  style: const TextStyle(
+                    fontSize: 15,
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
+                Text(
+                  l10n.weeklyReportHelp(isolate(report.email ?? '')),
+                  style: TextStyle(fontSize: 13, color: c.ink2),
+                ),
+              ],
+            ),
+          ),
+          PrimeSwitch(
+            value: report.on,
+            label: l10n.weeklyReport,
+            onChanged: _busy
+                ? null
+                : (on) async {
+                    setState(() => _busy = true);
+                    try {
+                      await ref
+                          .read(apiProvider)
+                          .setWeeklyReport(ref.read(appIdProvider), on);
+                      ref.invalidate(_weeklyProvider);
+                    } on Object catch (e) {
+                      if (context.mounted) showError(context, e);
+                    } finally {
+                      if (mounted) setState(() => _busy = false);
+                    }
+                  },
+          ),
+        ],
+      ),
     );
   }
 }

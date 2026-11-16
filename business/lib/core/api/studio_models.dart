@@ -1456,6 +1456,8 @@ class AlertSetting {
     this.amountCents,
     this.byTime,
     this.stars,
+    this.threshold,
+    this.period,
   });
 
   factory AlertSetting.fromJson(Json json) => AlertSetting(
@@ -1465,6 +1467,8 @@ class AlertSetting {
     amountCents: optInt(json, 'amount_cents'),
     byTime: optStr(json, 'by_time'),
     stars: optInt(json, 'stars'),
+    threshold: optInt(json, 'threshold'),
+    period: optStr(json, 'period'),
   );
 
   /// order_waiting, shipment_unassigned, sales_low, message_unanswered,
@@ -1478,12 +1482,20 @@ class AlertSetting {
   final String? byTime;
   final int? stars;
 
+  /// 132 low_stock: told at this many left or fewer.
+  final int? threshold;
+
+  /// 132 sales_goal: day, week or month (its amount in [amountCents]).
+  final String? period;
+
   AlertSetting copyWith({
     bool? on,
     int? minutes,
     int? amountCents,
     String? byTime,
     int? stars,
+    int? threshold,
+    String? period,
   }) => AlertSetting(
     kind: kind,
     on: on ?? this.on,
@@ -1491,6 +1503,8 @@ class AlertSetting {
     amountCents: amountCents ?? this.amountCents,
     byTime: byTime ?? this.byTime,
     stars: stars ?? this.stars,
+    threshold: threshold ?? this.threshold,
+    period: period ?? this.period,
   );
 
   Json toJson() => {
@@ -1500,6 +1514,8 @@ class AlertSetting {
     'amount_cents': amountCents,
     'by_time': byTime,
     'stars': stars,
+    if (kind == 'low_stock') 'threshold': threshold,
+    if (kind == 'sales_goal') 'period': period,
   };
 }
 
@@ -1616,4 +1632,213 @@ class BookedCall {
 
   /// requested, confirmed…
   final String status;
+}
+
+// 132 Prime's second set.
+
+/// A customer in the insights (their name only for those who may see orders).
+class PrimePerson {
+  const PrimePerson({
+    required this.orders,
+    required this.spend,
+    required this.lastOrderAt,
+    this.name,
+  });
+
+  factory PrimePerson.fromJson(Json json) => PrimePerson(
+    name: optStr(json, 'name'),
+    orders: integer(json, 'orders'),
+    spend: Money.fromJson(optObject(json, 'spend') ?? const {}),
+    lastOrderAt: date(json, 'last_order_at'),
+  );
+
+  final String? name;
+  final int orders;
+  final Money spend;
+  final DateTime lastOrderAt;
+}
+
+class PrimeCustomers {
+  const PrimeCustomers({
+    required this.period,
+    required this.customers,
+    required this.fresh,
+    required this.returning,
+    this.top = const [],
+    this.lapsed30 = 0,
+    this.lapsed30People = const [],
+    this.lapsed60 = 0,
+    this.lapsed60People = const [],
+    this.namesShown = true,
+  });
+
+  factory PrimeCustomers.fromJson(Json json) {
+    final l30 = optObject(json, 'lapsed_30') ?? const {};
+    final l60 = optObject(json, 'lapsed_60') ?? const {};
+    return PrimeCustomers(
+      period: str(json, 'period', 'month'),
+      customers: integer(json, 'customers'),
+      fresh: integer(json, 'new'),
+      returning: integer(json, 'returning'),
+      top: listOf(json, 'top', PrimePerson.fromJson),
+      lapsed30: integer(l30, 'count'),
+      lapsed30People: listOf(l30, 'people', PrimePerson.fromJson),
+      lapsed60: integer(l60, 'count'),
+      lapsed60People: listOf(l60, 'people', PrimePerson.fromJson),
+      namesShown: boolean(json, 'names_shown', true),
+    );
+  }
+
+  final String period;
+  final int customers;
+  final int fresh;
+  final int returning;
+  final List<PrimePerson> top;
+  final int lapsed30;
+  final List<PrimePerson> lapsed30People;
+  final int lapsed60;
+  final List<PrimePerson> lapsed60People;
+  final bool namesShown;
+}
+
+class PrimeProduct {
+  const PrimeProduct({
+    required this.id,
+    required this.name,
+    required this.units,
+    required this.total,
+    this.stock,
+  });
+
+  factory PrimeProduct.fromJson(Json json) => PrimeProduct(
+    id: str(json, 'id'),
+    name: str(json, 'name'),
+    units: integer(json, 'units'),
+    total: Money.fromJson(optObject(json, 'total') ?? const {}),
+    stock: optInt(json, 'stock'),
+  );
+
+  final String id;
+  final String name;
+  final int units;
+  final Money total;
+  final int? stock;
+}
+
+class PrimeProducts {
+  const PrimeProducts({
+    required this.period,
+    required this.threshold,
+    this.best = const [],
+    this.slow = const [],
+    this.lowStock = const [],
+    this.outOfStock = const [],
+  });
+
+  factory PrimeProducts.fromJson(Json json) => PrimeProducts(
+    period: str(json, 'period', 'month'),
+    threshold: integer(json, 'threshold', 3),
+    best: listOf(json, 'best', PrimeProduct.fromJson),
+    slow: listOf(json, 'slow', PrimeProduct.fromJson),
+    lowStock: listOf(json, 'low_stock', PrimeProduct.fromJson),
+    outOfStock: listOf(json, 'out_of_stock', PrimeProduct.fromJson),
+  );
+
+  final String period;
+  final int threshold;
+  final List<PrimeProduct> best;
+  final List<PrimeProduct> slow;
+  final List<PrimeProduct> lowStock;
+  final List<PrimeProduct> outOfStock;
+}
+
+class PrimeReview {
+  const PrimeReview({
+    required this.source,
+    required this.id,
+    required this.rating,
+    required this.at,
+    required this.about,
+    this.comment,
+    this.name,
+    this.canReply = false,
+    this.reply,
+  });
+
+  factory PrimeReview.fromJson(Json json) => PrimeReview(
+    source: str(json, 'source'),
+    id: str(json, 'id'),
+    rating: integer(json, 'rating'),
+    comment: optStr(json, 'comment'),
+    at: date(json, 'at'),
+    name: optStr(json, 'name'),
+    about: str(json, 'about'),
+    canReply: boolean(json, 'can_reply'),
+    reply: optStr(json, 'reply'),
+  );
+
+  /// food, market, ride or course.
+  final String source;
+  final String id;
+  final int rating;
+  final String? comment;
+  final DateTime at;
+  final String? name;
+  final String about;
+  final bool canReply;
+  final String? reply;
+}
+
+class PrimeReviews {
+  const PrimeReviews({
+    required this.count,
+    this.average,
+    this.items = const [],
+  });
+
+  factory PrimeReviews.fromJson(Json json) => PrimeReviews(
+    average: optNumber(json, 'average'),
+    count: integer(json, 'count'),
+    items: listOf(json, 'items', PrimeReview.fromJson),
+  );
+
+  final double? average;
+  final int count;
+  final List<PrimeReview> items;
+}
+
+class WeeklyReport {
+  const WeeklyReport({required this.on, this.email});
+
+  factory WeeklyReport.fromJson(Json json) =>
+      WeeklyReport(on: boolean(json, 'on'), email: optStr(json, 'email'));
+
+  final bool on;
+  final String? email;
+}
+
+/// A day's delivery slots, each open or closed by the owner.
+class SlotsDay {
+  const SlotsDay({
+    required this.date,
+    required this.dateLabel,
+    this.slots = const [],
+  });
+
+  factory SlotsDay.fromJson(Json json) => SlotsDay(
+    date: str(json, 'date'),
+    dateLabel: str(json, 'date_label'),
+    slots: [
+      for (final s in jsonList(json, 'slots'))
+        (
+          id: str(s, 'id'),
+          label: str(s, 'label'),
+          closed: boolean(s, 'closed'),
+        ),
+    ],
+  );
+
+  final String date;
+  final String dateLabel;
+  final List<({String id, String label, bool closed})> slots;
 }

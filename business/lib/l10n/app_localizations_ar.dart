@@ -3414,6 +3414,250 @@ class AppLocalizationsAr extends AppLocalizations {
   String get lockImmediately => 'فورًا';
 
   @override
+  String get customersInsights => 'العملاء';
+
+  @override
+  String get productsInsights => 'المنتجات';
+
+  @override
+  String get reviewsRatings => 'التقييمات والمراجعات';
+
+  @override
+  String get aCustomer => 'عميل';
+
+  @override
+  String lastOrder(String when) {
+    return 'آخر طلب $when';
+  }
+
+  @override
+  String get customersLabel => 'العملاء';
+
+  @override
+  String get newCustomers => 'جدد';
+
+  @override
+  String get cameBack => 'عادوا';
+
+  @override
+  String get topCustomers => 'أفضل العملاء';
+
+  @override
+  String get noCustomersYet => 'لا عملاء في هذه الفترة بعد.';
+
+  @override
+  String get nobodyAway => 'لا أحد هنا: كلهم يعودون.';
+
+  @override
+  String get namesHidden =>
+      'تظهر الأسماء لأعضاء الفريق الذين يحق لهم رؤية الطلبات.';
+
+  @override
+  String get soldOutTag => 'نفدت الكمية';
+
+  @override
+  String get nothingSoldYet => 'لم يُبع شيء في هذه الفترة بعد.';
+
+  @override
+  String get slowMovers => 'الأبطأ مبيعًا';
+
+  @override
+  String get nothingSlow => 'كل المنتجات تُباع.';
+
+  @override
+  String get runningLow => 'مخزون منخفض أو نافد';
+
+  @override
+  String get stockFine => 'المخزون كافٍ لكل المنتجات.';
+
+  @override
+  String get priceAndStock => 'الأسعار والمخزون وما يظهر';
+
+  @override
+  String get priceAndStockHelp => 'عدّل منتجًا من الكتالوج';
+
+  @override
+  String get averageRating => 'متوسط التقييم';
+
+  @override
+  String get ratingsCount => 'التقييمات';
+
+  @override
+  String get noReviewsYet => 'لا تقييمات بعد';
+
+  @override
+  String get replyInInbox => 'الرد من البريد الوارد';
+
+  @override
+  String get repliedInInbox => 'تم الرد · افتح البريد الوارد';
+
+  @override
+  String get newCoupon => 'قسيمة جديدة';
+
+  @override
+  String get newCouponHelp => 'رمز لنسبة خصم أو مبلغ';
+
+  @override
+  String couponSaved(String code) {
+    return 'القسيمة $code جاهزة.';
+  }
+
+  @override
+  String get couponCode => 'الرمز';
+
+  @override
+  String get percentOff => 'نسبة خصم';
+
+  @override
+  String get amountOff => 'مبلغ خصم';
+
+  @override
+  String get percentValueField => 'نسبة الخصم (1–100)';
+
+  @override
+  String get amountValueField => 'مبلغ الخصم';
+
+  @override
+  String get newFlashSale => 'عرض سريع جديد';
+
+  @override
+  String get newFlashSaleHelp => 'خصم على بعض المنتجات يبدأ الآن';
+
+  @override
+  String flashSaleSaved(String title) {
+    return 'بدأ $title.';
+  }
+
+  @override
+  String get saleName => 'الاسم';
+
+  @override
+  String get saleLasts => 'المدة';
+
+  @override
+  String get saleProducts => 'المنتجات المخفّضة';
+
+  @override
+  String get deliveryToday => 'مواعيد التوصيل اليوم';
+
+  @override
+  String get slotOpen => 'مفتوح';
+
+  @override
+  String get slotClosedToday => 'مغلق اليوم';
+
+  @override
+  String get slotClosed => 'أُغلق اليوم: لم يعد التطبيق يعرضه.';
+
+  @override
+  String get slotOpened => 'فُتح من جديد.';
+
+  @override
+  String get busyMode => 'وضع الانشغال';
+
+  @override
+  String busyFor(String name) {
+    return '$name مشغول';
+  }
+
+  @override
+  String get busyHelp =>
+      'لا يستقبل طلبات جديدة لفترة، ويرى العملاء موعد عودته.';
+
+  @override
+  String get takeOrdersNow => 'استقبال الطلبات الآن';
+
+  @override
+  String takingOrders(String name) {
+    return 'يستقبل $name الطلبات من جديد.';
+  }
+
+  @override
+  String get takingOrdersShort => 'يستقبل الطلبات';
+
+  @override
+  String busyUntilShort(String time) {
+    return 'مشغول حتى $time';
+  }
+
+  @override
+  String get noQuickActions => 'لا توجد إجراءات سريعة لتطبيقك.';
+
+  @override
+  String get goalReached => 'تحقّق الهدف!';
+
+  @override
+  String goalProgress(String current, String target) {
+    return '$current من $target';
+  }
+
+  @override
+  String get primeGift => 'برايم · هدية من يلا آب';
+
+  @override
+  String primeGiftUntil(String date) {
+    return 'برايم · هدية من يلا آب حتى $date';
+  }
+
+  @override
+  String get alertLowStock => 'مخزون منخفض';
+
+  @override
+  String get alertSalesGoal => 'هدف المبيعات';
+
+  @override
+  String goalWhen(String amount, String period) {
+    return '$amount في $period';
+  }
+
+  @override
+  String get periodDay => 'اليوم';
+
+  @override
+  String get periodWeek => 'الأسبوع';
+
+  @override
+  String get periodMonth => 'الشهر';
+
+  @override
+  String get goalNotSet => 'حدّد مبلغًا لليوم أو الأسبوع أو الشهر';
+
+  @override
+  String get goalPeriodField => 'لكل';
+
+  @override
+  String get thresholdField => 'أخبرني عندما يتبقى هذا العدد';
+
+  @override
+  String get weeklyReport => 'التقرير الأسبوعي بالبريد';
+
+  @override
+  String weeklyReportHelp(String email) {
+    return 'كل يوم اثنين إلى $email: المبيعات والطلبات والأكثر مبيعًا والعملاء.';
+  }
+
+  @override
+  String get primeMoreCustomersHelp =>
+      'الجدد والعائدون والأفضل ومن توقفوا عن الطلب';
+
+  @override
+  String get primeMoreProductsHelp => 'الأكثر مبيعًا والأبطأ والمخزون المنخفض';
+
+  @override
+  String get primeMoreReviewsHelp => 'كل التقييمات والردود';
+
+  @override
+  String get primeMoreActionsHelp =>
+      'القسائم والعروض السريعة ومواعيد التوصيل ووضع الانشغال';
+
+  @override
+  String get primeGoalsHelp =>
+      'هدف لليوم أو الأسبوع أو الشهر مع حلقة تقدّم في الرئيسية';
+
+  @override
+  String get primeWeeklyHelp => 'ملخص بالبريد كل يوم اثنين';
+
+  @override
   String minutesAgo(int count) {
     return 'قبل $count دقيقة';
   }
@@ -3934,6 +4178,122 @@ class AppLocalizationsAr extends AppLocalizations {
       few: '$count نقاط',
       two: 'نقطتان',
       one: 'نقطة واحدة',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String ordersCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count طلب',
+      many: '$count طلبًا',
+      few: '$count طلبات',
+      two: 'طلبان',
+      one: 'طلب واحد',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String away30(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count عميل غائب من 30 إلى 60 يومًا',
+      many: '$count عميلًا غائبًا من 30 إلى 60 يومًا',
+      few: '$count عملاء غائبون من 30 إلى 60 يومًا',
+      two: 'عميلان غائبان من 30 إلى 60 يومًا',
+      one: 'عميل غائب من 30 إلى 60 يومًا',
+      zero: 'غائبون من 30 إلى 60 يومًا',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String away60(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count عميل غائب أكثر من 60 يومًا',
+      many: '$count عميلًا غائبًا أكثر من 60 يومًا',
+      few: '$count عملاء غائبون أكثر من 60 يومًا',
+      two: 'عميلان غائبان أكثر من 60 يومًا',
+      one: 'عميل غائب أكثر من 60 يومًا',
+      zero: 'غائبون أكثر من 60 يومًا',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String leftCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'بقي $count',
+      many: 'بقي $count',
+      few: 'بقي $count',
+      two: 'بقي اثنان',
+      one: 'بقي واحد',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String unitsSold(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'بيعت $count قطعة',
+      many: 'بيعت $count قطعة',
+      few: 'بيعت $count قطع',
+      two: 'بيعت قطعتان',
+      one: 'بيعت قطعة واحدة',
+      zero: 'لم يُبع شيء',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String starsOf(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count نجمة من 5',
+      many: '$count نجمة من 5',
+      few: '$count نجوم من 5',
+      two: 'نجمتان من 5',
+      one: 'نجمة واحدة من 5',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String hoursShort(int hours) {
+    String _temp0 = intl.Intl.pluralLogic(
+      hours,
+      locale: localeName,
+      other: '$hours ساعة',
+      many: '$hours ساعة',
+      few: '$hours ساعات',
+      two: 'ساعتان',
+      one: 'ساعة',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String lowStockAlertHint(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'يخبرك تنبيه المخزون المنخفض حين يتبقى $count.',
+      many: 'يخبرك تنبيه المخزون المنخفض حين يتبقى $count.',
+      few: 'يخبرك تنبيه المخزون المنخفض حين يتبقى $count.',
+      two: 'يخبرك تنبيه المخزون المنخفض حين يتبقى اثنان.',
+      one: 'يخبرك تنبيه المخزون المنخفض حين يتبقى واحد.',
+      zero: 'فعّل تنبيه المخزون المنخفض في التنبيهات الذكية لتعرف حين تنفد الكمية.',
     );
     return '$_temp0';
   }

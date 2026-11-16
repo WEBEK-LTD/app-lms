@@ -3431,6 +3431,251 @@ class AppLocalizationsTr extends AppLocalizations {
   String get lockImmediately => 'Hemen';
 
   @override
+  String get customersInsights => 'Müşteriler';
+
+  @override
+  String get productsInsights => 'Ürünler';
+
+  @override
+  String get reviewsRatings => 'Puanlar ve yorumlar';
+
+  @override
+  String get aCustomer => 'Bir müşteri';
+
+  @override
+  String lastOrder(String when) {
+    return 'son sipariş $when';
+  }
+
+  @override
+  String get customersLabel => 'Müşteri';
+
+  @override
+  String get newCustomers => 'Yeni';
+
+  @override
+  String get cameBack => 'Geri gelen';
+
+  @override
+  String get topCustomers => 'En iyi müşteriler';
+
+  @override
+  String get noCustomersYet => 'Bu dönemde henüz müşteri yok.';
+
+  @override
+  String get nobodyAway => 'Burada kimse yok: hepsi geri geliyor.';
+
+  @override
+  String get namesHidden =>
+      'İsimler, siparişleri görebilen ekip üyelerine gösterilir.';
+
+  @override
+  String get soldOutTag => 'Tükendi';
+
+  @override
+  String get nothingSoldYet => 'Bu dönemde henüz satış yok.';
+
+  @override
+  String get slowMovers => 'Yavaş satanlar';
+
+  @override
+  String get nothingSlow => 'Her ürün satılıyor.';
+
+  @override
+  String get runningLow => 'Azalan veya tükenen';
+
+  @override
+  String get stockFine => 'Tüm ürünlerin stoku yeterli.';
+
+  @override
+  String get priceAndStock => 'Fiyat, stok ve görünürlük';
+
+  @override
+  String get priceAndStockHelp => 'Katalog\'da bir ürünü değiştirin';
+
+  @override
+  String get averageRating => 'Ortalama puan';
+
+  @override
+  String get ratingsCount => 'Puan';
+
+  @override
+  String get noReviewsYet => 'Henüz puan yok';
+
+  @override
+  String get replyInInbox => 'Gelen Kutusu\'nda yanıtla';
+
+  @override
+  String get repliedInInbox => 'Yanıtlandı · Gelen Kutusu\'nda aç';
+
+  @override
+  String get newCoupon => 'Yeni kupon';
+
+  @override
+  String get newCouponHelp => 'Yüzde veya tutar indirimi için kod';
+
+  @override
+  String couponSaved(String code) {
+    return '$code kuponu hazır.';
+  }
+
+  @override
+  String get couponCode => 'Kod';
+
+  @override
+  String get percentOff => 'Yüzde indirim';
+
+  @override
+  String get amountOff => 'Tutar indirimi';
+
+  @override
+  String get percentValueField => 'İndirim yüzdesi (1–100)';
+
+  @override
+  String get amountValueField => 'İndirim tutarı';
+
+  @override
+  String get newFlashSale => 'Yeni flaş indirim';
+
+  @override
+  String get newFlashSaleHelp => 'Bazı ürünlerde şimdi başlayan indirim';
+
+  @override
+  String flashSaleSaved(String title) {
+    return '$title başladı.';
+  }
+
+  @override
+  String get saleName => 'Ad';
+
+  @override
+  String get saleLasts => 'Süre';
+
+  @override
+  String get saleProducts => 'İndirimdeki ürünler';
+
+  @override
+  String get deliveryToday => 'Bugünün teslimat saatleri';
+
+  @override
+  String get slotOpen => 'Açık';
+
+  @override
+  String get slotClosedToday => 'Bugün kapalı';
+
+  @override
+  String get slotClosed => 'Bugün için kapatıldı: uygulama artık sunmuyor.';
+
+  @override
+  String get slotOpened => 'Yeniden açık.';
+
+  @override
+  String get busyMode => 'Yoğun modu';
+
+  @override
+  String busyFor(String name) {
+    return '$name yoğun';
+  }
+
+  @override
+  String get busyHelp =>
+      'Bir süre yeni sipariş almaz; müşteriler ne zaman açılacağını görür.';
+
+  @override
+  String get takeOrdersNow => 'Şimdi sipariş al';
+
+  @override
+  String takingOrders(String name) {
+    return '$name yeniden sipariş alıyor.';
+  }
+
+  @override
+  String get takingOrdersShort => 'Sipariş alıyor';
+
+  @override
+  String busyUntilShort(String time) {
+    return '$time saatine kadar yoğun';
+  }
+
+  @override
+  String get noQuickActions => 'Uygulamanızda hızlı işlem yok.';
+
+  @override
+  String get goalReached => 'Hedefe ulaşıldı!';
+
+  @override
+  String goalProgress(String current, String target) {
+    return '$target hedefinin $current kadarı';
+  }
+
+  @override
+  String get primeGift => 'Prime · Yallapp\'ten hediye';
+
+  @override
+  String primeGiftUntil(String date) {
+    return 'Prime · $date tarihine kadar Yallapp\'ten hediye';
+  }
+
+  @override
+  String get alertLowStock => 'Düşük stok';
+
+  @override
+  String get alertSalesGoal => 'Satış hedefi';
+
+  @override
+  String goalWhen(String amount, String period) {
+    return '$period başına $amount';
+  }
+
+  @override
+  String get periodDay => 'gün';
+
+  @override
+  String get periodWeek => 'hafta';
+
+  @override
+  String get periodMonth => 'ay';
+
+  @override
+  String get goalNotSet => 'Gün, hafta veya ay için bir tutar belirleyin';
+
+  @override
+  String get goalPeriodField => 'Her';
+
+  @override
+  String get thresholdField => 'Bu kadar kaldığında haber ver';
+
+  @override
+  String get weeklyReport => 'E-postayla haftalık rapor';
+
+  @override
+  String weeklyReportHelp(String email) {
+    return 'Her pazartesi $email adresine: satışlar, siparişler, en çok satanlar ve müşteriler.';
+  }
+
+  @override
+  String get primeMoreCustomersHelp =>
+      'Yeni ve geri gelenler, en iyiler, gelmeyi bırakanlar';
+
+  @override
+  String get primeMoreProductsHelp =>
+      'En çok satanlar, yavaş satanlar, düşük stok';
+
+  @override
+  String get primeMoreReviewsHelp => 'Tüm puanlar ve yanıtlar';
+
+  @override
+  String get primeMoreActionsHelp =>
+      'Kuponlar, flaş indirimler, teslimat saatleri, yoğun modu';
+
+  @override
+  String get primeGoalsHelp =>
+      'Gün, hafta veya ay için hedef, Bugün\'de halkasıyla';
+
+  @override
+  String get primeWeeklyHelp => 'Her pazartesi e-postayla özet';
+
+  @override
   String minutesAgo(int count) {
     return '$count dk önce';
   }
@@ -3766,6 +4011,92 @@ class AppLocalizationsTr extends AppLocalizations {
       locale: localeName,
       other: '$count puan',
       one: '1 puan',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String ordersCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count sipariş',
+      one: '1 sipariş',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String away30(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '30–60 gündür gelmeyen $count kişi',
+      zero: '30–60 gündür gelmeyenler',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String away60(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '60 günden fazla gelmeyen $count kişi',
+      zero: '60 günden fazla gelmeyenler',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String leftCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count kaldı',
+      one: '1 kaldı',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String unitsSold(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count satıldı',
+      zero: 'Satış yok',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String starsOf(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '5 üzerinden $count yıldız',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String hoursShort(int hours) {
+    String _temp0 = intl.Intl.pluralLogic(
+      hours,
+      locale: localeName,
+      other: '$hours saat',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String lowStockAlertHint(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'Akıllı uyarılar\'daki Düşük stok, $count kaldığında haber verir.',
+      zero: 'Bir ürün tükendiğinde haber almak için Akıllı uyarılar\'da Düşük stok\'u açın.',
     );
     return '$_temp0';
   }

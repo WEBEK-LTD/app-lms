@@ -1588,6 +1588,7 @@ mixin _FakeStudio implements OwnerApi {
       morningBrief: f.prime && f.foodOrders
           ? 'Yesterday: ₺21,060 from 168 orders. Busiest hour 20:00–21:00. Burger Lab sold most.'
           : null,
+      goal: f.prime ? _goalOf(id, FakeOwnerApi.money(sales)) : null,
       needsYou: [
         if (f.foodOrders && newFood > 0)
           NeedsYou(
@@ -2601,6 +2602,10 @@ mixin _FakeStudio implements OwnerApi {
       if (f.market) {'kind': 'message_unanswered', 'on': false, 'minutes': 10},
       if (f.foodOrders || f.rides || f.market)
         {'kind': 'low_rating', 'on': false, 'stars': 2},
+      // 132 A store's stock running low; a sales goal for whatever sells.
+      if (f.products) {'kind': 'low_stock', 'on': false, 'threshold': 3},
+      if (!f.school)
+        {'kind': 'sales_goal', 'on': false, 'amount_cents': 0, 'period': 'day'},
     ],
     // Every alert and the brief start off, as on the server.
     'morning_brief': {'on': false, 'time': '08:30'},
@@ -2639,9 +2644,295 @@ mixin _FakeStudio implements OwnerApi {
       final by = a.byTime;
       if (by != null && !time.hasMatch(by)) _invalid('Choose a time.');
     }
+    for (final a in alerts.items) {
+      if (a.kind == 'sales_goal' && a.on && (a.amountCents ?? 0) <= 0) {
+        _invalid("Enter the goal's amount.", {
+          'amount_cents': "Enter the goal's amount.",
+        });
+      }
+    }
     if (!time.hasMatch(alerts.briefTime)) _invalid('Choose a time.');
     _alerts[appId] = alerts.toJson();
     return PrimeAlerts.fromJson(_alerts[appId]!);
+  }
+
+  // 132 Prime's second set.
+
+  /// What the quick actions changed (tests read it).
+  final coupons = <String, List<Json>>{};
+  final flashSales = <String, List<Json>>{};
+  final closedSlots = <String, Set<String>>{};
+  final busyUntil = <String, DateTime?>{};
+  bool weeklyOn = true;
+
+  @override
+  Future<PrimeCustomers> primeCustomers(
+    String appId, {
+    String period = 'month',
+  }) async {
+    await _call('primeCustomers:$period');
+    final app = _app(appId, (f) => f.prime);
+    final cur = app.id == foodId || app.id == ridesId ? 'TRY' : 'EGP';
+    Json person(String name, int orders, int cents, Duration ago) => {
+      'name': name,
+      'orders': orders,
+      'spend': _money(cents, cur),
+      'last_order_at': _at(ago),
+    };
+    return PrimeCustomers.fromJson({
+      'period': period,
+      'customers': period == 'week' ? 18 : 64,
+      'new': period == 'week' ? 7 : 22,
+      'returning': period == 'week' ? 11 : 42,
+      'top': [
+        person('Omar Nabil', 6, 1240000, const Duration(days: 1)),
+        person('Salma Fathy', 4, 860000, const Duration(days: 3)),
+        person('Karim Adel', 3, 520000, const Duration(days: 6)),
+      ],
+      'lapsed_30': {
+        'count': 9,
+        'people': [
+          person('Hana Mostafa', 5, 610000, const Duration(days: 38)),
+          person('Youssef Ali', 2, 190000, const Duration(days: 44)),
+        ],
+      },
+      'lapsed_60': {
+        'count': 14,
+        'people': [person('Nour Hany', 3, 400000, const Duration(days: 75))],
+      },
+      'names_shown': true,
+    });
+  }
+
+  @override
+  Future<PrimeProducts> primeProducts(
+    String appId, {
+    String period = 'month',
+  }) async {
+    await _call('primeProducts:$period');
+    final app = _app(appId, (f) => f.prime);
+    if (!app.features.products) _notAvailable();
+    Json product(int id, String name, int units, int cents, int? stock) => {
+      'id': id,
+      'name': name,
+      'units': units,
+      'total': _money(cents, 'EGP'),
+      'stock': stock,
+    };
+    return PrimeProducts.fromJson({
+      'period': period,
+      'threshold': 3,
+      'best': [
+        product(11, 'Blush Garden', 42, 6090000, 18),
+        product(14, 'Red Roses · 12 stems', 31, 2170000, 2),
+        product(12, 'White Peony Vase', 12, 1140000, 6),
+      ],
+      'slow': [
+        product(16, 'Orchid in a pot', 0, 0, 9),
+        product(17, 'Dried lavender', 1, 18000, 14),
+      ],
+      'low_stock': [product(14, 'Red Roses · 12 stems', 31, 2170000, 2)],
+      'out_of_stock': [product(13, 'Sunflower bunch', 22, 880000, 0)],
+    });
+  }
+
+  static Never _notAvailable() => throw const ApiException(
+    code: ApiException.notAvailable,
+    statusCode: 404,
+  );
+
+  @override
+  Future<PrimeReviews> primeReviews(String appId) async {
+    await _call('primeReviews');
+    final app = _app(appId, (f) => f.prime);
+    final f = app.features;
+    if (!(f.foodOrders || f.market || f.rides || f.reviews)) _notAvailable();
+    final source = f.foodOrders
+        ? 'food'
+        : f.market
+        ? 'market'
+        : 'ride';
+    Json review(
+      int id,
+      int rating,
+      String? comment,
+      String name,
+      String about,
+      Duration ago,
+    ) => {
+      'source': source,
+      'id': id,
+      'rating': rating,
+      'comment': comment,
+      'at': _at(ago),
+      'name': name,
+      'about': about,
+      'can_reply': false,
+      'reply': null,
+    };
+    return PrimeReviews.fromJson({
+      'average': 4.3,
+      'count': 4,
+      'items': [
+        review(
+          48,
+          5,
+          'Hot and fast, thank you!',
+          'Ayşe Kaya',
+          'Burger Lab',
+          const Duration(hours: 2),
+        ),
+        review(
+          47,
+          2,
+          'The fries were cold.',
+          'Mert Demir',
+          'Burger Lab',
+          const Duration(hours: 5),
+        ),
+        review(
+          45,
+          5,
+          null,
+          'Elif Şahin',
+          'Pide House',
+          const Duration(days: 1),
+        ),
+        review(
+          41,
+          5,
+          'Perfect as always.',
+          'Can Yıldız',
+          'Pide House',
+          const Duration(days: 2),
+        ),
+      ],
+    });
+  }
+
+  @override
+  Future<WeeklyReport> weeklyReport(String appId) async {
+    await _call('weeklyReport');
+    _app(appId, (f) => f.prime);
+    return WeeklyReport(on: weeklyOn, email: 'owner@example.com');
+  }
+
+  @override
+  Future<WeeklyReport> setWeeklyReport(String appId, bool on) async {
+    await _call('setWeeklyReport:$on');
+    _app(appId, (f) => f.prime);
+    weeklyOn = on;
+    return WeeklyReport(on: on, email: 'owner@example.com');
+  }
+
+  @override
+  Future<String> createCoupon(String appId, Json coupon) async {
+    await _call('createCoupon');
+    final app = _app(appId, (f) => f.prime);
+    if (!app.features.products) _notAvailable();
+    final code = '${coupon['code'] ?? ''}'.trim().toUpperCase();
+    final errors = <String, String>{
+      if (!RegExp(r'^[A-Z0-9-]{2,50}$').hasMatch(code))
+        'code': 'Use 2 to 50 letters, digits or dashes, like SPRING10.',
+      if ((int.tryParse('${coupon['value']}') ?? 0) < 1)
+        'value': 'Enter a percentage from 1 to 100.',
+      if ((coupons[appId] ?? const []).any((c) => c['code'] == code))
+        'code': 'You already have a coupon with this code.',
+    };
+    if (errors.isNotEmpty) _invalid("The request isn't valid.", errors);
+    (coupons[appId] ??= []).add({...coupon, 'code': code});
+    return code;
+  }
+
+  @override
+  Future<String> createFlashSale(String appId, Json sale) async {
+    await _call('createFlashSale');
+    final app = _app(appId, (f) => f.prime);
+    if (!app.features.products) _notAvailable();
+    final title = '${sale['title'] ?? ''}'.trim();
+    final errors = <String, String>{
+      if (title.length < 2) 'title': 'Give it a name of up to 80 characters.',
+      if ((sale['product_ids'] as List? ?? const []).isEmpty)
+        'product_ids': 'Choose the products on sale, or a category.',
+    };
+    if (errors.isNotEmpty) _invalid("The request isn't valid.", errors);
+    (flashSales[appId] ??= []).add(sale);
+    return title;
+  }
+
+  @override
+  Future<SlotsDay> deliverySlots(String appId, {String? date}) async {
+    await _call('deliverySlots');
+    final app = _app(appId, (f) => f.prime);
+    if (!app.features.products) _notAvailable();
+    final day = date ?? _isoDay(now);
+    final closed = closedSlots[appId] ?? const <String>{};
+    return SlotsDay.fromJson({
+      'date': day,
+      'date_label': day,
+      'slots': [
+        for (final (id, label) in const [
+          ('morning', '10:00–13:00'),
+          ('afternoon', '13:00–16:00'),
+          ('evening', '16:00–19:00'),
+          ('night', '19:00–22:00'),
+        ])
+          {'id': id, 'label': label, 'closed': closed.contains('$day:$id')},
+      ],
+    });
+  }
+
+  @override
+  Future<SlotsDay> setSlotClosed(
+    String appId,
+    String slotId, {
+    required String date,
+    required bool closed,
+  }) async {
+    await _call('setSlotClosed:$slotId:$closed');
+    final set = closedSlots[appId] ??= {};
+    closed ? set.add('$date:$slotId') : set.remove('$date:$slotId');
+    return deliverySlots(appId, date: date);
+  }
+
+  @override
+  Future<DateTime?> setRestaurantBusy(
+    String appId,
+    String restaurantId,
+    int minutes,
+  ) async {
+    await _call('setRestaurantBusy:$restaurantId:$minutes');
+    _app(appId, (f) => f.restaurants);
+    final until = minutes == 0 ? null : now.add(Duration(minutes: minutes));
+    busyUntil[restaurantId] = until;
+    final r = _one(_restaurants, appId, restaurantId);
+    r['busy_until'] = until?.toUtc().toIso8601String();
+    return until;
+  }
+
+  /// 132 Today's goal ring, from the person's `sales_goal`.
+  TodayGoal? _goalOf(String appId, Money? sales) {
+    final saved = _alerts[appId];
+    if (saved == null) return null;
+    final goal = PrimeAlerts.fromJson(saved).items
+        .where((a) => a.kind == 'sales_goal' && a.on)
+        .firstOrNull;
+    final target = goal?.amountCents ?? 0;
+    if (goal == null || target <= 0) return null;
+    final current = sales?.amountCents ?? 0;
+    final currency = sales?.currency ?? 'TRY';
+    return TodayGoal(
+      period: goal.period ?? 'day',
+      target: FakeOwnerApi.money(target, currency),
+      current: FakeOwnerApi.money(current, currency),
+      pct: (current * 100 ~/ target).clamp(0, 100),
+      reached: current >= target,
+      label: switch (goal.period) {
+        'week' => "This week's goal",
+        'month' => "This month's goal",
+        _ => "Today's goal",
+      },
+    );
   }
 
   // 10. VIP

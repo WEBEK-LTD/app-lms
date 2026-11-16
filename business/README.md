@@ -181,6 +181,19 @@ front, Android 13's `setRecentsScreenshotEnabled(false)` (older Android:
 `FLAG_SECURE`) and an iOS blur (`AppDelegate.swift`), through the
 `tr.com.yallapp.business/privacy` channel (`lib/core/services/privacy.dart`).
 
+Prime's second set (132, `lib/features/prime/prime_more.dart`), each only
+where the app has it: Customers (new and returning, the best customers by
+spend, those away 30 or 60 days; names only for the team members who may
+see orders), Products (best sellers, slow movers, running low, sold out),
+Ratings and reviews, Quick actions (a coupon, a flash sale, today's delivery
+times closed or opened, a restaurant's busy mode; prices, stock and what
+shows in Catalog), a sales goal for the day, week or month with its ring on
+Today and a push when it's reached, low stock as a smart alert, and the
+weekly report by email (the app's weekly summary, with Prime's best sellers
+and customers). An app given Prime as a gift by Yallapp
+(`AppSummary.prime_gift`) shows "Prime · Gift from Yallapp"; a regular app's
+Prime page lists all of it, with nothing to buy.
+
 Each screen and quick action is shown only when the app has it
 (`AppSummary.features`): the second tab is the app's main tool (Events,
 Appointments, Orders, Donations or its catalog), Inbox and Stats appear when

@@ -565,6 +565,8 @@ class AppSummary {
     this.iconUrl,
     this.plan,
     this.access = const AppAccess(),
+    this.primeGift = false,
+    this.primeGiftUntil,
   });
 
   factory AppSummary.fromJson(Json json) => AppSummary(
@@ -581,6 +583,11 @@ class AppSummary {
     access: switch (optObject(json, 'access')) {
       final Json access => AppAccess.fromJson(access),
       null => const AppAccess(),
+    },
+    primeGift: optObject(json, 'prime_gift') != null,
+    primeGiftUntil: switch (optObject(json, 'prime_gift')) {
+      final Json gift => optDate(gift, 'until'),
+      null => null,
     },
   );
 
@@ -603,6 +610,11 @@ class AppSummary {
 
   /// 60 What the signed-in person may do on it.
   final AppAccess access;
+
+  /// 132 Prime given by Yallapp as a gift (whatever the plan), until when
+  /// (null: until Yallapp removes it).
+  final bool primeGift;
+  final DateTime? primeGiftUntil;
 
   bool get isRestaurant => vertical == 'restaurant' || features.kitchen;
   bool get hosted => backend == 'hosted';
@@ -841,6 +853,7 @@ class Today {
     this.hasAppOpens = false,
     this.compare,
     this.morningBrief,
+    this.goal,
   });
 
   factory Today.fromJson(Json json) {
@@ -858,6 +871,7 @@ class Today {
         optObject(json, 'morning_brief') ?? const {},
         'text',
       ),
+      goal: TodayGoal.opt(json, 'goal'),
     );
   }
 
@@ -876,6 +890,42 @@ class Today {
 
   /// 125 Yesterday in a line (`morning_brief.text`), when sent.
   final String? morningBrief;
+
+  /// 132 The person's sales goal and how far it is (Prime).
+  final TodayGoal? goal;
+}
+
+/// 132 A sales goal for the day, the week or the month, and how far it is.
+class TodayGoal {
+  const TodayGoal({
+    required this.period,
+    required this.target,
+    required this.current,
+    required this.pct,
+    required this.reached,
+    required this.label,
+  });
+
+  static TodayGoal? opt(Json json, String key) {
+    final g = optObject(json, key);
+    if (g == null) return null;
+    return TodayGoal(
+      period: str(g, 'period', 'day'),
+      target: Money.fromJson(optObject(g, 'target') ?? const {}),
+      current: Money.fromJson(optObject(g, 'current') ?? const {}),
+      pct: integer(g, 'pct'),
+      reached: boolean(g, 'reached'),
+      label: str(g, 'label'),
+    );
+  }
+
+  /// day, week or month.
+  final String period;
+  final Money target;
+  final Money current;
+  final int pct;
+  final bool reached;
+  final String label;
 }
 
 class Paged<T> {
@@ -1835,6 +1885,7 @@ class Product {
     this.salePrice,
     this.stock,
     this.imageUrl,
+    this.addon = false,
   });
 
   factory Product.fromJson(Json json) => Product(
@@ -1846,11 +1897,15 @@ class Product {
     available: boolean(json, 'available', true),
     imageUrl: optStr(json, 'image_url'),
     sales: integer(json, 'sales'),
+    addon: boolean(json, 'addon'),
   );
 
   final int id;
   final String name;
   final Money price;
+
+  /// 131 Sold only as a gift add-on with another product.
+  final bool addon;
   final Money? salePrice;
 
   /// Null for no limit.

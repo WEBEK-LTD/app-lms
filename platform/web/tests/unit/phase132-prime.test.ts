@@ -518,6 +518,22 @@ describe("132 Prime as a gift and Prime's second set", () => {
         })
       ).status,
     ).toBe(400);
+    // Off at 0 is kept (the app sends every alert each time).
+    expect(
+      (
+        await put({
+          items: [
+            {
+              kind: "sales_goal",
+              on: false,
+              amount_cents: 0,
+              period: null,
+              threshold: null,
+            },
+          ],
+        })
+      ).status,
+    ).toBe(200);
     const saved = await put({
       items: [
         { kind: "sales_goal", on: true, amount_cents: 1000_00, period: "day" },

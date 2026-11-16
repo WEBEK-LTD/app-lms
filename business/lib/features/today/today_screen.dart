@@ -12,6 +12,7 @@ import '../../core/widgets/l10n.dart';
 import '../../core/widgets/states.dart';
 import '../account/apps_screen.dart';
 import '../prime/prime_state.dart';
+import '../prime/prime_more.dart' show GoalCard;
 import '../prime/prime_today.dart';
 import '../studio/studio_widgets.dart';
 
@@ -499,6 +500,14 @@ class _PrimeToday extends ConsumerWidget {
         children: [
           if (brief != null) ...[
             BriefCard(text: brief),
+            const SizedBox(height: 12),
+          ],
+          // 132 The sales goal's ring.
+          if (today.goal != null) ...[
+            GoalCard(
+              goal: today.goal!,
+              onTap: () => context.push(Paths.smartAlerts),
+            ),
             const SizedBox(height: 12),
           ],
           Padding(

@@ -6142,6 +6142,444 @@ abstract class AppLocalizations {
   /// **'Immediately'**
   String get lockImmediately;
 
+  /// No description provided for @customersInsights.
+  ///
+  /// In en, this message translates to:
+  /// **'Customers'**
+  String get customersInsights;
+
+  /// No description provided for @productsInsights.
+  ///
+  /// In en, this message translates to:
+  /// **'Products'**
+  String get productsInsights;
+
+  /// No description provided for @reviewsRatings.
+  ///
+  /// In en, this message translates to:
+  /// **'Ratings and reviews'**
+  String get reviewsRatings;
+
+  /// No description provided for @aCustomer.
+  ///
+  /// In en, this message translates to:
+  /// **'A customer'**
+  String get aCustomer;
+
+  /// No description provided for @lastOrder.
+  ///
+  /// In en, this message translates to:
+  /// **'last order {when}'**
+  String lastOrder(String when);
+
+  /// No description provided for @customersLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Customers'**
+  String get customersLabel;
+
+  /// No description provided for @newCustomers.
+  ///
+  /// In en, this message translates to:
+  /// **'New'**
+  String get newCustomers;
+
+  /// No description provided for @cameBack.
+  ///
+  /// In en, this message translates to:
+  /// **'Came back'**
+  String get cameBack;
+
+  /// No description provided for @topCustomers.
+  ///
+  /// In en, this message translates to:
+  /// **'Best customers'**
+  String get topCustomers;
+
+  /// No description provided for @noCustomersYet.
+  ///
+  /// In en, this message translates to:
+  /// **'No customers in this period yet.'**
+  String get noCustomersYet;
+
+  /// No description provided for @nobodyAway.
+  ///
+  /// In en, this message translates to:
+  /// **'Nobody here: they keep coming back.'**
+  String get nobodyAway;
+
+  /// No description provided for @namesHidden.
+  ///
+  /// In en, this message translates to:
+  /// **'Names show to the team members who may see orders.'**
+  String get namesHidden;
+
+  /// No description provided for @soldOutTag.
+  ///
+  /// In en, this message translates to:
+  /// **'Sold out'**
+  String get soldOutTag;
+
+  /// No description provided for @nothingSoldYet.
+  ///
+  /// In en, this message translates to:
+  /// **'Nothing sold in this period yet.'**
+  String get nothingSoldYet;
+
+  /// No description provided for @slowMovers.
+  ///
+  /// In en, this message translates to:
+  /// **'Slow movers'**
+  String get slowMovers;
+
+  /// No description provided for @nothingSlow.
+  ///
+  /// In en, this message translates to:
+  /// **'Every product is selling.'**
+  String get nothingSlow;
+
+  /// No description provided for @runningLow.
+  ///
+  /// In en, this message translates to:
+  /// **'Running low or sold out'**
+  String get runningLow;
+
+  /// No description provided for @stockFine.
+  ///
+  /// In en, this message translates to:
+  /// **'Stock is fine for everything.'**
+  String get stockFine;
+
+  /// No description provided for @priceAndStock.
+  ///
+  /// In en, this message translates to:
+  /// **'Prices, stock and what shows'**
+  String get priceAndStock;
+
+  /// No description provided for @priceAndStockHelp.
+  ///
+  /// In en, this message translates to:
+  /// **'Change a product in Catalog'**
+  String get priceAndStockHelp;
+
+  /// No description provided for @averageRating.
+  ///
+  /// In en, this message translates to:
+  /// **'Average rating'**
+  String get averageRating;
+
+  /// No description provided for @ratingsCount.
+  ///
+  /// In en, this message translates to:
+  /// **'Ratings'**
+  String get ratingsCount;
+
+  /// No description provided for @noReviewsYet.
+  ///
+  /// In en, this message translates to:
+  /// **'No ratings yet'**
+  String get noReviewsYet;
+
+  /// No description provided for @replyInInbox.
+  ///
+  /// In en, this message translates to:
+  /// **'Reply in Inbox'**
+  String get replyInInbox;
+
+  /// No description provided for @repliedInInbox.
+  ///
+  /// In en, this message translates to:
+  /// **'Replied · open in Inbox'**
+  String get repliedInInbox;
+
+  /// No description provided for @newCoupon.
+  ///
+  /// In en, this message translates to:
+  /// **'New coupon'**
+  String get newCoupon;
+
+  /// No description provided for @newCouponHelp.
+  ///
+  /// In en, this message translates to:
+  /// **'A code for a share or an amount off'**
+  String get newCouponHelp;
+
+  /// No description provided for @couponSaved.
+  ///
+  /// In en, this message translates to:
+  /// **'Coupon {code} is ready.'**
+  String couponSaved(String code);
+
+  /// No description provided for @couponCode.
+  ///
+  /// In en, this message translates to:
+  /// **'Code'**
+  String get couponCode;
+
+  /// No description provided for @percentOff.
+  ///
+  /// In en, this message translates to:
+  /// **'Percent off'**
+  String get percentOff;
+
+  /// No description provided for @amountOff.
+  ///
+  /// In en, this message translates to:
+  /// **'Amount off'**
+  String get amountOff;
+
+  /// No description provided for @percentValueField.
+  ///
+  /// In en, this message translates to:
+  /// **'Percent off (1–100)'**
+  String get percentValueField;
+
+  /// No description provided for @amountValueField.
+  ///
+  /// In en, this message translates to:
+  /// **'Amount off'**
+  String get amountValueField;
+
+  /// No description provided for @newFlashSale.
+  ///
+  /// In en, this message translates to:
+  /// **'New flash sale'**
+  String get newFlashSale;
+
+  /// No description provided for @newFlashSaleHelp.
+  ///
+  /// In en, this message translates to:
+  /// **'A share off some products, starting now'**
+  String get newFlashSaleHelp;
+
+  /// No description provided for @flashSaleSaved.
+  ///
+  /// In en, this message translates to:
+  /// **'{title} is on.'**
+  String flashSaleSaved(String title);
+
+  /// No description provided for @saleName.
+  ///
+  /// In en, this message translates to:
+  /// **'Name'**
+  String get saleName;
+
+  /// No description provided for @saleLasts.
+  ///
+  /// In en, this message translates to:
+  /// **'It lasts'**
+  String get saleLasts;
+
+  /// No description provided for @saleProducts.
+  ///
+  /// In en, this message translates to:
+  /// **'Products on sale'**
+  String get saleProducts;
+
+  /// No description provided for @deliveryToday.
+  ///
+  /// In en, this message translates to:
+  /// **'Today\'s delivery times'**
+  String get deliveryToday;
+
+  /// No description provided for @slotOpen.
+  ///
+  /// In en, this message translates to:
+  /// **'Open'**
+  String get slotOpen;
+
+  /// No description provided for @slotClosedToday.
+  ///
+  /// In en, this message translates to:
+  /// **'Closed today'**
+  String get slotClosedToday;
+
+  /// No description provided for @slotClosed.
+  ///
+  /// In en, this message translates to:
+  /// **'Closed for today: the app no longer offers it.'**
+  String get slotClosed;
+
+  /// No description provided for @slotOpened.
+  ///
+  /// In en, this message translates to:
+  /// **'Open again.'**
+  String get slotOpened;
+
+  /// No description provided for @busyMode.
+  ///
+  /// In en, this message translates to:
+  /// **'Busy mode'**
+  String get busyMode;
+
+  /// No description provided for @busyFor.
+  ///
+  /// In en, this message translates to:
+  /// **'{name} is busy'**
+  String busyFor(String name);
+
+  /// No description provided for @busyHelp.
+  ///
+  /// In en, this message translates to:
+  /// **'It takes no new orders for a while; the customers see when it opens again.'**
+  String get busyHelp;
+
+  /// No description provided for @takeOrdersNow.
+  ///
+  /// In en, this message translates to:
+  /// **'Take orders now'**
+  String get takeOrdersNow;
+
+  /// No description provided for @takingOrders.
+  ///
+  /// In en, this message translates to:
+  /// **'{name} takes orders again.'**
+  String takingOrders(String name);
+
+  /// No description provided for @takingOrdersShort.
+  ///
+  /// In en, this message translates to:
+  /// **'Taking orders'**
+  String get takingOrdersShort;
+
+  /// No description provided for @busyUntilShort.
+  ///
+  /// In en, this message translates to:
+  /// **'Busy until {time}'**
+  String busyUntilShort(String time);
+
+  /// No description provided for @noQuickActions.
+  ///
+  /// In en, this message translates to:
+  /// **'Your app has no quick actions.'**
+  String get noQuickActions;
+
+  /// No description provided for @goalReached.
+  ///
+  /// In en, this message translates to:
+  /// **'Goal reached!'**
+  String get goalReached;
+
+  /// No description provided for @goalProgress.
+  ///
+  /// In en, this message translates to:
+  /// **'{current} of {target}'**
+  String goalProgress(String current, String target);
+
+  /// No description provided for @primeGift.
+  ///
+  /// In en, this message translates to:
+  /// **'Prime · Gift from Yallapp'**
+  String get primeGift;
+
+  /// No description provided for @primeGiftUntil.
+  ///
+  /// In en, this message translates to:
+  /// **'Prime · Gift from Yallapp until {date}'**
+  String primeGiftUntil(String date);
+
+  /// No description provided for @alertLowStock.
+  ///
+  /// In en, this message translates to:
+  /// **'Low stock'**
+  String get alertLowStock;
+
+  /// No description provided for @alertSalesGoal.
+  ///
+  /// In en, this message translates to:
+  /// **'Sales goal'**
+  String get alertSalesGoal;
+
+  /// No description provided for @goalWhen.
+  ///
+  /// In en, this message translates to:
+  /// **'{amount} a {period}'**
+  String goalWhen(String amount, String period);
+
+  /// No description provided for @periodDay.
+  ///
+  /// In en, this message translates to:
+  /// **'day'**
+  String get periodDay;
+
+  /// No description provided for @periodWeek.
+  ///
+  /// In en, this message translates to:
+  /// **'week'**
+  String get periodWeek;
+
+  /// No description provided for @periodMonth.
+  ///
+  /// In en, this message translates to:
+  /// **'month'**
+  String get periodMonth;
+
+  /// No description provided for @goalNotSet.
+  ///
+  /// In en, this message translates to:
+  /// **'Set an amount for the day, week or month'**
+  String get goalNotSet;
+
+  /// No description provided for @goalPeriodField.
+  ///
+  /// In en, this message translates to:
+  /// **'Each'**
+  String get goalPeriodField;
+
+  /// No description provided for @thresholdField.
+  ///
+  /// In en, this message translates to:
+  /// **'Tell me at this many left'**
+  String get thresholdField;
+
+  /// No description provided for @weeklyReport.
+  ///
+  /// In en, this message translates to:
+  /// **'Weekly report by email'**
+  String get weeklyReport;
+
+  /// No description provided for @weeklyReportHelp.
+  ///
+  /// In en, this message translates to:
+  /// **'Every Monday to {email}: sales, orders, best sellers and customers.'**
+  String weeklyReportHelp(String email);
+
+  /// No description provided for @primeMoreCustomersHelp.
+  ///
+  /// In en, this message translates to:
+  /// **'New and returning, the best, the ones who stopped coming'**
+  String get primeMoreCustomersHelp;
+
+  /// No description provided for @primeMoreProductsHelp.
+  ///
+  /// In en, this message translates to:
+  /// **'Best sellers, slow movers, low stock'**
+  String get primeMoreProductsHelp;
+
+  /// No description provided for @primeMoreReviewsHelp.
+  ///
+  /// In en, this message translates to:
+  /// **'Every rating, and replies'**
+  String get primeMoreReviewsHelp;
+
+  /// No description provided for @primeMoreActionsHelp.
+  ///
+  /// In en, this message translates to:
+  /// **'Coupons, flash sales, delivery times, busy mode'**
+  String get primeMoreActionsHelp;
+
+  /// No description provided for @primeGoalsHelp.
+  ///
+  /// In en, this message translates to:
+  /// **'A goal for the day, week or month, with a ring on Today'**
+  String get primeGoalsHelp;
+
+  /// No description provided for @primeWeeklyHelp.
+  ///
+  /// In en, this message translates to:
+  /// **'A summary by email every Monday'**
+  String get primeWeeklyHelp;
+
   /// No description provided for @minutesAgo.
   ///
   /// In en, this message translates to:
@@ -6375,6 +6813,54 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'{count, plural, =1{1 point} other{{count} points}}'**
   String pointsChange(int count);
+
+  /// No description provided for @ordersCount.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{1 order} other{{count} orders}}'**
+  String ordersCount(int count);
+
+  /// No description provided for @away30.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =0{Away 30 to 60 days} =1{1 away 30 to 60 days} other{{count} away 30 to 60 days}}'**
+  String away30(int count);
+
+  /// No description provided for @away60.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =0{Away more than 60 days} =1{1 away more than 60 days} other{{count} away more than 60 days}}'**
+  String away60(int count);
+
+  /// No description provided for @leftCount.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{1 left} other{{count} left}}'**
+  String leftCount(int count);
+
+  /// No description provided for @unitsSold.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =0{None sold} =1{1 sold} other{{count} sold}}'**
+  String unitsSold(int count);
+
+  /// No description provided for @starsOf.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{1 star out of 5} other{{count} stars out of 5}}'**
+  String starsOf(int count);
+
+  /// No description provided for @hoursShort.
+  ///
+  /// In en, this message translates to:
+  /// **'{hours, plural, =1{1 hour} other{{hours} hours}}'**
+  String hoursShort(int hours);
+
+  /// No description provided for @lowStockAlertHint.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =0{Turn on Low stock in Smart alerts to hear when something sells out.} =1{Low stock in Smart alerts tells you at 1 left.} other{Low stock in Smart alerts tells you at {count} left.}}'**
+  String lowStockAlertHint(int count);
 
   /// No description provided for @lockAfterMinutes.
   ///

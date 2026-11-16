@@ -26,6 +26,13 @@ class PrimeLockedScreen extends ConsumerWidget {
       (AppIcons.smartAlerts, l10n.smartAlerts, l10n.alertsHelp),
       (AppIcons.brief, l10n.morningBrief, l10n.briefHelp),
       (AppIcons.look, l10n.primeLooks, l10n.primeLooksHelp),
+      // 132 Prime's second set.
+      (AppIcons.users, l10n.customersInsights, l10n.primeMoreCustomersHelp),
+      (AppIcons.products, l10n.productsInsights, l10n.primeMoreProductsHelp),
+      (AppIcons.trendUp, l10n.alertSalesGoal, l10n.primeGoalsHelp),
+      (AppIcons.email, l10n.weeklyReport, l10n.primeWeeklyHelp),
+      (AppIcons.star, l10n.reviewsRatings, l10n.primeMoreReviewsHelp),
+      (AppIcons.priority, l10n.quickActions, l10n.primeMoreActionsHelp),
     ];
     return Scaffold(
       appBar: AppBar(title: Text(l10n.primeTitle)),

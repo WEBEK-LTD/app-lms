@@ -24,6 +24,12 @@ void main() {
       t({'kind': 'new_booking', 'appointment_id': '7'}).location,
       '/appointments',
     );
+    // 132 A product running low opens the product insights.
+    expect(
+      t({'kind': 'prime_alert', 'alert': 'low_stock', 'product_id': '14'})
+          .location,
+      '/prime-products',
+    );
     expect(
       t({'kind': 'new_message', 'inquiry_id': '31'}).location,
       '/inbox/31',
