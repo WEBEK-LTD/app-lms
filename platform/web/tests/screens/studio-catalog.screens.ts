@@ -52,7 +52,7 @@ async function signUp(page: Page, who: typeof client, phone: string) {
   await page.getByRole("checkbox").check();
   await page.getByRole("button", { name: "Create account" }).click();
   await page.waitForURL((url) => url.pathname !== "/sign-up");
-  await signIn(page, E2E.adminEmail, E2E.adminPassword);
+  await signIn(page, E2E.studioSetupAdminEmail, E2E.adminPassword);
   await page.goto("/admin/clients");
   await page.getByRole("searchbox", { name: "Search clients" }).fill(who.email);
   await page.getByRole("button", { name: "Search" }).click();

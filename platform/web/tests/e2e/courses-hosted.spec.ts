@@ -305,7 +305,8 @@ test("113.1 the academy sells two courses together in a bundle at its own price,
   await expect(own.getByRole("heading", { level: 1, name: "Turkish Grammar" })).toBeVisible();
 
   await own.goto("/dashboard/courses");
-  await own.getByRole("link", { name: "Course bundles" }).click();
+  // 132.13 A tab of Courses.
+  await own.getByRole("navigation", { name: "Courses", exact: true }).getByRole("link", { name: /^Bundles/ }).click();
   await expect(own.getByRole("heading", { level: 1, name: "Course bundles" })).toBeVisible();
   await expect(own.getByText("No bundles yet. Add your first one below.")).toBeVisible();
   const form = own.getByRole("region", { name: "Add a bundle" });

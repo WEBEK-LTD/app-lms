@@ -17,7 +17,8 @@ import { AddonFields, Check, OptionGroupsEditor, VariantsEditor, type ProductFor
 /** One card of the editor: its heading, a line about it, and its fields. */
 function Card({ id, icon, title, description, children }: { id: string; icon: IconName; title: string; description?: ReactNode; children: ReactNode }) {
   return (
-    <section id={id} aria-labelledby={`${id}-title`} className="flex min-w-0 scroll-mt-6 flex-col gap-4 rounded-2xl border border-line bg-white p-5 sm:p-6">
+    // Not named by its heading: a card's name ("Stock") would be taken for its field's.
+    <section id={id} className="flex min-w-0 scroll-mt-6 flex-col gap-4 rounded-2xl border border-line bg-white p-5 sm:p-6">
       <div className="flex items-start gap-3">
         <span aria-hidden="true" className="flex h-9 w-9 shrink-0 items-center justify-center rounded-[10px] bg-ivory text-midnight">
           <Icon name={icon} size={20} />

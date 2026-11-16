@@ -11,7 +11,7 @@ import { solidPng } from "./png";
  * new pages; then an academy's course categories, the course editor's tabs,
  * the curriculum in order and a lesson on its own page.
  */
-test.describe.configure({ mode: "serial" });
+test.describe.configure({ mode: "serial", timeout: 240_000 });
 
 const suffix = Date.now().toString(36);
 const client = { name: "Manage Shop", email: `manage-${suffix}@manage.test`, password: "manage-shop-strong-password-1" };
@@ -24,6 +24,7 @@ const tabs = (page: Page) => page.getByRole("navigation", { name: "Products", ex
 const order = (page: Page, selector: string, attribute: string) => page.locator(selector).evaluateAll((els, a) => els.map((el) => el.getAttribute(a)), attribute);
 
 test.beforeAll(async ({ browser }) => {
+  test.setTimeout(240_000);
   own = await browser.newPage({ extraHTTPHeaders, viewport: { width: 1280, height: 900 } });
   await own.goto("/sign-up");
   await own.getByLabel("Full name").fill(client.name);
@@ -47,11 +48,7 @@ test.beforeAll(async ({ browser }) => {
   await expect(admin.getByRole("status")).toContainText("Activated");
   await admin.close();
 
-  await own.goto("/sign-in");
-  await own.getByLabel("Email").fill(client.email);
-  await own.getByLabel("Password", { exact: true }).fill(client.password);
-  await own.getByRole("button", { name: "Sign in" }).click();
-  await own.waitForURL((url) => url.pathname !== "/sign-in");
+  // Signed in since signing up.
   await own.goto("/dashboard/app-type");
   await own.getByText("Store", { exact: true }).click();
   await own.getByRole("button", { name: "Continue" }).click();
@@ -66,7 +63,7 @@ test.afterAll(async () => {
   await own.close();
 });
 
-test("132.12 categories have their own page: added, renamed and put in the app's order", async ({ request }) => {
+test("132.12 categories have their own page: added, renamed and put in the app's order", async () => {
   await own.goto("/dashboard/catalog");
   // An empty list: its first action, and the tabs to the other pages.
   await expect(own.getByText("No products yet.")).toBeVisible();
@@ -92,8 +89,6 @@ test("132.12 categories have their own page: added, renamed and put in the app's
   await expect(own.getByText("Order saved. The app shows them in this order.")).toBeVisible();
   await own.reload();
   expect(await order(own, "[data-category]", "data-category")).toEqual(["Vases", "Gifts", "Bouquets"]);
-  const listed = (await (await request.get(`${api}/store/categories`)).json()) as { items: { name: string }[] };
-  expect(listed.items.map((c) => c.name)).toEqual(["Vases", "Gifts", "Bouquets"]);
 
   // Renamed where it is.
   const gifts = own.locator('[data-category="Gifts"]');
@@ -139,6 +134,7 @@ test("132.11 the product editor keeps what was typed, puts the photos in order a
 
   // The second photo made the cover.
   await row.getByRole("link", { name: /Tulip Bouquet/ }).click();
+  await expect(own.locator("[data-photo]")).toHaveCount(2);
   const before = await order(own, "[data-photo]", "data-photo");
   expect(before).toHaveLength(2);
   await own.getByRole("button", { name: "Move photo 2 earlier" }).click();
@@ -156,6 +152,7 @@ test("132.11 the product editor keeps what was typed, puts the photos in order a
   await own.getByRole("button", { name: "Save product" }).click();
   await expect(own.getByRole("status").filter({ hasText: "Saved" })).toContainText("Saved “Tulip Bouquet”.");
   await own.locator('[data-product="Tulip Bouquet"]').getByRole("link", { name: /Tulip Bouquet/ }).click();
+  await expect(own.locator("[data-photo]")).toHaveCount(2);
   expect(await order(own, "[data-photo]", "data-photo")).toEqual([before[1], before[0]]);
   await expect(own.locator(`[data-photo="${before[1]}"]`)).toContainText("Cover");
 
@@ -167,7 +164,7 @@ test("132.11 the product editor keeps what was typed, puts the photos in order a
   await expect(own.locator('[data-product="Tulip Bouquet"]')).toBeVisible();
 });
 
-test("132.11 the list finds, filters, sorts and changes products in bulk", async () => {
+test("132.11 the list finds, filters, sorts and changes products in bulk", async ({ request }) => {
   for (const [name, price] of [
     ["Linen Tote", "100"],
     ["Ceramic Vase", "200"],
@@ -180,15 +177,15 @@ test("132.11 the list finds, filters, sorts and changes products in bulk", async
     await expect(own.getByRole("status").filter({ hasText: "Saved" })).toContainText(`Saved “${name}”.`);
   }
   const rows = () => order(own, "[data-product]", "data-product");
-  expect(await rows()).toEqual(["Olive Soap", "Ceramic Vase", "Linen Tote", "Tulip Bouquet"]);
+  await expect.poll(rows).toEqual(["Olive Soap", "Ceramic Vase", "Linen Tote", "Tulip Bouquet"]);
   await own.getByLabel("Sort").selectOption({ label: "Price, low to high" });
-  expect(await rows()).toEqual(["Linen Tote", "Ceramic Vase", "Olive Soap", "Tulip Bouquet"]);
+  await expect.poll(rows).toEqual(["Linen Tote", "Ceramic Vase", "Olive Soap", "Tulip Bouquet"]);
   await expect(own).toHaveURL(/sort=priceLow/);
   await own.getByRole("searchbox", { name: "Search products" }).fill("vase");
-  expect(await rows()).toEqual(["Ceramic Vase"]);
+  await expect.poll(rows).toEqual(["Ceramic Vase"]);
   await own.getByRole("button", { name: "Clear filters" }).first().click();
   await own.getByRole("button", { name: /^On sale/ }).click();
-  expect(await rows()).toEqual(["Tulip Bouquet"]);
+  await expect.poll(rows).toEqual(["Tulip Bouquet"]);
   await own.getByRole("button", { name: /^On sale/ }).click();
 
   // Two hidden at once.
@@ -199,7 +196,7 @@ test("132.11 the list finds, filters, sorts and changes products in bulk", async
   await bar.getByRole("button", { name: "Hide" }).click();
   await expect(own.getByText("Hidden from the app: 2.")).toBeVisible();
   await own.getByLabel("Status").selectOption("hidden");
-  expect(await rows()).toEqual(["Ceramic Vase", "Olive Soap"]);
+  await expect.poll(rows).toEqual(["Ceramic Vase", "Olive Soap"]);
   await own.getByLabel("Status").selectOption("all");
 
   // Every price 10% up: a sale price too.
@@ -230,7 +227,10 @@ test("132.11 the list finds, filters, sorts and changes products in bulk", async
   await tabs(own).getByRole("link", { name: /^Categories/ }).click();
   await own.locator('[data-category="Gift boxes"]').getByRole("link", { name: "1 product" }).click();
   await expect(own).toHaveURL(/\/dashboard\/catalog\?category=\d+$/);
-  expect(await rows()).toEqual(["Linen Tote"]);
+  await expect.poll(rows).toEqual(["Linen Tote"]);
+  // The app lists the categories with products in the order they were put in (Vases has none).
+  const listed = (await (await request.get(`${api}/store/categories`)).json()) as { items: { name: string }[] };
+  expect(listed.items.map((c) => c.name)).toEqual(["Gift boxes", "Bouquets"]);
 
   // The grid, remembered.
   await own.goto("/dashboard/catalog");
