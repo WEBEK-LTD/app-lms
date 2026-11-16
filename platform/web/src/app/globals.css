@@ -163,6 +163,25 @@ html {
     --color-midnight: #0e0d24;
   }
 }
+/* 132.4 A Studio project's frame (app/studio/chrome.tsx, `themed`): its board, menu and search, by day and by night. */
+[data-studio-frame] {
+  --sf-board: #e9e5dc;
+  --sf-surface: #ffffff;
+  --sf-soft: #f4efe6;
+  --sf-ink: #0e0d24;
+  --sf-muted: #5e5b70;
+  --sf-line: #ddd8cc;
+  --sf-accent: #e0480f;
+  @variant in-dark {
+    --sf-board: #0b0a1d;
+    --sf-surface: #161530;
+    --sf-soft: #24223f;
+    --sf-ink: #f4efe6;
+    --sf-muted: #a9a4bb;
+    --sf-line: #2c2a49;
+    --sf-accent: #ff9a6e;
+  }
+}
 /* 73 What shows only in one of the two (the adaptive logo). */
 .theme-dark-only {
   display: none;

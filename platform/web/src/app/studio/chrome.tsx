@@ -23,10 +23,21 @@ export function StudioBar({ children, home = "/studio" }: { children?: ReactNode
   );
 }
 
-/** The screen around a Studio page: the board colour, the font, the reading direction. */
-export function StudioScreen({ dir, lang, children }: { dir: "rtl" | "ltr"; lang: Lang; children: ReactNode }) {
+/**
+ * The screen around a Studio page: the board colour, the font, the reading
+ * direction. 132.4 `themed` (a project's pages): light or dark like the
+ * dashboard (`data-site-theme`, globals.css), its colours `--sf-…`.
+ */
+export function StudioScreen({ dir, lang, children, themed = false }: { dir: "rtl" | "ltr"; lang: Lang; children: ReactNode; themed?: boolean }) {
   return (
-    <div lang={lang} dir={dir} className="flex min-h-dvh flex-col" style={{ background: C.board, color: C.ink, fontFamily: "var(--font-studio), 'Cairo', system-ui, sans-serif" }}>
+    <div
+      lang={lang}
+      dir={dir}
+      className="flex min-h-dvh flex-col"
+      data-site-theme={themed ? "" : undefined}
+      data-studio-frame={themed ? "" : undefined}
+      style={{ background: themed ? "var(--sf-board)" : C.board, color: themed ? "var(--sf-ink)" : C.ink, fontFamily: "var(--font-studio), 'Cairo', system-ui, sans-serif" }}
+    >
       {children}
     </div>
   );

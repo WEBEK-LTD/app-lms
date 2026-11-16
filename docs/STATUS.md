@@ -4,9 +4,36 @@ The current state of the project: what is released in the code, what still
 needs checking against real services, and what a deployment needs.
 `docs/ROADMAP.md` is the plan; this file is the current state.
 
-Last updated: 15 November 2026.
+Last updated: 16 November 2026.
 
 ## Current release
+
+Roadmap 132.110–132.115 (Admin working in a client's account, and apps
+made, moved and copied for clients) is complete: our team's create paths
+in a client's account no longer bounce to the admin, a banner shows whose
+account it is, and every action there is in the audit log with the team
+member's name; Admin can make an app for a client and open it as them,
+move an app (with or without its data and its subscription) or only its
+plan to another app with the owner's emailed 6-digit approval, and copy an
+app into any account. Migration `0130_app_moves` (the requests, and
+`apps.moved_at`, `apps.moved_to_client_id` for the read-only record an app
+leaves behind).
+
+Roadmap 132.1–132.8 (Studio dashboard fixes): a Studio project's menu has
+every page of the dashboard that applies to the project, behind the
+dashboard's gates, in six groups that fold away, with a quick search
+(Ctrl+K), the person, language, dark mode and sign-out at its foot, every
+page about the account reachable from it and from the account menu on the
+bar (Your account and Team at /studio/account and /studio/team, the plan,
+invoices, phones and updates in the project's frame), Payments under The
+app, a food company's marketplace pages, and the bar on one line on phones; Studio › Screens shows and
+sets whether sign-in (and the account's top) follows the system screens'
+look or has its own, its preview draws sign-in, the code and a new account
+as the app does, and the app draws the code screen and a new account in
+sign-in's own look too; "Not now" and the back button work in every system
+look (they were under the scroll view). Checks: platform unit tests and
+e2e, flutter analyze and widget tests. Setting a password again
+(Forgot password) keeps the app's own look.
 
 Roadmap 131.54 (the documentation up to date for Phase 131) is complete:
 a new article `delivery-and-offers` ("Delivery days, gifts and flash
@@ -371,6 +398,19 @@ test environment:
   are one-language records. The sign-in code and receipt emails to an
   app's users are in English. The app picks the phone's language when it
   offers it, and its main language only otherwise.
+- 132.112 After a move without its data, the builds already on people's
+  phones talk to the app in its new account, and their accounts stayed in
+  the old one's archived record: they sign up again there. A ticket or
+  booking kept in the archive names an event or service of the moved app,
+  which the archive can't show by name.
+- 132.113 The move's emails (the code, done, added) are written in
+  `lib/apps/move-mail.ts` and can't be edited in Admin › Emails.
+- 132.114 A copied page's lists keep their hand-picked entries when they
+  are the app's products, listings, articles, events, campaigns, services,
+  restaurants, hotels or teachers; any other entry a page names by its
+  number keeps the source's number. Media files are copied through the
+  media server chunk by chunk in the request; a very large library can
+  take long, and a file that fails is named in the audit log.
 
 - 131 A flash sale's units aren't counted from a connected platform's
   orders (its own checkout sells them).

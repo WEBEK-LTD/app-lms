@@ -213,6 +213,7 @@ test("132.67 translations typed and not saved: leaving by the menu asks first", 
 });
 
 test("132.68 a project's page that isn't there says so in Studio's frame, with the way back", async () => {
+  // Not found before the product's loading screen (catalog/[id]/layout.tsx), so the browser never has to finish it (React's #419).
   await own.goto("/studio/project/catalog/999999");
   await expect(own.locator("[data-dashboard-not-found]")).toBeVisible();
   await expect(own.getByRole("heading", { level: 1, name: "This page isn't here" })).toBeVisible();

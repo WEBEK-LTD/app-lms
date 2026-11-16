@@ -47,6 +47,7 @@ class FakeMedia implements MediaStorage {
   async listApps() {
     return [];
   }
+  async copy() {}
 }
 
 async function owner(store: MemoryStore, email: string, plan: "growth" | "pro" = "pro"): Promise<{ user: User; client: Client }> {

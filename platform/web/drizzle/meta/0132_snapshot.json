@@ -1,7 +1,7 @@
 {
   "version": "5",
   "dialect": "mysql",
-  "id": "cdd3a072-2a1a-456c-9d30-d46b281401bb",
+  "id": "c6bc63a0-f370-40f8-a272-988043943029",
   "prevId": "04408ef8-703e-4dc6-8426-dcb149e3a80d",
   "tables": {
     "account_deletion_requests": {
@@ -1761,6 +1761,249 @@
       "uniqueConstraints": {},
       "checkConstraint": {}
     },
+    "app_move_requests": {
+      "name": "app_move_requests",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "varchar(36)",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "kind": {
+          "name": "kind",
+          "type": "varchar(8)",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false,
+          "default": "'app'"
+        },
+        "app_id": {
+          "name": "app_id",
+          "type": "varchar(36)",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "to_app_id": {
+          "name": "to_app_id",
+          "type": "varchar(36)",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
+        "from_client_id": {
+          "name": "from_client_id",
+          "type": "varchar(36)",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "to_client_id": {
+          "name": "to_client_id",
+          "type": "varchar(36)",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "move_data": {
+          "name": "move_data",
+          "type": "boolean",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "move_subscription": {
+          "name": "move_subscription",
+          "type": "boolean",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "code_hash": {
+          "name": "code_hash",
+          "type": "varchar(64)",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "attempts": {
+          "name": "attempts",
+          "type": "int",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false,
+          "default": 0
+        },
+        "status": {
+          "name": "status",
+          "type": "varchar(12)",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "open_app_id": {
+          "name": "open_app_id",
+          "type": "varchar(36)",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
+        "requested_by": {
+          "name": "requested_by",
+          "type": "varchar(36)",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "requested_by_email": {
+          "name": "requested_by_email",
+          "type": "varchar(191)",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "requested_by_name": {
+          "name": "requested_by_name",
+          "type": "varchar(120)",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "created_at": {
+          "name": "created_at",
+          "type": "datetime(3)",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "expires_at": {
+          "name": "expires_at",
+          "type": "datetime(3)",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "closed_at": {
+          "name": "closed_at",
+          "type": "datetime(3)",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
+        "closed_by": {
+          "name": "closed_by",
+          "type": "varchar(191)",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
+        "result_app_id": {
+          "name": "result_app_id",
+          "type": "varchar(36)",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
+        "note": {
+          "name": "note",
+          "type": "varchar(255)",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        }
+      },
+      "indexes": {
+        "app_move_requests_open_unique": {
+          "name": "app_move_requests_open_unique",
+          "columns": [
+            "open_app_id"
+          ],
+          "isUnique": true
+        },
+        "app_move_requests_from_idx": {
+          "name": "app_move_requests_from_idx",
+          "columns": [
+            "from_client_id",
+            "created_at"
+          ],
+          "isUnique": false
+        },
+        "app_move_requests_to_idx": {
+          "name": "app_move_requests_to_idx",
+          "columns": [
+            "to_client_id",
+            "created_at"
+          ],
+          "isUnique": false
+        }
+      },
+      "foreignKeys": {
+        "app_move_requests_app_id_apps_id_fk": {
+          "name": "app_move_requests_app_id_apps_id_fk",
+          "tableFrom": "app_move_requests",
+          "tableTo": "apps",
+          "columnsFrom": [
+            "app_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "cascade",
+          "onUpdate": "no action"
+        },
+        "app_move_requests_to_app_id_apps_id_fk": {
+          "name": "app_move_requests_to_app_id_apps_id_fk",
+          "tableFrom": "app_move_requests",
+          "tableTo": "apps",
+          "columnsFrom": [
+            "to_app_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "cascade",
+          "onUpdate": "no action"
+        },
+        "app_move_requests_from_client_id_clients_id_fk": {
+          "name": "app_move_requests_from_client_id_clients_id_fk",
+          "tableFrom": "app_move_requests",
+          "tableTo": "clients",
+          "columnsFrom": [
+            "from_client_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "cascade",
+          "onUpdate": "no action"
+        },
+        "app_move_requests_to_client_id_clients_id_fk": {
+          "name": "app_move_requests_to_client_id_clients_id_fk",
+          "tableFrom": "app_move_requests",
+          "tableTo": "clients",
+          "columnsFrom": [
+            "to_client_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "cascade",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {
+        "app_move_requests_id": {
+          "name": "app_move_requests_id",
+          "columns": [
+            "id"
+          ]
+        }
+      },
+      "uniqueConstraints": {},
+      "checkConstraint": {}
+    },
     "apps": {
       "name": "apps",
       "columns": {
@@ -2398,6 +2641,20 @@
         "deleted_by": {
           "name": "deleted_by",
           "type": "varchar(191)",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
+        "moved_at": {
+          "name": "moved_at",
+          "type": "datetime(3)",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
+        "moved_to_client_id": {
+          "name": "moved_to_client_id",
+          "type": "varchar(36)",
           "primaryKey": false,
           "notNull": false,
           "autoincrement": false
@@ -4523,20 +4780,6 @@
         "delivery_date": {
           "name": "delivery_date",
           "type": "varchar(10)",
-          "primaryKey": false,
-          "notNull": false,
-          "autoincrement": false
-        },
-        "delivery_stage": {
-          "name": "delivery_stage",
-          "type": "varchar(16)",
-          "primaryKey": false,
-          "notNull": false,
-          "autoincrement": false
-        },
-        "stage_log": {
-          "name": "stage_log",
-          "type": "longtext",
           "primaryKey": false,
           "notNull": false,
           "autoincrement": false
@@ -16592,107 +16835,6 @@
           "name": "prime_alerts_user_id_app_id_pk",
           "columns": [
             "user_id",
-            "app_id"
-          ]
-        }
-      },
-      "uniqueConstraints": {},
-      "checkConstraint": {}
-    },
-    "prime_gifts": {
-      "name": "prime_gifts",
-      "columns": {
-        "app_id": {
-          "name": "app_id",
-          "type": "varchar(36)",
-          "primaryKey": false,
-          "notNull": true,
-          "autoincrement": false
-        },
-        "client_id": {
-          "name": "client_id",
-          "type": "varchar(36)",
-          "primaryKey": false,
-          "notNull": true,
-          "autoincrement": false
-        },
-        "until": {
-          "name": "until",
-          "type": "datetime(3)",
-          "primaryKey": false,
-          "notNull": false,
-          "autoincrement": false
-        },
-        "note": {
-          "name": "note",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": false,
-          "autoincrement": false
-        },
-        "given_by": {
-          "name": "given_by",
-          "type": "varchar(191)",
-          "primaryKey": false,
-          "notNull": true,
-          "autoincrement": false
-        },
-        "created_at": {
-          "name": "created_at",
-          "type": "datetime(3)",
-          "primaryKey": false,
-          "notNull": true,
-          "autoincrement": false
-        },
-        "updated_at": {
-          "name": "updated_at",
-          "type": "datetime(3)",
-          "primaryKey": false,
-          "notNull": true,
-          "autoincrement": false
-        }
-      },
-      "indexes": {
-        "prime_gifts_client_idx": {
-          "name": "prime_gifts_client_idx",
-          "columns": [
-            "client_id"
-          ],
-          "isUnique": false
-        }
-      },
-      "foreignKeys": {
-        "prime_gifts_app_id_apps_id_fk": {
-          "name": "prime_gifts_app_id_apps_id_fk",
-          "tableFrom": "prime_gifts",
-          "tableTo": "apps",
-          "columnsFrom": [
-            "app_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
-          "onDelete": "cascade",
-          "onUpdate": "no action"
-        },
-        "prime_gifts_client_id_clients_id_fk": {
-          "name": "prime_gifts_client_id_clients_id_fk",
-          "tableFrom": "prime_gifts",
-          "tableTo": "clients",
-          "columnsFrom": [
-            "client_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
-          "onDelete": "cascade",
-          "onUpdate": "no action"
-        }
-      },
-      "compositePrimaryKeys": {
-        "prime_gifts_app_id": {
-          "name": "prime_gifts_app_id",
-          "columns": [
             "app_id"
           ]
         }

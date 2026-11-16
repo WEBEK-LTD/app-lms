@@ -12,6 +12,8 @@ import { appState, clientAccountState, type AccountState } from "../license/stat
 import { businessesOf, businessName } from "../team/service";
 import { OWNER_ACCESS, scopedApps, teamCan, type TeamAccess, type TeamPermission, type TeamRole } from "../team/permissions";
 import { randomToken, sha256Hex } from "../crypto/tokens";
+import { recordStaffAction } from "../admin/staff-trail";
+import { safeNext } from "../apps/move-link";
 import { platformSetting } from "../settings/platform";
 import { SESSION_TTL_SECONDS, TWO_STEP_TTL_SECONDS, sealSession, sealTwoStep, unsealSession, unsealTwoStep, type TwoStepClaims } from "./session-token";
 import { SIGNED_IN_COOKIE } from "./signed-in-cookie";
@@ -271,7 +273,8 @@ export const getClientContext = cache(async (): Promise<ClientContext | null> =>
   const apps = scopedApps(access, allApps);
   // The switcher's choice, only when it is one of this client's apps; else their first app.
   const chosen = jar.get(APP_COOKIE)?.value;
-  const app = apps.find((a) => a.id === chosen) ?? apps[0] ?? null;
+  // 132.112 An app that moved away (kept to read) is never the one chosen for them.
+  const app = apps.find((a) => a.id === chosen) ?? apps.find((a) => !a.movedAt) ?? apps[0] ?? null;
   const license = licenses.find((l) => l.appId === (app?.id ?? null)) ?? null;
   const now = new Date();
   return {
@@ -313,14 +316,44 @@ export function mayUseDashboard(context: ClientContext): boolean {
  * `permission` on the current app; null when nobody is signed in to a
  * client (the action's own redirect follows); a team member without it goes
  * to the overview, which says so. Every client action asks this.
+ *
+ * 132.110 Our team working in a client's account (`staff`) gets the client's
+ * own context, so every action works as it does for the client; each one is
+ * written to the audit log with the team member's name (recordStaffAction),
+ * unless the action logged its own change. An app that moved to another
+ * account (132.112) stays to read: only switching away from it is allowed.
  */
 export async function clientFor(permission: TeamPermission | readonly TeamPermission[]): Promise<ClientContext | null> {
   const context = await getClientContext();
-  if (!context) return null;
+  if (!context) {
+    // 132.110 Our team outside a client's account: the admin says why, never a silent bounce.
+    if (await getAdminRole()) redirect(await teamOutsideClientPath());
+    return null;
+  }
   // A list: any one of them (the Media picker serves the catalog's and the pages' forms too).
   const wanted = typeof permission === "string" ? [permission] : permission;
   if (!wanted.some((p) => contextCan(context, p))) redirect(`/dashboard?denied=${wanted[0]}`);
+  // Switching to another app and adding one stay open; nothing in the moved app changes.
+  if (context.app?.movedAt && !wanted.includes("dashboard") && !wanted.includes("apps")) redirect(`${context.app.section === "studio" ? "/studio/project" : "/dashboard"}?archived=1`);
+  if (context.staff) recordStaffAction(context, wanted[0]!);
   return context;
+}
+
+/** 132.110 Why our team can't pay by card in a client's account (i18n/dashboard/working.ts known.teamCantPay translates it). */
+export const TEAM_CANT_PAY =
+  "Our team can't pay by card from a client's account: the payment would be made in the client's name and on their card. Activate or extend the plan in Admin › Clients, or record the client's bank transfer there.";
+
+/**
+ * 132.110 Where our team goes when a client page or action needs a client's
+ * account and they aren't working in one: the admin's page that says why
+ * (their role can't change clients' apps, two-step sign-in first, or the
+ * 8 hours ended or they went back to the admin).
+ */
+export async function teamOutsideClientPath(): Promise<string> {
+  const role = await getAdminRole();
+  if (!can(role, "clients.edit")) return "/admin?denied=clients.edit";
+  if ((await teamTwoStepRequired()) && !(await currentHasTwoStep())) return "/admin/account?required=1";
+  return "/admin/clients?working=ended";
 }
 
 /** Where a signed-in user belongs. */
@@ -354,7 +387,11 @@ export async function requireClient(permission: TeamPermission = "dashboard"): P
   const context = await getClientContext();
   if (!context) {
     const user = await getCurrentUser();
-    if (user && (await getAdminRole())) redirect("/admin");
+    // 132.110 Our team outside a client's account: the admin says why.
+    if (user && (await getAdminRole())) redirect(await teamOutsideClientPath());
+    // 132.113 A move's page opened from its email: back to it once signed in.
+    const asked = safeNext((await headers()).get("x-yallapp-path"));
+    if (!user && asked) redirect(`/api/app-moves/sign-in?to=${encodeURIComponent(asked)}`);
     redirect(user ? "/sign-in" : await signInPath());
   }
   if (!mayUseDashboard(context)) redirect("/pending");
