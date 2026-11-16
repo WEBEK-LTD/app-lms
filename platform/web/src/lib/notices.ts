@@ -7,7 +7,7 @@ import type { Lang } from "@/i18n/config";
 import { mailOptions } from "./email/mail-lang";
 import { effectivePlans } from "./entitlements";
 import { appState } from "./license/status";
-import { formatLimit, lowestPlanWith, type Plan, type PlanInfo } from "./plans";
+import { formatLimit, lowestPlanWith, mainPeriodOf, type Plan, type PlanInfo } from "./plans";
 import { periodOfMonths, type PeriodKey } from "./billing/periods";
 import { cleanDemoActivity, type DemoCleanupReport } from "./demo/cleanup";
 import { bookingSetup } from "./bookings/setup";
@@ -204,7 +204,8 @@ export async function remindLicense(
   // 133 Renewing for the period the app was last paid for (the form offers the others too).
   const last = (await deps.store.listPlanPayments({ appId: app.id, status: "paid", limit: 5 })).find((p) => (p.purpose ?? "plan") === "plan");
   const lastPeriod = last ? periodOfMonths(last.months) : null;
-  const renewUrl = openAppUrl(deps.baseUrl, app.id, "renew", null, lastPeriod && lastPeriod !== "lifetime" ? lastPeriod : null);
+  // The plan's main period is where the form starts anyway: the link stays as it was.
+  const renewUrl = openAppUrl(deps.baseUrl, app.id, "renew", null, lastPeriod && lastPeriod !== "lifetime" && (!plan || lastPeriod !== mainPeriodOf(plan)) ? lastPeriod : null);
   const days = daysLeft(license.expiresAt, deps.now);
   const saved = await createAndMail(
     deps,
