@@ -439,6 +439,8 @@ test("131 delivery times, the gift checkout and a flash sale, from Delivery & of
   await mode.getByLabel(/^Gift checkout/).check();
   await mode.getByRole("button", { name: "Save" }).click();
   await expect(mode.getByText("Saved.")).toBeVisible();
+  // 132.25 Each part in its tab.
+  await page.getByRole("tab", { name: "Delivery times" }).click();
   const delivery = page.locator("[data-delivery-form]");
   await delivery.getByLabel("Customers choose the delivery day").check();
   await delivery.getByRole("button", { name: "Save delivery times" }).click();
@@ -446,6 +448,7 @@ test("131 delivery times, the gift checkout and a flash sale, from Delivery & of
 
   // A flash sale on the roses, on now in the shop's time zone.
   const local = (at: Date) => new Intl.DateTimeFormat("sv-SE", { timeZone: "Europe/Istanbul", year: "numeric", month: "2-digit", day: "2-digit", hour: "2-digit", minute: "2-digit" }).format(at).replace(" ", "T");
+  await page.getByRole("tab", { name: /^Flash sales and codes/ }).click();
   const flash = page.locator("[data-flash-form]").first();
   await flash.getByLabel("Name").fill("Weekend tulips");
   await flash.getByLabel("Rose Box", { exact: true }).check();

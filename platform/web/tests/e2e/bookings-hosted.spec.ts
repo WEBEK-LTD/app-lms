@@ -66,6 +66,8 @@ test("the business sets up bookings without a website", async () => {
   await services.getByRole("button", { name: "Add service" }).click();
   await expect(services.getByText("Haircut", { exact: true })).toBeVisible();
 
+  // 132.18 The team and the rules have their own tabs.
+  await own.getByRole("tab", { name: /^Team/ }).click();
   const team = own.getByRole("region", { name: "Team" });
   await team.getByLabel("Name", { exact: true }).fill("Ayşe Kaya");
   await team.getByLabel("Role").fill("Stylist");
@@ -77,6 +79,7 @@ test("the business sets up bookings without a website", async () => {
   await expect(team.getByText("Mon 09:00–17:00")).toBeVisible();
   await expect(team.getByText("Sat 10:00–14:00")).toBeVisible();
 
+  await own.getByRole("tab", { name: /^Booking rules/ }).click();
   const rules = own.getByRole("region", { name: "Booking rules" });
   await rules.getByLabel("Book at least (hours ahead)").fill("0");
   await rules.getByLabel("Approve new appointments at once").uncheck();

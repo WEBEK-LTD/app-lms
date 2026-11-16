@@ -14,7 +14,7 @@ import { SYSTEM_LOOKS, SYSTEM_SCREENS, type SystemLook, type SystemScreenKey, ty
  * photo. "The app's own" keeps every screen as it is.
  */
 
-const LOOK_NAMES: Record<SystemLook, DashKey> = {
+export const LOOK_NAMES: Record<SystemLook, DashKey> = {
   large: "studio.chromeLook_large",
   glass: "studio.chromeLook_glass",
   photo: "studio.chromeLook_photo",

@@ -92,6 +92,8 @@ test("the gym sets up its classes, coach, timetable and plans, in a gym's words"
   await services.getByRole("button", { name: "Add service" }).click();
   await expect(services.getByText("Yoga flow", { exact: true })).toBeVisible();
 
+  // 132.18 The coaches have their own tab.
+  await own.getByRole("tab", { name: /^Coaches/ }).click();
   const coaches = own.getByRole("region", { name: "Coaches" });
   await coaches.getByLabel("Name", { exact: true }).fill("Selin Aydın");
   await coaches.getByLabel("Role").fill("Yoga coach");
@@ -116,9 +118,12 @@ test("the gym sets up its classes, coach, timetable and plans, in a gym's words"
   await expect(own.getByRole("region", { name: "Coming 7 days" }).getByText("0 of 2 booked")).toBeVisible();
 
   await nav.getByRole("link", { name: "Membership plans" }).click();
+  // 132.24 The plans, the booking rule and payments, each in a tab.
+  await own.getByRole("tab", { name: "Booking classes" }).click();
   await own.getByRole("checkbox", { name: /Classes need a membership/ }).check();
   await own.getByRole("button", { name: "Save", exact: true }).click();
   await expect(own.getByText("Booking a class now needs a membership")).toBeVisible();
+  await own.getByRole("tab", { name: /^Plans/ }).click();
   const plans = own.getByRole("region", { name: "Plans" });
   await plans.locator("#plan-new-name").fill("5-class pack");
   await plans.locator("#plan-new-price").fill("600");
