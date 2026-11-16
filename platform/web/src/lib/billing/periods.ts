@@ -4,9 +4,11 @@ import { formatMoney, type Money, type YallappPrice } from "./prices";
  * 133 Billing periods of Yallapp's own plans and add-ons. Kashier takes no
  * subscriptions, so each period is paid once, in advance: 1, 6, 12, 24 or
  * 36 months, or once for life. The team switches each period on per plan
- * (and per add-on) and gives it its own price; a period without a price is
- * never offered. Nothing here sets a price: the per-month equivalent and
- * the saving are worked out from the prices the team entered.
+ * (and per add-on) and gives it its own price; a plan's period the team
+ * hasn't priced has a suggested one, worked out from the plan's own prices
+ * (suggested-prices.ts), and an add-on's period without a price is never
+ * offered. The per-month equivalent and the saving are worked out from the
+ * prices, never typed.
  *
  * A payment keeps its period in `PlanPayment.months`: the months, or 0 for
  * a lifetime payment (and an add-on's one-time payment).

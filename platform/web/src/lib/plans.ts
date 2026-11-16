@@ -1,6 +1,7 @@
 import type { IconName } from "@/components/icon-names";
 import { formatMoney, shownPrice, type DisplayCurrency, type Money, type YallappPrice } from "./billing/prices";
 import { isPeriodKey, isPeriodMonths, paymentMonthsOf, periodOfMonths, periodUnit, PERIOD_KEYS, sortPeriods, type PeriodKey, type PeriodMonths, type PricedPeriod } from "./billing/periods";
+import { suggestedPrice } from "./billing/suggested-prices";
 import { ALL_STORES_TEXT, APP_STORES, STORE_FACTS, storesFor, type AppStore } from "./stores";
 import { RAW_RETENTION_DAYS } from "./analytics/types";
 
@@ -254,7 +255,7 @@ export interface PlanInfo {
 /** 133 One of a plan's other billing periods, as the team set it. */
 export interface PlanPeriodSetting {
   on: boolean;
-  /** The price in pounds (piastres): what is charged. Null: not priced yet, so not offered. */
+  /** The price in pounds (piastres): what is charged. Null: not priced yet, so a switched-on period has its suggested price. */
   egpCents: number | null;
   /** The dollar price shown outside Egypt, by hand; null: the pounds at the exchange rate. */
   usdCents: number | null;
@@ -936,15 +937,62 @@ export function planName(plan: Plan | null | undefined, plans: Record<Plan, Plan
   return plan && isPlan(plan) ? plans[plan].name : "Not set";
 }
 
-/** 52 The plan's price as the team set it (pounds, and dollars by hand or at the rate); null when it's "On request". */
-export function planPriceOf(plan: Pick<PlanInfo, "priceCents" | "usdCents" | "onRequest"> & Partial<Pick<PlanInfo, "billingMonths" | "periods">>, key?: PeriodKey): YallappPrice | null {
+type PricedPlan = Pick<PlanInfo, "priceCents" | "usdCents" | "onRequest"> & Partial<Pick<PlanInfo, "billingMonths" | "periods">>;
+
+/**
+ * 52 The plan's price (pounds, and dollars by hand or at the rate); null
+ * when it's "On request". 133 For a period: the team's own price while it's
+ * switched on, else the suggested one (`suggestedPlanPrice`) when the team
+ * left the period to it.
+ */
+export function planPriceOf(plan: PricedPlan, key?: PeriodKey): YallappPrice | null {
+  const own = teamPlanPrice(plan, key);
+  if (own || key === undefined || !periodLeftToSuggestion(plan, key)) return own;
+  const suggested = suggestedPlanPrice(plan, key);
+  // Dollars the team typed for the period are kept.
+  return suggested ? { egpCents: suggested.egpCents, usdCents: plan.periods?.[key]?.usdCents ?? suggested.usdCents } : null;
+}
+
+/** 133 The price the team typed for a period (the main one without): switched on and priced in pounds; null otherwise. */
+function teamPlanPrice(plan: PricedPlan, key?: PeriodKey): YallappPrice | null {
   if (plan.onRequest || plan.priceCents === null || plan.priceCents <= 0) return null;
-  // 133 Another period than the main one: its own price, while it's switched on.
   if (key !== undefined && key !== mainPeriodOf(plan)) {
     const other = plan.periods?.[key];
     return other?.on && other.egpCents ? { egpCents: other.egpCents, usdCents: other.usdCents } : null;
   }
   return { egpCents: plan.priceCents, usdCents: plan.usdCents };
+}
+
+/**
+ * 133 Whether a period is left to its suggested price: another period than
+ * the main one that the team never set, or switched on without a price in
+ * pounds. A period the team switched off stays off.
+ */
+export function periodLeftToSuggestion(plan: Partial<Pick<PlanInfo, "billingMonths" | "periods">>, key: PeriodKey): boolean {
+  if (key === mainPeriodOf(plan)) return false;
+  const p = plan.periods?.[key];
+  return !p || (p.on && !p.egpCents);
+}
+
+/**
+ * 133 The suggested price for one of the plan's periods, from its own
+ * monthly and yearly prices (lib/billing/suggested-prices.ts has the
+ * rules); dollars only from the plan's own dollar prices, else none (the
+ * pounds at the rate). Null for "On request", the main period, or without
+ * a monthly or yearly price to work from.
+ */
+export function suggestedPlanPrice(plan: PricedPlan, key: PeriodKey): YallappPrice | null {
+  if (key === mainPeriodOf(plan)) return null;
+  const month = teamPlanPrice(plan, "1");
+  const year = teamPlanPrice(plan, "12");
+  const egpCents = suggestedPrice({ month: month?.egpCents ?? null, year: year?.egpCents ?? null }, key, "EGP");
+  if (!egpCents) return null;
+  return { egpCents, usdCents: suggestedPrice({ month: month?.usdCents ?? null, year: year?.usdCents ?? null }, key, "USD") };
+}
+
+/** 133 Whether clients see the suggested price for the period (the team hasn't priced it). */
+export function periodIsSuggested(plan: PricedPlan, key: PeriodKey): boolean {
+  return periodLeftToSuggestion(plan, key) && suggestedPlanPrice(plan, key) !== null;
 }
 
 /** 133 The period of the plan's main price ("12" for a yearly price). */
@@ -954,10 +1002,11 @@ export function mainPeriodOf(plan: Partial<Pick<PlanInfo, "billingMonths">>): Pe
 
 /**
  * 133 The periods clients can pay the plan for, shortest first and lifetime
- * last: its main price, and each other period the team switched on and
- * priced. None when the plan is "On request".
+ * last: its main price, each other period the team switched on and priced,
+ * and the ones it left to their suggested price. None when the plan is
+ * "On request".
  */
-export function planPeriods(plan: Pick<PlanInfo, "priceCents" | "usdCents" | "onRequest"> & Partial<Pick<PlanInfo, "billingMonths" | "periods">>): PricedPeriod[] {
+export function planPeriods(plan: PricedPlan): PricedPeriod[] {
   return sortPeriods(PERIOD_KEYS.flatMap((key) => {
     const price = planPriceOf(plan, key);
     return price ? [{ key, price }] : [];
