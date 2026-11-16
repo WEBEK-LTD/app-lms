@@ -5,6 +5,7 @@ import { Icon } from "@/components/icon";
 import { QrCode } from "@/components/qr-code";
 import { ConfirmTwoStepForm, RenewRecoveryCodesForm, TurnOffTwoStepForm, type TwoStepLabels } from "@/components/two-step-forms";
 import { Badge, Notice, formatDate } from "@/components/ui";
+import { KitFold, KitSettingRow, KitStatus } from "@/components/studio-page";
 import type { Lang } from "@/i18n/config";
 import type { DashT } from "@/i18n/dashboard";
 import { groupedSecret, otpauthUri } from "@/lib/auth/totp";
@@ -22,7 +23,7 @@ const card = "flex max-w-[720px] flex-col gap-3.5 rounded-2xl border border-line
  * or on with new recovery codes and turning it off. Always the signed-in
  * person's own account.
  */
-export async function TwoStepSettings({ user, from, t, lang, setup }: { user: User; from: "admin" | "dashboard"; t: DashT; lang: Lang; setup: boolean }) {
+export async function TwoStepSettings({ user, from, t, lang, setup, look = "card" }: { user: User; from: "admin" | "dashboard"; t: DashT; lang: Lang; setup: boolean; look?: "card" | "row" }) {
   const store = await getStore();
   const status = await twoStepStatus(store, user.id);
   const secret = setup && status.waiting ? await waitingSecret(store, user.id, encryptionKey()) : null;
@@ -41,6 +42,87 @@ export async function TwoStepSettings({ user, from, t, lang, setup }: { user: Us
     hidePassword: t("security.hidePassword"),
     turnOff: t("security.turnOff"),
   };
+  const setupBlock = secret ? (
+    <div className="flex flex-col gap-4">
+      <div className="flex flex-wrap items-start gap-5">
+        <QrCode value={otpauthUri(secret, user.email)} label={t("security.qrLabel")} size={176} />
+        <div className="flex min-w-0 flex-[1_1_260px] flex-col gap-2">
+          <p className="m-0 text-[15px] font-semibold">{t("security.scan")}</p>
+          <p className="m-0 text-sm text-ink-3">{t("security.manual")}</p>
+          <code dir="ltr" data-two-step-secret={secret} className="self-start rounded-lg bg-sand px-3 py-2 font-mono text-[15px] break-all">
+            {groupedSecret(secret)}
+          </code>
+        </div>
+      </div>
+      <p className="m-0 text-[15px] font-semibold">{t("security.enterCode")}</p>
+      <ConfirmTwoStepForm from={from} labels={labels} doneHref={`${page}?saved=1#two-step`} />
+      <form action={cancelTwoStepSetupAction}>
+        <input type="hidden" name="from" value={from} />
+        <SubmitButton variant="ghost" className="h-10 px-0 text-sm">
+          {t("security.cancel")}
+        </SubmitButton>
+      </form>
+    </div>
+  ) : null;
+  // 132.133 Your account as settings rows (the premium kit): its state as a pill, the setup as its one action, the rest folded.
+  if (look === "row") {
+    return (
+      <KitSettingRow
+        id="two-step"
+        titleId="h-two-step"
+        icon="shield"
+        title={t("security.title")}
+        status={
+          status.on ? (
+            <KitStatus tone="success">{t("security.badgeOn")}</KitStatus>
+          ) : (
+            <span data-two-step={secret ? undefined : "off"}>
+              <KitStatus tone="neutral">{t("studioPage.off")}</KitStatus>
+            </span>
+          )
+        }
+        description={
+          status.on ? (
+            <span data-two-step="on">
+              {t("security.on", { date: formatDate(status.enabledAt, lang) })} {t("security.recoveryLeft", { count: status.recoveryLeft })}
+            </span>
+          ) : undefined
+        }
+        help={
+          <>
+            {status.on || secret ? null : <span className="mb-1 block font-semibold">{t("security.off")}</span>}
+            {t("security.intro")}
+          </>
+        }
+        helpLabel={t("studioPage.helpSection")}
+        action={
+          status.on || secret ? undefined : (
+            <form action={startTwoStepSetupAction}>
+              <input type="hidden" name="from" value={from} />
+              <SubmitButton variant="secondary" className="h-10 px-4 text-sm">
+                {t("security.setUp")}
+              </SubmitButton>
+            </form>
+          )
+        }
+      >
+        {status.on ? (
+          <div className="flex flex-col gap-2">
+            <KitFold summary={t("security.newCodes")}>
+              <p className="m-0 text-sm text-(--sp-muted)">{t("security.newCodesText")}</p>
+              <RenewRecoveryCodesForm from={from} labels={labels} doneHref={`${page}?saved=1#two-step`} />
+            </KitFold>
+            <KitFold summary={t("security.turnOffTitle")}>
+              <p className="m-0 text-sm text-(--sp-muted)">{t("security.turnOffText")}</p>
+              <TurnOffTwoStepForm from={from} labels={labels} />
+            </KitFold>
+          </div>
+        ) : (
+          setupBlock
+        )}
+      </KitSettingRow>
+    );
+  }
   return (
     <section id="two-step" aria-labelledby="h-two-step" className={card}>
       <div className="flex flex-wrap items-center gap-2.5">
@@ -72,26 +154,7 @@ export async function TwoStepSettings({ user, from, t, lang, setup }: { user: Us
           </details>
         </>
       ) : secret ? (
-        <div className="flex flex-col gap-4">
-          <div className="flex flex-wrap items-start gap-5">
-            <QrCode value={otpauthUri(secret, user.email)} label={t("security.qrLabel")} size={176} />
-            <div className="flex min-w-0 flex-[1_1_260px] flex-col gap-2">
-              <p className="m-0 text-[15px] font-semibold">{t("security.scan")}</p>
-              <p className="m-0 text-sm text-ink-3">{t("security.manual")}</p>
-              <code dir="ltr" data-two-step-secret={secret} className="self-start rounded-lg bg-sand px-3 py-2 font-mono text-[15px] break-all">
-                {groupedSecret(secret)}
-              </code>
-            </div>
-          </div>
-          <p className="m-0 text-[15px] font-semibold">{t("security.enterCode")}</p>
-          <ConfirmTwoStepForm from={from} labels={labels} doneHref={`${page}?saved=1#two-step`} />
-          <form action={cancelTwoStepSetupAction}>
-            <input type="hidden" name="from" value={from} />
-            <SubmitButton variant="ghost" className="h-10 px-0 text-sm">
-              {t("security.cancel")}
-            </SubmitButton>
-          </form>
-        </div>
+        setupBlock
       ) : (
         <>
           <p className="m-0 text-[15px] text-ink-3" data-two-step="off">
@@ -125,7 +188,26 @@ export async function TwoStepRecommendation({ person, staff, t }: { person: Pick
 }
 
 /** 70 "Sign out of all devices": every browser, this one too, and every Yallapp Business phone. */
-export function SignOutEverywhere({ t }: { t: DashT }) {
+export function SignOutEverywhere({ t, look = "card" }: { t: DashT; look?: "card" | "row" }) {
+  // 132.133 As a settings row: its one action, its explanation behind "?".
+  if (look === "row") {
+    return (
+      <KitSettingRow
+        titleId="h-everywhere"
+        icon="devices"
+        title={t("security.everywhereTitle")}
+        help={t("security.everywhereText")}
+        helpLabel={t("studioPage.helpSection")}
+        action={
+          <form action={signOutEverywhereAction}>
+            <SubmitButton variant="secondary" className="h-10 px-4 text-sm">
+              {t("security.everywhere")}
+            </SubmitButton>
+          </form>
+        }
+      />
+    );
+  }
   return (
     <section aria-labelledby="h-everywhere" className={card}>
       <div className="flex items-center gap-2.5">
