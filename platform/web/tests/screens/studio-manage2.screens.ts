@@ -40,7 +40,9 @@ async function regularApp(page: Page, kind: string) {
   await page.goto("/dashboard/app-type?new=1");
   await page.getByText(kind, { exact: true }).click();
   await page.getByRole("button", { name: "Add the app" }).click();
-  await page.getByText("I don't have a website").click();
+  // Events apps keep their content here without the choice.
+  const none = page.getByText("I don't have a website");
+  if (await none.isVisible().catch(() => false)) await none.click();
   await page.getByRole("button", { name: "Save & continue" }).click();
   await expect(page.getByRole("heading", { name: "Branding" })).toBeVisible();
 }
