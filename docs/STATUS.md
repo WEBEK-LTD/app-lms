@@ -11,8 +11,11 @@ Last updated: 16 November 2026.
 Roadmap 132.1–132.8 (Studio dashboard fixes): a Studio project's menu has
 every page of the dashboard that applies to the project, behind the
 dashboard's gates, in six groups that fold away, with a quick search
-(Ctrl+K), the person, language, dark mode and sign-out at its foot, and the
-Team and Your account pages in Studio's frame; Studio › Screens shows and
+(Ctrl+K), the person, language, dark mode and sign-out at its foot, every
+page about the account reachable from it and from the account menu on the
+bar (Your account and Team at /studio/account and /studio/team, the plan,
+invoices, phones and updates in the project's frame), Payments under The
+app, a food company's marketplace pages, and the bar on one line on phones; Studio › Screens shows and
 sets whether sign-in (and the account's top) follows the system screens'
 look or has its own, its preview draws sign-in, the code and a new account
 as the app does, and the app draws the code screen and a new account in
