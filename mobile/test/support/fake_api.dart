@@ -990,6 +990,45 @@ class FakeApi implements YallappApi {
         });
       });
 
+  /// 133.5 `GET /currencies`.
+  Map<String, dynamic> currencies = {
+    'rate_date': '2026-11-16',
+    'items': [
+      {
+        'code': 'EGP',
+        'name': 'Egyptian Pound',
+        'symbol': 'E£',
+        'digits': 2,
+        'usual': true,
+      },
+      {
+        'code': 'KWD',
+        'name': 'Kuwaiti Dinar',
+        'symbol': 'KWD',
+        'digits': 3,
+        'usual': true,
+      },
+      {
+        'code': 'USD',
+        'name': 'US Dollar',
+        'symbol': r'$',
+        'digits': 2,
+        'usual': true,
+      },
+      {
+        'code': 'JPY',
+        'name': 'Japanese Yen',
+        'symbol': '¥',
+        'digits': 0,
+        'usual': false,
+      },
+    ],
+  };
+
+  @override
+  Future<CurrencyList> listCurrencies() =>
+      _answer('listCurrencies', () => CurrencyList.fromJson(currencies));
+
   @override
   Future<List<StoreHomeSection>> getStoreHome() => _answer(
     'getStoreHome',

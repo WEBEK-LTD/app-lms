@@ -267,7 +267,7 @@ class _DishTile extends StatelessWidget {
                   const SizedBox(height: 4),
                   Text(
                     [
-                      dish.priceFormatted,
+                      dish.priceLabel,
                       if (!dish.available) l10n.dishSoldOut,
                       if (dish.available && dish.popular) l10n.dishPopular,
                     ].join(' · '),

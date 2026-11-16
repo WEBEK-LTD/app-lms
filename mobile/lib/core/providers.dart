@@ -10,6 +10,7 @@ import 'auth/token_manager.dart';
 import 'auth/token_store.dart';
 import 'config/build_config.dart';
 import 'gate/app_gate.dart';
+import 'l10n/currency.dart';
 import 'l10n/language.dart';
 import 'preview/preview.dart';
 import 'services/analytics_interceptor.dart';
@@ -84,6 +85,8 @@ final apiBundleProvider = Provider<ApiBundle>((ref) {
     onGateError: (error) => ref.read(appGateProvider.notifier).report(error),
     language: language,
     offline: ref.read(offlineCacheProvider),
+    // 133.5 Prices in the customer's currency too.
+    currency: () => ref.read(appCurrencyProvider),
   );
   if (contentIsHosted) dio.options.headers.addAll(previewHeaders);
   // 62 The app opens Media library videos bound to the student (with their
@@ -143,6 +146,8 @@ extension ContentApi on Ref {
   /// that use it reload when the language changes.
   YallappApi get contentApi {
     watch(appLanguageProvider);
+    // 133.5 And their prices in the customer's currency.
+    watch(appCurrencyProvider);
     return watch(yallappApiProvider);
   }
 }

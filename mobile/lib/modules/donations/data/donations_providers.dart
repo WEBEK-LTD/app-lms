@@ -3,6 +3,7 @@ import 'package:intl/intl.dart';
 
 import '../../../core/api/models/models.dart';
 import '../../../core/data/paged_controller.dart';
+import '../../../core/format/money.dart' show currencyDigits;
 import '../../../core/gate/app_gate.dart';
 import '../../../core/providers.dart';
 
@@ -43,10 +44,15 @@ final myDonationsProvider =
 const _symbols = {'TRY': '₺', 'USD': r'$', 'EUR': '€'};
 
 /// "₺1,200" or "₺75.50": an amount the API sent as a decimal string.
+/// 133.2 A fraction in its currency's digits (KWD 2.500).
 String formatAmount(String amount, String currency) {
   final value = double.tryParse(amount) ?? 0;
   final whole = value == value.roundToDouble();
-  final number = NumberFormat(whole ? '#,##0' : '#,##0.00', 'en_US');
+  final digits = currencyDigits(currency);
+  final number = NumberFormat(
+    whole || digits == 0 ? '#,##0' : '#,##0.${'0' * digits}',
+    'en_US',
+  );
   return '${_symbols[currency] ?? '$currency '}${number.format(value)}';
 }
 

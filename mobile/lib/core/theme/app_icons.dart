@@ -37,6 +37,9 @@ abstract final class AppIcons {
   static const close = Symbols.close_rounded;
   static const rotate = Symbols.screen_rotation_rounded;
   static const web = Symbols.language_rounded;
+
+  /// 133.5 The currency prices also show in.
+  static const currency = Symbols.currency_exchange_rounded;
   static const code = Symbols.code_rounded;
   static const copy = Symbols.content_copy_rounded;
   static const certificate = Symbols.workspace_premium_rounded;

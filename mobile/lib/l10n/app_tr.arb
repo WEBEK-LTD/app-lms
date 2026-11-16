@@ -3179,5 +3179,20 @@
   "deliveryPinSet": "Haritada işaretlendi",
   "deliveryPinChange": "Değiştir",
   "deliveryNeedPlace": "Teslimat yerini seçin.",
-  "deliveryNeedPin": "Teslimat yerini haritada işaretleyin."
+  "deliveryNeedPin": "Teslimat yerini haritada işaretleyin.",
+  "currencyLabel": "Para birimi",
+  "currencyFromRegion": "{currency} · bölgenizin",
+  "currencyPickerHint": "Fiyatlar günün kuruyla bu para biriminde de görünür. Ödeme sayfası aksini söylemedikçe mağazanın para birimiyle ödersiniz.",
+  "currencySearch": "Para birimi ara",
+  "currencyShop": "Mağazanın para birimi",
+  "currencyYourRegion": "Bölgeniz",
+  "currencyAll": "Tüm para birimleri",
+  "currencyNoMatch": "Eşleşen para birimi yok.",
+  "currencyUseRegion": "Bölgemin para birimini kullan",
+  "approxPrice": "≈ {amount}",
+  "youPayApprox": "≈ {converted} · ödeyeceğiniz {total}",
+  "youPayIn": "Ödeyeceğiniz {total}",
+  "youPayShopCurrency": "Ödeyeceğiniz {total}: mağazanın kartla ödemesi {currency} almıyor.",
+  "orderInYourCurrency": "Para biriminizde ≈ {total}",
+  "orderPaidIn": "Ödenen {total}"
 }

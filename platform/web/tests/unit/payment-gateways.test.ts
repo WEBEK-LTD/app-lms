@@ -394,7 +394,7 @@ describe("132.34 Test connection: PayPal, Kashier, Fawaterk and iyzico", () => {
     const wrong = await testConnection(connection(paypal, { currency: "TRY" }), { fetcher: live.fetcher });
     expect(wrong.ok).toBe(false);
     expect(codes(wrong)).toEqual(["fail:wrongModeLive", "info:modeTest", "fail:currencyNo", "info:noWebhook"]);
-    expect(wrong.checks.find((c) => c.code === "currencyNo")!.values).toEqual({ provider: "PayPal", currency: "TRY", list: "USD, EUR" });
+    expect(wrong.checks.find((c) => c.code === "currencyNo")!.values).toEqual({ provider: "PayPal", currency: "TRY", list: "USD, EUR, GBP, AUD, BRL, CAD, CHF, CNY, +16" });
     expect(JSON.stringify(wrong)).not.toContain("fake-paypal-secret");
   });
 

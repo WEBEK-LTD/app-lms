@@ -12656,4 +12656,74 @@ class OverlayLocalizations extends AppLocalizations {
   @override
   String get deliveryNeedPin =>
       overlay.text('deliveryNeedPin') ?? base.deliveryNeedPin;
+
+  @override
+  String get currencyLabel =>
+      overlay.text('currencyLabel') ?? base.currencyLabel;
+
+  @override
+  String currencyFromRegion(String currency) =>
+      overlay.format('currencyFromRegion', {'currency': currency}) ??
+      base.currencyFromRegion(currency);
+
+  @override
+  String get currencyPickerHint =>
+      overlay.text('currencyPickerHint') ?? base.currencyPickerHint;
+
+  @override
+  String get currencySearch =>
+      overlay.text('currencySearch') ?? base.currencySearch;
+
+  @override
+  String get currencyShop => overlay.text('currencyShop') ?? base.currencyShop;
+
+  @override
+  String get currencyYourRegion =>
+      overlay.text('currencyYourRegion') ?? base.currencyYourRegion;
+
+  @override
+  String get currencyAll => overlay.text('currencyAll') ?? base.currencyAll;
+
+  @override
+  String get currencyNoMatch =>
+      overlay.text('currencyNoMatch') ?? base.currencyNoMatch;
+
+  @override
+  String get currencyUseRegion =>
+      overlay.text('currencyUseRegion') ?? base.currencyUseRegion;
+
+  @override
+  String approxPrice(String amount) =>
+      overlay.format('approxPrice', {'amount': amount}) ??
+      base.approxPrice(amount);
+
+  @override
+  String youPayApprox(String converted, String total) =>
+      overlay.format('youPayApprox', {
+        'converted': converted,
+        'total': total,
+      }) ??
+      base.youPayApprox(converted, total);
+
+  @override
+  String youPayIn(String total) =>
+      overlay.format('youPayIn', {'total': total}) ?? base.youPayIn(total);
+
+  @override
+  String youPayShopCurrency(String total, String currency) =>
+      overlay.format('youPayShopCurrency', {
+        'total': total,
+        'currency': currency,
+      }) ??
+      base.youPayShopCurrency(total, currency);
+
+  @override
+  String orderInYourCurrency(String total) =>
+      overlay.format('orderInYourCurrency', {'total': total}) ??
+      base.orderInYourCurrency(total);
+
+  @override
+  String orderPaidIn(String total) =>
+      overlay.format('orderPaidIn', {'total': total}) ??
+      base.orderPaidIn(total);
 }

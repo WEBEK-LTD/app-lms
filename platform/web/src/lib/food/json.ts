@@ -74,8 +74,10 @@ function dishJson(d: Dish, currency: DeliverySettings["currency"], assetUrl: Ass
     name: d.name,
     description: d.description,
     image_url: asset(d.imageAssetId, assetUrl),
-    price: centsToDecimal(d.priceCents),
+    price: centsToDecimal(d.priceCents, currency),
     price_formatted: formatCents(d.priceCents, currency),
+    // 133.5 Its currency, so the price also comes in the customer's (`display`).
+    currency,
     available: d.available,
     popular: d.popular,
     choice_groups: d.choiceGroups.map((g) => ({

@@ -3179,5 +3179,20 @@
   "deliveryPinSet": "تم تحديد المكان على الخريطة",
   "deliveryPinChange": "تغيير",
   "deliveryNeedPlace": "اختر مكان التوصيل.",
-  "deliveryNeedPin": "حدّد مكان التوصيل على الخريطة."
+  "deliveryNeedPin": "حدّد مكان التوصيل على الخريطة.",
+  "currencyLabel": "العملة",
+  "currencyFromRegion": "{currency} · عملة منطقتك",
+  "currencyPickerHint": "تظهر الأسعار أيضًا بهذه العملة بسعر صرف اليوم. تدفع بعملة المتجر ما لم تذكر صفحة الدفع غير ذلك.",
+  "currencySearch": "ابحث عن عملة",
+  "currencyShop": "عملة المتجر",
+  "currencyYourRegion": "منطقتك",
+  "currencyAll": "كل العملات",
+  "currencyNoMatch": "لا توجد عملة مطابقة.",
+  "currencyUseRegion": "استخدم عملة منطقتي",
+  "approxPrice": "≈ {amount}",
+  "youPayApprox": "≈ {converted} · ستدفع {total}",
+  "youPayIn": "ستدفع {total}",
+  "youPayShopCurrency": "ستدفع {total}: الدفع بالبطاقة في المتجر لا يقبل {currency}.",
+  "orderInYourCurrency": "≈ {total} بعملتك",
+  "orderPaidIn": "تم دفع {total}"
 }

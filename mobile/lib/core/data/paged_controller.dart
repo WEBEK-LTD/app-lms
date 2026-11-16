@@ -1,6 +1,7 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../api/models/models.dart';
+import '../l10n/currency.dart';
 import '../l10n/language.dart';
 
 /// A list that loads page by page.
@@ -53,6 +54,8 @@ abstract class PagedController<T> extends Notifier<PagedState<T>> {
   PagedState<T> build() {
     // Lists come back in the user's language: reload when it changes.
     ref.watch(appLanguageProvider);
+    // 133.5 And their prices in the customer's currency.
+    ref.watch(appCurrencyProvider);
     Future.microtask(refresh);
     return PagedState<T>(loading: true);
   }

@@ -2,6 +2,7 @@ import 'addon_models.dart';
 import 'commerce_models.dart';
 import 'config_models.dart';
 import 'json.dart';
+import 'money_models.dart';
 import 'restaurant_models.dart';
 
 /// `Config.store`: the shop's settings for Store apps.
@@ -335,6 +336,7 @@ class ProductPrice {
     required this.range,
     this.regularAmount,
     this.regularFormatted,
+    this.display,
   });
 
   factory ProductPrice.fromJson(Json json) => ProductPrice(
@@ -345,6 +347,7 @@ class ProductPrice {
     formatted: reqString(json, 'formatted'),
     onSale: boolOr(json, 'on_sale', false),
     range: boolOr(json, 'range', false),
+    display: DisplayMoney.tryParse(json['display']),
   );
 
   final String amount;
@@ -354,6 +357,9 @@ class ProductPrice {
   final String formatted;
   final bool onSale;
   final bool range;
+
+  /// 133.5 The price in the customer's currency; null when none.
+  final DisplayMoney? display;
 }
 
 enum ProductType { simple, variable, grouped, external, other }
@@ -697,6 +703,8 @@ class CartQuote {
     this.deliveryZone,
     this.breakdown = const [],
     this.deliveryProblem,
+    this.display,
+    this.charge,
   });
 
   factory CartQuote.fromJson(Json json) => CartQuote(
@@ -726,7 +734,15 @@ class CartQuote {
     deliveryProblem: json['delivery_problem'] is Map
         ? optString(asJson(json['delivery_problem']), 'message')
         : null,
+    display: DisplayMoney.tryParse(json['display']),
+    charge: CartCharge.tryParse(json['charge']),
   );
+
+  /// 133.5 The subtotal and total in the customer's currency; null when none.
+  final DisplayMoney? display;
+
+  /// 133.7 What the card is charged, and in which currency.
+  final CartCharge? charge;
 
   /// 131 The chosen slot's fee, formatted (in [shipping]).
   final String? deliveryFee;

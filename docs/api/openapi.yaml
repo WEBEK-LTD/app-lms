@@ -18760,6 +18760,8 @@ components:
         image_url: { type: [string, 'null'], format: uri }
         price: { type: string, description: 'Before choices, as a decimal string.', example: '65.00' }
         price_formatted: { type: string, example: 'EGP 65.00' }
+        currency: { type: string, pattern: '^[A-Z]{3}$', description: "133.5 The restaurant's currency (missing on older servers)." }
+        display: { $ref: '#/components/schemas/DisplayMoney' }
         available: { type: boolean, description: 'False while sold out.' }
         popular: { type: boolean }
         choice_groups:
@@ -18824,6 +18826,7 @@ components:
         total: { type: string, example: '205.00' }
         total_formatted: { type: string, example: 'EGP 205.00' }
         currency: { type: string, pattern: '^[A-Z]{3}$', description: '133.1 Any active ISO 4217 code (KWD, JPY…), with its own digits after the point.' }
+        display: { $ref: '#/components/schemas/DisplayMoney' }
         distance_km: { type: [number, 'null'] }
         delivery_minutes: { type: [integer, 'null'], description: 'Preparing and delivering, roughly.' }
 
