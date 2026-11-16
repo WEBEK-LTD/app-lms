@@ -1,8 +1,10 @@
 import "server-only";
 import { chooseApp } from "../auth/session";
 import { appUrl } from "../env";
+import { getStore } from "../data";
 import { verifyFawaterkWebhook } from "./fawaterk";
 import { verifyKashierWebhook } from "./kashier";
+import { noteWebhook } from "./webhooks";
 import { PAYMENT_KINDS, type PaymentKind } from "./routes";
 import { settleDonationPayment, settleOrderPayment, settlePlanPayment, type Settled, type Trigger } from "./settle";
 import { settleTemplatePayment } from "../studio-market/payment";
@@ -63,18 +65,25 @@ export async function providerWebhook(provider: Provider, kind: string, token: s
   const body = await readBody(request);
   if (!body) return json({ error: "invalid_body" }, 400);
   let trigger: Trigger;
+  // 132.33 Whether the signature matched the account's key (null: not checked), for the owner's payments page.
+  let signed = null as boolean | null;
   if (provider === "kashier") {
     // Only payments matter here; refunds are made (and seen) in Kashier's panel.
     if (body.event !== undefined && body.event !== "pay") return json({ received: true });
     const signature = request.headers.get("x-kashier-signature");
-    trigger = { provider, verify: (account) => account.provider === "kashier" && verifyKashierWebhook(body, signature, account.keys.apiKey) };
+    trigger = { provider, verify: (account) => (signed = account.provider === "kashier" && verifyKashierWebhook(body, signature, account.keys.apiKey)) };
   } else {
     // Only a paid invoice carries the hashKey; other events change nothing here.
     if (String(body.invoice_status ?? "").toLowerCase() !== "paid") return json({ received: true });
     const invoiceId = typeof body.invoice_id === "string" || typeof body.invoice_id === "number" ? String(body.invoice_id) : null;
-    trigger = { provider, providerRef: invoiceId, verify: (account) => account.provider === "fawaterk" && verifyFawaterkWebhook(body, account.keys.apiKey) };
+    trigger = { provider, providerRef: invoiceId, verify: (account) => (signed = account.provider === "fawaterk" && verifyFawaterkWebhook(body, account.keys.apiKey)) };
   }
   const settled = await settle(kind, token, trigger);
+  // A shop's or a charity's own account (a plan is paid into Yallapp's): noted on its app, never failing the webhook.
+  if (kind !== "plan" && settled.appId && signed !== null) {
+    const outcome = signed ? { ok: true as const, event: provider === "kashier" ? "pay" : "paid" } : { ok: false as const, failure: "signature" as const };
+    await noteWebhook(await getStore(), settled.appId, provider, outcome, new Date()).catch(() => undefined);
+  }
   if (settled.status === "rejected") return json({ error: "invalid_signature" }, 401);
   if (settled.status === "not_found") return json({ error: "not_found" }, 404);
   return json({ received: true, status: settled.status });
