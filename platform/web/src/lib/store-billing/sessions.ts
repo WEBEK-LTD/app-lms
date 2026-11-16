@@ -1,7 +1,7 @@
 import { randomToken, sha256Hex } from "../crypto/tokens";
 import type { DataStore } from "../data/store";
 import type { App } from "../data/types";
-import { allows, effectivePlans, planOfLicense } from "../entitlements";
+import { allows, effectivePlans, appPlanFrom } from "../entitlements";
 import { siteApp, type Fail } from "../license/chat";
 import { parseSiteInfo } from "../license/service";
 import { storeBillingOn } from "./access";
@@ -40,7 +40,7 @@ export async function startSiteBillingSession(store: DataStore, body: unknown, d
   const now = deps.now;
   const found = await siteApp(store, site.value, now);
   if (!found.ok) return found.result;
-  const plan = planOfLicense(await effectivePlans(store), found.license, now);
+  const plan = await appPlanFrom(store, await effectivePlans(store), found.license, now);
   if (!allows(plan, "store_billing") || !storeBillingOn(found.app, plan)) return fail(403, "feature_disabled", "This app doesn't sell in the app.");
   const token = randomToken(32);
   const expiresAt = new Date(now.getTime() + BILLING_SESSION_SECONDS * 1000);

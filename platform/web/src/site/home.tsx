@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import type { CSSProperties } from "react";
 import Link from "next/link";
-import { planOffered, REGULAR_PLANS, STUDIO_PLANS } from "@/lib/plans";
+import { plansForSale } from "@/lib/plans";
 import { StudioPlans } from "@/components/studio-marketing";
 import { BrowserFrame, DASHBOARD_PATHS, DeviceFrame } from "@/components/device-frame";
 import { Icon } from "@/components/icon";
@@ -71,9 +71,10 @@ export async function HomePage({ lang }: { lang: Lang }) {
   const store = await getStore();
   // 52 Prices in the visitor's currency: pounds in Egypt, dollars elsewhere.
   const [all, view] = await Promise.all([effectivePlans(store), visitorPriceView(store)]);
-  const plans = REGULAR_PLANS.map((id) => planFor(lang, all[id]));
+  // 133 The plans for sale, in the team's order.
+  const plans = plansForSale(all, "regular").map((plan) => planFor(lang, plan));
   // 103R Yallapp Studio's own plans under the regular ones: the ones the team offers.
-  const studioPlans = STUDIO_PLANS.map((id) => all[id]).filter(planOffered).map((plan) => planFor(lang, plan));
+  const studioPlans = plansForSale(all, "studio").map((plan) => planFor(lang, plan));
   const base = siteUrl();
   const text = await getSiteContent("home", lang);
   // The words take turns only in the title they were written for: the default title, or one edited with its words.

@@ -2,7 +2,7 @@ import { chatBaseUrl, chatAvailable } from "../chat/access";
 import { forgetChatMember, startSiteSession } from "../chat/service";
 import type { DataStore } from "../data/store";
 import type { App, License } from "../data/types";
-import { effectivePlans, planOfLicense } from "../entitlements";
+import { effectivePlans, appPlanFrom } from "../entitlements";
 import type { MediaStorage } from "../media/storage";
 import { hashLicenseKey } from "./key";
 import { parseSiteInfo, type SiteInfo } from "./service";
@@ -73,7 +73,7 @@ export async function siteChatSession(store: DataStore, body: unknown, deps: { n
   }
   const found = await siteApp(store, site.value, deps.now);
   if (!found.ok) return found.result;
-  const plan = planOfLicense(await effectivePlans(store), found.license, deps.now);
+  const plan = await appPlanFrom(store, await effectivePlans(store), found.license, deps.now);
   if (!chatAvailable(found.app, plan)) return fail(403, "chat_not_available", "Chat isn't available in this app.");
   const started = await startSiteSession({ store, now: deps.now }, found.app, { userId: id, name, imageUrl: httpUrl(user.image_url), courses });
   if (!started.ok) return fail(429, "rate_limited", started.message, started.retryAfter !== undefined ? { retry_after_seconds: started.retryAfter } : {});

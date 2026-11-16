@@ -26,6 +26,10 @@ export const ADMIN_PERMISSIONS = [
   "publishing.manage",
   /** Plans, prices and what each plan offers. */
   "plans.edit",
+  /** 133 Add-ons: what they are, their prices, who may buy them, the top plans. */
+  "addons.edit",
+  /** 133 Add-on services: their tasks for the team (new, in progress, done). */
+  "addons.tasks",
   /** Yallapp's payment accounts (iyzico, Kashier, Fawaterk), the marketplace commission and payouts. */
   "payments.manage",
   /** Platform settings: sign-in codes, email, contact details. */
@@ -51,7 +55,7 @@ export const ADMIN_PERMISSIONS = [
 ] as const;
 export type AdminPermission = (typeof ADMIN_PERMISSIONS)[number];
 
-const SUPPORT: readonly AdminPermission[] = ["view", "clients.license", "clients.edit", "clients.email", "builds.manage", "publishing.manage", "bot.edit", "market.review"];
+const SUPPORT: readonly AdminPermission[] = ["view", "clients.license", "clients.edit", "clients.email", "builds.manage", "publishing.manage", "bot.edit", "market.review", "addons.tasks"];
 
 export const ROLE_PERMISSIONS: Record<AdminRole, readonly AdminPermission[]> = {
   owner: ADMIN_PERMISSIONS,
@@ -65,7 +69,7 @@ export const ROLE_LABELS: Record<AdminRole, string> = { owner: "Owner", admin: "
 export const ROLE_DESCRIPTIONS: Record<AdminRole, string> = {
   owner: "Everything, and manages the team.",
   admin: "Everything except the team, including moving and copying clients' apps.",
-  support: "Sees everything; activates and extends licenses, changes clients' apps, publishes them for clients, sends their emails, teaches the app-builder bot and reviews Studio Market templates. No prices, plans, payments, settings, releases, demo apps or email campaigns.",
+  support: "Sees everything; activates and extends licenses, changes clients' apps, publishes them for clients, works on add-on services, sends their emails, teaches the app-builder bot and reviews Studio Market templates. No prices, plans, payments, settings, releases, demo apps or email campaigns.",
   viewer: "Sees everything, changes nothing.",
 };
 

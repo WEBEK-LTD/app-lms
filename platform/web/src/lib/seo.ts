@@ -260,7 +260,8 @@ export function softwareLd(base: string, plans: PlanInfo[], view: PriceView = PO
           "@type": "UnitPriceSpecification",
           price,
           priceCurrency: shown.currency,
-          billingDuration: plan.billingMonths === 1 ? "P1M" : "P1Y",
+          // 133 Any period; a lifetime price has no billing duration.
+          ...(plan.billingMonths ? { billingDuration: plan.billingMonths % 12 === 0 ? `P${plan.billingMonths / 12}Y` : `P${plan.billingMonths}M` } : {}),
         },
       },
     ];

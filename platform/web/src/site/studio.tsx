@@ -16,7 +16,7 @@ import { getStore } from "@/lib/data";
 import { effectivePlans } from "@/lib/entitlements";
 import { planFor, screenAltFor, solutionsFor } from "@/lib/marketing-lang";
 import type { AppScreen } from "@/lib/marketing";
-import { planOffered, STUDIO_PLANS } from "@/lib/plans";
+import { plansForSale } from "@/lib/plans";
 import { siteMetadata } from "@/lib/seo";
 import { messagesFor, type Lang } from "@/i18n";
 import { Notice } from "@/components/ui";
@@ -45,7 +45,7 @@ const secondary = "flex h-[50px] items-center gap-2 rounded-xl border border-lin
 export async function studioPlans(lang: Lang) {
   const store = await getStore();
   const [all, view] = await Promise.all([effectivePlans(store), visitorPriceView(store)]);
-  return { plans: STUDIO_PLANS.map((id) => all[id]).filter(planOffered).map((plan) => planFor(lang, plan)), view };
+  return { plans: plansForSale(all, "studio").map((plan) => planFor(lang, plan)), view };
 }
 
 /**

@@ -63,7 +63,7 @@ export default async function PlanReceiptPage({ params }: PageProps<"/dashboard/
         title={
           <span className="flex items-center gap-2">
             <Icon name="receipt_long" size={22} />
-            {payment.purpose === "storage" ? t("license.storagePayment") : t("license.planPayment")}
+            {payment.purpose === "storage" ? t("license.storagePayment") : payment.purpose === "addon" ? t("addons.payment") : t("license.planPayment")}
           </span>
         }
         flush

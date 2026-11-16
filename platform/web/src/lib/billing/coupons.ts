@@ -1,7 +1,8 @@
 import { formatCents, parsePrice } from "../catalog/money";
 import type { DataStore } from "../data/store";
-import type { CatalogCurrency, Client, Coupon, CouponClaimLimits, CouponDiscount, CouponRedemption, License } from "../data/types";
+import type { CatalogCurrency, Client, Coupon, CouponClaimLimits, CouponDiscount, CouponRedemption, License, PlanPayment } from "../data/types";
 import { PLANS, type Plan, type PlanInfo } from "../plans";
+import { PERIOD_MONTHS, type PeriodMonths } from "./periods";
 import type { RateLimitRule } from "../rate-limit";
 import type { Money } from "./prices";
 
@@ -79,7 +80,10 @@ export class CouponUsedUpError extends Error {
   }
 }
 
-const PERIOD_NAME = { 1: "monthly", 12: "yearly" } as const;
+const PERIOD_NAME: Partial<Record<number, string>> = { 1: "monthly", 12: "yearly" };
+
+/** 133 What a coupon is used on: a plan (the default), or an add-on. */
+export type CouponTarget = { kind: "plan" } | { kind: "addon"; id: string; name: string; boughtBefore: boolean };
 
 /**
  * Whether a client can use a coupon on a plan now, and the price. All the
@@ -93,6 +97,10 @@ const PERIOD_NAME = { 1: "monthly", 12: "yearly" } as const;
 export function checkCoupon(input: {
   coupon: Coupon | null;
   plan: PlanInfo;
+  /** 133 The period paid for, in months (0: lifetime or one-time); the plan's main one without. */
+  months?: PeriodMonths;
+  /** 133 An add-on instead of the plan: the coupon must name it; "first payment only" is the app's first of that add-on. */
+  target?: CouponTarget;
   /** 52 What the plan costs with Yallapp's gateway, before the coupon. */
   charged: Money;
   client: Pick<Client, "id" | "activatedAt">;
@@ -101,14 +109,20 @@ export function checkCoupon(input: {
   now: Date;
 }): CouponCheck {
   const { coupon, plan, client, now } = input;
+  const target = input.target ?? { kind: "plan" as const };
+  const months = input.months ?? plan.billingMonths;
   if (!coupon || !coupon.active) return { ok: false, error: "This coupon code isn't valid." };
   if (coupon.validFrom && coupon.validFrom.getTime() > now.getTime()) return { ok: false, error: "This coupon isn't valid yet." };
   if (coupon.validUntil && coupon.validUntil.getTime() < now.getTime()) return { ok: false, error: "This coupon has expired." };
-  if (coupon.plans && !coupon.plans.includes(plan.id)) return { ok: false, error: `This coupon doesn't apply to the ${plan.name} plan.` };
-  if (coupon.periods && !coupon.periods.includes(plan.billingMonths)) {
-    return { ok: false, error: `This coupon doesn't apply to ${PERIOD_NAME[plan.billingMonths]} billing.` };
+  if (target.kind === "addon") {
+    // 133 Only coupons the team made for this add-on.
+    if (!coupon.addons?.includes(target.id)) return { ok: false, error: `This coupon isn't for the add-on ${target.name}.` };
+  } else if (coupon.plans && !coupon.plans.includes(plan.id)) return { ok: false, error: `This coupon doesn't apply to the ${plan.name} plan.` };
+  if (coupon.periods && !coupon.periods.includes(months)) {
+    const name = PERIOD_NAME[months];
+    return { ok: false, error: name ? `This coupon doesn't apply to ${name} billing.` : "This coupon doesn't apply to this billing period." };
   }
-  const paidBefore = input.license !== undefined ? input.license !== null : client.activatedAt !== null;
+  const paidBefore = target.kind === "addon" ? target.boughtBefore : input.license !== undefined ? input.license !== null : client.activatedAt !== null;
   if (coupon.firstPaymentOnly && paidBefore) return { ok: false, error: "This coupon is for a first payment only." };
   const counted = countedRedemptions(input.redemptions, now);
   if (coupon.maxRedemptions !== null && counted.length >= coupon.maxRedemptions) return { ok: false, error: "This coupon has been used up." };
@@ -123,12 +137,12 @@ export function checkCoupon(input: {
 /** Looks the code up (in any case) and checks it for this client, the app's license (see checkCoupon) and plan. */
 export async function findCoupon(
   store: Pick<DataStore, "getCouponByCode" | "listCouponRedemptions">,
-  input: { code: string; plan: PlanInfo; charged: Money; client: Pick<Client, "id" | "activatedAt">; license?: Pick<License, "id"> | null; now: Date },
+  input: { code: string; plan: PlanInfo; months?: PeriodMonths; target?: CouponTarget; charged: Money; client: Pick<Client, "id" | "activatedAt">; license?: Pick<License, "id"> | null; now: Date },
 ): Promise<CouponCheck> {
   const code = normalizeCouponCode(input.code);
   const coupon = COUPON_CODE.test(code) ? await store.getCouponByCode(code) : null;
   const redemptions = coupon ? await store.listCouponRedemptions({ couponId: coupon.id }) : [];
-  return checkCoupon({ coupon, plan: input.plan, charged: input.charged, client: input.client, license: input.license, redemptions, now: input.now });
+  return checkCoupon({ coupon, plan: input.plan, months: input.months, target: input.target, charged: input.charged, client: input.client, license: input.license, redemptions, now: input.now });
 }
 
 /** The admin's coupon form: text values, checkbox groups as comma-separated values. */
@@ -142,6 +156,8 @@ export interface CouponFormValues {
   amountUSD: string;
   plans: string;
   periods: string;
+  /** 133 The add-ons it applies to, comma-separated; empty: none. */
+  addons: string;
   validFrom: string;
   validUntil: string;
   maxRedemptions: string;
@@ -159,6 +175,7 @@ export const NEW_COUPON: CouponFormValues = {
   amountUSD: "",
   plans: "starter,pro",
   periods: "1,12",
+  addons: "",
   validFrom: "",
   validUntil: "",
   maxRedemptions: "",
@@ -180,6 +197,7 @@ export function couponFormValues(coupon: Coupon): CouponFormValues {
     amountUSD: amount("USD"),
     plans: (coupon.plans ?? ALL_PLANS).join(","),
     periods: (coupon.periods ?? ALL_PERIODS).join(","),
+    addons: (coupon.addons ?? []).join(","),
     validFrom: coupon.validFrom?.toISOString().slice(0, 10) ?? "",
     validUntil: coupon.validUntil?.toISOString().slice(0, 10) ?? "",
     maxRedemptions: coupon.maxRedemptions === null ? "" : String(coupon.maxRedemptions),
@@ -209,7 +227,9 @@ export interface CouponInput {
   note: string;
   discount: CouponDiscount;
   plans: Plan[] | null;
-  periods: (1 | 12)[] | null;
+  periods: PeriodMonths[] | null;
+  /** 133 Null: no add-ons. */
+  addons: string[] | null;
   validFrom: Date | null;
   validUntil: Date | null;
   maxRedemptions: number | null;
@@ -219,7 +239,8 @@ export interface CouponInput {
 }
 
 const ALL_PLANS: Plan[] = [...PLANS];
-const ALL_PERIODS: (1 | 12)[] = [1, 12];
+/** 133 Every billing period: 1, 6, 12, 24 and 36 months, and 0 for lifetime (and an add-on's one-time payment). */
+const ALL_PERIODS: PeriodMonths[] = [...PERIOD_MONTHS];
 /** 52 What Yallapp charges in: pounds (Kashier, Fawaterk) or dollars (iyzico). */
 const CURRENCIES: CatalogCurrency[] = ["EGP", "USD"];
 
@@ -228,6 +249,9 @@ export function readCouponForm(input: {
   values: Record<string, string>;
   plans: string[];
   periods: string[];
+  /** 133 The add-ons ticked, and the ones there are. */
+  addons?: string[];
+  knownAddons?: string[];
 }): { ok: true; coupon: CouponInput } | { ok: false; errors: Record<string, string> } {
   const v = input.values;
   const errors: Record<string, string> = {};
@@ -257,7 +281,9 @@ export function readCouponForm(input: {
   }
 
   const plans = ALL_PLANS.filter((p) => input.plans.includes(p));
-  if (!plans.length) errors.plans = "Choose at least one plan.";
+  // 133 A coupon can be for add-ons only.
+  const addons = (input.knownAddons ?? []).filter((a) => (input.addons ?? []).includes(a));
+  if (!plans.length && !addons.length) errors.plans = "Choose at least one plan or add-on.";
   const periods = ALL_PERIODS.filter((p) => input.periods.includes(String(p)));
   if (!periods.length) errors.periods = "Choose at least one billing period.";
 
@@ -294,8 +320,10 @@ export function readCouponForm(input: {
       code,
       note,
       discount,
+      // 133 Add-ons only: no plan (an empty list).
       plans: plans.length === ALL_PLANS.length ? null : plans,
       periods: periods.length === ALL_PERIODS.length ? null : periods,
+      addons: addons.length ? addons : null,
       validFrom,
       validUntil,
       maxRedemptions,
@@ -303,5 +331,22 @@ export function readCouponForm(input: {
       firstPaymentOnly: v.firstPaymentOnly === "on",
       active: v.active === "on",
     },
+  };
+}
+
+/** 11.6 A coupon's use on a payment, recorded with it (133 a plan's or an add-on's). */
+export function redemptionOf(coupon: Extract<CouponCheck, { ok: true }>, payment: PlanPayment, status: "pending" | "redeemed", now: Date) {
+  return {
+    couponId: coupon.coupon.id,
+    paymentId: payment.id,
+    clientId: payment.clientId,
+    code: coupon.coupon.code,
+    plan: payment.plan,
+    fullCents: coupon.fullCents,
+    discountCents: coupon.discountCents,
+    currency: payment.currency,
+    status,
+    createdAt: now,
+    redeemedAt: status === "redeemed" ? now : null,
   };
 }
