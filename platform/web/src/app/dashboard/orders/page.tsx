@@ -103,7 +103,8 @@ export default async function OrdersPage({ searchParams }: { searchParams: Promi
           label={t("orders.title")}
           stats={
             <>
-              <KitStat icon="package_2" tone="accent" label={t("studioPage.ordersOpen")} value={num(open)} />
+              {/* 132.152 The first tile's bar: how many of the paid orders are done. */}
+              <KitStat icon="package_2" tone="accent" label={t("studioPage.ordersOpen")} value={num(open)} progress={total ? completed / total : 0} />
               <KitStat icon="check_circle" tone="success" label={k(ORDER_STATUS_LABELS.completed)} value={num(completed)} />
               <KitStat icon="receipt_long" label={t("studioPage.ordersPaid")} value={num(total)} />
             </>

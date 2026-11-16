@@ -46,6 +46,18 @@ app into any account. Migration `0130_app_moves` (the requests, and
 `apps.moved_at`, `apps.moved_to_client_id` for the read-only record an app
 leaves behind).
 
+Roadmap 132.150–132.153 (Studio's console): every Studio project page and
+Your account and Team are in Studio's console (`app/studio/console.tsx`): a
+midnight frame with an icon rail of the menu's groups and a panel of the
+group open, the page on a rounded canvas under a bar with where it is,
+Preview, the editor and the account's menu; a tab bar and a sheet on
+phones. The page kit (`components/studio-page`) has the console's look
+(segmented tabs, tiles, tables, a docked inspector from 1280 px); Products
+is built as the design, with a new Featured switch. Orders, Plan and Your
+account sit in it with their behaviour kept; the other project pages are
+in the console's frame but keep their own markup until they move to the
+kit.
+
 Roadmap 132.130–132.134 (Studio's premium pages): a shared page kit
 (`src/components/studio-page`: header, hero card, sections, rows with one
 pill and one action, drawers, settings rows, folds, "?" help, empty

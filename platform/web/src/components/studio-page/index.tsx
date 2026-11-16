@@ -454,7 +454,7 @@ export function KitStatus({ tone, children, icon }: { tone: keyof typeof STATUS_
 export function KitEmpty({ icon, title, children, action }: { icon: IconName; title: ReactNode; children?: ReactNode; action?: ReactNode }) {
   return (
     <div data-kit-empty="" className="flex flex-col items-center gap-3 px-6 py-14 text-center sm:py-20">
-      <span aria-hidden="true" className="mb-1 flex h-16 w-16 items-center justify-center rounded-[18px] bg-(--sp-cell) text-accent">
+      <span aria-hidden="true" className="mb-1 flex h-16 w-16 items-center justify-center rounded-[18px] bg-(--sp-tile) text-accent">
         <Icon name={icon} size={30} />
       </span>
       <p className="m-0 text-[19px] font-bold text-(--sp-ink)">{title}</p>

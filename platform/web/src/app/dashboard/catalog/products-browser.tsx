@@ -205,11 +205,11 @@ export function ProductsBrowser({ products, categories, restaurant, initial }: {
       {p.addon ? <span className="inline-flex h-5 shrink-0 items-center rounded-md bg-(--sp-soft) px-1.5 text-[11.5px] font-bold text-(--sp-ink-2)">{t("shop.addonBadge")}</span> : null}
     </>
   );
-  const priceOf = (p: ProductRowData, size: "row" | "small") => (
-    <span className={`flex flex-wrap items-baseline gap-x-2 font-sans tabular-nums ${size === "row" ? "text-[14.5px] font-semibold text-(--sp-ink)" : "text-[13px] font-semibold text-(--sp-muted)"}`}>
+  const priceOf = (p: ProductRowData) => (
+    <span className="kit-price flex flex-wrap items-baseline gap-x-2 font-sans text-[14.5px] font-semibold text-(--sp-ink) tabular-nums">
       <bdi dir="ltr">{p.price}</bdi>
       {p.was ? (
-        <s dir="ltr" className={`font-normal text-(--sp-faint) ${size === "row" ? "text-xs" : "text-[11.5px]"}`}>
+        <s dir="ltr" className="text-xs font-normal text-(--sp-faint)">
           {p.was}
         </s>
       ) : null}
@@ -319,7 +319,7 @@ export function ProductsBrowser({ products, categories, restaurant, initial }: {
                   <span className="me-1 text-[14.5px] leading-snug font-bold break-words">{p.name}</span>
                   {chips(p)}
                 </button>
-                {priceOf(p, "row")}
+                {priceOf(p)}
                 <span className="mt-auto flex flex-wrap items-center gap-2">{pill(p)}</span>
               </span>
               <span className="absolute start-3 top-3 z-[1] flex h-8 w-8 items-center justify-center rounded-xl bg-white/90 shadow-sm">{check(p)}</span>
@@ -343,21 +343,17 @@ export function ProductsBrowser({ products, categories, restaurant, initial }: {
             {shown.map((p, i) => (
               <li key={p.id} data-product={p.name} data-chosen={selected.has(p.id) ? "" : undefined} data-open={p.id === inspected ? "" : undefined} className="kit-tr last:rounded-b-[17px]">
                 {check(p)}
-                <span className="flex min-w-0 items-center gap-3.5">
-                  <span className="relative shrink-0">
-                    <Picture src={p.image} icon={icon} tint={i} className={`h-11 w-11 rounded-xl ${p.active ? "" : "opacity-60"}`} />
-                  </span>
-                  <span className="flex min-w-0 flex-col gap-0.5">
-                    <button type="button" onClick={() => setInspected(p.id)} aria-haspopup="dialog" aria-expanded={p.id === inspected} className="kit-tr-open flex min-w-0 cursor-pointer items-center gap-2 border-0 bg-transparent p-0 text-start text-(--sp-ink) focus-visible:outline-offset-4">
-                      <span className="min-w-0 truncate text-[14.5px] font-bold max-sm:whitespace-normal" dir="auto">
-                        {p.name}
-                      </span>
-                      {chips(p)}
-                    </button>
-                    <span className="kit-col-mp">{priceOf(p, "small")}</span>
-                  </span>
+                <Picture src={p.image} icon={icon} tint={i} className={`kit-col-pic h-11 w-11 rounded-xl ${p.active ? "" : "opacity-60"}`} />
+                <span className="kit-col-name flex min-w-0">
+                  <button type="button" onClick={() => setInspected(p.id)} aria-haspopup="dialog" aria-expanded={p.id === inspected} className="kit-tr-open flex min-w-0 cursor-pointer items-center gap-2 border-0 bg-transparent p-0 text-start text-(--sp-ink) focus-visible:outline-offset-4">
+                    <span className="min-w-0 truncate text-[14.5px] font-bold" dir="auto">
+                      {p.name}
+                    </span>
+                    {chips(p)}
+                  </button>
                 </span>
-                <span className="kit-col-price">{priceOf(p, "row")}</span>
+                {/* On a phone, under the name (globals.css). */}
+                <span className="kit-col-price">{priceOf(p)}</span>
                 <span className="kit-col-state">{pill(p)}</span>
                 <Icon name="chevron_right" size={20} className="kit-col-go text-(--sp-faint)" />
               </li>

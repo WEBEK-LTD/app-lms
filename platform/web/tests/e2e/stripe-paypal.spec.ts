@@ -172,7 +172,9 @@ test("a shop takes an order on its own Stripe, then on its own PayPal", async ({
   await page.locator('input[name="images"]').setInputFiles({ name: "mug.png", mimeType: "image/png", buffer: solidPng(64, 64, [40, 90, 160]) });
   await page.getByRole("button", { name: "Add product" }).click();
   await expect(page.getByRole("status").filter({ hasText: "Saved" })).toContainText("Saved “Harbour Mug”.");
-  await page.getByRole("link", { name: /Harbour Mug/ }).click();
+  // 132.152 Its page, from its inspector.
+  await page.getByRole("button", { name: /^Harbour Mug/ }).click();
+  await page.getByRole("link", { name: "Edit product" }).click();
   const link = (await page.getByRole("link", { name: /\/shop\// }).textContent())!;
   api = `${E2E.baseURL}/api/app/${/\/shop\/([0-9a-f-]{36})\//.exec(link)![1]}`;
 

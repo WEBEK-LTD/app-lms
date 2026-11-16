@@ -134,25 +134,26 @@ export function FilterList({
         type="button"
         aria-pressed={on}
         onClick={() => setFilter(value)}
-        className={`inline-flex h-9 cursor-pointer items-center gap-1.5 rounded-full border px-3.5 text-[13px] ${on ? "border-midnight bg-midnight font-bold text-ivory" : "border-line bg-white text-midnight hover:border-line-strong"}`}
+        className={`inline-flex h-[30px] cursor-pointer items-center gap-[7px] rounded-[10px] border-0 px-3 text-[13px] font-semibold whitespace-nowrap transition-colors ${on ? "bg-(--sp-seg-on) text-(--sp-ink) shadow-(--sp-shadow)" : "bg-transparent text-(--sp-muted) hover:text-(--sp-ink)"}`}
       >
         {label}
-        <span className={`rounded-full px-1.5 text-xs tabular-nums ${on ? "bg-white/20" : "bg-sand text-muted"}`}>{count}</span>
+        <span className="font-sans text-[11px] font-semibold text-(--sp-faint) tabular-nums">{count}</span>
       </button>
     );
   };
   return (
     <>
       {searchable || chips.length > 1 ? (
-        <div className="flex flex-wrap items-center gap-2 border-b border-line-soft px-5 py-3 sm:px-6">
+        // 132.151 The console's look: the search as the kit's field, the groups as a segmented control.
+        <div className="flex flex-wrap items-center gap-2 border-b border-(--sp-line) px-4 py-3 sm:px-5">
           {searchable ? (
-            <label className="flex h-10 min-w-0 flex-[0_1_320px] items-center gap-2 rounded-[10px] border border-line bg-white px-3 text-sm text-muted focus-within:border-midnight">
-              <Icon name="search" size={18} />
-              <input type="search" value={query} onChange={(e) => setQuery(e.target.value)} placeholder={searchLabel} aria-label={searchLabel} className="min-w-0 flex-1 border-0 bg-transparent text-sm text-midnight outline-0" />
+            <label className="flex h-10 min-w-0 flex-[0_1_340px] items-center gap-2 rounded-[11px] border border-(--sp-line) bg-(--sp-surface) px-3 text-sm text-(--sp-faint) focus-within:border-(--sp-ink) max-sm:flex-[1_1_100%]">
+              <Icon name="search" size={19} />
+              <input type="search" value={query} onChange={(e) => setQuery(e.target.value)} placeholder={searchLabel} aria-label={searchLabel} className="min-w-0 flex-1 border-0 bg-transparent text-sm text-(--sp-ink) outline-0" />
             </label>
           ) : null}
           {chips.length > 1 ? (
-            <div className="flex flex-wrap gap-2">
+            <div className="flex max-w-full gap-0.5 overflow-x-auto rounded-[13px] bg-(--sp-seg-track) p-1 [scrollbar-width:none]">
               {chip("all", allLabel, items.length)}
               {chips.map((f) => chip(f.value, f.label, counts.get(f.value) ?? 0))}
             </div>
