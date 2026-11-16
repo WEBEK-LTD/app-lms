@@ -289,6 +289,10 @@ class NotificationPreferences {
 
 enum CheckoutTarget { inApp, browser }
 
+/// 134 How a store's checkout link pays: on the shop's own checkout, or on
+/// Yallapp's payment page inside the app (the owner's gateway).
+enum CheckoutPayment { platform, inApp }
+
 class CheckoutLink {
   const CheckoutLink({
     required this.url,
@@ -296,6 +300,7 @@ class CheckoutLink {
     required this.openIn,
     this.enrolled = false,
     this.courseIds = const [],
+    this.payment,
   });
 
   factory CheckoutLink.fromJson(Json json) => CheckoutLink(
@@ -311,11 +316,21 @@ class CheckoutLink {
       for (final id in (json['course_ids'] as List? ?? const []))
         if (id is int) id,
     ],
+    payment: switch (json['payment']) {
+      'in_app' => CheckoutPayment.inApp,
+      'platform' => CheckoutPayment.platform,
+      _ => null,
+    },
   );
 
   final String url;
   final DateTime expiresAt;
   final CheckoutTarget openIn;
+
+  /// 134 When the app asked to pay inside the app: [CheckoutPayment.inApp]
+  /// opens Yallapp's payment page, [CheckoutPayment.platform] the shop's
+  /// checkout as before; null when it didn't ask (or an older server).
+  final CheckoutPayment? payment;
 
   /// 113.1 A coupon made it free: the student is enrolled already in
   /// [courseIds], and there's nothing to pay ([url] isn't opened).

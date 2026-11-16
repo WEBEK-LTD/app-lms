@@ -12656,4 +12656,40 @@ class OverlayLocalizations extends AppLocalizations {
   @override
   String get deliveryNeedPin =>
       overlay.text('deliveryNeedPin') ?? base.deliveryNeedPin;
+
+  @override
+  String get inAppPaidTitle =>
+      overlay.text('inAppPaidTitle') ?? base.inAppPaidTitle;
+
+  @override
+  String get inAppPaidBody =>
+      overlay.text('inAppPaidBody') ?? base.inAppPaidBody;
+
+  @override
+  String get inAppConfirmingTitle =>
+      overlay.text('inAppConfirmingTitle') ?? base.inAppConfirmingTitle;
+
+  @override
+  String get inAppConfirmingBody =>
+      overlay.text('inAppConfirmingBody') ?? base.inAppConfirmingBody;
+
+  @override
+  String get inAppNotPaidTitle =>
+      overlay.text('inAppNotPaidTitle') ?? base.inAppNotPaidTitle;
+
+  @override
+  String get inAppNotPaidBody =>
+      overlay.text('inAppNotPaidBody') ?? base.inAppNotPaidBody;
+
+  @override
+  String get inAppViewOrders =>
+      overlay.text('inAppViewOrders') ?? base.inAppViewOrders;
+
+  @override
+  String get inAppBackToCart =>
+      overlay.text('inAppBackToCart') ?? base.inAppBackToCart;
+
+  @override
+  String get inAppPayTitle =>
+      overlay.text('inAppPayTitle') ?? base.inAppPayTitle;
 }

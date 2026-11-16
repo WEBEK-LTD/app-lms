@@ -13049,5 +13049,41 @@
   "deliveryNeedPin": "Pin where it goes on the map.",
   "@deliveryNeedPin": {
     "description": "131 Under the cart's button while the place isn't pinned for shipping priced by distance."
+  },
+  "inAppPaidTitle": "Order placed",
+  "@inAppPaidTitle": {
+    "description": "134 The title after paying inside the app, once the shop has the order."
+  },
+  "inAppPaidBody": "Your payment is received and your order is placed with the shop. You'll find it in your orders.",
+  "@inAppPaidBody": {
+    "description": "134 Under the title after paying inside the app, once the shop has the order."
+  },
+  "inAppConfirmingTitle": "Payment received",
+  "@inAppConfirmingTitle": {
+    "description": "134 The title after paying inside the app while the shop still has to confirm the order."
+  },
+  "inAppConfirmingBody": "We received your payment. The shop will confirm your order shortly.",
+  "@inAppConfirmingBody": {
+    "description": "134 Under the title after paying inside the app while the shop still has to confirm the order."
+  },
+  "inAppNotPaidTitle": "Payment not completed",
+  "@inAppNotPaidTitle": {
+    "description": "134 The title when the payment page inside the app was closed before paying."
+  },
+  "inAppNotPaidBody": "Nothing was charged. Your cart is kept, so you can try again.",
+  "@inAppNotPaidBody": {
+    "description": "134 Under the title when the payment page inside the app was closed before paying."
+  },
+  "inAppViewOrders": "View my orders",
+  "@inAppViewOrders": {
+    "description": "134 Opens the customer's orders after paying inside the app."
+  },
+  "inAppBackToCart": "Back to cart",
+  "@inAppBackToCart": {
+    "description": "134 Closes the note and goes back to the cart when the payment wasn't completed."
+  },
+  "inAppPayTitle": "Payment",
+  "@inAppPayTitle": {
+    "description": "134 The title of the payment page when the customer pays inside the app."
   }
 }

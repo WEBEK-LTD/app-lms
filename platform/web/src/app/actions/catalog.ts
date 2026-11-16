@@ -37,6 +37,7 @@ import { recordStaffChange } from "@/lib/admin/audit";
 import { serviceAccountOf } from "@/lib/hosted/notify";
 import { askAfterOwnEntry } from "@/lib/samples/lists";
 import { parseAddonRule } from "@/lib/selling/addons";
+import { testedOnSaved } from "@/lib/selling/in-app-pay";
 
 const PRODUCT_IMAGE_MAX_BYTES = 2 * 1024 * 1024;
 const PRODUCT_IMAGES_MAX = 6;
@@ -394,7 +395,7 @@ export async function saveFulfilmentAction(_: FormState, formData: FormData): Pr
  * encrypted (lib/payments/owner-keys.ts reads them).
  */
 export async function savePaymentKeysAction(_: FormState, formData: FormData): Promise<FormState> {
-  const context = await requireCatalogApp({ courses: true, campaigns: true, ownMoney: true }, "billing");
+  const context = await requireCatalogApp({ courses: true, campaigns: true, ownMoney: true, store: true }, "billing");
   const { app } = context;
   const provider = str(formData, "provider") || "iyzico";
   const sandbox = formData.get("sandbox") === "on";
@@ -432,7 +433,7 @@ export async function savePaymentKeysAction(_: FormState, formData: FormData): P
  * ten minutes per account.
  */
 export async function testPaymentKeysAction(_: PaymentTestState, formData: FormData): Promise<PaymentTestState> {
-  const context = await requireCatalogApp({ courses: true, campaigns: true, ownMoney: true }, "billing");
+  const context = await requireCatalogApp({ courses: true, campaigns: true, ownMoney: true, store: true }, "billing");
   const { app } = context;
   const provider = str(formData, "provider") || "iyzico";
   if (!isPaymentProvider(provider)) return { ok: false, message: "Choose your payment provider." };
@@ -456,11 +457,14 @@ export async function testPaymentKeysAction(_: PaymentTestState, formData: FormD
     },
     { urls: paymentApiUrls() },
   );
+  // 134 A pass on the saved keys themselves is what paying inside the app needs (new keys need a new test).
+  const tested = report.ok ? testedOnSaved(app, read.input, saved, now) : null;
+  if (tested) await store.updateApp(app.id, { catalogSettings: { ...catalogSettings(app), gatewayTested: tested } }, now);
   return { ok: report.ok, report };
 }
 
 export async function removePaymentKeysAction(): Promise<void> {
-  const context = await requireCatalogApp({ courses: true, campaigns: true, ownMoney: true }, "billing");
+  const context = await requireCatalogApp({ courses: true, campaigns: true, ownMoney: true, store: true }, "billing");
   const { app } = context;
   await (await getStore()).updateApp(app.id, { catalogSettings: { ...catalogSettings(app), payment: null } }, new Date());
   await recordStaffChange(context, "Turned off the shop's card payments");

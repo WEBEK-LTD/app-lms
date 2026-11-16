@@ -43,7 +43,11 @@ export default async function PayPage({
     </PayShell>
   );
   if (!order || !app) return note("Link not valid", "This payment link isn't valid. Go back to the app and check out again.");
-  if (order.status === "processing" || order.status === "completed") redirect(`/pay/${token}/order-received`);
+  // 134 A connected store's payment in the app: its platform's order, made once it's paid.
+  const platformOrder = await store.getStorePlatformOrder(app.id, order.id);
+  if (order.status === "processing" || order.status === "completed") {
+    redirect(`/pay/${token}/order-received${platformOrder ? `?shop_order=${platformOrder.status === "placed" ? "placed" : "confirming"}` : ""}`);
+  }
   if (order.status !== "pending") return note("Order closed", "This order is closed. Go back to the app and check out again.");
   // 96.2 Waiting for a bank transfer or the owner's own method: its details are on the order's page.
   if (order.manualPayment) redirect(`/pay/${token}/order-received`);
@@ -55,7 +59,7 @@ export default async function PayPage({
   // 16 A demo app never takes a payment: the order goes through with one tap.
   const checkout = app.demo ? null : await checkoutAccount(store, app, encryptionKey());
   // 96.2 Bank transfer and the owner's own method, besides the card or instead of it.
-  const manual = app.demo ? [] : manualChoices(app.catalogSettings?.manualPayments);
+  const manual = app.demo || platformOrder ? [] : manualChoices(app.catalogSettings?.manualPayments);
   if (!app.demo && !checkout && manual.length === 0) return note("Payments are off", "This shop can't take payments right now. Please try again later.");
 
   const money = (cents: number) => formatCents(cents, order.currency);
@@ -109,7 +113,23 @@ export default async function PayPage({
               <span>-{money(order.points.discountCents)}</span>
             </li>
           ) : null}
-          {order.shippingCents > 0 ? (
+          {platformOrder ? (
+            // 134 The platform's slot fee, then its shipping for the address once priced.
+            <>
+              {order.delivery?.feeCents ? (
+                <li className="flex justify-between gap-3 text-[15px]">
+                  <span>Delivery time</span>
+                  <span>{money(order.delivery.feeCents)}</span>
+                </li>
+              ) : null}
+              {platformOrder.quote && order.shippingCents - (order.delivery?.feeCents ?? 0) > 0 ? (
+                <li className="flex justify-between gap-3 text-[15px]">
+                  <span>Shipping</span>
+                  <span>{money(order.shippingCents - (order.delivery?.feeCents ?? 0))}</span>
+                </li>
+              ) : null}
+            </>
+          ) : order.shippingCents > 0 ? (
             <li className="flex justify-between gap-3 text-[15px]">
               <span>{order.fulfilment ? "Delivery fee" : "Shipping"}</span>
               <span>{money(order.shippingCents)}</span>
@@ -127,6 +147,12 @@ export default async function PayPage({
           <span>Total</span>
           <span>{money(order.totalCents)}</span>
         </p>
+        {/* 134 The platform prices shipping and tax for the address before the payment. */}
+        {platformOrder && !platformOrder.quote ? (
+          <p className="m-0 text-[13px] text-ink-4" data-pay-quote="">
+            Shipping and tax for your address are added before you pay.
+          </p>
+        ) : null}
         {/* 91.5 A tax inside the prices. */}
         {order.tax?.included ? (
           <p className="m-0 text-right text-[13px] text-ink-4">
@@ -173,6 +199,10 @@ export default async function PayPage({
             textColor={textOn(color)}
             defaults={
               order.customer ??
+              // 134 What the connected store knows of the buyer.
+              (platformOrder?.intent.buyer
+                ? { name: platformOrder.intent.buyer.name, phone: platformOrder.intent.buyer.phone, email: platformOrder.intent.buyer.email, city: platformOrder.intent.buyer.city, address: platformOrder.intent.buyer.address }
+                : undefined) ??
               (order.fulfilment?.address
                 ? { address: order.fulfilment.address.address, city: order.fulfilment.address.district ?? "" }
                 : // 131 The gift checkout's sender pays, and it goes to the recipient's address.

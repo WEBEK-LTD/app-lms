@@ -79,6 +79,8 @@ export default async function DashboardLayout({ children }: { children: React.Re
 
   // Only what the current app uses: its content pages, and the app users pages on the hosted API (21 in the kind's words).
   const content = app ? contentNavOf(app) : null;
+  // 134 A store's Payments: how its customers pay, and the owner's gateway.
+  const storePayments = app?.appType === "store" && contextCan(context, "settings") ? [{ href: "/dashboard/payments", label: t("gateways.page"), icon: "payments" as const }] : [];
   const problems = app && contextCan(context, "settings") ? await appProblems(app) : [];
   // 106 The templates the account has from Studio Market, next to My templates.
   const licences = contextCan(context, "billing") ? (await (await getStore()).listTemplateLicences({ clientId: client.id })).length : 0;
@@ -115,9 +117,9 @@ export default async function DashboardLayout({ children }: { children: React.Re
     },
     // 131 Every store app, whatever its source: delivery, gifts, card messages, flash sales and discount codes.
     ...(content
-      ? [{ label: k(content.label), items: [...content.items.map((item) => ({ ...item, label: k(item.label) })), ...(app?.appType === "store" ? [{ href: "/dashboard/selling", label: t("selling.nav"), icon: "local_shipping" as const }] : [])] }]
+      ? [{ label: k(content.label), items: [...content.items.map((item) => ({ ...item, label: k(item.label) })), ...(app?.appType === "store" ? [{ href: "/dashboard/selling", label: t("selling.nav"), icon: "local_shipping" as const }, ...storePayments] : [])] }]
       : app?.appType === "store"
-        ? [{ label: t("selling.nav"), items: [{ href: "/dashboard/selling", label: t("selling.nav"), icon: "local_shipping" as const }] }]
+        ? [{ label: t("selling.nav"), items: [{ href: "/dashboard/selling", label: t("selling.nav"), icon: "local_shipping" as const }, ...storePayments] }]
         : []),
     ...(app?.backend === "hosted"
       ? [

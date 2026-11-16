@@ -11889,4 +11889,34 @@ class AppLocalizationsTr extends AppLocalizations {
 
   @override
   String get deliveryNeedPin => 'Teslimat yerini haritada işaretleyin.';
+
+  @override
+  String get inAppPaidTitle => 'Sipariş verildi';
+
+  @override
+  String get inAppPaidBody =>
+      'Ödemeniz alındı ve siparişiniz mağazaya iletildi. Siparişlerinizde bulabilirsiniz.';
+
+  @override
+  String get inAppConfirmingTitle => 'Ödeme alındı';
+
+  @override
+  String get inAppConfirmingBody =>
+      'Ödemenizi aldık. Mağaza siparişinizi kısa süre içinde onaylayacak.';
+
+  @override
+  String get inAppNotPaidTitle => 'Ödeme tamamlanmadı';
+
+  @override
+  String get inAppNotPaidBody =>
+      'Herhangi bir ücret alınmadı. Sepetiniz duruyor, yeniden deneyebilirsiniz.';
+
+  @override
+  String get inAppViewOrders => 'Siparişlerimi gör';
+
+  @override
+  String get inAppBackToCart => 'Sepete dön';
+
+  @override
+  String get inAppPayTitle => 'Ödeme';
 }

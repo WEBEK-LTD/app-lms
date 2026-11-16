@@ -757,6 +757,7 @@ abstract class YallappApi {
     GiftPerson? recipient,
     bool giftAnonymous = false,
     DeliveryPlace? place,
+    bool payInApp = false,
   });
 
   /// 26 Whether a restaurant's kitchen is open and when an order can be for.
@@ -2591,6 +2592,7 @@ class HttpYallappApi implements YallappApi {
     GiftPerson? recipient,
     bool giftAnonymous = false,
     DeliveryPlace? place,
+    bool payInApp = false,
   }) => preview
       ? _noCheckoutInPreview()
       : _send(
@@ -2618,6 +2620,8 @@ class HttpYallappApi implements YallappApi {
             if (giftAnonymous) 'gift_anonymous': true,
             // 131 Where it goes, for the shop's shipping (the standard checkout).
             if (place != null && !place.isEmpty) 'place': place.toJson(),
+            // 134 Pay inside the app, when the store does.
+            if (payInApp) 'payment': 'in_app',
           },
           query: {'platform': platform.name},
         );

@@ -5051,6 +5051,42 @@ export const APP_STRING_NOTES: Record<string, { en?: string; ar: string; tr: str
     ar: "تحت زرار السلة طول ما المكان مش متحدّد للشحن حسب المسافة.",
     tr: "Mesafeye göre kargoda yer işaretlenmemişken sepet düğmesinin altında.",
   },
+  "134 The title after paying inside the app, once the shop has the order.": {
+    ar: "العنوان بعد الدفع جوه التطبيق، لما المتجر يستلم الطلب.",
+    tr: "Uygulama içinde ödemeden sonra, mağaza siparişi aldığında başlık.",
+  },
+  "134 Under the title after paying inside the app, once the shop has the order.": {
+    ar: "تحت العنوان بعد الدفع جوه التطبيق، لما المتجر يستلم الطلب.",
+    tr: "Uygulama içinde ödemeden sonra, mağaza siparişi aldığında başlığın altında.",
+  },
+  "134 The title after paying inside the app while the shop still has to confirm the order.": {
+    ar: "العنوان بعد الدفع جوه التطبيق، طول ما المتجر لسه هيأكّد الطلب.",
+    tr: "Uygulama içinde ödemeden sonra, mağaza siparişi henüz onaylamadıysa başlık.",
+  },
+  "134 Under the title after paying inside the app while the shop still has to confirm the order.": {
+    ar: "تحت العنوان بعد الدفع جوه التطبيق، طول ما المتجر لسه هيأكّد الطلب.",
+    tr: "Uygulama içinde ödemeden sonra, mağaza siparişi henüz onaylamadıysa başlığın altında.",
+  },
+  "134 The title when the payment page inside the app was closed before paying.": {
+    ar: "العنوان لما صفحة الدفع جوه التطبيق تتقفل قبل الدفع.",
+    tr: "Uygulama içindeki ödeme sayfası ödemeden önce kapatıldığında başlık.",
+  },
+  "134 Under the title when the payment page inside the app was closed before paying.": {
+    ar: "تحت العنوان لما صفحة الدفع جوه التطبيق تتقفل قبل الدفع.",
+    tr: "Uygulama içindeki ödeme sayfası ödemeden önce kapatıldığında başlığın altında.",
+  },
+  "134 Opens the customer's orders after paying inside the app.": {
+    ar: "بيفتح طلبات العميل بعد الدفع جوه التطبيق.",
+    tr: "Uygulama içinde ödemeden sonra müşterinin siparişlerini açar.",
+  },
+  "134 Closes the note and goes back to the cart when the payment wasn't completed.": {
+    ar: "بيقفل الملاحظة ويرجع للسلة لما الدفع مايكملش.",
+    tr: "Ödeme tamamlanmadığında notu kapatır ve sepete döner.",
+  },
+  "134 The title of the payment page when the customer pays inside the app.": {
+    ar: "عنوان صفحة الدفع لما العميل يدفع جوه التطبيق.",
+    tr: "Müşteri uygulama içinde öderken ödeme sayfasının başlığı.",
+  },
 };
 
 /** A developer's description without the app's code names: "… lib/core/x.dart uses it …", "(vertical_wording.dart)", a leading roadmap number. */

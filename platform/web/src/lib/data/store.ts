@@ -13,7 +13,7 @@ import type {
   TemplateLicence,
   TemplateLicencePatch,
 } from "./types";
-import type { GiftOccasion, StoreDelivery, StoreFlashSale } from "./types";
+import type { GiftOccasion, StoreDelivery, StoreFlashSale, StorePlatformOrder, StorePlatformOrderStatus } from "./types";
 import type {
   Activation,
   App,
@@ -820,6 +820,14 @@ export interface DataStore {
   listStoreDeliveries(appId: string, limit: number): Promise<StoreDelivery[]>;
   /** Deletes those made before `before` (kept 60 days); how many. */
   deleteStoreDeliveriesBefore(before: Date): Promise<number>;
+  // 134 Connected stores' orders paid inside the app (Demo).
+  createStorePlatformOrder(input: Omit<StorePlatformOrder, "id">): Promise<StorePlatformOrder>;
+  /** The one of a catalog order (its payment). */
+  getStorePlatformOrder(appId: string, orderId: number): Promise<StorePlatformOrder | null>;
+  /** Changes it; with `from`, only while its status is one of them (false otherwise), so one caller claims it. */
+  updateStorePlatformOrder(appId: string, orderId: number, patch: Partial<Omit<StorePlatformOrder, "id" | "appId" | "orderId" | "createdAt">>, from?: StorePlatformOrderStatus[]): Promise<boolean>;
+  /** Newest first. */
+  listStorePlatformOrders(appId: string, limit: number): Promise<StorePlatformOrder[]>;
   /** 131 The store's card message occasions, in their order. */
   listGiftOccasions(appId: string): Promise<GiftOccasion[]>;
   createGiftOccasion(input: Omit<GiftOccasion, "id">): Promise<GiftOccasion>;

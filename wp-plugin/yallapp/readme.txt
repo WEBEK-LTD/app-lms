@@ -4,7 +4,7 @@ Tags: lms, mobile app, tutor lms, digits, otp
 Requires at least: 6.0
 Tested up to: 7.1
 Requires PHP: 7.4
-Stable tag: 0.4.45
+Stable tag: 0.4.47
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -143,6 +143,9 @@ Symbols Rounded by Google (the material-design-icons project),
 under the Apache License 2.0, included as inline SVG.
 
 == Changelog ==
+
+= 0.4.47 =
+* Pay inside the app (Demo): when you choose it in your Yallapp dashboard, customers pay in the app through your own payment gateway there, and the order is made in WooCommerce marked as paid, with the delivery and gift details, its stock taken and WooCommerce's emails sent as usual. Your store's checkout stays the default.
 
 = 0.4.45 =
 * The Yallapp plugin's settings say that the app runs one flash sale at a time on WordPress: change it for the next one.

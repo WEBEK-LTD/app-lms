@@ -3179,5 +3179,14 @@
   "deliveryPinSet": "Haritada işaretlendi",
   "deliveryPinChange": "Değiştir",
   "deliveryNeedPlace": "Teslimat yerini seçin.",
-  "deliveryNeedPin": "Teslimat yerini haritada işaretleyin."
+  "deliveryNeedPin": "Teslimat yerini haritada işaretleyin.",
+  "inAppPaidTitle": "Sipariş verildi",
+  "inAppPaidBody": "Ödemeniz alındı ve siparişiniz mağazaya iletildi. Siparişlerinizde bulabilirsiniz.",
+  "inAppConfirmingTitle": "Ödeme alındı",
+  "inAppConfirmingBody": "Ödemenizi aldık. Mağaza siparişinizi kısa süre içinde onaylayacak.",
+  "inAppNotPaidTitle": "Ödeme tamamlanmadı",
+  "inAppNotPaidBody": "Herhangi bir ücret alınmadı. Sepetiniz duruyor, yeniden deneyebilirsiniz.",
+  "inAppViewOrders": "Siparişlerimi gör",
+  "inAppBackToCart": "Sepete dön",
+  "inAppPayTitle": "Ödeme"
 }

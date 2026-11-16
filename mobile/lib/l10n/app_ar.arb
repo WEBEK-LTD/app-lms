@@ -3179,5 +3179,14 @@
   "deliveryPinSet": "تم تحديد المكان على الخريطة",
   "deliveryPinChange": "تغيير",
   "deliveryNeedPlace": "اختر مكان التوصيل.",
-  "deliveryNeedPin": "حدّد مكان التوصيل على الخريطة."
+  "deliveryNeedPin": "حدّد مكان التوصيل على الخريطة.",
+  "inAppPaidTitle": "تم تقديم الطلب",
+  "inAppPaidBody": "تم استلام دفعتك وتقديم طلبك لدى المتجر. ستجده في طلباتك.",
+  "inAppConfirmingTitle": "تم استلام الدفعة",
+  "inAppConfirmingBody": "استلمنا دفعتك. سيؤكّد المتجر طلبك قريبًا.",
+  "inAppNotPaidTitle": "لم تكتمل عملية الدفع",
+  "inAppNotPaidBody": "لم يُخصم أي مبلغ. ما زالت سلتك محفوظة، ويمكنك المحاولة مرة أخرى.",
+  "inAppViewOrders": "عرض طلباتي",
+  "inAppBackToCart": "العودة إلى السلة",
+  "inAppPayTitle": "الدفع"
 }

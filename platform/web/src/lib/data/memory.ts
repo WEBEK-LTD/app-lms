@@ -20,7 +20,7 @@ import type { AnalyticsDailyRecord, AnalyticsDailyRow, AnalyticsEventRow, Analyt
 import type { AppAuthKey, AppLayoutRecord, AppLayoutVersion, AppLayoutVersionSummary, OwnFont, PendingPayment, SavedSection, StudioTemplate, StudioDesign, StoreProduct, StorePurchaseRecord, StorePurchaseEvent, StoreBillingItem, BillingSession } from "./types";
 import type { CampaignSend, HostedCart, HostedOrderWatch, NotificationCampaign, NotificationCampaignPatch, NotificationCampaignStatus } from "./types";
 import type { LoyaltyEntry, LoyaltyReason } from "./types";
-import type { GiftOccasion, StoreDelivery, StoreFlashSale } from "./types";
+import type { GiftOccasion, StoreDelivery, StoreFlashSale, StorePlatformOrder, StorePlatformOrderStatus } from "./types";
 import type {
   AppPatch,
   BuildPatch,
@@ -1231,6 +1231,37 @@ export class MemoryStore implements DataStore {
     const removed = this.storeDeliveries.length - kept.length;
     this.storeDeliveries = kept;
     return removed;
+  }
+
+  // 134 Connected stores' orders paid inside the app
+
+  private storePlatformOrders: StorePlatformOrder[] = [];
+
+  async createStorePlatformOrder(input: Omit<StorePlatformOrder, "id">): Promise<StorePlatformOrder> {
+    if (this.storePlatformOrders.some((o) => o.orderId === input.orderId)) throw new Error("This payment has its platform order already.");
+    const row: StorePlatformOrder = { ...clone(input), id: this.storePlatformOrders.length + 1 };
+    this.storePlatformOrders.push(row);
+    return clone(row);
+  }
+
+  async getStorePlatformOrder(appId: string, orderId: number): Promise<StorePlatformOrder | null> {
+    const found = this.storePlatformOrders.find((o) => o.appId === appId && o.orderId === orderId);
+    return found ? clone(found) : null;
+  }
+
+  async updateStorePlatformOrder(appId: string, orderId: number, patch: Partial<Omit<StorePlatformOrder, "id" | "appId" | "orderId" | "createdAt">>, from?: StorePlatformOrderStatus[]): Promise<boolean> {
+    const found = this.storePlatformOrders.find((o) => o.appId === appId && o.orderId === orderId);
+    if (!found || (from && !from.includes(found.status))) return false;
+    Object.assign(found, clone(patch));
+    return true;
+  }
+
+  async listStorePlatformOrders(appId: string, limit: number): Promise<StorePlatformOrder[]> {
+    return this.storePlatformOrders
+      .filter((o) => o.appId === appId)
+      .sort((a, b) => b.createdAt.getTime() - a.createdAt.getTime() || b.id - a.id)
+      .slice(0, limit)
+      .map(clone);
   }
 
   private giftOccasions: GiftOccasion[] = [];

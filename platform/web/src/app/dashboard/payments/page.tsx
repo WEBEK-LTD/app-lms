@@ -13,6 +13,7 @@ import { eventSettingsOf } from "@/lib/events/service";
 import { takesOwnCardPayments } from "@/lib/payments/owner-keys";
 import { schoolCurrency, schoolSettingsOf } from "@/lib/school/settings";
 import { CardPayments, OtherPayments } from "../catalog/payments";
+import { HowCustomersPay, InAppPayments } from "./how-customers-pay";
 
 export async function generateMetadata(): Promise<Metadata> {
   return { title: (await dashboardText()).t("gateways.page") };
@@ -41,7 +42,9 @@ export default async function PaymentsPage() {
   const { app } = await requireClient("settings");
   const { t } = await dashboardText();
   const header = <PageHeader title={t("gateways.page")} description={t("gateways.pageIntro")} />;
-  if (!app || !takesOwnCardPayments(app)) {
+  // 134 Every store app chooses how its customers pay (a connected store's in the app needs the gateway here).
+  const storeApp = app?.appType === "store";
+  if (!app || (!takesOwnCardPayments(app) && !storeApp)) {
     return (
       <div className="flex flex-col gap-6">
         {header}
@@ -54,6 +57,8 @@ export default async function PaymentsPage() {
   return (
     <div className="flex flex-col gap-6">
       {header}
+      {storeApp ? <HowCustomersPay app={app} /> : null}
+      {storeApp && kind !== "catalog" ? <InAppPayments app={app} /> : null}
       <CardPayments app={app} currency={await sellingCurrency(await getStore(), app)} />
       {manual ? <OtherPayments app={app} /> : null}
       <p className="m-0 text-sm text-muted">{t("gateways.otherPlaces")}</p>

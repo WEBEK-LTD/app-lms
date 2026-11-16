@@ -52,14 +52,23 @@ class Checkout {
 	private $extras;
 
 	/**
+	 * 134 Paying inside the app, when the owner chose it in the Yallapp dashboard.
+	 *
+	 * @var In_App_Payment|null
+	 */
+	private $in_app;
+
+	/**
 	 * Constructor.
 	 *
-	 * @param Settings          $settings Settings.
-	 * @param Store_Extras|null $extras   131 The flower shop's extras.
+	 * @param Settings            $settings Settings.
+	 * @param Store_Extras|null   $extras   131 The flower shop's extras.
+	 * @param In_App_Payment|null $in_app   134 Paying inside the app.
 	 */
-	public function __construct( Settings $settings, $extras = null ) {
+	public function __construct( Settings $settings, $extras = null, $in_app = null ) {
 		$this->settings = $settings;
 		$this->extras   = $extras instanceof Store_Extras ? $extras : null;
+		$this->in_app   = $in_app instanceof In_App_Payment ? $in_app : null;
 	}
 
 	/**
@@ -139,6 +148,8 @@ class Checkout {
 				'enabled' => true,
 				'days'    => $returns,
 			) : null,
+			// 134 Whether the checkout ends inside the app (the owner's gateway in Yallapp) or on the site's checkout.
+			'checkout_payment'  => $this->in_app ? $this->in_app->current() : 'platform',
 		);
 		// 131 The gift checkout, the cut-off and the slots, the gifts.
 		return $this->extras ? $this->extras->config( $config ) : $config;
@@ -244,7 +255,9 @@ class Checkout {
 	 */
 	public function link( $user_id, array $lines, $platform, array $extras ) {
 		$coupon = isset( $extras['coupon'] ) && is_string( $extras['coupon'] ) ? wc_format_coupon_code( $extras['coupon'] ) : '';
-		unset( $extras['coupon'] );
+		// 134 The app asks to pay inside the app (an older app asks nothing, and keeps the site's checkout).
+		$payment = isset( $extras['payment'] ) && in_array( $extras['payment'], array( 'platform', 'in_app' ), true ) ? $extras['payment'] : null;
+		unset( $extras['coupon'], $extras['payment'] );
 		if ( ! $user_id && 'yes' !== get_option( 'woocommerce_enable_guest_checkout' ) ) {
 			return new WP_Error( 'unauthorized', __( 'Please sign in to check out.', 'yallapp' ), array( 'status' => 401 ) );
 		}
@@ -276,7 +289,10 @@ class Checkout {
 				'attributes'   => $checked['attributes'],
 				// 131 A gift add-on: the product it goes with, on the order's line.
 				'addon_of'     => $addons['addon'][ $index ] && ! empty( $line['addon_of'] ) ? (int) $line['addon_of'] : 0,
-			);
+				// 134 As priced, for a payment inside the app.
+				'name'         => $checked['name'],
+				'digital'      => Catalog::is_digital( $checked['product'] ),
+			) + In_App_Payment::line_amounts( $checked['product'], $checked['quantity'] );
 		}
 		if ( $problems ) {
 			return new WP_Error(
@@ -292,7 +308,15 @@ class Checkout {
 		if ( is_wp_error( $extras ) ) {
 			return $extras;
 		}
-		return $this->issue( (int) $user_id, $filled, $extras, $coupon );
+		// 134 Paid inside the app, through the owner's gateway in Yallapp; the site's checkout when Yallapp can't.
+		if ( 'in_app' === $payment && $this->in_app ) {
+			$paid = $this->in_app->start( (int) $user_id, $filled, $extras, $coupon, $platform );
+			if ( ! is_wp_error( $paid ) ) {
+				return $paid;
+			}
+		}
+		$link = $this->issue( (int) $user_id, $filled, $extras, $coupon );
+		return null !== $payment ? $link + array( 'payment' => 'platform' ) : $link;
 	}
 
 	/**

@@ -12368,4 +12368,33 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get deliveryNeedPin => 'حدّد مكان التوصيل على الخريطة.';
+
+  @override
+  String get inAppPaidTitle => 'تم تقديم الطلب';
+
+  @override
+  String get inAppPaidBody =>
+      'تم استلام دفعتك وتقديم طلبك لدى المتجر. ستجده في طلباتك.';
+
+  @override
+  String get inAppConfirmingTitle => 'تم استلام الدفعة';
+
+  @override
+  String get inAppConfirmingBody => 'استلمنا دفعتك. سيؤكّد المتجر طلبك قريبًا.';
+
+  @override
+  String get inAppNotPaidTitle => 'لم تكتمل عملية الدفع';
+
+  @override
+  String get inAppNotPaidBody =>
+      'لم يُخصم أي مبلغ. ما زالت سلتك محفوظة، ويمكنك المحاولة مرة أخرى.';
+
+  @override
+  String get inAppViewOrders => 'عرض طلباتي';
+
+  @override
+  String get inAppBackToCart => 'العودة إلى السلة';
+
+  @override
+  String get inAppPayTitle => 'الدفع';
 }

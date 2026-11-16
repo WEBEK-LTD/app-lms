@@ -918,6 +918,13 @@
       "when": 1794711446144,
       "tag": "0130_studio_market",
       "breakpoints": true
+    },
+    {
+      "idx": 131,
+      "version": "5",
+      "when": 1794806753041,
+      "tag": "0137_connected_pay",
+      "breakpoints": true
     }
   ]
 }
