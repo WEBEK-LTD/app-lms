@@ -111,7 +111,7 @@ interface OptionInput {
  * customer's cart still matches after an edit); new groups and options get
  * new ones. An empty editor saves no groups.
  */
-export function parseOptionGroups(json: string): { ok: true; value: CatalogOptionGroup[] } | { ok: false; error: string } {
+export function parseOptionGroups(json: string, currency?: string | null): { ok: true; value: CatalogOptionGroup[] } | { ok: false; error: string } {
   let raw: unknown;
   try {
     raw = json.trim() === "" ? [] : JSON.parse(json);
@@ -152,7 +152,7 @@ export function parseOptionGroups(json: string): { ok: true; value: CatalogOptio
       const optionName = typeof o.name === "string" ? o.name.trim() : "";
       if (!optionName || optionName.length > NAME_MAX) return { ok: false, error: `${name}: every option needs a name of up to ${NAME_MAX} characters.` };
       const priceText = String(o.price ?? "").trim();
-      const delta = priceText === "" ? 0 : parsePrice(priceText);
+      const delta = priceText === "" ? 0 : parsePrice(priceText, currency);
       if (delta === null) return { ok: false, error: `${name}: enter the extra price of “${optionName}” like 15 or 15.50, or leave it empty.` };
       // 131 What it adds to the weight, in kg (shipping by weight).
       const weightText = String(o.weight ?? "").trim().replace(",", ".");

@@ -14,6 +14,7 @@ import type {
   DeliveryStage,
   OrderStageEntry,
   OrderStageRefund,
+  OrderCustomerCurrency,
   StorePlatformOrder,
   StorePlatformOrderStatus,
   StoreFlashSale,
@@ -836,6 +837,8 @@ export const catalogOrders = mysqlTable(
     stageLog: jsonText<OrderStageEntry[]>("stage_log"),
     // 132 The money back after a failed delivery cancelled it (JSON).
     stageRefund: jsonText<OrderStageRefund>("stage_refund"),
+    // 135.7 The total in the customer's currency at checkout, its rate and day, and whether the card was charged in it (JSON).
+    customerCurrency: jsonText<OrderCustomerCurrency>("customer_currency"),
   },
   (t) => [
     uniqueIndex("catalog_orders_token_unique").on(t.tokenHash),

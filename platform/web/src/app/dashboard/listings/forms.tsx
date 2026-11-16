@@ -1,6 +1,7 @@
 "use client";
 
 /* eslint-disable @next/next/no-img-element -- previews of uploaded photos served by our own asset route */
+import { CurrencyPicker } from "@/components/currency-picker";
 import { useActionState, useId, useState, type ReactNode } from "react";
 import { saveListingAction, saveOfficeAction } from "@/app/actions/listings";
 import { Field, FieldError, FormMessage, SubmitButton } from "@/components/form";
@@ -103,12 +104,12 @@ function Group({ title, children }: { title: string; children: ReactNode }) {
 export function ListingForm({
   listing,
   types,
-  currencies,
   areaSymbol,
 }: {
   listing: ListingFormValues;
   types: { key: string; label: string }[];
-  currencies: readonly string[];
+  /** 135.1 Any ISO 4217 currency now: the picker lists them all. */
+  currencies?: readonly string[];
   areaSymbol: string;
 }) {
   const t = useDashT();
@@ -200,7 +201,8 @@ export function ListingForm({
       <Group title={t("listings.formPrice")}>
         <div className="grid gap-4 sm:grid-cols-3">
           <Field label={t("listings.price")} name="price" inputMode="decimal" required defaultValue={v("price", listing.price)} placeholder="4250000" error={e.price} />
-          <Select label={t("shop.currency")} name="currency" defaultValue={v("currency", listing.currency)} options={currencies.map((c) => ({ value: c, label: c }))} error={e.currency} />
+          {/* 135.3 Any currency, searched. */}
+          <CurrencyPicker label={t("shop.currency")} defaultValue={v("currency", listing.currency)} error={e.currency} className="sm:col-span-2" />
           {purpose === "rent" ? (
             <Select
               label={t("listings.rentPer")}
@@ -386,11 +388,11 @@ export function ListingForm({
 
 export function OfficeForm({
   office,
-  currencies,
   units,
 }: {
   office: { currency: string; areaUnit: string; contactName: string; contactPhone: string; contactWhatsapp: string; contactEmail: string; messages: boolean };
-  currencies: readonly string[];
+  /** 135.1 Any ISO 4217 currency now: the picker lists them all. */
+  currencies?: readonly string[];
   units: { key: string; label: string }[];
 }) {
   const t = useDashT();
@@ -407,7 +409,8 @@ export function OfficeForm({
       </div>
       <Field label={t("listings.officeEmail")} name="contactEmail" type="email" defaultValue={v("contactEmail", office.contactEmail)} error={e.contactEmail} />
       <div className="grid gap-4 sm:grid-cols-2">
-        <Select label={t("listings.defaultCurrency")} name="currency" defaultValue={v("currency", office.currency)} options={currencies.map((c) => ({ value: c, label: c }))} error={e.currency} />
+        {/* 135.3 Any currency, searched. */}
+        <CurrencyPicker label={t("listings.defaultCurrency")} defaultValue={v("currency", office.currency)} error={e.currency} className="sm:col-span-2" />
         <Select label={t("listings.areaUnit")} name="areaUnit" defaultValue={v("areaUnit", office.areaUnit)} options={units.map((u) => ({ value: u.key, label: u.label }))} error={e.areaUnit} />
       </div>
       <Check

@@ -8,7 +8,7 @@ import { appLabel } from "@/lib/app/label";
 import { requireAdmin } from "@/lib/auth/session";
 import { formatAmount } from "@/lib/billing/prices";
 import { paidWith, paymentWhat, receiptNumber } from "@/lib/billing/receipt";
-import { CATALOG_CURRENCIES, centsToDecimal } from "@/lib/catalog/money";
+import { BILLING_CURRENCIES, centsToDecimal } from "@/lib/catalog/money";
 import { getStore } from "@/lib/data";
 import type { PlanPayment } from "@/lib/data/types";
 import { planName, planPriceOf, plansInList } from "@/lib/plans";
@@ -129,7 +129,7 @@ export default async function InvoicesPage({ searchParams }: PageProps<"/admin/i
                 // Before the first app, the transfer pays for the app they make first (as a card payment would).
                 apps={clientApps.length ? clientApps.map((a) => ({ id: a.id, label: appLabel(a) })) : [{ id: "", label: "Their first app (not made yet)" }]}
                 plans={plansInList((await platformSetting(store, "plans"))?.value).map((id) => ({ id, name: plans[id].name }))}
-                currencies={CATALOG_CURRENCIES}
+                currencies={BILLING_CURRENCIES}
                 defaults={{
                   appId: clientApps[0]?.id ?? "",
                   plan: defaultPlan,

@@ -58,7 +58,8 @@ export async function applyImport(deps: ApplyDeps, plan: ImportPlan): Promise<Im
     else report.pictures.missed++;
     return id;
   };
-  const price = (item: ImportItem) => (item.values.price ? (parsePrice(priceText(item.values.price)) ?? 0) : 0);
+  const currency = deps.app.catalogSettings?.currency ?? null;
+  const price = (item: ImportItem) => (item.values.price ? (parsePrice(priceText(item.values.price), currency) ?? 0) : 0);
   /** A Wix product's pictures after the first `have` (those it has already), read a few at a time while there's time. */
   const wixPictures = async (pictures: WixPicture[], have: number): Promise<string[]> => {
     const wanted = pictures.slice(have);
@@ -130,7 +131,7 @@ export async function applyImport(deps: ApplyDeps, plan: ImportPlan): Promise<Im
       const v = item.values;
       const wix = item.wix;
       const existing = wix ? findWix(item) : ((v.sku ? bySku.get(key(v.sku)) : undefined) ?? byName.get(key(item.name)));
-      const salePrice = v.salePrice ? parsePrice(priceText(v.salePrice)) : null;
+      const salePrice = v.salePrice ? parsePrice(priceText(v.salePrice), currency) : null;
       const stock = v.stock ? Number(v.stock) : null;
       const fields = {
         name: item.name,

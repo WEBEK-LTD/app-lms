@@ -1,5 +1,6 @@
 import 'delivery_models.dart';
 import 'json.dart';
+import 'money_models.dart';
 
 /// 105.1 Food delivery from many restaurants: `Config.food`, the
 /// restaurants and their menus, a cart priced by the server, the
@@ -227,6 +228,7 @@ class Dish {
     this.available = true,
     this.popular = false,
     this.choiceGroups = const [],
+    this.display,
   });
 
   factory Dish.fromJson(Json json) => Dish(
@@ -238,6 +240,7 @@ class Dish {
     available: boolOr(json, 'available', true),
     popular: boolOr(json, 'popular', false),
     choiceGroups: listOf(json, 'choice_groups', DishChoiceGroup.fromJson),
+    display: DisplayMoney.tryParse(json['display']),
   );
 
   final int id;
@@ -245,6 +248,15 @@ class Dish {
   final String? description;
   final String? imageUrl;
   final String priceFormatted;
+
+  /// 135.5 The price in the customer's currency ("price_formatted" in it).
+  final DisplayMoney? display;
+
+  /// "EGP 65.00 · ≈ \$1.34" with the customer's currency, else the price.
+  String get priceLabel {
+    final shown = display?.values['price_formatted'];
+    return shown == null ? priceFormatted : '$priceFormatted · ≈ $shown';
+  }
 
   /// False while sold out.
   final bool available;

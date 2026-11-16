@@ -19309,6 +19309,96 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Reply from {business}'**
   String ratingReplyFrom(String business);
+
+  /// 135.5 Settings: the currency prices also show in.
+  ///
+  /// In en, this message translates to:
+  /// **'Currency'**
+  String get currencyLabel;
+
+  /// 135.5 Settings: the currency comes from the phone's region (not picked).
+  ///
+  /// In en, this message translates to:
+  /// **'{currency} · your region\'s'**
+  String currencyFromRegion(String currency);
+
+  /// 135.5 The currency picker's note.
+  ///
+  /// In en, this message translates to:
+  /// **'Prices also show in this currency, at the day\'s rate. You pay in the shop\'s currency unless the checkout says otherwise.'**
+  String get currencyPickerHint;
+
+  /// 135.5 The currency picker's search box.
+  ///
+  /// In en, this message translates to:
+  /// **'Search currencies'**
+  String get currencySearch;
+
+  /// 135.5 The currency picker's first group: the shop's own.
+  ///
+  /// In en, this message translates to:
+  /// **'The shop\'s currency'**
+  String get currencyShop;
+
+  /// 135.5 The currency picker's group with the phone's region's currency.
+  ///
+  /// In en, this message translates to:
+  /// **'Your region'**
+  String get currencyYourRegion;
+
+  /// 135.5 The currency picker's group with every other currency.
+  ///
+  /// In en, this message translates to:
+  /// **'All currencies'**
+  String get currencyAll;
+
+  /// 135.5 The currency picker's search found nothing.
+  ///
+  /// In en, this message translates to:
+  /// **'No currency matches.'**
+  String get currencyNoMatch;
+
+  /// 135.5 The currency picker: back to the phone's region's currency.
+  ///
+  /// In en, this message translates to:
+  /// **'Use my region\'s currency'**
+  String get currencyUseRegion;
+
+  /// 135.5 A price in the customer's currency, approximate.
+  ///
+  /// In en, this message translates to:
+  /// **'≈ {amount}'**
+  String approxPrice(String amount);
+
+  /// 135.7 At checkout: the total in the customer's currency, approximate, and what is charged in the shop's.
+  ///
+  /// In en, this message translates to:
+  /// **'≈ {converted} · you pay {total}'**
+  String youPayApprox(String converted, String total);
+
+  /// 135.7 At checkout: charged in the customer's own currency.
+  ///
+  /// In en, this message translates to:
+  /// **'You pay {total}'**
+  String youPayIn(String total);
+
+  /// 135.7 At checkout: the shop charges in customers' currencies, but its card gateway doesn't take this one.
+  ///
+  /// In en, this message translates to:
+  /// **'You pay {total}: the shop\'s card payment doesn\'t take {currency}.'**
+  String youPayShopCurrency(String total, String currency);
+
+  /// 135.7 An order's total in the customer's currency, shown as approximate.
+  ///
+  /// In en, this message translates to:
+  /// **'≈ {total} in your currency'**
+  String orderInYourCurrency(String total);
+
+  /// 135.7 An order charged in the customer's currency: what was charged.
+  ///
+  /// In en, this message translates to:
+  /// **'Paid {total}'**
+  String orderPaidIn(String total);
 }
 
 class _AppLocalizationsDelegate

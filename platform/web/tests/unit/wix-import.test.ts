@@ -48,6 +48,9 @@ describe("a Wix export, read", () => {
     expect(wixPrices("200", "")).toEqual({ priceCents: 20000, salePriceCents: null });
     // A strikethrough that isn't higher is no sale.
     expect(wixPrices("200", "150")).toEqual({ priceCents: 20000, salePriceCents: null });
+    // 135.2 In the shop's currency's digits: a dinar shop's 1.250 is one and a quarter, not 1,250.
+    expect(wixPrices("1.250", "1.500", "KWD")).toEqual({ priceCents: 150, salePriceCents: 125 });
+    expect(wixPrices("1.250", "")).toEqual({ priceCents: 125000, salePriceCents: null });
     const { products } = readWix(parseCsv(FIXTURE));
     expect(products[1]).toMatchObject({ name: "Tulip Bunch", priceCents: 12000, salePriceCents: 9000 });
   });

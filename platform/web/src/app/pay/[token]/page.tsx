@@ -3,6 +3,7 @@ import { deliveryDayLabel } from "@/lib/selling/delivery";
 import { taxLabel } from "@/lib/catalog/tax";
 import { redirect } from "next/navigation";
 import { formatCents } from "@/lib/catalog/money";
+import { rateText } from "@/lib/money/rates";
 import { fulfilmentOf } from "@/lib/catalog/fulfilment";
 import { optionsText } from "@/lib/catalog/options";
 import { scheduledText } from "@/lib/catalog/payment";
@@ -63,6 +64,7 @@ export default async function PayPage({
   if (!app.demo && !checkout && manual.length === 0) return note("Payments are off", "This shop can't take payments right now. Please try again later.");
 
   const money = (cents: number) => formatCents(cents, order.currency);
+  const cc = order.customerCurrency ?? null;
   const color = app.primaryColor;
   return (
     <PayShell app={app}>
@@ -147,10 +149,19 @@ export default async function PayPage({
           <span>Total</span>
           <span>{money(order.totalCents)}</span>
         </p>
+<<<<<<< HEAD
         {/* 134 The platform prices shipping and tax for the address before the payment. */}
         {platformOrder && !platformOrder.quote ? (
           <p className="m-0 text-[13px] text-ink-4" data-pay-quote="">
             Shipping and tax for your address are added before you pay.
+=======
+        {/* 135.7 The customer's own currency: charged in it, or shown as approximate (the shop's currency charged). */}
+        {cc ? (
+          <p className="m-0 text-right text-[14px] text-ink-4" data-pay-customer-currency="">
+            {cc.charged
+              ? `Charged in ${cc.currency}: ${formatCents(cc.totalCents, cc.currency)} (${rateText(cc.rate, order.currency, cc.currency)}, rates of ${cc.rateDate})`
+              : `≈ ${formatCents(cc.totalCents, cc.currency)} · you pay ${money(order.totalCents)}`}
+>>>>>>> origin/main
           </p>
         ) : null}
         {/* 91.5 A tax inside the prices. */}
@@ -194,7 +205,7 @@ export default async function PayPage({
             token={token}
             card={checkout ? PROVIDER_NAME[checkout.account.provider] : null}
             manual={manual}
-            total={money(order.totalCents)}
+            total={cc?.charged ? formatCents(cc.totalCents, cc.currency) : money(order.totalCents)}
             color={color}
             textColor={textOn(color)}
             defaults={

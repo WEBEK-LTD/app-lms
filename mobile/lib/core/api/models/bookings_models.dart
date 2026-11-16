@@ -1,5 +1,6 @@
 import 'class_models.dart';
 import 'json.dart';
+import 'money_models.dart';
 
 /// `Config.bookings`: the booking plugin's rules, for Bookings apps.
 class BookingsConfig {
@@ -117,6 +118,7 @@ class BookingPrice {
     required this.currency,
     required this.formatted,
     required this.free,
+    this.display,
   });
 
   factory BookingPrice.fromJson(Json json) => BookingPrice(
@@ -124,12 +126,16 @@ class BookingPrice {
     currency: reqString(json, 'currency'),
     formatted: reqString(json, 'formatted'),
     free: boolOr(json, 'free', false),
+    display: DisplayMoney.tryParse(json['display']),
   );
 
   final String amount;
   final String currency;
   final String formatted;
   final bool free;
+
+  /// 135.5 The price in the customer's currency; null when none.
+  final DisplayMoney? display;
 }
 
 class ServiceCategory {

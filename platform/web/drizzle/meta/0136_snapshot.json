@@ -1,7 +1,11 @@
 {
   "version": "5",
   "dialect": "mysql",
+<<<<<<< HEAD
   "id": "cacecb98-8abb-4bee-a2ea-f579d46fa125",
+=======
+  "id": "e1450df3-74bc-45a5-a368-334f7d5b5293",
+>>>>>>> origin/main
   "prevId": "fc743b93-c3ff-4d37-b516-e2d7103afb57",
   "tables": {
     "account_deletion_requests": {
@@ -5013,6 +5017,16 @@
           "primaryKey": false,
           "notNull": false,
           "autoincrement": false
+<<<<<<< HEAD
+=======
+        },
+        "customer_currency": {
+          "name": "customer_currency",
+          "type": "longtext",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+>>>>>>> origin/main
         }
       },
       "indexes": {
@@ -25613,6 +25627,7 @@
       "uniqueConstraints": {},
       "checkConstraint": {}
     },
+<<<<<<< HEAD
     "store_platform_orders": {
       "name": "store_platform_orders",
       "columns": {
@@ -25759,6 +25774,8 @@
       "uniqueConstraints": {},
       "checkConstraint": {}
     },
+=======
+>>>>>>> origin/main
     "store_products": {
       "name": "store_products",
       "columns": {

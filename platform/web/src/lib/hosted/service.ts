@@ -1,4 +1,7 @@
 import { courierWho } from "../delivery/service";
+import { currencyDigits, currencyOptions } from "../money/currencies";
+import { addDisplayPrices, DISPLAY_CONNECTORS, requestedCurrency, type DisplayCurrency } from "../money/display";
+import { currentRates } from "../money/rates";
 import { appZone } from "../analytics/zone";
 import { courseSetup } from "../courses/setup";
 import { encryptionKey } from "../env";
@@ -269,6 +272,27 @@ export async function handleHosted(ctx: HostedContext, req: HostedRequest): Prom
   return { ...result, body: localizedError(result.body, requestLanguage(req.headers?.get("accept-language"))) };
 }
 
+/** 135.5 The customer's currency the app asked for, with the saved rates (never fetched here); null: none asked. */
+async function displayOf(ctx: HostedContext, req: HostedRequest): Promise<DisplayCurrency | null> {
+  const currency = requestedCurrency(req.query, req.headers);
+  return currency ? { currency, rates: await currentRates(ctx.store) } : null;
+}
+
+/**
+ * 135.5 GET /currencies: every currency the app can show prices in (the
+ * ones with a day's rate), named in the app's language, the usual ones
+ * first, then A–Z; and the rates' day. The app lists them in its currency
+ * picker, the shop's own first.
+ */
+async function currenciesList(ctx: HostedContext, req: HostedRequest): Promise<HostedResult> {
+  const rates = await currentRates(ctx.store);
+  const lang = requestLanguage(req.headers?.get("accept-language")) ?? "en";
+  const items = currencyOptions(lang)
+    .filter((o) => rates.perDollar[o.code])
+    .map((o) => ({ code: o.code, name: o.name, symbol: o.symbol, digits: currencyDigits(o.code), usual: o.usual }));
+  return ok({ rate_date: rates.date, items });
+}
+
 async function route(ctx: HostedContext, req: HostedRequest): Promise<HostedResult> {
   // 77 The chat, for every app that has it (WordPress apps too, with their site's chat token).
   if (req.path[0] === "chat") return chatRequest(ctx, req);
@@ -285,6 +309,9 @@ async function route(ctx: HostedContext, req: HostedRequest): Promise<HostedResu
   switch (route) {
     case "GET /config":
       return signInOnly ? signInConfig(ctx, req) : config(ctx, req);
+    // 135.5 The currencies prices can be shown in (those with a day's rate).
+    case "GET /currencies":
+      return currenciesList(ctx, req);
     case "POST /auth/otp/request":
       return requestCode(ctx, record(req.body));
     case "POST /auth/email/request":
@@ -423,7 +450,11 @@ async function route(ctx: HostedContext, req: HostedRequest): Promise<HostedResu
       now: ctx.now,
       // 43 Labels the connector writes (an event's price) in the app's language.
       lang: requestLanguage(req.headers?.get("accept-language")),
+      // 135.5 Prices in the customer's currency too, when the app asks for one.
+      display: await displayOf(ctx, req),
     });
+    // 135.5 Yallapp's own prices in the customer's currency too (never a connected platform's).
+    if (result && result.status === 200 && DISPLAY_CONNECTORS.has(ctx.app.connector?.kind ?? "")) addDisplayPrices(result.body, await displayOf(ctx, req));
     // 78.4 The connected platform failing (it can't be reached, it refused): counted for the team.
     if (result && result.status >= 500) {
       const failed = errorOfBody(result.body);
@@ -444,7 +475,7 @@ async function route(ctx: HostedContext, req: HostedRequest): Promise<HostedResu
     if (result) return result;
     // 91.2 One order on a connected platform (an order update opens it): from the customer's orders.
     if (session && req.method === "GET" && req.path.length === 3 && req.path[0] === "me" && req.path[1] === "orders" && /^\d{1,20}$/.test(req.path[2]!)) {
-      const list = await ctx.connector.handle({ method: "GET", path: ["me", "orders"], query: new URLSearchParams({ per_page: "50" }), body: null, user: session.user, now: ctx.now, lang: requestLanguage(req.headers?.get("accept-language")) });
+      const list = await ctx.connector.handle({ method: "GET", path: ["me", "orders"], query: new URLSearchParams({ per_page: "50" }), body: null, user: session.user, now: ctx.now, lang: requestLanguage(req.headers?.get("accept-language")), display: await displayOf(ctx, req) });
       if (list && list.status !== 200) return list;
       const found = ((list?.body as { items?: { id: unknown }[] } | undefined)?.items ?? []).find((o) => String(o.id) === req.path[2]);
       return found ? ok(found) : error(404, "not_found", "Order not found.");

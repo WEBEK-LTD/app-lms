@@ -1,5 +1,6 @@
 import 'config_models.dart';
 import 'json.dart';
+import 'money_models.dart';
 
 class OtpRequestResult {
   const OtpRequestResult({
@@ -300,7 +301,11 @@ class CheckoutLink {
     required this.openIn,
     this.enrolled = false,
     this.courseIds = const [],
+<<<<<<< HEAD
     this.payment,
+=======
+    this.charge,
+>>>>>>> origin/main
   });
 
   factory CheckoutLink.fromJson(Json json) => CheckoutLink(
@@ -316,12 +321,19 @@ class CheckoutLink {
       for (final id in (json['course_ids'] as List? ?? const []))
         if (id is int) id,
     ],
+<<<<<<< HEAD
     payment: switch (json['payment']) {
       'in_app' => CheckoutPayment.inApp,
       'platform' => CheckoutPayment.platform,
       _ => null,
     },
+=======
+    charge: CartCharge.tryParse(json['charge']),
+>>>>>>> origin/main
   );
+
+  /// 135.7 What the card is charged, and in which currency.
+  final CartCharge? charge;
 
   final String url;
   final DateTime expiresAt;

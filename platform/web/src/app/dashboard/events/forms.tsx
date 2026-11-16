@@ -1,6 +1,7 @@
 "use client";
 
 /* eslint-disable @next/next/no-img-element -- the event's pictures, served by our own asset route */
+import { CurrencyPicker } from "@/components/currency-picker";
 import { useActionState, useId, type ReactNode } from "react";
 import { saveEventAction, saveEventSettingsAction, saveTicketTypeAction } from "@/app/actions/events";
 import { Field, FieldError, FormMessage, SubmitButton } from "@/components/form";
@@ -264,10 +265,10 @@ export function TicketTypeForm({ eventId, type, currency }: { eventId: number; t
 
 export function EventSettingsForm({
   settings,
-  currencies,
 }: {
   settings: { currency: string; timeZone: string; showMap: boolean; allowCancelHours: number | null };
-  currencies: string[];
+  /** 135.1 Any ISO 4217 currency now: the picker lists them all. */
+  currencies?: string[];
 }) {
   const t = useDashT();
   const [state, action] = useActionState(saveEventSettingsAction, initialFormState);
@@ -278,19 +279,8 @@ export function EventSettingsForm({
     <form action={action} noValidate className="flex flex-col gap-4">
       <FormMessage message={state.errors ? undefined : state.message} ok={state.ok} />
       <div className="grid gap-4 sm:grid-cols-2">
-        <div className="flex flex-col gap-1.5">
-          <label htmlFor="f-currency" className="text-sm font-semibold">
-            {t("shop.currency")}
-          </label>
-          <select id="f-currency" name="currency" defaultValue={value("currency", settings.currency)} className="input">
-            {currencies.map((c) => (
-              <option key={c} value={c}>
-                {c}
-              </option>
-            ))}
-          </select>
-          <FieldError id="f-currency-error" error={e.currency} />
-        </div>
+        {/* 135.3 Any currency: searched by name, code or sign, the usual ones first. */}
+        <CurrencyPicker id="f-currency" label={t("shop.currency")} defaultValue={value("currency", settings.currency)} error={e.currency} />
         <Field
           label={t("shop.timeZone")}
           name="timeZone"
