@@ -1,4 +1,4 @@
-import { createElement, type ReactNode } from "react";
+import { createElement, type ComponentProps, type ReactNode } from "react";
 import { renderToStaticMarkup } from "react-dom/server";
 import { describe, expect, it } from "vitest";
 import { ManualPaymentsForm } from "@/app/dashboard/catalog/forms";
@@ -14,7 +14,11 @@ import { dashboardMessages, knownEnglish } from "@/i18n/dashboard";
  * each on or off on their own, the days to pay shown while either is on.
  */
 
-const html = (node: ReactNode, lang: "en" | "ar" = "en") => renderToStaticMarkup(createElement(DashboardI18n, { lang, messages: dashboardMessages(lang), knownEnglish: lang === "en" ? {} : knownEnglish(), children: node }));
+/** The markup of `node` in the dashboard's language, as a page of the dashboard has it. */
+function html(node: ReactNode, lang: "en" | "ar" = "en"): string {
+  const props: ComponentProps<typeof DashboardI18n> = { lang, messages: dashboardMessages(lang), knownEnglish: lang === "en" ? {} : knownEnglish(), children: node };
+  return renderToStaticMarkup(createElement(DashboardI18n, props));
+}
 
 /** The element with this id, as markup (its opening tag). */
 const tagOf = (markup: string, id: string) => new RegExp(`<[a-z]+[^>]*\\bid="${id}"[^>]*>`).exec(markup)?.[0] ?? "";
