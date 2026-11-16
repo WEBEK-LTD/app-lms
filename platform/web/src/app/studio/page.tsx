@@ -57,7 +57,7 @@ export default async function StudioHomePage() {
               {t("studio.regularApps")}
             </button>
           </form>
-          <Link href="/studio" aria-current="page" className="flex h-8 items-center gap-1.5 rounded-lg px-3 text-[13px] font-bold no-underline" style={{ background: C.ivory, color: C.ink }}>
+          <Link href="/studio" aria-current="page" className="flex h-8 items-center gap-1.5 rounded-lg px-3 text-[13px] font-bold no-underline" style={{ background: C.barText, color: C.bar }}>
             <Glyph name="draw" size={18} />
             {t("studio.studioSection")}
           </Link>
@@ -68,7 +68,7 @@ export default async function StudioHomePage() {
           </Link>
         </nav>
         <div className="flex-[1_1_20px]" />
-        <a href={localePath(lang, "/docs/yallapp-studio")} className="flex items-center gap-1.5 text-sm no-underline" style={{ color: C.ivory }}>
+        <a href={localePath(lang, "/docs/yallapp-studio")} className="flex items-center gap-1.5 text-sm no-underline" style={{ color: C.barText }}>
           <Glyph name="help" size={18} />
           {t("studio.help")}
         </a>
@@ -84,7 +84,7 @@ export default async function StudioHomePage() {
               {t("studio.homeIntro")}
             </p>
           </div>
-          <Link href="/start?new=1&for=studio" className="flex h-11 items-center gap-2 rounded-xl px-5 text-[15px] font-extrabold no-underline" style={{ background: C.accent, color: C.ink }}>
+          <Link href="/start?new=1&for=studio" className="flex h-11 items-center gap-2 rounded-xl px-5 text-[15px] font-extrabold no-underline" style={{ background: C.accent, color: C.onAccent }}>
             <Glyph name="add" />
             {t("studio.newProject")}
           </Link>
@@ -92,7 +92,7 @@ export default async function StudioHomePage() {
 
         <ProjectsGrid cards={cards} words={words} samples={sampleEntries(now)} />
 
-        <section aria-labelledby="h-studio-plans" className="flex flex-wrap items-center gap-4 rounded-[18px] px-6 py-5" style={{ background: C.ink, color: C.ivory }}>
+        <section aria-labelledby="h-studio-plans" className="flex flex-wrap items-center gap-4 rounded-[18px] px-6 py-5" style={{ background: C.bar, color: C.barText }}>
           <Glyph name="workspace_premium" size={32} className="text-[#FF5A1F]" />
           <div className="flex flex-[1_1_320px] flex-col gap-1">
             <h2 id="h-studio-plans" className="m-0 text-[17px] font-extrabold">
@@ -105,7 +105,7 @@ export default async function StudioHomePage() {
           <Link
             href={current ? "/studio/project/license" : "/studio/new"}
             className="flex h-10 items-center gap-1.5 rounded-[10px] px-4 text-sm font-bold no-underline"
-            style={{ border: `1px solid ${C.barLine}`, color: C.ivory }}
+            style={{ border: `1px solid ${C.barLine}`, color: C.barText }}
           >
             {t("studio.seePlans")}
             <Glyph name="arrow_forward" size={18} flip />

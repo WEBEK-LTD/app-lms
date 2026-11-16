@@ -108,7 +108,7 @@ export default async function StudioProjectPage({ searchParams }: PageProps<"/st
         {stats.map((stat) => (
           <Stat key={stat.label} icon={stat.icon} label={stat.label} value={stat.value} />
         ))}
-        <Stat icon="workspace_premium" tone={card.plan ? "success" : "warn"} label={t("studio.statPlan")} value={<span className="text-lg">{card.plan ?? t("studio.notChosen")}</span>} href="/studio/project/license" />
+        <Stat icon="workspace_premium" tone={card.plan ? "success" : "warn"} label={t("studio.statPlan")} value={<span className="text-lg">{card.plan ?? t("studio.noPlanYet")}</span>} href="/studio/project/license" />
       </StatRow>
 
       <Section

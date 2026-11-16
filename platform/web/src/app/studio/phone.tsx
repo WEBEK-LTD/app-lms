@@ -38,7 +38,8 @@ export function ProjectPhone({
         width: frame.width,
         height: frame.height,
         boxSizing: "border-box",
-        background: C.ink,
+        // 132.70 The phone's frame stays dark in both themes.
+        background: C.bar,
         padding: size === "card" ? `${frame.pad}px ${frame.pad}px 0` : frame.pad,
         borderRadius: size === "card" ? `${frame.radius}px ${frame.radius}px 0 0` : frame.radius,
       }}

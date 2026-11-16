@@ -31,8 +31,8 @@ export function PicturesPanel({ query, onAdd, onDragStart }: { query: string; on
     };
   }, []);
 
-  if (failed) return <p className="px-3 text-[13px]" style={{ color: "var(--studio-muted)" }}>{t("studio.picturesFailed")}</p>;
-  if (!items) return <p className="px-3 text-[13px]" style={{ color: "var(--studio-muted)" }}>{t("studio.picturesLoading")}</p>;
+  if (failed) return <p className="px-3 text-[13px]" style={{ color: "var(--sf-muted)" }}>{t("studio.picturesFailed")}</p>;
+  if (!items) return <p className="px-3 text-[13px]" style={{ color: "var(--sf-muted)" }}>{t("studio.picturesLoading")}</p>;
 
   const q = query.trim().toLowerCase();
   const own = items.filter((i) => !q || i.name.toLowerCase().includes(q));
@@ -46,7 +46,7 @@ export function PicturesPanel({ query, onAdd, onDragStart }: { query: string; on
         title={alt}
         aria-label={`${t("studio.addPicture")}: ${alt}`}
         className="studio-tile block w-full overflow-hidden rounded-[10px] bg-white p-0"
-        style={{ border: "1px solid var(--studio-line)", cursor: "grab" }}
+        style={{ border: "1px solid var(--sf-line)", cursor: "grab" }}
         data-studio-picture=""
       >
         {/* eslint-disable-next-line @next/next/no-img-element -- signed links and Yallapp's pictures, shown as they are */}
@@ -57,23 +57,23 @@ export function PicturesPanel({ query, onAdd, onDragStart }: { query: string; on
 
   return (
     <div className="flex flex-col gap-2 px-3 pb-3">
-      <p className="m-0 text-xs" style={{ color: "var(--studio-muted)" }}>
+      <p className="m-0 text-xs" style={{ color: "var(--sf-muted)" }}>
         {t("studio.picturesHint")}
       </p>
-      <div className="text-xs font-bold" style={{ color: "var(--studio-muted)" }}>
+      <div className="text-xs font-bold" style={{ color: "var(--sf-muted)" }}>
         {t("studio.picturesMine")}
       </div>
       {own.length ? (
         <ul className="m-0 grid list-none grid-cols-3 gap-2 p-0">{own.map((i) => tile(i.id, i.thumbUrl ?? i.link, i.name, { kind: "picture", url: i.link, ...(i.public ? {} : { share: i.id }) }))}</ul>
       ) : (
-        <p className="m-0 flex items-center gap-1.5 text-[13px]" style={{ color: "var(--studio-muted)" }}>
+        <p className="m-0 flex items-center gap-1.5 text-[13px]" style={{ color: "var(--sf-muted)" }}>
           <Glyph name="photo_library" size={18} />
           {t("studio.picturesNone")}
         </p>
       )}
       {library.length && !q ? (
         <>
-          <div className="pt-1 text-xs font-bold" style={{ color: "var(--studio-muted)" }}>
+          <div className="pt-1 text-xs font-bold" style={{ color: "var(--sf-muted)" }}>
             {t("studio.picturesYallapp")}
           </div>
           <ul className="m-0 grid list-none grid-cols-3 gap-2 p-0">{library.map((p) => tile(p.url, p.url, `${p.palette} ${p.shape}`, { kind: "picture", url: p.url }))}</ul>

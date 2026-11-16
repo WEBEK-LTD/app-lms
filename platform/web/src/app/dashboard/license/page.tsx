@@ -303,7 +303,7 @@ export default async function LicensePage({ searchParams }: PageProps<"/dashboar
         ) : null}
         <dl className="m-0">
           <Row label={t("license.plan")}>
-            {planName(currentId, effective)}
+            {currentId ? planName(currentId, effective) : t("overview.noPlan")}
             {scheduled ? (
               <span className="block text-[13px] font-normal text-muted">{t("license.movesTo", { plan: effective[scheduled.plan].name, date: date(scheduled.at) })}</span>
             ) : null}

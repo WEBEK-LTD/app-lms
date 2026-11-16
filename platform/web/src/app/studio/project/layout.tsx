@@ -57,7 +57,7 @@ export default async function StudioProjectLayout({ children }: { children: Reac
   );
   const role = member ? t(`team.roles.${context.access.role}` as DashKey) : null;
   return (
-    <StudioScreen dir={dir} lang={lang} themed>
+    <StudioScreen dir={dir} lang={lang}>
       <StudioDashboardLinks />
       <StudioBar>
         {/* 132.4 On phones the bar stays one line: the project as its kind's icon (its name is in the switcher), Preview in the menu. */}
@@ -89,12 +89,12 @@ export default async function StudioProjectLayout({ children }: { children: Reac
           </div>
         </details>
         <div className="flex-[1_1_20px]" />
-        <Link href="/studio/project/preview" className="flex h-[38px] items-center gap-1.5 rounded-[10px] px-3.5 text-sm font-semibold no-underline max-sm:hidden" style={{ border: `1px solid ${C.barLine}`, color: C.ivory }}>
+        <Link href="/studio/project/preview" className="flex h-[38px] items-center gap-1.5 rounded-[10px] px-3.5 text-sm font-semibold no-underline max-sm:hidden" style={{ border: `1px solid ${C.barLine}`, color: C.barText }}>
           <Glyph name="play_arrow" size={18} />
           {/* On phones the bar's two links as their icons, so the bar stays one line. */}
           <span className="max-sm:sr-only">{t("studio.previewOnPhone")}</span>
         </Link>
-        <Link href="/studio/editor" className="flex h-[38px] items-center gap-1.5 rounded-[10px] px-[18px] text-sm font-extrabold no-underline max-sm:px-2.5" style={{ background: C.accent, color: C.ink }}>
+        <Link href="/studio/editor" className="flex h-[38px] items-center gap-1.5 rounded-[10px] px-[18px] text-sm font-extrabold no-underline max-sm:px-2.5" style={{ background: C.accent, color: C.onAccent }}>
           <Glyph name="draw" size={18} />
           <span className="max-sm:sr-only">{t("studio.openEditor")}</span>
         </Link>

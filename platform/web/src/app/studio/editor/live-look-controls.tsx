@@ -14,7 +14,7 @@ import type { StudioNode } from "@/lib/pages/types";
 
 type Change = (patch: Partial<StudioNode>) => void;
 
-const FIELD = { border: "1px solid var(--studio-line)" } as const;
+const FIELD = { border: "1px solid var(--sf-line)" } as const;
 
 export function LiveLookControls({ node, onChange }: { node: StudioNode; onChange: Change }) {
   const t = useDashT();
@@ -54,7 +54,7 @@ export function LiveLookControls({ node, onChange }: { node: StudioNode; onChang
           ) : null}
         </div>
       ) : null}
-      <span className="text-xs" style={{ color: "var(--studio-muted)" }}>
+      <span className="text-xs" style={{ color: "var(--sf-muted)" }}>
         {t("studio.liveLookHint")}
       </span>
     </div>

@@ -116,8 +116,9 @@ test("a form's validation message comes in Arabic", async () => {
   await own.goto("/dashboard/setup");
   await expect(own.getByRole("heading", { name: "الهوية" })).toBeVisible();
   await own.getByLabel("اسم التطبيق", { exact: true }).fill("");
-  await own.getByRole("button", { name: "حفظ ومتابعة" }).click();
-  await expect(own.getByText("أدخل اسم تطبيقك.")).toBeVisible();
+  // 132.76 The dashboard's Arabic is Egyptian.
+  await own.getByRole("button", { name: "احفظ وكمّل" }).click();
+  await expect(own.getByText("اكتب اسم تطبيقك.")).toBeVisible();
   await expect(own.getByText("Enter your app name.")).toHaveCount(0);
 });
 

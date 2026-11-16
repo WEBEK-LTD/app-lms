@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 
 /**
  * 132.67 Changes that aren't saved yet are never lost by a click: while
@@ -36,4 +36,17 @@ export function useLeaveGuard(dirty: boolean, message: string): void {
       document.removeEventListener("click", click, true);
     };
   }, []);
+}
+
+/**
+ * 132.75 A long form's guard: once one of its fields changes, leaving the
+ * page asks first, until the form is sent. Spread on the `<form>`:
+ *
+ *   const guard = useFormLeaveGuard(t("common.leaveUnsaved"));
+ *   <form action={action} {...guard}>
+ */
+export function useFormLeaveGuard(message: string): { onChange: () => void; onSubmit: () => void; "data-leave-guard": "dirty" | "clean" } {
+  const [dirty, setDirty] = useState(false);
+  useLeaveGuard(dirty, message);
+  return { onChange: () => setDirty(true), onSubmit: () => setDirty(false), "data-leave-guard": dirty ? "dirty" : "clean" };
 }

@@ -18,15 +18,15 @@ export default async function StudioAccountLayout({ children }: { children: Reac
   const { t, lang, dir } = await dashboardText();
   const project = context.app && isStudioProject(context.app) ? context.app : null;
   return (
-    // 132.4 Light or dark like the project's frame and the dashboard.
-    <StudioScreen dir={dir} lang={lang} themed>
+    // 132.4 132.70 Light or dark like the project's frame and the dashboard (every StudioScreen is).
+    <StudioScreen dir={dir} lang={lang}>
       {/* The pages' links to the dashboard open the same page in Studio's frame. */}
       {project ? <StudioDashboardLinks /> : null}
       <StudioBar>
         <Link
           href={project ? "/studio/project" : "/studio"}
           className="flex h-[34px] min-w-0 items-center gap-1.5 rounded-[10px] px-3 text-sm no-underline"
-          style={{ background: C.barSoft, color: C.ivory }}
+          style={{ background: C.barSoft, color: C.barText }}
           data-studio-back=""
         >
           <Glyph name="arrow_back" size={18} flip />

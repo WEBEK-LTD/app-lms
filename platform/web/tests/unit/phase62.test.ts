@@ -81,7 +81,7 @@ describe("62 payment providers' answers in plain words", () => {
     const [error] = checkTranslation("Hello {name}", "Merhaba {name", {}).errors;
     expect(error).toBe("A { has no } after it.");
     expect(tr(error!)).toBe("Bir { işaretinden sonra } yok.");
-    expect(knownTranslator("ar")('{count, plural, …} needs an "other" choice.')).toBe('{count, plural, …} يحتاج إلى خيار "other".');
+    expect(knownTranslator("ar")('{count, plural, …} needs an "other" choice.')).toBe('{count, plural, …} محتاج اختيار "other".');
   });
 });
 
