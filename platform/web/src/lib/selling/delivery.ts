@@ -198,6 +198,39 @@ export async function checkDelivery(
   return { ok: true, date: rawDate, slot, feeCents: fees && slot.feeCents ? slot.feeCents : 0 };
 }
 
+/**
+ * 132.170 What's wrong with each of a day's delivery times, in the order
+ * given: `order` (not two times like 10:00 and 13:00, the end after the
+ * start), `overlap` with the index of an earlier-starting time it runs into
+ * (10:00–13:00 and 12:00–15:00; one may start when the other ends: a break
+ * between 13:00 and 16:00 is two times), or null. Rows with neither time are
+ * skipped (null). The dashboard's form shows these as they're typed; the
+ * server refuses them.
+ */
+export type SlotProblem = { kind: "order" } | { kind: "overlap"; with: number } | null;
+export function slotProblems(slots: { start: string; end: string }[]): SlotProblem[] {
+  const out: SlotProblem[] = slots.map(() => null);
+  const timed: { i: number; start: number; end: number }[] = [];
+  slots.forEach((s, i) => {
+    const start = s.start.trim();
+    const end = s.end.trim();
+    if (start === "" && end === "") return;
+    if (!TIME.test(start) || !TIME.test(end) || (minutesOf(end) ?? 0) <= (minutesOf(start) ?? 0)) {
+      out[i] = { kind: "order" };
+      return;
+    }
+    timed.push({ i, start: minutesOf(start) ?? 0, end: minutesOf(end) ?? 0 });
+  });
+  timed.sort((a, b) => a.start - b.start || a.i - b.i);
+  for (let n = 1; n < timed.length; n += 1) {
+    const here = timed[n]!;
+    // The earlier time that still runs when this one starts.
+    const before = timed.slice(0, n).find((x) => x.end > here.start);
+    if (before) out[here.i] = { kind: "overlap", with: before.i };
+  }
+  return out;
+}
+
 type Parsed<T> = { ok: true; value: T } | { ok: false; errors: Record<string, string> };
 
 /**
@@ -252,6 +285,11 @@ export function parseDeliveryForm(v: Record<string, string>, current: DeliverySc
     used.add(id);
     slots.push({ id, start, end, capacity, feeCents: feeCents && feeCents > 0 ? feeCents : null });
   }
+  // 132.170 Several times a day (a break between them), never two at once.
+  const rows = Array.from({ length: DELIVERY_LIMITS.slots }, (_, i) => ({ start: (v[`slotStart${i}`] ?? "").trim(), end: (v[`slotEnd${i}`] ?? "").trim() }));
+  slotProblems(rows).forEach((p, i) => {
+    if (p?.kind === "overlap" && !errors[`slot${i}`]) errors[`slot${i}`] = `This time overlaps ${slotLabel(rows[p.with]!)}: let one end before the next starts.`;
+  });
   slots.sort((a, b) => (minutesOf(a.start) ?? 0) - (minutesOf(b.start) ?? 0));
   if (Object.keys(errors).length) return { ok: false, errors };
   return {
