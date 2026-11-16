@@ -192,11 +192,11 @@ test("132.52–132.61 the editor: one line of tools, Ctrl+S, the phone's QR code
 });
 
 test("132.67 translations typed and not saved: leaving by the menu asks first", async () => {
-  // The Arabic of a tab's name typed in, not saved.
-  await own.goto("/studio/project/languages?lang=ar");
-  const tab = own.locator('[data-row-id="tab|home|label"]');
-  await tab.getByRole("textbox").fill("البداية");
-  await expect(tab).toContainText("Not saved");
+  // One of the app's texts typed in, not saved.
+  await own.goto("/studio/project/languages");
+  const row = own.locator('[data-row-id="languageName"]');
+  await row.getByRole("textbox").fill("Polish Store");
+  await expect(row).toContainText("Not saved");
   const overview = own.getByRole("navigation", { name: "Project dashboard" }).getByRole("link", { name: "Overview" });
   // Staying: the page and the text stay.
   own.once("dialog", (dialog) => {
@@ -204,8 +204,8 @@ test("132.67 translations typed and not saved: leaving by the menu asks first", 
     void dialog.dismiss();
   });
   await overview.click();
-  await expect(own).toHaveURL(/\/studio\/project\/languages\?lang=ar$/);
-  await expect(tab.getByRole("textbox")).toHaveValue("البداية");
+  await expect(own).toHaveURL(/\/studio\/project\/languages$/);
+  await expect(row.getByRole("textbox")).toHaveValue("Polish Store");
   // Leaving anyway.
   own.once("dialog", (dialog) => void dialog.accept());
   await overview.click();
