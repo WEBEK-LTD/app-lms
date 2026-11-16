@@ -790,6 +790,8 @@ describe("79.3 one client never reaches another's data through the Owner API", (
       excuse_id: String(theirExcuse.id),
       school_report_id: String(theirReport.id),
       leave_id: String(leave.id),
+      // 132 A delivery slot of their shop's (Prime's quick actions).
+      slot_id: "s1",
     });
     theirCustomerIds = [customerDevice, conversation.id];
   });

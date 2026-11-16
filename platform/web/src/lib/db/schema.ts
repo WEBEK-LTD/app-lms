@@ -5217,6 +5217,25 @@ export const primeAlerts = mysqlTable(
   (t) => [primaryKey({ columns: [t.userId, t.appId] }), index("prime_alerts_app_idx").on(t.appId)],
 );
 
+/** 132 Prime given by Yallapp's team as a gift to one app (Admin › client), whatever its plan. */
+export const primeGifts = mysqlTable(
+  "prime_gifts",
+  {
+    appId: id("app_id")
+      .primaryKey()
+      .references(() => apps.id, { onDelete: "cascade" }),
+    clientId: id("client_id")
+      .notNull()
+      .references(() => clients.id, { onDelete: "cascade" }),
+    until: time("until"),
+    note: text("note"),
+    givenBy: varchar("given_by", { length: 191 }).notNull(),
+    createdAt: time("created_at").notNull(),
+    updatedAt: time("updated_at").notNull(),
+  },
+  (t) => [index("prime_gifts_client_idx").on(t.clientId)],
+);
+
 /** The alerts and briefs pushed, each once (an item's alert on a day, a person's brief on a day); kept a few days. */
 export const primeSends = mysqlTable(
   "prime_sends",

@@ -465,6 +465,37 @@ test("the owner sends a notification to the app's users from the phone", async (
   expect(listed).toMatchObject({ push: false, items: [{ title: "New tea sets" }] });
 });
 
+test("132 Yallapp's team gives Prime as a gift from Admin, and takes it back", async ({ request }) => {
+  const shopOf = async () => {
+    const me = await (await request.get(`${owner}/me`, { headers: bearer() })).json();
+    return me.apps.find((a: { id: string }) => a.id === shopId) as { features: { prime: boolean }; prime_gift: { until: string | null } | null };
+  };
+  expect(await shopOf()).toMatchObject({ features: { prime: false }, prime_gift: null });
+  expect((await request.get(`${owner}/apps/${shopId}/prime/insights`, { headers: bearer() })).status()).toBe(404);
+
+  await admin.goto(`/admin/clients?q=${encodeURIComponent(client.email)}`);
+  await admin.getByRole("link", { name: client.name, exact: true }).click();
+  await admin.waitForURL(/\/admin\/clients\/[0-9a-f-]{36}$/);
+  const card = admin.getByRole("region", { name: "Prime as a gift" });
+  await expect(card).toContainText("Selin Shop · No Prime");
+  await card.getByLabel("App").selectOption({ label: "Selin Shop" });
+  await card.getByLabel("Note for the team (optional)").fill("Launch week");
+  await card.getByRole("button", { name: "Give Prime as a gift" }).click();
+  await expect(admin.getByRole("status").filter({ hasText: "Prime given as a gift." })).toBeVisible();
+  await expect(card).toContainText("Selin Shop · Prime as a gift until removed · Launch week");
+
+  // The phone has Prime on the shop now, its plan untouched.
+  expect(await shopOf()).toMatchObject({ features: { prime: true }, prime_gift: { until: null } });
+  expect((await request.get(`${owner}/apps/${shopId}/prime/insights`, { headers: bearer() })).status()).toBe(200);
+  await admin.goto("/admin/audit");
+  await expect(admin.getByText("Prime given as a gift to Selin Shop until removed")).toBeVisible();
+
+  await admin.goBack();
+  await admin.getByRole("button", { name: "Remove the Prime gift of Selin Shop" }).click();
+  await expect(admin.getByRole("status").filter({ hasText: "Prime gift removed." })).toBeVisible();
+  expect(await shopOf()).toMatchObject({ features: { prime: false }, prime_gift: null });
+});
+
 test("the dashboard lists the phone and signs it out; the app signs out too", async ({ request }) => {
   await own.goto("/dashboard/phones");
   await expect(own.getByRole("heading", { name: "Your phones", level: 1 })).toBeVisible();

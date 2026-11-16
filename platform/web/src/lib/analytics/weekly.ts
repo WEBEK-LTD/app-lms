@@ -12,6 +12,12 @@ import { addDays, dayOf } from "./days";
 import { loadReport, type AnalyticsReport, type AnalyticsRange } from "./report";
 import { loadSales, type SalesReport } from "./sales";
 import { appZone } from "./zone";
+import type { App } from "../data/types";
+import { appAreas } from "../app/areas";
+import { localToUtc } from "../bookings/time";
+import { primeGiftActive } from "../admin/prime-gift";
+import { saleEvents } from "../owner/prime";
+import { isPrimeLicense } from "../owner/sales";
 
 /**
  * 86.4 The weekly summary: every Monday (or by Wednesday, when the daily job
@@ -109,7 +115,7 @@ export async function runWeeklySummaries(deps: WeeklyDeps): Promise<{ sent: numb
           name: owner.name,
           app_name: app.appName,
           week: weekText(week, lang),
-          summary: summaryLines(report, sales, lang).join("\n"),
+          summary: [...summaryLines(report, sales, lang), ...(await primeLines(store, app, client.id, week, zone, now, lang))].join("\n"),
           analytics_url: `${deps.baseUrl.replace(/\/+$/, "")}/dashboard/open/${app.id}?to=analytics`,
         },
         ...mailOptions(owner),
@@ -120,6 +126,33 @@ export async function runWeeklySummaries(deps: WeeklyDeps): Promise<{ sent: numb
     }
   }
   return { sent, quiet };
+}
+
+/**
+ * 132 Prime's parts of the weekly summary (a Studio plan, or Prime given as a
+ * gift): the best sellers and the customers, new and returning.
+ */
+async function primeLines(store: DataStore, app: App, clientId: string, week: { from: string; to: string }, zone: string, now: Date, lang: Lang): Promise<string[]> {
+  const prime = isPrimeLicense(await store.getLicenseForApp(clientId, app.id), now) || primeGiftActive(await store.getPrimeGift(app.id), now);
+  if (!prime) return [];
+  const t = getDashT(lang);
+  const n = (value: number) => formatNumber(lang, value);
+  const start = localToUtc(week.from, "00:00", zone);
+  const end = localToUtc(addDays(week.to, 1), "00:00", zone);
+  const all = await saleEvents(store, app, appAreas(app), localToUtc(addDays(week.from, -90), "00:00", zone), end);
+  const inWeek = all.filter((e) => e.at.getTime() >= start.getTime());
+  const lines: string[] = [];
+  const best = new Map<string, number>();
+  for (const e of inWeek) for (const name of e.names.filter(Boolean)) best.set(name, (best.get(name) ?? 0) + 1);
+  const top = [...best].sort((a, b) => b[1] - a[1] || a[0].localeCompare(b[0])).slice(0, 3).map(([name]) => name);
+  if (top.length) lines.push(t("analytics.weeklyPrimeBest", { names: top.join(", ") }));
+  const before = new Set(all.filter((e) => e.at.getTime() < start.getTime() && e.customer).map((e) => e.customer!));
+  const people = new Set(inWeek.filter((e) => e.customer).map((e) => e.customer!));
+  if (people.size) {
+    const returning = [...people].filter((c) => before.has(c)).length;
+    lines.push(t("analytics.weeklyPrimeCustomers", { total: n(people.size), fresh: n(people.size - returning), returning: n(returning) }));
+  }
+  return lines;
 }
 
 function hasSales(sales: SalesReport): boolean {

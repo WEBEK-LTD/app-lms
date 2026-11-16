@@ -1058,6 +1058,8 @@ export interface DeliveryScheduleSettings {
   /** IANA; the days, the cut-off and the slots count in it. */
   timezone: string;
   slots: DeliverySlot[];
+  /** 132 A slot closed on a day by the owner (Yallapp Business › Prime › Quick actions); missing: none. */
+  closedSlots?: { date: string; slotId: string }[];
 }
 
 /** 131 What a customer may say about a gift at checkout. */
@@ -2937,7 +2939,7 @@ export type AccountManagerCallInput = Omit<AccountManagerCall, "id">;
 export type AccountManagerCallPatch = Partial<Pick<AccountManagerCall, "date" | "time" | "status" | "note" | "updatedAt">>;
 
 /** 125 Prime's smart alerts (Yallapp Business, docs/api/owner.yaml `PrimeAlertKind`). */
-export const PRIME_ALERT_KINDS = ["order_waiting", "shipment_unassigned", "sales_low", "message_unanswered", "low_rating", "ride_no_driver"] as const;
+export const PRIME_ALERT_KINDS = ["order_waiting", "shipment_unassigned", "sales_low", "message_unanswered", "low_rating", "ride_no_driver", "low_stock", "sales_goal"] as const;
 export type PrimeAlertKind = (typeof PRIME_ALERT_KINDS)[number];
 
 export interface PrimeAlertSetting {
@@ -2948,6 +2950,12 @@ export interface PrimeAlertSetting {
   /** "18:00", in the app's time zone. */
   byTime: string | null;
   stars: number | null;
+  /** 132 `low_stock`: told when a product has this many left or fewer (0: only when sold out). */
+  threshold?: number | null;
+  /** 132 `sales_goal`: the goal's period, its amount in `amountCents`. */
+  period?: "day" | "week" | "month" | null;
+  /** 132 `sales_goal`: the period the goal was reached in (its first day), told once. */
+  reachedFor?: string | null;
 }
 
 /** 125 One person's smart alerts and morning brief on one app. */
@@ -2959,6 +2967,24 @@ export interface PrimeAlerts {
   briefOn: boolean;
   /** "08:30", in the app's time zone. */
   briefTime: string;
+  updatedAt: Date;
+}
+
+/**
+ * 132 Prime given by Yallapp's team as a gift to one app, whatever its
+ * plan: it counts as Prime everywhere Prime is checked while it lasts. It
+ * never charges anything and never changes the plan or the invoices.
+ */
+export interface PrimeGift {
+  appId: string;
+  clientId: string;
+  /** The end (exclusive); null: until it is removed. */
+  until: Date | null;
+  /** The team's own note, never shown to the client. */
+  note: string | null;
+  /** The admin who gave it (their email). */
+  givenBy: string;
+  createdAt: Date;
   updatedAt: Date;
 }
 

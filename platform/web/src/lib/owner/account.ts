@@ -16,7 +16,8 @@ import { bellWords, dashboardTextFor } from "../dashboard-words";
 import { bodyObject, invalid, notFound, OwnerError, type OwnerContext, type OwnerResult } from "./http";
 import { allowedAreas, areasOf, teamCan } from "../team/permissions";
 import { businessName } from "../team/service";
-import { ownerAreas } from "./sales";
+import { isPrimeLicense, ownerAreas, primeGiftOf } from "./sales";
+import { primeGiftActive } from "../admin/prime-gift";
 import { accountManagerJson } from "./vip";
 
 /**
@@ -91,6 +92,11 @@ export function appSummaryJson(ctx: OwnerContext, app: App, plans: Record<Plan, 
       prime: areas.prime,
       vip: plan?.limits.accountManager === true,
     },
+    // 132 Prime given by Yallapp as a gift (whatever the plan), while it lasts.
+    prime_gift: (() => {
+      const gift = primeGiftOf(ctx, app);
+      return areas.prime && gift && primeGiftActive(gift, ctx.deps.now) && !isPrimeLicense(license, ctx.deps.now) ? { until: gift.until?.toISOString() ?? null } : null;
+    })(),
     access: {
       role: ctx.access.role,
       areas: areasOf(ctx.access),

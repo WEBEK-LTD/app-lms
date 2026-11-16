@@ -84,6 +84,7 @@ import type {
   AccountManagerCallPatch,
   AccountManagerCallStatus,
   PrimeAlerts,
+  PrimeGift,
   StaffProfile,
   AdminMemberRow,
   AuditEntry,
@@ -8478,6 +8479,7 @@ export class MemoryStore implements DataStore {
 
   // 125 Prime's smart alerts, and VIP's account managers
   private primeAlerts = new Map<string, PrimeAlerts>();
+  private primeGifts = new Map<string, PrimeGift>();
   private primeSends = new Map<string, Date>();
   private staffProfiles = new Map<string, StaffProfile>();
   private managerCalls = new Map<number, AccountManagerCall>();
@@ -8494,6 +8496,23 @@ export class MemoryStore implements DataStore {
 
   async listPrimeAlerts(): Promise<PrimeAlerts[]> {
     return [...this.primeAlerts.values()].filter((a) => a.briefOn || a.alerts.some((x) => x.on)).map(clone);
+  }
+
+  async getPrimeGift(appId: string): Promise<PrimeGift | null> {
+    const gift = this.primeGifts.get(appId);
+    return gift ? clone(gift) : null;
+  }
+
+  async listPrimeGifts(clientId: string): Promise<PrimeGift[]> {
+    return [...this.primeGifts.values()].filter((g) => g.clientId === clientId).map(clone);
+  }
+
+  async savePrimeGift(gift: PrimeGift): Promise<void> {
+    this.primeGifts.set(gift.appId, clone(gift));
+  }
+
+  async deletePrimeGift(appId: string): Promise<boolean> {
+    return this.primeGifts.delete(appId);
   }
 
   async claimPrimeSend(key: string, now: Date): Promise<boolean> {

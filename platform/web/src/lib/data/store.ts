@@ -64,6 +64,7 @@ import type {
   AccountManagerCallPatch,
   AccountManagerCallStatus,
   PrimeAlerts,
+  PrimeGift,
   StaffProfile,
   AdminMemberRow,
   AuditEntry,
@@ -2371,6 +2372,11 @@ export interface DataStore {
   savePrimeAlerts(alerts: PrimeAlerts): Promise<void>;
   /** Everyone's saved alerts with something on (an alert or the brief), for the frequent job. */
   listPrimeAlerts(): Promise<PrimeAlerts[]>;
+  /** 132 Prime given as a gift: an app's, a client's apps', set (one per app) and removed. */
+  getPrimeGift(appId: string): Promise<PrimeGift | null>;
+  listPrimeGifts(clientId: string): Promise<PrimeGift[]>;
+  savePrimeGift(gift: PrimeGift): Promise<void>;
+  deletePrimeGift(appId: string): Promise<boolean>;
   /** Takes a push (an item's alert on a day, a person's brief on a day) once: false when it was taken already. */
   claimPrimeSend(key: string, now: Date): Promise<boolean>;
   /** Taken pushes from before then go. How many. */

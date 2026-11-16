@@ -3621,6 +3621,251 @@ paths:
         '403': { $ref: '#/components/responses/AccountNotActive' }
         '404': { $ref: '#/components/responses/NotFound' }
 
+  /apps/{app_id}/prime/customers:
+    get:
+      tags: [Prime]
+      operationId: getPrimeCustomers
+      summary: 132 Customer insights
+      description: |
+        New and returning customers in the period, the best customers by spend
+        (their orders and last order), and those who haven't ordered in 30 or
+        60 days. Names only for those who may see orders or the app's users
+        (`names_shown`).
+      parameters:
+        - $ref: '#/components/parameters/AppId'
+        - name: period
+          in: query
+          schema: { type: string, enum: [week, month], default: month }
+      responses:
+        '200':
+          description: Done
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/PrimeCustomers' }
+        '400': { $ref: '#/components/responses/BadRequest' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '403': { $ref: '#/components/responses/AccountNotActive' }
+        '404': { $ref: '#/components/responses/NotFound' }
+
+  /apps/{app_id}/prime/products:
+    get:
+      tags: [Prime]
+      operationId: getPrimeProducts
+      summary: 132 Product insights
+      description: |
+        A store's own products: the best sellers, the slow movers (listed the
+        whole period, sold least), those running low (at the person's
+        `low_stock` threshold or fewer) and those sold out.
+      parameters:
+        - $ref: '#/components/parameters/AppId'
+        - name: period
+          in: query
+          schema: { type: string, enum: [week, month], default: month }
+      responses:
+        '200':
+          description: Done
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/PrimeProducts' }
+        '400': { $ref: '#/components/responses/BadRequest' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '403': { $ref: '#/components/responses/AccountNotActive' }
+        '404': { $ref: '#/components/responses/NotFound' }
+
+  /apps/{app_id}/prime/reviews:
+    get:
+      tags: [Prime]
+      operationId: getPrimeReviews
+      summary: 132 Ratings and reviews
+      description: |
+        The last 90 days' ratings of food and marketplace orders and rides, and
+        the course reviews (answered with `PUT /apps/{app_id}/reviews/{review_id}/reply`).
+      parameters:
+        - $ref: '#/components/parameters/AppId'
+      responses:
+        '200':
+          description: Done
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/PrimeReviews' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '403': { $ref: '#/components/responses/AccountNotActive' }
+        '404': { $ref: '#/components/responses/NotFound' }
+
+  /apps/{app_id}/prime/weekly-report:
+    get:
+      tags: [Prime]
+      operationId: getWeeklyReport
+      summary: 132 The weekly report by email
+      description: |
+        The app's weekly summary (every Monday, to the account's owner, in their
+        language), with Prime's parts: the best sellers and the customers.
+      parameters:
+        - $ref: '#/components/parameters/AppId'
+      responses:
+        '200':
+          description: Done
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/WeeklyReport' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '403': { $ref: '#/components/responses/AccountNotActive' }
+        '404': { $ref: '#/components/responses/NotFound' }
+    put:
+      tags: [Prime]
+      operationId: setWeeklyReport
+      summary: 132 Turn the weekly report on or off
+      description: |
+        The same switch as Dashboard › Analytics › Weekly summary by email.
+      parameters:
+        - $ref: '#/components/parameters/AppId'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { type: object, required: [on], properties: { on: { type: boolean } } }
+      responses:
+        '200':
+          description: Done
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/WeeklyReport' }
+        '400': { $ref: '#/components/responses/BadRequest' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '403': { $ref: '#/components/responses/AccountNotActive' }
+        '404': { $ref: '#/components/responses/NotFound' }
+
+  /apps/{app_id}/prime/coupons:
+    post:
+      tags: [Prime]
+      operationId: createPrimeCoupon
+      summary: '132 Quick action: a coupon'
+      description: |
+        A store's coupon with the dashboard's rules (Store › Coupons). The Catalog area.
+      parameters:
+        - $ref: '#/components/parameters/AppId'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/CouponRequest' }
+      responses:
+        '201':
+          description: Done
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Coupon' }
+        '400': { $ref: '#/components/responses/BadRequest' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '403': { $ref: '#/components/responses/AccountNotActive' }
+        '404': { $ref: '#/components/responses/NotFound' }
+
+  /apps/{app_id}/prime/flash-sales:
+    post:
+      tags: [Prime]
+      operationId: createPrimeFlashSale
+      summary: '132 Quick action: a flash sale'
+      description: |
+        A store's flash sale with the dashboard's rules (Store › Delivery & offers);
+        `starts_at` and `ends_at` in the shop's time zone (`YYYY-MM-DDTHH:MM`).
+      parameters:
+        - $ref: '#/components/parameters/AppId'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/FlashSaleRequest' }
+      responses:
+        '201':
+          description: Done
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/FlashSale' }
+        '400': { $ref: '#/components/responses/BadRequest' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '403': { $ref: '#/components/responses/AccountNotActive' }
+        '404': { $ref: '#/components/responses/NotFound' }
+
+  /apps/{app_id}/prime/delivery-slots:
+    get:
+      tags: [Prime]
+      operationId: getPrimeDeliverySlots
+      summary: 132 A day's delivery slots, open or closed
+      description: |
+        A store with delivery days.
+      parameters:
+        - $ref: '#/components/parameters/AppId'
+        - name: date
+          in: query
+          schema: { type: string, format: date }
+          description: Today in the shop's zone when left out.
+      responses:
+        '200':
+          description: Done
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/DeliverySlotsDay' }
+        '400': { $ref: '#/components/responses/BadRequest' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '403': { $ref: '#/components/responses/AccountNotActive' }
+        '404': { $ref: '#/components/responses/NotFound' }
+
+  /apps/{app_id}/prime/delivery-slots/{slot_id}:
+    put:
+      tags: [Prime]
+      operationId: setPrimeDeliverySlot
+      summary: '132 Quick action: close a delivery slot for a day, or open it again'
+      description: |
+        The checkout stops offering it that day (`slot_full`, 409, if sent).
+      parameters:
+        - $ref: '#/components/parameters/AppId'
+        - name: slot_id
+          in: path
+          required: true
+          schema: { type: string }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { type: object, required: [date, closed], properties: { date: { type: string, format: date }, closed: { type: boolean } } }
+      responses:
+        '200':
+          description: Done
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/DeliverySlotsDay' }
+        '400': { $ref: '#/components/responses/BadRequest' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '403': { $ref: '#/components/responses/AccountNotActive' }
+        '404': { $ref: '#/components/responses/NotFound' }
+
+  /apps/{app_id}/restaurants/{restaurant_id}/busy:
+    put:
+      tags: [Prime]
+      operationId: setRestaurantBusy
+      summary: '132 Quick action: busy mode'
+      description: |
+        A restaurant takes no new orders for `minutes` (0 opens it again), as its
+        own desk does. Prime food apps.
+      parameters:
+        - $ref: '#/components/parameters/AppId'
+        - $ref: '#/components/parameters/RestaurantId'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { type: object, required: [minutes], properties: { minutes: { type: integer, enum: [0, 15, 30, 45, 60, 90] } } }
+      responses:
+        '200':
+          description: Done
+          content:
+            application/json:
+              schema: { type: object, required: [id, busy_until], properties: { id: { type: integer }, busy_until: { type: [string, 'null'], format: date-time } } }
+        '400': { $ref: '#/components/responses/BadRequest' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '403': { $ref: '#/components/responses/AccountNotActive' }
+        '404': { $ref: '#/components/responses/NotFound' }
+
   /me/account-manager/slots:
     get:
       tags: [Account manager]
@@ -4047,7 +4292,7 @@ components:
       properties:
         id: { type: string, format: uuid }
         name: { type: string }
-        type: { type: string, enum: [lms, store, booking, real_estate, news, events, donations, delivery, food, rides, school], description: '125 adds the Studio apps (delivery, food, rides and school).' }
+        type: { type: string, enum: [lms, store, booking, real_estate, news, events, donations, delivery, food, rides, school, travel], description: '125 adds the Studio apps (delivery, food, rides and school); 132 travel (its bookings are on the dashboard).' }
         vertical: { type: [string, 'null'], enum: [restaurant, clinic, fitness, charity, services, instructors, taxi, marketplace, null], description: '125 adds instructors, taxi and marketplace.' }
         type_name: { type: string, example: Restaurant, description: The kind's name in the person's language. }
         backend: { type: [string, 'null'], enum: [wordpress, hosted, custom_api, setup_requested, null] }
@@ -4059,6 +4304,12 @@ components:
             - type: 'null'
         features: { $ref: '#/components/schemas/AppFeatures' }
         access: { $ref: '#/components/schemas/AppAccess' }
+        prime_gift:
+          type: [object, 'null']
+          description: '132 Prime given by Yallapp as a gift, whatever the plan (`features.prime` is true while it lasts); null when the app is Prime by its plan, or not Prime. Missing on older servers.'
+          required: [until]
+          properties:
+            until: { type: [string, 'null'], format: date-time, description: 'When the gift ends; null: until Yallapp removes it.' }
 
     PlanSummary:
       type: object
@@ -4233,6 +4484,17 @@ components:
           properties:
             title: { type: string }
             text: { type: string }
+        goal:
+          description: 132 Prime apps only. The person's sales goal (a `sales_goal` alert) and how far it is; null without one. Missing on older servers.
+          type: [object, 'null']
+          required: [period, target, current, pct, reached, label]
+          properties:
+            period: { type: string, enum: [day, week, month] }
+            target: { $ref: '#/components/schemas/Money' }
+            current: { $ref: '#/components/schemas/Money' }
+            pct: { type: integer, minimum: 0, maximum: 100 }
+            reached: { type: boolean }
+            label: { type: string, example: "Today's goal" }
 
     NeedsYou:
       type: object
@@ -6070,14 +6332,17 @@ components:
 
     PrimeAlertKind:
       type: string
-      enum: [order_waiting, shipment_unassigned, sales_low, message_unanswered, low_rating, ride_no_driver]
+      enum: [order_waiting, shipment_unassigned, sales_low, message_unanswered, low_rating, ride_no_driver, low_stock, sales_goal]
       description: |
         `order_waiting` a new order waits for `minutes` (default 5);
         `shipment_unassigned` a job without a courier for `minutes` (10);
         `sales_low` the day's sales below `amount_cents` by `by_time` (18:00);
         `message_unanswered` a message or complaint waits `minutes` (10);
         `low_rating` a rating of `stars` or fewer (2); `ride_no_driver` a ride
-        looks for a driver for `minutes` (3).
+        looks for a driver for `minutes` (3). 132 `low_stock` a store's product
+        at `threshold` left or fewer (3), sold out on its own; `sales_goal` the
+        sales of the `period` (day, week from Monday, month) reach
+        `amount_cents`, told once per period (Today's `goal` shows how far).
 
     PrimeAlert:
       type: object
@@ -6089,6 +6354,8 @@ components:
         amount_cents: { type: [integer, 'null'] }
         by_time: { type: [string, 'null'], example: '18:00' }
         stars: { type: [integer, 'null'] }
+        threshold: { type: [integer, 'null'], description: 132 `low_stock`. Missing on older servers. }
+        period: { type: [string, 'null'], enum: [day, week, month, null], description: 132 `sales_goal`. Missing on older servers. }
 
     MorningBrief:
       type: object
@@ -6121,11 +6388,172 @@ components:
               amount_cents: { type: [integer, 'null'], minimum: 0 }
               by_time: { type: [string, 'null'] }
               stars: { type: [integer, 'null'], minimum: 1, maximum: 4 }
+              threshold: { type: integer, minimum: 0, maximum: 1000 }
+              period: { type: string, enum: [day, week, month] }
         morning_brief:
           type: object
           properties:
             on: { type: boolean }
             time: { type: string }
+
+    PrimePerson:
+      type: object
+      required: [name, orders, spend, last_order_at]
+      properties:
+        name: { type: [string, 'null'], description: 'Null for those who may not see orders, or a sale without one.' }
+        orders: { type: integer }
+        spend: { $ref: '#/components/schemas/Money' }
+        last_order_at: { type: string, format: date-time }
+
+    PrimeCustomers:
+      type: object
+      required: [period, customers, new, returning, top, lapsed_30, lapsed_60, names_shown]
+      properties:
+        period: { type: string, enum: [week, month] }
+        customers: { type: integer }
+        new: { type: integer }
+        returning: { type: integer }
+        top:
+          type: array
+          items: { $ref: '#/components/schemas/PrimePerson' }
+        lapsed_30:
+          type: object
+          description: Last ordered 30 to 60 days ago.
+          required: [count, people]
+          properties:
+            count: { type: integer }
+            people: { type: array, items: { $ref: '#/components/schemas/PrimePerson' } }
+        lapsed_60:
+          type: object
+          description: Last ordered 60 to 180 days ago.
+          required: [count, people]
+          properties:
+            count: { type: integer }
+            people: { type: array, items: { $ref: '#/components/schemas/PrimePerson' } }
+        names_shown: { type: boolean }
+
+    PrimeProduct:
+      type: object
+      required: [id, name, units, total, stock]
+      properties:
+        id: { type: integer }
+        name: { type: string }
+        units: { type: integer }
+        total: { $ref: '#/components/schemas/Money' }
+        stock: { type: [integer, 'null'] }
+
+    PrimeProducts:
+      type: object
+      required: [period, threshold, best, slow, low_stock, out_of_stock]
+      properties:
+        period: { type: string, enum: [week, month] }
+        threshold: { type: integer }
+        best: { type: array, items: { $ref: '#/components/schemas/PrimeProduct' } }
+        slow: { type: array, items: { $ref: '#/components/schemas/PrimeProduct' } }
+        low_stock: { type: array, items: { $ref: '#/components/schemas/PrimeProduct' } }
+        out_of_stock: { type: array, items: { $ref: '#/components/schemas/PrimeProduct' } }
+
+    PrimeReviews:
+      type: object
+      required: [average, count, items]
+      properties:
+        average: { type: [number, 'null'] }
+        count: { type: integer }
+        items:
+          type: array
+          items:
+            type: object
+            required: [source, id, rating, comment, at, name, about, can_reply, reply]
+            properties:
+              source: { type: string, enum: [food, market, ride, course] }
+              id: { type: integer, description: 'The food order, marketplace order, ride or course review.' }
+              rating: { type: integer, minimum: 1, maximum: 5 }
+              comment: { type: [string, 'null'] }
+              at: { type: string, format: date-time }
+              name: { type: [string, 'null'] }
+              about: { type: string, description: 'The restaurant, the place, the driver.' }
+              can_reply: { type: boolean }
+              reply: { type: [string, 'null'] }
+
+    WeeklyReport:
+      type: object
+      required: [on, email]
+      properties:
+        on: { type: boolean }
+        email: { type: [string, 'null'], format: email, description: "Where it goes: the account's owner." }
+
+    CouponRequest:
+      type: object
+      required: [code, kind, value]
+      properties:
+        code: { type: string, example: SPRING10 }
+        kind: { type: string, enum: [percent, amount] }
+        value: { type: string, description: 'The percentage (1–100), or the amount in major units.', example: '10' }
+        min_order: { type: string }
+        starts_on: { type: string, format: date }
+        ends_on: { type: string, format: date }
+        max_uses: { type: integer }
+        public: { type: boolean, description: 'Shown in the app.' }
+
+    Coupon:
+      type: object
+      required: [id, code, kind, value, amount, min_order, starts_at, ends_at, max_uses, public]
+      properties:
+        id: { type: integer }
+        code: { type: string }
+        kind: { type: string, enum: [percent, amount] }
+        value: { type: [integer, 'null'] }
+        amount: { oneOf: [{ $ref: '#/components/schemas/Money' }, { type: 'null' }] }
+        min_order: { oneOf: [{ $ref: '#/components/schemas/Money' }, { type: 'null' }] }
+        starts_at: { type: [string, 'null'], format: date-time }
+        ends_at: { type: [string, 'null'], format: date-time }
+        max_uses: { type: [integer, 'null'] }
+        public: { type: boolean }
+
+    FlashSaleRequest:
+      type: object
+      required: [title, kind, value, starts_at, ends_at]
+      properties:
+        title: { type: string, maxLength: 80 }
+        product_ids: { type: array, items: { type: integer } }
+        category_id: { type: [integer, 'null'] }
+        kind: { type: string, enum: [percent, price] }
+        value: { type: string, description: 'The share off (1–90), or the sale price in major units.' }
+        starts_at: { type: string, example: '2026-11-20T10:00' }
+        ends_at: { type: string, example: '2026-11-21T22:00' }
+        limit: { type: [integer, 'null'] }
+
+    FlashSale:
+      type: object
+      required: [id, title, product_ids, category_id, percent, price, starts_at, ends_at, limit, sold, active]
+      properties:
+        id: { type: integer }
+        title: { type: string }
+        product_ids: { type: array, items: { type: integer } }
+        category_id: { type: [integer, 'null'] }
+        percent: { type: [integer, 'null'] }
+        price: { oneOf: [{ $ref: '#/components/schemas/Money' }, { type: 'null' }] }
+        starts_at: { type: string, format: date-time }
+        ends_at: { type: string, format: date-time }
+        limit: { type: [integer, 'null'] }
+        sold: { type: integer }
+        active: { type: boolean }
+
+    DeliverySlotsDay:
+      type: object
+      required: [date, date_label, slots]
+      properties:
+        date: { type: string, format: date }
+        date_label: { type: string }
+        slots:
+          type: array
+          items:
+            type: object
+            required: [id, label, closed]
+            properties:
+              id: { type: string }
+              label: { type: string, example: '13:00–16:00' }
+              closed: { type: boolean }
 
     AccountManager:
       type: object

@@ -20,7 +20,8 @@ import { changeOrderStatus, nextOrderStatuses } from "../catalog/order-status";
 import { awaitingManualPayment } from "../catalog/manual";
 import { ORDER_STATUS_LABELS, orderNumber } from "../catalog/settings";
 import { parseShipment, shipmentJson, shipOrder, shippable } from "../catalog/shipping";
-import type { App, BookingAppointment, CatalogCurrency, CatalogOrder, CatalogOrderStatus, Donation, License } from "../data/types";
+import type { App, BookingAppointment, CatalogCurrency, CatalogOrder, CatalogOrderStatus, Donation, License, PrimeGift } from "../data/types";
+import { primeGiftActive } from "../admin/prime-gift";
 import { checkIn, type CheckInAnswer } from "../events/check-in";
 import { ticketKey } from "../events/codes";
 import { eventSettingsOf } from "../events/service";
@@ -36,6 +37,7 @@ import { CATALOG_CURRENCIES } from "../catalog/money";
 import { formatMinor } from "../market/currency";
 import { isPlan, planFamily } from "../plans";
 import { saleEvents, todayCompare } from "./prime";
+import { todayGoalJson } from "./prime-plus";
 import { recordAppointmentStatus, recordOrderStatus, recordRefund } from "../team/activity";
 
 /**
@@ -59,9 +61,15 @@ export function isPrimeLicense(license: Pick<License, "plan" | "nextPlan" | "nex
   return isPlan(plan) && planFamily(plan) === "studio";
 }
 
-/** What the app has (lib/app/areas.ts), with 125 Prime from its license. */
-export function ownerAreas(ctx: Pick<OwnerContext, "licenses" | "deps">, app: App): AppAreas {
-  return { ...appAreas(app), prime: isPrimeLicense(ctx.licenses.find((l) => l.appId === app.id) ?? null, ctx.deps.now) };
+/** What the app has (lib/app/areas.ts), with 125 Prime from its license, 132 or given as a gift. */
+export function ownerAreas(ctx: Pick<OwnerContext, "licenses" | "deps"> & Partial<Pick<OwnerContext, "primeGifts">>, app: App): AppAreas {
+  const license = ctx.licenses.find((l) => l.appId === app.id) ?? null;
+  return { ...appAreas(app), prime: isPrimeLicense(license, ctx.deps.now) || primeGiftActive(primeGiftOf(ctx, app), ctx.deps.now) };
+}
+
+/** 132 The app's Prime gift, when Yallapp gave one. */
+export function primeGiftOf(ctx: Partial<Pick<OwnerContext, "primeGifts">>, app: Pick<App, "id">): PrimeGift | null {
+  return ctx.primeGifts?.find((g) => g.appId === app.id) ?? null;
 }
 
 /** The client's own app, or 404; with `area`, one the app has, or 404 `not_available`. */
@@ -166,7 +174,12 @@ export async function today(ctx: OwnerContext, params: Record<string, string>): 
   }
   // 125 A Prime app compares today with the same weekday last week.
   const compare = areas.prime
-    ? { compare: await todayCompare(ctx, app, ownerAreas(ctx, app), day), morning_brief: await morningBriefJson(ctx.deps.store, app, day.zone, day.date, ctx.t) }
+    ? {
+        compare: await todayCompare(ctx, app, ownerAreas(ctx, app), day),
+        morning_brief: await morningBriefJson(ctx.deps.store, app, day.zone, day.date, ctx.t),
+        // 132 The person's sales goal and how far it is.
+        goal: await todayGoalJson(ctx, app, ownerAreas(ctx, app)),
+      }
     : {};
   return { status: 200, body: { date: day.date, time_zone: day.zone, sales: totalsJson(sales), donations: totalsJson(given), in_app_sales: totalsJson(inApp), counts, needs_you: needs, ...compare } };
 }

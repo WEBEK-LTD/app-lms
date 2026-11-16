@@ -52,6 +52,12 @@ export const TEAM_ACTIONS = [
   "school.excuse",
   "school.report",
   "school.leave",
+  // 132 Prime's quick actions and the weekly report from Yallapp Business.
+  "restaurant.busy",
+  "prime.coupon",
+  "prime.flash_sale",
+  "prime.slot",
+  "prime.weekly_report",
 ] as const;
 export type TeamAction = (typeof TEAM_ACTIONS)[number];
 

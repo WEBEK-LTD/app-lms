@@ -42,6 +42,8 @@ export const ADMIN_PERMISSIONS = [
   "marketing.send",
   /** The app-builder bot's dictionary: add, remove or switch off phrases, and map or ignore what owners typed that it didn't understand. */
   "bot.edit",
+  /** 132 Give Prime to a client's apps as a gift (never charged, the plan and invoices unchanged), and take it back. */
+  "prime.gift",
 ] as const;
 export type AdminPermission = (typeof ADMIN_PERMISSIONS)[number];
 
