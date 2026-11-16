@@ -10,6 +10,8 @@ import 'package:yallapp_business/core/api/fake_owner_api.dart';
 import 'package:yallapp_business/core/api/models.dart';
 import 'package:yallapp_business/core/widgets/contact.dart';
 import 'package:yallapp_business/core/widgets/l10n.dart';
+import 'package:yallapp_business/features/orders/order_screen.dart';
+import 'package:yallapp_business/l10n/app_localizations.dart';
 
 import '../support/nav.dart';
 import '../support/test_app.dart';
@@ -120,10 +122,7 @@ void main() {
         find.text(isolate('14 Brazil St, Zamalek, Cairo')),
         findsOneWidget,
       );
-      expect(
-        find.text('Zone: ${isolate('4.2 km')} · Pinned on the map'),
-        findsOneWidget,
-      );
+      expect(find.text('Zone: 4.2 km · Pinned on the map'), findsOneWidget);
       await tapOn(tester, find.text('Open in Maps'));
       expect(app.opened.last, startsWith('geo:30.0626,31.2197?q='));
       await tapOn(tester, find.text('Copy address'));
@@ -259,6 +258,96 @@ void main() {
     expect(find.text('Teslimat adresi'), findsOneWidget);
     expect(find.text('Haritada aç'), findsOneWidget);
     expect(find.text('Hediye kartı mesajı'), findsOneWidget);
+  });
+
+  // 132 Found in the Arabic pictures: boxes for the Arabic letters on the
+  // "Ready in" buttons (a button's own text style dropped the app's font and
+  // its Arabic fallback), and the API's English words left in the chips and
+  // the fee rows.
+  void appFontEverywhere(WidgetTester tester) {
+    for (final p in tester.widgetList<RichText>(find.byType(RichText))) {
+      expect(
+        p.text.style?.fontFamily,
+        isNotNull,
+        reason: '"${p.text.toPlainText()}" has no font of the app',
+      );
+    }
+  }
+
+  testWidgets('in Arabic, a payment still to come is in Arabic in the list', (
+    tester,
+  ) async {
+    await _open(tester, '/orders', language: 'ar', height: 1600);
+    expect(find.text('بانتظار الدفع'), findsWidgets);
+    // Two hours ago in the dual, as Arabic says it.
+    expect(find.text('قبل ساعتين'), findsOneWidget);
+    expect(find.text('Waiting for payment'), findsNothing);
+    appFontEverywhere(tester);
+  });
+
+  testWidgets('in Arabic, the delivery fee rows are in Arabic', (tester) async {
+    await _open(tester, '/orders/2051', language: 'ar', height: 2300);
+    expect(find.text('الرسوم الأساسية'), findsOneWidget);
+    expect(find.text('المسافة 4.2 كم'), findsOneWidget);
+    expect(find.textContaining('km'), findsNothing);
+    expect(find.text('Base fee'), findsNothing);
+    expect(find.text(isolate('4.2 km')), findsNothing);
+    appFontEverywhere(tester);
+  });
+
+  testWidgets(
+    'in Arabic, a new food order: the chip and the Ready in buttons',
+    (tester) async {
+      await _open(
+        tester,
+        '/food-orders/48',
+        appId: FakeOwnerApi.foodId,
+        language: 'ar',
+        height: 1500,
+      );
+      expect(find.text('جديد'), findsOneWidget);
+      expect(find.text('New'), findsNothing);
+      expect(find.text('جاهز خلال'), findsOneWidget);
+      appFontEverywhere(tester);
+    },
+  );
+
+  testWidgets('the fee rows the API writes in English, in the app\'s words', (
+    tester,
+  ) async {
+    late BuildContext context;
+    await tester.pumpWidget(
+      MaterialApp(
+        locale: const Locale('ar'),
+        localizationsDelegates: AppLocalizations.localizationsDelegates,
+        supportedLocales: AppLocalizations.supportedLocales,
+        home: Builder(
+          builder: (c) {
+            context = c;
+            return const SizedBox();
+          },
+        ),
+      ),
+    );
+    // The rule's own rows; a city's name stays as it is.
+    final rows = {
+      ('distance', 'Base fee'): 'الرسوم الأساسية',
+      ('distance', '4.2 km'): 'المسافة 4.2 كم',
+      ('weight', '2.5 kg'): 'الوزن 2.5 كغ',
+      ('weight', '2.5 kg (1 kg included)'): 'الوزن 2.5 كغ (يشمل 1 كغ)',
+      ('free', 'Free delivery'): 'توصيل مجاني',
+      ('minimum', 'Minimum fee'): 'الحد الأدنى للرسوم',
+      ('city', 'Giza'): isolate('Giza'),
+    };
+    for (final MapEntry(key: (rule, label), :value) in rows.entries) {
+      expect(breakdownLabel(context, label, rule), value);
+    }
+    expect(zoneWords(context, '4.2 km'), '4.2 كم');
+    expect(
+      zoneWords(context, 'Cairo · 4.2 km'),
+      '${isolate('Cairo')} · 4.2 كم',
+    );
+    expect(zoneWords(context, 'Zamalek'), isolate('Zamalek'));
   });
 
   testWidgets(

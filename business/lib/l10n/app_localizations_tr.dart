@@ -3370,6 +3370,87 @@ class AppLocalizationsTr extends AppLocalizations {
   }
 
   @override
+  String get stAwaitingPayment => 'Ödeme bekleniyor';
+
+  @override
+  String get stAccepted => 'Kabul edildi';
+
+  @override
+  String get stReadyForCourier => 'Kuryeye hazır';
+
+  @override
+  String get stPicking => 'Toplanıyor';
+
+  @override
+  String get stPickedUp => 'Teslim alındı';
+
+  @override
+  String get stOnTheWay => 'Yolda';
+
+  @override
+  String get stDelivered => 'Teslim edildi';
+
+  @override
+  String get stTurnedDown => 'Reddedildi';
+
+  @override
+  String get stNotDelivered => 'Teslim edilemedi';
+
+  @override
+  String get stWaitingCourier => 'Kurye bekleniyor';
+
+  @override
+  String get stCourierToPickup => 'Kurye almaya geliyor';
+
+  @override
+  String get stForLater => 'Sonraya';
+
+  @override
+  String get stBookedLater => 'Sonrası için ayrıldı';
+
+  @override
+  String get stSearching => 'Sürücü aranıyor';
+
+  @override
+  String get stDriverComing => 'Sürücü yolda';
+
+  @override
+  String get stDriverAtPickup => 'Sürücü alış noktasında';
+
+  @override
+  String get stOnRide => 'Yolculukta';
+
+  @override
+  String get stNoDriver => 'Sürücü bulunamadı';
+
+  @override
+  String get csOpen => 'Yeni';
+
+  @override
+  String get csInReview => 'İnceleniyor';
+
+  @override
+  String get csResolved => 'Çözüldü';
+
+  @override
+  String get csRejected => 'İadesiz kapandı';
+
+  @override
+  String feeDistance(String km) {
+    return 'Mesafe $km km';
+  }
+
+  @override
+  String feeWeight(String kg) {
+    return 'Ağırlık $kg kg';
+  }
+
+  @override
+  String feeWeightIncluded(String kg, String included) {
+    return 'Ağırlık $kg kg ($included kg dahil)';
+  }
+
+  @override
   String get unlockWithFaceId => 'Face ID ile kilidi aç';
 
   @override

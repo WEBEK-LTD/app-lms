@@ -12,6 +12,7 @@ import '../../core/widgets/contact.dart';
 import '../../core/widgets/l10n.dart';
 import '../../core/widgets/states.dart';
 import '../food/food_sheets.dart';
+import '../studio/status_words.dart';
 import '../studio/studio_widgets.dart';
 import 'shipments_screen.dart';
 
@@ -85,7 +86,14 @@ class _ShipmentScreenState extends ConsumerState<ShipmentScreen> {
       if (!mounted) return;
       showMessage(
         context,
-        l10n.shipMoved(s.reference, after.shipment.statusLabel),
+        l10n.shipMoved(
+          s.reference,
+          shipmentStatusLabel(
+            context,
+            after.shipment.status,
+            after.shipment.statusLabel,
+          ),
+        ),
       );
       ref.invalidate(shipmentProvider(widget.shipmentId));
     } on Object catch (e) {
@@ -146,7 +154,9 @@ class _ShipmentScreenState extends ConsumerState<ShipmentScreen> {
               padding: const EdgeInsetsDirectional.only(end: 16),
               child: Center(
                 child: Tag(
-                  s.needsCourier ? l10n.needsCourier : s.statusLabel,
+                  s.needsCourier
+                      ? l10n.needsCourier
+                      : shipmentStatusLabel(context, s.status, s.statusLabel),
                   tone: shipmentTone(s),
                   big: true,
                 ),
@@ -292,7 +302,10 @@ class _ShipmentBody extends ConsumerWidget {
           child: Column(
             children: [
               row(l10n.priceLabel, s.price.formatted, strong: true),
-              row(l10n.paymentLabel, s.paymentLabel),
+              row(
+                l10n.paymentLabel,
+                payWords(context, s.paymentMethod, s.paymentLabel),
+              ),
               if (s.collect != null)
                 Padding(
                   padding: const EdgeInsets.only(top: 6),
@@ -387,7 +400,7 @@ class _ShipmentBody extends ConsumerWidget {
         ],
         if (detail.timeline.isNotEmpty) ...[
           SectionTitle(l10n.historyTitle),
-          TimelineList(entries: detail.timeline),
+          TimelineList(entries: detail.timeline, words: shipmentStatusLabel),
         ],
       ],
     );

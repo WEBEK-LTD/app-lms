@@ -2222,6 +2222,55 @@
       }
     }
   },
+  "stAwaitingPayment": "Waiting for payment",
+  "stAccepted": "Accepted",
+  "stReadyForCourier": "Ready for the courier",
+  "stPicking": "Being picked",
+  "stPickedUp": "Picked up",
+  "stOnTheWay": "On the way",
+  "stDelivered": "Delivered",
+  "stTurnedDown": "Turned down",
+  "stNotDelivered": "Couldn't be delivered",
+  "stWaitingCourier": "Waiting for a courier",
+  "stCourierToPickup": "Courier on the way to pick up",
+  "stForLater": "For later",
+  "stBookedLater": "Booked for later",
+  "stSearching": "Looking for a driver",
+  "stDriverComing": "Driver on the way",
+  "stDriverAtPickup": "Driver at the pickup",
+  "stOnRide": "On the way",
+  "stNoDriver": "No driver found",
+  "csOpen": "New",
+  "csInReview": "In review",
+  "csResolved": "Resolved",
+  "csRejected": "Closed without refund",
+  "feeDistance": "Distance {km} km",
+  "@feeDistance": {
+    "placeholders": {
+      "km": {
+        "type": "String"
+      }
+    }
+  },
+  "feeWeight": "Weight {kg} kg",
+  "@feeWeight": {
+    "placeholders": {
+      "kg": {
+        "type": "String"
+      }
+    }
+  },
+  "feeWeightIncluded": "Weight {kg} kg ({included} kg included)",
+  "@feeWeightIncluded": {
+    "placeholders": {
+      "kg": {
+        "type": "String"
+      },
+      "included": {
+        "type": "String"
+      }
+    }
+  },
   "unlockWithFaceId": "Unlock with Face ID",
   "unlockWithFace": "Unlock with your face",
   "unlockWithFingerprint": "Unlock with fingerprint",

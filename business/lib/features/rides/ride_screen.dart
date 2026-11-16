@@ -10,6 +10,7 @@ import '../../core/widgets/contact.dart';
 import '../../core/widgets/l10n.dart';
 import '../../core/widgets/states.dart';
 import '../food/food_sheets.dart';
+import '../studio/status_words.dart';
 import '../studio/studio_widgets.dart';
 import 'rides_screen.dart';
 
@@ -217,7 +218,7 @@ class RideScreen extends ConsumerWidget {
                 ],
                 if (d.timeline.isNotEmpty) ...[
                   SectionTitle(l10n.historyTitle),
-                  TimelineList(entries: d.timeline),
+                  TimelineList(entries: d.timeline, words: rideStatusLabel),
                 ],
               ],
             ),

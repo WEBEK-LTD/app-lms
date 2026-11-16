@@ -9,6 +9,7 @@ import '../../core/theme/theme.dart';
 import '../../core/widgets/contact.dart';
 import '../../core/widgets/l10n.dart';
 import '../../core/widgets/states.dart';
+import '../studio/status_words.dart';
 import '../studio/studio_widgets.dart';
 import 'food_orders_screen.dart';
 import 'food_sheets.dart';
@@ -109,7 +110,11 @@ class _FoodOrderScreenState extends ConsumerState<FoodOrderScreen> {
             Padding(
               padding: const EdgeInsetsDirectional.only(end: 16),
               child: Center(
-                child: Tag(o.statusLabel, tone: foodTone(o.status), big: true),
+                child: Tag(
+                  foodStatusLabel(context, o.status, o.statusLabel),
+                  tone: foodTone(o.status),
+                  big: true,
+                ),
               ),
             ),
         ],
@@ -152,7 +157,7 @@ class _Body extends ConsumerWidget {
             if (o.readyAt != null && o.status != 'delivered')
               l10n.readyAt(context.time(o.readyAt!))
             else
-              o.statusLabel,
+              foodStatusLabel(context, o.status, o.statusLabel),
           ].join(' · ');
     const line = TextStyle(fontSize: 14);
     return ListView(
@@ -364,7 +369,7 @@ class _Body extends ConsumerWidget {
         ],
         if (detail.timeline.length > 1 && o.status != 'placed') ...[
           SectionTitle(l10n.historyTitle),
-          TimelineList(entries: detail.timeline),
+          TimelineList(entries: detail.timeline, words: foodStatusLabel),
         ],
       ],
     );

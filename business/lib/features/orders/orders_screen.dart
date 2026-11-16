@@ -196,7 +196,7 @@ class OrderCard extends StatelessWidget {
             ),
           const SizedBox(height: 2),
           Text(
-            orderSummary(order),
+            orderSummary(context, order),
             maxLines: 2,
             overflow: TextOverflow.ellipsis,
             style: theme.textTheme.bodySmall,

@@ -3354,6 +3354,87 @@ class AppLocalizationsAr extends AppLocalizations {
   }
 
   @override
+  String get stAwaitingPayment => 'بانتظار الدفع';
+
+  @override
+  String get stAccepted => 'مقبول';
+
+  @override
+  String get stReadyForCourier => 'جاهز للمندوب';
+
+  @override
+  String get stPicking => 'قيد التجهيز';
+
+  @override
+  String get stPickedUp => 'تم الاستلام';
+
+  @override
+  String get stOnTheWay => 'في الطريق';
+
+  @override
+  String get stDelivered => 'تم التسليم';
+
+  @override
+  String get stTurnedDown => 'مرفوض';
+
+  @override
+  String get stNotDelivered => 'تعذّر التسليم';
+
+  @override
+  String get stWaitingCourier => 'بانتظار مندوب';
+
+  @override
+  String get stCourierToPickup => 'المندوب في الطريق للاستلام';
+
+  @override
+  String get stForLater => 'لموعد لاحق';
+
+  @override
+  String get stBookedLater => 'محجوزة لوقت لاحق';
+
+  @override
+  String get stSearching => 'جارٍ البحث عن سائق';
+
+  @override
+  String get stDriverComing => 'السائق في الطريق';
+
+  @override
+  String get stDriverAtPickup => 'السائق عند نقطة الانطلاق';
+
+  @override
+  String get stOnRide => 'الرحلة جارية';
+
+  @override
+  String get stNoDriver => 'لم يُعثر على سائق';
+
+  @override
+  String get csOpen => 'جديدة';
+
+  @override
+  String get csInReview => 'قيد المراجعة';
+
+  @override
+  String get csResolved => 'تمت معالجتها';
+
+  @override
+  String get csRejected => 'أُغلقت دون استرداد';
+
+  @override
+  String feeDistance(String km) {
+    return 'المسافة $km كم';
+  }
+
+  @override
+  String feeWeight(String kg) {
+    return 'الوزن $kg كغ';
+  }
+
+  @override
+  String feeWeightIncluded(String kg, String included) {
+    return 'الوزن $kg كغ (يشمل $included كغ)';
+  }
+
+  @override
   String get unlockWithFaceId => 'فتح القفل بـ Face ID';
 
   @override
@@ -3659,12 +3740,30 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String minutesAgo(int count) {
-    return 'قبل $count دقيقة';
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'قبل $count دقيقة',
+      many: 'قبل $count دقيقة',
+      few: 'قبل $count دقائق',
+      two: 'قبل دقيقتين',
+      one: 'قبل دقيقة',
+    );
+    return '$_temp0';
   }
 
   @override
   String hoursAgo(int count) {
-    return 'قبل $count ساعة';
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'قبل $count ساعة',
+      many: 'قبل $count ساعة',
+      few: 'قبل $count ساعات',
+      two: 'قبل ساعتين',
+      one: 'قبل ساعة',
+    );
+    return '$_temp0';
   }
 
   @override

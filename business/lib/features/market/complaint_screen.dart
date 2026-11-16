@@ -11,6 +11,7 @@ import '../../core/widgets/contact.dart';
 import '../../core/widgets/l10n.dart';
 import '../../core/widgets/states.dart';
 import '../food/food_sheets.dart';
+import '../studio/status_words.dart';
 import '../studio/studio_widgets.dart';
 import 'market_screen.dart';
 
@@ -74,7 +75,16 @@ Future<ComplaintDetail?> refundSuggested(
       to: decision.to.firstOrNull,
     );
     if (context.mounted) {
-      showMessage(context, l10n.decidedAs(after.complaint.statusLabel));
+      showMessage(
+        context,
+        l10n.decidedAs(
+          complaintStatusLabel(
+            context,
+            after.complaint.status,
+            after.complaint.statusLabel,
+          ),
+        ),
+      );
     }
     return after;
   } on Object catch (e) {
@@ -142,7 +152,16 @@ class _ComplaintScreenState extends ConsumerState<ComplaintScreen> {
             to: answer.$3,
           );
       if (!mounted) return;
-      showMessage(context, context.l10n.decidedAs(after.complaint.statusLabel));
+      showMessage(
+        context,
+        context.l10n.decidedAs(
+          complaintStatusLabel(
+            context,
+            after.complaint.status,
+            after.complaint.statusLabel,
+          ),
+        ),
+      );
       ref.invalidate(complaintProvider(widget.complaintId));
     } on Object catch (e) {
       if (mounted) showError(context, e);
@@ -507,7 +526,7 @@ class MarketOrderScreen extends ConsumerWidget {
               padding: const EdgeInsetsDirectional.only(end: 16),
               child: Center(
                 child: Tag(
-                  o.statusLabel,
+                  marketStatusLabel(context, o.status, o.statusLabel),
                   tone: marketTone(o.status),
                   big: true,
                 ),
@@ -731,7 +750,7 @@ class MarketOrderScreen extends ConsumerWidget {
               ],
               if (d.timeline.isNotEmpty) ...[
                 SectionTitle(l10n.historyTitle),
-                TimelineList(entries: d.timeline),
+                TimelineList(entries: d.timeline, words: marketStatusLabel),
               ],
             ],
           );

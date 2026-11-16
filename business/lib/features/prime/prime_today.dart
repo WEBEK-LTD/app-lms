@@ -389,10 +389,8 @@ class ManagerCard extends ConsumerWidget {
               ),
               side: BorderSide(color: c.ink),
               foregroundColor: c.ink,
-              textStyle: const TextStyle(
-                fontSize: 14,
-                fontWeight: FontWeight.w600,
-              ),
+              textStyle: Theme.of(context).textTheme.labelLarge
+                  ?.copyWith(fontSize: 14, fontWeight: FontWeight.w600),
             ),
             onPressed: () => manager.whatsappUrl == null
                 ? context.push(Paths.vip)

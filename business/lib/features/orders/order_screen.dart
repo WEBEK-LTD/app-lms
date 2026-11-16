@@ -9,6 +9,7 @@ import '../../core/theme/icons.dart';
 import '../../core/theme/theme.dart';
 import '../../core/widgets/contact.dart';
 import '../../core/widgets/l10n.dart';
+import '../../l10n/app_localizations.dart';
 import '../../core/widgets/states.dart';
 import '../food/food_sheets.dart' show FootPanel;
 import '../studio/studio_widgets.dart' show IconLine;
@@ -191,7 +192,8 @@ class _OrderBody extends ConsumerWidget {
                   lat: to.lat,
                   lng: to.lng,
                   detail: [
-                    if (d?.zone != null) l10n.zoneLabel(isolate(d!.zone!)),
+                    if (d?.zone != null)
+                      l10n.zoneLabel(zoneWords(context, d!.zone!)),
                     if (to.lat != null && to.lng != null) l10n.pinnedOnMap,
                   ].join(' · ').emptyToNull,
                 ),
@@ -329,8 +331,37 @@ String breakdownLabel(BuildContext context, String label, String? rule) {
     ('minimum', _) => l10n.feeMinimum,
     ('flat', _) || ('other_city', 'Delivery') => l10n.deliveryFeeLabel,
     ('distance', 'Base fee') => l10n.feeBase,
+    ('distance', _) when _km.hasMatch(label) => l10n.feeDistance(
+      _km.firstMatch(label)!.group(1)!,
+    ),
+    ('weight', _) when _kg.hasMatch(label) => _weight(l10n, label),
     _ => isolate(label),
   };
+}
+
+/// 132 The delivery zone as the API writes it ("Cairo · 4.2 km", "4.2 km"),
+/// with the distance in the app's words.
+String zoneWords(BuildContext context, String zone) {
+  final m = _zoneKm.firstMatch(zone);
+  if (m == null) return isolate(zone);
+  final km = context.l10n.kmShort(m.group(2)!);
+  final city = m.group(1);
+  return city == null ? km : '${isolate(city)} · $km';
+}
+
+final _zoneKm = RegExp(r'^(?:(.+) · )?([\d.]+) km$');
+
+// The API's English rows for the computed fee: "4.2 km", "2.5 kg" and
+// "2.5 kg (1 kg included)".
+final _km = RegExp(r'^([\d.]+) km$');
+final _kg = RegExp(r'^([\d.]+) kg(?: \(([\d.]+) kg included\))?$');
+
+String _weight(AppLocalizations l10n, String label) {
+  final m = _kg.firstMatch(label)!;
+  final included = m.group(2);
+  return included == null
+      ? l10n.feeWeight(m.group(1)!)
+      : l10n.feeWeightIncluded(m.group(1)!, included);
 }
 
 extension on String {

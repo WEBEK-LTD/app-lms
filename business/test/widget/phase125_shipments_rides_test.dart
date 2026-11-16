@@ -112,7 +112,7 @@ void main() {
     await tapOn(tester, find.widgetWithText(NavigationDestination, 'Rides'));
     expect(find.text('Free drivers'), findsOneWidget);
     expect(find.text('R-551'), findsOneWidget);
-    expect(find.text('Searching · 3 min'), findsOneWidget);
+    expect(find.text('Looking for a driver · 3 min'), findsOneWidget);
     expect(find.textContaining('quoted'), findsWidgets);
     await tester.scrollUntilVisible(
       find.text(

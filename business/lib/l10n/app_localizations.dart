@@ -6034,6 +6034,156 @@ abstract class AppLocalizations {
   /// **'Coupon: {code}'**
   String couponUsed(String code);
 
+  /// No description provided for @stAwaitingPayment.
+  ///
+  /// In en, this message translates to:
+  /// **'Waiting for payment'**
+  String get stAwaitingPayment;
+
+  /// No description provided for @stAccepted.
+  ///
+  /// In en, this message translates to:
+  /// **'Accepted'**
+  String get stAccepted;
+
+  /// No description provided for @stReadyForCourier.
+  ///
+  /// In en, this message translates to:
+  /// **'Ready for the courier'**
+  String get stReadyForCourier;
+
+  /// No description provided for @stPicking.
+  ///
+  /// In en, this message translates to:
+  /// **'Being picked'**
+  String get stPicking;
+
+  /// No description provided for @stPickedUp.
+  ///
+  /// In en, this message translates to:
+  /// **'Picked up'**
+  String get stPickedUp;
+
+  /// No description provided for @stOnTheWay.
+  ///
+  /// In en, this message translates to:
+  /// **'On the way'**
+  String get stOnTheWay;
+
+  /// No description provided for @stDelivered.
+  ///
+  /// In en, this message translates to:
+  /// **'Delivered'**
+  String get stDelivered;
+
+  /// No description provided for @stTurnedDown.
+  ///
+  /// In en, this message translates to:
+  /// **'Turned down'**
+  String get stTurnedDown;
+
+  /// No description provided for @stNotDelivered.
+  ///
+  /// In en, this message translates to:
+  /// **'Couldn\'t be delivered'**
+  String get stNotDelivered;
+
+  /// No description provided for @stWaitingCourier.
+  ///
+  /// In en, this message translates to:
+  /// **'Waiting for a courier'**
+  String get stWaitingCourier;
+
+  /// No description provided for @stCourierToPickup.
+  ///
+  /// In en, this message translates to:
+  /// **'Courier on the way to pick up'**
+  String get stCourierToPickup;
+
+  /// No description provided for @stForLater.
+  ///
+  /// In en, this message translates to:
+  /// **'For later'**
+  String get stForLater;
+
+  /// No description provided for @stBookedLater.
+  ///
+  /// In en, this message translates to:
+  /// **'Booked for later'**
+  String get stBookedLater;
+
+  /// No description provided for @stSearching.
+  ///
+  /// In en, this message translates to:
+  /// **'Looking for a driver'**
+  String get stSearching;
+
+  /// No description provided for @stDriverComing.
+  ///
+  /// In en, this message translates to:
+  /// **'Driver on the way'**
+  String get stDriverComing;
+
+  /// No description provided for @stDriverAtPickup.
+  ///
+  /// In en, this message translates to:
+  /// **'Driver at the pickup'**
+  String get stDriverAtPickup;
+
+  /// No description provided for @stOnRide.
+  ///
+  /// In en, this message translates to:
+  /// **'On the way'**
+  String get stOnRide;
+
+  /// No description provided for @stNoDriver.
+  ///
+  /// In en, this message translates to:
+  /// **'No driver found'**
+  String get stNoDriver;
+
+  /// No description provided for @csOpen.
+  ///
+  /// In en, this message translates to:
+  /// **'New'**
+  String get csOpen;
+
+  /// No description provided for @csInReview.
+  ///
+  /// In en, this message translates to:
+  /// **'In review'**
+  String get csInReview;
+
+  /// No description provided for @csResolved.
+  ///
+  /// In en, this message translates to:
+  /// **'Resolved'**
+  String get csResolved;
+
+  /// No description provided for @csRejected.
+  ///
+  /// In en, this message translates to:
+  /// **'Closed without refund'**
+  String get csRejected;
+
+  /// No description provided for @feeDistance.
+  ///
+  /// In en, this message translates to:
+  /// **'Distance {km} km'**
+  String feeDistance(String km);
+
+  /// No description provided for @feeWeight.
+  ///
+  /// In en, this message translates to:
+  /// **'Weight {kg} kg'**
+  String feeWeight(String kg);
+
+  /// No description provided for @feeWeightIncluded.
+  ///
+  /// In en, this message translates to:
+  /// **'Weight {kg} kg ({included} kg included)'**
+  String feeWeightIncluded(String kg, String included);
+
   /// No description provided for @unlockWithFaceId.
   ///
   /// In en, this message translates to:

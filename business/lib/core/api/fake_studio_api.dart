@@ -1041,7 +1041,7 @@ mixin _FakeStudio implements OwnerApi {
     'rider_name': rider,
     'rider': {'name': rider, 'phone': '+90 535 700 00 01'},
     'notes': null,
-    'payment_label': 'cash',
+    'payment_label': 'Cash to the driver',
     'driver': driver == null
         ? null
         : {
@@ -1064,8 +1064,8 @@ mixin _FakeStudio implements OwnerApi {
     'updated_at': _at(ago),
     'timeline': [
       {
-        'status': 'requested',
-        'label': 'Asked for',
+        'status': 'searching',
+        'label': 'Looking for a driver',
         'at': _at(ago),
         'by': rider,
       },

@@ -3367,6 +3367,87 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
+  String get stAwaitingPayment => 'Waiting for payment';
+
+  @override
+  String get stAccepted => 'Accepted';
+
+  @override
+  String get stReadyForCourier => 'Ready for the courier';
+
+  @override
+  String get stPicking => 'Being picked';
+
+  @override
+  String get stPickedUp => 'Picked up';
+
+  @override
+  String get stOnTheWay => 'On the way';
+
+  @override
+  String get stDelivered => 'Delivered';
+
+  @override
+  String get stTurnedDown => 'Turned down';
+
+  @override
+  String get stNotDelivered => 'Couldn\'t be delivered';
+
+  @override
+  String get stWaitingCourier => 'Waiting for a courier';
+
+  @override
+  String get stCourierToPickup => 'Courier on the way to pick up';
+
+  @override
+  String get stForLater => 'For later';
+
+  @override
+  String get stBookedLater => 'Booked for later';
+
+  @override
+  String get stSearching => 'Looking for a driver';
+
+  @override
+  String get stDriverComing => 'Driver on the way';
+
+  @override
+  String get stDriverAtPickup => 'Driver at the pickup';
+
+  @override
+  String get stOnRide => 'On the way';
+
+  @override
+  String get stNoDriver => 'No driver found';
+
+  @override
+  String get csOpen => 'New';
+
+  @override
+  String get csInReview => 'In review';
+
+  @override
+  String get csResolved => 'Resolved';
+
+  @override
+  String get csRejected => 'Closed without refund';
+
+  @override
+  String feeDistance(String km) {
+    return 'Distance $km km';
+  }
+
+  @override
+  String feeWeight(String kg) {
+    return 'Weight $kg kg';
+  }
+
+  @override
+  String feeWeightIncluded(String kg, String included) {
+    return 'Weight $kg kg ($included kg included)';
+  }
+
+  @override
   String get unlockWithFaceId => 'Unlock with Face ID';
 
   @override
