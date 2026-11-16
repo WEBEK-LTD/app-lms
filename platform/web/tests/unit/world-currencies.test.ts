@@ -87,6 +87,9 @@ describe("135.1 every ISO 4217 currency", () => {
     expect(parsePrice("12.5", "KWD")).toBe(1250);
     expect(parsePrice("1,250.500", "KWD")).toBe(125050);
     expect(parsePrice("KWD 2.5", "KWD")).toBe(250);
+    expect(parsePrice("2.5kwd", "KWD")).toBe(250);
+    // The currency is compared as text, never read as a pattern.
+    expect(parsePrice("2.5", ".*")).toBe(250);
     expect(parsePrice("1.255", "KWD")).toBeNull();
     // None: whole yen, thousands either way.
     expect(parsePrice("1,250", "JPY")).toBe(125000);

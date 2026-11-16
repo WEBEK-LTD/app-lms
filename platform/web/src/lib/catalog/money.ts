@@ -47,7 +47,13 @@ export function centsToDecimal(cents: number, currency?: string | null): string 
 export function parsePrice(value: string, currency?: string | null): number | null {
   const digits = currency ? currencyDigits(currency) : 2;
   let text = value.trim().replace(/[\s₺$€£¥]/g, "");
-  if (currency) text = text.replace(new RegExp(`^${currency}|${currency}$`, "i"), "");
+  // The code written before or after the amount ("KWD1.250", "1.250kwd"), compared as text, never as a pattern.
+  if (currency) {
+    const code = currency.toUpperCase();
+    const upper = text.toUpperCase();
+    if (code && upper.startsWith(code)) text = text.slice(code.length);
+    else if (code && upper.endsWith(code)) text = text.slice(0, text.length - code.length);
+  }
   if (!/^\d[\d.,]*$/.test(text)) return null;
   const lastComma = text.lastIndexOf(",");
   const lastDot = text.lastIndexOf(".");
