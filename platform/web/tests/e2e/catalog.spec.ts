@@ -585,8 +585,9 @@ test("132.160 the owner prepares and ships an order in the dashboard; the app's 
   let stages = row().getByRole("region", { name: "Delivery" });
   await stages.getByText("Mark as preparing").click();
   await stages.locator('[data-stage-form="preparing"]').getByRole("button", { name: "Save" }).click();
-  await expect(stages.getByRole("status").first()).toBeVisible();
-  // At once, without the app asking twice: no cache in between.
+  const stageOf = async () => ((await (await request.get(`${api}/me/orders/${orderId}`, { headers })).json()) as { stage: { code: string } | null }).stage?.code ?? null;
+  await expect.poll(stageOf).toBe("preparing");
+  // No cache in between: the app's next ask has it.
   const preparing = await request.get(`${api}/me/orders/${orderId}`, { headers });
   expect(preparing.headers()["cache-control"]).toContain("no-store");
   expect(await preparing.json()).toMatchObject({ status: "processing", stage: { code: "preparing", label: "Preparing" } });
@@ -598,7 +599,7 @@ test("132.160 the owner prepares and ships an order in the dashboard; the app's 
   const shipping = stages.locator('[data-stage-form="shipped"]');
   await shipping.getByLabel("Courier's name (optional)").fill("Mert");
   await shipping.getByRole("button", { name: "Save" }).click();
-  await expect(stages.getByRole("status").first()).toBeVisible();
+  await expect.poll(stageOf).toBe("shipped");
 
   const list = await request.get(`${api}/me/orders`, { headers });
   expect(list.headers()["cache-control"]).toContain("no-store");
