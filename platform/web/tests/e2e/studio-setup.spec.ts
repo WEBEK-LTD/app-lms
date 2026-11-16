@@ -525,12 +525,12 @@ test("in Arabic: the designs' names, the messages in place, and every step on a 
   await own.goto("/studio/project/setup?step=branding");
   await expect(own.locator("html")).toHaveAttribute("dir", "rtl");
   const group = own.getByRole("group", { name: "التصميم" });
-  for (const name of ["الإبقاء على صفحاتي", "تاكسي مباشر", "تاكسي المدينة", "تاكسي الليل"]) await expect(group.getByRole("radio", { name })).toBeVisible();
+  for (const name of ["سيب صفحاتي زي ما هي", "تاكسي مباشر", "تاكسي المدينة", "تاكسي الليل"]) await expect(group.getByRole("radio", { name })).toBeVisible();
   await expect(own.getByText("Not set")).toHaveCount(0);
   await group.getByRole("radio", { name: "تاكسي الليل" }).click();
-  await own.getByRole("button", { name: "حفظ ومتابعة" }).click();
+  await own.getByRole("button", { name: "احفظ وكمّل" }).click();
   await expect(own.getByText("ارفع أيقونة تطبيقك.")).toBeVisible();
-  await expect(own.getByText("أدخل الاسم الذي يظهر تحت أيقونة التطبيق.")).toBeVisible();
+  await expect(own.getByText("اكتب الاسم اللي بيظهر تحت أيقونة التطبيق.")).toBeVisible();
   await expect(own.getByText("Upload your app icon.")).toHaveCount(0);
   await expect(group.getByRole("radio", { name: "تاكسي الليل" })).toBeChecked();
 
