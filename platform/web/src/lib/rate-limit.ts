@@ -61,6 +61,8 @@ export const RATE_LIMITS = {
   figmaRead: { name: "figma:client", limit: 30, windowSeconds: 60 * 60 },
   // 108.2 Pictures of designs brought into Studio (a design file holds up to 120).
   designPictures: { name: "design-pictures:client", limit: 400, windowSeconds: 60 * 60 },
+  // 132.112 Approval codes for moving an app, per account the app leaves: each one is an email to its owner.
+  appMoveCode: { name: "app-move-code:client", limit: 5, windowSeconds: 60 * 60 },
   signInIp: { name: "sign-in:ip", limit: 30, windowSeconds: 15 * 60 },
   signInEmail: { name: "sign-in:email", limit: 8, windowSeconds: 15 * 60 },
   // 70 Codes of two-step sign-in (the website, Yallapp Business, setting it up or off), per person, like passwords per email.
