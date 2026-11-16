@@ -7,6 +7,7 @@ import { fontsOfPage, useStudioFonts } from "@/components/studio/fonts";
 import { StudioView } from "@/components/studio/view";
 import type { Pickable } from "@/lib/hosted/pages/pickable";
 import type { CoverView } from "@/lib/studio-market/catalog";
+import "./market.css";
 
 /**
  * 106 A template's page in a phone, drawn as the app draws it (Studio's
@@ -79,7 +80,7 @@ export function TemplatePhone({ view, width, dark = false, lang, className = "",
   const inner = width - bezel * 2;
   const scale = inner / SCREEN_WIDTH;
   return (
-    <PhoneFrame aria-hidden="true" className={`flex-none ${className}`} style={{ width }} screenClassName={`aspect-[1080/2340] ${dark ? "bg-[#14121F]" : "bg-[#FBF8F2]"}`}>
+    <PhoneFrame aria-hidden="true" className={`mk-phone flex-none ${className}`} style={{ width }} screenClassName={`aspect-[1080/2340] ${dark ? "bg-[#14121F]" : "bg-[#FBF8F2]"}`}>
       {view && mounted ? (
         <div dir="ltr" className={scroll ? "absolute inset-0 overflow-y-auto overflow-x-hidden" : "absolute inset-0 overflow-hidden"}>
           {/* Scrolled (the demo): zoomed, so the screen scrolls the page's real height; else scaled, as Studio's home draws a project. */}

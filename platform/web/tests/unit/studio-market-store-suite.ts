@@ -66,7 +66,8 @@ export function studioMarketStoreSuite(store: () => DataStore) {
     expect(await s.createTemplateDesigner(designerOf(client.id, `${slug}-2`))).toBeNull();
     expect((await s.getTemplateDesignerByClient(client.id))?.id).toBe(nur!.id);
     expect((await s.getTemplateDesignerBySlug(slug.toUpperCase()))?.id).toBe(nur!.id);
-    const lale = (await s.createTemplateDesigner(designerOf(other.client.id, `lale-${suffix}`)))!;
+    // A day later: the list is oldest first.
+    const lale = (await s.createTemplateDesigner({ ...designerOf(other.client.id, `lale-${suffix}`), createdAt: days(1), updatedAt: days(1) }))!;
     expect(await s.updateTemplateDesigner(lale.id, { slug }, days(1))).toBe(false);
     expect(await s.updateTemplateDesigner(lale.id, { name: "Lale & Co.", bio: "Flowers and paper." }, days(1))).toBe(true);
     expect(await s.getTemplateDesigner(lale.id)).toMatchObject({ name: "Lale & Co.", bio: "Flowers and paper.", updatedAt: days(1) });

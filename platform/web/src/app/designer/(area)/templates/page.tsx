@@ -7,7 +7,8 @@ import { Icon } from "@/components/icon";
 import type { IconName } from "@/components/icon-names";
 import { FreePrice, KindTag } from "@/components/studio-market/parts";
 import { MarketPhones, PageThumb } from "@/components/studio-market/phone";
-import { EmptyState, Notice, PageHeader, btn, formatDate } from "@/components/ui";
+import { EmptyState, Notice, btn, formatDate } from "@/components/ui";
+import { MarketHeader } from "@/components/studio-market/header";
 import { requireClient } from "@/lib/auth/session";
 import type { MarketTemplate, MarketTemplateStatus } from "@/lib/data/types";
 import { getStore } from "@/lib/data";
@@ -109,17 +110,12 @@ export default async function DesignerTemplatesPage({ searchParams }: PageProps<
   };
 
   const header = (
-    <PageHeader
-      eyebrow={
-        <span className="inline-flex items-center gap-1.5 text-[13px] font-bold text-accent">
-          <Icon name="palette" size={18} filled />
-          {t("studioMarket.designerArea")}
-        </span>
-      }
+    <MarketHeader
+      eyebrow={t("studioMarket.designerArea")}
       title={t("studioMarket.sellerTitle")}
-      description={t("studioMarket.sellerIntro")}
+      lead={t("studioMarket.sellerIntro")}
       actions={
-        <Link href="/designer/publish" className={`${btn.main} h-11`}>
+        <Link href="/designer/publish" className="mk-btn mk-btn-ember mk-btn-sm">
           <Icon name="add" size={20} />
           {t("studioMarket.publishTemplate")}
         </Link>
@@ -128,7 +124,7 @@ export default async function DesignerTemplatesPage({ searchParams }: PageProps<
   );
 
   const flow = (
-    <div className="flex flex-wrap items-center gap-3.5 rounded-2xl border border-line bg-white px-5 py-4">
+    <div className="mk-panel flex flex-wrap items-center gap-3.5 px-5 py-4">
       <span className="text-sm font-bold">{t("studioMarket.howItGoes")}</span>
       {(
         [
@@ -191,17 +187,17 @@ export default async function DesignerTemplatesPage({ searchParams }: PageProps<
             </form>
           </div>
           {shown.length ? (
-            <section className="overflow-x-auto rounded-2xl border border-line bg-white">
+            <section className="mk-panel overflow-x-auto">
               <table className="w-full min-w-[860px] border-collapse text-sm">
                 <thead>
                   <tr>
-                    <th className="border-b border-line-soft bg-sand py-3 ps-6 pe-4 text-start text-[13px] font-semibold text-muted">{t("studioMarket.colTemplate")}</th>
-                    <th className="border-b border-line-soft bg-sand px-4 py-3 text-start text-[13px] font-semibold text-muted">{t("studioMarket.colStatus")}</th>
-                    <th className="border-b border-line-soft bg-sand px-4 py-3 text-start text-[13px] font-semibold text-muted">{t("studioMarket.colPrice")}</th>
-                    <th className="border-b border-line-soft bg-sand px-4 py-3 text-end text-[13px] font-semibold text-muted">{t("studioMarket.colViews")}</th>
-                    <th className="border-b border-line-soft bg-sand px-4 py-3 text-end text-[13px] font-semibold text-muted">{t("studioMarket.colSales")}</th>
-                    <th className="border-b border-line-soft bg-sand px-4 py-3 text-end text-[13px] font-semibold text-muted">{t("studioMarket.colNet")}</th>
-                    <th className="border-b border-line-soft bg-sand py-3 ps-4 pe-6 text-end text-[13px] font-semibold text-muted">{t("studioMarket.colChange")}</th>
+                    <th className="border-b border-[var(--mk-hair2)] bg-[var(--mk-mat)] py-3 ps-6 pe-4 text-start text-[13px] font-semibold text-muted">{t("studioMarket.colTemplate")}</th>
+                    <th className="border-b border-[var(--mk-hair2)] bg-[var(--mk-mat)] px-4 py-3 text-start text-[13px] font-semibold text-muted">{t("studioMarket.colStatus")}</th>
+                    <th className="border-b border-[var(--mk-hair2)] bg-[var(--mk-mat)] px-4 py-3 text-start text-[13px] font-semibold text-muted">{t("studioMarket.colPrice")}</th>
+                    <th className="border-b border-[var(--mk-hair2)] bg-[var(--mk-mat)] px-4 py-3 text-end text-[13px] font-semibold text-muted">{t("studioMarket.colViews")}</th>
+                    <th className="border-b border-[var(--mk-hair2)] bg-[var(--mk-mat)] px-4 py-3 text-end text-[13px] font-semibold text-muted">{t("studioMarket.colSales")}</th>
+                    <th className="border-b border-[var(--mk-hair2)] bg-[var(--mk-mat)] px-4 py-3 text-end text-[13px] font-semibold text-muted">{t("studioMarket.colNet")}</th>
+                    <th className="border-b border-[var(--mk-hair2)] bg-[var(--mk-mat)] py-3 ps-4 pe-6 text-end text-[13px] font-semibold text-muted">{t("studioMarket.colChange")}</th>
                   </tr>
                 </thead>
                 <tbody>

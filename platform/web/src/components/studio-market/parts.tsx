@@ -6,6 +6,7 @@ import { Icon } from "@/components/icon";
 import type { IconName } from "@/components/icon-names";
 import type { CoverView, DesignerCard, DesignerChip, TemplateCard } from "@/lib/studio-market/catalog";
 import { TemplatePhone } from "./phone";
+import "./market.css";
 
 /**
  * 106 Studio Market's small parts, as the approved designs draw them: a
@@ -47,40 +48,55 @@ export function Board({ children, className = "", style }: { children: React.Rea
   );
 }
 
-export function TemplateCardView({ card, rank, phone = 150, height = 248, button }: { card: TemplateCard; rank?: number; phone?: number; height?: number; button?: React.ReactNode }) {
+/**
+ * A template's card: one markup for both art directions (globals.css
+ * `.mk-card`): a framed print on the wall in light, a glass case with a light
+ * pool in dark. Lifts and tilts its phone on hover; "View template" fades in.
+ */
+export function TemplateCardView({ card, rank, phone = 170, height, pool }: { card: TemplateCard; rank?: number; phone?: number; height?: number; pool?: string }) {
   const t = useDashT();
+  const known = useKnownText();
   const kind = card.kinds[0];
   return (
-    <article className="relative flex min-w-0 flex-col overflow-hidden rounded-[18px] border border-line bg-white" data-template-card={card.slug}>
-      <Board className="relative flex justify-center overflow-hidden border-b border-line-soft pt-[22px]" style={{ height }}>
-        <span className="absolute start-3 top-3 z-[2] flex gap-1.5">
-          {card.free ? <span className="rounded-xl bg-success px-2.5 py-1 text-xs font-bold text-white in-dark:text-[#0e0d24]">{t("studioMarket.free")}</span> : null}
-          {rank ? <span className="rounded-xl bg-midnight px-2.5 py-1 text-xs font-bold text-white">{t("studioMarket.rank", { rank })}</span> : null}
-        </span>
-        <TemplatePhone view={card.cover} width={phone} />
-      </Board>
-      <div className="flex flex-col gap-[9px] px-4 pt-3.5 pb-4">
-        <div className="flex items-center justify-between gap-2">
-          <Link href={`/dashboard/studio-market/t/${card.slug}`} dir="auto" className="min-w-0 truncate text-base leading-snug font-bold text-midnight no-underline after:absolute after:inset-0 hover:text-midnight">
+    <article className="mk-card" data-template-card={card.slug} style={pool ? ({ "--mk-pool": pool } as React.CSSProperties) : undefined}>
+      <div className="mk-card-frame">
+        <div className="mk-card-stage" style={height ? { height } : undefined}>
+          <span className="mk-card-tags">
+            {card.free ? <span className="mk-pill mk-pill-free">{t("studioMarket.free")}</span> : null}
+            {rank ? <span className="mk-pill mk-pill-ink">{t("studioMarket.rank", { rank })}</span> : null}
+          </span>
+          <div className="mk-card-phone">
+            <TemplatePhone view={card.cover} width={phone} />
+          </div>
+          <span className="mk-card-hover" aria-hidden="true">
+            {t("studioMarket.viewTemplate")}
+            <Icon name="arrow_forward" size={18} />
+          </span>
+        </div>
+      </div>
+      <div className="mk-card-cap">
+        <div className="flex items-baseline justify-between gap-2">
+          <Link href={`/dashboard/studio-market/t/${card.slug}`} dir="auto" className="mk-card-name min-w-0 truncate after:absolute after:inset-0">
             {card.title}
           </Link>
-          <span className="flex-none text-[13px] font-semibold whitespace-nowrap text-muted">{t("studioMarket.applies", { count: card.applies })}</span>
+          <span className="mk-muted flex-none text-[13px] font-semibold whitespace-nowrap">{t("studioMarket.applies", { count: card.applies })}</span>
         </div>
-        <div className="flex items-center justify-between gap-2">
-          <span className="flex min-w-0 items-center gap-[7px] text-[13px] text-ink-4">
-            <DesignerAvatar designer={card.designer} />
-            <span dir="auto" className="truncate">{card.designer.name}</span>
+        <span className="mk-card-by">
+          <DesignerAvatar designer={card.designer} />
+          <span dir="auto" className="truncate">
+            {card.designer.name}
           </span>
-          {kind ? <KindTag kind={kind} /> : null}
-        </div>
-        <div className="flex items-center justify-between gap-2 border-t border-line-soft pt-2.5">
+          {kind ? (
+            <>
+              <span className="opacity-50">·</span>
+              <span className="truncate">{known(kind.name)}</span>
+            </>
+          ) : null}
+        </span>
+        <div className="mk-card-foot">
           <FreePrice />
-          <span className="inline-flex items-center gap-1 text-[13px] font-semibold text-accent">
-            {t("studioMarket.view")}
-            <Icon name="arrow_forward" size={16} />
-          </span>
+          <Icon name="arrow_forward" size={18} className="mk-muted" />
         </div>
-        {button}
       </div>
     </article>
   );

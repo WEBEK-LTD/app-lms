@@ -3,7 +3,8 @@ import Link from "next/link";
 import { redirect } from "next/navigation";
 import { Icon } from "@/components/icon";
 import { MarketPhones } from "@/components/studio-market/phone";
-import { EmptyState, Notice, PageHeader, btn, formatDate, formatDateTime } from "@/components/ui";
+import { EmptyState, Notice, btn, formatDate, formatDateTime } from "@/components/ui";
+import { MarketHeader } from "@/components/studio-market/header";
 import { kindOf } from "@/lib/app/kinds";
 import { appLabel } from "@/lib/app/label";
 import { assetUrl } from "@/lib/assets";
@@ -91,7 +92,7 @@ export default async function PublishTemplatePage({ searchParams }: PageProps<"/
     ["send", live ? t("studioMarket.stepUpdate") : t("studioMarket.stepSend"), "step-send"],
   ];
   const stepper = (
-    <aside className="flex flex-col gap-1 rounded-2xl border border-line bg-white px-[18px] py-5 lg:sticky lg:top-5">
+    <aside className="mk-panel flex flex-col gap-1 px-[18px] py-5 lg:sticky lg:top-5">
       <span className="px-1.5 pb-2 text-[13px] font-bold tracking-[0.06em] text-muted uppercase">{t("studioMarket.stepsLabel")}</span>
       <ol className="m-0 flex list-none flex-col gap-1 p-0">
         {labels.map(([step, label, anchor], i) => {
@@ -119,13 +120,14 @@ export default async function PublishTemplatePage({ searchParams }: PageProps<"/
   );
 
   const header = (
-    <PageHeader
+    <MarketHeader
       back={{ href: "/designer/templates", label: t("studioMarket.navTemplates") }}
+      eyebrow={t("studioMarket.designerArea")}
       title={template && live ? t("studioMarket.publishEditTitle", { name: template.texts.en?.title ?? template.slug }) : t("studioMarket.publishTitle")}
-      description={live ? t("studioMarket.publishedIntro") : t("studioMarket.publishIntro")}
+      lead={live ? t("studioMarket.publishedIntro") : t("studioMarket.publishIntro")}
       actions={
         live && template ? (
-          <Link href={`/dashboard/studio-market/t/${template.slug}`} className={`${btn.secondary} h-11`}>
+          <Link href={`/dashboard/studio-market/t/${template.slug}`} className="mk-btn mk-btn-ghost mk-btn-sm">
             <Icon name="visibility" size={20} />
             {t("studioMarket.previewPage")}
           </Link>

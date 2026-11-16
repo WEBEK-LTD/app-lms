@@ -3,9 +3,10 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { Icon } from "@/components/icon";
 import type { IconName } from "@/components/icon-names";
-import { DesignerAvatar, FreePrice, KindTag } from "@/components/studio-market/parts";
-import { ApplyForm, DemoButton, TemplateDemo, TemplateGallery, type DemoPage, type MineApp } from "@/components/studio-market/template-view";
-import { Notice, btn, formatDate } from "@/components/ui";
+import { PageThumb } from "@/components/studio-market/phone";
+import { DesignerAvatar } from "@/components/studio-market/parts";
+import { ApplyForm, DemoButton, PageChips, TemplateDemo, TemplateStage, type DemoPage, type MineApp } from "@/components/studio-market/template-view";
+import { Notice, formatDate } from "@/components/ui";
 import { countryName } from "@/lib/account/country";
 import { appLabel } from "@/lib/app/label";
 import { assetUrl } from "@/lib/assets";
@@ -84,24 +85,45 @@ export default async function TemplatePage({ params, searchParams }: PageProps<"
   const names = languages.map((l) => LANGUAGE_NAMES[lang]?.[l] ?? l);
 
   const crumbs = (
-    <nav aria-label={t("studioMarket.nav")} className="flex flex-wrap items-center gap-1.5 text-sm text-muted">
-      <Link href="/dashboard/studio-market" className="inline-flex items-center gap-1 font-semibold text-muted no-underline hover:text-midnight">
+    <nav aria-label={t("studioMarket.nav")} className="flex min-w-0 items-center gap-2 text-sm">
+      <Link href="/dashboard/studio-market" className="inline-flex items-center gap-1.5 font-semibold text-[var(--mk-ink)] no-underline opacity-80 hover:text-[var(--mk-ink)] hover:opacity-100">
         <Icon name="arrow_back" size={18} />
         {t("studioMarket.nav")}
       </Link>
       {kinds[0] ? (
         <>
-          <span className="hidden text-faint sm:inline">/</span>
-          <Link href={`/dashboard/studio-market?kind=${kinds[0].id}`} className="hidden text-muted no-underline hover:text-midnight sm:inline">
+          <span className="hidden opacity-40 sm:inline">/</span>
+          <Link href={`/dashboard/studio-market?kind=${kinds[0].id}`} className="hidden text-[var(--mk-ink)] no-underline opacity-80 hover:text-[var(--mk-ink)] hover:opacity-100 sm:inline">
             {k(kinds[0].name)}
           </Link>
         </>
       ) : null}
-      <span className="hidden text-faint sm:inline">/</span>
-      <span aria-current="page" dir="auto" className="hidden font-semibold text-midnight sm:inline">
-        {text.title}
-      </span>
     </nav>
+  );
+
+  const used = counts[template.id] ?? 0;
+  const intro = (
+    <>
+      <span className="mk-eyebrow">{kinds.map((x) => k(x.name)).join(" · ")}</span>
+      <h1 dir="auto" className={`mk-display mk-gradtext m-0 break-words ${text.title.length > 16 ? "text-[42px] md:text-[60px] lg:text-[68px]" : "text-[54px] md:text-[80px] lg:text-[96px]"}`}>
+        {text.title}
+      </h1>
+      <div className="flex flex-wrap items-center gap-2.5 text-[15px]">
+        <DesignerAvatar designer={chip} size="sm" />
+        <b dir="auto">{designer.name}</b>
+        <span className="opacity-40">·</span>
+        <span className="mk-muted">{t("studioMarket.usedBy", { count: used })}</span>
+      </div>
+      {text.short ? (
+        <p dir="auto" className="mk-lead m-0 max-w-[460px] md:text-[17px]">
+          {text.short}
+        </p>
+      ) : null}
+      <div className="flex flex-wrap items-center gap-3">
+        <DemoButton className="mk-btn-lg" />
+        <span className="mk-muted text-[13px]">{t("studioMarket.updatedOn", { date: formatDate(version.createdAt, lang) })}</span>
+      </div>
+    </>
   );
 
   const included: [IconName, string, string][] = [
@@ -110,53 +132,48 @@ export default async function TemplatePage({ params, searchParams }: PageProps<"
     ["translate", String(languages.length), t("studioMarket.languagesLine", { count: languages.length, names: formatList(lang, names) })],
     ["dark_mode", t("studioMarket.lightDark"), t("studioMarket.bothIncluded")],
     ...(languages.includes("ar") ? ([["format_align_right", t("studioMarket.rtl"), t("studioMarket.rtlHint")]] as [IconName, string, string][]) : []),
-    ["storefront", formatList(lang, kinds.map((x) => k(x.name))), t("studioMarket.kindsFit")],
+    ["storefront", kinds.length === 1 ? k(kinds[0]!.name) : String(kinds.length), t("studioMarket.kindsFit")],
   ];
   const includedSection = (
-    <section aria-labelledby="h-included" className="flex flex-col rounded-2xl border border-line bg-white">
-      <div className="px-5 pt-5 sm:px-6">
-        <h2 id="h-included" className="m-0 text-lg font-bold">
-          {t("studioMarket.included")}
+    <section aria-labelledby="h-included" className="flex flex-col gap-6">
+      <div className="flex flex-col gap-2.5">
+        <span className="mk-eyebrow">{t("studioMarket.included")}</span>
+        <h2 id="h-included" className="mk-h2 text-[28px] md:text-[38px]">
+          {t("studioMarket.includedTitle")}
         </h2>
-        <p className="m-0 mt-1 text-sm leading-relaxed text-muted">{t("studioMarket.includedHint")}</p>
+        <p className="mk-muted m-0 text-[15px] leading-relaxed">{t("studioMarket.includedHint")}</p>
       </div>
-      <div className="flex flex-col gap-4 px-5 pt-4 pb-6 sm:px-6">
-        <div className="grid grid-cols-2 gap-3 sm:grid-cols-3">
-          {included.map(([icon, value, label]) => (
-            <div key={icon} className="flex items-center gap-3 rounded-xl border border-line-soft bg-sand px-3.5 py-3">
-              <span className="flex h-[38px] w-[38px] flex-none items-center justify-center rounded-[10px] bg-peach text-accent">
-                <Icon name={icon} size={21} />
-              </span>
-              <span className="flex min-w-0 flex-col">
-                <b className="text-[15px]">{value}</b>
-                <span className="text-xs text-muted">{label}</span>
-              </span>
-            </div>
-          ))}
-        </div>
-        <ul aria-label={t("studioMarket.pagesList")} className="m-0 flex list-none flex-wrap gap-1.5 p-0">
-          {pages.map((p) => (
-            <li key={p.slug} className="rounded-xl bg-line-soft px-2.5 py-1 text-xs font-semibold text-muted">
-              {p.title}
-            </li>
-          ))}
-        </ul>
+      <div className="mk-incl grid grid-cols-2 sm:grid-cols-3">
+        {included.map(([icon, value, label]) => (
+          <div key={icon} className="flex min-w-0 flex-col gap-3 px-4 py-5 md:px-6 md:py-[26px]">
+            <span className="mk-tile flex h-12 w-12 items-center justify-center rounded-full text-[var(--mk-accent)]">
+              <Icon name={icon} size={24} />
+            </span>
+            <span className="flex min-w-0 flex-col gap-0.5">
+              <b className="text-[22px] leading-[1.15] tracking-[-0.02em] md:text-[26px]">{value}</b>
+              <span className="mk-muted text-sm">{label}</span>
+            </span>
+          </div>
+        ))}
       </div>
+      <PageChips />
     </section>
   );
 
-  const about = text.description ? (
-    <section aria-labelledby="h-about" className="flex flex-col rounded-2xl border border-line bg-white">
-      <h2 id="h-about" className="m-0 px-5 pt-5 text-lg font-bold sm:px-6">
+  const paragraphs = text.description.split(/\n{2,}/).filter((x) => x.trim());
+  const about = paragraphs.length ? (
+    <section aria-labelledby="h-about" className="flex flex-col gap-4">
+      <h2 id="h-about" className="mk-eyebrow m-0">
         {t("studioMarket.about")}
       </h2>
-      <div className="px-5 pt-4 pb-6 sm:px-6">
-        {text.description.split(/\n{2,}/).map((para, i) => (
-          <p key={i} dir="auto" className="m-0 mb-3 text-[15px] leading-relaxed whitespace-pre-line text-ink-3 last:mb-0">
-            {para}
-          </p>
-        ))}
-      </div>
+      <p dir="auto" className="m-0 text-[20px] leading-[1.45] font-semibold tracking-[-0.01em] whitespace-pre-line md:text-[26px]">
+        {paragraphs[0]}
+      </p>
+      {paragraphs.slice(1).map((para, i) => (
+        <p key={i} dir="auto" className="mk-lead m-0 whitespace-pre-line md:text-base">
+          {para}
+        </p>
+      ))}
     </section>
   ) : null;
 
@@ -173,7 +190,11 @@ export default async function TemplatePage({ params, searchParams }: PageProps<"
       </Notice>
     );
   } else if (!owner) {
-    action = <Notice tone="neutral" icon="lock">{t("studioMarket.known.ownerOnly")}</Notice>;
+    action = (
+      <Notice tone="neutral" icon="lock">
+        {t("studioMarket.known.ownerOnly")}
+      </Notice>
+    );
   } else {
     action = (
       <div className="flex flex-col gap-2.5">
@@ -203,89 +224,137 @@ export default async function TemplatePage({ params, searchParams }: PageProps<"
     );
   }
 
+  const know: [IconName, string][] = [
+    ["new_releases", t("studioMarket.knowFree")],
+    ["history", t("studioMarket.knowKeep")],
+    ["compare", t("studioMarket.knowMove")],
+    ["verified", t("studioMarket.knowReview")],
+  ];
   const panel = (
-    <aside className="flex flex-col gap-[18px] rounded-[20px] border border-line bg-white p-4 shadow-[0_1px_2px_rgba(14,13,36,0.04),0_8px_24px_-16px_rgba(14,13,36,0.18)] sm:p-6">
-      <div className="flex flex-wrap items-center gap-2">
-        {kinds.map((kind, i) => (
-          <span key={kind.id} className="inline-flex items-center gap-2">
-            {i ? <span className="text-faint">·</span> : null}
-            <KindTag kind={kind} />
-          </span>
-        ))}
-        <span className="text-faint">·</span>
-        <span className="text-xs text-muted">{t("studioMarket.updatedOn", { date: formatDate(version.createdAt, lang) })}</span>
+    <aside id="apply" aria-label={t("studioMarket.planLabel")} className="mk-panel flex scroll-mt-6 flex-col gap-[22px] rounded-[28px] px-5 py-6 md:p-[30px]">
+      <div className="flex flex-col gap-1">
+        <span className="mk-small">{t("studioMarket.fromLabel")}</span>
+        <b className="text-[40px] leading-none tracking-[-0.04em]">{t("studioMarket.free")}</b>
       </div>
       <div className="flex flex-col gap-2.5">
-        <h1 dir="auto" className="m-0 text-[30px] leading-[1.1] font-extrabold tracking-[-0.6px] sm:text-[34px]">{text.title}</h1>
-        <div className="flex flex-wrap items-center gap-2 text-sm">
-          <DesignerAvatar designer={chip} size="sm" />
-          <span dir="auto" className="font-semibold">{designer.name}</span>
-          <span className="text-faint">·</span>
-          <span className="text-muted">{t("studioMarket.usedBy", { count: counts[template.id] ?? 0 })}</span>
-        </div>
-        {text.short ? <p dir="auto" className="m-0 text-sm leading-relaxed text-ink-4">{text.short}</p> : null}
-      </div>
-      <div className="flex flex-col gap-2.5">
-        <span className="text-sm font-semibold">{t("studioMarket.planLabel")}</span>
-        <div className="flex flex-col gap-[3px] rounded-[14px] border-2 border-midnight bg-sand px-[13px] py-[11px]">
-          <span className="flex items-center justify-between gap-1.5">
-            <FreePrice big />
-            <span aria-hidden="true" className="h-[18px] w-[18px] rounded-full border-[5.5px] border-midnight bg-white" />
+        <span className="mk-small">{t("studioMarket.planLabel")}</span>
+        <div className="mk-plan" aria-current="true">
+          <span className="flex items-center justify-between gap-2">
+            <b className="text-[22px] tracking-[-0.02em]">{t("studioMarket.free")}</b>
+            <Icon name="check_circle" size={22} filled />
           </span>
-          <span className="text-xs text-muted">{t("studioMarket.freePlanHint")}</span>
+          <span className="text-[13px] opacity-75">{t("studioMarket.freePlanHint")}</span>
         </div>
       </div>
       {action}
-      <Notice tone="neutral" icon="history">
-        <b>{t("studioMarket.freeNotice")}</b>
-        <br />
-        {t("studioMarket.freeNoticeText")}
-      </Notice>
+      <ul className="m-0 flex list-none flex-col border-t border-[var(--mk-hair)] p-0">
+        {know.map(([icon, line]) => (
+          <li key={icon} className="flex items-start gap-3 border-b border-[var(--mk-hair2)] py-3 text-sm leading-normal">
+            <span className="flex flex-none text-[var(--mk-accent)]">
+              <Icon name={icon} size={20} />
+            </span>
+            <span>{line}</span>
+          </li>
+        ))}
+      </ul>
     </aside>
   );
 
+  const others = designerTemplates.filter((x) => x.id !== template.id).slice(0, 3);
+  const otherVersions = await store.listMarketTemplateVersions(others.flatMap((x) => (x.currentVersionId ? [x.currentVersionId] : [])));
   const designerCard = (
-    <section aria-label={designer.name} className="flex flex-col gap-3.5 rounded-2xl border border-line bg-white px-4 py-[18px] sm:px-6 sm:py-[22px]">
-      <div className="flex items-center gap-3.5">
-        <DesignerAvatar designer={chip} size="xl" />
-        <div className="flex min-w-0 flex-col gap-1">
-          <span dir="auto" className="text-lg font-extrabold">{designer.name}</span>
-          <span className="text-[13px] text-muted">{t("studioMarket.designerSince", { country: countryName(designer.country, lang), year: String(designer.createdAt.getUTCFullYear()) })}</span>
+    <section aria-labelledby="h-designer" className="mk-panel grid overflow-hidden rounded-[28px] md:grid-cols-[240px_minmax(0,1fr)]">
+      <div className="mk-mono h-[200px] rounded-none md:h-full md:min-h-[320px]">
+        <span className="flex h-[118px] w-[118px] items-center justify-center rounded-full text-[44px] font-extrabold tracking-[-0.04em] shadow-[0_0_0_8px_rgba(255,255,255,0.35),0_20px_40px_-14px_rgba(14,13,36,0.6)]" style={{ background: chip.bg, color: chip.fg }} aria-hidden="true">
+          {chip.initials}
+        </span>
+      </div>
+      <div className="flex min-w-0 flex-col gap-4 px-5 py-6 md:px-8 md:py-[30px]">
+        <span className="mk-eyebrow">{t("studioMarket.designerEyebrow")}</span>
+        <div className="flex flex-col gap-1">
+          <h2 id="h-designer" dir="auto" className="m-0 text-[28px] font-extrabold tracking-[-0.03em]">
+            {designer.name}
+          </h2>
+          <span className="mk-muted text-[13px]">{t("studioMarket.designerSince", { country: countryName(designer.country, lang), year: String(designer.createdAt.getUTCFullYear()) })}</span>
+        </div>
+        {designer.bio ? (
+          <p dir="auto" className="m-0 text-base leading-relaxed text-[var(--mk-ink2)]">
+            {designer.bio}
+          </p>
+        ) : null}
+        <div className="flex flex-wrap gap-7">
+          {(
+            [
+              [designerTemplates.length, t("studioMarket.templatesWord")],
+              [designerTemplates.reduce((n, x) => n + (counts[x.id] ?? 0), 0), t("studioMarket.appsWord")],
+            ] as const
+          ).map(([value, label]) => (
+            <div key={label} className="flex flex-col gap-1.5">
+              <span className="mk-kpi text-[30px]">{value}</span>
+              <span className="mk-small">{label}</span>
+            </div>
+          ))}
+        </div>
+        <div className="flex flex-wrap items-center gap-2.5">
+          {others.map((x) => {
+            const v = otherVersions.find((o) => o.id === x.currentVersionId);
+            const title = templateText(x, lang).title;
+            const cover = v ? coverView(v.cover, v.languages, lang, title) : null;
+            return (
+              <Link key={x.id} href={`/dashboard/studio-market/t/${x.slug}`} className="flex items-center gap-2 rounded-full border border-[var(--mk-hair)] py-1.5 ps-1.5 pe-3 text-[var(--mk-ink)] no-underline hover:border-[var(--mk-ink)] hover:text-[var(--mk-ink)]">
+                <span className="block h-9 w-[26px] flex-none overflow-hidden rounded-md">{cover ? <PageThumb view={cover} width={26} height={36} /> : null}</span>
+                <b dir="auto" className="max-w-[160px] truncate text-[13px]">
+                  {title}
+                </b>
+              </Link>
+            );
+          })}
+          <Link href={`/dashboard/studio-market?designer=${designer.slug}`} className="mk-link text-sm">
+            {t("studioMarket.seeDesigner", { count: designerTemplates.length })}
+            <Icon name="arrow_forward" size={16} />
+          </Link>
         </div>
       </div>
-      {designer.bio ? <p dir="auto" className="m-0 text-sm leading-relaxed text-ink-4">{designer.bio}</p> : null}
-      <div className="grid grid-cols-2 gap-2 rounded-xl bg-sand p-3 text-center">
-        <span className="flex flex-col">
-          <b className="text-base">{designerTemplates.length}</b>
-          <span className="text-xs text-muted">{t("studioMarket.templatesWord")}</span>
-        </span>
-        <span className="flex flex-col">
-          <b className="text-base">{designerTemplates.reduce((n, x) => n + (counts[x.id] ?? 0), 0)}</b>
-          <span className="text-xs text-muted">{t("studioMarket.appsWord")}</span>
-        </span>
-      </div>
-      <Link href={`/dashboard/studio-market?designer=${designer.slug}`} className={`${btn.secondary} h-9 w-full text-sm`}>
-        {t("studioMarket.seeDesigner", { count: designerTemplates.length })}
-        <Icon name="arrow_forward" size={18} />
-      </Link>
     </section>
   );
 
   return (
     <TemplateDemo pages={pages} languages={languages.length ? languages : [file.languages.default]} samples={{ items: {}, categories: {}, samples: sampleEntries(now) }} mine={mine} startOpen={query.demo === "1"} title={text.title}>
-      {crumbs}
-      {/* One panel: beside the pictures on a computer, under them on a phone. */}
-      <div className="grid items-start gap-6 lg:grid-cols-[minmax(0,1fr)_408px] lg:grid-rows-[auto_auto_1fr] lg:gap-x-7">
-        <div className="min-w-0 lg:col-start-1 lg:row-start-1">
-          <TemplateGallery />
+      <div className="mk mk-bare">
+        <section className="mk-wall mk-sec relative overflow-hidden pt-5 md:pt-7">
+          <div className="mk-atmos" aria-hidden="true">
+            <span className="mk-stars" />
+            <span className="mk-g1 -end-[200px] top-[120px]" />
+            <span className="mk-g2 -start-[280px] -top-[280px]" />
+            <span className="mk-beam start-[52%]" />
+            <span className="mk-floor" />
+          </div>
+          <div className="mk-in relative z-[3]">
+            <TemplateStage crumbs={crumbs} intro={intro} />
+          </div>
+        </section>
+        {/* One panel: beside the rest on a computer (it stays in view), first on a phone. */}
+        <div className="mk-sec pt-7 pb-16 md:pt-16 md:pb-24">
+          <div className="mk-in grid items-start gap-12 lg:grid-cols-[minmax(0,1fr)_400px] lg:gap-14">
+            <div className="lg:sticky lg:top-6 lg:col-start-2 lg:row-start-1">{panel}</div>
+            <div className="flex min-w-0 flex-col gap-12 md:gap-20 lg:col-start-1 lg:row-start-1">
+              {includedSection}
+              {about}
+              {designerCard}
+            </div>
+          </div>
         </div>
-        <DemoButton className="w-full lg:hidden" />
-        <div className="flex min-w-0 flex-col gap-5 lg:col-start-2 lg:row-span-3 lg:row-start-1">
-          {panel}
-          {designerCard}
-        </div>
-        <div className="min-w-0 lg:col-start-1 lg:row-start-2">{includedSection}</div>
-        {about ? <div className="min-w-0 lg:col-start-1 lg:row-start-3">{about}</div> : null}
+        {owner && !own && apps.length ? (
+          <div className="mk-buybar sticky bottom-0 z-30 flex items-center gap-3 px-5 py-3.5 lg:hidden">
+            <span className="flex min-w-0 flex-1 flex-col">
+              <b className="text-lg leading-tight">{t("studioMarket.free")}</b>
+              <span className="mk-muted truncate text-xs">{t("studioMarket.knowReview")}</span>
+            </span>
+            <a href="#apply" className="mk-btn mk-btn-ember h-[50px] px-5 text-[15px]">
+              {t("studioMarket.apply")}
+            </a>
+          </div>
+        ) : null}
       </div>
     </TemplateDemo>
   );

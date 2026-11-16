@@ -10542,7 +10542,7 @@ export class MysqlStore implements DataStore {
   async listTemplateDesigners(ids?: readonly string[]): Promise<TemplateDesigner[]> {
     if (ids && !ids.length) return [];
     const t = schema.studioMarketDesigners;
-    const rows = await this.run((db) => db.select().from(t).where(ids ? inArray(t.id, [...ids]) : undefined).orderBy(asc(t.createdAt)));
+    const rows = await this.run((db) => db.select().from(t).where(ids ? inArray(t.id, [...ids]) : undefined).orderBy(asc(t.createdAt), asc(t.id)));
     return rows.map((r) => this.designerRow(r));
   }
 

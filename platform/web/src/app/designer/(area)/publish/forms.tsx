@@ -26,7 +26,7 @@ export function StepSection({ id, num, state, title, description, children, mute
     <section
       id={id}
       aria-labelledby={`${id}-h`}
-      className={`flex min-w-0 scroll-mt-6 flex-col rounded-2xl bg-white ${state === "cur" ? "border-2 border-midnight shadow-[0_1px_2px_rgba(14,13,36,0.06),0_18px_40px_-22px_rgba(14,13,36,0.35)]" : "border border-line"} ${muted ? "opacity-60" : ""}`}
+      className={`mk-panel flex min-w-0 scroll-mt-6 flex-col ${state === "cur" ? "mk-current" : ""} ${muted ? "opacity-60" : ""}`}
     >
       <div className="flex items-start gap-3 px-5 pt-5 sm:px-6">
         <StepNumber num={num} state={state} />
@@ -297,7 +297,7 @@ export function ScreensForm({ id, pages, order, languages, locked }: { id: strin
               ) : null}
             </div>
           </div>
-          <ol className="m-0 flex list-none gap-3 overflow-x-auto p-0 pb-1">
+          <ol className="relative m-0 flex list-none gap-3 overflow-x-auto p-0 pb-1">
             {list.map((slug, i) => {
               const page = pages.find((p) => p.slug === slug)!;
               const on = shown.has(slug);

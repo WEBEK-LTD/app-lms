@@ -8618,7 +8618,7 @@ export class MemoryStore implements DataStore {
   async listTemplateDesigners(ids?: readonly string[]): Promise<TemplateDesigner[]> {
     return [...this.templateDesigners.values()]
       .filter((d) => !ids || ids.includes(d.id))
-      .sort((a, b) => a.createdAt.getTime() - b.createdAt.getTime())
+      .sort((a, b) => a.createdAt.getTime() - b.createdAt.getTime() || (a.id < b.id ? -1 : a.id > b.id ? 1 : 0))
       .map(clone);
   }
 
