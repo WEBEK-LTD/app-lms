@@ -80,6 +80,8 @@ const appTypes = [
   'rides',
   // 105.4 Schools.
   'school',
+  // 126 Hotels and flights (Studio's travel apps, Safra).
+  'travel',
 ];
 
 /// Kinds of business (`vertical` in the schema), on top of the app type.
