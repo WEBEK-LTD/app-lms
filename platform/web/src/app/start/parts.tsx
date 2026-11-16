@@ -1,4 +1,6 @@
 /* eslint-disable @next/next/no-img-element -- the demos' own screenshots, in the approved phone frames. */
+import { WorkingInAccount } from "@/components/working-in-account";
+import { getClientContext } from "@/lib/auth/session";
 import Link from "next/link";
 import type { CSSProperties, ReactNode } from "react";
 import { LogoLink } from "@/components/brand";
@@ -146,11 +148,14 @@ function Steps({ text, step }: { text: DashboardText; step: 1 | 2 | 3 }) {
 export async function PickerShell({ step, back, children, gap = "gap-8" }: { step: 1 | 2 | 3; back?: ReactNode; children: ReactNode; gap?: string }) {
   const text = await dashboardText();
   const { lang, dir } = text;
+  // 132.110 Our team choosing an app in a client's account: whose account it is.
+  const context = await getClientContext();
   return (
     <DashboardI18n lang={lang} messages={dashboardMessages(lang)} knownEnglish={lang === "en" ? {} : knownEnglish()}>
       <DocumentLang lang={lang} />
       <div data-site-theme="" lang={lang} dir={dir} className="picker picker-page min-h-screen font-sans" data-picker-step={step}>
         <div className={`mx-auto box-border flex w-full max-w-[1200px] flex-col ${gap} px-4 pt-7 pb-16 sm:px-6`}>
+          {context ? <WorkingInAccount context={context} text={text} app={false} /> : null}
           <header className="flex flex-wrap items-center gap-4">
             {back ?? <LogoLink href={localePath(lang, "/")} adaptive height={26} alt={messagesFor(lang).nav.logoHome} />}
             <div className="grow" />

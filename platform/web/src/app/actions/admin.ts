@@ -292,7 +292,8 @@ export async function manageClientAction(formData: FormData): Promise<void> {
     clientId: id,
     summary: `Opened ${await clientName(id)}'s dashboard${apps.length > 1 ? onApp(app) : ""}`,
   });
-  redirect(app ? "/dashboard" : "/dashboard/app-type");
+  // 132.110 An account without an app starts where the client does: choosing it (/start).
+  redirect(app ? (app.section === "studio" ? "/studio/project" : "/dashboard") : "/start");
 }
 
 /** Back from a client's dashboard to their page in the admin. */

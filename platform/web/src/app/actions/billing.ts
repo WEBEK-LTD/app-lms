@@ -1,7 +1,7 @@
 "use server";
 
 import { redirect } from "next/navigation";
-import { clientFor, requestIp } from "@/lib/auth/session";
+import { clientFor, requestIp, TEAM_CANT_PAY } from "@/lib/auth/session";
 import { cardPlans, readBilling, startPlanPayment, activateWithFreeCoupon } from "@/lib/billing/plan-payment";
 import { COUPON_CHECK_LIMIT, CouponUsedUpError, findCoupon, type CouponCheck } from "@/lib/billing/coupons";
 import { sendPlanPaidMail } from "@/lib/billing/plan-mail";
@@ -32,6 +32,8 @@ import { isPlan, planFitsSection, planPayableFor, planPeriodOr, planPeriods, pla
 export async function payPlanAction(_: FormState, formData: FormData): Promise<FormState> {
   const context = await clientFor("billing");
   if (!context) redirect("/sign-in");
+  // 132.110 Our team in a client's account doesn't pay in the client's name: the admin activates or records a transfer.
+  if (context.staff) return { message: TEAM_CANT_PAY };
   if (context.client.status === "suspended") return { message: "This account is suspended. Message us on WhatsApp." };
   const values: Record<string, string> = {};
   for (const name of ["plan", "period", "city", "address", "coupon", "renewStorage", "showOnSite"]) values[name] = String(formData.get(name) ?? "").trim();

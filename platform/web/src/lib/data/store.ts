@@ -266,7 +266,7 @@ import type { LoyaltyEntry, LoyaltyReason } from "./types";
 // 66 Deleting a Yallapp account
 import type { AccountDeletionClose, AccountDeletionRequest, AccountDeletionStatus } from "./types";
 // 73 Deleting an app, and the billing records kept when an account goes
-import type { AppDeletion, AppDeletionStatus, KeptBillingRecord } from "./types";
+import type { AppDeletion, AppDeletionStatus, AppMoveRequest, AppMoveStatus, KeptBillingRecord } from "./types";
 import type { ChatConversation, ChatConversationKind, ChatConversationPatch, ChatMember, ChatMemberSource, ChatMessage, ChatParticipant, ChatReport, ChatReportOutcome, ChatSession, ChatUploadInfo } from "./types";
 import type { CouponClaimLimits, UserSession, UserTwoFactor } from "./types";
 import type { AppError, ClientMilestone, JobRun, MilestoneKind, ProductDay, RekeyCell, TeamAlert, TeamAlertKind, WatchedJob } from "./types";
@@ -2066,6 +2066,38 @@ export interface DataStore {
   listAppAssetReferences(appId: string): Promise<string[]>;
   listAssetsByClient(clientId: string): Promise<Asset[]>;
   deleteAsset(id: string): Promise<void>;
+
+  // 132.112 Moving an app to another account (lib/apps/move.ts)
+  /** Saves a waiting request; false when the app has one waiting already (of two at once, one wins). */
+  createAppMoveRequest(request: AppMoveRequest): Promise<boolean>;
+  getAppMoveRequest(id: string): Promise<AppMoveRequest | null>;
+  /** The app's waiting request, or null. */
+  getOpenAppMoveRequest(appId: string): Promise<AppMoveRequest | null>;
+  /** Newest first: the requests of apps leaving the account or coming to it (everyone's without `clientId`). */
+  listAppMoveRequests(input: { clientId?: string; limit: number }): Promise<AppMoveRequest[]>;
+  /** One more try of a waiting request's code (atomic): the tries now, or null when it isn't waiting. */
+  addAppMoveAttempt(id: string): Promise<number | null>;
+  /** Changes a request that is in `from` (atomic, once): false when it isn't any more. */
+  updateAppMoveRequest(id: string, from: AppMoveStatus, patch: Partial<Pick<AppMoveRequest, "status" | "closedAt" | "closedBy" | "resultAppId" | "note">>): Promise<boolean>;
+  /**
+   * The app goes to another account with the rows of it that name their
+   * account: its license and storage packs, builds, publishing requests,
+   * owner notices and errors. Plan payments stay with whoever paid them.
+   */
+  moveAppToClient(appId: string, toClientId: string, now: Date): Promise<void>;
+  /**
+   * Gives one app's rows to another app (and that app's account): its plan
+   * (`plan`: license and storage packs), its plan payments' app (`payments`:
+   * the payer stays), or its builds and store listing (`builds`: builds,
+   * publishing requests and events, in-app products and the store billing
+   * items), or its data (`data`: its people, orders, bookings, payments,
+   * messages and activity, lib/apps/app-tables.ts).
+   */
+  repointAppRows(fromAppId: string, toAppId: string, group: "plan" | "payments" | "builds" | "data", now: Date): Promise<void>;
+  /** Every mention of these assets in the app's rows (its own row too) names the new ones: old ID → new ID. */
+  replaceAssetIds(appId: string, ids: Record<string, string>): Promise<void>;
+  /** These assets belong to another account now. */
+  reassignAssets(ids: string[], toClientId: string): Promise<void>;
 
   // 73 Deleting a Yallapp account (lib/account/purge.ts)
   /** Saves billing records kept when an account is deleted (again: replaced). */

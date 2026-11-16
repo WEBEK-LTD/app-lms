@@ -2,7 +2,7 @@ import "server-only";
 import path from "node:path";
 import { mediaBaseUrl, mediaDir, mediaMode, mediaSigningSecret } from "../env";
 import { MediaDisk } from "./disk";
-import { signMediaUrl, type MediaOp } from "./signing";
+import { MEDIA_CHUNK_MAX_BYTES, signMediaUrl, type MediaOp } from "./signing";
 
 /**
  * 51 Where media files are kept (env.ts › mediaMode): the media gate on
@@ -21,6 +21,8 @@ export interface MediaStorage {
   deleteApp(appId: string): Promise<void>;
   /** 62 The app folders kept on disk. */
   listApps(): Promise<string[]>;
+  /** 132.114 Copies a finished file to another key (a copied app's Media library), chunk by chunk. */
+  copy(fromKey: string, toKey: string, size: number): Promise<void>;
 }
 
 export class MediaStorageError extends Error {}
@@ -60,6 +62,24 @@ class Gate implements MediaStorage {
     if (this.disk) return this.disk.listApps();
     const body = (await (await this.call("GET", this.link("l", "apps", 300).url)).json()) as { apps?: unknown };
     return Array.isArray(body.apps) ? body.apps.filter((id): id is string => typeof id === "string") : [];
+  }
+
+  async copy(fromKey: string, toKey: string, size: number) {
+    if (this.disk) return this.disk.copy(fromKey, toKey);
+    // Through the gate: each chunk read with a range of the file and sent to the new file's upload link.
+    const upload = this.link("u", toKey, 3600, { size: String(size) }).url;
+    for (let offset = 0; offset < size; ) {
+      const end = Math.min(size, offset + MEDIA_CHUNK_MAX_BYTES) - 1;
+      const part = await this.fetcher(this.link("v", fromKey, 600).url, { headers: { range: `bytes=${offset}-${end}` }, cache: "no-store", signal: AbortSignal.timeout(60_000) });
+      if (part.status !== 206 && !(part.status === 200 && offset === 0 && end === size - 1)) throw new MediaStorageError(`The media server answered ${part.status} to a read.`);
+      const chunk = new Uint8Array(await part.arrayBuffer());
+      if (chunk.length !== end - offset + 1) throw new MediaStorageError("A chunk of the file didn't arrive whole.");
+      const url = new URL(upload);
+      url.searchParams.set("offset", String(offset));
+      const sent = await this.fetcher(url.toString(), { method: "POST", headers: { "content-type": "application/octet-stream", "upload-offset": String(offset) }, body: chunk, cache: "no-store", signal: AbortSignal.timeout(60_000) });
+      if (!sent.ok) throw new MediaStorageError(`The media server answered ${sent.status} to an upload.`);
+      offset = end + 1;
+    }
   }
 
   private async call(method: string, url: string): Promise<Response> {

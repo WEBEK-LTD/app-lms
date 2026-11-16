@@ -4,7 +4,7 @@ import { pictureLibrary, type LibraryPicture } from "@/lib/pages/picture-library
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { recordStaffChange } from "@/lib/admin/audit";
-import { clientFor, mayUseDashboard, requestIp, type ClientContext } from "@/lib/auth/session";
+import { clientFor, mayUseDashboard, requestIp, type ClientContext, TEAM_CANT_PAY } from "@/lib/auth/session";
 import type { TeamPermission } from "@/lib/team/permissions";
 import { readBilling } from "@/lib/billing/plan-payment";
 import { getStore } from "@/lib/data";
@@ -188,6 +188,8 @@ export async function buyStorageAction(_: FormState, formData: FormData): Promis
   const context = await mediaContext("billing");
   const values: Record<string, string> = {};
   for (const name of ["offer", "city", "address"]) values[name] = String(formData.get(name) ?? "").trim();
+  // 132.110 Our team in a client's account doesn't pay in the client's name.
+  if (context.staff) return { message: TEAM_CANT_PAY, values };
   if (String(formData.get("appId") ?? "") !== context.app.id) {
     return { message: "You switched to another app in the meantime. Reload the page and check which app you're paying for.", values };
   }

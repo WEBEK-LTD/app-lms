@@ -66,11 +66,24 @@ import { travelSettingsOf } from "@/lib/travel/settings";
 import { FLIGHT_SOURCES, HOTEL_SOURCES } from "@/lib/travel/sources";
 import { LANGUAGE_NAMES } from "@/lib/pages/types";
 import { TravelPartsForm } from "./travel-form";
+// 132.111–132.115
+import { CreateAppForm, type StartGroup } from "./app-forms";
+import { moveWaiting } from "@/lib/apps/move";
+import { KINDS } from "@/lib/app/kinds";
+import { DEMO_TYPES, STUDIO_DEMO_TYPES, demoKind } from "@/lib/demo/constants";
+import { DEMO_BRANDS } from "@/lib/demo/content";
+import { STUDIO_ONLY_KINDS } from "@/lib/studio/section";
+import { appTypeOn } from "@/lib/switches";
 
 export const metadata: Metadata = { title: "Client" };
 export const dynamic = "force-dynamic";
 
 const DONE: Record<string, string> = {
+  // 132.112–132.115 Apps moved and copied, plans moved.
+  moved: "The app moved into this account. Both accounts were emailed and the move is in both audit logs.",
+  "plan-moved": "The plan moved. Both accounts were emailed and the move is in both audit logs.",
+  copied: "The app was copied into this account. It starts without a plan, like a new app.",
+  "copied-media": "The app was copied into this account, but some Media files couldn't be copied: the audit log names them.",
   // 125 VIP
   manager: "Account manager saved.",
   call: "Call saved.",
@@ -292,6 +305,9 @@ export default async function ClientPage({ params, searchParams }: PageProps<"/a
           {rerunFailed}
         </Notice>
       ) : null}
+
+      {/* 132.111–132.115 Make an app for the client, and move, copy or move the plan of one. */}
+      {await panel(client.id, { id: "h-client-apps", title: "Apps: create, move, copy" }, () => ClientAppsCard({ client, apps, licenses, may: { edit: may("clients.edit"), transfer: may("apps.transfer"), copy: may("apps.copy") } }))}
 
       <div className="grid items-start gap-5 [grid-template-columns:repeat(auto-fit,minmax(min(420px,100%),1fr))]">
         {await panel(client.id, { id: "h-profile", title: "Profile and contact" }, () => (
@@ -1254,4 +1270,87 @@ function adapterVersions(app: App | null): string {
   const names = { lms: "courses", bookings: "bookings", store: "shop" } as const;
   const list = (Object.keys(names) as (keyof typeof names)[]).filter((k) => adapters[k]).map((k) => `${names[k]} adapter ${adapters[k]}`);
   return list.length ? ` · ${list.join(", ")}` : "";
+}
+
+/** 132.111 What a new app for the client starts from: our demos (both products), an empty app or an empty Studio project of a kind. */
+function startGroups(switches: Awaited<ReturnType<typeof getSwitches>> | null): StartGroup[] {
+  const on = (engine: Parameters<typeof appTypeOn>[1]) => (switches ? appTypeOn(switches, engine, null) : true);
+  return [
+    { label: "App editor demos", options: DEMO_TYPES.filter((d) => on(demoKind(d).engine)).map((d) => ({ value: `demo:${d}`, label: `${DEMO_BRANDS[d].appName} (${demoKind(d).name})` })) },
+    { label: "Yallapp Studio templates", options: STUDIO_DEMO_TYPES.filter((d) => on(demoKind(d).engine)).map((d) => ({ value: `demo:${d}`, label: `${DEMO_BRANDS[d].appName} (${demoKind(d).name})` })) },
+    { label: "Empty app", options: KINDS.filter((k) => !STUDIO_ONLY_KINDS.has(k.id) && on(k.engine)).map((k) => ({ value: `kind:${k.id}`, label: k.name })) },
+    { label: "Empty Studio project", options: KINDS.filter((k) => on(k.engine)).map((k) => ({ value: `studio:${k.id}`, label: k.name })) },
+  ].filter((g) => g.options.length);
+}
+
+/** 132.111–132.115 The client's apps with what the team can do with each, and "Create an app for this client". */
+async function ClientAppsCard({ client, apps, licenses, may }: { client: Client; apps: App[]; licenses: License[]; may: { edit: boolean; transfer: boolean; copy: boolean } }) {
+  const store = await getStore();
+  const waiting = new Map((await Promise.all(apps.map(async (a) => [a.id, await store.getOpenAppMoveRequest(a.id)] as const))).filter(([, r]) => r && moveWaiting(r, new Date())));
+  const switches = await getSwitches(store).catch(() => null);
+  return (
+    <Card id="h-client-apps" title="Apps: create, move, copy">
+      {apps.length ? (
+        <ul className="m-0 flex list-none flex-col gap-2.5 p-0">
+          {apps.map((a) => {
+            const plan = licenses.some((l) => l.appId === a.id);
+            const request = waiting.get(a.id);
+            return (
+              <li key={a.id} className="flex flex-wrap items-center justify-between gap-3 rounded-xl border border-line px-4 py-3" data-client-app={a.id}>
+                <span className="flex min-w-0 flex-col">
+                  <span className="font-semibold">
+                    {appLabel(a)}
+                    {a.movedAt ? <span className="ms-2 text-sm font-normal text-muted">Moved {formatDate(a.movedAt)}: kept to read</span> : null}
+                  </span>
+                  <span className="text-sm text-muted">
+                    {appTypeName(a)}
+                    {a.section === "studio" ? " · Yallapp Studio" : ""} · {plan ? "has a plan" : "no plan"}
+                    {request ? ` · ${request.kind === "plan" ? "plan move" : "move"} waiting for the owner's approval` : ""}
+                  </span>
+                </span>
+                {a.movedAt ? null : (
+                  <span className="flex flex-wrap gap-2">
+                    {may.edit ? (
+                      <form action={manageClientAction}>
+                        <input type="hidden" name="clientId" value={client.id} />
+                        <input type="hidden" name="appId" value={a.id} />
+                        <SubmitButton variant="secondary" className="h-9 px-3 text-sm">
+                          Open as the client<span className="sr-only">: {appLabel(a)}</span>
+                        </SubmitButton>
+                      </form>
+                    ) : null}
+                    {may.transfer ? (
+                      <Link href={`/admin/clients/${client.id}/move?app=${a.id}`} className={`${btn.secondary} h-9 px-3 text-sm`}>
+                        Move to another account<span className="sr-only">: {appLabel(a)}</span>
+                      </Link>
+                    ) : null}
+                    {may.copy ? (
+                      <Link href={`/admin/clients/${client.id}/copy?app=${a.id}`} className={`${btn.secondary} h-9 px-3 text-sm`}>
+                        Copy<span className="sr-only">: {appLabel(a)}</span>
+                      </Link>
+                    ) : null}
+                    {may.transfer && plan ? (
+                      <Link href={`/admin/clients/${client.id}/plan?app=${a.id}`} className={`${btn.secondary} h-9 px-3 text-sm`}>
+                        Move this plan to another app<span className="sr-only">: {appLabel(a)}</span>
+                      </Link>
+                    ) : null}
+                  </span>
+                )}
+              </li>
+            );
+          })}
+        </ul>
+      ) : (
+        <p className="m-0 text-sm text-muted">No app yet.</p>
+      )}
+      {may.edit ? (
+        <details className="border-t border-line-soft pt-3.5" open={apps.length === 0}>
+          <summary className="cursor-pointer text-sm font-semibold">Create an app for this client</summary>
+          <div className="pt-3">
+            <CreateAppForm clientId={client.id} groups={startGroups(switches)} />
+          </div>
+        </details>
+      ) : null}
+    </Card>
+  );
 }

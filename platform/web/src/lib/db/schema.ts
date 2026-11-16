@@ -58,6 +58,8 @@ import type {
   // 73 Deleted apps and kept billing records
   AppDeletion,
   AppDeletionStatus,
+  AppMoveKind,
+  AppMoveStatus,
   KeptBillingRecord,
   // 77 Chat
   ChatSettings,
@@ -433,6 +435,9 @@ export const apps = mysqlTable(
     // 73 Deleted by the owner (null: not deleted): left out of every read, purged after 7 days unless restored.
     deletedAt: time("deleted_at"),
     deletedBy: varchar("deleted_by", { length: 191 }),
+    // 132.112 Moved to another account; this app stayed behind with what didn't move, to read.
+    movedAt: time("moved_at"),
+    movedToClientId: id("moved_to_client_id"),
     createdAt: time("created_at").notNull(),
     updatedAt: time("updated_at").notNull(),
   },
@@ -3521,6 +3526,50 @@ export const accountDeletionRequests = mysqlTable(
  * outlives the app). `open_app_id` is set while it waits, so an app has one
  * waiting deletion; the daily job purges it after `purge_after`.
  */
+/**
+ * 132.112 Moving an app to another account, approved by the owner of the
+ * account it leaves with a 6-digit code (its HMAC kept). `open_app_id` is set
+ * while it waits, so an app has one waiting request.
+ */
+export const appMoveRequests = mysqlTable(
+  "app_move_requests",
+  {
+    id: id("id").primaryKey(),
+    // 132.115 "app", or "plan": only the app's plan moves, to `to_app_id`.
+    kind: varchar("kind", { length: 8 }).notNull().default("app").$type<AppMoveKind>(),
+    appId: id("app_id")
+      .notNull()
+      .references(() => apps.id, { onDelete: "cascade" }),
+    toAppId: id("to_app_id").references(() => apps.id, { onDelete: "cascade" }),
+    fromClientId: id("from_client_id")
+      .notNull()
+      .references(() => clients.id, { onDelete: "cascade" }),
+    toClientId: id("to_client_id")
+      .notNull()
+      .references(() => clients.id, { onDelete: "cascade" }),
+    moveData: boolean("move_data").notNull(),
+    moveSubscription: boolean("move_subscription").notNull(),
+    codeHash: varchar("code_hash", { length: 64 }).notNull(),
+    attempts: int("attempts").notNull().default(0),
+    status: varchar("status", { length: 12 }).notNull().$type<AppMoveStatus>(),
+    openAppId: id("open_app_id"),
+    requestedBy: id("requested_by").notNull(),
+    requestedByEmail: varchar("requested_by_email", { length: 191 }).notNull(),
+    requestedByName: varchar("requested_by_name", { length: 120 }).notNull(),
+    createdAt: time("created_at").notNull(),
+    expiresAt: time("expires_at").notNull(),
+    closedAt: time("closed_at"),
+    closedBy: varchar("closed_by", { length: 191 }),
+    resultAppId: id("result_app_id"),
+    note: varchar("note", { length: 255 }),
+  },
+  (t) => [
+    uniqueIndex("app_move_requests_open_unique").on(t.openAppId),
+    index("app_move_requests_from_idx").on(t.fromClientId, t.createdAt),
+    index("app_move_requests_to_idx").on(t.toClientId, t.createdAt),
+  ],
+);
+
 export const appDeletions = mysqlTable(
   "app_deletions",
   {

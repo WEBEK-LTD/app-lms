@@ -639,6 +639,13 @@ export interface App {
    */
   deletedAt?: Date | null;
   deletedBy?: string | null;
+  /**
+   * 132.112 The app moved to another account (`movedToClientId`) and this one
+   * stayed behind with what didn't move with it (its customers and orders,
+   * or its plan): it stays to read, nothing in it changes. Null: not moved.
+   */
+  movedAt?: Date | null;
+  movedToClientId?: string | null;
   createdAt: Date;
   updatedAt: Date;
 }
@@ -5470,6 +5477,49 @@ export type AccountDeletionStatus = "pending" | "done" | "cancelled";
 export type AppDeletionStatus = "waiting" | "restored" | "purged";
 
 /** 73 The record of an app's deletion: it has no foreign keys, so it outlives the app. */
+/** 132.115 What a request moves: the app to another account, or only its plan to another app. */
+export type AppMoveKind = "app" | "plan";
+
+/** 132.112 Where a request to move an app to another account is. */
+export type AppMoveStatus = "waiting" | "approved" | "moved" | "declined" | "cancelled" | "expired" | "failed";
+
+/**
+ * 132.112 Our team moving an app to another account, with the owner's
+ * approval: a 6-digit code emailed to the owner of the account it leaves
+ * (stored hashed), 15 minutes and 5 tries; one waiting request per app.
+ */
+export interface AppMoveRequest {
+  id: string;
+  /** "app": the app moves to `toClientId`; "plan": only its plan moves, to the app `toAppId` (in `toClientId`). */
+  kind: AppMoveKind;
+  appId: string;
+  fromClientId: string;
+  toClientId: string;
+  /** "plan": the app the plan goes to; null for "app". */
+  toAppId: string | null;
+  /** The app's customers, orders, bookings and messages go with it; else they stay, archived, in the account it leaves. */
+  moveData: boolean;
+  /** Its plan (license, storage packs, renewal) goes with it; else the account it leaves keeps it. */
+  moveSubscription: boolean;
+  /** HMAC-SHA256 of the request's ID and the code (lib/apps/move.ts). */
+  codeHash: string;
+  attempts: number;
+  status: AppMoveStatus;
+  /** The team member who asked. */
+  requestedBy: string;
+  requestedByEmail: string;
+  requestedByName: string;
+  createdAt: Date;
+  expiresAt: Date;
+  closedAt: Date | null;
+  /** Who approved, declined or cancelled it: "owner" (on their page), "team" (the code typed in the admin) or an email. */
+  closedBy: string | null;
+  /** The app in the other account once moved (the same app, or its copy when something stayed behind). */
+  resultAppId: string | null;
+  /** Why it failed, in a line. */
+  note: string | null;
+}
+
 export interface AppDeletion {
   id: string;
   appId: string;
