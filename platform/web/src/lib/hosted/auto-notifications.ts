@@ -8,7 +8,8 @@ import { appLang } from "../bookings/reschedule";
 import { utcToLocal } from "../bookings/time";
 import type { DataStore } from "../data/store";
 import { orderNumber } from "../catalog/settings";
-import type { App, BookingAppointment, CatalogOrder, HostedDevice } from "../data/types";
+import type { App, BookingAppointment, CatalogOrder, HostedDevice, OrderStageEntry } from "../data/types";
+import { deliveryDayLabel, slotLabel } from "../selling/delivery";
 import { appIsActive } from "../license/status";
 import { NOTIFICATION_BODY_MAX, NOTIFICATION_TITLE_MAX, serviceAccountOf } from "./notify";
 import { pushTarget, sendPush } from "./push";
@@ -166,7 +167,13 @@ export const AUTO_TEXT: Record<AutoKind, Record<Lang, Text>> = {
             ? "Your order was cancelled."
             : v.status === "refunded"
               ? "Your order was refunded."
-              : "Your order is complete. Thank you!",
+              : v.status === "delivered"
+                ? "Your order was delivered. Thank you!"
+                : v.status === "postponed"
+                  ? `Your delivery moved to ${stageDay("en", v)}${STAGE_REASON.en[v.reason ?? ""] ? ` (${STAGE_REASON.en[v.reason!]})` : ""}.`
+                  : v.status === "failed"
+                    ? `We couldn't deliver your order${STAGE_REASON.en[v.reason ?? ""] ? `: ${STAGE_REASON.en[v.reason!]}` : ""}. ${v.next === "retry" ? `We'll try again on ${stageDay("en", v)}.` : v.next === "return" ? "It's going back to the shop, which will contact you." : "The order was cancelled."}`
+                    : "Your order is complete. Thank you!",
     }),
     ar: (v) => ({
       title: `الطلب ${v.number}`,
@@ -181,7 +188,13 @@ export const AUTO_TEXT: Record<AutoKind, Record<Lang, Text>> = {
             ? "تم إلغاء طلبك."
             : v.status === "refunded"
               ? "تم استرداد قيمة طلبك."
-              : "اكتمل طلبك. شكرًا لك!",
+              : v.status === "delivered"
+                ? "تم توصيل طلبك. شكرًا لك!"
+                : v.status === "postponed"
+                  ? `تم تأجيل توصيل طلبك إلى ${stageDay("ar", v)}${STAGE_REASON.ar[v.reason ?? ""] ? ` ${STAGE_REASON.ar[v.reason!]}` : ""}.`
+                  : v.status === "failed"
+                    ? `تعذّر توصيل طلبك${STAGE_REASON.ar[v.reason ?? ""] ? `: ${STAGE_REASON.ar[v.reason!]}` : ""}. ${v.next === "retry" ? `سنحاول مجددًا يوم ${stageDay("ar", v)}.` : v.next === "return" ? "سيعود الطلب إلى المتجر، وسيتواصل معك." : "تم إلغاء الطلب."}`
+                    : "اكتمل طلبك. شكرًا لك!",
     }),
     tr: (v) => ({
       title: `Sipariş ${v.number}`,
@@ -196,10 +209,57 @@ export const AUTO_TEXT: Record<AutoKind, Record<Lang, Text>> = {
             ? "Siparişiniz iptal edildi."
             : v.status === "refunded"
               ? "Siparişiniz iade edildi."
-              : "Siparişiniz tamamlandı. Teşekkürler!",
+              : v.status === "delivered"
+                ? "Siparişiniz teslim edildi. Teşekkürler!"
+                : v.status === "postponed"
+                  ? `Teslimatınız ${stageDay("tr", v)} tarihine ertelendi${STAGE_REASON.tr[v.reason ?? ""] ? ` (${STAGE_REASON.tr[v.reason!]})` : ""}.`
+                  : v.status === "failed"
+                    ? `Siparişiniz teslim edilemedi${STAGE_REASON.tr[v.reason ?? ""] ? `: ${STAGE_REASON.tr[v.reason!]}` : ""}. ${v.next === "retry" ? `${stageDay("tr", v)} tarihinde tekrar deneyeceğiz.` : v.next === "return" ? "Sipariş mağazaya dönüyor; mağaza sizinle iletişime geçecek." : "Sipariş iptal edildi."}`
+                    : "Siparişiniz tamamlandı. Teşekkürler!",
     }),
   },
 };
+
+/**
+ * 132 Why a delivery moved or failed, as the customer reads it: never the
+ * team's note, never the recipient's details (a gift's sender is the
+ * customer). "other" says nothing more.
+ */
+export const STAGE_REASON: Record<Lang, Record<string, string>> = {
+  en: {
+    customer_asked: "as you asked",
+    recipient_away: "the recipient isn't available",
+    shop_asked: "at the shop's request",
+    weather: "because of the weather",
+    wrong_address: "the address is wrong or incomplete",
+    refused: "it was refused at the door",
+    unreachable: "no one answered the phone",
+  },
+  ar: {
+    customer_asked: "بناءً على طلبك",
+    recipient_away: "لعدم توفّر المستلم",
+    shop_asked: "بطلب من المتجر",
+    weather: "بسبب الطقس",
+    wrong_address: "العنوان غير صحيح أو غير مكتمل",
+    refused: "رُفض استلامه",
+    unreachable: "لم يُجب أحد على الهاتف",
+  },
+  tr: {
+    customer_asked: "isteğiniz üzerine",
+    recipient_away: "alıcı müsait değil",
+    shop_asked: "mağazanın isteğiyle",
+    weather: "hava koşulları nedeniyle",
+    wrong_address: "adres yanlış veya eksik",
+    refused: "kapıda teslim alınmadı",
+    unreachable: "telefona kimse cevap vermedi",
+  },
+};
+
+/** "Fri 20 Nov, 10:00–13:00": a stage's new day and slot in the language. */
+function stageDay(lang: Lang, v: Values): string {
+  const day = v.date ? deliveryDayLabel(v.date, lang) : "";
+  return v.slot ? `${day}${lang === "ar" ? "، " : ", "}${v.slot}` : day;
+}
 
 /** Which of the phone's choices (the app's settings) allows each kind. */
 function phoneAllows(device: HostedDevice, kind: AutoKind): boolean {
@@ -319,8 +379,29 @@ export async function notifyAppointmentConfirmed(deps: AutoDeps, app: App, appoi
   ]);
 }
 
-/** 91.2 An order of a shop without a website completed or cancelled (Orders, the Owner API): its customer. */
-export async function notifyOrderUpdate(deps: AutoDeps, app: App, order: Pick<CatalogOrder, "id" | "userId">, status: "completed" | "cancelled") {
+/** 132 A store order's delivery stage (shipped, postponed, a failed attempt): its customer, once per change. */
+export async function notifyOrderStage(deps: AutoDeps, app: App, order: Pick<CatalogOrder, "id" | "userId" | "stageLog">, entry: OrderStageEntry) {
+  if (order.userId === null || !(await appMayNotify(deps.store, app, deps.now))) return { people: 0, phones: 0 };
+  return notifyAuto(deps, app, "order_update", [
+    {
+      userId: order.userId,
+      ref: `order:${order.id}:stage:${order.stageLog?.length ?? 0}`,
+      values: {
+        number: orderNumber(order),
+        status: entry.stage,
+        tracking: "",
+        reason: entry.reason ?? "",
+        next: entry.next ?? "",
+        date: entry.date ?? "",
+        slot: entry.slot ? slotLabel(entry.slot) : "",
+      },
+      data: { order_id: String(order.id) },
+    },
+  ]);
+}
+
+/** 91.2 An order of a shop without a website completed or cancelled (Orders, the Owner API): its customer; 132 delivered, when its delivery stage completed it. */
+export async function notifyOrderUpdate(deps: AutoDeps, app: App, order: Pick<CatalogOrder, "id" | "userId">, status: "completed" | "cancelled" | "delivered") {
   if (order.userId === null || !(await appMayNotify(deps.store, app, deps.now))) return { people: 0, phones: 0 };
   return notifyAuto(deps, app, "order_update", [
     { userId: order.userId, ref: `order:${order.id}:${status}`, values: { number: orderNumber(order), status }, data: { order_id: String(order.id) } },

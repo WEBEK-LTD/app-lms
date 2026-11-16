@@ -11,6 +11,8 @@ import type {
   LoyaltyReason, OrderPoints, OrderReturn, OrderShipment, CatalogVariants, CatalogOrder, OrderManualPayment,
   // 131 The flower shop
   OrderDelivery,
+  DeliveryStage,
+  OrderStageEntry,
   StoreFlashSale,
   AddonRule,
   GiftOccasion,
@@ -816,6 +818,9 @@ export const catalogOrders = mysqlTable(
     // 131 The delivery day and slot and the gift details (JSON), and the day apart for counting a slot's orders.
     delivery: jsonText<OrderDelivery>("delivery"),
     deliveryDate: varchar("delivery_date", { length: 10 }),
+    // 132 Where its delivery is, and every change of it (JSON).
+    deliveryStage: varchar("delivery_stage", { length: 16 }).$type<DeliveryStage>(),
+    stageLog: jsonText<OrderStageEntry[]>("stage_log"),
   },
   (t) => [
     uniqueIndex("catalog_orders_token_unique").on(t.tokenHash),

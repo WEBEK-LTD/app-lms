@@ -9,6 +9,8 @@ CREATE TABLE `prime_gifts` (
 	CONSTRAINT `prime_gifts_app_id` PRIMARY KEY(`app_id`)
 );
 --> statement-breakpoint
+ALTER TABLE `catalog_orders` ADD `delivery_stage` varchar(16);--> statement-breakpoint
+ALTER TABLE `catalog_orders` ADD `stage_log` longtext;--> statement-breakpoint
 ALTER TABLE `prime_gifts` ADD CONSTRAINT `prime_gifts_app_id_apps_id_fk` FOREIGN KEY (`app_id`) REFERENCES `apps`(`id`) ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
 ALTER TABLE `prime_gifts` ADD CONSTRAINT `prime_gifts_client_id_clients_id_fk` FOREIGN KEY (`client_id`) REFERENCES `clients`(`id`) ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
 CREATE INDEX `prime_gifts_client_idx` ON `prime_gifts` (`client_id`);

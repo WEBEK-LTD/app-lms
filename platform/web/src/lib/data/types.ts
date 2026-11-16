@@ -1546,6 +1546,47 @@ export interface CatalogOrder {
   delivery?: OrderDelivery | null;
   /** 131 `delivery.date`, kept apart so a slot's orders are counted quickly. */
   deliveryDate?: string | null;
+  /** 132 Where its delivery is (Yallapp's own store orders); null or missing: not started (in progress). */
+  deliveryStage?: DeliveryStage | null;
+  /** 132 Every change of its delivery stage, oldest first; null or missing: none. */
+  stageLog?: OrderStageEntry[] | null;
+}
+
+/**
+ * 132 A store order's delivery, after it is paid: preparing, shipped (out
+ * for delivery), postponed to another day, a failed attempt, back at the
+ * shop, or delivered (the order is then completed).
+ */
+export const DELIVERY_STAGES = ["preparing", "shipped", "postponed", "failed", "returned", "delivered"] as const;
+export type DeliveryStage = (typeof DELIVERY_STAGES)[number];
+/** 132 Why a delivery was postponed. */
+export const POSTPONE_REASONS = ["customer_asked", "recipient_away", "shop_asked", "weather", "other"] as const;
+export type PostponeReason = (typeof POSTPONE_REASONS)[number];
+/** 132 Why a delivery attempt failed. */
+export const FAILED_REASONS = ["recipient_away", "wrong_address", "refused", "unreachable", "other"] as const;
+export type FailedReason = (typeof FAILED_REASONS)[number];
+/** 132 What happens after a failed attempt: another day, back to the shop, or the order cancelled. */
+export const FAILED_NEXT_STEPS = ["retry", "return", "cancel"] as const;
+export type FailedNextStep = (typeof FAILED_NEXT_STEPS)[number];
+
+/** 132 One change of an order's delivery stage: who, when, why, and what it set. */
+export interface OrderStageEntry {
+  stage: DeliveryStage;
+  /** ISO time. */
+  at: string;
+  /** Who changed it: the team member (their name, else their email) and where; null: the system. */
+  by: { userId: string | null; name: string; via: "business" | "dashboard" | "api" } | null;
+  reason: PostponeReason | FailedReason | null;
+  /** The team's own note; never shown to the customer. */
+  note: string | null;
+  /** Shipped: who brings it and where to follow it. */
+  courier: { name: string | null; phone: string | null } | null;
+  trackingUrl: string | null;
+  /** Postponed, or a failed attempt tried again: the new day (YYYY-MM-DD) and slot. */
+  date: string | null;
+  slot: { id: string; start: string; end: string } | null;
+  /** A failed attempt: what happens next. */
+  next: FailedNextStep | null;
 }
 
 /** 91.4 An order's loyalty points. */

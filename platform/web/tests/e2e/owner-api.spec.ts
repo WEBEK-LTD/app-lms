@@ -303,9 +303,25 @@ test("a customer buys in the shop; the owner's phone hears of it, sees today and
   const elsewhere = await request.get(`${owner}/apps/3f1c2d4e-5a6b-4c7d-8e9f-0a1b2c3d4e5f/orders/${orderId}`, { headers: bearer() });
   expect(elsewhere.status()).toBe(404);
   expect(await elsewhere.text()).not.toContain("Mona");
-  const done = await request.post(`${owner}/apps/${shopId}/orders/${orderId}/status`, { headers: bearer(), data: { status: "completed" } });
+  // 132 Its delivery in stages: shipped with the courier, postponed with why (the team's note stays the team's), then delivered.
+  expect(detail).toMatchObject({ stage: null, stage_history: [], next_stages: ["preparing", "shipped", "postponed", "delivered"] });
+  const shipped = await request.post(`${owner}/apps/${shopId}/orders/${orderId}/stage`, { headers: bearer(), data: { stage: "shipped", courier_name: "Ali", courier_phone: "+90 532 000 11 22" } });
+  expect(shipped.status()).toBe(200);
+  expect(await shipped.json()).toMatchObject({ status: "processing", stage: { stage: "shipped", by: "Selin Arslan", courier: { name: "Ali" } }, next_stages: ["delivered", "postponed", "failed"] });
+  const tomorrow = new Intl.DateTimeFormat("en-CA", { timeZone: "Europe/Istanbul" }).format(new Date(Date.now() + 86_400_000));
+  const postponed = await request.post(`${owner}/apps/${shopId}/orders/${orderId}/stage`, { headers: bearer(), data: { stage: "postponed", reason: "weather", note: "Storm on the coast road", date: tomorrow } });
+  expect(postponed.status()).toBe(200);
+  expect(await postponed.json()).toMatchObject({ stage: { stage: "postponed", reason: { code: "weather" }, note: "Storm on the coast road", date: tomorrow }, delivery: { date: tomorrow } });
+  const followed = await request.get(`${shopApi}/me/orders/${orderId}`, { headers: customer });
+  expect(await followed.json()).toMatchObject({ status: "processing", stage: { code: "postponed", reason: "Because of the weather", date: tomorrow } });
+  expect(JSON.stringify(await followed.json())).not.toContain("Storm");
+  const done = await request.post(`${owner}/apps/${shopId}/orders/${orderId}/stage`, { headers: bearer(), data: { stage: "delivered" } });
   expect(done.status()).toBe(200);
-  expect(await done.json()).toMatchObject({ status: "completed", next_statuses: [], refund: { refundable: true } });
+  expect(await done.json()).toMatchObject({ status: "completed", next_statuses: [], next_stages: [], refund: { refundable: true } });
+  // Delivered can't go back to shipped.
+  const back = await request.post(`${owner}/apps/${shopId}/orders/${orderId}/stage`, { headers: bearer(), data: { stage: "shipped" } });
+  expect(back.status()).toBe(409);
+  expect(await back.json()).toMatchObject({ code: "invalid_stage" });
   const again = await request.post(`${owner}/apps/${shopId}/orders/${orderId}/status`, { headers: bearer(), data: { status: "cancelled" } });
   expect(again.status()).toBe(409);
   // The customer's app shows it completed too: the same order in the same store.

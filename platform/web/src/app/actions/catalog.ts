@@ -10,6 +10,7 @@ import { getBlobStore } from "@/lib/blobs";
 import { parseCoupon } from "@/lib/catalog/coupons";
 import { parseFulfilmentForm } from "@/lib/catalog/fulfilment";
 import { changeOrderStatus, inKitchen } from "@/lib/catalog/order-status";
+import { parseStageInput, setOrderStage } from "@/lib/catalog/order-stages";
 import { parseShipment, shipOrder, shippable } from "@/lib/catalog/shipping";
 import { sendTemplate } from "@/lib/email/send";
 import { CATALOG_CURRENCIES, parsePrice } from "@/lib/catalog/money";
@@ -535,6 +536,38 @@ export async function shipOrderAction(_: FormState, formData: FormData): Promise
   await recordOrderStatus(store, { clientId: context.client.id, appId: app.id, actor: actorOf(context), orderId: order.id, to: "shipped" }, now);
   refresh();
   return { ok: true, message: order.shipment ? "Tracking saved. The customer was told." : "Marked shipped. The customer was told." };
+}
+
+/**
+ * 132 The Orders page's Delivery: a store order's next stage (shipped with
+ * the courier, postponed with why and the new day, a failed attempt with
+ * why and what's next, returned, delivered), kept with who made it; the
+ * customer is told at shipped, postponed, failed and delivered.
+ */
+export async function setOrderStageAction(_: FormState, formData: FormData): Promise<FormState> {
+  const context = await requireCatalogApp({}, "orders");
+  const { app } = context;
+  const store = await getStore();
+  const id = Number(formData.get("id"));
+  const order = Number.isSafeInteger(id) ? await store.getCatalogOrder(app.id, id) : null;
+  const raw = Object.fromEntries(["stage", "reason", "note", "courier_name", "courier_phone", "tracking_url", "date", "slot_id", "next_step"].map((name) => [name, str(formData, name)]));
+  const values = raw;
+  if (!order) return { ok: false, message: "Not found.", values };
+  const parsed = parseStageInput(raw);
+  if (!parsed.ok) return { errors: parsed.errors, values };
+  const now = new Date();
+  const user = actorOf(context);
+  const done = await setOrderStage(
+    { store, app, now, key: encryptionKey(), urls: paymentApiUrls(), account: serviceAccountOf(app, encryptionKey()) },
+    order,
+    parsed.input,
+    { userId: user.id, name: user.name?.trim() || user.email, via: "dashboard" },
+  );
+  if (!done.ok) return done.errors ? { errors: done.errors, values } : { ok: false, message: done.message, values };
+  await recordOrderStatus(store, { clientId: context.client.id, appId: app.id, actor: user, orderId: order.id, to: parsed.input.stage }, now);
+  refresh();
+  const told = ["shipped", "postponed", "failed", "delivered"].includes(parsed.input.stage);
+  return { ok: true, message: told ? "Saved. The customer was told." : "Saved." };
 }
 
 /**

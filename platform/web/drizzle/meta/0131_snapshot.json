@@ -1,7 +1,7 @@
 {
   "version": "5",
   "dialect": "mysql",
-  "id": "710581e2-7ddf-40da-8920-7d988873809f",
+  "id": "cdd3a072-2a1a-456c-9d30-d46b281401bb",
   "prevId": "04408ef8-703e-4dc6-8426-dcb149e3a80d",
   "tables": {
     "account_deletion_requests": {
@@ -4523,6 +4523,20 @@
         "delivery_date": {
           "name": "delivery_date",
           "type": "varchar(10)",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
+        "delivery_stage": {
+          "name": "delivery_stage",
+          "type": "varchar(16)",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
+        "stage_log": {
+          "name": "stage_log",
+          "type": "longtext",
           "primaryKey": false,
           "notNull": false,
           "autoincrement": false

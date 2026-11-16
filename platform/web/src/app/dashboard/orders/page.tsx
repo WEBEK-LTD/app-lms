@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
-import { deliveryDayLabel, slotLabel } from "@/lib/selling/delivery";
+import { deliveryDayLabel, deliveryOf, shopToday, slotLabel } from "@/lib/selling/delivery";
+import { followsStages, nextStages } from "@/lib/catalog/order-stages";
 import { taxLabel } from "@/lib/catalog/tax";
 import Link from "next/link";
 import { decideReturnAction, setOrderStatusAction } from "@/app/actions/catalog";
@@ -19,6 +20,7 @@ import { orderReceiptUrl } from "@/lib/receipts/links";
 import { orderRefundOptions, refundedLine } from "@/lib/refunds/service";
 import { KitchenView } from "./kitchen";
 import { ShippingForm } from "./shipping";
+import { StageForms } from "./stages";
 import { CARRIER_SUGGESTIONS, shippable, waybillLink } from "@/lib/catalog/shipping";
 import { RefundSection } from "./refunds-view";
 import { AwaitingPayment } from "./awaiting";
@@ -35,6 +37,7 @@ const PER_PAGE = 25;
 const PAID: CatalogOrderStatus[] = ["processing", "completed", "cancelled", "refunded"];
 /** 37 Who pays a marketplace order's share: iyzico itself, or Yallapp's team (Kashier, Fawaterk). */
 const byIyzico = (order: Pick<CatalogOrder, "paymentProvider">) => !order.paymentProvider || order.paymentProvider === "iyzico";
+const STAGE_TONES = { preparing: "info", shipped: "info", postponed: "warn", failed: "danger", returned: "neutral", delivered: "success" } as const;
 const TONES = { processing: "info", completed: "success", cancelled: "neutral", refunded: "neutral", pending: "warn", failed: "danger" } as const;
 
 function StatusButton({ order, status, label }: { order: CatalogOrder; status: CatalogOrderStatus; label: string }) {
@@ -75,6 +78,10 @@ export default async function OrdersPage({ searchParams }: { searchParams: Promi
     Promise.all(items.map((o) => orderRefundOptions({ store, key }, app, o))),
   ]);
 
+  // 132 The slots a postponed delivery may take, from the shop's today.
+  const days = deliveryOf(app) ?? deliveryOf(app, true)!;
+  const stageSlots = days.slots.map((s) => ({ id: s.id, label: slotLabel(s) }));
+  const shopDay = shopToday(days, new Date()).date;
   const groupOf = (order: CatalogOrder) => (order.shipment && order.status === "processing" ? "shipped" : order.status);
   const groups = (["processing", "shipped", "completed", "cancelled", "refunded"] as const).map((value) => ({ value, label: value === "shipped" ? k("Shipped") : k(ORDER_STATUS_LABELS[value]) }));
 
@@ -209,6 +216,48 @@ export default async function OrdersPage({ searchParams }: { searchParams: Promi
                           {order.delivery.anonymous ? <span className="block text-[13px] text-muted">{t("selling.anonymousYes")}</span> : null}
                         </p>
                       ) : null}
+                    </section>
+                  ) : null}
+                  {/* 132 Delivery: the stage, every change of it, and the next stages' buttons. */}
+                  {followsStages(app, order) && (order.status === "processing" || order.stageLog?.length) ? (
+                    <section aria-labelledby={`h-stage-${order.id}`} className="flex flex-col gap-2.5 rounded-xl border border-line-soft p-3.5" data-stage={order.deliveryStage ?? "none"}>
+                      <h3 id={`h-stage-${order.id}`} className="m-0 flex flex-wrap items-center gap-2 text-[15px] font-bold">
+                        {t("orders.stagesTitle")}
+                        {order.deliveryStage ? <Badge tone={STAGE_TONES[order.deliveryStage]}>{t(`orders.stage_${order.deliveryStage}`)}</Badge> : null}
+                      </h3>
+                      {order.stageLog?.length ? (
+                        <ol className="m-0 flex list-none flex-col gap-2.5 p-0 text-[15px]" data-stage-history="">
+                          {[...order.stageLog].reverse().map((e, i) => (
+                            <li key={i} className="flex flex-col gap-0.5 border-s-2 border-line ps-3">
+                              <span className="font-semibold">
+                                {t(`orders.stage_${e.stage}`)}
+                                {e.reason ? ` · ${t(`orders.reason_${e.reason}`)}` : ""}
+                              </span>
+                              <span className="text-[13px] text-muted">{t("orders.stageBy", { by: e.by?.name ?? "Yallapp", when: formatDateTime(new Date(e.at), lang) })}</span>
+                              {e.date ? <span>{t("orders.stageDayLine", { day: `${deliveryDayLabel(e.date, lang)}${e.slot ? ` · ${slotLabel(e.slot)}` : ""}` })}</span> : null}
+                              {e.next ? <span>{t("orders.stageNextLine", { step: t(`orders.next_${e.next}`) })}</span> : null}
+                              {e.courier ? (
+                                <span>
+                                  {t("orders.stageCourierLine", { courier: [e.courier.name, e.courier.phone].filter(Boolean).join(" · ") })}
+                                </span>
+                              ) : null}
+                              {e.trackingUrl ? (
+                                <a href={e.trackingUrl} target="_blank" rel="noopener noreferrer" className="font-semibold underline">
+                                  {t("orders.stageTracking")}
+                                </a>
+                              ) : null}
+                              {e.note ? (
+                                <span className="whitespace-pre-line text-ink-4" dir="auto">
+                                  {t("orders.stageNoteLine", { note: e.note })}
+                                </span>
+                              ) : null}
+                            </li>
+                          ))}
+                        </ol>
+                      ) : (
+                        <p className="m-0 text-sm text-ink-4">{t("orders.stagesIntro")}</p>
+                      )}
+                      <StageForms id={order.id} next={nextStages(app, order)} slots={stageSlots} today={shopDay} />
                     </section>
                   ) : null}
                   {/* 80.4 Shipping: any carrier, a tracking link, number or waybill. */}
