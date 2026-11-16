@@ -1275,6 +1275,9 @@ export interface ManualPaymentSettings {
   custom: { name: string; instructions: string } | null;
   /** Days the customer has to pay, shown to them; ticket places are held that long. */
   payWithinDays: number;
+  /** 132.145 Switched off on the Payments page, its details kept for when it's on again. */
+  bankTransferOff?: boolean;
+  customOff?: boolean;
 }
 
 export type ManualPaymentMethod = "bank_transfer" | "custom";

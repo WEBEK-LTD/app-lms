@@ -104,6 +104,8 @@ test("the page and the test's results in Egyptian Arabic", async () => {
   await own.context().addCookies([{ name: "yallapp_lang", value: "ar", url: E2E.baseURL }]);
   await own.goto("/studio/project/payments");
   await expect(own.getByRole("heading", { name: "المدفوعات", level: 1 })).toBeVisible();
+  // 132.145 Connected, the gateway's keys open from its row.
+  await own.locator("[data-gateway-edit]").click();
   const test = own.getByRole("button", { name: "جرّب الاتصال" });
   await test.click();
   const results = own.getByTestId("gateway-test-results");
@@ -116,6 +118,7 @@ test("the page and the test's results in Egyptian Arabic", async () => {
 test("ten tests every ten minutes, then a plain message", async () => {
   await own.goto("/studio/project/payments");
   const payments = own.getByRole("region", { name: "Card payments" });
+  await payments.getByRole("button", { name: "Edit" }).click();
   const button = payments.getByRole("button", { name: /^(Test connection|Testing…)$/ });
   const limited = payments.getByText(/^Too many tests\. Try again in \d+ minutes\.$/);
   // Three tests so far; the eleventh in ten minutes is refused.

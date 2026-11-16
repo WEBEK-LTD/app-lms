@@ -20,7 +20,9 @@ import { HeaderLine } from "./client";
  *          KitStat numbers, the next step) > KitSection cards with a short
  *          KitList of KitRow (name, one KitStatus pill, one trailing action;
  *          details in a KitDrawer) > KitEmpty where a list is empty.
- * Settings: KitSettings of KitSettingRow. Facts: KitFacts of KitFact.
+ * Settings: KitSettings of KitSettingRow. Ways to pay (or any list of
+ * things switched on and off): KitWayRow with a KitSwitch or an Edit
+ * button, its details shown only while on or edited. Facts: KitFacts of KitFact.
  * Long help: KitFold ("How it works") or a "?" (`help` on the header and
  * on sections). A quiet one-line note: KitCallout.
  *
@@ -522,6 +524,86 @@ export function KitMore({ label, children }: { label: string; children: ReactNod
         {children}
       </div>
     </details>
+  );
+}
+
+/**
+ * 132.145 One way customers pay (a card gateway, bank transfer, the owner's
+ * own way) as a row of a "Ways customers pay" card: its icon, its name and
+ * state pill, a quiet line, its control at the end (Connect or Edit, an
+ * on/off KitSwitch), and its details under it only while `open` (when it's
+ * on, or being edited). A region named by its title.
+ */
+export function KitWayRow({
+  titleId,
+  title,
+  icon,
+  status,
+  description,
+  control,
+  open = false,
+  bodyId,
+  children,
+  ...data
+}: {
+  titleId: string;
+  title: ReactNode;
+  icon: IconName;
+  status?: ReactNode;
+  description?: ReactNode;
+  control?: ReactNode;
+  open?: boolean;
+  bodyId?: string;
+  children?: ReactNode;
+} & DataAttributes) {
+  return (
+    <section {...data} aria-labelledby={titleId} className="flex scroll-mt-6 flex-col border-t border-(--sp-line-soft) first:border-t-0">
+      <div className="flex flex-wrap items-center gap-x-4 gap-y-3 py-5">
+        <span aria-hidden="true" className={`flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl bg-(--sp-tile) transition-colors ${open ? "text-accent" : "text-(--sp-ink)"}`}>
+          <Icon name={icon} size={22} />
+        </span>
+        <div className="flex min-w-0 flex-[1_1_220px] flex-col gap-1">
+          <div className="flex flex-wrap items-center gap-x-2.5 gap-y-1">
+            <h3 id={titleId} className="m-0 text-[16px] leading-snug font-bold text-(--sp-ink)">
+              {title}
+            </h3>
+            {status}
+          </div>
+          {description ? <div className="text-sm leading-relaxed text-(--sp-muted)">{description}</div> : null}
+        </div>
+        {control ? <div className="flex shrink-0 flex-wrap items-center gap-2 max-sm:basis-full max-sm:ps-15">{control}</div> : null}
+      </div>
+      {children ? (
+        <div id={bodyId} hidden={!open} className="kit-reveal flex min-w-0 flex-col gap-4 pb-6 sm:ps-15">
+          {children}
+        </div>
+      ) : null}
+    </section>
+  );
+}
+
+/**
+ * An on/off switch (a checkbox with the switch role), named by `label`:
+ * a form field with `name` (sends "on"), or controlled with `checked` and
+ * `onChange`. Right to left, the knob runs the other way.
+ */
+export function KitSwitch({ label, name, checked, onChange, disabled = false, controls }: { label: string; name?: string; checked: boolean; onChange: (on: boolean) => void; disabled?: boolean; controls?: string }) {
+  return (
+    <span className="relative inline-flex h-7 w-12 shrink-0">
+      <input
+        type="checkbox"
+        role="switch"
+        name={name}
+        checked={checked}
+        disabled={disabled}
+        aria-label={label}
+        aria-controls={controls}
+        onChange={(event) => onChange(event.target.checked)}
+        className="peer absolute inset-0 z-[1] m-0 h-full w-full cursor-pointer appearance-none rounded-full opacity-0 disabled:cursor-not-allowed"
+      />
+      <span aria-hidden="true" className="h-full w-full rounded-full bg-(--sp-line) transition-colors peer-checked:bg-success peer-focus-visible:outline-2 peer-focus-visible:outline-offset-2 peer-focus-visible:outline-(--sp-ink) peer-disabled:opacity-50" />
+      <span aria-hidden="true" className="absolute start-1 top-1 h-5 w-5 rounded-full bg-white shadow-[0_1px_3px_rgba(14,13,36,0.3)] transition-[inset-inline-start] duration-200 peer-checked:start-6 motion-reduce:transition-none" />
+    </span>
   );
 }
 

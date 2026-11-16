@@ -1,6 +1,7 @@
 import { Icon } from "@/components/icon";
 import type { IconName } from "@/components/icon-names";
 import { mayDo } from "@/components/owner-only";
+import { KitHero } from "@/components/studio-page";
 import { formatDate } from "@/i18n/format";
 import { catalogSettings, isOwnPayment } from "@/lib/catalog/settings";
 import { dashboardText } from "@/lib/dashboard-lang";
@@ -10,26 +11,22 @@ import { webhookReceipt } from "@/lib/payments/webhooks";
 
 type Tone = "ok" | "warn" | "fail" | "off";
 
-const TONE: Record<Tone, { icon: string; dot: string }> = {
-  ok: { icon: "text-success", dot: "bg-success" },
-  warn: { icon: "text-warn", dot: "bg-warn" },
-  fail: { icon: "text-danger", dot: "bg-danger" },
-  off: { icon: "text-muted", dot: "bg-line-strong" },
+const TONE: Record<Tone, { icon: string }> = {
+  ok: { icon: "text-success" },
+  warn: { icon: "text-warn" },
+  fail: { icon: "text-danger" },
+  off: { icon: "text-muted" },
 };
 
+/** 132.145 One fact of the hero: its icon and small label, its state in a larger weight. */
 function Tile({ icon, label, value, tone, testId }: { icon: IconName; label: string; value: string; tone: Tone; testId: string }) {
   return (
-    <li className="flex min-w-0 items-start gap-3 rounded-2xl border border-line bg-white p-4" data-summary={testId} data-tone={tone}>
-      <span className="flex h-10 w-10 flex-none items-center justify-center rounded-xl bg-ivory">
-        <Icon name={icon} size={22} filled className={TONE[tone].icon} />
+    <li className="flex min-w-0 flex-col gap-2" data-summary={testId} data-tone={tone}>
+      <span className="flex items-center gap-1.5 text-[13px] font-semibold text-(--sp-muted)">
+        <Icon name={icon} size={17} filled className={TONE[tone].icon} />
+        {label}
       </span>
-      <span className="flex min-w-0 flex-col gap-0.5">
-        <span className="flex items-center gap-1.5 text-xs font-bold tracking-[0.04em] text-muted uppercase">
-          <span aria-hidden="true" className={`h-1.5 w-1.5 rounded-full ${TONE[tone].dot}`} />
-          {label}
-        </span>
-        <span className="text-[15px] leading-snug font-semibold break-words text-midnight">{value}</span>
-      </span>
+      <span className="text-[17px] leading-snug font-bold break-words text-(--sp-ink)">{value}</span>
     </li>
   );
 }
@@ -53,12 +50,10 @@ export async function PaymentsSummary({ app, currency }: { app: App; currency: C
   const usesWebhook = own ? own.provider === "stripe" || own.provider === "kashier" || own.provider === "fawaterk" : false;
   const refused = Boolean(receipt?.failedAt && (!receipt.at || receipt.failedAt >= receipt.at));
   const takes = own ? providerTakes(own.provider, currency) : true;
+  // 132.145 The page's hero: the gateway, its last test, its webhook and the currency, each a state at a glance.
   return (
-    <section aria-labelledby="h-payments-summary" className="flex flex-col gap-3" data-payments-summary="">
-      <h2 id="h-payments-summary" className="sr-only">
-        {t("gateways.summary")}
-      </h2>
-      <ul className="m-0 grid list-none gap-3 p-0 sm:grid-cols-2 xl:grid-cols-4">
+    <KitHero titleId="h-payments-summary" heading={t("gateways.summary")} data-payments-summary="">
+      <ul className="m-0 grid list-none gap-x-6 gap-y-5 p-0 [grid-template-columns:repeat(auto-fit,minmax(min(140px,100%),1fr))]">
         <Tile icon="credit_card" testId="gateway" label={t("gateways.sumGateway")} tone={own ? "ok" : "off"} value={own ? `${name} · ${t(live ? "gateways.modeLive" : "gateways.modeTest")}` : t("gateways.sumNone")} />
         <Tile
           icon="fact_check"
@@ -92,6 +87,6 @@ export async function PaymentsSummary({ app, currency }: { app: App; currency: C
           value={takes ? t("gateways.sumCurrencyOk", { currency }) : t("gateways.sumCurrencyNo", { provider: name!, currency })}
         />
       </ul>
-    </section>
+    </KitHero>
   );
 }

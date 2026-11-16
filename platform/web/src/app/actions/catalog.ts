@@ -18,7 +18,7 @@ import { parseShipment, shipOrder, shippable } from "@/lib/catalog/shipping";
 import { sendTemplate } from "@/lib/email/send";
 import { CATALOG_CURRENCIES, formatCents, parsePrice } from "@/lib/catalog/money";
 import { LOYALTY_LIMITS } from "@/lib/catalog/loyalty";
-import { awaitingManualPayment, readManualPayments } from "@/lib/catalog/manual";
+import { awaitingManualPayment, manualChoices, readManualPayments } from "@/lib/catalog/manual";
 import { TAX_RATE_MAX_BPS } from "@/lib/catalog/tax";
 import { parseVariants } from "@/lib/catalog/variants";
 import { readProductNumbers } from "@/lib/catalog/product-fields";
@@ -379,13 +379,22 @@ export async function saveLoyaltyAction(_: FormState, formData: FormData): Promi
 export async function saveManualPaymentsAction(_: FormState, formData: FormData): Promise<FormState> {
   const context = await requireCatalogApp({ courses: true }, "billing");
   const { app } = context;
-  const values = { bankTransfer: str(formData, "bankTransfer"), customName: str(formData, "customName"), customInstructions: str(formData, "customInstructions"), payWithinDays: str(formData, "payWithinDays") };
-  const read = readManualPayments(values);
+  const values = {
+    bankTransfer: str(formData, "bankTransfer"),
+    customName: str(formData, "customName"),
+    customInstructions: str(formData, "customInstructions"),
+    payWithinDays: str(formData, "payWithinDays"),
+    // 132.145 Each method's switch on the Payments page.
+    bankTransferOn: formData.get("bankTransferOn") === "on" ? "on" : "",
+    customOn: formData.get("customOn") === "on" ? "on" : "",
+  };
+  const read = readManualPayments({ ...values, bankTransferOn: values.bankTransferOn === "on", customOn: values.customOn === "on" });
   if (!read.ok) return { errors: { [read.field]: read.error }, values };
   await (await getStore()).updateApp(app.id, { catalogSettings: { ...catalogSettings(app), manualPayments: read.settings } }, new Date());
-  await recordStaffChange(context, read.settings ? "Changed the bank transfer and other payment methods" : "Turned off bank transfer and other payment methods");
+  const offered = manualChoices(read.settings).length > 0;
+  await recordStaffChange(context, offered ? "Changed the bank transfer and other payment methods" : "Turned off bank transfer and other payment methods");
   refresh();
-  return { ok: true, message: read.settings ? "Payment methods saved." : "Bank transfer and your own method are off.", values };
+  return { ok: true, message: offered ? "Payment methods saved." : "Bank transfer and your own method are off.", values };
 }
 
 /** 91.1 A coupon for the shop's customers. */

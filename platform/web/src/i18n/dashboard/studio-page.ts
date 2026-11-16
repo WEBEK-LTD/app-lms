@@ -4,7 +4,8 @@ import type { Strings } from "../types";
  * 132.130 Studio's premium pages (components/studio-page): the "?" that
  * folds a page's long help, "How it works", the "⋯" menu, the products'
  * filters behind one button, the orders' numbers and their rows, and Your
- * account's settings as pills, its deletion behind one line.
+ * account's settings as pills, its deletion behind one line. 132.145
+ * Payments: the ways customers pay in one card, each on or off.
  */
 export const en = {
   // The "?" beside the line under a page's title, and under a card's.
@@ -23,6 +24,14 @@ export const en = {
   off: "Off",
   notSet: "Not set",
   deleteOpen: "See what happens and ask to delete it",
+  // 132.145 Payments: the ways customers pay, each on or off; the gateway's state as a pill.
+  on: "On",
+  waysTitle: "Ways customers pay",
+  waysLine: "Turn on each way you take. Customers see every one that's on, the card and the others alike.",
+  connectGateway: "Connect a card gateway",
+  notConnected: "Not connected",
+  ready: "Ready",
+  needsTest: "Needs a test",
 } as const;
 
 type Messages = Strings<typeof en>;
@@ -40,6 +49,13 @@ export const ar: Messages = {
   off: "مش مفعّل",
   notSet: "مش متحدد",
   deleteOpen: "شوف إيه اللي هيحصل واطلب حذفه",
+  on: "مفعّل",
+  waysTitle: "طرق الدفع لعملائك",
+  waysLine: "شغّل كل طريقة بتقبلها. عملاؤك هيشوفوا كل اللي شغّال منها، الكارت والباقي زيه.",
+  connectGateway: "اربط بوابة الدفع بالكارت",
+  notConnected: "مش مربوطة",
+  ready: "جاهزة",
+  needsTest: "محتاجة تجربة",
 };
 
 export const tr: Messages = {
@@ -55,4 +71,11 @@ export const tr: Messages = {
   off: "Kapalı",
   notSet: "Belirlenmedi",
   deleteOpen: "Ne olacağını görün ve silinmesini isteyin",
+  on: "Açık",
+  waysTitle: "Müşterilerin ödeme yolları",
+  waysLine: "Kabul ettiğiniz her yolu açın. Müşteriler, kart da diğerleri de, açık olanların hepsini görür.",
+  connectGateway: "Bir kart ödeme sağlayıcısı bağlayın",
+  notConnected: "Bağlı değil",
+  ready: "Hazır",
+  needsTest: "Test edilmeli",
 };
