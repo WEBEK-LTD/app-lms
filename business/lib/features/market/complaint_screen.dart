@@ -7,9 +7,12 @@ import '../../core/providers.dart';
 import '../../core/session.dart';
 import '../../core/theme/icons.dart';
 import '../../core/theme/theme.dart';
+import '../../core/widgets/contact.dart';
 import '../../core/widgets/l10n.dart';
 import '../../core/widgets/states.dart';
 import '../food/food_sheets.dart';
+import '../studio/status_words.dart';
+import '../studio/rating_card.dart';
 import '../studio/studio_widgets.dart';
 import 'market_screen.dart';
 
@@ -73,7 +76,16 @@ Future<ComplaintDetail?> refundSuggested(
       to: decision.to.firstOrNull,
     );
     if (context.mounted) {
-      showMessage(context, l10n.decidedAs(after.complaint.statusLabel));
+      showMessage(
+        context,
+        l10n.decidedAs(
+          complaintStatusLabel(
+            context,
+            after.complaint.status,
+            after.complaint.statusLabel,
+          ),
+        ),
+      );
     }
     return after;
   } on Object catch (e) {
@@ -141,7 +153,16 @@ class _ComplaintScreenState extends ConsumerState<ComplaintScreen> {
             to: answer.$3,
           );
       if (!mounted) return;
-      showMessage(context, context.l10n.decidedAs(after.complaint.statusLabel));
+      showMessage(
+        context,
+        context.l10n.decidedAs(
+          complaintStatusLabel(
+            context,
+            after.complaint.status,
+            after.complaint.statusLabel,
+          ),
+        ),
+      );
       ref.invalidate(complaintProvider(widget.complaintId));
     } on Object catch (e) {
       if (mounted) showError(context, e);
@@ -445,6 +466,47 @@ class _DecisionFormState extends State<_DecisionForm> {
 }
 
 /// 125 A marketplace order, read only: the vendor moves it.
+/// 132 A marketplace order's money lines in the person's language.
+String marketAmountLabel(BuildContext context, String kind) {
+  final l10n = context.l10n;
+  return switch (kind) {
+    'items' => l10n.lineItems,
+    'item_discounts' => l10n.lineItemDiscounts,
+    'coupon' => l10n.lineCoupon,
+    'club' => l10n.lineClub,
+    'delivery' => l10n.lineDelivery,
+    'delivery_discount' => l10n.lineDeliveryDiscount,
+    'tax' => l10n.lineTax,
+    'tip' => l10n.lineTip,
+    'wallet' => l10n.lineWallet,
+    'total' => l10n.totalLabel,
+    _ => kind,
+  };
+}
+
+String marketPaymentLabel(BuildContext context, String method) {
+  final l10n = context.l10n;
+  return switch (method) {
+    'cash' => l10n.payCash,
+    'card' => l10n.payCard,
+    'apple_pay' => l10n.payApplePay,
+    'google_pay' => l10n.payGooglePay,
+    'wallet' => l10n.payWallet,
+    _ => method,
+  };
+}
+
+String marketPaymentStatus(BuildContext context, String status) {
+  final l10n = context.l10n;
+  return switch (status) {
+    'unpaid' => l10n.payUnpaid,
+    'paid' => l10n.payPaid,
+    'partly_refunded' => l10n.payPartlyRefunded,
+    'refunded' => l10n.payRefunded,
+    _ => status,
+  };
+}
+
 class MarketOrderScreen extends ConsumerWidget {
   const MarketOrderScreen({super.key, required this.orderId});
 
@@ -465,7 +527,7 @@ class MarketOrderScreen extends ConsumerWidget {
               padding: const EdgeInsetsDirectional.only(end: 16),
               child: Center(
                 child: Tag(
-                  o.statusLabel,
+                  marketStatusLabel(context, o.status, o.statusLabel),
                   tone: marketTone(o.status),
                   big: true,
                 ),
@@ -478,6 +540,8 @@ class MarketOrderScreen extends ConsumerWidget {
         onRetry: () => ref.invalidate(marketOrderProvider(orderId)),
         builder: (d) {
           final order = d.order;
+          final customer = d.customer;
+          const line = TextStyle(fontSize: 14);
           return ListView(
             padding: const EdgeInsets.fromLTRB(16, 4, 16, 24),
             children: [
@@ -508,58 +572,191 @@ class MarketOrderScreen extends ConsumerWidget {
                       ].join(' · '),
                       style: TextStyle(fontSize: 13, color: c.ink2),
                     ),
+                    if (d.scheduledFor != null)
+                      Padding(
+                        padding: const EdgeInsets.only(top: 4),
+                        child: Text(
+                          l10n.scheduledAt(context.dateTime(d.scheduledFor!)),
+                          style: TextStyle(
+                            fontSize: 13,
+                            fontWeight: FontWeight.w600,
+                            color: c.accentText,
+                          ),
+                        ),
+                      ),
                   ],
                 ),
               ),
-              const SizedBox(height: 12),
+              // 132 The customer: Call and WhatsApp, where it goes with the map.
+              if (customer != null) ...[
+                SectionTitle(l10n.customer),
+                Box(
+                  radius: 18,
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                    children: [
+                      PersonCard(
+                        name: customer.name,
+                        phone: customer.phone,
+                        note: customer.note == null
+                            ? null
+                            : '“${isolate(customer.note!)}”',
+                      ),
+                      if (customer.address.isNotEmpty ||
+                          customer.lat != null) ...[
+                        Divider(height: 28, color: c.line),
+                        PlaceCard(
+                          address: customer.address,
+                          lat: customer.lat,
+                          lng: customer.lng,
+                        ),
+                      ],
+                    ],
+                  ),
+                ),
+              ],
+              SectionTitle(l10n.items),
               Box(
                 radius: 18,
                 child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
                   children: [
                     for (final l in d.lines)
                       Padding(
                         padding: const EdgeInsets.only(bottom: 8),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Row(
+                              children: [
+                                Expanded(
+                                  child: Text(
+                                    '${context.number(l.quantity)} × ${l.name}',
+                                    style: line,
+                                  ),
+                                ),
+                                Text(l.total.formatted, style: line),
+                              ],
+                            ),
+                            if (l.options.isNotEmpty)
+                              Text(
+                                l.options.join(' · '),
+                                style: TextStyle(fontSize: 13, color: c.ink2),
+                              ),
+                          ],
+                        ),
+                      ),
+                    Divider(color: c.line, height: 12),
+                    for (final a in d.amounts)
+                      Padding(
+                        padding: const EdgeInsets.symmetric(vertical: 3),
                         child: Row(
                           children: [
                             Expanded(
                               child: Text(
-                                '${context.number(l.quantity)} × ${l.name}',
-                                style: const TextStyle(fontSize: 14),
+                                marketAmountLabel(context, a.kind),
+                                style: a.kind == 'total'
+                                    ? const TextStyle(
+                                        fontSize: 16,
+                                        fontWeight: FontWeight.w700,
+                                      )
+                                    : line.copyWith(color: c.ink2),
                               ),
                             ),
                             Text(
-                              l.total.formatted,
-                              style: const TextStyle(fontSize: 14),
+                              isolate(a.amount.formatted),
+                              style: a.kind == 'total'
+                                  ? const TextStyle(
+                                      fontSize: 16,
+                                      fontWeight: FontWeight.w700,
+                                    )
+                                  : line.copyWith(color: c.ink2),
                             ),
                           ],
                         ),
                       ),
-                    Row(
-                      children: [
-                        Expanded(
-                          child: Text(
-                            l10n.totalLabel,
+                    if (!d.amounts.any((a) => a.kind == 'total'))
+                      Row(
+                        children: [
+                          Expanded(
+                            child: Text(
+                              l10n.totalLabel,
+                              style: const TextStyle(
+                                fontSize: 16,
+                                fontWeight: FontWeight.w700,
+                              ),
+                            ),
+                          ),
+                          Text(
+                            order.total.formatted,
                             style: const TextStyle(
                               fontSize: 16,
                               fontWeight: FontWeight.w700,
                             ),
                           ),
-                        ),
-                        Text(
-                          order.total.formatted,
-                          style: const TextStyle(
-                            fontSize: 16,
-                            fontWeight: FontWeight.w700,
-                          ),
-                        ),
-                      ],
-                    ),
+                        ],
+                      ),
+                    if (d.paymentMethod != null) ...[
+                      const SizedBox(height: 8),
+                      Text(
+                        [
+                          marketPaymentLabel(context, d.paymentMethod!),
+                          if (d.paymentStatus != null)
+                            marketPaymentStatus(context, d.paymentStatus!),
+                          if (d.couponCode != null)
+                            l10n.couponUsed(isolate(d.couponCode!)),
+                        ].join(' · '),
+                        style: TextStyle(fontSize: 13, color: c.ink2),
+                      ),
+                    ],
                   ],
                 ),
               ),
+              if (d.courier != null) ...[
+                const SizedBox(height: 12),
+                Box(
+                  radius: 18,
+                  child: Row(
+                    children: [
+                      Initials(initialsOf(d.courier!.name)),
+                      const SizedBox(width: 12),
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              l10n.courierLabel,
+                              style: TextStyle(fontSize: 12, color: c.ink2),
+                            ),
+                            Text(
+                              d.courier!.name,
+                              style: const TextStyle(
+                                fontSize: 15,
+                                fontWeight: FontWeight.w600,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                      if (d.courier!.phone != null)
+                        IconButton(
+                          tooltip: l10n.call,
+                          icon: const Icon(AppIcons.phone),
+                          onPressed: () =>
+                              callNumber(context, ref, d.courier!.phone),
+                        ),
+                    ],
+                  ),
+                ),
+              ],
               if (d.timeline.isNotEmpty) ...[
                 SectionTitle(l10n.historyTitle),
-                TimelineList(entries: d.timeline),
+                TimelineList(entries: d.timeline, words: marketStatusLabel),
+              ],
+              // 132 The customer's rating, with the business's reply.
+              if (d.rating != null) ...[
+                SectionTitle(l10n.ratingCardTitle),
+                RatingCard(source: 'market', id: d.order.id, rating: d.rating!),
               ],
             ],
           );

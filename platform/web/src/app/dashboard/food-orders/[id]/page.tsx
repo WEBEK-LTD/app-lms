@@ -15,6 +15,7 @@ import { deliverySettingsOf } from "@/lib/delivery/settings";
 import { FOOD_COMPANY_STEPS, foodOrderReference } from "@/lib/food/service";
 import { isFood, mapsLink } from "../../shipments/parts";
 import { OrderStepForm } from "../../restaurants/forms";
+import { RatingReply } from "../../rating-reply";
 import { FoodStatusBadge, FOOD_STATUS_KEYS, NotFood, percentOf } from "../../restaurants/parts";
 
 export async function generateMetadata(): Promise<Metadata> {
@@ -149,6 +150,8 @@ export default async function FoodOrderPage({ params }: { params: Promise<{ id: 
                   {order.rating.courier !== null ? ` · ${t("food.ratingCourier", { stars: order.rating.courier })}` : ""}
                 </p>
                 {order.rating.comment ? <p className="m-0 text-[15px] text-ink-4">“{order.rating.comment}”</p> : null}
+                {/* 132 The business's reply under it. */}
+                <RatingReply source="food" id={order.id} reply={order.rating.reply?.text ?? null} />
               </Section>
             ) : null}
           </>

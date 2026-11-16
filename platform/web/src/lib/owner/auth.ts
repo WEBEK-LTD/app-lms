@@ -168,7 +168,12 @@ export async function authenticateRequest(deps: OwnerDeps, req: OwnerRequest): P
 }
 
 export async function contextFor(deps: OwnerDeps, req: OwnerRequest, user: User, client: Client, device: OwnerDevice, known?: Business[]): Promise<OwnerContext> {
-  const [allApps, licenses, businesses] = await Promise.all([deps.store.listAppsByClient(client.id), deps.store.listLicensesByClient(client.id), known ?? businessesOf(deps.store, user)]);
+  const [allApps, licenses, businesses, primeGifts] = await Promise.all([
+    deps.store.listAppsByClient(client.id),
+    deps.store.listLicensesByClient(client.id),
+    known ?? businessesOf(deps.store, user),
+    deps.store.listPrimeGifts(client.id),
+  ]);
   const business = businesses.find((b) => b.client.id === client.id);
   if (!business) throw invalidToken();
   const lang = ownerLang(user.language, acceptedLang(req.acceptLanguage), device.language);
@@ -183,6 +188,7 @@ export async function contextFor(deps: OwnerDeps, req: OwnerRequest, user: User,
     // 60 A member limited to some apps works on those only (another is 404, like another client's).
     apps: scopedApps(business.access, allApps),
     licenses,
+    primeGifts,
     state: clientAccountState(client, licenses, deps.now),
     lang,
     t: getDashT(lang),

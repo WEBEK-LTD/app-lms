@@ -36,6 +36,10 @@ class FakeOwnerApi with _FakeStudio implements OwnerApi {
   String? twoStepCode;
   final _usedCodes = <String>{};
   String? language;
+
+  /// 132 Whether the fake's payments go back through their provider (else
+  /// the owner pays them back: "Needs a refund").
+  bool refundsByApi = true;
   bool pushAvailable = true;
 
   /// Thrown by the next call, then cleared.
@@ -106,6 +110,8 @@ class FakeOwnerApi with _FakeStudio implements OwnerApi {
   static const deliveryId = _FakeStudio.deliveryId;
   static const ridesId = _FakeStudio.ridesId;
   static const schoolId = _FakeStudio.schoolId;
+  // 132 A Studio store with the gift checkout.
+  static const flowersId = _FakeStudio.flowersId;
 
   @override
   List<AppSummary> get _appsForVip => apps;
@@ -367,6 +373,7 @@ class FakeOwnerApi with _FakeStudio implements OwnerApi {
     _seedCommunity();
     _seedGym();
     _seedStudio();
+    _orders[flowersId] = _flowerOrders();
 
     devicesList
       ..clear()
@@ -469,6 +476,17 @@ class FakeOwnerApi with _FakeStudio implements OwnerApi {
           city: 'Istanbul',
           address: type == 'delivery' ? 'Moda Cd. 12, Kadıköy' : null,
         ),
+        // 132 A delivery goes to the address chosen in the app.
+        deliverTo: type == 'delivery'
+            ? const DeliverTo(
+                person: 'customer',
+                address: 'Moda Cd. 12, Kadıköy',
+                city: 'Istanbul',
+                lat: 40.9869,
+                lng: 29.0254,
+                notes: 'Third floor, ring twice',
+              )
+            : null,
         createdAt: _ago(ago),
         paidAt: _ago(ago),
         nextStatuses: status == 'processing' ? next : const [],
@@ -635,6 +653,25 @@ class FakeOwnerApi with _FakeStudio implements OwnerApi {
         ),
     ];
 
+    // 132 Leqaa's bouquets and its add-ons (never on a flash sale).
+    _products[flowersId] = [
+      for (final (id, name, cents, stock, sales, addon) in const [
+        (11, 'Blush Garden', 180000, 18, 42, false),
+        (12, 'White Peony Vase', 95000, 6, 12, false),
+        (13, 'Sunflower bunch', 40000, 0, 22, false),
+        (14, 'Red Roses · 12 stems', 70000, 2, 31, false),
+        (21, 'Belgian chocolate box', 25000, 40, 19, true),
+      ])
+        Product(
+          id: id,
+          name: name,
+          price: money(cents, 'EGP'),
+          stock: stock,
+          available: true,
+          sales: sales,
+          addon: addon,
+        ),
+    ];
     _products[restaurantId] = [
       Product(
         id: 401,
@@ -1370,6 +1407,8 @@ class FakeOwnerApi with _FakeStudio implements OwnerApi {
     final f = app.features;
     final orders = _orders[appId] ?? const [];
     final processing = orders.where((o) => o.status == 'processing').length;
+    // 132 Waiting for a bank transfer or the owner's own method.
+    final unpaid = orders.where((o) => o.status == 'pending').length;
     final toConfirm = (_appointments[appId] ?? const [])
         .where((a) => a.status == 'pending')
         .length;
@@ -1384,7 +1423,12 @@ class FakeOwnerApi with _FakeStudio implements OwnerApi {
     return Today(
       date: _day(now),
       timeZone: 'Europe/Istanbul',
-      sales: f.orders ? [money(orders.length * 48500)] : const [],
+      // 132 Leqaa sells in Egyptian pounds: its orders' own total.
+      sales: !f.orders
+          ? const []
+          : appId == flowersId
+          ? [money(orders.fold(0, (n, o) => n + o.total.amountCents), 'EGP')]
+          : [money(orders.length * 48500)],
       donations: f.donations ? [money(185000, 'EGP')] : const [],
       counts: TodayCounts(
         orders: f.orders ? orders.length : null,
@@ -1401,6 +1445,20 @@ class FakeOwnerApi with _FakeStudio implements OwnerApi {
         appOpens: f.analytics ? 342 : null,
       ),
       hasAppOpens: f.analytics,
+      // 132 A Prime store's goal ring and comparison.
+      compare: f.prime
+          ? const TodayCompare(
+              salesChangePct: 18,
+              ordersChangePct: 9,
+              label: 'vs last week',
+            )
+          : null,
+      goal: f.prime
+          ? _goalOf(
+              appId,
+              money(orders.fold(0, (n, o) => n + o.total.amountCents), 'EGP'),
+            )
+          : null,
       needsYou: [
         if (processing > 0)
           NeedsYou(
@@ -1409,6 +1467,14 @@ class FakeOwnerApi with _FakeStudio implements OwnerApi {
             title: processing == 1
                 ? '1 order in progress'
                 : '$processing orders in progress',
+          ),
+        if (unpaid > 0)
+          NeedsYou(
+            kind: 'orders_awaiting_payment',
+            count: unpaid,
+            title: unpaid == 1
+                ? '1 order waiting for its payment'
+                : '$unpaid orders waiting for their payment',
           ),
         if (toConfirm > 0)
           NeedsYou(
@@ -1476,27 +1542,16 @@ class FakeOwnerApi with _FakeStudio implements OwnerApi {
   Order _detail(String appId, Order o) {
     final refunded = o.refunds.fold(0, (n, r) => n + r.amount.amountCents);
     final left = o.total.amountCents - refunded;
-    final refundable = left > 0 && o.status != 'cancelled';
-    return Order(
-      id: o.id,
-      number: o.number,
-      status: o.status,
-      statusLabel: o.statusLabel,
-      kitchen: o.kitchen,
-      total: o.total,
+    // As the server: a cancelled order's payment can still go back.
+    final refundable = left > 0 && o.status != 'pending' && o.paidAt != null;
+    return o.copyWith(
       refunded: refunded > 0 ? money(refunded, o.total.currency) : null,
-      lines: o.lines,
-      customer: o.customer,
-      createdAt: o.createdAt,
-      paidAt: o.paidAt,
-      nextStatuses: o.nextStatuses,
-      refunds: o.refunds,
       refund: RefundOptions(
         refundable: refundable,
         why: refundable ? null : 'Nothing is left to refund on this order.',
         provider: 'iyzico',
         left: money(left, o.total.currency),
-        byApi: true,
+        byApi: refundsByApi,
         manual: true,
         reasons: const [
           IdLabel(id: 'buyer_request', label: 'The buyer asked'),
@@ -1594,9 +1649,7 @@ class FakeOwnerApi with _FakeStudio implements OwnerApi {
             'out_for_delivery' => ['completed', 'cancelled'],
             _ => const <String>[],
           };
-    final updated = Order(
-      id: o.id,
-      number: o.number,
+    final updated = o.copyWith(
       status: finalStatus,
       statusLabel: _statusLabel(finalStatus),
       kitchen: kitchen == null
@@ -1605,18 +1658,144 @@ class FakeOwnerApi with _FakeStudio implements OwnerApi {
               type: kitchen.type,
               step: status,
               stepLabel: _stepLabel(status),
+              scheduledFor: kitchen.scheduledFor,
             ),
-      total: o.total,
-      refunded: o.refunded,
-      lines: o.lines,
-      customer: o.customer,
-      createdAt: o.createdAt,
-      paidAt: o.paidAt,
       nextStatuses: next,
-      refunds: o.refunds,
+    );
+    // 132 Cancelled after a failed or returned delivery: it needs a refund.
+    final owed =
+        finalStatus == 'cancelled' &&
+        const ['failed', 'returned'].contains(o.stage?.stage);
+    final saved = owed
+        ? updated.copyWith(refundDue: _refundDue(o), nextStages: const [])
+        : updated;
+    _replace(appId, saved);
+    return _detail(appId, saved);
+  }
+
+  /// 132 As the server: the stages it may go to, why and the day needed.
+  @override
+  Future<Order> setOrderStage(String appId, int orderId, StageRequest r) async {
+    await _call('setOrderStage:${r.stage}');
+    _app(appId, (f) => f.orders);
+    final o = _find(appId, orderId);
+    if (!o.nextStages.contains(r.stage)) {
+      throw const ApiException(
+        code: 'invalid_stage',
+        message: "This order's delivery can't move to that stage.",
+        statusCode: 409,
+      );
+    }
+    final errors = <String, String>{
+      if ((r.stage == 'postponed' || r.stage == 'failed') && r.reason == null)
+        'reason': 'Choose why.',
+      if (r.stage == 'failed' && r.nextStep == null)
+        'next_step': 'Choose what happens next.',
+      if (r.reason == 'other' && (r.note ?? '').trim().isEmpty)
+        'note': 'Write the reason in the note.',
+      if ((r.stage == 'postponed' || r.nextStep == 'retry') && r.date == null)
+        'date': 'Choose the new delivery day.',
+    };
+    if (errors.isNotEmpty) {
+      throw ApiException(
+        code: 'invalid_request',
+        message: "The request isn't valid.",
+        statusCode: 400,
+        fieldErrors: errors,
+      );
+    }
+    final slot = r.slotId == null
+        ? null
+        : FakeStages.slots.firstWhere((s) => s.$1 == r.slotId);
+    final entry = OrderStage.fromJson(
+      FakeStages.entry(
+        r.stage,
+        at: DateTime.now().toUtc(),
+        by: 'Leyla',
+        reason: r.reason,
+        note: r.note,
+        courierName: r.courierName,
+        courierPhone: r.courierPhone,
+        trackingUrl: r.trackingUrl,
+        date: r.date,
+        slot: slot,
+        next: r.nextStep,
+      ),
+    );
+    final status = r.stage == 'delivered'
+        ? 'completed'
+        : r.stage == 'failed' && r.nextStep == 'cancel'
+        ? 'cancelled'
+        : o.status;
+    // 132 Cancelled after a failed delivery: the money goes back, here by the owner.
+    final refundDue = status == 'cancelled' ? _refundDue(o) : null;
+    final updated = o.copyWith(
+      status: status,
+      statusLabel: _statusLabel(status),
+      nextStatuses: status == 'processing' ? o.nextStatuses : const [],
+      stage: entry,
+      stageHistory: [entry, ...o.stageHistory],
+      nextStages: status == 'processing' ? FakeStages.next(r.stage) : const [],
+      refundDue: refundDue,
     );
     _replace(appId, updated);
     return _detail(appId, updated);
+  }
+
+  /// 132 As the server: refunded at once through the provider, else the
+  /// owner pays it back ("Needs a refund").
+  RefundDue _refundDue(Order o) => RefundDue(
+    status: refundsByApi ? 'refunded' : 'needed',
+    amount: o.total,
+    at: DateTime.now().toUtc(),
+    why: refundsByApi ? null : 'Paid outside the app: pay it back the same way, then mark it refunded.',
+    whyCode: refundsByApi ? null : 'paid_outside',
+  );
+
+  @override
+  Future<Order> markRefunded(String appId, int orderId) async {
+    await _call('markRefunded');
+    _app(appId, (f) => f.orders);
+    final o = _find(appId, orderId);
+    if (!o.needsRefund) {
+      throw const ApiException(
+        code: 'no_refund_due',
+        message: "This order doesn't need a refund.",
+        statusCode: 409,
+      );
+    }
+    final updated = o.copyWith(
+      status: 'refunded',
+      statusLabel: _statusLabel('refunded'),
+      refundDue: RefundDue(
+        status: 'recorded',
+        amount: o.refundDue!.amount,
+        at: o.refundDue!.at,
+        doneAt: DateTime.now().toUtc(),
+        doneBy: 'Leyla',
+      ),
+    );
+    _replace(appId, updated);
+    return _detail(appId, updated);
+  }
+
+  @override
+  Future<DeliveryDay> stageSlots(String appId, {String? date}) async {
+    await _call('stageSlots');
+    final day = date ?? _FakeStudio._isoDay(DateTime.now());
+    return DeliveryDay(
+      date: day,
+      dateLabel: day,
+      slots: [
+        for (final (id, start, end) in FakeStages.slots)
+          DeliveryTime(
+            id: id,
+            label: '$start–$end',
+            orders: id == 'evening' ? 4 : 1,
+            full: id == 'evening',
+          ),
+      ],
+    );
   }
 
   @override
@@ -1658,17 +1837,9 @@ class FakeOwnerApi with _FakeStudio implements OwnerApi {
     final whole =
         refunds.fold(0, (n, r) => n + r.amount.amountCents) >=
         o.total.amountCents;
-    final updated = Order(
-      id: o.id,
-      number: o.number,
+    final updated = o.copyWith(
       status: whole ? 'refunded' : o.status,
       statusLabel: _statusLabel(whole ? 'refunded' : o.status),
-      kitchen: o.kitchen,
-      total: o.total,
-      lines: o.lines,
-      customer: o.customer,
-      createdAt: o.createdAt,
-      paidAt: o.paidAt,
       nextStatuses: whole ? const [] : o.nextStatuses,
       refunds: refunds,
     );
@@ -3999,6 +4170,71 @@ class _FakeTransport implements UploadTransport {
 }
 
 /// Lets tests make the fake gate fail a chunk.
+/// 132 The fake's delivery stages: where each may go next, and an entry as
+/// the Owner API writes it (English labels; the app shows its own words).
+abstract final class FakeStages {
+  static List<String> next(String? stage) => switch (stage) {
+    null => const ['preparing', 'shipped', 'postponed', 'delivered'],
+    'preparing' => const ['shipped', 'postponed', 'delivered'],
+    'shipped' => const ['delivered', 'postponed', 'failed'],
+    'postponed' => const ['preparing', 'shipped', 'postponed', 'delivered'],
+    'failed' => const ['shipped', 'postponed', 'returned'],
+    'returned' => const ['shipped', 'postponed'],
+    _ => const <String>[],
+  };
+
+  static const slots = [
+    ('morning', '10:00', '13:00'),
+    ('afternoon', '13:00', '16:00'),
+    ('evening', '16:00', '19:00'),
+  ];
+
+  static const _labels = {
+    'preparing': 'Preparing',
+    'shipped': 'Out for delivery',
+    'postponed': 'Delivery postponed',
+    'failed': 'Delivery failed',
+    'returned': 'Returned to shop',
+    'delivered': 'Delivered',
+  };
+
+  static Json entry(
+    String stage, {
+    required DateTime at,
+    String? by,
+    String? reason,
+    String? note,
+    String? courierName,
+    String? courierPhone,
+    String? trackingUrl,
+    String? date,
+    (String, String, String)? slot,
+    String? next,
+  }) => {
+    'stage': stage,
+    'label': _labels[stage] ?? stage,
+    'at': at.toUtc().toIso8601String(),
+    'by': by,
+    'reason': reason == null ? null : {'code': reason, 'label': reason},
+    'note': note,
+    'courier': courierName == null && courierPhone == null
+        ? null
+        : {'name': courierName, 'phone': courierPhone},
+    'tracking_url': trackingUrl,
+    'date': date,
+    'date_label': date,
+    'slot': slot == null
+        ? null
+        : {
+            'id': slot.$1,
+            'start': slot.$2,
+            'end': slot.$3,
+            'label': '${slot.$2}–${slot.$3}',
+          },
+    'next_step': next == null ? null : {'code': next, 'label': next},
+  };
+}
+
 extension FakeTransportControl on FakeOwnerApi {
   Set<int> get failChunksAt => (transport as _FakeTransport).failAt;
 

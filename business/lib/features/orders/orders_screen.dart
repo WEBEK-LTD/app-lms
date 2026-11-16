@@ -7,10 +7,14 @@ import '../../core/providers.dart';
 import '../../core/routing/paths.dart';
 import '../../core/session.dart';
 import '../../core/theme/icons.dart';
+import '../../core/theme/theme.dart';
 import '../../core/widgets/l10n.dart';
 import '../../core/widgets/paged_list.dart';
 import '../../core/widgets/states.dart';
+import '../studio/studio_widgets.dart' show IconLine;
 import 'order_actions.dart';
+import 'order_stages.dart';
+import 'order_screen.dart' show deliveryWhen;
 
 /// 59 Orders by status, newest first; a restaurant's new orders can be
 /// accepted or declined right from the list.
@@ -75,7 +79,14 @@ class _OrdersScreenState extends ConsumerState<OrdersScreen>
           for (final status in statuses)
             PagedList<Order>(
               key: ValueKey('$appId-$status-$_version'),
-              load: (page) => api.orders(appId, statuses: [status], page: page),
+              // 132 In progress lists the orders waiting for a bank transfer or the owner's own method too.
+              load: (page) => api.orders(
+                appId,
+                statuses: status == 'processing'
+                    ? const ['pending', 'processing']
+                    : [status],
+                page: page,
+              ),
               empty: EmptyState(
                 icon: AppIcons.orders,
                 title: status == 'processing'
@@ -93,18 +104,27 @@ class _OrdersScreenState extends ConsumerState<OrdersScreen>
   }
 }
 
-class OrderCard extends StatelessWidget {
+class OrderCard extends ConsumerWidget {
   const OrderCard({super.key, required this.order, required this.onChanged});
 
   final Order order;
   final void Function(Order updated) onChanged;
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     final theme = Theme.of(context);
     final l10n = context.l10n;
-    final customer = order.customer?.name;
+    final customer = order.buyerName;
     final kitchen = order.kitchen;
+    final c = context.yb;
+    final d = order.delivery;
+    // 132 When it goes and to whom: the day and slot, the gift's recipient.
+    final when = d != null && d.hasWhen
+        ? deliveryWhen(context, d)
+        : kitchen?.scheduledFor != null
+        ? context.dateTime(kitchen!.scheduledFor!)
+        : null;
+    final to = order.deliverTo;
     return Panel(
       onTap: () => context.push(Paths.order(order.id)),
       child: Column(
@@ -120,10 +140,20 @@ class OrderCard extends StatelessWidget {
                   crossAxisAlignment: WrapCrossAlignment.center,
                   children: [
                     Text(order.label, style: theme.textTheme.titleMedium),
-                    StatusChip(
-                      orderStatusLabel(context, order),
-                      tone: StatusChip.toneOf(orderTone(order)),
-                    ),
+                    // 132 Cancelled after a failed delivery, still to pay back.
+                    if (order.needsRefund)
+                      StatusChip(l10n.needsRefund, tone: Tone.warn),
+                    // 132 A store order on its way: its delivery stage.
+                    if (order.stage != null && order.status == 'processing')
+                      StatusChip(
+                        stageLabel(context, order.stage!.stage),
+                        tone: stageTone(order.stage!.stage),
+                      )
+                    else
+                      StatusChip(
+                        orderStatusLabel(context, order),
+                        tone: StatusChip.toneOf(orderTone(order)),
+                      ),
                   ],
                 ),
               ),
@@ -142,16 +172,69 @@ class OrderCard extends StatelessWidget {
                   : '${isolate(customer)} · ${kitchen.type == 'delivery' ? l10n.delivery : l10n.pickup}',
               style: theme.textTheme.titleSmall,
             ),
+          if (to != null && to.isRecipient && to.name != null)
+            Padding(
+              padding: const EdgeInsets.only(top: 2),
+              child: IconLine(AppIcons.gift, l10n.giftFor(isolate(to.name!))),
+            ),
+          if (when != null)
+            Padding(
+              padding: const EdgeInsets.only(top: 2),
+              child: Row(
+                children: [
+                  Icon(AppIcons.when, size: 18, color: c.accentText),
+                  const SizedBox(width: 6),
+                  Expanded(
+                    child: Text(
+                      when,
+                      style: TextStyle(
+                        fontSize: 13,
+                        fontWeight: FontWeight.w600,
+                        color: c.accentText,
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          if (order.payOutside != null)
+            Padding(
+              padding: const EdgeInsets.only(top: 2),
+              child: Text(
+                l10n.payOutsideWaiting(isolate(order.payOutside!.name)),
+                style: TextStyle(fontSize: 13, color: c.warning),
+              ),
+            ),
           const SizedBox(height: 2),
           Text(
-            orderSummary(order),
+            orderSummary(context, order),
             maxLines: 2,
             overflow: TextOverflow.ellipsis,
             style: theme.textTheme.bodySmall,
           ),
           const SizedBox(height: 8),
           Text(order.total.formatted, style: theme.textTheme.titleSmall),
-          if (order.nextStatuses.isNotEmpty) ...[
+          // 132 A store order's next stage; its other stages on its page.
+          if (order.nextStages.isNotEmpty) ...[
+            const SizedBox(height: 12),
+            Align(
+              alignment: AlignmentDirectional.centerStart,
+              child: FilledButton.icon(
+                style: FilledButton.styleFrom(minimumSize: const Size(64, 48)),
+                icon: Icon(stageIcon(primaryStage(order))),
+                onPressed: () async {
+                  final updated = await moveStage(
+                    context,
+                    ref,
+                    order,
+                    primaryStage(order),
+                  );
+                  if (updated != null) onChanged(updated);
+                },
+                label: Text(stageActionLabel(context, primaryStage(order))),
+              ),
+            ),
+          ] else if (order.nextStatuses.isNotEmpty) ...[
             const SizedBox(height: 12),
             OrderActions(order: order, onChanged: onChanged),
           ],

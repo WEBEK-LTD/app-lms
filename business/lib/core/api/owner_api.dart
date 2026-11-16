@@ -65,6 +65,27 @@ abstract class OwnerApi {
   });
   Future<Order> order(String appId, int orderId);
   Future<Order> changeOrderStatus(String appId, int orderId, String status);
+
+  /// 132 The business's reply under a customer's rating (`food`, `market`
+  /// or `ride`), written or changed; the customer is told the first time.
+  Future<RatedItem> replyRating(
+    String appId,
+    String source,
+    String id,
+    String text,
+  );
+
+  /// 132 Takes the reply under a rating back.
+  Future<RatedItem> deleteRatingReply(String appId, String source, String id);
+
+  /// 132 "I refunded it": the owner paid an order that needs a refund back.
+  Future<Order> markRefunded(String appId, int orderId);
+
+  /// 132 Moves a store order's delivery to another stage (`next_stages`).
+  Future<Order> setOrderStage(String appId, int orderId, StageRequest request);
+
+  /// 132 A day's delivery times (YYYY-MM-DD; null: today), to postpone to.
+  Future<DeliveryDay> stageSlots(String appId, {String? date});
   Future<RefundResult> refundOrder(
     String appId,
     int orderId,
@@ -435,6 +456,36 @@ abstract class OwnerApi {
   Future<PrimeInsights> primeInsights(String appId, {String period = 'week'});
   Future<PrimeAlerts> primeAlerts(String appId);
   Future<PrimeAlerts> setPrimeAlerts(String appId, PrimeAlerts alerts);
+
+  // 132 Prime's second set: insights, reviews, the weekly report, quick actions.
+  Future<PrimeCustomers> primeCustomers(
+    String appId, {
+    String period = 'month',
+  });
+  Future<PrimeProducts> primeProducts(String appId, {String period = 'month'});
+  Future<PrimeReviews> primeReviews(String appId);
+  Future<WeeklyReport> weeklyReport(String appId);
+  Future<WeeklyReport> setWeeklyReport(String appId, bool on);
+
+  /// A coupon: its code once saved (field errors as [ApiException.fieldErrors]).
+  Future<String> createCoupon(String appId, Json coupon);
+
+  /// A flash sale: its title once saved.
+  Future<String> createFlashSale(String appId, Json sale);
+  Future<SlotsDay> deliverySlots(String appId, {String? date});
+  Future<SlotsDay> setSlotClosed(
+    String appId,
+    String slotId, {
+    required String date,
+    required bool closed,
+  });
+
+  /// A restaurant's busy time (0: open again); when it ends.
+  Future<DateTime?> setRestaurantBusy(
+    String appId,
+    String restaurantId,
+    int minutes,
+  );
 
   // 125 VIP: the account manager's free times, and a call booked.
   Future<List<CallDay>> accountManagerSlots();

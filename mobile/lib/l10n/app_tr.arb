@@ -208,7 +208,6 @@
   "giftFrom": "Kimden",
   "giftSomeone": "Seni düşünen biri",
   "giftArrives": "Varış",
-
   "shopping": "Alışveriş",
   "learning": "Öğrenme",
   "wishlist": "İstek listesi",
@@ -3179,5 +3178,17 @@
   "deliveryPinSet": "Haritada işaretlendi",
   "deliveryPinChange": "Değiştir",
   "deliveryNeedPlace": "Teslimat yerini seçin.",
-  "deliveryNeedPin": "Teslimat yerini haritada işaretleyin."
+  "deliveryNeedPin": "Teslimat yerini haritada işaretleyin.",
+  "orderStagePreparing": "Siparişiniz hazırlanıyor",
+  "orderStageShipped": "Siparişiniz dağıtımda",
+  "orderStagePostponed": "Teslimat ertelendi",
+  "orderStageFailed": "Teslim edemedik",
+  "orderStageReturned": "Sipariş mağazaya döndü",
+  "orderStageDelivered": "Teslim edildi",
+  "orderStageNewDay": "Yeni teslimat günü: {day}",
+  "orderStageTryAgain": "{day} tekrar deneyeceğiz",
+  "orderStageCourier": "Kurye: {name}",
+  "orderStageCallCourier": "Kuryeyi ara",
+  "orderStageFollow": "Teslimatı takip et",
+  "ratingReplyFrom": "{business} yanıtı"
 }

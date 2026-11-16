@@ -138,6 +138,8 @@ PushTarget pushTarget(Map<String, dynamic> data) {
             'shipment_unassigned' => Paths.shipments,
             'ride_no_driver' => Paths.rides,
             'message_unanswered' => Paths.chat,
+            // 132 A product running low opens the product insights.
+            'low_stock' => Paths.primeProducts,
             _ => Paths.today,
           },
           'morning_brief' => Paths.today,

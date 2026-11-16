@@ -1,3 +1,4 @@
+import { ownerRatingJson } from "./ratings";
 import type { DashKey } from "@/i18n/dashboard";
 import type { App, Courier, FoodOrder, FoodOrderStatus, Restaurant, Ride, RideStatus, Shipment, ShipmentStatus } from "../data/types";
 import { FOOD_REJECTIONS, SHIPMENT_STATUSES } from "../data/types";
@@ -16,6 +17,7 @@ import { driverMayHave } from "../rides/review";
 import { DRIVER_ACTIVE, RIDE_ACTIVE, rideIdOf, rideReference } from "../rides/service";
 import { liveBoard } from "../taxi/board";
 import { bodyObject, intParam, invalid, iso, notFound, pageJson, paging, type OwnerContext, type OwnerResult } from "./http";
+import { placePinJson } from "./order-details";
 import { appScope, money } from "./sales";
 import { changed, flowDeps, idFrom, initials, invalidStatus, minutesSince, noteOf, placeName, recordStudio, stageJson } from "./studio";
 
@@ -65,6 +67,13 @@ async function courierOfJob(ctx: OwnerContext, app: App, shipmentId: number | nu
   return job?.courierName ? { id: job.courierId, name: job.courierName } : null;
 }
 
+/** 132 The courier of a job with their phone, for the order's page (the company's own couriers). */
+async function courierWithPhone(ctx: OwnerContext, app: App, courier: { id: number | null; name: string } | null) {
+  if (!courier || courier.id === null) return null;
+  const record = await ctx.deps.store.getCourier(app.id, courier.id);
+  return { id: courier.id, name: courier.name, phone: record?.phone ?? null };
+}
+
 async function foodOrderJson(ctx: OwnerContext, app: App, order: FoodOrder) {
   const card = order.paymentMethod === "card";
   const courier = await courierOfJob(ctx, app, order.shipmentId);
@@ -91,12 +100,16 @@ async function foodOrderJson(ctx: OwnerContext, app: App, order: FoodOrder) {
 async function foodOrderDetail(ctx: OwnerContext, app: App, order: FoodOrder) {
   const restaurant = order.restaurantId !== null ? await ctx.deps.store.getRestaurant(app.id, order.restaurantId) : null;
   const max = FOOD_LIMITS.maxPrepMinutes;
+  const listed = await foodOrderJson(ctx, app, order);
   return {
-    ...(await foodOrderJson(ctx, app, order)),
+    ...listed,
+    // 132 The courier's phone, to call them.
+    courier: await courierWithPhone(ctx, app, listed.courier),
     lines: order.lines.map((l) => ({ quantity: l.quantity, name: l.name, options: [...l.choices, ...(l.note ? [l.note] : [])], total: money(l.unitCents * l.quantity, order.currency) })),
     subtotal: money(order.subtotalCents, order.currency),
     delivery_fee: money(order.deliveryFeeCents, order.currency),
-    customer: { name: order.customerName, phone: order.customerPhone || null, address: [order.dropoff.address, order.dropoff.details].filter(Boolean).join(", "), note: order.notes },
+    // 132 The drop-off's details and pin too, for the map.
+    customer: { name: order.customerName, phone: order.customerPhone || null, address: [order.dropoff.address, order.dropoff.details].filter(Boolean).join(", "), note: order.notes, ...placePinJson(order.dropoff) },
     restaurant_address: restaurant?.address.address ?? null,
     timeline: order.timeline.map((s) => stageJson(ctx, s, FOOD_STATUS_KEY)),
     // A card payment of an order turned down or cancelled is the company's to refund (Dashboard › Paid orders).
@@ -104,6 +117,8 @@ async function foodOrderDetail(ctx: OwnerContext, app: App, order: FoodOrder) {
     prep_choices: PREP_CHOICES.filter((m) => m >= 5 && m <= max),
     rejection_reasons: FOOD_REJECTIONS.map((id) => ({ id, label: ctx.t(`food.reason_${id}` as DashKey) })),
     cash_to_collect: order.paymentMethod === "cash" && order.paymentStatus === "unpaid" && FOOD_ACTIVE.includes(order.status) ? money(order.totalCents, order.currency) : null,
+    // 132 The customer's rating and the business's reply under it.
+    rating: ownerRatingJson(order.rating),
   };
 }
 
@@ -231,8 +246,9 @@ function shipmentJson(ctx: OwnerContext, s: Shipment) {
     reference: shipmentReference(s),
     status: s.status,
     status_label: ctx.t(SHIPMENT_STATUS_KEY(s.status)),
-    pickup: { name: s.senderName, address: s.pickup.address },
-    dropoff: { name: s.recipientName, address: s.dropoff.address },
+    // 132 Each place's details and pin, for the map.
+    pickup: { name: s.senderName, address: s.pickup.address, ...placePinJson(s.pickup) },
+    dropoff: { name: s.recipientName, address: s.dropoff.address, ...placePinJson(s.dropoff) },
     distance_km: s.distanceKm,
     price: money(s.priceCents, s.currency),
     payment: { method: s.paymentMethod, label: ctx.t(cash ? "delivery.payCash" : "delivery.payCard") },
@@ -252,6 +268,10 @@ function shipmentDetail(ctx: OwnerContext, s: Shipment) {
     timeline: s.timeline.map((stage) => stageJson(ctx, stage, SHIPMENT_STATUS_KEY)),
     note: s.notes,
     recipient: { name: s.recipientName, phone: s.recipientPhone || null },
+    // 132 Who sends it, what it is and which service.
+    sender: { name: s.senderName, phone: s.senderPhone || null },
+    package: { size: s.packageSize, description: s.packageDescription },
+    service: s.serviceName,
   };
 }
 
@@ -392,8 +412,8 @@ function rideJson(ctx: OwnerContext, ride: Ride, driver: Courier | null) {
     status: ride.status,
     status_label: ctx.t(RIDE_STATUS_KEY(ride.status)),
     vehicle_type: ride.vehicleTypeName || null,
-    pickup: { name: placeName(ride.pickup.address), address: ride.pickup.address },
-    dropoff: { name: placeName(ride.dropoff.address), address: ride.dropoff.address },
+    pickup: { name: placeName(ride.pickup.address), address: ride.pickup.address, ...placePinJson(ride.pickup) },
+    dropoff: { name: placeName(ride.dropoff.address), address: ride.dropoff.address, ...placePinJson(ride.dropoff) },
     distance_km: ride.fareMode === "metered" && ride.meterKm >= 0.1 ? round1(ride.meterKm) : ride.estimateKm,
     quoted: money(ride.quotedCents, ride.currency),
     final: ride.finalCents !== null ? money(ride.finalCents, ride.currency) : null,
@@ -410,7 +430,15 @@ function rideJson(ctx: OwnerContext, ride: Ride, driver: Courier | null) {
 }
 
 function rideDetail(ctx: OwnerContext, ride: Ride, driver: Courier | null) {
-  return { ...rideJson(ctx, ride, driver), timeline: ride.timeline.map((s) => stageJson(ctx, s, RIDE_STATUS_KEY)) };
+  return {
+    ...rideJson(ctx, ride, driver),
+    // 132 The rider to call, and their note to the driver.
+    rider: { name: ride.riderName, phone: ride.riderPhone || null },
+    notes: ride.notes,
+    timeline: ride.timeline.map((s) => stageJson(ctx, s, RIDE_STATUS_KEY)),
+    // 132 The rider's rating and the business's reply under it.
+    rating: ownerRatingJson(ride.rating),
+  };
 }
 
 export async function listRides(ctx: OwnerContext, params: Record<string, string>): Promise<OwnerResult> {
