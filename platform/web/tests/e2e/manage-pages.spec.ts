@@ -184,6 +184,8 @@ test("132.11 the list finds, filters, sorts and changes products in bulk", async
   await own.getByRole("searchbox", { name: "Search products" }).fill("vase");
   await expect.poll(rows).toEqual(["Ceramic Vase"]);
   await own.getByRole("button", { name: "Clear filters" }).first().click();
+  // 132.131 The filters open from one button.
+  await own.getByRole("button", { name: /^Filters/ }).click();
   await own.getByRole("button", { name: /^On sale/ }).click();
   await expect.poll(rows).toEqual(["Tulip Bouquet"]);
   await own.getByRole("button", { name: /^On sale/ }).click();

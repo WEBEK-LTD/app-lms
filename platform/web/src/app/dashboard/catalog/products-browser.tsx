@@ -9,6 +9,7 @@ import type { IconName } from "@/components/icon-names";
 import { useDashT } from "@/components/dashboard-i18n";
 import { useViewChoice, ViewToggle } from "@/components/manage-kit-client";
 import { Badge, btn } from "@/components/ui";
+import { KitEmpty, KitSearch, KitStatus, kit } from "@/components/studio-page";
 import { initialFormState } from "@/lib/forms";
 import type { DashKey } from "@/i18n/dashboard";
 import { SORTS, type ProductFilters, type Sort } from "./product-filters";
@@ -74,6 +75,8 @@ export function ProductsBrowser({ products, categories, restaurant, initial }: {
   const kind = restaurant ? "restaurant" : "shop";
   const [f, setF] = useState<ProductFilters>(initial);
   const [view, setView] = useViewChoice("products");
+  // 132.131 The filters behind one button, open when the address asks for one.
+  const [filtersOpen, setFiltersOpen] = useState(initial.category !== "all" || initial.status !== "all" || initial.sale || initial.out || initial.addon);
   const [selected, setSelected] = useState<Set<number>>(new Set());
   const [state, dispatch, pending] = useActionState(bulkProductsAction, initialFormState);
   const [confirmDelete, setConfirmDelete] = useState(false);
@@ -173,10 +176,8 @@ export function ProductsBrowser({ products, categories, restaurant, initial }: {
     ...(restaurant ? [] : [{ key: "addon" as const, label: t("manage.addons"), count: counts.addon, chipIcon: "redeem" as const }]),
   ];
   const icon = restaurant ? "restaurant_menu" : "shopping_bag";
-  const select = "input input-sm h-10 min-w-0 cursor-pointer pe-8";
-
   const status = (p: ProductRowData) =>
-    !p.active ? <Badge tone="neutral">{t("common.hidden")}</Badge> : p.stock === 0 ? <Badge tone="warn">{t("shop.outOfStock")}</Badge> : <Badge tone="success">{t("manage.shown")}</Badge>;
+    !p.active ? <KitStatus tone="neutral">{t("common.hidden")}</KitStatus> : p.stock === 0 ? <KitStatus tone="warn">{t("shop.outOfStock")}</KitStatus> : <KitStatus tone="success">{t("manage.shown")}</KitStatus>;
   const badges = (p: ProductRowData) => (
     <>
       {p.sample ? (
@@ -199,12 +200,12 @@ export function ProductsBrowser({ products, categories, restaurant, initial }: {
       .join(" · ");
   const priceOf = (p: ProductRowData) => (
     <span className="flex flex-wrap items-baseline gap-x-1.5" dir="auto">
-      <span className="font-bold text-midnight tabular-nums">{p.price}</span>
-      {p.was ? <s className="text-[13px] text-muted tabular-nums">{p.was}</s> : null}
+      <span className="font-bold text-(--sp-ink) tabular-nums">{p.price}</span>
+      {p.was ? <s className="text-[13px] text-(--sp-muted) tabular-nums">{p.was}</s> : null}
     </span>
   );
   const stockOf = (p: ProductRowData) =>
-    p.stock === null ? <span className="text-muted">{t("manage.stockNotCounted")}</span> : p.stock === 0 ? <span className="font-semibold text-warn">{t("shop.outOfStock")}</span> : <span className="tabular-nums">{t("shop.inStock", { count: p.stock })}</span>;
+    p.stock === null ? <span className="text-(--sp-muted)">{t("manage.stockNotCounted")}</span> : p.stock === 0 ? <span className="font-semibold text-warn">{t("shop.outOfStock")}</span> : <span className="tabular-nums">{t("shop.inStock", { count: p.stock })}</span>;
   const quick = (p: ProductRowData) => (
     <button
       type="button"
@@ -212,7 +213,7 @@ export function ProductsBrowser({ products, categories, restaurant, initial }: {
       onClick={() => run(p.active ? "hide" : "publish", [p.id])}
       aria-label={p.active ? t("manage.rowHide", { name: p.name }) : t("manage.rowShow", { name: p.name })}
       title={p.active ? t("manage.rowHide", { name: p.name }) : t("manage.rowShow", { name: p.name })}
-      className="flex h-9 w-9 shrink-0 cursor-pointer items-center justify-center rounded-lg border-0 bg-transparent text-muted hover:bg-sand hover:text-midnight disabled:opacity-50"
+      className={kit.icon}
     >
       <Icon name={p.active ? "visibility" : "visibility_off"} size={20} />
     </button>
@@ -220,28 +221,42 @@ export function ProductsBrowser({ products, categories, restaurant, initial }: {
   const check = (p: ProductRowData, className = "") => (
     <input type="checkbox" checked={selected.has(p.id)} onChange={() => toggle(p.id)} aria-label={t("manage.selectItem", { name: p.name })} className={`h-[18px] w-[18px] shrink-0 cursor-pointer accent-midnight ${className}`} />
   );
+  const clear = () => setF({ ...initialFilters, sort: f.sort });
+
+  const activeFilters = [f.category !== "all", f.status !== "all", f.sale, f.out, f.addon].filter(Boolean).length;
+  const selectAll = (
+    <label className="flex cursor-pointer items-center gap-2.5 text-[13px] font-semibold text-(--sp-muted)">
+      <input type="checkbox" checked={allShownSelected} onChange={() => setSelected(allShownSelected ? new Set() : new Set(shown.map((p) => p.id)))} className="h-[18px] w-[18px] cursor-pointer accent-midnight" />
+      {t("manage.selectAll")}
+    </label>
+  );
 
   return (
-    <section aria-labelledby="h-products" className="flex min-w-0 flex-col rounded-2xl border border-line bg-white" data-products-browser="">
+    // 132.131 The premium kit: one card; the search, the filters behind one button, the sort and the view on top; then rows of a name, one pill and one action.
+    <section aria-labelledby="h-products" className={`${kit.card} flex min-w-0 flex-col`} data-products-browser="">
       <h2 id="h-products" className="sr-only">
         {t("shop.count", { kind, count: products.length })}
       </h2>
-      {/* The bar: search, filters, sort and view. */}
-      <div className="flex flex-col gap-3 border-b border-line-soft px-4 py-3.5 sm:px-5">
+      <div className="flex flex-col gap-3 px-4 pt-4 pb-3 sm:px-6 sm:pt-6">
         <div className="flex flex-wrap items-center gap-2">
-          <label className="flex h-10 min-w-0 flex-[1_1_240px] items-center gap-2 rounded-[10px] border border-line bg-white px-3 text-sm text-muted focus-within:border-midnight">
-            <Icon name="search" size={18} />
-            <input
-              type="search"
-              value={f.q}
-              onChange={(e) => setF({ ...f, q: e.target.value })}
-              placeholder={t("shop.search", { kind })}
-              aria-label={t("shop.search", { kind })}
-              className="min-w-0 flex-1 border-0 bg-transparent text-sm text-midnight outline-0"
-            />
-          </label>
+          <KitSearch label={t("shop.search", { kind })} value={f.q} onChange={(q) => setF({ ...f, q })} />
+          <button type="button" aria-expanded={filtersOpen} aria-controls="products-filters" onClick={() => setFiltersOpen((o) => !o)} className={`${kit.ghost} h-11 ${filtersOpen ? "bg-(--sp-soft)" : ""}`}>
+            <Icon name="tune" size={20} />
+            {t("studioPage.filters")}
+            {activeFilters ? <span className="flex h-5 min-w-5 items-center justify-center rounded-full bg-ember px-1.5 text-xs font-extrabold text-[#0e0d24] tabular-nums">{activeFilters}</span> : null}
+          </button>
+          <select value={f.sort} onChange={(e) => setF({ ...f, sort: e.target.value as Sort })} aria-label={t("manage.sort")} className={`${kit.field} h-11 flex-[0_1_180px] rounded-2xl`}>
+            {SORTS.map((s) => (
+              <option key={s} value={s}>
+                {t(SORT_WORDS[s])}
+              </option>
+            ))}
+          </select>
+          <ViewToggle view={view} onChange={setView} words={{ label: t("manage.view"), list: t("manage.viewList"), grid: t("manage.viewGrid") }} />
+        </div>
+        <div id="products-filters" hidden={!filtersOpen} className="kit-reveal flex flex-wrap items-center gap-2 rounded-2xl bg-(--sp-soft) p-2.5">
           {categories.length ? (
-            <select value={f.category} onChange={(e) => setF({ ...f, category: e.target.value })} aria-label={t("manage.filterCategory")} className={`${select} flex-[0_1_200px]`}>
+            <select value={f.category} onChange={(e) => setF({ ...f, category: e.target.value })} aria-label={t("manage.filterCategory")} className={`${kit.field} flex-[0_1_200px]`}>
               <option value="all">{t("manage.allCategories")}</option>
               {categories.map((c) => (
                 <option key={c.id} value={String(c.id)}>
@@ -251,43 +266,31 @@ export function ProductsBrowser({ products, categories, restaurant, initial }: {
               <option value="none">{t("manage.noCategory")}</option>
             </select>
           ) : null}
-          <select value={f.status} onChange={(e) => setF({ ...f, status: e.target.value as ProductFilters["status"] })} aria-label={t("manage.filterStatus")} className={`${select} flex-[0_1_180px]`}>
+          <select value={f.status} onChange={(e) => setF({ ...f, status: e.target.value as ProductFilters["status"] })} aria-label={t("manage.filterStatus")} className={`${kit.field} flex-[0_1_180px]`}>
             <option value="all">{t("manage.anyStatus")}</option>
             <option value="shown">{t("shop.statShown")}</option>
             <option value="hidden">{t("common.hidden")}</option>
           </select>
-          <select value={f.sort} onChange={(e) => setF({ ...f, sort: e.target.value as Sort })} aria-label={t("manage.sort")} className={`${select} flex-[0_1_190px]`}>
-            {SORTS.map((s) => (
-              <option key={s} value={s}>
-                {t(SORT_WORDS[s])}
-              </option>
-            ))}
-          </select>
-          <ViewToggle view={view} onChange={setView} words={{ label: t("manage.view"), list: t("manage.viewList"), grid: t("manage.viewGrid") }} />
-        </div>
-        <div className="flex flex-wrap items-center gap-2">
           {chipsOf.map(({ key, label, count, chipIcon }) => {
             const on = f[key];
             return (
-              <button
-                key={key}
-                type="button"
-                aria-pressed={on}
-                onClick={() => setF({ ...f, [key]: !on })}
-                className={`inline-flex h-9 cursor-pointer items-center gap-1.5 rounded-full border px-3 text-[13px] ${on ? "border-midnight bg-midnight font-bold text-ivory" : "border-line bg-white text-midnight hover:border-line-strong"}`}
-              >
+              <button key={key} type="button" aria-pressed={on} onClick={() => setF({ ...f, [key]: !on })} className={kit.chip(on)}>
                 <Icon name={chipIcon} size={16} />
                 {label}
-                <span className={`rounded-full px-1.5 text-xs tabular-nums ${on ? "bg-white/20" : "bg-sand text-muted"}`}>{count}</span>
+                <span className={kit.chipCount(on)}>{count}</span>
               </button>
             );
           })}
-          <span className="ms-auto flex items-center gap-3 text-[13px] text-muted">
+        </div>
+        {/* Select all, and what shows of how many. */}
+        <div className="flex flex-wrap items-center gap-x-4 gap-y-2 px-1 pt-1">
+          {shown.length ? selectAll : null}
+          <span className="ms-auto flex items-center gap-3 text-[13px] text-(--sp-muted)">
             <span role="status" aria-live="polite">
               {t("manage.showing", { shown: shown.length, count: products.length })}
             </span>
             {filtered ? (
-              <button type="button" onClick={() => setF({ ...initialFilters, sort: f.sort })} className="cursor-pointer border-0 bg-transparent p-0 text-[13px] font-semibold text-accent underline">
+              <button type="button" onClick={clear} className="cursor-pointer border-0 bg-transparent p-0 text-[13px] font-semibold text-accent underline">
                 {t("manage.clearFilters")}
               </button>
             ) : null}
@@ -296,104 +299,90 @@ export function ProductsBrowser({ products, categories, restaurant, initial }: {
       </div>
 
       {done ? (
-        <div className="px-4 pt-3 sm:px-5">
+        <div className="px-4 pb-3 sm:px-6">
           <FormMessage message={done} ok />
         </div>
       ) : null}
       {!state.ok && state.message ? (
-        <div className="px-4 pt-3 sm:px-5">
+        <div className="px-4 pb-3 sm:px-6">
           <FormMessage message={state.message} />
         </div>
       ) : null}
 
       {shown.length === 0 ? (
-        <div className="flex flex-col items-center gap-3 px-5 py-12 text-center">
-          <span className="flex h-12 w-12 items-center justify-center rounded-full bg-sand text-muted">
-            <Icon name="search" size={26} />
-          </span>
-          <p role="status" className="m-0 text-[15px] text-muted">
-            {t("shop.noMatch", { kind })}
-          </p>
-          <button type="button" onClick={() => setF({ ...initialFilters, sort: f.sort })} className={`${btn.secondary} h-10`}>
-            {t("manage.clearFilters")}
-          </button>
-        </div>
+        <KitEmpty
+          icon="search"
+          title={<span role="status">{t("shop.noMatch", { kind })}</span>}
+          action={
+            <button type="button" onClick={clear} className={kit.quiet}>
+              {t("manage.clearFilters")}
+            </button>
+          }
+        />
       ) : view === "grid" ? (
-        <>
-          <label className="flex items-center gap-2.5 border-b border-line-soft px-4 py-2.5 text-[13px] font-semibold text-muted sm:px-5">
-            <input type="checkbox" checked={allShownSelected} onChange={() => setSelected(allShownSelected ? new Set() : new Set(shown.map((p) => p.id)))} className="h-[18px] w-[18px] cursor-pointer accent-midnight" />
-            {t("manage.selectAll")}
-          </label>
-          <ul className="m-0 grid list-none gap-4 p-4 sm:p-5" style={{ gridTemplateColumns: "repeat(auto-fill, minmax(min(210px, 100%), 1fr))" }}>
-            {shown.map((p, i) => (
-              <li key={p.id} data-product={p.name} className={`group relative flex flex-col overflow-hidden rounded-2xl border bg-white transition-shadow hover:shadow-[0_6px_24px_rgba(14,13,36,0.08)] ${selected.has(p.id) ? "border-midnight" : "border-line"}`}>
-                <Link href={`/dashboard/catalog/${p.id}`} className="flex flex-1 flex-col text-midnight no-underline hover:text-midnight">
-                  <span className="relative block">
-                    <Picture src={p.image} icon={icon} tint={i} className={`aspect-[4/3] w-full ${p.active ? "" : "opacity-60"}`} />
-                    {p.salePercent ? <span className="absolute end-2.5 top-2.5 rounded-full bg-ember px-2 py-0.5 text-xs font-extrabold text-[#0e0d24]">{t("manage.percentOff", { percent: p.salePercent })}</span> : null}
+        <ul className="m-0 grid list-none gap-4 px-4 pt-1 pb-5 sm:gap-5 sm:px-6 sm:pb-7" style={{ gridTemplateColumns: "repeat(auto-fill, minmax(min(210px, 100%), 1fr))" }}>
+          {shown.map((p, i) => (
+            <li key={p.id} data-product={p.name} className={`group relative flex flex-col overflow-hidden rounded-3xl bg-(--sp-soft) ring-1 transition-shadow hover:shadow-[0_12px_32px_-16px_rgba(14,13,36,0.3)] ${selected.has(p.id) ? "ring-(--sp-ink)" : "ring-transparent"}`}>
+              <Link href={`/dashboard/catalog/${p.id}`} className="flex flex-1 flex-col text-(--sp-ink) no-underline hover:text-(--sp-ink)">
+                <span className="relative block">
+                  <Picture src={p.image} icon={icon} tint={i} className={`aspect-[4/3] w-full ${p.active ? "" : "opacity-60"}`} />
+                  {p.salePercent ? <span className="absolute end-3 top-3 rounded-full bg-ember px-2 py-0.5 text-xs font-extrabold text-[#0e0d24]">{t("manage.percentOff", { percent: p.salePercent })}</span> : null}
+                </span>
+                <span className="flex flex-1 flex-col gap-2 px-4 pt-3.5 pb-4">
+                  <span className="flex flex-wrap items-center gap-1.5">
+                    <span className="me-1 text-[15px] leading-snug font-semibold break-words">{p.name}</span>
+                    {badges(p)}
                   </span>
-                  <span className="flex flex-1 flex-col gap-1.5 px-3.5 pt-3 pb-3.5">
-                    <span className="text-[15px] leading-snug font-bold break-words">{p.name}</span>
-                    {priceOf(p)}
-                    <span className="flex flex-wrap items-center gap-1.5 text-[13px]">
-                      {status(p)}
-                      {badges(p)}
-                    </span>
-                    <span className="text-[13px]">{stockOf(p)}</span>
+                  {priceOf(p)}
+                  <span className="mt-auto flex flex-wrap items-center gap-2 text-[13px] text-(--sp-muted)">
+                    {status(p)}
+                    {stockOf(p)}
                   </span>
-                </Link>
-                <span className="absolute start-2.5 top-2.5 flex h-8 w-8 items-center justify-center rounded-lg bg-white/90 shadow-sm">{check(p)}</span>
-              </li>
-            ))}
-          </ul>
-        </>
+                </span>
+              </Link>
+              <span className="absolute start-3 top-3 flex h-8 w-8 items-center justify-center rounded-xl bg-white/90 shadow-sm">{check(p)}</span>
+            </li>
+          ))}
+        </ul>
       ) : (
-        <>
-          {/* The columns' names, beside "select all" (wide screens). */}
-          <div className="flex items-center gap-x-4 border-b border-line-soft px-4 py-2.5 text-[13px] font-semibold text-muted sm:px-5">
-            <input type="checkbox" checked={allShownSelected} onChange={() => setSelected(allShownSelected ? new Set() : new Set(shown.map((p) => p.id)))} aria-label={t("manage.selectAll")} className="h-[18px] w-[18px] cursor-pointer accent-midnight" />
-            <span className="flex-1 max-md:hidden">{t("shop.itemLabel", { kind })}</span>
-            <span className="flex-1 md:hidden">{t("manage.selectAll")}</span>
-            <span className="w-[130px] max-md:hidden">{t("manage.colPrice")}</span>
-            <span className="w-[110px] max-md:hidden">{t("shop.stock")}</span>
-            <span className="w-[130px] max-md:hidden">{t("manage.colStatus")}</span>
-            <span className="w-9 max-md:hidden" />
-          </div>
-          <ul className="m-0 flex list-none flex-col p-0">
-            {shown.map((p, i) => (
-              <li key={p.id} data-product={p.name} className={`flex flex-wrap items-center gap-x-4 gap-y-2 border-t border-line-soft px-4 py-3 first:border-t-0 sm:px-5 ${selected.has(p.id) ? "bg-sand" : ""}`}>
-                {check(p)}
-                <Link href={`/dashboard/catalog/${p.id}`} className="group flex min-w-0 flex-[1_1_220px] items-center gap-3 rounded-xl text-midnight no-underline hover:text-midnight">
-                  <span className="relative shrink-0">
-                    <Picture src={p.image} icon={icon} tint={i} className={`h-12 w-12 rounded-xl border border-line-soft ${p.active ? "" : "opacity-60"}`} />
-                    {p.salePercent ? <span className="absolute -end-1.5 -top-1.5 rounded-full bg-ember px-1.5 text-[11px] leading-[18px] font-extrabold text-[#0e0d24]">%</span> : null}
+        <ul className="m-0 flex list-none flex-col px-2 pb-3 sm:px-4 sm:pb-4">
+          {shown.map((p, i) => (
+            // A name with its price, stock and category, one pill, one action (on phones the pill goes under the name).
+            <li
+              key={p.id}
+              data-product={p.name}
+              className={`grid grid-cols-[auto_minmax(0,1fr)_auto] items-center gap-x-3 gap-y-1 rounded-2xl border-t border-(--sp-line-soft) px-2 py-3 transition-colors first:border-t-0 sm:grid-cols-[auto_minmax(0,1fr)_auto_auto] sm:gap-x-4 sm:px-3 ${selected.has(p.id) ? "bg-(--sp-soft)" : "hover:bg-(--sp-soft)"}`}
+            >
+              {check(p)}
+              <Link href={`/dashboard/catalog/${p.id}`} className="group flex min-w-0 items-center gap-3.5 text-(--sp-ink) no-underline hover:text-(--sp-ink)">
+                <span className="relative shrink-0">
+                  <Picture src={p.image} icon={icon} tint={i} className={`h-[52px] w-[52px] rounded-2xl ${p.active ? "" : "opacity-60"}`} />
+                  {p.salePercent ? <span className="absolute -end-1.5 -top-1.5 rounded-full bg-ember px-1.5 text-[11px] leading-[18px] font-extrabold text-[#0e0d24]">%</span> : null}
+                </span>
+                <span className="flex min-w-0 flex-col gap-1">
+                  <span className="flex min-w-0 flex-wrap items-center gap-x-2 gap-y-1">
+                    <span className="text-[15px] font-semibold break-words group-hover:underline">{p.name}</span>
+                    {badges(p)}
                   </span>
-                  <span className="flex min-w-0 flex-col gap-0.5">
-                    <span className="flex min-w-0 flex-wrap items-center gap-x-2 gap-y-1">
-                      <span className="text-[15px] font-bold break-words group-hover:underline">{p.name}</span>
-                      {badges(p)}
-                    </span>
-                    {metaOf(p) ? (
-                      <span className="text-[13px] text-muted" dir="auto">
-                        {metaOf(p)}
-                      </span>
-                    ) : null}
-                  </span>
-                </Link>
-                {/* On a phone the price, stock and state go under the name. */}
-                <span className="flex items-center gap-x-4 gap-y-1 max-md:basis-full max-md:flex-wrap max-md:ps-[34px] max-md:text-[13px]">
-                  <span className="flex flex-col md:w-[130px]">
+                  <span className="flex min-w-0 flex-wrap items-baseline gap-x-2 gap-y-0.5 text-[13px] text-(--sp-muted)">
                     {priceOf(p)}
                     {p.salePercent ? <span className="text-xs font-bold text-accent">{t("manage.percentOff", { percent: p.salePercent })}</span> : null}
+                    <span aria-hidden="true">·</span>
+                    {stockOf(p)}
+                    {metaOf(p) ? (
+                      <>
+                        <span aria-hidden="true">·</span>
+                        <span dir="auto">{metaOf(p)}</span>
+                      </>
+                    ) : null}
                   </span>
-                  <span className="text-sm md:w-[110px]">{stockOf(p)}</span>
-                  <span className="md:w-[130px]">{status(p)}</span>
-                  {quick(p)}
                 </span>
-              </li>
-            ))}
-          </ul>
-        </>
+              </Link>
+              <span className="max-sm:col-start-2 max-sm:row-start-2 max-sm:ps-[66px]">{status(p)}</span>
+              <span className="max-sm:col-start-3 max-sm:row-start-1">{quick(p)}</span>
+            </li>
+          ))}
+        </ul>
       )}
 
       {/* What to do with the chosen products, at the foot of the screen while the list scrolls. */}

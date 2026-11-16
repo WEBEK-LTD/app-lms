@@ -231,11 +231,13 @@ test("the member joins from the email, and sees only Orders", async ({ browser }
 
 test("the member completes the order on the dashboard, and the owner sees who did it", async () => {
   await member.goto("/dashboard/orders");
+  // 132.132 The order's lines are in its drawer; completing it is the row's one action.
+  await member.getByRole("button", { name: /^Order \d+/ }).click();
   await expect(member.getByText("Copper pot")).toBeVisible();
+  await member.keyboard.press("Escape");
   await member.getByRole("button", { name: "Mark completed" }).click();
-  // The order is done once its own button is gone (the page has "Completed" in its filters before that).
-  await expect(member.getByRole("button", { name: "Mark completed" })).toHaveCount(0);
-  await expect(member.getByText("Completed").first()).toBeVisible();
+  // The order's own pill (the page's numbers name "Completed" too).
+  await expect(member.getByRole("listitem").filter({ hasText: "Copper pot" })).toContainText("Completed");
   await own.goto("/dashboard/team");
   await expect(own.getByTestId("team-activity")).toContainText(`${staff.name} · Order`);
   await expect(own.getByTestId("team-activity")).toContainText("Completed");

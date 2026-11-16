@@ -31,8 +31,11 @@ function StageForm({ stage, props }: { stage: string; props: StageFormProps }) {
   const day = stage === "postponed" || stage === "failed";
   if (state.ok) return <FormMessage message={state.message} ok />;
   return (
-    <details className="rounded-xl border border-line p-3" open={Boolean(state.message || state.errors)} data-stage-form={stage}>
-      <summary className="cursor-pointer text-[15px] font-semibold">{t(`orders.do_${stage}` as DashKey)}</summary>
+    // 132.132 A small pill until opened; open, it takes the row with its form.
+    <details className="group open:basis-full open:rounded-2xl open:bg-(--sp-surface) open:p-4" open={Boolean(state.message || state.errors)} data-stage-form={stage}>
+      <summary className="inline-flex h-9 cursor-pointer list-none items-center gap-1.5 rounded-full border border-(--sp-line) bg-(--sp-surface) px-3.5 text-[13px] font-bold text-(--sp-ink) transition-colors hover:border-(--sp-ink) group-open:border-transparent group-open:px-0 [&::-webkit-details-marker]:hidden">
+        {t(`orders.do_${stage}` as DashKey)}
+      </summary>
       <form action={action} noValidate className="mt-3 flex flex-col gap-3">
         <input type="hidden" name="id" value={props.id} />
         <input type="hidden" name="stage" value={stage} />
@@ -119,7 +122,7 @@ function StageForm({ stage, props }: { stage: string; props: StageFormProps }) {
 export function StageForms(props: StageFormProps) {
   if (props.next.length === 0) return null;
   return (
-    <div className="flex flex-col gap-2" data-stage-forms={props.id}>
+    <div className="flex flex-wrap gap-2" data-stage-forms={props.id}>
       {props.next.map((stage) => (
         <StageForm key={stage} stage={stage} props={props} />
       ))}

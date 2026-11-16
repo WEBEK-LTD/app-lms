@@ -89,6 +89,8 @@ test("66 121 a new account, before its first plan, asks from Your account, and c
 
   // Active from the start: its own account page, before any app or plan.
   await own.goto("/dashboard/account");
+  // 132.133 What happens and the form open from one line.
+  await own.getByText("See what happens and ask to delete it").click();
   await own.getByLabel("Type your email address to confirm").fill(client.email);
   await own.getByLabel("Your password").fill(client.password);
   await own.getByRole("button", { name: "Delete my account" }).click();
@@ -124,6 +126,7 @@ test("66 the owner asks from Your account, their phone is signed out, and our te
   await own.goto("/dashboard/account");
   await expect(own.getByRole("heading", { level: 1, name: "Your account" })).toBeVisible();
   await expect(own.getByRole("navigation").getByRole("link", { name: "Your account" })).toBeVisible();
+  await own.getByText("See what happens and ask to delete it").click();
   await own.getByLabel("Type your email address to confirm").fill(client.email);
   await own.getByLabel("Your password").fill("not-the-password");
   await own.getByRole("button", { name: "Delete my account" }).click();
