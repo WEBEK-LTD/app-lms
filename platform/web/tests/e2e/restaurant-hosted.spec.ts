@@ -275,7 +275,8 @@ test("the kitchen moves the order on and the app sees every step", async ({ requ
   ] as const) {
     await card.getByRole("button", { name: button, exact: true }).click();
     await expect(card.getByRole("button", { name: button, exact: true })).toHaveCount(0);
-    expect((await step()).fulfilment_status).toBe(status);
+    // The button shows "Saving…" before the server has moved the order: wait for it.
+    await expect.poll(async () => (await step()).fulfilment_status).toBe(status);
   }
   await card.getByRole("button", { name: "Completed", exact: true }).click();
   await expect(own.getByText("No orders in the kitchen")).toBeVisible();
