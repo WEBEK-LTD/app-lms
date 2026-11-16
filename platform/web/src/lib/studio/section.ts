@@ -32,6 +32,27 @@ export function studioPathFor(path: string): string | null {
   return `/studio/project${rest}${query}`;
 }
 
+/** 132.3 The account's pages Studio shows in its own frame too, from its menu and its pages' links. */
+const FRAMED_ACCOUNT_PAGES = new Set(["account", "team"]);
+
+/**
+ * 132.3 Where a link to a dashboard page goes from a Studio project's page:
+ * as [studioPathFor], and the account and team pages in Studio's frame
+ * too (the dashboard itself still leaves them where they are, so their old
+ * addresses keep working there).
+ */
+export function studioFramePath(path: string): string | null {
+  const target = studioPathFor(path);
+  if (target) return target;
+  const m = /^\/(?:ar\/|tr\/)?dashboard\/([^/?#]+)([^#]*)/.exec(path);
+  return m && FRAMED_ACCOUNT_PAGES.has(m[1]!) ? `/studio/project/${m[1]}${m[2] ?? ""}` : null;
+}
+
+/** 132.3 The team page in the project's section: a Studio project's in Studio's frame. */
+export function teamPath(app: Pick<App, "section"> | null | undefined, rest = ""): string {
+  return `${isStudioProject(app) ? "/studio/project/team" : "/dashboard/team"}${rest}`;
+}
+
 /**
  * The app's Plan page, in its own section: a Studio project's in Studio's
  * frame. Links keep their `#part` this way (a redirect from the dashboard's

@@ -3,96 +3,46 @@ import Link from "next/link";
 import { redirect } from "next/navigation";
 import { stopManagingAction } from "@/app/actions/admin";
 import { openStudioProjectAction } from "@/app/actions/studio-projects";
+import { DashboardLanguage } from "@/components/dashboard-language";
 import { SubmitButton } from "@/components/form";
+import { Icon } from "@/components/icon";
+import { SignOutButton } from "@/components/sign-out";
+import { ThemeSwitch } from "@/components/theme-switch";
+import type { DashKey } from "@/i18n/dashboard";
 import { richText } from "@/i18n/rich";
-import { contentNavOf, kindOf } from "@/lib/app/kinds";
+import { kindOf } from "@/lib/app/kinds";
 import { contextCan, requireClient } from "@/lib/auth/session";
+import { getVisitorContact } from "@/lib/contact";
 import { dashboardText } from "@/lib/dashboard-lang";
+import { studioJumpTargets, studioProjectNav } from "@/lib/studio/project-nav";
 import { isStudioProject } from "@/lib/studio/section";
-import { pathPermission } from "@/lib/team/permissions";
 import { C, Glyph, StudioBar, StudioScreen } from "../chrome";
-import { ProjectNav, type ProjectNavGroup } from "./project-nav";
+import { ProjectNav } from "./project-nav";
 import { StudioDashboardLinks } from "./dashboard-links";
-import { studioScreensOn } from "@/lib/studio/screens";
-
-/** A dashboard address in the project's own frame. */
-const inStudio = (href: string) => href.replace(/^\/dashboard/, "/studio/project");
 
 /**
  * 103R.3 A Studio project's dashboard: the project switcher, its preview and
  * editor on top, its own side menu, and the dashboard's pages for the
- * project in Studio's frame.
+ * project in Studio's frame. 132.1 The menu has every page of the
+ * dashboard that applies to the project (lib/studio/project-nav.ts), 132.2
+ * a quick search, and 132.4 the frame is light or dark like the dashboard.
  */
 export default async function StudioProjectLayout({ children }: { children: React.ReactNode }) {
   const context = await requireClient();
-  const { app, staff, user } = context;
+  const { app, staff, user, member } = context;
   if (!app || !isStudioProject(app)) redirect("/studio");
   const { t, k, lang, dir } = await dashboardText();
   const projects = context.apps.filter(isStudioProject);
-  const content = contentNavOf(app);
-  // Each link as the dashboard's page it shows, so the team's permissions apply as there.
-  const item = (dashboardHref: string, label: string, icon: string) => ({ dashboardHref, href: inStudio(dashboardHref), label, icon });
-  // 131 A store project's delivery, gifts, flash sales and discount codes, and its card messages, next to its products and orders.
-  const storeExtras =
-    app.appType === "store" ? [item("/dashboard/selling", t("selling.nav"), "local_shipping"), item("/dashboard/selling/messages", t("selling.messagesTitle"), "redeem")] : [];
-  const groups = [
-    { items: [item("/dashboard", t("studio.overview"), "space_dashboard"), { ...item("/dashboard/pages", t("studio.navEditor"), "draw"), href: "/studio/editor" }] },
-    ...(app.appType === "delivery"
-      ? // 104 A delivery company's group, in the approved design's words.
-        [
-          {
-            label: t("studio.navDelivery"),
-            items: [
-              // 112.2 The couriers and jobs on the map.
-              item("/dashboard/delivery/live", t("studio.navLiveMap"), "map"),
-              item("/dashboard/shipments", t("studio.navShipments"), "package_2"),
-              item("/dashboard/couriers", t("studio.navCouriers"), "two_wheeler"),
-              item("/dashboard/orders", t("studio.navPaidOrders"), "receipt_long"),
-              item("/dashboard/delivery", t("studio.navDeliverySettings"), "local_shipping"),
-            ],
-          },
-        ]
-      : content
-        ? [{ label: k(content.label), items: [...content.items.map((i) => item(i.href, k(i.label), i.icon)), ...storeExtras] }]
-        : storeExtras.length
-          ? [{ label: t("selling.nav"), items: storeExtras }]
-          : []),
-    {
-      label: t("studio.groupApp"),
-      items: [
-        item("/dashboard/setup?step=website", t("studio.navSource"), "hub"),
-        item("/dashboard/setup?step=branding", t("studio.navIdentity"), "palette"),
-        item("/dashboard/languages", t("studio.navLanguages"), "translate"),
-        // 118.3 The sign-in screen and the account menu (on Yallapp's server, or an own API Yallapp signs people in to).
-        ...(studioScreensOn(app) ? [item("/dashboard/screens", t("studio.navScreens"), "account_circle")] : []),
-        // 124.12 How people sign in and who sends their codes (on WordPress: the site's accounts, Digits or WhatsApp).
-        item("/dashboard/app-sign-in", t("studio.navSignIn"), "login"),
-        ...(app.backend === "hosted"
-          ? [item("/dashboard/notifications", t("studio.navNotifications"), "notifications")]
-          : app.backend === "wordpress"
-            ? [item("/dashboard/notifications/campaigns", t("studio.navNotifications"), "notifications")]
-            : []),
-        item("/dashboard/analytics", t("studio.navAnalytics"), "monitoring"),
-      ],
-    },
-    {
-      label: t("studio.groupPublish"),
-      items: [
-        item("/dashboard/publishing", t("studio.navStores"), "storefront"),
-        item("/dashboard/builds", t("studio.navBuilds"), "build"),
-        item("/dashboard/license", t("studio.navPlan"), "workspace_premium"),
-        item("/dashboard/invoices", t("studio.navInvoices"), "receipt_long"),
-        item("/dashboard/setup", t("studio.navSettings"), "settings"),
-      ],
-    },
-  ];
-  const allowed: ProjectNavGroup[] = groups
-    .map((group) => ({ ...group, items: group.items.filter((i) => contextCan(context, pathPermission(i.dashboardHref))).map(({ href, label, icon }) => ({ href, label, icon })) }))
-    .filter((group) => group.items.length);
+  const contact = await getVisitorContact();
+  const nav = { app, text: { t, k }, can: (permission: Parameters<typeof contextCan>[1]) => contextCan(context, permission), supportUrl: contact.whatsappUrl };
+  const groups = studioProjectNav(nav).map(({ id, label, items }) => ({ id, label, items: items.map(({ href, label, icon, external }) => ({ href, label, icon, external })) }));
+  const more = studioJumpTargets(nav).map(({ href, label, icon }) => ({ href, label, icon }));
+  // 60 The person signed in: a team member shows as themselves.
+  const me = member ?? user;
   const name = app.appName ?? t("studio.untitledProject");
   const bold = { b: (chunk: string) => <strong>{chunk}</strong> };
   return (
-    <StudioScreen dir={dir} lang={lang}>
+    <StudioScreen dir={dir} lang={lang} themed>
       <StudioDashboardLinks />
       <StudioBar>
         <details className="relative">
@@ -101,22 +51,22 @@ export default async function StudioProjectLayout({ children }: { children: Reac
             <span className="max-sm:max-w-[40vw] max-sm:truncate">{name}</span>
             <Glyph name="expand_more" size={18} />
           </summary>
-          <div className="absolute start-0 top-[calc(100%+6px)] z-20 flex min-w-[240px] flex-col gap-0.5 rounded-xl bg-white p-1.5 shadow-lg" style={{ border: `1px solid ${C.line}`, color: C.ink }}>
+          <div className="absolute start-0 top-[calc(100%+6px)] z-20 flex min-w-[240px] flex-col gap-0.5 rounded-xl p-1.5 shadow-lg" style={{ border: "1px solid var(--sf-line)", background: "var(--sf-surface)", color: "var(--sf-ink)" }}>
             {projects.map((p) => (
               <form key={p.id} action={openStudioProjectAction}>
                 <input type="hidden" name="appId" value={p.id} />
                 <button
                   type="submit"
                   aria-current={p.id === app.id ? "true" : undefined}
-                  className="flex w-full cursor-pointer items-center gap-2 rounded-lg border-0 px-3 py-2 text-start text-sm hover:bg-[#F4EFE6]"
-                  style={{ background: p.id === app.id ? C.ivory : "transparent", fontWeight: p.id === app.id ? 700 : 400, color: C.ink, fontFamily: "inherit" }}
+                  className="flex w-full cursor-pointer items-center gap-2 rounded-lg border-0 px-3 py-2 text-start text-sm hover:bg-[var(--sf-soft)]"
+                  style={{ background: p.id === app.id ? "var(--sf-soft)" : "transparent", fontWeight: p.id === app.id ? 700 : 400, color: "var(--sf-ink)", fontFamily: "inherit" }}
                 >
                   <Glyph name={kindOf(p).icon} size={18} />
                   {p.appName ?? t("studio.untitledProject")}
                 </button>
               </form>
             ))}
-            <Link href="/studio" className="flex items-center gap-2 rounded-lg px-3 py-2 text-sm no-underline hover:bg-[#F4EFE6]" style={{ color: C.ink }}>
+            <Link href="/studio" className="flex items-center gap-2 rounded-lg px-3 py-2 text-sm no-underline hover:bg-[var(--sf-soft)]" style={{ color: "var(--sf-ink)" }}>
               <Glyph name="apps" size={18} />
               {t("studio.yourProjects")}
             </Link>
@@ -137,7 +87,41 @@ export default async function StudioProjectLayout({ children }: { children: Reac
       {/* Below lg the menu is a bar above the page: its line keeps its own height. */}
       <div className="flex flex-1 flex-wrap items-stretch max-lg:content-start">
         <Suspense>
-          <ProjectNav label={t("studio.projectDashboard")} menuLabel={t("studio.projectMenu")} closeLabel={t("studio.closeProjectMenu")} groups={allowed} />
+          <ProjectNav
+            label={t("studio.projectDashboard")}
+            menuLabel={t("studio.projectMenu")}
+            closeLabel={t("studio.closeProjectMenu")}
+            groups={groups}
+            more={more}
+            appName={name}
+            footer={
+              // 132.4 As at the dashboard's foot: who is signed in, the language, light or dark, and signing out.
+              <div className="flex flex-col gap-2.5">
+                <div className="flex items-center gap-3">
+                  <span className="flex h-9 w-9 flex-none items-center justify-center rounded-full text-sm font-bold" style={{ background: "var(--sf-soft)", color: "var(--sf-ink)" }} aria-hidden="true">
+                    {(me.name.trim()[0] ?? "?").toUpperCase()}
+                  </span>
+                  <span className="flex min-w-0 flex-1 flex-col">
+                    <span className="truncate text-sm font-semibold">{me.name}</span>
+                    <span className="truncate text-xs" style={{ color: "var(--sf-muted)" }} title={me.email} dir="ltr">
+                      {me.email}
+                    </span>
+                    {member ? <span className="truncate text-xs" style={{ color: "var(--sf-muted)" }}>{t(`team.roles.${context.access.role}` as DashKey)}</span> : null}
+                  </span>
+                </div>
+                <div className="flex items-center gap-2">
+                  <div className="min-w-0 flex-1">
+                    <DashboardLanguage lang={lang} label={t("nav.languageList")} />
+                  </div>
+                  <ThemeSwitch label={t("nav.darkMode")} className="h-9 w-9" />
+                </div>
+                <SignOutButton className="inline-flex h-9 w-full cursor-pointer items-center justify-center gap-1.5 rounded-[10px] border border-line-strong bg-white px-3 text-sm font-semibold text-midnight hover:border-midnight">
+                  <Icon name="logout" size={18} />
+                  {t("nav.signOut")}
+                </SignOutButton>
+              </div>
+            }
+          />
         </Suspense>
         <main id="main" tabIndex={-1} className="box-border flex min-w-0 flex-[999_1_560px] flex-col gap-5 p-4 outline-none sm:p-6">
           {staff ? (
