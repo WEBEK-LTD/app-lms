@@ -125,19 +125,13 @@ final cartQuoteProvider = FutureProvider.autoDispose<CartQuote?>((ref) {
     usePoints: usePoints,
     deliveryDate: delivery.date,
     deliverySlot: delivery.date != null ? delivery.slot : null,
-    recipient:
-        delivery.country != null ||
-            delivery.city != null ||
-            delivery.lat != null
-        ? GiftPerson(
-            name: '',
-            phone: '',
-            country: delivery.country,
-            city: delivery.city,
-            lat: delivery.lat,
-            lng: delivery.lng,
-          )
-        : null,
+    // 131 Where it goes, once chosen: the shop prices shipping by it.
+    place: DeliveryPlace(
+      country: delivery.country,
+      city: delivery.city,
+      lat: delivery.lat,
+      lng: delivery.lng,
+    ),
   );
 });
 

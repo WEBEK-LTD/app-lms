@@ -1933,7 +1933,7 @@
           "method": "GET",
           "path": "/maps/places",
           "summary": "Places by name",
-          "description": "Places matching what the person typed, near them first, on the app's map: the company's Google Maps (Places) or OpenStreetMap search server, or the platform's search server, or 112.6 MapTiler's geocoding with the tiles' key (`search` in `TaxiConfig.map`, `DeliveryConfig.map`, `FoodConfig.map`). A Google place comes without its position: ask `GET /maps/places/{place_id}` when the person picks it. `feature_disabled` (403) when the app's map has no search.",
+          "description": "Places matching what the person typed, near them first, on the app's map: the company's Google Maps (Places) or OpenStreetMap search server, or the platform's search server, or 112.6 MapTiler's geocoding with the tiles' key (`search` in `TaxiConfig.map`, `DeliveryConfig.map`, `FoodConfig.map`, 131 `StoreConfig.shipping.map` for a shop priced by distance). A Google place comes without its position: ask `GET /maps/places/{place_id}` when the person picks it. `feature_disabled` (403) when the app's map has no search.",
           "access": "optional"
         },
         {

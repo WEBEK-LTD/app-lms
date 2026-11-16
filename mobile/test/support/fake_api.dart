@@ -1041,6 +1041,10 @@ class FakeApi implements YallappApi {
   /// 91.1 The coupon of the last quote or checkout.
   String? lastCoupon;
 
+  /// 131 Where the last quote and the last checkout said it goes.
+  DeliveryPlace? lastQuotePlace;
+  DeliveryPlace? lastPlace;
+
   @override
   Future<CartQuote> quoteCart(
     List<CartLineInput> lines, {
@@ -1049,8 +1053,10 @@ class FakeApi implements YallappApi {
     String? deliveryDate,
     String? deliverySlot,
     GiftPerson? recipient,
+    DeliveryPlace? place,
   }) {
     lastQuoteDelivery = (date: deliveryDate, slot: deliverySlot);
+    lastQuotePlace = place;
     lastCartLines = lines;
     lastCoupon = coupon;
     lastUsePoints = usePoints;
@@ -1147,7 +1153,9 @@ class FakeApi implements YallappApi {
     GiftPerson? sender,
     GiftPerson? recipient,
     bool giftAnonymous = false,
+    DeliveryPlace? place,
   }) {
+    lastPlace = place;
     lastCartLines = lines;
     lastCoupon = coupon;
     lastUsePoints = usePoints;

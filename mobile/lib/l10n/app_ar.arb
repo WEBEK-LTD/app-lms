@@ -3173,5 +3173,11 @@
   "addonsHint": "تُرسَل مع هديتك",
   "addonWith": "مع {name}",
   "addonAdd": "أضف {name}",
-  "salePercentBadge": "−{percent}٪"
+  "salePercentBadge": "−{percent}٪",
+  "deliveryPlaceTitle": "مكان التوصيل",
+  "deliveryPinChoose": "حدّد مكان التوصيل على الخريطة",
+  "deliveryPinSet": "تم تحديد المكان على الخريطة",
+  "deliveryPinChange": "تغيير",
+  "deliveryNeedPlace": "اختر مكان التوصيل.",
+  "deliveryNeedPin": "حدّد مكان التوصيل على الخريطة."
 }

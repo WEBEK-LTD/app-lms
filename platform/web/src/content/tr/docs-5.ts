@@ -18,6 +18,8 @@ export const TR_DOCS_5: Record<string, DocTranslation> = {
 - **Dijital ürün**: hediye kartı gibi gönderilecek bir şey yoktur. Kargo ücreti alınmaz ve iPhone uygulaması bu ürünü satmaz (Apple'ın kuralları)
 - **Öne çıkan**: uygulamanın ana ekranında ilk sırada gösterilir
 - **Uygulamada göster**: bir ürünü silmeden gizlemek için kapatın
+- **Ağırlık (kg)**: ağırlığa göre fiyatlanan kargo için. Her seçenek kendi ağırlığını ekleyebilir
+- **Yalnızca ek ürün olarak sat (hediye eki)**: çikolata, kart ya da vazo gibi, tek başına listelenmeyen ve alınmayan bir hediye eki; neyle sunulacağını **Şunlarla sun** altında seçin
 
 Her ürünün paylaşabileceğiniz kendi web sayfası da vardır.
 
@@ -33,6 +35,8 @@ Beden, renk ve benzeri seçenekleri olan bir ürün için ürünün altına en f
 
 Fiziksel ürün içeren siparişler için bir **Kargo ücreti** belirleyin (ücretsiz kargo için boş bırakın) ve isteğe bağlı olarak belirli bir sipariş tutarından itibaren **Ücretsiz kargo** sunun.
 
+Teslimat günleri ve saatleri, nereye teslim ettiğiniz, şehre, mesafeye ya da ağırlığa göre fiyatlar ve en düşük ücret **Teslimat ve fırsatlar** sayfasındadır: bkz. [Teslimat günleri, hediyeler ve flaş indirimler](/docs/delivery-and-offers).
+
 ## Vergi
 
 KDV veya benzeri bir vergi alıyorsanız, **Ürünler** sayfasındaki **Mağaza ayarları** altında **Vergi oranı (%)** ve **Vergi adı** değerlerini girin. **Fiyatlarıma vergi dahil** işaretliyken (Türkiye'de olağan yol) toplamlar aynı kalır; sepet, fiş ve size gelen sipariş e-postası toplamın ne kadarının vergi olduğunu gösterir. Vergiyi fiyatların üzerine eklemek için işareti kaldırın: vergi, kupon veya puanlardan sonraki ürünlere ve kargoya eklenir, sepette ayrı bir satır olarak görünür ve ödeme toplamı vergiyle birlikte alınır. Vergi yoksa oranı boş bırakın.
@@ -40,6 +44,8 @@ KDV veya benzeri bir vergi alıyorsanız, **Ürünler** sayfasındaki **Mağaza 
 ## Kuponlar
 
 **Ürünler** sayfasındaki **Kuponlar** bölümünde, müşterilerinizin uygulamanın sepetine yazacağı SPRING10 gibi kodlar ekleyin: ürünlerden **Yüzde indirim** ya da **Tutar indirimi** (kargo aynı kalır), isteğe bağlı **En az sipariş**, **Son gün** ve **Kullanım** sayısıyla. Sepet, kuponun ne kadar indirim yaptığını ve toplamı ya da neden geçerli olmadığını gösterir; ödeme sayfası indirim düşülmüş toplamı tahsil eder. Ödenen her sipariş bir kullanım sayılır. **Kapat** kuponu şimdilik durdurur; siparişler kullanılan kuponu gösterir.
+
+Bir kuponun **Başlangıç günü** de olabilir (boş: bugünden), **Uygulamada göster** ise onu geçerli olduğu sürece sayfalarınızdaki kupon öğesinde gösterir. **Düzenle** yaptığınız bir kuponu değiştirir.
 
 WooCommerce'e bağlı uygulamalar WooCommerce kuponlarınızla aynı şekilde çalışır: sepet kodu kontrol eder, ödeme sayfanız uygular (Yallapp eklentisi 0.4.15 veya sonrası). Shopify'daki uygulamalar kodu siparişle birlikte mağazanızın ödeme sayfasına gönderir; diğer bağlı platformlarda sepet, müşterilere kodu ödeme adımında girmelerini hatırlatır.
 

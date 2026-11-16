@@ -28,7 +28,9 @@ Derleme, kurulum adımları ve uygulama mağazalarında yayınlama ikisinde de a
 
 Projenin paneli, kendi türündeki normal bir uygulamayla aynı sayfalarla açılır. Bir plan seçmeden önce tasarlayıp deneyebilirsin. Yayınlamak için Studio planlarından biri gerekir.
 
-Tüm sayfaları, fotoğrafları ve kayıtlarıyla Studio'nun dokuz demosundan biriyle, iki görünümünden hangisiyle istersen, de başlayabilir, her birini önce canlı deneyebilirsin: [Hazır bölümler, şablonlar ve Studio'nun demoları](/docs/studio-templates) sayfasına bak.
+Tüm sayfaları, fotoğrafları ve kayıtlarıyla Studio'nun on demosundan biriyle, iki görünümünden hangisiyle istersen, de başlayabilir, her birini önce canlı deneyebilirsin: [Hazır bölümler, şablonlar ve Studio'nun demoları](/docs/studio-templates) sayfasına bak.
+
+Bir mağaza, Studio'nun çiçekçisi Leqaa'dan da başlayabilir; hediye ödemesi, teslimat günleri ve saatleri, kart mesajları ve flaş indirimleriyle. Bunları her mağaza uygulaması kullanabilir: [Teslimat günleri, hediyeler ve flaş indirimler](/docs/delivery-and-offers) sayfasına bak. Hikâyesi, **Çiçekçi uygulaması**, [Yallapp Studio](/yallapp-studio) sayfasındaki hikâyeler arasında.
 
 ## Studio düzenleyicisi
 
@@ -43,7 +45,7 @@ Tüm sayfaları, fotoğrafları ve kayıtlarıyla Studio'nun dokuz demosundan bi
 
 Sayfayı küçük bir telefonda, büyük bir telefonda ve bir tablette, açık ve karanlık modda kontrol et. **Geri al** ve **Yinele** geri ve ileri gider, sayfa sen çalışırken kaydedilir. **Telefonda önizle** onu telefonunda denemeni sağlar; **Yayınla** onu uygulamana gönderir, uygulama bir sonraki açılışta gösterir. **Sayfayı kendi şablonum olarak kaydet** onu diğer sayfaların için **Şablonlarım**'da tutar.
 
-Her öğe ve ayarları [Studio düzenleyicisi: tüm öğeler](/docs/studio-elements) sayfasında, Studio demolarının yapıldığı premium öğeler, premium üst bilgiler ve premium görünümlü uygulama ekranlarıyla birlikte [Studio'nun premium öğeleri](/docs/studio-premium-elements) sayfasındadır.
+Her öğe ve ayarları [Studio düzenleyicisi: tüm öğeler](/docs/studio-elements) sayfasında, Studio demolarının yapıldığı premium öğeler, premium üst bilgiler ve premium görünümlü uygulama ekranlarıyla birlikte [Studio'nun premium öğeleri](/docs/studio-premium-elements) sayfasındadır. Akademinin kurs ekranlarının (kurs kartı, kurs sayfası, ders ve Kurslarım) premium görünümleri de aynı sayfadadır.
 
 ## Teslimat şirketleri
 

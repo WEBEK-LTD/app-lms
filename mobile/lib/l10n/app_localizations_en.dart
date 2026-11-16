@@ -11958,4 +11958,22 @@ class AppLocalizationsEn extends AppLocalizations {
   String salePercentBadge(int percent) {
     return '−$percent%';
   }
+
+  @override
+  String get deliveryPlaceTitle => 'Where it goes';
+
+  @override
+  String get deliveryPinChoose => 'Pin the delivery place on the map';
+
+  @override
+  String get deliveryPinSet => 'Pinned on the map';
+
+  @override
+  String get deliveryPinChange => 'Change';
+
+  @override
+  String get deliveryNeedPlace => 'Choose where it goes.';
+
+  @override
+  String get deliveryNeedPin => 'Pin where it goes on the map.';
 }

@@ -354,6 +354,10 @@ class StoreShippingRules {
     this.needsLocation = false,
     this.charged = true,
     this.freeOver,
+    this.mapTilesUrl,
+    this.mapAttribution,
+    this.mapSearch = false,
+    this.center,
   });
 
   static StoreShippingRules? tryParse(Object? value) {
@@ -382,6 +386,23 @@ class StoreShippingRules {
       needsLocation: boolOr(json, 'needs_location', false),
       charged: boolOr(json, 'charged', true),
       freeOver: optString(json, 'free_over_formatted'),
+      mapTilesUrl: json['map'] is Map
+          ? optString(asJson(json['map']), 'tiles_url')
+          : null,
+      mapAttribution: json['map'] is Map
+          ? optString(asJson(json['map']), 'attribution')
+          : null,
+      mapSearch:
+          json['map'] is Map && boolOr(asJson(json['map']), 'search', false),
+      center: json['center'] is Map
+          ? switch ((
+              optDouble(asJson(json['center']), 'lat'),
+              optDouble(asJson(json['center']), 'lng'),
+            )) {
+              (final double lat, final double lng) => (lat: lat, lng: lng),
+              _ => null,
+            }
+          : null,
     );
   }
 
@@ -389,6 +410,37 @@ class StoreShippingRules {
   final bool needsLocation;
   final bool charged;
   final String? freeOver;
+
+  /// 131 Priced by distance: the map the customer pins the place on (the
+  /// platform's tiles; null: the phone's own position only), whether its
+  /// place search works, and where it opens (the shop).
+  final String? mapTilesUrl;
+  final String? mapAttribution;
+  final bool mapSearch;
+  final ({double lat, double lng})? center;
+
+  /// Whether the customer picks a country (several), a city from a list.
+  bool get hasAreas => countries.isNotEmpty;
+}
+
+/// 131 Where an order goes, for the shop's shipping (`DeliveryPlace`): the
+/// standard checkout's (the gift checkout's is the recipient's).
+class DeliveryPlace {
+  const DeliveryPlace({this.country, this.city, this.lat, this.lng});
+
+  final String? country;
+  final String? city;
+  final double? lat;
+  final double? lng;
+
+  bool get isEmpty => country == null && city == null && lat == null;
+
+  Json toJson() => {
+    'country': ?country,
+    'city': ?city,
+    'lat': ?lat,
+    'lng': ?lng,
+  };
 }
 
 class ShippingCountry {

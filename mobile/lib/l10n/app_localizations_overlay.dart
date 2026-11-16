@@ -12632,4 +12632,28 @@ class OverlayLocalizations extends AppLocalizations {
   String salePercentBadge(int percent) =>
       overlay.format('salePercentBadge', {'percent': percent}) ??
       base.salePercentBadge(percent);
+
+  @override
+  String get deliveryPlaceTitle =>
+      overlay.text('deliveryPlaceTitle') ?? base.deliveryPlaceTitle;
+
+  @override
+  String get deliveryPinChoose =>
+      overlay.text('deliveryPinChoose') ?? base.deliveryPinChoose;
+
+  @override
+  String get deliveryPinSet =>
+      overlay.text('deliveryPinSet') ?? base.deliveryPinSet;
+
+  @override
+  String get deliveryPinChange =>
+      overlay.text('deliveryPinChange') ?? base.deliveryPinChange;
+
+  @override
+  String get deliveryNeedPlace =>
+      overlay.text('deliveryNeedPlace') ?? base.deliveryNeedPlace;
+
+  @override
+  String get deliveryNeedPin =>
+      overlay.text('deliveryNeedPin') ?? base.deliveryNeedPin;
 }

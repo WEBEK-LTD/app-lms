@@ -3869,6 +3869,56 @@ tests the platform's own `/media` route does the same on `.data/media`
   stops reporting (a cancelled run) is closed as failed after 6 hours, so
   the app can build again.
 
+## Delivery, gifts and offers for every store (Phase 131)
+
+Store › Delivery & offers (`app/dashboard/selling`, the card messages at
+`/dashboard/selling/messages`) is one model for every store app, whatever
+its source, in `lib/selling`:
+
+- `delivery.ts`: the days and slots over `StoreConfig.delivery_date` (the
+  same-day cut-off in the shop's time zone, next day, the days ahead up to
+  60, closed weekdays, up to 8 slots with an optional capacity and fee);
+  `GET /store/delivery-slots`, and the checkout's day and slot checked
+  again on the server (`slot_full`, 409). Restaurants keep their kitchen's
+  times.
+- `gifts.ts`, `gift-messages.ts`, `gift-starters.ts`: the card, the
+  recipient, "send anonymously" and the gift checkout (`checkout_mode`
+  `gift`, the sender and the recipient with the address); the occasions in
+  `store_gift_occasions`, seeded from the starting set the first time the
+  owner opens them, `GET /store/gift-messages`, and WordPress's copy with
+  the license status (`gift_messages`).
+- `shipping.ts`: the areas (countries and the owner's own city names), the
+  price flat, by city or by distance (straight-line from the shop to the
+  pin), per kg in any mode, a city's own price over the whole fee, a
+  minimum, free over an amount, and the quote's breakdown. Both checkouts
+  send where the order goes (131.55: the standard checkout's `place`,
+  `DeliveryPlace`; the gift checkout's as the recipient's), priced by
+  distance pinned on the map (131.56: the app's `DeliveryPinScreen` from
+  `store.shipping.map` and `center`, searched through the `/maps/*`
+  routes; the phone's position without the platform's map tiles).
+- `flash-sales.ts` (`store_flash_sales`) and each product's `sale`; the
+  units counted when Yallapp's own order is paid (`lib/catalog/payment.ts`).
+- `addons.ts`: gift add-ons (`catalog_products.addon`, `addon_for`; a
+  platform's by its product numbers, a category or a Shopify tag in
+  `CatalogSettings.addons`), the cart's linked lines (`addon_of`,
+  `addon_needs_item`), and the owner's titles (`StoreConfig.titles`).
+- `store.ts`: the config, the routes and the checkout checks, used by the
+  catalog connector (`lib/hosted/connectors/catalog.ts`) and wrapped over
+  every platform's connector (`withStoreExtras`): Shopify's cart attributes
+  and note, Wix's note, and `store_deliveries` (kept 60 days by the
+  frequent job) for the owner either way.
+
+WooCommerce gets the same from plugin 0.4.44 (one flash sale at a time,
+which 0.4.45's settings say; `includes/store/class-delivery-rules.php`,
+`class-store-extras.php`, `class-addon-rules.php`; the settings' Store app
+and Flash sale cards), its own shipping zones pricing shipping. In the app,
+`modules/store/widgets/gift_checkout.dart`, `addon_widgets.dart` and
+`core/widgets/sale_widgets.dart`; in Studio, the `flash_sale` element, the
+lists' `sale_badge`, the coupon's `look` and `bind: public`, and the
+checkout's look (`Config.screens.checkout`, `lib/studio/checkout-look.ts`).
+Leqaa, the store's Studio demo, is `lib/studio/demo-designs/leqaa-signature.ts`
+and `lib/demo/flowers.ts`. The guide is `/docs/delivery-and-offers`.
+
 ## The documentation (129.30)
 
 Where the documentation lives, for whoever brings it up to date next:
@@ -3891,7 +3941,8 @@ Where the documentation lives, for whoever brings it up to date next:
   waabek.com, say "multi-vendor", never "marketplace", and show no prices.
 - **The help links**: `lib/docs/help.ts` maps each dashboard address to its
   article (`PageHelp`); Studio's Help opens `yallapp-studio`, the editor's
-  Help `studio-elements`, Sign-in and account's `studio-premium-elements`.
+  Help `studio-elements`, Sign-in and account's `studio-premium-elements`,
+  and Delivery & offers' `delivery-and-offers` (131.54).
 - **The developer docs**: `src/content/docs-developer.ts` (the `my-own-api`
   guide) and `/developers`, made from `docs/api/openapi.yaml` through
   `src/content/api-reference.json`.
@@ -3899,9 +3950,12 @@ Where the documentation lives, for whoever brings it up to date next:
   `lib/studio/elements.ts` and the inspector), `studio-premium-elements`
   (the photo-first elements, the premium library, the maps' looks, the live
   cards' options, the premium headers and the system screens' look; new
-  premium elements go there), `studio-templates` (`lib/studio/sections.ts`,
-  `lib/studio/premium-designs.ts`, the demos, their Signature looks
-  (`lib/studio/demo-designs/`) and /start). A look's home picture is
+  premium elements go there; since 131.54 also the academy's course
+  screens, `lib/studio/course-screens.ts`, the team's screens in the look
+  and photos in black and white), `studio-templates` (`lib/studio/sections.ts`,
+  `lib/studio/premium-designs.ts` with its seven whole designs,
+  `lib/studio/premium-landings.ts` with every landing, the demos, their
+  Signature looks (`lib/studio/demo-designs/`) and /start). A look's home picture is
   `public/screens/<demo's address>-sig-<a|b>-home.png`; the look B ones are
   in `APP_SCREENS` with their words in the three languages.
 - **Elsewhere**: `docs/*.md`, the plugin's `wp-plugin/yallapp/readme.txt`,
