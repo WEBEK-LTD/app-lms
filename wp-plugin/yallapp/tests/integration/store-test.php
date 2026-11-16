@@ -629,5 +629,83 @@ check(
 	array( $then, $today )
 );
 
+// 134 Orders paid inside the app (Demo): Yallapp's signed quote for the address, then the order, marked paid, once per payment.
+$paid_key  = 'YALL-T134-PAID-ORDR';
+$saved_key = wp_eval( 'echo (string) Yallapp\Plugin::instance()->settings()->get( "license_key" );' );
+wp_eval( 'Yallapp\Plugin::instance()->settings()->update( array( "license_key" => "' . $paid_key . '" ) );' );
+$stock_before = (int) wp_eval( 'echo wc_get_product( ' . (int) $seed['chocolates'] . ' )->get_stock_quantity();' );
+$paid_order   = static function ( array $body, $key ) {
+	$ts = time();
+	return call( 'POST', '/store/paid-orders', $body, null, array( 'Yallapp-Timestamp: ' . $ts, 'Yallapp-Signature: ' . hash_hmac( 'sha256', 'yallapp-store-order:' . $ts . ':' . json_encode( $body ), strtoupper( $key ) ) ) );
+};
+$reference = 'yallapp-order-' . random_int( 100000, 999999 );
+$paid_body = array(
+	'action'      => 'quote',
+	'reference'   => $reference,
+	'currency'    => 'TRY',
+	'lines'       => array(
+		array(
+			'product_id' => (int) $seed['chocolates'],
+			'quantity'   => 2,
+		),
+	),
+	'coupon'      => null,
+	'extras'      => array(
+		'gift_message' => 'Happy birthday!',
+		'sender'       => array(
+			'name'  => 'Omar Aziz',
+			'phone' => '+905301234567',
+			'email' => 'omar@example.com',
+		),
+		'recipient'    => array(
+			'name'    => 'Ayşe Kaya',
+			'phone'   => '+905309876543',
+			'address' => 'Moda Caddesi 5, Kadıköy',
+			'city'    => 'Istanbul',
+			'country' => 'TR',
+		),
+	),
+	'customer_id' => null,
+	'billing'     => array(
+		'name'    => 'Leyla Kaya',
+		'phone'   => '+905321112233',
+		'email'   => 'leyla@example.com',
+		'city'    => 'Istanbul',
+		'address' => 'Bağdat Caddesi 12',
+	),
+	'shipping'    => array(),
+	'platform'    => 'android',
+);
+$r = call( 'POST', '/store/paid-orders', $paid_body, null, array( 'Yallapp-Timestamp: ' . time(), 'Yallapp-Signature: ' . str_repeat( 'a', 64 ) ) );
+check( '134 an unsigned paid order is refused', 401 === $r['status'] && 'invalid_signature' === ( $r['json']['code'] ?? '' ), $r['raw'] );
+$r     = $paid_order( $paid_body, $paid_key );
+$quote = $r['json'];
+check( '134 the quote prices it as the checkout does', 200 === $r['status'] && '300.00' === ( $quote['lines'][0]['total_amount'] ?? '' ) && (float) ( $quote['total_amount'] ?? 0 ) >= 300, $r['raw'] );
+$r = $paid_order( array_merge( $paid_body, array( 'lines' => array( array( 'product_id' => (int) $seed['vase'], 'quantity' => 1 ) ) ) ), $paid_key );
+check( '134 a sold-out product is refused before the payment', 409 === $r['status'] && 'out_of_stock' === ( $r['json']['code'] ?? '' ), $r['raw'] );
+$create = array_merge(
+	$paid_body,
+	array(
+		'action'  => 'create',
+		'payment' => array(
+			'gateway'        => 'Stripe',
+			'transaction_id' => 'pi_test134',
+			'amount'         => (string) ( $quote['total_amount'] ?? '0' ),
+			'currency'       => 'TRY',
+			'note'           => 'Paid in the app via Stripe, reference pi_test134',
+		),
+	)
+);
+$r     = $paid_order( $create, $paid_key );
+$order = (int) ( $r['json']['order_id'] ?? 0 );
+check( '134 the order is made once paid', 200 === $r['status'] && $order > 0 && true === ( $r['json']['created'] ?? null ) && in_array( $r['json']['status'] ?? '', array( 'processing', 'completed' ), true ), $r['raw'] );
+$made = json_decode( wp_eval( '$o = wc_get_order( ' . $order . ' ); echo wp_json_encode( array( "status" => $o->get_status(), "method" => $o->get_payment_method_title(), "ref" => $o->get_meta( "_yallapp_payment_ref" ), "transaction" => $o->get_transaction_id(), "billing" => $o->get_billing_first_name(), "shipping" => $o->get_shipping_address_1(), "gift" => $o->get_meta( "_yallapp_gift_message" ), "paid" => (bool) $o->get_date_paid(), "notes" => array_map( function ( $n ) { return $n->content; }, wc_get_order_notes( array( "order_id" => ' . $order . ' ) ) ) ) );' ), true );
+check( '134 marked paid "Stripe (in app)", with the reference, the sender billing, the recipient shipping and the card', 'Stripe (in app)' === ( $made['method'] ?? '' ) && $reference === ( $made['ref'] ?? '' ) && 'pi_test134' === ( $made['transaction'] ?? '' ) && 'Omar' === ( $made['billing'] ?? '' ) && 'Moda Caddesi 5, Kadıköy' === ( $made['shipping'] ?? '' ) && 'Happy birthday!' === ( $made['gift'] ?? '' ) && true === ( $made['paid'] ?? false ), $made );
+check( '134 the order carries "Paid in the app via Stripe, reference …"', in_array( 'Paid in the app via Stripe, reference pi_test134', (array) ( $made['notes'] ?? array() ), true ), $made['notes'] ?? null );
+check( '134 the stock went down', $stock_before - 2 === (int) wp_eval( 'echo wc_get_product( ' . (int) $seed['chocolates'] . ' )->get_stock_quantity();' ) );
+$r = $paid_order( $create, $paid_key );
+check( '134 the same payment again never makes a second order', 200 === $r['status'] && $order === (int) ( $r['json']['order_id'] ?? 0 ) && false === ( $r['json']['created'] ?? null ), $r['raw'] );
+wp_eval( 'wc_get_order( ' . $order . ' )->delete( true ); wc_update_product_stock( ' . (int) $seed['chocolates'] . ', ' . $stock_before . ' ); Yallapp\Plugin::instance()->settings()->update( array( "license_key" => "' . $saved_key . '" ) );' );
+
 printf( "\n%d checks, %d failed\n", $count, $fails );
 exit( $fails ? 1 : 0 );

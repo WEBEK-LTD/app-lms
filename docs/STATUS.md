@@ -8,6 +8,15 @@ Last updated: 15 November 2026.
 
 ## Current release
 
+Roadmap 134 (pay inside the app for connected stores, Demo) is built for
+WooCommerce: Payments › How customers pay offers Yallapp's checkout (its
+own products), the store's checkout (the default) and paying inside the
+app once the owner's gateway is connected and tested; the payment goes to
+the owner's own gateway on Yallapp's payment page, and the order is then
+made on WooCommerce, marked paid, once per payment (plugin 0.4.47); a
+refused order waits as "Paid, needs attention" with Retry and Refund.
+Wix, Shopify and the other platforms keep their own checkout (Known gaps).
+
 Roadmap 131.54 (the documentation up to date for Phase 131) is complete:
 a new article `delivery-and-offers` ("Delivery days, gifts and flash
 sales", Delivery & offers' help link) explains the checkout, delivery days
@@ -362,8 +371,27 @@ test environment:
 - 117 The website's live activity feed (`/api/live-activity`) is cached a
   minute by `Cache-Control: s-maxage=60`; that Netlify's CDN keeps it per
   `?lang=` is not checked on Netlify yet.
+- 134 Pay inside the app (Demo) on WooCommerce: the plugin's
+  `POST /store/paid-orders` prices with WooCommerce's cart and makes the
+  order with its checkout (`WC()->checkout()->create_order`) in a REST
+  request; its store integration checks (`store-test.php`) need
+  WordPress and WooCommerce downloads, so they run in CI only. A real
+  Stripe, PayPal, Kashier, Fawaterk or iyzico test payment end to end, a
+  shop with taxes added at checkout, HPOS and a shop with shipping zones
+  by postcode are still to try.
 
 ## Known gaps
+
+- 134 Pay inside the app is WooCommerce's only. Shopify's API terms keep
+  payments on Shopify Checkout; Wix's Create Order needs an app or Wix
+  user identity (the connection has a visitor client ID and an account API
+  key) and is limited to 5 calls an hour per site for apps not published in
+  the Wix App Market, which couldn't be confirmed against dev.wix.com from
+  here; ikas (`createOrderWithTransactions`), Salla and Zid have order APIs
+  their connections have no write scopes for. A payment whose order the
+  store refused waits for the owner (no automatic retry). The payment page
+  asks for a city and an address, not a postcode or state, so a shop
+  priced by postcode zones gets its country's rate.
 
 - 132.40 An app started from a demo in Arabic or Turkish has its pages,
   tabs and template words in that language, but the demo's own entries
@@ -406,6 +434,11 @@ test environment:
   mention the card's consent box or demo sign-ins yet.
 
 ## Deployment
+
+- 134 Migration `0137_connected_pay` (the table `store_platform_orders`).
+  Plugin 0.4.47 (pay inside the app) goes to sites with the app update
+  that knows `StoreConfig.checkout_payment`; an older app or plugin keeps
+  the store's own checkout.
 
 - Migrations up to `0097` (`npm run db:migrate` in `platform/web`).
 - 131 Migrations `0128_flower_shop` and `0129_gift_addons` run with the

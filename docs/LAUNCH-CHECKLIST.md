@@ -1651,3 +1651,17 @@ Nothing to migrate or set: the articles and screenshots are in the code.
 | 100.2–100.6 | A test academy published in Google Play (internal testing) and App Store Connect (TestFlight), its service account and App Store Connect key with the rights the In-app purchases page lists, a license tester in Play Console and a sandbox tester in App Store Connect |
 | 100.7 | A Teachable school (Growth plan) and a Thinkific school (Grow plan) with paid courses, to check their prices and the enrolment and unenrolment endpoints; a test API on its own that takes the signed purchase notices |
 | 25.5 | Yallapp's partner apps: a Salla Partners app (custom mode, callback `/oauth/salla`, webhook `/api/webhooks/salla`) and a Zid Partner Dashboard app (redirect `/oauth/zid`), saved in admin Settings, plus a Salla demo store and a Zid test store to connect |
+
+## Phase 134: Pay inside the app for connected stores (Demo)
+
+- [ ] Migration `0137_connected_pay` runs with the others at deploy.
+- [ ] Release plugin **0.4.47** in Admin › Plugin releases once the app
+      update that knows `StoreConfig.checkout_payment` is in the stores.
+- [ ] On a WooCommerce test shop with Stripe in test mode: Payments › How
+      customers pay offers "Pay inside the app (Demo)" only after Test
+      connection passes; a test order paid in the app is made in
+      WooCommerce once, marked paid "Stripe (in app)", its stock taken and
+      WooCommerce's emails sent; a sold-out product after the payment
+      leaves "Paid, needs attention" with Retry and Refund.
+- [ ] Switching back to the store's checkout opens WooCommerce's checkout
+      in the app again within a minute.

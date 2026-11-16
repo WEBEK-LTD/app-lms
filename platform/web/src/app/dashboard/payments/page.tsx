@@ -14,6 +14,7 @@ import { takesOwnCardPayments } from "@/lib/payments/owner-keys";
 import { schoolCurrency, schoolSettingsOf } from "@/lib/school/settings";
 import { CardPayments, OtherPayments } from "../catalog/payments";
 import { HowCustomersPay, InAppPayments } from "./how-customers-pay";
+import { inAppBlock } from "@/lib/selling/in-app-pay";
 
 export async function generateMetadata(): Promise<Metadata> {
   return { title: (await dashboardText()).t("gateways.page") };
@@ -44,7 +45,9 @@ export default async function PaymentsPage() {
   const header = <PageHeader title={t("gateways.page")} description={t("gateways.pageIntro")} />;
   // 134 Every store app chooses how its customers pay (a connected store's in the app needs the gateway here).
   const storeApp = app?.appType === "store";
-  if (!app || (!takesOwnCardPayments(app) && !storeApp)) {
+  // A connected store's gateway is for paying inside the app, where its platform takes it (WooCommerce).
+  const ownCards = app ? takesOwnCardPayments(app) || (storeApp && inAppBlock(app) === null) : false;
+  if (!app || (!ownCards && !storeApp)) {
     return (
       <div className="flex flex-col gap-6">
         {header}
@@ -59,7 +62,7 @@ export default async function PaymentsPage() {
       {header}
       {storeApp ? <HowCustomersPay app={app} /> : null}
       {storeApp && kind !== "catalog" ? <InAppPayments app={app} /> : null}
-      <CardPayments app={app} currency={await sellingCurrency(await getStore(), app)} />
+      {ownCards ? <CardPayments app={app} currency={await sellingCurrency(await getStore(), app)} /> : <Notice icon="info">{t("gateways.noCards")}</Notice>}
       {manual ? <OtherPayments app={app} /> : null}
       <p className="m-0 text-sm text-muted">{t("gateways.otherPlaces")}</p>
     </div>
