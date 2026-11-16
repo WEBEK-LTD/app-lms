@@ -26,9 +26,9 @@ use Yallapp\Plugin;
 class Gatekeeper {
 
 	/**
-	 * Routes that stay reachable.
+	 * Routes that stay reachable (134 Yallapp's signed paid orders too: the customer has paid).
 	 */
-	const ALWAYS_OPEN = array( '/yallapp/v1/config', '/yallapp/v1/license/refresh', '/yallapp/v1/billing/access' );
+	const ALWAYS_OPEN = array( '/yallapp/v1/config', '/yallapp/v1/license/refresh', '/yallapp/v1/billing/access', '/yallapp/v1/store/paid-orders' );
 
 	/**
 	 * 68 What a paused app still answers (its plan ended, or the owner's account is suspended):

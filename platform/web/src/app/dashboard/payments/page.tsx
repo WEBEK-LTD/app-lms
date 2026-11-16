@@ -13,7 +13,9 @@ import { eventSettingsOf } from "@/lib/events/service";
 import { takesOwnCardPayments } from "@/lib/payments/owner-keys";
 import { schoolCurrency, schoolSettingsOf } from "@/lib/school/settings";
 import { CardPayments, OtherPayments } from "../catalog/payments";
+import { HowCustomersPay, InAppPayments } from "./how-customers-pay";
 import { PaymentsSummary } from "./summary";
+import { inAppBlock } from "@/lib/selling/in-app-pay";
 
 export async function generateMetadata(): Promise<Metadata> {
   return { title: (await dashboardText()).t("gateways.page") };
@@ -39,13 +41,18 @@ async function sellingCurrency(store: DataStore, app: App): Promise<CatalogCurre
  * Studio project opens it at /studio/project/payments. 132.120 The one place
  * for the products' and the courses' payments too (their old pages lead
  * here), with a summary on top, the gateways as cards and each other way
- * to pay on its own card.
+ * to pay on its own card. 134 A store's "How customers pay" (and the
+ * payments made in the app) between the summary and the gateways.
  */
 export default async function PaymentsPage() {
   const { app } = await requireClient("settings");
   const { t } = await dashboardText();
   const header = <PageHeader title={t("gateways.page")} description={t("gateways.pageIntro")} />;
-  if (!app || !takesOwnCardPayments(app)) {
+  // 134 Every store app chooses how its customers pay (a connected store's in the app needs the gateway here).
+  const storeApp = app?.appType === "store";
+  // A connected store's gateway is for paying inside the app, where its platform takes it (WooCommerce).
+  const ownCards = app ? takesOwnCardPayments(app) || (storeApp && inAppBlock(app) === null) : false;
+  if (!app || (!ownCards && !storeApp)) {
     return (
       <div className="flex flex-col gap-6">
         {header}
@@ -62,9 +69,12 @@ export default async function PaymentsPage() {
     <div className="flex flex-col gap-6" data-payments-page="">
       {/* The page's parts, each its own component, so what comes later slots in between them. */}
       <PageHeader title={t("gateways.page")} description={manual ? t("manage.paymentsIntro") : t("gateways.pageIntro")} />
-      <PaymentsSummary app={app} currency={currency} />
-      {/* 132.120 Slot: "Pay inside the app (Demo)" for connected stores goes here, before the gateways. */}
-      <CardPayments app={app} currency={currency} wide />
+      {/* The summary is of the owner's gateway: a store that can't take one here (Shopify, Wix…) has none to sum up. */}
+      {ownCards ? <PaymentsSummary app={app} currency={currency} /> : null}
+      {/* 134 In 132.120's slot, before the gateways: how a store's customers pay (Yallapp checkout, the store's own, or inside the app, Demo), then the payments made in the app. */}
+      {storeApp ? <HowCustomersPay app={app} /> : null}
+      {storeApp && kind !== "catalog" ? <InAppPayments app={app} /> : null}
+      {ownCards ? <CardPayments app={app} currency={currency} wide /> : <Notice icon="info">{t("gateways.noCards")}</Notice>}
       {manual ? <OtherPayments app={app} wide /> : null}
       {elsewhere ? <p className="m-0 text-sm text-muted">{t("gateways.otherPlaces")}</p> : null}
     </div>

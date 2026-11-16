@@ -495,7 +495,7 @@ class Plugin {
 		return $this->service(
 			'store_checkout',
 			function () {
-				return new Store\Checkout( $this->settings(), $this->store_extras() );
+				return new Store\Checkout( $this->settings(), $this->store_extras(), new Store\In_App_Payment( $this->license() ) );
 			}
 		);
 	}

@@ -89,6 +89,8 @@ import * as working from "./working";
 import * as addons from "./addons";
 // 135 Every currency: the currency picker, customers' currencies.
 import * as money from "./money";
+// 134 How a store's customers pay, and the payments made inside the app.
+import * as inAppPay from "./in-app-pay";
 
 /**
  * 56 The client dashboard's texts in English (the source), Arabic and
@@ -110,7 +112,7 @@ import * as money from "./money";
  */
 
 /** Every area. A new area is one import and one entry here. */
-const AREAS = { common, nav, lib, forms, kinds, overview, license, setup, pages, media, languages, health, preview, analytics, notify, signin, builds, publishing, stores, courses, shop, orders, articles, events, bookings, donations, listings, checks, emails, owner, team, providers, community, door, freeze, account, security, apps, chat, integrations, imports, campaigns, inapp, studio, delivery, food, market, rides, teachers, school, taxi, samples, lms, reports, bus, library, salaries, schoolLife, learning, parents, university, bot, start, travel, selling, studioMarket, gateways, studioKit, studioPage, manage, working, addons, money } as const;
+const AREAS = { common, nav, lib, forms, kinds, overview, license, setup, pages, media, languages, health, preview, analytics, notify, signin, builds, publishing, stores, courses, shop, orders, articles, events, bookings, donations, listings, checks, emails, owner, team, providers, community, door, freeze, account, security, apps, chat, integrations, imports, campaigns, inapp, studio, delivery, food, market, rides, teachers, school, taxi, samples, lms, reports, bus, library, salaries, schoolLife, learning, parents, university, bot, start, travel, selling, studioMarket, gateways, studioKit, studioPage, manage, working, addons, money, inAppPay } as const;
 
 type Areas = typeof AREAS;
 type English = { [K in keyof Areas]: Areas[K]["en"] };

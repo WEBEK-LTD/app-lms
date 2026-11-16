@@ -15,6 +15,8 @@ import type {
   OrderStageEntry,
   OrderStageRefund,
   OrderCustomerCurrency,
+  StorePlatformOrder,
+  StorePlatformOrderStatus,
   StoreFlashSale,
   AddonRule,
   GiftOccasion,
@@ -1200,6 +1202,30 @@ export const storeDeliveries = mysqlTable(
     createdAt: time("created_at").notNull(),
   },
   (t) => [index("store_deliveries_day_idx").on(t.appId, t.deliveryDate), index("store_deliveries_created_idx").on(t.appId, t.createdAt)],
+);
+
+// 134 A connected store's order paid inside the app (Demo): its payment's catalog order, and the platform's order made once it is paid.
+export const storePlatformOrders = mysqlTable(
+  "store_platform_orders",
+  {
+    id: autoId("id").primaryKey(),
+    appId: id("app_id")
+      .notNull()
+      .references(() => apps.id, { onDelete: "cascade" }),
+    orderId: bigint("order_id", { mode: "number", unsigned: true })
+      .notNull()
+      .references(() => catalogOrders.id, { onDelete: "cascade" }),
+    platform: varchar("platform", { length: 24 }).notNull().$type<StorePlatformOrder["platform"]>(),
+    status: varchar("status", { length: 24 }).notNull().$type<StorePlatformOrderStatus>(),
+    platformOrderId: varchar("platform_order_id", { length: 64 }),
+    platformOrderNumber: varchar("platform_order_number", { length: 64 }),
+    attempts: int("attempts").notNull().default(0),
+    // What to create, the platform's last quote and why it needs attention (JSON).
+    data: jsonText<Pick<StorePlatformOrder, "intent" | "quote" | "problem">>("data").notNull(),
+    createdAt: time("created_at").notNull(),
+    updatedAt: time("updated_at").notNull(),
+  },
+  (t) => [uniqueIndex("store_platform_orders_order_unique").on(t.orderId), index("store_platform_orders_app_idx").on(t.appId, t.createdAt), index("store_platform_orders_status_idx").on(t.status, t.updatedAt)],
 );
 
 export const quizAttempts = mysqlTable(

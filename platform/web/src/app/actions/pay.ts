@@ -4,6 +4,7 @@ import { PROVIDER_NAME, providerTakes } from "@/lib/payments/provider";
 import { headers } from "next/headers";
 import { redirect } from "next/navigation";
 import { chargedAmount, readCustomer, startPayment } from "@/lib/catalog/payment";
+import { formatCents } from "@/lib/catalog/money";
 import { chooseManualPayment, isManualMethod } from "@/lib/catalog/manual";
 import { sendManualOrderMails } from "@/lib/catalog/manual-mail";
 import { checkoutAccount, payLinkExpired } from "@/lib/catalog/settings";
@@ -19,6 +20,9 @@ import { withDemoChecked } from "@/lib/demo/apps";
 import { placeDemoOrder } from "@/lib/demo/checkout";
 import { HoldEndedError } from "@/lib/events/holds";
 import { noteAppError } from "@/lib/watch/app-errors";
+import { revalidatePath } from "next/cache";
+import { quoteBeforePayment } from "@/lib/selling/in-app-pay";
+import { inAppPayDeps } from "@/lib/selling/in-app-pay-env";
 import { pushNewOrder } from "@/lib/owner/push";
 import { pushOwnerSafely } from "@/lib/owner/push-env";
 
@@ -46,8 +50,10 @@ export async function payAction(token: string, _: FormState, formData: FormData)
   if (payLinkExpired(order, now)) return { message: "This payment link has expired. Go back to the app and check out again." };
   const app = await store.getAppById(order.appId);
   const method = String(formData.get("method") ?? "card");
+  // 134 A connected store's payment in the app is by card only: its platform's order is made once it's paid.
+  const platformOrder = app ? await store.getStorePlatformOrder(app.id, order.id) : null;
   // 96.2 Bank transfer or the owner's own method: the order waits for the owner to mark it paid.
-  if (app && isManualMethod(method)) {
+  if (app && isManualMethod(method) && !platformOrder) {
     const settings = app.catalogSettings?.manualPayments;
     const checked = readCustomer(app, values);
     if (!checked.ok) return { errors: checked.errors, values };
@@ -79,6 +85,19 @@ export async function payAction(token: string, _: FormState, formData: FormData)
     const earlier = await settleOrderPayment(token, { provider: order.paymentProvider });
     if (earlier.status === "paid" || earlier.status === "already_paid") redirect(earlier.path);
   }
+  // 134 The platform prices it for this address (its shipping and tax) and checks the stock right before the payment.
+  let payable = order;
+  if (platformOrder) {
+    const quoted = await quoteBeforePayment(inAppPayDeps(store, now), app, order, checked.customer);
+    if (quoted && !quoted.ok) return { message: quoted.message, values };
+    const fresh = await store.getCatalogOrder(app.id, order.id);
+    if (!fresh) return { message: "This payment link isn't valid." };
+    payable = fresh;
+    if (quoted?.changed) {
+      revalidatePath(`/pay/${token}`);
+      return { message: `With the shipping and tax for your address, the total is ${formatCents(fresh.totalCents, fresh.currency)}. Check it, then tap Pay.`, values };
+    }
+  }
   let pageUrl: string;
   try {
     pageUrl = await startPayment({
@@ -87,7 +106,7 @@ export async function payAction(token: string, _: FormState, formData: FormData)
       account,
       urls: paymentApiUrls(),
       now,
-      order,
+      order: payable,
       customer: checked.customer,
       ip: ipFromHeaders(await headers()),
       callbackUrls: callbackUrls(appUrl(), "order", account.account.provider, token),

@@ -25,6 +25,7 @@ import '../widgets/addon_widgets.dart';
 import '../widgets/delivery_place.dart';
 import '../widgets/gift_checkout.dart';
 import '../widgets/gift_checkout_look.dart';
+import '../widgets/in_app_payment.dart';
 import '../widgets/product_widgets.dart';
 import '../../../core/l10n/l10n.dart';
 import '../../../core/l10n/vertical_wording.dart';
@@ -287,8 +288,15 @@ class _CartScreenState extends ConsumerState<CartScreen> {
             // 91.4 The points shown taken off, when the customer chose them.
             usePoints:
                 ref.read(cartQuoteProvider).value?.points?.applied ?? false,
+            // 134 The store pays inside the app (the owner's gateway).
+            payInApp: store.payInApp,
           );
       if (!mounted) return;
+      // 134 Paying inside the app: Yallapp's payment page, then how it ended.
+      if (link.payment == CheckoutPayment.inApp) {
+        await _payInApp(link);
+        return;
+      }
       final inApp =
           link.openIn == CheckoutTarget.inApp &&
           store.checkoutOpensIn != CheckoutOpensIn.browser;
@@ -325,7 +333,30 @@ class _CartScreenState extends ConsumerState<CartScreen> {
     }
   }
 
-  void _ordered() {
+  /// 134 The payment page inside the app (the owner's gateway, through
+  /// Yallapp); once paid the cart is emptied, and the customer reads whether
+  /// the shop has the order or will confirm it, or that nothing was charged.
+  Future<void> _payInApp(CheckoutLink link) async {
+    Uri? ended;
+    final done = await context.push<bool>(
+      Paths.web,
+      extra: WebPageArgs(
+        url: link.url,
+        title: context.l10n.inAppPayTitle,
+        completesOn: isOrderReceived,
+        onCompleted: (url) => ended = url,
+      ),
+    );
+    if (!mounted) return;
+    final outcome = done == true
+        ? inAppPaymentOutcome(ended)
+        : InAppPaymentOutcome.notPaid;
+    if (outcome != InAppPaymentOutcome.notPaid) _ordered(note: false);
+    final orders = await showInAppPaymentResult(context, outcome);
+    if (orders && mounted) context.push(Paths.orders);
+  }
+
+  void _ordered({bool note = true}) {
     final restaurant = ref.read(appConfigProvider).store?.fulfilment != null;
     ref.read(cartProvider.notifier).clear();
     ref.read(cartCouponProvider.notifier).set(null);
@@ -340,11 +371,11 @@ class _CartScreenState extends ConsumerState<CartScreen> {
       _later = false;
     });
     ref.read(cartDeliveryProvider.notifier).clear();
-    showMessage(context, context.l10n.orderPlaced);
+    if (note) showMessage(context, context.l10n.orderPlaced);
     // 46 A good moment to ask for a rating.
     reportGoodMoment(ref, GoodMoment.orderPlaced);
     // 26 A restaurant's customer follows the order from their orders.
-    if (restaurant) context.push(Paths.orders);
+    if (restaurant && note) context.push(Paths.orders);
   }
 
   @override

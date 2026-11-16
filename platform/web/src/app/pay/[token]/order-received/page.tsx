@@ -27,9 +27,29 @@ export default async function OrderReceivedPage({ params }: { params: Promise<{ 
   const paid = order?.status === "processing" || order?.status === "completed";
   // 49 Paid after the places held for it were released, and the event filled up meanwhile.
   const noPlaces = Boolean(order && app?.connector?.kind === "events" && paidWithoutPlaces(order, await store.listTickets({ appId: app.id, orderId: order.id })));
+  // 134 A connected store's payment in the app: its order is on the shop's platform, or the shop confirms it.
+  const platformOrder = order && app && paid ? await store.getStorePlatformOrder(app.id, order.id) : null;
   return (
     <PayShell app={app}>
-      {noPlaces ? (
+      {platformOrder ? (
+        platformOrder.status === "placed" ? (
+          <>
+            <Icon name="check_circle" size={48} filled className="text-success" />
+            <h1 className="m-0 text-[24px] font-extrabold">Thank you!</h1>
+            <p className="m-0 text-[16px] leading-relaxed text-ink-4" data-shop-order="placed">
+              {`Your payment is received and your order ${platformOrder.platformOrderNumber ?? ""} is placed with ${app?.appName ?? "the shop"}. You'll find it in your orders in the app.`.replace("  ", " ")}
+            </p>
+          </>
+        ) : (
+          <>
+            <Icon name="schedule" size={48} className="text-ink-4" />
+            <h1 className="m-0 text-[24px] font-extrabold">Payment received</h1>
+            <p className="m-0 text-[16px] leading-relaxed text-ink-4" data-shop-order="confirming">
+              {`We received your payment of ${formatCents(order!.totalCents, order!.currency)}. ${app?.appName ?? "The shop"} will confirm your order shortly.`}
+            </p>
+          </>
+        )
+      ) : noPlaces ? (
         <>
           <Icon name="info" size={48} className="text-ink-4" />
           <h1 className="m-0 text-[24px] font-extrabold">No places left</h1>

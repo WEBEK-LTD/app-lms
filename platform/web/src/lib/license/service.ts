@@ -1,5 +1,6 @@
 import { parseSiteSales, saveSiteSales, type SiteSalesDay } from "../analytics/site-sales";
 import { giftMessagesStatus, giftOccasionsOf } from "../selling/gift-messages";
+import { storeCheckoutStatus } from "../selling/in-app-pay";
 import { sectionTitlesJson } from "../selling/addons";
 import { appLanguagesOf } from "../selling/store";
 import { appSwitches, type AppSwitches } from "../app/switches";
@@ -77,6 +78,8 @@ export interface LicenseStatusBody {
   gift_messages: ReturnType<typeof giftMessagesStatus> | null;
   /** 131 A store's titles of the add-ons, the card and the delivery picker, per language (`StoreConfig.titles`, the plugin serves them); null for other apps. */
   store_titles: ReturnType<typeof sectionTitlesJson> | null;
+  /** 134 A WooCommerce store's customers pay inside the app (Demo), through the owner's own gateway; null: on the store's own checkout. */
+  store_checkout: ReturnType<typeof storeCheckoutStatus>;
   expires_at: string | null;
   checked_at: string;
   message: string | null;
@@ -303,6 +306,7 @@ function statusBody(
     screens: facts.app ? (screensConfig(facts.app).screens ?? null) : null,
     gift_messages: facts.giftMessages ?? null,
     store_titles: facts.app?.appType === "store" ? sectionTitlesJson(facts.app.catalogSettings?.titles) : null,
+    store_checkout: state === "active" && facts.app ? storeCheckoutStatus(facts.app) : null,
     expires_at: license ? license.expiresAt.toISOString() : null,
     checked_at: now.toISOString(),
     message,

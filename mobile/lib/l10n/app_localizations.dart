@@ -19184,6 +19184,60 @@ abstract class AppLocalizations {
   /// **'Pin where it goes on the map.'**
   String get deliveryNeedPin;
 
+  /// 134 The title after paying inside the app, once the shop has the order.
+  ///
+  /// In en, this message translates to:
+  /// **'Order placed'**
+  String get inAppPaidTitle;
+
+  /// 134 Under the title after paying inside the app, once the shop has the order.
+  ///
+  /// In en, this message translates to:
+  /// **'Your payment is received and your order is placed with the shop. You\'ll find it in your orders.'**
+  String get inAppPaidBody;
+
+  /// 134 The title after paying inside the app while the shop still has to confirm the order.
+  ///
+  /// In en, this message translates to:
+  /// **'Payment received'**
+  String get inAppConfirmingTitle;
+
+  /// 134 Under the title after paying inside the app while the shop still has to confirm the order.
+  ///
+  /// In en, this message translates to:
+  /// **'We received your payment. The shop will confirm your order shortly.'**
+  String get inAppConfirmingBody;
+
+  /// 134 The title when the payment page inside the app was closed before paying.
+  ///
+  /// In en, this message translates to:
+  /// **'Payment not completed'**
+  String get inAppNotPaidTitle;
+
+  /// 134 Under the title when the payment page inside the app was closed before paying.
+  ///
+  /// In en, this message translates to:
+  /// **'Nothing was charged. Your cart is kept, so you can try again.'**
+  String get inAppNotPaidBody;
+
+  /// 134 Opens the customer's orders after paying inside the app.
+  ///
+  /// In en, this message translates to:
+  /// **'View my orders'**
+  String get inAppViewOrders;
+
+  /// 134 Closes the note and goes back to the cart when the payment wasn't completed.
+  ///
+  /// In en, this message translates to:
+  /// **'Back to cart'**
+  String get inAppBackToCart;
+
+  /// 134 The title of the payment page when the customer pays inside the app.
+  ///
+  /// In en, this message translates to:
+  /// **'Payment'**
+  String get inAppPayTitle;
+
   /// 132 On an order's screen: its delivery stage, the shop is preparing it.
   ///
   /// In en, this message translates to:
