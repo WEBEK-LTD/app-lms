@@ -119,7 +119,8 @@ export function PlanCards({
       aria-label={m.list}
       data-pricing-plans=""
       data-currency={view.display}
-      className="-mx-4 flex list-none snap-x snap-mandatory scroll-px-4 gap-4 overflow-x-auto px-4 pt-4 pb-4 sm:mx-0 sm:grid sm:grid-cols-2 sm:gap-5 sm:overflow-visible sm:px-0 lg:grid-cols-4"
+      // 133 Rows of four (two on tablets) at one card width, a last row with fewer cards centred; the phone's row to swipe as before.
+      className="-mx-4 flex list-none snap-x snap-mandatory scroll-px-4 gap-4 overflow-x-auto px-4 pt-4 pb-4 sm:mx-0 sm:flex-wrap sm:justify-center sm:gap-5 sm:overflow-visible sm:px-0"
     >
       {plans.map((plan) => {
         // 133 The team's highlighted plan, with its own badge or "Most popular".
@@ -131,7 +132,7 @@ export function PlanCards({
           <li
             key={plan.id}
             data-plan={plan.id}
-            className={`relative flex w-[84%] max-w-[340px] flex-none snap-start flex-col gap-5 rounded-[22px] p-6 transition-[box-shadow,border-color] duration-200 sm:w-auto sm:max-w-none ${
+            className={`relative flex w-[84%] max-w-[340px] flex-none snap-start flex-col gap-5 rounded-[22px] p-6 transition-[box-shadow,border-color] duration-200 sm:w-[calc((100%-1.25rem)/2)] sm:max-w-none lg:w-[calc((100%-3.75rem)/4)] ${
               featured
                 ? "border-2 border-midnight bg-white shadow-[0_28px_56px_-30px_rgba(14,13,36,0.45)]"
                 : "border border-line bg-white hover:border-line-strong hover:shadow-[0_20px_40px_-28px_rgba(14,13,36,0.35)]"
@@ -144,8 +145,13 @@ export function PlanCards({
               </span>
             ) : null}
             <div className="flex flex-col gap-1.5">
-              <Heading className="m-0 text-xl font-extrabold tracking-[-0.3px]">{plan.name}</Heading>
-              <span className="min-h-[2lh] text-sm leading-snug text-muted">{plan.tagline}</span>
+              {/* 133 The team's words may be in another script than the page's: each keeps its own direction. */}
+              <Heading className="m-0 text-xl font-extrabold tracking-[-0.3px]">
+                <bdi>{plan.name}</bdi>
+              </Heading>
+              <span dir="auto" className="min-h-[2lh] text-sm leading-snug text-muted">
+                {plan.tagline}
+              </span>
             </div>
             <div className="flex flex-wrap items-baseline gap-x-1.5">
               <span dir={shown.period ? "ltr" : undefined} className={`font-extrabold tracking-[-0.5px] ${shown.period ? "text-[34px]" : "text-[26px]"}`}>
@@ -182,7 +188,7 @@ export function PlanCards({
                   <span className="mt-px flex h-5 w-5 flex-none items-center justify-center rounded-full bg-success-bg text-success">
                     <Icon name="check" size={15} />
                   </span>
-                  {item}
+                  <bdi className="min-w-0">{item}</bdi>
                 </li>
               ))}
             </ul>

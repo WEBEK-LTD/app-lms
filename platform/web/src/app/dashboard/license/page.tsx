@@ -428,7 +428,7 @@ export default async function LicensePage({ searchParams }: PageProps<"/dashboar
                 className={`flex flex-col gap-2.5 rounded-xl border p-4 ${isCurrent ? "border-2 border-midnight bg-ivory" : "border-line"}`}
               >
                 <div className="flex flex-wrap items-center justify-between gap-2">
-                  <span className="text-[17px] font-bold">{plan.name}</span>
+                  <bdi className="text-[17px] font-bold">{plan.name}</bdi>
                   {isCurrent ? (
                     <Badge tone="success">{t("license.currentPlan")}</Badge>
                   ) : scheduled?.plan === id ? (
@@ -449,7 +449,8 @@ export default async function LicensePage({ searchParams }: PageProps<"/dashboar
                   {planLines(plan, text, limitDefs).map((line) => (
                     <li key={line} className="flex items-start gap-1.5">
                       <Icon name="check" size={16} className="mt-px text-success" />
-                      {line}
+                      {/* 133 A limit the team named in English keeps its order on an Arabic page. */}
+                      <bdi className="min-w-0">{line}</bdi>
                     </li>
                   ))}
                 </ul>

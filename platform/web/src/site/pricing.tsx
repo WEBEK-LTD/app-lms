@@ -192,7 +192,7 @@ export async function PricingPage({ lang, period: asked = null }: { lang: Lang; 
                 </th>
                 {plans.map((plan) => (
                   <th key={plan.id} scope="col" className={`w-[140px] px-4 py-4 text-center font-bold ${plan.featured ? "bg-peach-soft" : ""}`}>
-                    {plan.name}
+                    <bdi>{plan.name}</bdi>
                   </th>
                 ))}
               </tr>

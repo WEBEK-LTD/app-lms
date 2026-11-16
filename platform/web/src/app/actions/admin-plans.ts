@@ -25,6 +25,7 @@ import {
   type PlanSetting,
 } from "@/lib/plans";
 import { refreshPlanSitesSoon } from "@/lib/license/refresh-soon";
+import { planFor } from "@/lib/marketing-lang";
 import { clearPlatformSettingsCache, platformSetting } from "@/lib/settings/platform";
 
 /**
@@ -76,15 +77,26 @@ function copyOf(from: Plan, saved: Partial<Record<Plan, PlanSetting>>, name: str
   const ordered = plansInOrder(plansShown(planFamily(from), saved), plans);
   const last = ordered.at(-1);
   const order = last ? Math.max(...ordered.map((p) => plans[p].order ?? plansOfFamily(planFamily(p)).indexOf(p))) + 1 : 0;
-  const setting = planSettingOf(plans[from]);
-  const copy: PlanSetting = { ...setting, name: name.slice(0, 30), offered: false, order, featured: false };
+  const source = plans[from];
+  const setting = planSettingOf(source);
+  // The plan it all started from: the copy's Arabic and Turkish fall back to its texts, never to English.
+  const copy: PlanSetting = { ...setting, name: name.slice(0, 30), offered: false, order, featured: false, copiedFrom: source.copiedFrom ?? from };
   delete copy.archived;
   delete copy.badge;
-  // Its own name in every language: the Arabic and Turkish names of the plan it copies would name two plans the same.
-  if (copy.translations) {
-    const translations = Object.fromEntries(Object.entries(copy.translations).map(([lang, text]) => [lang, { ...text, name: undefined, badge: undefined }]));
-    copy.translations = JSON.parse(JSON.stringify(translations)) as PlanSetting["translations"];
+  // The tagline and what's included in Arabic and Turkish as the source shows them (the team's own, or the built-in
+  // translation), never English put in their place; the name and badge are left for the team to write (two plans
+  // with one name would be confusing).
+  const translations: NonNullable<PlanSetting["translations"]> = {};
+  for (const lang of PLAN_TEXT_LANGS) {
+    const own = source.translations?.[lang] ?? {};
+    const shown = planFor(lang, source);
+    const tagline = own.tagline ?? (shown.tagline !== source.tagline ? shown.tagline : undefined);
+    const highlights = own.highlights?.length ? own.highlights : shown.highlights.join("\n") !== source.highlights.join("\n") ? shown.highlights : undefined;
+    const text = { ...(tagline ? { tagline } : {}), ...(highlights?.length ? { highlights: [...highlights] } : {}), ...(own.price ? { price: own.price } : {}) };
+    if (Object.keys(text).length) translations[lang] = text;
   }
+  if (Object.keys(translations).length) copy.translations = translations;
+  else delete copy.translations;
   return copy;
 }
 

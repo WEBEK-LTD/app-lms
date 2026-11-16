@@ -117,6 +117,17 @@ test("the pricing page offers the periods, with the price per month, the saving 
   // In Arabic too.
   await visitor.goto("/ar/pricing?period=lifetime");
   await expect(visitor.locator("#lifetime")).toContainText("ادفع مرة واحدة، وتبقى لك مدى الحياة");
+  // The copy of Growth says what's included in Growth's Arabic, not in English.
+  const scaleAr = visitor.locator(`#lifetime [data-lifetime-plan="${PLAN}"]`);
+  await expect(scaleAr).not.toContainText("app languages");
+  await expect(visitor.locator(`#regular [data-plan="${PLAN}"]`)).not.toContainText("Up to 10,000 app users");
+  // Five plans: the last row's card in the middle, as wide as the others.
+  await visitor.setViewportSize({ width: 1280, height: 900 });
+  const box = (id: string) => visitor.locator(`#regular [data-plan="${id}"]`).boundingBox();
+  const [first, fifth] = [await box("starter"), await box(PLAN)];
+  expect(Math.round(fifth!.width)).toBe(Math.round(first!.width));
+  const row = (await visitor.locator("#regular [data-pricing-plans]").boundingBox())!;
+  expect(Math.abs(fifth!.x + fifth!.width / 2 - (row.x + row.width / 2))).toBeLessThan(2);
   await visitor.close();
 });
 

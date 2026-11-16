@@ -4,6 +4,7 @@ import { addonBillings, addonsOf, addonText, BUILT_IN_ADDONS, cleanAddon, PUBLIS
 import { addonFeatures, addonTotals, withAddons } from "@/lib/addons/effects";
 import { remindEndingAddons } from "@/lib/addons/notify";
 import { remindLicense } from "@/lib/notices";
+import { planFor } from "@/lib/marketing-lang";
 import { addonEndFor, applyPaidAddon, grantAddon, newAppAddon, startAddonPayment } from "@/lib/addons/payment";
 import { addonRefusal, addonRenewable, addonRunning, belowTop, limitValue, topPlanOf } from "@/lib/addons/rules";
 import type { AddonDef, AppAddon } from "@/lib/addons/types";
@@ -242,6 +243,24 @@ describe("133 plans for both families", () => {
     expect(planOffered(plansWith({ growth: GROWTH_PERIODS }).growth)).toBe(true);
     // The four can be hidden too.
     expect(planOffered(plansWith({ starter: edit("starter", { offered: false }) }).starter)).toBe(false);
+  });
+
+  it("shows an added or copied plan in Arabic and Turkish with the texts of the plan it came from, never English", () => {
+    const copy = { ...planSettingOf(PLAN_INFO.growth), name: "Scale", offered: true, copiedFrom: "growth" as const };
+    const plans = plansWith({ regular_5: copy });
+    expect(plans.regular_5.copiedFrom).toBe("growth");
+    const growthAr = planFor("ar", PLAN_INFO.growth);
+    expect(growthAr.highlights).not.toEqual(PLAN_INFO.growth.highlights);
+    expect(planFor("ar", plans.regular_5)).toMatchObject({ name: "Scale", tagline: growthAr.tagline, highlights: growthAr.highlights });
+    expect(planFor("tr", plans.regular_5).highlights).toEqual(planFor("tr", PLAN_INFO.growth).highlights);
+    // English lines the team changed without translating them: still the source's translation, not English.
+    const edited = plansWith({ regular_5: { ...copy, highlights: ["Ten app languages"] } }).regular_5;
+    expect(planFor("ar", edited).highlights).toEqual(growthAr.highlights);
+    // The team's own translation comes first.
+    const own = plansWith({ regular_5: { ...copy, translations: { ar: { highlights: ["سطر من الفريق"] } } } }).regular_5;
+    expect(planFor("ar", own).highlights).toEqual(["سطر من الفريق"]);
+    // A plan of the other family can't be its source.
+    expect(plansWith({ regular_5: { ...copy, copiedFrom: "studio_1" } }).regular_5.copiedFrom).toBeUndefined();
   });
 
   it("highlights the team's plan with its own badge, Growth until the team changes it", () => {

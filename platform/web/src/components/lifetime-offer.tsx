@@ -78,7 +78,9 @@ export function LifetimeOffer({
         {plans.map((plan) => (
           <li key={plan.id} data-lifetime-plan={plan.id} className="flex flex-col gap-4 rounded-2xl border border-night-line bg-night-2/70 p-5 backdrop-blur">
             <div className="flex flex-col gap-1">
-              <Sub className="m-0 text-lg font-extrabold text-white">{plan.name}</Sub>
+              <Sub className="m-0 text-lg font-extrabold text-white">
+                <bdi>{plan.name}</bdi>
+              </Sub>
               <span className="flex flex-wrap items-baseline gap-x-2">
                 <span dir="ltr" className="text-[30px] font-extrabold tracking-[-0.5px] text-white">
                   {plan.price}
@@ -90,7 +92,8 @@ export function LifetimeOffer({
               {plan.includes.map((line) => (
                 <li key={line} className="flex gap-2">
                   <Icon name="check" size={17} className="mt-px flex-none text-ember" />
-                  {line}
+                  {/* A line in another script than the page's keeps its own order. */}
+                  <bdi className="min-w-0">{line}</bdi>
                 </li>
               ))}
             </ul>

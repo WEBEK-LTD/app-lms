@@ -243,6 +243,12 @@ export interface PlanInfo {
   badge?: string;
   /** 133 The team's own limits (Admin › Plans › Limits), by their id: a number, null for no limit; missing: not on this plan. */
   extraLimits?: Record<string, number | null>;
+  /**
+   * 133 An added or duplicated plan: the plan it was first copied from. Its
+   * texts in Arabic and Turkish fall back to that plan's, never to English
+   * (lib/marketing-lang.ts `planFor`).
+   */
+  copiedFrom?: Plan;
 }
 
 /** 133 One of a plan's other billing periods, as the team set it. */
@@ -266,7 +272,7 @@ export type PlanPeriods = Partial<Record<PeriodKey, PlanPeriodSetting>>;
  * dollar price, and any other price is dropped (the plan shows its price
  * text until the team sets a price in pounds).
  */
-export type PlanSetting = Pick<PlanInfo, "name" | "tagline" | "features" | "highlights" | "price" | "priceCents" | "billingMonths" | "translations" | "offered" | "periods" | "order" | "archived" | "featured" | "badge" | "extraLimits"> & {
+export type PlanSetting = Pick<PlanInfo, "name" | "tagline" | "features" | "highlights" | "price" | "priceCents" | "billingMonths" | "translations" | "offered" | "periods" | "order" | "archived" | "featured" | "badge" | "extraLimits" | "copiedFrom"> & {
   usdCents?: number | null;
   onRequest?: boolean;
   /** Before Phase 52: the price's currency. */
@@ -885,6 +891,8 @@ export function plansWith(settings: Partial<Record<Plan, PlanSetting>> | null | 
       featured: typeof edit.featured === "boolean" ? edit.featured : base.featured,
       ...(typeof edit.badge === "string" && edit.badge.trim() ? { badge: edit.badge.trim().slice(0, 24) } : {}),
       ...(extraLimits ? { extraLimits } : {}),
+      // 133 Only a plan of the same family it could have been copied from.
+      ...(isPlan(edit.copiedFrom) && edit.copiedFrom !== plan && planFamily(edit.copiedFrom) === planFamily(plan) ? { copiedFrom: edit.copiedFrom } : {}),
     };
   };
   return Object.fromEntries(PLANS.map((plan) => [plan, merge(plan)])) as Record<Plan, PlanInfo>;
@@ -915,6 +923,7 @@ export function planSettingOf(plan: PlanInfo): PlanSetting {
     ...(plan.featured !== undefined ? { featured: plan.featured } : {}),
     ...(plan.badge ? { badge: plan.badge } : {}),
     ...(plan.extraLimits ? { extraLimits: { ...plan.extraLimits } } : {}),
+    ...(plan.copiedFrom ? { copiedFrom: plan.copiedFrom } : {}),
   };
 }
 

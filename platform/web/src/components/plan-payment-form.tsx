@@ -123,7 +123,7 @@ export function PlanPaymentForm({
               <input type="radio" name="planChoice" value={p.id} checked={plan === p.id} onChange={() => choosePlan(p.id)} className="mt-1 h-4 w-4 accent-midnight" />
               <span className="flex min-w-0 flex-1 flex-col gap-0.5">
                 <span className="flex flex-wrap items-baseline justify-between gap-2">
-                  <span className="text-[15px] font-bold">{p.name}</span>
+                  <bdi className="text-[15px] font-bold">{p.name}</bdi>
                   <span className="text-[15px] font-bold" dir="ltr">
                     {lowered ? (
                       <>
@@ -136,7 +136,11 @@ export function PlanPaymentForm({
                     {unit ? <span className="font-normal text-muted"> / {unit}</span> : null}
                   </span>
                 </span>
-                {p.tagline ? <span className="text-[13px] text-muted">{p.tagline}</span> : null}
+                {p.tagline ? (
+                  <span dir="auto" className="text-[13px] text-muted">
+                    {p.tagline}
+                  </span>
+                ) : null}
                 {note ? <span className="text-[13px] font-semibold text-ink-2">{note}</span> : null}
               </span>
             </label>

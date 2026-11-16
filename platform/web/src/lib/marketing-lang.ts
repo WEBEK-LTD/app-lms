@@ -165,15 +165,19 @@ export function numberWordFor(lang: Lang, n: number): string {
 export function planFor(lang: Lang, plan: PlanInfo): PlanInfo {
   if (lang === "en") return plan;
   const own = plan.translations?.[lang] ?? {};
-  // The four regular plans' built-in translations; 133 a plan the team added has only its own texts.
-  const x = planFamily(plan.id) === "regular" && (DEFAULT_REGULAR_PLANS as readonly string[]).includes(plan.id) ? translation(lang)?.plans[plan.id as DefaultRegularPlan] : undefined;
-  const base = PLAN_INFO[plan.id];
+  // The four regular plans' built-in translations; 133 a plan the team added or copied has those of the plan it was copied from.
+  const isDefault = (id: string | undefined): id is DefaultRegularPlan => Boolean(id) && (DEFAULT_REGULAR_PLANS as readonly string[]).includes(id!);
+  const source = isDefault(plan.id) ? plan.id : plan.copiedFrom && planFamily(plan.id) === "regular" && isDefault(plan.copiedFrom) ? plan.copiedFrom : undefined;
+  const x = source ? translation(lang)?.plans[source] : undefined;
+  const copied = source !== undefined && source !== plan.id;
+  const base = PLAN_INFO[source ?? plan.id];
   const sameHighlights = plan.highlights.length === base.highlights.length && plan.highlights.every((h, i) => h === base.highlights[i]);
   return {
     ...plan,
     name: own.name ?? plan.name,
-    tagline: own.tagline ?? (x && plan.tagline === base.tagline ? x.tagline : plan.tagline),
-    highlights: own.highlights?.length ? own.highlights : x && sameHighlights ? x.highlights : plan.highlights,
+    // A copy without its own translation shows the translation of the plan it came from, never the English.
+    tagline: own.tagline ?? (x && (copied || plan.tagline === base.tagline) ? x.tagline : plan.tagline),
+    highlights: own.highlights?.length ? own.highlights : x && (copied || sameHighlights) ? x.highlights : plan.highlights,
     price: own.price ?? plan.price,
     // 133 The badge in the language, when the team wrote one.
     ...(own.badge ? { badge: own.badge } : {}),
