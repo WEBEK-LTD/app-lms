@@ -233,6 +233,8 @@ test("the member completes the order on the dashboard, and the owner sees who di
   await member.goto("/dashboard/orders");
   await expect(member.getByText("Copper pot")).toBeVisible();
   await member.getByRole("button", { name: "Mark completed" }).click();
+  // The order is done once its own button is gone (the page has "Completed" in its filters before that).
+  await expect(member.getByRole("button", { name: "Mark completed" })).toHaveCount(0);
   await expect(member.getByText("Completed").first()).toBeVisible();
   await own.goto("/dashboard/team");
   await expect(own.getByTestId("team-activity")).toContainText(`${staff.name} · Order`);
