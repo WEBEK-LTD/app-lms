@@ -186,7 +186,8 @@ export function Builder({
 
   function doneLanguages(next = answers) {
     chose("answer.done");
-    const picked = next.languages.length ? next.languages : [lang];
+    // 132.40 None chosen: the dashboard's language, and English after an Arabic or Turkish one (lib/app/start-language.ts).
+    const picked = next.languages.length ? next.languages : lang === "en" ? ["en"] : [lang, "en"];
     finish("languages", { ...next, languages: picked }, list(picked.map((c) => languages.names[c] ?? c)));
   }
 

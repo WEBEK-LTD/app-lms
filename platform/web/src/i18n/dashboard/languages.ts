@@ -16,6 +16,12 @@ export const en = {
   byYallapp: "Translated by Yallapp",
   youTranslate: "You translate",
   makeDefault: "Make default",
+  // 132.40 "Make Arabic the main language": the dashboard's language as the app's main one.
+  makeMain: "Make {language} the main language",
+  mainKeep:
+    "Your app's main language is {current}. Make {language} the main one: your pages are written in it, and the app opens in it unless a phone is set to another of its languages. {current} stays in the app.",
+  mainSwap:
+    "Your app's main language is {current}. Make {language} the main one: your pages are written in it, and the app opens in it. Your plan has room for no more languages, so {language} takes the place of {dropped}; its texts are kept for when you add it back.",
   moveUp: "Move {name} up",
   moveDown: "Move {name} down",
   remove: "Remove {name}",
@@ -158,6 +164,11 @@ export const ar: Messages = {
   byYallapp: "ترجمها Yallapp",
   youTranslate: "تترجمها أنت",
   makeDefault: "جعلها الافتراضية",
+  makeMain: "خلّي {language} اللغة الأساسية",
+  mainKeep:
+    "اللغة الأساسية لتطبيقك دلوقتي {current}. خلّي {language} هي الأساسية: صفحاتك هتتكتب بيها، والتطبيق هيفتح بيها إلا لو الموبايل على لغة تانية من لغاته. و{current} هتفضل في التطبيق.",
+  mainSwap:
+    "اللغة الأساسية لتطبيقك دلوقتي {current}. خلّي {language} هي الأساسية: صفحاتك هتتكتب بيها، والتطبيق هيفتح بيها. باقتك مفيهاش مكان للغة زيادة، يبقى {language} هتاخد مكان {dropped}، ونصوصها هتفضل محفوظة لو رجّعتها.",
   moveUp: "نقل {name} لأعلى",
   moveDown: "نقل {name} لأسفل",
   remove: "إزالة {name}",
@@ -297,6 +308,11 @@ export const tr: Messages = {
   byYallapp: "Yallapp çevirdi",
   youTranslate: "Siz çevirirsiniz",
   makeDefault: "Varsayılan yap",
+  makeMain: "Ana dili {language} yap",
+  mainKeep:
+    "Uygulamanızın ana dili şu an {current}. Ana dili {language} yaparsanız sayfalarınız bu dilde yazılır ve telefon uygulamanın başka bir diline ayarlı değilse uygulama bu dilde açılır. {current} uygulamada kalır.",
+  mainSwap:
+    "Uygulamanızın ana dili şu an {current}. Ana dili {language} yaparsanız sayfalarınız bu dilde yazılır ve uygulama bu dilde açılır. Paketinizde başka bir dile yer olmadığından {language}, {dropped} yerine geçer; o dilin metinleri onu yeniden eklediğinizde geri gelir.",
   moveUp: "{name} dilini yukarı taşı",
   moveDown: "{name} dilini aşağı taşı",
   remove: "{name} dilini kaldır",
