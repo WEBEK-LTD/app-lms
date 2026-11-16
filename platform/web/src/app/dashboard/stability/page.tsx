@@ -1,8 +1,8 @@
 import type { Metadata } from "next";
 import { redirect } from "next/navigation";
+import { KitEmpty, KitHeader, KitHero, KitList, KitNext, KitPage, KitRow, KitSection, KitStatus, KitThumb, kit } from "@/components/studio-page";
 import { Icon } from "@/components/icon";
-import { Thumb } from "@/components/page-kit";
-import { PageHeader, ProgressBar, Section, formatDate } from "@/components/ui";
+import { ProgressBar, formatDate } from "@/components/ui";
 import { appLabel } from "@/lib/app/label";
 import { requireClient } from "@/lib/auth/session";
 import { dashboardText } from "@/lib/dashboard-lang";
@@ -25,67 +25,92 @@ export default async function StabilityPage() {
   const stability = await stabilityOf(await getStore(), app.id, new Date());
   const off = app.crashReports === false;
   const { t, k, num, lang } = await dashboardText();
+  const good = stability.crashFree !== null && stability.crashFree >= 99;
+  // 132.143 The premium kit: the share without a crash in one hero card (its state as a pill, what the team does as its next step),
+  // the problems as rows, then the two switches as settings rows with their explanations behind "?".
   return (
-    <div className="flex flex-col gap-6">
-      {/* The page kit: the header, the share without a crash, the problems as a list, then the switches. */}
-      <PageHeader title={t("health.stability")} description={t("health.stabilityText", { app: appLabel(app) === "Untitled app" ? k("Untitled app") : appLabel(app) })} />
-      <Section
+    <KitPage>
+      <KitHeader icon="monitoring" title={t("health.stability")} description={t("health.stabilityText", { app: appLabel(app) === "Untitled app" ? k("Untitled app") : appLabel(app) })} />
+      <KitHero
         titleId="h-crash-free"
+        heading={t("health.crashFree")}
+        status={
+          off ? (
+            <KitStatus tone="neutral">{t("common.off")}</KitStatus>
+          ) : stability.crashFree === null ? (
+            <KitStatus tone="neutral">{t("health.noDataTitle")}</KitStatus>
+          ) : (
+            <KitStatus tone={good ? "success" : "warn"}>{good ? t("health.good") : t("health.couldBeBetter")}</KitStatus>
+          )
+        }
         title={
-          <span className="flex items-center gap-2">
-            <Icon name="monitoring" size={22} />
-            {t("health.crashFree")}
-          </span>
+          off ? (
+            t("health.offTitle")
+          ) : stability.crashFree === null ? (
+            t("health.noDataTitle")
+          ) : (
+            <span className="text-[40px] leading-none tracking-[-1px] tabular-nums sm:text-[48px]" data-crash-free="">
+              {t("health.percent", { percent: num(stability.crashFree) })}
+            </span>
+          )
+        }
+        description={off ? t("health.offText") : stability.crashFree === null ? t("health.noData") : t("health.sessions", { count: stability.sessions })}
+        next={
+          off ? (
+            <KitNext
+              icon="settings"
+              tone="warn"
+              action={
+                <a href="#h-switches" className={kit.quiet}>
+                  {t("health.turnOn")}
+                </a>
+              }
+            >
+              {t("health.crashReports")}
+            </KitNext>
+          ) : stability.top.length ? (
+            <KitNext icon="support_agent" tone="success">
+              {t("health.teamFixes")}
+            </KitNext>
+          ) : undefined
         }
       >
-        {off ? (
-          <p className="m-0 text-[15px] text-ink-4">{t("health.offText")}</p>
-        ) : stability.crashFree === null ? (
-          <p className="m-0 text-[15px] text-ink-4">{t("health.noData")}</p>
+        {!off && stability.crashFree !== null ? <ProgressBar value={stability.crashFree} max={100} label={t("health.crashFree")} tone={good ? "success" : "warn"} /> : null}
+      </KitHero>
+
+      <KitSection titleId="h-top" title={t("health.frequent")} flush>
+        {stability.top.length === 0 ? (
+          <KitEmpty icon="task_alt" title={t("health.noProblems")} />
         ) : (
-          <div className="flex flex-wrap items-center gap-x-6 gap-y-3">
-            <span className={`flex h-14 w-14 shrink-0 items-center justify-center rounded-2xl ${stability.crashFree >= 99 ? "bg-success-bg text-success" : "bg-warn-bg text-warn"}`}>
-              <Icon name={stability.crashFree >= 99 ? "check_circle" : "warning"} size={30} />
-            </span>
-            <div className="flex min-w-0 flex-[1_1_240px] flex-col gap-2">
-              <span className="text-[32px] leading-none font-extrabold tabular-nums" data-crash-free="">
-                {t("health.percent", { percent: num(stability.crashFree) })}
-              </span>
-              <ProgressBar value={stability.crashFree} max={100} label={t("health.crashFree")} tone={stability.crashFree >= 99 ? "success" : "warn"} />
-              <span className="text-sm text-muted">{t("health.sessions", { count: stability.sessions })}</span>
-            </div>
+          <div data-top-crashes="">
+            <KitList>
+              {stability.top.map((issue) => (
+                <KitRow
+                  key={issue.id}
+                  media={<KitThumb icon="error" size={40} />}
+                  title={
+                    <span className="font-mono text-[13px] break-words" dir="ltr">
+                      {issue.title}
+                    </span>
+                  }
+                  meta={t("health.issueLine", { count: issue.count, date: formatDate(issue.lastSeenAt, lang), version: issue.versions[issue.versions.length - 1] ?? "" })}
+                  aside={
+                    <span className="flex items-center gap-1 text-[13px] font-bold text-(--sp-muted) tabular-nums">
+                      <Icon name="trending_up" size={16} />
+                      {num(issue.count)}
+                    </span>
+                  }
+                />
+              ))}
+            </KitList>
           </div>
         )}
-      </Section>
+      </KitSection>
 
-      <Section titleId="h-top" title={t("health.frequent")} description={stability.top.length ? t("health.teamFixes") : undefined} flush>
-        {stability.top.length === 0 ? (
-          <p className="m-0 flex items-center gap-2 px-5 py-5 text-[15px] text-ink-4 sm:px-6">
-            <Icon name="check_circle" size={20} className="text-success" />
-            {t("health.noProblems")}
-          </p>
-        ) : (
-          <ul className="m-0 flex list-none flex-col p-0" data-top-crashes="">
-            {stability.top.map((issue, i) => (
-              <li key={issue.id} className="flex items-start gap-3.5 border-t border-line-soft px-5 py-3.5 first:border-t-0 sm:px-6">
-                <Thumb icon="error" shape="square" tint={i} />
-                <span className="flex min-w-0 flex-col gap-0.5">
-                  <span className="font-mono text-[13px] font-semibold break-words text-midnight" dir="ltr">
-                    {issue.title}
-                  </span>
-                  <span className="text-[13px] text-muted">
-                    {t("health.issueLine", { count: issue.count, date: formatDate(issue.lastSeenAt, lang), version: issue.versions[issue.versions.length - 1] ?? "" })}
-                  </span>
-                </span>
-              </li>
-            ))}
-          </ul>
-        )}
-      </Section>
-
-      <Section titleId="h-switches" title={t("health.switches")}>
+      <div id="h-switches" className="flex scroll-mt-6 flex-col gap-3">
+        <h2 className="m-0 px-1 text-[13px] font-semibold text-(--sp-muted)">{t("health.switches")}</h2>
         <AppHealthForm reviewPrompt={app.reviewPrompt !== false} crashReports={!off} />
-      </Section>
-    </div>
+      </div>
+    </KitPage>
   );
 }

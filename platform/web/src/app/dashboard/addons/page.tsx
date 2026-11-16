@@ -2,8 +2,8 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { Icon } from "@/components/icon";
 import type { IconName } from "@/components/icon-names";
-import { Badge, EmptyState, Notice, PageHeader, Section, btn, formatDate } from "@/components/ui";
-import { ItemList, ItemRow } from "@/components/page-kit";
+import { formatDate } from "@/components/ui";
+import { KitCallout, KitEmpty, KitHeader, KitList, KitPage, KitRow, KitSection, KitStatus, KitThumb, kit } from "@/components/studio-page";
 import { requireClient } from "@/lib/auth/session";
 import { getStore } from "@/lib/data";
 import { dashboardText } from "@/lib/dashboard-lang";
@@ -75,112 +75,58 @@ export default async function AddonsPage({ searchParams }: PageProps<"/dashboard
   const name = (a: Pick<AddonDef, "en" | "ar" | "tr"> | null, fallback: string) => (a ? addonText(a, lang).name : fallback);
   const billingWord = (b: AddonBilling) => t(BILLING_KEY[b]);
   const { payment } = query;
+  // 132.144 The premium kit: the header with the plan as a quiet link; what is being paid for first, then the app's add-ons and
+  // the ones offered as rows (a name, its prices, one pill or one action), the long explanation behind "?".
   return (
-    <div className="flex flex-col gap-6">
-      <PageHeader
+    <KitPage>
+      <KitHeader
+        icon="widgets"
         title={t("addons.title")}
-        description={t("addons.intro")}
+        description={t("addons.planLink")}
+        help={t("addons.intro")}
+        helpLabel={t("studioPage.help")}
         actions={
-          <Link href={licensePath(app)} className={`${btn.secondary} h-11`}>
+          <Link href={licensePath(app)} className={kit.ghost}>
             <Icon name="workspace_premium" size={20} />
             {t("addons.plan")}
           </Link>
         }
       />
       {payment === "paid" ? (
-        <Notice tone="success" icon="check_circle" role="status">
+        <KitCallout tone="success" icon="check_circle" role="status">
           {t("addons.paid")}
-        </Notice>
+        </KitCallout>
       ) : null}
       {payment === "failed" ? (
-        <Notice tone="danger" icon="error" role="alert">
+        <KitCallout tone="danger" icon="error" role="alert">
           {t("license.failed")}
-        </Notice>
+        </KitCallout>
       ) : null}
       {payment === "pending" ? (
-        <Notice icon="schedule" role="status">
+        <KitCallout icon="schedule" role="status">
           {t("license.pendingPayment")}
-        </Notice>
+        </KitCallout>
       ) : null}
       {!license ? (
-        <Notice tone="warn" icon="hourglass_top">
-          {t("addons.needPlan")}{" "}
-          <Link href={licensePath(app)}>{t("addons.choosePlan")}</Link>
-        </Notice>
+        <KitCallout
+          tone="warn"
+          icon="hourglass_top"
+          title={t("addons.needPlan")}
+          action={
+            <Link href={licensePath(app)} className={kit.quiet}>
+              {t("addons.choosePlan")}
+            </Link>
+          }
+        />
       ) : null}
-
-      {owned.length ? (
-        <Section titleId="h-my-addons" title={t("addons.yours")} flush>
-          <ItemList>
-            {owned.map((o) => (
-              <OwnedRow key={o.id} owned={o} def={defOf(o.addonId)} now={now} t={t} lang={lang} name={name(defOf(o.addonId), o.name)} billing={billingWord(o.billing)} renewHref={addonsPath(app, `?renew=${o.id}#buy`)} />
-            ))}
-          </ItemList>
-        </Section>
-      ) : null}
-
-      <Section titleId="h-offered" title={t("addons.offered")} description={license ? t("addons.offeredText") : undefined}>
-        {offered.length || ownedDefs.length ? (
-          <ul className="m-0 grid list-none gap-4 p-0 [grid-template-columns:repeat(auto-fill,minmax(min(260px,100%),1fr))]">
-            {[...offered, ...ownedDefs].map((d) => {
-              const words = addonText(d, lang);
-              const choices = choicesOf(d);
-              const has = !offered.includes(d);
-              return (
-                <li key={d.id} data-addon={d.id} className="flex flex-col gap-3 rounded-2xl border border-line bg-white p-5">
-                  <span className="flex h-11 w-11 items-center justify-center rounded-xl bg-peach text-accent">
-                    <Icon name={d.icon as IconName} size={24} />
-                  </span>
-                  <div className="flex flex-col gap-1">
-                    {/* The team's words may be in another script than the page's. */}
-                    <h3 dir="auto" className="m-0 text-base font-bold">
-                      {words.name}
-                    </h3>
-                    {words.description ? (
-                      <p dir="auto" className="m-0 text-sm leading-relaxed text-muted">
-                        {words.description}
-                      </p>
-                    ) : null}
-                  </div>
-                  <ul className="m-0 flex list-none flex-wrap gap-1.5 p-0 text-[13px]">
-                    {choices.map((c) => (
-                      <li key={c.key} className={`rounded-lg px-2 py-1 font-semibold ${c.key === "lifetime" ? "on-dark bg-midnight text-white" : "bg-sand text-ink-2"}`}>
-                        <bdi dir="ltr">{c.price}</bdi> <span className="font-normal">· {billingWord(c.key)}</span>
-                      </li>
-                    ))}
-                  </ul>
-                  <div className="mt-auto pt-1">
-                    {has ? (
-                      <Badge tone="success">{t("addons.youHaveIt")}</Badge>
-                    ) : account ? (
-                      <Link href={addonsPath(app, `?addon=${d.id}#buy`)} className={`${btn.primary} h-10 w-full`}>
-                        {t("addons.choose")}
-                      </Link>
-                    ) : (
-                      <a href={contact.whatsappUrl} className={`${btn.secondary} h-10 w-full`}>
-                        {t("license.askWhatsapp")}
-                      </a>
-                    )}
-                  </div>
-                </li>
-              );
-            })}
-          </ul>
-        ) : (
-          <EmptyState icon="widgets" title={t("addons.none")}>
-            {t("addons.noneText")}
-          </EmptyState>
-        )}
-      </Section>
 
       {checkout ? (
-        <section id="buy" aria-labelledby="h-buy" className="flex scroll-mt-6 flex-col gap-4 rounded-2xl border border-line bg-white p-5 sm:p-6">
-          <div className="flex flex-col gap-1">
-            <h2 id="h-buy" className="m-0 text-lg font-bold">
-              {renewing ? t("addons.renewTitle", { addon: name(checkout.addon, renewing.name) }) : t("addons.buyTitle", { addon: name(checkout.addon, checkout.addon.en.name) })}
-            </h2>
-            <p className="m-0 text-sm text-muted">{renewing && renewing.activeUntil ? t("addons.renewText", { date: formatDate(renewing.activeUntil, lang) }) : t("addons.buyText")}</p>
-          </div>
+        <KitSection
+          id="buy"
+          titleId="h-buy"
+          title={renewing ? t("addons.renewTitle", { addon: name(checkout.addon, renewing.name) }) : t("addons.buyTitle", { addon: name(checkout.addon, checkout.addon.en.name) })}
+          description={renewing && renewing.activeUntil ? t("addons.renewText", { date: formatDate(renewing.activeUntil, lang) }) : t("addons.buyText")}
+        >
           {checkout.choices.length ? (
             <AddonBuyForm
               key={`${checkout.addon.id}:${renewing?.id ?? ""}`}
@@ -191,11 +137,71 @@ export default async function AddonsPage({ searchParams }: PageProps<"/dashboard
               provider={account ? PROVIDER_NAME[account.provider] : "Kashier"}
             />
           ) : (
-            <p className="m-0 text-sm text-muted">{t("addons.noPrice")}</p>
+            <p className="m-0 text-sm text-(--sp-muted)">{t("addons.noPrice")}</p>
           )}
-        </section>
+        </KitSection>
       ) : null}
-    </div>
+
+      {owned.length ? (
+        <KitSection titleId="h-my-addons" title={t("addons.yours")} flush>
+          <KitList>
+            {owned.map((o) => (
+              <OwnedRow key={o.id} owned={o} def={defOf(o.addonId)} now={now} t={t} lang={lang} name={name(defOf(o.addonId), o.name)} billing={billingWord(o.billing)} renewHref={addonsPath(app, `?renew=${o.id}#buy`)} />
+            ))}
+          </KitList>
+        </KitSection>
+      ) : null}
+
+      <KitSection titleId="h-offered" title={t("addons.offered")} description={license ? t("addons.offeredText") : undefined} flush>
+        {offered.length || ownedDefs.length ? (
+          <KitList>
+            {[...offered, ...ownedDefs].map((d) => {
+              const words = addonText(d, lang);
+              const choices = choicesOf(d);
+              const has = !offered.includes(d);
+              return (
+                <KitRow
+                  key={d.id}
+                  data-addon={d.id}
+                  media={<KitThumb icon={d.icon as IconName} />}
+                  // The team's words may be in another script than the page's.
+                  title={<bdi dir="auto">{words.name}</bdi>}
+                  meta={
+                    <>
+                      {words.description ? <span className="block">{words.description}</span> : null}
+                      <span className="mt-1.5 flex flex-wrap gap-1.5">
+                        {choices.map((c) => (
+                          <span key={c.key} className={`rounded-lg px-2 py-0.5 text-[12px] font-semibold ${c.key === "lifetime" ? "on-dark bg-midnight text-white" : "bg-(--sp-soft) text-(--sp-ink)"}`}>
+                            <bdi dir="ltr">{c.price}</bdi> <span className="font-normal">· {billingWord(c.key)}</span>
+                          </span>
+                        ))}
+                      </span>
+                    </>
+                  }
+                  actions={
+                    has ? (
+                      <KitStatus tone="success">{t("addons.youHaveIt")}</KitStatus>
+                    ) : account ? (
+                      <Link href={addonsPath(app, `?addon=${d.id}#buy`)} className={kit.row}>
+                        {t("addons.choose")}
+                      </Link>
+                    ) : (
+                      <a href={contact.whatsappUrl} className={kit.row}>
+                        {t("license.askWhatsapp")}
+                      </a>
+                    )
+                  }
+                />
+              );
+            })}
+          </KitList>
+        ) : (
+          <KitEmpty icon="widgets" title={t("addons.none")}>
+            {t("addons.noneText")}
+          </KitEmpty>
+        )}
+      </KitSection>
+    </KitPage>
   );
 }
 
@@ -221,25 +227,21 @@ function OwnedRow({
   const running = addonRunning(owned, now);
   const until = owned.activeUntil === null ? t("addons.noEnd") : isLifetimeEnd(owned.activeUntil) ? t("license.forLife") : running ? t("addons.until", { date: formatDate(owned.activeUntil, lang) }) : t("addons.ended", { date: formatDate(owned.activeUntil, lang) });
   return (
-    <ItemRow
+    <KitRow
       data-owned-addon={owned.addonId}
-      media={
-        <span aria-hidden="true" className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-peach text-accent">
-          <Icon name={(def?.icon ?? "widgets") as IconName} size={22} />
-        </span>
-      }
+      media={<KitThumb icon={(def?.icon ?? "widgets") as IconName} />}
       title={<bdi>{name}</bdi>}
-      badges={
+      meta={[billing, until, owned.grantedBy ? t("addons.given") : null].filter(Boolean).join(" · ")}
+      aside={
         <>
-          <Badge tone={running ? "success" : "neutral"}>{running ? t("addons.active") : t("addons.inactive")}</Badge>
-          {owned.taskStatus ? <Badge tone={owned.taskStatus === "done" ? "success" : "warn"}>{t(TASK_KEY[owned.taskStatus])}</Badge> : null}
+          <KitStatus tone={running ? "success" : "neutral"}>{running ? t("addons.active") : t("addons.inactive")}</KitStatus>
+          {owned.taskStatus ? <KitStatus tone={owned.taskStatus === "done" ? "success" : "warn"}>{t(TASK_KEY[owned.taskStatus])}</KitStatus> : null}
         </>
       }
-      meta={[billing, until, owned.grantedBy ? t("addons.given") : null].filter(Boolean).join(" · ")}
       actions={
         addonRenewable(owned) ? (
-          <Link href={renewHref} className={`${btn.secondary} h-9 px-3 text-sm`}>
-            <Icon name="history" size={18} />
+          <Link href={renewHref} className={kit.row}>
+            <Icon name="history" size={16} />
             {t("addons.renew")}
           </Link>
         ) : null

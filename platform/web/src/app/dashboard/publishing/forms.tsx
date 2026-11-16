@@ -19,36 +19,21 @@ export interface ChecklistStepView {
   doneAt: string | null;
 }
 
-/** The "Publish it for me" checklist: one Done box per step, and who creates the Firebase project. */
+/**
+ * The "Publish it for me" checklist: one Done box per step, and who creates the Firebase project.
+ * 132.140 Each step a row with its number (a tick once done); a done step's explanation folds behind one line.
+ */
 export function ChecklistForm({ steps, firebaseBy }: { steps: ChecklistStepView[]; firebaseBy: "client" | "team" }) {
   const t = useDashT();
   const [state, action] = useActionState(savePublishingChecklistAction, initialFormState);
   return (
     <form action={action} className="flex flex-col gap-4">
-      <ol className="m-0 flex list-none flex-col gap-3 p-0">
+      <ol className="m-0 flex list-none flex-col p-0">
         {steps.map((step, i) => {
           const firebase = step.id === "firebase";
-          return (
-            <li key={step.id} className="flex flex-col gap-3 rounded-xl border border-line p-4">
-              <div className="flex flex-wrap items-start justify-between gap-3">
-                <div className="flex min-w-0 flex-[1_1_320px] flex-col gap-1">
-                  <span className="text-xs font-semibold tracking-wide text-muted uppercase">
-                    {t("publishing.stepOf", { number: i + 1, group: step.group })}
-                  </span>
-                  <h3 className="m-0 text-base font-bold">{step.title}</h3>
-                </div>
-                {firebase && firebaseBy === "team" ? (
-                  <span className="flex items-center gap-1.5 text-sm font-semibold text-success">
-                    <Icon name="check_circle" size={20} filled />
-                    {t("publishing.weDoThis")}
-                  </span>
-                ) : (
-                  <label className="flex cursor-pointer items-center gap-2 rounded-lg border border-line-strong bg-white px-3 py-2 text-sm font-semibold">
-                    <input type="checkbox" name="done" value={step.id} defaultChecked={step.done} aria-label={t("publishing.doneLabel", { title: step.title })} className="h-4 w-4 accent-midnight" />
-                    {t("publishing.done")}
-                  </label>
-                )}
-              </div>
+          const byTeam = firebase && firebaseBy === "team";
+          const body = (
+            <>
               {firebase ? (
                 <fieldset className="m-0 flex flex-col gap-2 border-0 p-0">
                   <legend className="mb-1 text-sm font-semibold">{t("publishing.whoFirebase")}</legend>
@@ -62,10 +47,8 @@ export function ChecklistForm({ steps, firebaseBy }: { steps: ChecklistStepView[
                   </label>
                 </fieldset>
               ) : null}
-              {!(firebase && firebaseBy === "team") ? <p className="m-0 text-[15px] leading-relaxed text-ink-4">{step.text}</p> : (
-                <p className="m-0 text-[15px] leading-relaxed text-ink-4">{t("publishing.firebaseTeam")}</p>
-              )}
-              {!(firebase && firebaseBy === "team") && step.links.length ? (
+              <p className="m-0 text-sm leading-relaxed text-(--sp-muted)">{byTeam ? t("publishing.firebaseTeam") : step.text}</p>
+              {!byTeam && step.links.length ? (
                 <ul className="m-0 flex list-none flex-wrap gap-x-5 gap-y-1.5 p-0 text-sm">
                   {step.links.map((link) => (
                     <li key={link.href}>
@@ -78,7 +61,47 @@ export function ChecklistForm({ steps, firebaseBy }: { steps: ChecklistStepView[
                   ))}
                 </ul>
               ) : null}
-              {step.doneAt ? <span className="text-xs text-muted">{t("publishing.ticked", { date: step.doneAt })}</span> : null}
+              {step.doneAt ? <span className="text-xs text-(--sp-muted)">{t("publishing.ticked", { date: step.doneAt })}</span> : null}
+            </>
+          );
+          return (
+            <li key={step.id} className="flex gap-4 border-t border-(--sp-line-soft) py-4 first:border-t-0 first:pt-0" data-step={step.id} data-done={step.done ? "" : undefined}>
+              <span
+                aria-hidden="true"
+                className={`flex h-9 w-9 shrink-0 items-center justify-center rounded-full text-sm font-bold tabular-nums ${step.done || byTeam ? "bg-success-bg text-success" : "bg-(--sp-tile) text-(--sp-ink)"}`}
+              >
+                {step.done || byTeam ? <Icon name="check" size={18} /> : i + 1}
+              </span>
+              <div className="flex min-w-0 flex-1 flex-col gap-3">
+                <div className="flex flex-wrap items-start justify-between gap-3">
+                  <div className="flex min-w-0 flex-[1_1_260px] flex-col gap-0.5">
+                    <span className="text-xs font-semibold text-(--sp-muted)">{t("publishing.stepOf", { number: i + 1, group: step.group })}</span>
+                    <h3 className="m-0 text-[15px] font-bold">{step.title}</h3>
+                  </div>
+                  {byTeam ? (
+                    <span className="flex items-center gap-1.5 text-sm font-semibold text-success">
+                      <Icon name="check_circle" size={20} filled />
+                      {t("publishing.weDoThis")}
+                    </span>
+                  ) : (
+                    <label className="flex cursor-pointer items-center gap-2 rounded-full border border-(--sp-line) bg-(--sp-surface) px-3.5 py-1.5 text-sm font-semibold has-[:checked]:border-success has-[:checked]:bg-success-bg has-[:checked]:text-success">
+                      <input type="checkbox" name="done" value={step.id} defaultChecked={step.done} aria-label={t("publishing.doneLabel", { title: step.title })} className="h-4 w-4 accent-midnight" />
+                      {t("publishing.done")}
+                    </label>
+                  )}
+                </div>
+                {step.done || byTeam ? (
+                  <details className="group">
+                    <summary className="flex w-fit cursor-pointer list-none items-center gap-1 text-[13px] font-semibold text-(--sp-muted) hover:text-(--sp-ink) [&::-webkit-details-marker]:hidden">
+                      {t("publishing.howTo")}
+                      <Icon name="expand_more" size={18} className="transition-transform group-open:rotate-180" />
+                    </summary>
+                    <div className="kit-fold-body flex flex-col gap-3 pt-3">{body}</div>
+                  </details>
+                ) : (
+                  body
+                )}
+              </div>
             </li>
           );
         })}

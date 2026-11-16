@@ -180,6 +180,8 @@ test("the owner invites a Staff member with only Orders & kitchen", async () => 
   await own.goto("/dashboard");
   await own.getByRole("link", { name: "Team", exact: true }).click();
   await expect(own.getByRole("heading", { level: 1, name: "Team" })).toBeVisible();
+  // 132.142 Inviting is the page's main action: its form opens in a drawer.
+  await own.getByRole("button", { name: "Invite someone" }).click();
   const invite = own.getByRole("region", { name: "Invite someone" });
   await invite.getByLabel("Name").fill(staff.name);
   await invite.getByLabel("Email").fill(staff.email);
@@ -274,6 +276,8 @@ test("the member's phone sees only Orders in the Owner API", async ({ request })
 test("the owner removes the member, and their session ends everywhere", async ({ request }) => {
   await own.goto("/dashboard/team");
   const row = own.locator(`[data-member="${staff.email}"]`);
+  // 132.142 Changing someone's access and removing them are in their drawer, opened from their row.
+  await row.getByRole("button", { name: new RegExp(`^${staff.name}`) }).click();
   await row.getByLabel(`Remove ${staff.name} from the team`).click();
   await row.getByRole("button", { name: "Yes, remove" }).click();
   await expect(own.getByRole("status")).toContainText(`${staff.name} is off the team and signed out everywhere.`);
