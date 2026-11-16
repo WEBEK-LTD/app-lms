@@ -36,6 +36,11 @@ export const en = {
   stability: "Stability",
   stabilityText: "How well {app} runs on people's phones over the last 30 days.",
   crashFree: "Crash-free sessions",
+  good: "Good",
+  couldBeBetter: "Could be better",
+  offTitle: "Crash reports are off",
+  noDataTitle: "No figures yet",
+  turnOn: "Turn them on",
   offText: "Crash reports are off, so there are no figures. Turn them on below.",
   noData: "No data yet. Figures appear once people use a version of your app built after this page appeared.",
   percent: "{percent}%",
@@ -49,6 +54,7 @@ export const en = {
   askRatingText:
     "After a good moment (a finished lesson, an order, a booking), and not before someone has used the app for a few days, the app shows the store's own rating box. Google Play and the App Store decide whether it appears, and show it only a few times a year. Everyone gets the same box: the app never asks first who is happy, which the stores don't allow.",
   crashReports: "Send crash reports",
+  crashReportsTitle: "Crash reports",
   crashReportsText:
     "When something goes wrong in the app, it sends us what happened, the app version and the kind of phone, so our team can fix it. Never names, phone numbers, emails or what people typed.",
   known: {
@@ -98,6 +104,11 @@ export const ar: Messages = {
   stability: "الاستقرار",
   stabilityText: "مدى جودة عمل {app} على هواتف الناس خلال آخر 30 يومًا.",
   crashFree: "الجلسات الخالية من الأعطال",
+  good: "كويس",
+  couldBeBetter: "ممكن تبقى أحسن",
+  offTitle: "تقارير الأعطال مقفولة",
+  noDataTitle: "لسه مفيش أرقام",
+  turnOn: "شغّلها",
   offText: "تقارير الأعطال متوقفة، لذا لا توجد أرقام. فعّلها أدناه.",
   noData: "لا توجد بيانات بعد. تظهر الأرقام بعد أن يستخدم الناس نسخة من تطبيقك بُنيت بعد ظهور هذه الصفحة.",
   percent: "{percent}%",
@@ -111,6 +122,7 @@ export const ar: Messages = {
   askRatingText:
     "بعد لحظة جيدة (إنهاء درس أو طلب أو حجز)، وليس قبل أن يستخدم الشخص التطبيق بضعة أيام، يعرض التطبيق مربع التقييم الخاص بالمتجر. ويقرر Google Play وApp Store ما إذا كان سيظهر، ولا يعرضانه إلا مرات قليلة في السنة. ويحصل الجميع على المربع نفسه: لا يسأل التطبيق أولًا عمّن هو راضٍ، وهو ما لا تسمح به المتاجر.",
   crashReports: "إرسال تقارير الأعطال",
+  crashReportsTitle: "تقارير الأعطال",
   crashReportsText: "عندما يحدث خطأ في التطبيق، يرسل إلينا ما حدث ونسخة التطبيق ونوع الهاتف، ليصلحه فريقنا. ولا يرسل أبدًا الأسماء أو أرقام الهواتف أو البريد الإلكتروني أو ما كتبه الناس.",
   known: {
     chooseProtection: "اختر ما يحميه التطبيق.",
@@ -158,6 +170,11 @@ export const tr: Messages = {
   stability: "Kararlılık",
   stabilityText: "{app} uygulamasının son 30 günde insanların telefonlarında ne kadar iyi çalıştığı.",
   crashFree: "Çökmesiz oturumlar",
+  good: "İyi",
+  couldBeBetter: "Daha iyi olabilir",
+  offTitle: "Çökme raporları kapalı",
+  noDataTitle: "Henüz rakam yok",
+  turnOn: "Açın",
   offText: "Çökme raporları kapalı, bu yüzden rakam yok. Aşağıdan açın.",
   noData: "Henüz veri yok. Rakamlar, insanlar uygulamanızın bu sayfa eklendikten sonra derlenen bir sürümünü kullandıkça görünür.",
   percent: "%{percent}",
@@ -171,6 +188,7 @@ export const tr: Messages = {
   askRatingText:
     "İyi bir andan sonra (biten bir ders, bir sipariş, bir randevu) ve biri uygulamayı birkaç gün kullanmadan önce değil, uygulama mağazanın kendi değerlendirme kutusunu gösterir. Görünüp görünmeyeceğine Google Play ve App Store karar verir ve yılda yalnızca birkaç kez gösterir. Herkes aynı kutuyu görür: uygulama, mağazaların izin vermediği şekilde önce kimin memnun olduğunu sormaz.",
   crashReports: "Çökme raporları gönder",
+  crashReportsTitle: "Çökme raporları",
   crashReportsText:
     "Uygulamada bir şey ters gittiğinde, ekibimizin düzeltebilmesi için ne olduğunu, uygulama sürümünü ve telefon türünü bize gönderir. Asla ad, telefon numarası, e-posta ya da insanların yazdıklarını göndermez.",
   known: {

@@ -37,11 +37,11 @@ function AccessFields({
       <fieldset className="m-0 flex flex-col gap-2 border-0 p-0" aria-describedby={errors?.role ? `${prefix}-role-error` : undefined}>
         <legend className="mb-1.5 text-sm font-semibold">{t("team.role")}</legend>
         {(["manager", "staff"] as const).map((value) => (
-          <label key={value} className="flex cursor-pointer items-start gap-2.5 rounded-xl border border-line px-3.5 py-3 has-[:checked]:border-midnight">
+          <label key={value} className="flex cursor-pointer items-start gap-2.5 rounded-2xl border border-(--sp-line) bg-(--sp-surface) px-3.5 py-3 has-[:checked]:border-(--sp-ink)">
             <input type="radio" name="role" value={value} checked={role === value} onChange={() => setRole(value)} className="mt-1" />
             <span className="flex flex-col gap-0.5">
               <span className="text-sm font-semibold">{t(`team.roles.${value}` as DashKey)}</span>
-              <span className="text-[13px] text-muted">{t(`team.roleText.${value}` as DashKey)}</span>
+              <span className="text-[13px] text-(--sp-muted)">{t(`team.roleText.${value}` as DashKey)}</span>
             </span>
           </label>
         ))}
@@ -52,7 +52,7 @@ function AccessFields({
           <legend className="mb-1.5 text-sm font-semibold">{t("team.whatStaff")}</legend>
           <div className="grid gap-2 sm:grid-cols-2">
             {TEAM_AREAS.map((area: TeamArea) => (
-              <label key={area} className="flex min-h-11 cursor-pointer items-center gap-2.5 rounded-xl border border-line px-3.5 py-2 text-sm">
+              <label key={area} className="flex min-h-11 cursor-pointer items-center gap-2.5 rounded-2xl border border-(--sp-line) bg-(--sp-surface) px-3.5 py-2 text-sm">
                 <input type="checkbox" name="areas" value={area} defaultChecked={initial.areas.includes(area)} />
                 {t(`team.areas.${area}` as DashKey)}
               </label>
@@ -95,7 +95,7 @@ export function InviteForm({ apps }: { apps: TeamAppChoice[] }) {
   const t = useDashT();
   const [state, action] = useActionState<InviteState, FormData>(inviteMemberAction, initialFormState);
   return (
-    <form action={action} noValidate className="flex max-w-[640px] flex-col gap-4" key={state.ok ? `sent-${state.sent}` : "invite"}>
+    <form action={action} noValidate className="flex flex-col gap-4" key={state.ok ? `sent-${state.sent}` : "invite"}>
       <FormMessage message={state.message} ok={state.ok} />
       <div className="grid gap-4 sm:grid-cols-2">
         <Field label={t("team.name")} name="name" required maxLength={120} autoComplete="off" defaultValue={state.ok ? "" : state.values?.name} error={state.errors?.name} />

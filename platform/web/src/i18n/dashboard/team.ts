@@ -10,6 +10,9 @@ export const en = {
   title: "Team",
   intro:
     "Invite the people who work with you. Each one signs in with their own email and password and sees only what their role allows. Only you see License & plugin, pay for Yallapp, manage the team and change an app's type or where its content comes from.",
+  line: "The people who work with you, and what each one can do.",
+  canDo: "What they can do",
+  dates: "On the team",
   roles: { owner: "Owner", manager: "Manager", staff: "Staff" },
   roleText: {
     owner: "Everything, with License & plugin, payments and the team.",
@@ -170,6 +173,9 @@ export const ar: Messages = {
   title: "الفريق",
   intro:
     "ادعُ الأشخاص الذين يعملون معك. يسجّل كل منهم الدخول ببريده الإلكتروني وكلمة مروره، ولا يرى إلا ما يسمح به دوره. أنت وحدك ترى الترخيص والإضافة، وتدفع لـ Yallapp، وتدير الفريق، وتغيّر نوع التطبيق أو مصدر محتواه.",
+  line: "الناس اللي شغالين معاك، وكل واحد يقدر يعمل إيه.",
+  canDo: "يقدر يعمل إيه",
+  dates: "في الفريق",
   roles: { owner: "المالك", manager: "مدير", staff: "موظف" },
   roleText: {
     owner: "كل شيء، بما في ذلك الترخيص والإضافة والمدفوعات والفريق.",
@@ -328,6 +334,9 @@ export const tr: Messages = {
   title: "Ekip",
   intro:
     "Sizinle çalışan kişileri davet edin. Her biri kendi e-posta adresi ve parolasıyla giriş yapar ve yalnızca rolünün izin verdiklerini görür. Lisans ve eklentiyi görmek, Yallapp'e ödeme yapmak, ekibi yönetmek ve bir uygulamanın türünü ya da içeriğinin kaynağını değiştirmek yalnızca size aittir.",
+  line: "Sizinle çalışan kişiler ve her birinin neler yapabileceği.",
+  canDo: "Neler yapabilir",
+  dates: "Ekipte",
   roles: { owner: "Sahip", manager: "Yönetici", staff: "Personel" },
   roleText: {
     owner: "Lisans ve eklenti, ödemeler ve ekip dahil her şey.",

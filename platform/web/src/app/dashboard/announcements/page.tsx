@@ -2,9 +2,8 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { Icon } from "@/components/icon";
 import { Markdown } from "@/components/markdown";
-import { Stat, StatRow } from "@/components/page-kit";
-import { EmptyState, PageHeader, Section } from "@/components/ui";
-import { KIND_CHIP, KIND_ICON_BG, updateIcon } from "@/components/update-look";
+import { KitDisclosure, KitEmpty, KitHeader, KitHero, KitPage, KitSection, KitStat, KitStatus, kit } from "@/components/studio-page";
+import { KIND_ICON_BG, updateIcon } from "@/components/update-look";
 import { UpdatesSeen } from "@/components/updates-seen";
 import { requireClient } from "@/lib/auth/session";
 import { dashboardText, type DashboardText } from "@/lib/dashboard-lang";
@@ -24,17 +23,20 @@ const KIND_KEY = {
   account: "nav.kindAccount",
 } as const;
 
-const BODY = "flex flex-col gap-2 text-[15px] leading-relaxed text-ink-2 [&_ol]:m-0 [&_ol]:ps-5 [&_p]:m-0 [&_ul]:m-0 [&_ul]:ps-5";
+/** 132.143 Each kind's pill. */
+const KIND_TONE = { update: "info", announcement: "info", maintenance: "warn", offer: "success", account: "neutral" } as const;
+
+const BODY = "flex flex-col gap-2 text-[15px] leading-relaxed text-(--sp-ink) [&_ol]:m-0 [&_ol]:ps-5 [&_p]:m-0 [&_ul]:m-0 [&_ul]:ps-5";
 
 function ItemLink({ item, label, text }: { item: UpdateItem; label: string | null; text: DashboardText }) {
   if (!item.linkUrl || !label) return null;
   return item.linkUrl.startsWith("/") ? (
-    <Link href={item.linkUrl} className="flex items-center gap-1 self-start font-semibold">
+    <Link href={item.linkUrl} className={`${kit.quiet} self-start`}>
       {label}
-      <Icon name="arrow_forward" size={18} />
+      <Icon name="arrow_forward" size={18} className="rtl:-scale-x-100" />
     </Link>
   ) : (
-    <a href={item.linkUrl} target="_blank" rel="noreferrer" className="flex items-center gap-1 self-start font-semibold">
+    <a href={item.linkUrl} target="_blank" rel="noreferrer" className={`${kit.quiet} self-start`}>
       {label}
       <Icon name="open_in_new" size={18} />
       <span className="sr-only">{text.t("common.opensInNewTab")}</span>
@@ -51,72 +53,88 @@ function ItemLink({ item, label, text }: { item: UpdateItem; label: string | nul
 export default async function UpdatesPage() {
   const context = await requireClient("dashboard");
   const text = await dashboardText();
-  const { t } = text;
+  const { t, num } = text;
   const words = { lang: text.lang, k: text.k, date: (at: Date) => text.date(at), kind: (kind: UpdateItem["kind"]) => t(KIND_KEY[kind]) };
   const updates = await loadUpdates(await getStore(), readerOf(context, text.lang), new Date());
   const unread = updates.all.filter((item) => item.unread).map((item) => item.key);
+  // 132.143 The premium kit: the numbers in one hero card, then every update as a row of one list: the new ones open, the rest open on demand.
   return (
-    <div className="flex flex-col gap-6">
-      {/* The page kit: the header, the numbers, then every update as a row of one list, the new ones marked. */}
-      <PageHeader title={t("nav.updates")} description={t("nav.updatesText")} />
+    <KitPage>
+      <KitHeader icon="campaign" title={t("nav.updates")} description={t("nav.updatesText")} />
       <UpdatesSeen keys={unread} />
       {updates.all.length ? (
         <>
-          <StatRow label={t("nav.updates")}>
-            <Stat icon="campaign" label={t("nav.updates")} value={updates.all.length} />
-            <Stat icon="notifications" tone="accent" label={t("nav.new")} value={unread.length} />
-          </StatRow>
-          <Section titleId="h-updates" title={t("nav.updatesCount", { count: updates.all.length })} flush>
+          <KitHero
+            label={t("nav.updates")}
+            stats={
+              <>
+                <KitStat icon="campaign" label={t("nav.updates")} value={num(updates.all.length)} />
+                <KitStat icon="notifications" tone="accent" label={t("nav.new")} value={num(unread.length)} />
+              </>
+            }
+          />
+          <KitSection titleId="h-updates" title={t("nav.updatesCount", { count: updates.all.length })} flush>
             <ol aria-label={t("nav.updates")} className="m-0 flex list-none flex-col p-0">
               {updates.all.map((item) => {
                 const titleId = `update-${item.key.replace(/[^a-z0-9]/gi, "-")}`;
                 const shown = itemWords(item, words);
                 const dir = shown.lang === "ar" ? "rtl" : "ltr";
                 return (
-                  <li key={item.key} className="border-t border-line-soft first:border-t-0">
-                    <article
-                      aria-labelledby={titleId}
-                      data-update={item.key}
-                      data-new={item.unread ? "" : undefined}
-                      className={`relative flex gap-3.5 px-5 py-4 sm:px-6 ${item.unread ? "bg-peach-soft" : ""}`}
-                    >
-                      {item.unread ? <span aria-hidden="true" className="absolute start-0 top-4 bottom-4 w-[3px] rounded-full bg-ember" /> : null}
-                      <span className={`flex h-10 w-10 flex-none items-center justify-center rounded-xl ${KIND_ICON_BG[item.kind]}`}>
-                        <Icon name={updateIcon(item)} size={22} />
-                      </span>
-                      <div className="flex min-w-0 flex-1 flex-col gap-1.5">
-                        <div className="flex flex-wrap items-center gap-x-2.5 gap-y-1 text-[13px] text-muted">
-                          <span className={`rounded-full px-2 py-0.5 text-xs font-bold ${KIND_CHIP[item.kind]}`}>{words.kind(item.kind)}</span>
-                          <time dateTime={item.at.toISOString()}>{text.date(item.at)}</time>
-                          {item.app ? <span>{item.app}</span> : null}
-                          {item.current ? null : <span>{t("nav.ended")}</span>}
-                          {item.unread ? (
-                            <span className="inline-flex items-center gap-1.5 font-bold text-accent">
-                              <span aria-hidden="true" className="h-2 w-2 rounded-full bg-ember" />
-                              {t("nav.new")}
+                  <li key={item.key} className="border-t border-(--sp-line-soft) first:border-t-0">
+                    <article aria-labelledby={titleId} data-update={item.key} data-new={item.unread ? "" : undefined} className="relative">
+                      {item.unread ? <span aria-hidden="true" className="absolute start-0 top-5 bottom-5 w-[3px] rounded-full bg-ember" /> : null}
+                      <KitDisclosure
+                        defaultOpen={item.unread}
+                        media={
+                          <span aria-hidden="true" className={`flex h-11 w-11 flex-none items-center justify-center rounded-2xl ${KIND_ICON_BG[item.kind]}`}>
+                            <Icon name={updateIcon(item)} size={22} />
+                          </span>
+                        }
+                        summary={
+                          <>
+                            <span id={titleId} lang={shown.lang} dir={dir} className="text-[15px] leading-snug font-semibold break-words text-(--sp-ink)">
+                              {shown.title}
                             </span>
-                          ) : null}
+                            <span className="flex flex-wrap items-center gap-x-2 gap-y-1 text-[13px] text-(--sp-muted)">
+                              <time dateTime={item.at.toISOString()}>{text.date(item.at)}</time>
+                              {item.app ? <span>· {item.app}</span> : null}
+                              {item.current ? null : <span>· {t("nav.ended")}</span>}
+                            </span>
+                          </>
+                        }
+                        aside={
+                          <>
+                            <KitStatus tone={KIND_TONE[item.kind]}>{words.kind(item.kind)}</KitStatus>
+                            {item.unread ? (
+                              <span className="inline-flex items-center gap-1.5 rounded-full bg-peach px-2.5 py-1 text-xs font-bold text-accent">
+                                <span aria-hidden="true" className="h-1.5 w-1.5 rounded-full bg-ember" />
+                                {t("nav.new")}
+                              </span>
+                            ) : null}
+                          </>
+                        }
+                      >
+                        <div className="flex flex-col gap-3 sm:ps-15">
+                          <div lang={shown.lang} dir={dir} className={BODY}>
+                            {item.kind === "account" ? <p>{shown.body}</p> : <Markdown source={shown.body} />}
+                          </div>
+                          <ItemLink item={item} label={shown.linkLabel} text={text} />
                         </div>
-                        <h3 id={titleId} lang={shown.lang} dir={dir} className="m-0 text-base font-bold text-midnight">
-                          {shown.title}
-                        </h3>
-                        <div lang={shown.lang} dir={dir} className={BODY}>
-                          {item.kind === "account" ? <p>{shown.body}</p> : <Markdown source={shown.body} />}
-                        </div>
-                        <ItemLink item={item} label={shown.linkLabel} text={text} />
-                      </div>
+                      </KitDisclosure>
                     </article>
                   </li>
                 );
               })}
             </ol>
-          </Section>
+          </KitSection>
         </>
       ) : (
-        <EmptyState icon="campaign" title={t("nav.noUpdates")}>
-          {t("nav.noUpdatesText")}
-        </EmptyState>
+        <div className={kit.card}>
+          <KitEmpty icon="campaign" title={t("nav.noUpdates")}>
+            {t("nav.noUpdatesText")}
+          </KitEmpty>
+        </div>
       )}
-    </div>
+    </KitPage>
   );
 }
