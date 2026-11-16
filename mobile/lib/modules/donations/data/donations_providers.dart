@@ -44,7 +44,7 @@ final myDonationsProvider =
 const _symbols = {'TRY': '₺', 'USD': r'$', 'EUR': '€'};
 
 /// "₺1,200" or "₺75.50": an amount the API sent as a decimal string.
-/// 133.2 A fraction in its currency's digits (KWD 2.500).
+/// 135.2 A fraction in its currency's digits (KWD 2.500).
 String formatAmount(String amount, String currency) {
   final value = double.tryParse(amount) ?? 0;
   final whole = value == value.roundToDouble();

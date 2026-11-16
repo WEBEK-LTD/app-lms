@@ -1,3 +1,4 @@
+import { appReplyJson } from "../owner/reply-json";
 import { centsToDecimal, formatCents } from "../catalog/money";
 import type { CatalogCurrency, Courier, DeliverySettings, Ride, RideStage, RideStatus, RidesSettings, ShipmentPlace, VehicleType } from "../data/types";
 import { readPlace, type Read } from "../delivery/service";
@@ -209,7 +210,8 @@ export function rideJson(
           fee_formatted: ride.cancellation.feeCents > 0 ? formatCents(ride.cancellation.feeCents, ride.currency) : null,
         }
       : null,
-    rating: ride.rating ? { driver: ride.rating.driver, comment: ride.rating.comment } : null,
+    // 132 With the business's reply under it.
+    rating: ride.rating ? { driver: ride.rating.driver, comment: ride.rating.comment, reply: appReplyJson(ride.rating.reply) } : null,
     timeline: stagesJson(ride.timeline),
     created_at: ride.createdAt.toISOString(),
   };

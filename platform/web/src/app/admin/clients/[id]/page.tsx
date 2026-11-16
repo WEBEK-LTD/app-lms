@@ -1,4 +1,5 @@
 import { randomUUID } from "node:crypto";
+import { isLifetimeEnd } from "@/lib/billing/periods";
 import type { Metadata } from "next";
 import { Fragment } from "react";
 import { describeAccess } from "@/lib/team/service";
@@ -36,6 +37,7 @@ import { ACCOUNT_STATE_LABEL, appState, clientAccountState, type AccountState } 
 import { formatLimit, planName, planNamesOf, plansShown, plansWith, type Plan, type PlanInfo } from "@/lib/plans";
 import { currentPlanId, scheduledPlan } from "@/lib/billing/plan-change";
 import { effectivePlans, planOfLicense } from "@/lib/entitlements";
+import { ClientAddons } from "./addons";
 import { callRows } from "@/lib/admin/calls";
 import { CallList, ManagerPicker } from "../../calls/parts";
 import { getPlans } from "@/lib/settings/platform";
@@ -64,6 +66,8 @@ import { travelSettingsOf } from "@/lib/travel/settings";
 import { FLIGHT_SOURCES, HOTEL_SOURCES } from "@/lib/travel/sources";
 import { LANGUAGE_NAMES } from "@/lib/pages/types";
 import { TravelPartsForm } from "./travel-form";
+import { PrimeGiftCard } from "./prime-gift";
+import { isPrimeLicense } from "@/lib/owner/sales";
 // 132.111–132.115
 import { CreateAppForm, type StartGroup } from "./app-forms";
 import { moveWaiting } from "@/lib/apps/move";
@@ -372,6 +376,20 @@ export default async function ClientPage({ params, searchParams }: PageProps<"/a
           );
         })}
 
+        {/* 132 Prime as a gift, whatever the plan. */}
+        {await panel(client.id, { id: "h-prime-gift", title: "Prime as a gift" }, async () => (
+          <PrimeGiftCard
+            clientId={client.id}
+            apps={apps.filter((a) => !a.deletedAt)}
+            gifts={await store.listPrimeGifts(client.id)}
+            primeByPlan={new Set(apps.filter((a) => isPrimeLicense(licenses.find((l) => l.appId === a.id) ?? null, now)).map((a) => a.id))}
+            edit={may("prime.gift")}
+            error={typeof query.gift_error === "string" ? query.gift_error : null}
+            done={typeof query.done === "string" ? query.done : null}
+            now={now}
+          />
+        ))}
+
         {await panel(client.id, { id: "h-account", title: "Account" }, () => (
           <Card id="h-account" title="Account">
             <Facts
@@ -391,7 +409,7 @@ export default async function ClientPage({ params, searchParams }: PageProps<"/a
                                 {appLabel(e.app)}
                               </a>
                               <Badge tone={stateTone(state)}>{ACCOUNT_STATE_LABEL[state]}</Badge>
-                              <span className="text-muted">{e.license ? `${planName(e.license.plan, plans)} until ${formatDate(e.license.expiresAt)}` : "No plan yet"}</span>
+                              <span className="text-muted">{e.license ? `${planName(e.license.plan, plans)} ${isLifetimeEnd(e.license.expiresAt) ? "for life" : `until ${formatDate(e.license.expiresAt)}`}` : "No plan yet"}</span>
                             </li>
                           );
                         })}
@@ -478,6 +496,12 @@ export default async function ClientPage({ params, searchParams }: PageProps<"/a
             </Card>
           );
         })}
+
+        {/* 133 The apps' add-ons, and giving one by hand. */}
+        {/* Called here, not rendered later: a failure stays in its own panel. */}
+        {await panel(client.id, { id: "h-client-addons", title: "Add-ons" }, () =>
+          ClientAddons({ store, clientId: client.id, apps, canGrant: may("clients.license"), notice: typeof query.addon === "string" ? query.addon : null }),
+        )}
 
         {await panel(client.id, { id: "h-setup-request", title: "Set-up requests" }, () => (
           <Card id="h-setup-request" title="Set-up requests">
@@ -703,7 +727,7 @@ async function AppEntry({
                   [
                     "Plan",
                     license
-                      ? `${currentPlan?.name ?? planName(license.plan, plans)} until ${formatDate(license.expiresAt)}${scheduled ? `, then ${effective[scheduled.plan].name}` : ""}`
+                      ? `${currentPlan?.name ?? planName(license.plan, plans)} ${isLifetimeEnd(license.expiresAt) ? "for life" : `until ${formatDate(license.expiresAt)}`}${scheduled ? `, then ${effective[scheduled.plan].name}` : ""}`
                       : "Not activated",
                   ],
                   [

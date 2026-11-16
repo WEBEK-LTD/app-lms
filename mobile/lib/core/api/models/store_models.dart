@@ -358,7 +358,7 @@ class ProductPrice {
   final bool onSale;
   final bool range;
 
-  /// 133.5 The price in the customer's currency; null when none.
+  /// 135.5 The price in the customer's currency; null when none.
   final DisplayMoney? display;
 }
 
@@ -738,10 +738,10 @@ class CartQuote {
     charge: CartCharge.tryParse(json['charge']),
   );
 
-  /// 133.5 The subtotal and total in the customer's currency; null when none.
+  /// 135.5 The subtotal and total in the customer's currency; null when none.
   final DisplayMoney? display;
 
-  /// 133.7 What the card is charged, and in which currency.
+  /// 135.7 What the card is charged, and in which currency.
   final CartCharge? charge;
 
   /// 131 The chosen slot's fee, formatted (in [shipping]).

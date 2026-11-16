@@ -3,10 +3,10 @@ import { currencyCodeOf } from "./currencies";
 import { convertCents, rateBetween, type Rates } from "./rates";
 
 /**
- * 133.5 Prices in the customer's own currency on the hosted API. The app
+ * 135.5 Prices in the customer's own currency on the hosted API. The app
  * asks for one with `?currency=USD` or the `X-Currency` header (the phone's
  * region by default, the customer's pick in the app); an app that asks for
- * none, or for the shop's own, gets the shop's prices only, as before 133.
+ * none, or for the shop's own, gets the shop's prices only, as before 135.
  * Every price keeps its amount in the shop's currency and adds `display`:
  * the same price in the customer's, at the day's rate, with the rate and
  * its date. Only what Yallapp sells itself (the dashboard's shop, menu,
@@ -75,7 +75,7 @@ export function displayJson(shown: Shown | null, cents: number | null | undefine
   return shown && typeof cents === "number" ? shown.json(cents) : null;
 }
 
-/** 133.5 The connectors whose prices Yallapp sets itself (the dashboard's shop, bookings, courses, events, menus); a connected platform's never. */
+/** 135.5 The connectors whose prices Yallapp sets itself (the dashboard's shop, bookings, courses, events, menus); a connected platform's never. */
 export const DISPLAY_CONNECTORS: ReadonlySet<string> = new Set(["catalog", "bookings", "courses", "events", "restaurants"]);
 
 const DECIMAL = /^\d{1,13}(?:\.\d{1,3})?$/;

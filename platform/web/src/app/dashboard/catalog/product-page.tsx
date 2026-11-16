@@ -28,7 +28,7 @@ export async function ProductPage({ id }: { id: number | null }) {
   if (id !== null && !product) notFound();
   const restaurant = app.vertical === "restaurant";
   const { t } = await dashboardText();
-  // 133.2 Prices back in the form with the currency's digits (1.250 KWD, ¥1250).
+  // 135.2 Prices back in the form with the currency's digits (1.250 KWD, ¥1250).
   const currency = catalogSettings(app).currency;
   const kind = restaurant ? "restaurant" : "shop";
   // 26 The option groups as the editor shows them.

@@ -148,9 +148,11 @@ export const E2E = {
   appMovesAdminEmail: "app-moves-admin@yallapp.test",
   /** 106 The super admin of tests/e2e/studio-market.spec.ts (the review queue). */
   marketAdminEmail: "market-admin@yallapp.test",
-  /** 133 The super admin of tests/e2e/world-currencies.spec.ts (Settings › Currencies). */
+  /** 133 The super admin of tests/e2e/plans-addons.spec.ts. */
+  plansAddonsAdminEmail: "plans-addons-admin@yallapp.test",
+  /** 135 The super admin of tests/e2e/world-currencies.spec.ts (Settings › Currencies). */
   currenciesAdminEmail: "currencies-admin@yallapp.test",
-  /** 133.6 A fake source of the day's exchange rates (EXCHANGE_RATES_URL); tests/e2e/world-currencies.spec.ts runs it. */
+  /** 135.6 A fake source of the day's exchange rates (EXCHANGE_RATES_URL); tests/e2e/world-currencies.spec.ts runs it. */
   ratesPort: Number(process.env.E2E_RATES_PORT ?? 3288),
   /** 81.3 A fake website every site scan (and 81.4 every import link and picture) reads (SITE_SCAN_TEST_URL); tests/e2e/site-start.spec.ts and import.spec.ts run it. */
   siteScanPort: Number(process.env.E2E_SITE_SCAN_PORT ?? 3293),
@@ -201,7 +203,7 @@ export default defineConfig({
       YALLAPP_MEDIA_DIR: ".data/e2e-media",
       YALLAPP_MAIL_DIR: E2E.mailDir,
       YALLAPP_OWNER_PUSH_DIR: E2E.ownerPushDir,
-      SUPER_ADMIN_EMAILS: `${E2E.adminEmail},${E2E.settingsAdminEmail},${E2E.listingsAdminEmail},${E2E.pagesAdminEmail},${E2E.teamAdminEmail},${E2E.contentAdminEmail},${E2E.appsAdminEmail},${E2E.publishingAdminEmail},${E2E.plansAdminEmail},${E2E.demosAdminEmail},${E2E.clinicAdminEmail},${E2E.newsAdminEmail},${E2E.restaurantAdminEmail},${E2E.fitnessAdminEmail},${E2E.eventsAdminEmail},${E2E.charityAdminEmail},${E2E.paymentsAdminEmail},${E2E.signInAdminEmail},${E2E.translationsAdminEmail},${E2E.analyticsAdminEmail},${E2E.linksAdminEmail},${E2E.pricesAdminEmail},${E2E.refundsAdminEmail},${E2E.mediaAdminEmail},${E2E.languagesAdminEmail},${E2E.bellAdminEmail},${E2E.dashboardLanguagesAdminEmail},${E2E.ownerApiAdminEmail},${E2E.teamMembersAdminEmail},${E2E.accountDeletionAdminEmail},${E2E.twoStepAdminEmail},${E2E.phase73AdminEmail},${E2E.chatAdminEmail},${E2E.productAdminEmail},${E2E.watchingAdminEmail},${E2E.isolationAdminEmail},${E2E.integrationsAdminEmail},${E2E.siteStartAdminEmail},${E2E.importAdminEmail},${E2E.liveEditorAdminEmail},${E2E.starterAdminEmail},${E2E.invoicesAdminEmail},${E2E.gatewaysAdminEmail},${E2E.manualPayAdminEmail},${E2E.inAppAdminEmail},${E2E.deliveryAdminEmail},${E2E.foodAdminEmail},${E2E.ridesAdminEmail},${E2E.teachersAdminEmail},${E2E.schoolAdminEmail},${E2E.universityAdminEmail},${E2E.schoolMessagesAdminEmail},${E2E.taxiAdminEmail},${E2E.travelAdminEmail},${E2E.samplesAdminEmail},${E2E.studioSetupAdminEmail},${E2E.mailAdminEmail},${E2E.marketAdminEmail},${E2E.appMovesAdminEmail},${E2E.currenciesAdminEmail}`,
+      SUPER_ADMIN_EMAILS: `${E2E.adminEmail},${E2E.settingsAdminEmail},${E2E.listingsAdminEmail},${E2E.pagesAdminEmail},${E2E.teamAdminEmail},${E2E.contentAdminEmail},${E2E.appsAdminEmail},${E2E.publishingAdminEmail},${E2E.plansAdminEmail},${E2E.demosAdminEmail},${E2E.clinicAdminEmail},${E2E.newsAdminEmail},${E2E.restaurantAdminEmail},${E2E.fitnessAdminEmail},${E2E.eventsAdminEmail},${E2E.charityAdminEmail},${E2E.paymentsAdminEmail},${E2E.signInAdminEmail},${E2E.translationsAdminEmail},${E2E.analyticsAdminEmail},${E2E.linksAdminEmail},${E2E.pricesAdminEmail},${E2E.refundsAdminEmail},${E2E.mediaAdminEmail},${E2E.languagesAdminEmail},${E2E.bellAdminEmail},${E2E.dashboardLanguagesAdminEmail},${E2E.ownerApiAdminEmail},${E2E.teamMembersAdminEmail},${E2E.accountDeletionAdminEmail},${E2E.twoStepAdminEmail},${E2E.phase73AdminEmail},${E2E.chatAdminEmail},${E2E.productAdminEmail},${E2E.watchingAdminEmail},${E2E.isolationAdminEmail},${E2E.integrationsAdminEmail},${E2E.siteStartAdminEmail},${E2E.importAdminEmail},${E2E.liveEditorAdminEmail},${E2E.starterAdminEmail},${E2E.invoicesAdminEmail},${E2E.gatewaysAdminEmail},${E2E.manualPayAdminEmail},${E2E.inAppAdminEmail},${E2E.deliveryAdminEmail},${E2E.foodAdminEmail},${E2E.ridesAdminEmail},${E2E.teachersAdminEmail},${E2E.schoolAdminEmail},${E2E.universityAdminEmail},${E2E.schoolMessagesAdminEmail},${E2E.taxiAdminEmail},${E2E.travelAdminEmail},${E2E.samplesAdminEmail},${E2E.studioSetupAdminEmail},${E2E.mailAdminEmail},${E2E.marketAdminEmail},${E2E.appMovesAdminEmail},${E2E.plansAddonsAdminEmail},${E2E.currenciesAdminEmail}`,
       YALLAPP_SEED_ADMIN_PASSWORD: E2E.adminPassword,
       SESSION_SECRET: "e2e-session-secret-0123456789abcdef0123456789",
       SIGNING_SECRET: E2E.signingSecret,
@@ -223,7 +225,7 @@ export default defineConfig({
       SITE_SCAN_TEST_URL: `http://localhost:${E2E.siteScanPort}`,
       GOOGLE_FONTS_TEST_URL: `http://localhost:${E2E.googleFontsPort}`,
       FIGMA_API_TEST_URL: `http://localhost:${E2E.figmaPort}`,
-      // 133.6 The day's rates from a fake source, never the real one.
+      // 135.6 The day's rates from a fake source, never the real one.
       EXCHANGE_RATES_URL: `http://localhost:${E2E.ratesPort}/v6/latest/USD`,
     },
   },

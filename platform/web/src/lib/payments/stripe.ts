@@ -52,7 +52,7 @@ interface Options {
 export const STRIPE_URL = "https://api.stripe.com";
 
 /**
- * The currencies Yallapp sells in that Stripe charges (all of them). 133.4
+ * The currencies Yallapp sells in that Stripe charges (all of them). 135.4
  * Every active ISO 4217 currency but the few Stripe doesn't list
  * (docs.stripe.com/currencies): it has no Iraqi or Libyan dinar, Iranian,
  * Syrian, Sudanese or North Korean money, among others below.

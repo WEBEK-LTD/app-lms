@@ -1,4 +1,4 @@
-/// 133 Every currency, drawn by the real app for the owner's review (not
+/// 135 Every currency, drawn by the real app for the owner's review (not
 /// kept in the repository): with `--dart-define=YALLAPP_GALLERY=<folder>`,
 /// a shop in Egyptian pounds seen by a customer in dollars and in Kuwaiti
 /// dinars (English and Arabic), the currency picker, and a shop that sells

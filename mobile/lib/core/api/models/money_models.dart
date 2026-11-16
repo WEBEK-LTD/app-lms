@@ -1,6 +1,6 @@
 import 'json.dart';
 
-/// 133.5 The same money in the customer's currency (`display` on a price, a
+/// 135.5 The same money in the customer's currency (`display` on a price, a
 /// cart or a menu's quote, `DisplayMoney` in the contract): each amount of
 /// the object it is on with its formatted text, under the same names, at
 /// the day's rate. Approximate: the customer pays the shop's amount unless
@@ -60,7 +60,7 @@ class DisplayMoney {
   }
 }
 
-/// 133.7 What the card is charged at checkout (`charge` on a cart and a
+/// 135.7 What the card is charged at checkout (`charge` on a cart and a
 /// checkout link): the shop's currency, or the customer's when the shop
 /// charges in it and its gateway takes it.
 class CartCharge {
@@ -98,7 +98,7 @@ class CartCharge {
   final String? reason;
 }
 
-/// 133.7 An order's total in the customer's currency on the day it was
+/// 135.7 An order's total in the customer's currency on the day it was
 /// placed (`customer_currency` on an order).
 class OrderCustomerCurrency {
   const OrderCustomerCurrency({
@@ -132,7 +132,7 @@ class OrderCustomerCurrency {
   final String? rateDate;
 }
 
-/// 133.5 A currency the app can show prices in (`GET /currencies`).
+/// 135.5 A currency the app can show prices in (`GET /currencies`).
 class CurrencyChoice {
   const CurrencyChoice({
     required this.code,
@@ -159,7 +159,7 @@ class CurrencyChoice {
   final bool usual;
 }
 
-/// 133.5 `GET /currencies`: every currency with a day's rate.
+/// 135.5 `GET /currencies`: every currency with a day's rate.
 class CurrencyList {
   const CurrencyList({required this.items, this.rateDate});
 

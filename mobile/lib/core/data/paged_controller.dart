@@ -54,7 +54,7 @@ abstract class PagedController<T> extends Notifier<PagedState<T>> {
   PagedState<T> build() {
     // Lists come back in the user's language: reload when it changes.
     ref.watch(appLanguageProvider);
-    // 133.5 And their prices in the customer's currency.
+    // 135.5 And their prices in the customer's currency.
     ref.watch(appCurrencyProvider);
     Future.microtask(refresh);
     return PagedState<T>(loading: true);

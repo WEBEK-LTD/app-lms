@@ -1,7 +1,7 @@
 /// Money as the shop shows it, for prices the app adds up itself (a dish
 /// with its options). The server still prices the cart.
 ///
-/// 133.2 Any ISO 4217 currency, each with its own digits after the point
+/// 135.2 Any ISO 4217 currency, each with its own digits after the point
 /// (ISO 4217's minor units: none for the yen and the won, three for the
 /// dinars), and never an error for a code the app doesn't know: it is then
 /// written before the number. Amounts are cents (hundredths) for every
@@ -18,7 +18,7 @@ const _zeroDigits = {
 };
 const _threeDigits = {'BHD', 'IQD', 'JOD', 'KWD', 'LYD', 'OMR', 'TND'};
 
-/// 133.2 Digits after the point: 0 (JPY), 3 (KWD) or 2.
+/// 135.2 Digits after the point: 0 (JPY), 3 (KWD) or 2.
 int currencyDigits(String currency) {
   final code = currency.toUpperCase();
   if (_zeroDigits.contains(code)) return 0;

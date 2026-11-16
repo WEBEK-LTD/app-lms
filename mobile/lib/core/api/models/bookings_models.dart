@@ -134,7 +134,7 @@ class BookingPrice {
   final String formatted;
   final bool free;
 
-  /// 133.5 The price in the customer's currency; null when none.
+  /// 135.5 The price in the customer's currency; null when none.
   final DisplayMoney? display;
 }
 

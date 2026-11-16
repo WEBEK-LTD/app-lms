@@ -308,6 +308,7 @@ class Order {
     this.canReturn = false,
     this.points,
     this.delivery,
+    this.stage,
     this.customerCurrency,
   });
 
@@ -333,10 +334,16 @@ class Order {
     canReturn: boolOr(json, 'can_return', false),
     points: optObject(json, 'points', OrderPoints.fromJson),
     delivery: OrderDelivery.tryParse(json['delivery']),
+    stage: OrderStage.tryParse(json['stage']),
     customerCurrency: OrderCustomerCurrency.tryParse(json['customer_currency']),
   );
 
-  /// 133.7 The total in the customer's currency on the day it was placed.
+  /// 132 Where a store order's delivery is; null before its first stage,
+  /// on older servers, and for a stage this app doesn't know (the order
+  /// shows as in progress).
+  final OrderStage? stage;
+
+  /// 135.7 The total in the customer's currency on the day it was placed.
   final OrderCustomerCurrency? customerCurrency;
 
   /// 131 The delivery day and slot, who receives it and the card.
@@ -382,7 +389,76 @@ class Order {
   bool get trackable => fulfilmentStatus != null || shipment != null;
 
   /// Whether the order opens its own screen: to follow it, or for its return.
-  bool get opensScreen => trackable || canReturn || returnRequest != null;
+  bool get opensScreen =>
+      trackable || stage != null || canReturn || returnRequest != null;
+}
+
+/// 132 Where a store order's delivery is, as the shop set it: the new day
+/// when postponed, a short reason, what's next after a failed attempt, the
+/// courier of an order out for delivery. Never the shop's own notes.
+class OrderStage {
+  const OrderStage({
+    required this.code,
+    required this.label,
+    this.reason,
+    this.day,
+    this.slotLabel,
+    this.nextStep,
+    this.nextStepLabel,
+    this.courierName,
+    this.courierPhone,
+    this.trackingUrl,
+  });
+
+  static const known = [
+    'preparing',
+    'shipped',
+    'postponed',
+    'failed',
+    'returned',
+    'delivered',
+  ];
+
+  /// The stage, or null when there is none or it is one this app doesn't know.
+  static OrderStage? tryParse(Object? raw) {
+    if (raw is! Map<String, dynamic>) return null;
+    final code = optString(raw, 'code');
+    if (code == null || !known.contains(code)) return null;
+    final slot = raw['slot'];
+    final next = raw['next_step'];
+    final courier = raw['courier'];
+    return OrderStage(
+      code: code,
+      label: optString(raw, 'label') ?? code,
+      reason: optString(raw, 'reason'),
+      day: optString(raw, 'date'),
+      slotLabel: slot is Map<String, dynamic> ? optString(slot, 'label') : null,
+      nextStep: next is Map<String, dynamic> ? optString(next, 'code') : null,
+      nextStepLabel: next is Map<String, dynamic>
+          ? optString(next, 'label')
+          : null,
+      courierName: courier is Map<String, dynamic>
+          ? optString(courier, 'name')
+          : null,
+      courierPhone: courier is Map<String, dynamic>
+          ? optString(courier, 'phone')
+          : null,
+      trackingUrl: optString(raw, 'tracking_url'),
+    );
+  }
+
+  final String code;
+  final String label;
+  final String? reason;
+
+  /// YYYY-MM-DD.
+  final String? day;
+  final String? slotLabel;
+  final String? nextStep;
+  final String? nextStepLabel;
+  final String? courierName;
+  final String? courierPhone;
+  final String? trackingUrl;
 }
 
 /// 91.4 An order's loyalty points.

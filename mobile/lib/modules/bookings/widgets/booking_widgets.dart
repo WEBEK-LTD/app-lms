@@ -9,7 +9,7 @@ import '../../../core/widgets/common.dart';
 import '../../../core/l10n/l10n.dart';
 import '../../../core/format/bidi.dart';
 
-/// "Free" or the business's formatted price; 133.5 with the customer's
+/// "Free" or the business's formatted price; 135.5 with the customer's
 /// currency, "₺300.00 · ≈ \$9.30".
 String bookingPriceLabel(BookingPrice price) {
   if (price.free) return currentL10n.free;

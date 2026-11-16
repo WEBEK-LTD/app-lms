@@ -90,7 +90,7 @@ export function revenue(
   };
   for (const p of payments) if (p.status === "paid") add(p.paidAt, p.currency, "plans", p.amountCents);
   for (const o of orders) if (o.commissionCents !== null && o.status !== "refunded") add(o.paidAt, o.currency, "commission", o.commissionCents);
-  // Yallapp's own currencies first, as before 133; then any other a shop sells in.
+  // Yallapp's own currencies first, as before 135; then any other a shop sells in.
   const order: CatalogCurrency[] = [...BILLING_CURRENCIES, ...CATALOG_CURRENCIES.filter((c) => !BILLING_CURRENCIES.includes(c))];
   return {
     currencies: order.filter((c) => last12[c]),

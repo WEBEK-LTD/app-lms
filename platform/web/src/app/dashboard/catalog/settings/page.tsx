@@ -36,7 +36,7 @@ export default async function CatalogSettingsPage() {
   // A Studio project is offered Studio plans.
   const loyaltyTo = lowestPlanWith(plans, (p) => hasFeature(p, "loyalty"), planId, isStudioProject(app) ? "studio" : undefined);
   const loyalty = settings.loyalty;
-  // 133.4 The card gateway set up, for the currency's note; 133.6 the day's rates.
+  // 135.4 The card gateway set up, for the currency's note; 135.6 the day's rates.
   const own = isOwnPayment(settings.payment) ? settings.payment : null;
   const gateway = own ? { provider: PROVIDER_NAME[own.provider], currencies: PROVIDER_CURRENCIES[own.provider] } : null;
   const rates = await currentRates(await getStore());
@@ -56,7 +56,7 @@ export default async function CatalogSettingsPage() {
             shippingFields={!fulfilment}
           />
         </Section>
-        {/* 133.7 Customers see the prices in their own currency; charged in it when the gateway takes it. */}
+        {/* 135.7 Customers see the prices in their own currency; charged in it when the gateway takes it. */}
         <Section titleId="h-customer-currencies" title={t("money.customerTitle")}>
           <CustomerCurrenciesForm
             base={settings.currency}

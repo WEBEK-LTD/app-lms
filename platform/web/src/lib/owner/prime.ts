@@ -31,6 +31,10 @@ export interface SaleEvent {
   names: string[];
   /** Who bought, when known (an app user, a phone): returning customers. */
   customer: string | null;
+  /** 132 Their name as the sale has it (customer insights, for those who may see orders). */
+  customerName?: string | null;
+  /** 132 What was bought, by product (a store's lines): product insights. */
+  lines?: { productId: number; name: string; quantity: number; cents: number }[];
 }
 
 /** At most this many rows of each kind are read for a period. */
@@ -49,36 +53,45 @@ export async function saleEvents(store: DataStore, app: App, areas: Pick<AppArea
       if (!inRange(o.paidAt, from, to)) continue;
       const cents = o.totalCents - (o.refundedCents ?? 0);
       if (cents <= 0 && o.status === "refunded") continue;
-      out.push({ at: o.paidAt!, cents, currency: o.currency, names: o.lines.map((l) => l.name), customer: who(o.userId, o.customer?.phone ?? o.customer?.email ?? null) });
+      out.push({
+        at: o.paidAt!,
+        cents,
+        currency: o.currency,
+        names: o.lines.map((l) => l.name),
+        customer: who(o.userId, o.customer?.phone ?? o.delivery?.sender?.phone ?? o.customer?.email ?? null),
+        customerName: o.customer?.name ?? o.delivery?.sender?.name ?? null,
+        lines: o.lines.map((l) => ({ productId: l.productId, name: l.name, quantity: l.quantity, cents: l.unitCents * l.quantity })),
+      });
     }
   }
   if (areas.appointments) {
     const { items } = await store.listBookingAppointments({ appId: app.id, statuses: ["approved", "completed"], startFrom: from, startBefore: to, offset: 0, limit: READ_MAX });
-    for (const a of items) out.push({ at: a.startAt, cents: a.priceCents, currency: a.currency, names: [a.serviceName], customer: who(a.userId, a.customerPhone) });
+    for (const a of items) out.push({ at: a.startAt, cents: a.priceCents, currency: a.currency, names: [a.serviceName], customer: who(a.userId, a.customerPhone), customerName: a.customerName });
   }
   if (areas.donations) {
     const { items } = await store.listDonations({ appId: app.id, statuses: ["paid", "refunded"], offset: 0, limit: READ_MAX });
-    for (const d of items) if (inRange(d.paidAt, from, to)) out.push({ at: d.paidAt!, cents: d.amountCents - (d.refundedCents ?? 0), currency: d.currency, names: [d.campaignTitle], customer: who(d.userId) });
+    // An anonymous donor's name stays theirs.
+    for (const d of items) if (inRange(d.paidAt, from, to)) out.push({ at: d.paidAt!, cents: d.amountCents - (d.refundedCents ?? 0), currency: d.currency, names: [d.campaignTitle], customer: who(d.userId), customerName: d.anonymous ? null : d.donorName });
   }
   if (areas.foodOrders) {
     const statuses = [...FOOD_ACTIVE.filter((s) => s !== "awaiting_payment"), "delivered" as const];
     const { items } = await store.listFoodOrders({ appId: app.id, statuses, since: from, until: to, order: "newest", offset: 0, limit: READ_MAX });
-    for (const o of items) out.push({ at: o.createdAt, cents: o.totalCents, currency: o.currency, names: [o.restaurantName], customer: who(o.userId, o.customerPhone) });
+    for (const o of items) out.push({ at: o.createdAt, cents: o.totalCents, currency: o.currency, names: [o.restaurantName], customer: who(o.userId, o.customerPhone), customerName: o.customerName });
   }
   if (areas.rides) {
     const { items } = await store.listRides({ appId: app.id, statuses: ["completed"], updatedSince: from, order: "newest", offset: 0, limit: READ_MAX });
     for (const r of items) {
       const done = r.timeline.findLast((s) => s.status === "completed");
       const at = done ? new Date(done.at) : r.updatedAt;
-      if (inRange(at, from, to) && r.finalCents !== null) out.push({ at, cents: r.finalCents, currency: r.currency, names: [r.vehicleTypeName], customer: who(r.userId, r.riderPhone) });
+      if (inRange(at, from, to) && r.finalCents !== null) out.push({ at, cents: r.finalCents, currency: r.currency, names: [r.vehicleTypeName], customer: who(r.userId, r.riderPhone), customerName: r.riderName });
     }
   }
   if (areas.market) {
     const { items } = await store.listMarketOrders({ appId: app.id, createdSince: from, order: "newest", limit: READ_MAX, offset: 0 });
     for (const o of items) {
       if (!inRange(o.createdAt, from, to) || ["awaiting_payment", "rejected", "cancelled"].includes(o.status)) continue;
-      // 133.2 The marketplace keeps minor units (fils, yen): as cents, like every other sale.
-      out.push({ at: o.createdAt, cents: minorToCents(o.money.total, currencyDecimals(o.currency)), currency: o.currency, names: [o.vendorName], customer: who(o.userId, o.customerPhone) });
+      // 135.2 The marketplace keeps minor units (fils, yen): as cents, like every other sale.
+      out.push({ at: o.createdAt, cents: minorToCents(o.money.total, currencyDecimals(o.currency)), currency: o.currency, names: [o.vendorName], customer: who(o.userId, o.customerPhone), customerName: o.customerName });
     }
   }
   // A delivery company's shipments (a food company's courier jobs are its food orders' already).
@@ -86,7 +99,7 @@ export async function saleEvents(store: DataStore, app: App, areas: Pick<AppArea
     const { items } = await store.listShipments({ appId: app.id, since: from, order: "newest", offset: 0, limit: READ_MAX });
     for (const s of items) {
       if (!inRange(s.createdAt, from, to) || s.status === "awaiting_payment" || s.status === "cancelled") continue;
-      out.push({ at: s.createdAt, cents: s.priceCents, currency: s.currency, names: [s.serviceName ?? s.packageSize], customer: who(s.userId, s.senderPhone) });
+      out.push({ at: s.createdAt, cents: s.priceCents, currency: s.currency, names: [s.serviceName ?? s.packageSize], customer: who(s.userId, s.senderPhone), customerName: s.senderName });
     }
   }
   return out;
@@ -243,6 +256,9 @@ export const DEFAULT_ALERTS: Record<PrimeAlertKind, Omit<PrimeAlertSetting, "kin
   message_unanswered: { minutes: 10, amountCents: null, byTime: null, stars: null },
   low_rating: { minutes: null, amountCents: null, byTime: null, stars: 2 },
   ride_no_driver: { minutes: 3, amountCents: null, byTime: null, stars: null },
+  // 132 A product running low or sold out; a sales goal for the day, week or month.
+  low_stock: { minutes: null, amountCents: null, byTime: null, stars: null, threshold: 3 },
+  sales_goal: { minutes: null, amountCents: 0, byTime: null, stars: null, period: "day" },
 };
 export const DEFAULT_BRIEF_TIME = "08:30";
 
@@ -263,6 +279,10 @@ export function alertKindsOf(areas: AppAreas): PrimeAlertKind[] {
         return areas.foodOrders || areas.rides || areas.market || areas.reviews;
       case "ride_no_driver":
         return areas.rides;
+      case "low_stock":
+        return areas.products;
+      case "sales_goal":
+        return sells;
     }
   });
 }
@@ -278,7 +298,17 @@ export function alertsOf(saved: PrimeAlerts | null, kinds: readonly PrimeAlertKi
 
 function alertsJson(a: { alerts: PrimeAlertSetting[]; briefOn: boolean; briefTime: string }) {
   return {
-    items: a.alerts.map((x) => ({ kind: x.kind, on: x.on, minutes: x.minutes, amount_cents: x.amountCents, by_time: x.byTime, stars: x.stars })),
+    items: a.alerts.map((x) => ({
+      kind: x.kind,
+      on: x.on,
+      minutes: x.minutes,
+      amount_cents: x.amountCents,
+      by_time: x.byTime,
+      stars: x.stars,
+      // 132 The low-stock threshold, the goal's period.
+      threshold: x.threshold ?? null,
+      period: x.period ?? null,
+    })),
     morning_brief: { on: a.briefOn, time: a.briefTime },
   };
 }
@@ -327,6 +357,26 @@ export async function setPrimeAlerts(ctx: OwnerContext, params: Record<string, s
       }
     } else if (next.kind === "low_rating") {
       n("stars", 1, 4, "stars", true);
+    } else if (next.kind === "low_stock") {
+      // 132 Told at this many left or fewer.
+      const value = item.threshold;
+      if (value !== undefined && value !== null) {
+        if (typeof value !== "number" || !Number.isInteger(value) || value < 0 || value > 1000) errors[`items[${i}].threshold`] = "The request isn't valid.";
+        else next.threshold = value;
+      }
+    } else if (next.kind === "sales_goal") {
+      // 132 A goal for the day, the week (Monday to Sunday) or the month, in the app's main currency.
+      // Saved at 0 while off (the app sends every alert); on needs an amount.
+      n("amount_cents", 0, 1_000_000_000_000, "amountCents", true);
+      if (item.period !== undefined && item.period !== null) {
+        if (item.period !== "day" && item.period !== "week" && item.period !== "month") errors[`items[${i}].period`] = "The request isn't valid.";
+        else if (item.period !== next.period) {
+          next.period = item.period;
+          next.reachedFor = null;
+        }
+      }
+      if (item.amount_cents !== undefined && item.amount_cents !== current.alerts[at]!.amountCents) next.reachedFor = null;
+      if (next.on && (next.amountCents ?? 0) <= 0) errors[`items[${i}].amount_cents`] = "Enter the goal's amount.";
     } else {
       n("minutes", 1, 240, "minutes", true);
     }

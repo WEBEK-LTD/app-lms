@@ -9,6 +9,7 @@ import { sendTemplate } from "@/lib/email/send";
 import { appUrl, internalJobSecret } from "@/lib/env";
 import { errorResponse, hasBearerToken, json } from "@/lib/http";
 import { runDailyNotices } from "@/lib/notices";
+import { remindEndingAddons } from "@/lib/addons/notify";
 import { effectivePlans } from "@/lib/entitlements";
 import { cancelStaleUploads } from "@/lib/media/files";
 import { getMediaStorage } from "@/lib/media/storage";
@@ -52,7 +53,7 @@ import { refreshRates } from "@/lib/money/rates";
  * (to Wednesday), each active app's weekly summary goes to its owner. 78.3 Each run is
  * recorded; job runs older than 30 days go, and the watch checks that the
  * frequent job runs (lib/watch). Demo sign-ins kept for the website's live
- * activity card go after 7 days (lib/live-activity/demo.ts). 133.6 First, the
+ * activity card go after 7 days (lib/live-activity/demo.ts). 135.6 First, the
  * day's exchange rates are read (lib/money/rates.ts). Safe to call again.
  */
 export async function POST(request: Request): Promise<Response> {
@@ -67,7 +68,7 @@ export async function POST(request: Request): Promise<Response> {
 
 async function runDaily(store: DataStore, now: Date) {
   const deps = { store, baseUrl: appUrl(), mail: sendTemplate, now };
-  // 133.6 The day's exchange rates, read once a day (the last good ones stay when it fails).
+  // 135.6 The day's exchange rates, read once a day (the last good ones stay when it fails).
   const rates = await refreshRates({ store, now }).catch((e: unknown) => {
     console.error(`[daily] exchange rates: ${e instanceof Error ? e.message : String(e)}`);
     return null;
@@ -93,6 +94,11 @@ async function runDaily(store: DataStore, now: Date) {
       return null;
     }),
   };
+  // 133 Add-ons ending in 7 days: a notice and an email to renew them.
+  const addonReminders = await remindEndingAddons(deps).then((made) => made.length).catch((e: unknown) => {
+    console.error(`[daily] add-ons: ${e instanceof Error ? e.message : String(e)}`);
+    return null;
+  });
   // 77 Chat messages kept a year, with a notice 30 days before.
   const chat = await runChatRetention({ ...deps, storage: getMediaStorage() }).catch((e: unknown) => {
     console.error(`[daily] chat: ${e instanceof Error ? e.message : String(e)}`);
@@ -144,5 +150,5 @@ async function runDaily(store: DataStore, now: Date) {
     return null;
   });
   const watch = await runWatch({ store, now, mail: teamMail, jobs: ["frequent"], dispatch: dispatchSet() });
-  return { ...report, rates, mailHistory, marketplace, analytics: { ...analytics, history: analyticsHistory, weekly }, media, chat, milestones, productDay, ownerDevicesPurged, sessionsPurged, deleted: { apps, accounts }, jobRunsPurged, appErrorsPurged, botUnmatchedPurged, demoVisitsPurged, watch };
+  return { ...report, rates, mailHistory, marketplace, analytics: { ...analytics, history: analyticsHistory, weekly }, media, addonReminders, chat, milestones, productDay, ownerDevicesPurged, sessionsPurged, deleted: { apps, accounts }, jobRunsPurged, appErrorsPurged, botUnmatchedPurged, demoVisitsPurged, watch };
 }

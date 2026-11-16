@@ -36,13 +36,13 @@ export const PAYPAL_URLS = { live: "https://api-m.paypal.com", sandbox: "https:/
 
 /**
  * The currencies Yallapp sells in that PayPal takes (it has no Turkish lira,
- * Egyptian pound, riyal or dirham). 133.4 Every one PayPal's REST API lists
+ * Egyptian pound, riyal or dirham). 135.4 Every one PayPal's REST API lists
  * (developer.paypal.com/reference/currency-codes); BRL, CNY and MYR only for
  * accounts in those countries, as PayPal says when it refuses one.
  */
 export const PAYPAL_CURRENCIES = ["USD", "EUR", "GBP", "AUD", "BRL", "CAD", "CHF", "CNY", "CZK", "DKK", "HKD", "HUF", "ILS", "JPY", "MXN", "MYR", "NOK", "NZD", "PHP", "PLN", "SEK", "SGD", "THB", "TWD"] as const;
 
-/** 133.2 PayPal writes these without decimals (¥1250, not ¥1250.00). */
+/** 135.2 PayPal writes these without decimals (¥1250, not ¥1250.00). */
 const PAYPAL_WHOLE: ReadonlySet<string> = new Set(["HUF", "JPY", "TWD"]);
 
 /** Our cents as PayPal's amount ("12.50", "1250"); null for a fraction of a currency PayPal writes whole. */

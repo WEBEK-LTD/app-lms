@@ -159,7 +159,7 @@ function checkRow(kind: ImportKind, v: Partial<Record<ImportField, string>>, cur
   return parsed.ok ? [] : Object.values(parsed.errors);
 }
 
-/** 133.2 `currency`: the shop's, for its prices' digits (1.250 KWD). */
+/** 135.2 `currency`: the shop's, for its prices' digits (1.250 KWD). */
 export function planImport(kind: ImportKind, table: Table, currency?: string | null): ImportPlan {
   const map = mapColumns(kind, table.columns);
   const missing = REQUIRED[kind].filter((f) => map[f] === undefined);

@@ -4,6 +4,7 @@ import type { DataStore } from "./data/store";
 import { encryptionKey, isProduction, mailCaptureDir } from "./env";
 import { DEFAULT_CONTACT } from "./contact";
 import { bothWhatsApp, whatsappLines } from "./contact-lines";
+import { writeCaptureFile } from "./capture-file";
 import { fromWithName, type MailAttachment } from "./email/app-mail";
 import { platformSetting, resolvedSmtpConfig } from "./settings/platform";
 
@@ -133,11 +134,8 @@ const WHATSAPP_PLACEHOLDER = "{{yallapp-whatsapp}}";
 async function captureMail(mail: Mail): Promise<void> {
   const dir = mailCaptureDir();
   if (!dir) return;
-  const { mkdir, writeFile } = await import("node:fs/promises");
-  const path = await import("node:path");
-  await mkdir(dir, { recursive: true });
   const name = `${Date.now()}-${Math.random().toString(36).slice(2, 10)}.json`;
   // 71 Attachments as base64, so a test can open the file.
   const attachments = mail.attachments?.map((a) => ({ filename: a.filename, contentType: a.contentType, size: a.content.length, base64: a.content.toString("base64") }));
-  await writeFile(path.join(dir, name), JSON.stringify({ ...mail, attachments, sentAt: new Date().toISOString() }));
+  await writeCaptureFile(dir, name, JSON.stringify({ ...mail, attachments, sentAt: new Date().toISOString() }));
 }

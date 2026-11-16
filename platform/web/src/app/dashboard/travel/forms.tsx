@@ -355,7 +355,7 @@ export function TravelSettingsForm({ values, zones }: { values: Record<string, s
     <form action={run} noValidate className="flex flex-col gap-5">
       <FormMessage message={state.message} ok={state.ok} />
       <FormSection id="ts-pay" title={t("travel.payment")}>
-        {/* 133.3 Any currency, searched (before 133: USD, EUR, EGP, TRY, SAR, AED). */}
+        {/* 135.3 Any currency, searched (before 135: USD, EUR, EGP, TRY, SAR, AED). */}
         <CurrencyPicker id="ts-currency" label={t("travel.currency")} defaultValue={value("currency")} error={e.currency} />
         <Check name="payNow" label={t("travel.payNow")} hint={t("travel.payNowHint")} checked={checked("payNow")} />
         <Check name="payAtHotel" label={t("travel.payAtHotelSetting")} checked={checked("payAtHotel")} />

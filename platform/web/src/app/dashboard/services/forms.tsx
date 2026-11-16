@@ -55,7 +55,7 @@ export function RulesForm({ current, timezones }: { current: Record<string, stri
       <FormMessage message={state.message} ok={state.ok} />
       <div className="grid gap-4 sm:grid-cols-3">
         <Select label={t("shop.timeZone")} name="timezone" value={v.timezone ?? ""} options={timezones.map((t) => ({ value: t, label: t }))} error={e.timezone} />
-        {/* 133.3 Any currency: searched by name, code or sign, the usual ones first. */}
+        {/* 135.3 Any currency: searched by name, code or sign, the usual ones first. */}
         <CurrencyPicker label={t("shop.currency")} defaultValue={v.currency ?? "TRY"} error={e.currency} className="sm:col-span-3" />
         <Select
           label={t("bookings.slotEvery")}

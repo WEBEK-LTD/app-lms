@@ -129,7 +129,7 @@ export default async function PayPage({
           <span>Total</span>
           <span>{money(order.totalCents)}</span>
         </p>
-        {/* 133.7 The customer's own currency: charged in it, or shown as approximate (the shop's currency charged). */}
+        {/* 135.7 The customer's own currency: charged in it, or shown as approximate (the shop's currency charged). */}
         {cc ? (
           <p className="m-0 text-right text-[14px] text-ink-4" data-pay-customer-currency="">
             {cc.charged

@@ -1,7 +1,7 @@
 import { RATES_ATTRIBUTION } from "@/lib/money/source";
 
 /**
- * 133.6 The rates' source, as its terms ask where the rates are shown: on
+ * 135.6 The rates' source, as its terms ask where the rates are shown: on
  * the dashboard's currency settings and Admin › Settings › Currencies. Its
  * own words, in English in every language (i18n-ok).
  */

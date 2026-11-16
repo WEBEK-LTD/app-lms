@@ -208,6 +208,14 @@ export const en = {
   jobOnAccept: "when the restaurant accepts it",
   jobOnReady: "when the food is ready",
   ratingTitle: "Rating",
+  // 132 The business's reply under a rating.
+  yourReply: "Your reply",
+  replyToRating: "Reply to this rating",
+  editReply: "Change your reply",
+  removeReply: "Remove reply",
+  replyLabel: "Your reply, in your business's name",
+  replyHint: "The customer sees it under their rating in the app, and is told the first time.",
+  sendReply: "Save reply",
   ratingRestaurant: "Restaurant {stars}/5",
   ratingCourier: "Courier {stars}/5",
   stepIn: "Step in",
@@ -230,6 +238,9 @@ export const en = {
   courierJob_readyHint: "No courier waits at the restaurant; it takes a little longer.",
   timezone: "Time zone of the opening hours",
   known: {
+    // 132 The reply under a rating.
+    replySavedTold: "Reply saved. The customer was told.",
+    replySaved: "Reply saved.",
     saved: "Saved.",
     // 115.20 Days off.
     closedDate: "Enter the dates like 2026-12-31.",
@@ -525,6 +536,14 @@ export const ar: Strings<typeof en> = {
   jobOnAccept: "عندما يقبل المطعم الطلب",
   jobOnReady: "عندما يجهز الطعام",
   ratingTitle: "التقييم",
+  // 132 The business's reply under a rating.
+  yourReply: "ردّك",
+  replyToRating: "ردّ على التقييم ده",
+  editReply: "غيّر ردّك",
+  removeReply: "امسح الردّ",
+  replyLabel: "ردّك باسم البيزنس بتاعك",
+  replyHint: "العميل بيشوفه تحت تقييمه في الأبلكيشن، وبيوصله إشعار أول مرة.",
+  sendReply: "احفظ الردّ",
   ratingRestaurant: "المطعم {stars}/5",
   ratingCourier: "المندوب {stars}/5",
   stepIn: "التدخل",
@@ -546,6 +565,9 @@ export const ar: Strings<typeof en> = {
   courierJob_readyHint: "لا ينتظر أي مندوب في المطعم؛ يستغرق الأمر وقتًا أطول قليلًا.",
   timezone: "المنطقة الزمنية لمواعيد العمل",
   known: {
+    // 132 The reply under a rating.
+    replySavedTold: "الردّ اتحفظ. العميل وصله إشعار.",
+    replySaved: "الردّ اتحفظ.",
     saved: "تم الحفظ.",
     // 115.20
     closedDate: "أدخل التواريخ بهذا الشكل: 2026-12-31.",
@@ -839,6 +861,14 @@ export const tr: Strings<typeof en> = {
   jobOnAccept: "restoran siparişi kabul ettiğinde",
   jobOnReady: "yemek hazır olduğunda",
   ratingTitle: "Değerlendirme",
+  // 132 The business's reply under a rating.
+  yourReply: "Yanıtınız",
+  replyToRating: "Bu değerlendirmeyi yanıtla",
+  editReply: "Yanıtınızı değiştirin",
+  removeReply: "Yanıtı kaldır",
+  replyLabel: "İşletmenizin adıyla yanıtınız",
+  replyHint: "Müşteri bunu uygulamada değerlendirmesinin altında görür ve ilk seferde bildirim alır.",
+  sendReply: "Yanıtı kaydet",
   ratingRestaurant: "Restoran {stars}/5",
   ratingCourier: "Kurye {stars}/5",
   stepIn: "Müdahale et",
@@ -860,6 +890,9 @@ export const tr: Strings<typeof en> = {
   courierJob_readyHint: "Restoranda bekleyen kurye olmaz; biraz daha uzun sürer.",
   timezone: "Çalışma saatlerinin saat dilimi",
   known: {
+    // 132 The reply under a rating.
+    replySavedTold: "Yanıt kaydedildi. Müşteriye bildirildi.",
+    replySaved: "Yanıt kaydedildi.",
     saved: "Kaydedildi.",
     // 115.20
     closedDate: "Tarihleri 2026-12-31 gibi girin.",

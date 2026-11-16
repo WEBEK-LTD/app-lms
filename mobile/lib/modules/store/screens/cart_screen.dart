@@ -908,7 +908,7 @@ class _CartScreenState extends ConsumerState<CartScreen> {
                                   ),
                                 ),
                               ),
-                            // 133.7 In the customer's currency: approximate,
+                            // 135.7 In the customer's currency: approximate,
                             // or charged in it.
                             if (value != null &&
                                 chargeLine(context, value) != null)
@@ -1460,7 +1460,7 @@ class _CouponCardState extends ConsumerState<_CouponCard> {
   }
 }
 
-/// 133.7 What the customer pays, when the cart has their currency: "≈ \$12.40
+/// 135.7 What the customer pays, when the cart has their currency: "≈ \$12.40
 /// · you pay E£600.00" (the shop's charged), "You pay \$12.40" (charged in
 /// theirs), or the shop's with why; null with the shop's currency only.
 String? chargeLine(BuildContext context, CartQuote quote) {

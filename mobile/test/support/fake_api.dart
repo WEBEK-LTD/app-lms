@@ -990,7 +990,7 @@ class FakeApi implements YallappApi {
         });
       });
 
-  /// 133.5 `GET /currencies`.
+  /// 135.5 `GET /currencies`.
   Map<String, dynamic> currencies = {
     'rate_date': '2026-11-16',
     'items': [

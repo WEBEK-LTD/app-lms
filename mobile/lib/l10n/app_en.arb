@@ -547,7 +547,6 @@
   "@giftArrives": {
     "description": "131.25 In the summary, before the chosen day and time slot."
   },
-
   "shopping": "Shopping",
   "learning": "Learning",
   "wishlist": "Wishlist",
@@ -13050,13 +13049,85 @@
   "@deliveryNeedPin": {
     "description": "131 Under the cart's button while the place isn't pinned for shipping priced by distance."
   },
+  "orderStagePreparing": "Your order is being prepared",
+  "@orderStagePreparing": {
+    "description": "132 On an order's screen: its delivery stage, the shop is preparing it."
+  },
+  "orderStageShipped": "Out for delivery",
+  "@orderStageShipped": {
+    "description": "132 On an order's screen: its delivery stage, the order is on its way."
+  },
+  "orderStagePostponed": "Delivery postponed",
+  "@orderStagePostponed": {
+    "description": "132 On an order's screen: its delivery stage, the shop moved the delivery to another day."
+  },
+  "orderStageFailed": "We couldn't deliver",
+  "@orderStageFailed": {
+    "description": "132 On an order's screen: its delivery stage, a delivery attempt failed."
+  },
+  "orderStageReturned": "Back at the shop",
+  "@orderStageReturned": {
+    "description": "132 On an order's screen: its delivery stage, the order went back to the shop after a failed delivery."
+  },
+  "orderStageDelivered": "Delivered",
+  "@orderStageDelivered": {
+    "description": "132 On an order's screen: its delivery stage, the order was delivered."
+  },
+  "orderStageNewDay": "New delivery day: {day}",
+  "@orderStageNewDay": {
+    "description": "132 Under a postponed delivery: the new day and time.",
+    "placeholders": {
+      "day": {
+        "type": "String",
+        "example": "Tue 17 Nov, 10:00–13:00"
+      }
+    }
+  },
+  "orderStageTryAgain": "We'll try again on {day}",
+  "@orderStageTryAgain": {
+    "description": "132 Under a failed delivery: the day the shop tries again.",
+    "placeholders": {
+      "day": {
+        "type": "String",
+        "example": "Tue 17 Nov, 10:00–13:00"
+      }
+    }
+  },
+  "orderStageCourier": "Courier: {name}",
+  "@orderStageCourier": {
+    "description": "132 Under an order out for delivery: who brings it.",
+    "placeholders": {
+      "name": {
+        "type": "String",
+        "example": "Mostafa"
+      }
+    }
+  },
+  "orderStageCallCourier": "Call the courier",
+  "@orderStageCallCourier": {
+    "description": "132 Button under an order out for delivery: calls the courier."
+  },
+  "orderStageFollow": "Follow the delivery",
+  "@orderStageFollow": {
+    "description": "132 Button under an order out for delivery: opens the shop's tracking link."
+  },
+  "ratingReplyFrom": "Reply from {business}",
+  "@ratingReplyFrom": {
+    "description": "132 Above the business's reply under the customer's rating of a food order or a ride.",
+    "placeholders": {
+      "business": {
+        "type": "String",
+        "example": "Burger Lab"
+      }
+    }
+  },
   "currencyLabel": "Currency",
   "@currencyLabel": {
-    "description": "133.5 Settings: the currency prices also show in."
+    "description": "135.5 Settings: the currency prices also show in."
   },
   "currencyFromRegion": "{currency} · your region's",
   "@currencyFromRegion": {
-    "description": "133.5 Settings: the currency comes from the phone's region (not picked).",
+    "description": "135.5 Settings: the currency comes from the phone's region (not picked).",
     "placeholders": {
       "currency": {
         "type": "String"
@@ -13065,35 +13136,35 @@
   },
   "currencyPickerHint": "Prices also show in this currency, at the day's rate. You pay in the shop's currency unless the checkout says otherwise.",
   "@currencyPickerHint": {
-    "description": "133.5 The currency picker's note."
+    "description": "135.5 The currency picker's note."
   },
   "currencySearch": "Search currencies",
   "@currencySearch": {
-    "description": "133.5 The currency picker's search box."
+    "description": "135.5 The currency picker's search box."
   },
   "currencyShop": "The shop's currency",
   "@currencyShop": {
-    "description": "133.5 The currency picker's first group: the shop's own."
+    "description": "135.5 The currency picker's first group: the shop's own."
   },
   "currencyYourRegion": "Your region",
   "@currencyYourRegion": {
-    "description": "133.5 The currency picker's group with the phone's region's currency."
+    "description": "135.5 The currency picker's group with the phone's region's currency."
   },
   "currencyAll": "All currencies",
   "@currencyAll": {
-    "description": "133.5 The currency picker's group with every other currency."
+    "description": "135.5 The currency picker's group with every other currency."
   },
   "currencyNoMatch": "No currency matches.",
   "@currencyNoMatch": {
-    "description": "133.5 The currency picker's search found nothing."
+    "description": "135.5 The currency picker's search found nothing."
   },
   "currencyUseRegion": "Use my region's currency",
   "@currencyUseRegion": {
-    "description": "133.5 The currency picker: back to the phone's region's currency."
+    "description": "135.5 The currency picker: back to the phone's region's currency."
   },
   "approxPrice": "≈ {amount}",
   "@approxPrice": {
-    "description": "133.5 A price in the customer's currency, approximate.",
+    "description": "135.5 A price in the customer's currency, approximate.",
     "placeholders": {
       "amount": {
         "type": "String"
@@ -13102,7 +13173,7 @@
   },
   "youPayApprox": "≈ {converted} · you pay {total}",
   "@youPayApprox": {
-    "description": "133.7 At checkout: the total in the customer's currency, approximate, and what is charged in the shop's.",
+    "description": "135.7 At checkout: the total in the customer's currency, approximate, and what is charged in the shop's.",
     "placeholders": {
       "converted": {
         "type": "String"
@@ -13114,7 +13185,7 @@
   },
   "youPayIn": "You pay {total}",
   "@youPayIn": {
-    "description": "133.7 At checkout: charged in the customer's own currency.",
+    "description": "135.7 At checkout: charged in the customer's own currency.",
     "placeholders": {
       "total": {
         "type": "String"
@@ -13123,7 +13194,7 @@
   },
   "youPayShopCurrency": "You pay {total}: the shop's card payment doesn't take {currency}.",
   "@youPayShopCurrency": {
-    "description": "133.7 At checkout: the shop charges in customers' currencies, but its card gateway doesn't take this one.",
+    "description": "135.7 At checkout: the shop charges in customers' currencies, but its card gateway doesn't take this one.",
     "placeholders": {
       "total": {
         "type": "String"
@@ -13135,7 +13206,7 @@
   },
   "orderInYourCurrency": "≈ {total} in your currency",
   "@orderInYourCurrency": {
-    "description": "133.7 An order's total in the customer's currency, shown as approximate.",
+    "description": "135.7 An order's total in the customer's currency, shown as approximate.",
     "placeholders": {
       "total": {
         "type": "String"
@@ -13144,7 +13215,7 @@
   },
   "orderPaidIn": "Paid {total}",
   "@orderPaidIn": {
-    "description": "133.7 An order charged in the customer's currency: what was charged.",
+    "description": "135.7 An order charged in the customer's currency: what was charged.",
     "placeholders": {
       "total": {
         "type": "String"

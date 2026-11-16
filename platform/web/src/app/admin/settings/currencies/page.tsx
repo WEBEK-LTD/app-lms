@@ -17,7 +17,7 @@ export const dynamic = "force-dynamic";
 const when = (iso: string) => new Date(iso).toLocaleString("en-GB", { dateStyle: "medium", timeStyle: "short", timeZone: "UTC" }) + " UTC";
 
 /**
- * 133.6 Settings › Currencies: the day's exchange rates the apps show
+ * 135.6 Settings › Currencies: the day's exchange rates the apps show
  * customers' prices with (read by the daily job, lib/money/rates.ts), their
  * date and source, "Refresh now", and the team's own rate for a currency
  * until removed. Apps sell in any ISO 4217 currency; customers see prices

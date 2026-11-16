@@ -3787,7 +3787,7 @@ paths:
       operationId: listCurrencies
       summary: The currencies prices can be shown in
       description: >-
-        133.5 Every currency with a day's rate, for the app's currency picker (the shop's
+        135.5 Every currency with a day's rate, for the app's currency picker (the shop's
         own first, then the customer's region's, then these): named in the
         `Accept-Language` language. Send the one picked as `X-Currency` (or `?currency=`).
         Rates are read once a day by Yallapp, never per request.
@@ -11952,7 +11952,7 @@ components:
       in: query
       required: false
       description: >-
-        133.5 The customer's currency (an active ISO 4217 code, the phone's region by default,
+        135.5 The customer's currency (an active ISO 4217 code, the phone's region by default,
         the customer's pick in the app). Prices Yallapp sells itself (shops without a website,
         menus, courses, events, bookings) then also come in it as `display`, at the day's rate,
         with the rate and its date; the amounts stay in the shop's currency. Same as the
@@ -11963,7 +11963,7 @@ components:
       name: X-Currency
       in: header
       required: false
-      description: 133.5 The customer's currency, as the `currency` query parameter (the parameter wins when both are sent).
+      description: 135.5 The customer's currency, as the `currency` query parameter (the parameter wins when both are sent).
       schema: { type: string, pattern: '^[A-Za-z]{3}$', example: USD }
     Platform:
       name: platform
@@ -14616,6 +14616,50 @@ components:
             orders that aren't followed this way. On WordPress it follows the
             WooCommerce status (processing is preparing, completed and
             cancelled are themselves).
+        stage:
+          type: [object, 'null']
+          description: |
+            132 Where a store order's delivery is: preparing, out for delivery
+            (`shipped`, with the courier and a tracking link when the shop gave
+            them), postponed (the new `date` and `slot`, and a short `reason`),
+            a failed attempt (`failed`: the reason and the `next_step`: another
+            day, back to the shop, or cancelled), returned to the shop, or
+            delivered. `status` stays `processing` until it is delivered
+            (then `completed`), so an app that doesn't know stages, or a
+            stage, shows the order as in progress. The shop's own notes and
+            who changed it are never here. Null or missing before its first
+            stage, for orders that aren't delivered in stages and on older
+            servers. On WordPress, from the plugin's WooCommerce statuses
+            (0.4.46: Shipped, Delivery postponed, Delivery failed, Returned to
+            shop), with the shop's latest note to the customer as the reason
+            and no date or slot; Shopify and the other platforms have none.
+          required: [code, label]
+          properties:
+            code: { type: string, enum: [preparing, shipped, postponed, failed, returned, delivered] }
+            label: { type: string, description: "In the language the app asks in.", example: Delivery postponed }
+            at: { type: [string, 'null'], format: date-time }
+            reason: { type: [string, 'null'], description: "Why, in the customer's words; null for none.", example: The recipient isn't available }
+            date: { type: [string, 'null'], format: date, description: "The new delivery day (postponed, or tried again)." }
+            slot:
+              type: [object, 'null']
+              required: [start, end, label]
+              properties:
+                id: { type: string }
+                start: { type: string, example: '10:00' }
+                end: { type: string, example: '13:00' }
+                label: { type: string, example: 10:00–13:00 }
+            next_step:
+              type: [object, 'null']
+              required: [code, label]
+              properties:
+                code: { type: string, enum: [retry, return, cancel] }
+                label: { type: string, example: We'll try again }
+            courier:
+              type: [object, 'null']
+              properties:
+                name: { type: [string, 'null'] }
+                phone: { type: [string, 'null'] }
+            tracking_url: { type: [string, 'null'], format: uri }
         shipment:
           type: [object, 'null']
           description: |
@@ -15240,7 +15284,7 @@ components:
     DisplayMoney:
       type: [object, 'null']
       description: >-
-        133.5 The same money in the customer's currency (the request's `currency` or
+        135.5 The same money in the customer's currency (the request's `currency` or
         `X-Currency`), at the day's rate: each amount of the object it is on with its
         formatted text, under the same names (`amount` and `formatted`, `total_amount` and
         `total`…), the currency's own digits (KWD 1.250, ¥1250). Approximate: the customer
@@ -15265,7 +15309,7 @@ components:
     CartCharge:
       type: object
       description: >-
-        133.7 What the card is charged at checkout, and in which currency: the shop's, or
+        135.7 What the card is charged at checkout, and in which currency: the shop's, or
         the customer's when the shop charges in it and its card gateway takes it (at the
         day's rate). `reason` `gateway`: the shop charges in the customer's currency but its
         gateway doesn't take this one, so the shop's is charged (say so).
@@ -15281,7 +15325,7 @@ components:
     OrderCustomerCurrency:
       type: [object, 'null']
       description: >-
-        133.7 The order's total in the customer's currency on the day it was placed, its rate
+        135.7 The order's total in the customer's currency on the day it was placed, its rate
         and day, and whether the card was charged in it (refunds then go back in it). Null:
         the order had only the shop's currency.
       required: [currency, total, total_amount, rate, rate_date, charged]
@@ -15323,7 +15367,7 @@ components:
         formatted: { type: string, description: "As the shop shows it, including ranges.", example: ₺400 – ₺550 }
         on_sale: { type: boolean }
         range: { type: boolean, description: Whether variations have different prices. }
-        max_amount: { type: string, description: "133.5 A range's dearest price (missing when it isn't a range)." }
+        max_amount: { type: string, description: "135.5 A range's dearest price (missing when it isn't a range)." }
         display: { $ref: '#/components/schemas/DisplayMoney' }
 
     ProductSummary:
@@ -18268,7 +18312,7 @@ components:
       description: Settings for Charity & donations apps (roadmap 29).
       required: [currency, ios_mode, monthly, updates_push]
       properties:
-        currency: { type: string, pattern: '^[A-Z]{3}$', description: "133.1 Any active ISO 4217 code (KWD, JPY…); each gateway takes some (EGP, SAR and AED: Kashier or Fawaterk, roadmap 37)." }
+        currency: { type: string, pattern: '^[A-Z]{3}$', description: "135.1 Any active ISO 4217 code (KWD, JPY…); each gateway takes some (EGP, SAR and AED: Kashier or Fawaterk, roadmap 37)." }
         ios_mode:
           type: string
           enum: [browser, 'off']
@@ -18294,7 +18338,7 @@ components:
         raised: { type: string, description: 'Confirmed donations so far, as a decimal string.', example: '12450.00' }
         raised_formatted: { type: string, example: '₺12,450.00' }
         donor_count: { type: integer, description: 'People who gave, counted once per email address.' }
-        currency: { type: string, pattern: '^[A-Z]{3}$', description: "133.1 Any active ISO 4217 code (KWD, JPY…); each gateway takes some (EGP, SAR and AED: Kashier or Fawaterk, roadmap 37)." }
+        currency: { type: string, pattern: '^[A-Z]{3}$', description: "135.1 Any active ISO 4217 code (KWD, JPY…); each gateway takes some (EGP, SAR and AED: Kashier or Fawaterk, roadmap 37)." }
         progress: { type: [number, 'null'], minimum: 0, description: 'raised / goal (1 = reached, may be more than 1); null without a goal.' }
         ends_at: { type: [string, 'null'], format: date-time }
         status: { type: string, enum: [open, closed], description: '`closed` once the charity closes it or `ends_at` has passed: it takes no donations.' }
@@ -18360,7 +18404,7 @@ components:
         campaign_title: { type: string }
         amount: { type: string, example: '250.00' }
         amount_formatted: { type: string, example: '₺250.00' }
-        currency: { type: string, pattern: '^[A-Z]{3}$', description: "133.1 Any active ISO 4217 code (KWD, JPY…); each gateway takes some (EGP, SAR and AED: Kashier or Fawaterk, roadmap 37)." }
+        currency: { type: string, pattern: '^[A-Z]{3}$', description: "135.1 Any active ISO 4217 code (KWD, JPY…); each gateway takes some (EGP, SAR and AED: Kashier or Fawaterk, roadmap 37)." }
         recurring: { type: string, enum: [none, monthly] }
         anonymous: { type: boolean }
         created_at: { type: string, format: date-time, description: 'When the payment was confirmed.' }
@@ -18388,7 +18432,7 @@ components:
       description: Settings for delivery and courier apps (roadmap 104).
       required: [currency, pricing, zones, max_distance_km, payment, tracking, assignment, courier_app, map]
       properties:
-        currency: { type: string, pattern: '^[A-Z]{3}$', description: '133.1 Any active ISO 4217 code (KWD, JPY…), with its own digits after the point.' }
+        currency: { type: string, pattern: '^[A-Z]{3}$', description: '135.1 Any active ISO 4217 code (KWD, JPY…), with its own digits after the point.' }
         pricing:
           type: string
           enum: [distance, zone, fixed]
@@ -18488,7 +18532,7 @@ components:
       properties:
         price: { type: string, example: '85.00' }
         price_formatted: { type: string, example: 'EGP 85.00' }
-        currency: { type: string, pattern: '^[A-Z]{3}$', description: '133.1 Any active ISO 4217 code (KWD, JPY…), with its own digits after the point.' }
+        currency: { type: string, pattern: '^[A-Z]{3}$', description: '135.1 Any active ISO 4217 code (KWD, JPY…), with its own digits after the point.' }
         distance_km: { type: [number, 'null'], description: 'The straight-line distance, when both places have coordinates.' }
 
     ShipmentInput:
@@ -18558,7 +18602,7 @@ components:
         notes: { type: [string, 'null'] }
         price: { type: string, example: '85.00' }
         price_formatted: { type: string, example: 'EGP 85.00' }
-        currency: { type: string, pattern: '^[A-Z]{3}$', description: '133.1 Any active ISO 4217 code (KWD, JPY…), with its own digits after the point.' }
+        currency: { type: string, pattern: '^[A-Z]{3}$', description: '135.1 Any active ISO 4217 code (KWD, JPY…), with its own digits after the point.' }
         payment:
           type: object
           required: [method, status]
@@ -18653,7 +18697,7 @@ components:
       description: Settings for food delivery apps from many restaurants (roadmap 105.1).
       required: [currency, timezone, cuisines, payment, tracking, courier_job, courier_app, map]
       properties:
-        currency: { type: string, pattern: '^[A-Z]{3}$', description: '133.1 Any active ISO 4217 code (KWD, JPY…), with its own digits after the point.' }
+        currency: { type: string, pattern: '^[A-Z]{3}$', description: '135.1 Any active ISO 4217 code (KWD, JPY…), with its own digits after the point.' }
         timezone: { type: string, description: "The company's IANA time zone: restaurants' opening hours are in it.", example: Africa/Cairo }
         cuisines:
           type: array
@@ -18760,7 +18804,7 @@ components:
         image_url: { type: [string, 'null'], format: uri }
         price: { type: string, description: 'Before choices, as a decimal string.', example: '65.00' }
         price_formatted: { type: string, example: 'EGP 65.00' }
-        currency: { type: string, pattern: '^[A-Z]{3}$', description: "133.5 The restaurant's currency (missing on older servers)." }
+        currency: { type: string, pattern: '^[A-Z]{3}$', description: "135.5 The restaurant's currency (missing on older servers)." }
         display: { $ref: '#/components/schemas/DisplayMoney' }
         available: { type: boolean, description: 'False while sold out.' }
         popular: { type: boolean }
@@ -18825,7 +18869,7 @@ components:
         delivery_fee_formatted: { type: string, example: 'EGP 25.00' }
         total: { type: string, example: '205.00' }
         total_formatted: { type: string, example: 'EGP 205.00' }
-        currency: { type: string, pattern: '^[A-Z]{3}$', description: '133.1 Any active ISO 4217 code (KWD, JPY…), with its own digits after the point.' }
+        currency: { type: string, pattern: '^[A-Z]{3}$', description: '135.1 Any active ISO 4217 code (KWD, JPY…), with its own digits after the point.' }
         display: { $ref: '#/components/schemas/DisplayMoney' }
         distance_km: { type: [number, 'null'] }
         delivery_minutes: { type: [integer, 'null'], description: 'Preparing and delivering, roughly.' }
@@ -18887,7 +18931,7 @@ components:
         delivery_fee_formatted: { type: string }
         total: { type: string, example: '205.00' }
         total_formatted: { type: string, example: 'EGP 205.00' }
-        currency: { type: string, pattern: '^[A-Z]{3}$', description: '133.1 Any active ISO 4217 code (KWD, JPY…), with its own digits after the point.' }
+        currency: { type: string, pattern: '^[A-Z]{3}$', description: '135.1 Any active ISO 4217 code (KWD, JPY…), with its own digits after the point.' }
         payment:
           type: object
           required: [method, status]
@@ -18930,6 +18974,13 @@ components:
             restaurant: { type: integer }
             courier: { type: [integer, 'null'] }
             comment: { type: [string, 'null'] }
+            reply:
+              type: [object, 'null']
+              description: 132 The business's reply under the rating, shown in the business's name (the app's); null or missing for none and on older servers.
+              required: [text, at]
+              properties:
+                text: { type: string, maxLength: 2000 }
+                at: { type: string, format: date-time, description: 'When it was written, or last changed.' }
         timeline:
           type: array
           description: The stages it went through, oldest first.
@@ -19386,6 +19437,14 @@ components:
           properties:
             vendor: { type: integer }
             courier: { type: [integer, 'null'] }
+            comment: { type: [string, 'null'], description: "132 The customer's words; missing on older servers." }
+            reply:
+              type: [object, 'null']
+              description: 132 The business's reply under the rating, shown in the business's name (the app's); null or missing for none and on older servers.
+              required: [text, at]
+              properties:
+                text: { type: string, maxLength: 2000 }
+                at: { type: string, format: date-time, description: 'When it was written, or last changed.' }
         can_cancel: { type: boolean }
         can_complain: { type: boolean, description: 'From placing it until 48 hours after it arrived, with no complaint open.' }
         complaint_id: { type: [integer, 'null'], description: 'Its latest complaint.' }
@@ -19710,7 +19769,7 @@ components:
       description: Settings for ride hailing apps (roadmap 105.2). Every amount is the company's.
       required: [currency, timezone, vehicle_types, payment, fare_mode, scheduling, matching, areas, cancellation, pin, emergency_phone, driver_app, map]
       properties:
-        currency: { type: string, pattern: '^[A-Z]{3}$', description: '133.1 Any active ISO 4217 code (KWD, JPY…), with its own digits after the point.' }
+        currency: { type: string, pattern: '^[A-Z]{3}$', description: '135.1 Any active ISO 4217 code (KWD, JPY…), with its own digits after the point.' }
         timezone: { type: string, description: "The company's IANA time zone, for scheduled rides and the drivers' earnings.", example: Africa/Cairo }
         vehicle_types:
           type: array
@@ -19890,7 +19949,7 @@ components:
       properties:
         distance_km: { type: number, description: 'By road, estimated.' }
         minutes: { type: integer, description: 'The ride, estimated.' }
-        currency: { type: string, pattern: '^[A-Z]{3}$', description: '133.1 Any active ISO 4217 code (KWD, JPY…), with its own digits after the point.' }
+        currency: { type: string, pattern: '^[A-Z]{3}$', description: '135.1 Any active ISO 4217 code (KWD, JPY…), with its own digits after the point.' }
         discount_formatted: { type: [string, 'null'], description: 'What the promo code takes off (shown on each fare already).' }
         previous_fee_formatted: { type: [string, 'null'], description: 'An unpaid cancellation fee from the rider''s last ride, added to each fare.' }
         options:
@@ -19948,7 +20007,7 @@ components:
         fare: { type: string, description: 'The fare given when asked, or once completed the final one (with waiting, discount and any previous fee).', example: '96.00' }
         fare_formatted: { type: string }
         final: { type: boolean, description: 'The fare is final (completed, or a cancellation fee).' }
-        currency: { type: string, pattern: '^[A-Z]{3}$', description: '133.1 Any active ISO 4217 code (KWD, JPY…), with its own digits after the point.' }
+        currency: { type: string, pattern: '^[A-Z]{3}$', description: '135.1 Any active ISO 4217 code (KWD, JPY…), with its own digits after the point.' }
         payment:
           type: object
           required: [method, status]
@@ -19997,6 +20056,13 @@ components:
           properties:
             driver: { type: integer }
             comment: { type: [string, 'null'] }
+            reply:
+              type: [object, 'null']
+              description: 132 The business's reply under the rating, shown in the business's name (the app's); null or missing for none and on older servers.
+              required: [text, at]
+              properties:
+                text: { type: string, maxLength: 2000 }
+                at: { type: string, format: date-time, description: 'When it was written, or last changed.' }
         timeline:
           type: array
           description: The stages it went through, oldest first.
@@ -20337,7 +20403,7 @@ components:
       required: [timezone, currency, term, absence_alerts, fees_by_card]
       properties:
         timezone: { type: string, description: "The school's IANA time zone, for today's lessons and attendance.", example: Africa/Cairo }
-        currency: { type: string, pattern: '^[A-Z]{3}$', description: '133.1 Any active ISO 4217 code (KWD, JPY…), with its own digits after the point.' }
+        currency: { type: string, pattern: '^[A-Z]{3}$', description: '135.1 Any active ISO 4217 code (KWD, JPY…), with its own digits after the point.' }
         term:
           description: The current term, when the school set one; attendance and grades default to it.
           oneOf:
@@ -22232,7 +22298,7 @@ components:
         mode: { type: string, enum: [both, hotels, flights] }
         hotels: { type: boolean }
         flights: { type: boolean }
-        currency: { type: string, pattern: '^[A-Z]{3}$', description: '133.1 Any active ISO 4217 code (KWD, JPY…), with its own digits after the point.' }
+        currency: { type: string, pattern: '^[A-Z]{3}$', description: '135.1 Any active ISO 4217 code (KWD, JPY…), with its own digits after the point.' }
         single_hotel_id: { type: [integer, 'null'], description: 'The one hotel of a company with only one: the app opens on its page instead of the search, which then asks for the dates only.' }
         payment:
           type: object

@@ -267,7 +267,7 @@ export function EventSettingsForm({
   settings,
 }: {
   settings: { currency: string; timeZone: string; showMap: boolean; allowCancelHours: number | null };
-  /** 133.1 Any ISO 4217 currency now: the picker lists them all. */
+  /** 135.1 Any ISO 4217 currency now: the picker lists them all. */
   currencies?: string[];
 }) {
   const t = useDashT();
@@ -279,7 +279,7 @@ export function EventSettingsForm({
     <form action={action} noValidate className="flex flex-col gap-4">
       <FormMessage message={state.errors ? undefined : state.message} ok={state.ok} />
       <div className="grid gap-4 sm:grid-cols-2">
-        {/* 133.3 Any currency: searched by name, code or sign, the usual ones first. */}
+        {/* 135.3 Any currency: searched by name, code or sign, the usual ones first. */}
         <CurrencyPicker id="f-currency" label={t("shop.currency")} defaultValue={value("currency", settings.currency)} error={e.currency} />
         <Field
           label={t("shop.timeZone")}

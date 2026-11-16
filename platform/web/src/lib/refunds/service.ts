@@ -305,12 +305,12 @@ interface Target {
   /** "order 1042", "donation D-1042". */
   label: string;
   customer: { name: string; email: string } | null;
-  /** 133.7 Charged in the customer's currency: its total there; refunds go back in it, in proportion. */
+  /** 135.7 Charged in the customer's currency: its total there; refunds go back in it, in proportion. */
   charged?: { currency: string; totalCents: number } | null;
 }
 
 /**
- * 133.7 Of an order charged in the customer's currency, what `cents` of its
+ * 135.7 Of an order charged in the customer's currency, what `cents` of its
  * own currency come to there: in proportion to the charged total, rounded
  * to the currency's digits, the whole order exactly the charged total (so
  * refunds in parts add up to it).
@@ -343,7 +343,7 @@ async function refund(
         ok: false,
         message: `The ${PROVIDER_NAME[target.provider]} keys this payment was taken with aren't set. Refund it in the provider's panel and record it here.`,
       };
-    // 133.7 Charged in the customer's currency: refunded in it, the same share of it.
+    // 135.7 Charged in the customer's currency: refunded in it, the same share of it.
     const charged = target.charged ?? null;
     const before = charged ? chargedShare(target.refundedCents, target.totalCents, charged) : target.refundedCents;
     const asked = charged ? chargedShare(target.refundedCents + input.cents, target.totalCents, charged) - before : input.cents;

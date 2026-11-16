@@ -1,4 +1,5 @@
 import { planNamesOf, plansInList } from "@/lib/plans";
+import { addonsOf } from "@/lib/addons/catalog";
 import type { Metadata } from "next";
 import Link from "next/link";
 import { Icon } from "@/components/icon";
@@ -24,7 +25,7 @@ export default async function NewCouponPage() {
         <h1 className="m-0 text-[28px] font-extrabold">New coupon</h1>
       </div>
       <section aria-label="Coupon" className="max-w-[760px] rounded-2xl border border-line bg-white p-5 sm:p-6">
-        <CouponForm coupon={NEW_COUPON} planNames={planNamesOf(plans)} shown={plansInList((await platformSetting(await getStore(), "plans"))?.value)} />
+        <CouponForm coupon={NEW_COUPON} planNames={planNamesOf(plans)} shown={plansInList((await platformSetting(await getStore(), "plans"))?.value)} addons={addonsOf((await platformSetting(await getStore(), "addons"))?.value).map((a) => ({ id: a.id, name: a.en.name }))} />
       </section>
     </>
   );

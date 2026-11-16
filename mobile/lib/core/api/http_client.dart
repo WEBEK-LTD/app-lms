@@ -72,7 +72,7 @@ class LanguageInterceptor extends Interceptor {
   }
 }
 
-/// 133.5 Sends the customer's currency as `X-Currency` (when there is one),
+/// 135.5 Sends the customer's currency as `X-Currency` (when there is one),
 /// so prices also come back in it; an older server ignores it.
 class CurrencyInterceptor extends Interceptor {
   CurrencyInterceptor(this._currency);

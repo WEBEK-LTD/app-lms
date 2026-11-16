@@ -21,7 +21,7 @@ import { expectContract } from "./contract";
 import { fakeStripe } from "./fake-stripe-paypal";
 import { KEY, NOW, setupClient } from "./helpers";
 
-/** 133 Every currency: its digits, the picker's list, the gateways', the day's rates and prices in the customer's currency. */
+/** 135 Every currency: its digits, the picker's list, the gateways', the day's rates and prices in the customer's currency. */
 
 /** The source's answer (ExchangeRate-API's open access endpoint), as it sends it. */
 const SOURCE = {
@@ -43,7 +43,7 @@ function sourceFetch(answer: unknown = SOURCE, status = 200): { fetcher: typeof 
 
 const RATES: Rates = ratesOf({ rates: { USD: 1, EGP: 48.5, KWD: 0.306, JPY: 151.2, EUR: 0.92 }, date: "2026-10-12", fetchedAt: NOW.toISOString(), source: "ExchangeRate-API" }, null);
 
-describe("133.1 every ISO 4217 currency", () => {
+describe("135.1 every ISO 4217 currency", () => {
   it("is in the list, A–Z, without funds, metals or withdrawn codes", () => {
     expect(ISO_CURRENCIES.length).toBeGreaterThanOrEqual(150);
     expect([...ISO_CURRENCIES].sort()).toEqual(ISO_CURRENCIES);
@@ -75,7 +75,7 @@ describe("133.1 every ISO 4217 currency", () => {
   });
 
   it("parses typed prices with its digits; without a currency, as before", () => {
-    // Two digits, as before 133.
+    // Two digits, as before 135.
     expect(parsePrice("450")).toBe(45000);
     expect(parsePrice("450.5")).toBe(45050);
     expect(parsePrice("1,250")).toBe(125000);
@@ -98,7 +98,7 @@ describe("133.1 every ISO 4217 currency", () => {
   });
 });
 
-describe("133.3 the picker's list", () => {
+describe("135.3 the picker's list", () => {
   it("puts the usual ones first, then the others A–Z by name, named in the dashboard's language", () => {
     const en = currencyOptions("en");
     expect(en.slice(0, PREFERRED_CURRENCIES.length).map((o) => o.code)).toEqual([...PREFERRED_CURRENCIES]);
@@ -126,7 +126,7 @@ describe("133.3 the picker's list", () => {
   });
 });
 
-describe("133.4 the gateways' currencies", () => {
+describe("135.4 the gateways' currencies", () => {
   it("say which each takes", () => {
     expect(providerTakes("stripe", "KWD")).toBe(true);
     expect(providerTakes("stripe", "JPY")).toBe(true);
@@ -156,7 +156,7 @@ describe("133.4 the gateways' currencies", () => {
   });
 });
 
-describe("133.6 the day's rates", () => {
+describe("135.6 the day's rates", () => {
   it("are read from the source, ISO codes only, with their day", async () => {
     const { fetcher, urls } = sourceFetch();
     const read = await fetchRates(fetcher, "https://rates.test/v6/latest/USD");
@@ -207,7 +207,7 @@ describe("133.6 the day's rates", () => {
   });
 });
 
-describe("133.5 prices in the customer's currency", () => {
+describe("135.5 prices in the customer's currency", () => {
   it("are asked for by the query or the header, an ISO code only", () => {
     expect(requestedCurrency(new URLSearchParams("currency=usd"), null)).toBe("USD");
     expect(requestedCurrency(new URLSearchParams(), new Headers({ "x-currency": "KWD" }))).toBe("KWD");
@@ -252,7 +252,7 @@ describe("133.5 prices in the customer's currency", () => {
   });
 });
 
-describe("133.5–133.7 a shop in Egyptian pounds", () => {
+describe("135.5–135.7 a shop in Egyptian pounds", () => {
   async function shop(settings: Partial<CatalogSettings> = {}) {
     const { store, client } = await setupClient({ plan: "growth" });
     clearPlatformSettingsCache();

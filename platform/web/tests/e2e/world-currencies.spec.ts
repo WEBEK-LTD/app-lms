@@ -5,7 +5,7 @@ import { startFakeStripe, type FakeServer } from "./fake-stripe-paypal-servers";
 import { solidPng } from "./png";
 
 /**
- * 133 Every currency. The team reads the day's rates in Admin › Settings ›
+ * 135 Every currency. The team reads the day's rates in Admin › Settings ›
  * Currencies (from a fake source). A Studio store picks the Kuwaiti dinar,
  * then the yen, in the searchable picker; its prices show with their digits
  * in the dashboard and on the hosted API. As a shop in Egyptian pounds with
@@ -64,7 +64,7 @@ test.afterAll(async () => {
   await new Promise<void>((resolve) => (rates ? rates.close(() => resolve()) : resolve()));
 });
 
-test("133.6 Admin › Settings › Currencies reads the day's rates, with their source", async ({ browser }) => {
+test("135.6 Admin › Settings › Currencies reads the day's rates, with their source", async ({ browser }) => {
   admin = await browser.newPage({ extraHTTPHeaders });
   await signIn(admin, E2E.currenciesAdminEmail, E2E.adminPassword);
   // The client's plan, for the hosted API below.
@@ -83,7 +83,7 @@ test("133.6 Admin › Settings › Currencies reads the day's rates, with their 
   await expect(admin.getByRole("row", { name: /Kuwaiti Dinar KWD 3 0\.306/ })).toBeVisible();
 });
 
-test("133.1–133.3 a Studio store sells in Kuwaiti dinars, then in yen, with their digits", async ({ request }) => {
+test("135.1–135.3 a Studio store sells in Kuwaiti dinars, then in yen, with their digits", async ({ request }) => {
   test.setTimeout(240_000);
   await own.goto("/studio/new");
   await own.getByRole("radio", { name: /^Store( |$)/ }).first().check();
@@ -195,7 +195,7 @@ async function pay(page: Page, url: string, button: RegExp) {
   await expect(page).toHaveURL(/\/pay\/[\w-]+\/order-received$/);
 }
 
-test("133.5–133.7 a customer in another currency: shown in it, charged in pounds, then in dinars when the shop says so", async ({ browser, request }) => {
+test("135.5–135.7 a customer in another currency: shown in it, charged in pounds, then in dinars when the shop says so", async ({ browser, request }) => {
   test.setTimeout(240_000);
   // The shop in Egyptian pounds, with its own Stripe.
   await own.goto("/studio/project/catalog/settings");
@@ -209,7 +209,7 @@ test("133.5–133.7 a customer in another currency: shown in it, charged in poun
   await payments.getByLabel("Secret key").fill("sk_test_51DanaSweetsKey");
   await payments.getByRole("button", { name: "Save keys" }).click();
   await expect(payments.getByText("Stripe keys saved.")).toBeVisible();
-  // 133.4 A currency Stripe doesn't take: said under the picker.
+  // 135.4 A currency Stripe doesn't take: said under the picker.
   await own.goto("/studio/project/catalog/settings");
   await own.getByLabel("Currency", { exact: true }).selectOption("IQD");
   await expect(own.getByText(/Stripe doesn't take payments in IQD: customers can't pay by card/)).toBeVisible();

@@ -2,9 +2,9 @@ import type { CatalogCurrency } from "../data/types";
 import { currencyDigits, ISO_CURRENCIES } from "../money/currencies";
 
 /**
- * 133.1 Every active ISO 4217 currency (lib/money/currencies.ts): an app
+ * 135.1 Every active ISO 4217 currency (lib/money/currencies.ts): an app
  * sells in any of them. 37 Each payment gateway takes some
- * (lib/payments/provider.ts); before 133 these were TRY, USD, EUR, EGP, SAR
+ * (lib/payments/provider.ts); before 135 these were TRY, USD, EUR, EGP, SAR
  * and AED, and Yallapp's own plans and invoices still are (BILLING_CURRENCIES).
  */
 export const CATALOG_CURRENCIES: CatalogCurrency[] = [...ISO_CURRENCIES];
@@ -39,7 +39,7 @@ export function centsToDecimal(cents: number, currency?: string | null): string 
 
 /**
  * Parses a price typed in the dashboard ("450", "450.5", "1,250.00",
- * "1.250,00") into cents; null when it isn't a price. 133.2 With the
+ * "1.250,00") into cents; null when it isn't a price. 135.2 With the
  * currency, as many digits after the point as it has: "1.250" is one dinar
  * and a quarter in KWD (kept to the hundredth, so "1.255" isn't a price),
  * and 1,250 yen in JPY, where a fraction isn't a price. Without it: two.

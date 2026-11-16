@@ -40,7 +40,7 @@ Future<void> main() async {
         pushServiceProvider.overrideWithValue(push),
         if (config.demo) ...[
           tokenStoreProvider.overrideWithValue(MemoryTokenStore()),
-          biometricsProvider.overrideWithValue(const NoBiometrics()),
+          biometricsProvider.overrideWithValue(NoBiometrics()),
         ],
       ],
       child: const BusinessApp(),

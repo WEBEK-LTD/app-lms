@@ -30,7 +30,7 @@ export function propertyTypeLabel(key: string): string {
   return LABELS.get(key) ?? key;
 }
 
-/** Currencies offices price in: 133.1 any active ISO 4217 currency (before 133: TRY, EGP, USD, EUR, GBP, AED, SAR). */
+/** Currencies offices price in: 135.1 any active ISO 4217 currency (before 135: TRY, EGP, USD, EUR, GBP, AED, SAR). */
 export const LISTING_CURRENCIES: readonly string[] = ISO_CURRENCIES;
 
 export const AREA_UNITS: { key: ListingAreaUnit; label: string; symbol: string }[] = [

@@ -19184,91 +19184,163 @@ abstract class AppLocalizations {
   /// **'Pin where it goes on the map.'**
   String get deliveryNeedPin;
 
-  /// 133.5 Settings: the currency prices also show in.
+  /// 132 On an order's screen: its delivery stage, the shop is preparing it.
+  ///
+  /// In en, this message translates to:
+  /// **'Your order is being prepared'**
+  String get orderStagePreparing;
+
+  /// 132 On an order's screen: its delivery stage, the order is on its way.
+  ///
+  /// In en, this message translates to:
+  /// **'Out for delivery'**
+  String get orderStageShipped;
+
+  /// 132 On an order's screen: its delivery stage, the shop moved the delivery to another day.
+  ///
+  /// In en, this message translates to:
+  /// **'Delivery postponed'**
+  String get orderStagePostponed;
+
+  /// 132 On an order's screen: its delivery stage, a delivery attempt failed.
+  ///
+  /// In en, this message translates to:
+  /// **'We couldn\'t deliver'**
+  String get orderStageFailed;
+
+  /// 132 On an order's screen: its delivery stage, the order went back to the shop after a failed delivery.
+  ///
+  /// In en, this message translates to:
+  /// **'Back at the shop'**
+  String get orderStageReturned;
+
+  /// 132 On an order's screen: its delivery stage, the order was delivered.
+  ///
+  /// In en, this message translates to:
+  /// **'Delivered'**
+  String get orderStageDelivered;
+
+  /// 132 Under a postponed delivery: the new day and time.
+  ///
+  /// In en, this message translates to:
+  /// **'New delivery day: {day}'**
+  String orderStageNewDay(String day);
+
+  /// 132 Under a failed delivery: the day the shop tries again.
+  ///
+  /// In en, this message translates to:
+  /// **'We\'ll try again on {day}'**
+  String orderStageTryAgain(String day);
+
+  /// 132 Under an order out for delivery: who brings it.
+  ///
+  /// In en, this message translates to:
+  /// **'Courier: {name}'**
+  String orderStageCourier(String name);
+
+  /// 132 Button under an order out for delivery: calls the courier.
+  ///
+  /// In en, this message translates to:
+  /// **'Call the courier'**
+  String get orderStageCallCourier;
+
+  /// 132 Button under an order out for delivery: opens the shop's tracking link.
+  ///
+  /// In en, this message translates to:
+  /// **'Follow the delivery'**
+  String get orderStageFollow;
+
+  /// 132 Above the business's reply under the customer's rating of a food order or a ride.
+  ///
+  /// In en, this message translates to:
+  /// **'Reply from {business}'**
+  String ratingReplyFrom(String business);
+
+  /// 135.5 Settings: the currency prices also show in.
   ///
   /// In en, this message translates to:
   /// **'Currency'**
   String get currencyLabel;
 
-  /// 133.5 Settings: the currency comes from the phone's region (not picked).
+  /// 135.5 Settings: the currency comes from the phone's region (not picked).
   ///
   /// In en, this message translates to:
   /// **'{currency} · your region\'s'**
   String currencyFromRegion(String currency);
 
-  /// 133.5 The currency picker's note.
+  /// 135.5 The currency picker's note.
   ///
   /// In en, this message translates to:
   /// **'Prices also show in this currency, at the day\'s rate. You pay in the shop\'s currency unless the checkout says otherwise.'**
   String get currencyPickerHint;
 
-  /// 133.5 The currency picker's search box.
+  /// 135.5 The currency picker's search box.
   ///
   /// In en, this message translates to:
   /// **'Search currencies'**
   String get currencySearch;
 
-  /// 133.5 The currency picker's first group: the shop's own.
+  /// 135.5 The currency picker's first group: the shop's own.
   ///
   /// In en, this message translates to:
   /// **'The shop\'s currency'**
   String get currencyShop;
 
-  /// 133.5 The currency picker's group with the phone's region's currency.
+  /// 135.5 The currency picker's group with the phone's region's currency.
   ///
   /// In en, this message translates to:
   /// **'Your region'**
   String get currencyYourRegion;
 
-  /// 133.5 The currency picker's group with every other currency.
+  /// 135.5 The currency picker's group with every other currency.
   ///
   /// In en, this message translates to:
   /// **'All currencies'**
   String get currencyAll;
 
-  /// 133.5 The currency picker's search found nothing.
+  /// 135.5 The currency picker's search found nothing.
   ///
   /// In en, this message translates to:
   /// **'No currency matches.'**
   String get currencyNoMatch;
 
-  /// 133.5 The currency picker: back to the phone's region's currency.
+  /// 135.5 The currency picker: back to the phone's region's currency.
   ///
   /// In en, this message translates to:
   /// **'Use my region\'s currency'**
   String get currencyUseRegion;
 
-  /// 133.5 A price in the customer's currency, approximate.
+  /// 135.5 A price in the customer's currency, approximate.
   ///
   /// In en, this message translates to:
   /// **'≈ {amount}'**
   String approxPrice(String amount);
 
-  /// 133.7 At checkout: the total in the customer's currency, approximate, and what is charged in the shop's.
+  /// 135.7 At checkout: the total in the customer's currency, approximate, and what is charged in the shop's.
   ///
   /// In en, this message translates to:
   /// **'≈ {converted} · you pay {total}'**
   String youPayApprox(String converted, String total);
 
-  /// 133.7 At checkout: charged in the customer's own currency.
+  /// 135.7 At checkout: charged in the customer's own currency.
   ///
   /// In en, this message translates to:
   /// **'You pay {total}'**
   String youPayIn(String total);
 
-  /// 133.7 At checkout: the shop charges in customers' currencies, but its card gateway doesn't take this one.
+  /// 135.7 At checkout: the shop charges in customers' currencies, but its card gateway doesn't take this one.
   ///
   /// In en, this message translates to:
   /// **'You pay {total}: the shop\'s card payment doesn\'t take {currency}.'**
   String youPayShopCurrency(String total, String currency);
 
-  /// 133.7 An order's total in the customer's currency, shown as approximate.
+  /// 135.7 An order's total in the customer's currency, shown as approximate.
   ///
   /// In en, this message translates to:
   /// **'≈ {total} in your currency'**
   String orderInYourCurrency(String total);
 
-  /// 133.7 An order charged in the customer's currency: what was charged.
+  /// 135.7 An order charged in the customer's currency: what was charged.
   ///
   /// In en, this message translates to:
   /// **'Paid {total}'**

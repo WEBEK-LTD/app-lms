@@ -25,6 +25,7 @@ import { orderDeliveryJson } from "../../selling/gifts";
 import { needsPlace, shippingRulesOf } from "../../selling/shipping";
 import { checkStoreCheckout, handleStoreExtras, quoteDeliveryJson, storeExtrasConfig, storeMap, storeMapRoute } from "../../selling/store";
 import { ADDON_NEEDS_ITEM, checkAddonLines, offeredWith, ownAddonsFor } from "../../selling/addons";
+import { appStageJson } from "../../catalog/stage-json";
 
 /**
  * The shop of an app without a website: products, categories and orders the
@@ -89,7 +90,7 @@ export function myOrdersRoute(deps: CatalogDeps, request: ConnectorRequest): Pro
   return new CatalogConnector(deps).handle(request);
 }
 
-/** 133.7 An order's total in the customer's currency, on the day it was placed; null when it had none. */
+/** 135.7 An order's total in the customer's currency, on the day it was placed; null when it had none. */
 export function customerCurrencyJson(order: Pick<CatalogOrder, "customerCurrency">) {
   const cc = order.customerCurrency;
   if (!cc) return null;
@@ -123,11 +124,11 @@ export class CatalogConnector implements Connector {
     return paymentsSetUp(this.deps.app) && this.deps.cardPayments !== false;
   }
 
-  /** 133.5 The customer's currency for this request (null: the shop's only). */
+  /** 135.5 The customer's currency for this request (null: the shop's only). */
   private shown: Shown | null = null;
 
   /**
-   * 133.7 What the customer pays for `totalCents`: in their own currency when
+   * 135.7 What the customer pays for `totalCents`: in their own currency when
    * the shop charges in it and its card gateway takes it, else in the
    * shop's (and why, when the shop would have: `gateway`).
    */
@@ -140,7 +141,7 @@ export class CatalogConnector implements Connector {
     return { currency: shown.currency, cents: shown.cents(totalCents), inCustomer: true, reason: null };
   }
 
-  /** 133.7 `charge` on a cart and a checkout link: what is charged, in which currency. */
+  /** 135.7 `charge` on a cart and a checkout link: what is charged, in which currency. */
   private chargeJson(totalCents: number) {
     const c = this.charge(totalCents);
     // `display: null`: this one is already in the currency charged.
@@ -255,7 +256,7 @@ export class CatalogConnector implements Connector {
         formatted: low === high ? this.money(low) : `${this.money(low)} – ${this.money(high)}`,
         on_sale: onSale,
         range: low !== high,
-        // 133.5 A range's dearest end, for the price in the customer's currency.
+        // 135.5 A range's dearest end, for the price in the customer's currency.
         ...(low !== high ? { max_amount: centsToDecimal(high, this.settings.currency) } : {}),
       };
     }
@@ -676,7 +677,7 @@ export class CatalogConnector implements Connector {
         total: this.money(total),
         total_amount: centsToDecimal(total, this.settings.currency),
         total_final: shipping !== null,
-        // 133.7 What the card is charged, and in which currency.
+        // 135.7 What the card is charged, and in which currency.
         charge: this.chargeJson(total),
         // 131 The slot's fee, where it goes and what made up its shipping; why the delivery doesn't work yet.
         ...quoteDeliveryJson(placed?.delivery ?? null, this.settings.currency),
@@ -763,7 +764,7 @@ export class CatalogConnector implements Connector {
     const before = priced.subtotal - coupon.discountCents - points.discountCents + shipping;
     const tax = this.tax(before);
     const totalCents = before + (tax && !tax.included ? tax.cents : 0);
-    // 133.7 The total in the customer's currency, as shown; charged in it when the shop does and its gateway takes it.
+    // 135.7 The total in the customer's currency, as shown; charged in it when the shop does and its gateway takes it.
     const charge = this.charge(totalCents);
     const customerCurrency = this.shown
       ? { currency: this.shown.currency, totalCents: this.shown.cents(totalCents), rate: this.shown.rate, rateDate: this.shown.rateDate ?? request.now.toISOString().slice(0, 10), charged: charge.inCustomer }
@@ -805,7 +806,7 @@ export class CatalogConnector implements Connector {
         url: payUrl(this.deps.platformUrl, token),
         expires_at: new Date(request.now.getTime() + PAY_LINK_MINUTES * 60_000).toISOString(),
         open_in: "in_app",
-        // 133.7 What the card is charged, and in which currency.
+        // 135.7 What the card is charged, and in which currency.
         charge: this.chargeJson(totalCents),
       },
     };
@@ -822,7 +823,7 @@ export class CatalogConnector implements Connector {
     }
   }
 
-  private orderJson(order: CatalogOrder, now: Date) {
+  private orderJson(order: CatalogOrder, now: Date, lang?: string | null) {
     return {
       id: order.id,
       number: orderNumber(order),
@@ -830,7 +831,7 @@ export class CatalogConnector implements Connector {
       // 80.4 A shipped order in progress reads "Shipped".
       status_label: order.shipment && order.status === "processing" ? "Shipped" : ORDER_STATUS_LABELS[order.status],
       total: formatCents(order.totalCents, order.currency),
-      // 133.7 The total in the customer's currency at checkout, and whether the card was charged in it.
+      // 135.7 The total in the customer's currency at checkout, and whether the card was charged in it.
       customer_currency: customerCurrencyJson(order),
       // 80.4 How it was shipped (any carrier); null until it is.
       shipment: shipmentJson(order.shipment),
@@ -862,6 +863,8 @@ export class CatalogConnector implements Connector {
         // 110 What the line comes to.
         total: formatCents(l.unitCents * l.quantity, order.currency),
       })),
+      // 132 Where a store order's delivery is: the stage, the new day, a short reason and what's next.
+      stage: appStageJson(order, lang),
       // 26 A restaurant's order: how it's collected and where it is.
       ...(order.fulfilment
         ? {
@@ -885,7 +888,7 @@ export class CatalogConnector implements Connector {
     const order = Number.isSafeInteger(id) && id > 0 ? await this.deps.store.getCatalogOrder(this.deps.app.id, id) : null;
     // 96.2 And one waiting for a bank transfer or the shop's own method.
     if (!order || order.userId !== request.user.id || !(LISTED_STATUSES.includes(order.status) || awaitingManualPayment(order))) return error(404, "not_found", "Order not found.");
-    return { status: 200, body: this.orderJson(order, request.now) };
+    return { status: 200, body: this.orderJson(order, request.now, request.lang) };
   }
 
   /** 91.4 GET /me/points: the customer's balance and its latest changes. */
@@ -916,7 +919,7 @@ export class CatalogConnector implements Connector {
     const saved = await requestReturn(this.deps.store, this.deps.app, order, this.settings, input, request.now);
     if (!saved) return error(403, "forbidden", "This order can't be returned from the app. Contact the shop.");
     await this.deps.onReturnRequested?.(saved);
-    return { status: 200, body: this.orderJson(saved, request.now) };
+    return { status: 200, body: this.orderJson(saved, request.now, request.lang) };
   }
 
   private async orders(request: ConnectorRequest): Promise<ConnectorResult> {
@@ -939,7 +942,7 @@ export class CatalogConnector implements Connector {
         per_page: perPage,
         total,
         total_pages: Math.max(1, Math.ceil(total / perPage)),
-        items: items.map((o) => this.orderJson(o, request.now)),
+        items: items.map((o) => this.orderJson(o, request.now, request.lang)),
       },
     };
   }

@@ -21,12 +21,15 @@ import { getPlans } from "@/lib/settings/platform";
 
 // 95.2 Admin › Invoices: a client paid an app's plan into Yallapp's bank account.
 
+import type { PeriodMonths } from "@/lib/billing/periods";
+
 const bankTransferSchema = z.object({
   clientId: z.string().uuid(),
   // Empty: the account's first app, not made yet.
   appId: z.union([z.literal(""), z.string().uuid("Choose the app the transfer pays for.")]),
   plan: z.enum(PLANS, "Choose a plan."),
-  months: z.enum(["1", "12"], "Choose how long it pays for."),
+  // 133 Any period, or for life ("0").
+  months: z.enum(["1", "6", "12", "24", "36", "0"], "Choose how long it pays for."),
   amount: z.string().trim().min(1, "Enter the amount that arrived."),
   currency: z.enum(BILLING_CURRENCIES as [CatalogCurrency, ...CatalogCurrency[]], "Choose the currency."),
   reference: z
@@ -59,7 +62,7 @@ export async function recordBankTransferAction(_: FormState, formData: FormData)
       client,
       app,
       plan: parsed.data.plan,
-      months: parsed.data.months === "1" ? 1 : 12,
+      months: Number(parsed.data.months) as PeriodMonths,
       amountCents,
       currency: parsed.data.currency,
       reference: parsed.data.reference,

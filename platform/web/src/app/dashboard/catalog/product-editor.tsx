@@ -37,7 +37,7 @@ function Card({ id, icon, title, description, children }: { id: string; icon: Ic
 }
 
 /** "450", "450.50" or "450,50" in cents; anything else null. */
-/** 133.2 A typed price in cents, with the currency's digits (as the server reads it). */
+/** 135.2 A typed price in cents, with the currency's digits (as the server reads it). */
 function centsOf(text: string, currency?: string): number | null {
   return text.trim() === "" ? null : parsePrice(text, currency);
 }

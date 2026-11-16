@@ -1,7 +1,7 @@
 import type { Strings } from "../types";
 
 /**
- * 133 Every currency: the searchable currency picker (components/currency-picker.tsx)
+ * 135 Every currency: the searchable currency picker (components/currency-picker.tsx)
  * on each page where an app chooses what it sells in, its notes on decimals
  * and on the card gateway, and the shop's customers' currencies (the day's
  * rates, charging in the customer's currency).

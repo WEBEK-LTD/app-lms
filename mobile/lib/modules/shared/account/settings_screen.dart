@@ -151,7 +151,7 @@ class SettingsScreen extends ConsumerWidget {
     final orderUpdates = env.build.appType == AppType.store;
     final languages = ref.watch(availableLanguagesProvider);
     final language = ref.watch(appLanguageProvider);
-    // 133.5 Apps selling from Yallapp show prices in the customer's currency too.
+    // 135.5 Apps selling from Yallapp show prices in the customer's currency too.
     final sells = shopCurrencyOf(ref.watch(appConfigProvider)) != null;
     final currency = ref.watch(appCurrencyProvider);
     final currencyPicked = settings.currency != null;
@@ -172,7 +172,7 @@ class SettingsScreen extends ConsumerWidget {
             SettingsGroup(
               title: l10n.display,
               children: [
-                // 133.5 The currency prices also show in.
+                // 135.5 The currency prices also show in.
                 if (sells)
                   SettingsTile(
                     key: const ValueKey('currency-tile'),

@@ -18,7 +18,7 @@ export interface ConnectorRequest {
   /** 43 The language the app asks in ("ar"), for labels the connector writes; null or missing: English. */
   lang?: string | null;
   /**
-   * 133.5 The customer's currency the app asked for (`?currency=` or
+   * 135.5 The customer's currency the app asked for (`?currency=` or
    * `X-Currency`) with the day's rates: Yallapp's own selling connectors add
    * each price in it (lib/money/display.ts); null or missing: none asked.
    */

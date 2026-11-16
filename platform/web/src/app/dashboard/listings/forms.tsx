@@ -108,7 +108,7 @@ export function ListingForm({
 }: {
   listing: ListingFormValues;
   types: { key: string; label: string }[];
-  /** 133.1 Any ISO 4217 currency now: the picker lists them all. */
+  /** 135.1 Any ISO 4217 currency now: the picker lists them all. */
   currencies?: readonly string[];
   areaSymbol: string;
 }) {
@@ -201,7 +201,7 @@ export function ListingForm({
       <Group title={t("listings.formPrice")}>
         <div className="grid gap-4 sm:grid-cols-3">
           <Field label={t("listings.price")} name="price" inputMode="decimal" required defaultValue={v("price", listing.price)} placeholder="4250000" error={e.price} />
-          {/* 133.3 Any currency, searched. */}
+          {/* 135.3 Any currency, searched. */}
           <CurrencyPicker label={t("shop.currency")} defaultValue={v("currency", listing.currency)} error={e.currency} className="sm:col-span-2" />
           {purpose === "rent" ? (
             <Select
@@ -391,7 +391,7 @@ export function OfficeForm({
   units,
 }: {
   office: { currency: string; areaUnit: string; contactName: string; contactPhone: string; contactWhatsapp: string; contactEmail: string; messages: boolean };
-  /** 133.1 Any ISO 4217 currency now: the picker lists them all. */
+  /** 135.1 Any ISO 4217 currency now: the picker lists them all. */
   currencies?: readonly string[];
   units: { key: string; label: string }[];
 }) {
@@ -409,7 +409,7 @@ export function OfficeForm({
       </div>
       <Field label={t("listings.officeEmail")} name="contactEmail" type="email" defaultValue={v("contactEmail", office.contactEmail)} error={e.contactEmail} />
       <div className="grid gap-4 sm:grid-cols-2">
-        {/* 133.3 Any currency, searched. */}
+        {/* 135.3 Any currency, searched. */}
         <CurrencyPicker label={t("listings.defaultCurrency")} defaultValue={v("currency", office.currency)} error={e.currency} className="sm:col-span-2" />
         <Select label={t("listings.areaUnit")} name="areaUnit" defaultValue={v("areaUnit", office.areaUnit)} options={units.map((u) => ({ value: u.key, label: u.label }))} error={e.areaUnit} />
       </div>

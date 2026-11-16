@@ -12658,6 +12658,58 @@ class OverlayLocalizations extends AppLocalizations {
       overlay.text('deliveryNeedPin') ?? base.deliveryNeedPin;
 
   @override
+  String get orderStagePreparing =>
+      overlay.text('orderStagePreparing') ?? base.orderStagePreparing;
+
+  @override
+  String get orderStageShipped =>
+      overlay.text('orderStageShipped') ?? base.orderStageShipped;
+
+  @override
+  String get orderStagePostponed =>
+      overlay.text('orderStagePostponed') ?? base.orderStagePostponed;
+
+  @override
+  String get orderStageFailed =>
+      overlay.text('orderStageFailed') ?? base.orderStageFailed;
+
+  @override
+  String get orderStageReturned =>
+      overlay.text('orderStageReturned') ?? base.orderStageReturned;
+
+  @override
+  String get orderStageDelivered =>
+      overlay.text('orderStageDelivered') ?? base.orderStageDelivered;
+
+  @override
+  String orderStageNewDay(String day) =>
+      overlay.format('orderStageNewDay', {'day': day}) ??
+      base.orderStageNewDay(day);
+
+  @override
+  String orderStageTryAgain(String day) =>
+      overlay.format('orderStageTryAgain', {'day': day}) ??
+      base.orderStageTryAgain(day);
+
+  @override
+  String orderStageCourier(String name) =>
+      overlay.format('orderStageCourier', {'name': name}) ??
+      base.orderStageCourier(name);
+
+  @override
+  String get orderStageCallCourier =>
+      overlay.text('orderStageCallCourier') ?? base.orderStageCallCourier;
+
+  @override
+  String get orderStageFollow =>
+      overlay.text('orderStageFollow') ?? base.orderStageFollow;
+
+  @override
+  String ratingReplyFrom(String business) =>
+      overlay.format('ratingReplyFrom', {'business': business}) ??
+      base.ratingReplyFrom(business);
+
+  @override
   String get currencyLabel =>
       overlay.text('currencyLabel') ?? base.currencyLabel;
 

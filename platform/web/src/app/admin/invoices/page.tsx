@@ -133,7 +133,7 @@ export default async function InvoicesPage({ searchParams }: PageProps<"/admin/i
                 defaults={{
                   appId: clientApps[0]?.id ?? "",
                   plan: defaultPlan,
-                  months: plans[defaultPlan].billingMonths === 1 ? "1" : "12",
+                  months: String(plans[defaultPlan].billingMonths),
                   amount: defaultPrice ? centsToDecimal(defaultPrice.egpCents) : "",
                   currency: "EGP",
                 }}

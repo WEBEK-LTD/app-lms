@@ -272,14 +272,14 @@ export async function handleHosted(ctx: HostedContext, req: HostedRequest): Prom
   return { ...result, body: localizedError(result.body, requestLanguage(req.headers?.get("accept-language"))) };
 }
 
-/** 133.5 The customer's currency the app asked for, with the saved rates (never fetched here); null: none asked. */
+/** 135.5 The customer's currency the app asked for, with the saved rates (never fetched here); null: none asked. */
 async function displayOf(ctx: HostedContext, req: HostedRequest): Promise<DisplayCurrency | null> {
   const currency = requestedCurrency(req.query, req.headers);
   return currency ? { currency, rates: await currentRates(ctx.store) } : null;
 }
 
 /**
- * 133.5 GET /currencies: every currency the app can show prices in (the
+ * 135.5 GET /currencies: every currency the app can show prices in (the
  * ones with a day's rate), named in the app's language, the usual ones
  * first, then A–Z; and the rates' day. The app lists them in its currency
  * picker, the shop's own first.
@@ -309,7 +309,7 @@ async function route(ctx: HostedContext, req: HostedRequest): Promise<HostedResu
   switch (route) {
     case "GET /config":
       return signInOnly ? signInConfig(ctx, req) : config(ctx, req);
-    // 133.5 The currencies prices can be shown in (those with a day's rate).
+    // 135.5 The currencies prices can be shown in (those with a day's rate).
     case "GET /currencies":
       return currenciesList(ctx, req);
     case "POST /auth/otp/request":
@@ -450,10 +450,10 @@ async function route(ctx: HostedContext, req: HostedRequest): Promise<HostedResu
       now: ctx.now,
       // 43 Labels the connector writes (an event's price) in the app's language.
       lang: requestLanguage(req.headers?.get("accept-language")),
-      // 133.5 Prices in the customer's currency too, when the app asks for one.
+      // 135.5 Prices in the customer's currency too, when the app asks for one.
       display: await displayOf(ctx, req),
     });
-    // 133.5 Yallapp's own prices in the customer's currency too (never a connected platform's).
+    // 135.5 Yallapp's own prices in the customer's currency too (never a connected platform's).
     if (result && result.status === 200 && DISPLAY_CONNECTORS.has(ctx.app.connector?.kind ?? "")) addDisplayPrices(result.body, await displayOf(ctx, req));
     // 78.4 The connected platform failing (it can't be reached, it refused): counted for the team.
     if (result && result.status >= 500) {

@@ -6,7 +6,7 @@ import { CurrencyPicker } from "@/components/currency-picker";
 import { Field, FormMessage, SubmitButton } from "@/components/form";
 import { initialFormState } from "@/lib/forms";
 
-/** 133.6 "Refresh now": the day's rates read at once. */
+/** 135.6 "Refresh now": the day's rates read at once. */
 export function RefreshRatesForm() {
   const [state, action] = useActionState(refreshRatesAction, initialFormState);
   return (
@@ -19,7 +19,7 @@ export function RefreshRatesForm() {
   );
 }
 
-/** 133.6 The team's rate for one currency, over the day's (empty: back to the day's). */
+/** 135.6 The team's rate for one currency, over the day's (empty: back to the day's). */
 export function RateOverrideForm() {
   const [state, action] = useActionState(saveRateOverrideAction, initialFormState);
   return (

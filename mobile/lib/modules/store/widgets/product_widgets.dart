@@ -10,7 +10,7 @@ import '../../../core/widgets/sale_widgets.dart';
 import '../../../core/l10n/l10n.dart';
 
 /// The price as the shop shows it, with the regular price struck through
-/// when on sale. 133.5 With the customer's currency: the price in it first
+/// when on sale. 135.5 With the customer's currency: the price in it first
 /// ("≈ \$12.40"), approximate, and the shop's own under it (on a card, only
 /// the converted one fits; it is read out with the shop's).
 class ProductPriceLabel extends StatelessWidget {
@@ -109,7 +109,7 @@ class _Tag extends StatelessWidget {
 
 String _a11y(ProductSummary product) => [
   product.name,
-  // 133.5 In the customer's currency, approximate, then the shop's.
+  // 135.5 In the customer's currency, approximate, then the shop's.
   if (product.price.display?.formatted case final shown?)
     currentL10n.approxPrice(shown),
   product.price.formatted,

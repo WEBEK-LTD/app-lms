@@ -180,7 +180,7 @@ export function DeliverySettingsForm({
   hub,
 }: {
   settings: SettingsFormValues;
-  /** 133.1 Any ISO 4217 currency now: the picker lists them all. */
+  /** 135.1 Any ISO 4217 currency now: the picker lists them all. */
   currencies?: readonly string[];
   bundleAllowed: boolean;
   /** Shown under the second app when the plan doesn't have it. */
@@ -206,7 +206,7 @@ export function DeliverySettingsForm({
       {/* The page kit: the form in parts; 132.20 in the page's tabs (Prices, Tracking and jobs, Food orders). */}
       <TabPanel tab="prices">
         <FormSection id="f-delivery-pricing" title={t("delivery.pricing")} description={t("delivery.pricingHint")}>
-          {/* 133.3 Any currency: searched by name, code or sign, the usual ones first. */}
+          {/* 135.3 Any currency: searched by name, code or sign, the usual ones first. */}
           <CurrencyPicker id="f-currency" label={t("delivery.currency")} defaultValue={currency} onChange={setCurrency} error={state.errors?.currency} />
           <Choices
             legend={t("delivery.pricingMode")}

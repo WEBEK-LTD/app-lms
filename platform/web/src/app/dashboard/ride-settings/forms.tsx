@@ -22,7 +22,7 @@ export function RideSettingsForm({
   before,
 }: {
   values: Record<string, string>;
-  /** 133.1 Any ISO 4217 currency now: the picker lists them all. */
+  /** 135.1 Any ISO 4217 currency now: the picker lists them all. */
   currencies?: readonly string[];
   timezones: readonly string[];
   bundleAllowed: boolean;
@@ -66,7 +66,7 @@ export function RideSettingsForm({
       <TabPanel tab="fares" className="flex flex-col gap-6">
         <section className="flex flex-col gap-4">
           <div className="grid gap-4 sm:grid-cols-2">
-            {/* 133.3 Any currency: searched by name, code or sign, the usual ones first. */}
+            {/* 135.3 Any currency: searched by name, code or sign, the usual ones first. */}
             <CurrencyPicker id="f-currency" label={t("rides.currency")} defaultValue={currency} onChange={setCurrency} error={state.errors?.currency} />
             <div className="flex flex-col gap-1.5">
               <label htmlFor="f-timezone" className="text-sm font-semibold">

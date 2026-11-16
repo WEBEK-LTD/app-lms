@@ -78,6 +78,10 @@ export type EmailTemplateKey =
   | "team_alert"
   // 125 VIP: a client asked for a call with their account manager
   | "account_manager_call"
+  // 133 Add-ons
+  | "addon_added"
+  | "addon_ends_soon"
+  | "addon_task"
   // 86.4 The weekly summary
   | "weekly_summary"
   // 106 Studio Market: the team's answer to a template sent for review
@@ -679,6 +683,53 @@ export const EMAIL_TEMPLATES: EmailTemplateDefinition[] = [
       "Hello {{name}},\n\nThanks for your payment. {{app_name}} now has {{pack}} more storage for its videos, pictures and PDFs, until {{end_date}}. " +
       "Its files take {{used}} of {{storage}}.\n\nWhen you renew your plan by card, you can renew the pack with it.\n\nYour Media library: {{media_url}}" +
       SIGNATURE,
+  },
+  // 133 Add-ons
+  {
+    key: "addon_added",
+    name: "Add-on added",
+    description: "To a client when an add-on for one of their apps is paid by card or covered by a coupon (bought or renewed).",
+    placeholders: [
+      NAME,
+      APP_NAME,
+      { name: "addon", description: "The add-on", sample: "+10 pages" },
+      { name: "period", description: "How it's paid", sample: "6 months" },
+      { name: "until_line", description: "Until when it runs, and a blank line; empty for a one-time add-on", sample: "It runs until 31 Mar 2027.\n\n" },
+      { name: "payment_line", description: "The payment and its receipt, and a blank line", sample: "Paid: EGP 500 by card through Kashier.\nReceipt: https://yallapp.com.tr/dashboard/license/receipts/0f8e\n\n" },
+      { name: "addons_url", description: "The app's Add-ons page", sample: "https://yallapp.com.tr/dashboard/addons" },
+    ],
+    subject: "{{app_name}}: {{addon}} added",
+    body: "Hello {{name}},\n\nThanks for your payment. {{app_name}} now has {{addon}} ({{period}}).\n\n{{until_line}}{{payment_line}}Your add-ons: {{addons_url}}" + SIGNATURE,
+  },
+  {
+    key: "addon_ends_soon",
+    name: "Add-on ends soon",
+    description: "To a client 7 days before an add-on of one of their apps ends (once per end date).",
+    placeholders: [
+      NAME,
+      APP_NAME,
+      { name: "addon", description: "The add-on", sample: "+10 pages" },
+      { name: "end_date", description: "Its last day", sample: "31 Mar 2027" },
+      { name: "addons_url", description: "The app's Add-ons page, where it is renewed", sample: "https://yallapp.com.tr/dashboard/addons" },
+    ],
+    subject: "{{app_name}}: {{addon}} ends on {{end_date}}",
+    body: "Hello {{name}},\n\n{{addon}} of {{app_name}} ends on {{end_date}}. To keep it, renew it on your Add-ons page:\n{{addons_url}}" + SIGNATURE,
+  },
+  {
+    key: "addon_task",
+    name: "Add-on service to do (team)",
+    description: "To the team (Yallapp's contact email, or the publishing team's for publishing) when a client buys, or is given, an add-on the team does for them.",
+    placeholders: [
+      { name: "client_name", description: "The client's name", sample: "Ada Lovelace" },
+      { name: "app_name", description: "The app", sample: "Ada Academy" },
+      { name: "addon", description: "The add-on", sample: "We publish your app to the stores for you" },
+      { name: "period", description: "How it's paid", sample: "1 year" },
+      { name: "email", description: "The client's email", sample: "ada@example.com" },
+      { name: "whatsapp", description: "The client's WhatsApp number", sample: "+90 555 111 22 33" },
+      { name: "admin_url", description: "Admin › Add-ons › Tasks", sample: "https://yallapp.com.tr/admin/addons?tab=tasks" },
+    ],
+    subject: "Yallapp: {{addon}} for {{app_name}}",
+    body: "{{client_name}} has {{addon}} ({{period}}) for {{app_name}}: a task for the team.\n\nEmail: {{email}}\nWhatsApp: {{whatsapp}}\n\nOpen the task: {{admin_url}}",
   },
   {
     key: "storage_pack_ended",

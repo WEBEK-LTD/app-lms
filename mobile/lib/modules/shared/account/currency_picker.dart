@@ -12,13 +12,13 @@ import '../../../core/storage/local_settings.dart';
 import '../../../core/theme/app_icons.dart';
 import '../../../core/theme/palette.dart';
 
-/// 133.5 The currencies prices can be shown in (`GET /currencies`), named
+/// 135.5 The currencies prices can be shown in (`GET /currencies`), named
 /// in the app's language; reloaded when it changes.
 final currencyListProvider = FutureProvider<CurrencyList>(
   (ref) => ref.contentApi.listCurrencies(),
 );
 
-/// 133.5 The shop's own currency, from `/config` (a shop, a menu, events or
+/// 135.5 The shop's own currency, from `/config` (a shop, a menu, events or
 /// bookings); null for an app that doesn't sell.
 String? shopCurrencyOf(AppConfig config) =>
     config.store?.currency ??
@@ -26,7 +26,7 @@ String? shopCurrencyOf(AppConfig config) =>
     config.events?.currency ??
     config.bookings?.currency;
 
-/// 133.5 The currency choices in the picker's order: the shop's first, then
+/// 135.5 The currency choices in the picker's order: the shop's first, then
 /// the phone's region's, then all the others as the server lists them (the
 /// usual ones, then A–Z by name). Each once.
 List<({String group, List<CurrencyChoice> items})> currencyGroups(
@@ -56,7 +56,7 @@ List<({String group, List<CurrencyChoice> items})> currencyGroups(
   ];
 }
 
-/// 133.5 Settings › Currency: a searchable list, the shop's currency first.
+/// 135.5 Settings › Currency: a searchable list, the shop's currency first.
 Future<void> showCurrencyPicker(BuildContext context) =>
     showModalBottomSheet<void>(
       context: context,

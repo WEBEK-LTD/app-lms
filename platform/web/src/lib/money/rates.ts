@@ -5,7 +5,7 @@ import { isCurrencyCode, roundToCurrency } from "./currencies";
 import { RATES_SOURCE, RATES_SOURCE_URL } from "./source";
 
 /**
- * 133.6 The day's exchange rates. The daily job (app/api/internal/daily)
+ * 135.6 The day's exchange rates. The daily job (app/api/internal/daily)
  * reads them once a day from ExchangeRate-API's open access endpoint
  * (no key; about 160 currencies, every Arab and Gulf one among them;
  * updated once a day; caching and commercial conversion allowed, with

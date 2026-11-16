@@ -85,7 +85,7 @@ final apiBundleProvider = Provider<ApiBundle>((ref) {
     onGateError: (error) => ref.read(appGateProvider.notifier).report(error),
     language: language,
     offline: ref.read(offlineCacheProvider),
-    // 133.5 Prices in the customer's currency too.
+    // 135.5 Prices in the customer's currency too.
     currency: () => ref.read(appCurrencyProvider),
   );
   if (contentIsHosted) dio.options.headers.addAll(previewHeaders);
@@ -146,7 +146,7 @@ extension ContentApi on Ref {
   /// that use it reload when the language changes.
   YallappApi get contentApi {
     watch(appLanguageProvider);
-    // 133.5 And their prices in the customer's currency.
+    // 135.5 And their prices in the customer's currency.
     watch(appCurrencyProvider);
     return watch(yallappApiProvider);
   }

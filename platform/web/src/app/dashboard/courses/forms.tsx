@@ -277,7 +277,7 @@ export function CurrencyForm({ currency }: { currency: string }) {
   const [state, action] = useActionState(saveCourseCurrencyAction, initialFormState);
   return (
     <form action={action} noValidate className="flex flex-wrap items-end gap-3">
-      {/* 133.3 Any currency: searched by name, code or sign, the usual ones first. */}
+      {/* 135.3 Any currency: searched by name, code or sign, the usual ones first. */}
       <CurrencyPicker id="f-currency" label={t("courses.currency")} defaultValue={currency} className="min-w-[280px] flex-1" />
       <SubmitButton variant="secondary" className="h-11">
         {t("common.save")}

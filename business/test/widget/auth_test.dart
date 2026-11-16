@@ -95,7 +95,7 @@ void main() {
     expect(find.text('Yallapp Business is locked'), findsOneWidget);
     expect(find.textContaining("That didn't work"), findsOneWidget);
     again.biometrics!.succeed = true;
-    await tapOn(tester, find.text('Unlock'));
+    await tapOn(tester, find.text('Unlock with fingerprint'));
     expect(find.text('Needs you now'), findsOneWidget);
   });
 

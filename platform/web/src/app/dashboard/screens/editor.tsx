@@ -1,6 +1,6 @@
 "use client";
 
-import { useActionState, useMemo, useState } from "react";
+import { useActionState, useMemo, useState, type ReactNode } from "react";
 import { saveStudioScreensAction } from "@/app/actions/studio-screens";
 import { useDashT } from "@/components/dashboard-i18n";
 import { FormMessage, SubmitButton } from "@/components/form";
@@ -43,12 +43,16 @@ import { LaunchSection, newLaunch } from "./launch-section";
 // 130.21 The system screens' premium look.
 import { LOOK_NAMES, SystemSection } from "./system-section";
 // 132.6 Sign-in, the code and a new account as the app draws them; the account in the system screens' look.
-import { AuthPreview, previewTheme, type AuthScreen } from "./auth-preview";
+import { AuthPreview, previewTheme, ScaledPhone, type AuthScreen } from "./auth-preview";
+// 132.9 Each look as a picture to choose from, in the dashboard's light or dark.
+import { LookChoice } from "./look-choice";
+import { useSiteDark } from "@/components/theme-switch";
+import { chromeWords } from "@/lib/studio/premium-chrome-words";
 import { SystemScreen } from "@/components/studio/premium-chrome";
 // 131.25 The store's checkout look.
 import { CheckoutSection } from "./checkout-section";
 import type { CheckoutLook } from "@/lib/studio/checkout-look";
-import { systemLookFor, type SystemScreensLook } from "@/lib/studio/premium-chrome";
+import { systemLookFor, type SystemLook, type SystemScreensLook } from "@/lib/studio/premium-chrome";
 import { authLookOf, followedLook, withOwnScreens } from "@/lib/studio/sign-in-look";
 // 130.52 Studio's course screens.
 import { CourseScreensSection } from "./course-screens-section";
@@ -181,11 +185,15 @@ export function ScreensEditor({
   const [checkout, setCheckout] = useState<CheckoutLook | null>(initial?.checkout ?? null);
   // 132.6 Which screen the preview shows: sign-in, the code or a new account.
   const [previewAuth, setPreviewAuth] = useState<AuthScreen>("sign_in");
+  // 132.9 The pictures follow the dashboard's light or dark; the photo a photo look takes when it has none of its own (the template's).
+  const siteDark = useSiteDark();
+  const [lastPhoto, setLastPhoto] = useState<string | null>(initial?.sign_in?.image_url ?? initial?.system?.image_url ?? null);
   // 132.6 With a system screens' look, sign-in (and the code, and a new account) follows it unless given its own; the account too.
   const signInChrome = systemLookFor(system, "sign_in");
   const accountChrome = systemLookFor(system, "account");
   const pickSignInStyle = (style: SignInStyle) => {
-    setLook((l) => ({ ...l, style }));
+    // A look with a photo takes the one the project had (the template's) when it has none of its own.
+    setLook((l) => ({ ...l, style, image_url: style === "photo" || style === "card" || style === "premium" ? (l.image_url ?? lastPhoto) : l.image_url }));
     // Sign-in and the code screen alike (a new account follows sign-in).
     if (system) setSystem(withOwnScreens(system, { sign_in: "classic", code: "classic" }));
   };
@@ -237,8 +245,48 @@ export function ScreensEditor({
   const links = entries.filter((e) => e.key === "link").length;
   const nameOf = (e: Entry) => e.label[previewLang] || Object.values(e.label)[0] || (e.key === "link" ? t("studio.ownEntry") : t(`studio.item_${e.key}` as DashKey));
   const iconOf = (e: Entry): IconName => (e.icon ?? (e.key === "link" ? "link" : ITEM_ICONS[e.key])) as IconName;
-  const shownTitle = look.title[previewLang] || Object.values(look.title)[0] || t("studio.previewWelcome");
-  const shownSubtitle = look.subtitle[previewLang] || Object.values(look.subtitle)[0] || t("studio.previewSignInLine");
+  // As the app picks them (textFor): the language's, else the first; none, the app's own words.
+  const shownTitle = look.title[previewLang] || Object.values(look.title).find((v) => v.trim()) || null;
+  const shownSubtitle = look.subtitle[previewLang] || Object.values(look.subtitle).find((v) => v.trim()) || null;
+  const logoUrl = brand?.logoUrl ?? brand?.iconUrl ?? null;
+  const main = brand?.main ?? color;
+  const second = brand?.second ?? null;
+
+  // 132.9 The pictures of the looks, made once per change of what they show (the same drawing as the preview).
+  const signInPictures = useMemo(() => {
+    const base = { screen: "sign_in" as const, title: shownTitle, subtitle: shownSubtitle, appName, color: main, second, dark: siteDark, lang: previewLang, logoUrl, thumb: true };
+    const out: Partial<Record<SignInStyle | "system", ReactNode>> = {};
+    for (const style of SIGN_IN_STYLES) {
+      out[style] = (
+        <ScaledPhone>
+          <AuthPreview {...base} look={{ ...look, style }} chrome={null} photo={look.image_url ?? lastPhoto} placeholder />
+        </ScaledPhone>
+      );
+    }
+    if (system) {
+      out.system = (
+        <ScaledPhone>
+          <AuthPreview {...base} look={look} chrome={followedLook(system, "sign_in")} photo={system.image_url ?? look.image_url ?? null} />
+        </ScaledPhone>
+      );
+    }
+    return out;
+  }, [shownTitle, shownSubtitle, appName, main, second, siteDark, previewLang, logoUrl, look, lastPhoto, system]);
+  const shownEntries = useMemo(() => entries.filter((e) => !e.hidden), [entries]);
+  const menuPictures = useMemo(() => {
+    const out: Partial<Record<AccountHeader | "system", ReactNode>> = {};
+    for (const h of ACCOUNT_HEADERS) {
+      out[h] = (
+        <ScaledPhone>
+          <MenuPreview entries={shownEntries} header={h} color={color} accent={accent} dark={siteDark} nameOf={nameOf} iconOf={iconOf} t={t} lang={previewLang} />
+        </ScaledPhone>
+      );
+    }
+    if (system) out.system = <SystemAccountPhone look={followedLook(system, "account")} dark={siteDark} lang={previewLang} brand={main} accent={second} image={system.image_url ?? look.image_url ?? null} />;
+    return out;
+    // nameOf and iconOf follow previewLang and the entries.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [shownEntries, color, accent, siteDark, previewLang, system, main, second, look.image_url, t]);
 
   return (
     <div className="grid gap-6 lg:grid-cols-[minmax(0,1fr)_340px]">
@@ -267,30 +315,34 @@ export function ScreensEditor({
           <h2 id="h-sign-in-look" className="m-0 text-lg font-bold">
             {t("studio.signInLook")}
           </h2>
-          {/* 132.6 With a system screens' look: sign-in follows it, or has its own. */}
-          {system ? (
-            <label className={`flex cursor-pointer items-start gap-3 rounded-xl border p-3 ${signInChrome ? "border-2 border-midnight" : "border-line"}`} data-sign-in-follow="">
-              <input type="radio" name="sign_in_style" value="system" checked={Boolean(signInChrome)} onChange={followSignIn} className="mt-1 h-4 w-4 accent-midnight" />
-              <span className="flex flex-col gap-0.5">
-                <span className="text-sm font-bold">{t("studio.followSystem", { look: t(LOOK_NAMES[followedLook(system, "sign_in")]) })}</span>
-                <span className="text-xs text-muted">{t("studio.signInFollowHint")}</span>
-              </span>
-            </label>
-          ) : null}
           {system && signInChrome ? <p className="m-0 text-sm text-muted">{t("studio.signInOwnNote")}</p> : null}
-          <fieldset className="m-0 grid grid-cols-2 gap-3 border-0 p-0 sm:grid-cols-5">
+          {/* 132.9 Each look as a picture, drawn as the app draws it in the app's language, logo, colours and photo; 132.6 with a system screens' look, following it first. */}
+          <fieldset className="m-0 grid grid-cols-2 gap-3 border-0 p-0 sm:grid-cols-3" data-sign-in-looks="">
             <legend className="sr-only">{t("studio.signInLook")}</legend>
-            {SIGN_IN_STYLES.map((style) => {
-              const on = !signInChrome && look.style === style;
-              return (
-                <label key={style} className={`flex cursor-pointer flex-col gap-2 rounded-xl border p-3 ${on ? "border-2 border-midnight" : "border-line"}`}>
-                  <input type="radio" name="sign_in_style" value={style} checked={on} onChange={() => pickSignInStyle(style)} className="sr-only" />
-                  <StyleThumb style={style} color={color} />
-                  <span className="text-sm font-bold">{t(STYLE_WORDS[style].label)}</span>
-                  <span className="text-xs text-muted">{t(STYLE_WORDS[style].hint)}</span>
-                </label>
-              );
-            })}
+            {system ? (
+              <LookChoice
+                name="sign_in_style"
+                value="system"
+                testId="system"
+                checked={Boolean(signInChrome)}
+                onChange={followSignIn}
+                title={t("studio.followSystem", { look: t(LOOK_NAMES[followedLook(system, "sign_in")]) })}
+                hint={t("studio.signInFollowHint")}
+                picture={signInPictures.system}
+              />
+            ) : null}
+            {SIGN_IN_STYLES.map((style) => (
+              <LookChoice
+                key={style}
+                name="sign_in_style"
+                value={style}
+                checked={!signInChrome && look.style === style}
+                onChange={() => pickSignInStyle(style)}
+                title={t(STYLE_WORDS[style].label)}
+                hint={t(STYLE_WORDS[style].hint)}
+                picture={signInPictures[style]}
+              />
+            ))}
           </fieldset>
 
           {!signInChrome && (look.style === "photo" || look.style === "card" || look.style === "premium") ? (
@@ -299,7 +351,15 @@ export function ScreensEditor({
                 // eslint-disable-next-line @next/next/no-img-element
                 <img src={look.image_url} alt="" className="h-20 w-14 rounded-lg object-cover" />
               ) : null}
-              <MediaPicker kind="image" library onPick={(url) => setLook((l) => ({ ...l, image_url: url }))} label={t("studio.signInPhoto")} />
+              <MediaPicker
+                kind="image"
+                library
+                onPick={(url) => {
+                  setLook((l) => ({ ...l, image_url: url }));
+                  setLastPhoto(url);
+                }}
+                label={t("studio.signInPhoto")}
+              />
               {look.image_url ? (
                 <button type="button" className={`${btn.ghost} h-10 text-sm`} onClick={() => setLook((l) => ({ ...l, image_url: null }))}>
                   {t("studio.removePhoto")}
@@ -370,28 +430,31 @@ export function ScreensEditor({
           </h2>
           <fieldset className="m-0 border-0 p-0">
             <legend className="mb-2 text-[15px] font-bold">{t("studio.menuTop")}</legend>
-            <div className="grid grid-cols-2 gap-2.5 sm:grid-cols-3 xl:grid-cols-5">
-              {/* 132.6 With a system screens' look the account follows it, or has the top chosen here. */}
+            {/* 132.9 Each top as a picture of the menu, as the app draws it; 132.6 with a system screens' look, following it first. */}
+            <div className="grid grid-cols-2 gap-3 sm:grid-cols-3" data-menu-looks="">
               {system ? (
-                <label className={`flex cursor-pointer flex-col gap-1 rounded-xl border p-3 text-[14px] ${accountChrome ? "border-midnight ring-1 ring-midnight" : "border-line"}`} data-menu-follow="">
-                  <span className="flex items-center gap-2 font-semibold">
-                    <input type="radio" name="menu_header" checked={Boolean(accountChrome)} onChange={() => setSystem(withOwnScreens(system, { account: null }))} className="h-4 w-4 accent-midnight" />
-                    {t("studio.followSystem", { look: t(LOOK_NAMES[followedLook(system, "account")]) })}
-                  </span>
-                  <span className="text-[13px] text-muted">{t("studio.menuTopFollowHint")}</span>
-                </label>
+                <LookChoice
+                  name="menu_header"
+                  value="system"
+                  testId="system"
+                  checked={Boolean(accountChrome)}
+                  onChange={() => setSystem(withOwnScreens(system, { account: null }))}
+                  title={t("studio.followSystem", { look: t(LOOK_NAMES[followedLook(system, "account")]) })}
+                  hint={t("studio.menuTopFollowHint")}
+                  picture={menuPictures.system}
+                />
               ) : null}
               {ACCOUNT_HEADERS.map((h) => (
-                <label
+                <LookChoice
                   key={h}
-                  className={`flex cursor-pointer flex-col gap-1 rounded-xl border p-3 text-[14px] ${!accountChrome && header === h ? "border-midnight ring-1 ring-midnight" : "border-line"}`}
-                >
-                  <span className="flex items-center gap-2 font-semibold">
-                    <input type="radio" name="menu_header" checked={!accountChrome && header === h} onChange={() => pickHeader(h)} className="h-4 w-4 accent-midnight" />
-                    {t(HEADER_NAMES[h])}
-                  </span>
-                  <span className="text-[13px] text-muted">{t(HEADER_HINTS[h])}</span>
-                </label>
+                  name="menu_header"
+                  value={h}
+                  checked={!accountChrome && header === h}
+                  onChange={() => pickHeader(h)}
+                  title={t(HEADER_NAMES[h])}
+                  hint={t(HEADER_HINTS[h])}
+                  picture={menuPictures[h]}
+                />
               ))}
             </div>
           </fieldset>
@@ -701,20 +764,17 @@ export function ScreensEditor({
             title={shownTitle}
             subtitle={shownSubtitle}
             appName={appName}
-            color={brand?.main ?? color}
-            second={brand?.second ?? null}
+            color={main}
+            second={second}
             dark={previewDark}
-            t={t}
+            lang={previewLang}
+            logoUrl={logoUrl}
           />
           {accountChrome ? (
             // 130.21 The account in the system screens' look, as Studio's canvas draws it, made small.
-            <div className="relative aspect-[9/19] overflow-hidden rounded-[22px] border-[5px] border-midnight" data-testid="menu-preview" data-header={`system-${accountChrome}`} data-dark={previewDark ? "" : undefined}>
-              <div className="pointer-events-none absolute start-0 top-0 flex w-[390px] origin-top-left flex-col rtl:origin-top-right" style={{ transform: "scale(0.39)", height: 820 }}>
-                <SystemScreen screen="account" look={accountChrome} dark={previewDark} lang={previewLang} brand={brand?.main ?? color} accent={brand?.second ?? null} image={system?.image_url ?? look.image_url ?? null} title={null} hidesTitle={false} top={44} />
-              </div>
-            </div>
+            <SystemAccountPhone look={accountChrome} dark={previewDark} lang={previewLang} brand={main} accent={second} image={system?.image_url ?? look.image_url ?? null} testId="menu-preview" />
           ) : (
-            <MenuPreview entries={entries.filter((e) => !e.hidden)} header={header} color={color} accent={accent} dark={previewDark} nameOf={nameOf} iconOf={iconOf} t={t} />
+            <MenuPreview entries={shownEntries} header={header} color={color} accent={accent} dark={previewDark} nameOf={nameOf} iconOf={iconOf} t={t} lang={previewLang} testId="menu-preview" />
           )}
         </div>
       </aside>
@@ -722,37 +782,16 @@ export function ScreensEditor({
   );
 }
 
-/** The look's small drawing in its choice. */
-function StyleThumb({ style, color }: { style: SignInStyle; color: string }) {
-  const bar = <span className="block h-1.5 w-full rounded-full bg-[#D9D3C7]" />;
-  if (style === "premium") {
-    // 123 The welcome over the photo, the form on a card at the foot, the button in gold.
-    return (
-      <span aria-hidden="true" className="relative block aspect-[9/16] w-full overflow-hidden rounded-lg border border-line" style={{ background: "linear-gradient(200deg,#D9B36C 0%,#2A2D5C 38%,#F7F3EC 72%)" }}>
-        <span className="absolute inset-x-2 top-3 flex flex-col gap-1">
-          <span className="block h-2 w-3/4 rounded-full bg-white/90" />
-          <span className="block h-1.5 w-1/2 rounded-full bg-white/60" />
-        </span>
-        <span className="absolute inset-x-1.5 bottom-1.5 flex flex-col gap-1 rounded-md bg-white p-1.5 shadow-sm">
-          {bar}
-          <span className="block h-2 w-full rounded" style={{ background: "linear-gradient(90deg,#E7C982,#B8893A)" }} />
-        </span>
-      </span>
-    );
-  }
+/** 130.21 The account in the system screens' look, as Studio's canvas draws it (components/studio/premium-chrome.tsx), in a phone made small. */
+function SystemAccountPhone({ look, dark, lang, brand, accent, image, testId }: { look: SystemLook; dark: boolean; lang: string; brand: string; accent: string | null; image: string | null; testId?: string }) {
   return (
-    <span aria-hidden="true" className="relative block aspect-[9/16] w-full overflow-hidden rounded-lg border border-line" style={{ background: style === "photo" ? "#2A3350" : "#F7F3EC" }}>
-      {style === "card" ? <span className="absolute inset-x-0 top-0 h-[45%]" style={{ background: "#2A3350" }} /> : null}
-      <span
-        className={`absolute inset-x-2 flex flex-col gap-1 rounded-md p-1.5 ${style === "card" ? "top-[38%] bg-white" : style === "minimal" ? "top-[30%] items-center" : "bottom-3"}`}
-        style={style === "photo" ? { background: "rgba(255,255,255,.14)" } : undefined}
-      >
-        {style === "minimal" ? <span className="block h-4 w-4 rounded-full" style={{ background: color }} /> : null}
-        {bar}
-        {bar}
-        <span className="block h-2 w-full rounded" style={{ background: color }} />
-      </span>
-    </span>
+    <ScaledPhone width={390}>
+      <div className="relative aspect-[9/19] overflow-hidden rounded-[54px] border-[12px] border-midnight" data-testid={testId} data-header={`system-${look}`} data-dark={dark ? "" : undefined} dir={lang === "ar" ? "rtl" : "ltr"}>
+        <div className="flex flex-col">
+          <SystemScreen screen="account" look={look} dark={dark} lang={lang} brand={brand} accent={accent} image={image} title={null} hidesTitle={false} top={44} />
+        </div>
+      </div>
+    </ScaledPhone>
   );
 }
 
@@ -765,7 +804,12 @@ function MenuPreview({
   nameOf,
   iconOf,
   t,
+  lang,
+  testId,
 }: {
+  /** 132.9 The app language shown: the sample person's name and Sign out in the app's words, its reading direction. */
+  lang: string;
+  testId?: string;
   entries: Entry[];
   header: AccountHeader;
   color: string;
@@ -776,6 +820,8 @@ function MenuPreview({
   t: ReturnType<typeof useDashT>;
 }) {
   const night = header === "night";
+  // 132.9 The app's own words for the sample person and signing out.
+  const w = chromeWords(lang);
   // 119 The premium look: a dark page in dark mode, a warm light one in light mode; its card stays dark.
   const th = night ? (dark ? { page: "#0D1210", surface: "#141B18", text: "#F2F4F3", muted: "#A3ADA8", line: "#222B27" } : { page: "#F6F2EA", surface: "#FFFFFF", text: "#1C1A16", muted: "#6B6457", line: "#E9E1D0" }) : previewTheme(dark);
   const required = (e: Entry) => e.key !== "link" && REQUIRED_ACCOUNT_ITEMS.includes(e.key);
@@ -786,12 +832,12 @@ function MenuPreview({
   const deepAccent = night && !dark ? darken(accent) : accent;
   const name = (
     <span className="flex min-w-0 flex-col">
-      <span className="truncate font-extrabold">{t("studio.previewName")}</span>
+      <span className="truncate font-extrabold">{w.sampleName}</span>
       <span style={{ color: header === "card" ? undefined : th.muted, opacity: header === "card" ? 0.8 : 1 }}>+20 100 000 0000</span>
     </span>
   );
   return (
-    <div className="relative aspect-[9/19] overflow-hidden rounded-[22px] border-[5px] border-midnight text-[10px]" style={{ background: th.page, color: th.text }} data-testid="menu-preview" data-header={header} data-dark={dark ? "" : undefined}>
+    <div className="relative aspect-[9/19] overflow-hidden rounded-[22px] border-[5px] border-midnight text-[10px]" style={{ background: th.page, color: th.text }} data-testid={testId} data-header={header} data-dark={dark ? "" : undefined} dir={lang === "ar" ? "rtl" : "ltr"}>
       {header === "cover" ? <div className="absolute inset-x-0 top-0 h-16" style={{ background: color }} /> : null}
       <div className="relative flex flex-col gap-2 p-2">
         {header === "cover" ? (
@@ -835,7 +881,7 @@ function MenuPreview({
               <span className="flex items-center gap-1.5">
                 <span className="h-6 w-6 rounded-full border-2" style={{ borderColor: accent, background: "#3A3326" }} />
                 <span className="flex min-w-0 flex-col">
-                  <span className="truncate font-extrabold">{t("studio.previewName")}</span>
+                  <span className="truncate font-extrabold">{w.sampleName}</span>
                   <span className="opacity-70">+20 100 000 0000</span>
                 </span>
               </span>
@@ -853,7 +899,7 @@ function MenuPreview({
             <div className="flex h-14 flex-col justify-between rounded-xl border p-1.5" style={{ background: "#18211D", borderColor: "#2A3530" }}>
               <span className="text-[8px] text-[#A3ADA8]">{t("studio.previewMemberCard")}</span>
               <span className="text-[13px] font-extrabold" style={{ color: accent }}>
-                {t("studio.previewName")}
+                {w.sampleName}
               </span>
             </div>
             <span className="grid grid-cols-3 gap-1">
@@ -882,7 +928,7 @@ function MenuPreview({
           ))}
         </div>
         <span className="block rounded-xl px-2 py-1.5 font-bold" style={{ background: th.surface, color: dark ? "#F0907F" : "#B42318" }}>
-          {t("studio.previewSignOut")}
+          {w.rows.logOut}
         </span>
       </div>
     </div>

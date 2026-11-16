@@ -2,7 +2,7 @@ import type { Lang } from "@/i18n/config";
 import type { DashT } from "@/i18n/dashboard";
 import type { AccountState } from "../license/status";
 import type { DataStore } from "../data/store";
-import type { App, Client, License, OwnerDevice, User } from "../data/types";
+import type { App, Client, License, OwnerDevice, PrimeGift, User } from "../data/types";
 import type { MediaStorage } from "../media/storage";
 import type { ProviderUrls } from "../payments/provider";
 import type { ChatDeps } from "../chat/service";
@@ -71,6 +71,8 @@ export interface OwnerContext {
   /** The business's apps the person works on (all of them for the owner). */
   apps: App[];
   licenses: License[];
+  /** 132 Prime given as a gift to some of the client's apps. */
+  primeGifts: PrimeGift[];
   /** The whole account's state, as the dashboard has it. */
   state: AccountState;
   lang: Lang;

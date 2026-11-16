@@ -114,7 +114,17 @@ export interface PlanReceiptInput {
   invoiceLines: string[];
 }
 
-/** A client's payment to Yallapp: a plan (with the storage packs renewed with it) or storage packs. */
+/** 133 The receipt's word for a plan payment's period. */
+function periodWordKey(months: number): "oneMonth" | "sixMonths" | "oneYear" | "twoYears" | "threeYears" | "lifetime" {
+  return months === 1 ? "oneMonth" : months === 6 ? "sixMonths" : months === 24 ? "twoYears" : months === 36 ? "threeYears" : months === 0 ? "lifetime" : "oneYear";
+}
+
+/** 133 The receipt's word for how an add-on is paid. */
+function addonDetailKey(billing: NonNullable<PlanPayment["addon"]>["billing"]): "oneTimePayment" | "oneMonth" | "sixMonths" | "oneYear" | "twoYears" | "threeYears" | "lifetime" {
+  return billing === "once" ? "oneTimePayment" : periodWordKey(billing === "lifetime" ? 0 : Number(billing));
+}
+
+/** A client's payment to Yallapp: a plan (with the storage packs renewed with it), storage packs, or 133 an add-on. */
 export function planReceipt(input: PlanReceiptInput): ReceiptDocument {
   const { lang, payment } = input;
   const w = wordsFor(lang);
@@ -126,9 +136,12 @@ export function planReceipt(input: PlanReceiptInput): ReceiptDocument {
   const items: ReceiptItem[] = [];
   const packItems: ReceiptItem[] = (payment.storagePacks ?? []).map((p) => ({ name: w("storageItem", { packs: ltrSpan(`+${p.gb} GB`) }), detail: w("storageDetail"), quantity: 1, amount: fmt(p.cents) }));
   if (payment.purpose === "storage") items.push(...packItems);
-  else {
+  // 133 An add-on: its name, and how it's paid.
+  else if (payment.purpose === "addon" && payment.addon) {
+    items.push({ name: w("addonItem", { addon: payment.addon.name }), detail: w(addonDetailKey(payment.addon.billing)), quantity: 1, amount: fmt(payment.amountCents + discount) });
+  } else {
     const planCents = payment.amountCents + discount - packCents;
-    const planItem = { name: w("planItem", { plan: input.planName }), detail: w(payment.months === 1 ? "oneMonth" : "oneYear"), quantity: 1 };
+    const planItem = { name: w("planItem", { plan: input.planName }), detail: w(periodWordKey(payment.months)), quantity: 1 };
     // What the plan cost is what is left of the charge; if that doesn't add up (it always should), one line with the charge.
     if (planCents >= 0) items.push({ ...planItem, amount: fmt(planCents) }, ...packItems);
     else items.push({ ...planItem, detail: [planItem.detail, payment.storagePacks?.length ? w("storageRenewed", { packs: packs(payment) }) : ""].filter(Boolean).join(" · "), amount: fmt(payment.amountCents) });

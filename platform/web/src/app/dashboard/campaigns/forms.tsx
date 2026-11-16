@@ -193,7 +193,7 @@ export function DonationSettingsForm({
   currencyLocked,
 }: {
   settings: { currency: string; iosMode: "browser" | "off" };
-  /** 133.1 Any ISO 4217 currency now: the picker lists them all. */
+  /** 135.1 Any ISO 4217 currency now: the picker lists them all. */
   currencies?: readonly string[];
   currencyLocked: boolean;
 }) {
@@ -203,7 +203,7 @@ export function DonationSettingsForm({
   return (
     <form action={action} noValidate className="flex flex-col gap-4">
       <FormMessage message={state.message} ok={state.ok} />
-      {/* 133.3 Any currency, searched; once donations came in it stays (the field is then read-only and sent as it is). */}
+      {/* 135.3 Any currency, searched; once donations came in it stays (the field is then read-only and sent as it is). */}
       {currencyLocked ? <input type="hidden" name="currency" value={settings.currency} /> : null}
       <CurrencyPicker
         id="f-currency"

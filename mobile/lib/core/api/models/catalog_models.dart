@@ -112,7 +112,7 @@ class Price {
     display: DisplayMoney.tryParse(json['display']),
   );
 
-  /// 133.5 The price in the customer's currency; null when none.
+  /// 135.5 The price in the customer's currency; null when none.
   final DisplayMoney? display;
 
   final bool isFree;
@@ -122,7 +122,7 @@ class Price {
   final String? formatted;
 
   /// The text shown for the price: "Free", the site's formatted price, or the
-  /// amount with its currency. 133.5 With the customer's currency: "E£600.00
+  /// amount with its currency. 135.5 With the customer's currency: "E£600.00
   /// · ≈ \$12.37".
   String get label {
     if (isFree) return currentL10n.free;

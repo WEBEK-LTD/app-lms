@@ -78,7 +78,7 @@ class _ReviewCardState extends ConsumerState<ReviewCard> {
       context: context,
       isScrollControlled: true,
       showDragHandle: true,
-      builder: (_) => _ReplySheet(initial: _review.reply?.text ?? ''),
+      builder: (_) => ReplySheet(initial: _review.reply?.text ?? ''),
     );
     if (text == null || text.trim().isEmpty || !mounted) return;
     final api = ref.read(apiProvider);
@@ -181,16 +181,19 @@ class _ReviewCardState extends ConsumerState<ReviewCard> {
   }
 }
 
-class _ReplySheet extends StatefulWidget {
-  const _ReplySheet({required this.initial});
+/// The business's reply, written or changed: a course review's, 132 a
+/// customer's rating's ([help] says who sees it).
+class ReplySheet extends StatefulWidget {
+  const ReplySheet({super.key, required this.initial, this.help});
 
   final String initial;
+  final String? help;
 
   @override
-  State<_ReplySheet> createState() => _ReplySheetState();
+  State<ReplySheet> createState() => _ReplySheetState();
 }
 
-class _ReplySheetState extends State<_ReplySheet> {
+class _ReplySheetState extends State<ReplySheet> {
   late final _text = TextEditingController(text: widget.initial);
 
   @override
@@ -215,7 +218,7 @@ class _ReplySheetState extends State<_ReplySheet> {
         children: [
           Text(l10n.yourReply, style: Theme.of(context).textTheme.titleMedium),
           const SizedBox(height: 4),
-          Text(l10n.replyPublicHelp),
+          Text(widget.help ?? l10n.replyPublicHelp),
           const SizedBox(height: 12),
           TextField(
             controller: _text,

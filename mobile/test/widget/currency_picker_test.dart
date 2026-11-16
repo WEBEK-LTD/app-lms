@@ -43,7 +43,7 @@ Map<String, dynamic> _display(String currency, Map<String, String> values) => {
 
 void main() {
   testWidgets(
-    '133.5 the currency follows the phone\'s region, the picker lists the shop\'s first, and a pick is kept',
+    '135.5 the currency follows the phone\'s region, the picker lists the shop\'s first, and a pick is kept',
     (tester) async {
       final api = _shop();
       final app = TestApp(
@@ -108,7 +108,7 @@ void main() {
     },
   );
 
-  test('133.5 the picker\'s groups, searched', () {
+  test('135.5 the picker\'s groups, searched', () {
     final all = [
       for (final c in ['EGP', 'KWD', 'USD', 'JPY'])
         CurrencyChoice(
@@ -156,7 +156,7 @@ void main() {
   });
 
   testWidgets(
-    '133.5 a price shows in the customer\'s currency, the shop\'s under it, right to left in Arabic too',
+    '135.5 a price shows in the customer\'s currency, the shop\'s under it, right to left in Arabic too',
     (tester) async {
       final price = ProductPrice.fromJson({
         ...priceJson('600.00', formatted: 'E£600.00'),
@@ -182,7 +182,7 @@ void main() {
     },
   );
 
-  testWidgets('133.7 the cart says what is paid, and in which currency', (
+  testWidgets('135.7 the cart says what is paid, and in which currency', (
     tester,
   ) async {
     late BuildContext context;

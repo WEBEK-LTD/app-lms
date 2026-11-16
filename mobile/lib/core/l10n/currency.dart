@@ -3,7 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../storage/local_settings.dart';
 import 'language.dart';
 
-/// 133.5 The customer's currency: prices also show in it, at the day's
+/// 135.5 The customer's currency: prices also show in it, at the day's
 /// rate (the server converts; the shop's prices stay). The customer's pick
 /// in Settings, else the currency of the phone's region (never where the
 /// phone is: no location is read); null when the region has none we know.
@@ -16,7 +16,7 @@ final appCurrencyProvider = Provider<String?>((ref) {
   );
 });
 
-/// 133.5 The currency of a region (ISO 3166 alpha-2, "EG", "KW"); null for
+/// 135.5 The currency of a region (ISO 3166 alpha-2, "EG", "KW"); null for
 /// none or one we don't know.
 String? regionCurrency(String? region) {
   if (region == null || region.length != 2) return null;
@@ -56,7 +56,7 @@ const _regions =
     'VG:USD VI:USD VN:VND VU:VUV WF:XPF WS:WST XK:EUR YE:YER YT:EUR ZA:ZAR '
     'ZM:ZMW ZW:ZWG';
 
-/// 133.5 Saves the customer's pick (null: back to the phone's region); the
+/// 135.5 Saves the customer's pick (null: back to the phone's region); the
 /// content reloads with prices in it.
 void changeCurrency(WidgetRef ref, String? code) {
   ref.read(localSettingsProvider.notifier).setCurrency(code);

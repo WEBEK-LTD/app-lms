@@ -15,6 +15,8 @@ import type { CatalogCurrency } from "../data/types";
 import { mainCurrency, saleEvents } from "./prime";
 import { pushMorningBrief, pushPrimeAlert, type OwnerPushDeps, type Words } from "./push";
 import { isPrimeLicense } from "./sales";
+import { goalProgress } from "./prime-plus";
+import { primeGiftActive } from "../admin/prime-gift";
 
 /**
  * 125 Prime's scheduled checks, from the frequent job (every 5 minutes): each
@@ -38,7 +40,7 @@ const RATING_HOURS = 24;
 /** Claimed pushes are kept this long. */
 const KEEP_DAYS = 3;
 
-/** 133.2 Sales are in cents in every currency (lib/owner/prime.ts), written with its digits. */
+/** 135.2 Sales are in cents in every currency (lib/owner/prime.ts), written with its digits. */
 function amount(cents: number, currency: string): string {
   return formatCents(cents, currency as CatalogCurrency);
 }
@@ -137,6 +139,22 @@ async function findings(store: DataStore, app: App, alert: PrimeAlertSetting, zo
       }
       return out;
     }
+    case "low_stock": {
+      // 132 A product with this many left or fewer; sold out told on its own.
+      const threshold = alert.threshold ?? 3;
+      for (const p of await store.listCatalogProducts(app.id)) {
+        if (!p.active || p.addon || p.stock === null || p.stock > threshold) continue;
+        const out0 = p.stock === 0;
+        out.push({
+          item: `p${p.id}:${out0 ? "out" : "low"}`,
+          ids: { product_id: String(p.id) },
+          word: (w) => ({ title: out0 ? w.t("owner.prime.soldOut", { name: p.name }) : w.t("owner.prime.lowStock", { name: p.name, count: String(p.stock) }), body: w.t("owner.prime.lowStockBody") }),
+        });
+      }
+      return out;
+    }
+    case "sales_goal":
+      return out;
     case "sales_low": {
       // Once the day's time came: the day's sales so far below the amount.
       const local = utcToLocal(now, zone);
@@ -187,7 +205,9 @@ export async function runPrimeChecks(deps: OwnerPushDeps): Promise<PrimeRunRepor
       const app = await store.getAppById(row.appId);
       if (!app || app.clientId !== row.clientId || app.demo || app.deletedAt) continue;
       const license = await store.getLicenseForApp(app.clientId, app.id);
-      if (!isPrimeLicense(license, now) || (license && license.expiresAt.getTime() <= now.getTime())) continue;
+      // 132 Or Prime given as a gift.
+      const prime = isPrimeLicense(license, now) || primeGiftActive(await store.getPrimeGift(app.id), now);
+      if (!prime || (license && license.expiresAt.getTime() <= now.getTime())) continue;
       report.people += 1;
       const zone = zones.get(app.id) ?? (await appZone(store, app));
       zones.set(app.id, zone);
@@ -205,6 +225,11 @@ export async function runPrimeChecks(deps: OwnerPushDeps): Promise<PrimeRunRepor
 async function alertsFor(deps: OwnerPushDeps, app: App, row: PrimeAlerts, zone: string, date: string): Promise<number> {
   let sent = 0;
   for (const alert of row.alerts.filter((a) => a.on)) {
+    // 132 A goal is told once per period, not per day.
+    if (alert.kind === "sales_goal") {
+      sent += await goalFor(deps, app, row, alert, zone);
+      continue;
+    }
     for (const found of await findings(deps.store, app, alert, zone, deps.now)) {
       if (!(await deps.store.claimPrimeSend(`alert:${row.userId}:${app.id}:${alert.kind}:${found.item}:${date}`, deps.now))) continue;
       await pushPrimeAlert(deps, app, row.userId, alert.kind, found.word, found.ids);
@@ -212,6 +237,24 @@ async function alertsFor(deps: OwnerPushDeps, app: App, row: PrimeAlerts, zone: 
     }
   }
   return sent;
+}
+
+/** 132 The sales goal reached: pushed once in its period (kept on the person's alerts). */
+async function goalFor(deps: OwnerPushDeps, app: App, row: PrimeAlerts, alert: PrimeAlertSetting, zone: string): Promise<number> {
+  if ((alert.amountCents ?? 0) <= 0) return 0;
+  const p = await goalProgress(deps.store, app, appAreas(app), alert, zone, deps.now);
+  if (!p.reached || alert.reachedFor === p.key) return 0;
+  if (!(await deps.store.claimPrimeSend(`goal:${row.userId}:${app.id}:${p.period}:${p.key}`, deps.now))) return 0;
+  await pushPrimeAlert(
+    deps,
+    app,
+    row.userId,
+    "sales_goal",
+    (w) => ({ title: w.t("owner.prime.goalReached"), body: w.t("owner.prime.goalReachedBody", { amount: amount(p.current, p.currency), goal: amount(p.target, p.currency) }) }),
+    {},
+  );
+  await deps.store.savePrimeAlerts({ ...row, alerts: row.alerts.map((a) => (a.kind === "sales_goal" ? { ...a, reachedFor: p.key } : a)), updatedAt: deps.now });
+  return 1;
 }
 
 async function briefFor(deps: OwnerPushDeps, app: App, row: PrimeAlerts, zone: string, date: string): Promise<number> {

@@ -5,7 +5,7 @@ import { parsePrice } from "./money";
  * dashboard's product form and 58 the Owner API's quick edit: the same rules
  * and messages.
  */
-export function readProductNumbers(v: { price: string; salePrice: string; stock: string; weight?: string; /** 133.2 The shop's currency, for its digits. */ currency?: string | null }): {
+export function readProductNumbers(v: { price: string; salePrice: string; stock: string; weight?: string; /** 135.2 The shop's currency, for its digits. */ currency?: string | null }): {
   errors: Record<string, string>;
   priceCents: number | null;
   salePriceCents: number | null;

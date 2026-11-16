@@ -11,6 +11,9 @@ import type {
   LoyaltyReason, OrderPoints, OrderReturn, OrderShipment, CatalogVariants, CatalogOrder, OrderManualPayment,
   // 131 The flower shop
   OrderDelivery,
+  DeliveryStage,
+  OrderStageEntry,
+  OrderStageRefund,
   OrderCustomerCurrency,
   StoreFlashSale,
   AddonRule,
@@ -75,7 +78,10 @@ import type {
 import type { BuildFailure, BuildRelease, BuildVariant, ListingTranslation, ReviewsRow, RolloutState, ScreenshotFrame, StagedRelease } from "../data/types";
 import type { ApiWebhookData, OwnFontFile, StorePurchaseEventKind, StoreAccountSource, StoreBillingItem, StoreBillingSettings, StorePlatform, StoreProductKind, StoreProductSync } from "../data/types";
 import type { AnnouncementAudience, AnnouncementKind, AnnouncementSeverity, CouponDiscount, CouponRedemption } from "../data/types";
-import type { Plan } from "../plans";
+import type { Plan, PlanFeature } from "../plans";
+// 133 Add-ons
+import type { AddonBilling, AddonKind, AddonLimit, AddonTaskStatus, AppAddonStatus, PaidAddon } from "../addons/types";
+import type { PeriodMonths } from "../billing/periods";
 import type { ArabicTag, MatchedStep, PhraseLang } from "../bot/intents";
 import type { BotUnmatchedStatus } from "../bot/types";
 import type { MailAudience, MailCampaignStatus, MailContactSource, MailContents, MailEventKind, MailLang, MailRecipientStatus, MailSuppressionReason } from "../mailing/types";
@@ -121,6 +127,8 @@ import type {
   DeliverySettings,
   FoodOrderLine,
   FoodOrderStage,
+  FoodOrder,
+  Ride,
   DriverDetails,
   RideCancellation,
   RideFareMode,
@@ -822,7 +830,12 @@ export const catalogOrders = mysqlTable(
     // 131 The delivery day and slot and the gift details (JSON), and the day apart for counting a slot's orders.
     delivery: jsonText<OrderDelivery>("delivery"),
     deliveryDate: varchar("delivery_date", { length: 10 }),
-    // 133.7 The total in the customer's currency at checkout, its rate and day, and whether the card was charged in it (JSON).
+    // 132 Where its delivery is, and every change of it (JSON).
+    deliveryStage: varchar("delivery_stage", { length: 16 }).$type<DeliveryStage>(),
+    stageLog: jsonText<OrderStageEntry[]>("stage_log"),
+    // 132 The money back after a failed delivery cancelled it (JSON).
+    stageRefund: jsonText<OrderStageRefund>("stage_refund"),
+    // 135.7 The total in the customer's currency at checkout, its rate and day, and whether the card was charged in it (JSON).
     customerCurrency: jsonText<OrderCustomerCurrency>("customer_currency"),
   },
   (t) => [
@@ -857,7 +870,8 @@ export const planPayments = mysqlTable(
     /** The app whose plan it pays; null for a payment before the account's first app (creating it fills this in). */
     appId: id("app_id").references(() => apps.id, { onDelete: "set null" }),
     plan: varchar("plan", { length: 16 }).notNull().$type<Plan>(),
-    months: int("months").notNull().$type<1 | 12>(),
+    // 133 1, 6, 12, 24 or 36 months, or 0 for life (an add-on's one-time payment too).
+    months: int("months").notNull().$type<PeriodMonths>(),
     amountCents: bigint("amount_cents", { mode: "number", unsigned: true }).notNull(),
     currency: varchar("currency", { length: 3 }).notNull().$type<CatalogCurrency>(),
     status: varchar("status", { length: 16 }).notNull().$type<PlanPaymentStatus>(),
@@ -882,6 +896,8 @@ export const planPayments = mysqlTable(
     recordedBy: varchar("recorded_by", { length: 191 }),
     // The website's live activity card: the client allowed their first name and plan on the website (null: not allowed).
     showOnSite: boolean("show_on_site"),
+    // 133 An add-on payment: which add-on and how it's paid (null: a plan or storage packs).
+    addon: jsonText<PaidAddon>("addon"),
   },
   (t) => [
     uniqueIndex("plan_payments_token_unique").on(t.tokenHash),
@@ -2100,7 +2116,7 @@ export const foodOrders = mysqlTable(
     readyAt: time("ready_at"),
     rejection: jsonText<{ reason: FoodRejection; note: string | null } | null>("rejection"),
     shipmentId: bigint("shipment_id", { mode: "number", unsigned: true }),
-    rating: jsonText<{ restaurant: number; courier: number | null; comment: string | null; at: string } | null>("rating"),
+    rating: jsonText<FoodOrder["rating"]>("rating"),
     timeline: jsonText<FoodOrderStage[]>("timeline").notNull(),
     lang: varchar("lang", { length: 8 }),
     createdAt: time("created_at").notNull(),
@@ -2189,7 +2205,7 @@ export const rides = mysqlTable(
     cancellation: jsonText<RideCancellation | null>("cancellation"),
     feeCarriedTo: bigint("fee_carried_to", { mode: "number", unsigned: true }),
     shareToken: varchar("share_token", { length: 40 }),
-    rating: jsonText<{ driver: number; comment: string | null; at: string } | null>("rating"),
+    rating: jsonText<Ride["rating"]>("rating"),
     timeline: jsonText<RideStage[]>("timeline").notNull(),
     lang: varchar("lang", { length: 8 }),
     createdAt: time("created_at").notNull(),
@@ -2566,7 +2582,10 @@ export const coupons = mysqlTable(
     note: varchar("note", { length: 200 }).notNull(),
     discount: jsonText<CouponDiscount>("discount").notNull(),
     plans: jsonText<Plan[] | null>("plans"),
-    periods: jsonText<(1 | 12)[] | null>("periods"),
+    // 133 Any of the billing periods (0: lifetime or one-time).
+    periods: jsonText<PeriodMonths[] | null>("periods"),
+    // 133 The add-ons it applies to; null: none (coupons from before were for plans only).
+    addons: jsonText<string[] | null>("addons"),
     validFrom: time("valid_from"),
     validUntil: time("valid_until"),
     maxRedemptions: int("max_redemptions"),
@@ -2943,6 +2962,46 @@ export const storagePacks = mysqlTable(
     endedNoticeAt: time("ended_notice_at"),
   },
   (t) => [index("storage_packs_app_idx").on(t.appId, t.activeUntil), index("storage_packs_until_idx").on(t.activeUntil)],
+);
+
+/**
+ * 133 The add-ons each app has (Admin › Add-ons defines them): bought by
+ * card through Yallapp's plan gateway, or given by the team. A service's
+ * task for the team is kept on its row.
+ */
+export const appAddons = mysqlTable(
+  "app_addons",
+  {
+    id: id("id").primaryKey(),
+    clientId: id("client_id")
+      .notNull()
+      .references(() => clients.id, { onDelete: "cascade" }),
+    appId: id("app_id")
+      .notNull()
+      .references(() => apps.id, { onDelete: "cascade" }),
+    addonId: varchar("addon_id", { length: 40 }).notNull(),
+    kind: varchar("kind", { length: 12 }).notNull().$type<AddonKind>(),
+    name: varchar("name", { length: 191 }).notNull(),
+    limit: varchar("limit_key", { length: 48 }).$type<AddonLimit>(),
+    amount: double("amount"),
+    feature: varchar("feature", { length: 32 }).$type<PlanFeature>(),
+    billing: varchar("billing", { length: 12 }).notNull().$type<AddonBilling>(),
+    activeUntil: time("active_until"),
+    status: varchar("status", { length: 12 }).notNull().$type<AppAddonStatus>(),
+    paymentId: id("payment_id"),
+    grantedBy: varchar("granted_by", { length: 191 }),
+    taskStatus: varchar("task_status", { length: 12 }).$type<AddonTaskStatus>(),
+    taskNote: text("task_note"),
+    remindedFor: time("reminded_for"),
+    createdAt: time("created_at").notNull(),
+    updatedAt: time("updated_at").notNull(),
+  },
+  (t) => [
+    index("app_addons_app_idx").on(t.appId, t.createdAt),
+    index("app_addons_client_idx").on(t.clientId, t.createdAt),
+    index("app_addons_until_idx").on(t.activeUntil),
+    index("app_addons_task_idx").on(t.taskStatus, t.createdAt),
+  ],
 );
 
 // 58 Yallapp Business
@@ -5270,6 +5329,25 @@ export const primeAlerts = mysqlTable(
     updatedAt: time("updated_at").notNull(),
   },
   (t) => [primaryKey({ columns: [t.userId, t.appId] }), index("prime_alerts_app_idx").on(t.appId)],
+);
+
+/** 132 Prime given by Yallapp's team as a gift to one app (Admin › client), whatever its plan. */
+export const primeGifts = mysqlTable(
+  "prime_gifts",
+  {
+    appId: id("app_id")
+      .primaryKey()
+      .references(() => apps.id, { onDelete: "cascade" }),
+    clientId: id("client_id")
+      .notNull()
+      .references(() => clients.id, { onDelete: "cascade" }),
+    until: time("until"),
+    note: text("note"),
+    givenBy: varchar("given_by", { length: 191 }).notNull(),
+    createdAt: time("created_at").notNull(),
+    updatedAt: time("updated_at").notNull(),
+  },
+  (t) => [index("prime_gifts_client_idx").on(t.clientId)],
 );
 
 /** The alerts and briefs pushed, each once (an item's alert on a day, a person's brief on a day); kept a few days. */

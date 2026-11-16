@@ -19,6 +19,8 @@ import { withDemoChecked } from "@/lib/demo/apps";
 import { placeDemoOrder } from "@/lib/demo/checkout";
 import { HoldEndedError } from "@/lib/events/holds";
 import { noteAppError } from "@/lib/watch/app-errors";
+import { pushNewOrder } from "@/lib/owner/push";
+import { pushOwnerSafely } from "@/lib/owner/push-env";
 
 /** 16 A demo app's payment page: places the order without taking any payment. */
 export async function demoPayAction(token: string): Promise<void> {
@@ -59,11 +61,13 @@ export async function payAction(token: string, _: FormState, formData: FormData)
     if (!chosen) return { message: "This payment method isn't offered any more. Choose another one.", values };
     const placed = await store.getCatalogOrder(app.id, order.id);
     if (placed) await sendManualOrderMails(store, app, placed, chosen);
+    // 132 The owner's phones hear of it too: it waits for them to mark it paid.
+    if (placed) await pushOwnerSafely((d) => pushNewOrder(d, app, placed), store);
     redirect(`/pay/${token}/order-received`);
   }
   const account = app ? await checkoutAccount(store, app, encryptionKey()) : null;
   if (!app || !account) return { message: "This shop can't take payments right now. Please try again later.", values };
-  // 133.4 Never a currency the gateway doesn't take: said so, nothing sent.
+  // 135.4 Never a currency the gateway doesn't take: said so, nothing sent.
   const charged = chargedAmount(order);
   if (!providerTakes(account.account.provider, charged.currency)) {
     return { message: `${PROVIDER_NAME[account.account.provider]} doesn't take payments in ${charged.currency}, so this shop can't take card payments for now. Choose another way to pay, or go back to the app.`, values };

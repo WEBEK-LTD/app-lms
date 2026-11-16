@@ -206,6 +206,9 @@ export const en = {
     refundOrder: "{app}: refund order {number}",
     refundOrderText:
       "The payment for order {number} arrived after the places held for it were released, and the event had no places left, so no tickets were issued. Refund the payment from your payment provider's panel; the buyer has been told you will.",
+    // 132 A store order cancelled after a failed delivery, to refund.
+    refundDeliveryText:
+      "The delivery of order {number} failed and the order was cancelled. Its payment couldn't be refunded by itself: pay back {amount} to the customer, then mark it refunded on the order.",
     seeOrders: "See orders",
     chatExpiring: "{app}: chat messages will be deleted on {date}",
     chatExpiringText:
@@ -413,6 +416,9 @@ export const ar: Messages = {
     refundOrder: "{app}: رُدّ مبلغ الطلب {number}",
     refundOrderText:
       "وصلت دفعة الطلب {number} بعد إلغاء حجز الأماكن المخصصة له، ولم تبقَ أماكن في الفعالية، فلم تُصدر أي تذاكر. أعد المبلغ من لوحة مزوّد الدفع لديك؛ وقد أُبلغ المشتري بذلك.",
+    // 132 A store order cancelled after a failed delivery, to refund.
+    refundDeliveryText:
+      "توصيل الأوردر {number} ماتمّش والأوردر اتلغى. فلوسه ماقدرتش ترجع لوحدها: رجّع {amount} للعميل، وبعدين علّم على الأوردر إن الفلوس رجعت.",
     seeOrders: "عرض الطلبات",
     chatExpiring: "{app}: ستُحذف رسائل المحادثات في {date}",
     chatExpiringText:
@@ -618,6 +624,9 @@ export const tr: Messages = {
     refundOrder: "{app}: {number} numaralı siparişi iade edin",
     refundOrderText:
       "{number} numaralı siparişin ödemesi, onun için ayrılan yerler serbest bırakıldıktan sonra geldi ve etkinlikte yer kalmadığı için bilet düzenlenmedi. Ödemeyi ödeme sağlayıcınızın panelinden iade edin; alıcıya iade edeceğiniz bildirildi.",
+    // 132 A store order cancelled after a failed delivery, to refund.
+    refundDeliveryText:
+      "{number} numaralı siparişin teslimatı başarısız oldu ve sipariş iptal edildi. Ödemesi kendiliğinden iade edilemedi: müşteriye {amount} geri ödeyin, sonra siparişte iade edildi olarak işaretleyin.",
     seeOrders: "Siparişleri görün",
     chatExpiring: "{app}: sohbet mesajları {date} tarihinde silinecek",
     chatExpiringText:

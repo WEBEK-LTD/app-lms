@@ -1,7 +1,7 @@
 {
   "version": "5",
   "dialect": "mysql",
-  "id": "1e515dd2-b696-4ab7-be92-2dc440731ace",
+  "id": "434ca3a3-ae5d-41a8-9b43-61e9e6450d0b",
   "prevId": "c6bc63a0-f370-40f8-a272-988043943029",
   "tables": {
     "account_deletion_requests": {
@@ -1252,6 +1252,215 @@
       "compositePrimaryKeys": {
         "api_webhooks_id": {
           "name": "api_webhooks_id",
+          "columns": [
+            "id"
+          ]
+        }
+      },
+      "uniqueConstraints": {},
+      "checkConstraint": {}
+    },
+    "app_addons": {
+      "name": "app_addons",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "varchar(36)",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "client_id": {
+          "name": "client_id",
+          "type": "varchar(36)",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "app_id": {
+          "name": "app_id",
+          "type": "varchar(36)",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "addon_id": {
+          "name": "addon_id",
+          "type": "varchar(40)",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "kind": {
+          "name": "kind",
+          "type": "varchar(12)",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "name": {
+          "name": "name",
+          "type": "varchar(191)",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "limit_key": {
+          "name": "limit_key",
+          "type": "varchar(48)",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
+        "amount": {
+          "name": "amount",
+          "type": "double",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
+        "feature": {
+          "name": "feature",
+          "type": "varchar(32)",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
+        "billing": {
+          "name": "billing",
+          "type": "varchar(12)",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "active_until": {
+          "name": "active_until",
+          "type": "datetime(3)",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
+        "status": {
+          "name": "status",
+          "type": "varchar(12)",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "payment_id": {
+          "name": "payment_id",
+          "type": "varchar(36)",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
+        "granted_by": {
+          "name": "granted_by",
+          "type": "varchar(191)",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
+        "task_status": {
+          "name": "task_status",
+          "type": "varchar(12)",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
+        "task_note": {
+          "name": "task_note",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
+        "reminded_for": {
+          "name": "reminded_for",
+          "type": "datetime(3)",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
+        "created_at": {
+          "name": "created_at",
+          "type": "datetime(3)",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "updated_at": {
+          "name": "updated_at",
+          "type": "datetime(3)",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        }
+      },
+      "indexes": {
+        "app_addons_app_idx": {
+          "name": "app_addons_app_idx",
+          "columns": [
+            "app_id",
+            "created_at"
+          ],
+          "isUnique": false
+        },
+        "app_addons_client_idx": {
+          "name": "app_addons_client_idx",
+          "columns": [
+            "client_id",
+            "created_at"
+          ],
+          "isUnique": false
+        },
+        "app_addons_until_idx": {
+          "name": "app_addons_until_idx",
+          "columns": [
+            "active_until"
+          ],
+          "isUnique": false
+        },
+        "app_addons_task_idx": {
+          "name": "app_addons_task_idx",
+          "columns": [
+            "task_status",
+            "created_at"
+          ],
+          "isUnique": false
+        }
+      },
+      "foreignKeys": {
+        "app_addons_client_id_clients_id_fk": {
+          "name": "app_addons_client_id_clients_id_fk",
+          "tableFrom": "app_addons",
+          "tableTo": "clients",
+          "columnsFrom": [
+            "client_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "cascade",
+          "onUpdate": "no action"
+        },
+        "app_addons_app_id_apps_id_fk": {
+          "name": "app_addons_app_id_apps_id_fk",
+          "tableFrom": "app_addons",
+          "tableTo": "apps",
+          "columnsFrom": [
+            "app_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "cascade",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {
+        "app_addons_id": {
+          "name": "app_addons_id",
           "columns": [
             "id"
           ]
@@ -4783,13 +4992,6 @@
           "primaryKey": false,
           "notNull": false,
           "autoincrement": false
-        },
-        "customer_currency": {
-          "name": "customer_currency",
-          "type": "longtext",
-          "primaryKey": false,
-          "notNull": false,
-          "autoincrement": false
         }
       },
       "indexes": {
@@ -6796,6 +6998,13 @@
         },
         "periods": {
           "name": "periods",
+          "type": "longtext",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
+        "addons": {
+          "name": "addons",
           "type": "longtext",
           "primaryKey": false,
           "notNull": false,
@@ -16510,6 +16719,13 @@
         "show_on_site": {
           "name": "show_on_site",
           "type": "boolean",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
+        "addon": {
+          "name": "addon",
+          "type": "longtext",
           "primaryKey": false,
           "notNull": false,
           "autoincrement": false

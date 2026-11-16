@@ -1,5 +1,5 @@
 /**
- * 133.1 Every active ISO 4217 currency an app can sell in, with its minor
+ * 135.1 Every active ISO 4217 currency an app can sell in, with its minor
  * units (how many digits after the point): the Japanese yen and the Korean
  * won have none, the Kuwaiti, Bahraini, Jordanian, Iraqi and Libyan dinars,
  * the Omani rial and the Tunisian dinar three, the rest two. Funds, metals
@@ -30,7 +30,7 @@ const ZERO_DIGITS: ReadonlySet<string> = new Set(["BIF", "CLP", "DJF", "GNF", "I
 /** ISO 4217's minor units of 3 (thousandths: fils, baisa, millimes). */
 const THREE_DIGITS: ReadonlySet<string> = new Set(["BHD", "IQD", "JOD", "KWD", "LYD", "OMR", "TND"]);
 
-/** 133.3 The ones most apps sell in, first in every list, in this order. */
+/** 135.3 The ones most apps sell in, first in every list, in this order. */
 export const PREFERRED_CURRENCIES = ["EGP", "SAR", "AED", "KWD", "QAR", "BHD", "OMR", "JOD", "TRY", "USD", "EUR", "GBP"] as const;
 
 /** Whether `value` is one of the active ISO 4217 codes above ("KWD"; never "kwd" or "XAU"). */
@@ -124,7 +124,7 @@ export interface CurrencyOption {
 const optionLists = new Map<string, CurrencyOption[]>();
 
 /**
- * 133.3 Every currency for a picker in the dashboard's language: the usual
+ * 135.3 Every currency for a picker in the dashboard's language: the usual
  * ones first in PREFERRED_CURRENCIES' order, then all the others A–Z by
  * their name in that language.
  */

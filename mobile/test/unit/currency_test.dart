@@ -8,10 +8,10 @@ import 'package:yallapp/core/format/money.dart';
 import 'package:yallapp/core/l10n/currency.dart';
 import 'package:yallapp/modules/donations/data/donations_providers.dart';
 
-/// 133 Every currency in the app: its digits, a code it doesn't know, the
+/// 135 Every currency in the app: its digits, a code it doesn't know, the
 /// phone's region's currency and the header that asks for it.
 void main() {
-  group('133.2 money in any currency', () {
+  group('135.2 money in any currency', () {
     test('is written with its own digits', () {
       expect(currencyDigits('JPY'), 0);
       expect(currencyDigits('KRW'), 0);
@@ -41,7 +41,7 @@ void main() {
     });
   });
 
-  group('133.5 the customer\'s currency', () {
+  group('135.5 the customer\'s currency', () {
     test('comes from the phone\'s region, never its location', () {
       expect(regionCurrency('KW'), 'KWD');
       expect(regionCurrency('eg'), 'EGP');

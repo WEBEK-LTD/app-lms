@@ -10,7 +10,7 @@ import { FieldError } from "./form";
 const subscribe = () => () => undefined;
 
 /**
- * 133.3 The currency an app sells in, from every active ISO 4217 currency:
+ * 135.3 The currency an app sells in, from every active ISO 4217 currency:
  * a search box (name in the dashboard's language, code or sign) over a
  * plain select, the usual ones first (EGP, SAR, AED, KWD…), then the others
  * A–Z. The names come from the browser (Intl.DisplayNames), so the page
@@ -18,7 +18,7 @@ const subscribe = () => () => undefined;
  * the browser (no mismatch with the server's list). `gateway` is the card
  * gateway the app takes payments through: a currency it doesn't take says
  * so under the field. The select keeps the form's `name` and the label, as
- * before 133.
+ * before 135.
  */
 export function CurrencyPicker({
   name = "currency",

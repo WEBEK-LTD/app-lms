@@ -90,7 +90,7 @@ class LocalSettings {
   /// owner's switch in the dashboard comes first).
   final bool crashReports;
 
-  /// 133.5 The currency the customer picked for prices ("USD"); null: the
+  /// 135.5 The currency the customer picked for prices ("USD"); null: the
   /// phone's region's.
   final String? currency;
 
@@ -186,7 +186,7 @@ class LocalSettingsController extends Notifier<LocalSettings> {
     );
   }
 
-  /// 133.5 The customer's currency for prices; null: the phone's region's.
+  /// 135.5 The customer's currency for prices; null: the phone's region's.
   void setCurrency(String? code) {
     if (code == null) {
       _prefs.remove(_currency);

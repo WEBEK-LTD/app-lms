@@ -49,6 +49,7 @@ String orderStatusLabel(BuildContext context, Order order) {
     'completed' => l10n.statusCompleted,
     'cancelled' => l10n.statusCancelled,
     'refunded' => l10n.statusRefunded,
+    'pending' => l10n.stAwaitingPayment,
     _ => order.statusLabel ?? order.status,
   };
 }
@@ -141,6 +142,8 @@ class OrderActions extends ConsumerWidget {
   }
 }
 
-/// "2 × Shawarma, 1 × Lemonade", each item kept whole in either direction.
-String orderSummary(Order order) =>
-    order.lines.map((l) => isolate('${l.quantity} × ${l.name}')).join(', ');
+/// "2 × Shawarma, 1 × Lemonade", each item kept whole in either direction;
+/// 132 with the Arabic comma in Arabic.
+String orderSummary(BuildContext context, Order order) => order.lines
+    .map((l) => isolate('${l.quantity} × ${l.name}'))
+    .join(context.lang == 'ar' ? '، ' : ', ');

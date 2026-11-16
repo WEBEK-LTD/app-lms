@@ -60,7 +60,7 @@ export function parseListingForm(values: Record<string, string>, now: Date): Res
   const type = v("type");
   if (!isPropertyType(type)) errors.type = "Choose the property type.";
   const currency = v("currency");
-  // 133.2 In the listing's currency, with its digits.
+  // 135.2 In the listing's currency, with its digits.
   const price = parsePrice(v("price"), currency || null);
   if (price === null || price === 0) errors.price = "Enter the price, like 4250000.";
   if (!(LISTING_CURRENCIES as readonly string[]).includes(currency)) errors.currency = "Choose a currency.";

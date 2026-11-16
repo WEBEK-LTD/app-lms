@@ -779,7 +779,7 @@
           "method": "GET",
           "path": "/currencies",
           "summary": "The currencies prices can be shown in",
-          "description": "133.5 Every currency with a day's rate, for the app's currency picker (the shop's own first, then the customer's region's, then these): named in the `Accept-Language` language. Send the one picked as `X-Currency` (or `?currency=`). Rates are read once a day by Yallapp, never per request.",
+          "description": "135.5 Every currency with a day's rate, for the app's currency picker (the shop's own first, then the customer's region's, then these): named in the `Accept-Language` language. Send the one picked as `X-Currency` (or `?currency=`). Rates are read once a day by Yallapp, never per request.",
           "access": "optional"
         },
         {

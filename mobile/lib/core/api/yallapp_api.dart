@@ -711,7 +711,7 @@ abstract class YallappApi {
 
   Future<List<StoreHomeSection>> getStoreHome();
 
-  /// 133.5 The currencies prices can be shown in, named in the app's
+  /// 135.5 The currencies prices can be shown in, named in the app's
   /// language (`GET /currencies`).
   Future<CurrencyList> listCurrencies();
   Future<List<ProductCategory>> listProductCategories();

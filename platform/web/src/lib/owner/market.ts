@@ -1,3 +1,4 @@
+import { ownerRatingJson } from "./ratings";
 import type { DashKey } from "@/i18n/dashboard";
 import { localToUtc, utcToLocal } from "../bookings/time";
 import type { App, ComplaintDecision, MarketComplaint, MarketOrder, MarketOrderStatus } from "../data/types";
@@ -8,7 +9,8 @@ import { complaintDecisionDeps } from "../market/decisions";
 import { complaintReference, marketOrderReference } from "../market/json";
 import { marketTimezone } from "../market/settings";
 import { byWait, marketOrderIdOf, ORDER_FILTERS, queueQuery, type Queue } from "../market/support";
-import { bodyObject, intParam, invalid, notFound, OwnerError, pageJson, paging, type OwnerContext, type OwnerResult } from "./http";
+import { bodyObject, intParam, invalid, iso, notFound, OwnerError, pageJson, paging, type OwnerContext, type OwnerResult } from "./http";
+import { placePinJson } from "./order-details";
 import { appScope, minorMoney } from "./sales";
 import { invalidStatus, recordStudio, stageJson } from "./studio";
 
@@ -75,14 +77,33 @@ export async function listMarketOrders(ctx: OwnerContext, params: Record<string,
 
 export async function getMarketOrder(ctx: OwnerContext, params: Record<string, string>): Promise<OwnerResult> {
   const { app } = appScope(ctx, params.app_id, "market");
-  const o = await ctx.deps.store.getMarketOrder(app.id, intParam(params.market_order_id));
+  const { store } = ctx.deps;
+  const o = await store.getMarketOrder(app.id, intParam(params.market_order_id));
   if (!o) throw notFound();
+  // 132 The app's courier on it, with their phone.
+  const job = o.shipmentId !== null ? await store.getShipment(app.id, o.shipmentId) : null;
+  const courier = job?.courierId ? await store.getCourier(app.id, job.courierId) : null;
   return {
     status: 200,
     body: {
       ...marketOrderJson(ctx, o),
       lines: o.lines.map((l) => ({ quantity: l.pickedQuantity ?? l.quantity, name: l.name, options: [...l.choices, ...(l.note ? [l.note] : [])], total: minorMoney(l.total, o.currency) })),
+      // 132 The customer (the app's support may call them; the places never see the number), where it goes, when, how it was paid and what the total is made of.
+      customer: {
+        name: o.customerName,
+        phone: o.customerPhone || null,
+        address: o.dropoff ? [o.dropoff.address, o.dropoff.details].filter(Boolean).join(", ") : null,
+        note: o.notes,
+        ...placePinJson(o.dropoff),
+      },
+      scheduled_for: iso(o.scheduledFor),
+      payment: { method: o.paymentMethod, status: o.paymentStatus },
+      coupon_code: o.couponCode,
+      amounts: o.money.lines.map((l) => ({ kind: l.kind, amount: minorMoney(l.amount, o.currency) })),
+      courier: job?.courierName ? { id: job.courierId, name: job.courierName, phone: courier?.phone ?? null } : null,
       timeline: o.timeline.map((s) => stageJson(ctx, s, ORDER_STATUS_KEY)),
+      // 132 The customer's rating and the business's reply under it.
+      rating: ownerRatingJson(o.rating),
     },
   };
 }

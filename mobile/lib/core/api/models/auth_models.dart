@@ -316,7 +316,7 @@ class CheckoutLink {
     charge: CartCharge.tryParse(json['charge']),
   );
 
-  /// 133.7 What the card is charged, and in which currency.
+  /// 135.7 What the card is charged, and in which currency.
   final CartCharge? charge;
 
   final String url;

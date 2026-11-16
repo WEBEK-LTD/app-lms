@@ -34,7 +34,7 @@ class OfflineCache {
     if (!on) await clear();
   }
 
-  /// One entry per method, address, language and 133.5 currency.
+  /// One entry per method, address, language and 135.5 currency.
   static String keyFor(RequestOptions options) {
     final currency = options.headers['X-Currency'];
     return '${options.method} ${options.uri} ${options.headers['Accept-Language'] ?? ''}'

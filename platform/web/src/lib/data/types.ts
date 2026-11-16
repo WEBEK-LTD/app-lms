@@ -1,5 +1,8 @@
 import type { OrderMoney } from "../market/money";
-import type { Plan, PlanSetting } from "../plans";
+import type { Plan, PlanExtrasSetting, PlanSetting } from "../plans";
+import type { PeriodMonths } from "../billing/periods";
+import type { AddonsSetting, PaidAddon } from "../addons/types";
+export type { AppAddon, AppAddonPatch, AddonTaskStatus } from "../addons/types";
 import type { BuildConfig } from "../build-config/types";
 import type { AppDefaultsSetting, Layout, LayoutBlock, LayoutContent, StudioPage } from "../pages/types";
 import type { Design } from "../pages/designs/build";
@@ -948,7 +951,7 @@ export interface HostedNotification {
 
 /**
  * 37 EGP, SAR and AED for the Egyptian providers; each provider takes some
- * (lib/payments/provider.ts). 133.1 Any active ISO 4217 code ("KWD", "JPY"),
+ * (lib/payments/provider.ts). 135.1 Any active ISO 4217 code ("KWD", "JPY"),
  * checked with isCurrencyCode (lib/money/currencies.ts) where it comes in.
  */
 export type CatalogCurrency = string;
@@ -961,10 +964,10 @@ export type PaymentProviderId = "iyzico" | "kashier" | "fawaterk" | "stripe" | "
 export type YallappProviderId = "iyzico" | "kashier" | "fawaterk";
 
 export interface CatalogSettings {
-  /** 133.1 The shop's one currency (any ISO 4217 code): its prices, orders and dashboard. */
+  /** 135.1 The shop's one currency (any ISO 4217 code): its prices, orders and dashboard. */
   currency: CatalogCurrency;
   /**
-   * 133.7 Charge a customer in their own currency (the one the app shows
+   * 135.7 Charge a customer in their own currency (the one the app shows
    * prices in) when the card gateway takes it, at the day's rate; missing
    * or false: everyone pays in `currency`, the converted amount shown as
    * approximate.
@@ -1077,6 +1080,8 @@ export interface DeliveryScheduleSettings {
   /** IANA; the days, the cut-off and the slots count in it. */
   timezone: string;
   slots: DeliverySlot[];
+  /** 132 A slot closed on a day by the owner (Yallapp Business › Prime › Quick actions); missing: none. */
+  closedSlots?: { date: string; slotId: string }[];
 }
 
 /** 131 What a customer may say about a gift at checkout. */
@@ -1539,7 +1544,7 @@ export interface CatalogCustomer {
  * link; the payment page fills in the customer and turns it "processing" once
  * the card payment succeeds.
  */
-/** 133.7 An order's total in the customer's currency, as shown at checkout. */
+/** 135.7 An order's total in the customer's currency, as shown at checkout. */
 export interface OrderCustomerCurrency {
   /** "USD". */
   currency: CatalogCurrency;
@@ -1566,7 +1571,7 @@ export interface CatalogOrder {
   totalCents: number;
   currency: CatalogCurrency;
   /**
-   * 133.7 The customer's own currency at checkout (when the app showed
+   * 135.7 The customer's own currency at checkout (when the app showed
    * prices in another one): the total in it, the rate and its day, and
    * whether the card was charged in it (then refunds go back in it); null
    * or missing: the order's currency only.
@@ -1614,6 +1619,86 @@ export interface CatalogOrder {
   delivery?: OrderDelivery | null;
   /** 131 `delivery.date`, kept apart so a slot's orders are counted quickly. */
   deliveryDate?: string | null;
+  /** 132 Where its delivery is (Yallapp's own store orders); null or missing: not started (in progress). */
+  deliveryStage?: DeliveryStage | null;
+  /** 132 Every change of its delivery stage, oldest first; null or missing: none. */
+  stageLog?: OrderStageEntry[] | null;
+  /** 132 Its money back after a failed delivery cancelled it: refunded, or needing the owner's refund; null or missing: none. */
+  stageRefund?: OrderStageRefund | null;
+}
+
+/**
+ * 132 The customer's money after a failed delivery cancelled the order (the
+ * owner's rule): refunded through the payment's provider when it can be
+ * ("refunded"); else the owner refunds it themselves and the order says
+ * "Needs a refund" until they do ("needed", then "recorded").
+ */
+export interface OrderStageRefund {
+  status: "refunded" | "needed" | "recorded";
+  cents: number;
+  /** ISO time the order was cancelled. */
+  at: string;
+  /** Why it couldn't be refunded by itself (in English, a `known` text). */
+  why: string | null;
+  /** The same as a code: paid outside the app, no refunds through the provider, or what the provider answered. */
+  whyCode?: "paid_outside" | "no_provider" | "provider_refused" | null;
+  /** The refund made (payment_refunds); null: none yet. */
+  refundId: number | null;
+  /** When the owner marked it refunded, and who. */
+  doneAt: string | null;
+  doneBy: string | null;
+}
+
+/**
+ * 132 A store order's delivery, after it is paid: preparing, shipped (out
+ * for delivery), postponed to another day, a failed attempt, back at the
+ * shop, or delivered (the order is then completed).
+ */
+export const DELIVERY_STAGES = ["preparing", "shipped", "postponed", "failed", "returned", "delivered"] as const;
+export type DeliveryStage = (typeof DELIVERY_STAGES)[number];
+/** 132 Why a delivery was postponed. */
+export const POSTPONE_REASONS = ["customer_asked", "recipient_away", "shop_asked", "weather", "other"] as const;
+export type PostponeReason = (typeof POSTPONE_REASONS)[number];
+/** 132 Why a delivery attempt failed. */
+export const FAILED_REASONS = ["recipient_away", "wrong_address", "refused", "unreachable", "other"] as const;
+export type FailedReason = (typeof FAILED_REASONS)[number];
+/** 132 What happens after a failed attempt: another day, back to the shop, or the order cancelled. */
+export const FAILED_NEXT_STEPS = ["retry", "return", "cancel"] as const;
+export type FailedNextStep = (typeof FAILED_NEXT_STEPS)[number];
+
+/**
+ * 132 The business's public reply under a customer's rating of a food or
+ * marketplace order or a ride: one per rating, edited in place, shown under
+ * the rating in the app in the business's name.
+ */
+export interface RatingReply {
+  text: string;
+  /** ISO time it was first written. */
+  at: string;
+  /** ISO time it was last changed; null: never. */
+  editedAt: string | null;
+  /** The team member's name; never shown to the customer. */
+  by: string | null;
+}
+
+/** 132 One change of an order's delivery stage: who, when, why, and what it set. */
+export interface OrderStageEntry {
+  stage: DeliveryStage;
+  /** ISO time. */
+  at: string;
+  /** Who changed it: the team member (their name, else their email) and where; null: the system. */
+  by: { userId: string | null; name: string; via: "business" | "dashboard" | "api" } | null;
+  reason: PostponeReason | FailedReason | null;
+  /** The team's own note; never shown to the customer. */
+  note: string | null;
+  /** Shipped: who brings it and where to follow it. */
+  courier: { name: string | null; phone: string | null } | null;
+  trackingUrl: string | null;
+  /** Postponed, or a failed attempt tried again: the new day (YYYY-MM-DD) and slot. */
+  date: string | null;
+  slot: { id: string; start: string; end: string } | null;
+  /** A failed attempt: what happens next. */
+  next: FailedNextStep | null;
 }
 
 /** 91.4 An order's loyalty points. */
@@ -1749,7 +1834,7 @@ export interface CatalogFulfilment {
 export type CatalogOrderPatch = Partial<
   Pick<
     CatalogOrder,
-    "status" | "customer" | "updatedAt" | "commissionCents" | "itemTransactionIds" | "payoutApprovedAt" | "fulfilmentStatus" | "paymentProvider" | "providerRef" | "shipment" | "returnRequest" | "points" | "manualPayment" | "customerCurrency"
+    "status" | "customer" | "updatedAt" | "commissionCents" | "itemTransactionIds" | "payoutApprovedAt" | "fulfilmentStatus" | "paymentProvider" | "providerRef" | "shipment" | "returnRequest" | "points" | "manualPayment" | "delivery" | "deliveryDate" | "deliveryStage" | "stageLog" | "stageRefund" | "customerCurrency"
   >
 >;
 
@@ -1821,6 +1906,10 @@ export interface PlatformSettingValues {
   billing: YallappBillingSetting;
   /** The team's edits to the plans; plans without one keep the defaults in code. */
   plans: Partial<Record<Plan, PlanSetting>>;
+  /** 133 The team's own plan limits (Admin › Plans › Limits; each plan's values are in its edit) and the lifetime offer's note. */
+  planExtras: PlanExtrasSetting;
+  /** 133 The add-ons (Admin › Add-ons) and the top plan of each family. */
+  addons: AddonsSetting;
   /** Shops selling through Yallapp's iyzico account; off until set. */
   marketplace: MarketplaceSetting;
   /** How clients reach Yallapp, shown across the website and the dashboard. */
@@ -1862,8 +1951,8 @@ export interface PlanPayment {
   /** The app whose plan it pays; null when paid before the account's first app existed (creating that app fills it in). */
   appId: string | null;
   plan: Plan;
-  /** How long the payment extends the license. */
-  months: 1 | 12;
+  /** How long the payment extends the license: 133 1, 6, 12, 24 or 36 months, or 0 for life (an add-on's: 0 also for a one-time payment). */
+  months: PeriodMonths;
   amountCents: number;
   currency: CatalogCurrency;
   status: PlanPaymentStatus;
@@ -1901,6 +1990,8 @@ export interface PlanPayment {
    * default). Null or missing: not allowed.
    */
   showOnSite?: boolean | null;
+  /** 133 An add-on payment (purpose "addon"): the add-on and how it's paid. */
+  addon?: PaidAddon | null;
 }
 
 /** 95.2 "bank_transfer": the client paid into Yallapp's bank account and the team recorded it. */
@@ -3007,7 +3098,7 @@ export type AccountManagerCallInput = Omit<AccountManagerCall, "id">;
 export type AccountManagerCallPatch = Partial<Pick<AccountManagerCall, "date" | "time" | "status" | "note" | "updatedAt">>;
 
 /** 125 Prime's smart alerts (Yallapp Business, docs/api/owner.yaml `PrimeAlertKind`). */
-export const PRIME_ALERT_KINDS = ["order_waiting", "shipment_unassigned", "sales_low", "message_unanswered", "low_rating", "ride_no_driver"] as const;
+export const PRIME_ALERT_KINDS = ["order_waiting", "shipment_unassigned", "sales_low", "message_unanswered", "low_rating", "ride_no_driver", "low_stock", "sales_goal"] as const;
 export type PrimeAlertKind = (typeof PRIME_ALERT_KINDS)[number];
 
 export interface PrimeAlertSetting {
@@ -3018,6 +3109,12 @@ export interface PrimeAlertSetting {
   /** "18:00", in the app's time zone. */
   byTime: string | null;
   stars: number | null;
+  /** 132 `low_stock`: told when a product has this many left or fewer (0: only when sold out). */
+  threshold?: number | null;
+  /** 132 `sales_goal`: the goal's period, its amount in `amountCents`. */
+  period?: "day" | "week" | "month" | null;
+  /** 132 `sales_goal`: the period the goal was reached in (its first day), told once. */
+  reachedFor?: string | null;
 }
 
 /** 125 One person's smart alerts and morning brief on one app. */
@@ -3029,6 +3126,24 @@ export interface PrimeAlerts {
   briefOn: boolean;
   /** "08:30", in the app's time zone. */
   briefTime: string;
+  updatedAt: Date;
+}
+
+/**
+ * 132 Prime given by Yallapp's team as a gift to one app, whatever its
+ * plan: it counts as Prime everywhere Prime is checked while it lasts. It
+ * never charges anything and never changes the plan or the invoices.
+ */
+export interface PrimeGift {
+  appId: string;
+  clientId: string;
+  /** The end (exclusive); null: until it is removed. */
+  until: Date | null;
+  /** The team's own note, never shown to the client. */
+  note: string | null;
+  /** The admin who gave it (their email). */
+  givenBy: string;
+  createdAt: Date;
   updatedAt: Date;
 }
 
@@ -3182,8 +3297,10 @@ export interface Coupon {
   discount: CouponDiscount;
   /** The plans it applies to; null for every plan. */
   plans: Plan[] | null;
-  /** Billing periods in months it applies to; null for every period. */
-  periods: (1 | 12)[] | null;
+  /** Billing periods in months it applies to (133 any of them; 0: lifetime or one-time); null for every period. */
+  periods: PeriodMonths[] | null;
+  /** 133 The add-ons it applies to; null or missing: none (it's for plans). */
+  addons?: string[] | null;
   validFrom: Date | null;
   validUntil: Date | null;
   /** Uses across every client; null for no limit. */
@@ -3455,7 +3572,11 @@ export type OwnerNoticeKind =
   // 77 Chat messages are deleted within 30 days unless the business keeps them.
   | "chat_expiring"
   // 80.2 A daily check found one of the app's connections broken (one per connection; `integration_failed:<key>:<n>`).
-  | "integration_failed";
+  | "integration_failed"
+  // 132 A store order cancelled after a failed delivery whose payment the owner refunds themselves.
+  | "order_refund_due"
+  // 133 An add-on ends in 7 days (`addon_ends_7:<addon row>:<end>`).
+  | "addon_ends_7";
 
 export interface OwnerNotice {
   id: number;
@@ -4412,7 +4533,7 @@ export interface FoodOrder {
   rejection: { reason: FoodRejection; note: string | null } | null;
   /** Its courier job, once made. */
   shipmentId: number | null;
-  rating: { restaurant: number; courier: number | null; comment: string | null; at: string } | null;
+  rating: { restaurant: number; courier: number | null; comment: string | null; at: string; reply?: RatingReply | null } | null;
   timeline: FoodOrderStage[];
   lang: string | null;
   createdAt: Date;
@@ -4488,7 +4609,7 @@ export interface MarketOrder {
   rejection: { reason: "closing" | "too_busy" | "items_unavailable" | "outside_area" | "other"; note: string | null } | null;
   /** The app's courier job, once made. */
   shipmentId: number | null;
-  rating: { vendor: number; courier: number | null; comment: string | null; at: string } | null;
+  rating: { vendor: number; courier: number | null; comment: string | null; at: string; reply?: RatingReply | null } | null;
   timeline: MarketOrderStage[];
   /** When it was delivered or picked up (statements count it then). */
   completedAt: Date | null;
@@ -4996,7 +5117,7 @@ export interface Ride {
   feeCarriedTo: number | null;
   /** For the share link; null once the ride ended. */
   shareToken: string | null;
-  rating: { driver: number; comment: string | null; at: string } | null;
+  rating: { driver: number; comment: string | null; at: string; reply?: RatingReply | null } | null;
   timeline: RideStage[];
   lang: string | null;
   createdAt: Date;
@@ -5144,7 +5265,8 @@ export interface StoragePack {
 
 export type StoragePackPatch = Partial<Pick<StoragePack, "activeUntil" | "paymentId" | "updatedAt" | "endedNoticeAt">>;
 
-export type PlanPaymentPurpose = "plan" | "storage";
+/** 133 "addon": one of the app's add-ons (lib/addons). */
+export type PlanPaymentPurpose = "plan" | "storage" | "addon";
 
 /** One storage pack a card payment pays for. */
 export interface PaidStoragePack {
@@ -5289,7 +5411,7 @@ export interface PlatformSettingValues {
   courierHub: CourierHubSetting;
 }
 
-/** 133.6 The day's exchange rates (lib/money/rates.ts): units of each currency for one US dollar. */
+/** 135.6 The day's exchange rates (lib/money/rates.ts): units of each currency for one US dollar. */
 export interface ExchangeRatesSetting {
   rates: Record<string, number>;
   /** The source's day, "2026-11-16" (UTC). */
@@ -5303,7 +5425,7 @@ export interface ExchangeRatesSetting {
   failure?: string | null;
 }
 
-/** 133.6 The team's own rates for some currencies (units for one US dollar), over the day's. */
+/** 135.6 The team's own rates for some currencies (units for one US dollar), over the day's. */
 export interface RateOverridesSetting {
   rates: Record<string, number>;
 }
