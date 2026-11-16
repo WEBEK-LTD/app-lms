@@ -104,6 +104,16 @@ export function LeftPanel(props: {
   const sections = props.sections.filter((s) => matches(t(`studio.sec_${s.id}` as DashKey), s.id));
   const templates = props.templates.filter((tpl) => matches(t(`studio.tpl_${tpl.id}` as DashKey), tpl.id));
 
+  // 132.56 The search says what it looks through on each tab.
+  const searchLabel = t(
+    props.tab === "sections" ? "studioKit.searchSections" : props.tab === "templates" ? "studioKit.searchTemplates" : props.tab === "pictures" ? "studioKit.searchPictures" : "studio.searchElements",
+  );
+  const noResults = (
+    <p className="m-0 text-[13px]" style={{ color: "var(--studio-muted)" }} data-studio-no-results="">
+      {t("studio.noResults", { query })}
+    </p>
+  );
+
   return (
     <aside aria-label={t("studio.elements")} className="studio-left flex min-h-0 flex-col border-line bg-white" style={{ flex: "1 1 260px", maxWidth: 300, minWidth: 240, borderInlineEnd: "1px solid var(--studio-line)" }}>
       <div role="tablist" aria-label={t("studio.elements")} className="flex gap-1 px-3 pt-2.5">
@@ -124,8 +134,8 @@ export function LeftPanel(props: {
       <div className="p-3">
         <label className="flex h-[38px] items-center gap-2 rounded-[10px] px-2.5 text-[13px]" style={{ border: "1px solid var(--studio-line)", color: "var(--studio-muted)" }}>
           <Glyph name="search" size={18} />
-          <span className="sr-only">{t("studio.searchElements")}</span>
-          <input type="search" value={query} onChange={(e) => setQuery(e.target.value)} placeholder={t("studio.searchElements")} className="min-w-0 flex-1 border-0 bg-transparent text-[13px] outline-none" />
+          <span className="sr-only">{searchLabel}</span>
+          <input type="search" value={query} onChange={(e) => setQuery(e.target.value)} placeholder={searchLabel} className="min-w-0 flex-1 border-0 bg-transparent text-[13px] outline-none" />
         </label>
       </div>
 
@@ -199,6 +209,7 @@ export function LeftPanel(props: {
             <p className="m-0 text-[13px]" style={{ color: "var(--studio-muted)" }}>
               {t("studio.sectionsIntro")}
             </p>
+            {q && !sections.length ? noResults : null}
             {sections.map((s) => (
               <button
                 key={s.id}
@@ -234,6 +245,7 @@ export function LeftPanel(props: {
             <p className="m-0 text-[13px]" style={{ color: "var(--studio-muted)" }}>
               {t("studio.templatesIntro")}
             </p>
+            {q && !templates.length ? noResults : null}
             {templates.map((tpl) => (
               <button key={tpl.id} type="button" onClick={() => props.onUseTemplate(tpl.id)} className="studio-tile flex items-center gap-2.5 rounded-[10px] bg-white px-3 py-2.5 text-start text-[13px] font-semibold" style={{ border: "1px solid var(--studio-line)" }} data-studio-template={tpl.id}>
                 <Glyph name={tpl.icon} size={20} />
