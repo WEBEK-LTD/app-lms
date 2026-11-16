@@ -8,7 +8,7 @@ import type { IconName } from "@/components/icon-names";
 import { Badge, btn } from "@/components/ui";
 import { useDashLang, useDashT, useKnownText } from "@/components/dashboard-i18n";
 import type { DashKey, DashT } from "@/i18n/dashboard";
-import { formatDate } from "@/i18n/format";
+import { formatDate, formatList } from "@/i18n/format";
 import type { Lang } from "@/i18n/config";
 import { initialFormState } from "@/lib/forms";
 import type { PaymentProviderId, PaymentWebhookReceipt } from "@/lib/data/types";
@@ -43,6 +43,13 @@ const TONES: Record<CheckTone, { icon: IconName; color: string }> = {
 
 /** "16 Nov, 14:05", in the dashboard's language and the browser's time. */
 const when = (lang: Lang, iso: string) => formatDate(lang, new Date(iso), { day: "numeric", month: "short", hour: "2-digit", minute: "2-digit", hourCycle: "h23" });
+
+/** A check's value as the page says it: a time in the language, a list of currencies ("USD or EUR") or of events ("a and b"). */
+function shown(lang: Lang, key: string, value: string): string {
+  if (key === "at") return when(lang, value);
+  if (key === "list" || key === "events") return formatList(lang, value.split(", "), key === "list" ? "disjunction" : "conjunction");
+  return value;
+}
 
 export interface PaymentKeysFormProps {
   provider: ProviderChoice | null;
@@ -100,7 +107,7 @@ function TestResults({ report }: { report: ConnectionReport }) {
       <ul className="m-0 flex list-none flex-col gap-2 p-0">
         {report.checks.map((check, i) => {
           const tone = TONES[check.tone];
-          const values = Object.fromEntries(Object.entries(check.values ?? {}).map(([k, v]) => [k, k === "at" ? when(lang, v) : v]));
+          const values = Object.fromEntries(Object.entries(check.values ?? {}).map(([k, v]) => [k, shown(lang, k, v)]));
           return (
             <li key={`${check.code}-${i}`} data-tone={check.tone} className="flex items-start gap-2 text-sm leading-relaxed text-ink-2">
               <Icon name={tone.icon} size={20} filled className={`mt-px ${tone.color}`} />
@@ -221,6 +228,7 @@ export function PaymentKeysForm({ provider, sandbox, merchantId = "", clientId =
           <Field
             label={t("shop.merchantId")}
             name="merchantId"
+            dir="ltr"
             autoComplete="off"
             placeholder="MID-1234-567"
             defaultValue={state.values?.merchantId ?? merchantId}
@@ -233,6 +241,7 @@ export function PaymentKeysForm({ provider, sandbox, merchantId = "", clientId =
             key="client-paypal"
             label={t("shop.clientId")}
             name="clientId"
+            dir="ltr"
             autoComplete="off"
             defaultValue={state.values?.clientId ?? clientId}
             required
@@ -244,6 +253,7 @@ export function PaymentKeysForm({ provider, sandbox, merchantId = "", clientId =
             key="publishable-stripe"
             label={t("gateways.publishableKey")}
             name="publishableKey"
+            dir="ltr"
             autoComplete="off"
             spellCheck={false}
             placeholder="pk_test_…"
@@ -259,6 +269,7 @@ export function PaymentKeysForm({ provider, sandbox, merchantId = "", clientId =
             key={`api-${choice}`}
             label={choice === "kashier" ? t("shop.paymentApiKey") : t("shop.apiKey")}
             name="apiKey"
+            dir="ltr"
             autoComplete="off"
             spellCheck={false}
             hint={hint(mine?.apiKey)}
@@ -271,6 +282,7 @@ export function PaymentKeysForm({ provider, sandbox, merchantId = "", clientId =
             key={`secret-${choice}`}
             label={choice === "paypal" ? t("shop.paypalSecret") : t("shop.secretKey")}
             name="secretKey"
+            dir="ltr"
             type="password"
             autoComplete="off"
             spellCheck={false}
@@ -318,6 +330,7 @@ export function PaymentKeysForm({ provider, sandbox, merchantId = "", clientId =
               key="webhook-secret"
               label={t("gateways.webhookSecret")}
               name="webhookSecret"
+            dir="ltr"
               type="password"
               autoComplete="off"
               spellCheck={false}
