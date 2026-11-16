@@ -911,6 +911,13 @@
       "when": 1794687839222,
       "tag": "0129_gift_addons",
       "breakpoints": true
+    },
+    {
+      "idx": 130,
+      "version": "5",
+      "when": 1794797699671,
+      "tag": "0130_app_moves",
+      "breakpoints": true
     }
   ]
 }
