@@ -37,7 +37,7 @@ const hrefs = (app: App, can?: StudioNavInput["can"]) => studioProjectNav(input(
 describe("132.1 the Studio project's menu", () => {
   it("has the pages the owner missed, in Studio's frame", () => {
     const shown = hrefs(project("store"));
-    for (const page of ["media", "chat", "integrations", "protection", "preview", "stability", "announcements", "phones", "screens", "app-sign-in", "notifications", "languages", "publishing", "builds", "license", "invoices"]) {
+    for (const page of ["media", "chat", "integrations", "protection", "preview", "stability", "announcements", "phones", "screens", "app-sign-in", "notifications", "languages", "publishing", "builds", "license", "invoices", "payments"]) {
       expect(shown, page).toContain(`/studio/project/${page}`);
     }
     // 132.51 The account's own pages in Studio's account frame.

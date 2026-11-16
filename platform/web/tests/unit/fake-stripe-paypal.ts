@@ -44,17 +44,44 @@ export interface StripeSession {
   url: string;
 }
 
-/** Stripe: POST /v1/checkout/sessions, GET /v1/checkout/sessions/{id}, POST /v1/refunds, GET /v1/balance. */
-export function fakeStripe(options: { secretKey?: string; base?: string } = {}) {
+/** 132.34 A webhook endpoint the fake Stripe lists (GET /v1/webhook_endpoints). */
+export interface StripeEndpoint {
+  url: string;
+  status: string;
+  enabled_events: string[];
+}
+
+/**
+ * Stripe: POST /v1/checkout/sessions, GET /v1/checkout/sessions/{id}, POST /v1/refunds, GET /v1/balance;
+ * 132.34 GET /v1/account, GET /v1/checkout/sessions (list), GET /v1/webhook_endpoints, POST /v1/payment_intents and …/cancel.
+ */
+export function fakeStripe(options: { secretKey?: string; base?: string; accountName?: string } = {}) {
   const calls: FakeRequest[] = [];
   const sessions = new Map<string, StripeSession>();
   const refunds: URLSearchParams[] = [];
+  const endpoints: StripeEndpoint[] = [];
+  const intents: { id: string; form: URLSearchParams; status: string }[] = [];
   const handle: Handler = (request) => {
     const path = request.path.split("?")[0]!;
     if (options.secretKey && request.headers.authorization !== `Bearer ${options.secretKey}`) {
       return { status: 401, json: { error: { message: "Invalid API Key provided" } } };
     }
     if (path === "/v1/balance") return ok({ object: "balance" });
+    if (path === "/v1/account") return ok({ id: "acct_1FakeYallapp", object: "account", country: "AE", default_currency: "aed", charges_enabled: true, business_profile: { name: options.accountName ?? "Test shop" } });
+    if (path === "/v1/checkout/sessions" && request.method === "GET") return ok({ object: "list", data: [], has_more: false });
+    if (path === "/v1/webhook_endpoints" && request.method === "GET") return ok({ object: "list", data: endpoints.map((e, i) => ({ id: `we_${i + 1}`, object: "webhook_endpoint", ...e })), has_more: false });
+    if (path === "/v1/payment_intents" && request.method === "POST") {
+      const intent = { id: `pi_test_${intents.length + 1}fake`, form: new URLSearchParams(request.body), status: "requires_payment_method" };
+      intents.push(intent);
+      return ok({ id: intent.id, object: "payment_intent", status: intent.status });
+    }
+    const cancel = /^\/v1\/payment_intents\/([^/]+)\/cancel$/.exec(path);
+    if (cancel && request.method === "POST") {
+      const intent = intents.find((i) => i.id === decodeURIComponent(cancel[1]!));
+      if (!intent) return notFound;
+      intent.status = "canceled";
+      return ok({ id: intent.id, object: "payment_intent", status: "canceled" });
+    }
     if (path === "/v1/checkout/sessions" && request.method === "POST") {
       const form = new URLSearchParams(request.body);
       const id = `cs_test_${sessions.size + 1}abcdef`;
@@ -99,7 +126,7 @@ export function fakeStripe(options: { secretKey?: string; base?: string } = {}) 
     const session = sessions.get(id)!;
     Object.assign(session, { status: "complete", payment_status: "paid", payment_intent: `pi_${id.slice(-6)}`, ...extra });
   };
-  return { handle, fetcher: fetcherFor(handle, calls), calls, sessions, refunds, pay };
+  return { handle, fetcher: fetcherFor(handle, calls), calls, sessions, refunds, pay, endpoints, intents };
 }
 
 export interface PaypalOrder {

@@ -146,6 +146,8 @@ export function studioProjectNav({ app, text, can, supportUrl }: StudioNavInput)
         item("/dashboard/protection", t("nav.protection"), "lock"),
         // 80.1 Everything the app is connected to (its payments among them), with its state and a test.
         item("/dashboard/integrations", t("integrations.title"), "link"),
+        // 132.30 The owner's own payment gateways (Stripe and the others), with a test of the connection.
+        item("/dashboard/payments", t("gateways.page"), "payments"),
         // 100.2 Courses and memberships sold through Google Play and the App Store; 100.7 also an own API, which first needs Yallapp's sign-in.
         ...((storeBillingSource(app) || needsYallappSignIn(app)) && can("settings") ? [item("/dashboard/in-app-purchases", t("inapp.nav"), "shopping_bag")] : []),
         item("/dashboard/setup", t("studio.navSettings"), "tune"),
