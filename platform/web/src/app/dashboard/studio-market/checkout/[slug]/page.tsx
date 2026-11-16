@@ -32,7 +32,7 @@ export const dynamic = "force-dynamic";
  * a paid template's plan and the app it goes on, or a renewal's plan, then
  * Pay on the gateway's page. Only the account's owner pays.
  */
-export default async function CheckoutPage({ params, searchParams }: PageProps<"/dashboard/studio-market/t/[slug]/checkout">) {
+export default async function CheckoutPage({ params, searchParams }: PageProps<"/dashboard/studio-market/checkout/[slug]">) {
   const context = await requireClient("billing");
   const { t, k, lang } = await dashboardText();
   const store = await getStore();

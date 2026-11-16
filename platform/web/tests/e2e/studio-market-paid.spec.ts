@@ -266,7 +266,7 @@ test("an owner buys the 3-month plan for one of their apps: paid in pounds on Ka
   await own.getByRole("link", { name: "Apply to my app · $24" }).click();
 
   // Checkout: the plan, the app (the café greyed out with why), Kashier's charge in pounds.
-  await expect(own).toHaveURL(/\/checkout\?plan=3m$/);
+  await expect(own).toHaveURL(/\/studio-market\/checkout\/[\w-]+\?plan=3m$/);
   await expect(own.getByRole("heading", { name: "Checkout.", level: 1 })).toBeVisible();
   const cafe = own.locator('label[data-app]').filter({ hasText: "Zeynep Café" });
   await expect(cafe).toContainText("Made for Store apps only.");
@@ -321,7 +321,7 @@ test("the daily job reminds them 14 days before and on the last day, once each, 
   await request.post("/api/internal/daily", { headers: job });
   await expect.poll(async () => (await reminders()).length).toBe(1);
   expect((await reminders())[0]!.text).toContain("ends in 10 days");
-  expect((await reminders())[0]!.text).toContain("/checkout?renew=");
+  expect((await reminders())[0]!.text).toContain("/dashboard/studio-market/checkout/");
 
   await endIn(12, buyer.name);
   await request.post("/api/internal/daily", { headers: job });
@@ -350,7 +350,7 @@ test("with “back to the previous design”, the other app goes back to its own
 
   await own.goto(`/dashboard/studio-market?q=${suffix}`);
   const slug = await own.locator("[data-template-card]").filter({ hasText: title }).getAttribute("data-template-card");
-  await own.goto(`/dashboard/studio-market/t/${slug}/checkout?plan=3m`);
+  await own.goto(`/dashboard/studio-market/checkout/${slug}?plan=3m`);
   await own.locator('label[data-app]').filter({ hasText: "Zeynep Gifts" }).click();
   await expect(own.getByText(/Then Zeynep Gifts goes back to the design it had before\./)).toBeVisible();
   await own.getByRole("checkbox", { name: /I understand this is digital content/ }).check();

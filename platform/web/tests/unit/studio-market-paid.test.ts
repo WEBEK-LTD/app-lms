@@ -395,7 +395,7 @@ describe("106.2 the daily job: reminders and the end of a plan", () => {
     expect(await runStudioMarketDaily(daily(before(12)))).toMatchObject({ reminded: 0 });
     expect(mails.map((m) => m.key)).toEqual(["market_template_reminder"]);
     expect(mails[0]!.values.intro_line).toContain("ends in 13 days");
-    expect(mails[0]!.values.renew_url).toBe(`${BASE}/dashboard/studio-market/t/${(await store.getMarketTemplate(licence.templateId))!.slug}/checkout?renew=${licence.id}`);
+    expect(mails[0]!.values.renew_url).toBe(`${BASE}/dashboard/studio-market/checkout/${(await store.getMarketTemplate(licence.templateId))!.slug}?renew=${licence.id}`);
     expect(await runStudioMarketDaily(daily(before(0.5)))).toMatchObject({ lastDay: 1 });
     expect(await runStudioMarketDaily(daily(before(0.4)))).toMatchObject({ lastDay: 0 });
     expect(mails[1]!.values.intro_line).toContain("Today is the last day");

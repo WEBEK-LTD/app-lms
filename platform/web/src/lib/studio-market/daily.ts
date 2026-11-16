@@ -102,7 +102,7 @@ async function remind(deps: MarketDailyDeps, licence: TemplateLicence, which: "e
         end_date: formatDate(licence.endsAt, lang),
         intro_line: lines.reminder(which, title, app ? appLabel(app) : null, formatDate(licence.endsAt, lang), Math.max(1, Math.ceil((licence.endsAt!.getTime() - deps.now.getTime()) / DAY))),
         after_line: lines.ifNotRenewed(licence.afterEnd, Boolean(app)),
-        renew_url: `${deps.baseUrl}/dashboard/studio-market/t/${template.slug}/checkout?renew=${licence.id}`,
+        renew_url: `${deps.baseUrl}/dashboard/studio-market/checkout/${template.slug}?renew=${licence.id}`,
       },
       { lang },
     )
@@ -157,7 +157,7 @@ async function endLicence(deps: MarketDailyDeps, licence: TemplateLicence, endsA
           end_date: formatDate(endsAt, lang),
           intro_line: lines.ended(local, formatDate(endsAt, lang)),
           after_line: lines.afterEnded(outcome === "restore" ? "restore" : outcome === "none" ? "none" : "keep", app ? appLabel(app) : ""),
-          renew_url: `${deps.baseUrl}/dashboard/studio-market/t/${template.slug}/checkout?renew=${licence.id}`,
+          renew_url: `${deps.baseUrl}/dashboard/studio-market/checkout/${template.slug}?renew=${licence.id}`,
         },
         { lang },
       )

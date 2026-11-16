@@ -130,7 +130,7 @@ export default async function MyTemplatesPage({ searchParams }: PageProps<"/dash
   // 106.2 Renew (a plan for a time), or buy it again once it ended: a new one-time payment at checkout.
   const renewLink = (r: LicenceRow, again: boolean) =>
     r.renewable ? (
-      <Link href={`/dashboard/studio-market/t/${r.template.slug}/checkout?renew=${r.licence.id}`} className={`${again ? btn.main : btn.secondary} h-9 px-3.5 text-sm`}>
+      <Link href={`/dashboard/studio-market/checkout/${r.template.slug}?renew=${r.licence.id}`} className={`${again ? btn.main : btn.secondary} h-9 px-3.5 text-sm`}>
         <Icon name={again ? "shopping_cart" : "event"} size={18} />
         {t(again ? "studioMarket.buyAgain" : "studioMarket.renew")}
       </Link>

@@ -391,7 +391,7 @@ export function PlanPicker({ slug, plans, initial }: { slug: string; plans: Plan
           </button>
         ))}
       </div>
-      <Link href={`/dashboard/studio-market/t/${slug}/checkout?plan=${chosen.period}`} className="mk-btn mk-btn-ember mk-btn-lg w-full">
+      <Link href={`/dashboard/studio-market/checkout/${slug}?plan=${chosen.period}`} className="mk-btn mk-btn-ember mk-btn-lg w-full">
         <Icon name="format_paint" size={22} />
         {t("studioMarket.applyPaid", { price: chosen.price })}
       </Link>
