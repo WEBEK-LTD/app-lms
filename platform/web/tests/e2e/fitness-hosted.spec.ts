@@ -92,6 +92,8 @@ test("the gym sets up its classes, coach, timetable and plans, in a gym's words"
   await services.getByRole("button", { name: "Add service" }).click();
   await expect(services.getByText("Yoga flow", { exact: true })).toBeVisible();
 
+  // 132.18 The coaches have their own tab.
+  await own.getByRole("tab", { name: /^Coaches/ }).click();
   const coaches = own.getByRole("region", { name: "Coaches" });
   await coaches.getByLabel("Name", { exact: true }).fill("Selin Aydın");
   await coaches.getByLabel("Role").fill("Yoga coach");

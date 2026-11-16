@@ -12,7 +12,7 @@ export default async function EditEventPage({
   searchParams,
 }: {
   params: Promise<{ id: string }>;
-  searchParams: Promise<{ saved?: string; told?: string; cancelled?: string; error?: string }>;
+  searchParams: Promise<{ saved?: string; told?: string; cancelled?: string; error?: string; tab?: string }>;
 }) {
   const id = Number((await params).id);
   if (!Number.isSafeInteger(id) || id < 1) notFound();
