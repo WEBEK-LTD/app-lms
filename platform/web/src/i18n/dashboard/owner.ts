@@ -27,6 +27,7 @@ export const en = {
   count: "{count, plural, one {{count} phone} other {{count} phones}}",
   needs: {
     ordersInProgress: "{count, plural, one {{count} order in progress} other {{count} orders in progress}}",
+    awaitingPayment: "{count, plural, one {{count} order waiting for its payment} other {{count} orders waiting for their payment}}",
     toConfirm: "{count, plural, one {{count} appointment to confirm} other {{count} appointments to confirm}}",
     unanswered: "{count, plural, one {{count} conversation waiting for your reply} other {{count} conversations waiting for your reply}}",
     questions: "{count, plural, one {{count} course question to answer} other {{count} course questions to answer}}",
@@ -89,6 +90,15 @@ export const en = {
     briefSales: "Yesterday: {sales}, {count, plural, one {{count} order} other {{count} orders}}",
     briefHour: "Busiest at {hour}",
     briefBest: "Best seller: {name}",
+    // 132 Low stock, the sales goal, Today's goal ring.
+    lowStock: "{name}: {count} left",
+    soldOut: "Sold out: {name}",
+    lowStockBody: "Add stock in Catalog so it keeps selling.",
+    goalReached: "Goal reached!",
+    goalReachedBody: "{amount} of your {goal} goal",
+    goal_day: "Today's goal",
+    goal_week: "This week's goal",
+    goal_month: "This month's goal",
   },
   known: {
     invalidCredentials: "The email or password is incorrect.",
@@ -163,6 +173,8 @@ export const ar: Messages = {
   needs: {
     ordersInProgress:
       "{count, plural, one {طلب واحد قيد التنفيذ} two {طلبان قيد التنفيذ} few {{count} طلبات قيد التنفيذ} other {طلبات قيد التنفيذ: {count}}}",
+    awaitingPayment:
+      "{count, plural, one {طلب واحد بانتظار الدفع} two {طلبان بانتظار الدفع} few {{count} طلبات بانتظار الدفع} other {طلبات بانتظار الدفع: {count}}}",
     toConfirm: "{count, plural, one {موعد واحد بانتظار التأكيد} two {موعدان بانتظار التأكيد} few {{count} مواعيد بانتظار التأكيد} other {مواعيد بانتظار التأكيد: {count}}}",
     unanswered:
       "{count, plural, one {محادثة واحدة بانتظار ردّك} two {محادثتان بانتظار ردّك} few {{count} محادثات بانتظار ردّك} other {محادثات بانتظار ردّك: {count}}}",
@@ -224,6 +236,14 @@ export const ar: Messages = {
     briefSales: "أمس: {sales}، {count, plural, zero {لا طلبات} one {طلب واحد} two {طلبان} few {{count} طلبات} many {{count} طلبًا} other {{count} طلب}}",
     briefHour: "الذروة عند {hour}",
     briefBest: "الأكثر مبيعًا: {name}",
+    lowStock: "{name}: بقي {count}",
+    soldOut: "نفدت الكمية: {name}",
+    lowStockBody: "أضف إلى المخزون من الكتالوج ليستمر البيع.",
+    goalReached: "تحقّق الهدف!",
+    goalReachedBody: "{amount} من هدفك البالغ {goal}",
+    goal_day: "هدف اليوم",
+    goal_week: "هدف هذا الأسبوع",
+    goal_month: "هدف هذا الشهر",
   },
   known: {
     invalidCredentials: "البريد الإلكتروني أو كلمة المرور غير صحيحة.",
@@ -293,6 +313,7 @@ export const tr: Messages = {
   count: "{count, plural, one {{count} telefon} other {{count} telefon}}",
   needs: {
     ordersInProgress: "{count, plural, one {Hazırlanan {count} sipariş} other {Hazırlanan {count} sipariş}}",
+    awaitingPayment: "{count, plural, one {Ödemesi beklenen {count} sipariş} other {Ödemesi beklenen {count} sipariş}}",
     toConfirm: "{count, plural, one {Onay bekleyen {count} randevu} other {Onay bekleyen {count} randevu}}",
     unanswered: "{count, plural, one {Yanıtınızı bekleyen {count} konuşma} other {Yanıtınızı bekleyen {count} konuşma}}",
     questions: "{count, plural, one {Yanıtlanacak {count} kurs sorusu} other {Yanıtlanacak {count} kurs sorusu}}",
@@ -352,6 +373,14 @@ export const tr: Messages = {
     briefSales: "Dün: {sales}, {count, plural, one {{count} sipariş} other {{count} sipariş}}",
     briefHour: "En yoğun saat: {hour}",
     briefBest: "En çok satan: {name}",
+    lowStock: "{name}: {count} adet kaldı",
+    soldOut: "Tükendi: {name}",
+    lowStockBody: "Satışın sürmesi için Katalog'dan stok ekleyin.",
+    goalReached: "Hedefe ulaşıldı!",
+    goalReachedBody: "{goal} hedefinizin {amount} kadarı",
+    goal_day: "Bugünün hedefi",
+    goal_week: "Bu haftanın hedefi",
+    goal_month: "Bu ayın hedefi",
   },
   known: {
     invalidCredentials: "E-posta veya şifre hatalı.",

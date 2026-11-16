@@ -1254,4 +1254,8 @@ export const SERVER_MESSAGES_AR: Record<string, string> = {
   "The shop doesn't deliver to that city.": "لا يوصّل المتجر إلى هذه المدينة.",
   "Drop a pin where it goes on the map.": "ضع علامة على الخريطة في مكان التوصيل.",
   "The shop delivers up to {0} km away. This place is {1} km away.": "يوصّل المتجر حتى مسافة {0} كم، وهذا المكان على بُعد {1} كم.",
+  // 132 A store order's delivery stages (lib/catalog/order-stages.ts).
+  "This order's delivery can't move to that stage.": "لا يمكن نقل توصيل هذا الطلب إلى هذه المرحلة.",
+  "The request isn't valid.": "الطلب غير صالح.",
+  "This order doesn't need a refund.": "لا يحتاج هذا الطلب إلى استرداد.",
 };

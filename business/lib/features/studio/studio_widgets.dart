@@ -73,7 +73,12 @@ class Tag extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final (bg, fg) = toneColors(context, tone);
+    // 132 In a detail screen's title bar a long status ("Looking for a
+    // driver · 3 min") leaves room for the reference.
     return Container(
+      constraints: big
+          ? BoxConstraints(maxWidth: MediaQuery.sizeOf(context).width * 0.5)
+          : null,
       padding: big
           ? const EdgeInsets.symmetric(horizontal: 10, vertical: 4)
           : const EdgeInsets.symmetric(horizontal: 9, vertical: 3),
@@ -83,6 +88,8 @@ class Tag extends StatelessWidget {
       ),
       child: Text(
         label,
+        maxLines: 1,
+        overflow: TextOverflow.ellipsis,
         style: TextStyle(
           fontSize: big ? 13 : 12,
           fontWeight: FontWeight.w600,
@@ -249,7 +256,8 @@ class HeaderLink extends StatelessWidget {
       foregroundColor: context.yb.accentText,
       minimumSize: const Size(48, 44),
       padding: const EdgeInsets.symmetric(horizontal: 12),
-      textStyle: const TextStyle(fontSize: 15, fontWeight: FontWeight.w600),
+      textStyle: Theme.of(context).textTheme.labelLarge
+          ?.copyWith(fontSize: 15, fontWeight: FontWeight.w600),
     ),
     icon: Icon(icon, size: 22),
     label: Text(label),
@@ -464,7 +472,8 @@ class SmallButton extends StatelessWidget {
     final shape = RoundedRectangleBorder(
       borderRadius: BorderRadius.circular(14),
     );
-    const text = TextStyle(fontSize: 15, fontWeight: FontWeight.w600);
+    final text = Theme.of(context).textTheme.labelLarge
+        ?.copyWith(fontSize: 15, fontWeight: FontWeight.w600);
     const padding = EdgeInsets.symmetric(horizontal: 18);
     const size = Size(48, 44);
     final child = icon == null
@@ -533,7 +542,8 @@ class BigButton extends StatelessWidget {
     final shape = RoundedRectangleBorder(
       borderRadius: BorderRadius.circular(16),
     );
-    const text = TextStyle(fontSize: 16, fontWeight: FontWeight.w600);
+    final text = Theme.of(context).textTheme.labelLarge
+        ?.copyWith(fontSize: 16, fontWeight: FontWeight.w600);
     const size = Size(64, 52);
     final Widget child = busy
         ? const SizedBox.square(
@@ -789,9 +799,13 @@ class TileGrid extends StatelessWidget {
 
 /// The history of an item, oldest first.
 class TimelineList extends StatelessWidget {
-  const TimelineList({super.key, required this.entries});
+  const TimelineList({super.key, required this.entries, this.words});
 
   final List<TimelineEntry> entries;
+
+  /// 132 The step in the app's words, from its status and the API's label.
+  final String Function(BuildContext context, String status, String label)?
+  words;
 
   @override
   Widget build(BuildContext context) {
@@ -823,7 +837,10 @@ class TimelineList extends StatelessWidget {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Text(e.label, style: const TextStyle(fontSize: 14)),
+                        Text(
+                          words?.call(context, e.status, e.label) ?? e.label,
+                          style: const TextStyle(fontSize: 14),
+                        ),
                         Text(
                           [
                             context.dateTime(e.at),

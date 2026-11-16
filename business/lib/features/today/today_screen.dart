@@ -12,6 +12,7 @@ import '../../core/widgets/l10n.dart';
 import '../../core/widgets/states.dart';
 import '../account/apps_screen.dart';
 import '../prime/prime_state.dart';
+import '../prime/prime_more.dart' show GoalCard;
 import '../prime/prime_today.dart';
 import '../studio/studio_widgets.dart';
 
@@ -427,6 +428,8 @@ String needsYouTitle(BuildContext context, NeedsYou item) {
   final l10n = context.l10n;
   return switch (item.kind) {
     'orders_in_progress' => l10n.needsOrdersInProgress(item.count),
+    // 132 Waiting for a bank transfer or the owner's own method.
+    'orders_awaiting_payment' => l10n.needsAwaitingPayment(item.count),
     'appointments_to_confirm' => l10n.needsToConfirm(item.count),
     'unanswered_messages' => l10n.needsUnanswered(item.count),
     'questions_to_answer' => l10n.needsQuestions(item.count),
@@ -444,7 +447,8 @@ String needsYouTitle(BuildContext context, NeedsYou item) {
 
 /// Where a "Needs you now" item opens.
 String needsTarget(String kind) => switch (kind) {
-  'orders_in_progress' => '${Paths.orders}?status=processing',
+  'orders_in_progress' ||
+  'orders_awaiting_payment' => '${Paths.orders}?status=processing',
   'appointments_to_confirm' => Paths.appointments,
   'unanswered_messages' => Paths.inboxTab('messages'),
   'questions_to_answer' => Paths.inboxTab('questions'),
@@ -461,6 +465,7 @@ String needsTarget(String kind) => switch (kind) {
 
 IconData needsIcon(String kind) => switch (kind) {
   'orders_in_progress' || 'food_orders_new' => AppIcons.orders,
+  'orders_awaiting_payment' => AppIcons.sales,
   'appointments_to_confirm' => AppIcons.appointments,
   'unanswered_messages' => AppIcons.inbox,
   'questions_to_answer' => AppIcons.question,
@@ -495,6 +500,14 @@ class _PrimeToday extends ConsumerWidget {
         children: [
           if (brief != null) ...[
             BriefCard(text: brief),
+            const SizedBox(height: 12),
+          ],
+          // 132 The sales goal's ring.
+          if (today.goal != null) ...[
+            GoalCard(
+              goal: today.goal!,
+              onTap: () => context.push(Paths.smartAlerts),
+            ),
             const SizedBox(height: 12),
           ],
           Padding(

@@ -79,7 +79,7 @@
 	<key>NSPhotoLibraryUsageDescription</key>
 	<string>Yallapp Business uploads the pictures and videos you choose to your app's Media library.</string>
 	<key>NSFaceIDUsageDescription</key>
-	<string>Yallapp Business can unlock with Face ID instead of your password.</string>
+	<string>Yallapp Business uses Face ID to unlock the app lock, so only you can open your business on this phone.</string>
 	<key>UIBackgroundModes</key>
 	<array>
 		<string>remote-notification</string>
@@ -90,6 +90,7 @@
 		<string>mailto</string>
 		<string>tel</string>
 		<string>whatsapp</string>
+		<string>maps</string>
 	</array>
 	<key>ITSAppUsesNonExemptEncryption</key>
 	<false/>

@@ -16,6 +16,9 @@ mixin _FakeStudio implements OwnerApi {
   static const ridesId = 'dddddddd-dddd-4ddd-8ddd-dddddddddddd';
   static const schoolId = 'eeeeeeee-eeee-4eee-8eee-eeeeeeeeeeee';
 
+  /// 132 A Studio store with the gift checkout (Leqaa, the flower shop).
+  static const flowersId = 'ffffffff-ffff-4fff-8fff-ffffffffffff';
+
   /// VIP: the business has an account manager (tests turn it off).
   bool accountManagerOn = true;
 
@@ -29,6 +32,84 @@ mixin _FakeStudio implements OwnerApi {
   final _rides = <String, List<Json>>{};
   final _drivers = <String, List<Json>>{};
   final _marketOrders = <String, List<Json>>{};
+
+  /// 132 The business's replies under ratings, by "food:40".
+  final _ratingReplies = <String, Json>{};
+
+  /// 132 The customers' ratings the fake has: a delivered food order, a
+  /// marketplace order, a ride, and the Prime reviews list's.
+  static const _ratings = {
+    'food:40': (2, 'The lahmacun arrived cold.', 'Pide House'),
+    'food:48': (5, 'Hot and fast, thank you!', 'Burger Lab'),
+    'food:47': (2, 'The fries were cold.', 'Burger Lab'),
+    'food:45': (5, null, 'Pide House'),
+    'food:41': (5, 'Perfect as always.', 'Pide House'),
+    'market:39': (3, 'The olive oil bottle leaked a little.', 'Fresh Mart'),
+    'ride:540': (5, 'Very kind driver.', 'Selim Kurt'),
+  };
+
+  /// 132 `rating` on a detail, with the reply under it.
+  Json? _ratingJson(String source, String id) {
+    final r = _ratings['$source:$id'];
+    if (r == null) return null;
+    return {
+      'stars': r.$1,
+      'courier': null,
+      'comment': r.$2,
+      'at': _at(const Duration(hours: 1)),
+      'reply': _ratingReplies['$source:$id'],
+    };
+  }
+
+  @override
+  Future<RatedItem> replyRating(
+    String appId,
+    String source,
+    String id,
+    String text,
+  ) async {
+    await _call('replyRating:$source');
+    final key = '$source:$id';
+    final r = _ratings[key];
+    if (r == null) _missing();
+    if (text.trim().isEmpty) {
+      throw const ApiException(
+        code: 'invalid_request',
+        statusCode: 400,
+        fieldErrors: {'text': 'Write your reply.'},
+      );
+    }
+    final before = _ratingReplies[key];
+    _ratingReplies[key] = {
+      'text': text.trim(),
+      'at': before?['at'] ?? _at(Duration.zero),
+      'edited_at': before == null ? null : _at(Duration.zero),
+      'by': 'Leyla',
+    };
+    return _rated(source, id, r.$3);
+  }
+
+  @override
+  Future<RatedItem> deleteRatingReply(
+    String appId,
+    String source,
+    String id,
+  ) async {
+    await _call('deleteRatingReply:$source');
+    final r = _ratings['$source:$id'];
+    if (r == null) _missing();
+    _ratingReplies.remove('$source:$id');
+    return _rated(source, id, r.$3);
+  }
+
+  RatedItem _rated(String source, String id, String about) =>
+      RatedItem.fromJson({
+        'source': source,
+        'id': int.parse(id),
+        'reference': id,
+        'about': about,
+        'rating': _ratingJson(source, id),
+      });
   final _complaints = <String, List<Json>>{};
   final _vendors = <String, List<Json>>{};
   final _excuses = <String, List<Json>>{};
@@ -213,6 +294,26 @@ mixin _FakeStudio implements OwnerApi {
         ),
       ),
       AppSummary(
+        id: flowersId,
+        name: 'Leqaa',
+        type: 'store',
+        typeName: 'Store',
+        backend: 'hosted',
+        state: AccountState.active,
+        plan: studio,
+        features: const AppFeatures(
+          orders: true,
+          products: true,
+          appUsers: true,
+          notifications: true,
+          media: true,
+          analytics: true,
+          preview: true,
+          builds: true,
+          prime: true,
+        ),
+      ),
+      AppSummary(
         id: schoolId,
         name: 'Green Hill School',
         type: 'school',
@@ -232,6 +333,320 @@ mixin _FakeStudio implements OwnerApi {
           vip: true,
         ),
       ),
+    ];
+  }
+
+  /// 132 Leqaa's orders as the server writes them (read back with
+  /// `Order.fromJson`): two gift orders (one sent anonymously) with their
+  /// day and slot, recipient, card, add-ons, flash sale, coupon and fees;
+  /// one from a customer's account; one waiting for cash on delivery.
+  List<Order> _flowerOrders() {
+    Json m(int cents) => _money(cents, 'EGP');
+    final tomorrow = _isoDay(now.add(const Duration(days: 1)));
+    Json line(
+      int productId,
+      String name,
+      int unit, {
+      int quantity = 1,
+      List<String> options = const [],
+      int? addonOf,
+      Json? sale,
+    }) => {
+      'product_id': productId,
+      'name': name,
+      'quantity': quantity,
+      'unit': m(unit),
+      'total': m(unit * quantity),
+      'options': options,
+      'variant': null,
+      'digital': false,
+      'addon_of': ?addonOf,
+      'flash_sale': sale,
+    };
+    Json order({
+      required int number,
+      required String status,
+      required Duration ago,
+      required List<Json> lines,
+      required Json amounts,
+      Json? customer,
+      Json? deliverTo,
+      Json? delivery,
+      Json? payOutside,
+      List<String> next = const [],
+      List<Json> stages = const [],
+    }) => {
+      'id': number,
+      'number': '$number',
+      // 132 Its delivery stage, newest first, and where it may go next.
+      'stage': stages.isEmpty ? null : stages.first,
+      'stage_history': stages,
+      'next_stages': status != 'processing'
+          ? const <String>[]
+          : FakeStages.next(
+              stages.isEmpty ? null : stages.first['stage'] as String,
+            ),
+      'status': status,
+      'status_label': switch (status) {
+        'pending' => 'Waiting for payment',
+        'completed' => 'Completed',
+        _ => 'In progress',
+      },
+      'kitchen': null,
+      'total': amounts['total'],
+      'refunded': null,
+      'lines': lines,
+      'customer': customer,
+      'deliver_to': deliverTo,
+      'amounts': amounts,
+      'created_at': _at(ago),
+      'paid_at': status == 'pending' ? null : _at(ago),
+      'delivery': delivery,
+      'shippable': false,
+      'shipment': null,
+      'next_statuses': next,
+      'pay_outside': payOutside,
+    };
+    return [
+      for (final j in [
+        order(
+          number: 2051,
+          status: 'processing',
+          ago: const Duration(minutes: 12),
+          lines: [
+            line(
+              11,
+              'Blush Garden - Deluxe',
+              180000,
+              options: const ['Wrap: Kraft paper'],
+              sale: {'id': 4, 'title': "Mother's Day roses", 'percent': 25},
+            ),
+            line(21, 'Belgian chocolate box', 25000, addonOf: 11),
+            line(22, 'Greeting card', 4500, addonOf: 11),
+          ],
+          amounts: {
+            'subtotal': m(209500),
+            'discount': {'code': 'LEQAA10', 'amount': m(20950)},
+            'points': null,
+            'shipping': m(15000),
+            'tax': null,
+            'total': m(203550),
+          },
+          customer: {
+            'name': 'Omar Nabil',
+            'phone': '+20 100 123 4567',
+            'email': 'omar.nabil@example.com',
+            'city': null,
+            'address': null,
+            'source': 'sender',
+          },
+          deliverTo: {
+            'person': 'recipient',
+            'name': 'Salma Nabil',
+            'phone': '+20 100 765 4321',
+            'address': '14 Brazil St, Zamalek',
+            'city': 'Cairo',
+            'country': 'EG',
+            'lat': 30.0626,
+            'lng': 31.2197,
+            'notes': null,
+          },
+          delivery: {
+            'date': tomorrow,
+            'slot': {
+              'id': 'afternoon',
+              'start': '13:00',
+              'end': '16:00',
+              'label': '13:00–16:00',
+            },
+            'fee': m(5000),
+            'sender': {
+              'name': 'Omar Nabil',
+              'phone': '+20 100 123 4567',
+              'email': 'omar.nabil@example.com',
+            },
+            'recipient': {
+              'name': 'Salma Nabil',
+              'phone': '+20 100 765 4321',
+              'address': '14 Brazil St, Zamalek',
+            },
+            'gift_message': 'Happy birthday, Mama! With all my love.',
+            'anonymous': false,
+            'signed_by': 'Omar Nabil',
+            'place': {
+              'country': 'EG',
+              'city': 'Cairo',
+              'lat': 30.0626,
+              'lng': 31.2197,
+            },
+            'zone': '4.2 km',
+            'shipping_fee': m(10000),
+            'breakdown': [
+              {'label': 'Base fee', 'rule': 'distance', 'amount': m(6000)},
+              {'label': '4.2 km', 'rule': 'distance', 'amount': m(4000)},
+            ],
+          },
+          next: const ['completed', 'cancelled'],
+        ),
+        order(
+          number: 2050,
+          status: 'processing',
+          ago: const Duration(hours: 2),
+          lines: [line(12, 'White Peony Vase', 95000)],
+          amounts: {
+            'subtotal': m(95000),
+            'discount': null,
+            'points': null,
+            'shipping': m(8000),
+            'tax': null,
+            'total': m(103000),
+          },
+          customer: {
+            'name': 'Karim Adel',
+            'phone': '+20 111 222 3344',
+            'email': 'karim@example.com',
+            'city': 'Giza',
+            'address': '3 Nile St, Dokki',
+            'source': 'checkout',
+          },
+          deliverTo: {
+            'person': 'recipient',
+            'name': 'Hana Fathy',
+            'phone': '+20 122 333 4455',
+            'address': '22 Road 9, Maadi',
+            'city': 'Cairo',
+            'country': 'EG',
+            'lat': null,
+            'lng': null,
+            'notes': null,
+          },
+          // 132 Postponed to tomorrow morning (its stages below).
+          delivery: {
+            'date': tomorrow,
+            'slot': {
+              'id': 'morning',
+              'start': '10:00',
+              'end': '13:00',
+              'label': '10:00–13:00',
+            },
+            'fee': null,
+            'sender': {
+              'name': 'Karim Adel',
+              'phone': '+20 111 222 3344',
+              'email': 'karim@example.com',
+            },
+            'recipient': {
+              'name': 'Hana Fathy',
+              'phone': '+20 122 333 4455',
+              'address': '22 Road 9, Maadi',
+            },
+            'gift_message': 'Get well soon.',
+            'anonymous': true,
+            'signed_by': null,
+            'place': {
+              'country': 'EG',
+              'city': 'Cairo',
+              'lat': null,
+              'lng': null,
+            },
+            'zone': 'Cairo',
+            'shipping_fee': m(8000),
+            'breakdown': const [],
+          },
+          next: const ['completed', 'cancelled'],
+          stages: [
+            FakeStages.entry(
+              'postponed',
+              at: now.subtract(const Duration(minutes: 40)),
+              by: 'Leyla',
+              reason: 'recipient_away',
+              note: 'Hana is at the hospital until tomorrow; call her sister.',
+              date: tomorrow,
+              slot: ('morning', '10:00', '13:00'),
+            ),
+            FakeStages.entry(
+              'shipped',
+              at: now.subtract(const Duration(hours: 1, minutes: 30)),
+              by: 'Leyla',
+              courierName: 'Mostafa',
+              courierPhone: '+20 100 555 1234',
+            ),
+          ],
+        ),
+        order(
+          number: 2048,
+          status: 'pending',
+          ago: const Duration(hours: 5),
+          lines: [line(13, 'Sunflower bunch', 40000, quantity: 2)],
+          amounts: {
+            'subtotal': m(80000),
+            'discount': null,
+            'points': null,
+            'shipping': m(6000),
+            'tax': null,
+            'total': m(86000),
+          },
+          customer: {
+            'name': 'Nour Hany',
+            'phone': '+20 100 555 0101',
+            'email': 'nour@example.com',
+            'city': 'Giza',
+            'address': null,
+            'source': 'account',
+          },
+          deliverTo: {
+            'person': 'customer',
+            'name': 'Nour Hany',
+            'phone': '+20 100 555 0101',
+            'address': null,
+            'city': 'Giza',
+            'country': 'EG',
+            'lat': null,
+            'lng': null,
+            'notes': null,
+          },
+          payOutside: {
+            'method': 'custom',
+            'name': 'Cash on delivery',
+            'due_at': _in(const Duration(days: 2)),
+          },
+          next: const ['processing', 'cancelled'],
+        ),
+        order(
+          number: 2047,
+          status: 'completed',
+          ago: const Duration(days: 1),
+          lines: [line(14, 'Red Roses · 12 stems', 70000)],
+          amounts: {
+            'subtotal': m(70000),
+            'discount': null,
+            'points': null,
+            'shipping': m(6000),
+            'tax': null,
+            'total': m(76000),
+          },
+          customer: {
+            'name': 'Mariam Said',
+            'phone': '+20 100 999 8877',
+            'email': 'mariam@example.com',
+            'city': 'Cairo',
+            'address': '8 Tahrir St, Downtown',
+            'source': 'checkout',
+          },
+          deliverTo: {
+            'person': 'customer',
+            'name': 'Mariam Said',
+            'phone': '+20 100 999 8877',
+            'address': '8 Tahrir St, Downtown',
+            'city': 'Cairo',
+            'country': null,
+            'lat': null,
+            'lng': null,
+            'notes': null,
+          },
+        ),
+      ])
+        Order.fromJson(j),
     ];
   }
 
@@ -325,6 +740,9 @@ mixin _FakeStudio implements OwnerApi {
         'phone': '+90 532 000 00 00',
         'address': customer.$2,
         'note': customer.$3,
+        'details': null,
+        'lat': 41.0422,
+        'lng': 29.0083,
       },
       'restaurant_address': restaurant.$3,
       'timeline': [
@@ -478,8 +896,20 @@ mixin _FakeStudio implements OwnerApi {
     'reference': 'S-$number',
     'status': status,
     'status_label': statusLabel,
-    'pickup': {'name': pickup.$1, 'address': pickup.$2},
-    'dropoff': {'name': recipient, 'address': dropoff.$2},
+    'pickup': {
+      'name': pickup.$1,
+      'address': pickup.$2,
+      'details': null,
+      'lat': 41.0369,
+      'lng': 28.9850,
+    },
+    'dropoff': {
+      'name': recipient,
+      'address': dropoff.$2,
+      'details': 'Apt 4, 2nd floor',
+      'lat': 41.0151,
+      'lng': 29.0266,
+    },
     'distance_km': distance,
     'price': _money(price),
     'payment': {
@@ -500,6 +930,9 @@ mixin _FakeStudio implements OwnerApi {
     ],
     'note': null,
     'recipient': {'name': recipient, 'phone': '+90 532 111 22 33'},
+    'sender': {'name': pickup.$1, 'phone': '+90 532 444 55 66'},
+    'package': {'size': 'small', 'description': 'Documents'},
+    'service': 'Same day',
   };
 
   static List<String> _shipmentNext(String status) => switch (status) {
@@ -693,13 +1126,27 @@ mixin _FakeStudio implements OwnerApi {
     'status': status,
     'status_label': statusLabel,
     'vehicle_type': type,
-    'pickup': {'name': pickup.$1, 'address': pickup.$2},
-    'dropoff': {'name': dropoff.$1, 'address': dropoff.$2},
+    'pickup': {
+      'name': pickup.$1,
+      'address': pickup.$2,
+      'details': null,
+      'lat': 41.0370,
+      'lng': 28.9857,
+    },
+    'dropoff': {
+      'name': dropoff.$1,
+      'address': dropoff.$2,
+      'details': null,
+      'lat': 40.9909,
+      'lng': 29.0303,
+    },
     'distance_km': distance,
     'quoted': _money(quoted),
     'final': finalPrice == null ? null : _money(finalPrice),
     'rider_name': rider,
-    'payment_label': 'cash',
+    'rider': {'name': rider, 'phone': '+90 535 700 00 01'},
+    'notes': null,
+    'payment_label': 'Cash to the driver',
     'driver': driver == null
         ? null
         : {
@@ -722,8 +1169,8 @@ mixin _FakeStudio implements OwnerApi {
     'updated_at': _at(ago),
     'timeline': [
       {
-        'status': 'requested',
-        'label': 'Asked for',
+        'status': 'searching',
+        'label': 'Looking for a driver',
         'at': _at(ago),
         'by': rider,
       },
@@ -941,6 +1388,24 @@ mixin _FakeStudio implements OwnerApi {
           'total': _money(total),
         },
       ],
+      'customer': {
+        'name': customer,
+        'phone': '+90 534 600 00 02',
+        'address': 'Bağdat Cd. 210, Caddebostan, Flat 6',
+        'note': 'Leave it with the doorman',
+        'details': 'Flat 6',
+        'lat': 40.9660,
+        'lng': 29.0640,
+      },
+      'scheduled_for': null,
+      'payment': {'method': 'card', 'status': 'paid'},
+      'coupon_code': null,
+      'amounts': [
+        {'kind': 'items', 'amount': _money(total - 2500)},
+        {'kind': 'delivery', 'amount': _money(2500)},
+        {'kind': 'total', 'amount': _money(total)},
+      ],
+      'courier': null,
       'timeline': [
         {'status': 'placed', 'label': 'Placed', 'at': _at(ago), 'by': customer},
       ],
@@ -1228,6 +1693,7 @@ mixin _FakeStudio implements OwnerApi {
       morningBrief: f.prime && f.foodOrders
           ? 'Yesterday: ₺21,060 from 168 orders. Busiest hour 20:00–21:00. Burger Lab sold most.'
           : null,
+      goal: f.prime ? _goalOf(id, FakeOwnerApi.money(sales)) : null,
       needsYou: [
         if (f.foodOrders && newFood > 0)
           NeedsYou(
@@ -1333,7 +1799,10 @@ mixin _FakeStudio implements OwnerApi {
   Future<FoodOrderDetail> foodOrder(String appId, String id) async {
     await _call('foodOrder');
     _app(appId, (f) => f.foodOrders);
-    return FoodOrderDetail.fromJson(_one(_food, appId, id));
+    return FoodOrderDetail.fromJson({
+      ..._one(_food, appId, id),
+      'rating': _ratingJson('food', id),
+    });
   }
 
   @override
@@ -1626,7 +2095,10 @@ mixin _FakeStudio implements OwnerApi {
   Future<RideDetail> ride(String appId, String id) async {
     await _call('ride');
     _app(appId, (f) => f.rides);
-    return RideDetail.fromJson(_one(_rides, appId, id));
+    return RideDetail.fromJson({
+      ..._one(_rides, appId, id),
+      'rating': _ratingJson('ride', id),
+    });
   }
 
   @override
@@ -1743,7 +2215,10 @@ mixin _FakeStudio implements OwnerApi {
   Future<MarketOrderDetail> marketOrder(String appId, String id) async {
     await _call('marketOrder');
     _app(appId, (f) => f.market);
-    return MarketOrderDetail.fromJson(_one(_marketOrders, appId, id));
+    return MarketOrderDetail.fromJson({
+      ..._one(_marketOrders, appId, id),
+      'rating': _ratingJson('market', id),
+    });
   }
 
   @override
@@ -2241,6 +2716,10 @@ mixin _FakeStudio implements OwnerApi {
       if (f.market) {'kind': 'message_unanswered', 'on': false, 'minutes': 10},
       if (f.foodOrders || f.rides || f.market)
         {'kind': 'low_rating', 'on': false, 'stars': 2},
+      // 132 A store's stock running low; a sales goal for whatever sells.
+      if (f.products) {'kind': 'low_stock', 'on': false, 'threshold': 3},
+      if (!f.school)
+        {'kind': 'sales_goal', 'on': false, 'amount_cents': 0, 'period': 'day'},
     ],
     // Every alert and the brief start off, as on the server.
     'morning_brief': {'on': false, 'time': '08:30'},
@@ -2279,9 +2758,296 @@ mixin _FakeStudio implements OwnerApi {
       final by = a.byTime;
       if (by != null && !time.hasMatch(by)) _invalid('Choose a time.');
     }
+    for (final a in alerts.items) {
+      if (a.kind == 'sales_goal' && a.on && (a.amountCents ?? 0) <= 0) {
+        _invalid("Enter the goal's amount.", {
+          'amount_cents': "Enter the goal's amount.",
+        });
+      }
+    }
     if (!time.hasMatch(alerts.briefTime)) _invalid('Choose a time.');
     _alerts[appId] = alerts.toJson();
     return PrimeAlerts.fromJson(_alerts[appId]!);
+  }
+
+  // 132 Prime's second set.
+
+  /// What the quick actions changed (tests read it).
+  final coupons = <String, List<Json>>{};
+  final flashSales = <String, List<Json>>{};
+  final closedSlots = <String, Set<String>>{};
+  final busyUntil = <String, DateTime?>{};
+  bool weeklyOn = true;
+
+  @override
+  Future<PrimeCustomers> primeCustomers(
+    String appId, {
+    String period = 'month',
+  }) async {
+    await _call('primeCustomers:$period');
+    final app = _app(appId, (f) => f.prime);
+    final cur = app.id == foodId || app.id == ridesId ? 'TRY' : 'EGP';
+    Json person(String name, int orders, int cents, Duration ago) => {
+      'name': name,
+      'orders': orders,
+      'spend': _money(cents, cur),
+      'last_order_at': _at(ago),
+    };
+    return PrimeCustomers.fromJson({
+      'period': period,
+      'customers': period == 'week' ? 18 : 64,
+      'new': period == 'week' ? 7 : 22,
+      'returning': period == 'week' ? 11 : 42,
+      'top': [
+        person('Omar Nabil', 6, 1240000, const Duration(days: 1)),
+        person('Salma Fathy', 4, 860000, const Duration(days: 3)),
+        person('Karim Adel', 3, 520000, const Duration(days: 6)),
+      ],
+      'lapsed_30': {
+        'count': 9,
+        'people': [
+          person('Hana Mostafa', 5, 610000, const Duration(days: 38)),
+          person('Youssef Ali', 2, 190000, const Duration(days: 44)),
+        ],
+      },
+      'lapsed_60': {
+        'count': 14,
+        'people': [person('Nour Hany', 3, 400000, const Duration(days: 75))],
+      },
+      'names_shown': true,
+    });
+  }
+
+  @override
+  Future<PrimeProducts> primeProducts(
+    String appId, {
+    String period = 'month',
+  }) async {
+    await _call('primeProducts:$period');
+    final app = _app(appId, (f) => f.prime);
+    if (!app.features.products) _notAvailable();
+    Json product(int id, String name, int units, int cents, int? stock) => {
+      'id': id,
+      'name': name,
+      'units': units,
+      'total': _money(cents, 'EGP'),
+      'stock': stock,
+    };
+    return PrimeProducts.fromJson({
+      'period': period,
+      'threshold': 3,
+      'best': [
+        product(11, 'Blush Garden', 42, 6090000, 18),
+        product(14, 'Red Roses · 12 stems', 31, 2170000, 2),
+        product(12, 'White Peony Vase', 12, 1140000, 6),
+      ],
+      'slow': [
+        product(16, 'Orchid in a pot', 0, 0, 9),
+        product(17, 'Dried lavender', 1, 18000, 14),
+      ],
+      'low_stock': [product(14, 'Red Roses · 12 stems', 31, 2170000, 2)],
+      'out_of_stock': [product(13, 'Sunflower bunch', 22, 880000, 0)],
+    });
+  }
+
+  static Never _notAvailable() => throw const ApiException(
+    code: ApiException.notAvailable,
+    statusCode: 404,
+  );
+
+  @override
+  Future<PrimeReviews> primeReviews(String appId) async {
+    await _call('primeReviews');
+    final app = _app(appId, (f) => f.prime);
+    final f = app.features;
+    if (!(f.foodOrders || f.market || f.rides || f.reviews)) _notAvailable();
+    final source = f.foodOrders
+        ? 'food'
+        : f.market
+        ? 'market'
+        : 'ride';
+    Json review(
+      int id,
+      int rating,
+      String? comment,
+      String name,
+      String about,
+      Duration ago,
+    ) => {
+      'source': source,
+      'id': id,
+      'rating': rating,
+      'comment': comment,
+      'at': _at(ago),
+      'name': name,
+      'about': about,
+      // 132 Answered from the phone.
+      'can_reply': true,
+      'reply': _ratingReplies['$source:$id']?['text'],
+    };
+    return PrimeReviews.fromJson({
+      'average': 4.3,
+      'count': 4,
+      'items': [
+        review(
+          48,
+          5,
+          'Hot and fast, thank you!',
+          'Ayşe Kaya',
+          'Burger Lab',
+          const Duration(hours: 2),
+        ),
+        review(
+          47,
+          2,
+          'The fries were cold.',
+          'Mert Demir',
+          'Burger Lab',
+          const Duration(hours: 5),
+        ),
+        review(
+          45,
+          5,
+          null,
+          'Elif Şahin',
+          'Pide House',
+          const Duration(days: 1),
+        ),
+        review(
+          41,
+          5,
+          'Perfect as always.',
+          'Can Yıldız',
+          'Pide House',
+          const Duration(days: 2),
+        ),
+      ],
+    });
+  }
+
+  @override
+  Future<WeeklyReport> weeklyReport(String appId) async {
+    await _call('weeklyReport');
+    _app(appId, (f) => f.prime);
+    return WeeklyReport(on: weeklyOn, email: 'owner@example.com');
+  }
+
+  @override
+  Future<WeeklyReport> setWeeklyReport(String appId, bool on) async {
+    await _call('setWeeklyReport:$on');
+    _app(appId, (f) => f.prime);
+    weeklyOn = on;
+    return WeeklyReport(on: on, email: 'owner@example.com');
+  }
+
+  @override
+  Future<String> createCoupon(String appId, Json coupon) async {
+    await _call('createCoupon');
+    final app = _app(appId, (f) => f.prime);
+    if (!app.features.products) _notAvailable();
+    final code = '${coupon['code'] ?? ''}'.trim().toUpperCase();
+    final errors = <String, String>{
+      if (!RegExp(r'^[A-Z0-9-]{2,50}$').hasMatch(code))
+        'code': 'Use 2 to 50 letters, digits or dashes, like SPRING10.',
+      if ((int.tryParse('${coupon['value']}') ?? 0) < 1)
+        'value': 'Enter a percentage from 1 to 100.',
+      if ((coupons[appId] ?? const []).any((c) => c['code'] == code))
+        'code': 'You already have a coupon with this code.',
+    };
+    if (errors.isNotEmpty) _invalid("The request isn't valid.", errors);
+    (coupons[appId] ??= []).add({...coupon, 'code': code});
+    return code;
+  }
+
+  @override
+  Future<String> createFlashSale(String appId, Json sale) async {
+    await _call('createFlashSale');
+    final app = _app(appId, (f) => f.prime);
+    if (!app.features.products) _notAvailable();
+    final title = '${sale['title'] ?? ''}'.trim();
+    final errors = <String, String>{
+      if (title.length < 2) 'title': 'Give it a name of up to 80 characters.',
+      if ((sale['product_ids'] as List? ?? const []).isEmpty)
+        'product_ids': 'Choose the products on sale, or a category.',
+    };
+    if (errors.isNotEmpty) _invalid("The request isn't valid.", errors);
+    (flashSales[appId] ??= []).add(sale);
+    return title;
+  }
+
+  @override
+  Future<SlotsDay> deliverySlots(String appId, {String? date}) async {
+    await _call('deliverySlots');
+    final app = _app(appId, (f) => f.prime);
+    if (!app.features.products) _notAvailable();
+    final day = date ?? _isoDay(now);
+    final closed = closedSlots[appId] ?? const <String>{};
+    return SlotsDay.fromJson({
+      'date': day,
+      'date_label': day,
+      'slots': [
+        for (final (id, label) in const [
+          ('morning', '10:00–13:00'),
+          ('afternoon', '13:00–16:00'),
+          ('evening', '16:00–19:00'),
+          ('night', '19:00–22:00'),
+        ])
+          {'id': id, 'label': label, 'closed': closed.contains('$day:$id')},
+      ],
+    });
+  }
+
+  @override
+  Future<SlotsDay> setSlotClosed(
+    String appId,
+    String slotId, {
+    required String date,
+    required bool closed,
+  }) async {
+    await _call('setSlotClosed:$slotId:$closed');
+    final set = closedSlots[appId] ??= {};
+    closed ? set.add('$date:$slotId') : set.remove('$date:$slotId');
+    return deliverySlots(appId, date: date);
+  }
+
+  @override
+  Future<DateTime?> setRestaurantBusy(
+    String appId,
+    String restaurantId,
+    int minutes,
+  ) async {
+    await _call('setRestaurantBusy:$restaurantId:$minutes');
+    _app(appId, (f) => f.restaurants);
+    final until = minutes == 0 ? null : now.add(Duration(minutes: minutes));
+    busyUntil[restaurantId] = until;
+    final r = _one(_restaurants, appId, restaurantId);
+    r['busy_until'] = until?.toUtc().toIso8601String();
+    return until;
+  }
+
+  /// 132 Today's goal ring, from the person's `sales_goal`.
+  TodayGoal? _goalOf(String appId, Money? sales) {
+    final saved = _alerts[appId];
+    if (saved == null) return null;
+    final goal = PrimeAlerts.fromJson(saved).items
+        .where((a) => a.kind == 'sales_goal' && a.on)
+        .firstOrNull;
+    final target = goal?.amountCents ?? 0;
+    if (goal == null || target <= 0) return null;
+    final current = sales?.amountCents ?? 0;
+    final currency = sales?.currency ?? 'TRY';
+    return TodayGoal(
+      period: goal.period ?? 'day',
+      target: FakeOwnerApi.money(target, currency),
+      current: FakeOwnerApi.money(current, currency),
+      pct: (current * 100 ~/ target).clamp(0, 100),
+      reached: current >= target,
+      label: switch (goal.period) {
+        'week' => "This week's goal",
+        'month' => "This month's goal",
+        _ => "Today's goal",
+      },
+    );
   }
 
   // 10. VIP

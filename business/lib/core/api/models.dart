@@ -565,6 +565,8 @@ class AppSummary {
     this.iconUrl,
     this.plan,
     this.access = const AppAccess(),
+    this.primeGift = false,
+    this.primeGiftUntil,
   });
 
   factory AppSummary.fromJson(Json json) => AppSummary(
@@ -581,6 +583,11 @@ class AppSummary {
     access: switch (optObject(json, 'access')) {
       final Json access => AppAccess.fromJson(access),
       null => const AppAccess(),
+    },
+    primeGift: optObject(json, 'prime_gift') != null,
+    primeGiftUntil: switch (optObject(json, 'prime_gift')) {
+      final Json gift => optDate(gift, 'until'),
+      null => null,
     },
   );
 
@@ -603,6 +610,11 @@ class AppSummary {
 
   /// 60 What the signed-in person may do on it.
   final AppAccess access;
+
+  /// 132 Prime given by Yallapp as a gift (whatever the plan), until when
+  /// (null: until Yallapp removes it).
+  final bool primeGift;
+  final DateTime? primeGiftUntil;
 
   bool get isRestaurant => vertical == 'restaurant' || features.kitchen;
   bool get hosted => backend == 'hosted';
@@ -841,6 +853,7 @@ class Today {
     this.hasAppOpens = false,
     this.compare,
     this.morningBrief,
+    this.goal,
   });
 
   factory Today.fromJson(Json json) {
@@ -858,6 +871,7 @@ class Today {
         optObject(json, 'morning_brief') ?? const {},
         'text',
       ),
+      goal: TodayGoal.opt(json, 'goal'),
     );
   }
 
@@ -876,6 +890,42 @@ class Today {
 
   /// 125 Yesterday in a line (`morning_brief.text`), when sent.
   final String? morningBrief;
+
+  /// 132 The person's sales goal and how far it is (Prime).
+  final TodayGoal? goal;
+}
+
+/// 132 A sales goal for the day, the week or the month, and how far it is.
+class TodayGoal {
+  const TodayGoal({
+    required this.period,
+    required this.target,
+    required this.current,
+    required this.pct,
+    required this.reached,
+    required this.label,
+  });
+
+  static TodayGoal? opt(Json json, String key) {
+    final g = optObject(json, key);
+    if (g == null) return null;
+    return TodayGoal(
+      period: str(g, 'period', 'day'),
+      target: Money.fromJson(optObject(g, 'target') ?? const {}),
+      current: Money.fromJson(optObject(g, 'current') ?? const {}),
+      pct: integer(g, 'pct'),
+      reached: boolean(g, 'reached'),
+      label: str(g, 'label'),
+    );
+  }
+
+  /// day, week or month.
+  final String period;
+  final Money target;
+  final Money current;
+  final int pct;
+  final bool reached;
+  final String label;
 }
 
 class Paged<T> {
@@ -916,12 +966,18 @@ class Paged<T> {
 }
 
 class OrderKitchen {
-  const OrderKitchen({required this.type, required this.step, this.stepLabel});
+  const OrderKitchen({
+    required this.type,
+    required this.step,
+    this.stepLabel,
+    this.scheduledFor,
+  });
 
   factory OrderKitchen.fromJson(Json json) => OrderKitchen(
     type: str(json, 'type', 'pickup'),
     step: str(json, 'step', 'received'),
     stepLabel: optStr(json, 'step_label'),
+    scheduledFor: optDate(json, 'scheduled_for'),
   );
 
   /// pickup or delivery.
@@ -930,6 +986,20 @@ class OrderKitchen {
   /// received, preparing, ready, out_for_delivery, completed, cancelled.
   final String step;
   final String? stepLabel;
+
+  /// 132 The time the customer asked for; null: as soon as possible.
+  final DateTime? scheduledFor;
+}
+
+/// 132 A line bought at a flash sale's price.
+class LineSale {
+  const LineSale({this.title, this.percent});
+
+  factory LineSale.fromJson(Json json) =>
+      LineSale(title: optStr(json, 'title'), percent: optInt(json, 'percent'));
+
+  final String? title;
+  final int? percent;
 }
 
 class OrderLine {
@@ -938,23 +1008,52 @@ class OrderLine {
     required this.quantity,
     required this.unit,
     this.options = const [],
+    this.productId,
+    this.total,
+    this.variant,
+    this.addonOf,
+    this.flashSale,
   });
 
-  factory OrderLine.fromJson(Json json) => OrderLine(
-    name: str(json, 'name'),
-    quantity: integer(json, 'quantity', 1),
-    unit: Money.fromJson(optObject(json, 'unit') ?? const {}),
-    options: strings(json, 'options'),
-  );
+  factory OrderLine.fromJson(Json json) {
+    final sale = optObject(json, 'flash_sale');
+    return OrderLine(
+      name: str(json, 'name'),
+      quantity: integer(json, 'quantity', 1),
+      unit: Money.fromJson(optObject(json, 'unit') ?? const {}),
+      options: strings(json, 'options'),
+      productId: optInt(json, 'product_id'),
+      total: Money.opt(json, 'total'),
+      variant: optStr(json, 'variant'),
+      addonOf: optInt(json, 'addon_of'),
+      flashSale: sale == null ? null : LineSale.fromJson(sale),
+    );
+  }
 
   final String name;
   final int quantity;
   final Money unit;
   final List<String> options;
+
+  /// 132 The product; an add-on's [addonOf] is its item's.
+  final int? productId;
+  final Money? total;
+  final String? variant;
+
+  /// 131 A gift add-on: the product of the line it goes with.
+  final int? addonOf;
+  final LineSale? flashSale;
 }
 
 class Customer {
-  const Customer({this.name, this.phone, this.email, this.city, this.address});
+  const Customer({
+    this.name,
+    this.phone,
+    this.email,
+    this.city,
+    this.address,
+    this.source,
+  });
 
   factory Customer.fromJson(Json json) => Customer(
     name: optStr(json, 'name'),
@@ -962,6 +1061,7 @@ class Customer {
     email: optStr(json, 'email'),
     city: optStr(json, 'city'),
     address: optStr(json, 'address'),
+    source: optStr(json, 'source'),
   );
 
   final String? name;
@@ -969,6 +1069,225 @@ class Customer {
   final String? email;
   final String? city;
   final String? address;
+
+  /// 132 checkout (the payment page), sender (the gift checkout) or account
+  /// (the app's account of the person who checked out).
+  final String? source;
+}
+
+/// 132 Where an order goes and who takes it: the gift's recipient, or the
+/// customer at their address; the place's pin for the map.
+class DeliverTo {
+  const DeliverTo({
+    required this.person,
+    this.name,
+    this.phone,
+    this.address,
+    this.city,
+    this.country,
+    this.lat,
+    this.lng,
+    this.notes,
+  });
+
+  factory DeliverTo.fromJson(Json json) => DeliverTo(
+    person: str(json, 'person', 'customer'),
+    name: optStr(json, 'name'),
+    phone: optStr(json, 'phone'),
+    address: optStr(json, 'address'),
+    city: optStr(json, 'city'),
+    country: optStr(json, 'country'),
+    lat: optNumber(json, 'lat'),
+    lng: optNumber(json, 'lng'),
+    notes: optStr(json, 'notes'),
+  );
+
+  /// customer or recipient.
+  final String person;
+  final String? name;
+  final String? phone;
+  final String? address;
+  final String? city;
+  final String? country;
+  final double? lat;
+  final double? lng;
+  final String? notes;
+
+  bool get isRecipient => person == 'recipient';
+
+  /// "14 Brazil St, Zamalek, Cairo": what to copy or look up.
+  String get line => [
+    address,
+    if (city != null && !(address ?? '').contains(city!)) city,
+  ].whereType<String>().join(', ');
+}
+
+/// 131 A delivery's people: the gift checkout's sender or its recipient.
+class GiftPerson {
+  const GiftPerson({required this.name, this.phone, this.email, this.address});
+
+  factory GiftPerson.fromJson(Json json) => GiftPerson(
+    name: str(json, 'name'),
+    phone: optStr(json, 'phone'),
+    email: optStr(json, 'email'),
+    address: optStr(json, 'address'),
+  );
+
+  final String name;
+  final String? phone;
+  final String? email;
+  final String? address;
+}
+
+/// 131 The delivery day and slot, the gift's people and card, the place,
+/// the shipping's zone and the fee with what made it up.
+class OrderDelivery {
+  const OrderDelivery({
+    this.date,
+    this.slotLabel,
+    this.fee,
+    this.sender,
+    this.recipient,
+    this.giftMessage,
+    this.anonymous = false,
+    this.signedBy,
+    this.zone,
+    this.shippingFee,
+    this.breakdown = const [],
+  });
+
+  factory OrderDelivery.fromJson(Json json) {
+    final slot = optObject(json, 'slot');
+    final sender = optObject(json, 'sender');
+    final recipient = optObject(json, 'recipient');
+    return OrderDelivery(
+      date: optStr(json, 'date'),
+      slotLabel: slot == null
+          ? null
+          : optStr(slot, 'label') ??
+                '${str(slot, 'start')}–${str(slot, 'end')}',
+      fee: Money.opt(json, 'fee'),
+      sender: sender == null ? null : GiftPerson.fromJson(sender),
+      recipient: recipient == null ? null : GiftPerson.fromJson(recipient),
+      giftMessage: optStr(json, 'gift_message'),
+      anonymous: boolean(json, 'anonymous'),
+      signedBy: optStr(json, 'signed_by'),
+      zone: optStr(json, 'zone'),
+      shippingFee: Money.opt(json, 'shipping_fee'),
+      breakdown: [
+        for (final b in jsonList(json, 'breakdown'))
+          (
+            label: str(b, 'label'),
+            rule: optStr(b, 'rule'),
+            amount: Money.fromJson(optObject(b, 'amount') ?? const {}),
+          ),
+      ],
+    );
+  }
+
+  /// YYYY-MM-DD in the shop's time zone.
+  final String? date;
+
+  /// "13:00–16:00".
+  final String? slotLabel;
+
+  /// The slot's own fee.
+  final Money? fee;
+  final GiftPerson? sender;
+  final GiftPerson? recipient;
+  final String? giftMessage;
+
+  /// The card goes without the sender's name (the owner still sees them).
+  final bool anonymous;
+  final String? signedBy;
+  final String? zone;
+  final Money? shippingFee;
+  final List<({String label, String? rule, Money amount})> breakdown;
+
+  bool get hasWhen => date != null || slotLabel != null;
+  bool get hasCard => giftMessage != null || anonymous;
+}
+
+/// 132 What an order's total is made of.
+class OrderAmounts {
+  const OrderAmounts({
+    required this.subtotal,
+    required this.total,
+    this.discount,
+    this.couponCode,
+    this.points,
+    this.pointsUsed,
+    this.shipping,
+    this.tax,
+    this.taxLabel,
+    this.taxIncluded = false,
+  });
+
+  factory OrderAmounts.fromJson(Json json) {
+    final discount = optObject(json, 'discount');
+    final points = optObject(json, 'points');
+    final tax = optObject(json, 'tax');
+    return OrderAmounts(
+      subtotal: Money.fromJson(optObject(json, 'subtotal') ?? const {}),
+      total: Money.fromJson(optObject(json, 'total') ?? const {}),
+      discount: discount == null ? null : Money.opt(discount, 'amount'),
+      couponCode: discount == null ? null : optStr(discount, 'code'),
+      points: points == null ? null : Money.opt(points, 'amount'),
+      pointsUsed: points == null ? null : optInt(points, 'used'),
+      shipping: Money.opt(json, 'shipping'),
+      tax: tax == null ? null : Money.opt(tax, 'amount'),
+      taxLabel: tax == null ? null : optStr(tax, 'label'),
+      taxIncluded: tax != null && boolean(tax, 'included'),
+    );
+  }
+
+  final Money subtotal;
+  final Money total;
+  final Money? discount;
+  final String? couponCode;
+  final Money? points;
+  final int? pointsUsed;
+  final Money? shipping;
+  final Money? tax;
+  final String? taxLabel;
+  final bool taxIncluded;
+}
+
+/// 96.2 To be paid by bank transfer or the owner's own method.
+class PayOutside {
+  const PayOutside({required this.method, required this.name, this.dueAt});
+
+  factory PayOutside.fromJson(Json json) => PayOutside(
+    method: str(json, 'method'),
+    name: str(json, 'name'),
+    dueAt: optDate(json, 'due_at'),
+  );
+
+  final String method;
+  final String name;
+  final DateTime? dueAt;
+}
+
+/// 80.4 How it was shipped.
+class OrderShipment {
+  const OrderShipment({
+    this.carrier,
+    this.trackingNumber,
+    this.trackingUrl,
+    this.shippedAt,
+  });
+
+  factory OrderShipment.fromJson(Json json) => OrderShipment(
+    carrier: optStr(json, 'carrier'),
+    trackingNumber: optStr(json, 'tracking_number'),
+    trackingUrl: optStr(json, 'tracking_url'),
+    shippedAt: optDate(json, 'shipped_at'),
+  );
+
+  final String? carrier;
+  final String? trackingNumber;
+  final String? trackingUrl;
+  final DateTime? shippedAt;
 }
 
 class Takeable {
@@ -1074,12 +1393,27 @@ class Order {
     this.paidAt,
     this.refund,
     this.refunds = const [],
+    this.deliverTo,
+    this.delivery,
+    this.amounts,
+    this.payOutside,
+    this.shipment,
+    this.stage,
+    this.stageHistory = const [],
+    this.nextStages = const [],
+    this.refundDue,
   });
 
   factory Order.fromJson(Json json) {
     final kitchen = optObject(json, 'kitchen');
     final customer = optObject(json, 'customer');
     final refund = optObject(json, 'refund');
+    final deliverTo = optObject(json, 'deliver_to');
+    final delivery = optObject(json, 'delivery');
+    final amounts = optObject(json, 'amounts');
+    final outside = optObject(json, 'pay_outside');
+    final shipment = optObject(json, 'shipment');
+    final stage = optObject(json, 'stage');
     return Order(
       id: integer(json, 'id'),
       number: str(json, 'number'),
@@ -1095,6 +1429,15 @@ class Order {
       nextStatuses: strings(json, 'next_statuses'),
       refund: refund == null ? null : RefundOptions.fromJson(refund),
       refunds: listOf(json, 'refunds', Refund.fromJson),
+      deliverTo: deliverTo == null ? null : DeliverTo.fromJson(deliverTo),
+      delivery: delivery == null ? null : OrderDelivery.fromJson(delivery),
+      amounts: amounts == null ? null : OrderAmounts.fromJson(amounts),
+      payOutside: outside == null ? null : PayOutside.fromJson(outside),
+      shipment: shipment == null ? null : OrderShipment.fromJson(shipment),
+      stage: stage == null ? null : OrderStage.fromJson(stage),
+      stageHistory: listOf(json, 'stage_history', OrderStage.fromJson),
+      nextStages: strings(json, 'next_stages'),
+      refundDue: RefundDue.opt(json, 'refund_due'),
     );
   }
 
@@ -1106,7 +1449,7 @@ class Order {
   /// "#1042", as the dashboard shows it.
   String get label => number.startsWith('#') ? number : '#$number';
 
-  /// processing, completed, cancelled, refunded.
+  /// pending (96.2), processing, completed, cancelled, refunded.
   final String status;
   final String? statusLabel;
   final OrderKitchen? kitchen;
@@ -1120,7 +1463,275 @@ class Order {
   final RefundOptions? refund;
   final List<Refund> refunds;
 
+  /// 132 Where it goes and who takes it.
+  final DeliverTo? deliverTo;
+
+  /// 131 The day and slot, the gift's people and card, the fees.
+  final OrderDelivery? delivery;
+
+  /// 132 What the total is made of.
+  final OrderAmounts? amounts;
+  final PayOutside? payOutside;
+  final OrderShipment? shipment;
+
+  /// 132 Where its delivery is (a store's order); null before its first stage.
+  final OrderStage? stage;
+
+  /// 132 Every change of its delivery stage, newest first.
+  final List<OrderStage> stageHistory;
+
+  /// 132 The stages it may move to now (shipped, postponed, failed…).
+  final List<String> nextStages;
+
+  /// 132 The customer's money after a failed delivery cancelled it.
+  final RefundDue? refundDue;
+
+  /// 132 The owner still has to pay the customer back.
+  bool get needsRefund => refundDue?.status == 'needed';
+
   int get itemCount => lines.fold(0, (sum, line) => sum + line.quantity);
+
+  /// 132 Who ordered: the customer, else the gift's sender.
+  String? get buyerName => customer?.name ?? delivery?.sender?.name;
+
+  /// The same order with what changed (the fake API's moves and refunds).
+  Order copyWith({
+    String? status,
+    String? statusLabel,
+    OrderKitchen? kitchen,
+    bool clearKitchen = false,
+    Money? refunded,
+    List<String>? nextStatuses,
+    RefundOptions? refund,
+    List<Refund>? refunds,
+    OrderStage? stage,
+    List<OrderStage>? stageHistory,
+    List<String>? nextStages,
+    OrderDelivery? delivery,
+    RefundDue? refundDue,
+  }) => Order(
+    id: id,
+    number: number,
+    status: status ?? this.status,
+    statusLabel: statusLabel ?? this.statusLabel,
+    kitchen: clearKitchen ? null : (kitchen ?? this.kitchen),
+    total: total,
+    refunded: refunded ?? this.refunded,
+    lines: lines,
+    customer: customer,
+    createdAt: createdAt,
+    paidAt: paidAt,
+    nextStatuses: nextStatuses ?? this.nextStatuses,
+    refund: refund ?? this.refund,
+    refunds: refunds ?? this.refunds,
+    deliverTo: deliverTo,
+    delivery: delivery ?? this.delivery,
+    amounts: amounts,
+    payOutside: payOutside,
+    shipment: shipment,
+    stage: stage ?? this.stage,
+    stageHistory: stageHistory ?? this.stageHistory,
+    nextStages: nextStages ?? this.nextStages,
+    refundDue: refundDue ?? this.refundDue,
+  );
+}
+
+/// 132 The customer's money after a failed delivery ended with the order
+/// cancelled: refunded at once, or needed (the owner pays it back), then
+/// recorded.
+class RefundDue {
+  const RefundDue({
+    required this.status,
+    required this.amount,
+    required this.at,
+    this.why,
+    this.whyCode,
+    this.doneAt,
+    this.doneBy,
+  });
+
+  static RefundDue? opt(Json json, String key) {
+    final o = optObject(json, key);
+    if (o == null) return null;
+    return RefundDue(
+      status: str(o, 'status'),
+      amount: Money.fromJson(optObject(o, 'amount') ?? const {}),
+      at: date(o, 'at'),
+      why: optStr(o, 'why'),
+      whyCode: optStr(o, 'why_code'),
+      doneAt: optDate(o, 'done_at'),
+      doneBy: optStr(o, 'done_by'),
+    );
+  }
+
+  /// refunded, needed or recorded.
+  final String status;
+  final Money amount;
+  final DateTime at;
+  final String? why;
+
+  /// paid_outside, no_provider or provider_refused (then [why] is the provider's answer).
+  final String? whyCode;
+  final DateTime? doneAt;
+  final String? doneBy;
+}
+
+/// 132 One change of a store order's delivery stage: who, when, why, the
+/// team's note (never the customer's to see) and what it set.
+class OrderStage {
+  const OrderStage({
+    required this.stage,
+    required this.label,
+    required this.at,
+    this.by,
+    this.reason,
+    this.reasonLabel,
+    this.note,
+    this.courierName,
+    this.courierPhone,
+    this.trackingUrl,
+    this.day,
+    this.dayLabel,
+    this.slotId,
+    this.slotLabel,
+    this.nextStep,
+    this.nextStepLabel,
+  });
+
+  factory OrderStage.fromJson(Json json) {
+    final reason = optObject(json, 'reason');
+    final courier = optObject(json, 'courier');
+    final slot = optObject(json, 'slot');
+    final next = optObject(json, 'next_step');
+    return OrderStage(
+      stage: str(json, 'stage'),
+      label: str(json, 'label'),
+      at: date(json, 'at'),
+      by: optStr(json, 'by'),
+      reason: reason == null ? null : optStr(reason, 'code'),
+      reasonLabel: reason == null ? null : optStr(reason, 'label'),
+      note: optStr(json, 'note'),
+      courierName: courier == null ? null : optStr(courier, 'name'),
+      courierPhone: courier == null ? null : optStr(courier, 'phone'),
+      trackingUrl: optStr(json, 'tracking_url'),
+      day: optStr(json, 'date'),
+      dayLabel: optStr(json, 'date_label'),
+      slotId: slot == null ? null : optStr(slot, 'id'),
+      slotLabel: slot == null ? null : optStr(slot, 'label'),
+      nextStep: next == null ? null : optStr(next, 'code'),
+      nextStepLabel: next == null ? null : optStr(next, 'label'),
+    );
+  }
+
+  /// preparing, shipped, postponed, failed, returned, delivered.
+  final String stage;
+  final String label;
+  final DateTime at;
+
+  /// The team member's name; null: the system.
+  final String? by;
+  final String? reason;
+  final String? reasonLabel;
+  final String? note;
+  final String? courierName;
+  final String? courierPhone;
+  final String? trackingUrl;
+
+  /// YYYY-MM-DD: the new delivery day (postponed, or tried again).
+  final String? day;
+  final String? dayLabel;
+  final String? slotId;
+  final String? slotLabel;
+
+  /// retry, return or cancel, after a failed attempt.
+  final String? nextStep;
+  final String? nextStepLabel;
+}
+
+/// 132 What moving an order's delivery to a stage says.
+class StageRequest {
+  const StageRequest(
+    this.stage, {
+    this.reason,
+    this.note,
+    this.courierName,
+    this.courierPhone,
+    this.trackingUrl,
+    this.date,
+    this.slotId,
+    this.nextStep,
+  });
+
+  final String stage;
+  final String? reason;
+  final String? note;
+  final String? courierName;
+  final String? courierPhone;
+  final String? trackingUrl;
+  final String? date;
+  final String? slotId;
+  final String? nextStep;
+
+  Json toJson() => {
+    'stage': stage,
+    'reason': ?reason,
+    'note': ?note,
+    'courier_name': ?courierName,
+    'courier_phone': ?courierPhone,
+    'tracking_url': ?trackingUrl,
+    'date': ?date,
+    'slot_id': ?slotId,
+    'next_step': ?nextStep,
+  };
+}
+
+/// 132 A day's delivery times, to postpone an order to.
+class DeliveryDay {
+  const DeliveryDay({
+    required this.date,
+    required this.dateLabel,
+    required this.slots,
+  });
+
+  factory DeliveryDay.fromJson(Json json) => DeliveryDay(
+    date: str(json, 'date'),
+    dateLabel: str(json, 'date_label'),
+    slots: listOf(json, 'slots', DeliveryTime.fromJson),
+  );
+
+  final String date;
+  final String dateLabel;
+  final List<DeliveryTime> slots;
+}
+
+class DeliveryTime {
+  const DeliveryTime({
+    required this.id,
+    required this.label,
+    this.orders = 0,
+    this.full = false,
+    this.closed = false,
+    this.started = false,
+  });
+
+  factory DeliveryTime.fromJson(Json json) => DeliveryTime(
+    id: str(json, 'id'),
+    label: str(json, 'label'),
+    orders: optInt(json, 'orders') ?? 0,
+    full: boolean(json, 'full'),
+    closed: boolean(json, 'closed'),
+    started: boolean(json, 'started'),
+  );
+
+  final String id;
+  final String label;
+  final int orders;
+  final bool full;
+  final bool closed;
+  final bool started;
+
+  /// It can still be chosen.
+  bool get open => !closed && !started && !full;
 }
 
 class RefundRequest {
@@ -1505,6 +2116,7 @@ class Product {
     this.salePrice,
     this.stock,
     this.imageUrl,
+    this.addon = false,
   });
 
   factory Product.fromJson(Json json) => Product(
@@ -1516,11 +2128,15 @@ class Product {
     available: boolean(json, 'available', true),
     imageUrl: optStr(json, 'image_url'),
     sales: integer(json, 'sales'),
+    addon: boolean(json, 'addon'),
   );
 
   final int id;
   final String name;
   final Money price;
+
+  /// 131 Sold only as a gift add-on with another product.
+  final bool addon;
   final Money? salePrice;
 
   /// Null for no limit.

@@ -31,6 +31,11 @@ class Order_Updates {
 	const TOLD_STATUSES = array( 'completed', 'cancelled', 'refunded' );
 
 	/**
+	 * 132 Delivery stages that are told (Delivery_Stages), without the wc- prefix; Completed is delivered.
+	 */
+	const TOLD_STAGES = array( 'shipped', 'postponed', 'failed-delivery' );
+
+	/**
 	 * Plugin.
 	 *
 	 * @var Plugin
@@ -75,8 +80,9 @@ class Order_Updates {
 	 * @return void
 	 */
 	public function on_status( $order_id, $from, $to ) {
-		$to = (string) preg_replace( '/^wc-/', '', (string) $to );
-		if ( ! in_array( $to, self::TOLD_STATUSES, true ) || ! function_exists( 'wc_get_order' ) ) {
+		$to    = (string) preg_replace( '/^wc-/', '', (string) $to );
+		$stage = in_array( $to, self::TOLD_STAGES, true );
+		if ( ( ! $stage && ! in_array( $to, self::TOLD_STATUSES, true ) ) || ! function_exists( 'wc_get_order' ) ) {
 			return;
 		}
 		$order = wc_get_order( $order_id );
@@ -84,6 +90,10 @@ class Order_Updates {
 			return;
 		}
 		$number = (string) $order->get_order_number();
+		if ( $stage ) {
+			$this->tell_stage( $order, $number, $to );
+			return;
+		}
 		if ( 'completed' === $to ) {
 			// A completed order with tracking not told yet says both at once.
 			$shipment = Order_Tracking::of_order( $order );
@@ -94,6 +104,34 @@ class Order_Updates {
 			}
 		}
 		$this->tell( $order, self::status_text( $number, $to ) );
+	}
+
+	/**
+	 * 132 A delivery stage: Shipped says the tracking when there is some not told yet; the order's
+	 * notes keep what the customer was told.
+	 *
+	 * @param \WC_Order $order  Order.
+	 * @param string    $number Order number.
+	 * @param string    $status Status without the prefix.
+	 * @return void
+	 */
+	private function tell_stage( $order, $number, $status ) {
+		$text     = null;
+		$shipment = 'shipped' === $status ? Order_Tracking::of_order( $order ) : null;
+		if ( $shipment && Order_Tracking::fingerprint( $shipment ) !== (string) $order->get_meta( self::TOLD_META, true ) ) {
+			$this->remember( $order, $shipment );
+			$text = self::shipped_text( $number, $shipment );
+		}
+		if ( null === $text ) {
+			$stage = Delivery_Stages::of_order( $order );
+			$text  = Delivery_Stages::text( $number, $status, $stage ? $stage['reason'] : null );
+		}
+		if ( null === $text ) {
+			return;
+		}
+		$this->tell( $order, $text );
+		/* translators: %s: what the customer read. */
+		$order->add_order_note( sprintf( __( 'Yallapp told the customer in the app: %s', 'yallapp' ), $text['body'] ) );
 	}
 
 	/**

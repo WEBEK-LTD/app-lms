@@ -2,4 +2,4 @@
 "NSCameraUsageDescription" = "Yallapp Business uses the camera to scan tickets and member codes at the door, and to take pictures and videos for your app.";
 "NSMicrophoneUsageDescription" = "Yallapp Business records sound with the videos you take for your app.";
 "NSPhotoLibraryUsageDescription" = "Yallapp Business uploads the pictures and videos you choose to your app's Media library.";
-"NSFaceIDUsageDescription" = "Yallapp Business can unlock with Face ID instead of your password.";
+"NSFaceIDUsageDescription" = "Yallapp Business uses Face ID to unlock the app lock, so only you can open your business on this phone.";

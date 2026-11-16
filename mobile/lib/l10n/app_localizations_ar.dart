@@ -12368,4 +12368,48 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get deliveryNeedPin => 'حدّد مكان التوصيل على الخريطة.';
+
+  @override
+  String get orderStagePreparing => 'يجري تجهيز طلبك';
+
+  @override
+  String get orderStageShipped => 'خرج طلبك للتوصيل';
+
+  @override
+  String get orderStagePostponed => 'تم تأجيل التوصيل';
+
+  @override
+  String get orderStageFailed => 'تعذّر التوصيل';
+
+  @override
+  String get orderStageReturned => 'عاد الطلب إلى المتجر';
+
+  @override
+  String get orderStageDelivered => 'تم التوصيل';
+
+  @override
+  String orderStageNewDay(String day) {
+    return 'موعد التوصيل الجديد: $day';
+  }
+
+  @override
+  String orderStageTryAgain(String day) {
+    return 'سنحاول التوصيل مجددًا يوم $day';
+  }
+
+  @override
+  String orderStageCourier(String name) {
+    return 'المندوب: $name';
+  }
+
+  @override
+  String get orderStageCallCourier => 'الاتصال بالمندوب';
+
+  @override
+  String get orderStageFollow => 'تتبّع التوصيل';
+
+  @override
+  String ratingReplyFrom(String business) {
+    return 'ردّ من $business';
+  }
 }

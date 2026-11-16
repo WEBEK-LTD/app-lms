@@ -4,15 +4,19 @@ import { decideReturn } from "@/lib/catalog/returns";
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { actorOf, clientFor, mayUseDashboard, type ClientContext } from "@/lib/auth/session";
-import { recordOrderStatus } from "@/lib/team/activity";
+import { recordOrderStatus, recordRefund } from "@/lib/team/activity";
 import type { TeamPermission } from "@/lib/team/permissions";
 import { getBlobStore } from "@/lib/blobs";
 import { parseCoupon } from "@/lib/catalog/coupons";
 import { parseFulfilmentForm } from "@/lib/catalog/fulfilment";
 import { changeOrderStatus, inKitchen } from "@/lib/catalog/order-status";
+import { parseStageInput, setOrderStage } from "@/lib/catalog/order-stages";
+import { markStageRefunded, refundAfterFailedDelivery, type StageRefundDeps } from "@/lib/catalog/stage-refunds";
+import { headers } from "next/headers";
+import { ipFromHeaders } from "@/lib/http";
 import { parseShipment, shipOrder, shippable } from "@/lib/catalog/shipping";
 import { sendTemplate } from "@/lib/email/send";
-import { CATALOG_CURRENCIES, parsePrice } from "@/lib/catalog/money";
+import { CATALOG_CURRENCIES, formatCents, parsePrice } from "@/lib/catalog/money";
 import { LOYALTY_LIMITS } from "@/lib/catalog/loyalty";
 import { awaitingManualPayment, readManualPayments } from "@/lib/catalog/manual";
 import { TAX_RATE_MAX_BPS } from "@/lib/catalog/tax";
@@ -529,6 +533,11 @@ export async function setOrderStatusAction(formData: FormData): Promise<void> {
   if (order && !inKitchen(order) && (await changeOrderStatus({ store, app, now, key: encryptionKey(), urls: paymentApiUrls(), account: null }, order, status))) {
     // 60 Who moved it, on the Team page.
     await recordOrderStatus(store, { clientId: context.client.id, appId: app.id, actor: actorOf(context), orderId: order.id, to: awaitingManualPayment(order) && status === "processing" ? "paid" : status }, now);
+    // 132 Cancelled after a failed delivery: the money goes back (or the order needs the owner's refund).
+    if (status === "cancelled") {
+      const cancelled = await store.getCatalogOrder(app.id, order.id);
+      if (cancelled) await refundAfterFailedDelivery(await stageRefundDepsOf(context, app), cancelled);
+    }
   }
   refresh();
 }
@@ -583,6 +592,71 @@ export async function shipOrderAction(_: FormState, formData: FormData): Promise
   await recordOrderStatus(store, { clientId: context.client.id, appId: app.id, actor: actorOf(context), orderId: order.id, to: "shipped" }, now);
   refresh();
   return { ok: true, message: order.shipment ? "Tracking saved. The customer was told." : "Marked shipped. The customer was told." };
+}
+
+/**
+ * 132 The Orders page's Delivery: a store order's next stage (shipped with
+ * the courier, postponed with why and the new day, a failed attempt with
+ * why and what's next, returned, delivered), kept with who made it; the
+ * customer is told at shipped, postponed, failed and delivered.
+ */
+export async function setOrderStageAction(_: FormState, formData: FormData): Promise<FormState> {
+  const context = await requireCatalogApp({}, "orders");
+  const { app } = context;
+  const store = await getStore();
+  const id = Number(formData.get("id"));
+  const order = Number.isSafeInteger(id) ? await store.getCatalogOrder(app.id, id) : null;
+  const raw = Object.fromEntries(["stage", "reason", "note", "courier_name", "courier_phone", "tracking_url", "date", "slot_id", "next_step"].map((name) => [name, str(formData, name)]));
+  const values = raw;
+  if (!order) return { ok: false, message: "Not found.", values };
+  const parsed = parseStageInput(raw);
+  if (!parsed.ok) return { errors: parsed.errors, values };
+  const now = new Date();
+  const user = actorOf(context);
+  const done = await setOrderStage(
+    { store, app, now, key: encryptionKey(), urls: paymentApiUrls(), account: serviceAccountOf(app, encryptionKey()) },
+    order,
+    parsed.input,
+    { userId: user.id, name: user.name?.trim() || user.email, via: "dashboard" },
+    await stageRefundDepsOf(context, app),
+  );
+  if (!done.ok) return done.errors ? { errors: done.errors, values } : { ok: false, message: done.message, values };
+  await recordOrderStatus(store, { clientId: context.client.id, appId: app.id, actor: user, orderId: order.id, to: parsed.input.stage }, now);
+  refresh();
+  const told = ["shipped", "postponed", "failed", "delivered"].includes(parsed.input.stage);
+  return { ok: true, message: told ? "Saved. The customer was told." : "Saved." };
+}
+
+/** 132 What giving the money back after a failed delivery needs, from the dashboard. */
+async function stageRefundDepsOf(context: ClientContext, app: App): Promise<StageRefundDeps> {
+  const who = actorOf(context);
+  return {
+    store: await getStore(),
+    key: encryptionKey(),
+    urls: paymentApiUrls(),
+    now: new Date(),
+    ip: ipFromHeaders(await headers()),
+    actor: { id: who.id, email: who.email },
+    mail: (key, to, values, mailApp) => sendTemplate(key, to, values, { app: mailApp }),
+    app,
+    account: serviceAccountOf(app, encryptionKey()),
+    baseUrl: appUrl(),
+  };
+}
+
+/** 132 "I refunded it": the owner paid back an order cancelled after a failed delivery themselves. */
+export async function markStageRefundedAction(formData: FormData): Promise<void> {
+  const context = await requireCatalogApp({}, "orders");
+  const { app } = context;
+  const store = await getStore();
+  const id = Number(formData.get("id"));
+  const order = Number.isSafeInteger(id) ? await store.getCatalogOrder(app.id, id) : null;
+  if (order) {
+    const user = actorOf(context);
+    const done = await markStageRefunded(await stageRefundDepsOf(context, app), order, user.name?.trim() || user.email);
+    if (done.ok && order.stageRefund) await recordRefund(store, { clientId: context.client.id, appId: app.id, actor: user, kind: "order", id: order.id, amount: formatCents(order.stageRefund.cents, order.currency) }, new Date());
+  }
+  refresh();
 }
 
 /**

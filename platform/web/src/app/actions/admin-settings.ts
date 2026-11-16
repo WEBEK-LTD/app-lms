@@ -18,8 +18,10 @@ import { checkIyzicoKeys } from "@/lib/payments/iyzico";
 import { validKashierMerchantId } from "@/lib/payments/kashier";
 import { checkAccount, isYallappProvider, PROVIDER_NAME } from "@/lib/payments/provider";
 import { readRate } from "@/lib/billing/prices";
+import { PERIOD_KEYS, periodOfMonths, type PeriodMonths } from "@/lib/billing/periods";
 import { cardPlans } from "@/lib/billing/plan-payment";
 import {
+  isAddedPlan,
   isPlan,
   planFamily,
   PLAN_FEATURE_IDS,
@@ -38,6 +40,7 @@ import {
   type PlanLimits,
   type PlanSetting,
   type PlanTranslations,
+  type PlanPeriods,
   type SupportLevel,
 } from "@/lib/plans";
 import { hitRateLimit, RATE_LIMITS } from "@/lib/rate-limit";
@@ -416,9 +419,17 @@ interface PlanTexts {
   priceCents: number | null;
   usdCents: number | null;
   onRequest: boolean;
-  billingMonths: 1 | 12;
+  billingMonths: PeriodMonths;
   translations: PlanTranslations;
+  /** 133 The other billing periods, each switched on and priced (or not yet) by the team. */
+  periods: PlanPeriods;
+  /** 133 The highlighted card, and its badge's text (empty: "Most popular"). */
+  featured: boolean;
+  badge: string;
 }
+
+/** 133 The "Billed" choice: the months of the main price ("0" for life). */
+const BILLED: Record<string, PeriodMonths> = { "1": 1, "6": 6, "12": 12, "24": 24, "36": 36, "0": 0 };
 
 /**
  * A plan's name, texts and price from its form, checked. `emptyHighlights`:
@@ -427,9 +438,16 @@ interface PlanTexts {
  */
 function readPlanTexts(formData: FormData, opts: { emptyHighlights?: boolean } = {}): { values: Record<string, string>; errors: Record<string, string>; texts: PlanTexts } {
   const values: Record<string, string> = {};
-  for (const name of ["name", "tagline", "highlights", "price", "pricing", "egpPrice", "usdPrice", "months"]) values[name] = str(formData, name);
-  // 62 The texts in Arabic and Turkish, all optional.
-  for (const lang of PLAN_TEXT_LANGS) for (const field of ["Name", "Tagline", "Highlights", "Price"]) values[`${lang}${field}`] = str(formData, `${lang}${field}`);
+  for (const name of ["name", "tagline", "highlights", "price", "pricing", "egpPrice", "usdPrice", "months", "badge"]) values[name] = str(formData, name);
+  values.featured = formData.get("featured") === "on" ? "on" : "";
+  // 62 The texts in Arabic and Turkish, all optional; 133 and the badge.
+  for (const lang of PLAN_TEXT_LANGS) for (const field of ["Name", "Tagline", "Highlights", "Price", "Badge"]) values[`${lang}${field}`] = str(formData, `${lang}${field}`);
+  // 133 The other periods.
+  for (const key of PERIOD_KEYS) {
+    values[`period_${key}_on`] = formData.get(`period_${key}_on`) === "on" ? "on" : "";
+    values[`period_${key}_egp`] = str(formData, `period_${key}_egp`);
+    values[`period_${key}_usd`] = str(formData, `period_${key}_usd`);
+  }
   const errors: Record<string, string> = {};
   if (!values.name || values.name.length > 30) errors.name = "Enter a name of up to 30 characters.";
   if (values.tagline!.length > 80) errors.tagline = "Use at most 80 characters.";
@@ -446,24 +464,44 @@ function readPlanTexts(formData: FormData, opts: { emptyHighlights?: boolean } =
   else if (!onRequest && priceCents === null) errors.egpPrice = "Enter the price in Egyptian pounds, or choose On request.";
   const usdCents = values.usdPrice ? parsePrice(values.usdPrice) : null;
   if (values.usdPrice && (usdCents === null || usdCents === 0)) errors.usdPrice = "Enter a price in US dollars, like 29, or leave it empty to use the rate.";
-  if (values.months !== "1" && values.months !== "12") errors.months = "Choose monthly or yearly.";
+  if (!(values.months! in BILLED)) errors.months = "Choose how long the price is for.";
+  const billingMonths = BILLED[values.months!] ?? 12;
+  const mainKey = periodOfMonths(billingMonths) ?? "12";
+  // 133 The other periods: on or off, with a price in pounds (and dollars) the team typed, or none yet (then not offered).
+  const periods: PlanPeriods = {};
+  for (const key of PERIOD_KEYS) {
+    if (key === mainKey) continue;
+    const on = values[`period_${key}_on`] === "on";
+    const egpText = values[`period_${key}_egp`]!;
+    const usdText = values[`period_${key}_usd`]!;
+    const egpCents = egpText ? parsePrice(egpText) : null;
+    const usd = usdText ? parsePrice(usdText) : null;
+    if (egpText && (egpCents === null || egpCents === 0)) errors[`period_${key}_egp`] = "Enter a price in Egyptian pounds, like 1500, or leave it empty.";
+    if (usdText && (usd === null || usd === 0)) errors[`period_${key}_usd`] = "Enter a price in US dollars, like 29, or leave it empty to use the rate.";
+    else if (usd && !egpCents) errors[`period_${key}_egp`] = "Enter the price in Egyptian pounds too: that's what is charged.";
+    if (on || egpCents || usd) periods[key] = { on, egpCents: egpCents || null, usdCents: usd || null };
+  }
+  const badge = values.badge!;
+  if (badge.length > 24) errors.badge = "Use at most 24 characters.";
   const translations: PlanTranslations = {};
   for (const lang of PLAN_TEXT_LANGS) {
     const name = values[`${lang}Name`]!;
     const tagline = values[`${lang}Tagline`]!;
     const price = values[`${lang}Price`]!;
+    const ownBadge = values[`${lang}Badge`]!;
     const lines = values[`${lang}Highlights`]!.split("\n").map((l) => l.trim()).filter(Boolean);
     if (name.length > 30) errors[`${lang}Name`] = "Use at most 30 characters.";
     if (tagline.length > 80) errors[`${lang}Tagline`] = "Use at most 80 characters.";
     if (lines.length > 10 || lines.some((h) => h.length > 80)) errors[`${lang}Highlights`] = "Write up to 10 lines, each up to 80 characters.";
     if (price.length > 30) errors[`${lang}Price`] = "Use at most 30 characters.";
-    const text = { ...(name ? { name } : {}), ...(tagline ? { tagline } : {}), ...(lines.length ? { highlights: lines } : {}), ...(price ? { price } : {}) };
+    if (ownBadge.length > 24) errors[`${lang}Badge`] = "Use at most 24 characters.";
+    const text = { ...(name ? { name } : {}), ...(tagline ? { tagline } : {}), ...(lines.length ? { highlights: lines } : {}), ...(price ? { price } : {}), ...(ownBadge ? { badge: ownBadge } : {}) };
     if (Object.keys(text).length) translations[lang] = text;
   }
   return {
     values,
     errors,
-    texts: { name: values.name!, tagline: values.tagline!, highlights, price: values.price!, priceCents, usdCents, onRequest, billingMonths: values.months === "1" ? 1 : 12, translations },
+    texts: { name: values.name!, tagline: values.tagline!, highlights, price: values.price!, priceCents, usdCents, onRequest, billingMonths, translations, periods, featured: values.featured === "on", badge },
   };
 }
 
@@ -479,7 +517,13 @@ function withTexts(setting: PlanSetting, texts: PlanTexts): PlanSetting {
     usdCents: texts.usdCents,
     onRequest: texts.onRequest,
     billingMonths: texts.billingMonths,
+    // 133
+    featured: texts.featured,
   };
+  if (Object.keys(texts.periods).length) next.periods = texts.periods;
+  else delete next.periods;
+  if (texts.badge) next.badge = texts.badge;
+  else delete next.badge;
   if (Object.keys(texts.translations).length) next.translations = texts.translations;
   else delete next.translations;
   // An edit from before Phase 52 named its currency; prices are in pounds now.
@@ -493,18 +537,26 @@ export async function savePlanAction(_: FormState, formData: FormData): Promise<
   const plan = str(formData, "plan");
   if (!isPlan(plan)) return { message: "Unknown plan." };
   const { values, errors, texts } = readPlanTexts(formData);
+  // 133 Shown to clients (the form says so with "visibility"); an added plan only with its own name.
+  const shownField = formData.get("visibility") === "1";
+  const offered = formData.get("offered") === "on";
+  values.offered = offered ? "on" : "";
+  if (shownField && offered && planFamily(plan) === "regular" && !errors.name && texts.name === PLAN_INFO[plan].name && PLAN_INFO[plan].offered === false) {
+    errors.name = "Give the plan its own name before offering it.";
+  }
   if (Object.keys(errors).length) return { errors, values };
   const { saved, info } = await currentPlan(plan);
   const setting = withTexts(planSettingOf(info), texts);
+  if (shownField) setting.offered = offered;
   await save("plans", { ...saved, [plan]: setting }, admin, {
     action: "plan.save",
     target: { type: "plan", id: plan },
-    summary: `Saved the ${setting.name} plan`,
+    summary: `Saved the ${setting.name} plan${shownField && offered !== (info.offered !== false) ? (offered ? ", now shown to clients" : ", now hidden from clients") : ""}`,
     before: saved[plan] ?? null,
     after: setting,
   });
   await revalidatePlans();
-  return { ok: true, message: `${setting.name} saved. The pricing page shows it now.` };
+  return { ok: true, message: shownField && !offered ? `${setting.name} saved. It's hidden: clients don't see it.` : `${setting.name} saved. The pricing page shows it now.` };
 }
 
 /** Whether a "What's included" is still the one written from the plan's numbers, or left empty: then it's written again from the new ones. */
@@ -547,6 +599,9 @@ export async function saveStudioPlanAction(_: FormState, formData: FormData): Pr
     if (writtenHighlights(own?.highlights, lang, info)) written.translations[lang] = { ...own, highlights: planHighlights(lang, numbers) };
   }
   const setting: PlanSetting = { ...withTexts(planSettingOf(info), written), offered, features: numbers.features, limits: numbers.limits };
+  // 133 The team's own limits.
+  if (Object.keys(limits.extraLimits).length) setting.extraLimits = limits.extraLimits;
+  else delete setting.extraLimits;
   await save("plans", { ...saved, [plan]: setting }, admin, {
     action: "plan.save",
     target: { type: "plan", id: plan },
@@ -607,11 +662,27 @@ function readLimit(raw: string): number | null | undefined {
   return n <= 10_000_000 ? n : undefined;
 }
 
-/** A plan's features and limits from its form, checked (the Studio pages are read with whether it's offered). */
-function readPlanLimits(formData: FormData, plan: Plan): { values: Record<string, string>; errors: Record<string, string>; features: PlanFeature[]; limits: Omit<PlanLimits, "studioPages"> } {
+/** A plan's features and limits from its form, checked (the Studio pages are read with whether it's offered); 133 with a regular plan's pages and the team's own limits. */
+function readPlanLimits(
+  formData: FormData,
+  plan: Plan,
+): { values: Record<string, string>; errors: Record<string, string>; features: PlanFeature[]; limits: Omit<PlanLimits, "studioPages">; extraLimits: Record<string, number | null> } {
   const ticked = formData.getAll("features").map(String);
   const values: Record<string, string> = { features: ticked.join(",") };
-  for (const name of ["appUsers", "languages", "sources", "storageGb", "analyticsMonths", "teamMembers", "support"]) values[name] = str(formData, name);
+  for (const name of ["appUsers", "languages", "sources", "storageGb", "analyticsMonths", "teamMembers", "support", "pages"]) values[name] = str(formData, name);
+  // 133 The team's own limits: empty is "not on this plan", "unlimited" is no limit.
+  const extraLimits: Record<string, number | null> = {};
+  const extraErrors: Record<string, string> = {};
+  for (const [key, raw] of formData.entries()) {
+    const m = /^extra_([a-z0-9_]{1,40})$/.exec(key);
+    if (!m) continue;
+    const text = String(raw).trim();
+    values[key] = text;
+    if (!text) continue;
+    if (text.toLowerCase() === "unlimited") extraLimits[m[1]!] = null;
+    else if (/^\d{1,9}(\.\d{1,3})?$/.test(text.replace(/,/g, ""))) extraLimits[m[1]!] = Number(text.replace(/,/g, ""));
+    else extraErrors[key] = "Enter a number, \"unlimited\", or leave it empty when the plan doesn't have it.";
+  }
   values.accountManager = formData.get("accountManager") === "on" ? "on" : "";
   values.customFeatures = formData.get("customFeatures") === "on" ? "on" : "";
   const errors: Record<string, string> = {};
@@ -637,9 +708,14 @@ function readPlanLimits(formData: FormData, plan: Plan): { values: Record<string
     errors.analyticsMonths = `Enter the months, from 1 to ${MAX_ANALYTICS_MONTHS}, like 12 for a year, or leave it empty to keep them until the app is deleted.`;
   } else limits.analyticsMonths = months;
   if (!SUPPORT_LEVELS.includes(values.support as SupportLevel)) errors.support = "Choose the support level.";
+  // 133 Pages in a regular app: empty is no limit (the simple editor keeps its template's pages).
+  const pages = planFamily(plan) === "regular" ? readLimit(values.pages!) : null;
+  if (pages === undefined || (pages !== null && pages < 1)) errors.pages = "Enter a whole number from 1, or leave it empty for no limit.";
+  Object.assign(errors, extraErrors);
   return {
     values,
     errors,
+    extraLimits,
     // 103R A Studio plan is always a Studio plan.
     features: PLAN_FEATURE_IDS.filter((f) => ticked.includes(f) || (f === "studio" && planFamily(plan) === "studio")),
     limits: {
@@ -652,6 +728,7 @@ function readPlanLimits(formData: FormData, plan: Plan): { values: Record<string
       support: values.support as SupportLevel,
       accountManager: values.accountManager === "on",
       customFeatures: values.customFeatures === "on",
+      ...(typeof pages === "number" ? { pages } : {}),
     },
   };
 }
@@ -666,7 +743,7 @@ export async function savePlanLimitsAction(_: FormState, formData: FormData): Pr
   const admin = await requireAdmin("plans.edit");
   const plan = str(formData, "plan");
   if (!isPlan(plan)) return { message: "Unknown plan." };
-  const { values, errors, features, limits } = readPlanLimits(formData, plan);
+  const { values, errors, features, limits, extraLimits } = readPlanLimits(formData, plan);
   if (Object.keys(errors).length) return { errors, values };
   const { saved, info } = await currentPlan(plan);
   const setting: PlanSetting = {
@@ -678,6 +755,9 @@ export async function savePlanLimitsAction(_: FormState, formData: FormData): Pr
       ...(info.limits.studioPages !== undefined ? { studioPages: info.limits.studioPages } : {}),
     },
   };
+  // 133 The team's own limits (the form lists them all).
+  if (Object.keys(extraLimits).length) setting.extraLimits = extraLimits;
+  else delete setting.extraLimits;
   await save("plans", { ...saved, [plan]: setting }, admin, {
     action: "plan.limits",
     target: { type: "plan", id: plan },
@@ -719,7 +799,8 @@ export async function saveStoragePacksAction(_: FormState, formData: FormData): 
 export async function resetPlanAction(formData: FormData): Promise<void> {
   const admin = await requireAdmin("plans.edit");
   const plan = str(formData, "plan");
-  if (!isPlan(plan)) return;
+  // 133 An added plan has no default: it's archived, or removed while no client was ever on it (admin-plans.ts).
+  if (!isPlan(plan) || isAddedPlan(plan)) return;
   const store = await getStore();
   const { [plan]: _removed, ...rest } = (await platformSetting(store, "plans", { fresh: true }))?.value ?? {};
   await save("plans", Object.keys(rest).length ? rest : null, admin, {

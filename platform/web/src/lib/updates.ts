@@ -96,6 +96,8 @@ function announcementItem(a: Announcement, lang: string, now: Date): Omit<Update
 }
 
 const NOTICE_TOPIC: Record<OwnerNotice["kind"], AccountTopic> = {
+  // 133 An add-on to renew.
+  addon_ends_7: "payment",
   app_users_80: "users",
   app_users_100: "users",
   plan_ends_7: "plan",
@@ -107,6 +109,7 @@ const NOTICE_TOPIC: Record<OwnerNotice["kind"], AccountTopic> = {
   storage_pack_ended: "storage",
   chat_expiring: "chat",
   integration_failed: "site",
+  order_refund_due: "payment",
 };
 
 /** Notice links are full addresses for the emails; in the dashboard they stay on this site. */

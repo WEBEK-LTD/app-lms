@@ -61,6 +61,9 @@ export const en = {
   assignee: "Assigned to",
   takeIt: "Take it",
   // Complaint statuses
+  // 132 The customers' ratings, with the business's reply.
+  ratingsTitle: "Ratings on these orders",
+  ratingLine: "{vendor}: {stars}/5",
   cs_open: "New",
   cs_in_review: "In review",
   cs_waiting_for_customer: "Waiting on the customer",
@@ -431,6 +434,9 @@ export const ar: Strings<typeof en> = {
   unassigned: "غير مسندة",
   assignee: "مسندة إلى",
   takeIt: "أتولاها",
+  // 132 The customers' ratings, with the business's reply.
+  ratingsTitle: "تقييمات الأوردرات دي",
+  ratingLine: "{vendor}: {stars}/5",
   cs_open: "جديدة",
   cs_in_review: "قيد المراجعة",
   cs_waiting_for_customer: "بانتظار العميل",
@@ -794,6 +800,9 @@ export const tr: Strings<typeof en> = {
   unassigned: "Atanmadı",
   assignee: "Atanan",
   takeIt: "Üstlen",
+  // 132 The customers' ratings, with the business's reply.
+  ratingsTitle: "Bu siparişlerin değerlendirmeleri",
+  ratingLine: "{vendor}: {stars}/5",
   cs_open: "Yeni",
   cs_in_review: "İnceleniyor",
   cs_waiting_for_customer: "Müşteri bekleniyor",

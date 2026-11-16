@@ -98,6 +98,7 @@ class Plugin {
 		$this->store_extras()->register();
 		// 91.2 Order updates in the app (WooCommerce).
 		( new Commerce\Order_Updates( $this ) )->register();
+		( new Commerce\Delivery_Stages() )->register();
 		( new Commerce\Order_Returns( $this ) )->register();
 		// 100.4 Courses and memberships bought in the app: the catalog Yallapp sells, and the access.
 		( new Billing\Catalog_Sync( $this ) )->register();

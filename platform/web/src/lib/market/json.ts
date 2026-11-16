@@ -1,3 +1,4 @@
+import { appReplyJson } from "../owner/reply-json";
 import type {
   DeliverySettings,
   Dish,
@@ -270,7 +271,8 @@ export function customerOrderJson(
           route: [],
         }
       : null,
-    rating: o.rating ? { vendor: o.rating.vendor, courier: o.rating.courier } : null,
+    // 132 With its comment and the business's reply under it.
+    rating: o.rating ? { vendor: o.rating.vendor, courier: o.rating.courier, comment: o.rating.comment, reply: appReplyJson(o.rating.reply) } : null,
     can_cancel: input.canCancel,
     can_complain: input.canComplain,
     complaint_id: input.complaintId,

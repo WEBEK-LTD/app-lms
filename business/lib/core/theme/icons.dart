@@ -142,6 +142,26 @@ abstract final class AppIcons {
   static const vip = Symbols.diamond_rounded;
   static const priority = Symbols.bolt_rounded;
   static const complaint = Symbols.report_rounded;
+  // 132 An order's page: where it goes, when, the gift card, add-ons.
+  static const map = Symbols.map_rounded;
+  static const when = Symbols.event_rounded;
+  static const giftCard = Symbols.card_giftcard_rounded;
+  static const gift = Symbols.redeem_rounded;
+  static const addon = Symbols.subdirectory_arrow_right_rounded;
+  static const flashSale = Symbols.bolt_rounded;
+  static const shipping = Symbols.local_shipping_rounded;
+  static const note = Symbols.sticky_note_2_rounded;
+  static const package = Symbols.package_2_rounded;
+  // 132 Delivery stages.
+  static const postpone = Symbols.event_repeat_rounded;
+  static const deliveryFailed = Symbols.report_rounded;
+  static const returned = Symbols.assignment_return_rounded;
+  static const delivered = Symbols.task_alt_rounded;
+  static const preparing = Symbols.inventory_2_rounded;
+  // 132 The app lock.
+  static const face = Symbols.face_rounded;
+  static const pin = Symbols.pin_rounded;
+  static const timer = Symbols.timer_rounded;
 }
 
 /// Icons that point a way (back, forward, send) turn round in Arabic.

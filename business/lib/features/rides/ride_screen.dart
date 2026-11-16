@@ -6,9 +6,12 @@ import '../../core/providers.dart';
 import '../../core/session.dart';
 import '../../core/theme/icons.dart';
 import '../../core/theme/theme.dart';
+import '../../core/widgets/contact.dart';
 import '../../core/widgets/l10n.dart';
 import '../../core/widgets/states.dart';
 import '../food/food_sheets.dart';
+import '../studio/status_words.dart';
+import '../studio/rating_card.dart';
 import '../studio/studio_widgets.dart';
 import 'rides_screen.dart';
 
@@ -115,17 +118,29 @@ class RideScreen extends ConsumerWidget {
                             km(context, ride.distanceKm!),
                         ].join(' · '),
                       ),
-                      const SizedBox(height: 12),
-                      Text(
-                        l10n.riderLabel,
-                        style: TextStyle(fontSize: 12, color: c.ink2),
-                      ),
-                      Text(
-                        ride.riderName,
-                        style: const TextStyle(
-                          fontSize: 15,
-                          fontWeight: FontWeight.w600,
+                      // 132 The pickup on the map.
+                      const SizedBox(height: 10),
+                      ActionPill(
+                        icon: AppIcons.map,
+                        label: l10n.openInMaps,
+                        onPressed: () => openLink(
+                          context,
+                          ref,
+                          mapsUrl(
+                            Theme.of(context).platform,
+                            query: ride.pickup.address,
+                            lat: ride.pickup.lat,
+                            lng: ride.pickup.lng,
+                          ),
                         ),
+                      ),
+                      Divider(height: 28, color: c.line),
+                      // 132 The rider: Call and WhatsApp, their note to the driver.
+                      PersonCard(
+                        name: ride.riderName,
+                        label: l10n.riderLabel,
+                        phone: d.riderPhone,
+                        note: d.notes == null ? null : '“${isolate(d.notes!)}”',
                       ),
                       const SizedBox(height: 12),
                       Text.rich(
@@ -204,7 +219,12 @@ class RideScreen extends ConsumerWidget {
                 ],
                 if (d.timeline.isNotEmpty) ...[
                   SectionTitle(l10n.historyTitle),
-                  TimelineList(entries: d.timeline),
+                  TimelineList(entries: d.timeline, words: rideStatusLabel),
+                ],
+                // 132 The rider's rating, with the business's reply.
+                if (d.rating != null) ...[
+                  SectionTitle(l10n.ratingCardTitle),
+                  RatingCard(source: 'ride', id: ride.id, rating: d.rating!),
                 ],
               ],
             ),

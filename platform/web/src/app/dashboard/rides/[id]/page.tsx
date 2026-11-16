@@ -1,3 +1,4 @@
+import { RatingReply } from "../../rating-reply";
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { Icon } from "@/components/icon";
@@ -115,10 +116,14 @@ export default async function RidePage({ params }: { params: Promise<{ id: strin
                   </li>
                 ) : null}
                 {ride.rating ? (
-                  <li className="flex items-center gap-1.5">
-                    <Icon name="star" size={18} filled className="text-ember" />
-                    {t("rides.rating", { stars: ride.rating.driver })}
-                    {ride.rating.comment ? ` · “${ride.rating.comment}”` : ""}
+                  <li className="flex flex-col gap-2">
+                    <span className="flex items-center gap-1.5">
+                      <Icon name="star" size={18} filled className="text-ember" />
+                      {t("rides.rating", { stars: ride.rating.driver })}
+                      {ride.rating.comment ? ` · “${ride.rating.comment}”` : ""}
+                    </span>
+                    {/* 132 The business's reply under it. */}
+                    <RatingReply source="ride" id={ride.id} reply={ride.rating.reply?.text ?? null} />
                   </li>
                 ) : null}
               </ul>

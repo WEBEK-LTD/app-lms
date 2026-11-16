@@ -7,12 +7,25 @@ import { Field, FieldError, FormMessage, SubmitButton } from "@/components/form"
 import type { CouponFormValues } from "@/lib/billing/coupons";
 import { initialFormState } from "@/lib/forms";
 
-export function CouponForm({ id, coupon, planNames, shown }: { id?: string; coupon: CouponFormValues; planNames: Record<Plan, string>; /** 103R The plans to list (and any the coupon has). */ shown?: readonly Plan[] }) {
+export function CouponForm({
+  id,
+  coupon,
+  planNames,
+  shown,
+  addons = [],
+}: {
+  id?: string;
+  coupon: CouponFormValues;
+  planNames: Record<Plan, string>;
+  /** 103R The plans to list (and any the coupon has). */ shown?: readonly Plan[];
+  /** 133 The add-ons it can be for. */
+  addons?: { id: string; name: string }[];
+}) {
   const [state, action] = useActionState(id ? updateCouponAction : createCouponAction, initialFormState);
   const s = state.values;
   const v = (name: keyof CouponFormValues & string) => (s ? (s[name] ?? "") : String(coupon[name]));
   const checked = (name: "firstPaymentOnly" | "active") => (s ? s[name] === "on" : coupon[name]);
-  const inList = (name: "plans" | "periods", value: string) => (s ? (s[name] ?? "") : coupon[name]).split(",").includes(value);
+  const inList = (name: "plans" | "periods" | "addons", value: string) => (s ? (s[name] ?? "") : coupon[name]).split(",").includes(value);
   const [kind, setKind] = useState<string>(s?.kind ?? coupon.kind);
   const e = state.errors ?? {};
   return (
@@ -71,7 +84,12 @@ export function CouponForm({ id, coupon, planNames, shown }: { id?: string; coup
           <legend className="mb-1 text-sm font-semibold">Billing periods</legend>
           {[
             { id: "1", label: "Monthly" },
+            // 133 The other periods, and lifetime (an add-on's one-time payment too).
+            { id: "6", label: "6 months" },
             { id: "12", label: "Yearly" },
+            { id: "24", label: "2 years" },
+            { id: "36", label: "3 years" },
+            { id: "0", label: "Lifetime or one-time" },
           ].map((period) => (
             <label key={period.id} className="flex cursor-pointer items-center gap-2 text-[15px]">
               <input type="checkbox" name="periods" value={period.id} defaultChecked={inList("periods", period.id)} className="h-4 w-4 accent-midnight" />
@@ -81,6 +99,19 @@ export function CouponForm({ id, coupon, planNames, shown }: { id?: string; coup
           <FieldError id="f-periods-error" error={e.periods} />
         </fieldset>
       </div>
+      {/* 133 Add-ons the coupon is for too (none ticked: plans only). */}
+      {addons.length ? (
+        <fieldset className="m-0 flex flex-col gap-2 border-0 p-0" data-coupon-addons="">
+          <legend className="mb-1 text-sm font-semibold">Add-ons</legend>
+          <span className="text-[13px] text-muted">None ticked: the coupon is for plans only. With plans unticked, it&apos;s for these add-ons only.</span>
+          {addons.map((a) => (
+            <label key={a.id} className="flex cursor-pointer items-center gap-2 text-[15px]">
+              <input type="checkbox" name="addons" value={a.id} defaultChecked={inList("addons", a.id)} className="h-4 w-4 accent-midnight" />
+              {a.name}
+            </label>
+          ))}
+        </fieldset>
+      ) : null}
 
       <div className="grid gap-4 sm:grid-cols-2">
         <Field label="Valid from" name="validFrom" type="date" defaultValue={v("validFrom")} hint="Optional. Days are in UTC." error={e.validFrom} />

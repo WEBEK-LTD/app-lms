@@ -11,6 +11,7 @@ import '../../core/theme/theme.dart';
 import '../../core/widgets/l10n.dart';
 import '../../core/widgets/paged_list.dart';
 import '../../core/widgets/states.dart';
+import '../studio/status_words.dart';
 import '../studio/studio_widgets.dart';
 import 'food_sheets.dart';
 
@@ -248,10 +249,8 @@ class _BusyBannerState extends ConsumerState<BusyBanner> {
               ),
               foregroundColor: c.warning,
               side: BorderSide(color: c.warning),
-              textStyle: const TextStyle(
-                fontSize: 13,
-                fontWeight: FontWeight.w600,
-              ),
+              textStyle: Theme.of(context).textTheme.labelLarge
+                  ?.copyWith(fontSize: 13, fontWeight: FontWeight.w600),
             ),
             child: Text(context.l10n.endDelay),
           ),
@@ -303,7 +302,12 @@ class _FoodOrderCardState extends ConsumerState<FoodOrderCard> {
     final c = context.yb;
     final o = widget.order;
     final money = [
-      o.payment.label,
+      payWords(
+        context,
+        o.payment.method,
+        o.payment.label,
+        paid: o.payment.paid,
+      ),
       if (o.distanceKm != null) km(context, o.distanceKm!),
     ];
     return Box(
@@ -321,7 +325,12 @@ class _FoodOrderCardState extends ConsumerState<FoodOrderCard> {
                 ),
               ),
               const SizedBox(width: 8),
-              Flexible(child: Tag(o.statusLabel, tone: foodTone(o.status))),
+              Flexible(
+                child: Tag(
+                  foodStatusLabel(context, o.status, o.statusLabel),
+                  tone: foodTone(o.status),
+                ),
+              ),
               const Spacer(),
               Text(
                 context.ago(o.placedAt),

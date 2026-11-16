@@ -53,9 +53,15 @@ void main() {
       await app.pump(tester);
       await go(tester, app, '/orders/1042');
       expect(find.text('#1042'), findsOneWidget);
-      expect(find.text('Ahmed Yilmaz'), findsOneWidget);
-      expect(find.text('Moda Cd. 12, Kadıköy, Istanbul'), findsOneWidget);
+      expect(find.text(isolate('Ahmed Yilmaz')), findsOneWidget);
+      expect(
+        find.text(isolate('Moda Cd. 12, Kadıköy, Istanbul')),
+        findsOneWidget,
+      );
+      // 132 Who and where come first; the items and the payment under them.
+      await tester.scrollUntilVisible(find.text('Extra garlic'), 200);
       expect(find.text('Extra garlic'), findsOneWidget);
+      await tester.scrollUntilVisible(find.text('₺485.00'), 200);
       expect(find.text('₺485.00'), findsOneWidget);
       await tester.scrollUntilVisible(
         find.text('Up to ₺485.00 can be refunded.'),

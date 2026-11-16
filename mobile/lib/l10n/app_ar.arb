@@ -208,7 +208,6 @@
   "giftFrom": "من",
   "giftSomeone": "شخص يهتم بك",
   "giftArrives": "يصل",
-
   "shopping": "التسوق",
   "learning": "التعلّم",
   "wishlist": "قائمة الرغبات",
@@ -3179,5 +3178,17 @@
   "deliveryPinSet": "تم تحديد المكان على الخريطة",
   "deliveryPinChange": "تغيير",
   "deliveryNeedPlace": "اختر مكان التوصيل.",
-  "deliveryNeedPin": "حدّد مكان التوصيل على الخريطة."
+  "deliveryNeedPin": "حدّد مكان التوصيل على الخريطة.",
+  "orderStagePreparing": "يجري تجهيز طلبك",
+  "orderStageShipped": "خرج طلبك للتوصيل",
+  "orderStagePostponed": "تم تأجيل التوصيل",
+  "orderStageFailed": "تعذّر التوصيل",
+  "orderStageReturned": "عاد الطلب إلى المتجر",
+  "orderStageDelivered": "تم التوصيل",
+  "orderStageNewDay": "موعد التوصيل الجديد: {day}",
+  "orderStageTryAgain": "سنحاول التوصيل مجددًا يوم {day}",
+  "orderStageCourier": "المندوب: {name}",
+  "orderStageCallCourier": "الاتصال بالمندوب",
+  "orderStageFollow": "تتبّع التوصيل",
+  "ratingReplyFrom": "ردّ من {business}"
 }

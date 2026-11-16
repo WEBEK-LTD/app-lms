@@ -600,7 +600,6 @@
   "notificationSettings": "Notifications",
   "signedInDevices": "Signed-in devices",
   "biometricLock": "Unlock with fingerprint or face",
-  "biometricLockHelp": "Asked when the app opens, and after 5 minutes away.",
   "biometricUnavailable": "This phone has no fingerprint, face or screen lock set up.",
   "help": "Help",
   "helpWhatsapp": "Talk to us on WhatsApp",
@@ -1495,7 +1494,6 @@
   },
   "noRestaurants": "No restaurants yet",
   "refundDue": "A refund is due on this order.",
-  "callCustomer": "Call customer",
   "courierLabel": "Courier",
   "onDuty": "On duty",
   "onTheWay": "On the way",
@@ -2086,6 +2084,567 @@
   "pushPrimeAlertHelp": "Prime: when something waits too long.",
   "pushBrief": "Morning brief",
   "pushBriefHelp": "Prime: yesterday in one notification.",
+  "deliverTo": "Deliver to",
+  "whenTitle": "When",
+  "giftCardTitle": "Gift card message",
+  "giftOrder": "Gift",
+  "giftSender": "Sender",
+  "giftFor": "For {name}",
+  "@giftFor": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "fromAccount": "From their account in the app",
+  "noName": "No name given",
+  "asSoonAsPossible": "As soon as possible",
+  "signedBy": "Signed: {name}",
+  "@signedBy": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "sentAnonymously": "Send anonymously: the card doesn't show the sender's name.",
+  "zoneLabel": "Zone: {zone}",
+  "@zoneLabel": {
+    "placeholders": {
+      "zone": {
+        "type": "String"
+      }
+    }
+  },
+  "pinnedOnMap": "Pinned on the map",
+  "openInMaps": "Open in Maps",
+  "copyAddress": "Copy address",
+  "addressCopied": "Address copied",
+  "addonLine": "Add-on",
+  "flashSaleTag": "Flash sale",
+  "subtotalLabel": "Subtotal",
+  "discountLabel": "Discount",
+  "couponLabel": "Coupon {code}",
+  "@couponLabel": {
+    "placeholders": {
+      "code": {
+        "type": "String"
+      }
+    }
+  },
+  "pointsLabel": "Points ({points})",
+  "@pointsLabel": {
+    "placeholders": {
+      "points": {
+        "type": "String"
+      }
+    }
+  },
+  "deliveryFeeLabel": "Delivery fee",
+  "feeBase": "Base fee",
+  "feeMinimum": "Minimum fee",
+  "feeFree": "Free delivery",
+  "slotFeeLabel": "Delivery time",
+  "taxIncludedLabel": "{label} (included)",
+  "@taxIncludedLabel": {
+    "placeholders": {
+      "label": {
+        "type": "String"
+      }
+    }
+  },
+  "payOutsideWaiting": "Waiting for payment: {method}",
+  "@payOutsideWaiting": {
+    "placeholders": {
+      "method": {
+        "type": "String"
+      }
+    }
+  },
+  "payOutsideDue": "Waiting for payment: {method}, by {date}",
+  "@payOutsideDue": {
+    "placeholders": {
+      "method": {
+        "type": "String"
+      },
+      "date": {
+        "type": "String"
+      }
+    }
+  },
+  "shippedTitle": "Shipped",
+  "trackShipment": "Track the shipment",
+  "senderLabel": "Sender",
+  "packageLabel": "Package",
+  "packageSmall": "Small",
+  "packageMedium": "Medium",
+  "packageLarge": "Large",
+  "serviceLabel": "Service: {name}",
+  "@serviceLabel": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "payCash": "Cash on delivery",
+  "payCard": "Card",
+  "payWallet": "Wallet",
+  "payApplePay": "Apple Pay",
+  "payGooglePay": "Google Pay",
+  "payUnpaid": "Not paid yet",
+  "payPaid": "Paid",
+  "payRefunded": "Refunded",
+  "payPartlyRefunded": "Partly refunded",
+  "lineItems": "Items",
+  "lineItemDiscounts": "Item discounts",
+  "lineCoupon": "Coupon",
+  "lineClub": "Club discount",
+  "lineDelivery": "Delivery",
+  "lineDeliveryDiscount": "Delivery discount",
+  "lineTax": "Tax",
+  "lineTip": "Tip",
+  "lineWallet": "Paid from the wallet",
+  "scheduledAt": "Scheduled: {time}",
+  "@scheduledAt": {
+    "placeholders": {
+      "time": {
+        "type": "String"
+      }
+    }
+  },
+  "couponUsed": "Coupon: {code}",
+  "@couponUsed": {
+    "placeholders": {
+      "code": {
+        "type": "String"
+      }
+    }
+  },
+  "ratingCardTitle": "Customer's rating",
+  "ratingReplyHelp": "The customer sees it under their rating in the app, in your business's name, and is told the first time.",
+  "ratingCourierLine": "Courier: {stars}/5",
+  "@ratingCourierLine": {
+    "placeholders": {
+      "stars": {
+        "type": "String"
+      }
+    }
+  },
+  "replyEdited": "Edited",
+  "removeReplyTitle": "Remove your reply?",
+  "removeReplyText": "The customer won't see it under their rating any more.",
+  "stageTitle": "Delivery",
+  "stageNotStarted": "Not on its way yet. Mark it as shipped when it leaves: the customer is told.",
+  "stagePreparing": "Preparing",
+  "stageShipped": "Out for delivery",
+  "stagePostponed": "Postponed",
+  "stageFailed": "Delivery failed",
+  "stageReturned": "Returned to shop",
+  "stageDelivered": "Delivered",
+  "doPreparing": "Preparing",
+  "doShipped": "Mark as shipped",
+  "doPostpone": "Postpone",
+  "doFailed": "Delivery failed",
+  "doReturned": "Returned to shop",
+  "doDelivered": "Mark delivered",
+  "shipSheetTitle": "Mark {order} as shipped",
+  "@shipSheetTitle": {
+    "placeholders": {
+      "order": {
+        "type": "String"
+      }
+    }
+  },
+  "postponeSheetTitle": "Postpone {order}",
+  "@postponeSheetTitle": {
+    "placeholders": {
+      "order": {
+        "type": "String"
+      }
+    }
+  },
+  "failedSheetTitle": "Delivery of {order} failed",
+  "@failedSheetTitle": {
+    "placeholders": {
+      "order": {
+        "type": "String"
+      }
+    }
+  },
+  "courierNameField": "Courier's name (optional)",
+  "courierPhoneField": "Courier's phone (optional)",
+  "trackingLinkField": "Tracking link (optional)",
+  "stageWhy": "Why",
+  "stageNewDay": "New day",
+  "stageTime": "Time",
+  "stageAnotherDay": "Another day",
+  "stageSlotFull": "{slot} · full",
+  "@stageSlotFull": {
+    "placeholders": {
+      "slot": {
+        "type": "String"
+      }
+    }
+  },
+  "stageNextStep": "What's next",
+  "stageTeamNote": "Note for your team",
+  "stageTeamNoteHint": "The customer doesn't see it.",
+  "reasonCustomerAsked": "Customer asked",
+  "reasonRecipientAway": "Recipient not available",
+  "reasonShopAsked": "Shop asked",
+  "reasonWeather": "Weather",
+  "reasonWrongAddress": "Wrong or incomplete address",
+  "reasonRefused": "Recipient refused",
+  "reasonUnreachable": "Couldn't reach by phone",
+  "reasonOther": "Other",
+  "nextRetry": "Try again on another day",
+  "nextReturn": "Return to shop",
+  "nextCancel": "Cancel the order",
+  "stageCancelRefundsNow": "Cancelling refunds {amount} to the customer now.",
+  "@stageCancelRefundsNow": {
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+  "stageCancelRefundYou": "Cancelling marks the order Needs a refund: pay back {amount} yourself, then mark it refunded.",
+  "@stageCancelRefundYou": {
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+  "needsRefund": "Needs a refund",
+  "refundWhyOutside": "It was paid outside the app: pay it back the same way.",
+  "refundWhyProvider": "Its payment provider can't refund it from here: refund it in the provider's panel.",
+  "needsRefundText": "Pay back {amount} to the customer, then mark it refunded.",
+  "@needsRefundText": {
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+  "refundedAutoText": "{amount} went back to the customer when the order was cancelled.",
+  "@refundedAutoText": {
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+  "refundRecordedText": "Marked refunded by {name}.",
+  "@refundRecordedText": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "markRefundedButton": "I refunded it",
+  "markRefundedTitle": "Mark {order} refunded?",
+  "@markRefundedTitle": {
+    "placeholders": {
+      "order": {
+        "type": "String"
+      }
+    }
+  },
+  "markRefundedText": "Only if you paid the {amount} back yourself. The customer is told.",
+  "@markRefundedText": {
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+  "refundMarkedDone": "{order}: marked refunded. The customer was told.",
+  "@refundMarkedDone": {
+    "placeholders": {
+      "order": {
+        "type": "String"
+      }
+    }
+  },
+  "deliveredConfirmTitle": "Mark {order} delivered?",
+  "@deliveredConfirmTitle": {
+    "placeholders": {
+      "order": {
+        "type": "String"
+      }
+    }
+  },
+  "deliveredConfirmText": "It completes the order and tells the customer.",
+  "stageToldCustomer": "{order}: {stage}. The customer was told.",
+  "@stageToldCustomer": {
+    "placeholders": {
+      "order": {
+        "type": "String"
+      },
+      "stage": {
+        "type": "String"
+      }
+    }
+  },
+  "stageSaved": "{order}: {stage}.",
+  "@stageSaved": {
+    "placeholders": {
+      "order": {
+        "type": "String"
+      },
+      "stage": {
+        "type": "String"
+      }
+    }
+  },
+  "stageNewDayLine": "New day: {day}",
+  "@stageNewDayLine": {
+    "placeholders": {
+      "day": {
+        "type": "String"
+      }
+    }
+  },
+  "stageNextLine": "Next: {step}",
+  "@stageNextLine": {
+    "placeholders": {
+      "step": {
+        "type": "String"
+      }
+    }
+  },
+  "stageCourierLine": "Courier: {name}",
+  "@stageCourierLine": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "stageChooseDay": "Choose the new day.",
+  "stageChooseWhy": "Choose why.",
+  "stageChooseNext": "Choose what happens next.",
+  "stageWriteNote": "Write the reason in the note.",
+  "stAwaitingPayment": "Waiting for payment",
+  "stAccepted": "Accepted",
+  "stReadyForCourier": "Ready for the courier",
+  "stPicking": "Being picked",
+  "stPickedUp": "Picked up",
+  "stOnTheWay": "On the way",
+  "stDelivered": "Delivered",
+  "stTurnedDown": "Turned down",
+  "stNotDelivered": "Couldn't be delivered",
+  "stWaitingCourier": "Waiting for a courier",
+  "stCourierToPickup": "Courier on the way to pick up",
+  "stForLater": "For later",
+  "stBookedLater": "Booked for later",
+  "stSearching": "Looking for a driver",
+  "stDriverComing": "Driver on the way",
+  "stDriverAtPickup": "Driver at the pickup",
+  "stOnRide": "On the way",
+  "stNoDriver": "No driver found",
+  "csOpen": "New",
+  "csInReview": "In review",
+  "csResolved": "Resolved",
+  "csRejected": "Closed without refund",
+  "feeDistance": "Distance {km} km",
+  "@feeDistance": {
+    "placeholders": {
+      "km": {
+        "type": "String"
+      }
+    }
+  },
+  "feeWeight": "Weight {kg} kg",
+  "@feeWeight": {
+    "placeholders": {
+      "kg": {
+        "type": "String"
+      }
+    }
+  },
+  "feeWeightIncluded": "Weight {kg} kg ({included} kg included)",
+  "@feeWeightIncluded": {
+    "placeholders": {
+      "kg": {
+        "type": "String"
+      },
+      "included": {
+        "type": "String"
+      }
+    }
+  },
+  "unlockWithFaceId": "Unlock with Face ID",
+  "unlockWithFace": "Unlock with your face",
+  "unlockWithFingerprint": "Unlock with fingerprint",
+  "unlockWithPin": "Unlock with the phone's PIN",
+  "usePhonePin": "Use phone PIN",
+  "lockLockedOut": "Too many tries. Use your phone's PIN, or wait a little and try again.",
+  "lockUsePin": "Face and fingerprint are blocked for now. Use your phone's PIN.",
+  "lockNotEnrolled": "No face or fingerprint is set up on this phone. Use your phone's PIN, or set one up in the phone's settings.",
+  "lockNoScreenLock": "This phone has no screen lock. Set a PIN, pattern or password in the phone's settings, or sign out and use your password.",
+  "lockUnavailable": "The phone can't unlock the app right now. Try again, or sign out and use your password.",
+  "lockHelp": "Asked when the app opens and when you come back to it. The app is hidden in the app switcher.",
+  "lockTurnOnReason": "Turn on the app lock",
+  "lockTurnOffReason": "Turn off the app lock",
+  "lockTurnedOn": "The app lock is on.",
+  "lockTurnedOff": "The app lock is off.",
+  "lockNotChanged": "That didn't match, so the app lock wasn't changed.",
+  "lockAfterTitle": "Lock again",
+  "lockImmediately": "Immediately",
+  "customersInsights": "Customers",
+  "productsInsights": "Products",
+  "reviewsRatings": "Ratings and reviews",
+  "aCustomer": "A customer",
+  "lastOrder": "last order {when}",
+  "@lastOrder": {
+    "placeholders": {
+      "when": {
+        "type": "String"
+      }
+    }
+  },
+  "customersLabel": "Customers",
+  "newCustomers": "New",
+  "cameBack": "Came back",
+  "topCustomers": "Best customers",
+  "noCustomersYet": "No customers in this period yet.",
+  "nobodyAway": "Nobody here: they keep coming back.",
+  "namesHidden": "Names show to the team members who may see orders.",
+  "soldOutTag": "Sold out",
+  "nothingSoldYet": "Nothing sold in this period yet.",
+  "slowMovers": "Slow movers",
+  "nothingSlow": "Every product is selling.",
+  "runningLow": "Running low or sold out",
+  "stockFine": "Stock is fine for everything.",
+  "priceAndStock": "Prices, stock and what shows",
+  "priceAndStockHelp": "Change a product in Catalog",
+  "averageRating": "Average rating",
+  "ratingsCount": "Ratings",
+  "noReviewsYet": "No ratings yet",
+  "replyInInbox": "Reply in Inbox",
+  "repliedInInbox": "Replied · open in Inbox",
+  "newCoupon": "New coupon",
+  "newCouponHelp": "A code for a share or an amount off",
+  "couponSaved": "Coupon {code} is ready.",
+  "@couponSaved": {
+    "placeholders": {
+      "code": {
+        "type": "String"
+      }
+    }
+  },
+  "couponCode": "Code",
+  "percentOff": "Percent off",
+  "amountOff": "Amount off",
+  "percentValueField": "Percent off (1–100)",
+  "amountValueField": "Amount off",
+  "newFlashSale": "New flash sale",
+  "newFlashSaleHelp": "A share off some products, starting now",
+  "flashSaleSaved": "{title} is on.",
+  "@flashSaleSaved": {
+    "placeholders": {
+      "title": {
+        "type": "String"
+      }
+    }
+  },
+  "saleName": "Name",
+  "saleLasts": "It lasts",
+  "saleProducts": "Products on sale",
+  "deliveryToday": "Today's delivery times",
+  "slotOpen": "Open",
+  "slotClosedToday": "Closed today",
+  "slotClosed": "Closed for today: the app no longer offers it.",
+  "slotOpened": "Open again.",
+  "busyMode": "Busy mode",
+  "busyFor": "{name} is busy",
+  "@busyFor": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "busyHelp": "It takes no new orders for a while; the customers see when it opens again.",
+  "takeOrdersNow": "Take orders now",
+  "takingOrders": "{name} takes orders again.",
+  "@takingOrders": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "takingOrdersShort": "Taking orders",
+  "busyUntilShort": "Busy until {time}",
+  "@busyUntilShort": {
+    "placeholders": {
+      "time": {
+        "type": "String"
+      }
+    }
+  },
+  "noQuickActions": "Your app has no quick actions.",
+  "goalReached": "Goal reached!",
+  "goalProgress": "{current} of {target}",
+  "@goalProgress": {
+    "placeholders": {
+      "current": {
+        "type": "String"
+      },
+      "target": {
+        "type": "String"
+      }
+    }
+  },
+  "primeGift": "Prime · Gift from Yallapp",
+  "primeGiftUntil": "Prime · Gift from Yallapp until {date}",
+  "@primeGiftUntil": {
+    "placeholders": {
+      "date": {
+        "type": "String"
+      }
+    }
+  },
+  "alertLowStock": "Low stock",
+  "alertSalesGoal": "Sales goal",
+  "goalWhen": "{amount} a {period}",
+  "@goalWhen": {
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      },
+      "period": {
+        "type": "String"
+      }
+    }
+  },
+  "periodDay": "day",
+  "periodWeek": "week",
+  "periodMonth": "month",
+  "goalNotSet": "Set an amount for the day, week or month",
+  "goalPeriodField": "Each",
+  "thresholdField": "Tell me at this many left",
+  "weeklyReport": "Weekly report by email",
+  "weeklyReportHelp": "Every Monday to {email}: sales, orders, best sellers and customers.",
+  "@weeklyReportHelp": {
+    "placeholders": {
+      "email": {
+        "type": "String"
+      }
+    }
+  },
+  "primeMoreCustomersHelp": "New and returning, the best, the ones who stopped coming",
+  "primeMoreProductsHelp": "Best sellers, slow movers, low stock",
+  "primeMoreReviewsHelp": "Every rating, and replies",
+  "primeMoreActionsHelp": "Coupons, flash sales, delivery times, busy mode",
+  "primeGoalsHelp": "A goal for the day, week or month, with a ring on Today",
+  "primeWeeklyHelp": "A summary by email every Monday",
   "minutesAgo": "{count} min ago",
   "@minutesAgo": {
     "placeholders": {
@@ -2398,6 +2957,86 @@
   },
   "pointsChange": "{count, plural, =1{1 point} other{{count} points}}",
   "@pointsChange": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "ordersCount": "{count, plural, =1{1 order} other{{count} orders}}",
+  "@ordersCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "away30": "{count, plural, =0{Away 30 to 60 days} =1{1 away 30 to 60 days} other{{count} away 30 to 60 days}}",
+  "@away30": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "away60": "{count, plural, =0{Away more than 60 days} =1{1 away more than 60 days} other{{count} away more than 60 days}}",
+  "@away60": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "leftCount": "{count, plural, =1{1 left} other{{count} left}}",
+  "@leftCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "unitsSold": "{count, plural, =0{None sold} =1{1 sold} other{{count} sold}}",
+  "@unitsSold": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "starsOf": "{count, plural, =1{1 star out of 5} other{{count} stars out of 5}}",
+  "@starsOf": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "hoursShort": "{hours, plural, =1{1 hour} other{{hours} hours}}",
+  "@hoursShort": {
+    "placeholders": {
+      "hours": {
+        "type": "int"
+      }
+    }
+  },
+  "lowStockAlertHint": "{count, plural, =0{Turn on Low stock in Smart alerts to hear when something sells out.} =1{Low stock in Smart alerts tells you at 1 left.} other{Low stock in Smart alerts tells you at {count} left.}}",
+  "@lowStockAlertHint": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "lockAfterMinutes": "{minutes, plural, =1{After 1 minute away} other{After {minutes} minutes away}}",
+  "@lockAfterMinutes": {
+    "placeholders": {
+      "minutes": {
+        "type": "int"
+      }
+    }
+  },
+  "needsAwaitingPayment": "{count, plural, =1{1 order waiting for its payment} other{{count} orders waiting for their payment}}",
+  "@needsAwaitingPayment": {
     "placeholders": {
       "count": {
         "type": "int"

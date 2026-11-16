@@ -9,7 +9,8 @@ import { isStudioProject, licensePath, studioPathFor, studioSourcesFor } from "@
 
 describe("103R.3 Studio's own plans", () => {
   it("keeps the two families apart", () => {
-    expect(plansOfFamily("regular")).toEqual(["starter", "growth", "pro", "business"]);
+    // 133 The four, then the ones the team can add.
+    expect(plansOfFamily("regular")).toEqual(["starter", "growth", "pro", "business", "regular_5", "regular_6", "regular_7", "regular_8", "regular_9", "regular_10", "regular_11", "regular_12"]);
     expect(plansOfFamily("studio")).toEqual(["studio_1", "studio_2", "studio_3", "studio_4", "studio_5", "studio_6", "studio_7", "studio_8"]);
     expect(planFamily("pro")).toBe("regular");
     expect(planFamily("studio_2")).toBe("studio");
@@ -97,8 +98,8 @@ describe("103R.3 Studio's own section", () => {
   it("has every dashboard page of an app in Studio's frame too", () => {
     const root = path.join(process.cwd(), "src/app/dashboard");
     const pages = (readdirSync(root, { recursive: true }) as string[]).filter((f) => f.endsWith("page.tsx")).map((f) => path.dirname(f)).filter((d) => d !== ".");
-    // The account's own pages (the app-builder guide makes a new app), and the regular page editor (Studio has its own), stay in the dashboard.
-    const own = pages.filter((d) => !["app-type", "builder", "businesses", "account", "team", "open", "pages", "studio-market"].includes(d.split(path.sep)[0]!));
+    // The account's own pages (the app-builder guide makes a new app; 132.113 the owner's approval of a move), and the regular page editor (Studio has its own), stay in the dashboard.
+    const own = pages.filter((d) => !["app-type", "builder", "businesses", "account", "team", "open", "pages", "studio-market", "app-moves"].includes(d.split(path.sep)[0]!));
     expect(own.length).toBeGreaterThan(50);
     expect(own.filter((d) => !existsSync(path.join(process.cwd(), "src/app/studio/project", d, "page.tsx")))).toEqual([]);
   });

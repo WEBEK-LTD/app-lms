@@ -1145,10 +1145,6 @@ class AppLocalizationsAr extends AppLocalizations {
   String get biometricLock => 'الفتح ببصمة الإصبع أو الوجه';
 
   @override
-  String get biometricLockHelp =>
-      'يُطلب عند فتح التطبيق، وبعد الابتعاد عنه 5 دقائق.';
-
-  @override
   String get biometricUnavailable =>
       'لا توجد بصمة إصبع أو وجه أو قفل شاشة على هذا الهاتف.';
 
@@ -2381,9 +2377,6 @@ class AppLocalizationsAr extends AppLocalizations {
   String get refundDue => 'يستحق هذا الطلب استردادًا.';
 
   @override
-  String get callCustomer => 'الاتصال بالعميل';
-
-  @override
   String get courierLabel => 'المندوب';
 
   @override
@@ -3164,13 +3157,858 @@ class AppLocalizationsAr extends AppLocalizations {
   String get pushBriefHelp => 'برايم: أمسِ في إشعار واحد.';
 
   @override
+  String get deliverTo => 'التوصيل إلى';
+
+  @override
+  String get whenTitle => 'الموعد';
+
+  @override
+  String get giftCardTitle => 'رسالة بطاقة الهدية';
+
+  @override
+  String get giftOrder => 'هدية';
+
+  @override
+  String get giftSender => 'المُرسِل';
+
+  @override
+  String giftFor(String name) {
+    return 'إلى $name';
+  }
+
+  @override
+  String get fromAccount => 'من حسابه في التطبيق';
+
+  @override
+  String get noName => 'لم يُذكر اسم';
+
+  @override
+  String get asSoonAsPossible => 'في أقرب وقت ممكن';
+
+  @override
+  String signedBy(String name) {
+    return 'التوقيع: $name';
+  }
+
+  @override
+  String get sentAnonymously =>
+      'إرسال دون ذكر الاسم: لا تُظهر البطاقة اسم المُرسِل.';
+
+  @override
+  String zoneLabel(String zone) {
+    return 'المنطقة: $zone';
+  }
+
+  @override
+  String get pinnedOnMap => 'محدّد على الخريطة';
+
+  @override
+  String get openInMaps => 'فتح في الخرائط';
+
+  @override
+  String get copyAddress => 'نسخ العنوان';
+
+  @override
+  String get addressCopied => 'تم نسخ العنوان';
+
+  @override
+  String get addonLine => 'إضافة';
+
+  @override
+  String get flashSaleTag => 'عرض سريع';
+
+  @override
+  String get subtotalLabel => 'المجموع الفرعي';
+
+  @override
+  String get discountLabel => 'الخصم';
+
+  @override
+  String couponLabel(String code) {
+    return 'القسيمة $code';
+  }
+
+  @override
+  String pointsLabel(String points) {
+    return 'النقاط ($points)';
+  }
+
+  @override
+  String get deliveryFeeLabel => 'رسوم التوصيل';
+
+  @override
+  String get feeBase => 'الرسوم الأساسية';
+
+  @override
+  String get feeMinimum => 'الحد الأدنى للرسوم';
+
+  @override
+  String get feeFree => 'توصيل مجاني';
+
+  @override
+  String get slotFeeLabel => 'موعد التوصيل';
+
+  @override
+  String taxIncludedLabel(String label) {
+    return '$label (مشمولة)';
+  }
+
+  @override
+  String payOutsideWaiting(String method) {
+    return 'بانتظار الدفع: $method';
+  }
+
+  @override
+  String payOutsideDue(String method, String date) {
+    return 'بانتظار الدفع: $method، حتى $date';
+  }
+
+  @override
+  String get shippedTitle => 'الشحن';
+
+  @override
+  String get trackShipment => 'تتبّع الشحنة';
+
+  @override
+  String get senderLabel => 'المُرسِل';
+
+  @override
+  String get packageLabel => 'الطرد';
+
+  @override
+  String get packageSmall => 'صغير';
+
+  @override
+  String get packageMedium => 'متوسط';
+
+  @override
+  String get packageLarge => 'كبير';
+
+  @override
+  String serviceLabel(String name) {
+    return 'الخدمة: $name';
+  }
+
+  @override
+  String get payCash => 'الدفع عند الاستلام';
+
+  @override
+  String get payCard => 'بطاقة';
+
+  @override
+  String get payWallet => 'المحفظة';
+
+  @override
+  String get payApplePay => 'Apple Pay';
+
+  @override
+  String get payGooglePay => 'Google Pay';
+
+  @override
+  String get payUnpaid => 'لم يُدفع بعد';
+
+  @override
+  String get payPaid => 'مدفوع';
+
+  @override
+  String get payRefunded => 'مُسترد';
+
+  @override
+  String get payPartlyRefunded => 'مُسترد جزئيًا';
+
+  @override
+  String get lineItems => 'المنتجات';
+
+  @override
+  String get lineItemDiscounts => 'خصومات المنتجات';
+
+  @override
+  String get lineCoupon => 'القسيمة';
+
+  @override
+  String get lineClub => 'خصم النادي';
+
+  @override
+  String get lineDelivery => 'التوصيل';
+
+  @override
+  String get lineDeliveryDiscount => 'خصم التوصيل';
+
+  @override
+  String get lineTax => 'الضريبة';
+
+  @override
+  String get lineTip => 'الإكرامية';
+
+  @override
+  String get lineWallet => 'مدفوع من المحفظة';
+
+  @override
+  String scheduledAt(String time) {
+    return 'مجدول: $time';
+  }
+
+  @override
+  String couponUsed(String code) {
+    return 'القسيمة: $code';
+  }
+
+  @override
+  String get ratingCardTitle => 'تقييم العميل';
+
+  @override
+  String get ratingReplyHelp =>
+      'يراه العميل تحت تقييمه في التطبيق باسم نشاطك التجاري، ويُبلَّغ في المرة الأولى.';
+
+  @override
+  String ratingCourierLine(String stars) {
+    return 'المندوب: $stars/5';
+  }
+
+  @override
+  String get replyEdited => 'معدَّل';
+
+  @override
+  String get removeReplyTitle => 'حذف ردّك؟';
+
+  @override
+  String get removeReplyText => 'لن يراه العميل تحت تقييمه بعد الآن.';
+
+  @override
+  String get stageTitle => 'التوصيل';
+
+  @override
+  String get stageNotStarted =>
+      'لم يخرج للتوصيل بعد. حدِّده كمشحون عند خروجه، وسيُبلَّغ العميل.';
+
+  @override
+  String get stagePreparing => 'قيد التجهيز';
+
+  @override
+  String get stageShipped => 'خرج للتوصيل';
+
+  @override
+  String get stagePostponed => 'مؤجَّل';
+
+  @override
+  String get stageFailed => 'تعذّر التوصيل';
+
+  @override
+  String get stageReturned => 'أُعيد إلى المتجر';
+
+  @override
+  String get stageDelivered => 'تم التوصيل';
+
+  @override
+  String get doPreparing => 'قيد التجهيز';
+
+  @override
+  String get doShipped => 'حدِّده كمشحون';
+
+  @override
+  String get doPostpone => 'تأجيل';
+
+  @override
+  String get doFailed => 'تعذّر التوصيل';
+
+  @override
+  String get doReturned => 'أُعيد إلى المتجر';
+
+  @override
+  String get doDelivered => 'حدِّده كمُسلَّم';
+
+  @override
+  String shipSheetTitle(String order) {
+    return 'تحديد $order كمشحون';
+  }
+
+  @override
+  String postponeSheetTitle(String order) {
+    return 'تأجيل توصيل $order';
+  }
+
+  @override
+  String failedSheetTitle(String order) {
+    return 'تعذّر توصيل $order';
+  }
+
+  @override
+  String get courierNameField => 'اسم المندوب (اختياري)';
+
+  @override
+  String get courierPhoneField => 'هاتف المندوب (اختياري)';
+
+  @override
+  String get trackingLinkField => 'رابط التتبّع (اختياري)';
+
+  @override
+  String get stageWhy => 'السبب';
+
+  @override
+  String get stageNewDay => 'اليوم الجديد';
+
+  @override
+  String get stageTime => 'الموعد';
+
+  @override
+  String get stageAnotherDay => 'يوم آخر';
+
+  @override
+  String stageSlotFull(String slot) {
+    return '$slot · مكتمل';
+  }
+
+  @override
+  String get stageNextStep => 'الخطوة التالية';
+
+  @override
+  String get stageTeamNote => 'ملاحظة لفريقك';
+
+  @override
+  String get stageTeamNoteHint => 'لا يراها العميل.';
+
+  @override
+  String get reasonCustomerAsked => 'طلب العميل';
+
+  @override
+  String get reasonRecipientAway => 'المستلم غير متاح';
+
+  @override
+  String get reasonShopAsked => 'بطلب من المتجر';
+
+  @override
+  String get reasonWeather => 'الطقس';
+
+  @override
+  String get reasonWrongAddress => 'العنوان خاطئ أو ناقص';
+
+  @override
+  String get reasonRefused => 'رفض المستلم الاستلام';
+
+  @override
+  String get reasonUnreachable => 'تعذّر الوصول بالهاتف';
+
+  @override
+  String get reasonOther => 'سبب آخر';
+
+  @override
+  String get nextRetry => 'المحاولة مجددًا في يوم آخر';
+
+  @override
+  String get nextReturn => 'الإعادة إلى المتجر';
+
+  @override
+  String get nextCancel => 'إلغاء الطلب';
+
+  @override
+  String stageCancelRefundsNow(String amount) {
+    return 'سيُعاد $amount إلى العميل فور الإلغاء.';
+  }
+
+  @override
+  String stageCancelRefundYou(String amount) {
+    return 'عند الإلغاء يصبح الطلب «يحتاج إلى استرداد»: أعِد $amount بنفسك، ثم حدِّده كمُسترَد.';
+  }
+
+  @override
+  String get needsRefund => 'يحتاج إلى استرداد';
+
+  @override
+  String get refundWhyOutside => 'دُفع خارج التطبيق: أعِده بالطريقة نفسها.';
+
+  @override
+  String get refundWhyProvider =>
+      'لا يمكن لمزوّد الدفع ردّه من هنا: استرِدّه من لوحة المزوّد.';
+
+  @override
+  String needsRefundText(String amount) {
+    return 'أعِد $amount إلى العميل، ثم حدِّده كمُسترَد.';
+  }
+
+  @override
+  String refundedAutoText(String amount) {
+    return 'أُعيد $amount إلى العميل عند إلغاء الطلب.';
+  }
+
+  @override
+  String refundRecordedText(String name) {
+    return 'حدَّده $name كمُسترَد.';
+  }
+
+  @override
+  String get markRefundedButton => 'أعدتُ المبلغ';
+
+  @override
+  String markRefundedTitle(String order) {
+    return 'تحديد $order كمُسترَد؟';
+  }
+
+  @override
+  String markRefundedText(String amount) {
+    return 'فقط إن أعدتَ المبلغ $amount بنفسك. سيُبلَّغ العميل.';
+  }
+
+  @override
+  String refundMarkedDone(String order) {
+    return '$order: حُدِّد كمُسترَد. تم إبلاغ العميل.';
+  }
+
+  @override
+  String deliveredConfirmTitle(String order) {
+    return 'تحديد $order كمُسلَّم؟';
+  }
+
+  @override
+  String get deliveredConfirmText => 'سيكتمل الطلب ويُبلَّغ العميل.';
+
+  @override
+  String stageToldCustomer(String order, String stage) {
+    return '$order: $stage. تم إبلاغ العميل.';
+  }
+
+  @override
+  String stageSaved(String order, String stage) {
+    return '$order: $stage.';
+  }
+
+  @override
+  String stageNewDayLine(String day) {
+    return 'اليوم الجديد: $day';
+  }
+
+  @override
+  String stageNextLine(String step) {
+    return 'التالي: $step';
+  }
+
+  @override
+  String stageCourierLine(String name) {
+    return 'المندوب: $name';
+  }
+
+  @override
+  String get stageChooseDay => 'اختر اليوم الجديد.';
+
+  @override
+  String get stageChooseWhy => 'اختر السبب.';
+
+  @override
+  String get stageChooseNext => 'اختر الخطوة التالية.';
+
+  @override
+  String get stageWriteNote => 'اكتب السبب في الملاحظة.';
+
+  @override
+  String get stAwaitingPayment => 'بانتظار الدفع';
+
+  @override
+  String get stAccepted => 'مقبول';
+
+  @override
+  String get stReadyForCourier => 'جاهز للمندوب';
+
+  @override
+  String get stPicking => 'قيد التجهيز';
+
+  @override
+  String get stPickedUp => 'تم الاستلام';
+
+  @override
+  String get stOnTheWay => 'في الطريق';
+
+  @override
+  String get stDelivered => 'تم التسليم';
+
+  @override
+  String get stTurnedDown => 'مرفوض';
+
+  @override
+  String get stNotDelivered => 'تعذّر التسليم';
+
+  @override
+  String get stWaitingCourier => 'بانتظار مندوب';
+
+  @override
+  String get stCourierToPickup => 'المندوب في الطريق للاستلام';
+
+  @override
+  String get stForLater => 'لموعد لاحق';
+
+  @override
+  String get stBookedLater => 'محجوزة لوقت لاحق';
+
+  @override
+  String get stSearching => 'جارٍ البحث عن سائق';
+
+  @override
+  String get stDriverComing => 'السائق في الطريق';
+
+  @override
+  String get stDriverAtPickup => 'السائق عند نقطة الانطلاق';
+
+  @override
+  String get stOnRide => 'الرحلة جارية';
+
+  @override
+  String get stNoDriver => 'لم يُعثر على سائق';
+
+  @override
+  String get csOpen => 'جديدة';
+
+  @override
+  String get csInReview => 'قيد المراجعة';
+
+  @override
+  String get csResolved => 'تمت معالجتها';
+
+  @override
+  String get csRejected => 'أُغلقت دون استرداد';
+
+  @override
+  String feeDistance(String km) {
+    return 'المسافة $km كم';
+  }
+
+  @override
+  String feeWeight(String kg) {
+    return 'الوزن $kg كغ';
+  }
+
+  @override
+  String feeWeightIncluded(String kg, String included) {
+    return 'الوزن $kg كغ (يشمل $included كغ)';
+  }
+
+  @override
+  String get unlockWithFaceId => 'فتح القفل بـ Face ID';
+
+  @override
+  String get unlockWithFace => 'فتح القفل ببصمة الوجه';
+
+  @override
+  String get unlockWithFingerprint => 'فتح القفل ببصمة الإصبع';
+
+  @override
+  String get unlockWithPin => 'فتح القفل برمز الهاتف';
+
+  @override
+  String get usePhonePin => 'استخدام رمز الهاتف';
+
+  @override
+  String get lockLockedOut =>
+      'محاولات كثيرة. استخدم رمز هاتفك، أو انتظر قليلًا ثم حاول مجددًا.';
+
+  @override
+  String get lockUsePin =>
+      'بصمة الوجه والإصبع محظورتان مؤقتًا. استخدم رمز هاتفك.';
+
+  @override
+  String get lockNotEnrolled =>
+      'لا توجد بصمة وجه أو إصبع على هذا الهاتف. استخدم رمز هاتفك، أو أضف بصمة من إعدادات الهاتف.';
+
+  @override
+  String get lockNoScreenLock =>
+      'لا يوجد قفل شاشة على هذا الهاتف. اضبط رمزًا أو نمطًا أو كلمة مرور من إعدادات الهاتف، أو سجّل الخروج واستخدم كلمة مرورك.';
+
+  @override
+  String get lockUnavailable =>
+      'لا يستطيع الهاتف فتح التطبيق الآن. حاول مجددًا، أو سجّل الخروج واستخدم كلمة مرورك.';
+
+  @override
+  String get lockHelp =>
+      'يُطلب عند فتح التطبيق وعند العودة إليه، ويُخفى محتواه في قائمة التطبيقات المفتوحة.';
+
+  @override
+  String get lockTurnOnReason => 'تفعيل قفل التطبيق';
+
+  @override
+  String get lockTurnOffReason => 'إيقاف قفل التطبيق';
+
+  @override
+  String get lockTurnedOn => 'تم تفعيل قفل التطبيق.';
+
+  @override
+  String get lockTurnedOff => 'تم إيقاف قفل التطبيق.';
+
+  @override
+  String get lockNotChanged => 'لم تتطابق البصمة، لذا لم يتغير قفل التطبيق.';
+
+  @override
+  String get lockAfterTitle => 'إعادة القفل';
+
+  @override
+  String get lockImmediately => 'فورًا';
+
+  @override
+  String get customersInsights => 'العملاء';
+
+  @override
+  String get productsInsights => 'المنتجات';
+
+  @override
+  String get reviewsRatings => 'التقييمات والمراجعات';
+
+  @override
+  String get aCustomer => 'عميل';
+
+  @override
+  String lastOrder(String when) {
+    return 'آخر طلب $when';
+  }
+
+  @override
+  String get customersLabel => 'العملاء';
+
+  @override
+  String get newCustomers => 'جدد';
+
+  @override
+  String get cameBack => 'عادوا';
+
+  @override
+  String get topCustomers => 'أفضل العملاء';
+
+  @override
+  String get noCustomersYet => 'لا عملاء في هذه الفترة بعد.';
+
+  @override
+  String get nobodyAway => 'لا أحد هنا: كلهم يعودون.';
+
+  @override
+  String get namesHidden =>
+      'تظهر الأسماء لأعضاء الفريق الذين يحق لهم رؤية الطلبات.';
+
+  @override
+  String get soldOutTag => 'نفدت الكمية';
+
+  @override
+  String get nothingSoldYet => 'لم يُبع شيء في هذه الفترة بعد.';
+
+  @override
+  String get slowMovers => 'الأبطأ مبيعًا';
+
+  @override
+  String get nothingSlow => 'كل المنتجات تُباع.';
+
+  @override
+  String get runningLow => 'مخزون منخفض أو نافد';
+
+  @override
+  String get stockFine => 'المخزون كافٍ لكل المنتجات.';
+
+  @override
+  String get priceAndStock => 'الأسعار والمخزون وما يظهر';
+
+  @override
+  String get priceAndStockHelp => 'عدّل منتجًا من الكتالوج';
+
+  @override
+  String get averageRating => 'متوسط التقييم';
+
+  @override
+  String get ratingsCount => 'التقييمات';
+
+  @override
+  String get noReviewsYet => 'لا تقييمات بعد';
+
+  @override
+  String get replyInInbox => 'الرد من البريد الوارد';
+
+  @override
+  String get repliedInInbox => 'تم الرد · افتح البريد الوارد';
+
+  @override
+  String get newCoupon => 'قسيمة جديدة';
+
+  @override
+  String get newCouponHelp => 'رمز لنسبة خصم أو مبلغ';
+
+  @override
+  String couponSaved(String code) {
+    return 'القسيمة $code جاهزة.';
+  }
+
+  @override
+  String get couponCode => 'الرمز';
+
+  @override
+  String get percentOff => 'نسبة خصم';
+
+  @override
+  String get amountOff => 'مبلغ خصم';
+
+  @override
+  String get percentValueField => 'نسبة الخصم (1–100)';
+
+  @override
+  String get amountValueField => 'مبلغ الخصم';
+
+  @override
+  String get newFlashSale => 'عرض سريع جديد';
+
+  @override
+  String get newFlashSaleHelp => 'خصم على بعض المنتجات يبدأ الآن';
+
+  @override
+  String flashSaleSaved(String title) {
+    return 'بدأ $title.';
+  }
+
+  @override
+  String get saleName => 'الاسم';
+
+  @override
+  String get saleLasts => 'المدة';
+
+  @override
+  String get saleProducts => 'المنتجات المخفّضة';
+
+  @override
+  String get deliveryToday => 'مواعيد التوصيل اليوم';
+
+  @override
+  String get slotOpen => 'مفتوح';
+
+  @override
+  String get slotClosedToday => 'مغلق اليوم';
+
+  @override
+  String get slotClosed => 'أُغلق اليوم: لم يعد التطبيق يعرضه.';
+
+  @override
+  String get slotOpened => 'فُتح من جديد.';
+
+  @override
+  String get busyMode => 'وضع الانشغال';
+
+  @override
+  String busyFor(String name) {
+    return '$name مشغول';
+  }
+
+  @override
+  String get busyHelp =>
+      'لا يستقبل طلبات جديدة لفترة، ويرى العملاء موعد عودته.';
+
+  @override
+  String get takeOrdersNow => 'استقبال الطلبات الآن';
+
+  @override
+  String takingOrders(String name) {
+    return 'يستقبل $name الطلبات من جديد.';
+  }
+
+  @override
+  String get takingOrdersShort => 'يستقبل الطلبات';
+
+  @override
+  String busyUntilShort(String time) {
+    return 'مشغول حتى $time';
+  }
+
+  @override
+  String get noQuickActions => 'لا توجد إجراءات سريعة لتطبيقك.';
+
+  @override
+  String get goalReached => 'تحقّق الهدف!';
+
+  @override
+  String goalProgress(String current, String target) {
+    return '$current من $target';
+  }
+
+  @override
+  String get primeGift => 'برايم · هدية من يلا آب';
+
+  @override
+  String primeGiftUntil(String date) {
+    return 'برايم · هدية من يلا آب حتى $date';
+  }
+
+  @override
+  String get alertLowStock => 'مخزون منخفض';
+
+  @override
+  String get alertSalesGoal => 'هدف المبيعات';
+
+  @override
+  String goalWhen(String amount, String period) {
+    return '$amount في $period';
+  }
+
+  @override
+  String get periodDay => 'اليوم';
+
+  @override
+  String get periodWeek => 'الأسبوع';
+
+  @override
+  String get periodMonth => 'الشهر';
+
+  @override
+  String get goalNotSet => 'حدّد مبلغًا لليوم أو الأسبوع أو الشهر';
+
+  @override
+  String get goalPeriodField => 'لكل';
+
+  @override
+  String get thresholdField => 'أخبرني عندما يتبقى هذا العدد';
+
+  @override
+  String get weeklyReport => 'التقرير الأسبوعي بالبريد';
+
+  @override
+  String weeklyReportHelp(String email) {
+    return 'كل يوم اثنين إلى $email: المبيعات والطلبات والأكثر مبيعًا والعملاء.';
+  }
+
+  @override
+  String get primeMoreCustomersHelp =>
+      'الجدد والعائدون والأفضل ومن توقفوا عن الطلب';
+
+  @override
+  String get primeMoreProductsHelp => 'الأكثر مبيعًا والأبطأ والمخزون المنخفض';
+
+  @override
+  String get primeMoreReviewsHelp => 'كل التقييمات والردود';
+
+  @override
+  String get primeMoreActionsHelp =>
+      'القسائم والعروض السريعة ومواعيد التوصيل ووضع الانشغال';
+
+  @override
+  String get primeGoalsHelp =>
+      'هدف لليوم أو الأسبوع أو الشهر مع حلقة تقدّم في الرئيسية';
+
+  @override
+  String get primeWeeklyHelp => 'ملخص بالبريد كل يوم اثنين';
+
+  @override
   String minutesAgo(int count) {
-    return 'قبل $count دقيقة';
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'قبل $count دقيقة',
+      many: 'قبل $count دقيقة',
+      few: 'قبل $count دقائق',
+      two: 'قبل دقيقتين',
+      one: 'قبل دقيقة',
+    );
+    return '$_temp0';
   }
 
   @override
   String hoursAgo(int count) {
-    return 'قبل $count ساعة';
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'قبل $count ساعة',
+      many: 'قبل $count ساعة',
+      few: 'قبل $count ساعات',
+      two: 'قبل ساعتين',
+      one: 'قبل ساعة',
+    );
+    return '$_temp0';
   }
 
   @override
@@ -3684,6 +4522,150 @@ class AppLocalizationsAr extends AppLocalizations {
       few: '$count نقاط',
       two: 'نقطتان',
       one: 'نقطة واحدة',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String ordersCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count طلب',
+      many: '$count طلبًا',
+      few: '$count طلبات',
+      two: 'طلبان',
+      one: 'طلب واحد',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String away30(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count عميل غائب من 30 إلى 60 يومًا',
+      many: '$count عميلًا غائبًا من 30 إلى 60 يومًا',
+      few: '$count عملاء غائبون من 30 إلى 60 يومًا',
+      two: 'عميلان غائبان من 30 إلى 60 يومًا',
+      one: 'عميل غائب من 30 إلى 60 يومًا',
+      zero: 'غائبون من 30 إلى 60 يومًا',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String away60(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count عميل غائب أكثر من 60 يومًا',
+      many: '$count عميلًا غائبًا أكثر من 60 يومًا',
+      few: '$count عملاء غائبون أكثر من 60 يومًا',
+      two: 'عميلان غائبان أكثر من 60 يومًا',
+      one: 'عميل غائب أكثر من 60 يومًا',
+      zero: 'غائبون أكثر من 60 يومًا',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String leftCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'بقي $count',
+      many: 'بقي $count',
+      few: 'بقي $count',
+      two: 'بقي اثنان',
+      one: 'بقي واحد',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String unitsSold(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'بيعت $count قطعة',
+      many: 'بيعت $count قطعة',
+      few: 'بيعت $count قطع',
+      two: 'بيعت قطعتان',
+      one: 'بيعت قطعة واحدة',
+      zero: 'لم يُبع شيء',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String starsOf(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count نجمة من 5',
+      many: '$count نجمة من 5',
+      few: '$count نجوم من 5',
+      two: 'نجمتان من 5',
+      one: 'نجمة واحدة من 5',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String hoursShort(int hours) {
+    String _temp0 = intl.Intl.pluralLogic(
+      hours,
+      locale: localeName,
+      other: '$hours ساعة',
+      many: '$hours ساعة',
+      few: '$hours ساعات',
+      two: 'ساعتان',
+      one: 'ساعة',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String lowStockAlertHint(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'يخبرك تنبيه المخزون المنخفض حين يتبقى $count.',
+      many: 'يخبرك تنبيه المخزون المنخفض حين يتبقى $count.',
+      few: 'يخبرك تنبيه المخزون المنخفض حين يتبقى $count.',
+      two: 'يخبرك تنبيه المخزون المنخفض حين يتبقى اثنان.',
+      one: 'يخبرك تنبيه المخزون المنخفض حين يتبقى واحد.',
+      zero: 'فعّل تنبيه المخزون المنخفض في التنبيهات الذكية لتعرف حين تنفد الكمية.',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String lockAfterMinutes(int minutes) {
+    String _temp0 = intl.Intl.pluralLogic(
+      minutes,
+      locale: localeName,
+      other: 'بعد $minutes دقيقة من الخروج',
+      many: 'بعد $minutes دقيقة من الخروج',
+      few: 'بعد $minutes دقائق من الخروج',
+      two: 'بعد دقيقتين من الخروج',
+      one: 'بعد دقيقة من الخروج',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String needsAwaitingPayment(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count طلب بانتظار الدفع',
+      many: '$count طلبًا بانتظار الدفع',
+      few: '$count طلبات بانتظار الدفع',
+      two: 'طلبان بانتظار الدفع',
+      one: 'طلب واحد بانتظار الدفع',
     );
     return '$_temp0';
   }

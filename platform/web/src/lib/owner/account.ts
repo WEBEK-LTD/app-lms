@@ -10,13 +10,15 @@ import { OWNER_PUSH_KINDS } from "../data/types";
 import { appState, clientAccountState, daysUntil, type AccountState } from "../license/status";
 import { getPlans, platformSetting } from "../settings/platform";
 import { isPlan, type Plan, type PlanInfo } from "../plans";
+import { isLifetimeEnd } from "../billing/periods";
 import { loadUpdates, markRead } from "../updates";
 import { readerOf, itemWords } from "../updates-view";
 import { bellWords, dashboardTextFor } from "../dashboard-words";
 import { bodyObject, invalid, notFound, OwnerError, type OwnerContext, type OwnerResult } from "./http";
 import { allowedAreas, areasOf, teamCan } from "../team/permissions";
 import { businessName } from "../team/service";
-import { ownerAreas } from "./sales";
+import { isPrimeLicense, ownerAreas, primeGiftOf } from "./sales";
+import { primeGiftActive } from "../admin/prime-gift";
 import { accountManagerJson } from "./vip";
 
 /**
@@ -34,7 +36,9 @@ export function requireActive(ctx: OwnerContext): void {
 
 export function planSummary(plans: Record<Plan, PlanInfo>, license: { plan: string; expiresAt: Date } | null, now: Date) {
   if (!license || !isPlan(license.plan)) return null;
-  return { id: license.plan, name: plans[license.plan].name, expires_at: license.expiresAt.toISOString(), days_left: Math.max(0, daysUntil(license.expiresAt, now)) };
+  // 133 A plan paid for life: `lifetime`, and its end date is a day no one reaches (show "For life", not the days).
+  const lifetime = isLifetimeEnd(license.expiresAt);
+  return { id: license.plan, name: plans[license.plan].name, expires_at: license.expiresAt.toISOString(), days_left: Math.max(0, daysUntil(license.expiresAt, now)), lifetime };
 }
 
 export function appStateOf(ctx: OwnerContext, app: App): AccountState {
@@ -91,6 +95,11 @@ export function appSummaryJson(ctx: OwnerContext, app: App, plans: Record<Plan, 
       prime: areas.prime,
       vip: plan?.limits.accountManager === true,
     },
+    // 132 Prime given by Yallapp as a gift (whatever the plan), while it lasts.
+    prime_gift: (() => {
+      const gift = primeGiftOf(ctx, app);
+      return areas.prime && gift && primeGiftActive(gift, ctx.deps.now) && !isPrimeLicense(license, ctx.deps.now) ? { until: gift.until?.toISOString() ?? null } : null;
+    })(),
     access: {
       role: ctx.access.role,
       areas: areasOf(ctx.access),

@@ -103,6 +103,7 @@ import type {
   AccountManagerCallPatch,
   AccountManagerCallStatus,
   PrimeAlerts,
+  PrimeGift,
   StaffProfile,
   AdminMemberRow,
   AuditEntry,
@@ -244,7 +245,7 @@ import type { TeamActivity, TeamInvitation, TeamInvitationPatch, TeamMember, Tea
 import type { BookingAppointmentMove, PaidTotals, ScheduledNotification, ScheduledNotificationPatch, ScheduledNotificationStatus } from "./types";
 import type { DemoPurgeCounts } from "./types";
 import type { AccountDeletionClose, AccountDeletionRequest, AccountDeletionStatus } from "./types";
-import type { AppDeletion, AppDeletionStatus, KeptBillingRecord } from "./types";
+import type { AppDeletion, AppDeletionStatus, AppMoveRequest, AppMoveStatus, KeptBillingRecord } from "./types";
 import { assetIdsIn } from "./asset-ids";
 import type { CourseAnswer, CourseAnswerInput, CourseQuestion, CourseQuestionInput, CourseQuestionStatus, CourseReview, CourseReviewPatch, MemberCheckIn } from "./types";
 // 46 Links and crash reports
@@ -256,6 +257,7 @@ import { mergeCrash } from "../crashes/report";
 import { categoryOrder } from "../catalog/bulk";
 // 51 Media and storage
 import type { MediaFile, MediaFilePatch, MediaKind, MediaStatus, StoragePack, StoragePackPatch } from "./types";
+import type { AddonTaskStatus, AppAddon, AppAddonPatch } from "../addons/types";
 import type {
   TravelAlert,
   TravelAlertInput,
@@ -6377,6 +6379,38 @@ export class MemoryStore implements DataStore {
     if (this.storagePacks.get(id)?.appId === appId) this.storagePacks.delete(id);
   }
 
+  // 133 Add-ons each app has
+  private appAddons = new Map<string, AppAddon>();
+
+  async createAppAddon(addon: AppAddon): Promise<void> {
+    this.appAddons.set(addon.id, clone(addon));
+  }
+
+  async getAppAddon(id: string): Promise<AppAddon | null> {
+    const addon = this.appAddons.get(id);
+    return addon ? clone(addon) : null;
+  }
+
+  async listAppAddons(filter: { appId?: string; clientId?: string; addonId?: string; taskStatus?: AddonTaskStatus[]; endingBefore?: Date; limit?: number }): Promise<AppAddon[]> {
+    return [...this.appAddons.values()]
+      .filter(
+        (a) =>
+          (filter.appId === undefined || a.appId === filter.appId) &&
+          (filter.clientId === undefined || a.clientId === filter.clientId) &&
+          (filter.addonId === undefined || a.addonId === filter.addonId) &&
+          (filter.taskStatus === undefined || (a.taskStatus !== null && filter.taskStatus.includes(a.taskStatus))) &&
+          (filter.endingBefore === undefined || (a.status === "active" && a.activeUntil !== null && a.activeUntil.getTime() < filter.endingBefore.getTime())),
+      )
+      .sort((a, b) => b.createdAt.getTime() - a.createdAt.getTime() || b.id.localeCompare(a.id))
+      .slice(0, filter.limit ?? 200)
+      .map(clone);
+  }
+
+  async updateAppAddon(id: string, patch: AppAddonPatch): Promise<void> {
+    const addon = this.appAddons.get(id);
+    if (addon) this.appAddons.set(id, { ...addon, ...clone(patch) });
+  }
+
   async listEndedStoragePacks(now: Date, limit: number): Promise<StoragePack[]> {
     return [...this.storagePacks.values()]
       .filter((p) => p.activeUntil.getTime() < now.getTime() && p.endedNoticeAt === null)
@@ -7119,6 +7153,178 @@ export class MemoryStore implements DataStore {
     return assetIdsIn(JSON.stringify(rows));
   }
 
+  // 132.112 Moving an app to another account. A request goes with its app, and with either account (as the foreign keys do).
+  private appMoves = new Map<string, AppMoveRequest>();
+
+  async createAppMoveRequest(request: AppMoveRequest): Promise<boolean> {
+    if ([...this.appMoves.values()].some((r) => r.appId === request.appId && r.status === "waiting")) return false;
+    this.appMoves.set(request.id, clone(request));
+    return true;
+  }
+
+  async getAppMoveRequest(id: string): Promise<AppMoveRequest | null> {
+    const request = this.appMoves.get(id);
+    return request ? clone(request) : null;
+  }
+
+  async getOpenAppMoveRequest(appId: string): Promise<AppMoveRequest | null> {
+    const request = [...this.appMoves.values()].find((r) => r.appId === appId && r.status === "waiting");
+    return request ? clone(request) : null;
+  }
+
+  async listAppMoveRequests(input: { clientId?: string; limit: number }): Promise<AppMoveRequest[]> {
+    return [...this.appMoves.values()]
+      .filter((r) => !input.clientId || r.fromClientId === input.clientId || r.toClientId === input.clientId)
+      .sort((a, b) => b.createdAt.getTime() - a.createdAt.getTime() || b.id.localeCompare(a.id))
+      .slice(0, input.limit)
+      .map(clone);
+  }
+
+  async addAppMoveAttempt(id: string): Promise<number | null> {
+    const request = this.appMoves.get(id);
+    if (!request || request.status !== "waiting") return null;
+    request.attempts += 1;
+    return request.attempts;
+  }
+
+  async updateAppMoveRequest(id: string, from: AppMoveStatus, patch: Partial<Pick<AppMoveRequest, "status" | "closedAt" | "closedBy" | "resultAppId" | "note">>): Promise<boolean> {
+    const request = this.appMoves.get(id);
+    if (!request || request.status !== from) return false;
+    this.appMoves.set(id, clone({ ...request, ...patch }));
+    return true;
+  }
+
+  async moveAppToClient(appId: string, toClientId: string, now: Date): Promise<void> {
+    const app = this.apps.get(appId);
+    if (!app) return;
+    this.apps.set(appId, { ...app, clientId: toClientId, updatedAt: now });
+    const give = <T extends { appId: string | null; clientId: string }>(map: Map<string | number, T>) => {
+      for (const [key, row] of map) if (row.appId === appId) map.set(key, { ...row, clientId: toClientId });
+    };
+    give(this.licenses);
+    give(this.builds);
+    give(this.storagePacks);
+    give(this.ownerNotices);
+    give(this.appErrors);
+    for (const [key, row] of this.publishingRequests) if (row.appId === appId) this.publishingRequests.set(key, { ...row, clientId: toClientId });
+  }
+
+  /** 132.112 The maps holding an app's data (lib/apps/app-tables.ts: customers, orders, messages, activity), by field. */
+  private static readonly DATA_FIELDS = [
+    "hostedUsers", "hostedPasswords", "hostedDevices", "hostedTokens", "hostedChallenges", "hostedNotifications", "catalogOrders", "bookingAppointments",
+    "classSessions", "classBookings", "memberships", "courseEnrollments", "lessonProgress", "quizAttempts", "assignmentSubmissions", "lessonNotes",
+    "lessonBookmarks", "analyticsEvents", "analyticsDaily", "storeDeliveries", "refunds", "memberCheckIns", "courseReviews", "courseQuestions",
+    "courseAnswers", "tickets", "donations", "couriers", "shipments", "schoolPeople", "schoolFamily", "schoolAttendance", "schoolHomework",
+    "schoolSubmissions", "schoolAssessments", "schoolScores", "schoolAnnouncements", "schoolFees", "schoolCheckins", "schoolLeave", "schoolBehaviour",
+    "schoolTopicProgress", "schoolReports", "schoolSlips", "schoolSlipAnswers", "schoolExcuses", "schoolPickups", "schoolPickupNotes", "schoolBusRiders",
+    "schoolBusRuns", "schoolBusMarks", "schoolBookLoans", "schoolBookHolds", "schoolSalaries", "schoolPayslips", "schoolSalaryMonths",
+    "schoolSalaryAdvances", "teacherFollows", "teacherReviews", "restaurantStaff", "foodOrders", "marketOrders", "marketComplaints", "walletEntries",
+    "marketCouponUses", "marketClubMembers", "marketApplications", "vendorWebChallenges", "vendorWebSessions", "travelBookings", "travelReviews",
+    "travelSaved", "travelAlerts", "rides", "listingFavorites", "listingInquiries", "listingMessages", "storePurchases", "billingSessions",
+    "storePurchaseEvents", "ownerNotices", "crashIssues", "scheduledNotifications", "hostedCarts", "orderWatches", "loyaltyEntries",
+    "notificationCampaigns", "campaignSends", "chatMembers", "chatConversations", "chatParticipants", "chatMessages", "chatReports", "chatBlocks",
+    "chatSessions", "chatUploads", "appErrors", "uniStudents", "uniRegistrations", "uniEnrolments", "uniAttendance",
+  ] as const;
+
+  async repointAppRows(fromAppId: string, toAppId: string, group: "plan" | "payments" | "builds" | "data", now: Date): Promise<void> {
+    const to = this.apps.get(toAppId);
+    if (!to) return;
+    if (group === "data") {
+      const fields = this as unknown as Record<string, unknown>;
+      for (const field of MemoryStore.DATA_FIELDS) {
+        const value = fields[field];
+        if (value instanceof Map) {
+          for (const [key, row] of value) if (row && typeof row === "object" && (row as { appId?: unknown }).appId === fromAppId) value.set(key, { ...row, appId: toAppId });
+        } else if (Array.isArray(value)) {
+          fields[field] = value.map((row: { appId?: unknown }) => (row && row.appId === fromAppId ? { ...row, appId: toAppId } : row));
+        }
+      }
+      // The counts kept under their app's key.
+      const rekey = <V>(map: Map<string, V>, prefix: (appId: string) => string) => {
+        for (const [key, value] of [...map]) {
+          if (!key.startsWith(prefix(fromAppId))) continue;
+          map.delete(key);
+          map.set(prefix(toAppId) + key.slice(prefix(fromAppId).length), value);
+        }
+      };
+      rekey(this.learning, (id) => `${id}|`);
+      rekey(this.loyaltyBalances, (id) => `${id}:`);
+      rekey(this.crashRuns, (id) => `${id}:`);
+      const versions = this.layoutVersions.get(fromAppId);
+      if (versions) {
+        this.layoutVersions.delete(fromAppId);
+        this.layoutVersions.set(toAppId, versions.map((v) => ({ ...v, appId: toAppId })));
+      }
+      for (const key of [...this.autoNotices]) {
+        const [appId, ...rest] = JSON.parse(key) as [string, ...unknown[]];
+        if (appId !== fromAppId) continue;
+        this.autoNotices.delete(key);
+        this.autoNotices.add(JSON.stringify([toAppId, ...rest]));
+      }
+      return;
+    }
+    const move = <T extends { appId: string | null }>(map: Map<string | number, T>, withClient: boolean) => {
+      for (const [key, row] of map) if (row.appId === fromAppId) map.set(key, { ...row, appId: toAppId, ...(withClient ? { clientId: to.clientId } : {}) });
+    };
+    if (group === "plan") {
+      move(this.licenses, true);
+      move(this.storagePacks, true);
+      // 133 The app's add-ons go with its plan, like its storage packs.
+      move(this.appAddons, true);
+      for (const [id, license] of this.licenses) if (license.appId === toAppId) this.licenses.set(id, { ...license, updatedAt: now });
+      // 132 Prime given as a gift, kept by its app.
+      const gift = this.primeGifts.get(fromAppId);
+      if (gift) {
+        this.primeGifts.delete(fromAppId);
+        this.primeGifts.set(toAppId, { ...gift, appId: toAppId, clientId: to.clientId, updatedAt: now });
+      }
+    } else if (group === "payments") {
+      move(this.planPayments, false);
+    } else {
+      move(this.builds, true);
+      const request = this.publishingRequests.get(fromAppId);
+      if (request) {
+        this.publishingRequests.delete(fromAppId);
+        this.publishingRequests.set(toAppId, { ...request, appId: toAppId, clientId: to.clientId });
+      }
+      this.publishingEvents = this.publishingEvents.map((e) => (e.appId === fromAppId ? { ...e, appId: toAppId } : e));
+      this.storeProducts = this.storeProducts.map((p) => (p.appId === fromAppId ? { ...p, appId: toAppId } : p));
+      this.storeBillingItems = this.storeBillingItems.map((i) => (i.appId === fromAppId ? { ...i, appId: toAppId } : i));
+    }
+  }
+
+  async replaceAssetIds(appId: string, ids: Record<string, string>): Promise<void> {
+    const pairs = Object.entries(ids);
+    if (!pairs.length) return;
+    const swap = (text: string) => pairs.reduce((t, [from, to]) => t.split(from).join(to), text);
+    const walk = (v: unknown): unknown => {
+      if (typeof v === "string") return swap(v);
+      if (v === null || typeof v !== "object" || v instanceof Date) return v;
+      if (Array.isArray(v)) return v.map(walk);
+      if (v instanceof Map || v instanceof Set) return v;
+      return Object.fromEntries(Object.entries(v as Record<string, unknown>).map(([k, x]) => [k, walk(x)]));
+    };
+    const app = this.apps.get(appId);
+    if (app) this.apps.set(appId, walk(app) as App);
+    const fields = this as unknown as Record<string, unknown>;
+    for (const key of Object.keys(fields)) {
+      const value = fields[key];
+      if (value === this.apps || value === this.deletedApps) continue;
+      if (value instanceof Map) {
+        for (const [k, row] of value) if (row && typeof row === "object" && (row as { appId?: unknown }).appId === appId) value.set(k, walk(row));
+      } else if (Array.isArray(value)) {
+        fields[key] = value.map((row: { appId?: unknown }) => (row && typeof row === "object" && row.appId === appId ? walk(row) : row));
+      }
+    }
+  }
+
+  async reassignAssets(ids: string[], toClientId: string): Promise<void> {
+    for (const id of ids) {
+      const asset = this.assets.get(id);
+      if (asset) this.assets.set(id, { ...asset, clientId: toClientId });
+    }
+  }
+
   async keepBillingRecords(records: KeptBillingRecord[]): Promise<void> {
     for (const record of records) this.keptBilling.set(record.id, clone(record));
   }
@@ -7144,6 +7350,7 @@ export class MemoryStore implements DataStore {
       for (const license of this.licenses.values()) if (license.clientId === clientId) this.activations.delete(license.id);
       // Their payments go with the client, as `on delete cascade` does: the caller keeps them first.
       for (const table of this.tables()) table.remove((row) => row.clientId === clientId);
+      for (const [id, move] of this.appMoves) if (move.fromClientId === clientId || move.toClientId === clientId) this.appMoves.delete(id);
       for (const dismissed of this.announcementDismissals.values()) dismissed.delete(clientId);
       this.clients.delete(clientId);
     }
@@ -8506,6 +8713,7 @@ export class MemoryStore implements DataStore {
 
   // 125 Prime's smart alerts, and VIP's account managers
   private primeAlerts = new Map<string, PrimeAlerts>();
+  private primeGifts = new Map<string, PrimeGift>();
   private primeSends = new Map<string, Date>();
   private staffProfiles = new Map<string, StaffProfile>();
   private managerCalls = new Map<number, AccountManagerCall>();
@@ -8522,6 +8730,23 @@ export class MemoryStore implements DataStore {
 
   async listPrimeAlerts(): Promise<PrimeAlerts[]> {
     return [...this.primeAlerts.values()].filter((a) => a.briefOn || a.alerts.some((x) => x.on)).map(clone);
+  }
+
+  async getPrimeGift(appId: string): Promise<PrimeGift | null> {
+    const gift = this.primeGifts.get(appId);
+    return gift ? clone(gift) : null;
+  }
+
+  async listPrimeGifts(clientId: string): Promise<PrimeGift[]> {
+    return [...this.primeGifts.values()].filter((g) => g.clientId === clientId).map(clone);
+  }
+
+  async savePrimeGift(gift: PrimeGift): Promise<void> {
+    this.primeGifts.set(gift.appId, clone(gift));
+  }
+
+  async deletePrimeGift(appId: string): Promise<boolean> {
+    return this.primeGifts.delete(appId);
   }
 
   async claimPrimeSend(key: string, now: Date): Promise<boolean> {
