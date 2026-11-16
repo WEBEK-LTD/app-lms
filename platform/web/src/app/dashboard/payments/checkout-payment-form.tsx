@@ -27,6 +27,7 @@ const CHOICE_ICON: Record<CheckoutChoice["value"], IconName> = { yallapp: "shopp
  * 134 Payments › How customers pay: the three ways, the one in use checked, the Demo note under the in-app one.
  * 132.120 In the Payments page's design: each way a card side by side (as the gateways' cards), the one
  * chosen ringed, one that can't be chosen here greyed with why; the Demo note across under them.
+ * 132.180 In the console: soft cells, the Demo note as the console's slim peach line.
  */
 export function CheckoutPaymentForm({ choices, current, demo, savable }: { choices: CheckoutChoice[]; current: CheckoutChoice["value"]; demo: { title: string; text: string }; savable: boolean }) {
   const t = useDashT();
@@ -43,15 +44,15 @@ export function CheckoutPaymentForm({ choices, current, demo, savable }: { choic
           return (
             <label
               key={c.value}
-              className={`relative flex flex-col gap-2 rounded-2xl p-4 transition-shadow focus-within:ring-2 focus-within:ring-accent motion-reduce:transition-none ${
-                c.blocked ? "cursor-not-allowed bg-(--sp-soft) opacity-80" : on ? "cursor-pointer bg-(--sp-surface) ring-2 ring-(--sp-ink)" : "cursor-pointer bg-(--sp-soft) ring-1 ring-transparent hover:ring-(--sp-line)"
+              className={`relative flex flex-col gap-2 rounded-[14px] p-4 transition-shadow focus-within:ring-2 focus-within:ring-accent motion-reduce:transition-none ${
+                c.blocked ? "cursor-not-allowed bg-(--sp-cell) opacity-80" : on ? "cursor-pointer bg-(--sp-surface) ring-2 ring-(--sp-ink)" : "cursor-pointer bg-(--sp-cell) ring-1 ring-transparent hover:ring-(--sp-line)"
               }`}
               data-choice={c.value}
               data-checked={on ? "" : undefined}
             >
               <span className="flex items-center gap-2">
-                <span className="flex h-9 w-9 flex-none items-center justify-center rounded-xl bg-(--sp-tile)">
-                  <Icon name={CHOICE_ICON[c.value]} size={20} filled={on} className={on ? "text-accent" : "text-muted"} />
+                <span className="flex h-9 w-9 flex-none items-center justify-center rounded-[10px] bg-(--sp-cell-icon)">
+                  <Icon name={CHOICE_ICON[c.value]} size={20} filled={on} className={on ? "text-accent" : "text-(--sp-muted)"} />
                 </span>
                 <span className="flex min-w-0 flex-1 flex-wrap items-center gap-1.5">
                   {c.value === current && !c.blocked ? <KitStatus tone="success">{t("inAppPay.inUse")}</KitStatus> : null}
@@ -69,7 +70,7 @@ export function CheckoutPaymentForm({ choices, current, demo, savable }: { choic
                   className="h-4 w-4 shrink-0 accent-midnight"
                 />
               </span>
-              <span id={`${id}-name`} className={`text-[16px] leading-snug font-bold ${c.blocked ? "text-(--sp-muted)" : "text-(--sp-ink)"}`}>
+              <span id={`${id}-name`} className={`text-[15px] leading-snug font-bold ${c.blocked ? "text-(--sp-muted)" : "text-(--sp-ink)"}`}>
                 {c.label}
               </span>
               <span id={`${id}-hint`} className="text-[13px] leading-relaxed text-(--sp-muted)">
@@ -77,7 +78,7 @@ export function CheckoutPaymentForm({ choices, current, demo, savable }: { choic
               </span>
               {c.blocked ? (
                 <span id={`${id}-why`} className="mt-auto flex items-start gap-1.5 border-t border-(--sp-line-soft) pt-2 text-[13px] leading-relaxed text-(--sp-muted)" data-blocked="">
-                  <Icon name="block" size={16} className="mt-0.5 shrink-0 text-muted" />
+                  <Icon name="block" size={16} className="mt-0.5 shrink-0 text-(--sp-muted)" />
                   {c.blocked}
                 </span>
               ) : null}
@@ -85,8 +86,8 @@ export function CheckoutPaymentForm({ choices, current, demo, savable }: { choic
           );
         })}
       </fieldset>
-      <div role="note" className="flex gap-2.5 rounded-2xl bg-(--sp-soft) px-4 py-3 text-sm leading-relaxed text-(--sp-ink)" data-demo-note="">
-        <Icon name="info" size={20} className="mt-0.5 shrink-0 text-accent" />
+      <div role="note" className="flex gap-2.5 rounded-[11px] bg-(--sp-peach) px-3 py-2.5 text-[13px] leading-relaxed text-(--sp-peach-ink)" data-demo-note="">
+        <Icon name="info" size={17} className="mt-0.5 shrink-0" />
         <span>
           <b>{demo.title}.</b> {demo.text}
         </span>
@@ -126,7 +127,7 @@ export function AttentionActions({ id, refund }: { id: number; refund: string | 
           </form>
         ) : null}
       </div>
-      {refund ? <p className="m-0 text-[13px] text-muted">{refund}</p> : null}
+      {refund ? <p className="m-0 text-[13px] text-(--sp-muted)">{refund}</p> : null}
     </div>
   );
 }

@@ -111,6 +111,8 @@ test("a shop takes an order on its own Stripe, then on its own PayPal", async ({
   const payments = page.getByRole("region", { name: "Card payments" });
   await expect(payments).toContainText("iyzico, Kashier, Fawaterk, Stripe or PayPal");
   await expect(payments).toContainText("Yallapp never takes any of it.");
+  // 132.180 Nothing connected yet: the gateway's keys open from its row.
+  await payments.getByRole("button", { name: "Connect", exact: true }).click();
   await payments.locator('[data-gateway="stripe"]').click();
   await expect(payments.getByLabel("API key")).toHaveCount(0);
   await expect(payments.getByRole("checkbox")).toHaveCount(0);

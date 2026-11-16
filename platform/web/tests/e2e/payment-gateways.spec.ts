@@ -66,6 +66,8 @@ test("a Studio project sets up Stripe on its Payments page and tests it", async 
   await expect(own).toHaveURL(/\/studio\/project\/payments$/);
   await expect(own.getByRole("region", { name: "Bank transfer and your own method" })).toBeVisible();
   const payments = own.getByRole("region", { name: "Card payments" });
+  // 132.180 Nothing connected yet: the gateway's keys open from its row.
+  await payments.getByRole("button", { name: "Connect", exact: true }).click();
   await payments.locator('[data-gateway="stripe"]').click();
   await expect(payments.getByText("How to set up Stripe")).toBeVisible();
   // Only Stripe's own guides, on docs.stripe.com.

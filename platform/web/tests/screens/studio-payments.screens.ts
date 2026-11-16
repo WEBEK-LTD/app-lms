@@ -5,14 +5,14 @@ import { E2E } from "../../playwright.config";
 import { startFakeStripe } from "../e2e/fake-stripe-paypal-servers";
 
 /**
- * 132.145 Screenshots of the Payments page in the premium kit: a Studio shop
- * from the Shop template with nothing connected (Arabic, light and dark at
+ * 132.145, 132.180 Screenshots of the Payments page: a Studio shop from the
+ * Shop template with nothing connected (Arabic, light and dark at
  * 1440×900, light at 390 wide), then with Stripe connected (a fake Stripe)
- * and tested, bank transfer and cash on delivery both on, and the
- * customer's payment page offering all three. Not part of the test suite;
- * run it with
+ * and tested, bank transfer and cash on delivery both on, its parts opened
+ * (the gateway's keys, How customers pay), and the customer's payment page
+ * offering all three. Not part of the test suite; run it with
  * `SCREENS_OUT=<dir> SCREENS_PREFIX=after npx playwright test --config playwright.screens.config.ts studio-payments`
- * (SCREENS_PREFIX=before on the commit before, to compare).
+ * (SCREENS_PREFIX=before on main, to compare: the steps it doesn't have are skipped).
  */
 test.describe.configure({ mode: "serial" });
 
@@ -38,8 +38,8 @@ async function shoot(page: Page, name: string) {
   await page.evaluate(() => document.fonts.ready);
   await page.waitForTimeout(700);
   fs.mkdirSync(path.join(OUT, "full"), { recursive: true });
-  await page.screenshot({ path: path.join(OUT, `${PREFIX}-${name}.jpg`), type: "jpeg", quality: 85 });
-  await page.screenshot({ path: path.join(OUT, "full", `${PREFIX}-${name}.jpg`), type: "jpeg", quality: 70, fullPage: true });
+  await page.screenshot({ path: path.join(OUT, `${PREFIX}-${name}.png`) });
+  await page.screenshot({ path: path.join(OUT, "full", `${PREFIX}-${name}.png`), fullPage: true });
 }
 
 /** Arabic light and dark at the desktop width, then light on a phone (and its width, for sideways scrolling). */
@@ -47,17 +47,25 @@ async function pageShots(page: Page, href: string, name: string) {
   await page.setViewportSize({ width: 1440, height: 900 });
   await page.emulateMedia({ colorScheme: "light" });
   await page.goto(href);
-  await shoot(page, `${name}-ar-light-desktop`);
+  await shoot(page, `${name}-ar-light-1440`);
   await page.emulateMedia({ colorScheme: "dark" });
   await page.reload();
-  await shoot(page, `${name}-ar-dark-desktop`);
+  await shoot(page, `${name}-ar-dark-1440`);
   await page.emulateMedia({ colorScheme: "light" });
   await page.setViewportSize({ width: 390, height: 844 });
   await page.reload();
-  await shoot(page, `${name}-ar-light-phone`);
+  await shoot(page, `${name}-ar-light-390`);
   const width = await page.evaluate(() => document.documentElement.scrollWidth);
   fs.appendFileSync(path.join(OUT, `${PREFIX}-widths.txt`), `${name} phone scrollWidth ${width}\n`);
   await page.setViewportSize({ width: 1440, height: 900 });
+}
+
+/** The gateway's keys, opened from its row where they are closed (on main they are always open). */
+async function openGateway(page: Page) {
+  const card = page.locator("section[aria-labelledby=h-payments]");
+  const edit = card.locator("[data-gateway-edit]");
+  if ((await edit.count()) && (await edit.getAttribute("aria-expanded")) !== "true") await edit.click();
+  return card;
 }
 
 test("the Payments page", async ({ page, browser, request }) => {
@@ -97,27 +105,39 @@ test("the Payments page", async ({ page, browser, request }) => {
   await expect(admin.getByRole("status")).toContainText("Activated");
   await admin.close();
 
-  // The app's API, from a product's share link.
-  await page.goto("/studio/project/catalog");
-  await page.locator("[data-product] a[href*='/catalog/']").first().click();
+  // The app's API, from a product's share link (the product opens in its inspector on the console, its page on main).
+  await page.goto("/dashboard/catalog");
+  await page.waitForURL(/\/catalog$/);
+  const first = page.locator("[data-product]").first();
+  if (await first.locator("a[href*='/catalog/']").count()) await first.locator("a[href*='/catalog/']").first().click();
+  else {
+    await first.locator(".kit-tr-open").first().click();
+    await page.getByRole("link", { name: "Edit product" }).click();
+  }
   await page.waitForURL(/\/catalog\/\d+$/);
   const share = (await page.getByRole("link", { name: /\/shop\// }).first().textContent())!;
   const api = `${E2E.baseURL}/api/app/${/\/shop\/([0-9a-f-]{36})\//.exec(share)![1]}`;
 
+  // Arabic, the dashboard's Egyptian.
+  await page.context().addCookies([{ name: "yallapp_lang", value: "ar", url: E2E.baseURL }]);
   await page.goto("/studio/project");
-  await page.locator("nav:has([data-studio-search])").first().getByRole("button", { name: "العربية" }).click();
   await expect(page.locator("html")).toHaveAttribute("lang", "ar");
 
   // Nothing connected yet.
   await pageShots(page, "/studio/project/payments", "payments");
+  // Connect a card gateway: its keys open in their row.
+  const connect = page.locator("[data-gateway-connect]");
+  if (await connect.count()) {
+    await connect.click();
+    await expect(page.locator("#gateway-editor")).toBeVisible();
+    await shoot(page, "payments-connect-open-ar-light-1440");
+  }
 
   // Stripe connected and tested, bank transfer and cash on delivery on.
   const stripe = await startFakeStripe(E2E.stripePort, { accountName: "Nour Flowers" });
   try {
     await page.goto("/studio/project/payments");
-    const card = page.locator("section[aria-labelledby=h-payments]");
-    const edit = card.locator("[data-gateway-edit]");
-    if ((await edit.count()) && !(await card.locator('[data-gateway="stripe"]').isVisible())) await edit.click();
+    const card = await openGateway(page);
     await card.locator('[data-gateway="stripe"]').click();
     await card.locator("input[name=publishableKey]").fill("pk_test_51NourFlowersKey");
     await card.locator("input[name=secretKey]").fill("sk_test_51NourFlowersKey");
@@ -136,6 +156,18 @@ test("the Payments page", async ({ page, browser, request }) => {
     await expect(other.getByRole("status").first()).toBeVisible();
 
     await pageShots(page, "/studio/project/payments", "payments-connected");
+    // Its parts opened on demand (on the console): the gateway's keys (Edit), then How customers pay (Change).
+    await page.goto("/studio/project/payments");
+    const change = page.locator("[data-how-change]");
+    if (await change.count()) {
+      await openGateway(page);
+      await page.locator("#gateway").scrollIntoViewIfNeeded();
+      await shoot(page, "payments-connected-edit-ar-light-1440");
+      await page.goto("/studio/project/payments");
+      await change.click();
+      await page.locator("#how-customers-pay").scrollIntoViewIfNeeded();
+      await shoot(page, "payments-connected-how-ar-light-1440");
+    }
 
     // The customer's payment page offers all three.
     const products = (await (await request.get(`${api}/store/products?per_page=5`)).json()) as { items: { id: number }[] };
@@ -146,7 +178,7 @@ test("the Payments page", async ({ page, browser, request }) => {
     await expect(customer.locator("input[name=pay-method]")).toHaveCount(3);
     await customer.evaluate(() => document.fonts.ready);
     await customer.waitForTimeout(500);
-    await customer.screenshot({ path: path.join(OUT, `${PREFIX}-pay-page-three-ways-phone.jpg`), type: "jpeg", quality: 85, fullPage: true });
+    await customer.screenshot({ path: path.join(OUT, `${PREFIX}-pay-page-three-ways-390.png`), fullPage: true });
     await customer.close();
   } finally {
     await stripe.close();

@@ -17,7 +17,6 @@ import { CurrencyPicker } from "@/components/currency-picker";
 import { RatesAttribution } from "@/components/rates-attribution";
 import { Icon } from "@/components/icon";
 import { btn } from "@/components/ui";
-import { KitStatus } from "@/components/studio-page";
 import { KitWayRow, KitWaySwitch } from "@/components/studio-page/way-row";
 import { FormActions, FormSection } from "@/components/page-kit";
 import { initialFormState } from "@/lib/forms";
@@ -908,6 +907,8 @@ function TextArea({ name, label, hint, value, error, rows = 4 }: { name: string;
  * customer sees them. 132.145 Each a row with its own switch, its details
  * only while it's on (kept when switched off); the days to pay for both,
  * shown while either is on. `on` is what's saved; `footer` goes above Save.
+ * 132.180 In the console's look: setting rows with the console's switch,
+ * the days to pay a row of its own, what was saved beside Save.
  */
 export function ManualPaymentsForm({
   values: saved,
@@ -926,15 +927,13 @@ export function ManualPaymentsForm({
   const values = { ...saved, ...state.values };
   const [bankOn, setBankOn] = useState(state.values ? state.values.bankTransferOn === "on" : savedOn.bank);
   const [customOn, setCustomOn] = useState(state.values ? state.values.customOn === "on" : savedOn.custom);
-  const pill = (on: boolean) => <KitStatus tone={on ? "success" : "neutral"}>{t(on ? "studioPage.on" : "studioPage.off")}</KitStatus>;
+  const daysError = state.errors?.payWithinDays;
   return (
     <form action={action} noValidate className="flex flex-col">
-      <FormMessage message={state.message} ok={state.ok} />
       <KitWayRow
         titleId="h-bank-transfer"
         icon="receipt_long"
         title={t("orders.bankTransfer")}
-        status={pill(bankOn)}
         control={<KitWaySwitch name="bankTransferOn" checked={bankOn} onChange={setBankOn} labelledBy="h-bank-transfer" />}
         inline
         open={bankOn}
@@ -947,7 +946,6 @@ export function ManualPaymentsForm({
         titleId="h-own-method"
         icon="storefront"
         title={t("gateways.ownMethod")}
-        status={pill(customOn)}
         description={customOn && values.customName ? values.customName : undefined}
         control={<KitWaySwitch name="customOn" checked={customOn} onChange={setCustomOn} labelledBy="h-own-method" />}
         inline
@@ -959,32 +957,47 @@ export function ManualPaymentsForm({
         <TextArea name="customInstructions" label={t("shop.customInstructions")} hint={t("shop.customInstructionsHint")} value={values.customInstructions} error={state.errors?.customInstructions} rows={3} />
       </KitWayRow>
       {/* The days to pay, for both: while either is on (kept as they are while both are off). */}
-      <div hidden={!bankOn && !customOn} className="kit-reveal flex flex-wrap items-start gap-3 border-t border-(--sp-line-soft) py-5 sm:ps-15">
-        <Field
-          label={
+      <div hidden={!bankOn && !customOn} className="kit-reveal border-t border-(--sp-line)">
+        <KitWayRow
+          titleId="h-pay-within-days"
+          icon="hourglass_top"
+          title={t("shop.payWithinDays")}
+          status={<span className="text-[13px] text-(--sp-muted)">· {t("gateways.bothMethods")}</span>}
+          description={
             <>
-              {t("shop.payWithinDays")} <span className="font-normal text-(--sp-muted)">· {t("gateways.bothMethods")}</span>
+              <span id="f-payWithinDays-hint">{t("shop.payWithinDaysHint")}</span>
+              <FieldError id="f-payWithinDays-error" error={daysError} />
             </>
           }
-          name="payWithinDays"
-          inputMode="numeric"
-          className="max-w-[260px] flex-1"
-          defaultValue={values.payWithinDays}
-          hint={t("shop.payWithinDaysHint")}
-          error={state.errors?.payWithinDays}
+          inline
+          control={
+            <input
+              id="f-payWithinDays"
+              name="payWithinDays"
+              inputMode="numeric"
+              defaultValue={values.payWithinDays}
+              aria-labelledby="h-pay-within-days"
+              aria-describedby={`f-payWithinDays-hint${daysError ? " f-payWithinDays-error" : ""}`}
+              aria-invalid={daysError ? true : undefined}
+              className="input h-10 w-20 text-center tabular-nums"
+            />
+          }
         />
       </div>
-      {footer}
-      <div className="flex flex-wrap items-center justify-end gap-x-4 gap-y-2 border-t border-(--sp-line-soft) pt-5">
-        {status ? (
-          <span className="me-auto flex items-center gap-1.5 text-sm font-semibold text-success">
-            <Icon name="check_circle" size={18} filled />
-            {status}
-          </span>
-        ) : null}
-        <SubmitButton variant="secondary" className="h-10" pendingText={t("common.saving")}>
-          {t("shop.saveManual")}
-        </SubmitButton>
+      <div className="flex flex-col gap-4 border-t border-(--sp-line) pt-5">
+        {footer}
+        <FormMessage message={state.message} ok={state.ok} />
+        <div className="flex flex-wrap items-center justify-end gap-x-4 gap-y-3">
+          {status ? (
+            <span className="me-auto flex items-center gap-1.5 text-[13.5px] font-semibold text-success">
+              <Icon name="check_circle" size={18} filled />
+              {status}
+            </span>
+          ) : null}
+          <SubmitButton variant="secondary" className="h-10" pendingText={t("common.saving")}>
+            {t("shop.saveManual")}
+          </SubmitButton>
+        </div>
       </div>
     </form>
   );

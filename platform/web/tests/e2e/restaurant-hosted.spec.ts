@@ -123,6 +123,8 @@ test("the café sets up its menu with options, pickup and delivery", async () =>
   await tabs.getByRole("link", { name: /^Payments/ }).click();
   // 132.120 The Menu's tab opens the one Payments page.
   await expect(own).toHaveURL(/\/dashboard\/payments$/);
+  // 132.180 Nothing connected yet: the gateway's keys open from its row.
+  await own.getByRole("region", { name: "Card payments" }).getByRole("button", { name: "Connect", exact: true }).click();
   await own.getByLabel("API key").fill("sandbox-api-key");
   await own.getByLabel("Secret key").fill("sandbox-secret-key");
   await own.getByText("Sandbox keys").click();

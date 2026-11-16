@@ -123,6 +123,8 @@ test("a client without a website sets up their shop", async ({ page }) => {
   await page.getByRole("navigation", { name: "Products", exact: true }).getByRole("link", { name: /^Payments/ }).click();
   // 132.120 The Products tab opens the one Payments page.
   await expect(page).toHaveURL(/\/(dashboard|studio\/project)\/payments$/);
+  // 132.180 Nothing connected yet: the gateway's keys open from its row.
+  await page.getByRole("region", { name: "Card payments" }).getByRole("button", { name: "Connect", exact: true }).click();
   await page.getByLabel("API key").fill("sandbox-api-key");
   await page.getByLabel("Secret key").fill("sandbox-secret-key");
   await page.getByText("Sandbox keys").click();

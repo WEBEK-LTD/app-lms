@@ -180,6 +180,8 @@ test("132.145 a card gateway alongside bank transfer and the shop's own way: the
   await expect(other.getByRole("switch", { name: "Your own method" })).toBeChecked();
   const payments = ways.getByRole("region", { name: "Card payments" });
   await expect(payments).toContainText("Not connected");
+  // 132.180 Nothing connected yet: the gateway's keys open from its row.
+  await payments.getByRole("button", { name: "Connect", exact: true }).click();
   await payments.getByLabel("API key").fill("sandbox-api-key");
   await payments.getByLabel("Secret key").fill("sandbox-secret-key");
   await payments.getByText("Sandbox keys").click();

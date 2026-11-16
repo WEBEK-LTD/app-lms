@@ -20,16 +20,18 @@ import { OwnGatewayForm } from "./own-gateway";
  * with its switch and its details only while it's on; the payment page
  * offers every one that's on. `cards`: the app takes its own card payments
  * here; `manual`: it sells what bank transfer and the owner's way can pay for.
+ * 132.180 In the console's look: a card of setting rows under its title,
+ * a hairline between them; the gateway's keys closed until Connect or Edit.
  */
 export async function WaysCustomersPay({ app, currency, cards, manual }: { app: App; currency: CatalogCurrency; cards: boolean; manual: boolean }) {
   const { t } = await dashboardText();
   // 60 Where the money goes is the owner's: the team sees that it's theirs to set.
   if (!(await mayDo("billing"))) return <OwnerOnly id="h-payments" title={t("shop.cardPayments")} />;
   return (
-    <KitSection id="ways" titleId="h-ways" title={t("studioPage.waysTitle")} description={t("studioPage.waysLine")}>
-      <div className="-mt-3 flex flex-col">
+    <KitSection id="ways" titleId="h-ways" title={t("gateways.waysTitle")} description={t("gateways.waysLine")} flush>
+      <div className="flex min-w-0 flex-col border-t border-(--sp-line) px-5">
         {cards ? <CardWay app={app} currency={currency} /> : null}
-        {manual ? <ManualWays app={app} /> : null}
+        {manual ? <ManualWays app={app} below={cards} /> : null}
       </div>
     </KitSection>
   );
@@ -54,10 +56,10 @@ async function CardWay({ app, currency }: { app: App; currency: CatalogCurrency 
         own ? (
           <>
             <KitStatus tone="success">{t("gateways.connected")}</KitStatus>
-            {tested?.ok ? <KitStatus tone="info">{t("studioPage.ready")}</KitStatus> : <KitStatus tone="warn">{t("studioPage.needsTest")}</KitStatus>}
+            {tested?.ok ? <KitStatus tone="info">{t("gateways.ready")}</KitStatus> : <KitStatus tone="warn">{t("gateways.needsTest")}</KitStatus>}
           </>
         ) : (
-          <KitStatus tone="neutral">{t("studioPage.notConnected")}</KitStatus>
+          <KitStatus tone="neutral">{t("gateways.notConnected")}</KitStatus>
         )
       }
       line={own ? t(own.sandbox ? "shop.onOwnSandbox" : "shop.onOwn", { provider: name! }) : t("shop.cardIntro")}
@@ -88,14 +90,18 @@ async function CardWay({ app, currency }: { app: App; currency: CatalogCurrency 
   );
 }
 
-/** Bank transfer and the owner's own way, each with its switch; how they work folded. A region named "Bank transfer and your own method". */
-async function ManualWays({ app }: { app: App }) {
+/**
+ * Bank transfer and the owner's own way, each with its switch, the days to
+ * pay, how they work folded, then Save. A region named "Bank transfer and
+ * your own method" (`below`: under the card gateway's row, a hairline over it).
+ */
+async function ManualWays({ app, below }: { app: App; below: boolean }) {
   const { t, lang } = await dashboardText();
   const manual = catalogSettings(app).manualPayments ?? null;
   const on = manualChoices(manual);
   const names = on.map((c) => (c.method === "bank_transfer" ? t("orders.bankTransfer") : c.name));
   return (
-    <section aria-labelledby="h-other-payments" className="flex flex-col border-t border-(--sp-line-soft)" data-other-payments="">
+    <section aria-labelledby="h-other-payments" className={`flex min-w-0 flex-col pb-5 ${below ? "border-t border-(--sp-line)" : ""}`} data-other-payments="">
       <h3 id="h-other-payments" className="sr-only">
         {t("shop.otherPayments")}
       </h3>
@@ -109,11 +115,9 @@ async function ManualWays({ app }: { app: App }) {
         on={{ bank: on.some((c) => c.method === "bank_transfer"), custom: on.some((c) => c.method === "custom") }}
         status={on.length > 0 ? t("shop.otherOn", { methods: formatList(lang, names) }) : null}
         footer={
-          <div className="pb-5">
-            <KitFold icon="help" summary={t("studioPage.howItWorks")}>
-              <p className="m-0 text-sm leading-relaxed text-(--sp-muted)">{t("shop.otherIntro")}</p>
-            </KitFold>
-          </div>
+          <KitFold icon="help" summary={t("studioPage.howItWorks")}>
+            <p className="m-0 text-sm leading-relaxed text-(--sp-muted)">{t("shop.otherIntro")}</p>
+          </KitFold>
         }
       />
     </section>

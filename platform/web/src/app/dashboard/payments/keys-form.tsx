@@ -5,7 +5,8 @@ import { savePaymentKeysAction, testPaymentKeysAction } from "@/app/actions/cata
 import { Field, FieldError, FormMessage, SubmitButton } from "@/components/form";
 import { Icon } from "@/components/icon";
 import type { IconName } from "@/components/icon-names";
-import { Badge, btn } from "@/components/ui";
+import { btn } from "@/components/ui";
+import { KitStatus } from "@/components/studio-page";
 import { useDashLang, useDashT, useKnownText } from "@/components/dashboard-i18n";
 import type { DashKey, DashT } from "@/i18n/dashboard";
 import { formatDate, formatList } from "@/i18n/format";
@@ -70,9 +71,10 @@ export interface PaymentKeysFormProps {
   currency?: string;
 }
 
+/** 132.180 The mode as the console's pill. */
 function ModeBadge({ mode, t }: { mode: StripeMode | "mix"; t: DashT }) {
-  if (mode === "mix") return <Badge tone="danger">{t("gateways.modeMix")}</Badge>;
-  return <Badge tone={mode === "test" ? "warn" : "success"}>{t(mode === "test" ? "gateways.modeTest" : "gateways.modeLive")}</Badge>;
+  if (mode === "mix") return <KitStatus tone="danger">{t("gateways.modeMix")}</KitStatus>;
+  return <KitStatus tone={mode === "test" ? "warn" : "success"}>{t(mode === "test" ? "gateways.modeTest" : "gateways.modeLive")}</KitStatus>;
 }
 
 function CopyButton({ text, controls }: { text: string; controls: string }) {
@@ -101,11 +103,11 @@ function TestResults({ report }: { report: ConnectionReport }) {
   const t = useDashT();
   const lang = useDashLang();
   return (
-    <div className="flex flex-col gap-3 rounded-2xl bg-(--sp-surface) p-4" data-testid="gateway-test-results">
+    <div className="flex flex-col gap-3 rounded-[14px] border border-(--sp-line) bg-(--sp-surface) p-4" data-testid="gateway-test-results">
       <div className="flex flex-wrap items-center gap-2">
         <h3 className="m-0 text-[15px] font-bold">{t("gateways.results")}</h3>
         <ModeBadge mode={report.mode} t={t} />
-        <span className="text-[13px] text-muted">{t("gateways.testedAt", { at: when(lang, report.at) })}</span>
+        <span className="text-[13px] text-(--sp-muted)">{t("gateways.testedAt", { at: when(lang, report.at) })}</span>
       </div>
       <p className={`m-0 text-sm font-semibold ${report.ok ? "text-success" : "text-danger"}`}>{t(report.ok ? "gateways.allGood" : "gateways.needsWork")}</p>
       <ul className="m-0 flex list-none flex-col gap-2 p-0">
@@ -113,7 +115,7 @@ function TestResults({ report }: { report: ConnectionReport }) {
           const tone = TONES[check.tone];
           const values = Object.fromEntries(Object.entries(check.values ?? {}).map(([k, v]) => [k, shown(lang, k, v)]));
           return (
-            <li key={`${check.code}-${i}`} data-tone={check.tone} className="flex items-start gap-2 text-sm leading-relaxed text-ink-2">
+            <li key={`${check.code}-${i}`} data-tone={check.tone} className="flex items-start gap-2 text-sm leading-relaxed text-(--sp-ink-2)">
               <Icon name={tone.icon} size={20} filled className={`mt-px ${tone.color}`} />
               <span className="min-w-0 break-words">{t(`gateways.check.${check.code}` as DashKey, values)}</span>
             </li>
@@ -128,18 +130,18 @@ function TestResults({ report }: { report: ConnectionReport }) {
 function StripeGuide({ open }: { open: boolean }) {
   const t = useDashT();
   return (
-    <details className="group rounded-2xl bg-(--sp-surface) p-4" open={open}>
-      <summary className="flex cursor-pointer list-none items-center gap-2 text-[15px] font-bold [&::-webkit-details-marker]:hidden">
-        <Icon name="menu_book" size={20} className="text-muted" />
+    <details className="group rounded-[14px] border border-(--sp-line) bg-(--sp-surface) p-4" open={open}>
+      <summary className="flex cursor-pointer list-none items-center gap-2 text-[14.5px] font-bold [&::-webkit-details-marker]:hidden">
+        <Icon name="menu_book" size={20} className="text-(--sp-muted)" />
         <span className="flex-1">{t("gateways.guideTitle")}</span>
-        <Icon name="expand_more" size={20} className="text-muted transition-transform group-open:rotate-180" />
+        <Icon name="expand_more" size={20} className="text-(--sp-muted) transition-transform group-open:rotate-180" />
       </summary>
-      <ol className="m-0 mt-3 flex list-decimal flex-col gap-2 ps-5 text-sm leading-relaxed text-ink-3">
+      <ol className="m-0 mt-3 flex list-decimal flex-col gap-2 ps-5 text-sm leading-relaxed text-(--sp-ink-2)">
         {(["gateways.guide1", "gateways.guide2", "gateways.guide3", "gateways.guide4", "gateways.guide5", "gateways.guide6"] as const).map((step) => (
           <li key={step}>{t(step)}</li>
         ))}
       </ol>
-      <p className="m-0 mt-3 flex flex-wrap items-center gap-x-3 gap-y-1 text-[13px] text-muted">
+      <p className="m-0 mt-3 flex flex-wrap items-center gap-x-3 gap-y-1 text-[13px] text-(--sp-muted)">
         <span>{t("gateways.docsLabel")}</span>
         {STRIPE_DOCS.map((doc) => (
           <a key={doc.href} href={doc.href} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-0.5 font-semibold">
@@ -171,32 +173,27 @@ function GatewayCard({ provider, checked, onChoose, connected, mode }: { provide
   const id = `gateway-${provider}`;
   return (
     <label
-      className={`relative flex cursor-pointer flex-col gap-2 rounded-2xl p-4 transition-shadow focus-within:ring-2 focus-within:ring-accent motion-reduce:transition-none ${checked ? "bg-(--sp-surface) ring-2 ring-(--sp-ink)" : "bg-(--sp-soft) ring-1 ring-transparent hover:ring-(--sp-line)"}`}
+      className={`relative flex cursor-pointer flex-col gap-2 rounded-[14px] p-4 transition-shadow focus-within:ring-2 focus-within:ring-accent motion-reduce:transition-none ${checked ? "bg-(--sp-surface) ring-2 ring-(--sp-ink)" : "bg-(--sp-cell) ring-1 ring-transparent hover:ring-(--sp-line)"}`}
       data-gateway={provider}
       data-checked={checked ? "" : undefined}
     >
       <input type="radio" name="gateway-choice" value={provider} checked={checked} onChange={onChoose} aria-labelledby={`${id}-name`} aria-describedby={`${id}-takes`} className="sr-only" />
       <span className="flex items-center gap-2">
-        <span className="flex h-9 w-9 flex-none items-center justify-center rounded-xl bg-(--sp-tile)">
-          <Icon name="credit_card" size={20} filled={checked} className={checked ? "text-accent" : "text-muted"} />
+        <span className="flex h-9 w-9 flex-none items-center justify-center rounded-[10px] bg-(--sp-cell-icon)">
+          <Icon name="credit_card" size={20} filled={checked} className={checked ? "text-accent" : "text-(--sp-muted)"} />
         </span>
-        <span id={`${id}-name`} dir="ltr" className="min-w-0 flex-1 truncate text-[16px] font-extrabold text-midnight">
+        <span id={`${id}-name`} dir="ltr" className="min-w-0 flex-1 truncate text-[15px] font-bold text-(--sp-ink)">
           {NAMES[provider]}
         </span>
-        {connected ? (
-          <span className="inline-flex items-center gap-1 rounded-full bg-success-bg px-2 py-0.5 text-xs font-bold text-success">
-            <Icon name="check_circle" size={14} filled />
-            {t("gateways.connected")}
-          </span>
-        ) : null}
+        {connected ? <KitStatus tone="success">{t("gateways.connected")}</KitStatus> : null}
       </span>
-      <span id={`${id}-takes`} className="flex flex-col gap-0.5 text-[13px] leading-snug text-ink-4">
+      <span id={`${id}-takes`} className="flex flex-col gap-0.5 text-[13px] leading-snug text-(--sp-ink-2)">
         <span>{t(TAKES[provider])}</span>
-        <span className="text-muted">{currencies(lang, provider, t)}</span>
+        <span className="text-(--sp-muted)">{currencies(lang, provider, t)}</span>
       </span>
       <span className="mt-auto flex items-center justify-between gap-2 pt-1">
         {connected && mode ? <ModeBadge mode={mode} t={t} /> : <span />}
-        <span aria-hidden="true" className={`inline-flex h-8 items-center gap-1 rounded-lg px-3 text-[13px] font-bold ${checked ? "bg-midnight text-white" : "border border-line-strong text-midnight"}`}>
+        <span aria-hidden="true" className={`inline-flex h-8 items-center gap-1 rounded-[9px] px-3 text-[13px] font-bold ${checked ? "bg-(--sp-ink) text-(--sp-surface)" : "border border-(--sp-line) text-(--sp-ink-2)"}`}>
           <Icon name={connected ? "tune" : "bolt"} size={16} />
           {t(connected ? "gateways.edit" : "gateways.connect")}
         </span>
@@ -219,7 +216,7 @@ function SecretField({ hint, ...props }: Parameters<typeof Field>[0]) {
         aria-label={t(visible ? "gateways.hideKey" : "gateways.showKey")}
         aria-pressed={visible}
         aria-controls={id}
-        className="absolute end-0.5 top-[30px] flex h-10 w-10 items-center justify-center rounded-lg text-muted hover:text-midnight"
+        className="absolute end-0.5 top-[30px] flex h-10 w-10 items-center justify-center rounded-lg text-(--sp-muted) hover:text-(--sp-ink)"
       >
         <Icon name={visible ? "visibility_off" : "visibility"} size={20} />
       </button>
@@ -269,8 +266,8 @@ export function PaymentKeysForm({ provider, sandbox, merchantId = "", clientId =
       {/* 96.1 Outside the form: React resets a form after its action, which would put the choice back on its first one. The form sends the choice. 132.120 The gateways as cards to choose from. */}
       <fieldset className="m-0 flex min-w-0 flex-col gap-3 border-0 p-0" aria-describedby="f-provider-error">
         <legend className="mb-2 flex flex-col gap-0.5">
-          <span className="text-[15px] font-bold">{t("shop.provider")}</span>
-          <span className="text-[13px] font-normal text-muted">{t("gateways.gatewaysText")}</span>
+          <span className="text-[14.5px] font-bold text-(--sp-ink)">{t("shop.provider")}</span>
+          <span className="text-[13px] font-normal text-(--sp-muted)">{t("gateways.gatewaysText")}</span>
         </legend>
         <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-3" data-gateways="">
           {PROVIDERS.map((p) => (
@@ -286,19 +283,19 @@ export function PaymentKeysForm({ provider, sandbox, merchantId = "", clientId =
         </div>
         <FieldError id="f-provider-error" error={state.errors?.provider} />
       </fieldset>
-      <section aria-labelledby="h-gateway-form" className="flex min-w-0 flex-col gap-4 rounded-3xl bg-(--sp-soft) p-4 sm:p-6" data-gateway-form={choice}>
-        <h3 id="h-gateway-form" className="m-0 flex items-center gap-2 text-[17px] font-extrabold">
-          <Icon name="key" size={20} className="text-muted" />
+      <section aria-labelledby="h-gateway-form" className="flex min-w-0 flex-col gap-4 rounded-[18px] bg-(--sp-soft) p-4 sm:p-5" data-gateway-form={choice}>
+        <h3 id="h-gateway-form" className="m-0 flex items-center gap-2 text-[15px] font-bold text-(--sp-ink)">
+          <Icon name="key" size={20} className="text-(--sp-muted)" />
           {t("gateways.formTitle", { provider: NAMES[choice] })}
         </h3>
         {savedHere ? (
-          <p className="m-0 flex flex-wrap items-center gap-2 text-sm text-ink-3" data-testid="gateway-saved">
+          <p className="m-0 flex flex-wrap items-center gap-2 text-sm text-(--sp-ink-2)" data-testid="gateway-saved">
             <Icon name="verified" size={18} className="text-success" />
             <span className="font-semibold">{t("gateways.savedProvider", { provider: NAMES[choice] })}</span>
             <ModeBadge mode={stripe ? (stripeKeyMode(saved?.secretKey) ?? "test") : sandbox ? "test" : "live"} t={t} />
             {choice === "stripe" || choice === "kashier" || choice === "fawaterk" ? (
               <span className="inline-flex items-center gap-1">
-                <Icon name="sensors" size={16} className={receipt?.failedAt && (!receipt.at || receipt.failedAt >= receipt.at) ? "text-danger" : receipt?.at ? "text-success" : "text-muted"} />
+                <Icon name="sensors" size={16} className={receipt?.failedAt && (!receipt.at || receipt.failedAt >= receipt.at) ? "text-danger" : receipt?.at ? "text-success" : "text-(--sp-muted)"} />
                 {receipt?.failedAt && (!receipt.at || receipt.failedAt >= receipt.at)
                   ? t("gateways.webhookRefused", { at: when(lang, receipt.failedAt) })
                   : receipt?.at
@@ -308,13 +305,13 @@ export function PaymentKeysForm({ provider, sandbox, merchantId = "", clientId =
             ) : null}
           </p>
         ) : null}
-        <details className="group rounded-2xl bg-(--sp-surface) px-4 py-3">
+        <details className="group rounded-[14px] border border-(--sp-line) bg-(--sp-surface) px-4 py-3">
           <summary className="flex cursor-pointer list-none items-center gap-2 text-sm font-bold [&::-webkit-details-marker]:hidden">
-            <Icon name="help" size={18} className="text-muted" />
+            <Icon name="help" size={18} className="text-(--sp-muted)" />
             <span className="flex-1">{t("gateways.whereKeys")}</span>
-            <Icon name="expand_more" size={18} className="text-muted transition-transform group-open:rotate-180" />
+            <Icon name="expand_more" size={18} className="text-(--sp-muted) transition-transform group-open:rotate-180" />
           </summary>
-          <p className="m-0 pt-2 text-[13px] leading-normal text-ink-4">{t(KEYS_WHERE[choice])}</p>
+          <p className="m-0 pt-2 text-[13px] leading-normal text-(--sp-muted)">{t(KEYS_WHERE[choice])}</p>
         </details>
       {stripe ? <StripeGuide open={!mine} /> : null}
       <form ref={form} action={action} noValidate className="flex flex-col gap-4" onReset={() => setSecretTyped("")}>
@@ -395,12 +392,12 @@ export function PaymentKeysForm({ provider, sandbox, merchantId = "", clientId =
           </p>
         ) : null}
         {stripe ? (
-          <fieldset className="m-0 flex min-w-0 flex-col gap-3 rounded-2xl border-0 bg-(--sp-surface) p-4">
-            <legend className="flex items-center gap-1.5 px-1 text-[15px] font-bold">
-              <Icon name="sensors" size={20} className="text-muted" />
+          <fieldset className="m-0 flex min-w-0 flex-col gap-3 rounded-[14px] border border-(--sp-line) bg-(--sp-surface) p-4">
+            <legend className="flex items-center gap-1.5 px-1 text-[14.5px] font-bold">
+              <Icon name="sensors" size={20} className="text-(--sp-muted)" />
               {t("gateways.webhookTitle")}
             </legend>
-            <p className="m-0 text-sm leading-relaxed text-ink-4">{t("gateways.webhookIntro")}</p>
+            <p className="m-0 text-sm leading-relaxed text-(--sp-muted)">{t("gateways.webhookIntro")}</p>
             <div className="flex flex-col gap-1.5">
               <label htmlFor="f-webhook-url" className="text-sm font-semibold">
                 {t("gateways.webhookUrl")}
@@ -417,7 +414,7 @@ export function PaymentKeysForm({ provider, sandbox, merchantId = "", clientId =
               <ul aria-labelledby="webhook-events" className="m-0 flex list-none flex-wrap gap-2 p-0" dir="ltr">
                 {STRIPE_WEBHOOK_EVENTS.map((event) => (
                   <li key={event}>
-                    <code className="rounded-lg bg-sand px-2 py-1 text-[13px]">{event}</code>
+                    <code className="rounded-lg bg-(--sp-cell) px-2 py-1 text-[13px]">{event}</code>
                   </li>
                 ))}
               </ul>
@@ -440,7 +437,7 @@ export function PaymentKeysForm({ provider, sandbox, merchantId = "", clientId =
             <input type="checkbox" name="sandbox" checked={sandboxOn} onChange={(event) => setSandboxOn(event.target.checked)} className="mt-1 h-4 w-4 accent-midnight" />
             <span className="flex flex-col gap-0.5">
               <span className="text-[15px] font-semibold">{t(TEST_LABEL[choice])}</span>
-              <span className="text-[13px] text-muted">{t(TEST_HINT[choice])}</span>
+              <span className="text-[13px] text-(--sp-muted)">{t(TEST_HINT[choice])}</span>
             </span>
           </label>
         ) : mode === "test" ? (
@@ -448,17 +445,17 @@ export function PaymentKeysForm({ provider, sandbox, merchantId = "", clientId =
             <input type="checkbox" name="testPayment" className="mt-1 h-4 w-4 accent-midnight" />
             <span className="flex flex-col gap-0.5">
               <span className="text-[15px] font-semibold">{t("gateways.testPayment")}</span>
-              <span className="text-[13px] text-muted">{t("gateways.testPaymentHint")}</span>
+              <span className="text-[13px] text-(--sp-muted)">{t("gateways.testPaymentHint")}</span>
             </span>
           </label>
         ) : null}
-        <p className="m-0 text-[13px] leading-normal text-muted">{t("gateways.testHint", { provider: NAMES[choice] })}</p>
+        <p className="m-0 text-[13px] leading-normal text-(--sp-muted)">{t("gateways.testHint", { provider: NAMES[choice] })}</p>
         <div className="flex flex-wrap justify-end gap-3">
           {/* 132.120 Save, then Test connection: the main action, which says clearly what works. */}
-          <SubmitButton variant="secondary" className="h-11" pendingText={t("shop.checking")}>
+          <SubmitButton variant="secondary" className="h-10" pendingText={t("shop.checking")}>
             {t("shop.saveKeys")}
           </SubmitButton>
-          <button type="button" className={`${btn.primary} h-11`} onClick={startTest} disabled={testing} aria-describedby={report ? "gateway-test-results" : undefined}>
+          <button type="button" className={`${btn.primary} h-10`} onClick={startTest} disabled={testing} aria-describedby={report ? "gateway-test-results" : undefined}>
             <Icon name="fact_check" size={20} />
             {testing ? t("gateways.testing") : t("gateways.test")}
           </button>

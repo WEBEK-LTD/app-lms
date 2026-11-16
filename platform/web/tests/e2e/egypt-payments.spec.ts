@@ -189,6 +189,8 @@ test("a shop with its own Kashier keys takes an order", async ({ page, request }
   // 132.120 The Products tab opens the one Payments page.
   await expect(page).toHaveURL(/\/(dashboard|studio\/project)\/payments$/);
   const payments = page.getByRole("region", { name: "Card payments" });
+  // 132.180 Nothing connected yet: the gateway's keys open from its row.
+  await payments.getByRole("button", { name: "Connect", exact: true }).click();
   await payments.locator('[data-gateway="kashier"]').click();
   await payments.getByLabel("Merchant ID").fill("MID-7777-001");
   await payments.getByLabel("Payment API key").fill("shop-kashier-api-key");

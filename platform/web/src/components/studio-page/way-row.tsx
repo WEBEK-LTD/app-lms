@@ -46,7 +46,7 @@ export function KitWayRow({
 } & { [key: `data-${string}`]: string | number | undefined }) {
   const Heading = level === 2 ? "h2" : "h3";
   return (
-    <section {...data} id={id} aria-labelledby={titleId} className="flex scroll-mt-24 flex-col border-t border-(--sp-line) first:border-t-0">
+    <section {...data} id={id} aria-labelledby={titleId} className="flex scroll-mt-24 flex-col border-t border-(--sp-line) first-of-type:border-t-0">
       <div className="flex items-center gap-x-4 gap-y-3 py-5 max-sm:flex-wrap sm:py-6">
         <span aria-hidden="true" className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-(--sp-cell) transition-colors ${open ? "text-accent" : "text-(--sp-ink-2)"}`}>
           <Icon name={icon} size={21} />

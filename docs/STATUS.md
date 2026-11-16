@@ -46,6 +46,21 @@ app into any account. Migration `0130_app_moves` (the requests, and
 `apps.moved_at`, `apps.moved_to_client_id` for the read-only record an app
 leaves behind).
 
+Roadmap 132.180–132.185 (Payments in the console): `/dashboard/payments`
+and `/studio/project/payments` are built in the console's look. At first
+the page shows only its title, "Connect a card gateway" while none is
+connected, the summary as four tiles (the gateway, the last test, the
+webhook, the currency) and "Ways customers pay" as setting rows: the card
+gateway (its keys and Test connection under Connect or Edit), bank
+transfer and the owner's own way each with the console's switch, the days
+to pay while either is on, how they work under "How it works". How
+customers pay is one row (Change opens the ways); the payments made in the
+app are a table, each in the inspector with Retry and Refund. The way rows
+are `components/studio-page/way-row.tsx` (KitWayRow, KitWaySwitch: the
+console's KitSwitch with the field a form sends). Events and Memberships
+share the bank transfer form. `tests/screens/studio-payments.screens.ts`
+takes the page's pictures.
+
 Roadmap 132.150–132.153 (Studio's console): every Studio project page and
 Your account and Team are in Studio's console (`app/studio/console.tsx`): a
 midnight frame with an icon rail of the menu's groups and a panel of the
