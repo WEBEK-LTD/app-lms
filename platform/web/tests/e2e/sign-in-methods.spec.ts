@@ -27,6 +27,12 @@ async function emailedCode(to: string): Promise<string> {
   return subject.slice(0, 6);
 }
 
+/** 132.136 A setting's form, folded under its row (the rules, the WhatsApp number, the email): open, if it isn't. */
+async function openFold(page: Page, name: "rules" | "whatsapp" | "mail") {
+  const fold = page.locator(`details[data-fold="${name}"]`);
+  if (!(await fold.evaluate((d) => (d as HTMLDetailsElement).open))) await fold.locator(":scope > summary").click();
+}
+
 async function signIn(page: Page, email: string, password: string) {
   await page.context().clearCookies();
   await page.goto("/sign-in");
@@ -102,6 +108,7 @@ test("the owner turns on email sign-in and their own WhatsApp number", async ({ 
 
   // The owner's own WhatsApp number: the key is never shown again.
   await expect(page.getByText("Your app's codes go out from Yallapp's WhatsApp number")).toBeVisible();
+  await openFold(page, "whatsapp");
   await page.getByRole("button", { name: "Save WhatsApp number" }).click();
   await expect(page.getByText("Paste the API key from your WABEK account.")).toBeVisible();
   await page.getByLabel("WABEK API key").fill("wk-e2e-secret-9876");
@@ -112,6 +119,7 @@ test("the owner turns on email sign-in and their own WhatsApp number", async ({ 
   await expect(page.getByText("API key ending 9876, instance inst-3")).toBeVisible();
   await expect(page.getByLabel("WABEK API key")).toHaveValue("");
   expect(await page.content()).not.toContain("wk-e2e-secret");
+  await openFold(page, "whatsapp");
   await expect(page.getByRole("button", { name: "Send a test code" })).toBeVisible();
   await page.getByRole("button", { name: "Use Yallapp's number again" }).click();
   await expect(page.getByText("Your app's codes go out from Yallapp's WhatsApp number")).toBeVisible();
@@ -119,6 +127,7 @@ test("the owner turns on email sign-in and their own WhatsApp number", async ({ 
   // 24 The app's own email server: Google, with the steps; the password is never shown again.
   await expect(page.getByRole("heading", { name: "Your app's email" })).toBeVisible();
   await expect(page.getByText("go out from Yallapp's address with your app's name")).toBeVisible();
+  await openFold(page, "mail");
   await page.getByText("My own email server").click();
   await expect(page.getByLabel("Your email service", { exact: true })).toHaveValue("google");
   await expect(page.getByText("How to set up Google")).toBeVisible();
@@ -135,6 +144,7 @@ test("the owner turns on email sign-in and their own WhatsApp number", async ({ 
   await expect(page.getByLabel("Password", { exact: true })).toHaveAttribute("placeholder", "•••••••• (saved)");
   expect(await page.content()).not.toContain("abcd-efgh-e2e-secret");
   // A local address is refused; an address that doesn't exist fails the test email in plain words.
+  await openFold(page, "mail");
   await page.getByLabel("Your email service", { exact: true }).selectOption("custom");
   await page.getByLabel("Server", { exact: true }).fill("localhost");
   await page.getByRole("button", { name: "Save email settings" }).click();
@@ -154,7 +164,8 @@ test("the owner turns on email sign-in and their own WhatsApp number", async ({ 
   expect(await emailedCode(fallback)).toMatch(/^\d{6}$/);
   await page.reload();
   await expect(page.getByText(/Your email server couldn't send an email on .+: We couldn't find the email server mail\.yallapp-e2e\.invalid/)).toBeVisible();
-  // Back to Yallapp's address.
+  // Back to Yallapp's address (its form open from the start since the failure).
+  await openFold(page, "mail");
   await page.getByText("Sent by Yallapp", { exact: true }).click();
   await page.getByRole("button", { name: "Save email settings" }).click();
   await expect(page.getByText("Saved. Yallapp sends your app's emails")).toBeVisible();
@@ -169,6 +180,7 @@ test("the owner turns on email sign-in and their own WhatsApp number", async ({ 
   await expect(page.getByText("Your app signs in by email only, so reviewers need the review email address.")).toBeVisible();
   expect((await config()).auth.methods).toEqual(["email"]);
   const reviewer = `review-${suffix}@shop.test`;
+  await openFold(page, "rules");
   await page.getByLabel("Review email address").fill(reviewer);
   await page.getByLabel("Review code").fill("246810");
   await page.getByRole("button", { name: "Save", exact: true }).click();
