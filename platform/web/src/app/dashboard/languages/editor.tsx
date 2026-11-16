@@ -5,7 +5,9 @@ import { useRouter } from "next/navigation";
 import { useLayoutEffect, useMemo, useRef, useState, type ChangeEvent } from "react";
 import { publishTranslationsAction, saveLanguagesAction, saveTranslationsAction, type TranslationsResult } from "@/app/actions/translations";
 import { Icon } from "@/components/icon";
-import { Badge, btn, formatDateTime, ProgressBar, Section } from "@/components/ui";
+import { btn } from "@/components/ui";
+import { formatDateTime, ProgressBar } from "@/components/ui";
+import { KitCallout, KitHeader, KitHero, KitMore, KitNext, KitSection, KitStat, KitStatus, kit } from "@/components/studio-page";
 import { UpgradeHint } from "@/components/upgrade";
 import { parseImport, toCsv, toJson, toXliff, type ExchangeFormat } from "@/lib/i18n/exchange";
 import { checkTranslation } from "@/lib/i18n/icu";
@@ -57,6 +59,7 @@ export function LanguagesEditor({
   savedAt,
   previewHref,
   previewDraft,
+  stats,
   plan,
 }: {
   languages: { default: string; available: string[] };
@@ -72,6 +75,8 @@ export function LanguagesEditor({
   previewHref: string;
   /** The preview shows the draft (hosted apps); otherwise only what's published. */
   previewDraft: boolean;
+  /** 132.137 The hero's numbers: languages in the app, those fully translated, the texts left. */
+  stats: { inApp: number; translated: number; toTranslate: number };
   plan: { name: string; languages: number | null; upgrade: { id: Plan; name: string } | null };
 }) {
   const t = useDashT();
@@ -247,78 +252,136 @@ export function LanguagesEditor({
     setFilter("all");
   }
 
-  return (
-    <div className="flex flex-col gap-6">
-      <Section id="app-languages" titleId="h-app-languages" title={t("languages.yourLanguages")} description={t("languages.orderText")}>
-        {main ? (
-          <div data-main-language={main.code} className="flex flex-wrap items-center justify-between gap-3 rounded-xl border border-line bg-sand px-4 py-3">
-            <p className="m-0 min-w-0 flex-[1_1_320px] text-[15px] leading-relaxed">
-              {main.dropped
-                ? t("languages.mainSwap", { current: defaultName, language: main.name, dropped: main.dropped })
-                : t("languages.mainKeep", { current: defaultName, language: main.name })}
-            </p>
-            <button type="button" className={`${btn.primary} h-10 px-4 text-sm`} disabled={busy} onClick={() => void changeLanguages(main.languages)}>
-              {t("languages.makeMain", { language: main.name })}
-            </button>
-          </div>
-        ) : null}
-        <LanguageList languages={languages} onChange={(next) => void changeLanguages(next)} full={full} max={MAX_LANGUAGES} />
-        {full && plan.languages !== null ? (
-          <UpgradeHint title={t("pages.moreLanguages")} to={plan.upgrade} cta={plan.upgrade ? t("overview.upgradeTo", { plan: plan.upgrade.name }) : undefined}>
-            {t("pages.planLanguages", { plan: plan.name, count: plan.languages })}
-          </UpgradeHint>
-        ) : null}
-      </Section>
+  const chip = (on: boolean) =>
+    `flex flex-col items-start gap-0.5 rounded-2xl border px-3.5 py-2 text-sm no-underline transition-colors ${on ? "border-(--sp-ink) bg-(--sp-ink) text-(--sp-surface) hover:text-(--sp-surface)" : "border-(--sp-line) bg-(--sp-surface) text-(--sp-ink) hover:border-(--sp-muted) hover:text-(--sp-ink)"}`;
+  const label = "text-[13px] font-semibold text-(--sp-muted)";
 
-      <section aria-label={t("languages.draftSection")} className="flex flex-col gap-3 rounded-2xl border border-line bg-white p-5 sm:p-6">
-        <div className="flex flex-wrap items-center justify-between gap-3">
-          <div className="flex min-w-0 flex-col gap-1">
-            <p role="status" className="m-0 text-[15px] font-semibold">
-              {busy
-                ? t("languages.working")
-                : pending
-                  ? t("languages.unsaved", { count: pending })
-                  : t("languages.savedAt", { date: formatDateTime(new Date(status.savedAt), dashLang) })}
-            </p>
-            <p className="m-0 flex flex-wrap items-center gap-2 text-sm text-muted">
-              {status.published ? t("languages.publishedVersion", { version: status.published }) : t("languages.notPublished")}
-              {status.changes ? <Badge tone="warn">{t("languages.unpublished")}</Badge> : null}
-            </p>
-          </div>
-          <div className="flex flex-wrap gap-2">
-            <a href={previewHref} target="_blank" rel="noopener" className={`${btn.secondary} h-9 px-3.5 text-sm`}>
+  // 132.137 The premium kit: the header with Publish, the draft and its numbers in one hero card (making the dashboard's language the main one as its next step), the languages, then the texts.
+  return (
+    <>
+      <KitHeader
+        icon="translate"
+        title={t("languages.title")}
+        description={t("studioPage.languagesLine")}
+        help={t("languages.intro")}
+        helpLabel={t("studioPage.help")}
+        actions={
+          <button type="button" className={kit.main} disabled={busy} onClick={() => void publish()}>
+            <Icon name="publish" size={20} />
+            {t("languages.publish")}
+          </button>
+        }
+      />
+
+      <KitHero
+        label={t("languages.draftSection")}
+        heading={t("languages.draftSection")}
+        titleId="h-languages-draft"
+        status={status.changes ? <KitStatus tone="warn">{t("languages.unpublished")}</KitStatus> : status.published ? <KitStatus tone="success">{t("languages.publishedVersion", { version: status.published })}</KitStatus> : <KitStatus tone="neutral">{t("languages.notPublished")}</KitStatus>}
+        title={
+          <span role="status">
+            {busy ? t("languages.working") : pending ? t("languages.unsaved", { count: pending }) : t("languages.savedAt", { date: formatDateTime(new Date(status.savedAt), dashLang) })}
+          </span>
+        }
+        description={
+          <>
+            {status.changes && status.published ? <span className="block">{t("languages.publishedVersion", { version: status.published })}</span> : null}
+            {previewDraft ? null : <span className="block">{t("languages.previewPublished")}</span>}
+          </>
+        }
+        aside={
+          <>
+            <a href={previewHref} target="_blank" rel="noopener" className={kit.ghost}>
               <Icon name="visibility" size={18} />
               {t("languages.previewIn", { language: lang.name })}
               <Icon name="open_in_new" size={16} />
               <span className="sr-only">{t("common.opensInNewTab")}</span>
             </a>
-            <button type="button" className={`${btn.secondary} h-9 px-3.5 text-sm`} disabled={busy || !pending || blocking > 0} onClick={() => void save()}>
+            <button type="button" className={kit.quiet} disabled={busy || !pending || blocking > 0} onClick={() => void save()}>
               {t("languages.saveTranslations")}
             </button>
-            <button type="button" className={`${btn.primary} h-9 px-4 text-sm`} disabled={busy} onClick={() => void publish()}>
-              {t("languages.publish")}
-            </button>
-          </div>
+          </>
+        }
+        stats={
+          <>
+            <KitStat icon="translate" label={t("languages.inApp")} value={num(stats.inApp)} hint={plan.languages ? `${plan.name}: ${num(plan.languages)}` : undefined} />
+            <KitStat icon="check_circle" tone="success" label={t("languages.statTranslated")} value={num(stats.translated)} />
+            <KitStat icon="edit" tone={stats.toTranslate ? "warn" : "neutral"} label={t("languages.statToTranslate")} value={num(stats.toTranslate)} />
+          </>
+        }
+        next={
+          main ? (
+            <span data-main-language={main.code} className="contents">
+              <KitNext
+                icon="language"
+                action={
+                  <button type="button" className={kit.quiet} disabled={busy} onClick={() => void changeLanguages(main.languages)}>
+                    {t("languages.makeMain", { language: main.name })}
+                  </button>
+                }
+              >
+                {main.dropped
+                  ? t("languages.mainSwap", { current: defaultName, language: main.name, dropped: main.dropped })
+                  : t("languages.mainKeep", { current: defaultName, language: main.name })}
+              </KitNext>
+            </span>
+          ) : undefined
+        }
+      />
+      {errors.length ? (
+        <div role="alert" className="rounded-2xl bg-danger-bg px-5 py-4 text-[15px] text-danger">
+          <p className="m-0 font-semibold">{t("languages.fix")}</p>
+          <ul className="m-0 mt-1 list-disc ps-5">
+            {errors.map((e, i) => (
+              <li key={i}>{known(e)}</li>
+            ))}
+          </ul>
         </div>
-        {previewDraft ? null : <p className="m-0 text-sm text-muted">{t("languages.previewPublished")}</p>}
-        {errors.length ? (
-          <div role="alert" className="rounded-xl bg-danger-bg px-4 py-3 text-[15px] text-danger">
-            <p className="m-0 font-semibold">{t("languages.fix")}</p>
-            <ul className="m-0 mt-1 list-disc ps-5">
-              {errors.map((e, i) => (
-                <li key={i}>{known(e)}</li>
-              ))}
-            </ul>
-          </div>
-        ) : null}
-        {message ? (
-          <p role={message.ok ? "status" : "alert"} className={`m-0 rounded-xl px-4 py-3 text-[15px] font-semibold ${message.ok ? "bg-success-bg text-success" : "bg-danger-bg text-danger"}`}>
-            {message.text}
-          </p>
-        ) : null}
-      </section>
+      ) : null}
+      {message ? (
+        <KitCallout tone={message.ok ? "success" : "danger"} icon={message.ok ? "check_circle" : "error"} role={message.ok ? "status" : "alert"}>
+          <span className="font-semibold">{message.text}</span>
+        </KitCallout>
+      ) : null}
 
-      <Section id="translations" titleId="h-translations" title={t("languages.translations")} description={t("languages.translationsText")}>
+      <KitSection id="app-languages" titleId="h-app-languages" title={t("languages.yourLanguages")} description={t("languages.orderText")}>
+        <LanguageList languages={languages} onChange={(next) => void changeLanguages(next)} full={full} max={MAX_LANGUAGES} look="kit" />
+        {full && plan.languages !== null ? (
+          <UpgradeHint title={t("pages.moreLanguages")} to={plan.upgrade} cta={plan.upgrade ? t("overview.upgradeTo", { plan: plan.upgrade.name }) : undefined}>
+            {t("pages.planLanguages", { plan: plan.name, count: plan.languages })}
+          </UpgradeHint>
+        ) : null}
+      </KitSection>
+
+      <KitSection
+        id="translations"
+        titleId="h-translations"
+        title={t("languages.translations")}
+        description={t("languages.translationsText")}
+        actions={
+          <KitMore label={t("studioPage.exportImport")}>
+            <span className="px-3 pt-1.5 pb-1 text-xs font-semibold text-(--sp-muted)">{t("languages.export")}</span>
+            {(["csv", "json", "xliff"] as const).map((f) => (
+              <button key={f} type="button" className={`${btn.menu} h-10`} onClick={() => exportAs(f)}>
+                <Icon name="download" size={18} />
+                {f === "xliff" ? "XLIFF" : f.toUpperCase()}
+              </button>
+            ))}
+            <button type="button" className={`${btn.menu} h-10`} onClick={() => fileInput.current?.click()}>
+              <Icon name="upload" size={18} />
+              {t("languages.importFile")}
+            </button>
+          </KitMore>
+        }
+      >
+        <input
+          ref={fileInput}
+          type="file"
+          accept=".csv,.json,.xlf,.xliff,.xml,text/csv,application/json"
+          className="sr-only"
+          aria-label={t("languages.importLabel")}
+          onChange={(e) => void importFile(e)}
+        />
         <nav aria-label={t("languages.toTranslate")} className="flex flex-wrap gap-2">
           {summaries.map((s) => {
             const current = s.code === lang.code;
@@ -330,10 +393,10 @@ export function LanguagesEditor({
                 onClick={(e) => {
                   if (pending && !current && !window.confirm(t("common.leaveUnsaved"))) e.preventDefault();
                 }}
-                className={`flex flex-col items-start gap-0.5 rounded-xl border px-3.5 py-2 text-sm no-underline ${current ? "border-midnight bg-midnight text-white hover:text-white" : "border-line-strong bg-white text-midnight hover:border-midnight"}`}
+                className={chip(current)}
               >
                 <span className="font-semibold">{s.name}</span>
-                <span className={current ? "text-white/80" : "text-muted"}>{t("languages.doneOf", { done: s.done, total: s.total })}</span>
+                <span className={current ? "opacity-80" : "text-(--sp-muted)"}>{t("languages.doneOf", { done: s.done, total: s.total })}</span>
               </Link>
             );
           })}
@@ -349,7 +412,7 @@ export function LanguagesEditor({
             })}
           </p>
           <ProgressBar value={summary?.done ?? 0} max={summary?.total ?? rows.length} label={t("languages.progressLabel", { language: lang.name })} tone={summary && summary.done >= summary.total ? "success" : "accent"} />
-          <p className="m-0 text-sm text-muted">
+          <p className="m-0 text-sm text-(--sp-muted)">
             {lang.isDefault
               ? t("languages.isDefault", { language: lang.name })
               : lang.builtIn
@@ -362,7 +425,7 @@ export function LanguagesEditor({
 
         <div className="flex flex-wrap items-end gap-3">
           <div className="flex min-w-0 flex-[1_1_220px] flex-col gap-1.5">
-            <label htmlFor="tr-search" className="text-sm font-semibold">
+            <label htmlFor="tr-search" className={label}>
               {t("languages.search")}
             </label>
             <input
@@ -377,8 +440,8 @@ export function LanguagesEditor({
               className="input input-sm"
             />
           </div>
-          <div className="flex flex-col gap-1.5">
-            <label htmlFor="tr-group" className="text-sm font-semibold">
+          <div className="flex min-w-0 flex-[1_1_150px] flex-col gap-1.5">
+            <label htmlFor="tr-group" className={label}>
               {t("languages.texts")}
             </label>
             <select
@@ -395,8 +458,8 @@ export function LanguagesEditor({
               <option value="interface">{t("languages.appTexts", { count: rows.length - contentCount })}</option>
             </select>
           </div>
-          <div className="flex flex-col gap-1.5">
-            <label htmlFor="tr-filter" className="text-sm font-semibold">
+          <div className="flex min-w-0 flex-[1_1_150px] flex-col gap-1.5">
+            <label htmlFor="tr-filter" className={label}>
               {t("languages.show")}
             </label>
             <select
@@ -415,32 +478,12 @@ export function LanguagesEditor({
           </div>
         </div>
 
-        <div className="flex flex-wrap items-center gap-2">
-          <span className="text-sm font-semibold text-muted">{t("languages.export")}</span>
-          {(["csv", "json", "xliff"] as const).map((f) => (
-            <button key={f} type="button" className={`${btn.secondary} h-9 px-3 text-sm`} onClick={() => exportAs(f)}>
-              <Icon name="download" size={18} />
-              {f === "xliff" ? "XLIFF" : f.toUpperCase()}
-            </button>
-          ))}
-          <button type="button" className={`${btn.secondary} h-9 px-3 text-sm`} onClick={() => fileInput.current?.click()}>
-            <Icon name="upload" size={18} />
-            {t("languages.importFile")}
-          </button>
-          <input
-            ref={fileInput}
-            type="file"
-            accept=".csv,.json,.xlf,.xliff,.xml,text/csv,application/json"
-            className="sr-only"
-            aria-label={t("languages.importLabel")} onChange={(e) => void importFile(e)} />
-        </div>
-
         {visible.length === 0 ? (
-          <p className="m-0 rounded-xl bg-sand px-4 py-6 text-center text-[15px] text-muted">
+          <p className="m-0 rounded-2xl bg-(--sp-soft) px-4 py-8 text-center text-[15px] text-(--sp-muted)">
             {filter === "missing" && !query ? t("languages.allDone", { language: lang.name }) : t("languages.noMatch")}
           </p>
         ) : (
-          <ol className="m-0 flex list-none flex-col gap-3 p-0" aria-label={t("languages.textsIn", { language: lang.name })}>
+          <ol className="m-0 flex list-none flex-col p-0" aria-label={t("languages.textsIn", { language: lang.name })}>
             {visible.map((row) => (
               <RowEditor
                 key={row.id}
@@ -461,24 +504,24 @@ export function LanguagesEditor({
 
         {pages > 1 ? (
           <nav aria-label={t("languages.pagesOf")} className="flex flex-wrap items-center justify-between gap-2">
-            <button type="button" className={`${btn.secondary} h-9 px-3 text-sm`} disabled={at === 0} onClick={() => setPage(at - 1)}>
+            <button type="button" className={kit.quiet} disabled={at === 0} onClick={() => setPage(at - 1)}>
               {t("common.previous")}
             </button>
-            <span className="text-sm text-muted">{t("languages.range", { from: at * PAGE_SIZE + 1, to: Math.min(shown.length, (at + 1) * PAGE_SIZE), total: shown.length })}</span>
-            <button type="button" className={`${btn.secondary} h-9 px-3 text-sm`} disabled={at >= pages - 1} onClick={() => setPage(at + 1)}>
+            <span className="text-sm text-(--sp-muted)">{t("languages.range", { from: at * PAGE_SIZE + 1, to: Math.min(shown.length, (at + 1) * PAGE_SIZE), total: shown.length })}</span>
+            <button type="button" className={kit.quiet} disabled={at >= pages - 1} onClick={() => setPage(at + 1)}>
               {t("common.next")}
             </button>
           </nav>
         ) : null}
 
-        <div className="flex flex-wrap items-center justify-end gap-2">
+        <div className="sticky bottom-3 z-10 flex flex-wrap items-center justify-end gap-3">
           {blocking ? <span className="text-sm font-semibold text-danger">{t("languages.fixBefore", { count: blocking })}</span> : null}
-          <button type="button" className={`${btn.primary} h-10 px-4 text-sm`} disabled={busy || !pending || blocking > 0} onClick={() => void save()}>
+          <button type="button" className={`${btn.primary} h-11 shadow-(--sp-lift)`} disabled={busy || !pending || blocking > 0} onClick={() => void save()}>
             {pending ? t("languages.saveCount", { count: num(pending) }) : t("languages.saveTranslations")}
           </button>
         </div>
-      </Section>
-    </div>
+      </KitSection>
+    </>
   );
 }
 
@@ -532,9 +575,9 @@ function RowEditor({
   }
 
   return (
-    <li className="flex flex-col gap-2 rounded-xl border border-line p-4" data-row-id={row.id}>
+    <li className="flex flex-col gap-2.5 border-t border-(--sp-line-soft) py-4 first:border-t-0" data-row-id={row.id}>
       <div className="flex flex-wrap items-center justify-between gap-2">
-        <span className="min-w-0 text-xs font-semibold text-muted">
+        <span className="min-w-0 text-xs font-semibold text-(--sp-muted)">
           {row.kind === "content" ? where : <code className="font-mono">{row.id}</code>}
           {row.kind === "interface" && row.where ? (
             <span className="font-normal" lang="en" dir="ltr">
@@ -544,17 +587,17 @@ function RowEditor({
           ) : null}
         </span>
         <span className="flex flex-wrap gap-1.5">
-          {edited ? <Badge tone="info">{t("languages.notSavedBadge")}</Badge> : null}
+          {edited ? <KitStatus tone="info">{t("languages.notSavedBadge")}</KitStatus> : null}
           {value.trim() ? (
-            <Badge tone="success">{t("languages.yours")}</Badge>
+            <KitStatus tone="success">{t("languages.yours")}</KitStatus>
           ) : row.builtin ? (
-            <Badge tone="neutral">{t("languages.yallappsTranslation")}</Badge>
+            <KitStatus tone="neutral">{t("languages.yallappsTranslation")}</KitStatus>
           ) : (
-            <Badge tone="warn">{t("languages.missingBadge")}</Badge>
+            <KitStatus tone="warn">{t("languages.missingBadge")}</KitStatus>
           )}
         </span>
       </div>
-      <p className="m-0 rounded-lg bg-sand px-3 py-2 text-[15px] break-words whitespace-pre-wrap" id={`${id}-source`} dir="auto">
+      <p className="m-0 rounded-xl bg-(--sp-soft) px-3.5 py-2.5 text-[15px] break-words whitespace-pre-wrap text-(--sp-ink)" id={`${id}-source`} dir="auto">
         <span className="sr-only">{sourceName}: </span>
         {row.source}
       </p>
@@ -582,7 +625,7 @@ function RowEditor({
             </span>
           ))}
           {problem.warnings.map((w) => (
-            <span key={w} className="text-muted">
+            <span key={w} className="text-(--sp-muted)">
               {known(w)}
             </span>
           ))}
@@ -595,7 +638,7 @@ function RowEditor({
               <button
                 key={p}
                 type="button"
-                className="rounded-full border border-line-strong bg-ivory px-2.5 py-0.5 font-mono text-xs font-semibold text-midnight hover:border-midnight"
+                className="cursor-pointer rounded-full border border-(--sp-line) bg-(--sp-tile) px-2.5 py-0.5 font-mono text-xs font-semibold text-(--sp-ink) hover:border-(--sp-muted)"
                 onClick={() => insert(p)}
                 title={row.placeholders?.[p] === "int" ? t("languages.insertNumber", { placeholder: `{${p}}` }) : t("languages.insertValue", { placeholder: `{${p}}` })}
               >
@@ -614,7 +657,7 @@ function RowEditor({
           </button>
         ) : null}
         {value ? (
-          <button type="button" className="text-sm font-semibold text-muted underline-offset-2 hover:underline" onClick={() => onChange("")}>
+          <button type="button" className="text-sm font-semibold text-(--sp-muted) underline-offset-2 hover:underline" onClick={() => onChange("")}>
             {t("languages.clear")}
           </button>
         ) : null}

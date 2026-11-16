@@ -2,8 +2,9 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { changeFlashSaleAction } from "@/app/actions/selling";
 import { SubmitButton } from "@/components/form";
-import { Badge, EmptyState, Notice, PageHeader, Section, btn, formatDate } from "@/components/ui";
-import { ItemList, ItemRow, Thumb } from "@/components/page-kit";
+import { formatDate } from "@/components/ui";
+import { KitCallout, KitEmpty, KitHeader, KitHero, KitList, KitMore, KitNext, KitPage, KitRow, KitSection, KitStat, KitStatus, KitThumb, kit } from "@/components/studio-page";
+import { Icon } from "@/components/icon";
 import { PageTabs, TabPanel } from "@/components/page-tabs";
 import { Sheet, SheetButton } from "@/components/page-kit-client";
 import { requireClient } from "@/lib/auth/session";
@@ -49,9 +50,9 @@ export default async function SellingPage({ searchParams }: { searchParams: Prom
   const { t, lang, num } = await dashboardText();
   if (!app || app.appType !== "store") {
     return (
-      <div className="flex flex-col gap-6">
-        <PageHeader title={t("selling.title")} description={t("selling.notStore")} />
-      </div>
+      <KitPage>
+        <KitHeader icon="local_shipping" title={t("selling.title")} description={t("selling.notStore")} />
+      </KitPage>
     );
   }
   const store = await getStore();
@@ -131,7 +132,7 @@ export default async function SellingPage({ searchParams }: { searchParams: Prom
   const startersOf = Object.fromEntries(Object.entries(STARTER_CITIES).map(([code, cities]) => [code, cities.map((c) => (c as Record<string, string>)[lang] ?? c.en).join(", ")]));
   const noWeight = source.kind === "catalog" && settings.weightPricing ? products.filter((p) => p.active && !p.digital && !p.weightGrams).length : 0;
   const saleState = (s: StoreFlashSale) =>
-    !s.active ? <Badge tone="neutral">{t("selling.turnOff")}</Badge> : unitsLeft(s) === 0 ? <Badge tone="warn">{t("selling.soldOut")}</Badge> : saleOn(s, now) ? <Badge tone="success">{t("selling.live")}</Badge> : s.endsAt <= now ? <Badge tone="neutral">{t("selling.ended")}</Badge> : <Badge tone="info">{t("selling.scheduled", { date: formatDate(s.startsAt, lang) })}</Badge>;
+    !s.active ? <KitStatus tone="neutral">{t("selling.turnOff")}</KitStatus> : unitsLeft(s) === 0 ? <KitStatus tone="warn">{t("selling.soldOut")}</KitStatus> : saleOn(s, now) ? <KitStatus tone="success">{t("selling.live")}</KitStatus> : s.endsAt <= now ? <KitStatus tone="neutral">{t("selling.ended")}</KitStatus> : <KitStatus tone="info">{t("selling.scheduled", { date: formatDate(s.startsAt, lang) })}</KitStatus>;
   const saleValues = (s: StoreFlashSale): Record<string, string> => ({
     title: s.title,
     productIds: s.productIds.join(","),
@@ -163,20 +164,66 @@ export default async function SellingPage({ searchParams }: { searchParams: Prom
   ];
   const tab = tabs.some((x) => x.id === asked) ? asked : tabs[0]!.id;
 
-  return (
-    <div className="flex flex-col gap-6" data-selling-page={source.kind}>
-      <PageHeader title={t("selling.title")} description={t("selling.intro")} />
+  const live = sales.filter((s) => s.active && saleOn(s, now) && unitsLeft(s) !== 0).length;
+  // Where each part applies, honestly, per source: a platform's in sight, the others behind "?".
+  const sourceNote =
+    source.kind === "catalog" ? t("selling.srcCatalog") : source.kind === "wordpress" ? t("selling.srcWordpress") : source.kind === "own_api" ? richText(t("selling.srcOwnApi"), { link: (chunk) => <Link href={`${localePath(lang, "/developers")}#store`}>{chunk}</Link> }) : null;
+  const statValue = (text: string) => <span className="text-[19px] leading-snug tracking-normal">{text}</span>;
 
-      {/* Where each part applies, honestly, per source. */}
-      {source.kind === "catalog" ? <Notice tone="info">{t("selling.srcCatalog")}</Notice> : null}
+  // 132.135 The premium kit: the header with its one main action, what the shop does now in one hero card with the next step, then each part in its tab.
+  return (
+    <KitPage data-selling-page={source.kind}>
+      <KitHeader
+          icon="local_shipping"
+          title={t("selling.title")}
+          description={t("studioPage.sellingLine")}
+          help={
+            <span className="flex flex-col gap-2">
+              <span>{t("selling.intro")}</span>
+              {sourceNote ? <span>{sourceNote}</span> : null}
+            </span>
+          }
+          helpLabel={t("studioPage.help")}
+          actions={
+            hosted ? (
+              <SheetButton target="new-flash" variant="main" className="h-11">
+                {t("selling.addFlash")}
+              </SheetButton>
+            ) : null
+          }
+        />
       {platform ? (
-        <Notice tone="warn" icon="warning">
+        <KitCallout tone="warn" icon="warning">
           {t("selling.srcPlatform", { platform })} {platformCarriesDetails(app) ? t("selling.srcCarries", { platform }) : t("selling.srcRecords", { platform })}
-        </Notice>
+        </KitCallout>
       ) : null}
-      {source.kind === "wordpress" ? <Notice tone="info">{t("selling.srcWordpress")}</Notice> : null}
-      {source.kind === "own_api" ? (
-        <Notice tone="info">{richText(t("selling.srcOwnApi"), { link: (chunk) => <Link href={`${localePath(lang, "/developers")}#store`}>{chunk}</Link> })}</Notice>
+
+      {hosted ? (
+        <KitHero
+          label={t("selling.title")}
+          stats={
+            <>
+              <KitStat icon={mode === "gift" ? "redeem" : "shopping_cart"} label={t("selling.checkoutTitle")} value={statValue(mode === "gift" ? t("selling.modeGift") : t("selling.modeStandard"))} />
+              <KitStat icon="schedule" tone={delivery.enabled ? "success" : "neutral"} label={t("studioPage.deliveryDays")} value={statValue(delivery.enabled ? t("common.on") : t("common.off"))} />
+              <KitStat icon="bolt" tone="accent" label={t("selling.flashTitle")} value={num(live)} hint={t("selling.live")} />
+              <KitStat icon="edit_note" label={t("selling.messagesTitle")} value={num(templatesCount)} hint={t("studioPage.occasions", { count: occasions.length })} href="/dashboard/selling/messages" />
+            </>
+          }
+          next={
+            delivery.enabled ? undefined : (
+              <KitNext
+                icon="schedule"
+                action={
+                  <button type="button" aria-controls="h-delivery" className={kit.quiet}>
+                    {t("studioPage.sellingSetDelivery")}
+                  </button>
+                }
+              >
+                {t("studioPage.sellingNoDelivery")}
+              </KitNext>
+            )
+          }
+        />
       ) : null}
 
       {/* 132.25 Each part in its tab (those the source uses): the checkout, delivery times, where it goes and its fees, gifts and card messages, add-ons, flash sales and codes, and the deliveries a platform's shop gets. */}
@@ -184,96 +231,102 @@ export default async function SellingPage({ searchParams }: { searchParams: Prom
         {hosted || titled ? (
           <TabPanel tab="checkout">
             {hosted ? (
-                <Section titleId="h-checkout" title={t("selling.checkoutTitle")} description={t("selling.checkoutIntro")}>
-                  {look?.mode === "gift" ? <Notice tone="info">{t("selling.lookGift")}</Notice> : null}
-                  <CheckoutModeForm mode={gifts.checkout === "gift" ? "gift" : "standard"} />
-                </Section>
+              <KitSection titleId="h-checkout" title={t("selling.checkoutTitle")} description={t("selling.checkoutIntro")}>
+                {look?.mode === "gift" ? <KitCallout icon="info">{t("selling.lookGift")}</KitCallout> : null}
+                <CheckoutModeForm mode={gifts.checkout === "gift" ? "gift" : "standard"} />
+              </KitSection>
             ) : null}
             {titled ? (
-              <Section titleId="h-titles" title={t("selling.titlesTitle")} description={t("selling.titlesIntro")}>
+              <KitSection titleId="h-titles" title={t("selling.titlesTitle")} description={t("selling.titlesIntro")}>
                 <TitlesForm values={titleValues} languages={langs} />
-              </Section>
+              </KitSection>
             ) : null}
           </TabPanel>
         ) : null}
         {hosted ? (
           <TabPanel tab="delivery">
-            <Section titleId="h-delivery" title={t("selling.deliveryTitle")} description={t("selling.deliveryIntro")}>
-              {mode === "gift" ? <p className="m-0 text-[13px] text-muted">{t("selling.giftForces")}</p> : null}
+            <KitSection titleId="h-delivery" title={t("selling.deliveryTitle")} description={t("selling.deliveryIntro")}>
+              {mode === "gift" ? <p className="m-0 text-[13px] text-(--sp-muted)">{t("selling.giftForces")}</p> : null}
               <DeliveryForm values={deliveryValues} currency={currency} timezones={TIMEZONES.includes(delivery.timezone) ? TIMEZONES : [delivery.timezone, ...TIMEZONES]} weekdays={weekdays} feesNote={platform ? t("selling.feesPlatform", { platform }) : null} />
-            </Section>
+            </KitSection>
           </TabPanel>
         ) : null}
         {hosted ? (
           <TabPanel tab="areas">
-            <Section titleId="h-areas" title={t("selling.areasTitle")} description={t("selling.areasIntro")}>
-              {platform ? <Notice tone="warn" icon="warning">{t("selling.shippingPlatform", { platform })}</Notice> : null}
-              {settings.freeShippingOverCents !== null ? <p className="m-0 text-[13px] text-muted">{t("selling.freeOver", { amount: money(settings.freeShippingOverCents) })}</p> : null}
-              {noWeight > 0 ? <Notice tone="warn" icon="warning">{t("selling.needsWeights", { count: noWeight })}</Notice> : null}
+            <KitSection titleId="h-areas" title={t("selling.areasTitle")} description={t("selling.areasIntro")}>
+              {platform ? (
+                <KitCallout tone="warn" icon="warning">
+                  {t("selling.shippingPlatform", { platform })}
+                </KitCallout>
+              ) : null}
+              {settings.freeShippingOverCents !== null ? <p className="m-0 text-[13px] text-(--sp-muted)">{t("selling.freeOver", { amount: money(settings.freeShippingOverCents) })}</p> : null}
+              {noWeight > 0 ? (
+                <KitCallout tone="warn" icon="warning">
+                  {t("selling.needsWeights", { count: noWeight })}
+                </KitCallout>
+              ) : null}
               <AreasForm values={areaValues} currency={currency} countries={Object.keys(SHIPPING_COUNTRIES).map((code) => ({ code, name: nameOf(code) }))} starters={startersOf} />
-            </Section>
+            </KitSection>
           </TabPanel>
         ) : null}
         <TabPanel tab="gifts">
           {hosted ? (
-              <Section titleId="h-gifts" title={t("selling.giftsTitle")} description={t("selling.giftsIntro")}>
-                <GiftsForm
-                  values={{ message: gifts.message ? "on" : "", maxLength: String(gifts.maxLength), starters: gifts.starters.join("\n"), recipient: gifts.recipient ? "on" : "", anonymous: gifts.anonymous ? "on" : "" }}
-                />
-              </Section>
+            <KitSection titleId="h-gifts" title={t("selling.giftsTitle")} description={t("selling.giftsIntro")}>
+              <GiftsForm
+                values={{ message: gifts.message ? "on" : "", maxLength: String(gifts.maxLength), starters: gifts.starters.join("\n"), recipient: gifts.recipient ? "on" : "", anonymous: gifts.anonymous ? "on" : "" }}
+              />
+            </KitSection>
           ) : null}
-          <Section
-            titleId="h-messages"
-            title={t("selling.messagesTitle")}
-            description={t("selling.messagesIntro")}
-            actions={
-              <Link href="/dashboard/selling/messages" className={`${btn.secondary} h-10`}>
-                {t("selling.messagesOpen")}
-              </Link>
-            }
-          >
-            <p className="m-0 text-[15px]" data-messages-count="">
-              {t("selling.messagesCount", { occasions: occasions.length, messages: templatesCount })}
-            </p>
-          </Section>
+          <KitSection titleId="h-messages" title={t("selling.messagesTitle")} help={t("selling.messagesIntro")} helpLabel={t("studioPage.helpSection")} flush>
+            <KitList>
+              <KitRow
+                href="/dashboard/selling/messages"
+                media={<KitThumb icon="edit_note" />}
+                title={t("selling.messagesOpen")}
+                meta={
+                  <span data-messages-count="">
+                    {t("selling.messagesCount", { occasions: occasions.length, messages: templatesCount })}
+                  </span>
+                }
+              />
+            </KitList>
+          </KitSection>
         </TabPanel>
         {titled ? (
           <TabPanel tab="addons">
             {/* 131 Gift add-ons: "Add a little more" with the products they go with. */}
-            {titled ? (
-              <Section titleId="h-addons" title={t("selling.addonsTitle")} description={t("selling.addonsIntro")}>
-                {source.kind === "catalog" ? (
-                  <>
-                    <Notice tone="info">{richText(t("selling.addonsCatalog"), { link: (chunk) => <Link href="/dashboard/catalog">{chunk}</Link> })}</Notice>
-                    <p className="m-0 text-[15px]" data-addons-count="">
-                      {ownAddons.length ? t("selling.addonsCount", { count: ownAddons.length, names: ownAddons.slice(0, 5).map((p) => p.name).join(", ") }) : t("selling.addonsNone")}
-                    </p>
-                  </>
-                ) : null}
-                {source.kind === "wordpress" ? <Notice tone="info">{t("selling.addonsWordpress")}</Notice> : null}
-                {platform ? (
-                  <>
-                    <Notice tone="warn" icon="warning">
-                      {t("selling.addonsPlatform", { platform })}
-                    </Notice>
-                    <AddonsForm values={addonValues} tags={app.connector?.kind === "shopify"} platform={platform} />
-                  </>
-                ) : null}
-              </Section>
-            ) : null}
+            <KitSection titleId="h-addons" title={t("selling.addonsTitle")} description={t("selling.addonsIntro")}>
+              {source.kind === "catalog" ? (
+                <>
+                  <KitCallout icon="info">{richText(t("selling.addonsCatalog"), { link: (chunk) => <Link href="/dashboard/catalog">{chunk}</Link> })}</KitCallout>
+                  <p className="m-0 text-[15px]" data-addons-count="">
+                    {ownAddons.length ? t("selling.addonsCount", { count: ownAddons.length, names: ownAddons.slice(0, 5).map((p) => p.name).join(", ") }) : t("selling.addonsNone")}
+                  </p>
+                </>
+              ) : null}
+              {source.kind === "wordpress" ? <KitCallout icon="info">{t("selling.addonsWordpress")}</KitCallout> : null}
+              {platform ? (
+                <>
+                  <KitCallout tone="warn" icon="warning">
+                    {t("selling.addonsPlatform", { platform })}
+                  </KitCallout>
+                  <AddonsForm values={addonValues} tags={app.connector?.kind === "shopify"} platform={platform} />
+                </>
+              ) : null}
+            </KitSection>
           </TabPanel>
         ) : null}
         {offers ? (
           <TabPanel tab="flash">
             {hosted ? (
               <>
-                <Section
+                <KitSection
                   titleId="h-flash"
                   title={t("selling.flashTitle")}
                   description={t("selling.flashIntro")}
                   actions={
                     sales.length ? (
-                      <SheetButton target="new-flash" variant="secondary" className="h-10">
+                      <SheetButton target="new-flash" variant="pill" className="h-9">
                         {t("selling.addFlash")}
                       </SheetButton>
                     ) : null
@@ -281,58 +334,60 @@ export default async function SellingPage({ searchParams }: { searchParams: Prom
                   flush
                 >
                   {sales.length ? (
-                    <ItemList>
-                      {sales.map((s, i) => (
-                        <ItemRow
+                    <KitList>
+                      {sales.map((s) => (
+                        <KitRow
                           key={s.id}
                           data-flash-sale={s.id}
-                          media={<Thumb icon="bolt" shape="square" tint={i + 2} />}
+                          media={<KitThumb icon="bolt" />}
                           title={s.title}
-                          badges={
-                            <>
-                              {saleState(s)}
-                              {platform && !s.platformCode ? <Badge tone="warn">{t("selling.platformCode", { platform })}</Badge> : null}
-                            </>
-                          }
                           meta={[
                             s.discount.kind === "percent" ? `−${num(s.discount.percent)}%` : money(s.discount.cents),
                             `${formatDate(s.startsAt, lang)} – ${formatDate(s.endsAt, lang)}`,
                             s.limit !== null ? t("selling.soldOf", { sold: num(s.sold), limit: num(s.limit) }) : t("selling.soldCount", { sold: num(s.sold) }),
                           ].join(" · ")}
+                          aside={
+                            <>
+                              {saleState(s)}
+                              {platform && !s.platformCode ? <KitStatus tone="warn">{t("selling.platformCode", { platform })}</KitStatus> : null}
+                            </>
+                          }
                           actions={
                             <>
-                              <SheetButton target={`flash-${s.id}`} variant="secondary" className="h-9 px-3.5 text-sm">
+                              <SheetButton target={`flash-${s.id}`} variant="pill" className="h-9" icon="edit">
                                 {t("shop.couponEdit")}
                               </SheetButton>
-                              <form action={changeFlashSaleAction}>
-                                <input type="hidden" name="id" value={s.id} />
-                                <input type="hidden" name="change" value={s.active ? "off" : "on"} />
-                                <SubmitButton variant="secondary" className="h-9 px-3.5 text-sm">
-                                  {s.active ? t("selling.turnOff") : t("selling.turnOn")}
-                                </SubmitButton>
-                              </form>
-                              <form action={changeFlashSaleAction}>
-                                <input type="hidden" name="id" value={s.id} />
-                                <input type="hidden" name="change" value="delete" />
-                                <SubmitButton variant="danger" className="h-9 px-3.5 text-sm">
-                                  {t("common.delete")}
-                                </SubmitButton>
-                              </form>
+                              <KitMore label={t("studioPage.more")}>
+                                <form action={changeFlashSaleAction} className="flex">
+                                  <input type="hidden" name="id" value={s.id} />
+                                  <input type="hidden" name="change" value={s.active ? "off" : "on"} />
+                                  <SubmitButton variant="menu" className="h-10">
+                                    <Icon name={s.active ? "pause_circle" : "play_circle"} size={18} />
+                                    {s.active ? t("selling.turnOff") : t("selling.turnOn")}
+                                  </SubmitButton>
+                                </form>
+                                <form action={changeFlashSaleAction} className="flex">
+                                  <input type="hidden" name="id" value={s.id} />
+                                  <input type="hidden" name="change" value="delete" />
+                                  <SubmitButton variant="menu" className="h-10 text-danger hover:text-danger">
+                                    <Icon name="delete" size={18} />
+                                    {t("common.delete")}
+                                  </SubmitButton>
+                                </form>
+                              </KitMore>
                             </>
                           }
                         />
                       ))}
-                    </ItemList>
+                    </KitList>
                   ) : (
-                    <div className="p-5 sm:p-6">
-                      <EmptyState icon="bolt" title={t("selling.noFlash")} />
-                    </div>
+                    <KitEmpty icon="bolt" title={t("selling.noFlash")} />
                   )}
-                </Section>
+                </KitSection>
                 {platform && sales.some((s) => !s.platformCode) ? (
-                  <Notice tone="warn" icon="warning">
+                  <KitCallout tone="warn" icon="warning">
                     {t("selling.platformNoCode", { platform })}
-                  </Notice>
+                  </KitCallout>
                 ) : null}
                 <Sheet id="new-flash" inline={!sales.length} title={t("selling.addFlash")}>
                   <FlashSaleForm currency={currency} zone={zone} products={flashProducts} categories={flashCategories} platform={platform} languages={otherLangs} />
@@ -344,62 +399,55 @@ export default async function SellingPage({ searchParams }: { searchParams: Prom
                 ))}
               </>
             ) : source.kind === "wordpress" ? (
-              <Notice tone="info">{t("selling.flashWordpress")}</Notice>
+              <KitCallout icon="info">{t("selling.flashWordpress")}</KitCallout>
             ) : null}
-            <section aria-labelledby="h-codes" className="flex flex-col gap-4">
-              <h2 id="h-codes" className="m-0 text-lg font-bold">
-                {t("selling.couponsTitle")}
-              </h2>
-              {source.kind === "catalog" ? <Notice tone="info">{richText(t("selling.couponsCatalog"), { link: (chunk) => <Link href="/dashboard/catalog/coupons">{chunk}</Link> })}</Notice> : null}
-              {source.kind === "wordpress" ? <Notice tone="info">{t("selling.couponsWordpress")}</Notice> : null}
+            <KitSection titleId="h-codes" title={t("selling.couponsTitle")}>
+              {source.kind === "catalog" ? <KitCallout icon="local_offer">{richText(t("selling.couponsCatalog"), { link: (chunk) => <Link href="/dashboard/catalog/coupons">{chunk}</Link> })}</KitCallout> : null}
+              {source.kind === "wordpress" ? <KitCallout icon="local_offer">{t("selling.couponsWordpress")}</KitCallout> : null}
               {platform ? (
                 <>
-                  <Notice tone="warn" icon="warning">
+                  <KitCallout tone="warn" icon="warning">
                     {t("selling.couponsPlatform", { platform })}
-                  </Notice>
+                  </KitCallout>
                   <CouponsPanel coupons={coupons} currency={currency} />
                 </>
               ) : null}
-            </section>
+            </KitSection>
           </TabPanel>
         ) : null}
         {platform ? (
           <TabPanel tab="deliveries">
-            {platform ? (
-              <Section titleId="h-deliveries" title={t("selling.deliveriesTitle")} description={t("selling.deliveriesIntro", { platform })} flush>
-                {deliveries.length ? (
-                  <ItemList>
-                    {deliveries.map((d, i) => (
-                      <ItemRow
-                        key={d.id}
-                        data-store-delivery={d.id}
-                        media={<Thumb icon="local_shipping" shape="square" tint={i} />}
-                        title={d.delivery.recipient ? `${t("selling.recipientLabel")}: ${d.delivery.recipient.name} · ${d.delivery.recipient.phone}` : (d.buyer.name ?? d.buyer.phone ?? "—")}
-                        badges={d.passed ? <Badge tone="success">{t("selling.passed", { platform })}</Badge> : <Badge tone="neutral">{t("selling.notPassed")}</Badge>}
-                        meta={[
-                          d.delivery.date ? `${t("selling.when")}: ${d.delivery.date}${d.delivery.slot ? ` ${slotLabel(d.delivery.slot)}` : ""}` : null,
-                          d.delivery.sender ? `${t("selling.sender")}: ${d.delivery.sender.name} · ${d.delivery.sender.phone} · ${d.delivery.sender.email}` : null,
-                          d.delivery.recipient?.address ?? null,
-                          d.delivery.message ? `${t("selling.card")}: ${d.delivery.message}` : null,
-                          d.delivery.anonymous ? t("selling.anonymousYes") : null,
-                          d.lines.join(", "),
-                          formatDate(d.createdAt, lang),
-                        ]
-                          .filter(Boolean)
-                          .join(" · ")}
-                      />
-                    ))}
-                  </ItemList>
-                ) : (
-                  <div className="p-5 sm:p-6">
-                    <EmptyState icon="local_shipping" title={t("selling.noDeliveries")} />
-                  </div>
-                )}
-              </Section>
-            ) : null}
+            <KitSection titleId="h-deliveries" title={t("selling.deliveriesTitle")} description={t("selling.deliveriesIntro", { platform })} flush>
+              {deliveries.length ? (
+                <KitList>
+                  {deliveries.map((d) => (
+                    <KitRow
+                      key={d.id}
+                      data-store-delivery={d.id}
+                      media={<KitThumb icon="local_shipping" />}
+                      title={d.delivery.recipient ? `${t("selling.recipientLabel")}: ${d.delivery.recipient.name} · ${d.delivery.recipient.phone}` : (d.buyer.name ?? d.buyer.phone ?? "—")}
+                      aside={d.passed ? <KitStatus tone="success">{t("selling.passed", { platform })}</KitStatus> : <KitStatus tone="neutral">{t("selling.notPassed")}</KitStatus>}
+                      meta={[
+                        d.delivery.date ? `${t("selling.when")}: ${d.delivery.date}${d.delivery.slot ? ` ${slotLabel(d.delivery.slot)}` : ""}` : null,
+                        d.delivery.sender ? `${t("selling.sender")}: ${d.delivery.sender.name} · ${d.delivery.sender.phone} · ${d.delivery.sender.email}` : null,
+                        d.delivery.recipient?.address ?? null,
+                        d.delivery.message ? `${t("selling.card")}: ${d.delivery.message}` : null,
+                        d.delivery.anonymous ? t("selling.anonymousYes") : null,
+                        d.lines.join(", "),
+                        formatDate(d.createdAt, lang),
+                      ]
+                        .filter(Boolean)
+                        .join(" · ")}
+                    />
+                  ))}
+                </KitList>
+              ) : (
+                <KitEmpty icon="local_shipping" title={t("selling.noDeliveries")} />
+              )}
+            </KitSection>
           </TabPanel>
         ) : null}
       </PageTabs>
-    </div>
+    </KitPage>
   );
 }

@@ -60,10 +60,10 @@ export const kit = {
   chipCount: (on: boolean) => `rounded-full px-1.5 text-xs tabular-nums ${on ? "bg-white/20" : "bg-(--sp-soft) text-(--sp-muted)"}`,
 } as const;
 
-/** The page: its width and its rhythm. */
-export function KitPage({ children }: { children: ReactNode }) {
+/** The page: its width and its rhythm (and the page's own `data-…`, 132.135). */
+export function KitPage({ children, ...data }: { children: ReactNode } & DataAttributes) {
   return (
-    <div data-kit-page="" className="mx-auto flex w-full max-w-[1120px] min-w-0 flex-col gap-6 lg:gap-8">
+    <div {...data} data-kit-page="" className="mx-auto flex w-full max-w-[1120px] min-w-0 flex-col gap-6 lg:gap-8">
       {children}
     </div>
   );
