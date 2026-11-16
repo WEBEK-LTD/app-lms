@@ -127,7 +127,7 @@ async function pay(customer: Page, request: import("@playwright/test").APIReques
   await customer.getByLabel("Address").fill("Bağdat Caddesi 12, Kadıköy");
   await customer.getByRole("button", { name: /^Pay / }).click();
   // The site priced its shipping for the address: the customer sees the new total before paying.
-  await expect(customer.getByRole("alert")).toContainText("With the shipping and tax for your address, the total is ₺1,075.00. Check it, then tap Pay.");
+  await expect(customer.getByText("With the shipping and tax for your address, the total is ₺1,075.00. Check it, then tap Pay.")).toBeVisible();
   await expect(customer.getByText("Shipping", { exact: true })).toBeVisible();
   await customer.getByRole("button", { name: "Pay ₺1,075.00" }).click();
   await customer.getByRole("button", { name: "Pay with test card" }).click();
@@ -190,7 +190,9 @@ test("a WooCommerce store's customers pay inside the app: the owner's Stripe, th
   await expect(how.getByRole("radio", { name: /Pay inside the app/ })).toBeDisabled();
   // Test connection with the saved keys (the fields left empty) passes: now it can be chosen.
   await payments.getByRole("button", { name: "Test connection" }).click();
-  await expect(payments.getByTestId("gateway-test-results").locator('li[data-tone="fail"]')).toHaveCount(0);
+  const results = payments.getByTestId("gateway-test-results");
+  await expect(results).toContainText("Stripe account: Lale Flowers");
+  await expect(results.locator('li[data-tone="fail"]')).toHaveCount(0);
   await page.reload();
   await expect(how.locator("[data-gateway-state]")).toHaveAttribute("data-gateway-state", "tested");
   await how.getByRole("radio", { name: /Pay inside the app/ }).check();
