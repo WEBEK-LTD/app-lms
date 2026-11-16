@@ -326,8 +326,11 @@ test("the designer can't get their own template, and the market's pages read in 
   await expect(dz.getByRole("button", { name: "Apply to my app" })).toHaveCount(0);
   // Arabic, right to left, with the market's Arabic name.
   await own.goto("/dashboard/studio-market");
-  await own.getByRole("button", { name: "العربية" }).first().click();
-  await expect(own.locator("html")).toHaveAttribute("dir", "rtl");
+  // A click before the page is ready does nothing, so it is tried again.
+  await expect(async () => {
+    await own.getByRole("button", { name: "العربية" }).first().click();
+    await expect(own.locator("html")).toHaveAttribute("dir", "rtl", { timeout: 5_000 });
+  }).toPass({ timeout: 30_000 });
   await expect(own.getByRole("heading", { name: "تصميمات تستاهل تتفتح." })).toBeVisible();
   await expect(own.getByRole("link", { name: /ماركت Studio/ }).first()).toBeVisible();
   await own.getByRole("button", { name: "English" }).first().click();
