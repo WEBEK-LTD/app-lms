@@ -10,6 +10,7 @@ import { MediaImagesPicker } from "@/components/media-picker";
 import { useDashLang, useDashT } from "@/components/dashboard-i18n";
 import { SaveBar, SortableList, useDirtyForm, useLeaveGuard } from "@/components/manage-kit-client";
 import { CopyButton } from "@/components/copy-button";
+import { parsePrice } from "@/lib/catalog/money";
 import { initialFormState } from "@/lib/forms";
 import { richText } from "@/i18n/rich";
 import { AddonFields, Check, OptionGroupsEditor, VariantsEditor, type ProductFormValues } from "./forms";
@@ -36,9 +37,9 @@ function Card({ id, icon, title, description, children }: { id: string; icon: Ic
 }
 
 /** "450", "450.50" or "450,50" in cents; anything else null. */
-function centsOf(text: string): number | null {
-  const t = text.trim().replace(",", ".");
-  return /^\d{1,7}(\.\d{1,2})?$/.test(t) ? Math.round(Number(t) * 100) : null;
+/** 133.2 A typed price in cents, with the currency's digits (as the server reads it). */
+function centsOf(text: string, currency?: string): number | null {
+  return text.trim() === "" ? null : parsePrice(text, currency);
 }
 
 /**
@@ -236,8 +237,8 @@ export function ProductEditor({
       return `${(cents / 100).toFixed(2)} ${currency}`;
     }
   };
-  const priceCents = centsOf(price);
-  const saleCents = centsOf(sale);
+  const priceCents = centsOf(price, currency);
+  const saleCents = centsOf(sale, currency);
   const onSale = priceCents !== null && saleCents !== null && saleCents < priceCents && priceCents > 0;
   const sections: { id: string; label: string; icon: IconName }[] = [
     { id: "p-details", label: t("common.details"), icon: "edit_note" },

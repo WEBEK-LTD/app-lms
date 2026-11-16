@@ -855,7 +855,7 @@ export async function saveMapsSettingAction(_: FormState, formData: FormData): P
 // 133.6 Currencies: the day's rates (read now) and the team's own rates.
 
 /** "Refresh now": reads the day's rates from the source at once; the last good ones stay when it fails. */
-export async function refreshRatesAction(_: FormState): Promise<FormState> {
+export async function refreshRatesAction(): Promise<FormState> {
   const admin = await requireAdmin("settings.edit");
   const store = await getStore();
   const result = await refreshRates({ store, now: new Date(), by: admin.email });
