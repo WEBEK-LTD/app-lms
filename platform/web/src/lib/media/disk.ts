@@ -3,7 +3,7 @@ import { copyFile, mkdir, readdir, rename, rm, stat, truncate } from "node:fs/pr
 import path from "node:path";
 import { Readable } from "node:stream";
 import { pipeline } from "node:stream/promises";
-import { MEDIA_CHUNK_MAX_BYTES, MEDIA_CONTENT_TYPES, MEDIA_DOWNLOAD_ONLY, parseRange, verifyMediaRequest, type MediaExtension } from "./signing";
+import { MEDIA_CHUNK_MAX_BYTES, MEDIA_CONTENT_TYPES, MEDIA_DOWNLOAD_ONLY, mediaPolicy, parseRange, verifyMediaRequest, type MediaExtension } from "./signing";
 
 /**
  * 51 The media gate's work on a folder: what deploy/media-host/index.php
@@ -165,7 +165,7 @@ export async function handleMediaRequest(disk: MediaDisk, request: Request, path
       "cache-control": "private, max-age=3600",
       "x-content-type-options": "nosniff",
       "referrer-policy": "no-referrer",
-      "content-security-policy": "default-src 'none'; img-src 'self' data:; media-src 'self'; style-src 'unsafe-inline'; sandbox",
+      "content-security-policy": mediaPolicy(check.extension as MediaExtension),
       ...(read.status === 206 ? { "content-range": `bytes ${read.start}-${read.end}/${read.size}` } : {}),
       ...(check.params.dl === "1" || MEDIA_DOWNLOAD_ONLY.has(check.extension as MediaExtension) ? { "content-disposition": `attachment; filename="${check.mediaId}.${check.extension}"` } : {}),
     };

@@ -18,7 +18,7 @@ import { handleMediaRequest, MediaDisk } from "@/lib/media/disk";
 import { cancelStaleUploads, cleanName, completeUpload, deleteMedia, kindOf, mediaLink, parseMediaLink, resolveMedia, startUpload } from "@/lib/media/files";
 import { applyPaidPacks, cannotBuy, cardOffers, monthlyOffer, monthsLeft, packOffers, packPrice, renewablePacks, renewalLabel, startStoragePayment } from "@/lib/media/packs";
 import { activePacks, fits, formatBytes, GB, storageLimitBytes, storageState } from "@/lib/media/quota";
-import { MEDIA_CHUNK_BYTES, MEDIA_CHUNK_MAX_BYTES, mediaSignature, mediaTokenDigest, parseRange, signMediaUrl, storageKeyOf, verifyMediaRequest } from "@/lib/media/signing";
+import { MEDIA_CHUNK_BYTES, MEDIA_CHUNK_MAX_BYTES, mediaPolicy, mediaSignature, mediaTokenDigest, parseRange, signMediaUrl, storageKeyOf, verifyMediaRequest } from "@/lib/media/signing";
 import { mediaStorageWith, type MediaStorage } from "@/lib/media/storage";
 import { chunkOutcome, chunkUrl, failureOf, FRESH_LINKS_IN_A_ROW, offsetOf } from "@/lib/media/upload-client";
 import { appStorage, noticeEndedPacks } from "@/lib/media/usage";
@@ -124,6 +124,9 @@ function gateProtocol(name: string, gate: () => { base: string; request: (url: s
       const whole = await request(play);
       expect(whole.status).toBe(200);
       expect(whole.headers.get("content-type")).toBe("video/mp4");
+      // 132.147 A video isn't sandboxed: the browser's own player plays it when it's opened on its own.
+      expect(whole.headers.get("content-security-policy")).toBe(mediaPolicy("mp4"));
+      expect(whole.headers.get("content-security-policy")).not.toContain("sandbox");
       expect(whole.headers.get("accept-ranges")).toBe("bytes");
       expect(Buffer.from(await whole.arrayBuffer()).equals(data)).toBe(true);
       const part = await request(play, { headers: { range: "bytes=1000-1999" } });
@@ -329,6 +332,18 @@ const php = spawnSync("php", ["--version"]).status === 0;
     it.skip("the media gate in PHP: PHP isn't installed here", () => undefined);
   }
 }
+
+describe("132.147 what the gate lets an opened file do", () => {
+  it("runs nothing; sandboxes pictures, PDFs and documents, but not what the browser's player plays", () => {
+    for (const ext of ["jpg", "png", "webp", "gif", "pdf", "docx", "txt"] as const) {
+      expect(mediaPolicy(ext)).toMatch(/^default-src 'none';.*; sandbox$/);
+    }
+    for (const ext of ["mp4", "mov", "webm", "m4a", "mp3", "aac"] as const) {
+      expect(mediaPolicy(ext)).toMatch(/^default-src 'none';/);
+      expect(mediaPolicy(ext)).not.toContain("sandbox");
+    }
+  });
+});
 
 describe("64b uploads behind a server firewall", () => {
   it("the uploader's offset and what it does with each answer", () => {
