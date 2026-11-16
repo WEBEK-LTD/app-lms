@@ -316,6 +316,10 @@ class HttpOwnerApi implements OwnerApi {
   );
 
   @override
+  Future<Order> markRefunded(String appId, int orderId) async =>
+      Order.fromJson(await _post('${_app(appId)}/orders/$orderId/refund-done'));
+
+  @override
   Future<Order> setOrderStage(
     String appId,
     int orderId,

@@ -229,6 +229,18 @@ class _OrderBody extends ConsumerWidget {
           ),
           Panel(child: StageTimeline(order: order)),
         ],
+        // 132 The money back after a failed delivery cancelled it.
+        if (order.refundDue != null) ...[
+          SectionTitle(
+            l10n.refund,
+            trailing: order.needsRefund
+                ? StatusChip(l10n.needsRefund, tone: Tone.warn)
+                : null,
+          ),
+          Panel(
+            child: RefundDuePanel(order: order, onChanged: changed),
+          ),
+        ],
         if (d != null && d.hasCard) ...[
           SectionTitle(l10n.giftCardTitle),
           Panel(
@@ -310,7 +322,7 @@ class _OrderBody extends ConsumerWidget {
             ),
           ),
         ],
-        if (refund != null) ...[
+        if (refund != null && order.refundDue == null) ...[
           SectionTitle(l10n.refund),
           Panel(
             child: refund.refundable

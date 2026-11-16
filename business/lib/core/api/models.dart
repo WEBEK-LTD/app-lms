@@ -1401,6 +1401,7 @@ class Order {
     this.stage,
     this.stageHistory = const [],
     this.nextStages = const [],
+    this.refundDue,
   });
 
   factory Order.fromJson(Json json) {
@@ -1436,6 +1437,7 @@ class Order {
       stage: stage == null ? null : OrderStage.fromJson(stage),
       stageHistory: listOf(json, 'stage_history', OrderStage.fromJson),
       nextStages: strings(json, 'next_stages'),
+      refundDue: RefundDue.opt(json, 'refund_due'),
     );
   }
 
@@ -1481,6 +1483,12 @@ class Order {
   /// 132 The stages it may move to now (shipped, postponed, failed…).
   final List<String> nextStages;
 
+  /// 132 The customer's money after a failed delivery cancelled it.
+  final RefundDue? refundDue;
+
+  /// 132 The owner still has to pay the customer back.
+  bool get needsRefund => refundDue?.status == 'needed';
+
   int get itemCount => lines.fold(0, (sum, line) => sum + line.quantity);
 
   /// 132 Who ordered: the customer, else the gift's sender.
@@ -1500,6 +1508,7 @@ class Order {
     List<OrderStage>? stageHistory,
     List<String>? nextStages,
     OrderDelivery? delivery,
+    RefundDue? refundDue,
   }) => Order(
     id: id,
     number: number,
@@ -1523,7 +1532,48 @@ class Order {
     stage: stage ?? this.stage,
     stageHistory: stageHistory ?? this.stageHistory,
     nextStages: nextStages ?? this.nextStages,
+    refundDue: refundDue ?? this.refundDue,
   );
+}
+
+/// 132 The customer's money after a failed delivery ended with the order
+/// cancelled: refunded at once, or needed (the owner pays it back), then
+/// recorded.
+class RefundDue {
+  const RefundDue({
+    required this.status,
+    required this.amount,
+    required this.at,
+    this.why,
+    this.whyCode,
+    this.doneAt,
+    this.doneBy,
+  });
+
+  static RefundDue? opt(Json json, String key) {
+    final o = optObject(json, key);
+    if (o == null) return null;
+    return RefundDue(
+      status: str(o, 'status'),
+      amount: Money.fromJson(optObject(o, 'amount') ?? const {}),
+      at: date(o, 'at'),
+      why: optStr(o, 'why'),
+      whyCode: optStr(o, 'why_code'),
+      doneAt: optDate(o, 'done_at'),
+      doneBy: optStr(o, 'done_by'),
+    );
+  }
+
+  /// refunded, needed or recorded.
+  final String status;
+  final Money amount;
+  final DateTime at;
+  final String? why;
+
+  /// paid_outside, no_provider or provider_refused (then [why] is the provider's answer).
+  final String? whyCode;
+  final DateTime? doneAt;
+  final String? doneBy;
 }
 
 /// 132 One change of a store order's delivery stage: who, when, why, the

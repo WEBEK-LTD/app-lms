@@ -30,7 +30,7 @@ class RatingReplyBox extends ConsumerWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
-            context.l10n.ratingReplyFrom('⁨$business⁩'),
+            context.l10n.ratingReplyFrom('\u2068$business\u2069'),
             style: TextStyle(
               fontSize: 13,
               fontWeight: FontWeight.w700,
@@ -39,7 +39,7 @@ class RatingReplyBox extends ConsumerWidget {
           ),
           const SizedBox(height: 4),
           Text(
-            '⁨${reply.text}⁩',
+            '\u2068${reply.text}\u2069',
             style: TextStyle(fontSize: 15, color: p.text),
           ),
         ],

@@ -3515,8 +3515,58 @@ class AppLocalizationsEn extends AppLocalizations {
   String get nextCancel => 'Cancel the order';
 
   @override
-  String get stageCancelNoRefund =>
-      'Cancelling doesn\'t refund it: refund it from the order if it was paid.';
+  String stageCancelRefundsNow(String amount) {
+    return 'Cancelling refunds $amount to the customer now.';
+  }
+
+  @override
+  String stageCancelRefundYou(String amount) {
+    return 'Cancelling marks the order Needs a refund: pay back $amount yourself, then mark it refunded.';
+  }
+
+  @override
+  String get needsRefund => 'Needs a refund';
+
+  @override
+  String get refundWhyOutside =>
+      'It was paid outside the app: pay it back the same way.';
+
+  @override
+  String get refundWhyProvider =>
+      'Its payment provider can\'t refund it from here: refund it in the provider\'s panel.';
+
+  @override
+  String needsRefundText(String amount) {
+    return 'Pay back $amount to the customer, then mark it refunded.';
+  }
+
+  @override
+  String refundedAutoText(String amount) {
+    return '$amount went back to the customer when the order was cancelled.';
+  }
+
+  @override
+  String refundRecordedText(String name) {
+    return 'Marked refunded by $name.';
+  }
+
+  @override
+  String get markRefundedButton => 'I refunded it';
+
+  @override
+  String markRefundedTitle(String order) {
+    return 'Mark $order refunded?';
+  }
+
+  @override
+  String markRefundedText(String amount) {
+    return 'Only if you paid the $amount back yourself. The customer is told.';
+  }
+
+  @override
+  String refundMarkedDone(String order) {
+    return '$order: marked refunded. The customer was told.';
+  }
 
   @override
   String deliveredConfirmTitle(String order) {

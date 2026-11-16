@@ -140,6 +140,9 @@ class OrderCard extends ConsumerWidget {
                   crossAxisAlignment: WrapCrossAlignment.center,
                   children: [
                     Text(order.label, style: theme.textTheme.titleMedium),
+                    // 132 Cancelled after a failed delivery, still to pay back.
+                    if (order.needsRefund)
+                      StatusChip(l10n.needsRefund, tone: Tone.warn),
                     // 132 A store order on its way: its delivery stage.
                     if (order.stage != null && order.status == 'processing')
                       StatusChip(

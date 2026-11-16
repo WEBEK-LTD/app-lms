@@ -167,6 +167,8 @@ export const AUTO_TEXT: Record<AutoKind, Record<Lang, Text>> = {
             ? "Your order was cancelled."
             : v.status === "refunded"
               ? "Your order was refunded."
+              : v.status === "refund_sent"
+                ? `We refunded ${v.amount}. It may take a few days to reach you.`
               : v.status === "delivered"
                 ? "Your order was delivered. Thank you!"
                 : v.status === "postponed"
@@ -188,6 +190,8 @@ export const AUTO_TEXT: Record<AutoKind, Record<Lang, Text>> = {
             ? "تم إلغاء طلبك."
             : v.status === "refunded"
               ? "تم استرداد قيمة طلبك."
+              : v.status === "refund_sent"
+                ? `أعدنا إليك ${v.amount}. قد يستغرق وصول المبلغ بضعة أيام.`
               : v.status === "delivered"
                 ? "تم توصيل طلبك. شكرًا لك!"
                 : v.status === "postponed"
@@ -209,6 +213,8 @@ export const AUTO_TEXT: Record<AutoKind, Record<Lang, Text>> = {
             ? "Siparişiniz iptal edildi."
             : v.status === "refunded"
               ? "Siparişiniz iade edildi."
+              : v.status === "refund_sent"
+                ? `${v.amount} iade edildi. Hesabınıza geçmesi birkaç gün sürebilir.`
               : v.status === "delivered"
                 ? "Siparişiniz teslim edildi. Teşekkürler!"
                 : v.status === "postponed"
@@ -377,6 +383,18 @@ export async function notifyAppointmentConfirmed(deps: AutoDeps, app: App, appoi
       data: { appointment_id: String(appointment.id) },
     },
   ]);
+}
+
+/** 132 The money of an order cancelled after a failed delivery went back: its customer, once. */
+export async function notifyOrderRefund(deps: AutoDeps, app: App, order: Pick<CatalogOrder, "id" | "userId">, amount: string) {
+  if (order.userId === null || !(await appMayNotify(deps.store, app, deps.now))) return { people: 0, phones: 0 };
+  return notifyAuto(
+    deps,
+    app,
+    "order_update",
+    [{ userId: order.userId, ref: `order:${order.id}:refund_sent`, values: { number: orderNumber(order), status: "refund_sent", amount }, data: { order_id: String(order.id) } }],
+    { always: true },
+  );
 }
 
 /** 132 A store order's delivery stage (shipped, postponed, a failed attempt): its customer, once per change. */

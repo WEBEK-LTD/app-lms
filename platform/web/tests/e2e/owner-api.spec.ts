@@ -325,6 +325,11 @@ test("a customer buys in the shop; the owner's phone hears of it, sees today and
   const back = await request.post(`${owner}/apps/${shopId}/orders/${orderId}/stage`, { headers: bearer(), data: { stage: "shipped" } });
   expect(back.status()).toBe(409);
   expect(await back.json()).toMatchObject({ code: "invalid_stage" });
+  // A delivered order owes nothing back.
+  expect(await done.json()).toMatchObject({ refund_due: null });
+  const owed = await request.post(`${owner}/apps/${shopId}/orders/${orderId}/refund-done`, { headers: bearer() });
+  expect(owed.status()).toBe(409);
+  expect(await owed.json()).toMatchObject({ code: "no_refund_due" });
   const again = await request.post(`${owner}/apps/${shopId}/orders/${orderId}/status`, { headers: bearer(), data: { status: "cancelled" } });
   expect(again.status()).toBe(409);
   // The customer's app shows it completed too: the same order in the same store.

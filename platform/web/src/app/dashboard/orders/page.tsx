@@ -1,9 +1,10 @@
 import type { Metadata } from "next";
 import { deliveryDayLabel, deliveryOf, shopToday, slotLabel } from "@/lib/selling/delivery";
 import { followsStages, nextStages } from "@/lib/catalog/order-stages";
+import { stageRefundStatus } from "@/lib/catalog/stage-refunds";
 import { taxLabel } from "@/lib/catalog/tax";
 import Link from "next/link";
-import { decideReturnAction, setOrderStatusAction } from "@/app/actions/catalog";
+import { decideReturnAction, markStageRefundedAction, setOrderStatusAction } from "@/app/actions/catalog";
 import { SubmitButton } from "@/components/form";
 import { Icon } from "@/components/icon";
 import { Badge, EmptyState, PageHeader, Section, btn, formatDateTime } from "@/components/ui";
@@ -121,6 +122,7 @@ export default async function OrdersPage({ searchParams }: { searchParams: Promi
                       </span>
                     </span>
                     <Badge tone={TONES[order.status]}>{order.shipment && order.status === "processing" ? k("Shipped") : k(ORDER_STATUS_LABELS[order.status])}</Badge>
+                    {stageRefundStatus(order) === "needed" ? <Badge tone="warn">{t("orders.needsRefund")}</Badge> : null}
                   </div>
                   <ul className="m-0 flex list-none flex-col gap-1 p-0 text-[15px]">
                     {order.lines.map((l, i) => (
@@ -257,6 +259,26 @@ export default async function OrdersPage({ searchParams }: { searchParams: Promi
                       ) : (
                         <p className="m-0 text-sm text-ink-4">{t("orders.stagesIntro")}</p>
                       )}
+                      {/* 132 The money back after a failed delivery cancelled it. */}
+                      {stageRefundStatus(order) === "needed" ? (
+                        <div className="flex flex-col gap-2 rounded-xl bg-warn-bg p-3 text-[15px]" data-refund-due="needed">
+                          <span className="font-bold">{t("orders.needsRefund")}</span>
+                          <span>{t("orders.needsRefundText", { amount: formatCents(order.stageRefund!.cents, order.currency) })}</span>
+                          {order.stageRefund!.why ? <span className="text-ink-4">{k(order.stageRefund!.why)}</span> : null}
+                          <form action={markStageRefundedAction}>
+                            <input type="hidden" name="id" value={order.id} />
+                            <SubmitButton className="h-9 px-3 text-sm">{t("orders.markRefunded")}</SubmitButton>
+                          </form>
+                        </div>
+                      ) : stageRefundStatus(order) === "refunded" ? (
+                        <p className="m-0 text-[15px] text-success" data-refund-due="refunded">
+                          {t("orders.refundedAuto", { amount: formatCents(order.stageRefund!.cents, order.currency) })}
+                        </p>
+                      ) : stageRefundStatus(order) === "recorded" && order.stageRefund!.doneBy ? (
+                        <p className="m-0 text-[15px] text-muted" data-refund-due="recorded">
+                          {t("orders.refundRecorded", { by: order.stageRefund!.doneBy })}
+                        </p>
+                      ) : null}
                       <StageForms id={order.id} next={nextStages(app, order)} slots={stageSlots} today={shopDay} />
                     </section>
                   ) : null}

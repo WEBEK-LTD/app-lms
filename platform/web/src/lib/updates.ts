@@ -107,6 +107,7 @@ const NOTICE_TOPIC: Record<OwnerNotice["kind"], AccountTopic> = {
   storage_pack_ended: "storage",
   chat_expiring: "chat",
   integration_failed: "site",
+  order_refund_due: "payment",
 };
 
 /** Notice links are full addresses for the emails; in the dashboard they stay on this site. */

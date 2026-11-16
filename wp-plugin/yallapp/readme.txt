@@ -145,7 +145,7 @@ under the Apache License 2.0, included as inline SVG.
 == Changelog ==
 
 = 0.4.46 =
-* Delivery stages for your shop's orders: Shipped, Delivery postponed, Delivery failed and Returned to shop are order statuses in WooCommerce (Completed is delivered). The app shows the stage on the order, with your latest note to the customer as its reason, and tells the customer when their order ships, when its delivery is postponed and when a delivery fails; the order's notes keep what they were told. Apps that don't know the stages yet still show the order as Processing.
+* Delivery stages for your shop's orders: Shipped, Delivery postponed, Delivery failed and Returned to shop are order statuses in WooCommerce (Completed is delivered). The app shows the stage on the order, with your latest note to the customer as its reason, and tells the customer when their order ships, when its delivery is postponed and when a delivery fails; the order's notes keep what they were told. Apps that don't know the stages yet still show the order as Processing. A paid order cancelled after a failed delivery gets a note that it needs a refund: refund it with WooCommerce's Refund button.
 
 = 0.4.45 =
 * The Yallapp plugin's settings say that the app runs one flash sale at a time on WordPress: change it for the next one.

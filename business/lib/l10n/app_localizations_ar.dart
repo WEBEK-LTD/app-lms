@@ -3501,8 +3501,57 @@ class AppLocalizationsAr extends AppLocalizations {
   String get nextCancel => 'إلغاء الطلب';
 
   @override
-  String get stageCancelNoRefund =>
-      'الإلغاء لا يردّ المبلغ: استرِدّه من صفحة الطلب إن كان مدفوعًا.';
+  String stageCancelRefundsNow(String amount) {
+    return 'سيُعاد $amount إلى العميل فور الإلغاء.';
+  }
+
+  @override
+  String stageCancelRefundYou(String amount) {
+    return 'عند الإلغاء يصبح الطلب «يحتاج إلى استرداد»: أعِد $amount بنفسك، ثم حدِّده كمُسترَد.';
+  }
+
+  @override
+  String get needsRefund => 'يحتاج إلى استرداد';
+
+  @override
+  String get refundWhyOutside => 'دُفع خارج التطبيق: أعِده بالطريقة نفسها.';
+
+  @override
+  String get refundWhyProvider =>
+      'لا يمكن لمزوّد الدفع ردّه من هنا: استرِدّه من لوحة المزوّد.';
+
+  @override
+  String needsRefundText(String amount) {
+    return 'أعِد $amount إلى العميل، ثم حدِّده كمُسترَد.';
+  }
+
+  @override
+  String refundedAutoText(String amount) {
+    return 'أُعيد $amount إلى العميل عند إلغاء الطلب.';
+  }
+
+  @override
+  String refundRecordedText(String name) {
+    return 'حدَّده $name كمُسترَد.';
+  }
+
+  @override
+  String get markRefundedButton => 'أعدتُ المبلغ';
+
+  @override
+  String markRefundedTitle(String order) {
+    return 'تحديد $order كمُسترَد؟';
+  }
+
+  @override
+  String markRefundedText(String amount) {
+    return 'فقط إن أعدتَ المبلغ $amount بنفسك. سيُبلَّغ العميل.';
+  }
+
+  @override
+  String refundMarkedDone(String order) {
+    return '$order: حُدِّد كمُسترَد. تم إبلاغ العميل.';
+  }
 
   @override
   String deliveredConfirmTitle(String order) {

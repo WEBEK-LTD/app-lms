@@ -7233,6 +7233,12 @@ export class MemoryStore implements DataStore {
       move(this.licenses, true);
       move(this.storagePacks, true);
       for (const [id, license] of this.licenses) if (license.appId === toAppId) this.licenses.set(id, { ...license, updatedAt: now });
+      // 132 Prime given as a gift, kept by its app.
+      const gift = this.primeGifts.get(fromAppId);
+      if (gift) {
+        this.primeGifts.delete(fromAppId);
+        this.primeGifts.set(toAppId, { ...gift, appId: toAppId, clientId: to.clientId, updatedAt: now });
+      }
     } else if (group === "payments") {
       move(this.planPayments, false);
     } else {

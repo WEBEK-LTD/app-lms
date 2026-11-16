@@ -6304,11 +6304,77 @@ abstract class AppLocalizations {
   /// **'Cancel the order'**
   String get nextCancel;
 
-  /// No description provided for @stageCancelNoRefund.
+  /// No description provided for @stageCancelRefundsNow.
   ///
   /// In en, this message translates to:
-  /// **'Cancelling doesn\'t refund it: refund it from the order if it was paid.'**
-  String get stageCancelNoRefund;
+  /// **'Cancelling refunds {amount} to the customer now.'**
+  String stageCancelRefundsNow(String amount);
+
+  /// No description provided for @stageCancelRefundYou.
+  ///
+  /// In en, this message translates to:
+  /// **'Cancelling marks the order Needs a refund: pay back {amount} yourself, then mark it refunded.'**
+  String stageCancelRefundYou(String amount);
+
+  /// No description provided for @needsRefund.
+  ///
+  /// In en, this message translates to:
+  /// **'Needs a refund'**
+  String get needsRefund;
+
+  /// No description provided for @refundWhyOutside.
+  ///
+  /// In en, this message translates to:
+  /// **'It was paid outside the app: pay it back the same way.'**
+  String get refundWhyOutside;
+
+  /// No description provided for @refundWhyProvider.
+  ///
+  /// In en, this message translates to:
+  /// **'Its payment provider can\'t refund it from here: refund it in the provider\'s panel.'**
+  String get refundWhyProvider;
+
+  /// No description provided for @needsRefundText.
+  ///
+  /// In en, this message translates to:
+  /// **'Pay back {amount} to the customer, then mark it refunded.'**
+  String needsRefundText(String amount);
+
+  /// No description provided for @refundedAutoText.
+  ///
+  /// In en, this message translates to:
+  /// **'{amount} went back to the customer when the order was cancelled.'**
+  String refundedAutoText(String amount);
+
+  /// No description provided for @refundRecordedText.
+  ///
+  /// In en, this message translates to:
+  /// **'Marked refunded by {name}.'**
+  String refundRecordedText(String name);
+
+  /// No description provided for @markRefundedButton.
+  ///
+  /// In en, this message translates to:
+  /// **'I refunded it'**
+  String get markRefundedButton;
+
+  /// No description provided for @markRefundedTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Mark {order} refunded?'**
+  String markRefundedTitle(String order);
+
+  /// No description provided for @markRefundedText.
+  ///
+  /// In en, this message translates to:
+  /// **'Only if you paid the {amount} back yourself. The customer is told.'**
+  String markRefundedText(String amount);
+
+  /// No description provided for @refundMarkedDone.
+  ///
+  /// In en, this message translates to:
+  /// **'{order}: marked refunded. The customer was told.'**
+  String refundMarkedDone(String order);
 
   /// No description provided for @deliveredConfirmTitle.
   ///

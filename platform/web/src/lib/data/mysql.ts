@@ -8936,6 +8936,8 @@ export class MysqlStore implements DataStore {
         if (group === "plan") {
           await tx.update(s.licenses).set({ appId: toAppId, clientId: to.clientId, updatedAt: now }).where(eq(s.licenses.appId, fromAppId));
           await tx.update(s.storagePacks).set({ appId: toAppId, clientId: to.clientId }).where(eq(s.storagePacks.appId, fromAppId));
+          // 132 Prime given as a gift, kept by its app.
+          await tx.update(s.primeGifts).set({ appId: toAppId, clientId: to.clientId, updatedAt: now }).where(eq(s.primeGifts.appId, fromAppId));
         } else if (group === "payments") {
           await tx.update(s.planPayments).set({ appId: toAppId }).where(eq(s.planPayments.appId, fromAppId));
         } else if (group === "data") {

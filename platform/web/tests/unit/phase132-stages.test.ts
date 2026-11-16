@@ -6,6 +6,8 @@ import { newApp } from "@/lib/app/setup";
 import { DEFAULT_FULFILMENT } from "@/lib/catalog/fulfilment";
 import { STAGE_NEXT, followsStages, parseStageInput } from "@/lib/catalog/order-stages";
 import { appStageJson } from "@/lib/catalog/stage-json";
+import { refundAfterFailedDelivery } from "@/lib/catalog/stage-refunds";
+import { encryptOwnPayment } from "@/lib/catalog/settings";
 import { sha256Hex } from "@/lib/crypto/tokens";
 import { MemoryStore } from "@/lib/data/memory";
 import { AUTO_TEXT } from "@/lib/hosted/auto-notifications";
@@ -249,6 +251,61 @@ describe("132 delivery stages", () => {
     const bodies = (await inbox()).map((n) => n.body);
     expect(bodies).toContain("We couldn't deliver your order: it was refused at the door. The order was cancelled.");
     expect(bodies).not.toContain("Your order was cancelled.");
+    // 132 The owner's rule: the money goes back; this payment can't by itself, so the owner refunds it.
+    expect(cancelled.body.refund_due).toMatchObject({ status: "needed", amount: { amount_cents: 1800_00 }, done_at: null });
+  });
+
+  it("a cancel after a failed delivery gives the money back: needed for the owner, then I refunded it", async () => {
+    const token = await signIn();
+    const order = await paid(flowers, { userId: salma.id, manualPayment: { method: "bank_transfer", name: "Bank transfer", instructions: "IBAN TR00", dueAt: "2026-10-14T10:00:00.000Z" } } as Partial<CatalogOrder>);
+    await store.updateCatalogOrder(flowers.id, order.id, { status: "processing" });
+    const route = { token, params: { app_id: flowers.id, order_id: order.id } };
+    await call("POST", "/apps/{app_id}/orders/{order_id}/stage", { ...route, body: { stage: "shipped" } });
+    await call("POST", "/apps/{app_id}/orders/{order_id}/stage", { ...route, body: { stage: "failed", reason: "refused", next_step: "return" } });
+    await call("POST", "/apps/{app_id}/orders/{order_id}/stage", { ...route, body: { stage: "returned" } });
+    // Nothing owed before it is cancelled.
+    expect((await call("POST", "/apps/{app_id}/orders/{order_id}/refund-done", route)).status).toBe(409);
+    // Cancel order after it came back: paid by bank transfer, so the owner pays it back.
+    const cancelled = await call("POST", "/apps/{app_id}/orders/{order_id}/status", { ...route, body: { status: "cancelled" } });
+    expect(cancelled.status).toBe(200);
+    expect(cancelled.body.refund_due).toMatchObject({ status: "needed", why: "Paid outside the app: pay it back the same way, then mark it refunded." });
+    const [notice] = await store.listOwnerNotices({ clientId: client.id, appId: flowers.id });
+    expect(notice).toMatchObject({ kind: "order_refund_due", title: `Leqaa: refund order ${order.id + 1000}`, tone: "warn" });
+    // I refunded it: recorded as a refund made outside, and the customer told.
+    const done = await call("POST", "/apps/{app_id}/orders/{order_id}/refund-done", route);
+    expect(done.status).toBe(200);
+    expect(done.body.refund_due).toMatchObject({ status: "recorded", done_by: "Leyla Kaya" });
+    expect(done.body.status).toBe("refunded");
+    expect((await inbox()).map((n) => n.body)).toContain("We refunded E£1,800.00. It may take a few days to reach you.");
+    expect((await call("POST", "/apps/{app_id}/orders/{order_id}/refund-done", route)).status).toBe(409);
+  });
+
+  it("a card payment the provider can refund goes back at once", async () => {
+    const calls: string[] = [];
+    const fetcher = (async (url: string) => {
+      const path = new URL(url).pathname;
+      calls.push(path);
+      if (path === "/payment/cancel") return Response.json({ status: "success", paymentId: "PAY-1", price: 1800, currency: "EGP", hostReference: "CANCEL-REF" });
+      if (path === "/payment/detail") return Response.json({ status: "success", paymentId: "PAY-1", paidPrice: "1800.00", currency: "EGP", itemTransactions: [{ itemId: "1", paymentTransactionId: "1", price: "1800.00", paidPrice: "1800.00" }] });
+      return Response.json({ status: "success", paymentId: "PAY-1", paymentTransactionId: "1", price: "1800.00", hostReference: "REF-1" });
+    }) as unknown as typeof fetch;
+    const shop: App = { ...flowers, catalogSettings: { ...flowers.catalogSettings!, payment: encryptOwnPayment(flowers.id, { provider: "iyzico", apiKey: "k", secretKey: "s", sandbox: true }, KEY) } };
+    await store.updateApp(shop.id, { catalogSettings: shop.catalogSettings }, NOW);
+    const order = await paid(shop, { userId: salma.id, paymentProvider: "iyzico", providerRef: "iyzico-token" });
+    const failed = { ...order, status: "cancelled" as const, deliveryStage: "failed" as const };
+    await store.updateCatalogOrder(shop.id, order.id, { status: "cancelled", deliveryStage: "failed" });
+    const kept = await refundAfterFailedDelivery(
+      { store, key: KEY, fetcher, now: NOW, ip: "198.51.100.7", actor: { id: "u1", email: "leyla@studio.test" }, mail: async () => undefined, app: (await store.getAppById(shop.id))!, account: null },
+      failed,
+    );
+    expect(kept).toMatchObject({ status: "refunded", cents: 1800_00 });
+    expect(calls.length).toBeGreaterThan(0);
+    const after = (await store.getCatalogOrder(shop.id, order.id))!;
+    expect(after.refundedCents).toBe(1800_00);
+    expect(after.stageRefund?.refundId).toEqual(expect.any(Number));
+    expect((await inbox()).map((n) => n.body)).toContain("We refunded E£1,800.00. It may take a few days to reach you.");
+    // Owed once: nothing more on a second cancel.
+    expect(await refundAfterFailedDelivery({ store, key: KEY, fetcher, now: NOW, ip: "x", actor: { id: null, email: "x" }, mail: async () => undefined, app: shop, account: null }, after)).toBeNull();
   });
 
   it("the slots of a day to postpone to", async () => {

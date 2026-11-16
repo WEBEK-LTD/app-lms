@@ -13,6 +13,7 @@ import type {
   OrderDelivery,
   DeliveryStage,
   OrderStageEntry,
+  OrderStageRefund,
   StoreFlashSale,
   AddonRule,
   GiftOccasion,
@@ -828,6 +829,8 @@ export const catalogOrders = mysqlTable(
     // 132 Where its delivery is, and every change of it (JSON).
     deliveryStage: varchar("delivery_stage", { length: 16 }).$type<DeliveryStage>(),
     stageLog: jsonText<OrderStageEntry[]>("stage_log"),
+    // 132 The money back after a failed delivery cancelled it (JSON).
+    stageRefund: jsonText<OrderStageRefund>("stage_refund"),
   },
   (t) => [
     uniqueIndex("catalog_orders_token_unique").on(t.tokenHash),

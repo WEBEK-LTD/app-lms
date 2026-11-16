@@ -1255,4 +1255,8 @@ export const SERVER_MESSAGES_TR: Record<string, string> = {
   "The shop doesn't deliver to that city.": "Mağaza bu şehre teslimat yapmıyor.",
   "Drop a pin where it goes on the map.": "Gideceği yeri haritada işaretleyin.",
   "The shop delivers up to {0} km away. This place is {1} km away.": "Mağaza en fazla {0} km uzağa teslimat yapıyor. Bu yer {1} km uzakta.",
+  // 132 A store order's delivery stages (lib/catalog/order-stages.ts).
+  "This order's delivery can't move to that stage.": "Bu siparişin teslimatı o aşamaya geçemez.",
+  "The request isn't valid.": "İstek geçerli değil.",
+  "This order doesn't need a refund.": "Bu sipariş iade gerektirmiyor.",
 };

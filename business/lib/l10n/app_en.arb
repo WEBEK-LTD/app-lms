@@ -2302,7 +2302,74 @@
   "nextRetry": "Try again on another day",
   "nextReturn": "Return to shop",
   "nextCancel": "Cancel the order",
-  "stageCancelNoRefund": "Cancelling doesn't refund it: refund it from the order if it was paid.",
+  "stageCancelRefundsNow": "Cancelling refunds {amount} to the customer now.",
+  "@stageCancelRefundsNow": {
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+  "stageCancelRefundYou": "Cancelling marks the order Needs a refund: pay back {amount} yourself, then mark it refunded.",
+  "@stageCancelRefundYou": {
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+  "needsRefund": "Needs a refund",
+  "refundWhyOutside": "It was paid outside the app: pay it back the same way.",
+  "refundWhyProvider": "Its payment provider can't refund it from here: refund it in the provider's panel.",
+  "needsRefundText": "Pay back {amount} to the customer, then mark it refunded.",
+  "@needsRefundText": {
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+  "refundedAutoText": "{amount} went back to the customer when the order was cancelled.",
+  "@refundedAutoText": {
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+  "refundRecordedText": "Marked refunded by {name}.",
+  "@refundRecordedText": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "markRefundedButton": "I refunded it",
+  "markRefundedTitle": "Mark {order} refunded?",
+  "@markRefundedTitle": {
+    "placeholders": {
+      "order": {
+        "type": "String"
+      }
+    }
+  },
+  "markRefundedText": "Only if you paid the {amount} back yourself. The customer is told.",
+  "@markRefundedText": {
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+  "refundMarkedDone": "{order}: marked refunded. The customer was told.",
+  "@refundMarkedDone": {
+    "placeholders": {
+      "order": {
+        "type": "String"
+      }
+    }
+  },
   "deliveredConfirmTitle": "Mark {order} delivered?",
   "@deliveredConfirmTitle": {
     "placeholders": {

@@ -1,7 +1,7 @@
 {
   "version": "5",
   "dialect": "mysql",
-  "id": "260f396d-14d7-4585-8554-2947ce2f9dd0",
+  "id": "0fee3fd9-0540-410c-a808-7956c2b29163",
   "prevId": "c6bc63a0-f370-40f8-a272-988043943029",
   "tables": {
     "account_deletion_requests": {
@@ -4793,6 +4793,13 @@
         },
         "stage_log": {
           "name": "stage_log",
+          "type": "longtext",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
+        "stage_refund": {
+          "name": "stage_refund",
           "type": "longtext",
           "primaryKey": false,
           "notNull": false,

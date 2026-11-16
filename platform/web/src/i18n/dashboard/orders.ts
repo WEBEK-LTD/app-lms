@@ -117,6 +117,12 @@ export const en = {
   emailNote: "The customer gets an email, and the app shows what was refunded.",
   refunding: "Refunding…",
   record: "Record refund",
+  // 132 The money back after a failed delivery.
+  needsRefund: "Needs a refund",
+  needsRefundText: "Pay back {amount} to the customer, then mark it refunded.",
+  refundedAuto: "{amount} went back to the customer when the order was cancelled.",
+  refundRecorded: "Marked refunded by {by}.",
+  markRefunded: "I refunded it",
   // 132 Delivery stages
   stagesTitle: "Delivery",
   stagesIntro: "Not started yet: mark it as preparing or shipped when it's on its way. The customer is told when it ships, is postponed, can't be delivered and is delivered.",
@@ -153,7 +159,7 @@ export const en = {
   next_return: "Return to shop",
   next_cancel: "Cancel the order",
   stageDeliverHint: "Delivered also completes the order.",
-  stageCancelHint: "Cancelling doesn't refund it: refund it below if it was paid.",
+  stageCancelHint: "Cancelling gives the customer their money back: refunded now when the payment allows it, else the order shows Needs a refund for you.",
   stageBy: "{by} · {when}",
   stageNoteLine: "Note: {note}",
   stageDayLine: "New day: {day}",
@@ -162,6 +168,10 @@ export const en = {
   stageTracking: "Open the tracking",
   stageSave: "Save",
   known: {
+    // 132 lib/catalog/stage-refunds.ts
+    refundPaidOutside: "Paid outside the app: pay it back the same way, then mark it refunded.",
+    refundNoProvider: "This payment can't be refunded through its provider: refund it in the provider's panel, then mark it refunded.",
+    noRefundDue: "This order doesn't need a refund.",
     // 132 lib/catalog/order-stages.ts
     stageChoose: "Choose a delivery stage.",
     stageWhyPostponed: "Choose why it is postponed.",
@@ -346,6 +356,12 @@ export const ar: Messages = {
   emailNote: "يتلقى العميل بريدًا إلكترونيًا، ويعرض التطبيق ما استُرد.",
   refunding: "جارٍ الاسترداد…",
   record: "تسجيل الاسترداد",
+  // 132 The money back after a failed delivery.
+  needsRefund: "محتاج يرجّع الفلوس",
+  needsRefundText: "رجّع {amount} للعميل، وبعدين علّم إن الفلوس رجعت.",
+  refundedAuto: "{amount} رجعت للعميل لما الأوردر اتلغى.",
+  refundRecorded: "{by} علّم إن الفلوس رجعت.",
+  markRefunded: "رجّعت الفلوس",
   // 132 Delivery stages
   stagesTitle: "التوصيل",
   stagesIntro: "لسه مابدأش: علّمه بيتجهز أو اتشحن لما يطلع. العميل بيوصله إشعار لما يتشحن، أو يتأجل، أو التوصيل مايتمّش، أو يتسلّم.",
@@ -382,7 +398,7 @@ export const ar: Messages = {
   next_return: "يرجع للمحل",
   next_cancel: "نلغي الأوردر",
   stageDeliverHint: "اتسلّم بيكمّل الأوردر كمان.",
-  stageCancelHint: "الإلغاء مش بيرجّع الفلوس: رجّعها من تحت لو كان مدفوع.",
+  stageCancelHint: "الإلغاء بيرجّع للعميل فلوسه: بترجع على طول لو الدفع يسمح، وإلا الأوردر هيظهر «محتاج يرجّع الفلوس» عشان ترجّعها إنت.",
   stageBy: "{by} · {when}",
   stageNoteLine: "ملاحظة: {note}",
   stageDayLine: "اليوم الجديد: {day}",
@@ -391,6 +407,10 @@ export const ar: Messages = {
   stageTracking: "افتح التتبع",
   stageSave: "احفظ",
   known: {
+    // 132 lib/catalog/stage-refunds.ts
+    refundPaidOutside: "اندفع برّه الأبلكيشن: رجّعه بنفس الطريقة، وبعدين علّم إن الفلوس رجعت.",
+    refundNoProvider: "الدفعة دي ماينفعش ترجع من خلال مزوّد الدفع: رجّعها من لوحة المزوّد، وبعدين علّم إن الفلوس رجعت.",
+    noRefundDue: "الأوردر ده مش محتاج يرجّع فلوس.",
     // 132 lib/catalog/order-stages.ts
     stageChoose: "اختار مرحلة التوصيل.",
     stageWhyPostponed: "اختار سبب التأجيل.",
@@ -570,6 +590,12 @@ export const tr: Messages = {
   emailNote: "Müşteri bir e-posta alır ve uygulama neyin iade edildiğini gösterir.",
   refunding: "İade ediliyor…",
   record: "İadeyi kaydet",
+  // 132 The money back after a failed delivery.
+  needsRefund: "İade gerekiyor",
+  needsRefundText: "Müşteriye {amount} geri ödeyin, sonra iade edildi olarak işaretleyin.",
+  refundedAuto: "Sipariş iptal edilince {amount} müşteriye iade edildi.",
+  refundRecorded: "{by} iade edildi olarak işaretledi.",
+  markRefunded: "İade ettim",
   // 132 Delivery stages
   stagesTitle: "Teslimat",
   stagesIntro: "Henüz başlamadı: yola çıkınca hazırlanıyor veya kargoya verildi olarak işaretleyin. Müşteriye kargoya verildiğinde, ertelendiğinde, teslim edilemediğinde ve teslim edildiğinde bildirilir.",
@@ -606,7 +632,7 @@ export const tr: Messages = {
   next_return: "Mağazaya geri gönder",
   next_cancel: "Siparişi iptal et",
   stageDeliverHint: "Teslim edildi, siparişi de tamamlar.",
-  stageCancelHint: "İptal etmek para iadesi yapmaz: ödendiyse aşağıdan iade edin.",
+  stageCancelHint: "İptal, müşterinin parasını geri verir: ödeme izin veriyorsa hemen iade edilir, yoksa sipariş sizin için «İade gerekiyor» olarak görünür.",
   stageBy: "{by} · {when}",
   stageNoteLine: "Not: {note}",
   stageDayLine: "Yeni gün: {day}",
@@ -615,6 +641,10 @@ export const tr: Messages = {
   stageTracking: "Takibi aç",
   stageSave: "Kaydet",
   known: {
+    // 132 lib/catalog/stage-refunds.ts
+    refundPaidOutside: "Uygulama dışında ödendi: aynı yolla geri ödeyin, sonra iade edildi olarak işaretleyin.",
+    refundNoProvider: "Bu ödeme sağlayıcısı üzerinden iade edilemez: sağlayıcının panelinden iade edin, sonra iade edildi olarak işaretleyin.",
+    noRefundDue: "Bu sipariş iade gerektirmiyor.",
     // 132 lib/catalog/order-stages.ts
     stageChoose: "Bir teslimat aşaması seçin.",
     stageWhyPostponed: "Neden ertelendiğini seçin.",

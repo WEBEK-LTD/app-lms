@@ -86,7 +86,7 @@ mixin _FakeStudio implements OwnerApi {
       'edited_at': before == null ? null : _at(Duration.zero),
       'by': 'Leyla',
     };
-    return _rated(source, id, r!.$3);
+    return _rated(source, id, r.$3);
   }
 
   @override
@@ -99,7 +99,7 @@ mixin _FakeStudio implements OwnerApi {
     final r = _ratings['$source:$id'];
     if (r == null) _missing();
     _ratingReplies.remove('$source:$id');
-    return _rated(source, id, r!.$3);
+    return _rated(source, id, r.$3);
   }
 
   RatedItem _rated(String source, String id, String about) =>

@@ -66,6 +66,13 @@ class DeliveryStages132Test extends TestCase {
 		$this->assertNull( Delivery_Stages::reason( '  ' ) );
 	}
 
+	public function test_a_cancel_after_a_failed_delivery_needs_a_refund(): void {
+		$this->assertTrue( Delivery_Stages::refund_due_after( 'wc-failed-delivery', 'wc-cancelled' ) );
+		$this->assertTrue( Delivery_Stages::refund_due_after( 'returned', 'cancelled' ) );
+		$this->assertFalse( Delivery_Stages::refund_due_after( 'processing', 'cancelled' ) );
+		$this->assertFalse( Delivery_Stages::refund_due_after( 'failed-delivery', 'shipped' ) );
+	}
+
 	public function test_what_the_customer_is_told(): void {
 		$this->assertSame( array( 'shipped', 'postponed', 'failed-delivery' ), Order_Updates::TOLD_STAGES );
 		$this->assertSame(

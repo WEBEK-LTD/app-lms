@@ -180,7 +180,7 @@ void main() {
   });
 
   testWidgets(
-    "Delivery failed: why and what's next; cancelling says it doesn't refund",
+    "Delivery failed: why and what's next; cancelling refunds the customer now",
     (tester) async {
       final app = await _open(tester, '/orders/2051');
       await tapOn(tester, find.widgetWithText(FilledButton, 'Mark as shipped'));
@@ -195,9 +195,7 @@ void main() {
       await tapOn(tester, find.widgetWithText(ChoiceChip, 'Recipient refused'));
       await tapOn(tester, find.widgetWithText(ChoiceChip, 'Cancel the order'));
       expect(
-        find.text(
-          "Cancelling doesn't refund it: refund it from the order if it was paid.",
-        ),
+        find.text('Cancelling refunds E£2,035.50 to the customer now.'),
         findsOneWidget,
       );
       // Trying again asks for the day.
@@ -213,9 +211,90 @@ void main() {
       expect(find.widgetWithText(FilledButton, 'Mark delivered'), findsNothing);
       expect(find.text('Delivery failed · Recipient refused'), findsOneWidget);
       expect(find.text('Next: Cancel the order'), findsOneWidget);
+      // 132 The money went back at once.
+      await tester.scrollUntilVisible(
+        find.text(
+          'E£2,035.50 went back to the customer when the order was cancelled.',
+        ),
+        200,
+        scrollable: find
+            .byWidgetPredicate(
+              (w) => w is Scrollable && w.axisDirection == AxisDirection.down,
+            )
+            .first,
+      );
       expect(tester.takeException(), isNull);
     },
   );
+
+  testWidgets(
+    'a payment that can\'t go back by itself: Needs a refund, then I refunded it',
+    (tester) async {
+      final app = TestApp(
+        api: FakeOwnerApi()..refundsByApi = false,
+        appId: FakeOwnerApi.flowersId,
+      );
+      await app.pump(tester, size: const Size(400, 2400));
+      await go(tester, app, '/orders/2050');
+      await tapOn(tester, find.widgetWithText(FilledButton, 'Mark as shipped'));
+      await tapOn(tester, find.widgetWithText(FilledButton, 'Save'));
+      await tester.pump(const Duration(seconds: 5));
+      await settle(tester);
+      await tapOn(
+        tester,
+        find.widgetWithText(OutlinedButton, 'Delivery failed'),
+      );
+      await tapOn(tester, find.widgetWithText(ChoiceChip, 'Recipient refused'));
+      await tapOn(tester, find.widgetWithText(ChoiceChip, 'Cancel the order'));
+      expect(
+        find.text(
+          'Cancelling marks the order Needs a refund: pay back E£1,030.00 yourself, then mark it refunded.',
+        ),
+        findsOneWidget,
+      );
+      await tapOn(tester, find.widgetWithText(FilledButton, 'Save'));
+      await tester.pump(const Duration(seconds: 5));
+      await settle(tester);
+      expect(find.text('Needs a refund'), findsOneWidget);
+      expect(
+        find.text(
+          'Pay back E£1,030.00 to the customer, then mark it refunded.',
+        ),
+        findsOneWidget,
+      );
+      await tapOn(tester, find.widgetWithText(OutlinedButton, 'I refunded it'));
+      expect(find.text('Mark #2050 refunded?'), findsOneWidget);
+      await tapOn(tester, find.widgetWithText(FilledButton, 'I refunded it'));
+      expect(app.api.calls, contains('markRefunded'));
+      expect(
+        find.text('#2050: marked refunded. The customer was told.'),
+        findsOneWidget,
+      );
+      expect(find.text('Needs a refund'), findsNothing);
+      expect(tester.takeException(), isNull);
+    },
+  );
+
+  testWidgets('the list shows a chip for an order that needs a refund', (
+    tester,
+  ) async {
+    final api = FakeOwnerApi()..refundsByApi = false;
+    await api.setOrderStage(
+      FakeOwnerApi.flowersId,
+      2051,
+      const StageRequest('shipped'),
+    );
+    await api.setOrderStage(
+      FakeOwnerApi.flowersId,
+      2051,
+      const StageRequest('failed', reason: 'refused', nextStep: 'cancel'),
+    );
+    final app = TestApp(api: api, appId: FakeOwnerApi.flowersId);
+    await app.pump(tester, size: const Size(400, 1600));
+    await go(tester, app, '/orders');
+    await tapOn(tester, find.text('Cancelled'));
+    expect(find.text('Needs a refund'), findsOneWidget);
+  });
 
   testWidgets('the history: who, when, why, the new day and the team note', (
     tester,
@@ -354,6 +433,122 @@ void main() {
         find.widgetWithText(ChoiceChip, isolate('10:00–13:00')),
       );
       await _shot(tester, 'postpone-sheet-$lang');
+    });
+    testWidgets('2x picture: cancelling after a failed delivery, $lang', (
+      tester,
+    ) async {
+      final app = TestApp(
+        api: FakeOwnerApi()
+          ..language = lang
+          ..refundsByApi = false,
+        appId: FakeOwnerApi.flowersId,
+        language: lang,
+      );
+      await app.pump(
+        tester,
+        size: const Size(400, 1000),
+        pixelRatio: 2,
+        wrap: (root) => RepaintBoundary(key: _frame, child: root),
+      );
+      await app.api.setOrderStage(
+        FakeOwnerApi.flowersId,
+        2050,
+        const StageRequest('shipped', courierName: 'Mostafa'),
+      );
+      await go(tester, app, '/orders/2050');
+      await tapOn(
+        tester,
+        find.widgetWithText(
+          OutlinedButton,
+          lang == 'ar' ? 'تعذّر التوصيل' : 'Delivery failed',
+        ),
+      );
+      await tapOn(
+        tester,
+        find.widgetWithText(
+          ChoiceChip,
+          lang == 'ar' ? 'رفض المستلم الاستلام' : 'Recipient refused',
+        ),
+      );
+      await tapOn(
+        tester,
+        find.widgetWithText(
+          ChoiceChip,
+          lang == 'ar' ? 'إلغاء الطلب' : 'Cancel the order',
+        ),
+      );
+      await _shot(tester, 'failed-sheet-cancel-$lang');
+    });
+    testWidgets('2x picture: Needs a refund, $lang', (tester) async {
+      final api = FakeOwnerApi()
+        ..language = lang
+        ..refundsByApi = false;
+      await api.setOrderStage(
+        FakeOwnerApi.flowersId,
+        2050,
+        const StageRequest('shipped', courierName: 'Mostafa'),
+      );
+      await api.setOrderStage(
+        FakeOwnerApi.flowersId,
+        2050,
+        const StageRequest('failed', reason: 'refused', nextStep: 'cancel'),
+      );
+      final app = TestApp(
+        api: api,
+        appId: FakeOwnerApi.flowersId,
+        language: lang,
+      );
+      await app.pump(
+        tester,
+        size: const Size(400, 1000),
+        pixelRatio: 2,
+        wrap: (root) => RepaintBoundary(key: _frame, child: root),
+      );
+      await go(tester, app, '/orders/2050');
+      final panel = find.byKey(const ValueKey('refund-due'));
+      await tester.scrollUntilVisible(
+        panel,
+        200,
+        scrollable: find
+            .byWidgetPredicate(
+              (w) => w is Scrollable && w.axisDirection == AxisDirection.down,
+            )
+            .first,
+      );
+      Scrollable.ensureVisible(tester.element(panel), alignment: 0.4);
+      await settle(tester);
+      await _shot(tester, 'needs-refund-$lang');
+    });
+    testWidgets('2x picture: the list with Needs a refund, $lang', (
+      tester,
+    ) async {
+      final api = FakeOwnerApi()
+        ..language = lang
+        ..refundsByApi = false;
+      await api.setOrderStage(
+        FakeOwnerApi.flowersId,
+        2051,
+        const StageRequest('shipped'),
+      );
+      await api.setOrderStage(
+        FakeOwnerApi.flowersId,
+        2051,
+        const StageRequest('failed', reason: 'refused', nextStep: 'cancel'),
+      );
+      final app = TestApp(
+        api: api,
+        appId: FakeOwnerApi.flowersId,
+        language: lang,
+      );
+      await app.pump(
+        tester,
+        size: const Size(400, 900),
+        pixelRatio: 2,
+        wrap: (root) => RepaintBoundary(key: _frame, child: root),
+      );
+      await go(tester, app, '/orders');
+      await tapOn(tester, find.text(lang == 'ar' ? 'ملغى' : 'Cancelled'));
+      await _shot(tester, 'list-needs-refund-$lang');
     });
     testWidgets('2x picture: the Delivery failed sheet, $lang', (tester) async {
       final app = await _open(

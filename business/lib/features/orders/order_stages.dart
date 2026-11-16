@@ -11,6 +11,7 @@ import '../../core/widgets/contact.dart';
 import '../../core/widgets/l10n.dart';
 import '../../core/widgets/states.dart';
 import 'order_actions.dart';
+import 'order_screen.dart' show RefundSheet;
 
 /// 132 A store order's delivery in stages: where it is (a coloured chip),
 /// every change with who, when, why and the team's note, and the next
@@ -623,8 +624,18 @@ class _StageSheetState extends ConsumerState<StageSheet> {
                 _error('next_step'),
                 if (_next == 'cancel') ...[
                   const SizedBox(height: 8),
+                  // 132 The owner's rule: the customer's money goes back.
                   Text(
-                    l10n.stageCancelNoRefund,
+                    widget.order.refund?.byApi ?? false
+                        ? l10n.stageCancelRefundsNow(
+                            (widget.order.refund?.left ?? widget.order.total)
+                                .formatted,
+                          )
+                        : l10n.stageCancelRefundYou(
+                            (widget.order.refund?.left ?? widget.order.total)
+                                .formatted,
+                          ),
+                    key: const ValueKey('stage-cancel-refund'),
                     style: TextStyle(color: context.yb.warning),
                   ),
                 ],
@@ -704,4 +715,148 @@ class _StageSheetState extends ConsumerState<StageSheet> {
       ),
     );
   }
+}
+
+/// 132 The customer's money after a failed delivery cancelled the order:
+/// refunded at once, or "Needs a refund" with Refund (the refund sheet) and
+/// I refunded it (asked first; the customer is told), then recorded.
+class RefundDuePanel extends ConsumerStatefulWidget {
+  const RefundDuePanel({
+    super.key,
+    required this.order,
+    required this.onChanged,
+  });
+
+  final Order order;
+  final void Function(Order updated) onChanged;
+
+  @override
+  ConsumerState<RefundDuePanel> createState() => _RefundDuePanelState();
+}
+
+class _RefundDuePanelState extends ConsumerState<RefundDuePanel> {
+  bool _busy = false;
+
+  Future<void> _markRefunded() async {
+    final l10n = context.l10n;
+    final order = widget.order;
+    final amount = order.refundDue!.amount.formatted;
+    final ok = await confirm(
+      context,
+      title: l10n.markRefundedTitle(order.label),
+      text: l10n.markRefundedText(amount),
+      action: l10n.markRefundedButton,
+    );
+    if (!ok || !mounted) return;
+    setState(() => _busy = true);
+    try {
+      final updated = await ref
+          .read(apiProvider)
+          .markRefunded(ref.read(appIdProvider), order.id);
+      if (!mounted) return;
+      showMessage(context, l10n.refundMarkedDone(order.label));
+      widget.onChanged(updated);
+    } on Object catch (e) {
+      if (mounted) showError(context, e);
+    } finally {
+      if (mounted) setState(() => _busy = false);
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final l10n = context.l10n;
+    final c = context.yb;
+    final theme = Theme.of(context);
+    final order = widget.order;
+    final due = order.refundDue!;
+    final amount = due.amount.formatted;
+    if (due.status == 'refunded') {
+      return IconLineText(
+        icon: AppIcons.delivered,
+        text: l10n.refundedAutoText(amount),
+        color: c.success,
+      );
+    }
+    if (due.status != 'needed') {
+      return IconLineText(
+        icon: AppIcons.delivered,
+        text: l10n.refundRecordedText(isolate(due.doneBy ?? '')),
+        color: c.ink2,
+      );
+    }
+    final refund = order.refund;
+    return Column(
+      key: const ValueKey('refund-due'),
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        Text(
+          l10n.needsRefundText(amount),
+          style: theme.textTheme.bodyLarge?.copyWith(
+            color: c.warning,
+            fontWeight: FontWeight.w600,
+          ),
+        ),
+        if (due.why != null || due.whyCode != null) ...[
+          const SizedBox(height: 6),
+          Text(switch (due.whyCode) {
+            'paid_outside' => l10n.refundWhyOutside,
+            'no_provider' => l10n.refundWhyProvider,
+            _ => due.why ?? '',
+          }, style: theme.textTheme.bodySmall),
+        ],
+        const SizedBox(height: 12),
+        if (refund != null && refund.refundable) ...[
+          FilledButton.icon(
+            style: FilledButton.styleFrom(minimumSize: const Size(64, 48)),
+            icon: const Icon(AppIcons.refund),
+            onPressed: _busy
+                ? null
+                : () async {
+                    final updated = await showModalBottomSheet<Order>(
+                      context: context,
+                      isScrollControlled: true,
+                      builder: (_) =>
+                          RefundSheet(order: order, options: refund),
+                    );
+                    if (updated != null) widget.onChanged(updated);
+                  },
+            label: Text(l10n.refundButton),
+          ),
+          const SizedBox(height: 8),
+        ],
+        OutlinedButton(
+          style: OutlinedButton.styleFrom(minimumSize: const Size(64, 48)),
+          onPressed: _busy ? null : _markRefunded,
+          child: Text(l10n.markRefundedButton),
+        ),
+      ],
+    );
+  }
+}
+
+/// An icon and a line of text, coloured.
+class IconLineText extends StatelessWidget {
+  const IconLineText({
+    super.key,
+    required this.icon,
+    required this.text,
+    required this.color,
+  });
+
+  final IconData icon;
+  final String text;
+  final Color color;
+
+  @override
+  Widget build(BuildContext context) => Row(
+    crossAxisAlignment: CrossAxisAlignment.start,
+    children: [
+      Icon(icon, size: 20, color: color),
+      const SizedBox(width: 10),
+      Expanded(
+        child: Text(text, style: TextStyle(fontSize: 15, color: color)),
+      ),
+    ],
+  );
 }

@@ -4,6 +4,7 @@ import { notifyOrderStage } from "../hosted/auto-notifications";
 import { deliveryOf, nextDays, shopToday, slotLabel, slotStarted } from "../selling/delivery";
 import { awaitingManualPayment } from "./manual";
 import { changeOrderStatus, type OrderMoveDeps } from "./order-status";
+import { refundAfterFailedDelivery, type StageRefundDeps } from "./stage-refunds";
 
 /**
  * 132 A store order's delivery stages, after it is paid: Preparing, Shipped
@@ -145,9 +146,16 @@ function newDay(app: App, order: CatalogOrder, input: StageInput, now: Date): { 
  * the change, moves the delivery day for a postponed or retried one, and
  * tells the customer. Delivered completes the order (as Mark as completed:
  * its points, a marketplace share's release); a failed attempt whose next
- * step is to cancel cancels it (as Cancel order: no refund by itself).
+ * step is to cancel cancels it and gives the money back (stage-refunds.ts).
  */
-export async function setOrderStage(deps: OrderMoveDeps, order: CatalogOrder, input: StageInput, actor: StageActor | null): Promise<StageResult> {
+export async function setOrderStage(
+  deps: OrderMoveDeps,
+  order: CatalogOrder,
+  input: StageInput,
+  actor: StageActor | null,
+  // 132 To give the money back when a failed attempt cancels it (stage-refunds.ts).
+  refunds?: StageRefundDeps,
+): Promise<StageResult> {
   const { store, app, now } = deps;
   if (!nextStages(app, order).includes(input.stage)) {
     return { ok: false, status: 409, code: "invalid_stage", message: "This order's delivery can't move to that stage." };
@@ -182,7 +190,10 @@ export async function setOrderStage(deps: OrderMoveDeps, order: CatalogOrder, in
   const fresh = { ...order, ...patch } as CatalogOrder;
   // Delivered completes it; a failed attempt may cancel it. The customer hears of the stage, not twice.
   if (input.stage === "delivered") await changeOrderStatus(deps, fresh, "completed", { notice: "delivered" });
-  if (input.stage === "failed" && input.next === "cancel") await changeOrderStatus(deps, fresh, "cancelled", { notice: false });
+  if (input.stage === "failed" && input.next === "cancel" && (await changeOrderStatus(deps, fresh, "cancelled", { notice: false })) && refunds) {
+    const cancelled = await store.getCatalogOrder(app.id, order.id);
+    if (cancelled) await refundAfterFailedDelivery(refunds, cancelled);
+  }
   if (input.stage === "shipped" || input.stage === "postponed" || input.stage === "failed") {
     try {
       await notifyOrderStage({ store, key: deps.key, now, send: deps.send }, app, fresh, entry);

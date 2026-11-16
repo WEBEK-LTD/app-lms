@@ -36,6 +36,10 @@ class FakeOwnerApi with _FakeStudio implements OwnerApi {
   String? twoStepCode;
   final _usedCodes = <String>{};
   String? language;
+
+  /// 132 Whether the fake's payments go back through their provider (else
+  /// the owner pays them back: "Needs a refund").
+  bool refundsByApi = true;
   bool pushAvailable = true;
 
   /// Thrown by the next call, then cleared.
@@ -1538,7 +1542,8 @@ class FakeOwnerApi with _FakeStudio implements OwnerApi {
   Order _detail(String appId, Order o) {
     final refunded = o.refunds.fold(0, (n, r) => n + r.amount.amountCents);
     final left = o.total.amountCents - refunded;
-    final refundable = left > 0 && o.status != 'cancelled';
+    // As the server: a cancelled order's payment can still go back.
+    final refundable = left > 0 && o.status != 'pending' && o.paidAt != null;
     return o.copyWith(
       refunded: refunded > 0 ? money(refunded, o.total.currency) : null,
       refund: RefundOptions(
@@ -1546,7 +1551,7 @@ class FakeOwnerApi with _FakeStudio implements OwnerApi {
         why: refundable ? null : 'Nothing is left to refund on this order.',
         provider: 'iyzico',
         left: money(left, o.total.currency),
-        byApi: true,
+        byApi: refundsByApi,
         manual: true,
         reasons: const [
           IdLabel(id: 'buyer_request', label: 'The buyer asked'),
@@ -1657,8 +1662,15 @@ class FakeOwnerApi with _FakeStudio implements OwnerApi {
             ),
       nextStatuses: next,
     );
-    _replace(appId, updated);
-    return _detail(appId, updated);
+    // 132 Cancelled after a failed or returned delivery: it needs a refund.
+    final owed =
+        finalStatus == 'cancelled' &&
+        const ['failed', 'returned'].contains(o.stage?.stage);
+    final saved = owed
+        ? updated.copyWith(refundDue: _refundDue(o), nextStages: const [])
+        : updated;
+    _replace(appId, saved);
+    return _detail(appId, saved);
   }
 
   /// 132 As the server: the stages it may go to, why and the day needed.
@@ -1715,6 +1727,8 @@ class FakeOwnerApi with _FakeStudio implements OwnerApi {
         : r.stage == 'failed' && r.nextStep == 'cancel'
         ? 'cancelled'
         : o.status;
+    // 132 Cancelled after a failed delivery: the money goes back, here by the owner.
+    final refundDue = status == 'cancelled' ? _refundDue(o) : null;
     final updated = o.copyWith(
       status: status,
       statusLabel: _statusLabel(status),
@@ -1722,6 +1736,44 @@ class FakeOwnerApi with _FakeStudio implements OwnerApi {
       stage: entry,
       stageHistory: [entry, ...o.stageHistory],
       nextStages: status == 'processing' ? FakeStages.next(r.stage) : const [],
+      refundDue: refundDue,
+    );
+    _replace(appId, updated);
+    return _detail(appId, updated);
+  }
+
+  /// 132 As the server: refunded at once through the provider, else the
+  /// owner pays it back ("Needs a refund").
+  RefundDue _refundDue(Order o) => RefundDue(
+    status: refundsByApi ? 'refunded' : 'needed',
+    amount: o.total,
+    at: DateTime.now().toUtc(),
+    why: refundsByApi ? null : 'Paid outside the app: pay it back the same way, then mark it refunded.',
+    whyCode: refundsByApi ? null : 'paid_outside',
+  );
+
+  @override
+  Future<Order> markRefunded(String appId, int orderId) async {
+    await _call('markRefunded');
+    _app(appId, (f) => f.orders);
+    final o = _find(appId, orderId);
+    if (!o.needsRefund) {
+      throw const ApiException(
+        code: 'no_refund_due',
+        message: "This order doesn't need a refund.",
+        statusCode: 409,
+      );
+    }
+    final updated = o.copyWith(
+      status: 'refunded',
+      statusLabel: _statusLabel('refunded'),
+      refundDue: RefundDue(
+        status: 'recorded',
+        amount: o.refundDue!.amount,
+        at: o.refundDue!.at,
+        doneAt: DateTime.now().toUtc(),
+        doneBy: 'Leyla',
+      ),
     );
     _replace(appId, updated);
     return _detail(appId, updated);

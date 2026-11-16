@@ -1587,6 +1587,30 @@ export interface CatalogOrder {
   deliveryStage?: DeliveryStage | null;
   /** 132 Every change of its delivery stage, oldest first; null or missing: none. */
   stageLog?: OrderStageEntry[] | null;
+  /** 132 Its money back after a failed delivery cancelled it: refunded, or needing the owner's refund; null or missing: none. */
+  stageRefund?: OrderStageRefund | null;
+}
+
+/**
+ * 132 The customer's money after a failed delivery cancelled the order (the
+ * owner's rule): refunded through the payment's provider when it can be
+ * ("refunded"); else the owner refunds it themselves and the order says
+ * "Needs a refund" until they do ("needed", then "recorded").
+ */
+export interface OrderStageRefund {
+  status: "refunded" | "needed" | "recorded";
+  cents: number;
+  /** ISO time the order was cancelled. */
+  at: string;
+  /** Why it couldn't be refunded by itself (in English, a `known` text). */
+  why: string | null;
+  /** The same as a code: paid outside the app, no refunds through the provider, or what the provider answered. */
+  whyCode?: "paid_outside" | "no_provider" | "provider_refused" | null;
+  /** The refund made (payment_refunds); null: none yet. */
+  refundId: number | null;
+  /** When the owner marked it refunded, and who. */
+  doneAt: string | null;
+  doneBy: string | null;
 }
 
 /**
@@ -1774,7 +1798,7 @@ export interface CatalogFulfilment {
 export type CatalogOrderPatch = Partial<
   Pick<
     CatalogOrder,
-    "status" | "customer" | "updatedAt" | "commissionCents" | "itemTransactionIds" | "payoutApprovedAt" | "fulfilmentStatus" | "paymentProvider" | "providerRef" | "shipment" | "returnRequest" | "points" | "manualPayment"
+    "status" | "customer" | "updatedAt" | "commissionCents" | "itemTransactionIds" | "payoutApprovedAt" | "fulfilmentStatus" | "paymentProvider" | "providerRef" | "shipment" | "returnRequest" | "points" | "manualPayment" | "delivery" | "deliveryDate" | "deliveryStage" | "stageLog" | "stageRefund"
   >
 >;
 
@@ -3504,7 +3528,9 @@ export type OwnerNoticeKind =
   // 77 Chat messages are deleted within 30 days unless the business keeps them.
   | "chat_expiring"
   // 80.2 A daily check found one of the app's connections broken (one per connection; `integration_failed:<key>:<n>`).
-  | "integration_failed";
+  | "integration_failed"
+  // 132 A store order cancelled after a failed delivery whose payment the owner refunds themselves.
+  | "order_refund_due";
 
 export interface OwnerNotice {
   id: number;

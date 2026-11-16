@@ -3518,8 +3518,58 @@ class AppLocalizationsTr extends AppLocalizations {
   String get nextCancel => 'Siparişi iptal et';
 
   @override
-  String get stageCancelNoRefund =>
-      'İptal etmek para iadesi yapmaz: ödendiyse siparişten iade edin.';
+  String stageCancelRefundsNow(String amount) {
+    return 'İptal edince $amount müşteriye hemen iade edilir.';
+  }
+
+  @override
+  String stageCancelRefundYou(String amount) {
+    return 'İptal edince sipariş «İade gerekiyor» olur: $amount tutarını kendiniz geri ödeyin, sonra iade edildi olarak işaretleyin.';
+  }
+
+  @override
+  String get needsRefund => 'İade gerekiyor';
+
+  @override
+  String get refundWhyOutside =>
+      'Uygulama dışında ödendi: aynı yolla geri ödeyin.';
+
+  @override
+  String get refundWhyProvider =>
+      'Ödeme sağlayıcısı bunu buradan iade edemez: sağlayıcının panelinden iade edin.';
+
+  @override
+  String needsRefundText(String amount) {
+    return 'Müşteriye $amount geri ödeyin, sonra iade edildi olarak işaretleyin.';
+  }
+
+  @override
+  String refundedAutoText(String amount) {
+    return 'Sipariş iptal edilince $amount müşteriye iade edildi.';
+  }
+
+  @override
+  String refundRecordedText(String name) {
+    return '$name iade edildi olarak işaretledi.';
+  }
+
+  @override
+  String get markRefundedButton => 'İade ettim';
+
+  @override
+  String markRefundedTitle(String order) {
+    return '$order iade edildi olarak işaretlensin mi?';
+  }
+
+  @override
+  String markRefundedText(String amount) {
+    return 'Yalnızca $amount tutarını kendiniz geri ödediyseniz. Müşteriye bildirilir.';
+  }
+
+  @override
+  String refundMarkedDone(String order) {
+    return '$order: iade edildi olarak işaretlendi. Müşteriye bildirildi.';
+  }
 
   @override
   String deliveredConfirmTitle(String order) {

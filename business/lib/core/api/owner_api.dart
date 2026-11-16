@@ -78,6 +78,9 @@ abstract class OwnerApi {
   /// 132 Takes the reply under a rating back.
   Future<RatedItem> deleteRatingReply(String appId, String source, String id);
 
+  /// 132 "I refunded it": the owner paid an order that needs a refund back.
+  Future<Order> markRefunded(String appId, int orderId);
+
   /// 132 Moves a store order's delivery to another stage (`next_stages`).
   Future<Order> setOrderStage(String appId, int orderId, StageRequest request);
 

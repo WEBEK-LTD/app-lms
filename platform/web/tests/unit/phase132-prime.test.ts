@@ -1068,7 +1068,9 @@ describe("132 Prime as a gift and Prime's second set", () => {
           comment: "Cold fries",
           name: "Mona Hassan",
           about: "Zooba",
-          can_reply: false,
+          // 132 Answered from the phone: the reply under the rating.
+          can_reply: true,
+          reply: null,
         },
       ],
     });

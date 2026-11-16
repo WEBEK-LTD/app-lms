@@ -716,8 +716,10 @@ paths:
         day. `failed` needs a `reason` (`recipient_away`, `wrong_address`,
         `refused`, `unreachable`, `other`) and a `next_step`: `retry` (with
         the new `date` and `slot_id`), `return` (then `returned` when it's
-        back), or `cancel` (the order is cancelled, as `POST …/status`
-        `cancelled` does: no refund by itself). `other` needs the `note`. The
+        back), or `cancel` (the order is cancelled, and the customer's money
+        goes back: refunded at once through the payment's provider when it
+        can be, else the order's `refund_due` is `needed` for the owner, with
+        a notice, until `POST …/refund-done`). `other` needs the `note`. The
         `note` is the team's own, never shown to the customer. `delivered`
         completes the order (as `POST …/status` `completed`). The customer is
         told (inbox, push in the app's language) at shipped, postponed, a
@@ -754,6 +756,32 @@ paths:
             application/json:
               schema: { $ref: '#/components/schemas/OrderDetail' }
         '400': { $ref: '#/components/responses/BadRequest' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '403': { $ref: '#/components/responses/AccountNotActive' }
+        '404': { $ref: '#/components/responses/NotFound' }
+        '409': { $ref: '#/components/responses/Conflict' }
+
+  /apps/{app_id}/orders/{order_id}/refund-done:
+    post:
+      tags: [Orders]
+      operationId: markOrderRefunded
+      summary: Mark an order that needs a refund as refunded
+      description: |
+        132 "I refunded it": for an order whose `refund_due` is `needed`, the
+        owner paid the money back themselves (in the provider's panel, by
+        bank transfer, in cash). It is recorded as a refund made outside the
+        app when the order's refunds allow it, `refund_due` becomes
+        `recorded`, and the customer is told. An order that needs no refund
+        is 409 `no_refund_due`.
+      parameters:
+        - $ref: '#/components/parameters/AppId'
+        - $ref: '#/components/parameters/OrderId'
+      responses:
+        '200':
+          description: The order as it is now
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/OrderDetail' }
         '401': { $ref: '#/components/responses/Unauthorized' }
         '403': { $ref: '#/components/responses/AccountNotActive' }
         '404': { $ref: '#/components/responses/NotFound' }
@@ -2123,17 +2151,6 @@ paths:
         '404': { $ref: '#/components/responses/NotFound' }
 
   /apps/{app_id}/ratings/{source}/{rating_id}/reply:
-    parameters:
-      - $ref: '#/components/parameters/AppId'
-      - name: source
-        in: path
-        required: true
-        schema: { type: string, enum: [food, market, ride] }
-      - name: rating_id
-        in: path
-        required: true
-        description: The food order, marketplace order or ride that was rated.
-        schema: { type: integer }
     put:
       tags: [Reviews]
       operationId: replyRating
@@ -2147,6 +2164,10 @@ paths:
         app's food orders, marketplace or rides. Ratings have no moderation
         or reports of their own. A rating that isn't there is 404; an empty
         or too long reply is 400.
+      parameters:
+        - $ref: '#/components/parameters/AppId'
+        - $ref: '#/components/parameters/RatedSource'
+        - $ref: '#/components/parameters/RatingId'
       requestBody:
         required: true
         content:
@@ -2170,6 +2191,10 @@ paths:
       tags: [Reviews]
       operationId: deleteRatingReply
       summary: Remove the reply under a customer's rating
+      parameters:
+        - $ref: '#/components/parameters/AppId'
+        - $ref: '#/components/parameters/RatedSource'
+        - $ref: '#/components/parameters/RatingId'
       responses:
         '200':
           description: The rating without a reply
@@ -4087,6 +4112,18 @@ components:
       description: The access token from sign-in or refresh (15 minutes).
 
   parameters:
+    RatedSource:
+      name: source
+      in: path
+      required: true
+      description: 132 What was rated.
+      schema: { type: string, enum: [food, market, ride] }
+    RatingId:
+      name: rating_id
+      in: path
+      required: true
+      description: 132 The food order, marketplace order or ride that was rated.
+      schema: { type: integer }
     AppId:
       name: app_id
       in: path
@@ -4860,6 +4897,27 @@ components:
           type: array
           items: { $ref: '#/components/schemas/OrderStage' }
           description: 132 Every change of its delivery stage, newest first. Missing on older servers.
+        refund_due:
+          type: [object, 'null']
+          description: |
+            132 The customer's money after a failed delivery ended with the
+            order cancelled (the failed attempt's `cancel`, or `POST …/status`
+            `cancelled` after a failed or returned stage): `refunded` through
+            the payment's provider at once; `needed` when it couldn't be (paid
+            outside the app, a provider without refunds, a payment in
+            Yallapp's account, the provider refused), until the owner refunds
+            it (`POST …/refunds`) or marks it refunded (`POST …/refund-done`),
+            then `recorded`. Null when nothing was owed. Missing on older
+            servers.
+          required: [status, amount, at, why, why_code, done_at, done_by]
+          properties:
+            status: { type: string, enum: [refunded, needed, recorded] }
+            why_code: { type: [string, 'null'], enum: [paid_outside, no_provider, provider_refused, null], description: "`why` as a code, for the app's own words; `provider_refused` says the provider's own answer in `why`." }
+            amount: { $ref: '#/components/schemas/Money' }
+            at: { type: string, format: date-time, description: When the order was cancelled. }
+            why: { type: [string, 'null'], description: "Why it couldn't go back by itself." }
+            done_at: { type: [string, 'null'], format: date-time }
+            done_by: { type: [string, 'null'] }
         next_stages:
           type: array
           items: { $ref: '#/components/schemas/DeliveryStage' }

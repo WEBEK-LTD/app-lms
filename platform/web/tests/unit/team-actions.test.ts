@@ -42,7 +42,7 @@ const GROUPS: { file: string; all?: unknown; only?: Expected; skip?: string[] }[
   {
     file: "catalog",
     all: "catalog",
-    only: { savePaymentKeysAction: "billing", testPaymentKeysAction: "billing", removePaymentKeysAction: "billing", saveManualPaymentsAction: "billing", setOrderStatusAction: "orders", moveOrderAction: "orders", shipOrderAction: "orders", decideReturnAction: "orders" },
+    only: { savePaymentKeysAction: "billing", testPaymentKeysAction: "billing", removePaymentKeysAction: "billing", saveManualPaymentsAction: "billing", setOrderStatusAction: "orders", moveOrderAction: "orders", shipOrderAction: "orders", decideReturnAction: "orders", setOrderStageAction: "orders", markStageRefundedAction: "orders" },
   },
   { file: "classes", all: "bookings" },
   { file: "courses", all: "catalog", only: { saveOfflineDownloadsAction: "settings" } },
@@ -75,6 +75,8 @@ const GROUPS: { file: string; all?: unknown; only?: Expected; skip?: string[] }[
   { file: "pages", all: "settings" },
   { file: "publishing", all: "settings" },
   { file: "refunds", all: "orders", only: { refundDonationAction: "donations" } },
+  // 132 The reply under a customer's rating.
+  { file: "rating-replies", all: "orders" },
   // 110.2
   { file: "samples", all: "settings" },
   { file: "screen-protection", all: "settings" },

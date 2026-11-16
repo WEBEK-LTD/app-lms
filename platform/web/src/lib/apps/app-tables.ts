@@ -102,6 +102,8 @@ export const APP_TABLES: Record<string, AppTableRole> = {
   storage_packs: "plan",
   kept_billing_records: "plan",
   app_deletions: "plan",
+  // 132 Prime given as a gift moves with the subscription.
+  prime_gifts: "plan",
 
   // Builds and the store listing.
   builds: "builds",

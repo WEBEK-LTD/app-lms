@@ -18,6 +18,7 @@ import { formatCents } from "../catalog/money";
 import { countOpenQuestions } from "../courses/community";
 import { changeOrderStatus, nextOrderStatuses } from "../catalog/order-status";
 import { nextStages, parseStageInput, setOrderStage } from "../catalog/order-stages";
+import { markStageRefunded, refundAfterFailedDelivery, stageRefundStatus, type StageRefundDeps } from "../catalog/stage-refunds";
 import { ownerStageHistoryJson, ownerStageJson } from "../catalog/stage-json";
 import { deliveryDayLabel, deliveryOf, shopToday, slotClosed, slotLabel, slotStarted } from "../selling/delivery";
 import { awaitingManualPayment } from "../catalog/manual";
@@ -284,6 +285,8 @@ function orderJson(ctx: OwnerContext, order: CatalogOrder, extras: OrderExtras) 
     stage: ownerStageJson(order, ctx.lang),
     stage_history: ownerStageHistoryJson(order, ctx.lang),
     next_stages: stagesOf(ctx, order),
+    // 132 The money back after a failed delivery cancelled it.
+    refund_due: stageRefundJson(ctx, order),
     // 96.2 To pay by bank transfer or the owner's own method: waiting (status pending) until marked paid.
     pay_outside: order.manualPayment
       ? { method: order.manualPayment.method, name: order.manualPayment.method === "bank_transfer" ? ctx.k("Bank transfer") : order.manualPayment.name, due_at: order.manualPayment.dueAt }
@@ -363,9 +366,44 @@ export async function changeOrder(ctx: OwnerContext, params: Record<string, stri
     status,
   );
   if (!moved) throw new OwnerError(409, "invalid_status", "This order can't move to that status.");
+  // 132 Cancelled after a failed delivery: the money goes back (or the order needs the owner's refund).
+  if (status === "cancelled") {
+    const cancelled = await deps.store.getCatalogOrder(app.id, order.id);
+    if (cancelled) await refundAfterFailedDelivery(stageRefundDeps(ctx, app), cancelled);
+  }
   // 60 Who moved it, on the dashboard's Team page.
   await recordOrderStatus(deps.store, { clientId: ctx.client.id, appId: app.id, actor: ctx.user, orderId: order.id, to: awaitingManualPayment(order) && status === "processing" ? "paid" : status }, deps.now);
   return { status: 200, body: await orderDetail(ctx, app, (await deps.store.getCatalogOrder(app.id, order.id))!) };
+}
+
+/** 132 What giving the money back after a failed delivery needs: the refunds' (the person's) and the app's push. */
+function stageRefundDeps(ctx: OwnerContext, app: App): StageRefundDeps {
+  return { ...refundDeps(ctx), app, account: serviceAccountOf(app, ctx.deps.encryptionKey), send: ctx.deps.sendPush, baseUrl: ctx.deps.baseUrl };
+}
+
+/** 132 `Order.refund_due`: the money back after a failed delivery cancelled it; null when nothing was owed. */
+function stageRefundJson(ctx: OwnerContext, order: CatalogOrder) {
+  const due = order.stageRefund;
+  const status = stageRefundStatus(order);
+  if (!due || !status) return null;
+  return {
+    status,
+    amount: money(due.cents, order.currency),
+    at: due.at,
+    why: due.why ? ctx.k(due.why) : null,
+    why_code: due.whyCode ?? null,
+    done_at: due.doneAt,
+    done_by: due.doneBy,
+  };
+}
+
+/** 132 "I refunded it": the owner paid the money back themselves after a failed delivery; recorded, and the customer told. */
+export async function markRefunded(ctx: OwnerContext, params: Record<string, string>): Promise<OwnerResult> {
+  const { app, order } = await ownOrder(ctx, params);
+  const done = await markStageRefunded(stageRefundDeps(ctx, app), order, ctx.user.name?.trim() || ctx.user.email);
+  if (!done.ok) throw new OwnerError(409, "no_refund_due", done.message);
+  await recordRefund(ctx.deps.store, { clientId: ctx.client.id, appId: app.id, actor: ctx.user, kind: "order", id: order.id, amount: formatCents(order.stageRefund!.cents, order.currency) }, ctx.deps.now);
+  return { status: 200, body: await orderDetail(ctx, app, done.order) };
 }
 
 /** 132 The stages an order's delivery may move to, for the person (the orders permission of its app). */
@@ -390,6 +428,7 @@ export async function setStage(ctx: OwnerContext, params: Record<string, string>
     order,
     parsed.input,
     { userId: ctx.user.id, name: ctx.user.name?.trim() || ctx.user.email, via: "business" },
+    stageRefundDeps(ctx, app),
   );
   if (!done.ok) {
     if (done.errors) throw invalid(done.errors);

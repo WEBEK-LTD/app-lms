@@ -43,7 +43,7 @@ void main() {
       findsOneWidget,
     );
     expect(
-      find.text('⁨Sorry! New insulated bags from today.⁩'),
+      find.text('\u2068Sorry! New insulated bags from today.\u2069'),
       findsOneWidget,
     );
   });
