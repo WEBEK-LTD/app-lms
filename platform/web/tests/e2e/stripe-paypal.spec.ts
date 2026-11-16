@@ -187,8 +187,8 @@ test("a shop takes an order on its own Stripe, then on its own PayPal", async ({
   expect(hook.status()).toBe(200);
   expect(await hook.json()).toEqual({ received: true, status: "already_paid" });
 
-  // 132.34 Test connection with the saved keys, a test payment made and cancelled: everything works.
-  await page.reload();
+  // 132.34 Test connection with the saved keys, a test payment made and cancelled: everything works. Back from the product's page by its header's link.
+  await page.getByRole("main").getByRole("link", { name: "Products", exact: true }).click();
   await expect(payments.getByTestId("gateway-saved")).toContainText("Webhook working · last one");
   await payments.getByRole("checkbox", { name: /Also make a 0.50 USD test payment/ }).check();
   await payments.getByRole("button", { name: "Test connection" }).click();
@@ -204,8 +204,7 @@ test("a shop takes an order on its own Stripe, then on its own PayPal", async ({
   await expect(page.locator("body")).not.toContainText("sk_test_51HarbourMugsKey");
   await expect(page.locator("body")).not.toContainText(SIGNING_SECRET);
 
-  // PayPal: the REST app's client ID and secret, with the sandbox switch. Back from the product's page by its header's link.
-  await page.getByRole("main").getByRole("link", { name: "Products", exact: true }).click();
+  // PayPal: the REST app's client ID and secret, with the sandbox switch.
   await payments.getByLabel("Payment provider").selectOption("paypal");
   await payments.getByLabel("Client ID").fill("AYharbour-client");
   await payments.getByLabel("Secret").fill("harbour-paypal-secret");

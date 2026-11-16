@@ -64,14 +64,14 @@ function ModeBadge({ mode, t }: { mode: StripeMode | "mix"; t: DashT }) {
   return <Badge tone={mode === "test" ? "warn" : "success"}>{t(mode === "test" ? "gateways.modeTest" : "gateways.modeLive")}</Badge>;
 }
 
-function CopyButton({ text, label }: { text: string; label: string }) {
+function CopyButton({ text, controls }: { text: string; controls: string }) {
   const t = useDashT();
   const [done, setDone] = useState(false);
   return (
     <button
       type="button"
       className={`${btn.secondary} h-9 px-3 text-sm`}
-      aria-label={`${t("gateways.copy")}: ${label}`}
+      aria-controls={controls}
       onClick={() => {
         void navigator.clipboard?.writeText(text).then(() => {
           setDone(true);
@@ -299,7 +299,7 @@ export function PaymentKeysForm({ provider, sandbox, merchantId = "", clientId =
               </label>
               <div className="flex min-w-0 gap-2">
                 <input id="f-webhook-url" readOnly value={stripeWebhookUrl} dir="ltr" className="input min-w-0 flex-1 font-mono text-[13px]" onFocus={(event) => event.target.select()} />
-                <CopyButton text={stripeWebhookUrl} label={t("gateways.webhookUrl")} />
+                <CopyButton text={stripeWebhookUrl} controls="f-webhook-url" />
               </div>
             </div>
             <div className="flex flex-col gap-1.5">

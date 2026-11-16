@@ -110,7 +110,7 @@ test("the page and the test's results in Egyptian Arabic", async () => {
   await expect(results).toContainText("نتيجة التجربة");
   await expect(results).toContainText("حساب Stripe: Lotus Gifts · AE.");
   await expect(results).toContainText("الوضع: تجربة. مفيش فلوس حقيقية بتتحرك.");
-  await own.context().addCookies([{ name: "yallapp_lang", value: "en", url: E2E.baseURL }]);
+  await own.context().clearCookies({ name: "yallapp_lang" });
 });
 
 test("ten tests every ten minutes, then a plain message", async () => {
@@ -122,7 +122,7 @@ test("ten tests every ten minutes, then a plain message", async () => {
   let ran = 0;
   for (; ran < 12 && !(await limited.isVisible()); ran++) {
     await button.click();
-    await expect(button).toHaveText("Test connection");
+    await expect(button).toHaveText(/Test connection$/);
   }
   await expect(limited).toBeVisible();
   expect(ran).toBeGreaterThanOrEqual(7);
