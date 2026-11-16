@@ -2729,12 +2729,12 @@ On the **Products** page (or the page where you set your prices: **Courses**, **
 - **iyzico**: your **API key** and **Secret key**, from the iyzico merchant panel under Settings. Prices in TRY, USD or EUR.
 - **Kashier**: your **Merchant ID** (MID-…), **Payment API key** and **Secret key**, from the Kashier dashboard under Integrate now. Prices in EGP, USD or EUR.
 - **Fawaterk**: your **API key**, from the Fawaterk dashboard under Integrations. Prices in EGP, USD, SAR, AED or EUR.
-- **Stripe**: your **Secret key**, from the Stripe Dashboard under Developers › API keys. A test key (sk_test_…) takes test payments, a live key (sk_live_…) real ones. Prices in TRY, USD, EUR, EGP, SAR or AED.
+- **Stripe**: your **Publishable key** and **Secret key** (or a restricted key, rk_…), from the Stripe Dashboard under Developers › API keys: both test keys (pk_test_…, sk_test_…) for test payments, or both live keys (pk_live_…, sk_live_…) for real ones. Then, under Developers › Webhooks, add an endpoint with the address the page shows and the events it lists, and paste its **Webhook signing secret** (whsec_…): Stripe tells Yallapp the moment a payment goes through. Prices in TRY, USD, EUR, EGP, SAR or AED.
 - **PayPal**: the **Client ID** and **Secret** of a REST app you create in the PayPal Developer Dashboard under Apps & Credentials. Prices in USD or EUR. Customers pay with their PayPal account or a card on PayPal's page.
 
 Set your prices in a currency your provider takes: the **Card payments** box warns you when they don't match.
 
-> To try it first, turn on the test switch (**Sandbox keys**, **Test mode keys**, **Staging key** or **Sandbox credentials**; Stripe's test keys say so themselves) and paste the provider's test keys, then pay with its test cards. Turn it off when you paste your live keys: test and live keys are different.
+> To try it first, turn on the test switch (**Sandbox keys**, **Test mode keys**, **Staging key** or **Sandbox credentials**; Stripe's test keys say so themselves) and paste the provider's test keys, then pay with its test cards. Turn it off when you paste your live keys: test and live keys are different. **Test connection** checks the keys with your provider, line by line (the keys, the mode, the currency, the webhook), without saving or charging anything.
 
 ## Yallapp never takes your customers' payments
 
