@@ -1025,6 +1025,10 @@ export interface CatalogSettings {
   addons?: StoreAddonSettings | null;
   /** 131 The owner's titles of the add-ons, the card and the delivery picker; missing: the app's words. */
   titles?: StoreSectionTitles | null;
+  /** 134 How a connected store's customers pay: the platform's own checkout (missing: as before) or inside the app (Demo). */
+  checkoutPayment?: "platform" | "in_app";
+  /** 134 The last "Test connection" that passed on the saved gateway keys: when, the gateway, and a fingerprint of those keys (new keys need a new test). */
+  gatewayTested?: { at: string; provider: PaymentProviderId; keys: string } | null;
 }
 
 /** 131 Shipping by weight: `perKgCents` a kg over the first `includedKg`. */
@@ -1203,6 +1207,64 @@ export interface StoreDelivery {
   /** Whether the platform's order carries the details (Shopify's attributes, Wix's note). */
   passed: boolean;
   createdAt: Date;
+}
+
+/** 134 A line of a connected store's order paid in the app, as the platform priced it. */
+export interface PlatformOrderLine {
+  productId: number;
+  /** WooCommerce's variation; null: none. */
+  variationId: number | null;
+  quantity: number;
+  name: string;
+  /** The variation's attributes as the platform takes them back (`attribute_pa_size`). */
+  attributes: Record<string, string>;
+  unitCents: number;
+  totalCents: number;
+  /** A gift add-on: the product it goes with; null: none. */
+  addonOf: number | null;
+  digital: boolean;
+}
+
+/** 134 What Yallapp creates on the platform once the payment is verified: the platform's own lines, coupon and checkout extras, sent back as they came. */
+export interface PlatformOrderIntent {
+  currency: CatalogCurrency;
+  lines: PlatformOrderLine[];
+  coupon: string | null;
+  /** The platform's checked checkout extras (WooCommerce: delivery_date, delivery_slot, slot_label, fee, gift_message, sender, recipient, gift_anonymous). */
+  extras: Record<string, unknown>;
+  /** The platform's customer (a WordPress user ID); null: a guest. */
+  customerId: number | null;
+  /** What the platform knows of the buyer, to fill the payment page; null: nothing. */
+  buyer: { name: string; email: string; phone: string; city: string; address: string; country: string } | null;
+  platform: "android" | "ios";
+}
+
+export type StorePlatformOrderStatus = "awaiting_payment" | "placing" | "placed" | "needs_attention" | "refunded";
+
+/**
+ * 134 A connected store's order paid inside the app (Demo): its payment is a
+ * catalog order (`orderId`, the owner's own gateway), and once the payment
+ * is verified Yallapp creates the order on the platform, marked paid, once
+ * (the payment's reference). A platform that refuses it leaves it
+ * `needs_attention`, for the owner to retry or refund.
+ */
+export interface StorePlatformOrder {
+  id: number;
+  appId: string;
+  orderId: number;
+  platform: "woocommerce";
+  status: StorePlatformOrderStatus;
+  intent: PlatformOrderIntent;
+  /** The platform's last quote before the payment (shipping and tax for the address); null: not yet. */
+  quote: { shippingCents: number; taxCents: number; discountCents: number; feeCents: number; totalCents: number; at: string } | null;
+  /** The platform's order, once created. */
+  platformOrderId: string | null;
+  platformOrderNumber: string | null;
+  /** Why it needs attention (out of stock, the site didn't answer); null: nothing. */
+  problem: { code: string; message: string; at: string } | null;
+  attempts: number;
+  createdAt: Date;
+  updatedAt: Date;
 }
 
 /** 96.2 How a customer may pay outside the card page: the owner writes the details, and marks the order paid once the money arrives. */
@@ -1838,7 +1900,9 @@ export type CatalogOrderPatch = Partial<
     CatalogOrder,
     "status" | "customer" | "updatedAt" | "commissionCents" | "itemTransactionIds" | "payoutApprovedAt" | "fulfilmentStatus" | "paymentProvider" | "providerRef" | "shipment" | "returnRequest" | "points" | "manualPayment" | "delivery" | "deliveryDate" | "deliveryStage" | "stageLog" | "stageRefund" | "customerCurrency"
   >
->;
+> &
+  // 134 A connected store's payment, priced again by its platform for the address before it is paid.
+  Partial<Pick<CatalogOrder, "lines" | "subtotalCents" | "discountCents" | "shippingCents" | "tax" | "totalCents">>;
 
 // Platform settings the team edits in the admin (secrets encrypted with context `platform:<key>`).
 
@@ -3578,7 +3642,9 @@ export type OwnerNoticeKind =
   // 132 A store order cancelled after a failed delivery whose payment the owner refunds themselves.
   | "order_refund_due"
   // 133 An add-on ends in 7 days (`addon_ends_7:<addon row>:<end>`).
-  | "addon_ends_7";
+  | "addon_ends_7"
+  // 134 A connected store's payment in the app whose order the platform refused (one per payment).
+  | "store_order_attention";
 
 export interface OwnerNotice {
   id: number;

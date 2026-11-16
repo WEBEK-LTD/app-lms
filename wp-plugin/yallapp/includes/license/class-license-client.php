@@ -254,6 +254,21 @@ class License_Client {
 	}
 
 	/**
+	 * 134 Asks Yallapp for the payment page of an order paid inside the app (docs/api/platform.yaml,
+	 * startStorePayment): the cart as the site priced it.
+	 *
+	 * @param array $order In_App_Payment::start_body().
+	 * @return array|WP_Error `url`, `expires_at`, `payment_id` and `gateway`.
+	 */
+	public function start_store_payment( array $order ) {
+		$key = (string) $this->settings->get( 'license_key' );
+		if ( '' === $key ) {
+			return new WP_Error( 'in_app_payment_off', __( 'This store\'s customers pay on its own checkout.', 'yallapp' ), array( 'status' => 409 ) );
+		}
+		return $this->call( 'POST', '/store/payments', array_merge( $this->site_info( $key ), $order ) );
+	}
+
+	/**
 	 * 100.4 Sends what the site sells that the app may sell through the stores
 	 * (docs/api/platform.yaml, sendBillingCatalog).
 	 *
@@ -728,6 +743,8 @@ class License_Client {
 			'screens'             => \Yallapp\Pages\Studio_Screens::of_status( $result ),
 			// 131 A store's card messages by occasion, as the owner manages them in the Yallapp dashboard.
 			'gift_messages'       => \Yallapp\Store\Delivery_Rules::gift_status( $result['gift_messages'] ?? null ),
+			// 134 The store's customers pay inside the app (Demo), through the owner's gateway in Yallapp.
+			'store_checkout'      => \Yallapp\Store\In_App_Payment::of_status( $result['store_checkout'] ?? null ),
 			// 83.3 The team's switches for the app's modules and new features.
 			'switches'            => self::switches_of( $result ),
 			'expires_at'          => isset( $result['expires_at'] ) ? sanitize_text_field( (string) $result['expires_at'] ) : null,

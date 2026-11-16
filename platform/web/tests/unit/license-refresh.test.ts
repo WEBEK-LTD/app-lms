@@ -227,6 +227,8 @@ describe("saves that change what the license status carries ask the site", () =>
       "gift_messages",
       // 131 A store's section titles (Store › Delivery & offers › Titles in the app).
       "store_titles",
+      // 134 Pay inside the app (Payments › How customers pay); gateway keys changed meanwhile only make Yallapp refuse it, and the plugin opens the store's checkout.
+      "store_checkout",
       "expires_at",
       "checked_at",
       "message",

@@ -394,6 +394,100 @@ paths:
         '404': { $ref: '#/components/responses/NotFound' }
         '429': { $ref: '#/components/responses/TooManyRequests' }
 
+  /store/payments:
+    post:
+      tags: [Store billing]
+      operationId: startStorePayment
+      summary: The payment page of an order paid inside the app
+      description: |
+        Roadmap 134, pay inside the app (Demo; plugin 0.4.47 and later). While
+        `LicenseStatus.store_checkout` says `in_app`, the plugin answers the
+        app's `POST /store/checkout-link` with `payment: in_app` by sending the
+        cart as WooCommerce priced it (each line with its WooCommerce IDs,
+        attributes and add-on link, the coupon and its discount, the delivery
+        slot's fee and the checked checkout extras) and the buyer it knows.
+        Yallapp keeps it as a payment of the owner's own gateway and answers
+        with its payment page, which the plugin gives the app. Before the
+        payment, Yallapp asks the site for the shipping and tax of the
+        customer's address and checks the stock (openapi.yaml
+        `POST /store/paid-orders`, `quote`); once the payment is verified, it
+        asks the site to create the order, marked paid (`create`).
+
+        Refused with 409 `in_app_payment_off` when the store pays on its own
+        checkout (or its gateway isn't connected and tested), and
+        `currency_not_supported` when the gateway doesn't take the store's
+        currency: the plugin then opens the site's checkout as before.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              allOf:
+                - $ref: '#/components/schemas/SiteInfo'
+                - type: object
+                  required: [currency, platform, lines]
+                  properties:
+                    currency: { type: string, enum: [TRY, USD, EUR, EGP, SAR, AED] }
+                    platform: { type: string, enum: [android, ios] }
+                    lang: { type: string, example: tr }
+                    lines:
+                      type: array
+                      minItems: 1
+                      maxItems: 50
+                      items:
+                        type: object
+                        required: [product_id, quantity, name, unit_amount, total_amount]
+                        properties:
+                          product_id: { type: integer, minimum: 1 }
+                          variation_id: { type: [integer, 'null'] }
+                          quantity: { type: integer, minimum: 1, maximum: 999 }
+                          name: { type: string, maxLength: 200 }
+                          unit_amount: { type: string, example: '450.00' }
+                          total_amount: { type: string, example: '900.00' }
+                          attributes: { type: object, additionalProperties: { type: string } }
+                          addon_of: { type: [integer, 'null'] }
+                          digital: { type: boolean }
+                    coupon: { type: [string, 'null'] }
+                    discount_amount: { type: string, example: '0.00' }
+                    fee_amount: { type: string, example: '30.00', description: "The delivery slot's fee." }
+                    extras: { type: object, description: "The checked checkout extras, sent back to the site with the order." }
+                    customer:
+                      type: object
+                      properties:
+                        user_id: { type: [integer, 'null'] }
+                        name: { type: string }
+                        email: { type: string }
+                        phone: { type: string }
+                        city: { type: string }
+                        address: { type: string }
+                        country: { type: string }
+      responses:
+        '200':
+          description: The payment page
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [url, expires_at, payment_id, gateway]
+                properties:
+                  url: { type: string, format: uri, description: "Yallapp's payment page, for the app to open." }
+                  expires_at: { type: string, format: date-time }
+                  payment_id: { type: string }
+                  gateway: { type: string, enum: [iyzico, kashier, fawaterk, stripe, paypal] }
+        '400': { $ref: '#/components/responses/BadRequest' }
+        '403':
+          description: The license isn't active on this site (`license_inactive`).
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Error' }
+        '404': { $ref: '#/components/responses/NotFound' }
+        '409':
+          description: The store's customers pay on its own checkout (`in_app_payment_off`), or its gateway doesn't take its currency (`currency_not_supported`).
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Error' }
+        '429': { $ref: '#/components/responses/TooManyRequests' }
+
   /billing/catalog:
     post:
       tags: [Store billing]
@@ -1295,6 +1389,19 @@ components:
             addons: { type: [object, 'null'], additionalProperties: { type: string, maxLength: 40 } }
             gift_card: { type: [object, 'null'], additionalProperties: { type: string, maxLength: 40 } }
             delivery: { type: [object, 'null'], additionalProperties: { type: string, maxLength: 40 } }
+        store_checkout:
+          type: [object, 'null']
+          description: |
+            134 A WooCommerce store's customers pay inside the app (Demo),
+            through the owner's own gateway in Yallapp, connected and tested
+            there: the plugin serves `StoreConfig.checkout_payment: in_app` and
+            asks for the payment page (`POST /api/v1/store/payments`). Null: on
+            the store's own checkout, as before; missing on older platforms.
+          required: [payment, gateway, gateway_name]
+          properties:
+            payment: { type: string, enum: [in_app] }
+            gateway: { type: string, enum: [iyzico, kashier, fawaterk, stripe, paypal] }
+            gateway_name: { type: string, example: Stripe }
         store_billing:
           type: [object, 'null']
           description: |

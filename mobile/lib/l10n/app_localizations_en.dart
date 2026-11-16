@@ -11978,6 +11978,36 @@ class AppLocalizationsEn extends AppLocalizations {
   String get deliveryNeedPin => 'Pin where it goes on the map.';
 
   @override
+  String get inAppPaidTitle => 'Order placed';
+
+  @override
+  String get inAppPaidBody =>
+      'Your payment is received and your order is placed with the shop. You\'ll find it in your orders.';
+
+  @override
+  String get inAppConfirmingTitle => 'Payment received';
+
+  @override
+  String get inAppConfirmingBody =>
+      'We received your payment. The shop will confirm your order shortly.';
+
+  @override
+  String get inAppNotPaidTitle => 'Payment not completed';
+
+  @override
+  String get inAppNotPaidBody =>
+      'Nothing was charged. Your cart is kept, so you can try again.';
+
+  @override
+  String get inAppViewOrders => 'View my orders';
+
+  @override
+  String get inAppBackToCart => 'Back to cart';
+
+  @override
+  String get inAppPayTitle => 'Payment';
+
+  @override
   String get orderStagePreparing => 'Your order is being prepared';
 
   @override

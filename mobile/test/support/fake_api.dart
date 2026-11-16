@@ -1193,8 +1193,10 @@ class FakeApi implements YallappApi {
     GiftPerson? recipient,
     bool giftAnonymous = false,
     DeliveryPlace? place,
+    bool payInApp = false,
   }) {
     lastPlace = place;
+    lastPayInApp = payInApp;
     lastCartLines = lines;
     lastCoupon = coupon;
     lastUsePoints = usePoints;
@@ -1212,13 +1214,22 @@ class FakeApi implements YallappApi {
     );
     return _answer(
       'createStoreCheckoutLink',
-      () => CheckoutLink.fromJson({
-        'url': 'https://your-shop.com/?yallapp_link=abc',
-        'expires_at': '2030-01-01T00:00:00Z',
-        'open_in': 'in_app',
-      }),
+      () => CheckoutLink.fromJson(
+        checkoutLinkJson ??
+            {
+              'url': 'https://your-shop.com/?yallapp_link=abc',
+              'expires_at': '2030-01-01T00:00:00Z',
+              'open_in': 'in_app',
+            },
+      ),
     );
   }
+
+  /// 134 Whether the last store checkout asked to pay inside the app.
+  bool? lastPayInApp;
+
+  /// 134 The store checkout link's answer, when a test gives its own.
+  Map<String, dynamic>? checkoutLinkJson;
 
   @override
   Future<List<BookingsHomeSection>> getBookingsHome() => _answer(

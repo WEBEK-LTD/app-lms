@@ -101,7 +101,7 @@ import type {
 import { holdsOf, holdsOn } from "../travel/holds";
 import { alertData, bookingColumns, bookingData, flightData, hotelData, reviewData, roomData, type TravelAlertData, type TravelBookingData, type TravelFlightData, type TravelHotelData, type TravelReviewData, type TravelRoomData } from "../travel/rows";
 import type { AppDeletion, AppDeletionStatus, AppMoveRequest, AppMoveStatus, KeptBillingRecord } from "./types";
-import type { GiftOccasion, StoreDelivery, StoreFlashSale } from "./types";
+import type { GiftOccasion, StoreDelivery, StoreFlashSale, StorePlatformOrder, StorePlatformOrderStatus } from "./types";
 import type { CourierAccount, CourierChallenge, CourierDevice, CourierDevicePatch } from "./types";
 // 114 Email campaigns
 import type { BotPhrase, BotUnmatched, BotUnmatchedStatus } from "../bot/types";
@@ -1500,6 +1500,48 @@ export class MysqlStore implements DataStore {
     const t = schema.storeDeliveries;
     const [done] = await this.run((db) => db.delete(t).where(lt(t.createdAt, before)));
     return done.affectedRows;
+  }
+
+  // 134 Connected stores' orders paid inside the app
+
+  private storePlatformOrderOf(row: typeof schema.storePlatformOrders.$inferSelect): StorePlatformOrder {
+    const { data, ...rest } = row;
+    return { ...rest, ...data };
+  }
+
+  async createStorePlatformOrder(input: Omit<StorePlatformOrder, "id">): Promise<StorePlatformOrder> {
+    const { appId, orderId, platform, status, platformOrderId, platformOrderNumber, attempts, createdAt, updatedAt, intent, quote, problem } = input;
+    const [result] = await this.run((db) =>
+      db.insert(schema.storePlatformOrders).values({ appId, orderId, platform, status, platformOrderId, platformOrderNumber, attempts, createdAt, updatedAt, data: { intent, quote, problem } }),
+    );
+    return { ...input, id: Number(result.insertId) };
+  }
+
+  async getStorePlatformOrder(appId: string, orderId: number): Promise<StorePlatformOrder | null> {
+    const t = schema.storePlatformOrders;
+    const [row] = await this.run((db) => db.select().from(t).where(and(eq(t.appId, appId), eq(t.orderId, orderId))).limit(1));
+    return row ? this.storePlatformOrderOf(row) : null;
+  }
+
+  async updateStorePlatformOrder(appId: string, orderId: number, patch: Partial<Omit<StorePlatformOrder, "id" | "appId" | "orderId" | "createdAt">>, from?: StorePlatformOrderStatus[]): Promise<boolean> {
+    const t = schema.storePlatformOrders;
+    const { intent, quote, problem, ...columns } = patch;
+    const set: Partial<typeof t.$inferInsert> = { ...columns };
+    if (intent !== undefined || quote !== undefined || problem !== undefined) {
+      const current = await this.getStorePlatformOrder(appId, orderId);
+      if (!current) return false;
+      set.data = { intent: intent ?? current.intent, quote: quote === undefined ? current.quote : quote, problem: problem === undefined ? current.problem : problem };
+    }
+    if (Object.keys(set).length === 0) return true;
+    const where = and(eq(t.appId, appId), eq(t.orderId, orderId), ...(from ? [inArray(t.status, from)] : []));
+    const [result] = await this.run((db) => db.update(t).set(set).where(where));
+    return result.affectedRows === 1;
+  }
+
+  async listStorePlatformOrders(appId: string, limit: number): Promise<StorePlatformOrder[]> {
+    const t = schema.storePlatformOrders;
+    const rows = await this.run((db) => db.select().from(t).where(eq(t.appId, appId)).orderBy(desc(t.createdAt), desc(t.id)).limit(limit));
+    return rows.map((r) => this.storePlatformOrderOf(r));
   }
 
   private giftOccasionOf(row: typeof schema.storeGiftOccasions.$inferSelect): GiftOccasion {

@@ -246,6 +246,7 @@ export const APP_TABLES: Record<string, AppTableRole> = {
   // Orders, bookings and payments.
   catalog_orders: "orders",
   store_deliveries: "orders",
+  store_platform_orders: "orders",
   booking_appointments: "orders",
   class_sessions: "orders",
   class_bookings: "orders",

@@ -12,10 +12,13 @@ defined( 'ABSPATH' ) || exit;
 use WP_REST_Request;
 use WP_REST_Server;
 use Yallapp\Store\Catalog;
+use Yallapp\Store\Paid_Order_Request;
+use Yallapp\Store\Paid_Orders;
 
 /**
  * /store/home, /store/categories, /store/products, /store/products/{id}, its reviews,
- * /store/cart and /store/checkout-link, for Store apps on WooCommerce.
+ * /store/cart and /store/checkout-link, for Store apps on WooCommerce; 134 and Yallapp's
+ * `POST /store/paid-orders` for orders paid inside the app.
  */
 class Store_Controller extends Controller {
 
@@ -173,8 +176,23 @@ class Store_Controller extends Controller {
 						'gift_anonymous' => array( 'type' => 'boolean' ),
 						'sender'         => array( 'type' => array( 'object', 'null' ) ),
 						'recipient'      => array( 'type' => array( 'object', 'null' ) ),
+						// 134 The app pays inside the app when the store does (StoreConfig.checkout_payment).
+						'payment'        => array(
+							'type' => 'string',
+							'enum' => array( 'platform', 'in_app' ),
+						),
 					)
 				),
+			)
+		);
+		// 134 Yallapp prices an order paid inside the app, then creates it once the payment is verified.
+		$this->route(
+			'/store/paid-orders',
+			array(
+				'methods'             => WP_REST_Server::CREATABLE,
+				'callback'            => array( $this, 'paid_orders' ),
+				// The signature is the permission: checked in the callback so errors keep the contract's shape.
+				'permission_callback' => $open,
 			)
 		);
 		// 131 The delivery slots of a day, the card messages, the flash sale and the coupons shown in the app.
@@ -515,9 +533,35 @@ class Store_Controller extends Controller {
 					'gift_anonymous' => true === $request['gift_anonymous'],
 					'sender'         => is_array( $request['sender'] ) ? $request['sender'] : null,
 					'recipient'      => is_array( $request['recipient'] ) ? $request['recipient'] : null,
+					'payment'        => 'in_app' === $request['payment'] ? 'in_app' : ( null !== $request['payment'] ? 'platform' : null ),
 				)
 			)
 		);
+	}
+
+	/**
+	 * 134 POST /store/paid-orders: Yallapp, signed with the license key, prices an order paid inside
+	 * the app (`quote`) or creates it once paid (`create`, one per payment reference).
+	 *
+	 * @param WP_REST_Request $request Request.
+	 * @return \WP_REST_Response
+	 */
+	public function paid_orders( WP_REST_Request $request ) {
+		$key = (string) $this->plugin->settings()->get( 'license_key' );
+		$raw = $request->get_body();
+		if ( ! Paid_Order_Request::verify( $key, $request->get_header( 'yallapp_timestamp' ), $request->get_header( 'yallapp_signature' ), $raw, time() ) ) {
+			return self::error( 'invalid_signature', __( 'This request is not signed for this site.', 'yallapp' ), 401 );
+		}
+		$order = Paid_Order_Request::parse( json_decode( (string) $raw, true ) );
+		if ( null === $order ) {
+			return self::error( 'invalid_request', __( 'The request is not a valid order.', 'yallapp' ), 400 );
+		}
+		if ( ! Catalog::available() ) {
+			return self::unavailable();
+		}
+		// Yallapp may hang up on a slow site; the order is still made, and kept by its reference.
+		ignore_user_abort( true );
+		return $this->result( ( new Paid_Orders() )->handle( $order ) );
 	}
 
 	/**

@@ -34,6 +34,7 @@ import { platformSetting, yallappPlanAccount } from "@/lib/settings/platform";
 import { UpgradeHint } from "@/components/upgrade";
 import { BuyStorageForm, RenameForm } from "./forms";
 import { MediaUploader } from "./uploader";
+import { MediaViewer } from "./viewer";
 
 export async function generateMetadata(): Promise<Metadata> {
   return { title: (await dashboardText()).t("media.title") };
@@ -216,7 +217,17 @@ export default async function MediaPage({ searchParams }: PageProps<"/dashboard/
                   actions={
                     <>
                       {f.status === "ready" && f.source !== "chat" ? <CopyButton value={link} label={t("media.copyLink")} copiedLabel={t("common.copied")} /> : null}
-                      {open ? (
+                      {open && storage && (f.kind === "image" || f.kind === "video" || f.kind === "audio") ? (
+                        <MediaViewer
+                          kind={f.kind}
+                          src={open}
+                          download={fileUrl(storage, f, { ttlSeconds: 3600, download: true }).url}
+                          name={f.name}
+                          openLabel={t("media.open")}
+                          closeLabel={t("common.close")}
+                          downloadLabel={t("common.download")}
+                        />
+                      ) : open ? (
                         <a href={open} target="_blank" rel="noopener noreferrer" className={`${btn.secondary} h-9 px-3.5 text-sm`}>
                           <Icon name="open_in_new" size={18} />
                           {t("media.open")}

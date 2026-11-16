@@ -103,7 +103,7 @@ export function appTransferStoreSuite(store: () => DataStore) {
     await s.createMediaFile(media);
     // Its people, an order, a build and its plan.
     const user = await s.createHostedUser({ appId: app.id, phone: "+905550000001", name: "Deniz", email: null, city: null, now: NOW });
-    await s.createCatalogOrder({
+    const order = await s.createCatalogOrder({
       appId: app.id,
       tokenHash: randomUUID().replace(/-/g, ""),
       userId: user!.id,
@@ -121,6 +121,21 @@ export function appTransferStoreSuite(store: () => DataStore) {
       commissionCents: null,
       itemTransactionIds: null,
       payoutApprovedAt: null,
+    });
+    // 134 The order paid inside the app for a connected store: an order like the payment it belongs to.
+    await s.createStorePlatformOrder({
+      appId: app.id,
+      orderId: order.id,
+      platform: "woocommerce",
+      status: "placed",
+      intent: { currency: "EGP", lines: [], coupon: null, extras: {}, customerId: null, buyer: null, platform: "android" },
+      quote: null,
+      platformOrderId: "501",
+      platformOrderNumber: "501",
+      problem: null,
+      attempts: 1,
+      createdAt: NOW,
+      updatedAt: NOW,
     });
     await s.createBuild({
       id: randomUUID(),
@@ -155,7 +170,7 @@ export function appTransferStoreSuite(store: () => DataStore) {
       createdAt: NOW,
       paidAt: NOW,
     });
-    return { app: (await s.getAppById(app.id))!, icon, photo, red, white, roses, tulips, mediaId, user: user! };
+    return { app: (await s.getAppById(app.id))!, icon, photo, red, white, roses, tulips, mediaId, user: user!, order };
   }
 
   const copyDeps = (media: MediaStorage | null = new CopyingMedia()): CopyDeps => ({ store: store(), now: NOW, copyBlob: async (key) => `${key}.copy`, media });
@@ -210,6 +225,7 @@ export function appTransferStoreSuite(store: () => DataStore) {
     // Never the people, orders, builds or plan.
     expect(await s.countHostedUsers(copy.id)).toBe(0);
     expect((await s.listCatalogOrders({ appId: copy.id, offset: 0, limit: 10 })).total).toBe(0);
+    expect(await s.listStorePlatformOrders(copy.id, 10)).toEqual([]);
     expect(await s.listBuildsByApp(copy.id, 10, "all")).toEqual([]);
     expect(await s.getLicenseForApp(b.client.id, copy.id)).toBeNull();
     expect(await s.listPlanPayments({ appId: copy.id, limit: 10 })).toEqual([]);
@@ -257,6 +273,7 @@ export function appTransferStoreSuite(store: () => DataStore) {
     expect(app.androidPackage).toBe(source.app.androidPackage);
     expect(await s.listCatalogProducts(app.id)).toHaveLength(2);
     expect(await s.countHostedUsers(app.id)).toBe(1);
+    expect(await s.getStorePlatformOrder(app.id, source.order.id)).toMatchObject({ status: "placed", platformOrderId: "501" });
     expect((await s.listBuildsByApp(app.id, 10, "all"))[0]).toMatchObject({ clientId: b.client.id });
     expect(await s.getLicenseForApp(b.client.id, app.id)).toMatchObject({ clientId: b.client.id, plan: "growth" });
     // The record left behind holds the invoices.
@@ -281,6 +298,8 @@ export function appTransferStoreSuite(store: () => DataStore) {
     expect((await s.listCatalogOrders({ appId: app.id, offset: 0, limit: 10 })).total).toBe(0);
     expect(await s.countHostedUsers(done.archive.id)).toBe(1);
     expect((await s.listCatalogOrders({ appId: done.archive.id, offset: 0, limit: 10 })).total).toBe(1);
+    expect(await s.listStorePlatformOrders(app.id, 10)).toEqual([]);
+    expect(await s.getStorePlatformOrder(done.archive.id, source.order.id)).toMatchObject({ status: "placed", platformOrderId: "501" });
     expect((await s.getAppById(done.archive.id))!.clientId).toBe(a.client.id);
     // The subscription went with the app.
     expect(await s.getLicenseForApp(b.client.id, app.id)).not.toBeNull();

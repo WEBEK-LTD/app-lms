@@ -4046,6 +4046,23 @@ paths:
         app). A product in a Yallapp flash sale with the platform's discount
         code takes that code to the platform's checkout when the customer gave
         none.
+
+        Roadmap 134, pay inside the app (Demo). When `store.checkout_payment`
+        is `in_app`, the app sends `payment: in_app`, and the checkout ends in
+        the app instead of the platform's page: the platform prices the cart
+        as always, and the link opens Yallapp's payment page (`payment:
+        in_app` in the answer), where the customer gives their address, the
+        platform prices its shipping and tax and checks the stock, and the
+        customer pays with the owner's own gateway (Stripe, PayPal, Kashier,
+        Fawaterk or iyzico; the money goes to the owner's account, and Yallapp
+        adds no fee). Once the payment is verified, Yallapp creates the order
+        on the platform, marked paid, once per payment (WooCommerce:
+        `POST /store/paid-orders`). The page's last address has
+        `order-received` and `shop_order=placed` (the order is made) or
+        `shop_order=confirming` (paid; the shop confirms the order). An app
+        that sends nothing, or a store that can't now (its gateway doesn't take
+        its currency, Yallapp can't be reached), gets the platform's checkout
+        as before, with `payment: platform` when the app asked.
       security: [{}, { bearerAuth: [] }]
       parameters:
         - $ref: '#/components/parameters/DisplayCurrency'
@@ -4067,6 +4084,10 @@ paths:
                       type: [string, 'null']
                       format: date-time
                       description: "Shops with `store.fulfilment` only: the time the order is for, one of `GET /store/order-times` `slots`. Null or missing: as soon as possible." 
+                    payment:
+                      type: string
+                      enum: [platform, in_app]
+                      description: "134 `in_app`: the app pays inside the app when `store.checkout_payment` is `in_app` (an app that sends nothing keeps the platform's checkout)."
       responses:
         '200':
           description: Checkout link
@@ -4079,6 +4100,12 @@ paths:
                   url: { type: string, format: uri }
                   expires_at: { type: string, format: date-time }
                   open_in: { type: string, enum: [in_app, browser] }
+                  payment:
+                    type: string
+                    enum: [platform, in_app]
+                    description: "134 When the app sent `payment`: `in_app`, `url` is Yallapp's payment page (open it in the app; it ends on `order-received` with `shop_order`); `platform`, the platform's checkout as before. Missing when the app sent nothing."
+                  payment_id: { type: [string, 'null'], description: "134 `in_app`: the payment's number on Yallapp's page." }
+                  gateway: { type: [string, 'null'], enum: [iyzico, kashier, fawaterk, stripe, paypal, null], description: "134 `in_app`: the owner's gateway that takes the payment." }
                   charge: { $ref: '#/components/schemas/CartCharge' }
         '400': { $ref: '#/components/responses/BadRequest' }
         '401': { $ref: '#/components/responses/Unauthorized' }
@@ -9257,6 +9284,128 @@ paths:
             application/json:
               schema: { $ref: '#/components/schemas/Error' }
 
+  /store/paid-orders:
+    post:
+      tags: [Platform]
+      operationId: storePaidOrder
+      summary: Price, then create, an order paid inside the app
+      description: |
+        Roadmap 134, pay inside the app (Demo; plugin 0.4.47 and later). Sent
+        by the Yallapp platform to the WordPress site for a store whose
+        customers pay inside the app through the owner's own gateway in
+        Yallapp (`LicenseStatus.store_checkout`, platform.yaml).
+
+        `quote`, right before the payment: WooCommerce prices the order as its
+        checkout does for the customer's address (each line before the coupon,
+        the coupon, shipping, the delivery slot's fee and the taxes) and checks
+        the stock; the payment's total follows it. `create`, once the payment
+        is verified: WooCommerce's checkout makes the order from the same
+        cart, with the gift's sender (else the buyer) as billing and its
+        recipient (else the buyer) as shipping, the delivery day, slot, card
+        and people as order meta, the payment method `<gateway> (in app)` and
+        a note `Paid in the app via <gateway>, reference <id>`, and marks it
+        paid (`payment_complete`), so the stock goes down and WooCommerce's
+        emails go out. One order per `reference`: a repeat answers with the
+        order made (`created: false`). A sold-out product answers
+        `out_of_stock` (409); Yallapp then keeps the payment for the owner to
+        retry or refund.
+
+        Signed like `POST /billing/access`: the headers `Yallapp-Timestamp`
+        and `Yallapp-Signature`, the lowercase hex HMAC-SHA256 of
+        `yallapp-store-order:<timestamp>:<the raw body>`, keyed with the
+        license key in capitals (`invalid_signature`, 401). Only sent to the
+        https address of the site the license is active on.
+      security: []
+      parameters:
+        - name: Yallapp-Timestamp
+          in: header
+          required: true
+          schema: { type: integer }
+        - name: Yallapp-Signature
+          in: header
+          required: true
+          schema: { type: string, pattern: '^[0-9a-f]{64}$' }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [action, reference, currency, lines, billing]
+              properties:
+                action: { type: string, enum: [quote, create] }
+                reference: { type: string, pattern: '^yallapp-order-[0-9]{1,20}$', description: "Yallapp's payment: one order per reference." }
+                currency: { type: string, example: TRY }
+                lines:
+                  type: array
+                  minItems: 1
+                  maxItems: 50
+                  items:
+                    type: object
+                    required: [product_id, quantity]
+                    properties:
+                      product_id: { type: integer, minimum: 1 }
+                      variation_id: { type: [integer, 'null'] }
+                      quantity: { type: integer, minimum: 1, maximum: 999 }
+                      attributes: { type: object, additionalProperties: { type: string }, description: "The variation's attributes (`attribute_pa_size`)." }
+                      addon_of: { type: [integer, 'null'], description: "131 A gift add-on: the product it goes with." }
+                      unit_amount: { type: string, example: '450.00' }
+                      total_amount: { type: string, example: '900.00' }
+                coupon: { type: [string, 'null'] }
+                extras:
+                  type: object
+                  description: "The checked checkout extras the plugin sent with the payment: `delivery_date`, `delivery_slot`, `slot_label`, `fee`, `gift_message`, `sender`, `recipient`, `gift_anonymous`."
+                customer_id: { type: [integer, 'null'], description: "The WordPress user who checked out; null: a guest." }
+                billing: { $ref: '#/components/schemas/PaidOrderPerson' }
+                shipping: { $ref: '#/components/schemas/PaidOrderPerson' }
+                platform: { type: string, enum: [android, ios] }
+                payment:
+                  type: object
+                  description: "`create` only: the verified payment."
+                  required: [gateway, transaction_id, amount, currency]
+                  properties:
+                    gateway: { type: string, example: Stripe }
+                    transaction_id: { type: string, example: pi_3Q0abc }
+                    amount: { type: string, example: '1075.00' }
+                    currency: { type: string, example: TRY }
+                    paid_at: { type: string, format: date-time }
+                    note: { type: string, example: 'Paid in the app via Stripe, reference pi_3Q0abc' }
+      responses:
+        '200':
+          description: "`quote`: the amounts. `create`: the order (made now, or before for this reference)."
+          content:
+            application/json:
+              schema:
+                oneOf:
+                  - type: object
+                    required: [currency, total_amount]
+                    properties:
+                      currency: { type: string }
+                      lines:
+                        type: array
+                        items:
+                          type: object
+                          properties:
+                            product_id: { type: integer }
+                            variation_id: { type: [integer, 'null'] }
+                            total_amount: { type: string }
+                            available: { type: boolean }
+                      discount_amount: { type: string }
+                      shipping_amount: { type: string }
+                      fee_amount: { type: string }
+                      tax_amount: { type: string, description: "Taxes not already in the amounts above (prices shown without tax), and a cent of rounding." }
+                      total_amount: { type: string }
+                  - type: object
+                    required: [order_id, order_number, status, created]
+                    properties:
+                      order_id: { type: integer }
+                      order_number: { type: string }
+                      status: { type: string, example: processing }
+                      created: { type: boolean }
+        '400': { $ref: '#/components/responses/BadRequest' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '409': { $ref: '#/components/responses/Conflict' }
+        '503': { $ref: '#/components/responses/Unavailable' }
   /license/refresh:
     post:
       tags: [Platform]
@@ -14813,6 +14962,18 @@ components:
         guest_checkout: { type: boolean, description: Whether the shop allows checkout without an account. }
         checkout_opens_in: { type: string, enum: [in_app, browser] }
         reviews: { type: boolean, description: Whether product reviews are on. }
+        checkout_payment:
+          type: string
+          enum: [platform, in_app]
+          default: platform
+          description: |
+            134 How the checkout ends. `platform`: on the platform's own
+            checkout page (WooCommerce's, Shopify's, Wix's), or Yallapp's
+            payment page for Yallapp's own products, as before. `in_app` (a
+            Demo, WooCommerce for now): the app sends `payment: in_app` with
+            `POST /store/checkout-link` and the customer pays inside the app
+            through the owner's own gateway; the order is then made on the
+            platform. Missing (older servers and plugins): `platform`.
         checkout_mode:
           type: string
           enum: [standard, gift]
@@ -14976,6 +15137,16 @@ components:
         lat: { type: [number, 'null'], minimum: -90, maximum: 90, description: "131 The pin dropped on the map, for shipping priced by distance." }
         lng: { type: [number, 'null'], minimum: -180, maximum: 180 }
 
+    PaidOrderPerson:
+      type: object
+      description: "134 A person on an order paid inside the app (`POST /store/paid-orders`): who pays (billing) or where it goes (shipping). A country left out is the store's own."
+      properties:
+        name: { type: string, maxLength: 80 }
+        phone: { type: string, maxLength: 24 }
+        email: { type: string, maxLength: 191 }
+        city: { type: string, maxLength: 60 }
+        address: { type: string, maxLength: 300 }
+        country: { type: [string, 'null'], pattern: '^[A-Z]{2}$' }
     StoreDeliveryInput:
       type: object
       description: |

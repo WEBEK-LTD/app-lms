@@ -20,6 +20,7 @@ class StoreConfig {
     this.giftCheckout = false,
     this.shipping,
     this.titles = const SectionTitles(),
+    this.payInApp = false,
   });
 
   factory StoreConfig.fromJson(Json json) => StoreConfig(
@@ -43,7 +44,13 @@ class StoreConfig {
     giftCheckout: json['checkout_mode'] == 'gift',
     shipping: StoreShippingRules.tryParse(json['shipping']),
     titles: SectionTitles.fromStore(json['titles']),
+    payInApp: json['checkout_payment'] == 'in_app',
   );
+
+  /// 134 The checkout ends inside the app: the customer pays on Yallapp's
+  /// payment page with the owner's gateway (`checkout_payment: in_app`);
+  /// false: the shop's own checkout, as before.
+  final bool payInApp;
 
   /// 131 The owner's titles of the add-ons, the card and the delivery
   /// picker; a missing language: the app's words.

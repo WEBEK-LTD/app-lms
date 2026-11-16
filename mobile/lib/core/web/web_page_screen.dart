@@ -22,6 +22,7 @@ class WebPageArgs {
     this.completesOn,
     this.look,
     this.ownerPage = false,
+    this.onCompleted,
   });
 
   final String url;
@@ -41,6 +42,10 @@ class WebPageArgs {
   /// When a page the web view reaches matches, the screen closes with
   /// `true` (for example the shop's order received page).
   final bool Function(Uri url)? completesOn;
+
+  /// 134 Told the page that matched [completesOn] (a payment inside the
+  /// app reads how it ended from its address).
+  final void Function(Uri url)? onCompleted;
 }
 
 /// A page of the website shown in the app (for example the checkout).
@@ -100,6 +105,7 @@ class _WebPageScreenState extends ConsumerState<WebPageScreen> {
     final test = widget.args.completesOn;
     if (!_completed && test != null && test(url) && mounted) {
       setState(() => _completed = true);
+      widget.args.onCompleted?.call(url);
     }
   }
 

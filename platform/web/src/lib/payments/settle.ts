@@ -23,6 +23,8 @@ import { yallappAccountFor } from "../settings/platform";
 import type { PaymentAccount } from "./provider";
 import { refreshSitesSoon } from "../license/refresh-soon";
 import { donationReceiptPdf, receiptAttachment, sendOrderReceipt } from "../receipts/service";
+import { placePlatformOrder, platformOrderState } from "../selling/in-app-pay";
+import { inAppPayDeps } from "../selling/in-app-pay-env";
 
 /**
  * 37 What happens when a provider calls back: iyzico's callback (POST with
@@ -119,6 +121,11 @@ export async function settlePlanRecord(store: DataStore, payment: PlanPayment, t
  * order paid by bank transfer or their own method.
  */
 export async function afterOrderPaid(store: DataStore, app: App, order: CatalogOrder): Promise<void> {
+  // 134 A connected store's payment in the app: its order is made on the platform, which sends its own emails.
+  if (await store.getStorePlatformOrder(app.id, order.id)) {
+    await placePlatformOrder(inAppPayDeps(store), app, order);
+    return;
+  }
   // Courses enrol the student, 27 a gym's membership starts, 28 tickets are issued only now, after the payment was confirmed.
   await deliverPaidOrder(store, app, order, new Date(), appUrl());
   const client = await store.getClientById(app.clientId);
@@ -179,7 +186,9 @@ export async function settleOrderRecord(store: DataStore, order: CatalogOrder, t
   if (outcome === "paid") await afterOrderPaid(store, app, order);
   if (outcome === "failed") return { ...failed, appId: app.id };
   if (outcome === "pending") return { status: "pending", path: `${back}?payment=pending`, appId: app.id };
-  return { status: outcome, path: `${back}/order-received`, appId: app.id };
+  // 134 A connected store's payment: the app says whether the platform has the order, or the shop will confirm it.
+  const shop = await platformOrderState(store, app, order);
+  return { status: outcome, path: `${back}/order-received${shop ? `?shop_order=${shop.state}` : ""}`, appId: app.id };
 }
 
 /** A donation, into the charity's own account. */

@@ -953,6 +953,13 @@
       "when": 1794839549106,
       "tag": "0136_customer_currency",
       "breakpoints": true
+    },
+    {
+      "idx": 137,
+      "version": "5",
+      "when": 1794847818884,
+      "tag": "0137_connected_pay",
+      "breakpoints": true
     }
   ]
 }
