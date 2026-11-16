@@ -1,12 +1,12 @@
 import type { PaymentProviderId } from "../data/types";
 
-/** 37 What a payment pays: a plan, a shop's order (products, courses, memberships, tickets, a restaurant's order) or a donation. */
-export type PaymentKind = "plan" | "order" | "donation";
+/** 37 What a payment pays: a plan, a shop's order (products, courses, memberships, tickets, a restaurant's order), a donation, or 106.2 a Studio Market template. */
+export type PaymentKind = "plan" | "order" | "donation" | "template";
 
-export const PAYMENT_KINDS: PaymentKind[] = ["plan", "order", "donation"];
+export const PAYMENT_KINDS: PaymentKind[] = ["plan", "order", "donation", "template"];
 
 /** iyzico's callbacks, as before Phase 37 (they post the token back). */
-const IYZICO_PATHS: Record<PaymentKind, string> = { plan: "/api/pay/plan", order: "/api/pay/iyzico", donation: "/api/pay/donation" };
+const IYZICO_PATHS: Record<PaymentKind, string> = { plan: "/api/pay/plan", order: "/api/pay/iyzico", donation: "/api/pay/donation", template: "/api/pay/template" };
 
 /**
  * 37 Where the provider sends the customer back, and where it posts its

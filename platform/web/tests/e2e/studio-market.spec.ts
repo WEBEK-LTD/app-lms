@@ -15,7 +15,8 @@ import { solidPng } from "./png";
  * its own design; not again for 30 days) and goes back to the previous
  * design. The designer can't get their own template.
  */
-test.describe.configure({ mode: "serial" });
+// Each test opens several pages and app previews: more time than the default minute.
+test.describe.configure({ mode: "serial", timeout: 180_000 });
 
 const suffix = Date.now().toString(36);
 const designer = { name: "Nur Yılmaz", email: `market-designer-${suffix}@market.test`, password: "nur-market-strong-password-1" };
@@ -86,8 +87,11 @@ async function openProject(p: Page, name: string): Promise<void> {
 /** Every text on a project's home page as the app gets its draft (the hosted API with the preview's draft token). */
 async function homeTexts(p: Page, request: APIRequestContext, name: string): Promise<string[]> {
   await openProject(p, name);
-  await p.goto("/studio/project/setup?step=website");
+  // Opening the project may still be finishing its own navigation: once more if this one was cut short.
+  await p.goto("/studio/project/setup?step=website").catch(() => p.goto("/studio/project/setup?step=website"));
   const api = (await p.locator("code").filter({ hasText: "/api/app/" }).first().textContent())!.trim();
+  // Only the preview's address (its draft token) is needed: the app itself isn't loaded in it.
+  await p.route("**/preview-app/**", (r) => r.fulfill({ status: 200, contentType: "text/html", body: "<!doctype html><title>Preview</title>" }));
   await p.goto("/studio/project/preview?pages=draft");
   const src = (await p.locator("iframe[data-testid=app-preview]").first().getAttribute("src"))!;
   const headers = { "x-yallapp-preview": new URL(src, E2E.baseURL).searchParams.get("token")! };
@@ -322,8 +326,11 @@ test("the designer can't get their own template, and the market's pages read in 
   await expect(dz.getByRole("button", { name: "Apply to my app" })).toHaveCount(0);
   // Arabic, right to left, with the market's Arabic name.
   await own.goto("/dashboard/studio-market");
-  await own.getByRole("button", { name: "العربية" }).first().click();
-  await expect(own.locator("html")).toHaveAttribute("dir", "rtl");
+  // A click before the page is ready does nothing, so it is tried again.
+  await expect(async () => {
+    await own.getByRole("button", { name: "العربية" }).first().click();
+    await expect(own.locator("html")).toHaveAttribute("dir", "rtl", { timeout: 5_000 });
+  }).toPass({ timeout: 30_000 });
   await expect(own.getByRole("heading", { name: "تصميمات تستاهل تتفتح." })).toBeVisible();
   await expect(own.getByRole("link", { name: /ماركت Studio/ }).first()).toBeVisible();
   await own.getByRole("button", { name: "English" }).first().click();

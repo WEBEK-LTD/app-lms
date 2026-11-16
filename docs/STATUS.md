@@ -514,6 +514,7 @@ test environment:
 - Studio Market, the Studio template marketplace (Phase 106), no longer
   postponed: stage 1 (designers, free templates reviewed once, applying,
   moving and going back to the previous design) is built, in the look the
-  owner chose ("Gallery" in light, "Night showroom" in dark); paid plans and
-  checkout, the designers' money, and discounts with the public
+  owner chose ("Gallery" in light, "Night showroom" in dark); stage 2 (paid
+  plans, checkout with Kashier, renewing, the reminders and the end of a
+  plan) too. The designers' money, and discounts with the public
   `/templates` page follow (see `docs/ROADMAP.md`).

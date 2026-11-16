@@ -199,7 +199,7 @@ export default async function PublishTemplatePage({ searchParams }: PageProps<"/
             )}
           </StepSection>
           <StepSection id="step-plans" num={5} state={state("plans")} title={t("studioMarket.s5Title")} description={t("studioMarket.s5Hint")} muted={muted}>
-            {template ? <PlansForm id={template.id} locked={locked} /> : pickFirst}
+            {template ? <PlansForm id={template.id} locked={locked} free={template.free} plans={template.plans} /> : pickFirst}
           </StepSection>
           <StepSection id="step-after" num={6} state={state("after_end")} title={t("studioMarket.s6Title")} description={t("studioMarket.s6Hint")} muted={muted}>
             {template ? <AfterEndForm id={template.id} value={template.afterEnd} locked={locked} /> : pickFirst}

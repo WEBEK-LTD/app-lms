@@ -12,6 +12,10 @@ import type {
   TemplateDesignerPatch,
   TemplateLicence,
   TemplateLicencePatch,
+  TemplateLicencePeriod,
+  TemplateOrder,
+  TemplateOrderPatch,
+  TemplateOrderStatus,
 } from "./types";
 import { clientAccountState, longestLicense } from "../license/status";
 import { newId } from "../crypto/tokens";
@@ -8819,6 +8823,8 @@ export class MemoryStore implements DataStore {
   private nextMarketReviewId = 1;
   private templateLicences = new Map<string, TemplateLicence>();
   private templateApplications = new Map<string, TemplateApplication>();
+  private templateLicencePeriods: TemplateLicencePeriod[] = [];
+  private templateOrders = new Map<string, TemplateOrder>();
 
   async getTemplateDesignerByClient(clientId: string): Promise<TemplateDesigner | null> {
     const found = [...this.templateDesigners.values()].find((d) => d.clientId === clientId);
@@ -8972,6 +8978,104 @@ export class MemoryStore implements DataStore {
     const out: Record<string, number> = {};
     for (const l of this.templateLicences.values()) if (!since || l.createdAt.getTime() >= since.getTime()) out[l.templateId] = (out[l.templateId] ?? 0) + 1;
     return out;
+  }
+
+  async listTemplateLicencesEndingBy(before: Date): Promise<TemplateLicence[]> {
+    return [...this.templateLicences.values()]
+      .filter((l) => l.status === "active" && l.endsAt !== null && l.endsAt.getTime() <= before.getTime())
+      .sort((a, b) => a.endsAt!.getTime() - b.endsAt!.getTime() || (a.id < b.id ? -1 : 1))
+      .map(clone);
+  }
+
+  async markTemplateLicenceReminder(id: string, which: "early" | "last", endsAt: Date, now: Date): Promise<boolean> {
+    const found = this.templateLicences.get(id);
+    if (!found || found.status !== "active" || found.endsAt?.getTime() !== endsAt.getTime()) return false;
+    const field = which === "early" ? "remindedEarlyFor" : "remindedLastFor";
+    if (found[field]?.getTime() === endsAt.getTime()) return false;
+    this.templateLicences.set(id, { ...found, [field]: new Date(endsAt), updatedAt: now });
+    return true;
+  }
+
+  async endTemplateLicence(id: string, endsAt: Date, now: Date): Promise<boolean> {
+    const found = this.templateLicences.get(id);
+    if (!found || found.status !== "active" || found.endsAt?.getTime() !== endsAt.getTime()) return false;
+    this.templateLicences.set(id, { ...found, status: "ended", endedAt: now, updatedAt: now });
+    return true;
+  }
+
+  async extendTemplateLicence(id: string, from: Date | null, patch: Pick<TemplateLicence, "plan" | "endsAt" | "afterEnd">, now: Date): Promise<boolean> {
+    const found = this.templateLicences.get(id);
+    if (!found || (found.endsAt?.getTime() ?? null) !== (from?.getTime() ?? null)) return false;
+    this.templateLicences.set(id, { ...found, ...clone(patch), status: "active", endedAt: null, updatedAt: now });
+    return true;
+  }
+
+  async createTemplateLicencePeriod(period: TemplateLicencePeriod): Promise<void> {
+    if (this.templateLicencePeriods.some((p) => p.id === period.id)) return;
+    this.templateLicencePeriods.push(clone(period));
+  }
+
+  async listTemplateLicencePeriods(licenceId: string): Promise<TemplateLicencePeriod[]> {
+    return this.templateLicencePeriods
+      .filter((p) => p.licenceId === licenceId)
+      .sort((a, b) => a.startsAt.getTime() - b.startsAt.getTime() || a.createdAt.getTime() - b.createdAt.getTime())
+      .map(clone);
+  }
+
+  async createTemplateOrder(order: TemplateOrder): Promise<void> {
+    this.templateOrders.set(order.id, clone(order));
+  }
+
+  async getTemplateOrder(id: string): Promise<TemplateOrder | null> {
+    const found = this.templateOrders.get(id);
+    return found ? clone(found) : null;
+  }
+
+  async getTemplateOrderByToken(tokenHash: string): Promise<TemplateOrder | null> {
+    const found = [...this.templateOrders.values()].find((o) => o.tokenHash === tokenHash);
+    return found ? clone(found) : null;
+  }
+
+  async listTemplateOrders(filter: { clientId?: string; designerId?: string; templateId?: string; licenceId?: string; status?: TemplateOrderStatus }): Promise<TemplateOrder[]> {
+    return [...this.templateOrders.values()]
+      .filter(
+        (o) =>
+          (!filter.clientId || o.clientId === filter.clientId) &&
+          (!filter.designerId || o.designerId === filter.designerId) &&
+          (!filter.templateId || o.templateId === filter.templateId) &&
+          (!filter.licenceId || o.licenceId === filter.licenceId) &&
+          (!filter.status || o.status === filter.status),
+      )
+      .sort((a, b) => b.createdAt.getTime() - a.createdAt.getTime() || (a.id < b.id ? 1 : -1))
+      .map(clone);
+  }
+
+  async payTemplateOrder(id: string, paymentId: string | null, now: Date): Promise<boolean> {
+    const found = this.templateOrders.get(id);
+    if (!found || found.status !== "pending") return false;
+    this.templateOrders.set(id, { ...found, status: "paid", paymentId, paidAt: now });
+    return true;
+  }
+
+  async failTemplateOrder(id: string): Promise<boolean> {
+    const found = this.templateOrders.get(id);
+    if (!found || found.status !== "pending") return false;
+    this.templateOrders.set(id, { ...found, status: "failed" });
+    return true;
+  }
+
+  async updateTemplateOrder(id: string, patch: TemplateOrderPatch): Promise<boolean> {
+    const found = this.templateOrders.get(id);
+    if (!found) return false;
+    this.templateOrders.set(id, { ...found, ...clone(patch) });
+    return true;
+  }
+
+  async markTemplateOrderDelivered(id: string, startsAt: Date, endsAt: Date | null): Promise<boolean> {
+    const found = this.templateOrders.get(id);
+    if (!found || found.status !== "paid" || found.startsAt) return false;
+    this.templateOrders.set(id, { ...found, startsAt: new Date(startsAt), endsAt: endsAt ? new Date(endsAt) : null });
+    return true;
   }
 
   async createTemplateApplication(application: TemplateApplication): Promise<void> {

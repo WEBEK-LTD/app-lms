@@ -356,3 +356,51 @@ function ApplySubmit({ children }: { children: ReactNode }) {
     </button>
   );
 }
+
+/** 106.2 A paid plan on the template's page. */
+export interface PlanChoice {
+  period: string;
+  name: string;
+  /** "$24". */
+  price: string;
+  /** "$8/mo", or the lifetime line. */
+  sub: string;
+  best: boolean;
+}
+
+/**
+ * 106.2 A paid template's plans with their billed prices, the one chosen
+ * taken to checkout ("Apply to my app · $24"), where the app is chosen and
+ * paid; and "Preview it on my app first".
+ */
+export function PlanPicker({ slug, plans, initial }: { slug: string; plans: PlanChoice[]; initial: string }) {
+  const t = useDashT();
+  const { open, mine } = useDemo();
+  const [plan, setPlan] = useState(initial);
+  const chosen = plans.find((p) => p.period === plan) ?? plans[0]!;
+  return (
+    <div className="flex flex-col gap-3.5">
+      <span className="mk-small">{t("studioMarket.choosePlan")}</span>
+      <div role="radiogroup" aria-label={t("studioMarket.choosePlan")} className="grid grid-cols-2 gap-x-2.5 gap-y-3.5 pt-1.5">
+        {plans.map((p) => (
+          <button key={p.period} type="button" role="radio" aria-checked={plan === p.period} data-plan={p.period} onClick={() => setPlan(p.period)} aria-current={plan === p.period ? "true" : undefined} className="mk-plan cursor-pointer text-start">
+            {p.best ? <span className="mk-pill mk-pill-ink absolute -top-3 end-3 h-[22px] text-[11px]">{t("studioMarket.bestValue")}</span> : null}
+            <span className="text-[13px] font-bold opacity-75">{p.name}</span>
+            <b className="text-[20px] tracking-[-0.02em]">{p.price}</b>
+            <span className="text-xs opacity-75">{p.sub}</span>
+          </button>
+        ))}
+      </div>
+      <Link href={`/dashboard/studio-market/checkout/${slug}?plan=${chosen.period}`} className="mk-btn mk-btn-ember mk-btn-lg w-full">
+        <Icon name="format_paint" size={22} />
+        {t("studioMarket.applyPaid", { price: chosen.price })}
+      </Link>
+      {mine.length ? (
+        <button type="button" onClick={() => open({ mine: mine[0]!.id })} className="mk-btn mk-btn-ghost w-full">
+          <Icon name="visibility" size={21} />
+          {t("studioMarket.previewMine")}
+        </button>
+      ) : null}
+    </div>
+  );
+}
