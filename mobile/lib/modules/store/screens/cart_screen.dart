@@ -16,6 +16,7 @@ import '../../../core/theme/palette.dart';
 import '../../../core/web/web_page_screen.dart';
 import '../../../core/widgets/buttons.dart';
 import '../../../core/widgets/common.dart';
+import '../../../core/widgets/rates_attribution.dart';
 import '../../lms/data/lms_providers.dart' show ordersProvider;
 import '../data/cart_controller.dart';
 import '../data/store_providers.dart';
@@ -942,7 +943,7 @@ class _CartScreenState extends ConsumerState<CartScreen> {
                             // 135.7 In the customer's currency: approximate,
                             // or charged in it.
                             if (value != null &&
-                                chargeLine(context, value) != null)
+                                chargeLine(context, value) != null) ...[
                               Padding(
                                 padding: const EdgeInsets.only(top: 4),
                                 child: Text(
@@ -956,6 +957,9 @@ class _CartScreenState extends ConsumerState<CartScreen> {
                                   ),
                                 ),
                               ),
+                              // 135.10 The rates' source, as its terms ask.
+                              const RatesAttribution(),
+                            ],
                             if (fulfilment == null &&
                                 value?.totalFinal != true) ...[
                               const SizedBox(height: 4),

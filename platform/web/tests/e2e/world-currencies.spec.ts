@@ -236,6 +236,10 @@ test("135.5–135.7 a customer in another currency: shown in it, charged in poun
   const customer = await browser.newPage({ extraHTTPHeaders });
   await customer.goto(dollars.link.url);
   await expect(customer.locator("[data-pay-customer-currency]")).toHaveText("≈ $12.37 · you pay E£600.00");
+  // 135.10 The rates' source under it, as its terms ask; its site opens in a new tab.
+  const source = customer.locator("[data-pay-rates-source]").getByRole("link", { name: "Rates By Exchange Rate API" });
+  await expect(source).toHaveAttribute("href", "https://www.exchangerate-api.com");
+  await expect(source).toHaveAttribute("target", "_blank");
   await pay(customer, dollars.link.url, /^Pay E£600\.00$/);
   const egp = [...stripe.sessions!.values()].slice(-1)[0] as unknown as { currency: string; amount_total: number };
   expect(egp).toMatchObject({ currency: "egp", amount_total: 60000 });
