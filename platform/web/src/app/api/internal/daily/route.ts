@@ -27,6 +27,9 @@ import type { DataStore } from "@/lib/data/store";
 import { APP_ERROR_DAYS } from "@/lib/watch/app-errors";
 import { MAIL_HISTORY_MONTHS } from "@/lib/mailing/types";
 import { pruneDemoVisits } from "@/lib/live-activity/demo";
+import { runStudioMarketDaily } from "@/lib/studio-market/daily";
+import { getBlobStore } from "@/lib/blobs";
+import { appPlan } from "@/lib/entitlements";
 
 /**
  * POST /api/internal/daily (roadmap 13.4): the daily job. Netlify's scheduled
@@ -136,6 +139,18 @@ async function runDaily(store: DataStore, now: Date) {
     console.error(`[daily] marketplace: ${e instanceof Error ? e.message : String(e)}`);
     return null;
   });
+  // 106.2 Studio Market: reminders before a template's plan ends, and its end (lib/studio-market/daily.ts).
+  const studioMarket = await runStudioMarketDaily({
+    store,
+    blobs: getBlobStore(),
+    now,
+    baseUrl: appUrl(),
+    mail: (key, to, values, options) => sendTemplate(key, to, values, options),
+    planOf: async (clientId, appId) => appPlan(store, await store.getLicenseForApp(clientId, appId), now),
+  }).catch((e: unknown) => {
+    console.error(`[daily] studio market: ${e instanceof Error ? e.message : String(e)}`);
+    return null;
+  });
   const watch = await runWatch({ store, now, mail: teamMail, jobs: ["frequent"], dispatch: dispatchSet() });
-  return { ...report, mailHistory, marketplace, analytics: { ...analytics, history: analyticsHistory, weekly }, media, chat, milestones, productDay, ownerDevicesPurged, sessionsPurged, deleted: { apps, accounts }, jobRunsPurged, appErrorsPurged, botUnmatchedPurged, demoVisitsPurged, watch };
+  return { ...report, mailHistory, marketplace, studioMarket, analytics: { ...analytics, history: analyticsHistory, weekly }, media, chat, milestones, productDay, ownerDevicesPurged, sessionsPurged, deleted: { apps, accounts }, jobRunsPurged, appErrorsPurged, botUnmatchedPurged, demoVisitsPurged, watch };
 }

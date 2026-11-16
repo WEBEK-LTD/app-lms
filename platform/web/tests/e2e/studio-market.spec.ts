@@ -15,7 +15,8 @@ import { solidPng } from "./png";
  * its own design; not again for 30 days) and goes back to the previous
  * design. The designer can't get their own template.
  */
-test.describe.configure({ mode: "serial" });
+// Each test opens several pages and app previews: more time than the default minute.
+test.describe.configure({ mode: "serial", timeout: 180_000 });
 
 const suffix = Date.now().toString(36);
 const designer = { name: "Nur Yılmaz", email: `market-designer-${suffix}@market.test`, password: "nur-market-strong-password-1" };
@@ -88,6 +89,8 @@ async function homeTexts(p: Page, request: APIRequestContext, name: string): Pro
   await openProject(p, name);
   await p.goto("/studio/project/setup?step=website");
   const api = (await p.locator("code").filter({ hasText: "/api/app/" }).first().textContent())!.trim();
+  // Only the preview's address (its draft token) is needed: the app itself isn't loaded in it.
+  await p.route("**/preview-app/**", (r) => r.fulfill({ status: 200, contentType: "text/html", body: "<!doctype html><title>Preview</title>" }));
   await p.goto("/studio/project/preview?pages=draft");
   const src = (await p.locator("iframe[data-testid=app-preview]").first().getAttribute("src"))!;
   const headers = { "x-yallapp-preview": new URL(src, E2E.baseURL).searchParams.get("token")! };

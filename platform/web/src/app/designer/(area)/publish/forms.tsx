@@ -3,7 +3,7 @@
 import { useActionState, useEffect, useState, type ReactNode } from "react";
 import Link from "next/link";
 import { deleteTemplateDraftAction, publishTemplateUpdateAction, saveTemplateStepAction, sendTemplateAction, startTemplateAction } from "@/app/actions/designer";
-import { useDashT, useKnownText } from "@/components/dashboard-i18n";
+import { useDashLang, useDashT, useKnownText } from "@/components/dashboard-i18n";
 import { FieldError, FormMessage, SubmitButton } from "@/components/form";
 import { Icon } from "@/components/icon";
 import type { IconName } from "@/components/icon-names";
@@ -408,22 +408,101 @@ export function KindsForm({ id, kinds, chosen, tags, locked }: { id: string; kin
   );
 }
 
-export function PlansForm({ id, locked }: { id: string; locked: boolean }) {
+const PERIODS = ["1m", "3m", "6m", "1y", "2y", "life"] as const;
+const PERIOD_MONTHS: Record<(typeof PERIODS)[number], number | null> = { "1m": 1, "3m": 3, "6m": 6, "1y": 12, "2y": 24, life: null };
+
+/** "$24" or "$24.50" (the form's own, without the server's money helpers), kept left to right in Arabic. */
+function usd(cents: number, lang = "en"): string {
+  return `${lang === "ar" ? "\u2066" : ""}$${cents % 100 === 0 ? (cents / 100).toLocaleString("en-US") : (cents / 100).toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}${lang === "ar" ? "\u2069" : ""}`;
+}
+
+function centsOf(text: string): number | null {
+  const value = text.trim().replace(/^\$/, "").replace(/,/g, "").trim();
+  return /^\d{1,6}(\.\d{1,2})?$/.test(value) ? Math.round(Number(value) * 100) : null;
+}
+
+/**
+ * 106.2 Step 5: free, or any of the six plans each at the designer's price
+ * in US dollars, with what they get of each sale (75%) as they type.
+ */
+export function PlansForm({ id, locked, free, plans }: { id: string; locked: boolean; free: boolean; plans: { period: string; cents: number }[] }) {
   const t = useDashT();
+  const lang = useDashLang();
+  const [isFree, setFree] = useState(free);
+  const start = (period: string) => {
+    const plan = plans.find((p) => p.period === period);
+    return plan ? (plan.cents % 100 === 0 ? String(plan.cents / 100) : (plan.cents / 100).toFixed(2)) : "";
+  };
+  const [offered, setOffered] = useState<Record<string, boolean>>(() => Object.fromEntries(PERIODS.map((p) => [p, plans.some((x) => x.period === p)])));
+  const [prices, setPrices] = useState<Record<string, string>>(() => Object.fromEntries(PERIODS.map((p) => [p, start(p)])));
+  const name = (p: (typeof PERIODS)[number]) => t(`studioMarket.plan_${p}`);
   return (
     <StepForm id={id} step="plans" locked={locked}>
-      {() => (
+      {(state) => (
         <>
-          <div className="flex items-center justify-between gap-3 rounded-xl border border-line bg-sand px-4 py-3">
+          <label className="mk-tile flex cursor-pointer items-center justify-between gap-3 rounded-xl px-4 py-3">
             <span className="flex flex-col">
-              <b className="text-[15px]">{t("studioMarket.freeTemplate")}</b>
+              <b className="text-[15px] text-[var(--mk-ink)]">{t("studioMarket.freeTemplate")}</b>
               <span className="text-[13px] text-muted">{t("studioMarket.freeTemplateText")}</span>
             </span>
-            <span role="switch" aria-checked="true" aria-disabled="true" aria-label={t("studioMarket.freeTemplate")} className="relative inline-block h-6 w-10 flex-none rounded-full bg-success after:absolute after:start-[19px] after:top-[3px] after:h-[18px] after:w-[18px] after:rounded-full after:bg-white after:shadow" />
-          </div>
+            <input type="checkbox" name="free" role="switch" checked={isFree} disabled={locked} onChange={(e) => setFree(e.target.checked)} className="h-6 w-10 flex-none cursor-pointer accent-[var(--color-success)]" />
+          </label>
+          {isFree ? null : (
+            <fieldset disabled={locked} className="m-0 flex min-w-0 flex-col gap-2 border-0 p-0">
+              <legend className="mb-2 text-sm font-bold">{t("studioMarket.paidPlans")}</legend>
+              {PERIODS.map((p) => {
+                const cents = centsOf(prices[p] ?? "");
+                const months = PERIOD_MONTHS[p];
+                const error = state.errors?.[`price_${p}`];
+                return (
+                  <div key={p} data-plan-row={p} className={`flex flex-wrap items-center gap-x-4 gap-y-2 rounded-[14px] px-3.5 py-3 ${offered[p] ? "mk-current" : "border border-line"}`}>
+                    <label className="flex min-w-[150px] flex-1 cursor-pointer items-center gap-3">
+                      <input type="checkbox" name="offer" value={p} checked={offered[p] ?? false} onChange={(e) => setOffered((o) => ({ ...o, [p]: e.target.checked }))} className="h-5 w-5 flex-none accent-[var(--color-midnight)]" />
+                      <span className="flex flex-col">
+                        <b className="text-[15px]">{name(p)}</b>
+                        <span className="text-xs text-muted">{months === null ? t("studioMarket.lifeHint") : cents ? t("studioMarket.perMonth", { price: usd(Math.round(cents / months), lang) }) : " "}</span>
+                      </span>
+                    </label>
+                    <span className="flex items-center gap-3">
+                      <span className="relative">
+                        <span aria-hidden="true" className="pointer-events-none absolute start-3 top-1/2 -translate-y-1/2 text-sm text-muted">
+                          $
+                        </span>
+                        <input
+                          name={`price_${p}`}
+                          inputMode="decimal"
+                          value={prices[p] ?? ""}
+                          onChange={(e) => setPrices((x) => ({ ...x, [p]: e.target.value }))}
+                          onFocus={() => setOffered((o) => ({ ...o, [p]: true }))}
+                          aria-label={t("studioMarket.priceOf", { plan: name(p) })}
+                          aria-invalid={error ? true : undefined}
+                          aria-describedby={error ? `f-price_${p}-error` : undefined}
+                          className="input h-10 w-[120px] ps-7 text-end"
+                          dir="ltr"
+                        />
+                      </span>
+                      <span className="w-[120px] text-[13px] text-muted" aria-live="polite">
+                        {offered[p] && cents ? t("studioMarket.youGetAmount", { amount: usd(Math.round((cents * 75) / 100), lang) }) : ""}
+                      </span>
+                    </span>
+                    {error ? (
+                      <span className="basis-full">
+                        <FieldError id={`f-price_${p}-error`} error={error} />
+                      </span>
+                    ) : null}
+                  </div>
+                );
+              })}
+              <FieldError id="f-plans-error" error={state.errors?.plans} />
+            </fieldset>
+          )}
           <span className="flex items-start gap-1.5 text-[13px] text-muted">
             <Icon name="info" size={16} />
-            <span>{t("studioMarket.freeOnly")}</span>
+            <span>{t("studioMarket.pricesNote")}</span>
+          </span>
+          <span className="flex items-start gap-1.5 text-[13px] text-muted">
+            <Icon name="history" size={16} />
+            <span>{t("studioMarket.pricesChange")}</span>
           </span>
         </>
       )}

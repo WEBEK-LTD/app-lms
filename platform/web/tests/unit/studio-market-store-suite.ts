@@ -3,7 +3,7 @@ import { expect, it } from "vitest";
 import { newApp } from "@/lib/app/setup";
 import { registerClient } from "@/lib/auth/accounts";
 import type { DataStore } from "@/lib/data/store";
-import type { App, MarketTemplate, MarketTemplateVersion, TemplateApplication, TemplateDesigner, TemplateLicence } from "@/lib/data/types";
+import type { App, MarketTemplate, MarketTemplateVersion, TemplateApplication, TemplateDesigner, TemplateLicence, TemplateOrder } from "@/lib/data/types";
 import { days, NOW } from "./helpers";
 
 /** 106.1 Studio Market's data, the same on every store (the memory store and MySQL or MariaDB). */
@@ -132,7 +132,7 @@ export function studioMarketStoreSuite(store: () => DataStore) {
     await s.createApp(second);
     const designer = (await s.createTemplateDesigner(designerOf(seller.client.id, `nur-${seller.suffix}`)))!;
     const template = (await s.createMarketTemplate(templateOf(designer, seller.app.id, `rose-${seller.suffix}`)))!;
-    const licence: TemplateLicence = { id: randomUUID(), templateId: template.id, clientId: buyer.client.id, plan: "free", status: "active", appId: buyer.app.id, versionId: null, startsAt: NOW, endsAt: null, movedAt: null, createdAt: NOW, updatedAt: NOW };
+    const licence: TemplateLicence = { id: randomUUID(), templateId: template.id, clientId: buyer.client.id, plan: "free", status: "active", appId: buyer.app.id, versionId: null, startsAt: NOW, endsAt: null, movedAt: null, afterEnd: null, remindedEarlyFor: null, remindedLastFor: null, endedAt: null, createdAt: NOW, updatedAt: NOW };
     await s.createTemplateLicence(licence);
     expect(await s.getTemplateLicence(licence.id)).toMatchObject({ plan: "free", status: "active", appId: buyer.app.id, endsAt: null });
     expect((await s.listTemplateLicences({ clientId: buyer.client.id })).map((l) => l.id)).toEqual([licence.id]);
@@ -160,5 +160,101 @@ export function studioMarketStoreSuite(store: () => DataStore) {
     expect(await s.getTemplateApplication(application.id)).toMatchObject({ versionId: "v-2", endedAt: days(1), endReason: "restored" });
     expect(await s.listTemplateApplications({ appId: second.id, open: true })).toEqual([]);
     expect((await s.listTemplateApplications({ licenceId: licence.id, open: false })).map((a) => a.id)).toEqual([application.id]);
+  });
+
+  it("106.2 keeps the template orders, each paid once, with the sale's split, and the licences' paid periods, reminders and end", async () => {
+    const s = store();
+    const seller = await account(s, "Nur");
+    const buyer = await account(s, "Tulip");
+    const designer = (await s.createTemplateDesigner(designerOf(seller.client.id, `nur-${seller.suffix}`)))!;
+    const template = (await s.createMarketTemplate({ ...templateOf(designer, seller.app.id, `rose-${seller.suffix}`), free: false, plans: [{ period: "3m", cents: 2400 }] }))!;
+    expect((await s.getMarketTemplate(template.id))?.plans).toEqual([{ period: "3m", cents: 2400 }]);
+    const order: TemplateOrder = {
+      id: randomUUID(),
+      templateId: template.id,
+      designerId: designer.id,
+      clientId: buyer.client.id,
+      kind: "buy",
+      licenceId: null,
+      plan: "3m",
+      appId: buyer.app.id,
+      grossCents: 2400,
+      designerCents: 1800,
+      yallappCents: 600,
+      amountCents: 120000,
+      currency: "EGP",
+      egpPerUsd: 50,
+      status: "pending",
+      tokenHash: randomUUID().replace(/-/g, "").padEnd(64, "0"),
+      paymentProvider: "kashier",
+      providerRef: "66f00001aa",
+      paymentId: null,
+      consentAt: NOW,
+      startsAt: null,
+      endsAt: null,
+      appliedAt: null,
+      applyError: null,
+      createdAt: NOW,
+      paidAt: null,
+    };
+    await s.createTemplateOrder(order);
+    expect(await s.getTemplateOrderByToken(order.tokenHash)).toMatchObject({ id: order.id, grossCents: 2400, designerCents: 1800, yallappCents: 600, egpPerUsd: 50, status: "pending" });
+    // Paid once: the webhook and the buyer's return together.
+    expect(await s.payTemplateOrder(order.id, "TX-1", days(1))).toBe(true);
+    expect(await s.payTemplateOrder(order.id, "TX-2", days(1))).toBe(false);
+    expect(await s.failTemplateOrder(order.id)).toBe(false);
+    expect(await s.getTemplateOrder(order.id)).toMatchObject({ status: "paid", paymentId: "TX-1", paidAt: days(1) });
+    expect(await s.markTemplateOrderDelivered(order.id, days(1), days(91))).toBe(true);
+    expect(await s.markTemplateOrderDelivered(order.id, days(2), days(92))).toBe(false);
+    expect(await s.updateTemplateOrder(order.id, { licenceId: order.id, appliedAt: days(1) })).toBe(true);
+    expect(await s.getTemplateOrder(order.id)).toMatchObject({ licenceId: order.id, startsAt: days(1), endsAt: days(91), appliedAt: days(1) });
+    expect((await s.listTemplateOrders({ designerId: designer.id, status: "paid" })).map((o) => o.id)).toEqual([order.id]);
+    expect(await s.listTemplateOrders({ clientId: seller.client.id })).toEqual([]);
+
+    const licence: TemplateLicence = {
+      id: order.id,
+      templateId: template.id,
+      clientId: buyer.client.id,
+      plan: "3m",
+      status: "active",
+      appId: buyer.app.id,
+      versionId: null,
+      startsAt: days(1),
+      endsAt: days(91),
+      movedAt: null,
+      afterEnd: "restore",
+      remindedEarlyFor: null,
+      remindedLastFor: null,
+      endedAt: null,
+      createdAt: days(1),
+      updatedAt: days(1),
+    };
+    await s.createTemplateLicence(licence);
+    await s.createTemplateLicencePeriod({ id: order.id, licenceId: licence.id, orderId: order.id, plan: "3m", startsAt: days(1), endsAt: days(91), createdAt: days(1) });
+    // Recorded once.
+    await s.createTemplateLicencePeriod({ id: order.id, licenceId: licence.id, orderId: order.id, plan: "3m", startsAt: days(1), endsAt: days(91), createdAt: days(1) });
+    expect((await s.listTemplateLicencePeriods(licence.id)).map((p) => p.orderId)).toEqual([order.id]);
+    expect(await s.getTemplateLicence(licence.id)).toMatchObject({ afterEnd: "restore", endsAt: days(91) });
+
+    // The daily job's list, its reminders once per end date, and a renewal winning over an end.
+    expect((await s.listTemplateLicencesEndingBy(days(90))).map((l) => l.id)).toEqual([]);
+    expect((await s.listTemplateLicencesEndingBy(days(91))).map((l) => l.id)).toEqual([licence.id]);
+    expect(await s.markTemplateLicenceReminder(licence.id, "early", days(91), days(77))).toBe(true);
+    expect(await s.markTemplateLicenceReminder(licence.id, "early", days(91), days(78))).toBe(false);
+    expect(await s.markTemplateLicenceReminder(licence.id, "last", days(90), days(90))).toBe(false);
+    expect(await s.markTemplateLicenceReminder(licence.id, "last", days(91), days(90))).toBe(true);
+    expect(await s.extendTemplateLicence(licence.id, days(90), { plan: "1y", endsAt: days(456), afterEnd: "keep" }, days(90))).toBe(false);
+    expect(await s.extendTemplateLicence(licence.id, days(91), { plan: "1y", endsAt: days(456), afterEnd: "keep" }, days(90))).toBe(true);
+    expect(await s.endTemplateLicence(licence.id, days(91), days(91))).toBe(false);
+    expect(await s.getTemplateLicence(licence.id)).toMatchObject({ plan: "1y", endsAt: days(456), afterEnd: "keep", remindedEarlyFor: days(91), status: "active" });
+    // A new end date: its own reminders.
+    expect(await s.markTemplateLicenceReminder(licence.id, "early", days(456), days(442))).toBe(true);
+    expect(await s.endTemplateLicence(licence.id, days(456), days(456))).toBe(true);
+    expect(await s.endTemplateLicence(licence.id, days(456), days(457))).toBe(false);
+    expect(await s.getTemplateLicence(licence.id)).toMatchObject({ status: "ended", endedAt: days(456) });
+    expect(await s.listTemplateLicencesEndingBy(days(500))).toEqual([]);
+    // Bought again after it ended: active again from the new period.
+    expect(await s.extendTemplateLicence(licence.id, days(456), { plan: "3m", endsAt: days(550), afterEnd: "keep" }, days(460))).toBe(true);
+    expect(await s.getTemplateLicence(licence.id)).toMatchObject({ status: "active", endedAt: null, endsAt: days(550) });
   });
 }

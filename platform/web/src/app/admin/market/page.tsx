@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
+import { Fragment } from "react";
 import { Icon } from "@/components/icon";
 import { MarketHeader } from "@/components/studio-market/header";
 import { PageThumb, MarketPhones } from "@/components/studio-market/phone";
@@ -13,6 +14,7 @@ import { coverView, designerChip, type CoverView } from "@/lib/studio-market/cat
 import { publishedCount, REVIEW_CHECK_LABELS, REVIEW_CHECKS, reviewQueue } from "@/lib/studio-market/review";
 import { versionDesign } from "@/lib/studio-market/snapshot";
 import { templateText } from "@/lib/studio-market/templates";
+import { formatUsd, offeredPlans } from "@/lib/studio-market/plans";
 import { sampleEntries } from "@/lib/studio/sample-entries";
 import { DecisionForm, ReviewPreview } from "./forms";
 
@@ -89,46 +91,46 @@ export default async function MarketReviewPage({ searchParams }: PageProps<"/adm
   if (!selected) {
     return (
       <div className="mk mk-page flex flex-col gap-6">
-          {header}
-          {done ? (
-            <p role="status" className="m-0 rounded-xl bg-success-bg px-4 py-3 text-[15px] font-semibold text-success">
-              {done}
-            </p>
-          ) : null}
-          <div className="mk-panel flex flex-col items-center gap-2.5 px-5 py-10 text-center">
-            <span className="flex h-12 w-12 items-center justify-center rounded-full bg-white text-muted">
-              <Icon name="task_alt" size={26} />
-            </span>
-            <p className="m-0 text-base font-bold">Nothing waiting</p>
-            <p className="m-0 max-w-[440px] text-sm text-muted">Templates designers send for their first publish show here, oldest first.</p>
-          </div>
+        {header}
+        {done ? (
+          <p role="status" className="m-0 rounded-xl bg-success-bg px-4 py-3 text-[15px] font-semibold text-success">
+            {done}
+          </p>
+        ) : null}
+        <div className="mk-panel flex flex-col items-center gap-2.5 px-5 py-10 text-center">
+          <span className="flex h-12 w-12 items-center justify-center rounded-full bg-white text-muted">
+            <Icon name="task_alt" size={26} />
+          </span>
+          <p className="m-0 text-base font-bold">Nothing waiting</p>
+          <p className="m-0 max-w-[440px] text-sm text-muted">Templates designers send for their first publish show here, oldest first.</p>
         </div>
-      );
-    }
-
-    const designer = designers.get(selected.designerId)!;
-    const version = selected.reviewVersionId ? versions.get(selected.reviewVersionId) : undefined;
-    const file = version ? await versionDesign(getBlobStore(), version) : null;
-    const text = templateText(selected, "en");
-    const pages = file
-      ? file.pages.flatMap((p) => {
-          const view = coverView(version!.cover ? { ...version!.cover, page: p.studio } : null, version!.languages, "en", text.title);
-          return view ? [{ slug: p.slug, title: p.title, view }] : [];
-        })
-      : [];
-    const languages = (version?.languages ?? []).filter((l) => l === "en" || l === "ar" || l === "tr");
-    const kinds = selected.kinds.map((id) => kindById(id)?.name ?? id);
-    const published = await publishedCount(store, designer);
-    const kv = (label: string, value: React.ReactNode) => (
-      <div className="flex items-start justify-between gap-3 border-t border-line-soft py-[9px] text-sm">
-        <span className="text-muted">{label}</span>
-        <span className="text-end font-semibold">{value}</span>
       </div>
     );
+  }
 
-    return (
-      <MarketPhones pickable={{ items: {}, categories: {}, samples: sampleEntries(now) }}>
-        <div className="mk mk-page flex flex-col gap-6">
+  const designer = designers.get(selected.designerId)!;
+  const version = selected.reviewVersionId ? versions.get(selected.reviewVersionId) : undefined;
+  const file = version ? await versionDesign(getBlobStore(), version) : null;
+  const text = templateText(selected, "en");
+  const pages = file
+    ? file.pages.flatMap((p) => {
+        const view = coverView(version!.cover ? { ...version!.cover, page: p.studio } : null, version!.languages, "en", text.title);
+        return view ? [{ slug: p.slug, title: p.title, view }] : [];
+      })
+    : [];
+  const languages = (version?.languages ?? []).filter((l) => l === "en" || l === "ar" || l === "tr");
+  const kinds = selected.kinds.map((id) => kindById(id)?.name ?? id);
+  const published = await publishedCount(store, designer);
+  const kv = (label: string, value: React.ReactNode) => (
+    <div className="flex items-start justify-between gap-3 border-t border-line-soft py-[9px] text-sm">
+      <span className="text-muted">{label}</span>
+      <span className="text-end font-semibold">{value}</span>
+    </div>
+  );
+
+  return (
+    <MarketPhones pickable={{ items: {}, categories: {}, samples: sampleEntries(now) }}>
+      <div className="mk mk-page flex flex-col gap-6">
         {header}
         {done ? (
           <p role="status" className="m-0 rounded-xl bg-success-bg px-4 py-3 text-[15px] font-semibold text-success">
@@ -217,7 +219,9 @@ export default async function MarketReviewPage({ searchParams }: PageProps<"/adm
               <div className="grid gap-5 sm:grid-cols-2">
                 <div className="flex flex-col">
                   <b className="pb-1.5 text-[15px]">Plans and prices</b>
-                  {kv("Plan", selected.free ? "Free (never ends)" : "Paid")}
+                  {offeredPlans(selected).length
+                    ? offeredPlans(selected).map((p) => <Fragment key={p.period}>{kv({ "1m": "1 month", "3m": "3 months", "6m": "6 months", "1y": "1 year", "2y": "2 years", life: "Lifetime" }[p.period], formatUsd(p.cents))}</Fragment>)
+                    : kv("Plan", "Free (never ends)")}
                   {kv("Tags", selected.tags.length ? selected.tags.join(", ") : "—")}
                 </div>
                 <div className="flex flex-col">
@@ -233,7 +237,7 @@ export default async function MarketReviewPage({ searchParams }: PageProps<"/adm
             <DecisionForm id={selected.id} checks={REVIEW_CHECKS.map((key) => ({ key, label: REVIEW_CHECK_LABELS[key] }))} next={next?.id ?? null} mayDecide={mayDecide} />
           </div>
         </div>
-      </div>
+    </div>
     </MarketPhones>
   );
 }

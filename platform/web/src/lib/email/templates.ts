@@ -82,7 +82,11 @@ export type EmailTemplateKey =
   | "weekly_summary"
   // 106 Studio Market: the team's answer to a template sent for review
   | "market_template_published"
-  | "market_template_changes";
+  | "market_template_changes"
+  // 106.2 A buyer's paid template: the receipt, the reminders before its plan ends, the end
+  | "market_template_receipt"
+  | "market_template_reminder"
+  | "market_template_ended";
 
 export interface EmailTemplateDefinition {
   key: EmailTemplateKey;
@@ -327,6 +331,58 @@ export const EMAIL_TEMPLATES: EmailTemplateDefinition[] = [
       "Hello {{name}},\n\nOur team looked at {{template_name}}. A few things need a change before it goes on Studio Market:\n\n{{notes}}\n\n" +
       "Fix them in Studio, then send it again from your templates:\n{{templates_url}}" +
       SIGNATURE,
+  },
+  {
+    key: "market_template_receipt",
+    name: "Studio Market receipt",
+    description: "106.2 To a buyer when their payment for a Studio Market template (a purchase or a renewal) is confirmed.",
+    placeholders: [
+      NAME,
+      { name: "template_name", description: "The template's title", sample: "Rosé Atelier" },
+      { name: "designer_name", description: "The template's designer", sample: "Atelier Kardelen" },
+      { name: "plan", description: "The plan bought", sample: "3 months" },
+      { name: "amount_line", description: "What was paid and how", sample: "EGP 1,200 (about $24) by card through Kashier" },
+      { name: "ends_line", description: "Until when the plan runs, and that it doesn't renew by itself; or that it never ends", sample: "Your plan runs until 15 Feb 2027. It doesn't renew by itself: we remind you 14 days before." },
+      { name: "app_line", description: "Where the template is now", sample: "It's on Tulip Flowers now." },
+      { name: "order_id", description: "The payment's reference", sample: "5b0c6d1e-…" },
+      { name: "templates_url", description: "The buyer's My templates page", sample: "https://yallapp.com.tr/dashboard/studio-market/mine" },
+    ],
+    subject: "Receipt: {{template_name}} on Studio Market",
+    body:
+      "Hello {{name}},\n\nThank you. We received your payment for {{template_name}} by {{designer_name}}.\n\n" +
+      "Plan: {{plan}}\nPaid: {{amount_line}}\nReference: {{order_id}}\n\n{{ends_line}}\n{{app_line}}\n\n" +
+      "It is digital content, applied right away: as you agreed at checkout, it can't be refunded.\n\nYour templates:\n{{templates_url}}" +
+      SIGNATURE,
+  },
+  {
+    key: "market_template_reminder",
+    name: "Studio Market plan ending",
+    description: "106.2 To a buyer 14 days before their plan for a Studio Market template ends, and on its last day (the daily job).",
+    placeholders: [
+      NAME,
+      { name: "template_name", description: "The template's title", sample: "Rosé Atelier" },
+      { name: "end_date", description: "When the plan ends", sample: "15 Feb 2027" },
+      { name: "intro_line", description: "When it ends, and on which app", sample: "Your plan for Rosé Atelier on Tulip Flowers ends in 14 days, on 15 Feb 2027." },
+      { name: "after_line", description: "What happens if it isn't renewed (the template's choice)", sample: "If you don't renew, the design stays on your app as it is, without updates." },
+      { name: "renew_url", description: "Where to renew it", sample: "https://yallapp.com.tr/dashboard/studio-market/t/rose-atelier/checkout?renew=…" },
+    ],
+    subject: "{{template_name}}: your plan ends on {{end_date}}",
+    body: "Hello {{name}},\n\n{{intro_line}} Templates don't renew by themselves.\n\n{{after_line}}\n\nRenew it here:\n{{renew_url}}" + SIGNATURE,
+  },
+  {
+    key: "market_template_ended",
+    name: "Studio Market plan ended",
+    description: "106.2 To a buyer when their plan for a Studio Market template ended (the daily job): the design stays without updates, or the app went back to its previous design.",
+    placeholders: [
+      NAME,
+      { name: "template_name", description: "The template's title", sample: "Rosé Atelier" },
+      { name: "end_date", description: "When the plan ended", sample: "15 Feb 2027" },
+      { name: "intro_line", description: "That the plan ended", sample: "Your plan for Rosé Atelier ended on 15 Feb 2027." },
+      { name: "after_line", description: "What happened to the app", sample: "The design stays on Tulip Flowers as it is now, without updates." },
+      { name: "renew_url", description: "Where to buy it again", sample: "https://yallapp.com.tr/dashboard/studio-market/t/rose-atelier/checkout?renew=…" },
+    ],
+    subject: "{{template_name}}: your plan ended",
+    body: "Hello {{name}},\n\n{{intro_line}}\n\n{{after_line}}\n\nYou can buy it again any time:\n{{renew_url}}" + SIGNATURE,
   },
   {
     key: "setup_request",

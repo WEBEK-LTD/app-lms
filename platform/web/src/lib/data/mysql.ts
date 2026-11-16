@@ -12,6 +12,10 @@ import type {
   TemplateDesignerPatch,
   TemplateLicence,
   TemplateLicencePatch,
+  TemplateLicencePeriod,
+  TemplateOrder,
+  TemplateOrderPatch,
+  TemplateOrderStatus,
 } from "./types";
 import { and, asc, count, desc, eq, getTableColumns, gt, gte, inArray, isNotNull, isNull, like, lt, lte, ne, not, or, sql, type SQL } from "drizzle-orm";
 import { drizzle, type MySql2Database } from "drizzle-orm/mysql2";
@@ -10648,7 +10652,12 @@ export class MysqlStore implements DataStore {
   }
 
   private licenceRow(row: typeof schema.studioMarketLicences.$inferSelect): TemplateLicence {
-    return { ...row, plan: row.plan as TemplateLicence["plan"], status: row.status === "ended" ? "ended" : "active" };
+    return {
+      ...row,
+      plan: row.plan as TemplateLicence["plan"],
+      status: row.status === "ended" ? "ended" : "active",
+      afterEnd: row.afterEnd === "keep" || row.afterEnd === "restore" ? row.afterEnd : null,
+    };
   }
 
   async createTemplateLicence(licence: TemplateLicence): Promise<void> {
@@ -10695,6 +10704,119 @@ export class MysqlStore implements DataStore {
         .groupBy(t.templateId),
     );
     return Object.fromEntries(rows.map((r) => [r.templateId, Number(r.n)]));
+  }
+
+  async listTemplateLicencesEndingBy(before: Date): Promise<TemplateLicence[]> {
+    const t = schema.studioMarketLicences;
+    const rows = await this.run((db) =>
+      db
+        .select()
+        .from(t)
+        .where(and(eq(t.status, "active"), isNotNull(t.endsAt), lte(t.endsAt, before)))
+        .orderBy(asc(t.endsAt), asc(t.id)),
+    );
+    return rows.map((r) => this.licenceRow(r));
+  }
+
+  async markTemplateLicenceReminder(id: string, which: "early" | "last", endsAt: Date, now: Date): Promise<boolean> {
+    const t = schema.studioMarketLicences;
+    const field = which === "early" ? t.remindedEarlyFor : t.remindedLastFor;
+    const [result] = await this.run((db) =>
+      db
+        .update(t)
+        .set({ ...(which === "early" ? { remindedEarlyFor: endsAt } : { remindedLastFor: endsAt }), updatedAt: now })
+        .where(and(eq(t.id, id), eq(t.status, "active"), eq(t.endsAt, endsAt), or(isNull(field), ne(field, endsAt)))),
+    );
+    return result.affectedRows > 0;
+  }
+
+  async endTemplateLicence(id: string, endsAt: Date, now: Date): Promise<boolean> {
+    const t = schema.studioMarketLicences;
+    const [result] = await this.run((db) =>
+      db
+        .update(t)
+        .set({ status: "ended", endedAt: now, updatedAt: now })
+        .where(and(eq(t.id, id), eq(t.status, "active"), eq(t.endsAt, endsAt))),
+    );
+    return result.affectedRows > 0;
+  }
+
+  async extendTemplateLicence(id: string, from: Date | null, patch: Pick<TemplateLicence, "plan" | "endsAt" | "afterEnd">, now: Date): Promise<boolean> {
+    const t = schema.studioMarketLicences;
+    const [result] = await this.run((db) =>
+      db
+        .update(t)
+        .set({ ...patch, status: "active", endedAt: null, updatedAt: now })
+        .where(and(eq(t.id, id), from ? eq(t.endsAt, from) : isNull(t.endsAt))),
+    );
+    return result.affectedRows > 0;
+  }
+
+  async createTemplateLicencePeriod(period: TemplateLicencePeriod): Promise<void> {
+    await this.run((db) => db.insert(schema.studioMarketLicencePeriods).values(period).onDuplicateKeyUpdate({ set: { id: sql`id` } }));
+  }
+
+  async listTemplateLicencePeriods(licenceId: string): Promise<TemplateLicencePeriod[]> {
+    const t = schema.studioMarketLicencePeriods;
+    const rows = await this.run((db) => db.select().from(t).where(eq(t.licenceId, licenceId)).orderBy(asc(t.startsAt), asc(t.createdAt)));
+    return rows.map((r) => ({ ...r, plan: r.plan as TemplateLicencePeriod["plan"] }));
+  }
+
+  private orderRow(row: typeof schema.studioMarketOrders.$inferSelect): TemplateOrder {
+    return { ...row, plan: row.plan as TemplateOrder["plan"], kind: row.kind === "renew" ? "renew" : "buy", status: row.status === "paid" ? "paid" : row.status === "failed" ? "failed" : "pending" };
+  }
+
+  async createTemplateOrder(order: TemplateOrder): Promise<void> {
+    await this.run((db) => db.insert(schema.studioMarketOrders).values(order));
+  }
+
+  async getTemplateOrder(id: string): Promise<TemplateOrder | null> {
+    const t = schema.studioMarketOrders;
+    const [row] = await this.run((db) => db.select().from(t).where(eq(t.id, id)).limit(1));
+    return row ? this.orderRow(row) : null;
+  }
+
+  async getTemplateOrderByToken(tokenHash: string): Promise<TemplateOrder | null> {
+    const t = schema.studioMarketOrders;
+    const [row] = await this.run((db) => db.select().from(t).where(eq(t.tokenHash, tokenHash)).limit(1));
+    return row ? this.orderRow(row) : null;
+  }
+
+  async listTemplateOrders(filter: { clientId?: string; designerId?: string; templateId?: string; licenceId?: string; status?: TemplateOrderStatus }): Promise<TemplateOrder[]> {
+    const t = schema.studioMarketOrders;
+    const where = and(
+      filter.clientId ? eq(t.clientId, filter.clientId) : undefined,
+      filter.designerId ? eq(t.designerId, filter.designerId) : undefined,
+      filter.templateId ? eq(t.templateId, filter.templateId) : undefined,
+      filter.licenceId ? eq(t.licenceId, filter.licenceId) : undefined,
+      filter.status ? eq(t.status, filter.status) : undefined,
+    );
+    const rows = await this.run((db) => db.select().from(t).where(where).orderBy(desc(t.createdAt), desc(t.id)));
+    return rows.map((r) => this.orderRow(r));
+  }
+
+  async payTemplateOrder(id: string, paymentId: string | null, now: Date): Promise<boolean> {
+    const t = schema.studioMarketOrders;
+    const [result] = await this.run((db) => db.update(t).set({ status: "paid", paymentId: paymentId?.slice(0, 191) ?? null, paidAt: now }).where(and(eq(t.id, id), eq(t.status, "pending"))));
+    return result.affectedRows > 0;
+  }
+
+  async failTemplateOrder(id: string): Promise<boolean> {
+    const t = schema.studioMarketOrders;
+    const [result] = await this.run((db) => db.update(t).set({ status: "failed" }).where(and(eq(t.id, id), eq(t.status, "pending"))));
+    return result.affectedRows > 0;
+  }
+
+  async updateTemplateOrder(id: string, patch: TemplateOrderPatch): Promise<boolean> {
+    const t = schema.studioMarketOrders;
+    const [result] = await this.run((db) => db.update(t).set({ ...patch, ...(patch.applyError ? { applyError: patch.applyError.slice(0, 191) } : {}) }).where(eq(t.id, id)));
+    return result.affectedRows > 0;
+  }
+
+  async markTemplateOrderDelivered(id: string, startsAt: Date, endsAt: Date | null): Promise<boolean> {
+    const t = schema.studioMarketOrders;
+    const [result] = await this.run((db) => db.update(t).set({ startsAt, endsAt }).where(and(eq(t.id, id), eq(t.status, "paid"), isNull(t.startsAt))));
+    return result.affectedRows > 0;
   }
 
   private applicationRow(row: typeof schema.studioMarketApplications.$inferSelect): TemplateApplication {

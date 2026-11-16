@@ -3,9 +3,11 @@
  * on the market and applied to other owners' Studio projects. A template is
  * a published snapshot of a Studio project's design (lib/studio/design-file.ts);
  * its first publish is reviewed by Yallapp's team, later versions go live
- * at once. A licence is a buyer's right to a template (free for now); an
- * application is the template on one of the buyer's apps, with the design
- * the app had before kept to go back to.
+ * at once. A licence is a buyer's right to a template (free, or 106.2 a paid
+ * plan for a time or for good); an application is the template on one of
+ * the buyer's apps, with the design the app had before kept to go back to.
+ * 106.2 An order is one payment for a template (a purchase or a renewal),
+ * with the sale split between the designer (75%) and Yallapp (25%).
  */
 
 /** 106.1 A designer's profile: one per account. Studio is free for designers; publishing an app still needs a plan. */
@@ -45,12 +47,14 @@ export interface MarketTemplateText {
   description: string;
 }
 
-/** 106.2 A paid plan (stage 2); none yet: every template is free for now. */
+/** 106.2 A paid plan the designer offers: its length (or for good) and its price. */
 export interface MarketPlanPrice {
   period: "1m" | "3m" | "6m" | "1y" | "2y" | "life";
   /** US cents. */
   cents: number;
 }
+
+export type MarketPlanPeriod = MarketPlanPrice["period"];
 
 export interface MarketTemplate {
   id: string;
@@ -68,7 +72,7 @@ export interface MarketTemplate {
   kinds: string[];
   tags: string[];
   free: boolean;
-  /** 106.2 Paid plans; empty while every template is free. */
+  /** 106.2 Its paid plans (empty when it is free); a change reaches only the next purchases. */
   plans: MarketPlanPrice[];
   afterEnd: MarketAfterEnd;
   /** The project's page addresses in the order the template's pictures show them; the first is the cover. Empty: the project's order. */
@@ -162,8 +166,8 @@ export interface MarketTemplateReview {
 
 export type MarketTemplateReviewInput = Omit<MarketTemplateReview, "id">;
 
-/** 106.2 Free for now; the paid periods come with checkout. */
-export type TemplateLicencePlan = "free" | MarketPlanPrice["period"];
+/** 106.2 Free, or the paid plan it has now (the last one bought). */
+export type TemplateLicencePlan = "free" | MarketPlanPeriod;
 
 /** 106.1 A buyer's right to a template, on one of their apps at a time. */
 export interface TemplateLicence {
@@ -182,11 +186,85 @@ export interface TemplateLicence {
   endsAt: Date | null;
   /** The last time it moved to another app (once every 30 days). */
   movedAt: Date | null;
+  /** 106.2 What happens to the app when the plan ends, as the template said when it was bought; null when it never ends. */
+  afterEnd: MarketAfterEnd | null;
+  /** 106.2 The end date the reminder 14 days before went out for, and the one on its last day: once each per end date. */
+  remindedEarlyFor: Date | null;
+  remindedLastFor: Date | null;
+  /** 106.2 When its plan ended (the daily job); null while it runs. */
+  endedAt: Date | null;
   createdAt: Date;
   updatedAt: Date;
 }
 
-export type TemplateLicencePatch = Partial<Pick<TemplateLicence, "status" | "appId" | "versionId" | "endsAt" | "movedAt">>;
+export type TemplateLicencePatch = Partial<Pick<TemplateLicence, "status" | "appId" | "versionId" | "endsAt" | "movedAt" | "plan" | "afterEnd" | "remindedEarlyFor" | "remindedLastFor" | "endedAt">>;
+
+/** 106.2 One paid period of a licence: each purchase or renewal adds one. */
+export interface TemplateLicencePeriod {
+  id: string;
+  licenceId: string;
+  orderId: string;
+  plan: MarketPlanPeriod;
+  startsAt: Date;
+  /** Null for lifetime. */
+  endsAt: Date | null;
+  createdAt: Date;
+}
+
+export type TemplateOrderStatus = "pending" | "paid" | "failed";
+
+/**
+ * 106.2 One payment for a template, through Yallapp's own payment account
+ * (Kashier, a one-time payment; card details stay with the gateway): a
+ * purchase, or a renewal of a licence. Its price is the plan's when it was
+ * bought, in US dollars; the gateway charged it in its own currency (pounds
+ * through Kashier, at the team's rate). The sale is split here, ready for
+ * the designer's ledger: 75% theirs, 25% Yallapp's (taxes and the gateway's
+ * and transfers' fees included).
+ */
+export interface TemplateOrder {
+  id: string;
+  templateId: string;
+  designerId: string;
+  /** The buyer's account. */
+  clientId: string;
+  kind: "buy" | "renew";
+  /** The licence it renews; for a purchase, the one it made once paid. */
+  licenceId: string | null;
+  plan: MarketPlanPeriod;
+  /** A purchase: the app it goes on once paid; null to apply it later. */
+  appId: string | null;
+  /** The plan's price when bought, in US cents: the sale. */
+  grossCents: number;
+  /** The designer's 75% and Yallapp's 25% of it, in US cents (they add up to grossCents). */
+  designerCents: number;
+  yallappCents: number;
+  /** What the gateway charged, in its currency ("EGP" through Kashier, or "USD"). */
+  amountCents: number;
+  currency: string;
+  /** The team's rate used, pounds for one dollar; null when charged in dollars. */
+  egpPerUsd: number | null;
+  status: TemplateOrderStatus;
+  /** SHA-256 of the payment link's token (the gateway calls back with it). */
+  tokenHash: string;
+  paymentProvider: string;
+  /** The gateway's own reference, to read the payment back. */
+  providerRef: string | null;
+  /** The gateway's payment ID, once paid. */
+  paymentId: string | null;
+  /** When the buyer agreed that it is digital content applied right away, without refunds. */
+  consentAt: Date;
+  /** The period it paid for, once paid. */
+  startsAt: Date | null;
+  endsAt: Date | null;
+  /** Once paid: when it went on the app, or why it couldn't (the buyer applies it from My templates). */
+  appliedAt: Date | null;
+  applyError: string | null;
+  createdAt: Date;
+  paidAt: Date | null;
+}
+
+export type TemplateOrderPatch = Partial<Pick<TemplateOrder, "licenceId" | "startsAt" | "endsAt" | "appliedAt" | "applyError">>;
 
 /** Why an application ended. */
 export type TemplateApplicationEnd = "moved" | "restored" | "replaced" | "ended";

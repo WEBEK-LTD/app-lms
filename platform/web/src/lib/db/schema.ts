@@ -5532,6 +5532,11 @@ export const studioMarketLicences = mysqlTable(
     startsAt: time("starts_at").notNull(),
     endsAt: time("ends_at"),
     movedAt: time("moved_at"),
+    // 106.2 The plan's end: what happens then (as bought), the reminders sent for an end date, when it ended.
+    afterEnd: varchar("after_end", { length: 8 }),
+    remindedEarlyFor: time("reminded_early_for"),
+    remindedLastFor: time("reminded_last_for"),
+    endedAt: time("ended_at"),
     createdAt: time("created_at").notNull(),
     updatedAt: time("updated_at").notNull(),
   },
@@ -5540,6 +5545,70 @@ export const studioMarketLicences = mysqlTable(
     index("studio_market_licences_client_idx").on(t.clientId, t.createdAt),
     index("studio_market_licences_template_idx").on(t.templateId, t.createdAt),
     index("studio_market_licences_app_idx").on(t.appId),
+    // 106.2 The daily job: active licences by end date.
+    index("studio_market_licences_ends_idx").on(t.status, t.endsAt),
+  ],
+);
+
+/** 106.2 Each paid period of a licence (a purchase or a renewal). */
+export const studioMarketLicencePeriods = mysqlTable(
+  "studio_market_licence_periods",
+  {
+    id: id("id").primaryKey(),
+    licenceId: id("licence_id").notNull(),
+    orderId: id("order_id").notNull(),
+    plan: varchar("plan", { length: 8 }).notNull(),
+    startsAt: time("starts_at").notNull(),
+    endsAt: time("ends_at"),
+    createdAt: time("created_at").notNull(),
+  },
+  (t) => [
+    foreignKey({ name: "studio_market_periods_licence_fk", columns: [t.licenceId], foreignColumns: [studioMarketLicences.id] }).onDelete("cascade"),
+    index("studio_market_periods_licence_idx").on(t.licenceId, t.startsAt),
+  ],
+);
+
+/**
+ * 106.2 The payments for templates (purchases and renewals) through Yallapp's
+ * own payment account, with each sale's split (the designer's 75%, Yallapp's
+ * 25%). Kept when a template, a buyer or a designer is gone: they are sales.
+ */
+export const studioMarketOrders = mysqlTable(
+  "studio_market_orders",
+  {
+    id: id("id").primaryKey(),
+    templateId: id("template_id").notNull(),
+    designerId: id("designer_id").notNull(),
+    clientId: id("client_id").notNull(),
+    kind: varchar("kind", { length: 8 }).notNull().$type<"buy" | "renew">(),
+    licenceId: id("licence_id"),
+    plan: varchar("plan", { length: 8 }).notNull(),
+    appId: id("app_id"),
+    grossCents: bigint("gross_cents", { mode: "number", unsigned: true }).notNull(),
+    designerCents: bigint("designer_cents", { mode: "number", unsigned: true }).notNull(),
+    yallappCents: bigint("yallapp_cents", { mode: "number", unsigned: true }).notNull(),
+    amountCents: bigint("amount_cents", { mode: "number", unsigned: true }).notNull(),
+    currency: varchar("currency", { length: 3 }).notNull(),
+    egpPerUsd: double("egp_per_usd"),
+    status: varchar("status", { length: 8 }).notNull().$type<"pending" | "paid" | "failed">(),
+    tokenHash: varchar("token_hash", { length: 64 }).notNull(),
+    paymentProvider: varchar("payment_provider", { length: 16 }).notNull(),
+    providerRef: varchar("provider_ref", { length: 191 }),
+    paymentId: varchar("payment_id", { length: 191 }),
+    consentAt: time("consent_at").notNull(),
+    startsAt: time("starts_at"),
+    endsAt: time("ends_at"),
+    appliedAt: time("applied_at"),
+    applyError: varchar("apply_error", { length: 191 }),
+    createdAt: time("created_at").notNull(),
+    paidAt: time("paid_at"),
+  },
+  (t) => [
+    uniqueIndex("studio_market_orders_token_idx").on(t.tokenHash),
+    index("studio_market_orders_client_idx").on(t.clientId, t.createdAt),
+    index("studio_market_orders_designer_idx").on(t.designerId, t.status, t.paidAt),
+    index("studio_market_orders_template_idx").on(t.templateId, t.createdAt),
+    index("studio_market_orders_licence_idx").on(t.licenceId),
   ],
 );
 

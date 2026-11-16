@@ -52,7 +52,11 @@ export default async function AdminLayout({ children }: { children: React.ReactN
             // 106 Studio Market: templates designers sent for their first publish.
             {
               label: "Studio Market",
-              items: [{ href: "/admin/market", label: "Review queue", icon: "fact_check", badge: { count: marketWaiting, label: marketWaiting === 1 ? "template waiting" : "templates waiting" } }],
+              items: [
+                { href: "/admin/market", label: "Review queue", icon: "fact_check", exact: true, badge: { count: marketWaiting, label: marketWaiting === 1 ? "template waiting" : "templates waiting" } },
+                // 106.2 Template sales and the buyers' licences.
+                { href: "/admin/market/sales", label: "Sales", icon: "payments" },
+              ],
             },
             {
               label: "Clients and apps",
