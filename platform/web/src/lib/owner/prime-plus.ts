@@ -28,8 +28,7 @@ import {
 } from "./http";
 import { mainCurrency, saleEvents, type SaleEvent } from "./prime";
 import { appScope, money, ownerAreas } from "./sales";
-import { recordStudio } from "./studio";
-import type { TeamAction } from "../team/activity";
+import { recordTeamActivity, type TeamAction } from "../team/activity";
 
 /** The team's activity (Dashboard › Team) for a change made from the phone. */
 function recordStaffActivity(
@@ -38,7 +37,18 @@ function recordStaffActivity(
   action: TeamAction,
   summary: string,
 ): Promise<void> {
-  return recordStudio(ctx, app, action, { type: "app", id: app.id }, summary);
+  return recordTeamActivity(
+    ctx.deps.store,
+    {
+      clientId: ctx.client.id,
+      appId: app.id,
+      actor: ctx.user,
+      action,
+      target: { type: "app", id: app.id },
+      summary,
+    },
+    ctx.deps.now,
+  );
 }
 
 /**
@@ -442,7 +452,7 @@ export async function getPrimeReviews(
         name: null,
         about: "",
         can_reply: true,
-        reply: v.reply?.text ?? null,
+        reply: v.replyText ?? null,
       });
     }
   }

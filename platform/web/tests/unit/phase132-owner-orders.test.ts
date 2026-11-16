@@ -452,12 +452,9 @@ describe("132 every kind's orders in Yallapp Business", () => {
       },
     });
     // Signed when not anonymous.
-    await store.updateCatalogOrder(
-      flowers.id,
-      order.id,
-      { delivery: { ...order.delivery!, anonymous: false } } as never,
-      NOW,
-    );
+    await store.updateCatalogOrder(flowers.id, order.id, {
+      delivery: { ...order.delivery!, anonymous: false },
+    } as never);
     const signed = await call("GET", "/apps/{app_id}/orders/{order_id}", {
       token,
       params: { app_id: flowers.id, order_id: order.id },
@@ -810,12 +807,27 @@ describe("132 every kind's orders in Yallapp Business", () => {
       tokenHash: sha256Hex("waiting"),
       userId: null,
       status: "pending",
-      lines: [{ productId: 3, name: "Tulips", quantity: 1, unitCents: 300_00, imageAssetId: null, digital: false }],
+      lines: [
+        {
+          productId: 3,
+          name: "Tulips",
+          quantity: 1,
+          unitCents: 300_00,
+          imageAssetId: null,
+          digital: false,
+        },
+      ],
       subtotalCents: 300_00,
       shippingCents: 0,
       totalCents: 300_00,
       currency: "EGP",
-      customer: { name: "Hoda Samir", phone: "+201002223333", email: "hoda@example.com", city: "Giza", address: "7 Pyramids Rd, Haram" },
+      customer: {
+        name: "Hoda Samir",
+        phone: "+201002223333",
+        email: "hoda@example.com",
+        city: "Giza",
+        address: "7 Pyramids Rd, Haram",
+      },
       paymentId: null,
       createdAt: NOW,
       paidAt: null,
@@ -823,10 +835,21 @@ describe("132 every kind's orders in Yallapp Business", () => {
       commissionCents: null,
       itemTransactionIds: null,
       payoutApprovedAt: null,
-      manualPayment: { method: "custom", name: "Cash on delivery", instructions: "Pay the courier.", dueAt: days(2).toISOString() },
+      manualPayment: {
+        method: "custom",
+        name: "Cash on delivery",
+        instructions: "Pay the courier.",
+        dueAt: days(2).toISOString(),
+      },
     } as Omit<CatalogOrder, "id">);
-    const list = await call("GET", "/apps/{app_id}/orders", { token, params: { app_id: flowers.id }, query: { status: "pending,processing" } });
-    expect((list.body.items as unknown as Record<string, unknown>[])[0]).toMatchObject({
+    const list = await call("GET", "/apps/{app_id}/orders", {
+      token,
+      params: { app_id: flowers.id },
+      query: { status: "pending,processing" },
+    });
+    expect(
+      (list.body.items as unknown as Record<string, unknown>[])[0],
+    ).toMatchObject({
       id: waiting.id,
       status: "pending",
       customer: { name: "Hoda Samir", source: "checkout" },
@@ -834,8 +857,16 @@ describe("132 every kind's orders in Yallapp Business", () => {
       pay_outside: { method: "custom", name: "Cash on delivery" },
       next_statuses: ["processing", "cancelled"],
     });
-    const today = await call("GET", "/apps/{app_id}/today", { token, params: { app_id: flowers.id } });
-    expect(today.body.needs_you).toContainEqual({ kind: "orders_awaiting_payment", count: 1, title: "1 order waiting for its payment", notice_id: null });
+    const today = await call("GET", "/apps/{app_id}/today", {
+      token,
+      params: { app_id: flowers.id },
+    });
+    expect(today.body.needs_you).toContainEqual({
+      kind: "orders_awaiting_payment",
+      count: 1,
+      title: "1 order waiting for its payment",
+      notice_id: null,
+    });
   });
 
   it("refuses another owner's orders, and an order of one app asked for through another", async () => {
