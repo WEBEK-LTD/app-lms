@@ -13,6 +13,13 @@ import '../services/external_links.dart';
 import 'media_permission.dart';
 import 'web_files.dart';
 
+/// 135.10 Sites no web view in the app opens: the rates' source (its terms
+/// ask for its link where converted prices show), always in the browser.
+bool isAlwaysOutside(Uri url) =>
+    (url.scheme == 'https' || url.scheme == 'http') &&
+    (url.host == 'www.exchangerate-api.com' ||
+        url.host == 'exchangerate-api.com');
+
 /// What a web view should show and report.
 @immutable
 class WebViewRequest {
@@ -281,6 +288,14 @@ class _PlatformWebViewState extends State<PlatformWebView>
   }
 
   FutureOr<NavigationDecision> _onNavigation(NavigationRequest request) {
+    // 135.10 The rates' source, named under a converted price on Yallapp's
+    // payment page: always in the browser, so the payment page stays (a
+    // "new tab" link comes here as a sub-frame request on iOS).
+    final outside = Uri.tryParse(request.url);
+    if (outside != null && isAlwaysOutside(outside)) {
+      unawaited(openExternal(request.url));
+      return NavigationDecision.prevent;
+    }
     final policy = widget.request.allowNavigation;
     if (policy != null) {
       final uri = Uri.tryParse(request.url);
