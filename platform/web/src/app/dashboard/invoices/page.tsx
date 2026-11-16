@@ -39,6 +39,14 @@ export default async function InvoicesPage() {
     return project ? (appLabel(project) === "Untitled app" ? k("Untitled app") : appLabel(project)) : null;
   };
   const projects = [...new Set(paid.map((p) => p.appId).filter((id): id is string => id !== null))];
+  // "Studio plan 1 · 6 months": each part in its own direction, so a Latin name and an Arabic period read right to left in Arabic.
+  const parts = (text: string) =>
+    text.split(" · ").map((part, i) => (
+      <span key={i}>
+        {i ? " · " : null}
+        <bdi>{part}</bdi>
+      </span>
+    ));
   const latest = paid[0] ?? null;
   const when = (p: (typeof paid)[number]) => formatDate(p.paidAt ?? p.createdAt, lang);
   const amount = (p: (typeof paid)[number]) => (
@@ -103,12 +111,12 @@ export default async function InvoicesPage() {
                     // The page's words first: the line takes its direction from them, not from a project's Latin name.
                     line={
                       <>
-                        {what} · {amount(p)}
+                        {parts(what)} · {amount(p)}
                       </>
                     }
                     cells={[
                       <span key="w" className="flex min-w-0 flex-col">
-                        <span className="truncate text-(--sp-ink)">{what}</span>
+                        <span className="truncate text-(--sp-ink)">{parts(what)}</span>
                         {projects.length > 1 && project ? <span className="truncate text-[12.5px] text-(--sp-muted)">{project}</span> : null}
                       </span>,
                       amount(p),
@@ -153,7 +161,7 @@ export default async function InvoicesPage() {
                         facts={[
                           [t("license.receipt"), <bdi key="n" dir="ltr">{receiptNumber(p)}</bdi>],
                           [t("studio.invoicesColDate"), when(p)],
-                          [t("studio.invoicesColPlan"), what],
+                          [t("studio.invoicesColPlan"), parts(what)],
                           project ? [t("studio.invoicesProject"), <bdi key="p">{project}</bdi>] : null,
                           [t("studio.invoicesPaidBy"), p.method === "bank_transfer" ? t("studio.invoicesBank") : t("studio.invoicesCard")],
                         ]}

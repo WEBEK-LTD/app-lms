@@ -399,18 +399,21 @@ export default async function BuildsPage({ searchParams }: PageProps<"/dashboard
         title={t("builds.title")}
         description={t("builds.intro", { app: appLabel(app) === "Untitled app" ? k("Untitled app") : appLabel(app), plan: plan ? k(planName(plan, plans)) : t("overview.noPlan") })}
         actions={
-          <div className="flex items-start gap-2 max-sm:w-full max-sm:flex-col">
+          <div className="flex items-start gap-2 max-sm:w-full">
             <StartBuildForm suggestedVersion={suggestedVersion(current)} disabledReason={disabledReason} />
-            <KitMore label={t("studioPage.more")}>
-              <Link href="/dashboard/publishing" className={kit.menuItem}>
-                <Icon name="publish" size={18} />
-                {t("builds.publishing")}
-              </Link>
-              <a href="#h-guides" className={kit.menuItem}>
-                <Icon name="menu_book" size={18} />
-                {t("builds.guides")}
-              </a>
-            </KitMore>
+            {/* Level with the button, under the field's label. */}
+            <div className="pt-6">
+              <KitMore label={t("studioPage.more")}>
+                <Link href="/dashboard/publishing" className={kit.menuItem}>
+                  <Icon name="publish" size={18} />
+                  {t("builds.publishing")}
+                </Link>
+                <a href="#h-guides" className={kit.menuItem}>
+                  <Icon name="menu_book" size={18} />
+                  {t("builds.guides")}
+                </a>
+              </KitMore>
+            </div>
           </div>
         }
       />
@@ -626,7 +629,6 @@ export default async function BuildsPage({ searchParams }: PageProps<"/dashboard
             end={{ label: t("builds.colState"), width: "140px" }}
           >
             {builds.map((build) => {
-              const took = formatDuration(build.startedAt, build.finishedAt);
               const platforms = (["android", "ios"] as const).filter((key) => build.stages[key] && build.stages[key] !== "skipped");
               const remake = build.status === "ready" && build.sourceCommit && !licenseProblem && !running;
               return (
@@ -672,7 +674,6 @@ export default async function BuildsPage({ searchParams }: PageProps<"/dashboard
                       line={t("builds.versionCode", { code: build.versionCode })}
                     />
                     <Times build={build} now={now} text={text} />
-                    {took ? <p className="m-0 text-[13px] text-(--sp-muted)">{t("builds.tookTime", { time: k(took) })}</p> : null}
                     <BuildStages stages={build.stages} lang={lang} look="pills" />
                     {build.status === "queued" || build.status === "building" ? <p className="m-0 text-sm text-(--sp-muted)">{k(statusExplanation(build, now))}</p> : null}
                     {build.status === "failed" ? (

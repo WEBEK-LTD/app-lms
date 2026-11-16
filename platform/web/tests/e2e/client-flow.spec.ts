@@ -148,6 +148,8 @@ test("the client completes the setup wizard and the first build is queued", asyn
   await expect(page).toHaveURL(/\/dashboard\/builds\?started=1$/);
   await expect(page.getByRole("heading", { name: "Build #1 · App version 1.0.0" })).toBeVisible();
   await expect(page.getByRole("heading", { name: "Build #1 · App version 1.0.0" }).locator("xpath=../..")).toContainText("Waiting to start");
+  // 132.172 The files are folded until a build is ready, and say why.
+  await page.locator("#files summary").click();
   await expect(page.getByText("Available after your first successful build").first()).toBeVisible();
   // The secret never comes back to the browser.
   await page.goto("/dashboard/setup?step=publishing");

@@ -115,7 +115,7 @@ export default async function StabilityPage() {
                   <div className="flex flex-col gap-4" data-inspector-issue={issue.id}>
                     <KitInspectorHead
                       title={
-                        <span dir="ltr" className="block font-mono text-[15px] leading-snug">
+                        <span dir="ltr" className="font-mono text-[15px] leading-snug">
                           {issue.title}
                         </span>
                       }

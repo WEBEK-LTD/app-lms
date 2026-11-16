@@ -63,7 +63,8 @@ async function shoot(page: Page, name: string) {
   await page.waitForTimeout(800);
   fs.mkdirSync(path.join(OUT, "full"), { recursive: true });
   await page.screenshot({ path: path.join(OUT, `${PREFIX}-${name}.png`) });
-  await page.screenshot({ path: path.join(OUT, "full", `${PREFIX}-${name}.png`), fullPage: true });
+  // A page taller than the browser can draw at twice the pixels is kept at once the pixels.
+  await page.screenshot({ path: path.join(OUT, "full", `${PREFIX}-${name}.png`), fullPage: true }).catch(() => page.screenshot({ path: path.join(OUT, "full", `${PREFIX}-${name}.png`), fullPage: true, scale: "css" }).catch(() => undefined));
 }
 
 /** Opens what the page keeps closed (an inspector, a fold), or nothing where the page has none of it (main, before). */

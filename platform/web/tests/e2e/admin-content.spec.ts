@@ -281,6 +281,8 @@ test("the team publishes an announcement; the client sees it, gets the email and
   await expect(own.getByRole("region", { name: `Announcement: ${title}` })).toHaveCount(0);
   // 57 Closed on the overview, still on the full list behind the bell.
   await own.getByRole("link", { name: "Updates from Yallapp", exact: true }).click();
+  // 132.177 Its words open in the inspector from its row.
+  await own.locator("[data-update]").filter({ hasText: title }).getByRole("button", { name: new RegExp(`^${title}`) }).click();
   await expect(own.getByRole("article", { name: title })).toContainText("Builds pause tonight from 22:00 to 23:00 UTC.");
 
   await admin.goto(announcementUrl);

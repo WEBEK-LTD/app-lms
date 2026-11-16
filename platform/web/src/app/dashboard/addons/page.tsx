@@ -128,7 +128,8 @@ export default async function AddonsPage({ searchParams }: PageProps<"/dashboard
                     tone={more ? "success" : "neutral"}
                     label={tile.label}
                     value={limitValue(tile.value, tile.size)}
-                    hint={more ? t("addons.withAddons", { amount: tile.size ? formatStorage(more) : text.num(more) }) : undefined}
+                    // The sign with the amount, left to right inside an Arabic line.
+                    hint={more ? t("addons.withAddons", { amount: `\u2066+${tile.size ? formatStorage(more) : text.num(more)}\u2069` }) : undefined}
                   />
                 );
               })}
