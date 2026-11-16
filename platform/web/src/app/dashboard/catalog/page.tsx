@@ -1,8 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { Icon } from "@/components/icon";
-import { EmptyState, Notice, PageHeader, btn } from "@/components/ui";
-import { Stat, StatRow } from "@/components/page-kit";
+import { KitCallout, KitEmpty, KitHeader, KitPage, KitTile, KitTiles, kit } from "@/components/studio-page";
 import { assetUrl } from "@/lib/assets";
 import { requireClient } from "@/lib/auth/session";
 import { formatCents } from "@/lib/catalog/money";
@@ -39,9 +38,9 @@ export default async function CatalogPage({ searchParams }: { searchParams: Prom
   const pageTitle = t("shop.page", { kind });
   if (!app || app.connector?.kind !== "catalog") {
     return (
-      <div className="flex flex-col gap-6">
-        <PageHeader title={pageTitle} description={richText(t("shop.fromSite", { kind }), { link: (chunk) => <Link href="/dashboard/setup?step=website">{chunk}</Link> })} />
-      </div>
+      <KitPage>
+        <KitHeader icon={kind === "restaurant" ? "restaurant_menu" : "inventory_2"} title={pageTitle} description={richText(t("shop.fromSite", { kind }), { link: (chunk) => <Link href="/dashboard/setup?step=website">{chunk}</Link> })} />
+      </KitPage>
     );
   }
   const query = await searchParams;
@@ -58,7 +57,7 @@ export default async function CatalogPage({ searchParams }: { searchParams: Prom
   const has = products.length > 0;
   const shown = products.filter((p) => p.active && p.stock !== 0).length;
   const addLink = (
-    <Link href="/dashboard/catalog/new" className={`${btn.main} h-11`}>
+    <Link href="/dashboard/catalog/new" className={kit.main}>
       <Icon name="add" size={20} />
       {t("shop.add", { kind })}
     </Link>
@@ -99,16 +98,18 @@ export default async function CatalogPage({ searchParams }: { searchParams: Prom
     sort: isSort(query.sort) ? query.sort : "newest",
   };
 
+  // 132.131 The premium kit: the header with one main action, the tabs, a quiet note or two, three or four numbers, then the list.
   return (
-    <div className="flex flex-col gap-5">
+    <KitPage>
       <CatalogAnchors />
-      <PageHeader
+      <KitHeader
+        icon={fulfilment ? "restaurant_menu" : "inventory_2"}
         title={pageTitle}
         description={t("shop.intro", { kind })}
         actions={
           <>
             {/* 81.4 */}
-            <Link href="/dashboard/catalog/import" className={`${btn.secondary} h-11`}>
+            <Link href="/dashboard/catalog/import" className={kit.quiet}>
               <Icon name="upload" size={20} />
               {t("imports.title")}
             </Link>
@@ -119,42 +120,41 @@ export default async function CatalogPage({ searchParams }: { searchParams: Prom
       <CatalogTabs app={app} />
 
       {saved ? (
-        <p role="status" className="m-0 flex items-center gap-2 rounded-xl bg-success-bg px-4 py-3 text-[15px] font-semibold text-success">
-          <Icon name="check_circle" size={20} filled />
-          {t("shop.savedName", { name: saved })}
-        </p>
+        <KitCallout tone="success" icon="check_circle" role="status">
+          <span className="font-semibold">{t("shop.savedName", { name: saved })}</span>
+        </KitCallout>
       ) : null}
       {/* 110.2 */}
       <SampleEntries app={app} list="products" query={query} />
       {!paymentsSetUp(app) ? (
-        <Notice tone="warn" icon="warning">
+        <KitCallout tone="warn" icon="warning">
           {richText(t("manage.noPayments", { kind }), { link: (chunk) => <Link href="/dashboard/payments">{chunk}</Link> })}
-        </Notice>
+        </KitCallout>
       ) : null}
 
       {has ? (
         <>
-          <StatRow label={pageTitle}>
-            <Stat icon={fulfilment ? "restaurant_menu" : "inventory_2"} label={t("shop.statItems", { kind })} value={num(products.length)} hint={categories.length ? `${t("shop.categories")}: ${num(categories.length)}` : undefined} />
-            <Stat icon="check_circle" tone="success" label={t("shop.statShown")} value={num(shown)} href="/dashboard/catalog?status=shown" />
-            <Stat icon="visibility_off" tone="neutral" label={t("common.hidden")} value={num(products.filter((p) => !p.active).length)} href="/dashboard/catalog?status=hidden" />
-            <Stat icon="warning" tone="warn" label={t("shop.outOfStock")} value={num(products.filter((p) => p.stock === 0).length)} href="/dashboard/catalog?out=1" />
-          </StatRow>
+          <KitTiles label={pageTitle}>
+            <KitTile icon={fulfilment ? "restaurant_menu" : "inventory_2"} label={t("shop.statItems", { kind })} value={num(products.length)} hint={categories.length ? `${t("shop.categories")}: ${num(categories.length)}` : undefined} />
+            <KitTile icon="check_circle" tone="success" label={t("shop.statShown")} value={num(shown)} href="/dashboard/catalog?status=shown" />
+            <KitTile icon="visibility_off" label={t("common.hidden")} value={num(products.filter((p) => !p.active).length)} href="/dashboard/catalog?status=hidden" />
+            <KitTile icon="warning" tone="warn" label={t("shop.outOfStock")} value={num(products.filter((p) => p.stock === 0).length)} href="/dashboard/catalog?out=1" />
+          </KitTiles>
           <ProductsBrowser products={rows} categories={categories.map((c) => ({ id: c.id, name: c.name }))} restaurant={restaurant} initial={initial} />
         </>
       ) : (
-        <section aria-labelledby="h-products" className="rounded-2xl border border-line bg-white p-5 sm:p-6">
+        <section aria-labelledby="h-products" className={kit.card}>
           <h2 id="h-products" className="sr-only">
             {t("shop.count", { kind, count: 0 })}
           </h2>
-          <EmptyState icon={fulfilment ? "restaurant_menu" : "inventory_2"} title={t("shop.none", { kind })} action={addLink}>
+          <KitEmpty icon={fulfilment ? "restaurant_menu" : "inventory_2"} title={t("shop.none", { kind })} action={addLink}>
             {t("shop.noneText", { kind })}
-          </EmptyState>
-          <p className="m-0 mt-4 text-center text-sm text-muted">
+          </KitEmpty>
+          <p className="m-0 -mt-6 px-6 pb-10 text-center text-sm text-(--sp-muted) sm:-mt-10">
             {richText(t("manage.orImport", { kind }), { link: (chunk) => <Link href="/dashboard/catalog/import">{chunk}</Link> })}
           </p>
         </section>
       )}
-    </div>
+    </KitPage>
   );
 }
