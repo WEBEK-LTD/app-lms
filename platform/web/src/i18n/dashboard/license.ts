@@ -329,7 +329,7 @@ export const ar: Messages = {
   downloadPlugin: "نزّل الإضافة",
   needsActive: "التنزيل محتاج باقة شغالة.",
   pluginSoon: "لينك تنزيل الإضافة هيظهر هنا أول ما تتنشر.",
-  pluginUpdates: "بعد ما تسطّبها، الإضافة بتحدّث نفسها من WordPress زي أي إضافة. شوف <install>تسطيب الإضافة</install> و<activate>تفعيل ترخيصك</activate>.",
+  pluginUpdates: "بعد ما تثبّتها، الإضافة بتحدّث نفسها من WordPress زي أي إضافة. شوف <install>تثبيت الإضافة</install> و<activate>تفعيل ترخيصك</activate>.",
   noteUpgrade: "ترقية: بتبدأ النهارده. شغالة لحد {date}.",
   noteUpgradeCredit: "ترقية: بتبدأ النهارده، وبيتحسبلك {days, plural, zero{{days} يوم} one{يوم واحد} two{يومين} few{{days} أيام} many{{days} يوم} other{{days} يوم}} من باقتك الحالية. شغالة لحد {date}.",
   noteDowngrade: "بتبدأ يوم {start}، لما باقتك الحالية تخلص. شغالة لحد {date}.",

@@ -531,7 +531,7 @@ export const ar: Messages = {
     keystore: "مفتاح رفع Android (خليه في مكان أمان)",
     storeAssets: "مواد المتاجر (.zip)",
     notConfigured: "التنزيلات لسه ما اتظبطتش",
-    apkText: "سطّبه على طول على تليفون Android عشان تجرّب تطبيقك",
+    apkText: "ثبّته على طول على تليفون Android عشان تجرّب تطبيقك",
     aabAuto: "الملف بتاع Google Play. في باقتك، إحنا اللي بنرفعه بدالك",
     aabSelf: "الملف اللي بترفعه على Google Play",
     ipaAuto: "تطبيق iOS. في باقتك، إحنا اللي بنرفعه على TestFlight بدالك",

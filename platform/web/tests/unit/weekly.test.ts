@@ -106,7 +106,7 @@ describe("86.4 the weekly summary", () => {
       "Paid orders: 1, ₺100.00 (0)",
     ]);
     const ar = box.sent.find((m) => m.lang === "ar")!;
-    expect(String(ar.values.summary)).toContain("التثبيتات: 1 (0 في الأسبوع السابق)");
+    expect(String(ar.values.summary)).toContain("التثبيتات: 1 (0 في الأسبوع اللي قبله)");
     // The quiet week and the app turned off got nothing.
     expect(box.sent.map((m) => m.lang ?? "en").sort()).toEqual(["ar", "en"]);
     expect((await store.listAnalyticsDaily(quiet.app.id, "2026-10-05", "2026-10-05", ["weekly_mail"])).length).toBe(1);
