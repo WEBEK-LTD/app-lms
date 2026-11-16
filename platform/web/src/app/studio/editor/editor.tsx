@@ -45,6 +45,8 @@ import { download, fileName, fromBase64, readFont, readPicture, type OwnFontFile
 import { fontUpload, ImportDialog, type ImportChoice } from "./import-dialog";
 import { Inspector, type InspectorTab } from "./inspector";
 import { LeftPanel, NewTag, elementLabel, type LeftTab, type MyTemplate } from "./left-panel";
+import { HistoryPanel } from "./history-panel";
+import { describeStep } from "@/lib/studio/history-labels";
 import { DRAG_TYPE, Glyph, STUDIO_COLORS as C, StudioMark, type DragPayload } from "./shared";
 import { seedSamplesAction } from "@/app/actions/samples";
 import { applyDemoScreensAction, applyDesignLookAction } from "@/app/actions/studio-screens";
@@ -89,6 +91,8 @@ export interface StudioEditorProps {
   previewHref: string;
   /** 132.61 The QR code of the app's preview with the saved draft (drawn on the server), for the phone. */
   phoneQr?: ReactNode;
+  /** 132.71 The same preview for 7 days, to send to the team. */
+  shareUrl?: string;
   fontCount: number;
   startSlug: string | null;
   studioOnPlan: boolean;
@@ -309,6 +313,21 @@ export function StudioEditor(props: StudioEditorProps) {
       }, key),
     [change, slug],
   );
+
+  // 132.73 Back (or forward) to one step of the history, as so many presses of Undo or Redo.
+  function jumpTo(index: number) {
+    lastChange.current = { at: 0, key: "" };
+    setHistory((h) => {
+      let x = h;
+      while (x.past.length > index && x.past.length) x = undo(x);
+      while (x.past.length < index && x.future.length) x = redo(x);
+      return x;
+    });
+    setNotice(null);
+    edits.current += 1;
+    dirty.current = true;
+    setStatus("unsaved");
+  }
 
   function step(back: boolean) {
     lastChange.current = { at: 0, key: "" };
@@ -1079,6 +1098,26 @@ export function StudioEditor(props: StudioEditorProps) {
 
   const headerNumber = (type: StudioHeader["type"]) => STUDIO_HEADER_TYPES.indexOf(type) + 1;
   const nodeLabel = (node: StudioNode) => node.name || elementLabel(t, node.type, node.source ?? source);
+  // 132.73 The undo history in words: each step read from the draft before and after it.
+  const stepLabel = (before: LayoutContent | null, after: LayoutContent): string => {
+    if (!before) return t("studioKit.histStart");
+    const s2 = describeStep(before, after);
+    switch (s2.kind) {
+      case "added":
+      case "deleted":
+      case "moved":
+      case "changed":
+        return t(`studioKit.hist_${s2.kind}` as DashKey, { name: nodeLabel(s2.node) });
+      case "header":
+      case "page":
+      case "replaced":
+      case "page_added":
+      case "page_deleted":
+        return t(`studioKit.hist_${s2.kind}` as DashKey, { page: s2.page });
+      default:
+        return t(`studioKit.hist_${s2.kind}` as DashKey);
+    }
+  };
   const tagOf = (node: StudioNode) => (node.id === "tabs" ? t("studio.tabBar") : node.id === "header" && studio?.header ? t("studio.headerType", { n: headerNumber(studio.header.type) }) : nodeLabel(node));
   const parentLabel = (() => {
     if (!studio || !selected) return "";
@@ -1114,12 +1153,14 @@ export function StudioEditor(props: StudioEditorProps) {
   })();
 
   const frame = DEVICES[device];
+  // 132.73 Every step kept: those undone, the one on screen, those that can be done again.
+  const timeline = [...history.past, history.present, ...history.future];
   const languages = layout.languages.available;
 
   return (
     <div data-site-theme="" data-studio-frame="" className="studio flex min-h-dvh flex-col lg:h-dvh lg:overflow-hidden" style={{ fontFamily: "var(--font-studio), 'Cairo', system-ui, sans-serif", color: C.ink, background: C.board }} onDragEnd={endDrag}>
-      {/* 132.52 One line at 1280px and wider: gaps a little tighter, Help as its icon below 1536px, Preview below 1440px. */}
-      <header className="flex flex-wrap items-center gap-2 px-4 py-2.5 min-[1366px]:gap-3 min-[1366px]:px-5 2xl:gap-4" style={{ background: C.bar, color: C.barText }}>
+      {/* 132.52 One line at 1280px and wider: gaps a little tighter, Help and Preview as their icons below 1536px (132.73 the history beside Undo and Redo). */}
+      <header className="flex flex-wrap items-center gap-2 px-4 py-2.5 min-[1366px]:gap-3 min-[1366px]:px-5" style={{ background: C.bar, color: C.barText }}>
         <Link href="/studio/project" className="flex items-center gap-2.5 no-underline" style={{ color: C.barText }} title={t("studio.back")}>
           <StudioMark />
         </Link>
@@ -1255,6 +1296,7 @@ export function StudioEditor(props: StudioEditorProps) {
         <button type="button" aria-label={t("studio.redo")} title={t("studio.redo")} disabled={!history.future.length} onClick={() => step(false)} className="flex size-9 items-center justify-center rounded-lg border-0 bg-transparent" style={{ color: history.future.length ? C.barText : C.barMuted }}>
           <Glyph name="redo" />
         </button>
+        <HistoryPanel count={timeline.length} current={history.past.length} labelOf={(i) => stepLabel(i ? timeline[i - 1]! : null, timeline[i]!)} onJump={jumpTo} />
         <TextStylesPanel styles={textStyles} use={textStyleCount} fontLabels={fontLabels} onChange={(style, font) => change((l) => applyTextStyle(l, style, font), `text_style:${style}`)} />
         <PublishHistory entries={publishes} busy={restoring} onRestore={(entry) => void restorePublish(entry)} />
         <div role="status" aria-live="polite" className="flex max-w-[320px] items-center gap-1.5 text-[13px]" style={{ color: status === "invalid" ? "#FFB49A" : C.barMuted }}>
@@ -1300,6 +1342,7 @@ export function StudioEditor(props: StudioEditorProps) {
                 <b className="text-[15px]">{t("studioKit.phoneTitle")}</b>
                 {props.phoneQr}
                 <span style={{ color: C.muted }}>{t("studioKit.phoneText")}</span>
+                {props.shareUrl ? <ShareLink url={props.shareUrl} label={t("studioKit.shareTeam", { days: 7 })} done={t("common.copied")} /> : null}
                 <button type="button" onClick={() => setPhoneOpen(false)} className="h-8 rounded-lg px-3 text-[13px] font-semibold" style={{ border: `1px solid ${C.line}`, background: "transparent", color: C.ink }}>
                   {t("studio.close")}
                 </button>
@@ -1307,9 +1350,9 @@ export function StudioEditor(props: StudioEditorProps) {
             ) : null}
           </div>
         ) : null}
-        <a href={props.previewHref} target="_blank" rel="noopener" title={t("studio.previewOnPhone")} className="flex h-[38px] items-center gap-1.5 rounded-[10px] px-3.5 text-sm font-semibold no-underline max-[1440px]:px-2.5" style={{ border: `1px solid ${C.barLine}`, color: C.barText }}>
+        <a href={props.previewHref} target="_blank" rel="noopener" title={t("studio.previewOnPhone")} className="flex h-[38px] items-center gap-1.5 rounded-[10px] px-3.5 text-sm font-semibold no-underline max-2xl:px-2.5" style={{ border: `1px solid ${C.barLine}`, color: C.barText }}>
           <Glyph name="play_arrow" size={18} />
-          <span className="max-[1440px]:sr-only">{t("studio.previewOnPhone")}</span>
+          <span className="max-2xl:sr-only">{t("studio.previewOnPhone")}</span>
           <span className="sr-only">{t("common.opensInNewTab")}</span>
         </a>
         <button type="button" onClick={() => void publish()} disabled={publishing || status === "invalid"} className="flex h-[38px] items-center gap-1.5 rounded-[10px] border-0 px-[18px] text-sm font-extrabold disabled:opacity-60" style={{ background: C.accent, color: C.onAccent }}>
@@ -1654,6 +1697,28 @@ function Chip(props: { icon: string; children: ReactNode; onClick?: (e: MouseEve
   return (
     <button type="button" onClick={props.onClick} title={props.label} aria-pressed={props.pressed} aria-expanded={props.expanded} className="flex items-center gap-1.5 rounded-full px-3 py-1.5 text-[13px]" style={style}>
       {inner}
+    </button>
+  );
+}
+
+/** 132.71 Copies the shared preview's link, and says so. */
+function ShareLink({ url, label, done }: { url: string; label: string; done: string }) {
+  const [copied, setCopied] = useState(false);
+  return (
+    <button
+      type="button"
+      data-studio-share={url}
+      onClick={() => {
+        void navigator.clipboard?.writeText(url).then(
+          () => setCopied(true),
+          () => setCopied(false),
+        );
+      }}
+      className="flex h-8 items-center gap-1.5 rounded-lg px-3 text-[13px] font-semibold"
+      style={{ border: `1px solid ${C.line}`, background: "transparent", color: C.ink }}
+    >
+      <Glyph name={copied ? "check" : "content_copy"} size={16} />
+      {copied ? done : label}
     </button>
   );
 }

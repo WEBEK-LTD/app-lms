@@ -5,6 +5,7 @@ import type { ReactNode } from "react";
 import { redirect } from "next/navigation";
 import { Icon } from "@/components/icon";
 import { QrCode } from "@/components/qr-code";
+import { CopyButton } from "@/components/copy-button";
 import { Notice, PageHeader, Section, btn } from "@/components/ui";
 import { ItemList, ItemRow } from "@/components/page-kit";
 import { appLabel } from "@/lib/app/label";
@@ -44,6 +45,9 @@ const STEP_HREF: Record<string, string> = {
   publishing: "/dashboard/setup?step=publishing",
 };
 
+/** 132.71 How long a shared preview link works. */
+const SHARE_DAYS = 7;
+
 /**
  * 17 The live preview: the real app (its web build, public/preview-app) in a
  * phone frame, with the app's current setup and content. A preview link
@@ -82,6 +86,8 @@ export default async function PreviewPage({ searchParams }: PageProps<"/dashboar
         ]
       : undefined;
   const phoneUrl = `${appUrl()}${path}`;
+  // 132.71 A longer-lived link of the same kind (signed, read-only, ending on its own), to send to teammates.
+  const shareUrl = `${appUrl()}${previewAppPath(createPreviewToken({ appId: app.id, draft }, previewKey(signingSecret()), now, SHARE_DAYS * 86_400))}`;
   const missing = missingSteps(app, planId, plans);
   const pluginConnected = await wordpressPluginConnected(store, app);
   const source = previewContentSource(app, pluginConnected);
@@ -212,6 +218,20 @@ export default async function PreviewPage({ searchParams }: PageProps<"/dashboar
                   {wordsOf(app).iphone ? t("preview.iphoneRules", { rule: k(wordsOf(app).iphone!) }) : t("preview.iphoneSame")}
                 </span>
               </div>
+            </div>
+          </Section>
+
+          {/* 132.71 Share the preview: the same signed link for a week, for the team to open on any phone or computer. */}
+          <Section id="share" titleId="h-share" title={t("studioKit.shareTitle")} description={t("studioKit.shareText", { days: SHARE_DAYS })}>
+            <div className="flex flex-wrap items-center gap-2" data-preview-share="">
+              <input
+                readOnly
+                value={shareUrl}
+                aria-label={t("studioKit.shareLink")}
+                dir="ltr"
+                className="input input-sm min-w-0 flex-[1_1_220px] font-mono text-xs"
+              />
+              <CopyButton value={shareUrl} label={t("studioKit.shareCopy")} copiedLabel={t("common.copied")} />
             </div>
           </Section>
 

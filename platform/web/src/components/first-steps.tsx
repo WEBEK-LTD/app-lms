@@ -1,8 +1,10 @@
+import { cookies } from "next/headers";
 import Link from "next/link";
 import type { ReactNode } from "react";
 import { removeAllSamplesAction } from "@/app/actions/samples";
 import { firstStepsAction } from "@/app/actions/start";
 import { Icon } from "@/components/icon";
+import { FirstStepsDock, STEPS_DOCK_COOKIE } from "@/components/first-steps-dock";
 import type { DashKey } from "@/i18n/dashboard";
 import { richText } from "@/i18n/rich";
 import { getStore } from "@/lib/data";
@@ -143,10 +145,18 @@ export async function FirstSteps({ app, editor }: { app: App; editor: "/dashboar
     </section>
   );
   if (studio) {
+    // 132.72 Docked on the elements' side, folded or open as this browser left it.
+    const chosen = (await cookies()).get(STEPS_DOCK_COOKIE)?.value;
     return (
-      <div className="fixed end-4 bottom-4 z-40 max-h-[calc(100dvh-96px)] w-[min(360px,calc(100vw-32px))] overflow-y-auto rounded-[22px] shadow-[0_24px_60px_rgba(14,13,36,0.35)]" data-first-steps-float="">
+      <FirstStepsDock
+        initial={chosen === "open" || chosen === "folded" ? chosen : null}
+        title={t("start.first.title")}
+        progress={t("studioKit.stepsShort", { done, total: FIRST_STEPS.length })}
+        fold={t("studioKit.stepsFold")}
+        open={t("studioKit.stepsOpen")}
+      >
         {panel}
-      </div>
+      </FirstStepsDock>
     );
   }
   return panel;
