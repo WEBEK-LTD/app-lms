@@ -73,7 +73,8 @@ export function liveDatabase(
   account: ServiceAccount | null,
   options: { fetcher?: Fetch; now?: () => Date } = {},
 ): LiveDatabase | null {
-  if (!settings.databaseUrl || !account) return null;
+  // 136 Yallapp's Firebase has no key to reach a database with: the live database is the client's own Firebase only.
+  if (!settings.databaseUrl || !account || account.federated) return null;
   const fetcher = options.fetcher ?? fetch;
   const base = `${settings.databaseUrl}/${liveRoot(app)}`;
   const call = async (method: string, path: string, body?: unknown): Promise<unknown> => {

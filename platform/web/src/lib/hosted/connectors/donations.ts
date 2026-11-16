@@ -19,6 +19,7 @@ import {
 } from "../../donations/service";
 import { error, intParam } from "./common";
 import type { Connector, ConnectorRequest, ConnectorResult } from "./types";
+import { pushConfigured } from "../notify";
 
 export interface DonationsDeps {
   store: DataStore;
@@ -49,8 +50,8 @@ export class DonationsConnector implements Connector {
   }
 
   async config() {
-    // Campaign updates are sent from the dashboard with the app's Firebase account (the hosted API adds the plan's push).
-    return { donations: donationsConfig(await this.settings(), this.deps.app.firebaseServiceAccountEncrypted !== null) };
+    // Campaign updates are sent from the dashboard with the app's Firebase account (the hosted API adds the plan's push); 136 or Yallapp's.
+    return { donations: donationsConfig(await this.settings(), pushConfigured(this.deps.app)) };
   }
 
   async handle(request: ConnectorRequest): Promise<ConnectorResult | null> {

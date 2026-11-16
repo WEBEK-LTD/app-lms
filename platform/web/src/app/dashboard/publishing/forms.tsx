@@ -20,14 +20,17 @@ export interface ChecklistStepView {
 }
 
 /** The "Publish it for me" checklist: one Done box per step, and who creates the Firebase project. */
-export function ChecklistForm({ steps, firebaseBy }: { steps: ChecklistStepView[]; firebaseBy: "client" | "team" }) {
+export function ChecklistForm({ steps, firebaseBy, yallappFirebase = false }: { steps: ChecklistStepView[]; firebaseBy: "client" | "team"; yallappFirebase?: boolean }) {
   const t = useDashT();
   const [state, action] = useActionState(savePublishingChecklistAction, initialFormState);
   return (
     <form action={action} className="flex flex-col gap-4">
+      {/* 136 Yallapp's Firebase: the step is Yallapp's, with nothing to choose; the saved choice stays as it was. */}
+      {yallappFirebase ? <input type="hidden" name="firebaseBy" value={firebaseBy} /> : null}
       <ol className="m-0 flex list-none flex-col gap-3 p-0">
         {steps.map((step, i) => {
-          const firebase = step.id === "firebase";
+          const yallapp = yallappFirebase && step.id === "firebase";
+          const firebase = step.id === "firebase" && !yallapp;
           return (
             <li key={step.id} className="flex flex-col gap-3 rounded-xl border border-line p-4">
               <div className="flex flex-wrap items-start justify-between gap-3">
@@ -37,7 +40,7 @@ export function ChecklistForm({ steps, firebaseBy }: { steps: ChecklistStepView[
                   </span>
                   <h3 className="m-0 text-base font-bold">{step.title}</h3>
                 </div>
-                {firebase && firebaseBy === "team" ? (
+                {yallapp || (firebase && firebaseBy === "team") ? (
                   <span className="flex items-center gap-1.5 text-sm font-semibold text-success">
                     <Icon name="check_circle" size={20} filled />
                     {t("publishing.weDoThis")}
@@ -62,10 +65,12 @@ export function ChecklistForm({ steps, firebaseBy }: { steps: ChecklistStepView[
                   </label>
                 </fieldset>
               ) : null}
-              {!(firebase && firebaseBy === "team") ? <p className="m-0 text-[15px] leading-relaxed text-ink-4">{step.text}</p> : (
+              {yallapp ? (
+                <p className="m-0 text-[15px] leading-relaxed text-ink-4">{t("publishing.firebaseYallapp")}</p>
+              ) : !(firebase && firebaseBy === "team") ? <p className="m-0 text-[15px] leading-relaxed text-ink-4">{step.text}</p> : (
                 <p className="m-0 text-[15px] leading-relaxed text-ink-4">{t("publishing.firebaseTeam")}</p>
               )}
-              {!(firebase && firebaseBy === "team") && step.links.length ? (
+              {!yallapp && !(firebase && firebaseBy === "team") && step.links.length ? (
                 <ul className="m-0 flex list-none flex-wrap gap-x-5 gap-y-1.5 p-0 text-sm">
                   {step.links.map((link) => (
                     <li key={link.href}>

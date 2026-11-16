@@ -53,6 +53,7 @@ import { dashboardText } from "@/lib/dashboard-lang";
 import type { DashKey } from "@/i18n/dashboard";
 import type { App, PublishingStatus } from "@/lib/data/types";
 import { SamplesStoreNotice } from "@/components/samples";
+import { usesYallappFirebase } from "@/lib/firebase/mode";
 
 export async function generateMetadata(): Promise<Metadata> {
   return { title: (await dashboardText()).t("publishing.title") };
@@ -252,7 +253,7 @@ export default async function PublishingPage({ searchParams }: PageProps<"/dashb
     text: k(stepText(step, teamEmail)),
     links: step.links.map((link) => ({ ...link, label: k(link.label) })),
     group: step.store === "both" ? t("publishing.groupPush") : GROUP[step.store]!,
-    done: stepDone(request, step.id),
+    done: stepDone(request, step.id, usesYallappFirebase(app)),
     doneAt: request.checklist[step.id] ? formatDateTime(new Date(request.checklist[step.id]!), lang) : null,
   }));
 
@@ -277,7 +278,7 @@ export default async function PublishingPage({ searchParams }: PageProps<"/dashb
         <p className="m-0 text-[15px] leading-relaxed text-ink-4">
           {t("publishing.fees")}
         </p>
-        <ChecklistForm steps={steps} firebaseBy={request.firebaseBy} />
+        <ChecklistForm steps={steps} firebaseBy={request.firebaseBy} yallappFirebase={usesYallappFirebase(app)} />
         {passwords}
       </section>
   );
