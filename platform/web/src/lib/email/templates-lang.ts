@@ -48,6 +48,8 @@ export type ClientEmailKey = Extract<
   | "two_step_on"
   | "two_step_off"
   | "weekly_summary"
+  | "market_template_published"
+  | "market_template_changes"
 >;
 
 const AR: Record<ClientEmailKey, TemplateText> = {
@@ -273,6 +275,20 @@ const AR: Record<ClientEmailKey, TemplateText> = {
       "إن لم تفعل ذلك ولم تطلبه، فأعد تعيين كلمة المرور فورًا وفعّل تسجيل الدخول بخطوتين مرة أخرى وراسلنا على {{yallapp_email}}." +
       SIGNATURE_AR,
   },
+  market_template_published: {
+    subject: "{{template_name}} على ماركت Studio",
+    body:
+      "مرحبًا {{name}}،\n\nوافق فريقنا على {{template_name}}: أصبح الآن على ماركت Studio، ويمكن للمشترين تطبيقه على تطبيقاتهم.\n\n{{notes_line}}" +
+      "تحديثاتك عليه تُنشر فورًا، دون مراجعة جديدة. تمبلتاتك:\n{{templates_url}}" +
+      SIGNATURE_AR,
+  },
+  market_template_changes: {
+    subject: "{{template_name}}: تعديلات قليلة قبل نشره",
+    body:
+      "مرحبًا {{name}}،\n\nراجع فريقنا {{template_name}}. هناك أشياء تحتاج إلى تعديل قبل نشره على ماركت Studio:\n\n{{notes}}\n\n" +
+      "عدّلها في Studio، ثم أرسله مرة أخرى من تمبلتاتك:\n{{templates_url}}" +
+      SIGNATURE_AR,
+  },
 };
 
 const TR: Record<ClientEmailKey, TemplateText> = {
@@ -496,6 +512,20 @@ const TR: Record<ClientEmailKey, TemplateText> = {
       "Merhaba {{name}},\n\nYallapp hesabınızda iki adımlı giriş {{date}} tarihinde kapatıldı. Giriş artık yalnızca parolanızla yapılıyor.\n\n" +
       "Buradan yeniden açabilirsiniz:\n{{account_url}}\n\n" +
       "Bunu siz yapmadıysanız ve istemediyseniz hemen parolanızı sıfırlayın, iki adımlı girişi yeniden açın ve bize {{yallapp_email}} adresinden yazın." +
+      SIGNATURE_TR,
+  },
+  market_template_published: {
+    subject: "{{template_name}} Studio Market’te",
+    body:
+      "Merhaba {{name}},\n\nEkibimiz {{template_name}} şablonunu onayladı: artık Studio Market’te ve alıcılar onu uygulamalarına uygulayabilir.\n\n{{notes_line}}" +
+      "Ona yaptığınız güncellemeler yeniden incelenmeden hemen yayına girer. Şablonlarınız:\n{{templates_url}}" +
+      SIGNATURE_TR,
+  },
+  market_template_changes: {
+    subject: "{{template_name}}: yayınlanmadan önce birkaç değişiklik",
+    body:
+      "Merhaba {{name}},\n\nEkibimiz {{template_name}} şablonuna baktı. Studio Market’te yayınlanmadan önce değişmesi gereken birkaç şey var:\n\n{{notes}}\n\n" +
+      "Bunları Studio’da düzeltin, sonra şablonlarınızdan yeniden gönderin:\n{{templates_url}}" +
       SIGNATURE_TR,
   },
 };

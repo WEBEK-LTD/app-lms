@@ -68,8 +68,26 @@ function swapTexts<T extends WithTexts>(value: T, fields: readonly string[], fro
 }
 
 /**
+ * 132.40 A Studio page's texts swapped the same way: each element's, its
+ * header's and its lists' entries', at any depth; every field with a
+ * translation in some language is one of its texts.
+ */
+function swapStudio<T>(value: T, from: LanguageCode, to: LanguageCode): T {
+  if (Array.isArray(value)) return value.map((v) => swapStudio(v, from, to)) as T;
+  if (!value || typeof value !== "object") return value;
+  const record = value as Record<string, unknown>;
+  const out: Record<string, unknown> = {};
+  for (const [key, v] of Object.entries(record)) out[key] = key === "translations" ? v : swapStudio(v, from, to);
+  const translations = record.translations as Translations | undefined;
+  if (!translations || typeof translations !== "object") return out as T;
+  const fields = [...new Set(Object.values(translations).flatMap((texts) => (texts && typeof texts === "object" ? Object.keys(texts) : [])))];
+  return swapTexts(out as WithTexts, fields, from, to) as T;
+}
+
+/**
  * A new default language: its translations become the main texts and the
- * old main texts become translations, so nothing is lost.
+ * old main texts become translations, so nothing is lost (132.40 Studio's
+ * pages too).
  */
 export function switchDefaultLanguage(layout: LayoutContent, to: LanguageCode): LayoutContent {
   const from = layout.languages.default;
@@ -82,6 +100,7 @@ export function switchDefaultLanguage(layout: LayoutContent, to: LanguageCode): 
     ...(layout.menu ? { menu: layout.menu.map((t) => swapTexts(t, TRANSLATABLE.tab, from, to)) } : {}),
     pages: layout.pages.map((p) => ({
       ...swapTexts(p, TRANSLATABLE.page, from, to),
+      ...(p.studio ? { studio: swapStudio(p.studio, from, to) } : {}),
       blocks: p.blocks.map((b) => {
         const block = swapTexts(b, TRANSLATABLE.block, from, to);
         // 33 The entries of its lists too.

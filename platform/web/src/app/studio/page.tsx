@@ -61,6 +61,11 @@ export default async function StudioHomePage() {
             <Glyph name="draw" size={18} />
             {t("studio.studioSection")}
           </Link>
+          {/* 106 Studio Market: whole designs to apply, and selling your own. */}
+          <Link href="/dashboard/studio-market" className="flex h-8 items-center gap-1.5 rounded-lg px-3 text-[13px] no-underline" style={{ color: C.barMuted }}>
+            <Glyph name="storefront" size={18} />
+            {t("studioMarket.nav")}
+          </Link>
         </nav>
         <div className="flex-[1_1_20px]" />
         <a href={localePath(lang, "/docs/yallapp-studio")} className="flex items-center gap-1.5 text-sm no-underline" style={{ color: C.ivory }}>

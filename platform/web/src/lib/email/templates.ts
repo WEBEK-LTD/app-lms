@@ -83,7 +83,10 @@ export type EmailTemplateKey =
   | "addon_ends_soon"
   | "addon_task"
   // 86.4 The weekly summary
-  | "weekly_summary";
+  | "weekly_summary"
+  // 106 Studio Market: the team's answer to a template sent for review
+  | "market_template_published"
+  | "market_template_changes";
 
 export interface EmailTemplateDefinition {
   key: EmailTemplateKey;
@@ -296,6 +299,38 @@ export const EMAIL_TEMPLATES: EmailTemplateDefinition[] = [
     body:
       "Hello {{manager}},\n\n{{requester}} ({{requester_email}}) of {{business}} asked for a call with you on {{date}} at {{time}} ({{time_zone}}).\n\n" +
       "What about: {{note}}\n\nConfirm the call or move it here:\n{{link}}",
+  },
+  {
+    key: "market_template_published",
+    name: "Studio Market template published",
+    description: "106 To a designer when the team approves the first publish of their template: it is on Studio Market now.",
+    placeholders: [
+      NAME,
+      { name: "template_name", description: "The template's title", sample: "Rosé Atelier" },
+      { name: "notes_line", description: "The team's notes and a blank line, when there are some; empty otherwise", sample: "Lovely work.\n\n" },
+      { name: "templates_url", description: "The designer's templates", sample: "https://yallapp.com.tr/designer/templates" },
+    ],
+    subject: "{{template_name}} is on Studio Market",
+    body:
+      "Hello {{name}},\n\nOur team approved {{template_name}}: it is on Studio Market now, and buyers can apply it to their apps.\n\n{{notes_line}}" +
+      "Your updates to it go live at once, without another review. Your templates:\n{{templates_url}}" +
+      SIGNATURE,
+  },
+  {
+    key: "market_template_changes",
+    name: "Studio Market template: changes requested",
+    description: "106 To a designer when the team sends their template back with notes before its first publish.",
+    placeholders: [
+      NAME,
+      { name: "template_name", description: "The template's title", sample: "Rosé Atelier" },
+      { name: "notes", description: "The team's notes", sample: "On the Tracking screen in dark mode, the street names on the map are hard to read." },
+      { name: "templates_url", description: "The designer's templates", sample: "https://yallapp.com.tr/designer/templates" },
+    ],
+    subject: "{{template_name}}: a few changes before it's published",
+    body:
+      "Hello {{name}},\n\nOur team looked at {{template_name}}. A few things need a change before it goes on Studio Market:\n\n{{notes}}\n\n" +
+      "Fix them in Studio, then send it again from your templates:\n{{templates_url}}" +
+      SIGNATURE,
   },
   {
     key: "setup_request",

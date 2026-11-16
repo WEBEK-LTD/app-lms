@@ -47,7 +47,8 @@ export function PreviewPanel({
 
   const params = new URLSearchParams();
   if (look !== "app") params.set("theme", look);
-  if (languages.length > 1) params.set("lang", language);
+  // 132.42 Always: the app's first request is in its language too, not the browser's.
+  if (languages.length) params.set("lang", language);
   params.set("r", String(reloads));
   const frameSrc = `${shown?.src ?? src}&${params.toString()}`;
 

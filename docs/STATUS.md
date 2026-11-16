@@ -17,7 +17,7 @@ pricing page, the Plan page, `/pending` and the payment form, carried to
 the payments (`plan_payments.months`, 0 for life), receipts, emails and
 Admin; a lifetime offer card on the pricing page (`/pricing#lifetime`) and
 the Plan page; and an add-ons store (Admin › Add-ons, Dashboard ›
-Add-ons, migration `0130_plans_addons`) whose quantity and feature
+Add-ons, migration `0133_plans_addons`) whose quantity and feature
 add-ons raise the app's limits and switch features on wherever its plan
 is read, and whose services are tasks for the team. Nothing is priced:
 the new periods, the lifetime offer and the publishing service wait for
@@ -383,6 +383,12 @@ test environment:
 
 ## Known gaps
 
+- 132.40 An app started from a demo in Arabic or Turkish has its pages,
+  tabs and template words in that language, but the demo's own entries
+  (its products, dishes, places, courses, listings) stay in English: they
+  are one-language records. The sign-in code and receipt emails to an
+  app's users are in English. The app picks the phone's language when it
+  offers it, and its main language only otherwise.
 - 133 A lifetime license's plan is changed by the team only (no self-serve
   upgrade or downgrade); builds per month and apps per account can be the
   team's own limits, shown to clients but not counted by the platform;
@@ -460,5 +466,10 @@ test environment:
 
 ## Planned (to agree on before any work)
 
-- More Studio project types (Phase 105) and the Studio template
-  marketplace (Phase 106, postponed): see `docs/ROADMAP.md`.
+- More Studio project types (Phase 105): see `docs/ROADMAP.md`.
+- Studio Market, the Studio template marketplace (Phase 106), no longer
+  postponed: stage 1 (designers, free templates reviewed once, applying,
+  moving and going back to the previous design) is built, in the look the
+  owner chose ("Gallery" in light, "Night showroom" in dark); paid plans and
+  checkout, the designers' money, and discounts with the public
+  `/templates` page follow (see `docs/ROADMAP.md`).

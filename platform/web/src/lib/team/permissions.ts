@@ -169,6 +169,10 @@ export const DASHBOARD_PATHS: readonly (readonly [string, TeamPermission])[] = [
   // 66 Your account: anyone sees it; only the owner can ask to delete the account (lib/account/deletion.ts).
   ["/dashboard/account", "dashboard"],
   ["/dashboard/businesses", "dashboard"],
+  // 106 Studio Market: browsing and a template's page for whoever sets up the apps; the account's templates (what it got,
+  // applying, moving and going back to a design) for the owner only, like its plans.
+  ["/dashboard/studio-market", "settings"],
+  ["/dashboard/studio-market/mine", "billing"],
   ["/dashboard", "dashboard"],
 ];
 

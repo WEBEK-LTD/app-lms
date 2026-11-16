@@ -46,10 +46,12 @@ export const ADMIN_PERMISSIONS = [
   "marketing.send",
   /** The app-builder bot's dictionary: add, remove or switch off phrases, and map or ignore what owners typed that it didn't understand. */
   "bot.edit",
+  /** 106 Studio Market: review templates sent for their first publish (approve and publish them, or send them back with notes). */
+  "market.review",
 ] as const;
 export type AdminPermission = (typeof ADMIN_PERMISSIONS)[number];
 
-const SUPPORT: readonly AdminPermission[] = ["view", "clients.license", "clients.edit", "clients.email", "builds.manage", "publishing.manage", "bot.edit", "addons.tasks"];
+const SUPPORT: readonly AdminPermission[] = ["view", "clients.license", "clients.edit", "clients.email", "builds.manage", "publishing.manage", "bot.edit", "market.review", "addons.tasks"];
 
 export const ROLE_PERMISSIONS: Record<AdminRole, readonly AdminPermission[]> = {
   owner: ADMIN_PERMISSIONS,
@@ -63,7 +65,7 @@ export const ROLE_LABELS: Record<AdminRole, string> = { owner: "Owner", admin: "
 export const ROLE_DESCRIPTIONS: Record<AdminRole, string> = {
   owner: "Everything, and manages the team.",
   admin: "Everything except the team.",
-  support: "Sees everything; activates and extends licenses, changes clients' apps, publishes them for clients, works on add-on services, sends their emails and teaches the app-builder bot. No prices, plans, payments, settings, releases, demo apps or email campaigns.",
+  support: "Sees everything; activates and extends licenses, changes clients' apps, publishes them for clients, works on add-on services, sends their emails, teaches the app-builder bot and reviews Studio Market templates. No prices, plans, payments, settings, releases, demo apps or email campaigns.",
   viewer: "Sees everything, changes nothing.",
 };
 
