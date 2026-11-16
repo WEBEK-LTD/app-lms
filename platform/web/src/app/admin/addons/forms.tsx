@@ -30,6 +30,8 @@ export interface AddonFormValues {
   order: string;
   /** By way to pay: on, and the prices as decimals. */
   prices: Record<string, { on: boolean; egp: string; usd: string }>;
+  /** 133 The prices are Yallapp's suggestions (an add-on that comes with Yallapp, not saved yet): the team edits or keeps them. */
+  suggestedPrices?: boolean;
 }
 
 const BILLINGS = [
@@ -86,6 +88,8 @@ export function AddonForm({
       ]),
     ) as Record<string, { on: boolean; egp: string; usd: string }>,
   );
+  // 133 The ways to pay whose suggested price the team has typed over.
+  const [edited, setEdited] = useState<Record<string, boolean>>({});
   // Per month and the saving, worked out from the prices typed (never typed in).
   const priced = BILLINGS.filter((b) => b.months > 0 && prices[b.key]!.on && cents(prices[b.key]!.egp)).map((b) => ({ ...b, cents: cents(prices[b.key]!.egp)! }));
   const reference = [...priced].sort((a, b) => a.months - b.months)[0];
@@ -225,7 +229,11 @@ export function AddonForm({
         </p>
         {BILLINGS.map((b) => {
           const row = prices[b.key]!;
-          const set = (patch: Partial<typeof row>) => setPrices((all) => ({ ...all, [b.key]: { ...all[b.key]!, ...patch } }));
+          const set = (patch: Partial<typeof row>) => {
+            setPrices((all) => ({ ...all, [b.key]: { ...all[b.key]!, ...patch } }));
+            if ("egp" in patch || "usd" in patch) setEdited((all) => ({ ...all, [b.key]: true }));
+          };
+          const suggested = addon.suggestedPrices === true && !edited[b.key] && row.on && cents(row.egp) !== null;
           const status = !row.on ? null : cents(row.egp) ? (maths(b.key) ?? (b.key === "lifetime" ? "Paid once, never ends." : b.key === "once" ? "Paid once." : null)) : "No price yet: not offered";
           return (
             <div key={b.key} data-addon-billing={b.key} className={`grid items-start gap-3 rounded-lg border px-3 py-2.5 sm:grid-cols-[150px_1fr_1fr] ${b.key === "lifetime" ? "border-ember/40 bg-peach-soft" : "border-line-soft"}`}>
@@ -235,7 +243,16 @@ export function AddonForm({
               </label>
               <Field label={`EGP, ${b.name.toLowerCase()}`} name={`price_${b.key}_egp`} inputMode="decimal" value={row.egp} onChange={(e) => set({ egp: e.target.value })} error={state.errors?.[`price_${b.key}_egp`]} small />
               <Field label={`USD, ${b.name.toLowerCase()} (optional)`} name={`price_${b.key}_usd`} inputMode="decimal" value={row.usd} onChange={(e) => set({ usd: e.target.value })} error={state.errors?.[`price_${b.key}_usd`]} small />
-              {status ? <span className="text-[13px] text-muted sm:col-span-3">{status}</span> : null}
+              {status || suggested ? (
+                <span className="flex flex-wrap items-center gap-2 text-[13px] text-muted sm:col-span-3">
+                  {suggested ? (
+                    <span className="rounded-full bg-sand px-2 py-0.5 text-xs font-semibold text-ink-2" data-addon-suggested={b.key}>
+                      Suggested: edit or keep
+                    </span>
+                  ) : null}
+                  {status ? <span>{status}</span> : null}
+                </span>
+              ) : null}
             </div>
           );
         })}

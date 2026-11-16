@@ -15,12 +15,15 @@ import {
   cleanLimitDefs,
   isAddedPlan,
   mainPeriodOf,
+  periodIsSuggested,
+  periodLeftToSuggestion,
   PLAN_FEATURES,
   PLAN_LIMITS,
   planOffered,
   planPrice,
   planPeriods,
   plansInOrder,
+  suggestedPlanPrice,
   plansShown,
   STUDIO_ONLY_FEATURES,
   STUDIO_PLANS,
@@ -73,12 +76,13 @@ export default async function PlansPage({ searchParams }: PageProps<"/admin/plan
     const shown = planPrice(plan);
     // 52 The dollar price people outside Egypt see: the plan's own, or the pounds at the rate.
     const usd = plan.priceCents ? usdCentsOf({ egpCents: plan.priceCents, usdCents: plan.usdCents }, billing.egpPerUsd) : null;
-    // 133 Every period clients can choose.
+    // 133 Every period clients can choose, and how many are at their suggested price.
     const periods = planPeriods(plan).map((p) => periodLabel(p.key));
+    const suggested = PERIOD_KEYS.filter((k) => periodIsSuggested(plan, k)).length;
     return {
       main: shown.period ? `${shown.price} / ${shown.period}` : shown.price,
       usd: shown.period && usd !== null ? `${formatMoney({ cents: usd, currency: "USD" })} outside Egypt` : null,
-      periods: periods.length > 1 ? periods.join(" · ") : null,
+      periods: periods.length > 1 ? `${periods.join(" · ")}${suggested ? ` (${suggested} at a suggested price)` : ""}` : null,
     };
   };
   const status = (plan: PlanInfo): { label: string; tone: string } =>
@@ -346,6 +350,11 @@ function PlanPanels({
     periods: Object.fromEntries(
       PERIOD_KEYS.filter((k) => k !== mainPeriodOf(plan)).map((k) => {
         const p = plan.periods?.[k];
+        // A period the team left to its suggested price shows it prefilled, for the team to edit or keep.
+        if (periodLeftToSuggestion(plan, k)) {
+          const s = suggestedPlanPrice(plan, k);
+          return [k, { on: true, egp: s ? centsToDecimal(s.egpCents) : "", usd: s?.usdCents ? centsToDecimal(s.usdCents) : "", suggested: true }];
+        }
         return [k, { on: p?.on ?? false, egp: p?.egpCents ? centsToDecimal(p.egpCents) : "", usd: p?.usdCents ? centsToDecimal(p.usdCents) : "" }];
       }),
     ),
