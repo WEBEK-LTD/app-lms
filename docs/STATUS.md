@@ -46,6 +46,16 @@ app into any account. Migration `0130_app_moves` (the requests, and
 `apps.moved_at`, `apps.moved_to_client_id` for the read-only record an app
 leaves behind).
 
+Roadmap 132.130–132.134 (Studio's premium pages): a shared page kit
+(`src/components/studio-page`: header, hero card, sections, rows with one
+pill and one action, drawers, settings rows, folds, "?" help, empty
+states; its colours `--sp-…` in `globals.css`, the dashboard's outside
+Studio and the Studio frame's in it, light and dark) is applied to
+Products, Orders, Plan and Your account, in the dashboard and in Studio
+alike. The other Studio project pages, `/studio/team` and Payments still
+use the older page kit (`page-kit.tsx`) until they move to it.
+`tests/screens/studio-premium.screens.ts` takes their pictures.
+
 Roadmap 132.1–132.8 (Studio dashboard fixes): a Studio project's menu has
 every page of the dashboard that applies to the project, behind the
 dashboard's gates, in six groups that fold away, with a quick search

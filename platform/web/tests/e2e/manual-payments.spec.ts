@@ -141,7 +141,10 @@ test("a shop takes a bank transfer, marks it paid, and cancels an unpaid order",
   const paid = page.getByRole("listitem").filter({ hasText: "Ada Lovelace" });
   await expect(paid).toHaveCount(1);
   await expect(paid).toContainText("Paid");
+  // 132.132 The receipt is in the order's drawer.
+  await paid.getByRole("button", { name: /^Order \d+/ }).click();
   await expect(paid.getByRole("link", { name: "Receipt (PDF)" })).toBeVisible();
+  await page.keyboard.press("Escape");
   // The customer gets their receipt, and their page says so.
   await expect.poll(async () => (await mailsTo(buyer)).map((m) => m.subject)).toContainEqual(expect.stringMatching(/^Your receipt from /));
   await customer.goto(placed);
@@ -156,6 +159,8 @@ test("a shop takes a bank transfer, marks it paid, and cancels an unpaid order",
   await customer.close();
   await page.reload();
   await expect(waiting).toContainText("Cash on delivery");
+  // 132.132 Cancelling is in the order's drawer; the row's one action is Mark as paid.
+  await waiting.getByRole("button", { name: /^Order \d+/ }).click();
   await waiting.getByRole("button", { name: "Cancel order" }).click();
   await expect(page.getByRole("region", { name: "Waiting for payment" })).toHaveCount(0);
 });
