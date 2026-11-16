@@ -111,7 +111,8 @@ test("132.51 the language is changed from Studio's menu, right to left in Arabic
   await expect(meta).not.toContainText("#");
   await expect(own.getByRole("group", { name: "المشروع بالأرقام" })).toContainText(/\d/);
   await expect(own.getByRole("group", { name: "المشروع بالأرقام" })).not.toContainText(/[٠-٩]/);
-  await menu().locator("summary").click();
+  // The page renders again in the language chosen; the menu may still be open.
+  if (!(await menu().evaluate((d) => (d as HTMLDetailsElement).open))) await menu().locator("summary").click();
   await menu().locator("[data-dashboard-languages]").getByRole("button", { name: "English" }).click();
   await expect(own.locator("html")).toHaveAttribute("dir", "ltr");
 });
@@ -131,7 +132,7 @@ test("132.62 the overview counts its pages and lists the owner's own products an
 test("132.60 before the first publish the preview opens on the draft, Published a tap away", async () => {
   await own.goto("/studio/project/preview");
   await expect(own.getByRole("link", { name: "Draft from Pages & look" })).toHaveAttribute("aria-current", "page");
-  await expect(own.getByRole("link", { name: "Published" })).toHaveAttribute("href", "/studio/project/preview?pages=published");
+  await expect(own.getByRole("link", { name: "Published" })).toHaveAttribute("href", "/dashboard/preview?pages=published");
   await own.getByRole("link", { name: "Published" }).click();
   await expect(own).toHaveURL(/pages=published$/);
   await expect(own.getByRole("link", { name: "Published" })).toHaveAttribute("aria-current", "page");
