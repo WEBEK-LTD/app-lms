@@ -86,6 +86,8 @@ test("Delivery settings: not on the plan yet, one price, the cuisines, no parcel
   await expect(own.getByText("Food delivery isn't included in this app's plan yet")).toBeVisible();
   await expect(own.getByRole("heading", { name: "Services" })).toHaveCount(0);
   await own.getByLabel("Price (EGP)", { exact: true }).fill("30");
+  // 132.20 A food company's orders have their own tab.
+  await own.getByRole("tab", { name: "Food orders" }).click();
   await own.getByLabel("Cuisines").fill("Koshari\nGrill");
   await own.getByRole("radio", { name: "When the food is ready" }).check();
   await own.getByRole("button", { name: "Save settings" }).click();

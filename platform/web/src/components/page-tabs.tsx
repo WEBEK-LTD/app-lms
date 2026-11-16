@@ -112,18 +112,23 @@ export function PageTabs({ tabs, initial, label, children }: { tabs: PageTab[]; 
   );
 }
 
-/** One tab's content (a tab may have more than one, inside and after the course's form); hidden while another tab is open. */
-export function TabPanel({ tab, children, className = "flex flex-col gap-5", first = true }: { tab: string; children: ReactNode; className?: string; first?: boolean }) {
-  const { tab: current } = usePageTab();
+/**
+ * One tab's content (a tab may have more than one, inside and after a form);
+ * hidden while another tab is open. With `also`, it shows on those tabs too
+ * (a form's card around its tabs' parts). Outside PageTabs it always shows.
+ */
+export function TabPanel({ tab, also = [], children, className = "flex flex-col gap-5", first = true }: { tab: string; also?: string[]; children: ReactNode; className?: string; first?: boolean }) {
+  const current = useContext(Ctx)?.tab;
+  const shown = current === undefined || current === tab || also.includes(current);
   return (
-    <div role="tabpanel" id={first ? `panel-${tab}` : undefined} aria-labelledby={`tab-${tab}`} data-tab-panel={tab} hidden={current !== tab} className={className}>
+    <div role="tabpanel" id={first ? `panel-${tab}` : undefined} aria-labelledby={`tab-${tab}`} data-tab-panel={also.length ? undefined : tab} hidden={!shown} className={className}>
       {children}
     </div>
   );
 }
 
-/** Shown while one of `tabs` is open. */
+/** Shown while one of `tabs` is open (always outside PageTabs). */
 export function OnTabs({ tabs, children }: { tabs: string[]; children: ReactNode }) {
-  const { tab } = usePageTab();
-  return tabs.includes(tab) ? <>{children}</> : null;
+  const tab = useContext(Ctx)?.tab;
+  return tab === undefined || tabs.includes(tab) ? <>{children}</> : null;
 }
