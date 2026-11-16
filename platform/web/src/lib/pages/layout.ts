@@ -5,13 +5,13 @@ import { foreignFigmaImages } from "../figma/images";
 import { servedAppearance, shownAppearance, withLook } from "../fonts/look";
 import { platformSetting } from "../settings/platform";
 import { BUILT_IN_APP_DEFAULTS, defaultAppearance, defaultLayout } from "./defaults";
-import { applyDesign, contactFacts, missingScreens, sampleTexts, socialProfilesOf, type Design } from "./designs";
+import { applyDesign, blockTexts, contactFacts, missingScreens, sampleTexts, socialProfilesOf, type Design } from "./designs";
 import { appUrl } from "../env";
 import { LAYOUT_LIMITS, ownPageCount, type AppDefaultsSetting, type Appearance, type Languages, type Layout, type LayoutContent, type LayoutPage, type LayoutTab } from "./types";
 import { parseLayoutContent, type BlockIssue, type ParseResult } from "./validate";
 import type { PlanInfo } from "../plans";
 import { languagesForPlan, layoutForPlan, planLayoutErrors } from "./plan";
-import { withBuiltInTexts } from "./builtin";
+import { inMainLanguage, withBuiltInTexts } from "./builtin";
 import { withLanguageList } from "../i18n/packs";
 import { designFitsApp, findDesign } from "./designs/catalog";
 
@@ -210,7 +210,8 @@ export async function restoreLayoutVersion(store: DataStore, app: App, number: n
 /**
  * 33 The draft a ready-made design makes for this app: the design on top of
  * the draft's look and languages, `look` (the Branding step's template and
- * font) last.
+ * font) last. 132.40 Its texts in the draft's main language when Yallapp
+ * has them in it (Arabic, Turkish), as the app shows them.
  */
 export function designLayout(app: App, design: Design, current: Pick<LayoutContent, "appearance" | "languages"> & Partial<Pick<LayoutContent, "pages">>, now: Date, look: Partial<Appearance> = {}): LayoutContent {
   const layout = applyDesign(design, {
@@ -222,7 +223,7 @@ export function designLayout(app: App, design: Design, current: Pick<LayoutConte
     pictureBase: appUrl(),
     social: current.pages ? socialProfilesOf({ pages: current.pages }) : [],
   });
-  return { ...layout, appearance: withLook(layout.appearance, look) };
+  return inMainLanguage({ ...layout, appearance: withLook(layout.appearance, look) });
 }
 
 /** 99.2 How a design is taken: everything (its pages, tabs and look), or only its look. */
@@ -295,17 +296,27 @@ export async function saveDesignDraft(
   return { ok: true, value: { record: saved.value, samples: sampleTexts(layout) } };
 }
 
-/** 33 The sample texts of the app's design, as it applies to the app now; none without a design. */
+/**
+ * 33 The sample texts of the app's design, as it applies to the app now; none without a design.
+ * 132.40 In the draft's main language, as the design writes them; a block still in the English it
+ * was taken in before keeps its English sample.
+ */
 export async function designSamples(store: DataStore, app: App, now: Date): Promise<Record<string, string>> {
   const design = await findDesign(store, app.design);
   if (!design || !(await designFitsApp(store, design, app))) return {};
-  return sampleTexts(designLayout(app, design, { appearance: { ...BUILT_IN_APP_DEFAULTS.appearance, secondary_color: null }, languages: BUILT_IN_APP_DEFAULTS.languages }, now));
+  const appearance = { ...BUILT_IN_APP_DEFAULTS.appearance, secondary_color: null };
+  const english = sampleTexts(designLayout(app, design, { appearance, languages: BUILT_IN_APP_DEFAULTS.languages }, now));
+  const draft = (await store.getAppLayout(app.id))?.draft;
+  if (!draft) return english;
+  const own = sampleTexts(designLayout(app, design, { appearance, languages: draft.languages }, now));
+  const current = new Map<string, string>(draft.pages.flatMap((p) => p.blocks.map((b) => [`${p.slug}/${b.id}`, blockTexts(b)] as const)));
+  return Object.fromEntries(Object.entries(own).map(([key, text]) => [key, current.get(key) === english[key] ? english[key]! : text]));
 }
 
-/** Back to what's published, or to the defaults when nothing is. */
+/** Back to what's published, or to the defaults when nothing is (132.40 in the draft's languages). */
 export async function discardDraft(store: DataStore, app: App, now: Date): Promise<AppLayoutRecord> {
   const record = await loadLayout(store, app, now);
-  const draft = record.published ? contentOf(record.published) : defaultLayout(app, await appDefaults(store), now);
+  const draft = record.published ? contentOf(record.published) : inMainLanguage(defaultLayout(app, { ...(await appDefaults(store)), languages: record.draft.languages }, now));
   const saved = { ...record, draft, draftUpdatedAt: now };
   await store.saveAppLayout(saved);
   return saved;
@@ -331,18 +342,28 @@ export async function publishedLayout(store: DataStore, appId: string): Promise<
 }
 
 /**
+ * 132.40 The team's defaults for an app before its first publish, in the
+ * languages of its draft: a new app's are its owner's (lib/app/start-language.ts).
+ */
+async function unpublishedDefaults(store: DataStore, record: AppLayoutRecord | null): Promise<AppDefaultsSetting> {
+  const defaults = await appDefaults(store);
+  return record ? { ...defaults, languages: record.draft.languages } : defaults;
+}
+
+/**
  * What the hosted API serves: the published layout, or before the first
- * publish the default pages and tabs for the app type, with a version that
- * changes when the defaults do.
+ * publish the default pages and tabs for the app type (132.40 in its
+ * draft's languages), with a version that changes when the defaults do.
  */
 export async function servedLayout(store: DataStore, app: App, plan: PlanInfo | null = null, options: { draft?: boolean; now?: Date } = {}): Promise<Layout> {
   // 43 With Yallapp's own translations of the texts it wrote, where the owner has none.
   // 17 The app preview can show the draft, with the plan's limits like the published layout.
   if (options.draft) return withBuiltInTexts(layoutForPlan(await draftLayout(store, app, options.now ?? new Date()), app, plan, await appDefaults(store)));
-  const published = await publishedLayout(store, app.id);
+  const record = await store.getAppLayout(app.id);
+  const published = record?.published ?? null;
   const defaults = await appDefaults(store);
   if (published) return withBuiltInTexts(layoutForPlan(published, app, plan, defaults));
-  const content = defaultLayout(app, defaults, app.createdAt);
+  const content = defaultLayout(app, await unpublishedDefaults(store, record), app.createdAt);
   return withBuiltInTexts(layoutForPlan({ version: `default.${sha256Hex(JSON.stringify(content)).slice(0, 16)}`, ...content }, app, plan, defaults));
 }
 
@@ -377,6 +398,6 @@ export async function lookAndLanguages(
   // 97.3 The Figma look when it's the one shown.
   const shown = (l: Layout) => shownAppearance(l, (id) => `${packs?.platformUrl ?? ""}/api/v1/assets/${id}`, own.map((f) => f.family));
   if (layout) return { appearance: served(shown(layout)), languages: withList(languagesForPlan(layout.languages, plan)) };
-  const defaults = await appDefaults(store);
+  const defaults = await unpublishedDefaults(store, await store.getAppLayout(app.id));
   return { appearance: served(defaultAppearance(app, defaults)), languages: withList(languagesForPlan(defaults.languages, plan)) };
 }

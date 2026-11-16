@@ -83,12 +83,21 @@ void main() {
     expect(
       validateBuildConfig(example()..['app_type'] = 'salon').errors.join(),
       contains(
-        '"app_type" must be one of lms, store, booking, real_estate, news, events, donations, delivery, food, rides, school.',
+        '"app_type" must be one of lms, store, booking, real_estate, news, events, donations, delivery, food, rides, school, travel.',
       ),
     );
     expect(
       renderDartConfig(example()..['app_type'] = 'store'),
       contains('appType: AppType.store,'),
+    );
+    // 126 Studio's travel apps (Safra) build: the tool knew the type only in the schema.
+    expect(
+      validateBuildConfig(example()..['app_type'] = 'travel').isValid,
+      isTrue,
+    );
+    expect(
+      renderDartConfig(example()..['app_type'] = 'travel'),
+      contains('appType: AppType.travel,'),
     );
     expect(
       validateBuildConfig(example()..['app_type'] = 'real_estate').isValid,
