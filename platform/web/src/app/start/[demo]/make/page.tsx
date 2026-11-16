@@ -3,7 +3,7 @@ import type { DashKey } from "@/i18n/dashboard";
 import { dashboardText } from "@/lib/dashboard-lang";
 import { DEMO_BRANDS } from "@/lib/demo/content";
 import { demoFacts, demoOfSlug, lookOf, pickerPath, productOf, slugOf, startLooks } from "@/lib/demo/picker";
-import { DEMO_NAME_MAX } from "@/lib/demo/start";
+import { DEMO_NAME_MAX, demoLanguages } from "@/lib/demo/start";
 import { swatchesFor } from "@/lib/brand-colour";
 import { appLanguageName } from "@/lib/i18n/language-names";
 import { pickerContext } from "../../context";
@@ -60,7 +60,8 @@ export default async function MakePage({ params, searchParams }: PageProps<"/sta
           t(`start.items.${facts.items.noun}.count` as DashKey, { count: facts.items.count }),
           t("start.comesPhotos"),
           t("start.comesSignIn"),
-          list.format(facts.languages.map((code) => appLanguageName(code, lang))),
+          // 132.40 The app's languages as it gets them: an Arabic or Turkish dashboard's first.
+          list.format(demoLanguages(demo, null, lang).available.map((code) => appLanguageName(code, lang))),
           t("start.comesDark"),
         ]}
       />
