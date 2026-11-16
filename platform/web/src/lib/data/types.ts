@@ -993,6 +993,8 @@ export interface CatalogSettings {
   tax?: CatalogTax | null;
   /** 96.2 Bank transfer and the owner's own method, paid outside Yallapp; null or missing: none. */
   manualPayments?: ManualPaymentSettings | null;
+  /** 132.120 The last "Test connection" of the owner's gateway, for the Payments page's summary; missing: never tested. */
+  gatewayTest?: { provider: PaymentProviderId; at: string; ok: boolean; mode: "test" | "live" | "mix" } | null;
   /**
    * 131 Same-day and next-day delivery for any store app on the hosted API
    * (its own products or a connected platform's): the days, the cut-off and

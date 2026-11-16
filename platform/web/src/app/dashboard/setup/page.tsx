@@ -134,7 +134,8 @@ export default async function SetupPage({ searchParams }: PageProps<"/dashboard/
         }
         description={
           <>
-            {t("setup.planLine", { app: name, plan: k(planName(plan, plans)) })} ·{" "}
+            {/* 132.69 One wording for an app without a plan: "No plan yet". */}
+            {t("setup.planLine", { app: name, plan: plan ? k(planName(plan, plans)) : t("overview.noPlan") })} ·{" "}
             {complete ? (builds.length ? t("setup.completeBuilds") : t("setup.complete")) : t("setup.firstBuild")}
           </>
         }
@@ -318,7 +319,7 @@ export default async function SetupPage({ searchParams }: PageProps<"/dashboard/
         <PublishingStep
           autoPublish={managedPublishing(plan, effective)}
           ios={hasFeature(current, "ios")}
-          planName={current?.name ?? k(planName(plan, plans))}
+          planName={current?.name ?? (plan ? k(planName(plan, plans)) : t("overview.noPlan"))}
           upgrade={{
             // 111 A Studio project's plans are Studio's.
             managed: lowestPlanWith(effective, (p) => hasFeature(p, "auto_publish"), plan, studio ? "studio" : "regular"),

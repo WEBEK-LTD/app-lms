@@ -2,6 +2,7 @@
 
 /* eslint-disable @next/next/no-img-element -- previews of uploaded files served by our own asset route */
 import Link from "next/link";
+import { useFormLeaveGuard } from "@/components/leave-guard";
 import { usePathname } from "next/navigation";
 import { UpgradeHint } from "@/components/upgrade";
 import type { Plan } from "@/lib/plans";
@@ -371,6 +372,8 @@ export function WebsiteStep({
   shopifyAdmin: boolean;
 }) {
   const t = useDashT();
+  // 132.75 Changes typed and not saved ask before the page is left.
+  const guard = useFormLeaveGuard(t("common.leaveUnsaved"));
   const known = useKnownText();
   const here = useHere();
   const [state, action] = useActionState(saveWebsiteAction, initialFormState as WebsiteFormState);
@@ -397,7 +400,7 @@ export function WebsiteStep({
   const initial = (state.values?.backend as Backend | undefined) ?? backend;
   const [choice, setChoice] = useState<Backend>(offered.includes(initial) ? initial : (offered[0] ?? initial));
   return (
-    <form key={formKey} action={action} noValidate className="flex flex-wrap items-start gap-6">
+    <form key={formKey} action={action} noValidate className="flex flex-wrap items-start gap-6" {...guard}>
       {/* Sent from state: React resets the form's own radios after each submit. */}
       <input type="hidden" name="backend" value={choice} />
       <StepCard title={t("setup.website")} id="h-website">
@@ -771,6 +774,8 @@ export function BrandingStep({
   fontCount: number;
 } & BrandingDesigns) {
   const t = useDashT();
+  // 132.75 Changes typed and not saved ask before the page is left.
+  const guard = useFormLeaveGuard(t("common.leaveUnsaved"));
   const known = useKnownText();
   const [state, action] = useActionState(saveBrandingAction, initialFormState);
   // 111 The design, template and font as chosen after a save that didn't go through (and the upload's error).
@@ -797,7 +802,7 @@ export function BrandingStep({
   const [name, setName] = useState(v(state, "appName", values.appName));
 
   return (
-    <form key={formKey} action={action} noValidate className="flex flex-wrap items-start gap-6">
+    <form key={formKey} action={action} noValidate className="flex flex-wrap items-start gap-6" {...guard}>
       {/* Sent from state: React resets the form's own radios after each submit. */}
       <input type="hidden" name="template" value={template} />
       <input type="hidden" name="design" value={design} />
@@ -1174,6 +1179,8 @@ export function ListingStep({
   };
 }) {
   const t = useDashT();
+  // 132.75 Changes typed and not saved ask before the page is left.
+  const guard = useFormLeaveGuard(t("common.leaveUnsaved"));
   const [state, action] = useActionState(saveListingAction, initialFormState);
   // 111 The framed screenshots and the listing's language as chosen after a save that didn't go through.
   const answerKey = useAnswerKey(state);
@@ -1183,7 +1190,7 @@ export function ListingStep({
   const [language, setLanguage] = useState(text("listingLanguage", listing.language));
   const others = languages.filter((item) => item.code !== language);
   return (
-    <form action={action} noValidate className="flex flex-wrap items-start gap-6">
+    <form action={action} noValidate className="flex flex-wrap items-start gap-6" {...guard}>
       <StepCard title={t("setup.listing")} id="h-listing">
         <FormMessage message={state.message} />
         <div className="flex flex-wrap gap-3.5">
@@ -1561,6 +1568,8 @@ export function PublishingStep({
   teamPublishes?: boolean;
 }) {
   const t = useDashT();
+  // 132.75 Changes typed and not saved ask before the page is left.
+  const guard = useFormLeaveGuard(t("common.leaveUnsaved"));
   const here = useHere();
   const [state, action] = useActionState(savePublishingAction, initialFormState);
   // 111 Who publishes, as chosen after a save that didn't go through.
@@ -1575,7 +1584,7 @@ export function PublishingStep({
 
   if (!autoPublish) {
     return (
-      <form key={formKey} action={action} noValidate className="flex flex-wrap items-start gap-6">
+      <form key={formKey} action={action} noValidate className="flex flex-wrap items-start gap-6" {...guard}>
         <StepCard title={t("setup.publishing")} id="h-publishing">
           {teamNotice}
           <p className="m-0 text-[15px] leading-relaxed text-ink-4">{ios ? t("setup.selfPublishApps", { plan: planName }) : t("setup.selfPublishApp", { plan: planName })}</p>
@@ -1617,7 +1626,7 @@ export function PublishingStep({
   }
 
   return (
-    <form key={formKey} action={action} noValidate className="flex flex-wrap items-start gap-6">
+    <form key={formKey} action={action} noValidate className="flex flex-wrap items-start gap-6" {...guard}>
       {/* Sent from state: React resets the form's own radios after each submit. */}
       <input type="hidden" name="publishingMode" value={mode} />
       <StepCard title={t("setup.publishing")} id="h-publishing">

@@ -128,7 +128,7 @@ export default async function CatalogPage({ searchParams }: { searchParams: Prom
       <SampleEntries app={app} list="products" query={query} />
       {!paymentsSetUp(app) ? (
         <Notice tone="warn" icon="warning">
-          {richText(t("manage.noPayments", { kind }), { link: (chunk) => <Link href="/dashboard/catalog/payments">{chunk}</Link> })}
+          {richText(t("manage.noPayments", { kind }), { link: (chunk) => <Link href="/dashboard/payments">{chunk}</Link> })}
         </Notice>
       ) : null}
 

@@ -68,19 +68,10 @@ export function takesPayments(app: App): boolean {
   return Boolean(app.catalogSettings?.payment) || kind === "catalog" || kind === "courses" || kind === "events" || kind === "campaigns" || (kind === "bookings" && app.vertical === "fitness");
 }
 
-function paymentsHref(app: App): string {
-  switch (app.connector?.kind) {
-    case "courses":
-      return "/dashboard/courses";
-    case "events":
-      return "/dashboard/events";
-    case "campaigns":
-      return "/dashboard/campaigns";
-    case "bookings":
-      return "/dashboard/memberships";
-    default:
-      return "/dashboard/catalog";
-  }
+/** 132.120 Where the owner sets the gateway: the one Payments page, whatever the app sells. */
+function paymentsHref(_app: App): string {
+  void _app;
+  return "/dashboard/payments";
 }
 
 function website(app: App, activation: Activation | null): Pick<Integration, "state" | "reason" | "subject" | "at" | "testable"> {

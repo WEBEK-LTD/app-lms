@@ -78,10 +78,10 @@ export function RangeField({
               if (e.key === "Escape") setTyped(null);
             }}
             className="w-[56px] rounded-md bg-white px-1.5 py-0.5 text-end text-[13px] outline-none [appearance:textfield] focus:ring-2 focus:ring-[#3D63FF] [&::-webkit-inner-spin-button]:appearance-none"
-            style={{ border: "1px solid var(--studio-line)" }}
+            style={{ border: "1px solid var(--sf-line)" }}
           />
           {unit ? (
-            <span className="min-w-[14px] text-[12px]" style={{ color: "var(--studio-muted)" }}>
+            <span className="min-w-[14px] text-[12px]" style={{ color: "var(--sf-muted)" }}>
               {unit}
             </span>
           ) : null}
@@ -124,7 +124,7 @@ export function RangeField({
                 aria-pressed={on}
                 onClick={() => onChange(round(p.value, step) * scale)}
                 className="min-h-[28px] rounded-md bg-white px-2 text-[12px]"
-                style={on ? { border: "2px solid #3D63FF", color: "#1F3FB8", fontWeight: 700 } : { border: "1px solid var(--studio-line)" }}
+                style={on ? { border: "2px solid #3D63FF", color: "var(--sf-select-ink)", fontWeight: 700 } : { border: "1px solid var(--sf-line)" }}
               >
                 {p.label ?? `${p.value}${unit && unit !== "%" && unit !== "°" ? "" : (unit ?? "")}`}
               </button>
@@ -151,8 +151,8 @@ export function SidesField({ label, value, onChange }: { label: string; value: S
   const [linked, setLinked] = useState(!uneven);
   const emit = (s: typeof sides) => onChange(s.top || s.end || s.bottom || s.start ? s : undefined);
   const field = (name: string, n: number, put: (n: number) => void) => (
-    <label className="flex min-w-0 items-center justify-between gap-1 rounded-lg px-2 py-1" style={{ border: "1px solid var(--studio-line)" }}>
-      <span className="min-w-0 truncate text-[12px]" style={{ color: "var(--studio-muted)" }}>
+    <label className="flex min-w-0 items-center justify-between gap-1 rounded-lg px-2 py-1" style={{ border: "1px solid var(--sf-line)" }}>
+      <span className="min-w-0 truncate text-[12px]" style={{ color: "var(--sf-muted)" }}>
         {name}
       </span>
       <span className="flex items-center gap-0.5" dir="ltr">
@@ -165,7 +165,7 @@ export function SidesField({ label, value, onChange }: { label: string; value: S
           onChange={(e) => put(clamp(Number(e.target.value) || 0, 0, 400))}
           className="w-[44px] border-0 bg-transparent p-0 text-end text-[13px] outline-none [appearance:textfield] [&::-webkit-inner-spin-button]:appearance-none"
         />
-        <span className="text-[11px]" style={{ color: "var(--studio-muted)" }}>
+        <span className="text-[11px]" style={{ color: "var(--sf-muted)" }}>
           px
         </span>
       </span>
@@ -209,7 +209,7 @@ export function SidesField({ label, value, onChange }: { label: string; value: S
               aria-pressed={on}
               onClick={() => emit({ top: n, end: n, bottom: n, start: n })}
               className="min-h-[28px] min-w-[32px] rounded-md bg-white px-1.5 text-[12px]"
-              style={on ? { border: "2px solid #3D63FF", color: "#1F3FB8", fontWeight: 700 } : { border: "1px solid var(--studio-line)" }}
+              style={on ? { border: "2px solid #3D63FF", color: "var(--sf-select-ink)", fontWeight: 700 } : { border: "1px solid var(--sf-line)" }}
             >
               {n}
             </button>

@@ -213,7 +213,7 @@ export function FontPicker({
           spellCheck={false}
           placeholder={placeholder}
           className={compact ? "h-[34px] w-full rounded-lg border bg-white ps-2.5 pe-7 text-[13px]" : "input input-sm w-full"}
-          style={compact ? { borderColor: "var(--studio-line)" } : undefined}
+          style={compact ? { borderColor: "var(--sf-line)" } : undefined}
           value={open ? query : chosen}
           onFocus={(e) => {
             e.target.select();

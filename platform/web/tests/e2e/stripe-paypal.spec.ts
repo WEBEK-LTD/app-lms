@@ -106,10 +106,12 @@ test("a shop takes an order on its own Stripe, then on its own PayPal", async ({
 
   // Stripe: 132.30 the publishable and the secret key, test or live by their prefix (no switch to tick), with its guide and its webhook.
   await page.getByRole("navigation", { name: "Products", exact: true }).getByRole("link", { name: /^Payments/ }).click();
+  // 132.120 The Products tab opens the one Payments page.
+  await expect(page).toHaveURL(/\/(dashboard|studio\/project)\/payments$/);
   const payments = page.getByRole("region", { name: "Card payments" });
   await expect(payments).toContainText("iyzico, Kashier, Fawaterk, Stripe or PayPal");
   await expect(payments).toContainText("Yallapp never takes any of it.");
-  await payments.getByLabel("Payment provider").selectOption("stripe");
+  await payments.locator('[data-gateway="stripe"]').click();
   await expect(payments.getByLabel("API key")).toHaveCount(0);
   await expect(payments.getByRole("checkbox")).toHaveCount(0);
   await expect(payments.getByText("How to set up Stripe")).toBeVisible();
@@ -162,7 +164,8 @@ test("a shop takes an order on its own Stripe, then on its own PayPal", async ({
   await expect(payments.getByText("Stripe keys saved.")).toBeVisible();
   await expect(payments.getByText("Saved: whsec_…et01. Leave it empty to keep it.")).toBeVisible();
 
-  await page.getByRole("navigation", { name: "Products", exact: true }).getByRole("link", { name: /^Products/ }).click();
+  // 132.120 Back from the one Payments page by the menu.
+  await page.getByRole("link", { name: "Products", exact: true }).click();
   await page.getByRole("link", { name: "Add product" }).click();
   await page.getByLabel("Name", { exact: true }).fill("Harbour Mug");
   await page.getByLabel("Price (USD)", { exact: true }).fill("12.50");
@@ -210,14 +213,14 @@ test("a shop takes an order on its own Stripe, then on its own PayPal", async ({
   await expect(page.locator("body")).not.toContainText(SIGNING_SECRET);
 
   // PayPal: the REST app's client ID and secret, with the sandbox switch.
-  await payments.getByLabel("Payment provider").selectOption("paypal");
+  await payments.locator('[data-gateway="paypal"]').click();
   await payments.getByLabel("Client ID").fill("AYharbour-client");
   await payments.getByLabel("Secret").fill("harbour-paypal-secret");
   await payments.getByRole("checkbox", { name: /Sandbox credentials/ }).check();
   await payments.getByRole("button", { name: "Save keys" }).click();
   await expect(payments.getByText("PayPal keys saved.")).toBeVisible();
   // The menu still shows the provider just saved.
-  await expect(payments.getByLabel("Payment provider")).toHaveValue("paypal");
+  await expect(payments.locator('[data-gateway="paypal"]')).toHaveAttribute("data-checked", "");
   await expect(payments.getByText("On · your PayPal account · sandbox (test payments)")).toBeVisible();
 
   await buyTwo(customer, request, "PayPal", "$25.00");

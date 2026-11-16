@@ -98,7 +98,7 @@ export function NewProjectForm({ studioKinds, kinds, error, samples }: { studioK
                 onClick={() => go(i + 1)}
                 aria-current={step === i + 1 ? "step" : undefined}
                 className="flex cursor-pointer items-center gap-1.5 rounded-full border-0 px-3 py-1"
-                style={step === i + 1 ? { background: C.ivory, color: C.ink, fontWeight: 700, fontFamily: "inherit" } : { background: C.barSoft, color: C.ivory, fontFamily: "inherit" }}
+                style={step === i + 1 ? { background: C.barText, color: C.bar, fontWeight: 700, fontFamily: "inherit" } : { background: C.barSoft, color: C.barText, fontFamily: "inherit" }}
               >
                 <span>{digit(i + 1)}</span>
                 {label}
@@ -111,7 +111,7 @@ export function NewProjectForm({ studioKinds, kinds, error, samples }: { studioK
       <main id="main" className="mx-auto box-border flex w-full max-w-[1200px] flex-1 flex-wrap items-start gap-6 px-6 pt-7 pb-10">
         <div className="flex min-w-0 flex-[999_1_640px] flex-col gap-[22px]">
           {error ? (
-            <p role="alert" className="m-0 rounded-xl px-4 py-3 text-sm font-bold" style={{ background: "#FFE7DE", color: "#B23E0E" }}>
+            <p role="alert" className="m-0 rounded-xl px-4 py-3 text-sm font-bold" style={{ background: "var(--color-danger-bg)", color: "var(--color-danger)" }}>
               {error}
             </p>
           ) : null}
@@ -120,7 +120,7 @@ export function NewProjectForm({ studioKinds, kinds, error, samples }: { studioK
             <h1 id="h-type" className="m-0 text-[26px] font-extrabold">
               {t("studio.typeTitle")}
             </h1>
-            <div className="flex items-center gap-2 text-[13px] font-bold" style={{ color: "#B23E0E" }}>
+            <div className="flex items-center gap-2 text-[13px] font-bold" style={{ color: "var(--color-accent)" }}>
               <Glyph name="auto_awesome" size={18} />
               {t("studio.studioOnly")}
             </div>
@@ -133,10 +133,10 @@ export function NewProjectForm({ studioKinds, kinds, error, samples }: { studioK
                     className={`relative flex flex-col items-start gap-1.5 rounded-[14px] p-3.5 ${k.soon ? "" : "cursor-pointer"}`}
                     style={
                       on
-                        ? { border: `2px solid ${C.accent}`, background: "#FFF2EC" }
+                        ? { border: `2px solid ${C.accent}`, background: "var(--color-peach-soft)" }
                         : k.soon
-                          ? { border: "1px dashed #B9B3A5", background: "#FFFFFF", color: C.muted }
-                          : { border: `1px solid ${C.line}`, background: "#FFFFFF" }
+                          ? { border: "1px dashed var(--color-line-strong)", background: C.surface, color: C.muted }
+                          : { border: `1px solid ${C.line}`, background: C.surface }
                     }
                   >
                     <input
@@ -273,7 +273,7 @@ export function NewProjectForm({ studioKinds, kinds, error, samples }: { studioK
                       </span>
                     </span>
                     {x.recommended ? (
-                      <span className="self-start rounded-full px-2 py-0.5 text-[11px] font-bold" style={{ background: C.ink, color: "#FFFFFF" }}>
+                      <span className="self-start rounded-full px-2 py-0.5 text-[11px] font-bold" style={{ background: C.ink, color: C.surface }}>
                         {t("studio.tplRecommended")}
                       </span>
                     ) : null}
@@ -296,7 +296,7 @@ export function NewProjectForm({ studioKinds, kinds, error, samples }: { studioK
                 }}
                 className="flex min-h-[160px] cursor-pointer flex-col items-center justify-center gap-1.5 rounded-[14px] p-2.5"
                 style={{
-                  border: pick === "blank" ? `2px solid ${C.ink}` : "2px dashed #B9B3A5",
+                  border: pick === "blank" ? `2px solid ${C.ink}` : "2px dashed var(--color-line-strong)",
                   background: "rgba(255,255,255,0.5)",
                   color: C.ink,
                   fontFamily: "inherit",
@@ -342,7 +342,7 @@ export function NewProjectForm({ studioKinds, kinds, error, samples }: { studioK
             <Glyph name="dashboard" />
             {t("studio.templateLine", { name: templateName(pick ?? "blank") })}
           </div>
-          <div className="h-px" style={{ background: "#EDE8DD" }} />
+          <div className="h-px" style={{ background: C.line }} />
           <p className="m-0 text-[13px]" style={{ color: C.muted }}>
             {t("studio.tryFirst")}
           </p>
@@ -352,7 +352,7 @@ export function NewProjectForm({ studioKinds, kinds, error, samples }: { studioK
               disabled={step === 1 && !kind}
               onClick={() => go(step + 1)}
               className="flex h-[46px] cursor-pointer items-center justify-center gap-2 rounded-xl border-0 text-[15px] font-extrabold disabled:cursor-not-allowed disabled:opacity-60"
-              style={{ background: C.accent, color: C.ink, fontFamily: "inherit" }}
+              style={{ background: C.accent, color: C.onAccent, fontFamily: "inherit" }}
             >
               {t("studio.next")}
               <Glyph name="arrow_forward" flip />

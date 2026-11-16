@@ -91,7 +91,7 @@ export function DesignsGallery(props: {
       aria-pressed={filter === f}
       onClick={() => setFilter(f)}
       className="rounded-full px-2.5 py-0.5 text-xs"
-      style={filter === f ? { background: C.ink, color: "#FFFFFF", border: `1px solid ${C.ink}` } : { background: "#FFFFFF", border: `1px solid ${C.line}` }}
+      style={filter === f ? { background: C.ink, color: C.surface, border: `1px solid ${C.ink}` } : { background: C.surface, border: `1px solid ${C.line}` }}
     >
       {label}
     </button>
@@ -198,7 +198,7 @@ export function DesignsGallery(props: {
               </>
             ) : null}
             {message ? (
-              <span role={message.ok ? "status" : "alert"} className="text-xs" style={{ color: message.ok ? "#1F8A4C" : "#B3261E" }}>
+              <span role={message.ok ? "status" : "alert"} className="text-xs" style={{ color: message.ok ? "var(--color-success)" : "var(--color-danger)" }}>
                 {message.text}
               </span>
             ) : null}
@@ -225,7 +225,7 @@ function Wide({ primary, icon, disabled, onClick, children }: { primary?: boolea
       disabled={disabled}
       onClick={onClick}
       className="flex h-10 w-full items-center gap-1.5 rounded-[10px] px-4 text-sm font-bold disabled:opacity-50"
-      style={primary ? { background: C.ink, color: C.ivory, border: `1px solid ${C.ink}` } : { background: "#FFFFFF", color: C.ink, border: `1px solid ${C.line}` }}
+      style={primary ? { background: C.ink, color: C.surface, border: `1px solid ${C.ink}` } : { background: C.surface, color: C.ink, border: `1px solid ${C.line}` }}
     >
       {icon ? <Glyph name={icon} size={18} /> : null}
       {children}
@@ -244,14 +244,14 @@ function Tag({ children }: { children: ReactNode }) {
 function Empty() {
   return (
     <span className="flex h-full w-full items-center justify-center" style={{ background: C.ivory }}>
-      <Glyph name="dashboard_customize" size={60} className="text-[#5E5B70]" />
+      <Glyph name="dashboard_customize" size={60} className="text-[var(--sf-muted)]" />
     </span>
   );
 }
 
 function MiniPhone({ scale, children }: { scale: number; children: ReactNode }) {
   return (
-    <span aria-hidden="true" className="block flex-none overflow-hidden" style={{ width: 360 * scale, height: 680 * scale, borderRadius: 14, border: `5px solid ${C.ink}`, background: "#FBF8F2", pointerEvents: "none" }}>
+    <span aria-hidden="true" className="block flex-none overflow-hidden" style={{ width: 360 * scale, height: 680 * scale, borderRadius: 14, border: `5px solid ${C.bar}`, background: "#FBF8F2", pointerEvents: "none" }}>
       <span className="block" style={{ width: 360, height: 680, transform: `scale(${scale})`, transformOrigin: "top left", overflow: "hidden" }}>
         {children}
       </span>

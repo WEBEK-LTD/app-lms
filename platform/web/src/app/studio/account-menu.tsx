@@ -37,8 +37,9 @@ export async function StudioAccountMenu() {
         { href: "/studio/project/announcements", dashboard: "/dashboard/announcements", label: t("nav.updates"), icon: "campaign" },
       ].filter((m) => contextCan(context, pathPermission(m.dashboard)))
     : [];
-  const ink = `var(--sf-ink, ${C.ink})`;
-  const line = `1px solid var(--sf-line, ${C.line})`;
+  // 132.4 132.70 Light or dark with the frame: Studio's colours are its tokens (`--sf-…`).
+  const ink = C.ink;
+  const line = `1px solid ${C.line}`;
   return (
     <details className="relative" data-studio-account="">
       <CloseOnNavigate selector="[data-studio-account]" />
@@ -46,7 +47,7 @@ export async function StudioAccountMenu() {
         aria-label={t("studioKit.accountMenu")}
         title={t("studioKit.accountMenu")}
         className="flex h-[38px] cursor-pointer list-none items-center gap-2 rounded-[10px] ps-1 pe-2 text-sm"
-        style={{ color: C.ivory }}
+        style={{ color: C.barText }}
       >
         <span className="flex h-8 w-8 flex-none items-center justify-center rounded-full font-bold" style={{ background: C.barLine }} aria-hidden="true">
           {(me.name.trim()[0] ?? "?").toUpperCase()}
@@ -57,11 +58,11 @@ export async function StudioAccountMenu() {
       <div
         // On phones the bar wraps: the menu spans the screen under its button instead of running off one side.
         className="absolute end-0 top-[calc(100%+6px)] z-30 flex w-[280px] max-w-[calc(100vw-24px)] flex-col gap-0.5 rounded-xl p-1.5 shadow-lg max-sm:fixed max-sm:inset-x-3 max-sm:top-auto max-sm:mt-1.5 max-sm:w-auto max-sm:max-w-none"
-        style={{ border: line, background: `var(--sf-surface, #FFFFFF)`, color: ink }}
+        style={{ border: line, background: C.surface, color: ink }}
       >
         <div className="flex flex-col px-3 pt-2 pb-2.5" style={{ borderBottom: line }}>
           <span className="truncate text-sm font-bold">{me.name}</span>
-          <span className="truncate text-xs" style={{ color: `var(--sf-muted, ${C.muted})` }} dir="ltr" title={me.email}>
+          <span className="truncate text-xs" style={{ color: C.muted }} dir="ltr" title={me.email}>
             {me.email}
           </span>
         </div>
@@ -69,7 +70,7 @@ export async function StudioAccountMenu() {
           <div className="min-w-0 flex-1">
             <DashboardLanguage lang={lang} label={t("nav.languageList")} />
           </div>
-          {/* 132.4 Light or dark, as on the dashboard. */}
+          {/* 132.4 132.70 Light or dark, as on the dashboard (its switch, remembered in this browser). */}
           <ThemeSwitch label={t("nav.darkMode")} className="h-9 w-9" />
         </div>
         <Link href="/studio/account" className={item} style={{ color: ink }}>

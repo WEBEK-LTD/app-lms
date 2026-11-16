@@ -163,8 +163,8 @@ test("the owner runs a shop, an academy and an events app with a free ticket", a
   await own.getByRole("button", { name: "Continue" }).click();
   shopApi = await setUpApp("Selin Shop", "I don't have a website");
   shopId = appIdOf(shopApi);
-  // 132.10 Payments have their own page under Products.
-  await own.goto("/dashboard/catalog/payments");
+  // 132.120 Payments have one page.
+  await own.goto("/dashboard/payments");
   await own.getByLabel("API key").fill("sandbox-api-key");
   await own.getByLabel("Secret key").fill("sandbox-secret-key");
   await own.getByText("Sandbox keys").click();

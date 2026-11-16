@@ -119,8 +119,10 @@ async function uploadIcon(): Promise<void> {
 async function draftPages(request: APIRequestContext): Promise<{ tabs: string[]; home: string }> {
   await own.goto("/studio/project/setup?step=website");
   const api = (await own.locator("code").filter({ hasText: "/api/app/" }).textContent())!.trim();
-  await own.goto("/studio/project/preview?pages=draft");
-  const src = (await own.locator("iframe[data-testid=app-preview]").getAttribute("src"))!;
+  // The draft token as the preview page's server sends it, without starting the preview's own app here: the next page
+  // opened while that app downloaded its fonts, cutting them short (the app itself opens in preview.spec.ts).
+  const html = await (await own.request.get("/studio/project/preview?pages=draft")).text();
+  const src = /<iframe[^>]*\ssrc="([^"]+)"[^>]*data-testid="app-preview"/.exec(html)![1]!.replaceAll("&amp;", "&");
   const headers = { "x-yallapp-preview": new URL(src, E2E.baseURL).searchParams.get("token")! };
   const nav = await request.get(`${api}/pages?platform=android`, { headers });
   const home = await request.get(`${api}/pages/home?platform=android`, { headers });
@@ -138,7 +140,8 @@ test("Academy in Studio: every step, its links in Studio, and moving between the
   await own.goto("/studio/project/setup");
   // Content kept in Yallapp: the Website step is done, so Branding comes first.
   await expect(own.getByRole("heading", { name: "Branding", exact: true })).toBeVisible();
-  await expect(own.getByText("Plan: Not set", { exact: false })).toBeVisible();
+  // 132.69 One wording for an app without a plan.
+  await expect(own.getByText("Plan: No plan yet", { exact: false })).toBeVisible();
 
   // The steps and the page's links open Studio's pages; the kind was chosen when the project was made.
   const steps = own.getByRole("list", { name: "Setup steps" });
@@ -524,12 +527,12 @@ test("in Arabic: the designs' names, the messages in place, and every step on a 
   await own.goto("/studio/project/setup?step=branding");
   await expect(own.locator("html")).toHaveAttribute("dir", "rtl");
   const group = own.getByRole("group", { name: "التصميم" });
-  for (const name of ["الإبقاء على صفحاتي", "تاكسي مباشر", "تاكسي المدينة", "تاكسي الليل"]) await expect(group.getByRole("radio", { name })).toBeVisible();
+  for (const name of ["سيب صفحاتي زي ما هي", "تاكسي مباشر", "تاكسي المدينة", "تاكسي الليل"]) await expect(group.getByRole("radio", { name })).toBeVisible();
   await expect(own.getByText("Not set")).toHaveCount(0);
   await group.getByRole("radio", { name: "تاكسي الليل" }).click();
-  await own.getByRole("button", { name: "حفظ ومتابعة" }).click();
+  await own.getByRole("button", { name: "احفظ وكمّل" }).click();
   await expect(own.getByText("ارفع أيقونة تطبيقك.")).toBeVisible();
-  await expect(own.getByText("أدخل الاسم الذي يظهر تحت أيقونة التطبيق.")).toBeVisible();
+  await expect(own.getByText("اكتب الاسم اللي بيظهر تحت أيقونة التطبيق.")).toBeVisible();
   await expect(own.getByText("Upload your app icon.")).toHaveCount(0);
   await expect(group.getByRole("radio", { name: "تاكسي الليل" })).toBeChecked();
 

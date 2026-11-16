@@ -173,7 +173,7 @@ export const ar: Messages = {
   storageBar: "مساحة التخزين: {used} من {limit}",
   planStorage: "باقة {plan}: {storage}",
   unlimited: "مساحة تخزين غير محدودة",
-  noPlan: "لا توجد باقة بعد",
+  noPlan: "لسه مفيش باقة",
   packUntil: " · {pack} حتى {date}",
   overNotice: "ملفاتك تشغل الآن أكثر من مساحة التخزين المتاحة. لم يُحذف شيء ويستمر تشغيل كل المحتوى، لكن عمليات الرفع الجديدة تنتظر حتى تحذف ملفات أو تشتري مساحة إضافية.",
   upload: "الرفع",

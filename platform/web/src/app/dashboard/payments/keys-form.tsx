@@ -15,6 +15,7 @@ import type { PaymentProviderId, PaymentWebhookReceipt } from "@/lib/data/types"
 import type { CheckTone, ConnectionReport, PaymentTestState } from "@/lib/payments/connection";
 import type { SavedKeysView } from "@/lib/payments/owner-keys";
 import { STRIPE_WEBHOOK_EVENTS, stripeKeyMode, type StripeMode } from "@/lib/payments/stripe-keys";
+import { PROVIDER_CURRENCIES } from "@/lib/payments/provider";
 
 type ProviderChoice = PaymentProviderId;
 
@@ -24,6 +25,9 @@ const KEYS_WHERE: Record<ProviderChoice, DashKey> = { iyzico: "shop.keysIyzico",
 const TEST_LABEL: Record<Exclude<ProviderChoice, "stripe">, DashKey> = { iyzico: "shop.testIyzico", kashier: "shop.testKashier", fawaterk: "shop.testFawaterk", paypal: "shop.testPaypal" };
 const TEST_HINT: Record<Exclude<ProviderChoice, "stripe">, DashKey> = { iyzico: "shop.testIyzicoHint", kashier: "shop.testKashierHint", fawaterk: "shop.testFawaterkHint", paypal: "shop.testPaypalHint" };
 const NAMES: Record<ProviderChoice, string> = { iyzico: "iyzico", kashier: "Kashier", fawaterk: "Fawaterk", stripe: "Stripe", paypal: "PayPal" };
+/** 132.120 The gateways in the order the cards show them, and what each takes. */
+const PROVIDERS: readonly ProviderChoice[] = ["iyzico", "kashier", "fawaterk", "stripe", "paypal"];
+const TAKES: Record<ProviderChoice, DashKey> = { iyzico: "gateways.takes_iyzico", kashier: "gateways.takes_kashier", fawaterk: "gateways.takes_fawaterk", stripe: "gateways.takes_stripe", paypal: "gateways.takes_paypal" };
 
 /** 132.35 Stripe's own guides, the only links on the page (docs.stripe.com). */
 const STRIPE_DOCS: { href: string; label: DashKey }[] = [
@@ -148,6 +152,81 @@ function StripeGuide({ open }: { open: boolean }) {
   );
 }
 
+/** 132.120 A gateway's currencies, the first few and how many more. */
+function currencies(lang: Lang, provider: ProviderChoice, t: DashT): string {
+  const all = PROVIDER_CURRENCIES[provider] as string[];
+  const shown = all.slice(0, 5);
+  const list = formatList(lang, shown, "conjunction");
+  return all.length > shown.length ? `${list} ${t("gateways.moreCurrencies", { count: all.length - shown.length })}` : list;
+}
+
+/**
+ * 132.120 One gateway as a card to choose: its name, what it takes and in
+ * which currencies, whether it is the one connected (and in which mode),
+ * Connect or Edit. A radio button underneath, named by the gateway.
+ */
+function GatewayCard({ provider, checked, onChoose, connected, mode }: { provider: ProviderChoice; checked: boolean; onChoose: () => void; connected: boolean; mode: StripeMode | "mix" | null }) {
+  const t = useDashT();
+  const lang = useDashLang();
+  const id = `gateway-${provider}`;
+  return (
+    <label
+      className={`relative flex cursor-pointer flex-col gap-2 rounded-2xl border p-4 transition-shadow focus-within:ring-2 focus-within:ring-accent motion-reduce:transition-none ${checked ? "border-midnight bg-white ring-2 ring-midnight" : "border-line bg-white hover:border-line-strong"}`}
+      data-gateway={provider}
+      data-checked={checked ? "" : undefined}
+    >
+      <input type="radio" name="gateway-choice" value={provider} checked={checked} onChange={onChoose} aria-labelledby={`${id}-name`} aria-describedby={`${id}-takes`} className="sr-only" />
+      <span className="flex items-center gap-2">
+        <span className="flex h-9 w-9 flex-none items-center justify-center rounded-xl bg-ivory">
+          <Icon name="credit_card" size={20} filled={checked} className={checked ? "text-accent" : "text-muted"} />
+        </span>
+        <span id={`${id}-name`} dir="ltr" className="min-w-0 flex-1 truncate text-[16px] font-extrabold text-midnight">
+          {NAMES[provider]}
+        </span>
+        {connected ? (
+          <span className="inline-flex items-center gap-1 rounded-full bg-success-bg px-2 py-0.5 text-xs font-bold text-success">
+            <Icon name="check_circle" size={14} filled />
+            {t("gateways.connected")}
+          </span>
+        ) : null}
+      </span>
+      <span id={`${id}-takes`} className="flex flex-col gap-0.5 text-[13px] leading-snug text-ink-4">
+        <span>{t(TAKES[provider])}</span>
+        <span className="text-muted">{currencies(lang, provider, t)}</span>
+      </span>
+      <span className="mt-auto flex items-center justify-between gap-2 pt-1">
+        {connected && mode ? <ModeBadge mode={mode} t={t} /> : <span />}
+        <span aria-hidden="true" className={`inline-flex h-8 items-center gap-1 rounded-lg px-3 text-[13px] font-bold ${checked ? "bg-midnight text-white" : "border border-line-strong text-midnight"}`}>
+          <Icon name={connected ? "tune" : "bolt"} size={16} />
+          {t(connected ? "gateways.edit" : "gateways.connect")}
+        </span>
+      </span>
+    </label>
+  );
+}
+
+/** 132.120 A key typed hidden, with the eye to show it; "Saved: …abcd" under it. */
+function SecretField({ hint, ...props }: Parameters<typeof Field>[0]) {
+  const t = useDashT();
+  const [visible, setVisible] = useState(false);
+  const id = props.id ?? `f-${props.name}`;
+  return (
+    <div className="relative">
+      <Field {...props} id={id} type={visible ? "text" : "password"} hint={hint} className="[&_input]:pe-12" />
+      <button
+        type="button"
+        onClick={() => setVisible((v) => !v)}
+        aria-label={t(visible ? "gateways.hideKey" : "gateways.showKey")}
+        aria-pressed={visible}
+        aria-controls={id}
+        className="absolute end-0.5 top-[30px] flex h-10 w-10 items-center justify-center rounded-lg text-muted hover:text-midnight"
+      >
+        <Icon name={visible ? "visibility_off" : "visibility"} size={20} />
+      </button>
+    </div>
+  );
+}
+
 /**
  * The owner's own merchant account: 37 iyzico, Kashier, Fawaterk, 96.1
  * Stripe or PayPal, with the keys each one needs. 132.30 Stripe asks for the
@@ -187,38 +266,56 @@ export function PaymentKeysForm({ provider, sandbox, merchantId = "", clientId =
 
   return (
     <div className="flex flex-col gap-4">
-      {savedHere ? (
-        <p className="m-0 flex flex-wrap items-center gap-2 text-sm text-ink-3" data-testid="gateway-saved">
-          <Icon name="verified" size={18} className="text-success" />
-          <span className="font-semibold">{t("gateways.savedProvider", { provider: NAMES[choice] })}</span>
-          <ModeBadge mode={stripe ? (stripeKeyMode(saved?.secretKey) ?? "test") : sandbox ? "test" : "live"} t={t} />
-          {choice === "stripe" || choice === "kashier" || choice === "fawaterk" ? (
-            <span className="inline-flex items-center gap-1">
-              <Icon name="sensors" size={16} className={receipt?.failedAt && (!receipt.at || receipt.failedAt >= receipt.at) ? "text-danger" : receipt?.at ? "text-success" : "text-muted"} />
-              {receipt?.failedAt && (!receipt.at || receipt.failedAt >= receipt.at)
-                ? t("gateways.webhookRefused", { at: when(lang, receipt.failedAt) })
-                : receipt?.at
-                  ? t("gateways.webhookWorking", { at: when(lang, receipt.at) })
-                  : t("gateways.webhookWaiting")}
-            </span>
-          ) : null}
-        </p>
-      ) : null}
-      {/* 96.1 Outside the form: React resets a form after its action, which would put the menu back on its first choice. The form sends the choice. */}
-      <div className="flex flex-col gap-1.5">
-        <label htmlFor="f-provider" className="text-sm font-semibold">
-          {t("shop.provider")}
-        </label>
-        <select id="f-provider" value={choice} onChange={(event) => setChoice(event.target.value as ProviderChoice)} className="input">
-          <option value="iyzico">{t("shop.optIyzico")}</option>
-          <option value="kashier">{t("shop.optKashier")}</option>
-          <option value="fawaterk">{t("shop.optFawaterk")}</option>
-          <option value="stripe">{t("shop.optStripe")}</option>
-          <option value="paypal">{t("shop.optPaypal")}</option>
-        </select>
-        <span className="text-[13px] leading-normal text-muted">{t(KEYS_WHERE[choice])}</span>
+      {/* 96.1 Outside the form: React resets a form after its action, which would put the choice back on its first one. The form sends the choice. 132.120 The gateways as cards to choose from. */}
+      <fieldset className="m-0 flex min-w-0 flex-col gap-3 border-0 p-0" aria-describedby="f-provider-error">
+        <legend className="mb-2 flex flex-col gap-0.5">
+          <span className="text-[15px] font-bold">{t("shop.provider")}</span>
+          <span className="text-[13px] font-normal text-muted">{t("gateways.gatewaysText")}</span>
+        </legend>
+        <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-3" data-gateways="">
+          {PROVIDERS.map((p) => (
+            <GatewayCard
+              key={p}
+              provider={p}
+              checked={choice === p}
+              onChoose={() => setChoice(p)}
+              connected={provider === p && saved !== null}
+              mode={provider === p ? (p === "stripe" ? (stripeKeyMode(saved?.secretKey) ?? "test") : sandbox ? "test" : "live") : null}
+            />
+          ))}
+        </div>
         <FieldError id="f-provider-error" error={state.errors?.provider} />
-      </div>
+      </fieldset>
+      <section aria-labelledby="h-gateway-form" className="flex min-w-0 flex-col gap-4 rounded-2xl border border-line bg-white p-4 sm:p-5" data-gateway-form={choice}>
+        <h3 id="h-gateway-form" className="m-0 flex items-center gap-2 text-[17px] font-extrabold">
+          <Icon name="key" size={20} className="text-muted" />
+          {t("gateways.formTitle", { provider: NAMES[choice] })}
+        </h3>
+        {savedHere ? (
+          <p className="m-0 flex flex-wrap items-center gap-2 text-sm text-ink-3" data-testid="gateway-saved">
+            <Icon name="verified" size={18} className="text-success" />
+            <span className="font-semibold">{t("gateways.savedProvider", { provider: NAMES[choice] })}</span>
+            <ModeBadge mode={stripe ? (stripeKeyMode(saved?.secretKey) ?? "test") : sandbox ? "test" : "live"} t={t} />
+            {choice === "stripe" || choice === "kashier" || choice === "fawaterk" ? (
+              <span className="inline-flex items-center gap-1">
+                <Icon name="sensors" size={16} className={receipt?.failedAt && (!receipt.at || receipt.failedAt >= receipt.at) ? "text-danger" : receipt?.at ? "text-success" : "text-muted"} />
+                {receipt?.failedAt && (!receipt.at || receipt.failedAt >= receipt.at)
+                  ? t("gateways.webhookRefused", { at: when(lang, receipt.failedAt) })
+                  : receipt?.at
+                    ? t("gateways.webhookWorking", { at: when(lang, receipt.at) })
+                    : t("gateways.webhookWaiting")}
+              </span>
+            ) : null}
+          </p>
+        ) : null}
+        <details className="group rounded-xl border border-line-soft bg-sand px-4 py-3">
+          <summary className="flex cursor-pointer list-none items-center gap-2 text-sm font-bold [&::-webkit-details-marker]:hidden">
+            <Icon name="help" size={18} className="text-muted" />
+            <span className="flex-1">{t("gateways.whereKeys")}</span>
+            <Icon name="expand_more" size={18} className="text-muted transition-transform group-open:rotate-180" />
+          </summary>
+          <p className="m-0 pt-2 text-[13px] leading-normal text-ink-4">{t(KEYS_WHERE[choice])}</p>
+        </details>
       {stripe ? <StripeGuide open={!mine} /> : null}
       <form ref={form} action={action} noValidate className="flex flex-col gap-4" onReset={() => setSecretTyped("")}>
         <FormMessage message={state.message} ok={state.ok} />
@@ -278,12 +375,11 @@ export function PaymentKeysForm({ provider, sandbox, merchantId = "", clientId =
           />
         ) : null}
         {choice !== "fawaterk" ? (
-          <Field
+          <SecretField
             key={`secret-${choice}`}
             label={choice === "paypal" ? t("shop.paypalSecret") : t("shop.secretKey")}
             name="secretKey"
             dir="ltr"
-            type="password"
             autoComplete="off"
             spellCheck={false}
             placeholder={stripe ? "sk_test_…" : undefined}
@@ -326,12 +422,11 @@ export function PaymentKeysForm({ provider, sandbox, merchantId = "", clientId =
                 ))}
               </ul>
             </div>
-            <Field
+            <SecretField
               key="webhook-secret"
               label={t("gateways.webhookSecret")}
               name="webhookSecret"
             dir="ltr"
-              type="password"
               autoComplete="off"
               spellCheck={false}
               placeholder="whsec_…"
@@ -359,13 +454,14 @@ export function PaymentKeysForm({ provider, sandbox, merchantId = "", clientId =
         ) : null}
         <p className="m-0 text-[13px] leading-normal text-muted">{t("gateways.testHint", { provider: NAMES[choice] })}</p>
         <div className="flex flex-wrap justify-end gap-3">
-          <button type="button" className={`${btn.secondary} h-10`} onClick={startTest} disabled={testing} aria-describedby={report ? "gateway-test-results" : undefined}>
+          {/* 132.120 Save, then Test connection: the main action, which says clearly what works. */}
+          <SubmitButton variant="secondary" className="h-11" pendingText={t("shop.checking")}>
+            {t("shop.saveKeys")}
+          </SubmitButton>
+          <button type="button" className={`${btn.primary} h-11`} onClick={startTest} disabled={testing} aria-describedby={report ? "gateway-test-results" : undefined}>
             <Icon name="fact_check" size={20} />
             {testing ? t("gateways.testing") : t("gateways.test")}
           </button>
-          <SubmitButton className="h-10" pendingText={t("shop.checking")}>
-            {t("shop.saveKeys")}
-          </SubmitButton>
         </div>
       </form>
       <div id="gateway-test-results" aria-live="polite" className="flex flex-col gap-3">
@@ -376,6 +472,7 @@ export function PaymentKeysForm({ provider, sandbox, merchantId = "", clientId =
         ) : null}
         {report ? <TestResults report={report} /> : null}
       </div>
+      </section>
     </div>
   );
 }

@@ -14,8 +14,8 @@ export { Glyph, C };
 /** The dark bar on top of every Studio screen: the mark, then the screen's own parts. */
 export function StudioBar({ children, home = "/studio" }: { children?: ReactNode; home?: string }) {
   return (
-    <header className="flex flex-wrap items-center gap-4 px-5 py-2.5 max-sm:gap-2.5 max-sm:px-4" style={{ background: C.ink, color: C.ivory }}>
-      <Link href={home} className="flex items-center gap-2.5 no-underline" style={{ color: C.ivory }}>
+    <header className="flex flex-wrap items-center gap-4 px-5 py-2.5 max-sm:gap-2.5 max-sm:px-4" style={{ background: C.bar, color: C.barText }}>
+      <Link href={home} className="flex items-center gap-2.5 no-underline" style={{ color: C.barText }}>
         <StudioMark />
       </Link>
       {children}
@@ -25,18 +25,20 @@ export function StudioBar({ children, home = "/studio" }: { children?: ReactNode
 
 /**
  * The screen around a Studio page: the board colour, the font, the reading
- * direction. 132.4 `themed` (a project's pages): light or dark like the
- * dashboard (`data-site-theme`, globals.css), its colours `--sf-…`.
+ * direction. 132.4 A Studio frame, light or dark like the dashboard
+ * (`data-site-theme`, globals.css), its colours `--sf-…`; 132.70 every
+ * Studio screen (home, a new project, the account's and a project's pages;
+ * the editor is one of its own), STUDIO_COLORS reading those tokens.
  */
-export function StudioScreen({ dir, lang, children, themed = false }: { dir: "rtl" | "ltr"; lang: Lang; children: ReactNode; themed?: boolean }) {
+export function StudioScreen({ dir, lang, children }: { dir: "rtl" | "ltr"; lang: Lang; children: ReactNode }) {
   return (
     <div
       lang={lang}
       dir={dir}
       className="flex min-h-dvh flex-col"
-      data-site-theme={themed ? "" : undefined}
-      data-studio-frame={themed ? "" : undefined}
-      style={{ background: themed ? "var(--sf-board)" : C.board, color: themed ? "var(--sf-ink)" : C.ink, fontFamily: "var(--font-studio), 'Cairo', system-ui, sans-serif" }}
+      data-site-theme=""
+      data-studio-frame=""
+      style={{ background: C.board, color: C.ink, fontFamily: "var(--font-studio), 'Cairo', system-ui, sans-serif" }}
     >
       {children}
     </div>
@@ -46,7 +48,7 @@ export function StudioScreen({ dir, lang, children, themed = false }: { dir: "rt
 /** A project's state on its card and overview. */
 export function StateBadge({ published, label }: { published: boolean; label: string }) {
   return (
-    <span className="rounded-full px-2.5 py-0.5 text-xs font-bold whitespace-nowrap" style={published ? { background: "#DDEBD7", color: "#1F5A32" } : { background: C.ivory, color: C.muted }}>
+    <span className="rounded-full px-2.5 py-0.5 text-xs font-bold whitespace-nowrap" style={published ? { background: "var(--color-success-bg)", color: "var(--color-success)" } : { background: C.ivory, color: C.muted }}>
       {label}
     </span>
   );

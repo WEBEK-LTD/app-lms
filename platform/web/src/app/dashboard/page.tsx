@@ -342,7 +342,7 @@ export default async function OverviewPage({ searchParams }: PageProps<"/dashboa
     license: (chunk: string) => <Link href="/dashboard/license">{chunk}</Link>,
     renew: (chunk: string) => <Link href="/dashboard/license#renew">{chunk}</Link>,
     whatsapp: (chunk: string) => <a href={contact.whatsappUrl}>{chunk}</a>,
-    link: (chunk: string) => <Link href="/dashboard/catalog/payments">{chunk}</Link>,
+    link: (chunk: string) => <Link href="/dashboard/payments">{chunk}</Link>,
   };
 
   return (
@@ -592,7 +592,7 @@ export default async function OverviewPage({ searchParams }: PageProps<"/dashboa
           }
         >
           <span className="flex flex-wrap items-center gap-2 text-2xl font-extrabold">
-            {planName(plan, plans)} <AppStateBadge state={state} lang={lang} />
+            {plan ? planName(plan, plans) : t("overview.noPlan")} <AppStateBadge state={state} lang={lang} />
           </span>
           <span className="text-sm text-muted">
             {license

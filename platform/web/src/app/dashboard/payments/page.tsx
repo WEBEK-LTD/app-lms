@@ -13,6 +13,7 @@ import { eventSettingsOf } from "@/lib/events/service";
 import { takesOwnCardPayments } from "@/lib/payments/owner-keys";
 import { schoolCurrency, schoolSettingsOf } from "@/lib/school/settings";
 import { CardPayments, OtherPayments } from "../catalog/payments";
+import { PaymentsSummary } from "./summary";
 
 export async function generateMetadata(): Promise<Metadata> {
   return { title: (await dashboardText()).t("gateways.page") };
@@ -35,7 +36,10 @@ async function sellingCurrency(store: DataStore, app: App): Promise<CatalogCurre
  * rides, school fees), with Stripe's setup, its webhook and "Test
  * connection"; bank transfer and the owner's own method where the app
  * takes them. The same sections stay on the pages where the app sells. A
- * Studio project opens it at /studio/project/payments.
+ * Studio project opens it at /studio/project/payments. 132.120 The one place
+ * for the products' and the courses' payments too (their old pages lead
+ * here), with a summary on top, the gateways as cards and each other way
+ * to pay on its own card.
  */
 export default async function PaymentsPage() {
   const { app } = await requireClient("settings");
@@ -51,12 +55,18 @@ export default async function PaymentsPage() {
   }
   const kind = app.connector?.kind;
   const manual = kind === "catalog" || kind === "courses" || kind === "bookings" || kind === "events";
+  const currency = await sellingCurrency(await getStore(), app);
+  // 132.120 The products' and the courses' payments live only here now; the other kinds keep their sections where they sell too.
+  const elsewhere = kind !== "catalog" && kind !== "courses";
   return (
-    <div className="flex flex-col gap-6">
-      {header}
-      <CardPayments app={app} currency={await sellingCurrency(await getStore(), app)} />
-      {manual ? <OtherPayments app={app} /> : null}
-      <p className="m-0 text-sm text-muted">{t("gateways.otherPlaces")}</p>
+    <div className="flex flex-col gap-6" data-payments-page="">
+      {/* The page's parts, each its own component, so what comes later slots in between them. */}
+      <PageHeader title={t("gateways.page")} description={manual ? t("manage.paymentsIntro") : t("gateways.pageIntro")} />
+      <PaymentsSummary app={app} currency={currency} />
+      {/* 132.120 Slot: "Pay inside the app (Demo)" for connected stores goes here, before the gateways. */}
+      <CardPayments app={app} currency={currency} wide />
+      {manual ? <OtherPayments app={app} wide /> : null}
+      {elsewhere ? <p className="m-0 text-sm text-muted">{t("gateways.otherPlaces")}</p> : null}
     </div>
   );
 }

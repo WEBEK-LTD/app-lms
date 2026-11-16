@@ -23,7 +23,8 @@ export async function CoursesTabs({ app }: { app: App }) {
         { href: "/dashboard/courses/bundles", label: t("manage.bundles"), icon: "inventory_2", count: bundlesOf(setup).length },
         { href: "/dashboard/courses/paths", label: t("learning.paths"), icon: "route", count: (setup.paths ?? []).length },
         { href: "/dashboard/courses/coupons", label: t("shop.coupons"), icon: "local_offer", count: coupons.length },
-        { href: "/dashboard/courses/payments", label: t("manage.payments"), icon: "payments" },
+        // 132.120 The one Payments page, a tab away (it isn't a copy).
+        { href: "/dashboard/payments", label: t("manage.payments"), icon: "payments" },
         { href: "/dashboard/courses/settings", label: t("manage.settings"), icon: "settings" },
       ]}
     />
@@ -38,8 +39,8 @@ export function CoursesAnchors() {
         "h-course-categories": "/dashboard/courses/categories",
         "h-course-currency": "/dashboard/courses/settings",
         "h-offline": "/dashboard/courses/settings",
-        "h-payments": "/dashboard/courses/payments",
-        "h-other-payments": "/dashboard/courses/payments",
+        "h-payments": "/dashboard/payments",
+        "h-other-payments": "/dashboard/payments",
         "h-coupons": "/dashboard/courses/coupons",
         "new-coupon": "/dashboard/courses/coupons",
       }}
