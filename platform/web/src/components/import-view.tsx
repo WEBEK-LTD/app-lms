@@ -35,6 +35,8 @@ export async function ImportView({ context, kind }: { context: ClientContext; ki
             <p className="m-0 mt-1.5">
               {columns} {t("imports.columnsLanguages")}
             </p>
+            {/* Wix's own product export, for a shop of Yallapp's own products. */}
+            {kind === "products" ? <p className="m-0 mt-1.5">{t("imports.wixHelp")}</p> : null}
           </>
         }
       />

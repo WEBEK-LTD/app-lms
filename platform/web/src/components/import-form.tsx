@@ -54,6 +54,7 @@ export function ImportForm() {
         </Notice>
         {report.skipped ? <p className="m-0 text-[15px] text-ink-4">{t("imports.skipped", { count: report.skipped })}</p> : null}
         {report.pictures.missed ? <p className="m-0 text-[15px] text-ink-4">{t("imports.picturesMissed", { count: report.pictures.missed })}</p> : null}
+        {report.pictures.missed && state.wix ? <p className="m-0 text-[15px] text-ink-4">{t("imports.picturesAgain")}</p> : null}
         <div className="flex flex-wrap gap-3">
           <Link href={LIST[state.kind].href} className={`${btn.primary} h-11`}>
             {t(LIST[state.kind].key)}
@@ -124,8 +125,29 @@ export function ImportForm() {
       {preview ? (
         <section aria-labelledby="import-preview" className="flex max-w-[960px] flex-col gap-4">
           <h2 id="import-preview" className="m-0 text-lg font-extrabold">
-            {t("imports.ready", { ready: preview.ready, total: preview.total })}
+            {preview.wix ? t("imports.wixReady", { ready: preview.ready, total: preview.total }) : t("imports.ready", { ready: preview.ready, total: preview.total })}
           </h2>
+          {preview.wix ? (
+            // Wix's own product export: what it holds, and what this shop can't keep.
+            <div className="flex flex-col gap-2" data-wix-file="">
+              <Notice tone="info" icon="info" role="status">
+                {t("imports.wixFound", { products: preview.wix.products, variants: preview.wix.variants, pictures: preview.wix.pictures })}
+              </Notice>
+              {preview.wix.dropped.length ? (
+                <div className="flex flex-col gap-1 text-sm" data-wix-dropped="">
+                  <span className="font-semibold">{t("imports.wixNotKept")}</span>
+                  <ul className="m-0 flex list-disc flex-col gap-0.5 ps-5">
+                    {preview.wix.dropped.map((d) => (
+                      <li key={d.what}>
+                        {/* Each name kept apart from the line's own direction (U+2068…U+2069), so an English name reads right in Arabic. */}
+                        {t(`imports.wixDropped.${d.what}`, { count: d.count, names: d.names.map((n) => `\u2068“${n}”\u2069`).join(", ") })}
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              ) : null}
+            </div>
+          ) : null}
           {preview.missing.length ? (
             <Notice tone="warn" icon="warning" role="alert">
               {t("imports.missing", { fields: preview.missing.map((f) => t(`imports.fields.${f}`)).join(", ") })}
@@ -162,17 +184,37 @@ export function ImportForm() {
                     <th scope="col" className="py-2 pe-4 text-start font-semibold">{t("imports.name")}</th>
                     <th scope="col" className="py-2 pe-4 text-start font-semibold">{t("imports.price")}</th>
                     <th scope="col" className="py-2 pe-4 text-start font-semibold">{t("imports.category")}</th>
-                    <th scope="col" className="py-2 text-start font-semibold">{t("imports.picture")}</th>
+                    {preview.wix ? (
+                      <>
+                        <th scope="col" className="py-2 pe-4 text-start font-semibold">{t("imports.variants")}</th>
+                        <th scope="col" className="py-2 text-start font-semibold">{t("imports.pictures")}</th>
+                      </>
+                    ) : (
+                      <th scope="col" className="py-2 text-start font-semibold">{t("imports.picture")}</th>
+                    )}
                   </tr>
                 </thead>
                 <tbody>
                   {preview.sample.map((r) => (
                     <tr key={r.row} className="border-b border-line-soft">
                       <td className="py-2 pe-4 text-muted">{r.row}</td>
-                      <td className="py-2 pe-4" dir="auto">{r.name}</td>
-                      <td className="py-2 pe-4" dir="ltr">{r.price ?? "—"}</td>
-                      <td className="py-2 pe-4" dir="auto">{r.category ?? "—"}</td>
-                      <td className="py-2">{r.picture ? t("imports.yes") : t("imports.no")}</td>
+                      <td className="py-2 pe-4">
+                        <bdi>{r.name}</bdi>
+                      </td>
+                      <td className="py-2 pe-4">
+                        <bdi dir="ltr">{r.price ?? "—"}</bdi>
+                      </td>
+                      <td className="py-2 pe-4">
+                        <bdi>{r.category ?? "—"}</bdi>
+                      </td>
+                      {preview.wix ? (
+                        <>
+                          <td className="py-2 pe-4">{r.variants ?? 0}</td>
+                          <td className="py-2">{r.pictures ?? 0}</td>
+                        </>
+                      ) : (
+                        <td className="py-2">{r.picture ? t("imports.yes") : t("imports.no")}</td>
+                      )}
                     </tr>
                   ))}
                 </tbody>
