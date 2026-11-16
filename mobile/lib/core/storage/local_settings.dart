@@ -63,6 +63,7 @@ class LocalSettings {
     this.language,
     this.shareUsage = true,
     this.crashReports = true,
+    this.currency,
   });
 
   final ThemeMode themeMode;
@@ -89,6 +90,10 @@ class LocalSettings {
   /// owner's switch in the dashboard comes first).
   final bool crashReports;
 
+  /// 135.5 The currency the customer picked for prices ("USD"); null: the
+  /// phone's region's.
+  final String? currency;
+
   LocalSettings copyWith({
     ThemeMode? themeMode,
     bool? themeModeChosen,
@@ -100,6 +105,7 @@ class LocalSettings {
     String? language,
     bool? shareUsage,
     bool? crashReports,
+    String? Function()? currency,
   }) => LocalSettings(
     themeMode: themeMode ?? this.themeMode,
     themeModeChosen: themeModeChosen ?? this.themeModeChosen,
@@ -111,6 +117,7 @@ class LocalSettings {
     language: language ?? this.language,
     shareUsage: shareUsage ?? this.shareUsage,
     crashReports: crashReports ?? this.crashReports,
+    currency: currency != null ? currency() : this.currency,
   );
 }
 
@@ -137,6 +144,7 @@ class LocalSettingsController extends Notifier<LocalSettings> {
   static const _orders = 'settings.notify_orders';
   static const _guest = 'settings.guest_mode';
   static const _crashReports = 'settings.crash_reports';
+  static const _currency = 'settings.currency';
   static const _language = languageKey;
   static const shareUsageKey = 'settings.share_usage';
 
@@ -174,7 +182,18 @@ class LocalSettingsController extends Notifier<LocalSettings> {
       language: p.getString(_language),
       shareUsage: p.getBool(shareUsageKey) ?? true,
       crashReports: p.getBool(_crashReports) ?? true,
+      currency: p.getString(_currency),
     );
+  }
+
+  /// 135.5 The customer's currency for prices; null: the phone's region's.
+  void setCurrency(String? code) {
+    if (code == null) {
+      _prefs.remove(_currency);
+    } else {
+      _prefs.setString(_currency, code);
+    }
+    state = state.copyWith(currency: () => code);
   }
 
   void setShareUsage(bool on) {

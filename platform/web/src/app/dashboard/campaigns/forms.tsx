@@ -1,6 +1,7 @@
 "use client";
 
 /* eslint-disable @next/next/no-img-element -- the campaign's pictures, served by our own asset route */
+import { CurrencyPicker } from "@/components/currency-picker";
 import { useActionState, useId, type ReactNode } from "react";
 import { saveCampaignAction, saveDonationSettingsAction, sendCampaignUpdateAction } from "@/app/actions/donations";
 import { Field, FieldError, FormMessage, SubmitButton } from "@/components/form";
@@ -189,11 +190,11 @@ export function CampaignForm({
 /** 29 The currency and how the iPhone app takes donations. */
 export function DonationSettingsForm({
   settings,
-  currencies,
   currencyLocked,
 }: {
   settings: { currency: string; iosMode: "browser" | "off" };
-  currencies: readonly string[];
+  /** 135.1 Any ISO 4217 currency now: the picker lists them all. */
+  currencies?: readonly string[];
   currencyLocked: boolean;
 }) {
   const t = useDashT();
@@ -202,22 +203,17 @@ export function DonationSettingsForm({
   return (
     <form action={action} noValidate className="flex flex-col gap-4">
       <FormMessage message={state.message} ok={state.ok} />
-      <div className="flex flex-col gap-1.5">
-        <label htmlFor="f-currency" className="text-sm font-semibold">
-          {t("shop.currency")}
-        </label>
-        <select id="f-currency" name="currency" defaultValue={value("currency")} className="input max-w-[200px]" aria-describedby="f-currency-hint">
-          {currencies.map((c) => (
-            <option key={c} value={c} disabled={currencyLocked && c !== settings.currency}>
-              {c}
-            </option>
-          ))}
-        </select>
-        <span id="f-currency-hint" className="text-[13px] text-muted">
-          {currencyLocked ? t("donations.currencyLocked") : t("donations.currencyHint")}
-        </span>
-        <FieldError id="f-currency-error" error={state.errors?.currency} />
-      </div>
+      {/* 135.3 Any currency, searched; once donations came in it stays (the field is then read-only and sent as it is). */}
+      {currencyLocked ? <input type="hidden" name="currency" value={settings.currency} /> : null}
+      <CurrencyPicker
+        id="f-currency"
+        name={currencyLocked ? "currencyShown" : "currency"}
+        label={t("shop.currency")}
+        defaultValue={value("currency")}
+        disabled={currencyLocked}
+        hint={currencyLocked ? t("donations.currencyLocked") : t("donations.currencyHint")}
+        error={state.errors?.currency}
+      />
       <fieldset className="m-0 flex flex-col gap-3 border-0 p-0">
         <legend className="mb-1 text-sm font-semibold">{t("donations.onIphone")}</legend>
         {(

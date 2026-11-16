@@ -146,13 +146,13 @@ export function firstImage(value: string): string | null {
   return url ?? null;
 }
 
-function checkRow(kind: ImportKind, v: Partial<Record<ImportField, string>>): string[] {
+function checkRow(kind: ImportKind, v: Partial<Record<ImportField, string>>, currency?: string | null): string[] {
   if (kind === "products") {
     const errors: string[] = [];
     const name = v.name ?? "";
     if (!name) errors.push("Enter the product name.");
     else if (name.length > 120) errors.push("The name: use at most 120 characters.");
-    const numbers = readProductNumbers({ price: priceText(v.price ?? ""), salePrice: priceText(v.salePrice ?? ""), stock: v.stock ?? "" });
+    const numbers = readProductNumbers({ price: priceText(v.price ?? ""), salePrice: priceText(v.salePrice ?? ""), stock: v.stock ?? "", currency });
     errors.push(...Object.values(numbers.errors));
     if ((v.sku ?? "").length > 64) errors.push("The SKU: use at most 64 characters.");
     return errors;
@@ -166,8 +166,8 @@ function checkRow(kind: ImportKind, v: Partial<Record<ImportField, string>>): st
 }
 
 /** Wix's product export, one item per product (its variants and pictures are its own lines). */
-function planWix(table: Table): ImportPlan {
-  const { products, summary } = readWix(table);
+function planWix(table: Table, currency?: string | null): ImportPlan {
+  const { products, summary } = readWix(table, currency);
   if (products.length > IMPORT_MAX_ROWS) throw new ImportFormatError("too_many_rows", `Import at most ${IMPORT_MAX_ROWS} products at a time.`);
   const items: ImportItem[] = products.map((p) => {
     const values: Partial<Record<ImportField, string>> = {
@@ -181,14 +181,15 @@ function planWix(table: Table): ImportPlan {
       ...(p.pictures[0] ? { image: p.pictures[0].url } : {}),
       active: p.active ? "yes" : "no",
     };
-    return { row: p.row, name: values.name!, values, errors: [...checkRow("products", values), ...p.errors], wix: p };
+    return { row: p.row, name: values.name!, values, errors: [...checkRow("products", values, currency), ...p.errors], wix: p };
   });
   return { kind: "products", columns: [], missing: [], items, wix: summary };
 }
 
-export function planImport(kind: ImportKind, table: Table): ImportPlan {
+/** 135.2 `currency`: the shop's, for its prices' digits (1.250 KWD). */
+export function planImport(kind: ImportKind, table: Table, currency?: string | null): ImportPlan {
   // Wix's own export, for a shop of Yallapp's own products (no connection to the Wix site needed).
-  if (kind === "products" && isWixExport(table.columns)) return planWix(table);
+  if (kind === "products" && isWixExport(table.columns)) return planWix(table, currency);
   const map = mapColumns(kind, table.columns);
   const missing = REQUIRED[kind].filter((f) => map[f] === undefined);
   const columns = KIND_FIELDS[kind].filter((f) => map[f] !== undefined).map((field) => ({ field, column: table.columns[map[field]!]! }));
@@ -200,7 +201,7 @@ export function planImport(kind: ImportKind, table: Table): ImportPlan {
     // A feed says "out of stock" where a sheet gives the number left.
     if (!values.stock && values.availability && /out[ _]of[ _]stock|tükendi|stokta yok|غير متوفر|نفد/i.test(values.availability)) values.stock = "0";
     if (values.duration) values.duration = values.duration.replace(/[^\d]/g, "");
-    return { row: i + 2, name: values.name ?? "", values, errors: missing.length ? [] : checkRow(kind, values) };
+    return { row: i + 2, name: values.name ?? "", values, errors: missing.length ? [] : checkRow(kind, values, currency) };
   });
   return { kind, columns, missing, items };
 }

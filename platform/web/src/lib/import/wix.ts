@@ -101,10 +101,10 @@ export function categoryFromSlug(slug: string): string {
   return words ? `${words[0]!.toLocaleUpperCase("en")}${words.slice(1)}`.slice(0, 60) : "";
 }
 
-/** Wix's two prices as the shop's: the price before a discount, and the sale price. */
-export function wixPrices(price: string, strikethrough: string): { priceCents: number | null; salePriceCents: number | null } {
-  const pays = price ? parsePrice(price) : null;
-  const before = strikethrough ? parsePrice(strikethrough) : null;
+/** Wix's two prices as the shop's: the price before a discount, and the sale price (135.2 in the shop's currency's digits: 1.250 KWD). */
+export function wixPrices(price: string, strikethrough: string, currency?: string | null): { priceCents: number | null; salePriceCents: number | null } {
+  const pays = price ? parsePrice(price, currency) : null;
+  const before = strikethrough ? parsePrice(strikethrough, currency) : null;
   if (pays === null) return { priceCents: null, salePriceCents: null };
   return before !== null && before > pays ? { priceCents: before, salePriceCents: pays } : { priceCents: pays, salePriceCents: null };
 }
@@ -135,7 +135,7 @@ export function wixPicture(media: string, alt: string): WixPicture | null {
   return { url, jpeg: own ? `${url}/v1/fit/w_1600,h_1600,q_90/picture.jpg` : null, alt: alt.trim().slice(0, 200) };
 }
 
-export function readWix(table: Table): { products: WixProduct[]; summary: WixSummary } {
+export function readWix(table: Table, currency?: string | null): { products: WixProduct[]; summary: WixSummary } {
   const at = new Map(table.columns.map((c, i) => [c.trim(), i]));
   const cell = (cells: string[], name: string) => {
     const i = at.get(name);
@@ -197,7 +197,7 @@ export function readWix(table: Table): { products: WixProduct[]; summary: WixSum
         const key = values.join("\u0000");
         if (values.some((value, i) => !attributes[i]!.values.includes(value)) || seen.has(key) || items.length >= VARIANT_LIMITS.items) continue;
         seen.add(key);
-        const prices = wixPrices(cell(v.cells, "price"), cell(v.cells, "strikethroughPrice"));
+        const prices = wixPrices(cell(v.cells, "price"), cell(v.cells, "strikethroughPrice"), currency);
         items.push({
           id: items.length + 1,
           values,
@@ -246,7 +246,7 @@ export function readWix(table: Table): { products: WixProduct[]; summary: WixSum
     if (colourCodes) drop("colourCodes", name);
 
     // Its price: its own, or (with variations) the cheapest variation's.
-    let prices = wixPrices(p("price"), p("strikethroughPrice"));
+    let prices = wixPrices(p("price"), p("strikethroughPrice"), currency);
     if (prices.priceCents === null && variants) {
       const priced = variants.items.filter((v) => v.priceCents !== null);
       const cheapest = priced.sort((a, b) => (a.salePriceCents ?? a.priceCents!) - (b.salePriceCents ?? b.priceCents!))[0];

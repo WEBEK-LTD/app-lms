@@ -132,7 +132,7 @@ export function campaignJson(c: Campaign, currency: CatalogCurrency, assetUrl: (
     ...campaignSummaryJson(c, currency, assetUrl, now),
     images: c.imageAssetIds.map((id) => ({ url: assetUrl(id), alt: c.title })),
     ...articleBody(c.story),
-    preset_amounts: [...c.presetCents].sort((a, b) => a - b).map(centsToDecimal),
+    preset_amounts: [...c.presetCents].sort((a, b) => a - b).map((cents) => centsToDecimal(cents, currency)),
     allow_custom_amount: c.allowCustomAmount,
     min_amount: centsToDecimal(c.minCents),
     recent_donations: recent.slice(0, RECENT_DONATIONS).map(recentDonationJson),

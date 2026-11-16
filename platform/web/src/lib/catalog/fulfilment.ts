@@ -261,14 +261,14 @@ type Parsed<T> = { ok: true; value: T } | { ok: false; errors: Record<string, st
  * `prepMinutes`, the time zone, one opening range per weekday (`open<d>`,
  * `start<d>`, `end<d>`, 0 is Sunday) and the order times.
  */
-export function parseFulfilmentForm(v: Record<string, string>): Parsed<FulfilmentSettings> {
+export function parseFulfilmentForm(v: Record<string, string>, currency?: string | null): Parsed<FulfilmentSettings> {
   const errors: Record<string, string> = {};
   const pickup = v.pickup === "on";
   const delivery = v.delivery === "on";
   if (!pickup && !delivery) errors.pickup = "Offer pickup, delivery or both.";
-  const fee = (v.deliveryFee ?? "").trim() === "" ? 0 : parsePrice(v.deliveryFee!);
+  const fee = (v.deliveryFee ?? "").trim() === "" ? 0 : parsePrice(v.deliveryFee!, currency);
   if (fee === null) errors.deliveryFee = "Enter an amount, like 30, or leave it empty for free delivery.";
-  const min = (v.minOrder ?? "").trim() === "" ? null : parsePrice(v.minOrder!);
+  const min = (v.minOrder ?? "").trim() === "" ? null : parsePrice(v.minOrder!, currency);
   if ((v.minOrder ?? "").trim() !== "" && min === null) errors.minOrder = "Enter an amount, like 150, or leave it empty.";
   const prep = Number(v.prepMinutes);
   if (!/^\d{1,3}$/.test(v.prepMinutes ?? "") || prep > 240) errors.prepMinutes = "Enter 0 to 240 minutes.";

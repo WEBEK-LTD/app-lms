@@ -1,8 +1,9 @@
 "use server";
 
+import { PROVIDER_NAME, providerTakes } from "@/lib/payments/provider";
 import { headers } from "next/headers";
 import { redirect } from "next/navigation";
-import { readCustomer, startPayment } from "@/lib/catalog/payment";
+import { chargedAmount, readCustomer, startPayment } from "@/lib/catalog/payment";
 import { chooseManualPayment, isManualMethod } from "@/lib/catalog/manual";
 import { sendManualOrderMails } from "@/lib/catalog/manual-mail";
 import { checkoutAccount, payLinkExpired } from "@/lib/catalog/settings";
@@ -66,6 +67,11 @@ export async function payAction(token: string, _: FormState, formData: FormData)
   }
   const account = app ? await checkoutAccount(store, app, encryptionKey()) : null;
   if (!app || !account) return { message: "This shop can't take payments right now. Please try again later.", values };
+  // 135.4 Never a currency the gateway doesn't take: said so, nothing sent.
+  const charged = chargedAmount(order);
+  if (!providerTakes(account.account.provider, charged.currency)) {
+    return { message: `${PROVIDER_NAME[account.account.provider]} doesn't take payments in ${charged.currency}, so this shop can't take card payments for now. Choose another way to pay, or go back to the app.`, values };
+  }
   const checked = readCustomer(app, values);
   if (!checked.ok) return { errors: checked.errors, values };
   // 37 A Kashier or Fawaterk payment started earlier may have gone through without its redirect or webhook: read it back before starting another.

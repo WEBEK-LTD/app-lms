@@ -28,6 +28,8 @@ export async function ProductPage({ id }: { id: number | null }) {
   if (id !== null && !product) notFound();
   const restaurant = app.vertical === "restaurant";
   const { t } = await dashboardText();
+  // 135.2 Prices back in the form with the currency's digits (1.250 KWD, ¥1250).
+  const currency = catalogSettings(app).currency;
   const kind = restaurant ? "restaurant" : "shop";
   // 26 The option groups as the editor shows them.
   const optionGroups: EditorGroup[] = product
@@ -36,7 +38,7 @@ export async function ProductPage({ id }: { id: number | null }) {
         name: g.name,
         min: String(g.min),
         max: String(g.max),
-        options: g.options.map((o) => ({ id: o.id, name: o.name, price: o.priceDeltaCents ? centsToDecimal(o.priceDeltaCents) : "", weight: o.weightGrams ? String(o.weightGrams / 1000) : "" })),
+        options: g.options.map((o) => ({ id: o.id, name: o.name, price: o.priceDeltaCents ? centsToDecimal(o.priceDeltaCents, currency) : "", weight: o.weightGrams ? String(o.weightGrams / 1000) : "" })),
       }))
     : [];
   // 91.5 The variations as the editor shows them.
@@ -46,8 +48,8 @@ export async function ProductPage({ id }: { id: number | null }) {
         items: product.variants.items.map((v) => ({
           id: v.id,
           values: v.values,
-          price: v.priceCents !== null ? centsToDecimal(v.priceCents) : "",
-          sale: v.salePriceCents !== null ? centsToDecimal(v.salePriceCents) : "",
+          price: v.priceCents !== null ? centsToDecimal(v.priceCents, currency) : "",
+          sale: v.salePriceCents !== null ? centsToDecimal(v.salePriceCents, currency) : "",
           stock: v.stock !== null ? String(v.stock) : "",
           sku: v.sku ?? "",
           active: v.active,
@@ -59,8 +61,8 @@ export async function ProductPage({ id }: { id: number | null }) {
         id: product.id,
         name: product.name,
         description: product.description,
-        price: centsToDecimal(product.priceCents),
-        salePrice: product.salePriceCents !== null ? centsToDecimal(product.salePriceCents) : "",
+        price: centsToDecimal(product.priceCents, currency),
+        salePrice: product.salePriceCents !== null ? centsToDecimal(product.salePriceCents, currency) : "",
         stock: product.stock !== null ? String(product.stock) : "",
         sku: product.sku ?? "",
         // 131 Its weight in kg.

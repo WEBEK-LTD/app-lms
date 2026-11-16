@@ -13120,5 +13120,106 @@
         "example": "Burger Lab"
       }
     }
+  },
+  "currencyLabel": "Currency",
+  "@currencyLabel": {
+    "description": "135.5 Settings: the currency prices also show in."
+  },
+  "currencyFromRegion": "{currency} · your region's",
+  "@currencyFromRegion": {
+    "description": "135.5 Settings: the currency comes from the phone's region (not picked).",
+    "placeholders": {
+      "currency": {
+        "type": "String"
+      }
+    }
+  },
+  "currencyPickerHint": "Prices also show in this currency, at the day's rate. You pay in the shop's currency unless the checkout says otherwise.",
+  "@currencyPickerHint": {
+    "description": "135.5 The currency picker's note."
+  },
+  "currencySearch": "Search currencies",
+  "@currencySearch": {
+    "description": "135.5 The currency picker's search box."
+  },
+  "currencyShop": "The shop's currency",
+  "@currencyShop": {
+    "description": "135.5 The currency picker's first group: the shop's own."
+  },
+  "currencyYourRegion": "Your region",
+  "@currencyYourRegion": {
+    "description": "135.5 The currency picker's group with the phone's region's currency."
+  },
+  "currencyAll": "All currencies",
+  "@currencyAll": {
+    "description": "135.5 The currency picker's group with every other currency."
+  },
+  "currencyNoMatch": "No currency matches.",
+  "@currencyNoMatch": {
+    "description": "135.5 The currency picker's search found nothing."
+  },
+  "currencyUseRegion": "Use my region's currency",
+  "@currencyUseRegion": {
+    "description": "135.5 The currency picker: back to the phone's region's currency."
+  },
+  "approxPrice": "≈ {amount}",
+  "@approxPrice": {
+    "description": "135.5 A price in the customer's currency, approximate.",
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+  "youPayApprox": "≈ {converted} · you pay {total}",
+  "@youPayApprox": {
+    "description": "135.7 At checkout: the total in the customer's currency, approximate, and what is charged in the shop's.",
+    "placeholders": {
+      "converted": {
+        "type": "String"
+      },
+      "total": {
+        "type": "String"
+      }
+    }
+  },
+  "youPayIn": "You pay {total}",
+  "@youPayIn": {
+    "description": "135.7 At checkout: charged in the customer's own currency.",
+    "placeholders": {
+      "total": {
+        "type": "String"
+      }
+    }
+  },
+  "youPayShopCurrency": "You pay {total}: the shop's card payment doesn't take {currency}.",
+  "@youPayShopCurrency": {
+    "description": "135.7 At checkout: the shop charges in customers' currencies, but its card gateway doesn't take this one.",
+    "placeholders": {
+      "total": {
+        "type": "String"
+      },
+      "currency": {
+        "type": "String"
+      }
+    }
+  },
+  "orderInYourCurrency": "≈ {total} in your currency",
+  "@orderInYourCurrency": {
+    "description": "135.7 An order's total in the customer's currency, shown as approximate.",
+    "placeholders": {
+      "total": {
+        "type": "String"
+      }
+    }
+  },
+  "orderPaidIn": "Paid {total}",
+  "@orderPaidIn": {
+    "description": "135.7 An order charged in the customer's currency: what was charged.",
+    "placeholders": {
+      "total": {
+        "type": "String"
+      }
+    }
   }
 }

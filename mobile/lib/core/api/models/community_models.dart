@@ -1,6 +1,7 @@
 import 'commerce_models.dart';
 import 'catalog_models.dart';
 import 'json.dart';
+import 'money_models.dart';
 import 'restaurant_models.dart';
 
 /// What a notification is about; it decides the screen a tap opens.
@@ -308,6 +309,7 @@ class Order {
     this.points,
     this.delivery,
     this.stage,
+    this.customerCurrency,
   });
 
   factory Order.fromJson(Json json) => Order(
@@ -333,12 +335,16 @@ class Order {
     points: optObject(json, 'points', OrderPoints.fromJson),
     delivery: OrderDelivery.tryParse(json['delivery']),
     stage: OrderStage.tryParse(json['stage']),
+    customerCurrency: OrderCustomerCurrency.tryParse(json['customer_currency']),
   );
 
   /// 132 Where a store order's delivery is; null before its first stage,
   /// on older servers, and for a stage this app doesn't know (the order
   /// shows as in progress).
   final OrderStage? stage;
+
+  /// 135.7 The total in the customer's currency on the day it was placed.
+  final OrderCustomerCurrency? customerCurrency;
 
   /// 131 The delivery day and slot, who receives it and the card.
   final OrderDelivery? delivery;

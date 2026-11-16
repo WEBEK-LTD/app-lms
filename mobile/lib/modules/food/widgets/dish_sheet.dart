@@ -120,7 +120,7 @@ class _DishSheetState extends State<DishSheet> {
               ),
               const SizedBox(height: 4),
               Text(
-                dish.priceFormatted,
+                dish.priceLabel,
                 style: TextStyle(
                   fontSize: 16,
                   fontWeight: FontWeight.w700,

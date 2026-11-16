@@ -8,10 +8,13 @@ import {
   saveFulfilmentAction,
   saveProductAction,
   saveShopSettingsAction,
+  saveCustomerCurrenciesAction,
   saveLoyaltyAction,
   saveManualPaymentsAction,
 } from "@/app/actions/catalog";
 import { Field, FieldError, FormMessage, SubmitButton } from "@/components/form";
+import { CurrencyPicker } from "@/components/currency-picker";
+import { RatesAttribution } from "@/components/rates-attribution";
 import { Icon } from "@/components/icon";
 import { btn } from "@/components/ui";
 import { FormActions, FormSection } from "@/components/page-kit";
@@ -724,14 +727,42 @@ export function AddCategoryForm() {
   );
 }
 
+/**
+ * 135.7 Customers' currencies: the app shows prices in the customer's own
+ * currency at the day's rate; whether the card is charged in it when the
+ * gateway takes it. `ratesDate`: the day's rates (null: none yet).
+ */
+export function CustomerCurrenciesForm({ base, charge, ratesDate, gateway }: { base: string; charge: boolean; ratesDate: string | null; gateway: { provider: string; count: number } | null }) {
+  const t = useDashT();
+  const lang = useDashLang();
+  const [state, action] = useActionState(saveCustomerCurrenciesAction, initialFormState);
+  return (
+    <form action={action} noValidate className="flex flex-col gap-4">
+      <FormMessage message={state.message} ok={state.ok} />
+      <p className="m-0 text-sm leading-relaxed text-ink-4">{t("money.customerIntro", { base })}</p>
+      <p className="m-0 text-sm text-muted">
+        {ratesDate ? t("money.ratesDate", { date: formatDate(lang, new Date(`${ratesDate}T12:00:00Z`), { day: "numeric", month: "long", year: "numeric", timeZone: "UTC" }) }) : t("money.ratesNone", { base })}{" "}
+        <RatesAttribution />
+      </p>
+      <Check name="chargeInCustomerCurrency" label={t("money.chargeLabel")} hint={t("money.chargeHint", { base })} defaultChecked={state.values ? state.values.chargeInCustomerCurrency === "on" : charge} />
+      {gateway ? <p className="m-0 text-[13px] text-muted">{t("money.chargeGateway", { provider: gateway.provider, count: gateway.count })}</p> : null}
+      <div className="flex justify-end">
+        <SubmitButton variant="secondary" className="h-10" pendingText={t("common.saving")}>
+          {t("common.save")}
+        </SubmitButton>
+      </div>
+    </form>
+  );
+}
+
 export function ShopSettingsForm({
   currency,
   shipping,
   freeOver,
   returnDays = "",
   tax = { label: "", rate: "", included: true },
-  currencies,
   shippingFields = true,
+  gateway = null,
 }: {
   currency: string;
   shipping: string;
@@ -740,28 +771,20 @@ export function ShopSettingsForm({
   returnDays?: string;
   /** 91.5 The tax: its name, rate (empty: none) and whether the prices include it. */
   tax?: { label: string; rate: string; included: boolean };
-  currencies: string[];
+  /** 135.1 Before 135, the few currencies offered; any ISO 4217 currency now (the picker lists them). */
+  currencies?: string[];
   /** 26 Restaurants charge a delivery fee instead (Pickup and delivery). */
   shippingFields?: boolean;
+  /** 135.4 The card gateway set up and what it takes, for the picker's note. */
+  gateway?: { provider: string; currencies: readonly string[] } | null;
 }) {
   const t = useDashT();
   const [state, action] = useActionState(saveShopSettingsAction, initialFormState);
   return (
     <form action={action} noValidate className="flex flex-col gap-4">
       <FormMessage message={state.message} ok={state.ok} />
-      <div className="flex flex-col gap-1.5">
-        <label htmlFor="f-currency" className="text-sm font-semibold">
-          {t("shop.currency")}
-        </label>
-        <select id="f-currency" name="currency" defaultValue={state.values?.currency ?? currency} className="input">
-          {currencies.map((c) => (
-            <option key={c} value={c}>
-              {c}
-            </option>
-          ))}
-        </select>
-        <FieldError id="f-currency-error" error={state.errors?.currency} />
-      </div>
+      {/* 135.3 Any currency: searched by name, code or sign, the usual ones first. */}
+      <CurrencyPicker id="f-currency" label={t("shop.currency")} defaultValue={state.values?.currency ?? currency} error={state.errors?.currency} gateway={gateway} />
       {shippingFields ? (
         <>
           <Field

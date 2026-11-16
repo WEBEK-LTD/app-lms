@@ -11,7 +11,7 @@ import { marketTimezone } from "../market/settings";
 import { byWait, marketOrderIdOf, ORDER_FILTERS, queueQuery, type Queue } from "../market/support";
 import { bodyObject, intParam, invalid, iso, notFound, OwnerError, pageJson, paging, type OwnerContext, type OwnerResult } from "./http";
 import { placePinJson } from "./order-details";
-import { appScope, money } from "./sales";
+import { appScope, minorMoney } from "./sales";
 import { invalidStatus, recordStudio, stageJson } from "./studio";
 
 /**
@@ -42,7 +42,7 @@ function marketOrderJson(ctx: OwnerContext, o: MarketOrder) {
     vendor: { id: o.vendorId, name: o.vendorName, kind: o.vendorKind },
     customer_name: o.customerName,
     summary: summaryOf(o),
-    total: money(o.money.total, o.currency),
+    total: minorMoney(o.money.total, o.currency),
     fulfilment: o.fulfilment,
     delivery_by: o.deliveryBy,
     placed_at: o.createdAt.toISOString(),
@@ -87,7 +87,7 @@ export async function getMarketOrder(ctx: OwnerContext, params: Record<string, s
     status: 200,
     body: {
       ...marketOrderJson(ctx, o),
-      lines: o.lines.map((l) => ({ quantity: l.pickedQuantity ?? l.quantity, name: l.name, options: [...l.choices, ...(l.note ? [l.note] : [])], total: money(l.total, o.currency) })),
+      lines: o.lines.map((l) => ({ quantity: l.pickedQuantity ?? l.quantity, name: l.name, options: [...l.choices, ...(l.note ? [l.note] : [])], total: minorMoney(l.total, o.currency) })),
       // 132 The customer (the app's support may call them; the places never see the number), where it goes, when, how it was paid and what the total is made of.
       customer: {
         name: o.customerName,
@@ -99,7 +99,7 @@ export async function getMarketOrder(ctx: OwnerContext, params: Record<string, s
       scheduled_for: iso(o.scheduledFor),
       payment: { method: o.paymentMethod, status: o.paymentStatus },
       coupon_code: o.couponCode,
-      amounts: o.money.lines.map((l) => ({ kind: l.kind, amount: money(l.amount, o.currency) })),
+      amounts: o.money.lines.map((l) => ({ kind: l.kind, amount: minorMoney(l.amount, o.currency) })),
       courier: job?.courierName ? { id: job.courierId, name: job.courierName, phone: courier?.phone ?? null } : null,
       timeline: o.timeline.map((s) => stageJson(ctx, s, ORDER_STATUS_KEY)),
       // 132 The customer's rating and the business's reply under it.
@@ -148,13 +148,13 @@ function complaintJson(ctx: OwnerContext, c: MarketComplaint, order: MarketOrder
     status_label: ctx.t(COMPLAINT_STATUS_KEY(c.status)),
     waiting_for: waiting === "support" ? "you" : waiting === "customer" ? "customer" : null,
     subject: ctx.t(`market.r_${c.reason}` as DashKey),
-    order: { id: c.orderId, reference: marketOrderReference({ id: c.orderId }), total: money(order?.money.total ?? 0, currency) },
+    order: { id: c.orderId, reference: marketOrderReference({ id: c.orderId }), total: minorMoney(order?.money.total ?? 0, currency) },
     vendor: { id: c.vendorId, name: order?.vendorName ?? "" },
     customer_name: order?.customerName ?? "",
     excerpt: c.text.length > 140 ? `${c.text.slice(0, 139).trimEnd()}…` : c.text,
     created_at: c.createdAt.toISOString(),
     updated_at: c.updatedAt.toISOString(),
-    refund_suggested: suggested !== null && c.decision === null ? money(suggested, currency) : null,
+    refund_suggested: suggested !== null && c.decision === null ? minorMoney(suggested, currency) : null,
   };
 }
 
@@ -169,8 +169,8 @@ async function complaintDetail(ctx: OwnerContext, app: App, c: MarketComplaint) 
     messages: c.messages.map((m) => ({ from: m.from, name: m.from === "customer" ? (order?.customerName ?? "") : ctx.t("market.fromSupport"), text: m.text, at: m.at })),
     decisions: open
       ? [
-          ...(left > 0 ? [{ decision: "refund" as const, label: ctx.t("market.o_refund"), amount: "fixed" as const, max: money(left, currency), to: refundTo }] : []),
-          ...(left > 0 ? [{ decision: "partial_refund" as const, label: ctx.t("market.o_partial_refund"), amount: "required" as const, max: money(left, currency), to: refundTo }] : []),
+          ...(left > 0 ? [{ decision: "refund" as const, label: ctx.t("market.o_refund"), amount: "fixed" as const, max: minorMoney(left, currency), to: refundTo }] : []),
+          ...(left > 0 ? [{ decision: "partial_refund" as const, label: ctx.t("market.o_partial_refund"), amount: "required" as const, max: minorMoney(left, currency), to: refundTo }] : []),
           { decision: "compensation" as const, label: ctx.t("market.o_compensation"), amount: "required" as const, max: null, to: refundTo.filter((t) => t !== "payment") },
           { decision: "no_refund" as const, label: ctx.t("market.o_no_refund"), amount: "none" as const, max: null, to: [] },
         ]
@@ -179,7 +179,7 @@ async function complaintDetail(ctx: OwnerContext, app: App, c: MarketComplaint) 
       ? {
           decision: c.decision.outcome,
           label: ctx.t(`market.o_${c.decision.outcome}` as DashKey),
-          amount: c.decision.amount !== null ? money(c.decision.amount, currency) : null,
+          amount: c.decision.amount !== null ? minorMoney(c.decision.amount, currency) : null,
           to: c.decision.to,
           at: new Date(c.decision.at).toISOString(),
         }

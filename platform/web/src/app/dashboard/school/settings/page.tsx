@@ -1,3 +1,4 @@
+import { CurrencyPicker } from "@/components/currency-picker";
 import type { Metadata } from "next";
 import { removePaymentKeysAction } from "@/app/actions/catalog";
 import { saveSchoolMessagesAction, saveSchoolSettingsAction } from "@/app/actions/school";
@@ -9,7 +10,6 @@ import { Notice } from "@/components/ui";
 import { FormSection } from "@/components/page-kit";
 import { PageTabs, TabPanel } from "@/components/page-tabs";
 import { requireClient } from "@/lib/auth/session";
-import { CATALOG_CURRENCIES } from "@/lib/catalog/money";
 import { catalogSettings, isOwnPayment } from "@/lib/catalog/settings";
 import { dashboardText } from "@/lib/dashboard-lang";
 import { getStore } from "@/lib/data";
@@ -112,7 +112,7 @@ export default async function SchoolSettingsPage({ searchParams }: { searchParam
             <FormSection id="s-place" title={t("school.formPlace")}>
               <div className="grid gap-4 sm:grid-cols-2">
                 <Choice id="f-timezone" name="timezone" label={t("school.timezone")} options={zones.map((z) => ({ value: z, label: z }))} defaultValue={values.timezone} />
-                <Choice id="f-currency" name="currency" label={t("school.currency")} options={CATALOG_CURRENCIES.map((c) => ({ value: c, label: c }))} defaultValue={values.currency} />
+                <CurrencyPicker id="f-currency" label={t("school.currency")} defaultValue={values.currency} className="sm:col-span-2" />
               </div>
             </FormSection>
             <FormSection id="s-term" title={t("school.term")} description={t("school.termHint")}>

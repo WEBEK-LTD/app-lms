@@ -5112,6 +5112,82 @@ export const APP_STRING_NOTES: Record<string, { en?: string; ar: string; tr: str
     ar: "زرار تحت أوردر خرج للتوصيل: بيفتح لينك التتبع بتاع المحل.",
     tr: "Dağıtımdaki bir siparişin altındaki düğme: mağazanın takip bağlantısını açar.",
   },
+  // 135 Every currency: the app's currency picker and what is paid.
+  "135.5 Settings: the currency prices also show in.": {
+    en: "In Settings: the currency prices also show in.",
+    ar: "في الإعدادات: العملة اللي الأسعار بتظهر بيها كمان.",
+    tr: "Ayarlar'da: fiyatların ayrıca gösterildiği para birimi.",
+  },
+  "135.5 Settings: the currency comes from the phone's region (not picked).": {
+    en: "In Settings: the currency comes from the phone's region (the customer didn't pick one).",
+    ar: "في الإعدادات: العملة جاية من منطقة الموبايل (العميل ما اختارش عملة).",
+    tr: "Ayarlar'da: para birimi telefonun bölgesinden geliyor (müşteri seçmedi).",
+  },
+  "135.5 The currency picker's note.": {
+    en: "The note at the top of the currency list.",
+    ar: "الملاحظة اللي فوق قائمة العملات.",
+    tr: "Para birimi listesinin üstündeki not.",
+  },
+  "135.5 The currency picker's search box.": {
+    en: "The search box of the currency list.",
+    ar: "خانة البحث في قائمة العملات.",
+    tr: "Para birimi listesinin arama kutusu.",
+  },
+  "135.5 The currency picker's first group: the shop's own.": {
+    en: "The currency list's first group: your shop's currency.",
+    ar: "أول مجموعة في قائمة العملات: عملة متجرك.",
+    tr: "Para birimi listesinin ilk grubu: mağazanızın para birimi.",
+  },
+  "135.5 The currency picker's group with the phone's region's currency.": {
+    en: "The currency list's group with the currency of the phone's region.",
+    ar: "مجموعة في قائمة العملات فيها عملة منطقة الموبايل.",
+    tr: "Para birimi listesinde telefonun bölgesinin para birimini içeren grup.",
+  },
+  "135.5 The currency picker's group with every other currency.": {
+    en: "The currency list's group with every other currency.",
+    ar: "مجموعة في قائمة العملات فيها كل العملات التانية.",
+    tr: "Para birimi listesinde diğer tüm para birimlerini içeren grup.",
+  },
+  "135.5 The currency picker's search found nothing.": {
+    en: "When the currency list's search finds nothing.",
+    ar: "لما البحث في قائمة العملات ما يلاقيش حاجة.",
+    tr: "Para birimi listesindeki arama bir şey bulamadığında.",
+  },
+  "135.5 The currency picker: back to the phone's region's currency.": {
+    en: "In the currency list: back to the currency of the phone's region.",
+    ar: "في قائمة العملات: الرجوع لعملة منطقة الموبايل.",
+    tr: "Para birimi listesinde: telefonun bölgesinin para birimine dönmek.",
+  },
+  "135.5 A price in the customer's currency, approximate.": {
+    en: "A price in the customer's currency, as an approximate amount.",
+    ar: "سعر بعملة العميل، كمبلغ تقريبي.",
+    tr: "Müşterinin para biriminde yaklaşık bir fiyat.",
+  },
+  "135.7 At checkout: the total in the customer's currency, approximate, and what is charged in the shop's.": {
+    en: "At checkout: the total in the customer's currency, approximate, and what they pay in your shop's currency.",
+    ar: "عند الدفع: الإجمالي بعملة العميل تقريبًا، واللي هيدفعه بعملة متجرك.",
+    tr: "Ödemede: müşterinin para biriminde yaklaşık toplam ve mağazanızın para biriminde ödeyeceği tutar.",
+  },
+  "135.7 At checkout: charged in the customer's own currency.": {
+    en: "At checkout: the customer pays in their own currency.",
+    ar: "عند الدفع: العميل بيدفع بعملته.",
+    tr: "Ödemede: müşteri kendi para biriminde öder.",
+  },
+  "135.7 At checkout: the shop charges in customers' currencies, but its card gateway doesn't take this one.": {
+    en: "At checkout: you charge in customers' currencies, but your card gateway doesn't take this one.",
+    ar: "عند الدفع: إنت بتسحب بعملة العميل، بس بوابة الدفع بتاعتك مش بتقبل العملة دي.",
+    tr: "Ödemede: müşterinin para biriminde tahsil ediyorsunuz ama kart altyapınız bu para birimini almıyor.",
+  },
+  "135.7 An order's total in the customer's currency, shown as approximate.": {
+    en: "On an order: its total in the customer's currency, as an approximate amount.",
+    ar: "في الأوردر: الإجمالي بعملة العميل، كمبلغ تقريبي.",
+    tr: "Siparişte: müşterinin para biriminde yaklaşık toplam.",
+  },
+  "135.7 An order charged in the customer's currency: what was charged.": {
+    en: "On an order paid in the customer's currency: what they paid.",
+    ar: "في أوردر اتدفع بعملة العميل: المبلغ اللي اتدفع.",
+    tr: "Müşterinin para biriminde ödenen siparişte: ödenen tutar.",
+  },
 };
 
 /** A developer's description without the app's code names: "… lib/core/x.dart uses it …", "(vertical_wording.dart)", a leading roadmap number. */

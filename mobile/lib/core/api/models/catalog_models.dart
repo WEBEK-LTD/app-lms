@@ -1,4 +1,5 @@
 import 'json.dart';
+import 'money_models.dart';
 import 'lms_more_models.dart';
 import 'learning_models.dart' show Progress;
 import '../../l10n/l10n.dart';
@@ -99,6 +100,7 @@ class Price {
     this.saleAmount,
     this.currency,
     this.formatted,
+    this.display,
   });
 
   factory Price.fromJson(Json json) => Price(
@@ -107,7 +109,11 @@ class Price {
     saleAmount: optString(json, 'sale_amount'),
     currency: optString(json, 'currency'),
     formatted: optString(json, 'formatted'),
+    display: DisplayMoney.tryParse(json['display']),
   );
+
+  /// 135.5 The price in the customer's currency; null when none.
+  final DisplayMoney? display;
 
   final bool isFree;
   final String? amount;
@@ -116,10 +122,16 @@ class Price {
   final String? formatted;
 
   /// The text shown for the price: "Free", the site's formatted price, or the
-  /// amount with its currency.
+  /// amount with its currency. 135.5 With the customer's currency: "E£600.00
+  /// · ≈ \$12.37".
   String get label {
     if (isFree) return currentL10n.free;
-    if (formatted != null && formatted!.isNotEmpty) return formatted!;
+    if (formatted != null && formatted!.isNotEmpty) {
+      final shown = display?.formatted;
+      return shown == null
+          ? formatted!
+          : '${formatted!} · ${currentL10n.approxPrice(shown)}';
+    }
     final value = saleAmount ?? amount;
     if (value == null) return '';
     return currency == null ? value : '$value $currency';

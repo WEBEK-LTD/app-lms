@@ -9,9 +9,15 @@ import '../../../core/widgets/common.dart';
 import '../../../core/l10n/l10n.dart';
 import '../../../core/format/bidi.dart';
 
-/// "Free" or the business's formatted price.
-String bookingPriceLabel(BookingPrice price) =>
-    price.free ? currentL10n.free : isolate(price.formatted);
+/// "Free" or the business's formatted price; 135.5 with the customer's
+/// currency, "₺300.00 · ≈ \$9.30".
+String bookingPriceLabel(BookingPrice price) {
+  if (price.free) return currentL10n.free;
+  final shown = price.display?.formatted;
+  return shown == null
+      ? isolate(price.formatted)
+      : '${isolate(price.formatted)} · ${isolate(currentL10n.approxPrice(shown))}';
+}
 
 /// "30 min · ₺300.00".
 String serviceFacts(ServiceSummary service, {BookingPrice? price}) =>

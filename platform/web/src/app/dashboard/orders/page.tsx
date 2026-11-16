@@ -1,3 +1,4 @@
+import { rateText } from "@/lib/money/rates";
 import type { Metadata } from "next";
 import { deliveryDayLabel, deliveryOf, shopToday, slotLabel } from "@/lib/selling/delivery";
 import { followsStages, nextStages } from "@/lib/catalog/order-stages";
@@ -142,6 +143,15 @@ export default async function OrdersPage({ searchParams }: { searchParams: Promi
                           <span className="flex min-w-0 flex-1 flex-col gap-1">
                             <span className="text-[15px] font-semibold break-words">{title}</span>
                             <span className="text-[13px] text-(--sp-muted)">{[order.customer?.name, t("studioPage.orderItems", { count }), paidLine].filter(Boolean).join(" · ")}</span>
+                            {/* 135.7 Paid in the customer's own currency: what the card was charged, at the day's rate. */}
+                            {order.customerCurrency?.charged ? (
+                              <span className="text-[13px] font-semibold text-(--sp-muted)" title={t("money.chargedHint")} data-order-charged="">
+                                {t("money.charged", {
+                                  amount: formatCents(order.customerCurrency.totalCents, order.customerCurrency.currency),
+                                  rate: rateText(order.customerCurrency.rate, order.currency, order.customerCurrency.currency),
+                                })}
+                              </span>
+                            ) : null}
                           </span>
                           <span className="flex shrink-0 flex-wrap items-center gap-1.5 max-sm:basis-full max-sm:ps-16">
                             <KitStatus tone={TONES[order.status]}>{status}</KitStatus>
