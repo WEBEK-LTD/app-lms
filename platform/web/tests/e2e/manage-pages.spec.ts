@@ -130,10 +130,12 @@ test("132.11 the product editor keeps what was typed, puts the photos in order a
   await expect(own.getByRole("status").filter({ hasText: "Saved" })).toContainText("Saved “Tulip Bouquet”.");
   const row = own.locator('[data-product="Tulip Bouquet"]');
   await expect(row).toContainText("₺350.00");
-  await expect(row).toContainText("13% off");
+  // 132.152 Its sale in its inspector, opened from its row; the inspector leads to its page.
+  await row.getByRole("button", { name: /^Tulip Bouquet/ }).click();
+  await expect(own.locator('[data-inspector-product="Tulip Bouquet"]')).toContainText("13% off");
 
   // The second photo made the cover.
-  await row.getByRole("link", { name: /Tulip Bouquet/ }).click();
+  await own.getByRole("link", { name: "Edit product" }).click();
   await expect(own.locator("[data-photo]")).toHaveCount(2);
   const before = await order(own, "[data-photo]", "data-photo");
   expect(before).toHaveLength(2);
@@ -151,7 +153,8 @@ test("132.11 the product editor keeps what was typed, puts the photos in order a
 
   await own.getByRole("button", { name: "Save product" }).click();
   await expect(own.getByRole("status").filter({ hasText: "Saved" })).toContainText("Saved “Tulip Bouquet”.");
-  await own.locator('[data-product="Tulip Bouquet"]').getByRole("link", { name: /Tulip Bouquet/ }).click();
+  await own.locator('[data-product="Tulip Bouquet"]').getByRole("button", { name: /^Tulip Bouquet/ }).click();
+  await own.getByRole("link", { name: "Edit product" }).click();
   await expect(own.locator("[data-photo]")).toHaveCount(2);
   expect(await order(own, "[data-photo]", "data-photo")).toEqual([before[1], before[0]]);
   await expect(own.locator(`[data-photo="${before[1]}"]`)).toContainText("Cover");
@@ -178,14 +181,14 @@ test("132.11 the list finds, filters, sorts and changes products in bulk", async
   }
   const rows = () => order(own, "[data-product]", "data-product");
   await expect.poll(rows).toEqual(["Olive Soap", "Ceramic Vase", "Linen Tote", "Tulip Bouquet"]);
+  // 132.131 The filters open from one button (132.152 the sort with them).
+  await own.getByRole("button", { name: /^Filters/ }).click();
   await own.getByLabel("Sort").selectOption({ label: "Price, low to high" });
   await expect.poll(rows).toEqual(["Linen Tote", "Ceramic Vase", "Olive Soap", "Tulip Bouquet"]);
   await expect(own).toHaveURL(/sort=priceLow/);
   await own.getByRole("searchbox", { name: "Search products" }).fill("vase");
   await expect.poll(rows).toEqual(["Ceramic Vase"]);
   await own.getByRole("button", { name: "Clear filters" }).first().click();
-  // 132.131 The filters open from one button.
-  await own.getByRole("button", { name: /^Filters/ }).click();
   await own.getByRole("button", { name: /^On sale/ }).click();
   await expect.poll(rows).toEqual(["Tulip Bouquet"]);
   await own.getByRole("button", { name: /^On sale/ }).click();
@@ -217,7 +220,9 @@ test("132.11 the list finds, filters, sorts and changes products in bulk", async
   await bar.getByLabel("Set category").selectOption({ label: "Gift boxes" });
   await bar.getByRole("button", { name: "Apply" }).click();
   await expect(own.getByText("Category set: 1.")).toBeVisible();
-  await expect(own.locator('[data-product="Linen Tote"]')).toContainText("Gift boxes");
+  // 132.152 Its category in its inspector.
+  await own.locator('[data-product="Linen Tote"]').getByRole("button", { name: /^Linen Tote/ }).click();
+  await expect(own.locator('[data-inspector-product="Linen Tote"]')).toContainText("Gift boxes");
   await own.getByLabel("Select Olive Soap").check();
   await bar.getByRole("button", { name: "Delete" }).click();
   await expect(bar).toContainText("Delete this product?");

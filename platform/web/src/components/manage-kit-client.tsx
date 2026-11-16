@@ -34,7 +34,9 @@ export interface SectionTab {
 /**
  * The tabs of a manager's own pages, under its header: the current one is
  * the tab whose address is the longest start of the page's (so a product's
- * editor keeps Products current). They scroll sideways on a phone.
+ * editor keeps Products current). 132.151 A segmented control (the
+ * console's look): the current page a raised segment, each with its count;
+ * it scrolls sideways on a phone.
  */
 export function SectionTabs({ label, items }: { label: string; items: SectionTab[] }) {
   const path = dashboardPath(usePathname() ?? "");
@@ -48,8 +50,8 @@ export function SectionTabs({ label, items }: { label: string; items: SectionTab
     list.current?.querySelector<HTMLElement>('[aria-current="page"]')?.scrollIntoView({ block: "nearest", inline: "nearest" });
   }, [current]);
   return (
-    <nav aria-label={label} data-section-tabs="" className="-mx-1 border-b border-line">
-      <ul ref={list} className="m-0 flex list-none gap-1 overflow-x-auto p-0 px-1 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
+    <nav aria-label={label} data-section-tabs="" className="max-w-full min-w-0">
+      <ul ref={list} className="m-0 flex w-fit max-w-full list-none gap-0.5 overflow-x-auto rounded-[13px] bg-(--sp-seg-track) p-1 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
         {items.map((item) => {
           const on = item.href.split("?")[0] === current;
           return (
@@ -57,13 +59,12 @@ export function SectionTabs({ label, items }: { label: string; items: SectionTab
               <Link
                 href={item.href}
                 aria-current={on ? "page" : undefined}
-                className={`relative -mb-px flex h-11 items-center gap-2 border-b-2 px-3 text-[15px] no-underline transition-colors ${
-                  on ? "border-ember font-extrabold text-midnight hover:text-midnight" : "border-transparent font-semibold text-muted hover:border-line-strong hover:text-midnight"
+                className={`flex h-[34px] items-center gap-[7px] rounded-[10px] px-3.5 text-[13.5px] font-semibold whitespace-nowrap no-underline transition-colors ${
+                  on ? "bg-(--sp-seg-on) text-(--sp-ink) shadow-(--sp-shadow) hover:text-(--sp-ink)" : "text-(--sp-muted) hover:text-(--sp-ink)"
                 }`}
               >
-                {item.icon ? <Icon name={item.icon} size={19} className={on ? "text-accent" : ""} /> : null}
                 {item.label}
-                {item.count !== undefined ? <span className={`rounded-full px-1.5 text-xs tabular-nums ${on ? "bg-peach text-accent" : "bg-sand text-muted"}`}>{item.count}</span> : null}
+                {item.count !== undefined ? <span className="font-sans text-[11px] font-semibold text-(--sp-faint) tabular-nums">{item.count}</span> : null}
               </Link>
             </li>
           );
@@ -468,7 +469,8 @@ export function useViewChoice(key: string, initial: "list" | "grid" = "list"): [
 
 export function ViewToggle({ view, onChange, words }: { view: "list" | "grid"; onChange: (v: "list" | "grid") => void; words: { label: string; list: string; grid: string } }) {
   return (
-    <div role="group" aria-label={words.label} className="inline-flex h-10 shrink-0 items-center rounded-[10px] border border-line bg-white p-0.5">
+    // 132.151 The console's look: two segments on a soft track, the chosen one raised.
+    <div role="group" aria-label={words.label} className="inline-flex shrink-0 items-center gap-0.5 rounded-[11px] bg-(--sp-seg-track) p-[3px]">
       {(["list", "grid"] as const).map((v) => (
         <button
           key={v}
@@ -476,7 +478,7 @@ export function ViewToggle({ view, onChange, words }: { view: "list" | "grid"; o
           aria-pressed={view === v}
           onClick={() => onChange(v)}
           title={words[v]}
-          className={`flex h-8 w-9 cursor-pointer items-center justify-center rounded-lg border-0 ${view === v ? "bg-midnight text-ivory" : "bg-transparent text-muted hover:text-midnight"}`}
+          className={`flex h-[34px] w-[34px] cursor-pointer items-center justify-center rounded-[9px] border-0 ${view === v ? "bg-(--sp-seg-on) text-(--sp-ink) shadow-(--sp-shadow)" : "bg-transparent text-(--sp-faint) hover:text-(--sp-ink)"}`}
         >
           <Icon name={v === "list" ? "view_agenda" : "grid_view"} size={18} />
           <span className="sr-only">{words[v]}</span>

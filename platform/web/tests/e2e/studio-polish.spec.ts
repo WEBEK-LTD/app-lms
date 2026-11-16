@@ -83,11 +83,13 @@ test("132.51 Studio's bar has the account menu: who is signed in, the language, 
   await expect(own).toHaveURL(/\/studio\/account$/);
   await expect(own.getByRole("heading", { level: 1, name: "Your account" })).toBeVisible();
   // Studio's frame: the way back to the project, the account and the team side by side, no dashboard menu.
+  // 132.150 The console's bar leads back to the project; its menu has the account's pages, Your account and Team among them.
   await expect(own.locator("[data-studio-back]")).toHaveAttribute("href", "/studio/project");
   await expect(own.locator("[data-studio-back]")).toContainText("Polish Store");
-  const tabs = own.getByRole("navigation", { name: "Your account and team" });
+  const tabs = own.getByRole("navigation", { name: "Project dashboard" });
   await expect(tabs.getByRole("link", { name: "Your account" })).toHaveAttribute("aria-current", "page");
-  await expect(own.getByRole("navigation", { name: "Dashboard" })).toHaveCount(0);
+  // The regular dashboard's own menu (132.150 not the console's "Project dashboard").
+  await expect(own.getByRole("navigation", { name: "Dashboard", exact: true })).toHaveCount(0);
   await tabs.getByRole("link", { name: "Team" }).click();
   await expect(own).toHaveURL(/\/studio\/team$/);
   await expect(own.getByRole("heading", { level: 1, name: "Team" })).toBeVisible();
@@ -242,20 +244,23 @@ test("132.69 an app with no plan says so the same way everywhere: No plan yet", 
 test("132.70 132.77 Studio follows the dashboard's dark mode; its bar stays dark, its links meet AA in light", async () => {
   const frameBackground = () => own.locator("[data-studio-frame]").first().evaluate((el) => getComputedStyle(el).backgroundColor);
   const barBackground = () => own.locator("header").first().evaluate((el) => getComputedStyle(el).backgroundColor);
+  // 132.150 A project's pages and the account's are in the console: its frame is midnight by day and darker by night, the page's canvas turns.
+  const canvasBackground = () => own.locator("main").first().evaluate((el) => getComputedStyle(el).backgroundColor);
   await own.goto("/studio/project");
-  expect(await frameBackground()).toBe("rgb(233, 229, 220)");
+  expect(await frameBackground()).toBe("rgb(14, 13, 36)");
+  expect(await canvasBackground()).toBe("rgb(255, 255, 255)");
   // A deeper accent on the board: 5.2:1.
   expect(await own.locator("[data-studio-frame]").first().evaluate((el) => getComputedStyle(el).getPropertyValue("--color-accent").trim())).toBe("#a8360a");
   await own.emulateMedia({ colorScheme: "dark" });
   await own.reload();
   // The frame's own tokens (132.4 `--sf-…`) on every Studio screen: the project, the editor, the account's pages and Studio's home.
-  expect(await frameBackground()).toBe("rgb(11, 10, 29)");
-  expect(await barBackground()).toBe("rgb(14, 13, 36)");
+  expect(await frameBackground()).toBe("rgb(6, 5, 20)");
+  expect(await canvasBackground()).toBe("rgb(18, 17, 41)");
   await own.goto("/studio/editor");
   expect(await frameBackground()).toBe("rgb(11, 10, 29)");
   expect(await barBackground()).toBe("rgb(14, 13, 36)");
   await own.goto("/studio/account");
-  expect(await frameBackground()).toBe("rgb(11, 10, 29)");
+  expect(await frameBackground()).toBe("rgb(6, 5, 20)");
   await own.goto("/studio");
   expect(await frameBackground()).toBe("rgb(11, 10, 29)");
   // The switch in the account menu: light again, whatever the system says.
@@ -263,7 +268,8 @@ test("132.70 132.77 Studio follows the dashboard's dark mode; its bar stays dark
   await own.locator("[data-studio-account] summary").click();
   await own.locator("[data-studio-account]").getByRole("button", { name: "Dark mode" }).click();
   await expect(own.locator("html")).toHaveAttribute("data-theme", "light");
-  expect(await frameBackground()).toBe("rgb(233, 229, 220)");
+  expect(await frameBackground()).toBe("rgb(14, 13, 36)");
+  expect(await canvasBackground()).toBe("rgb(255, 255, 255)");
   await own.evaluate(() => localStorage.removeItem("yallapp-theme"));
   await own.emulateMedia({ colorScheme: "light" });
 });

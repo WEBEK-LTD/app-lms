@@ -146,16 +146,21 @@ test("a client without a website sets up their shop", async ({ page }) => {
   await page.getByRole("button", { name: "Add product" }).click();
   await expect(page.getByRole("status").filter({ hasText: "Saved" })).toContainText("Saved “Tulip Bouquet”.");
   const row = page.locator('[data-product="Tulip Bouquet"]');
-  await expect(row.getByRole("link", { name: /Tulip Bouquet/ })).toContainText("Bouquets");
   await expect(row).toContainText("₺350.00");
   await expect(row).toContainText("₺400.00");
-  await expect(row).toContainText("5 in stock");
+  // 132.152 Its category and stock in its inspector, opened from its row.
+  await row.getByRole("button", { name: /^Tulip Bouquet/ }).click();
+  const inspector = page.locator('[data-inspector-product="Tulip Bouquet"]');
+  await expect(inspector).toContainText("Bouquets");
+  await expect(inspector).toContainText("5 in stock");
 
   await page.goto("/dashboard/setup?step=website");
   await expect(page.getByRole("radio", { name: /I don't have a website/ })).toBeChecked();
 
   await page.goto("/dashboard/catalog");
-  await page.getByRole("link", { name: /Tulip Bouquet/ }).click();
+  // 132.152 Its inspector leads to its page.
+  await page.locator('[data-product="Tulip Bouquet"]').getByRole("button", { name: /^Tulip Bouquet/ }).click();
+  await page.getByRole("link", { name: "Edit product" }).click();
   const share = (await page.getByRole("link", { name: /\/shop\// }).textContent())!;
   const [, appId] = /\/shop\/([0-9a-f-]{36})\/\d+$/.exec(share)!;
   api = `${E2E.baseURL}/api/app/${appId}`;
@@ -511,7 +516,7 @@ test("131 a gift add-on goes only with a product, and a flash sale on one produc
   await expect(page.getByLabel("Every product")).toBeChecked();
   await page.getByRole("button", { name: "Add product" }).click();
   await expect(page.getByRole("status").filter({ hasText: "Saved" })).toContainText("Saved “Greeting card”.");
-  await expect(page.getByRole("link", { name: /Greeting card/ })).toContainText("Add-on");
+  await expect(page.getByRole("button", { name: /^Greeting card/ })).toContainText("Add-on");
 
   // Never listed on its own; offered with the roses.
   const products = (await (await request.get(`${api}/store/products?per_page=50`)).json()) as { items: { id: number; name: string; sale: { flash_sale_id: number | null } | null }[] };

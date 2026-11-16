@@ -11,6 +11,7 @@ import '../../../core/providers.dart';
 import '../../../core/storage/local_settings.dart';
 import '../../../core/theme/app_icons.dart';
 import '../../../core/theme/palette.dart';
+import '../../../core/widgets/rates_attribution.dart';
 
 /// 135.5 The currencies prices can be shown in (`GET /currencies`), named
 /// in the app's language; reloaded when it changes.
@@ -107,9 +108,18 @@ class _CurrencyPickerSheetState extends ConsumerState<CurrencyPickerSheet> {
         ),
         Padding(
           padding: const EdgeInsets.fromLTRB(20, 0, 20, 8),
-          child: Text(
-            l10n.currencyPickerHint,
-            style: TextStyle(fontSize: 13, color: p.textSecondary),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              Text(
+                l10n.currencyPickerHint,
+                style: TextStyle(fontSize: 13, color: p.textSecondary),
+              ),
+              // 135.10 The rates' source, as its terms ask.
+              const RatesAttribution(
+                alignment: AlignmentDirectional.centerStart,
+              ),
+            ],
           ),
         ),
         Padding(

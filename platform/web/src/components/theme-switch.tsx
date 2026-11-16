@@ -46,7 +46,8 @@ export function useSiteDark(): boolean {
   return useSyncExternalStore(subscribe, isDark, () => false);
 }
 
-export function ThemeSwitch({ label, className = "" }: { label: string; className?: string }) {
+/** 132.150 `look="bare"`: only `className`'s look (Studio's console draws its own). */
+export function ThemeSwitch({ label, className = "", look = "box" }: { label: string; className?: string; look?: "box" | "bare" }) {
   // On the server (and until the page is live) it shows as off: the script already painted the right theme.
   const dark = useSiteDark();
   const toggle = () => {
@@ -67,9 +68,9 @@ export function ThemeSwitch({ label, className = "" }: { label: string; classNam
       title={label}
       onClick={toggle}
       data-theme-switch=""
-      className={`flex h-10 w-10 flex-none cursor-pointer items-center justify-center rounded-[10px] border border-line-button bg-white text-midnight hover:border-midnight ${className}`}
+      className={look === "bare" ? className : `flex h-10 w-10 flex-none cursor-pointer items-center justify-center rounded-[10px] border border-line-button bg-white text-midnight hover:border-midnight ${className}`}
     >
-      <Icon name="dark_mode" size={22} filled={dark} />
+      <Icon name="dark_mode" size={look === "bare" ? 20 : 22} filled={dark} />
     </button>
   );
 }

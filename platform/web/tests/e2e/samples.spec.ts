@@ -72,7 +72,7 @@ test("a Studio shop from the Shop template starts with sample products, each mar
   await expect(own).toHaveURL(/\/studio\/project\/catalog$/);
   await expect(banner(own)).toContainText("You have 8 sample entries.");
   await expect(banner(own).getByRole("button", { name: "Remove all samples" })).toBeVisible();
-  const list = own.getByRole("link", { name: /Blush Rose Bouquet/ });
+  const list = own.getByRole("button", { name: /^Blush Rose Bouquet/ });
   await expect(list).toContainText("Sample");
   await expect(own.getByText("Sample", { exact: true })).toHaveCount(8);
   await shot(own, "en-list-banner");
@@ -89,15 +89,17 @@ test("the first own product asks whether to remove the samples; no keeps them", 
   await shot(own, "en-ask");
   await banner(own).getByRole("link", { name: "No, keep them for now" }).click();
   await expect(banner(own)).toContainText("You have 8 sample entries.");
-  await expect(own.getByRole("link", { name: /Our own bouquet/ })).not.toContainText("Sample");
+  await expect(own.getByRole("button", { name: /^Our own bouquet/ })).not.toContainText("Sample");
 });
 
 test("a sample saved by the owner is theirs: its badge goes", async () => {
-  await own.getByRole("link", { name: /Spring Tulip Bunch/ }).click();
+  // 132.152 Its inspector leads to its page.
+  await own.getByRole("button", { name: /^Spring Tulip Bunch/ }).click();
+  await own.getByRole("link", { name: "Edit product" }).click();
   await own.getByLabel("Name", { exact: true }).fill("Our spring tulips");
   await own.getByRole("button", { name: "Save product" }).click();
   await expect(own.getByRole("status").filter({ hasText: "Saved" })).toContainText("Saved “Our spring tulips”.");
-  await expect(own.getByRole("link", { name: /Our spring tulips/ })).not.toContainText("Sample");
+  await expect(own.getByRole("button", { name: /^Our spring tulips/ })).not.toContainText("Sample");
   await expect(banner(own)).toContainText("You have 7 sample entries.");
 });
 
@@ -134,9 +136,9 @@ test("Remove all samples removes them, keeps the owner's, and the guard goes", a
   await banner(own).getByRole("button", { name: "Remove all samples" }).click();
   await expect(own.getByRole("status").filter({ hasText: "Removed 7 sample entries and their pictures." })).toBeVisible();
   await expect(own.getByText("You have", { exact: false })).toHaveCount(0);
-  await expect(own.getByRole("link", { name: /Our own bouquet/ })).toBeVisible();
-  await expect(own.getByRole("link", { name: /Our spring tulips/ })).toBeVisible();
-  await expect(own.getByRole("link", { name: /Blush Rose Bouquet/ })).toHaveCount(0);
+  await expect(own.getByRole("button", { name: /^Our own bouquet/ })).toBeVisible();
+  await expect(own.getByRole("button", { name: /^Our spring tulips/ })).toBeVisible();
+  await expect(own.getByRole("button", { name: /^Blush Rose Bouquet/ })).toHaveCount(0);
   await own.goto("/dashboard/builds");
   await expect(guard(own)).toHaveCount(0);
 });

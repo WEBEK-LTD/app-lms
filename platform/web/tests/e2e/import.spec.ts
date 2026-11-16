@@ -86,7 +86,8 @@ test.afterAll(async () => {
 
 test("a CSV is checked first: the columns found, the first rows and what's wrong", async () => {
   await own.goto("/dashboard/catalog");
-  // 132.10 The list's header has Import beside Add product.
+  // 132.10 The list's header has Import beside Add product: 132.152 in its "⋯" menu.
+  await own.getByRole("button", { name: "More options" }).click();
   await own.getByRole("link", { name: "Import", exact: true }).click();
   await expect(own).toHaveURL(/\/dashboard\/catalog\/import$/);
   await expect(own.getByRole("heading", { level: 1, name: "Import products" })).toBeVisible();

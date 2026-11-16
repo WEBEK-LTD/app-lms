@@ -2,7 +2,7 @@ import Link from "next/link";
 import { removeAllSamplesAction, removeSamplesAction } from "@/app/actions/samples";
 import { SubmitButton } from "@/components/form";
 import { Badge, Notice, btn } from "@/components/ui";
-import { KitCallout } from "@/components/studio-page";
+import { KitDemoLine } from "@/components/studio-page";
 import { getStore } from "@/lib/data";
 import { getClientContext } from "@/lib/auth/session";
 import { DEMO_BRANDS } from "@/lib/demo/content";
@@ -63,12 +63,24 @@ export async function SampleEntries({ app, list, query }: { app: App; list: Samp
     );
   }
   return (
-    <div data-samples={list} className="flex flex-col gap-3">
+    <div data-samples={list} className="flex max-w-full flex-col gap-3">
       {done}
-      {/* 132.130 A quiet strip (the premium kit): what they are, and removing them at its end. */}
-      <KitCallout icon="info" title={t("samples.banner", { count: samples })} action={form(t("samples.removeAll"), "secondary")}>
-        {t("samples.bannerText")}
-      </KitCallout>
+      {/* 132.151 A slim peach line beside the page's tabs: how many, removing them, what they are behind "More about this", and a close. */}
+      <KitDemoLine
+        id={list}
+        title={t("samples.banner", { count: samples })}
+        text={t("samples.bannerText")}
+        learnLabel={t("studioPage.helpSection")}
+        closeLabel={t("common.close")}
+        action={
+          <form action={removeSamplesAction} className="contents">
+            <input type="hidden" name="list" value={list} />
+            <button type="submit" className="cursor-pointer border-0 bg-transparent p-0 text-[13px] font-bold text-inherit underline underline-offset-[3px]">
+              {t("samples.removeAll")}
+            </button>
+          </form>
+        }
+      />
     </div>
   );
 }

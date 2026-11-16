@@ -16,6 +16,7 @@ import { PROVIDER_NAME } from "@/lib/payments/provider";
 import { demoPayAction } from "@/app/actions/pay";
 import { withDemoChecked } from "@/lib/demo/apps";
 import { Icon } from "@/components/icon";
+import { RatesAttribution } from "@/components/rates-attribution";
 import { PayForm } from "./form";
 import { PayShell, textOn } from "./shell";
 import { holdEnded } from "@/lib/events/holds";
@@ -161,6 +162,12 @@ export default async function PayPage({
             {cc.charged
               ? `Charged in ${cc.currency}: ${formatCents(cc.totalCents, cc.currency)} (${rateText(cc.rate, order.currency, cc.currency)}, rates of ${cc.rateDate})`
               : `≈ ${formatCents(cc.totalCents, cc.currency)} · you pay ${money(order.totalCents)}`}
+          </p>
+        ) : null}
+        {/* 135.10 The rates' source, as its terms ask where the rates are used; its site opens in a new tab. */}
+        {cc ? (
+          <p className="m-0 text-right" data-pay-rates-source="">
+            <RatesAttribution />
           </p>
         ) : null}
         {/* 91.5 A tax inside the prices. */}

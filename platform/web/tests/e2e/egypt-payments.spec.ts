@@ -206,7 +206,9 @@ test("a shop with its own Kashier keys takes an order", async ({ page, request }
   await page.locator('input[name="images"]').setInputFiles({ name: "lotus.png", mimeType: "image/png", buffer: solidPng(64, 64, [240, 170, 200]) });
   await page.getByRole("button", { name: "Add product" }).click();
   await expect(page.getByRole("status").filter({ hasText: "Saved" })).toContainText("Saved “Lotus Bouquet”.");
-  await page.getByRole("link", { name: /Lotus Bouquet/ }).click();
+  // 132.152 Its page, from its inspector.
+  await page.getByRole("button", { name: /^Lotus Bouquet/ }).click();
+  await page.getByRole("link", { name: "Edit product" }).click();
   const link = (await page.getByRole("link", { name: /\/shop\// }).textContent())!;
   const api = `${E2E.baseURL}/api/app/${/\/shop\/([0-9a-f-]{36})\//.exec(link)![1]}`;
 

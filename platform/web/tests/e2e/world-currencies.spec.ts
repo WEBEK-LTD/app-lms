@@ -133,8 +133,9 @@ test("135.1–135.3 a Studio store sells in Kuwaiti dinars, then in yen, with th
   await expect(own.getByRole("status").filter({ hasText: "Saved" })).toContainText("Saved “Date maamoul box”.");
   await own.goto("/studio/project/catalog");
   await expect(own.getByText("KWD 1.250").first()).toBeVisible();
-  // Its own page: the price as typed, and the shop's address in the app.
-  await own.getByRole("link", { name: /Date maamoul box/ }).first().click();
+  // Its own page: the price as typed, and the shop's address in the app (132.152 from its inspector).
+  await own.getByRole("button", { name: /^Date maamoul box/ }).first().click();
+  await own.getByRole("link", { name: "Edit product" }).click();
   await expect(own.getByLabel("Price (KWD)", { exact: true })).toHaveValue("1.250");
   const link = (await own.getByRole("link", { name: /\/shop\// }).textContent())!;
   api = `${E2E.baseURL}/api/app/${/\/shop\/([0-9a-f-]{36})\//.exec(link)![1]}`;
@@ -235,6 +236,10 @@ test("135.5–135.7 a customer in another currency: shown in it, charged in poun
   const customer = await browser.newPage({ extraHTTPHeaders });
   await customer.goto(dollars.link.url);
   await expect(customer.locator("[data-pay-customer-currency]")).toHaveText("≈ $12.37 · you pay E£600.00");
+  // 135.10 The rates' source under it, as its terms ask; its site opens in a new tab.
+  const source = customer.locator("[data-pay-rates-source]").getByRole("link", { name: "Rates By Exchange Rate API" });
+  await expect(source).toHaveAttribute("href", "https://www.exchangerate-api.com");
+  await expect(source).toHaveAttribute("target", "_blank");
   await pay(customer, dollars.link.url, /^Pay E£600\.00$/);
   const egp = [...stripe.sessions!.values()].slice(-1)[0] as unknown as { currency: string; amount_total: number };
   expect(egp).toMatchObject({ currency: "egp", amount_total: 60000 });

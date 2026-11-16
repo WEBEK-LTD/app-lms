@@ -108,7 +108,9 @@ test("a shop takes a bank transfer, marks it paid, and cancels an unpaid order",
   await page.locator('input[name="images"]').setInputFiles({ name: "atlas.png", mimeType: "image/png", buffer: solidPng(64, 64, [30, 80, 140]) });
   await page.getByRole("button", { name: "Add product" }).click();
   await expect(page.getByRole("status").filter({ hasText: "Saved" })).toContainText("Saved “Atlas of Harbours”.");
-  await page.getByRole("link", { name: /Atlas of Harbours/ }).click();
+  // 132.152 Its page, from its inspector.
+  await page.getByRole("button", { name: /^Atlas of Harbours/ }).click();
+  await page.getByRole("link", { name: "Edit product" }).click();
   const link = (await page.getByRole("link", { name: /\/shop\// }).textContent())!;
   api = `${E2E.baseURL}/api/app/${/\/shop\/([0-9a-f-]{36})\//.exec(link)![1]}`;
 

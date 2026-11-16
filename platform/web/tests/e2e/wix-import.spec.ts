@@ -94,6 +94,8 @@ test.afterAll(async () => {
 
 test("the import page reads a Wix export as Wix's file: its products, variations and pictures, and what isn't kept", async () => {
   await own.goto("/studio/project/catalog");
+  // 132.152 Import is in the page's "⋯" menu.
+  await own.getByRole("button", { name: "More options" }).click();
   await own.getByRole("link", { name: "Import", exact: true }).click();
   await expect(own).toHaveURL(/\/studio\/project\/catalog\/import$/);
   await expect(own.getByRole("heading", { level: 1, name: "Import products" })).toBeVisible();
@@ -131,7 +133,9 @@ test("the products come in with their variations, options, categories and pictur
   await expect(own).toHaveURL(/\/studio\/project\/catalog$/);
   for (const name of ["Ceramic Vase", "Tulip Bunch", "Rose Bouquet", "Chocolate Box"]) await expect(own.locator(`[data-product="${name}"]`)).toHaveCount(1);
 
-  await own.locator('[data-product="Rose Bouquet"]').getByRole("link", { name: /Rose Bouquet/ }).first().click();
+  // 132.152 Its inspector leads to its page.
+  await own.locator('[data-product="Rose Bouquet"]').getByRole("button", { name: /^Rose Bouquet/ }).first().click();
+  await own.getByRole("link", { name: "Edit product" }).click();
   await expect(own.getByRole("heading", { level: 1, name: "Rose Bouquet" })).toBeVisible();
   await expect(own.getByLabel("Variation 1 name")).toHaveValue("Size");
   await expect(own.getByLabel("Variation 1 values, separated by commas")).toHaveValue("Small, Medium, Large");
