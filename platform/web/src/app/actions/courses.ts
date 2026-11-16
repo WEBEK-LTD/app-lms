@@ -30,6 +30,7 @@ import { deleteCohort, deleteItem, moveItem, moveTopic, renameTopic, saveAssignm
 import { findAssignment } from "@/lib/courses/learning";
 import { deletePath, orderedChoice, parsePrerequisites, savePath } from "@/lib/courses/paths";
 import { parseGrade, parsePhones } from "@/lib/courses/grading";
+import { renameCourseCategory, reorderCourseCategories, reorderItems, reorderTopics } from "@/lib/courses/reorder";
 import { notifyGraded } from "@/lib/hosted/auto-notifications";
 
 const COURSE_IMAGE_MAX_BYTES = 2 * 1024 * 1024;
@@ -148,6 +149,23 @@ export async function deleteCourseCategoryAction(formData: FormData): Promise<vo
   });
 }
 
+/** 132.15 A course category renamed where it is. */
+export async function renameCourseCategoryAction(_: FormState, formData: FormData): Promise<FormState> {
+  const { app } = await requireCoursesApp();
+  const name = String(formData.get("name") ?? "").trim();
+  if (name.length < 2 || name.length > 60) return { errors: { name: "Enter a name of up to 60 characters." }, values: { name } };
+  const renamed = renameCourseCategory(courseSetup(app), Number(formData.get("id")), name);
+  if (renamed) await saveSetup(app, renamed);
+  return { ok: true, message: "Saved." };
+}
+
+/** 132.15 The course categories in the order they were dragged to. */
+export async function reorderCourseCategoriesAction(ids: number[]): Promise<void> {
+  const { app } = await requireCoursesApp();
+  const moved = reorderCourseCategories(courseSetup(app), (Array.isArray(ids) ? ids : []).map(Number));
+  if (moved) await saveSetup(app, moved);
+}
+
 export async function saveCourseCurrencyAction(_: FormState, formData: FormData): Promise<FormState> {
   const { app } = await requireCoursesApp();
   const currency = String(formData.get("currency") ?? "") as CatalogCurrency;
@@ -206,6 +224,7 @@ export async function deleteLessonAction(formData: FormData): Promise<void> {
     app,
     withCourse(courseSetup(app), courseId, (c) => ({ ...c, topics: c.topics.map((t) => ({ ...t, lessons: t.lessons.filter((l) => l.id !== lessonId) })) })),
   );
+  thenTo(formData);
 }
 
 /** 90.1 A quiz at the end of a section. */
@@ -229,6 +248,7 @@ export async function saveQuizAction(_: FormState, formData: FormData): Promise<
 export async function deleteQuizAction(formData: FormData): Promise<void> {
   const { app } = await requireCoursesApp();
   await saveSetup(app, deleteQuiz(courseSetup(app), Number(formData.get("courseId")), Number(formData.get("quizId"))));
+  thenTo(formData);
 }
 
 /** Our client adds a student who paid another way, by the phone number they sign in with. */
@@ -299,10 +319,31 @@ export async function moveItemAction(formData: FormData): Promise<void> {
   if (moved) await saveSetup(app, moved);
 }
 
+/** 132.14 The course's sections in the order they were dragged to. */
+export async function reorderTopicsAction(courseId: number, ids: number[]): Promise<void> {
+  const { app } = await requireCoursesApp();
+  const moved = reorderTopics(courseSetup(app), Number(courseId), (Array.isArray(ids) ? ids : []).map(Number));
+  if (moved) await saveSetup(app, moved);
+}
+
+/** 132.14 A section's lessons, quizzes, assignments and live classes in the order they were dragged to. */
+export async function reorderItemsAction(courseId: number, topicId: number, ids: number[]): Promise<void> {
+  const { app } = await requireCoursesApp();
+  const moved = reorderItems(courseSetup(app), Number(courseId), Number(topicId), (Array.isArray(ids) ? ids : []).map(Number));
+  if (moved) await saveSetup(app, moved);
+}
+
+/** 132.14 Where a delete on a lesson's own page goes next: the course's curriculum (only a course's own pages). */
+function thenTo(formData: FormData): void {
+  const next = String(formData.get("next") ?? "");
+  if (/^\/dashboard\/courses\/\d+(\?tab=curriculum)?$/.test(next)) redirect(next);
+}
+
 /** An assignment or a live class. */
 export async function deleteItemAction(formData: FormData): Promise<void> {
   const { app } = await requireCoursesApp();
   await saveSetup(app, deleteItem(courseSetup(app), Number(formData.get("courseId")), Number(formData.get("itemId"))));
+  thenTo(formData);
 }
 
 const isMedia = (url: string) => parseMediaLink(url, appUrl()) !== null;
