@@ -17,6 +17,7 @@ import { dashboardText } from "@/lib/dashboard-lang";
 import { appPlan, effectivePlans } from "@/lib/entitlements";
 import { plansIn } from "@/lib/marketing-lang";
 import { hasFeature, lowestPlanWith } from "@/lib/plans";
+import { isStudioProject } from "@/lib/studio/section";
 import { LISTED_SOURCES, needsYallappSignIn, planHasStoreBilling, storeBillingSource } from "@/lib/store-billing/access";
 import { billingBaseUrl } from "@/lib/store-billing/config";
 import { ITEM_CURRENCIES, schoolCourses, type PlatformCourse } from "@/lib/store-billing/items";
@@ -64,7 +65,8 @@ export default async function InAppPurchasesPage() {
   }
   if (!planHasStoreBilling(plan)) {
     const plans = plansIn(lang, await effectivePlans(store));
-    const to = lowestPlanWith(plans, (p) => hasFeature(p, "store_billing"), plan?.id ?? null);
+    // 132.59 A Studio project is offered Studio's plans, never the regular ones.
+    const to = lowestPlanWith(plans, (p) => hasFeature(p, "store_billing"), plan?.id ?? null, isStudioProject(app) ? "studio" : undefined);
     return (
       <div className="flex flex-col gap-6">
         {header}
