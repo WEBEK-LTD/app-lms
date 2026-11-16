@@ -1342,15 +1342,23 @@ class Settings_Page {
 	 */
 	private function notifications_card( $type ) {
 		$this->open( 'notifications', __( 'Notifications (Firebase)', 'yallapp' ) );
-		echo '<div class="ya-row"><span class="ya-label">' . esc_html__( 'Firebase service account file', 'yallapp' ) . '</span><div>';
-		$connected = '' !== (string) $this->plugin->settings()->get( 'firebase_service_account' );
-		echo '<p class="ya-state">' . $this->pill( $connected ? __( 'Connected', 'yallapp' ) : __( 'Not connected', 'yallapp' ), $connected ) . '</p>'; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Escaped in pill().
-		if ( $connected ) {
-			echo '<label class="ya-check"><input type="checkbox" name="yallapp_firebase_remove" value="1"> <span>' . esc_html__( 'Remove the saved file', 'yallapp' ) . '</span></label>';
+		if ( $this->plugin->push()->relayed() ) {
+			// 136.41 "Yallapp sets up notifications": no service account to upload.
+			echo '<div class="ya-row ya-push-relay"><span class="ya-label">' . esc_html__( 'Firebase', 'yallapp' ) . '</span><div>';
+			echo '<p class="ya-state">' . $this->pill( __( 'Notifications are sent by Yallapp', 'yallapp' ), true ) . '</p>'; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Escaped in pill().
+			echo '<p class="ya-help">' . esc_html__( 'Your app uses Yallapp\'s Firebase, so this site needs no Firebase file. Each notification passes through Yallapp only to be delivered, and Yallapp keeps nothing of it. To use your own Firebase, choose it in your Yallapp dashboard.', 'yallapp' ) . '</p>';
+			echo '</div></div>';
+		} else {
+			echo '<div class="ya-row"><span class="ya-label">' . esc_html__( 'Firebase service account file', 'yallapp' ) . '</span><div>';
+			$connected = '' !== (string) $this->plugin->settings()->get( 'firebase_service_account' );
+			echo '<p class="ya-state">' . $this->pill( $connected ? __( 'Connected', 'yallapp' ) : __( 'Not connected', 'yallapp' ), $connected ) . '</p>'; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Escaped in pill().
+			if ( $connected ) {
+				echo '<label class="ya-check"><input type="checkbox" name="yallapp_firebase_remove" value="1"> <span>' . esc_html__( 'Remove the saved file', 'yallapp' ) . '</span></label>';
+			}
+			echo '<input type="file" name="yallapp_firebase" accept="application/json,.json">';
+			echo '<p class="ya-help">' . esc_html__( 'Firebase > Project settings > Service accounts > Generate new private key. The file is stored encrypted.', 'yallapp' ) . '</p>';
+			echo '</div></div>';
 		}
-		echo '<input type="file" name="yallapp_firebase" accept="application/json,.json">';
-		echo '<p class="ya-help">' . esc_html__( 'Firebase > Project settings > Service accounts > Generate new private key. The file is stored encrypted.', 'yallapp' ) . '</p>';
-		echo '</div></div>';
 		$this->huawei_push_fields();
 		$toggles = self::automatic_notifications_for( $type );
 		if ( $toggles ) {

@@ -8,6 +8,15 @@ Last updated: 16 November 2026.
 
 ## Current release
 
+Roadmap 136.40–136.44 (the WordPress relay of "Yallapp sets up
+notifications", Phase 3) is on its branch, waiting for Phase 1: the
+platform's `POST /api/v1/push/send` sends a site's batch of Firebase
+tokens through the app's push path and answers each token sent, invalid
+or retry, within limits per license; `LicenseStatus.push` says `own` (the
+default) or `yallapp`; plugin 0.4.48 relays on `yallapp` (retries from
+cron, "Notifications are sent by Yallapp" in its settings). Until Phase 1's
+`apps.push_setup` is merged every app reads `own`, so no site relays.
+
 Roadmap 134 (pay inside the app for connected stores, Demo) is built for
 WooCommerce: Payments › How customers pay offers Yallapp's checkout (its
 own products), the store's checkout (the default) and paying inside the

@@ -14,6 +14,7 @@ import { getStore } from "@/lib/data";
 import { encryptionKey } from "@/lib/env";
 import { NOTIFICATION_BODY_MAX, NOTIFICATION_TITLE_MAX, serviceAccountOf } from "@/lib/hosted/notify";
 import { PLAN_ENDED_MESSAGE } from "@/lib/hosted/send-notification";
+import { pushSetupOf } from "@/lib/license/push-setup";
 import { appIsActive } from "@/lib/license/status";
 import { isStudioProject } from "@/lib/studio/section";
 import { AutoNotificationsForm, EditScheduledForm, ServiceAccountForm, SendNotificationForm } from "./forms";
@@ -46,6 +47,12 @@ export default async function NotificationsPage() {
             </>
           }
         />
+        {/* 136.44 Yallapp's Firebase: the site relays each push through the platform. */}
+        {app?.backend === "wordpress" && pushSetupOf(app) === "yallapp" ? (
+          <Notice tone="info" icon="notifications" role="status">
+            <strong>{t("notify.relayTitle")}</strong> {t("notify.relayText")}
+          </Notice>
+        ) : null}
         {/* 85.4 Campaigns go through the WordPress site. */}
         {app?.backend === "wordpress" ? (
           <LinkCards label={t("notify.title")} items={[{ href: "/dashboard/notifications/campaigns", icon: "campaign", label: t("campaigns.open"), hint: t("campaigns.wordpressAudience") }]} />

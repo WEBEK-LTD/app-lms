@@ -49,6 +49,14 @@ info:
       No student data ever reaches the platform, except for sign-in codes sent
       by Yallapp (tag Sign-in codes): the phone number and the code pass
       through to be delivered, and neither is stored.
+    - 136.43 And except for push notifications sent by Yallapp (tag Push), when
+      the app uses "Yallapp sets up notifications" (`LicenseStatus.push:
+      yallapp`): each notification's title, text, picture address and data,
+      and the push tokens of the phones it goes to, pass through Yallapp only
+      to be delivered through Yallapp's Firebase. Neither the tokens nor the
+      texts are stored or logged; only counts are kept. With the app's own
+      Firebase (`push: own`, the default) the site sends its pushes itself, as
+      before, and nothing passes through Yallapp.
   license:
     name: Proprietary, Yallapp
     url: https://yallapp.com.tr
@@ -101,6 +109,20 @@ tags:
       the number nor the code; it counts requests per license and per number
       (as a one-way hash) to stop abuse, and keeps a daily count of codes sent
       per license for the Yallapp team.
+  - name: Push
+    description: |
+      Roadmap 136.40. "Yallapp sets up notifications" for WordPress apps:
+      Yallapp registers the app in Yallapp's own Firebase, so the client
+      creates no Firebase project and uploads no service account. Such a
+      site has no key to send with, so the plugin hands each batch of push
+      tokens to the platform (`POST /push/send`) with its license key, and
+      the platform delivers them through Yallapp's Firebase. The plugin
+      relays only while the license status says `push: yallapp`; with
+      `push: own` (the default) it sends with the site's own Firebase as
+      before. Huawei Push Kit tokens are always sent by the site itself.
+      Tokens and texts pass through and are never stored; only counts are
+      kept (requests and tokens per license for the limits, and the pushes
+      delivered per license and day).
   - name: Media
     description: |
       Roadmap 51. Videos, pictures and PDFs the app's owner uploaded to the
@@ -812,6 +834,68 @@ paths:
             application/json:
               schema: { $ref: '#/components/schemas/Error' }
 
+  /push/send:
+    post:
+      tags: [Push]
+      operationId: sendPush
+      summary: Send a batch of push notifications through Yallapp
+      description: |
+        Roadmap 136.40. Sends one notification to each of up to 200 Firebase
+        push tokens of the license's app, through Yallapp's Firebase (the
+        app's push path on the platform, as for hosted apps). The license
+        must be active on this site, the app's plan must have `push`, and the
+        app must be in "Yallapp sets up notifications" mode
+        (`LicenseStatus.push: yallapp`); otherwise 409 `push_own_firebase`,
+        and the plugin sends with its own Firebase after its next license
+        check.
+
+        Each token gets its own answer in `results`, in the order sent
+        (repeats once): `sent` (Firebase took it), `invalid` (the token no
+        longer exists: the plugin forgets it, as it does with its own
+        Firebase) or `retry` (Firebase or the network failed for now, or the
+        request ran out of time: the plugin sends it again later). Tokens are
+        sent 20 at a time, and none starts after 7 seconds, so the answer
+        comes within about 10 seconds; the plugin waits up to 25.
+
+        Limits: 120 requests a minute per IP; per license 60 requests a
+        minute and 20,000 tokens an hour. A request over a limit gets 429
+        with `retry_after_seconds` and a `Retry-After` header, and nothing of
+        it is sent. Tokens, titles, texts and data are never stored or
+        logged; only the counts are kept.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/PushRelayRequest' }
+      responses:
+        '200':
+          description: What became of each token.
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/PushRelayResult' }
+        '400':
+          description: The request is invalid (`invalid_request`), such as more than 200 tokens, a provider other than `fcm`, or a title, text or data over its limit.
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Error' }
+        '403':
+          description: The license isn't active, or not on this site (`license_inactive`), or the app's plan has no push notifications (`push_not_available`).
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Error' }
+        '404': { $ref: '#/components/responses/NotFound' }
+        '409':
+          description: The app sends notifications with its own Firebase from the site (`push_own_firebase`); the plugin checks its license again.
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Error' }
+        '429': { $ref: '#/components/responses/TooManyRequests' }
+        '503':
+          description: Yallapp is still setting up the app in its Firebase (`push_not_ready`), with `retry_after_seconds`; the plugin sends the batch again later.
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Error' }
+
   /preview/{token}/config:
     servers:
       - url: https://yallapp.com.tr/api
@@ -1111,7 +1195,7 @@ components:
       properties:
         code:
           type: string
-          examples: [invalid_request, invalid_key, not_found, license_not_found, license_in_use, license_not_for_site, chat_not_available, rate_limited, invalid_token, preview_expired, license_inactive, invalid_phone, provider_error]
+          examples: [invalid_request, invalid_key, not_found, license_not_found, license_in_use, license_not_for_site, chat_not_available, rate_limited, invalid_token, preview_expired, license_inactive, invalid_phone, provider_error, push_not_available, push_own_firebase, push_not_ready]
         message: { type: string }
         retry_after_seconds: { type: integer, minimum: 1, description: 'With `rate_limited`: seconds until another request can succeed.' }
 
@@ -1264,6 +1348,63 @@ components:
               default: play
               description: "`play`: a link for the app's player (4 hours). `download`: a link to save the file for offline viewing (15 minutes, as an attachment)."
 
+    PushRelayRequest:
+      allOf:
+        - $ref: '#/components/schemas/SiteInfo'
+        - type: object
+          required: [tokens, notification]
+          properties:
+            tokens:
+              type: array
+              minItems: 1
+              maxItems: 200
+              description: The phones to send to. Only Firebase tokens; the site sends Huawei Push Kit tokens itself.
+              items:
+                type: object
+                required: [token]
+                properties:
+                  token: { type: string, maxLength: 4096, description: The device's Firebase Cloud Messaging token. }
+                  provider: { type: string, enum: [fcm], default: fcm }
+            notification:
+              type: object
+              description: What the phone shows. A title or a body is needed.
+              properties:
+                title: { type: string, maxLength: 200, example: New lesson in Arabic for beginners }
+                body: { type: string, maxLength: 1000, example: Lesson 4 - Greetings }
+                image: { type: [string, 'null'], format: uri, maxLength: 500, description: 'An https picture shown with it (Android; iPhones show it in the app''s inbox).' }
+            data:
+              type: object
+              maxProperties: 20
+              description: |
+                The data the app reads when the notification is opened (`type`,
+                `course_id`, `link` …), as the plugin sends with its own
+                Firebase. String values; keys of letters, digits and
+                underscores (up to 40), not Firebase's own (`from`,
+                `notification`, `message_type`, `collapse_key`, or starting
+                with `google` or `gcm`); at most 3000 bytes in all.
+              additionalProperties: { type: string }
+              example: { type: new_lesson, course_id: '12', lesson_id: '345', link: 'yallapp://course/12' }
+
+    PushRelayResult:
+      type: object
+      required: [results, sent, invalid, retry]
+      properties:
+        results:
+          type: array
+          description: One answer per token sent, in the order sent.
+          items:
+            type: object
+            required: [token, status]
+            properties:
+              token: { type: string }
+              status:
+                type: string
+                enum: [sent, invalid, retry]
+                description: '`sent`: Firebase took it. `invalid`: the token no longer exists; forget it. `retry`: not sent this time; send it again later.'
+        sent: { type: integer, minimum: 0 }
+        invalid: { type: integer, minimum: 0 }
+        retry: { type: integer, minimum: 0 }
+
     MediaLinks:
       type: object
       required: [items, missing]
@@ -1389,6 +1530,17 @@ components:
             addons: { type: [object, 'null'], additionalProperties: { type: string, maxLength: 40 } }
             gift_card: { type: [object, 'null'], additionalProperties: { type: string, maxLength: 40 } }
             delivery: { type: [object, 'null'], additionalProperties: { type: string, maxLength: 40 } }
+        push:
+          type: string
+          enum: [own, yallapp]
+          default: own
+          description: |
+            136.41 How the app's push notifications are sent. `own` (the
+            default, and what older platforms mean by sending nothing): the
+            site sends them with the Firebase service account saved in the
+            plugin, as before. `yallapp`: the app uses "Yallapp sets up
+            notifications", so the plugin sends each batch through
+            `POST /push/send` and needs no service account.
         store_checkout:
           type: [object, 'null']
           description: |

@@ -5,6 +5,9 @@ export const en = {
   title: "App notifications",
   fromSite: "Your app gets its notifications from your website: send them from the Yallapp plugin in WordPress.",
   backToSetup: "Back to app setup",
+  // 136.44 A WordPress app in "Yallapp sets up notifications" mode: the site relays its pushes (plugin 0.4.48).
+  relayTitle: "Notifications are sent by Yallapp",
+  relayText: "Your WordPress site needs no Firebase file or key: the Yallapp plugin hands each notification to Yallapp, which delivers it through Yallapp's Firebase and keeps nothing. This needs Yallapp plugin 0.4.48 or later on your site.",
   intro: "{count, plural, one {Message everyone who uses your app. {count} customer has signed in so far.} other {Message everyone who uses your app. {count} customers have signed in so far.}}",
   newNotification: "New notification",
   push: "Push",
@@ -83,6 +86,8 @@ export const ar: Messages = {
   title: "إشعارات التطبيق",
   fromSite: "يحصل تطبيقك على إشعاراته من موقعك الإلكتروني: أرسلها من إضافة Yallapp في WordPress.",
   backToSetup: "العودة إلى إعداد التطبيق",
+  relayTitle: "Yallapp هي اللي بتبعت الإشعارات",
+  relayText: "موقعك على WordPress مش محتاج ملف Firebase ولا مفتاح: إضافة Yallapp بتسلّم كل إشعار لـ Yallapp، وYallapp بتوصّله من خلال Firebase بتاعها ومبتحتفظش بحاجة. ده محتاج إضافة Yallapp إصدار 0.4.48 أو أحدث على موقعك.",
   intro:
     "{count, plural, one {راسل كل من يستخدم تطبيقك. سجّل عميل واحد الدخول حتى الآن.} two {راسل كل من يستخدم تطبيقك. سجّل عميلان الدخول حتى الآن.} few {راسل كل من يستخدم تطبيقك. سجّل {count} عملاء الدخول حتى الآن.} other {راسل كل من يستخدم تطبيقك. عدد العملاء الذين سجّلوا الدخول حتى الآن: {count}.}}",
   newNotification: "إشعار جديد",
@@ -157,6 +162,8 @@ export const tr: Messages = {
   title: "Uygulama bildirimleri",
   fromSite: "Uygulamanız bildirimlerini web sitenizden alır: bunları WordPress'teki Yallapp eklentisinden gönderin.",
   backToSetup: "Uygulama kurulumuna dön",
+  relayTitle: "Bildirimleri Yallapp gönderir",
+  relayText: "WordPress sitenizin Firebase dosyasına veya anahtarına ihtiyacı yok: Yallapp eklentisi her bildirimi Yallapp'e iletir; Yallapp onu kendi Firebase'i üzerinden ulaştırır ve hiçbir şey saklamaz. Bunun için sitenizde Yallapp eklentisinin 0.4.48 veya sonraki sürümü gerekir.",
   intro: "{count, plural, one {Uygulamanızı kullanan herkese mesaj gönderin. Şimdiye kadar {count} müşteri giriş yaptı.} other {Uygulamanızı kullanan herkese mesaj gönderin. Şimdiye kadar {count} müşteri giriş yaptı.}}",
   newNotification: "Yeni bildirim",
   push: "Anlık bildirim",

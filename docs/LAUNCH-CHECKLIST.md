@@ -1665,3 +1665,26 @@ Nothing to migrate or set: the articles and screenshots are in the code.
       leaves "Paid, needs attention" with Retry and Refund.
 - [ ] Switching back to the store's checkout opens WooCommerce's checkout
       in the app again within a minute.
+
+## Phase 136: Notifications sent by Yallapp for WordPress apps (136.40–136.44)
+
+Only once Phase 1 (Yallapp's Firebase pool, keyless sending) is live.
+
+- [ ] Release plugin **0.4.48** in Admin › Plugin releases. Older plugins
+      ignore `LicenseStatus.push` and keep sending with the site's own
+      Firebase, so offer "Yallapp sets up notifications" to a WordPress app
+      only once its site runs 0.4.48 (Admin › the client shows the plugin
+      version).
+- [ ] On a test WordPress academy in Yallapp's mode, with an Android phone
+      signed in: Settings › Notifications says "Notifications are sent by
+      Yallapp" with no Firebase file; Send a manual notification reaches the
+      phone; uninstalling the app and sending again makes the token
+      disappear from the site (`invalid`).
+- [ ] Switch that app back to its own Firebase in the dashboard: within a
+      minute the site's settings show the Firebase file field again, and a
+      notification sent meanwhile still arrives (409, then the license
+      check, then the retry with the site's own key).
+- [ ] Update the privacy page (yallapp.com.tr/privacy) and the client terms:
+      for apps in Yallapp's mode, push tokens and notification texts of
+      WordPress sites pass through Yallapp to Firebase (Google) and are not
+      stored (design §4, "Privacy text").

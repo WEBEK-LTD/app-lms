@@ -4,7 +4,7 @@ Tags: lms, mobile app, tutor lms, digits, otp
 Requires at least: 6.0
 Tested up to: 7.1
 Requires PHP: 7.4
-Stable tag: 0.4.47
+Stable tag: 0.4.48
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -36,7 +36,7 @@ Digits if you prefer (with its REST API add-on). Digits is optional.
 * Progress, lesson completion with an optional watch requirement, quizzes graded by the LMS, certificates.
 * Android checkout through the website with the student signed in automatically. iOS is view-only.
 * Paid courses and memberships bought in the app through Google Play and the App Store, when your Yallapp plan has it: the student gets the course or membership on your site.
-* Push notifications through Firebase for new lessons, announcements and enrollments.
+* Push notifications through Firebase for new lessons, announcements and enrollments: your own Firebase, or Yallapp's when your Yallapp dashboard sets up notifications for you.
 * The pages, tabs, look and languages you publish in your Yallapp dashboard, filled with your own courses, products and posts.
 * For an academy designed in Yallapp Studio: its pages, sign-in screen, account menu, launch screen and premium screens, the student's cards on a photo or in a ring (the course in progress, the next live class and the streak with this week's days), each course card's rating from your reviews, and borders in dark mode; Studio's premium library (stories, tickers, video and parallax banners, galleries, quotes, plans, numbers, progress, timelines, bento grids, glass cards and the drawn maps' looks); and the Signature looks' premium headers and the look of the app's own screens. The guide: [Premium elements in Studio](https://yallapp.com.tr/docs/studio-premium-elements).
 * For an academy designed in Yallapp Studio, its course screens in one premium look (Night cinema, Gold ring, Faculty index or On air) for the course card, the course page, the lesson and My courses, each with its options; and for any app designed in Studio, the Monochrome luxe design and the landing pages, with photos shown in black and white.
@@ -100,6 +100,14 @@ Yallapp is the service that builds and runs your apps; the plugin needs it to wo
   when an account is deleted, its user ID, so Yallapp deletes its chat. Yallapp
   sends the site, signed with the license key, the people to notify of a new
   message, and the plugin sends them the push notification.
+* Push notifications, only when your app uses "Yallapp sets up notifications" (your
+  Yallapp dashboard says so in the license check): for each notification the site sends,
+  the license key, site address, plugin and WordPress versions, the notification's title,
+  text, picture address and the data the app opens it with (such as a course ID or a
+  link), and the push tokens of the phones it goes to. They pass through Yallapp only
+  to be delivered through Yallapp's Firebase Cloud Messaging; Yallapp stores neither
+  the tokens nor the texts, and keeps only counts. Otherwise nothing of your
+  notifications reaches Yallapp.
 * Campaigns, when you send one from your Yallapp dashboard: Yallapp sends the
   site, signed with the license key, the campaign's title, text, picture address
   and link; once its push notifications are sent, the plugin tells Yallapp how
@@ -121,7 +129,9 @@ Privacy policy: https://yallapp.com.tr/privacy
 Only when you add your Firebase service account in Settings › Notifications: the
 plugin signs in to Google (oauth2.googleapis.com) and sends each push notification
 (its title, text and link, and the device tokens of the people it goes to) to
-fcm.googleapis.com, when you or the site send a notification.
+fcm.googleapis.com, when you or the site send a notification. When your app uses
+"Yallapp sets up notifications", the site doesn't contact Google: Yallapp sends the
+notifications to Firebase Cloud Messaging for it (see Yallapp above).
 
 Terms: https://firebase.google.com/terms
 Privacy: https://firebase.google.com/support/privacy
@@ -143,6 +153,9 @@ Symbols Rounded by Google (the material-design-icons project),
 under the Apache License 2.0, included as inline SVG.
 
 == Changelog ==
+
+= 0.4.48 =
+* Notifications sent by Yallapp: when your app uses "Yallapp sets up notifications" in your Yallapp dashboard, your site needs no Firebase file. The plugin hands each push notification to Yallapp, which delivers it through Yallapp's Firebase and keeps nothing of it; phones Firebase no longer knows are forgotten as before, and the ones it couldn't reach for now are tried again up to three times in the next minutes. Settings › Notifications then says "Notifications are sent by Yallapp". Apps with their own Firebase keep sending from the site, as before; Huawei phones always do.
 
 = 0.4.47 =
 * Pay inside the app (Demo): when you choose it in your Yallapp dashboard, customers pay in the app through your own payment gateway there, and the order is made in WooCommerce marked as paid, with the delivery and gift details, its stock taken and WooCommerce's emails sent as usual. Your store's checkout stays the default.

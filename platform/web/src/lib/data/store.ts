@@ -882,8 +882,8 @@ export interface DataStore {
   leaveCourse(appId: string, userId: number, courseId: number): Promise<boolean>;
 
   // Rate limits: fixed windows
-  /** Records one hit in the window starting at `windowStart` and returns the hits so far. */
-  hitRateLimit(bucket: string, windowStart: number, now: Date): Promise<number>;
+  /** Records one hit (136.42 or `by` hits) in the window starting at `windowStart` and returns the hits so far. */
+  hitRateLimit(bucket: string, windowStart: number, now: Date, by?: number): Promise<number>;
   /** The hits recorded in the window starting at `windowStart` (0 when none), without adding one. */
   peekRateLimit(bucket: string, windowStart: number): Promise<number>;
 

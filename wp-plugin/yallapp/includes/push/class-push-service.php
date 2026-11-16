@@ -28,6 +28,14 @@ class Push_Service {
 	const TOKEN_KEY  = 'yallapp_fcm_access_token';
 
 	/**
+	 * 136.40 Tokens Yallapp couldn't deliver this time are sent again from cron, at most
+	 * RETRY_ATTEMPTS more times, a minute, then two, then four later (or when the platform says).
+	 */
+	const RETRY_HOOK     = 'yallapp_push_retry';
+	const RETRY_ATTEMPTS = 3;
+	const RETRY_MAX_WAIT = 900;
+
+	/**
 	 * 85.4 A campaign's cron batches, and what each campaign has sent so far (an option per send).
 	 */
 	const CAMPAIGN_HOOK   = 'yallapp_campaign_send';
@@ -68,6 +76,7 @@ class Push_Service {
 		add_action( 'transition_post_status', array( $this, 'on_status_change' ), 10, 3 );
 		add_action( self::SEND_HOOK, array( $this, 'send_batch' ), 10, 4 );
 		add_action( self::CAMPAIGN_HOOK, array( $this, 'send_campaign_batch' ), 10, 5 );
+		add_action( self::RETRY_HOOK, array( $this, 'retry_tokens' ), 10, 4 );
 		add_action( self::POST_HOOK, array( $this, 'notify_post' ) );
 		$lms = $this->plugin->lms();
 		if ( $lms ) {
@@ -77,12 +86,22 @@ class Push_Service {
 
 	/**
 	 * Whether push can be sent: a valid Firebase service account, or (36) Huawei Push
-	 * Kit's app ID and app secret, is saved.
+	 * Kit's app ID and app secret, is saved, or (136.41) the license says Yallapp sends them.
 	 *
 	 * @return bool
 	 */
 	public function is_configured() {
-		return null !== $this->account() || null !== $this->hms();
+		return $this->relayed() || null !== $this->account() || null !== $this->hms();
+	}
+
+	/**
+	 * 136.41 Whether Firebase pushes go through Yallapp ("Yallapp sets up notifications"):
+	 * then the site needs no service account, and one saved before isn't used.
+	 *
+	 * @return bool
+	 */
+	public function relayed() {
+		return $this->plugin->license()->relays_push();
 	}
 
 	/**
@@ -491,13 +510,168 @@ class Push_Service {
 				$this->plugin->devices()->forget_push_token( $invalid );
 			}
 		}
-		$account = $targets['fcm'] ? $this->account() : null;
+		if ( ! $targets['fcm'] ) {
+			return $sent;
+		}
+		// 136.40 Through Yallapp's Firebase when the license says so, else with the site's own.
+		return $sent + ( $this->relayed() ? $this->relay( $targets['fcm'], (array) $notification, (array) $data, 0 ) : $this->send_own( $targets['fcm'], (array) $notification, (array) $data ) );
+	}
+
+	/**
+	 * 136.40 Sends Firebase tokens again that weren't delivered before (cron), the way the
+	 * site sends now: a site that left Yallapp's Firebase sends them with its own.
+	 *
+	 * @param string[] $tokens       Firebase tokens.
+	 * @param array    $notification Title, body and picture.
+	 * @param array    $data         Data for the app.
+	 * @param int      $attempt      How many times they were tried again before (1 the first time).
+	 * @return int Messages delivered.
+	 */
+	public function retry_tokens( $tokens, $notification, $data, $attempt ) {
+		$tokens = array_values( array_filter( array_map( 'strval', (array) $tokens ) ) );
+		if ( ! $tokens ) {
+			return 0;
+		}
+		return $this->relayed() ? $this->relay( $tokens, (array) $notification, (array) $data, (int) $attempt ) : $this->send_own( $tokens, (array) $notification, (array) $data );
+	}
+
+	/**
+	 * 136.40 Hands Firebase tokens to Yallapp in batches (POST /push/send): forgets the ones
+	 * Firebase says are gone, and sends the ones it couldn't deliver again later. Never waits
+	 * on a retry: those go to cron.
+	 *
+	 * @param string[] $tokens       Firebase tokens.
+	 * @param array    $notification Title, body and picture.
+	 * @param array    $data         Data for the app.
+	 * @param int      $attempt      0 the first time, then each retry's number.
+	 * @return int Messages Yallapp delivered.
+	 */
+	private function relay( array $tokens, array $notification, array $data, $attempt ) {
+		$sent    = 0;
+		$retry   = array();
+		$wait    = 0;
+		$batches = array_chunk( array_values( array_unique( $tokens ) ), self::BATCH_SIZE );
+		foreach ( $batches as $index => $batch ) {
+			$answer  = $this->plugin->license()->send_push( $batch, $notification, $data );
+			$outcome = self::relay_outcome( $batch, is_wp_error( $answer ) ? array_merge( (array) $answer->get_error_data(), array( 'error' => $answer->get_error_code() ) ) : $answer );
+			$sent   += $outcome['sent'];
+			foreach ( $outcome['invalid'] as $invalid ) {
+				$this->plugin->devices()->forget_push_token( $invalid );
+			}
+			$retry = array_merge( $retry, $outcome['retry'] );
+			$wait  = max( $wait, $outcome['wait'] );
+			if ( $outcome['check'] ) {
+				// The app's push mode changed: check the license, and the retry sends the new way.
+				$this->plugin->license()->check_soon();
+			}
+			if ( $outcome['stop'] ) {
+				// Over a limit, or not ready yet: the other batches wait too, without asking again now.
+				foreach ( array_slice( $batches, $index + 1 ) as $rest ) {
+					$retry = array_merge( $retry, $rest );
+				}
+				break;
+			}
+		}
+		$next = (int) $attempt + 1;
+		if ( $retry && $next <= self::RETRY_ATTEMPTS ) {
+			wp_schedule_single_event( time() + self::retry_delay( $next, $wait ), self::RETRY_HOOK, array( array_values( array_unique( $retry ) ), $notification, $data, $next ) );
+		}
+		return $sent;
+	}
+
+	/**
+	 * 136.40 What Yallapp's answer to one batch means for the site. Pure.
+	 *
+	 * - The answer's `results`: `sent` counts, `invalid` tokens are forgotten, `retry` tokens are
+	 *   sent again later; a token the answer leaves out is sent again too.
+	 * - The platform couldn't be reached, timed out, or answered 5xx, 429 or 503 (`push_not_ready`):
+	 *   the whole batch is sent again later (`wait`: the platform's `retry_after_seconds`), and
+	 *   on 429 and 503 the other batches wait as well (`stop`).
+	 * - 409 `push_own_firebase`: the app went back to its own Firebase; the license is checked
+	 *   (`check`) and the batch is sent again, the new way.
+	 * - Anything else (the license isn't active, the plan has no push, a bad request): dropped.
+	 *
+	 * @param string[] $batch  The tokens sent.
+	 * @param array    $result send_push()'s answer: the PushRelayResult body, or for an error its
+	 *                         `error` code with the `status` and `retry_after_seconds` it came with.
+	 * @return array{sent: int, invalid: string[], retry: string[], wait: int, stop: bool, check: bool}
+	 */
+	public static function relay_outcome( array $batch, array $result ) {
+		$outcome = array(
+			'sent'    => 0,
+			'invalid' => array(),
+			'retry'   => array(),
+			'wait'    => 0,
+			'stop'    => false,
+			'check'   => false,
+		);
+		if ( isset( $result['error'] ) ) {
+			$status = (int) ( $result['status'] ?? 0 );
+			if ( 'push_own_firebase' === $result['error'] ) {
+				$outcome['check'] = true;
+				$outcome['retry'] = $batch;
+			} elseif ( 0 === $status || 429 === $status || $status >= 500 ) {
+				$outcome['retry'] = $batch;
+				$outcome['wait']  = max( 0, (int) ( $result['retry_after_seconds'] ?? 0 ) );
+				$outcome['stop']  = 429 === $status || 503 === $status;
+			}
+			return $outcome;
+		}
+		$answered = array();
+		foreach ( is_array( $result['results'] ?? null ) ? $result['results'] : array() as $entry ) {
+			$token = is_array( $entry ) ? (string) ( $entry['token'] ?? '' ) : '';
+			if ( '' === $token || ! in_array( $token, $batch, true ) || isset( $answered[ $token ] ) ) {
+				continue;
+			}
+			$answered[ $token ] = true;
+			$status             = (string) ( $entry['status'] ?? '' );
+			if ( 'sent' === $status ) {
+				++$outcome['sent'];
+			} elseif ( 'invalid' === $status ) {
+				$outcome['invalid'][] = $token;
+			} else {
+				$outcome['retry'][] = $token;
+			}
+		}
+		foreach ( $batch as $token ) {
+			if ( ! isset( $answered[ $token ] ) ) {
+				$outcome['retry'][] = $token;
+			}
+		}
+		$outcome['retry'] = array_values( array_unique( $outcome['retry'] ) );
+		return $outcome;
+	}
+
+	/**
+	 * 136.40 Seconds before a retry: 1, 2 then 4 minutes, or longer when the platform asks,
+	 * never more than 15 minutes. Pure.
+	 *
+	 * @param int $attempt     The retry's number (1 the first time).
+	 * @param int $retry_after The platform's `retry_after_seconds`, or 0.
+	 * @return int
+	 */
+	public static function retry_delay( $attempt, $retry_after = 0 ) {
+		$backoff = 60 * ( 2 ** max( 0, (int) $attempt - 1 ) );
+		return (int) min( self::RETRY_MAX_WAIT, max( $backoff, (int) $retry_after ) );
+	}
+
+	/**
+	 * Sends Firebase tokens with the site's own service account, one request each.
+	 *
+	 * @param string[] $tokens       Firebase tokens.
+	 * @param array    $notification Title, body and picture.
+	 * @param array    $data         Data for the app.
+	 * @return int Messages Firebase accepted.
+	 */
+	private function send_own( array $tokens, array $notification, array $data ) {
+		$sent    = 0;
+		$account = $this->account();
 		$token   = $account ? $this->access_token( $account ) : '';
 		if ( '' === $token ) {
 			return $sent;
 		}
 		$url = 'https://fcm.googleapis.com/v1/projects/' . rawurlencode( $account['project_id'] ) . '/messages:send';
-		foreach ( $targets['fcm'] as $device_token ) {
+		foreach ( $tokens as $device_token ) {
 			$response = wp_remote_post(
 				$url,
 				array(

@@ -472,7 +472,7 @@ class License_Client {
 	/**
 	 * The last known status.
 	 *
-	 * @return array{status: string, plan: string|null, features: string[], sign_in_methods: string[]|null, email_sign_in: string|null, offline_downloads: bool|null, screen_protection: string|null, app_type: string|null, vertical: string|null, app_links: array|null, review_prompt: bool, crash_reports: bool, hide_video_branding: bool, chat: array|null, store_billing: array|null, screens: array|null, switches: array<string, bool>, expires_at: string|null, checked_at: string|null, message: string|null, contacted_at: int}
+	 * @return array{status: string, plan: string|null, features: string[], sign_in_methods: string[]|null, email_sign_in: string|null, offline_downloads: bool|null, screen_protection: string|null, app_type: string|null, vertical: string|null, app_links: array|null, review_prompt: bool, crash_reports: bool, hide_video_branding: bool, chat: array|null, store_billing: array|null, screens: array|null, switches: array<string, bool>, push: string, expires_at: string|null, checked_at: string|null, message: string|null, contacted_at: int}
 	 */
 	public function status() {
 		$stored = get_option( self::STATUS_OPTION, array() );
@@ -495,6 +495,7 @@ class License_Client {
 				'store_billing'       => null,
 				'screens'             => null,
 				'gift_messages'       => null,
+				'push'                => 'own',
 				'switches'            => array(),
 				'expires_at'          => null,
 				'checked_at'          => null,
@@ -745,6 +746,8 @@ class License_Client {
 			'gift_messages'       => \Yallapp\Store\Delivery_Rules::gift_status( $result['gift_messages'] ?? null ),
 			// 134 The store's customers pay inside the app (Demo), through the owner's gateway in Yallapp.
 			'store_checkout'      => \Yallapp\Store\In_App_Payment::of_status( $result['store_checkout'] ?? null ),
+			// 136.41 How pushes are sent: through Yallapp's Firebase (relayed), or the site's own.
+			'push'                => self::push_of( $result ),
 			// 83.3 The team's switches for the app's modules and new features.
 			'switches'            => self::switches_of( $result ),
 			'expires_at'          => isset( $result['expires_at'] ) ? sanitize_text_field( (string) $result['expires_at'] ) : null,
@@ -768,6 +771,85 @@ class License_Client {
 	 */
 	public static function hides_video_branding( array $result ) {
 		return true === ( $result['hide_video_branding'] ?? false );
+	}
+
+	/**
+	 * 136.41 How the app's pushes are sent (`LicenseStatus.push`): "yallapp" when the app uses
+	 * "Yallapp sets up notifications", so the site relays them through the platform; anything
+	 * else, and older platforms that send nothing, is "own" (the site's own Firebase). Pure.
+	 *
+	 * @param array $result License status from the platform.
+	 * @return string yallapp|own
+	 */
+	public static function push_of( array $result ) {
+		return 'yallapp' === ( $result['push'] ?? null ) ? 'yallapp' : 'own';
+	}
+
+	/**
+	 * 136.41 Whether this site's pushes go through Yallapp: a key is saved and the last status
+	 * said `push: yallapp`. The plan's `push` feature still decides whether there are pushes.
+	 *
+	 * @return bool
+	 */
+	public function relays_push() {
+		return $this->has_key() && 'yallapp' === $this->status()['push'];
+	}
+
+	/**
+	 * 136.40 Hands one batch of Firebase tokens to Yallapp to deliver through Yallapp's Firebase
+	 * (docs/api/platform.yaml, sendPush). Only the license key, site address and versions go with
+	 * them, not the rest of the license check.
+	 *
+	 * @param string[] $tokens       Firebase tokens (at most Push_Service::BATCH_SIZE).
+	 * @param array    $notification Title, body and picture.
+	 * @param array    $data         Data for the app.
+	 * @return array|WP_Error The PushRelayResult body (`results`, `sent`, `invalid`, `retry`), or the
+	 *                        platform's error (`rate_limited` and `push_not_ready` with
+	 *                        `retry_after_seconds`, `push_own_firebase`, `license_inactive`, …).
+	 */
+	public function send_push( array $tokens, array $notification, array $data ) {
+		$key = (string) $this->settings->get( 'license_key' );
+		if ( '' === $key ) {
+			return new WP_Error( 'license_missing', __( 'Activate your Yallapp license to send notifications through Yallapp.', 'yallapp' ) );
+		}
+		$shown = array(
+			'title' => (string) ( $notification['title'] ?? '' ),
+			'body'  => (string) ( $notification['body'] ?? '' ),
+		);
+		if ( ! empty( $notification['image'] ) ) {
+			$shown['image'] = (string) $notification['image'];
+		}
+		$body = array(
+			'license_key'    => $key,
+			'site_url'       => home_url( '/' ),
+			'plugin_version' => YALLAPP_VERSION,
+			'wp_version'     => get_bloginfo( 'version' ),
+			'tokens'         => array_map(
+				static function ( $token ) {
+					return array(
+						'token'    => (string) $token,
+						'provider' => 'fcm',
+					);
+				},
+				array_values( $tokens )
+			),
+			'notification'   => $shown,
+			'data'           => (object) array_map( 'strval', $data ),
+		);
+		// The platform answers within about 10 seconds; a slow network gets more.
+		return $this->call( 'POST', '/push/send', $body, 25 );
+	}
+
+	/**
+	 * 136.41 Asks the platform for the license status soon (in cron), once: the platform said
+	 * the app's push mode changed.
+	 *
+	 * @return void
+	 */
+	public function check_soon() {
+		if ( ! wp_next_scheduled( self::REFRESH_HOOK ) ) {
+			wp_schedule_single_event( time(), self::REFRESH_HOOK );
+		}
 	}
 
 	/**
@@ -880,17 +962,18 @@ class License_Client {
 	/**
 	 * Calls the platform.
 	 *
-	 * @param string     $method HTTP method.
-	 * @param string     $path   Path after the base URL.
-	 * @param array|null $body   JSON body.
+	 * @param string     $method  HTTP method.
+	 * @param string     $path    Path after the base URL.
+	 * @param array|null $body    JSON body.
+	 * @param int        $timeout Seconds to wait (136.40 longer for a batch of pushes).
 	 * @return array|WP_Error Decoded body (empty for 204), or an error.
 	 */
-	private function call( $method, $path, $body = null ) {
+	private function call( $method, $path, $body = null, $timeout = 15 ) {
 		$response = wp_remote_request(
 			self::base_url() . $path,
 			array(
 				'method'  => $method,
-				'timeout' => 15,
+				'timeout' => (int) $timeout,
 				'headers' => array(
 					'Accept'       => 'application/json',
 					'Content-Type' => 'application/json',
