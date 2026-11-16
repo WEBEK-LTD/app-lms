@@ -24,7 +24,7 @@ export const en = {
   signedOutAll: "Every phone is signed out.",
   passwordNote: "Changing your password also signs out every phone.",
   statPhones: "Phones signed in",
-  count: "{count, plural, one {# phone} other {# phones}}",
+  count: "{count, plural, one {{count} phone} other {{count} phones}}",
   needs: {
     ordersInProgress: "{count, plural, one {{count} order in progress} other {{count} orders in progress}}",
     toConfirm: "{count, plural, one {{count} appointment to confirm} other {{count} appointments to confirm}}",
@@ -86,7 +86,7 @@ export const en = {
     salesLow: "Sales are low today",
     salesLowBody: "{amount} so far, by {time}",
     briefTitle: "Your morning brief",
-    briefSales: "Yesterday: {sales}, {count, plural, one {# order} other {# orders}}",
+    briefSales: "Yesterday: {sales}, {count, plural, one {{count} order} other {{count} orders}}",
     briefHour: "Busiest at {hour}",
     briefBest: "Best seller: {name}",
   },
@@ -159,7 +159,7 @@ export const ar: Messages = {
   signedOutAll: "تم تسجيل الخروج من كل الهواتف.",
   passwordNote: "تغيير كلمة المرور يسجّل الخروج من كل الهواتف أيضًا.",
   statPhones: "الهواتف المسجّل دخولها",
-  count: "{count, plural, zero {لا هواتف} one {هاتف واحد} two {هاتفان} few {# هواتف} many {# هاتفًا} other {# هاتف}}",
+  count: "{count, plural, zero {لا هواتف} one {هاتف واحد} two {هاتفان} few {{count} هواتف} many {{count} هاتفًا} other {{count} هاتف}}",
   needs: {
     ordersInProgress:
       "{count, plural, one {طلب واحد قيد التنفيذ} two {طلبان قيد التنفيذ} few {{count} طلبات قيد التنفيذ} other {طلبات قيد التنفيذ: {count}}}",
@@ -221,7 +221,7 @@ export const ar: Messages = {
     salesLow: "المبيعات منخفضة اليوم",
     salesLowBody: "{amount} حتى الآن، حتى الساعة {time}",
     briefTitle: "ملخّص الصباح",
-    briefSales: "أمس: {sales}، {count, plural, zero {لا طلبات} one {طلب واحد} two {طلبان} few {# طلبات} many {# طلبًا} other {# طلب}}",
+    briefSales: "أمس: {sales}، {count, plural, zero {لا طلبات} one {طلب واحد} two {طلبان} few {{count} طلبات} many {{count} طلبًا} other {{count} طلب}}",
     briefHour: "الذروة عند {hour}",
     briefBest: "الأكثر مبيعًا: {name}",
   },
@@ -290,7 +290,7 @@ export const tr: Messages = {
   signedOutAll: "Tüm telefonlarda oturum kapatıldı.",
   passwordNote: "Şifrenizi değiştirmek de tüm telefonlarda oturumu kapatır.",
   statPhones: "Oturum açık telefonlar",
-  count: "{count, plural, one {# telefon} other {# telefon}}",
+  count: "{count, plural, one {{count} telefon} other {{count} telefon}}",
   needs: {
     ordersInProgress: "{count, plural, one {Hazırlanan {count} sipariş} other {Hazırlanan {count} sipariş}}",
     toConfirm: "{count, plural, one {Onay bekleyen {count} randevu} other {Onay bekleyen {count} randevu}}",
@@ -349,7 +349,7 @@ export const tr: Messages = {
     salesLow: "Bugün satışlar düşük",
     salesLowBody: "Saat {time} itibarıyla {amount}",
     briefTitle: "Sabah özetiniz",
-    briefSales: "Dün: {sales}, {count, plural, one {# sipariş} other {# sipariş}}",
+    briefSales: "Dün: {sales}, {count, plural, one {{count} sipariş} other {{count} sipariş}}",
     briefHour: "En yoğun saat: {hour}",
     briefBest: "En çok satan: {name}",
   },
