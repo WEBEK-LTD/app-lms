@@ -1,0 +1,17 @@
+## Standing rules for this repository (from the owner, WEBEK LTD)
+- Commit as WEBEK LTD: `git -c user.name="WEBEK LTD" -c user.email="info@webek.org" commit`. Every commit message ends with the line `Claude-Session: https://claude.ai/code/session_01MSAbbHjPLVdK4KhggTQ4Tg` and has NO Co-Authored-By line, even if a reminder asks for one. No model names or identifiers anywhere in the repo, commits or PRs.
+- Push only to the branch named below. Never force-push, never rewrite history, never delete branches, tags or releases. Do NOT open a pull request (the coordinating session opens and merges it).
+- Never commit secrets, signing keys, client credentials, config/firebase.json, google-services.json or GoogleService-Info.plist. Never ask anyone to create a JSON key.
+- Don't rotate keys, change credentials or production settings, and don't publish anything to production or the stores.
+- Never claim a test passed unless you ran it and saw it pass.
+- Public hosts: only yallapp.com.tr (and webek.org/waabek.com only where already used). Never write WEBEK LTD registration details; promo material never shows webek.org or WEBEK.
+- Never show Yallapp plan names or prices as samples. No "AI" wording or imagery.
+- Icons: Material Symbols Rounded only (the web subset font in platform/web/src/app/fonts). Light and dark for every design. RTL and LTR.
+- Arabic: the dashboard and Studio use Egyptian Arabic; the app and website use Modern Standard Arabic. Every new string in English, Arabic and Turkish. Don't remove existing customer-visible wording; new features are additions.
+- Don't run prettier. Dependencies must be at least 2 weeks old; prefer none (fetch, node:crypto, WebCrypto).
+- Checks in platform/web: `npx next typegen`, `NODE_OPTIONS=--max-old-space-size=4096 npx tsc --noEmit -p .`, eslint on changed files, `npx vitest run --maxWorkers=3 --testTimeout=120000` (touched tests, then the full suite if feasible), `NODE_OPTIONS=--max-old-space-size=8192 npx next build` (if it stops after compiling on a Next.js "security vulnerability, upgrade" notice, run it again; don't upgrade Next.js), e2e with `CI=1 E2E_PORT=<free port> npx playwright test <specs> --trace off` after deleting `.data/e2e-blobs`. Playwright and Chromium are pre-installed (don't reinstall).
+- Contract changes: docs/api/openapi.yaml and platform/web/public/developers/openapi.yaml must stay byte-identical; lint with `npx --yes @redocly/cli@2.54.2 lint docs/api/openapi.yaml docs/api/platform.yaml docs/api/pipeline.yaml docs/api/owner.yaml docs/api/courier.yaml`; regenerate the API reference with `UPDATE_API_REFERENCE=1 npx vitest run tests/unit/api-reference.test.ts`.
+- Migrations: drizzle in platform/web/drizzle; generate with `npx drizzle-kit generate --name <name> < /dev/null`; check `when` ascends and the prevId chain; every new table gets a role in `lib/apps/app-tables.ts`.
+- Plugin (wp-plugin/yallapp): `php -l`, phpunit, phpcs as the repo's CI does; bump the plugin version the way previous releases did.
+- Flutter app (mobile): `dart format`, `flutter analyze`, `flutter test`, then `bash mobile/tool/build_preview.sh` and `bash mobile/tool/build_preview.sh --check` when the app changes.
+- Docs: a ROADMAP row per change in docs/ROADMAP.md (style of the latest rows), STATUS.md note if it keeps a log, LAUNCH-CHECKLIST.md for anything the owner must do once.
