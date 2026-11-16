@@ -6,8 +6,25 @@ import { Icon } from "./icon";
  * 56 The dashboard's language choice, in the account area of the sidebar
  * (in the Menu sheet on phones): "English · العربية · Türkçe", each name in
  * its own language. A form, so it works before the page's scripts load.
+ * 132.150 In Studio's console (`look="console"`), a segmented control on the
+ * dark frame.
  */
-export function DashboardLanguage({ lang, label }: { lang: Lang; label: string }) {
+export function DashboardLanguage({ lang, label, look = "list" }: { lang: Lang; label: string; look?: "list" | "console" }) {
+  if (look === "console") {
+    return (
+      <form action={setDashboardLanguageAction} className="flex min-w-0 flex-1" data-dashboard-languages>
+        <ul aria-label={label} className="sc-langs">
+          {LANGS.map((to) => (
+            <li key={to}>
+              <button type="submit" name="lang" value={to} lang={to} aria-pressed={to === lang}>
+                {LANG_INFO[to].nativeName}
+              </button>
+            </li>
+          ))}
+        </ul>
+      </form>
+    );
+  }
   return (
     <form action={setDashboardLanguageAction} className="flex items-center gap-2" data-dashboard-languages>
       <Icon name="language" size={20} className="text-muted" />

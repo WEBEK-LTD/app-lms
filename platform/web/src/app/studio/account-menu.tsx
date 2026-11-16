@@ -21,7 +21,7 @@ import { Glyph, STUDIO_COLORS as C } from "./editor/shared";
  * signed in to Yallapp Business, updates from Yallapp), and dark mode beside
  * the language; it closes when a page opens; light or dark with the frame.
  */
-export async function StudioAccountMenu() {
+export async function StudioAccountMenu({ look = "bar" }: { look?: "bar" | "avatar" } = {}) {
   const context = await getClientContext();
   if (!context) return null;
   const { t, lang } = await dashboardText();
@@ -43,18 +43,27 @@ export async function StudioAccountMenu() {
   return (
     <details className="relative" data-studio-account="">
       <CloseOnNavigate selector="[data-studio-account]" />
-      <summary
-        aria-label={t("studioKit.accountMenu")}
-        title={t("studioKit.accountMenu")}
-        className="flex h-[38px] cursor-pointer list-none items-center gap-2 rounded-[10px] ps-1 pe-2 text-sm"
-        style={{ color: C.barText }}
-      >
-        <span className="flex h-8 w-8 flex-none items-center justify-center rounded-full font-bold" style={{ background: C.barLine }} aria-hidden="true">
-          {(me.name.trim()[0] ?? "?").toUpperCase()}
-        </span>
-        <span className="max-w-[160px] truncate max-md:sr-only">{me.name}</span>
-        <Glyph name="expand_more" size={18} className="max-md:hidden" />
-      </summary>
+      {look === "avatar" ? (
+        // 132.150 On the console's bar: the person's initial in a round avatar.
+        <summary aria-label={t("studioKit.accountMenu")} title={t("studioKit.accountMenu")} className="ms-1 flex cursor-pointer list-none rounded-full">
+          <span className="sc-av" aria-hidden="true">
+            {(me.name.trim()[0] ?? "?").toUpperCase()}
+          </span>
+        </summary>
+      ) : (
+        <summary
+          aria-label={t("studioKit.accountMenu")}
+          title={t("studioKit.accountMenu")}
+          className="flex h-[38px] cursor-pointer list-none items-center gap-2 rounded-[10px] ps-1 pe-2 text-sm"
+          style={{ color: C.barText }}
+        >
+          <span className="flex h-8 w-8 flex-none items-center justify-center rounded-full font-bold" style={{ background: C.barLine }} aria-hidden="true">
+            {(me.name.trim()[0] ?? "?").toUpperCase()}
+          </span>
+          <span className="max-w-[160px] truncate max-md:sr-only">{me.name}</span>
+          <Glyph name="expand_more" size={18} className="max-md:hidden" />
+        </summary>
+      )}
       <div
         // On phones the bar wraps: the menu spans the screen under its button instead of running off one side.
         className="absolute end-0 top-[calc(100%+6px)] z-30 flex w-[280px] max-w-[calc(100vw-24px)] flex-col gap-0.5 rounded-xl p-1.5 shadow-lg max-sm:fixed max-sm:inset-x-3 max-sm:top-auto max-sm:mt-1.5 max-sm:w-auto max-sm:max-w-none"

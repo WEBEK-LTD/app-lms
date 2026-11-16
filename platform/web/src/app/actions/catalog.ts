@@ -289,6 +289,23 @@ export async function bulkProductsAction(_: FormState, formData: FormData): Prom
   return { ok: true, values: { done: op, count: String(products.length) } };
 }
 
+/**
+ * 132.152 A product featured on the app's home screen or not, from the
+ * Products page's inspector: the same checks as showing or hiding it (the
+ * catalog's app, the team's Products permission), this account's product only.
+ */
+export async function setProductFeaturedAction(_: FormState, formData: FormData): Promise<FormState> {
+  const { app } = await requireCatalogApp();
+  const id = Number(formData.get("id"));
+  const store = await getStore();
+  const product = Number.isSafeInteger(id) && id > 0 ? (await store.listCatalogProducts(app.id)).find((p) => p.id === id) : undefined;
+  if (!product) return { message: "Choose at least one product." };
+  const featured = formData.get("featured") === "1";
+  if (product.featured !== featured) await store.updateCatalogProduct(app.id, product.id, { featured }, new Date());
+  refresh();
+  return { ok: true, values: { featured: featured ? "1" : "0" } };
+}
+
 // Shop settings
 
 export async function saveShopSettingsAction(_: FormState, formData: FormData): Promise<FormState> {
