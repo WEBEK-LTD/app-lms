@@ -698,7 +698,15 @@ $create = array_merge(
 );
 $r     = $paid_order( $create, $paid_key );
 $order = (int) ( $r['json']['order_id'] ?? 0 );
-check( '134 the order is made once paid', 200 === $r['status'] && $order > 0 && true === ( $r['json']['created'] ?? null ) && in_array( $r['json']['status'] ?? '', array( 'processing', 'completed' ), true ), $r['raw'] );
+// When it isn't made, the product's stock as WooCommerce counts it for an order (its held stock and reservations) says why.
+$stock_state = 200 === $r['status'] ? null : json_decode(
+	wp_eval(
+		'global $wpdb; $p = wc_get_product( ' . (int) $seed['chocolates'] . ' );'
+		. ' echo wp_json_encode( array( "stock" => $p->get_stock_quantity(), "meta" => get_post_meta( $p->get_id(), "_stock", true ), "held" => wc_get_held_stock_quantity( $p ), "hold_minutes" => get_option( "woocommerce_hold_stock_minutes" ), "hpos" => class_exists( "Automattic\\\\WooCommerce\\\\Utilities\\\\OrderUtil" ) && Automattic\\WooCommerce\\Utilities\\OrderUtil::custom_orders_table_usage_is_enabled(), "reserved" => $wpdb->get_results( "SELECT * FROM {$wpdb->prefix}wc_reserved_stock", ARRAY_A ), "db" => $wpdb->last_error ) );'
+	),
+	true
+);
+check( '134 the order is made once paid', 200 === $r['status'] && $order > 0 && true === ( $r['json']['created'] ?? null ) && in_array( $r['json']['status'] ?? '', array( 'processing', 'completed' ), true ), array( $r['raw'], $stock_state ) );
 $made = json_decode( wp_eval( '$o = wc_get_order( ' . $order . ' ); echo wp_json_encode( array( "status" => $o->get_status(), "method" => $o->get_payment_method_title(), "ref" => $o->get_meta( "_yallapp_payment_ref" ), "transaction" => $o->get_transaction_id(), "billing" => $o->get_billing_first_name(), "shipping" => $o->get_shipping_address_1(), "gift" => $o->get_meta( "_yallapp_gift_message" ), "paid" => (bool) $o->get_date_paid(), "notes" => array_map( function ( $n ) { return $n->content; }, wc_get_order_notes( array( "order_id" => ' . $order . ' ) ) ) ) );' ), true );
 check( '134 marked paid "Stripe (in app)", with the reference, the sender billing, the recipient shipping and the card', 'Stripe (in app)' === ( $made['method'] ?? '' ) && $reference === ( $made['ref'] ?? '' ) && 'pi_test134' === ( $made['transaction'] ?? '' ) && 'Omar' === ( $made['billing'] ?? '' ) && 'Moda Caddesi 5, Kadıköy' === ( $made['shipping'] ?? '' ) && 'Happy birthday!' === ( $made['gift'] ?? '' ) && true === ( $made['paid'] ?? false ), $made );
 check( '134 the order carries "Paid in the app via Stripe, reference …"', in_array( 'Paid in the app via Stripe, reference pi_test134', (array) ( $made['notes'] ?? array() ), true ), $made['notes'] ?? null );
