@@ -6,7 +6,7 @@ import { Icon } from "@/components/icon";
 import { Notice, Section } from "@/components/ui";
 import { catalogSettings, isOwnPayment } from "@/lib/catalog/settings";
 import type { App, CatalogCurrency } from "@/lib/data/types";
-import { currencyList, PROVIDER_CURRENCIES, PROVIDER_NAME, providerTakes } from "@/lib/payments/provider";
+import { currencyList, PROVIDER_NAME, providerTakes, takenCurrencies } from "@/lib/payments/provider";
 import { dashboardText } from "@/lib/dashboard-lang";
 import { formatList } from "@/i18n/format";
 
@@ -47,7 +47,7 @@ export async function DonationPayments({ app, currency }: { app: App; currency: 
         <Notice tone="warn" icon="warning">
           {t("donations.currencyWarn", {
             provider: PROVIDER_NAME[own.provider],
-            list: lang === "en" ? currencyList(own.provider) : formatList(lang, PROVIDER_CURRENCIES[own.provider], "disjunction"),
+            list: lang === "en" ? currencyList(own.provider) : formatList(lang, takenCurrencies(own.provider), "disjunction"),
             currency,
           })}
         </Notice>

@@ -5,7 +5,7 @@ import { parsePrice } from "./money";
  * dashboard's product form and 58 the Owner API's quick edit: the same rules
  * and messages.
  */
-export function readProductNumbers(v: { price: string; salePrice: string; stock: string; weight?: string }): {
+export function readProductNumbers(v: { price: string; salePrice: string; stock: string; weight?: string; /** 135.2 The shop's currency, for its digits. */ currency?: string | null }): {
   errors: Record<string, string>;
   priceCents: number | null;
   salePriceCents: number | null;
@@ -14,9 +14,9 @@ export function readProductNumbers(v: { price: string; salePrice: string; stock:
   weightGrams: number | null;
 } {
   const errors: Record<string, string> = {};
-  const price = parsePrice(v.price);
+  const price = parsePrice(v.price, v.currency);
   if (price === null || price === 0) errors.price = "Enter a price, like 450 or 450.50.";
-  const salePrice = v.salePrice ? parsePrice(v.salePrice) : null;
+  const salePrice = v.salePrice ? parsePrice(v.salePrice, v.currency) : null;
   if (v.salePrice && (salePrice === null || (price !== null && salePrice >= price))) errors.salePrice = "The sale price must be lower than the price.";
   let stock: number | null = null;
   if (v.stock) {

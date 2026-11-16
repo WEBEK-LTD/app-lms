@@ -1,4 +1,5 @@
 import type { HostedUser, OrderDelivery } from "../../data/types";
+import type { DisplayCurrency } from "../../money/display";
 
 /** What a connector answers with: the same shape as the hosted API's own handlers. */
 export interface ConnectorResult {
@@ -16,6 +17,12 @@ export interface ConnectorRequest {
   now: Date;
   /** 43 The language the app asks in ("ar"), for labels the connector writes; null or missing: English. */
   lang?: string | null;
+  /**
+   * 135.5 The customer's currency the app asked for (`?currency=` or
+   * `X-Currency`) with the day's rates: Yallapp's own selling connectors add
+   * each price in it (lib/money/display.ts); null or missing: none asked.
+   */
+  display?: DisplayCurrency | null;
   /**
    * 131 `POST /store/checkout-link` of a store: the delivery day and slot,
    * the people and the card the customer chose, checked (lib/selling/store.ts),

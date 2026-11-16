@@ -908,6 +908,23 @@ class _CartScreenState extends ConsumerState<CartScreen> {
                                   ),
                                 ),
                               ),
+                            // 135.7 In the customer's currency: approximate,
+                            // or charged in it.
+                            if (value != null &&
+                                chargeLine(context, value) != null)
+                              Padding(
+                                padding: const EdgeInsets.only(top: 4),
+                                child: Text(
+                                  chargeLine(context, value)!,
+                                  key: const Key('cart-charge-line'),
+                                  textAlign: TextAlign.end,
+                                  style: TextStyle(
+                                    fontSize: 13,
+                                    fontWeight: FontWeight.w600,
+                                    color: p.textSecondary,
+                                  ),
+                                ),
+                              ),
                             if (fulfilment == null &&
                                 value?.totalFinal != true) ...[
                               const SizedBox(height: 4),
@@ -1441,4 +1458,23 @@ class _CouponCardState extends ConsumerState<_CouponCard> {
       ),
     );
   }
+}
+
+/// 135.7 What the customer pays, when the cart has their currency: "≈ \$12.40
+/// · you pay E£600.00" (the shop's charged), "You pay \$12.40" (charged in
+/// theirs), or the shop's with why; null with the shop's currency only.
+String? chargeLine(BuildContext context, CartQuote quote) {
+  final l10n = context.l10n;
+  final charge = quote.charge;
+  if (charge != null && charge.inCustomerCurrency) {
+    return l10n.youPayIn(charge.total);
+  }
+  final display = quote.display;
+  final converted = display?.total ?? display?.subtotal;
+  if (display == null || converted == null) return null;
+  final total = charge?.total ?? quote.total ?? quote.subtotal;
+  if (charge?.reason == 'gateway') {
+    return '${l10n.approxPrice(converted)} · ${l10n.youPayShopCurrency(total, display.currency)}';
+  }
+  return l10n.youPayApprox(converted, total);
 }

@@ -12020,4 +12020,64 @@ class AppLocalizationsEn extends AppLocalizations {
   String ratingReplyFrom(String business) {
     return 'Reply from $business';
   }
+
+  @override
+  String get currencyLabel => 'Currency';
+
+  @override
+  String currencyFromRegion(String currency) {
+    return '$currency · your region\'s';
+  }
+
+  @override
+  String get currencyPickerHint =>
+      'Prices also show in this currency, at the day\'s rate. You pay in the shop\'s currency unless the checkout says otherwise.';
+
+  @override
+  String get currencySearch => 'Search currencies';
+
+  @override
+  String get currencyShop => 'The shop\'s currency';
+
+  @override
+  String get currencyYourRegion => 'Your region';
+
+  @override
+  String get currencyAll => 'All currencies';
+
+  @override
+  String get currencyNoMatch => 'No currency matches.';
+
+  @override
+  String get currencyUseRegion => 'Use my region\'s currency';
+
+  @override
+  String approxPrice(String amount) {
+    return '≈ $amount';
+  }
+
+  @override
+  String youPayApprox(String converted, String total) {
+    return '≈ $converted · you pay $total';
+  }
+
+  @override
+  String youPayIn(String total) {
+    return 'You pay $total';
+  }
+
+  @override
+  String youPayShopCurrency(String total, String currency) {
+    return 'You pay $total: the shop\'s card payment doesn\'t take $currency.';
+  }
+
+  @override
+  String orderInYourCurrency(String total) {
+    return '≈ $total in your currency';
+  }
+
+  @override
+  String orderPaidIn(String total) {
+    return 'Paid $total';
+  }
 }

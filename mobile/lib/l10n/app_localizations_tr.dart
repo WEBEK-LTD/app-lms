@@ -11933,4 +11933,64 @@ class AppLocalizationsTr extends AppLocalizations {
   String ratingReplyFrom(String business) {
     return '$business yanıtı';
   }
+
+  @override
+  String get currencyLabel => 'Para birimi';
+
+  @override
+  String currencyFromRegion(String currency) {
+    return '$currency · bölgenizin';
+  }
+
+  @override
+  String get currencyPickerHint =>
+      'Fiyatlar günün kuruyla bu para biriminde de görünür. Ödeme sayfası aksini söylemedikçe mağazanın para birimiyle ödersiniz.';
+
+  @override
+  String get currencySearch => 'Para birimi ara';
+
+  @override
+  String get currencyShop => 'Mağazanın para birimi';
+
+  @override
+  String get currencyYourRegion => 'Bölgeniz';
+
+  @override
+  String get currencyAll => 'Tüm para birimleri';
+
+  @override
+  String get currencyNoMatch => 'Eşleşen para birimi yok.';
+
+  @override
+  String get currencyUseRegion => 'Bölgemin para birimini kullan';
+
+  @override
+  String approxPrice(String amount) {
+    return '≈ $amount';
+  }
+
+  @override
+  String youPayApprox(String converted, String total) {
+    return '≈ $converted · ödeyeceğiniz $total';
+  }
+
+  @override
+  String youPayIn(String total) {
+    return 'Ödeyeceğiniz $total';
+  }
+
+  @override
+  String youPayShopCurrency(String total, String currency) {
+    return 'Ödeyeceğiniz $total: mağazanın kartla ödemesi $currency almıyor.';
+  }
+
+  @override
+  String orderInYourCurrency(String total) {
+    return 'Para biriminizde ≈ $total';
+  }
+
+  @override
+  String orderPaidIn(String total) {
+    return 'Ödenen $total';
+  }
 }

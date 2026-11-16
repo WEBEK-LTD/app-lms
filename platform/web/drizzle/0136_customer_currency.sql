@@ -1,0 +1,1 @@
+ALTER TABLE `catalog_orders` ADD `customer_currency` longtext;

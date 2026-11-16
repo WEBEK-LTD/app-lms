@@ -1,3 +1,4 @@
+import { ISO_CURRENCIES } from "../money/currencies";
 import type { App, ListingAreaUnit, ListingSettings } from "../data/types";
 
 /** The property types an office can pick, in the order the dashboard and the app's filters show them. */
@@ -29,8 +30,8 @@ export function propertyTypeLabel(key: string): string {
   return LABELS.get(key) ?? key;
 }
 
-/** Currencies offices price in. */
-export const LISTING_CURRENCIES = ["TRY", "EGP", "USD", "EUR", "GBP", "AED", "SAR"] as const;
+/** Currencies offices price in: 135.1 any active ISO 4217 currency (before 135: TRY, EGP, USD, EUR, GBP, AED, SAR). */
+export const LISTING_CURRENCIES: readonly string[] = ISO_CURRENCIES;
 
 export const AREA_UNITS: { key: ListingAreaUnit; label: string; symbol: string }[] = [
   { key: "m2", label: "Square metres (m²)", symbol: "m²" },

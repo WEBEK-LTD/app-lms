@@ -55,7 +55,7 @@ export function spreadDiscount(lineCents: number[], discountCents: number): numb
 type Parsed<T> = { ok: true; value: T } | { ok: false; errors: Record<string, string> };
 
 /** The dashboard's "Add a coupon" form; 131 `editing` an existing one (its end may be today). */
-export function parseCoupon(v: Record<string, string>, now: Date, options: { editing?: boolean } = {}): Parsed<Omit<CatalogCoupon, "id" | "appId" | "usedCount" | "createdAt" | "active">> {
+export function parseCoupon(v: Record<string, string>, now: Date, options: { editing?: boolean; /** 135.2 The shop's currency, for its digits. */ currency?: string | null } = {}): Parsed<Omit<CatalogCoupon, "id" | "appId" | "usedCount" | "createdAt" | "active">> {
   const errors: Record<string, string> = {};
   const code = normalizeCouponCode(v.code ?? "");
   if (!code) errors.code = "Use 2 to 50 letters, digits or dashes, like SPRING10.";
@@ -65,12 +65,12 @@ export function parseCoupon(v: Record<string, string>, now: Date, options: { edi
     value = Number((v.value ?? "").trim());
     if (!Number.isInteger(value) || value < 1 || value > 100) errors.value = "Enter a percentage from 1 to 100.";
   } else {
-    const cents = parsePrice(v.value ?? "");
+    const cents = parsePrice(v.value ?? "", options.currency);
     if (cents === null || cents <= 0) errors.value = "Enter an amount, like 50.";
     else value = cents;
   }
   const minText = (v.minOrder ?? "").trim();
-  const minOrderCents = minText === "" ? null : parsePrice(minText);
+  const minOrderCents = minText === "" ? null : parsePrice(minText, options.currency);
   if (minText !== "" && (minOrderCents === null || minOrderCents <= 0)) errors.minOrder = "Enter an amount, like 300, or leave it empty.";
   const endsText = (v.endsOn ?? "").trim();
   let endsAt: Date | null = null;

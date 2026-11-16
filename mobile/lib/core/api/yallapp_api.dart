@@ -710,6 +710,10 @@ abstract class YallappApi {
   Future<void> setLessonBookmark(int lessonId, {required bool on});
 
   Future<List<StoreHomeSection>> getStoreHome();
+
+  /// 135.5 The currencies prices can be shown in, named in the app's
+  /// language (`GET /currencies`).
+  Future<CurrencyList> listCurrencies();
   Future<List<ProductCategory>> listProductCategories();
   Future<Paged<ProductSummary>> listProducts(ProductQuery query);
   Future<ProductDetail> getProduct(int productId);
@@ -2517,6 +2521,10 @@ class HttpYallappApi implements YallappApi {
     _public,
     (json) => reqListOf(json, 'sections', StoreHomeSection.fromJson),
   );
+
+  @override
+  Future<CurrencyList> listCurrencies() =>
+      _get('/currencies', _public, CurrencyList.fromJson);
 
   @override
   Future<List<ProductCategory>> listProductCategories() => _get(

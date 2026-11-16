@@ -413,7 +413,7 @@ describe("29 donation rules and forms", () => {
     const current = { currency: "TRY" as const, iosMode: "browser" as const };
     expect(parseDonationSettings({ currency: "EUR", iosMode: "off" }, false, current)).toEqual({ ok: true, value: { currency: "EUR", iosMode: "off" } });
     expect(parseDonationSettings({ currency: "EUR", iosMode: "browser" }, true, current)).toMatchObject({ ok: false, errors: { currency: expect.any(String) } });
-    expect(parseDonationSettings({ currency: "GBP", iosMode: "maybe" }, false, current)).toMatchObject({ ok: false, errors: { currency: expect.any(String), iosMode: expect.any(String) } });
+    expect(parseDonationSettings({ currency: "XXX", iosMode: "maybe" }, false, current)).toMatchObject({ ok: false, errors: { currency: expect.any(String), iosMode: expect.any(String) } });
     expect(parseCampaignUpdate({ title: "", body: "" })).toMatchObject({ ok: false });
     expect(parseCampaignUpdate({ title: " Done ", body: " Thank   you " })).toEqual({ ok: true, value: { title: "Done", body: "Thank you" } });
   });
