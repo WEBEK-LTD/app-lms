@@ -192,9 +192,7 @@ function GatewayCard({ provider, checked, onChoose, connected, mode }: { provide
       </span>
       <span id={`${id}-takes`} className="flex flex-col gap-0.5 text-[13px] leading-snug text-ink-4">
         <span>{t(TAKES[provider])}</span>
-        <span className="text-muted" dir="ltr">
-          {currencies(lang, provider, t)}
-        </span>
+        <span className="text-muted">{currencies(lang, provider, t)}</span>
       </span>
       <span className="mt-auto flex items-center justify-between gap-2 pt-1">
         {connected && mode ? <ModeBadge mode={mode} t={t} /> : <span />}
