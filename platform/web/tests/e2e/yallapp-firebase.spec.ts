@@ -11,7 +11,7 @@ import { solidPng } from "./png";
  * hand, the Check that signs in to a fake Google without a key, where new
  * projects are made, and the next one made by the platform); a new store app
  * without a website starts in Yallapp's Firebase, is registered when its
- * package name and bundle ID are saved, and its build gets Yallapp's files;
+ * package name and bundle ID are saved, and its files are read from Firebase;
  * "Use my own Firebase" brings today's fields back, and the Notifications
  * page has no key to upload in Yallapp's mode. At the end the pool is closed
  * again, so the specs after this one make their apps as before.
@@ -27,7 +27,6 @@ const suffix = Date.now().toString(36);
 const client = { name: "Zahra Flowers", email: `zahra-${suffix}@flowers.test`, password: "zahra-strong-password-1" };
 const PARENT = "organizations/555000111222";
 const pkg = `com.zahra${suffix}.app`;
-const pipeline = { authorization: `Bearer ${E2E.pipelineToken}` };
 const shots = process.env.YALLAPP_SHOTS_DIR ? path.resolve(process.env.YALLAPP_SHOTS_DIR) : null;
 
 let fake: FakeGoogleServer;
@@ -230,26 +229,14 @@ test("a new store app starts in Yallapp's Firebase and is registered when its na
   await own.locator("[data-dashboard-languages]").getByRole("button", { name: "English" }).click();
   await expect(own.locator("html")).toHaveAttribute("dir", "ltr");
 
-  // Finishing the setup queues the first build: its config carries Yallapp's files, as a client's own would be.
+  // Finishing the setup keeps Yallapp's choice. (A hosted app's build config needs https addresses, so the
+  // test server, on http, queues no build: tests/unit/phase136-firebase.test.ts checks the files themselves.)
   await own.getByRole("group", { name: "Push notifications" }).getByRole("radio", { name: /Yallapp sets up notifications/ }).check();
   await own.getByRole("button", { name: "Finish setup" }).click();
   await expect(own).toHaveURL(/\/dashboard\/builds/);
-  type Config = { android_package: string; firebase: { android_config_url: string; ios_config_url: string } };
-  const queue = (await (await own.request.get("/api/v1/builds/queue", { headers: pipeline })).json()) as { builds: { id: string }[] };
-  let build: { id: string } | undefined;
-  let config: Config | undefined;
-  for (const queued of queue.builds) {
-    const read = (await (await own.request.get(`/api/v1/builds/${queued.id}/config`, { headers: pipeline })).json()) as Config;
-    if (read.android_package === pkg) [build, config] = [queued, read];
-  }
-  expect(build).toBeTruthy();
-  await own.request.post(`/api/v1/builds/${build!.id}/status`, { headers: pipeline, data: { status: "building" } });
-  if (!config) throw new Error("No build of the app was queued.");
-  expect(Object.keys(config.firebase).sort()).toEqual(["android_config_url", "ios_config_url"]);
-  const file = JSON.parse(await (await own.request.get(config.firebase.android_config_url.replace(/^https?:\/\/[^/]+/, ""))).text()) as { project_info: { project_id: string }; client: { client_info: { android_client_info: { package_name: string } } }[] };
-  expect(file.project_info.project_id).toBe("yallapp-push-01");
-  expect(file.client.map((c) => c.client_info.android_client_info.package_name)).toEqual([pkg]);
-  await own.request.post(`/api/v1/builds/${build!.id}/status`, { headers: pipeline, data: { status: "failed", message: "Stopped by the test." } });
+  // The platform read both apps' files from Firebase, to save them where the client's own would be.
+  const configs = fake.google.calls.filter((c) => c.method === "GET" && c.path.startsWith("/firebase/v1beta1/projects/yallapp-push-01/") && c.path.endsWith("/config")).map((c) => c.path.split("/")[5]);
+  expect([...new Set(configs)].sort()).toEqual(["androidApps", "iosApps"]);
 });
 
 test("the Notifications page has no key to upload in Yallapp's mode", async () => {
