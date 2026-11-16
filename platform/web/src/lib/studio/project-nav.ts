@@ -1,5 +1,6 @@
 import type { App } from "../data/types";
 import type { DashboardText } from "../dashboard-words";
+import type { DashKey } from "@/i18n/dashboard";
 import { contentNavOf, usersLabelOf } from "../app/kinds";
 import { STEP_LABEL } from "../app/setup";
 import { chatSessionKind } from "../chat/access";
@@ -9,7 +10,8 @@ import { studioScreensOn } from "./screens";
 
 /**
  * 132.1 A Studio project's menu: every page of the dashboard that applies to
- * the project, in Studio's frame (`/studio/project/…`), in a few short
+ * the project, in Studio's frame (`/studio/project/…`; the account's own
+ * `/studio/account` and `/studio/team`), in a few short
  * groups. The same gates as the dashboard's own menu (app/dashboard/layout.tsx):
  * the project's kind and content (its own pages, a store's delivery and
  * offers), where its people sign in (the notifications or the site's
@@ -49,10 +51,31 @@ export interface StudioNavInput {
 export function inStudioFrame(dashboardHref: string): string {
   if (dashboardHref === "/dashboard") return "/studio/project";
   if (dashboardHref === "/dashboard/pages") return "/studio/editor";
+  // 132.51 The account's own pages, in Studio's account frame (as lib/studio/section.ts's studioAccountPathFor sends them).
+  const account = /^\/dashboard\/(account|team)$/.exec(dashboardHref);
+  if (account) return `/studio/${account[1]}`;
   return dashboardHref.replace(/^\/dashboard/, "/studio/project");
 }
 
 const item = (dashboardHref: string, label: string, icon: string): StudioNavItem => ({ dashboardHref, href: inStudioFrame(dashboardHref), label, icon });
+
+/** The school's pages whose English word is another kind's too (a gym's Classes), or has no translation of its own: Studio's own words. */
+const SCHOOL_WORDS: Record<string, DashKey> = {
+  "/dashboard/school/classes": "studio.navSchoolClasses",
+  "/dashboard/school/attendance": "studio.navSchoolAttendance",
+  "/dashboard/school/homework": "studio.navSchoolHomework",
+  "/dashboard/school/grades": "studio.navSchoolGrades",
+  "/dashboard/school/fees": "studio.navSchoolFees",
+};
+
+/** 115 The marketplace's own pages (the Marketplace kind's menu has them all; a food company reaches them too). */
+const MARKET_PAGES = [
+  { href: "/dashboard/market/orders", label: "Marketplace orders", icon: "shopping_bag" },
+  { href: "/dashboard/market/offers", label: "Offers & club", icon: "local_offer" },
+  { href: "/dashboard/market/joining", label: "Joining", icon: "note_add" },
+  { href: "/dashboard/market/complaints", label: "Complaints", icon: "support_agent" },
+  { href: "/dashboard/market/statements", label: "Statements", icon: "receipt_long" },
+] as const;
 
 /** 132.1 The project's menu, in its groups, only what the person may open; a group left empty goes. */
 export function studioProjectNav({ app, text, can, supportUrl }: StudioNavInput): StudioNavGroup[] {
@@ -60,6 +83,16 @@ export function studioProjectNav({ app, text, can, supportUrl }: StudioNavInput)
   const content = contentNavOf(app);
   // 131 A store's delivery, gifts, flash sales and discount codes, and its card messages, next to its products and orders.
   const storeExtras = app.appType === "store" ? [item("/dashboard/selling", t("selling.nav"), "local_shipping"), item("/dashboard/selling/messages", t("selling.messagesTitle"), "redeem")] : [];
+  // A kind's page by its own word: the school's Classes are its classes, not the gym's ("Classes" alone is the gym's word in the known texts).
+  const kindLabel = (href: string, label: string) => {
+    const own = SCHOOL_WORDS[href];
+    return own ? t(own) : k(label);
+  };
+  // 115 A food company's marketplace pages, which its Marketplace settings turn on: its orders, offers and club, joining, complaints and statements.
+  const marketExtras = (items: readonly { href: string }[]) =>
+    app.appType === "food"
+      ? MARKET_PAGES.filter((m) => !items.some((i) => i.href === m.href)).map((m) => item(m.href, k(m.label), m.icon))
+      : [];
   const kind: StudioNavGroup | null =
     app.appType === "delivery"
       ? // 104 A delivery company's group, in the approved design's words.
@@ -76,7 +109,7 @@ export function studioProjectNav({ app, text, can, supportUrl }: StudioNavInput)
           ],
         }
       : content
-        ? { id: "kind", label: k(content.label), items: [...content.items.map((i) => item(i.href, k(i.label), i.icon)), ...storeExtras] }
+        ? { id: "kind", label: k(content.label), items: [...content.items.map((i) => item(i.href, kindLabel(i.href, i.label), i.icon)), ...marketExtras(content.items), ...storeExtras] }
         : storeExtras.length
           ? { id: "kind", label: t("selling.nav"), items: storeExtras }
           : null;

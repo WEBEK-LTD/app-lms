@@ -8,7 +8,12 @@ import { getStore } from "@/lib/data";
 import { effectivePlans } from "@/lib/entitlements";
 import { hasReviewSignIn } from "@/lib/publishing/review-account";
 import { deliveryOverview, studioProjectCard } from "@/lib/studio/projects";
-import { isStudioProject } from "@/lib/studio/section";
+import { isStudioProject, studioPathFor } from "@/lib/studio/section";
+import type { DashKey } from "@/i18n/dashboard";
+import { formatNumber } from "@/i18n/format";
+import { demoIdOf } from "@/lib/demo/constants";
+import { demoItems } from "@/lib/demo/picker";
+import { canHaveSamples, countList, LIST_PAGE } from "@/lib/samples/lists";
 import { Icon } from "@/components/icon";
 import { AllSamples } from "@/components/samples";
 import type { IconName } from "@/components/icon-names";
@@ -38,16 +43,25 @@ export default async function StudioProjectPage({ searchParams }: PageProps<"/st
       : t(({ catalog: "studio.srcCatalogShort", wordpress: "studio.srcWordpress", shopify: "studio.srcShopify", custom_api: "studio.srcApi", none: "studio.srcNone" } as const)[card.source.key]);
   // 104 A delivery company: its prices and payment instead of a content source, and today's shipments and couriers.
   const delivery = app.appType === "delivery" ? await deliveryOverview(store, app, now) : null;
+  // 132.62 The owner's own entries in the app's main list (content kept in Yallapp; the demo's samples don't count).
+  const items = !delivery && canHaveSamples(app) ? demoItems(demoIdOf(app)) : null;
+  const ownItems = items ? (await countList(store, app, items.list)).own : 0;
   const steps = [
     { done: card.home !== null, label: t("studio.checkDesign"), href: "/studio/editor", link: t("studio.continue") },
     { done: Boolean(app.brandingDoneAt), label: t("studio.checkIdentity"), href: "/studio/project/setup?step=branding", link: t("studio.continue") },
     delivery
       ? { done: delivery.pricesSet, label: t("studio.checkDeliveryPrices"), href: "/studio/project/delivery", link: t("studio.continue") }
       : { done: Boolean(app.websiteDoneAt), label: t("studio.checkSource"), href: "/studio/project/setup?step=website", link: t("studio.continue") },
+    ...(items
+      ? [{ done: ownItems > 0, label: t(`start.items.${items.noun}.own` as DashKey), href: studioPathFor(LIST_PAGE[items.list]) ?? "/studio/project", link: t(`start.items.${items.noun}.open` as DashKey) }]
+      : []),
     { done: hasReviewSignIn(app), label: t(delivery ? "studio.checkReviewBoth" : "studio.checkReview"), href: "/studio/project/publishing", link: t("studio.continue") },
+    // 132.62 The design reaches the app once it's published from the editor.
+    { done: card.published, label: t("studioKit.checkPublish"), href: "/studio/editor", link: t("studio.openEditor") },
     { done: card.plan !== null, label: t("studio.checkPlan"), href: "/studio/project/license", link: t("studio.plansLink") },
   ];
-  const number = (n: number) => n.toLocaleString(lang === "ar" ? "ar-EG" : lang);
+  // 132.64 Latin digits, as everywhere else in the dashboard ("3 of 7 done", "31 minutes ago").
+  const number = (n: number) => formatNumber(lang, n);
   const stats: { label: string; value: string; icon: IconName }[] = delivery
     ? [
         { label: t("studio.statShipmentsToday"), value: number(delivery.shipmentsToday), icon: "package_2" },

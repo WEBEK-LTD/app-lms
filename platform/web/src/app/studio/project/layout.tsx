@@ -18,8 +18,8 @@ import { studioJumpTargets, studioProjectNav } from "@/lib/studio/project-nav";
 import { isStudioProject } from "@/lib/studio/section";
 import { C, Glyph, StudioBar, StudioScreen } from "../chrome";
 import { ProjectNav } from "./project-nav";
-import { AccountMenu } from "./account-menu";
 import { StudioDashboardLinks } from "./dashboard-links";
+import { StudioAccountMenu } from "../account-menu";
 
 /**
  * 103R.3 A Studio project's dashboard: the project switcher, its preview and
@@ -57,17 +57,17 @@ export default async function StudioProjectLayout({ children }: { children: Reac
     </div>
   );
   const role = member ? t(`team.roles.${context.access.role}` as DashKey) : null;
-  // The account's pages, as the menu's Account group has them (only what the person may open).
-  const accountItems = groups.find((g) => g.id === "account")?.items ?? [];
+
   const bold = { b: (chunk: string) => <strong>{chunk}</strong> };
   return (
     <StudioScreen dir={dir} lang={lang} themed>
       <StudioDashboardLinks />
       <StudioBar>
-        <details className="relative">
-          <summary className="flex cursor-pointer list-none items-center gap-1.5 rounded-[10px] px-3 py-1.5 text-sm" style={{ background: C.barSoft }} aria-label={t("studio.switchProject")}>
+        {/* 132.4 On phones the bar stays one line: the project as its kind's icon (its name is in the switcher), Preview in the menu. */}
+        <details className="relative min-w-0">
+          <summary className="flex cursor-pointer list-none items-center gap-1.5 rounded-[10px] px-3 py-1.5 text-sm max-sm:px-2" style={{ background: C.barSoft }} aria-label={t("studio.switchProject")}>
             <Glyph name={kindOf(app).icon} size={18} />
-            <span className="max-sm:max-w-[40vw] max-sm:truncate">{name}</span>
+            <span className="max-sm:sr-only">{name}</span>
             <Glyph name="expand_more" size={18} />
           </summary>
           <div className="absolute start-0 top-[calc(100%+6px)] z-20 flex min-w-[240px] flex-col gap-0.5 rounded-xl p-1.5 shadow-lg" style={{ border: "1px solid var(--sf-line)", background: "var(--sf-surface)", color: "var(--sf-ink)" }}>
@@ -92,7 +92,7 @@ export default async function StudioProjectLayout({ children }: { children: Reac
           </div>
         </details>
         <div className="flex-[1_1_20px]" />
-        <Link href="/studio/project/preview" className="flex h-[38px] items-center gap-1.5 rounded-[10px] px-3.5 text-sm font-semibold no-underline max-sm:px-2.5" style={{ border: `1px solid ${C.barLine}`, color: C.ivory }}>
+        <Link href="/studio/project/preview" className="flex h-[38px] items-center gap-1.5 rounded-[10px] px-3.5 text-sm font-semibold no-underline max-sm:hidden" style={{ border: `1px solid ${C.barLine}`, color: C.ivory }}>
           <Glyph name="play_arrow" size={18} />
           {/* On phones the bar's two links as their icons, so the bar stays one line. */}
           <span className="max-sm:sr-only">{t("studio.previewOnPhone")}</span>
@@ -101,8 +101,8 @@ export default async function StudioProjectLayout({ children }: { children: Reac
           <Glyph name="draw" size={18} />
           <span className="max-sm:sr-only">{t("studio.openEditor")}</span>
         </Link>
-        {/* 132.4 The account's menu: its pages, the language, dark mode and signing out. */}
-        <AccountMenu label={t("studio.navAccountMenu")} name={me.name} email={me.email} role={role} items={accountItems} footer={settings} />
+        {/* 132.51 The language, the account, the team and signing out; 132.3 the account's other pages and dark mode. */}
+        <StudioAccountMenu />
       </StudioBar>
 
       {/* Below lg the menu is a bar above the page: its line keeps its own height. */}
@@ -118,7 +118,7 @@ export default async function StudioProjectLayout({ children }: { children: Reac
             footer={
               // 132.4 As at the dashboard's foot: who is signed in (their account's page), the language, light or dark, and signing out.
               <div className="flex flex-col gap-2.5">
-                <Link href="/studio/project/account" className="flex items-center gap-3 rounded-[10px] no-underline" style={{ color: "var(--sf-ink)" }}>
+                <Link href="/studio/account" className="flex items-center gap-3 rounded-[10px] no-underline" style={{ color: "var(--sf-ink)" }}>
                   <span className="flex h-9 w-9 flex-none items-center justify-center rounded-full text-sm font-bold" style={{ background: "var(--sf-soft)", color: "var(--sf-ink)" }} aria-hidden="true">
                     {(me.name.trim()[0] ?? "?").toUpperCase()}
                   </span>

@@ -147,9 +147,10 @@ export default async function AnalyticsPage({ searchParams }: PageProps<"/dashbo
         <ZoneForm zone={zone} label={zoneText} zones={timeZones()} chosen={Boolean(app.timeZone)} />
       </div>
       <Notice>
+        {/* 132.63 An app without a plan yet isn't told about "your Starter plan": what it keeps until it has one. */}
         {kept.from === null
-          ? t("analytics.keptNoteForever", { plan: planName, days: analyticsEventsKeepText(lang) })
-          : t("analytics.keptNote", { plan: planName, kept: analyticsKeepText(lang, kept.months), days: analyticsEventsKeepText(lang), from: dayText(kept.from, text) })}
+          ? t(plan ? "analytics.keptNoteForever" : "studioKit.keptNoteForeverNoPlan", { plan: planName, days: analyticsEventsKeepText(lang) })
+          : t(plan ? "analytics.keptNote" : "studioKit.keptNoteNoPlan", { plan: planName, kept: analyticsKeepText(lang, kept.months), days: analyticsEventsKeepText(lang), from: dayText(kept.from, text) })}
         {range.limited && kept.from ? ` ${t("analytics.keptLimited", { from: dayText(kept.from, text) })}` : null}
       </Notice>
       <Notice>{t("analytics.installsNote")}</Notice>

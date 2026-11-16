@@ -3,6 +3,9 @@
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { ownContentSetup } from "@/lib/app/own-content";
+import { ownerLang } from "@/lib/app/owner-lang";
+import { startDraftIn, startLanguages, wordsLangOf } from "@/lib/app/start-language";
+import { inMainLanguage } from "@/lib/pages/builtin";
 import { STUDIO_ONLY_KINDS, isStudioProject, studioPathFor } from "@/lib/studio/section";
 import { applyProjectTemplate, projectTemplateOf } from "@/lib/studio/project-templates";
 import { appWords } from "@/lib/studio/app-words";
@@ -185,6 +188,9 @@ export async function chooseAppTypeAction(formData: FormData): Promise<void> {
     // The account's first app starts with the website given at sign-up; the next ones ask for theirs.
     const app = newApp(context.client.id, context.apps.length ? null : context.client.siteUrl, now, appType, vertical);
     await store.createApp(app);
+    // 132.40 An Arabic or Turkish owner's app starts in their language.
+    const lang = await ownerLang(context);
+    if (lang !== "en") await startDraftIn(store, app, startLanguages(lang, (await appDefaults(store)).languages), now);
     await chooseApp(app.id);
     await recordStaffChange(
       { ...context, app },
@@ -248,7 +254,9 @@ export async function startFromWebsiteAction(formData: FormData): Promise<void> 
   // 11.5 A type the team switched off isn't offered; a new app has no plan yet.
   if (!appTypeOn(await getSwitches(store), scan.appType, null)) fail("unavailable");
   const now = new Date();
-  const draft = draftFromScan(scan, await appDefaults(store), now);
+  // 132.40 In the owner's language, unless the site says its own (lib/scan/draft.ts).
+  const defaults = await appDefaults(store);
+  const draft = draftFromScan(scan, { ...defaults, languages: startLanguages(await ownerLang(context), defaults.languages) }, now);
   const images = await siteImages(scan, deps);
   const base = newApp(context.client.id, draft.details.siteUrl, now, draft.appType, draft.vertical);
   const ownContent = ENGINES[base.appType].websites.includes("catalog") && (scan.platform.id !== "wordpress" || hostedOnly(base.appType));
@@ -269,7 +277,7 @@ export async function startFromWebsiteAction(formData: FormData): Promise<void> 
   if (images.icon) app.iconAssetId = await saveAsset(context.client.id, "icon", images.icon.data, images.icon.contentType, images.icon.extension);
   await store.createApp(app);
   await chooseApp(app.id);
-  const saved = await saveDraft(store, app, draft.layout, now);
+  const saved = await saveDraft(store, app, inMainLanguage(draft.layout), now);
   // The default pages for its type then; never seen so far, but the app is made all the same.
   if (!saved.ok) console.error("[site scan] draft", saved.errors.slice(0, 3).join("; "));
   const kind = appTypeName(app);
@@ -632,7 +640,8 @@ export async function saveBrandingAction(_: FormState, formData: FormData): Prom
   }
   // 124.6 The template's whole project, as a new project from it starts (or its look only), in the colour just chosen.
   if (project && project.id !== context.app.design) {
-    const { lang } = await dashboardText();
+    // 132.40 In the project's main language when Studio has words in it, else the dashboard's.
+    const lang = wordsLangOf((await store.getAppLayout(context.app.id))?.draft.languages, (await dashboardText()).lang);
     const app = { ...context.app, ...patch };
     const words = { w: appWords(lang, app.appName ?? ""), lang };
     const saved = await applyProjectTemplate(store, app, project, now, words, { mode, look: { template: parsed.data.template, ...lookFont(parsed.data.font) } });

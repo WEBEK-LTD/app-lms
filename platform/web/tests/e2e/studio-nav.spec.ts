@@ -115,7 +115,7 @@ for (const [i, kind] of KINDS.entries()) {
       .locator("ul a[href]:not([target=_blank])")
       .evaluateAll((all) => all.map((a) => (a as HTMLAnchorElement).getAttribute("href")!));
     // The pages the owner missed are there.
-    for (const page of ["/studio/project/media", "/studio/project/team", "/studio/project/protection", "/studio/project/preview", "/studio/project/stability", "/studio/project/announcements", "/studio/project/phones", "/studio/project/account", "/studio/project/integrations"]) {
+    for (const page of ["/studio/project/media", "/studio/team", "/studio/project/protection", "/studio/project/preview", "/studio/project/stability", "/studio/project/announcements", "/studio/project/phones", "/studio/account", "/studio/project/integrations", "/studio/project/license", "/studio/project/invoices"]) {
       expect(links, page).toContain(page);
     }
     expect(new Set(links).size).toBe(links.length);
@@ -135,9 +135,10 @@ for (const [i, kind] of KINDS.entries()) {
         await expect(own.getByRole("link", { name: "Yallapp Studio" }).first(), href).toBeVisible();
         continue;
       }
-      // In Studio's frame, with its menu and the page open marked.
+      // In Studio's frame, with its menu and the page open marked (the account's own pages: with their tabs).
       await expect(own.locator("[data-studio-frame]"), href).toHaveCount(1);
-      await expect(sideMenu().locator("a[aria-current=page]"), href).toHaveCount(1);
+      if (href.startsWith("/studio/project")) await expect(sideMenu().locator("a[aria-current=page]"), href).toHaveCount(1);
+      else await expect(own.locator("main a[aria-current=page]"), href).toHaveCount(1);
     }
     expect(problems.slice(before)).toEqual([]);
   });
@@ -195,37 +196,43 @@ test("the quick search, the groups, the phone's sheet, Arabic and the dark frame
   await sideMenu().getByRole("button", { name: "English" }).click();
   await expect(own.locator("html")).toHaveAttribute("lang", "en");
 
-  // 132.4 The account's menu on the bar: every page about the account, in Studio's frame.
+  // 132.3 The account's menu on the bar: every page about the account, in Studio's frame.
   const account = own.locator("[data-studio-account]");
   const accountPages: [string, RegExp][] = [
-    ["Your account", /\/studio\/project\/account$/],
-    ["Team", /\/studio\/project\/team$/],
+    ["Your account", /\/studio\/account$/],
+    ["Team", /\/studio\/team$/],
     ["Plan", /\/studio\/project\/license$/],
     ["Invoices", /\/studio\/project\/invoices$/],
     ["Your phones", /\/studio\/project\/phones$/],
     ["Updates from Yallapp", /\/studio\/project\/announcements$/],
   ];
   for (const [name, url] of accountPages) {
+    await own.goto("/studio/project");
     await account.locator("summary").click();
     await account.getByRole("link", { name, exact: true }).click();
     await expect(own).toHaveURL(url);
     await expect(own.locator("[data-studio-frame]")).toHaveCount(1);
-    await expect(account).not.toHaveAttribute("open", "");
   }
-  // Your account: two-step sign-in, signing out everywhere, Yallapp's emails and deleting the account.
-  await own.goto("/studio/project/account");
+  // From a project page the menu closes as the next page opens.
+  await account.locator("summary").click();
+  await account.getByRole("link", { name: "Plan", exact: true }).click();
+  await expect(own).toHaveURL(/\/studio\/project\/license$/);
+  await expect(account).not.toHaveAttribute("open", "");
+  // Your account: two-step sign-in, Yallapp's emails and deleting the account.
+  await own.goto("/studio/account");
   await expect(own.getByRole("heading", { name: "Your account", level: 1 })).toBeVisible();
   await expect(own.getByRole("heading", { name: "Two-step sign-in" })).toBeVisible();
   await expect(own.getByRole("heading", { name: "Delete your Yallapp account" })).toBeVisible();
   // The person at the menu's foot opens it too; the language and dark mode are in the account's menu.
   await own.goto("/studio/project");
   await sideMenu().getByRole("link", { name: new RegExp(client.name) }).click();
-  await expect(own).toHaveURL(/\/studio\/project\/account$/);
+  await expect(own).toHaveURL(/\/studio\/account$/);
   await account.locator("summary").click();
   await expect(account.getByRole("button", { name: "Dark mode" })).toBeVisible();
   await expect(account.getByRole("button", { name: "Sign out" })).toBeVisible();
   await own.keyboard.press("Escape");
   await expect(account).not.toHaveAttribute("open", "");
+  await own.goto("/studio/project");
 
   // Dark: the frame's colours turn.
   const board = () => own.locator("[data-studio-frame]").evaluate((el) => getComputedStyle(el).backgroundColor);

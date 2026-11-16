@@ -17,15 +17,15 @@ import { effectivePlans } from "@/lib/entitlements";
 import { appUrl, signingSecret } from "@/lib/env";
 import { hostedSettings } from "@/lib/hosted/service";
 import { yallappSignsIn } from "@/lib/hosted/sign-in-methods";
-import { appDefaults, draftLayout, publishedLayout } from "@/lib/pages/layout";
+import { draftLayout, lookAndLanguages } from "@/lib/pages/layout";
 import { appLanguageName } from "@/lib/i18n/language-names";
 import { dashboardText } from "@/lib/dashboard-lang";
 import { richText } from "@/i18n/rich";
 import { localePath } from "@/i18n/paths";
-import { languagesForPlan } from "@/lib/pages/plan";
 import { draftPreviewSupported, missingSteps, previewContentSource, previewWaitingFor } from "@/lib/preview/config";
 import { wordpressPluginConnected } from "@/lib/preview/service";
 import { createPreviewToken, previewAppPath, previewKey } from "@/lib/preview/token";
+import { isStudioProject } from "@/lib/studio/section";
 import { courierAppNameOf, hasCourierJobs, hasSecondApp, secondAppRoleOf } from "@/lib/delivery/courier-app";
 import { deliverySettingsOf } from "@/lib/delivery/settings";
 import { PreviewPanel } from "./panel";
@@ -60,7 +60,10 @@ export default async function PreviewPage({ searchParams }: PageProps<"/dashboar
   const plan = planId ? plans[planId] : null;
   const draftSupported = draftPreviewSupported(app);
   const params = await searchParams;
-  const draft = draftSupported && params.pages === "draft";
+  // 132.60 A Studio project that hasn't published yet opens on its draft, what was designed in the editor; Published stays a tap away.
+  const studio = isStudioProject(app);
+  const unpublished = draftSupported && studio && params.pages === undefined && !(await store.getAppLayout(app.id))?.published;
+  const draft = draftSupported && (params.pages === "draft" || unpublished);
   const token = createPreviewToken({ appId: app.id, draft }, previewKey(signingSecret()), now);
   const path = previewAppPath(token);
   // 112.3 A delivery, food, ride or taxi project: its couriers' (drivers') app too, with its own link.
@@ -86,8 +89,8 @@ export default async function PreviewPage({ searchParams }: PageProps<"/dashboar
   const name = appLabel(app) === "Untitled app" ? k("Untitled app") : appLabel(app);
 
   // The languages the app offers, as it will get them (draft or published, within the plan).
-  const layout = draft ? await draftLayout(store, app, now) : await publishedLayout(store, app.id);
-  const languages = languagesForPlan(layout?.languages ?? (await appDefaults(store)).languages, plan);
+  // 132.42 Before the first publish, the draft's languages, as the app gets them.
+  const { languages } = await lookAndLanguages(store, app, draft ? await draftLayout(store, app, now) : undefined, plan);
   const languageOptions = languages.available.map((code) => ({ code, label: appLanguageName(code, lang) }));
   // 43 The Languages page opens the preview in the language being translated.
   const startLanguage = typeof params.lang === "string" && languages.available.includes(params.lang) ? params.lang : languages.default;
@@ -153,7 +156,7 @@ export default async function PreviewPage({ searchParams }: PageProps<"/dashboar
           <span className="text-sm font-semibold text-muted">{t("preview.pages")}</span>
           <span className="flex flex-wrap gap-1 rounded-xl border border-line bg-white p-1">
             {[
-              { href: "/dashboard/preview", on: !draft, label: t("preview.published") },
+              { href: studio ? "/dashboard/preview?pages=published" : "/dashboard/preview", on: !draft, label: t("preview.published") },
               { href: "/dashboard/preview?pages=draft", on: draft, label: t("preview.draft") },
             ].map((choice) => (
               <Link

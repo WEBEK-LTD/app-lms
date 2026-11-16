@@ -19,7 +19,6 @@ import { appUrl } from "@/lib/env";
 import { fieldErrors, type FormState } from "@/lib/forms";
 import { hitRateLimit, RATE_LIMITS } from "@/lib/rate-limit";
 import { isTeamArea } from "@/lib/team/permissions";
-import { teamPath } from "@/lib/studio/section";
 import { acceptInvitation, businessesOf, cancelInvitation, invitationForToken, inviteMember, removeMember, resendInvitation, updateMember, type TeamDeps } from "@/lib/team/service";
 import { teamInviteSchema, teamJoinExistingSchema, teamJoinNewSchema } from "@/lib/validation";
 
@@ -98,15 +97,14 @@ export async function resendInvitationAction(formData: FormData): Promise<void> 
   const store = await getStore();
   const result = await resendInvitation(teamDeps(store), { client: context.client, owner: context.user, apps: await store.listAppsByClient(context.client.id), inviter: actorOf(context), id: String(formData.get("id") ?? "") });
   revalidatePath("/dashboard/team");
-  // 132.3 A Studio project's team page stays in Studio's frame.
-  redirect(teamPath(context.app, result.ok ? `?done=resent&email=${encodeURIComponent(result.invitation.email)}` : "?done=closed"));
+  redirect(result.ok ? `/dashboard/team?done=resent&email=${encodeURIComponent(result.invitation.email)}` : "/dashboard/team?done=closed");
 }
 
 export async function cancelInvitationAction(formData: FormData): Promise<void> {
   const context = await requireTeamOwner();
   await cancelInvitation(await getStore(), { client: context.client, actor: actorOf(context), id: String(formData.get("id") ?? "") }, new Date());
   revalidatePath("/dashboard/team");
-  redirect(teamPath(context.app, "?done=cancelled"));
+  redirect("/dashboard/team?done=cancelled");
 }
 
 export async function updateMemberAction(_: FormState, formData: FormData): Promise<FormState> {

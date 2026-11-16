@@ -15,13 +15,15 @@ export interface DashboardNavItem {
   /** Also current for paths that start with this prefix. */
   prefix?: string;
   exact?: boolean;
-  /** 93.3 A count next to the label (the app's problems), with what it counts for screen readers. */
-  badge?: { count: number; label: string };
+  /** 93.3 A count next to the label (the app's problems), with what it counts for screen readers; 106 `soft`: a quiet count (My templates). */
+  badge?: { count: number; label: string; tone?: "soft" };
 }
 
 export interface DashboardNavGroup {
   /** Shown above the group's links; none for the first group. */
   label?: string;
+  /** 106 A "New" pill after the label, in the dashboard's language. */
+  isNew?: string;
   items: DashboardNavItem[];
 }
 
@@ -29,7 +31,8 @@ const PANEL_ID = "dashboard-menu";
 
 function isCurrent(item: DashboardNavItem, pathname: string): boolean {
   if (item.external) return false;
-  if (item.exact) return pathname === item.href;
+  // 106 An exact item can also be current under its prefix (Browse templates on a template's page).
+  if (item.exact) return pathname === item.href || (item.prefix !== undefined && pathname.startsWith(`${item.prefix}/`));
   return pathname === item.href || pathname.startsWith(`${item.href}/`) || (item.prefix !== undefined && (pathname === item.prefix || pathname.startsWith(`${item.prefix}/`)));
 }
 
@@ -113,8 +116,9 @@ export function DashboardSidebar({
           {groups.map((group, index) => (
             <div key={group.label ?? index} className="flex flex-col gap-1">
               {group.label ? (
-                <p id={`${panelId}-g${index}`} className="m-0 px-3 pb-1 text-xs font-bold tracking-[0.06em] text-muted uppercase">
+                <p id={`${panelId}-g${index}`} className="m-0 flex items-center gap-2 px-3 pb-1 text-xs font-bold tracking-[0.06em] text-muted uppercase">
                   {group.label}
+                  {group.isNew ? <span className="rounded-full bg-ember px-[7px] py-px text-[10.5px] font-extrabold tracking-normal text-[#0e0d24] normal-case">{group.isNew}</span> : null}
                 </p>
               ) : null}
               <ul aria-labelledby={group.label ? `${panelId}-g${index}` : undefined} className="m-0 flex list-none flex-col gap-0.5 p-0">
@@ -129,7 +133,7 @@ export function DashboardSidebar({
                       <Icon name={item.icon} size={22} filled={current} className={current ? "text-accent" : "text-muted group-hover:text-midnight"} />
                       <span className="min-w-0 flex-1">{item.label}</span>
                       {item.badge && item.badge.count > 0 ? (
-                        <span data-nav-badge={item.badge.count} className="flex h-5 min-w-5 items-center justify-center rounded-full bg-danger px-1.5 text-xs font-bold text-white">
+                        <span data-nav-badge={item.badge.count} className={`flex h-5 min-w-5 items-center justify-center rounded-full px-1.5 text-xs font-bold ${item.badge.tone === "soft" ? "bg-line-soft text-muted" : "bg-danger text-white"}`}>
                           <span aria-hidden="true">{item.badge.count}</span>
                           <span className="sr-only">{item.badge.label}</span>
                         </span>
