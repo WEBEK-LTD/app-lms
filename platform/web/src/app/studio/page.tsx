@@ -9,6 +9,7 @@ import { getStore } from "@/lib/data";
 import { effectivePlans } from "@/lib/entitlements";
 import { studioProjectCard } from "@/lib/studio/projects";
 import { isStudioProject } from "@/lib/studio/section";
+import { StudioAccountMenu } from "./account-menu";
 import { ago, C, Glyph, StudioBar, StudioScreen } from "./chrome";
 import { ProjectsGrid, type ProjectCardView } from "./projects-grid";
 
@@ -25,7 +26,6 @@ export default async function StudioHomePage() {
   const store = await getStore();
   const now = new Date();
   const plans = await effectivePlans(store);
-  const me = context.member ?? context.user;
   const projects = context.apps.filter(isStudioProject);
   const sourceWord = (card: Awaited<ReturnType<typeof studioProjectCard>>) =>
     card.source.key === "platform"
@@ -67,12 +67,8 @@ export default async function StudioHomePage() {
           <Glyph name="help" size={18} />
           {t("studio.help")}
         </a>
-        <div className="flex items-center gap-2 text-sm">
-          <span className="flex h-8 w-8 items-center justify-center rounded-full font-bold" style={{ background: C.barLine }} aria-hidden="true">
-            {(me.name.trim()[0] ?? "?").toUpperCase()}
-          </span>
-          {me.name}
-        </div>
+        {/* 132.51 Who is signed in, as a menu: the language, the account, the team, signing out. */}
+        <StudioAccountMenu />
       </StudioBar>
 
       <main id="main" className="mx-auto box-border flex w-full max-w-[1200px] flex-1 flex-col gap-6 px-6 pt-8 pb-10">

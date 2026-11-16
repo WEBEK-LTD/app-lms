@@ -33,6 +33,16 @@ export function studioPathFor(path: string): string | null {
 }
 
 /**
+ * 132.50 The account's own pages Studio shows in its own frame
+ * (/studio/account, /studio/team), so someone working on a Studio project
+ * never lands in the regular dashboard's menu; null for every other address.
+ */
+export function studioAccountPathFor(path: string): string | null {
+  const m = /^\/(?:ar\/|tr\/)?dashboard\/(account|team)\/?(\?[^#]*)?$/.exec(path);
+  return m ? `/studio/${m[1]}${m[2] ?? ""}` : null;
+}
+
+/**
  * The app's Plan page, in its own section: a Studio project's in Studio's
  * frame. Links keep their `#part` this way (a redirect from the dashboard's
  * address can't: the browser never sends it).

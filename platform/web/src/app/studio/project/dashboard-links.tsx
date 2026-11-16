@@ -2,7 +2,7 @@
 
 import { useRouter } from "next/navigation";
 import { useEffect } from "react";
-import { studioPathFor } from "@/lib/studio/section";
+import { studioAccountPathFor, studioPathFor } from "@/lib/studio/section";
 
 /**
  * The dashboard's pages shown in a Studio project link to `/dashboard/…`
@@ -20,7 +20,8 @@ export function StudioDashboardLinks() {
       if (!(link instanceof HTMLAnchorElement) || link.target === "_blank" || link.hasAttribute("download")) return;
       const url = new URL(link.href, window.location.href);
       if (url.origin !== window.location.origin || !/^\/(?:ar\/|tr\/)?dashboard(\/|$)/.test(url.pathname)) return;
-      const target = studioPathFor(`${url.pathname}${url.search}`);
+      // 132.50 The account and the team in Studio's frame too.
+      const target = studioPathFor(`${url.pathname}${url.search}`) ?? studioAccountPathFor(`${url.pathname}${url.search}`);
       if (!target) return;
       event.preventDefault();
       event.stopPropagation();
