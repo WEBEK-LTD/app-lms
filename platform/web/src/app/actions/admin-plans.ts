@@ -80,6 +80,11 @@ function copyOf(from: Plan, saved: Partial<Record<Plan, PlanSetting>>, name: str
   const copy: PlanSetting = { ...setting, name: name.slice(0, 30), offered: false, order, featured: false };
   delete copy.archived;
   delete copy.badge;
+  // Its own name in every language: the Arabic and Turkish names of the plan it copies would name two plans the same.
+  if (copy.translations) {
+    const translations = Object.fromEntries(Object.entries(copy.translations).map(([lang, text]) => [lang, { ...text, name: undefined, badge: undefined }]));
+    copy.translations = JSON.parse(JSON.stringify(translations)) as PlanSetting["translations"];
+  }
   return copy;
 }
 

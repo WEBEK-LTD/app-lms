@@ -3,6 +3,7 @@ import { newApp } from "@/lib/app/setup";
 import { addonBillings, addonsOf, addonText, BUILT_IN_ADDONS, cleanAddon, PUBLISHING_ADDON_ID } from "@/lib/addons/catalog";
 import { addonFeatures, addonTotals, withAddons } from "@/lib/addons/effects";
 import { remindEndingAddons } from "@/lib/addons/notify";
+import { remindLicense } from "@/lib/notices";
 import { addonEndFor, applyPaidAddon, grantAddon, newAppAddon, startAddonPayment } from "@/lib/addons/payment";
 import { addonRefusal, addonRenewable, addonRunning, belowTop, limitValue, topPlanOf } from "@/lib/addons/rules";
 import type { AddonDef, AppAddon } from "@/lib/addons/types";
@@ -478,6 +479,16 @@ describe("133 add-on payments, renewals and reminders", () => {
     // A payment for an add-on the team removed since keeps its name for the team.
     const orphan = { id: "p1", clientId: client.id, appId: app.id, plan: "growth", months: 0, amountCents: 100, currency: "EGP", status: "paid", tokenHash: "x", paymentId: "y", createdAt: NOW, paidAt: NOW, purpose: "addon", addon: { addonId: "gone", billing: "once", renews: null, name: "Old service" } } as PlanPayment;
     expect(await applyPaidAddon(store, orphan, NOW)).toMatchObject({ addonId: "gone", name: "Old service", kind: "service", activeUntil: null });
+  });
+
+  it("reminds the owner to renew the plan for the period last paid for", async () => {
+    const { store, client, app, license } = await withApp();
+    await store.createPlanPayment({ id: "pay-6", clientId: client.id, appId: app.id, plan: "growth", months: 6, amountCents: 65000, currency: "EGP", status: "paid", tokenHash: "t6", paymentId: "k6", createdAt: NOW, paidAt: NOW });
+    await store.updateLicense(license.id, { expiresAt: new Date("2026-10-19T23:59:59.999Z") }, NOW);
+    const sent: Record<string, unknown>[] = [];
+    const deps = { store, baseUrl: "https://yallapp.test", now: NOW, mail: async (_key: string, _to: string, values: Record<string, unknown>) => void sent.push(values) };
+    await remindLicense(deps as never, { app, client, license: (await store.getLicenseById(license.id))!, plans: PLAN_INFO });
+    expect(String(sent[0]!.renew_url)).toBe(`https://yallapp.test/dashboard/open?app=${app.id}&to=renew&period=6`);
   });
 
   it("reminds the owner 7 days before an add-on ends, once per end date", async () => {

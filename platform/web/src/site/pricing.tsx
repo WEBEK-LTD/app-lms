@@ -172,7 +172,8 @@ export async function PricingPage({ lang, period: asked = null }: { lang: Lang; 
               name: plan.name,
               price: periodPrices(plan, view).find((x) => x.key === "lifetime")!.price,
               once: w.payOnce,
-              includes: [...(lang === "en" ? planLimitLines(plan) : planLimitLinesFor(lang, plan)).map((l) => l.text), ...plan.highlights.slice(0, 3)],
+              // What's included as the team wrote it, else the plan's key limits.
+              includes: plan.highlights.length ? plan.highlights.slice(0, 7) : (lang === "en" ? planLimitLines(plan) : planLimitLinesFor(lang, plan)).map((l) => l.text),
               cta: { href: localePath(lang, "/sign-up"), label: formatMessage(lang, w.lifetimeChoose, { plan: plan.name }) },
             }))}
             link={<Link href={`${localePath(lang, "/pricing")}#regular`} className="font-semibold text-ember">{w.lifetimeCompare}</Link>}

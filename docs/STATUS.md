@@ -4,9 +4,24 @@ The current state of the project: what is released in the code, what still
 needs checking against real services, and what a deployment needs.
 `docs/ROADMAP.md` is the plan; this file is the current state.
 
-Last updated: 15 November 2026.
+Last updated: 16 November 2026.
 
 ## Current release
+
+Phase 133 (plans, billing periods and add-ons) is in the code: regular
+plans are added, copied, ordered, hidden, archived and removed like
+Studio's; every limit is editable, with the team's own limits and a
+regular app's page limit; each plan has its main price and any of 1, 6,
+12, 24 and 36 months or a lifetime price, chosen by the client on the
+pricing page, the Plan page, `/pending` and the payment form, carried to
+the payments (`plan_payments.months`, 0 for life), receipts, emails and
+Admin; a lifetime offer card on the pricing page (`/pricing#lifetime`) and
+the Plan page; and an add-ons store (Admin › Add-ons, Dashboard ›
+Add-ons, migration `0130_plans_addons`) whose quantity and feature
+add-ons raise the app's limits and switch features on wherever its plan
+is read, and whose services are tasks for the team. Nothing is priced:
+the new periods, the lifetime offer and the publishing service wait for
+the owner's prices (roadmap 133.12).
 
 Roadmap 131.54 (the documentation up to date for Phase 131) is complete:
 a new article `delivery-and-offers` ("Delivery days, gifts and flash
@@ -348,6 +363,9 @@ Billing and the App Store's in-app purchase) is complete (steps 100.1 to
 
 ## To verify against real services before release
 
+- 133 A Kashier payment for 6, 24 or 36 months, for life and for an
+  add-on (the amounts are the team's prices; the flow is the plans').
+
 These parts were tested against recorded answers or could not run in the
 test environment:
 
@@ -364,6 +382,12 @@ test environment:
   `?lang=` is not checked on Netlify yet.
 
 ## Known gaps
+
+- 133 A lifetime license's plan is changed by the team only (no self-serve
+  upgrade or downgrade); builds per month and apps per account can be the
+  team's own limits, shown to clients but not counted by the platform;
+  quantity add-ons for team members are shown, as the team members limit
+  itself is.
 
 - 131 A flash sale's units aren't counted from a connected platform's
   orders (its own checkout sells them).

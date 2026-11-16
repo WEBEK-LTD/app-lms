@@ -36,6 +36,8 @@ export const en = {
   pay: "Pay by card",
   payRenew: "Renew by card",
   addWithCoupon: "Add it with the coupon",
+  planForLife: "{plan} plan · for life",
+  payment: "Yallapp add-on payment",
   // The emails' words (the emails' Arabic is Modern Standard Arabic).
   email: {
     periodLine: "Paid for: {period}",
@@ -114,6 +116,8 @@ export const ar: Messages = {
   pay: "ادفع بالبطاقة",
   payRenew: "جدّد بالبطاقة",
   addWithCoupon: "ضيفها بالقسيمة",
+  planForLife: "باقة {plan} · مدى الحياة",
+  payment: "دفعة إضافة في Yallapp",
   email: {
     periodLine: "المدة المدفوعة: {period}",
     once: "دفعة واحدة",
@@ -188,6 +192,8 @@ export const tr: Messages = {
   pay: "Kartla ödeyin",
   payRenew: "Kartla yenileyin",
   addWithCoupon: "Kuponla ekleyin",
+  planForLife: "{plan} paketi · ömür boyu",
+  payment: "Yallapp eklenti ödemesi",
   email: {
     periodLine: "Ödenen süre: {period}",
     once: "Tek seferlik",

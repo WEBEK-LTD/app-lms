@@ -1,6 +1,7 @@
 import { chooseApp, getClientContext } from "@/lib/auth/session";
 import { appUrl } from "@/lib/env";
 import { isPlan } from "@/lib/plans";
+import { isPeriodKey } from "@/lib/billing/periods";
 
 /**
  * GET /dashboard/open?app=<id>&to=renew|change-plan|users|app-sign-in|media|builds|chat|addons: the links in the
@@ -15,7 +16,12 @@ export async function GET(request: Request): Promise<Response> {
   const app = context.apps.find((a) => a.id === url.searchParams.get("app"));
   if (app) await chooseApp(app.id);
   const plan = url.searchParams.get("plan");
-  const query = isPlan(plan) ? `?plan=${plan}` : "";
+  // 133 And the period to start on.
+  const period = url.searchParams.get("period");
+  const params = new URLSearchParams();
+  if (isPlan(plan)) params.set("plan", plan);
+  if (isPeriodKey(period)) params.set("period", period);
+  const query = params.size ? `?${params.toString()}` : "";
   switch (url.searchParams.get("to")) {
     case "renew":
       return go(`/dashboard/license${query}#renew`);

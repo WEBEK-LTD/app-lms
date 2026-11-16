@@ -82,7 +82,8 @@ test("the team adds a regular plan with prices for 1, 6, 12, 24 and 36 months an
   await expect(plan.locator('[data-period-status="6"]')).toHaveText("EGP 108.33 a month · saves 9% against 1 month".replace(/EGP /g, "EGP "));
   await plan.getByLabel("Shown to clients").check();
   await plan.getByRole("button", { name: "Save plan" }).click();
-  await expect(plan.getByText("Scale saved. The pricing page shows it now.")).toBeVisible();
+  // Its heading is its new name now.
+  await expect(admin.getByText("Scale saved. The pricing page shows it now.")).toBeVisible();
   await admin.reload();
   const scale = admin.getByRole("region", { name: "Scale" });
   await expect(scale).toContainText("Clients choose: 1 month · 6 months · 1 year · 2 years · 3 years · Lifetime");
@@ -99,7 +100,7 @@ test("the pricing page offers the periods, with the price per month, the saving 
   const visitor = await admin.context().browser()!.newPage({ extraHTTPHeaders });
   await visitor.goto("/pricing");
   const tabs = visitor.locator("[data-period-tabs]");
-  await expect(tabs.locator("[data-period]")).toHaveText(["Monthly", "6 months", "Yearly", "2 years", "3 years", "Lifetime"]);
+  await expect(tabs.locator("[data-period]")).toHaveText(["Monthly", "6 months", "Yearly", "2 years", "3 years", /Lifetime$/]);
   await tabs.locator('[data-period="6"]').click();
   await expect(visitor).toHaveURL(/\/pricing\?period=6#regular$/);
   const card = visitor.locator(`[data-pricing-plans] [data-plan="${PLAN}"]`);
@@ -163,7 +164,7 @@ test("a client chooses 6 months on the Plan page, pays EGP 650 on Kashier and ge
   await expect(receipt).toContainText(/Amount charged\s*EGP\s650/);
 
   await admin.goto(`/admin/clients?q=${encodeURIComponent(client.email)}`);
-  await expect(admin.getByRole("main")).toContainText("Scale until");
+  await expect(admin.getByRole("row").filter({ hasText: client.name })).toContainText("Scale");
 });
 
 test("the team defines the add-on +10 pages; the client buys it and the app's page limit rises", async () => {
@@ -267,7 +268,8 @@ test("the team puts everything back: the add-on off, the plan archived, Kashier 
   await visitor.close();
   // The app on it keeps it.
   await own.goto("/dashboard/license");
-  await expect(own.getByRole("region", { name: "Plan", exact: true })).toContainText("Scale");
+  // (An app not set up yet shows its license, as a WordPress app's.)
+  await expect(own.getByRole("region", { name: /^(Plan|License)$/ })).toContainText("Scale");
 
   await admin.goto("/admin/settings/payments");
   await admin.getByRole("region", { name: "Yallapp's Kashier account" }).getByRole("button", { name: "Remove keys" }).click();

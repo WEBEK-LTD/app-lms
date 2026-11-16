@@ -265,7 +265,8 @@ export default async function PlansPage({ searchParams }: PageProps<"/admin/plan
               id={selected}
               family="regular"
               plan={plans[selected]}
-              edited={Boolean(edits?.value[selected])}
+              // 133 An added plan has no default to go back to: it's archived or removed instead.
+              edited={Boolean(edits?.value[selected]) && !isAddedPlan(selected)}
               price={priceOf(selected)}
               usdAtRate={plans[selected].priceCents ? usdCentsOf({ egpCents: plans[selected].priceCents!, usdCents: null }, billing.egpPerUsd) : null}
               groups={availabilityGroups(switches, selected, "regular")}

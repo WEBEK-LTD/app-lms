@@ -8,6 +8,7 @@ import { mailOptions } from "./email/mail-lang";
 import { effectivePlans } from "./entitlements";
 import { appState } from "./license/status";
 import { formatLimit, lowestPlanWith, type Plan, type PlanInfo } from "./plans";
+import { periodOfMonths, type PeriodKey } from "./billing/periods";
 import { cleanDemoActivity, type DemoCleanupReport } from "./demo/cleanup";
 import { bookingSetup } from "./bookings/setup";
 import { hasClasses, syncClassSessions } from "./bookings/classes";
@@ -47,9 +48,11 @@ function formatDate(date: Date): string {
 }
 
 /** The link that opens the dashboard on this app's License & plugin page. */
-export function openAppUrl(baseUrl: string, appId: string, to: "renew" | "change-plan", plan?: Plan | null): string {
+export function openAppUrl(baseUrl: string, appId: string, to: "renew" | "change-plan", plan?: Plan | null, period?: PeriodKey | null): string {
   const query = new URLSearchParams({ app: appId, to });
   if (plan) query.set("plan", plan);
+  // 133 The period last paid for: the renewal form starts on it.
+  if (period) query.set("period", period);
   return `${baseUrl.replace(/\/+$/, "")}/dashboard/open?${query.toString()}`;
 }
 
@@ -198,7 +201,10 @@ export async function remindLicense(
   const name = appLabel(app);
   const plan = input.plans[currentPlanId(license, deps.now)];
   const end = formatDate(license.expiresAt);
-  const renewUrl = openAppUrl(deps.baseUrl, app.id, "renew");
+  // 133 Renewing for the period the app was last paid for (the form offers the others too).
+  const last = (await deps.store.listPlanPayments({ appId: app.id, status: "paid", limit: 5 })).find((p) => (p.purpose ?? "plan") === "plan");
+  const lastPeriod = last ? periodOfMonths(last.months) : null;
+  const renewUrl = openAppUrl(deps.baseUrl, app.id, "renew", null, lastPeriod && lastPeriod !== "lifetime" ? lastPeriod : null);
   const days = daysLeft(license.expiresAt, deps.now);
   const saved = await createAndMail(
     deps,

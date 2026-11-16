@@ -132,8 +132,15 @@ export default async function AddonsPage({ searchParams }: PageProps<"/dashboard
                     <Icon name={d.icon as IconName} size={24} />
                   </span>
                   <div className="flex flex-col gap-1">
-                    <h3 className="m-0 text-base font-bold">{words.name}</h3>
-                    {words.description ? <p className="m-0 text-sm leading-relaxed text-muted">{words.description}</p> : null}
+                    {/* The team's words may be in another script than the page's. */}
+                    <h3 dir="auto" className="m-0 text-base font-bold">
+                      {words.name}
+                    </h3>
+                    {words.description ? (
+                      <p dir="auto" className="m-0 text-sm leading-relaxed text-muted">
+                        {words.description}
+                      </p>
+                    ) : null}
                   </div>
                   <ul className="m-0 flex list-none flex-wrap gap-1.5 p-0 text-[13px]">
                     {choices.map((c) => (
@@ -221,7 +228,7 @@ function OwnedRow({
           <Icon name={(def?.icon ?? "widgets") as IconName} size={22} />
         </span>
       }
-      title={name}
+      title={<bdi>{name}</bdi>}
       badges={
         <>
           <Badge tone={running ? "success" : "neutral"}>{running ? t("addons.active") : t("addons.inactive")}</Badge>

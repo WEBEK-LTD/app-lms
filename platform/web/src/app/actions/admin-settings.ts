@@ -21,6 +21,7 @@ import { readRate } from "@/lib/billing/prices";
 import { PERIOD_KEYS, periodOfMonths, type PeriodMonths } from "@/lib/billing/periods";
 import { cardPlans } from "@/lib/billing/plan-payment";
 import {
+  isAddedPlan,
   isPlan,
   planFamily,
   PLAN_FEATURE_IDS,
@@ -798,7 +799,8 @@ export async function saveStoragePacksAction(_: FormState, formData: FormData): 
 export async function resetPlanAction(formData: FormData): Promise<void> {
   const admin = await requireAdmin("plans.edit");
   const plan = str(formData, "plan");
-  if (!isPlan(plan)) return;
+  // 133 An added plan has no default: it's archived, or removed while no client was ever on it (admin-plans.ts).
+  if (!isPlan(plan) || isAddedPlan(plan)) return;
   const store = await getStore();
   const { [plan]: _removed, ...rest } = (await platformSetting(store, "plans", { fresh: true }))?.value ?? {};
   await save("plans", Object.keys(rest).length ? rest : null, admin, {
