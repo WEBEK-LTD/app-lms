@@ -535,7 +535,8 @@ test("103R the team offers a Studio plan; the client makes a Studio project apar
   // The project's own dashboard, in Studio.
   await expect(own).toHaveURL(/\/studio\/project$/);
   await expect(own.getByRole("heading", { level: 1, name: "Spring Studio" })).toBeVisible();
-  // The Studio projects' invoices, in one list; none yet.
+  // The Studio projects' invoices, in one list; none yet (132.150 in the rail's Account group).
+  await own.getByRole("navigation", { name: "Project dashboard" }).locator('[aria-controls="sc-side-account"]').click();
   await own.getByRole("link", { name: "Invoices" }).click();
   await expect(own).toHaveURL(/\/studio\/project\/invoices$/);
   await expect(own.getByRole("heading", { level: 1, name: "Invoices" })).toBeVisible();

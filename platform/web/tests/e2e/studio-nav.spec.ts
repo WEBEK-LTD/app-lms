@@ -135,10 +135,9 @@ for (const [i, kind] of KINDS.entries()) {
         await expect(own.getByRole("link", { name: "Yallapp Studio" }).first(), href).toBeVisible();
         continue;
       }
-      // In Studio's frame, with its menu and the page open marked (the account's own pages: with their tabs).
+      // In Studio's frame, with its menu and the page open marked (132.150 the account's own pages too: they are in the console's menu).
       await expect(own.locator("[data-studio-frame]"), href).toHaveCount(1);
-      if (href.startsWith("/studio/project")) await expect(sideMenu().locator("a[aria-current=page]"), href).toHaveCount(1);
-      else await expect(own.locator("main a[aria-current=page]"), href).toHaveCount(1);
+      await expect(sideMenu().locator("a[aria-current=page]"), href).toHaveCount(1);
     }
     expect(problems.slice(before)).toEqual([]);
   });
@@ -164,12 +163,14 @@ test("the quick search, the groups, the phone's sheet, Arabic and the dark frame
   await expect(own.locator("[data-studio-palette] [role=option]").first()).toHaveAttribute("data-palette-href", "/studio/project/media");
   await search.press("Enter");
   await expect(own).toHaveURL(/\/studio\/project\/media$/);
-  // A group folds away and stays folded on the next page; the one with the page open stays open.
+  // 132.150 The rail's groups: one shows its pages in the panel; the page open shows its own group.
   const publish = sideMenu().getByRole("button", { name: /Publishing/ });
   await publish.click();
-  await expect(publish).toHaveAttribute("aria-expanded", "false");
+  await expect(publish).toHaveAttribute("aria-expanded", "true");
+  await expect(sideMenu().getByRole("link", { name: "Builds" })).toBeVisible();
   await own.goto("/studio/project/languages");
   await expect(sideMenu().getByRole("button", { name: /Publishing/ })).toHaveAttribute("aria-expanded", "false");
+  await expect(sideMenu().getByRole("button", { name: /The app/ })).toHaveAttribute("aria-expanded", "true");
   await own.goto("/studio/project/builds");
   await expect(sideMenu().getByRole("button", { name: /Publishing/ })).toHaveAttribute("aria-expanded", "true");
   await expect(sideMenu().getByRole("link", { name: "Builds" })).toHaveAttribute("aria-current", "page");
@@ -191,6 +192,8 @@ test("the quick search, the groups, the phone's sheet, Arabic and the dark frame
   await own.goto("/studio/project");
   await sideMenu().getByRole("button", { name: "العربية" }).click();
   await expect(own.locator("html")).toHaveAttribute("lang", "ar");
+  // 132.150 Media is in the app's group of the rail.
+  await sideMenu().getByRole("button", { name: "التطبيق", exact: true }).click();
   await expect(sideMenu().getByRole("link", { name: "الوسائط" })).toBeVisible();
   await expect(own.locator("[data-studio-frame]")).toHaveAttribute("dir", "rtl");
   await sideMenu().getByRole("button", { name: "English" }).click();

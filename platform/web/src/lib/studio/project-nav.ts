@@ -1,7 +1,7 @@
 import type { App } from "../data/types";
 import type { DashboardText } from "../dashboard-words";
 import type { DashKey } from "@/i18n/dashboard";
-import { contentNavOf, usersLabelOf } from "../app/kinds";
+import { contentNavOf, kindOf, usersLabelOf } from "../app/kinds";
 import { STEP_LABEL } from "../app/setup";
 import { chatSessionKind } from "../chat/access";
 import { needsYallappSignIn, storeBillingSource } from "../store-billing/access";
@@ -35,6 +35,8 @@ export interface StudioNavGroup {
   id: "start" | "kind" | "app" | "people" | "publish" | "account";
   /** Shown above the group's links; none for the first group. */
   label?: string;
+  /** 132.150 Its icon on the console's rail (Material Symbols Rounded, of the site's set). */
+  icon: string;
   items: StudioNavItem[];
 }
 
@@ -77,6 +79,17 @@ const MARKET_PAGES = [
   { href: "/dashboard/market/statements", label: "Statements", icon: "receipt_long" },
 ] as const;
 
+/**
+ * 132.150 The rail's icon of the kind's group: a shop front for a store, the
+ * kind's own icon for the rest (an academy with many teachers, whose icon is
+ * the people's, a school).
+ */
+function kindIcon(app: StudioNavInput["app"]): string {
+  if (app.appType === "store" && !app.vertical) return "storefront";
+  const icon = kindOf(app).icon;
+  return icon === "groups" ? "school" : icon;
+}
+
 /** 132.1 The project's menu, in its groups, only what the person may open; a group left empty goes. */
 export function studioProjectNav({ app, text, can, supportUrl }: StudioNavInput): StudioNavGroup[] {
   const { t, k } = text;
@@ -99,6 +112,7 @@ export function studioProjectNav({ app, text, can, supportUrl }: StudioNavInput)
         {
           id: "kind",
           label: t("studio.navDelivery"),
+          icon: kindIcon(app),
           items: [
             // 112.2 The couriers and jobs on the map.
             item("/dashboard/delivery/live", t("studio.navLiveMap"), "map"),
@@ -109,9 +123,9 @@ export function studioProjectNav({ app, text, can, supportUrl }: StudioNavInput)
           ],
         }
       : content
-        ? { id: "kind", label: k(content.label), items: [...content.items.map((i) => item(i.href, kindLabel(i.href, i.label), i.icon)), ...marketExtras(content.items), ...storeExtras] }
+        ? { id: "kind", label: k(content.label), icon: kindIcon(app), items: [...content.items.map((i) => item(i.href, kindLabel(i.href, i.label), i.icon)), ...marketExtras(content.items), ...storeExtras] }
         : storeExtras.length
-          ? { id: "kind", label: t("selling.nav"), items: storeExtras }
+          ? { id: "kind", label: t("selling.nav"), icon: kindIcon(app), items: storeExtras }
           : null;
   // 18 Where the app's people sign in decides how they hear from it: the hosted API's notifications, or the WordPress site's campaigns (85.4).
   const notifications =
@@ -123,6 +137,7 @@ export function studioProjectNav({ app, text, can, supportUrl }: StudioNavInput)
   const groups: StudioNavGroup[] = [
     {
       id: "start",
+      icon: "space_dashboard",
       items: [
         item("/dashboard", t("studio.overview"), "space_dashboard"),
         item("/dashboard/pages", t("studio.navEditor"), "draw"),
@@ -134,6 +149,7 @@ export function studioProjectNav({ app, text, can, supportUrl }: StudioNavInput)
     {
       id: "app",
       label: t("studio.groupApp"),
+      icon: "phone_iphone",
       items: [
         item("/dashboard/setup?step=website", t("studio.navSource"), "hub"),
         item("/dashboard/setup?step=branding", t("studio.navIdentity"), "palette"),
@@ -156,6 +172,7 @@ export function studioProjectNav({ app, text, can, supportUrl }: StudioNavInput)
     {
       id: "people",
       label: k(usersLabelOf(app)),
+      icon: "groups",
       items: [
         // 124.12 How people sign in and who sends their codes.
         item("/dashboard/app-sign-in", t("studio.navSignIn"), "login"),
@@ -169,6 +186,7 @@ export function studioProjectNav({ app, text, can, supportUrl }: StudioNavInput)
     {
       id: "publish",
       label: t("studio.groupPublish"),
+      icon: "public",
       items: [
         item("/dashboard/publishing", t("studio.navStores"), "storefront"),
         item("/dashboard/builds", t("studio.navBuilds"), "build"),
@@ -179,6 +197,7 @@ export function studioProjectNav({ app, text, can, supportUrl }: StudioNavInput)
     {
       id: "account",
       label: t("nav.account"),
+      icon: "account_circle",
       items: [
         item("/dashboard/license", t("studio.navPlan"), "workspace_premium"),
         item("/dashboard/invoices", t("studio.navInvoices"), "receipt_long"),

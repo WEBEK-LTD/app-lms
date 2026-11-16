@@ -173,11 +173,15 @@ test("the café sets up its menu with options, pickup and delivery", async () =>
   await own.getByRole("button", { name: "Add dish" }).click();
   await expect(own.getByRole("status").filter({ hasText: "Saved" })).toContainText("Saved “Defne Burger”.");
   const dish = own.locator('[data-product="Defne Burger"]');
-  await expect(dish.getByRole("link", { name: /Defne Burger/ })).toContainText("Mains · 2 option groups");
   await expect(dish).toContainText("₺460.00");
+  // 132.152 Its category and option groups in its inspector, opened from its row.
+  await dish.getByRole("button", { name: /^Defne Burger/ }).click();
+  const inspector = own.locator('[data-inspector-product="Defne Burger"]');
+  await expect(inspector).toContainText("Mains");
+  await expect(inspector).toContainText("2 option groups");
 
   // The options come back in the editor as saved.
-  await own.getByRole("link", { name: /Defne Burger/ }).click();
+  await own.getByRole("link", { name: "Edit dish" }).click();
   await expect(own.getByLabel("Group 1 option 2 extra price")).toHaveValue("150.00");
 });
 

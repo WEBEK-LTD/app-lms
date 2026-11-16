@@ -23,6 +23,8 @@ export const en = {
   off: "Off",
   notSet: "Not set",
   deleteOpen: "See what happens and ask to delete it",
+  // 132.150 The console's bar: where the page open is (the project, its group, the page).
+  breadcrumb: "Where you are",
 } as const;
 
 type Messages = Strings<typeof en>;
@@ -40,6 +42,7 @@ export const ar: Messages = {
   off: "مش مفعّل",
   notSet: "مش متحدد",
   deleteOpen: "شوف إيه اللي هيحصل واطلب حذفه",
+  breadcrumb: "إنت فين",
 };
 
 export const tr: Messages = {
@@ -55,4 +58,5 @@ export const tr: Messages = {
   off: "Kapalı",
   notSet: "Belirlenmedi",
   deleteOpen: "Ne olacağını görün ve silinmesini isteyin",
+  breadcrumb: "Bulunduğunuz yer",
 };

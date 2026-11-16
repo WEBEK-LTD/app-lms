@@ -474,6 +474,8 @@ test("124.11 a project's file brings the whole app into another project: pages, 
 
 test("124.12 Studio's menu leads to how people sign in", async () => {
   await own.goto("/studio/project");
+  // 132.150 In the rail's group of the app's people.
+  await own.getByRole("navigation", { name: "Project dashboard" }).locator('[aria-controls="sc-side-people"]').click();
   await own.getByRole("navigation", { name: "Project dashboard" }).getByRole("link", { name: "How people sign in", exact: true }).click();
   await expect(own).toHaveURL(/\/studio\/project\/app-sign-in$/);
   await expect(own.getByRole("heading", { name: "App sign-in", level: 1 })).toBeVisible();
@@ -577,8 +579,9 @@ test("every step on a phone in English, and no console errors or hydration warni
   await sheet.getByRole("link", { name: "Languages" }).click();
   await expect(own).toHaveURL(/\/studio\/project\/languages$/);
   await expect(sheet).toBeHidden();
-  // The bar names the page now open.
-  await expect(toggle.locator("..")).toContainText("Languages");
+  // The bar names the page now open: 132.150 the tab bar marks its group, the canvas names the page.
+  await expect(own.getByRole("navigation", { name: "Menu", exact: true }).getByRole("button", { name: "The app", exact: true })).toHaveAttribute("data-on", "");
+  await expect(own.getByRole("heading", { level: 1, name: "Languages" })).toBeVisible();
   await own.setViewportSize({ width: 1280, height: 720 });
   await expect(own.getByRole("navigation", { name: "Project dashboard" }).getByRole("link", { name: "Languages" })).toHaveAttribute("aria-current", "page");
   await expect(toggle).toBeHidden();

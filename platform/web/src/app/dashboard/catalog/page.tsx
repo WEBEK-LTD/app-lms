@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { Icon } from "@/components/icon";
-import { KitCallout, KitEmpty, KitHeader, KitHero, KitNext, KitPage, KitStat, kit } from "@/components/studio-page";
+import { KitBar, KitCallout, KitEmpty, KitHeader, KitHero, KitMore, KitNext, KitPage, KitStat, kit } from "@/components/studio-page";
 import { assetUrl } from "@/lib/assets";
 import { requireClient } from "@/lib/auth/session";
 import { formatCents } from "@/lib/catalog/money";
@@ -99,7 +99,7 @@ export default async function CatalogPage({ searchParams }: { searchParams: Prom
   };
 
   const noPayments = !paymentsSetUp(app) ? richText(t("manage.noPayments", { kind }), { link: (chunk) => <Link href="/dashboard/payments">{chunk}</Link> }) : null;
-  // 132.131 The premium kit: the header with one main action, the tabs, the numbers in one hero card with the next step, then the list.
+  // 132.152 The console's look: the title with one main action and Import behind "⋯", the tabs with the sample entries' note beside them, the numbers as tiles, then the table.
   return (
     <KitPage>
       <CatalogAnchors />
@@ -109,24 +109,28 @@ export default async function CatalogPage({ searchParams }: { searchParams: Prom
         description={t("shop.intro", { kind })}
         actions={
           <>
-            {/* 81.4 */}
-            <Link href="/dashboard/catalog/import" className={kit.ghost}>
-              <Icon name="upload" size={20} />
-              {t("imports.title")}
-            </Link>
+            <KitMore label={t("studioPage.more")}>
+              {/* 81.4 */}
+              <Link href="/dashboard/catalog/import" className={kit.menuItem}>
+                <Icon name="upload" size={18} />
+                {t("imports.title")}
+              </Link>
+            </KitMore>
             {has ? addLink : null}
           </>
         }
       />
-      <CatalogTabs app={app} />
+      <KitBar>
+        <CatalogTabs app={app} />
+        {/* 110.2 */}
+        <SampleEntries app={app} list="products" query={query} />
+      </KitBar>
 
       {saved ? (
         <KitCallout tone="success" icon="check_circle" role="status">
           <span className="font-semibold">{t("shop.savedName", { name: saved })}</span>
         </KitCallout>
       ) : null}
-      {/* 110.2 */}
-      <SampleEntries app={app} list="products" query={query} />
 
       {has ? (
         <>
@@ -134,7 +138,14 @@ export default async function CatalogPage({ searchParams }: { searchParams: Prom
             label={pageTitle}
             stats={
               <>
-                <KitStat icon={fulfilment ? "restaurant_menu" : "inventory_2"} label={t("shop.statItems", { kind })} value={num(products.length)} hint={categories.length ? `${t("shop.categories")}: ${num(categories.length)}` : undefined} />
+                <KitStat
+                  icon={fulfilment ? "restaurant_menu" : "inventory_2"}
+                  label={t("shop.statItems", { kind })}
+                  value={num(products.length)}
+                  hint={categories.length ? `${t("shop.categories")}: ${num(categories.length)}` : undefined}
+                  // The share shown in the app.
+                  progress={shown / products.length}
+                />
                 <KitStat icon="check_circle" tone="success" label={t("shop.statShown")} value={num(shown)} href="/dashboard/catalog?status=shown" />
                 <KitStat icon="visibility_off" label={t("common.hidden")} value={num(products.filter((p) => !p.active).length)} href="/dashboard/catalog?status=hidden" />
                 <KitStat icon="warning" tone="warn" label={t("shop.outOfStock")} value={num(products.filter((p) => p.stock === 0).length)} href="/dashboard/catalog?out=1" />

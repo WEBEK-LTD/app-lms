@@ -133,8 +133,9 @@ test("135.1–135.3 a Studio store sells in Kuwaiti dinars, then in yen, with th
   await expect(own.getByRole("status").filter({ hasText: "Saved" })).toContainText("Saved “Date maamoul box”.");
   await own.goto("/studio/project/catalog");
   await expect(own.getByText("KWD 1.250").first()).toBeVisible();
-  // Its own page: the price as typed, and the shop's address in the app.
-  await own.getByRole("link", { name: /Date maamoul box/ }).first().click();
+  // Its own page: the price as typed, and the shop's address in the app (132.152 from its inspector).
+  await own.getByRole("button", { name: /^Date maamoul box/ }).first().click();
+  await own.getByRole("link", { name: "Edit product" }).click();
   await expect(own.getByLabel("Price (KWD)", { exact: true })).toHaveValue("1.250");
   const link = (await own.getByRole("link", { name: /\/shop\// }).textContent())!;
   api = `${E2E.baseURL}/api/app/${/\/shop\/([0-9a-f-]{36})\//.exec(link)![1]}`;
