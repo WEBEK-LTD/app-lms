@@ -49,8 +49,8 @@ export type OwnPaymentInput =
   | { provider: "iyzico"; apiKey: string; secretKey: string; sandbox: boolean }
   | { provider: "kashier"; merchantId: string; apiKey: string; secretKey: string; sandbox: boolean }
   | { provider: "fawaterk"; apiKey: string; sandbox: boolean }
-  /** 96.1 A test key (sk_test_…) runs on Stripe's test data. */
-  | { provider: "stripe"; secretKey: string; sandbox: boolean }
+  /** 96.1 A test key (sk_test_…) runs on Stripe's test data; 132.30 with its publishable key, 132.31 and the webhook's signing secret. */
+  | { provider: "stripe"; secretKey: string; sandbox: boolean; publishableKey?: string | null; webhookSecret?: string | null }
   | { provider: "paypal"; clientId: string; secret: string; sandbox: boolean };
 
 /** 37 The client's own account with its keys encrypted (context `app:payment:<app id>`, as iyzico's always were). */
@@ -60,7 +60,15 @@ export function encryptOwnPayment(appId: string, input: OwnPaymentInput, key: Bu
   if (input.provider === "kashier") {
     return { provider: "kashier", merchantId: input.merchantId, apiKeyEncrypted: seal(input.apiKey), secretKeyEncrypted: seal(input.secretKey), sandbox: input.sandbox };
   }
-  if (input.provider === "stripe") return { provider: "stripe", secretKeyEncrypted: seal(input.secretKey), sandbox: input.sandbox };
+  if (input.provider === "stripe") {
+    return {
+      provider: "stripe",
+      secretKeyEncrypted: seal(input.secretKey),
+      sandbox: input.sandbox,
+      ...(input.publishableKey ? { publishableKey: input.publishableKey } : {}),
+      ...(input.webhookSecret ? { webhookSecretEncrypted: seal(input.webhookSecret) } : {}),
+    };
+  }
   if (input.provider === "paypal") return { provider: "paypal", clientId: input.clientId, secretEncrypted: seal(input.secret), sandbox: input.sandbox };
   return { provider: "fawaterk", apiKeyEncrypted: seal(input.apiKey), sandbox: input.sandbox };
 }
@@ -89,6 +97,31 @@ export function ownPaymentAccount(app: App, key: Buffer): PaymentAccount | null 
   } catch {
     return null;
   }
+}
+
+/**
+ * 132 Everything saved for the client's own account, decrypted (server
+ * only): what a field left empty on the payments page keeps, and what
+ * "Test connection" tests when nothing new is typed. Null when there's none
+ * (or it can't be opened).
+ */
+export function ownPaymentInput(app: App, key: Buffer): OwnPaymentInput | null {
+  const payment = catalogSettings(app).payment;
+  const account = ownPaymentAccount(app, key);
+  if (!account || !isOwnPayment(payment)) return null;
+  if (account.provider === "kashier") return { provider: "kashier", ...account.keys };
+  if (account.provider === "fawaterk") return { provider: "fawaterk", ...account.keys };
+  if (account.provider === "paypal") return { provider: "paypal", ...account.keys };
+  if (account.provider === "iyzico") return { provider: "iyzico", ...account.keys };
+  let webhookSecret: string | null = null;
+  if (payment.provider === "stripe" && payment.webhookSecretEncrypted) {
+    try {
+      webhookSecret = decrypt(payment.webhookSecretEncrypted, key, paymentContext(app.id));
+    } catch {
+      webhookSecret = null;
+    }
+  }
+  return { provider: "stripe", ...account.keys, publishableKey: payment.provider === "stripe" ? (payment.publishableKey ?? null) : null, webhookSecret };
 }
 
 /** The client's own iyzico keys, decrypted (server only); null when they don't use their own iyzico account. */
