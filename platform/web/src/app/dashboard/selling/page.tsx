@@ -315,7 +315,7 @@ export default async function SellingPage() {
       ) : null}
 
       <PageGroup title={t("selling.couponsTitle")}>
-        {source.kind === "catalog" ? <Notice tone="info">{richText(t("selling.couponsCatalog"), { link: (chunk) => <Link href="/dashboard/catalog#h-coupons">{chunk}</Link> })}</Notice> : null}
+        {source.kind === "catalog" ? <Notice tone="info">{richText(t("selling.couponsCatalog"), { link: (chunk) => <Link href="/dashboard/catalog/coupons">{chunk}</Link> })}</Notice> : null}
         {source.kind === "wordpress" ? <Notice tone="info">{t("selling.couponsWordpress")}</Notice> : null}
         {platform ? (
           <>

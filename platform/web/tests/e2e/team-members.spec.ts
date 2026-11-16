@@ -141,18 +141,19 @@ test("the owner sets up a shop and a customer pays for an order", async ({ reque
   await own.goto("/dashboard/setup?step=website");
   shopApi = (await own.locator("code").filter({ hasText: "/api/app/" }).textContent())!.trim();
   shopId = shopApi.split("/").pop()!;
-  await own.goto("/dashboard/catalog");
+  // 132.10 Payments have their own page under Products.
+  await own.goto("/dashboard/catalog/payments");
   await own.getByLabel("API key").fill("sandbox-api-key");
   await own.getByLabel("Secret key").fill("sandbox-secret-key");
   await own.getByText("Sandbox keys").click();
   await own.getByRole("button", { name: "Save keys" }).click();
   await expect(own.getByText("iyzico keys saved.")).toBeVisible();
-  await own.getByRole("link", { name: "Add product" }).click();
+  await own.goto("/dashboard/catalog/new");
   await own.getByLabel("Name", { exact: true }).fill("Copper pot");
   await own.getByLabel("Price (TRY)", { exact: true }).fill("320");
   await own.getByLabel("Stock").fill("5");
   await own.getByRole("button", { name: "Add product" }).click();
-  await expect(own.getByRole("status")).toContainText("Saved “Copper pot”.");
+  await expect(own.getByRole("status").filter({ hasText: "Saved" })).toContainText("Saved “Copper pot”.");
 
   // A customer signs in to the app and pays.
   const device = { id: `install-${suffix}`, platform: "android", name: "Pixel 8", app_version: "1.0.0" };
