@@ -70,9 +70,11 @@ test("a shop without a website only adds its own payment account", async () => {
   await own.getByRole("link", { name: "Products", exact: true }).click();
   // 132.10 Payments have their own page under Products.
   await own.getByRole("navigation", { name: "Products", exact: true }).getByRole("link", { name: /^Payments/ }).click();
+  // 132.120 The Products tab opens the one Payments page.
+  await expect(own).toHaveURL(/\/(dashboard|studio\/project)\/payments$/);
   const payments = own.getByRole("region", { name: "Card payments" });
   await expect(payments.getByText("Use your own payment account")).toBeVisible();
-  await expect(payments.getByLabel("Payment provider")).toBeVisible();
+  await expect(payments.getByRole("group", { name: /^Payment provider/ })).toBeVisible();
   await expect(payments.getByRole("button", { name: "Sell through Yallapp" })).toHaveCount(0);
   await expect(payments).not.toContainText(/commission|through Yallapp/i);
 });

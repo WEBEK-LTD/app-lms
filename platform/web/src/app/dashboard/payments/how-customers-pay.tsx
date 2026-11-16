@@ -1,4 +1,4 @@
-import { Badge, Notice, Section, formatDateTime } from "@/components/ui";
+import { Badge, Notice, Section, btn, formatDateTime } from "@/components/ui";
 import { Icon } from "@/components/icon";
 import { mayDo } from "@/components/owner-only";
 import { catalogSettings, orderNumber } from "@/lib/catalog/settings";
@@ -65,29 +65,50 @@ export async function HowCustomersPay({ app }: { app: App }) {
   ];
   const current = source === "catalog" ? "yallapp" : checkoutPaymentOf(app) === "in_app" ? "in_app" : "platform";
   const gateway = readiness.gateway ? PROVIDER_NAME[readiness.gateway] : null;
+  const gatewayState = readiness.testedAt ? "tested" : gateway ? "untested" : "missing";
+  // 132.120 In the Payments page's design: wide, the three ways side by side, then what paying inside the app needs on its own card.
   return (
-    <Section id="how-customers-pay" titleId="h-how-customers-pay" title={t("inAppPay.title")} description={t("inAppPay.intro")} className="max-w-[640px]">
+    <Section id="how-customers-pay" titleId="h-how-customers-pay" title={t("inAppPay.title")} description={t("inAppPay.intro")}>
       <CheckoutPaymentForm choices={choices} current={current} demo={{ title: t("inAppPay.demoTitle"), text: t("inAppPay.demoText") }} savable={owner && source !== "catalog"} />
       {source !== "catalog" && !readiness.blocked ? (
-        <div className="flex flex-col gap-2 rounded-xl border border-line-soft p-3.5 text-[14px] leading-relaxed" data-in-app-needs="">
-          <p className="m-0 font-semibold">{t("inAppPay.needsGateway")}</p>
-          <p className="m-0 flex items-start gap-2" data-gateway-state={readiness.testedAt ? "tested" : gateway ? "untested" : "missing"}>
-            <Icon name={readiness.testedAt ? "check_circle" : "warning"} size={18} filled={Boolean(readiness.testedAt)} className={`mt-0.5 shrink-0 ${readiness.testedAt ? "text-success" : "text-warn"}`} />
-            <span>
-              {readiness.testedAt && gateway
-                ? t("inAppPay.gatewayReady", { provider: gateway, at: formatDateTime(new Date(readiness.testedAt), lang) })
-                : gateway
-                  ? t("inAppPay.gatewayNotTested", { provider: gateway })
-                  : t("inAppPay.gatewayMissing")}
+        <div className="flex flex-col gap-3 rounded-2xl border border-line bg-white p-4 text-[14px] leading-relaxed" data-in-app-needs="">
+          <div className="flex flex-wrap items-start gap-3">
+            <span className="flex h-10 w-10 flex-none items-center justify-center rounded-xl bg-ivory">
+              <Icon name={readiness.testedAt ? "task_alt" : "pending"} size={22} filled className={readiness.testedAt ? "text-success" : "text-warn"} />
             </span>
-          </p>
-          <a href="#h-payments" className="inline-flex items-center gap-1.5 font-semibold underline underline-offset-2">
-            <Icon name="credit_card" size={18} />
-            {t("inAppPay.goToGateway")}
-          </a>
-          <p className="m-0 text-[13px] text-muted">{t("inAppPay.noFee")}</p>
-          {source === "wordpress" ? <p className="m-0 text-[13px] text-muted">{t("inAppPay.woo")}</p> : null}
-          {source === "wordpress" ? <p className="m-0 text-[13px] text-muted">{t("inAppPay.fallback")}</p> : null}
+            <span className="flex min-w-[12rem] flex-1 flex-col gap-0.5">
+              <span className="font-bold text-midnight">{t("inAppPay.needsGateway")}</span>
+              <span className="text-ink-3" data-gateway-state={gatewayState}>
+                {readiness.testedAt && gateway
+                  ? t("inAppPay.gatewayReady", { provider: gateway, at: formatDateTime(new Date(readiness.testedAt), lang) })
+                  : gateway
+                    ? t("inAppPay.gatewayNotTested", { provider: gateway })
+                    : t("inAppPay.gatewayMissing")}
+              </span>
+            </span>
+            <a href="#h-payments" className={`${btn.secondary} h-10`}>
+              <Icon name="credit_card" size={18} />
+              {t("inAppPay.goToGateway")}
+            </a>
+          </div>
+          <ul className="m-0 flex list-none flex-col gap-1.5 border-t border-line-soft p-0 pt-3 text-[13px] text-muted">
+            <li className="flex items-start gap-2">
+              <Icon name="check_circle" size={16} className="mt-0.5 shrink-0" />
+              {t("inAppPay.noFee")}
+            </li>
+            {source === "wordpress" ? (
+              <li className="flex items-start gap-2">
+                <Icon name="storefront" size={16} className="mt-0.5 shrink-0" />
+                {t("inAppPay.woo")}
+              </li>
+            ) : null}
+            {source === "wordpress" ? (
+              <li className="flex items-start gap-2">
+                <Icon name="info" size={16} className="mt-0.5 shrink-0" />
+                {t("inAppPay.fallback")}
+              </li>
+            ) : null}
+          </ul>
         </div>
       ) : null}
       {oldPlugin && catalogSettings(app).checkoutPayment === "in_app" ? (
@@ -121,7 +142,8 @@ export async function InAppPayments({ app }: { app: App }) {
       <Badge tone="neutral">{t("inAppPay.statusWaiting")}</Badge>
     );
   return (
-    <Section id="in-app-payments" titleId="h-in-app-payments" title={t("inAppPay.listTitle")} description={t("inAppPay.listIntro")} className="max-w-[640px]">
+    // 132.120 Wide like the rest of the page; each payment on its own card, the ones needing attention first in colour.
+    <Section id="in-app-payments" titleId="h-in-app-payments" title={t("inAppPay.listTitle")} description={t("inAppPay.listIntro")}>
       {attention > 0 ? (
         <Notice tone="danger" icon="warning" role="alert">
           {t("inAppPay.attentionBanner", { count: attention })}
@@ -131,7 +153,11 @@ export async function InAppPayments({ app }: { app: App }) {
       <ul className="m-0 flex list-none flex-col gap-3 p-0">
         {rows.map(({ platformOrder: p, order }) =>
           order ? (
-            <li key={p.id} className="flex flex-col gap-2 rounded-xl border border-line-soft p-3.5" data-in-app-payment={p.status}>
+            <li
+              key={p.id}
+              className={`flex flex-col gap-2 rounded-2xl border bg-white p-4 ${p.status === "needs_attention" ? "border-danger" : "border-line"}`}
+              data-in-app-payment={p.status}
+            >
               <div className="flex flex-wrap items-center justify-between gap-2">
                 <span className="flex flex-col">
                   <span className="text-[15px] font-semibold">{t("inAppPay.payment", { number: orderNumber(order) })}</span>

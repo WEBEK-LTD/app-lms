@@ -89,6 +89,9 @@ function refresh() {
   revalidatePath("/dashboard/delivery");
   revalidatePath("/dashboard/ride-settings");
   revalidatePath("/dashboard/school/settings");
+  // 132.120 The one Payments page, in the dashboard and in Studio.
+  revalidatePath("/dashboard/payments");
+  revalidatePath("/studio/project/payments");
 }
 
 // Categories
@@ -511,7 +514,14 @@ export async function testPaymentKeysAction(_: PaymentTestState, formData: FormD
   );
   // 134 A pass on the saved keys themselves is what paying inside the app needs (new keys need a new test).
   const tested = report.ok ? testedOnSaved(app, read.input, saved, now) : null;
-  if (tested) await store.updateApp(app.id, { catalogSettings: { ...catalogSettings(app), gatewayTested: tested } }, now);
+  // 132.120 Kept for the Payments page's summary: which gateway, when, whether it all worked (nothing of the keys).
+  const fresh = (await store.getAppById(app.id)) ?? app;
+  await store.updateApp(
+    app.id,
+    { catalogSettings: { ...catalogSettings(fresh), gatewayTest: { provider, at: report.at, ok: report.ok, mode: report.mode }, ...(tested ? { gatewayTested: tested } : {}) } },
+    now,
+  );
+  refresh();
   return { ok: report.ok, report };
 }
 

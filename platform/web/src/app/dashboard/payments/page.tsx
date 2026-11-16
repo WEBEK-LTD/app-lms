@@ -14,6 +14,7 @@ import { takesOwnCardPayments } from "@/lib/payments/owner-keys";
 import { schoolCurrency, schoolSettingsOf } from "@/lib/school/settings";
 import { CardPayments, OtherPayments } from "../catalog/payments";
 import { HowCustomersPay, InAppPayments } from "./how-customers-pay";
+import { PaymentsSummary } from "./summary";
 import { inAppBlock } from "@/lib/selling/in-app-pay";
 
 export async function generateMetadata(): Promise<Metadata> {
@@ -37,7 +38,11 @@ async function sellingCurrency(store: DataStore, app: App): Promise<CatalogCurre
  * rides, school fees), with Stripe's setup, its webhook and "Test
  * connection"; bank transfer and the owner's own method where the app
  * takes them. The same sections stay on the pages where the app sells. A
- * Studio project opens it at /studio/project/payments.
+ * Studio project opens it at /studio/project/payments. 132.120 The one place
+ * for the products' and the courses' payments too (their old pages lead
+ * here), with a summary on top, the gateways as cards and each other way
+ * to pay on its own card. 134 A store's "How customers pay" (and the
+ * payments made in the app) between the summary and the gateways.
  */
 export default async function PaymentsPage() {
   const { app } = await requireClient("settings");
@@ -57,14 +62,21 @@ export default async function PaymentsPage() {
   }
   const kind = app.connector?.kind;
   const manual = kind === "catalog" || kind === "courses" || kind === "bookings" || kind === "events";
+  const currency = await sellingCurrency(await getStore(), app);
+  // 132.120 The products' and the courses' payments live only here now; the other kinds keep their sections where they sell too.
+  const elsewhere = kind !== "catalog" && kind !== "courses";
   return (
-    <div className="flex flex-col gap-6">
-      {header}
+    <div className="flex flex-col gap-6" data-payments-page="">
+      {/* The page's parts, each its own component, so what comes later slots in between them. */}
+      <PageHeader title={t("gateways.page")} description={manual ? t("manage.paymentsIntro") : t("gateways.pageIntro")} />
+      {/* The summary is of the owner's gateway: a store that can't take one here (Shopify, Wix…) has none to sum up. */}
+      {ownCards ? <PaymentsSummary app={app} currency={currency} /> : null}
+      {/* 134 In 132.120's slot, before the gateways: how a store's customers pay (Yallapp checkout, the store's own, or inside the app, Demo), then the payments made in the app. */}
       {storeApp ? <HowCustomersPay app={app} /> : null}
       {storeApp && kind !== "catalog" ? <InAppPayments app={app} /> : null}
-      {ownCards ? <CardPayments app={app} currency={await sellingCurrency(await getStore(), app)} /> : <Notice icon="info">{t("gateways.noCards")}</Notice>}
-      {manual ? <OtherPayments app={app} /> : null}
-      <p className="m-0 text-sm text-muted">{t("gateways.otherPlaces")}</p>
+      {ownCards ? <CardPayments app={app} currency={currency} wide /> : <Notice icon="info">{t("gateways.noCards")}</Notice>}
+      {manual ? <OtherPayments app={app} wide /> : null}
+      {elsewhere ? <p className="m-0 text-sm text-muted">{t("gateways.otherPlaces")}</p> : null}
     </div>
   );
 }

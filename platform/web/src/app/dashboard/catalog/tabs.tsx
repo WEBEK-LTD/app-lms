@@ -22,7 +22,8 @@ export async function CatalogTabs({ app }: { app: App }) {
         { href: "/dashboard/catalog/categories", label: t("shop.categories"), icon: "category", count: categories.length },
         { href: "/dashboard/catalog/coupons", label: t("shop.coupons"), icon: "local_offer", count: coupons.length },
         ...(restaurant ? [{ href: "/dashboard/catalog/delivery", label: t("shop.pickupDelivery"), icon: "delivery_dining" as const }] : []),
-        { href: "/dashboard/catalog/payments", label: t("manage.payments"), icon: "payments" },
+        // 132.120 The one Payments page, a tab away (it isn't a copy).
+        { href: "/dashboard/payments", label: t("manage.payments"), icon: "payments" },
         { href: "/dashboard/catalog/settings", label: t("manage.settings"), icon: "settings" },
       ]}
     />
@@ -34,8 +35,8 @@ export const CATALOG_ANCHORS: Record<string, string> = {
   "h-categories": "/dashboard/catalog/categories",
   "h-coupons": "/dashboard/catalog/coupons",
   "new-coupon": "/dashboard/catalog/coupons",
-  "h-payments": "/dashboard/catalog/payments",
-  "h-other-payments": "/dashboard/catalog/payments",
+  "h-payments": "/dashboard/payments",
+  "h-other-payments": "/dashboard/payments",
   "h-shop": "/dashboard/catalog/settings",
   "h-loyalty": "/dashboard/catalog/settings",
   "h-fulfilment": "/dashboard/catalog/delivery",

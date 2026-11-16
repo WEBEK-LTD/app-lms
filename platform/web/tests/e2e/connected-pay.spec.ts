@@ -181,7 +181,7 @@ test("a WooCommerce store's customers pay inside the app: the owner's Stripe, th
   expect(await (await request.post("/api/v1/store/payments", { data: cart() })).json()).toMatchObject({ code: "in_app_payment_off" });
 
   const payments = page.getByRole("region", { name: "Card payments" });
-  await payments.getByLabel("Payment provider").selectOption("stripe");
+  await payments.locator('[data-gateway="stripe"]').click();
   await payments.getByLabel("Publishable key").fill("pk_test_51LaleFlowersKey");
   await payments.getByLabel("Secret key").fill("sk_test_51LaleFlowersKey");
   await payments.getByRole("button", { name: "Save keys" }).click();
@@ -278,6 +278,8 @@ test("a WooCommerce store's customers pay inside the app: the owner's Stripe, th
   await expect(how.getByRole("status")).toContainText("Saved. Customers pay inside the app (Demo).");
   await page.goto("/dashboard/account");
   await page.getByRole("button", { name: "العربية" }).click();
+  // The choice is saved by the form's action: wait for it to land before leaving the page (a slower database's save came after the next page otherwise).
+  await expect(page.locator("html")).toHaveAttribute("lang", "ar");
   await page.goto("/dashboard/payments");
   const ar = page.getByRole("region", { name: "العملاء بيدفعوا إزاي" });
   await expect(ar.locator('[data-choice="in_app"]')).toContainText("الدفع جوه التطبيق (تجريبي)");
@@ -287,5 +289,6 @@ test("a WooCommerce store's customers pay inside the app: the owner's Stripe, th
   await shoot(page, "dashboard-payments-in-app-ar.png", "المدفوعات في التطبيق");
   await page.goto("/dashboard/account");
   await page.getByRole("button", { name: "English" }).click();
+  await expect(page.locator("html")).toHaveAttribute("lang", "en");
   await shoot(page, "dashboard-payments-in-app-en.png", "Payments in the app");
 });

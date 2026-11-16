@@ -244,14 +244,19 @@ test("132.11 the list finds, filters, sorts and changes products in bulk", async
 
 test("132.10 the long page's old addresses open their own pages", async () => {
   for (const [hash, page] of [
-    ["h-payments", "payments"],
-    ["h-categories", "categories"],
-    ["h-coupons", "coupons"],
-    ["h-shop", "settings"],
+    // 132.120 The one Payments page, outside Products.
+    ["h-payments", "/dashboard/payments"],
+    ["h-categories", "/dashboard/catalog/categories"],
+    ["h-coupons", "/dashboard/catalog/coupons"],
+    ["h-shop", "/dashboard/catalog/settings"],
   ] as const) {
     await own.goto(`/dashboard/catalog#${hash}`);
-    await expect(own).toHaveURL(new RegExp(`/dashboard/catalog/${page}$`));
+    await expect(own).toHaveURL(new RegExp(`${page}$`));
   }
+  // 132.120 The products' old Payments page leads to the one Payments page.
+  await own.goto("/dashboard/catalog/payments");
+  await expect(own).toHaveURL(/\/dashboard\/payments$/);
+  await own.goto("/dashboard/catalog#h-shop");
   await expect(own.getByRole("region", { name: "Shop settings" })).toBeVisible();
   // A shop has no pickup-and-delivery page (a restaurant's): its shipping is in Settings.
   await own.goto("/dashboard/catalog/delivery");
