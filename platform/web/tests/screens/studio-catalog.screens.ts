@@ -132,7 +132,8 @@ test("products and courses screenshots", async ({ page }) => {
   for (let i = 0; i < 3 && !/\/studio\/project$/.test(new URL(page.url()).pathname); i++) {
     const radio = page.getByRole("radio", { name: "Teachers", exact: true });
     if (await radio.isVisible()) await radio.click();
-    await page.getByRole("button", { name: "Next" }).click();
+    const next = page.getByRole("button", { name: "Next" });
+    if (await next.isVisible()) await next.click();
     await page.waitForTimeout(1500);
   }
   await expect(page).toHaveURL(/\/studio\/project$/, { timeout: 30_000 });
