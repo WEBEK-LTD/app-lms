@@ -8,6 +8,21 @@ Last updated: 16 November 2026.
 
 ## Current release
 
+Phase 133 (plans, billing periods and add-ons) is in the code: regular
+plans are added, copied, ordered, hidden, archived and removed like
+Studio's; every limit is editable, with the team's own limits and a
+regular app's page limit; each plan has its main price and any of 1, 6,
+12, 24 and 36 months or a lifetime price, chosen by the client on the
+pricing page, the Plan page, `/pending` and the payment form, carried to
+the payments (`plan_payments.months`, 0 for life), receipts, emails and
+Admin; a lifetime offer card on the pricing page (`/pricing#lifetime`) and
+the Plan page; and an add-ons store (Admin › Add-ons, Dashboard ›
+Add-ons, migration `0133_plans_addons`) whose quantity and feature
+add-ons raise the app's limits and switch features on wherever its plan
+is read, and whose services are tasks for the team. Nothing is priced:
+the new periods, the lifetime offer and the publishing service wait for
+the owner's prices (roadmap 133.12).
+
 Roadmap 132.110–132.115 (Admin working in a client's account, and apps
 made, moved and copied for clients) is complete: our team's create paths
 in a client's account no longer bounce to the admin, a banner shows whose
@@ -375,6 +390,9 @@ Billing and the App Store's in-app purchase) is complete (steps 100.1 to
 
 ## To verify against real services before release
 
+- 133 A Kashier payment for 6, 24 or 36 months, for life and for an
+  add-on (the amounts are the team's prices; the flow is the plans').
+
 These parts were tested against recorded answers or could not run in the
 test environment:
 
@@ -398,6 +416,12 @@ test environment:
   are one-language records. The sign-in code and receipt emails to an
   app's users are in English. The app picks the phone's language when it
   offers it, and its main language only otherwise.
+- 133 A lifetime license's plan is changed by the team only (no self-serve
+  upgrade or downgrade); builds per month and apps per account can be the
+  team's own limits, shown to clients but not counted by the platform;
+  quantity add-ons for team members are shown, as the team members limit
+  itself is.
+
 - 132.112 After a move without its data, the builds already on people's
   phones talk to the app in its new account, and their accounts stayed in
   the old one's archived record: they sign up again there. A ticket or

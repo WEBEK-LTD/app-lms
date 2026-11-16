@@ -199,6 +199,8 @@ test("the owner picks the video for a lesson, and the app plays it from a signed
   await curriculum.getByRole("button", { name: "Add section" }).click();
   await expect(curriculum.getByRole("heading", { name: "Hello" })).toBeVisible();
   await curriculum.getByRole("link", { name: "Lesson", exact: true }).click();
+  // The lesson's own page first: the curriculum's quick lesson has a "Lesson title" too, and typing there was lost on a slow runner.
+  await expect(own.getByRole("heading", { level: 1, name: "Add a lesson to Hello" })).toBeVisible();
   await own.getByLabel("Lesson title").fill("Greetings");
   await own.getByRole("button", { name: "Choose from Media" }).click();
   const dialog = own.getByRole("dialog", { name: "Your videos" });

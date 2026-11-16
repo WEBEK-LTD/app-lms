@@ -1,4 +1,5 @@
 import type { AppError, AuditEntry, Build, ClientMilestone, MilestoneKind, OwnerNotice, PlanPayment, PublishingEvent } from "../data/types";
+import { monthsLabel } from "../billing/periods";
 import { auditActionLabel } from "./audit-actions";
 import { APP_ERROR_SOURCE_LABEL } from "../watch/app-errors";
 import { formatCents } from "../catalog/money";
@@ -80,7 +81,7 @@ export function buildTimeline(input: TimelineInput, limit = 60): TimelineItem[] 
     items.push({
       at: p.paidAt,
       kind: "payment",
-      title: (p.purpose ?? "plan") === "storage" ? "Storage paid" : `Plan paid: ${p.plan}, ${p.months === 12 ? "a year" : "a month"}`,
+      title: (p.purpose ?? "plan") === "storage" ? "Storage paid" : p.purpose === "addon" ? `Add-on paid: ${p.addon?.name ?? ""}` : `Plan paid: ${p.plan}, ${p.months === 12 ? "a year" : p.months === 1 ? "a month" : monthsLabel(p.months).toLowerCase()}`,
       detail: formatCents(p.amountCents, p.currency),
       app: name(p.appId),
       tone: "good",

@@ -1,4 +1,5 @@
 import { readFileSync } from "node:fs";
+import { PLAN_INFO as ALL_PLAN_INFO, planNamesOf } from "@/lib/plans";
 import path from "node:path";
 import { describe, expect, it } from "vitest";
 import { contentSource } from "@/lib/admin/labels";
@@ -363,7 +364,7 @@ describe("20 app kinds registry", () => {
   });
 
   it("offers every engine to announcements, Real estate included", () => {
-    const planNames = { starter: "Starter", growth: "Growth", pro: "Pro", business: "Business", studio_1: "Studio 1", studio_2: "Studio 2", studio_3: "Studio 3", studio_4: "Studio 4", studio_5: "Studio 5", studio_6: "Studio 6", studio_7: "Studio 7", studio_8: "Studio 8" };
+    const planNames = { ...planNamesOf(ALL_PLAN_INFO), starter: "Starter", growth: "Growth", pro: "Pro", business: "Business", studio_1: "Studio 1", studio_2: "Studio 2", studio_3: "Studio 3", studio_4: "Studio 4", studio_5: "Studio 5", studio_6: "Studio 6", studio_7: "Studio 7", studio_8: "Studio 8" };
     expect(audienceOptions(planNames).appTypes).toEqual([
       { id: "lms", label: "Academy" },
       { id: "store", label: "Store" },

@@ -243,6 +243,7 @@ import type { ApiWebhook, ApiWebhookEvent, ApiWebhookPatch } from "./types";
 import type { PaymentRefund, RefundKind } from "./types";
 // 51 Media and storage
 import type { MediaFile, MediaFilePatch, MediaKind, MediaStatus, StoragePack, StoragePackPatch } from "./types";
+import type { AddonTaskStatus, AppAddon, AppAddonPatch } from "../addons/types";
 // 10.7 Listings
 // 58 Yallapp Business
 import type { OwnerDevice, OwnerDevicePatch } from "./types";
@@ -1809,6 +1810,17 @@ export interface DataStore {
   deleteStoragePack(appId: string, id: string): Promise<void>;
   /** Packs of every app that ended before `now` and whose end the owner wasn't told of yet. */
   listEndedStoragePacks(now: Date, limit: number): Promise<StoragePack[]>;
+
+  // 133 Add-ons each app has (lib/addons)
+  createAppAddon(addon: AppAddon): Promise<void>;
+  getAppAddon(id: string): Promise<AppAddon | null>;
+  /**
+   * Add-ons, newest first: an app's or an account's, of one add-on, with a
+   * service task in one of `taskStatus`, or (`endingBefore`) still active and
+   * ending before that date; at most `limit` (default 200).
+   */
+  listAppAddons(filter: { appId?: string; clientId?: string; addonId?: string; taskStatus?: AddonTaskStatus[]; endingBefore?: Date; limit?: number }): Promise<AppAddon[]>;
+  updateAppAddon(id: string, patch: AppAddonPatch): Promise<void>;
 
   // 58 Yallapp Business: devices signed in with the dashboard's account (lib/owner)
   createOwnerDevice(device: OwnerDevice): Promise<void>;
