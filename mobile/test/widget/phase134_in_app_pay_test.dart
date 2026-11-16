@@ -2,7 +2,6 @@ import 'dart:convert';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:yallapp/core/api/models/models.dart';
 import 'package:yallapp/core/config/build_config_data.dart';
 import 'package:yallapp/l10n/app_localizations.dart';
 import 'package:yallapp/l10n/app_localizations_ar.dart';
