@@ -1409,6 +1409,7 @@ export const en = {
   navSearchMore: "More pages",
   navSearchClose: "Close the search",
   navGroupToggle: "Show or hide {group}",
+  navAccountMenu: "Account and settings",
   // 132.6 Sign-in, the code and a new account in the system screens' look, or their own.
   followSystem: "As the system screens: {look}",
   signInFollowHint: "Sign-in, the code and a new account take the system screens' look, with your words, logo and photo.",
@@ -3176,6 +3177,7 @@ export const ar: Messages = {
   navSearchMore: "صفحات تانية",
   navSearchClose: "اقفل البحث",
   navGroupToggle: "اظهر أو اخفي {group}",
+  navAccountMenu: "الحساب والإعدادات",
   // 132.6
   followSystem: "زي شاشات النظام: {look}",
   signInFollowHint: "الدخول والكود والحساب الجديد بياخدوا شكل شاشات النظام، بكلامك واللوجو والصورة بتوعك.",
@@ -4940,6 +4942,7 @@ export const tr: Messages = {
   navSearchMore: "Diğer sayfalar",
   navSearchClose: "Aramayı kapat",
   navGroupToggle: "{group}: göster veya gizle",
+  navAccountMenu: "Hesap ve ayarlar",
   // 132.6
   followSystem: "Sistem ekranları gibi: {look}",
   signInFollowHint: "Giriş, kod ve yeni hesap, sizin sözleriniz, logonuz ve fotoğrafınızla sistem ekranlarının görünümünü alır.",

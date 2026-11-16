@@ -40,16 +40,30 @@ const KINDS = [
   "Travel: hotels and flights",
 ];
 
-test.beforeAll(async ({ browser }) => {
-  own = await browser.newPage({ extraHTTPHeaders, viewport: { width: 1280, height: 860 } });
-  // Console errors and hydration warnings. Not the fonts (this spec runs no font server), nor headless Chrome's notes on the app preview.
+/** Console errors and hydration warnings on [page]. Not the fonts (this spec runs no font server), nor headless Chrome's notes on the app preview. */
+function watch(page: Page): void {
   const browserNote = /was preloaded using link preload|WebGL|GL Driver Message|Failed to load resource/;
-  own.on("console", (m) => {
-    if ((m.type() === "error" || m.type() === "warning") && !m.location().url.includes("/api/v1/fonts/") && !browserNote.test(m.text())) {
-      problems.push(`${m.type()} on ${own.url()}: ${m.text()}`);
+  page.on("console", (m) => {
+    // Nor the app preview's own (the Flutter web app in its frame), which a quick move to the next page cuts off while it loads its fonts.
+    const preview = m.location().url.includes("/preview-app/") || (page.url().endsWith("/studio/project/preview") && /Failed to load font|Failed to fetch/.test(m.text()));
+    if ((m.type() === "error" || m.type() === "warning") && !preview && !m.location().url.includes("/api/v1/fonts/") && !browserNote.test(m.text())) {
+      problems.push(`${m.type()} on ${page.url()}: ${m.text()}`);
     }
   });
-  own.on("pageerror", (e) => problems.push(`pageerror on ${own.url()}: ${e.message}`));
+  page.on("pageerror", (e) => problems.push(`pageerror on ${page.url()}: ${e.message}`));
+}
+
+/** A new tab of the same browser, signed in: each kind's pages in their own (a long run of maps and the app preview in one tab runs it out of memory). */
+async function freshTab(): Promise<void> {
+  const next = await own.context().newPage();
+  watch(next);
+  await own.close();
+  own = next;
+}
+
+test.beforeAll(async ({ browser }) => {
+  own = await (await browser.newContext({ extraHTTPHeaders, viewport: { width: 1280, height: 860 } })).newPage();
+  watch(own);
   await own.goto("/sign-up");
   await own.getByLabel("Full name").fill(client.name);
   await own.getByLabel("Email").fill(client.email);
@@ -75,7 +89,7 @@ test.beforeAll(async ({ browser }) => {
 });
 
 test.afterAll(async () => {
-  await own.close();
+  await own.context().close();
 });
 
 /** A new Studio project of a kind, its content kept in Yallapp, from a blank page. */
@@ -89,14 +103,16 @@ async function newProject(kind: string, name: string): Promise<void> {
   await expect(own).toHaveURL(/\/studio\/project$/);
 }
 
-const sideMenu = () => own.locator("nav[aria-label='Project dashboard']").first();
+/** The side column's menu, in any language (the phone's sheet has one too, after it). */
+const sideMenu = () => own.locator("nav:has([data-studio-search])").first();
 
 for (const [i, kind] of KINDS.entries()) {
   test(`${kind}: every link of the menu opens in Studio's frame`, async () => {
     test.setTimeout(240_000);
+    await freshTab();
     await newProject(kind, `Project ${i + 1}`.slice(0, 30));
     const links = await sideMenu()
-      .locator("a[href]:not([target=_blank])")
+      .locator("ul a[href]:not([target=_blank])")
       .evaluateAll((all) => all.map((a) => (a as HTMLAnchorElement).getAttribute("href")!));
     // The pages the owner missed are there.
     for (const page of ["/studio/project/media", "/studio/project/team", "/studio/project/protection", "/studio/project/preview", "/studio/project/stability", "/studio/project/announcements", "/studio/project/phones", "/studio/project/account", "/studio/project/integrations"]) {
@@ -105,7 +121,12 @@ for (const [i, kind] of KINDS.entries()) {
     expect(new Set(links).size).toBe(links.length);
     const before = problems.length;
     for (const href of links) {
-      const response = await own.goto(href);
+      // A page still finishing its own work (the app preview's frame) can cut the next navigation off once: then again.
+      const response = await own.goto(href).catch(async (e: Error) => {
+        if (!/ERR_ABORTED|frame was detached/.test(e.message)) throw e;
+        await own.waitForLoadState("load");
+        return own.goto(href);
+      });
       expect(response?.status() ?? 0, href).toBeLessThan(400);
       const url = new URL(own.url());
       expect(url.pathname, href).toMatch(/^\/studio(\/|$)/);
@@ -125,9 +146,12 @@ for (const [i, kind] of KINDS.entries()) {
 test("the quick search, the groups, the phone's sheet, Arabic and the dark frame", async () => {
   await own.goto("/studio/project");
   // Ctrl+K: type, then Enter.
-  await own.keyboard.press("Control+k");
   const search = own.getByRole("combobox", { name: "Search pages" });
-  await expect(search).toBeFocused();
+  // Once the page is live.
+  await expect(async () => {
+    await own.keyboard.press("Control+k");
+    await expect(search).toBeFocused({ timeout: 1000 });
+  }).toPass();
   await search.fill("med");
   await expect(own.locator("[data-studio-palette] [role=option]").first()).toHaveAttribute("data-palette-href", "/studio/project/media");
   await search.press("Enter");
@@ -163,6 +187,38 @@ test("the quick search, the groups, the phone's sheet, Arabic and the dark frame
   await expect(own.locator("[data-studio-frame]")).toHaveAttribute("dir", "rtl");
   await sideMenu().getByRole("button", { name: "English" }).click();
   await expect(own.locator("html")).toHaveAttribute("lang", "en");
+
+  // 132.4 The account's menu on the bar: every page about the account, in Studio's frame.
+  const account = own.locator("[data-studio-account]");
+  const accountPages: [string, RegExp][] = [
+    ["Your account", /\/studio\/project\/account$/],
+    ["Team", /\/studio\/project\/team$/],
+    ["Plan", /\/studio\/project\/license$/],
+    ["Invoices", /\/studio\/project\/invoices$/],
+    ["Your phones", /\/studio\/project\/phones$/],
+    ["Updates from Yallapp", /\/studio\/project\/announcements$/],
+  ];
+  for (const [name, url] of accountPages) {
+    await account.locator("summary").click();
+    await account.getByRole("link", { name, exact: true }).click();
+    await expect(own).toHaveURL(url);
+    await expect(own.locator("[data-studio-frame]")).toHaveCount(1);
+    await expect(account).not.toHaveAttribute("open", "");
+  }
+  // Your account: two-step sign-in, signing out everywhere, Yallapp's emails and deleting the account.
+  await own.goto("/studio/project/account");
+  await expect(own.getByRole("heading", { name: "Your account", level: 1 })).toBeVisible();
+  await expect(own.getByRole("heading", { name: "Two-step sign-in" })).toBeVisible();
+  await expect(own.getByRole("heading", { name: "Delete your Yallapp account" })).toBeVisible();
+  // The person at the menu's foot opens it too; the language and dark mode are in the account's menu.
+  await own.goto("/studio/project");
+  await sideMenu().getByRole("link", { name: new RegExp(client.name) }).click();
+  await expect(own).toHaveURL(/\/studio\/project\/account$/);
+  await account.locator("summary").click();
+  await expect(account.getByRole("button", { name: "Dark mode" })).toBeVisible();
+  await expect(account.getByRole("button", { name: "Sign out" })).toBeVisible();
+  await own.keyboard.press("Escape");
+  await expect(account).not.toHaveAttribute("open", "");
 
   // Dark: the frame's colours turn.
   const board = () => own.locator("[data-studio-frame]").evaluate((el) => getComputedStyle(el).backgroundColor);
