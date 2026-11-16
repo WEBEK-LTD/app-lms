@@ -403,6 +403,15 @@ String _startAt(Ref ref) => ref.read(courierAppProvider)
     ? Paths.staff
     : Paths.home;
 
+/// 132.7 Where "Not now" on the sign-in screen goes: the app's start, as a
+/// guest; null when the app has nothing for a guest (a courier's, a
+/// driver's, a vendor's or the staff's app, every screen of which is the
+/// signed-in person's).
+final guestStartProvider = Provider<String?>((ref) {
+  final start = _startAt(ref);
+  return Paths.requiresAuth(start) ? null : start;
+});
+
 final appRouterProvider = Provider<GoRouter>((ref) {
   final refresh = _RouterRefresh();
   ref

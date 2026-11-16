@@ -4,7 +4,7 @@ The current state of the project: what is released in the code, what still
 needs checking against real services, and what a deployment needs.
 `docs/ROADMAP.md` is the plan; this file is the current state.
 
-Last updated: 15 November 2026.
+Last updated: 16 November 2026.
 
 ## Current release
 
@@ -18,6 +18,22 @@ plan to another app with the owner's emailed 6-digit approval, and copy an
 app into any account. Migration `0130_app_moves` (the requests, and
 `apps.moved_at`, `apps.moved_to_client_id` for the read-only record an app
 leaves behind).
+
+Roadmap 132.1–132.8 (Studio dashboard fixes): a Studio project's menu has
+every page of the dashboard that applies to the project, behind the
+dashboard's gates, in six groups that fold away, with a quick search
+(Ctrl+K), the person, language, dark mode and sign-out at its foot, every
+page about the account reachable from it and from the account menu on the
+bar (Your account and Team at /studio/account and /studio/team, the plan,
+invoices, phones and updates in the project's frame), Payments under The
+app, a food company's marketplace pages, and the bar on one line on phones; Studio › Screens shows and
+sets whether sign-in (and the account's top) follows the system screens'
+look or has its own, its preview draws sign-in, the code and a new account
+as the app does, and the app draws the code screen and a new account in
+sign-in's own look too; "Not now" and the back button work in every system
+look (they were under the scroll view). Checks: platform unit tests and
+e2e, flutter analyze and widget tests. Setting a password again
+(Forgot password) keeps the app's own look.
 
 Roadmap 131.54 (the documentation up to date for Phase 131) is complete:
 a new article `delivery-and-offers` ("Delivery days, gifts and flash
