@@ -3938,6 +3938,40 @@ checkout's look (`Config.screens.checkout`, `lib/studio/checkout-look.ts`).
 Leqaa, the store's Studio demo, is `lib/studio/demo-designs/leqaa-signature.ts`
 and `lib/demo/flowers.ts`. The guide is `/docs/delivery-and-offers`.
 
+## Pay inside the app for connected stores (Phase 134, Demo)
+
+A store app's checkout ends one of three ways (Payments › How customers
+pay): Yallapp's payment page for Yallapp's own products, the platform's
+own checkout (the default for a connected store), or inside the app,
+for WooCommerce only (`lib/selling/in-app-pay.ts`). Inside the app needs
+the owner's own gateway saved and its "Test connection" passed on those
+keys (`CatalogSettings.gatewayTested`, a fingerprint of the encrypted
+keys). The license status tells the plugin (`store_checkout`), which
+serves `StoreConfig.checkout_payment: in_app`; an app that knows it sends
+`payment: in_app` with the checkout link, and the plugin sends the cart as
+WooCommerce priced it to `POST /api/v1/store/payments`.
+
+The payment is a catalog order of the owner's gateway (lines with
+`productId` 0, so no Yallapp stock or sales change) with its platform
+order beside it (`store_platform_orders`: the platform's lines, coupon
+and checkout extras, its last quote, the order made, why it needs
+attention). The payment page asks for the address; `quoteBeforePayment`
+asks the site (`POST /store/paid-orders`, `quote`, signed with the license
+key like `/billing/access`, `lib/selling/woo-paid-orders.ts`) for its
+shipping and tax and checks the stock, and a changed total is shown before
+the customer pays. Once the gateway's answer says paid, `afterOrderPaid`
+hands it to `placePlatformOrder` instead of the shop's delivery and
+emails: it claims the platform order (`awaiting_payment` or
+`needs_attention` to `placing`), so a webhook and a return at once make
+one, and asks the site to `create` it (one per `yallapp-order-<id>` there
+too). The plugin (`Store\Paid_Orders`) fills WooCommerce's cart in its own
+session, prices it, makes the order with `WC()->checkout()->create_order()`
+and marks it paid with `payment_complete()`. A refusal leaves the payment
+`needs_attention`, with an owner notice and push once
+(`store_order_attention:<id>`), Retry and Refund on Payments; the
+customer's page ends on `order-received?shop_order=placed` or
+`confirming`, which the app reads.
+
 ## The documentation (129.30)
 
 Where the documentation lives, for whoever brings it up to date next:
