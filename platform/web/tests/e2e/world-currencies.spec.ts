@@ -25,6 +25,7 @@ const RATES: Record<string, number> = { USD: 1, EGP: 48.5, KWD: 0.306, JPY: 151.
 let rates: Server;
 let stripe: FakeServer;
 let own: Page;
+let admin: Page;
 let api = "";
 
 async function signIn(page: Page, email: string, password: string) {
@@ -57,13 +58,14 @@ test.beforeAll(async ({ browser }) => {
 });
 
 test.afterAll(async () => {
+  await admin?.close();
   await own?.context().close();
   await stripe?.close();
   await new Promise<void>((resolve) => (rates ? rates.close(() => resolve()) : resolve()));
 });
 
 test("133.6 Admin › Settings › Currencies reads the day's rates, with their source", async ({ browser }) => {
-  const admin = await browser.newPage({ extraHTTPHeaders });
+  admin = await browser.newPage({ extraHTTPHeaders });
   await signIn(admin, E2E.currenciesAdminEmail, E2E.adminPassword);
   // The client's plan, for the hosted API below.
   await admin.goto(`/admin?q=${encodeURIComponent(client.email)}`);
@@ -79,7 +81,6 @@ test("133.6 Admin › Settings › Currencies reads the day's rates, with their 
   await expect(admin.locator("[data-rates-date]")).toHaveText("2026-11-16");
   await expect(admin.getByRole("link", { name: "Rates By Exchange Rate API" })).toHaveAttribute("href", "https://www.exchangerate-api.com");
   await expect(admin.getByRole("row", { name: /Kuwaiti Dinar KWD 3 0\.306/ })).toBeVisible();
-  await admin.close();
 });
 
 test("133.1–133.3 a Studio store sells in Kuwaiti dinars, then in yen, with their digits", async ({ request }) => {
@@ -91,6 +92,14 @@ test("133.1–133.3 a Studio store sells in Kuwaiti dinars, then in yen, with th
   await own.getByRole("radio", { name: "Blank page" }).click();
   await own.getByRole("button", { name: "Next" }).click();
   await expect(own).toHaveURL(/\/studio\/project$/);
+  // The project on a Studio plan, for the hosted API.
+  await admin.goto(`/admin/clients?q=${encodeURIComponent(client.email)}`);
+  await admin.getByRole("link", { name: client.name, exact: true }).click();
+  await admin.waitForURL(/\/admin\/clients\/[0-9a-f-]{36}$/);
+  const plan = admin.getByRole("region", { name: client.name }).getByRole("region", { name: "Plan and license" });
+  await plan.getByLabel("Plan").selectOption("studio_1");
+  await plan.getByRole("button", { name: "Activate & send license" }).click();
+  await expect(admin.getByRole("status")).toContainText("Activated");
 
   // The searchable picker: the usual ones first, found by name.
   await own.goto("/studio/project/catalog/settings");
@@ -105,6 +114,16 @@ test("133.1–133.3 a Studio store sells in Kuwaiti dinars, then in yen, with th
   await expect(own.getByText("KWD is written with three decimals (1.250); prices go to the hundredth, like 1.250 or 1.260.")).toBeVisible();
   await own.getByRole("button", { name: "Save settings" }).click();
   await expect(own.getByText("Shop settings saved.")).toBeVisible();
+  // After the form's own reset (an error, then a save), the currency chosen stays.
+  await own.getByLabel("Returns in the app (days)").fill("400");
+  await own.getByRole("button", { name: "Save settings" }).click();
+  await expect(own.getByText("Enter a number of days from 1 to 365, or leave it empty for no returns in the app.")).toBeVisible();
+  await own.getByLabel("Returns in the app (days)").fill("");
+  await own.getByRole("button", { name: "Save settings" }).click();
+  await expect(own.getByText("Shop settings saved.")).toBeVisible();
+  await expect(currency).toHaveValue("KWD");
+  await own.reload();
+  await expect(own.getByLabel("Currency", { exact: true })).toHaveValue("KWD");
 
   await own.goto("/studio/project/catalog/new");
   await own.getByLabel("Name", { exact: true }).fill("Date maamoul box");
@@ -120,11 +139,16 @@ test("133.1–133.3 a Studio store sells in Kuwaiti dinars, then in yen, with th
   const link = (await own.getByRole("link", { name: /\/shop\// }).textContent())!;
   api = `${E2E.baseURL}/api/app/${/\/shop\/([0-9a-f-]{36})\//.exec(link)![1]}`;
 
-  const listed = async (headers: Record<string, string> = {}) => ((await (await request.get(`${api}/store/products`, { headers })).json()) as { items: { name: string; price: Record<string, unknown> }[] }).items;
+  const listed = async (headers: Record<string, string> = {}) => {
+    const response = await request.get(`${api}/store/products`, { headers });
+    expect(response.status(), await response.text()).toBe(200);
+    return ((await response.json()) as { items: { name: string; price: Record<string, unknown> }[] }).items;
+  };
   const [box] = await listed();
   expect(box!.price).toMatchObject({ amount: "1.250", currency: "KWD", formatted: "KWD 1.250" });
   expect(box!.price).not.toHaveProperty("display");
-  // A customer in dollars: 1.250 KWD at 0.306 per dollar.
+  // A customer in dollars: 1.250 KWD at 0.306 per dollar (each server bundle reads the saved rates again within 30 seconds).
+  await expect.poll(async () => (await listed({ "x-currency": "USD" }))[0]!.price.display ?? null, { timeout: 40_000, intervals: [1000] }).not.toBeNull();
   const [inDollars] = await listed({ "x-currency": "USD" });
   expect(inDollars!.price).toMatchObject({ amount: "1.250", currency: "KWD", display: { currency: "USD", amount: "4.08", formatted: "$4.08", rate_date: "2026-11-16" } });
 

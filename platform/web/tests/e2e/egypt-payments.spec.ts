@@ -181,7 +181,7 @@ test("a shop with its own Kashier keys takes an order", async ({ page, request }
   await page.getByRole("navigation", { name: "Products", exact: true }).getByRole("link", { name: /^Settings/ }).click();
 
   // Prices in Egyptian pounds.
-  await page.getByLabel("Currency").selectOption("EGP");
+  await page.getByLabel("Currency", { exact: true }).selectOption("EGP");
   await page.getByRole("button", { name: "Save settings" }).click();
   await expect(page.getByText("Shop settings saved.")).toBeVisible();
 

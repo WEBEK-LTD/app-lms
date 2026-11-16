@@ -109,7 +109,7 @@ test("a shop refunds an order in part, then the rest, through Kashier", async ({
   await page.getByRole("link", { name: "Products", exact: true }).click();
   // 132.10 Products has its own pages: the shop's settings, payments and the products.
   await page.getByRole("navigation", { name: "Products", exact: true }).getByRole("link", { name: /^Settings/ }).click();
-  await page.getByLabel("Currency").selectOption("EGP");
+  await page.getByLabel("Currency", { exact: true }).selectOption("EGP");
   await page.getByRole("button", { name: "Save settings" }).click();
   await expect(page.getByText("Shop settings saved.")).toBeVisible();
 

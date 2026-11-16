@@ -1,6 +1,6 @@
 "use client";
 
-import { useId, useMemo, useState, useSyncExternalStore } from "react";
+import { useEffect, useId, useMemo, useRef, useState, useSyncExternalStore } from "react";
 import { currencyDigits, currencyOptions, matchesCurrency, type CurrencyOption } from "@/lib/money/currencies";
 import { useDashLang, useOptionalDashT } from "./dashboard-i18n";
 import type { DashKey } from "@/i18n/dashboard";
@@ -82,6 +82,24 @@ export function CurrencyPicker({
     setOwn(code);
     onChange?.(code);
   };
+  // React resets a form after its action: the browser would then show the
+  // first currency of the list, and send it next time. The one chosen is
+  // put back.
+  const select = useRef<HTMLSelectElement>(null);
+  const chosen = useRef(value);
+  useEffect(() => {
+    chosen.current = value;
+  }, [value]);
+  useEffect(() => {
+    const form = select.current?.form;
+    if (!form) return;
+    const keep = () =>
+      setTimeout(() => {
+        if (select.current && select.current.value !== chosen.current) select.current.value = chosen.current;
+      }, 0);
+    form.addEventListener("reset", keep);
+    return () => form.removeEventListener("reset", keep);
+  }, []);
   return (
     <div className={`flex min-w-0 flex-col gap-1.5 ${className}`}>
       <label htmlFor={id} className="text-sm font-semibold">
@@ -101,6 +119,7 @@ export function CurrencyPicker({
           className="input sm:max-w-[220px]"
         />
         <select
+          ref={select}
           id={id}
           name={name}
           value={value}
