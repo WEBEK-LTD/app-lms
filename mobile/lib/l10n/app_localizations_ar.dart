@@ -12407,4 +12407,9 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get orderStageFollow => 'تتبّع التوصيل';
+
+  @override
+  String ratingReplyFrom(String business) {
+    return 'ردّ من $business';
+  }
 }

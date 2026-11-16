@@ -2222,6 +2222,19 @@
       }
     }
   },
+  "ratingCardTitle": "Customer's rating",
+  "ratingReplyHelp": "The customer sees it under their rating in the app, in your business's name, and is told the first time.",
+  "ratingCourierLine": "Courier: {stars}/5",
+  "@ratingCourierLine": {
+    "placeholders": {
+      "stars": {
+        "type": "String"
+      }
+    }
+  },
+  "replyEdited": "Edited",
+  "removeReplyTitle": "Remove your reply?",
+  "removeReplyText": "The customer won't see it under their rating any more.",
   "stageTitle": "Delivery",
   "stageNotStarted": "Not on its way yet. Mark it as shipped when it leaves: the customer is told.",
   "stagePreparing": "Preparing",

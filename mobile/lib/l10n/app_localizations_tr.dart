@@ -11928,4 +11928,9 @@ class AppLocalizationsTr extends AppLocalizations {
 
   @override
   String get orderStageFollow => 'Teslimatı takip et';
+
+  @override
+  String ratingReplyFrom(String business) {
+    return '$business yanıtı';
+  }
 }

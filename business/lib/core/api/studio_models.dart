@@ -275,6 +275,7 @@ class FoodOrderDetail {
     this.rejectionReasons = const [],
     this.cashToCollect,
     this.courier,
+    this.rating,
   });
 
   factory FoodOrderDetail.fromJson(Json json) {
@@ -297,10 +298,14 @@ class FoodOrderDetail {
       rejectionReasons: listOf(json, 'rejection_reasons', Choice.fromJson),
       cashToCollect: Money.opt(json, 'cash_to_collect'),
       courier: CourierContact.opt(json, 'courier'),
+      rating: CustomerRating.opt(json, 'rating'),
     );
   }
 
   final FoodOrder order;
+
+  /// 132 The customer's rating, with the business's reply.
+  final CustomerRating? rating;
 
   /// 132 The courier with their phone.
   final CourierContact? courier;
@@ -632,6 +637,7 @@ class RideDetail {
     this.timeline = const [],
     this.riderPhone,
     this.notes,
+    this.rating,
   });
 
   factory RideDetail.fromJson(Json json) {
@@ -641,8 +647,12 @@ class RideDetail {
       timeline: listOf(json, 'timeline', TimelineEntry.fromJson),
       riderPhone: rider == null ? null : optStr(rider, 'phone'),
       notes: optStr(json, 'notes'),
+      rating: CustomerRating.opt(json, 'rating'),
     );
   }
+
+  /// 132 The rider's rating, with the business's reply.
+  final CustomerRating? rating;
 
   final Ride ride;
   final List<TimelineEntry> timeline;
@@ -787,6 +797,7 @@ class MarketOrderDetail {
     this.couponCode,
     this.amounts = const [],
     this.courier,
+    this.rating,
   });
 
   factory MarketOrderDetail.fromJson(Json json) {
@@ -814,8 +825,12 @@ class MarketOrderDetail {
           ),
       ],
       courier: CourierContact.opt(json, 'courier'),
+      rating: CustomerRating.opt(json, 'rating'),
     );
   }
+
+  /// 132 The customer's rating, with the business's reply.
+  final CustomerRating? rating;
 
   final MarketOrder order;
   final List<FoodLine> lines;
@@ -1841,4 +1856,73 @@ class SlotsDay {
   final String date;
   final String dateLabel;
   final List<({String id, String label, bool closed})> slots;
+}
+
+/// 132 A customer's rating of a food or marketplace order or a ride, and
+/// the business's reply under it (one per rating; the customer sees it in
+/// the app in the business's name).
+class CustomerRating {
+  const CustomerRating({
+    required this.stars,
+    required this.at,
+    this.courier,
+    this.comment,
+    this.reply,
+    this.replyAt,
+    this.replyEditedAt,
+    this.replyBy,
+  });
+
+  factory CustomerRating.fromJson(Json json) {
+    final reply = optObject(json, 'reply');
+    return CustomerRating(
+      stars: integer(json, 'stars'),
+      courier: optInt(json, 'courier'),
+      comment: optStr(json, 'comment'),
+      at: date(json, 'at'),
+      reply: reply == null ? null : str(reply, 'text'),
+      replyAt: reply == null ? null : optDate(reply, 'at'),
+      replyEditedAt: reply == null ? null : optDate(reply, 'edited_at'),
+      replyBy: reply == null ? null : optStr(reply, 'by'),
+    );
+  }
+
+  static CustomerRating? opt(Json json, String key) {
+    final o = optObject(json, key);
+    return o == null ? null : CustomerRating.fromJson(o);
+  }
+
+  final int stars;
+  final int? courier;
+  final String? comment;
+  final DateTime at;
+  final String? reply;
+  final DateTime? replyAt;
+  final DateTime? replyEditedAt;
+  final String? replyBy;
+}
+
+/// 132 What replying under a rating answers: the rating with its reply.
+class RatedItem {
+  const RatedItem({
+    required this.source,
+    required this.id,
+    required this.reference,
+    required this.about,
+    required this.rating,
+  });
+
+  factory RatedItem.fromJson(Json json) => RatedItem(
+    source: str(json, 'source'),
+    id: integer(json, 'id'),
+    reference: str(json, 'reference'),
+    about: str(json, 'about'),
+    rating: CustomerRating.fromJson(optObject(json, 'rating') ?? const {}),
+  );
+
+  final String source;
+  final int id;
+  final String reference;
+  final String about;
+  final CustomerRating rating;
 }

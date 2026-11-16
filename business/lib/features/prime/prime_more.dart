@@ -3,6 +3,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
+import '../inbox/reviews.dart' show ReplySheet;
 import '../../core/api/api_exception.dart';
 import '../../core/api/models.dart';
 import '../../core/providers.dart';
@@ -461,7 +462,63 @@ class PrimeReviewsScreen extends ConsumerWidget {
                       ].join(' · '),
                       style: TextStyle(fontSize: 13, color: c.ink2),
                     ),
-                    if (r.canReply) ...[
+                    // 132 A rating's reply here; a course review's in the Inbox.
+                    if (r.canReply && r.source != 'course') ...[
+                      if (r.reply != null) ...[
+                        const SizedBox(height: 8),
+                        Container(
+                          width: double.infinity,
+                          padding: const EdgeInsets.all(10),
+                          decoration: BoxDecoration(
+                            color: c.muted,
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                          child: Text(
+                            '${l10n.yourReply}: ${isolate(r.reply!)}',
+                            style: const TextStyle(fontSize: 14),
+                          ),
+                        ),
+                      ],
+                      const SizedBox(height: 8),
+                      SmallButton(
+                        label: r.reply == null
+                            ? l10n.replyToReview
+                            : l10n.changeReply,
+                        icon: AppIcons.edit,
+                        quiet: true,
+                        onPressed: () async {
+                          final text = await showModalBottomSheet<String>(
+                            context: context,
+                            isScrollControlled: true,
+                            showDragHandle: true,
+                            builder: (_) => ReplySheet(
+                              initial: r.reply ?? '',
+                              help: l10n.ratingReplyHelp,
+                            ),
+                          );
+                          if (text == null ||
+                              text.trim().isEmpty ||
+                              !context.mounted) {
+                            return;
+                          }
+                          try {
+                            await ref
+                                .read(apiProvider)
+                                .replyRating(
+                                  ref.read(appIdProvider),
+                                  r.source,
+                                  r.id,
+                                  text.trim(),
+                                );
+                            if (!context.mounted) return;
+                            showMessage(context, l10n.replySaved);
+                            ref.invalidate(primeReviewsProvider);
+                          } on Object catch (e) {
+                            if (context.mounted) showError(context, e);
+                          }
+                        },
+                      ),
+                    ] else if (r.canReply) ...[
                       const SizedBox(height: 8),
                       SmallButton(
                         label: r.reply == null

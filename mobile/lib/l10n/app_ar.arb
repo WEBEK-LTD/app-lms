@@ -3189,5 +3189,6 @@
   "orderStageTryAgain": "سنحاول التوصيل مجددًا يوم {day}",
   "orderStageCourier": "المندوب: {name}",
   "orderStageCallCourier": "الاتصال بالمندوب",
-  "orderStageFollow": "تتبّع التوصيل"
+  "orderStageFollow": "تتبّع التوصيل",
+  "ratingReplyFrom": "ردّ من {business}"
 }

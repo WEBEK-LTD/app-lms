@@ -3370,6 +3370,28 @@ class AppLocalizationsTr extends AppLocalizations {
   }
 
   @override
+  String get ratingCardTitle => 'Müşterinin değerlendirmesi';
+
+  @override
+  String get ratingReplyHelp =>
+      'Müşteri bunu uygulamada değerlendirmesinin altında işletmenizin adıyla görür ve ilk seferde bildirim alır.';
+
+  @override
+  String ratingCourierLine(String stars) {
+    return 'Kurye: $stars/5';
+  }
+
+  @override
+  String get replyEdited => 'Düzenlendi';
+
+  @override
+  String get removeReplyTitle => 'Yanıtınız kaldırılsın mı?';
+
+  @override
+  String get removeReplyText =>
+      'Müşteri artık bunu değerlendirmesinin altında görmeyecek.';
+
+  @override
   String get stageTitle => 'Teslimat';
 
   @override

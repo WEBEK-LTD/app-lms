@@ -1,3 +1,4 @@
+import { ownerRatingJson } from "./ratings";
 import type { DashKey } from "@/i18n/dashboard";
 import type { App, Courier, FoodOrder, FoodOrderStatus, Restaurant, Ride, RideStatus, Shipment, ShipmentStatus } from "../data/types";
 import { FOOD_REJECTIONS, SHIPMENT_STATUSES } from "../data/types";
@@ -116,6 +117,8 @@ async function foodOrderDetail(ctx: OwnerContext, app: App, order: FoodOrder) {
     prep_choices: PREP_CHOICES.filter((m) => m >= 5 && m <= max),
     rejection_reasons: FOOD_REJECTIONS.map((id) => ({ id, label: ctx.t(`food.reason_${id}` as DashKey) })),
     cash_to_collect: order.paymentMethod === "cash" && order.paymentStatus === "unpaid" && FOOD_ACTIVE.includes(order.status) ? money(order.totalCents, order.currency) : null,
+    // 132 The customer's rating and the business's reply under it.
+    rating: ownerRatingJson(order.rating),
   };
 }
 
@@ -433,6 +436,8 @@ function rideDetail(ctx: OwnerContext, ride: Ride, driver: Courier | null) {
     rider: { name: ride.riderName, phone: ride.riderPhone || null },
     notes: ride.notes,
     timeline: ride.timeline.map((s) => stageJson(ctx, s, RIDE_STATUS_KEY)),
+    // 132 The rider's rating and the business's reply under it.
+    rating: ownerRatingJson(ride.rating),
   };
 }
 

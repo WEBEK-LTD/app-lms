@@ -58,6 +58,8 @@ export const TEAM_ACTIONS = [
   "prime.flash_sale",
   "prime.slot",
   "prime.weekly_report",
+  // 132 The business's reply under a food order's, a marketplace order's or a ride's rating.
+  "rating.reply",
 ] as const;
 export type TeamAction = (typeof TEAM_ACTIONS)[number];
 

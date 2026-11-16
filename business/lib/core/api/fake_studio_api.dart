@@ -32,6 +32,84 @@ mixin _FakeStudio implements OwnerApi {
   final _rides = <String, List<Json>>{};
   final _drivers = <String, List<Json>>{};
   final _marketOrders = <String, List<Json>>{};
+
+  /// 132 The business's replies under ratings, by "food:40".
+  final _ratingReplies = <String, Json>{};
+
+  /// 132 The customers' ratings the fake has: a delivered food order, a
+  /// marketplace order, a ride, and the Prime reviews list's.
+  static const _ratings = {
+    'food:40': (2, 'The lahmacun arrived cold.', 'Pide House'),
+    'food:48': (5, 'Hot and fast, thank you!', 'Burger Lab'),
+    'food:47': (2, 'The fries were cold.', 'Burger Lab'),
+    'food:45': (5, null, 'Pide House'),
+    'food:41': (5, 'Perfect as always.', 'Pide House'),
+    'market:39': (3, 'The olive oil bottle leaked a little.', 'Fresh Mart'),
+    'ride:540': (5, 'Very kind driver.', 'Selim Kurt'),
+  };
+
+  /// 132 `rating` on a detail, with the reply under it.
+  Json? _ratingJson(String source, String id) {
+    final r = _ratings['$source:$id'];
+    if (r == null) return null;
+    return {
+      'stars': r.$1,
+      'courier': null,
+      'comment': r.$2,
+      'at': _at(const Duration(hours: 1)),
+      'reply': _ratingReplies['$source:$id'],
+    };
+  }
+
+  @override
+  Future<RatedItem> replyRating(
+    String appId,
+    String source,
+    String id,
+    String text,
+  ) async {
+    await _call('replyRating:$source');
+    final key = '$source:$id';
+    final r = _ratings[key];
+    if (r == null) _missing();
+    if (text.trim().isEmpty) {
+      throw const ApiException(
+        code: 'invalid_request',
+        statusCode: 400,
+        fieldErrors: {'text': 'Write your reply.'},
+      );
+    }
+    final before = _ratingReplies[key];
+    _ratingReplies[key] = {
+      'text': text.trim(),
+      'at': before?['at'] ?? _at(Duration.zero),
+      'edited_at': before == null ? null : _at(Duration.zero),
+      'by': 'Leyla',
+    };
+    return _rated(source, id, r!.$3);
+  }
+
+  @override
+  Future<RatedItem> deleteRatingReply(
+    String appId,
+    String source,
+    String id,
+  ) async {
+    await _call('deleteRatingReply:$source');
+    final r = _ratings['$source:$id'];
+    if (r == null) _missing();
+    _ratingReplies.remove('$source:$id');
+    return _rated(source, id, r!.$3);
+  }
+
+  RatedItem _rated(String source, String id, String about) =>
+      RatedItem.fromJson({
+        'source': source,
+        'id': int.parse(id),
+        'reference': id,
+        'about': about,
+        'rating': _ratingJson(source, id),
+      });
   final _complaints = <String, List<Json>>{};
   final _vendors = <String, List<Json>>{};
   final _excuses = <String, List<Json>>{};
@@ -1721,7 +1799,10 @@ mixin _FakeStudio implements OwnerApi {
   Future<FoodOrderDetail> foodOrder(String appId, String id) async {
     await _call('foodOrder');
     _app(appId, (f) => f.foodOrders);
-    return FoodOrderDetail.fromJson(_one(_food, appId, id));
+    return FoodOrderDetail.fromJson({
+      ..._one(_food, appId, id),
+      'rating': _ratingJson('food', id),
+    });
   }
 
   @override
@@ -2014,7 +2095,10 @@ mixin _FakeStudio implements OwnerApi {
   Future<RideDetail> ride(String appId, String id) async {
     await _call('ride');
     _app(appId, (f) => f.rides);
-    return RideDetail.fromJson(_one(_rides, appId, id));
+    return RideDetail.fromJson({
+      ..._one(_rides, appId, id),
+      'rating': _ratingJson('ride', id),
+    });
   }
 
   @override
@@ -2131,7 +2215,10 @@ mixin _FakeStudio implements OwnerApi {
   Future<MarketOrderDetail> marketOrder(String appId, String id) async {
     await _call('marketOrder');
     _app(appId, (f) => f.market);
-    return MarketOrderDetail.fromJson(_one(_marketOrders, appId, id));
+    return MarketOrderDetail.fromJson({
+      ..._one(_marketOrders, appId, id),
+      'rating': _ratingJson('market', id),
+    });
   }
 
   @override
@@ -2794,8 +2881,9 @@ mixin _FakeStudio implements OwnerApi {
       'at': _at(ago),
       'name': name,
       'about': about,
-      'can_reply': false,
-      'reply': null,
+      // 132 Answered from the phone.
+      'can_reply': true,
+      'reply': _ratingReplies['$source:$id']?['text'],
     };
     return PrimeReviews.fromJson({
       'average': 4.3,

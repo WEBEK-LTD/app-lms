@@ -3187,4 +3187,5 @@
 {"key":"orderStageTryAgain","en":"We'll try again on {day}","ar":"سنحاول التوصيل مجددًا يوم {day}","tr":"{day} tekrar deneyeceğiz","description":"132 Under a failed delivery: the day the shop tries again.","placeholders":{"day":"String"}},
 {"key":"orderStageCourier","en":"Courier: {name}","ar":"المندوب: {name}","tr":"Kurye: {name}","description":"132 Under an order out for delivery: who brings it.","placeholders":{"name":"String"}},
 {"key":"orderStageCallCourier","en":"Call the courier","ar":"الاتصال بالمندوب","tr":"Kuryeyi ara","description":"132 Button under an order out for delivery: calls the courier."},
-{"key":"orderStageFollow","en":"Follow the delivery","ar":"تتبّع التوصيل","tr":"Teslimatı takip et","description":"132 Button under an order out for delivery: opens the shop's tracking link."}]}
+{"key":"orderStageFollow","en":"Follow the delivery","ar":"تتبّع التوصيل","tr":"Teslimatı takip et","description":"132 Button under an order out for delivery: opens the shop's tracking link."},
+{"key":"ratingReplyFrom","en":"Reply from {business}","ar":"ردّ من {business}","tr":"{business} yanıtı","description":"132 Above the business's reply under the customer's rating of a food order or a ride.","placeholders":{"business":"String"}}]}

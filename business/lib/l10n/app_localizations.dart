@@ -6034,6 +6034,42 @@ abstract class AppLocalizations {
   /// **'Coupon: {code}'**
   String couponUsed(String code);
 
+  /// No description provided for @ratingCardTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Customer\'s rating'**
+  String get ratingCardTitle;
+
+  /// No description provided for @ratingReplyHelp.
+  ///
+  /// In en, this message translates to:
+  /// **'The customer sees it under their rating in the app, in your business\'s name, and is told the first time.'**
+  String get ratingReplyHelp;
+
+  /// No description provided for @ratingCourierLine.
+  ///
+  /// In en, this message translates to:
+  /// **'Courier: {stars}/5'**
+  String ratingCourierLine(String stars);
+
+  /// No description provided for @replyEdited.
+  ///
+  /// In en, this message translates to:
+  /// **'Edited'**
+  String get replyEdited;
+
+  /// No description provided for @removeReplyTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Remove your reply?'**
+  String get removeReplyTitle;
+
+  /// No description provided for @removeReplyText.
+  ///
+  /// In en, this message translates to:
+  /// **'The customer won\'t see it under their rating any more.'**
+  String get removeReplyText;
+
   /// No description provided for @stageTitle.
   ///
   /// In en, this message translates to:

@@ -12015,4 +12015,9 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get orderStageFollow => 'Follow the delivery';
+
+  @override
+  String ratingReplyFrom(String business) {
+    return 'Reply from $business';
+  }
 }

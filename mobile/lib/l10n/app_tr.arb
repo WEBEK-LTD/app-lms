@@ -3189,5 +3189,6 @@
   "orderStageTryAgain": "{day} tekrar deneyeceğiz",
   "orderStageCourier": "Kurye: {name}",
   "orderStageCallCourier": "Kuryeyi ara",
-  "orderStageFollow": "Teslimatı takip et"
+  "orderStageFollow": "Teslimatı takip et",
+  "ratingReplyFrom": "{business} yanıtı"
 }

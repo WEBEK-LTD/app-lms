@@ -66,6 +66,18 @@ abstract class OwnerApi {
   Future<Order> order(String appId, int orderId);
   Future<Order> changeOrderStatus(String appId, int orderId, String status);
 
+  /// 132 The business's reply under a customer's rating (`food`, `market`
+  /// or `ride`), written or changed; the customer is told the first time.
+  Future<RatedItem> replyRating(
+    String appId,
+    String source,
+    String id,
+    String text,
+  );
+
+  /// 132 Takes the reply under a rating back.
+  Future<RatedItem> deleteRatingReply(String appId, String source, String id);
+
   /// 132 Moves a store order's delivery to another stage (`next_stages`).
   Future<Order> setOrderStage(String appId, int orderId, StageRequest request);
 

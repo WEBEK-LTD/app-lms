@@ -1,5 +1,6 @@
 import { knownTranslator } from "@/i18n/dashboard";
 import { localePath } from "@/i18n/paths";
+import * as ratings from "./ratings";
 import * as account from "./account";
 import { authenticateRequest, refresh, signIn } from "./auth";
 import * as catalog from "./catalog";
@@ -90,6 +91,9 @@ export const ROUTES: Route[] = [
   route("GET", "apps/:app_id/reviews", community.listReviews),
   route("PATCH", "apps/:app_id/reviews/:review_id", community.updateReview),
   route("PUT", "apps/:app_id/reviews/:review_id/reply", community.replyReview),
+  // 132 Replies under the ratings of food and marketplace orders and rides.
+  route("PUT", "apps/:app_id/ratings/:source/:rating_id/reply", ratings.replyRating),
+  route("DELETE", "apps/:app_id/ratings/:source/:rating_id/reply", ratings.deleteRatingReply),
   route("DELETE", "apps/:app_id/reviews/:review_id/reply", community.deleteReviewReply),
   route("GET", "apps/:app_id/members", members.listMembers),
   route("POST", "apps/:app_id/members/check-in", members.checkInMember),

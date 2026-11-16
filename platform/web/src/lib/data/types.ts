@@ -1569,6 +1569,21 @@ export type FailedReason = (typeof FAILED_REASONS)[number];
 export const FAILED_NEXT_STEPS = ["retry", "return", "cancel"] as const;
 export type FailedNextStep = (typeof FAILED_NEXT_STEPS)[number];
 
+/**
+ * 132 The business's public reply under a customer's rating of a food or
+ * marketplace order or a ride: one per rating, edited in place, shown under
+ * the rating in the app in the business's name.
+ */
+export interface RatingReply {
+  text: string;
+  /** ISO time it was first written. */
+  at: string;
+  /** ISO time it was last changed; null: never. */
+  editedAt: string | null;
+  /** The team member's name; never shown to the customer. */
+  by: string | null;
+}
+
 /** 132 One change of an order's delivery stage: who, when, why, and what it set. */
 export interface OrderStageEntry {
   stage: DeliveryStage;
@@ -4409,7 +4424,7 @@ export interface FoodOrder {
   rejection: { reason: FoodRejection; note: string | null } | null;
   /** Its courier job, once made. */
   shipmentId: number | null;
-  rating: { restaurant: number; courier: number | null; comment: string | null; at: string } | null;
+  rating: { restaurant: number; courier: number | null; comment: string | null; at: string; reply?: RatingReply | null } | null;
   timeline: FoodOrderStage[];
   lang: string | null;
   createdAt: Date;
@@ -4485,7 +4500,7 @@ export interface MarketOrder {
   rejection: { reason: "closing" | "too_busy" | "items_unavailable" | "outside_area" | "other"; note: string | null } | null;
   /** The app's courier job, once made. */
   shipmentId: number | null;
-  rating: { vendor: number; courier: number | null; comment: string | null; at: string } | null;
+  rating: { vendor: number; courier: number | null; comment: string | null; at: string; reply?: RatingReply | null } | null;
   timeline: MarketOrderStage[];
   /** When it was delivered or picked up (statements count it then). */
   completedAt: Date | null;
@@ -4993,7 +5008,7 @@ export interface Ride {
   feeCarriedTo: number | null;
   /** For the share link; null once the ride ended. */
   shareToken: string | null;
-  rating: { driver: number; comment: string | null; at: string } | null;
+  rating: { driver: number; comment: string | null; at: string; reply?: RatingReply | null } | null;
   timeline: RideStage[];
   lang: string | null;
   createdAt: Date;

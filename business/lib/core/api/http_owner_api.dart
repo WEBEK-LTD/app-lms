@@ -297,6 +297,25 @@ class HttpOwnerApi implements OwnerApi {
   );
 
   @override
+  Future<RatedItem> replyRating(
+    String appId,
+    String source,
+    String id,
+    String text,
+  ) async => RatedItem.fromJson(
+    await _put('${_app(appId)}/ratings/$source/$id/reply', {'text': text}),
+  );
+
+  @override
+  Future<RatedItem> deleteRatingReply(
+    String appId,
+    String source,
+    String id,
+  ) async => RatedItem.fromJson(
+    await _delete('${_app(appId)}/ratings/$source/$id/reply'),
+  );
+
+  @override
   Future<Order> setOrderStage(
     String appId,
     int orderId,

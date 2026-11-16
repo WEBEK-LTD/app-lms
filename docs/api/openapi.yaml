@@ -18820,6 +18820,13 @@ components:
             restaurant: { type: integer }
             courier: { type: [integer, 'null'] }
             comment: { type: [string, 'null'] }
+            reply:
+              type: [object, 'null']
+              description: 132 The business's reply under the rating, shown in the business's name (the app's); null or missing for none and on older servers.
+              required: [text, at]
+              properties:
+                text: { type: string, maxLength: 2000 }
+                at: { type: string, format: date-time, description: 'When it was written, or last changed.' }
         timeline:
           type: array
           description: The stages it went through, oldest first.
@@ -19276,6 +19283,14 @@ components:
           properties:
             vendor: { type: integer }
             courier: { type: [integer, 'null'] }
+            comment: { type: [string, 'null'], description: "132 The customer's words; missing on older servers." }
+            reply:
+              type: [object, 'null']
+              description: 132 The business's reply under the rating, shown in the business's name (the app's); null or missing for none and on older servers.
+              required: [text, at]
+              properties:
+                text: { type: string, maxLength: 2000 }
+                at: { type: string, format: date-time, description: 'When it was written, or last changed.' }
         can_cancel: { type: boolean }
         can_complain: { type: boolean, description: 'From placing it until 48 hours after it arrived, with no complaint open.' }
         complaint_id: { type: [integer, 'null'], description: 'Its latest complaint.' }
@@ -19887,6 +19902,13 @@ components:
           properties:
             driver: { type: integer }
             comment: { type: [string, 'null'] }
+            reply:
+              type: [object, 'null']
+              description: 132 The business's reply under the rating, shown in the business's name (the app's); null or missing for none and on older servers.
+              required: [text, at]
+              properties:
+                text: { type: string, maxLength: 2000 }
+                at: { type: string, format: date-time, description: 'When it was written, or last changed.' }
         timeline:
           type: array
           description: The stages it went through, oldest first.

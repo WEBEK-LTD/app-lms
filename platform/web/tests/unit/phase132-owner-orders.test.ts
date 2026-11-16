@@ -1026,6 +1026,73 @@ describe("132 every kind's orders in Yallapp Business", () => {
     });
     expect(JSON.stringify(refused.body)).not.toContain("Mona");
   });
+
+  // 132 The business's reply under a customer's rating.
+  it("replies under a food order's rating: the customer told once in their language, edited, removed", async () => {
+    const token = await signIn();
+    const mona = (await store.createHostedUser({ appId: food.id, phone: "+201001112222", name: "Mona Hassan", email: null, city: null, now: NOW }))!;
+    const fo = await store.createFoodOrder(
+      foodOrder(food, 1, { userId: mona.id, status: "delivered", lang: "ar", rating: { restaurant: 2, courier: 4, comment: "The fries were cold", at: NOW.toISOString() } }),
+    );
+    const route = "/apps/{app_id}/ratings/{source}/{rating_id}/reply";
+    const params = { app_id: food.id, source: "food", rating_id: fo.id };
+    // The order's page has the rating.
+    const detail = await call("GET", "/apps/{app_id}/food-orders/{food_order_id}", { token, params: { app_id: food.id, food_order_id: fo.id } });
+    expect(detail.body.rating).toEqual({ stars: 2, courier: 4, comment: "The fries were cold", at: NOW.toISOString(), reply: null });
+    // Empty or too long: 400.
+    expect((await call("PUT", route, { token, params, body: { text: "  " } })).status).toBe(400);
+    const long = await call("PUT", route, { token, params, body: { text: "x".repeat(2001) } });
+    expect(long.status).toBe(400);
+    expect((long.body.errors as unknown as Record<string, string>).text).toBe("Use at most 2000 characters.");
+    const replied = await call("PUT", route, { token, params, body: { text: "Sorry Mona, we're changing the packaging." } });
+    expect(replied.status).toBe(200);
+    expect(replied.body).toMatchObject({ source: "food", id: fo.id, about: "Zooba", rating: { stars: 2, reply: { text: "Sorry Mona, we're changing the packaging.", edited_at: null, by: "Leyla Kaya" } } });
+    // Told once, in Arabic (the order's language), opening the order.
+    const inbox = async () => (await store.listHostedNotifications({ appId: food.id, userId: mona.id, since: new Date(0), page: 1, perPage: 10 })).items;
+    expect((await inbox()).map((n) => [n.title, n.body, n.data?.type])).toEqual([["ردّ Koshari Now على تقييمك", "Sorry Mona, we're changing the packaging.", "food_order_update"]]);
+    // Edited: shown, not told again.
+    const edited = await call("PUT", route, { token, params, body: { text: "Sorry Mona: new packaging from Monday." } });
+    expect(edited.body).toMatchObject({ rating: { reply: { text: "Sorry Mona: new packaging from Monday.", edited_at: NOW.toISOString() } } });
+    expect(await inbox()).toHaveLength(1);
+    // The customer's app shows it under their rating, never who wrote it.
+    const saved = (await store.getFoodOrder(food.id, fo.id))!;
+    const { foodOrderJson } = await import("@/lib/food/json");
+    const json = JSON.stringify(foodOrderJson(saved));
+    expect(json).toContain("Sorry Mona: new packaging from Monday.");
+    expect(json).not.toContain("Leyla");
+    // Removed.
+    const removed = await call("DELETE", route, { token, params });
+    expect(removed.status).toBe(200);
+    expect(removed.body).toMatchObject({ rating: { reply: null } });
+    // Not rated, another source, another owner's: not found.
+    const unrated = await store.createFoodOrder(foodOrder(food, 1, { status: "delivered" }));
+    expect((await call("PUT", route, { token, params: { ...params, rating_id: unrated.id }, body: { text: "Thanks" } })).status).toBe(404);
+    expect((await call("PUT", route, { token, params: { ...params, source: "course" }, body: { text: "Thanks" } })).status).toBe(404);
+    const theirFood = await addApp(store, (await store.getClientById(theirs.clientId))!, { appType: "food", appName: "Their food", connector: { kind: "restaurants" } }, "studio_1");
+    const theirOrder = await store.createFoodOrder(foodOrder(theirFood, 1, { status: "delivered", rating: { restaurant: 5, courier: null, comment: null, at: NOW.toISOString() } }));
+    expect((await call("PUT", route, { token, params: { app_id: theirFood.id, source: "food", rating_id: theirOrder.id }, body: { text: "Thanks" } })).status).toBe(404);
+    expect((await call("PUT", route, { token, params: { app_id: food.id, source: "food", rating_id: theirOrder.id }, body: { text: "Thanks" } })).status).toBe(404);
+  });
+
+  it("replies under a ride's and a marketplace order's rating, and Prime's reviews offer it", async () => {
+    const token = await signIn();
+    const sara = (await store.createHostedUser({ appId: rides.id, phone: "+201001112222", name: "Sara Adel", email: null, city: null, now: NOW }))!;
+    const r = await store.createRide({ ...ride(rides), userId: sara.id, status: "completed", rating: { driver: 5, comment: "Lovely driver", at: NOW.toISOString() } });
+    const rideReply = await call("PUT", "/apps/{app_id}/ratings/{source}/{rating_id}/reply", { token, params: { app_id: rides.id, source: "ride", rating_id: r.id }, body: { text: "Thank you, Sara!" } });
+    expect(rideReply.status).toBe(200);
+    const rd = await call("GET", "/apps/{app_id}/rides/{ride_id}", { token, params: { app_id: rides.id, ride_id: r.id } });
+    expect(rd.body.rating).toMatchObject({ stars: 5, comment: "Lovely driver", reply: { text: "Thank you, Sara!" } });
+    const [told] = (await store.listHostedNotifications({ appId: rides.id, userId: sara.id, since: new Date(0), page: 1, perPage: 5 })).items;
+    expect(told).toMatchObject({ body: "Thank you, Sara!", data: { type: "ride_update", ride_id: String(r.id) } });
+    expect(told!.title).toMatch(/replied to your review$/);
+
+    const mo = await store.createMarketOrder({ ...marketOrder(market, 1), status: "delivered", rating: { vendor: 3, courier: null, comment: "Missing bread", at: NOW.toISOString() } });
+    const m = await call("PUT", "/apps/{app_id}/ratings/{source}/{rating_id}/reply", { token, params: { app_id: market.id, source: "market", rating_id: mo.id }, body: { text: "We refunded the bread." } });
+    expect(m.body).toMatchObject({ source: "market", about: "Fresh Market", rating: { stars: 3, reply: { text: "We refunded the bread." } } });
+    const md = await call("GET", "/apps/{app_id}/market/orders/{market_order_id}", { token, params: { app_id: market.id, market_order_id: mo.id } });
+    expect(md.body.rating).toMatchObject({ stars: 3, reply: { text: "We refunded the bread." } });
+  });
+
 });
 
 function foodOrder(

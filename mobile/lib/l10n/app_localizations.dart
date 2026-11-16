@@ -19249,6 +19249,12 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Follow the delivery'**
   String get orderStageFollow;
+
+  /// 132 Above the business's reply under the customer's rating of a food order or a ride.
+  ///
+  /// In en, this message translates to:
+  /// **'Reply from {business}'**
+  String ratingReplyFrom(String business);
 }
 
 class _AppLocalizationsDelegate

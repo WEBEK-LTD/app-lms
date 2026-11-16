@@ -10,6 +10,7 @@ import '../../core/widgets/contact.dart';
 import '../../core/widgets/l10n.dart';
 import '../../core/widgets/states.dart';
 import '../studio/status_words.dart';
+import '../studio/rating_card.dart';
 import '../studio/studio_widgets.dart';
 import 'food_orders_screen.dart';
 import 'food_sheets.dart';
@@ -370,6 +371,11 @@ class _Body extends ConsumerWidget {
         if (detail.timeline.length > 1 && o.status != 'placed') ...[
           SectionTitle(l10n.historyTitle),
           TimelineList(entries: detail.timeline, words: foodStatusLabel),
+        ],
+        // 132 The customer's rating, with the business's reply.
+        if (detail.rating != null) ...[
+          SectionTitle(l10n.ratingCardTitle),
+          RatingCard(source: 'food', id: o.id, rating: detail.rating!),
         ],
       ],
     );

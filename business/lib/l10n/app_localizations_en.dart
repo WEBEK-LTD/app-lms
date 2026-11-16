@@ -3367,6 +3367,28 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
+  String get ratingCardTitle => 'Customer\'s rating';
+
+  @override
+  String get ratingReplyHelp =>
+      'The customer sees it under their rating in the app, in your business\'s name, and is told the first time.';
+
+  @override
+  String ratingCourierLine(String stars) {
+    return 'Courier: $stars/5';
+  }
+
+  @override
+  String get replyEdited => 'Edited';
+
+  @override
+  String get removeReplyTitle => 'Remove your reply?';
+
+  @override
+  String get removeReplyText =>
+      'The customer won\'t see it under their rating any more.';
+
+  @override
   String get stageTitle => 'Delivery';
 
   @override

@@ -13110,5 +13110,15 @@
   "orderStageFollow": "Follow the delivery",
   "@orderStageFollow": {
     "description": "132 Button under an order out for delivery: opens the shop's tracking link."
+  },
+  "ratingReplyFrom": "Reply from {business}",
+  "@ratingReplyFrom": {
+    "description": "132 Above the business's reply under the customer's rating of a food order or a ride.",
+    "placeholders": {
+      "business": {
+        "type": "String",
+        "example": "Burger Lab"
+      }
+    }
   }
 }

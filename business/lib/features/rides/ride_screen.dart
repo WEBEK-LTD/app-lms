@@ -11,6 +11,7 @@ import '../../core/widgets/l10n.dart';
 import '../../core/widgets/states.dart';
 import '../food/food_sheets.dart';
 import '../studio/status_words.dart';
+import '../studio/rating_card.dart';
 import '../studio/studio_widgets.dart';
 import 'rides_screen.dart';
 
@@ -219,6 +220,11 @@ class RideScreen extends ConsumerWidget {
                 if (d.timeline.isNotEmpty) ...[
                   SectionTitle(l10n.historyTitle),
                   TimelineList(entries: d.timeline, words: rideStatusLabel),
+                ],
+                // 132 The rider's rating, with the business's reply.
+                if (d.rating != null) ...[
+                  SectionTitle(l10n.ratingCardTitle),
+                  RatingCard(source: 'ride', id: ride.id, rating: d.rating!),
                 ],
               ],
             ),

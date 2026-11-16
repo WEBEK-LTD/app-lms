@@ -61,6 +61,13 @@ S = [
 ("lineWallet", "Paid from the wallet", "مدفوع من المحفظة", "Cüzdandan ödenen"),
 ("scheduledAt", "Scheduled: {time}", "مجدول: {time}", "Planlı: {time}"),
 ("couponUsed", "Coupon: {code}", "القسيمة: {code}", "Kupon: {code}"),
+# 132 The reply under a customer's rating
+("ratingCardTitle", "Customer's rating", "تقييم العميل", "Müşterinin değerlendirmesi"),
+("ratingReplyHelp", "The customer sees it under their rating in the app, in your business's name, and is told the first time.", "يراه العميل تحت تقييمه في التطبيق باسم نشاطك التجاري، ويُبلَّغ في المرة الأولى.", "Müşteri bunu uygulamada değerlendirmesinin altında işletmenizin adıyla görür ve ilk seferde bildirim alır."),
+("ratingCourierLine", "Courier: {stars}/5", "المندوب: {stars}/5", "Kurye: {stars}/5"),
+("replyEdited", "Edited", "معدَّل", "Düzenlendi"),
+("removeReplyTitle", "Remove your reply?", "حذف ردّك؟", "Yanıtınız kaldırılsın mı?"),
+("removeReplyText", "The customer won't see it under their rating any more.", "لن يراه العميل تحت تقييمه بعد الآن.", "Müşteri artık bunu değerlendirmesinin altında görmeyecek."),
 # 132 Delivery stages
 ("stageTitle", "Delivery", "التوصيل", "Teslimat"),
 ("stageNotStarted", "Not on its way yet. Mark it as shipped when it leaves: the customer is told.", "لم يخرج للتوصيل بعد. حدِّده كمشحون عند خروجه، وسيُبلَّغ العميل.", "Henüz yola çıkmadı. Çıkınca kargoya verildi olarak işaretleyin: müşteriye bildirilir."),

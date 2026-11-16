@@ -3354,6 +3354,27 @@ class AppLocalizationsAr extends AppLocalizations {
   }
 
   @override
+  String get ratingCardTitle => 'تقييم العميل';
+
+  @override
+  String get ratingReplyHelp =>
+      'يراه العميل تحت تقييمه في التطبيق باسم نشاطك التجاري، ويُبلَّغ في المرة الأولى.';
+
+  @override
+  String ratingCourierLine(String stars) {
+    return 'المندوب: $stars/5';
+  }
+
+  @override
+  String get replyEdited => 'معدَّل';
+
+  @override
+  String get removeReplyTitle => 'حذف ردّك؟';
+
+  @override
+  String get removeReplyText => 'لن يراه العميل تحت تقييمه بعد الآن.';
+
+  @override
   String get stageTitle => 'التوصيل';
 
   @override

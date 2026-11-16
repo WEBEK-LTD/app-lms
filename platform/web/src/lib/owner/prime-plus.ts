@@ -384,8 +384,8 @@ export async function getPrimeReviews(
           at: new Date(o.rating.at).toISOString(),
           name: named ? o.customerName : null,
           about: o.restaurantName,
-          can_reply: false,
-          reply: null,
+          can_reply: true,
+          reply: o.rating.reply?.text ?? null,
         });
     }
   }
@@ -408,8 +408,8 @@ export async function getPrimeReviews(
           at: new Date(o.rating.at).toISOString(),
           name: named ? o.customerName : null,
           about: o.vendorName,
-          can_reply: false,
-          reply: null,
+          can_reply: true,
+          reply: o.rating.reply?.text ?? null,
         });
     }
   }
@@ -433,8 +433,8 @@ export async function getPrimeReviews(
           at: new Date(r.rating.at).toISOString(),
           name: named ? r.riderName : null,
           about: r.driverName ?? r.vehicleTypeName,
-          can_reply: false,
-          reply: null,
+          can_reply: true,
+          reply: r.rating.reply?.text ?? null,
         });
     }
   }

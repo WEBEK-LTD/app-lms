@@ -16,6 +16,7 @@ import '../../../core/theme/palette.dart';
 import '../../../core/web/web_page_screen.dart';
 import '../../../core/widgets/buttons.dart';
 import '../../../core/widgets/common.dart';
+import '../../../core/widgets/rating_reply.dart';
 import '../../taxi/widgets/trip_map.dart';
 import '../../delivery/widgets/delivery_widgets.dart'
     show CallButton, PlaceRow, pointUrl;
@@ -336,10 +337,18 @@ class _OrderView extends ConsumerWidget {
         if (o.status == FoodOrderStatus.delivered) ...[
           const SizedBox(height: 16),
           o.rated
-              ? Text(
-                  l10n.foodRated(o.ratedRestaurant!),
-                  key: const ValueKey('food-order-rated'),
-                  style: value(),
+              ? Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      l10n.foodRated(o.ratedRestaurant!),
+                      key: const ValueKey('food-order-rated'),
+                      style: value(),
+                    ),
+                    // 132 The business's reply under it.
+                    if (o.ratingReply != null)
+                      RatingReplyBox(reply: o.ratingReply!),
+                  ],
                 )
               : _RateCard(order: o, onRated: onRated),
         ],

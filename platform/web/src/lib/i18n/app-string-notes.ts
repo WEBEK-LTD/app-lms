@@ -5051,6 +5051,11 @@ export const APP_STRING_NOTES: Record<string, { en?: string; ar: string; tr: str
     ar: "تحت زرار السلة طول ما المكان مش متحدّد للشحن حسب المسافة.",
     tr: "Mesafeye göre kargoda yer işaretlenmemişken sepet düğmesinin altında.",
   },
+  "132 Above the business's reply under the customer's rating of a food order or a ride.": {
+    en: "Above your reply under a customer's rating of a food order or a ride.",
+    ar: "فوق ردّك تحت تقييم العميل لأوردر أكل أو مشوار.",
+    tr: "Bir müşterinin yemek siparişi veya yolculuk değerlendirmesinin altındaki yanıtınızın üstünde.",
+  },
   // 132 Delivery stages on the customer's order.
   "132 On an order's screen: its delivery stage, the shop is preparing it.": {
     en: "On an order's page: where its delivery is, the shop is preparing it.",

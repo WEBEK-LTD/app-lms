@@ -2122,6 +2122,64 @@ paths:
         '403': { $ref: '#/components/responses/AccountNotActive' }
         '404': { $ref: '#/components/responses/NotFound' }
 
+  /apps/{app_id}/ratings/{source}/{rating_id}/reply:
+    parameters:
+      - $ref: '#/components/parameters/AppId'
+      - name: source
+        in: path
+        required: true
+        schema: { type: string, enum: [food, market, ride] }
+      - name: rating_id
+        in: path
+        required: true
+        description: The food order, marketplace order or ride that was rated.
+        schema: { type: integer }
+    put:
+      tags: [Reviews]
+      operationId: replyRating
+      summary: Reply under a customer's rating, or change the reply
+      description: |
+        132 One reply per rating of a food order, a marketplace order or a
+        ride, as long as a course review's (2000 characters); written again,
+        it replaces the reply. The customer sees it under their rating in the
+        app, in the business's name, and is told the first time ("Burger Lab
+        replied to your review", in their language). The person needs the
+        app's food orders, marketplace or rides. Ratings have no moderation
+        or reports of their own. A rating that isn't there is 404; an empty
+        or too long reply is 400.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [text]
+              properties:
+                text: { type: string, minLength: 1, maxLength: 2000 }
+      responses:
+        '200':
+          description: The rating with its reply
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/RatedItem' }
+        '400': { $ref: '#/components/responses/BadRequest' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '403': { $ref: '#/components/responses/AccountNotActive' }
+        '404': { $ref: '#/components/responses/NotFound' }
+    delete:
+      tags: [Reviews]
+      operationId: deleteRatingReply
+      summary: Remove the reply under a customer's rating
+      responses:
+        '200':
+          description: The rating without a reply
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/RatedItem' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '403': { $ref: '#/components/responses/AccountNotActive' }
+        '404': { $ref: '#/components/responses/NotFound' }
+
   /apps/{app_id}/reviews/{review_id}/reply:
     put:
       tags: [Reviews]
@@ -5803,6 +5861,11 @@ components:
         - type: object
           required: [lines, subtotal, delivery_fee, customer, restaurant_address, timeline, refund_due, prep_choices, rejection_reasons, cash_to_collect]
           properties:
+            rating:
+              oneOf:
+                - $ref: '#/components/schemas/CustomerRating'
+                - type: 'null'
+              description: 132 The customer's rating and the business's reply under it; null until rated. Missing on older servers.
             lines:
               type: array
               items:
@@ -6026,6 +6089,11 @@ components:
         - type: object
           required: [timeline]
           properties:
+            rating:
+              oneOf:
+                - $ref: '#/components/schemas/CustomerRating'
+                - type: 'null'
+              description: 132 The customer's rating and the business's reply under it; null until rated. Missing on older servers.
             timeline:
               type: array
               items: { $ref: '#/components/schemas/Stage' }
@@ -6087,6 +6155,11 @@ components:
         - type: object
           required: [lines, timeline]
           properties:
+            rating:
+              oneOf:
+                - $ref: '#/components/schemas/CustomerRating'
+                - type: 'null'
+              description: 132 The customer's rating and the business's reply under it; null until rated. Missing on older servers.
             lines:
               type: array
               items:
@@ -6626,6 +6699,34 @@ components:
         slow: { type: array, items: { $ref: '#/components/schemas/PrimeProduct' } }
         low_stock: { type: array, items: { $ref: '#/components/schemas/PrimeProduct' } }
         out_of_stock: { type: array, items: { $ref: '#/components/schemas/PrimeProduct' } }
+
+    CustomerRating:
+      type: object
+      required: [stars, courier, comment, at, reply]
+      description: 132 A customer's rating of a food or marketplace order or a ride, and the business's reply under it (one per rating).
+      properties:
+        stars: { type: integer, minimum: 1, maximum: 5, description: "The restaurant's, the place's or the driver's." }
+        courier: { type: [integer, 'null'], minimum: 1, maximum: 5 }
+        comment: { type: [string, 'null'] }
+        at: { type: string, format: date-time }
+        reply:
+          type: [object, 'null']
+          required: [text, at, edited_at, by]
+          properties:
+            text: { type: string, maxLength: 2000 }
+            at: { type: string, format: date-time }
+            edited_at: { type: [string, 'null'], format: date-time }
+            by: { type: [string, 'null'], description: "The team member who wrote it (never shown to the customer)." }
+
+    RatedItem:
+      type: object
+      required: [source, id, reference, about, rating]
+      properties:
+        source: { type: string, enum: [food, market, ride] }
+        id: { type: integer }
+        reference: { type: string, example: F-1042 }
+        about: { type: string, description: 'The restaurant, the place, the driver.' }
+        rating: { $ref: '#/components/schemas/CustomerRating' }
 
     PrimeReviews:
       type: object

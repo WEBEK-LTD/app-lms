@@ -12703,4 +12703,9 @@ class OverlayLocalizations extends AppLocalizations {
   @override
   String get orderStageFollow =>
       overlay.text('orderStageFollow') ?? base.orderStageFollow;
+
+  @override
+  String ratingReplyFrom(String business) =>
+      overlay.format('ratingReplyFrom', {'business': business}) ??
+      base.ratingReplyFrom(business);
 }

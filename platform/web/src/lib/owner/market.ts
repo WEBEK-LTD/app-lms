@@ -1,3 +1,4 @@
+import { ownerRatingJson } from "./ratings";
 import type { DashKey } from "@/i18n/dashboard";
 import { localToUtc, utcToLocal } from "../bookings/time";
 import type { App, ComplaintDecision, MarketComplaint, MarketOrder, MarketOrderStatus } from "../data/types";
@@ -101,6 +102,8 @@ export async function getMarketOrder(ctx: OwnerContext, params: Record<string, s
       amounts: o.money.lines.map((l) => ({ kind: l.kind, amount: money(l.amount, o.currency) })),
       courier: job?.courierName ? { id: job.courierId, name: job.courierName, phone: courier?.phone ?? null } : null,
       timeline: o.timeline.map((s) => stageJson(ctx, s, ORDER_STATUS_KEY)),
+      // 132 The customer's rating and the business's reply under it.
+      rating: ownerRatingJson(o.rating),
     },
   };
 }
