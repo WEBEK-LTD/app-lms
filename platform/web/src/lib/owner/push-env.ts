@@ -4,6 +4,7 @@ import type { DataStore } from "../data/store";
 import { ownerPushCaptureDir, ownerPushCredentials } from "../env";
 import { parseServiceAccount } from "../hosted/push";
 import type { OwnerPushDeps, OwnerPushMessage } from "./push";
+import { writeCaptureFile } from "../capture-file";
 import { raiseAlert } from "../watch/alerts";
 import { teamMail } from "../watch/env";
 
@@ -42,10 +43,7 @@ export async function ownerPushDeps(now: Date = new Date(), store?: DataStore): 
 }
 
 async function capture(dir: string, push: { to: string[]; message: OwnerPushMessage }): Promise<void> {
-  const { mkdir, writeFile } = await import("node:fs/promises");
-  const path = await import("node:path");
-  await mkdir(dir, { recursive: true });
-  await writeFile(path.join(dir, `${Date.now()}-${Math.random().toString(36).slice(2, 10)}.json`), JSON.stringify({ ...push, sentAt: new Date().toISOString() }));
+  await writeCaptureFile(dir, `${Date.now()}-${Math.random().toString(36).slice(2, 10)}.json`, JSON.stringify({ ...push, sentAt: new Date().toISOString() }));
 }
 
 /** Runs a push without ever failing the caller (with the caller's store when it has one). */
