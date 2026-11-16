@@ -373,6 +373,7 @@ export function ProductForm({
             multiple
             accept="image/png,image/jpeg"
             className="text-sm"
+            aria-label={t("shop.photos")}
             aria-describedby="f-images-hint"
             aria-invalid={state.errors?.images ? true : undefined}
           />
