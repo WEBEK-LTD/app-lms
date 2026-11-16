@@ -163,18 +163,19 @@ test("the owner runs a shop, an academy and an events app with a free ticket", a
   await own.getByRole("button", { name: "Continue" }).click();
   shopApi = await setUpApp("Selin Shop", "I don't have a website");
   shopId = appIdOf(shopApi);
-  await own.goto("/dashboard/catalog");
+  // 132.10 Payments have their own page under Products.
+  await own.goto("/dashboard/catalog/payments");
   await own.getByLabel("API key").fill("sandbox-api-key");
   await own.getByLabel("Secret key").fill("sandbox-secret-key");
   await own.getByText("Sandbox keys").click();
   await own.getByRole("button", { name: "Save keys" }).click();
   await expect(own.getByText("iyzico keys saved.")).toBeVisible();
-  await own.getByRole("link", { name: "Add product" }).click();
+  await own.goto("/dashboard/catalog/new");
   await own.getByLabel("Name", { exact: true }).fill("Tea set");
   await own.getByLabel("Price (TRY)", { exact: true }).fill("450");
   await own.getByLabel("Stock").fill("5");
   await own.getByRole("button", { name: "Add product" }).click();
-  await expect(own.getByRole("status")).toContainText("Saved “Tea set”.");
+  await expect(own.getByRole("status").filter({ hasText: "Saved" })).toContainText("Saved “Tea set”.");
 
   await own.goto("/dashboard/app-type?new=1");
   await own.getByText("Academy", { exact: true }).click();
@@ -189,6 +190,8 @@ test("the owner runs a shop, an academy and an events app with a free ticket", a
   await add.getByRole("button", { name: "Add course" }).click();
   await expect(own.getByRole("heading", { level: 1, name: "Turkish for Beginners" })).toBeVisible();
   courseId = Number(new URL(own.url()).pathname.split("/").pop());
+  // 132.14 The curriculum's tab.
+  await own.getByRole("tab", { name: /^Curriculum/ }).click();
   const curriculum = own.getByRole("region", { name: "Sections and lessons" });
   await curriculum.getByLabel("New section").fill("Hello");
   await curriculum.getByRole("button", { name: "Add section" }).click();
