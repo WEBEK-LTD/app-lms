@@ -6,9 +6,12 @@ import { applyPaidPacks } from "../media/packs";
 import { noteMilestones } from "../milestones/record";
 import { PaymentError } from "../payments/errors";
 import { confirmCheckout, PROVIDER_NAME, providerTakes, startCheckout, type PaymentAccount, type ProviderUrls } from "../payments/provider";
-import { planPriceOf, type Plan, type PlanInfo } from "../plans";
+import { mainPeriodOf, planPriceOf, type Plan, type PlanInfo } from "../plans";
+import { paymentMonthsOf, periodLabel, type PeriodKey } from "./periods";
+import { applyPaidAddon } from "../addons/payment";
+import type { AppAddon } from "../addons/types";
 import { getPlans } from "../settings/platform";
-import { couponClaimLimits, CouponUsedUpError, type CouponCheck } from "./coupons";
+import { couponClaimLimits, CouponUsedUpError, redemptionOf, type CouponCheck } from "./coupons";
 import { planChangeFor, type PlanChange } from "./plan-change";
 import type { StorageRenewal } from "../media/packs";
 import { chargedPrice, formatAmount, shownOf, sumOffers, type Money, type Offer } from "./prices";
@@ -76,6 +79,8 @@ export async function startPlanPayment(
     app?: Pick<App, "id"> | null;
     user: User;
     plan: PlanInfo;
+    /** 133 The period paid for (one the plan offers); its main one without. */
+    period?: PeriodKey;
     billing: BillingDetails;
     ip: string;
     /** Where the provider sends the client back, and posts its webhook (lib/payments/routes.ts). */
@@ -91,7 +96,8 @@ export async function startPlanPayment(
   },
 ): Promise<string> {
   const { client, user, plan, coupon, account, offer } = deps;
-  if (!planPriceOf(plan)) throw new Error("This plan has no card price");
+  const period = deps.period ?? mainPeriodOf(plan);
+  if (!planPriceOf(plan, period)) throw new Error("This plan has no card price for this period");
   if (coupon && offer.charged.cents !== coupon.amountCents) throw new Error("The offer isn't the coupon's price");
   const packs = deps.storagePacks?.lines ?? [];
   // 51 The packs' charges (and shown prices) add to the plan's.
@@ -103,7 +109,7 @@ export async function startPlanPayment(
     clientId: client.id,
     appId: deps.app?.id ?? null,
     plan: plan.id,
-    months: plan.billingMonths,
+    months: paymentMonthsOf(period),
     amountCents: total.charged.cents,
     currency: total.charged.currency,
     status: "pending",
@@ -119,7 +125,7 @@ export async function startPlanPayment(
     // The website's live activity card: only with the client's consent.
     showOnSite: deps.showOnSite === true ? true : null,
   };
-  const name = `Yallapp ${plan.name} (${plan.billingMonths === 1 ? "1 month" : "1 year"})`;
+  const name = `Yallapp ${plan.name} (${periodLabel(period).toLowerCase()})`;
   const planCents = offer.charged.cents;
   const { returnUrl, webhookUrl } = deps.callbackUrls(token);
   // 37 The payment is recorded once the provider has started it, with the provider's reference to read it back.
@@ -163,6 +169,8 @@ export type PlanPaymentOutcome =
   | { kind: "paid"; activation: ActivationOutcome; activeUntil: Date; payment: PlanPayment; change: PlanChange }
   /** 51 Storage packs bought: they run until the plan's period ends. */
   | { kind: "storage_paid"; payment: PlanPayment; packs: StoragePack[] }
+  /** 133 An add-on bought or renewed. */
+  | { kind: "addon_paid"; payment: PlanPayment; addon: AppAddon }
   | { kind: "already_paid" }
   /** 37 Kashier or Fawaterk haven't confirmed it (yet): it stays pending, and their webhook may still confirm it. */
   | { kind: "pending" }
@@ -224,6 +232,11 @@ export async function completePlanPayment(
     const packs = await applyPaidPacks(deps.store, paid, license?.expiresAt ?? deps.now, deps.now);
     return { kind: "storage_paid", payment: paid, packs };
   }
+  // 133 An add-on runs for its own period from today (or from its end, when it's renewed).
+  if (payment.purpose === "addon") {
+    const addon = await applyPaidAddon(deps.store, paid, deps.now);
+    return { kind: "addon_paid", payment: paid, addon };
+  }
   // 13.3 An upgrade starts now with the old plan's days credited; a downgrade starts when the paid period ends.
   const plans = await getPlans(deps.store);
   const change = planChangeFor(license, plans[payment.plan], payment.months, plans, deps.now);
@@ -254,23 +267,7 @@ function noteFor(change: PlanChange, plans: Record<Plan, PlanInfo>): string {
   return "";
 }
 
-// 11.6 Coupons
-
-function redemptionOf(coupon: Extract<CouponCheck, { ok: true }>, payment: PlanPayment, status: "pending" | "redeemed", now: Date) {
-  return {
-    couponId: coupon.coupon.id,
-    paymentId: payment.id,
-    clientId: payment.clientId,
-    code: coupon.coupon.code,
-    plan: payment.plan,
-    fullCents: coupon.fullCents,
-    discountCents: coupon.discountCents,
-    currency: payment.currency,
-    status,
-    createdAt: now,
-    redeemedAt: status === "redeemed" ? now : null,
-  };
-}
+// 11.6 Coupons: 133 `redemptionOf` is in ./coupons, for add-on payments too.
 
 /**
  * A coupon that takes the whole price: no card payment. The payment is
@@ -283,6 +280,8 @@ export async function activateWithFreeCoupon(deps: {
   /** The app whose plan is paid; null before the account's first app. */
   app?: Pick<App, "id"> | null;
   plan: PlanInfo;
+  /** 133 The period paid for; the plan's main one without. */
+  period?: PeriodKey;
   coupon: Extract<CouponCheck, { ok: true }>;
   /** 52 The full charge the coupon took (its currency is the payment's). */
   charged: Money;
@@ -298,7 +297,7 @@ export async function activateWithFreeCoupon(deps: {
     clientId: client.id,
     appId: deps.app?.id ?? null,
     plan: plan.id,
-    months: plan.billingMonths,
+    months: paymentMonthsOf(deps.period ?? mainPeriodOf(plan)),
     amountCents: 0,
     currency: charged.currency,
     status: "paid",

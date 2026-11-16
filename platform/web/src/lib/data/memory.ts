@@ -253,6 +253,7 @@ import { mergeCrash } from "../crashes/report";
 import { categoryOrder } from "../catalog/bulk";
 // 51 Media and storage
 import type { MediaFile, MediaFilePatch, MediaKind, MediaStatus, StoragePack, StoragePackPatch } from "./types";
+import type { AddonTaskStatus, AppAddon, AppAddonPatch } from "../addons/types";
 import type {
   TravelAlert,
   TravelAlertInput,
@@ -6374,6 +6375,38 @@ export class MemoryStore implements DataStore {
     if (this.storagePacks.get(id)?.appId === appId) this.storagePacks.delete(id);
   }
 
+  // 133 Add-ons each app has
+  private appAddons = new Map<string, AppAddon>();
+
+  async createAppAddon(addon: AppAddon): Promise<void> {
+    this.appAddons.set(addon.id, clone(addon));
+  }
+
+  async getAppAddon(id: string): Promise<AppAddon | null> {
+    const addon = this.appAddons.get(id);
+    return addon ? clone(addon) : null;
+  }
+
+  async listAppAddons(filter: { appId?: string; clientId?: string; addonId?: string; taskStatus?: AddonTaskStatus[]; endingBefore?: Date; limit?: number }): Promise<AppAddon[]> {
+    return [...this.appAddons.values()]
+      .filter(
+        (a) =>
+          (filter.appId === undefined || a.appId === filter.appId) &&
+          (filter.clientId === undefined || a.clientId === filter.clientId) &&
+          (filter.addonId === undefined || a.addonId === filter.addonId) &&
+          (filter.taskStatus === undefined || (a.taskStatus !== null && filter.taskStatus.includes(a.taskStatus))) &&
+          (filter.endingBefore === undefined || (a.status === "active" && a.activeUntil !== null && a.activeUntil.getTime() < filter.endingBefore.getTime())),
+      )
+      .sort((a, b) => b.createdAt.getTime() - a.createdAt.getTime() || b.id.localeCompare(a.id))
+      .slice(0, filter.limit ?? 200)
+      .map(clone);
+  }
+
+  async updateAppAddon(id: string, patch: AppAddonPatch): Promise<void> {
+    const addon = this.appAddons.get(id);
+    if (addon) this.appAddons.set(id, { ...addon, ...clone(patch) });
+  }
+
   async listEndedStoragePacks(now: Date, limit: number): Promise<StoragePack[]> {
     return [...this.storagePacks.values()]
       .filter((p) => p.activeUntil.getTime() < now.getTime() && p.endedNoticeAt === null)
@@ -7232,6 +7265,8 @@ export class MemoryStore implements DataStore {
     if (group === "plan") {
       move(this.licenses, true);
       move(this.storagePacks, true);
+      // 133 The app's add-ons go with its plan, like its storage packs.
+      move(this.appAddons, true);
       for (const [id, license] of this.licenses) if (license.appId === toAppId) this.licenses.set(id, { ...license, updatedAt: now });
       // 132 Prime given as a gift, kept by its app.
       const gift = this.primeGifts.get(fromAppId);

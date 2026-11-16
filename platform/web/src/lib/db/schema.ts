@@ -77,7 +77,10 @@ import type {
 import type { BuildFailure, BuildRelease, BuildVariant, ListingTranslation, ReviewsRow, RolloutState, ScreenshotFrame, StagedRelease } from "../data/types";
 import type { ApiWebhookData, OwnFontFile, StorePurchaseEventKind, StoreAccountSource, StoreBillingItem, StoreBillingSettings, StorePlatform, StoreProductKind, StoreProductSync } from "../data/types";
 import type { AnnouncementAudience, AnnouncementKind, AnnouncementSeverity, CouponDiscount, CouponRedemption } from "../data/types";
-import type { Plan } from "../plans";
+import type { Plan, PlanFeature } from "../plans";
+// 133 Add-ons
+import type { AddonBilling, AddonKind, AddonLimit, AddonTaskStatus, AppAddonStatus, PaidAddon } from "../addons/types";
+import type { PeriodMonths } from "../billing/periods";
 import type { ArabicTag, MatchedStep, PhraseLang } from "../bot/intents";
 import type { BotUnmatchedStatus } from "../bot/types";
 import type { MailAudience, MailCampaignStatus, MailContactSource, MailContents, MailEventKind, MailLang, MailRecipientStatus, MailSuppressionReason } from "../mailing/types";
@@ -864,7 +867,8 @@ export const planPayments = mysqlTable(
     /** The app whose plan it pays; null for a payment before the account's first app (creating it fills this in). */
     appId: id("app_id").references(() => apps.id, { onDelete: "set null" }),
     plan: varchar("plan", { length: 16 }).notNull().$type<Plan>(),
-    months: int("months").notNull().$type<1 | 12>(),
+    // 133 1, 6, 12, 24 or 36 months, or 0 for life (an add-on's one-time payment too).
+    months: int("months").notNull().$type<PeriodMonths>(),
     amountCents: bigint("amount_cents", { mode: "number", unsigned: true }).notNull(),
     currency: varchar("currency", { length: 3 }).notNull().$type<CatalogCurrency>(),
     status: varchar("status", { length: 16 }).notNull().$type<PlanPaymentStatus>(),
@@ -889,6 +893,8 @@ export const planPayments = mysqlTable(
     recordedBy: varchar("recorded_by", { length: 191 }),
     // The website's live activity card: the client allowed their first name and plan on the website (null: not allowed).
     showOnSite: boolean("show_on_site"),
+    // 133 An add-on payment: which add-on and how it's paid (null: a plan or storage packs).
+    addon: jsonText<PaidAddon>("addon"),
   },
   (t) => [
     uniqueIndex("plan_payments_token_unique").on(t.tokenHash),
@@ -2573,7 +2579,10 @@ export const coupons = mysqlTable(
     note: varchar("note", { length: 200 }).notNull(),
     discount: jsonText<CouponDiscount>("discount").notNull(),
     plans: jsonText<Plan[] | null>("plans"),
-    periods: jsonText<(1 | 12)[] | null>("periods"),
+    // 133 Any of the billing periods (0: lifetime or one-time).
+    periods: jsonText<PeriodMonths[] | null>("periods"),
+    // 133 The add-ons it applies to; null: none (coupons from before were for plans only).
+    addons: jsonText<string[] | null>("addons"),
     validFrom: time("valid_from"),
     validUntil: time("valid_until"),
     maxRedemptions: int("max_redemptions"),
@@ -2950,6 +2959,46 @@ export const storagePacks = mysqlTable(
     endedNoticeAt: time("ended_notice_at"),
   },
   (t) => [index("storage_packs_app_idx").on(t.appId, t.activeUntil), index("storage_packs_until_idx").on(t.activeUntil)],
+);
+
+/**
+ * 133 The add-ons each app has (Admin › Add-ons defines them): bought by
+ * card through Yallapp's plan gateway, or given by the team. A service's
+ * task for the team is kept on its row.
+ */
+export const appAddons = mysqlTable(
+  "app_addons",
+  {
+    id: id("id").primaryKey(),
+    clientId: id("client_id")
+      .notNull()
+      .references(() => clients.id, { onDelete: "cascade" }),
+    appId: id("app_id")
+      .notNull()
+      .references(() => apps.id, { onDelete: "cascade" }),
+    addonId: varchar("addon_id", { length: 40 }).notNull(),
+    kind: varchar("kind", { length: 12 }).notNull().$type<AddonKind>(),
+    name: varchar("name", { length: 191 }).notNull(),
+    limit: varchar("limit_key", { length: 48 }).$type<AddonLimit>(),
+    amount: double("amount"),
+    feature: varchar("feature", { length: 32 }).$type<PlanFeature>(),
+    billing: varchar("billing", { length: 12 }).notNull().$type<AddonBilling>(),
+    activeUntil: time("active_until"),
+    status: varchar("status", { length: 12 }).notNull().$type<AppAddonStatus>(),
+    paymentId: id("payment_id"),
+    grantedBy: varchar("granted_by", { length: 191 }),
+    taskStatus: varchar("task_status", { length: 12 }).$type<AddonTaskStatus>(),
+    taskNote: text("task_note"),
+    remindedFor: time("reminded_for"),
+    createdAt: time("created_at").notNull(),
+    updatedAt: time("updated_at").notNull(),
+  },
+  (t) => [
+    index("app_addons_app_idx").on(t.appId, t.createdAt),
+    index("app_addons_client_idx").on(t.clientId, t.createdAt),
+    index("app_addons_until_idx").on(t.activeUntil),
+    index("app_addons_task_idx").on(t.taskStatus, t.createdAt),
+  ],
 );
 
 // 58 Yallapp Business

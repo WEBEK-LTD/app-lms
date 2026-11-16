@@ -10,6 +10,7 @@ import { OWNER_PUSH_KINDS } from "../data/types";
 import { appState, clientAccountState, daysUntil, type AccountState } from "../license/status";
 import { getPlans, platformSetting } from "../settings/platform";
 import { isPlan, type Plan, type PlanInfo } from "../plans";
+import { isLifetimeEnd } from "../billing/periods";
 import { loadUpdates, markRead } from "../updates";
 import { readerOf, itemWords } from "../updates-view";
 import { bellWords, dashboardTextFor } from "../dashboard-words";
@@ -35,7 +36,9 @@ export function requireActive(ctx: OwnerContext): void {
 
 export function planSummary(plans: Record<Plan, PlanInfo>, license: { plan: string; expiresAt: Date } | null, now: Date) {
   if (!license || !isPlan(license.plan)) return null;
-  return { id: license.plan, name: plans[license.plan].name, expires_at: license.expiresAt.toISOString(), days_left: Math.max(0, daysUntil(license.expiresAt, now)) };
+  // 133 A plan paid for life: `lifetime`, and its end date is a day no one reaches (show "For life", not the days).
+  const lifetime = isLifetimeEnd(license.expiresAt);
+  return { id: license.plan, name: plans[license.plan].name, expires_at: license.expiresAt.toISOString(), days_left: Math.max(0, daysUntil(license.expiresAt, now)), lifetime };
 }
 
 export function appStateOf(ctx: OwnerContext, app: App): AccountState {

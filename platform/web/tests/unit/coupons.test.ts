@@ -1,4 +1,5 @@
 import { describe, expect, it } from "vitest";
+import { PLANS as EVERY_PLAN } from "@/lib/plans";
 import { checkCoupon, couponFormValues, couponPrice, CouponUsedUpError, findCoupon, MIN_CARD_CENTS, readCouponForm } from "@/lib/billing/coupons";
 import { activateWithFreeCoupon, completePlanPayment, startPlanPayment } from "@/lib/billing/plan-payment";
 import { sha256Hex } from "@/lib/crypto/tokens";
@@ -119,11 +120,13 @@ describe("coupon rules", () => {
   });
 });
 
-// 103R.3 Every plan of both families (the regular apps' and Studio's).
-const ALL = ["starter", "growth", "pro", "business", "studio_1", "studio_2", "studio_3", "studio_4", "studio_5", "studio_6", "studio_7", "studio_8"];
+// 103R.3 Every plan of both families (the regular apps' and Studio's); 133 the regular ones the team can add too.
+const ALL: string[] = [...EVERY_PLAN];
+// 133 Every billing period (0: lifetime or one-time).
+const ALL_PERIODS = ["1", "6", "12", "24", "36", "0"];
 
 describe("the admin's coupon form", () => {
-  const form = (values: Record<string, string>, plans: string[] = [...ALL], periods = ["1", "12"]) => readCouponForm({ values, plans, periods });
+  const form = (values: Record<string, string>, plans: string[] = [...ALL], periods = ALL_PERIODS) => readCouponForm({ values, plans, periods });
 
   it("reads a coupon, storing every plan or period ticked as all", () => {
     expect(
@@ -136,6 +139,7 @@ describe("the admin's coupon form", () => {
         discount: { kind: "percent", percent: 20 },
         plans: null,
         periods: null,
+        addons: null,
         validFrom: new Date("2026-10-01T00:00:00.000Z"),
         validUntil: new Date("2026-10-31T23:59:59.999Z"),
         maxRedemptions: 100,
@@ -156,7 +160,7 @@ describe("the admin's coupon form", () => {
       errors: {
         code: "Use 3 to 40 letters, digits, - or _.",
         percent: "Enter a whole percentage from 1 to 100.",
-        plans: "Choose at least one plan.",
+        plans: "Choose at least one plan or add-on.",
         periods: "Choose at least one billing period.",
         validUntil: "Choose a day on or after the first day.",
         maxPerClient: "Enter a whole number, or leave it empty for no limit.",
@@ -168,7 +172,7 @@ describe("the admin's coupon form", () => {
   it("shows a saved coupon as it reads it", () => {
     const saved = coupon({ discount: { kind: "fixed", amounts: { EGP: 50000 } }, plans: ["pro"], validUntil: new Date("2026-10-31T23:59:59.999Z") });
     const values = couponFormValues(saved);
-    expect(values).toMatchObject({ kind: "fixed", amountEGP: "500.00", plans: "pro", periods: "1,12", validUntil: "2026-10-31" });
+    expect(values).toMatchObject({ kind: "fixed", amountEGP: "500.00", plans: "pro", periods: "1,6,12,24,36,0", validUntil: "2026-10-31" });
     const { firstPaymentOnly, active, plans, periods, ...text } = values;
     const read = form({ ...text, ...(firstPaymentOnly ? { firstPaymentOnly: "on" } : {}), ...(active ? { active: "on" } : {}) }, plans.split(","), periods.split(","));
     expect(read).toMatchObject({ ok: true, coupon: { discount: saved.discount, plans: saved.plans, validUntil: saved.validUntil } });

@@ -1,5 +1,8 @@
 import type { OrderMoney } from "../market/money";
-import type { Plan, PlanSetting } from "../plans";
+import type { Plan, PlanExtrasSetting, PlanSetting } from "../plans";
+import type { PeriodMonths } from "../billing/periods";
+import type { AddonsSetting, PaidAddon } from "../addons/types";
+export type { AppAddon, AppAddonPatch, AddonTaskStatus } from "../addons/types";
 import type { BuildConfig } from "../build-config/types";
 import type { AppDefaultsSetting, Layout, LayoutBlock, LayoutContent, StudioPage } from "../pages/types";
 import type { Design } from "../pages/designs/build";
@@ -1870,6 +1873,10 @@ export interface PlatformSettingValues {
   billing: YallappBillingSetting;
   /** The team's edits to the plans; plans without one keep the defaults in code. */
   plans: Partial<Record<Plan, PlanSetting>>;
+  /** 133 The team's own plan limits (Admin › Plans › Limits; each plan's values are in its edit) and the lifetime offer's note. */
+  planExtras: PlanExtrasSetting;
+  /** 133 The add-ons (Admin › Add-ons) and the top plan of each family. */
+  addons: AddonsSetting;
   /** Shops selling through Yallapp's iyzico account; off until set. */
   marketplace: MarketplaceSetting;
   /** How clients reach Yallapp, shown across the website and the dashboard. */
@@ -1911,8 +1918,8 @@ export interface PlanPayment {
   /** The app whose plan it pays; null when paid before the account's first app existed (creating that app fills it in). */
   appId: string | null;
   plan: Plan;
-  /** How long the payment extends the license. */
-  months: 1 | 12;
+  /** How long the payment extends the license: 133 1, 6, 12, 24 or 36 months, or 0 for life (an add-on's: 0 also for a one-time payment). */
+  months: PeriodMonths;
   amountCents: number;
   currency: CatalogCurrency;
   status: PlanPaymentStatus;
@@ -1950,6 +1957,8 @@ export interface PlanPayment {
    * default). Null or missing: not allowed.
    */
   showOnSite?: boolean | null;
+  /** 133 An add-on payment (purpose "addon"): the add-on and how it's paid. */
+  addon?: PaidAddon | null;
 }
 
 /** 95.2 "bank_transfer": the client paid into Yallapp's bank account and the team recorded it. */
@@ -3255,8 +3264,10 @@ export interface Coupon {
   discount: CouponDiscount;
   /** The plans it applies to; null for every plan. */
   plans: Plan[] | null;
-  /** Billing periods in months it applies to; null for every period. */
-  periods: (1 | 12)[] | null;
+  /** Billing periods in months it applies to (133 any of them; 0: lifetime or one-time); null for every period. */
+  periods: PeriodMonths[] | null;
+  /** 133 The add-ons it applies to; null or missing: none (it's for plans). */
+  addons?: string[] | null;
   validFrom: Date | null;
   validUntil: Date | null;
   /** Uses across every client; null for no limit. */
@@ -3530,7 +3541,9 @@ export type OwnerNoticeKind =
   // 80.2 A daily check found one of the app's connections broken (one per connection; `integration_failed:<key>:<n>`).
   | "integration_failed"
   // 132 A store order cancelled after a failed delivery whose payment the owner refunds themselves.
-  | "order_refund_due";
+  | "order_refund_due"
+  // 133 An add-on ends in 7 days (`addon_ends_7:<addon row>:<end>`).
+  | "addon_ends_7";
 
 export interface OwnerNotice {
   id: number;
@@ -5219,7 +5232,8 @@ export interface StoragePack {
 
 export type StoragePackPatch = Partial<Pick<StoragePack, "activeUntil" | "paymentId" | "updatedAt" | "endedNoticeAt">>;
 
-export type PlanPaymentPurpose = "plan" | "storage";
+/** 133 "addon": one of the app's add-ons (lib/addons). */
+export type PlanPaymentPurpose = "plan" | "storage" | "addon";
 
 /** One storage pack a card payment pays for. */
 export interface PaidStoragePack {

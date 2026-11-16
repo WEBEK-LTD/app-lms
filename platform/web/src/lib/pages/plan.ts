@@ -2,7 +2,7 @@ import { mapTree } from "../studio/tree";
 import { sha256Hex } from "../crypto/tokens";
 import type { App } from "../data/types";
 import { appSwitches } from "../app/switches";
-import { hasFeature, pageEditorLevel, type PlanInfo } from "../plans";
+import { hasFeature, pageEditorLevel, pagesLimitOf, SIMPLE_EDITOR_PAGES, type PlanInfo } from "../plans";
 import { blockActions, mapBlockActions } from "./block-actions";
 import { defaultLayout } from "./defaults";
 import { itemSourcesFor } from "./sources";
@@ -23,8 +23,8 @@ import type { Action, AppDefaultsSetting, BlockType, ItemSource, Languages, Layo
 export const BASIC_BLOCK_TYPES: readonly BlockType[] = ["text", "image", "banner", "slider", "items", "button", "contact", "spacer"];
 /** The blocks the simple editor's app never shows: custom code. */
 export const BASIC_BLOCKED_TYPES: readonly BlockType[] = ["embed"];
-/** The most pages an app on the simple editor has: its template's (the designs have 4 to 6). */
-export const BASIC_MAX_PAGES = 6;
+/** The most pages an app on the simple editor has: its template's (the designs have 4 to 6); 133 more with the plan's own page limit. */
+export const BASIC_MAX_PAGES = SIMPLE_EDITOR_PAGES;
 
 /** A block as the simple editor's app shows it: without its own styling. */
 function plainBlock(block: LayoutBlock): LayoutBlock {
@@ -81,9 +81,12 @@ export function layoutForPlan(layout: Layout, app: App, plan: PlanInfo | null, d
     // The ready-made pages, without a side menu; 109 the tab bar keeps its look.
     const ready = defaultLayout(app, defaults, app.createdAt);
     content = { appearance: content.appearance, languages: content.languages, tabs: ready.tabs, ...tabBarOf(content), pages: ready.pages };
-  } else if (level === "basic") {
-    // The simple editor: its pages up to the templates' number, no custom code, no block styling.
-    const pages = content.pages.slice(0, BASIC_MAX_PAGES).map((p) => ({ ...p, blocks: p.blocks.filter((b) => !BASIC_BLOCKED_TYPES.includes(b.type)).map(plainBlock) }));
+  } else if (level === "basic" || (app.section !== "studio" && pagesLimitOf(plan) !== null && content.pages.length > pagesLimitOf(plan)!)) {
+    // The simple editor: its pages up to the templates' number (133 or the plan's page limit), no custom code, no block styling.
+    // 133 The full editor with a page limit: the first pages up to it.
+    const limit = pagesLimitOf(plan) ?? BASIC_MAX_PAGES;
+    const basic = level === "basic";
+    const pages = content.pages.slice(0, limit).map((p) => (basic ? { ...p, blocks: p.blocks.filter((b) => !BASIC_BLOCKED_TYPES.includes(b.type)).map(plainBlock) } : p));
     const kept = new Set(pages.map((p) => p.slug));
     const opens = (t: { target: Action }) => t.target.type !== "page" || !t.target.page_slug || kept.has(t.target.page_slug);
     const tabs = content.tabs.filter(opens);
@@ -182,12 +185,17 @@ export function planLayoutErrors(content: LayoutContent, plan: PlanInfo | null):
   if (limit !== null && content.languages.available.length > limit) {
     errors.push(`Your ${plan.name} plan includes ${limit} app language${limit === 1 ? "" : "s"}. Turn off the others, or upgrade your plan.`);
   }
-  // The simple page editor: the template's pages, no custom code, no block styling.
+  // The simple page editor: the template's pages (133 or the plan's page limit), no custom code, no block styling.
+  const pageLimit = pagesLimitOf(plan);
   if (pageEditorLevel(plan) === "basic") {
-    if (content.pages.length > BASIC_MAX_PAGES) errors.push(`Your ${plan.name} plan includes up to ${BASIC_MAX_PAGES} pages. Remove the others, or upgrade your plan for the full page editor.`);
+    if (content.pages.length > (pageLimit ?? BASIC_MAX_PAGES)) errors.push(`Your ${plan.name} plan includes up to ${pageLimit ?? BASIC_MAX_PAGES} pages. Remove the others, or upgrade your plan for the full page editor.`);
     const blocks = content.pages.flatMap((p) => p.blocks);
     if (blocks.some((b) => BASIC_BLOCKED_TYPES.includes(b.type))) errors.push(`Web page blocks need the full page editor. Remove them, or upgrade your plan.`);
     if (blocks.some((b) => b.look !== undefined)) errors.push(`Block styling needs the full page editor. Reset the blocks' look, or upgrade your plan.`);
+  }
+  // 133 The full page editor with a page limit (the plan's, with page add-ons).
+  else if (pageLimit !== null && plan.limits.studioPages === undefined && content.pages.length > pageLimit) {
+    errors.push(`Your ${plan.name} plan includes up to ${pageLimit} pages. Remove the others, or upgrade your plan.`);
   }
   // 103R Studio pages per project, on a Studio plan.
   const pages = plan.limits.studioPages;

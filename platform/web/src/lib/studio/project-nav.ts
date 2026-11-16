@@ -182,6 +182,8 @@ export function studioProjectNav({ app, text, can, supportUrl }: StudioNavInput)
       items: [
         item("/dashboard/license", t("studio.navPlan"), "workspace_premium"),
         item("/dashboard/invoices", t("studio.navInvoices"), "receipt_long"),
+        // 133.8 Add-ons for the project (services, more of a limit, features), as in the dashboard's menu.
+        item("/dashboard/addons", t("addons.title"), "widgets"),
         // 60 The people who work with the owner.
         item("/dashboard/team", t("team.nav"), "groups"),
         // 57 Updates from Yallapp, the list behind the bell.

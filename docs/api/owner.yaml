@@ -4516,6 +4516,7 @@ components:
         name: { type: string, example: Growth }
         expires_at: { type: string, format: date-time }
         days_left: { type: integer }
+        lifetime: { type: boolean, description: "133 The plan is paid for life: it never ends (`expires_at` is a day no one reaches), so show \"For life\" rather than the days left. Missing on older servers: false." }
 
     AppFeatures:
       type: object

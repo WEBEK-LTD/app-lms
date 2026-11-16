@@ -173,6 +173,8 @@ export default async function DashboardLayout({ children }: { children: React.Re
       label: t("nav.account"),
       items: [
         { href: "/dashboard/license", label: k(licensePageName(app)), icon: "workspace_premium" },
+        // 133 Services, more of a limit, a feature, on top of the plan.
+        { href: "/dashboard/addons", label: t("addons.title"), icon: "widgets" },
         // 60 The people who work with the owner.
         { href: "/dashboard/team", label: t("team.nav"), icon: "groups" },
         // 57 The full list behind the bell (the address stays).

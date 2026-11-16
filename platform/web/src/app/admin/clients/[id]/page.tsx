@@ -1,4 +1,5 @@
 import { randomUUID } from "node:crypto";
+import { isLifetimeEnd } from "@/lib/billing/periods";
 import type { Metadata } from "next";
 import { Fragment } from "react";
 import { describeAccess } from "@/lib/team/service";
@@ -36,6 +37,7 @@ import { ACCOUNT_STATE_LABEL, appState, clientAccountState, type AccountState } 
 import { formatLimit, planName, planNamesOf, plansShown, plansWith, type Plan, type PlanInfo } from "@/lib/plans";
 import { currentPlanId, scheduledPlan } from "@/lib/billing/plan-change";
 import { effectivePlans, planOfLicense } from "@/lib/entitlements";
+import { ClientAddons } from "./addons";
 import { callRows } from "@/lib/admin/calls";
 import { CallList, ManagerPicker } from "../../calls/parts";
 import { getPlans } from "@/lib/settings/platform";
@@ -407,7 +409,7 @@ export default async function ClientPage({ params, searchParams }: PageProps<"/a
                                 {appLabel(e.app)}
                               </a>
                               <Badge tone={stateTone(state)}>{ACCOUNT_STATE_LABEL[state]}</Badge>
-                              <span className="text-muted">{e.license ? `${planName(e.license.plan, plans)} until ${formatDate(e.license.expiresAt)}` : "No plan yet"}</span>
+                              <span className="text-muted">{e.license ? `${planName(e.license.plan, plans)} ${isLifetimeEnd(e.license.expiresAt) ? "for life" : `until ${formatDate(e.license.expiresAt)}`}` : "No plan yet"}</span>
                             </li>
                           );
                         })}
@@ -494,6 +496,12 @@ export default async function ClientPage({ params, searchParams }: PageProps<"/a
             </Card>
           );
         })}
+
+        {/* 133 The apps' add-ons, and giving one by hand. */}
+        {/* Called here, not rendered later: a failure stays in its own panel. */}
+        {await panel(client.id, { id: "h-client-addons", title: "Add-ons" }, () =>
+          ClientAddons({ store, clientId: client.id, apps, canGrant: may("clients.license"), notice: typeof query.addon === "string" ? query.addon : null }),
+        )}
 
         {await panel(client.id, { id: "h-setup-request", title: "Set-up requests" }, () => (
           <Card id="h-setup-request" title="Set-up requests">
@@ -719,7 +727,7 @@ async function AppEntry({
                   [
                     "Plan",
                     license
-                      ? `${currentPlan?.name ?? planName(license.plan, plans)} until ${formatDate(license.expiresAt)}${scheduled ? `, then ${effective[scheduled.plan].name}` : ""}`
+                      ? `${currentPlan?.name ?? planName(license.plan, plans)} ${isLifetimeEnd(license.expiresAt) ? "for life" : `until ${formatDate(license.expiresAt)}`}${scheduled ? `, then ${effective[scheduled.plan].name}` : ""}`
                       : "Not activated",
                   ],
                   [

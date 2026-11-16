@@ -8,7 +8,7 @@ import { Icon } from "@/components/icon";
 import type { IconName } from "@/components/icon-names";
 import { JsonLdScript } from "@/components/json-ld";
 import { ContactBand } from "@/components/marketing";
-import { currencyNote, planLimitLinesFor, planPriceFor, planStoresLineFor, storageText } from "@/components/plan-cards";
+import { currencyNote, periodUnitFor, planLimitLinesFor, planPriceFor, planStoresLineFor, storageText } from "@/components/plan-cards";
 import { SiteFooter, SiteHeader } from "@/components/site-chrome";
 import { WhatsAppLink } from "@/components/whatsapp-link";
 import { blackFridayCopyFor } from "@/content/occasions";
@@ -20,7 +20,7 @@ import type { OccasionRecord, PaymentProviderId } from "@/lib/data/types";
 import { effectivePlans } from "@/lib/entitlements";
 import { ALL_SOLUTIONS, STUDIO_SOLUTIONS, type AppScreen } from "@/lib/marketing";
 import { allSolutionsFor, planFor, screenAltFor } from "@/lib/marketing-lang";
-import { FEATURED_PLAN, hasFeature, planOffered, REGULAR_PLANS, STUDIO_PLANS, type PlanInfo, type PriceView } from "@/lib/plans";
+import { hasFeature, plansForSale, type PlanInfo, type PriceView } from "@/lib/plans";
 import { breadcrumbLd, faqLd, siteMetadata, siteUrl, type JsonLd } from "@/lib/seo";
 import { yallappBilling } from "@/lib/settings/platform";
 import { LANGS } from "@/i18n/config";
@@ -423,13 +423,13 @@ function SaveLine({ lang, t, saved }: { lang: Lang; t: OccasionText; saved: stri
 /** The price whose fall the scene shows: the featured plan's, else the first plan with a price with the code. */
 function dropPrice(prices: Map<string, OccasionPlanPrice | null>, plans: PlanInfo[]): OccasionPlanPrice | null {
   const priced = plans.map((p) => prices.get(p.id) ?? null).filter((p): p is OccasionPlanPrice => Boolean(p?.offer));
-  return priced.find((p) => p.plan.id === FEATURED_PLAN) ?? priced[0] ?? null;
+  return priced.find((p) => p.plan.featured) ?? priced[0] ?? null;
 }
 
 /** The pinned scene: the normal price, a gold slash through it, its digits falling away and the offer's price counting down into place. */
 function PriceDrop({ lang, t, fill, price, percent }: { lang: Lang; t: OccasionText; fill: Fill; price: OccasionPlanPrice; percent: number }) {
   const m = messagesFor(lang).plans;
-  const per = formatMessage(lang, t.plans.period, { period: price.period === "month" ? m.month : m.year });
+  const per = formatMessage(lang, t.plans.period, { period: lang === "en" && (price.period === "month" || price.period === "year") ? (price.period === "month" ? m.month : m.year) : periodUnitFor(lang, price.period) });
   const full = formatMoney(price.full);
   const offer = formatMoney(price.offer!);
   const saved = savedText(price);
@@ -466,10 +466,11 @@ function PriceDrop({ lang, t, fill, price, percent }: { lang: Lang; t: OccasionT
 function PlanCard({ lang, t, plan, price, on, family, percent }: { lang: Lang; t: OccasionText; plan: PlanInfo; price: OccasionPlanPrice | null; on: boolean; family: "regular" | "studio"; percent: number }) {
   const m = messagesFor(lang).plans;
   const shown = planPriceFor(lang, plan, { display: price?.full.currency ?? "EGP", egpPerUsd: null });
-  const periodWord = price ? (price.period === "month" ? m.month : m.year) : null;
+  // 133 Any period.
+  const periodWord = price ? (lang === "en" && (price.period === "month" || price.period === "year") ? (price.period === "month" ? m.month : m.year) : periodUnitFor(lang, price.period)) : null;
   const per = periodWord ? formatMessage(lang, t.plans.period, { period: periodWord }) : null;
   const saved = price ? savedText(price) : null;
-  const featured = plan.id === FEATURED_PLAN;
+  const featured = plan.featured === true;
   const lines =
     family === "regular"
       ? planLimitLinesFor(lang, plan)
@@ -918,8 +919,9 @@ function Final({ lang, t, view, fill }: { lang: Lang; t: OccasionText; view: Occ
 async function pageData(lang: Lang, now: Date) {
   const store = await getStore();
   const [occasion, all, priceView, billing, contact] = await Promise.all([blackFridayOccasion(now), effectivePlans(store), visitorPriceView(store), yallappBilling(store), getVisitorContact()]);
-  const regular = REGULAR_PLANS.map((id) => planFor(lang, all[id]));
-  const studio = STUDIO_PLANS.map((id) => all[id]).filter(planOffered).map((plan) => planFor(lang, plan));
+  // 133 The plans for sale, in the team's order.
+  const regular = plansForSale(all, "regular").map((plan) => planFor(lang, plan));
+  const studio = plansForSale(all, "studio").map((plan) => planFor(lang, plan));
   const provider: PaymentProviderId = billing.planProvider;
   const prices = new Map([...regular, ...studio].map((plan) => [plan.id, occasionPlanPrice(plan, occasion, priceView, provider)] as const));
   return { occasion, regular, studio, priceView, prices, contact };

@@ -100,6 +100,8 @@ export const APP_TABLES: Record<string, AppTableRole> = {
   license_activations: "plan",
   plan_payments: "plan",
   storage_packs: "plan",
+  // 133 An app's add-ons are bought for it like its storage packs: never copied, moved with the subscription.
+  app_addons: "plan",
   kept_billing_records: "plan",
   app_deletions: "plan",
   // 132 Prime given as a gift moves with the subscription.

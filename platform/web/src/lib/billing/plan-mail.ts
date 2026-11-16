@@ -13,11 +13,18 @@ import { formatAmount } from "./prices";
 import { PROVIDER_NAME } from "../payments/provider";
 import { planReceiptPdf, receiptAttachment } from "../receipts/service";
 import type { PlanPayment } from "../data/types";
+import { isLifetimeEnd, periodOfMonths } from "./periods";
+
+/** 133 A plan payment's period, in the email's language: "6 months", "Lifetime". */
+const EMAIL_PERIOD = { "1": "addons.email.p1", "6": "addons.email.p6", "12": "addons.email.p12", "24": "addons.email.p24", "36": "addons.email.p36", lifetime: "addons.email.lifetime" } as const;
 
 /** 52 "Paid: EGP 1,500 (about $30) by card through Kashier." and the receipt, for the activation and renewal emails; 56 in the email's language. */
 export function paymentLine(payment: PlanPayment, base: string, lang: Lang = "en"): string {
   const t = getDashT(lang);
-  const receipt = `${t("emails.receipt", { url: `${base}/dashboard/license/receipts/${payment.id}` })}\n\n`;
+  // 133 Which period a plan was paid for, when it isn't a month or a year (those read as before).
+  const key = payment.purpose === "plan" || !payment.purpose ? periodOfMonths(payment.months) : null;
+  const period = key && key !== "1" && key !== "12" ? `${t("addons.email.periodLine", { period: t(EMAIL_PERIOD[key]) })}\n` : "";
+  const receipt = `${period}${t("emails.receipt", { url: `${base}/dashboard/license/receipts/${payment.id}` })}\n\n`;
   if (payment.amountCents === 0) return `${t("emails.paidCoupon")}\n${receipt}`;
   const amount = formatAmount(payment.amountCents, payment.currency);
   // 95.2 A bank transfer the team recorded.
@@ -35,7 +42,9 @@ export async function sendPlanPaidMail(store: DataStore, client: Client, outcome
   const user = await store.getUserById(client.userId);
   if (!user) return;
   const plan = (await getPlans(store))[outcome.payment.plan].name;
-  const until = formatDate(outcome.activeUntil);
+  const lang0 = emailLangOf(user);
+  // 133 A lifetime plan has no last day.
+  const until = isLifetimeEnd(outcome.activeUntil) ? getDashT(lang0)("addons.email.forLife") : formatDate(outcome.activeUntil);
   const dashboard = `${appUrl()}/dashboard`;
   const appName = appLabel(outcome.activation.app);
   const lang = emailLangOf(user);

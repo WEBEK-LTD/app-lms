@@ -1,4 +1,5 @@
 import { readFileSync } from "node:fs";
+import { REGULAR_PLANS } from "@/lib/plans";
 import path from "node:path";
 import type { ReactElement } from "react";
 import { renderToStaticMarkup } from "react-dom/server";
@@ -79,7 +80,8 @@ describe("124 Admin › Occasions actions", () => {
 
     const saved = await updateOccasionAction({}, form({ ...BLACK_FRIDAY, id: occasion!.id, endsOn: "2026-12-06", plans: "regular" }));
     expect(saved).toMatchObject({ ok: true, message: "Black Friday 2026 saved. Its coupon BLACKFRIDAY50 is updated." });
-    expect((await state.store.getCoupon(occasion!.couponId!))?.plans).toEqual(["starter", "growth", "pro", "business"]);
+    // 133 Every regular plan, the ones the team adds included.
+    expect((await state.store.getCoupon(occasion!.couponId!))?.plans).toEqual([...REGULAR_PLANS]);
 
     await expect(deleteOccasionAction({}, form({ id: occasion!.id }))).rejects.toThrow("redirect /admin/occasions?done=deleted");
     expect((await state.store.getCoupon(occasion!.couponId!))?.active).toBe(false);
