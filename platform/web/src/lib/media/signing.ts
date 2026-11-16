@@ -165,6 +165,18 @@ export const MEDIA_CONTENT_TYPES: Record<MediaExtension, string> = {
   txt: "text/plain",
 };
 
+/**
+ * 132.147 The gate's Content-Security-Policy for a file it serves. Nothing in
+ * it runs (`default-src 'none'`); a picture, a PDF or a document opens
+ * sandboxed as well, but a video or a voice message doesn't: the browser's
+ * own player in a sandboxed page stays at 0:00 (Chromium), so opening an
+ * uploaded video showed a player that never played.
+ */
+export function mediaPolicy(extension: MediaExtension): string {
+  const policy = "default-src 'none'; img-src 'self' data:; media-src 'self'; style-src 'unsafe-inline'";
+  return /^(video|audio)\//.test(MEDIA_CONTENT_TYPES[extension]) ? policy : `${policy}; sandbox`;
+}
+
 /** 77 Documents sent in the chat are always saved, never opened in the browser (the gate says so for them). */
 export const MEDIA_DOWNLOAD_ONLY: ReadonlySet<MediaExtension> = new Set(["doc", "docx", "xls", "xlsx", "ppt", "pptx", "txt"]);
 

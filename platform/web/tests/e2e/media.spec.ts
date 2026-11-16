@@ -122,9 +122,18 @@ test("the owner uploads a video in chunks and a picture to Media", async () => {
   await expect(files.locator('[data-media="Cover.png"]')).toContainText("Picture · 2 KB");
   await expect(own.locator("[data-storage-used]")).toContainText("6 MB of 2 GB used");
 
+  // 132.147 Open plays the video right on the page, in a drawer, from the gate's signed link.
+  await files.locator('[data-media="Lesson one.mp4"]').getByRole("button", { name: "Open" }).click();
+  const viewer = own.getByRole("dialog", { name: "Lesson one.mp4" });
+  await expect(viewer.locator("[data-media-viewer=video] video")).toBeVisible();
+  await expect(viewer.getByRole("link", { name: "Download" })).toHaveAttribute("href", /dl=1/);
+  const open = (await viewer.locator("video").getAttribute("src"))!;
+  await viewer.getByRole("button", { name: "Close" }).click();
+  await expect(viewer).toBeHidden();
   // The signed link plays the file with range requests, straight from the gate.
-  const open = (await files.locator('[data-media="Lesson one.mp4"]').getByRole("link", { name: "Open" }).getAttribute("href"))!;
   expect(new URL(open).pathname).toMatch(/^\/media\/v\/[0-9a-f-]{36}\/[0-9a-f-]{36}\/mp4$/);
+  // Opened on its own, it isn't sandboxed (a sandboxed page's player stays at 0:00).
+  expect((await own.request.head(open)).headers()["content-security-policy"]).not.toContain("sandbox");
   const range = await own.request.get(open, { headers: { range: "bytes=5242880-5242889" } });
   expect(range.status()).toBe(206);
   expect(range.headers()["content-range"]).toBe(`bytes 5242880-5242889/${6 * 1024 * 1024}`);
@@ -136,7 +145,11 @@ test("the owner uploads a video in chunks and a picture to Media", async () => {
   // Its own link: a picture opens for anyone, a lesson's video doesn't.
   // 64b The file's ID is the segment before the extension: `/<app>/<id>/<ext>`.
   const videoId = new URL(open).pathname.split("/").at(-2)!;
-  const pictureOpen = (await files.locator('[data-media="Cover.png"]').getByRole("link", { name: "Open" }).getAttribute("href"))!;
+  await files.locator('[data-media="Cover.png"]').getByRole("button", { name: "Open" }).click();
+  const pictureViewer = own.getByRole("dialog", { name: "Cover.png" });
+  const pictureOpen = (await pictureViewer.getByRole("img", { name: "Cover.png" }).getAttribute("src"))!;
+  await pictureViewer.getByRole("button", { name: "Close" }).click();
+  expect((await own.request.head(pictureOpen)).headers()["content-security-policy"]).toContain("sandbox");
   const pictureId = new URL(pictureOpen).pathname.split("/").at(-2)!;
   const picture = await own.request.get(`/m/${pictureId}`, { maxRedirects: 0 });
   expect(picture.status()).toBe(302);

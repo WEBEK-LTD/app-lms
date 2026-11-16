@@ -274,7 +274,13 @@ if ($op === 'v' && ($method === 'GET' || $method === 'HEAD')) {
 	header('Cache-Control: private, max-age=3600');
 	header('X-Content-Type-Options: nosniff');
 	header('Referrer-Policy: no-referrer');
-	header("Content-Security-Policy: default-src 'none'; img-src 'self' data:; media-src 'self'; style-src 'unsafe-inline'; sandbox");
+	// 132.147 Nothing in it runs; a video or a voice message isn't sandboxed, since the
+	// browser's own player in a sandboxed page stays at 0:00 (Chromium).
+	$policy = "default-src 'none'; img-src 'self' data:; media-src 'self'; style-src 'unsafe-inline'";
+	if (!preg_match('#^(video|audio)/#', MEDIA_TYPES[$ext])) {
+		$policy .= '; sandbox';
+	}
+	header('Content-Security-Policy: ' . $policy);
 	if (($params['dl'] ?? '') === '1' || in_array($ext, MEDIA_DOWNLOAD_ONLY, true)) {
 		header('Content-Disposition: attachment; filename="' . $media_id . '.' . $ext . '"');
 	}
