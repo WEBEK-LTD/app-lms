@@ -235,7 +235,8 @@ export async function advanceProject(deps: ProjectDeps, start: FirebaseProject, 
     const attempts = (project.creation?.attempts ?? 0) + 1;
     const now = deps.now();
     const step = project.creation?.step ?? "create";
-    await save({}, { attempts, problem: message, failedAt: now.toISOString(), nextTryAt: new Date(now.getTime() + retryDelayMs(attempts)).toISOString() });
+    // The step starts again next time (a failed operation isn't read again).
+    await save({}, { operation: null, attempts, problem: message, failedAt: now.toISOString(), nextTryAt: new Date(now.getTime() + retryDelayMs(attempts)).toISOString() });
     await raiseAlert(
       store,
       {

@@ -214,7 +214,9 @@ async function advance(deps: FirebaseDeps, app: App, project: FirebaseProject, w
     if (!record) return save({ ...row, operation: null, status: "failed", error: "Firebase's answer named no app." });
     return save({ ...row, firebaseAppId: record.appId, operation: null, status: "ready", error: null });
   } catch (error) {
-    return save({ ...row, status: "failed", error: problemOf(error) });
+    // An operation Google no longer knows is forgotten: the app is looked up, then added, again.
+    const gone = error instanceof GoogleApiError && error.httpStatus === 404;
+    return save({ ...row, ...(gone ? { operation: null } : {}), status: "failed", error: problemOf(error) });
   }
 }
 

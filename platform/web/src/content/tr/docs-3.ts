@@ -221,6 +221,8 @@ Arapça, Farsça, İbranice, Urduca, Peştuca ve Uygurca sağdan sola yazılır:
     description: "Bir Firebase projesi oluşturun, uygulamalarınızı ekleyin, Apple anlık bildirimlerini bağlayın ve ilk bildiriminizi gönderin.",
     body: `Anlık bildirimler kendi Firebase projeniz üzerinden gönderilir; böylece müşterilerinizin cihazları bizim değil sizin hesabınız altında kaydedilir. Firebase bu kullanım için ücretsizdir. Bir kez kurun; yaklaşık 20 dakika sürer.
 
+Yallapp'in barındırılan API'sindeki uygulamalar (içeriği Yallapp'te yönetilen ya da bağlı bir mağazası olan) bunların hiçbirine gerek duymaz: **Yayınlama** adımında **Bildirimleri Yallapp kursun (önerilen)** seçeneğini seçin; Yallapp uygulamalarınızı kendi Firebase'ine ekler ve dosyalarını derlemelerinize koyar. Aşağıdaki adımlar **Kendi Firebase'imi kullan** içindir.
+
 ## Başlamadan önce
 
 - Firebase konsolu için bir Google hesabı
