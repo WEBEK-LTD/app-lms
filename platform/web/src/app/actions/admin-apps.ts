@@ -25,6 +25,9 @@ import { makeStudioProject } from "@/lib/studio/new-project";
 import { STUDIO_ONLY_KINDS, studioSourcesFor } from "@/lib/studio/section";
 import { TEMPLATES } from "@/lib/studio/sections";
 import { appTypeOn, getSwitches } from "@/lib/switches";
+import { isLang, type Lang } from "@/i18n/config";
+import { startDraftIn, startLanguages, wordsLangOf } from "@/lib/app/start-language";
+import { appDefaults } from "@/lib/pages/layout";
 
 /**
  * 132.111–132.115 What our team does with a client's apps from the admin:
@@ -83,25 +86,31 @@ export async function createAppForClientAction(_: FormState, formData: FormData)
   const [how, id] = values.start.split(":") as [string, string];
   const switches = await getSwitches(store);
   const now = new Date();
+  // 132.40 In the owner's language, as the app they make themselves.
+  const owner = await store.getUserById(client.userId);
+  const lang: Lang = isLang(owner?.language) ? owner.language : "en";
+  const languages = startLanguages(lang, (await appDefaults(store)).languages);
   let made: { app: App; open: string };
   if (how === "demo" && (ALL_DEMO_TYPES as readonly string[]).includes(id)) {
     const demo = id as DemoId;
     // The account's first app may have its plan already; an added app has none until it's paid.
     const license = apps.length ? null : (await store.listLicensesByClient(clientId)).find((l) => l.appId === null) ?? null;
     if (!appTypeOn(switches, demoKind(demo).engine, license?.plan ?? null)) return { errors: { start: "This kind of app is switched off for new apps." }, values };
-    made = await makeFromDemo(store, { clientId, plan: await appPlan(store, license, now) }, { demo, name: values.name, colour: DEMO_BRANDS[demo].primaryColor, logoAssetId: null, iconAssetId: null }, now);
+    made = await makeFromDemo(store, { clientId, plan: await appPlan(store, license, now), lang }, { demo, name: values.name, colour: DEMO_BRANDS[demo].primaryColor, logoAssetId: null, iconAssetId: null }, now);
   } else if (how === "kind" || how === "studio") {
     const kind = kindById(id);
     if (!kind || !KINDS.includes(kind)) return { errors: { start: "Choose what the app starts from." }, values };
     if (!appTypeOn(switches, kind.engine, null)) return { errors: { start: "This kind of app is switched off for new apps." }, values };
     if (how === "studio") {
       const template = TEMPLATES.find((t) => t.id === "blank")!;
-      const app = await makeStudioProject(store, { clientId, name: values.name, kind, source: studioSourcesFor(kind)[0] ?? "catalog", template, words: appWords("en", values.name), lang: "en" }, now);
+      const words = wordsLangOf(languages, "en");
+      const app = await makeStudioProject(store, { clientId, name: values.name, kind, source: studioSourcesFor(kind)[0] ?? "catalog", template, words: appWords(words, values.name), lang: words, languages }, now);
       made = { app, open: "/studio/editor" };
     } else {
       if (STUDIO_ONLY_KINDS.has(kind.id)) return { errors: { start: "This kind of app is made in Yallapp Studio." }, values };
       const app: App = { ...newApp(clientId, apps.length ? null : client.siteUrl || null, now, kind.engine, kind.vertical), appName: values.name.slice(0, 60), appTypeDoneAt: now };
       await store.createApp(app);
+      if (lang !== "en") await startDraftIn(store, app, languages, now);
       made = { app, open: "/dashboard/setup?step=website" };
     }
   } else {

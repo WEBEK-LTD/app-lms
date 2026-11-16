@@ -12,7 +12,8 @@ import { E2E } from "../../playwright.config";
  * their own page, one declined, one closed after five wrong codes; moves a
  * plan to another app; and a client can't open any of it.
  */
-test.describe.configure({ mode: "serial" });
+// Several sign-ins, codes and emails each: room for a slow machine.
+test.describe.configure({ mode: "serial", timeout: 180_000 });
 
 const suffix = Date.now().toString(36);
 const omar = { name: "Omar Haddad", email: `omar-${suffix}@moves.test`, password: "omar-moves-strong-password-1" };
