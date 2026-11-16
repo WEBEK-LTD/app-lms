@@ -95,33 +95,44 @@ test("90.1 the academy adds a lesson with a file, a quiz, a certificate and acce
   await expect(own.getByRole("heading", { level: 1, name: "Turkish in a Week" })).toBeVisible();
   courseId = Number(new URL(own.url()).pathname.split("/").pop());
 
-  const details = own.getByRole("region", { name: "Details" });
-  await details.getByLabel("Give a certificate to students who finish").check();
-  await details.getByLabel("Access for (days)").fill("0");
-  await details.getByRole("button", { name: "Save course" }).click();
-  await expect(details.getByText("Enter 1 to 3650 days, or leave it empty for access that doesn't end.")).toBeVisible();
-  await details.getByLabel("Access for (days)").fill("30");
-  await details.getByRole("button", { name: "Save course" }).click();
-  await expect(details.getByText("Saved “Turkish in a Week”.")).toBeVisible();
+  // 132.13 The course's editor in tabs: a field to fix opens its tab.
+  await own.getByRole("tab", { name: "Certificate" }).click();
+  await own.getByLabel("Give a certificate to students who finish").check();
+  await own.getByRole("tab", { name: "Pricing and access" }).click();
+  await own.getByLabel("Access for (days)").fill("0");
+  await own.getByRole("tab", { name: "Details" }).click();
+  await own.getByRole("button", { name: "Save course" }).click();
+  await expect(own.getByRole("tab", { name: "Pricing and access" })).toHaveAttribute("aria-selected", "true");
+  await expect(own.getByText("Enter 1 to 3650 days, or leave it empty for access that doesn't end.")).toBeVisible();
+  // Nothing typed was lost: the certificate is still ticked.
+  await expect(own.getByLabel("Give a certificate to students who finish")).toBeChecked();
+  await own.getByLabel("Access for (days)").fill("30");
+  await own.getByRole("button", { name: "Save course" }).click();
+  await expect(own.getByText("Saved “Turkish in a Week”.")).toBeVisible();
 
+  // 132.14 The curriculum: a section, a lesson and a quiz, each added on its own page with all its details.
+  await own.getByRole("tab", { name: /^Curriculum/ }).click();
   const curriculum = own.getByRole("region", { name: "Sections and lessons" });
   await curriculum.getByLabel("New section").fill("Hello");
   await curriculum.getByRole("button", { name: "Add section" }).click();
   await expect(curriculum.getByRole("heading", { name: "Hello" })).toBeVisible();
-  await curriculum.getByLabel("Lesson title").fill("Greetings");
-  await curriculum.getByLabel("Text", { exact: true }).fill("Merhaba means hello.");
-  await curriculum.getByLabel("Files", { exact: true }).fill("Word list | https://cdn.example.com/words.pdf");
-  await curriculum.getByRole("button", { name: "Add lesson" }).click();
-  await expect(curriculum.getByText("Text · 1 file")).toBeVisible();
+  await curriculum.getByRole("link", { name: "Lesson", exact: true }).click();
+  await expect(own.getByRole("heading", { level: 1, name: "Add a lesson to Hello" })).toBeVisible();
+  await own.getByLabel("Lesson title").fill("Greetings");
+  await own.getByLabel("Text", { exact: true }).fill("Merhaba means hello.");
+  await own.getByLabel("Files", { exact: true }).fill("Word list | https://cdn.example.com/words.pdf");
+  await own.getByRole("button", { name: "Add lesson" }).click();
+  await expect(own).toHaveURL(/\?tab=curriculum$/);
+  await expect(own.getByRole("region", { name: "Sections and lessons" }).getByText("Text · 1 file")).toBeVisible();
 
-  await curriculum.getByText("Add a quiz to Hello").click();
-  await curriculum.getByLabel("Quiz title").fill("Check yourself");
-  await curriculum.getByLabel("Questions", { exact: true }).fill("Q: Merhaba means\n* Hello");
-  await curriculum.getByRole("button", { name: "Add quiz" }).click();
-  await expect(curriculum.getByText("“Merhaba means” needs at least two answers.")).toBeVisible();
-  await curriculum.getByLabel("Questions", { exact: true }).fill("Q: Merhaba means\n* Hello\n- Goodbye");
-  await curriculum.getByRole("button", { name: "Add quiz" }).click();
-  await expect(curriculum.getByText("1 question · pass mark 70%")).toBeVisible();
+  await own.getByRole("region", { name: "Sections and lessons" }).getByRole("link", { name: "Quiz", exact: true }).click();
+  await own.getByLabel("Quiz title").fill("Check yourself");
+  await own.getByLabel("Questions", { exact: true }).fill("Q: Merhaba means\n* Hello");
+  await own.getByRole("button", { name: "Add quiz" }).click();
+  await expect(own.getByText("“Merhaba means” needs at least two answers.")).toBeVisible();
+  await own.getByLabel("Questions", { exact: true }).fill("Q: Merhaba means\n* Hello\n- Goodbye");
+  await own.getByRole("button", { name: "Add quiz" }).click();
+  await expect(own.getByRole("region", { name: "Sections and lessons" }).getByText("1 question · pass mark 70%")).toBeVisible();
 });
 
 test("90.1 a student learns, passes the quiz and gets the certificate", async ({ request, browser }) => {
@@ -162,7 +173,7 @@ test("90.1 a student learns, passes the quiz and gets the certificate", async ({
 });
 
 test("90.2 the teacher sees each student's progress and quiz results, and downloads them", async () => {
-  await own.goto(`/dashboard/courses/${courseId}`);
+  await own.goto(`/dashboard/courses/${courseId}?tab=students`);
   await own.getByRole("link", { name: "Progress and grades" }).click();
   await expect(own.getByRole("heading", { level: 1, name: "Students' progress" })).toBeVisible();
   await expect(own.getByText("2 students · 1 started · 1 finished")).toBeVisible();
@@ -189,29 +200,32 @@ test("90.2 the teacher sees each student's progress and quiz results, and downlo
 });
 
 test("112.5 the academy adds an assignment and a live class, and moves the live class up", async () => {
-  await own.goto(`/dashboard/courses/${courseId}`);
+  await own.goto(`/dashboard/courses/${courseId}?tab=curriculum`);
   const curriculum = own.getByRole("region", { name: "Sections and lessons" });
-  await curriculum.getByText("Add an assignment to Hello").click();
-  await curriculum.getByLabel("Assignment title").fill("Introduce yourself");
-  await curriculum.getByLabel("Instructions").fill("Write three sentences about you.");
-  await curriculum.getByLabel("Highest score").fill("20");
-  await curriculum.getByRole("button", { name: "Add assignment" }).click();
+  await curriculum.getByRole("link", { name: "Assignment", exact: true }).click();
+  await own.getByLabel("Assignment title").fill("Introduce yourself");
+  await own.getByLabel("Instructions").fill("Write three sentences about you.");
+  await own.getByLabel("Highest score").fill("20");
+  await own.getByRole("button", { name: "Add assignment" }).click();
   await expect(curriculum.getByText("assignment · 20 points")).toBeVisible();
 
-  await curriculum.getByText("Add a live class to Hello").click();
-  await curriculum.getByLabel("Live class title").fill("Speaking club");
-  await curriculum.getByLabel("Day", { exact: true }).fill("2030-01-15");
-  await curriculum.getByLabel(/^Starts at/).fill("18:00");
-  await curriculum.getByLabel("Meeting link").fill("http://meet.example.com/abc");
-  await curriculum.getByRole("button", { name: "Add live class" }).click();
-  await expect(curriculum.getByText("Enter the meeting's https link (Zoom, Google Meet, Microsoft Teams or another).")).toBeVisible();
-  await curriculum.getByLabel("Meeting link").fill("https://meet.example.com/abc");
-  await curriculum.getByRole("button", { name: "Add live class" }).click();
+  await curriculum.getByRole("link", { name: "Live class", exact: true }).click();
+  await own.getByLabel("Live class title").fill("Speaking club");
+  await own.getByLabel("Day", { exact: true }).fill("2030-01-15");
+  await own.getByLabel(/^Starts at/).fill("18:00");
+  await own.getByLabel("Meeting link").fill("http://meet.example.com/abc");
+  await own.getByRole("button", { name: "Add live class" }).click();
+  await expect(own.getByText("Enter the meeting's https link (Zoom, Google Meet, Microsoft Teams or another).")).toBeVisible();
+  await own.getByLabel("Meeting link").fill("https://meet.example.com/abc");
+  await own.getByRole("button", { name: "Add live class" }).click();
   await expect(curriculum.getByText("live · 2030-01-15 18:00 · 60 min")).toBeVisible();
 
   await expect(curriculum.locator("[data-kind]")).toHaveCount(4);
   await curriculum.locator('[data-kind="live"]').getByRole("button", { name: "Move up" }).click();
   await expect.poll(async () => curriculum.locator("[data-kind]").evaluateAll((rows) => rows.map((r) => r.getAttribute("data-kind")))).toEqual(["lesson", "quiz", "live", "assignment"]);
+  // Saved: the same order after a reload.
+  await own.reload();
+  await expect.poll(async () => own.getByRole("region", { name: "Sections and lessons" }).locator("[data-kind]").evaluateAll((rows) => rows.map((r) => r.getAttribute("data-kind")))).toEqual(["lesson", "quiz", "live", "assignment"]);
 });
 
 test("112.5 a student hands the assignment in from the app, the academy grades it", async ({ request }) => {
@@ -228,7 +242,7 @@ test("112.5 a student hands the assignment in from the app, the academy grades i
   const handed = await request.put(`${api}/assignments/${assignment.id}/submission`, { headers: student, data: { text: "Merhaba, ben Fatma." } });
   expect(handed.status()).toBe(200);
 
-  await own.goto(`/dashboard/courses/${courseId}`);
+  await own.goto(`/dashboard/courses/${courseId}?tab=students`);
   await own.getByRole("link", { name: "1 assignment to grade" }).click();
   await expect(own.getByRole("heading", { level: 1, name: "Assignments" })).toBeVisible();
   const work = own.locator("[data-submission]", { hasText: "Fatma" });
@@ -255,41 +269,39 @@ test("112.5 a student hands the assignment in from the app, the academy grades i
 });
 
 test("113.7 the academy sets the rules to complete the course, a rubric with another try, a timed exam and a learning path", async () => {
-  await own.goto(`/dashboard/courses/${courseId}`);
-  const details = own.getByRole("region", { name: "Details" });
-  await details.getByLabel("Students complete it when they finish").selectOption("quizzes");
-  await details.getByLabel("Minimum final score (%)").fill("120");
-  await details.getByRole("button", { name: "Save course" }).click();
-  await expect(details.getByText("Enter a score from 1 to 100, or leave it empty.")).toBeVisible();
-  await details.getByLabel("Minimum final score (%)").fill("50");
-  await details.getByRole("button", { name: "Save course" }).click();
-  await expect(details.getByText("Saved “Turkish in a Week”.")).toBeVisible();
+  await own.goto(`/dashboard/courses/${courseId}?tab=certificate`);
+  await own.getByLabel("Students complete it when they finish").selectOption("quizzes");
+  await own.getByLabel("Minimum final score (%)").fill("120");
+  await own.getByRole("button", { name: "Save course" }).click();
+  await expect(own.getByText("Enter a score from 1 to 100, or leave it empty.")).toBeVisible();
+  await own.getByLabel("Minimum final score (%)").fill("50");
+  await own.getByRole("button", { name: "Save course" }).click();
+  await expect(own.getByText("Saved “Turkish in a Week”.")).toBeVisible();
 
+  await own.getByRole("tab", { name: /^Curriculum/ }).click();
   const curriculum = own.getByRole("region", { name: "Sections and lessons" });
-  const addAssignment = curriculum.locator("details", { hasText: "Add an assignment to Hello" });
-  await addAssignment.getByText("Add an assignment to Hello").click();
-  await addAssignment.getByLabel("Assignment title").fill("Describe your city");
-  await addAssignment.getByLabel("Instructions").fill("Five sentences about where you live.");
-  await addAssignment.getByLabel("Rubric").fill("Content\n- Excellent | 6\n- Good | 3\n\nSpelling\n- No mistakes | 4");
-  await addAssignment.getByRole("button", { name: "Add assignment" }).click();
-  await expect(addAssignment.getByText("Give “Spelling” at least two levels.")).toBeVisible();
-  await addAssignment.getByLabel("Rubric").fill("Content\n- Excellent | 6\n- Good | 3\n\nSpelling\n- No mistakes | 4\n- A few | 1");
-  await addAssignment.getByLabel("Times it can be handed in").fill("2");
-  await addAssignment.getByRole("button", { name: "Add assignment" }).click();
+  await curriculum.getByRole("link", { name: "Assignment", exact: true }).click();
+  await own.getByLabel("Assignment title").fill("Describe your city");
+  await own.getByLabel("Instructions").fill("Five sentences about where you live.");
+  await own.getByLabel("Rubric").fill("Content\n- Excellent | 6\n- Good | 3\n\nSpelling\n- No mistakes | 4");
+  await own.getByRole("button", { name: "Add assignment" }).click();
+  await expect(own.getByText("Give “Spelling” at least two levels.")).toBeVisible();
+  await own.getByLabel("Rubric").fill("Content\n- Excellent | 6\n- Good | 3\n\nSpelling\n- No mistakes | 4\n- A few | 1");
+  await own.getByLabel("Times it can be handed in").fill("2");
+  await own.getByRole("button", { name: "Add assignment" }).click();
   await expect(curriculum.getByText("assignment · 10 points · rubric · 2 tries")).toBeVisible();
 
-  const addQuiz = curriculum.locator("details", { hasText: "Add a quiz to Hello" });
-  await addQuiz.getByText("Add a quiz to Hello").click();
-  await addQuiz.getByLabel("Quiz title").fill("Final exam");
-  await addQuiz.getByLabel("Questions", { exact: true }).fill("Q: Teşekkürler means\n* Thank you\n- Sorry");
-  await addQuiz.getByText("Timed exam").click();
-  await addQuiz.getByLabel("This quiz is an exam").check();
-  await addQuiz.getByLabel("Show students their results once it closes").check();
-  await addQuiz.getByRole("button", { name: "Add quiz" }).click();
-  await expect(addQuiz.getByText("Choose when it closes, to show the results then.")).toBeVisible();
-  await addQuiz.getByLabel("Closes on").fill("2030-01-01");
-  await addQuiz.getByLabel("Time limit (minutes)").fill("30");
-  await addQuiz.getByRole("button", { name: "Add quiz" }).click();
+  await curriculum.getByRole("link", { name: "Quiz", exact: true }).click();
+  await own.getByLabel("Quiz title").fill("Final exam");
+  await own.getByLabel("Questions", { exact: true }).fill("Q: Teşekkürler means\n* Thank you\n- Sorry");
+  await own.getByText("Timed exam").click();
+  await own.getByLabel("This quiz is an exam").check();
+  await own.getByLabel("Show students their results once it closes").check();
+  await own.getByRole("button", { name: "Add quiz" }).click();
+  await expect(own.getByText("Choose when it closes, to show the results then.")).toBeVisible();
+  await own.getByLabel("Closes on").fill("2030-01-01");
+  await own.getByLabel("Time limit (minutes)").fill("30");
+  await own.getByRole("button", { name: "Add quiz" }).click();
   await expect(curriculum.getByText("1 question · pass mark 70% · exam")).toBeVisible();
 
   // A second course, after the first in a path taken in order.
@@ -301,7 +313,8 @@ test("113.7 the academy sets the rules to complete the course, a rubric with ano
   await add.getByRole("button", { name: "Add course" }).click();
   await expect(own.getByRole("heading", { level: 1, name: "Turkish in a Month" })).toBeVisible();
   await own.goto("/dashboard/courses");
-  await own.getByRole("link", { name: "Paths, points and badges" }).click();
+  // 132.13 A tab of Courses.
+  await own.getByRole("navigation", { name: "Courses", exact: true }).getByRole("link", { name: /^Learning paths/ }).click();
   await expect(own.getByRole("heading", { level: 1, name: "Learning paths, points and badges" })).toBeVisible();
   await own.getByLabel("Path title").fill("Turkish from zero");
   await own.getByLabel("Turkish in a Month", { exact: true }).check();

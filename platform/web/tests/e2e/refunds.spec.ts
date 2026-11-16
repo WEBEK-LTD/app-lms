@@ -107,10 +107,13 @@ test("a shop refunds an order in part, then the rest, through Kashier", async ({
   await page.getByRole("button", { name: "Save & continue" }).click();
   await expect(page.getByRole("heading", { name: "Branding" })).toBeVisible();
   await page.getByRole("link", { name: "Products", exact: true }).click();
+  // 132.10 Products has its own pages: the shop's settings, payments and the products.
+  await page.getByRole("navigation", { name: "Products", exact: true }).getByRole("link", { name: /^Settings/ }).click();
   await page.getByLabel("Currency").selectOption("EGP");
   await page.getByRole("button", { name: "Save settings" }).click();
   await expect(page.getByText("Shop settings saved.")).toBeVisible();
 
+  await page.getByRole("navigation", { name: "Products", exact: true }).getByRole("link", { name: /^Payments/ }).click();
   const payments = page.getByRole("region", { name: "Card payments" });
   await payments.getByLabel("Payment provider").selectOption("kashier");
   await payments.getByLabel("Merchant ID").fill("MID-7777-047");
@@ -120,12 +123,13 @@ test("a shop refunds an order in part, then the rest, through Kashier", async ({
   await payments.getByRole("button", { name: "Save keys" }).click();
   await expect(payments.getByText("Kashier keys saved.")).toBeVisible();
 
+  await page.getByRole("navigation", { name: "Products", exact: true }).getByRole("link", { name: /^Products/ }).click();
   await page.getByRole("link", { name: "Add product" }).click();
   await page.getByLabel("Name", { exact: true }).fill("Cairo Trilogy");
   await page.getByLabel("Price (EGP)", { exact: true }).fill("850");
   await page.locator('input[name="images"]').setInputFiles({ name: "book.png", mimeType: "image/png", buffer: solidPng(64, 64, [200, 170, 120]) });
   await page.getByRole("button", { name: "Add product" }).click();
-  await expect(page.getByRole("status")).toContainText("Saved “Cairo Trilogy”.");
+  await expect(page.getByRole("status").filter({ hasText: "Saved" })).toContainText("Saved “Cairo Trilogy”.");
   await page.getByRole("link", { name: /Cairo Trilogy/ }).click();
   const link = (await page.getByRole("link", { name: /\/shop\// }).textContent())!;
   const api = `${E2E.baseURL}/api/app/${/\/shop\/([0-9a-f-]{36})\//.exec(link)![1]}`;
