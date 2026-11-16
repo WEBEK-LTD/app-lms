@@ -297,6 +297,21 @@ class HttpOwnerApi implements OwnerApi {
   );
 
   @override
+  Future<Order> setOrderStage(
+    String appId,
+    int orderId,
+    StageRequest request,
+  ) async => Order.fromJson(
+    await _post('${_app(appId)}/orders/$orderId/stage', request.toJson()),
+  );
+
+  @override
+  Future<DeliveryDay> stageSlots(String appId, {String? date}) async =>
+      DeliveryDay.fromJson(
+        await _get('${_app(appId)}/delivery-slots', query: {'date': ?date}),
+      );
+
+  @override
   Future<RefundResult> refundOrder(
     String appId,
     int orderId,

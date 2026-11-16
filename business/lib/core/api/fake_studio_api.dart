@@ -265,7 +265,6 @@ mixin _FakeStudio implements OwnerApi {
   List<Order> _flowerOrders() {
     Json m(int cents) => _money(cents, 'EGP');
     final tomorrow = _isoDay(now.add(const Duration(days: 1)));
-    final today = _isoDay(now);
     Json line(
       int productId,
       String name,
@@ -297,9 +296,18 @@ mixin _FakeStudio implements OwnerApi {
       Json? delivery,
       Json? payOutside,
       List<String> next = const [],
+      List<Json> stages = const [],
     }) => {
       'id': number,
       'number': '$number',
+      // 132 Its delivery stage, newest first, and where it may go next.
+      'stage': stages.isEmpty ? null : stages.first,
+      'stage_history': stages,
+      'next_stages': status != 'processing'
+          ? const <String>[]
+          : FakeStages.next(
+              stages.isEmpty ? null : stages.first['stage'] as String,
+            ),
       'status': status,
       'status_label': switch (status) {
         'pending' => 'Waiting for payment',
@@ -434,13 +442,14 @@ mixin _FakeStudio implements OwnerApi {
             'lng': null,
             'notes': null,
           },
+          // 132 Postponed to tomorrow morning (its stages below).
           delivery: {
-            'date': today,
+            'date': tomorrow,
             'slot': {
-              'id': 'evening',
-              'start': '16:00',
-              'end': '19:00',
-              'label': '16:00–19:00',
+              'id': 'morning',
+              'start': '10:00',
+              'end': '13:00',
+              'label': '10:00–13:00',
             },
             'fee': null,
             'sender': {
@@ -467,6 +476,24 @@ mixin _FakeStudio implements OwnerApi {
             'breakdown': const [],
           },
           next: const ['completed', 'cancelled'],
+          stages: [
+            FakeStages.entry(
+              'postponed',
+              at: now.subtract(const Duration(minutes: 40)),
+              by: 'Leyla',
+              reason: 'recipient_away',
+              note: 'Hana is at the hospital until tomorrow; call her sister.',
+              date: tomorrow,
+              slot: ('morning', '10:00', '13:00'),
+            ),
+            FakeStages.entry(
+              'shipped',
+              at: now.subtract(const Duration(hours: 1, minutes: 30)),
+              by: 'Leyla',
+              courierName: 'Mostafa',
+              courierPhone: '+20 100 555 1234',
+            ),
+          ],
         ),
         order(
           number: 2048,

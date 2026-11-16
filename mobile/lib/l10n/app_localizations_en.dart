@@ -11976,4 +11976,43 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get deliveryNeedPin => 'Pin where it goes on the map.';
+
+  @override
+  String get orderStagePreparing => 'Your order is being prepared';
+
+  @override
+  String get orderStageShipped => 'Out for delivery';
+
+  @override
+  String get orderStagePostponed => 'Delivery postponed';
+
+  @override
+  String get orderStageFailed => 'We couldn\'t deliver';
+
+  @override
+  String get orderStageReturned => 'Back at the shop';
+
+  @override
+  String get orderStageDelivered => 'Delivered';
+
+  @override
+  String orderStageNewDay(String day) {
+    return 'New delivery day: $day';
+  }
+
+  @override
+  String orderStageTryAgain(String day) {
+    return 'We\'ll try again on $day';
+  }
+
+  @override
+  String orderStageCourier(String name) {
+    return 'Courier: $name';
+  }
+
+  @override
+  String get orderStageCallCourier => 'Call the courier';
+
+  @override
+  String get orderStageFollow => 'Follow the delivery';
 }

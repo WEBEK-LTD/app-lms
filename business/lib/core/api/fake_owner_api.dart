@@ -1661,6 +1661,91 @@ class FakeOwnerApi with _FakeStudio implements OwnerApi {
     return _detail(appId, updated);
   }
 
+  /// 132 As the server: the stages it may go to, why and the day needed.
+  @override
+  Future<Order> setOrderStage(String appId, int orderId, StageRequest r) async {
+    await _call('setOrderStage:${r.stage}');
+    _app(appId, (f) => f.orders);
+    final o = _find(appId, orderId);
+    if (!o.nextStages.contains(r.stage)) {
+      throw const ApiException(
+        code: 'invalid_stage',
+        message: "This order's delivery can't move to that stage.",
+        statusCode: 409,
+      );
+    }
+    final errors = <String, String>{
+      if ((r.stage == 'postponed' || r.stage == 'failed') && r.reason == null)
+        'reason': 'Choose why.',
+      if (r.stage == 'failed' && r.nextStep == null)
+        'next_step': 'Choose what happens next.',
+      if (r.reason == 'other' && (r.note ?? '').trim().isEmpty)
+        'note': 'Write the reason in the note.',
+      if ((r.stage == 'postponed' || r.nextStep == 'retry') && r.date == null)
+        'date': 'Choose the new delivery day.',
+    };
+    if (errors.isNotEmpty) {
+      throw ApiException(
+        code: 'invalid_request',
+        message: "The request isn't valid.",
+        statusCode: 400,
+        fieldErrors: errors,
+      );
+    }
+    final slot = r.slotId == null
+        ? null
+        : FakeStages.slots.firstWhere((s) => s.$1 == r.slotId);
+    final entry = OrderStage.fromJson(
+      FakeStages.entry(
+        r.stage,
+        at: DateTime.now().toUtc(),
+        by: 'Leyla',
+        reason: r.reason,
+        note: r.note,
+        courierName: r.courierName,
+        courierPhone: r.courierPhone,
+        trackingUrl: r.trackingUrl,
+        date: r.date,
+        slot: slot,
+        next: r.nextStep,
+      ),
+    );
+    final status = r.stage == 'delivered'
+        ? 'completed'
+        : r.stage == 'failed' && r.nextStep == 'cancel'
+        ? 'cancelled'
+        : o.status;
+    final updated = o.copyWith(
+      status: status,
+      statusLabel: _statusLabel(status),
+      nextStatuses: status == 'processing' ? o.nextStatuses : const [],
+      stage: entry,
+      stageHistory: [entry, ...o.stageHistory],
+      nextStages: status == 'processing' ? FakeStages.next(r.stage) : const [],
+    );
+    _replace(appId, updated);
+    return _detail(appId, updated);
+  }
+
+  @override
+  Future<DeliveryDay> stageSlots(String appId, {String? date}) async {
+    await _call('stageSlots');
+    final day = date ?? _FakeStudio._isoDay(DateTime.now());
+    return DeliveryDay(
+      date: day,
+      dateLabel: day,
+      slots: [
+        for (final (id, start, end) in FakeStages.slots)
+          DeliveryTime(
+            id: id,
+            label: '$start–$end',
+            orders: id == 'evening' ? 4 : 1,
+            full: id == 'evening',
+          ),
+      ],
+    );
+  }
+
   @override
   Future<RefundResult> refundOrder(
     String appId,
@@ -4033,6 +4118,71 @@ class _FakeTransport implements UploadTransport {
 }
 
 /// Lets tests make the fake gate fail a chunk.
+/// 132 The fake's delivery stages: where each may go next, and an entry as
+/// the Owner API writes it (English labels; the app shows its own words).
+abstract final class FakeStages {
+  static List<String> next(String? stage) => switch (stage) {
+    null => const ['preparing', 'shipped', 'postponed', 'delivered'],
+    'preparing' => const ['shipped', 'postponed', 'delivered'],
+    'shipped' => const ['delivered', 'postponed', 'failed'],
+    'postponed' => const ['preparing', 'shipped', 'postponed', 'delivered'],
+    'failed' => const ['shipped', 'postponed', 'returned'],
+    'returned' => const ['shipped', 'postponed'],
+    _ => const <String>[],
+  };
+
+  static const slots = [
+    ('morning', '10:00', '13:00'),
+    ('afternoon', '13:00', '16:00'),
+    ('evening', '16:00', '19:00'),
+  ];
+
+  static const _labels = {
+    'preparing': 'Preparing',
+    'shipped': 'Out for delivery',
+    'postponed': 'Delivery postponed',
+    'failed': 'Delivery failed',
+    'returned': 'Returned to shop',
+    'delivered': 'Delivered',
+  };
+
+  static Json entry(
+    String stage, {
+    required DateTime at,
+    String? by,
+    String? reason,
+    String? note,
+    String? courierName,
+    String? courierPhone,
+    String? trackingUrl,
+    String? date,
+    (String, String, String)? slot,
+    String? next,
+  }) => {
+    'stage': stage,
+    'label': _labels[stage] ?? stage,
+    'at': at.toUtc().toIso8601String(),
+    'by': by,
+    'reason': reason == null ? null : {'code': reason, 'label': reason},
+    'note': note,
+    'courier': courierName == null && courierPhone == null
+        ? null
+        : {'name': courierName, 'phone': courierPhone},
+    'tracking_url': trackingUrl,
+    'date': date,
+    'date_label': date,
+    'slot': slot == null
+        ? null
+        : {
+            'id': slot.$1,
+            'start': slot.$2,
+            'end': slot.$3,
+            'label': '${slot.$2}–${slot.$3}',
+          },
+    'next_step': next == null ? null : {'code': next, 'label': next},
+  };
+}
+
 extension FakeTransportControl on FakeOwnerApi {
   Set<int> get failChunksAt => (transport as _FakeTransport).failAt;
 

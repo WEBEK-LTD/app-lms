@@ -152,6 +152,12 @@ abstract final class AppIcons {
   static const shipping = Symbols.local_shipping_rounded;
   static const note = Symbols.sticky_note_2_rounded;
   static const package = Symbols.package_2_rounded;
+  // 132 Delivery stages.
+  static const postpone = Symbols.event_repeat_rounded;
+  static const deliveryFailed = Symbols.report_rounded;
+  static const returned = Symbols.assignment_return_rounded;
+  static const delivered = Symbols.task_alt_rounded;
+  static const preparing = Symbols.inventory_2_rounded;
   // 132 The app lock.
   static const face = Symbols.face_rounded;
   static const pin = Symbols.pin_rounded;

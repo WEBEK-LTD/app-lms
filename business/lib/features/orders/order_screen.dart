@@ -14,6 +14,7 @@ import '../../core/widgets/states.dart';
 import '../food/food_sheets.dart' show FootPanel;
 import '../studio/studio_widgets.dart' show IconLine;
 import 'order_actions.dart';
+import 'order_stages.dart';
 
 final orderProvider = FutureProvider.autoDispose.family<Order, int>(
   (ref, id) => ref.watch(apiProvider).order(ref.watch(appIdProvider), id),
@@ -36,7 +37,17 @@ class OrderScreen extends ConsumerWidget {
     final loaded = order.value;
     return Scaffold(
       appBar: AppBar(title: Text(loaded?.label ?? l10n.order)),
-      bottomNavigationBar: loaded == null || loaded.nextStatuses.isEmpty
+      bottomNavigationBar: loaded == null
+          ? null
+          // 132 A store order's delivery stages, Cancel order with them.
+          : loaded.nextStages.isNotEmpty
+          ? FootPanel(
+              child: StageActions(
+                order: loaded,
+                onChanged: (_) => ref.invalidate(orderProvider(orderId)),
+              ),
+            )
+          : loaded.nextStatuses.isEmpty
           ? null
           : FootPanel(
               child: OrderActions(
@@ -204,6 +215,19 @@ class _OrderBody extends ConsumerWidget {
         if (when != null) ...[
           SectionTitle(l10n.whenTitle),
           Panel(child: IconText(AppIcons.when, when)),
+        ],
+        // 132 Where its delivery is, and every change of it.
+        if (order.stage != null || order.nextStages.isNotEmpty) ...[
+          SectionTitle(
+            l10n.stageTitle,
+            trailing: order.stage == null
+                ? null
+                : StatusChip(
+                    stageLabel(context, order.stage!.stage, order.stage!.label),
+                    tone: stageTone(order.stage!.stage),
+                  ),
+          ),
+          Panel(child: StageTimeline(order: order)),
         ],
         if (d != null && d.hasCard) ...[
           SectionTitle(l10n.giftCardTitle),

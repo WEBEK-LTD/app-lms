@@ -3370,6 +3370,182 @@ class AppLocalizationsTr extends AppLocalizations {
   }
 
   @override
+  String get stageTitle => 'Teslimat';
+
+  @override
+  String get stageNotStarted =>
+      'Henüz yola çıkmadı. Çıkınca kargoya verildi olarak işaretleyin: müşteriye bildirilir.';
+
+  @override
+  String get stagePreparing => 'Hazırlanıyor';
+
+  @override
+  String get stageShipped => 'Dağıtımda';
+
+  @override
+  String get stagePostponed => 'Ertelendi';
+
+  @override
+  String get stageFailed => 'Teslim edilemedi';
+
+  @override
+  String get stageReturned => 'Mağazaya döndü';
+
+  @override
+  String get stageDelivered => 'Teslim edildi';
+
+  @override
+  String get doPreparing => 'Hazırlanıyor';
+
+  @override
+  String get doShipped => 'Kargoya verildi';
+
+  @override
+  String get doPostpone => 'Ertele';
+
+  @override
+  String get doFailed => 'Teslim edilemedi';
+
+  @override
+  String get doReturned => 'Mağazaya döndü';
+
+  @override
+  String get doDelivered => 'Teslim edildi';
+
+  @override
+  String shipSheetTitle(String order) {
+    return '$order kargoya verildi';
+  }
+
+  @override
+  String postponeSheetTitle(String order) {
+    return '$order teslimatını ertele';
+  }
+
+  @override
+  String failedSheetTitle(String order) {
+    return '$order teslim edilemedi';
+  }
+
+  @override
+  String get courierNameField => 'Kuryenin adı (isteğe bağlı)';
+
+  @override
+  String get courierPhoneField => 'Kuryenin telefonu (isteğe bağlı)';
+
+  @override
+  String get trackingLinkField => 'Takip bağlantısı (isteğe bağlı)';
+
+  @override
+  String get stageWhy => 'Neden';
+
+  @override
+  String get stageNewDay => 'Yeni gün';
+
+  @override
+  String get stageTime => 'Saat';
+
+  @override
+  String get stageAnotherDay => 'Başka gün';
+
+  @override
+  String stageSlotFull(String slot) {
+    return '$slot · dolu';
+  }
+
+  @override
+  String get stageNextStep => 'Sonraki adım';
+
+  @override
+  String get stageTeamNote => 'Ekibiniz için not';
+
+  @override
+  String get stageTeamNoteHint => 'Müşteri görmez.';
+
+  @override
+  String get reasonCustomerAsked => 'Müşteri istedi';
+
+  @override
+  String get reasonRecipientAway => 'Alıcı müsait değil';
+
+  @override
+  String get reasonShopAsked => 'Mağaza istedi';
+
+  @override
+  String get reasonWeather => 'Hava durumu';
+
+  @override
+  String get reasonWrongAddress => 'Adres yanlış veya eksik';
+
+  @override
+  String get reasonRefused => 'Alıcı teslim almadı';
+
+  @override
+  String get reasonUnreachable => 'Telefonla ulaşılamadı';
+
+  @override
+  String get reasonOther => 'Diğer';
+
+  @override
+  String get nextRetry => 'Başka gün tekrar dene';
+
+  @override
+  String get nextReturn => 'Mağazaya geri gönder';
+
+  @override
+  String get nextCancel => 'Siparişi iptal et';
+
+  @override
+  String get stageCancelNoRefund =>
+      'İptal etmek para iadesi yapmaz: ödendiyse siparişten iade edin.';
+
+  @override
+  String deliveredConfirmTitle(String order) {
+    return '$order teslim edildi mi?';
+  }
+
+  @override
+  String get deliveredConfirmText =>
+      'Sipariş tamamlanır ve müşteriye bildirilir.';
+
+  @override
+  String stageToldCustomer(String order, String stage) {
+    return '$order: $stage. Müşteriye bildirildi.';
+  }
+
+  @override
+  String stageSaved(String order, String stage) {
+    return '$order: $stage.';
+  }
+
+  @override
+  String stageNewDayLine(String day) {
+    return 'Yeni gün: $day';
+  }
+
+  @override
+  String stageNextLine(String step) {
+    return 'Sonraki: $step';
+  }
+
+  @override
+  String stageCourierLine(String name) {
+    return 'Kurye: $name';
+  }
+
+  @override
+  String get stageChooseDay => 'Yeni günü seçin.';
+
+  @override
+  String get stageChooseWhy => 'Nedeni seçin.';
+
+  @override
+  String get stageChooseNext => 'Sonraki adımı seçin.';
+
+  @override
+  String get stageWriteNote => 'Nedeni nota yazın.';
+
+  @override
   String get stAwaitingPayment => 'Ödeme bekleniyor';
 
   @override

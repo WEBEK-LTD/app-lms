@@ -1398,6 +1398,9 @@ class Order {
     this.amounts,
     this.payOutside,
     this.shipment,
+    this.stage,
+    this.stageHistory = const [],
+    this.nextStages = const [],
   });
 
   factory Order.fromJson(Json json) {
@@ -1409,6 +1412,7 @@ class Order {
     final amounts = optObject(json, 'amounts');
     final outside = optObject(json, 'pay_outside');
     final shipment = optObject(json, 'shipment');
+    final stage = optObject(json, 'stage');
     return Order(
       id: integer(json, 'id'),
       number: str(json, 'number'),
@@ -1429,6 +1433,9 @@ class Order {
       amounts: amounts == null ? null : OrderAmounts.fromJson(amounts),
       payOutside: outside == null ? null : PayOutside.fromJson(outside),
       shipment: shipment == null ? null : OrderShipment.fromJson(shipment),
+      stage: stage == null ? null : OrderStage.fromJson(stage),
+      stageHistory: listOf(json, 'stage_history', OrderStage.fromJson),
+      nextStages: strings(json, 'next_stages'),
     );
   }
 
@@ -1465,6 +1472,15 @@ class Order {
   final PayOutside? payOutside;
   final OrderShipment? shipment;
 
+  /// 132 Where its delivery is (a store's order); null before its first stage.
+  final OrderStage? stage;
+
+  /// 132 Every change of its delivery stage, newest first.
+  final List<OrderStage> stageHistory;
+
+  /// 132 The stages it may move to now (shipped, postponed, failed…).
+  final List<String> nextStages;
+
   int get itemCount => lines.fold(0, (sum, line) => sum + line.quantity);
 
   /// 132 Who ordered: the customer, else the gift's sender.
@@ -1480,6 +1496,10 @@ class Order {
     List<String>? nextStatuses,
     RefundOptions? refund,
     List<Refund>? refunds,
+    OrderStage? stage,
+    List<OrderStage>? stageHistory,
+    List<String>? nextStages,
+    OrderDelivery? delivery,
   }) => Order(
     id: id,
     number: number,
@@ -1496,11 +1516,172 @@ class Order {
     refund: refund ?? this.refund,
     refunds: refunds ?? this.refunds,
     deliverTo: deliverTo,
-    delivery: delivery,
+    delivery: delivery ?? this.delivery,
     amounts: amounts,
     payOutside: payOutside,
     shipment: shipment,
+    stage: stage ?? this.stage,
+    stageHistory: stageHistory ?? this.stageHistory,
+    nextStages: nextStages ?? this.nextStages,
   );
+}
+
+/// 132 One change of a store order's delivery stage: who, when, why, the
+/// team's note (never the customer's to see) and what it set.
+class OrderStage {
+  const OrderStage({
+    required this.stage,
+    required this.label,
+    required this.at,
+    this.by,
+    this.reason,
+    this.reasonLabel,
+    this.note,
+    this.courierName,
+    this.courierPhone,
+    this.trackingUrl,
+    this.day,
+    this.dayLabel,
+    this.slotId,
+    this.slotLabel,
+    this.nextStep,
+    this.nextStepLabel,
+  });
+
+  factory OrderStage.fromJson(Json json) {
+    final reason = optObject(json, 'reason');
+    final courier = optObject(json, 'courier');
+    final slot = optObject(json, 'slot');
+    final next = optObject(json, 'next_step');
+    return OrderStage(
+      stage: str(json, 'stage'),
+      label: str(json, 'label'),
+      at: date(json, 'at'),
+      by: optStr(json, 'by'),
+      reason: reason == null ? null : optStr(reason, 'code'),
+      reasonLabel: reason == null ? null : optStr(reason, 'label'),
+      note: optStr(json, 'note'),
+      courierName: courier == null ? null : optStr(courier, 'name'),
+      courierPhone: courier == null ? null : optStr(courier, 'phone'),
+      trackingUrl: optStr(json, 'tracking_url'),
+      day: optStr(json, 'date'),
+      dayLabel: optStr(json, 'date_label'),
+      slotId: slot == null ? null : optStr(slot, 'id'),
+      slotLabel: slot == null ? null : optStr(slot, 'label'),
+      nextStep: next == null ? null : optStr(next, 'code'),
+      nextStepLabel: next == null ? null : optStr(next, 'label'),
+    );
+  }
+
+  /// preparing, shipped, postponed, failed, returned, delivered.
+  final String stage;
+  final String label;
+  final DateTime at;
+
+  /// The team member's name; null: the system.
+  final String? by;
+  final String? reason;
+  final String? reasonLabel;
+  final String? note;
+  final String? courierName;
+  final String? courierPhone;
+  final String? trackingUrl;
+
+  /// YYYY-MM-DD: the new delivery day (postponed, or tried again).
+  final String? day;
+  final String? dayLabel;
+  final String? slotId;
+  final String? slotLabel;
+
+  /// retry, return or cancel, after a failed attempt.
+  final String? nextStep;
+  final String? nextStepLabel;
+}
+
+/// 132 What moving an order's delivery to a stage says.
+class StageRequest {
+  const StageRequest(
+    this.stage, {
+    this.reason,
+    this.note,
+    this.courierName,
+    this.courierPhone,
+    this.trackingUrl,
+    this.date,
+    this.slotId,
+    this.nextStep,
+  });
+
+  final String stage;
+  final String? reason;
+  final String? note;
+  final String? courierName;
+  final String? courierPhone;
+  final String? trackingUrl;
+  final String? date;
+  final String? slotId;
+  final String? nextStep;
+
+  Json toJson() => {
+    'stage': stage,
+    'reason': ?reason,
+    'note': ?note,
+    'courier_name': ?courierName,
+    'courier_phone': ?courierPhone,
+    'tracking_url': ?trackingUrl,
+    'date': ?date,
+    'slot_id': ?slotId,
+    'next_step': ?nextStep,
+  };
+}
+
+/// 132 A day's delivery times, to postpone an order to.
+class DeliveryDay {
+  const DeliveryDay({
+    required this.date,
+    required this.dateLabel,
+    required this.slots,
+  });
+
+  factory DeliveryDay.fromJson(Json json) => DeliveryDay(
+    date: str(json, 'date'),
+    dateLabel: str(json, 'date_label'),
+    slots: listOf(json, 'slots', DeliveryTime.fromJson),
+  );
+
+  final String date;
+  final String dateLabel;
+  final List<DeliveryTime> slots;
+}
+
+class DeliveryTime {
+  const DeliveryTime({
+    required this.id,
+    required this.label,
+    this.orders = 0,
+    this.full = false,
+    this.closed = false,
+    this.started = false,
+  });
+
+  factory DeliveryTime.fromJson(Json json) => DeliveryTime(
+    id: str(json, 'id'),
+    label: str(json, 'label'),
+    orders: optInt(json, 'orders') ?? 0,
+    full: boolean(json, 'full'),
+    closed: boolean(json, 'closed'),
+    started: boolean(json, 'started'),
+  );
+
+  final String id;
+  final String label;
+  final int orders;
+  final bool full;
+  final bool closed;
+  final bool started;
+
+  /// It can still be chosen.
+  bool get open => !closed && !started && !full;
 }
 
 class RefundRequest {

@@ -13,6 +13,7 @@ import '../../core/widgets/paged_list.dart';
 import '../../core/widgets/states.dart';
 import '../studio/studio_widgets.dart' show IconLine;
 import 'order_actions.dart';
+import 'order_stages.dart';
 import 'order_screen.dart' show deliveryWhen;
 
 /// 59 Orders by status, newest first; a restaurant's new orders can be
@@ -103,14 +104,14 @@ class _OrdersScreenState extends ConsumerState<OrdersScreen>
   }
 }
 
-class OrderCard extends StatelessWidget {
+class OrderCard extends ConsumerWidget {
   const OrderCard({super.key, required this.order, required this.onChanged});
 
   final Order order;
   final void Function(Order updated) onChanged;
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     final theme = Theme.of(context);
     final l10n = context.l10n;
     final customer = order.buyerName;
@@ -139,10 +140,17 @@ class OrderCard extends StatelessWidget {
                   crossAxisAlignment: WrapCrossAlignment.center,
                   children: [
                     Text(order.label, style: theme.textTheme.titleMedium),
-                    StatusChip(
-                      orderStatusLabel(context, order),
-                      tone: StatusChip.toneOf(orderTone(order)),
-                    ),
+                    // 132 A store order on its way: its delivery stage.
+                    if (order.stage != null && order.status == 'processing')
+                      StatusChip(
+                        stageLabel(context, order.stage!.stage),
+                        tone: stageTone(order.stage!.stage),
+                      )
+                    else
+                      StatusChip(
+                        orderStatusLabel(context, order),
+                        tone: StatusChip.toneOf(orderTone(order)),
+                      ),
                   ],
                 ),
               ),
@@ -203,7 +211,27 @@ class OrderCard extends StatelessWidget {
           ),
           const SizedBox(height: 8),
           Text(order.total.formatted, style: theme.textTheme.titleSmall),
-          if (order.nextStatuses.isNotEmpty) ...[
+          // 132 A store order's next stage; its other stages on its page.
+          if (order.nextStages.isNotEmpty) ...[
+            const SizedBox(height: 12),
+            Align(
+              alignment: AlignmentDirectional.centerStart,
+              child: FilledButton.icon(
+                style: FilledButton.styleFrom(minimumSize: const Size(64, 48)),
+                icon: Icon(stageIcon(primaryStage(order))),
+                onPressed: () async {
+                  final updated = await moveStage(
+                    context,
+                    ref,
+                    order,
+                    primaryStage(order),
+                  );
+                  if (updated != null) onChanged(updated);
+                },
+                label: Text(stageActionLabel(context, primaryStage(order))),
+              ),
+            ),
+          ] else if (order.nextStatuses.isNotEmpty) ...[
             const SizedBox(height: 12),
             OrderActions(order: order, onChanged: onChanged),
           ],

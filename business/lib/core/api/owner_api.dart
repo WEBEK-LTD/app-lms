@@ -65,6 +65,12 @@ abstract class OwnerApi {
   });
   Future<Order> order(String appId, int orderId);
   Future<Order> changeOrderStatus(String appId, int orderId, String status);
+
+  /// 132 Moves a store order's delivery to another stage (`next_stages`).
+  Future<Order> setOrderStage(String appId, int orderId, StageRequest request);
+
+  /// 132 A day's delivery times (YYYY-MM-DD; null: today), to postpone to.
+  Future<DeliveryDay> stageSlots(String appId, {String? date});
   Future<RefundResult> refundOrder(
     String appId,
     int orderId,

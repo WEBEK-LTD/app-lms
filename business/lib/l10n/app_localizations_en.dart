@@ -3367,6 +3367,182 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
+  String get stageTitle => 'Delivery';
+
+  @override
+  String get stageNotStarted =>
+      'Not on its way yet. Mark it as shipped when it leaves: the customer is told.';
+
+  @override
+  String get stagePreparing => 'Preparing';
+
+  @override
+  String get stageShipped => 'Out for delivery';
+
+  @override
+  String get stagePostponed => 'Postponed';
+
+  @override
+  String get stageFailed => 'Delivery failed';
+
+  @override
+  String get stageReturned => 'Returned to shop';
+
+  @override
+  String get stageDelivered => 'Delivered';
+
+  @override
+  String get doPreparing => 'Preparing';
+
+  @override
+  String get doShipped => 'Mark as shipped';
+
+  @override
+  String get doPostpone => 'Postpone';
+
+  @override
+  String get doFailed => 'Delivery failed';
+
+  @override
+  String get doReturned => 'Returned to shop';
+
+  @override
+  String get doDelivered => 'Mark delivered';
+
+  @override
+  String shipSheetTitle(String order) {
+    return 'Mark $order as shipped';
+  }
+
+  @override
+  String postponeSheetTitle(String order) {
+    return 'Postpone $order';
+  }
+
+  @override
+  String failedSheetTitle(String order) {
+    return 'Delivery of $order failed';
+  }
+
+  @override
+  String get courierNameField => 'Courier\'s name (optional)';
+
+  @override
+  String get courierPhoneField => 'Courier\'s phone (optional)';
+
+  @override
+  String get trackingLinkField => 'Tracking link (optional)';
+
+  @override
+  String get stageWhy => 'Why';
+
+  @override
+  String get stageNewDay => 'New day';
+
+  @override
+  String get stageTime => 'Time';
+
+  @override
+  String get stageAnotherDay => 'Another day';
+
+  @override
+  String stageSlotFull(String slot) {
+    return '$slot · full';
+  }
+
+  @override
+  String get stageNextStep => 'What\'s next';
+
+  @override
+  String get stageTeamNote => 'Note for your team';
+
+  @override
+  String get stageTeamNoteHint => 'The customer doesn\'t see it.';
+
+  @override
+  String get reasonCustomerAsked => 'Customer asked';
+
+  @override
+  String get reasonRecipientAway => 'Recipient not available';
+
+  @override
+  String get reasonShopAsked => 'Shop asked';
+
+  @override
+  String get reasonWeather => 'Weather';
+
+  @override
+  String get reasonWrongAddress => 'Wrong or incomplete address';
+
+  @override
+  String get reasonRefused => 'Recipient refused';
+
+  @override
+  String get reasonUnreachable => 'Couldn\'t reach by phone';
+
+  @override
+  String get reasonOther => 'Other';
+
+  @override
+  String get nextRetry => 'Try again on another day';
+
+  @override
+  String get nextReturn => 'Return to shop';
+
+  @override
+  String get nextCancel => 'Cancel the order';
+
+  @override
+  String get stageCancelNoRefund =>
+      'Cancelling doesn\'t refund it: refund it from the order if it was paid.';
+
+  @override
+  String deliveredConfirmTitle(String order) {
+    return 'Mark $order delivered?';
+  }
+
+  @override
+  String get deliveredConfirmText =>
+      'It completes the order and tells the customer.';
+
+  @override
+  String stageToldCustomer(String order, String stage) {
+    return '$order: $stage. The customer was told.';
+  }
+
+  @override
+  String stageSaved(String order, String stage) {
+    return '$order: $stage.';
+  }
+
+  @override
+  String stageNewDayLine(String day) {
+    return 'New day: $day';
+  }
+
+  @override
+  String stageNextLine(String step) {
+    return 'Next: $step';
+  }
+
+  @override
+  String stageCourierLine(String name) {
+    return 'Courier: $name';
+  }
+
+  @override
+  String get stageChooseDay => 'Choose the new day.';
+
+  @override
+  String get stageChooseWhy => 'Choose why.';
+
+  @override
+  String get stageChooseNext => 'Choose what happens next.';
+
+  @override
+  String get stageWriteNote => 'Write the reason in the note.';
+
+  @override
   String get stAwaitingPayment => 'Waiting for payment';
 
   @override

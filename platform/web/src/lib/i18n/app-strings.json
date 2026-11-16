@@ -3176,4 +3176,15 @@
 {"key":"deliveryPinSet","en":"Pinned on the map","ar":"تم تحديد المكان على الخريطة","tr":"Haritada işaretlendi","description":"131 The place the order goes is pinned on the map."},
 {"key":"deliveryPinChange","en":"Change","ar":"تغيير","tr":"Değiştir","description":"131 Opens the map again to move the pinned delivery place."},
 {"key":"deliveryNeedPlace","en":"Choose where it goes.","ar":"اختر مكان التوصيل.","tr":"Teslimat yerini seçin.","description":"131 Under the cart's button while the country or the city is missing."},
-{"key":"deliveryNeedPin","en":"Pin where it goes on the map.","ar":"حدّد مكان التوصيل على الخريطة.","tr":"Teslimat yerini haritada işaretleyin.","description":"131 Under the cart's button while the place isn't pinned for shipping priced by distance."}]}
+{"key":"deliveryNeedPin","en":"Pin where it goes on the map.","ar":"حدّد مكان التوصيل على الخريطة.","tr":"Teslimat yerini haritada işaretleyin.","description":"131 Under the cart's button while the place isn't pinned for shipping priced by distance."},
+{"key":"orderStagePreparing","en":"Your order is being prepared","ar":"يجري تجهيز طلبك","tr":"Siparişiniz hazırlanıyor","description":"132 On an order's screen: its delivery stage, the shop is preparing it."},
+{"key":"orderStageShipped","en":"Out for delivery","ar":"خرج طلبك للتوصيل","tr":"Siparişiniz dağıtımda","description":"132 On an order's screen: its delivery stage, the order is on its way."},
+{"key":"orderStagePostponed","en":"Delivery postponed","ar":"تم تأجيل التوصيل","tr":"Teslimat ertelendi","description":"132 On an order's screen: its delivery stage, the shop moved the delivery to another day."},
+{"key":"orderStageFailed","en":"We couldn't deliver","ar":"تعذّر التوصيل","tr":"Teslim edemedik","description":"132 On an order's screen: its delivery stage, a delivery attempt failed."},
+{"key":"orderStageReturned","en":"Back at the shop","ar":"عاد الطلب إلى المتجر","tr":"Sipariş mağazaya döndü","description":"132 On an order's screen: its delivery stage, the order went back to the shop after a failed delivery."},
+{"key":"orderStageDelivered","en":"Delivered","ar":"تم التوصيل","tr":"Teslim edildi","description":"132 On an order's screen: its delivery stage, the order was delivered."},
+{"key":"orderStageNewDay","en":"New delivery day: {day}","ar":"موعد التوصيل الجديد: {day}","tr":"Yeni teslimat günü: {day}","description":"132 Under a postponed delivery: the new day and time.","placeholders":{"day":"String"}},
+{"key":"orderStageTryAgain","en":"We'll try again on {day}","ar":"سنحاول التوصيل مجددًا يوم {day}","tr":"{day} tekrar deneyeceğiz","description":"132 Under a failed delivery: the day the shop tries again.","placeholders":{"day":"String"}},
+{"key":"orderStageCourier","en":"Courier: {name}","ar":"المندوب: {name}","tr":"Kurye: {name}","description":"132 Under an order out for delivery: who brings it.","placeholders":{"name":"String"}},
+{"key":"orderStageCallCourier","en":"Call the courier","ar":"الاتصال بالمندوب","tr":"Kuryeyi ara","description":"132 Button under an order out for delivery: calls the courier."},
+{"key":"orderStageFollow","en":"Follow the delivery","ar":"تتبّع التوصيل","tr":"Teslimatı takip et","description":"132 Button under an order out for delivery: opens the shop's tracking link."}]}

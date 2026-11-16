@@ -11889,4 +11889,43 @@ class AppLocalizationsTr extends AppLocalizations {
 
   @override
   String get deliveryNeedPin => 'Teslimat yerini haritada işaretleyin.';
+
+  @override
+  String get orderStagePreparing => 'Siparişiniz hazırlanıyor';
+
+  @override
+  String get orderStageShipped => 'Siparişiniz dağıtımda';
+
+  @override
+  String get orderStagePostponed => 'Teslimat ertelendi';
+
+  @override
+  String get orderStageFailed => 'Teslim edemedik';
+
+  @override
+  String get orderStageReturned => 'Sipariş mağazaya döndü';
+
+  @override
+  String get orderStageDelivered => 'Teslim edildi';
+
+  @override
+  String orderStageNewDay(String day) {
+    return 'Yeni teslimat günü: $day';
+  }
+
+  @override
+  String orderStageTryAgain(String day) {
+    return '$day tekrar deneyeceğiz';
+  }
+
+  @override
+  String orderStageCourier(String name) {
+    return 'Kurye: $name';
+  }
+
+  @override
+  String get orderStageCallCourier => 'Kuryeyi ara';
+
+  @override
+  String get orderStageFollow => 'Teslimatı takip et';
 }

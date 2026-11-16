@@ -2222,6 +2222,133 @@
       }
     }
   },
+  "stageTitle": "Delivery",
+  "stageNotStarted": "Not on its way yet. Mark it as shipped when it leaves: the customer is told.",
+  "stagePreparing": "Preparing",
+  "stageShipped": "Out for delivery",
+  "stagePostponed": "Postponed",
+  "stageFailed": "Delivery failed",
+  "stageReturned": "Returned to shop",
+  "stageDelivered": "Delivered",
+  "doPreparing": "Preparing",
+  "doShipped": "Mark as shipped",
+  "doPostpone": "Postpone",
+  "doFailed": "Delivery failed",
+  "doReturned": "Returned to shop",
+  "doDelivered": "Mark delivered",
+  "shipSheetTitle": "Mark {order} as shipped",
+  "@shipSheetTitle": {
+    "placeholders": {
+      "order": {
+        "type": "String"
+      }
+    }
+  },
+  "postponeSheetTitle": "Postpone {order}",
+  "@postponeSheetTitle": {
+    "placeholders": {
+      "order": {
+        "type": "String"
+      }
+    }
+  },
+  "failedSheetTitle": "Delivery of {order} failed",
+  "@failedSheetTitle": {
+    "placeholders": {
+      "order": {
+        "type": "String"
+      }
+    }
+  },
+  "courierNameField": "Courier's name (optional)",
+  "courierPhoneField": "Courier's phone (optional)",
+  "trackingLinkField": "Tracking link (optional)",
+  "stageWhy": "Why",
+  "stageNewDay": "New day",
+  "stageTime": "Time",
+  "stageAnotherDay": "Another day",
+  "stageSlotFull": "{slot} · full",
+  "@stageSlotFull": {
+    "placeholders": {
+      "slot": {
+        "type": "String"
+      }
+    }
+  },
+  "stageNextStep": "What's next",
+  "stageTeamNote": "Note for your team",
+  "stageTeamNoteHint": "The customer doesn't see it.",
+  "reasonCustomerAsked": "Customer asked",
+  "reasonRecipientAway": "Recipient not available",
+  "reasonShopAsked": "Shop asked",
+  "reasonWeather": "Weather",
+  "reasonWrongAddress": "Wrong or incomplete address",
+  "reasonRefused": "Recipient refused",
+  "reasonUnreachable": "Couldn't reach by phone",
+  "reasonOther": "Other",
+  "nextRetry": "Try again on another day",
+  "nextReturn": "Return to shop",
+  "nextCancel": "Cancel the order",
+  "stageCancelNoRefund": "Cancelling doesn't refund it: refund it from the order if it was paid.",
+  "deliveredConfirmTitle": "Mark {order} delivered?",
+  "@deliveredConfirmTitle": {
+    "placeholders": {
+      "order": {
+        "type": "String"
+      }
+    }
+  },
+  "deliveredConfirmText": "It completes the order and tells the customer.",
+  "stageToldCustomer": "{order}: {stage}. The customer was told.",
+  "@stageToldCustomer": {
+    "placeholders": {
+      "order": {
+        "type": "String"
+      },
+      "stage": {
+        "type": "String"
+      }
+    }
+  },
+  "stageSaved": "{order}: {stage}.",
+  "@stageSaved": {
+    "placeholders": {
+      "order": {
+        "type": "String"
+      },
+      "stage": {
+        "type": "String"
+      }
+    }
+  },
+  "stageNewDayLine": "New day: {day}",
+  "@stageNewDayLine": {
+    "placeholders": {
+      "day": {
+        "type": "String"
+      }
+    }
+  },
+  "stageNextLine": "Next: {step}",
+  "@stageNextLine": {
+    "placeholders": {
+      "step": {
+        "type": "String"
+      }
+    }
+  },
+  "stageCourierLine": "Courier: {name}",
+  "@stageCourierLine": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "stageChooseDay": "Choose the new day.",
+  "stageChooseWhy": "Choose why.",
+  "stageChooseNext": "Choose what happens next.",
+  "stageWriteNote": "Write the reason in the note.",
   "stAwaitingPayment": "Waiting for payment",
   "stAccepted": "Accepted",
   "stReadyForCourier": "Ready for the courier",

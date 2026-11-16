@@ -6034,6 +6034,312 @@ abstract class AppLocalizations {
   /// **'Coupon: {code}'**
   String couponUsed(String code);
 
+  /// No description provided for @stageTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Delivery'**
+  String get stageTitle;
+
+  /// No description provided for @stageNotStarted.
+  ///
+  /// In en, this message translates to:
+  /// **'Not on its way yet. Mark it as shipped when it leaves: the customer is told.'**
+  String get stageNotStarted;
+
+  /// No description provided for @stagePreparing.
+  ///
+  /// In en, this message translates to:
+  /// **'Preparing'**
+  String get stagePreparing;
+
+  /// No description provided for @stageShipped.
+  ///
+  /// In en, this message translates to:
+  /// **'Out for delivery'**
+  String get stageShipped;
+
+  /// No description provided for @stagePostponed.
+  ///
+  /// In en, this message translates to:
+  /// **'Postponed'**
+  String get stagePostponed;
+
+  /// No description provided for @stageFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'Delivery failed'**
+  String get stageFailed;
+
+  /// No description provided for @stageReturned.
+  ///
+  /// In en, this message translates to:
+  /// **'Returned to shop'**
+  String get stageReturned;
+
+  /// No description provided for @stageDelivered.
+  ///
+  /// In en, this message translates to:
+  /// **'Delivered'**
+  String get stageDelivered;
+
+  /// No description provided for @doPreparing.
+  ///
+  /// In en, this message translates to:
+  /// **'Preparing'**
+  String get doPreparing;
+
+  /// No description provided for @doShipped.
+  ///
+  /// In en, this message translates to:
+  /// **'Mark as shipped'**
+  String get doShipped;
+
+  /// No description provided for @doPostpone.
+  ///
+  /// In en, this message translates to:
+  /// **'Postpone'**
+  String get doPostpone;
+
+  /// No description provided for @doFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'Delivery failed'**
+  String get doFailed;
+
+  /// No description provided for @doReturned.
+  ///
+  /// In en, this message translates to:
+  /// **'Returned to shop'**
+  String get doReturned;
+
+  /// No description provided for @doDelivered.
+  ///
+  /// In en, this message translates to:
+  /// **'Mark delivered'**
+  String get doDelivered;
+
+  /// No description provided for @shipSheetTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Mark {order} as shipped'**
+  String shipSheetTitle(String order);
+
+  /// No description provided for @postponeSheetTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Postpone {order}'**
+  String postponeSheetTitle(String order);
+
+  /// No description provided for @failedSheetTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Delivery of {order} failed'**
+  String failedSheetTitle(String order);
+
+  /// No description provided for @courierNameField.
+  ///
+  /// In en, this message translates to:
+  /// **'Courier\'s name (optional)'**
+  String get courierNameField;
+
+  /// No description provided for @courierPhoneField.
+  ///
+  /// In en, this message translates to:
+  /// **'Courier\'s phone (optional)'**
+  String get courierPhoneField;
+
+  /// No description provided for @trackingLinkField.
+  ///
+  /// In en, this message translates to:
+  /// **'Tracking link (optional)'**
+  String get trackingLinkField;
+
+  /// No description provided for @stageWhy.
+  ///
+  /// In en, this message translates to:
+  /// **'Why'**
+  String get stageWhy;
+
+  /// No description provided for @stageNewDay.
+  ///
+  /// In en, this message translates to:
+  /// **'New day'**
+  String get stageNewDay;
+
+  /// No description provided for @stageTime.
+  ///
+  /// In en, this message translates to:
+  /// **'Time'**
+  String get stageTime;
+
+  /// No description provided for @stageAnotherDay.
+  ///
+  /// In en, this message translates to:
+  /// **'Another day'**
+  String get stageAnotherDay;
+
+  /// No description provided for @stageSlotFull.
+  ///
+  /// In en, this message translates to:
+  /// **'{slot} · full'**
+  String stageSlotFull(String slot);
+
+  /// No description provided for @stageNextStep.
+  ///
+  /// In en, this message translates to:
+  /// **'What\'s next'**
+  String get stageNextStep;
+
+  /// No description provided for @stageTeamNote.
+  ///
+  /// In en, this message translates to:
+  /// **'Note for your team'**
+  String get stageTeamNote;
+
+  /// No description provided for @stageTeamNoteHint.
+  ///
+  /// In en, this message translates to:
+  /// **'The customer doesn\'t see it.'**
+  String get stageTeamNoteHint;
+
+  /// No description provided for @reasonCustomerAsked.
+  ///
+  /// In en, this message translates to:
+  /// **'Customer asked'**
+  String get reasonCustomerAsked;
+
+  /// No description provided for @reasonRecipientAway.
+  ///
+  /// In en, this message translates to:
+  /// **'Recipient not available'**
+  String get reasonRecipientAway;
+
+  /// No description provided for @reasonShopAsked.
+  ///
+  /// In en, this message translates to:
+  /// **'Shop asked'**
+  String get reasonShopAsked;
+
+  /// No description provided for @reasonWeather.
+  ///
+  /// In en, this message translates to:
+  /// **'Weather'**
+  String get reasonWeather;
+
+  /// No description provided for @reasonWrongAddress.
+  ///
+  /// In en, this message translates to:
+  /// **'Wrong or incomplete address'**
+  String get reasonWrongAddress;
+
+  /// No description provided for @reasonRefused.
+  ///
+  /// In en, this message translates to:
+  /// **'Recipient refused'**
+  String get reasonRefused;
+
+  /// No description provided for @reasonUnreachable.
+  ///
+  /// In en, this message translates to:
+  /// **'Couldn\'t reach by phone'**
+  String get reasonUnreachable;
+
+  /// No description provided for @reasonOther.
+  ///
+  /// In en, this message translates to:
+  /// **'Other'**
+  String get reasonOther;
+
+  /// No description provided for @nextRetry.
+  ///
+  /// In en, this message translates to:
+  /// **'Try again on another day'**
+  String get nextRetry;
+
+  /// No description provided for @nextReturn.
+  ///
+  /// In en, this message translates to:
+  /// **'Return to shop'**
+  String get nextReturn;
+
+  /// No description provided for @nextCancel.
+  ///
+  /// In en, this message translates to:
+  /// **'Cancel the order'**
+  String get nextCancel;
+
+  /// No description provided for @stageCancelNoRefund.
+  ///
+  /// In en, this message translates to:
+  /// **'Cancelling doesn\'t refund it: refund it from the order if it was paid.'**
+  String get stageCancelNoRefund;
+
+  /// No description provided for @deliveredConfirmTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Mark {order} delivered?'**
+  String deliveredConfirmTitle(String order);
+
+  /// No description provided for @deliveredConfirmText.
+  ///
+  /// In en, this message translates to:
+  /// **'It completes the order and tells the customer.'**
+  String get deliveredConfirmText;
+
+  /// No description provided for @stageToldCustomer.
+  ///
+  /// In en, this message translates to:
+  /// **'{order}: {stage}. The customer was told.'**
+  String stageToldCustomer(String order, String stage);
+
+  /// No description provided for @stageSaved.
+  ///
+  /// In en, this message translates to:
+  /// **'{order}: {stage}.'**
+  String stageSaved(String order, String stage);
+
+  /// No description provided for @stageNewDayLine.
+  ///
+  /// In en, this message translates to:
+  /// **'New day: {day}'**
+  String stageNewDayLine(String day);
+
+  /// No description provided for @stageNextLine.
+  ///
+  /// In en, this message translates to:
+  /// **'Next: {step}'**
+  String stageNextLine(String step);
+
+  /// No description provided for @stageCourierLine.
+  ///
+  /// In en, this message translates to:
+  /// **'Courier: {name}'**
+  String stageCourierLine(String name);
+
+  /// No description provided for @stageChooseDay.
+  ///
+  /// In en, this message translates to:
+  /// **'Choose the new day.'**
+  String get stageChooseDay;
+
+  /// No description provided for @stageChooseWhy.
+  ///
+  /// In en, this message translates to:
+  /// **'Choose why.'**
+  String get stageChooseWhy;
+
+  /// No description provided for @stageChooseNext.
+  ///
+  /// In en, this message translates to:
+  /// **'Choose what happens next.'**
+  String get stageChooseNext;
+
+  /// No description provided for @stageWriteNote.
+  ///
+  /// In en, this message translates to:
+  /// **'Write the reason in the note.'**
+  String get stageWriteNote;
+
   /// No description provided for @stAwaitingPayment.
   ///
   /// In en, this message translates to:

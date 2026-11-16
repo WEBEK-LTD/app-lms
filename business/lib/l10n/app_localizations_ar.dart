@@ -3354,6 +3354,181 @@ class AppLocalizationsAr extends AppLocalizations {
   }
 
   @override
+  String get stageTitle => 'التوصيل';
+
+  @override
+  String get stageNotStarted =>
+      'لم يخرج للتوصيل بعد. حدِّده كمشحون عند خروجه، وسيُبلَّغ العميل.';
+
+  @override
+  String get stagePreparing => 'قيد التجهيز';
+
+  @override
+  String get stageShipped => 'خرج للتوصيل';
+
+  @override
+  String get stagePostponed => 'مؤجَّل';
+
+  @override
+  String get stageFailed => 'تعذّر التوصيل';
+
+  @override
+  String get stageReturned => 'أُعيد إلى المتجر';
+
+  @override
+  String get stageDelivered => 'تم التوصيل';
+
+  @override
+  String get doPreparing => 'قيد التجهيز';
+
+  @override
+  String get doShipped => 'حدِّده كمشحون';
+
+  @override
+  String get doPostpone => 'تأجيل';
+
+  @override
+  String get doFailed => 'تعذّر التوصيل';
+
+  @override
+  String get doReturned => 'أُعيد إلى المتجر';
+
+  @override
+  String get doDelivered => 'حدِّده كمُسلَّم';
+
+  @override
+  String shipSheetTitle(String order) {
+    return 'تحديد $order كمشحون';
+  }
+
+  @override
+  String postponeSheetTitle(String order) {
+    return 'تأجيل توصيل $order';
+  }
+
+  @override
+  String failedSheetTitle(String order) {
+    return 'تعذّر توصيل $order';
+  }
+
+  @override
+  String get courierNameField => 'اسم المندوب (اختياري)';
+
+  @override
+  String get courierPhoneField => 'هاتف المندوب (اختياري)';
+
+  @override
+  String get trackingLinkField => 'رابط التتبّع (اختياري)';
+
+  @override
+  String get stageWhy => 'السبب';
+
+  @override
+  String get stageNewDay => 'اليوم الجديد';
+
+  @override
+  String get stageTime => 'الموعد';
+
+  @override
+  String get stageAnotherDay => 'يوم آخر';
+
+  @override
+  String stageSlotFull(String slot) {
+    return '$slot · مكتمل';
+  }
+
+  @override
+  String get stageNextStep => 'الخطوة التالية';
+
+  @override
+  String get stageTeamNote => 'ملاحظة لفريقك';
+
+  @override
+  String get stageTeamNoteHint => 'لا يراها العميل.';
+
+  @override
+  String get reasonCustomerAsked => 'طلب العميل';
+
+  @override
+  String get reasonRecipientAway => 'المستلم غير متاح';
+
+  @override
+  String get reasonShopAsked => 'بطلب من المتجر';
+
+  @override
+  String get reasonWeather => 'الطقس';
+
+  @override
+  String get reasonWrongAddress => 'العنوان خاطئ أو ناقص';
+
+  @override
+  String get reasonRefused => 'رفض المستلم الاستلام';
+
+  @override
+  String get reasonUnreachable => 'تعذّر الوصول بالهاتف';
+
+  @override
+  String get reasonOther => 'سبب آخر';
+
+  @override
+  String get nextRetry => 'المحاولة مجددًا في يوم آخر';
+
+  @override
+  String get nextReturn => 'الإعادة إلى المتجر';
+
+  @override
+  String get nextCancel => 'إلغاء الطلب';
+
+  @override
+  String get stageCancelNoRefund =>
+      'الإلغاء لا يردّ المبلغ: استرِدّه من صفحة الطلب إن كان مدفوعًا.';
+
+  @override
+  String deliveredConfirmTitle(String order) {
+    return 'تحديد $order كمُسلَّم؟';
+  }
+
+  @override
+  String get deliveredConfirmText => 'سيكتمل الطلب ويُبلَّغ العميل.';
+
+  @override
+  String stageToldCustomer(String order, String stage) {
+    return '$order: $stage. تم إبلاغ العميل.';
+  }
+
+  @override
+  String stageSaved(String order, String stage) {
+    return '$order: $stage.';
+  }
+
+  @override
+  String stageNewDayLine(String day) {
+    return 'اليوم الجديد: $day';
+  }
+
+  @override
+  String stageNextLine(String step) {
+    return 'التالي: $step';
+  }
+
+  @override
+  String stageCourierLine(String name) {
+    return 'المندوب: $name';
+  }
+
+  @override
+  String get stageChooseDay => 'اختر اليوم الجديد.';
+
+  @override
+  String get stageChooseWhy => 'اختر السبب.';
+
+  @override
+  String get stageChooseNext => 'اختر الخطوة التالية.';
+
+  @override
+  String get stageWriteNote => 'اكتب السبب في الملاحظة.';
+
+  @override
   String get stAwaitingPayment => 'بانتظار الدفع';
 
   @override

@@ -107,7 +107,7 @@ void main() {
   testWidgets(
     'a gift order: the sender, the recipient with the map, when, the card, the add-ons, the payment',
     (tester) async {
-      final app = await _open(tester, '/orders/2051', height: 2200);
+      final app = await _open(tester, '/orders/2051', height: 2600);
       expect(find.text('#2051'), findsOneWidget);
       expect(find.text('Gift'), findsOneWidget);
       // Who ordered: the gift's sender, with Call and WhatsApp.
@@ -128,10 +128,10 @@ void main() {
       await tapOn(tester, find.text('Copy address'));
       expect(copied.last, '14 Brazil St, Zamalek, Cairo');
       expect(find.text('Address copied'), findsOneWidget);
-      await tapOn(tester, find.text('WhatsApp').last);
-      expect(app.opened.last, 'whatsapp://send?phone=201007654321');
       await tapOn(tester, find.text('Call').first);
       expect(app.opened.last, 'tel:+201001234567');
+      await tapOn(tester, find.text('WhatsApp').last);
+      expect(app.opened.last, 'whatsapp://send?phone=201007654321');
       // When: the day and the slot.
       expect(find.text('When'), findsOneWidget);
       expect(find.textContaining(isolate('13:00–16:00')), findsOneWidget);
@@ -160,9 +160,9 @@ void main() {
       expect(find.text('Base fee'), findsOneWidget);
       expect(find.text('Delivery time'), findsOneWidget);
       expect(find.text('E£2,035.50'), findsOneWidget);
-      // Its next steps at the foot.
+      // 132 Its next steps at the foot: the delivery's stages.
       expect(
-        find.widgetWithText(FilledButton, 'Mark completed'),
+        find.widgetWithText(FilledButton, 'Mark as shipped'),
         findsOneWidget,
       );
       expect(tester.takeException(), isNull);
@@ -172,7 +172,7 @@ void main() {
   testWidgets(
     'a gift sent anonymously says so; the owner still sees the sender',
     (tester) async {
-      await _open(tester, '/orders/2050', height: 1800);
+      await _open(tester, '/orders/2050', height: 2600);
       expect(find.text(isolate('Karim Adel')), findsOneWidget);
       expect(find.text(isolate('Hana Fathy')), findsOneWidget);
       expect(
@@ -286,7 +286,7 @@ void main() {
   });
 
   testWidgets('in Arabic, the delivery fee rows are in Arabic', (tester) async {
-    await _open(tester, '/orders/2051', language: 'ar', height: 2300);
+    await _open(tester, '/orders/2051', language: 'ar', height: 2700);
     expect(find.text('الرسوم الأساسية'), findsOneWidget);
     expect(find.text('المسافة 4.2 كم'), findsOneWidget);
     expect(find.textContaining('km'), findsNothing);
