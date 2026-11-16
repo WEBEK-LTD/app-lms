@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { removePaymentKeysAction } from "@/app/actions/catalog";
-import { PaymentKeysForm } from "@/app/dashboard/catalog/forms";
+import { OwnGatewayForm } from "@/app/dashboard/payments/own-gateway";
 import { SubmitButton } from "@/components/form";
 import { Icon } from "@/components/icon";
 import { mayDo, OwnerOnly } from "@/components/owner-only";
@@ -60,7 +60,7 @@ async function RidePayments({ app }: { app: App }) {
         <summary className="cursor-pointer text-[15px] font-bold">{own ? t("donations.changeKeys") : t("donations.addKeys")}</summary>
         <div className="flex flex-col gap-4 pt-3">
           <p className="m-0 text-sm leading-relaxed text-ink-4">{t("donations.keysText")}</p>
-          <PaymentKeysForm provider={own?.provider ?? null} sandbox={own?.sandbox ?? false} merchantId={own?.provider === "kashier" ? own.merchantId : ""} clientId={own?.provider === "paypal" ? own.clientId : ""} />
+          <OwnGatewayForm app={app} />
         </div>
       </details>
     </section>
