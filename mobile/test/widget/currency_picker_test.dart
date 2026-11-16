@@ -11,10 +11,15 @@ import 'package:yallapp/core/storage/local_settings.dart';
 import 'package:yallapp/modules/shared/account/currency_picker.dart';
 import 'package:yallapp/modules/store/screens/cart_screen.dart';
 import 'package:yallapp/modules/store/widgets/product_widgets.dart';
+import 'package:yallapp/core/services/external_links.dart';
+import 'package:yallapp/core/widgets/rates_attribution.dart';
+import 'package:yallapp/core/web/web_view.dart' show isAlwaysOutside;
+import 'package:yallapp/modules/store/data/cart_controller.dart';
 
 import '../support/fake_api.dart';
 import '../support/fixtures.dart';
 import '../support/test_app.dart';
+import 'store_test.dart' show cartPrefs, storeApi;
 
 Widget wrapForTest(Widget child) => MaterialApp(
   theme: buildAppTheme(
@@ -46,12 +51,17 @@ void main() {
     '135.5 the currency follows the phone\'s region, the picker lists the shop\'s first, and a pick is kept',
     (tester) async {
       final api = _shop();
+      final opened = <String>[];
       final app = TestApp(
         signedIn: true,
         api: api,
         appType: AppType.store,
         overrides: [
           deviceLocalesProvider.overrideWithValue(const [Locale('en', 'KW')]),
+          openExternalProvider.overrideWithValue((url) async {
+            opened.add(url);
+            return true;
+          }),
         ],
       );
       await app.pump(tester);
@@ -64,6 +74,12 @@ void main() {
       await tester.tap(find.byKey(const ValueKey('currency-tile')));
       await TestApp.settle(tester);
       expect(api.count('listCurrencies'), 1);
+      // 135.10 The rates' source, as its terms ask; its site opens outside
+      // the app.
+      expect(find.text(ratesAttributionText), findsOneWidget);
+      await tester.tap(find.byKey(const Key('rates-attribution')));
+      await TestApp.settle(tester);
+      expect(opened, [ratesAttributionUrl]);
       // The shop's own first, then the region's, then the others.
       final shop = tester.getTopLeft(
         find.byKey(const ValueKey('currency-EGP')),
@@ -250,5 +266,78 @@ void main() {
       'currency': 'EGP',
     });
     expect(chargeLine(context, plain), isNull);
+  });
+
+  testWidgets(
+    "135.10 the cart's price in the customer's currency names the rates' source",
+    (tester) async {
+      // A phone's screen.
+      tester.view.physicalSize = const Size(1170, 2532);
+      tester.view.devicePixelRatio = 3;
+      addTearDown(tester.view.reset);
+      final api = storeApi(store: storeConfigJson(deliveryDate: false));
+      final opened = <String>[];
+      final app = TestApp(
+        signedIn: true,
+        appType: AppType.store,
+        api: api,
+        preferences: {CartController.storageKey: cartPrefs()},
+        overrides: [
+          openExternalProvider.overrideWithValue((url) async {
+            opened.add(url);
+            return true;
+          }),
+        ],
+      );
+      await app.pump(tester);
+      // The shop's currency only: no converted price, no source.
+      app.container.read(appRouterProvider).go('/cart');
+      await TestApp.settle(tester);
+      expect(find.byKey(const Key('cart-charge-line')), findsNothing);
+      expect(find.text(ratesAttributionText), findsNothing);
+
+      api.cartQuote = {
+        ...cartQuoteJson(),
+        'display': _display('USD', {
+          'subtotal': r'$8.25',
+          'subtotal_amount': '8.25',
+          'total': r'$8.25',
+          'total_amount': '8.25',
+        }),
+        'charge': {
+          'currency': 'TRY',
+          'total': '₺400.00',
+          'in_customer_currency': false,
+          'reason': null,
+        },
+      };
+      app.container.read(appRouterProvider).go('/');
+      await TestApp.settle(tester);
+      app.container.read(appRouterProvider).go('/cart');
+      await TestApp.settle(tester);
+      expect(find.byKey(const Key('cart-charge-line')), findsOneWidget);
+      final source = find.byKey(const Key('rates-attribution'));
+      expect(source, findsOneWidget);
+      await tester.tap(source);
+      await TestApp.settle(tester);
+      expect(opened, [ratesAttributionUrl]);
+      expect(tester.takeException(), isNull);
+    },
+  );
+
+  test("135.10 the rates' source opens in the browser from any web view, the payment's own pages stay", () {
+    expect(isAlwaysOutside(Uri.parse(ratesAttributionUrl)), isTrue);
+    expect(
+      isAlwaysOutside(Uri.parse('https://exchangerate-api.com/docs')),
+      isTrue,
+    );
+    expect(
+      isAlwaysOutside(Uri.parse('https://checkout.stripe.com/c/pay/x')),
+      isFalse,
+    );
+    expect(
+      isAlwaysOutside(Uri.parse('https://yallapp.com.tr/pay/abc')),
+      isFalse,
+    );
   });
 }
