@@ -6,7 +6,10 @@ import { currentPlanId } from "@/lib/billing/plan-change";
 import { dashboardText } from "@/lib/dashboard-lang";
 import { getStore } from "@/lib/data";
 import { effectivePlans } from "@/lib/entitlements";
-import { appUrl, encryptionKey } from "@/lib/env";
+import { appUrl, encryptionKey, signingSecret } from "@/lib/env";
+import { QrCode } from "@/components/qr-code";
+import { createPreviewToken, previewAppPath, previewKey } from "@/lib/preview/token";
+import { draftPreviewSupported } from "@/lib/preview/config";
 import { FREE_FONT_COUNT } from "@/lib/fonts/catalog";
 import { ownFontView } from "@/lib/fonts/own";
 import { kindOf } from "@/lib/app/kinds";
@@ -77,6 +80,8 @@ export default async function StudioEditorPage({ searchParams }: PageProps<"/stu
       myTemplates={(await store.listStudioTemplates(app.clientId)).map(({ id, name, page }) => ({ id, name, page }))}
       // 17 The real app with the saved draft on the hosted API, else with what's published.
       previewHref={app.backend === "hosted" ? "/studio/project/preview?pages=draft" : "/studio/project/preview"}
+      // 132.61 The same preview on the phone, by its QR code (the link lasts an hour, as on the Preview page).
+      phoneQr={<QrCode value={`${appUrl()}${previewAppPath(createPreviewToken({ appId: app.id, draft: draftPreviewSupported(app) }, previewKey(signingSecret()), now))}`} label={t("preview.qr", { app: app.appName ?? t("setup.yourApp") })} size={168} />}
       fontCount={FREE_FONT_COUNT}
       startSlug={typeof query.page === "string" ? query.page : null}
       // Designing works on any plan; the app gets the design with Studio on the plan (before activation, everything).

@@ -96,7 +96,7 @@ test("a sample saved by the owner is theirs: its badge goes", async () => {
   await own.getByRole("link", { name: /Spring Tulip Bunch/ }).click();
   await own.getByLabel("Name", { exact: true }).fill("Our spring tulips");
   await own.getByRole("button", { name: "Save product" }).click();
-  await expect(own.getByRole("status")).toContainText("Saved “Our spring tulips”.");
+  await expect(own.getByRole("status").filter({ hasText: "Saved" })).toContainText("Saved “Our spring tulips”.");
   await expect(own.getByRole("link", { name: /Our spring tulips/ })).not.toContainText("Sample");
   await expect(banner(own)).toContainText("You have 7 sample entries.");
 });

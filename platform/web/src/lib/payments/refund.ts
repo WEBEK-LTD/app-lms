@@ -130,7 +130,7 @@ export async function refundThroughProvider(account: PaymentAccount, request: Pr
       if (!intent) return { parts: [], error: "Stripe didn't give this payment's ID. Refund it in your Stripe dashboard and record it here." };
       const done = await refundStripePayment(
         account.keys,
-        { paymentIntent: intent, cents: request.cents, key: `refund-${intent}-${request.refundedBeforeCents}-${request.cents}` },
+        { paymentIntent: intent, cents: request.cents, currency: request.currency, key: `refund-${intent}-${request.refundedBeforeCents}-${request.cents}` },
         { fetcher: options.fetcher, baseUrl: options.urls?.stripe },
       );
       return { parts: [{ kind: "refund", transactionId: null, cents: request.cents, reference: done.reference.slice(0, 191) }], error: null };

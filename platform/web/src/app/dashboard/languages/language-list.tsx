@@ -1,13 +1,15 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useSyncExternalStore } from "react";
 import { Badge, btn } from "@/components/ui";
 import { Icon } from "@/components/icon";
-import { isBuiltInLanguage, isRtl, LOCALES, localeInfo } from "@/lib/i18n/locales";
+import { isBuiltInLanguage, isRtl, languageName, LOCALES, localeInfo } from "@/lib/i18n/locales";
 import type { Languages } from "@/lib/pages/types";
 import { useDashLang, useDashT } from "@/components/dashboard-i18n";
 import { LANG_INFO } from "@/i18n/config";
 import { appLanguageName } from "@/lib/i18n/language-names";
+
+const noSubscribe = () => () => {};
 
 /**
  * 43 The app's languages: add any language from the list (with its name in
@@ -35,9 +37,14 @@ export function LanguageList({
   const nameOf = (code: string) => appLanguageName(code, dashLang);
   const [adding, setAdding] = useState("");
   const list = languages.available;
-  const choices = LOCALES.filter((l) => !list.includes(l.code))
-    .map((l) => ({ ...l, name: nameOf(l.code) }))
-    .sort((a, b) => a.name.localeCompare(b.name, LANG_INFO[dashLang].intl));
+  // 132.66 The languages to add are named by the browser's language data, which isn't the server's: on the
+  // server and until the page is live they're listed by their English names in the list's own order (the same
+  // on both, so the page hydrates without a mismatch), then in the dashboard's language, sorted.
+  const live = useSyncExternalStore(noSubscribe, () => true, () => false);
+  const left = LOCALES.filter((l) => !list.includes(l.code));
+  const choices = live
+    ? left.map((l) => ({ ...l, name: nameOf(l.code) })).sort((a, b) => a.name.localeCompare(b.name, LANG_INFO[dashLang].intl))
+    : left.map((l) => ({ ...l, name: languageName(l.code) }));
   const atMax = list.length >= max;
 
   function move(code: string, by: number) {

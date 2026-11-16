@@ -1,12 +1,13 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { removePaymentKeysAction } from "@/app/actions/catalog";
-import { PaymentKeysForm } from "@/app/dashboard/catalog/forms";
+import { OwnGatewayForm } from "@/app/dashboard/payments/own-gateway";
 import { SubmitButton } from "@/components/form";
 import { Icon } from "@/components/icon";
 import { mayDo, OwnerOnly } from "@/components/owner-only";
 import { Notice, PageHeader } from "@/components/ui";
-import { LinkCards, PageGroup } from "@/components/page-kit";
+import { LinkCards } from "@/components/page-kit";
+import { PageTabs, TabPanel } from "@/components/page-tabs";
 import { richText } from "@/i18n/rich";
 import { requireClient } from "@/lib/auth/session";
 import { CATALOG_CURRENCIES } from "@/lib/catalog/money";
@@ -60,7 +61,7 @@ async function RidePayments({ app }: { app: App }) {
         <summary className="cursor-pointer text-[15px] font-bold">{own ? t("donations.changeKeys") : t("donations.addKeys")}</summary>
         <div className="flex flex-col gap-4 pt-3">
           <p className="m-0 text-sm leading-relaxed text-ink-4">{t("donations.keysText")}</p>
-          <PaymentKeysForm provider={own?.provider ?? null} sandbox={own?.sandbox ?? false} merchantId={own?.provider === "kashier" ? own.merchantId : ""} clientId={own?.provider === "paypal" ? own.clientId : ""} />
+          <OwnGatewayForm app={app} />
         </div>
       </details>
     </section>
@@ -68,13 +69,17 @@ async function RidePayments({ app }: { app: App }) {
 }
 
 /** 105.2 Ride settings: fares, matching, cancelling, safety, payment, areas, promo codes and where drivers work. */
-export default async function RideSettingsPage() {
+export default async function RideSettingsPage({ searchParams }: { searchParams: Promise<{ tab?: string }> }) {
   const { app, license } = await requireClient("settings");
   const { t } = await dashboardText();
   if (!isRides(app)) return <NotRides title={t("rides.settings")} t={t} />;
   const store = await getStore();
   const [saved, types, plan] = await Promise.all([store.getDeliverySettings(app.id), store.listVehicleTypes(app.id), appPlan(store, license, new Date())]);
   const settings = deliverySettingsOf(saved);
+  const payments = settings.card || isOwnPayment(catalogSettings(app).payment);
+  // 132.22 `?tab=` opens one (an old link to a part, `#payments`, too).
+  const asked = (await searchParams).tab ?? "";
+  const tab = ["fares", "rides", "drivers", ...(payments ? ["payments"] : [])].includes(asked) ? asked : "fares";
 
   return (
     <div className="flex flex-col gap-6">
@@ -90,8 +95,19 @@ export default async function RideSettingsPage() {
           { href: "/dashboard/taxi/settings", icon: "layers", label: t("taxi.settings") },
         ]}
       />
-      <PageGroup title={t("rides.groupHow")}>
-      <section aria-labelledby="h-settings" className="flex min-w-0 flex-col gap-4 rounded-2xl border border-line bg-white p-5 sm:p-6">
+      {/* 132.22 Fares and paying, how rides work, the drivers' app and card payments, each in a tab. */}
+      <PageTabs
+        label={t("rides.settings")}
+        initial={tab}
+        tabs={[
+          { id: "fares", label: t("rides.fares"), icon: "sell" },
+          { id: "rides", label: t("rides.rides"), icon: "local_taxi" },
+          { id: "drivers", label: t("rides.driverApp"), icon: "phone_iphone" },
+          ...(payments ? [{ id: "payments", label: t("rides.groupPayments"), icon: "payments" as const }] : []),
+        ]}
+      >
+      <TabPanel tab="fares" also={["rides", "drivers"]} first={false} className="flex min-w-0 flex-col gap-4 rounded-2xl border border-line bg-white p-5 sm:p-6">
+      <section aria-labelledby="h-settings" className="flex min-w-0 flex-col gap-4">
         <h2 id="h-settings" className="sr-only">
           {t("rides.settings")}
         </h2>
@@ -107,12 +123,13 @@ export default async function RideSettingsPage() {
           before={workedInCustomersApp(settings)}
         />
       </section>
-      </PageGroup>
-      {settings.card || isOwnPayment(catalogSettings(app).payment) ? (
-        <PageGroup title={t("rides.groupPayments")}>
+      </TabPanel>
+      {payments ? (
+        <TabPanel tab="payments">
           <RidePayments app={app} />
-        </PageGroup>
+        </TabPanel>
       ) : null}
+      </PageTabs>
     </div>
   );
 }

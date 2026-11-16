@@ -20,21 +20,25 @@ import { TAX_RATE_MAX_BPS } from "@/lib/catalog/tax";
 import { parseVariants } from "@/lib/catalog/variants";
 import { readProductNumbers } from "@/lib/catalog/product-fields";
 import { parseOptionGroups } from "@/lib/catalog/options";
-import { catalogSettings, encryptOwnPayment, type OwnPaymentInput } from "@/lib/catalog/settings";
+import { catalogSettings, encryptOwnPayment, isOwnPayment, ownPaymentInput } from "@/lib/catalog/settings";
 import { newId } from "@/lib/crypto/tokens";
 import { imageType } from "@/lib/images";
 import { chosenPictures } from "@/lib/media/pictures";
 import { getStore } from "@/lib/data";
-import type { App, CatalogCurrency, CatalogProductInput, CatalogTax } from "@/lib/data/types";
-import { encryptionKey, paymentApiUrls } from "@/lib/env";
+import type { App, CatalogCurrency, CatalogProductInput, CatalogTax, OwnPayment } from "@/lib/data/types";
+import { appUrl, encryptionKey, paymentApiUrls } from "@/lib/env";
 import type { FormState } from "@/lib/forms";
-import { validKashierMerchantId } from "@/lib/payments/kashier";
-import { stripeTestKey, validStripeKey } from "@/lib/payments/stripe";
-import { checkAccount, isPaymentProvider, PROVIDER_NAME, type PaymentAccount } from "@/lib/payments/provider";
+import { missingKeysReport, testConnection, type PaymentTestState } from "@/lib/payments/connection";
+import { accountOf, readOwnKeys } from "@/lib/payments/owner-keys";
+import { checkAccount, isPaymentProvider, PROVIDER_NAME } from "@/lib/payments/provider";
+import { stripeWebhookUrl } from "@/lib/payments/stripe-keys";
+import { webhookReceipt } from "@/lib/payments/webhooks";
+import { hitRateLimit, RATE_LIMITS } from "@/lib/rate-limit";
 import { recordStaffChange } from "@/lib/admin/audit";
 import { serviceAccountOf } from "@/lib/hosted/notify";
 import { askAfterOwnEntry } from "@/lib/samples/lists";
 import { parseAddonRule } from "@/lib/selling/addons";
+import { changedPrices, isBulkOp, orderedImages, parsePercent } from "@/lib/catalog/bulk";
 
 const PRODUCT_IMAGE_MAX_BYTES = 2 * 1024 * 1024;
 const PRODUCT_IMAGES_MAX = 6;
@@ -112,6 +116,14 @@ export async function deleteCategoryAction(formData: FormData): Promise<void> {
   refresh();
 }
 
+/** 132.12 The categories in the order they were dragged to (the app's menu and tabs follow it). */
+export async function reorderCategoriesAction(ids: number[]): Promise<void> {
+  const { app } = await requireCatalogApp();
+  const list = (Array.isArray(ids) ? ids : []).map(Number).filter((id) => Number.isSafeInteger(id) && id > 0).slice(0, 200);
+  if (list.length) await (await getStore()).reorderCatalogCategories(app.id, list);
+  refresh();
+}
+
 // Products
 
 
@@ -150,7 +162,11 @@ export async function saveProductAction(_: FormState, formData: FormData): Promi
     .filter((c) => categories.has(c));
 
   const remove = new Set(formData.getAll("removeImage").map(String));
-  const kept = (existing?.imageAssetIds ?? []).filter((a) => !remove.has(a));
+  // 132.11 In the order the editor put them (the first is the cover).
+  const kept = orderedImages(
+    (existing?.imageAssetIds ?? []).filter((a) => !remove.has(a)),
+    String(formData.get("imageOrder") ?? "").split(",").filter(Boolean),
+  );
   const files = formData.getAll("images").filter((f): f is File => typeof f !== "string" && f.size > 0);
   // 51 Pictures chosen from the Media library.
   const fromMedia = (await chosenPictures(store, app.id, formData)).filter((id) => !kept.includes(id));
@@ -230,6 +246,41 @@ export async function deleteProductAction(formData: FormData): Promise<void> {
   if (Number.isSafeInteger(id)) await (await getStore()).deleteCatalogProduct(app.id, id);
   refresh();
   redirect("/dashboard/catalog");
+}
+
+/**
+ * 132.11 The Products list's bulk actions on the chosen products: shown in
+ * the app or hidden, deleted, put in one category (or none), their prices
+ * changed by a percent. The list words what happened (`values.done`).
+ */
+export async function bulkProductsAction(_: FormState, formData: FormData): Promise<FormState> {
+  const { app } = await requireCatalogApp();
+  const op = String(formData.get("op") ?? "");
+  if (!isBulkOp(op)) return { message: "Choose what to do with the products." };
+  const ids = new Set(formData.getAll("ids").map(Number).filter((id) => Number.isSafeInteger(id) && id > 0));
+  const store = await getStore();
+  const products = (await store.listCatalogProducts(app.id)).filter((p) => ids.has(p.id));
+  if (!products.length) return { message: "Choose at least one product." };
+  const now = new Date();
+  if (op === "delete") {
+    for (const p of products) await store.deleteCatalogProduct(app.id, p.id);
+  } else if (op === "publish" || op === "hide") {
+    for (const p of products) await store.updateCatalogProduct(app.id, p.id, { active: op === "publish" }, now);
+  } else if (op === "category") {
+    const value = String(formData.get("value") ?? "");
+    const categories = new Set((await store.listCatalogCategories(app.id)).map((c) => c.id));
+    const id = Number(value);
+    if (value !== "none" && !categories.has(id)) return { message: "Choose a category." };
+    for (const p of products) await store.updateCatalogProduct(app.id, p.id, { categoryIds: value === "none" ? [] : [id] }, now);
+  } else {
+    const percent = parsePercent(String(formData.get("value") ?? ""));
+    if (percent === null) return { errors: { value: "Enter a percent from -90 to 500, like 10 or -15." } };
+    const changes = products.map((p) => ({ id: p.id, prices: changedPrices(p, percent) }));
+    if (changes.some((c) => c.prices === null)) return { errors: { value: "A price would be over 9,999,999.99. Choose a smaller percent." } };
+    for (const c of changes) await store.updateCatalogProduct(app.id, c.id, c.prices!, now);
+  }
+  refresh();
+  return { ok: true, values: { done: op, count: String(products.length) } };
 }
 
 // Shop settings
@@ -384,18 +435,22 @@ export async function saveFulfilmentAction(_: FormState, formData: FormData): Pr
 /**
  * The owner's own merchant account: 37 iyzico (API key, secret key),
  * Kashier (merchant ID, Payment API key, secret key) or Fawaterk (API key),
- * each with its test switch; 96.1 Stripe (secret key, test or live by its
- * prefix) or PayPal (client ID and secret, with the sandbox switch). The keys are checked with the provider by a
- * call that changes nothing, then kept encrypted.
+ * each with its test switch; 96.1 Stripe (132.30 publishable and secret
+ * key, test or live by their prefix, 132.31 and the webhook's signing
+ * secret) or PayPal (client ID and secret, with the sandbox switch). 132 A
+ * secret left empty keeps the one saved for the same gateway. The keys are
+ * checked with the provider by a call that changes nothing, then kept
+ * encrypted (lib/payments/owner-keys.ts reads them).
  */
 export async function savePaymentKeysAction(_: FormState, formData: FormData): Promise<FormState> {
   const context = await requireCatalogApp({ courses: true, campaigns: true, ownMoney: true }, "billing");
   const { app } = context;
   const provider = str(formData, "provider") || "iyzico";
   const sandbox = formData.get("sandbox") === "on";
-  const values = { provider, merchantId: str(formData, "merchantId"), clientId: str(formData, "clientId"), sandbox: sandbox ? "on" : "" };
+  const values = { provider, merchantId: str(formData, "merchantId"), clientId: str(formData, "clientId"), publishableKey: str(formData, "publishableKey"), sandbox: sandbox ? "on" : "" };
   if (!isPaymentProvider(provider)) return { errors: { provider: "Choose your payment provider." }, values };
-  const read = readOwnKeys(provider, formData, sandbox);
+  const saved = ownPaymentInput(app, encryptionKey());
+  const read = readOwnKeys(provider, (name) => String(formData.get(name) ?? ""), sandbox, saved);
   if (!read.ok) return { errors: read.errors, values };
   const name = PROVIDER_NAME[provider];
   const accepted = await checkAccount(accountOf(read.input), { urls: paymentApiUrls() });
@@ -406,7 +461,11 @@ export async function savePaymentKeysAction(_: FormState, formData: FormData): P
     };
   }
   const now = new Date();
-  await (await getStore()).updateApp(app.id, { catalogSettings: { ...catalogSettings(app), payment: encryptOwnPayment(app.id, read.input, encryptionKey()) } }, now);
+  const before = catalogSettings(app).payment;
+  const payment = encryptOwnPayment(app.id, read.input, encryptionKey());
+  // 132.33 The same gateway's last webhook stays known (the page says whether it works).
+  const receipt = isOwnPayment(before) && before.provider === provider ? webhookReceipt(before) : null;
+  await (await getStore()).updateApp(app.id, { catalogSettings: { ...catalogSettings(app), payment: receipt ? ({ ...payment, webhook: receipt } as OwnPayment) : payment } }, now);
   await recordStaffChange(context, `Saved the shop's own ${name} keys (${read.input.sandbox ? "test" : "live"})`);
   refresh();
   return {
@@ -415,49 +474,38 @@ export async function savePaymentKeysAction(_: FormState, formData: FormData): P
   };
 }
 
-/** 37 The keys a provider needs, from the form. */
-function readOwnKeys(
-  provider: OwnPaymentInput["provider"],
-  formData: FormData,
-  sandbox: boolean,
-): { ok: true; input: OwnPaymentInput } | { ok: false; errors: Record<string, string> } {
-  const key = (name: string) => {
-    const value = str(formData, name);
-    return value && value.length <= 300 && !/\s/.test(value) ? value : null;
-  };
-  const errors: Record<string, string> = {};
-  const name = PROVIDER_NAME[provider];
-  // 96.1 Stripe: the secret key alone, test or live by its own prefix.
-  if (provider === "stripe") {
-    const secretKey = key("secretKey");
-    if (!secretKey || !validStripeKey(secretKey)) return { ok: false, errors: { secretKey: "Paste your Stripe secret key: it starts with sk_live_ or sk_test_." } };
-    return { ok: true, input: { provider, secretKey, sandbox: stripeTestKey(secretKey) } };
-  }
-  // 96.1 PayPal: the REST app's client ID and secret, sandbox or live.
-  if (provider === "paypal") {
-    const clientId = key("clientId");
-    const secret = key("secretKey");
-    if (!clientId) errors.clientId = "Paste your PayPal client ID.";
-    if (!secret) errors.secretKey = "Paste your PayPal secret.";
-    return clientId && secret ? { ok: true, input: { provider, clientId, secret, sandbox } } : { ok: false, errors };
-  }
-  const apiKey = key("apiKey");
-  if (!apiKey) errors.apiKey = provider === "kashier" ? "Paste your Kashier Payment API key." : `Paste your ${name} API key.`;
-  if (provider === "fawaterk") return apiKey ? { ok: true, input: { provider, apiKey, sandbox } } : { ok: false, errors };
-  const secretKey = key("secretKey");
-  if (!secretKey) errors.secretKey = `Paste your ${name} secret key.`;
-  if (provider === "iyzico") return apiKey && secretKey ? { ok: true, input: { provider, apiKey, secretKey, sandbox } } : { ok: false, errors };
-  const merchantId = str(formData, "merchantId");
-  if (!validKashierMerchantId(merchantId)) errors.merchantId = "Enter your merchant ID, like MID-1234-567.";
-  return apiKey && secretKey && !errors.merchantId ? { ok: true, input: { provider, merchantId, apiKey, secretKey, sandbox } } : { ok: false, errors };
-}
-
-function accountOf(input: OwnPaymentInput): PaymentAccount {
-  if (input.provider === "stripe") return { provider: "stripe", keys: { secretKey: input.secretKey, sandbox: input.sandbox } };
-  if (input.provider === "paypal") return { provider: "paypal", keys: { clientId: input.clientId, secret: input.secret, sandbox: input.sandbox } };
-  if (input.provider === "kashier") return { provider: "kashier", keys: { merchantId: input.merchantId, apiKey: input.apiKey, secretKey: input.secretKey, sandbox: input.sandbox } };
-  if (input.provider === "fawaterk") return { provider: "fawaterk", keys: { apiKey: input.apiKey, sandbox: input.sandbox } };
-  return { provider: "iyzico", keys: { apiKey: input.apiKey, secretKey: input.secretKey, sandbox: input.sandbox } };
+/**
+ * 132.34 "Test connection": the gateway's lightest calls with the keys typed
+ * (empty fields: the saved ones), nothing saved and nothing charged; its
+ * checks come back one by one (lib/payments/connection.ts). Ten tests every
+ * ten minutes per account.
+ */
+export async function testPaymentKeysAction(_: PaymentTestState, formData: FormData): Promise<PaymentTestState> {
+  const context = await requireCatalogApp({ courses: true, campaigns: true, ownMoney: true }, "billing");
+  const { app } = context;
+  const provider = str(formData, "provider") || "iyzico";
+  if (!isPaymentProvider(provider)) return { ok: false, message: "Choose your payment provider." };
+  const store = await getStore();
+  const limited = await hitRateLimit(store, RATE_LIMITS.gatewayTest, context.client.id);
+  if (!limited.allowed) return { ok: false, message: `Too many tests. Try again in ${Math.ceil(limited.retryAfter / 60)} minutes.` };
+  const now = new Date();
+  const sandbox = formData.get("sandbox") === "on";
+  const saved = ownPaymentInput(app, encryptionKey());
+  const read = readOwnKeys(provider, (name) => String(formData.get(name) ?? ""), sandbox, saved, { lenient: true });
+  if (!read.ok) return { ok: false, report: missingKeysReport(provider, now, sandbox) };
+  const payment = catalogSettings(app).payment;
+  const report = await testConnection(
+    {
+      input: read.input,
+      currency: str(formData, "currency") || catalogSettings(app).currency,
+      stripeWebhookUrl: stripeWebhookUrl(appUrl(), app.id),
+      receipt: isOwnPayment(payment) && payment.provider === provider ? webhookReceipt(payment) : null,
+      testPayment: formData.get("testPayment") === "on",
+      now,
+    },
+    { urls: paymentApiUrls() },
+  );
+  return { ok: report.ok, report };
 }
 
 export async function removePaymentKeysAction(): Promise<void> {

@@ -250,6 +250,7 @@ import type { ApiWebhook, ApiWebhookEvent, ApiWebhookPatch } from "./types";
 import type { PaymentRefund, RefundKind } from "./types";
 import type { CouponClaimLimits, UserSession, UserTwoFactor } from "./types";
 import { mergeCrash } from "../crashes/report";
+import { categoryOrder } from "../catalog/bulk";
 // 51 Media and storage
 import type { MediaFile, MediaFilePatch, MediaKind, MediaStatus, StoragePack, StoragePackPatch } from "./types";
 import type {
@@ -1074,6 +1075,14 @@ export class MemoryStore implements DataStore {
   async renameCatalogCategory(appId: string, id: number, name: string): Promise<void> {
     const category = this.catalogCategories.get(id);
     if (category && category.appId === appId) category.name = name;
+  }
+
+  async reorderCatalogCategories(appId: string, ids: number[]): Promise<void> {
+    const ordered = categoryOrder(await this.listCatalogCategories(appId), ids);
+    ordered.forEach((id, position) => {
+      const category = this.catalogCategories.get(id);
+      if (category && category.appId === appId) category.position = position;
+    });
   }
 
   async deleteCatalogCategory(appId: string, id: number, now: Date): Promise<void> {

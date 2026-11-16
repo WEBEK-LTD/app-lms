@@ -12,6 +12,7 @@ import { currentPlanId } from "@/lib/billing/plan-change";
 import { getStore } from "@/lib/data";
 import { effectivePlans } from "@/lib/entitlements";
 import { hasFeature, lowestPlanWith } from "@/lib/plans";
+import { isStudioProject } from "@/lib/studio/section";
 import { XIAOMI_DEFAULT_RELEASE_NOTES, XIAOMI_RELEASE_NOTES_MAX } from "@/lib/publishing/more-stores";
 import { publishingTeamEmail } from "@/lib/publishing/service";
 import { GalaxyStoreForm, HuaweiForm, XiaomiForm } from "./forms";
@@ -36,7 +37,8 @@ export default async function MoreStoresPage() {
   const plans = plansIn((await dashboardText()).lang, await effectivePlans(store));
   const plan = license ? currentPlanId(license, new Date()) : null;
   const uploads = managedPublishing(plan, plans);
-  const upgrade = lowestPlanWith(plans, (p) => hasFeature(p, "auto_publish"), plan);
+  // 132.59 A Studio project is offered Studio's plans, never the regular ones.
+  const upgrade = lowestPlanWith(plans, (p) => hasFeature(p, "auto_publish"), plan, isStudioProject(app) ? "studio" : undefined);
   const keys = hasStoreKeys(app);
   const managed = app.publishingMode === "managed";
   const teamEmail = await publishingTeamEmail(store);

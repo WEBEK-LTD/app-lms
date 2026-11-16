@@ -7,6 +7,8 @@ import { MediaPickButton } from "@/components/media-picker";
 import { useDashT } from "@/components/dashboard-i18n";
 import { initialFormState } from "@/lib/forms";
 import type { RubricCriterion } from "@/lib/data/types";
+import { FormSaveBar } from "@/components/manage-kit-client";
+import { useAfterSave, type ItemPage } from "./item-page";
 
 /** 112.5 The course builder's forms: a section's name, assignments, live classes, grading and students added at once. */
 
@@ -47,9 +49,10 @@ export function TopicTitleForm({ courseId, topicId, title }: { courseId: number;
   );
 }
 
-export function AssignmentForm({ courseId, topicId, current, submit }: { courseId: number; topicId: number; current: Record<string, string>; submit: string }) {
+export function AssignmentForm({ courseId, topicId, current, submit, saveBar, afterSave }: { courseId: number; topicId: number; current: Record<string, string>; submit: string } & ItemPage) {
   const t = useDashT();
   const [state, action] = useActionState(saveAssignmentAction, initialFormState);
+  useAfterSave(state, !current.id, afterSave);
   const v = state.values ?? current;
   const e = state.errors ?? {};
   const key = `assignment-${current.id || `new-${topicId}`}`;
@@ -81,18 +84,23 @@ export function AssignmentForm({ courseId, topicId, current, submit }: { courseI
         className="sm:max-w-[320px]"
         small
       />
-      <div className="flex justify-end">
-        <SubmitButton className="h-10" pendingText={t("common.saving")}>
-          {submit}
-        </SubmitButton>
-      </div>
+      {saveBar ? (
+        <FormSaveBar saveLabel={submit} cancel={saveBar.cancel} />
+      ) : (
+        <div className="flex justify-end">
+          <SubmitButton className="h-10" pendingText={t("common.saving")}>
+            {submit}
+          </SubmitButton>
+        </div>
+      )}
     </form>
   );
 }
 
-export function LiveForm({ courseId, topicId, current, submit, zone }: { courseId: number; topicId: number; current: Record<string, string>; submit: string; zone: string }) {
+export function LiveForm({ courseId, topicId, current, submit, zone, saveBar, afterSave }: { courseId: number; topicId: number; current: Record<string, string>; submit: string; zone: string } & ItemPage) {
   const t = useDashT();
   const [state, action] = useActionState(saveLiveAction, initialFormState);
+  useAfterSave(state, !current.id, afterSave);
   const v = state.values ?? current;
   const e = state.errors ?? {};
   const key = `live-${current.id || `new-${topicId}`}`;
@@ -135,11 +143,15 @@ export function LiveForm({ courseId, topicId, current, submit, zone }: { courseI
         />
         <MediaPickButton kind="video" inputId={`${key}-recording`} label={t("lms.chooseRecording")} />
       </div>
-      <div className="flex justify-end">
-        <SubmitButton className="h-10" pendingText={t("common.saving")}>
-          {submit}
-        </SubmitButton>
-      </div>
+      {saveBar ? (
+        <FormSaveBar saveLabel={submit} cancel={saveBar.cancel} />
+      ) : (
+        <div className="flex justify-end">
+          <SubmitButton className="h-10" pendingText={t("common.saving")}>
+            {submit}
+          </SubmitButton>
+        </div>
+      )}
     </form>
   );
 }

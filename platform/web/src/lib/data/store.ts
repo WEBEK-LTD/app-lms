@@ -780,6 +780,8 @@ export interface DataStore {
   /** 110.2 `sample`: a category made with the sample products. */
   createCatalogCategory(input: { appId: string; name: string; now: Date; sample?: boolean }): Promise<CatalogCategory>;
   renameCatalogCategory(appId: string, id: number, name: string): Promise<void>;
+  /** 132.12 The categories in this order (their `position`); ids of other apps or missing ones are skipped, the rest keep their place after these. */
+  reorderCatalogCategories(appId: string, ids: number[]): Promise<void>;
   /** Also removes the category from its products. */
   deleteCatalogCategory(appId: string, id: number, now: Date): Promise<void>;
   /** Every product of the app, newest first. */

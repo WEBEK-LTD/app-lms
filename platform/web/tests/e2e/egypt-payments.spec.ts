@@ -177,12 +177,15 @@ test("a shop with its own Kashier keys takes an order", async ({ page, request }
   await page.getByRole("button", { name: "Save & continue" }).click();
   await expect(page.getByRole("heading", { name: "Branding" })).toBeVisible();
   await page.getByRole("link", { name: "Products", exact: true }).click();
+  // 132.10 Products has its own pages: the shop's settings, payments and the products.
+  await page.getByRole("navigation", { name: "Products", exact: true }).getByRole("link", { name: /^Settings/ }).click();
 
   // Prices in Egyptian pounds.
   await page.getByLabel("Currency").selectOption("EGP");
   await page.getByRole("button", { name: "Save settings" }).click();
   await expect(page.getByText("Shop settings saved.")).toBeVisible();
 
+  await page.getByRole("navigation", { name: "Products", exact: true }).getByRole("link", { name: /^Payments/ }).click();
   const payments = page.getByRole("region", { name: "Card payments" });
   await payments.getByLabel("Payment provider").selectOption("kashier");
   await payments.getByLabel("Merchant ID").fill("MID-7777-001");
@@ -193,12 +196,13 @@ test("a shop with its own Kashier keys takes an order", async ({ page, request }
   await expect(payments.getByText("Kashier keys saved.")).toBeVisible();
   await expect(payments.getByText("On · your Kashier account · sandbox (test payments)")).toBeVisible();
 
+  await page.getByRole("navigation", { name: "Products", exact: true }).getByRole("link", { name: /^Products/ }).click();
   await page.getByRole("link", { name: "Add product" }).click();
   await page.getByLabel("Name", { exact: true }).fill("Lotus Bouquet");
   await page.getByLabel("Price (EGP)", { exact: true }).fill("850");
   await page.locator('input[name="images"]').setInputFiles({ name: "lotus.png", mimeType: "image/png", buffer: solidPng(64, 64, [240, 170, 200]) });
   await page.getByRole("button", { name: "Add product" }).click();
-  await expect(page.getByRole("status")).toContainText("Saved “Lotus Bouquet”.");
+  await expect(page.getByRole("status").filter({ hasText: "Saved" })).toContainText("Saved “Lotus Bouquet”.");
   await page.getByRole("link", { name: /Lotus Bouquet/ }).click();
   const link = (await page.getByRole("link", { name: /\/shop\// }).textContent())!;
   const api = `${E2E.baseURL}/api/app/${/\/shop\/([0-9a-f-]{36})\//.exec(link)![1]}`;
@@ -225,6 +229,30 @@ test("a shop with its own Kashier keys takes an order", async ({ page, request }
   const order = page.getByRole("listitem").filter({ hasText: "Mona Hassan" });
   await expect(order).toContainText("E£1,700.00");
   await expect(order).toContainText("Lotus Bouquet × 2");
+
+  // 132.33 Kashier's signed webhook was noted; 132.34 Test connection with the saved keys says it all works.
+  expect(kashier.webhooks.at(-1)!.status).toBe(200);
+  await page.getByRole("link", { name: "Products", exact: true }).click();
+  // 132.10 The shop's payments are on their own tab.
+  await page.getByRole("navigation", { name: "Products", exact: true }).getByRole("link", { name: /^Payments/ }).click();
+  const saved = page.getByRole("region", { name: "Card payments" });
+  await expect(saved.getByTestId("gateway-saved")).toContainText("Saved: Kashier");
+  await expect(saved.getByTestId("gateway-saved")).toContainText("Webhook working · last one");
+  await expect(saved.getByText("Saved: …cret. Leave it empty to keep it.")).toBeVisible();
+  await saved.getByRole("button", { name: "Test connection" }).click();
+  const results = saved.getByTestId("gateway-test-results");
+  await expect(results).toContainText("Everything works.");
+  await expect(results).toContainText("Keys valid: Kashier accepted them.");
+  await expect(results).toContainText("Mode: Test. No real money moves.");
+  await expect(results).toContainText("Currency supported: Kashier takes EGP.");
+  await expect(results).toContainText("Kashier gets its webhook address with each payment: nothing to set up at Kashier.");
+  await expect(results).toContainText("Webhook working: the last one arrived");
+  // A wrong secret typed in: Kashier refuses it, nothing is saved.
+  await saved.getByLabel("Secret key").fill("wrong");
+  await saved.getByRole("button", { name: "Test connection" }).click();
+  await expect(results).toContainText("Kashier didn't accept the keys.");
+  await expect(saved.getByTestId("gateway-saved")).toContainText("Saved: Kashier");
+  await expect(page.locator("body")).not.toContainText("shop-kashier-secret");
 });
 
 test("the team puts the settings back", async () => {

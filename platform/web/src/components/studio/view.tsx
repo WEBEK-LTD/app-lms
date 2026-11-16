@@ -951,7 +951,10 @@ function Node(props: ViewProps & { node: StudioNode; parentDir: Dir; inStack?: I
           <span dir="ltr" style={{ display: "flex", gap: 8 }} data-studio-countdown="">
             {left.map((value, i) => (
               <span key={i} style={{ flex: "1 1 0", display: "flex", flexDirection: "column", alignItems: "center", padding: "8px 4px", borderRadius: 10, background: "rgba(127,127,127,0.14)" }}>
-                <span style={{ fontSize: 24, fontWeight: 800, fontVariantNumeric: "tabular-nums" }}>{String(value).padStart(2, "0")}</span>
+                {/* 132.58 The second can tick between the server's drawing and the browser's. */}
+                <span suppressHydrationWarning style={{ fontSize: 24, fontWeight: 800, fontVariantNumeric: "tabular-nums" }}>
+                  {String(value).padStart(2, "0")}
+                </span>
                 <span style={{ fontSize: 11, opacity: 0.75 }}>{units[i]}</span>
               </span>
             ))}

@@ -6,7 +6,6 @@ import {
   updateCouponAction,
   addCategoryAction,
   saveFulfilmentAction,
-  savePaymentKeysAction,
   saveProductAction,
   saveShopSettingsAction,
   saveLoyaltyAction,
@@ -18,7 +17,6 @@ import { FormActions, FormSection } from "@/components/page-kit";
 import { initialFormState } from "@/lib/forms";
 import { MediaImagesPicker } from "@/components/media-picker";
 import { useDashLang, useDashT } from "@/components/dashboard-i18n";
-import type { DashKey } from "@/i18n/dashboard";
 import { formatDate } from "@/i18n/format";
 import { richText } from "@/i18n/rich";
 
@@ -64,7 +62,7 @@ const cents = (text: string): number | null | string => {
 const whole = (text: string): number | null | string => (text.trim() === "" ? null : /^\d{1,7}$/.test(text.trim()) ? Number(text.trim()) : text.trim());
 
 /** 91.5 The variations of a shop's product (not a restaurant's): Size and Colour, and each combination's price and stock. */
-function VariantsEditor({ initial, currency, error }: { initial: EditorVariants; currency: string; error?: string }) {
+export function VariantsEditor({ initial, currency, error }: { initial: EditorVariants; currency: string; error?: string }) {
   const t = useDashT();
   const [attributes, setAttributes] = useState(initial.attributes);
   const [items, setItems] = useState(initial.items);
@@ -184,7 +182,7 @@ export interface EditorGroup {
   options: { id?: string; name: string; price: string; weight?: string }[];
 }
 
-function Check({ name, label, hint, defaultChecked }: { name: string; label: string; hint: string; defaultChecked: boolean }) {
+export function Check({ name, label, hint, defaultChecked }: { name: string; label: string; hint: string; defaultChecked: boolean }) {
   return (
     <label className="flex cursor-pointer items-start gap-3">
       <input type="checkbox" name={name} defaultChecked={defaultChecked} className="mt-1 h-4 w-4 accent-midnight" />
@@ -197,7 +195,7 @@ function Check({ name, label, hint, defaultChecked }: { name: string; label: str
 }
 
 /** 131 "Sell only as an add-on (gift extra)" and what it's offered with. */
-function AddonFields({
+export function AddonFields({
   product,
   categories,
   products,
@@ -373,6 +371,7 @@ export function ProductForm({
             multiple
             accept="image/png,image/jpeg"
             className="text-sm"
+            aria-label={t("shop.photos")}
             aria-describedby="f-images-hint"
             aria-invalid={state.errors?.images ? true : undefined}
           />
@@ -420,7 +419,7 @@ const blankOption = () => ({ name: "", price: "" });
  * choose (at least and at most) and its options with an extra price. Sent as
  * one JSON field and checked on the server (lib/catalog/options.ts).
  */
-function OptionGroupsEditor({ initial, currency, restaurant, error }: { initial: EditorGroup[]; currency: string; restaurant: boolean; error?: string }) {
+export function OptionGroupsEditor({ initial, currency, restaurant, error }: { initial: EditorGroup[]; currency: string; restaurant: boolean; error?: string }) {
   const t = useDashT();
   const sr = { sr: (chunk: string) => <span className="sr-only">{chunk}</span> };
   const [groups, setGroups] = useState<EditorGroup[]>(initial);
@@ -904,87 +903,5 @@ export function ManualPaymentsForm({ values: saved }: { values: { bankTransfer: 
         </SubmitButton>
       </div>
     </form>
-  );
-}
-
-type ProviderChoice = "iyzico" | "kashier" | "fawaterk" | "stripe" | "paypal";
-
-/** 37 Where each provider shows the keys, for the hint under the choice. */
-const KEYS_WHERE: Record<ProviderChoice, DashKey> = { iyzico: "shop.keysIyzico", kashier: "shop.keysKashier", fawaterk: "shop.keysFawaterk", stripe: "shop.keysStripe", paypal: "shop.keysPaypal" };
-/** 96.1 Stripe has none: its test keys say so themselves (sk_test_…). */
-const TEST_LABEL: Record<Exclude<ProviderChoice, "stripe">, DashKey> = { iyzico: "shop.testIyzico", kashier: "shop.testKashier", fawaterk: "shop.testFawaterk", paypal: "shop.testPaypal" };
-const TEST_HINT: Record<Exclude<ProviderChoice, "stripe">, DashKey> = { iyzico: "shop.testIyzicoHint", kashier: "shop.testKashierHint", fawaterk: "shop.testFawaterkHint", paypal: "shop.testPaypalHint" };
-
-/** The owner's own merchant account: 37 iyzico, Kashier, Fawaterk, Stripe or PayPal, 96.1 Stripe or PayPal, with the keys each one needs. */
-export function PaymentKeysForm({ provider, sandbox, merchantId = "", clientId = "" }: { provider: ProviderChoice | null; sandbox: boolean; merchantId?: string; clientId?: string }) {
-  const t = useDashT();
-  const [state, action] = useActionState(savePaymentKeysAction, initialFormState);
-  const [choice, setChoice] = useState<ProviderChoice>((state.values?.provider as ProviderChoice | undefined) || provider || "iyzico");
-  const testLabel = choice === "stripe" ? null : t(TEST_LABEL[choice]);
-  const testHint = choice === "stripe" ? null : t(TEST_HINT[choice]);
-  return (
-    <div className="flex flex-col gap-4">
-      {/* 96.1 Outside the form: React resets a form after its action, which would put the menu back on its first choice. The form sends the choice. */}
-      <div className="flex flex-col gap-1.5">
-        <label htmlFor="f-provider" className="text-sm font-semibold">
-          {t("shop.provider")}
-        </label>
-        <select id="f-provider" value={choice} onChange={(event) => setChoice(event.target.value as ProviderChoice)} className="input">
-          <option value="iyzico">{t("shop.optIyzico")}</option>
-          <option value="kashier">{t("shop.optKashier")}</option>
-          <option value="fawaterk">{t("shop.optFawaterk")}</option>
-          <option value="stripe">{t("shop.optStripe")}</option>
-          <option value="paypal">{t("shop.optPaypal")}</option>
-        </select>
-        <span className="text-[13px] leading-normal text-muted">{t(KEYS_WHERE[choice])}</span>
-        <FieldError id="f-provider-error" error={state.errors?.provider} />
-      </div>
-      <form action={action} noValidate className="flex flex-col gap-4">
-        <FormMessage message={state.message} ok={state.ok} />
-        <input type="hidden" name="provider" value={choice} />
-        {choice === "kashier" ? (
-          <Field
-            label={t("shop.merchantId")}
-            name="merchantId"
-            autoComplete="off"
-            placeholder="MID-1234-567"
-            defaultValue={state.values?.merchantId ?? merchantId}
-            required
-            error={state.errors?.merchantId}
-          />
-        ) : null}
-        {choice === "paypal" ? (
-          <Field
-            key="client-paypal"
-            label={t("shop.clientId")}
-            name="clientId"
-            autoComplete="off"
-            defaultValue={state.values?.clientId ?? clientId}
-            required
-            error={state.errors?.clientId}
-          />
-        ) : null}
-        {choice !== "stripe" && choice !== "paypal" ? (
-          <Field key={`api-${choice}`} label={choice === "kashier" ? t("shop.paymentApiKey") : t("shop.apiKey")} name="apiKey" autoComplete="off" required error={state.errors?.apiKey} />
-        ) : null}
-        {choice !== "fawaterk" ? (
-          <Field
-            key={`secret-${choice}`}
-            label={choice === "paypal" ? t("shop.paypalSecret") : t("shop.secretKey")}
-            name="secretKey"
-            type="password"
-            autoComplete="off"
-            required
-            error={state.errors?.secretKey}
-          />
-        ) : null}
-        {testLabel && testHint ? <Check key={`test-${choice}`} name="sandbox" label={testLabel} hint={testHint} defaultChecked={state.values ? state.values.sandbox === "on" : sandbox} /> : null}
-        <div className="flex justify-end">
-          <SubmitButton className="h-10" pendingText={t("shop.checking")}>
-            {t("shop.saveKeys")}
-          </SubmitButton>
-        </div>
-      </form>
-    </div>
   );
 }

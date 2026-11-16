@@ -11,6 +11,7 @@ import { BADGES, POINTS } from "@/lib/courses/gamification";
 import { courseSetup } from "@/lib/courses/setup";
 import { dashboardText } from "@/lib/dashboard-lang";
 import { GamificationForm, PathForm } from "../learning-forms";
+import { CoursesTabs } from "../tabs";
 
 export async function generateMetadata(): Promise<Metadata> {
   return { title: (await dashboardText()).t("learning.pathsTitle") };
@@ -43,6 +44,8 @@ export default async function LearningPathsPage() {
           ) : null
         }
       />
+      {/* 132.13 */}
+      <CoursesTabs app={app} />
 
       <Section titleId="h-paths" title={t("learning.paths")} actions={<Badge tone="neutral">{paths.length}</Badge>} flush>
         {paths.length === 0 ? (
