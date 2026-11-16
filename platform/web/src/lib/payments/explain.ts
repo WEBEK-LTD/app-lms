@@ -21,6 +21,9 @@ const OWN = [
   /^PayPal didn't accept the client ID and secret\.$/,
   /^(?:iyzico|Kashier|Fawaterk|Stripe|PayPal) answered HTTP \d{3}\.$/,
   /^(?:iyzico|Kashier|Fawaterk|Stripe|PayPal) doesn't take payments in [A-Z]{3}\.$/,
+  // 132.32 lib/payments/stripe.ts, before it asks Stripe.
+  /^Stripe doesn't take this amount in [A-Z]{3}\.$/,
+  /^Stripe takes payments of at least \d+\.\d{2} [A-Z]{3}\.$/,
 ];
 
 type Whose = "own" | "yallapp";

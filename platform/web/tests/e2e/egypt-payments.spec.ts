@@ -229,6 +229,30 @@ test("a shop with its own Kashier keys takes an order", async ({ page, request }
   const order = page.getByRole("listitem").filter({ hasText: "Mona Hassan" });
   await expect(order).toContainText("E£1,700.00");
   await expect(order).toContainText("Lotus Bouquet × 2");
+
+  // 132.33 Kashier's signed webhook was noted; 132.34 Test connection with the saved keys says it all works.
+  expect(kashier.webhooks.at(-1)!.status).toBe(200);
+  await page.getByRole("link", { name: "Products", exact: true }).click();
+  // 132.10 The shop's payments are on their own tab.
+  await page.getByRole("navigation", { name: "Products", exact: true }).getByRole("link", { name: /^Payments/ }).click();
+  const saved = page.getByRole("region", { name: "Card payments" });
+  await expect(saved.getByTestId("gateway-saved")).toContainText("Saved: Kashier");
+  await expect(saved.getByTestId("gateway-saved")).toContainText("Webhook working · last one");
+  await expect(saved.getByText("Saved: …cret. Leave it empty to keep it.")).toBeVisible();
+  await saved.getByRole("button", { name: "Test connection" }).click();
+  const results = saved.getByTestId("gateway-test-results");
+  await expect(results).toContainText("Everything works.");
+  await expect(results).toContainText("Keys valid: Kashier accepted them.");
+  await expect(results).toContainText("Mode: Test. No real money moves.");
+  await expect(results).toContainText("Currency supported: Kashier takes EGP.");
+  await expect(results).toContainText("Kashier gets its webhook address with each payment: nothing to set up at Kashier.");
+  await expect(results).toContainText("Webhook working: the last one arrived");
+  // A wrong secret typed in: Kashier refuses it, nothing is saved.
+  await saved.getByLabel("Secret key").fill("wrong");
+  await saved.getByRole("button", { name: "Test connection" }).click();
+  await expect(results).toContainText("Kashier didn't accept the keys.");
+  await expect(saved.getByTestId("gateway-saved")).toContainText("Saved: Kashier");
+  await expect(page.locator("body")).not.toContainText("shop-kashier-secret");
 });
 
 test("the team puts the settings back", async () => {

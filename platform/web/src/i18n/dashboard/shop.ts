@@ -516,7 +516,7 @@ export const ar: Messages = {
   payWithinDays: "أيام الدفع",
   payWithinDaysHint: "تظهر للعميل. تُحجز أماكن التذاكر طوال هذه المدة.",
   saveManual: "حفظ طرق الدفع",
-  cardIntro: "يدفع العملاء بالبطاقة على صفحة آمنة لدى مزوّد الدفع: iyzico أو Kashier أو Fawaterk أو Stripe أو PayPal أو Stripe أو PayPal.",
+  cardIntro: "يدفع العملاء بالبطاقة على صفحة آمنة لدى مزوّد الدفع: iyzico أو Kashier أو Fawaterk أو Stripe أو PayPal.",
   onOwn: "مفعّل · حسابك في {provider}",
   onOwnSandbox: "مفعّل · حسابك في {provider} · وضع الاختبار (مدفوعات تجريبية)",
   removeKeys: "إزالة المفاتيح",

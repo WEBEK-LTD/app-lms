@@ -5,9 +5,11 @@ import { redirect } from "next/navigation";
 import { recordStaffChange } from "@/lib/admin/audit";
 import { kindById } from "@/lib/app/kinds";
 import { MAX_APPS_PER_CLIENT } from "@/lib/app/label";
+import { ownerLang } from "@/lib/app/owner-lang";
+import { startLanguages, wordsLangOf } from "@/lib/app/start-language";
 import { chooseApp, clientFor, mayUseDashboard } from "@/lib/auth/session";
-import { dashboardText } from "@/lib/dashboard-lang";
 import { getStore } from "@/lib/data";
+import { appDefaults } from "@/lib/pages/layout";
 import { makeStudioProject } from "@/lib/studio/new-project";
 import { templatesFor, TEMPLATES } from "@/lib/studio/sections";
 import { appWords } from "@/lib/studio/app-words";
@@ -70,9 +72,11 @@ export async function createStudioProjectAction(formData: FormData): Promise<voi
   // 103R.7 One of the project type's templates (or the ones for every project).
   const template = templatesFor({ type: kind.engine, vertical: kind.vertical }).find((x) => x.id === formData.get("template")) ?? TEMPLATES.find((x) => x.id === "blank")!;
   const now = new Date();
-  // The home page starts as a Studio page from the chosen template, in the dashboard's language.
-  const { lang } = await dashboardText();
-  const app = await makeStudioProject(store, { clientId: context.client.id, name, kind, source, template, words: appWords(lang, name), lang }, now);
+  // The home page starts as a Studio page from the chosen template, in the project's main language:
+  // 132.40 an Arabic or Turkish dashboard's project has that language as its main one.
+  const languages = startLanguages(await ownerLang(context), (await appDefaults(store)).languages);
+  const lang = wordsLangOf(languages, "en");
+  const app = await makeStudioProject(store, { clientId: context.client.id, name, kind, source, template, words: appWords(lang, name), lang, languages }, now);
   await chooseApp(app.id);
   await recordStaffChange({ ...context, app }, `Added a Studio project: ${kind.name}`, { appType: null }, { appType: kind.engine, vertical: kind.vertical, section: "studio" });
   revalidatePath("/studio", "layout");
