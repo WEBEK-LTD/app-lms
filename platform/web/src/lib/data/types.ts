@@ -7102,3 +7102,6 @@ export interface UniAttendance {
 
 // 126 Travel: hotels and flights
 export * from "./travel-types";
+
+// 106 Studio Market: designers, templates, their versions and reviews, buyers' licences and applications
+export * from "./studio-market-types";

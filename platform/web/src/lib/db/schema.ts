@@ -79,6 +79,8 @@ import type { ArabicTag, MatchedStep, PhraseLang } from "../bot/intents";
 import type { BotUnmatchedStatus } from "../bot/types";
 import type { MailAudience, MailCampaignStatus, MailContactSource, MailContents, MailEventKind, MailLang, MailRecipientStatus, MailSuppressionReason } from "../mailing/types";
 import type { Layout, LayoutBlock, LayoutContent, StudioPage } from "../pages/types";
+// 106 Studio Market
+import type { MarketPlanPrice, MarketTemplate, MarketTemplateCover } from "../data/types";
 import type { AdminRole } from "../admin/permissions";
 import type { DemoId } from "../demo/constants";
 import type { ReviewRating } from "../reviews/types";
@@ -94,6 +96,7 @@ import {
   double,
   customType,
   datetime,
+  foreignKey,
   index,
   int,
   mediumtext,
@@ -5464,4 +5467,151 @@ export const travelAlerts = mysqlTable(
     updatedAt: time("updated_at").notNull(),
   },
   (t) => [index("travel_alerts_user_idx").on(t.appId, t.userId)],
+);
+
+// 106 Studio Market: designers, their templates (snapshots of a Studio project's design), the team's reviews,
+// buyers' licences and the templates on their apps (the design each app had before kept in the file store).
+export const studioMarketDesigners = mysqlTable(
+  "studio_market_designers",
+  {
+    id: id("id").primaryKey(),
+    clientId: id("client_id")
+      .notNull()
+      .references(() => clients.id, { onDelete: "cascade" }),
+    name: varchar("name", { length: 60 }).notNull(),
+    slug: varchar("slug", { length: 60 }).notNull(),
+    country: varchar("country", { length: 2 }).notNull(),
+    bio: varchar("bio", { length: 400 }),
+    status: varchar("status", { length: 16 }).notNull(),
+    termsAcceptedAt: time("terms_accepted_at").notNull(),
+    createdAt: time("created_at").notNull(),
+    updatedAt: time("updated_at").notNull(),
+  },
+  (t) => [uniqueIndex("studio_market_designers_client_idx").on(t.clientId), uniqueIndex("studio_market_designers_slug_idx").on(t.slug)],
+);
+
+export const studioMarketTemplates = mysqlTable(
+  "studio_market_templates",
+  {
+    id: id("id").primaryKey(),
+    designerId: id("designer_id").notNull(),
+    clientId: id("client_id").notNull(),
+    sourceAppId: id("source_app_id").references(() => apps.id, { onDelete: "set null" }),
+    slug: varchar("slug", { length: 80 }).notNull(),
+    status: varchar("status", { length: 24 }).notNull(),
+    texts: jsonText<MarketTemplate["texts"]>("texts").notNull(),
+    kinds: jsonText<string[]>("kinds").notNull(),
+    tags: jsonText<string[]>("tags").notNull(),
+    free: boolean("free").notNull().default(true),
+    plans: jsonText<MarketPlanPrice[]>("plans").notNull(),
+    afterEnd: varchar("after_end", { length: 8 }).notNull(),
+    screens: jsonText<string[]>("screens").notNull(),
+    rightsConfirmedAt: time("rights_confirmed_at"),
+    noteToTeam: varchar("note_to_team", { length: 1000 }),
+    currentVersionId: id("current_version_id"),
+    reviewVersionId: id("review_version_id"),
+    submittedAt: time("submitted_at"),
+    publishedAt: time("published_at"),
+    views: int("views").notNull().default(0),
+    createdAt: time("created_at").notNull(),
+    updatedAt: time("updated_at").notNull(),
+  },
+  (t) => [
+    // Named here: drizzle's own name for it is longer than MariaDB's 64 characters.
+    foreignKey({ name: "studio_market_templates_designer_fk", columns: [t.designerId], foreignColumns: [studioMarketDesigners.id] }).onDelete("cascade"),
+    uniqueIndex("studio_market_templates_slug_idx").on(t.slug),
+    index("studio_market_templates_designer_idx").on(t.designerId, t.updatedAt),
+    index("studio_market_templates_status_idx").on(t.status, t.submittedAt),
+  ],
+);
+
+export const studioMarketVersions = mysqlTable(
+  "studio_market_versions",
+  {
+    id: id("id").primaryKey(),
+    templateId: id("template_id").notNull(),
+    number: int("number").notNull(),
+    blobKey: varchar("blob_key", { length: 191 }).notNull(),
+    sizeBytes: int("size_bytes").notNull(),
+    pages: int("pages").notNull(),
+    elements: int("elements").notNull(),
+    languages: jsonText<string[]>("languages").notNull(),
+    cover: jsonText<MarketTemplateCover | null>("cover"),
+    createdAt: time("created_at").notNull(),
+    createdBy: varchar("created_by", { length: 191 }),
+  },
+  (t) => [
+    foreignKey({ name: "studio_market_versions_template_fk", columns: [t.templateId], foreignColumns: [studioMarketTemplates.id] }).onDelete("cascade"),
+    uniqueIndex("studio_market_versions_number_idx").on(t.templateId, t.number),
+  ],
+);
+
+export const studioMarketReviews = mysqlTable(
+  "studio_market_reviews",
+  {
+    id: autoId("id").primaryKey(),
+    templateId: id("template_id").notNull(),
+    versionId: id("version_id"),
+    decision: varchar("decision", { length: 24 }).notNull(),
+    notes: text("notes"),
+    teamNote: text("team_note"),
+    checks: jsonText<string[]>("checks").notNull(),
+    reviewerEmail: varchar("reviewer_email", { length: 191 }).notNull(),
+    reviewerName: varchar("reviewer_name", { length: 120 }),
+    createdAt: time("created_at").notNull(),
+  },
+  (t) => [
+    foreignKey({ name: "studio_market_reviews_template_fk", columns: [t.templateId], foreignColumns: [studioMarketTemplates.id] }).onDelete("cascade"),
+    index("studio_market_reviews_template_idx").on(t.templateId, t.createdAt),
+  ],
+);
+
+export const studioMarketLicences = mysqlTable(
+  "studio_market_licences",
+  {
+    id: id("id").primaryKey(),
+    templateId: id("template_id").notNull(),
+    clientId: id("client_id")
+      .notNull()
+      .references(() => clients.id, { onDelete: "cascade" }),
+    plan: varchar("plan", { length: 8 }).notNull(),
+    status: varchar("status", { length: 16 }).notNull(),
+    appId: id("app_id").references(() => apps.id, { onDelete: "set null" }),
+    versionId: id("version_id"),
+    startsAt: time("starts_at").notNull(),
+    endsAt: time("ends_at"),
+    movedAt: time("moved_at"),
+    createdAt: time("created_at").notNull(),
+    updatedAt: time("updated_at").notNull(),
+  },
+  (t) => [
+    foreignKey({ name: "studio_market_licences_template_fk", columns: [t.templateId], foreignColumns: [studioMarketTemplates.id] }).onDelete("cascade"),
+    index("studio_market_licences_client_idx").on(t.clientId, t.createdAt),
+    index("studio_market_licences_template_idx").on(t.templateId, t.createdAt),
+    index("studio_market_licences_app_idx").on(t.appId),
+  ],
+);
+
+export const studioMarketApplications = mysqlTable(
+  "studio_market_applications",
+  {
+    id: id("id").primaryKey(),
+    licenceId: id("licence_id").notNull(),
+    templateId: id("template_id").notNull(),
+    appId: id("app_id")
+      .notNull()
+      .references(() => apps.id, { onDelete: "cascade" }),
+    versionId: id("version_id").notNull(),
+    previousKey: varchar("previous_key", { length: 191 }).notNull(),
+    replacedId: id("replaced_id"),
+    appliedAt: time("applied_at").notNull(),
+    endedAt: time("ended_at"),
+    endReason: varchar("end_reason", { length: 16 }),
+    appliedBy: varchar("applied_by", { length: 191 }),
+  },
+  (t) => [
+    foreignKey({ name: "studio_market_applications_licence_fk", columns: [t.licenceId], foreignColumns: [studioMarketLicences.id] }).onDelete("cascade"),
+    index("studio_market_applications_app_idx").on(t.appId, t.endedAt),
+    index("studio_market_applications_licence_idx").on(t.licenceId, t.appliedAt),
+  ],
 );

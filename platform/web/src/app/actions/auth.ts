@@ -22,6 +22,8 @@ import { isLang, LANG_COOKIE, LANG_COOKIE_MAX_AGE, langOf, translateKnown, type 
 import type { User } from "@/lib/data/types";
 import { recordSignUp } from "@/lib/milestones/record";
 import { signupSourceFrom } from "@/lib/milestones/source";
+// 106.1 Back to "Become a designer" after signing up or in from it.
+import { afterSignInFor, DESIGNER_JOIN_COOKIE } from "@/lib/studio-market/join";
 
 /**
  * 55 The sign-in pages in Arabic and Turkish send their language (a hidden
@@ -82,6 +84,9 @@ async function signUp(formData: FormData, lang: Lang): Promise<FormState> {
     }
     throw error;
   }
+  // 106.1 Someone who came from "Become a designer" goes back to finish it.
+  const designer = afterSignInFor((await cookies()).get(DESIGNER_JOIN_COOKIE)?.value);
+  if (designer) redirect(designer);
   // 121 Active at once: the person chooses the regular editor or Yallapp Studio.
   redirect("/start");
 }
@@ -107,11 +112,11 @@ async function signIn(formData: FormData, lang: Lang): Promise<FormState> {
   const user = await authenticate(store, parsed.data.email, parsed.data.password, now);
   if (!user) return { message: "The email or password is incorrect.", values };
   await rememberLang(lang, user);
-  // 132.113 Back to the page of a move they opened from its email, if that's where they were going.
+  // 70 Signed in now, or first the code from their authenticator app; 106.1 back to "Become a designer" when they came from it;
+  // 132.113 back to the page of a move they opened from its email.
   const jar = await cookies();
-  const next = safeNext(jar.get(NEXT_COOKIE)?.value);
+  const next = safeNext(jar.get(NEXT_COOKIE)?.value) ?? afterSignInFor(jar.get(DESIGNER_JOIN_COOKIE)?.value);
   jar.delete(NEXT_COOKIE);
-  // 70 Signed in now, or first the code from their authenticator app.
   redirect(await afterPassword(user, { lang, next }));
 }
 

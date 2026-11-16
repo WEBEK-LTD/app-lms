@@ -140,6 +140,10 @@ export function dashboardFiles(root: string): string[] {
     ...filesUnder(join(root, "src/app/pending")),
     // 127 Choosing your app from our demos.
     ...filesUnder(join(root, "src/app/start")),
+    // 106 Studio Market: the designer area and becoming a designer, and the market's own parts.
+    ...filesUnder(join(root, "src/app/designer")),
+    ...filesUnder(join(root, "src/components/studio-market")),
+    join(root, "src/components/section-switch.tsx"),
     ...components.map((name) => join(root, `src/components/${name}.tsx`)),
   ];
 }

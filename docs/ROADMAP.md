@@ -2677,12 +2677,68 @@ Each its own small step after the ones above: car rental (cars, dates,
 pickup and return places, deposits), laundry (pickup and delivery with
 104's couriers, items priced by piece or by kilo).
 
-## Phase 106: Studio template marketplace (postponed)
+## Phase 106: Studio Market, the Studio template marketplace (no longer postponed)
 
-Sharing Studio templates for free or selling them by monthly, yearly or
-lifetime subscription; Yallapp's share 25% (taxes, payout and gateway fees
-included); payouts to the seller's bank account (SWIFT). After Studio is
-finished and tested.
+The owner took it off the shelf on 15 November 2026 and approved the screens
+(13 screens in English and Arabic, light and dark, and phones; a second, more
+premium look is being designed, so stage 1's pages are built functional on the
+dashboard's own parts, ready to be restyled). Its name in Arabic is "ماركت
+Studio". The owner's decisions:
+
+- **What's sold.** Whole app designs made in Studio, free or paid. Paid plans:
+  any of 1 month, 3 months, 6 months, 1 year, 2 years and lifetime, each at the
+  price the designer sets in US dollars.
+- **No automatic renewal.** Kashier takes no subscriptions: the buyer pays
+  again to renew, a new one-time payment that extends from the current end
+  date. A reminder 14 days before the end and another in the last days.
+- **No refunds.** The checkout says so plainly, with a required consent
+  checkbox next to Pay.
+- **After a plan ends**, as the designer chose for each template: (a) the
+  design stays in the app, without updates, or (b) the app goes back to the
+  design it had before the template. The template page shows the choice before
+  buying. Free and lifetime never end.
+- **Moving.** A template moves to another of the buyer's apps of the same app
+  kind once every 30 days, keeping its end date; lifetime too.
+- **Reviewed once.** The first publish is reviewed by Yallapp's team (Draft →
+  In review → Published, or Changes requested with notes); later edits of a
+  published template go live without another review. Buyers on an active plan,
+  free or lifetime get the updates; after a plan ends under (a) they stay on
+  the last version they had.
+- **Prices on cards.** "From $X/mo": the lowest per-month price of the
+  periodic plans ($55/yr = $4.58/mo); only lifetime: "$X once"; free: "Free".
+  The template page shows each plan's real price.
+- **Designers.** Studio is free for designers: a freelancer signs up as a
+  designer without an app or a plan and designs templates in Studio, but can't
+  build or publish an app with it (that still needs the normal plans).
+- **Discounts.** Automatic price drops (an amount or a share, some or all
+  plans, an optional start and end), flash sales (start, end, a live
+  countdown, in the market's flash strip) and coupon codes the designer gives
+  out (an amount or a share, plans, start and end, an optional usage limit).
+  Nothing stacks: the buyer gets the better of the automatic price or the code.
+- **Money.** Yallapp takes 25% of each sale; the 25% includes taxes, the
+  gateway's fees and the SWIFT payout fees with the intermediary banks'; the
+  designer always gets exactly 75%. Payouts by SWIFT to the designer's bank,
+  monthly, from USD 250 (below that, the balance carries over). The designer's
+  ID, name and country and bank details (IBAN/SWIFT) are checked before the
+  first payout, not before publishing.
+- **Payments.** Yallapp's own Kashier integration, one-time payments only;
+  card details never touch Yallapp.
+
+| Status | Item | Tests |
+|---|---|---|
+| [x] | 106.1 Data model (`drizzle/0130_studio_market.sql`, MariaDB-safe: long foreign keys named): designer profiles (`studio_market_designers`, one per account, its public address), templates (`studio_market_templates`: status, texts in English, Arabic and Turkish, app kinds, tags, free, the after-the-end choice, the pictures' order), versions (`studio_market_versions`: a snapshot of the project's design file in the file store, its cover), the team's reviews (`studio_market_reviews`), buyers' licences (`studio_market_licences`) and the templates on their apps (`studio_market_applications`, with the design the app had before kept in the file store); the memory store and MySQL, status moves and the move rule kept by the database | `studio-market-memory.test.ts`, `studio-market-mysql.test.ts` (MariaDB 10.11, migrations applied twice) |
+| [x] | 106.2 Becoming a designer (`/designer/join`): any account, no app or plan needed; its profile, country and the terms with Yallapp's 25%; someone signed out makes an account first and comes back to finish; the designer area in the dashboard's shell (Studio, Studio Market and Designer area in the dark bar) | `studio-market.test.ts`, e2e `studio-market.spec.ts` |
+| [x] | 106.3 Publishing a template (`/designer/publish`), the seven steps on one page, free only for now: the Studio project, the title and description per language, the pictures (the project's pages drawn as the app draws them, in each language, light and dark; the cover first), up to three app kinds of the project's engine and tags, the plans (free), what happens after a plan ends, sending it for review (the rights confirmed, a note to the team). The snapshot is the project's whole design file (`lib/studio/design-file.ts`), checked by the page checker first; the project's own uploaded fonts aren't in it (a buyer's app shows its own font there) | `studio-market.test.ts`, e2e |
+| [x] | 106.4 The designer's templates (`/designer/templates`): how a template goes, its status, views, apps that took it, the team's notes with Fix in Studio and Send again; a published template's page changes at once, its design again with "Publish the update", live without a review | `studio-market.test.ts`, e2e |
+| [x] | 106.5 The review queue (Admin › Studio Market, permission `market.review`, also Support's): oldest first, the template drawn page by page, the checklist, notes to the designer and a team-only note; approve and publish, or request changes; the designer emailed each time (`market_template_published`, `market_template_changes`, in their language), each decision in the audit log | `studio-market.test.ts`, `admin-team.test.ts`, e2e |
+| [x] | 106.6 The market (`/dashboard/studio-market`, a "Studio Market" tab in the dark bar and its own group in the menu): search, app kinds, price and order, the featured template, new this week, the most applied, top designers; a template's page with its pages in phones, "Try the demo" and "Preview it on my app first" (the template with the app's name, logo and entries), what's included and the designer. In the look the owner chose: "Gallery" in light (the ivory wall, framed prints, phones on soft floor shadows) and "Night showroom" in dark (ember and violet light, glowing phones, glass cards), switched by the dashboard's theme in CSS only, also on My templates, the designer's pages and the review queue; no float, drift or tilt for those who ask for less motion | e2e |
+| [x] | 106.7 Applying a template to one of the owner's Studio projects of a kind it fits (the dashboard's owner-only permission): the app's design kept (its draft, what its users have, its main colour and screens' looks), the template's design checked by the page checker, put in the draft and published when the app is live, a free licence recorded; a template already on the app is replaced and comes back when the app goes back. A designer can't get their own template | `studio-market.test.ts`, e2e |
+| [x] | 106.8 The buyer's templates (`/dashboard/studio-market/mine`): each one's app, plan and status; apply one to an app, switch it to another app of the same kind once every 30 days (the first app goes back to its design), go back to the previous design, take a newer version (texts and pictures kept where they fit) | `studio-market.test.ts`, e2e |
+| [x] | 106.9 English, Egyptian Arabic and Turkish for the dashboard, the designer area and the emails; the market's pages in Arabic read right to left | `dashboard-i18n.test.ts`, e2e |
+| [ ] | 106.10 Paid plans and prices (the publish step's plans table, "From $X/mo"), the checkout with Kashier (one-time payments, no refunds and its consent), renewing from the end date, the reminders 14 days before the end and in the last days, and the daily job's after-the-end choice (stays without updates, or back to the previous design) | Not done yet (stage 2) |
+| [ ] | 106.11 The designer's money: the ledger (the sale, Yallapp's 25%, the designer's 75%), the overview, payouts and the checks before the first one (ID, name and country, IBAN/SWIFT), the admin's payouts with CSV and "Mark as sent", receipts | Not done yet (stage 3) |
+| [ ] | 106.12 Discounts, flash sales (the market's flash strip) and coupon codes (the code at checkout), the better of the automatic price or the code | Not done yet (stage 4) |
+| [ ] | 106.13 The public page `/templates` (Modern Standard Arabic, in the sitemap and with the public pages' SEO) and the docs | Not done yet (stage 4) |
 
 ## Phase 107: More in Studio's editor
 
@@ -3363,8 +3419,14 @@ The owner (14 November) asked for a premium flower shop in Studio, with its demo
 
 ## Phase 132: Studio dashboard fixes
 
+The owner (16 November) asked to fix the dashboard and Studio where people found them wrong; first, that someone who signs up in Arabic or Turkish gets apps in English.
+
 | Status | Item | Tests |
 |---|---|---|
+| [x] | 132.40 A new app follows its owner's language: an account that signs up in Arabic or Turkish (or whose dashboard speaks it) makes apps and Studio projects whose main language is theirs, with English after it and the demo's other languages after that, as many as the plan allows (`lib/app/start-language.ts`, `lib/app/owner-lang.ts`): from /start (the App editor's demos and Studio's, looks A and B), Studio's New project, the app type step, "Use my website" (the site's own language still leads) and the guide (none chosen: the owner's language and English); our team working on an account uses the owner's language, never their own. English accounts' apps are made as before, and apps made before keep their languages | `start-language.test.ts`, `start-language.spec.ts` |
+| [x] | 132.41 Its pages are written in that language: Studio's template words in Modern Standard Arabic or Turkish (`lib/studio/app-words.ts`) with the other two as translations, now also for the kinds' own templates (shop, menu, courses and the rest) and Brand and Contact; Yallapp's own tabs, page titles and a design's samples in the main language with English and the other kept as translations (`inMainLanguage`, lib/pages/builtin.ts), so the editors show what the app shows; the Branding step's whole-project templates in the project's main language; sample entries follow it as before. A design's sample marks still match a block taken in English before | `start-language.test.ts`, `studio-app-words.test.ts` |
+| [x] | 132.42 The app and its preview answer in it before the first publish: the default pages an unpublished app gets, and its `Config.languages`, have its draft's languages (a new app's are its owner's), not the team's English defaults; Discard keeps the draft's languages; Preview your app lists them as the app gets them (it listed the team's English before the first publish) and always tells the app its language, so its first request is in it; the real app beside the Pages & look editor opens in the app's main language, not in the browser's or the last preview's | `start-language.test.ts`, `start-language.spec.ts` |
+| [x] | 132.43 Languages offers "Make Arabic the main language" (Turkish likewise) when the dashboard's language isn't the app's main one: added first, or in the last language's place when the plan has room for no more (its texts kept); a new main language now swaps a Studio page's texts with their translations too (it kept the old language's), and takes Yallapp's own texts in it | `start-language.test.ts`, `start-language.spec.ts` |
 | [x] | 132.110 Our team working in a client's account: /start, its demo pages and /pending no longer send a team member back to the admin (they checked the signed-in person's admin role before the account they work in), so "Add an app", Studio's "New project", the demos' "Create my app" and every create path work as for the client, for any account state; an account without an app opens on /start. A banner on every page of the account (the dashboard, Studio, the app picker): "You're working in <client>'s account", that what they do is recorded with their name, and "Back to Admin". Every action taken there is in the audit log with the team member's name (the action's own entry, else one per request: `client.staff_action`). Outside a client's account, or without the role or two-step sign-in, the admin says why instead of a silent bounce; paying by card in the client's name says why the team can't (Admin activates or records a transfer) | `admin-app-moves.spec.ts`, `admin-clients.spec.ts` |
 | [x] | 132.111 Admin › Clients › a client › Apps: create, move, copy: "Create an app for this client" from a demo (the App editor's or Studio's), an empty app or an empty Studio project of a kind, with its name; made in their account and opened as the client | `admin-app-moves.spec.ts` |
 | [x] | 132.112 Moving an app to another account (`apps.transfer`, owners and admins): the account it goes to by email or name; "Move the app's data" and "Move the subscription", each explained, with what moves and what stays as they change and "Ask the client before moving data or subscriptions"; the app, its Studio project, pages, content, media, settings, languages, builds, store listings, integrations and keys always move. The account it leaves keeps a read-only record of the app (`apps.moved_at`): its invoices always, its data when it doesn't move (archived, readable, never deleted), its plan when it doesn't move; pictures only the app used go with it, shared ones are copied. A plan payment still pending stops it (nothing is charged, refunded or changed at a gateway). Migration `0130_app_moves` | `app-transfer.test.ts`, `app-transfer-mysql.test.ts`, `admin-app-moves.spec.ts` |

@@ -9,6 +9,7 @@ import { DEMO_BRANDS } from "../demo/content";
 import { demoStudioScreens } from "../demo/screens";
 import { appUrl } from "../env";
 import { defaultLayout } from "../pages/defaults";
+import { inMainLanguage } from "../pages/builtin";
 import { appDefaults, saveDraft } from "../pages/layout";
 import { itemSourcesFor } from "../pages/sources";
 import type { Languages } from "../pages/types";
@@ -31,7 +32,7 @@ export interface NewStudioProject {
   lang: "en" | "ar" | "tr";
   /** What the owner chose besides (the app-builder bot: the main colour, the logo); never the project's kind or section. */
   extra?: Pick<Partial<App>, "primaryColor" | "splashColor" | "logoAssetId" | "brandingDoneAt" | "reviewPrompt" | "chatSettings" | "catalogSettings">;
-  /** The app's languages, when chosen (else the defaults'). */
+  /** The app's languages, when chosen (else the defaults'); 132.40 the words are written in its main one (lib/app/start-language.ts). */
   languages?: Languages;
   /**
    * 127 Started from this demo on /start: the demo's own words where its
@@ -75,7 +76,8 @@ export async function makeStudioProject(store: DataStore, input: NewStudioProjec
       : base;
   await store.createApp(app);
   const defaults = defaultLayout(app, await appDefaults(store), now);
-  const ready = input.languages ? { ...defaults, languages: input.languages } : defaults;
+  // 132.40 Its other pages and tabs in its main language too, as the app shows them.
+  const ready = inMainLanguage(input.languages ? { ...defaults, languages: input.languages } : defaults);
   // 123 The owner's website from sign-up, for a template's Blog tab.
   const site = project ? siteAddress((await store.getClientById(input.clientId))?.siteUrl) : null;
   // The demo's pages and look; its home is the demo's Studio page.

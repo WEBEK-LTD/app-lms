@@ -138,6 +138,9 @@ export const AUDIT_ACTIONS = {
   "review.hide": "Review hidden or shown",
   "review.move": "Review moved",
   "review.delete": "Review deleted",
+  // 106 Studio Market: the team's review of a template's first publish
+  "market.approve": "Studio Market template approved and published",
+  "market.changes": "Studio Market template sent back with notes",
 } as const;
 
 export type AuditAction = keyof typeof AUDIT_ACTIONS;
@@ -171,6 +174,8 @@ export const AUDIT_TARGETS = {
   bot_unmatched: "Unmatched bot phrase",
   live_entry: "Live activity entry",
   review: "Customer review",
+  // 106
+  market_template: "Studio Market template",
 } as const;
 
 export type AuditTargetType = keyof typeof AUDIT_TARGETS;

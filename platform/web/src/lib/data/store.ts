@@ -1,3 +1,18 @@
+// 106 Studio Market
+import type {
+  MarketTemplate,
+  MarketTemplatePatch,
+  MarketTemplateReview,
+  MarketTemplateReviewInput,
+  MarketTemplateStatus,
+  MarketTemplateVersion,
+  TemplateApplication,
+  TemplateApplicationPatch,
+  TemplateDesigner,
+  TemplateDesignerPatch,
+  TemplateLicence,
+  TemplateLicencePatch,
+} from "./types";
 import type { GiftOccasion, StoreDelivery, StoreFlashSale } from "./types";
 import type {
   Activation,
@@ -2418,4 +2433,61 @@ export interface DataStore {
   listAccountManagerCalls(filter: { clientId?: string; managerId?: string; statuses?: AccountManagerCallStatus[]; fromDate?: string; limit?: number }): Promise<AccountManagerCall[]>;
   /** False when it isn't there, or (moved) another call has the new time. */
   updateAccountManagerCall(id: number, patch: AccountManagerCallPatch): Promise<boolean>;
+
+  // 106 Studio Market
+  /** The account's designer profile, or null. */
+  getTemplateDesignerByClient(clientId: string): Promise<TemplateDesigner | null>;
+  getTemplateDesigner(id: string): Promise<TemplateDesigner | null>;
+  getTemplateDesignerBySlug(slug: string): Promise<TemplateDesigner | null>;
+  /** Null when another designer has the address (`slug`) already. */
+  createTemplateDesigner(designer: TemplateDesigner): Promise<TemplateDesigner | null>;
+  /** False when another designer has the new address already, or there is no such designer. */
+  updateTemplateDesigner(id: string, patch: TemplateDesignerPatch, now: Date): Promise<boolean>;
+  /** The designers with these ids (all when none given), oldest first. */
+  listTemplateDesigners(ids?: readonly string[]): Promise<TemplateDesigner[]>;
+  /** Null when another template has the address (`slug`) already. */
+  createMarketTemplate(template: MarketTemplate): Promise<MarketTemplate | null>;
+  getMarketTemplate(id: string): Promise<MarketTemplate | null>;
+  getMarketTemplateBySlug(slug: string): Promise<MarketTemplate | null>;
+  /** False when there is no such template, or another one has the new address. */
+  updateMarketTemplate(id: string, patch: MarketTemplatePatch, now: Date): Promise<boolean>;
+  /**
+   * Moves the template from `from` to its next status only when it still is
+   * in `from` (two reviewers deciding at once: one wins). False otherwise.
+   */
+  moveMarketTemplate(id: string, from: MarketTemplateStatus, patch: MarketTemplatePatch & { status: MarketTemplateStatus }, now: Date): Promise<boolean>;
+  /** Newest change first; by designer, statuses or ids. */
+  listMarketTemplates(filter: { designerId?: string; statuses?: readonly MarketTemplateStatus[]; ids?: readonly string[] }): Promise<MarketTemplate[]>;
+  /** Only a template never published (a draft, in review or sent back). False otherwise. */
+  deleteMarketTemplate(id: string): Promise<boolean>;
+  /** One more look at its page. */
+  addMarketTemplateView(id: string): Promise<void>;
+  createMarketTemplateVersion(version: MarketTemplateVersion): Promise<void>;
+  getMarketTemplateVersion(id: string): Promise<MarketTemplateVersion | null>;
+  /** The versions with these ids. */
+  listMarketTemplateVersions(ids: readonly string[]): Promise<MarketTemplateVersion[]>;
+  /** The template's highest version number (0 before the first). */
+  lastMarketTemplateVersion(templateId: string): Promise<number>;
+  createMarketTemplateReview(review: MarketTemplateReviewInput): Promise<MarketTemplateReview>;
+  /** Newest first. */
+  listMarketTemplateReviews(templateId: string): Promise<MarketTemplateReview[]>;
+  createTemplateLicence(licence: TemplateLicence): Promise<void>;
+  getTemplateLicence(id: string): Promise<TemplateLicence | null>;
+  /** Newest first; by buyer, template or app. */
+  listTemplateLicences(filter: { clientId?: string; templateId?: string; appId?: string }): Promise<TemplateLicence[]>;
+  updateTemplateLicence(id: string, patch: TemplateLicencePatch, now: Date): Promise<boolean>;
+  /**
+   * 106.1 The move rule, kept by the database: the licence goes from app
+   * `from` to app `to` only while it still is on `from` and hasn't moved
+   * since `notSince` (30 days before now). False otherwise.
+   */
+  moveTemplateLicence(id: string, from: string, to: string, notSince: Date, now: Date): Promise<boolean>;
+  /** How many licences each template has (since then, when given): by template id. */
+  countTemplateLicences(since?: Date): Promise<Record<string, number>>;
+  createTemplateApplication(application: TemplateApplication): Promise<void>;
+  getTemplateApplication(id: string): Promise<TemplateApplication | null>;
+  /** Newest first; by licence or app, and only those not ended (`open`). */
+  listTemplateApplications(filter: { licenceId?: string; appId?: string; open?: boolean }): Promise<TemplateApplication[]>;
+  /** Ends it, or moves it to another version, only while it is open. False otherwise. */
+  updateTemplateApplication(id: string, patch: TemplateApplicationPatch): Promise<boolean>;
 }

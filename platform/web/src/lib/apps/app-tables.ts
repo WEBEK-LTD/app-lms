@@ -84,6 +84,14 @@ export const APP_TABLES: Record<string, AppTableRole> = {
   studio_designs: "account",
   // Assets belong to an account; an app's are copied with it (lib/apps/copy.ts) or given with it (lib/apps/move.ts).
   assets: "account",
+  // 106 Studio Market: a designer's templates and their versions and reviews, and the licences an account took;
+  // a template applied to an app stays with the app wherever it goes (by its ID), and a copy starts with the design itself.
+  studio_market_designers: "account",
+  studio_market_templates: "account",
+  studio_market_versions: "account",
+  studio_market_reviews: "account",
+  studio_market_licences: "account",
+  studio_market_applications: "account",
 
   apps: "app",
 
