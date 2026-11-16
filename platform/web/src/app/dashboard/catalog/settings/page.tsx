@@ -12,6 +12,7 @@ import { effectivePlans } from "@/lib/entitlements";
 import { plansIn } from "@/lib/marketing-lang";
 import { hasFeature, lowestPlanWith } from "@/lib/plans";
 import { dashboardText } from "@/lib/dashboard-lang";
+import { isStudioProject } from "@/lib/studio/section";
 import { LoyaltyForm, ShopSettingsForm } from "../forms";
 import { CatalogTabs } from "../tabs";
 
@@ -30,7 +31,8 @@ export default async function CatalogSettingsPage() {
   const plans = plansIn(lang, await effectivePlans(await getStore()));
   const planId = license ? currentPlanId(license, new Date()) : null;
   const loyaltyInPlan = planId ? hasFeature(plans[planId], "loyalty") : false;
-  const loyaltyTo = lowestPlanWith(plans, (p) => hasFeature(p, "loyalty"), planId);
+  // A Studio project is offered Studio plans.
+  const loyaltyTo = lowestPlanWith(plans, (p) => hasFeature(p, "loyalty"), planId, isStudioProject(app) ? "studio" : undefined);
   const loyalty = settings.loyalty;
   return (
     <div className="flex flex-col gap-5">
