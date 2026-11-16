@@ -87,6 +87,8 @@ export interface StudioEditorProps {
   pickable: Pickable;
   myTemplates: MyTemplate[];
   previewHref: string;
+  /** 132.61 The QR code of the app's preview with the saved draft (drawn on the server), for the phone. */
+  phoneQr?: ReactNode;
   fontCount: number;
   startSlug: string | null;
   studioOnPlan: boolean;
@@ -150,6 +152,8 @@ export function StudioEditor(props: StudioEditorProps) {
   const [pagesOpen, setPagesOpen] = useState(false);
   const [newTitle, setNewTitle] = useState("");
   const [shortcutsOpen, setShortcutsOpen] = useState(false);
+  // 132.61 "On my phone": the preview's QR code under its button.
+  const [phoneOpen, setPhoneOpen] = useState(false);
   const [importOpen, setImportOpen] = useState(false);
   const [ownFonts, setOwnFonts] = useState(props.ownFonts);
   const [designsOpen, setDesignsOpen] = useState(false);
@@ -387,6 +391,8 @@ export function StudioEditor(props: StudioEditorProps) {
       if (r.ok && r.history) setPublishes(r.history);
     } catch {
       setProblem(t("pages.cantSave"));
+      // 132.54 Said on the bar, whatever the draft's state: a publish that didn't go through never looks like nothing happened.
+      setNotice(t("studioKit.publishFailed"));
     } finally {
       setPublishing(false);
     }
@@ -590,6 +596,13 @@ export function StudioEditor(props: StudioEditorProps) {
   // Delete, Ctrl+Z / Ctrl+Y, Ctrl+D, copying and pasting, the arrows and Escape; never while typing in a field.
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
+      // 132.53 Ctrl+S (⌘S on a Mac) saves now, in a field too, instead of the browser saving the web page.
+      if ((e.ctrlKey || e.metaKey) && !e.altKey && !e.shiftKey && e.key.toLowerCase() === "s") {
+        e.preventDefault();
+        if (dirty.current) void save(layout);
+        else setNotice(t("studioKit.allSaved"));
+        return;
+      }
       const el = e.target as HTMLElement | null;
       if (el && (el.isContentEditable || ["INPUT", "TEXTAREA", "SELECT"].includes(el.tagName))) return;
       const mod = e.ctrlKey || e.metaKey;
@@ -634,6 +647,7 @@ export function StudioEditor(props: StudioEditorProps) {
         setPagesOpen(false);
         setZoomOpen(false);
         setShortcutsOpen(false);
+        setPhoneOpen(false);
       } else if (selectedId && (e.key === "ArrowUp" || e.key === "ArrowDown" || e.key === "ArrowLeft" || e.key === "ArrowRight")) {
         e.preventDefault();
         const rtl = editLang === "ar";
@@ -799,8 +813,12 @@ export function StudioEditor(props: StudioEditorProps) {
   }
 
   async function deleteTemplate(id: string) {
-    const r = await deleteStudioTemplateAction(id);
-    if (r.ok) setMyTemplates((list) => list.filter((x) => x.id !== id));
+    // 132.55 A saved template can't be brought back: asked first, and said when it didn't go.
+    const name = myTemplates.find((x) => x.id === id)?.name ?? "";
+    if (!window.confirm(t("studioKit.deleteTemplateConfirm", { name }))) return;
+    const r = await deleteStudioTemplateAction(id).catch(() => null);
+    if (r?.ok) setMyTemplates((list) => list.filter((x) => x.id !== id));
+    else setNotice(t("studioKit.deleteTemplateFailed"));
   }
 
   // ——— 108.2 Designs taken out and brought in as files ———
@@ -1049,8 +1067,12 @@ export function StudioEditor(props: StudioEditorProps) {
   }
 
   async function deleteDesign(id: string) {
+    // 132.55 A design kept in the account can't be brought back: asked first, and said when it didn't go.
+    const name = ownDesigns.find((d) => d.id === id)?.name ?? "";
+    if (!window.confirm(t("studioKit.deleteDesignConfirm", { name }))) return;
     const r = await deleteStudioDesignAction(id).catch(() => null);
     if (r?.ok) setOwnDesigns((list) => list.filter((d) => d.id !== id));
+    else setNotice(t("studioKit.deleteTemplateFailed"));
   }
 
   // ——— Labels ———
@@ -1096,10 +1118,13 @@ export function StudioEditor(props: StudioEditorProps) {
 
   return (
     <div className="studio flex min-h-dvh flex-col lg:h-dvh lg:overflow-hidden" style={{ fontFamily: "var(--font-studio), 'Cairo', system-ui, sans-serif", color: C.ink, background: C.board }} onDragEnd={endDrag}>
-      <header className="flex flex-wrap items-center gap-4 px-5 py-2.5" style={{ background: C.ink, color: C.ivory }}>
+      {/* 132.52 One line at 1280px and wider: gaps a little tighter, Help as its icon below 1536px, Preview below 1440px. */}
+      <header className="flex flex-wrap items-center gap-2 px-4 py-2.5 min-[1366px]:gap-3 min-[1366px]:px-5 2xl:gap-4" style={{ background: C.ink, color: C.ivory }}>
         <Link href="/studio/project" className="flex items-center gap-2.5 no-underline" style={{ color: C.ivory }} title={t("studio.back")}>
           <StudioMark />
         </Link>
+        {/* 132.57 The screen's heading, for screen readers: the editor and the project. */}
+        <h1 className="sr-only">{`${t("studio.editorPage")} · ${props.app.name}`}</h1>
         {/* 127 The product the project is made in, as on every step of choosing it. */}
         <span className="flex h-[26px] items-center rounded-[13px] px-2.5 text-xs font-extrabold" style={{ background: "#E6C26E", color: "#0E0D24" }} data-product="studio">
           {t("start.badgeStudio")}
@@ -1247,12 +1272,44 @@ export function StudioEditor(props: StudioEditorProps) {
         {/* 129.30 The editor's help: every element and its settings, in the dashboard's language. */}
         <a href={localePath(dashLang, "/docs/studio-elements")} target="_blank" rel="noopener" title={t("studio.help")} className="flex h-[38px] items-center gap-1.5 rounded-[10px] px-2.5 text-sm font-semibold no-underline" style={{ color: C.barMuted }}>
           <Glyph name="help" size={18} />
-          {t("studio.help")}
+          <span className="max-2xl:sr-only">{t("studio.help")}</span>
           <span className="sr-only">{t("common.opensInNewTab")}</span>
         </a>
-        <a href={props.previewHref} target="_blank" rel="noopener" className="flex h-[38px] items-center gap-1.5 rounded-[10px] px-3.5 text-sm font-semibold no-underline" style={{ border: `1px solid ${C.barLine}`, color: C.ivory }}>
+        {props.phoneQr ? (
+          <div className="relative">
+            <button
+              type="button"
+              aria-expanded={phoneOpen}
+              aria-haspopup="dialog"
+              aria-label={t("studioKit.phoneButton")}
+              title={t("studioKit.phoneButton")}
+              onClick={() => setPhoneOpen((v) => !v)}
+              className="flex size-9 items-center justify-center rounded-lg border-0"
+              style={{ background: phoneOpen ? C.ivory : "transparent", color: phoneOpen ? C.ink : C.ivory }}
+              data-studio-phone-qr=""
+            >
+              <Glyph name="qr_code_2" />
+            </button>
+            {phoneOpen ? (
+              <div
+                role="dialog"
+                aria-label={t("studioKit.phoneButton")}
+                className="absolute top-full z-30 mt-1.5 flex w-[260px] flex-col items-center gap-2.5 rounded-xl bg-white p-4 text-center text-[13px] shadow-[0_14px_30px_rgba(14,13,36,0.25)]"
+                style={{ insetInlineEnd: 0, color: C.ink, border: `1px solid ${C.line}` }}
+              >
+                <b className="text-[15px]">{t("studioKit.phoneTitle")}</b>
+                {props.phoneQr}
+                <span style={{ color: C.muted }}>{t("studioKit.phoneText")}</span>
+                <button type="button" onClick={() => setPhoneOpen(false)} className="h-8 rounded-lg px-3 text-[13px] font-semibold" style={{ border: `1px solid ${C.line}`, background: "transparent", color: C.ink }}>
+                  {t("studio.close")}
+                </button>
+              </div>
+            ) : null}
+          </div>
+        ) : null}
+        <a href={props.previewHref} target="_blank" rel="noopener" title={t("studio.previewOnPhone")} className="flex h-[38px] items-center gap-1.5 rounded-[10px] px-3.5 text-sm font-semibold no-underline max-[1440px]:px-2.5" style={{ border: `1px solid ${C.barLine}`, color: C.ivory }}>
           <Glyph name="play_arrow" size={18} />
-          {t("studio.previewOnPhone")}
+          <span className="max-[1440px]:sr-only">{t("studio.previewOnPhone")}</span>
           <span className="sr-only">{t("common.opensInNewTab")}</span>
         </a>
         <button type="button" onClick={() => void publish()} disabled={publishing || status === "invalid"} className="flex h-[38px] items-center gap-1.5 rounded-[10px] border-0 px-[18px] text-sm font-extrabold disabled:opacity-60" style={{ background: C.accent, color: C.ink }}>
@@ -1533,6 +1590,7 @@ function Shortcuts({ onClose }: { onClose: () => void }) {
     ["Ctrl D", t("studio.duplicate")],
     ["Ctrl Alt C", t("studio.copyStyle")],
     ["Ctrl Alt V", t("studio.pasteStyle")],
+    ["Ctrl S", t("studio.saveNow")],
     ["Ctrl Z", t("studio.undo")],
     ["Ctrl Y", t("studio.redo")],
     ["Delete", t("studio.delete")],
