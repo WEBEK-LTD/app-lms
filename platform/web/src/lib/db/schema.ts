@@ -390,6 +390,10 @@ export const apps = mysqlTable(
     huaweiClientSecretEncrypted: text("huawei_client_secret_encrypted"),
     huaweiAgconnectAssetId: id("huawei_agconnect_asset_id"),
     huaweiPushSecretEncrypted: text("huawei_push_secret_encrypted"),
+    // 136.20 Direct APNs: the client's APNs auth key (encrypted), its Key ID and Team ID.
+    apnsKeyEncrypted: text("apns_key_encrypted"),
+    apnsKeyId: varchar("apns_key_id", { length: 10 }),
+    apnsTeamId: varchar("apns_team_id", { length: 10 }),
     // 42 Xiaomi GetApps: the developer account's email, the API private key (encrypted), Xiaomi's public certificate, what's new.
     xiaomiUserName: varchar("xiaomi_user_name", { length: 254 }),
     xiaomiPasswordEncrypted: text("xiaomi_password_encrypted"),

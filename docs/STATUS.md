@@ -8,6 +8,16 @@ Last updated: 16 November 2026.
 
 ## Current release
 
+Roadmap 136.20–136.23 (iPhone notifications straight to Apple, Phase 2
+of "Yallapp sets up notifications") is in the code: the client's APNs
+key is uploaded once, checked with Apple and saved encrypted; `apns`
+device tokens are sent over HTTP/2 to APNs with it; the app sends its
+APNs token on iPhones when `Config.features.apns` says so. Not yet
+checked against Apple itself: this environment can't reach
+`api.push.apple.com`, so the probe's answers (`BadDeviceToken`,
+`InvalidProviderToken`) and a real delivery are verified only against a
+local HTTP/2 server and fakes. Check both with the first client's key.
+
 Roadmap 134 (pay inside the app for connected stores, Demo) is built for
 WooCommerce: Payments › How customers pay offers Yallapp's checkout (its
 own products), the store's checkout (the default) and paying inside the

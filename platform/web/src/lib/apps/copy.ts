@@ -126,6 +126,9 @@ const FRESH: Partial<App> = {
   huaweiAppId: null,
   huaweiClientId: null,
   huaweiAgconnectAssetId: null,
+  // 136.20 The APNs key is the client's Apple team's: a copy adds its own.
+  apnsKeyId: null,
+  apnsTeamId: null,
   xiaomiUserName: null,
   xiaomiCertificate: null,
   xiaomiReleaseNotes: null,

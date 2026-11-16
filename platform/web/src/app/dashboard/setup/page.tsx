@@ -44,6 +44,7 @@ import { chosenProjectDesign, projectDesignId, projectTemplateLayout, projectTem
 import { appWords } from "@/lib/studio/app-words";
 import { wordsLangOf } from "@/lib/app/start-language";
 import type { DashKey } from "@/i18n/dashboard";
+import { apnsKeyApplies, savedApnsKey } from "@/lib/integrations/apns-key";
 
 export async function generateMetadata(): Promise<Metadata> {
   return { title: (await dashboardText()).t("setup.title") };
@@ -331,6 +332,8 @@ export default async function SetupPage({ searchParams }: PageProps<"/dashboard/
             appStore: hasStoreKeys(app).appStore ? { issuerId: app.ascIssuerId, keyId: app.ascKeyId } : null,
             firebase: { android: Boolean(app.firebaseAndroidAssetId), ios: Boolean(app.firebaseIosAssetId) },
           }}
+          // 136.20 The APNs key, for iPhone notifications straight to Apple.
+          apns={apnsKeyApplies(app) ? { saved: savedApnsKey(app), buildTeamId: app.appleTeamId ?? null } : null}
         />
       ) : null}
 

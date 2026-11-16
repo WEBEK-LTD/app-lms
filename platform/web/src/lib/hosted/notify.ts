@@ -6,6 +6,7 @@ import type { DataStore } from "../data/store";
 import type { App, HostedNotification } from "../data/types";
 import { parseServiceAccount, pushTarget, sendPush, type HmsCredentials, type ServiceAccount } from "./push";
 import { raiseAlert } from "../watch/alerts";
+import { apnsCredentialsOf } from "../integrations/apns-key";
 import { noteAppError } from "../watch/app-errors";
 
 export const SERVICE_ACCOUNT_CONTEXT = "app:firebase-service-account";
@@ -21,7 +22,8 @@ export function serviceAccountOf(app: App, key: Buffer): ServiceAccount | null {
   if (!app.firebaseServiceAccountEncrypted) return null;
   try {
     const account = parseServiceAccount(decrypt(app.firebaseServiceAccountEncrypted, key, `${SERVICE_ACCOUNT_CONTEXT}:${app.id}`));
-    return account ? { ...account, hms: hmsCredentialsOf(app, key) } : null;
+    // 136.21 MERGE POINT: `apns` is the client's APNs key; Phase 1's Yallapp-mode account carries it too.
+    return account ? { ...account, hms: hmsCredentialsOf(app, key), apns: apnsCredentialsOf(app, key) } : null;
   } catch {
     return null;
   }

@@ -26,6 +26,8 @@ import { UpgradeHint } from "@/components/upgrade";
 import { currentPlanId } from "@/lib/billing/plan-change";
 import { effectivePlans } from "@/lib/entitlements";
 import { hasFeature, lowestPlanWith } from "@/lib/plans";
+import { ApnsKeyForm } from "@/components/apns-key-fields";
+import { apnsKeyApplies, savedApnsKey } from "@/lib/integrations/apns-key";
 
 export async function generateMetadata(): Promise<Metadata> {
   return { title: (await dashboardText()).t("notify.title") };
@@ -150,6 +152,19 @@ export default async function NotificationsPage() {
             </>
           )}
         </Section>
+
+        {/* 136.20 iPhone notifications straight to Apple: the client's APNs key, checked with Apple. */}
+        {apnsKeyApplies(app) ? (
+          <Section titleId="h-apns" title={t("apns.title")} className="flex-[1_1_440px]">
+            {savedApnsKey(app) ? (
+              <p className="m-0 flex items-center gap-2 text-[15px] font-semibold text-success">
+                <Icon name="check_circle" size={20} filled />
+                <span>{t("apns.direct")}</span>
+              </p>
+            ) : null}
+            <ApnsKeyForm saved={savedApnsKey(app)} buildTeamId={app.appleTeamId ?? null} />
+          </Section>
+        ) : null}
       </div>
 
       {kinds.length ? (

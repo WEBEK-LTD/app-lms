@@ -23,6 +23,7 @@ import { PhoneFrame } from "@/components/device-frame";
 import { useDashT, useKnownText } from "@/components/dashboard-i18n";
 import { Field, FieldError, FormMessage, SubmitButton } from "@/components/form";
 import { Icon } from "@/components/icon";
+import { ApnsKeyFields, type SavedApnsKey } from "@/components/apns-key-fields";
 import { btn } from "@/components/ui";
 import { ENGINES, ownContentTitle, ownContentWords, type WebsiteChoice } from "@/lib/app/kinds";
 import type { SiteMatch } from "@/lib/app/site-match";
@@ -1555,6 +1556,7 @@ export function PublishingStep({
   upgrade,
   saved,
   teamPublishes = false,
+  apns = null,
 }: {
   /** "We publish for you" is in the app's plan (13.1): we upload the builds to the stores. */
   autoPublish: boolean;
@@ -1566,6 +1568,8 @@ export function PublishingStep({
   saved: { play: { clientEmail: string | null } | null; appStore: SavedAppStoreKey; firebase: SavedFirebase };
   /** The client asked our team to publish this app (14.1): nothing here is required. */
   teamPublishes?: boolean;
+  /** 136.20 The APNs key, when the app's iPhone notifications go straight to Apple (Yallapp mode); null otherwise. */
+  apns?: { saved: SavedApnsKey; buildTeamId: string | null } | null;
 }) {
   const t = useDashT();
   // 132.75 Changes typed and not saved ask before the page is left.
@@ -1613,6 +1617,7 @@ export function PublishingStep({
             {t("setup.managedUpgrade")}
           </UpgradeHint>
           <FirebaseFields state={state} saved={saved.firebase} />
+          {apns && ios ? <ApnsKeyFields state={state} saved={apns.saved} buildTeamId={apns.buildTeamId} back="setup" /> : null}
         <MoreStoresLink />
           <div className="sticky bottom-0 z-[1] -mx-5 flex flex-wrap justify-between gap-3 border-t border-line-soft bg-white px-5 py-3 sm:-mx-6 sm:px-6">
             <Link href={here("/dashboard/setup?step=listing")} className={`${btn.secondary} h-11`}>
@@ -1689,6 +1694,7 @@ export function PublishingStep({
         )}
 
         <FirebaseFields state={state} saved={saved.firebase} />
+        {apns && ios ? <ApnsKeyFields state={state} saved={apns.saved} buildTeamId={apns.buildTeamId} back="setup" /> : null}
         <MoreStoresLink />
 
         <div className="sticky bottom-0 z-[1] -mx-5 flex flex-wrap justify-between gap-3 border-t border-line-soft bg-white px-5 py-3 sm:-mx-6 sm:px-6">

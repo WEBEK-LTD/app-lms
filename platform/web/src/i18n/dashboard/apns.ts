@@ -1,0 +1,107 @@
+import type { Strings } from "../types";
+
+/**
+ * 136.20 iPhone notifications straight to Apple: the client's APNs key
+ * (setup's Publishing step and the Notifications page), checked with Apple
+ * when saved. Arabic in the dashboard's Egyptian.
+ */
+export const en = {
+  title: "iPhone notifications",
+  text: "Apple asks for your APNs key once, so Yallapp can send notifications to iPhones. In your Apple Developer account, open Certificates, Identifiers & Profiles › Keys › +, tick Apple Push Notifications service (APNs) for Production (or Sandbox & Production), and download the .p8 file. One key works for all your team's apps.",
+  keyFile: "APNs key (.p8)",
+  replaceKeyFile: "Replace the APNs key (.p8)",
+  keyFileHint: "Apple names it AuthKey_ followed by the Key ID. We check it with Apple, keep it encrypted and never show it again.",
+  keyId: "Key ID",
+  keyIdHint: "Filled in from the file name when it's Apple's.",
+  teamId: "Team ID",
+  teamIdHint: "Apple Developer account › Membership details.",
+  teamIdFromBuild: "From your iPhone build. Change it only if the key is from another team.",
+  saved: "Saved: key <b>{keyId}</b> of team <b>{teamId}</b>, accepted by Apple.",
+  save: "Check with Apple and save",
+  checking: "Checking with Apple…",
+  direct: "iPhones get their notifications straight from Apple.",
+  known: {
+    accepted: "Apple accepted the key for {bundle}.",
+    acceptedSaved: "Apple accepted the key for {bundle}. iPhones with your latest app now get notifications straight from Apple.",
+    rejected: "Apple didn't accept this key ({reason}). Check the Key ID and Team ID, and that the key has Apple Push Notifications service (APNs) turned on.",
+    sandboxOnly: "This key only works with Apple's Sandbox server. Make a key for Production, or for Sandbox & Production.",
+    topic: "Apple says this key can't send to {bundle} ({reason}). Use a key of the team that owns the app.",
+    unreachable: "We couldn't reach Apple to check the key. Try again in a few minutes.",
+    unexpected: "Apple answered {answer}, so the key wasn't saved.",
+    bundleFirst: "Add the iOS bundle ID first.",
+    uploadKey: "Upload your APNs key (.p8).",
+    tooLarge: "That file is too large for an APNs key.",
+    notKey: "This isn't an APNs key. Download the .p8 file from Certificates, Identifiers & Profiles › Keys.",
+    keyIdBad: "Enter the key's 10-character Key ID.",
+    teamIdBad: "Enter your 10-character Team ID.",
+    notHere: "This app's iPhone notifications go through your own Firebase project.",
+  },
+} as const;
+
+type Messages = Strings<typeof en>;
+
+export const ar: Messages = {
+  title: "إشعارات الآيفون",
+  text: "Apple بتطلب مفتاح APNs بتاعك مرة واحدة بس، عشان Yallapp تقدر تبعت إشعارات للآيفون. من حساب Apple Developer افتح Certificates, Identifiers & Profiles › Keys › +، علّم على Apple Push Notifications service (APNs) لـ Production (أو Sandbox & Production)، ونزّل ملف ‎.p8. المفتاح الواحد بيشتغل مع كل تطبيقات الفريق بتاعك.",
+  keyFile: "مفتاح APNs (‎.p8)",
+  replaceKeyFile: "غيّر مفتاح APNs (‎.p8)",
+  keyFileHint: "Apple بتسمّيه AuthKey_ وبعده الـ Key ID. بنتأكد منه مع Apple، وبنحفظه متشفّر ومش بنعرضه تاني.",
+  keyId: "Key ID",
+  keyIdHint: "بيتملي من اسم الملف لو هو اسم Apple الأصلي.",
+  teamId: "Team ID",
+  teamIdHint: "حساب Apple Developer › Membership details.",
+  teamIdFromBuild: "من نسخة الآيفون بتاعتك. غيّره بس لو المفتاح من فريق تاني.",
+  saved: "اتحفظ: المفتاح <b>{keyId}</b> بتاع الفريق <b>{teamId}</b>، وApple قبلته.",
+  save: "اتأكد مع Apple واحفظ",
+  checking: "بنتأكد مع Apple…",
+  direct: "الآيفون بيوصله الإشعارات من Apple على طول.",
+  known: {
+    accepted: "Apple قبلت المفتاح لـ {bundle}.",
+    acceptedSaved: "Apple قبلت المفتاح لـ {bundle}. الآيفون اللي عليه آخر نسخة من تطبيقك بقى بيوصله الإشعارات من Apple على طول.",
+    rejected: "Apple ما قبلتش المفتاح ده ({reason}). راجع الـ Key ID والـ Team ID، واتأكد إن Apple Push Notifications service (APNs) متفعّلة في المفتاح.",
+    sandboxOnly: "المفتاح ده بيشتغل مع سيرفر Sandbox بتاع Apple بس. اعمل مفتاح لـ Production، أو لـ Sandbox & Production.",
+    topic: "Apple بتقول إن المفتاح ده ما ينفعش يبعت لـ {bundle} ({reason}). استخدم مفتاح من الفريق اللي يملك التطبيق.",
+    unreachable: "ما قدرناش نوصل لـ Apple عشان نتأكد من المفتاح. جرّب تاني كمان كام دقيقة.",
+    unexpected: "Apple ردّت بـ {answer}، فالمفتاح ما اتحفظش.",
+    bundleFirst: "ضيف الـ iOS bundle ID الأول.",
+    uploadKey: "ارفع مفتاح APNs بتاعك (‎.p8).",
+    tooLarge: "الملف ده كبير أوي على مفتاح APNs.",
+    notKey: "ده مش مفتاح APNs. نزّل ملف ‎.p8 من Certificates, Identifiers & Profiles › Keys.",
+    keyIdBad: "اكتب الـ Key ID بتاع المفتاح (10 حروف وأرقام).",
+    teamIdBad: "اكتب الـ Team ID بتاعك (10 حروف وأرقام).",
+    notHere: "إشعارات الآيفون في التطبيق ده بتعدّي على مشروع Firebase بتاعك.",
+  },
+};
+
+export const tr: Messages = {
+  title: "iPhone bildirimleri",
+  text: "Yallapp'in iPhone'lara bildirim gönderebilmesi için Apple, APNs anahtarınızı bir kez ister. Apple Developer hesabınızda Certificates, Identifiers & Profiles › Keys › + yolunu açın, Production (ya da Sandbox & Production) için Apple Push Notifications service (APNs) seçeneğini işaretleyin ve .p8 dosyasını indirin. Tek anahtar ekibinizin tüm uygulamalarında çalışır.",
+  keyFile: "APNs anahtarı (.p8)",
+  replaceKeyFile: "APNs anahtarını değiştir (.p8)",
+  keyFileHint: "Apple dosyaya AuthKey_ ve ardından Key ID adını verir. Anahtarı Apple ile kontrol eder, şifreli saklarız ve bir daha göstermeyiz.",
+  keyId: "Key ID",
+  keyIdHint: "Dosya adı Apple'ın verdiği adsa buradan doldurulur.",
+  teamId: "Team ID",
+  teamIdHint: "Apple Developer hesabı › Membership details.",
+  teamIdFromBuild: "iPhone derlemenizden. Yalnızca anahtar başka bir ekibe aitse değiştirin.",
+  saved: "Kaydedildi: <b>{teamId}</b> ekibinin <b>{keyId}</b> anahtarı, Apple tarafından kabul edildi.",
+  save: "Apple ile kontrol et ve kaydet",
+  checking: "Apple ile kontrol ediliyor…",
+  direct: "iPhone'lar bildirimlerini doğrudan Apple'dan alır.",
+  known: {
+    accepted: "Apple, {bundle} için anahtarı kabul etti.",
+    acceptedSaved: "Apple, {bundle} için anahtarı kabul etti. Uygulamanızın son sürümünü kullanan iPhone'lar artık bildirimleri doğrudan Apple'dan alıyor.",
+    rejected: "Apple bu anahtarı kabul etmedi ({reason}). Key ID ve Team ID'yi, anahtarda Apple Push Notifications service (APNs) seçeneğinin açık olduğunu kontrol edin.",
+    sandboxOnly: "Bu anahtar yalnızca Apple'ın Sandbox sunucusuyla çalışır. Production ya da Sandbox & Production için bir anahtar oluşturun.",
+    topic: "Apple, bu anahtarın {bundle} uygulamasına gönderim yapamayacağını söylüyor ({reason}). Uygulamanın sahibi olan ekibin anahtarını kullanın.",
+    unreachable: "Anahtarı kontrol etmek için Apple'a ulaşamadık. Birkaç dakika sonra tekrar deneyin.",
+    unexpected: "Apple {answer} yanıtını verdi, bu yüzden anahtar kaydedilmedi.",
+    bundleFirst: "Önce iOS bundle ID'yi ekleyin.",
+    uploadKey: "APNs anahtarınızı (.p8) yükleyin.",
+    tooLarge: "Bu dosya bir APNs anahtarı için fazla büyük.",
+    notKey: "Bu bir APNs anahtarı değil. .p8 dosyasını Certificates, Identifiers & Profiles › Keys bölümünden indirin.",
+    keyIdBad: "Anahtarın 10 karakterlik Key ID'sini girin.",
+    teamIdBad: "10 karakterlik Team ID'nizi girin.",
+    notHere: "Bu uygulamanın iPhone bildirimleri kendi Firebase projeniz üzerinden gider.",
+  },
+};

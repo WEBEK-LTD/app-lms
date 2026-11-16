@@ -241,6 +241,26 @@ String? pushOutsideLink(Map<String, dynamic> data) {
   return link.toString();
 }
 
+/// 136.21 A push service that can give the iPhone's APNs device token, for
+/// apps whose server sends iPhone pushes straight to Apple
+/// (`Config.features.apns`): the token goes to `PUT /me/push-token` with
+/// `provider: apns` instead of the Firebase one.
+abstract interface class ApnsTokenSource {
+  /// Whether this service runs on an iPhone and can give the APNs token.
+  bool get hasApnsToken;
+
+  /// Asks for permission and returns the APNs device token (hex), or null
+  /// (permission denied, or iOS hasn't registered with APNs yet).
+  Future<String?> apnsToken();
+}
+
+/// 136.21 The APNs token as Apple's servers take it: hex, lower case.
+/// Null when it isn't one. Pure.
+String? apnsTokenOrNull(String? token) {
+  final value = token?.trim().toLowerCase() ?? '';
+  return RegExp(r'^[0-9a-f]{64,200}$').hasMatch(value) ? value : null;
+}
+
 class NoopPushService implements PushService {
   const NoopPushService();
 
@@ -266,11 +286,17 @@ class NoopPushService implements PushService {
   Future<Map<String, dynamic>?> initialMessage() async => null;
 }
 
-class FirebasePushService implements PushService {
-  FirebasePushService(this._options);
+class FirebasePushService implements PushService, ApnsTokenSource {
+  FirebasePushService(this._options, {this.apple = false});
 
   final FirebaseOptionsData _options;
+
+  /// 136.21 Running on an iPhone: the APNs device token can be read too.
+  final bool apple;
   bool _ready = false;
+
+  @override
+  bool get hasApnsToken => _ready && apple;
 
   @override
   bool get isAvailable => _ready;
@@ -314,6 +340,28 @@ class FirebasePushService implements PushService {
   }
 
   @override
+  Future<String?> apnsToken() async {
+    if (!hasApnsToken) return null;
+    try {
+      final messaging = FirebaseMessaging.instance;
+      final settings = await messaging.requestPermission();
+      if (settings.authorizationStatus == AuthorizationStatus.denied) {
+        return null;
+      }
+      // iOS registers with APNs once notifications are allowed; the token
+      // can take a moment to arrive the first time.
+      for (var attempt = 0; attempt < 5; attempt++) {
+        final token = apnsTokenOrNull(await messaging.getAPNSToken());
+        if (token != null) return token;
+        await Future<void>.delayed(const Duration(seconds: 1));
+      }
+      return null;
+    } on Object {
+      return null;
+    }
+  }
+
+  @override
   Stream<String> get tokenRefreshes =>
       _ready ? FirebaseMessaging.instance.onTokenRefresh : const Stream.empty();
 
@@ -339,7 +387,7 @@ PushService createPushService(BuildConfigData build, DevicePlatform platform) {
       ? build.firebaseIos
       : build.firebaseAndroid;
   if (options == null) return const NoopPushService();
-  return FirebasePushService(options);
+  return FirebasePushService(options, apple: platform == DevicePlatform.ios);
 }
 
 /// 36 Which push services an Android phone has.

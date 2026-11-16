@@ -16,6 +16,7 @@ import { versionSettingsProblems } from "@/lib/app/version-policy";
 import { changeRollout, FIRST_SHARES, RolloutError, type RolloutAction } from "@/lib/publishing/rollout";
 import { restoreFromBuild } from "@/lib/builds/go-back";
 import { apiCheckSignIn } from "@/lib/hosted/test-token";
+import { readApnsKeyForm } from "@/lib/integrations/apns-key";
 import { appTypeName, connectorFits, ENGINES, hostedOnly, isAppType, kindById, defaultKind, ownContentTitle } from "@/lib/app/kinds";
 import { isSetupComplete, managedPublishing, newApp, queueBuild, STEP_LABEL, type SetupStep } from "@/lib/app/setup";
 import { currentPlanId } from "@/lib/billing/plan-change";
@@ -825,9 +826,11 @@ export async function savePublishingAction(_: FormState, formData: FormData): Pr
   const key = encryptionKey();
   const appStore = await readAppStoreKey(formData, app, key);
   const firebase = await readFirebaseFiles(formData, app, context.client.id);
-  const errors: Record<string, string> = { ...appStore.errors, ...firebase.errors };
-  const patch: AppPatch = { ...appStore.patch, ...firebase.patch };
-  const values = appStore.values;
+  // 136.20 The APNs key for iPhone notifications straight to Apple, checked with Apple (lib/integrations/apns-key.ts).
+  const apns = await readApnsKeyForm(app, formData, { key });
+  const errors: Record<string, string> = { ...appStore.errors, ...firebase.errors, ...apns.errors };
+  const patch: AppPatch = { ...appStore.patch, ...firebase.patch, ...apns.patch };
+  const values = { ...appStore.values, ...apns.values };
 
   // 13.1 Store keys for uploading are only asked when we publish for the client.
   const plans = await effectivePlans(store);

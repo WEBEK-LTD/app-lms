@@ -715,6 +715,9 @@ export const SERVER_MESSAGES_TR: Record<string, string> = {
   "The demo account can't be changed. In your own app, people edit their details here.": "Demo hesap değiştirilemez. Kendi uygulamanızda kullanıcılar bilgilerini buradan düzenler.",
   "The minimum order for delivery is {0}.": "Teslimat için en düşük sipariş tutarı {0}.",
   "The push provider must be fcm or hms.": "Bildirim sağlayıcısı fcm ya da hms olmalıdır.",
+  // 136.21
+  "The push provider must be fcm, hms or apns.": "Bildirim sağlayıcısı fcm, hms ya da apns olmalıdır.",
+  "This app sends iPhone pushes through Firebase: send the Firebase token.": "Bu uygulama iPhone bildirimlerini Firebase üzerinden gönderir: Firebase belirtecini gönderin.",
   "The app's role must be customer, courier, driver, vendor or staff.": "Uygulamanın rolü customer, courier, driver, vendor ya da staff olmalıdır.",
   "The push token is missing.": "Bildirim belirteci eksik.",
   "The request body must be JSON.": "İstek gövdesi JSON olmalıdır.",
