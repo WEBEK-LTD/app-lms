@@ -314,8 +314,10 @@ test("91.4 a customer earns loyalty points on a completed order and uses them on
   await page.goto("/dashboard/catalog#h-loyalty");
   // 132.10 The old address of the loyalty points opens the settings, where they are now.
   await expect(page).toHaveURL(/\/dashboard\/catalog\/settings$/);
+  // The settings finish arriving (the customers' currencies too) before the box is ticked, so nothing redraws it unticked.
+  await page.waitForLoadState("networkidle");
   const loyalty = page.getByRole("region", { name: "Loyalty points" });
-  await loyalty.getByText("Give loyalty points").click();
+  await loyalty.getByRole("checkbox", { name: /^Give loyalty points/ }).check();
   await loyalty.getByLabel("Spend for one point (TRY)").fill("10");
   await loyalty.getByLabel("One point is worth (TRY)").fill("0.10");
   await loyalty.getByLabel("Fewest points used at once").fill("abc");

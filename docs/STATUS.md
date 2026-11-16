@@ -63,9 +63,12 @@ Roadmap 132.130–132.134 (Studio's premium pages): a shared page kit
 pill and one action, drawers, settings rows, folds, "?" help, empty
 states; its colours `--sp-…` in `globals.css`, the dashboard's outside
 Studio and the Studio frame's in it, light and dark) is applied to
-Products, Orders, Plan and Your account, in the dashboard and in Studio
-alike. The other Studio project pages, `/studio/team` and Payments still
-use the older page kit (`page-kit.tsx`) until they move to it.
+Products, Orders, Plan, Your account and (132.145) Payments, in the
+dashboard and in Studio alike; on Payments every way customers pay is in
+one card, bank transfer and the owner's own way each with an on/off switch
+(`manualPayments.bankTransferOff`, `customOff`). The other Studio project
+pages and `/studio/team` still use the older page kit (`page-kit.tsx`)
+until they move to it.
 `tests/screens/studio-premium.screens.ts` takes their pictures.
 
 Roadmap 132.1–132.8 (Studio dashboard fixes): a Studio project's menu has

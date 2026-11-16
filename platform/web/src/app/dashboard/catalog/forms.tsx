@@ -1,6 +1,6 @@
 "use client";
 
-import { useActionState, useState } from "react";
+import { useActionState, useState, type ReactNode } from "react";
 import {
   addCouponAction,
   updateCouponAction,
@@ -17,6 +17,8 @@ import { CurrencyPicker } from "@/components/currency-picker";
 import { RatesAttribution } from "@/components/rates-attribution";
 import { Icon } from "@/components/icon";
 import { btn } from "@/components/ui";
+import { KitStatus } from "@/components/studio-page";
+import { KitWayRow, KitWaySwitch } from "@/components/studio-page/way-row";
 import { FormActions, FormSection } from "@/components/page-kit";
 import { initialFormState } from "@/lib/forms";
 import { MediaImagesPicker } from "@/components/media-picker";
@@ -901,42 +903,67 @@ function TextArea({ name, label, hint, value, error, rows = 4 }: { name: string;
   );
 }
 
-/** 96.2 Bank transfer and the owner's own method: their details, as the customer sees them. */
-export function ManualPaymentsForm({ values: saved }: { values: { bankTransfer: string; customName: string; customInstructions: string; payWithinDays: string } }) {
+/**
+ * 96.2 Bank transfer and the owner's own method: their details, as the
+ * customer sees them. 132.145 Each a row with its own switch, its details
+ * only while it's on (kept when switched off); the days to pay for both,
+ * shown while either is on. `on` is what's saved; `footer` goes above Save.
+ */
+export function ManualPaymentsForm({
+  values: saved,
+  on: savedOn,
+  status,
+  footer,
+}: {
+  values: { bankTransfer: string; customName: string; customInstructions: string; payWithinDays: string };
+  on: { bank: boolean; custom: boolean };
+  /** "On: Bank transfer and Cash on delivery", as saved. */
+  status?: string | null;
+  footer?: ReactNode;
+}) {
   const t = useDashT();
   const [state, action] = useActionState(saveManualPaymentsAction, initialFormState);
   const values = { ...saved, ...state.values };
+  const [bankOn, setBankOn] = useState(state.values ? state.values.bankTransferOn === "on" : savedOn.bank);
+  const [customOn, setCustomOn] = useState(state.values ? state.values.customOn === "on" : savedOn.custom);
+  const pill = (on: boolean) => <KitStatus tone={on ? "success" : "neutral"}>{t(on ? "studioPage.on" : "studioPage.off")}</KitStatus>;
   return (
-    <form action={action} noValidate className="flex flex-col gap-4">
+    <form action={action} noValidate className="flex flex-col">
       <FormMessage message={state.message} ok={state.ok} />
-      {/* 132.120 Each way to pay on its own card: bank transfer, then the owner's own method (cash on delivery, …); the days to pay for both. */}
-      <div className="grid gap-4 lg:grid-cols-2">
-        <section aria-labelledby="h-bank-transfer" className="flex min-w-0 flex-col gap-3 rounded-2xl border border-line bg-white p-4 sm:p-5" data-way-to-pay="bank_transfer">
-          <h3 id="h-bank-transfer" className="m-0 flex items-center gap-2 text-[16px] font-extrabold">
-            <span className="flex h-9 w-9 flex-none items-center justify-center rounded-xl bg-ivory">
-              <Icon name="receipt_long" size={20} className="text-muted" />
-            </span>
-            {t("orders.bankTransfer")}
-          </h3>
-          <TextArea name="bankTransfer" label={t("shop.bankDetails")} hint={t("shop.bankDetailsHint")} value={values.bankTransfer} error={state.errors?.bankTransfer} />
-        </section>
-        <section aria-labelledby="h-own-method" className="flex min-w-0 flex-col gap-3 rounded-2xl border border-line bg-white p-4 sm:p-5" data-way-to-pay="custom">
-          <h3 id="h-own-method" className="m-0 flex items-center gap-2 text-[16px] font-extrabold">
-            <span className="flex h-9 w-9 flex-none items-center justify-center rounded-xl bg-ivory">
-              <Icon name="storefront" size={20} className="text-muted" />
-            </span>
-            {t("gateways.ownMethod")}
-          </h3>
-          <Field label={t("shop.customName")} name="customName" maxLength={40} defaultValue={values.customName} hint={t("shop.customNameHint")} error={state.errors?.customName} />
-          <TextArea name="customInstructions" label={t("shop.customInstructions")} hint={t("shop.customInstructionsHint")} value={values.customInstructions} error={state.errors?.customInstructions} rows={3} />
-        </section>
-      </div>
-      <div className="flex flex-wrap items-start gap-3 rounded-2xl border border-line-soft bg-sand p-4">
-        <Icon name="hourglass_top" size={20} className="mt-8 text-muted" />
+      <KitWayRow
+        titleId="h-bank-transfer"
+        icon="receipt_long"
+        title={t("orders.bankTransfer")}
+        status={pill(bankOn)}
+        control={<KitWaySwitch name="bankTransferOn" checked={bankOn} onChange={setBankOn} labelledBy="h-bank-transfer" />}
+        inline
+        open={bankOn}
+        bodyId="way-bank-transfer"
+        data-way-to-pay="bank_transfer"
+      >
+        <TextArea name="bankTransfer" label={t("shop.bankDetails")} hint={t("shop.bankDetailsHint")} value={values.bankTransfer} error={state.errors?.bankTransfer} />
+      </KitWayRow>
+      <KitWayRow
+        titleId="h-own-method"
+        icon="storefront"
+        title={t("gateways.ownMethod")}
+        status={pill(customOn)}
+        description={customOn && values.customName ? values.customName : undefined}
+        control={<KitWaySwitch name="customOn" checked={customOn} onChange={setCustomOn} labelledBy="h-own-method" />}
+        inline
+        open={customOn}
+        bodyId="way-own-method"
+        data-way-to-pay="custom"
+      >
+        <Field label={t("shop.customName")} name="customName" maxLength={40} defaultValue={values.customName} hint={t("shop.customNameHint")} error={state.errors?.customName} />
+        <TextArea name="customInstructions" label={t("shop.customInstructions")} hint={t("shop.customInstructionsHint")} value={values.customInstructions} error={state.errors?.customInstructions} rows={3} />
+      </KitWayRow>
+      {/* The days to pay, for both: while either is on (kept as they are while both are off). */}
+      <div hidden={!bankOn && !customOn} className="kit-reveal flex flex-wrap items-start gap-3 border-t border-(--sp-line-soft) py-5 sm:ps-15">
         <Field
           label={
             <>
-              {t("shop.payWithinDays")} <span className="font-normal text-muted">· {t("gateways.bothMethods")}</span>
+              {t("shop.payWithinDays")} <span className="font-normal text-(--sp-muted)">· {t("gateways.bothMethods")}</span>
             </>
           }
           name="payWithinDays"
@@ -947,7 +974,14 @@ export function ManualPaymentsForm({ values: saved }: { values: { bankTransfer: 
           error={state.errors?.payWithinDays}
         />
       </div>
-      <div className="flex justify-end">
+      {footer}
+      <div className="flex flex-wrap items-center justify-end gap-x-4 gap-y-2 border-t border-(--sp-line-soft) pt-5">
+        {status ? (
+          <span className="me-auto flex items-center gap-1.5 text-sm font-semibold text-success">
+            <Icon name="check_circle" size={18} filled />
+            {status}
+          </span>
+        ) : null}
         <SubmitButton variant="secondary" className="h-10" pendingText={t("common.saving")}>
           {t("shop.saveManual")}
         </SubmitButton>

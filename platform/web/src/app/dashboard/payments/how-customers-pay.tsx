@@ -1,4 +1,5 @@
-import { Badge, Notice, Section, btn, formatDateTime } from "@/components/ui";
+import { formatDateTime } from "@/components/ui";
+import { KitCallout, KitFold, KitSection, KitStatus, kit } from "@/components/studio-page";
 import { Icon } from "@/components/icon";
 import { mayDo } from "@/components/owner-only";
 import { catalogSettings, orderNumber } from "@/lib/catalog/settings";
@@ -66,19 +67,28 @@ export async function HowCustomersPay({ app }: { app: App }) {
   const current = source === "catalog" ? "yallapp" : checkoutPaymentOf(app) === "in_app" ? "in_app" : "platform";
   const gateway = readiness.gateway ? PROVIDER_NAME[readiness.gateway] : null;
   const gatewayState = readiness.testedAt ? "tested" : gateway ? "untested" : "missing";
-  // 132.120 In the Payments page's design: wide, the three ways side by side, then what paying inside the app needs on its own card.
+  // 132.145 The premium kit: the three ways side by side, the Demo note on one line, what paying inside the app needs as one row with its state as a pill, the rest under "How it works".
   return (
-    <Section id="how-customers-pay" titleId="h-how-customers-pay" title={t("inAppPay.title")} description={t("inAppPay.intro")}>
+    <KitSection id="how-customers-pay" titleId="h-how-customers-pay" title={t("inAppPay.title")} description={t("inAppPay.intro")}>
       <CheckoutPaymentForm choices={choices} current={current} demo={{ title: t("inAppPay.demoTitle"), text: t("inAppPay.demoText") }} savable={owner && source !== "catalog"} />
       {source !== "catalog" && !readiness.blocked ? (
-        <div className="flex flex-col gap-3 rounded-2xl border border-line bg-white p-4 text-[14px] leading-relaxed" data-in-app-needs="">
-          <div className="flex flex-wrap items-start gap-3">
-            <span className="flex h-10 w-10 flex-none items-center justify-center rounded-xl bg-ivory">
+        <div className="flex flex-col gap-3 border-t border-(--sp-line-soft) pt-5" data-in-app-needs="">
+          <div className="flex flex-wrap items-center gap-x-4 gap-y-3">
+            <span aria-hidden="true" className="flex h-11 w-11 flex-none items-center justify-center rounded-2xl bg-(--sp-tile)">
               <Icon name={readiness.testedAt ? "task_alt" : "pending"} size={22} filled className={readiness.testedAt ? "text-success" : "text-warn"} />
             </span>
-            <span className="flex min-w-[12rem] flex-1 flex-col gap-0.5">
-              <span className="font-bold text-midnight">{t("inAppPay.needsGateway")}</span>
-              <span className="text-ink-3" data-gateway-state={gatewayState}>
+            <span className="flex min-w-[12rem] flex-1 flex-col gap-1">
+              <span className="flex flex-wrap items-center gap-2 text-[15px] font-bold text-(--sp-ink)">
+                {t("inAppPay.needsGateway")}
+                {gatewayState === "tested" ? (
+                  <KitStatus tone="success">{t("studioPage.ready")}</KitStatus>
+                ) : gatewayState === "untested" ? (
+                  <KitStatus tone="warn">{t("studioPage.needsTest")}</KitStatus>
+                ) : (
+                  <KitStatus tone="neutral">{t("studioPage.notConnected")}</KitStatus>
+                )}
+              </span>
+              <span className="text-sm text-(--sp-muted)" data-gateway-state={gatewayState}>
                 {readiness.testedAt && gateway
                   ? t("inAppPay.gatewayReady", { provider: gateway, at: formatDateTime(new Date(readiness.testedAt), lang) })
                   : gateway
@@ -86,37 +96,39 @@ export async function HowCustomersPay({ app }: { app: App }) {
                     : t("inAppPay.gatewayMissing")}
               </span>
             </span>
-            <a href="#h-payments" className={`${btn.secondary} h-10`}>
-              <Icon name="credit_card" size={18} />
+            <a href="#h-payments" className={kit.row}>
+              <Icon name="credit_card" size={16} />
               {t("inAppPay.goToGateway")}
             </a>
           </div>
-          <ul className="m-0 flex list-none flex-col gap-1.5 border-t border-line-soft p-0 pt-3 text-[13px] text-muted">
-            <li className="flex items-start gap-2">
-              <Icon name="check_circle" size={16} className="mt-0.5 shrink-0" />
-              {t("inAppPay.noFee")}
-            </li>
-            {source === "wordpress" ? (
+          <KitFold icon="help" summary={t("studioPage.howItWorks")}>
+            <ul className="m-0 flex list-none flex-col gap-1.5 p-0 text-[13px] text-(--sp-muted)">
               <li className="flex items-start gap-2">
-                <Icon name="storefront" size={16} className="mt-0.5 shrink-0" />
-                {t("inAppPay.woo")}
+                <Icon name="check_circle" size={16} className="mt-0.5 shrink-0" />
+                {t("inAppPay.noFee")}
               </li>
-            ) : null}
-            {source === "wordpress" ? (
-              <li className="flex items-start gap-2">
-                <Icon name="info" size={16} className="mt-0.5 shrink-0" />
-                {t("inAppPay.fallback")}
-              </li>
-            ) : null}
-          </ul>
+              {source === "wordpress" ? (
+                <li className="flex items-start gap-2">
+                  <Icon name="storefront" size={16} className="mt-0.5 shrink-0" />
+                  {t("inAppPay.woo")}
+                </li>
+              ) : null}
+              {source === "wordpress" ? (
+                <li className="flex items-start gap-2">
+                  <Icon name="info" size={16} className="mt-0.5 shrink-0" />
+                  {t("inAppPay.fallback")}
+                </li>
+              ) : null}
+            </ul>
+          </KitFold>
         </div>
       ) : null}
       {oldPlugin && catalogSettings(app).checkoutPayment === "in_app" ? (
-        <Notice tone="warn" icon="warning">
+        <KitCallout tone="warn" icon="warning">
           {t("inAppPay.pluginOld", { version: IN_APP_PLUGIN_VERSION })}
-        </Notice>
+        </KitCallout>
       ) : null}
-    </Section>
+    </KitSection>
   );
 }
 
@@ -131,37 +143,39 @@ export async function InAppPayments({ app }: { app: App }) {
   const attention = rows.filter((r) => r.platformOrder.status === "needs_attention").length;
   const status = (p: StorePlatformOrder) =>
     p.status === "placed" ? (
-      <Badge tone="success">{t("inAppPay.statusPlaced", { number: p.platformOrderNumber ?? "" })}</Badge>
+      <KitStatus tone="success">{t("inAppPay.statusPlaced", { number: p.platformOrderNumber ?? "" })}</KitStatus>
     ) : p.status === "needs_attention" ? (
-      <Badge tone="danger">{t("inAppPay.statusAttention")}</Badge>
+      <KitStatus tone="danger">{t("inAppPay.statusAttention")}</KitStatus>
     ) : p.status === "refunded" ? (
-      <Badge tone="neutral">{t("inAppPay.statusRefunded")}</Badge>
+      <KitStatus tone="neutral">{t("inAppPay.statusRefunded")}</KitStatus>
     ) : p.status === "placing" ? (
-      <Badge tone="info">{t("inAppPay.statusPlacing")}</Badge>
+      <KitStatus tone="info">{t("inAppPay.statusPlacing")}</KitStatus>
     ) : (
-      <Badge tone="neutral">{t("inAppPay.statusWaiting")}</Badge>
+      <KitStatus tone="neutral">{t("inAppPay.statusWaiting")}</KitStatus>
     );
   return (
-    // 132.120 Wide like the rest of the page; each payment on its own card, the ones needing attention first in colour.
-    <Section id="in-app-payments" titleId="h-in-app-payments" title={t("inAppPay.listTitle")} description={t("inAppPay.listIntro")}>
+    // 132.145 The premium kit: one card; each payment a row with one pill, the ones needing attention with what the store said and their two actions.
+    <KitSection id="in-app-payments" titleId="h-in-app-payments" title={t("inAppPay.listTitle")} description={t("inAppPay.listIntro")} flush>
       {attention > 0 ? (
-        <Notice tone="danger" icon="warning" role="alert">
-          {t("inAppPay.attentionBanner", { count: attention })}
-        </Notice>
+        <div className="px-5 pb-3 sm:px-8">
+          <KitCallout tone="danger" icon="warning" role="alert">
+            {t("inAppPay.attentionBanner", { count: attention })}
+          </KitCallout>
+        </div>
       ) : null}
-      {rows.length === 0 ? <p className="m-0 text-[15px] text-muted">{t("inAppPay.listEmpty")}</p> : null}
-      <ul className="m-0 flex list-none flex-col gap-3 p-0">
+      {rows.length === 0 ? <p className="m-0 px-5 pb-6 text-[15px] text-(--sp-muted) sm:px-8">{t("inAppPay.listEmpty")}</p> : null}
+      <ul className="m-0 flex list-none flex-col px-2 sm:px-4">
         {rows.map(({ platformOrder: p, order }) =>
           order ? (
             <li
               key={p.id}
-              className={`flex flex-col gap-2 rounded-2xl border bg-white p-4 ${p.status === "needs_attention" ? "border-danger" : "border-line"}`}
+              className={`flex flex-col gap-2.5 rounded-2xl border-t border-(--sp-line-soft) px-3 py-4 first:border-t-0 sm:px-4 ${p.status === "needs_attention" ? "bg-danger-bg/40" : ""}`}
               data-in-app-payment={p.status}
             >
               <div className="flex flex-wrap items-center justify-between gap-2">
-                <span className="flex flex-col">
+                <span className="flex min-w-0 flex-col gap-0.5">
                   <span className="text-[15px] font-semibold">{t("inAppPay.payment", { number: orderNumber(order) })}</span>
-                  <span className="text-[13px] text-muted">
+                  <span className="text-[13px] text-(--sp-muted)">
                     {formatDateTime(order.paidAt ?? order.createdAt, lang)} · {formatCents(order.totalCents, order.currency)}
                     {order.paymentProvider ? ` · ${PROVIDER_NAME[order.paymentProvider]}` : ""}
                   </span>
@@ -171,7 +185,7 @@ export async function InAppPayments({ app }: { app: App }) {
               {p.status === "needs_attention" ? (
                 <>
                   {p.problem ? <p className="m-0 text-[14px] text-danger">{t("inAppPay.storeSaid", { message: p.problem.message })}</p> : null}
-                  <p className="m-0 text-[13px] leading-relaxed text-ink-4">{t("inAppPay.attentionHelp")}</p>
+                  <p className="m-0 text-[13px] leading-relaxed text-(--sp-muted)">{t("inAppPay.attentionHelp")}</p>
                   {owner ? (
                     <AttentionActions
                       id={order.id}
@@ -188,6 +202,6 @@ export async function InAppPayments({ app }: { app: App }) {
           ) : null,
         )}
       </ul>
-    </Section>
+    </KitSection>
   );
 }

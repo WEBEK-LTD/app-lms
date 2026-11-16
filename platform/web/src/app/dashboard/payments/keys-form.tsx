@@ -101,7 +101,7 @@ function TestResults({ report }: { report: ConnectionReport }) {
   const t = useDashT();
   const lang = useDashLang();
   return (
-    <div className="flex flex-col gap-3 rounded-xl border border-line bg-white p-4" data-testid="gateway-test-results">
+    <div className="flex flex-col gap-3 rounded-2xl bg-(--sp-surface) p-4" data-testid="gateway-test-results">
       <div className="flex flex-wrap items-center gap-2">
         <h3 className="m-0 text-[15px] font-bold">{t("gateways.results")}</h3>
         <ModeBadge mode={report.mode} t={t} />
@@ -128,7 +128,7 @@ function TestResults({ report }: { report: ConnectionReport }) {
 function StripeGuide({ open }: { open: boolean }) {
   const t = useDashT();
   return (
-    <details className="group rounded-xl border border-line bg-white p-4" open={open}>
+    <details className="group rounded-2xl bg-(--sp-surface) p-4" open={open}>
       <summary className="flex cursor-pointer list-none items-center gap-2 text-[15px] font-bold [&::-webkit-details-marker]:hidden">
         <Icon name="menu_book" size={20} className="text-muted" />
         <span className="flex-1">{t("gateways.guideTitle")}</span>
@@ -171,13 +171,13 @@ function GatewayCard({ provider, checked, onChoose, connected, mode }: { provide
   const id = `gateway-${provider}`;
   return (
     <label
-      className={`relative flex cursor-pointer flex-col gap-2 rounded-2xl border p-4 transition-shadow focus-within:ring-2 focus-within:ring-accent motion-reduce:transition-none ${checked ? "border-midnight bg-white ring-2 ring-midnight" : "border-line bg-white hover:border-line-strong"}`}
+      className={`relative flex cursor-pointer flex-col gap-2 rounded-2xl p-4 transition-shadow focus-within:ring-2 focus-within:ring-accent motion-reduce:transition-none ${checked ? "bg-(--sp-surface) ring-2 ring-(--sp-ink)" : "bg-(--sp-soft) ring-1 ring-transparent hover:ring-(--sp-line)"}`}
       data-gateway={provider}
       data-checked={checked ? "" : undefined}
     >
       <input type="radio" name="gateway-choice" value={provider} checked={checked} onChange={onChoose} aria-labelledby={`${id}-name`} aria-describedby={`${id}-takes`} className="sr-only" />
       <span className="flex items-center gap-2">
-        <span className="flex h-9 w-9 flex-none items-center justify-center rounded-xl bg-ivory">
+        <span className="flex h-9 w-9 flex-none items-center justify-center rounded-xl bg-(--sp-tile)">
           <Icon name="credit_card" size={20} filled={checked} className={checked ? "text-accent" : "text-muted"} />
         </span>
         <span id={`${id}-name`} dir="ltr" className="min-w-0 flex-1 truncate text-[16px] font-extrabold text-midnight">
@@ -286,7 +286,7 @@ export function PaymentKeysForm({ provider, sandbox, merchantId = "", clientId =
         </div>
         <FieldError id="f-provider-error" error={state.errors?.provider} />
       </fieldset>
-      <section aria-labelledby="h-gateway-form" className="flex min-w-0 flex-col gap-4 rounded-2xl border border-line bg-white p-4 sm:p-5" data-gateway-form={choice}>
+      <section aria-labelledby="h-gateway-form" className="flex min-w-0 flex-col gap-4 rounded-3xl bg-(--sp-soft) p-4 sm:p-6" data-gateway-form={choice}>
         <h3 id="h-gateway-form" className="m-0 flex items-center gap-2 text-[17px] font-extrabold">
           <Icon name="key" size={20} className="text-muted" />
           {t("gateways.formTitle", { provider: NAMES[choice] })}
@@ -308,7 +308,7 @@ export function PaymentKeysForm({ provider, sandbox, merchantId = "", clientId =
             ) : null}
           </p>
         ) : null}
-        <details className="group rounded-xl border border-line-soft bg-sand px-4 py-3">
+        <details className="group rounded-2xl bg-(--sp-surface) px-4 py-3">
           <summary className="flex cursor-pointer list-none items-center gap-2 text-sm font-bold [&::-webkit-details-marker]:hidden">
             <Icon name="help" size={18} className="text-muted" />
             <span className="flex-1">{t("gateways.whereKeys")}</span>
@@ -395,7 +395,7 @@ export function PaymentKeysForm({ provider, sandbox, merchantId = "", clientId =
           </p>
         ) : null}
         {stripe ? (
-          <fieldset className="m-0 flex min-w-0 flex-col gap-3 rounded-xl border border-line bg-white p-4">
+          <fieldset className="m-0 flex min-w-0 flex-col gap-3 rounded-2xl border-0 bg-(--sp-surface) p-4">
             <legend className="flex items-center gap-1.5 px-1 text-[15px] font-bold">
               <Icon name="sensors" size={20} className="text-muted" />
               {t("gateways.webhookTitle")}

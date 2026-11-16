@@ -241,6 +241,8 @@ test("a shop with its own Kashier keys takes an order", async ({ page, request }
   // 132.10 The shop's payments are on their own tab.
   await page.getByRole("navigation", { name: "Products", exact: true }).getByRole("link", { name: /^Payments/ }).click();
   const saved = page.getByRole("region", { name: "Card payments" });
+  // 132.145 Connected, the gateway's keys open from its row.
+  await saved.getByRole("button", { name: "Edit" }).click();
   await expect(saved.getByTestId("gateway-saved")).toContainText("Saved: Kashier");
   await expect(saved.getByTestId("gateway-saved")).toContainText("Webhook working · last one");
   await expect(saved.getByText("Saved: …cret. Leave it empty to keep it.")).toBeVisible();

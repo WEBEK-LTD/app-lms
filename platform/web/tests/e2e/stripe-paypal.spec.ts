@@ -199,6 +199,8 @@ test("a shop takes an order on its own Stripe, then on its own PayPal", async ({
   // 132.34 Test connection with the saved keys, a test payment made and cancelled: everything works. Back from the product's page by its header's link.
   await page.getByRole("main").getByRole("link", { name: "Products", exact: true }).click();
   await page.getByRole("navigation", { name: "Products", exact: true }).getByRole("link", { name: /^Payments/ }).click();
+  // 132.145 Connected, the gateway's keys open from its row.
+  await payments.getByRole("button", { name: "Edit" }).click();
   await expect(payments.getByTestId("gateway-saved")).toContainText("Webhook working · last one");
   await payments.getByRole("checkbox", { name: /Also make a 0.50 USD test payment/ }).check();
   await payments.getByRole("button", { name: "Test connection" }).click();
