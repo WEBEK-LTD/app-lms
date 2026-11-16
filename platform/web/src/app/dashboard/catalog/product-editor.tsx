@@ -137,6 +137,7 @@ function Photos({ initial, error }: { initial: { id: string; url: string }[]; er
           multiple
           accept="image/png,image/jpeg"
           className="sr-only"
+          aria-label={t("manage.photosDrop")}
           aria-describedby="f-images-hint"
           aria-invalid={error ? true : undefined}
           onChange={(e) => showFiles(e.currentTarget.files)}

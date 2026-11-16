@@ -1,7 +1,8 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { Badge, Notice, PageHeader, Section } from "@/components/ui";
-import { ItemList, PageGroup, Stat, StatRow, Thumb } from "@/components/page-kit";
+import { ItemList, Stat, StatRow, Thumb } from "@/components/page-kit";
+import { PageTabs, TabPanel } from "@/components/page-tabs";
 import { AddDetails, ItemDetails } from "@/components/page-kit-a";
 import { DetailsButton } from "@/components/page-kit-a-client";
 import { requireClient } from "@/lib/auth/session";
@@ -33,7 +34,7 @@ function planValues(p: MembershipPlan | null): Record<string, string> {
 }
 
 /** 27 A gym's or studio's membership plans, sold in the app on the payment page, and whether classes need one. */
-export default async function MembershipPlansPage() {
+export default async function MembershipPlansPage({ searchParams }: { searchParams: Promise<{ tab?: string }> }) {
   const { app } = await requireClient("bookings");
   const { t, k } = await dashboardText();
   if (!app || app.connector?.kind !== "bookings") {
@@ -47,6 +48,8 @@ export default async function MembershipPlansPage() {
   const { currency } = setup.rules;
   const plans = setup.membershipPlans;
   const onSale = plans.filter((p) => p.active).length;
+  // 132.24 `?tab=` opens one (an old link to a part, `#h-rules`, too).
+  const tab = (await searchParams).tab ?? "";
   return (
     <div className="flex flex-col gap-6">
       {/* The page kit: the header and its main action, the numbers, the plans (each opens in place), then the rules and payments. */}
@@ -75,6 +78,17 @@ export default async function MembershipPlansPage() {
         </StatRow>
       ) : null}
 
+      {/* 132.24 The plans, the booking rule and payments, each in a tab. */}
+      <PageTabs
+        label={t("bookings.plansTitle")}
+        initial={["plans", "rules", "payments"].includes(tab) ? tab : "plans"}
+        tabs={[
+          { id: "plans", label: t("bookings.plans"), icon: "card_membership", count: plans.length },
+          { id: "rules", label: t("bookings.bookingClasses"), icon: "event_available" },
+          { id: "payments", label: t("manage.payments"), icon: "payments" },
+        ]}
+      >
+      <TabPanel tab="plans">
       <Section titleId="h-plans" title={t("bookings.plans")} description={t("bookings.plansText")} flush>
         {plans.length ? (
           <ItemList>
@@ -95,14 +109,18 @@ export default async function MembershipPlansPage() {
           <MembershipPlanForm current={planValues(null)} submit={t("bookings.addPlanButton")} currency={currency} />
         </AddDetails>
       </Section>
+      </TabPanel>
 
-      <PageGroup title={t("bookings.groupPlans")}>
-        <Section titleId="h-rules" title={t("bookings.bookingClasses")}>
+      <TabPanel tab="rules">
+        <Section titleId="h-rules" title={t("bookings.bookingClasses")} className="max-w-[760px]">
           <MembershipRulesForm required={setup.membershipRequired} />
         </Section>
+      </TabPanel>
+      <TabPanel tab="payments" className="flex flex-col gap-5 [&>*]:max-w-[760px]">
         <CardPayments app={app} currency={currency} />
         <OtherPayments app={app} />
-      </PageGroup>
+      </TabPanel>
+      </PageTabs>
     </div>
   );
 }

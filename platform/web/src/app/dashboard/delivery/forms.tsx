@@ -6,6 +6,7 @@ import { Field, FieldError, FormMessage, SubmitButton } from "@/components/form"
 import { Notice } from "@/components/ui";
 import { useDashT } from "@/components/dashboard-i18n";
 import { FormActions, FormSection } from "@/components/page-kit";
+import { OnTabs, TabPanel } from "@/components/page-tabs";
 import { initialFormState } from "@/lib/forms";
 
 export interface SettingsFormValues {
@@ -201,190 +202,198 @@ export function DeliverySettingsForm({
   return (
     <form action={action} noValidate className="flex flex-col gap-6">
       <FormMessage message={state.message} ok={state.ok} />
-      {/* The page kit: the form in parts. */}
-      <FormSection id="f-delivery-pricing" title={t("delivery.pricing")} description={t("delivery.pricingHint")}>
-        <div className="flex flex-col gap-1.5">
-          <label htmlFor="f-currency" className="text-sm font-semibold">
-            {t("delivery.currency")}
-          </label>
-          <select id="f-currency" name="currency" defaultValue={currency} onChange={(e) => setCurrency(e.target.value)} className="input max-w-[200px]">
-            {currencies.map((c) => (
-              <option key={c} value={c}>
-                {c}
-              </option>
-            ))}
-          </select>
-          <FieldError id="f-currency-error" error={state.errors?.currency} />
-        </div>
-        <Choices
-          legend={t("delivery.pricingMode")}
-          name="pricing"
-          value={pricing}
-          onChange={setPricing}
-          error={state.errors?.pricing}
-          options={[
-            { value: "fixed", label: t("delivery.modeFixed"), hint: t("delivery.modeFixedHint") },
-            { value: "distance", label: t("delivery.modeDistance"), hint: t("delivery.modeDistanceHint") },
-            { value: "zone", label: t("delivery.modeZone"), hint: t("delivery.modeZoneHint") },
-          ]}
-        />
-        <div className={pricing === "fixed" ? "grid gap-4 sm:grid-cols-2" : "hidden"}>
-          <Field label={money("delivery.fixed")} name="fixed" inputMode="decimal" defaultValue={value("fixed")} error={state.errors?.fixed} />
-        </div>
-        <div className={pricing === "distance" ? "grid gap-4 sm:grid-cols-2" : "hidden"}>
-          <Field label={money("delivery.base")} name="base" inputMode="decimal" defaultValue={value("base")} error={state.errors?.base} />
-          <Field label={money("delivery.perKm")} name="perKm" inputMode="decimal" defaultValue={value("perKm")} error={state.errors?.perKm} />
-          <Field label={money("delivery.min")} name="min" inputMode="decimal" defaultValue={value("min")} error={state.errors?.min} hint={t("delivery.minHint")} />
-          <Field label={t("delivery.maxKm")} name="maxKm" inputMode="decimal" defaultValue={value("maxKm")} error={state.errors?.maxKm} hint={t("delivery.maxKmHint")} />
-        </div>
-        <div className={pricing === "zone" ? "flex flex-col gap-1.5" : "hidden"}>
-          <label htmlFor="f-zones" className="text-sm font-semibold">
-            {t("delivery.zones")}
-          </label>
-          <textarea id="f-zones" name="zones" rows={6} maxLength={6000} defaultValue={value("zones")} className="input min-h-28 py-3" aria-describedby="f-zones-hint f-zones-error" />
-          <span id="f-zones-hint" className="text-[13px] text-muted">
-            {t("delivery.zonesHint")}
-          </span>
-          <FieldError id="f-zones-error" error={state.errors?.zones} />
-        </div>
-      </FormSection>
-
-      <FormSection id="f-delivery-paying" title={t("delivery.paying")}>
-        {(
-          [
-            ["cash", t("delivery.payCash"), t("delivery.payCashHint")],
-            ["card", t("delivery.payCard"), t("delivery.payCardHint")],
-          ] as const
-        ).map(([name, label, hint]) => (
-          <label key={name} className="flex cursor-pointer items-start gap-3">
-            <input type="checkbox" name={name} defaultChecked={checked(name)} className="mt-1 h-4 w-4 accent-midnight" />
-            <span className="flex flex-col gap-0.5">
-              <span className="text-[15px] font-semibold">{label}</span>
-              <span className="text-[13px] text-muted">{hint}</span>
-            </span>
-          </label>
-        ))}
-        <FieldError id="f-cash-error" error={state.errors?.cash} />
-      </FormSection>
-
-      <FormSection id="f-delivery-jobs" title={t("delivery.formJobs")} description={t("delivery.formJobsHint")}>
-        <Choices
-          legend={t("delivery.tracking")}
-          name="tracking"
-          value={value("tracking")}
-          error={state.errors?.tracking}
-          options={[
-            { value: "stages", label: t("delivery.trackStages"), hint: t("delivery.trackStagesHint") },
-            { value: "live", label: t("delivery.trackLive"), hint: t("delivery.trackLiveHint") },
-          ]}
-        />
-        <Choices
-          legend={t("delivery.assignment")}
-          name="assignment"
-          value={value("assignment")}
-          error={state.errors?.assignment}
-          options={[
-            { value: "dispatch", label: t("delivery.assignDispatch"), hint: t("delivery.assignDispatchHint") },
-            { value: "open", label: t("delivery.assignOpen"), hint: t("delivery.assignOpenHint") },
-          ]}
-        />
-      </FormSection>
-
-      {hub ? (
-        <section className="flex flex-col gap-4 border-t border-line-soft pt-5" data-couriers-work>
-          <Choices
-            legend={t("delivery.couriersWork")}
-            name="couriersWork"
-            value={work}
-            onChange={setWork}
-            options={[
-              { value: "own", label: t("delivery.workOwn", { name: value("courierAppName") || settings.courierAppNameDefault }), hint: t("delivery.workOwnHint") },
-              { value: "yallapp_courier", label: t("delivery.workHub"), hint: t("delivery.workHubHint") },
-            ]}
-          />
-          {onHub ? (
-            <Notice icon="two_wheeler" role="status">
-              <span className="flex flex-col gap-2">
-                <span>{t("delivery.hubSteps", { company: hub.company })}</span>
-                {hub.play || hub.appStore ? (
-                  <span className="flex flex-wrap items-center gap-x-3 gap-y-1">
-                    {t("delivery.hubGet")}
-                    {hub.play ? (
-                      <a href={hub.play} target="_blank" rel="noopener noreferrer" className="font-semibold">
-                        {t("delivery.hubPlay")}
-                      </a>
-                    ) : null}
-                    {hub.appStore ? (
-                      <a href={hub.appStore} target="_blank" rel="noopener noreferrer" className="font-semibold">
-                        {t("delivery.hubAppStore")}
-                      </a>
-                    ) : null}
-                  </span>
-                ) : null}
-              </span>
-            </Notice>
-          ) : null}
-        </section>
-      ) : null}
-
-      {/* 104.8.3 Hidden, not removed, on Yallapp Courier: the courier app's name stays as saved. */}
-      <div hidden={onHub}>
-        <SecondAppFields
-          title={t("delivery.courierApp")}
-          text={t("delivery.courierAppText", { name: value("courierAppName") || settings.courierAppNameDefault })}
-          off={bundleAllowed ? null : bundleOff}
-          before={before ? t("delivery.courierAppBefore", { name: value("courierAppName") || settings.courierAppNameDefault }) : null}
-          name={{ field: "courierAppName", label: t("delivery.courierAppName"), hint: t("delivery.courierAppNameHint", { name: settings.courierAppNameDefault }), value: value("courierAppName"), placeholder: settings.courierAppNameDefault }}
-          icon={{ field: "courierIcon", label: t("delivery.courierIcon"), hint: t("delivery.courierIconHint"), saved: t("delivery.courierIconSaved"), remove: t("delivery.courierIconRemove"), url: settings.courierIconUrl }}
-          plist={{ field: "courierFirebaseIos", label: t("delivery.courierFirebaseIos"), hint: t(settings.courierFirebaseIos ? "delivery.courierFirebaseIosSaved" : "delivery.courierFirebaseIosHint") }}
-          errors={state.errors}
-        />
-      </div>
-
-      {food ? (
-        <section className="flex flex-col gap-5 border-t border-line-soft pt-5">
-          <h3 className="m-0 text-[17px] font-bold">{t("food.foodSettings")}</h3>
+      {/* The page kit: the form in parts; 132.20 in the page's tabs (Prices, Tracking and jobs, Food orders). */}
+      <TabPanel tab="prices">
+        <FormSection id="f-delivery-pricing" title={t("delivery.pricing")} description={t("delivery.pricingHint")}>
           <div className="flex flex-col gap-1.5">
-            <label htmlFor="f-cuisines" className="text-sm font-semibold">
-              {t("food.cuisinesText")}
+            <label htmlFor="f-currency" className="text-sm font-semibold">
+              {t("delivery.currency")}
             </label>
-            <textarea id="f-cuisines" name="cuisines" rows={5} maxLength={2000} defaultValue={state.values?.cuisines ?? food.cuisines} className="input min-h-24 py-3" aria-describedby="f-cuisines-hint f-cuisines-error" />
-            <span id="f-cuisines-hint" className="text-[13px] text-muted">
-              {t("food.cuisinesTextHint")}
-            </span>
-            <FieldError id="f-cuisines-error" error={state.errors?.cuisines} />
-          </div>
-          <Choices
-            legend={t("food.courierJob_legend")}
-            name="foodCourierJob"
-            value={state.values?.foodCourierJob ?? food.foodCourierJob}
-            error={state.errors?.foodCourierJob}
-            options={[
-              { value: "accepted", label: t("food.courierJob_accepted"), hint: t("food.courierJob_acceptedHint") },
-              { value: "ready", label: t("food.courierJob_ready"), hint: t("food.courierJob_readyHint") },
-            ]}
-          />
-          <div className="flex flex-col gap-1.5">
-            <label htmlFor="f-timezone" className="text-sm font-semibold">
-              {t("food.timezone")}
-            </label>
-            <select id="f-timezone" name="timezone" defaultValue={state.values?.timezone ?? food.timezone} className="input max-w-[280px]" dir="ltr">
-              {food.timezones.map((z) => (
-                <option key={z} value={z}>
-                  {z}
+            <select id="f-currency" name="currency" defaultValue={currency} onChange={(e) => setCurrency(e.target.value)} className="input max-w-[200px]">
+              {currencies.map((c) => (
+                <option key={c} value={c}>
+                  {c}
                 </option>
               ))}
             </select>
-            <FieldError id="f-timezone-error" error={state.errors?.timezone} />
+            <FieldError id="f-currency-error" error={state.errors?.currency} />
           </div>
-        </section>
+          <Choices
+            legend={t("delivery.pricingMode")}
+            name="pricing"
+            value={pricing}
+            onChange={setPricing}
+            error={state.errors?.pricing}
+            options={[
+              { value: "fixed", label: t("delivery.modeFixed"), hint: t("delivery.modeFixedHint") },
+              { value: "distance", label: t("delivery.modeDistance"), hint: t("delivery.modeDistanceHint") },
+              { value: "zone", label: t("delivery.modeZone"), hint: t("delivery.modeZoneHint") },
+            ]}
+          />
+          <div className={pricing === "fixed" ? "grid gap-4 sm:grid-cols-2" : "hidden"}>
+            <Field label={money("delivery.fixed")} name="fixed" inputMode="decimal" defaultValue={value("fixed")} error={state.errors?.fixed} />
+          </div>
+          <div className={pricing === "distance" ? "grid gap-4 sm:grid-cols-2" : "hidden"}>
+            <Field label={money("delivery.base")} name="base" inputMode="decimal" defaultValue={value("base")} error={state.errors?.base} />
+            <Field label={money("delivery.perKm")} name="perKm" inputMode="decimal" defaultValue={value("perKm")} error={state.errors?.perKm} />
+            <Field label={money("delivery.min")} name="min" inputMode="decimal" defaultValue={value("min")} error={state.errors?.min} hint={t("delivery.minHint")} />
+            <Field label={t("delivery.maxKm")} name="maxKm" inputMode="decimal" defaultValue={value("maxKm")} error={state.errors?.maxKm} hint={t("delivery.maxKmHint")} />
+          </div>
+          <div className={pricing === "zone" ? "flex flex-col gap-1.5" : "hidden"}>
+            <label htmlFor="f-zones" className="text-sm font-semibold">
+              {t("delivery.zones")}
+            </label>
+            <textarea id="f-zones" name="zones" rows={6} maxLength={6000} defaultValue={value("zones")} className="input min-h-28 py-3" aria-describedby="f-zones-hint f-zones-error" />
+            <span id="f-zones-hint" className="text-[13px] text-muted">
+              {t("delivery.zonesHint")}
+            </span>
+            <FieldError id="f-zones-error" error={state.errors?.zones} />
+          </div>
+        </FormSection>
+
+        <FormSection id="f-delivery-paying" title={t("delivery.paying")}>
+          {(
+            [
+              ["cash", t("delivery.payCash"), t("delivery.payCashHint")],
+              ["card", t("delivery.payCard"), t("delivery.payCardHint")],
+            ] as const
+          ).map(([name, label, hint]) => (
+            <label key={name} className="flex cursor-pointer items-start gap-3">
+              <input type="checkbox" name={name} defaultChecked={checked(name)} className="mt-1 h-4 w-4 accent-midnight" />
+              <span className="flex flex-col gap-0.5">
+                <span className="text-[15px] font-semibold">{label}</span>
+                <span className="text-[13px] text-muted">{hint}</span>
+              </span>
+            </label>
+          ))}
+          <FieldError id="f-cash-error" error={state.errors?.cash} />
+        </FormSection>
+      </TabPanel>
+
+      <TabPanel tab="jobs">
+        <FormSection id="f-delivery-jobs" title={t("delivery.formJobs")} description={t("delivery.formJobsHint")}>
+          <Choices
+            legend={t("delivery.tracking")}
+            name="tracking"
+            value={value("tracking")}
+            error={state.errors?.tracking}
+            options={[
+              { value: "stages", label: t("delivery.trackStages"), hint: t("delivery.trackStagesHint") },
+              { value: "live", label: t("delivery.trackLive"), hint: t("delivery.trackLiveHint") },
+            ]}
+          />
+          <Choices
+            legend={t("delivery.assignment")}
+            name="assignment"
+            value={value("assignment")}
+            error={state.errors?.assignment}
+            options={[
+              { value: "dispatch", label: t("delivery.assignDispatch"), hint: t("delivery.assignDispatchHint") },
+              { value: "open", label: t("delivery.assignOpen"), hint: t("delivery.assignOpenHint") },
+            ]}
+          />
+        </FormSection>
+
+        {hub ? (
+          <section className="flex flex-col gap-4 border-t border-line-soft pt-5" data-couriers-work>
+            <Choices
+              legend={t("delivery.couriersWork")}
+              name="couriersWork"
+              value={work}
+              onChange={setWork}
+              options={[
+                { value: "own", label: t("delivery.workOwn", { name: value("courierAppName") || settings.courierAppNameDefault }), hint: t("delivery.workOwnHint") },
+                { value: "yallapp_courier", label: t("delivery.workHub"), hint: t("delivery.workHubHint") },
+              ]}
+            />
+            {onHub ? (
+              <Notice icon="two_wheeler" role="status">
+                <span className="flex flex-col gap-2">
+                  <span>{t("delivery.hubSteps", { company: hub.company })}</span>
+                  {hub.play || hub.appStore ? (
+                    <span className="flex flex-wrap items-center gap-x-3 gap-y-1">
+                      {t("delivery.hubGet")}
+                      {hub.play ? (
+                        <a href={hub.play} target="_blank" rel="noopener noreferrer" className="font-semibold">
+                          {t("delivery.hubPlay")}
+                        </a>
+                      ) : null}
+                      {hub.appStore ? (
+                        <a href={hub.appStore} target="_blank" rel="noopener noreferrer" className="font-semibold">
+                          {t("delivery.hubAppStore")}
+                        </a>
+                      ) : null}
+                    </span>
+                  ) : null}
+                </span>
+              </Notice>
+            ) : null}
+          </section>
+        ) : null}
+
+        {/* 104.8.3 Hidden, not removed, on Yallapp Courier: the courier app's name stays as saved. */}
+        <div hidden={onHub}>
+          <SecondAppFields
+            title={t("delivery.courierApp")}
+            text={t("delivery.courierAppText", { name: value("courierAppName") || settings.courierAppNameDefault })}
+            off={bundleAllowed ? null : bundleOff}
+            before={before ? t("delivery.courierAppBefore", { name: value("courierAppName") || settings.courierAppNameDefault }) : null}
+            name={{ field: "courierAppName", label: t("delivery.courierAppName"), hint: t("delivery.courierAppNameHint", { name: settings.courierAppNameDefault }), value: value("courierAppName"), placeholder: settings.courierAppNameDefault }}
+            icon={{ field: "courierIcon", label: t("delivery.courierIcon"), hint: t("delivery.courierIconHint"), saved: t("delivery.courierIconSaved"), remove: t("delivery.courierIconRemove"), url: settings.courierIconUrl }}
+            plist={{ field: "courierFirebaseIos", label: t("delivery.courierFirebaseIos"), hint: t(settings.courierFirebaseIos ? "delivery.courierFirebaseIosSaved" : "delivery.courierFirebaseIosHint") }}
+            errors={state.errors}
+          />
+        </div>
+      </TabPanel>
+
+      {food ? (
+        <TabPanel tab="food">
+          <section className="flex flex-col gap-5">
+            <h3 className="m-0 text-[17px] font-bold">{t("food.foodSettings")}</h3>
+            <div className="flex flex-col gap-1.5">
+              <label htmlFor="f-cuisines" className="text-sm font-semibold">
+                {t("food.cuisinesText")}
+              </label>
+              <textarea id="f-cuisines" name="cuisines" rows={5} maxLength={2000} defaultValue={state.values?.cuisines ?? food.cuisines} className="input min-h-24 py-3" aria-describedby="f-cuisines-hint f-cuisines-error" />
+              <span id="f-cuisines-hint" className="text-[13px] text-muted">
+                {t("food.cuisinesTextHint")}
+              </span>
+              <FieldError id="f-cuisines-error" error={state.errors?.cuisines} />
+            </div>
+            <Choices
+              legend={t("food.courierJob_legend")}
+              name="foodCourierJob"
+              value={state.values?.foodCourierJob ?? food.foodCourierJob}
+              error={state.errors?.foodCourierJob}
+              options={[
+                { value: "accepted", label: t("food.courierJob_accepted"), hint: t("food.courierJob_acceptedHint") },
+                { value: "ready", label: t("food.courierJob_ready"), hint: t("food.courierJob_readyHint") },
+              ]}
+            />
+            <div className="flex flex-col gap-1.5">
+              <label htmlFor="f-timezone" className="text-sm font-semibold">
+                {t("food.timezone")}
+              </label>
+              <select id="f-timezone" name="timezone" defaultValue={state.values?.timezone ?? food.timezone} className="input max-w-[280px]" dir="ltr">
+                {food.timezones.map((z) => (
+                  <option key={z} value={z}>
+                    {z}
+                  </option>
+                ))}
+              </select>
+              <FieldError id="f-timezone-error" error={state.errors?.timezone} />
+            </div>
+          </section>
+        </TabPanel>
       ) : null}
 
-      <FormActions>
-        <SubmitButton className="h-11" pendingText={t("common.saving")}>
-          {t("delivery.saveSettings")}
-        </SubmitButton>
-      </FormActions>
+      <OnTabs tabs={["prices", "jobs", "food"]}>
+        <FormActions>
+          <SubmitButton className="h-11" pendingText={t("common.saving")}>
+            {t("delivery.saveSettings")}
+          </SubmitButton>
+        </FormActions>
+      </OnTabs>
     </form>
   );
 }

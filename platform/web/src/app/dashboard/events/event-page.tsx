@@ -3,7 +3,8 @@ import { cancelTicketAction, deleteEventAction, deleteTicketTypeAction, setEvent
 import { SubmitButton } from "@/components/form";
 import { Icon } from "@/components/icon";
 import { Badge, EmptyState, Notice, PageHeader, Section, btn } from "@/components/ui";
-import { DetailLayout, ItemList, Stat, StatRow, Thumb } from "@/components/page-kit";
+import { ItemList, Stat, StatRow, Thumb } from "@/components/page-kit";
+import { PageTabs, TabPanel } from "@/components/page-tabs";
 import { ItemDetails } from "@/components/page-kit-a";
 import { assetUrl } from "@/lib/assets";
 import { requireClient } from "@/lib/auth/session";
@@ -46,7 +47,7 @@ export function eventWhenIn(lang: Lang, startAt: Date, timeZone: string): string
 const STATUS_TONE = { Valid: "success", Used: "info", Cancelled: "neutral" } as const;
 
 /** 28 Adding (id null) or editing an event, with its ticket types and attendees. */
-export async function EventPage({ id, notice }: { id: number | null; notice: { saved?: string; told?: string; cancelled?: string; error?: string } }) {
+export async function EventPage({ id, notice }: { id: number | null; notice: { saved?: string; told?: string; cancelled?: string; error?: string; tab?: string } }) {
   const { app } = await requireClient("events");
   if (!app || app.connector?.kind !== "events") notFound();
   const store = await getStore();
@@ -215,148 +216,157 @@ export async function EventPage({ id, notice }: { id: number | null; notice: { s
         <Stat icon="payments" tone="warn" label={t("events.statSales")} value={revenue ? formatCents(revenue, data.settings.currency) : t("common.free")} />
       </StatRow>
 
-      <DetailLayout
-        main={
-          <>
-            <Section id="tickets" titleId="h-tickets" title={t("events.ticketTypes")} description={t("events.ticketTypesText")} flush>
-              {paidOnline ? (
-                <div className="border-b border-line-soft px-5 py-4 sm:px-6">
-                  <Notice tone="info" icon="info">
-                    {t("events.onlineIphone")}
-                  </Notice>
-                </div>
-              ) : null}
-              {types.length ? (
-                <ItemList>
-                  {types.map((type, i) => {
-                    const remaining = left.types.get(type.id) ?? null;
-                    const price = type.priceCents ? formatCents(type.priceCents, data.settings.currency) : t("common.free");
-                    const taken = counted.filter((a) => a.ticket.ticketTypeId === type.id).length;
-                    return (
-                      <ItemDetails
-                        key={type.id}
-                        media={<Thumb icon="confirmation_number" shape="square" tint={i} />}
-                        title={type.name}
-                        meta={remaining !== null ? t("events.typeLineLeft", { price, taken, left: remaining }) : t("events.typeLine", { price, taken })}
-                      >
-                        <TicketTypeForm
-                          eventId={event.id}
-                          currency={data.settings.currency}
-                          type={{
-                            id: type.id,
-                            name: type.name,
-                            price: centsToDecimal(type.priceCents),
-                            capacity: type.capacity === null ? "" : String(type.capacity),
-                            saleEndsAt: localDateTimeValue(type.saleEndsAt, tz),
-                            maxPerOrder: String(type.maxPerOrder),
-                          }}
-                        />
-                        <form action={deleteTicketTypeAction}>
-                          <input type="hidden" name="id" value={type.id} />
-                          <input type="hidden" name="eventId" value={event.id} />
-                          <SubmitButton variant="danger" className="h-9 px-3 text-sm" pendingText={t("common.deleting")}>
-                            {t("events.deleteType", { name: type.name })}
-                          </SubmitButton>
-                        </form>
-                      </ItemDetails>
-                    );
-                  })}
-                </ItemList>
-              ) : (
-                <p className="m-0 px-5 pt-5 text-[15px] text-muted sm:px-6">{t("events.noTypes")}</p>
-              )}
-              <div className={`flex flex-col gap-3 px-5 py-5 sm:px-6 ${types.length ? "border-t border-line-soft" : ""}`}>
-                <h3 className="m-0 flex items-center gap-2.5 text-[15px] font-bold">
-                  <span aria-hidden="true" className="flex h-8 w-8 items-center justify-center rounded-[10px] bg-peach text-accent">
-                    <Icon name="add" size={20} />
-                  </span>
-                  {t("events.addType")}
-                </h3>
-                <TicketTypeForm eventId={event.id} currency={data.settings.currency} type={{ id: null, name: "", price: "", capacity: "", saleEndsAt: "", maxPerOrder: "10" }} />
+      {/* 132.19 The event's state, then its tickets, attendees and details, each in a tab. */}
+      {status}
+      <PageTabs
+        label={event.title}
+        initial={["tickets", "attendees", "details"].includes(notice.tab ?? "") ? notice.tab! : "tickets"}
+        tabs={[
+          { id: "tickets", label: t("events.ticketTypes"), icon: "confirmation_number", count: types.length },
+          { id: "attendees", label: t("events.attendees"), icon: "groups", count: counted.length },
+          { id: "details", label: t("common.details"), icon: "edit_note" },
+        ]}
+      >
+        <TabPanel tab="tickets">
+          <Section id="tickets" titleId="h-tickets" title={t("events.ticketTypes")} description={t("events.ticketTypesText")} flush>
+            {paidOnline ? (
+              <div className="border-b border-line-soft px-5 py-4 sm:px-6">
+                <Notice tone="info" icon="info">
+                  {t("events.onlineIphone")}
+                </Notice>
               </div>
-            </Section>
-
-            <Section
-              id="attendees"
-              titleId="h-attendees"
-              title={t("events.attendees")}
-              actions={
-                attendees.length ? (
-                  <a href={`/api/dashboard/events/${event.id}/attendees`} className={`${btn.secondary} h-10`} download>
-                    <Icon name="download" size={18} />
-                    {t("events.downloadList")}
-                  </a>
-                ) : null
-              }
-              flush
-            >
-              {attendees.length === 0 ? (
-                <div className="p-5 sm:p-6">
-                  <EmptyState icon="groups" title={t("events.noAttendees")} />
-                </div>
-              ) : (
-                <div className="overflow-x-auto">
-                  <table className="w-full min-w-[640px] border-collapse text-start text-[14px]">
-                    <thead>
-                      <tr className="border-b border-line-soft bg-sand text-[13px] text-muted">
-                        <th className="py-2.5 ps-5 pe-3 text-start font-semibold sm:ps-6">{t("events.nameOnTicket")}</th>
-                        <th className="py-2.5 pe-3 text-start font-semibold">{t("events.ticket")}</th>
-                        <th className="py-2.5 pe-3 text-start font-semibold">{t("events.code")}</th>
-                        <th className="py-2.5 pe-3 text-start font-semibold">{t("events.gotBy")}</th>
-                        <th className="py-2.5 pe-3 text-start font-semibold">{t("common.status")}</th>
-                        <th className="py-2.5 pe-5 font-semibold sm:pe-6">
-                          <span className="sr-only">{t("common.actions")}</span>
-                        </th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      {attendees.map((a) => (
-                        <tr key={a.ticket.id} className="border-b border-line-soft align-top last:border-b-0">
-                          <td className="py-3 ps-5 pe-3 font-semibold sm:ps-6">{a.holder}</td>
-                          <td className="py-3 pe-3">
-                            {a.type}
-                            <span className="block text-[13px] text-muted">
-                              {k(a.price)}
-                              {a.order ? ` · ${t("events.orderN", { number: a.order })}` : ""}
+            ) : null}
+            {types.length ? (
+              <ItemList>
+                {types.map((type, i) => {
+                  const remaining = left.types.get(type.id) ?? null;
+                  const price = type.priceCents ? formatCents(type.priceCents, data.settings.currency) : t("common.free");
+                  const taken = counted.filter((a) => a.ticket.ticketTypeId === type.id).length;
+                  return (
+                    <ItemDetails
+                      key={type.id}
+                      media={<Thumb icon="confirmation_number" shape="square" tint={i} />}
+                      title={type.name}
+                      meta={remaining !== null ? t("events.typeLineLeft", { price, taken, left: remaining }) : t("events.typeLine", { price, taken })}
+                    >
+                      <TicketTypeForm
+                        eventId={event.id}
+                        currency={data.settings.currency}
+                        type={{
+                          id: type.id,
+                          name: type.name,
+                          price: centsToDecimal(type.priceCents),
+                          capacity: type.capacity === null ? "" : String(type.capacity),
+                          saleEndsAt: localDateTimeValue(type.saleEndsAt, tz),
+                          maxPerOrder: String(type.maxPerOrder),
+                        }}
+                      />
+                      <form action={deleteTicketTypeAction}>
+                        <input type="hidden" name="id" value={type.id} />
+                        <input type="hidden" name="eventId" value={event.id} />
+                        <SubmitButton variant="danger" className="h-9 px-3 text-sm" pendingText={t("common.deleting")}>
+                          {t("events.deleteType", { name: type.name })}
+                        </SubmitButton>
+                      </form>
+                    </ItemDetails>
+                  );
+                })}
+              </ItemList>
+            ) : (
+              <p className="m-0 px-5 pt-5 text-[15px] text-muted sm:px-6">{t("events.noTypes")}</p>
+            )}
+            <div className={`flex flex-col gap-3 px-5 py-5 sm:px-6 ${types.length ? "border-t border-line-soft" : ""}`}>
+              <h3 className="m-0 flex items-center gap-2.5 text-[15px] font-bold">
+                <span aria-hidden="true" className="flex h-8 w-8 items-center justify-center rounded-[10px] bg-peach text-accent">
+                  <Icon name="add" size={20} />
+                </span>
+                {t("events.addType")}
+              </h3>
+              <TicketTypeForm eventId={event.id} currency={data.settings.currency} type={{ id: null, name: "", price: "", capacity: "", saleEndsAt: "", maxPerOrder: "10" }} />
+            </div>
+          </Section>
+        </TabPanel>
+        <TabPanel tab="attendees">
+          <Section
+            id="attendees"
+            titleId="h-attendees"
+            title={t("events.attendees")}
+            actions={
+              attendees.length ? (
+                <a href={`/api/dashboard/events/${event.id}/attendees`} className={`${btn.secondary} h-10`} download>
+                  <Icon name="download" size={18} />
+                  {t("events.downloadList")}
+                </a>
+              ) : null
+            }
+            flush
+          >
+            {attendees.length === 0 ? (
+              <div className="p-5 sm:p-6">
+                <EmptyState icon="groups" title={t("events.noAttendees")} />
+              </div>
+            ) : (
+              <div className="overflow-x-auto">
+                <table className="w-full min-w-[640px] border-collapse text-start text-[14px]">
+                  <thead>
+                    <tr className="border-b border-line-soft bg-sand text-[13px] text-muted">
+                      <th className="py-2.5 ps-5 pe-3 text-start font-semibold sm:ps-6">{t("events.nameOnTicket")}</th>
+                      <th className="py-2.5 pe-3 text-start font-semibold">{t("events.ticket")}</th>
+                      <th className="py-2.5 pe-3 text-start font-semibold">{t("events.code")}</th>
+                      <th className="py-2.5 pe-3 text-start font-semibold">{t("events.gotBy")}</th>
+                      <th className="py-2.5 pe-3 text-start font-semibold">{t("common.status")}</th>
+                      <th className="py-2.5 pe-5 font-semibold sm:pe-6">
+                        <span className="sr-only">{t("common.actions")}</span>
+                      </th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {attendees.map((a) => (
+                      <tr key={a.ticket.id} className="border-b border-line-soft align-top last:border-b-0">
+                        <td className="py-3 ps-5 pe-3 font-semibold sm:ps-6">{a.holder}</td>
+                        <td className="py-3 pe-3">
+                          {a.type}
+                          <span className="block text-[13px] text-muted">
+                            {k(a.price)}
+                            {a.order ? ` · ${t("events.orderN", { number: a.order })}` : ""}
+                          </span>
+                        </td>
+                        <td className="py-3 pe-3 font-mono text-[13px]" dir="ltr">
+                          {a.code}
+                        </td>
+                        <td className="py-3 pe-3">
+                          {k(a.buyer)}
+                          {a.contact ? (
+                            <span className="block text-[13px] text-muted" dir="ltr">
+                              {a.contact}
                             </span>
-                          </td>
-                          <td className="py-3 pe-3 font-mono text-[13px]" dir="ltr">
-                            {a.code}
-                          </td>
-                          <td className="py-3 pe-3">
-                            {k(a.buyer)}
-                            {a.contact ? (
-                              <span className="block text-[13px] text-muted" dir="ltr">
-                                {a.contact}
-                              </span>
-                            ) : null}
-                          </td>
-                          <td className="py-3 pe-3">
-                            <Badge tone={STATUS_TONE[a.status]}>{k(a.status)}</Badge>
-                          </td>
-                          <td className="py-3 pe-5 text-end sm:pe-6">
-                            {a.status === "Valid" ? (
-                              <form action={cancelTicketAction}>
-                                <input type="hidden" name="code" value={a.ticket.code} />
-                                <SubmitButton variant="secondary" className="h-8 px-2.5 text-[13px]" pendingText="…">
-                                  {t("events.cancelTicket")}
-                                </SubmitButton>
-                              </form>
-                            ) : null}
-                          </td>
-                        </tr>
-                      ))}
-                    </tbody>
-                  </table>
-                </div>
-              )}
-            </Section>
-
-            {form}
-          </>
-        }
-        side={status}
-      />
+                          ) : null}
+                        </td>
+                        <td className="py-3 pe-3">
+                          <Badge tone={STATUS_TONE[a.status]}>{k(a.status)}</Badge>
+                        </td>
+                        <td className="py-3 pe-5 text-end sm:pe-6">
+                          {a.status === "Valid" ? (
+                            <form action={cancelTicketAction}>
+                              <input type="hidden" name="code" value={a.ticket.code} />
+                              <SubmitButton variant="secondary" className="h-8 px-2.5 text-[13px]" pendingText="…">
+                                {t("events.cancelTicket")}
+                              </SubmitButton>
+                            </form>
+                          ) : null}
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            )}
+          </Section>
+        </TabPanel>
+        <TabPanel tab="details">
+          {form}
+        </TabPanel>
+      </PageTabs>
     </div>
   );
 }
