@@ -1,5 +1,5 @@
 import { createServer, type IncomingMessage, type Server } from "node:http";
-import { fakePaypal, fakeStripe, type FakeRequest } from "../unit/fake-stripe-paypal";
+import { fakePaypal, fakeStripe, type FakeRequest, type StripeEndpoint } from "../unit/fake-stripe-paypal";
 
 /**
  * 96.1 The fake Stripe and PayPal of the unit tests behind a local server,
@@ -12,6 +12,10 @@ export interface FakeServer {
   server: Server;
   calls: FakeRequest[];
   close: () => Promise<void>;
+  /** 132.34 Stripe: the webhook endpoints its Dashboard would list (a test adds the shop's). */
+  endpoints?: StripeEndpoint[];
+  /** Stripe: the Checkout Sessions it made, by ID. */
+  sessions?: Map<string, { id: string; client_reference_id: string | null }>;
 }
 
 function readBody(request: IncomingMessage): Promise<string> {
@@ -43,9 +47,9 @@ async function serve(port: number, handle: (request: FakeRequest) => { status: n
   return { server, calls, close: () => new Promise<void>((resolve) => server.close(() => resolve())) };
 }
 
-export async function startFakeStripe(port: number): Promise<FakeServer> {
-  const stripe = fakeStripe({ base: `http://localhost:${port}` });
-  return serve(port, stripe.handle, (path, method) => {
+export async function startFakeStripe(port: number, options: { accountName?: string } = {}): Promise<FakeServer> {
+  const stripe = fakeStripe({ base: `http://localhost:${port}`, accountName: options.accountName });
+  const served = await serve(port, stripe.handle, (path, method) => {
     const match = /^\/pay\/([^/?]+)(\/done)?/.exec(path);
     if (!match) return null;
     const session = stripe.sessions.get(match[1]!);
@@ -56,6 +60,7 @@ export async function startFakeStripe(port: number): Promise<FakeServer> {
     }
     return { html: page("Stripe Checkout", (session.amount_total / 100).toFixed(2), `/pay/${session.id}/done`) };
   });
+  return { ...served, endpoints: stripe.endpoints, sessions: stripe.sessions };
 }
 
 export async function startFakePaypal(port: number): Promise<FakeServer> {

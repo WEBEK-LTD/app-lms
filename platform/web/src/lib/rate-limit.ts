@@ -51,6 +51,8 @@ export async function rateLimitHits(
 
 export const RATE_LIMITS = {
   apiCheck: { name: "api-check:client", limit: 10, windowSeconds: 10 * 60 },
+  // 132.34 "Test connection" of the owner's payment gateway (each test makes a few calls to the gateway).
+  gatewayTest: { name: "gateway-test:client", limit: 10, windowSeconds: 10 * 60 },
   // 81.3 Apps started from a website: each reads someone's site.
   siteScan: { name: "site-scan:client", limit: 10, windowSeconds: 60 * 60 },
   // The app-builder bot: what an owner types to it (each answer is matched and may be logged).
