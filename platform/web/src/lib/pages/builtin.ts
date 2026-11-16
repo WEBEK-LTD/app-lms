@@ -1,7 +1,7 @@
 import { builtInText, DICTIONARY_LANGUAGES, DICTIONARY_VERSION } from "../i18n/builtin";
 import { yallappPageTexts } from "../i18n/yallapp-texts";
 import { withFilledTexts } from "./fill-texts";
-import type { Layout } from "./types";
+import type { Layout, LayoutContent } from "./types";
 
 /**
  * 43 Yallapp's own translations in a served layout: a tab name, page title
@@ -18,6 +18,23 @@ export function withBuiltInTexts(layout: Layout): Layout {
   if (filled === layout) return layout;
   // The version changes with Yallapp's translations, so apps and the plugin fetch them again.
   return { ...filled, version: `${layout.version}~t${DICTIONARY_VERSION}` };
+}
+
+/**
+ * 132.40 A layout whose main language Yallapp translates into (Arabic,
+ * Turkish) with the texts Yallapp wrote in English (a new app's tabs and
+ * home, a design's samples) in that language, their English and the other
+ * language Yallapp has kept as translations, also for a language the app
+ * doesn't offer yet. What the app would show (`withBuiltInTexts`), so the
+ * editors show it too. The owner's own texts stay; any other main language
+ * leaves the layout as it is.
+ */
+export function inMainLanguage<T extends LayoutContent>(layout: T): T {
+  const main = layout.languages.default;
+  if (main === "en" || !DICTIONARY_LANGUAGES.includes(main)) return layout;
+  const every = { ...layout, languages: { default: main, available: [...new Set([main, "en", ...DICTIONARY_LANGUAGES])] } };
+  const filled = withFilledTexts(every, DICTIONARY_LANGUAGES, builtInText);
+  return filled === every ? layout : { ...filled, languages: layout.languages };
 }
 
 function escapeHtml(text: string): string {

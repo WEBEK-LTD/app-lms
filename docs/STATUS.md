@@ -365,6 +365,13 @@ test environment:
 
 ## Known gaps
 
+- 132.40 An app started from a demo in Arabic or Turkish has its pages,
+  tabs and template words in that language, but the demo's own entries
+  (its products, dishes, places, courses, listings) stay in English: they
+  are one-language records. The sign-in code and receipt emails to an
+  app's users are in English. The app picks the phone's language when it
+  offers it, and its main language only otherwise.
+
 - 131 A flash sale's units aren't counted from a connected platform's
   orders (its own checkout sells them).
 

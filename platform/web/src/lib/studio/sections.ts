@@ -1135,9 +1135,15 @@ function pageOf(ctx: SectionContext, sections: string[], header: StudioPage["hea
   };
 }
 
+/** 132.40 A page of sections in the project's language, with Studio's other languages as translations, as a demo's home has them. */
+function translatedPageOf(ctx: SectionContext, sections: string[], header: StudioPage["header"]): StudioPage {
+  const { ctx: words, page } = translating(ctx);
+  return page(pageOf(words, sections, header));
+}
+
 /** A template for one kind of project: its sections, with its main buttons saying and opening `button`. */
 function typed(id: string, icon: string, fits: Fits, sections: string[], header: StudioPage["header"], button?: SectionContext["button"], steps?: SectionContext["steps"]): TemplateInfo {
-  return { id, icon, fits, make: (ctx) => pageOf({ ...ctx, ...(button ? { button } : {}), ...(steps ? { steps } : {}) }, sections, header) };
+  return { id, icon, fits, make: (ctx) => translatedPageOf({ ...ctx, ...(button ? { button } : {}), ...(steps ? { steps } : {}) }, sections, header) };
 }
 
 // 105.1.6 Food delivery: the main buttons open the restaurants; the steps say how an order reaches the door.
@@ -1255,8 +1261,8 @@ export const TEMPLATES: readonly TemplateInfo[] = [
   demoDesignTemplate("rides"),
   demoDesignTemplate("taxi"),
   // For every project.
-  { id: "brand", icon: "auto_awesome", make: (ctx) => pageOf(ctx, ["hero", "stats", "features", "review", "contact"], { type: "transparent", buttons: ["menu", "account"] }) },
-  { id: "contact", icon: "call", make: (ctx) => pageOf(ctx, ["contact", "form"], { type: "title_search", buttons: [] }) },
+  { id: "brand", icon: "auto_awesome", make: (ctx) => translatedPageOf(ctx, ["hero", "stats", "features", "review", "contact"], { type: "transparent", buttons: ["menu", "account"] }) },
+  { id: "contact", icon: "call", make: (ctx) => translatedPageOf(ctx, ["contact", "form"], { type: "title_search", buttons: [] }) },
   { id: "blank", icon: "note_add", make: (ctx) => ({ header: { type: "logo_actions", buttons: ["notifications", "account"] }, body: { id: (ctx.newId ?? newNodeId)(), type: "column", gap: 8, children: [] } }) },
 ];
 
