@@ -121,6 +121,8 @@ test("the café sets up its menu with options, pickup and delivery", async () =>
   await expect(own.getByLabel("Category name")).toHaveValue("Mains");
 
   await tabs.getByRole("link", { name: /^Payments/ }).click();
+  // 132.120 The Menu's tab opens the one Payments page.
+  await expect(own).toHaveURL(/\/dashboard\/payments$/);
   await own.getByLabel("API key").fill("sandbox-api-key");
   await own.getByLabel("Secret key").fill("sandbox-secret-key");
   await own.getByText("Sandbox keys").click();
@@ -128,6 +130,7 @@ test("the café sets up its menu with options, pickup and delivery", async () =>
   await expect(own.getByText("iyzico keys saved.")).toBeVisible();
 
   // Pickup and delivery: open all day (so the test never runs while closed), a fee, a minimum and two districts.
+  await nav.getByRole("link", { name: "Menu", exact: true }).click();
   await tabs.getByRole("link", { name: /^Pickup and delivery/ }).click();
   const kitchen = own.getByRole("region", { name: "Pickup and delivery" });
   for (const day of ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"]) {

@@ -83,6 +83,8 @@ test("a shop takes a bank transfer, marks it paid, and cancels an unpaid order",
   await page.getByRole("link", { name: "Products", exact: true }).click();
   // 132.10 Payments have their own page under Products.
   await page.getByRole("navigation", { name: "Products", exact: true }).getByRole("link", { name: /^Payments/ }).click();
+  // 132.120 The Products tab opens the one Payments page.
+  await expect(page).toHaveURL(/\/(dashboard|studio\/project)\/payments$/);
 
   // No card keys: the bank details and the shop's own method.
   const other = page.getByRole("region", { name: "Bank transfer and your own method" });
@@ -96,7 +98,8 @@ test("a shop takes a bank transfer, marks it paid, and cancels an unpaid order",
   await expect(other.getByText("Payment methods saved.")).toBeVisible();
   await expect(other.getByText("On: Bank transfer and Cash on delivery")).toBeVisible();
   // With these, the shop takes orders: no "can't pay" warning.
-  await page.getByRole("navigation", { name: "Products", exact: true }).getByRole("link", { name: /^Products/ }).click();
+  // 132.120 Back from the one Payments page by the menu.
+  await page.getByRole("link", { name: "Products", exact: true }).click();
   await expect(page.getByText("can't pay for them until you set up")).toHaveCount(0);
 
   await page.getByRole("link", { name: "Add product" }).click();

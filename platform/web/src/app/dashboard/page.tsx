@@ -342,7 +342,7 @@ export default async function OverviewPage({ searchParams }: PageProps<"/dashboa
     license: (chunk: string) => <Link href="/dashboard/license">{chunk}</Link>,
     renew: (chunk: string) => <Link href="/dashboard/license#renew">{chunk}</Link>,
     whatsapp: (chunk: string) => <a href={contact.whatsappUrl}>{chunk}</a>,
-    link: (chunk: string) => <Link href="/dashboard/catalog/payments">{chunk}</Link>,
+    link: (chunk: string) => <Link href="/dashboard/payments">{chunk}</Link>,
   };
 
   return (

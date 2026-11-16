@@ -44,7 +44,8 @@ describe("80.1 an app's integrations", () => {
       ["google_play", "not_set", "no_store_key", false],
       ["app_store", "not_set", "no_store_key", false],
     ]);
-    expect(rows.find((r) => r.key === "payments")!.href).toBe("/dashboard/catalog");
+    // 132.120 The one Payments page.
+    expect(rows.find((r) => r.key === "payments")!.href).toBe("/dashboard/payments");
   });
 
   it("says where a WordPress site's plugin was last seen, and what failed lately", () => {

@@ -88,6 +88,9 @@ function refresh() {
   revalidatePath("/dashboard/delivery");
   revalidatePath("/dashboard/ride-settings");
   revalidatePath("/dashboard/school/settings");
+  // 132.120 The one Payments page, in the dashboard and in Studio.
+  revalidatePath("/dashboard/payments");
+  revalidatePath("/studio/project/payments");
 }
 
 // Categories
@@ -508,6 +511,10 @@ export async function testPaymentKeysAction(_: PaymentTestState, formData: FormD
     },
     { urls: paymentApiUrls() },
   );
+  // 132.120 Kept for the Payments page's summary: which gateway, when, whether it all worked (nothing of the keys).
+  const fresh = (await store.getAppById(app.id)) ?? app;
+  await store.updateApp(app.id, { catalogSettings: { ...catalogSettings(fresh), gatewayTest: { provider, at: report.at, ok: report.ok, mode: report.mode } } }, now);
+  refresh();
   return { ok: report.ok, report };
 }
 

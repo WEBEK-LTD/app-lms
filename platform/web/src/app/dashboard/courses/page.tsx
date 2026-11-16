@@ -102,7 +102,7 @@ export default async function CoursesPage({ searchParams }: { searchParams: Prom
       <SampleEntries app={app} list="courses" query={await searchParams} />
       {paid && !app.catalogSettings?.payment ? (
         <Notice tone="warn" icon="warning">
-          {richText(t("manage.paidNoPayments"), { link: (chunk) => <Link href="/dashboard/courses/payments">{chunk}</Link> })}
+          {richText(t("manage.paidNoPayments"), { link: (chunk) => <Link href="/dashboard/payments">{chunk}</Link> })}
         </Notice>
       ) : null}
 
