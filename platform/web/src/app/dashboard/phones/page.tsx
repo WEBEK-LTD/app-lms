@@ -2,8 +2,7 @@ import type { Metadata } from "next";
 import { signOutAllPhonesAction, signOutPhoneAction } from "@/app/actions/owner-devices";
 import { SubmitButton } from "@/components/form";
 import { Icon } from "@/components/icon";
-import { ItemList, ItemRow, Stat, StatRow, Thumb } from "@/components/page-kit";
-import { EmptyState, Notice, PageHeader, Section } from "@/components/ui";
+import { KitCallout, KitEmpty, KitHeader, KitHero, KitList, KitNext, KitPage, KitRow, KitSection, KitStat, KitStatus, KitThumb, kit } from "@/components/studio-page";
 import { requireClient } from "@/lib/auth/session";
 import { dashboardText } from "@/lib/dashboard-lang";
 import { getStore } from "@/lib/data";
@@ -19,65 +18,69 @@ export async function generateMetadata(): Promise<Metadata> {
 export default async function PhonesPage({ searchParams }: PageProps<"/dashboard/phones">) {
   // 60 A team member sees their own phones; our team managing the dashboard, the owner's.
   const { user, member } = await requireClient("dashboard");
-  const { t, date } = await dashboardText();
+  const { t, date, num } = await dashboardText();
   const devices = await (await getStore()).listOwnerDevices((member ?? user).id);
   const signedOut = (await searchParams)["signed-out"];
   const done = typeof signedOut === "string" ? (signedOut === "all" ? t("owner.signedOutAll") : t("owner.signedOut", { name: signedOut })) : null;
   const withNotifications = devices.filter((device) => device.pushToken).length;
+  // 132.142 The premium kit: the numbers in one hero card with signing out every phone as its next step, then each phone as a row with its own Sign out.
   return (
-    <div className="flex flex-col gap-6">
-      {/* The page kit: the header, the numbers, then the phones with their own Sign out. */}
-      <PageHeader title={t("owner.title")} description={t("owner.intro")} />
+    <KitPage>
+      <KitHeader icon="smartphone" title={t("owner.title")} description={t("owner.line")} help={t("owner.intro")} helpLabel={t("studioPage.help")} />
       {done ? (
-        <Notice tone="success" icon="check_circle" role="status">
+        <KitCallout tone="success" icon="check_circle" role="status">
           {done}
-        </Notice>
+        </KitCallout>
       ) : null}
       {devices.length ? (
         <>
-          <StatRow label={t("owner.title")}>
-            <Stat icon="smartphone" label={t("owner.statPhones")} value={devices.length} />
-            <Stat icon="notifications" tone="accent" label={t("owner.notifications")} value={withNotifications} />
-          </StatRow>
-          <Section
-            titleId="h-phones"
-            title={t("owner.count", { count: devices.length })}
-            description={t("owner.passwordNote")}
-            actions={
-              <form action={signOutAllPhonesAction}>
-                <SubmitButton variant="secondary" className="h-10 px-4 text-sm">
-                  <Icon name="logout" size={18} />
-                  {t("owner.signOutAll")}
-                </SubmitButton>
-              </form>
+          <KitHero
+            label={t("owner.title")}
+            stats={
+              <>
+                <KitStat icon="smartphone" tone="accent" label={t("owner.statPhones")} value={num(devices.length)} />
+                <KitStat icon="notifications" tone="success" label={t("owner.notifications")} value={num(withNotifications)} />
+              </>
             }
-            flush
-          >
-            <ItemList>
-              {devices.map((device, i) => (
-                <ItemRow
+            next={
+              <KitNext
+                icon="lock"
+                action={
+                  <form action={signOutAllPhonesAction}>
+                    <SubmitButton variant="secondary" className="h-10 px-4 text-sm">
+                      <Icon name="logout" size={18} />
+                      {t("owner.signOutAll")}
+                    </SubmitButton>
+                  </form>
+                }
+              >
+                {t("owner.passwordNote")}
+              </KitNext>
+            }
+          />
+          <KitSection titleId="h-phones" title={t("owner.count", { count: devices.length })} flush>
+            <KitList>
+              {devices.map((device) => (
+                <KitRow
                   key={device.id}
                   data-device={device.id}
-                  media={<Thumb icon={device.platform === "ios" ? "phone_iphone" : "smartphone"} shape="round" tint={i} />}
+                  media={<KitThumb icon={device.platform === "ios" ? "phone_iphone" : "smartphone"} />}
                   title={device.name}
+                  // The page's words first: the row's line takes its direction from them (Arabic right to left).
                   meta={
                     <>
-                      {device.platform === "ios" ? t("owner.ios") : t("owner.android")}
-                      {device.appVersion ? <span dir="ltr"> {device.appVersion}</span> : null} · {t("owner.signedIn", { date: date(device.createdAt) })} · {t("owner.lastUsed", { date: date(device.lastSeenAt) })}
+                      {t("owner.signedIn", { date: date(device.createdAt) })} · {t("owner.lastUsed", { date: date(device.lastSeenAt) })} ·{" "}
+                      <bdi>
+                        {device.platform === "ios" ? t("owner.ios") : t("owner.android")}
+                        {device.appVersion ? <span dir="ltr"> {device.appVersion}</span> : null}
+                      </bdi>
                     </>
                   }
-                  aside={
-                    device.pushToken ? (
-                      <span className="inline-flex items-center gap-1 text-[13px] font-semibold text-success">
-                        <Icon name="notifications" size={16} />
-                        {t("owner.notifications")}
-                      </span>
-                    ) : null
-                  }
+                  aside={device.pushToken ? <KitStatus tone="success">{t("owner.notifications")}</KitStatus> : null}
                   actions={
                     <form action={signOutPhoneAction}>
                       <input type="hidden" name="id" value={device.id} />
-                      <SubmitButton variant="secondary" className="h-9 px-3.5 text-sm">
+                      <SubmitButton variant="pill" className="h-9 cursor-pointer">
                         <span aria-hidden="true">{t("owner.signOut")}</span>
                         <span className="sr-only">{t("owner.signOutNamed", { name: device.name })}</span>
                       </SubmitButton>
@@ -85,14 +88,16 @@ export default async function PhonesPage({ searchParams }: PageProps<"/dashboard
                   }
                 />
               ))}
-            </ItemList>
-          </Section>
+            </KitList>
+          </KitSection>
         </>
       ) : (
-        <EmptyState icon="smartphone" title={t("owner.empty")}>
-          {t("owner.emptyText")}
-        </EmptyState>
+        <div className={kit.card}>
+          <KitEmpty icon="smartphone" title={t("owner.empty")}>
+            {t("owner.emptyText")}
+          </KitEmpty>
+        </div>
       )}
-    </div>
+    </KitPage>
   );
 }

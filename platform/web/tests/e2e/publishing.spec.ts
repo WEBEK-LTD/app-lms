@@ -294,6 +294,8 @@ test("the team moves each store along, and the client is emailed", async () => {
 
 test("35, 36 the client adds Samsung Galaxy Store, and the team moves it along", async () => {
   await own.goto("/dashboard/publishing");
+  // 132.140 More Android stores are folded behind one line.
+  await own.locator("summary", { hasText: "More Android stores" }).click();
   const more = own.getByRole("form", { name: "More Android stores" });
   await more.getByRole("checkbox", { name: /Samsung Galaxy Store/ }).check();
   await more.getByRole("button", { name: "Save stores" }).click();
@@ -320,6 +322,7 @@ test("35, 36 the client adds Samsung Galaxy Store, and the team moves it along",
 
 test("42 the client adds Xiaomi GetApps, and the team marks it live", async () => {
   await own.goto("/dashboard/publishing");
+  await own.locator("summary", { hasText: "More Android stores" }).click();
   const more = own.getByRole("form", { name: "More Android stores" });
   await expect(more.getByText("Xiaomi's app store, on Xiaomi, Redmi and POCO phones.")).toBeVisible();
   await more.getByRole("checkbox", { name: /Xiaomi GetApps/ }).check();
@@ -439,9 +442,10 @@ test("the team closes a build that stopped, and the client can start again", asy
   await expect(own.getByRole("region", { name: "Build #3 · App version 1.0.1" })).toContainText("Didn't finish");
   await expect(own.getByRole("button", { name: "Start new build" })).toBeEnabled();
   await expect(own.getByRole("textbox", { name: "App version" })).toHaveValue("1.0.1");
-  // The history keeps every build, with its times.
+  // The history keeps every build, with its times (132.140: each build a row of its list).
   const history = own.getByRole("region", { name: "Build history" });
-  await expect(history.getByRole("row")).toHaveCount(4);
+  await expect(history.getByRole("listitem")).toHaveCount(3);
+  await expect(history.getByRole("listitem").first()).toContainText("Queued");
 });
 
 test("publishing yourself after all tells the team, and the setup's Publishing step asks us again", async () => {

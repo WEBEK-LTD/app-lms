@@ -47,6 +47,13 @@ alike. The other Studio project pages, `/studio/team` and Payments still
 use the older page kit (`page-kit.tsx`) until they move to it.
 `tests/screens/studio-premium.screens.ts` takes their pictures.
 
+Roadmap 132.140–132.144 (Studio's premium pages, the second set): the
+kit is on Publishing, Builds, Stability, Invoices, Add-ons, Team, Updates
+from Yallapp and Your phones too (each the dashboard's page, in Studio's
+frame), with a settings switch (`studio-page/switch.tsx`) and a build's
+stages as small pills (`BuildStages look="pills"`).
+`tests/screens/studio-premium-b.screens.ts` takes their pictures.
+
 Roadmap 132.1–132.8 (Studio dashboard fixes): a Studio project's menu has
 every page of the dashboard that applies to the project, behind the
 dashboard's gates, in six groups that fold away, with a quick search
