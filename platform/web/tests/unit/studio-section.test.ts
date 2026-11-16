@@ -9,7 +9,8 @@ import { isStudioProject, licensePath, studioPathFor, studioSourcesFor } from "@
 
 describe("103R.3 Studio's own plans", () => {
   it("keeps the two families apart", () => {
-    expect(plansOfFamily("regular")).toEqual(["starter", "growth", "pro", "business"]);
+    // 133 The four, then the ones the team can add.
+    expect(plansOfFamily("regular")).toEqual(["starter", "growth", "pro", "business", "regular_5", "regular_6", "regular_7", "regular_8", "regular_9", "regular_10", "regular_11", "regular_12"]);
     expect(plansOfFamily("studio")).toEqual(["studio_1", "studio_2", "studio_3", "studio_4", "studio_5", "studio_6", "studio_7", "studio_8"]);
     expect(planFamily("pro")).toBe("regular");
     expect(planFamily("studio_2")).toBe("studio");

@@ -35,6 +35,9 @@ export type ClientEmailKey = Extract<
   | "plan_ends_today"
   | "storage_pack_added"
   | "storage_pack_ended"
+  // 133
+  | "addon_added"
+  | "addon_ends_soon"
   | "chat_expiring"
   | "integration_failed"
   | "own_whatsapp_failed"
@@ -166,6 +169,15 @@ const AR: Record<ClientEmailKey, TemplateText> = {
       "مرحبًا {{name}}،\n\nتنتهي خطة {{plan}} لتطبيق {{app_name}} اليوم، {{end_date}}. يتوقف التطبيق مؤقتًا عند انتهائها ويعود فور التجديد.\n\n" +
       "جدّد بالبطاقة: {{renew_url}}" +
       SIGNATURE_AR,
+  },
+  // 133 Add-ons
+  addon_added: {
+    subject: "{{app_name}}: أُضيف {{addon}}",
+    body: "مرحبًا {{name}}،\n\nشكرًا على الدفع. أصبح لدى {{app_name}} الآن {{addon}} ({{period}}).\n\n{{until_line}}{{payment_line}}إضافاتك: {{addons_url}}" + SIGNATURE_AR,
+  },
+  addon_ends_soon: {
+    subject: "{{app_name}}: ينتهي {{addon}} في {{end_date}}",
+    body: "مرحبًا {{name}}،\n\nينتهي {{addon}} الخاص بتطبيق {{app_name}} في {{end_date}}. للإبقاء عليه، جدّده من صفحة الإضافات:\n{{addons_url}}" + SIGNATURE_AR,
   },
   storage_pack_added: {
     subject: "{{app_name}}: أُضيفت مساحة تخزين {{pack}}",
@@ -382,6 +394,15 @@ const TR: Record<ClientEmailKey, TemplateText> = {
       "Merhaba {{name}},\n\n{{app_name}} uygulamasının {{plan}} planı bugün ({{end_date}}) bitiyor. Plan bittiğinde uygulama duraklatılır ve yenilediğiniz anda geri gelir.\n\n" +
       "Kartla yenileyin: {{renew_url}}" +
       SIGNATURE_TR,
+  },
+  // 133 Add-ons
+  addon_added: {
+    subject: "{{app_name}}: {{addon}} eklendi",
+    body: "Merhaba {{name}},\n\nÖdemeniz için teşekkürler. {{app_name}} artık {{addon}} ({{period}}) içeriyor.\n\n{{until_line}}{{payment_line}}Eklentileriniz: {{addons_url}}" + SIGNATURE_TR,
+  },
+  addon_ends_soon: {
+    subject: "{{app_name}}: {{addon}} {{end_date}} tarihinde bitiyor",
+    body: "Merhaba {{name}},\n\n{{app_name}} uygulamasının {{addon}} eklentisi {{end_date}} tarihinde bitiyor. Devam etmesi için Eklentiler sayfanızdan yenileyin:\n{{addons_url}}" + SIGNATURE_TR,
   },
   storage_pack_added: {
     subject: "{{app_name}}: {{pack}} depolama alanı eklendi",

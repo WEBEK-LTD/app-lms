@@ -178,6 +178,7 @@ import type { Courier, CourierInput, CourierPatch, DeliveryService, DeliveryServ
 import type { UniAttendance, UniCourse, UniDepartment, UniEnrolment, UniEnrolmentStatus, UniFaculty, UniProgram, UniRegistration, UniRegistrationStatus, UniSection, UniSettings, UniStudent, UniTerm } from "./types";
 // 51 Media and storage
 import type { MediaFile, MediaFilePatch, MediaKind, MediaStatus, StoragePack, StoragePackPatch } from "./types";
+import type { AddonTaskStatus, AppAddon, AppAddonPatch } from "../addons/types";
 import type { OwnerNotice, OwnerNoticeKind, OwnerNoticePatch } from "./types";
 import type { DemoPurgeCounts } from "./types";
 // 46 Links and crash reports
@@ -7922,6 +7923,35 @@ export class MysqlStore implements DataStore {
     await this.run((db) => db.delete(p).where(and(eq(p.appId, appId), eq(p.id, id))));
   }
 
+  // 133 Add-ons each app has
+  async createAppAddon(addon: AppAddon): Promise<void> {
+    await this.run((db) => db.insert(schema.appAddons).values(addon));
+  }
+
+  async getAppAddon(id: string): Promise<AppAddon | null> {
+    const a = schema.appAddons;
+    const [row] = await this.run((db) => db.select().from(a).where(eq(a.id, id)).limit(1));
+    return row ? appAddonOf(row) : null;
+  }
+
+  async listAppAddons(filter: { appId?: string; clientId?: string; addonId?: string; taskStatus?: AddonTaskStatus[]; endingBefore?: Date; limit?: number }): Promise<AppAddon[]> {
+    const a = schema.appAddons;
+    const where = and(
+      filter.appId !== undefined ? eq(a.appId, filter.appId) : undefined,
+      filter.clientId !== undefined ? eq(a.clientId, filter.clientId) : undefined,
+      filter.addonId !== undefined ? eq(a.addonId, filter.addonId) : undefined,
+      filter.taskStatus !== undefined ? (filter.taskStatus.length ? inArray(a.taskStatus, filter.taskStatus) : sql`false`) : undefined,
+      filter.endingBefore !== undefined ? and(eq(a.status, "active"), isNotNull(a.activeUntil), lt(a.activeUntil, filter.endingBefore)) : undefined,
+    );
+    const rows = await this.run((db) => db.select().from(a).where(where).orderBy(desc(a.createdAt), desc(a.id)).limit(filter.limit ?? 200));
+    return rows.map(appAddonOf);
+  }
+
+  async updateAppAddon(id: string, patch: AppAddonPatch): Promise<void> {
+    if (!Object.keys(patch).length) return;
+    await this.run((db) => db.update(schema.appAddons).set(patch).where(eq(schema.appAddons.id, id)));
+  }
+
   async listEndedStoragePacks(now: Date, limit: number): Promise<StoragePack[]> {
     const p = schema.storagePacks;
     return this.run((db) =>
@@ -10661,4 +10691,9 @@ function vendorDefaults<T extends RestaurantInput>(input: T): T & Required<Pick<
     closedDates: input.closedDates ?? null,
     vendorEdit: input.vendorEdit ?? null,
   };
+}
+
+/** 133 An add-on row as the store returns it (the amount as a number). */
+function appAddonOf(row: typeof schema.appAddons.$inferSelect): AppAddon {
+  return { ...row, amount: row.amount === null ? null : Number(row.amount) };
 }

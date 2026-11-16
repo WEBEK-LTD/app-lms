@@ -99,6 +99,8 @@ export const DASHBOARD_PATHS: readonly (readonly [string, TeamPermission])[] = [
   ["/dashboard/team", "team"],
   ["/dashboard/license", "billing"],
   ["/dashboard/invoices", "billing"],
+  // 133 Add-ons are bought like the plan.
+  ["/dashboard/addons", "billing"],
   ["/dashboard/app-type", "apps"],
   // The app-builder guide makes a new app, like the app type step.
   ["/dashboard/builder", "apps"],

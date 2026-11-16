@@ -17,20 +17,24 @@ import { dashboardText, type DashboardText } from "@/lib/dashboard-lang";
 import { encryptionKey } from "@/lib/env";
 import { latestRelease } from "@/lib/license/service";
 import { ACCOUNT_STATE_LABEL } from "@/lib/license/status";
-import { comparePlans, formatStorage, hasFeature, isPlan, lowestPlanWith, planFeaturesFor, planName, planOffered, planPrice, plansOfFamily, STUDIO_ONLY_FEATURES, type Plan, type PlanInfo } from "@/lib/plans";
+import { comparePlans, formatStorage, hasFeature, isPlan, lowestPlanWith, planFeaturesFor, planName, planOffered, planPrice, plansInOrder, plansOfFamily, STUDIO_ONLY_FEATURES, lifetimeNoteOf, limitDefName, cleanLimitDefs, formatLimit, type Plan, type PlanInfo, type PlanLimitDef } from "@/lib/plans";
+import { isLifetimeEnd, isPeriodKey, paymentMonthsOf, PERIOD_KEYS, type PeriodKey } from "@/lib/billing/periods";
+import { cardPeriods, startingPeriod } from "@/lib/billing/card-plans";
+import { lifetimeLocked } from "@/lib/billing/plan-change";
+import { LifetimeOffer } from "@/components/lifetime-offer";
 import { packOffers, renewablePacks, renewalLabel } from "@/lib/media/packs";
 import { cardPlanOptions } from "@/lib/billing/card-plans";
 import { currentPlanId, planChangeFor, scheduledPlan } from "@/lib/billing/plan-change";
-import { effectivePlans } from "@/lib/entitlements";
+import { appPlan, effectivePlans } from "@/lib/entitlements";
 import { getSwitches } from "@/lib/switches";
 import { PlanPaymentForm } from "@/components/plan-payment-form";
 import { analyticsEventsKeepText, analyticsKeepText } from "@/components/plan-cards";
-import { licensePath } from "@/lib/studio/section";
+import { addonsPath, licensePath } from "@/lib/studio/section";
 import { getPlans, platformSetting, yallappPlanAccount } from "@/lib/settings/platform";
 import { priceView } from "@/lib/billing/display";
 import { formatAmount } from "@/lib/billing/prices";
 import { paymentWhat } from "@/lib/billing/receipt";
-import { plansIn } from "@/lib/marketing-lang";
+import { planFor, plansIn } from "@/lib/marketing-lang";
 import { planUsage } from "@/lib/billing/usage";
 import { appStorage } from "@/lib/media/usage";
 import { wordsOf } from "@/lib/app/kinds";
@@ -61,9 +65,10 @@ const SUPPORT_KEY = {
   dedicated: "license.supportDedicated",
 } as const;
 
-/** The few lines that tell the tiers apart, on a plan card. */
-function planLines(plan: PlanInfo, { t, num, lang }: DashboardText): string[] {
+/** The few lines that tell the tiers apart, on a plan card; 133 with its page limit and the team's own limits. */
+function planLines(plan: PlanInfo, { t, num, lang }: DashboardText, limitDefs: PlanLimitDef[] = []): string[] {
   const { appUsers, languages, storageGb, analyticsMonths } = plan.limits;
+  const extra = limitDefs.filter((d) => plan.extraLimits && d.id in plan.extraLimits).map((d) => t("license.lineExtra", { name: limitDefName(d, lang), value: formatLimit(plan.extraLimits![d.id] ?? null, t("license.unlimited")) }));
   return [
     hasFeature(plan, "ios") ? t("license.lineAndroidIos") : t("license.lineAndroid"),
     appUsers === null ? t("license.lineUsersUnlimited") : t("license.lineUsers", { count: num(appUsers) }),
@@ -78,6 +83,9 @@ function planLines(plan: PlanInfo, { t, num, lang }: DashboardText): string[] {
     hasFeature(plan, "auto_publish") ? t("license.lineWePublish") : t("license.lineYouPublish"),
     // 77
     ...(hasFeature(plan, "chat") ? [t("license.lineChat")] : []),
+    // 133
+    ...(typeof plan.limits.pages === "number" ? [t("license.linePages", { count: plan.limits.pages })] : []),
+    ...extra,
     t(SUPPORT_KEY[plan.limits.support]),
   ];
 }
@@ -88,7 +96,9 @@ export default async function LicensePage({ searchParams }: PageProps<"/dashboar
   const text = await dashboardText();
   const { t, k, lang } = text;
   const date = (d: Date | null | undefined) => formatDate(d, lang);
-  const { released, payment, plan: wanted, plan_change: planChange } = await searchParams;
+  const { released, payment, plan: wanted, plan_change: planChange, period: wantedPeriod } = await searchParams;
+  // 133 The period the client looks at on the plan cards (and starts the payment form on).
+  const askedPeriod: PeriodKey | null = isPeriodKey(wantedPeriod) ? wantedPeriod : null;
   const store = await getStore();
   const now = new Date();
   // 56 The plans' default taglines in the dashboard's language (the website's translations).
@@ -98,13 +108,17 @@ export default async function LicensePage({ searchParams }: PageProps<"/dashboar
   const currentId: Plan | null = license ? currentPlanId(license, now) : null;
   const scheduled = scheduledPlan(license, now);
   // 94.1 What you pay for: the plan's limits, what this app uses, what it includes; the account's apps and their plans.
-  const currentPlan = currentId ? effective[currentId] : null;
+  // 133 With the app's add-ons: their limits are what the app may use.
+  const currentPlan = currentId && license ? planFor(lang, (await appPlan(store, license, now)) ?? effective[currentId]) : null;
   const usage = app
     ? await (async () => {
         const hosted = app.backend === "hosted";
         const [users, layout, storage] = await Promise.all([hosted ? store.countHostedUsers(app.id) : 0, store.getAppLayout(app.id), appStorage(store, app, effective, now)]);
-        const languages = (layout?.published ?? layout?.draft)?.languages.available.length ?? 1;
-        return planUsage({ plan: currentPlan, hosted, appUsers: users, languages, storage });
+        const content = layout?.published ?? layout?.draft;
+        const languages = content?.languages.available.length ?? 1;
+        const studio = app.section === "studio";
+        const pages = { used: content ? (studio ? content.pages.filter((p) => p.studio).length : content.pages.length) : 0, studio };
+        return planUsage({ plan: currentPlan, hosted, appUsers: users, languages, storage, pages });
       })()
     : [];
   // 103R A Studio project is on a Studio plan, a regular app on a regular one: each sees its own family's plans and features.
@@ -122,38 +136,71 @@ export default async function LicensePage({ searchParams }: PageProps<"/dashboar
     const id = l ? currentPlanId(l, now) : null;
     return { id: a.id, name: appLabel(a) === "Untitled app" ? k("Untitled app") : appLabel(a), plan: id ? planName(id, effective) : null, until: l ? date(l.expiresAt) : null, price: id ? priceOf(id) : null, current: a.id === app?.id };
   });
-  const payable = yallappAccount ? cardPlanOptions(plans, await getSwitches(store), yallappAccount.provider, view, family) : [];
+  // 133 A lifetime plan is changed by the team: nothing to pay for here.
+  const locked = lifetimeLocked(license);
+  const payable = yallappAccount && !locked ? cardPlanOptions(plans, await getSwitches(store), yallappAccount.provider, view, family, currentId) : [];
+  const extras = (await platformSetting(store, "planExtras"))?.value ?? null;
+  const limitDefs = cleanLimitDefs(extras);
   // 52 This app's card payments, with their receipts (before the first app exists, the account's).
   const paid = (await store.listPlanPayments({ clientId: client.id, limit: 50 })).filter((p) => p.status === "paid" && p.appId === (app?.id ?? null)).slice(0, 20);
   // 13.3 What paying for each plan does: an upgrade starts today with the old days credited, a downgrade waits for the end of the period.
+  // 133 For each period the plan offers (a lifetime one is "for life").
+  const noteFor = (info: PlanInfo, months: number) => {
+    const change = planChangeFor(license, info, months, plans, now);
+    const until = isLifetimeEnd(change.activeUntil) ? t("license.forLife") : date(change.activeUntil);
+    return change.kind === "upgrade"
+      ? change.creditDays
+        ? t("license.noteUpgradeCredit", { days: change.creditDays, date: until })
+        : t("license.noteUpgrade", { date: until })
+      : change.kind === "downgrade"
+        ? t("license.noteDowngrade", { start: date(change.nextPlanAt), date: until })
+        : change.kind === "renew" && state === "active"
+          ? months === 1
+            ? t("license.noteMonth", { date: until })
+            : months === 12
+              ? t("license.noteYear", { date: until })
+              : t("license.noteUntil", { date: until })
+          : null;
+  };
   const notes = payable.map((p) => {
     const info = plans[p.id];
-    const change = planChangeFor(license, info, info.billingMonths, plans, now);
-    const note =
-      change.kind === "upgrade"
-        ? change.creditDays
-          ? t("license.noteUpgradeCredit", { days: change.creditDays, date: date(change.activeUntil) })
-          : t("license.noteUpgrade", { date: date(change.activeUntil) })
-        : change.kind === "downgrade"
-          ? t("license.noteDowngrade", { start: date(change.nextPlanAt), date: date(change.activeUntil) })
-          : change.kind === "renew" && state === "active"
-            ? info.billingMonths === 1
-              ? t("license.noteMonth", { date: date(change.activeUntil) })
-              : t("license.noteYear", { date: date(change.activeUntil) })
-            : null;
-    return { ...p, period: p.period ? k(p.period) : null, charge: p.charge ? k(p.charge) : p.charge, note };
+    return {
+      ...p,
+      period: p.period ? k(p.period) : null,
+      charge: p.charge ? k(p.charge) : p.charge,
+      note: noteFor(info, info.billingMonths),
+      periods: p.periods?.map((x) => ({ ...x, charge: x.charge ? k(x.charge) : x.charge, note: noteFor(info, paymentMonthsOf(x.key)) })),
+    };
   });
   // 51 The app's storage packs renew with the plan, for each plan's months; 52 shown in the client's currency, charged with the plan.
   const packs = app && yallappAccount ? await store.listStoragePacks(app.id) : [];
   const offers = packs.length ? packOffers((await platformSetting(store, "storagePacks"))?.value) : [];
-  const storageRenewal: Partial<Record<Plan, string>> = {};
+  const storageRenewal: Partial<Record<string, string>> = {};
   if (yallappAccount && packs.length) {
     for (const p of payable) {
-      const renewal = renewablePacks(packs, offers, { provider: yallappAccount.provider, view, months: plans[p.id].billingMonths, now });
-      if (renewal) storageRenewal[p.id] = k(renewalLabel(renewal));
+      // 133 Each period but lifetime: a pack runs month by month.
+      for (const x of p.periods ?? []) {
+        if (x.key === "lifetime") continue;
+        const renewal = renewablePacks(packs, offers, { provider: yallappAccount.provider, view, months: paymentMonthsOf(x.key), now });
+        if (renewal) storageRenewal[`${p.id}:${x.key}`] = k(renewalLabel(renewal));
+      }
     }
   }
   const selected = isPlan(wanted) ? wanted : (scheduled?.plan ?? currentId);
+  // 133 The plan cards in the team's order, each with its periods; the period switcher offers each period one of them has.
+  const shownIds = plansInOrder(plansOfFamily(family), plans).filter((id) => planOffered(plans[id]) || id === currentId);
+  const cardPeriodsOf = new Map(shownIds.map((id) => [id, cardPeriods(plans[id], view)]));
+  const periodsOffered = PERIOD_KEYS.filter((key) => shownIds.some((id) => cardPeriodsOf.get(id)!.some((p) => p.key === key)));
+  const mainCounts = new Map<PeriodKey, number>();
+  for (const id of shownIds) {
+    const main = startingPeriod({ periods: cardPeriodsOf.get(id), period: planPrice(plans[id], view).period }, null);
+    if (main) mainCounts.set(main, (mainCounts.get(main) ?? 0) + 1);
+  }
+  const cardsPeriod: PeriodKey | null =
+    askedPeriod && periodsOffered.includes(askedPeriod) ? askedPeriod : ([...mainCounts.entries()].sort((a, b) => b[1] - a[1] || PERIOD_KEYS.indexOf(a[0]) - PERIOD_KEYS.indexOf(b[0]))[0]?.[0] ?? null);
+  // 133 The plans sold for life, for the lifetime card.
+  const lifetimePlans = shownIds.filter((id) => planOffered(plans[id]) && cardPeriodsOf.get(id)!.some((p) => p.key === "lifetime"));
+  const periodWord = (key: PeriodKey) => t(`license.period${key === "lifetime" ? "Lifetime" : key}`);
   const activation = license ? await store.getActivation(license.id) : null;
   const release = latestRelease(await store.listReleases());
   // Apps on the hosted API or their own API have no plugin: no website activation or plugin download to show,
@@ -261,7 +308,8 @@ export default async function LicensePage({ searchParams }: PageProps<"/dashboar
               <span className="block text-[13px] font-normal text-muted">{t("license.movesTo", { plan: effective[scheduled.plan].name, date: date(scheduled.at) })}</span>
             ) : null}
           </Row>
-          <Row label={t("license.activeUntil")}>{date(license?.expiresAt)}</Row>
+          {/* 133 A lifetime plan never ends. */}
+          <Row label={t("license.activeUntil")}>{isLifetimeEnd(license?.expiresAt) ? t("license.forLife") : date(license?.expiresAt)}</Row>
           {plugin || activation ? (
             <Row label={t("license.activatedOn")}>
               {activation ? (
@@ -338,15 +386,40 @@ export default async function LicensePage({ searchParams }: PageProps<"/dashboar
             </SubmitButton>
           </form>
         ) : null}
+        {/* 133 How long to pay for: the cards show the period's price, what it comes to per month and the saving. */}
+        {periodsOffered.length > 1 ? (
+          <nav aria-label={t("license.periodsLabel")} className="flex flex-wrap gap-2" data-period-tabs="">
+            {periodsOffered.map((key) => (
+              <Link
+                key={key}
+                href={licensePath(app, `?period=${key}#change-plan`)}
+                scroll={false}
+                aria-current={key === cardsPeriod ? "true" : undefined}
+                data-period={key}
+                className={`flex h-9 items-center gap-1.5 rounded-full border px-3.5 text-sm font-semibold no-underline ${
+                  key === "lifetime"
+                    ? "on-dark border-ember bg-midnight text-white hover:text-white"
+                    : key === cardsPeriod
+                      ? "border-midnight bg-midnight text-white hover:text-white"
+                      : "border-line text-ink-2 hover:border-line-strong hover:text-ink"
+                } ${key === "lifetime" && key === cardsPeriod ? "ring-2 ring-ember/50" : ""}`}
+              >
+                {key === "lifetime" ? <Icon name="diamond" size={16} filled className="text-ember" /> : null}
+                {periodWord(key)}
+              </Link>
+            ))}
+          </nav>
+        ) : null}
         <div className="grid gap-3 [grid-template-columns:repeat(auto-fit,minmax(min(210px,100%),1fr))]">
-          {plansOfFamily(family)
-            .filter((id) => planOffered(plans[id]) || id === currentId)
-            .map((id) => {
+          {shownIds.map((id) => {
             const plan = effective[id];
-            const shown = planPrice(plans[id], view);
+            const periods = cardPeriodsOf.get(id)!;
+            const shownPeriod = periods.find((p) => p.key === cardsPeriod) ?? null;
+            const shown = shownPeriod ? { price: shownPeriod.price, period: shownPeriod.unit } : planPrice(plans[id], view);
             const isCurrent = id === currentId;
-            const direction = currentId ? comparePlans(currentId, id) : 1;
+            const direction = currentId ? comparePlans(currentId, id, plans) : 1;
             const canPay = payable.some((p) => p.id === id);
+            const periodQuery = shownPeriod ? `&period=${shownPeriod.key}` : "";
             return (
               <div
                 key={id}
@@ -365,8 +438,14 @@ export default async function LicensePage({ searchParams }: PageProps<"/dashboar
                   <bdi dir="ltr">{shown.price}</bdi>
                   {shown.period ? <span className="font-normal text-muted"> / {k(shown.period)}</span> : null}
                 </span>
+                {shownPeriod?.perMonth || shownPeriod?.saving ? (
+                  <span className="flex flex-wrap items-center gap-1.5 text-[12px] text-muted" data-per-month="">
+                    {shownPeriod.perMonth ? <bdi>{t("license.perMonthIs", { price: shownPeriod.perMonth })}</bdi> : null}
+                    {shownPeriod.saving ? <span className="rounded-full bg-success-bg px-2 py-0.5 font-bold text-success">{t("license.save", { percent: shownPeriod.saving })}</span> : null}
+                  </span>
+                ) : null}
                 <ul className="m-0 flex list-none flex-col gap-1 p-0 text-[13px] text-ink-4">
-                  {planLines(plan, text).map((line) => (
+                  {planLines(plan, text, limitDefs).map((line) => (
                     <li key={line} className="flex items-start gap-1.5">
                       <Icon name="check" size={16} className="mt-px text-success" />
                       {line}
@@ -374,7 +453,7 @@ export default async function LicensePage({ searchParams }: PageProps<"/dashboar
                   ))}
                 </ul>
                 <div className="mt-auto pt-1">
-                  {isCurrent ? null : active && direction < 0 ? (
+                  {isCurrent ? null : active && direction < 0 && !locked ? (
                     scheduled?.plan === id ? null : (
                       <form action={scheduleDowngradeAction}>
                         <input type="hidden" name="appId" value={app?.id ?? ""} />
@@ -385,7 +464,7 @@ export default async function LicensePage({ searchParams }: PageProps<"/dashboar
                       </form>
                     )
                   ) : canPay ? (
-                    <Link href={licensePath(app, `?plan=${id}#renew`)} className={`${direction > 0 ? btn.primary : btn.secondary} h-9 w-full px-3 text-sm`}>
+                    <Link href={licensePath(app, `?plan=${id}${periodQuery}#renew`)} className={`${direction > 0 ? btn.primary : btn.secondary} h-9 w-full px-3 text-sm`}>
                       {direction > 0 && currentId ? (
                         <>
                           <Icon name="upgrade" size={18} />
@@ -407,6 +486,34 @@ export default async function LicensePage({ searchParams }: PageProps<"/dashboar
         </div>
       </section>
 
+      {/* 133 Sold for life: its own card, dark with ember, to stand out. */}
+      {lifetimePlans.length && !locked ? (
+        <LifetimeOffer
+          eyebrow={t("license.lifetimeEyebrow")}
+          title={t("license.lifetimeTitle")}
+          text={t("license.lifetimeText")}
+          noteTitle={t("license.lifetimeNoteTitle")}
+          note={lifetimeNoteOf(extras, lang) ?? t("license.lifetimeNote")}
+          headingLevel={2}
+          plans={lifetimePlans.map((id) => ({
+            id,
+            name: effective[id].name,
+            price: cardPeriodsOf.get(id)!.find((p) => p.key === "lifetime")!.price,
+            once: t("license.payOnce"),
+            includes: planLines(effective[id], text).slice(0, 6),
+            cta: payable.some((p) => p.id === id)
+              ? { href: licensePath(app, `?plan=${id}&period=lifetime#renew`), label: t("license.lifetimeChoose", { plan: effective[id].name }) }
+              : { href: contact.whatsappUrl, label: t("license.askWhatsapp") },
+          }))}
+        />
+      ) : null}
+
+      {locked ? (
+        <Notice icon="diamond" role="status">
+          {richText(t("license.lifetimeLocked"), tags)}
+        </Notice>
+      ) : null}
+
       {payable.length ? (
         <section id="renew" aria-labelledby="h-pay" className="flex scroll-mt-6 flex-col gap-4 rounded-2xl border border-line bg-white p-5 sm:p-6">
           <div className="flex flex-col gap-1">
@@ -416,14 +523,33 @@ export default async function LicensePage({ searchParams }: PageProps<"/dashboar
             <p className="m-0 text-sm text-muted">{state === "pending" ? t("license.payPending", { app: name }) : t("license.payActive")}</p>
           </div>
           <PlanPaymentForm
-            key={selected ?? "none"}
+            key={`${selected ?? "none"}:${askedPeriod ?? ""}`}
             plans={notes}
             current={selected}
+            currentPeriod={askedPeriod}
             cta={state === "pending" ? t("license.payAndActivate") : t("license.payByCard")}
             appId={app?.id ?? null}
             provider={yallappAccount ? PROVIDER_NAME[yallappAccount.provider] : "iyzico"}
             storageRenewal={storageRenewal}
           />
+        </section>
+      ) : null}
+
+      {/* 133 Add-ons for the app: services, more of a limit, a feature. */}
+      {app && license ? (
+        <section aria-labelledby="h-addons-link" className="flex flex-wrap items-center justify-between gap-3 rounded-2xl border border-line bg-white p-5 sm:p-6">
+          <div className="flex min-w-0 items-start gap-3">
+            <Icon name="widgets" size={24} className="mt-0.5 text-accent" />
+            <div className="flex flex-col gap-0.5">
+              <h2 id="h-addons-link" className="m-0 text-lg font-bold">
+                {t("addons.title")}
+              </h2>
+              <p className="m-0 text-sm text-muted">{t("addons.planLink")}</p>
+            </div>
+          </div>
+          <Link href={addonsPath(app)} className={`${btn.secondary} h-10`}>
+            {t("addons.open")}
+          </Link>
         </section>
       ) : null}
 

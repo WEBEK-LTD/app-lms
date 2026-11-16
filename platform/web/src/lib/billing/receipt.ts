@@ -2,6 +2,8 @@ import { COMPANY_PLACE, COMPANY } from "../company";
 import type { CouponRedemption, PlanPayment } from "../data/types";
 import { PROVIDER_NAME } from "../payments/provider";
 import { formatAmount } from "./prices";
+import { monthsLabel } from "./periods";
+import { billingLabel } from "../addons/catalog";
 
 /**
  * 52 A plan payment's receipt, as the client's dashboard shows it: the
@@ -15,10 +17,16 @@ function packList(payment: Pick<PlanPayment, "storagePacks">): string {
   return names.length > 1 ? `${names.slice(0, -1).join(", ")} and ${names.at(-1)}` : (names[0] ?? "");
 }
 
-/** 51 What a plan payment paid for, in payment lists: "Growth · 1 year", "Storage +25 GB", or "Growth · 1 year · storage +25 GB". */
-export function paymentWhat(payment: Pick<PlanPayment, "months" | "purpose" | "storagePacks">, planName: string): string {
+/** 133 A plan payment's period in words: "1 month" … "3 years", or "Lifetime". */
+export function paymentPeriod(payment: Pick<PlanPayment, "months">): string {
+  return monthsLabel(payment.months);
+}
+
+/** 51 What a plan payment paid for, in payment lists: "Growth · 1 year", "Storage +25 GB", or "Growth · 1 year · storage +25 GB"; 133 "Growth · 6 months", "Growth · Lifetime", "Add-on +10 pages · 1 year". */
+export function paymentWhat(payment: Pick<PlanPayment, "months" | "purpose" | "storagePacks"> & Partial<Pick<PlanPayment, "addon">>, planName: string): string {
   if (payment.purpose === "storage") return `Storage ${packList(payment)}`;
-  const plan = `${planName} · ${payment.months === 1 ? "1 month" : "1 year"}`;
+  if (payment.purpose === "addon" && payment.addon) return `Add-on ${payment.addon.name} · ${billingLabel(payment.addon.billing)}`;
+  const plan = `${planName} · ${paymentPeriod(payment)}`;
   return payment.storagePacks?.length ? `${plan} · storage ${packList(payment)}` : plan;
 }
 
@@ -45,8 +53,10 @@ export function planReceiptRows(input: {
   ];
   // 51 A storage pack payment, or storage packs renewed with the plan.
   if (payment.purpose === "storage") rows.push(["Storage", `${packList(payment)} for the Media library, until the plan's period ends`]);
+  // 133 An add-on, and how it's paid.
+  else if (payment.purpose === "addon" && payment.addon) rows.push(["Add-on", `${payment.addon.name}, ${billingLabel(payment.addon.billing)}`]);
   else {
-    rows.push(["Plan", `${input.planName}, ${payment.months === 1 ? "1 month" : "1 year"}`]);
+    rows.push(["Plan", `${input.planName}, ${paymentPeriod(payment)}`]);
     if (payment.storagePacks?.length) rows.push(["Storage renewed", packList(payment)]);
   }
   if (input.coupon) rows.push(["Coupon", `${input.coupon.code}, ${formatAmount(input.coupon.discountCents, input.coupon.currency)} off`]);

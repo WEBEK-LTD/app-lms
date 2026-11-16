@@ -41,6 +41,11 @@ export function licensePath(app: Pick<App, "section"> | null | undefined, rest =
   return `${isStudioProject(app) ? "/studio/project/license" : "/dashboard/license"}${rest}`;
 }
 
+/** 133 The app's Add-ons page, in its own section: a Studio project's in Studio's frame. */
+export function addonsPath(app: Pick<App, "section"> | null | undefined, rest = ""): string {
+  return `${isStudioProject(app) ? "/studio/project/addons" : "/dashboard/addons"}${rest}`;
+}
+
 /** 103R.3 Where a new Studio project's content comes from, as the new project's second step offers it. */
 export type StudioSource = "catalog" | "wordpress" | "shopify" | "platform" | "custom_api";
 

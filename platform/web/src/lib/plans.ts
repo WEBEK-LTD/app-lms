@@ -1,5 +1,6 @@
 import type { IconName } from "@/components/icon-names";
 import { formatMoney, shownPrice, type DisplayCurrency, type Money, type YallappPrice } from "./billing/prices";
+import { isPeriodKey, isPeriodMonths, paymentMonthsOf, periodOfMonths, periodUnit, PERIOD_KEYS, sortPeriods, type PeriodKey, type PeriodMonths, type PricedPeriod } from "./billing/periods";
 import { ALL_STORES_TEXT, APP_STORES, STORE_FACTS, storesFor, type AppStore } from "./stores";
 import { RAW_RETENTION_DAYS } from "./analytics/types";
 
@@ -14,8 +15,17 @@ import { RAW_RETENTION_DAYS } from "./analytics/types";
  * dashboard, handled by the team by hand.
  */
 
-/** The regular apps' plans, on the pricing page and in the dashboard. */
-export const REGULAR_PLANS = ["starter", "growth", "pro", "business"] as const;
+/** The regular apps' four plans that always exist: Starter, Growth, Pro and Business. */
+export const DEFAULT_REGULAR_PLANS = ["starter", "growth", "pro", "business"] as const;
+export type DefaultRegularPlan = (typeof DEFAULT_REGULAR_PLANS)[number];
+/**
+ * The regular apps' plans, on the pricing page and in the dashboard: the
+ * four, and 133 up to eight more the team adds in Admin › Plans (like
+ * Studio's), each not offered and without a price until the team sets them.
+ */
+export const REGULAR_PLANS = [...DEFAULT_REGULAR_PLANS, "regular_5", "regular_6", "regular_7", "regular_8", "regular_9", "regular_10", "regular_11", "regular_12"] as const;
+/** 133 The regular plans Admin › Plans always shows; the team adds the others one at a time. */
+export const REGULAR_PLANS_SHOWN = DEFAULT_REGULAR_PLANS.length;
 /**
  * 103R Yallapp Studio's plans: a family of their own, named, priced and
  * offered by the team in Admin › Plans › Yallapp Studio. A Studio project is
@@ -45,18 +55,52 @@ export function plansOfFamily(family: PlanFamily): readonly Plan[] {
 /** 32 The plan most clients pick, marked "Most popular" on the pricing and home pages. */
 export const FEATURED_PLAN: Plan = "growth";
 
-/** Lower to higher within a family: an upgrade moves up, a downgrade down. */
 /** 103R Every plan the team can give: the regular ones, and Studio's first three with those the team added. */
 export function plansInList(saved: Partial<Record<string, unknown>> | null | undefined): Plan[] {
   return [...plansShown("regular", saved), ...plansShown("studio", saved)];
 }
 
-/** 103R The plans of a family the team can give: Studio's first three and those it added (saved in Admin › Plans), and the app's own. */
-export function plansShown(family: PlanFamily, saved: Partial<Record<string, unknown>> | null | undefined, current?: Plan): Plan[] {
-  return plansOfFamily(family).filter((p, i) => family !== "studio" || i < STUDIO_PLANS_SHOWN || Boolean(saved?.[p]) || p === current);
+/** How many of a family's plans always exist (the others are added by the team). */
+export function plansAlwaysShown(family: PlanFamily): number {
+  return family === "studio" ? STUDIO_PLANS_SHOWN : REGULAR_PLANS_SHOWN;
 }
 
-export const PLAN_RANK: Record<Plan, number> = { starter: 0, growth: 1, pro: 2, business: 3, studio_1: 0, studio_2: 1, studio_3: 2, studio_4: 3, studio_5: 4, studio_6: 5, studio_7: 6, studio_8: 7 };
+/** 133 Whether the team added the plan (beyond the ones that always exist): it can be removed while no client has ever been on it. */
+export function isAddedPlan(plan: Plan): boolean {
+  return plansOfFamily(planFamily(plan)).indexOf(plan) >= plansAlwaysShown(planFamily(plan));
+}
+
+/**
+ * 103R The plans of a family the team can give: the ones that always exist
+ * and those it added (saved in Admin › Plans), and the app's own; 133 the
+ * regular ones the same way as Studio's.
+ */
+export function plansShown(family: PlanFamily, saved: Partial<Record<string, unknown>> | null | undefined, current?: Plan): Plan[] {
+  const always = plansAlwaysShown(family);
+  return plansOfFamily(family).filter((p, i) => i < always || Boolean(saved?.[p]) || p === current);
+}
+
+/** Each plan's place in its family by default, lower to higher (133 the team can reorder them: `PlanInfo.order`). */
+export const PLAN_RANK: Record<Plan, number> = Object.fromEntries(PLANS.map((p) => [p, plansOfFamily(planFamily(p)).indexOf(p)])) as Record<Plan, number>;
+
+/** 133 A plan's place in its family, lower to higher: the team's order, else the default one. */
+export function planRank(plan: Plan, plans?: Partial<Record<Plan, Pick<PlanInfo, "order">>> | null): number {
+  const order = plans?.[plan]?.order;
+  // The team's order first; plans in the same place keep their default order.
+  return (typeof order === "number" && Number.isFinite(order) ? order : PLAN_RANK[plan]) * 100 + PLAN_RANK[plan];
+}
+
+/** 133 A family's plans in the team's order, lower to higher. */
+export function plansInOrder<P extends Plan>(ids: readonly P[], plans: Partial<Record<Plan, Pick<PlanInfo, "order">>> | null | undefined): P[] {
+  return [...ids].sort((a, b) => planRank(a, plans) - planRank(b, plans));
+}
+
+/** 133 The plans clients can choose now, in order: offered (shown) and not archived. */
+export function plansForSale(plans: Record<Plan, PlanInfo>, family: PlanFamily): PlanInfo[] {
+  return plansInOrder(plansOfFamily(family), plans)
+    .map((id) => plans[id])
+    .filter(planOffered);
+}
 
 /**
  * Features a plan has or hasn't. They are also the license features the
@@ -132,6 +176,12 @@ export interface PlanLimits {
   customFeatures: boolean;
   /** 103R Studio pages in a project (null: as many as the layout takes). Enforced: the Studio editor and publishing. */
   studioPages?: number | null;
+  /**
+   * 133 Pages in a regular app (null or missing: as many as its editor takes;
+   * the simple page editor's template pages, BASIC_MAX_PAGES). Enforced:
+   * publishing and the served layout (lib/pages/plan.ts).
+   */
+  pages?: number | null;
 }
 
 /** 62 A plan's texts in Arabic or Turkish, as the team wrote them in Admin › Plans; empty ones fall back. */
@@ -140,6 +190,8 @@ export interface PlanText {
   tagline?: string;
   highlights?: string[];
   price?: string;
+  /** 133 The badge on the plan's card, when the team wrote its own. */
+  badge?: string;
 }
 
 /** 62 The languages besides English that plan texts can be written in. */
@@ -165,13 +217,43 @@ export interface PlanInfo {
   usdCents: number | null;
   /** 52 The team shows the price text ("On request") instead of the price, and clients can't pay by card. */
   onRequest: boolean;
-  /** How long a payment keeps the plan active. */
-  billingMonths: 1 | 12;
+  /** How long a payment of the main price keeps the plan active; 133 any period (0: for life). */
+  billingMonths: PeriodMonths;
   /** 62 The team's Arabic and Turkish texts (lib/marketing-lang.ts `planFor` shows them, else the built-in ones, else English). */
   translations?: PlanTranslations;
-  /** 103R A Studio plan the team offers; one it doesn't is neither shown nor paid. Regular plans are always offered. */
+  /**
+   * 103R A Studio plan the team offers; one it doesn't is neither shown nor
+   * paid. 133 The same for regular plans: the four are offered until the
+   * team hides one, an added one once the team offers it.
+   */
   offered?: boolean;
+  /**
+   * 133 The billing periods the plan offers besides its main one (the price
+   * above): each switched on and priced by the team, per currency. A period
+   * without a price in pounds isn't offered.
+   */
+  periods?: PlanPeriods;
+  /** 133 Its place among its family's plans, lower to higher: an upgrade moves up. Missing: the default order. */
+  order?: number;
+  /** 133 Archived: hidden from new sales. Clients on it keep it and may renew it; nothing else changes for them. */
+  archived?: boolean;
+  /** 133 The card the pricing page highlights, with its badge ("Most popular" unless the team wrote its own). */
+  featured?: boolean;
+  /** 133 The badge's English text; empty: "Most popular". */
+  badge?: string;
+  /** 133 The team's own limits (Admin › Plans › Limits), by their id: a number, null for no limit; missing: not on this plan. */
+  extraLimits?: Record<string, number | null>;
 }
+
+/** 133 One of a plan's other billing periods, as the team set it. */
+export interface PlanPeriodSetting {
+  on: boolean;
+  /** The price in pounds (piastres): what is charged. Null: not priced yet, so not offered. */
+  egpCents: number | null;
+  /** The dollar price shown outside Egypt, by hand; null: the pounds at the exchange rate. */
+  usdCents: number | null;
+}
+export type PlanPeriods = Partial<Record<PeriodKey, PlanPeriodSetting>>;
 
 /**
  * What the team edits in the admin for a plan. `version` 2 is a full edit
@@ -184,7 +266,7 @@ export interface PlanInfo {
  * dollar price, and any other price is dropped (the plan shows its price
  * text until the team sets a price in pounds).
  */
-export type PlanSetting = Pick<PlanInfo, "name" | "tagline" | "features" | "highlights" | "price" | "priceCents" | "billingMonths" | "translations" | "offered"> & {
+export type PlanSetting = Pick<PlanInfo, "name" | "tagline" | "features" | "highlights" | "price" | "priceCents" | "billingMonths" | "translations" | "offered" | "periods" | "order" | "archived" | "featured" | "badge" | "extraLimits"> & {
   usdCents?: number | null;
   onRequest?: boolean;
   /** Before Phase 52: the price's currency. */
@@ -227,6 +309,7 @@ export const PLAN_INFO: Record<Plan, PlanInfo> = {
     usdCents: null,
     onRequest: true,
     billingMonths: 12,
+    offered: true,
   },
   growth: {
     id: "growth",
@@ -250,6 +333,9 @@ export const PLAN_INFO: Record<Plan, PlanInfo> = {
     usdCents: null,
     onRequest: true,
     billingMonths: 12,
+    offered: true,
+    // 32 The plan most clients pick.
+    featured: true,
   },
   pro: {
     id: "pro",
@@ -272,6 +358,7 @@ export const PLAN_INFO: Record<Plan, PlanInfo> = {
     usdCents: null,
     onRequest: true,
     billingMonths: 12,
+    offered: true,
   },
   business: {
     id: "business",
@@ -286,7 +373,17 @@ export const PLAN_INFO: Record<Plan, PlanInfo> = {
     usdCents: null,
     onRequest: true,
     billingMonths: 12,
+    offered: true,
   },
+  // 133 Added by the team from Admin › Plans › Regular apps: not offered, without a name or a price, until the team sets them.
+  regular_5: addedRegularPlan("regular_5", "Plan 5"),
+  regular_6: addedRegularPlan("regular_6", "Plan 6"),
+  regular_7: addedRegularPlan("regular_7", "Plan 7"),
+  regular_8: addedRegularPlan("regular_8", "Plan 8"),
+  regular_9: addedRegularPlan("regular_9", "Plan 9"),
+  regular_10: addedRegularPlan("regular_10", "Plan 10"),
+  regular_11: addedRegularPlan("regular_11", "Plan 11"),
+  regular_12: addedRegularPlan("regular_12", "Plan 12"),
   // 103R Not offered, without a name or a price, until the team sets them.
   studio_1: studioPlan("studio_1", "Studio plan 1"),
   studio_2: studioPlan("studio_2", "Studio plan 2"),
@@ -298,6 +395,29 @@ export const PLAN_INFO: Record<Plan, PlanInfo> = {
   studio_7: studioPlan("studio_7", "Studio plan 7"),
   studio_8: studioPlan("studio_8", "Studio plan 8"),
 };
+
+/**
+ * 133 A regular plan slot the team can add. Adding one copies the plan the
+ * team starts it from (Admin › Plans › Add a plan); these are only what an
+ * unsaved slot holds: Starter's features and limits, not offered, no price.
+ */
+function addedRegularPlan(id: RegularPlan, name: string): PlanInfo {
+  return {
+    id,
+    name,
+    tagline: "",
+    features: ["push", "page_editor_basic"],
+    limits: { ...BASE_LIMITS, appUsers: 1000, languages: 1, sources: 1, storageGb: 2, analyticsMonths: 3 },
+    highlights: [],
+    price: "On request",
+    period: null,
+    priceCents: null,
+    usdCents: null,
+    onRequest: true,
+    billingMonths: 12,
+    offered: false,
+  };
+}
 
 function studioPlan(id: StudioPlan, name: string): PlanInfo {
   return {
@@ -476,7 +596,7 @@ export function planFeaturesFor(cardPayments: string | null): PlanFeatureDef[] {
   return PLAN_FEATURES.flatMap((f) => (f.id !== "card_payments" ? [f] : cardPayments ? [{ ...f, description: cardPayments }] : []));
 }
 
-export type PlanLimitId = "appUsers" | "languages" | "sources" | "storageGb" | "analyticsMonths";
+export type PlanLimitId = "appUsers" | "languages" | "sources" | "storageGb" | "analyticsMonths" | "pages";
 
 export const PLAN_LIMITS: { id: PlanLimitId; label: string; unlimited: string; enforced: string }[] = [
   { id: "appUsers", label: "App users", unlimited: "Unlimited", enforced: "The hosted API refuses new users past the limit (WordPress sites keep their own users: no limit)." },
@@ -489,7 +609,75 @@ export const PLAN_LIMITS: { id: PlanLimitId; label: string; unlimited: string; e
     unlimited: "Until the app is deleted",
     enforced: "The daily job deletes daily totals older than this, and the Analytics page starts no earlier. Single events are kept 90 days on every plan.",
   },
+  // 133 Regular apps only: a Studio plan has its Pages per project.
+  {
+    id: "pages",
+    label: "Pages in the app",
+    unlimited: "As many as the editor takes",
+    enforced: "Publishing refuses more pages, and the served layout keeps the first ones. Empty: no limit (the simple page editor keeps its template's 6 pages).",
+  },
 ];
+
+/**
+ * 133 A limit the team added in Admin › Plans › Limits: shown to clients on
+ * the pricing page and the Plan page, and handled by the team (nothing in
+ * the platform counts it). Each plan has a number for it, or no limit, or
+ * nothing (then it isn't shown for that plan). Quantity add-ons can add to
+ * it too.
+ */
+export interface PlanLimitDef {
+  /** Lower-case letters, digits and _, like "builds_per_month". */
+  id: string;
+  /** The English name, like "Builds per month". */
+  name: string;
+  /** The Arabic and Turkish names; empty: the English. */
+  ar?: string;
+  tr?: string;
+}
+
+/** 133 The setting "planExtras": the team's own limits, and its own wording of what "lifetime" covers (empty: the default note). */
+export interface PlanExtrasSetting {
+  limits: PlanLimitDef[];
+  lifetimeNote?: Partial<Record<"en" | "ar" | "tr", string>>;
+}
+
+/** 133 The team's wording of the lifetime note in a language, or null for the default one. */
+export function lifetimeNoteOf(setting: PlanExtrasSetting | null | undefined, lang: string): string | null {
+  const own = setting?.lifetimeNote?.[lang as "en" | "ar" | "tr"];
+  return typeof own === "string" && own.trim() ? own.trim().slice(0, 600) : null;
+}
+
+/** 133 The team's limits as saved: known shapes only, ids unique, at most 20. */
+export function cleanLimitDefs(value: unknown): PlanLimitDef[] {
+  const list = Array.isArray((value as { limits?: unknown } | null)?.limits) ? ((value as { limits: unknown[] }).limits) : [];
+  const out: PlanLimitDef[] = [];
+  for (const raw of list) {
+    if (!raw || typeof raw !== "object") continue;
+    const r = raw as Record<string, unknown>;
+    const id = typeof r.id === "string" ? r.id : "";
+    const name = typeof r.name === "string" ? r.name.trim().slice(0, 40) : "";
+    if (!/^[a-z0-9_]{1,40}$/.test(id) || !name || out.some((d) => d.id === id)) continue;
+    const text = (x: unknown) => (typeof x === "string" && x.trim() ? x.trim().slice(0, 40) : undefined);
+    out.push({ id, name, ...(text(r.ar) ? { ar: text(r.ar) } : {}), ...(text(r.tr) ? { tr: text(r.tr) } : {}) });
+    if (out.length >= 20) break;
+  }
+  return out;
+}
+
+/** 133 A limit's id from its name: "Builds per month" → "builds_per_month". */
+export function limitIdOf(name: string): string {
+  return name
+    .toLowerCase()
+    .normalize("NFKD")
+    .replace(/[^a-z0-9]+/g, "_")
+    .replace(/^_+|_+$/g, "")
+    .slice(0, 40);
+}
+
+/** 133 The team's limit's name in a language. */
+export function limitDefName(def: PlanLimitDef, lang: string): string {
+  return (lang === "ar" ? def.ar : lang === "tr" ? def.tr : undefined) ?? def.name;
+}
 
 /** 72 The most months of analytics history a plan can keep (ten years). */
 export const MAX_ANALYTICS_MONTHS = 120;
@@ -503,9 +691,21 @@ export function planFitsSection(plan: Plan, section: "regular" | "studio" | unde
   return planFamily(plan) === (section ?? "regular");
 }
 
-/** 103R Whether clients can see and pay the plan: every regular plan, the Studio plans the team offers. */
-export function planOffered(plan: Pick<PlanInfo, "id" | "offered">): boolean {
-  return planFamily(plan.id) === "regular" || plan.offered === true;
+/**
+ * 103R Whether clients can see and pay the plan: the four regular plans
+ * unless the team hid one, the Studio plans (and 133 the added regular ones)
+ * the team offers; 133 never an archived plan (its clients keep it, and may
+ * renew it: `planRenewable`).
+ */
+export function planOffered(plan: Pick<PlanInfo, "id" | "offered"> & Partial<Pick<PlanInfo, "archived">>): boolean {
+  if (plan.archived) return false;
+  if (planFamily(plan.id) === "regular" && !isAddedPlan(plan.id)) return plan.offered !== false;
+  return plan.offered === true;
+}
+
+/** 133 Whether an app on `current` can pay for `plan`: an offered plan, or its own plan when that was archived. */
+export function planPayableFor(plan: Pick<PlanInfo, "id" | "offered"> & Partial<Pick<PlanInfo, "archived">>, current: Plan | null | undefined): boolean {
+  return planOffered(plan) || (plan.archived === true && plan.id === current);
 }
 
 export function hasFeature(plan: Pick<PlanInfo, "features"> | null | undefined, feature: PlanFeature): boolean {
@@ -523,18 +723,32 @@ export function pageEditorLevel(plan: Pick<PlanInfo, "features"> | null | undefi
   return hasFeature(plan, "page_editor_basic") ? "basic" : null;
 }
 
-/** -1, 0 or 1: whether `to` is a downgrade, the same plan or an upgrade from `from` (plans of one family). */
-export function comparePlans(from: Plan, to: Plan): -1 | 0 | 1 {
-  const d = PLAN_RANK[to] - PLAN_RANK[from];
+/** The most pages an app on the simple page editor has: its template's (the designs have 4 to 6). */
+export const SIMPLE_EDITOR_PAGES = 6;
+
+/**
+ * 133 The pages a regular app may have: the plan's limit (quantity add-ons
+ * included), else the simple editor's template pages; null: no limit.
+ */
+export function pagesLimitOf(plan: Pick<PlanInfo, "features" | "limits"> | null | undefined): number | null {
+  if (!plan) return null;
+  if (typeof plan.limits.pages === "number") return plan.limits.pages;
+  return pageEditorLevel(plan) === "basic" ? SIMPLE_EDITOR_PAGES : null;
+}
+
+/** -1, 0 or 1: whether `to` is a downgrade, the same plan or an upgrade from `from` (plans of one family); 133 in the team's order with `plans`. */
+export function comparePlans(from: Plan, to: Plan, plans?: Partial<Record<Plan, Pick<PlanInfo, "order">>> | null): -1 | 0 | 1 {
+  if (from === to) return 0;
+  const d = planRank(to, plans) - planRank(from, plans);
   return d < 0 ? -1 : d > 0 ? 1 : 0;
 }
 
 /** The lowest plan above `current` (any plan without one) that passes `test`, for "Upgrade" hints. */
 export function lowestPlanWith(plans: Record<Plan, PlanInfo>, test: (plan: PlanInfo) => boolean, current?: Plan | null, family?: PlanFamily): PlanInfo | null {
   // 103R Within the family asked for, else the current plan's; the regular plans without one.
-  for (const id of plansOfFamily(family ?? (current ? planFamily(current) : "regular"))) {
+  for (const id of plansInOrder(plansOfFamily(family ?? (current ? planFamily(current) : "regular")), plans)) {
     if (!planOffered(plans[id])) continue;
-    if (current && PLAN_RANK[id] <= PLAN_RANK[current]) continue;
+    if (current && planRank(id, plans) <= planRank(current, plans)) continue;
     if (test(plans[id])) return plans[id];
   }
   return null;
@@ -561,7 +775,33 @@ function cleanLimits(value: unknown, fallback: PlanLimits): PlanLimits {
     accountManager: typeof v.accountManager === "boolean" ? v.accountManager : fallback.accountManager,
     customFeatures: typeof v.customFeatures === "boolean" ? v.customFeatures : fallback.customFeatures,
     ...(fallback.studioPages !== undefined ? { studioPages: count(v.studioPages, fallback.studioPages) } : {}),
+    // 133 Pages in a regular app: set by the team only (missing: as many as the editor takes).
+    ...(v.pages === null || (typeof v.pages === "number" && Number.isInteger(v.pages) && v.pages >= 1) ? { pages: v.pages as number | null } : {}),
   };
+}
+
+/** 133 A plan's other periods as saved: known periods only, prices that are whole positive piastres or cents. */
+export function cleanPlanPeriods(value: unknown): PlanPeriods | undefined {
+  if (!value || typeof value !== "object") return undefined;
+  const cents = (x: unknown) => (typeof x === "number" && Number.isSafeInteger(x) && x > 0 ? x : null);
+  const out: PlanPeriods = {};
+  for (const [key, raw] of Object.entries(value as Record<string, unknown>)) {
+    if (!isPeriodKey(key) || !raw || typeof raw !== "object") continue;
+    const r = raw as Record<string, unknown>;
+    out[key] = { on: r.on === true, egpCents: cents(r.egpCents), usdCents: cents(r.usdCents) };
+  }
+  return Object.keys(out).length ? out : undefined;
+}
+
+/** 133 The team's own limits' values as saved: numbers from 0, or null for no limit. */
+function cleanExtraLimits(value: unknown): Record<string, number | null> | undefined {
+  if (!value || typeof value !== "object") return undefined;
+  const out: Record<string, number | null> = {};
+  for (const [key, v] of Object.entries(value as Record<string, unknown>)) {
+    if (!/^[a-z0-9_]{1,40}$/.test(key)) continue;
+    if (v === null || (typeof v === "number" && Number.isFinite(v) && v >= 0)) out[key] = v as number | null;
+  }
+  return Object.keys(out).length ? out : undefined;
 }
 
 /** 62 The team's Arabic and Turkish plan texts as saved, without empty ones. */
@@ -579,6 +819,7 @@ export function cleanPlanTranslations(value: unknown): PlanTranslations | undefi
       ...(text(r.tagline, 80) ? { tagline: text(r.tagline, 80) } : {}),
       ...(highlights.length ? { highlights } : {}),
       ...(text(r.price, 30) ? { price: text(r.price, 30) } : {}),
+      ...(text(r.badge, 24) ? { badge: text(r.badge, 24) } : {}),
     };
     if (Object.keys(entry).length) out[lang] = entry;
   }
@@ -616,11 +857,15 @@ export function plansWith(settings: Partial<Record<Plan, PlanSetting>> | null | 
       priceCents,
       usdCents: cents(edit.usdCents) ?? (legacy === "USD" ? cents(edit.priceCents) : null),
       onRequest: edit.onRequest === true || priceCents === null,
-      billingMonths: edit.billingMonths === 1 ? (1 as const) : (12 as const),
+      // 133 Any of the periods; edits from before kept monthly or yearly.
+      billingMonths: isPeriodMonths(edit.billingMonths) ? edit.billingMonths : (12 as const),
     };
-    const period = !price.onRequest ? (price.billingMonths === 1 ? "month" : "year") : null;
+    const period = !price.onRequest ? periodUnit(periodOfMonths(price.billingMonths) ?? "12") : null;
     // An edit from before the four tiers: only its price still means something.
     if (edit.version !== 2) return { ...base, ...price, period };
+    const periods = cleanPlanPeriods(edit.periods);
+    const extraLimits = cleanExtraLimits(edit.extraLimits);
+    const translations = cleanPlanTranslations(edit.translations);
     return {
       ...base,
       ...price,
@@ -631,9 +876,15 @@ export function plansWith(settings: Partial<Record<Plan, PlanSetting>> | null | 
       features: featuresOf(edit, base),
       limits: cleanLimits(edit.limits, base.limits),
       id: plan,
-      ...(cleanPlanTranslations(edit.translations) ? { translations: cleanPlanTranslations(edit.translations) } : {}),
-      // 103R A Studio plan is offered only when the team says so.
-      ...(planFamily(plan) === "studio" ? { offered: edit.offered === true } : {}),
+      ...(translations ? { translations } : {}),
+      // 103R A Studio plan (133 and an added regular one) is offered only when the team says so; 133 the four regular ones until the team hides one.
+      offered: typeof edit.offered === "boolean" ? edit.offered : base.offered,
+      ...(periods ? { periods } : {}),
+      ...(typeof edit.order === "number" && Number.isFinite(edit.order) ? { order: edit.order } : {}),
+      ...(edit.archived === true ? { archived: true } : {}),
+      featured: typeof edit.featured === "boolean" ? edit.featured : base.featured,
+      ...(typeof edit.badge === "string" && edit.badge.trim() ? { badge: edit.badge.trim().slice(0, 24) } : {}),
+      ...(extraLimits ? { extraLimits } : {}),
     };
   };
   return Object.fromEntries(PLANS.map((plan) => [plan, merge(plan)])) as Record<Plan, PlanInfo>;
@@ -657,6 +908,13 @@ export function planSettingOf(plan: PlanInfo): PlanSetting {
     billingMonths: plan.billingMonths,
     ...(plan.translations ? { translations: plan.translations } : {}),
     ...(plan.offered !== undefined ? { offered: plan.offered } : {}),
+    // 133
+    ...(plan.periods ? { periods: plan.periods } : {}),
+    ...(plan.order !== undefined ? { order: plan.order } : {}),
+    ...(plan.archived ? { archived: true } : {}),
+    ...(plan.featured !== undefined ? { featured: plan.featured } : {}),
+    ...(plan.badge ? { badge: plan.badge } : {}),
+    ...(plan.extraLimits ? { extraLimits: { ...plan.extraLimits } } : {}),
   };
 }
 
@@ -670,8 +928,46 @@ export function planName(plan: Plan | null | undefined, plans: Record<Plan, Plan
 }
 
 /** 52 The plan's price as the team set it (pounds, and dollars by hand or at the rate); null when it's "On request". */
-export function planPriceOf(plan: Pick<PlanInfo, "priceCents" | "usdCents" | "onRequest">): YallappPrice | null {
-  return plan.onRequest || plan.priceCents === null || plan.priceCents <= 0 ? null : { egpCents: plan.priceCents, usdCents: plan.usdCents };
+export function planPriceOf(plan: Pick<PlanInfo, "priceCents" | "usdCents" | "onRequest"> & Partial<Pick<PlanInfo, "billingMonths" | "periods">>, key?: PeriodKey): YallappPrice | null {
+  if (plan.onRequest || plan.priceCents === null || plan.priceCents <= 0) return null;
+  // 133 Another period than the main one: its own price, while it's switched on.
+  if (key !== undefined && key !== mainPeriodOf(plan)) {
+    const other = plan.periods?.[key];
+    return other?.on && other.egpCents ? { egpCents: other.egpCents, usdCents: other.usdCents } : null;
+  }
+  return { egpCents: plan.priceCents, usdCents: plan.usdCents };
+}
+
+/** 133 The period of the plan's main price ("12" for a yearly price). */
+export function mainPeriodOf(plan: Partial<Pick<PlanInfo, "billingMonths">>): PeriodKey {
+  return periodOfMonths(plan.billingMonths ?? 12) ?? "12";
+}
+
+/**
+ * 133 The periods clients can pay the plan for, shortest first and lifetime
+ * last: its main price, and each other period the team switched on and
+ * priced. None when the plan is "On request".
+ */
+export function planPeriods(plan: Pick<PlanInfo, "priceCents" | "usdCents" | "onRequest"> & Partial<Pick<PlanInfo, "billingMonths" | "periods">>): PricedPeriod[] {
+  return sortPeriods(PERIOD_KEYS.flatMap((key) => {
+    const price = planPriceOf(plan, key);
+    return price ? [{ key, price }] : [];
+  }));
+}
+
+/** 133 Whether the plan can be paid for this period. */
+export function planHasPeriod(plan: Parameters<typeof planPeriods>[0], key: PeriodKey): boolean {
+  return planPriceOf(plan, key) !== null;
+}
+
+/** 133 The period a page starts on: the one asked for when the plan has it, else the plan's main one. */
+export function planPeriodOr(plan: Parameters<typeof planPeriods>[0], key: PeriodKey | null | undefined): PeriodKey {
+  return key && planHasPeriod(plan, key) ? key : mainPeriodOf(plan);
+}
+
+/** 133 A payment's months for a period of the plan. */
+export function planMonthsFor(key: PeriodKey): PeriodMonths {
+  return paymentMonthsOf(key);
 }
 
 /** 52 How a page shows Yallapp's prices: the visitor's currency and the team's exchange rate (lib/billing/display.ts). */
@@ -683,17 +979,22 @@ export interface PriceView {
 /** Pounds, as the team set them: the admin's view. */
 export const POUNDS_VIEW: PriceView = { display: "EGP", egpPerUsd: null };
 
-/** 52 The plan's price in the view's currency; null when it's "On request". */
-export function planShownPrice(plan: PlanInfo, view: PriceView): Money | null {
-  const price = planPriceOf(plan);
+/** 52 The plan's price in the view's currency; null when it's "On request"; 133 for a period (the main one without). */
+export function planShownPrice(plan: PlanInfo, view: PriceView, key?: PeriodKey): Money | null {
+  const price = planPriceOf(plan, key);
   return price ? shownPrice(price, view.display, view.egpPerUsd) : null;
 }
 
-/** "EGP 4,800" or "$96" with "year", or the plan's text ("On request") without a period. */
-export function planPrice(plan: PlanInfo, view: PriceView = POUNDS_VIEW): { price: string; period: string | null } {
-  const shown = planShownPrice(plan, view);
+/**
+ * "EGP 4,800" or "$96" with "year", or the plan's text ("On request")
+ * without a period. 133 For a period the plan has ("6 months", "lifetime"),
+ * else its main one.
+ */
+export function planPrice(plan: PlanInfo, view: PriceView = POUNDS_VIEW, key?: PeriodKey): { price: string; period: string | null } {
+  const period = planPeriodOr(plan, key);
+  const shown = planShownPrice(plan, view, period);
   if (!shown) return { price: plan.price, period: null };
-  return { price: formatMoney(shown), period: plan.billingMonths === 1 ? "month" : "year" };
+  return { price: formatMoney(shown), period: periodUnit(period) };
 }
 
 /** 32 A plan's key limits, in a few words each: app users, languages and the platforms its apps run on. */
@@ -746,16 +1047,15 @@ export type ComparisonValue = boolean | string;
 
 export interface ComparisonRow {
   label: string;
-  /** The regular plans only: the pricing page shows them. */
-  values: Record<RegularPlan, ComparisonValue>;
+  /** The plans the pricing page shows (133 the regular ones for sale, in order). */
+  values: Partial<Record<Plan, ComparisonValue>>;
   /** 41 A store's row, shown with its mark. */
   store?: AppStore;
 }
 
-/** The pricing page's comparison table, from the plans as the team set them. */
-export function comparisonRows(plans: Record<Plan, PlanInfo>): ComparisonRow[] {
-  const each = (fn: (p: PlanInfo) => ComparisonValue): Record<RegularPlan, ComparisonValue> =>
-    ({ starter: fn(plans.starter), growth: fn(plans.growth), pro: fn(plans.pro), business: fn(plans.business) });
+/** The pricing page's comparison table, from the plans as the team set them; 133 for the plans shown (the regular ones for sale), with the team's own limits. */
+export function comparisonRows(plans: Record<Plan, PlanInfo>, shown: readonly PlanInfo[] = plansForSale(plans, "regular"), limitDefs: readonly PlanLimitDef[] = []): ComparisonRow[] {
+  const each = (fn: (p: PlanInfo) => ComparisonValue): Partial<Record<Plan, ComparisonValue>> => Object.fromEntries(shown.map((p) => [p.id, fn(p)]));
   const has = (f: PlanFeature) => each((p) => hasFeature(p, f));
   return [
     { label: "Android app", values: each(() => true) },
@@ -782,5 +1082,18 @@ export function comparisonRows(plans: Record<Plan, PlanInfo>): ComparisonRow[] {
     { label: "Dedicated account manager", values: each((p) => p.limits.accountManager) },
     { label: "Custom features on request", values: each((p) => p.limits.customFeatures) },
     { label: "Support", values: each((p) => SUPPORT_LABEL[p.limits.support].replace(", with your account manager", "")) },
+    // 133 Pages, when the team limited them on a plan shown; the team's own limits that a plan shown has.
+    ...(shown.some((p) => typeof p.limits.pages === "number") ? [{ label: "Pages in the app", values: each((p) => formatLimit(pagesLimitOf(p))) }] : []),
+    ...extraLimitRows(shown, limitDefs, "en", (v) => formatLimit(v)),
   ];
+}
+
+/** 133 A row per team limit that one of the plans has, its value per plan ("—" where a plan doesn't have it). */
+export function extraLimitRows(shown: readonly PlanInfo[], defs: readonly PlanLimitDef[], lang: string, format: (value: number | null) => string): ComparisonRow[] {
+  return defs
+    .filter((d) => shown.some((p) => p.extraLimits && d.id in p.extraLimits))
+    .map((d) => ({
+      label: limitDefName(d, lang),
+      values: Object.fromEntries(shown.map((p) => [p.id, p.extraLimits && d.id in p.extraLimits ? format(p.extraLimits[d.id] ?? null) : false])),
+    }));
 }

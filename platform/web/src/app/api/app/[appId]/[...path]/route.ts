@@ -24,7 +24,7 @@ import { appSignIn, ensureAuthKey, JWKS_MAX_AGE_SECONDS, jwksOf, signingKey, yal
 import { newInquiryMailValues } from "@/lib/listings/notify";
 import { appMailDelivered, emailLangOf, sendTemplate } from "@/lib/email/send";
 import { getDashT } from "@/i18n/dashboard";
-import { effectivePlans, planOfLicense } from "@/lib/entitlements";
+import { appPlanFrom, effectivePlans } from "@/lib/entitlements";
 import { hasFeature } from "@/lib/plans";
 import { hostedDownloadsOn } from "@/lib/courses/downloads";
 import { BOUND_MEDIA_HEADER, mediaForApp } from "@/lib/media/hosted";
@@ -112,7 +112,8 @@ async function answer(request: Request, { params }: RouteContext<"/api/app/[appI
   const bearer = /^Bearer\s+(.+)$/i.exec(request.headers.get("authorization") ?? "");
   // 13.1 The app's own plan: its features and limits.
   const plans = await effectivePlans(store);
-  const plan = planOfLicense(plans, license, now);
+  // 133 With the app's add-ons (more of a limit, a feature switched on).
+  const plan = await appPlanFrom(store, plans, license, now);
   // 17 The app preview's token, for this app only: the owner's preview, with the draft pages when it asks for them.
   const previewToken = request.headers.get(PREVIEW_HEADER);
   const preview = previewToken ? verifyPreviewToken(previewToken, previewKey(signingSecret()), now, app.id) : null;

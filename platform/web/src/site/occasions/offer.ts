@@ -3,7 +3,8 @@ import { formatMoney, loweredOffer, offerFor, type Money } from "@/lib/billing/p
 import type { OccasionRecord, PaymentProviderId } from "@/lib/data/types";
 import { formatDate, formatNumber, type Lang } from "@/i18n";
 import { newOccasion, occasionCoversPlan, occasionDaysLeft, occasionState, occasionWindow, type OccasionState } from "@/lib/occasions";
-import { planPriceOf, type PlanInfo, type PriceView } from "@/lib/plans";
+import { mainPeriodOf, planPriceOf, type PlanInfo, type PriceView } from "@/lib/plans";
+import { periodUnit } from "@/lib/billing/periods";
 import { providerTakes } from "@/lib/payments/provider";
 
 /**
@@ -51,7 +52,8 @@ export function occasionView(occasion: OccasionRecord, now: Date): OccasionView 
 /** A plan's price with the occasion: what is shown and what is charged, before and after. */
 export interface OccasionPlanPrice {
   plan: PlanInfo;
-  period: "month" | "year";
+  /** "month", "year", 133 or "6 months" … "lifetime". */
+  period: string;
   /** The normal price, in the visitor's currency. */
   full: Money;
   /** With the code; null when the plan isn't in the offer. */
@@ -71,7 +73,8 @@ export function occasionPlanPrice(plan: PlanInfo, occasion: Pick<OccasionRecord,
   if (!price) return null;
   const offer = offerFor(price, view.display, provider, view.egpPerUsd);
   if (!offer || !providerTakes(provider, offer.charged.currency)) return null;
-  const period = plan.billingMonths === 1 ? "month" : "year";
+  // 133 The main price's period ("6 months", "lifetime").
+  const period = periodUnit(mainPeriodOf(plan));
   if (!occasionCoversPlan(occasion, plan.id)) return { plan, period, full: offer.shown, offer: null, charged: offer.charged, chargedWithCode: null };
   const withCode = couponPrice({ kind: "percent", percent: occasion.percent }, offer.charged);
   if (!withCode || withCode.discountCents === 0) return { plan, period, full: offer.shown, offer: null, charged: offer.charged, chargedWithCode: null };

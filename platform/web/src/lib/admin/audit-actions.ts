@@ -47,6 +47,19 @@ export const AUDIT_ACTIONS = {
   "plan.reset": "Plan back to default",
   "plan.limits": "Plan features and limits changed",
   "plan.availability": "Plan availability changed",
+  // 133 Plans for both families: added, copied, ordered, archived; the team's own limits; add-ons.
+  "plan.add": "Plan added",
+  "plan.duplicate": "Plan duplicated",
+  "plan.order": "Plans reordered",
+  "plan.archive": "Plan archived",
+  "plan.unarchive": "Plan brought back",
+  "plan.extras": "Plans' own limits or lifetime note changed",
+  "addon.save": "Add-on saved",
+  "addon.delete": "Add-on removed",
+  "addon.top": "Top plans for add-ons changed",
+  "addon.grant": "Add-on given to a client",
+  "addon.cancel": "Client's add-on ended by the team",
+  "addon.task": "Add-on task updated",
   "switches.save": "Switches changed",
   "team.invite": "Team member invited",
   "team.role": "Team role changed",
@@ -160,6 +173,8 @@ export const AUDIT_TARGETS = {
   bot_unmatched: "Unmatched bot phrase",
   live_entry: "Live activity entry",
   review: "Customer review",
+  // 133
+  addon: "Add-on",
 } as const;
 
 export type AuditTargetType = keyof typeof AUDIT_TARGETS;

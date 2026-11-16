@@ -26,6 +26,8 @@ export default async function AdminLayout({ children }: { children: React.ReactN
   const deletedApps = (await store.listAppDeletions({ statuses: ["waiting"], limit: 200 })).length;
   // 78.3 The bell: open alerts of the platform's watch.
   const openAlerts = await store.countOpenTeamAlerts();
+  // 133 Add-on services the team hasn't finished.
+  const addonTasks = (await store.listAppAddons({ taskStatus: ["new", "in_progress"], limit: 200 })).length;
   return (
     // 73 Light or dark like the website (globals.css); the menu stays dark.
     <div data-site-theme="" className="flex min-h-screen flex-col bg-ivory md:flex-row">
@@ -64,6 +66,8 @@ export default async function AdminLayout({ children }: { children: React.ReactN
               label: "Money",
               items: [
                 { href: "/admin/plans", label: "Plans", icon: "workspace_premium" },
+                // 133 What clients buy on top of their plan, and the services to do.
+                { href: "/admin/addons", label: "Add-ons", icon: "widgets", badge: { count: addonTasks, label: addonTasks === 1 ? "service to do" : "services to do" } },
                 { href: "/admin/payments", label: "Payments", icon: "payments" },
                 { href: "/admin/invoices", label: "Invoices", icon: "receipt_long" },
                 { href: "/admin/coupons", label: "Coupons", icon: "local_offer" },

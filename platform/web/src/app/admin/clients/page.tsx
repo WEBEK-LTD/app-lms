@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { isLifetimeEnd } from "@/lib/billing/periods";
 import Link from "next/link";
 import {
   manageClientAction,
@@ -374,7 +375,7 @@ async function ClientPanel({ row, now, may }: { row: ClientRow; now: Date; may: 
                       <li key={e.app!.id} className="flex flex-wrap items-center gap-1.5">
                         <span className="font-semibold">{appLabel(e.app)}</span>
                         <Badge tone={stateTone(appStateNow)}>{ACCOUNT_STATE_LABEL[appStateNow]}</Badge>
-                        <span className="text-muted">{e.license ? `${planName(e.license.plan, plans)} until ${formatDate(e.license.expiresAt)}` : "No plan yet"}</span>
+                        <span className="text-muted">{e.license ? `${planName(e.license.plan, plans)} ${isLifetimeEnd(e.license.expiresAt) ? "for life" : `until ${formatDate(e.license.expiresAt)}`}` : "No plan yet"}</span>
                       </li>
                     );
                   })}
@@ -391,7 +392,7 @@ async function ClientPanel({ row, now, may }: { row: ClientRow; now: Date; may: 
           <>
             <dt className="text-muted">Plan</dt>
             <dd className="m-0">
-              {planName(license.plan, plans)} until {formatDate(license.expiresAt)}
+              {planName(license.plan, plans)} {isLifetimeEnd(license.expiresAt) ? "for life" : `until ${formatDate(license.expiresAt)}`}
             </dd>
             <dt className="text-muted">License</dt>
             <dd className="m-0 font-mono text-[13px] break-all">{key}</dd>

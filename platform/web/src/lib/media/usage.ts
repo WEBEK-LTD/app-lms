@@ -1,7 +1,7 @@
 import { appLabel } from "../app/label";
 import type { DataStore } from "../data/store";
 import type { App, OwnerNotice, StoragePack } from "../data/types";
-import { planOfLicense } from "../entitlements";
+import { appPlanFrom } from "../entitlements";
 import type { NoticeDeps } from "../notices";
 import { mailOptions } from "../email/mail-lang";
 import type { Plan, PlanInfo } from "../plans";
@@ -18,7 +18,8 @@ export interface AppStorage extends StorageState {
 
 export async function appStorage(store: DataStore, app: Pick<App, "id" | "clientId">, plans: Record<Plan, PlanInfo>, now: Date): Promise<AppStorage> {
   const [license, packs, used] = await Promise.all([store.getLicenseForApp(app.clientId, app.id), store.listStoragePacks(app.id), store.mediaUsage(app.id)]);
-  const plan = planOfLicense(plans, license, now);
+  // 133 With the app's storage add-ons.
+  const plan = await appPlanFrom(store, plans, license, now);
   return { ...storageState(used, storageLimitBytes(plan, packs, now)), plan, packs, active: activePacks(packs, now) };
 }
 

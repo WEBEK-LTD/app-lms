@@ -5,8 +5,17 @@ import { Icon } from "./icon";
 import { DEFAULT_LANG, formatMessage, formatNumber, messagesFor, type Lang } from "@/i18n";
 import { localePath } from "@/i18n/paths";
 import type { IconName } from "./icon-names";
-import { FEATURED_PLAN, formatAnalyticsKeep, hasFeature, PLAN_INFO, planLimitLines, planPrice, planStores, planStoresLine, type PlanInfo, type PriceView } from "@/lib/plans";
+import { formatAnalyticsKeep, hasFeature, PLAN_INFO, planLimitLines, planPrice, planStores, planStoresLine, type PlanInfo, type PriceView } from "@/lib/plans";
 import { RAW_RETENTION_DAYS } from "@/lib/analytics/types";
+import { periodPrices } from "@/lib/billing/period-prices";
+import type { PeriodKey } from "@/lib/billing/periods";
+
+/** 133 What a price is for, in a language: "month", "6 months", "year" … "once". */
+export function periodUnitFor(lang: Lang, unit: string): string {
+  const m = messagesFor(lang).plans;
+  const words: Record<string, string> = { month: m.month, year: m.year, "6 months": m.unit6, "2 years": m.unit24, "3 years": m.unit36, lifetime: m.unitLifetime };
+  return words[unit] ?? unit;
+}
 
 /** 52 The line under the plans: which currency the prices are in, and what a card is charged in. */
 export function currencyNote(view: PriceView, lang: Lang = DEFAULT_LANG): string {
@@ -57,12 +66,12 @@ export function planStoresLineFor(lang: Lang, plan: PlanInfo): string {
 }
 
 /** 55 A plan's price and period in a language; the price itself is the same in every language ("EGP 1,500", "$29"). */
-export function planPriceFor(lang: Lang, plan: PlanInfo, view: PriceView): { price: string; period: string | null } {
-  const shown = planPrice(plan, view);
-  if (lang === "en") return shown;
+export function planPriceFor(lang: Lang, plan: PlanInfo, view: PriceView, period?: PeriodKey | null): { price: string; period: string | null } {
+  const shown = planPrice(plan, view, period ?? undefined);
   const m = messagesFor(lang).plans;
-  if (!shown.period) return { price: shown.price === PLAN_INFO[plan.id].price ? m.onRequest : shown.price, period: null };
-  return { price: shown.price, period: shown.period === "month" ? m.month : m.year };
+  if (!shown.period) return { price: lang !== "en" && shown.price === PLAN_INFO[plan.id].price ? m.onRequest : shown.price, period: null };
+  // 133 Any period ("6 months", "once" for life).
+  return { price: shown.price, period: lang === "en" && (shown.period === "month" || shown.period === "year") ? shown.period : periodUnitFor(lang, shown.period) };
 }
 
 /**
@@ -89,7 +98,20 @@ function counted(text: string): ReactNode {
  * 52 Prices in the visitor's currency: pounds in Egypt, dollars elsewhere.
  * 55 Words in the page's language (the plans' texts already translated, lib/marketing-lang.ts `planFor`).
  */
-export function PlanCards({ plans, view, headingLevel = 2, lang = DEFAULT_LANG }: { plans: PlanInfo[]; view: PriceView; headingLevel?: 2 | 3; lang?: Lang }) {
+export function PlanCards({
+  plans,
+  view,
+  headingLevel = 2,
+  lang = DEFAULT_LANG,
+  period = null,
+}: {
+  plans: PlanInfo[];
+  view: PriceView;
+  headingLevel?: 2 | 3;
+  lang?: Lang;
+  /** 133 The billing period the visitor chose: each plan shows it when it has it (else its own main price). */
+  period?: PeriodKey | null;
+}) {
   const Heading = headingLevel === 2 ? "h2" : "h3";
   const m = messagesFor(lang).plans;
   return (
@@ -100,8 +122,10 @@ export function PlanCards({ plans, view, headingLevel = 2, lang = DEFAULT_LANG }
       className="-mx-4 flex list-none snap-x snap-mandatory scroll-px-4 gap-4 overflow-x-auto px-4 pt-4 pb-4 sm:mx-0 sm:grid sm:grid-cols-2 sm:gap-5 sm:overflow-visible sm:px-0 lg:grid-cols-4"
     >
       {plans.map((plan) => {
-        const featured = plan.id === FEATURED_PLAN;
-        const shown = planPriceFor(lang, plan, view);
+        // 133 The team's highlighted plan, with its own badge or "Most popular".
+        const featured = plan.featured === true;
+        const shown = planPriceFor(lang, plan, view, period);
+        const chosen = period ? periodPrices(plan, view).find((p) => p.key === period) : null;
         const { stores } = planStores(plan);
         return (
           <li
@@ -116,7 +140,7 @@ export function PlanCards({ plans, view, headingLevel = 2, lang = DEFAULT_LANG }
             {featured ? (
               <span className="absolute -top-3.5 start-6 flex items-center gap-1 rounded-full bg-midnight py-1 ps-2 pe-3 text-xs font-bold text-white">
                 <Icon name="star" size={16} filled className="text-ember" />
-                {m.mostPopular}
+                {plan.badge || m.mostPopular}
               </span>
             ) : null}
             <div className="flex flex-col gap-1.5">
@@ -129,6 +153,15 @@ export function PlanCards({ plans, view, headingLevel = 2, lang = DEFAULT_LANG }
               </span>
               {shown.period ? <span className="text-[15px] font-medium text-muted">{formatMessage(lang, m.perPeriod, { period: shown.period })}</span> : null}
             </div>
+            {/* 133 Per month and the saving, worked out from the prices. */}
+            {chosen && (chosen.perMonth || chosen.saving) ? (
+              <div className="-mt-3 flex flex-wrap items-center gap-2 text-[13px] text-muted" data-per-month="">
+                {chosen.perMonth ? <span dir="auto">{formatMessage(lang, m.perMonth, { price: chosen.perMonth })}</span> : null}
+                {chosen.saving ? <span className="rounded-full bg-success-bg px-2 py-0.5 text-[12px] font-bold text-success">{formatMessage(lang, m.save, { percent: chosen.saving })}</span> : null}
+              </div>
+            ) : period && !chosen && shown.period ? (
+              <span className="-mt-3 text-[13px] text-muted">{m.notInPeriod}</span>
+            ) : null}
             <ul aria-label={formatMessage(lang, m.limits, { plan: plan.name })} className="m-0 flex list-none flex-col gap-2 rounded-xl bg-sand p-3.5 text-sm font-semibold text-ink-2">
               {planLimitLinesFor(lang, plan).map((line) => (
                 <li key={line.icon} className="flex items-center gap-2.5">
