@@ -7,7 +7,7 @@ const node = (id: string, type: StudioNode["type"], children?: StudioNode[]): St
 function layout(body: StudioNode, extra: Partial<LayoutContent> = {}): LayoutContent {
   return { appearance: {} as LayoutContent["appearance"], languages: { default: "en", available: ["en"] }, tabs: [], pages: [{ slug: "home", title: "Home", blocks: [], studio: { body } } as unknown as LayoutContent["pages"][number]], ...extra };
 }
-const base = node("root", "column", [node("a", "text"), node("b", "picture"), node("c", "button")]);
+const base = node("root", "column", [node("a", "text"), node("b", "image"), node("c", "button")]);
 
 describe("132.73 the editor's undo history, in words", () => {
   it("names an element added, deleted, moved and changed", () => {
@@ -24,7 +24,7 @@ describe("132.73 the editor's undo history, in words", () => {
 
   it("names a section added by its section, not its children", () => {
     const before = layout(base);
-    const after = layout(node("root", "column", [...base.children!, node("s", "row", [node("s1", "text"), node("s2", "picture")])]));
+    const after = layout(node("root", "column", [...base.children!, node("s", "row", [node("s1", "text"), node("s2", "image")])]));
     expect(describeStep(before, after)).toMatchObject({ kind: "added", node: { id: "s", type: "row" } });
   });
 
