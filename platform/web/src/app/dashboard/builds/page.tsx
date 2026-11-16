@@ -183,7 +183,8 @@ export default async function BuildsPage({ searchParams }: PageProps<"/dashboard
           : null;
   const disabledReason = licenseProblem ?? (!setupDone ? t("builds.finishSetup") : running ? t("builds.inProgress") : null);
   const wa = { wa: (chunk: string) => <a href={contact.whatsappUrl}>{chunk}</a> };
-  const autoRebuildTo = lowestPlanWith(effective, (p) => hasFeature(p, "auto_rebuild"), plan);
+  // 132.59 A Studio project is offered Studio's plans, never the regular ones.
+  const autoRebuildTo = lowestPlanWith(effective, (p) => hasFeature(p, "auto_rebuild"), plan, isStudioProject(app) ? "studio" : undefined);
 
   // 104.6 The delivery (105.1.6 or food, 105.2 ride) company's courier app; 112.3 every such company has it.
   const delivery = hasCourierJobs(app) ? deliverySettingsOf(await store.getDeliverySettings(app.id)) : null;

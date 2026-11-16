@@ -53,6 +53,8 @@ export interface Settled {
   path: string;
   /** Plans: the app that was paid for, to open the dashboard on. */
   paidApp?: string | null;
+  /** 132.33 Orders and donations: the app whose own account took it (its webhook is noted there). */
+  appId?: string;
 }
 
 /** A plan payment (Yallapp's account). */
@@ -163,7 +165,7 @@ export async function settleOrderRecord(store: DataStore, order: CatalogOrder, t
   const app = await store.getAppById(order.appId);
   const account = app ? await accountForOrder(store, app, order, encryptionKey()) : null;
   if (!app || !account) return failed;
-  if (trigger.verify && !trigger.verify(account.account)) return { status: "rejected", path: back };
+  if (trigger.verify && !trigger.verify(account.account)) return { status: "rejected", path: back, appId: app.id };
   const outcome = await completePayment({
     store,
     app,
@@ -175,9 +177,9 @@ export async function settleOrderRecord(store: DataStore, order: CatalogOrder, t
     providerRef: trigger.providerRef,
   });
   if (outcome === "paid") await afterOrderPaid(store, app, order);
-  if (outcome === "failed") return failed;
-  if (outcome === "pending") return { status: "pending", path: `${back}?payment=pending` };
-  return { status: outcome, path: `${back}/order-received` };
+  if (outcome === "failed") return { ...failed, appId: app.id };
+  if (outcome === "pending") return { status: "pending", path: `${back}?payment=pending`, appId: app.id };
+  return { status: outcome, path: `${back}/order-received`, appId: app.id };
 }
 
 /** A donation, into the charity's own account. */
@@ -196,7 +198,7 @@ export async function settleDonationRecord(store: DataStore, donation: Donation,
   const app = await store.getAppById(donation.appId);
   const account = app ? donationAccount(app, encryptionKey()) : null;
   if (!app || !account || account.provider !== trigger.provider) return failed;
-  if (trigger.verify && !trigger.verify(account)) return { status: "rejected", path: back };
+  if (trigger.verify && !trigger.verify(account)) return { status: "rejected", path: back, appId: app.id };
   const outcome = await completeDonationPayment({
     store,
     account,
@@ -219,7 +221,7 @@ export async function settleDonationRecord(store: DataStore, donation: Donation,
       });
     }
   }
-  if (outcome === "failed") return failed;
-  if (outcome === "pending") return { status: "pending", path: `${back}?payment=pending` };
-  return { status: outcome, path: `${back}/thank-you` };
+  if (outcome === "failed") return { ...failed, appId: app.id };
+  if (outcome === "pending") return { status: "pending", path: `${back}?payment=pending`, appId: app.id };
+  return { status: outcome, path: `${back}/thank-you`, appId: app.id };
 }
