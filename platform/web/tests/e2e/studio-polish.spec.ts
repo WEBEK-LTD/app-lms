@@ -111,6 +111,10 @@ test("132.51 the language is changed from Studio's menu, right to left in Arabic
   await expect(meta).not.toContainText("#");
   await expect(own.getByRole("group", { name: "المشروع بالأرقام" })).toContainText(/\d/);
   await expect(own.getByRole("group", { name: "المشروع بالأرقام" })).not.toContainText(/[٠-٩]/);
+  // 132.66 The Languages page hydrates in Arabic: the languages to add are named the same on the server and here (no console error below).
+  await own.goto("/studio/project/languages");
+  await expect(own.locator("select").first()).toBeVisible();
+  await own.goto("/studio/project");
   // The page renders again in the language chosen; the menu may still be open.
   if (!(await menu().evaluate((d) => (d as HTMLDetailsElement).open))) await menu().locator("summary").click();
   await menu().locator("[data-dashboard-languages]").getByRole("button", { name: "English" }).click();
@@ -185,6 +189,27 @@ test("132.52–132.61 the editor: one line of tools, Ctrl+S, the phone's QR code
   await search.fill("");
   await own.getByRole("tab", { name: "Ready sections" }).click();
   await expect(own.getByPlaceholder("Search the ready sections")).toBeVisible();
+});
+
+test("132.67 translations typed and not saved: leaving by the menu asks first", async () => {
+  // The Arabic of a tab's name typed in, not saved.
+  await own.goto("/studio/project/languages?lang=ar");
+  const tab = own.locator('[data-row-id="tab|home|label"]');
+  await tab.getByRole("textbox").fill("البداية");
+  await expect(tab).toContainText("Not saved");
+  const overview = own.getByRole("navigation", { name: "Project dashboard" }).getByRole("link", { name: "Overview" });
+  // Staying: the page and the text stay.
+  own.once("dialog", (dialog) => {
+    expect(dialog.message()).toBe("Leave without saving your changes?");
+    void dialog.dismiss();
+  });
+  await overview.click();
+  await expect(own).toHaveURL(/\/studio\/project\/languages\?lang=ar$/);
+  await expect(tab.getByRole("textbox")).toHaveValue("البداية");
+  // Leaving anyway.
+  own.once("dialog", (dialog) => void dialog.accept());
+  await overview.click();
+  await expect(own).toHaveURL(/\/studio\/project$/);
 });
 
 test("the pages opened here had no console errors", async () => {

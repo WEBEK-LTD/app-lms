@@ -13,6 +13,7 @@ import { MAX_LANGUAGES } from "@/lib/i18n/locales";
 import type { TranslationRow } from "@/lib/i18n/translations";
 import type { Plan } from "@/lib/plans";
 import { LanguageList } from "./language-list";
+import { useLeaveGuard } from "@/components/leave-guard";
 import { useDashFormat, useDashLang, useDashT, useKnownText } from "@/components/dashboard-i18n";
 import { appLanguageName } from "@/lib/i18n/language-names";
 import type { DashT } from "@/i18n/dashboard";
@@ -98,6 +99,8 @@ export function LanguagesEditor({
   const englishName = appLanguageName("en", dashLang);
   const full = plan.languages !== null && languages.available.length >= plan.languages;
   const pending = Object.keys(edits).length;
+  // 132.67 Translations typed and not saved yet: leaving the page asks first.
+  useLeaveGuard(pending > 0, t("common.leaveUnsaved"));
   const valueOf = (row: TranslationRow) => edits[row.id] ?? row.value;
 
   const problems = useMemo(() => {
