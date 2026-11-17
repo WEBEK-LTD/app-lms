@@ -32,6 +32,9 @@ class _Push implements PushService {
 
   @override
   Future<Map<String, dynamic>?> initialMessage() async => null;
+
+  @override
+  Stream<Map<String, dynamic>> get receivedMessages => const Stream.empty();
 }
 
 /// 136.21 A Firebase push service on an iPhone, with its APNs token too.

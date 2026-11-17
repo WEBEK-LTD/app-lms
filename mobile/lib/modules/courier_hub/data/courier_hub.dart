@@ -178,6 +178,10 @@ class CompanyPushService implements PushService {
     return data;
   }
 
+  /// 132.160 The company's screens follow no customer's orders.
+  @override
+  Stream<Map<String, dynamic>> get receivedMessages => const Stream.empty();
+
   Future<void> close() => _opened.close();
 }
 

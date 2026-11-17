@@ -1,5 +1,5 @@
 import { createServer, type Server } from "node:http";
-import { expect, test, type Page } from "@playwright/test";
+import { expect, test, type Cookie, type Page } from "@playwright/test";
 import { E2E } from "../../playwright.config";
 import { solidPng } from "./png";
 import { expectReceiptAttached, mailsWithFiles, pdfBehind } from "./receipts";
@@ -59,13 +59,28 @@ test.afterAll(async () => {
   await new Promise((resolve) => server.close(resolve));
 });
 
+/**
+ * The sign-in page takes 8 tries per email in 15 minutes (RATE_LIMITS.signInEmail), and
+ * this spec's tests sign the shop's owner in more often than that within a run: once
+ * signed in on the page, a later test starts from the same session on the dashboard.
+ */
+const sessions = new Map<string, Cookie[]>();
+
 async function signIn(page: Page, email: string, password: string) {
   await page.context().clearCookies();
+  const saved = sessions.get(email);
+  if (saved) {
+    await page.context().addCookies(saved);
+    await page.goto("/dashboard");
+    await expect(page).not.toHaveURL(/\/sign-in/);
+    return;
+  }
   await page.goto("/sign-in");
   await page.getByLabel("Email").fill(email);
   await page.getByLabel("Password", { exact: true }).fill(password);
   await page.getByRole("button", { name: "Sign in" }).click();
   await page.waitForURL((url) => url.pathname !== "/sign-in");
+  sessions.set(email, await page.context().cookies());
 }
 
 test("a client without a website sets up their shop", async ({ page }) => {
@@ -123,6 +138,8 @@ test("a client without a website sets up their shop", async ({ page }) => {
   await page.getByRole("navigation", { name: "Products", exact: true }).getByRole("link", { name: /^Payments/ }).click();
   // 132.120 The Products tab opens the one Payments page.
   await expect(page).toHaveURL(/\/(dashboard|studio\/project)\/payments$/);
+  // 132.180 Nothing connected yet: the gateway's keys open from its row.
+  await page.getByRole("region", { name: "Card payments" }).getByRole("button", { name: "Connect", exact: true }).click();
   await page.getByLabel("API key").fill("sandbox-api-key");
   await page.getByLabel("Secret key").fill("sandbox-secret-key");
   await page.getByText("Sandbox keys").click();
@@ -314,8 +331,10 @@ test("91.4 a customer earns loyalty points on a completed order and uses them on
   await page.goto("/dashboard/catalog#h-loyalty");
   // 132.10 The old address of the loyalty points opens the settings, where they are now.
   await expect(page).toHaveURL(/\/dashboard\/catalog\/settings$/);
+  // The settings finish arriving (the customers' currencies too) before the box is ticked, so nothing redraws it unticked.
+  await page.waitForLoadState("networkidle");
   const loyalty = page.getByRole("region", { name: "Loyalty points" });
-  await loyalty.getByText("Give loyalty points").click();
+  await loyalty.getByRole("checkbox", { name: /^Give loyalty points/ }).check();
   await loyalty.getByLabel("Spend for one point (TRY)").fill("10");
   await loyalty.getByLabel("One point is worth (TRY)").fill("0.10");
   await loyalty.getByLabel("Fewest points used at once").fill("abc");
@@ -543,6 +562,79 @@ test("131 a gift add-on goes only with a product, and a flash sale on one produc
   expect(tulips.sale?.flash_sale_id ?? null).toBeNull();
 });
 
+test("132.187 the owner prepares and ships an order in the dashboard; the app's API has its stage at once", async ({ page, request }) => {
+  // A signed-in customer orders the roses as a gift, from the app.
+  const email = `nadia-${suffix}@example.com`;
+  const device = { id: `e2e-journey-${suffix}`, platform: "android", name: "Pixel", app_version: "1.0.0" };
+  const asked = (await (await request.post(`${api}/auth/email/request`, { data: { email } })).json()) as { request_id: string };
+  const code = (await mailsWithFiles(email)).at(-1)!.subject.slice(0, 6);
+  const verified = (await (await request.post(`${api}/auth/otp/verify`, { data: { request_id: asked.request_id, code, device } })).json()) as { signup_token: string };
+  const registered = await request.post(`${api}/auth/register`, { data: { signup_token: verified.signup_token, name: "Nadia Aziz", device } });
+  expect(registered.status()).toBe(201);
+  const headers = { authorization: `Bearer ${((await registered.json()) as { access_token: string }).access_token}` };
+  const products = (await (await request.get(`${api}/store/products?per_page=50`)).json()) as { items: { id: number; name: string }[] };
+  const roses = products.items.find((p) => p.name === "Rose Box")!;
+  const tomorrow = new Intl.DateTimeFormat("sv-SE", { timeZone: "Europe/Istanbul" }).format(new Date(Date.now() + 86_400_000));
+  const link = await request.post(`${api}/store/checkout-link?platform=android`, {
+    headers,
+    data: {
+      lines: [{ product_id: roses.id, quantity: 1 }],
+      delivery_date: tomorrow,
+      delivery_slot: "s3",
+      sender: { name: "Nadia Aziz", phone: "+905323334455", email },
+      recipient: { name: "Selma Aziz", phone: "+905325556677", address: "Bağdat Cd. 40, Kadıköy" },
+      gift_message: "Get well soon",
+    },
+  });
+  expect(link.status(), await link.text()).toBe(200);
+  await page.goto(((await link.json()) as { url: string }).url);
+  const city = page.getByLabel("City");
+  if (await city.isVisible()) await city.fill("Istanbul");
+  await page.getByRole("button", { name: /^Pay ₺/ }).click();
+  await page.getByRole("button", { name: "Pay with test card" }).click();
+  await expect(page.getByRole("heading", { name: "Thank you!" })).toBeVisible();
+
+  const placed = await (await request.get(`${api}/me/orders`, { headers })).json();
+  expect(placed.items[0]).toMatchObject({ status: "processing", stage: null });
+  const orderId = placed.items[0].id as number;
+
+  // The owner marks it as preparing, then ships it, in the order's drawer.
+  await signIn(page, client.email, client.password);
+  await page.goto("/dashboard/orders");
+  const row = () => page.getByRole("listitem").filter({ hasText: "Nadia Aziz" });
+  await row().getByRole("button", { name: /^Order \d+/ }).click();
+  let stages = row().getByRole("region", { name: "Delivery" });
+  await stages.getByText("Mark as preparing").click();
+  await stages.locator('[data-stage-form="preparing"]').getByRole("button", { name: "Save" }).click();
+  const stageOf = async () => ((await (await request.get(`${api}/me/orders/${orderId}`, { headers })).json()) as { stage: { code: string } | null }).stage?.code ?? null;
+  await expect.poll(stageOf).toBe("preparing");
+  // No cache in between: the app's next ask has it.
+  const preparing = await request.get(`${api}/me/orders/${orderId}`, { headers });
+  expect(preparing.headers()["cache-control"]).toContain("no-store");
+  expect(await preparing.json()).toMatchObject({ status: "processing", stage: { code: "preparing", label: "Preparing" } });
+
+  await page.reload();
+  await row().getByRole("button", { name: /^Order \d+/ }).click();
+  stages = row().getByRole("region", { name: "Delivery" });
+  await stages.locator('[data-stage-form="shipped"] summary').click();
+  const shipping = stages.locator('[data-stage-form="shipped"]');
+  await shipping.getByLabel("Courier's name (optional)").fill("Mert");
+  await shipping.getByRole("button", { name: "Save" }).click();
+  await expect.poll(stageOf).toBe("shipped");
+
+  const list = await request.get(`${api}/me/orders`, { headers });
+  expect(list.headers()["cache-control"]).toContain("no-store");
+  expect((await list.json()).items.find((o: { id: number }) => o.id === orderId)).toMatchObject({ status: "processing", stage: { code: "shipped", label: "Out for delivery", courier: { name: "Mert" } } });
+  expect(await (await request.get(`${api}/me/orders/${orderId}`, { headers })).json()).toMatchObject({ status: "processing", stage: { code: "shipped" } });
+  // Its notification carries the order, for the app to ask for it again.
+  await expect
+    .poll(async () => {
+      const inbox = (await (await request.get(`${api}/me/notifications`, { headers })).json()) as { items: { type: string; order_id?: number | null }[] };
+      return inbox.items.some((n) => n.type === "order_update" && n.order_id === orderId);
+    })
+    .toBe(true);
+});
+
 test("132.186 several delivery times a day, any country with its own cities, and a flash sale's products with their pictures", async ({ page, request }) => {
   await signIn(page, client.email, client.password);
   await page.goto("/dashboard/selling?tab=delivery");
@@ -566,8 +658,13 @@ test("132.186 several delivery times a day, any country with its own cities, and
   await delivery.getByRole("button", { name: "Remove 13:00–16:00" }).click();
   await delivery.getByRole("button", { name: "Save delivery times" }).click();
   await expect(delivery.getByText("Saved.")).toBeVisible();
-  const config = await (await request.get(`${api}/config?platform=android&app_version=1.0.0`)).json();
-  expect(config.store.delivery_date.slots.map((s: { label: string }) => s.label)).toEqual(["10:00–13:00", "16:00–20:00", "21:00–23:00"]);
+  // "Saved." is still there from the save before, so the app's config is what tells this save went through.
+  await expect
+    .poll(async () => {
+      const config = await (await request.get(`${api}/config?platform=android&app_version=1.0.0`)).json();
+      return config.store.delivery_date.slots.map((s: { label: string }) => s.label);
+    })
+    .toEqual(["10:00–13:00", "16:00–20:00", "21:00–23:00"]);
 
   // Any country from the full list, searched in its name; its cities typed right there, one from the starter chips.
   await page.goto("/dashboard/selling?tab=areas");
