@@ -176,7 +176,9 @@ test("a switched-off platform disappears from a client's Website step", async ()
   await owner.getByLabel("Support email").fill("help@quill.test");
   await owner.getByLabel("Privacy policy URL").fill("https://quill.test/privacy");
   await owner.getByRole("button", { name: "Save & continue" }).click();
-  await owner.getByRole("button", { name: "Finish setup" }).click();
+  // 138 Every plan publishes for the client: who publishes, then Save & finish.
+  await owner.getByRole("radio", { name: /Publish it for me/ }).check();
+  await owner.getByRole("button", { name: "Save & finish" }).click();
   await expect(owner).toHaveURL(/\/dashboard\/builds\?started=1$/);
   await owner.getByRole("button", { name: "Back to admin" }).click();
   await expect(owner).toHaveURL(new RegExp(`/admin/clients/${clientId}$`));

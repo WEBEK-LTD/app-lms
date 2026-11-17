@@ -87,7 +87,7 @@ import type {
   ChatReportOutcome,
 } from "../data/types";
 // 11.6 and 11.8
-import type { BuildFailure, BuildRelease, BuildVariant, ListingTranslation, ReviewsRow, RolloutState, ScreenshotFrame, StagedRelease } from "../data/types";
+import type { AutoScreenshots, BuildFailure, BuildRelease, BuildVariant, ListingTranslation, ReviewsRow, RolloutState, ScreenshotFrame, StagedRelease } from "../data/types";
 import type { ApiWebhookData, OwnFontFile, StorePurchaseEventKind, StoreAccountSource, StoreBillingItem, StoreBillingSettings, StorePlatform, StoreProductKind, StoreProductSync } from "../data/types";
 import type { AnnouncementAudience, AnnouncementKind, AnnouncementSeverity, CouponDiscount, CouponRedemption } from "../data/types";
 import type { Plan, PlanFeature } from "../plans";
@@ -443,6 +443,8 @@ export const apps = mysqlTable(
     tabletScreenshotIds: jsonText<string[]>("tablet_screenshot_ids"),
     ipadScreenshotIds: jsonText<string[]>("ipad_screenshot_ids"),
     screenshotFrame: jsonText<ScreenshotFrame>("screenshot_frame"),
+    // 139 The store screenshots made from the app ("Make them for me").
+    autoScreenshots: jsonText<AutoScreenshots>("auto_screenshots"),
     // 89.1 The versions the app's users must have, and the one they're asked to update to.
     minVersion: varchar("min_version", { length: 32 }),
     recommendedVersion: varchar("recommended_version", { length: 32 }),
@@ -534,6 +536,9 @@ export const pluginReleases = mysqlTable(
   (t) => [uniqueIndex("plugin_releases_version_unique").on(t.version)],
 );
 
+/** The longest asset kind `assets.kind` takes (every one of ASSET_KINDS fits: tests/unit/auto-screenshots.test.ts). */
+export const ASSET_KIND_LENGTH = 32;
+
 export const assets = mysqlTable(
   "assets",
   {
@@ -541,7 +546,8 @@ export const assets = mysqlTable(
     clientId: id("client_id")
       .notNull()
       .references(() => clients.id, { onDelete: "cascade" }),
-    kind: varchar("kind", { length: 16 }).notNull().$type<AssetKind>(),
+    // 139 32: "tablet_screenshot" (88.2) didn't fit the 16 it had, so a tablet screenshot failed to save on MySQL.
+    kind: varchar("kind", { length: ASSET_KIND_LENGTH }).notNull().$type<AssetKind>(),
     blobKey: varchar("blob_key", { length: 255 }).notNull(),
     contentType: varchar("content_type", { length: 64 }).notNull(),
     size: int("size").notNull(),

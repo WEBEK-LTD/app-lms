@@ -84,11 +84,12 @@ export function isBuilding(build: Build): boolean {
 /**
  * Decrypts everything the pipeline needs for a build. Store keys are returned
  * on every plan, except the App Store Connect key for a build without iOS
- * (its plan has no iOS app, 13.1): the pipeline then skips iOS. 35, 36 The
- * Galaxy Store and AppGallery keys only upload, so they go only to builds
- * whose plan includes "We publish for you" (`autoPublish`). 42 So do the
- * Xiaomi GetApps keys. 102.2 So does the reviewers' sign-in (`appReview`
- * builds it), and only with the App Store Connect key.
+ * (its plan has no iOS app, 13.1): the pipeline then skips iOS. 35, 36, 42
+ * The Galaxy Store, AppGallery and Xiaomi GetApps keys the client saved go
+ * to every build (138 every plan: the client's own stores, uploaded with
+ * their keys). 102.2 The reviewers' sign-in (`appReview` builds it) goes
+ * only to builds that upload ("We publish for you"), with the App Store
+ * Connect key.
  */
 export function buildSecrets(
   app: App,
@@ -116,7 +117,7 @@ export function buildSecrets(
       : null,
     app_store_connect: appStoreConnect,
     galaxy_store:
-      uploads && app.galaxyKeyEncrypted && app.galaxyContentId && app.galaxyServiceAccountId
+      app.galaxyKeyEncrypted && app.galaxyContentId && app.galaxyServiceAccountId
         ? {
             content_id: app.galaxyContentId,
             service_account_id: app.galaxyServiceAccountId,
@@ -124,7 +125,7 @@ export function buildSecrets(
           }
         : null,
     huawei_appgallery:
-      uploads && app.huaweiClientSecretEncrypted && app.huaweiClientId && app.huaweiAppId
+      app.huaweiClientSecretEncrypted && app.huaweiClientId && app.huaweiAppId
         ? {
             app_id: app.huaweiAppId,
             client_id: app.huaweiClientId,
@@ -132,7 +133,7 @@ export function buildSecrets(
           }
         : null,
     xiaomi_getapps:
-      uploads && app.xiaomiPasswordEncrypted && app.xiaomiUserName && app.xiaomiCertificate
+      app.xiaomiPasswordEncrypted && app.xiaomiUserName && app.xiaomiCertificate
         ? {
             user_name: app.xiaomiUserName,
             password: decrypt(app.xiaomiPasswordEncrypted, key, keyContext.xiaomi(app.id)),

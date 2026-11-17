@@ -50,8 +50,9 @@ describe("87.4 automatic builds only for changes that need one", () => {
     expect(buildChanges({ ...app, chatSettings: { enabled: false } as never }, client, last, assetUrl)).toEqual([]);
     expect(buildChanges({ ...app, appName: "Ada School" }, client, last, assetUrl)).toEqual(["app"]);
     expect(buildChanges({ ...app, primaryColor: "#123456" }, client, last, assetUrl)).toEqual(["app"]);
-    // The listing goes to the stores only when Yallapp publishes for the client.
-    expect(buildChanges({ ...app, shortDescription: "Learn anywhere." }, client, made, assetUrl)).toEqual([]);
+    // The listing goes to the stores only when Yallapp publishes for the client (138 every plan; a build from before that didn't).
+    expect(made.autoPublish).toBe(true);
+    expect(buildChanges({ ...app, shortDescription: "Learn anywhere." }, client, { ...made, autoPublish: false }, assetUrl)).toEqual([]);
     expect(buildChanges({ ...app, shortDescription: "Learn anywhere." }, client, last, assetUrl)).toEqual(["listing"]);
     expect(buildChanges({ ...app, googlePlayKeyEncrypted: "v1.x" }, client, last, assetUrl)).toEqual(["stores"]);
   });

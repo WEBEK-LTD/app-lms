@@ -25,9 +25,9 @@ Bir Google hesabıyla **Google Play Console**'a kaydolun, kişisel veya kurum he
 
 İki adımlı doğrulaması açık bir Apple Hesabıyla developer.apple.com'da kaydolun. **Individual** veya **Organization**'ı (D-U-N-S numaranızla) seçin ve yıllık ücreti ödeyin. Ardından aynı Apple Hesabıyla **App Store Connect**'e giriş yapın.
 
-## Pro ve Business'ta bize erişim verin
+## Her pakette bize erişim verin
 
-Pro ve Business paketlerinde derlemelerinizi sizin için biz yükleriz. Google Play hizmet hesabı anahtarını ve App Store Connect API anahtarını **Yayın** adımına ekleyin: [Kurulum adımları](/docs/setup-steps) rehberine bakın. Samsung Galaxy Store ve Huawei AppGallery anahtarları **Yayın › Diğer Android mağazaları**'na girilir.
+Her pakette uygulamanızı Google Play ve App Store'da sizin için biz yayımlarız: yayın e-postamızı Play Console'a ve App Store Connect'e admin olarak davet edin (**Yayın** sayfası e-postayı ve adımları gösterir) ya da Google Play hizmet hesabı anahtarını ve App Store Connect API anahtarını **Yayın** adımına ekleyin: [Kurulum adımları](/docs/setup-steps) rehberine bakın. Samsung Galaxy Store, Huawei AppGallery ve Xiaomi GetApps'te kendiniz yayımlarsınız: onları **Yayın › Diğer Android mağazaları**'nda bağlayın, her yeni sürüm oraya kendiliğinden gitsin.
 
 ## Samsung, Huawei ve Xiaomi
 
@@ -37,7 +37,7 @@ Android uygulamanız her pakette Samsung Galaxy Store, Huawei AppGallery ve Xiao
   "google-play": {
     title: "Google Play'de yayınlayın",
     description: "Uygulamanızı kendi Google Play geliştirici hesabınızla yayımlamak için panelinizdeki dosyaları kullanın.",
-    body: `Uygulamanızı kendi Google Play geliştirici hesabınızla yayımlamak için panelinizdeki dosyaları kullanın. Pro ve Business paketlerinde her yeni sürümü sizin için biz yükleriz.
+    body: `Uygulamanızı kendi Google Play geliştirici hesabınızla yayımlamak için panelinizdeki dosyaları kullanın. Her pakette her yeni sürümü sizin için biz yükleriz; Derlemeler sayfasında başka bir seçim yapmadıkça üretimde herkese.
 
 ## Başlamadan önce
 
@@ -74,21 +74,21 @@ Bir kapalı test sürümü oluşturun ve .aab dosyanızı yükleyin. Yeni kişis
 
 Aynı .aab ile bir üretim sürümü oluşturun, sürüm notlarını ekleyin ve incelemeye gönderin. İmzalama anahtarınızı güvende tutun: gelecekteki her güncelleme onunla imzalanmalıdır.
 
-## Pro ve Business: yüklemeyi bize bırakın
+## Her güncellemeyi bize yükletin
 
-Google Cloud'da Play Console'unuzun projesi için bir hizmet hesabı ve ona ait bir JSON anahtarı oluşturun (**IAM › Service accounts › Keys**). Play Console'da **Users and permissions** altında hizmet hesabının e-postasını uygulamanızın sürümlerine erişimle davet edin. JSON anahtarını **Yayın** adımına yükleyin. Bundan sonra her yeni derlemeyi sizin için biz yükleriz.
+Google Cloud'da Play Console'unuzun projesi için bir hizmet hesabı ve ona ait bir JSON anahtarı oluşturun (**IAM › Service accounts › Keys**). Play Console'da **Users and permissions** altında hizmet hesabının e-postasını uygulamanızın sürümlerine erişimle davet edin. JSON anahtarını **Yayın** adımına yükleyin ya da bunun yerine yayın e-postamızı admin olarak davet edin (**Yayın** sayfası). Bundan sonra her yeni derlemeyi sizin için biz yükleriz; **Derlemeler ve indirmeler**'de bir ilk pay ya da dahili test seçmedikçe üretimde herkese. Google, bir uygulamanın ilk sürümünün Play Console'dan elle gönderilmesini ister: gönderilene kadar her derleme orada taslak olarak bekler ve ekibimize haber verilir.
 `,
   },
   "app-store": {
     title: "App Store'da yayınlayın",
     description: "iOS uygulamanızı kendi Apple Developer hesabınızla yayımlayın.",
-    body: `iOS uygulamanızı kendi Apple Developer hesabınızla yayımlayın. iOS uygulaması Growth, Pro ve Business paketleriyle gelir; Pro ve Business'ta her derlemeyi sizin için TestFlight'a biz yükleriz.
+    body: `iOS uygulamanızı kendi Apple Developer hesabınızla yayımlayın. iOS uygulaması Growth ve üzeri paketlerle gelir; her pakette her derlemeyi sizin için TestFlight'a yükler ve App Review'a göndeririz.
 
 ## Başlamadan önce
 
 - Bir Apple Developer Program üyeliği ([Geliştirici hesapları](/docs/developer-accounts) rehberine bakın)
 - **Yayın** adımında App Store Connect API anahtarınız: iOS derlemenizi imzalamak için buna ihtiyacımız var
-- [Derlemeler ve indirmeler](/dashboard/builds) sayfasından iOS derlemeniz (.ipa) ya da Pro ve Business'ta bir TestFlight yüklemesi
+- [Derlemeler ve indirmeler](/dashboard/builds) sayfasından iOS derlemeniz (.ipa) ya da sizin için yaptığımız TestFlight yüklemesi
 - Mağaza görselleriniz ve iPhone ekran görüntüleriniz ile bir gizlilik politikası sayfası
 
 ## App Store Connect'te uygulamayı oluşturun
@@ -97,7 +97,7 @@ App Store Connect'te **Apps**'i açın, **+ › New App**'i seçin, iOS'u işare
 
 ## Derlemeyi yükleyin
 
-Kendiniz yayımladığınızda .ipa dosyasını bir Mac'te Apple'ın **Transporter** uygulamasıyla yükleyin. Pro ve Business'ta onu sizin için TestFlight'a biz yükleriz. Derleme, Apple işledikten sonra App Store Connect'te görünür.
+Kendiniz yayımladığınızda .ipa dosyasını bir Mac'te Apple'ın **Transporter** uygulamasıyla yükleyin. App Store Connect anahtarınızla onu sizin için TestFlight'a biz yükleriz. Derleme, Apple işledikten sonra App Store Connect'te görünür.
 
 ## App Store sayfasını doldurun
 
@@ -113,7 +113,7 @@ Uygulamanız Yallapp'e kullanım istatistikleri de gönderir ([Analiz](/docs/ana
 
 ## İncelemeye gönderin
 
-Derlemeyi seçin, **Add for Review**'u seçin ve gönderin. iOS uygulamanız, Apple'ın kurallarının gerektirdiği gibi ücretli kurslar veya dijital ürünler için satın alma düğmesi göstermez; bu yüzden iOS açıklamasında fiyatlardan ya da bunları satın almaktan söz etmeyin.
+App Store Connect anahtarınızla bunu her pakette sizin için biz yaparız: Apple derlemeyi işledikten sonra sürümü kendiliğinden App Review'a gider ve onaylanınca yayınlanır (**Derlemeler ve indirmeler**'de Apple'ın aşamalı yayınını seçtiyseniz yedi gün boyunca). **Derlemeler ve indirmeler** ne zaman gönderildiğini ya da App Store Connect'in hâlâ neye ihtiyaç duyduğunu söyler; örneğin uygulamanın ilk sürümünün App Privacy yanıtları, Apple'ın API'si bunları dolduramaz. Kendiniz yayımladığınızda derlemeyi seçin, **Add for Review**'u seçin ve gönderin. iOS uygulamanız, Apple'ın kurallarının gerektirdiği gibi ücretli kurslar veya dijital ürünler için satın alma düğmesi göstermez; bu yüzden iOS açıklamasında fiyatlardan ya da bunları satın almaktan söz etmeyin.
 
 ## İncelemedeyken
 
@@ -123,7 +123,7 @@ Uygulamanızı ekibimiz yayımladığında **Yayın** sayfası App Store'un ince
   "galaxy-store": {
     title: "Samsung Galaxy Store'da yayınlayın",
     description: "Android uygulamanızı kendi satıcı hesabınızla her Samsung telefondaki uygulama mağazası Galaxy Store'a koyun.",
-    body: `Android uygulamanızı kendi satıcı hesabınızla her Samsung Galaxy telefon ve tablette bulunan uygulama mağazası Galaxy Store'a koyun. Google Play'deki Android uygulamasının aynısıdır. İlk sürümü kendiniz yüklersiniz; Pro ve Business paketlerinde sonraki her sürümü biz yükleriz.
+    body: `Android uygulamanızı kendi satıcı hesabınızla her Samsung Galaxy telefon ve tablette bulunan uygulama mağazası Galaxy Store'a koyun. Google Play'deki Android uygulamasının aynısıdır. İlk sürümü kendiniz yüklersiniz; sonrasında her pakette hesabınızı bağlayın, her yeni sürüm oraya kendiliğinden gitsin.
 
 ## Başlamadan önce
 
@@ -148,19 +148,15 @@ Mağaza görsellerinizden açıklamayı, simgeyi (512 × 512) ve ekran görünt�
 
 > İnceleme notlarında inceleyicilere inceleme telefon numaranızı ve sabit kodunuzu verin: panelin **Uygulamaya giriş** sayfasından ya da WordPress veya kendi API'si olan uygulamalarda **Yayınlama** sayfasındaki **Mağaza inceleme hesabı**ndan (derlemeden önce zorunlu).
 
-## Pro ve Business: her güncellemeyi bize yükletin
+## Her pakette her güncelleme kendiliğinden
 
 Uygulamanız satışa çıktığında Seller Portal'da **Assistance › API Service**'i açın ve **Publishing** kapsamıyla **Create Service Account**'u seçin. Hizmet hesabı kimliğini ve özel anahtarını kopyalayın. Ardından panelinizde **Yayın › Diğer Android mağazaları**'nı açın ve bunları uygulamanızın **content ID**'siyle (Seller Portal'ın uygulamanız için gösterdiği numara) girin. Bundan sonra başlattığınız her derleme Galaxy Store'a yüklenir ve incelemeye gönderilir.
-
-## Ekibimiz sizin için yayımladığında
-
-**Benim için yayımla** ile **Yayın** sayfasında Samsung Galaxy Store'u işaretleyin. Ardından Seller Portal'da ekibimizin e-postasını uygulamalarınız için yönetici olarak davet edin (hesabınızın yönetici hesaplarından). Samsung daveti bize gönderir, gerisini biz hallederiz. Şifrenizi asla paylaşmazsınız.
 `,
   },
   "huawei-appgallery": {
     title: "Huawei AppGallery'de yayınlayın",
     description: "Android uygulamanızı Huawei Push Kit üzerinden anlık bildirimlerle Huawei telefonlar için AppGallery'ye koyun.",
-    body: `Son yıllarda satılan Huawei telefonlar Google Play olmadan gelir; bu yüzden sahipleri uygulamaları AppGallery'den kurar. Android uygulamanızı orada kendi geliştirici hesabınızla yayımlayın ve bu telefonlara da bildirimleriniz ulaşsın diye Huawei Push Kit'i ekleyin. İlk sürümü kendiniz gönderirsiniz; Pro ve Business paketlerinde sonraki her sürümü biz yükleriz.
+    body: `Son yıllarda satılan Huawei telefonlar Google Play olmadan gelir; bu yüzden sahipleri uygulamaları AppGallery'den kurar. Android uygulamanızı orada kendi geliştirici hesabınızla yayımlayın ve bu telefonlara da bildirimleriniz ulaşsın diye Huawei Push Kit'i ekleyin. İlk sürümü kendiniz gönderirsiniz; sonrasında her pakette hesabınızı bağlayın, her yeni sürüm oraya kendiliğinden gitsin.
 
 ## Başlamadan önce
 
@@ -188,19 +184,15 @@ AppGallery Connect'te **My apps**'i açın, uygulamanızı ve **Version informat
 
 > İnceleyicilerin giriş yapabilmesi için inceleme notlarına inceleme telefon numaranızı ve sabit kodunuzu ekleyin.
 
-## Pro ve Business: her güncellemeyi bize yükletin
+## Her pakette her güncelleme kendiliğinden
 
 AppGallery Connect'te **Users and permissions › API key › Connect API**'yi açın ve **App administrator** rolüyle bir API istemcisi oluşturun. İstemci kimliğini ve anahtarını **Yayın › Diğer Android mağazaları**'na kopyalayın. Bundan sonra başlattığınız her derleme AppGallery'ye yüklenir ve incelemeye gönderilir.
-
-## Ekibimiz sizin için yayımladığında
-
-**Benim için yayımla** ile **Yayın** sayfasında Huawei AppGallery'yi işaretleyin. Ardından AppGallery Connect'te **Users and permissions**'ı açın ve ekibimizin e-postasını **App administrator** ve **Operations** rolleriyle ekip üyesi olarak ekleyin. Huawei daveti bize gönderir; şifrenizi asla paylaşmazsınız.
 `,
   },
   "xiaomi-getapps": {
     title: "Xiaomi GetApps'te yayınlayın",
     description: "Android uygulamanızı kendi geliştirici hesabınızla Xiaomi, Redmi ve POCO telefonlardaki uygulama mağazası GetApps'e koyun.",
-    body: `Xiaomi, Redmi ve POCO telefonlar Xiaomi'nin kendi uygulama mağazası GetApps ile gelir. Android uygulamanızı orada kendi geliştirici hesabınızla yayımlayın: Google Play'deki Android uygulamasının aynısıdır. İlk sürümü kendiniz gönderirsiniz; Pro ve Business paketlerinde sonraki her sürümü biz yükleriz.
+    body: `Xiaomi, Redmi ve POCO telefonlar Xiaomi'nin kendi uygulama mağazası GetApps ile gelir. Android uygulamanızı orada kendi geliştirici hesabınızla yayımlayın: Google Play'deki Android uygulamasının aynısıdır. İlk sürümü kendiniz gönderirsiniz; sonrasında her pakette hesabınızı bağlayın, her yeni sürüm oraya kendiliğinden gitsin.
 
 ## Başlamadan önce
 
@@ -225,17 +217,13 @@ Açıklamayı, simgeyi, ekran görüntülerini, gizlilik politikası bağlantın
 
 > İnceleme notlarında inceleyicilere inceleme telefon numaranızı ve sabit kodunuzu verin: panelin **Uygulamaya giriş** sayfasından ya da WordPress veya kendi API'si olan uygulamalarda **Yayınlama** sayfasındaki **Mağaza inceleme hesabı**ndan (derlemeden önce zorunlu).
 
-## Pro ve Business: her güncellemeyi bize yükletin
+## Her pakette her güncelleme kendiliğinden
 
 Uygulamanız GetApps'te yer aldığında, geliştirici platformunun uygulama yönetiminden otomatik yayın API sayfasını açın. Gösterilen **özel anahtarı** kopyalayın ve Xiaomi'nin **genel sertifikasını** indirin. Ardından panelinizde **Yayın › Diğer Android mağazaları**'nı açın ve bunları giriş yaptığınız e-postayla girin. Yenilikleri de yazabilirsiniz; Xiaomi onu güncellemeyle birlikte gösterir. Bundan sonra başlattığınız her derleme Xiaomi GetApps'e yüklenir ve incelemeye gönderilir.
 
 > Xiaomi her yüklemeyi uygulamanızın simgesiyle doğrudan incelemeye gönderir. Xiaomi konsolunda özel anahtarı sıfırlamak eskisini geçersiz kılar: yenisini panelinize girin.
 
 Geliştirici hesabınızda otomatik yayın sayfası yoksa yüklemeler elle kalır: Derlemeler ve indirmeler'den .apk'yı indirin ve yeni bir sürüm olarak gönderin.
-
-## Ekibimiz sizin için yayımladığında
-
-**Benim için yayımla** ile **Yayın** sayfasında Xiaomi GetApps'i işaretleyin. Ardından ekibimizin e-postasını Xiaomi geliştirici hesabınıza uygulamalarınızı yönetebilecek bir üye olarak ekleyin. Üye eklenecek yeri bulamazsanız bize ulaşın, yolu birlikte bulalım. Şifrenizi asla paylaşmazsınız.
 `,
   },
   builds: {
@@ -280,7 +268,7 @@ Otomatik derlemeli paketlerde, uygulamanın kendisini (adını, simgesini, renkl
 
 - **APK**: denemek için doğrudan bir Android telefona kurun.
 - **App Bundle (.aab)**: Google Play'e yüklediğiniz dosya.
-- **iOS derlemesi (.ipa)**: App Store Connect'e yüklediğiniz dosya. Pro ve Business'ta sizin için TestFlight'a yüklenir. Growth ve üzeri paketlerle gelir ve Yayın adımında App Store Connect API anahtarı gerektirir.
+- **iOS derlemesi (.ipa)**: App Store Connect'e yüklediğiniz dosya. Her pakette sizin için TestFlight'a yüklenir ve App Review'a gönderilir. Growth ve üzeri paketlerle gelir ve Yayın adımında App Store Connect API anahtarı gerektirir.
 - **Android yükleme anahtarı**: anahtar deposu ve şifreleri. Google Play'deki gelecekteki her güncelleme bu aynı anahtara ihtiyaç duyar: bir kopyasını güvenli bir yerde saklayın.
 - **Mağaza görselleri**: mağaza simgeleri, öne çıkan görsel, ekran görüntüleriniz ve sayfa metniniz.
 - WordPress sitelerinde **WordPress eklentisi** (.zip).
@@ -293,7 +281,7 @@ Android imzalama anahtarınız ilk derlemenizle oluşturulur, şifreli saklanır
 
 ## Yayımlamadan önce deneyin
 
-APK'yı bir Android telefona kurun (telefon sorduğunda tarayıcınızdan veya dosyalar uygulamasından kuruluma izin verin). Pro ve Business'ta iOS derlemesini TestFlight ile deneyin.
+APK'yı bir Android telefona kurun (telefon sorduğunda tarayıcınızdan veya dosyalar uygulamasından kuruluma izin verin). iOS derlemesini TestFlight ile deneyin.
 `,
   },
   updates: {
@@ -307,7 +295,7 @@ APK'yı bir Android telefona kurun (telefon sorduğunda tarayıcınızdan veya d
 
 ## Yeni sürümü yayımlayın
 
-Kendiniz yayımladığınızda yeni .aab'yi (ve .ipa'yı) indirin, ardından Google Play Console'da yeni bir sürüm (ve App Store Connect'te yeni bir versiyon) oluşturun. Pro ve Business'ta yeni sürümü sizin için biz yükleriz ve her adımı Derlemeler ve indirmeler sayfasında izleyebilirsiniz. Growth ve üzerinde uygulamanızın ayarlarını değiştirdiğinizde yeni bir derleme kendiliğinden başlar.
+Kendiniz yayımladığınızda yeni .aab'yi (ve .ipa'yı) indirin, ardından Google Play Console'da yeni bir sürüm (ve App Store Connect'te yeni bir versiyon) oluşturun. Her pakette yeni sürümü sizin için Google Play'de üretime ve App Review'a biz yükleriz ve her adımı Derlemeler ve indirmeler sayfasında izleyebilirsiniz. Yallapp'in kendi uygulaması iyileştiğinde uygulamanız da kendiliğinden yeni bir derleme alır. Growth ve üzerinde uygulamanızın ayarlarını değiştirdiğinizde yeni bir derleme kendiliğinden başlar.
 
 > Her zaman aynı Android imzalama anahtarını kullanın. Google Play farklı bir anahtarla imzalanmış güncellemeleri reddeder.
 

@@ -21,8 +21,7 @@ export async function GET(request: Request, { params }: RouteContext<"/api/v1/bu
   if (!isBuilding(build)) {
     return errorResponse(409, "build_not_building", `Build ${build.id} is ${build.status}. Keys are only available while it's building.`);
   }
-  // 35, 36 Galaxy Store and AppGallery keys only go to builds that upload ("We publish for you").
-  // 102.2 So does the reviewers' sign-in, with the client's contact, for App Review Information.
+  // 102.2 The reviewers' sign-in, with the client's contact, for App Review Information: only to builds that upload ("We publish for you").
   let appReview: ((target: App, key: Buffer) => AppReviewSecret | null) | undefined;
   if (build.autoPublish) {
     const [publishing, client] = await Promise.all([store.getPublishingRequest(app.id), store.getClientById(app.clientId)]);

@@ -2,7 +2,7 @@ import type { IconName } from "@/components/icon-names";
 import { formatMoney, shownPrice, type DisplayCurrency, type Money, type YallappPrice } from "./billing/prices";
 import { isPeriodKey, isPeriodMonths, paymentMonthsOf, periodOfMonths, periodUnit, PERIOD_KEYS, sortPeriods, type PeriodKey, type PeriodMonths, type PricedPeriod } from "./billing/periods";
 import { suggestedPrice } from "./billing/suggested-prices";
-import { ALL_STORES_TEXT, APP_STORES, STORE_FACTS, storesFor, type AppStore } from "./stores";
+import { APP_STORES, MORE_STORES_AUTO_TEXT, PUBLISHED_STORES, PUBLISHED_STORES_TEXT, STORE_FACTS, storesFor, type AppStore } from "./stores";
 import { RAW_RETENTION_DAYS } from "./analytics/types";
 
 /**
@@ -123,10 +123,28 @@ export type PlanFeature = (typeof PLAN_FEATURE_IDS)[number];
 export const STUDIO_ONLY_FEATURES: readonly PlanFeature[] = ["studio", "studio_motion", "studio_templates", "delivery", "courier_app", "food", "market", "rides", "instructors", "school", "taxi", "university", "travel"];
 
 /**
- * 103R What every Studio plan includes, besides what the team ticks in
- * Admin › Plans › Yallapp Studio (`STUDIO_PLAN_CHOICES`).
+ * 138 What every plan includes, regular and Studio, whatever the team saved
+ * for it: "We publish for you" (Google Play and the App Store) is free for
+ * every client. The admin doesn't offer it as a choice or a switch, and no
+ * add-on sells it (lib/addons/rules.ts).
  */
-export const STUDIO_BASE_FEATURES: readonly PlanFeature[] = ["studio", "push", "page_editor", "offline_downloads", "card_payments", "auto_rebuild", "chat", "loyalty", "store_billing"];
+export const INCLUDED_FEATURES: readonly PlanFeature[] = ["auto_publish"];
+
+/** 138 Whether every plan includes the feature (`INCLUDED_FEATURES`). */
+export function isIncludedFeature(feature: string): boolean {
+  return (INCLUDED_FEATURES as readonly string[]).includes(feature);
+}
+
+/** 138 A plan's features with the ones every plan includes. */
+export function withIncludedFeatures<T extends string>(features: readonly T[]): (T | PlanFeature)[] {
+  return [...features, ...INCLUDED_FEATURES.filter((f) => !(features as readonly string[]).includes(f))];
+}
+
+/**
+ * 103R What every Studio plan includes, besides what the team ticks in
+ * Admin › Plans › Yallapp Studio (`STUDIO_PLAN_CHOICES`); 138 publishing too.
+ */
+export const STUDIO_BASE_FEATURES: readonly PlanFeature[] = ["studio", "push", "page_editor", "offline_downloads", "card_payments", "auto_rebuild", "auto_publish", "chat", "loyalty", "store_billing"];
 
 /**
  * 112.3 What a Studio plan has until the team saves it: the base, and the
@@ -138,8 +156,8 @@ export const STUDIO_DEFAULT_FEATURES: readonly PlanFeature[] = [...STUDIO_BASE_F
 /** 112.3 The project kinds whose couriers or drivers work in the second app (`courier_app`). */
 export const SECOND_APP_KINDS: readonly PlanFeature[] = ["delivery", "food", "market", "rides", "taxi"];
 
-/** 103R The features the team ticks for each Studio plan, as the admin's design lists them. */
-export const STUDIO_PLAN_CHOICES: readonly PlanFeature[] = ["ios", "auto_publish", "delivery", "courier_app", "food", "market", "rides", "instructors", "school", "taxi", "university", "travel", "studio_motion", "studio_templates"];
+/** 103R The features the team ticks for each Studio plan, as the admin's design lists them (138 publishing is in every plan, so not a choice). */
+export const STUDIO_PLAN_CHOICES: readonly PlanFeature[] = ["ios", "delivery", "courier_app", "food", "market", "rides", "instructors", "school", "taxi", "university", "travel", "studio_motion", "studio_templates"];
 
 export type SupportLevel = "email" | "whatsapp" | "priority" | "dedicated";
 export const SUPPORT_LEVELS: SupportLevel[] = ["email", "whatsapp", "priority", "dedicated"];
@@ -296,12 +314,13 @@ export const PLAN_INFO: Record<Plan, PlanInfo> = {
   starter: {
     id: "starter",
     name: "Starter",
-    tagline: "An Android app, published by you with our guides",
-    features: ["push", "page_editor_basic"],
+    tagline: "An Android app, published for you on Google Play",
+    features: ["push", "page_editor_basic", "auto_publish"],
     limits: { ...BASE_LIMITS, appUsers: 1000, languages: 1, sources: 1, storageGb: 2, analyticsMonths: 3 },
     highlights: [
       "Android app (APK & AAB)",
       "For Google Play, Galaxy Store, AppGallery and GetApps",
+      "We publish to Google Play for you",
       "1 connected platform",
       "Up to 1,000 app users",
       "1 app language",
@@ -322,10 +341,11 @@ export const PLAN_INFO: Record<Plan, PlanInfo> = {
     id: "growth",
     name: "Growth",
     tagline: "Android and iOS apps that grow with you",
-    features: ["ios", "push", "offline_downloads", "page_editor", "card_payments", "auto_rebuild", "loyalty", "store_billing"],
+    features: ["ios", "push", "offline_downloads", "page_editor", "card_payments", "auto_rebuild", "auto_publish", "loyalty", "store_billing"],
     limits: { ...BASE_LIMITS, appUsers: 10000, languages: 3, sources: null, storageGb: 20, analyticsMonths: 12, support: "whatsapp" },
     highlights: [
       "Android & iOS apps",
+      "We publish to Google Play and the App Store for you",
       "Up to 10,000 app users",
       "3 app languages",
       "Full page editor",
@@ -354,7 +374,6 @@ export const PLAN_INFO: Record<Plan, PlanInfo> = {
       "Everything in Growth",
       "Unlimited app users",
       "All app languages",
-      "We publish to all five app stores",
       "Automatic store updates",
       "Chat with your customers in the app",
       "Priority support",
@@ -413,7 +432,7 @@ function addedRegularPlan(id: RegularPlan, name: string): PlanInfo {
     id,
     name,
     tagline: "",
-    features: ["push", "page_editor_basic"],
+    features: ["push", "page_editor_basic", "auto_publish"],
     limits: { ...BASE_LIMITS, appUsers: 1000, languages: 1, sources: 1, storageGb: 2, analyticsMonths: 3 },
     highlights: [],
     price: "On request",
@@ -490,8 +509,8 @@ export const PLAN_FEATURES: PlanFeatureDef[] = [
   {
     id: "auto_publish",
     label: "We publish for you",
-    description: `We upload your apps and every update to ${ALL_STORES_TEXT}.`,
-    enforced: "Builds' auto_publish and the Publishing step's store keys.",
+    description: `We upload your apps and every update to ${PUBLISHED_STORES_TEXT}, and send each new version for review. Every plan includes it.`,
+    enforced: "138 Every plan has it (INCLUDED_FEATURES): builds' auto_publish, Google Play's production release and the App Store's review submission.",
   },
   {
     id: "chat",
@@ -847,7 +866,8 @@ function featuresOf(edit: PlanSetting, base: PlanInfo): PlanFeature[] {
   // 112.3 A Studio plan saved before, with couriers or drivers, keeps their app (its default) until the team saves it again.
   const secondApp =
     edit.courierAppKnown !== true && base.features.includes("courier_app") && !saved.includes("courier_app") && !later.includes("courier_app") && saved.some((f) => SECOND_APP_KINDS.includes(f));
-  return [...saved, ...later, ...(secondApp ? (["courier_app"] as const) : [])];
+  // 138 And what every plan includes, whatever was saved.
+  return withIncludedFeatures([...saved, ...later, ...(secondApp ? (["courier_app"] as const) : [])]) as PlanFeature[];
 }
 
 export function plansWith(settings: Partial<Record<Plan, PlanSetting>> | null | undefined): Record<Plan, PlanInfo> {
@@ -1070,17 +1090,21 @@ export function planLimitLines(plan: PlanInfo): { icon: IconName; text: string }
 
 /**
  * 41 The stores an app on the plan can be on, and who publishes there: the
- * Android stores on every plan, the App Store with the iOS app; with "We
- * publish for you" Yallapp uploads every build to each of them.
+ * Android stores on every plan, the App Store with the iOS app. 138 On every
+ * plan Yallapp publishes on Google Play and the App Store (`ours`); the
+ * client publishes on the other Android stores, or adds their keys there.
  */
-export function planStores(plan: Pick<PlanInfo, "features">): { stores: AppStore[]; publisher: "you" | "us" } {
-  return { stores: storesFor(hasFeature(plan, "ios")), publisher: hasFeature(plan, "auto_publish") ? "us" : "you" };
+export function planStores(plan: Pick<PlanInfo, "features">): { stores: AppStore[]; publisher: "you" | "us"; ours: AppStore[] } {
+  const stores = storesFor(hasFeature(plan, "ios"));
+  const ours = hasFeature(plan, "auto_publish") ? stores.filter((id) => PUBLISHED_STORES.includes(id)) : [];
+  return { stores, publisher: ours.length ? "us" : "you", ours };
 }
 
-/** 41 "5 app stores · We publish for you": the caption under a plan card's store marks. */
+/** 41 "5 app stores · We publish for you on Google Play and the App Store": the caption under a plan card's store marks. */
 export function planStoresLine(plan: Pick<PlanInfo, "features">): string {
-  const { stores, publisher } = planStores(plan);
-  return `${stores.length} app stores · ${publisher === "us" ? "We publish for you" : "You publish with our guides"}`;
+  const { stores, ours } = planStores(plan);
+  const where = ours.map((id) => (id === "app_store" ? "the App Store" : STORE_FACTS[id].short)).join(" and ");
+  return `${stores.length} app stores · ${ours.length ? `We publish for you on ${where}` : "You publish with our guides"}`;
 }
 
 /** 72 How long analytics daily totals are kept: "3 months", "1 year", "18 months", or "Until the app is deleted". */
@@ -1134,8 +1158,10 @@ export function comparisonRows(plans: Record<Plan, PlanInfo>, shown: readonly Pl
     { label: "Automatic rebuilds", values: has("auto_rebuild") },
     { label: "Chat in the app", values: has("chat") },
     { label: "Loyalty points", values: has("loyalty") },
-    { label: "Publishing", values: each((p) => (hasFeature(p, "auto_publish") ? "We publish for you" : "You publish with our guides")) },
-    { label: "Automatic store updates", values: has("auto_publish") },
+    // 138 Every plan: we publish on Google Play and the App Store (the rows that told plans apart are gone),
+    // and the other Android stores take every update by themselves once the client connects them.
+    { label: "Publishing", values: each(() => "We publish for you") },
+    { label: MORE_STORES_AUTO_TEXT, values: each(() => true) },
     { label: "Team members", values: each((p) => formatLimit(p.limits.teamMembers)) },
     { label: "Dedicated account manager", values: each((p) => p.limits.accountManager) },
     { label: "Custom features on request", values: each((p) => p.limits.customFeatures) },

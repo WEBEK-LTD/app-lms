@@ -17,7 +17,7 @@ import { formatMoney, offerFor, shownPrice } from "@/lib/billing/prices";
 import { isLifetimeEnd, shownPeriods, type PeriodKey } from "@/lib/billing/periods";
 import { PROVIDER_NAME } from "@/lib/payments/provider";
 import { addonBillings, addonsOf, addonText } from "@/lib/addons/catalog";
-import { addonRefusal, addonRenewable, addonRunning } from "@/lib/addons/rules";
+import { addonRefusal, addonRenewable, addonRetired, addonRunning } from "@/lib/addons/rules";
 import type { AddonBilling, AddonDef, AppAddon } from "@/lib/addons/types";
 import { addonsPath, licensePath } from "@/lib/studio/section";
 import { getVisitorContact } from "@/lib/contact";
@@ -281,6 +281,8 @@ function OwnedRow({
         <>
           <KitStatus tone={running ? "success" : "neutral"}>{running ? t("addons.active") : t("addons.inactive")}</KitStatus>
           {owned.taskStatus ? <KitStatus tone={owned.taskStatus === "done" ? "success" : "warn"}>{t(TASK_KEY[owned.taskStatus])}</KitStatus> : null}
+          {/* 138 Publishing: in every plan now, never renewed. */}
+          {addonRetired(owned) ? <KitStatus tone="info">{t("addons.includedNow")}</KitStatus> : null}
         </>
       }
       actions={

@@ -57,12 +57,13 @@ export function planLimitLinesFor(lang: Lang, plan: PlanInfo): { icon: IconName;
   ];
 }
 
-/** 55 "5 app stores · We publish for you" in a language. */
+/** 55 "5 app stores · We publish for you on Google Play and the App Store" in a language (138 on every plan). */
 export function planStoresLineFor(lang: Lang, plan: PlanInfo): string {
   if (lang === "en") return planStoresLine(plan);
   const m = messagesFor(lang).plans;
-  const { stores, publisher } = planStores(plan);
-  return formatMessage(lang, m.storesLine, { count: stores.length, who: publisher === "us" ? m.weePublish : m.youPublish });
+  const { stores, ours } = planStores(plan);
+  const who = ours.includes("app_store") ? m.weePublishPlayApple : ours.length ? m.weePublishPlay : m.youPublish;
+  return formatMessage(lang, m.storesLine, { count: stores.length, who });
 }
 
 /** 55 A plan's price and period in a language; the price itself is the same in every language ("EGP 1,500", "$29"). */

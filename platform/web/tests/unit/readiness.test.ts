@@ -18,6 +18,8 @@ function ready(clientId = "c1"): App {
     privacyUrl: "https://academy.test/privacy",
     phoneScreenshotIds: ["s1", "s2"],
     iphoneScreenshotIds: ["s3"],
+    // 139 The owner's own uploads: "Make them for me" off.
+    autoScreenshots: null,
     hostedSettings: { ...DEFAULT_HOSTED_SETTINGS, reviewPhone: "+905550000000", reviewCode: "123456" },
   };
 }

@@ -18,13 +18,15 @@ import { restoreFromBuild } from "@/lib/builds/go-back";
 import { apiCheckSignIn } from "@/lib/hosted/test-token";
 import { readApnsKeyForm } from "@/lib/integrations/apns-key";
 import { appTypeName, connectorFits, ENGINES, hostedOnly, isAppType, kindById, defaultKind, ownContentTitle } from "@/lib/app/kinds";
-import { isSetupComplete, managedPublishing, newApp, queueBuild, STEP_LABEL, type SetupStep } from "@/lib/app/setup";
+import { isSetupComplete, newApp, queueBuild, STEP_LABEL, type SetupStep } from "@/lib/app/setup";
 import { currentPlanId } from "@/lib/billing/plan-change";
-import { appPlan, effectivePlans } from "@/lib/entitlements";
+import { effectivePlans } from "@/lib/entitlements";
 import { hasFeature } from "@/lib/plans";
 import { recordStaffChange } from "@/lib/admin/audit";
 import { appTypeOn, getSwitches, noWebsiteFor, websiteOf, websiteOn } from "@/lib/switches";
-import { startPipeline } from "@/lib/builds/dispatch";
+import { startPipeline, startScreenshots } from "@/lib/builds/dispatch";
+import { makeAgain, scheduleAutoScreenshots, shotAssetKind, switchedAutoScreenshots, withRemoved, withUpload } from "@/lib/app/auto-screenshots-jobs";
+import { freshAutoScreenshots, parseShotKey } from "@/lib/app/auto-screenshots";
 import { assetUrl, ICON_MAX_BYTES, LOGO_MAX_BYTES } from "@/lib/assets";
 import { chooseApp, clientFor, mayUseDashboard, type ClientContext } from "@/lib/auth/session";
 import type { TeamPermission } from "@/lib/team/permissions";
@@ -636,6 +638,8 @@ export async function saveBrandingAction(_: FormState, formData: FormData): Prom
     brandingDoneAt: now,
   };
   await store.updateApp(context.app.id, patch, now);
+  // 139 The app's look shows on its automatic store screenshots: made again in a few minutes.
+  await scheduleAutoScreenshots(store, context.app, now);
   // A newly chosen design becomes the Pages & look draft, with this template and font; what's published stays.
   // 99.2 Or only its look, when the owner keeps their pages.
   const mode = formData.get("designMode") === "look" ? "look" : "all";
@@ -701,6 +705,9 @@ export async function saveListingAction(_: FormState, formData: FormData): Promi
   if (!extras.ok) return { errors: extras.errors, values };
   const now = new Date();
   const patch: AppPatch = { ...parsed.data, ...screenshots.patch, ...extras.extras, listingDoneAt: now };
+  // 139 "Make them for me": switched on (made soon) or off (the uploads above are the listing's again).
+  const autoShots = formData.get("autoScreenshots") === "on";
+  if (autoShots || context.app.autoScreenshots) patch.autoScreenshots = switchedAutoScreenshots(context.app, autoShots, now);
   // A Firebase file is made for one package name or bundle ID.
   if (parsed.data.androidPackage !== context.app.androidPackage) patch.firebaseAndroidAssetId = null;
   if (parsed.data.iosBundleId !== context.app.iosBundleId) patch.firebaseIosAssetId = null;
@@ -869,11 +876,11 @@ async function readAppStoreKey(
 }
 
 /**
- * Pro: stores the Google Play service account JSON and the App Store Connect
- * key, encrypted, and needs at least one of them. Starter: the App Store
- * Connect key is optional and only signs the iOS app (they publish
- * themselves with the guides); the Google Play key is Pro only. Fields left
- * empty keep what was saved before.
+ * The setup's Publishing step: "Publish it for me" (our team, through the
+ * client's invitations), or the Google Play service account JSON and the App
+ * Store Connect key, encrypted, at least one of them. 138 The same on every
+ * plan: every plan includes "We publish for you". Fields left empty keep
+ * what was saved before.
  */
 export async function savePublishingAction(_: FormState, formData: FormData): Promise<FormState> {
   const context = await requireApp("settings");
@@ -900,14 +907,6 @@ export async function savePublishingAction(_: FormState, formData: FormData): Pr
     if (app.backend === "wordpress" && (firebase.leftYallapp || patch.pushRelayAt)) refreshSitesSoon([app.id]);
   };
 
-  // 13.1 Store keys for uploading are only asked when we publish for the client.
-  const plans = await effectivePlans(store);
-  if (!managedPublishing(context.license ? currentPlanId(context.license, now) : null, plans)) {
-    if (Object.keys(errors).length > 0) return { errors, values };
-    await store.updateApp(app.id, { ...patch, publishingDoneAt: now }, now);
-    await pushChanged();
-    return afterStep(context, "publishing");
-  }
   // 19 Who publishes: "managed" (our team, through invitations) or "self" (with the store keys).
   const mode = formData.get("publishingMode");
   const chosen = mode === "managed" || mode === "self" ? mode : null;
@@ -967,6 +966,55 @@ export interface UploadResult {
  * Uploads an app icon (PNG, 1024 × 1024, no transparency), a logo (PNG or SVG)
  * or a store screenshot (PNG or JPEG, sizes the store accepts).
  */
+/** 139 What the automatic screenshots' actions answer: an error is a key of the dashboard's words (autoShots.*) or an upload's message. */
+export type AutoShotResult = { ok: true; id?: string; url?: string } | { ok: false; error: string; known?: boolean };
+
+/** 139 Make again: the whole set made now from the app (the owner's own uploads stay). */
+export async function makeScreenshotsAgainAction(): Promise<AutoShotResult> {
+  const context = await requireApp("settings");
+  const store = await getStore();
+  const result = await makeAgain(store, context.app, new Date());
+  if (!result.ok) return { ok: false, error: result.reason === "running" ? "errorRunning" : result.reason === "not_ready" ? "errorNotReady" : result.reason === "inactive" ? "errorInactive" : "errorOff" };
+  await startScreenshots();
+  revalidatePath(inSection(context.app, "/dashboard/setup"));
+  return { ok: true };
+}
+
+/** 139 The owner's own screenshot in one place of the automatic set: checked like an upload, never made again over. */
+export async function replaceAutoShotAction(formData: FormData): Promise<AutoShotResult> {
+  const context = await requireApp("settings");
+  const key = String(formData.get("key") ?? "");
+  const place = parseShotKey(key);
+  const file = formData.get("file");
+  if (!place || !file || typeof file === "string" || file.size === 0) return { ok: false, error: "errorChoose" };
+  if (file.size > SCREENSHOT_MAX_BYTES) return { ok: false, error: `The file is too large. The limit is ${SCREENSHOT_MAX_BYTES / 1024 / 1024} MB.`, known: true };
+  const data = Buffer.from(await file.arrayBuffer());
+  const checked = checkScreenshot(data, place.device);
+  if (!checked.ok) return { ok: false, error: checked.error, known: true };
+  const id = await saveAsset(context.client.id, shotAssetKind(place.device), data, checked.contentType, checked.contentType === "image/png" ? "png" : "jpg");
+  const store = await getStore();
+  const now = new Date();
+  // Read again: a run may have changed the set since the page was opened.
+  const app = (await store.getAppById(context.app.id)) ?? context.app;
+  const next = withUpload(app.autoScreenshots ?? freshAutoScreenshots(true), key, id, now);
+  if (!next) return { ok: false, error: "errorChoose" };
+  await store.updateApp(app.id, { autoScreenshots: next }, now);
+  revalidatePath(inSection(context.app, "/dashboard/setup"));
+  return { ok: true, id, url: `/api/v1/assets/${id}` };
+}
+
+/** 139 One screenshot of the automatic set left out (the set made again on its own leaves it out too). */
+export async function removeAutoShotAction(key: string): Promise<AutoShotResult> {
+  const context = await requireApp("settings");
+  const store = await getStore();
+  const app = (await store.getAppById(context.app.id)) ?? context.app;
+  const next = app.autoScreenshots ? withRemoved(app.autoScreenshots, key) : null;
+  if (!next) return { ok: false, error: "errorChoose" };
+  await store.updateApp(app.id, { autoScreenshots: next }, new Date());
+  revalidatePath(inSection(context.app, "/dashboard/setup"));
+  return { ok: true };
+}
+
 export async function uploadAssetAction(formData: FormData): Promise<UploadResult> {
   const context = await requireActiveClient("settings");
   const kind = formData.get("kind") as AssetKind | null;
@@ -1119,21 +1167,23 @@ export async function saveVersionsAction(_: FormState, formData: FormData): Prom
 }
 
 /**
- * 89.2 How updates are released when we publish for the owner: the first
- * share of Google Play's production users, and Apple's phased release.
+ * 89.2 How updates are released: the first share of Google Play's
+ * production users, and Apple's phased release; 138 every plan, everyone at
+ * once on Google Play unless the owner picks a share or internal testing.
  * Taken by the next build.
  */
 export async function saveStagedReleaseAction(_: FormState, formData: FormData): Promise<FormState> {
   const context = await requireApp("settings");
   const values = { androidPercent: String(formData.get("androidPercent") ?? ""), iosPhased: formData.get("iosPhased") === "on" ? "on" : "" };
-  const androidPercent = values.androidPercent === "" ? null : Number(values.androidPercent);
+  const internal = values.androidPercent === "internal";
+  const androidPercent = values.androidPercent === "" || internal ? null : Number(values.androidPercent);
   if (androidPercent !== null && !(FIRST_SHARES as readonly number[]).includes(androidPercent)) return { errors: { androidPercent: "Choose a share from the list." }, values };
   const store = await getStore();
-  if (!hasFeature(await appPlan(store, context.license, new Date()), "auto_publish")) return { message: "Staged releases come with “We publish for you”.", values };
   const iosPhased = values.iosPhased === "on";
-  const stagedRelease = androidPercent === null && !iosPhased ? null : { androidPercent, iosPhased };
+  const stagedRelease = androidPercent === null && !iosPhased && !internal ? null : { androidPercent, iosPhased, ...(internal ? { androidInternal: true } : {}) };
   await store.updateApp(context.app.id, { stagedRelease }, new Date());
-  await recordStaffChange(context, stagedRelease ? `Set staged releases: Google Play ${androidPercent ?? "all"}%, App Store ${iosPhased ? "phased" : "at once"}` : "Turned staged releases off");
+  const android = internal ? "internal testing" : `${androidPercent ?? "all"}%`;
+  await recordStaffChange(context, stagedRelease ? `Set how updates are released: Google Play ${android}, App Store ${iosPhased ? "phased" : "at once"}` : "Set updates to go to everyone at once");
   revalidatePath("/dashboard/builds");
   return { ok: true, message: "Saved. Your next build is released this way.", values };
 }

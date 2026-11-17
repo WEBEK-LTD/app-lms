@@ -22,6 +22,8 @@ import { hostedApiUrl } from "../hosted/urls";
 import { yallappSignsIn } from "../hosted/sign-in-methods";
 import { hostedOnly } from "./kinds";
 import { sampleTotal } from "../samples/lists";
+import { autoOn, captionsWithDefaults, freshAutoScreenshots, listingScreenshotIds, shotIds } from "./auto-screenshots";
+import { CLIENT_APP_RELEASE } from "../builds/app-release";
 import { usesYallappFirebase } from "../firebase/mode";
 
 export const SETUP_STEPS = ["app-type", "website", "branding", "listing", "publishing"] as const;
@@ -69,6 +71,8 @@ export function newApp(clientId: string, siteUrl: string | null, now: Date, appT
     privacyUrl: null,
     phoneScreenshotIds: [],
     iphoneScreenshotIds: [],
+    // 139 A new app's store screenshots are made from the app itself ("Make them for me").
+    autoScreenshots: freshAutoScreenshots(true),
     firebaseAndroidAssetId: null,
     firebaseIosAssetId: null,
     connector: null,
@@ -109,26 +113,28 @@ export function hasStoreKeys(app: App): { play: boolean; appStore: boolean; gala
   };
 }
 
-/** Whether we publish the app for the client on this plan ("We publish for you"). */
+/** Whether we publish the app for the client on this plan ("We publish for you"; 138 every plan includes it). */
 export function managedPublishing(plan: Plan | null, plans: Record<Plan, PlanInfo> = PLAN_INFO): boolean {
   return plan !== null && isPlan(plan) && hasFeature(plans[plan], "auto_publish");
 }
 
 /**
- * Which steps are complete. With "We publish for you" on the plan, publishing
- * needs at least one store key, unless our team publishes the app through
- * invitations to the client's store accounts (14.1, publishingMode "managed").
+ * Which steps are complete. Saving the Publishing step asks for a store key
+ * or "Publish it for me" (our team, through invitations to the client's
+ * store accounts: 14.1, publishingMode "managed"). 138 Once saved, the step
+ * stays done: apps that finished it before every plan had "We publish for
+ * you" keep building, and their Publishing page offers it.
  */
 export function stepStatus(app: App | null, plan: Plan | null, plans: Record<Plan, PlanInfo> = PLAN_INFO): Record<SetupStep, boolean> {
+  void plan;
+  void plans;
   if (!app) return { "app-type": false, website: false, branding: false, listing: false, publishing: false };
-  const keys = hasStoreKeys(app);
-  const managed = managedPublishing(plan, plans);
   return {
     "app-type": Boolean(app.appTypeDoneAt),
     website: websiteReady(app),
     branding: Boolean(app.brandingDoneAt && app.appName && app.shortName && app.iconAssetId),
     listing: Boolean(app.listingDoneAt && app.androidPackage && app.iosBundleId && app.storeTitle),
-    publishing: Boolean(app.publishingDoneAt) && (!managed || keys.play || keys.appStore || app.publishingMode === "managed"),
+    publishing: Boolean(app.publishingDoneAt),
   };
 }
 
@@ -160,21 +166,38 @@ export function nextStep(app: App | null, plan: Plan | null, plans: Record<Plan,
 
 export function storeListingOf(app: App, assetUrl: (assetId: string) => string): StoreListing | null {
   if (!app.storeTitle || !app.shortDescription || !app.fullDescription || !app.supportEmail || !app.privacyUrl) return null;
+  // 139 The screenshots made from the app when "Make them for me" is on (each language its own), else the owner's uploads.
+  const shots = listingScreenshotIds(app);
+  const auto = autoOn(app) ? app.autoScreenshots! : null;
+  const ownShots = (language: string) => {
+    if (!auto) return {};
+    const lists = { phoneScreenshots: shotIds(auto, "phone", language), iphoneScreenshots: shotIds(auto, "iphone", language), tabletScreenshots: shotIds(auto, "tablet", language), ipadScreenshots: shotIds(auto, "ipad", language) };
+    return Object.fromEntries(Object.entries(lists).filter(([, ids]) => ids.length > 0).map(([key, ids]) => [key, ids.map(assetUrl)]));
+  };
+  // 139 Framed automatic screenshots: a place without a caption takes the listing's own title, then its short description.
+  const captions = (own: string[], texts: { storeTitle: string; shortDescription: string }) => (auto ? captionsWithDefaults(own, texts) : own);
+  const translations = (app.listingTranslations ?? []).map((item) => ({
+    ...item,
+    ...(app.screenshotFrame ? { captions: captions(item.captions, item) } : {}),
+    ...ownShots(item.language),
+  }));
   return {
     storeTitle: app.storeTitle,
     shortDescription: app.shortDescription,
     fullDescription: app.fullDescription,
     supportEmail: app.supportEmail,
     privacyUrl: app.privacyUrl,
-    phoneScreenshots: app.phoneScreenshotIds.map(assetUrl),
-    iphoneScreenshots: app.iphoneScreenshotIds.map(assetUrl),
+    phoneScreenshots: shots.phone.map(assetUrl),
+    iphoneScreenshots: shots.iphone.map(assetUrl),
     // 88.2 The listing in more languages, tablet and iPad screenshots, framed on the app's main colour;
     // only when set, so a listing without them reads as before (automatic builds compare them).
     ...(app.listingLanguage && app.listingLanguage !== "en" ? { language: app.listingLanguage } : {}),
-    ...(app.listingTranslations?.length ? { translations: app.listingTranslations } : {}),
-    ...(app.tabletScreenshotIds?.length ? { tabletScreenshots: app.tabletScreenshotIds.map(assetUrl) } : {}),
-    ...(app.ipadScreenshotIds?.length ? { ipadScreenshots: app.ipadScreenshotIds.map(assetUrl) } : {}),
-    ...(app.screenshotFrame ? { frame: { background: app.primaryColor, textColor: readableOn(app.primaryColor), captions: app.screenshotFrame.captions } } : {}),
+    ...(translations.length ? { translations } : {}),
+    ...(shots.tablet.length ? { tabletScreenshots: shots.tablet.map(assetUrl) } : {}),
+    ...(shots.ipad.length ? { ipadScreenshots: shots.ipad.map(assetUrl) } : {}),
+    ...(app.screenshotFrame
+      ? { frame: { background: app.primaryColor, textColor: readableOn(app.primaryColor), captions: captions(app.screenshotFrame.captions, { storeTitle: app.storeTitle, shortDescription: app.shortDescription }) } }
+      : {}),
   };
 }
 
@@ -250,10 +273,12 @@ export function initialStages(autoPublish: boolean, app: App, ios = true): Build
     ios: ios && keys.appStore ? "pending" : "skipped",
     upload_play: autoPublish && keys.play ? "pending" : "skipped",
     upload_testflight: ios && autoPublish && keys.appStore ? "pending" : "skipped",
-    // 35, 36 Only with "We publish for you" and the store's keys, like Google Play.
-    upload_galaxy: autoPublish && keys.galaxy ? "pending" : "skipped",
-    upload_appgallery: autoPublish && keys.appGallery ? "pending" : "skipped",
-    upload_xiaomi: autoPublish && keys.xiaomi ? "pending" : "skipped",
+    // 138 After TestFlight, the platform sends the version to App Review.
+    app_review: ios && autoPublish && keys.appStore ? "pending" : "skipped",
+    // 35, 36, 42 With the store's keys: the client's own store (138 every plan; our team doesn't publish there).
+    upload_galaxy: keys.galaxy ? "pending" : "skipped",
+    upload_appgallery: keys.appGallery ? "pending" : "skipped",
+    upload_xiaomi: keys.xiaomi ? "pending" : "skipped",
   };
 }
 
@@ -281,6 +306,9 @@ export async function queueBuild(
     from?: Build;
     /** 104.6 "courier": the delivery company's courier app, built from the same app. */
     variant?: BuildVariant;
+    /** 138 Queued because Yallapp's own app changed (lib/builds/app-release.ts), for this release of it (else the current one). */
+    cause?: "app_release";
+    appRelease?: number;
   },
   now: Date,
   assetUrl: (assetId: string) => string,
@@ -394,8 +422,8 @@ export async function queueBuild(
         message: null,
         logUrl: null,
         ...(input.from ? { sourceRef: input.from.sourceCommit, rebuildOf: input.from.number } : {}),
-        // 89.2 Released in stages when we publish for the owner and they asked for it.
-        release: autoPublish ? buildReleaseOf(app) : null,
+        // 89.2 Released in stages when the owner asked for it; 138 else to everyone on Google Play. With the Yallapp app release it's made with.
+        release: autoPublish ? { ...buildReleaseOf(app), appRelease: input.appRelease ?? CLIENT_APP_RELEASE, ...(input.cause ? { cause: input.cause } : {}) } : null,
         createdAt: now,
         startedAt: null,
         finishedAt: null,
@@ -432,9 +460,14 @@ export async function firebaseListsStaffApp(app: App, preflight: PreflightDeps |
   return data ? firebaseHasStaffApp(data.toString("utf8"), app.androidPackage) : false;
 }
 
-/** 89.2 A build's release from the app's choice; null when nothing is staged. */
-export function buildReleaseOf(app: Pick<App, "stagedRelease">): BuildRelease | null {
+/**
+ * 89.2 A build's release from the app's choice. 138 Without one, Google
+ * Play's production track for everyone (the pipeline keeps a draft while the
+ * app's first release isn't sent by hand) and the App Store at once; the
+ * owner may choose a first share or internal testing instead.
+ */
+export function buildReleaseOf(app: Pick<App, "stagedRelease">): BuildRelease {
   const staged = app.stagedRelease;
-  if (!staged || (staged.androidPercent === null && !staged.iosPhased)) return null;
-  return { androidRollout: staged.androidPercent === null ? null : staged.androidPercent / 100, iosPhased: staged.iosPhased };
+  const androidRollout = staged?.androidInternal ? null : staged?.androidPercent != null ? staged.androidPercent / 100 : 1;
+  return { androidRollout, iosPhased: Boolean(staged?.iosPhased) };
 }

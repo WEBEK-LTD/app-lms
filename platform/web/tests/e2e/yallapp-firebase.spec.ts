@@ -177,7 +177,7 @@ test("a new store app starts in Yallapp's Firebase and is registered when its na
 
   await admin.goto(`/admin?q=${encodeURIComponent(client.email)}`);
   await admin.getByRole("link", { name: `Activate ${client.name}` }).click();
-  // Growth: push and the iPhone app, published by the client.
+  // Growth: push and the iPhone app; 138 published for the client, as on every plan.
   await admin.getByRole("complementary").getByLabel("Plan").selectOption("growth");
   await admin.getByRole("complementary").getByRole("button", { name: "Activate & send license" }).click();
   await expect(admin.getByRole("status")).toContainText("Activated");
@@ -232,8 +232,10 @@ test("a new store app starts in Yallapp's Firebase and is registered when its na
 
   // Finishing the setup keeps Yallapp's choice. (A hosted app's build config needs https addresses, so the
   // test server, on http, queues no build: tests/unit/phase136-firebase.test.ts checks the files themselves.)
+  // 138 Every plan publishes for the client: "Publish it for me" needs no store keys (or the client adds theirs).
   await own.getByRole("group", { name: "Push notifications" }).getByRole("radio", { name: /Yallapp sets up notifications/ }).check();
-  await own.getByRole("button", { name: "Finish setup" }).click();
+  await own.getByRole("radio", { name: /Publish it for me/ }).check();
+  await own.getByRole("button", { name: "Save & finish" }).click();
   await expect(own).toHaveURL(/\/dashboard\/builds/);
   // The platform read both apps' files from Firebase, to save them where the client's own would be.
   const configs = fake.google.calls.filter((c) => c.method === "GET" && c.path.startsWith("/firebase/v1beta1/projects/yallapp-push-01/") && c.path.endsWith("/config")).map((c) => c.path.split("/")[5]);
@@ -280,7 +282,7 @@ test("“Use my own Firebase” brings today's fields back, and Yallapp's again 
   await expect(own.getByLabel("GoogleService-Info.plist (iOS)")).toBeVisible();
   // Yallapp's files are never shown as the client's own.
   await expect(own.getByText("google-services.json saved")).toHaveCount(0);
-  await own.getByRole("button", { name: "Finish setup" }).click();
+  await own.getByRole("button", { name: "Save & finish" }).click();
   await own.waitForURL((url) => !url.search.includes("step=publishing"));
   await own.goto("/dashboard/setup?step=publishing");
   await expect(own.getByRole("group", { name: "Push notifications" }).getByRole("radio", { name: "Use my own Firebase" })).toBeChecked();
@@ -292,7 +294,7 @@ test("“Use my own Firebase” brings today's fields back, and Yallapp's again 
   await own.goto("/dashboard/setup?step=publishing");
   await own.getByRole("group", { name: "Push notifications" }).getByRole("radio", { name: /Yallapp sets up notifications/ }).check();
   await expect(own.getByRole("group", { name: "Push notifications" })).toContainText("Save to switch");
-  await own.getByRole("button", { name: "Finish setup" }).click();
+  await own.getByRole("button", { name: "Save & finish" }).click();
   await own.waitForURL((url) => !url.search.includes("step=publishing"));
   await own.goto("/dashboard/setup?step=publishing");
   await expect(own.getByRole("group", { name: "Push notifications" }).getByRole("status")).toContainText("Ready");

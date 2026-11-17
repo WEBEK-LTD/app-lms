@@ -1,4 +1,9 @@
 import { runAutoBuilds } from "../builds/auto";
+import { runAutoScreenshots } from "../app/auto-screenshots-jobs";
+import { runAppReleaseBuilds, type AppReleaseReport } from "../builds/app-release";
+import { queueBuild } from "../app/setup";
+import { runAppReviewSubmissions, type AppReviewReport } from "../publishing/app-review-submit";
+import { noteAppReviewSent, notifyPublishingWork } from "../publishing/service";
 import { runOrderWatches, type OrderWatchReport } from "../hosted/order-watch";
 import { syncReviewStatuses, type ReviewSyncReport } from "../publishing/review";
 import type { PreflightDeps } from "../builds/preflight";
@@ -28,7 +33,7 @@ import { raiseAlert, type TeamMail } from "../watch/alerts";
  * 61 The frequent job: `netlify/functions/frequent-jobs.mts` calls `POST
  * /api/internal/frequent` every 5 minutes with INTERNAL_JOB_SECRET. It sends
  * the app notifications whose time came and pushes to the owners' phones the
- * announcements that started, and 85.2 the notification campaigns due. 105.2 It moves rides on with time. 113.8 It reminds schools' families of tomorrow's exams, 113.4 and parents of the permission slips due tomorrow. 88.3 It reads the App Store's review state of the iPhone versions in review. 100.2 It makes or changes the in-app products waiting for the stores, 100.3 and keeps purchases' access in step. 68 It also asks the WordPress site of every
+ * announcements that started, and 85.2 the notification campaigns due. 105.2 It moves rides on with time. 113.8 It reminds schools' families of tomorrow's exams, 113.4 and parents of the permission slips due tomorrow. 88.3 It reads the App Store's review state of the iPhone versions in review. 138 It sends iPhone builds on TestFlight to App Review once Apple has processed them, and gives a few apps a run their build for a new release of Yallapp's own app. 100.2 It makes or changes the in-app products waiting for the stores, 100.3 and keeps purchases' access in step. 68 It also asks the WordPress site of every
  * plan that just ended to check its license now (once per end), so the app
  * pauses there within minutes. 136 It registers apps in Yallapp's Firebase
  * and makes the pool's next project when it runs low. Safe to run twice at once: each notification,
@@ -45,8 +50,14 @@ export interface FrequentReport {
   automatic: AutoRunReport;
   /** 87.4 Automatic builds queued, due ones a build wouldn't change, and ones waiting for a running build. */
   builds: { queued: number; nothing: number; later: number };
+  /** 139 Store screenshot runs queued, due ones whose screens didn't change, runs that stopped and were closed. */
+  screenshots: { queued: number; same: number; stalled: number };
   /** 88.3 iPhone versions in review whose App Store state was read, and the ones whose status changed. */
   reviews: ReviewSyncReport;
+  /** 138 iPhone builds sent to App Review, still waiting for Apple, or blocked on something to do by hand. */
+  appReview: AppReviewReport;
+  /** 138 Builds queued for a new release of Yallapp's own app, apps waiting their turn, builds that couldn't be queued. */
+  appRelease: AppReleaseReport;
   /** 91.2 Order watches looked at, people told of an order update, watches that ended. */
   orders: OrderWatchReport;
   /** 100.2 Store products made or changed in Google Play and the App Store. */
@@ -80,6 +91,8 @@ export async function runFrequentJobs(deps: {
   /** 87.4 The checks before the automatic builds, and how the pipeline is started. */
   preflight?: PreflightDeps;
   startPipeline?: () => Promise<unknown>;
+  /** 139 How the store screenshots' workflow is started. */
+  startScreenshots?: () => Promise<unknown>;
   /** 88.3 How App Store Connect is reached (tests: a fake fetch). */
   storeFetch?: typeof fetch;
   /** 91.2 How the connected platforms are reached (tests: a fake fetch). */
@@ -123,6 +136,41 @@ export async function runFrequentJobs(deps: {
     builds = await runAutoBuilds({ store: deps.store, now: deps.now, assetUrl, preflight: deps.preflight, start: deps.startPipeline ?? (async () => undefined) });
   } catch (error) {
     console.error("[frequent] automatic builds", error instanceof Error ? error.message : String(error));
+  }
+  // 139 The store screenshots made from the apps, when what shows on them changed.
+  let screenshots = { queued: 0, same: 0, stalled: 0 };
+  try {
+    screenshots = await runAutoScreenshots({ store: deps.store, now: deps.now, start: deps.startScreenshots ?? (async () => undefined) });
+  } catch (error) {
+    console.error("[frequent] store screenshots", error instanceof Error ? error.message : String(error));
+  }
+  // 138 Yallapp's own app updated: a few active apps a run get their new build.
+  let appRelease: AppReleaseReport = { queued: 0, waiting: 0, refused: 0 };
+  try {
+    appRelease = await runAppReleaseBuilds({
+      store: deps.store,
+      now: deps.now,
+      assetUrl,
+      preflight: deps.preflight,
+      start: deps.startPipeline ?? (async () => undefined),
+      queue: async ({ client, app, license, variant, versionName, appRelease }) => queueBuild(deps.store, { client, app, license, versionName, variant, cause: "app_release", appRelease }, deps.now, assetUrl, deps.preflight),
+    });
+  } catch (error) {
+    console.error("[frequent] app release builds", error instanceof Error ? error.message : String(error));
+  }
+  // 138 iPhone builds on TestFlight sent to App Review, once Apple has processed them.
+  let appReview: AppReviewReport = { looked: 0, submitted: 0, waiting: 0, blocked: 0, skipped: 0 };
+  try {
+    appReview = await runAppReviewSubmissions({
+      store: deps.store,
+      key: deps.key,
+      now: deps.now,
+      fetcher: deps.storeFetch,
+      tell: (app, event) => notifyPublishingWork(deps.store, app, event),
+      sent: (app, build, now) => noteAppReviewSent(deps.store, app, build, now),
+    });
+  } catch (error) {
+    console.error("[frequent] app review", error instanceof Error ? error.message : String(error));
   }
   // 88.3 What the App Store says about the versions in review.
   let reviews: ReviewSyncReport = { checked: 0, changed: 0, failed: 0 };
@@ -239,5 +287,5 @@ export async function runFrequentJobs(deps: {
       );
     }
   }
-  return { notifications, announcements, ended, campaigns, automatic, builds, reviews, orders, storeProducts, storePurchases, rides, library, school, mail, prime, ...(firebase ? { firebase } : {}) };
+  return { notifications, announcements, ended, campaigns, automatic, builds, screenshots, reviews, appReview, appRelease, orders, storeProducts, storePurchases, rides, library, school, mail, prime, ...(firebase ? { firebase } : {}) };
 }

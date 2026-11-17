@@ -1,6 +1,9 @@
 import { plansIn } from "@/lib/marketing-lang";
 import type { Metadata } from "next";
+import type { Lang } from "@/i18n/config";
 import { listingLanguages } from "@/lib/app/listing-languages";
+import { activeApp, shotLanguagesFor, shotsReady } from "@/lib/app/auto-screenshots-jobs";
+import { DEVICE_SIZES, SCREENS, SHOT_DEVICES, shotKey } from "@/lib/app/auto-screenshots";
 import { appLanguageName } from "@/lib/i18n/language-names";
 import Link from "next/link";
 import { redirect } from "next/navigation";
@@ -14,7 +17,7 @@ import { twoAppsOf } from "@/lib/delivery/two-apps";
 import { StaffAppChoice } from "@/components/staff-app";
 import { hasStaffApp, staffAppKindOf, staffAppNameOf, staffAppOnPlan, staffAppPlaceOf, staffBundleIdOf, staffPackageOf } from "@/lib/school/staff-app";
 import { dashboardText } from "@/lib/dashboard-lang";
-import { SETUP_STEPS, STEP_LABEL, hasStoreKeys, isSetupStep, managedPublishing, nextStep, stepStatus, type SetupStep } from "@/lib/app/setup";
+import { SETUP_STEPS, STEP_LABEL, hasStoreKeys, isSetupStep, nextStep, stepStatus, type SetupStep } from "@/lib/app/setup";
 import { currentPlanId } from "@/lib/billing/plan-change";
 import { effectivePlans } from "@/lib/entitlements";
 import { appLabel, licensePageName } from "@/lib/app/label";
@@ -31,7 +34,7 @@ import { normalizeSiteUrl } from "@/lib/license/site-url";
 import { siteMatch } from "@/lib/app/site-match";
 import { hasFeature, lowestPlanWith, planName } from "@/lib/plans";
 import { FREE_FONT_COUNT } from "@/lib/fonts/catalog";
-import { BrandingStep, ListingStep, PublishingStep, WebsiteStep, type BrandingDesigns, type YallappPushView } from "./steps";
+import { BrandingStep, ListingStep, PublishingStep, WebsiteStep, type AutoShotsView, type BrandingDesigns, type YallappPushView } from "./steps";
 import { yallappFirebaseOffered } from "@/lib/firebase/env";
 import { usesYallappFirebase } from "@/lib/firebase/mode";
 import { firebaseSetupState } from "@/lib/firebase/register";
@@ -59,6 +62,38 @@ const COMING_UP = {
   listing: "setup.upListing",
   publishing: "setup.upPublishing",
 } as const satisfies Record<Exclude<SetupStep, "app-type">, string>;
+
+/** 139 The automatic store screenshots as the listing step shows them: each language, each device, each place of the set. */
+async function autoShotsView(store: DataStore, app: App, lang: Lang): Promise<AutoShotsView> {
+  const auto = app.autoScreenshots;
+  const removed = new Set(auto?.removed ?? []);
+  const languages = await shotLanguagesFor(store, app);
+  const made = new Map((auto?.shots ?? []).map((shot) => [shotKey(shot), shot]));
+  return {
+    on: Boolean(auto?.on),
+    state: auto?.state ?? "idle",
+    madeAt: auto?.madeAt ? formatDate(new Date(auto.madeAt), lang) : null,
+    message: auto?.message ?? null,
+    waiting: Boolean(auto?.dueAt),
+    ready: await shotsReady(store, app),
+    active: await activeApp(store, app, new Date()),
+    groups: languages.map((code) => ({
+      language: code,
+      name: appLanguageName(code, lang),
+      devices: SHOT_DEVICES.map((device) => ({
+        device,
+        width: DEVICE_SIZES[device].width,
+        height: DEVICE_SIZES[device].height,
+        shots: SCREENS[app.appType].flatMap(({ screen }): AutoShotsView["groups"][number]["devices"][number]["shots"] => {
+          const key = shotKey({ device, language: code, screen });
+          const shot = made.get(key);
+          if (removed.has(key)) return [{ key, screen, url: null, source: "removed" }];
+          return shot ? [{ key, screen, url: `/api/v1/assets/${shot.assetId}`, source: shot.source }] : [];
+        }),
+      })),
+    })),
+  };
+}
 
 export default async function SetupPage({ searchParams }: PageProps<"/dashboard/setup">) {
   const context = await requireClient("settings");
@@ -311,6 +346,7 @@ export default async function SetupPage({ searchParams }: PageProps<"/dashboard/
             ipad: (app.ipadScreenshotIds ?? []).map((id) => ({ id, url: `/api/v1/assets/${id}` })),
           }}
           languages={[listingLangs.main, ...listingLangs.others].map((code) => ({ code, name: appLanguageName(code, lang) }))}
+          auto={await autoShotsView(store, app, lang)}
           listing={{
             language: listingLangs.main,
             translations: Object.fromEntries(
@@ -326,12 +362,9 @@ export default async function SetupPage({ searchParams }: PageProps<"/dashboard/
       ) : null}
       {step === "publishing" ? (
         <PublishingStep
-          autoPublish={managedPublishing(plan, effective)}
           ios={hasFeature(current, "ios")}
-          planName={current?.name ?? (plan ? k(planName(plan, plans)) : t("overview.noPlan"))}
           upgrade={{
             // 111 A Studio project's plans are Studio's.
-            managed: lowestPlanWith(effective, (p) => hasFeature(p, "auto_publish"), plan, studio ? "studio" : "regular"),
             ios: lowestPlanWith(effective, (p) => hasFeature(p, "ios"), plan, studio ? "studio" : "regular"),
           }}
           teamPublishes={app.publishingMode === "managed"}

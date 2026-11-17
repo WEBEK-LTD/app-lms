@@ -24,6 +24,7 @@ import { PERIOD_KEYS, periodOfMonths, type PeriodMonths } from "@/lib/billing/pe
 import { cardPlans } from "@/lib/billing/plan-payment";
 import {
   isAddedPlan,
+  isIncludedFeature,
   isPlan,
   planFamily,
   PLAN_FEATURE_IDS,
@@ -724,7 +725,8 @@ function readPlanLimits(
     errors,
     extraLimits,
     // 103R A Studio plan is always a Studio plan.
-    features: PLAN_FEATURE_IDS.filter((f) => ticked.includes(f) || (f === "studio" && planFamily(plan) === "studio")),
+    // 138 And what every plan includes (not a checkbox).
+    features: PLAN_FEATURE_IDS.filter((f) => ticked.includes(f) || isIncludedFeature(f) || (f === "studio" && planFamily(plan) === "studio")),
     limits: {
       appUsers: limits.appUsers ?? null,
       languages: limits.languages ?? null,

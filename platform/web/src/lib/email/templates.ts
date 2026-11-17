@@ -34,6 +34,8 @@ export type EmailTemplateKey =
   | "announcement"
   | "publishing_status"
   | "publishing_request"
+  // 138 A publishing account's new app
+  | "publishing_assigned"
 
   // 13 Plans, limits and owner notices
   | "app_users_80"
@@ -552,6 +554,22 @@ export const EMAIL_TEMPLATES: EmailTemplateDefinition[] = [
     subject: "Publishing: {{client_name}} {{event}}",
     body:
       "{{client_name}} {{event}} ({{app_name}}).\nEmail: {{email}}\nWhatsApp: {{whatsapp}}\n\nThe Publishing queue: {{admin_url}}",
+  },
+  {
+    key: "publishing_assigned",
+    name: "New app for a publishing account (team)",
+    description: "138 To one of Yallapp's publishing accounts (Settings › Publishing accounts) when an app is given to it: the app, its client and the one-time steps the account does for it by hand.",
+    placeholders: [
+      { name: "client_name", description: "The client's name", sample: "Ada Lovelace" },
+      APP_NAME,
+      { name: "account_email", description: "The publishing account's email", sample: "publishing-1@yallapp.example" },
+      { name: "steps", description: "The one-time steps for this app, one per line", sample: "- Send the app's first Google Play release by hand in Play Console." },
+      { name: "admin_url", description: "The Publishing queue in the admin", sample: "https://yallapp.com.tr/admin/publishing" },
+    ],
+    subject: "Publishing: {{app_name}} is yours to publish",
+    body:
+      "{{app_name}} ({{client_name}}) was given to {{account_email}}. Its owner invites this email as admin to Google Play Console and App Store Connect.\n\n" +
+      "The one-time steps for this app:\n{{steps}}\n\nEverything else is automatic: every build goes to Google Play's production and is sent to App Review.\n\nThe Publishing queue: {{admin_url}}",
   },
   // 13 Plans, limits and owner notices: each sent once per crossing or per license period.
   {

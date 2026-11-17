@@ -22,6 +22,8 @@ export const pipelineStatusSchema = z
         upload_appgallery: stageStatus.optional(),
         // 42
         upload_xiaomi: stageStatus.optional(),
+        // 138 The pipeline says whether the platform may send the version to App Review.
+        app_review: stageStatus.optional(),
       })
       .strict()
       .optional(),
@@ -59,6 +61,14 @@ export const pipelineStatusSchema = z
       })
       .strict()
       .nullable()
+      .optional(),
+    // 138 Where the App Bundle went on Google Play: a draft until the app's first release is sent by hand.
+    play: z
+      .object({
+        track: z.enum(["production", "internal"]),
+        status: z.enum(["completed", "inProgress", "draft"]),
+      })
+      .strict()
       .optional(),
     // 46 Public signing facts for the link files: the upload key's SHA-256 and the Apple Team ID.
     signing: z
@@ -103,15 +113,18 @@ export async function applyPipelineStatus(
     sourceCommit: update.source_commit ?? build.sourceCommit ?? null,
     startedAt: build.startedAt ?? (status === "building" || FINISHED.includes(status) ? now : null),
     finishedAt: FINISHED.includes(status) ? now : null,
+    // 138 Where it went on Google Play, kept with how it's released.
+    ...(update.play ? { release: { ...(build.release ?? { androidRollout: null, iosPhased: false }), play: update.play } } : {}),
   };
   await store.updateBuild(build.id, patch, now);
+  const updated: Build = { ...build, ...patch, updatedAt: now };
   // 89.2 A staged release starts once its store upload is done: kept on the app for the owner's controls.
-  if (build.release) {
+  if (updated.release) {
     const app = await store.getAppById(build.appId);
-    const rollout = app ? rolloutAfterReport(app.rollout, build, stages, now) : null;
+    const rollout = app ? rolloutAfterReport(app.rollout, updated, stages, now) : null;
     if (app && rollout) await store.updateApp(app.id, { rollout }, now);
   }
-  return { ok: true, build: { ...build, ...patch, updatedAt: now } };
+  return { ok: true, build: updated };
 }
 
 /**
@@ -153,6 +166,8 @@ export function buildSummary(build: Build) {
     rebuild_of: build.rebuildOf ?? null,
     // 89.2
     ...(build.release ? { release: { android_rollout: build.release.androidRollout, ios_phased: build.release.iosPhased } } : {}),
+    // 138
+    ...(build.release?.play ? { play: build.release.play } : {}),
     created_at: build.createdAt.toISOString(),
     started_at: build.startedAt?.toISOString() ?? null,
     finished_at: build.finishedAt?.toISOString() ?? null,

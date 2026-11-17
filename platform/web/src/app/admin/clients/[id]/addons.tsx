@@ -6,7 +6,7 @@ import type { DataStore } from "@/lib/data/store";
 import type { App } from "@/lib/data/types";
 import { isLifetimeEnd } from "@/lib/billing/periods";
 import { addonsOf, billingLabel } from "@/lib/addons/catalog";
-import { addonRunning } from "@/lib/addons/rules";
+import { addonRetired, addonRunning } from "@/lib/addons/rules";
 import { ADDON_BILLINGS } from "@/lib/addons/types";
 import { platformSetting } from "@/lib/settings/platform";
 
@@ -17,7 +17,8 @@ import { platformSetting } from "@/lib/settings/platform";
  */
 export async function ClientAddons({ store, clientId, apps, canGrant, notice }: { store: DataStore; clientId: string; apps: App[]; canGrant: boolean; notice: string | null }) {
   const [owned, setting] = await Promise.all([store.listAppAddons({ clientId }), platformSetting(store, "addons")]);
-  const defs = addonsOf(setting?.value);
+  // 138 Not what every plan includes now (publishing).
+  const defs = addonsOf(setting?.value).filter((d) => !addonRetired(d));
   const now = new Date();
   const appName = (id: string) => {
     const app = apps.find((a) => a.id === id);

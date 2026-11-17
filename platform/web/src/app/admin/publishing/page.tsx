@@ -21,6 +21,10 @@ import { encryptionKey } from "@/lib/env";
 import { REJECTION_GUIDELINE } from "@/lib/publishing/review";
 import { REJECTION_REASONS, type CourierHubSetting, type PublishingStore, type App, type Client, type PublishingEvent, type PublishingRequest, type User } from "@/lib/data/types";
 import { publishingTeamEmail } from "@/lib/publishing/service";
+import { accountCounts, appAccountId, readAccounts } from "@/lib/publishing/accounts";
+import { ACCOUNT_STEP_TEXT, accountSteps } from "@/lib/publishing/account-steps";
+import type { Build, PublishingAccount } from "@/lib/data/types";
+import { MoveAccountForm } from "../settings/publishing-accounts/forms";
 import {
   checklistProgress,
   isLiveEverywhere,
@@ -58,14 +62,19 @@ export default async function PublishingQueuePage({ searchParams }: PageProps<"/
   const query = await searchParams;
   const tab = TABS.find((t) => t.id === query.show)?.id ?? "open";
   const store = await getStore();
-  const [all, mayManage, teamEmail, smtp, courierHub, hubCompany] = await Promise.all([
+  const [all, mayManage, teamEmail, smtp, courierHub, hubCompany, accounts, everyApp] = await Promise.all([
     store.listManagedPublishingRequests(),
     adminCan("publishing.manage"),
     publishingTeamEmail(store),
     smtpConfigured(store),
     courierHubSetting(store, { fresh: true }),
     hubReviewCompany(store),
+    // 138 The publishing accounts, and how many apps each has.
+    readAccounts(store, true),
+    store.listApps(),
   ]);
+  const appsPerAccount = accountCounts(everyApp);
+  const accountOf = (app: App | null) => (app ? (accounts.find((a) => a.id === appAccountId(app)) ?? null) : null);
   const requests = all.filter((r) => (tab === "all" ? true : tab === "live" ? isLiveEverywhere(r) : !isLiveEverywhere(r)));
   const rows = await Promise.all(
     requests.map(async (request) => {
@@ -79,7 +88,7 @@ export default async function PublishingQueuePage({ searchParams }: PageProps<"/
       const school = app?.connector?.kind === "school" ? schoolReviewNotes(app, { university: (await loadUniSettings(store, app.id)).enabled }) : null;
       // 105.4.7b A school's notes for the reviewers: one sign-in, each role.
       const deliveryNotes = app && hasCourierJobs(app) ? reviewNotes(app, deliverySettingsOf(await store.getDeliverySettings(app.id))) : school ? { customer: school, courier: null } : null;
-      return { request, client, user, app, events, deliveryNotes };
+      return { request, client, user, app, events, deliveryNotes, account: accountOf(app) };
     }),
   );
   const statuses = PUBLISHING_STATUSES.map((id) => ({ id, label: PUBLISHING_STATUS_LABEL[id] }));
@@ -101,7 +110,7 @@ export default async function PublishingQueuePage({ searchParams }: PageProps<"/
       <div className="flex flex-col gap-1.5">
         <h1 className="m-0 text-[28px] font-extrabold">Publishing</h1>
         <span className="text-[15px] text-muted">
-          Apps we publish for clients, oldest request first. Clients invite {teamEmail} to their store accounts; a new status emails them.
+          Apps we publish for clients, oldest request first. Clients invite their app&apos;s publishing account (Settings › Publishing accounts; without one, {teamEmail}) to their store accounts; a new status emails them.
         </span>
       </div>
       {/* 19 Without SMTP, new requests reach nobody: the team checks this page instead. */}
@@ -148,7 +157,7 @@ export default async function PublishingQueuePage({ searchParams }: PageProps<"/
               </tr>
             </thead>
             <tbody>
-              {rows.map(({ request, user, app }) => {
+              {rows.map(({ request, user, app, account }) => {
                 const progress = app ? checklistProgress(request, app) : { done: 0, total: 0, complete: false };
                 const name = appLabel(app);
                 const isSelected = selected?.request.appId === request.appId;
@@ -160,6 +169,10 @@ export default async function PublishingQueuePage({ searchParams }: PageProps<"/
                         <span className="text-xs text-muted">
                           {user?.name ?? "Unknown client"}
                           {app ? ` · ${appTypeName(app)}` : ""}
+                        </span>
+                        {/* 138 */}
+                        <span className="text-xs text-muted" data-app-account="">
+                          Account: <bdi dir="ltr">{account?.email ?? teamEmail}</bdi>
                         </span>
                         {request.teamEmailFailedAt ? <Badge tone="danger">Email to the team failed</Badge> : null}
                       </div>
@@ -210,7 +223,16 @@ export default async function PublishingQueuePage({ searchParams }: PageProps<"/
         )}
       </section>
 
-      {selected ? <RequestDetail row={selected} statuses={statuses} mayManage={mayManage} /> : null}
+      {selected ? (
+        <RequestDetail
+          row={selected}
+          statuses={statuses}
+          mayManage={mayManage}
+          accounts={accounts.map((a) => ({ id: a.id, label: `${a.email} (${appsPerAccount.get(a.id) ?? 0} of ${a.limit}${a.active ? "" : ", no new apps"})` }))}
+          teamEmail={teamEmail}
+          builds={selected.app ? await store.listBuildsByApp(selected.app.id, 20, "all") : []}
+        />
+      ) : null}
 
       <YallappCourierListing setting={courierHub} company={hubCompany?.appName?.trim() || null} />
     </>
@@ -258,11 +280,36 @@ function YallappCourierListing({ setting, company }: { setting: CourierHubSettin
   );
 }
 
-type Row = { request: PublishingRequest; client: Client | null; user: User | null; app: App | null; events: PublishingEvent[]; deliveryNotes: { customer: string; courier: string | null } | null };
+type Row = {
+  request: PublishingRequest;
+  client: Client | null;
+  user: User | null;
+  app: App | null;
+  events: PublishingEvent[];
+  deliveryNotes: { customer: string; courier: string | null } | null;
+  /** 138 */
+  account: PublishingAccount | null;
+};
 
-/** One request: what the client did and gave, each store's status, the team's notes and the history. */
-function RequestDetail({ row, statuses, mayManage }: { row: Row; statuses: { id: string; label: string }[]; mayManage: boolean }) {
-  const { request, client, user, app, events, deliveryNotes } = row;
+/** One request: what the client did and gave, each store's status, the team's notes and the history; 138 its publishing account and that account's one-time steps. */
+function RequestDetail({
+  row,
+  statuses,
+  mayManage,
+  accounts,
+  teamEmail,
+  builds,
+}: {
+  row: Row;
+  statuses: { id: string; label: string }[];
+  mayManage: boolean;
+  accounts: { id: string; label: string }[];
+  teamEmail: string;
+  builds: Build[];
+}) {
+  const { request, client, user, app, events, deliveryNotes, account } = row;
+  const oneTime = app ? accountSteps({ app, builds, request }) : [];
+  const words = ACCOUNT_STEP_TEXT.en;
   const progress = app ? checklistProgress(request, app) : { done: 0, total: 0, complete: false };
   const missing = app ? listingMissing(app, request.listing) : [];
   const name = appLabel(app);
@@ -282,6 +329,38 @@ function RequestDetail({ row, statuses, mayManage }: { row: Row; statuses: { id:
           </span>
         </div>
         {request.teamEmailFailedAt ? <Badge tone="danger">Email to the team failed · {formatDateTime(request.teamEmailFailedAt)}</Badge> : null}
+      </div>
+
+      {/* 138 The app's publishing account, and what it still does by hand for this app. */}
+      <div className="flex flex-col gap-3 rounded-xl border border-line p-4" data-account-panel="">
+        <div className="flex flex-wrap items-end justify-between gap-3">
+          <div className="flex min-w-0 flex-col gap-0.5">
+            <h3 className="m-0 text-xs font-bold tracking-wide text-muted uppercase">Publishing account</h3>
+            <span dir="ltr" className="font-bold break-all">
+              {account?.email ?? teamEmail}
+            </span>
+            {account ? null : <span className="text-xs text-muted">No account yet: the client sees the publishing team email.</span>}
+          </div>
+          {mayManage && app && accounts.length ? <MoveAccountForm appId={app.id} current={account?.id ?? null} accounts={accounts} /> : null}
+        </div>
+        <div className="flex flex-col gap-1.5">
+          <h4 className="m-0 text-xs font-bold text-muted">One-time steps for this app</h4>
+          <ul className="m-0 flex list-none flex-col gap-1.5 p-0 text-sm" aria-label="One-time steps for this app">
+            {oneTime.map((step) => (
+              <li key={step.id} className="flex items-start gap-2" data-account-step={step.id} data-state={step.state}>
+                <Icon
+                  name={step.state === "done" ? "check_circle" : "radio_button_unchecked"}
+                  size={18}
+                  filled={step.state === "done"}
+                  className={step.state === "done" ? "text-success" : "text-faint"}
+                />
+                <span>
+                  {words[step.id]} <span className="text-xs text-muted">({words[step.state]})</span>
+                </span>
+              </li>
+            ))}
+          </ul>
+        </div>
       </div>
 
       <div className="grid gap-6 lg:grid-cols-[minmax(0,5fr)_minmax(0,7fr)]">

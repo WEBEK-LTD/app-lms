@@ -2,24 +2,22 @@ import type { Metadata } from "next";
 import type { CSSProperties, ReactNode } from "react";
 import Link from "next/link";
 import { redirect } from "next/navigation";
-import { chooseMoreStoresAction, choosePublishingModeAction } from "@/app/actions/publishing";
+import { choosePublishingModeAction } from "@/app/actions/publishing";
 import { SubmitButton } from "@/components/form";
 import { Icon } from "@/components/icon";
 import { formatDateTime } from "@/components/ui";
 import { KitBar, KitCallout, KitFact, KitFacts, KitFold, KitHeader, KitHero, KitList, KitNext, KitPage, KitRow, KitSection, KitStatus, kit } from "@/components/studio-page";
 import { KitInspectButton, KitInspectGroup } from "@/components/studio-page/inspect";
 import { KitInspectorBody, KitInspectorHead } from "@/components/studio-page/parts";
-import { appLabel, licensePageName } from "@/lib/app/label";
+import { appLabel } from "@/lib/app/label";
 import { hasStoreKeys } from "@/lib/app/setup";
 import { requireClient } from "@/lib/auth/session";
-import { getVisitorContact } from "@/lib/contact";
 import { getStore } from "@/lib/data";
 import { appPlan } from "@/lib/entitlements";
 import { hasFeature } from "@/lib/plans";
-import { publishingTeamEmail } from "@/lib/publishing/service";
+import { appPublishingEmail } from "@/lib/publishing/service";
 import {
   APP_STORE_CATEGORIES,
-  canUseManagedPublishing,
   checklistProgress,
   CLIENT_STATUS_LABEL,
   listingMissing,
@@ -81,7 +79,7 @@ const MORE_STORE_TEXT: Record<(typeof MORE_STORES)[number], DashKey> = {
 
 
 /** One way to get to the stores, as one calm panel of the hero card. */
-function Choice({ mode, title, text, points, disabled, saving }: { mode: "self" | "managed"; title: string; text: string; points: string[]; disabled?: string; saving: string }) {
+function Choice({ mode, title, text, points, saving }: { mode: "self" | "managed"; title: string; text: string; points: string[]; saving: string }) {
   return (
     <form action={choosePublishingModeAction} className={`flex flex-col gap-3 rounded-3xl p-5 sm:p-6 ${mode === "managed" ? "bg-(--sp-surface) ring-1 ring-ember/50" : "bg-(--sp-soft)"}`}>
       <input type="hidden" name="mode" value={mode} />
@@ -101,10 +99,9 @@ function Choice({ mode, title, text, points, disabled, saving }: { mode: "self" 
         ))}
       </ul>
       <div className="mt-auto pt-2">
-        <SubmitButton variant={mode === "managed" ? "main" : "secondary"} className="h-11" disabled={Boolean(disabled)} pendingText={saving}>
+        <SubmitButton variant={mode === "managed" ? "main" : "secondary"} className="h-11" pendingText={saving}>
           {title}
         </SubmitButton>
-        {disabled ? <span className="mt-1.5 block text-sm text-(--sp-muted)">{disabled}</span> : null}
       </div>
     </form>
   );
@@ -119,14 +116,11 @@ export default async function PublishingPage({ searchParams }: PageProps<"/dashb
   const name = appLabel(app) === "Untitled app" ? k("Untitled app") : appLabel(app);
   const query = await searchParams;
   const store = await getStore();
-  const contact = await getVisitorContact();
   const request = await store.getPublishingRequest(app.id);
   const mode = app.publishingMode ?? request?.mode ?? null;
-  const teamEmail = await publishingTeamEmail(store);
+  // 138 The app's own publishing account (given now, the first time), else the publishing team email.
+  const teamEmail = (await appPublishingEmail(store, app)).email;
   const current = await appPlan(await getStore(), license, new Date());
-  const allowed = canUseManagedPublishing(current);
-  const notIncluded = allowed ? undefined : t("publishing.notIncluded", { page: k(licensePageName(app)) });
-  const autoUpload = hasFeature(current, "auto_publish");
   // 104.7 A delivery app's notes for the reviewers of both its apps.
   const delivery = hasCourierJobs(app) ? deliverySettingsOf(await store.getDeliverySettings(app.id)) : null;
   const notes = delivery ? reviewNotes(app, delivery) : null;
@@ -144,7 +138,8 @@ export default async function PublishingPage({ searchParams }: PageProps<"/dashb
     <>
       <KitHeader icon="rocket_launch" title={t("publishing.title")} description={t("publishing.intro", { app: name })} actions={main} />
       <KitBar>
-        <PublishingTabs more={mode === "self"} />
+        {/* 138 The client's own stores, whoever publishes on Google Play and the App Store. */}
+        <PublishingTabs more />
       </KitBar>
       {/* 110.2 Sample entries left: nothing goes to the stores. */}
       <SamplesStoreNotice app={app} />
@@ -159,11 +154,6 @@ export default async function PublishingPage({ searchParams }: PageProps<"/dashb
     return (
       <KitPage>
         {header(null)}
-        {query.error === "not-included" ? (
-          <KitCallout tone="warn" icon="warning" role="alert">
-            {richText(t("publishing.notIncludedAlert"), { wa: (chunk) => <a href={contact.whatsappUrl}>{chunk}</a>, upgrade: (chunk) => <Link href="/dashboard/license#change-plan">{chunk}</Link> })}
-          </KitCallout>
-        ) : null}
         <KitHero titleId="h-how" title={t("publishing.howQuestion")}>
           <div className="grid gap-4 [grid-template-columns:repeat(auto-fit,minmax(min(300px,100%),1fr))]">
             <Choice
@@ -171,14 +161,13 @@ export default async function PublishingPage({ searchParams }: PageProps<"/dashb
               title={t("publishing.managed")}
               text={t("publishing.managedText")}
               points={[t("publishing.managedPoint1"), t("publishing.managedPoint2"), t("publishing.managedPoint3")]}
-              disabled={notIncluded}
               saving={saving}
             />
             <Choice
               mode="self"
               title={t("publishing.self")}
               text={t("publishing.selfText")}
-              points={[t("publishing.selfPoint1"), autoUpload ? t("publishing.selfPointAuto") : t("publishing.selfPointGuides")]}
+              points={[t("publishing.selfPoint1"), t("publishing.selfPointAuto")]}
               saving={saving}
             />
           </div>
@@ -221,13 +210,11 @@ export default async function PublishingPage({ searchParams }: PageProps<"/dashb
                 })}
               </li>
               <li>{richText(t("publishing.selfStep3"), { link: (chunk) => <Link href="/dashboard/publishing/more-stores">{chunk}</Link> })}</li>
-              {autoUpload ? (
-                <li>
-                  {richText(keys.play || keys.appStore ? t("publishing.selfStep4Saved") : t("publishing.selfStep4None"), {
-                    link: (chunk) => <Link href="/dashboard/setup?step=publishing">{chunk}</Link>,
-                  })}
-                </li>
-              ) : null}
+              <li>
+                {richText(keys.play || keys.appStore ? t("publishing.selfStep4Saved") : t("publishing.selfStep4None"), {
+                  link: (chunk) => <Link href="/dashboard/setup?step=publishing">{chunk}</Link>,
+                })}
+              </li>
             </ol>
           </KitFold>
         </KitHero>
@@ -239,12 +226,9 @@ export default async function PublishingPage({ searchParams }: PageProps<"/dashb
             icon="storefront"
             title={t("publishing.ratherWe")}
             action={
-              <span className="flex flex-col items-start gap-1">
-                <SubmitButton variant="secondary" className="h-10" disabled={Boolean(notIncluded)} pendingText={saving}>
-                  {t("publishing.managed")}
-                </SubmitButton>
-                {notIncluded ? <span className="max-w-[280px] text-sm text-(--sp-muted)">{notIncluded}</span> : null}
-              </span>
+              <SubmitButton variant="secondary" className="h-10" pendingText={saving}>
+                {t("publishing.managed")}
+              </SubmitButton>
             }
           >
             {t("publishing.ratherWeText")}
@@ -526,29 +510,26 @@ export default async function PublishingPage({ searchParams }: PageProps<"/dashb
       <ReviewSection app={app} text={text} managed delivery={deliveryNotes} />
       <ReadySection items={ready} text={text} />
 
-      {/* 35, 36, 42 Samsung Galaxy Store, Huawei AppGallery and Xiaomi GetApps, when the client wants them too: folded behind one line. */}
+      {/* 35, 36, 42 Samsung Galaxy Store, Huawei AppGallery and Xiaomi GetApps: 138 the client's own, with automatic uploads once connected; folded behind one line. */}
       <div id="h-more-stores" className="scroll-mt-6">
       <KitFold summary={t("publishing.moreStores")} icon="storefront" data-more-stores="">
-        <form action={chooseMoreStoresAction} aria-label={t("publishing.moreStores")} className="flex flex-col gap-3">
-          <p className="m-0 text-[15px] leading-relaxed text-(--sp-muted)">{t("publishing.moreStoresText")}</p>
-          <fieldset className="m-0 flex flex-col gap-2.5 border-0 p-0">
-            <legend className="sr-only">{t("publishing.alsoOn")}</legend>
+        <div className="flex flex-col gap-3" data-more-stores-yours="">
+          <p className="m-0 text-[15px] leading-relaxed text-(--sp-muted)">{t("publishing.moreStoresYours")}</p>
+          <ul className="m-0 flex list-none flex-col gap-2.5 p-0">
             {MORE_STORES.map((which) => (
-              <label key={which} className="flex cursor-pointer items-start gap-3 rounded-2xl bg-(--sp-surface) p-3.5 ring-1 ring-(--sp-edge) has-[:checked]:ring-(--sp-ink)">
-                <input type="checkbox" name="store" value={which} defaultChecked={Boolean(request[which])} className="mt-1 h-4 w-4 accent-midnight" />
-                <span className="flex flex-col gap-0.5">
-                  <span className="text-[15px] font-bold">{STORE_TITLE[which]}</span>
-                  <span className="text-sm text-(--sp-muted)">{t(MORE_STORE_TEXT[which])}</span>
-                </span>
-              </label>
+              <li key={which} className="flex flex-col gap-0.5 rounded-2xl bg-(--sp-surface) p-3.5 ring-1 ring-(--sp-edge)">
+                <span className="text-[15px] font-bold">{STORE_TITLE[which]}</span>
+                <span className="text-sm text-(--sp-muted)">{t(MORE_STORE_TEXT[which])}</span>
+              </li>
             ))}
-          </fieldset>
+          </ul>
           <div>
-            <SubmitButton variant="secondary" className="h-10" pendingText={saving}>
-              {t("publishing.saveStores")}
-            </SubmitButton>
+            <Link href="/dashboard/publishing/more-stores" className={kit.quiet}>
+              <Icon name="storefront" size={18} />
+              {t("publishing.moreStoresOpen")}
+            </Link>
           </div>
-        </form>
+        </div>
       </KitFold>
       </div>
 

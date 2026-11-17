@@ -1,7 +1,7 @@
 import type { DataStore } from "./data/store";
 import type { App, SwitchesSetting } from "./data/types";
 import { platformDefinitions } from "./hosted/connectors/registry";
-import { PLAN_FEATURE_IDS, PLAN_FEATURES, PLANS, STUDIO_ONLY_FEATURES, type Plan, type PlanFeature, type PlanInfo } from "./plans";
+import { isIncludedFeature, PLAN_FEATURE_IDS, PLAN_FEATURES, PLANS, STUDIO_ONLY_FEATURES, type Plan, type PlanFeature, type PlanInfo } from "./plans";
 import { platformSetting } from "./settings/platform";
 import { APP_TYPES, ENGINES, isAppType } from "./app/kinds";
 import { STUDIO_ONLY_KINDS } from "./studio/section";
@@ -41,12 +41,13 @@ export type FeatureSwitch = PlanFeature | "plan_card_payments";
 
 export const FEATURE_SWITCHES: { id: FeatureSwitch; label: string }[] = [
   // 13.1 Every plan feature can be switched off for everyone; per plan, the plan editor sets them.
-  ...PLAN_FEATURES.map((f) => ({ id: f.id, label: f.label })),
+  // 138 Not the ones every plan includes ("We publish for you").
+  ...PLAN_FEATURES.filter((f) => !isIncludedFeature(f.id)).map((f) => ({ id: f.id, label: f.label })),
   { id: "plan_card_payments", label: "Paying plans by card" },
 ];
 
 /** Features that are also license features, set per plan in the plan editor itself. */
-export const LICENSE_FEATURE_SWITCHES: FeatureSwitch[] = [...PLAN_FEATURE_IDS];
+export const LICENSE_FEATURE_SWITCHES: FeatureSwitch[] = PLAN_FEATURE_IDS.filter((f) => !isIncludedFeature(f));
 
 export const switchKey = (kind: SwitchKind, id: string) => `${kind}:${id}`;
 
@@ -111,9 +112,9 @@ export function websiteOf(app: Pick<App, "backend" | "connector">): string {
   return app.backend;
 }
 
-/** A plan's license features without the ones switched off. */
+/** A plan's license features without the ones switched off (138 a switch saved before can't take away what every plan includes). */
 export function licenseFeatures<T extends PlanFeature>(features: readonly T[], setting: SwitchesSetting | null | undefined, plan: Plan): T[] {
-  return features.filter((f) => featureOn(setting, f, plan));
+  return features.filter((f) => isIncludedFeature(f) || featureOn(setting, f, plan));
 }
 
 /** The plans as the license API reports them: license features without the switched-off ones. */

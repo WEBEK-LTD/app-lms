@@ -1,0 +1,62 @@
+name: Store screenshots
+
+# 139 The store screenshots Yallapp makes from each client's app ("Make them
+# for me" in App setup › Store listing). The platform starts it as soon as a
+# run is queued (GITHUB_DISPATCH_TOKEN, like Build client apps); the hourly
+# schedule takes the runs otherwise. Linux only: Chromium opens the app
+# preview (its own web build) with a signed, read-only link at each store
+# size and takes the screens; no macOS minutes, no store keys.
+
+on:
+  schedule:
+    - cron: '41 * * * *'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: store-screenshots
+  cancel-in-progress: false
+
+env:
+  PLATFORM_API_URL: ${{ vars.PLATFORM_API_URL }}
+
+jobs:
+  screenshots:
+    name: Make the waiting screenshots
+    runs-on: ${{ vars.LINUX_RUNNER || 'ubuntu-24.04' }}
+    if: vars.PLATFORM_API_URL != ''
+    timeout-minutes: 90
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+        with:
+          sparse-checkout: build/scripts
+      # Before any setup: whether a run is waiting (plain Python, the runner's own). Nothing waiting, nothing more.
+      - id: pending
+        name: Runs waiting
+        env:
+          BUILD_PIPELINE_TOKEN: ${{ secrets.BUILD_PIPELINE_TOKEN }}
+        run: python3 build/scripts/store_screenshots.py pending
+      - if: steps.pending.outputs.waiting != '0'
+        uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065 # v5
+        with:
+          python-version: '3.12'
+      - if: steps.pending.outputs.waiting != '0'
+        run: pip install pillow==12.0.0
+      - if: steps.pending.outputs.waiting != '0'
+        uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
+        with:
+          node-version: 22
+      # The Playwright the platform's own tests use (platform/web/package.json), and its Chromium.
+      - if: steps.pending.outputs.waiting != '0'
+        name: Chromium
+        run: |
+          npm install --no-save --no-audit --no-fund --prefix "$RUNNER_TEMP/pw" playwright@1.56.1
+          "$RUNNER_TEMP/pw/node_modules/.bin/playwright" install --with-deps chromium
+      - if: steps.pending.outputs.waiting != '0'
+        name: Take the screens and send them
+        env:
+          BUILD_PIPELINE_TOKEN: ${{ secrets.BUILD_PIPELINE_TOKEN }}
+          PLAYWRIGHT_DIR: ${{ runner.temp }}/pw
+        run: python3 build/scripts/store_screenshots.py run 5

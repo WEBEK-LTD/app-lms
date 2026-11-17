@@ -141,7 +141,8 @@ async function setupApp(deps: DemoSetupDeps, client: Client, id: DemoId): Promis
   const existing = (await store.listAppsByClient(client.id)).find((a) => a.demo === true && demoIdOf(a) === id);
   let app = existing;
   if (!app) {
-    app = { ...newApp(client.id, null, now, type, vertical), demo: true };
+    // 139 Yallapp's own demos keep the screenshots our team gives them: none made from them.
+    app = { ...newApp(client.id, null, now, type, vertical), demo: true, autoScreenshots: null };
     await store.createApp(app);
   }
   const brand = DEMO_BRANDS[id];

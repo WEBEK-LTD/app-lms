@@ -369,6 +369,8 @@ jobs:
       - run: pip install pillow==12.0.0
       - name: Unit tests
         run: python -m unittest discover build/tests -v
+      - name: Screenshot capture script
+        run: node --check build/scripts/capture_screens.mjs
       - name: Shell scripts
         run: shellcheck build/scripts/*.sh build/runner/*.sh wp-plugin/yallapp/tests/integration/run.sh wp-plugin/yallapp/bin/plugin-check.sh
       - name: Files host

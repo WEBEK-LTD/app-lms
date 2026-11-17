@@ -109,6 +109,8 @@ describe("build snapshot", () => {
       iphoneScreenshotIds: ["i1"],
       firebaseAndroidAssetId: "fa",
       firebaseIosAssetId: "fi",
+      // 139 The owner's own uploads: "Make them for me" off.
+      autoScreenshots: null,
     };
     expect(buildConfigFor(app, { id: "c1" }, { name: "1.0.0", code: 1 }, assetUrl).firebase).toEqual({
       android_config_url: assetUrl("fa"),
