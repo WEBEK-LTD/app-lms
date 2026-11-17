@@ -25,6 +25,7 @@ import {
   queuedRuns,
   runAutoScreenshots,
   saveRunShot,
+  shotAssetKind,
   switchedAutoScreenshots,
   withRemoved,
   withUpload,
@@ -33,7 +34,8 @@ import { newApp, storeListingOf } from "@/lib/app/setup";
 import { readiness } from "@/lib/publishing/readiness";
 import { verifyPreviewToken, previewKey } from "@/lib/preview/token";
 import { checkScreenshot, SCREENSHOT_LIMITS } from "@/lib/store-files";
-import type { App, AppType, AutoScreenshots, AutoShot } from "@/lib/data/types";
+import { ASSET_KINDS, type App, type AppType, type AutoScreenshots, type AutoShot } from "@/lib/data/types";
+import { ASSET_KIND_LENGTH, assets } from "@/lib/db/schema";
 import { solidPng } from "../e2e/png";
 import { days, NOW, setupClient } from "./helpers";
 
@@ -382,5 +384,14 @@ describe("139 runs", () => {
     if (!failed.ok) throw new Error("not finished");
     expect(failed.auto).toMatchObject({ state: "failed", message: "The preview didn't open.", madeAt: NOW.toISOString() });
     expect(failed.auto.shots.map((s) => s.assetId)).toEqual(["kept"]);
+  });
+});
+
+describe("139 every asset kind fits its column", () => {
+  it("assets.kind takes every kind, with room to spare (tablet_screenshot didn't fit 16 on MySQL)", () => {
+    expect(assets.kind.getSQLType()).toBe(`varchar(${ASSET_KIND_LENGTH})`);
+    for (const kind of ASSET_KINDS) expect(kind.length, kind).toBeLessThanOrEqual(ASSET_KIND_LENGTH - 8);
+    expect(new Set(ASSET_KINDS).size).toBe(ASSET_KINDS.length);
+    for (const device of SHOT_DEVICES) expect(ASSET_KINDS).toContain(shotAssetKind(device));
   });
 });

@@ -536,6 +536,9 @@ export const pluginReleases = mysqlTable(
   (t) => [uniqueIndex("plugin_releases_version_unique").on(t.version)],
 );
 
+/** The longest asset kind `assets.kind` takes (every one of ASSET_KINDS fits: tests/unit/auto-screenshots.test.ts). */
+export const ASSET_KIND_LENGTH = 32;
+
 export const assets = mysqlTable(
   "assets",
   {
@@ -543,7 +546,8 @@ export const assets = mysqlTable(
     clientId: id("client_id")
       .notNull()
       .references(() => clients.id, { onDelete: "cascade" }),
-    kind: varchar("kind", { length: 16 }).notNull().$type<AssetKind>(),
+    // 139 32: "tablet_screenshot" (88.2) didn't fit the 16 it had, so a tablet screenshot failed to save on MySQL.
+    kind: varchar("kind", { length: ASSET_KIND_LENGTH }).notNull().$type<AssetKind>(),
     blobKey: varchar("blob_key", { length: 255 }).notNull(),
     contentType: varchar("content_type", { length: 64 }).notNull(),
     size: int("size").notNull(),

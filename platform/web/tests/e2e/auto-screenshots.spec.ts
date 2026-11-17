@@ -174,8 +174,11 @@ test("on for a new app: saved, made by the pipeline, shown with each size and la
 test("replace one (kept when made again), remove one (Make again brings it back), a failed run keeps the set", async ({ request }) => {
   await page.goto("/dashboard/setup?step=listing");
   // A wrong size says why, and nothing changes.
-  await page.getByLabel("Replace Home, iPhone 6.9\", English").setInputFiles({ name: "small.png", mimeType: "image/png", buffer: solidPng(1080, 1920, [200, 10, 10]) });
-  await expect(panel().getByRole("alert")).toContainText("iPhone screenshots must be 1320 × 2868");
+  // Again until the page is live (a file chosen before it hydrates has no one to read it); a refused file changes nothing.
+  await expect(async () => {
+    await page.getByLabel("Replace Home, iPhone 6.9\", English").setInputFiles({ name: "small.png", mimeType: "image/png", buffer: solidPng(1080, 1920, [200, 10, 10]) });
+    await expect(panel().getByRole("alert")).toContainText("iPhone screenshots must be 1320 × 2868", { timeout: 3000 });
+  }).toPass({ timeout: 30_000 });
   await expect(place("iphone:en:home")).toHaveAttribute("data-source", "auto");
 
   await page.getByLabel("Replace Home, Google Play phone, English").setInputFiles({ name: "mine.png", mimeType: "image/png", buffer: solidPng(1080, 1920, [200, 10, 10]) });

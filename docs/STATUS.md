@@ -18,7 +18,9 @@ kind and sends them back; they are the listing's screenshots, each
 translation its own. The owner can replace or remove any one; theirs are
 never overwritten. They're made again a few minutes after a change that
 shows on them, and monthly. Not yet run on a GitHub runner against a real
-app preview, nor sent to the stores (LAUNCH-CHECKLIST › Phase 139).
+app preview, nor sent to the stores (LAUNCH-CHECKLIST › Phase 139). It also fixes the owner's own tablet screenshot
+upload on MySQL/MariaDB (`assets.kind` was 16 characters, too short for
+`tablet_screenshot`; now 32, migration `0141_auto_screenshots`).
 
 Phase 138 (We publish for you, on every plan) is in the code: every plan,
 regular and Studio, includes "We publish for you" on Google Play and the

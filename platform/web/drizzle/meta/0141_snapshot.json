@@ -1,7 +1,7 @@
 {
   "version": "5",
   "dialect": "mysql",
-  "id": "fab49420-1078-477d-86fb-9a57456c0fb3",
+  "id": "4c00f79b-8af8-4d89-bcce-741feb5ef103",
   "prevId": "4a850c56-e291-411b-9beb-f33989d8939a",
   "tables": {
     "account_deletion_requests": {
@@ -3357,7 +3357,7 @@
         },
         "kind": {
           "name": "kind",
-          "type": "varchar(16)",
+          "type": "varchar(32)",
           "primaryKey": false,
           "notNull": true,
           "autoincrement": false

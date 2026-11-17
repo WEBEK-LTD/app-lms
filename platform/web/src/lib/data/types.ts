@@ -26,27 +26,30 @@ export type MoreStoreStage = "upload_galaxy" | "upload_appgallery" | "upload_xia
 export type BuildStages = Record<Exclude<StageKey, MoreStoreStage | "app_review">, StageStatus> & Partial<Record<MoreStoreStage | "app_review", StageStatus>>;
 export type StageStatus = "pending" | "running" | "done" | "failed" | "skipped";
 export type ArtifactKind = "apk" | "aab" | "ipa" | "keystore" | "store_assets";
-export type AssetKind =
-  | "icon"
-  | "logo"
-  | "play_screenshot"
-  | "ios_screenshot"
-  | "tablet_screenshot"
-  | "ipad_screenshot"
-  | "firebase_android"
-  | "firebase_ios"
-  | "product_image"
-  | "huawei_agconnect"
+/** Every kind of uploaded asset (`assets.kind`, at most ASSET_KIND_LENGTH characters: lib/db/schema.ts). */
+export const ASSET_KINDS = [
+  "icon",
+  "logo",
+  "play_screenshot",
+  "ios_screenshot",
+  "tablet_screenshot",
+  "ipad_screenshot",
+  "firebase_android",
+  "firebase_ios",
+  "product_image",
+  "huawei_agconnect",
   // 97.2 The files of an owner's own font.
-  | "font"
+  "font",
   // 97.3 The logo and pictures exported from a Figma file.
-  | "figma_image"
+  "figma_image",
   // 108.2 The pictures of a design brought into Studio (a design file, SVG, Figma, Sketch, Penpot).
-  | "design_image"
+  "design_image",
   // 105.2 A driver's papers (licence, car registration): only the company sees them, never at the public address.
-  | "driver_document"
+  "driver_document",
   // 113.12 A photo of a salary's or an advance's receipt: only the school's dashboard sees it.
-  | "salary_receipt";
+  "salary_receipt",
+] as const;
+export type AssetKind = (typeof ASSET_KINDS)[number];
 export type AppTemplate = "classic" | "bold" | "minimal";
 
 export interface User {
