@@ -1,5 +1,5 @@
 import { createServer, type Server } from "node:http";
-import { expect, test, type Page } from "@playwright/test";
+import { expect, test, type Cookie, type Page } from "@playwright/test";
 import { E2E } from "../../playwright.config";
 import { solidPng } from "./png";
 import { expectReceiptAttached, mailsWithFiles, pdfBehind } from "./receipts";
@@ -59,13 +59,28 @@ test.afterAll(async () => {
   await new Promise((resolve) => server.close(resolve));
 });
 
+/**
+ * The sign-in page takes 8 tries per email in 15 minutes (RATE_LIMITS.signInEmail), and
+ * this spec's tests sign the shop's owner in more often than that within a run: once
+ * signed in on the page, a later test starts from the same session on the dashboard.
+ */
+const sessions = new Map<string, Cookie[]>();
+
 async function signIn(page: Page, email: string, password: string) {
   await page.context().clearCookies();
+  const saved = sessions.get(email);
+  if (saved) {
+    await page.context().addCookies(saved);
+    await page.goto("/dashboard");
+    await expect(page).not.toHaveURL(/\/sign-in/);
+    return;
+  }
   await page.goto("/sign-in");
   await page.getByLabel("Email").fill(email);
   await page.getByLabel("Password", { exact: true }).fill(password);
   await page.getByRole("button", { name: "Sign in" }).click();
   await page.waitForURL((url) => url.pathname !== "/sign-in");
+  sessions.set(email, await page.context().cookies());
 }
 
 test("a client without a website sets up their shop", async ({ page }) => {
