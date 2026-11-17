@@ -17,6 +17,8 @@ import 'core/services/screen_security.dart';
 import 'core/storage/local_settings.dart';
 import 'core/theme/app_look.dart';
 import 'core/theme/app_theme.dart';
+// 141 The keyboard opens only when asked, and scrolling closes it.
+import 'core/widgets/keyboard.dart';
 // 130.21 The system screens' premium look, above every screen.
 import 'core/widgets/premium_chrome.dart';
 import 'modules/lms/downloads/learning_sync.dart';
@@ -87,7 +89,10 @@ class YallappApp extends ConsumerWidget {
             child: StoreBillingMessages(
               child: SystemLookScope(
                 system: system,
-                child: GateView(child: child ?? const SizedBox()),
+                // 141 A drag that scrolls closes the keyboard, on every screen.
+                child: CloseKeyboardOnScroll(
+                  child: GateView(child: child ?? const SizedBox()),
+                ),
               ),
             ),
           ),

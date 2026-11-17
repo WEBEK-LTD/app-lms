@@ -23,13 +23,16 @@ import { isInProgress } from "./view";
  * build config: the app's build config is checked key by key by mobile/'s
  * tool, and nothing in the app changes with the number itself.
  */
-export const CLIENT_APP_RELEASE = 2;
+export const CLIENT_APP_RELEASE = 3;
 /*
  * The releases:
  * 1  Builds before Phase 138.
  * 2  132.187 An order shipped in the dashboard shows as shipped in the app
  *    (#427), and 136 the iPhone's push token sent straight to Apple with
  *    the client's APNs key: the app sends its APNs token (#433).
+ * 3  141 The keyboard opens only when asked: a screen, sheet or dialog
+ *    opening over a text field, or another tab, closes it, so it doesn't
+ *    open again by itself on the way back; a drag that scrolls closes it.
  */
 
 /** Builds made before 138 count as this release, so shipping 138 rebuilds nothing by itself. */
