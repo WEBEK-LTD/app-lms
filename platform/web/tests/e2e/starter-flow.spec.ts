@@ -260,6 +260,14 @@ test("138 Growth publishes too: the store keys reach the pipeline, and its build
   expect(download.headers()["location"]).toMatch(/^https:\/\/files\.yallapp\.com\.tr\/grace\/upload-key\.zip\?expires=\d+&sig=[0-9a-f]{64}$/);
 
   // 142 Both apps here (iOS on the plan, the App Store Connect key saved): each can be built alone, Start new build makes both.
+  // 102 Builds wait for the account the store reviewers sign in with.
+  await page.goto("/dashboard/publishing#h-review");
+  const review = page.getByRole("region", { name: "Store review account (required)" });
+  await review.getByLabel("User name or email").fill("review@academy.test");
+  await review.getByLabel("Password", { exact: true }).fill("Review-pass-2026");
+  await review.getByRole("button", { name: "Save the review account" }).click();
+  await expect(review.getByText("Saved. Enter it in Google Play Console and App Store Connect as the steps say.")).toBeVisible();
+  await page.goto("/dashboard/builds");
   const one = page.getByRole("group", { name: "Or one app only:" });
   await expect(one.getByRole("button", { name: "Android only" })).toBeVisible();
   await one.getByRole("button", { name: "iPhone only" }).click();
