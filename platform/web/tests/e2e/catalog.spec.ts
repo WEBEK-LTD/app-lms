@@ -654,8 +654,13 @@ test("132.186 several delivery times a day, any country with its own cities, and
   await delivery.getByRole("button", { name: "Remove 13:00–16:00" }).click();
   await delivery.getByRole("button", { name: "Save delivery times" }).click();
   await expect(delivery.getByText("Saved.")).toBeVisible();
-  const config = await (await request.get(`${api}/config?platform=android&app_version=1.0.0`)).json();
-  expect(config.store.delivery_date.slots.map((s: { label: string }) => s.label)).toEqual(["10:00–13:00", "16:00–20:00", "21:00–23:00"]);
+  // "Saved." is still there from the save before, so the app's config is what tells this save went through.
+  await expect
+    .poll(async () => {
+      const config = await (await request.get(`${api}/config?platform=android&app_version=1.0.0`)).json();
+      return config.store.delivery_date.slots.map((s: { label: string }) => s.label);
+    })
+    .toEqual(["10:00–13:00", "16:00–20:00", "21:00–23:00"]);
 
   // Any country from the full list, searched in its name; its cities typed right there, one from the starter chips.
   await page.goto("/dashboard/selling?tab=areas");
