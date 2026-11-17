@@ -277,6 +277,11 @@ function testOnlyUrl(name: string): string | null {
   return url ?? null;
 }
 
+/** 144 Stripe.js, which mounts Stripe's card form in our payment page; local tests serve a fake one (STRIPE_JS_URL, refused on Netlify). */
+export function stripeJsUrl(): string {
+  return testOnlyUrl("STRIPE_JS_URL") ?? "https://js.stripe.com/v3/";
+}
+
 export function paymentApiUrls(): { iyzico: string | null; kashier: string | null; fawaterk: string | null; stripe: string | null; paypal: string | null } {
   return { iyzico: iyzicoApiUrl(), kashier: kashierApiUrl(), fawaterk: fawaterkApiUrl(), stripe: testOnlyUrl("STRIPE_API_URL"), paypal: testOnlyUrl("PAYPAL_API_URL") };
 }

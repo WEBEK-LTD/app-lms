@@ -97,6 +97,8 @@ export function fakeStripe(options: { secretKey?: string; base?: string; account
         url: `${options.base ?? "https://checkout.stripe.test"}/pay/${id}?return=${encodeURIComponent(form.get("success_url") ?? "")}`,
       };
       sessions.set(id, session);
+      // 144 Embedded Checkout: the secret Stripe.js mounts its form with, and no page of its own.
+      if (form.get("ui_mode") === "embedded") return ok({ id, object: "checkout.session", ui_mode: "embedded", client_secret: `${id}_secret_fake`, url: null });
       return ok({ id, object: "checkout.session", url: session.url });
     }
     const read = /^\/v1\/checkout\/sessions\/([^/]+)$/.exec(path);

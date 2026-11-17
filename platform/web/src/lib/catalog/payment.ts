@@ -28,7 +28,8 @@ import { getDashT } from "@/i18n/dashboard";
 import { formatDate } from "@/i18n/format";
 import type { Lang } from "@/i18n/config";
 import { optionsText } from "./options";
-import { orderNumber, type CheckoutAccount } from "./settings";
+import { catalogSettings, orderNumber, type CheckoutAccount } from "./settings";
+import { stripeKeysProblem } from "../payments/stripe-keys";
 import { emailTemplate, renderTemplate } from "../email/templates";
 import { checkTicketHold, holdForPayment, noticeRefundDue, providerPageExpiry } from "../events/holds";
 import { noteAppError } from "../watch/app-errors";
@@ -65,7 +66,31 @@ interface PaymentDeps {
   now: Date;
 }
 
-/** Saves the customer on the order and starts the card payment; returns the provider's payment page. */
+/**
+ * How a card payment started: the provider's page to go to, or 144 Stripe's
+ * card form to mount inside our payment page (its session's secret, the
+ * shop's publishable key).
+ */
+export type StartedPayment = { url: string; stripe: null } | { url: null; stripe: { clientSecret: string; publishableKey: string } };
+
+/**
+ * 144 The shop's publishable key when Stripe's card form can go inside our
+ * page: saved, and of the same mode (test or live) as the secret key.
+ */
+export function stripeEmbeddedKey(app: App, account: CheckoutAccount["account"]): string | null {
+  if (account.provider !== "stripe") return null;
+  const payment = catalogSettings(app).payment;
+  const publishable = payment?.provider === "stripe" ? (payment.publishableKey ?? null) : null;
+  return publishable && stripeKeysProblem(account.keys.secretKey, publishable) === null ? publishable : null;
+}
+
+/**
+ * Saves the customer on the order and starts the card payment: on the
+ * provider's page, or 144 with Stripe (its publishable key saved) its card
+ * form inside our page; `hosted` asks for Stripe's page all the same (the
+ * form couldn't load). When Stripe won't start an embedded session, its page
+ * is used instead.
+ */
 export async function startPayment(
   deps: PaymentDeps & {
     order: CatalogOrder;
@@ -73,8 +98,9 @@ export async function startPayment(
     ip: string;
     /** Where the provider sends the customer back, and posts its webhook (lib/payments/routes.ts). */
     callbackUrls: { returnUrl: string; webhookUrl: string | null };
+    hosted?: boolean;
   },
-): Promise<string> {
+): Promise<StartedPayment> {
   const { order, customer } = deps;
   const { account } = deps.account;
   // 72 Yallapp never collects payments for its clients: a sale is always paid into the shop's own account.
@@ -103,7 +129,8 @@ export async function startPayment(
   }
   // 135.7 Charged in the customer's currency: the total there, the lines in proportion (still adding up to it).
   const charge = chargedAmount(order);
-  const started = await startCheckout(
+  const publishableKey = deps.hosted ? null : stripeEmbeddedKey(deps.app, account);
+  const start = (stripeEmbedded: boolean) => startCheckout(
     account,
     {
       reference: `order-${order.id}`,
@@ -124,9 +151,22 @@ export async function startPayment(
       webhookUrl: deps.callbackUrls.webhookUrl,
       iyzico: { conversationId: `order-${orderNumber(order)}`, basketId: String(order.id), shipping: order.lines.some((l) => !l.digital) },
       ...(tickets ? { pageExpiresAt: providerPageExpiry(deps.now) } : {}),
+      ...(stripeEmbedded ? { stripeEmbedded: true } : {}),
     },
     { fetcher: deps.fetcher, urls: deps.urls },
   );
+  let started;
+  if (publishableKey) {
+    try {
+      started = await start(true);
+    } catch (e) {
+      // 144 Stripe's own page when it won't embed its form (an older account, a setting): the payment still starts.
+      if (!(e instanceof PaymentError)) throw e;
+      started = await start(false);
+    }
+  } else {
+    started = await start(false);
+  }
   // 49 The places are held exactly as long as the provider's page takes the payment.
   if (tickets) await holdForPayment(deps.store, deps.app, order, started.expiresAt, deps.now);
   // 37 The provider and its reference stay on the order: the payment is read back from that provider.
@@ -137,7 +177,7 @@ export async function startPayment(
     providerRef: started.providerRef.slice(0, 191),
     updatedAt: deps.now,
   });
-  return started.url;
+  return started.stripeClientSecret && publishableKey ? { url: null, stripe: { clientSecret: started.stripeClientSecret, publishableKey } } : { url: started.url, stripe: null };
 }
 
 /**
