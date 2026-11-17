@@ -8,6 +8,14 @@ Last updated: 17 November 2026.
 
 ## Current release
 
+Roadmap 140 (builds never left in the queue): the frequent job asks GitHub
+to start the build workflow again when a build has been queued 10 minutes
+with no run of it going. A run takes 5 builds and runs go one at a time,
+and GitHub's hourly schedule often doesn't run, so a build left over from a
+full run used to wait for the next build queued (Leqaa #2 waited 3 hours on
+17 November). Uses the same `GITHUB_DISPATCH_TOKEN` (Actions: Read and
+write), which already reads runs.
+
 Roadmap 142 (build one app alone): Builds & downloads has Android only and
 iPhone only under Start new build once the app has both apps (iOS on its
 plan and the App Store Connect key saved); Start new build still makes both.
