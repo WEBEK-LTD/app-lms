@@ -1,4 +1,7 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
+import 'package:flutter/scheduler.dart' show SchedulerBinding;
 import 'package:flutter/services.dart' show SystemUiOverlayStyle;
 
 import '../api/api_exception.dart';
@@ -8,12 +11,18 @@ import '../theme/app_theme.dart';
 import '../theme/palette.dart';
 import 'buttons.dart';
 import '../l10n/l10n.dart';
+import '../images/app_image.dart';
+import '../images/decode_probe.dart';
 // 130.21 130.22 The premium looks of the system screens and states.
 import 'premium_chrome.dart';
 
 /// A network image with a soft tinted placeholder while loading or missing.
 /// The picture fades in once it arrives.
-class AppNetworkImage extends StatelessWidget {
+///
+/// On a phone it's kept in the app's cache folder (shown at once the next
+/// time, also offline) and decoded at about the size of its box, not the
+/// full size of the photo (lib/core/images).
+class AppNetworkImage extends StatefulWidget {
   const AppNetworkImage({
     super.key,
     required this.url,
@@ -48,55 +57,162 @@ class AppNetworkImage extends StatelessWidget {
   final Widget? placeholder;
 
   @override
+  State<AppNetworkImage> createState() => _AppNetworkImageState();
+}
+
+class _AppNetworkImageState extends State<AppNetworkImage> {
+  ImageProvider? _image;
+
+  /// Whether [_decodedAt] is known (else the first layout tells it).
+  var _sized = false;
+
+  /// The size [_image] is decoded at; null: its full size.
+  DecodeTarget? _decodedAt;
+  Completer<DecodeTarget?>? _laidOut;
+
+  /// A frame of this picture showed: it stays on screen while a sharper one
+  /// decodes for a bigger box.
+  var _shown = false;
+  var _sharperQueued = false;
+  var _ratio = 1.0;
+
+  @override
+  void didUpdateWidget(AppNetworkImage old) {
+    super.didUpdateWidget(old);
+    if (old.url != widget.url) {
+      _image = null;
+      _sized = false;
+      _decodedAt = null;
+      _laidOut = null;
+      _shown = false;
+    }
+  }
+
+  ImageProvider _provider(String url) {
+    if (plainNetworkImages) return networkPicture(url);
+    if (DecodeMemory.knows(url)) {
+      _sized = true;
+      _decodedAt = DecodeMemory.of(url);
+      return AppImage(url, target: _decodedAt);
+    }
+    final w = widget.width;
+    final h = widget.height;
+    if (w != null && h != null && w.isFinite && h.isFinite) {
+      _sized = true;
+      _decodedAt = decodeTargetFor(
+        const BoxConstraints(),
+        width: w,
+        height: h,
+        fit: widget.fit,
+        devicePixelRatio: _ratio,
+      );
+      return AppImage(url, target: _decodedAt);
+    }
+    final laidOut = _laidOut = Completer<DecodeTarget?>();
+    return AppImage.whenLaidOut(url, laidOut.future);
+  }
+
+  /// The box is laid out: the size the picture is decoded at, the first
+  /// time; a sharper picture after this frame when the box grew past it.
+  void _onLayout(BoxConstraints constraints) {
+    final url = widget.url;
+    if (url == null || url.isEmpty || plainNetworkImages) return;
+    final needed = decodeTargetFor(
+      constraints,
+      width: widget.width,
+      height: widget.height,
+      fit: widget.fit,
+      devicePixelRatio: _ratio,
+    );
+    final laidOut = _laidOut;
+    if (laidOut != null) {
+      _laidOut = null;
+      _sized = true;
+      _decodedAt = needed;
+      DecodeMemory.remember(url, needed);
+      laidOut.complete(needed);
+      return;
+    }
+    final at = _decodedAt;
+    if (!_sized || at == null || (needed != null && at.covers(needed))) {
+      return;
+    }
+    if (_sharperQueued) return;
+    _sharperQueued = true;
+    SchedulerBinding.instance.addPostFrameCallback((_) {
+      _sharperQueued = false;
+      if (!mounted || widget.url != url) return;
+      setState(() {
+        final next = needed == null ? null : at.union(needed);
+        _decodedAt = next;
+        DecodeMemory.remember(url, next);
+        _image = AppImage(url, target: next);
+      });
+    });
+  }
+
+  @override
   Widget build(BuildContext context) {
+    _ratio = MediaQuery.maybeDevicePixelRatioOf(context) ?? 1.0;
+    final width = widget.width;
+    final height = widget.height;
     final placeholder =
-        this.placeholder ??
+        widget.placeholder ??
         _ImagePlaceholder(
           width: width,
           height: height,
-          seed: seed,
-          icon: placeholderIcon ?? AppIcons.image,
+          seed: widget.seed,
+          icon: widget.placeholderIcon ?? AppIcons.image,
         );
-    final image = (url == null || url!.isEmpty)
-        ? placeholder
-        : Image.network(
-            url!,
-            width: width,
-            height: height,
-            fit: fit,
-            semanticLabel: semanticLabel,
-            excludeFromSemantics: semanticLabel == null,
-            gaplessPlayback: true,
-            // 17 In the app preview, pictures from sites that don't allow
-            // other addresses to read them still show (as page images).
-            webHtmlElementStrategy: WebHtmlElementStrategy.fallback,
-            frameBuilder: (context, child, frame, sync) {
-              if (sync) return child;
-              return Stack(
-                fit: StackFit.passthrough,
-                children: [
-                  if (clearPlaceholder)
-                    AnimatedOpacity(
-                      opacity: frame == null ? 1 : 0,
-                      duration: const Duration(milliseconds: 220),
-                      curve: Curves.easeOut,
-                      child: placeholder,
-                    )
-                  else
-                    placeholder,
-                  AnimatedOpacity(
-                    opacity: frame == null ? 0 : 1,
-                    duration: const Duration(milliseconds: 220),
-                    curve: Curves.easeOut,
-                    child: child,
-                  ),
-                ],
-              );
-            },
-            errorBuilder: (_, _, _) => placeholder,
+    final url = widget.url;
+    Widget image;
+    if (url == null || url.isEmpty) {
+      image = placeholder;
+    } else {
+      image = Image(
+        image: _image ??= _provider(url),
+        width: width,
+        height: height,
+        fit: widget.fit,
+        semanticLabel: widget.semanticLabel,
+        excludeFromSemantics: widget.semanticLabel == null,
+        gaplessPlayback: true,
+        frameBuilder: (context, child, frame, sync) {
+          if (sync) return child;
+          if (frame != null) _shown = true;
+          final visible = frame != null || _shown;
+          return Stack(
+            fit: StackFit.passthrough,
+            children: [
+              if (widget.clearPlaceholder)
+                AnimatedOpacity(
+                  opacity: visible ? 0 : 1,
+                  duration: const Duration(milliseconds: 220),
+                  curve: Curves.easeOut,
+                  child: placeholder,
+                )
+              else
+                placeholder,
+              AnimatedOpacity(
+                opacity: visible ? 1 : 0,
+                duration: const Duration(milliseconds: 220),
+                curve: Curves.easeOut,
+                child: child,
+              ),
+            ],
           );
-    if (radius == 0) return image;
-    return ClipRRect(borderRadius: BorderRadius.circular(radius), child: image);
+        },
+        errorBuilder: (_, _, _) => placeholder,
+      );
+      if (!plainNetworkImages) {
+        image = DecodeProbe(onLayout: _onLayout, child: image);
+      }
+    }
+    if (widget.radius == 0) return image;
+    return ClipRRect(
+      borderRadius: BorderRadius.circular(widget.radius),
+      child: image,
+    );
   }
 }
 

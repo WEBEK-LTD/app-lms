@@ -1,5 +1,5 @@
 import { getStore } from "@/lib/data";
-import { fileUrl, isMediaId, isPublic, PUBLIC_LINK_SECONDS } from "@/lib/media/files";
+import { fileUrl, isMediaId, isPublic, PICTURE_CDN_SECONDS, PUBLIC_LINK_SECONDS } from "@/lib/media/files";
 import { getMediaStorage } from "@/lib/media/storage";
 
 /**
@@ -23,7 +23,12 @@ export async function GET(_request: Request, { params }: RouteContext<"/m/[id]">
   if (!isPublic(file)) return refuse(403, "This video plays in the app, for the people who may watch it.");
   const { url } = fileUrl(storage, file, { ttlSeconds: PUBLIC_LINK_SECONDS });
   // Cached for a few minutes, well within the signed link's 6 hours.
-  return new Response(null, { status: 302, headers: { location: url, "cache-control": "private, max-age=300", "referrer-policy": "no-referrer", "x-robots-tag": "noindex" } });
+  const headers: Record<string, string> = { location: url, "cache-control": "private, max-age=300", "referrer-policy": "no-referrer", "x-robots-tag": "noindex" };
+  // A picture's link is the same for everyone: Netlify's CDN answers it for an hour (still 5 hours
+  // left on the link), so a product's photos don't each wait for this function and the database
+  // first. Other files stay uncached: the owner may stop sharing them.
+  if (file.kind === "image") headers["netlify-cdn-cache-control"] = `public, durable, max-age=${PICTURE_CDN_SECONDS}`;
+  return new Response(null, { status: 302, headers });
 }
 
 export const HEAD = GET;
