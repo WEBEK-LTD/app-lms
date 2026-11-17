@@ -2925,7 +2925,8 @@ snapshots hold no personal data and stay when an account is deleted.
   template), and closed by the watch when the problem goes or by the team
   ("Done", audited). The frequent job opens them for a build queued over 30
   minutes ago that the pipeline hasn't taken (with what to do, depending on
-  `GITHUB_DISPATCH_TOKEN`), a stalled build, a job with no good run for
+  `GITHUB_DISPATCH_TOKEN`; 140 from 10 minutes it has already asked GitHub
+  again whenever no run of the build workflow was going), a stalled build, a job with no good run for
   longer than expected (daily 26 h, frequent and webhooks 20 minutes, the
   pipeline 8 h; the daily job checks the frequent one), an app whose share of
   crashed sessions today is 5% or more, at least 5 crashed sessions and three

@@ -120,6 +120,8 @@ describe("78.3 the watch's alerts", () => {
     const again = (await store.listTeamAlerts({ open: true, limit: 10 })).find((a) => a.id === wait.id)!;
     expect(again.count).toBe(2);
     expect(again.detail).toContain("asks GitHub to start the pipeline at once");
+    // 140 And again every few minutes while no run is going (lib/builds/ask-again.ts).
+    expect(again.detail).toContain("again every few minutes while no run is going");
 
     // The pipeline took it, and the stopped one was closed: both alerts close.
     await store.updateBuild(waiting.id, { status: "building" }, NOW);

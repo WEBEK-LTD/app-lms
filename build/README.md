@@ -10,7 +10,11 @@ talks to the platform through [`docs/api/pipeline.yaml`](../docs/api/pipeline.ya
    platform saves a snapshot of the build config and queues the build.
 2. The platform starts the workflow at once (with `GITHUB_DISPATCH_TOKEN`), and
    its schedule checks again every hour. Each run takes up to 5 queued
-   builds and marks them `building`, with a link to the run.
+   builds and marks them `building`, with a link to the run. Runs go one at
+   a time (asks made while one runs are folded into one waiting run), so 140
+   the frequent job asks again when a build has waited 10 minutes and no run
+   is going (`lib/builds/ask-again.ts`): a build left over from a full run
+   never waits for GitHub's schedule, which often doesn't run.
 3. **Android** (Ubuntu), per build:
    - Applies the build config to `mobile/` (`tool/apply_config.dart`) and
      writes the client's launcher icons (`scripts/make_icons.py`). With the
