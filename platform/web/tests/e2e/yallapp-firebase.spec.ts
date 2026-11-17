@@ -260,6 +260,8 @@ test("“Use my own Firebase” brings today's fields back, and Yallapp's again 
   await own.goto("/dashboard/setup?step=publishing");
   await expect(own.getByRole("group", { name: "Push notifications" }).getByRole("radio", { name: "Use my own Firebase" })).toBeChecked();
   await own.goto("/dashboard/notifications");
+  // Its own Firebase: the key is added under Push, as before.
+  await own.getByRole("region", { name: "Push", exact: true }).locator("summary").filter({ hasText: "Add your Firebase key" }).click();
   await expect(own.getByLabel("Firebase service account key (.json)")).toBeVisible();
 
   await own.goto("/dashboard/setup?step=publishing");
