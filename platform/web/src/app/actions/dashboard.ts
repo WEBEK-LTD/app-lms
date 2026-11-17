@@ -16,6 +16,7 @@ import { versionSettingsProblems } from "@/lib/app/version-policy";
 import { changeRollout, FIRST_SHARES, RolloutError, type RolloutAction } from "@/lib/publishing/rollout";
 import { restoreFromBuild } from "@/lib/builds/go-back";
 import { apiCheckSignIn } from "@/lib/hosted/test-token";
+import { readApnsKeyForm } from "@/lib/integrations/apns-key";
 import { appTypeName, connectorFits, ENGINES, hostedOnly, isAppType, kindById, defaultKind, ownContentTitle } from "@/lib/app/kinds";
 import { isSetupComplete, managedPublishing, newApp, queueBuild, STEP_LABEL, type SetupStep } from "@/lib/app/setup";
 import { currentPlanId } from "@/lib/billing/plan-change";
@@ -881,9 +882,12 @@ export async function savePublishingAction(_: FormState, formData: FormData): Pr
   const appStore = await readAppStoreKey(formData, app, key);
   // 136 Or "Yallapp sets up notifications", when it's offered.
   const firebase = await readFirebaseChoice(formData, app, context.client.id);
-  const errors: Record<string, string> = { ...appStore.errors, ...firebase.errors };
-  const patch: AppPatch = { ...appStore.patch, ...firebase.patch };
-  const values = appStore.values;
+  // 136.20 The APNs key for iPhone notifications straight to Apple, checked with Apple (lib/integrations/apns-key.ts),
+  // for an app in Yallapp mode, including one choosing it in this same save.
+  const apns = await readApnsKeyForm({ ...app, ...firebase.patch }, formData, { key });
+  const errors: Record<string, string> = { ...appStore.errors, ...firebase.errors, ...apns.errors };
+  const patch: AppPatch = { ...appStore.patch, ...firebase.patch, ...apns.patch };
+  const values = { ...appStore.values, ...apns.values };
   const pushChanged = async () => {
     if (firebase.leftYallapp) await dropYallappCourierFile(app.id, now);
     if (firebase.leftYallapp || patch.pushSetup === "yallapp") {

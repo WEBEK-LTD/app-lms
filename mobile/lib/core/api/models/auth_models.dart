@@ -165,8 +165,10 @@ enum DevicePlatform { android, ios }
 
 /// 36 Where a device's push token is from: Firebase Cloud Messaging, or
 /// Huawei Push Kit on Huawei phones without Google Play services. Sent as
-/// `provider` with `PUT /me/push-token`.
-enum PushProvider { fcm, hms }
+/// `provider` with `PUT /me/push-token`. 136.21 `apns`: an iPhone's APNs
+/// device token, which the server sends to Apple directly
+/// (`Config.features.apns`).
+enum PushProvider { fcm, hms, apns }
 
 class DeviceInput {
   const DeviceInput({

@@ -32,6 +32,16 @@ Play, a notification arriving while the app is open isn't passed to it
 (the Push Kit bridge sends taps only), so there the orders refresh on
 coming back to the front and on opening.
 
+Roadmap 136.20–136.23 (iPhone notifications straight to Apple, Phase 2
+of "Yallapp sets up notifications") is in the code: the client's APNs
+key is uploaded once, checked with Apple and saved encrypted; `apns`
+device tokens are sent over HTTP/2 to APNs with it; the app sends its
+APNs token on iPhones when `Config.features.apns` says so. Not yet
+checked against Apple itself: this environment can't reach
+`api.push.apple.com`, so the probe's answers (`BadDeviceToken`,
+`InvalidProviderToken`) and a real delivery are verified only against a
+local HTTP/2 server and fakes. Check both with the first client's key.
+
 Roadmap 134 (pay inside the app for connected stores, Demo) is built for
 WooCommerce: Payments › How customers pay offers Yallapp's checkout (its
 own products), the store's checkout (the default) and paying inside the
@@ -505,6 +515,15 @@ Billing and the App Store's in-app purchase) is complete (steps 100.1 to
   (demo account, sign-in required, notes, contact) through App Store
   Connect's `appStoreReviewDetails`; the lane loads, but the call hasn't
   run on the macOS runner against a real client's version yet.
+
+- 136 Yallapp's Firebase against real Google (tested only against a
+  fake STS, IAM credentials, Firebase Management, Resource Manager,
+  Service Usage, API Keys and FCM): the WIF exchange with the platform as
+  issuer, whether `getConfig` returns one app or the project's (the
+  platform keeps only the client's packages either way), the minimum
+  roles, the project-creation quota, whether a removed app still counts
+  toward Firebase's 30, whether the push-only key is enough for token
+  registration, and a first Android push (LAUNCH-CHECKLIST 7z8 step 10).
 
 - 136 Yallapp's Firebase against real Google (tested only against a
   fake STS, IAM credentials, Firebase Management, Resource Manager,

@@ -6,6 +6,7 @@ import type { DataStore } from "../data/store";
 import type { App, HostedNotification } from "../data/types";
 import { parseServiceAccount, pushTarget, sendPush, type HmsCredentials, type ServiceAccount } from "./push";
 import { raiseAlert } from "../watch/alerts";
+import { apnsCredentialsOf } from "../integrations/apns-key";
 import { yallappFirebaseEnv } from "../env";
 import { usesYallappFirebase } from "../firebase/mode";
 import { noteAppError } from "../watch/app-errors";
@@ -27,12 +28,14 @@ export function serviceAccountOf(app: App, key: Buffer): ServiceAccount | null {
   if (usesYallappFirebase(app)) {
     const env = yallappFirebaseEnv();
     if (!env || !app.firebaseProjectId) return null;
-    return { project_id: app.firebaseProjectId, client_email: env.pushAccount, private_key: "", federated: true, hms: hmsCredentialsOf(app, key) };
+    // 136.21 With the client's APNs key: its iPhones' "apns" tokens go straight to Apple.
+    return { project_id: app.firebaseProjectId, client_email: env.pushAccount, private_key: "", federated: true, hms: hmsCredentialsOf(app, key), apns: apnsCredentialsOf(app, key) };
   }
   if (!app.firebaseServiceAccountEncrypted) return null;
   try {
     const account = parseServiceAccount(decrypt(app.firebaseServiceAccountEncrypted, key, `${SERVICE_ACCOUNT_CONTEXT}:${app.id}`));
-    return account ? { ...account, hms: hmsCredentialsOf(app, key) } : null;
+    // 136.21 A key saved while the app was in Yallapp mode still reaches the iPhones that registered "apns" tokens.
+    return account ? { ...account, hms: hmsCredentialsOf(app, key), apns: apnsCredentialsOf(app, key) } : null;
   } catch {
     return null;
   }

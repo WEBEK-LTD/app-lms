@@ -1804,3 +1804,11 @@ and nothing calls Google.
       leaves "Paid, needs attention" with Retry and Refund.
 - [ ] Switching back to the store's checkout opens WooCommerce's checkout
       in the app again within a minute.
+
+## Phase 136: iPhone notifications straight to Apple (136.20–136.23)
+
+- [ ] Deploy. Migration `0139_apns_direct` runs with the others, after
+      Phase 1's `0138_yallapp_firebase`. Nothing
+      else: no setting, no Apple or Google account step. Each client
+      uploads their own APNs key once under "iPhone notifications"; the
+      page shows what Apple answered.

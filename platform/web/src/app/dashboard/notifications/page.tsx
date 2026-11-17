@@ -29,6 +29,8 @@ import { UpgradeHint } from "@/components/upgrade";
 import { currentPlanId } from "@/lib/billing/plan-change";
 import { effectivePlans } from "@/lib/entitlements";
 import { hasFeature, lowestPlanWith } from "@/lib/plans";
+import { ApnsKeyForm } from "@/components/apns-key-fields";
+import { apnsKeyApplies, savedApnsKey } from "@/lib/integrations/apns-key";
 
 export async function generateMetadata(): Promise<Metadata> {
   return { title: (await dashboardText()).t("notify.title") };
@@ -394,6 +396,21 @@ export default async function NotificationsPage() {
             </KitFold>
           )}
         </KitSettingRow>
+
+        {/* 136.20 iPhone notifications straight to Apple: the client's APNs key, checked with Apple. */}
+        {apnsKeyApplies(app) ? (
+          <KitSettingRow
+            titleId="h-apns"
+            icon="phone_iphone"
+            title={t("apns.title")}
+            status={savedApnsKey(app) ? <KitStatus tone="success">{t("apns.statusOn")}</KitStatus> : <KitStatus tone="neutral">{t("apns.statusOff")}</KitStatus>}
+            description={savedApnsKey(app) ? t("apns.direct") : t("apns.needed")}
+          >
+            <KitFold icon="key" summary={savedApnsKey(app) ? t("apns.replaceAction") : t("apns.addAction")} data-fold="apns-key">
+              <ApnsKeyForm saved={savedApnsKey(app)} buildTeamId={app.appleTeamId ?? null} />
+            </KitFold>
+          </KitSettingRow>
+        ) : null}
 
         {kinds.length ? (
           <KitSettingRow
