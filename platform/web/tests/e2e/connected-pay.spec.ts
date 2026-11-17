@@ -169,6 +169,9 @@ test("a WooCommerce store's customers pay inside the app: the owner's Stripe, th
   // Payments: how customers pay. The store's checkout is in use; inside the app needs the gateway tested.
   await page.goto("/dashboard/payments");
   const how = page.getByRole("region", { name: "How customers pay" });
+  // 132.180 The way in use on one row; the ways open under Change.
+  await expect(how).toContainText("Your store's checkout (WordPress)");
+  await how.getByRole("button", { name: "Change" }).click();
   await expect(how.locator('[data-choice="yallapp"]')).toContainText("Only for apps that sell the products you add in Yallapp.");
   await expect(how.locator('[data-choice="platform"]')).toContainText("Your store's checkout (WordPress)");
   await expect(how.locator('[data-choice="platform"]')).toContainText("In use");
@@ -181,6 +184,8 @@ test("a WooCommerce store's customers pay inside the app: the owner's Stripe, th
   expect(await (await request.post("/api/v1/store/payments", { data: cart() })).json()).toMatchObject({ code: "in_app_payment_off" });
 
   const payments = page.getByRole("region", { name: "Card payments" });
+  // 132.180 Nothing connected yet: the gateway's keys open from its row.
+  await payments.getByRole("button", { name: "Connect", exact: true }).click();
   await payments.locator('[data-gateway="stripe"]').click();
   await payments.getByLabel("Publishable key").fill("pk_test_51LaleFlowersKey");
   await payments.getByLabel("Secret key").fill("sk_test_51LaleFlowersKey");
@@ -195,6 +200,7 @@ test("a WooCommerce store's customers pay inside the app: the owner's Stripe, th
   await expect(results.locator('li[data-tone="fail"]')).toHaveCount(0);
   await page.reload();
   await expect(how.locator("[data-gateway-state]")).toHaveAttribute("data-gateway-state", "tested");
+  await how.getByRole("button", { name: "Change" }).click();
   await how.getByRole("radio", { name: /Pay inside the app/ }).check();
   await how.getByRole("button", { name: "Save" }).click();
   await expect(how.getByRole("status")).toContainText("Saved. Customers pay inside the app (Demo).");
@@ -241,13 +247,16 @@ test("a WooCommerce store's customers pay inside the app: the owner's Stripe, th
   await expect(list.getByRole("alert")).toContainText("1 payment in the app needs your attention.");
   const attention = list.locator('[data-in-app-payment="needs_attention"]');
   await expect(attention).toContainText("Paid, needs attention");
-  await expect(attention).toContainText("Your store said: Red roses - Deluxe is out of stock.");
+  // 132.180 A payment's details and actions in the inspector, opened from its row.
+  await attention.getByRole("button").click();
+  const details = page.locator('[data-inspector-payment="needs_attention"]');
+  await expect(details).toContainText("Your store said: Red roses - Deluxe is out of stock.");
   await expect(list.locator('[data-in-app-payment="placed"]')).toContainText("Order 701 created");
   // Retried while still sold out; then back in stock, the retry makes it.
-  await attention.getByRole("button", { name: "Retry creating the order" }).click();
-  await expect(attention.getByRole("alert")).toContainText("Your store still didn't take the order: Red roses - Deluxe is out of stock.");
+  await details.getByRole("button", { name: "Retry creating the order" }).click();
+  await expect(details.getByRole("alert")).toContainText("Your store still didn't take the order: Red roses - Deluxe is out of stock.");
   site.refuse = false;
-  await attention.getByRole("button", { name: "Retry creating the order" }).click();
+  await details.getByRole("button", { name: "Retry creating the order" }).click();
   // Made: it's listed as created (its actions go with "needs attention").
   await expect(list.locator('[data-in-app-payment="placed"]')).toHaveCount(2);
   await expect(list.locator('[data-in-app-payment="needs_attention"]')).toHaveCount(0);
@@ -257,8 +266,9 @@ test("a WooCommerce store's customers pay inside the app: the owner's Stripe, th
   await pay(customer, request);
   await page.reload();
   const third = list.locator('[data-in-app-payment="needs_attention"]');
-  await expect(third).toContainText("Refunds ₺1,075.00 to the customer through Stripe.");
-  await third.getByRole("button", { name: "Refund" }).click();
+  await third.getByRole("button").click();
+  await expect(details).toContainText("Refunds ₺1,075.00 to the customer through Stripe.");
+  await details.getByRole("button", { name: "Refund" }).click();
   await expect(list.locator('[data-in-app-payment="refunded"]')).toContainText("Refunded");
   const refund = stripe.calls.find((c) => c.method === "POST" && c.path === "/v1/refunds")!;
   expect(new URLSearchParams(refund.body).get("amount")).toBe("107500");
@@ -266,6 +276,7 @@ test("a WooCommerce store's customers pay inside the app: the owner's Stripe, th
   await customer.close();
 
   // Back to the store's checkout at any time: the plugin hears of it.
+  await how.getByRole("button", { name: "Change" }).click();
   await how.getByRole("radio", { name: /Your store's checkout/ }).check();
   await how.getByRole("button", { name: "Save" }).click();
   await expect(how.getByRole("status")).toContainText("Saved. Customers pay on your store's checkout.");

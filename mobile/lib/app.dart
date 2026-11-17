@@ -20,6 +20,7 @@ import 'core/theme/app_theme.dart';
 // 130.21 The system screens' premium look, above every screen.
 import 'core/widgets/premium_chrome.dart';
 import 'modules/lms/downloads/learning_sync.dart';
+import 'modules/shared/account/order_journey.dart';
 import 'modules/shared/pages/draft_reload.dart';
 import 'modules/store/data/cart_sync.dart';
 
@@ -45,6 +46,8 @@ class YallappApp extends ConsumerWidget {
     ref
       ..watch(pushRegistrationProvider)
       ..watch(pushNavigationProvider)
+      // 132.160 The orders asked again on their notifications and on resume.
+      ..watch(orderUpdatesProvider)
       // 85.3 The cart's item count, for "You left something in your cart".
       ..watch(cartSyncProvider)
       // 44 Usage statistics: the session and the screens.

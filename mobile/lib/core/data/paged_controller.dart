@@ -67,6 +67,16 @@ abstract class PagedController<T> extends Notifier<PagedState<T>> {
     await _load(1, generation, replace: true);
   }
 
+  /// 132.160 Reloads the first page while the rows already shown stay on
+  /// screen (no skeleton): for an update the person didn't ask for, a
+  /// notification or the app coming back to the front. With nothing shown
+  /// yet, as [refresh].
+  Future<void> reload() async {
+    if (state.items.isEmpty) return refresh();
+    final generation = ++_generation;
+    await _load(1, generation, replace: true);
+  }
+
   /// Loads the next page, if there is one and nothing is loading.
   Future<void> loadMore() async {
     if (state.loading || !state.hasMore || state.error != null) return;
