@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import 'market_api_models.dart';
 import 'travel_models.dart';
 import 'screens_models.dart';
@@ -53,9 +55,11 @@ class AppConfig {
     this.storeBilling,
     this.switches = const {},
     this.screens,
+    this.fingerprint,
   });
 
   factory AppConfig.fromJson(Json json) => AppConfig(
+    fingerprint: _fingerprintOf(json),
     // 118.3 A Studio app's sign-in screen and account menu.
     screens: StudioScreens.fromJson(json['screens']),
     site: SiteInfo.fromJson(asJson(json['site'], 'site')),
@@ -87,6 +91,19 @@ class AppConfig {
     storeBilling: _storeBilling(json['store_billing']),
     switches: _switches(json['switches']),
   );
+
+  /// The answer this config was read from, as text: two configs with the
+  /// same are the same, so a reload that finds nothing new changes nothing
+  /// on screen. Null for one made in code.
+  final String? fingerprint;
+
+  static String? _fingerprintOf(Json json) {
+    try {
+      return jsonEncode(json);
+    } on Object {
+      return null;
+    }
+  }
 
   /// 83.3 Whether the Yallapp team left a module or new feature on for this
   /// app: on unless `Config.switches` says false (older servers send none).
