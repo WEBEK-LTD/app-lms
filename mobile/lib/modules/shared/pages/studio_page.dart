@@ -989,12 +989,14 @@ class _StudioHeaderButton extends ConsumerWidget {
         HeaderIcon.account => l10n.tabAccount,
       },
       onPressed: () => openHeaderIcon(context, ref, icon),
+      // App audit: the icons the Studio editor draws in the header (the
+      // cart a bag, the account a person in a circle).
       icon: AppIcon(switch (icon) {
         HeaderIcon.search => AppIcons.search,
-        HeaderIcon.cart => AppIcons.cart,
+        HeaderIcon.cart => AppIcons.bag,
         HeaderIcon.notifications => AppIcons.notifications,
         HeaderIcon.chat => AppIcons.chat,
-        HeaderIcon.account => AppIcons.account,
+        HeaderIcon.account => AppIcons.accountCircle,
       }, color: color),
     );
   }
@@ -1431,7 +1433,8 @@ class StudioNodeView extends ConsumerWidget {
                     node.icon == null
                         ? AppIcons.checkCircle
                         : symbolByName(node.icon),
-                    size: node.iconSize == 24 ? 20 : node.iconSize,
+                    // App audit: the size chosen in the editor, 24 too.
+                    size: node.givenIconSize ?? 20,
                     color: color ?? p.primary,
                   ),
                   const SizedBox(width: 8),
@@ -1466,9 +1469,18 @@ class StudioNodeView extends ConsumerWidget {
             ? null
             : AppIcon(
                 symbolByName(node.icon),
-                size: math.min(node.iconSize, 40),
+                // App audit: the size chosen in the editor (up to its 96), 20
+                // without one, as the editor draws it.
+                size: node.givenIconSize ?? 20,
                 color: color ?? p.onPrimary,
               );
+        // App audit: the words at the start or the end when the owner
+        // chose so; in the middle otherwise.
+        final at = switch (node.givenTextAlign) {
+          StudioTextAlign.start => AlignmentDirectional.centerStart,
+          StudioTextAlign.end => AlignmentDirectional.centerEnd,
+          _ => AlignmentDirectional.center,
+        };
         final background = parseHexColor(
           scope.dark
               ? (node.darkBackground ?? node.background)
@@ -1485,11 +1497,16 @@ class StudioNodeView extends ConsumerWidget {
             Flexible(
               child: Text(
                 label,
-                textAlign: TextAlign.center,
+                textAlign: node.givenTextAlign == null
+                    ? TextAlign.center
+                    : align,
                 maxLines: 2,
                 overflow: TextOverflow.ellipsis,
                 style: TextStyle(
-                  fontWeight: FontWeight.w700,
+                  // App audit: the weight chosen in the editor; bold without one.
+                  fontWeight: node.font?.weight == null
+                      ? FontWeight.w700
+                      : null,
                   color: color ?? (background == null ? p.onPrimary : null),
                 ),
               ),
@@ -1513,11 +1530,17 @@ class StudioNodeView extends ConsumerWidget {
               padding: node.padding == null
                   ? const EdgeInsets.symmetric(horizontal: 20, vertical: 12)
                   : EdgeInsets.zero,
-              child: Center(widthFactor: 1, heightFactor: 1, child: row),
+              child: Align(
+                alignment: at,
+                widthFactor: 1,
+                heightFactor: 1,
+                child: row,
+              ),
             ),
           );
         }
-        return Center(
+        return Align(
+          alignment: at,
           widthFactor: 1,
           heightFactor: 1,
           child: Padding(

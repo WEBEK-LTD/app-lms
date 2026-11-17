@@ -53,6 +53,7 @@ import { applyDemoScreensAction, applyDesignLookAction } from "@/app/actions/stu
 // 130.21 The system screens' look chosen here.
 import { saveSystemLookAction } from "@/app/actions/studio-screens";
 import { sourcesIn } from "@/lib/samples/lists";
+import { appShows, type SaveStatus } from "./publish-state";
 
 /**
  * 103R.4 Yallapp Studio's editor, as the owner approved it: the dark bar on
@@ -63,7 +64,7 @@ import { sourcesIn } from "@/lib/samples/lists";
  */
 
 type Device = "small" | "phone" | "tablet";
-type Status = "saved" | "saving" | "unsaved" | "invalid";
+type Status = SaveStatus;
 
 const DEVICES: Record<Device, { width: number; height: number; radius: number; icon: string; iconSize: number }> = {
   small: { width: 330, height: 680, radius: 40, icon: "smartphone", iconSize: 18 },
@@ -79,7 +80,15 @@ const RETRY_MAX_MS = 60_000;
 const JOIN_MS = 1000;
 
 export interface StudioEditorProps {
-  initial: { draft: LayoutContent; savedAt: string; published: { version: string; at: string } | null; /** Editor audit 3.3: the kept publishes, newest first. */ history?: LayoutHistoryEntry[] };
+  initial: {
+    draft: LayoutContent;
+    savedAt: string;
+    published: { version: string; at: string } | null;
+    /** App audit: the draft has changes the app doesn't show until it's published. */
+    changes?: boolean;
+    /** Editor audit 3.3: the kept publishes, newest first. */
+    history?: LayoutHistoryEntry[];
+  };
   app: { name: string; brand: string; logoUrl: string | null };
   sources: ItemSource[];
   categorySources: ItemSource[];
@@ -147,6 +156,8 @@ export function StudioEditor(props: StudioEditorProps) {
   const [drop, setDrop] = useState<{ parentId: string; index: number } | null>(null);
   const [status, setStatus] = useState<Status>("saved");
   const [savedAt, setSavedAt] = useState(props.initial.savedAt);
+  // App audit: the saved draft differs from what the app shows (its last publish).
+  const [unpublished, setUnpublished] = useState(props.initial.changes ?? false);
   const [problem, setProblem] = useState<string | null>(null);
   const [notice, setNotice] = useState<string | null>(null);
   const [publishing, setPublishing] = useState(false);
@@ -348,6 +359,7 @@ export function StudioEditor(props: StudioEditorProps) {
         return false;
       }
       setSavedAt(r.savedAt);
+      setUnpublished(r.changes);
       setNow(Date.now());
       setProblem(null);
       if (edits.current === sent) {
@@ -1360,6 +1372,19 @@ export function StudioEditor(props: StudioEditorProps) {
           <span className="max-2xl:sr-only">{t("studio.previewOnPhone")}</span>
           <span className="sr-only">{t("common.opensInNewTab")}</span>
         </a>
+        {/* App audit: the owner sees whether the app shows what's on the canvas, or still needs Publish. */}
+        {appShows(status, unpublished, props.studioOnPlan) === "pending" ? (
+          <span role="note" title={t("studio.notInAppHint")} className="flex h-[30px] items-center gap-1.5 rounded-full px-2.5 text-[13px] font-semibold" style={{ background: C.barSoft, color: "#FFD27A" }} data-studio-not-in-app="">
+            <span aria-hidden="true" className="size-2 flex-none rounded-full" style={{ background: "#FFB020" }} />
+            <span className="max-2xl:sr-only">{t("studio.notInApp")}</span>
+            <span className="sr-only">{t("studio.notInAppHint")}</span>
+          </span>
+        ) : appShows(status, unpublished, props.studioOnPlan) === "live" ? (
+          <span role="note" title={t("studio.inAppHint")} className="flex h-[30px] items-center gap-1 rounded-full px-2.5 text-[13px] font-semibold" style={{ color: C.barMuted }} data-studio-in-app="">
+            <Glyph name="check_circle" size={16} />
+            <span className="max-2xl:sr-only">{t("studio.inApp")}</span>
+          </span>
+        ) : null}
         <button type="button" onClick={() => void publish()} disabled={publishing || status === "invalid"} className="flex h-[38px] items-center gap-1.5 rounded-[10px] border-0 px-[18px] text-sm font-extrabold disabled:opacity-60" style={{ background: C.accent, color: C.onAccent }}>
           <Glyph name="rocket_launch" size={18} />
           {publishing ? t("studio.publishing") : t("studio.publish")}
