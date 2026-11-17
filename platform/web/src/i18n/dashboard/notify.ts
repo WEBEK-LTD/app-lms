@@ -5,6 +5,9 @@ export const en = {
   title: "App notifications",
   fromSite: "Your app gets its notifications from your website: send them from the Yallapp plugin in WordPress.",
   backToSetup: "Back to app setup",
+  // 136.44 A WordPress app in "Yallapp sets up notifications" mode: the site relays its pushes (plugin 0.4.49).
+  relayTitle: "Notifications are sent by Yallapp",
+  relayText: "Your WordPress site needs no Firebase file or key: the Yallapp plugin hands each notification to Yallapp, which delivers it through Yallapp's Firebase and keeps nothing. This needs Yallapp plugin 0.4.49 or later on your site.",
   intro: "{count, plural, one {Message everyone who uses your app. {count} customer has signed in so far.} other {Message everyone who uses your app. {count} customers have signed in so far.}}",
   newNotification: "New notification",
   push: "Push",
@@ -12,6 +15,9 @@ export const en = {
   inboxOnly: "Your plan sends notifications to the app's inbox only.",
   pushOn: "On · Firebase project <project></project>",
   removeKey: "Remove key",
+  yallappOn: "On · Yallapp sets up and sends your app's notifications. Nothing to add here.",
+  yallappSettingUp: "Yallapp is setting up your push notifications. They start a few minutes after your app's package name and bundle ID are saved. <link>See it on the Publishing step</link>",
+  yallappOwn: "To use your own Firebase instead, choose it on the <link>Publishing step</link>.",
   addKey:
     "Notifications reach the inbox in your app. To also show them on your customers' lock screens, add the key of the same Firebase project as your app's Firebase files.",
   sent: "Sent",
@@ -103,6 +109,8 @@ export const ar: Messages = {
   title: "إشعارات التطبيق",
   fromSite: "يحصل تطبيقك على إشعاراته من موقعك الإلكتروني: أرسلها من إضافة Yallapp في WordPress.",
   backToSetup: "العودة إلى إعداد التطبيق",
+  relayTitle: "Yallapp هي اللي بتبعت الإشعارات",
+  relayText: "موقعك على WordPress مش محتاج ملف Firebase ولا مفتاح: إضافة Yallapp بتسلّم كل إشعار لـ Yallapp، وYallapp بتوصّله من خلال Firebase بتاعها ومبتحتفظش بحاجة. ده محتاج إضافة Yallapp إصدار 0.4.49 أو أحدث على موقعك.",
   intro:
     "{count, plural, one {راسل كل من يستخدم تطبيقك. سجّل عميل واحد الدخول حتى الآن.} two {راسل كل من يستخدم تطبيقك. سجّل عميلان الدخول حتى الآن.} few {راسل كل من يستخدم تطبيقك. سجّل {count} عملاء الدخول حتى الآن.} other {راسل كل من يستخدم تطبيقك. عدد العملاء الذين سجّلوا الدخول حتى الآن: {count}.}}",
   newNotification: "إشعار جديد",
@@ -111,6 +119,9 @@ export const ar: Messages = {
   inboxOnly: "ترسل باقتك الإشعارات إلى صندوق الوارد في التطبيق فقط.",
   pushOn: "مفعّلة · مشروع Firebase <project></project>",
   removeKey: "إزالة المفتاح",
+  yallappOn: "مفعّلة · Yallapp بيجهّز إشعارات تطبيقك وبيبعتها. مفيش حاجة تضيفها هنا.",
+  yallappSettingUp: "Yallapp بيجهّز الإشعارات الفورية. هتشتغل بعد كام دقيقة من حفظ اسم الحزمة ومعرّف الحزمة. <link>شوفها في خطوة «النشر»</link>",
+  yallappOwn: "لو عايز تستخدم Firebase بتاعك بدل كده، اختاره في <link>خطوة «النشر»</link>.",
   addKey:
     "تصل الإشعارات إلى صندوق الوارد في تطبيقك. لتظهر أيضًا على شاشات القفل لدى عملائك، أضف مفتاح مشروع Firebase نفسه الذي تنتمي إليه ملفات Firebase الخاصة بتطبيقك.",
   sent: "المُرسَلة",
@@ -196,6 +207,8 @@ export const tr: Messages = {
   title: "Uygulama bildirimleri",
   fromSite: "Uygulamanız bildirimlerini web sitenizden alır: bunları WordPress'teki Yallapp eklentisinden gönderin.",
   backToSetup: "Uygulama kurulumuna dön",
+  relayTitle: "Bildirimleri Yallapp gönderir",
+  relayText: "WordPress sitenizin Firebase dosyasına veya anahtarına ihtiyacı yok: Yallapp eklentisi her bildirimi Yallapp'e iletir; Yallapp onu kendi Firebase'i üzerinden ulaştırır ve hiçbir şey saklamaz. Bunun için sitenizde Yallapp eklentisinin 0.4.49 veya sonraki sürümü gerekir.",
   intro: "{count, plural, one {Uygulamanızı kullanan herkese mesaj gönderin. Şimdiye kadar {count} müşteri giriş yaptı.} other {Uygulamanızı kullanan herkese mesaj gönderin. Şimdiye kadar {count} müşteri giriş yaptı.}}",
   newNotification: "Yeni bildirim",
   push: "Anlık bildirim",
@@ -203,6 +216,9 @@ export const tr: Messages = {
   inboxOnly: "Paketiniz bildirimleri yalnızca uygulamanın gelen kutusuna gönderir.",
   pushOn: "Açık · Firebase projesi <project></project>",
   removeKey: "Anahtarı kaldır",
+  yallappOn: "Açık · Uygulamanızın bildirimlerini Yallapp kuruyor ve gönderiyor. Buraya eklemeniz gereken bir şey yok.",
+  yallappSettingUp: "Yallapp anlık bildirimlerinizi kuruyor. Uygulamanızın paket adı ve paket kimliği kaydedildikten birkaç dakika sonra başlar. <link>Yayınlama adımında görün</link>",
+  yallappOwn: "Bunun yerine kendi Firebase'inizi kullanmak için <link>Yayınlama adımında</link> seçin.",
   addKey:
     "Bildirimler uygulamanızdaki gelen kutusuna ulaşır. Müşterilerinizin kilit ekranlarında da görünmeleri için, uygulamanızın Firebase dosyalarıyla aynı Firebase projesinin anahtarını ekleyin.",
   sent: "Gönderilenler",

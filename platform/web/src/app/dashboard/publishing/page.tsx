@@ -1,11 +1,14 @@
 import type { Metadata } from "next";
+import type { CSSProperties, ReactNode } from "react";
 import Link from "next/link";
 import { redirect } from "next/navigation";
 import { chooseMoreStoresAction, choosePublishingModeAction } from "@/app/actions/publishing";
 import { SubmitButton } from "@/components/form";
 import { Icon } from "@/components/icon";
-import { Badge, Notice, PageHeader, btn, formatDateTime } from "@/components/ui";
-import { LinkCards, PageGroup } from "@/components/page-kit";
+import { formatDateTime } from "@/components/ui";
+import { KitBar, KitCallout, KitFact, KitFacts, KitFold, KitHeader, KitHero, KitList, KitNext, KitPage, KitRow, KitSection, KitStatus, kit } from "@/components/studio-page";
+import { KitInspectButton, KitInspectGroup } from "@/components/studio-page/inspect";
+import { KitInspectorBody, KitInspectorHead } from "@/components/studio-page/parts";
 import { appLabel, licensePageName } from "@/lib/app/label";
 import { hasStoreKeys } from "@/lib/app/setup";
 import { requireClient } from "@/lib/auth/session";
@@ -37,12 +40,13 @@ import { reviewNotesFor, suggestedReviewNotes } from "@/lib/publishing/review-no
 import { ChecklistForm, ListingForm } from "./forms";
 import { ReadySection } from "./ready";
 import { ReviewSection } from "./review-section";
+import { PublishingTabs } from "./tabs";
 import { courierAppNameOf, hasCourierJobs, secondAppRoleOf } from "@/lib/delivery/courier-app";
 import { reviewNotes } from "@/lib/delivery/review";
 import { schoolReviewNotes } from "@/lib/school/review";
 import { loadUniSettings, universityOn } from "@/lib/university/settings";
 import { deliverySettingsOf } from "@/lib/delivery/settings";
-import { readiness } from "@/lib/publishing/readiness";
+import { readiness, readyToSubmit } from "@/lib/publishing/readiness";
 import { REJECTION_LINK } from "@/lib/publishing/review";
 import { appUrl } from "@/lib/env";
 import { localePath } from "@/i18n/paths";
@@ -53,6 +57,7 @@ import { dashboardText } from "@/lib/dashboard-lang";
 import type { DashKey } from "@/i18n/dashboard";
 import type { App, PublishingStatus } from "@/lib/data/types";
 import { SamplesStoreNotice } from "@/components/samples";
+import { usesYallappFirebase } from "@/lib/firebase/mode";
 
 export async function generateMetadata(): Promise<Metadata> {
   return { title: (await dashboardText()).t("publishing.title") };
@@ -75,21 +80,22 @@ const MORE_STORE_TEXT: Record<(typeof MORE_STORES)[number], DashKey> = {
 };
 
 
+/** One way to get to the stores, as one calm panel of the hero card. */
 function Choice({ mode, title, text, points, disabled, saving }: { mode: "self" | "managed"; title: string; text: string; points: string[]; disabled?: string; saving: string }) {
   return (
-    <form action={choosePublishingModeAction} className="flex flex-col gap-3 rounded-2xl border border-line bg-white p-5 sm:p-6">
+    <form action={choosePublishingModeAction} className={`flex flex-col gap-3 rounded-3xl p-5 sm:p-6 ${mode === "managed" ? "bg-(--sp-surface) ring-1 ring-ember/50" : "bg-(--sp-soft)"}`}>
       <input type="hidden" name="mode" value={mode} />
       <span className="flex items-center gap-3">
-        <span className={`flex h-11 w-11 shrink-0 items-center justify-center rounded-xl ${mode === "managed" ? "bg-peach text-accent" : "bg-sand text-ink-3"}`}>
+        <span aria-hidden="true" className={`flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl ${mode === "managed" ? "bg-peach text-accent" : "bg-(--sp-tile) text-(--sp-ink)"}`}>
           <Icon name={mode === "managed" ? "storefront" : "menu_book"} size={24} />
         </span>
-        <h2 className="m-0 text-lg font-bold">{title}</h2>
+        <h3 className="m-0 text-[17px] font-bold">{title}</h3>
       </span>
-      <p className="m-0 text-[15px] leading-relaxed text-ink-4">{text}</p>
-      <ul className="m-0 flex list-none flex-col gap-2 p-0 text-[15px] leading-relaxed text-ink-4">
+      <p className="m-0 text-[15px] leading-relaxed text-(--sp-muted)">{text}</p>
+      <ul className="m-0 flex list-none flex-col gap-2 p-0 text-sm leading-relaxed text-(--sp-ink)">
         {points.map((point) => (
           <li key={point} className="flex items-start gap-2">
-            <Icon name="check" size={18} className="mt-[3px] text-success" />
+            <Icon name="check" size={18} className="mt-[1px] text-success" />
             <span>{point}</span>
           </li>
         ))}
@@ -98,7 +104,7 @@ function Choice({ mode, title, text, points, disabled, saving }: { mode: "self" 
         <SubmitButton variant={mode === "managed" ? "main" : "secondary"} className="h-11" disabled={Boolean(disabled)} pendingText={saving}>
           {title}
         </SubmitButton>
-        {disabled ? <span className="mt-1.5 block text-sm text-muted">{disabled}</span> : null}
+        {disabled ? <span className="mt-1.5 block text-sm text-(--sp-muted)">{disabled}</span> : null}
       </div>
     </form>
   );
@@ -131,113 +137,120 @@ export default async function PublishingPage({ searchParams }: PageProps<"/dashb
 
   // 41 Every store Yallapp publishes to.
   // 46 Links that open the app: the Play signing fingerprint and the Team ID live on their own page.
-  const pageHeader = (
+  // 132.171 The console's look: the title with one main action in Ember (the store texts when our team publishes, the
+  // builds when the owner does), Publishing's own pages as tabs under it; where it stands as tiles, each store opening in
+  // the inspector; the steps, the listing, the review account and the stores' checks as cards, their long guides folded.
+  const header = (main: ReactNode) => (
     <>
-      {/* The page kit: the header, the sub-pages as cards, then the page's parts in labelled groups. */}
-      <PageHeader title={t("publishing.title")} description={t("publishing.intro", { app: name })} />
-      <LinkCards
-        label={t("publishing.title")}
-        items={[
-          { href: "/dashboard/publishing/links", icon: "link", label: t("publishing.links") },
-          ...(mode === "self" ? [{ href: "/dashboard/publishing/more-stores", icon: "storefront" as const, label: t("publishing.moreStores") }] : []),
-        ]}
-      />
-    </>
-  );
-  // 110.2 Sample entries left: nothing goes to the stores.
-  const header = (
-    <>
-      {pageHeader}
+      <KitHeader icon="rocket_launch" title={t("publishing.title")} description={t("publishing.intro", { app: name })} actions={main} />
+      <KitBar>
+        <PublishingTabs more={mode === "self"} />
+      </KitBar>
+      {/* 110.2 Sample entries left: nothing goes to the stores. */}
       <SamplesStoreNotice app={app} />
     </>
   );
 
   const passwords = (
-    <p className="m-0 flex gap-2 text-sm leading-relaxed text-ink-4">
-      <Icon name="lock" size={20} className="text-muted" />
-      <span>{richText(t("publishing.passwords"), { email: () => <bdi dir="ltr">{teamEmail}</bdi> })}</span>
-    </p>
+    <KitCallout icon="lock">{richText(t("publishing.passwords"), { email: () => <bdi dir="ltr">{teamEmail}</bdi> })}</KitCallout>
   );
 
   if (!mode || !request || (mode === "managed" && request.mode !== "managed")) {
     return (
-      <>
-        {header}
+      <KitPage>
+        {header(null)}
         {query.error === "not-included" ? (
-          <Notice tone="warn" icon="warning" role="alert">
+          <KitCallout tone="warn" icon="warning" role="alert">
             {richText(t("publishing.notIncludedAlert"), { wa: (chunk) => <a href={contact.whatsappUrl}>{chunk}</a>, upgrade: (chunk) => <Link href="/dashboard/license#change-plan">{chunk}</Link> })}
-          </Notice>
+          </KitCallout>
         ) : null}
-        <p className="m-0 text-[15px] leading-relaxed text-ink-4">{t("publishing.howQuestion")}</p>
-        <div className="grid gap-4 [grid-template-columns:repeat(auto-fit,minmax(min(320px,100%),1fr))]">
-          <Choice
-            mode="managed"
-            title={t("publishing.managed")}
-            text={t("publishing.managedText")}
-            points={[t("publishing.managedPoint1"), t("publishing.managedPoint2"), t("publishing.managedPoint3")]}
-            disabled={notIncluded}
-            saving={saving}
-          />
-          <Choice
-            mode="self"
-            title={t("publishing.self")}
-            text={t("publishing.selfText")}
-            points={[t("publishing.selfPoint1"), autoUpload ? t("publishing.selfPointAuto") : t("publishing.selfPointGuides")]}
-            saving={saving}
-          />
-        </div>
+        <KitHero titleId="h-how" title={t("publishing.howQuestion")}>
+          <div className="grid gap-4 [grid-template-columns:repeat(auto-fit,minmax(min(300px,100%),1fr))]">
+            <Choice
+              mode="managed"
+              title={t("publishing.managed")}
+              text={t("publishing.managedText")}
+              points={[t("publishing.managedPoint1"), t("publishing.managedPoint2"), t("publishing.managedPoint3")]}
+              disabled={notIncluded}
+              saving={saving}
+            />
+            <Choice
+              mode="self"
+              title={t("publishing.self")}
+              text={t("publishing.selfText")}
+              points={[t("publishing.selfPoint1"), autoUpload ? t("publishing.selfPointAuto") : t("publishing.selfPointGuides")]}
+              saving={saving}
+            />
+          </div>
+        </KitHero>
         {passwords}
         <ReviewSection app={app} text={text} managed={false} delivery={deliveryNotes} />
-      </>
+      </KitPage>
     );
   }
 
   if (mode === "self") {
     const keys = hasStoreKeys(app);
     return (
-      <>
-        {header}
+      <KitPage>
+        {header(
+          <Link href="/dashboard/builds" className={kit.main}>
+            <Icon name="build" size={20} />
+            {t("builds.title")}
+          </Link>,
+        )}
         {query.chosen === "self" ? (
-          <Notice tone="success" icon="check_circle" role="status">
+          <KitCallout tone="success" icon="check_circle" role="status">
             {t("publishing.savedSelf", { app: name })}
-          </Notice>
+          </KitCallout>
         ) : null}
-        <section aria-labelledby="h-self" className="flex flex-col gap-4 rounded-2xl border border-line bg-white p-5 sm:p-6">
-          <h2 id="h-self" className="m-0 text-lg font-bold">
-            {t("publishing.selfTitle")}
-          </h2>
-          <ol className="m-0 list-decimal space-y-2 ps-5 text-[15px] leading-relaxed marker:font-bold">
-            <li>{richText(t("publishing.selfStep1"), { link: (chunk) => <Link href="/dashboard/builds">{chunk}</Link> })}</li>
-            <li>
-              {richText(t("publishing.selfStep2"), {
-                play: (chunk) => <Link href={localePath(lang, "/guides/google-play")}>{chunk}</Link>,
-                apple: (chunk) => <Link href={localePath(lang, "/guides/app-store")}>{chunk}</Link>,
-              })}
-            </li>
-            <li>{richText(t("publishing.selfStep3"), { link: (chunk) => <Link href="/dashboard/publishing/more-stores">{chunk}</Link> })}</li>
-            {autoUpload ? (
+        {/* You publish it yourself: the first step at a glance, every step folded behind one line. */}
+        <KitHero
+          titleId="h-self"
+          title={t("publishing.selfTitle")}
+          description={t("publishing.selfText")}
+          next={<KitNext icon="download">{richText(t("publishing.selfStep1"), { link: (chunk) => <Link href="/dashboard/builds">{chunk}</Link> })}</KitNext>}
+        >
+          <KitFold summary={t("studioPage.howItWorks")} icon="menu_book">
+            <ol className="m-0 list-decimal space-y-2 ps-5 text-[15px] leading-relaxed marker:font-bold">
+              <li>{richText(t("publishing.selfStep1"), { link: (chunk) => <Link href="/dashboard/builds">{chunk}</Link> })}</li>
               <li>
-                {richText(keys.play || keys.appStore ? t("publishing.selfStep4Saved") : t("publishing.selfStep4None"), {
-                  link: (chunk) => <Link href="/dashboard/setup?step=publishing">{chunk}</Link>,
+                {richText(t("publishing.selfStep2"), {
+                  play: (chunk) => <Link href={localePath(lang, "/guides/google-play")}>{chunk}</Link>,
+                  apple: (chunk) => <Link href={localePath(lang, "/guides/app-store")}>{chunk}</Link>,
                 })}
               </li>
-            ) : null}
-          </ol>
-        </section>
+              <li>{richText(t("publishing.selfStep3"), { link: (chunk) => <Link href="/dashboard/publishing/more-stores">{chunk}</Link> })}</li>
+              {autoUpload ? (
+                <li>
+                  {richText(keys.play || keys.appStore ? t("publishing.selfStep4Saved") : t("publishing.selfStep4None"), {
+                    link: (chunk) => <Link href="/dashboard/setup?step=publishing">{chunk}</Link>,
+                  })}
+                </li>
+              ) : null}
+            </ol>
+          </KitFold>
+        </KitHero>
         <ReviewSection app={app} text={text} managed={false} delivery={deliveryNotes} />
         <ReadySection items={readiness({ app, listing: null, ios: hasFeature(current, "ios"), managed: false, platformUrl: appUrl() })} text={text} />
-        <form action={choosePublishingModeAction} className="flex flex-col gap-2 rounded-2xl border border-line bg-white p-5 sm:p-6">
+        <form action={choosePublishingModeAction}>
           <input type="hidden" name="mode" value="managed" />
-          <h2 className="m-0 text-lg font-bold">{t("publishing.ratherWe")}</h2>
-          <p className="m-0 text-[15px] text-ink-4">{t("publishing.ratherWeText")}</p>
-          <div>
-            <SubmitButton variant="secondary" className="h-10" disabled={Boolean(notIncluded)} pendingText={saving}>
-              {t("publishing.managed")}
-            </SubmitButton>
-            {notIncluded ? <span className="mt-1.5 block text-sm text-muted">{notIncluded}</span> : null}
-          </div>
+          <KitCallout
+            icon="storefront"
+            title={t("publishing.ratherWe")}
+            action={
+              <span className="flex flex-col items-start gap-1">
+                <SubmitButton variant="secondary" className="h-10" disabled={Boolean(notIncluded)} pendingText={saving}>
+                  {t("publishing.managed")}
+                </SubmitButton>
+                {notIncluded ? <span className="max-w-[280px] text-sm text-(--sp-muted)">{notIncluded}</span> : null}
+              </span>
+            }
+          >
+            {t("publishing.ratherWeText")}
+          </KitCallout>
         </form>
-      </>
+      </KitPage>
     );
   }
 
@@ -252,44 +265,230 @@ export default async function PublishingPage({ searchParams }: PageProps<"/dashb
     text: k(stepText(step, teamEmail)),
     links: step.links.map((link) => ({ ...link, label: k(link.label) })),
     group: step.store === "both" ? t("publishing.groupPush") : GROUP[step.store]!,
-    done: stepDone(request, step.id),
+    done: stepDone(request, step.id, usesYallappFirebase(app)),
     doneAt: request.checklist[step.id] ? formatDateTime(new Date(request.checklist[step.id]!), lang) : null,
   }));
+  const stores = requestStores(request);
+  const ready = readiness({ app, listing: request.listing, ios: hasFeature(current, "ios"), managed: true, platformUrl: appUrl() });
+  const stopping = ready.filter((item) => item.state === "missing").length;
+  const live = stores.filter((which) => trackOf(request, which).status === "live").length;
+  const rejected = stores.find((which) => trackOf(request, which).status === "rejected" && trackOf(request, which).rejection) ?? null;
+  const firstUndone = steps.find((step) => !step.done && !(step.id === "firebase" && request.firebaseBy === "team")) ?? null;
+  const missingItems = lang === "en" ? missing.join(", ") : formatList(lang, missing.map(k));
+  // The one next step: what a store asked for, then the client's steps, the listing and the stores' checks; else our team's turn.
+  const next = rejected ? (
+    <KitNext
+      icon="error"
+      tone="warn"
+      action={
+        REJECTION_LINK[trackOf(request, rejected).rejection!] ? (
+          <Link href={REJECTION_LINK[trackOf(request, rejected).rejection!]!} className={kit.quiet}>
+            {t("publishing.reject.fixIt")}
+          </Link>
+        ) : undefined
+      }
+    >
+      {t("publishing.nextRejected", { store: STORE_TITLE[rejected] })}
+    </KitNext>
+  ) : firstUndone ? (
+    <KitNext
+      icon="task_alt"
+      action={
+        <a href="#h-checklist" className={kit.quiet}>
+          {t("publishing.openSteps")}
+        </a>
+      }
+    >
+      {t("publishing.nextStep", { step: firstUndone.title })}
+    </KitNext>
+  ) : missing.length ? (
+    <KitNext
+      icon="edit_note"
+      action={
+        <a href="#h-listing" className={kit.quiet}>
+          {t("publishing.completeIt")}
+        </a>
+      }
+    >
+      {t("publishing.stillMissing", { items: missingItems })}
+    </KitNext>
+  ) : !readyToSubmit(ready) ? (
+    <KitNext
+      icon="warning"
+      tone="warn"
+      action={
+        <a href="#h-ready" className={kit.quiet}>
+          {t("publishing.ready.fix")}
+        </a>
+      }
+    >
+      {t("publishing.ready.notReady", { count: stopping })}
+    </KitNext>
+  ) : live === stores.length ? (
+    <KitNext icon="check_circle" tone="success">
+      {t("publishing.allLive")}
+    </KitNext>
+  ) : (
+    <KitNext icon="support_agent" tone="success">
+      {t("publishing.teamOnIt")}
+    </KitNext>
+  );
 
-  const checklistSection = (
-      <section aria-labelledby="h-checklist" className="flex flex-col gap-4 rounded-2xl border border-line bg-white p-5 sm:p-6">
-        <div className="flex flex-wrap items-center justify-between gap-3">
-          <div className="flex flex-col gap-1">
-            <h2 id="h-checklist" className="m-0 text-lg font-bold">
-              {t("publishing.yourSteps")}
-            </h2>
-            <span className="text-sm text-muted">
-              {request.readyAt
-                ? t("publishing.progressReady", { done: progress.done, total: progress.total, date: formatDateTime(request.readyAt, lang) })
-                : t("publishing.progress", { done: progress.done, total: progress.total })}
-            </span>
+  const DOT = { success: "bg-success", danger: "bg-danger", warn: "bg-warn", info: "bg-(--sp-ink-2)", neutral: "bg-(--sp-faint)" } as const;
+  return (
+    <KitPage>
+      {header(
+        <Link href="/dashboard/setup?step=listing" className={kit.main}>
+          <Icon name="edit" size={20} />
+          {t("publishing.editTexts")}
+        </Link>,
+      )}
+      {query.chosen === "managed" ? (
+        <KitCallout tone="success" icon="check_circle" role="status">
+          {t("publishing.thanks")}
+        </KitCallout>
+      ) : null}
+
+      {/* Where it stands: the stores live as the first tile with its bar, then each store as a tile that opens in the inspector
+          (what its state means, why a store turned it down and what to do, our team's note, its link), then the one next step. */}
+      <section aria-labelledby="h-status" className="flex min-w-0 flex-col gap-3" data-stores="">
+        <h2 id="h-status" className="sr-only">
+          {t("publishing.whereStands")}
+        </h2>
+        <KitInspectGroup closeLabel={t("common.close")}>
+          <div className="kit-bento @max-[561px]/kit-page:grid-cols-2!" style={{ ["--kit-rest" as string]: stores.length } as CSSProperties}>
+            <div className="kit-tile">
+              <span className="kit-tile-hd">
+                <span className="kit-tile-ib" aria-hidden="true">
+                  <Icon name="public" size={18} />
+                </span>
+                <span className="min-w-0">{t("publishing.whereStands")}</span>
+              </span>
+              <span className="kit-tile-v">{text.num(live)}</span>
+              <span className="kit-tile-ft">
+                <span className="min-w-0">{t("publishing.liveOn", { live, total: stores.length })}</span>
+                <span className="kit-tile-bar" aria-hidden="true">
+                  <i style={{ width: `${Math.round((live / stores.length) * 100)}%` }} />
+                </span>
+              </span>
+            </div>
+            {stores.map((which) => {
+              const track = trackOf(request, which);
+              const tone = statusTone(track.status);
+              const label = k(CLIENT_STATUS_LABEL[track.status]);
+              const when = track.updatedAt ? t("publishing.updated", { date: formatDateTime(track.updatedAt, lang) }) : t("publishing.asked", { date: formatDateTime(request.requestedAt, lang) });
+              return (
+                <KitInspectButton
+                  key={which}
+                  id={which}
+                  data-store-tile={which}
+                  className="kit-tile cursor-pointer border-0 text-start [font:inherit] transition-shadow hover:shadow-[inset_0_0_0_1px_var(--sp-line)] data-open:shadow-[inset_0_0_0_2px_#ff5a1f]"
+                  inspector={{
+                    label: STORE_TITLE[which],
+                    title: t("publishing.store"),
+                    footer:
+                      track.status === "live" && track.storeUrl ? (
+                        <a href={track.storeUrl} target="_blank" rel="noopener noreferrer" className={`${kit.main} w-full`}>
+                          {t("publishing.seeOn", { store: STORE_TITLE[which] })}
+                          <Icon name="open_in_new" size={18} />
+                        </a>
+                      ) : track.status === "rejected" && track.rejection && REJECTION_LINK[track.rejection] ? (
+                        <Link href={REJECTION_LINK[track.rejection]!} className={`${kit.main} w-full`}>
+                          {t("publishing.reject.fixIt")}
+                        </Link>
+                      ) : undefined,
+                  }}
+                  details={
+                    <KitInspectorBody data-inspector-store={which}>
+                      <KitInspectorHead icon={STORE_ICON[which]} badges={<KitStatus tone={tone}>{label}</KitStatus>} title={STORE_TITLE[which]} line={when} />
+                      <p className="m-0 text-[14.5px] leading-relaxed text-(--sp-ink)">{publishingStatusIn(lang, which, track.status).text}</p>
+                      {/* 88.3 Why the store turned it down, what to do and where. */}
+                      {track.status === "rejected" && track.rejection ? (
+                        <div className="flex flex-col gap-1.5 rounded-[14px] bg-danger-bg px-4 py-3 text-sm leading-relaxed text-(--sp-ink)" data-rejection={track.rejection}>
+                          <span className="font-semibold">{t("publishing.reject.why", { reason: t(`publishing.reject.${track.rejection}`) })}</span>
+                          <span>{t("publishing.reject.whatToDo", { fix: t(`publishing.reject.${track.rejection}Fix`) })}</span>
+                          {REJECTION_LINK[track.rejection] ? (
+                            <Link href={REJECTION_LINK[track.rejection]!} className="self-start font-semibold">
+                              {t("publishing.reject.fixIt")}
+                            </Link>
+                          ) : null}
+                        </div>
+                      ) : null}
+                      {track.note ? (
+                        <p className="m-0 rounded-[14px] bg-(--sp-soft) px-4 py-3 text-sm leading-relaxed text-(--sp-ink)">
+                          {richText(t("publishing.noteFromTeam", { note: track.note }), { b: (chunk) => <span className="font-semibold">{chunk}</span> })}
+                        </p>
+                      ) : null}
+                      {which === "ios" && track.checkedAt && track.storeState ? (
+                        <p className="m-0 text-[13px] text-(--sp-muted)" data-store-checked="">
+                          {t("publishing.reject.checked", { date: formatDateTime(track.checkedAt, lang) })}
+                        </p>
+                      ) : null}
+                    </KitInspectorBody>
+                  }
+                >
+                  <span className="kit-tile-hd">
+                    <span className="kit-tile-ib" aria-hidden="true">
+                      <Icon name={STORE_ICON[which]} size={18} />
+                    </span>
+                    <span className="min-w-0">{STORE_TITLE[which]}</span>
+                  </span>
+                  <span className="kit-tile-v flex items-center gap-2 text-[22px]! tracking-[-0.3px]! @max-[561px]/kit-page:text-[18px]!">
+                    <span aria-hidden="true" className={`h-2.5 w-2.5 shrink-0 rounded-full ${DOT[tone]}`} />
+                    <span className="min-w-0">{label}</span>
+                  </span>
+                  <span className="kit-tile-ft">
+                    <span className="min-w-0">{when}</span>
+                  </span>
+                  <span className="kit-tile-go" aria-hidden="true">
+                    <Icon name="chevron_right" size={18} />
+                  </span>
+                </KitInspectButton>
+              );
+            })}
           </div>
-          {progress.complete ? <Badge tone="success">{t("publishing.allDone")}</Badge> : null}
-        </div>
-        <div className="h-2 rounded-full bg-ivory" role="progressbar" aria-valuemin={0} aria-valuemax={progress.total} aria-valuenow={progress.done} aria-label={t("publishing.stepsDone")}>
+        </KitInspectGroup>
+        <div className="flex flex-wrap items-center gap-x-4 gap-y-3 rounded-[14px] bg-(--sp-soft) px-4 py-3">{next}</div>
+      </section>
+
+      <KitSection
+        titleId="h-checklist"
+        title={t("publishing.yourSteps")}
+        description={
+          request.readyAt
+            ? t("publishing.progressReady", { done: progress.done, total: progress.total, date: formatDateTime(request.readyAt, lang) })
+            : t("publishing.progress", { done: progress.done, total: progress.total })
+        }
+        help={t("publishing.fees")}
+        helpLabel={t("studioPage.helpSection")}
+        actions={progress.complete ? <KitStatus tone="success">{t("publishing.allDone")}</KitStatus> : null}
+      >
+        <div className="h-2 overflow-hidden rounded-full bg-(--sp-soft)" role="progressbar" aria-valuemin={0} aria-valuemax={progress.total} aria-valuenow={progress.done} aria-label={t("publishing.stepsDone")}>
           <div className="h-full rounded-full bg-ember" style={{ width: `${(progress.done / progress.total) * 100}%` }} />
         </div>
-        <p className="m-0 text-[15px] leading-relaxed text-ink-4">
-          {t("publishing.fees")}
-        </p>
-        <ChecklistForm steps={steps} firebaseBy={request.firebaseBy} />
+        <ChecklistForm steps={steps} firebaseBy={request.firebaseBy} yallappFirebase={usesYallappFirebase(app)} />
         {passwords}
-      </section>
-  );
-  const listingSection = (
-      <section aria-labelledby="h-listing" className="flex flex-col gap-4 rounded-2xl border border-line bg-white p-5 sm:p-6">
-        <div className="flex flex-col gap-1">
-          <h2 id="h-listing" className="m-0 text-lg font-bold">
-            {t("publishing.listing")}
-          </h2>
-          <span className="text-sm text-muted">{t("publishing.listingText")}</span>
-        </div>
-        <dl className="m-0 grid gap-x-6 gap-y-2.5 text-[15px] sm:grid-cols-[minmax(160px,auto)_1fr]">
+      </KitSection>
+
+      <KitSection
+        titleId="h-listing"
+        title={t("publishing.listing")}
+        description={t("publishing.listingText")}
+        actions={
+          <Link href="/dashboard/setup?step=listing" className={kit.quiet}>
+            <Icon name="edit" size={18} />
+            {t("publishing.editTexts")}
+          </Link>
+        }
+      >
+        {missing.length ? (
+          <KitCallout icon="info">{t("publishing.stillMissing", { items: missingItems })}</KitCallout>
+        ) : (
+          <KitCallout tone="success" icon="check_circle">
+            {t("publishing.listingComplete")}
+          </KitCallout>
+        )}
+        <KitFacts>
           {[
             [t("publishing.storeName"), app.storeTitle],
             [t("publishing.shortDescription"), app.shortDescription],
@@ -304,18 +503,11 @@ export default async function PublishingPage({ searchParams }: PageProps<"/dashb
               }),
             ],
           ].map(([label, value]) => (
-            <div key={label} className="contents">
-              <dt className="font-semibold text-muted">{label}</dt>
-              <dd className="m-0 min-w-0 break-words">{value ?? <span className="text-danger">{t("publishing.missing")}</span>}</dd>
-            </div>
+            <KitFact key={label} label={label}>
+              {value ?? <span className="text-danger">{t("publishing.missing")}</span>}
+            </KitFact>
           ))}
-        </dl>
-        <div>
-          <Link href="/dashboard/setup?step=listing" className={`${btn.secondary} h-10`}>
-            <Icon name="edit" size={18} />
-            {t("publishing.editTexts")}
-          </Link>
-        </div>
+        </KitFacts>
         <ListingForm
           current={{
             playCategory: request.listing.playCategory ?? suggested.play,
@@ -329,144 +521,70 @@ export default async function PublishingPage({ searchParams }: PageProps<"/dashb
           reviewMeaning={reviewMeaningOf(app, request.listing.reviewNotes, kindOf(app).reviewNote, lang, k)}
           ratingExample={k(wordsOf(app).ratingExample)}
         />
-        {missing.length ? (
-          <Notice icon="info">{t("publishing.stillMissing", { items: lang === "en" ? missing.join(", ") : formatList(lang, missing.map(k)) })}</Notice>
-        ) : (
-          <Notice tone="success" icon="check_circle">
-            {t("publishing.listingComplete")}
-          </Notice>
-        )}
-      </section>
-  );
+      </KitSection>
 
-  return (
-    <>
-      {header}
-      {query.chosen === "managed" ? (
-        <Notice tone="success" icon="check_circle" role="status">
-          {t("publishing.thanks")}
-        </Notice>
-      ) : null}
-
-      <section aria-labelledby="h-status" className="flex flex-col gap-3">
-        <h2 id="h-status" className="m-0 text-lg font-bold">
-          {t("publishing.whereStands")}
-        </h2>
-        <div className="grid gap-4 [grid-template-columns:repeat(auto-fit,minmax(min(300px,100%),1fr))]">
-          {requestStores(request).map((which) => {
-            const track = trackOf(request, which);
-            return (
-              <section key={which} aria-label={STORE_TITLE[which]} className="flex flex-col gap-2.5 rounded-2xl border border-line bg-white p-5">
-                <div className="flex flex-wrap items-center justify-between gap-2">
-                  <span className="flex items-center gap-2.5 text-base font-bold">
-                    <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-[10px] bg-ivory text-midnight">
-                      <Icon name={STORE_ICON[which]} size={20} />
-                    </span>
-                    {STORE_TITLE[which]}
-                  </span>
-                  <Badge tone={statusTone(track.status)}>{k(CLIENT_STATUS_LABEL[track.status])}</Badge>
-                </div>
-                <p className="m-0 text-sm leading-relaxed text-ink-4">
-                  {publishingStatusIn(lang, which, track.status).text}
-                </p>
-                {/* 88.3 Why the store turned it down, what to do and where. */}
-                {track.status === "rejected" && track.rejection ? (
-                  <div className="flex flex-col gap-1.5 rounded-lg border border-danger/30 bg-danger-bg px-3 py-2.5 text-sm leading-relaxed" data-rejection={track.rejection}>
-                    <span className="font-semibold">{t("publishing.reject.why", { reason: t(`publishing.reject.${track.rejection}`) })}</span>
-                    <span>{t("publishing.reject.whatToDo", { fix: t(`publishing.reject.${track.rejection}Fix`) })}</span>
-                    {REJECTION_LINK[track.rejection] ? (
-                      <Link href={REJECTION_LINK[track.rejection]!} className="self-start font-semibold">
-                        {t("publishing.reject.fixIt")}
-                      </Link>
-                    ) : null}
-                  </div>
-                ) : null}
-                {track.note ? (
-                  <p className="m-0 rounded-lg bg-sand px-3 py-2 text-sm leading-relaxed">
-                    {richText(t("publishing.noteFromTeam", { note: track.note }), { b: (chunk) => <span className="font-semibold">{chunk}</span> })}
-                  </p>
-                ) : null}
-                {track.status === "live" && track.storeUrl ? (
-                  <a href={track.storeUrl} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-1 text-sm font-semibold">
-                    {t("publishing.seeOn", { store: STORE_TITLE[which] })}
-                    <Icon name="open_in_new" size={16} />
-                  </a>
-                ) : null}
-                <span className="text-xs text-muted">
-                  {track.updatedAt ? t("publishing.updated", { date: formatDateTime(track.updatedAt, lang) }) : t("publishing.asked", { date: formatDateTime(request.requestedAt, lang) })}
-                </span>
-                {which === "ios" && track.checkedAt && track.storeState ? (
-                  <span className="text-xs text-muted" data-store-checked="">
-                    {t("publishing.reject.checked", { date: formatDateTime(track.checkedAt, lang) })}
-                  </span>
-                ) : null}
-              </section>
-            );
-          })}
-        </div>
-      </section>
-
-      <PageGroup title={t("publishing.groupYours")}>
       <ReviewSection app={app} text={text} managed delivery={deliveryNotes} />
-      <ReadySection items={readiness({ app, listing: request.listing, ios: hasFeature(current, "ios"), managed: true, platformUrl: appUrl() })} text={text} />
-      {checklistSection}
-      {listingSection}
-      </PageGroup>
+      <ReadySection items={ready} text={text} />
 
-      <PageGroup title={t("publishing.groupMore")}>
-      {/* 35, 36, 42 Samsung Galaxy Store, Huawei AppGallery and Xiaomi GetApps, when the client wants them too. */}
-      <form action={chooseMoreStoresAction} aria-labelledby="h-more-stores" className="flex flex-col gap-3 rounded-2xl border border-line bg-white p-5 sm:p-6">
-        <h2 id="h-more-stores" className="m-0 text-lg font-bold">
-          {t("publishing.moreStores")}
-        </h2>
-        <p className="m-0 text-[15px] leading-relaxed text-ink-4">{t("publishing.moreStoresText")}</p>
-        <fieldset className="m-0 flex flex-col gap-2.5 border-0 p-0">
-          <legend className="sr-only">{t("publishing.alsoOn")}</legend>
-          {MORE_STORES.map((which) => (
-            <label key={which} className="flex cursor-pointer items-start gap-3 rounded-xl border border-line p-3.5">
-              <input type="checkbox" name="store" value={which} defaultChecked={Boolean(request[which])} className="mt-1 h-4 w-4 accent-midnight" />
-              <span className="flex flex-col gap-0.5">
-                <span className="text-[15px] font-bold">{STORE_TITLE[which]}</span>
-                <span className="text-sm text-ink-4">{t(MORE_STORE_TEXT[which])}</span>
-              </span>
-            </label>
-          ))}
-        </fieldset>
-        <div>
-          <SubmitButton variant="secondary" className="h-10" pendingText={saving}>
-            {t("publishing.saveStores")}
-          </SubmitButton>
-        </div>
-      </form>
+      {/* 35, 36, 42 Samsung Galaxy Store, Huawei AppGallery and Xiaomi GetApps, when the client wants them too: folded behind one line. */}
+      <div id="h-more-stores" className="scroll-mt-6">
+      <KitFold summary={t("publishing.moreStores")} icon="storefront" data-more-stores="">
+        <form action={chooseMoreStoresAction} aria-label={t("publishing.moreStores")} className="flex flex-col gap-3">
+          <p className="m-0 text-[15px] leading-relaxed text-(--sp-muted)">{t("publishing.moreStoresText")}</p>
+          <fieldset className="m-0 flex flex-col gap-2.5 border-0 p-0">
+            <legend className="sr-only">{t("publishing.alsoOn")}</legend>
+            {MORE_STORES.map((which) => (
+              <label key={which} className="flex cursor-pointer items-start gap-3 rounded-2xl bg-(--sp-surface) p-3.5 ring-1 ring-(--sp-edge) has-[:checked]:ring-(--sp-ink)">
+                <input type="checkbox" name="store" value={which} defaultChecked={Boolean(request[which])} className="mt-1 h-4 w-4 accent-midnight" />
+                <span className="flex flex-col gap-0.5">
+                  <span className="text-[15px] font-bold">{STORE_TITLE[which]}</span>
+                  <span className="text-sm text-(--sp-muted)">{t(MORE_STORE_TEXT[which])}</span>
+                </span>
+              </label>
+            ))}
+          </fieldset>
+          <div>
+            <SubmitButton variant="secondary" className="h-10" pendingText={saving}>
+              {t("publishing.saveStores")}
+            </SubmitButton>
+          </div>
+        </form>
+      </KitFold>
+      </div>
 
       {events.length ? (
-        <section aria-labelledby="h-history" className="flex flex-col gap-3 rounded-2xl border border-line bg-white px-4 py-5 sm:px-6">
-          <h2 id="h-history" className="m-0 text-lg font-bold">
-            {t("publishing.history")}
-          </h2>
-          <ul className="m-0 flex list-none flex-col gap-2 p-0 text-sm">
+        <KitSection titleId="h-history" title={t("publishing.history")} flush>
+          <KitList>
             {events.map((event) => (
-              <li key={event.id} className="flex flex-wrap gap-x-2 border-t border-line-soft pt-2 first:border-t-0 first:pt-0">
-                <span className="text-muted">{formatDateTime(event.at, lang)}</span>
-                <span className="font-semibold">
-                  {event.store === "mode" ? k(publishingEventLabel(event, "client")) : `${STORE_TITLE[event.store]}: ${k(CLIENT_STATUS_LABEL[event.status as PublishingStatus] ?? event.status)}`}
-                </span>
-                {event.note ? <span className="basis-full text-ink-4">{event.note}</span> : null}
-              </li>
+              <KitRow
+                key={event.id}
+                title={event.store === "mode" ? k(publishingEventLabel(event, "client")) : `${STORE_TITLE[event.store]}: ${k(CLIENT_STATUS_LABEL[event.status as PublishingStatus] ?? event.status)}`}
+                meta={
+                  <>
+                    {formatDateTime(event.at, lang)}
+                    {event.note ? <span className="block text-(--sp-ink)">{event.note}</span> : null}
+                  </>
+                }
+              />
             ))}
-          </ul>
-        </section>
+          </KitList>
+        </KitSection>
       ) : null}
 
-      <form action={choosePublishingModeAction} className="flex flex-wrap items-center justify-between gap-3 rounded-2xl border border-line bg-white px-5 py-4">
+      <form action={choosePublishingModeAction}>
         <input type="hidden" name="mode" value="self" />
-        <span className="text-sm text-ink-4">{t("publishing.changedMind")}</span>
-        <SubmitButton variant="ghost" className="h-10" pendingText={saving}>
-          {t("publishing.self")}
-        </SubmitButton>
+        <KitCallout
+          icon="menu_book"
+          action={
+            <SubmitButton variant="ghost" className="h-10" pendingText={saving}>
+              {t("publishing.self")}
+            </SubmitButton>
+          }
+        >
+          {t("publishing.changedMind")}
+        </KitCallout>
       </form>
-      </PageGroup>
-    </>
+    </KitPage>
   );
 }
 

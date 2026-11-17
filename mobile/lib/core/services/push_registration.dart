@@ -5,6 +5,7 @@ import 'dart:async';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../api/api_exception.dart';
+import '../api/models/models.dart';
 import '../auth/auth_controller.dart';
 import '../gate/app_gate.dart';
 import '../l10n/language.dart';
@@ -20,6 +21,18 @@ final pushEnabledProvider = Provider<bool>((ref) {
   final push = ref.watch(pushServiceProvider);
   final gate = ref.watch(appGateProvider);
   return push.isAvailable && gate is GateReady && gate.config.features.push;
+});
+
+/// 136.21 Whether this iPhone sends its APNs device token instead of the
+/// Firebase one: the server sends its pushes straight to Apple
+/// (`Config.features.apns`). Android phones and other servers: false.
+final apnsRegistrationProvider = Provider<bool>((ref) {
+  final push = ref.watch(pushServiceProvider);
+  final gate = ref.watch(appGateProvider);
+  return push is ApnsTokenSource &&
+      (push as ApnsTokenSource).hasApnsToken &&
+      gate is GateReady &&
+      gate.config.features.apns;
 });
 
 /// Registers this device's push token with the site (`PUT /me/push-token`)
@@ -40,17 +53,23 @@ final pushRegistrationProvider = Provider<void>((ref) {
   // own app, the customers' to the customers' app.
   final role = ref.read(appEnvironmentProvider).build.role;
   final push = ref.read(pushServiceProvider);
+  // 136.21 An iPhone's APNs token when the server sends to Apple directly.
+  final apns = ref.watch(apnsRegistrationProvider) && push is ApnsTokenSource
+      ? push as ApnsTokenSource
+      : null;
+  final provider = apns != null ? PushProvider.apns : push.provider;
 
   Future<void> send(String? token) async {
     if (token == null || token.isEmpty) return;
     try {
-      // 36 With where the token is from: Firebase or Huawei Push Kit.
+      // 36 With where the token is from: Firebase or Huawei Push Kit
+      // (136.21 or Apple's own token).
       await ref
           .read(yallappApiProvider)
           .setPushToken(
             token,
             preferences,
-            provider: push.provider,
+            provider: provider,
             language: language,
             role: role,
           );
@@ -59,6 +78,15 @@ final pushRegistrationProvider = Provider<void>((ref) {
     }
   }
 
+  if (apns != null) {
+    // The APNs token rarely changes; it's read again when Firebase's rotates.
+    unawaited(apns.apnsToken().then(send));
+    final subscription = push.tokenRefreshes.listen(
+      (_) => unawaited(apns.apnsToken().then(send)),
+    );
+    ref.onDispose(subscription.cancel);
+    return;
+  }
   unawaited(push.token().then(send));
   final subscription = push.tokenRefreshes.listen(send);
   ref.onDispose(subscription.cancel);

@@ -1,6 +1,7 @@
 import Link from "next/link";
 import type { ReactNode } from "react";
-import { Badge, formatDateTime } from "@/components/ui";
+import { formatDateTime } from "@/components/ui";
+import { KitCallout, KitFold, KitSection, KitStatus } from "@/components/studio-page";
 import { richText } from "@/i18n/rich";
 import type { DashboardText } from "@/lib/dashboard-lang";
 import type { App } from "@/lib/data/types";
@@ -12,6 +13,7 @@ import { ReviewAccountForm, SecretValue } from "./forms";
  * 102 The store review account, required for every app: the fixed review
  * number or email of App sign-in, or the account on the owner's website or
  * API; then where to enter it in Google Play Console and App Store Connect.
+ * 132.140 In the premium kit, those steps folded behind one line.
  */
 export function ReviewSection({
   app,
@@ -33,17 +35,19 @@ export function ReviewSection({
   const secret = kind === "code" ? (who ? (app.hostedSettings?.reviewCode ?? null) : null) : account ? reviewAccountPassword(app.id, account, encryptionKey()) : null;
   const set = who !== null && secret !== null;
   const steps = (key: "publishing.reviewPlaySteps" | "publishing.reviewAppleSteps") => t(key).split("|");
+  // 132.140 The premium kit: its state as a pill, the explanation behind "?", the form or what to enter in the stores, and
+  // where to enter it in each store folded behind one line.
   return (
-    <section aria-labelledby="h-review" className="flex flex-col gap-4 rounded-2xl border border-line bg-white p-5 sm:p-6" data-review={set ? "set" : "missing"}>
-      <div className="flex flex-wrap items-center justify-between gap-3">
-        <h2 id="h-review" className="m-0 text-lg font-bold">
-          {t("publishing.reviewTitle")}
-        </h2>
-        <Badge tone={set ? "success" : "danger"}>{set ? t("publishing.ready.stateOk") : t("publishing.ready.stateMissing")}</Badge>
-      </div>
-      <p className="m-0 text-[15px] leading-relaxed text-ink-4">{t("publishing.reviewIntro")}</p>
+    <KitSection
+      titleId="h-review"
+      title={t("publishing.reviewTitle")}
+      help={t("publishing.reviewIntro")}
+      helpLabel={t("studioPage.helpSection")}
+      actions={<KitStatus tone={set ? "success" : "danger"}>{set ? t("publishing.ready.stateOk") : t("publishing.ready.stateMissing")}</KitStatus>}
+      data-review={set ? "set" : "missing"}
+    >
       {kind === "code" ? (
-        <p className="m-0 text-[15px] leading-relaxed">
+        <p className="m-0 text-[15px] leading-relaxed text-(--sp-ink)">
           {set ? (
             <>
               {t("publishing.reviewCodeSet", { who: who!, code: secret! })} {richText(t("publishing.reviewCodeChange"), { link: signInLink })}
@@ -54,13 +58,13 @@ export function ReviewSection({
         </p>
       ) : (
         <>
-          <p className="m-0 text-[15px] leading-relaxed text-ink-4">{t("publishing.reviewAccountText")}</p>
+          <p className="m-0 text-sm leading-relaxed text-(--sp-muted)">{t("publishing.reviewAccountText")}</p>
           <ReviewAccountForm current={{ username: account?.username ?? "", notes: account?.notes ?? "" }} saved={account !== null} />
-          {account ? <span className="text-sm text-muted">{t("publishing.reviewSaved", { who: account.username, date: formatDateTime(new Date(account.savedAt), lang) })}</span> : null}
+          {account ? <span className="text-sm text-(--sp-muted)">{t("publishing.reviewSaved", { who: account.username, date: formatDateTime(new Date(account.savedAt), lang) })}</span> : null}
         </>
       )}
       {set ? (
-        <div className="flex flex-col gap-2 rounded-xl bg-sand p-4" data-review-copy="">
+        <div className="flex flex-col gap-2 rounded-2xl bg-(--sp-soft) p-4 sm:p-5" data-review-copy="">
           <h3 className="m-0 text-base font-bold">{t("publishing.reviewCopy")}</h3>
           <dl className="m-0 grid grid-cols-[auto_1fr] gap-x-4 gap-y-1.5 text-[15px]">
             <dt className="font-semibold">{t("publishing.reviewUsername")}</dt>
@@ -74,7 +78,7 @@ export function ReviewSection({
             {account?.notes ? (
               <>
                 <dt className="font-semibold">{t("publishing.reviewNotesLabel")}</dt>
-                <dd className="m-0 whitespace-pre-line break-words" dir="ltr">
+                <dd className="m-0 break-words whitespace-pre-line" dir="ltr">
                   {account.notes}
                 </dd>
               </>
@@ -82,7 +86,7 @@ export function ReviewSection({
             {delivery ? (
               <>
                 <dt className="font-semibold">{t("publishing.reviewDeliveryNotes")}</dt>
-                <dd className="m-0 whitespace-pre-line break-words" dir="ltr" data-review-notes="customer">
+                <dd className="m-0 break-words whitespace-pre-line" dir="ltr" data-review-notes="customer">
                   {delivery.customer}
                 </dd>
               </>
@@ -91,35 +95,41 @@ export function ReviewSection({
         </div>
       ) : null}
       {set && delivery?.courier ? (
-        <div className="flex flex-col gap-2 rounded-xl bg-sand p-4" data-review-copy="courier">
+        <div className="flex flex-col gap-2 rounded-2xl bg-(--sp-soft) p-4 sm:p-5" data-review-copy="courier">
           <h3 className="m-0 text-base font-bold">{t(delivery.driver ? "publishing.reviewDriverTitle" : "publishing.reviewCourierTitle", { name: delivery.courierName })}</h3>
-          <p className="m-0 text-[15px] leading-relaxed text-ink-4">{t(delivery.driver ? "publishing.reviewDriverText" : "publishing.reviewCourierText")}</p>
+          <p className="m-0 text-sm leading-relaxed text-(--sp-muted)">{t(delivery.driver ? "publishing.reviewDriverText" : "publishing.reviewCourierText")}</p>
           <dl className="m-0 grid grid-cols-[auto_1fr] gap-x-4 gap-y-1.5 text-[15px]">
             <dt className="font-semibold">{t("publishing.reviewDeliveryNotes")}</dt>
-            <dd className="m-0 whitespace-pre-line break-words" dir="ltr" data-review-notes="courier">
+            <dd className="m-0 break-words whitespace-pre-line" dir="ltr" data-review-notes="courier">
               {delivery.courier}
             </dd>
           </dl>
         </div>
       ) : null}
-      {managed ? <p className="m-0 text-[15px] font-semibold">{t("publishing.reviewTeam")}</p> : null}
-      <div className="grid gap-4 md:grid-cols-2">
-        {(
-          [
-            ["publishing.reviewPlayTitle", "publishing.reviewPlaySteps"],
-            ["publishing.reviewAppleTitle", "publishing.reviewAppleSteps"],
-          ] as const
-        ).map(([title, list]) => (
-          <div key={title} className="flex flex-col gap-2">
-            <h3 className="m-0 text-base font-bold">{t(title)}</h3>
-            <ol className="m-0 list-decimal space-y-1.5 ps-5 text-[15px] leading-relaxed text-ink-4 marker:font-bold">
-              {steps(list).map((step) => (
-                <li key={step}>{step}</li>
-              ))}
-            </ol>
-          </div>
-        ))}
-      </div>
-    </section>
+      {managed ? (
+        <KitCallout icon="support_agent" tone="success">
+          {t("publishing.reviewTeam")}
+        </KitCallout>
+      ) : null}
+      <KitFold summary={t("publishing.reviewWhere")} icon="menu_book">
+        <div className="grid gap-5 md:grid-cols-2">
+          {(
+            [
+              ["publishing.reviewPlayTitle", "publishing.reviewPlaySteps"],
+              ["publishing.reviewAppleTitle", "publishing.reviewAppleSteps"],
+            ] as const
+          ).map(([title, list]) => (
+            <div key={title} className="flex flex-col gap-2">
+              <h3 className="m-0 text-[15px] font-bold">{t(title)}</h3>
+              <ol className="m-0 list-decimal space-y-1.5 ps-5 text-sm leading-relaxed text-(--sp-muted) marker:font-bold">
+                {steps(list).map((step) => (
+                  <li key={step}>{step}</li>
+                ))}
+              </ol>
+            </div>
+          ))}
+        </div>
+      </KitFold>
+    </KitSection>
   );
 }

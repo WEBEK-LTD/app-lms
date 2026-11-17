@@ -23,6 +23,8 @@ import { PhoneFrame } from "@/components/device-frame";
 import { useDashT, useKnownText } from "@/components/dashboard-i18n";
 import { Field, FieldError, FormMessage, SubmitButton } from "@/components/form";
 import { Icon } from "@/components/icon";
+import { ApnsKeyFields, type SavedApnsKey } from "@/components/apns-key-fields";
+import type { IconName } from "@/components/icon-names";
 import { btn } from "@/components/ui";
 import { ENGINES, ownContentTitle, ownContentWords, type WebsiteChoice } from "@/lib/app/kinds";
 import type { SiteMatch } from "@/lib/app/site-match";
@@ -1496,16 +1498,103 @@ function AppStoreKeyFields({ state, saved, optional = false }: { state: FormStat
   );
 }
 
-type SavedFirebase = { android: boolean; ios: boolean };
+/**
+ * 136 "Yallapp sets up notifications": offered on the hosted API when
+ * Yallapp's Firebase is set up; `chosen` is the app's choice now, `state`
+ * where Yallapp's set-up of it is.
+ */
+export interface YallappPushView {
+  chosen: "yallapp" | "own";
+  state: "waiting" | "setting_up" | "ready";
+}
+
+/** The client's own Firebase files saved (never Yallapp's), and 136 the choice when it's offered. */
+type SavedFirebase = { android: boolean; ios: boolean; yallapp?: YallappPushView | null };
+
+const PUSH_CHOICES: { id: YallappPushView["chosen"]; title: DashKey; text: DashKey }[] = [
+  { id: "yallapp", title: "setup.pushYallapp", text: "setup.pushYallappText" },
+  { id: "own", title: "setup.pushOwn", text: "setup.pushOwnText" },
+];
+
+const YALLAPP_PUSH_STATE: Record<YallappPushView["state"], { icon: IconName; text: DashKey; tone: string }> = {
+  waiting: { icon: "schedule", text: "setup.pushYallappWaiting", tone: "border border-line bg-sand" },
+  setting_up: { icon: "hourglass_top", text: "setup.pushYallappSettingUp", tone: "border border-line bg-sand" },
+  ready: { icon: "check_circle", text: "setup.pushYallappReady", tone: "bg-success-bg" },
+};
 
 /** Firebase config files. Optional on every plan: without them the app works, but without push notifications. */
 function FirebaseFields({ state, saved }: { state: FormState; saved: SavedFirebase }) {
+  const t = useDashT();
+  // 136 The choice, kept in state: React resets the form's own radios after each submit.
+  const [choice, setChoice] = useState<YallappPushView["chosen"]>(saved.yallapp?.chosen ?? "own");
+  if (!saved.yallapp) return <OwnFirebaseFields state={state} saved={saved} />;
+  const status = YALLAPP_PUSH_STATE[saved.yallapp.chosen === "yallapp" ? saved.yallapp.state : "waiting"];
+  return (
+    <fieldset className="m-0 flex flex-col gap-3.5 rounded-xl border border-line p-4">
+      <legend className="px-1 text-[15px] font-bold">{t("setup.push")}</legend>
+      <input type="hidden" name="pushSetup" value={choice} />
+      <fieldset className="m-0 flex flex-col gap-2.5 border-0 p-0">
+        <legend className="mb-2 text-sm font-semibold">{t("setup.pushWho")}</legend>
+        {PUSH_CHOICES.map((c) => (
+          <label
+            key={c.id}
+            className="flex cursor-pointer items-start gap-3 rounded-xl border border-line bg-white p-3.5 has-[:checked]:border-2 has-[:checked]:border-midnight has-[:checked]:p-[13px] has-[:focus-visible]:outline has-[:focus-visible]:outline-2 has-[:focus-visible]:outline-offset-2"
+          >
+            <input type="radio" name="pushSetupChoice" value={c.id} checked={choice === c.id} onChange={() => setChoice(c.id)} className="mt-1 h-4 w-4 accent-midnight" />
+            <span className="flex flex-col gap-0.5">
+              <span className="text-[15px] font-bold">{t(c.title)}</span>
+              <span className="text-sm text-ink-4">{t(c.text)}</span>
+            </span>
+          </label>
+        ))}
+      </fieldset>
+      {choice === "yallapp" ? (
+        <div className="flex flex-col gap-2.5">
+          {saved.yallapp.chosen === "yallapp" ? (
+            <p role="status" className={`m-0 flex gap-2 rounded-xl px-4 py-3 text-[15px] leading-relaxed ${status.tone}`}>
+              <Icon name={status.icon} size={20} filled={saved.yallapp.state === "ready"} className={saved.yallapp.state === "ready" ? "text-success" : "text-muted"} />
+              <span>{richText(t(status.text), { b: (chunk) => <b>{chunk}</b> })}</span>
+            </p>
+          ) : (
+            <p className="m-0 flex gap-2 text-sm leading-relaxed text-ink-4">
+              <Icon name="info" size={20} className="text-muted" />
+              <span>{t("setup.pushYallappSwitch")}</span>
+            </p>
+          )}
+          <p className="m-0 flex gap-2 text-sm leading-relaxed text-ink-4">
+            <Icon name="phone_iphone" size={20} className="text-muted" />
+            <span>{t("setup.pushYallappIphone")}</span>
+          </p>
+          <p className="m-0 flex gap-2 text-sm leading-relaxed text-ink-4">
+            <Icon name="shield" size={20} className="text-muted" />
+            <span>{t("setup.pushYallappPrivacy")}</span>
+          </p>
+        </div>
+      ) : (
+        <OwnFirebaseFiles state={state} saved={saved} />
+      )}
+    </fieldset>
+  );
+}
+
+/** The client's own Firebase, as it always was. */
+function OwnFirebaseFields({ state, saved }: { state: FormState; saved: SavedFirebase }) {
   const t = useDashT();
   return (
     <fieldset className="m-0 flex flex-col gap-3.5 rounded-xl border border-line p-4">
       <legend className="px-1 text-[15px] font-bold">
         {t("setup.push")} <span className="font-normal text-muted">{t("license.optional")}</span>
       </legend>
+      <OwnFirebaseFiles state={state} saved={saved} />
+    </fieldset>
+  );
+}
+
+/** The text and the two files of the client's own Firebase project. */
+function OwnFirebaseFiles({ state, saved }: { state: FormState; saved: SavedFirebase }) {
+  const t = useDashT();
+  return (
+    <>
       <p className="m-0 flex gap-2 text-sm leading-relaxed text-ink-4">
         <Icon name="notifications" size={20} className="text-muted" />
         <span>{richText(t("setup.pushText"), { link: (chunk) => <Link href="/guides/push-notifications">{chunk}</Link> })}</span>
@@ -1526,7 +1615,7 @@ function FirebaseFields({ state, saved }: { state: FormState; saved: SavedFireba
         hint={t("setup.plistHint")}
         error={state.errors?.firebaseIosFile}
       />
-    </fieldset>
+    </>
   );
 }
 
@@ -1555,6 +1644,7 @@ export function PublishingStep({
   upgrade,
   saved,
   teamPublishes = false,
+  apns = null,
 }: {
   /** "We publish for you" is in the app's plan (13.1): we upload the builds to the stores. */
   autoPublish: boolean;
@@ -1566,6 +1656,8 @@ export function PublishingStep({
   saved: { play: { clientEmail: string | null } | null; appStore: SavedAppStoreKey; firebase: SavedFirebase };
   /** The client asked our team to publish this app (14.1): nothing here is required. */
   teamPublishes?: boolean;
+  /** 136.20 The APNs key, when the app's iPhone notifications go straight to Apple (Yallapp mode); null otherwise. */
+  apns?: { saved: SavedApnsKey; buildTeamId: string | null } | null;
 }) {
   const t = useDashT();
   // 132.75 Changes typed and not saved ask before the page is left.
@@ -1613,6 +1705,7 @@ export function PublishingStep({
             {t("setup.managedUpgrade")}
           </UpgradeHint>
           <FirebaseFields state={state} saved={saved.firebase} />
+          {apns && ios ? <ApnsKeyFields state={state} saved={apns.saved} buildTeamId={apns.buildTeamId} back="setup" /> : null}
         <MoreStoresLink />
           <div className="sticky bottom-0 z-[1] -mx-5 flex flex-wrap justify-between gap-3 border-t border-line-soft bg-white px-5 py-3 sm:-mx-6 sm:px-6">
             <Link href={here("/dashboard/setup?step=listing")} className={`${btn.secondary} h-11`}>
@@ -1689,6 +1782,7 @@ export function PublishingStep({
         )}
 
         <FirebaseFields state={state} saved={saved.firebase} />
+        {apns && ios ? <ApnsKeyFields state={state} saved={apns.saved} buildTeamId={apns.buildTeamId} back="setup" /> : null}
         <MoreStoresLink />
 
         <div className="sticky bottom-0 z-[1] -mx-5 flex flex-wrap justify-between gap-3 border-t border-line-soft bg-white px-5 py-3 sm:-mx-6 sm:px-6">

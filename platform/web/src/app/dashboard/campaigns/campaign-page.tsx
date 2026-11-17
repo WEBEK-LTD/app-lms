@@ -13,7 +13,7 @@ import type { Campaign } from "@/lib/data/types";
 import { CAMPAIGN_IMAGE_MAX_BYTES, CAMPAIGN_IMAGES_MAX, CAMPAIGN_STORY_MAX, CAMPAIGN_SUMMARY_MAX, CAMPAIGN_TITLE_MAX, endDateValue } from "@/lib/donations/forms";
 import { raisedLine } from "@/lib/donations/page-items";
 import { donationSettingsOf, publicStatus } from "@/lib/donations/service";
-import { NOTIFICATION_BODY_MAX, NOTIFICATION_TITLE_MAX } from "@/lib/hosted/notify";
+import { NOTIFICATION_BODY_MAX, NOTIFICATION_TITLE_MAX, pushConfigured } from "@/lib/hosted/notify";
 import { CampaignForm, CampaignUpdateForm, type CampaignFormValues } from "./forms";
 import { dashboardText, type DashboardText } from "@/lib/dashboard-lang";
 import { itemWords } from "@/lib/hosted/pages/item-words";
@@ -123,7 +123,7 @@ export async function CampaignPage({ id, cannotDelete }: { id: number | null; ca
                 <CampaignUpdateForm
                   campaignId={campaign.id}
                   limits={{ title: NOTIFICATION_TITLE_MAX, body: NOTIFICATION_BODY_MAX }}
-                  push={app.firebaseServiceAccountEncrypted !== null}
+                  push={pushConfigured(app)}
                 />
               </Section>
             ) : null}

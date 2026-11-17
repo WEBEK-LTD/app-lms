@@ -19,6 +19,7 @@ import { isStudioDemo, demoKind, type DemoId } from "./constants";
 import { DEMO_BRANDS } from "./content";
 import { demoItems, studioDemoTemplate } from "./picker";
 import type { SignatureLook } from "../studio/demo-designs/signature";
+import { pushSetupForNewApp } from "../firebase/env";
 
 /**
  * 127 An app started from one of our demos on /start, complete: a demo of
@@ -138,6 +139,8 @@ export async function makeFromDemo(store: DataStore, maker: DemoMaker, input: De
     websiteDoneAt: now,
     hostedSettings: { ...DEFAULT_HOSTED_SETTINGS, ...(named.hostedSettings ?? {}), firstSteps: steps },
   };
+  // 136 Yallapp sets up its notifications when its Firebase is set up here and has room.
+  if (await pushSetupForNewApp(store, app)) app.pushSetup = "yallapp";
   await store.createApp(app);
   // The languages first: the design keeps the draft's (132.40 writing Yallapp's texts in the main one), and the entries are the demo's.
   const record = await loadLayout(store, app, now);

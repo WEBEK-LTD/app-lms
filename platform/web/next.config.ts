@@ -68,6 +68,9 @@ const nextConfig: NextConfig = {
     return [
       { source: "/.well-known/assetlinks.json", destination: "/api/links/assetlinks" },
       { source: "/.well-known/apple-app-site-association", destination: "/api/links/apple-app-site-association" },
+      // 136 The platform as an OpenID Connect issuer for Google's Workload Identity Federation (lib/google/platform-keys.ts).
+      { source: "/oidc/.well-known/openid-configuration", destination: "/api/oidc/openid-configuration" },
+      { source: "/oidc/jwks.json", destination: "/api/oidc/jwks" },
     ];
   },
   // The guides moved into the documentation (src/content/docs.ts); old links keep working.

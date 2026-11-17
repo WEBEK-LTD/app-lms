@@ -7,11 +7,12 @@ import { filesBaseUrl, filesSigningSecret } from "../env";
 import { getMediaStorage } from "../media/storage";
 import { planReceiptDocument } from "../receipts/service";
 import { buildFolderRemover, type BuildFolderRemover } from "./build-files";
+import { yallappFirebase } from "../firebase/env";
 import type { PurgeDeps } from "./deletion";
 
 /** 73 The environment's places for an app's files, for the daily job and the admin's "Delete now". */
 export function purgeDeps(store: DataStore, now: Date): PurgeDeps {
-  return { store, now, media: getMediaStorage(), blobs: getBlobStore(), removeBuildFolder: filesRemover() };
+  return { store, now, media: getMediaStorage(), blobs: getBlobStore(), removeBuildFolder: filesRemover(), firebase: yallappFirebase(store)?.management ?? null };
 }
 
 /** 73 The same, with the "Account deleted" email and the receipts kept with the billing records. */

@@ -181,8 +181,10 @@ test("See all lists them on Updates from Yallapp; on a phone the bell opens a fu
   await expect(own.getByRole("heading", { level: 1, name: "Updates from Yallapp" })).toBeVisible();
   await expect(panelOf(own)).toBeHidden();
   const list = own.getByRole("list", { name: "Updates from Yallapp" });
-  await expect(list.getByRole("article", { name: update })).toContainText("Update");
-  await expect(list.getByRole("article", { name: maintenance })).toContainText("Builds pause tonight from 22:00 to 23:00 UTC.");
+  // 132.177 Each update a row with its kind; its words open in the inspector.
+  await expect(list.locator("[data-update]").filter({ hasText: update })).toContainText("Update");
+  await list.getByRole("button", { name: new RegExp(`^${maintenance}`) }).click();
+  await expect(own.getByRole("article", { name: maintenance })).toContainText("Builds pause tonight from 22:00 to 23:00 UTC.");
 
   // The phone's top bar: the bell next to Menu, and its panel the screen's width.
   await own.setViewportSize({ width: 390, height: 844 });
@@ -211,10 +213,11 @@ test("a new announcement counts again, and the full list marks it read", async (
   announcementUrls.push(admin.url().replace(/\?.*$/, ""));
 
   await own.goto("/dashboard/announcements");
-  const article = own.getByRole("article", { name: offer });
-  await expect(article).toContainText("New");
+  // 132.177 Its row is marked new.
+  const item = own.locator("[data-update]").filter({ hasText: offer });
+  await expect(item).toContainText("New");
   // The page marks it read and tells the bell.
   await expect(bell(own)).toHaveAccessibleName("Notifications from Yallapp");
   await own.reload();
-  await expect(own.getByRole("article", { name: offer })).not.toContainText("New");
+  await expect(own.locator("[data-update]").filter({ hasText: offer })).not.toContainText("New");
 });

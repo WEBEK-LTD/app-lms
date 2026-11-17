@@ -22,6 +22,7 @@ import { hashLicenseKey, isWellFormedLicenseKey } from "./key";
 import { normalizeSiteUrl } from "./site-url";
 import { licenseState } from "./status";
 import { licenseUsesSite, NOT_FOR_SITE_MESSAGE } from "./site";
+import { pushSetupOf, type PushSetup } from "./push-setup";
 import { appLinkTargetOf, LINK_PATH, MAX_LINK_PATHS } from "../links/app";
 import { licenseAppLinks } from "../links/well-known";
 import { chatBaseUrl, chatAvailable, chatGroupsOn } from "../chat/access";
@@ -80,6 +81,8 @@ export interface LicenseStatusBody {
   store_titles: ReturnType<typeof sectionTitlesJson> | null;
   /** 134 A WooCommerce store's customers pay inside the app (Demo), through the owner's own gateway; null: on the store's own checkout. */
   store_checkout: ReturnType<typeof storeCheckoutStatus>;
+  /** 136.41 How the app's pushes are sent: "yallapp" (the site relays them through `POST /push/send`) or "own" (the site's own Firebase, the default). */
+  push: PushSetup;
   expires_at: string | null;
   checked_at: string;
   message: string | null;
@@ -307,6 +310,7 @@ function statusBody(
     gift_messages: facts.giftMessages ?? null,
     store_titles: facts.app?.appType === "store" ? sectionTitlesJson(facts.app.catalogSettings?.titles) : null,
     store_checkout: state === "active" && facts.app ? storeCheckoutStatus(facts.app) : null,
+    push: pushSetupOf(facts.app),
     expires_at: license ? license.expiresAt.toISOString() : null,
     checked_at: now.toISOString(),
     message,
