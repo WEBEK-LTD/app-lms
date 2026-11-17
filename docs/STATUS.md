@@ -472,9 +472,6 @@ Billing and the App Store's in-app purchase) is complete (steps 100.1 to
   `automatic_release` making the version being prepared after a release,
   and `upload_play` to production for everyone with its draft fallback on
   an app whose first release isn't out: not run on the runners yet.
-- 138 `claimPublishingAccount` in MySQL (`JSON_SET` on `apps.rollout`
-  only while it has no account): the memory store's is tested; the MySQL
-  statement hasn't run against MariaDB here.
 
 - 133 A Kashier payment for 6, 24 or 36 months, for life and for an
   add-on (the amounts are the team's prices; the flow is the plans').
