@@ -46,6 +46,9 @@ export const AUDIT_ACTIONS = {
   "alert.resolve": "Alert marked done",
   "publishing.status": "Publishing status changed",
   "publishing.notes": "Publishing notes saved",
+  // 138
+  "publishing.accounts": "Publishing accounts changed",
+  "publishing.move": "App moved to another publishing account",
   "release.upload": "Plugin release uploaded",
   "release.publish": "Plugin release published",
   "release.unpublish": "Plugin release unpublished",

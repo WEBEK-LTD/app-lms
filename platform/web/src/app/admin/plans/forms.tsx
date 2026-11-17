@@ -456,6 +456,10 @@ function PlanLimitsFields({ plan, state, features, limits, supportLevels, extra,
     <>
       <fieldset className="m-0 flex flex-col gap-2 border-0 p-0">
         <legend className="mb-1 text-sm font-semibold">Features</legend>
+        {/* 138 */}
+        <p className="m-0 text-[13px] text-muted" data-included-features="">
+          Every plan includes &ldquo;We publish for you&rdquo;: we upload each build to Google Play and the App Store and send it for review.
+        </p>
         <div className="grid gap-2 sm:grid-cols-2">
           {features.map((f) => (
             <label key={f.id} className="flex cursor-pointer items-start gap-2 rounded-lg border border-line-soft px-3 py-2 text-sm has-[:checked]:border-line-strong has-[:checked]:bg-sand/40">

@@ -1,9 +1,11 @@
 /**
- * 41 The app stores Yallapp publishes to (Phases 13, 14, 35, 36 and 42): every
+ * 41 The app stores Yallapp builds for (Phases 13, 14, 35, 36 and 42): every
  * plan builds the Android app for Google Play, Samsung Galaxy Store, Huawei
  * AppGallery and Xiaomi GetApps; plans with the iOS app add the App Store.
- * Plans with "We publish for you" upload every build to each of them; the
- * others publish by hand with our guides. No marks here (client code imports
+ * 138 On every plan Yallapp publishes on Google Play and the App Store
+ * (`PUBLISHED_STORES`). Galaxy Store, AppGallery and GetApps are the
+ * client's own: they publish there with our guides, or add their keys and
+ * every build uploads there by itself. No marks here (client code imports
  * the plans): they are in lib/brands.ts.
  */
 
@@ -30,6 +32,13 @@ export const STORE_FACTS: Record<AppStore, StoreFacts> = {
   // 42 Uploads to Xiaomi GetApps, on the same terms as Galaxy Store and AppGallery.
   getapps: { id: "getapps", name: "Xiaomi GetApps", short: "GetApps", platform: "android", docs: "/docs/xiaomi-getapps" },
 };
+
+/** 138 The stores Yallapp publishes on for every client. */
+export const PUBLISHED_STORES: readonly AppStore[] = ["google_play", "app_store"];
+/** 138 They in a sentence. */
+export const PUBLISHED_STORES_TEXT = "Google Play and the App Store";
+/** 138 What every plan has on the other Android stores (the client's own): every update there by itself once connected. */
+export const MORE_STORES_AUTO_TEXT = "Automatic updates to Samsung Galaxy Store, Xiaomi GetApps and Huawei AppGallery, with your own account";
 
 /** The five stores in a sentence. */
 export const ALL_STORES_TEXT = "Google Play, the App Store, Samsung Galaxy Store, Huawei AppGallery and Xiaomi GetApps";

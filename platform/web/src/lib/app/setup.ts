@@ -22,6 +22,7 @@ import { hostedApiUrl } from "../hosted/urls";
 import { yallappSignsIn } from "../hosted/sign-in-methods";
 import { hostedOnly } from "./kinds";
 import { sampleTotal } from "../samples/lists";
+import { CLIENT_APP_RELEASE } from "../builds/app-release";
 
 export const SETUP_STEPS = ["app-type", "website", "branding", "listing", "publishing"] as const;
 export type SetupStep = (typeof SETUP_STEPS)[number];
@@ -108,26 +109,28 @@ export function hasStoreKeys(app: App): { play: boolean; appStore: boolean; gala
   };
 }
 
-/** Whether we publish the app for the client on this plan ("We publish for you"). */
+/** Whether we publish the app for the client on this plan ("We publish for you"; 138 every plan includes it). */
 export function managedPublishing(plan: Plan | null, plans: Record<Plan, PlanInfo> = PLAN_INFO): boolean {
   return plan !== null && isPlan(plan) && hasFeature(plans[plan], "auto_publish");
 }
 
 /**
- * Which steps are complete. With "We publish for you" on the plan, publishing
- * needs at least one store key, unless our team publishes the app through
- * invitations to the client's store accounts (14.1, publishingMode "managed").
+ * Which steps are complete. Saving the Publishing step asks for a store key
+ * or "Publish it for me" (our team, through invitations to the client's
+ * store accounts: 14.1, publishingMode "managed"). 138 Once saved, the step
+ * stays done: apps that finished it before every plan had "We publish for
+ * you" keep building, and their Publishing page offers it.
  */
 export function stepStatus(app: App | null, plan: Plan | null, plans: Record<Plan, PlanInfo> = PLAN_INFO): Record<SetupStep, boolean> {
+  void plan;
+  void plans;
   if (!app) return { "app-type": false, website: false, branding: false, listing: false, publishing: false };
-  const keys = hasStoreKeys(app);
-  const managed = managedPublishing(plan, plans);
   return {
     "app-type": Boolean(app.appTypeDoneAt),
     website: websiteReady(app),
     branding: Boolean(app.brandingDoneAt && app.appName && app.shortName && app.iconAssetId),
     listing: Boolean(app.listingDoneAt && app.androidPackage && app.iosBundleId && app.storeTitle),
-    publishing: Boolean(app.publishingDoneAt) && (!managed || keys.play || keys.appStore || app.publishingMode === "managed"),
+    publishing: Boolean(app.publishingDoneAt),
   };
 }
 
@@ -249,10 +252,12 @@ export function initialStages(autoPublish: boolean, app: App, ios = true): Build
     ios: ios && keys.appStore ? "pending" : "skipped",
     upload_play: autoPublish && keys.play ? "pending" : "skipped",
     upload_testflight: ios && autoPublish && keys.appStore ? "pending" : "skipped",
-    // 35, 36 Only with "We publish for you" and the store's keys, like Google Play.
-    upload_galaxy: autoPublish && keys.galaxy ? "pending" : "skipped",
-    upload_appgallery: autoPublish && keys.appGallery ? "pending" : "skipped",
-    upload_xiaomi: autoPublish && keys.xiaomi ? "pending" : "skipped",
+    // 138 After TestFlight, the platform sends the version to App Review.
+    app_review: ios && autoPublish && keys.appStore ? "pending" : "skipped",
+    // 35, 36, 42 With the store's keys: the client's own store (138 every plan; our team doesn't publish there).
+    upload_galaxy: keys.galaxy ? "pending" : "skipped",
+    upload_appgallery: keys.appGallery ? "pending" : "skipped",
+    upload_xiaomi: keys.xiaomi ? "pending" : "skipped",
   };
 }
 
@@ -280,6 +285,9 @@ export async function queueBuild(
     from?: Build;
     /** 104.6 "courier": the delivery company's courier app, built from the same app. */
     variant?: BuildVariant;
+    /** 138 Queued because Yallapp's own app changed (lib/builds/app-release.ts), for this release of it (else the current one). */
+    cause?: "app_release";
+    appRelease?: number;
   },
   now: Date,
   assetUrl: (assetId: string) => string,
@@ -386,8 +394,8 @@ export async function queueBuild(
         message: null,
         logUrl: null,
         ...(input.from ? { sourceRef: input.from.sourceCommit, rebuildOf: input.from.number } : {}),
-        // 89.2 Released in stages when we publish for the owner and they asked for it.
-        release: autoPublish ? buildReleaseOf(app) : null,
+        // 89.2 Released in stages when the owner asked for it; 138 else to everyone on Google Play. With the Yallapp app release it's made with.
+        release: autoPublish ? { ...buildReleaseOf(app), appRelease: input.appRelease ?? CLIENT_APP_RELEASE, ...(input.cause ? { cause: input.cause } : {}) } : null,
         createdAt: now,
         startedAt: null,
         finishedAt: null,
@@ -424,9 +432,14 @@ export async function firebaseListsStaffApp(app: App, preflight: PreflightDeps |
   return data ? firebaseHasStaffApp(data.toString("utf8"), app.androidPackage) : false;
 }
 
-/** 89.2 A build's release from the app's choice; null when nothing is staged. */
-export function buildReleaseOf(app: Pick<App, "stagedRelease">): BuildRelease | null {
+/**
+ * 89.2 A build's release from the app's choice. 138 Without one, Google
+ * Play's production track for everyone (the pipeline keeps a draft while the
+ * app's first release isn't sent by hand) and the App Store at once; the
+ * owner may choose a first share or internal testing instead.
+ */
+export function buildReleaseOf(app: Pick<App, "stagedRelease">): BuildRelease {
   const staged = app.stagedRelease;
-  if (!staged || (staged.androidPercent === null && !staged.iosPhased)) return null;
-  return { androidRollout: staged.androidPercent === null ? null : staged.androidPercent / 100, iosPhased: staged.iosPhased };
+  const androidRollout = staged?.androidInternal ? null : staged?.androidPercent != null ? staged.androidPercent / 100 : 1;
+  return { androidRollout, iosPhased: Boolean(staged?.iosPhased) };
 }

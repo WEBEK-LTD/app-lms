@@ -151,9 +151,11 @@ describe("setup wizard", () => {
     expect(nextStep(app, "starter")).toBe("website");
     const done = completeApp("c1");
     expect(isSetupComplete(done, "starter")).toBe(true);
-    // Pro needs at least one store key to finish publishing.
-    expect(stepStatus(done, "pro").publishing).toBe(false);
-    expect(isSetupComplete({ ...done, googlePlayKeyEncrypted: "v1.x" }, "pro")).toBe(true);
+    // 138 Once saved, the Publishing step stays done on every plan (saving it asks for a store key or "Publish it for me"),
+    // so apps that finished it before keep building.
+    expect(stepStatus(done, "pro").publishing).toBe(true);
+    expect(isSetupComplete(done, "pro")).toBe(true);
+    expect(stepStatus({ ...done, publishingDoneAt: null }, "pro").publishing).toBe(false);
   });
 
   it("validates each step with the schema's rules", () => {

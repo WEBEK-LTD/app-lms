@@ -146,9 +146,18 @@ if [ "$AUTO_PUBLISH" = "true" ] && [ "$HAS_PLAY" = "yes" ]; then
 	platform status "$BUILD_ID" '{"stages":{"android":"done","upload_play":"running"}}'
 	python3 -c 'import json,sys; open(sys.argv[2],"w").write(json.load(open(sys.argv[1]))["google_play"]["service_account_json"])' "$WORK/secrets.json" "$WORK/play.json"
 	PACKAGE=$(python3 -c 'import json,sys; print(json.load(open(sys.argv[1]))["android_package"])' "$WORK/config.json")
-	# 89.2 ANDROID_ROLLOUT (0.01 to 1): production for that share of users; empty: internal testing.
-	if (cd "$ROOT/build" && bundle exec fastlane android upload_play aab:"$AAB" package:"$PACKAGE" json_key:"$WORK/play.json" rollout:"${ANDROID_ROLLOUT:-}"); then
+	# 89.2 ANDROID_ROLLOUT (0.01 to 1): production for that share of users (138 1, everyone, unless
+	# the owner chose otherwise); empty: internal testing.
+	if (cd "$ROOT/build" && bundle exec fastlane android upload_play aab:"$AAB" package:"$PACKAGE" json_key:"$WORK/play.json" rollout:"${ANDROID_ROLLOUT:-}" report:"$WORK/play-release.json"); then
 		PLAY="done"
+		# 138 Where the release went, for the platform: a draft until the app's first release is sent
+		# by hand in Play Console (the team is told once).
+		if [ -f "$WORK/play-release.json" ]; then
+			platform status "$BUILD_ID" "{\"play\":$(cat "$WORK/play-release.json")}" || true
+			if grep -q '"draft"' "$WORK/play-release.json"; then
+				MESSAGE="Your new version is on Google Play as a draft: Google wants an app's first release sent by hand in Play Console. Our team has been told; after that first one, every update goes out by itself."
+			fi
+		fi
 		# 88.2 The store listing in every language, with phone and tablet screenshots (framed when
 		# asked) and the feature graphic store_assets.py made. The version stays uploaded either way.
 		if [ -f "$WORK/store.json" ]; then
@@ -156,7 +165,7 @@ if [ "$AUTO_PUBLISH" = "true" ] && [ "$HAS_PLAY" = "yes" ]; then
 			[ -f "$WORK/feature-graphic.png" ] && FEATURE="$WORK/feature-graphic.png"
 			if ! { python3 "$SCRIPTS/store_listing.py" play "$WORK/store.json" "$WORK/icon.png" "$FEATURE" "$WORK/play-listing" &&
 				(cd "$ROOT/build" && bundle exec fastlane android play_listing package:"$PACKAGE" json_key:"$WORK/play.json" metadata:"$WORK/play-listing"); }; then
-				MESSAGE="Your new version is on Google Play, but its store listing didn't go through. Check the texts and screenshots in Play Console, Store presence."
+				MESSAGE="${MESSAGE:+$MESSAGE }Your new version is on Google Play, but its store listing didn't go through. Check the texts and screenshots in Play Console, Store presence."
 			fi
 		fi
 	else
@@ -166,14 +175,14 @@ if [ "$AUTO_PUBLISH" = "true" ] && [ "$HAS_PLAY" = "yes" ]; then
 fi
 
 # 35, 36 Samsung Galaxy Store and Huawei AppGallery: the APK (signed with the upload key),
-# only on plans with "We publish for you" and with the client's keys (the secrets send
-# null otherwise). The first version of each is published by hand. 42 Xiaomi GetApps
+# with the client's keys (the secrets send null otherwise; 138 on every plan: these are the
+# client's own stores). The first version of each is published by hand. 42 Xiaomi GetApps
 # the same way, with the build config, the 512 px icon and the store listing too.
 store_upload() { # stage script secrets-key failure-message [more script arguments]
 	local stage=$1 script=$2 key=$3 failure=$4 has
 	shift 4
 	has=$(python3 -c 'import json,sys; print("yes" if json.load(open(sys.argv[1])).get(sys.argv[2]) else "no")' "$WORK/secrets.json" "$key")
-	if [ "$AUTO_PUBLISH" != "true" ] || [ "$has" != "yes" ]; then
+	if [ "$has" != "yes" ]; then
 		echo skipped
 		return
 	fi

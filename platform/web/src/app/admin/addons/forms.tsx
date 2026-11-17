@@ -165,7 +165,7 @@ export function AddonForm({
                 ))}
               </select>
               <span className="text-xs text-muted">
-                {kind === "service" ? "A service opens a task in Tasks and emails the team. It can switch a feature on while it runs, like We publish for you." : "While it runs, the app has the feature as if its plan had it."}
+                {kind === "service" ? "A service opens a task in Tasks and emails the team. It can switch a feature on while it runs." : "While it runs, the app has the feature as if its plan had it."}
               </span>
               <FieldError id="addon-feature-error" error={state.errors?.feature} />
             </div>
@@ -333,7 +333,7 @@ export function TopPlansForm({ families }: { families: { family: "regular" | "st
           </div>
         ))}
       </div>
-      <p className="m-0 text-[13px] text-muted">The default is the first plan, lower to higher, that already includes We publish for you; without one, the highest plan offered.</p>
+      <p className="m-0 text-[13px] text-muted">The default is the highest plan offered.</p>
       <div className="flex justify-end">
         <SubmitButton className="h-10" pendingText="Saving…">
           Save top plans

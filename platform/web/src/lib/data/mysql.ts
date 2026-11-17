@@ -696,6 +696,22 @@ export class MysqlStore implements DataStore {
     await this.run((db) => db.update(schema.apps).set({ ...patch, updatedAt: now }).where(and(eq(schema.apps.id, id), liveApp())));
   }
 
+  async claimPublishingAccount(appId: string, accountId: string, now: Date): Promise<{ id: string | null; claimed: boolean }> {
+    const value = JSON.stringify({ id: accountId, at: now.toISOString() });
+    const rollout = schema.apps.rollout;
+    // The app's `rollout` as an object (none yet: an empty one).
+    const doc = sql`(CASE WHEN ${rollout} IS NULL OR JSON_VALID(${rollout}) = 0 OR JSON_TYPE(${rollout}) <> 'OBJECT' THEN JSON_OBJECT() ELSE ${rollout} END)`;
+    // Set only while it has no account, in the same statement: two requests at once can't both give it one.
+    const [result] = await this.run((db) =>
+      db
+        .update(schema.apps)
+        .set({ rollout: sql`JSON_SET(${doc}, '$.publishingAccount', CAST(${value} AS JSON))` })
+        .where(and(eq(schema.apps.id, appId), sql`JSON_EXTRACT(${doc}, '$.publishingAccount.id') IS NULL`)),
+    );
+    const [row] = await this.run((db) => db.select({ rollout: schema.apps.rollout }).from(schema.apps).where(eq(schema.apps.id, appId)).limit(1));
+    return { id: row ? (row.rollout?.publishingAccount?.id ?? null) : null, claimed: result.affectedRows === 1 };
+  }
+
   async saveSigningKeys(appId: string, keys: SigningKeysPatch, now: Date): Promise<boolean> {
     const columns = Object.keys(keys) as SigningKeyColumn[];
     if (columns.length === 0) return false;

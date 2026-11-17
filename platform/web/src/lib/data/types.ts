@@ -15,11 +15,15 @@ import type { StudioScreens } from "../studio/screens";
 export type ClientStatus = "pending" | "active" | "suspended";
 export type LicenseState = "active" | "expired" | "suspended" | "invalid";
 export type BuildStatus = "queued" | "building" | "ready" | "failed";
-export type StageKey = "queued" | "android" | "ios" | "upload_play" | "upload_testflight" | MoreStoreStage;
+export type StageKey = "queued" | "android" | "ios" | "upload_play" | "upload_testflight" | MoreStoreStage | "app_review";
 /** 35, 36, 42 Uploads to Samsung Galaxy Store, Huawei AppGallery and Xiaomi GetApps: builds queued before them don't have these stages. */
 export type MoreStoreStage = "upload_galaxy" | "upload_appgallery" | "upload_xiaomi";
-/** A build's stages. */
-export type BuildStages = Record<Exclude<StageKey, MoreStoreStage>, StageStatus> & Partial<Record<MoreStoreStage, StageStatus>>;
+/**
+ * A build's stages. 138 `app_review`: the iPhone version sent to App Review
+ * by the platform once TestFlight has it (lib/publishing/app-review-submit.ts);
+ * builds queued before don't have it.
+ */
+export type BuildStages = Record<Exclude<StageKey, MoreStoreStage | "app_review">, StageStatus> & Partial<Record<MoreStoreStage | "app_review", StageStatus>>;
 export type StageStatus = "pending" | "running" | "done" | "failed" | "skipped";
 export type ArtifactKind = "apk" | "aab" | "ipa" | "keystore" | "store_assets";
 export type AssetKind =
@@ -149,23 +153,96 @@ export interface StoreListing {
   frame?: { background: string; textColor: string; captions: string[] } | null;
 }
 
-/** 89.2 A build's release: the share of Google Play's production users first, Apple's phased release. */
+/**
+ * 89.2 A build's release: the share of Google Play's production users first,
+ * Apple's phased release. 138 Also where it went and what was done with it
+ * after the build (kept in the same JSON column).
+ */
 export interface BuildRelease {
-  /** 0.01 to 1; null: internal testing, as before. */
+  /** 0.01 to 1; null: internal testing. 138 1 (everyone) unless the owner chose otherwise. */
   androidRollout: number | null;
   iosPhased: boolean;
+  /** 138 Where the App Bundle went, as the pipeline reported it: a draft until the app's first release is sent by hand in Play Console. */
+  play?: PlayRelease | null;
+  /** 138 Sending the iPhone version to App Review (lib/publishing/app-review-submit.ts). */
+  appReview?: AppReviewState | null;
+  /** 138 The release of Yallapp's own app code it was made with (lib/builds/app-release.ts); missing: before 138. */
+  appRelease?: number;
+  /** 138 Queued because Yallapp's own app changed, not by the owner. */
+  cause?: "app_release";
+  /** 138 The Yallapp release a rebuild of this one was last tried for, and when (it didn't queue). */
+  appReleaseTried?: { release: number; at: string } | null;
 }
 
-/** 89.2 How the owner releases updates: the first share on Google Play (percent), Apple's phased release. */
+/** 138 docs/api/pipeline.yaml StatusReport `play`. */
+export interface PlayRelease {
+  track: "production" | "internal";
+  status: "completed" | "inProgress" | "draft";
+}
+
+/**
+ * 138 Why a version isn't in App Review yet: Apple's processing, an earlier
+ * version still in review, or something App Store Connect needs that its API
+ * can't set (each said in plain words on Builds).
+ */
+export const APP_REVIEW_REASONS = [
+  "processing",
+  "in_review",
+  "app_privacy",
+  "age_rating",
+  "export_compliance",
+  "screenshots",
+  "whats_new",
+  "content_rights",
+  "agreement",
+  "no_app",
+  "binary",
+  "key",
+  "other",
+] as const;
+export type AppReviewReason = (typeof APP_REVIEW_REASONS)[number];
+
+export interface AppReviewState {
+  /** waiting: tried again later (processing, an earlier version in review); blocked: needs someone; submitted: in App Review. */
+  state: "waiting" | "blocked" | "submitted";
+  reason: AppReviewReason | null;
+  /** Apple's own words for an `other` reason, without anything secret. */
+  detail?: string | null;
+  /** When it was last looked at, and when it was submitted. */
+  checkedAt: string;
+  submittedAt?: string | null;
+  /** App Store Connect's ids, so the next run picks up where this one stopped. */
+  versionId?: string | null;
+  submissionId?: string | null;
+  /** The reason the publishing team was emailed about (once per build and reason). */
+  emailed?: AppReviewReason | null;
+  /** Since when it waits (processing gives up after a while). */
+  since: string;
+}
+
+/**
+ * 89.2 How the owner releases updates: the first share on Google Play
+ * (percent; null: everyone, 138 the default), Apple's phased release.
+ * 138 `androidInternal`: Google Play's internal testing instead.
+ */
 export interface StagedRelease {
   androidPercent: number | null;
   iosPhased: boolean;
+  androidInternal?: boolean;
 }
 
 /** 89.2 The release in progress on each store, as last set. */
 export interface RolloutState {
   android?: { versionName: string; versionCode: number; fraction: number; status: "inProgress" | "halted" | "completed"; at: string } | null;
   ios?: { versionName: string; state: "waiting" | "ACTIVE" | "PAUSED" | "COMPLETE"; at: string } | null;
+  /** 138 The publishing team was told the app is still a draft on Google Play (once, until a release goes through). */
+  playDraftNotifiedAt?: string | null;
+  /**
+   * 138 The Yallapp publishing account the app's owner invites (Admin ›
+   * Settings › Publishing accounts): set once, atomically, the first time
+   * it's needed (DataStore.claimPublishingAccount); the team can move it.
+   */
+  publishingAccount?: { id: string; at: string };
 }
 
 /** 88.2 The store listing in another of the app's languages. */
@@ -3569,6 +3646,30 @@ export interface PlatformSettingValues {
   publishing: PublishingSetting;
 }
 
+/**
+ * 138 One of Yallapp's publishing accounts: the Google (and Apple) sign-in
+ * the owner of an app invites as admin to Play Console and App Store
+ * Connect. Each app gets one for its life (lib/publishing/accounts.ts).
+ */
+export interface PublishingAccount {
+  id: string;
+  email: string;
+  /** How many apps it takes, at most (50 unless the team changes it). */
+  limit: number;
+  /** A deactivated account keeps its apps and takes no new ones. */
+  active: boolean;
+  addedAt: string;
+}
+
+/** 138 Admin › Settings › Publishing accounts. */
+export interface PublishingAccountsSetting {
+  accounts: PublishingAccount[];
+}
+
+export interface PlatformSettingValues {
+  publishingAccounts: PublishingAccountsSetting;
+}
+
 /** 104 The map tiles delivery apps draw live tracking on (admin Settings › Maps); none until the team sets them. */
 export interface MapTilesSetting {
   /** With {z}, {x} and {y} (and {s} for subdomains). */
@@ -6080,7 +6181,7 @@ export interface JobRun {
   error: string | null;
 }
 
-export type TeamAlertKind = "build_waiting" | "build_stalled" | "job_missing" | "job_failed" | "crash_spike" | "push_failed" | "health" | "integration" | "mail_slow";
+export type TeamAlertKind = "build_waiting" | "build_stalled" | "job_missing" | "job_failed" | "crash_spike" | "push_failed" | "health" | "integration" | "mail_slow" | "publishing_full";
 
 /**
  * 78.3 Something the team should look at (lib/watch), in the admin's bell

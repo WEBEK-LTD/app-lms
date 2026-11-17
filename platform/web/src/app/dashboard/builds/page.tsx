@@ -35,6 +35,7 @@ import { failureExplanation } from "@/lib/builds/failures";
 import { preflightChecks, renderCheck } from "@/lib/builds/preflight";
 import { preflightDeps } from "@/lib/builds/preflight-env";
 import { GoBackForm, RebuildForm, RetryBuildForm, RolloutButtons, StagedReleaseForm, StartBuildForm, VersionsForm } from "./start-build";
+import { APP_REVIEW_TEXT } from "@/lib/publishing/app-review-submit";
 import { versionsInUse } from "@/lib/builds/go-back";
 import { FIRST_SHARES, nextFraction } from "@/lib/publishing/rollout";
 import { localePath } from "@/i18n/paths";
@@ -372,6 +373,8 @@ export default async function BuildsPage({ searchParams }: PageProps<"/dashboard
           </div>
           <Times build={current} now={now} text={text} />
           <BuildStages stages={current.stages} lang={lang} />
+          {/* 138 Sent to App Review by the platform, or why not yet. */}
+          <AppReviewLine build={current} text={text} />
           {current.status === "queued" || current.status === "building" ? (
             stalled ? (
               <Notice tone="warn" icon="hourglass_top">
@@ -650,10 +653,13 @@ export default async function BuildsPage({ searchParams }: PageProps<"/dashboard
         />
       </PageGroup>
 
-      {/* 89.2 Staged releases, with "We publish for you". */}
+      {/* 89.2 Staged releases; 138 everyone at once on Google Play unless the owner chooses. */}
       {autoPublish ? (
         <Section titleId="h-staged" title={t("builds.stagedTitle")} description={t("builds.stagedText")}>
           <div className="flex flex-col gap-5">
+            <p className="m-0 text-sm leading-relaxed text-ink-4" data-release-default="">
+              {t("builds.stagedDefault")}
+            </p>
             {app.rollout?.android && app.rollout.android.status !== "completed" ? (
               <div className="flex flex-col gap-2 rounded-xl border border-line p-4" data-rollout="android">
                 <span className="text-[15px] font-bold">
@@ -700,7 +706,10 @@ export default async function BuildsPage({ searchParams }: PageProps<"/dashboard
               </div>
             ) : null}
             <StagedReleaseForm
-              current={{ androidPercent: app.stagedRelease?.androidPercent == null ? "" : String(app.stagedRelease.androidPercent), iosPhased: Boolean(app.stagedRelease?.iosPhased) }}
+              current={{
+                androidPercent: app.stagedRelease?.androidInternal ? "internal" : app.stagedRelease?.androidPercent == null ? "" : String(app.stagedRelease.androidPercent),
+                iosPhased: Boolean(app.stagedRelease?.iosPhased),
+              }}
               shares={[...FIRST_SHARES]}
             />
           </div>
@@ -809,5 +818,31 @@ export default async function BuildsPage({ searchParams }: PageProps<"/dashboard
         )}
       </Section>
     </div>
+  );
+}
+
+/** 138 Where the iPhone version stands with App Review: sent (and when), or what it waits for, in plain words. */
+function AppReviewLine({ build, text }: { build: Build; text: Awaited<ReturnType<typeof dashboardText>> }) {
+  const { t, k, lang } = text;
+  const stage = build.stages.app_review;
+  const state = build.release?.appReview ?? null;
+  if (build.status !== "ready" || !stage || stage === "skipped") return null;
+  if (stage === "done" && state?.submittedAt) {
+    return (
+      <Notice tone="success" icon="send" role="status">
+        <span data-app-review="submitted">{t(build.release?.iosPhased ? "builds.appReviewSentPhased" : "builds.appReviewSent", { date: formatDateTime(new Date(state.submittedAt), lang) })}</span>
+      </Notice>
+    );
+  }
+  if (stage !== "pending") return null;
+  const reason = state?.reason ?? "processing";
+  const blocked = state?.state === "blocked";
+  return (
+    <Notice tone={blocked ? "warn" : "info"} icon={blocked ? "warning" : "schedule"}>
+      <span data-app-review={blocked ? `blocked:${reason}` : `waiting:${reason}`}>
+        {k(APP_REVIEW_TEXT[reason])}
+        {blocked && state?.detail ? ` ${t("builds.appReviewDetail", { detail: state.detail })}` : ""}
+      </span>
+    </Notice>
   );
 }

@@ -390,7 +390,7 @@ export type SchoolRowKind =
 export type SigningKeyColumn = "androidUploadKeyEncrypted" | "iosDistributionEncrypted";
 export type SigningKeysPatch = Partial<Record<SigningKeyColumn, string>>;
 export type BuildPatch = Partial<
-  Pick<Build, "status" | "stages" | "artifacts" | "message" | "logUrl" | "failure" | "sourceCommit" | "startedAt" | "finishedAt">
+  Pick<Build, "status" | "stages" | "artifacts" | "message" | "logUrl" | "failure" | "sourceCommit" | "startedAt" | "finishedAt" | "release">
 >;
 export type ReleasePatch = Partial<Pick<PluginRelease, "changelog" | "requiresWp" | "requiresPhp" | "testedWp" | "published">>;
 
@@ -462,6 +462,14 @@ export interface DataStore {
    * saved yet, atomically. Returns false (and saves nothing) otherwise.
    */
   saveSigningKeys(appId: string, keys: SigningKeysPatch, now: Date): Promise<boolean>;
+  /**
+   * 138 Gives the app its publishing account once: only while it has none,
+   * in one write that leaves the rest of the app's `rollout` as it is.
+   * Returns the account the app has now (this one, or the one another
+   * request gave it first; null when there's no such app) and whether this
+   * call gave it.
+   */
+  claimPublishingAccount(appId: string, accountId: string, now: Date): Promise<{ id: string | null; claimed: boolean }>;
 
   // Builds
   /**

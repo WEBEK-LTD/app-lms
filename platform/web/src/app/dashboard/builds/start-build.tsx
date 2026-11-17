@@ -193,12 +193,13 @@ export function StagedReleaseForm({ current, shares }: { current: { androidPerce
           {t("builds.stagedAndroid")}
         </label>
         <select id="f-androidPercent" name="androidPercent" defaultValue={state.values?.androidPercent ?? current.androidPercent} className="input input-sm max-w-[320px]" aria-describedby="f-androidPercent-hint">
-          <option value="">{t("builds.stagedAndroidOff")}</option>
+          <option value="">{t("builds.stagedAndroidEveryone")}</option>
           {shares.map((share) => (
             <option key={share} value={String(share)}>
               {t("builds.stagedAndroidShare", { percent: share })}
             </option>
           ))}
+          <option value="internal">{t("builds.stagedAndroidInternal")}</option>
         </select>
         <span id="f-androidPercent-hint" className="text-xs text-muted">
           {t("builds.stagedAndroidHint")}

@@ -8,19 +8,24 @@ require "uri"
 
 default_platform(:ios)
 
-# Uploads an App Bundle to the internal testing track. Google Play only accepts
-# draft releases until the app's first release is published in Play Console.
+# Uploads an App Bundle to Google Play. Google Play only accepts draft releases until the app's
+# first release is published in Play Console: that one is sent by hand, every later one goes out.
 platform :android do
-  # 89.2 With options[:rollout] (0.01 to 1), the production track for that share of users instead
-  # of internal testing; the owner stops, continues or completes it from the dashboard.
+  # 89.2 With options[:rollout] (0.01 to 1), the production track for that share of users; 138 the
+  # platform sends 1 (everyone) unless the owner chose a first share, or an empty one for internal
+  # testing. The owner stops, continues or completes a share from the dashboard.
+  # options[:report] (138): a file the lane writes where the release went, {"track", "status"}, for
+  # the platform (a draft tells the team the first release is still to be sent by hand).
   lane :upload_play do |options|
     rollout = options[:rollout].to_s.empty? ? nil : options[:rollout].to_f
+    track = rollout ? "production" : "internal"
+    sent = rollout && rollout < 1 ? "inProgress" : "completed"
     upload = lambda do |status|
       upload_to_play_store(
         package_name: options[:package],
         json_key: options[:json_key],
         aab: options[:aab],
-        track: rollout ? "production" : "internal",
+        track: track,
         rollout: rollout && rollout < 1 && status != "draft" ? rollout.to_s : nil,
         release_status: rollout && rollout < 1 && status != "draft" ? "inProgress" : status,
         skip_upload_apk: true,
@@ -34,9 +39,11 @@ platform :android do
       upload.call("completed")
     rescue => error
       raise unless error.message.include?("draft")
-      UI.important("The app is still a draft in Play Console; uploading a draft release.")
+      UI.important("The app is still a draft in Play Console; uploading a draft release. Its first release is sent by hand in Play Console.")
       upload.call("draft")
+      sent = "draft"
     end
+    File.write(options[:report], JSON.generate("track" => track, "status" => sent)) unless options[:report].to_s.empty?
   end
 
   # 88.2 The client's store listing in every language, with its phone and tablet screenshots
@@ -338,29 +345,40 @@ platform :ios do
 
   # 88.2 The client's listing in every language with the iPhone and iPad screenshots (framed when
   # asked), from store_listing.py's folder, on the version being prepared in App Store Connect.
-  # Never submits for review: that stays with the client (or our team).
+  # 138 That version has the build's version string (made when none is being prepared, after a
+  # release) and is released automatically once Apple approves it. This lane never submits for
+  # review: the platform does, once Apple has processed the build (no runner minutes spent
+  # waiting), from lib/publishing/app-review-submit.ts.
   #
   # options: secrets, bundle_id, listing (store_listing.py appstore's folder), phased (89.2 "true":
   #          Apple's phased release over seven days, which the owner can pause from the dashboard),
-  #          review (102.2 app_review.py's file: App Review Information; missing: kept as it is)
+  #          review (102.2 app_review.py's file: App Review Information; missing: kept as it is),
+  #          version (138 the build's version name; missing: the version being prepared as it is)
   lane :appstore_listing do |options|
     secrets = JSON.parse(File.read(options[:secrets]))
     asc = secrets.fetch("app_store_connect")
     api_key = app_store_connect_api_key(key_id: asc.fetch("key_id"), issuer_id: asc.fetch("issuer_id"), key_content: asc.fetch("private_key"), duration: 1200)
-    client_app_review(options[:bundle_id], options[:review])
-    upload_to_app_store(
-      api_key: api_key,
-      app_identifier: options[:bundle_id],
-      metadata_path: File.join(options[:listing], "metadata"),
-      screenshots_path: File.join(options[:listing], "screenshots"),
-      overwrite_screenshots: true,
-      skip_binary_upload: true,
-      skip_app_version_update: true,
-      submit_for_review: false,
-      run_precheck_before_submit: false,
-      phased_release: options[:phased].to_s == "true",
-      force: true,
-    )
+    version = options[:version].to_s
+    begin
+      upload_to_app_store(
+        api_key: api_key,
+        app_identifier: options[:bundle_id],
+        app_version: version.empty? ? nil : version,
+        metadata_path: File.join(options[:listing], "metadata"),
+        screenshots_path: File.join(options[:listing], "screenshots"),
+        overwrite_screenshots: true,
+        skip_binary_upload: true,
+        skip_app_version_update: version.empty?,
+        submit_for_review: false,
+        automatic_release: true,
+        run_precheck_before_submit: false,
+        phased_release: options[:phased].to_s == "true",
+        force: true,
+      )
+    ensure
+      # 138 After the listing, so the version it made (or renamed) gets the review sign-in; also when the listing failed.
+      client_app_review(options[:bundle_id], options[:review])
+    end
   end
 
   # 65 Yallapp Business under Yallapp's own Apple team (.github/workflows/business-release.yml).

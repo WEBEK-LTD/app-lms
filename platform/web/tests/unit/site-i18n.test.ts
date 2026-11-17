@@ -265,7 +265,9 @@ describe("55 the long texts in Arabic and Turkish", () => {
     expect(planFor("en", PLAN_INFO.growth)).toEqual(PLAN_INFO.growth);
     expect(planLimitLinesFor("tr", PLAN_INFO.growth).map((l) => l.text)).toEqual(["10.000 kullanıcıya kadar", "3 dil", "Android ve iOS", "Videolar ve dosyalar için 20 GB"]);
     expect(planLimitLinesFor("en", PLAN_INFO.starter).map((l) => l.text)).toEqual(["Up to 1,000 users", "1 language", "Android", "2 GB for videos and files"]);
-    expect(planStoresLineFor("ar", PLAN_INFO.pro)).toBe("5 متاجر · ننشر نيابةً عنك");
+    // 138 Every plan: we publish on Google Play and the App Store.
+    expect(planStoresLineFor("ar", PLAN_INFO.pro)).toBe("5 متاجر · ننشر نيابةً عنك على Google Play وApp Store");
+    expect(planStoresLineFor("tr", PLAN_INFO.starter)).toBe("4 uygulama mağazası · Google Play'de sizin için biz yayınlıyoruz");
   });
 
   it("keep brand names and English names for the marks", () => {

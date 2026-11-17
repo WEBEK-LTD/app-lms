@@ -30,7 +30,11 @@ const WORDS: Record<
     courierStaff: string;
     motion: string;
     templates: string;
+    /** 138 Every plan: Google Play and the App Store (Google Play alone without the iOS app). */
     publish: string;
+    publishPlay: string;
+    /** 138 The other Android stores, connected with the client's own account. */
+    moreStores: string;
     support: Record<SupportLevel, string>;
     manager: string;
   }
@@ -50,7 +54,9 @@ const WORDS: Record<
     courierStaff: "Second apps for couriers and for staff",
     motion: "Motion in the editor",
     templates: "Pages saved as your own templates",
-    publish: "We publish to the stores for you",
+    publish: "We publish to Google Play and the App Store for you",
+    publishPlay: "We publish to Google Play for you",
+    moreStores: "Automatic updates to Galaxy Store, GetApps and AppGallery with your account",
     support: { email: "Email support", whatsapp: "WhatsApp support", priority: "Priority support", dedicated: "Fastest support" },
     manager: "Your own account manager",
   },
@@ -69,7 +75,9 @@ const WORDS: Record<
     courierStaff: "تطبيقات ثانية للمندوبين وللعاملين",
     motion: "الحركة في المحرر",
     templates: "حفظ الصفحات كقوالب خاصة بك",
-    publish: "ننشر التطبيق في المتاجر نيابةً عنك",
+    publish: "ننشر التطبيق على Google Play وApp Store نيابةً عنك",
+    publishPlay: "ننشر التطبيق على Google Play نيابةً عنك",
+    moreStores: "تحديثات تلقائية على Galaxy Store وGetApps وAppGallery بحسابك",
     support: { email: "دعم بالبريد الإلكتروني", whatsapp: "دعم عبر واتساب", priority: "دعم بأولوية", dedicated: "أسرع دعم" },
     manager: "مدير حساب خاص بك",
   },
@@ -88,7 +96,9 @@ const WORDS: Record<
     courierStaff: "Kuryeler ve personel için ikinci uygulamalar",
     motion: "Editörde hareket",
     templates: "Sayfaları kendi şablonunuz olarak kaydetme",
-    publish: "Mağazalarda sizin için yayınlıyoruz",
+    publish: "Google Play ve App Store'da sizin için yayınlıyoruz",
+    publishPlay: "Google Play'de sizin için yayınlıyoruz",
+    moreStores: "Kendi hesabınızla Galaxy Store, GetApps ve AppGallery'ye otomatik güncellemeler",
     support: { email: "E-posta desteği", whatsapp: "WhatsApp desteği", priority: "Öncelikli destek", dedicated: "En hızlı destek" },
     manager: "Size özel hesap yöneticisi",
   },
@@ -129,11 +139,13 @@ export function planHighlights(lang: HighlightLang, plan: { features: readonly P
     has("ios") ? w.ios : w.android,
     // 116 Schools' and academies' staff app comes with their kind.
     has("courier_app") && (has("school") || has("instructors")) ? w.courierStaff : has("courier_app") ? w.courier : has("school") || has("instructors") ? w.staff : null,
-    has("auto_publish") ? w.publish : null,
+    has("auto_publish") ? (has("ios") ? w.publish : w.publishPlay) : null,
     has("studio_motion") ? w.motion : null,
     has("studio_templates") ? w.templates : null,
     w.support[plan.limits.support],
     plan.limits.accountManager ? w.manager : null,
+    // 138 Every plan; last, so a long list keeps its support lines.
+    w.moreStores,
   ].filter((l): l is string => Boolean(l));
   return lines.slice(0, HIGHLIGHT_LIMITS.lines).map((l) => l.slice(0, HIGHLIGHT_LIMITS.length));
 }

@@ -55,7 +55,7 @@ function FileField({ name, label, accept, hint, error }: { name: string; label: 
   );
 }
 
-export function GalaxyStoreForm({ saved, uploads }: { saved: { contentId: string; serviceAccountId: string } | null; uploads: boolean }) {
+export function GalaxyStoreForm({ saved }: { saved: { contentId: string; serviceAccountId: string } | null }) {
   const t = useDashT();
   const [state, action] = useActionState(saveGalaxyStoreAction, initialFormState);
   const e = state.errors ?? {};
@@ -63,7 +63,7 @@ export function GalaxyStoreForm({ saved, uploads }: { saved: { contentId: string
     <form action={action} noValidate className="flex flex-col gap-3.5">
       <FormMessage message={state.message} ok={state.ok} />
       {saved ? <Saved title={t("stores.galaxyKeys")} detail={t("stores.contentIdDetail", { id: saved.contentId })} removeKey="galaxy" /> : null}
-      <fieldset disabled={!uploads} className="m-0 flex flex-col gap-3.5 border-0 p-0">
+      <fieldset className="m-0 flex flex-col gap-3.5 border-0 p-0">
         <div className="flex flex-wrap gap-3.5">
           <Field
             className="flex-[1_1_200px]"
@@ -121,10 +121,8 @@ export function GalaxyStoreForm({ saved, uploads }: { saved: { contentId: string
 
 export function HuaweiForm({
   saved,
-  uploads,
 }: {
   saved: { appId: string | null; agconnect: boolean; push: boolean; clientId: string | null };
-  uploads: boolean;
 }) {
   const t = useDashT();
   const lang = useDashLang();
@@ -171,7 +169,7 @@ export function HuaweiForm({
         />
       </fieldset>
 
-      <fieldset disabled={!uploads} className="m-0 flex flex-col gap-3.5 rounded-xl border border-line p-4">
+      <fieldset className="m-0 flex flex-col gap-3.5 rounded-xl border border-line p-4">
         <legend className="px-1 text-[15px] font-bold">{t("stores.uploadingBuilds")}</legend>
         {saved.clientId ? <Saved title={t("stores.apiClient")} detail={t("stores.clientIdDetail", { id: saved.clientId })} removeKey="huawei-upload" /> : null}
         <div className="flex flex-wrap gap-3.5">
@@ -212,11 +210,9 @@ export function HuaweiForm({
 /** 42 Xiaomi GetApps: the developer account's email, the API private key, Xiaomi's public certificate and what's new. */
 export function XiaomiForm({
   saved,
-  uploads,
   notes,
 }: {
   saved: { userName: string } | null;
-  uploads: boolean;
   notes: { current: string; fallback: string; max: number };
 }) {
   const t = useDashT();
@@ -227,7 +223,7 @@ export function XiaomiForm({
     <form action={action} noValidate className="flex flex-col gap-3.5">
       <FormMessage message={state.message} ok={state.ok} />
       {saved ? <Saved title={t("stores.xiaomiKeys")} detail={saved.userName} removeKey="xiaomi" /> : null}
-      <fieldset disabled={!uploads} className="m-0 flex flex-col gap-3.5 border-0 p-0">
+      <fieldset className="m-0 flex flex-col gap-3.5 border-0 p-0">
         <div className="flex flex-wrap gap-3.5">
           <Field
             className="flex-[1_1_240px]"

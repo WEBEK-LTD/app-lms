@@ -27,9 +27,10 @@ const STAGE_LABEL: Record<StageKey, DashKey> = {
   upload_galaxy: "overview.stageGalaxy",
   upload_appgallery: "overview.stageAppgallery",
   upload_xiaomi: "overview.stageXiaomi",
+  app_review: "overview.stageAppReview",
 };
 
-const ORDER: StageKey[] = ["queued", "android", "ios", "upload_play", "upload_testflight", "upload_galaxy", "upload_appgallery", "upload_xiaomi"];
+const ORDER: StageKey[] = ["queued", "android", "ios", "upload_play", "upload_testflight", "app_review", "upload_galaxy", "upload_appgallery", "upload_xiaomi"];
 
 export function BuildStages({ stages, lang = "en" }: { stages: Stages; lang?: Lang }) {
   const t = getDashT(lang);

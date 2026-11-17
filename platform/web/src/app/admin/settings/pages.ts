@@ -4,6 +4,8 @@ export const SETTINGS_PAGES = [
   { href: "/admin/settings/email", label: "Email", text: "The SMTP server every email goes out through." },
   { href: "/admin/settings/sign-in-codes", label: "Sign-in codes", text: "How apps on the hosted API send their 6-digit codes (waabek, WhatsApp or a webhook)." },
   { href: "/admin/settings/contact", label: "Contact & publishing", text: "How clients reach Yallapp, and the publishing team's email." },
+  // 138
+  { href: "/admin/settings/publishing-accounts", label: "Publishing accounts", text: "The accounts clients invite as admin to Google Play and App Store Connect, each app on one, with each account's limit." },
   { href: "/admin/settings/invoices", label: "Invoices", text: "The company lines on Yallapp's receipts and invoices." },
   { href: "/admin/settings/store-platforms", label: "Store platforms", text: "The Salla and Zid partner apps stores connect through." },
   { href: "/admin/settings/app-defaults", label: "New apps", text: "The look and languages a new app starts with." },

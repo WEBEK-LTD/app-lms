@@ -1789,10 +1789,11 @@ export const TR_MARKETING: MarketingTranslation = {
   },
   plans: {
     starter: {
-      tagline: "Rehberlerimizle sizin yayımladığınız bir Android uygulaması",
+      tagline: "Google Play'de sizin için yayımladığımız bir Android uygulaması",
       highlights: [
         "Android uygulaması (APK ve AAB)",
         "Google Play, Galaxy Store, AppGallery ve GetApps için",
+        "Google Play'de sizin için biz yayımlarız",
         "1 bağlı platform",
         "1.000 uygulama kullanıcısına kadar",
         "1 uygulama dili",
@@ -1806,6 +1807,7 @@ export const TR_MARKETING: MarketingTranslation = {
       tagline: "Sizinle büyüyen Android ve iOS uygulamaları",
       highlights: [
         "Android ve iOS uygulamaları",
+        "Google Play ve App Store'da sizin için biz yayımlarız",
         "10.000 uygulama kullanıcısına kadar",
         "3 uygulama dili",
         "Tam sayfa düzenleyici",
@@ -1817,7 +1819,7 @@ export const TR_MARKETING: MarketingTranslation = {
     },
     pro: {
       tagline: "Uygulamalarınızı sizin için biz yayımlarız",
-      highlights: ["Growth'taki her şey", "Sınırsız uygulama kullanıcısı", "Tüm uygulama dilleri", "Beş uygulama mağazasının hepsinde biz yayımlarız", "Otomatik mağaza güncellemeleri", "Uygulamada müşterilerinizle sohbet", "Öncelikli destek"],
+      highlights: ["Growth'taki her şey", "Sınırsız uygulama kullanıcısı", "Tüm uygulama dilleri", "Otomatik mağaza güncellemeleri", "Uygulamada müşterilerinizle sohbet", "Öncelikli destek"],
     },
     business: {
       tagline: "Uygulamanız için bir ortak",

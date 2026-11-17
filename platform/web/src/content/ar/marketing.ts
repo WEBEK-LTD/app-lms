@@ -1800,10 +1800,11 @@ export const AR_MARKETING: MarketingTranslation = {
   },
   plans: {
     starter: {
-      tagline: "تطبيق Android تنشره بنفسك بمساعدة شروحاتنا",
+      tagline: "تطبيق Android ننشره نيابةً عنك على Google Play",
       highlights: [
         "تطبيق Android ‏(APK وAAB)",
         "لمتاجر Google Play وGalaxy Store وAppGallery وGetApps",
+        "ننشر على Google Play نيابةً عنك",
         "منصة متصلة واحدة",
         "حتى 1,000 مستخدم للتطبيق",
         "لغة واحدة للتطبيق",
@@ -1817,6 +1818,7 @@ export const AR_MARKETING: MarketingTranslation = {
       tagline: "تطبيقات Android وiOS تنمو معك",
       highlights: [
         "تطبيقات Android وiOS",
+        "ننشر على Google Play وApp Store نيابةً عنك",
         "حتى 10,000 مستخدم للتطبيق",
         "3 لغات للتطبيق",
         "محرّر صفحات كامل",
@@ -1828,7 +1830,7 @@ export const AR_MARKETING: MarketingTranslation = {
     },
     pro: {
       tagline: "ننشر تطبيقاتك نيابةً عنك",
-      highlights: ["كل ما في Growth", "عدد غير محدود من المستخدمين", "جميع لغات التطبيق", "ننشر على متاجر التطبيقات الخمسة", "تحديثات المتاجر تلقائيًا", "الدردشة مع عملائك داخل التطبيق", "دعم بأولوية"],
+      highlights: ["كل ما في Growth", "عدد غير محدود من المستخدمين", "جميع لغات التطبيق", "تحديثات المتاجر تلقائيًا", "الدردشة مع عملائك داخل التطبيق", "دعم بأولوية"],
     },
     business: {
       tagline: "شريك لتطبيقك",

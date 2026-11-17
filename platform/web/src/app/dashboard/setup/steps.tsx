@@ -1542,27 +1542,22 @@ function MoreStoresLink() {
   );
 }
 
-/** 19 Who publishes the app, on plans with "We publish for you". */
+/** 19 Who publishes the app; 138 on every plan ("We publish for you" is in every one). */
 const PUBLISHING_CHOICES: { id: "managed" | "self"; title: DashKey; text: DashKey }[] = [
   { id: "managed", title: "setup.publishForMe", text: "setup.publishForMeText" },
   { id: "self", title: "setup.publishMyself", text: "setup.publishMyselfText" },
 ];
 
 export function PublishingStep({
-  autoPublish,
   ios,
-  planName,
   upgrade,
   saved,
   teamPublishes = false,
 }: {
-  /** "We publish for you" is in the app's plan (13.1): we upload the builds to the stores. */
-  autoPublish: boolean;
   /** The iOS app is in the app's plan. */
   ios: boolean;
-  planName: string;
-  /** The lowest plans with what this one lacks, for the Upgrade hints. */
-  upgrade: { managed: { id: Plan; name: string } | null; ios: { id: Plan; name: string } | null };
+  /** The lowest plan with the iOS app, for the Upgrade hint. */
+  upgrade: { ios: { id: Plan; name: string } | null };
   saved: { play: { clientEmail: string | null } | null; appStore: SavedAppStoreKey; firebase: SavedFirebase };
   /** The client asked our team to publish this app (14.1): nothing here is required. */
   teamPublishes?: boolean;
@@ -1581,49 +1576,6 @@ export function PublishingStep({
       <span>{richText(t("setup.teamNotice"), { link: (chunk) => <Link href={here("/dashboard/publishing")}>{chunk}</Link> })}</span>
     </p>
   ) : null;
-
-  if (!autoPublish) {
-    return (
-      <form key={formKey} action={action} noValidate className="flex flex-wrap items-start gap-6" {...guard}>
-        <StepCard title={t("setup.publishing")} id="h-publishing">
-          {teamNotice}
-          <p className="m-0 text-[15px] leading-relaxed text-ink-4">{ios ? t("setup.selfPublishApps", { plan: planName }) : t("setup.selfPublishApp", { plan: planName })}</p>
-          <ul className="m-0 flex list-none flex-col gap-2 p-0 text-[15px]">
-            <li>
-              <Link href="/guides/google-play">{t("setup.guidePlay")}</Link>
-            </li>
-            {ios ? (
-              <li>
-                <Link href="/guides/app-store">{t("setup.guideAppStore")}</Link>
-              </li>
-            ) : null}
-          </ul>
-          <FormMessage message={state.message} />
-          {ios ? (
-            <>
-              <AppStoreKeyFields state={state} saved={saved.appStore} optional />
-              <p className="m-0 text-sm text-muted">{t("setup.keyEncrypted")}</p>
-            </>
-          ) : (
-            <UpgradeHint title={t("setup.iosApp")} to={upgrade.ios} cta={upgrade.ios ? t("overview.upgradeTo", { plan: upgrade.ios.name }) : undefined}>
-              {t("setup.iosUpgrade")}
-            </UpgradeHint>
-          )}
-          <UpgradeHint title={t("setup.publishForMe")} to={upgrade.managed} cta={upgrade.managed ? t("overview.upgradeTo", { plan: upgrade.managed.name }) : undefined}>
-            {t("setup.managedUpgrade")}
-          </UpgradeHint>
-          <FirebaseFields state={state} saved={saved.firebase} />
-        <MoreStoresLink />
-          <div className="sticky bottom-0 z-[1] -mx-5 flex flex-wrap justify-between gap-3 border-t border-line-soft bg-white px-5 py-3 sm:-mx-6 sm:px-6">
-            <Link href={here("/dashboard/setup?step=listing")} className={`${btn.secondary} h-11`}>
-              {t("setup.back")}
-            </Link>
-            <SubmitButton variant="main" className="h-11">{t("setup.finish")}</SubmitButton>
-          </div>
-        </StepCard>
-      </form>
-    );
-  }
 
   return (
     <form key={formKey} action={action} noValidate className="flex flex-wrap items-start gap-6" {...guard}>

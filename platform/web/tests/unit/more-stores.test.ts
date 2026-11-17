@@ -61,10 +61,15 @@ const agconnect = (packageName = "com.academy.app") =>
   JSON.stringify({ client: { app_id: "104123456", package_name: packageName, client_secret: "x" }, app_info: { app_id: "104123456", package_name: packageName } });
 
 describe("35, 36 store keys for the pipeline", () => {
-  it("sends Galaxy Store and AppGallery keys only to builds that upload", () => {
+  it("138 sends the client's Galaxy Store and AppGallery keys to every build", () => {
     const keyed = withStoreKeys(app());
-    expect(buildSecrets(keyed, KEY)).toMatchObject({ galaxy_store: null, huawei_appgallery: null });
-    expect(buildSecrets(keyed, KEY, { autoPublish: false })).toMatchObject({ galaxy_store: null, huawei_appgallery: null });
+    const keys = {
+      galaxy_store: { content_id: "000001234567", service_account_id: "sa-123456", private_key: rsaPem },
+      huawei_appgallery: { app_id: "104123456", client_id: "client-777", client_secret: "connect-secret-0123456789" },
+    };
+    // The client's own stores: whatever the plan.
+    expect(buildSecrets(keyed, KEY)).toMatchObject(keys);
+    expect(buildSecrets(keyed, KEY, { autoPublish: false })).toMatchObject(keys);
     expect(buildSecrets(keyed, KEY, { autoPublish: true })).toMatchObject({
       galaxy_store: { content_id: "000001234567", service_account_id: "sa-123456", private_key: rsaPem },
       huawei_appgallery: { app_id: "104123456", client_id: "client-777", client_secret: "connect-secret-0123456789" },
@@ -79,11 +84,11 @@ describe("35, 36 store keys for the pipeline", () => {
     expect(() => buildSecrets(moved, KEY, { autoPublish: true })).toThrow();
   });
 
-  it("starts the upload stages only with the plan and the keys", () => {
+  it("138 starts the upload stages with the keys, on every plan", () => {
     const keyed = withStoreKeys(app());
     expect(hasStoreKeys(keyed)).toMatchObject({ galaxy: true, appGallery: true });
     expect(initialStages(true, keyed)).toMatchObject({ upload_galaxy: "pending", upload_appgallery: "pending" });
-    expect(initialStages(false, keyed)).toMatchObject({ upload_galaxy: "skipped", upload_appgallery: "skipped" });
+    expect(initialStages(false, keyed)).toMatchObject({ upload_galaxy: "pending", upload_appgallery: "pending" });
     expect(initialStages(true, app())).toMatchObject({ upload_galaxy: "skipped", upload_appgallery: "skipped" });
   });
 
@@ -159,44 +164,37 @@ describe("35, 36 the details the client enters", () => {
   });
 });
 
-describe("35, 36 Publish it for me on more stores", () => {
+describe("138 our team publishes on Google Play and the App Store only", () => {
   const request = (): PublishingRequest => newPublishingRequest({ id: "app-1", clientId: "client-1" }, "managed", NOW);
   const listed = app({ storeTitle: "Academy", shortDescription: "Short", fullDescription: "Full", supportEmail: "a@b.test", privacyUrl: "https://b.test/p" });
 
-  it("adds and drops the extra stores", () => {
+  it("covers Google Play and the App Store, whatever a request from before says about the other stores", () => {
     const base = request();
     expect(requestStores(base)).toEqual(["android", "ios"]);
-    const both = withMoreStores(base, ["galaxy", "huawei", "amazon"]);
-    expect(requestStores(both)).toEqual(["android", "ios", "galaxy", "huawei"]);
-    expect(trackOf(both, "galaxy")).toMatchObject({ status: "waiting_client" });
-    // Dropping one keeps the other's progress.
-    const moved = { ...both, huawei: { ...trackOf(both, "huawei"), status: "submitted" as const } };
-    const galaxyOnly = withMoreStores(moved, ["huawei"]);
-    expect(requestStores(galaxyOnly)).toEqual(["android", "ios", "huawei"]);
-    expect(trackOf(galaxyOnly, "huawei").status).toBe("submitted");
+    // A request from before that asked for Galaxy Store and AppGallery: kept as it was, never shown again.
+    const before = withMoreStores(base, ["galaxy", "huawei", "amazon"]);
+    expect(before.galaxy).toMatchObject({ status: "waiting_client" });
+    expect(requestStores(before)).toEqual(["android", "ios"]);
   });
 
-  it("adds each store's steps to the checklist only when asked", () => {
+  it("lists only Google Play's, the App Store's and push's steps", () => {
     const base = { ...request(), listing: { playCategory: "Education", appStoreCategory: "Education", contentRatingNotes: "Courses only", reviewNotes: null } };
     expect(stepsFor(base).map((s) => s.id)).not.toContain("galaxy_invite");
     expect(checklistProgress(base, listed).total).toBe(6);
     const galaxy = withMoreStores(base, ["galaxy"]);
-    expect(stepsFor(galaxy).map((s) => s.id)).toEqual(expect.arrayContaining(["galaxy_account", "galaxy_invite"]));
-    expect(stepsFor(galaxy).map((s) => s.id)).not.toContain("huawei_invite");
-    expect(checklistProgress(galaxy, listed).total).toBe(8);
+    expect(stepsFor(galaxy).map((s) => s.id)).not.toContain("galaxy_invite");
+    expect(checklistProgress(galaxy, listed).total).toBe(6);
   });
 
-  it("is live everywhere only when every store it covers is", () => {
+  it("is live everywhere once live on Google Play and the App Store", () => {
     const live = { status: "live" as const, note: null, storeUrl: "https://x", updatedAt: NOW };
     const both = { ...request(), android: live, ios: live };
     expect(isLiveEverywhere(both)).toBe(true);
-    const galaxy = withMoreStores(both, ["galaxy"]);
-    expect(isLiveEverywhere(galaxy)).toBe(false);
-    expect(isLiveEverywhere({ ...galaxy, galaxy: live })).toBe(true);
+    expect(isLiveEverywhere(withMoreStores(both, ["galaxy"]))).toBe(true);
     expect(isLiveSomewhere(withMoreStores(request(), ["huawei"]))).toBe(false);
   });
 
-  it("words and links for the new stores", () => {
+  it("words and links for the other stores, for the history from before", () => {
     expect(statusText("galaxy", "in_review")).toBe("Samsung is reviewing your app. This usually takes a few days.");
     expect(statusText("huawei", "live")).toBe("Your app is live on AppGallery.");
     expect(storeUrlProblem("galaxy", "https://galaxystore.samsung.com/detail/com.academy.app")).toBeNull();
@@ -205,13 +203,15 @@ describe("35, 36 Publish it for me on more stores", () => {
     expect(publishingEventLabel({ store: "huawei", status: "submitted" }, "client")).toBe("Huawei AppGallery: Submitted");
   });
 
-  it("keeps the extra stores in the memory store", async () => {
+  it("keeps what a request from before said about the other stores in the memory store", async () => {
     const store = new MemoryStore();
     const owned = app();
     await store.createApp(owned);
     const saved = withMoreStores(newPublishingRequest(owned, "managed", NOW), ["galaxy"]);
     await store.savePublishingRequest(saved);
-    expect(requestStores((await store.getPublishingRequest(owned.id))!)).toEqual(["android", "ios", "galaxy"]);
+    const read = (await store.getPublishingRequest(owned.id))!;
+    expect(read.galaxy).toMatchObject({ status: "waiting_client" });
+    expect(requestStores(read)).toEqual(["android", "ios"]);
   });
 });
 
@@ -325,9 +325,9 @@ describe("42 Xiaomi GetApps", () => {
     };
   }
 
-  it("sends the keys only to builds that upload, and never to another app", () => {
+  it("138 sends the keys to every build of the app, and never to another app", () => {
     const keyed = withXiaomi(app(), "New courses every week.");
-    expect(buildSecrets(keyed, KEY).xiaomi_getapps).toBeNull();
+    expect(buildSecrets(keyed, KEY).xiaomi_getapps).toMatchObject({ user_name: "owner@academy.test" });
     expect(buildSecrets(keyed, KEY, { autoPublish: true }).xiaomi_getapps).toEqual({
       user_name: "owner@academy.test",
       password: "xiaomi-api-key-0123456789",
@@ -343,11 +343,11 @@ describe("42 Xiaomi GetApps", () => {
     expect(() => buildSecrets({ ...keyed, xiaomiPasswordEncrypted: encrypt("x", KEY, keyContext.appGallery(keyed.id)) }, KEY, { autoPublish: true })).toThrow();
   });
 
-  it("starts the upload stage only with the plan and the keys, and takes the pipeline's report", async () => {
+  it("138 starts the upload stage with the keys on every plan, and takes the pipeline's report", async () => {
     const keyed = withXiaomi(app());
     expect(hasStoreKeys(keyed).xiaomi).toBe(true);
     expect(initialStages(true, keyed).upload_xiaomi).toBe("pending");
-    expect(initialStages(false, keyed).upload_xiaomi).toBe("skipped");
+    expect(initialStages(false, keyed).upload_xiaomi).toBe("pending");
     expect(initialStages(true, app()).upload_xiaomi).toBe("skipped");
 
     const store = new MemoryStore();
@@ -399,11 +399,10 @@ describe("42 Xiaomi GetApps", () => {
     expect(expired.ok === false && expired.error).toMatch(/expired/);
   });
 
-  it("Publish it for me: its steps, track, words and store links", async () => {
+  it("138 isn't part of Publish it for me any more; its words and store links stay for the history", async () => {
     const request = withMoreStores(newPublishingRequest({ id: "app-1", clientId: "client-1" }, "managed", NOW), ["xiaomi"]);
-    expect(requestStores(request)).toEqual(["android", "ios", "xiaomi"]);
-    expect(stepsFor(request).map((s) => s.id)).toEqual(expect.arrayContaining(["xiaomi_account", "xiaomi_invite"]));
-    expect(stepsFor(withMoreStores(request, [])).map((s) => s.id)).not.toContain("xiaomi_invite");
+    expect(requestStores(request)).toEqual(["android", "ios"]);
+    expect(stepsFor(request).map((s) => s.id)).not.toContain("xiaomi_invite");
     expect(statusText("xiaomi", "in_review")).toBe("Xiaomi is reviewing your app. This usually takes a few days.");
     expect(statusText("xiaomi", "live")).toBe("Your app is live on Xiaomi GetApps.");
     expect(publishingEventLabel({ store: "xiaomi", status: "submitted" }, "client")).toBe("Xiaomi GetApps: Submitted");
@@ -415,6 +414,8 @@ describe("42 Xiaomi GetApps", () => {
     const owned = app();
     await store.createApp(owned);
     await store.savePublishingRequest(withMoreStores(newPublishingRequest(owned, "managed", NOW), ["galaxy", "xiaomi"]));
-    expect(requestStores((await store.getPublishingRequest(owned.id))!)).toEqual(["android", "ios", "galaxy", "xiaomi"]);
+    const read = (await store.getPublishingRequest(owned.id))!;
+    expect([read.galaxy?.status, read.xiaomi?.status]).toEqual(["waiting_client", "waiting_client"]);
+    expect(requestStores(read)).toEqual(["android", "ios"]);
   });
 });

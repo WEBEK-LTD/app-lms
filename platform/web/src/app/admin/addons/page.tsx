@@ -13,9 +13,9 @@ import { getStore } from "@/lib/data";
 import { appLabel } from "@/lib/app/label";
 import { formatMoney } from "@/lib/billing/prices";
 import { addonsOf, billingLabel, isBuiltInAddon, topPlansOf } from "@/lib/addons/catalog";
-import { topPlanOf } from "@/lib/addons/rules";
+import { addonRetired, topPlanOf } from "@/lib/addons/rules";
 import { ADDON_BILLINGS, BUILT_IN_ADDON_LIMITS, type AddonDef, type AppAddon } from "@/lib/addons/types";
-import { cleanLimitDefs, PLAN_FEATURES, plansInOrder, plansShown } from "@/lib/plans";
+import { cleanLimitDefs, isIncludedFeature, PLAN_FEATURES, plansInOrder, plansShown } from "@/lib/plans";
 import { getPlans, platformSetting } from "@/lib/settings/platform";
 import { AddonForm, TopPlansForm, type AddonFormValues } from "./forms";
 
@@ -154,7 +154,7 @@ export default async function AddonsAdminPage({ searchParams }: PageProps<"/admi
                 addon={formValues(editing === "new" ? null : editing, editing !== "new" && suggested(editing))}
                 iconNames={ICON_NAMES}
                 limits={[...BUILT_IN_ADDON_LIMITS.map((id) => ({ id, label: LIMIT_LABEL[id] })), ...limitDefs.map((d) => ({ id: `x:${d.id}`, label: `${d.name} (your own limit)` }))]}
-                features={PLAN_FEATURES.map((f) => ({ id: f.id, label: f.label }))}
+                features={PLAN_FEATURES.filter((f) => !isIncludedFeature(f.id)).map((f) => ({ id: f.id, label: f.label }))}
                 plans={shownPlans.map((id) => ({ id, name: plans[id].name, family: id.startsWith("studio") ? "studio" : "regular" }))}
               />
               {editing !== "new" && !isBuiltInAddon(editing.id) ? (
@@ -203,7 +203,7 @@ export default async function AddonsAdminPage({ searchParams }: PageProps<"/admi
                         <td className="px-4 py-3">{effectOf(a, limitDefs)}</td>
                         <td className="px-4 py-3">{pricesOf(a, suggested(a))}</td>
                         <td className="px-4 py-3">{ruleOf(a, plans)}</td>
-                        <td className="px-4 py-3">{a.active ? "Yes" : "No"}</td>
+                        <td className="px-4 py-3">{a.active && !addonRetired(a) ? "Yes" : "No"}</td>
                       </tr>
                     ))}
                   </tbody>
@@ -223,6 +223,8 @@ function effectOf(a: AddonDef, defs: { id: string; name: string }[]): string {
     return `+${a.amount} · ${name}`;
   }
   const feature = a.feature ? PLAN_FEATURES.find((f) => f.id === a.feature)?.label : null;
+  // 138 What every plan includes now: never offered or renewed.
+  if (addonRetired(a)) return `${KIND_LABEL[a.kind]} · ${feature ?? a.feature}: every plan includes it, so it's never offered or renewed`;
   return feature ? `${KIND_LABEL[a.kind]} · ${feature}` : KIND_LABEL[a.kind];
 }
 

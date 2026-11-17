@@ -1,22 +1,20 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { redirect } from "next/navigation";
-import { chooseMoreStoresAction, choosePublishingModeAction } from "@/app/actions/publishing";
+import { choosePublishingModeAction } from "@/app/actions/publishing";
 import { SubmitButton } from "@/components/form";
 import { Icon } from "@/components/icon";
 import { Badge, Notice, PageHeader, btn, formatDateTime } from "@/components/ui";
 import { LinkCards, PageGroup } from "@/components/page-kit";
-import { appLabel, licensePageName } from "@/lib/app/label";
+import { appLabel } from "@/lib/app/label";
 import { hasStoreKeys } from "@/lib/app/setup";
 import { requireClient } from "@/lib/auth/session";
-import { getVisitorContact } from "@/lib/contact";
 import { getStore } from "@/lib/data";
 import { appPlan } from "@/lib/entitlements";
 import { hasFeature } from "@/lib/plans";
-import { publishingTeamEmail } from "@/lib/publishing/service";
+import { appPublishingEmail } from "@/lib/publishing/service";
 import {
   APP_STORE_CATEGORIES,
-  canUseManagedPublishing,
   checklistProgress,
   CLIENT_STATUS_LABEL,
   listingMissing,
@@ -75,7 +73,7 @@ const MORE_STORE_TEXT: Record<(typeof MORE_STORES)[number], DashKey> = {
 };
 
 
-function Choice({ mode, title, text, points, disabled, saving }: { mode: "self" | "managed"; title: string; text: string; points: string[]; disabled?: string; saving: string }) {
+function Choice({ mode, title, text, points, saving }: { mode: "self" | "managed"; title: string; text: string; points: string[]; saving: string }) {
   return (
     <form action={choosePublishingModeAction} className="flex flex-col gap-3 rounded-2xl border border-line bg-white p-5 sm:p-6">
       <input type="hidden" name="mode" value={mode} />
@@ -95,10 +93,9 @@ function Choice({ mode, title, text, points, disabled, saving }: { mode: "self" 
         ))}
       </ul>
       <div className="mt-auto pt-2">
-        <SubmitButton variant={mode === "managed" ? "main" : "secondary"} className="h-11" disabled={Boolean(disabled)} pendingText={saving}>
+        <SubmitButton variant={mode === "managed" ? "main" : "secondary"} className="h-11" pendingText={saving}>
           {title}
         </SubmitButton>
-        {disabled ? <span className="mt-1.5 block text-sm text-muted">{disabled}</span> : null}
       </div>
     </form>
   );
@@ -113,14 +110,11 @@ export default async function PublishingPage({ searchParams }: PageProps<"/dashb
   const name = appLabel(app) === "Untitled app" ? k("Untitled app") : appLabel(app);
   const query = await searchParams;
   const store = await getStore();
-  const contact = await getVisitorContact();
   const request = await store.getPublishingRequest(app.id);
   const mode = app.publishingMode ?? request?.mode ?? null;
-  const teamEmail = await publishingTeamEmail(store);
+  // 138 The app's own publishing account (given now, the first time), else the publishing team email.
+  const teamEmail = (await appPublishingEmail(store, app)).email;
   const current = await appPlan(await getStore(), license, new Date());
-  const allowed = canUseManagedPublishing(current);
-  const notIncluded = allowed ? undefined : t("publishing.notIncluded", { page: k(licensePageName(app)) });
-  const autoUpload = hasFeature(current, "auto_publish");
   // 104.7 A delivery app's notes for the reviewers of both its apps.
   const delivery = hasCourierJobs(app) ? deliverySettingsOf(await store.getDeliverySettings(app.id)) : null;
   const notes = delivery ? reviewNotes(app, delivery) : null;
@@ -139,7 +133,8 @@ export default async function PublishingPage({ searchParams }: PageProps<"/dashb
         label={t("publishing.title")}
         items={[
           { href: "/dashboard/publishing/links", icon: "link", label: t("publishing.links") },
-          ...(mode === "self" ? [{ href: "/dashboard/publishing/more-stores", icon: "storefront" as const, label: t("publishing.moreStores") }] : []),
+          // 138 The client's own stores, whoever publishes on Google Play and the App Store.
+          { href: "/dashboard/publishing/more-stores", icon: "storefront" as const, label: t("publishing.moreStores") },
         ]}
       />
     </>
@@ -163,11 +158,6 @@ export default async function PublishingPage({ searchParams }: PageProps<"/dashb
     return (
       <>
         {header}
-        {query.error === "not-included" ? (
-          <Notice tone="warn" icon="warning" role="alert">
-            {richText(t("publishing.notIncludedAlert"), { wa: (chunk) => <a href={contact.whatsappUrl}>{chunk}</a>, upgrade: (chunk) => <Link href="/dashboard/license#change-plan">{chunk}</Link> })}
-          </Notice>
-        ) : null}
         <p className="m-0 text-[15px] leading-relaxed text-ink-4">{t("publishing.howQuestion")}</p>
         <div className="grid gap-4 [grid-template-columns:repeat(auto-fit,minmax(min(320px,100%),1fr))]">
           <Choice
@@ -175,14 +165,13 @@ export default async function PublishingPage({ searchParams }: PageProps<"/dashb
             title={t("publishing.managed")}
             text={t("publishing.managedText")}
             points={[t("publishing.managedPoint1"), t("publishing.managedPoint2"), t("publishing.managedPoint3")]}
-            disabled={notIncluded}
             saving={saving}
           />
           <Choice
             mode="self"
             title={t("publishing.self")}
             text={t("publishing.selfText")}
-            points={[t("publishing.selfPoint1"), autoUpload ? t("publishing.selfPointAuto") : t("publishing.selfPointGuides")]}
+            points={[t("publishing.selfPoint1"), t("publishing.selfPointAuto")]}
             saving={saving}
           />
         </div>
@@ -215,13 +204,11 @@ export default async function PublishingPage({ searchParams }: PageProps<"/dashb
               })}
             </li>
             <li>{richText(t("publishing.selfStep3"), { link: (chunk) => <Link href="/dashboard/publishing/more-stores">{chunk}</Link> })}</li>
-            {autoUpload ? (
-              <li>
-                {richText(keys.play || keys.appStore ? t("publishing.selfStep4Saved") : t("publishing.selfStep4None"), {
-                  link: (chunk) => <Link href="/dashboard/setup?step=publishing">{chunk}</Link>,
-                })}
-              </li>
-            ) : null}
+            <li>
+              {richText(keys.play || keys.appStore ? t("publishing.selfStep4Saved") : t("publishing.selfStep4None"), {
+                link: (chunk) => <Link href="/dashboard/setup?step=publishing">{chunk}</Link>,
+              })}
+            </li>
           </ol>
         </section>
         <ReviewSection app={app} text={text} managed={false} delivery={deliveryNotes} />
@@ -231,10 +218,9 @@ export default async function PublishingPage({ searchParams }: PageProps<"/dashb
           <h2 className="m-0 text-lg font-bold">{t("publishing.ratherWe")}</h2>
           <p className="m-0 text-[15px] text-ink-4">{t("publishing.ratherWeText")}</p>
           <div>
-            <SubmitButton variant="secondary" className="h-10" disabled={Boolean(notIncluded)} pendingText={saving}>
+            <SubmitButton variant="secondary" className="h-10" pendingText={saving}>
               {t("publishing.managed")}
             </SubmitButton>
-            {notIncluded ? <span className="mt-1.5 block text-sm text-muted">{notIncluded}</span> : null}
           </div>
         </form>
       </>
@@ -414,30 +400,27 @@ export default async function PublishingPage({ searchParams }: PageProps<"/dashb
       </PageGroup>
 
       <PageGroup title={t("publishing.groupMore")}>
-      {/* 35, 36, 42 Samsung Galaxy Store, Huawei AppGallery and Xiaomi GetApps, when the client wants them too. */}
-      <form action={chooseMoreStoresAction} aria-labelledby="h-more-stores" className="flex flex-col gap-3 rounded-2xl border border-line bg-white p-5 sm:p-6">
+      {/* 35, 36, 42 Samsung Galaxy Store, Huawei AppGallery and Xiaomi GetApps: 138 the client's own, with automatic uploads once connected. */}
+      <section aria-labelledby="h-more-stores" className="flex flex-col gap-3 rounded-2xl border border-line bg-white p-5 sm:p-6" data-more-stores-yours="">
         <h2 id="h-more-stores" className="m-0 text-lg font-bold">
           {t("publishing.moreStores")}
         </h2>
-        <p className="m-0 text-[15px] leading-relaxed text-ink-4">{t("publishing.moreStoresText")}</p>
-        <fieldset className="m-0 flex flex-col gap-2.5 border-0 p-0">
-          <legend className="sr-only">{t("publishing.alsoOn")}</legend>
+        <p className="m-0 text-[15px] leading-relaxed text-ink-4">{t("publishing.moreStoresYours")}</p>
+        <ul className="m-0 flex list-none flex-col gap-2 p-0">
           {MORE_STORES.map((which) => (
-            <label key={which} className="flex cursor-pointer items-start gap-3 rounded-xl border border-line p-3.5">
-              <input type="checkbox" name="store" value={which} defaultChecked={Boolean(request[which])} className="mt-1 h-4 w-4 accent-midnight" />
-              <span className="flex flex-col gap-0.5">
-                <span className="text-[15px] font-bold">{STORE_TITLE[which]}</span>
-                <span className="text-sm text-ink-4">{t(MORE_STORE_TEXT[which])}</span>
-              </span>
-            </label>
+            <li key={which} className="flex flex-col gap-0.5 rounded-xl border border-line p-3.5">
+              <span className="text-[15px] font-bold">{STORE_TITLE[which]}</span>
+              <span className="text-sm text-ink-4">{t(MORE_STORE_TEXT[which])}</span>
+            </li>
           ))}
-        </fieldset>
+        </ul>
         <div>
-          <SubmitButton variant="secondary" className="h-10" pendingText={saving}>
-            {t("publishing.saveStores")}
-          </SubmitButton>
+          <Link href="/dashboard/publishing/more-stores" className={`${btn.secondary} h-10`}>
+            <Icon name="storefront" size={18} />
+            {t("publishing.moreStoresOpen")}
+          </Link>
         </div>
-      </form>
+      </section>
 
       {events.length ? (
         <section aria-labelledby="h-history" className="flex flex-col gap-3 rounded-2xl border border-line bg-white px-4 py-5 sm:px-6">
