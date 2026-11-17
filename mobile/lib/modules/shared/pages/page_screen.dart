@@ -38,6 +38,9 @@ class PageScreen extends ConsumerWidget {
         onRefresh: refresh,
         child: switch (page) {
           AsyncData(:final value) => AppPageView(page: value, pushed: pushed),
+          // A reload that didn't go through (pulled down, or the app back on
+          // the screen) keeps the page it shows.
+          AsyncError(:final value?) => AppPageView(page: value, pushed: pushed),
           AsyncError(:final error) => ListView(
             children: [
               if (pushed)
