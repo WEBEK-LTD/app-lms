@@ -445,18 +445,31 @@ describe("138.6 the publishing accounts", () => {
   });
 
   it("lists the account's one-time steps, ticked when the platform can tell", () => {
-    const app = { id: "app-1", rollout: null };
+    // An app with no iPhone app takes no APNs key: that step isn't its.
+    const app: App = { ...newApp("client-1", null, NOW, "lms"), id: "app-1", rollout: null };
     expect(accountSteps({ app, builds: [] })).toEqual([
       { id: "play_first_release", state: "todo" },
       { id: "app_privacy", state: "todo" },
-      { id: "apns_key", state: "untracked" },
     ]);
-    expect(apnsKeyState(app)).toBe("untracked");
+    expect(apnsKeyState(app)).toBeNull();
     const draft = { stages: {} as BuildStages, release: { androidRollout: 1, iosPhased: false, play: { track: "production" as const, status: "draft" as const } } };
     expect(accountSteps({ app, builds: [draft] })[0]!.state).toBe("todo");
     const out = { stages: { app_review: "done" } as BuildStages, release: { androidRollout: 1, iosPhased: false, play: { track: "production" as const, status: "completed" as const } } };
-    expect(accountSteps({ app, builds: [draft, out] }).map((s) => s.state)).toEqual(["done", "done", "untracked"]);
-    expect(accountStepLines(accountSteps({ app, builds: [out] }))).toBe(`- ${ACCOUNT_STEP_TEXT.en.apns_key} (not tracked yet)`);
+    expect(accountSteps({ app, builds: [draft, out] }).map((s) => s.state)).toEqual(["done", "done"]);
+    expect(accountStepLines(accountSteps({ app, builds: [out] }))).toBe("");
+
+    // 136.20 An iPhone app whose notifications Yallapp sets up: to do until its APNs key is saved, then done.
+    const iphone: App = { ...app, backend: "hosted", iosBundleId: "com.academy.app", pushSetup: "yallapp" };
+    expect(apnsKeyState(iphone)).toBe("todo");
+    expect(accountStepLines(accountSteps({ app: iphone, builds: [out] }))).toBe(`- ${ACCOUNT_STEP_TEXT.en.apns_key}`);
+    const keyed: App = { ...iphone, apnsKeyEncrypted: "sealed", apnsKeyId: "ABC123DEFG", apnsTeamId: "TEAM123456" };
+    expect(accountSteps({ app: keyed, builds: [out] }).map((s) => [s.id, s.state])).toEqual([
+      ["play_first_release", "done"],
+      ["app_privacy", "done"],
+      ["apns_key", "done"],
+    ]);
+    // With the client's own Firebase the key goes in their Firebase project: not a step here.
+    expect(apnsKeyState({ ...iphone, pushSetup: null })).toBeNull();
     for (const lang of ["ar", "tr"] as const) for (const id of ACCOUNT_STEP_IDS) expect(ACCOUNT_STEP_TEXT[lang][id], `${lang} ${id}`).toBeTruthy();
   });
 });

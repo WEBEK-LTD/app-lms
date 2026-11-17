@@ -349,7 +349,7 @@ function RequestDetail({
             {oneTime.map((step) => (
               <li key={step.id} className="flex items-start gap-2" data-account-step={step.id} data-state={step.state}>
                 <Icon
-                  name={step.state === "done" ? "check_circle" : step.state === "untracked" ? "help" : "radio_button_unchecked"}
+                  name={step.state === "done" ? "check_circle" : "radio_button_unchecked"}
                   size={18}
                   filled={step.state === "done"}
                   className={step.state === "done" ? "text-success" : "text-faint"}

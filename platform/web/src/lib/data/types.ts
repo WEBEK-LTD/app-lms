@@ -756,6 +756,14 @@ export interface App {
   huaweiAgconnectAssetId?: string | null;
   huaweiPushSecretEncrypted?: string | null;
   /**
+   * 136.20 Direct APNs: the client's APNs auth key (.p8, encrypted with
+   * context `app:<id>:apns-key`), its Key ID and the Apple team's ID, checked
+   * with Apple when saved (lib/hosted/apns-key.ts).
+   */
+  apnsKeyEncrypted?: string | null;
+  apnsKeyId?: string | null;
+  apnsTeamId?: string | null;
+  /**
    * 42 Xiaomi GetApps: the developer account's email, the automatic publishing
    * API's private key (encrypted), Xiaomi's public certificate (PEM, public)
    * and what's new in each update. Used to upload builds on plans with "We
@@ -1076,7 +1084,8 @@ export function pushAudienceHas(audience: PushAudience, role: HostedAppRole | nu
 }
 
 /** 36 The push service a device token belongs to. */
-export type PushProvider = "fcm" | "hms";
+/** 136.21 `apns`: an APNs device token, sent straight to Apple (lib/hosted/apns.ts). */
+export type PushProvider = "fcm" | "hms" | "apns";
 
 /** A refresh token (stored hashed). Single use: rotating deletes it. */
 export interface HostedRefreshToken {

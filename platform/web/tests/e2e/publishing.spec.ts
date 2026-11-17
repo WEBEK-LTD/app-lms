@@ -332,13 +332,17 @@ test("138 the other Android stores are the client's own, and each app gets one p
   // The app gets its account the first time it's needed: its owner sees only that email, and the account is told.
   await own.goto("/dashboard/publishing");
   await expect(own.getByText(`you invite our team email, ${accountA}`)).toBeVisible();
-  await expect(own.getByRole("region", { name: "Your steps" }).getByText(`add ${accountA} with the Admin role`)).toBeVisible();
+  // 132.140 A step's how-to is folded.
+  const invite = own.getByRole("region", { name: "Your steps" }).getByRole("listitem").filter({ has: own.getByRole("heading", { name: "Invite our team to App Store Connect" }) });
+  await invite.getByText("How to do it").click();
+  await expect(invite.getByText(`add ${accountA} with the Admin role`)).toBeVisible();
   await expect.poll(async () => (await mailsTo(accountA)).map((m) => m.subject)).toContain("Publishing: Franklin Lab is yours to publish");
   const assigned = (await mailsTo(accountA)).find((m) => m.subject === "Publishing: Franklin Lab is yours to publish")!;
   // Google Play is live already (the team marked it): only the steps still to do.
   expect(assigned.text).not.toContain("Send the app's first Google Play release by hand");
   expect(assigned.text).toContain("Answer App Privacy in App Store Connect for the app's first iPhone version");
-  expect(assigned.text).toContain("(not tracked yet)");
+  // 136.20 A WordPress app's iPhone pushes go through its own Firebase: no APNs key step for the account.
+  expect(assigned.text).not.toContain("APNs");
   await own.reload();
   await expect(own.getByText(`you invite our team email, ${accountA}`)).toBeVisible();
 
@@ -350,7 +354,7 @@ test("138 the other Android stores are the client's own, and each app gets one p
   const steps = card.getByRole("list", { name: "One-time steps for this app" });
   await expect(steps.locator('[data-account-step="play_first_release"]')).toHaveAttribute("data-state", "done");
   await expect(steps.locator('[data-account-step="app_privacy"]')).toHaveAttribute("data-state", "todo");
-  await expect(steps.locator('[data-account-step="apns_key"]')).toContainText("Not tracked yet");
+  await expect(steps.locator('[data-account-step="apns_key"]')).toHaveCount(0);
   await card.getByLabel("Move to", { exact: true }).selectOption({ label: `${accountB} (0 of 50)` });
   await card.getByRole("button", { name: "Move", exact: true }).click();
   await expect(card.getByText(`Moved to ${accountB}.`)).toBeVisible();

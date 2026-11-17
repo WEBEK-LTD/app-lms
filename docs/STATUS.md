@@ -20,7 +20,8 @@ the client's App Store Connect key, once Apple has processed it, and says
 on Builds why when it can't (App Privacy on the first version, the age
 rating, an agreement). A bump of `CLIENT_APP_RELEASE`
 (`lib/builds/app-release.ts`) gives every active app that built before a
-new build, 4 an hour. Galaxy Store, AppGallery and GetApps are the
+new build, 4 an hour; it is 2, so the first deploy rebuilds every active
+app with 132.187's order refresh and 136's iPhone push token. Galaxy Store, AppGallery and GetApps are the
 client's own, uploaded with their keys on every plan. The publishing
 accounts pool (Admin › Settings › Publishing accounts) gives each app one
 account for life; no migration (the app's `rollout` JSON and the setting
@@ -50,6 +51,16 @@ platform's answers were already right. On Huawei phones without Google
 Play, a notification arriving while the app is open isn't passed to it
 (the Push Kit bridge sends taps only), so there the orders refresh on
 coming back to the front and on opening.
+
+Roadmap 136.20–136.23 (iPhone notifications straight to Apple, Phase 2
+of "Yallapp sets up notifications") is in the code: the client's APNs
+key is uploaded once, checked with Apple and saved encrypted; `apns`
+device tokens are sent over HTTP/2 to APNs with it; the app sends its
+APNs token on iPhones when `Config.features.apns` says so. Not yet
+checked against Apple itself: this environment can't reach
+`api.push.apple.com`, so the probe's answers (`BadDeviceToken`,
+`InvalidProviderToken`) and a real delivery are verified only against a
+local HTTP/2 server and fakes. Check both with the first client's key.
 
 Roadmap 134 (pay inside the app for connected stores, Demo) is built for
 WooCommerce: Payments › How customers pay offers Yallapp's checkout (its
@@ -548,6 +559,15 @@ Billing and the App Store's in-app purchase) is complete (steps 100.1 to
   toward Firebase's 30, whether the push-only key is enough for token
   registration, and a first Android push (LAUNCH-CHECKLIST 7z8 step 10).
 
+- 136 Yallapp's Firebase against real Google (tested only against a
+  fake STS, IAM credentials, Firebase Management, Resource Manager,
+  Service Usage, API Keys and FCM): the WIF exchange with the platform as
+  issuer, whether `getConfig` returns one app or the project's (the
+  platform keeps only the client's packages either way), the minimum
+  roles, the project-creation quota, whether a removed app still counts
+  toward Firebase's 30, whether the push-only key is enough for token
+  registration, and a first Android push (LAUNCH-CHECKLIST 7z8 step 10).
+
 These parts were tested against recorded answers or could not run in the
 test environment:
 
@@ -581,8 +601,6 @@ test environment:
 - 138 What's New for an update is a short default per language ("Improvements
   and fixes.") where App Store Connect has none; the owner can't write
   their own yet.
-- 138 The iPhone notifications key (APNs .p8) is "not tracked yet" in the
-  accounts' one-time steps until Phase 136's key upload is merged.
 - 138 Builds queued before Phase 138 keep `auto_publish: false` and the
   internal track; the next build is published for the client.
 - 136 Yallapp's Firebase, Phase 1: iPhones receive no push until Phase 2

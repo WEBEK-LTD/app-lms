@@ -1811,9 +1811,11 @@ and nothing calls Google.
       app's one-time steps, a Google Play draft to send by hand, and App
       Review blockers (App Privacy on a first version, the age rating, an
       agreement).
-- [ ] Bump `CLIENT_APP_RELEASE` in `platform/web/src/lib/builds/app-release.ts`
-      in the change that should reach every client's app (4 builds an hour:
-      iPhone builds use the paid macOS minutes).
+- [ ] Expect every active client app to rebuild after the first deploy of
+      Phase 138: `CLIENT_APP_RELEASE` (`platform/web/src/lib/builds/app-release.ts`)
+      is 2, for 132.187's order refresh and 136's iPhone push token, at 4
+      builds an hour (iPhone builds use the paid macOS minutes). Bump it
+      again in each later change that should reach every client's app.
 - [ ] With one real client app on each store: the first Google Play release
       sent by hand from its draft, then an update that goes to production by
       itself; an iPhone build that goes to App Review by itself and is
@@ -1821,3 +1823,11 @@ and nothing calls Google.
 - [ ] Apps that bought the publishing add-on: it runs to its end and isn't
       renewed; decide whether to refund what's left (the records are kept in
       Admin › Add-ons and on each client's page).
+
+## Phase 136: iPhone notifications straight to Apple (136.20–136.23)
+
+- [ ] Deploy. Migration `0139_apns_direct` runs with the others, after
+      Phase 1's `0138_yallapp_firebase`. Nothing
+      else: no setting, no Apple or Google account step. Each client
+      uploads their own APNs key once under "iPhone notifications"; the
+      page shows what Apple answered.
