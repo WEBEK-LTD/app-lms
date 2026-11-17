@@ -204,6 +204,7 @@ class DeliveryDateRules {
     required this.maxDays,
     this.closedWeekdays = const [],
     this.timezone,
+    this.utcOffsetMinutes,
     this.sameDayCutoff,
     this.slots = const [],
   });
@@ -218,12 +219,26 @@ class DeliveryDateRules {
         if (day is num) day.toInt(),
     ],
     timezone: optString(json, 'timezone'),
+    utcOffsetMinutes: optInt(json, 'utc_offset_minutes'),
     sameDayCutoff: optString(json, 'same_day_cutoff'),
     slots: listOf(json, 'slots', DeliverySlot.fromJson),
   );
 
   /// 131 The shop's time zone (the days and the cut-off count in it).
   final String? timezone;
+
+  /// The shop's offset from UTC when the config was served, in minutes;
+  /// null (older servers): the phone's own time.
+  final int? utcOffsetMinutes;
+
+  /// The shop's local time at [phoneNow]: what "today" and the cut-off
+  /// count in, wherever the customer's phone is (a gift sent from abroad).
+  DateTime shopNow(DateTime phoneNow) {
+    final offset = utcOffsetMinutes;
+    if (offset == null) return phoneNow;
+    final at = phoneNow.toUtc().add(Duration(minutes: offset));
+    return DateTime(at.year, at.month, at.day, at.hour, at.minute, at.second);
+  }
 
   /// 131 "14:00": orders for today until then; null: all day.
   final String? sameDayCutoff;

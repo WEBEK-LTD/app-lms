@@ -4464,357 +4464,6 @@
     "blocks": []
    },
    {
-    "slug": "courses",
-    "title": "Courses",
-    "translations": {
-     "ar": {
-      "title": "الدورات"
-     },
-     "tr": {
-      "title": "Kurslar"
-     }
-    },
-    "studio": {
-     "body": {
-      "id": "demo-189",
-      "type": "column",
-      "children": [
-       {
-        "id": "demo-196",
-        "type": "photo_hero",
-        "name": "Find the right flowers",
-        "image_url": "http://localhost:3000/flower-photos/blush-bouquet.jpg",
-        "height": 190,
-        "radius": 28,
-        "background": "#2A0C17",
-        "scrim": {
-         "color": "#2A0C17",
-         "from": 0.85,
-         "middle": 0.35,
-         "at": 60,
-         "to": 0.1,
-         "angle": 90
-        },
-        "align": "center",
-        "padding": {
-         "top": 18,
-         "end": 20,
-         "bottom": 18,
-         "start": 20
-        },
-        "margin": {
-         "top": 8,
-         "end": 16,
-         "bottom": 4,
-         "start": 16
-        },
-        "ken_burns": true,
-        "children": [
-         {
-          "id": "demo-197",
-          "type": "text",
-          "text": "Find the right flowers",
-          "color": "#FFFFFF",
-          "width": 220,
-          "max_lines": 2,
-          "font": {
-           "family": "Fraunces",
-           "size": 28,
-           "weight": 500,
-           "line_height": 1.04,
-           "letter_spacing": -0.56
-          },
-          "translations": {
-           "ar": {
-            "text": "اعثر على الزهور المناسبة"
-           },
-           "tr": {
-            "text": "Doğru çiçekleri bulun"
-           }
-          }
-         },
-         {
-          "id": "demo-198",
-          "type": "text",
-          "text": "By occasion, by colour, by collection.",
-          "color": "#FFFFFF",
-          "opacity": 0.9,
-          "width": 220,
-          "max_lines": 2,
-          "font": {
-           "size": 13,
-           "line_height": 1.35
-          },
-          "margin": {
-           "top": 6,
-           "end": 0,
-           "bottom": 0,
-           "start": 0
-          },
-          "translations": {
-           "ar": {
-            "text": "حسب المناسبة واللون والمجموعة."
-           },
-           "tr": {
-            "text": "Vesileye, renge, koleksiyona göre."
-           }
-          }
-         }
-        ]
-       },
-       {
-        "id": "demo-199",
-        "type": "stories",
-        "name": "Every occasion",
-        "interval_ms": 5000,
-        "stories": {
-         "size": 58
-        },
-        "color": "#2A121C",
-        "dark_color": "#F8EAEE",
-        "slides": [
-         {
-          "image_url": "http://localhost:3000/flower-photos/blush-bouquet.jpg",
-          "heading": "Love",
-          "translations": {
-           "ar": {
-            "heading": "حب"
-           },
-           "tr": {
-            "heading": "Aşk"
-           }
-          },
-          "subheading": null,
-          "action": {
-           "type": "screen",
-           "screen": "search"
-          },
-          "ring": "highlight",
-          "ring_color": "#C89B6D"
-         },
-         {
-          "image_url": "http://localhost:3000/flower-photos/tulips.jpg",
-          "heading": "Birthday",
-          "translations": {
-           "ar": {
-            "heading": "عيد ميلاد"
-           },
-           "tr": {
-            "heading": "Doğum günü"
-           }
-          },
-          "subheading": null,
-          "action": {
-           "type": "screen",
-           "screen": "search"
-          },
-          "ring": "highlight",
-          "ring_color": "#C89B6D"
-         },
-         {
-          "image_url": "http://localhost:3000/flower-photos/white-lilies.jpg",
-          "heading": "Sympathy",
-          "translations": {
-           "ar": {
-            "heading": "مواساة"
-           },
-           "tr": {
-            "heading": "Taziye"
-           }
-          },
-          "subheading": null,
-          "action": {
-           "type": "screen",
-           "screen": "search"
-          },
-          "ring": "plain"
-         },
-         {
-          "image_url": "http://localhost:3000/flower-photos/sunshine.jpg",
-          "heading": "New baby",
-          "translations": {
-           "ar": {
-            "heading": "مولود جديد"
-           },
-           "tr": {
-            "heading": "Yeni bebek"
-           }
-          },
-          "subheading": null,
-          "action": {
-           "type": "screen",
-           "screen": "search"
-          },
-          "ring": "plain"
-         },
-         {
-          "image_url": "http://localhost:3000/flower-photos/ranunculus.jpg",
-          "heading": "Congratulations",
-          "translations": {
-           "ar": {
-            "heading": "تهنئة"
-           },
-           "tr": {
-            "heading": "Tebrikler"
-           }
-          },
-          "subheading": null,
-          "action": {
-           "type": "screen",
-           "screen": "search"
-          },
-          "ring": "plain"
-         }
-        ],
-        "padding": {
-         "top": 10,
-         "end": 12,
-         "bottom": 2,
-         "start": 12
-        }
-       },
-       {
-        "id": "demo-200",
-        "type": "row",
-        "name": "The signature bouquet",
-        "gap": 8,
-        "scroll": true,
-        "padding": {
-         "top": 4,
-         "end": 16,
-         "bottom": 4,
-         "start": 16
-        },
-        "children": [
-         {
-          "id": "demo-201",
-          "type": "button",
-          "name": "Our bouquet",
-          "text": "Our bouquet",
-          "icon": "local_florist",
-          "icon_position": "start",
-          "width": "hug",
-          "height": 42,
-          "radius": 21,
-          "padding": {
-           "top": 0,
-           "end": 16,
-           "bottom": 0,
-           "start": 16
-          },
-          "self_align": "start",
-          "background": "#8E2445",
-          "dark_background": "#F3A9C0",
-          "color": "#FFFFFF",
-          "dark_color": "#2A121C",
-          "font": {
-           "size": 15,
-           "weight": 700
-          },
-          "shadow": "none",
-          "motion": {
-           "press": "shrink"
-          },
-          "action": {
-           "type": "page",
-           "page_slug": "bouquet"
-          },
-          "margin": {
-           "top": 0,
-           "end": 0,
-           "bottom": 0,
-           "start": 0
-          },
-          "translations": {
-           "ar": {
-            "text": "باقتنا"
-           },
-           "tr": {
-            "text": "Buketimiz"
-           }
-          }
-         },
-         {
-          "id": "demo-202",
-          "type": "button",
-          "name": "Your picks",
-          "text": "Your picks",
-          "icon": "favorite",
-          "icon_position": "start",
-          "width": "hug",
-          "height": 42,
-          "radius": 21,
-          "padding": {
-           "top": 0,
-           "end": 16,
-           "bottom": 0,
-           "start": 16
-          },
-          "self_align": "start",
-          "background": "#FFFFFF",
-          "dark_background": "#21121A",
-          "color": "#2A121C",
-          "dark_color": "#F8EAEE",
-          "font": {
-           "size": 15,
-           "weight": 700
-          },
-          "shadow": "none",
-          "motion": {
-           "press": "shrink"
-          },
-          "action": {
-           "type": "page",
-           "page_slug": "wishlist"
-          },
-          "margin": {
-           "top": 0,
-           "end": 0,
-           "bottom": 0,
-           "start": 0
-          },
-          "border_color": "#F0DDD9",
-          "dark_border_color": "#3A2530",
-          "border_width": 1,
-          "translations": {
-           "ar": {
-            "text": "اختياراتك"
-           },
-           "tr": {
-            "text": "Seçimleriniz"
-           }
-          }
-         }
-        ]
-       }
-      ]
-     },
-     "screen": "courses",
-     "header": {
-      "type": "title",
-      "title": "Courses",
-      "translations": {
-       "ar": {
-        "title": "الدورات"
-       },
-       "tr": {
-        "title": "Kurslar"
-       }
-      },
-      "background": "#FBF3F0",
-      "color": "#2A121C",
-      "dark_background": "#140A0F",
-      "dark_color": "#F8EAEE",
-      "style": "petal"
-     },
-     "background": "#FBF3F0",
-     "dark_background": "#140A0F"
-    },
-    "show_title": false,
-    "updated_at": "2026-11-14T12:00:00.000Z",
-    "blocks": []
-   },
-   {
     "slug": "settings",
     "title": "Settings",
     "translations": {
@@ -4827,7 +4476,7 @@
     },
     "studio": {
      "body": {
-      "id": "demo-190",
+      "id": "demo-189",
       "type": "column",
       "children": []
      },
@@ -4869,7 +4518,7 @@
     },
     "studio": {
      "body": {
-      "id": "demo-191",
+      "id": "demo-190",
       "type": "column",
       "children": []
      },
@@ -4911,7 +4560,7 @@
     },
     "studio": {
      "body": {
-      "id": "demo-192",
+      "id": "demo-191",
       "type": "column",
       "children": []
      },
@@ -4953,7 +4602,7 @@
     },
     "studio": {
      "body": {
-      "id": "demo-193",
+      "id": "demo-192",
       "type": "column",
       "children": []
      },
@@ -4987,7 +4636,7 @@
     "title": "Change password",
     "studio": {
      "body": {
-      "id": "demo-194",
+      "id": "demo-193",
       "type": "column",
       "children": []
      },
@@ -5004,7 +4653,7 @@
     "title": "A conversation",
     "studio": {
      "body": {
-      "id": "demo-195",
+      "id": "demo-194",
       "type": "column",
       "children": []
      },

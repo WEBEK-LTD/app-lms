@@ -4,9 +4,11 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:yallapp/core/api/models/models.dart';
+import 'package:yallapp/core/app_environment.dart';
 import 'package:yallapp/core/config/build_config_data.dart';
 import 'package:yallapp/core/format/dates.dart';
 import 'package:yallapp/core/l10n/l10n.dart';
+import 'package:yallapp/core/providers.dart';
 import 'package:yallapp/core/theme/app_theme.dart';
 import 'package:yallapp/core/widgets/sale_widgets.dart';
 import 'package:yallapp/modules/shared/pages/studio_flash_sale.dart';
@@ -276,6 +278,18 @@ void main() {
 
   Widget bare(Widget child, {String lang = 'en', bool dark = false}) =>
       ProviderScope(
+        // A shop's app: its products open (the cards check they can).
+        overrides: [
+          appEnvironmentProvider.overrideWithValue(
+            AppEnvironment(
+              build: testBuild.copyWith(appType: AppType.store),
+              platform: DevicePlatform.android,
+              appVersion: '1.0.0',
+              deviceId: 'device-1',
+              deviceName: 'Test phone',
+            ),
+          ),
+        ],
         child: MaterialApp(
           theme: buildAppTheme(
             primary: const Color(0xFFC2185B),

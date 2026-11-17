@@ -8,6 +8,7 @@ import '../../../core/auth/auth_controller.dart';
 import '../../../core/format/dates.dart';
 import '../../../core/gate/app_gate.dart';
 import '../../../core/providers.dart';
+import '../../../core/routing/app_router.dart' show openLocation;
 import '../../../core/routing/paths.dart';
 import '../../../core/services/external_links.dart';
 import '../../../core/theme/app_icons.dart';
@@ -163,7 +164,8 @@ class _CartScreenState extends ConsumerState<CartScreen> {
   /// The delivery date as before 131, for a shop with no slots and no
   /// same-day cut-off (its app looks as it did).
   Future<void> _pickDate(DeliveryDateRules rules) async {
-    final today = DateTime.now();
+    // The shop's today, wherever the phone is.
+    final today = rules.shopNow(DateTime.now());
     final first = rules.firstDay(today);
     if (first == null) {
       showMessage(context, context.l10n.noDeliveryDays);
@@ -434,7 +436,7 @@ class _CartScreenState extends ConsumerState<CartScreen> {
                   title: context.l10n.cartEmptyTitle,
                   message: context.l10n.cartEmptyMessage,
                   actionLabel: context.words.startShopping,
-                  onAction: () => context.go(Paths.shop),
+                  onAction: () => openLocation(context, Paths.shop),
                 ),
               ),
             ],
@@ -1445,10 +1447,14 @@ class _CouponCardState extends ConsumerState<_CouponCard> {
             ),
           ),
           const SizedBox(width: 8),
-          TextButton(
-            key: const Key('cart-coupon-apply'),
-            onPressed: _apply,
-            child: Text(l10n.couponApply),
+          // Apply only once there is a code to apply.
+          ListenableBuilder(
+            listenable: _code,
+            builder: (context, _) => TextButton(
+              key: const Key('cart-coupon-apply'),
+              onPressed: _code.text.trim().isEmpty ? null : _apply,
+              child: Text(l10n.couponApply),
+            ),
           ),
         ],
       );

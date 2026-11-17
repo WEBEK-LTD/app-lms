@@ -213,7 +213,7 @@ class _SlideView extends ConsumerWidget {
     final heading = slide.heading?.trim() ?? '';
     final subheading = slide.subheading?.trim() ?? '';
     final image = slide.imageUrl;
-    final action = slide.action;
+    final action = openableAction(ref, slide.action);
     final bold = style.template == AppTemplate.bold;
     final align = blockAlign(context);
     final fit = blockImageFit(context);
@@ -789,7 +789,7 @@ class _CountdownViewState extends ConsumerState<CountdownView> {
       final text = b.endedText?.trim() ?? '';
       if (text.isEmpty) return const SizedBox.shrink();
     }
-    final action = b.action;
+    final action = openableAction(ref, b.action);
     final label = b.label?.trim() ?? '';
     final units = [
       (left.inDays, l10n.countdownDays),
@@ -1259,8 +1259,9 @@ class TeamView extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    VoidCallback? tap(TeamMember m) =>
-        m.action == null ? null : () => runPageAction(context, ref, m.action);
+    VoidCallback? tap(TeamMember m) => openableAction(ref, m.action) == null
+        ? null
+        : () => runPageAction(context, ref, m.action);
     switch (block.layout) {
       // 110 One person: their card across the row, not one card beside an
       // empty half.
@@ -1591,7 +1592,7 @@ class NoticeView extends ConsumerWidget {
       NoticeTone.success => (p.successSoft, p.success, AppIcons.checkCircle),
       NoticeTone.warning => (p.timerSoft, p.onTimerSoft, AppIcons.warning),
     };
-    final action = block.action;
+    final action = openableAction(ref, block.action);
     final label = block.label?.trim() ?? '';
     final link = action != null && label.isNotEmpty;
     final align = blockAlign(context);

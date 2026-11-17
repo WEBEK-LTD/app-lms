@@ -7,6 +7,7 @@ import '../../../core/format/money.dart';
 import '../../../core/gate/app_gate.dart';
 import '../../../core/providers.dart';
 import '../../../core/purchase/purchase_rules.dart';
+import '../../../core/routing/app_router.dart' show openLocation;
 import '../../../core/routing/paths.dart';
 import '../../../core/theme/app_icons.dart';
 import '../../../core/theme/palette.dart';
@@ -175,7 +176,7 @@ class _ProductViewState extends ConsumerState<_ProductView> {
           action: added
               ? SnackBarAction(
                   label: context.l10n.viewCart,
-                  onPressed: () => context.go(Paths.cart),
+                  onPressed: () => openLocation(context, Paths.cart),
                 )
               : null,
         ),
@@ -273,7 +274,7 @@ class _ProductViewState extends ConsumerState<_ProductView> {
                       ? context.l10n.cartWithItems(count)
                       : context.l10n.tabCart,
                   badge: count > 0,
-                  onPressed: () => context.go(Paths.cart),
+                  onPressed: () => openLocation(context, Paths.cart),
                 ),
               ),
             ],

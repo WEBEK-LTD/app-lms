@@ -2646,6 +2646,7 @@ class StudioNode {
     this.opacity = 1,
     this.font,
     this.textAlign = StudioTextAlign.start,
+    this.givenTextAlign,
     this.text,
     this.title,
     this.endsAt,
@@ -2655,6 +2656,7 @@ class StudioNode {
     this.icon,
     this.iconAtStart = false,
     this.iconSize = 24,
+    this.givenIconSize,
     this.videoUrl,
     this.autoplay = false,
     this.intervalMs = 4000,
@@ -2789,6 +2791,7 @@ class StudioNode {
           json['text_align'],
           StudioTextAlign.start,
         ),
+        givenTextAlign: enumOrNull(StudioTextAlign.values, json['text_align']),
         text: optString(json, 'text'),
         title: optString(json, 'title'),
         endsAt: DateTime.tryParse(optString(json, 'ends_at') ?? ''),
@@ -2798,6 +2801,7 @@ class StudioNode {
         icon: optString(json, 'icon'),
         iconAtStart: json['icon_position'] == 'start',
         iconSize: n('icon_size', 24, 8, 200),
+        givenIconSize: optDouble(json, 'icon_size')?.clamp(8, 200).toDouble(),
         videoUrl: optString(json, 'video_url'),
         autoplay: boolOr(json, 'autoplay', false),
         intervalMs: intOr(json, 'interval_ms', 4000).clamp(1500, 20000),
@@ -3019,6 +3023,10 @@ class StudioNode {
   final double opacity;
   final StudioFont? font;
   final StudioTextAlign textAlign;
+
+  /// App audit: the alignment the owner chose, null when none (a button's
+  /// words are then in its middle, as the editor draws them).
+  final StudioTextAlign? givenTextAlign;
   final String? text;
 
   /// 107.3 For a child of an accordion or tabs: its question or tab name.
@@ -3036,6 +3044,10 @@ class StudioNode {
   final String? icon;
   final bool iconAtStart;
   final double iconSize;
+
+  /// App audit: the icon size the owner chose, null when none (a button's
+  /// and a list's icons are then 20, as the editor draws them).
+  final double? givenIconSize;
   final String? videoUrl;
   final bool autoplay;
   final int intervalMs;

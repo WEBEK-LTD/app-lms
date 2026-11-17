@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import '../images/app_image.dart';
 import '../theme/app_icons.dart';
 
 /// 82.5 The owner's own icon ([url], a square picture) when there is one and
@@ -25,14 +26,21 @@ class OwnIcon extends StatelessWidget {
     final glyph = AppIcon(icon, size: size, color: color, filled: filled);
     final own = url;
     if (own == null || own.isEmpty) return glyph;
-    return Image.network(
-      own,
+    // Kept on the phone, and decoded at the icon's size (lib/core/images).
+    final target = decodeTargetFor(
+      const BoxConstraints(),
+      width: size,
+      height: size,
+      fit: BoxFit.contain,
+      devicePixelRatio: MediaQuery.maybeDevicePixelRatioOf(context) ?? 1.0,
+    );
+    return Image(
+      image: networkPicture(own, target: target),
       width: size,
       height: size,
       fit: BoxFit.contain,
       excludeFromSemantics: true,
       gaplessPlayback: true,
-      webHtmlElementStrategy: WebHtmlElementStrategy.fallback,
       errorBuilder: (_, _, _) => glyph,
     );
   }

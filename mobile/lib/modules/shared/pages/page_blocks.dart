@@ -193,7 +193,7 @@ class PageBlockView extends ConsumerWidget {
   static bool shows(PageBlock block, WidgetRef ref) {
     final appType = ref.read(appEnvironmentProvider).build.appType;
     return switch (block) {
-      ItemsBlock(:final items) => followableItems(items, appType).isNotEmpty,
+      ItemsBlock(:final items) => openableItems(ref, items).isNotEmpty,
       // 30 Categories this app type can't filter by (courses in a Store app).
       CategoriesBlock(:final categories, :final source) =>
         categories.isNotEmpty &&
@@ -209,6 +209,8 @@ class PageBlockView extends ConsumerWidget {
       // 99.4 A form whose answers go to the chat, in an app without chat.
       FormBlock(:final sendTo) =>
         sendTo == FormSendTo.email || ref.read(chatConfigProvider) != null,
+      // A button whose action opens nothing here isn't shown to be tapped.
+      ButtonBlock(:final action) => openableAction(ref, action) != null,
       _ => block.hasContent,
     };
   }
@@ -308,7 +310,7 @@ class _Banner extends ConsumerWidget {
     final hasText =
         (heading != null && heading.isNotEmpty) ||
         (subheading != null && subheading.isNotEmpty);
-    final action = block.action;
+    final action = openableAction(ref, block.action);
     return Semantics(
       button: action != null,
       image: true,
@@ -404,7 +406,7 @@ class _Image extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final ratio = block.aspectRatio;
-    final action = block.action;
+    final action = openableAction(ref, block.action);
     final fit = blockImageFit(context);
     final image = ClipRRect(
       borderRadius: BorderRadius.circular(
@@ -576,12 +578,10 @@ class _Items extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final title = block.title?.trim() ?? '';
-    final seeAll = block.seeAll;
+    // "See all" only when it opens something here.
+    final seeAll = openableAction(ref, block.seeAll);
     void open(PageItem item) => runPageAction(context, ref, item.tapAction);
-    final items = followableItems(
-      block.items,
-      ref.watch(appEnvironmentProvider).build.appType,
-    );
+    final items = openableItems(ref, block.items);
     final Widget list = switch (block.layout) {
       ItemsLayout.carousel => _Carousel(items: items, onTap: open),
       ItemsLayout.grid => _Grid(items: items, onTap: open),

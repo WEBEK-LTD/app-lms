@@ -114,9 +114,10 @@ class StudioPremiumHeader extends ConsumerWidget {
                     icon == HeaderIcon.search))
           ChromeGlassButton(
             key: ValueKey('studio-header-${icon.name}'),
+            // App audit: the cart a bag, as the Studio editor draws it.
             icon: switch (icon) {
               HeaderIcon.search => AppIcons.search,
-              HeaderIcon.cart => AppIcons.cart,
+              HeaderIcon.cart => AppIcons.bag,
               HeaderIcon.notifications => AppIcons.notifications,
               HeaderIcon.chat => AppIcons.chat,
               HeaderIcon.account => AppIcons.account,
