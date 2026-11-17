@@ -252,9 +252,10 @@ function ProductDetail({
           <span className="text-[15px] leading-snug text-ink-4">{who}</span>
         </div>
       </div>
-      <div className="flex justify-center gap-3 rounded-2xl bg-sand px-3 py-5 sm:gap-5" data-product-samples="">
+      {/* Three phones in a row at any width: each a third of the row, at most 128 px. */}
+      <div className="flex justify-center gap-2 rounded-2xl bg-sand px-3 py-5 sm:gap-5" data-product-samples="">
         {look.samples.map((screen) => (
-          <Sample key={screen} screen={screen} alt={alt[screen]} className="w-[94px] flex-none sm:w-[128px]" />
+          <Sample key={screen} screen={screen} alt={alt[screen]} className="w-[min(30%,128px)] flex-none" />
         ))}
       </div>
       <p className="m-0 text-base leading-relaxed text-ink-3">{intro}</p>

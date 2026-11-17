@@ -8,6 +8,15 @@ Last updated: 17 November 2026.
 
 ## Current release
 
+Roadmap 146 (the pricing page: the app and Studio side by side): /pricing
+starts with the two products side by side, each with a real screen and its
+"from" price; one billing period for both, lifetime among its choices;
+Studio's plans right under the regular ones with every period, the price
+per month and the saving; each product explained with real screens; how
+they differ; and every feature of the app's plans in a fold, so the page is
+shorter. Prices still come from Admin › Plans: the owner checks Studio's
+1, 2 and 3-year and lifetime prices there (ROADMAP 146.9).
+
 Roadmap 144 (the card typed inside the payment page): with Stripe (its
 publishable key saved), Yallapp's payment page (stores, food and
 deliveries, bookings, courses, events, connected stores paying in the app)

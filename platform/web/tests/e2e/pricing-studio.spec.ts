@@ -217,13 +217,15 @@ test("each product explained with real screens, how they differ, and every featu
   expect(studioTop).toBeLessThan((await page.locator("[data-compare-all]").boundingBox())!.y);
 
   // On a phone: no sideways scroll, the differences topic by topic.
-  await page.setViewportSize({ width: 390, height: 844 });
-  await page.goto("/pricing?period=12");
-  expect(await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth)).toBe(true);
+  for (const width of [360, 390]) {
+    await page.setViewportSize({ width, height: 844 });
+    await page.goto("/pricing?period=12");
+    expect(await page.evaluate(() => document.documentElement.scrollWidth - document.documentElement.clientWidth), `${width} px`).toBeLessThanOrEqual(0);
+  }
   await expect(page.locator("[data-studio-differences] ul").first()).toBeVisible();
   await expect(page.getByRole("table", { name: "Regular apps and Studio projects" })).toBeHidden();
   await page.goto("/ar/pricing?period=lifetime");
-  expect(await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth)).toBe(true);
+  expect(await page.evaluate(() => document.documentElement.scrollWidth - document.documentElement.clientWidth)).toBeLessThanOrEqual(0);
   await page.close();
 });
 
