@@ -130,6 +130,8 @@ export const en = {
   reviewEmailOnly: "Your app signs in by email only, so reviewers need the review email address.",
   reviewSetEmail: "Set the email address when your app offers email sign-in.",
   reviewGive: "Give them to the stores with your notes for the reviewers on Publishing.",
+  // 102.2
+  reviewAuto: "The App Store now gets this sign-in automatically with every build we upload there. Google Play doesn't let apps send it, so our team adds it there for you.",
   reviewPhone: "Review phone number",
   reviewEmail: "Review email address",
   reviewCode: "Review code",
@@ -457,6 +459,8 @@ export const ar: Messages = {
   reviewEmailOnly: "يسجّل تطبيقك الدخول بالبريد الإلكتروني فقط، لذا يحتاج المراجعون إلى بريد المراجعة.",
   reviewSetEmail: "حدّد البريد الإلكتروني عندما يتيح تطبيقك تسجيل الدخول بالبريد الإلكتروني.",
   reviewGive: "قدّمها إلى المتاجر مع ملاحظاتك للمراجعين في صفحة النشر.",
+  // 102.2
+  reviewAuto: "الـ App Store بقى بياخد بيانات الدخول دي لوحده مع كل نسخة بنرفعها عليه. Google Play مش بيسمح إنها تتبعت، ففريقنا بيضيفها هناك بداله.",
   reviewPhone: "رقم هاتف المراجعة",
   reviewEmail: "بريد المراجعة الإلكتروني",
   reviewCode: "رمز المراجعة",
@@ -774,6 +778,8 @@ export const tr: Messages = {
   reviewEmailOnly: "Uygulamanız yalnızca e-postayla giriş yapıyor; bu yüzden inceleyenlerin inceleme e-posta adresine ihtiyacı var.",
   reviewSetEmail: "Uygulamanız e-postayla giriş sunuyorsa e-posta adresini belirleyin.",
   reviewGive: "Bunları Yayınlama sayfasında inceleyenler için notlarınızla birlikte mağazalara verin.",
+  // 102.2
+  reviewAuto: "App Store artık bu girişi oraya yüklediğimiz her derlemeyle otomatik olarak alıyor. Google Play bunun gönderilmesine izin vermiyor; orada ekibimiz sizin yerinize ekliyor.",
   reviewPhone: "İnceleme telefon numarası",
   reviewEmail: "İnceleme e-posta adresi",
   reviewCode: "İnceleme kodu",

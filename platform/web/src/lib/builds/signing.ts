@@ -5,6 +5,7 @@ import { rewrapPem } from "../crypto/pem";
 import { XIAOMI_DEFAULT_RELEASE_NOTES } from "../publishing/more-stores";
 import type { DataStore, SigningKeysPatch } from "../data/store";
 import type { App, Build } from "../data/types";
+import type { AppReviewSecret } from "../publishing/app-review-secret";
 
 /**
  * Signing and store keys handed to the build pipeline (docs/api/pipeline.yaml,
@@ -53,6 +54,12 @@ export interface BuildSecrets {
   huawei_appgallery: { app_id: string; client_id: string; client_secret: string } | null;
   /** 42 Xiaomi GetApps (the Xiaomi developer platform's automatic publishing API). */
   xiaomi_getapps: { user_name: string; password: string; public_certificate: string; release_notes: string } | null;
+  /**
+   * 102.2 The reviewers' sign-in and contact for the App Store's App Review
+   * Information: only with the App Store Connect key, on builds that upload
+   * ("We publish for you"); null otherwise or when the app has none.
+   */
+  app_review: AppReviewSecret | null;
 }
 
 /** Encryption contexts (AAD) per app and kind, so a value can't be moved to another column or app. */
@@ -80,10 +87,23 @@ export function isBuilding(build: Build): boolean {
  * (its plan has no iOS app, 13.1): the pipeline then skips iOS. 35, 36 The
  * Galaxy Store and AppGallery keys only upload, so they go only to builds
  * whose plan includes "We publish for you" (`autoPublish`). 42 So do the
- * Xiaomi GetApps keys.
+ * Xiaomi GetApps keys. 102.2 So does the reviewers' sign-in (`appReview`
+ * builds it), and only with the App Store Connect key.
  */
-export function buildSecrets(app: App, key: Buffer, options: { ios?: boolean; autoPublish?: boolean } = {}): BuildSecrets {
+export function buildSecrets(
+  app: App,
+  key: Buffer,
+  options: { ios?: boolean; autoPublish?: boolean; appReview?: (app: App, key: Buffer) => AppReviewSecret | null } = {},
+): BuildSecrets {
   const uploads = options.autoPublish === true;
+  const appStoreConnect =
+    options.ios !== false && app.ascPrivateKeyEncrypted && app.ascIssuerId && app.ascKeyId
+      ? {
+          issuer_id: app.ascIssuerId,
+          key_id: app.ascKeyId,
+          private_key: canonicalPrivateKey(decrypt(app.ascPrivateKeyEncrypted, key, keyContext.appStore(app.id))),
+        }
+      : null;
   return {
     android_upload_key: app.androidUploadKeyEncrypted
       ? (JSON.parse(decrypt(app.androidUploadKeyEncrypted, key, keyContext.androidUploadKey(app.id))) as AndroidUploadKey)
@@ -94,14 +114,7 @@ export function buildSecrets(app: App, key: Buffer, options: { ios?: boolean; au
     google_play: app.googlePlayKeyEncrypted
       ? { service_account_json: decrypt(app.googlePlayKeyEncrypted, key, keyContext.googlePlay(app.id)) }
       : null,
-    app_store_connect:
-      options.ios !== false && app.ascPrivateKeyEncrypted && app.ascIssuerId && app.ascKeyId
-        ? {
-            issuer_id: app.ascIssuerId,
-            key_id: app.ascKeyId,
-            private_key: canonicalPrivateKey(decrypt(app.ascPrivateKeyEncrypted, key, keyContext.appStore(app.id))),
-          }
-        : null,
+    app_store_connect: appStoreConnect,
     galaxy_store:
       uploads && app.galaxyKeyEncrypted && app.galaxyContentId && app.galaxyServiceAccountId
         ? {
@@ -127,6 +140,8 @@ export function buildSecrets(app: App, key: Buffer, options: { ios?: boolean; au
             release_notes: app.xiaomiReleaseNotes?.trim() || XIAOMI_DEFAULT_RELEASE_NOTES,
           }
         : null,
+    // 102.2 Only where the build sets App Review Information: the client's key, and an upload.
+    app_review: uploads && appStoreConnect && options.appReview ? options.appReview(app, key) : null,
   };
 }
 

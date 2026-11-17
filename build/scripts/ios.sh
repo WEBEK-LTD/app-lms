@@ -106,9 +106,12 @@ if [ "${AUTO_PUBLISH:-false}" = "true" ]; then
 		TESTFLIGHT="done"
 		# 88.2 The listing in every language with the iPhone and iPad screenshots (framed when
 		# asked), on the version being prepared. The build stays on TestFlight either way.
+		# 102.2 The reviewers' sign-in, set on App Review Information (never in the artifacts).
+		REVIEW=""
+		if python3 "$SCRIPTS/app_review.py" "$WORK/secrets.json" "$WORK/review.json"; then REVIEW="$WORK/review.json"; fi
 		if platform store "$BUILD_ID" "$WORK/store.json" &&
 			python3 "$SCRIPTS/store_listing.py" appstore "$WORK/store.json" "$WORK/appstore-listing" &&
-			(cd "$ROOT/build" && bundle exec fastlane ios appstore_listing secrets:"$WORK/secrets.json" bundle_id:"$BUNDLE_ID" listing:"$WORK/appstore-listing" phased:"${IOS_PHASED:-false}"); then
+			(cd "$ROOT/build" && bundle exec fastlane ios appstore_listing secrets:"$WORK/secrets.json" bundle_id:"$BUNDLE_ID" listing:"$WORK/appstore-listing" phased:"${IOS_PHASED:-false}" review:"$REVIEW"); then
 			:
 		else
 			MESSAGE="Your iOS app is on TestFlight, but its App Store listing didn't go through. Check the texts and screenshots in App Store Connect."

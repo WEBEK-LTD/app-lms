@@ -426,6 +426,10 @@ Billing and the App Store's in-app purchase) is complete (steps 100.1 to
 
 - 133 A Kashier payment for 6, 24 or 36 months, for life and for an
   add-on (the amounts are the team's prices; the flow is the plans').
+- 102.2 A client's iOS build that uploads sets App Review Information
+  (demo account, sign-in required, notes, contact) through App Store
+  Connect's `appStoreReviewDetails`; the lane loads, but the call hasn't
+  run on the macOS runner against a real client's version yet.
 
 These parts were tested against recorded answers or could not run in the
 test environment:

@@ -18,6 +18,7 @@ import {
   type TestTokenState,
 } from "@/app/actions/app-sign-in";
 import { CopyButton } from "@/components/copy-button";
+import { Icon } from "@/components/icon";
 import { Field, FieldError, FormMessage, SubmitButton } from "@/components/form";
 import { MAIL_PRESETS, SECURITY_LABELS, mailPreset, type MailSecurity } from "@/lib/email/app-mail-presets";
 import { initialFormState } from "@/lib/forms";
@@ -468,6 +469,10 @@ export function AppSignInForm({ current, emailOnly = false }: { current: Record<
         <legend className="mb-1.5 text-[17px] font-bold">{t("signin.review")}</legend>
         <p className="m-0 text-sm leading-relaxed text-muted">
           {t("signin.reviewText")} {emailOnly ? t("signin.reviewEmailOnly") : t("signin.reviewSetEmail")} {t("signin.reviewGive")}
+        </p>
+        <p className="m-0 flex items-start gap-2 text-sm leading-relaxed" data-review-auto="">
+          <Icon name="send" size={18} className="mt-0.5 shrink-0 text-success" />
+          <span>{t("signin.reviewAuto")}</span>
         </p>
         <div className="grid gap-4 sm:grid-cols-2">
           <Field label={t("signin.reviewPhone")} name="reviewPhone" type="tel" defaultValue={v.reviewPhone} error={e.reviewPhone} />
