@@ -23,12 +23,12 @@ export interface ManualChoice {
   instructions: string;
 }
 
-/** The methods the payment page offers besides the card, in order. */
+/** The methods the payment page offers besides the card, in order; 132.145 not one switched off. */
 export function manualChoices(settings: ManualPaymentSettings | null | undefined): ManualChoice[] {
   if (!settings) return [];
   return [
-    ...(settings.bankTransfer?.trim() ? [{ method: "bank_transfer" as const, name: "Bank transfer", instructions: settings.bankTransfer.trim() }] : []),
-    ...(settings.custom?.name.trim() && settings.custom.instructions.trim()
+    ...(settings.bankTransfer?.trim() && !settings.bankTransferOff ? [{ method: "bank_transfer" as const, name: "Bank transfer", instructions: settings.bankTransfer.trim() }] : []),
+    ...(settings.custom?.name.trim() && settings.custom.instructions.trim() && !settings.customOff
       ? [{ method: "custom" as const, name: settings.custom.name.trim(), instructions: settings.custom.instructions.trim() }]
       : []),
   ];
@@ -43,27 +43,45 @@ export function awaitingManualPayment(order: Pick<CatalogOrder, "status" | "manu
   return order.status === "pending" && Boolean(order.manualPayment);
 }
 
-/** What the dashboard's form sends, checked. */
+/**
+ * What the dashboard's form sends, checked. 132.145 Each method has its
+ * switch (`bankTransferOn`, `customOn`; on when not given): one switched off
+ * keeps what was written, unoffered; one switched on with nothing written is
+ * off, as the hints say ("Leave it empty for none").
+ */
 export function readManualPayments(input: {
   bankTransfer: string;
   customName: string;
   customInstructions: string;
   payWithinDays: string;
+  bankTransferOn?: boolean;
+  customOn?: boolean;
 }): { ok: true; settings: ManualPaymentSettings | null } | { ok: false; field: "bankTransfer" | "customName" | "customInstructions" | "payWithinDays"; error: string } {
   const bank = input.bankTransfer.trim();
   const name = input.customName.trim();
   const instructions = input.customInstructions.trim();
+  const bankOn = input.bankTransferOn ?? true;
+  const customOn = input.customOn ?? true;
   if (bank.length > MANUAL_TEXT_MAX) return { ok: false, field: "bankTransfer", error: `Keep the bank details under ${MANUAL_TEXT_MAX} characters.` };
   if (instructions.length > MANUAL_TEXT_MAX) return { ok: false, field: "customInstructions", error: `Keep the instructions under ${MANUAL_TEXT_MAX} characters.` };
   if (name.length > MANUAL_NAME_MAX) return { ok: false, field: "customName", error: `Keep the name under ${MANUAL_NAME_MAX} characters.` };
-  if (name && !instructions) return { ok: false, field: "customInstructions", error: "Write what the customer does to pay this way." };
-  if (instructions && !name) return { ok: false, field: "customName", error: "Give your payment method a name, like “Cash on delivery”." };
+  if (customOn && name && !instructions) return { ok: false, field: "customInstructions", error: "Write what the customer does to pay this way." };
+  if (customOn && instructions && !name) return { ok: false, field: "customName", error: "Give your payment method a name, like “Cash on delivery”." };
   const days = Number(input.payWithinDays || PAY_WITHIN_DAYS.default);
   if (!Number.isInteger(days) || days < PAY_WITHIN_DAYS.min || days > PAY_WITHIN_DAYS.max) {
     return { ok: false, field: "payWithinDays", error: `Choose between ${PAY_WITHIN_DAYS.min} and ${PAY_WITHIN_DAYS.max} days.` };
   }
   if (!bank && !name) return { ok: true, settings: null };
-  return { ok: true, settings: { bankTransfer: bank || null, custom: name ? { name, instructions } : null, payWithinDays: days } };
+  return {
+    ok: true,
+    settings: {
+      bankTransfer: bank || null,
+      custom: name ? { name, instructions } : null,
+      payWithinDays: days,
+      ...(bank && !bankOn ? { bankTransferOff: true } : {}),
+      ...(name && !customOn ? { customOff: true } : {}),
+    },
+  };
 }
 
 /**

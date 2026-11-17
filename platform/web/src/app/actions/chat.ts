@@ -44,6 +44,8 @@ async function chatContext(): Promise<{ context: ClientContext; app: App; deps: 
 }
 
 const back = (conversationId: string) => (UUID.test(conversationId) ? `/dashboard/chat/${conversationId}` : "/dashboard/chat");
+/** 132.160 After a change made in the list's inspector: back to the list with the conversation open; else its own page. */
+const backFrom = (formData: FormData, conversationId: string) => (field(formData, "back") === "list" && UUID.test(conversationId) ? `/dashboard/chat?open=${conversationId}` : back(conversationId));
 
 /** A reply as the business: text, a file from the Media library, or both. */
 export async function sendChatReplyAction(_: FormState, formData: FormData): Promise<FormState> {
@@ -58,6 +60,8 @@ export async function sendChatReplyAction(_: FormState, formData: FormData): Pro
     return { errors: { text: sent.message }, values: { text } };
   }
   revalidatePath(back(conversationId));
+  // 132.160 The list too, where the conversation may be open in the inspector.
+  revalidatePath("/dashboard/chat");
   return { ok: true, message: "Sent." };
 }
 
@@ -66,7 +70,7 @@ export async function deleteChatMessageAction(formData: FormData): Promise<void>
   await ownerDeleteMessage(deps, app, field(formData, "message"), by);
   const to = field(formData, "back");
   revalidatePath("/dashboard/chat", "layout");
-  redirect(to === "reports" ? "/dashboard/chat?view=reports" : back(field(formData, "conversation")));
+  redirect(to === "reports" ? "/dashboard/chat?view=reports" : backFrom(formData, field(formData, "conversation")));
 }
 
 /** Every message and file of a conversation, at once. */
@@ -75,7 +79,7 @@ export async function clearChatConversationAction(formData: FormData): Promise<v
   const conversationId = field(formData, "conversation");
   await ownerClearConversation(deps, app, conversationId);
   revalidatePath("/dashboard/chat", "layout");
-  redirect(back(conversationId));
+  redirect(backFrom(formData, conversationId));
 }
 
 export async function keepChatConversationAction(formData: FormData): Promise<void> {
@@ -83,7 +87,7 @@ export async function keepChatConversationAction(formData: FormData): Promise<vo
   const conversationId = field(formData, "conversation");
   await ownerKeep(deps, app, conversationId);
   revalidatePath("/dashboard/chat", "layout");
-  redirect(back(conversationId));
+  redirect(backFrom(formData, conversationId));
 }
 
 /** Keeps every conversation whose messages would be deleted within 30 days. */
@@ -106,7 +110,7 @@ export async function blockChatMemberAction(formData: FormData): Promise<void> {
   const { app, deps } = await chatContext();
   await ownerBlock(deps, app, field(formData, "member"), formData.get("blocked") === "1");
   revalidatePath("/dashboard/chat", "layout");
-  redirect(back(field(formData, "conversation")));
+  redirect(backFrom(formData, field(formData, "conversation")));
 }
 
 /** Chat on or off, and an academy's course groups (the app's settings). */

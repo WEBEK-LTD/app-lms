@@ -143,6 +143,8 @@ test("the owner sets up a shop and a customer pays for an order", async ({ reque
   shopId = shopApi.split("/").pop()!;
   // 132.120 Payments have one page.
   await own.goto("/dashboard/payments");
+  // 132.180 Nothing connected yet: the gateway's keys open from its row.
+  await own.getByRole("region", { name: "Card payments" }).getByRole("button", { name: "Connect", exact: true }).click();
   await own.getByLabel("API key").fill("sandbox-api-key");
   await own.getByLabel("Secret key").fill("sandbox-secret-key");
   await own.getByText("Sandbox keys").click();

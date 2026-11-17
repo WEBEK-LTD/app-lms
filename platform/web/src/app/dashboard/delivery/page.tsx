@@ -18,7 +18,7 @@ import { catalogSettings, isOwnPayment } from "@/lib/catalog/settings";
 import { dashboardText } from "@/lib/dashboard-lang";
 import { getStore } from "@/lib/data";
 import type { App } from "@/lib/data/types";
-import { FOOD_TIMEZONES, zonesText } from "@/lib/delivery/forms";
+import { zonesText } from "@/lib/delivery/forms";
 import { DEFAULT_FOOD_TIMEZONE } from "@/lib/food/service";
 import { deliverySettingsOf } from "@/lib/delivery/settings";
 import { appPlan } from "@/lib/entitlements";
@@ -168,7 +168,6 @@ export default async function DeliverySettingsPage({ searchParams }: { searchPar
                     cuisines: (settings.cuisines ?? []).map((c) => c.name).join("\n"),
                     foodCourierJob: settings.foodCourierJob ?? "accepted",
                     timezone: settings.timezone ?? DEFAULT_FOOD_TIMEZONE,
-                    timezones: FOOD_TIMEZONES,
                   }
                 : undefined
             }

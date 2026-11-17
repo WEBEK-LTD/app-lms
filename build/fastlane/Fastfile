@@ -179,6 +179,43 @@ def business_old_certificate
     .min_by { |cert| Time.parse(cert.expiration_date) }
 end
 
+# 102.2 A client's App Review Information (app_review.py's file) on the version being prepared:
+# the demo account, sign-in required, the notes and the contact Apple calls. Only these fields;
+# never submits. Without an editable version none is made: the next build sets it. Never fails
+# the listing, and never prints the password.
+REVIEW_ATTRIBUTES = {
+  "first_name" => "contact_first_name",
+  "last_name" => "contact_last_name",
+  "phone_number" => "contact_phone",
+  "email_address" => "contact_email",
+  "demo_user" => "demo_account_name",
+  "demo_password" => "demo_account_password",
+  "notes" => "notes",
+}.freeze
+
+def client_app_review(bundle_id, path)
+  return UI.message("App Review: no review sign-in for this app; App Review Information kept as it is.") if path.to_s.empty? || !File.exist?(path)
+  info = JSON.parse(File.read(path))
+  attributes = REVIEW_ATTRIBUTES.each_with_object({}) { |(key, name), out| out[name] = info[key] unless info[key].to_s.strip.empty? }
+  attributes["demo_account_required"] = true
+  app = Spaceship::ConnectAPI::App.find(bundle_id)
+  version = app&.get_edit_app_store_version(platform: Spaceship::ConnectAPI::Platform::IOS)
+  unless version
+    UI.important("App Review: no App Store version being prepared yet; the review sign-in is set with the next build.")
+    return
+  end
+  detail = begin
+    version.fetch_app_store_review_detail
+  rescue StandardError
+    nil
+  end
+  detail ? detail.update(attributes: attributes) : version.create_app_store_review_detail(attributes: attributes)
+  contact = %w[contact_first_name contact_last_name contact_phone contact_email].select { |name| attributes.key?(name) }
+  UI.success("App Review: demo account, sign-in required and notes set on version #{version.version_string}; contact: #{contact.join(", ").then { |text| text.empty? ? "none" : text }}.")
+rescue StandardError => error
+  UI.important("App Review Information wasn't set (#{error.class}); set the review sign-in in App Store Connect › App Review Information.")
+end
+
 platform :ios do
   # Signs and exports the IPA.
   #
@@ -304,11 +341,13 @@ platform :ios do
   # Never submits for review: that stays with the client (or our team).
   #
   # options: secrets, bundle_id, listing (store_listing.py appstore's folder), phased (89.2 "true":
-  #          Apple's phased release over seven days, which the owner can pause from the dashboard)
+  #          Apple's phased release over seven days, which the owner can pause from the dashboard),
+  #          review (102.2 app_review.py's file: App Review Information; missing: kept as it is)
   lane :appstore_listing do |options|
     secrets = JSON.parse(File.read(options[:secrets]))
     asc = secrets.fetch("app_store_connect")
     api_key = app_store_connect_api_key(key_id: asc.fetch("key_id"), issuer_id: asc.fetch("issuer_id"), key_content: asc.fetch("private_key"), duration: 1200)
+    client_app_review(options[:bundle_id], options[:review])
     upload_to_app_store(
       api_key: api_key,
       app_identifier: options[:bundle_id],

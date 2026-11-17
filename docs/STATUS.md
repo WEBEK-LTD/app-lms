@@ -21,6 +21,17 @@ words when a step failed, and Check. "Use my own Firebase" works as
 before. iPhones in Yallapp's Firebase get pushes from Phase 2 (straight to
 Apple); WordPress sites from Phase 3 (the relay).
 
+Roadmap 132.187 (an order shipped in the dashboard shows as shipped in the
+app) is in the code: the app asks again for the orders and the open order
+on an order's notification (arriving while the app is open, or tapped), on
+coming back to the front and when they open again; the stage shows on
+every order on its way; and Leqaa's "How your flowers travel" follows the
+person's newest order. It reaches phones with the next app build; the
+platform's answers were already right. On Huawei phones without Google
+Play, a notification arriving while the app is open isn't passed to it
+(the Push Kit bridge sends taps only), so there the orders refresh on
+coming back to the front and on opening.
+
 Roadmap 136.40–136.45 (Phase 3, the WordPress relay) is merged with
 Phase 1: the platform's `POST /api/v1/push/send` sends a site's batch of
 Firebase tokens through the app's keyless Yallapp-mode account and answers
@@ -68,6 +79,37 @@ app into any account. Migration `0130_app_moves` (the requests, and
 `apps.moved_at`, `apps.moved_to_client_id` for the read-only record an app
 leaves behind).
 
+Roadmap 132.160–132.169 (group A in the console): Delivery & offers, Card
+messages, Media, Notifications, Chat, Languages, Screen protection,
+Integrations and App sign-in are built as the console's design: one main
+action in Ember with the rest behind "⋯", the numbers as tiles, lists as
+tables whose rows open in the inspector (a conversation's thread by
+`?open=`), settings as rows. The kit's new pieces are in their own files
+(`components/studio-page/table.tsx`, `parts.tsx`, `tabs.tsx`); the kit's
+own files are unchanged. A flash sale's percent reads right in Arabic.
+
+Roadmap 132.186 (Delivery & offers made easy): several delivery times a
+day as rows with "Add another time" (a break between them), overlaps
+refused in plain words; every country (Intl.DisplayNames names, a
+search, the platform's first ones on top) or every country at once, each
+chosen country's own cities typed right under it with their prices; a
+flash sale's products with their pictures (`lib/selling/countries.ts`).
+
+Roadmap 132.180–132.185 (Payments in the console): `/dashboard/payments`
+and `/studio/project/payments` are built in the console's look. At first
+the page shows only its title, "Connect a card gateway" while none is
+connected, the summary as four tiles (the gateway, the last test, the
+webhook, the currency) and "Ways customers pay" as setting rows: the card
+gateway (its keys and Test connection under Connect or Edit), bank
+transfer and the owner's own way each with the console's switch, the days
+to pay while either is on, how they work under "How it works". How
+customers pay is one row (Change opens the ways); the payments made in the
+app are a table, each in the inspector with Retry and Refund. The way rows
+are `components/studio-page/way-row.tsx` (KitWayRow, KitWaySwitch: the
+console's KitSwitch with the field a form sends). Events and Memberships
+share the bank transfer form. `tests/screens/studio-payments.screens.ts`
+takes the page's pictures.
+
 Roadmap 132.150–132.153 (Studio's console): every Studio project page and
 Your account and Team are in Studio's console (`app/studio/console.tsx`): a
 midnight frame with an icon rail of the menu's groups and a panel of the
@@ -85,9 +127,12 @@ Roadmap 132.130–132.134 (Studio's premium pages): a shared page kit
 pill and one action, drawers, settings rows, folds, "?" help, empty
 states; its colours `--sp-…` in `globals.css`, the dashboard's outside
 Studio and the Studio frame's in it, light and dark) is applied to
-Products, Orders, Plan and Your account, in the dashboard and in Studio
-alike. The other Studio project pages, `/studio/team` and Payments still
-use the older page kit (`page-kit.tsx`) until they move to it.
+Products, Orders, Plan, Your account and (132.145) Payments, in the
+dashboard and in Studio alike; on Payments every way customers pay is in
+one card, bank transfer and the owner's own way each with an on/off switch
+(`manualPayments.bankTransferOff`, `customOff`). The other Studio project
+pages and `/studio/team` still use the older page kit (`page-kit.tsx`)
+until they move to it.
 `tests/screens/studio-premium.screens.ts` takes their pictures.
 
 Roadmap 132.1–132.8 (Studio dashboard fixes): a Studio project's menu has
@@ -448,6 +493,19 @@ Billing and the App Store's in-app purchase) is complete (steps 100.1 to
 
 - 133 A Kashier payment for 6, 24 or 36 months, for life and for an
   add-on (the amounts are the team's prices; the flow is the plans').
+- 102.2 A client's iOS build that uploads sets App Review Information
+  (demo account, sign-in required, notes, contact) through App Store
+  Connect's `appStoreReviewDetails`; the lane loads, but the call hasn't
+  run on the macOS runner against a real client's version yet.
+
+- 136 Yallapp's Firebase against real Google (tested only against a
+  fake STS, IAM credentials, Firebase Management, Resource Manager,
+  Service Usage, API Keys and FCM): the WIF exchange with the platform as
+  issuer, whether `getConfig` returns one app or the project's (the
+  platform keeps only the client's packages either way), the minimum
+  roles, the project-creation quota, whether a removed app still counts
+  toward Firebase's 30, whether the push-only key is enough for token
+  registration, and a first Android push (LAUNCH-CHECKLIST 7z8 step 10).
 
 - 136 Yallapp's Firebase against real Google (tested only against a
   fake STS, IAM credentials, Firebase Management, Resource Manager,

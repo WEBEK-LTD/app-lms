@@ -39,6 +39,13 @@ class _OrderScreenState extends ConsumerState<OrderScreen> {
   @override
   void initState() {
     super.initState();
+    // 132.160 Opened again while it was kept (from a notification, or the
+    // list's): asked again, shown as it was until the answer comes.
+    Future.microtask(() {
+      if (mounted && ref.exists(orderProvider(widget.orderId))) {
+        ref.invalidate(orderProvider(widget.orderId));
+      }
+    });
     _timer = Timer.periodic(const Duration(seconds: 30), (_) {
       final order = ref.read(orderProvider(widget.orderId)).value;
       // 80.4 A shipped order has no steps to follow here: its carrier's page has them.
@@ -302,16 +309,19 @@ class OrderStatusChip extends StatelessWidget {
     final step = order.status == OrderStatus.refunded
         ? null
         : order.fulfilmentStatus;
-    // 132 A store order on its way says where its delivery is.
-    final stage = order.status == OrderStatus.processing ? order.stage : null;
-    final status = step != null
+    // 132 A store order on its way says where its delivery is. 132.160
+    // Whatever its status while it is on its way (paid, on hold, shipped,
+    // postponed), and before a WordPress shop's step (its stage says more:
+    // "Delivery postponed" where the step says "Preparing").
+    final stage = order.inProgress ? order.stage : null;
+    final status = stage != null
+        ? orderStageTitle(context, stage)
+        : step != null
         ? OrderSteps.label(
             context,
             step,
             order.fulfilment?.type ?? FulfilmentType.pickup,
           )
-        : stage != null
-        ? orderStageTitle(context, stage)
         : order.statusLabel;
     return Container(
       key: const ValueKey('order-status'),

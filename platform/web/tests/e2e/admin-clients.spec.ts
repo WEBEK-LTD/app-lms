@@ -79,6 +79,8 @@ test("the team sets up a pending client's app from their dashboard", async () =>
   await page.getByRole("link", { name: "App sign-in" }).click();
   await expect(page.getByLabel("Country code")).toHaveValue("90");
   await expect(page.getByLabel("Devices per customer")).toHaveValue("2");
+  // 132.136 The rules' form opens under its row.
+  await page.locator('details[data-fold="rules"] > summary').click();
   await page.getByLabel("City").check();
   await page.getByLabel("Devices per customer").fill("3");
   await page.getByLabel("Review phone number").fill("555 000 00 01");

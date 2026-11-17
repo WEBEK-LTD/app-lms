@@ -219,6 +219,7 @@ test("the App Store Connect key is optional on Growth and reaches the pipeline",
     galaxy_store: null,
     huawei_appgallery: null,
     xiaomi_getapps: null,
+    app_review: null,
   });
 
   // The pipeline gets the Firebase files in the config, and the screenshots for the store assets.

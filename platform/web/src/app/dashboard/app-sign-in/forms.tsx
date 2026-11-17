@@ -18,6 +18,7 @@ import {
   type TestTokenState,
 } from "@/app/actions/app-sign-in";
 import { CopyButton } from "@/components/copy-button";
+import { Icon } from "@/components/icon";
 import { Field, FieldError, FormMessage, SubmitButton } from "@/components/form";
 import { MAIL_PRESETS, SECURITY_LABELS, mailPreset, type MailSecurity } from "@/lib/email/app-mail-presets";
 import { initialFormState } from "@/lib/forms";
@@ -26,6 +27,7 @@ import type { DashKey } from "@/i18n/dashboard";
 import { LANG_INFO } from "@/i18n/config";
 import { localePath } from "@/i18n/paths";
 import { richText } from "@/i18n/rich";
+import { KitFold } from "@/components/studio-page";
 
 /** 34 Own API apps: who signs people in. */
 const PROVIDERS: readonly { value: "api" | "yallapp"; label: DashKey; hint: DashKey }[] = [
@@ -340,25 +342,32 @@ export function AppWhatsappForms({
   connected,
   defaultPhone,
   wordpress,
+  fold,
 }: {
   connected: { keyLast4: string; instanceId: string | null } | null;
   defaultPhone: string;
   wordpress: boolean;
+  /** 132.136 The premium kit: the forms folded behind this line (open from the start with `open`), the line about who sends the codes in sight. */
+  fold?: { summary: string; open: boolean };
 }) {
   const t = useDashT();
   const [state, action] = useActionState(saveAppWhatsappAction, initialFormState);
   const [test, testAction] = useActionState(testAppWhatsappAction, initialFormState);
   const e = state.errors ?? {};
-  return (
-    <div className="flex flex-col gap-4">
-      <p className="m-0 text-[15px] leading-relaxed text-ink-4">
-        {connected
-          ? connected.instanceId
-            ? t("signin.whatsappOwn", { last4: connected.keyLast4, instance: connected.instanceId })
-            : t("signin.whatsappOwnAny", { last4: connected.keyLast4 })
-          : t("signin.whatsappYallapp")}
-        {wordpress ? ` ${t("signin.whatsappWordpress")}` : ""}
-      </p>
+  // Open from the start or not, once: a save that clears the failure doesn't close it over its message.
+  const [startOpen] = useState(fold?.open ?? false);
+  const intro = (
+    <p className={`m-0 leading-relaxed ${fold ? "text-sm text-(--sp-muted)" : "text-[15px] text-ink-4"}`}>
+      {connected
+        ? connected.instanceId
+          ? t("signin.whatsappOwn", { last4: connected.keyLast4, instance: connected.instanceId })
+          : t("signin.whatsappOwnAny", { last4: connected.keyLast4 })
+        : t("signin.whatsappYallapp")}
+      {wordpress ? ` ${t("signin.whatsappWordpress")}` : ""}
+    </p>
+  );
+  const forms = (
+    <>
       <form action={action} noValidate className="flex flex-col gap-4" key={state.ok ? "saved" : "form"}>
         <FormMessage message={state.message} ok={state.ok} />
         <div className="grid gap-4 sm:grid-cols-2">
@@ -411,6 +420,18 @@ export function AppWhatsappForms({
           </form>
         </>
       ) : null}
+    </>
+  );
+  return (
+    <div className="flex flex-col gap-4">
+      {intro}
+      {fold ? (
+        <KitFold summary={fold.summary} open={startOpen || undefined} icon="tune" data-fold="whatsapp">
+          {forms}
+        </KitFold>
+      ) : (
+        forms
+      )}
     </div>
   );
 }
@@ -469,6 +490,10 @@ export function AppSignInForm({ current, emailOnly = false }: { current: Record<
         <p className="m-0 text-sm leading-relaxed text-muted">
           {t("signin.reviewText")} {emailOnly ? t("signin.reviewEmailOnly") : t("signin.reviewSetEmail")} {t("signin.reviewGive")}
         </p>
+        <p className="m-0 flex items-start gap-2 text-sm leading-relaxed" data-review-auto="">
+          <Icon name="send" size={18} className="mt-0.5 shrink-0 text-success" />
+          <span>{t("signin.reviewAuto")}</span>
+        </p>
         <div className="grid gap-4 sm:grid-cols-2">
           <Field label={t("signin.reviewPhone")} name="reviewPhone" type="tel" defaultValue={v.reviewPhone} error={e.reviewPhone} />
           <Field
@@ -508,6 +533,7 @@ export function AppMailForms({
   defaultTestTo,
   production,
   wordpress,
+  fold,
 }: {
   /** The form's values (appMailFormValues); the password is always empty. */
   current: Record<string, string>;
@@ -515,23 +541,29 @@ export function AppMailForms({
   defaultTestTo: string;
   production: boolean;
   wordpress: boolean;
+  /** 132.136 The premium kit: the forms folded behind this line (open from the start with `open`), the line about who sends the emails in sight. */
+  fold?: { summary: string; open: boolean };
 }) {
   const t = useDashT();
   const [state, action] = useActionState(saveAppMailAction, initialFormState);
   const [test, testAction] = useActionState(testAppMailAction, initialFormState);
   const v = state.values ?? current;
   const e = state.errors ?? {};
-  return (
-    <div className="flex flex-col gap-4">
-      <p className="m-0 text-[15px] leading-relaxed text-ink-4">
-        {saved
-          ? richText(t("signin.mailOwn"), {
-              from: () => <bdi dir="ltr">{`${saved.fromName} <${saved.fromAddress}>`}</bdi>,
-              host: () => <bdi dir="ltr">{saved.host}</bdi>,
-            })
-          : t("signin.mailYallapp")}{" "}
-        {wordpress ? t("signin.mailWordpress") : t("signin.mailHosted")}
-      </p>
+  // Open from the start or not, once: a save that clears the failure doesn't close it over its message.
+  const [startOpen] = useState(fold?.open ?? false);
+  const intro = (
+    <p className={`m-0 leading-relaxed ${fold ? "text-sm text-(--sp-muted)" : "text-[15px] text-ink-4"}`}>
+      {saved
+        ? richText(t("signin.mailOwn"), {
+            from: () => <bdi dir="ltr">{`${saved.fromName} <${saved.fromAddress}>`}</bdi>,
+            host: () => <bdi dir="ltr">{saved.host}</bdi>,
+          })
+        : t("signin.mailYallapp")}{" "}
+      {wordpress ? t("signin.mailWordpress") : t("signin.mailHosted")}
+    </p>
+  );
+  const forms = (
+    <>
       <MailServerForm key={JSON.stringify(v)} action={action} values={v} errors={e} message={state.message} ok={state.ok} saved={saved !== null} production={production} />
       {saved ? (
         <form action={testAction} noValidate className="flex flex-col gap-3 border-t border-line-soft pt-4">
@@ -553,6 +585,18 @@ export function AppMailForms({
           <p className="m-0 text-sm text-muted">{t("signin.testEmailNote")}</p>
         </form>
       ) : null}
+    </>
+  );
+  return (
+    <div className="flex flex-col gap-4">
+      {intro}
+      {fold ? (
+        <KitFold summary={fold.summary} open={startOpen || undefined} icon="tune" data-fold="mail">
+          {forms}
+        </KitFold>
+      ) : (
+        forms
+      )}
     </div>
   );
 }

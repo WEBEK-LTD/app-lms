@@ -1,5 +1,5 @@
 import { createServer, type Server } from "node:http";
-import { expect, test, type Page } from "@playwright/test";
+import { expect, test, type Cookie, type Page } from "@playwright/test";
 import { E2E } from "../../playwright.config";
 import { solidPng } from "./png";
 import { expectReceiptAttached, mailsWithFiles, pdfBehind } from "./receipts";
@@ -59,13 +59,28 @@ test.afterAll(async () => {
   await new Promise((resolve) => server.close(resolve));
 });
 
+/**
+ * The sign-in page takes 8 tries per email in 15 minutes (RATE_LIMITS.signInEmail), and
+ * this spec's tests sign the shop's owner in more often than that within a run: once
+ * signed in on the page, a later test starts from the same session on the dashboard.
+ */
+const sessions = new Map<string, Cookie[]>();
+
 async function signIn(page: Page, email: string, password: string) {
   await page.context().clearCookies();
+  const saved = sessions.get(email);
+  if (saved) {
+    await page.context().addCookies(saved);
+    await page.goto("/dashboard");
+    await expect(page).not.toHaveURL(/\/sign-in/);
+    return;
+  }
   await page.goto("/sign-in");
   await page.getByLabel("Email").fill(email);
   await page.getByLabel("Password", { exact: true }).fill(password);
   await page.getByRole("button", { name: "Sign in" }).click();
   await page.waitForURL((url) => url.pathname !== "/sign-in");
+  sessions.set(email, await page.context().cookies());
 }
 
 test("a client without a website sets up their shop", async ({ page }) => {
@@ -123,6 +138,8 @@ test("a client without a website sets up their shop", async ({ page }) => {
   await page.getByRole("navigation", { name: "Products", exact: true }).getByRole("link", { name: /^Payments/ }).click();
   // 132.120 The Products tab opens the one Payments page.
   await expect(page).toHaveURL(/\/(dashboard|studio\/project)\/payments$/);
+  // 132.180 Nothing connected yet: the gateway's keys open from its row.
+  await page.getByRole("region", { name: "Card payments" }).getByRole("button", { name: "Connect", exact: true }).click();
   await page.getByLabel("API key").fill("sandbox-api-key");
   await page.getByLabel("Secret key").fill("sandbox-secret-key");
   await page.getByText("Sandbox keys").click();
@@ -314,8 +331,10 @@ test("91.4 a customer earns loyalty points on a completed order and uses them on
   await page.goto("/dashboard/catalog#h-loyalty");
   // 132.10 The old address of the loyalty points opens the settings, where they are now.
   await expect(page).toHaveURL(/\/dashboard\/catalog\/settings$/);
+  // The settings finish arriving (the customers' currencies too) before the box is ticked, so nothing redraws it unticked.
+  await page.waitForLoadState("networkidle");
   const loyalty = page.getByRole("region", { name: "Loyalty points" });
-  await loyalty.getByText("Give loyalty points").click();
+  await loyalty.getByRole("checkbox", { name: /^Give loyalty points/ }).check();
   await loyalty.getByLabel("Spend for one point (TRY)").fill("10");
   await loyalty.getByLabel("One point is worth (TRY)").fill("0.10");
   await loyalty.getByLabel("Fewest points used at once").fill("abc");
@@ -463,7 +482,9 @@ test("131 delivery times, the gift checkout and a flash sale, from Delivery & of
   // A flash sale on the roses, on now in the shop's time zone.
   const local = (at: Date) => new Intl.DateTimeFormat("sv-SE", { timeZone: "Europe/Istanbul", year: "numeric", month: "2-digit", day: "2-digit", hour: "2-digit", minute: "2-digit" }).format(at).replace(" ", "T");
   await page.getByRole("tab", { name: /^Flash sales and codes/ }).click();
-  const flash = page.locator("[data-flash-form]").first();
+  // 132.160 The form opens from the header's Add a flash sale.
+  await page.getByRole("button", { name: "Add a flash sale" }).click();
+  const flash = page.getByRole("dialog", { name: "Add a flash sale" }).locator("[data-flash-form]");
   await flash.getByLabel("Name").fill("Weekend tulips");
   await flash.getByLabel("Rose Box", { exact: true }).check();
   await flash.getByLabel("Value").fill("20");
@@ -539,4 +560,155 @@ test("131 a gift add-on goes only with a product, and a flash sale on one produc
   expect(roses.sale?.flash_sale_id).toEqual(expect.any(Number));
   const tulips = products.items.find((p) => p.name === "Tulip Bouquet")!;
   expect(tulips.sale?.flash_sale_id ?? null).toBeNull();
+});
+
+test("132.187 the owner prepares and ships an order in the dashboard; the app's API has its stage at once", async ({ page, request }) => {
+  // A signed-in customer orders the roses as a gift, from the app.
+  const email = `nadia-${suffix}@example.com`;
+  const device = { id: `e2e-journey-${suffix}`, platform: "android", name: "Pixel", app_version: "1.0.0" };
+  const asked = (await (await request.post(`${api}/auth/email/request`, { data: { email } })).json()) as { request_id: string };
+  const code = (await mailsWithFiles(email)).at(-1)!.subject.slice(0, 6);
+  const verified = (await (await request.post(`${api}/auth/otp/verify`, { data: { request_id: asked.request_id, code, device } })).json()) as { signup_token: string };
+  const registered = await request.post(`${api}/auth/register`, { data: { signup_token: verified.signup_token, name: "Nadia Aziz", device } });
+  expect(registered.status()).toBe(201);
+  const headers = { authorization: `Bearer ${((await registered.json()) as { access_token: string }).access_token}` };
+  const products = (await (await request.get(`${api}/store/products?per_page=50`)).json()) as { items: { id: number; name: string }[] };
+  const roses = products.items.find((p) => p.name === "Rose Box")!;
+  const tomorrow = new Intl.DateTimeFormat("sv-SE", { timeZone: "Europe/Istanbul" }).format(new Date(Date.now() + 86_400_000));
+  const link = await request.post(`${api}/store/checkout-link?platform=android`, {
+    headers,
+    data: {
+      lines: [{ product_id: roses.id, quantity: 1 }],
+      delivery_date: tomorrow,
+      delivery_slot: "s3",
+      sender: { name: "Nadia Aziz", phone: "+905323334455", email },
+      recipient: { name: "Selma Aziz", phone: "+905325556677", address: "Bağdat Cd. 40, Kadıköy" },
+      gift_message: "Get well soon",
+    },
+  });
+  expect(link.status(), await link.text()).toBe(200);
+  await page.goto(((await link.json()) as { url: string }).url);
+  const city = page.getByLabel("City");
+  if (await city.isVisible()) await city.fill("Istanbul");
+  await page.getByRole("button", { name: /^Pay ₺/ }).click();
+  await page.getByRole("button", { name: "Pay with test card" }).click();
+  await expect(page.getByRole("heading", { name: "Thank you!" })).toBeVisible();
+
+  const placed = await (await request.get(`${api}/me/orders`, { headers })).json();
+  expect(placed.items[0]).toMatchObject({ status: "processing", stage: null });
+  const orderId = placed.items[0].id as number;
+
+  // The owner marks it as preparing, then ships it, in the order's drawer.
+  await signIn(page, client.email, client.password);
+  await page.goto("/dashboard/orders");
+  const row = () => page.getByRole("listitem").filter({ hasText: "Nadia Aziz" });
+  await row().getByRole("button", { name: /^Order \d+/ }).click();
+  let stages = row().getByRole("region", { name: "Delivery" });
+  await stages.getByText("Mark as preparing").click();
+  await stages.locator('[data-stage-form="preparing"]').getByRole("button", { name: "Save" }).click();
+  const stageOf = async () => ((await (await request.get(`${api}/me/orders/${orderId}`, { headers })).json()) as { stage: { code: string } | null }).stage?.code ?? null;
+  await expect.poll(stageOf).toBe("preparing");
+  // No cache in between: the app's next ask has it.
+  const preparing = await request.get(`${api}/me/orders/${orderId}`, { headers });
+  expect(preparing.headers()["cache-control"]).toContain("no-store");
+  expect(await preparing.json()).toMatchObject({ status: "processing", stage: { code: "preparing", label: "Preparing" } });
+
+  await page.reload();
+  await row().getByRole("button", { name: /^Order \d+/ }).click();
+  stages = row().getByRole("region", { name: "Delivery" });
+  await stages.locator('[data-stage-form="shipped"] summary').click();
+  const shipping = stages.locator('[data-stage-form="shipped"]');
+  await shipping.getByLabel("Courier's name (optional)").fill("Mert");
+  await shipping.getByRole("button", { name: "Save" }).click();
+  await expect.poll(stageOf).toBe("shipped");
+
+  const list = await request.get(`${api}/me/orders`, { headers });
+  expect(list.headers()["cache-control"]).toContain("no-store");
+  expect((await list.json()).items.find((o: { id: number }) => o.id === orderId)).toMatchObject({ status: "processing", stage: { code: "shipped", label: "Out for delivery", courier: { name: "Mert" } } });
+  expect(await (await request.get(`${api}/me/orders/${orderId}`, { headers })).json()).toMatchObject({ status: "processing", stage: { code: "shipped" } });
+  // Its notification carries the order, for the app to ask for it again.
+  await expect
+    .poll(async () => {
+      const inbox = (await (await request.get(`${api}/me/notifications`, { headers })).json()) as { items: { type: string; order_id?: number | null }[] };
+      return inbox.items.some((n) => n.type === "order_update" && n.order_id === orderId);
+    })
+    .toBe(true);
+});
+
+test("132.186 several delivery times a day, any country with its own cities, and a flash sale's products with their pictures", async ({ page, request }) => {
+  await signIn(page, client.email, client.password);
+  await page.goto("/dashboard/selling?tab=delivery");
+  const delivery = page.locator("[data-delivery-form]");
+  // Another time after a break: it starts an hour after the last one ends.
+  await delivery.getByRole("button", { name: "Add another time" }).click();
+  await expect(delivery.locator("[data-slot-row]")).toHaveCount(4);
+  const fourth = delivery.locator("[data-slot-row]").nth(3);
+  await expect(fourth.getByLabel("From, time 4")).toHaveValue("21:00");
+  // Overlapping times are told in plain words, as typed and when saved.
+  await fourth.getByLabel("From, time 4").fill("19:00");
+  await expect(fourth.getByRole("alert")).toHaveText("This time overlaps 16:00–20:00: let one end before the next starts.");
+  await delivery.getByRole("button", { name: "Save delivery times" }).click();
+  await expect(fourth.getByRole("alert")).toBeVisible();
+  await fourth.getByLabel("From, time 4").fill("21:00");
+  await fourth.getByLabel("To, time 4").fill("23:00");
+  await expect(fourth.getByRole("alert")).toHaveCount(0);
+  await delivery.getByRole("button", { name: "Save delivery times" }).click();
+  await expect(delivery.getByText("Saved.")).toBeVisible();
+  // A time removed, the rest kept in order.
+  await delivery.getByRole("button", { name: "Remove 13:00–16:00" }).click();
+  await delivery.getByRole("button", { name: "Save delivery times" }).click();
+  await expect(delivery.getByText("Saved.")).toBeVisible();
+  // "Saved." is still there from the save before, so the app's config is what tells this save went through.
+  await expect
+    .poll(async () => {
+      const config = await (await request.get(`${api}/config?platform=android&app_version=1.0.0`)).json();
+      return config.store.delivery_date.slots.map((s: { label: string }) => s.label);
+    })
+    .toEqual(["10:00–13:00", "16:00–20:00", "21:00–23:00"]);
+
+  // Any country from the full list, searched in its name; its cities typed right there, one from the starter chips.
+  await page.goto("/dashboard/selling?tab=areas");
+  const areas = page.locator("[data-areas-form]");
+  await areas.getByLabel("Only the countries I choose").check();
+  await areas.getByRole("button", { name: "Add a country" }).click();
+  await expect(areas.locator("[data-country-option]").first()).toHaveAttribute("data-country-option", "TR");
+  await expect(areas.locator("[data-country-option]")).toHaveCount(249);
+  await areas.getByLabel("Search countries").fill("brazil");
+  await areas.getByRole("button", { name: /^Brazil/ }).click();
+  const brazil = areas.locator('[data-area-card="BR"]');
+  await expect(brazil.getByPlaceholder("Type a city's name")).toBeFocused();
+  await brazil.getByPlaceholder("Type a city's name").fill("São Paulo");
+  await brazil.getByPlaceholder("Type a city's name").press("Enter");
+  await brazil.getByLabel("São Paulo's own price (TRY)").fill("40");
+  await areas.getByRole("button", { name: "Add a country" }).click();
+  await areas.getByLabel("Search countries").fill("Turk");
+  await areas.getByRole("button", { name: /^Turkey/ }).click();
+  const turkey = areas.locator('[data-area-card="TR"]');
+  await turkey.getByRole("button", { name: "Ankara" }).click();
+  await expect(turkey.locator('[data-city-row="Ankara"]')).toBeVisible();
+  await areas.getByRole("button", { name: "Save where you deliver" }).click();
+  await expect(areas.getByText("Saved.")).toBeVisible();
+  const shipping = (await (await request.get(`${api}/config?platform=android&app_version=1.0.0`)).json()).store.shipping;
+  expect(shipping.countries).toEqual([
+    { code: "TR", names: { en: "Turkey", ar: "تركيا", tr: "Türkiye" }, cities: ["Ankara"] },
+    { code: "BR", names: { en: "Brazil", ar: "البرازيل", tr: "Brezilya" }, cities: ["São Paulo"] },
+  ]);
+  // Back to every country: the checkout takes any.
+  await page.reload();
+  await expect(areas.locator('[data-area-card="BR"]').getByLabel("São Paulo's own price (TRY)")).toHaveValue("40.00");
+  await areas.getByLabel("Every country").check();
+  await areas.getByRole("button", { name: "Save where you deliver" }).click();
+  await expect(areas.getByText("Saved.")).toBeVisible();
+
+  // The flash sale's products with their pictures: in the form, the table and the inspector.
+  await page.goto("/dashboard/selling?tab=flash");
+  await page.getByRole("button", { name: "Add a flash sale" }).click();
+  const picker = page.getByRole("dialog", { name: "Add a flash sale" }).locator("[data-product-picker]");
+  await expect(picker.locator("li").filter({ hasText: "Rose Box" }).locator("img")).toHaveCount(1);
+  await expect(picker.locator("li").filter({ hasText: "Rose Box" })).toContainText("300");
+  await page.goto("/dashboard/selling?tab=flash");
+  const row = page.locator("[data-flash-sale]").first();
+  await expect(row.locator("img")).toHaveCount(1);
+  await row.getByRole("button", { name: "Weekend tulips" }).click();
+  await expect(page.locator("[data-inspector-products] li").filter({ hasText: "Rose Box" }).locator("img")).toHaveCount(1);
 });

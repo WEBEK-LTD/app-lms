@@ -138,6 +138,16 @@ export const en = {
     packsWithPlan: "Storage packs come with a plan. Choose your plan first.",
     planEndsToday: "Your plan ends today. Renew it first; storage packs run until the plan's period ends.",
   },
+  // 132.160 The console: the files' table and a file's inspector.
+  file: "File",
+  kind: "Kind",
+  size: "Size",
+  added: "Added",
+  whoOpens: "Who can open it",
+  fileLink: "Link",
+  choosePack: "Choose a pack and pay by card",
+  search: "Search files",
+  noMatch: "No files match.",
 } as const;
 
 type Messages = Strings<typeof en>;
@@ -276,6 +286,15 @@ export const ar: Messages = {
     packsWithPlan: "تأتي باقات التخزين مع باقة. اختر باقتك أولًا.",
     planEndsToday: "تنتهي باقتك اليوم. جدّدها أولًا؛ تسري باقات التخزين حتى نهاية فترة الباقة.",
   },
+  file: "الملف",
+  kind: "النوع",
+  size: "الحجم",
+  added: "اتضاف",
+  whoOpens: "مين يقدر يفتحه",
+  fileLink: "اللينك",
+  choosePack: "اختار باقة وادفع بالكارت",
+  search: "دوّر في الملفات",
+  noMatch: "مفيش ملفات مطابقة.",
 };
 
 export const tr: Messages = {
@@ -413,4 +432,13 @@ export const tr: Messages = {
     packsWithPlan: "Depolama paketleri bir paketle birlikte gelir. Önce paketinizi seçin.",
     planEndsToday: "Paketiniz bugün sona eriyor. Önce yenileyin; depolama paketleri paketin dönemi bitene kadar geçerlidir.",
   },
+  file: "Dosya",
+  kind: "Tür",
+  size: "Boyut",
+  added: "Eklendi",
+  whoOpens: "Kim açabilir",
+  fileLink: "Bağlantı",
+  choosePack: "Bir paket seçin ve kartla ödeyin",
+  search: "Dosyalarda arayın",
+  noMatch: "Eşleşen dosya yok.",
 };
