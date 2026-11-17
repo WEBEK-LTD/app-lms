@@ -329,7 +329,7 @@ describe("catalog shop on the hosted API", () => {
         ip: "203.0.113.9",
         callbackUrls: { returnUrl: `https://yallapp.test/api/pay/iyzico/${token}`, webhookUrl: null },
       });
-      expect(page).toBe("https://sandbox-cpp.iyzipay.com?token=iyzi-token");
+      expect(page).toEqual({ url: "https://sandbox-cpp.iyzipay.com?token=iyzi-token", stripe: null });
       const sent = iyzicoCalls[0]!;
       expect(sent.path).toBe("/payment/iyzipos/checkoutform/initialize/auth/ecom");
       expect(sent.auth).toMatch(/^IYZWSv2 /);

@@ -208,10 +208,25 @@ export interface StripeSessionRequest {
   /** When the page stops taking the payment: Stripe takes 30 minutes to 24 hours from now. */
   expiresAt?: Date | null;
   now?: Date;
+  /**
+   * 144 Stripe's card form inside our own payment page (Embedded Checkout,
+   * `ui_mode: embedded`): the same session, its secret for Stripe.js in
+   * place of a page to go to; Stripe sends the customer to `returnUrl` once
+   * it's done.
+   */
+  embedded?: boolean;
 }
 
-/** Creates a hosted Checkout Session; returns its ID (to read it back) and its page. */
-export async function createStripeSession(keys: StripeKeys, request: StripeSessionRequest, options: Options = {}): Promise<{ sessionId: string; url: string; expiresAt: Date }> {
+/** A Checkout Session started: its ID (to read it back), and its page (hosted) or its secret for Stripe.js (144 embedded). */
+export interface StripeSessionStarted {
+  sessionId: string;
+  url: string | null;
+  clientSecret: string | null;
+  expiresAt: Date;
+}
+
+/** Creates a Checkout Session, hosted on Stripe's page or (144) embedded in ours. */
+export async function createStripeSession(keys: StripeKeys, request: StripeSessionRequest, options: Options = {}): Promise<StripeSessionStarted> {
   const now = (request.now ?? new Date()).getTime();
   const min = now + 31 * 60_000;
   const max = now + 23 * 60 * 60_000;
@@ -228,8 +243,7 @@ export async function createStripeSession(keys: StripeKeys, request: StripeSessi
     "/v1/checkout/sessions",
     {
       mode: "payment",
-      success_url: request.returnUrl,
-      cancel_url: request.returnUrl,
+      ...(request.embedded ? { ui_mode: "embedded", return_url: request.returnUrl } : { success_url: request.returnUrl, cancel_url: request.returnUrl }),
       client_reference_id: request.reference,
       ...(request.customerEmail ? { customer_email: request.customerEmail } : {}),
       expires_at: Math.floor(expiresAt.getTime() / 1000),
@@ -242,12 +256,14 @@ export async function createStripeSession(keys: StripeKeys, request: StripeSessi
         },
       ],
     },
-    { ...options, idempotencyKey: `${request.reference}-${now}` },
+    // 144 Its own key when embedded, so Stripe's page can follow at once if the form won't start.
+    { ...options, idempotencyKey: `${request.reference}-${now}${request.embedded ? "-embedded" : ""}` },
   );
   const id = text(json?.id);
   const url = text(json?.url);
-  if (status >= 400 || !id || !url) throw new StripeError(errorOf(json, "Stripe couldn't start the payment."));
-  return { sessionId: id, url, expiresAt };
+  const clientSecret = text(json?.client_secret);
+  if (status >= 400 || !id || (request.embedded ? !clientSecret : !url)) throw new StripeError(errorOf(json, "Stripe couldn't start the payment."));
+  return { sessionId: id, url: request.embedded ? null : url, clientSecret: request.embedded ? clientSecret : null, expiresAt };
 }
 
 export interface StripePayment {

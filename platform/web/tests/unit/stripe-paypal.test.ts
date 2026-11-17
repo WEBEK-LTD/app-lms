@@ -265,7 +265,8 @@ describe("a shop's order on the owner's own Stripe or PayPal", () => {
     const page = await startPayment({ store, app, account, fetcher: stripe.fetcher, now: NOW, order, customer, ip: "203.0.113.9", callbackUrls: callbackUrls("https://yallapp.test", "order", "stripe", "order-token") });
     order = (await store.getCatalogOrder(app.id, order.id))!;
     expect(order).toMatchObject({ customer, paymentProvider: "stripe", commissionCents: null });
-    expect(page).toBe(stripe.sessions.get(order.providerRef!)!.url);
+    // Without a publishable key saved: Stripe's own page.
+    expect(page).toEqual({ url: stripe.sessions.get(order.providerRef!)!.url, stripe: null });
     const callback = (await accountForOrder(store, app, order, KEY))!;
     const complete = () => completePayment({ store, app, account: callback, fetcher: stripe.fetcher, now: NOW, order });
     expect(await complete()).toBe("pending");
@@ -273,6 +274,66 @@ describe("a shop's order on the owner's own Stripe or PayPal", () => {
     expect(await complete()).toBe("paid");
     expect(await store.getCatalogOrder(app.id, order.id)).toMatchObject({ status: "processing", paymentId: `pi_${order.providerRef!.slice(-6)}` });
     expect(await complete()).toBe("already_paid");
+  });
+
+  it("144 pays an order in Stripe's card form inside our page, with the publishable key saved", async () => {
+    await makeShop();
+    const withKeys = (secretKey: string, publishableKey: string | null) => ({
+      ...app,
+      catalogSettings: { ...app.catalogSettings!, payment: encryptOwnPayment(app.id, { provider: "stripe", secretKey, sandbox: secretKey.startsWith("sk_test_"), publishableKey }, KEY) },
+    });
+    app = withKeys("sk_test_51Abcdefghijklmnop", "pk_test_51Abcdefghijklmnop");
+    await store.updateApp(app.id, { catalogSettings: app.catalogSettings }, NOW);
+    const stripe = fakeStripe();
+    const account = (await checkoutAccount(store, app, KEY))!;
+    const urls = callbackUrls("https://yallapp.test", "order", "stripe", "order-token");
+    const started = await startPayment({ store, app, account, fetcher: stripe.fetcher, now: NOW, order, customer, ip: "203.0.113.9", callbackUrls: urls });
+    order = (await store.getCatalogOrder(app.id, order.id))!;
+    expect(started).toEqual({ url: null, stripe: { clientSecret: `${order.providerRef}_secret_fake`, publishableKey: "pk_test_51Abcdefghijklmnop" } });
+    // The same Checkout Session, embedded: Stripe sends the customer back to the same place, read back the same way.
+    const form = stripe.sessions.get(order.providerRef!)!.form;
+    expect(form.get("ui_mode")).toBe("embedded");
+    expect(form.get("return_url")).toBe(urls.returnUrl);
+    expect(form.get("success_url")).toBeNull();
+    expect(form.get("cancel_url")).toBeNull();
+    expect(form.get("customer_email")).toBe("ada@example.com");
+    const callback = (await accountForOrder(store, app, order, KEY))!;
+    const complete = () => completePayment({ store, app, account: callback, fetcher: stripe.fetcher, now: NOW, order });
+    expect(await complete()).toBe("pending");
+    stripe.pay(order.providerRef!);
+    expect(await complete()).toBe("paid");
+
+    // Asked for Stripe's page (the form didn't load), keys of two modes, or no publishable key: Stripe's page.
+    const hosted = await startPayment({ store, app, account, fetcher: stripe.fetcher, now: NOW, order, customer, ip: "203.0.113.9", callbackUrls: urls, hosted: true });
+    expect(hosted.stripe).toBeNull();
+    expect(hosted.url).toMatch(/^https:\/\/checkout\.stripe\.test\/pay\//);
+    for (const [secret, publishable] of [["sk_test_51Abcdefghijklmnop", "pk_live_51Abcdefghijklmnop"], ["sk_test_51Abcdefghijklmnop", null]] as const) {
+      app = withKeys(secret, publishable);
+      const mixed = await startPayment({ store, app, account: (await checkoutAccount(store, app, KEY))!, fetcher: stripe.fetcher, now: NOW, order, customer, ip: "203.0.113.9", callbackUrls: urls });
+      expect(mixed.stripe, String(publishable)).toBeNull();
+      expect(stripe.sessions.get(new URL(mixed.url!).pathname.split("/")[2]!)!.form.get("ui_mode")).toBeNull();
+    }
+  });
+
+  it("144 falls back to Stripe's own page when Stripe won't embed its form", async () => {
+    await makeShop();
+    app = {
+      ...app,
+      catalogSettings: { ...app.catalogSettings!, payment: encryptOwnPayment(app.id, { provider: "stripe", secretKey: "sk_test_51Abcdefghijklmnop", sandbox: true, publishableKey: "pk_test_51Abcdefghijklmnop" }, KEY) },
+    };
+    await store.updateApp(app.id, { catalogSettings: app.catalogSettings }, NOW);
+    const stripe = fakeStripe();
+    const refusing: typeof fetch = async (input, init) => {
+      const body = String(init?.body ?? "");
+      if (String(input).endsWith("/v1/checkout/sessions") && body.includes("ui_mode=embedded")) {
+        return new Response(JSON.stringify({ error: { message: "Invalid ui_mode: must be one of hosted" } }), { status: 400 });
+      }
+      return stripe.fetcher(input, init);
+    };
+    const account = (await checkoutAccount(store, app, KEY))!;
+    const started = await startPayment({ store, app, account, fetcher: refusing, now: NOW, order, customer, ip: "203.0.113.9", callbackUrls: callbackUrls("https://yallapp.test", "order", "stripe", "order-token") });
+    order = (await store.getCatalogOrder(app.id, order.id))!;
+    expect(started).toEqual({ url: stripe.sessions.get(order.providerRef!)!.url, stripe: null });
   });
 
   it("pays an order on PayPal in dollars, and refuses one in another currency before calling it", async () => {

@@ -62,6 +62,13 @@ async function buyTwo(page: Page, request: import("@playwright/test").APIRequest
   await page.getByLabel("City").fill("London");
   await page.getByLabel("Address").fill("1 Baker Street");
   await page.getByRole("button", { name: `Pay ${total}` }).click();
+  // 144 Stripe: its card form in this page (the fake Stripe.js's), under the details; PayPal: its own page.
+  if (provider === "Stripe") {
+    await expect(page.getByRole("heading", { name: "Your card" })).toBeVisible();
+    await expect(page.getByText(`Enter your card to pay ${total}. It goes straight to Stripe: the shop never sees its number.`)).toBeVisible();
+    await expect(page.locator("[data-stripe-embedded] [data-fake-stripe]")).toHaveAttribute("data-fake-stripe", /^pk_test_/);
+    await expect(page).toHaveURL(/\/pay\/[\w-]+$/);
+  }
   await page.getByRole("button", { name: "Pay with test card" }).click();
   await expect(page).toHaveURL(/\/pay\/[\w-]+\/order-received$/);
 }
@@ -187,7 +194,10 @@ test("a shop takes an order on its own Stripe, then on its own PayPal", async ({
   expect(sessionCalls.map((c) => c.method)).toEqual(expect.arrayContaining(["POST", "GET"]));
   expect(new Set(sessionCalls.map((c) => c.headers.authorization))).toEqual(new Set(["Bearer sk_test_51HarbourMugsKey"]));
   expect(new Set(stripe.calls.map((c) => c.headers["stripe-version"]))).toEqual(new Set(["2025-09-30.clover"]));
-  expect(stripe.calls.find((c) => c.method === "POST" && c.path === "/v1/checkout/sessions")!.headers["idempotency-key"]).toMatch(/^order-\d+-\d+$/);
+  // 144 An embedded session (Stripe's form in our page), with its own idempotency key.
+  const created = stripe.calls.find((c) => c.method === "POST" && c.path === "/v1/checkout/sessions")!;
+  expect(created.headers["idempotency-key"]).toMatch(/^order-\d+-\d+-embedded$/);
+  expect(new URLSearchParams(created.body).get("ui_mode")).toBe("embedded");
 
   // 132.31 Stripe's webhook for that session: a forged one is refused, the signed one taken in (the order is already paid).
   const [session] = [...stripe.sessions!.values()].slice(-1);
