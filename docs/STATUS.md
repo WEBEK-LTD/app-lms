@@ -4,9 +4,14 @@ The current state of the project: what is released in the code, what still
 needs checking against real services, and what a deployment needs.
 `docs/ROADMAP.md` is the plan; this file is the current state.
 
-Last updated: 16 November 2026.
+Last updated: 17 November 2026.
 
 ## Current release
+
+Roadmap 79.5 (maintenance): Next.js is 16.4.5 (from 16.4.2, with
+`eslint-config-next`), the first release fixed for GHSA-mfr8-8qww-v76h,
+which `next build` warned about. Nothing else in the lockfile changed and
+no code needed changing.
 
 Roadmap 132.187 (an order shipped in the dashboard shows as shipped in the
 app) is in the code: the app asks again for the orders and the open order
