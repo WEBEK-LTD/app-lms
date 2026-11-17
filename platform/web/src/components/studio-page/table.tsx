@@ -62,8 +62,9 @@ export interface KitTableRow {
   data?: Record<string, string | undefined>;
 }
 
+// `!` where `.kit-tr` and `.kit-th` (globals.css, outside the layers) set the same property: a phone's card wins over the grid.
 const ROW =
-  "kit-tr @max-[560px]/kit-page:[--kit-cols:minmax(0,1fr)_auto] @max-[560px]/kit-page:gap-x-3 @max-[560px]/kit-page:gap-y-1 @max-[560px]/kit-page:px-3.5 @max-[560px]/kit-page:py-3";
+  "kit-tr @max-[560px]/kit-page:[--kit-cols:minmax(0,1fr)_auto] @max-[560px]/kit-page:gap-x-3! @max-[560px]/kit-page:gap-y-1! @max-[560px]/kit-page:px-3.5! @max-[560px]/kit-page:py-3!";
 const CELL = {
   main: "flex min-w-0 items-center @max-[560px]/kit-page:col-start-1 @max-[560px]/kit-page:row-start-1",
   end: "flex min-w-0 flex-wrap items-center gap-1.5 @max-[560px]/kit-page:col-start-2 @max-[560px]/kit-page:row-span-2 @max-[560px]/kit-page:row-start-1 @max-[560px]/kit-page:justify-end",
@@ -240,7 +241,7 @@ export function KitTable({
         </div>
       ) : (
         <>
-          <div className={`kit-th @max-[560px]/kit-page:hidden ${bar ? "" : "rounded-t-[17px] border-t-0"}`} aria-hidden="true">
+          <div className={`kit-th @max-[560px]/kit-page:hidden! ${bar ? "" : "rounded-t-[17px] border-t-0"}`} aria-hidden="true">
             {columns.map((c, i) => (
               <span key={i} className={`min-w-0 truncate ${c.wide ? WIDE : ""}`}>
                 {c.label}
@@ -285,7 +286,7 @@ export function KitTable({
                       {cell}
                     </span>
                   ))}
-                  <Icon name="chevron_right" size={20} className="text-(--sp-faint) @max-[560px]/kit-page:hidden" />
+                  <Icon name="chevron_right" size={20} className="text-(--sp-faint) @max-[560px]/kit-page:hidden!" />
                 </li>
               );
             })}

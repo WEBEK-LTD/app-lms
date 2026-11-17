@@ -1805,6 +1805,14 @@ and nothing calls Google.
 - [ ] Switching back to the store's checkout opens WooCommerce's checkout
       in the app again within a minute.
 
+## Phase 136: iPhone notifications straight to Apple (136.20–136.23)
+
+- [ ] Deploy. Migration `0139_apns_direct` runs with the others, after
+      Phase 1's `0138_yallapp_firebase`. Nothing
+      else: no setting, no Apple or Google account step. Each client
+      uploads their own APNs key once under "iPhone notifications"; the
+      page shows what Apple answered.
+
 ## Phase 136: Notifications sent by Yallapp for WordPress apps (136.40–136.44)
 
 Only once Phase 1 (Yallapp's Firebase pool, keyless sending) is live.

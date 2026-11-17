@@ -32,6 +32,16 @@ Play, a notification arriving while the app is open isn't passed to it
 (the Push Kit bridge sends taps only), so there the orders refresh on
 coming back to the front and on opening.
 
+Roadmap 136.20–136.23 (iPhone notifications straight to Apple, Phase 2
+of "Yallapp sets up notifications") is in the code: the client's APNs
+key is uploaded once, checked with Apple and saved encrypted; `apns`
+device tokens are sent over HTTP/2 to APNs with it; the app sends its
+APNs token on iPhones when `Config.features.apns` says so. Not yet
+checked against Apple itself: this environment can't reach
+`api.push.apple.com`, so the probe's answers (`BadDeviceToken`,
+`InvalidProviderToken`) and a real delivery are verified only against a
+local HTTP/2 server and fakes. Check both with the first client's key.
+
 Roadmap 136.40–136.45 (Phase 3, the WordPress relay) is merged with
 Phase 1: the platform's `POST /api/v1/push/send` sends a site's batch of
 Firebase tokens through the app's keyless Yallapp-mode account and answers
@@ -95,6 +105,16 @@ search, the platform's first ones on top) or every country at once, each
 chosen country's own cities typed right under it with their prices; a
 flash sale's products with their pictures (`lib/selling/countries.ts`).
 
+Roadmap 132.170–132.179 (group B in Studio's console): Publishing,
+Builds, Stability, Invoices, Add-ons, Team, Updates from Yallapp and Your
+phones are in the console's look: one main action in Ember with the rest
+behind "⋯", Publishing's own pages as tabs, the figures as tiles (a store's
+tile opens it), and their lists as tables whose rows open in the inspector
+(group A's KitTable, `components/studio-page/table.tsx`, with the tiles that open
+the inspector in `inspect.tsx`); the settings switches are the
+console's KitSwitch (`studio-page/switch.tsx` puts it in a form).
+`tests/screens/studio-console-b.screens.ts` takes their pictures.
+
 Roadmap 132.180–132.185 (Payments in the console): `/dashboard/payments`
 and `/studio/project/payments` are built in the console's look. At first
 the page shows only its title, "Connect a card gateway" while none is
@@ -134,6 +154,13 @@ one card, bank transfer and the owner's own way each with an on/off switch
 pages and `/studio/team` still use the older page kit (`page-kit.tsx`)
 until they move to it.
 `tests/screens/studio-premium.screens.ts` takes their pictures.
+
+Roadmap 132.140–132.144 (Studio's premium pages, the second set): the
+kit is on Publishing, Builds, Stability, Invoices, Add-ons, Team, Updates
+from Yallapp and Your phones too (each the dashboard's page, in Studio's
+frame), with a settings switch (`studio-page/switch.tsx`) and a build's
+stages as small pills (`BuildStages look="pills"`).
+Their pictures: `tests/screens/studio-console-b.screens.ts` (132.179).
 
 Roadmap 132.1–132.8 (Studio dashboard fixes): a Studio project's menu has
 every page of the dashboard that applies to the project, behind the

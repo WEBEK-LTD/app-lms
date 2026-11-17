@@ -1,8 +1,10 @@
 import type { Metadata } from "next";
 import { redirect } from "next/navigation";
-import { Icon } from "@/components/icon";
-import { Thumb } from "@/components/page-kit";
-import { PageHeader, ProgressBar, Section, formatDate } from "@/components/ui";
+import { KitCallout, KitEmpty, KitHeader, KitHero, KitNext, KitPage, KitStat, KitThumb, kit } from "@/components/studio-page";
+import { factsOf } from "@/components/studio-page/facts";
+import { KitInspectorBody, KitInspectorFacts, KitInspectorHead } from "@/components/studio-page/parts";
+import { KitTable } from "@/components/studio-page/table";
+import { formatDate } from "@/components/ui";
 import { appLabel } from "@/lib/app/label";
 import { requireClient } from "@/lib/auth/session";
 import { dashboardText } from "@/lib/dashboard-lang";
@@ -24,68 +26,128 @@ export default async function StabilityPage() {
   if (!app) redirect("/dashboard/app-type");
   const stability = await stabilityOf(await getStore(), app.id, new Date());
   const off = app.crashReports === false;
+  const rating = app.reviewPrompt !== false;
   const { t, k, num, lang } = await dashboardText();
+  const known = !off && stability.crashFree !== null;
+  const good = stability.crashFree !== null && stability.crashFree >= 99;
+  const word = (text: string) => <span className="text-[24px] tracking-[-0.3px]">{text}</span>;
+  // 132.173 The console's look: the numbers as tiles (the share without a crash first, with its bar), what the team does under them,
+  // the problems as a table whose rows open in the inspector, then the two switches as settings rows.
   return (
-    <div className="flex flex-col gap-6">
-      {/* The page kit: the header, the share without a crash, the problems as a list, then the switches. */}
-      <PageHeader title={t("health.stability")} description={t("health.stabilityText", { app: appLabel(app) === "Untitled app" ? k("Untitled app") : appLabel(app) })} />
-      <Section
-        titleId="h-crash-free"
-        title={
-          <span className="flex items-center gap-2">
-            <Icon name="monitoring" size={22} />
-            {t("health.crashFree")}
-          </span>
+    <KitPage>
+      <KitHeader icon="monitoring" title={t("health.stability")} description={t("health.stabilityText", { app: appLabel(app) === "Untitled app" ? k("Untitled app") : appLabel(app) })} />
+      <KitHero
+        label={t("health.crashFree")}
+        stats={
+          <>
+            <KitStat
+              icon="verified"
+              label={t("health.crashFree")}
+              value={known ? <span data-crash-free="">{t("health.percent", { percent: num(stability.crashFree!) })}</span> : "—"}
+              hint={off ? t("health.offTitle") : stability.crashFree === null ? t("health.noDataTitle") : good ? t("health.good") : t("health.couldBeBetter")}
+              progress={known ? stability.crashFree! / 100 : undefined}
+            />
+            <KitStat icon="error" tone={stability.open ? "warn" : "success"} label={t("health.problems")} value={num(stability.open)} href="#h-top" />
+            <KitStat icon="smartphone" label={t("health.sessionsLabel")} value={num(stability.sessions)} />
+            <KitStat icon="star" tone={rating ? "success" : "neutral"} label={t("health.askRating")} value={word(rating ? t("common.on") : t("common.off"))} href="#h-switches" />
+          </>
         }
-      >
-        {off ? (
-          <p className="m-0 text-[15px] text-ink-4">{t("health.offText")}</p>
-        ) : stability.crashFree === null ? (
-          <p className="m-0 text-[15px] text-ink-4">{t("health.noData")}</p>
-        ) : (
-          <div className="flex flex-wrap items-center gap-x-6 gap-y-3">
-            <span className={`flex h-14 w-14 shrink-0 items-center justify-center rounded-2xl ${stability.crashFree >= 99 ? "bg-success-bg text-success" : "bg-warn-bg text-warn"}`}>
-              <Icon name={stability.crashFree >= 99 ? "check_circle" : "warning"} size={30} />
-            </span>
-            <div className="flex min-w-0 flex-[1_1_240px] flex-col gap-2">
-              <span className="text-[32px] leading-none font-extrabold tabular-nums" data-crash-free="">
-                {t("health.percent", { percent: num(stability.crashFree) })}
-              </span>
-              <ProgressBar value={stability.crashFree} max={100} label={t("health.crashFree")} tone={stability.crashFree >= 99 ? "success" : "warn"} />
-              <span className="text-sm text-muted">{t("health.sessions", { count: stability.sessions })}</span>
-            </div>
-          </div>
-        )}
-      </Section>
+        next={
+          off ? (
+            <KitNext
+              icon="settings"
+              tone="warn"
+              action={
+                <a href="#h-switches" className={kit.quiet}>
+                  {t("health.turnOn")}
+                </a>
+              }
+            >
+              {t("health.offText")}
+            </KitNext>
+          ) : stability.crashFree === null ? (
+            <KitNext icon="schedule">{t("health.noData")}</KitNext>
+          ) : (
+            <KitNext icon="support_agent" tone="success">
+              {t("health.sessions", { count: stability.sessions })}
+              {stability.top.length ? ` ${t("health.teamFixes")}` : null}
+            </KitNext>
+          )
+        }
+      />
 
-      <Section titleId="h-top" title={t("health.frequent")} description={stability.top.length ? t("health.teamFixes") : undefined} flush>
-        {stability.top.length === 0 ? (
-          <p className="m-0 flex items-center gap-2 px-5 py-5 text-[15px] text-ink-4 sm:px-6">
-            <Icon name="check_circle" size={20} className="text-success" />
-            {t("health.noProblems")}
-          </p>
-        ) : (
-          <ul className="m-0 flex list-none flex-col p-0" data-top-crashes="">
-            {stability.top.map((issue, i) => (
-              <li key={issue.id} className="flex items-start gap-3.5 border-t border-line-soft px-5 py-3.5 first:border-t-0 sm:px-6">
-                <Thumb icon="error" shape="square" tint={i} />
-                <span className="flex min-w-0 flex-col gap-0.5">
-                  <span className="font-mono text-[13px] font-semibold break-words text-midnight" dir="ltr">
-                    {issue.title}
-                  </span>
-                  <span className="text-[13px] text-muted">
-                    {t("health.issueLine", { count: issue.count, date: formatDate(issue.lastSeenAt, lang), version: issue.versions[issue.versions.length - 1] ?? "" })}
-                  </span>
+      <KitTable
+        data-top-crashes=""
+        label={t("health.frequent")}
+        title={t("health.frequent")}
+        titleId="h-top"
+        empty={<KitEmpty icon="task_alt" title={t("health.noProblems")} />}
+        columns={[
+          { label: t("health.colProblem"), width: "minmax(0,1fr)" },
+          { label: t("health.colTimes"), width: "96px", phone: "sub" },
+          { label: t("health.lastSeen"), width: "150px", wide: true },
+          { label: t("health.colVersion"), width: "120px", phone: "end" },
+        ]}
+        rows={stability.top.map((issue) => {
+          const version = issue.versions[issue.versions.length - 1] ?? "";
+          const line = t("health.issueLine", { count: issue.count, date: formatDate(issue.lastSeenAt, lang), version });
+          return {
+            id: issue.id,
+            name: issue.title,
+            data: { "data-crash-issue": issue.id },
+            cells: [
+              <span key="name" className="contents">
+                <KitThumb icon="error" size={40} />
+                <span className="min-w-0 truncate font-mono text-[13px] font-bold" dir="ltr">
+                  {issue.title}
                 </span>
-              </li>
-            ))}
-          </ul>
-        )}
-      </Section>
+              </span>,
+              // On a phone, the whole line under the problem.
+              <span key="n">
+                <span className="@min-[561px]/kit-page:hidden">{line}</span>
+                <span className="font-sans font-semibold text-(--sp-ink) tabular-nums @max-[560px]/kit-page:hidden">{num(issue.count)}</span>
+              </span>,
+              formatDate(issue.lastSeenAt, lang),
+              <bdi key="v" dir="ltr" className="font-sans text-[13px] font-semibold text-(--sp-ink-2) tabular-nums">
+                {version}
+              </bdi>,
+            ],
+            inspector: {
+              title: t("health.colProblem"),
+              body: (
+                <KitInspectorBody data-inspector-issue={issue.id}>
+                  <KitInspectorHead
+                    title={
+                      <span dir="ltr" className="font-mono text-[15px] leading-snug">
+                        {issue.title}
+                      </span>
+                    }
+                    line={line}
+                  />
+                  <KitInspectorFacts
+                    facts={factsOf([
+                      [t("health.colTimes"), num(issue.count)],
+                      [t("health.firstSeen"), formatDate(issue.firstSeenAt, lang)],
+                      [t("health.lastSeen"), formatDate(issue.lastSeenAt, lang)],
+                      [t("health.versions"), <bdi key="v" dir="ltr">{issue.versions.join(", ")}</bdi>],
+                      issue.screen ? [t("health.screen"), <bdi key="s" dir="ltr">{issue.screen}</bdi>] : null,
+                      issue.lastOs ? [t("health.lastPhone"), <bdi key="o" dir="ltr">{issue.lastOs}</bdi>] : null,
+                    ])}
+                  />
+                  <KitCallout icon="support_agent" tone="success">
+                    {t("health.teamFixes")}
+                  </KitCallout>
+                </KitInspectorBody>
+              ),
+            },
+          };
+        })}
+      />
 
-      <Section titleId="h-switches" title={t("health.switches")}>
-        <AppHealthForm reviewPrompt={app.reviewPrompt !== false} crashReports={!off} />
-      </Section>
-    </div>
+      <div id="h-switches" className="flex scroll-mt-6 flex-col gap-3">
+        <h2 className="m-0 px-1 text-[13px] font-bold text-(--sp-muted)">{t("health.switches")}</h2>
+        <AppHealthForm reviewPrompt={rating} crashReports={!off} />
+      </div>
+    </KitPage>
   );
 }

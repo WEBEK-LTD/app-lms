@@ -456,6 +456,7 @@ class SiteFeatures {
     this.notes = false,
     this.lessonDiscussion = false,
     this.bundles = false,
+    this.apns = false,
   });
 
   factory SiteFeatures.fromJson(Json json) => SiteFeatures(
@@ -481,6 +482,7 @@ class SiteFeatures {
     notes: boolOr(json, 'notes', false),
     lessonDiscussion: boolOr(json, 'lesson_discussion', false),
     bundles: boolOr(json, 'bundles', false),
+    apns: boolOr(json, 'apns', false),
   );
 
   /// Null on a site without an LMS (a Store app).
@@ -525,6 +527,11 @@ class SiteFeatures {
 
   /// 113.1 Courses are also sold in bundles: the courses list shows them.
   final bool bundles;
+
+  /// 136.21 iPhones register their APNs device token (`provider: apns`)
+  /// instead of the Firebase one: the server sends their pushes straight to
+  /// Apple. Android is unchanged. Older servers don't send it (false).
+  final bool apns;
 }
 
 /// 118 `username` and `password`: a Studio app's account that signs in with them.

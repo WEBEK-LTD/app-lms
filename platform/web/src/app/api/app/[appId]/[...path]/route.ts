@@ -11,6 +11,7 @@ import { resolvedOtpSenderConfig } from "@/lib/settings/platform";
 import { hmacSha256 } from "@/lib/crypto/tokens";
 import { connectorFor } from "@/lib/hosted/connectors";
 import { serviceAccountOf } from "@/lib/hosted/notify";
+import { apnsDirectOn } from "@/lib/integrations/apns-key";
 import { otpSenderFrom } from "@/lib/hosted/otp-sender";
 import { handleHosted } from "@/lib/hosted/service";
 import { errorResponse, ipFromHeaders, json, noContent } from "@/lib/http";
@@ -173,6 +174,8 @@ async function answer(request: Request, { params }: RouteContext<"/api/app/[appI
         await sendTemplate("sign_in_code", to, { app_name: appName, code, minutes: String(minutes) }, { app });
       },
       push: serviceAccountOf(app, encryptionKey()) !== null,
+      // 136.21 Direct APNs: Yallapp mode with the client's APNs key.
+      apns: apnsDirectOn(app),
       assetUrl: assetUrl,
       platformUrl: appUrl(),
       connector: connectorFor(app, encryptionKey(), {

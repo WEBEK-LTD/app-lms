@@ -1,6 +1,8 @@
 import { createSign } from "node:crypto";
 import type { PushProvider } from "../data/types";
 import { federatedAccessToken, WIF_SUBJECTS, type Federation } from "../google/federation";
+// 136.21 Direct APNs (see the marked hook in sendPush).
+import { sendApnsPush, type ApnsCredentials, type ApnsTarget, type ApnsTransport } from "./apns";
 
 /**
  * Firebase Cloud Messaging (HTTP v1) with the client's service account, as
@@ -25,21 +27,9 @@ export interface ServiceAccount {
    * Workload Identity Federation, never a key.
    */
   federated?: boolean;
-  /**
-   * 136 Phase 2's seam: iPhone pushes straight to Apple with the client's
-   * APNs key, for "apns" tokens. Nothing sets it yet; without it those
-   * tokens are skipped.
-   */
-  apns?: ApnsSender | null;
+  /** 136.21 The client's APNs key, for "apns" tokens (lib/hosted/apns.ts); without it those tokens are skipped. */
+  apns?: ApnsCredentials | null;
 }
-
-/** 136 Phase 2: sends to Apple's push service (APNs) directly. Not built in Phase 1. */
-export interface ApnsSender {
-  send(tokens: string[], message: PushMessage): Promise<PushResult>;
-}
-
-/** 136 Where a token goes: Firebase (the default), Huawei Push Kit, or (Phase 2) Apple's push service. */
-export type PushTargetProvider = PushProvider | "apns";
 
 /** 36 Huawei Push Kit: the app ID and app secret from AppGallery Connect. */
 export interface HmsCredentials {
@@ -48,7 +38,7 @@ export interface HmsCredentials {
 }
 
 /** A device token and the service it's from (a bare string is a Firebase token). */
-export type PushTarget = string | { token: string; provider?: PushTargetProvider | null };
+export type PushTarget = string | { token: string; provider?: PushProvider | null; /** 136.21 The registering app's role, for an "apns" token's bundle ID. */ role?: string | null };
 
 /** The service account fields FCM needs, or null when the JSON isn't one. */
 export function parseServiceAccount(json: string): ServiceAccount | null {
@@ -173,8 +163,10 @@ export async function checkHmsCredentials(credentials: HmsCredentials, options: 
 }
 
 /** The target of a hosted device: a Firebase token as it is, a Huawei token with its provider. */
-export function pushTarget(device: { pushToken: string | null; pushProvider?: PushProvider | null }): PushTarget {
+export function pushTarget(device: { pushToken: string | null; pushProvider?: PushProvider | null; appRole?: string | null }): PushTarget {
   const token = device.pushToken ?? "";
+  // 136.21 An APNs device token, with the role of its app (the bundle ID it goes to).
+  if (device.pushProvider === "apns") return { token, provider: "apns", role: device.appRole ?? null };
   return device.pushProvider === "hms" ? { token, provider: "hms" } : token;
 }
 
@@ -186,30 +178,32 @@ export async function sendPush(
   account: ServiceAccount,
   targets: PushTarget[],
   message: PushMessage,
-  options: PushOptions = {},
+  options: PushOptions & { apnsTransport?: ApnsTransport } = {},
 ): Promise<PushResult> {
   const result: PushResult = { sent: 0, invalidTokens: [] };
   const fetcher = options.fetcher ?? fetch;
   const tokens: string[] = [];
   const hmsTokens: string[] = [];
-  const apnsTokens: string[] = [];
+  const apnsTargets: ApnsTarget[] = [];
   for (const target of targets) {
     const token = typeof target === "string" ? target : target.token;
     if (!token) continue;
     if (typeof target !== "string" && target.provider === "hms") hmsTokens.push(token);
-    else if (typeof target !== "string" && target.provider === "apns") apnsTokens.push(token);
+    // 136.21 APNs tokens never go to FCM: to Apple with the client's key, or nowhere.
+    else if (typeof target !== "string" && target.provider === "apns") apnsTargets.push({ token, role: target.role ?? null });
     else tokens.push(token);
   }
+  // ---- 136.21 Direct APNs hook (lib/hosted/apns.ts): keep this block as it is when merging. ----
+  if (apnsTargets.length > 0 && account.apns) {
+    const apns = await sendApnsPush(account.apns, apnsTargets, message, { transport: options.apnsTransport, now: options.now });
+    result.sent += apns.sent;
+    result.invalidTokens.push(...apns.invalidTokens);
+  }
+  // ---- end of the direct APNs hook ----
   if (hmsTokens.length > 0 && account.hms) {
     const hms = await sendHmsPush(account.hms, hmsTokens, message, { fetcher });
     result.sent += hms.sent;
     result.invalidTokens.push(...hms.invalidTokens);
-  }
-  // 136 Phase 2: iPhone tokens of Apple's own push service, when a sender is given.
-  if (apnsTokens.length > 0 && account.apns) {
-    const apns = await account.apns.send(apnsTokens, message);
-    result.sent += apns.sent;
-    result.invalidTokens.push(...apns.invalidTokens);
   }
   if (tokens.length === 0) return result;
   // 136 Yallapp's Firebase signs in without a key; a client's own with its service account, as before.

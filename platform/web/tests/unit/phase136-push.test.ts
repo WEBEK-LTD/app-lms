@@ -10,7 +10,8 @@ import { endpointsAt } from "@/lib/google/endpoints";
 import { forgetFederatedTokens, type Federation } from "@/lib/google/federation";
 import { ensurePlatformKey, platformJwks, signPlatformJwt } from "@/lib/google/platform-keys";
 import { pushConfigured, SERVICE_ACCOUNT_CONTEXT, serviceAccountOf } from "@/lib/hosted/notify";
-import { checkFirebaseAccount, googleAccessToken, sendPush, type ApnsSender, type ServiceAccount } from "@/lib/hosted/push";
+import { checkFirebaseAccount, googleAccessToken, sendPush, type ServiceAccount } from "@/lib/hosted/push";
+import type { ApnsTransport } from "@/lib/hosted/apns";
 import { integrationsOf, testIntegration } from "@/lib/integrations";
 import { runFrequentJobs } from "@/lib/jobs/frequent";
 import { liveDatabase } from "@/lib/taxi/live";
@@ -69,7 +70,7 @@ describe("136 the account an app sends with", () => {
     expect(pushConfigured(app)).toBe(false);
     yallappEnv();
     expect(serviceAccountOf(hosted({ pushSetup: "yallapp" }), KEY)).toBeNull();
-    expect(serviceAccountOf(app, KEY)).toEqual({ project_id: "yallapp-push-01", client_email: PUSH, private_key: "", federated: true, hms: null });
+    expect(serviceAccountOf(app, KEY)).toEqual({ apns: null, project_id: "yallapp-push-01", client_email: PUSH, private_key: "", federated: true, hms: null });
     expect(pushConfigured(app)).toBe(true);
   });
 
@@ -133,13 +134,18 @@ describe("136 sending", () => {
     expect(fetcher).not.toHaveBeenCalled();
   });
 
-  it("leaves a seam for Phase 2's iPhone pushes straight to Apple: apns tokens go to its sender, or are skipped", async () => {
-    const apns: ApnsSender = { send: vi.fn(async (tokens: string[]) => ({ sent: tokens.length, invalidTokens: [] })) };
+  it("sends Phase 2's apns tokens straight to Apple with the client's key, or skips them", async () => {
+    const pem = generateKeyPairSync("ec", { namedCurve: "prime256v1" }).privateKey.export({ type: "pkcs8", format: "pem" }).toString();
+    const sent: string[] = [];
+    const apnsTransport: ApnsTransport = () => ({ send: async (request) => (sent.push(request.path), { status: 200, reason: null }), close: () => {} });
     const fetcher = vi.fn<typeof fetch>();
+    const apns = { keyId: "ABCDE12345", teamId: "TEAM123456", privateKey: pem, bundleId: "com.rose.shop" };
     const account: ServiceAccount = { project_id: "p", client_email: "e", private_key: "", federated: true, apns };
-    expect(await sendPush(account, [{ token: "apns-1", provider: "apns" }], message, { fetcher, now: NOW })).toEqual({ sent: 1, invalidTokens: [] });
-    expect(apns.send).toHaveBeenCalledWith(["apns-1"], message);
-    expect(await sendPush({ ...account, apns: null }, [{ token: "apns-1", provider: "apns" }], message, { fetcher, now: NOW })).toEqual({ sent: 0, invalidTokens: [] });
+    const token = "a".repeat(64);
+    expect(await sendPush(account, [{ token, provider: "apns" }], message, { fetcher, now: NOW, apnsTransport })).toEqual({ sent: 1, invalidTokens: [] });
+    expect(sent).toEqual([`/3/device/${token}`]);
+    expect(await sendPush({ ...account, apns: null }, [{ token, provider: "apns" }], message, { fetcher, now: NOW, apnsTransport })).toEqual({ sent: 0, invalidTokens: [] });
+    expect(sent).toHaveLength(1);
     expect(fetcher).not.toHaveBeenCalled();
   });
 

@@ -714,6 +714,9 @@ export const SERVER_MESSAGES_AR: Record<string, string> = {
   "The demo account can't be changed. In your own app, people edit their details here.": "لا يمكن تغيير الحساب التجريبي. في تطبيقك، يعدّل الناس بياناتهم من هنا.",
   "The minimum order for delivery is {0}.": "الحد الأدنى لطلب التوصيل هو {0}.",
   "The push provider must be fcm or hms.": "يجب أن يكون مزوّد الإشعارات fcm أو hms.",
+  // 136.21
+  "The push provider must be fcm, hms or apns.": "يجب أن يكون مزوّد الإشعارات fcm أو hms أو apns.",
+  "This app sends iPhone pushes through Firebase: send the Firebase token.": "يرسل هذا التطبيق إشعارات iPhone عبر Firebase: أرسل رمز Firebase.",
   "The app's role must be customer, courier, driver, vendor or staff.": "يجب أن يكون دور التطبيق customer أو courier أو driver أو vendor أو staff.",
   "The push token is missing.": "رمز الإشعارات غير موجود.",
   "The request body must be JSON.": "يجب أن يكون محتوى الطلب بتنسيق JSON.",

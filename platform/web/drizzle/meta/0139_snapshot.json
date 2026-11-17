@@ -1,7 +1,7 @@
 {
   "version": "5",
   "dialect": "mysql",
-  "id": "4792a899-16da-4c49-a6d8-8b4d4bb3d795",
+  "id": "4dfdf0ed-4c01-472d-864f-9a4039564a2d",
   "prevId": "5a73279e-00b7-47ad-993b-bc5e89eb4e53",
   "tables": {
     "account_deletion_requests": {
@@ -2640,13 +2640,6 @@
           "notNull": false,
           "autoincrement": false
         },
-        "push_relay_at": {
-          "name": "push_relay_at",
-          "type": "datetime(3)",
-          "primaryKey": false,
-          "notNull": false,
-          "autoincrement": false
-        },
         "google_play_key_encrypted": {
           "name": "google_play_key_encrypted",
           "type": "text",
@@ -2748,6 +2741,27 @@
         "huawei_push_secret_encrypted": {
           "name": "huawei_push_secret_encrypted",
           "type": "text",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
+        "apns_key_encrypted": {
+          "name": "apns_key_encrypted",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
+        "apns_key_id": {
+          "name": "apns_key_id",
+          "type": "varchar(10)",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
+        "apns_team_id": {
+          "name": "apns_team_id",
+          "type": "varchar(10)",
           "primaryKey": false,
           "notNull": false,
           "autoincrement": false

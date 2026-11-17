@@ -2,10 +2,14 @@ import { plansIn } from "@/lib/marketing-lang";
 import type { Metadata } from "next";
 import Link from "next/link";
 import { redirect } from "next/navigation";
-import { BuildBadge, BuildStages, BuildStatusText } from "@/components/build-status";
+import type { ReactNode } from "react";
+import { BUILD_STATUS_LABEL, BUILD_TONE, BuildStages } from "@/components/build-status";
 import { Icon } from "@/components/icon";
-import { LinkCards, PageGroup } from "@/components/page-kit";
-import { EmptyState, Notice, PageHeader, Section, formatDate, formatDateTime } from "@/components/ui";
+import type { IconName } from "@/components/icon-names";
+import { KitCallout, KitEmpty, KitFold, KitHeader, KitHero, KitList, KitMore, KitNext, KitPage, KitRow, KitSection, KitSettingRow, KitSettings, KitStatus, KitThumb, kit } from "@/components/studio-page";
+import { KitInspectorBody, KitInspectorHead } from "@/components/studio-page/parts";
+import { KitTable } from "@/components/studio-page/table";
+import { formatDate, formatDateTime } from "@/components/ui";
 import { firebaseListsCourierApp, firebaseListsStaffApp, firebaseListsVendorApp, hasStoreKeys, isSetupComplete, nextStep } from "@/lib/app/setup";
 import { failedApiCheck } from "@/lib/app/api-check-notice";
 import { appLabel, licensePageName, usesPlugin } from "@/lib/app/label";
@@ -27,7 +31,7 @@ import type { ArtifactKind, Build } from "@/lib/data/types";
 import { ARTIFACT_LABEL, dashboardFileHref, fileLink } from "@/lib/files";
 import { latestRelease } from "@/lib/license/service";
 import { hasFeature, lowestPlanWith, planName } from "@/lib/plans";
-import { UpgradeHint } from "@/components/upgrade";
+import { upgradeHref } from "@/components/upgrade";
 import { currentPlanId } from "@/lib/billing/plan-change";
 import { effectivePlans } from "@/lib/entitlements";
 import { getPlans } from "@/lib/settings/platform";
@@ -56,44 +60,51 @@ export async function generateMetadata(): Promise<Metadata> {
 
 const FILES: { kind: ArtifactKind; highlight?: boolean }[] = [{ kind: "apk" }, { kind: "aab" }, { kind: "ipa" }, { kind: "keystore", highlight: true }];
 
+/** 132.141 Each file's picture on its row. */
+const FILE_ICON: Record<ArtifactKind | "plugin", IconName> = { apk: "android", aab: "android", ipa: "phone_iphone", keystore: "key", store_assets: "photo_library", plugin: "code" };
+
+/** One file of a build: its name, what it's for, and Download (or why it can't be downloaded yet). */
 function DownloadRow({
+  id,
+  icon,
   title,
   text,
   href,
   unavailable,
   highlight,
-  last,
   t,
 }: {
+  id: string;
+  icon: IconName;
   t: DashboardText["t"];
   title: string;
   text: string;
   href: string | null;
   unavailable: string | null;
   highlight?: boolean;
-  last?: boolean;
 }) {
-  const hintId = `na-${title.replace(/\W+/g, "-")}`;
+  const hintId = `na-${id}`;
+  const label = richText(t("builds.download", { title }), { sr: (chunk) => <span className="sr-only">{chunk}</span> });
   return (
-    <li className={`flex flex-wrap items-center gap-x-4 gap-y-3 px-4 py-4 sm:px-6 ${last ? "" : "border-b border-line-soft"} ${highlight ? "bg-cream" : ""}`}>
-      <div className="flex min-w-0 flex-[1_1_300px] flex-col gap-0.5">
-        <span className="text-[15px] font-bold">{title}</span>
-        <span className={`text-[13px] ${highlight ? "text-warn" : "text-muted"}`}>{text}</span>
-      </div>
+    <li className="flex flex-wrap items-center gap-x-4 gap-y-2 border-t border-(--sp-line-soft) px-3 py-3 first:border-t-0 sm:px-4" data-file={id}>
+      <span className="flex min-w-0 flex-[1_1_280px] items-center gap-4">
+        <KitThumb icon={icon} size={40} dim={!href} />
+        <span className="flex min-w-0 flex-col gap-0.5">
+          <span className="text-[15px] font-semibold text-(--sp-ink)">{title}</span>
+          <span className={`text-[13px] ${highlight ? "font-semibold text-warn" : "text-(--sp-muted)"}`}>{text}</span>
+        </span>
+      </span>
       {href ? (
-        <a
-          href={href}
-          className="flex h-[38px] items-center gap-1.5 rounded-lg border border-line-strong bg-white px-4 text-sm font-semibold text-midnight no-underline hover:border-midnight hover:text-midnight"
-        >
-          <Icon name="download" size={18} />
-          {richText(t("builds.download", { title }), { sr: (chunk) => <span className="sr-only">{chunk}</span> })}
+        <a href={href} className={kit.row}>
+          <Icon name="download" size={16} />
+          {label}
         </a>
       ) : (
-        <span className="flex max-w-[280px] flex-col items-start gap-1 sm:items-end">
-          <button type="button" disabled aria-describedby={hintId} className="h-[38px] cursor-not-allowed rounded-lg border border-line bg-sand px-4 text-sm font-semibold text-muted">
-            {richText(t("builds.download", { title }), { sr: (chunk) => <span className="sr-only">{chunk}</span> })}
+        <span className="flex max-w-[300px] flex-col items-start gap-1 max-sm:ps-14 sm:items-end">
+          <button type="button" disabled aria-describedby={hintId} className={kit.row}>
+            {label}
           </button>
-          <span id={hintId} className="text-xs text-muted sm:text-end">
+          <span id={hintId} className="text-xs text-(--sp-muted) sm:text-end">
             {unavailable}
           </span>
         </span>
@@ -107,28 +118,120 @@ function Times({ build, now, text }: { build: Build; now: Date; text: DashboardT
   const { t, k, lang } = text;
   const took = formatDuration(build.startedAt, build.finishedAt ?? (build.status === "building" ? now : null));
   return (
-    <dl className="m-0 flex flex-wrap gap-x-6 gap-y-1 text-sm">
+    <dl className="m-0 flex flex-wrap gap-x-5 gap-y-1 text-sm">
       <div className="flex gap-1.5">
-        <dt className="text-muted">{t("builds.queued")}</dt>
-        <dd className="m-0">{formatDateTime(build.createdAt, lang)}</dd>
+        <dt className="text-(--sp-muted)">{t("builds.queued")}</dt>
+        <dd className="m-0 text-(--sp-ink)">{formatDateTime(build.createdAt, lang)}</dd>
       </div>
       <div className="flex gap-1.5">
-        <dt className="text-muted">{t("builds.started")}</dt>
-        <dd className="m-0">{formatDateTime(build.startedAt, lang)}</dd>
+        <dt className="text-(--sp-muted)">{t("builds.started")}</dt>
+        <dd className="m-0 text-(--sp-ink)">{formatDateTime(build.startedAt, lang)}</dd>
       </div>
       {build.finishedAt ? (
         <div className="flex gap-1.5">
-          <dt className="text-muted">{t("builds.finished")}</dt>
-          <dd className="m-0">{formatDateTime(build.finishedAt, lang)}</dd>
+          <dt className="text-(--sp-muted)">{t("builds.finished")}</dt>
+          <dd className="m-0 text-(--sp-ink)">{formatDateTime(build.finishedAt, lang)}</dd>
         </div>
       ) : null}
       {took ? (
         <div className="flex gap-1.5">
-          <dt className="text-muted">{build.finishedAt ? t("builds.took") : t("builds.runningFor")}</dt>
-          <dd className="m-0">{k(took)}</dd>
+          <dt className="text-(--sp-muted)">{build.finishedAt ? t("builds.took") : t("builds.runningFor")}</dt>
+          <dd className="m-0 text-(--sp-ink)">{k(took)}</dd>
         </div>
       ) : null}
     </dl>
+  );
+}
+
+/** A build's status as a pill. */
+function BuildPill({ build, text }: { build: Build; text: DashboardText }) {
+  return <KitStatus tone={BUILD_TONE[build.status]}>{text.k(BUILD_STATUS_LABEL[build.status])}</KitStatus>;
+}
+
+/**
+ * 104.6, 105.2, 115.16, 116 A second app of the project (the couriers', the
+ * drivers', the vendors' or the staff's): what it is, its notifications'
+ * Firebase files, its own Start, its latest build and its files.
+ */
+function SecondApp({
+  kind,
+  id,
+  titleId,
+  title,
+  description,
+  off,
+  firebase,
+  start,
+  latest,
+  latestLabel,
+  none,
+  retry,
+  files,
+  now,
+  text,
+}: {
+  kind: "courier" | "vendor" | "staff";
+  id: string;
+  titleId: string;
+  title: string;
+  description: string;
+  off: string | null;
+  firebase: { store: "android" | "ios"; ok: boolean; text: string }[];
+  start: ReactNode;
+  latest: Build | null;
+  latestLabel: string;
+  none: string;
+  retry: ReactNode;
+  files: { title: string; rows: ReactNode } | null;
+  now: Date;
+  text: DashboardText;
+}) {
+  const { t, k, lang } = text;
+  return (
+    <KitSection id={id} titleId={titleId} title={title} help={description} helpLabel={t("studioPage.helpSection")}>
+      {off ? (
+        <KitCallout tone="warn" icon="info">
+          {off}
+        </KitCallout>
+      ) : null}
+      <ul className="m-0 flex list-none flex-col gap-2 p-0 text-sm">
+        {firebase.map((f) => (
+          <li key={f.store} className="flex items-start gap-2 text-(--sp-ink)" {...{ [`data-${kind}-firebase`]: f.store }}>
+            <Icon name={f.ok ? "check_circle" : "info"} size={20} className={f.ok ? "text-success" : "text-(--sp-muted)"} />
+            <span>{f.text}</span>
+          </li>
+        ))}
+      </ul>
+      {start}
+      {latest ? (
+        <div className="flex flex-col gap-4 rounded-2xl bg-(--sp-soft) p-4 sm:p-5" {...{ [`data-${kind}-build`]: "" }}>
+          <div className="flex flex-wrap items-start justify-between gap-3">
+            <div className="flex min-w-0 flex-col gap-1">
+              <span className="text-[13px] font-semibold text-(--sp-muted)">{latestLabel}</span>
+              <h3 className="m-0 text-base font-bold">{t("builds.buildTitle", { number: latest.number, version: latest.versionName })}</h3>
+            </div>
+            <BuildPill build={latest} text={text} />
+          </div>
+          <Times build={latest} now={now} text={text} />
+          <BuildStages stages={latest.stages} lang={lang} look="pills" />
+          {latest.status === "queued" || latest.status === "building" ? <p className="m-0 text-sm text-(--sp-muted)">{k(statusExplanation(latest, now))}</p> : null}
+          {latest.status === "failed" ? (
+            <KitCallout tone="danger" icon="error">
+              {richText(t("builds.failedNotice", { reason: k(failureReason(latest)) }), { b: (chunk) => <span className="font-semibold">{chunk}</span> })}
+            </KitCallout>
+          ) : null}
+          {retry}
+        </div>
+      ) : (
+        <p className="m-0 text-sm text-(--sp-muted)">{none}</p>
+      )}
+      {files ? (
+        <div className="flex flex-col gap-1">
+          <h3 className="m-0 text-[15px] font-bold">{files.title}</h3>
+          <ul className="m-0 flex list-none flex-col p-0">{files.rows}</ul>
+        </div>
+      ) : null}
+    </KitSection>
   );
 }
 
@@ -257,13 +360,63 @@ export default async function BuildsPage({ searchParams }: PageProps<"/dashboard
     return { href: unavailable === null && courierReady ? dashboardFileHref(courierReady.id, kind) : null, unavailable: unavailable === null ? null : k(unavailable) };
   };
 
+  // 132.141 The premium kit: the header with Start new build as its one main action; the latest build in one hero card (its
+  // status, stages and its one next step: try again, or get the app); what the next build would trip over; the files as rows;
+  // the second apps; the stores and guides (the guides folded); how updates are released and which versions people may use as
+  // settings rows (their forms folded); then every build as a row with its own actions.
+  const failed = current !== null && current.status === "failed";
+  const apkHref = current?.status === "ready" && current.id === lastReady?.id ? fileRow("apk").href : null;
+  const filesTitle = lastReady ? t("builds.filesFrom", { number: lastReady.number, version: lastReady.versionName }) : t("builds.filesLatest");
+  const secondFiles = (title: string, row: (kind: ArtifactKind) => { href: string | null; unavailable: string | null }, prefix: string) => ({
+    title,
+    rows: (["apk", "aab", "ipa"] as const).map((kind) => (
+      <DownloadRow key={kind} id={`${prefix}-${kind}`} icon={FILE_ICON[kind]} t={t} title={k(ARTIFACT_LABEL[kind])} text={k(fileDescription(kind, autoPublish))} {...row(kind)} />
+    )),
+  });
+  const stagedOn = Boolean(app.stagedRelease?.androidPercent != null || app.stagedRelease?.iosPhased);
+  const fileRows = (
+    <>
+      {FILES.map((file) => (
+        <DownloadRow key={file.kind} id={file.kind} icon={FILE_ICON[file.kind]} t={t} title={k(ARTIFACT_LABEL[file.kind])} text={k(fileDescription(file.kind, autoPublish))} highlight={file.highlight} {...fileRow(file.kind)} />
+      ))}
+      {plugin ? (
+        <DownloadRow
+          id="plugin"
+          icon={FILE_ICON.plugin}
+          t={t}
+          title={t("builds.plugin")}
+          text={release ? t("builds.pluginVersion", { version: release.version }) : t("builds.pluginKey")}
+          href={release && state === "active" ? "/api/dashboard/plugin" : null}
+          unavailable={!release ? t("builds.noRelease") : t("builds.pluginActive")}
+        />
+      ) : null}
+      <DownloadRow id="store_assets" icon={FILE_ICON.store_assets} t={t} title={k(ARTIFACT_LABEL.store_assets)} text={k(fileDescription("store_assets", autoPublish))} {...fileRow("store_assets")} />
+    </>
+  );
   return (
-    <div className="flex flex-col gap-6">
-      {/* The page kit: the header with New build, the build now, the stores as cards, then the history. */}
-      <PageHeader
+    <KitPage>
+      <KitHeader
+        icon="build"
         title={t("builds.title")}
         description={t("builds.intro", { app: appLabel(app) === "Untitled app" ? k("Untitled app") : appLabel(app), plan: plan ? k(planName(plan, plans)) : t("overview.noPlan") })}
-        actions={<StartBuildForm suggestedVersion={suggestedVersion(current)} disabledReason={disabledReason} />}
+        actions={
+          <div className="flex items-start gap-2 max-sm:w-full">
+            <StartBuildForm suggestedVersion={suggestedVersion(current)} disabledReason={disabledReason} />
+            {/* Level with the button, under the field's label. */}
+            <div className="pt-6">
+              <KitMore label={t("studioPage.more")}>
+                <Link href="/dashboard/publishing" className={kit.menuItem}>
+                  <Icon name="publish" size={18} />
+                  {t("builds.publishing")}
+                </Link>
+                <a href="#h-guides" className={kit.menuItem}>
+                  <Icon name="menu_book" size={18} />
+                  {t("builds.guides")}
+                </a>
+              </KitMore>
+            </div>
+          </div>
+        }
       />
       {/* 110.2 Sample entries left: nothing goes to the stores. */}
       <SamplesStoreNotice app={app} />
@@ -271,391 +424,380 @@ export default async function BuildsPage({ searchParams }: PageProps<"/dashboard
       {twoApps ? <TwoApps text={text} data={twoApps} href={inFrame} /> : null}
 
       {started === "auto" ? (
-        <Notice tone="success" icon="check_circle" role="status">
+        <KitCallout tone="success" icon="check_circle" role="status">
           {t("builds.autoQueued")}
-        </Notice>
+        </KitCallout>
       ) : started ? (
-        <Notice tone="success" icon="check_circle" role="status">
+        <KitCallout tone="success" icon="check_circle" role="status">
           {t("builds.firstQueued")}
-        </Notice>
+        </KitCallout>
       ) : null}
 
       {/* 87.4 The automatic build of the latest saves, and when it starts. */}
       {app.autoBuildDueAt && app.autoBuildDueAt > now && !running ? (
-        <Notice tone="info" icon="schedule" role="status">
+        <KitCallout icon="schedule" role="status">
           {t("builds.autoWaiting", { time: formatDateTime(app.autoBuildDueAt, lang) })}
-        </Notice>
-      ) : null}
-
-      {currentPlan && !hasFeature(currentPlan, "auto_rebuild") && builds.length > 0 ? (
-        <UpgradeHint title={t("builds.autoRebuilds")} to={autoRebuildTo} cta={autoRebuildTo ? t("overview.upgradeTo", { plan: autoRebuildTo.name }) : undefined}>
-          {t("builds.autoRebuildsText")}
-        </UpgradeHint>
+        </KitCallout>
       ) : null}
 
       {typeof queued === "string" && /^\d+$/.test(queued) ? (
-        <Notice tone="success" icon="check_circle" role="status">
+        <KitCallout tone="success" icon="check_circle" role="status">
           {t("builds.buildQueued", { number: queued })}
           {/* 89.3 Gone back to an earlier build. */}
           {typeof back === "string" && /^\d+$/.test(back) ? ` ${t(pages ? "builds.wentBackPages" : "builds.wentBack", { number: back })}` : ""}
-        </Notice>
-      ) : null}
-
-      {checks.length > 0 ? (
-        <Section id="checks" titleId="h-checks" title={t("builds.checksTitle")} description={t("builds.checksText")}>
-          <ul className="m-0 flex list-none flex-col gap-2 p-0">
-            {checks.map((check) => (
-              <li key={check.key} data-check={check.key} className={`flex flex-wrap items-start gap-3 rounded-xl border px-4 py-3 ${check.level === "error" ? "border-danger/30 bg-danger-bg" : "border-line bg-white"}`}>
-                <Icon name={check.level === "error" ? "error" : "info"} size={20} className={check.level === "error" ? "text-danger" : "text-ink-4"} />
-                <span className="min-w-0 flex-1 text-sm">
-                  {check.level === "warning" ? <span className="font-semibold">{t("builds.checksWarning")}: </span> : null}
-                  {k(renderCheck(check))}
-                </span>
-                <Link href={check.link} className="text-sm font-semibold">
-                  {t("builds.checksFix")}
-                </Link>
-              </li>
-            ))}
-          </ul>
-        </Section>
+        </KitCallout>
       ) : null}
 
       {apiProblem ? (
-        <Notice tone="warn" icon="warning">
+        <KitCallout tone="warn" icon="warning">
           {richText(t("builds.apiProblem", { body: k(apiProblem.body) }), { link: (chunk) => <Link href="/dashboard/setup?step=website">{chunk}</Link> })}
-        </Notice>
+        </KitCallout>
       ) : null}
 
       {download === "unavailable" ? (
-        <Notice tone="warn" icon="warning" role="alert">
+        <KitCallout tone="warn" icon="warning" role="alert">
           {richText(t("builds.unavailable"), wa)}
-        </Notice>
+        </KitCallout>
       ) : null}
 
       {state === "expired" ? (
-        <Notice tone="warn" icon="warning">
+        <KitCallout tone="warn" icon="warning">
           {richText(t("builds.expiredNotice", { date: formatDate(license?.expiresAt, lang), page: licenseName }), {
             ...wa,
             renew: (chunk) => <Link href="/dashboard/license#renew">{chunk}</Link>,
           })}
-        </Notice>
+        </KitCallout>
       ) : state === "suspended" ? (
-        <Notice tone="warn" icon="warning">
+        <KitCallout tone="warn" icon="warning">
           {t("builds.suspendedNotice")}
-        </Notice>
+        </KitCallout>
       ) : null}
 
       {!setupDone ? (
-        <Notice icon="info">
-          {t("builds.firstBuildWhen")}{" "}
-          <Link href={`/dashboard/setup?step=${nextStep(app, plan, effective) ?? "website"}`} className="font-bold">
-            {t("builds.continueSetup")}
-          </Link>
-        </Notice>
+        <KitCallout
+          icon="info"
+          action={
+            <Link href={`/dashboard/setup?step=${nextStep(app, plan, effective) ?? "website"}`} className={kit.quiet}>
+              {t("builds.continueSetup")}
+            </Link>
+          }
+        >
+          {t("builds.firstBuildWhen")}
+        </KitCallout>
       ) : null}
 
       {current ? (
-        <section aria-labelledby="h-current" className="flex flex-col gap-5 rounded-2xl border border-line bg-white p-5 sm:p-6">
-          {/* The heading's grandparent holds the status badge (tests read it from there). */}
-          <div className="flex flex-wrap items-start justify-between gap-3">
-            <div className="flex min-w-0 flex-col gap-1">
-              <span className="text-sm font-semibold text-muted">
+        // The heading's grandparent holds the status pill (tests read it from there).
+        <KitHero
+          titleId="h-current"
+          status={
+            <>
+              <span className="text-[13px] font-semibold text-(--sp-muted)">
                 {twoApps ? `${t(twoApps.role === "driver" ? "builds.ridersApp" : "builds.customersApp")} · ` : null}
                 {t("builds.latestBuild")}
               </span>
-              <h2 id="h-current" className="m-0 text-lg font-bold">
-                {t("builds.buildTitle", { number: current.number, version: current.versionName })}
-              </h2>
-              <span className="text-sm text-muted">{t("builds.versionCode", { code: current.versionCode })}</span>
-            </div>
-            <BuildBadge status={current.status} lang={lang} />
-          </div>
-          <Times build={current} now={now} text={text} />
-          <BuildStages stages={current.stages} lang={lang} />
+              <BuildPill build={current} text={text} />
+            </>
+          }
+          title={t("builds.buildTitle", { number: current.number, version: current.versionName })}
+          description={
+            <span className="flex flex-col gap-1.5">
+              <span>{t("builds.versionCode", { code: current.versionCode })}</span>
+              <Times build={current} now={now} text={text} />
+            </span>
+          }
+          next={
+            (failed || stalled) && !licenseProblem && setupDone ? (
+              <KitNext icon="refresh" tone="warn" action={<RetryBuildForm versionName={current.versionName} />}>
+                {t("builds.retryLine")}
+              </KitNext>
+            ) : apkHref ? (
+              <KitNext
+                icon="task_alt"
+                tone="success"
+                action={
+                  <a href={apkHref} className={kit.quiet}>
+                    <Icon name="download" size={18} />
+                    {t("builds.getApk")}
+                  </a>
+                }
+              >
+                {k(fileDescription("apk", autoPublish))}
+              </KitNext>
+            ) : current.status === "ready" ? (
+              <KitNext
+                icon="task_alt"
+                tone="success"
+                action={
+                  <Link href="/dashboard/publishing" className={kit.quiet}>
+                    <Icon name="publish" size={18} />
+                    {t("builds.publishing")}
+                  </Link>
+                }
+              >
+                {t("builds.publishingText")}
+              </KitNext>
+            ) : undefined
+          }
+        >
+          <BuildStages stages={current.stages} lang={lang} look="pills" />
           {current.status === "queued" || current.status === "building" ? (
             stalled ? (
-              <Notice tone="warn" icon="hourglass_top">
+              <KitCallout tone="warn" icon="hourglass_top">
                 {k(statusExplanation(current, now))}
-              </Notice>
+              </KitCallout>
             ) : (
-              <p className="m-0 text-sm text-muted">{k(statusExplanation(current, now))}</p>
+              <p className="m-0 text-sm text-(--sp-muted)">{k(statusExplanation(current, now))}</p>
             )
           ) : null}
           {current.status === "ready" && current.message ? (
-            <Notice tone={Object.values(current.stages).includes("failed") ? "warn" : "info"} icon={Object.values(current.stages).includes("failed") ? "warning" : "info"}>
+            <KitCallout tone={Object.values(current.stages).includes("failed") ? "warn" : "info"} icon={Object.values(current.stages).includes("failed") ? "warning" : "info"}>
               {k(current.message)}
-            </Notice>
+            </KitCallout>
           ) : null}
-          {current.status === "failed" ? (
-            <Notice tone="danger" icon="error">
+          {failed ? (
+            <KitCallout tone="danger" icon="error">
               {richText(t("builds.failedNotice", { reason: k(failureReason(current)) }), { b: (chunk) => <span className="font-semibold">{chunk}</span> })}
-            </Notice>
+            </KitCallout>
           ) : null}
           {/* 87.2 The cause of a store upload that didn't work on a ready build, and where to fix it. */}
-          {current.status === "ready" && failureExplanation(current) ? <Notice tone="warn" icon="info">{k(failureExplanation(current)!.text)}</Notice> : null}
+          {current.status === "ready" && failureExplanation(current) ? (
+            <KitCallout tone="warn" icon="info">
+              {k(failureExplanation(current)!.text)}
+            </KitCallout>
+          ) : null}
           {failureExplanation(current)?.link ? (
-            <Link href={failureExplanation(current)!.link!} className="self-start text-sm font-semibold" data-failure-link>
+            <Link href={failureExplanation(current)!.link!} className={`${kit.quiet} self-start`} data-failure-link>
               {t("builds.checksFix")}
             </Link>
           ) : null}
           {/* 87.2 What the build printed, without its secrets: the client may read it. */}
           {current.failure?.log ? (
-            <details className="text-sm" data-failure-log>
-              <summary className="cursor-pointer font-semibold">{t("builds.failureLog")}</summary>
-              <p className="m-0 mt-2 text-xs text-muted">{t("builds.failureLogText")}</p>
-              <pre dir="ltr" className="mt-2 max-h-[360px] overflow-auto rounded-xl bg-midnight p-3 text-xs leading-relaxed whitespace-pre-wrap text-white">
+            <KitFold summary={t("builds.failureLog")} icon="code" data-failure-log="">
+              <p className="m-0 text-xs text-(--sp-muted)">{t("builds.failureLogText")}</p>
+              <pre dir="ltr" className="m-0 max-h-[360px] overflow-auto rounded-xl bg-midnight p-3 text-xs leading-relaxed whitespace-pre-wrap text-white">
                 {current.failure.log}
               </pre>
-            </details>
+            </KitFold>
           ) : null}
-          {(current.status === "failed" || stalled) && !licenseProblem && setupDone ? <RetryBuildForm versionName={current.versionName} /> : null}
-        </section>
+        </KitHero>
       ) : setupDone && !licenseProblem ? (
-        <EmptyState icon="build" title={t("builds.noBuilds")}>
-          {t("builds.noBuildsText")}
-        </EmptyState>
+        <div className={kit.card}>
+          <KitEmpty icon="build" title={t("builds.noBuilds")}>
+            {t("builds.noBuildsText")}
+          </KitEmpty>
+        </div>
       ) : null}
 
-      <Section
-        titleId="h-files"
-        title={lastReady ? t("builds.filesFrom", { number: lastReady.number, version: lastReady.versionName }) : t("builds.filesLatest")}
-        description={
-          lastReady ? t("builds.filesFinished", { date: formatDateTime(lastReady.finishedAt ?? lastReady.updatedAt, lang) }) : t("builds.filesAppear")
-        }
-        flush
-        className="overflow-hidden"
-      >
-        <ul className="m-0 list-none p-0">
-          {FILES.map((file) => (
-            <DownloadRow
-              key={file.kind}
-              t={t}
-              title={k(ARTIFACT_LABEL[file.kind])}
-              text={k(fileDescription(file.kind, autoPublish))}
-              highlight={file.highlight}
-              {...fileRow(file.kind)}
-            />
-          ))}
-          {plugin ? (
-            <DownloadRow
-              t={t}
-              title={t("builds.plugin")}
-              text={release ? t("builds.pluginVersion", { version: release.version }) : t("builds.pluginKey")}
-              href={release && state === "active" ? "/api/dashboard/plugin" : null}
-              unavailable={!release ? t("builds.noRelease") : t("builds.pluginActive")}
-            />
-          ) : null}
-          <DownloadRow t={t} title={k(ARTIFACT_LABEL.store_assets)} text={k(fileDescription("store_assets", autoPublish))} {...fileRow("store_assets")} last />
-        </ul>
-      </Section>
+      {checks.length > 0 ? (
+        <KitSection id="checks" titleId="h-checks" title={t("builds.checksTitle")} help={t("builds.checksText")} helpLabel={t("studioPage.helpSection")} flush>
+          <KitList>
+            {checks.map((check) => (
+              <KitRow
+                key={check.key}
+                data-check={check.key}
+                media={
+                  <span aria-hidden="true" className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl ${check.level === "error" ? "bg-danger-bg text-danger" : "bg-(--sp-tile) text-(--sp-muted)"}`}>
+                    <Icon name={check.level === "error" ? "error" : "info"} size={20} />
+                  </span>
+                }
+                title={<span className="text-sm font-normal">{k(renderCheck(check))}</span>}
+                badges={check.level === "warning" ? <KitStatus tone="neutral">{t("builds.checksWarning")}</KitStatus> : null}
+                actions={
+                  <Link href={check.link} className={kit.row}>
+                    {t("builds.checksFix")}
+                  </Link>
+                }
+              />
+            ))}
+          </KitList>
+        </KitSection>
+      ) : null}
+
+      {/* 132.172 The builds as a table (the version, the platforms, when, the state); a build's details, its stages, what went
+          wrong and its log, and making it again, in the inspector. */}
+      {builds.length ? (
+        <KitTable
+          label={t("builds.history")}
+          title={t("builds.history")}
+          titleId="h-history"
+          toolbar={<span className="text-[13px] text-(--sp-muted)">{t("builds.historyText")}</span>}
+          columns={[
+            { label: t("builds.colVersion"), width: "minmax(0,1fr)" },
+            { label: t("builds.colPlatform"), width: "150px", wide: true },
+            { label: t("builds.queued"), width: "170px", phone: "sub" },
+            { label: t("builds.colState"), width: "140px", phone: "end" },
+          ]}
+          rows={builds.map((build) => {
+            const platforms = (["android", "ios"] as const).filter((key) => build.stages[key] && build.stages[key] !== "skipped");
+            const remake = build.status === "ready" && build.sourceCommit && !licenseProblem && !running;
+            return {
+              id: build.id,
+              name: `#${build.number} · ${build.versionName}`,
+              data: { "data-build": String(build.number) },
+              cells: [
+                <span key="name" className="contents">
+                  <KitThumb icon={build.status === "ready" ? "task_alt" : build.status === "failed" ? "error" : "schedule"} size={40} />
+                  <span className="min-w-0 truncate text-[14.5px] font-bold">
+                    #{build.number} · <bdi dir="ltr">{build.versionName}</bdi> <span className="text-[13px] font-normal text-(--sp-muted)">({build.versionCode})</span>
+                  </span>
+                </span>,
+                <span key="platforms" className="flex items-center gap-1.5 text-(--sp-ink-2)">
+                  {platforms.map((key) => (
+                    <span key={key} className="inline-flex items-center gap-1">
+                      <Icon name={key === "android" ? "android" : "phone_iphone"} size={17} className="text-(--sp-muted)" />
+                      {key === "android" ? "Android" : "iOS"}
+                    </span>
+                  ))}
+                </span>,
+                formatDateTime(build.createdAt, lang),
+                <BuildPill key="state" build={build} text={text} />,
+              ],
+              inspector: {
+                title: t("builds.colVersion"),
+                // 87.3 A ready build made from known code can be made again as it was; 89.3 an earlier one gone back to.
+                footer: remake ? (
+                  <div className="flex flex-wrap items-center gap-2">
+                    <RebuildForm buildId={build.id} number={build.number} />
+                    {build.id !== builds[0]?.id ? <GoBackForm buildId={build.id} number={build.number} /> : null}
+                  </div>
+                ) : undefined,
+                body: (
+                  <KitInspectorBody data-inspector-build={String(build.number)}>
+                    <KitInspectorHead badges={<BuildPill build={build} text={text} />} title={t("builds.buildTitle", { number: build.number, version: build.versionName })} line={t("builds.versionCode", { code: build.versionCode })} />
+                    <Times build={build} now={now} text={text} />
+                    <BuildStages stages={build.stages} lang={lang} look="pills" />
+                    {build.status === "queued" || build.status === "building" ? <p className="m-0 text-sm text-(--sp-muted)">{k(statusExplanation(build, now))}</p> : null}
+                    {build.status === "failed" ? (
+                      <KitCallout tone="danger" icon="error">
+                        {k(failureReason(build))}
+                      </KitCallout>
+                    ) : null}
+                    {build.status === "ready" && build.message ? (
+                      <KitCallout tone={Object.values(build.stages).includes("failed") ? "warn" : "info"} icon="info">
+                        {k(build.message)}
+                      </KitCallout>
+                    ) : null}
+                    {build.rebuildOf ? <p className="m-0 text-[13px] text-(--sp-muted)">{t("builds.rebuildOf", { number: build.rebuildOf })}</p> : null}
+                    {build.failure?.log ? (
+                      <KitFold summary={t("builds.failureLog")} icon="code">
+                        <p className="m-0 text-xs text-(--sp-muted)">{t("builds.failureLogText")}</p>
+                        <pre dir="ltr" className="m-0 max-h-[320px] overflow-auto rounded-xl bg-midnight p-3 text-xs leading-relaxed whitespace-pre-wrap text-white">
+                          {build.failure.log}
+                        </pre>
+                      </KitFold>
+                    ) : null}
+                    {build.id === lastReady?.id ? (
+                      <a href="#files" className={`${kit.quiet} self-start`}>
+                        <Icon name="download" size={18} />
+                        {filesTitle}
+                      </a>
+                    ) : null}
+                  </KitInspectorBody>
+                ),
+              },
+            };
+          })}
+        />
+      ) : null}
+
+      {/* The files of the latest ready build; 132.172 folded until a build is ready. */}
+      {lastReady ? (
+        <KitSection titleId="h-files" id="files" title={filesTitle} description={t("builds.filesFinished", { date: formatDateTime(lastReady.finishedAt ?? lastReady.updatedAt, lang) })} flush>
+          <ul className="m-0 flex list-none flex-col px-2 sm:px-4">{fileRows}</ul>
+        </KitSection>
+      ) : (
+        <div id="files" className="scroll-mt-6">
+          <KitFold summary={filesTitle} icon="download">
+            <p className="m-0 text-[13.5px] text-(--sp-muted)">{t("builds.filesAppear")}</p>
+            <ul className="m-0 flex list-none flex-col rounded-xl border border-(--sp-line) bg-(--sp-surface) p-0">{fileRows}</ul>
+          </KitFold>
+        </div>
+      )}
 
       {courier ? (
         // 105.2 A ride company's second app is its drivers'.
-        <Section id="courier-app" titleId="h-courier-app" title={t(ck("Title"))} description={t(ck("Text"), { name: courier.name, android: courier.android, ios: courier.ios })}>
-          <div className="flex flex-col gap-4">
-            {!courier.onPlan ? (
-              <Notice tone="warn" icon="info">
-                {t(ck("Off"))}
-              </Notice>
-            ) : null}
-            <ul className="m-0 flex list-none flex-col gap-2 p-0 text-sm">
-              <li className="flex items-start gap-2" data-courier-firebase="android">
-                <Icon name={courier.firebaseAndroid ? "check_circle" : "info"} size={20} className={courier.firebaseAndroid ? "text-success" : "text-ink-4"} />
-                <span>{courier.firebaseAndroid ? t(ck("FirebaseAndroidOk")) : t(ck("FirebaseAndroidMissing"), { android: courier.android })}</span>
-              </li>
-              <li className="flex items-start gap-2" data-courier-firebase="ios">
-                <Icon name={courier.firebaseIos ? "check_circle" : "info"} size={20} className={courier.firebaseIos ? "text-success" : "text-ink-4"} />
-                <span>{courier.firebaseIos ? t(ck("FirebaseIosOk")) : t(ck("FirebaseIosMissing"))}</span>
-              </li>
-            </ul>
-            <StartBuildForm
-              courier
-              driver={courier.role === "driver"}
-              suggestedVersion={suggestedVersion(courierCurrent)}
-              disabledReason={disabledReason ?? (!courier.onPlan ? t(ck("Off")) : null)}
-            />
-            {courierCurrent ? (
-              <div className="flex flex-col gap-4 rounded-xl border border-line p-4" data-courier-build>
-                <div className="flex flex-wrap items-start justify-between gap-3">
-                  <div className="flex min-w-0 flex-col gap-1">
-                    <span className="text-sm font-semibold text-muted">{t(ck("Latest"))}</span>
-                    <h3 className="m-0 text-base font-bold">{t("builds.buildTitle", { number: courierCurrent.number, version: courierCurrent.versionName })}</h3>
-                  </div>
-                  <BuildBadge status={courierCurrent.status} lang={lang} />
-                </div>
-                <Times build={courierCurrent} now={now} text={text} />
-                <BuildStages stages={courierCurrent.stages} lang={lang} />
-                {courierCurrent.status === "queued" || courierCurrent.status === "building" ? (
-                  <p className="m-0 text-sm text-muted">{k(statusExplanation(courierCurrent, now))}</p>
-                ) : null}
-                {courierCurrent.status === "failed" ? (
-                  <Notice tone="danger" icon="error">
-                    {richText(t("builds.failedNotice", { reason: k(failureReason(courierCurrent)) }), { b: (chunk) => <span className="font-semibold">{chunk}</span> })}
-                  </Notice>
-                ) : null}
-                {(courierCurrent.status === "failed" || courierStalled) && !licenseProblem && setupDone && courier.onPlan ? (
-                  <RetryBuildForm courier versionName={courierCurrent.versionName} />
-                ) : null}
-              </div>
-            ) : (
-              <p className="m-0 text-sm text-muted">{t(ck("None"))}</p>
-            )}
-            {courierReady ? (
-              <div className="overflow-hidden rounded-xl border border-line">
-                <h3 className="m-0 border-b border-line-soft px-4 py-3 text-base font-bold sm:px-6">{t(ck("Files"))}</h3>
-                <ul className="m-0 list-none p-0">
-                  {(["apk", "aab", "ipa"] as const).map((kind, i, all) => (
-                    <DownloadRow key={kind} t={t} title={k(ARTIFACT_LABEL[kind])} text={k(fileDescription(kind, autoPublish))} last={i === all.length - 1} {...courierFileRow(kind)} />
-                  ))}
-                </ul>
-              </div>
-            ) : null}
-          </div>
-        </Section>
+        <SecondApp
+          kind="courier"
+          id="courier-app"
+          titleId="h-courier-app"
+          title={t(ck("Title"))}
+          description={t(ck("Text"), { name: courier.name, android: courier.android, ios: courier.ios })}
+          off={!courier.onPlan ? t(ck("Off")) : null}
+          firebase={[
+            { store: "android", ok: courier.firebaseAndroid, text: courier.firebaseAndroid ? t(ck("FirebaseAndroidOk")) : t(ck("FirebaseAndroidMissing"), { android: courier.android }) },
+            { store: "ios", ok: courier.firebaseIos, text: courier.firebaseIos ? t(ck("FirebaseIosOk")) : t(ck("FirebaseIosMissing")) },
+          ]}
+          start={<StartBuildForm courier driver={courier.role === "driver"} suggestedVersion={suggestedVersion(courierCurrent)} disabledReason={disabledReason ?? (!courier.onPlan ? t(ck("Off")) : null)} />}
+          latest={courierCurrent}
+          latestLabel={t(ck("Latest"))}
+          none={t(ck("None"))}
+          retry={courierCurrent && (courierCurrent.status === "failed" || courierStalled) && !licenseProblem && setupDone && courier.onPlan ? <RetryBuildForm courier versionName={courierCurrent.versionName} /> : null}
+          files={courierReady ? secondFiles(t(ck("Files")), courierFileRow, "courier") : null}
+          now={now}
+          text={text}
+        />
       ) : null}
 
       {vendorApp ? (
-        <Section id="vendor-app" titleId="h-vendor-app" title={t("builds.vendorTitle")} description={t("builds.vendorText", { name: vendorApp.name, android: vendorApp.android, ios: vendorApp.ios })}>
-          <div className="flex flex-col gap-4">
-            {!vendorApp.onPlan ? (
-              <Notice tone="warn" icon="info">
-                {t("builds.vendorOff")}
-              </Notice>
-            ) : null}
-            <ul className="m-0 flex list-none flex-col gap-2 p-0 text-sm">
-              <li className="flex items-start gap-2" data-vendor-firebase="android">
-                <Icon name={vendorApp.firebaseAndroid ? "check_circle" : "info"} size={20} className={vendorApp.firebaseAndroid ? "text-success" : "text-ink-4"} />
-                <span>{vendorApp.firebaseAndroid ? t("builds.vendorFirebaseAndroidOk") : t("builds.vendorFirebaseAndroidMissing", { android: vendorApp.android })}</span>
-              </li>
-              <li className="flex items-start gap-2" data-vendor-firebase="ios">
-                <Icon name="info" size={20} className="text-ink-4" />
-                <span>{t("builds.vendorIos")}</span>
-              </li>
-            </ul>
-            <StartBuildForm vendor suggestedVersion={suggestedVersion(vendorCurrent)} disabledReason={disabledReason ?? (!vendorApp.onPlan ? t("builds.vendorOff") : null)} />
-            {vendorCurrent ? (
-              <div className="flex flex-col gap-4 rounded-xl border border-line p-4" data-vendor-build>
-                <div className="flex flex-wrap items-start justify-between gap-3">
-                  <div className="flex min-w-0 flex-col gap-1">
-                    <span className="text-sm font-semibold text-muted">{t("builds.vendorLatest")}</span>
-                    <h3 className="m-0 text-base font-bold">{t("builds.buildTitle", { number: vendorCurrent.number, version: vendorCurrent.versionName })}</h3>
-                  </div>
-                  <BuildBadge status={vendorCurrent.status} lang={lang} />
-                </div>
-                <Times build={vendorCurrent} now={now} text={text} />
-                <BuildStages stages={vendorCurrent.stages} lang={lang} />
-                {vendorCurrent.status === "queued" || vendorCurrent.status === "building" ? <p className="m-0 text-sm text-muted">{k(statusExplanation(vendorCurrent, now))}</p> : null}
-                {vendorCurrent.status === "failed" ? (
-                  <Notice tone="danger" icon="error">
-                    {richText(t("builds.failedNotice", { reason: k(failureReason(vendorCurrent)) }), { b: (chunk) => <span className="font-semibold">{chunk}</span> })}
-                  </Notice>
-                ) : null}
-                {(vendorCurrent.status === "failed" || vendorStalled) && !licenseProblem && setupDone && vendorApp.onPlan ? <RetryBuildForm vendor versionName={vendorCurrent.versionName} /> : null}
-              </div>
-            ) : (
-              <p className="m-0 text-sm text-muted">{t("builds.vendorNone")}</p>
-            )}
-            {vendorReady ? (
-              <div className="overflow-hidden rounded-xl border border-line">
-                <h3 className="m-0 border-b border-line-soft px-4 py-3 text-base font-bold sm:px-6">{t("builds.vendorFiles")}</h3>
-                <ul className="m-0 list-none p-0">
-                  {(["apk", "aab", "ipa"] as const).map((kind, i, all) => (
-                    <DownloadRow key={kind} t={t} title={k(ARTIFACT_LABEL[kind])} text={k(fileDescription(kind, autoPublish))} last={i === all.length - 1} {...vendorFileRow(kind)} />
-                  ))}
-                </ul>
-              </div>
-            ) : null}
-          </div>
-        </Section>
+        <SecondApp
+          kind="vendor"
+          id="vendor-app"
+          titleId="h-vendor-app"
+          title={t("builds.vendorTitle")}
+          description={t("builds.vendorText", { name: vendorApp.name, android: vendorApp.android, ios: vendorApp.ios })}
+          off={!vendorApp.onPlan ? t("builds.vendorOff") : null}
+          firebase={[
+            { store: "android", ok: vendorApp.firebaseAndroid, text: vendorApp.firebaseAndroid ? t("builds.vendorFirebaseAndroidOk") : t("builds.vendorFirebaseAndroidMissing", { android: vendorApp.android }) },
+            { store: "ios", ok: false, text: t("builds.vendorIos") },
+          ]}
+          start={<StartBuildForm vendor suggestedVersion={suggestedVersion(vendorCurrent)} disabledReason={disabledReason ?? (!vendorApp.onPlan ? t("builds.vendorOff") : null)} />}
+          latest={vendorCurrent}
+          latestLabel={t("builds.vendorLatest")}
+          none={t("builds.vendorNone")}
+          retry={vendorCurrent && (vendorCurrent.status === "failed" || vendorStalled) && !licenseProblem && setupDone && vendorApp.onPlan ? <RetryBuildForm vendor versionName={vendorCurrent.versionName} /> : null}
+          files={vendorReady ? secondFiles(t("builds.vendorFiles"), vendorFileRow, "vendor") : null}
+          now={now}
+          text={text}
+        />
       ) : null}
 
       {staffApp ? (
-        <Section
+        <SecondApp
+          kind="staff"
           id="staff-app"
           titleId="h-staff-app"
           title={t("builds.staffTitle")}
           description={t(staffApp.academy ? "builds.staffTextAcademy" : "builds.staffText", { name: staffApp.name, android: staffApp.android, ios: staffApp.ios })}
-        >
-          <div className="flex flex-col gap-4">
-            {!staffApp.onPlan ? (
-              <Notice tone="warn" icon="info">
-                {t("builds.staffOff")}
-              </Notice>
-            ) : null}
-            <ul className="m-0 flex list-none flex-col gap-2 p-0 text-sm">
-              <li className="flex items-start gap-2" data-staff-firebase="android">
-                <Icon name={staffApp.firebaseAndroid ? "check_circle" : "info"} size={20} className={staffApp.firebaseAndroid ? "text-success" : "text-ink-4"} />
-                <span>{staffApp.firebaseAndroid ? t("builds.staffFirebaseAndroidOk") : t("builds.staffFirebaseAndroidMissing", { android: staffApp.android })}</span>
-              </li>
-              <li className="flex items-start gap-2" data-staff-firebase="ios">
-                <Icon name="info" size={20} className="text-ink-4" />
-                <span>{t("builds.staffIos")}</span>
-              </li>
-            </ul>
-            <StartBuildForm staff suggestedVersion={suggestedVersion(staffCurrent)} disabledReason={disabledReason ?? (!staffApp.onPlan ? t("builds.staffOff") : null)} />
-            {staffCurrent ? (
-              <div className="flex flex-col gap-4 rounded-xl border border-line p-4" data-staff-build>
-                <div className="flex flex-wrap items-start justify-between gap-3">
-                  <div className="flex min-w-0 flex-col gap-1">
-                    <span className="text-sm font-semibold text-muted">{t("builds.staffLatest")}</span>
-                    <h3 className="m-0 text-base font-bold">{t("builds.buildTitle", { number: staffCurrent.number, version: staffCurrent.versionName })}</h3>
-                  </div>
-                  <BuildBadge status={staffCurrent.status} lang={lang} />
-                </div>
-                <Times build={staffCurrent} now={now} text={text} />
-                <BuildStages stages={staffCurrent.stages} lang={lang} />
-                {staffCurrent.status === "queued" || staffCurrent.status === "building" ? <p className="m-0 text-sm text-muted">{k(statusExplanation(staffCurrent, now))}</p> : null}
-                {staffCurrent.status === "failed" ? (
-                  <Notice tone="danger" icon="error">
-                    {richText(t("builds.failedNotice", { reason: k(failureReason(staffCurrent)) }), { b: (chunk) => <span className="font-semibold">{chunk}</span> })}
-                  </Notice>
-                ) : null}
-                {(staffCurrent.status === "failed" || staffStalled) && !licenseProblem && setupDone && staffApp.onPlan ? <RetryBuildForm staff versionName={staffCurrent.versionName} /> : null}
-              </div>
-            ) : (
-              <p className="m-0 text-sm text-muted">{t("builds.staffNone")}</p>
-            )}
-            {staffReady ? (
-              <div className="overflow-hidden rounded-xl border border-line">
-                <h3 className="m-0 border-b border-line-soft px-4 py-3 text-base font-bold sm:px-6">{t("builds.staffFiles")}</h3>
-                <ul className="m-0 list-none p-0">
-                  {(["apk", "aab", "ipa"] as const).map((kind, i, all) => (
-                    <DownloadRow key={kind} t={t} title={k(ARTIFACT_LABEL[kind])} text={k(fileDescription(kind, autoPublish))} last={i === all.length - 1} {...staffFileRow(kind)} />
-                  ))}
-                </ul>
-              </div>
-            ) : null}
-          </div>
-        </Section>
-      ) : null}
-
-      {/* 31 Apple's rules for what this app sells; nothing for apps that sell nothing. */}
-      {wordsOf(app).iphone ? (
-        <Notice tone="neutral" icon="phone_iphone">
-          {k(wordsOf(app).iphone!)}
-        </Notice>
-      ) : null}
-
-      <PageGroup title={t("builds.stores")}>
-        <LinkCards
-          label={t("builds.stores")}
-          items={[
-            { href: "/dashboard/publishing", icon: "publish", label: t("builds.publishing"), hint: t("builds.publishingText") },
-            { href: localePath(lang, "/docs/google-play"), icon: "menu_book", label: t("builds.guideGoogle"), hint: t("builds.stepByStep") },
-            { href: localePath(lang, "/docs/app-store"), icon: "menu_book", label: t("builds.guideApple"), hint: t("builds.stepByStep") },
-            { href: localePath(lang, "/docs/galaxy-store"), icon: "menu_book", label: t("builds.guideGalaxy"), hint: t("builds.stepByStep") },
-            { href: localePath(lang, "/docs/huawei-appgallery"), icon: "menu_book", label: t("builds.guideHuawei"), hint: t("builds.stepByStep") },
-            { href: localePath(lang, "/docs/xiaomi-getapps"), icon: "menu_book", label: t("builds.guideXiaomi"), hint: t("builds.stepByStep") },
+          off={!staffApp.onPlan ? t("builds.staffOff") : null}
+          firebase={[
+            { store: "android", ok: staffApp.firebaseAndroid, text: staffApp.firebaseAndroid ? t("builds.staffFirebaseAndroidOk") : t("builds.staffFirebaseAndroidMissing", { android: staffApp.android }) },
+            { store: "ios", ok: false, text: t("builds.staffIos") },
           ]}
+          start={<StartBuildForm staff suggestedVersion={suggestedVersion(staffCurrent)} disabledReason={disabledReason ?? (!staffApp.onPlan ? t("builds.staffOff") : null)} />}
+          latest={staffCurrent}
+          latestLabel={t("builds.staffLatest")}
+          none={t("builds.staffNone")}
+          retry={staffCurrent && (staffCurrent.status === "failed" || staffStalled) && !licenseProblem && setupDone && staffApp.onPlan ? <RetryBuildForm staff versionName={staffCurrent.versionName} /> : null}
+          files={staffReady ? secondFiles(t("builds.staffFiles"), staffFileRow, "staff") : null}
+          now={now}
+          text={text}
         />
-      </PageGroup>
+      ) : null}
 
-      {/* 89.2 Staged releases, with "We publish for you". */}
-      {autoPublish ? (
-        <Section titleId="h-staged" title={t("builds.stagedTitle")} description={t("builds.stagedText")}>
-          <div className="flex flex-col gap-5">
+      <KitSettings label={t("builds.settings")}>
+        {/* 89.2 Staged releases, with "We publish for you". */}
+        {autoPublish ? (
+          <KitSettingRow
+            titleId="h-staged"
+            icon="rocket_launch"
+            title={t("builds.stagedTitle")}
+            status={<KitStatus tone={stagedOn ? "success" : "neutral"}>{stagedOn ? t("common.on") : t("common.off")}</KitStatus>}
+            help={t("builds.stagedText")}
+            helpLabel={t("studioPage.helpSection")}
+          >
             {app.rollout?.android && app.rollout.android.status !== "completed" ? (
-              <div className="flex flex-col gap-2 rounded-xl border border-line p-4" data-rollout="android">
+              <div className="flex flex-col gap-2 rounded-2xl bg-(--sp-soft) p-4" data-rollout="android">
                 <span className="text-[15px] font-bold">
                   {app.rollout.android.status === "halted"
                     ? t("builds.rolloutAndroidHalted", { version: app.rollout.android.versionName, percent: Math.round(app.rollout.android.fraction * 100) })
@@ -679,7 +821,7 @@ export default async function BuildsPage({ searchParams }: PageProps<"/dashboard
               </div>
             ) : null}
             {app.rollout?.ios && app.rollout.ios.state !== "COMPLETE" ? (
-              <div className="flex flex-col gap-2 rounded-xl border border-line p-4" data-rollout="ios">
+              <div className="flex flex-col gap-2 rounded-2xl bg-(--sp-soft) p-4" data-rollout="ios">
                 <span className="text-[15px] font-bold">
                   {app.rollout.ios.state === "PAUSED" ? t("builds.rolloutIosPaused", { version: app.rollout.ios.versionName }) : t("builds.rolloutIos", { version: app.rollout.ios.versionName })}
                 </span>
@@ -699,115 +841,124 @@ export default async function BuildsPage({ searchParams }: PageProps<"/dashboard
                 />
               </div>
             ) : null}
-            <StagedReleaseForm
-              current={{ androidPercent: app.stagedRelease?.androidPercent == null ? "" : String(app.stagedRelease.androidPercent), iosPhased: Boolean(app.stagedRelease?.iosPhased) }}
-              shares={[...FIRST_SHARES]}
-            />
-          </div>
-        </Section>
-      ) : null}
+            <KitFold summary={t("common.edit")} icon="tune">
+              <StagedReleaseForm
+                current={{ androidPercent: app.stagedRelease?.androidPercent == null ? "" : String(app.stagedRelease.androidPercent), iosPhased: Boolean(app.stagedRelease?.iosPhased) }}
+                shares={[...FIRST_SHARES]}
+              />
+            </KitFold>
+          </KitSettingRow>
+        ) : null}
 
-      {/* 89.1 Which versions people may still use. */}
-      <Section titleId="h-versions" title={t("builds.versionsTitle")} description={t("builds.versionsText")}>
-        <div className="flex flex-col gap-5">
-          {/* 89.3 The versions people use, from the app's statistics. */}
+        {/* 89.1 Which versions people may still use; 89.3 the versions people use, from the app's statistics. */}
+        <KitSettingRow
+          titleId="h-versions"
+          icon="smartphone"
+          title={t("builds.versionsTitle")}
+          status={
+            app.minVersion ? (
+              <KitStatus tone="info">
+                {t("builds.minVersion")} <bdi dir="ltr">{app.minVersion}</bdi>
+              </KitStatus>
+            ) : (
+              <KitStatus tone="neutral">{t("studioPage.notSet")}</KitStatus>
+            )
+          }
+          help={t("builds.versionsText")}
+          helpLabel={t("studioPage.helpSection")}
+        >
           {inUse.length > 0 ? (
-            <table className="w-full max-w-[520px] border-collapse text-sm" aria-label={t("builds.inUse")}>
-              <caption className="pb-2 text-start text-[15px] font-bold">{t("builds.inUse")}</caption>
-              <thead>
-                <tr className="text-muted">
-                  <th scope="col" className="py-1.5 pe-4 text-start font-semibold">{t("builds.colVersion")}</th>
-                  <th scope="col" className="py-1.5 pe-4 text-start font-semibold">{t("builds.inUsePhones")}</th>
-                  <th scope="col" className="py-1.5 text-start font-semibold">{t("builds.inUseShare")}</th>
-                </tr>
-              </thead>
-              <tbody>
-                {inUse.map((row) => (
-                  <tr key={row.version} className="border-t border-line-soft" data-version={row.version}>
-                    <td className="py-1.5 pe-4">
-                      <span dir="ltr">{row.version === "unknown" ? t("builds.inUseUnknown") : row.version}</span>
-                      {row.belowMinimum ? <span className="ms-2 text-xs font-semibold text-danger">{t("builds.inUseBelow")}</span> : null}
-                    </td>
-                    <td className="py-1.5 pe-4">{text.num(row.phones)}</td>
-                    <td className="py-1.5">{text.num(row.share, { style: "percent", maximumFractionDigits: 0 })}</td>
+            <KitFold summary={t("builds.inUse")} icon="smartphone">
+              <table className="w-full max-w-[520px] border-collapse text-sm" aria-label={t("builds.inUse")}>
+                <caption className="sr-only">{t("builds.inUse")}</caption>
+                <thead>
+                  <tr className="text-(--sp-muted)">
+                    <th scope="col" className="py-1.5 pe-4 text-start font-semibold">
+                      {t("builds.colVersion")}
+                    </th>
+                    <th scope="col" className="py-1.5 pe-4 text-start font-semibold">
+                      {t("builds.inUsePhones")}
+                    </th>
+                    <th scope="col" className="py-1.5 text-start font-semibold">
+                      {t("builds.inUseShare")}
+                    </th>
                   </tr>
-                ))}
-              </tbody>
-            </table>
+                </thead>
+                <tbody>
+                  {inUse.map((row) => (
+                    <tr key={row.version} className="border-t border-(--sp-line-soft)" data-version={row.version}>
+                      <td className="py-1.5 pe-4">
+                        <span dir="ltr">{row.version === "unknown" ? t("builds.inUseUnknown") : row.version}</span>
+                        {row.belowMinimum ? <span className="ms-2 text-xs font-semibold text-danger">{t("builds.inUseBelow")}</span> : null}
+                      </td>
+                      <td className="py-1.5 pe-4">{text.num(row.phones)}</td>
+                      <td className="py-1.5">{text.num(row.share, { style: "percent", maximumFractionDigits: 0 })}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </KitFold>
           ) : (
-            <p className="m-0 text-sm text-muted">{t("builds.inUseNone")}</p>
+            <p className="m-0 text-sm text-(--sp-muted)">{t("builds.inUseNone")}</p>
           )}
-          <VersionsForm current={{ minVersion: app.minVersion ?? "", recommendedVersion: app.recommendedVersion ?? "" }} />
-        </div>
-      </Section>
+          <KitFold summary={t("common.edit")} icon="tune">
+            <VersionsForm current={{ minVersion: app.minVersion ?? "", recommendedVersion: app.recommendedVersion ?? "" }} />
+          </KitFold>
+        </KitSettingRow>
 
-      <Section titleId="h-history" title={t("builds.history")} description={builds.length ? t("builds.historyText") : undefined}>
-        {builds.length === 0 ? (
-          <p className="m-0 text-sm text-muted">{t("builds.noBuilds")}</p>
-        ) : (
-          // A table from md up; on phones each build is a card (globals.css, .table-cards).
-          <table className="table-cards w-full border-collapse text-sm">
-            <thead>
-              <tr className="text-start text-muted">
-                <th scope="col" className="py-2 pe-4 text-start font-semibold">
-                  {t("builds.colBuild")}
-                </th>
-                <th scope="col" className="py-2 pe-4 text-start font-semibold">
-                  {t("builds.colVersion")}
-                </th>
-                <th scope="col" className="py-2 pe-4 text-start font-semibold">
-                  {t("builds.queued")}
-                </th>
-                <th scope="col" className="py-2 pe-4 text-start font-semibold">
-                  {t("builds.finished")}
-                </th>
-                <th scope="col" className="py-2 text-start font-semibold">
-                  {t("common.status")}
-                </th>
-              </tr>
-            </thead>
-            <tbody>
-              {builds.map((build) => (
-                <tr key={build.id} className="align-top md:border-t md:border-line-soft">
-                  <td data-label={t("builds.colBuild")} className="font-semibold md:py-2.5 md:pe-4">
-                    #{build.number}
-                  </td>
-                  <td data-label={t("builds.colVersion")} className="md:py-2.5 md:pe-4">
-                    <span>
-                      {build.versionName} <span className="text-muted">({build.versionCode})</span>
-                    </span>
-                  </td>
-                  <td data-label={t("builds.queued")} className="md:py-2.5 md:pe-4">
-                    {formatDateTime(build.createdAt, lang)}
-                  </td>
-                  <td data-label={t("builds.finished")} className="md:py-2.5 md:pe-4">
-                    <span>
-                      {build.finishedAt ? formatDateTime(build.finishedAt, lang) : t("builds.notYet")}
-                      {formatDuration(build.startedAt, build.finishedAt) ? (
-                        <span className="block text-xs text-muted">{t("builds.tookTime", { time: k(formatDuration(build.startedAt, build.finishedAt)!) })}</span>
-                      ) : null}
-                    </span>
-                  </td>
-                  <td data-label={t("common.status")} className="md:py-2.5">
-                    <span>
-                      <BuildStatusText status={build.status} lang={lang} />
-                      {build.status === "failed" ? <span className="block max-w-[260px] text-xs text-muted">{k(failureReason(build))}</span> : null}
-                      {build.rebuildOf ? <span className="block text-xs text-muted">{t("builds.rebuildOf", { number: build.rebuildOf })}</span> : null}
-                    </span>
-                    {/* 87.3 A ready build made from known code can be made again as it was. */}
-                    {build.status === "ready" && build.sourceCommit && !licenseProblem && !running ? (
-                      <>
-                        <RebuildForm buildId={build.id} number={build.number} />
-                        {build.id !== builds[0]?.id ? <GoBackForm buildId={build.id} number={build.number} /> : null}
-                      </>
-                    ) : null}
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        )}
-      </Section>
-    </div>
+        {/* 13.1 Automatic rebuilds: a plan that has them. */}
+        {currentPlan && !hasFeature(currentPlan, "auto_rebuild") && builds.length > 0 ? (
+          <KitSettingRow
+            titleId="h-auto-rebuilds"
+            icon="refresh"
+            title={t("builds.autoRebuilds")}
+            status={<KitStatus tone="neutral">{t("common.off")}</KitStatus>}
+            description={t("builds.autoRebuildsText")}
+            action={
+              autoRebuildTo ? (
+                <Link href={upgradeHref(autoRebuildTo.id)} className={kit.quiet} data-upgrade-hint="">
+                  <Icon name="upgrade" size={18} />
+                  {t("overview.upgradeTo", { plan: autoRebuildTo.name })}
+                </Link>
+              ) : null
+            }
+          />
+        ) : null}
+      </KitSettings>
+
+      {/* The step-by-step guides for each store, and 31 Apple's rules for what this app sells (nothing for apps that sell nothing), folded. */}
+      <div id="h-guides" className="flex scroll-mt-6 flex-col gap-2">
+        <h2 className="m-0 px-1 text-[13px] font-bold text-(--sp-muted)">{t("builds.stores")}</h2>
+        <KitFold summary={t("builds.guides")} icon="menu_book">
+          <ul className="m-0 flex list-none flex-col gap-1 p-0">
+            {(
+              [
+                ["/docs/google-play", "builds.guideGoogle"],
+                ["/docs/app-store", "builds.guideApple"],
+                ["/docs/galaxy-store", "builds.guideGalaxy"],
+                ["/docs/huawei-appgallery", "builds.guideHuawei"],
+                ["/docs/xiaomi-getapps", "builds.guideXiaomi"],
+              ] as const
+            ).map(([href, label]) => (
+              <li key={href}>
+                <Link href={localePath(lang, href)} className="flex items-center gap-3 rounded-xl px-2 py-2 font-semibold text-(--sp-ink) no-underline hover:bg-(--sp-tile) hover:text-(--sp-ink)">
+                  <Icon name="menu_book" size={18} className="text-(--sp-muted)" />
+                  <span className="min-w-0 flex-1">
+                    {t(label)}
+                    <span className="block text-[13px] font-normal text-(--sp-muted)">{t("builds.stepByStep")}</span>
+                  </span>
+                  <Icon name="chevron_right" size={18} className="text-(--sp-muted)" />
+                </Link>
+              </li>
+            ))}
+          </ul>
+        </KitFold>
+        {wordsOf(app).iphone ? (
+          <KitFold summary={t("builds.iphoneRules")} icon="phone_iphone">
+            <p className="m-0">{k(wordsOf(app).iphone!)}</p>
+          </KitFold>
+        ) : null}
+      </div>
+    </KitPage>
   );
 }
