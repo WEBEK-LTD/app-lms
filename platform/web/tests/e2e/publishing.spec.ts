@@ -141,7 +141,9 @@ test("the client sets up the app and asks us to publish it", async ({ request })
 test("the client works through the checklist and the listing details", async () => {
   await own.goto("/dashboard/publishing");
   const steps = own.getByRole("region", { name: "Your steps" });
-  await expect(steps.getByText(`add ${teamEmail} with the App Manager role`)).toBeVisible();
+  // 138 Invited as admin on both stores.
+  await expect(steps.getByText(`add ${teamEmail} with the Admin role`)).toBeVisible();
+  await expect(steps.getByText(`enter ${teamEmail}. Give it Admin (all permissions)`)).toBeVisible();
   await expect(steps.getByText("An organisation needs a D-U-N-S number")).toBeVisible();
   await expect(steps.getByRole("link", { name: /Google Play Console sign-up/ })).toHaveAttribute("href", "https://play.google.com/console/signup");
   await expect(own.locator("body")).not.toContainText(/password:/i);
@@ -292,65 +294,75 @@ test("the team moves each store along, and the client is emailed", async () => {
   await expect(own.locator("body")).not.toContainText("WhatsApp in the mornings");
 });
 
-test("35, 36 the client adds Samsung Galaxy Store, and the team moves it along", async () => {
+test("138 the other Android stores are the client's own, and each app gets one publishing account", async () => {
+  const accountA = `publishing-a-${suffix}@yallapp.test`;
+  const accountB = `publishing-b-${suffix}@yallapp.test`;
+  // Galaxy Store, AppGallery and GetApps: the client publishes there, automatically once connected.
   await own.goto("/dashboard/publishing");
-  const more = own.getByRole("form", { name: "More Android stores" });
-  await more.getByRole("checkbox", { name: /Samsung Galaxy Store/ }).check();
-  await more.getByRole("button", { name: "Save stores" }).click();
-  await expect(own.getByRole("region", { name: "Samsung Galaxy Store" })).toContainText("Waiting for you");
-  await expect(own.getByRole("region", { name: "Huawei AppGallery" })).toHaveCount(0);
-  const steps = own.getByRole("region", { name: "Your steps" });
-  await expect(steps.getByText(`invite ${teamEmail} as a manager for applications`)).toBeVisible();
-  await expect(steps.getByText("6 of 8 done")).toBeVisible();
-  await expect.poll(async () => (await mailsTo(teamEmail)).map((m) => m.subject)).toContain(`Publishing: ${client.name} asked us to publish their app on Samsung Galaxy Store too`);
+  const more = own.getByRole("region", { name: "More Android stores" });
+  await expect(more).toContainText("are yours to publish on, on every plan");
+  await expect(more).toContainText("Xiaomi's app store, on Xiaomi, Redmi and POCO phones.");
+  await expect(more.getByRole("link", { name: "Connect your stores" })).toHaveAttribute("href", "/dashboard/publishing/more-stores");
+  await expect(own.getByRole("checkbox", { name: /Samsung Galaxy Store/ })).toHaveCount(0);
+  await expect(own.getByRole("region", { name: "Samsung Galaxy Store" })).toHaveCount(0);
+  await expect(own.getByRole("region", { name: "Your steps" }).getByText("Invite our team to Seller Portal")).toHaveCount(0);
 
+  // The team adds two accounts (the first takes one app).
+  await admin.goto("/admin/settings/publishing-accounts");
+  const add = admin.getByRole("form", { name: "Add a publishing account" });
+  await add.getByLabel("Email").fill("not an email");
+  await add.getByRole("button", { name: "Add account" }).click();
+  await expect(add.getByText("Enter an email address.")).toBeVisible();
+  await add.getByLabel("Email").fill(accountA);
+  await add.getByLabel("Apps it takes").fill("1");
+  await add.getByRole("button", { name: "Add account" }).click();
+  await expect(add.getByText(`${accountA} added.`)).toBeVisible();
+  await add.getByLabel("Email").fill(accountB);
+  await add.getByRole("button", { name: "Add account" }).click();
+  await expect(add.getByText(`${accountB} added.`)).toBeVisible();
+  await admin.reload();
+  await expect(admin.locator(`[data-publishing-account="${accountB}"]`).getByLabel("Apps it takes")).toHaveValue("50");
+
+  // The app gets its account the first time it's needed: its owner sees only that email, and the account is told.
+  await own.goto("/dashboard/publishing");
+  await expect(own.getByText(`you invite our team email, ${accountA}`)).toBeVisible();
+  await expect(own.getByRole("region", { name: "Your steps" }).getByText(`add ${accountA} with the Admin role`)).toBeVisible();
+  await expect.poll(async () => (await mailsTo(accountA)).map((m) => m.subject)).toContain("Publishing: Franklin Lab is yours to publish");
+  const assigned = (await mailsTo(accountA)).find((m) => m.subject === "Publishing: Franklin Lab is yours to publish")!;
+  expect(assigned.text).toContain("Send the app's first Google Play release by hand in Play Console");
+  expect(assigned.text).toContain("(not tracked yet)");
+  await own.reload();
+  await expect(own.getByText(`you invite our team email, ${accountA}`)).toBeVisible();
+
+  // Admin › Publishing: the app's account, its one-time steps, and moving it.
   await admin.goto("/admin/publishing");
+  await expect(admin.getByRole("row").filter({ hasText: "Franklin Lab" })).toContainText(`Account: ${accountA}`);
   await admin.getByRole("link", { name: "Open Franklin Lab" }).click();
   const card = admin.getByRole("region", { name: `Franklin Lab (${client.name})` });
-  await expect(card).toContainText("Invite our team to Seller Portal");
-  await card.getByLabel("Samsung Galaxy Store status").selectOption("in_review");
-  await card.getByRole("button", { name: "Save Samsung Galaxy Store" }).click();
-  await expect(card.getByText("Samsung Galaxy Store is now “In review”. The client has been emailed.")).toBeVisible();
-  await expect.poll(async () => (await mailsTo(client.email)).map((m) => m.subject)).toContain("Franklin Lab on Samsung Galaxy Store: In review");
-
+  const steps = card.getByRole("list", { name: "One-time steps for this app" });
+  await expect(steps.locator('[data-account-step="play_first_release"]')).toHaveAttribute("data-state", "done");
+  await expect(steps.locator('[data-account-step="app_privacy"]')).toHaveAttribute("data-state", "todo");
+  await expect(steps.locator('[data-account-step="apns_key"]')).toContainText("Not tracked yet");
+  await card.getByLabel("Move to").selectOption({ label: `${accountB} (0 of 50)` });
+  await card.getByRole("button", { name: "Move", exact: true }).click();
+  await expect(card.getByText(`Moved to ${accountB}.`)).toBeVisible();
   await own.goto("/dashboard/publishing");
-  await expect(own.getByRole("region", { name: "Samsung Galaxy Store" })).toContainText("Samsung is reviewing your app.");
-  await expect(own.getByRole("region", { name: "History" })).toContainText("Samsung Galaxy Store: In review");
-});
+  await expect(own.getByText(`you invite our team email, ${accountB}`)).toBeVisible();
+  await expect.poll(async () => (await mailsTo(accountB)).map((m) => m.subject)).toContain("Publishing: Franklin Lab is yours to publish");
 
-test("42 the client adds Xiaomi GetApps, and the team marks it live", async () => {
+  // An account with apps can't be removed; the empty one can. The other is deactivated: it keeps its app and takes no new ones.
+  await admin.goto("/admin/settings/publishing-accounts");
+  const b = admin.locator(`[data-publishing-account="${accountB}"]`);
+  await b.getByRole("button", { name: "Remove account" }).click();
+  await expect(b.getByText(`${accountB} has 1 app: move them to another account in Publishing first, or deactivate it so it takes no new ones.`)).toBeVisible();
+  await admin.locator(`[data-publishing-account="${accountA}"]`).getByRole("button", { name: "Remove account" }).click();
+  await expect(admin.getByText(`${accountA} removed.`)).toBeVisible();
+  await admin.reload();
+  await b.getByLabel("Takes new apps").uncheck();
+  await b.getByRole("button", { name: "Save", exact: true }).click();
+  await expect(b.getByText(`${accountB} saved.`)).toBeVisible();
   await own.goto("/dashboard/publishing");
-  const more = own.getByRole("form", { name: "More Android stores" });
-  await expect(more.getByText("Xiaomi's app store, on Xiaomi, Redmi and POCO phones.")).toBeVisible();
-  await more.getByRole("checkbox", { name: /Xiaomi GetApps/ }).check();
-  await more.getByRole("button", { name: "Save stores" }).click();
-  await expect(own.getByRole("region", { name: "Xiaomi GetApps" })).toContainText("Waiting for you");
-  // Galaxy Store stays as it was.
-  await expect(own.getByRole("region", { name: "Samsung Galaxy Store" })).toContainText("Samsung is reviewing your app.");
-  const steps = own.getByRole("region", { name: "Your steps" });
-  await expect(steps.getByText("Create your Xiaomi developer account")).toBeVisible();
-  await expect(steps.getByText(`add ${teamEmail} as a member of your account who may manage your apps`)).toBeVisible();
-  await expect(steps.getByText("6 of 10 done")).toBeVisible();
-  await expect.poll(async () => (await mailsTo(teamEmail)).map((m) => m.subject)).toContain(`Publishing: ${client.name} asked us to publish their app on Xiaomi GetApps too`);
-
-  await admin.goto("/admin/publishing");
-  await admin.getByRole("link", { name: "Open Franklin Lab" }).click();
-  const card = admin.getByRole("region", { name: `Franklin Lab (${client.name})` });
-  await expect(card).toContainText("Give our team access to your Xiaomi developer account");
-  await card.getByLabel("Xiaomi GetApps status").selectOption("live");
-  await card.getByLabel("Xiaomi GetApps link").fill("https://play.google.com/store/apps/details?id=com.franklin");
-  await card.getByRole("button", { name: "Save Xiaomi GetApps" }).click();
-  await expect(card.getByText("A Xiaomi GetApps link starts with https://global.app.mi.com/ or https://app.mi.com/.")).toBeVisible();
-  await card.getByLabel("Xiaomi GetApps link").fill("https://global.app.mi.com/details?id=com.franklin");
-  await card.getByRole("button", { name: "Save Xiaomi GetApps" }).click();
-  await expect(card.getByText("Xiaomi GetApps is now “Live”. The client has been emailed.")).toBeVisible();
-  await expect.poll(async () => (await mailsTo(client.email)).map((m) => m.subject)).toContain("Franklin Lab on Xiaomi GetApps: Live");
-
-  await own.goto("/dashboard/publishing");
-  const xiaomi = own.getByRole("region", { name: "Xiaomi GetApps" });
-  await expect(xiaomi).toContainText("Your app is live on Xiaomi GetApps.");
-  await expect(xiaomi.getByRole("link", { name: "See it on Xiaomi GetApps" })).toHaveAttribute("href", "https://global.app.mi.com/details?id=com.franklin");
-  await expect(own.getByRole("region", { name: "History" })).toContainText("Xiaomi GetApps: Live");
+  await expect(own.getByText(`you invite our team email, ${accountB}`)).toBeVisible();
 });
 
 test("a build that didn't finish says why, and Try again builds the same version", async ({ request }) => {
@@ -480,8 +492,9 @@ test("35, 36, 42 More Android stores: Galaxy Store and Xiaomi GetApps keys and H
   const androidPackage = `com.franklin${suffix}.app`;
   await own.goto("/dashboard/publishing/more-stores");
   await expect(own.getByRole("heading", { name: "More Android stores", level: 1 })).toBeVisible();
-  // Our team publishes this app: nothing is required here.
-  await expect(own.getByText(`invite ${teamEmail}: you don't need to add anything here`)).toBeVisible();
+  // 138 The client's own stores, on every plan: connected once, every new version goes there by itself.
+  await expect(own.locator("[data-more-stores-benefit]")).toContainText("connect your Galaxy Store, AppGallery or GetApps account below once, and every new version goes there by itself");
+  await expect(own.getByText("you don't need to add anything here")).toHaveCount(0);
 
   const galaxy = own.getByRole("region", { name: "Samsung Galaxy Store" });
   await galaxy.getByLabel("Content ID").fill("12");

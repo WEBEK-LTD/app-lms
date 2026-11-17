@@ -45,7 +45,7 @@ Canlı önizleme seçimlerinizi anında gösterir. Sayfalarınız, ikincil renk,
 
 - **App Store Connect API anahtarı**: **App Store Connect › Users and Access › Integrations › App Store Connect API** bölümündeki Issuer ID, Key ID ve özel anahtar (.p8), App Manager rolüyle. iOS uygulamanızı imzalamak için gerekir; o olmadan yalnızca Android uygulamasını alırsınız.
 - **Anlık bildirimler** (isteğe bağlı): Firebase'den google-services.json ve GoogleService-Info.plist dosyalarınız. [Firebase ile anlık bildirimler](/docs/push-notifications) rehberine bakın.
-- **Pro ve Business paketleri**: uygulamanın yayınını ekibimizden istemediyseniz (**Yayın** sayfası), sizin için Google Play'e yükleyebilmemiz için bir **Google Play hizmet hesabı anahtarı** (JSON) da gerekir. [Google Play'de yayınlayın](/docs/google-play) rehberine bakın.
+- **Her paket**: uygulamanın yayınını ekibimizden istemediyseniz (**Yayın** sayfası), sizin için Google Play'e yükleyebilmemiz için bir **Google Play hizmet hesabı anahtarı** (JSON) da gerekir. [Google Play'de yayınlayın](/docs/google-play) rehberine bakın.
 
 Anahtarlar şifrelenir, bir daha gösterilmez ve yalnızca başlattığınız derlemeler için kullanılır. Onları istediğiniz zaman kaldırabilirsiniz.
 

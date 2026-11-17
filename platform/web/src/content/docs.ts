@@ -93,7 +93,7 @@ export const DOCS: DocDefault[] = [
 - **You set up your app in the dashboard**: its type, where its content comes from, its name, icon, colors and pages.
 - **Your content stays where it is.** With a website or an online platform, the app reads it live. Without one, you add your products, courses, services or listings in the dashboard.
 - **We build your apps.** You get the files for Google Play, the App Store, Samsung Galaxy Store, Huawei AppGallery and Xiaomi GetApps, your signing key and your store assets.
-- **You publish them under your own name**, with our guides, or we publish them for you on the Pro and Business plans.
+- **We publish them for you under your own name** on Google Play and the App Store, on every plan. On Samsung Galaxy Store, Huawei AppGallery and Xiaomi GetApps you publish yourself with our guides, or connect your account once and every new version goes there by itself.
 - **You change your app without a new version.** Pages, look, languages and content change from the dashboard and show the next time the app opens.
 
 ## What you need
@@ -824,7 +824,7 @@ The live preview shows your choices as you go. Your pages, the secondary color, 
 
 - **App Store Connect API key**: the Issuer ID, Key ID and private key (.p8) from **App Store Connect › Users and Access › Integrations › App Store Connect API**, with the App Manager role. It's needed to sign your iOS app; without it you get the Android app only.
 - **Push notifications** (optional): your google-services.json and GoogleService-Info.plist files from Firebase. See [Push notifications with Firebase](/docs/push-notifications).
-- **Pro and Business plans**: also a **Google Play service account key** (JSON), so we can upload to Google Play for you, unless you asked our team to publish the app (**Publishing** page). See [Publish on Google Play](/docs/google-play).
+- **Every plan**: also a **Google Play service account key** (JSON), so we can upload to Google Play for you, unless you asked our team to publish the app (**Publishing** page). See [Publish on Google Play](/docs/google-play).
 
 Keys are encrypted, never shown again, and used only for the builds you start. You can remove them at any time.
 
@@ -1973,9 +1973,9 @@ Sign up in **Google Play Console** with a Google account, choose a personal or o
 
 Enroll at developer.apple.com with an Apple Account that has two-factor authentication. Choose **Individual** or **Organization** (with your D-U-N-S number), and pay the yearly fee. Then sign in to **App Store Connect** with the same Apple Account.
 
-## Give us access on Pro and Business
+## Give us access, on every plan
 
-On the Pro and Business plans we upload your builds for you. Add the Google Play service account key and the App Store Connect API key on the **Publishing** step: see [The setup steps](/docs/setup-steps). The keys for Samsung Galaxy Store and Huawei AppGallery go on **Publishing › More Android stores**.
+On every plan we publish your app on Google Play and the App Store for you: invite our publishing email as admin to Play Console and App Store Connect (the **Publishing** page shows the email and the steps), or add the Google Play service account key and the App Store Connect API key on the **Publishing** step: see [The setup steps](/docs/setup-steps). Samsung Galaxy Store, Huawei AppGallery and Xiaomi GetApps are yours to publish on: connect them on **Publishing › More Android stores** and every new version goes there by itself.
 
 ## Samsung, Huawei and Xiaomi
 
@@ -1989,7 +1989,7 @@ Your Android app can also be on Samsung Galaxy Store, Huawei AppGallery and Xiao
     title: "Publish on Google Play",
     description: "Use the files from your dashboard to publish your app under your own Google Play developer account.",
     steps: true,
-    body: `Use the files from your dashboard to publish your app under your own Google Play developer account. On the Pro and Business plans, we upload each new version for you.
+    body: `Use the files from your dashboard to publish your app under your own Google Play developer account. On every plan, we upload each new version for you, to production for everyone unless you choose otherwise on Builds.
 
 ## Before you start
 
@@ -2026,9 +2026,9 @@ Create a closed testing release and upload your .aab file. New personal develope
 
 Create a production release with the same .aab, add release notes and send it for review. Keep your signing key safe: every future update must be signed with it.
 
-## Pro and Business: let us upload
+## Let us upload every update
 
-In Google Cloud, create a service account for your Play Console's project and a JSON key for it (**IAM › Service accounts › Keys**). In Play Console, invite the service account's email under **Users and permissions** with access to your app's releases. Upload the JSON key on the **Publishing** step. We then upload every new build for you.
+In Google Cloud, create a service account for your Play Console's project and a JSON key for it (**IAM › Service accounts › Keys**). In Play Console, invite the service account's email under **Users and permissions** with access to your app's releases. Upload the JSON key on the **Publishing** step, or invite our publishing email as admin instead (the **Publishing** page). We then upload every new build for you, to production for everyone unless you choose a first share or internal testing on **Builds & downloads**. Google wants an app's very first release sent by hand in Play Console: until it is, each build waits there as a draft, and our team is told.
 `,
   }),
   doc({
@@ -2038,13 +2038,13 @@ In Google Cloud, create a service account for your Play Console's project and a 
     title: "Publish on the App Store",
     description: "Publish your iOS app under your own Apple Developer account.",
     steps: true,
-    body: `Publish your iOS app under your own Apple Developer account. The iOS app comes with the Growth, Pro and Business plans; on Pro and Business we upload each build to TestFlight for you.
+    body: `Publish your iOS app under your own Apple Developer account. The iOS app comes with the Growth plan and up; on every plan we upload each build to TestFlight and send it to App Review for you.
 
 ## Before you start
 
 - An Apple Developer Program membership (see [Developer accounts](/docs/developer-accounts))
 - Your App Store Connect API key on the **Publishing** step: we need it to sign your iOS build
-- Your iOS build (.ipa) from [Builds & downloads](/dashboard/builds), or a TestFlight upload on Pro and Business
+- Your iOS build (.ipa) from [Builds & downloads](/dashboard/builds), or the TestFlight upload we make for you
 - Your store assets and iPhone screenshots, and a privacy policy page
 
 ## Create the app in App Store Connect
@@ -2053,7 +2053,7 @@ In App Store Connect, open **Apps**, choose **+ › New App**, select iOS, and e
 
 ## Upload the build
 
-When you publish yourself, upload the .ipa file with Apple’s **Transporter** app on a Mac. On Pro and Business we upload it to TestFlight for you. The build appears in App Store Connect after Apple processes it.
+When you publish yourself, upload the .ipa file with Apple’s **Transporter** app on a Mac. With your App Store Connect key, we upload it to TestFlight for you. The build appears in App Store Connect after Apple processes it.
 
 ## Fill in the App Store listing
 
@@ -2069,7 +2069,7 @@ Your app also sends usage statistics to Yallapp (see [Analytics](/docs/analytics
 
 ## Submit for review
 
-Choose the build, select **Add for Review** and submit. Your iOS app shows no purchase buttons for paid courses or digital products, as Apple's rules require, so don't mention prices or buying them in the iOS description.
+With your App Store Connect key we do this for you, on every plan: once Apple has processed the build, its version goes to App Review by itself and is released once approved (over seven days, if you chose Apple's phased release on **Builds & downloads**). **Builds & downloads** says when it was sent, or what App Store Connect still needs, such as the App Privacy answers of the app's first version, which Apple's API can't fill in. When you publish yourself, choose the build, select **Add for Review** and submit. Your iOS app shows no purchase buttons for paid courses or digital products, as Apple's rules require, so don't mention prices or buying them in the iOS description.
 
 ## While it's in review
 
@@ -2083,7 +2083,7 @@ When our team publishes for you, the **Publishing** page reads the App Store's r
     title: "Publish on Samsung Galaxy Store",
     description: "Put your Android app on Galaxy Store, the app store on every Samsung phone, under your own seller account.",
     steps: true,
-    body: `Put your Android app on Galaxy Store, the app store on every Samsung Galaxy phone and tablet, under your own seller account. It's the same Android app as on Google Play. You upload the first version yourself; on the Pro and Business plans we upload every version after that.
+    body: `Put your Android app on Galaxy Store, the app store on every Samsung Galaxy phone and tablet, under your own seller account. It's the same Android app as on Google Play. You upload the first version yourself; after that, on every plan, connect your account and every new version goes there by itself.
 
 ## Before you start
 
@@ -2108,13 +2108,9 @@ Add the description, icon (512 × 512) and screenshots from your store assets, y
 
 > Give the reviewers your review phone number and fixed code in the notes for the review: from the dashboard's **App sign-in** page, or, for apps on WordPress or their own API, the **Store review account** on **Publishing** (required before a build).
 
-## Pro and Business: let us upload every update
+## Every update by itself, on every plan
 
 Once your app is on sale, open **Assistance › API Service** in Seller Portal and choose **Create Service Account**, with the **Publishing** scope. Copy the service account ID and its private key. Then open **Publishing › More Android stores** in your dashboard and enter them with your app's **content ID** (the number Seller Portal shows for your app). From then on, every build you start is uploaded to Galaxy Store and sent for review.
-
-## When our team publishes for you
-
-With **Publish it for me**, tick Samsung Galaxy Store on the **Publishing** page. Then, in Seller Portal, invite our team email as a manager for your applications (from your account's manager accounts). Samsung sends us the invitation and we do the rest. You never share your password.
 `,
   }),
   // 36 Huawei AppGallery
@@ -2124,7 +2120,7 @@ With **Publish it for me**, tick Samsung Galaxy Store on the **Publishing** page
     title: "Publish on Huawei AppGallery",
     description: "Put your Android app on AppGallery for Huawei phones, with push notifications through Huawei Push Kit.",
     steps: true,
-    body: `Huawei phones sold in recent years come without Google Play, so their owners install apps from AppGallery. Publish your Android app there under your own developer account, and add Huawei Push Kit so those phones get your notifications too. You submit the first version yourself; on the Pro and Business plans we upload every version after that.
+    body: `Huawei phones sold in recent years come without Google Play, so their owners install apps from AppGallery. Publish your Android app there under your own developer account, and add Huawei Push Kit so those phones get your notifications too. You submit the first version yourself; after that, on every plan, connect your account and every new version goes there by itself.
 
 ## Before you start
 
@@ -2152,13 +2148,9 @@ In AppGallery Connect, open **My apps**, choose your app and **Version informati
 
 > Add your review phone number and fixed code in the notes for the review, so the reviewers can sign in.
 
-## Pro and Business: let us upload every update
+## Every update by itself, on every plan
 
 In AppGallery Connect, open **Users and permissions › API key › Connect API** and create an API client with the **App administrator** role. Copy its client ID and key into **Publishing › More Android stores**. From then on, every build you start is uploaded to AppGallery and submitted for review.
-
-## When our team publishes for you
-
-With **Publish it for me**, tick Huawei AppGallery on the **Publishing** page. Then, in AppGallery Connect, open **Users and permissions** and add our team email as a team member with the **App administrator** and **Operations** roles. Huawei sends us the invitation; you never share your password.
 `,
   }),
   // 42 Xiaomi GetApps
@@ -2168,7 +2160,7 @@ With **Publish it for me**, tick Huawei AppGallery on the **Publishing** page. T
     title: "Publish on Xiaomi GetApps",
     description: "Put your Android app on GetApps, the app store on Xiaomi, Redmi and POCO phones, under your own developer account.",
     steps: true,
-    body: `Xiaomi, Redmi and POCO phones come with GetApps, Xiaomi's own app store. Publish your Android app there under your own developer account: it's the same Android app as on Google Play. You submit the first version yourself; on the Pro and Business plans we upload every version after that.
+    body: `Xiaomi, Redmi and POCO phones come with GetApps, Xiaomi's own app store. Publish your Android app there under your own developer account: it's the same Android app as on Google Play. You submit the first version yourself; after that, on every plan, connect your account and every new version goes there by itself.
 
 ## Before you start
 
@@ -2193,17 +2185,13 @@ Add the description, icon, screenshots, your privacy policy link and the age rat
 
 > Give the reviewers your review phone number and fixed code in the notes for the review: from the dashboard's **App sign-in** page, or, for apps on WordPress or their own API, the **Store review account** on **Publishing** (required before a build).
 
-## Pro and Business: let us upload every update
+## Every update by itself, on every plan
 
 Once your app is on GetApps, open the automatic publishing API page from the developer platform's app management. Copy the **private key** it shows and download Xiaomi's **public certificate**. Then open **Publishing › More Android stores** in your dashboard and enter them with the email you sign in with. You can also write what's new; Xiaomi shows it with the update. From then on, every build you start is uploaded to Xiaomi GetApps and sent for review.
 
 > Xiaomi sends each upload straight to review, with your app's icon. Resetting the private key in Xiaomi's console stops the old one working: enter the new one in your dashboard.
 
 If your developer account has no automatic publishing page, uploads stay by hand: download the .apk from Builds & downloads and submit it as a new version.
-
-## When our team publishes for you
-
-With **Publish it for me**, tick Xiaomi GetApps on the **Publishing** page. Then add our team email as a member of your Xiaomi developer account who may manage your apps. If you can't find where to add members, contact us and we'll find the way with you. You never share your password.
 `,
   }),
   doc({
@@ -2251,7 +2239,7 @@ On plans with automatic builds, a save that changes the app itself (its name, ic
 
 - **APK**: install it directly on an Android phone to test.
 - **App Bundle (.aab)**: the file you upload to Google Play.
-- **iOS build (.ipa)**: the file you upload to App Store Connect. On Pro and Business it's uploaded to TestFlight for you. It comes with the Growth plan and up, and needs the App Store Connect API key on the Publishing step.
+- **iOS build (.ipa)**: the file you upload to App Store Connect. On every plan it's uploaded to TestFlight and sent to App Review for you. It comes with the Growth plan and up, and needs the App Store Connect API key on the Publishing step.
 - **Android upload key**: the keystore and its passwords. Every future update on Google Play needs this same key: keep a copy somewhere safe.
 - **Store assets**: store icons, the feature graphic, your screenshots and your listing text.
 - **WordPress plugin** (.zip), on WordPress sites.
@@ -2264,7 +2252,7 @@ Your Android signing key is created with your first build, stored encrypted, and
 
 ## Test before you publish
 
-Install the APK on an Android phone (allow installs from your browser or files app when the phone asks). On Pro and Business, test the iOS build with TestFlight.
+Install the APK on an Android phone (allow installs from your browser or files app when the phone asks). Test the iOS build with TestFlight.
 `,
   }),
   doc({
@@ -2282,7 +2270,7 @@ Open [Builds & downloads](/dashboard/builds), choose **Start new build** and ent
 
 ## Publish the new version
 
-When you publish yourself, download the new .aab (and .ipa), then create a new release in Google Play Console (and a new version in App Store Connect). On Pro and Business we upload the new version for you, and you can follow each step on the Builds & downloads page. From Growth up, a new build starts by itself when you change your app's settings.
+When you publish yourself, download the new .aab (and .ipa), then create a new release in Google Play Console (and a new version in App Store Connect). On every plan we upload the new version for you, to Google Play's production and to App Review, and you can follow each step on the Builds & downloads page. When Yallapp's own app gets better, your app gets a new build by itself too. From Growth up, a new build starts by itself when you change your app's settings.
 
 > Always use the same Android signing key. Google Play rejects updates signed with a different key.
 
@@ -3326,9 +3314,11 @@ The app takes one-off donations. Monthly donations need a card saved for a subsc
 
 ## The four plans
 
-- **Starter**: the Android app for Google Play, Samsung Galaxy Store, Huawei AppGallery and Xiaomi GetApps, one content source, a simple page editor, one language and up to 1,000 app users. You publish it with our step-by-step guides.
+- **Starter**: the Android app for Google Play, Samsung Galaxy Store, Huawei AppGallery and Xiaomi GetApps, one content source, a simple page editor, one language and up to 1,000 app users. We publish it for you on Google Play.
 - **Growth**: adds the iOS app for the App Store, the full page editor, three languages, card payments in the app, offline mode, automatic rebuilds and up to 10,000 app users.
-- **Pro**: adds unlimited app users, every language and "We publish for you": we publish your app and every update on Google Play, the App Store, Samsung Galaxy Store, Huawei AppGallery and Xiaomi GetApps, with priority support.
+- **Pro**: adds unlimited app users, every language and chat, with priority support.
+
+"We publish for you" is in every plan: we publish your app and every update on Google Play and the App Store. Samsung Galaxy Store, Huawei AppGallery and Xiaomi GetApps take every update by themselves once you connect your account there.
 - **Business**: everything in Pro, with a dedicated account manager and custom features on request.
 
 App users limits count the people signed in to apps on our hosting. Apps on your WordPress site keep their users on your site, with no limit. See the [pricing page](/pricing) for the current prices and the full comparison.

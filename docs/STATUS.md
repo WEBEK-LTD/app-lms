@@ -8,6 +8,25 @@ Last updated: 16 November 2026.
 
 ## Current release
 
+Phase 138 (We publish for you, on every plan) is in the code: every plan,
+regular and Studio, includes "We publish for you" on Google Play and the
+App Store, and the publishing add-on is retired (never offered, renewed
+or reminded of; what apps bought keeps its records). Builds go to Google
+Play's production for everyone unless the owner chooses a first share or
+internal testing; the first release stays by hand, as a draft the
+pipeline reports and the team is told about once. The platform sends each
+iPhone version on TestFlight to App Review from the frequent job, with
+the client's App Store Connect key, once Apple has processed it, and says
+on Builds why when it can't (App Privacy on the first version, the age
+rating, an agreement). A bump of `CLIENT_APP_RELEASE`
+(`lib/builds/app-release.ts`) gives every active app that built before a
+new build, 4 an hour. Galaxy Store, AppGallery and GetApps are the
+client's own, uploaded with their keys on every plan. The publishing
+accounts pool (Admin › Settings › Publishing accounts) gives each app one
+account for life; no migration (the app's `rollout` JSON and the setting
+`publishingAccounts`). The pipeline contract adds the `app_review` stage
+and the `play` report (docs/api/pipeline.yaml).
+
 Roadmap 134 (pay inside the app for connected stores, Demo) is built for
 WooCommerce: Payments › How customers pay offers Yallapp's checkout (its
 own products), the store's checkout (the default) and paying inside the
@@ -440,6 +459,23 @@ Billing and the App Store's in-app purchase) is complete (steps 100.1 to
 
 ## To verify against real services before release
 
+- 138 The App Store Connect calls of the App Review submission
+  (`lib/publishing/app-review-submit.ts`): `builds` by version and
+  processing state, `usesNonExemptEncryption`, making and renaming an
+  `appStoreVersion`, `appStoreVersionPhasedReleases`, What's New on the
+  localizations, `appStoreReviewDetails`, the build relationship and
+  `reviewSubmissions` with their items. Tested against a fake App Store
+  Connect only; Apple's own error words, which pick the reason Builds
+  shows, are matched on their wording (`reasonOf`) and need a look on a
+  real first version (App Privacy) and an update.
+- 138 fastlane's `upload_to_app_store` with `app_version` and
+  `automatic_release` making the version being prepared after a release,
+  and `upload_play` to production for everyone with its draft fallback on
+  an app whose first release isn't out: not run on the runners yet.
+- 138 `claimPublishingAccount` in MySQL (`JSON_SET` on `apps.rollout`
+  only while it has no account): the memory store's is tested; the MySQL
+  statement hasn't run against MariaDB here.
+
 - 133 A Kashier payment for 6, 24 or 36 months, for life and for an
   add-on (the amounts are the team's prices; the flow is the plans').
 - 102.2 A client's iOS build that uploads sets App Review Information
@@ -471,6 +507,19 @@ test environment:
   by postcode are still to try.
 
 ## Known gaps
+
+- 138 An account's limit can be passed by one or two apps when several
+  new apps are given accounts in the same instant (each app still gets
+  exactly one account, written once). Assignment reads the settings
+  cache, so a new or changed account reaches other instances within 30
+  seconds.
+- 138 What's New for an update is a short default per language ("Improvements
+  and fixes.") where App Store Connect has none; the owner can't write
+  their own yet.
+- 138 The iPhone notifications key (APNs .p8) is "not tracked yet" in the
+  accounts' one-time steps until Phase 136's key upload is merged.
+- 138 Builds queued before Phase 138 keep `auto_publish: false` and the
+  internal track; the next build is published for the client.
 
 - 134 Pay inside the app is WooCommerce's only. Shopify's API terms keep
   payments on Shopify Checkout; Wix's Create Order needs an app or Wix

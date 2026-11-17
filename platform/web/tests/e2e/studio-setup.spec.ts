@@ -224,7 +224,9 @@ test("Academy in Studio: every step, its links in Studio, and moving between the
   await expect(own.getByRole("link", { name: "More Android stores" })).toHaveAttribute("href", "/studio/project/publishing/more-stores");
   await expect(own.getByRole("link", { name: "Fingerprint and Team ID" })).toHaveAttribute("href", "/studio/project/publishing/links");
   await expect(own.getByText(/Upgrade to (Growth|Pro|Business)/)).toHaveCount(0);
-  await own.getByRole("button", { name: "Finish setup" }).click();
+  // 138 Every Studio plan publishes for the client: who publishes, as on every plan.
+  await own.getByRole("radio", { name: /Publish it for me/ }).check();
+  await own.getByRole("button", { name: "Save & finish" }).click();
   await own.waitForURL((url) => !url.search.includes("step=publishing"));
   expect(new URL(own.url()).pathname).toMatch(/^\/studio\//);
 

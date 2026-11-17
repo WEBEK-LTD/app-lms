@@ -117,8 +117,9 @@ test("the landing page has the plans, the steps and the full footer", async ({ p
     await expect(marks.getByRole("img")).toHaveCount(names.length);
     for (const name of names) await expect(marks.getByRole("img", { name, exact: true })).toHaveCount(1);
   }
-  await expect(plans.locator('[data-plan="pro"]')).toContainText("5 app stores · We publish for you");
-  await expect(plans.locator('[data-plan="starter"]')).toContainText("4 app stores · You publish with our guides");
+  // 138 Every plan: we publish on Google Play and the App Store.
+  await expect(plans.locator('[data-plan="pro"]')).toContainText("5 app stores · We publish for you on Google Play and the App Store");
+  await expect(plans.locator('[data-plan="starter"]')).toContainText("4 app stores · We publish for you on Google Play");
 
   // 41 The Works with strip replaced the numbers strip: real brands, named, never "partners".
   await expect(page.getByRole("region", { name: "Yallapp in numbers" })).toHaveCount(0);

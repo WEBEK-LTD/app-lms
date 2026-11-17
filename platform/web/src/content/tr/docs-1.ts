@@ -12,7 +12,7 @@ export const TR_DOCS_1: Record<string, DocTranslation> = {
 - **Uygulamanızı panelde kurarsınız**: türü, içeriğinin nereden geldiği, adı, simgesi, renkleri ve sayfaları.
 - **İçeriğiniz olduğu yerde kalır.** Bir web sitesi veya çevrimiçi platformla uygulama içeriği canlı okur. Bunlar yoksa ürünlerinizi, kurslarınızı, hizmetlerinizi veya ilanlarınızı panelden eklersiniz.
 - **Uygulamalarınızı biz derleriz.** Google Play, App Store, Samsung Galaxy Store, Huawei AppGallery ve Xiaomi GetApps için dosyaları, imzalama anahtarınızı ve mağaza görsellerinizi alırsınız.
-- **Onları kendi adınızla yayımlarsınız**; rehberlerimizle ya da Pro ve Business paketlerinde sizin için biz yayımlarız.
+- **Onları kendi adınızla sizin için biz yayımlarız**: her pakette Google Play ve App Store'da. Samsung Galaxy Store, Huawei AppGallery ve Xiaomi GetApps'te rehberlerimizle kendiniz yayımlarsınız ya da hesabınızı bir kez bağlarsınız, her yeni sürüm oraya kendiliğinden gider.
 - **Uygulamanızı yeni sürüm olmadan değiştirirsiniz.** Sayfalar, görünüm, diller ve içerik panelden değişir ve uygulama bir sonraki açılışta bunları gösterir.
 
 ## Neye ihtiyacınız var

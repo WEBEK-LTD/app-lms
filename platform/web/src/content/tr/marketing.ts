@@ -1190,7 +1190,7 @@ export const TR_MARKETING: MarketingTranslation = {
           details: [
             "Telefona kurup denemek ve Galaxy Store, AppGallery ve GetApps için APK",
             "Google Play için App Bundle (AAB)",
-            "iOS derlemesi (Growth ve üzeri); Pro ve Business'ta TestFlight'a yüklenir",
+            "iOS derlemesi (Growth ve üzeri); TestFlight'a yüklenir ve sizin için App Review'a gönderilir",
             "Mağaza simgesi, öne çıkan görsel, ekran görüntüleriniz ve mağaza metni",
           ],
         },
@@ -1345,7 +1345,7 @@ export const TR_MARKETING: MarketingTranslation = {
       title: "Derleyin ve yayımlayın",
       short: "Uygulamalarınızı indirin ya da sizin için biz yayımlayalım.",
       text: "Kurulum tamamlanır tamamlanmaz uygulamalarınız derlenir. İndirip rehberlerimizle yayımlayın ya da sizin için biz yayımlayalım.",
-      details: ["Starter ve Growth: dosyalarınızı indirin ve adım adım rehberleri izleyin", `Pro ve Business: her yeni sürümü ${STORES} üzerinde biz yayımlarız`],
+      details: ["Her pakette: her yeni sürümü Google Play ve App Store'da sizin için biz yayımlarız", "Samsung Galaxy Store, Huawei AppGallery ve Xiaomi GetApps: hesabınızı bir kez bağlayın, her yeni sürüm oraya kendiliğinden gitsin; ya da dosyalarınızı indirip adım adım rehberleri izleyin"],
     },
   ],
   requirements: [
@@ -1470,7 +1470,7 @@ export const TR_MARKETING: MarketingTranslation = {
         },
         {
           q: "Uygulamaları kim yayımlar?",
-          a: `Starter ve Growth'ta dosyaları indirip adım adım rehberlerimizle siz yayımlarsınız. Pro ve Business'ta uygulamanızı ve her yeni sürümünü ${STORES} üzerinde sizin için biz yayımlarız.`,
+          a: "Her pakette uygulamanızı ve her yeni sürümünü kendi geliştirici hesaplarınız altında Google Play ve App Store'da sizin için biz yayımlarız. Samsung Galaxy Store, Huawei AppGallery ve Xiaomi GetApps'te kendiniz yayımlarsınız: hesabınızı bir kez bağlayın, her yeni sürüm oraya kendiliğinden gitsin; ya da dosyaları indirip adım adım rehberlerimizi izleyin.",
         },
         {
           q: "Apple uygulamamı kabul eder mi?",

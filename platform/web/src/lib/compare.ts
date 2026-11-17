@@ -177,7 +177,7 @@ export const REGULAR_TABLE: Category[] = [
       {
         id: "publish",
         label: { en: "We publish for you", ar: "ننشر التطبيق عنك", tr: "Sizin için yayınlıyoruz" },
-        yallapp: y({ en: "Every build, to every store you use (Pro and Business)", ar: "كل نسخة، على كل متجر تستخدمه (Pro وBusiness)", tr: "Her derleme, kullandığınız her mağazaya (Pro ve Business)" }),
+        yallapp: y({ en: "Every build, to Google Play and the App Store, on every plan", ar: "كل نسخة، على Google Play وApp Store، في كل باقة", tr: "Her derleme, her pakette Google Play ve App Store'a" }),
         them: { appmysite: part(ADDON), mobiloud: yes, goodbarber: part(SERVICE) },
       },
       { id: "own-accounts", label: { en: "Published under your own store accounts", ar: "يُنشر بحساباتك أنت على المتاجر", tr: "Kendi mağaza hesaplarınızla yayın" }, yallapp: yes, them: { appmysite: yes, mobiloud: yes, appypie: yes, goodbarber: yes } },
@@ -633,7 +633,7 @@ export const DUO_TABLE: { id: string; title: L; rows: DuoRow[] }[] = [
     rows: [
       { id: "roles", label: t("Team members with roles", "أعضاء فريق بأدوار", "Rollere sahip ekip üyeleri"), regular: yes, studio: y(t("Plus couriers, drivers, teachers and vendor staff", "ومعهم المناديب والسائقون والمعلمون وموظفو البائعين", "Kurye, sürücü, öğretmen ve satıcı personeli de")) },
       { id: "stores", label: t("Google Play, the App Store, Galaxy Store, AppGallery and GetApps", "Google Play وApp Store وGalaxy Store وAppGallery وGetApps", "Google Play, App Store, Galaxy Store, AppGallery ve GetApps"), regular: yes, studio: yes },
-      { id: "publish", label: t("We publish for you", "ننشر عنك", "Sizin için yayınlıyoruz"), regular: y(t("On Pro and Business", "في Pro وBusiness", "Pro ve Business'ta")), studio: y(t("On the plans that include it", "في الباقات التي تتضمّنها", "İçeren paketlerde")) },
+      { id: "publish", label: t("We publish for you", "ننشر عنك", "Sizin için yayınlıyoruz"), regular: y(t("On every plan", "في كل باقة", "Her pakette")), studio: y(t("On every plan", "في كل باقة", "Her pakette")) },
       { id: "support", label: t("Support on WhatsApp", "دعم على واتساب", "WhatsApp desteği"), regular: yes, studio: yes },
       { id: "plans", label: t("Plans", "الباقات", "Paketler"), regular: y(t("Starter, Growth, Pro and Business", "Starter وGrowth وPro وBusiness", "Starter, Growth, Pro ve Business")), studio: y(t("Studio's own plans", "باقات Studio الخاصة", "Studio'nun kendi paketleri")) },
     ],
