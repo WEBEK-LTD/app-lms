@@ -57,6 +57,17 @@ so every active app gets one build with it (4 an hour). Not yet tried on a
 phone. Leqaa's demo and Kech Flora still hold the old "Courses" page: one
 publish of their layout (or deleting that page) clears it for older builds.
 
+Roadmap 149 (prices in the customer's currency, per app): the shop's
+settings (Products › Settings › Customers' currencies, in the dashboard and
+Studio) have "Show prices in the customer's currency", on by default, and
+"Only these currencies (leave empty for all)". The hosted API applies them
+to every answer whatever the app sends (no `display`, nothing charged in
+that currency, `GET /currencies` limited, the shop's own always allowed),
+so apps already in the stores follow them; the config sends them as
+`customer_currency` and the app hides Settings › Currency or lists only
+those. `CLIENT_APP_RELEASE` is 6. Courses, events, bookings and food apps
+keep the default (no form there yet). No migration.
+
 Roadmap 79.5 (maintenance): Next.js is 16.4.5 (from 16.4.2, with
 `eslint-config-next`), the first release fixed for GHSA-mfr8-8qww-v76h,
 which `next build` warned about. Nothing else in the lockfile changed and

@@ -812,7 +812,7 @@ function CustomerCurrencyList({ base, initial, disabled, error }: { base: string
         )}
       </ul>
       <div className="flex flex-col gap-2 sm:flex-row sm:items-end">
-        <CurrencyPicker id="f-customer-currency-add" name="customerCurrencyAdd" label={t("money.onlyAdd")} value={pick} onChange={setPick} disabled={disabled} className="flex-1" />
+        <CurrencyPicker id="f-customer-currency-add" name="customerCurrencyAdd" label={t("money.onlyAdd")} searchLabel={t("money.onlySearch")} value={pick} onChange={setPick} disabled={disabled} className="flex-1" />
         <button type="button" onClick={add} disabled={disabled || chosen.includes(pick)} className={`${btn.secondary} h-11`}>
           <Icon name="add" size={18} />
           {t("common.add")}

@@ -32,6 +32,7 @@ export const en = {
   onlyLabel: "Only these currencies (leave empty for all)",
   onlyAll: "All currencies",
   onlyAdd: "Add a currency",
+  onlySearch: "Find a currency to add",
   onlyRemove: "Remove {code}",
   onlyHint: "A customer in another currency sees {base} only. {base} is always allowed.",
   known: {
@@ -68,6 +69,7 @@ export const ar: Messages = {
   onlyLabel: "العملات دي بس (سيبها فاضية للكل)",
   onlyAll: "كل العملات",
   onlyAdd: "ضيف عملة",
+  onlySearch: "دوّر على عملة تضيفها",
   onlyRemove: "شيل {code}",
   onlyHint: "العميل اللي عملته مش من دول بيشوف {base} بس. و{base} مسموحة دايمًا.",
   known: {
@@ -102,6 +104,7 @@ export const tr: Messages = {
   onlyLabel: "Yalnızca bu para birimleri (hepsi için boş bırakın)",
   onlyAll: "Tüm para birimleri",
   onlyAdd: "Para birimi ekle",
+  onlySearch: "Eklenecek para birimini bul",
   onlyRemove: "{code} kaldır",
   onlyHint: "Başka bir para birimindeki müşteri yalnızca {base} görür. {base} her zaman izinlidir.",
   known: {
