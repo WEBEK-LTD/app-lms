@@ -10,6 +10,11 @@ Usage:
       JPEG only when the PNG is too large), sends it back
       (PUT /screenshots/{id}/shots/{key}) and reports how the run ended.
 
+  store_screenshots.py pending
+      How many runs are waiting (GET /screenshots/queue), printed as
+      `waiting=N` and, on GitHub Actions, written to $GITHUB_OUTPUT, so the
+      workflow sets up Chromium only when there is work. Plain Python.
+
   store_screenshots.py normalize <in.png> <device> <out-dir>
       One picture as the run sends it (for a look by hand).
 
@@ -31,8 +36,6 @@ import time
 import urllib.error
 import urllib.request
 from pathlib import Path
-
-from PIL import Image
 
 HERE = Path(__file__).resolve().parent
 CAPTURE = HERE / "capture_screens.mjs"
@@ -88,6 +91,8 @@ def request(method, path, body=None, content_type="application/json", attempts=4
 
 def normalize(data, device):
     """The picture as the store wants it: exactly the device's size, 24-bit with no alpha. (bytes, content type)."""
+    from PIL import Image  # Only where pictures are made: `pending` runs before Pillow is installed.
+
     width, height = SIZES[device]
     with Image.open(io.BytesIO(data)) as image:
         image.load()
@@ -184,7 +189,23 @@ def cmd_run(limit=5, call=request, capturer=capture):
     return 1 if failures and failures == len(runs) else 0
 
 
+def cmd_pending(call=request, output=None):
+    """How many runs are waiting; `waiting=N` printed and added to the step's outputs."""
+    status, payload = call("GET", "/screenshots/queue?limit=50")
+    if status != 200:
+        sys.exit(f"Platform API error {status}: {json.dumps(payload)}")
+    line = f"waiting={len(payload.get('runs') or [])}"
+    print(line)
+    output = output if output is not None else os.environ.get("GITHUB_OUTPUT")
+    if output:
+        with open(output, "a", encoding="utf-8") as handle:
+            handle.write(line + "\n")
+    return 0
+
+
 def main():
+    if len(sys.argv) == 2 and sys.argv[1] == "pending":
+        return cmd_pending()
     if len(sys.argv) >= 2 and sys.argv[1] == "run" and len(sys.argv) <= 3:
         return cmd_run(int(sys.argv[2]) if len(sys.argv) == 3 else 5)
     if len(sys.argv) == 5 and sys.argv[1] == "normalize" and sys.argv[3] in SIZES:

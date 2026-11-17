@@ -130,7 +130,9 @@ make them.
 - **Where:** [`.github/workflows/store-screenshots.yml`](../.github/workflows/store-screenshots.yml),
   a separate Linux workflow (never the macOS minutes, no store keys). The
   platform starts it when a run is queued (`GITHUB_DISPATCH_TOKEN`, the same
-  token as builds); its hourly schedule takes the runs otherwise. Netlify
+  token as builds); its hourly schedule takes the runs otherwise. Its first
+  step (`store_screenshots.py pending`, plain Python) asks whether a run is
+  waiting; with none, nothing is installed and the job ends in seconds. Netlify
   can't run a browser, and a separate workflow keeps a slow or failed run
   from holding a build, and needs no Flutter, Java or signing.
 - **How:** `scripts/store_screenshots.py run` takes the runs waiting

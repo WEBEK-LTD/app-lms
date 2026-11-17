@@ -180,6 +180,44 @@ class Run(unittest.TestCase):
             self.assertEqual(store_screenshots.capture(PLAN, folder, runner), {"phone:en:home": "ok"})
 
 
+class Pending(unittest.TestCase):
+    """`pending`: the workflow's cheap first step, before Chromium is set up."""
+
+    def run_pending(self, payload, status=200):
+        calls = []
+
+        def call(method, path, body=None, content_type="application/json"):
+            calls.append((method, path))
+            return status, payload
+
+        with tempfile.TemporaryDirectory() as folder:
+            output = Path(folder) / "out"
+            output.write_text("earlier=1\n")
+            out = io.StringIO()
+            with redirect_stdout(out):
+                store_screenshots.cmd_pending(call, str(output))
+            return calls, out.getvalue(), output.read_text()
+
+    def test_counts_the_waiting_runs_into_the_step_outputs(self):
+        calls, printed, written = self.run_pending({"runs": [{"id": "a", "app_id": "1"}, {"id": "b", "app_id": "2"}]})
+        self.assertEqual(calls, [("GET", "/screenshots/queue?limit=50")])
+        self.assertEqual(printed.strip(), "waiting=2")
+        self.assertEqual(written, "earlier=1\nwaiting=2\n")
+
+    def test_nothing_waiting(self):
+        _, printed, written = self.run_pending({"runs": []})
+        self.assertEqual(printed.strip(), "waiting=0")
+        self.assertTrue(written.endswith("waiting=0\n"))
+
+    def test_an_api_error_stops_the_step(self):
+        with self.assertRaises(SystemExit):
+            self.run_pending({"code": "unauthorized"}, status=401)
+
+    def test_needs_no_pillow(self):
+        source = (ROOT / "build" / "scripts" / "store_screenshots.py").read_text()
+        self.assertNotIn("\nfrom PIL", source.split("def normalize")[0])
+
+
 class EachLanguage(unittest.TestCase):
     """store_listing.py: a translation with its own screenshots (made in its language) uses them."""
 
