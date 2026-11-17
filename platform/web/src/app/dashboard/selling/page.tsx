@@ -38,7 +38,6 @@ export async function generateMetadata(): Promise<Metadata> {
   return { title: (await dashboardText()).t("selling.title") };
 }
 
-const TIMEZONES = ["Europe/Istanbul", "Africa/Cairo", "Asia/Riyadh", "Asia/Dubai", "Asia/Kuwait", "Asia/Qatar", "Asia/Bahrain", "Asia/Muscat", "Europe/London", "Europe/Berlin", "America/New_York"];
 
 type Source = { kind: "catalog" } | { kind: "platform"; name: string } | { kind: "wordpress" } | { kind: "own_api" } | { kind: "none" };
 
@@ -535,7 +534,7 @@ export default async function SellingPage({ searchParams }: { searchParams: Prom
           <KitTabPanel tab="delivery">
             <KitSection titleId="h-delivery" title={t("selling.deliveryTitle")} description={t("selling.deliveryIntro")}>
               {mode === "gift" ? <p className="m-0 text-[13px] text-(--sp-muted)">{t("selling.giftForces")}</p> : null}
-              <DeliveryForm values={deliveryValues} maxSlots={DELIVERY_LIMITS.slots} currency={currency} timezones={TIMEZONES.includes(delivery.timezone) ? TIMEZONES : [delivery.timezone, ...TIMEZONES]} weekdays={weekdays} feesNote={platform ? t("selling.feesPlatform", { platform }) : null} />
+              <DeliveryForm values={deliveryValues} maxSlots={DELIVERY_LIMITS.slots} currency={currency} weekdays={weekdays} feesNote={platform ? t("selling.feesPlatform", { platform }) : null} />
             </KitSection>
           </KitTabPanel>
         ) : null}

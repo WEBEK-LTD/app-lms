@@ -4,6 +4,7 @@ import { useActionState, useState } from "react";
 import { saveAddonsAction, saveAreasAction, saveCheckoutModeAction, saveDeliveryAction, saveFlashSaleAction, saveGiftsAction, saveOccasionAction, addOccasionAction, saveTemplateAction, saveTitlesAction } from "@/app/actions/selling";
 import { Field, FormMessage, SubmitButton } from "@/components/form";
 import { FormActions } from "@/components/page-kit";
+import { TimeZonePicker } from "@/components/time-zone-picker";
 import { useDashT } from "@/components/dashboard-i18n";
 import { initialFormState } from "@/lib/forms";
 import { AreasEditor, ProductPicker, SlotList, slotRowsOf, type AreasStart, type CountryChoice, type ProductChoice } from "./pickers";
@@ -62,14 +63,12 @@ const WEEKDAYS = [0, 1, 2, 3, 4, 5, 6];
 export function DeliveryForm({
   values: saved,
   currency,
-  timezones,
   weekdays,
   feesNote,
   maxSlots,
 }: {
   values: Record<string, string>;
   currency: string;
-  timezones: string[];
   weekdays: string[];
   feesNote: string | null;
   /** lib/selling/delivery.ts `DELIVERY_LIMITS.slots`. */
@@ -91,18 +90,8 @@ export function DeliveryForm({
       </div>
       <div className="grid gap-4 sm:grid-cols-2">
         <Field label={t("selling.maxDays")} name="maxDays" inputMode="numeric" defaultValue={v.maxDays} hint={t("selling.maxDaysHint")} error={e.maxDays} small />
-        <div className="flex flex-col gap-1.5">
-          <label htmlFor="f-timezone" className="text-sm font-semibold">
-            {t("selling.timezone")}
-          </label>
-          <select id="f-timezone" name="timezone" defaultValue={v.timezone} className="input input-sm" dir="ltr">
-            {timezones.map((z) => (
-              <option key={z} value={z}>
-                {z}
-              </option>
-            ))}
-          </select>
-        </div>
+        {/* 136 Every time zone: searched by city, zone or offset, the usual ones first. */}
+        <TimeZonePicker id="f-timezone" label={t("selling.timezone")} defaultValue={v.timezone} error={e.timezone} size="sm" />
       </div>
       <fieldset className="m-0 flex flex-col gap-2 border-0 p-0">
         <legend className="mb-1 text-sm font-semibold">{t("selling.closedDays")}</legend>

@@ -1,6 +1,7 @@
 "use client";
 
 import { CurrencyPicker } from "@/components/currency-picker";
+import { TimeZonePicker } from "@/components/time-zone-picker";
 import { useActionState, type ReactNode } from "react";
 import { saveFlightStatusAction, saveTravelFlightAction, saveTravelHotelAction, saveTravelRoomAction, saveTravelSettingsAction } from "@/app/actions/travel";
 import { Field, FieldError, FormMessage, SubmitButton } from "@/components/form";
@@ -347,7 +348,7 @@ export function FlightStatusForm({ id, values }: { id: number; values: Record<st
   );
 }
 
-export function TravelSettingsForm({ values, zones }: { values: Record<string, string>; zones: string[] }) {
+export function TravelSettingsForm({ values }: { values: Record<string, string> }) {
   const t = useDashT();
   const { state, run, value, checked } = useForm(saveTravelSettingsAction, values);
   const e = state.errors ?? {};
@@ -383,7 +384,8 @@ export function TravelSettingsForm({ values, zones }: { values: Record<string, s
           <Field id="ts-whatsapp" label={t("travel.helpWhatsapp")} name="helpWhatsapp" defaultValue={value("helpWhatsapp")} error={e.helpWhatsapp} />
         </div>
         <Field id="ts-font" label={t("travel.displayFont")} name="displayFont" defaultValue={value("displayFont")} hint={t("travel.displayFontHint")} error={e.displayFont} />
-        <Select id="ts-zone" name="timeZone" label={t("travel.timeZone")} value={value("timeZone")} options={zones.map((z) => ({ value: z, label: z.replace(/_/g, " ") }))} error={e.timeZone} />
+        {/* 136 Every time zone: searched by city, zone or offset, the usual ones first. */}
+        <TimeZonePicker id="ts-zone" name="timeZone" label={t("travel.timeZone")} defaultValue={value("timeZone")} error={e.timeZone} />
         <p className="m-0 text-sm text-muted">{t("travel.timeZoneHint")}</p>
       </FormSection>
       <FormActions>
