@@ -212,12 +212,14 @@ class Store_Extras {
 			$base,
 			array(
 				// The gift checkout always asks for the day and the slot.
-				'enabled'         => $base['enabled'] || $gift,
-				'required'        => $base['required'] || $gift,
-				'max_days'        => $gift && ! $base['enabled'] ? 14 : $base['max_days'],
-				'timezone'        => function_exists( 'wp_timezone_string' ) ? wp_timezone_string() : 'UTC',
-				'same_day_cutoff' => 0 === (int) $base['min_days'] && preg_match( '/^([01][0-9]|2[0-3]):[0-5][0-9]$/', $cutoff ) ? $cutoff : null,
-				'slots'           => $slots,
+				'enabled'            => $base['enabled'] || $gift,
+				'required'           => $base['required'] || $gift,
+				'max_days'           => $gift && ! $base['enabled'] ? 14 : $base['max_days'],
+				'timezone'           => function_exists( 'wp_timezone_string' ) ? wp_timezone_string() : 'UTC',
+				// The site's offset now: the app counts today and the cut-off in the shop's time, wherever the phone is.
+				'utc_offset_minutes' => function_exists( 'wp_timezone' ) ? (int) round( wp_timezone()->getOffset( new \DateTime( 'now', new \DateTimeZone( 'UTC' ) ) ) / 60 ) : null,
+				'same_day_cutoff'    => 0 === (int) $base['min_days'] && preg_match( '/^([01][0-9]|2[0-3]):[0-5][0-9]$/', $cutoff ) ? $cutoff : null,
+				'slots'              => $slots,
 			)
 		);
 	}

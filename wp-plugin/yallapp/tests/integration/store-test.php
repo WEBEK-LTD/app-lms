@@ -152,8 +152,8 @@ check( 'config 200', 200 === $r['status'], $r['raw'] );
 check( 'no LMS on a shop', array_key_exists( 'lms', $features ) && null === $features['lms'], $features );
 check( 'the shop has orders', true === ( $features['orders'] ?? null ), $features );
 check( 'store settings', 'TRY' === ( $store['currency'] ?? '' ) && true === ( $store['guest_checkout'] ?? null ) && true === ( $store['reviews'] ?? null ), $store );
-// 131 The delivery date also says the shop's time zone, its same-day cut-off and its slots (none set here).
-check( 'delivery date settings', array( 'enabled' => true, 'required' => true, 'min_days' => 1, 'max_days' => 14, 'closed_weekdays' => array( 0 ), 'timezone' => 'Europe/Istanbul', 'same_day_cutoff' => null, 'slots' => array() ) === ( $store['delivery_date'] ?? null ), $store );
+// 131 The delivery date also says the shop's time zone (and its offset now), its same-day cut-off and its slots (none set here).
+check( 'delivery date settings', array( 'enabled' => true, 'required' => true, 'min_days' => 1, 'max_days' => 14, 'closed_weekdays' => array( 0 ), 'timezone' => 'Europe/Istanbul', 'utc_offset_minutes' => 180, 'same_day_cutoff' => null, 'slots' => array() ) === ( $store['delivery_date'] ?? null ), $store );
 // 131 The card message also carries the owner's beginnings and whether the recipient and "Send anonymously" are asked (off here).
 check( 'gift message settings', array( 'enabled' => true, 'max_length' => 100, 'starters' => array(), 'recipient' => false, 'anonymous' => false ) === ( $store['gift_message'] ?? null ), $store );
 check( '131 a standard checkout and no titles of the owner\'s', 'standard' === ( $store['checkout_mode'] ?? null ) && array( 'addons' => null, 'gift_card' => null, 'delivery' => null ) === ( $store['titles'] ?? null ), $store );

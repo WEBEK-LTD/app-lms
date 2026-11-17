@@ -15023,6 +15023,7 @@ components:
               description: Weekdays without deliveries, 0 = Sunday.
               items: { type: integer, minimum: 0, maximum: 6 }
             timezone: { type: [string, 'null'], description: "131 The shop's IANA time zone; the days, the cut-off and the slots count in it. Missing: the site's.", example: Europe/Istanbul }
+            utc_offset_minutes: { type: [integer, 'null'], minimum: -720, maximum: 840, description: "The shop's offset from UTC when this config was served, in minutes: the app counts today and `same_day_cutoff` in the shop's time with it, wherever the phone is. Missing: the phone's own time.", example: 180 }
             same_day_cutoff: { type: [string, 'null'], pattern: '^([01][0-9]|2[0-3]):[0-5][0-9]$', description: "131 With `min_days` 0: orders for today until then; null for all day.", example: '14:00' }
             slots:
               type: array

@@ -291,7 +291,8 @@ class DeliveryPicker extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final l10n = context.l10n;
     final p = context.palette;
-    final at = now?.call() ?? DateTime.now();
+    // The shop's time, wherever the phone is.
+    final at = now?.call() ?? rules.shopNow(DateTime.now());
     final today = DateTime(at.year, at.month, at.day);
     final tomorrow = DateTime(today.year, today.month, today.day + 1);
     final todayOpen = rules.todayOpen(at);

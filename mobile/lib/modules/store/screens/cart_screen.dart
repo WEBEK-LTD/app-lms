@@ -163,7 +163,8 @@ class _CartScreenState extends ConsumerState<CartScreen> {
   /// The delivery date as before 131, for a shop with no slots and no
   /// same-day cut-off (its app looks as it did).
   Future<void> _pickDate(DeliveryDateRules rules) async {
-    final today = DateTime.now();
+    // The shop's today, wherever the phone is.
+    final today = rules.shopNow(DateTime.now());
     final first = rules.firstDay(today);
     if (first == null) {
       showMessage(context, context.l10n.noDeliveryDays);
