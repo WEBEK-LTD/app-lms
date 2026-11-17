@@ -20,6 +20,7 @@ export function RideSettingsForm({
   driverFirebaseIos,
   driverIconUrl,
   before,
+  yallappFirebase = false,
 }: {
   values: Record<string, string>;
   /** 135.1 Any ISO 4217 currency now: the picker lists them all. */
@@ -34,6 +35,8 @@ export function RideSettingsForm({
   driverIconUrl: string | null;
   /** 112.3 The drivers worked in the riders' app until now. */
   before: boolean;
+  /** 136 In Yallapp's Firebase: the drivers' iPhone file is Yallapp's, none to upload. */
+  yallappFirebase?: boolean;
 }) {
   const t = useDashT();
   const [state, action] = useActionState(saveRideSettingsAction, initialFormState);
@@ -143,7 +146,7 @@ export function RideSettingsForm({
           before={before ? t("rides.driverAppBefore", { name: value("driverAppName") || driverAppNameDefault }) : null}
           name={{ field: "driverAppName", label: t("rides.driverAppName"), hint: t("rides.driverAppNameHint", { name: driverAppNameDefault }), value: value("driverAppName"), placeholder: driverAppNameDefault }}
           icon={{ field: "driverIcon", label: t("rides.driverIcon"), hint: t("rides.driverIconHint"), saved: t("rides.driverIconSaved"), remove: t("rides.driverIconRemove"), url: driverIconUrl }}
-          plist={{ field: "driverFirebaseIos", label: t("rides.driverFirebaseIos"), hint: t(driverFirebaseIos ? "rides.driverFirebaseIosSaved" : "rides.driverFirebaseIosHint") }}
+          plist={yallappFirebase ? null : { field: "driverFirebaseIos", label: t("rides.driverFirebaseIos"), hint: t(driverFirebaseIos ? "rides.driverFirebaseIosSaved" : "rides.driverFirebaseIosHint") }}
           errors={state.errors}
         />
       </TabPanel>

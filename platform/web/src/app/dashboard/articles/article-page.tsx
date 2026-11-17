@@ -11,6 +11,7 @@ import type { ArticleStatus } from "@/lib/data/types";
 import { ARTICLE_AUTHOR_MAX, ARTICLE_BODY_MAX, ARTICLE_EXCERPT_MAX, ARTICLE_IMAGE_MAX_BYTES, ARTICLE_TITLE_MAX } from "@/lib/news/forms";
 import { ArticleForm, type ArticleFormValues } from "./forms";
 import { dashboardText, type DashboardText } from "@/lib/dashboard-lang";
+import { pushConfigured } from "@/lib/hosted/notify";
 
 export function ArticleStatusBadge({ status, t }: { status: ArticleStatus; t: DashboardText["t"] }) {
   return status === "published" ? <Badge tone="success">{t("articles.publishedFilter")}</Badge> : <Badge tone="neutral">{t("articles.draft")}</Badge>;
@@ -35,7 +36,8 @@ export async function ArticlePage({ id, breaking }: { id: number | null; breakin
         published: article.status === "published",
       }
     : { id: null, title: "", excerpt: "", author: "", body: "", categoryIds: [], image: null, published: false };
-  const push = app.firebaseServiceAccountEncrypted !== null;
+  // 136 Its own service account, or Yallapp's Firebase.
+  const push = pushConfigured(app);
   const { t, k } = await dashboardText();
   const header = <PageHeader back={{ href: "/dashboard/articles", label: t("articles.title") }} title={article ? article.title : t("articles.newArticle")} />;
   const form = (

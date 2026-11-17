@@ -424,6 +424,108 @@ export interface AppAuthKey {
   retiredAt: Date | null;
 }
 
+/**
+ * 136 A key pair the platform signs with as its own OpenID Connect issuer
+ * (`<APP_URL>/oidc`): ES256, the private key (PKCS#8) encrypted with the
+ * context `platform-signing-key:<purpose>` and dropped when the key is
+ * retired; the public key stays published two days after that
+ * (`platform_signing_keys`, lib/google/platform-keys.ts).
+ */
+export type PlatformKeyPurpose = "gcp-wif";
+
+export interface PlatformSigningKey {
+  /** The key's JWK thumbprint (RFC 7638), sent as `kid`. */
+  kid: string;
+  purpose: PlatformKeyPurpose;
+  alg: "ES256";
+  publicJwk: { kty: string; crv: string; x: string; y: string };
+  privateKeyEncrypted: string | null;
+  createdAt: Date;
+  retiredAt: Date | null;
+}
+
+/** 136 Where the platform creates the pool's next Firebase projects (`organizations/<id>` or `folders/<id>`), set in Admin over GOOGLE_FIREBASE_PROJECT_PARENT. */
+export interface FirebasePoolSetting {
+  parent: string | null;
+}
+
+export interface PlatformSettingValues {
+  firebasePool: FirebasePoolSetting;
+}
+
+/** 136 Who sets up an app's push notifications: Yallapp, in its own Firebase projects; null (or missing) is the client's own Firebase, as before. */
+export type PushSetup = "yallapp";
+
+/**
+ * 136 A Firebase project of Yallapp's pool: `open` takes new apps, `full` and
+ * `closed` don't; `creating` is one the platform is making itself, step by
+ * step (Admin › Settings › Yallapp Firebase projects).
+ */
+export type FirebaseProjectStatus = "creating" | "open" | "full" | "closed";
+
+/** 136 The steps of a project the platform creates, in order (lib/firebase/projects.ts). */
+export type FirebaseProjectStep = "create" | "services" | "firebase" | "key" | "roles";
+
+export interface FirebaseProjectCreation {
+  step: FirebaseProjectStep;
+  /** The long-running operation of the step, while it runs. */
+  operation: string | null;
+  /** Failed tries of the step so far. */
+  attempts: number;
+  /** The last failure, in Google's own words; null while it goes well. */
+  problem: string | null;
+  failedAt: string | null;
+  /** When the next try may start (ISO); null: at the next run. */
+  nextTryAt: string | null;
+}
+
+export interface FirebaseProject {
+  /** The Google Cloud project ID, like `yallapp-push-01`. */
+  projectId: string;
+  /** The project number, as a string of digits; empty until a project the platform creates has one. */
+  projectNumber: string;
+  /** The `uid` of the project's API key restricted to push, passed when an app is added; empty until made. */
+  apiKeyId: string;
+  /** Who added it: the team in Admin, or the platform when the pool ran low. */
+  createdBy: "team" | "platform";
+  /** Where the platform is in creating it; null for a project that is ready, or one the team added. */
+  creation: FirebaseProjectCreation | null;
+  /** How many Firebase apps it takes (Firebase's limit is 30). */
+  maxApps: number;
+  status: FirebaseProjectStatus;
+  /** The last "Check": when, and what was wrong (null: it passed). */
+  checkedAt: Date | null;
+  checkProblem: string | null;
+  createdAt: Date;
+  updatedAt: Date;
+}
+
+/** 136 Which of a client's apps a Firebase app is: the customers' app or the second app of its bundle. */
+export type FirebaseAppVariant = "customer" | "courier" | "driver" | "vendor" | "staff";
+export type FirebaseAppPlatform = "android" | "ios";
+export type FirebaseAppStatus = "pending" | "ready" | "failed" | "removing";
+
+/** 136 One of an app's apps registered in a Yallapp Firebase project (`app_firebase_apps`). */
+export interface AppFirebaseApp {
+  appId: string;
+  variant: FirebaseAppVariant;
+  platform: FirebaseAppPlatform;
+  firebaseProjectId: string;
+  /** The Android package name or the iOS bundle ID it was registered with. */
+  identifier: string;
+  /** Firebase's app ID (`1:123:android:abc`), once created. */
+  firebaseAppId: string | null;
+  /** The long-running operation creating it, while it runs. */
+  operation: string | null;
+  status: FirebaseAppStatus;
+  /** Why the last try failed, for the team. */
+  error: string | null;
+  /** Phase 2: when the team added the client's APNs key to it in the Firebase console. */
+  apnsConfiguredAt: Date | null;
+  createdAt: Date;
+  updatedAt: Date;
+}
+
 /** The owner's WABEK account: the API key encrypted (context `app-whatsapp:<app id>`), never shown again. */
 export interface AppWhatsappSender {
   apiKeyEncrypted: string;
@@ -524,6 +626,14 @@ export interface App {
   hostedSettings: HostedSettings | null;
   /** Encrypted Firebase service account JSON, for push from the hosted API. Never leaves the server. */
   firebaseServiceAccountEncrypted: string | null;
+  /**
+   * 136 "Yallapp sets up notifications": the app's Android and iOS apps are
+   * registered in one of Yallapp's Firebase projects (`firebaseProjectId`),
+   * their files saved in the fields above, and pushes sent without a key
+   * (lib/firebase). Null or missing: the client's own Firebase, as before.
+   */
+  pushSetup?: PushSetup | null;
+  firebaseProjectId?: string | null;
   /** Shop settings when the products are managed in the dashboard (connector "catalog"). */
   catalogSettings: CatalogSettings | null;
   /** 77 The chat's settings; null: on (when the plan has chat), without course groups. */
@@ -6083,7 +6193,7 @@ export interface JobRun {
   error: string | null;
 }
 
-export type TeamAlertKind = "build_waiting" | "build_stalled" | "job_missing" | "job_failed" | "crash_spike" | "push_failed" | "health" | "integration" | "mail_slow";
+export type TeamAlertKind = "build_waiting" | "build_stalled" | "job_missing" | "job_failed" | "crash_spike" | "push_failed" | "health" | "integration" | "mail_slow" | "firebase";
 
 /**
  * 78.3 Something the team should look at (lib/watch), in the admin's bell

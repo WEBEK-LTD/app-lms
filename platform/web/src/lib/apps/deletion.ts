@@ -7,6 +7,8 @@ import type { MediaStorage } from "../media/storage";
 import { deleteAppMedia } from "../media/sweep";
 import { hitRateLimit, RATE_LIMITS } from "../rate-limit";
 import type { BuildFolderRemover } from "./build-files";
+import { removeAppFirebase } from "../firebase/register";
+import type { FirebaseManagement } from "../google/firebase-management";
 
 /**
  * 73 Deleting an app (roadmap 60.13). The owner deletes an app from the
@@ -17,8 +19,8 @@ import type { BuildFolderRemover } from "./build-files";
  * Owner API and the admin's lists no longer show it, its builds don't run
  * and its notifications aren't sent. Our team can restore it from Admin ›
  * Deleted apps for `APP_RESTORE_DAYS`; then the daily job (or "Delete now")
- * purges it: its Media files on the media server, its build folders on the
- * files host, the images only it used in Netlify Blobs, and its rows (on
+ * purges it: its apps in Yallapp's Firebase (136), its Media files on the
+ * media server, its build folders on the files host, the images only it used in Netlify Blobs, and its rows (on
  * delete cascade). Plan payments stay, without their app, for billing.
  * Messages are English sentences, translated in the dashboard by the `apps`
  * catalog's `known` texts.
@@ -110,6 +112,8 @@ export interface PurgeDeps {
   blobs: Pick<BlobStore, "delete">;
   /** Removes a build's folder from the files host; null when the host isn't set up (FILES_SIGNING_SECRET). */
   removeBuildFolder: BuildFolderRemover | null;
+  /** 136 Yallapp's Firebase, to remove the app's apps from its projects; null or missing when it isn't set up here. */
+  firebase?: FirebaseManagement | null;
 }
 
 /**
@@ -122,6 +126,11 @@ export interface PurgeDeps {
  */
 export async function purgeAppFiles(deps: PurgeDeps, app: App): Promise<{ pendingBuilds: string[] }> {
   const { store } = deps;
+  // 136 Its apps leave Yallapp's Firebase first, freeing their places; one Firebase won't remove stops the purge for the next try.
+  if ((await store.listAppFirebaseApps(app.id)).length > 0) {
+    if (deps.firebase) await removeAppFirebase({ store, management: deps.firebase }, app.id);
+    else console.error(`[apps] ${app.id} has apps in Yallapp's Firebase, which isn't set up here: they stay in its projects.`);
+  }
   await deleteAppMedia({ store, storage: deps.media }, app.id);
 
   const pendingBuilds: string[] = [];

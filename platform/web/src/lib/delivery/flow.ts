@@ -1,7 +1,7 @@
 import type { DataStore } from "../data/store";
 import type { App, Courier, DeliverySettings, Shipment, ShipmentStage, ShipmentStatus } from "../data/types";
 import { courierPushServiceAccountJson, encryptionKey } from "../env";
-import { serviceAccountOf } from "../hosted/notify";
+import { pushConfigured, serviceAccountOf } from "../hosted/notify";
 import { parseServiceAccount, type sendPush, type ServiceAccount } from "../hosted/push";
 import { tellCouriers, tellCustomer, type DeliveryNotifyDeps } from "./notify";
 import { followCourierJob } from "../food/sync";
@@ -35,7 +35,7 @@ export function notifyDeps(deps: FlowDeps): DeliveryNotifyDeps {
   let account = deps.account;
   if (account === undefined) {
     try {
-      account = deps.app.firebaseServiceAccountEncrypted ? serviceAccountOf(deps.app, encryptionKey()) : null;
+      account = pushConfigured(deps.app) ? serviceAccountOf(deps.app, encryptionKey()) : null;
     } catch {
       account = null;
     }

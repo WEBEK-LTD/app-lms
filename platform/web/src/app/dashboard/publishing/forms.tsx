@@ -23,15 +23,18 @@ export interface ChecklistStepView {
  * The "Publish it for me" checklist: one Done box per step, and who creates the Firebase project.
  * 132.140 Each step a row with its number (a tick once done); a done step's explanation folds behind one line.
  */
-export function ChecklistForm({ steps, firebaseBy }: { steps: ChecklistStepView[]; firebaseBy: "client" | "team" }) {
+export function ChecklistForm({ steps, firebaseBy, yallappFirebase = false }: { steps: ChecklistStepView[]; firebaseBy: "client" | "team"; yallappFirebase?: boolean }) {
   const t = useDashT();
   const [state, action] = useActionState(savePublishingChecklistAction, initialFormState);
   return (
     <form action={action} className="flex flex-col gap-4">
+      {/* 136 Yallapp's Firebase: the step is Yallapp's, with nothing to choose; the saved choice stays as it was. */}
+      {yallappFirebase ? <input type="hidden" name="firebaseBy" value={firebaseBy} /> : null}
       <ol className="m-0 flex list-none flex-col p-0">
         {steps.map((step, i) => {
-          const firebase = step.id === "firebase";
-          const byTeam = firebase && firebaseBy === "team";
+          const yallapp = yallappFirebase && step.id === "firebase";
+          const firebase = step.id === "firebase" && !yallapp;
+          const byTeam = yallapp || (firebase && firebaseBy === "team");
           const body = (
             <>
               {firebase ? (
@@ -47,7 +50,7 @@ export function ChecklistForm({ steps, firebaseBy }: { steps: ChecklistStepView[
                   </label>
                 </fieldset>
               ) : null}
-              <p className="m-0 text-sm leading-relaxed text-(--sp-muted)">{byTeam ? t("publishing.firebaseTeam") : step.text}</p>
+              <p className="m-0 text-sm leading-relaxed text-(--sp-muted)">{yallapp ? t("publishing.firebaseYallapp") : byTeam ? t("publishing.firebaseTeam") : step.text}</p>
               {!byTeam && step.links.length ? (
                 <ul className="m-0 flex list-none flex-wrap gap-x-5 gap-y-1.5 p-0 text-sm">
                   {step.links.map((link) => (
