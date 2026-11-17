@@ -147,7 +147,7 @@ export function StudioPlans({ lang, plans, view, contact }: { lang: Lang; plans:
       <div className="grid gap-5 [grid-template-columns:repeat(auto-fit,minmax(min(320px,100%),1fr))]">
         <div className="flex flex-col gap-3 rounded-2xl border border-line bg-white p-6">
           <h3 className="m-0 text-lg font-bold">{m.everyPlan}</h3>
-          <CheckList items={[m.base1, m.base2, m.base3, m.base4, m.base5, m.base6]} />
+          <CheckList items={[m.base1, m.base2, m.base3, m.base4, m.base5, m.base6, m.base7, m.base8]} />
         </div>
         <div className="flex flex-col gap-3 rounded-2xl border border-line bg-white p-6">
           <h3 className="m-0 text-lg font-bold">{m.byPlan}</h3>

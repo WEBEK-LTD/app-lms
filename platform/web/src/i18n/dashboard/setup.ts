@@ -232,16 +232,9 @@ export const en = {
   publishMyselfText: "Add your store keys and we upload every build you start to your own store accounts.",
   teamNotice: "You asked us to publish your app, so nothing here is required: our team works through the invitations on the <link>Publishing</link> page.",
   publishing: "Publishing",
-  selfPublishApps:
-    "On the {plan} plan, you publish the apps under your own developer accounts on Google Play, the App Store, Samsung Galaxy Store, Huawei AppGallery and Xiaomi GetApps. You get the files, the Android upload key and the store assets on the Builds & downloads page, and our step-by-step guides take you through each store.",
-  selfPublishApp:
-    "On the {plan} plan, you publish the app under your own developer accounts on Google Play, Samsung Galaxy Store, Huawei AppGallery and Xiaomi GetApps. You get the files, the Android upload key and the store assets on the Builds & downloads page, and our step-by-step guides take you through each store.",
-  guidePlay: "Publish on Google Play",
-  guideAppStore: "Publish on the App Store",
   keyEncrypted: "The key is encrypted and never shown again. We use it only to sign the builds you start, and you can remove it at any time.",
   iosApp: "iOS app",
   iosUpgrade: "Your plan builds the Android app. Upgrade to get your app on the App Store too.",
-  managedUpgrade: "Our team publishes your app on the stores for you, under your own developer accounts, and uploads every update.",
   finish: "Finish setup",
   whoPublishes: "Who publishes your app",
   noKeys:
@@ -529,16 +522,9 @@ export const ar: Messages = {
   publishMyselfText: "ضيف مفاتيح متاجرك وهنرفع كل إصدار تبدأه على حسابات متاجرك.",
   teamNotice: "طلبت مننا ننشر تطبيقك، فمفيش حاجة مطلوبة هنا: فريقنا بيتابع الدعوات في صفحة <link>النشر</link>.",
   publishing: "النشر",
-  selfPublishApps:
-    "في باقة {plan}، بتنشر التطبيقين في حسابات المطوّر بتاعتك على Google Play وApp Store وSamsung Galaxy Store وHuawei AppGallery وXiaomi GetApps. هتلاقي الملفات ومفتاح رفع Android وملفات المتجر في صفحة الإصدارات والتنزيلات، وأدلتنا بتمشي معاك خطوة بخطوة في كل متجر.",
-  selfPublishApp:
-    "في باقة {plan}، بتنشر التطبيق في حسابات المطوّر بتاعتك على Google Play وSamsung Galaxy Store وHuawei AppGallery وXiaomi GetApps. هتلاقي الملفات ومفتاح رفع Android وملفات المتجر في صفحة الإصدارات والتنزيلات، وأدلتنا بتمشي معاك خطوة بخطوة في كل متجر.",
-  guidePlay: "النشر على Google Play",
-  guideAppStore: "النشر على App Store",
   keyEncrypted: "المفتاح متشفّر ومش هيتعرض تاني. بنستخدمه بس عشان نوقّع الإصدارات اللي بتبدأها، وتقدر تشيله في أي وقت.",
   iosApp: "تطبيق iOS",
   iosUpgrade: "باقتك بتبني تطبيق Android. رقّيها عشان تطبيقك يوصل لـ App Store كمان.",
-  managedUpgrade: "فريقنا بينشر تطبيقك على المتاجر بدالك، في حسابات المطوّر بتاعتك، ويرفع كل تحديث.",
   finish: "خلّص الإعداد",
   whoPublishes: "مين هينشر تطبيقك",
   noKeys: "مش محتاج مفاتيح المتاجر. بعد الخطوة دي، صفحة <link>النشر</link> هتوريك إزاي تعمل حسابات المطوّر وتعزم فريقنا. عمرنا ما هنطلب كلمات السر بتاعتك.",
@@ -824,16 +810,9 @@ export const tr: Messages = {
   publishMyselfText: "Mağaza anahtarlarınızı ekleyin; başlattığınız her derlemeyi kendi mağaza hesaplarınıza yükleriz.",
   teamNotice: "Uygulamanızı bizim yayınlamamızı istediniz, bu yüzden burada hiçbir şey zorunlu değil: ekibimiz davetleri <link>Yayınlama</link> sayfasında takip eder.",
   publishing: "Yayınlama",
-  selfPublishApps:
-    "{plan} paketinde uygulamaları Google Play, App Store, Samsung Galaxy Store, Huawei AppGallery ve Xiaomi GetApps'te kendi geliştirici hesaplarınız altında siz yayınlarsınız. Dosyaları, Android yükleme anahtarını ve mağaza dosyalarını Derlemeler ve indirmeler sayfasında alırsınız; adım adım rehberlerimiz her mağazada size yol gösterir.",
-  selfPublishApp:
-    "{plan} paketinde uygulamayı Google Play, Samsung Galaxy Store, Huawei AppGallery ve Xiaomi GetApps'te kendi geliştirici hesaplarınız altında siz yayınlarsınız. Dosyaları, Android yükleme anahtarını ve mağaza dosyalarını Derlemeler ve indirmeler sayfasında alırsınız; adım adım rehberlerimiz her mağazada size yol gösterir.",
-  guidePlay: "Google Play'de yayınlayın",
-  guideAppStore: "App Store'da yayınlayın",
   keyEncrypted: "Anahtar şifrelenir ve bir daha gösterilmez. Yalnızca başlattığınız derlemeleri imzalamak için kullanırız ve istediğiniz zaman kaldırabilirsiniz.",
   iosApp: "iOS uygulaması",
   iosUpgrade: "Paketiniz Android uygulamasını derler. Uygulamanızın App Store'da da olması için yükseltin.",
-  managedUpgrade: "Ekibimiz uygulamanızı kendi geliştirici hesaplarınız altında sizin için mağazalarda yayınlar ve her güncellemeyi yükler.",
   finish: "Kurulumu bitir",
   whoPublishes: "Uygulamanızı kim yayınlıyor",
   noKeys: "Mağaza anahtarı gerekmez. Bu adımdan sonra <link>Yayınlama</link> sayfası, geliştirici hesaplarınızı nasıl oluşturacağınızı ve ekibimizi nasıl davet edeceğinizi gösterir. Şifrelerinizi asla istemeyiz.",

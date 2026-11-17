@@ -61,8 +61,9 @@ function comparisonRowsFor(lang: Lang, plans: Record<Plan, PlanInfo>, shown: Pla
     { label: m.rowLoyalty, values: has("loyalty") },
     // 100.6 Courses and memberships bought in the app through the stores.
     { label: m.rowInAppPurchases, values: has("store_billing") },
-    { label: m.rowPublishing, values: each((p) => (hasFeature(p, "auto_publish") ? words.weePublish : words.youPublish)) },
-    { label: m.rowStoreUpdates, values: has("auto_publish") },
+    // 138 Every plan: we publish on Google Play and the App Store; the other Android stores update by themselves once connected.
+    { label: m.rowPublishing, values: each(() => words.weePublish) },
+    { label: m.rowMoreStoresAuto, values: each(() => true) },
     { label: m.rowTeam, values: each((p) => limit(p.limits.teamMembers, m.unlimited)) },
     { label: m.rowManager, values: each((p) => p.limits.accountManager) },
     { label: m.rowCustom, values: each((p) => p.limits.customFeatures) },

@@ -155,6 +155,9 @@ export const ar: Messages = {
     stores: "متاجر التطبيقات في باقة {plan}",
     storesLine: "{count, plural, =4{4 متاجر} =5{5 متاجر} other{{count} متجرًا}} · {who}",
     weePublish: "ننشر نيابةً عنك",
+    /** 138 Every plan: we publish on Google Play and the App Store (Google Play only without the iOS app). */
+    weePublishPlayApple: "ننشر نيابةً عنك على Google Play وApp Store",
+    weePublishPlay: "ننشر نيابةً عنك على Google Play",
     youPublish: "تنشر بنفسك بإرشاداتنا",
     choose: "اختر {plan}",
     startWith: "ابدأ بباقة {plan}",
@@ -223,7 +226,7 @@ export const ar: Messages = {
     rowLoyalty: "نقاط الولاء",
     rowInAppPurchases: "الشراء داخل التطبيق (Google Play وApp Store)",
     rowPublishing: "النشر",
-    rowStoreUpdates: "تحديثات المتاجر تلقائيًا",
+    rowMoreStoresAuto: "تحديثات تلقائية على Samsung Galaxy Store وXiaomi GetApps وHuawei AppGallery بحسابك الخاص",
     rowTeam: "أعضاء الفريق",
     rowManager: "مدير حساب مخصّص",
     rowCustom: "مزايا مخصّصة عند الطلب",
@@ -243,7 +246,7 @@ export const ar: Messages = {
     changing:
       "<b>تغيير الباقة:</b> يمكنك الترقية من لوحة التحكم في أي وقت والدفع بالبطاقة، وتُحتسب الأيام المتبقية من باقتك الحالية لصالح الباقة الجديدة. أما الانتقال إلى باقة أقل فيبدأ عند انتهاء فترتك الحالية.",
     stores:
-      "<b>متاجر التطبيقات:</b> كل باقة تبني تطبيق Android لمتاجر Google Play وSamsung Galaxy Store وHuawei AppGallery وXiaomi GetApps، ويأتي تطبيق iOS لمتجر App Store مع باقة Growth وما فوقها. وفي باقتي Pro وBusiness نرفع كل إصدار إلى كل متجر تستخدمه.",
+      "<b>متاجر التطبيقات:</b> كل باقة تبني تطبيق Android لمتاجر Google Play وSamsung Galaxy Store وHuawei AppGallery وXiaomi GetApps، ويأتي تطبيق iOS لمتجر App Store مع باقة Growth وما فوقها. وفي كل باقة ننشر تطبيقك وكل تحديث له على Google Play وApp Store نيابةً عنك؛ أما Galaxy Store وAppGallery وGetApps فتنشر عليها بنفسك بإرشاداتنا، أو تضيف مفاتيحك فيُرفع إليها كل إصدار تلقائيًا.",
     fees:
       "يفرض Google Play وApp Store رسومًا خاصة بحسابات المطوّرين تُدفع مباشرةً إلى Google وApple، أما حسابات Samsung وHuawei وXiaomi فمجانية. يمكنك الإلغاء خلال 3 أيام من تفعيل حسابك واسترداد المبلغ كاملًا. اطّلع على <link>سياسة الاسترداد</link>.",
   },
@@ -376,7 +379,7 @@ export const ar: Messages = {
     rowAccountRegular: "تطبيقاتك في لوحة التحكم",
     rowAccountStudio: "مشاريعك منفصلة في Studio، لكلٍّ منها لوحة تحكم خاصة",
     rowPublish: "النشر",
-    rowPublishBoth: "بحسابات المتاجر الخاصة بك، أو ننشر لك في الباقات التي تتضمّن ذلك",
+    rowPublishBoth: "بحسابات المتاجر الخاصة بك: ننشر لك على Google Play وApp Store في كل باقة",
     plansTitle: "باقات Studio الخاصة",
     plansText: "لمشاريع Studio باقات خاصة بها، منفصلة عن الباقات العادية. وكل باقة من باقات Studio توضّح ما تتضمّنه.",
     plansOnRequest: "تُرتَّب باقات Studio حاليًا عند الطلب. <link>راسلنا عبر WhatsApp</link> وسنقترح عليك الباقة المناسبة لمشروعك.",
@@ -387,6 +390,8 @@ export const ar: Messages = {
     base4: "التنزيل للمشاهدة دون اتصال وإعادة البناء التلقائية",
     base5: "المحادثة مع عملائك ونقاط الولاء",
     base6: "بيع الدورات والعضويات عبر متاجر التطبيقات",
+    base7: "ننشر نيابةً عنك على Google Play وApp Store",
+    base8: "تحديثات تلقائية على Samsung Galaxy Store وXiaomi GetApps وHuawei AppGallery بحسابك الخاص",
     byPlan: "تُختار حسب كل باقة",
     choiceIos: "تطبيق iOS",
     choicePublish: "ننشر لك",

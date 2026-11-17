@@ -1,5 +1,5 @@
 import { isLifetimeEnd } from "../billing/periods";
-import { hasFeature, pagesLimitOf, planFamily, planOffered, planRank, plansInOrder, plansOfFamily, type Plan, type PlanFamily, type PlanInfo } from "../plans";
+import { hasFeature, isIncludedFeature, pagesLimitOf, planFamily, planOffered, planRank, plansInOrder, plansOfFamily, type Plan, type PlanFamily, type PlanInfo } from "../plans";
 import { addonBillings, topPlansOf } from "./catalog";
 import type { AddonDef, AddonsSetting, AppAddon } from "./types";
 
@@ -10,14 +10,23 @@ import type { AddonDef, AddonsSetting, AppAddon } from "./types";
 
 /**
  * The family's top plan: the team's choice (Admin › Add-ons), else the
- * first plan, lower to higher, that already includes "We publish for you"
- * (Pro for regular apps, as the plans come), else the highest offered plan.
+ * highest offered plan. (Before 138 it was the first plan with "We publish
+ * for you"; every plan has it now.)
  */
 export function topPlanOf(plans: Record<Plan, PlanInfo>, family: PlanFamily, setting: AddonsSetting | null | undefined): Plan | null {
   const chosen = topPlansOf(setting)?.[family];
   if (chosen && planFamily(chosen) === family) return chosen;
   const ordered = plansInOrder(plansOfFamily(family), plans).filter((id) => planOffered(plans[id]));
-  return ordered.find((id) => hasFeature(plans[id], "auto_publish")) ?? ordered.at(-1) ?? null;
+  return ordered.at(-1) ?? null;
+}
+
+/**
+ * 138 An add-on that switches on what every plan includes now (the
+ * publishing service, "We publish for you"): never offered, renewed or
+ * reminded of again. What apps bought keeps its records.
+ */
+export function addonRetired(addon: Pick<AddonDef, "kind" | "feature"> | Pick<AppAddon, "kind" | "feature">): boolean {
+  return addon.kind !== "quantity" && Boolean(addon.feature) && isIncludedFeature(addon.feature!);
 }
 
 /** Whether a plan is below its family's top plan. */
@@ -31,8 +40,9 @@ export function addonRunning(addon: Pick<AppAddon, "status" | "activeUntil">, no
   return addon.status === "active" && (addon.activeUntil === null || addon.activeUntil.getTime() > now.getTime());
 }
 
-/** Whether an add-on that ends can still be renewed: every one with a period, until it is cancelled (an ended one starts again from today). */
-export function addonRenewable(addon: Pick<AppAddon, "status" | "activeUntil" | "billing">): boolean {
+/** Whether an add-on that ends can still be renewed: every one with a period, until it is cancelled (an ended one starts again from today); 138 never a retired one. */
+export function addonRenewable(addon: Pick<AppAddon, "status" | "activeUntil" | "billing" | "kind" | "feature">): boolean {
+  if (addonRetired(addon)) return false;
   return addon.status === "active" && addon.activeUntil !== null && !isLifetimeEnd(addon.activeUntil) && addon.billing !== "once" && addon.billing !== "lifetime";
 }
 
@@ -60,6 +70,8 @@ export function addonRefusal(
   addon: AddonDef,
   input: { plans: Record<Plan, PlanInfo>; plan: PlanInfo | null; family: PlanFamily; owned: AppAddon[]; setting: AddonsSetting | null | undefined; now: Date },
 ): AddonRefusal | null {
+  // 138 What every plan includes is never sold.
+  if (addonRetired(addon)) return "included";
   if (!addon.active || !addonBillings(addon).length) return "not_offered";
   if (addon.rule.family !== "both" && addon.rule.family !== input.family) return "family";
   if (!input.plan) return "no_plan";

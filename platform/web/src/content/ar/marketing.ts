@@ -1201,7 +1201,7 @@ export const AR_MARKETING: MarketingTranslation = {
           details: [
             "ملف APK للتثبيت على هاتف وتجربته، ولمتاجر Galaxy Store وAppGallery وGetApps",
             "ملف App Bundle (AAB) لمتجر Google Play",
-            "إصدار iOS (من باقة Growth فما فوق)، يُرفع إلى TestFlight في باقتي Pro وBusiness",
+            "إصدار iOS (من باقة Growth فما فوق)، يُرفع إلى TestFlight ويُرسل إلى مراجعة App Store نيابةً عنك",
             "أيقونة المتجر والصورة الترويجية ولقطات شاشتك ونص صفحة المتجر",
           ],
         },
@@ -1356,7 +1356,7 @@ export const AR_MARKETING: MarketingTranslation = {
       title: "ابنِ وانشر",
       short: "نزّل تطبيقاتك، أو ننشرها لك.",
       text: "تُبنى تطبيقاتك بمجرد اكتمال الإعداد. نزّلها وانشرها بمساعدة شروحاتنا، أو دعنا ننشرها لك.",
-      details: ["Starter وGrowth: نزّل ملفاتك واتبع الشروحات خطوة بخطوة", `Pro وBusiness: ننشر كل إصدار جديد على ${STORES}`],
+      details: ["في كل باقة: ننشر كل إصدار جديد على Google Play وApp Store نيابةً عنك", "Samsung Galaxy Store وHuawei AppGallery وXiaomi GetApps: اربط حسابك مرة واحدة فيصل إليها كل إصدار جديد تلقائيًا، أو نزّل ملفاتك واتبع الشروحات خطوة بخطوة"],
     },
   ],
   requirements: [
@@ -1481,7 +1481,7 @@ export const AR_MARKETING: MarketingTranslation = {
         },
         {
           q: "من ينشر التطبيقات؟",
-          a: `في باقتي Starter وGrowth تنزّل الملفات وتنشرها بمساعدة شروحاتنا خطوة بخطوة. وفي باقتي Pro وBusiness ننشر نحن تطبيقك وكل إصدار جديد منه على ${STORES}.`,
+          a: "في كل باقة ننشر نحن تطبيقك وكل إصدار جديد منه على Google Play وApp Store نيابةً عنك، في حسابات المطوّر الخاصة بك. أما Samsung Galaxy Store وHuawei AppGallery وXiaomi GetApps فتنشر عليها بنفسك: اربط حسابك مرة واحدة فيصل إليها كل إصدار جديد تلقائيًا، أو نزّل الملفات واتبع شروحاتنا خطوة بخطوة.",
         },
         {
           q: "هل ستقبل Apple تطبيقي؟",
@@ -1800,10 +1800,11 @@ export const AR_MARKETING: MarketingTranslation = {
   },
   plans: {
     starter: {
-      tagline: "تطبيق Android تنشره بنفسك بمساعدة شروحاتنا",
+      tagline: "تطبيق Android ننشره نيابةً عنك على Google Play",
       highlights: [
         "تطبيق Android ‏(APK وAAB)",
         "لمتاجر Google Play وGalaxy Store وAppGallery وGetApps",
+        "ننشر على Google Play نيابةً عنك",
         "منصة متصلة واحدة",
         "حتى 1,000 مستخدم للتطبيق",
         "لغة واحدة للتطبيق",
@@ -1817,6 +1818,7 @@ export const AR_MARKETING: MarketingTranslation = {
       tagline: "تطبيقات Android وiOS تنمو معك",
       highlights: [
         "تطبيقات Android وiOS",
+        "ننشر على Google Play وApp Store نيابةً عنك",
         "حتى 10,000 مستخدم للتطبيق",
         "3 لغات للتطبيق",
         "محرّر صفحات كامل",
@@ -1828,7 +1830,7 @@ export const AR_MARKETING: MarketingTranslation = {
     },
     pro: {
       tagline: "ننشر تطبيقاتك نيابةً عنك",
-      highlights: ["كل ما في Growth", "عدد غير محدود من المستخدمين", "جميع لغات التطبيق", "ننشر على متاجر التطبيقات الخمسة", "تحديثات المتاجر تلقائيًا", "الدردشة مع عملائك داخل التطبيق", "دعم بأولوية"],
+      highlights: ["كل ما في Growth", "عدد غير محدود من المستخدمين", "جميع لغات التطبيق", "تحديثات المتاجر تلقائيًا", "الدردشة مع عملائك داخل التطبيق", "دعم بأولوية"],
     },
     business: {
       tagline: "شريك لتطبيقك",

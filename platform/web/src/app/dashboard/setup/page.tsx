@@ -14,7 +14,7 @@ import { twoAppsOf } from "@/lib/delivery/two-apps";
 import { StaffAppChoice } from "@/components/staff-app";
 import { hasStaffApp, staffAppKindOf, staffAppNameOf, staffAppOnPlan, staffAppPlaceOf, staffBundleIdOf, staffPackageOf } from "@/lib/school/staff-app";
 import { dashboardText } from "@/lib/dashboard-lang";
-import { SETUP_STEPS, STEP_LABEL, hasStoreKeys, isSetupStep, managedPublishing, nextStep, stepStatus, type SetupStep } from "@/lib/app/setup";
+import { SETUP_STEPS, STEP_LABEL, hasStoreKeys, isSetupStep, nextStep, stepStatus, type SetupStep } from "@/lib/app/setup";
 import { currentPlanId } from "@/lib/billing/plan-change";
 import { effectivePlans } from "@/lib/entitlements";
 import { appLabel, licensePageName } from "@/lib/app/label";
@@ -326,12 +326,9 @@ export default async function SetupPage({ searchParams }: PageProps<"/dashboard/
       ) : null}
       {step === "publishing" ? (
         <PublishingStep
-          autoPublish={managedPublishing(plan, effective)}
           ios={hasFeature(current, "ios")}
-          planName={current?.name ?? (plan ? k(planName(plan, plans)) : t("overview.noPlan"))}
           upgrade={{
             // 111 A Studio project's plans are Studio's.
-            managed: lowestPlanWith(effective, (p) => hasFeature(p, "auto_publish"), plan, studio ? "studio" : "regular"),
             ios: lowestPlanWith(effective, (p) => hasFeature(p, "ios"), plan, studio ? "studio" : "regular"),
           }}
           teamPublishes={app.publishingMode === "managed"}

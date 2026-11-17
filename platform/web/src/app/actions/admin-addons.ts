@@ -9,10 +9,11 @@ import { getStore } from "@/lib/data";
 import { parsePrice } from "@/lib/catalog/money";
 import type { FormState } from "@/lib/forms";
 import { ICON_NAMES } from "@/components/icon-names";
-import { isPlan, PLAN_FEATURE_IDS, planFamily, type Plan, type PlanFeature } from "@/lib/plans";
+import { isIncludedFeature, isPlan, PLAN_FEATURE_IDS, planFamily, type Plan, type PlanFeature } from "@/lib/plans";
 import { clearPlatformSettingsCache, platformSetting } from "@/lib/settings/platform";
 import { ADDON_ID, addonById, addonsOf, isAddonBilling, isAddonLimit, isBuiltInAddon, topPlansOf } from "@/lib/addons/catalog";
 import { grantAddon } from "@/lib/addons/payment";
+import { addonRetired } from "@/lib/addons/rules";
 import { notifyAddonTask } from "@/lib/addons/notify";
 import { ADDON_BILLINGS, ADDON_KINDS, ADDON_TASK_STATUSES, type AddonDef, type AddonKind, type AddonPrice, type AddonsSetting, type AddonTaskStatus } from "@/lib/addons/types";
 import { refreshSitesSoon } from "@/lib/license/refresh-soon";
@@ -65,6 +66,8 @@ export async function saveAddonAction(_: FormState, formData: FormData): Promise
   const feature = values.feature ? ((PLAN_FEATURE_IDS as readonly string[]).includes(values.feature) ? (values.feature as PlanFeature) : undefined) : undefined;
   if (values.feature && !feature) errors.feature = "Choose a feature.";
   if (kind === "feature" && !feature) errors.feature = "Choose the feature it switches on.";
+  // 138 What every plan includes ("We publish for you") is never sold.
+  if (feature && isIncludedFeature(feature)) errors.feature = "Every plan includes this feature now, so an add-on can't switch it on.";
   const amount = Number(values.amount.replace(/,/g, ""));
   if (kind === "quantity") {
     if (!isAddonLimit(values.limit)) errors.limit = "Choose the limit it adds to.";
@@ -127,7 +130,7 @@ export async function deleteAddonAction(formData: FormData): Promise<void> {
   redirect("/admin/addons?removed=1");
 }
 
-/** The top plan of each family: add-ons "only below the top plan" are offered to apps on lower plans. Empty: the default (the first with "We publish for you"). */
+/** The top plan of each family: add-ons "only below the top plan" are offered to apps on lower plans. Empty: the default (138 the highest offered plan). */
 export async function saveTopPlansAction(_: FormState, formData: FormData): Promise<FormState> {
   const admin = await requireAdmin("addons.edit");
   const current = await setting();
@@ -180,7 +183,8 @@ export async function grantAddonAction(formData: FormData): Promise<void> {
   const client = await store.getClientById(clientId);
   const app = await store.getAppById(appId);
   const addon = addonById((await platformSetting(store, "addons", { fresh: true }))?.value, str(formData, "addon"));
-  if (!client || !app || app.clientId !== client.id || !addon || !isAddonBilling(billing)) redirect(`${back}?addon=invalid#addons`);
+  // 138 Never what every plan includes now (publishing).
+  if (!client || !app || app.clientId !== client.id || !addon || addonRetired(addon) || !isAddonBilling(billing)) redirect(`${back}?addon=invalid#addons`);
   const given = await grantAddon(store, { client, app, addon, billing, admin: admin.email, now: new Date() });
   await recordAudit({ actor: admin, action: "addon.grant", target: { type: "app", id: app.id }, clientId: client.id, summary: `Gave ${addon.en.name} (${billing === "once" ? "one-time" : billing === "lifetime" ? "lifetime" : `${billing} months`}) with no charge`, before: null, after: given });
   await notifyAddonTask(store, client, app, given);

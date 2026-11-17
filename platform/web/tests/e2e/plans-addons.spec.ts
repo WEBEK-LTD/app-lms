@@ -271,15 +271,10 @@ test("the team defines the add-on +10 pages; the client buys it and the app's pa
   await expect(form.getByText("+10 pages saved and offered to the clients its rules allow.")).toBeVisible();
   await admin.goto("/admin/addons");
   await expect(admin.locator('[data-addon-row="pages-10"]')).toContainText("+10 · Pages");
-  // The publishing service comes with Yallapp at suggested prices, not offered until the owner switches it on.
-  await expect(admin.locator('[data-addon-row="publishing"]')).toContainText(/1 month: EGP\s500 · 1 year: EGP\s5,000 · Lifetime: EGP\s12,500 \(suggested prices\)/);
-  await expect(admin.locator('[data-addon-row="publishing"]')).toContainText("below the top plan");
-  await admin.goto("/admin/addons?addon=publishing");
-  const publishing = admin.getByRole("form", { name: "Add-on We publish your app to the stores for you" });
-  await expect(publishing.locator("[data-addon-suggested]")).toHaveCount(3);
-  await expect(publishing.getByLabel("EGP, 1 year", { exact: true })).toHaveValue("5000.00");
-  await expect(publishing.getByLabel("USD, lifetime (optional)", { exact: true })).toHaveValue("300.00");
-  await expect(publishing.getByLabel("Offered to clients")).not.toBeChecked();
+  // 138 Every plan includes publishing: the publishing service doesn't come with Yallapp any more, and no add-on can switch it on.
+  await expect(admin.locator('[data-addon-row="publishing"]')).toHaveCount(0);
+  await admin.goto("/admin/addons?addon=new");
+  await expect(admin.getByRole("form", { name: "New add-on" }).getByLabel("Also switches on (optional)").locator("option", { hasText: "We publish for you" })).toHaveCount(0);
 
   await own.goto("/dashboard/addons");
   const card = own.locator('[data-addon="pages-10"]');

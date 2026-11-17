@@ -15,7 +15,7 @@ import { checkAppUserNotices, daysLeft, reminderFor, remindLicense, runDailyNoti
 import { BUILT_IN_APP_DEFAULTS, defaultLayout } from "@/lib/pages/defaults";
 import { allowedSources, languagesForPlan, layoutForPlan, planLayoutErrors } from "@/lib/pages/plan";
 import type { Layout } from "@/lib/pages/types";
-import { comparisonRows, lowestPlanWith, PLAN_INFO, pageEditorLevel, planSettingOf, plansWith, type PlanInfo } from "@/lib/plans";
+import { comparisonRows, lowestPlanWith, PLAN_INFO, PLANS, pageEditorLevel, planSettingOf, plansWith, type PlanInfo } from "@/lib/plans";
 import { expectContract } from "./contract";
 import { days, KEY, NOW, setupClient } from "./helpers";
 
@@ -47,11 +47,13 @@ describe("13.1 plans", () => {
       "studio_7",
       "studio_8",
     ]);
-    expect(PLAN_INFO.starter.features).toEqual(["push", "page_editor_basic"]);
+    // 138 Every plan includes "We publish for you".
+    expect(PLAN_INFO.starter.features).toEqual(["push", "page_editor_basic", "auto_publish"]);
     expect(PLAN_INFO.starter.limits).toMatchObject({ appUsers: 1000, languages: 1, sources: 1 });
     expect(PLAN_INFO.growth.limits).toMatchObject({ appUsers: 10000, languages: 3 });
     expect(PLAN_INFO.growth.features).toContain("ios");
-    expect(PLAN_INFO.growth.features).not.toContain("auto_publish");
+    expect(PLAN_INFO.growth.features).toContain("auto_publish");
+    for (const plan of PLANS) expect(PLAN_INFO[plan].features, plan).toContain("auto_publish");
     expect(PLAN_INFO.pro.features).toContain("auto_publish");
     expect(PLAN_INFO.pro.limits).toMatchObject({ appUsers: null, languages: null });
     expect(PLAN_INFO.business.limits).toMatchObject({ accountManager: true, customFeatures: true });
@@ -64,7 +66,8 @@ describe("13.1 plans", () => {
       pro: { name: "Pro", tagline: "old", highlights: ["old"], price: "On request", priceCents: 1500_00, currency: "EGP", billingMonths: 12, features: [] },
       business: { name: "Business", tagline: "old", highlights: ["old"], price: "On request", priceCents: 4800_00, currency: "TRY", billingMonths: 12, features: [] },
     });
-    expect(edited.starter.features).toEqual(["push", "ios"]);
+    // 138 What every plan includes stays, whatever the edit left out.
+    expect(edited.starter.features).toEqual(["push", "ios", "auto_publish"]);
     expect(edited.starter.limits.appUsers).toBe(2000);
     // 52 Prices are in pounds now: an old dollar price is kept as the shown dollar price, a pound price as the price, any other is dropped.
     expect(edited.growth).toMatchObject({ name: "Growth", features: PLAN_INFO.growth.features, priceCents: null, usdCents: 9900, onRequest: true, period: null });
@@ -269,7 +272,7 @@ describe("13.1 license API", () => {
     const site = { licenseKey: licenseKey!, siteUrlRaw: "https://academy.test", siteUrl: "academy.test", pluginVersion: "0.4.0", wpVersion: "7.1", lms: "tutor", store: null, bookings: null };
     await activateLicense(store, site, NOW);
     const result = await checkLicense(store, site, NOW);
-    expect(result.status === 200 && result.body).toMatchObject({ plan: "starter", features: ["push", "page_editor_basic"], limits: { app_users: 1000, languages: 1, sources: 1 } });
+    expect(result.status === 200 && result.body).toMatchObject({ plan: "starter", features: ["push", "page_editor_basic", "auto_publish"], limits: { app_users: 1000, languages: 1, sources: 1 } });
   });
 });
 

@@ -52,8 +52,8 @@ if [[ "$COMMIT" =~ ^[0-9a-f]{40}$ ]]; then
 fi
 HAS_ASC=$(python3 -c 'import json,sys; print("yes" if json.load(open(sys.argv[1]))["app_store_connect"] else "no")' "$WORK/secrets.json")
 if [ "$HAS_ASC" != "yes" ]; then
-	result '{"ios":"skipped","upload_testflight":"skipped"}' '[]' "No iOS app in this build: add your App Store Connect key in App setup › Publishing, on a plan with the iOS app."
-	platform status "$BUILD_ID" '{"stages":{"ios":"skipped","upload_testflight":"skipped"}}'
+	result '{"ios":"skipped","upload_testflight":"skipped","app_review":"skipped"}' '[]' "No iOS app in this build: add your App Store Connect key in App setup › Publishing, on a plan with the iOS app."
+	platform status "$BUILD_ID" '{"stages":{"ios":"skipped","upload_testflight":"skipped","app_review":"skipped"}}'
 	exit 0
 fi
 
@@ -74,6 +74,7 @@ if [ -n "$ICON_URL" ]; then
 fi
 
 BUNDLE_ID=$(python3 -c 'import json,sys; print(json.load(open(sys.argv[1]))["ios_bundle_id"])' "$WORK/config.json")
+VERSION_NAME=$(python3 -c 'import json,sys; print(json.load(open(sys.argv[1]))["version_name"])' "$WORK/config.json")
 
 # Generates the iOS project settings and installs packages, without building. Signing
 # happens later in fastlane, so Flutter must not look for a certificate here.
@@ -99,11 +100,16 @@ mv "$IPA" "$WORK/ipa/$SAFE_NAME.ipa"
 ARTIFACTS=$("$SCRIPTS/upload.sh" "$BUILD_ID" ipa "$WORK/ipa/$SAFE_NAME.ipa")
 
 TESTFLIGHT=skipped
+# 138 The platform sends the version to App Review once Apple has processed the build: pending
+# after an upload to TestFlight (whatever the listing did: App Store Connect then says what's
+# missing), skipped otherwise.
+REVIEW_STAGE=skipped
 MESSAGE=""
 if [ "${AUTO_PUBLISH:-false}" = "true" ]; then
 	platform status "$BUILD_ID" '{"stages":{"ios":"done","upload_testflight":"running"}}'
 	if (cd "$ROOT/build" && bundle exec fastlane ios upload_testflight secrets:"$WORK/secrets.json" ipa:"$WORK/ipa/$SAFE_NAME.ipa"); then
 		TESTFLIGHT="done"
+		REVIEW_STAGE=pending
 		# 88.2 The listing in every language with the iPhone and iPad screenshots (framed when
 		# asked), on the version being prepared. The build stays on TestFlight either way.
 		# 102.2 The reviewers' sign-in, set on App Review Information (never in the artifacts).
@@ -111,7 +117,7 @@ if [ "${AUTO_PUBLISH:-false}" = "true" ]; then
 		if python3 "$SCRIPTS/app_review.py" "$WORK/secrets.json" "$WORK/review.json"; then REVIEW="$WORK/review.json"; fi
 		if platform store "$BUILD_ID" "$WORK/store.json" &&
 			python3 "$SCRIPTS/store_listing.py" appstore "$WORK/store.json" "$WORK/appstore-listing" &&
-			(cd "$ROOT/build" && bundle exec fastlane ios appstore_listing secrets:"$WORK/secrets.json" bundle_id:"$BUNDLE_ID" listing:"$WORK/appstore-listing" phased:"${IOS_PHASED:-false}" review:"$REVIEW"); then
+			(cd "$ROOT/build" && bundle exec fastlane ios appstore_listing secrets:"$WORK/secrets.json" bundle_id:"$BUNDLE_ID" listing:"$WORK/appstore-listing" phased:"${IOS_PHASED:-false}" review:"$REVIEW" version:"$VERSION_NAME"); then
 			:
 		else
 			MESSAGE="Your iOS app is on TestFlight, but its App Store listing didn't go through. Check the texts and screenshots in App Store Connect."
@@ -122,9 +128,9 @@ if [ "${AUTO_PUBLISH:-false}" = "true" ]; then
 	fi
 fi
 
-result "{\"ios\":\"done\",\"upload_testflight\":\"$TESTFLIGHT\"}" "$ARTIFACTS" "$MESSAGE"
+result "{\"ios\":\"done\",\"upload_testflight\":\"$TESTFLIGHT\",\"app_review\":\"$REVIEW_STAGE\"}" "$ARTIFACTS" "$MESSAGE"
 # 87.2 An upload to TestFlight that didn't work, explained from its output.
 if [ "$TESTFLIGHT" = "failed" ]; then
 	if python3 "$SCRIPTS/diagnose.py" "$LOG" upload_testflight > "$OUT/failure.json"; then add_failure "$OUT/failure.json" || true; fi
 fi
-platform status "$BUILD_ID" "{\"stages\":{\"ios\":\"done\",\"upload_testflight\":\"$TESTFLIGHT\"}}"
+platform status "$BUILD_ID" "{\"stages\":{\"ios\":\"done\",\"upload_testflight\":\"$TESTFLIGHT\",\"app_review\":\"$REVIEW_STAGE\"}}"

@@ -10,7 +10,7 @@ import { integrationMark, STORES, TRADEMARK_NOTE, WORKS_WITH_BRANDS, WORKS_WITH_
 import { FAQ, FEATURE_GROUPS, INTEGRATION_GROUPS, STEPS } from "@/lib/marketing";
 import { comparisonRows, PLAN_FEATURES, PLAN_INFO, PLANS, planStores, planStoresLine, plansWith, POUNDS_VIEW } from "@/lib/plans";
 import { DEFAULT_DESCRIPTION } from "@/lib/seo";
-import { ALL_STORES_TEXT, APP_STORES, storesFor } from "@/lib/stores";
+import { ALL_STORES_TEXT, APP_STORES, PUBLISHED_STORES_TEXT, storesFor } from "@/lib/stores";
 
 const root = path.join(__dirname, "../..");
 const read = (file: string) => readFileSync(path.join(root, file), "utf8");
@@ -20,6 +20,7 @@ describe("41 the stores", () => {
     expect(APP_STORES).toEqual(["google_play", "app_store", "galaxy_store", "appgallery", "getapps"]);
     expect(APP_STORES.map((id) => STORES[id].name)).toEqual(["Google Play", "Apple App Store", "Samsung Galaxy Store", "Huawei AppGallery", "Xiaomi GetApps"]);
     expect(ALL_STORES_TEXT).toBe("Google Play, the App Store, Samsung Galaxy Store, Huawei AppGallery and Xiaomi GetApps");
+    expect(PUBLISHED_STORES_TEXT).toBe("Google Play and the App Store");
     expect(storesFor(false)).toEqual(["google_play", "galaxy_store", "appgallery", "getapps"]);
     expect(storesFor(true)).toEqual([...APP_STORES]);
     // Each store's guide is an article that exists.
@@ -27,17 +28,18 @@ describe("41 the stores", () => {
     for (const id of APP_STORES) if (STORES[id].docs) expect(slugs, id).toContain(STORES[id].docs);
   });
 
-  it("follow each plan's features: the App Store with iOS, uploads with “We publish for you”", () => {
-    expect(planStores(PLAN_INFO.starter)).toEqual({ stores: ["google_play", "galaxy_store", "appgallery", "getapps"], publisher: "you" });
-    expect(planStores(PLAN_INFO.growth)).toEqual({ stores: [...APP_STORES], publisher: "you" });
-    expect(planStores(PLAN_INFO.pro)).toEqual({ stores: [...APP_STORES], publisher: "us" });
-    expect(planStores(PLAN_INFO.business)).toEqual({ stores: [...APP_STORES], publisher: "us" });
-    expect(planStoresLine(PLAN_INFO.starter)).toBe("4 app stores · You publish with our guides");
-    expect(planStoresLine(PLAN_INFO.pro)).toBe("5 app stores · We publish for you");
-    // The team's edits in the admin decide: Starter with iOS gets the App Store too.
+  it("follow each plan's features: the App Store with iOS; 138 we publish on Google Play and the App Store on every plan", () => {
+    expect(planStores(PLAN_INFO.starter)).toEqual({ stores: ["google_play", "galaxy_store", "appgallery", "getapps"], publisher: "us", ours: ["google_play"] });
+    expect(planStores(PLAN_INFO.growth)).toEqual({ stores: [...APP_STORES], publisher: "us", ours: ["google_play", "app_store"] });
+    expect(planStores(PLAN_INFO.pro)).toEqual({ stores: [...APP_STORES], publisher: "us", ours: ["google_play", "app_store"] });
+    expect(planStores(PLAN_INFO.business)).toEqual({ stores: [...APP_STORES], publisher: "us", ours: ["google_play", "app_store"] });
+    expect(planStoresLine(PLAN_INFO.starter)).toBe("4 app stores · We publish for you on Google Play");
+    expect(planStoresLine(PLAN_INFO.pro)).toBe("5 app stores · We publish for you on Google Play and the App Store");
+    // The team's edits in the admin decide: Starter with iOS gets the App Store too, and keeps publishing even when the edit left it out.
     const edited = plansWith({ starter: { ...PLAN_INFO.starter, features: ["ios", "push"], version: 2 } });
     expect(planStores(edited.starter).stores).toContain("app_store");
-    expect(PLAN_FEATURES.find((f) => f.id === "auto_publish")!.description).toBe(`We upload your apps and every update to ${ALL_STORES_TEXT}.`);
+    expect(planStores(edited.starter).ours).toEqual(["google_play", "app_store"]);
+    expect(PLAN_FEATURES.find((f) => f.id === "auto_publish")!.description).toBe(`We upload your apps and every update to ${PUBLISHED_STORES_TEXT}, and send each new version for review. Every plan includes it.`);
   });
 
   it("have a row each in the pricing table", () => {

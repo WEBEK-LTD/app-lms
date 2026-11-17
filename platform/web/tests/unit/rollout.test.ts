@@ -60,9 +60,12 @@ describe("89.2 staged releases", () => {
   });
 
   it("gives each build the owner's choice, and tells the pipeline", () => {
-    expect(buildReleaseOf({ stagedRelease: null })).toBeNull();
-    expect(buildReleaseOf({ stagedRelease: { androidPercent: null, iosPhased: false } })).toBeNull();
+    // 138 Without a choice: Google Play's production for everyone, the App Store at once.
+    expect(buildReleaseOf({ stagedRelease: null })).toEqual({ androidRollout: 1, iosPhased: false });
+    expect(buildReleaseOf({ stagedRelease: { androidPercent: null, iosPhased: false } })).toEqual({ androidRollout: 1, iosPhased: false });
     expect(buildReleaseOf({ stagedRelease: { androidPercent: 10, iosPhased: true } })).toEqual({ androidRollout: 0.1, iosPhased: true });
+    // Internal testing, when the owner chose it.
+    expect(buildReleaseOf({ stagedRelease: { androidPercent: null, iosPhased: true, androidInternal: true } })).toEqual({ androidRollout: null, iosPhased: true });
     const build = { id: "b1", clientId: "c1", appId: "a1", number: 3, versionName: "1.3.0", versionCode: 3, status: "queued", autoPublish: true, stages: stages({}), artifacts: [], message: null, logUrl: null, release: { androidRollout: 0.05, iosPhased: false }, createdAt: NOW, startedAt: null, finishedAt: null } as unknown as Build;
     expect(buildSummary(build)).toMatchObject({ release: { android_rollout: 0.05, ios_phased: false } });
     expect(buildSummary({ ...build, release: null })).not.toHaveProperty("release");
@@ -79,6 +82,11 @@ describe("89.2 staged releases", () => {
     const started = rolloutAfterReport(null, build, stages({ upload_play: "done" }), NOW);
     expect(rolloutAfterReport(started, build, stages({ upload_play: "done" }), NOW)).toBeNull();
     expect(rolloutAfterReport(null, { ...build, release: null }, stages({ upload_play: "done" }), NOW)).toBeNull();
+    // 138 A draft (the app's first release, sent by hand in Play Console) isn't out: nothing to follow on Google Play.
+    const draft = { ...build, release: { androidRollout: 1, iosPhased: false, play: { track: "production" as const, status: "draft" as const } } };
+    expect(rolloutAfterReport(null, draft, stages({ upload_play: "done" }), NOW)).toBeNull();
+    // Everyone at once: followed as completed (no buttons on Builds).
+    expect(rolloutAfterReport(null, { ...draft, release: { ...draft.release, play: { track: "production" as const, status: "completed" as const } } }, stages({ upload_play: "done" }), NOW)?.android).toMatchObject({ fraction: 1, status: "completed" });
   });
 
   it("continues, stops and completes a Google Play release through the Android Publisher API", async () => {

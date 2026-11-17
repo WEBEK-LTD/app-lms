@@ -7,12 +7,14 @@ import { appIsActive } from "../license/status";
 import { hasFeature } from "../plans";
 import { bumpPatch } from "../semver";
 import type { PreflightDeps } from "./preflight";
+import { behindAppRelease } from "./app-release";
 import { isInProgress } from "./view";
 
 /**
  * 87.4 Automatic builds (plans with `auto_rebuild`) only for what a new build
  * changes: what goes into the app itself (its build config: name, package,
- * icon and colours, Firebase, links…), the store listing when Yallapp
+ * icon and colours, Firebase, links…, 138 and a newer release of Yallapp's
+ * own app code, lib/builds/app-release.ts), the store listing when Yallapp
  * publishes for the client, and stores newly connected. Pages, texts and
  * settings reach the app without one. A save asks for the build in
  * AUTO_BUILD_WAIT_MINUTES; another save before then moves it later, so
@@ -27,7 +29,8 @@ export type BuildChange = "app" | "listing" | "stores";
 export function buildChanges(app: App, client: { id: string }, last: Build, assetUrl: (id: string) => string): BuildChange[] {
   const out: BuildChange[] = [];
   const now = buildConfigFor(app, client, { name: last.versionName, code: last.versionCode }, assetUrl);
-  if (JSON.stringify(withoutVersion(now)) !== JSON.stringify(withoutVersion(last.config))) out.push("app");
+  // 138 A newer release of Yallapp's own app code is an app change too.
+  if (JSON.stringify(withoutVersion(now)) !== JSON.stringify(withoutVersion(last.config)) || behindAppRelease(last)) out.push("app");
   if (last.autoPublish && JSON.stringify(storeListingOf(app, assetUrl)) !== JSON.stringify(last.storeListing)) out.push("listing");
   // A store connected since (or iOS newly possible): the new build goes there too.
   const stages = initialStages(last.autoPublish, app, last.stages.ios !== "skipped" || Boolean(app.ascPrivateKeyEncrypted));

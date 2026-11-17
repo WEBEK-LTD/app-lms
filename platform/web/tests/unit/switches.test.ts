@@ -46,11 +46,12 @@ describe("switches", () => {
       "website:zid",
       "feature:push",
       "feature:offline_downloads",
-      "feature:auto_publish",
       "feature:plan_card_payments",
     ]) {
       expect(keys, key).toContain(key);
     }
+    // 138 Every plan includes "We publish for you": it isn't a switch.
+    expect(keys).not.toContain("feature:auto_publish");
     // 72 No marketplace: selling through Yallapp's account can't be switched on.
     expect(keys).not.toContain("feature:marketplace");
     expect(switchGroups().map((g) => g.kind)).toEqual(["app_type", "website", "feature"]);
@@ -81,10 +82,11 @@ describe("switches", () => {
   });
 
   it("takes switched-off features out of the license features", () => {
-    const plans = plansWithSwitches(PLAN_INFO, { off: ["feature:push"], offByPlan: { pro: ["feature:auto_publish"] } });
-    expect(plans.starter.features).toEqual(["page_editor_basic"]);
-    expect(plans.growth.features).toEqual(["ios", "offline_downloads", "page_editor", "card_payments", "auto_rebuild", "loyalty", "store_billing"]);
-    expect(plans.pro.features).toEqual(["ios", "offline_downloads", "page_editor", "card_payments", "auto_rebuild", "chat", "loyalty", "store_billing"]);
+    // 138 A switch saved before can't take "We publish for you" away: every plan includes it.
+    const plans = plansWithSwitches(PLAN_INFO, { off: ["feature:push"], offByPlan: { pro: ["feature:auto_publish", "feature:chat"] } });
+    expect(plans.starter.features).toEqual(["page_editor_basic", "auto_publish"]);
+    expect(plans.growth.features).toEqual(["ios", "offline_downloads", "page_editor", "card_payments", "auto_rebuild", "auto_publish", "loyalty", "store_billing"]);
+    expect(plans.pro.features).toEqual(["ios", "offline_downloads", "page_editor", "card_payments", "auto_rebuild", "auto_publish", "loyalty", "store_billing"]);
     expect(PLAN_INFO.pro.features).toContain("push");
   });
 

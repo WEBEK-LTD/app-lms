@@ -155,6 +155,9 @@ export const tr: Messages = {
     stores: "{plan} uygulama mağazaları",
     storesLine: "{count} uygulama mağazası · {who}",
     weePublish: "Sizin için biz yayınlıyoruz",
+    /** 138 Every plan: we publish on Google Play and the App Store (Google Play only without the iOS app). */
+    weePublishPlayApple: "Google Play ve App Store'da sizin için biz yayınlıyoruz",
+    weePublishPlay: "Google Play'de sizin için biz yayınlıyoruz",
     youPublish: "Rehberlerimizle siz yayınlarsınız",
     choose: "{plan} paketini seçin",
     startWith: "{plan} ile başlayın",
@@ -223,7 +226,7 @@ export const tr: Messages = {
     rowLoyalty: "Sadakat puanları",
     rowInAppPurchases: "Uygulama içi satın alma (Google Play, App Store)",
     rowPublishing: "Yayınlama",
-    rowStoreUpdates: "Otomatik mağaza güncellemeleri",
+    rowMoreStoresAuto: "Kendi hesabınızla Samsung Galaxy Store, Xiaomi GetApps ve Huawei AppGallery'ye otomatik güncellemeler",
     rowTeam: "Ekip üyeleri",
     rowManager: "Size özel hesap yöneticisi",
     rowCustom: "Talep üzerine özel özellikler",
@@ -243,7 +246,7 @@ export const tr: Messages = {
     changing:
       "<b>Paket değiştirme:</b> Dilediğiniz zaman panelinizden yükseltip kartla ödeyebilirsiniz; mevcut paketinizde kalan günler yeni pakete aktarılır. Daha düşük bir pakete geçiş, mevcut döneminiz bittiğinde başlar.",
     stores:
-      "<b>Uygulama mağazaları:</b> Her paket Google Play, Samsung Galaxy Store, Huawei AppGallery ve Xiaomi GetApps için Android uygulamasını derler; App Store için iOS uygulaması Growth ve üzeri paketlerde gelir. Pro ve Business'ta her derlemeyi kullandığınız her mağazaya biz yükleriz.",
+      "<b>Uygulama mağazaları:</b> Her paket Google Play, Samsung Galaxy Store, Huawei AppGallery ve Xiaomi GetApps için Android uygulamasını derler; App Store için iOS uygulaması Growth ve üzeri paketlerde gelir. Her pakette uygulamanızı ve her güncellemesini Google Play ve App Store'da sizin için biz yayınlıyoruz; Galaxy Store, AppGallery ve GetApps'te rehberlerimizle kendiniz yayınlarsınız ya da anahtarlarınızı eklersiniz ve her derleme oraya kendiliğinden yüklenir.",
     fees:
       "Google Play ve App Store kendi geliştirici hesabı ücretlerini alır; bu ücretler doğrudan Google'a ve Apple'a ödenir. Samsung, Huawei ve Xiaomi hesapları ücretsizdir. Hesabınız etkinleştirildikten sonraki 3 gün içinde iptal ederek ödediğiniz tutarın tamamını geri alabilirsiniz. Ayrıntılar için <link>İade politikamıza</link> bakın.",
   },
@@ -376,7 +379,7 @@ export const tr: Messages = {
     rowAccountRegular: "Uygulamaların, panelde",
     rowAccountStudio: "Projelerin ayrı olarak Studio'da, her birinin kendi paneliyle",
     rowPublish: "Yayınlama",
-    rowPublishBoth: "Kendi mağaza hesaplarınla ya da bunu içeren planlarda biz yayınlarız",
+    rowPublishBoth: "Kendi mağaza hesaplarınla: her planda Google Play ve App Store'da senin için biz yayınlarız",
     plansTitle: "Studio'nun kendi planları",
     plansText: "Studio projelerinin normal planlardan ayrı, kendi planları vardır. Her Studio planı neleri içerdiğini söyler.",
     plansOnRequest: "Studio planları şimdilik talep üzerine düzenleniyor. <link>WhatsApp'tan bize yaz</link>, projene uyan planı önerelim.",
@@ -387,6 +390,8 @@ export const tr: Messages = {
     base4: "Çevrimdışı indirme ve otomatik yeniden derleme",
     base5: "Müşterilerinle sohbet ve sadakat puanları",
     base6: "Uygulama mağazaları üzerinden satılan kurslar ve üyelikler",
+    base7: "Google Play ve App Store'da senin için biz yayınlarız",
+    base8: "Kendi hesabınla Samsung Galaxy Store, Xiaomi GetApps ve Huawei AppGallery'ye otomatik güncellemeler",
     byPlan: "Plan plan seçilenler",
     choiceIos: "iOS uygulaması",
     choicePublish: "Senin için yayınlarız",

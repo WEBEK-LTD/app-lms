@@ -162,6 +162,9 @@ export const en = {
     stores: "{plan} app stores",
     storesLine: "{count} app stores · {who}",
     weePublish: "We publish for you",
+    /** 138 Every plan: we publish on Google Play and the App Store (Google Play only without the iOS app). */
+    weePublishPlayApple: "We publish for you on Google Play and the App Store",
+    weePublishPlay: "We publish for you on Google Play",
     youPublish: "You publish with our guides",
     choose: "Choose {plan}",
     startWith: "Start with {plan}",
@@ -232,7 +235,7 @@ export const en = {
     rowLoyalty: "Loyalty points",
     rowInAppPurchases: "In-app purchases (Google Play, App Store)",
     rowPublishing: "Publishing",
-    rowStoreUpdates: "Automatic store updates",
+    rowMoreStoresAuto: "Automatic updates to Samsung Galaxy Store, Xiaomi GetApps and Huawei AppGallery, with your own account",
     rowTeam: "Team members",
     rowManager: "Dedicated account manager",
     rowCustom: "Custom features on request",
@@ -252,7 +255,7 @@ export const en = {
     changing:
       "<b>Changing plans:</b> upgrade from your dashboard at any time and pay by card; the days left on your current plan are credited to the new one. A move to a lower plan starts when your current period ends.",
     stores:
-      "<b>App stores:</b> every plan builds the Android app for Google Play, Samsung Galaxy Store, Huawei AppGallery and Xiaomi GetApps; the iOS app for the App Store comes with Growth and up. On Pro and Business we upload every build to each store you use.",
+      "<b>App stores:</b> every plan builds the Android app for Google Play, Samsung Galaxy Store, Huawei AppGallery and Xiaomi GetApps; the iOS app for the App Store comes with Growth and up. On every plan we publish your app and every update on Google Play and the App Store for you; on Galaxy Store, AppGallery and GetApps you publish yourself with our guides, or add your keys there and every build uploads by itself.",
     fees:
       "Google Play and the App Store charge their own developer account fees, paid directly to Google and Apple; Samsung, Huawei and Xiaomi accounts are free. You can cancel within 3 days of your account being activated for a full refund. See our <link>Refund policy</link>.",
   },
@@ -388,7 +391,7 @@ export const en = {
     rowAccountRegular: "Your apps, in the dashboard",
     rowAccountStudio: "Your projects, apart, in Studio, each with its own dashboard",
     rowPublish: "Publishing",
-    rowPublishBoth: "Under your own store accounts, or we publish for you on plans that include it",
+    rowPublishBoth: "Under your own store accounts: we publish for you on Google Play and the App Store on every plan",
     plansTitle: "Studio's own plans",
     plansText: "Studio projects have plans of their own, apart from the regular plans. Each Studio plan says what it includes.",
     plansOnRequest: "Studio plans are arranged on request for now. <link>Message us on WhatsApp</link> and we'll suggest the plan that fits your project.",
@@ -399,6 +402,9 @@ export const en = {
     base4: "Offline downloads and automatic rebuilds",
     base5: "Chat with your customers, and loyalty points",
     base6: "Courses and memberships sold through the app stores",
+    /** 138 */
+    base7: "We publish for you on Google Play and the App Store",
+    base8: "Automatic updates to Samsung Galaxy Store, Xiaomi GetApps and Huawei AppGallery, with your own account",
     byPlan: "Chosen plan by plan",
     choiceIos: "The iOS app",
     choicePublish: "We publish for you",

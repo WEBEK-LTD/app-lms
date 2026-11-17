@@ -153,12 +153,12 @@ paths:
         Only while the build is `building`. Signing keys the pipeline created on
         an earlier build, and the store keys the client uploaded in the dashboard
         (decrypted). `null` when there is none. The Google Play and App Store
-        Connect keys are returned on every plan: on Starter the App Store Connect
-        key only signs the iOS app. 35, 36 The Samsung Galaxy Store and Huawei
-        AppGallery keys are only used for uploading, so they are returned only
-        when the build's plan includes "We publish for you" (`auto_publish`).
-        42 The same for the Xiaomi GetApps keys. 102.2 And for `app_review`, the
-        store reviewers' sign-in, sent only with the App Store Connect key.
+        Connect keys are returned on every plan. 35, 36, 42 The Samsung Galaxy
+        Store, Huawei AppGallery and Xiaomi GetApps keys are returned whenever
+        the client saved them (138 every plan: these are the client's own
+        stores, uploaded with their keys). 102.2 `app_review`, the store
+        reviewers' sign-in, only when the build uploads (`auto_publish`, 138
+        every plan) and with the App Store Connect key.
       parameters:
         - $ref: '#/components/parameters/BuildId'
       responses:
@@ -272,17 +272,21 @@ components:
     Stages:
       type: object
       description: >-
-        Upload stages are `skipped` when the app's plan doesn't include
-        publishing for the client ("We publish for you") and when the client
-        has no key for that store. `ios` and `upload_testflight` start as
-        `skipped` when the app's plan has no iOS app (`ios: false`) or the app
-        has no App Store Connect key; the pipeline may still build it, and
-        report `running` and `done`, if a key was added since. 35, 36
-        `upload_galaxy` (Samsung Galaxy Store) and `upload_appgallery` (Huawei
-        AppGallery) start as `skipped` unless the plan includes "We publish for
-        you" and the client saved that store's keys; builds queued before these
-        stages existed don't have them. 42 `upload_xiaomi` (Xiaomi GetApps) the
-        same way.
+        Upload stages are `skipped` when the client has no key for that store
+        (138 every plan includes "We publish for you"). `ios` and
+        `upload_testflight` start as `skipped` when the app's plan has no iOS
+        app (`ios: false`) or the app has no App Store Connect key; the
+        pipeline may still build it, and report `running` and `done`, if a key
+        was added since. 35, 36 `upload_galaxy` (Samsung Galaxy Store) and
+        `upload_appgallery` (Huawei AppGallery) start as `skipped` unless the
+        client saved that store's keys; builds queued before these stages
+        existed don't have them. 42 `upload_xiaomi` (Xiaomi GetApps) the same
+        way. 138 `app_review`: sending the App Store version to App Review,
+        which the platform does once Apple has processed the build. It starts
+        `pending` with `upload_testflight`; the pipeline reports `pending` after
+        an upload to TestFlight and `skipped` otherwise, and the platform sets
+        `done` once the version is in App Review (or `skipped` when a newer
+        build replaced it). Builds queued before 138 don't have it.
       additionalProperties: false
       properties:
         queued: { $ref: '#/components/schemas/StageStatus' }
@@ -293,6 +297,22 @@ components:
         upload_galaxy: { $ref: '#/components/schemas/StageStatus' }
         upload_appgallery: { $ref: '#/components/schemas/StageStatus' }
         upload_xiaomi: { $ref: '#/components/schemas/StageStatus' }
+        app_review: { $ref: '#/components/schemas/StageStatus' }
+
+    PlayRelease:
+      type: object
+      additionalProperties: false
+      required: [track, status]
+      description: |
+        138 Where the App Bundle went on Google Play, as fastlane's
+        `upload_play` lane reports it: the production track for everyone
+        (`completed`) or a share (`inProgress`), internal testing, or a
+        `draft` while the app's first release hasn't been sent by hand in Play
+        Console (Google takes only drafts until then). A draft tells the app's
+        publishing account and the team once.
+      properties:
+        track: { type: string, enum: [production, internal] }
+        status: { type: string, enum: [completed, inProgress, draft] }
 
     Artifact:
       type: object
@@ -370,6 +390,7 @@ components:
           maxItems: 20
           description: Replaces the build's artifact list.
           items: { $ref: '#/components/schemas/Artifact' }
+        play: { $ref: '#/components/schemas/PlayRelease' }
         signing:
           type: object
           additionalProperties: false
@@ -401,16 +422,17 @@ components:
         version_name: { type: string, example: 1.0.1 }
         version_code: { type: integer, minimum: 1 }
         status: { $ref: '#/components/schemas/BuildStatus' }
-        auto_publish: { type: boolean, description: "True when the build's app plan includes \"We publish for you\" (Pro and Business by default). The pipeline uploads to the stores." }
+        auto_publish: { type: boolean, description: "True when the build's app plan includes \"We publish for you\" (138 every plan; false only on builds queued before). The pipeline uploads to Google Play and TestFlight." }
         ios: { type: boolean, description: "Whether the build's app plan includes the iOS app. When false, `/builds/{id}/secrets` sends `app_store_connect` as null and the pipeline skips iOS." }
         release:
           description: |
             89.2 How "We publish for you" releases this build. With
             `android_rollout`, the App Bundle goes to Google Play's production
-            track for that share of users (0.01 to 1) instead of internal
-            testing; the owner stops, continues or completes it from the
-            dashboard. With `ios_phased`, the App Store version is set to
-            Apple's phased release (seven days, pausable). Missing on builds
+            track for that share of users (0.01 to 1; 138 1, everyone, unless
+            the owner chose a first share); null: internal testing, when the
+            owner chose it. The owner stops, continues or completes a share
+            from the dashboard. With `ios_phased`, the App Store version is set
+            to Apple's phased release (seven days, pausable). Missing on builds
             queued before: internal testing, no phased release.
           type: object
           additionalProperties: false
@@ -437,6 +459,9 @@ components:
           pattern: '^[0-9a-f]{40}$'
           description: Roadmap 87.3. The commit the build was made from, as the pipeline reported it.
         rebuild_of: { type: [integer, 'null'], minimum: 1, description: Roadmap 87.3. The number of the build this one rebuilds as it was. }
+        play:
+          description: 138 Where the App Bundle went on Google Play, once the pipeline reported it.
+          allOf: [{ $ref: '#/components/schemas/PlayRelease' }]
         created_at: { type: string, format: date-time }
         started_at: { type: [string, 'null'], format: date-time }
         finished_at: { type: [string, 'null'], format: date-time }
@@ -580,9 +605,8 @@ components:
         galaxy_store:
           description: >-
             35 Samsung Galaxy Store (Content Publish API). Null when the client saved no
-            Galaxy Store keys, or when the build's plan doesn't include "We publish for
-            you". The app must already be for sale in Galaxy Store: its first version is
-            registered by hand in Seller Portal.
+            Galaxy Store keys. The app must already be for sale in Galaxy Store: its first
+            version is registered by hand in Seller Portal.
           oneOf:
             - type: object
               additionalProperties: false
@@ -595,9 +619,8 @@ components:
         huawei_appgallery:
           description: >-
             36 Huawei AppGallery Connect (Publishing API). Null when the client saved no
-            AppGallery keys, or when the build's plan doesn't include "We publish for
-            you". The app must already exist in AppGallery Connect with the same package
-            name, and its first version is submitted by hand.
+            AppGallery keys. The app must already exist in AppGallery Connect with the same
+            package name, and its first version is submitted by hand.
           oneOf:
             - type: object
               additionalProperties: false
@@ -610,8 +633,7 @@ components:
         xiaomi_getapps:
           description: >-
             42 Xiaomi GetApps (the automatic publishing API of the Xiaomi developer
-            platform). Null when the client saved no Xiaomi keys, or when the build's plan
-            doesn't include "We publish for you". The app must already be on the store under
+            platform). Null when the client saved no Xiaomi keys. The app must already be on the store under
             this developer account: its first version is submitted by hand. Each request is
             signed with `password`, encrypted with Xiaomi's public certificate; the APK, the
             app's 512 px icon and `release_notes` are sent as an update.
@@ -644,9 +666,10 @@ components:
             plan includes "We publish for you", or when the app has no review sign-in yet.
             The pipeline sets the demo account, "sign-in required", the notes (with a line
             on how to sign in) and the contact fields it has, on the version being
-            prepared only (it creates none), and never submits for review. Never logged or
-            kept in artifacts. Google Play has no API for App access: Yallapp's team enters
-            it there.
+            prepared (138 the one with the build's version string, made when none is
+            being prepared), and never submits for review: the platform does (the
+            `app_review` stage). Never logged or kept in artifacts. Google Play has no API
+            for App access: Yallapp's team enters it there.
           oneOf:
             - type: object
               additionalProperties: false

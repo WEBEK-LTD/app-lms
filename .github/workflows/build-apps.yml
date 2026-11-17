@@ -143,8 +143,8 @@ jobs:
           echo "ios=$has" >> "$GITHUB_OUTPUT"
           if [ "$has" != "yes" ]; then
             mkdir -p "$RUNNER_TEMP/result"
-            echo '{"stages":{"ios":"skipped","upload_testflight":"skipped"},"artifacts":[],"message":"No iOS app in this build: add your App Store Connect key in App setup › Publishing, on a plan with the iOS app."}' > "$RUNNER_TEMP/result/result.json"
-            python3 build/scripts/platform.py status "${{ matrix.build.id }}" '{"stages":{"ios":"skipped","upload_testflight":"skipped"}}'
+            echo '{"stages":{"ios":"skipped","upload_testflight":"skipped","app_review":"skipped"},"artifacts":[],"message":"No iOS app in this build: add your App Store Connect key in App setup › Publishing, on a plan with the iOS app."}' > "$RUNNER_TEMP/result/result.json"
+            python3 build/scripts/platform.py status "${{ matrix.build.id }}" '{"stages":{"ios":"skipped","upload_testflight":"skipped","app_review":"skipped"}}'
           fi
       # Apple takes uploads built with the iOS 26 SDK: use the newest
       # Xcode 26 on the runner.

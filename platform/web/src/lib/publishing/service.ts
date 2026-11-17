@@ -4,7 +4,7 @@ import { appLabel } from "../app/label";
 import { dashboardLink } from "../builds/notify";
 import { DEFAULT_CONTACT } from "../contact";
 import type { DataStore } from "../data/store";
-import type { App, Client, PublishingMode, PublishingRequest, PublishingStore, PublishingTrack, User } from "../data/types";
+import type { App, Build, Client, PublishingAccount, PublishingMode, PublishingRequest, PublishingStore, PublishingTrack, User } from "../data/types";
 import { emailLangOf, sendTemplate } from "../email/send";
 import { getDashT, type DashT } from "@/i18n/dashboard";
 import { publishingStatusIn } from "./status-lang";
@@ -12,6 +12,9 @@ import { appUrl } from "../env";
 import { mailDelivered } from "../mail";
 import { platformSetting } from "../settings/platform";
 import { newPublishingRequest, STORE_TITLE, trackOf } from "./steps";
+import { noticeEmailsFor, publishingEmailFor } from "./accounts";
+import { accountStepLines, accountSteps } from "./account-steps";
+import { teamMail } from "../watch/env";
 
 /**
  * The address clients invite to their store and Firebase accounts, and where
@@ -24,11 +27,43 @@ export async function publishingTeamEmail(store: DataStore): Promise<string> {
   return (await platformSetting(store, "contact"))?.value.email ?? DEFAULT_CONTACT.email;
 }
 
+/**
+ * 138 The email an app's owner invites as admin: its publishing account
+ * (given the first time it's needed), else the publishing team email.
+ */
+export async function appPublishingEmail(store: DataStore, app: Pick<App, "id">, options: { now?: Date; assign?: boolean } = {}): Promise<{ email: string; account: PublishingAccount | null }> {
+  return publishingEmailFor({ ...accountDeps(store, options.now ?? new Date()), assign: options.assign }, app);
+}
+
+/** 138 How the publishing accounts are read and given here: the team email as the fallback, the team's alert, and the new account's email. */
+function accountDeps(store: DataStore, now: Date, send: Send = sendTemplate) {
+  return { store, now, teamEmail: () => publishingTeamEmail(store), mail: teamMail, assigned: (app: App, account: PublishingAccount) => tellAccountOfApp(store, app, account, send) };
+}
+
+/** 138 Emails a publishing account the app it was just given, with the one-time steps it still does for it. Best effort. */
+export async function tellAccountOfApp(store: DataStore, app: App, account: PublishingAccount, send: Send = sendTemplate): Promise<void> {
+  try {
+    const [client, builds, request] = await Promise.all([store.getClientById(app.clientId), store.listBuildsByApp(app.id, 20, "all"), store.getPublishingRequest(app.id)]);
+    const user = client ? await store.getUserById(client.userId) : null;
+    await send("publishing_assigned", account.email, {
+      client_name: user?.name ?? "",
+      app_name: appLabel(app),
+      account_email: account.email,
+      steps: accountStepLines(accountSteps({ app, builds, request })) || "- None left.",
+      admin_url: `${appUrl()}/admin/publishing`,
+    });
+  } catch (error) {
+    console.error("[publishing] the account's email wasn't sent:", error instanceof Error ? error.message : String(error));
+  }
+}
+
 type Send = typeof sendTemplate;
 
 /**
  * Tells the publishing team about a new request, a finished checklist or a
- * client who publishes themselves. Best effort, but never silent (19): when
+ * client who publishes themselves; 138 and the app's publishing account,
+ * when it has one, and what the stores need done by hand (a first Google
+ * Play release, an App Review blocker). Best effort, but never silent (19): when
  * the email isn't sent (SMTP missing in production, or failing) it's logged
  * and the request is flagged for the admin's Publishing page; the next email
  * that goes out clears the flag. True when it was sent.
@@ -43,14 +78,17 @@ export async function notifyPublishingTeam(
     if (!(await mailDelivered(store))) {
       failure = "SMTP isn't set up";
     } else {
-      await send("publishing_request", await publishingTeamEmail(store), {
-        client_name: input.user.name,
-        app_name: appLabel(input.app),
-        event: input.event,
-        email: input.user.email,
-        whatsapp: input.client.whatsapp,
-        admin_url: `${appUrl()}/admin/publishing`,
-      });
+      const to = await noticeEmailsFor(accountDeps(store, new Date(), send), input.app);
+      for (const email of to) {
+        await send("publishing_request", email, {
+          client_name: input.user.name,
+          app_name: appLabel(input.app),
+          event: input.event,
+          email: input.user.email,
+          whatsapp: input.client.whatsapp,
+          admin_url: `${appUrl()}/admin/publishing`,
+        });
+      }
     }
   } catch (error) {
     failure = error instanceof Error ? error.message : String(error);
@@ -65,6 +103,52 @@ export async function notifyPublishingTeam(
     console.error("[publishing] the email flag wasn't saved:", error instanceof Error ? error.message : error);
   }
   return failure === null;
+}
+
+/** 138 Tells the app's publishing account and the team about work the stores need done by hand. True when it was sent. */
+export async function notifyPublishingWork(store: DataStore, app: App, event: string, send: Send = sendTemplate): Promise<boolean> {
+  const client = await store.getClientById(app.clientId);
+  const user = client ? await store.getUserById(client.userId) : null;
+  if (!client || !user) return false;
+  return notifyPublishingTeam(store, { user, client, app, event }, send);
+}
+
+/**
+ * 138 After a build's report of where it went on Google Play: a draft (the
+ * app's first release, which Google wants sent by hand) tells the app's
+ * publishing account and the team once; a release that goes out clears it,
+ * so a later draft tells them again.
+ */
+export async function notePlayRelease(store: DataStore, build: Pick<Build, "appId" | "versionName" | "release">, now: Date, send: Send = sendTemplate): Promise<void> {
+  const play = build.release?.play;
+  if (!play) return;
+  const app = await store.getAppById(build.appId);
+  if (!app) return;
+  const told = app.rollout?.playDraftNotifiedAt;
+  if (play.status !== "draft") {
+    if (told) await store.updateApp(app.id, { rollout: { ...(app.rollout ?? {}), playDraftNotifiedAt: null } }, now);
+    return;
+  }
+  if (told) return;
+  await store.updateApp(app.id, { rollout: { ...(app.rollout ?? {}), playDraftNotifiedAt: now.toISOString() } }, now);
+  const track = play.track === "production" ? "Production" : "Internal testing";
+  await notifyPublishingWork(store, app, `has its first Google Play release (version ${build.versionName}) waiting as a draft: send it by hand in Play Console › ${track}. Every update after it goes out by itself`, send);
+}
+
+/**
+ * 138 An iPhone version sent to App Review by the platform: on the app's
+ * "Publish it for me" request, the App Store's status moves to "Submitted"
+ * (unless it's live already: an update), with its history line and the
+ * client's email; 88.3 then follows Apple's review from there.
+ */
+export async function noteAppReviewSent(store: DataStore, app: App, build: Pick<Build, "versionName" | "variant">, now: Date): Promise<void> {
+  if ((build.variant ?? "app") !== "app") return;
+  const request = await store.getPublishingRequest(app.id);
+  if (!request || request.mode !== "managed" || ["submitted", "in_review", "live"].includes(request.ios.status)) return;
+  const saved: PublishingRequest = { ...request, ios: { ...request.ios, status: "submitted", rejection: null, updatedAt: now }, updatedAt: now };
+  await store.savePublishingRequest(saved);
+  await store.addPublishingEvent({ appId: app.id, store: "ios", status: "submitted", note: `Version ${build.versionName}`, actorEmail: "Yallapp", at: now });
+  await notifyPublishingStatus(store, saved, "ios");
 }
 
 /**

@@ -1,6 +1,6 @@
 import type { IconName } from "@/components/icon-names";
 import { demoSlugOfKind, KINDS, kindById } from "./app/kinds";
-import { ALL_STORES_TEXT, MORE_ANDROID_STORES_TEXT } from "./stores";
+import { ALL_STORES_TEXT, MORE_ANDROID_STORES_TEXT, PUBLISHED_STORES_TEXT } from "./stores";
 
 /** "a, b and c" (or "a, b or c"). */
 function listText(items: string[], last = "and"): string {
@@ -1808,7 +1808,7 @@ export const FEATURE_GROUPS: FeatureGroup[] = [
         details: [
           "APK to install on a phone and test, and for Galaxy Store, AppGallery and GetApps",
           "App Bundle (AAB) for Google Play",
-          "iOS build (Growth and up), uploaded to TestFlight on Pro and Business",
+          "iOS build (Growth and up), uploaded to TestFlight and sent to App Review for you",
           "Store icon, feature graphic, your screenshots and listing text",
         ],
       },
@@ -2006,8 +2006,8 @@ export const STEPS: Step[] = [
     icon: "publish",
     text: "Your apps build as soon as the setup is complete. Download them and publish with our guides, or let us publish them for you.",
     details: [
-      "Starter and Growth: download your files and follow the step-by-step guides",
-      `Pro and Business: we publish every new version on ${ALL_STORES_TEXT}`,
+      `Every plan: we publish every new version on ${PUBLISHED_STORES_TEXT} for you`,
+      `${MORE_ANDROID_STORES_TEXT}: connect your account once and every new version goes there by itself, or download your files and follow the step-by-step guides`,
     ],
   },
 ];
@@ -2144,7 +2144,7 @@ export const FAQ: FaqGroup[] = [
       },
       {
         q: "Who publishes the apps?",
-        a: `On Starter and Growth you download the files and publish them with our step-by-step guides. On Pro and Business we publish your app and every new version on ${ALL_STORES_TEXT} for you.`,
+        a: `On every plan we publish your app and every new version on ${PUBLISHED_STORES_TEXT} for you, under your own developer accounts. On ${MORE_ANDROID_STORES_TEXT} you publish yourself: connect your account once and every new version goes there by itself, or download the files and follow our step-by-step guides.`,
       },
       {
         q: "Will Apple accept my app?",

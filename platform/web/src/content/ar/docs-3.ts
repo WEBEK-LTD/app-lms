@@ -45,7 +45,7 @@ export const AR_DOCS_3: Record<string, DocTranslation> = {
 
 - **مفتاح App Store Connect API**: معرّف المُصدِر (Issuer ID) ومعرّف المفتاح (Key ID) والمفتاح الخاص (‎.p8) من **App Store Connect › Users and Access › Integrations › App Store Connect API**، بدور App Manager. يلزم لتوقيع تطبيق iOS؛ ومن دونه تحصل على تطبيق Android فقط.
 - **الإشعارات الفورية** (اختياري): ملفا google-services.json وGoogleService-Info.plist من Firebase. اطّلع على [الإشعارات الفورية مع Firebase](/docs/push-notifications).
-- **باقتا Pro وBusiness**: أيضًا **مفتاح حساب خدمة Google Play** (بصيغة JSON)، لنتمكن من الرفع إلى Google Play نيابةً عنك، إلا إذا طلبت من فريقنا نشر التطبيق (صفحة **النشر**). اطّلع على [النشر على Google Play](/docs/google-play).
+- **كل باقة**: أيضًا **مفتاح حساب خدمة Google Play** (بصيغة JSON)، لنتمكن من الرفع إلى Google Play نيابةً عنك، إلا إذا طلبت من فريقنا نشر التطبيق (صفحة **النشر**). اطّلع على [النشر على Google Play](/docs/google-play).
 
 تُشفَّر المفاتيح، ولا تُعرض مرة أخرى، ولا تُستخدم إلا للإصدارات التي تبدأها. ويمكنك حذفها في أي وقت.
 

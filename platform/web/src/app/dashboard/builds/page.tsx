@@ -39,6 +39,7 @@ import { failureExplanation } from "@/lib/builds/failures";
 import { preflightChecks, renderCheck } from "@/lib/builds/preflight";
 import { preflightDeps } from "@/lib/builds/preflight-env";
 import { GoBackForm, RebuildForm, RetryBuildForm, RolloutButtons, StagedReleaseForm, StartBuildForm, VersionsForm } from "./start-build";
+import { APP_REVIEW_TEXT } from "@/lib/publishing/app-review-submit";
 import { versionsInUse } from "@/lib/builds/go-back";
 import { FIRST_SHARES, nextFraction } from "@/lib/publishing/rollout";
 import { localePath } from "@/i18n/paths";
@@ -373,7 +374,8 @@ export default async function BuildsPage({ searchParams }: PageProps<"/dashboard
       <DownloadRow key={kind} id={`${prefix}-${kind}`} icon={FILE_ICON[kind]} t={t} title={k(ARTIFACT_LABEL[kind])} text={k(fileDescription(kind, autoPublish))} {...row(kind)} />
     )),
   });
-  const stagedOn = Boolean(app.stagedRelease?.androidPercent != null || app.stagedRelease?.iosPhased);
+  // 138 On when the owner chose something other than everyone at once: a first share, internal testing, or Apple's phased release.
+  const stagedOn = Boolean(app.stagedRelease?.androidPercent != null || app.stagedRelease?.androidInternal || app.stagedRelease?.iosPhased);
   const fileRows = (
     <>
       {FILES.map((file) => (
@@ -541,6 +543,8 @@ export default async function BuildsPage({ searchParams }: PageProps<"/dashboard
           }
         >
           <BuildStages stages={current.stages} lang={lang} look="pills" />
+          {/* 138 Sent to App Review by the platform, or why not yet. */}
+          <AppReviewLine build={current} text={text} />
           {current.status === "queued" || current.status === "building" ? (
             stalled ? (
               <KitCallout tone="warn" icon="hourglass_top">
@@ -786,7 +790,7 @@ export default async function BuildsPage({ searchParams }: PageProps<"/dashboard
       ) : null}
 
       <KitSettings label={t("builds.settings")}>
-        {/* 89.2 Staged releases, with "We publish for you". */}
+        {/* 89.2 Staged releases; 138 everyone at once on Google Play unless the owner chooses. */}
         {autoPublish ? (
           <KitSettingRow
             titleId="h-staged"
@@ -796,6 +800,9 @@ export default async function BuildsPage({ searchParams }: PageProps<"/dashboard
             help={t("builds.stagedText")}
             helpLabel={t("studioPage.helpSection")}
           >
+            <p className="m-0 text-sm leading-relaxed text-(--sp-muted)" data-release-default="">
+              {t("builds.stagedDefault")}
+            </p>
             {app.rollout?.android && app.rollout.android.status !== "completed" ? (
               <div className="flex flex-col gap-2 rounded-2xl bg-(--sp-soft) p-4" data-rollout="android">
                 <span className="text-[15px] font-bold">
@@ -843,7 +850,10 @@ export default async function BuildsPage({ searchParams }: PageProps<"/dashboard
             ) : null}
             <KitFold summary={t("common.edit")} icon="tune">
               <StagedReleaseForm
-                current={{ androidPercent: app.stagedRelease?.androidPercent == null ? "" : String(app.stagedRelease.androidPercent), iosPhased: Boolean(app.stagedRelease?.iosPhased) }}
+                current={{
+                  androidPercent: app.stagedRelease?.androidInternal ? "internal" : app.stagedRelease?.androidPercent == null ? "" : String(app.stagedRelease.androidPercent),
+                  iosPhased: Boolean(app.stagedRelease?.iosPhased),
+                }}
                 shares={[...FIRST_SHARES]}
               />
             </KitFold>
@@ -960,5 +970,31 @@ export default async function BuildsPage({ searchParams }: PageProps<"/dashboard
         ) : null}
       </div>
     </KitPage>
+  );
+}
+
+/** 138 Where the iPhone version stands with App Review: sent (and when), or what it waits for, in plain words. */
+function AppReviewLine({ build, text }: { build: Build; text: Awaited<ReturnType<typeof dashboardText>> }) {
+  const { t, k, lang } = text;
+  const stage = build.stages.app_review;
+  const state = build.release?.appReview ?? null;
+  if (build.status !== "ready" || !stage || stage === "skipped" || build.stages.upload_testflight !== "done") return null;
+  if (stage === "done" && state?.submittedAt) {
+    return (
+      <KitCallout tone="success" icon="send" role="status">
+        <span data-app-review="submitted">{t(build.release?.iosPhased ? "builds.appReviewSentPhased" : "builds.appReviewSent", { date: formatDateTime(new Date(state.submittedAt), lang) })}</span>
+      </KitCallout>
+    );
+  }
+  if (stage !== "pending") return null;
+  const reason = state?.reason ?? "processing";
+  const blocked = state?.state === "blocked";
+  return (
+    <KitCallout tone={blocked ? "warn" : "info"} icon={blocked ? "warning" : "schedule"}>
+      <span data-app-review={blocked ? `blocked:${reason}` : `waiting:${reason}`}>
+        {k(APP_REVIEW_TEXT[reason])}
+        {blocked && state?.detail ? ` ${t("builds.appReviewDetail", { detail: state.detail })}` : ""}
+      </span>
+    </KitCallout>
   );
 }

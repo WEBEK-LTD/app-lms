@@ -6,7 +6,7 @@ import { isSetupComplete, newApp, stepStatus } from "@/lib/app/setup";
 import { registerClient } from "@/lib/auth/accounts";
 import { getStore } from "@/lib/data";
 import { MemoryStore } from "@/lib/data/memory";
-import { PLAN_INFO } from "@/lib/plans";
+import { PLAN_INFO, PLANS } from "@/lib/plans";
 import type { App } from "@/lib/data/types";
 import { notifyPublishingStatus, publishingTeamEmail } from "@/lib/publishing/service";
 import {
@@ -40,11 +40,8 @@ function listedApp(clientId: string): App {
 const fullListing = { playCategory: "Education", appStoreCategory: "Education", contentRatingNotes: "Courses for adults. No ads.", reviewNotes: null };
 
 describe("the “Publish it for me” checklist", () => {
-  it("comes with the plans that have “We publish for you”", () => {
-    expect(canUseManagedPublishing(PLAN_INFO.pro)).toBe(true);
-    expect(canUseManagedPublishing(PLAN_INFO.business)).toBe(true);
-    expect(canUseManagedPublishing(PLAN_INFO.starter)).toBe(false);
-    expect(canUseManagedPublishing(PLAN_INFO.growth)).toBe(false);
+  it("138 comes with every plan: “We publish for you” is in each one", () => {
+    for (const plan of PLANS) expect(canUseManagedPublishing(PLAN_INFO[plan]), plan).toBe(true);
     expect(canUseManagedPublishing(null)).toBe(false);
   });
 
@@ -77,8 +74,10 @@ describe("the “Publish it for me” checklist", () => {
 
   it("shows the team email in the invitation steps", () => {
     const invite = PUBLISHING_STEPS.find((s) => s.id === "apple_invite")!;
-    expect(stepText(invite, "publish@yallapp.test")).toContain("add publish@yallapp.test with the App Manager role");
-    expect(stepText(PUBLISHING_STEPS.find((s) => s.id === "play_invite")!, "publish@yallapp.test")).toContain("enter publish@yallapp.test");
+    // 138 As admin on both stores, with what the role includes.
+    expect(stepText(invite, "publish@yallapp.test")).toContain("add publish@yallapp.test with the Admin role");
+    expect(stepText(invite, "publish@yallapp.test")).toContain("certificates, identifiers and profiles");
+    expect(stepText(PUBLISHING_STEPS.find((s) => s.id === "play_invite")!, "publish@yallapp.test")).toContain("enter publish@yallapp.test. Give it Admin (all permissions)");
   });
 
   it("keeps when each step was first ticked, and forgets unticked or unknown ones", () => {
@@ -128,7 +127,7 @@ describe("store statuses", () => {
 });
 
 describe("the setup with “Publish it for me”", () => {
-  it("doesn't need store keys on Pro when our team publishes", () => {
+  it("138 keeps the Publishing step done once saved, on every plan", () => {
     const app: App = {
       ...listedApp("c1"),
       websiteDoneAt: NOW,
@@ -141,9 +140,11 @@ describe("the setup with “Publish it for me”", () => {
       listingDoneAt: NOW,
       publishingDoneAt: NOW,
     };
-    expect(stepStatus(app, "pro").publishing).toBe(false);
+    // Saving the step asks for a store key or "Publish it for me"; apps that finished it before (without either) keep building.
+    expect(stepStatus(app, "pro").publishing).toBe(true);
     expect(isSetupComplete({ ...app, publishingMode: "managed" }, "pro")).toBe(true);
-    expect(isSetupComplete({ ...app, publishingMode: "self" }, "pro")).toBe(false);
+    expect(isSetupComplete({ ...app, publishingMode: "self" }, "starter")).toBe(true);
+    expect(isSetupComplete({ ...app, publishingDoneAt: null }, "pro")).toBe(false);
   });
 });
 

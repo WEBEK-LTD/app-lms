@@ -164,6 +164,8 @@ describe("queueing builds safely", () => {
       // 102 Nor has it a sign-in for the store reviewers.
       ["review", "error"],
       ["firebase", "warning"],
+      // 138 Every plan sends the iPhone app to the App Store, which needs the App Store Connect key.
+      ["apple_key", "warning"],
     ]);
     expect(await store.listBuildsByApp(app.id, 5)).toEqual([]);
   });
