@@ -110,7 +110,7 @@ test("every sign-in look: chosen, drawn, saved as the app reads it, and kept", a
   const looks: [string, string, (p: Served) => void][] = [
     ["photo", "[data-preview-form=over-photo]", (p) => expect(p.sign_in?.image_url).toMatch(/^https?:\/\//)],
     ["card", "[data-preview-form=card-under-photo]", (p) => expect(p.sign_in?.image_url).toMatch(/^https?:\/\//)],
-    ["premium", "[data-preview-premium-card] [data-preview-button=gold]", () => undefined],
+    ["premium", "[data-preview-premium-card] [data-preview-button=premium]", () => undefined],
     ["minimal", "[data-preview-form=centred]", () => undefined],
     ["classic", "[data-preview-form=page]", () => undefined],
   ];
