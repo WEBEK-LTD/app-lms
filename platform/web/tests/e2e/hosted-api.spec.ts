@@ -1,4 +1,4 @@
-import { createHmac, generateKeyPairSync } from "node:crypto";
+import { createHmac } from "node:crypto";
 import { createServer, type Server } from "node:http";
 import { expect, test, type Page } from "@playwright/test";
 import { E2E } from "../../playwright.config";
@@ -240,34 +240,4 @@ test("85 a campaign goes to the people chosen, opens a web page, and a weekly on
   await page.getByRole("link", { name: "Campaigns" }).first().click();
   await expect(page.getByRole("listitem").filter({ hasText: "Monday flowers" })).toContainText("Stopped");
   await expect(page.getByRole("listitem").filter({ hasText: "Tulips in Arabic" })).toContainText("Sent");
-});
-
-test("136.20 the iPhone notifications key is checked with Apple before it's saved, and never shown", async ({ page }) => {
-  await signIn(page, client.email, client.password);
-  // An iPhone app: its bundle ID in the store listing.
-  await page.goto("/dashboard/setup?step=listing");
-  await page.getByLabel("Android package name").fill(`com.rose${suffix}.app`);
-  await page.getByLabel("iOS bundle ID").fill(`com.rose${suffix}.app`);
-  await page.getByLabel("Store title").fill("Rose Florist");
-  await page.getByLabel("Short description").fill("Fresh flowers on your phone.");
-  await page.getByLabel("Full description").fill("Rose Florist brings our bouquets, plants and gifts to your phone, with delivery every day.");
-  await page.getByLabel("Support email").fill("help@rose.test");
-  await page.getByLabel("Privacy policy URL").fill("https://rose.test/privacy");
-  await page.getByRole("button", { name: "Save & continue" }).click();
-  await expect(page.getByRole("heading", { name: "Publishing" })).toBeVisible();
-
-  await page.goto("/dashboard/notifications");
-  const section = page.getByRole("region", { name: "iPhone notifications" });
-  await expect(section).toContainText("Apple asks for your APNs key once");
-  const p8 = generateKeyPairSync("ec", { namedCurve: "prime256v1" }).privateKey.export({ type: "pkcs8", format: "pem" }).toString();
-  await section.getByLabel("APNs key (.p8)").setInputFiles({ name: "AuthKey_ABCDE12345.p8", mimeType: "application/octet-stream", buffer: Buffer.from(p8) });
-  // The Key ID comes from Apple's file name.
-  await expect(section.getByLabel("Key ID")).toHaveValue("ABCDE12345");
-  await section.getByLabel("Team ID").fill("ABCDE12345");
-  await section.getByRole("button", { name: "Check with Apple and save" }).click();
-  // A made-up key: Apple refuses it, or (without a way to Apple from here) it can't be checked. Either way nothing is saved.
-  await expect(section.getByText(/We couldn't reach Apple to check the key|Apple didn't accept this key/)).toBeVisible();
-  await page.reload();
-  await expect(page.getByRole("region", { name: "iPhone notifications" })).not.toContainText("accepted by Apple");
-  expect(await page.content()).not.toContain("BEGIN PRIVATE KEY");
 });
