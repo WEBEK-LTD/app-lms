@@ -583,6 +583,3 @@ export function travelSettingsFormValues(s: TravelSettings): Record<string, stri
     timeZone: s.timeZone,
   };
 }
-
-/** 126.10 The time zones Travel settings offers (the one saved is offered too). */
-export const TRAVEL_TIMEZONES = ["Europe/Istanbul", "Africa/Cairo", "Asia/Riyadh", "Asia/Dubai", "Asia/Qatar", "Asia/Kuwait", "Asia/Amman", "Asia/Beirut", "Asia/Baghdad", "Africa/Casablanca", "Africa/Tunis", "Africa/Algiers", "Europe/London", "Europe/Berlin", "Europe/Paris", "Asia/Makassar"] as const;

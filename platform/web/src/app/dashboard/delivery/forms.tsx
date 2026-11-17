@@ -1,6 +1,7 @@
 "use client";
 
 import { CurrencyPicker } from "@/components/currency-picker";
+import { TimeZonePicker } from "@/components/time-zone-picker";
 import { useActionState, useState, type ReactNode } from "react";
 import { saveDeliveryServiceAction, saveDeliverySettingsAction } from "@/app/actions/delivery";
 import { Field, FieldError, FormMessage, SubmitButton } from "@/components/form";
@@ -167,7 +168,6 @@ export interface FoodSettingsValues {
   cuisines: string;
   foodCourierJob: string;
   timezone: string;
-  timezones: readonly string[];
 }
 
 /** 104 How the company prices, takes payment, follows parcels, gives out jobs and (112.3) its couriers' app. 105.1 A food company's too, with its cuisines, when a courier gets an order and its time zone. */
@@ -360,19 +360,8 @@ export function DeliverySettingsForm({
                 { value: "ready", label: t("food.courierJob_ready"), hint: t("food.courierJob_readyHint") },
               ]}
             />
-            <div className="flex flex-col gap-1.5">
-              <label htmlFor="f-timezone" className="text-sm font-semibold">
-                {t("food.timezone")}
-              </label>
-              <select id="f-timezone" name="timezone" defaultValue={state.values?.timezone ?? food.timezone} className="input max-w-[280px]" dir="ltr">
-                {food.timezones.map((z) => (
-                  <option key={z} value={z}>
-                    {z}
-                  </option>
-                ))}
-              </select>
-              <FieldError id="f-timezone-error" error={state.errors?.timezone} />
-            </div>
+            {/* 137 Every time zone: searched by city, zone or offset, the usual ones first. */}
+            <TimeZonePicker id="f-timezone" label={t("food.timezone")} defaultValue={state.values?.timezone ?? food.timezone} error={state.errors?.timezone} className="max-w-[560px]" />
           </section>
         </TabPanel>
       ) : null}

@@ -1,8 +1,7 @@
 import { plansIn } from "@/lib/marketing-lang";
 import type { Metadata } from "next";
 import Link from "next/link";
-import { Stat, StatRow } from "@/components/page-kit";
-import { PageHeader } from "@/components/ui";
+import { KitHeader, KitPage } from "@/components/studio-page";
 import { requireClient } from "@/lib/auth/session";
 import { dashboardText } from "@/lib/dashboard-lang";
 import { richText } from "@/i18n/rich";
@@ -37,12 +36,9 @@ export default async function LanguagesPage({ searchParams }: PageProps<"/dashbo
   const languageName = (code: string) => appLanguageName(code, dashLang);
   if (!app) {
     return (
-      <div className="flex max-w-[620px] flex-col gap-3">
-        <h1 className="m-0 text-[26px] leading-tight font-extrabold tracking-[-0.5px] break-words sm:text-[30px]">{t("languages.title")}</h1>
-        <p className="m-0 text-[15px] leading-relaxed text-ink-4">
-          {richText(t("languages.chooseTypeFirst"), { link: (chunk) => <Link href="/dashboard/app-type">{chunk}</Link> })}
-        </p>
-      </div>
+      <KitPage>
+        <KitHeader icon="translate" title={t("languages.title")} description={richText(t("languages.chooseTypeFirst"), { link: (chunk) => <Link href="/dashboard/app-type">{chunk}</Link> })} />
+      </KitPage>
     );
   }
   const store = await getStore();
@@ -67,15 +63,9 @@ export default async function LanguagesPage({ searchParams }: PageProps<"/dashbo
   const main = dashLang !== "en" && languages.default !== dashLang ? withMainLanguage(languages, dashLang, plan?.limits.languages ?? null) : null;
   const toTranslate = summaries.reduce((sum, s) => sum + Math.max(0, s.total - s.done), 0);
 
+  // 132.137 The premium kit: the editor draws the header with Publish, the draft and its numbers in one hero card, then the languages and their texts.
   return (
-    <div className="flex flex-col gap-6">
-      {/* The page kit: the header, the numbers, then the languages and their texts. */}
-      <PageHeader title={t("languages.title")} description={t("languages.intro")} />
-      <StatRow label={t("languages.title")}>
-        <Stat icon="translate" label={t("languages.inApp")} value={languages.available.length} hint={plan?.limits.languages ? `${plan.name}: ${plan.limits.languages}` : undefined} />
-        <Stat icon="check_circle" tone="success" label={t("languages.statTranslated")} value={summaries.filter((s) => s.done >= s.total).length} />
-        <Stat icon="edit" tone={toTranslate ? "warn" : "neutral"} label={t("languages.statToTranslate")} value={toTranslate} />
-      </StatRow>
+    <KitPage>
       <LanguagesEditor
         languages={{ default: languages.default, available: languages.available }}
         lang={{ code: lang, name: languageName(lang), rtl: isRtl(lang), builtIn: isBuiltInLanguage(lang), isDefault: lang === languages.default }}
@@ -88,12 +78,13 @@ export default async function LanguagesPage({ searchParams }: PageProps<"/dashbo
         savedAt={record.draftUpdatedAt.toISOString()}
         previewHref={`/dashboard/preview?${hosted ? "pages=draft&" : ""}lang=${encodeURIComponent(lang)}`}
         previewDraft={hosted}
+        stats={{ inApp: languages.available.length, translated: summaries.filter((s) => s.done >= s.total).length, toTranslate }}
         plan={{
           name: plan?.name ?? "",
           languages: plan?.limits.languages ?? null,
           upgrade: plan ? lowestPlanWith(plans, (p) => p.limits.languages === null || p.limits.languages > (plan.limits.languages ?? 0), planId) : null,
         }}
       />
-    </div>
+    </KitPage>
   );
 }

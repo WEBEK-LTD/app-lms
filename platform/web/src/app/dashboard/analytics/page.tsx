@@ -15,7 +15,7 @@ import { loadSales } from "@/lib/analytics/sales";
 import { appPlan, effectivePlans } from "@/lib/entitlements";
 import { analyticsEventsKeepText, analyticsKeepText } from "@/components/plan-cards";
 import { funnelWords, itemWord, pushTypeWord } from "@/lib/analytics/words";
-import { timeZones, zoneLabel, zoneOf } from "@/lib/analytics/zone";
+import { zoneLabel, zoneOf } from "@/lib/analytics/zone";
 import { wordsOf } from "@/lib/app/kinds";
 import { requireClient } from "@/lib/auth/session";
 import { formatCents } from "@/lib/catalog/money";
@@ -144,7 +144,7 @@ export default async function AnalyticsPage({ searchParams }: PageProps<"/dashbo
       {/* The page kit: the days and the time zone first, the key numbers, then the reports in labelled groups. */}
       <div className="flex flex-col gap-3 rounded-2xl border border-line bg-white p-4 sm:px-5">
         <RangeFilter report={report} text={text} />
-        <ZoneForm zone={zone} label={zoneText} zones={timeZones()} chosen={Boolean(app.timeZone)} />
+        <ZoneForm zone={zone} label={zoneText} chosen={Boolean(app.timeZone)} />
       </div>
       <Notice>
         {/* 132.63 An app without a plan yet isn't told about "your Starter plan": what it keeps until it has one. */}

@@ -135,5 +135,3 @@ export function freeTimes(hours: StaffHours, taken: readonly Pick<AccountManager
   return out;
 }
 
-/** The time zones the team picks from. */
-export const STAFF_TIMEZONES = ["Europe/Istanbul", "Africa/Cairo", "Asia/Riyadh", "Asia/Dubai", "Europe/London", "UTC"];

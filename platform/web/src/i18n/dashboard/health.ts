@@ -61,6 +61,8 @@ export const en = {
     chooseZone: "Choose a time zone from the list.",
     zoneSaved: "Time zone saved: days are counted in {zone} from now on.",
   },
+  // 132.160 The video sites' own players: shown or hidden.
+  shownState: "Shown",
 } as const;
 
 type Messages = Strings<typeof en>;
@@ -122,6 +124,7 @@ export const ar: Messages = {
     chooseZone: "اختر منطقة زمنية من القائمة.",
     zoneSaved: "حُفظت المنطقة الزمنية: تُحتسب الأيام بتوقيت {zone} من الآن.",
   },
+  shownState: "ظاهرة",
 };
 
 export const tr: Messages = {
@@ -183,4 +186,5 @@ export const tr: Messages = {
     chooseZone: "Listeden bir saat dilimi seçin.",
     zoneSaved: "Saat dilimi kaydedildi: günler bundan sonra {zone} saatine göre sayılır.",
   },
+  shownState: "Gösteriliyor",
 };
