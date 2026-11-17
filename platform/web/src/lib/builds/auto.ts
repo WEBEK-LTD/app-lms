@@ -8,7 +8,7 @@ import { hasFeature } from "../plans";
 import { bumpPatch } from "../semver";
 import type { PreflightDeps } from "./preflight";
 import { behindAppRelease } from "./app-release";
-import { isInProgress } from "./view";
+import { buildOnly, isInProgress } from "./view";
 
 /**
  * 87.4 Automatic builds (plans with `auto_rebuild`) only for what a new build
@@ -73,7 +73,10 @@ export async function runAutoBuilds(deps: AutoBuildDeps): Promise<{ queued: numb
     const client = await store.getClientById(app.clientId);
     const license = client ? await store.getLicenseForApp(client.id, app.id) : null;
     const plan = license ? currentPlanId(license, now) : null;
-    const last = (await store.listBuildsByApp(app.id, 1))[0];
+    const recent = await store.listBuildsByApp(app.id, 10);
+    const last = recent[0];
+    // 142 What a build would change is read against the last build of both apps: one started for a single platform left the other as it was.
+    const compared = recent.find((b) => !buildOnly(b)) ?? last;
     if (!client || !license || !plan || !appIsActive(license, client, now) || !hasFeature(plans[plan], "auto_rebuild") || !last || !isSetupComplete(app, plan, plans)) {
       await store.updateApp(app.id, { autoBuildDueAt: null }, now);
       continue;
@@ -85,7 +88,7 @@ export async function runAutoBuilds(deps: AutoBuildDeps): Promise<{ queued: numb
       continue;
     }
     await store.updateApp(app.id, { autoBuildDueAt: null }, now);
-    if (buildChanges(app, client, last, deps.assetUrl).length === 0) {
+    if (buildChanges(app, client, compared!, deps.assetUrl).length === 0) {
       nothing += 1;
       continue;
     }

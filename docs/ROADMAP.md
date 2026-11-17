@@ -3715,6 +3715,17 @@ The owner (17 November), trying Kech Flora: the keyboard sometimes opened by its
 | [x] | 141.3 `CLIENT_APP_RELEASE` 3 (`lib/builds/app-release.ts`), with Phase 143's sign-in buttons in the same release: every active app gets a build with both, 4 an hour, as with release 2 (138.6) | `publish-for-all.test.ts` |
 | [ ] | 141.4 Not tried on a phone: the widget tests drive Flutter's own focus and test keyboard; a tap outside a text field still leaves its keyboard up (as on Android and iOS by default), so the send button of a chat or a field's own buttons keep it | the owner, on Kech Flora's next build |
 
+## Phase 142: Build one app alone
+
+The owner (17 November): "اول ما الشخص يربط … يظهرله زر Start new build للايفون لواحدو وولاندرويد لواحدو وسيب Start new build الاساسي للاتنين مع بعض". Builds & downloads (the dashboard and Studio) gets **Android only** and **iPhone only** next to Start new build, once the app has both apps; Start new build still makes both. No migration: the choice is kept on the build's `release` (`only`).
+
+| Status | Item | Tests |
+|---|---|---|
+| [x] | 142.1 The buttons: under Start new build, "Or one app only:" with Android only and iPhone only (the same version field), shown when the app can have its iPhone app (`iosBuildAvailable`: iOS on its plan and the App Store Connect key saved); only for the main app, not the second apps. Each says "Starting…" only on itself (`SubmitButton` `pendingFor`). "Try again" on a build started for one app tries that app again; a rebuild as it was keeps its build's choice | `phase142-one-platform.test.ts`, `starter-flow.spec.ts` |
+| [x] | 142.2 The build (`queueBuild` `only`): the other platform's stages are skipped (Galaxy Store, AppGallery and GetApps go with Android), the choice kept on `release.only`; iPhone only without the iPhone app is refused in plain words ("The iPhone app needs your App Store Connect key in App setup › Publishing, on a plan with the iOS app.", in Arabic and Turkish too); the activity log says which | `phase142-one-platform.test.ts` |
+| [x] | 142.3 The pipeline (`docs/api/pipeline.yaml` › Build `android`, `only`; `platform.py` `queue_entry`; `build-apps.yml`): each job's matrix holds only the builds that make its app, so a build of the iPhone app alone runs no Android job and one of Android alone (or without the iPhone app on its plan or key) takes no Mac. `report.py` reads only the jobs that ran: a build of the iPhone app alone is ready when the iOS app was built; one without the iPhone app keeps the iOS job's own words on how to get it | `test_release.py`, `test_scripts.py` |
+| [x] | 142.4 What a single-app build leaves: the automatic builds compare a change with the last build of both apps, and the Yallapp app release with the newest build of both (`buildOnly`), so the other app isn't left behind; on Builds each file comes from the last ready build that made its app (an iPhone-only build doesn't hide the Android files), and the latest build's Install on Android link isn't shown for an iPhone-only build | `phase142-one-platform.test.ts`, `starter-flow.spec.ts` |
+
 ## Phase 143: The sign-in buttons in the app's main colour
 
 The owner (17 November), on Kech Flora: the sign-in screen's buttons didn't take the app's colours ("زر البوتونز مش هتاخد … من الوان الابلكيشن لانه ثابت علي كل الابلكيشنز … لون اصفر تقريبا"). The premium sign-in (123) drew them in the second colour's gold, which the designs bring (#E8B04B and its kind) and changing the main colour doesn't change, and Studio › Screens drew a fixed gold. No migration.

@@ -135,6 +135,7 @@ export function SubmitButton({
   value,
   disabled = false,
   describedBy,
+  pendingFor,
 }: {
   children: ReactNode;
   pendingText?: string;
@@ -144,15 +145,19 @@ export function SubmitButton({
   value?: string;
   disabled?: boolean;
   describedBy?: string;
+  /** 142 In a form with several submit buttons: shows "pending" only when the form was sent with this field's value (null: without it). */
+  pendingFor?: { name: string; value: string | null };
 }) {
-  const { pending } = useFormStatus();
+  const { pending: sending, data } = useFormStatus();
+  // Every button of the form is disabled while it's sent; only the one pressed says so.
+  const pending = sending && (!pendingFor || (data?.get(pendingFor.name) ?? null) === pendingFor.value);
   const t = useOptionalDashT();
   return (
     <button
       type="submit"
       name={name}
       value={value}
-      disabled={pending || disabled}
+      disabled={sending || disabled}
       aria-describedby={describedBy}
       className={`${btn[variant]} ${className}`}
     >

@@ -15,6 +15,11 @@ talks to the platform through [`docs/api/pipeline.yaml`](../docs/api/pipeline.ya
    the frequent job asks again when a build has waited 10 minutes and no run
    is going (`lib/builds/ask-again.ts`): a build left over from a full run
    never waits for GitHub's schedule, which often doesn't run.
+   142 Each job's matrix holds the builds that make its app (`android`,
+   `ios` and `only` in the queue): a build started for the iPhone only runs
+   no Android job, and one for Android alone, or without the iPhone app (no
+   iOS on its plan, no App Store Connect key), takes no Mac. The report
+   (`report.py`) reads the jobs that ran.
 3. **Android** (Ubuntu), per build:
    - Applies the build config to `mobile/` (`tool/apply_config.dart`) and
      writes the client's launcher icons (`scripts/make_icons.py`). With the

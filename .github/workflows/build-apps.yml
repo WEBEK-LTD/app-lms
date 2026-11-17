@@ -28,6 +28,10 @@ jobs:
     if: vars.PLATFORM_API_URL != ''
     outputs:
       builds: ${{ steps.take.outputs.builds }}
+      # 142 The builds each job makes: Android unless started for the iPhone only; iOS when the
+      # build has it (its plan, the App Store Connect key) and wasn't started for Android only.
+      android: ${{ steps.take.outputs.android }}
+      ios: ${{ steps.take.outputs.ios }}
     steps:
       - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
         with:
@@ -43,19 +47,21 @@ jobs:
             python3 build/scripts/platform.py claim "$id" "$log_url"
           done
           echo "builds=$builds" >> "$GITHUB_OUTPUT"
+          echo "android=$(echo "$builds" | python3 -c 'import json,sys; print(json.dumps([b for b in json.load(sys.stdin) if b.get("android", True)]))')" >> "$GITHUB_OUTPUT"
+          echo "ios=$(echo "$builds" | python3 -c 'import json,sys; print(json.dumps([b for b in json.load(sys.stdin) if b.get("ios", True)]))')" >> "$GITHUB_OUTPUT"
           echo "Builds: $builds"
 
   android:
     name: Android ${{ matrix.build.id }}
     needs: queue
-    if: needs.queue.outputs.builds != '[]' && needs.queue.outputs.builds != ''
+    if: needs.queue.outputs.android != '[]' && needs.queue.outputs.android != ''
     runs-on: ${{ vars.LINUX_RUNNER || 'ubuntu-24.04' }}
     timeout-minutes: 60
     strategy:
       fail-fast: false
       max-parallel: 3
       matrix:
-        build: ${{ fromJSON(needs.queue.outputs.builds) }}
+        build: ${{ fromJSON(needs.queue.outputs.android) }}
     env:
       AUTO_PUBLISH: ${{ matrix.build.auto_publish }}
       # 89.2 A share of Google Play's production users first, when the owner asked.
@@ -109,14 +115,15 @@ jobs:
   ios:
     name: iOS ${{ matrix.build.id }}
     needs: queue
-    if: needs.queue.outputs.builds != '[]' && needs.queue.outputs.builds != ''
+    # 142 No Mac for a build without the iOS app: the report says why.
+    if: needs.queue.outputs.ios != '[]' && needs.queue.outputs.ios != ''
     runs-on: macos-15
     timeout-minutes: 90
     strategy:
       fail-fast: false
       max-parallel: 2
       matrix:
-        build: ${{ fromJSON(needs.queue.outputs.builds) }}
+        build: ${{ fromJSON(needs.queue.outputs.ios) }}
     env:
       AUTO_PUBLISH: ${{ matrix.build.auto_publish }}
       # 89.2 Apple's phased release, when the owner asked.
@@ -218,4 +225,7 @@ jobs:
       - name: Send the final status
         env:
           BUILD_PIPELINE_TOKEN: ${{ secrets.BUILD_PIPELINE_TOKEN }}
+          # 142 The apps this build makes (the jobs that ran for it).
+          BUILD_ONLY: ${{ matrix.build.only }}
+          BUILD_IOS: ${{ matrix.build.ios }}
         run: python3 build/scripts/report.py "${{ matrix.build.id }}" results
