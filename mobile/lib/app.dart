@@ -24,6 +24,7 @@ import 'core/widgets/premium_chrome.dart';
 import 'modules/lms/downloads/learning_sync.dart';
 import 'modules/shared/account/order_journey.dart';
 import 'modules/shared/pages/draft_reload.dart';
+import 'modules/shared/pages/resume_reload.dart';
 import 'modules/store/data/cart_sync.dart';
 
 /// The app root: theme from the build and runtime config, routing, and the
@@ -62,6 +63,8 @@ class YallappApp extends ConsumerWidget {
       ..watch(screenProtectionSyncProvider)
       // 82.1 The preview in the Pages & look editor follows the draft.
       ..watch(draftReloadProvider)
+      // What the owner publishes, asked again when the app is back on screen.
+      ..watch(resumeReloadProvider)
       // 100 Store purchases not confirmed yet are sent again at each start.
       ..watch(storeBillingProvider);
 
