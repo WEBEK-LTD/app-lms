@@ -5,7 +5,7 @@ import { deleteCouponAction, setCouponActiveAction } from "@/app/actions/catalog
 import { changeFlashSaleAction } from "@/app/actions/selling";
 import { formatDate } from "@/components/ui";
 import { KitBar, KitCallout, KitDrawer, KitEmpty, KitHeader, KitHero, KitList, KitMore, KitNext, KitPage, KitRow, KitSection, KitStat, KitStatus, KitThumb, kit } from "@/components/studio-page";
-import { KitBadge, KitInspectorBody, KitInspectorFacts, KitInspectorHead } from "@/components/studio-page/parts";
+import { KitBadge, KitInspectorBody, KitInspectorFacts, KitInspectorHead, KitInspectorPart } from "@/components/studio-page/parts";
 import { KitTable, type KitTableRow } from "@/components/studio-page/table";
 import { KitTabPanel, KitTabs } from "@/components/studio-page/tabs";
 import { Icon } from "@/components/icon";
@@ -18,17 +18,20 @@ import type { App, CatalogCoupon, StoreFlashSale } from "@/lib/data/types";
 import { dashboardText } from "@/lib/dashboard-lang";
 import { richText } from "@/i18n/rich";
 import { localePath } from "@/i18n/paths";
+import { assetUrl } from "@/lib/assets";
 import { platformDefinition } from "@/lib/hosted/connectors/platforms";
-import { DEFAULT_DELIVERY, slotLabel } from "@/lib/selling/delivery";
+import { DEFAULT_DELIVERY, DELIVERY_LIMITS, slotLabel } from "@/lib/selling/delivery";
 import { saleOn, unitsLeft } from "@/lib/selling/flash-sales";
 import { giftOccasionsOf } from "@/lib/selling/gift-messages";
 import { checkoutModeOf, giftsOf } from "@/lib/selling/gifts";
-import { SHIPPING_COUNTRIES, STARTER_CITIES } from "@/lib/selling/shipping";
+import { countryChoices, countryNameIn } from "@/lib/selling/countries";
+import { sameCity, STARTER_CITIES } from "@/lib/selling/shipping";
 import { appLanguagesOf, platformCarriesDetails } from "@/lib/selling/store";
 import { localInput, shopZone } from "@/lib/selling/zone";
 import { checkoutLookOf } from "@/lib/studio/checkout-look";
 import { CouponForm } from "../catalog/forms";
 import { AddonsForm, AreasForm, CheckoutModeForm, DeliveryForm, FlashSaleForm, GiftsForm, TitlesForm } from "./forms";
+import type { AreasStart } from "./pickers";
 import { SellingTabs } from "./tabs";
 
 export async function generateMetadata(): Promise<Metadata> {
@@ -96,7 +99,6 @@ export default async function SellingPage({ searchParams }: { searchParams: Prom
   };
   const ownAddons = source.kind === "catalog" ? products.filter((p) => p.addon) : [];
   const weekdays = Array.from({ length: 7 }, (_, d) => new Intl.DateTimeFormat(lang === "ar" ? "ar-EG" : lang, { weekday: "short", timeZone: "UTC" }).format(new Date(Date.UTC(2026, 10, 15 + d))));
-  const nameOf = (code: string) => (SHIPPING_COUNTRIES[code] as Record<string, string> | undefined)?.[lang] ?? code;
   const delivery = settings.delivery ?? DEFAULT_DELIVERY;
   const deliveryValues: Record<string, string> = {
     enabled: delivery.enabled ? "on" : "",
@@ -117,7 +119,6 @@ export default async function SellingPage({ searchParams }: { searchParams: Prom
   });
   const areaValues: Record<string, string> = {
     shippingMode: settings.shippingMode ?? "flat",
-    cityPrices: (settings.cityPrices ?? []).map((p) => `${p.city}: ${centsToDecimal(p.cents)}`).join("\n"),
     otherCity: settings.otherCityCents != null ? centsToDecimal(settings.otherCityCents) : "",
     originLat: settings.distancePricing ? String(settings.distancePricing.origin.lat) : "",
     originLng: settings.distancePricing ? String(settings.distancePricing.origin.lng) : "",
@@ -129,11 +130,35 @@ export default async function SellingPage({ searchParams }: { searchParams: Prom
     includedKg: settings.weightPricing ? String(settings.weightPricing.includedKg) : "",
     minFee: settings.shippingMinCents != null ? centsToDecimal(settings.shippingMinCents) : "",
   };
-  (settings.areas ?? []).forEach((a, i) => {
-    areaValues[`country${i}`] = a.country;
-    areaValues[`cities${i}`] = (a.cities ?? []).join("\n");
+  // 132.170 Where it delivers as the editor starts: every country, or each chosen one with its cities and their own prices.
+  const priced = settings.cityPrices ?? [];
+  const placed = new Set<number>();
+  const priceOf = (cents: number) => centsToDecimal(cents);
+  const areasStart: AreasStart = {
+    scope: (settings.areas ?? []).length ? "some" : "all",
+    areas: (settings.areas ?? []).map((a) => {
+      const cities = (a.cities ?? []).map((city) => {
+        const k = priced.findIndex((p, n) => !placed.has(n) && (p.country === a.country || p.country === "") && sameCity(p.city, city));
+        if (k < 0) return { name: city, price: "" };
+        placed.add(k);
+        return { name: city, price: priceOf(priced[k]!.cents) };
+      });
+      priced.forEach((p, n) => {
+        if (placed.has(n) || p.country !== a.country) return;
+        placed.add(n);
+        cities.push({ name: p.city, price: priceOf(p.cents) });
+      });
+      return { country: a.country, allCities: a.cities === null, cities };
+    }),
+    anywhere: [],
+  };
+  // A price saved without its country: on the first country's card, or with every country.
+  priced.forEach((p, n) => {
+    if (placed.has(n)) return;
+    (areasStart.areas[0]?.cities ?? areasStart.anywhere).push({ name: p.city, price: priceOf(p.cents) });
   });
-  const startersOf = Object.fromEntries(Object.entries(STARTER_CITIES).map(([code, cities]) => [code, cities.map((c) => (c as Record<string, string>)[lang] ?? c.en).join(", ")]));
+  const startersOf = Object.fromEntries(Object.entries(STARTER_CITIES).map(([code, cities]) => [code, cities.map((c) => (c as Record<string, string>)[lang] ?? c.en)]));
+  const allCountries = countryChoices(lang).map((c) => ({ ...c, en: countryNameIn(c.code, "en") }));
   const noWeight = source.kind === "catalog" && settings.weightPricing ? products.filter((p) => p.active && !p.digital && !p.weightGrams).length : 0;
   const saleValues = (s: StoreFlashSale): Record<string, string> => ({
     title: s.title,
@@ -149,7 +174,9 @@ export default async function SellingPage({ searchParams }: { searchParams: Prom
   });
   const otherLangs = langs.filter((l) => l.code !== languages.default);
   // 131 A flash sale's list never has a gift add-on.
-  const flashProducts = source.kind === "catalog" ? products.filter((p) => p.active && !p.addon).map((p) => ({ id: p.id, name: p.name })) : null;
+  // 132.170 Each with its picture and price, so the owner knows it at a glance.
+  const pictureOf = (p: { imageAssetIds: string[] }) => (p.imageAssetIds[0] ? assetUrl(p.imageAssetIds[0]) : null);
+  const flashProducts = source.kind === "catalog" ? products.filter((p) => p.active && !p.addon).map((p) => ({ id: p.id, name: p.name, image: pictureOf(p), price: money(p.salePriceCents ?? p.priceCents) })) : null;
   const flashCategories = categories.map((c) => ({ id: c.id, name: c.name }));
   const templatesCount = occasions.reduce((n, o) => n + o.templates.length, 0);
   // 132.25 The tabs the source uses; `?tab=` opens one (an old link to a part, `#h-flash`, too).
@@ -179,11 +206,16 @@ export default async function SellingPage({ searchParams }: { searchParams: Prom
   const when = (d: Date) => date(d, { day: "numeric", month: "short", hour: "2-digit", minute: "2-digit", hourCycle: "h23", timeZone: zone });
   const saleState = (s: StoreFlashSale) =>
     !s.active ? <KitStatus tone="neutral">{t("selling.turnOff")}</KitStatus> : unitsLeft(s) === 0 ? <KitStatus tone="warn">{t("selling.soldOut")}</KitStatus> : saleOn(s, now) ? <KitStatus tone="success">{t("selling.live")}</KitStatus> : s.endsAt <= now ? <KitStatus tone="neutral">{t("selling.ended")}</KitStatus> : <KitStatus tone="info">{t("selling.scheduled", { date: formatDate(s.startsAt, lang) })}</KitStatus>;
-  const productName = new Map(products.map((p) => [p.id, p.name]));
+  const productById = new Map(products.map((p) => [p.id, p]));
+  /** 132.170 A flash sale's first product with a picture: the sale's picture in the table. */
+  const salePicture = (s: StoreFlashSale) => {
+    const p = s.productIds.map((id) => productById.get(id)).find((x) => x && x.imageAssetIds.length);
+    return p ? pictureOf(p) : null;
+  };
   const categoryName = new Map(categories.map((c) => [c.id, c.name]));
   const whatsIn = (s: StoreFlashSale) =>
     s.productIds.length ? t("selling.productsCount", { count: s.productIds.length }) : s.categoryId !== null ? t("selling.categoryNamed", { name: categoryName.get(s.categoryId) ?? String(s.categoryId) }) : null;
-  const thumb = (icon: IconName, dim = false) => <KitThumb icon={icon} size={40} dim={dim} />;
+  const thumb = (icon: IconName, dim = false, src: string | null = null) => <KitThumb src={src} icon={icon} size={40} dim={dim} />;
   const name = (text: ReactNode, line?: ReactNode) => (
     <span className="flex min-w-0 flex-col gap-0.5">
       <span className="truncate text-[14.5px] font-bold" dir="auto">
@@ -226,7 +258,7 @@ export default async function SellingPage({ searchParams }: { searchParams: Prom
     data: { "data-flash-sale": String(s.id) },
     cells: [
       <>
-        {thumb("bolt", !s.active)}
+        {thumb("bolt", !s.active, salePicture(s))}
         {name(s.title, whatsIn(s))}
       </>,
       <KitBadge key="d" tone="peach">
@@ -285,14 +317,33 @@ export default async function SellingPage({ searchParams }: { searchParams: Prom
               [t("selling.flashStarts"), when(s.startsAt)],
               [t("selling.flashEnds"), when(s.endsAt)],
               [t("selling.flashLimit"), s.limit !== null ? t("selling.soldOf", { sold: num(s.sold), limit: num(s.limit) }) : t("selling.soldCount", { sold: num(s.sold) })],
-              ...(s.productIds.length
-                ? ([[t("selling.flashProducts"), s.productIds.map((id) => productName.get(id) ?? `#${id}`).join(" · ")]] as [string, string][])
-                : s.categoryId !== null
+              ...(s.productIds.length && source.kind !== "catalog"
+                ? ([[t("selling.flashProducts"), s.productIds.map((id) => `#${id}`).join(" · ")]] as [string, string][])
+                : s.categoryId !== null && !s.productIds.length
                   ? ([[t("manage.filterCategory"), categoryName.get(s.categoryId) ?? String(s.categoryId)]] as [string, string][])
                   : []),
               ...(platform ? ([[t("selling.platformCode", { platform }), s.platformCode ? <bdi dir="ltr">{s.platformCode}</bdi> : t("studioPage.notSet")]] as [string, ReactNode][]) : []),
             ]}
           />
+          {/* 132.170 Its products with their pictures and prices. */}
+          {s.productIds.length && source.kind === "catalog" ? (
+            <KitInspectorPart title={t("selling.flashProducts")}>
+              <ul className="m-0 flex list-none flex-col gap-2 p-0" data-inspector-products="">
+                {s.productIds.map((id) => {
+                  const p = productById.get(id);
+                  return (
+                    <li key={id} className="flex items-center gap-3">
+                      <KitThumb src={p ? pictureOf(p) : null} icon="inventory_2" size={40} />
+                      <span className="min-w-0 flex-1 truncate text-[14px] font-semibold" dir="auto">
+                        {p?.name ?? `#${id}`}
+                      </span>
+                      {p ? <span className="shrink-0 font-sans text-[13px] text-(--sp-muted) tabular-nums">{money(p.salePriceCents ?? p.priceCents)}</span> : null}
+                    </li>
+                  );
+                })}
+              </ul>
+            </KitInspectorPart>
+          ) : null}
           {platform && !s.platformCode ? (
             <KitCallout tone="warn" icon="warning">
               {t("selling.platformNoCode", { platform })}
@@ -484,7 +535,7 @@ export default async function SellingPage({ searchParams }: { searchParams: Prom
           <KitTabPanel tab="delivery">
             <KitSection titleId="h-delivery" title={t("selling.deliveryTitle")} description={t("selling.deliveryIntro")}>
               {mode === "gift" ? <p className="m-0 text-[13px] text-(--sp-muted)">{t("selling.giftForces")}</p> : null}
-              <DeliveryForm values={deliveryValues} currency={currency} timezones={TIMEZONES.includes(delivery.timezone) ? TIMEZONES : [delivery.timezone, ...TIMEZONES]} weekdays={weekdays} feesNote={platform ? t("selling.feesPlatform", { platform }) : null} />
+              <DeliveryForm values={deliveryValues} maxSlots={DELIVERY_LIMITS.slots} currency={currency} timezones={TIMEZONES.includes(delivery.timezone) ? TIMEZONES : [delivery.timezone, ...TIMEZONES]} weekdays={weekdays} feesNote={platform ? t("selling.feesPlatform", { platform }) : null} />
             </KitSection>
           </KitTabPanel>
         ) : null}
@@ -502,7 +553,7 @@ export default async function SellingPage({ searchParams }: { searchParams: Prom
                   {t("selling.needsWeights", { count: noWeight })}
                 </KitCallout>
               ) : null}
-              <AreasForm values={areaValues} currency={currency} countries={Object.keys(SHIPPING_COUNTRIES).map((code) => ({ code, name: nameOf(code) }))} starters={startersOf} />
+              <AreasForm values={areaValues} currency={currency} countries={allCountries} starters={startersOf} areas={areasStart} />
             </KitSection>
           </KitTabPanel>
         ) : null}

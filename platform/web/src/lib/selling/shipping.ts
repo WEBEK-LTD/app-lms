@@ -1,6 +1,7 @@
 import { centsToDecimal, formatCents, parsePrice } from "../catalog/money";
 import { distanceKm } from "../delivery/pricing";
 import type { CatalogCurrency, CatalogSettings, DeliveryArea, DistancePricing, WeightPricing } from "../data/types";
+import { countryNameIn, isoCountry, SHIPPING_COUNTRIES } from "./countries";
 
 /**
  * 131 Where a store delivers and what shipping costs, for every store app
@@ -21,25 +22,19 @@ import type { CatalogCurrency, CatalogSettings, DeliveryArea, DistancePricing, W
  * - by weight, in any mode: a price per kg of the order's products (and
  *   their options) over the first kg included.
  *
- * There is no country and city data in the platform, so cities are the
- * owner's own names (free entry), with a starter list for the countries the
- * platform serves first (Turkey, Egypt and the Gulf) to pick from.
+ * There is no city data in the platform, so cities are the owner's own
+ * names (free entry), with a starter list for the countries the platform
+ * serves first (Turkey, Egypt and the Gulf) to pick from. Every ISO country
+ * can be chosen, named by Intl.DisplayNames (lib/selling/countries.ts); no
+ * areas at all means every country.
  */
 
-export const SHIPPING_LIMITS = { countries: 20, cities: 200, city: 60, feeCents: 100_000_00, km: 2000 } as const;
+// 132.170 Up to every ISO country (249), so a shop can deliver to many.
+export const SHIPPING_LIMITS = { countries: 250, cities: 200, city: 60, feeCents: 100_000_00, km: 2000 } as const;
 export type ShippingMode = "flat" | "city" | "distance";
 
-/** The countries offered in the form, with their names; any other ISO code can be typed. */
-export const SHIPPING_COUNTRIES: Record<string, { en: string; ar: string; tr: string }> = {
-  TR: { en: "Turkey", ar: "تركيا", tr: "Türkiye" },
-  EG: { en: "Egypt", ar: "مصر", tr: "Mısır" },
-  SA: { en: "Saudi Arabia", ar: "السعودية", tr: "Suudi Arabistan" },
-  AE: { en: "United Arab Emirates", ar: "الإمارات", tr: "Birleşik Arap Emirlikleri" },
-  KW: { en: "Kuwait", ar: "الكويت", tr: "Kuveyt" },
-  QA: { en: "Qatar", ar: "قطر", tr: "Katar" },
-  BH: { en: "Bahrain", ar: "البحرين", tr: "Bahreyn" },
-  OM: { en: "Oman", ar: "عُمان", tr: "Umman" },
-};
+/** 132.170 The short names the app showed first (any ISO country can be chosen: lib/selling/countries.ts). */
+export { SHIPPING_COUNTRIES };
 
 /** The starter cities: the largest of each country, in the language the owner writes in. */
 export const STARTER_CITIES: Record<string, { en: string; ar: string; tr: string }[]> = {
@@ -255,7 +250,7 @@ const money = (cents: number, currency: string) => formatCents(cents, currency a
 
 /** `StoreConfig.shipping`: where the shop delivers and how it prices it (the quote computes the fee). */
 export function shippingConfigJson(r: ShippingRules, currency: string, lang: string, charged: boolean) {
-  const name = (code: string) => (SHIPPING_COUNTRIES[code] as Record<string, string> | undefined)?.[lang] ?? SHIPPING_COUNTRIES[code]?.en ?? code;
+  const name = (code: string) => countryNameIn(code, lang);
   return {
     mode: r.mode,
     countries: r.areas.map((a) => ({ code: a.country, name: name(a.country), cities: a.cities })),
@@ -285,10 +280,12 @@ export function parseShippingForm(
 ): Parsed<Pick<CatalogSettings, "areas" | "shippingMode" | "cityPrices" | "otherCityCents" | "distancePricing" | "weightPricing" | "shippingMinCents">> {
   const errors: Record<string, string> = {};
   const areas: DeliveryArea[] = [];
+  const ownPrices: { country: string; city: string; cents: number }[] = [];
   for (let i = 0; i < SHIPPING_LIMITS.countries; i += 1) {
-    const code = (v[`country${i}`] ?? "").trim().toUpperCase();
-    if (code === "") continue;
-    if (!/^[A-Z]{2}$/.test(code)) {
+    const raw = (v[`country${i}`] ?? "").trim();
+    if (raw === "") continue;
+    const code = isoCountry(raw);
+    if (!code) {
       errors[`country${i}`] = "Choose a country.";
       continue;
     }
@@ -301,7 +298,20 @@ export function parseShippingForm(
     if (unique.length > SHIPPING_LIMITS.cities) errors[`cities${i}`] = `At most ${SHIPPING_LIMITS.cities} cities.`;
     else if (unique.some((c) => c.length > SHIPPING_LIMITS.city)) errors[`cities${i}`] = `A city's name can be at most ${SHIPPING_LIMITS.city} characters.`;
     areas.push({ country: code, cities: v[`allCities${i}`] === "on" || unique.length === 0 ? null : unique });
+    // 132.170 The country's own city prices, from its card ("City: 50" a line).
+    for (const line of (v[`cityPrices${i}`] ?? "").split(/\r?\n/).map((l) => l.trim()).filter(Boolean)) {
+      const m = /^(.+?)\s*:\s*(.*)$/.exec(line);
+      const city = (m ? m[1]! : line).replace(/\s+/g, " ").trim().slice(0, SHIPPING_LIMITS.city);
+      const cents = m ? parsePrice(m[2]!.trim()) : null;
+      if (cents === null || cents > SHIPPING_LIMITS.feeCents) {
+        errors[`cityPrices${i}`] = `Enter the price of ${city} like 50, or leave it empty.`;
+        break;
+      }
+      if (!ownPrices.some((p) => p.country === code && sameCity(p.city, city))) ownPrices.push({ country: code, city, cents });
+    }
   }
+  // 132.170 "Only the countries I choose" with none chosen would save as every country.
+  if (v.areasScope === "some" && areas.length === 0 && !Object.keys(errors).some((k) => k.startsWith("country"))) errors.areas = "Choose at least one country, or deliver to every country.";
   const mode: ShippingMode = v.shippingMode === "city" ? "city" : v.shippingMode === "distance" ? "distance" : "flat";
   const fee = (name: string, required: boolean): number | null => {
     const text = (v[name] ?? "").trim();
@@ -317,7 +327,7 @@ export function parseShippingForm(
     return cents;
   };
   // A city's own price, in any mode (it wins over the mode's rule).
-  const cityPrices: { country: string; city: string; cents: number }[] = [];
+  const cityPrices: { country: string; city: string; cents: number }[] = [...ownPrices];
   {
     const lines = (v.cityPrices ?? "").split(/\r?\n/).map((l) => l.trim()).filter(Boolean);
     for (const line of lines) {

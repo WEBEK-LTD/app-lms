@@ -542,3 +542,76 @@ test("131 a gift add-on goes only with a product, and a flash sale on one produc
   const tulips = products.items.find((p) => p.name === "Tulip Bouquet")!;
   expect(tulips.sale?.flash_sale_id ?? null).toBeNull();
 });
+
+test("132.170 several delivery times a day, any country with its own cities, and a flash sale's products with their pictures", async ({ page, request }) => {
+  await signIn(page, client.email, client.password);
+  await page.goto("/dashboard/selling?tab=delivery");
+  const delivery = page.locator("[data-delivery-form]");
+  // Another time after a break: it starts an hour after the last one ends.
+  await delivery.getByRole("button", { name: "Add another time" }).click();
+  await expect(delivery.locator("[data-slot-row]")).toHaveCount(4);
+  const fourth = delivery.locator("[data-slot-row]").nth(3);
+  await expect(fourth.getByLabel("From, time 4")).toHaveValue("21:00");
+  // Overlapping times are told in plain words, as typed and when saved.
+  await fourth.getByLabel("From, time 4").fill("19:00");
+  await expect(fourth.getByRole("alert")).toHaveText("This time overlaps 16:00–20:00: let one end before the next starts.");
+  await delivery.getByRole("button", { name: "Save delivery times" }).click();
+  await expect(fourth.getByRole("alert")).toBeVisible();
+  await fourth.getByLabel("From, time 4").fill("21:00");
+  await fourth.getByLabel("To, time 4").fill("23:00");
+  await expect(fourth.getByRole("alert")).toHaveCount(0);
+  await delivery.getByRole("button", { name: "Save delivery times" }).click();
+  await expect(delivery.getByText("Saved.")).toBeVisible();
+  // A time removed, the rest kept in order.
+  await delivery.getByRole("button", { name: "Remove 13:00–16:00" }).click();
+  await delivery.getByRole("button", { name: "Save delivery times" }).click();
+  await expect(delivery.getByText("Saved.")).toBeVisible();
+  const config = await (await request.get(`${api}/config?platform=android&app_version=1.0.0`)).json();
+  expect(config.store.delivery_date.slots.map((s: { label: string }) => s.label)).toEqual(["10:00–13:00", "16:00–20:00", "21:00–23:00"]);
+
+  // Any country from the full list, searched in its name; its cities typed right there, one from the starter chips.
+  await page.goto("/dashboard/selling?tab=areas");
+  const areas = page.locator("[data-areas-form]");
+  await areas.getByLabel("Only the countries I choose").check();
+  await areas.getByRole("button", { name: "Add a country" }).click();
+  await expect(areas.locator("[data-country-option]").first()).toHaveAttribute("data-country-option", "TR");
+  await expect(areas.locator("[data-country-option]")).toHaveCount(249);
+  await areas.getByLabel("Search countries").fill("brazil");
+  await areas.getByRole("button", { name: /^Brazil/ }).click();
+  const brazil = areas.locator('[data-area-card="BR"]');
+  await expect(brazil.getByPlaceholder("Type a city's name")).toBeFocused();
+  await brazil.getByPlaceholder("Type a city's name").fill("São Paulo");
+  await brazil.getByPlaceholder("Type a city's name").press("Enter");
+  await brazil.getByLabel("São Paulo's own price (TRY)").fill("40");
+  await areas.getByRole("button", { name: "Add a country" }).click();
+  await areas.getByLabel("Search countries").fill("Turk");
+  await areas.getByRole("button", { name: /^Turkey/ }).click();
+  const turkey = areas.locator('[data-area-card="TR"]');
+  await turkey.getByRole("button", { name: "Ankara" }).click();
+  await expect(turkey.locator('[data-city-row="Ankara"]')).toBeVisible();
+  await areas.getByRole("button", { name: "Save where you deliver" }).click();
+  await expect(areas.getByText("Saved.")).toBeVisible();
+  const shipping = (await (await request.get(`${api}/config?platform=android&app_version=1.0.0`)).json()).store.shipping;
+  expect(shipping.countries).toEqual([
+    { code: "TR", names: { en: "Turkey", ar: "تركيا", tr: "Türkiye" }, cities: ["Ankara"] },
+    { code: "BR", names: { en: "Brazil", ar: "البرازيل", tr: "Brezilya" }, cities: ["São Paulo"] },
+  ]);
+  // Back to every country: the checkout takes any.
+  await page.reload();
+  await expect(areas.locator('[data-area-card="BR"]').getByLabel("São Paulo's own price (TRY)")).toHaveValue("40.00");
+  await areas.getByLabel("Every country").check();
+  await areas.getByRole("button", { name: "Save where you deliver" }).click();
+  await expect(areas.getByText("Saved.")).toBeVisible();
+
+  // The flash sale's products with their pictures: in the form, the table and the inspector.
+  await page.goto("/dashboard/selling?tab=flash");
+  await page.getByRole("button", { name: "Add a flash sale" }).click();
+  const picker = page.getByRole("dialog", { name: "Add a flash sale" }).locator("[data-product-picker]");
+  await expect(picker.locator("li").filter({ hasText: "Rose Box" }).locator("img")).toHaveCount(1);
+  await expect(picker.locator("li").filter({ hasText: "Rose Box" })).toContainText("300");
+  await page.goto("/dashboard/selling?tab=flash");
+  const row = page.locator("[data-flash-sale]").first();
+  await expect(row.locator("img")).toHaveCount(1);
+  await row.getByRole("button", { name: "Weekend tulips" }).click();
+  await expect(page.locator("[data-inspector-products] li").filter({ hasText: "Rose Box" }).locator("img")).toHaveCount(1);
+});
