@@ -716,8 +716,9 @@ class _SignInScreenState extends ConsumerState<SignInScreen> {
 
   /// 123 The premium academy's sign-in: the owner's words large over the
   /// photo (or the app's colours) with the logo and name, and the form on
-  /// a card at the foot: the way in, a gold button to go on, the other way
-  /// and a new account side by side, and the terms with their links in gold.
+  /// a card at the foot: the way in, a button to go on (141 in the main
+  /// colour), the other way and a new account side by side, and the terms
+  /// with their links in gold.
   Widget _premium(
     BuildContext context, {
     required String? logo,
@@ -899,17 +900,16 @@ class _SignInScreenState extends ConsumerState<SignInScreen> {
             InlineError(_error!),
           ],
           const SizedBox(height: 14),
-          GoldButtons(
-            color: gold,
-            child: PrimaryButton(
-              key: const ValueKey('sign-in-continue'),
-              label: _byPassword || _passwordMode
-                  ? l10n.signIn
-                  : l10n.continueAction,
-              trailingIcon: Symbols.arrow_forward_rounded,
-              loading: _sending,
-              onPressed: _valid && !previewBlocked ? _submit : null,
-            ),
+          // 141 In the app's main colour: the second colour stays for the
+          // links and the picture's glow.
+          PrimaryButton(
+            key: const ValueKey('sign-in-continue'),
+            label: _byPassword || _passwordMode
+                ? l10n.signIn
+                : l10n.continueAction,
+            trailingIcon: Symbols.arrow_forward_rounded,
+            loading: _sending,
+            onPressed: _valid && !previewBlocked ? _submit : null,
           ),
           if (other != null || account != null) ...[
             const SizedBox(height: 10),

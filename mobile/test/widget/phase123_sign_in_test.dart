@@ -8,8 +8,8 @@ import '../support/test_app.dart';
 
 /// 123 The premium academy's sign-in (`Config.screens.sign_in` `style:
 /// premium`): the owner's words large over the photo, the form on a card at
-/// the foot with the button in gold, the other way in and a new account
-/// side by side.
+/// the foot with the button (141 in the app's main colour, not the second
+/// colour's gold), the other way in and a new account side by side.
 void main() {
   setUp(() {
     TestWidgetsFlutterBinding.ensureInitialized().platformDispatcher.views.first
@@ -47,7 +47,7 @@ void main() {
     expect(look.imageUrl, isNull);
   });
 
-  testWidgets('the words, the card, the gold button and a code sent', (
+  testWidgets('the words, the card, the main colour button and a code sent', (
     tester,
   ) async {
     final fake = api();
@@ -61,7 +61,16 @@ void main() {
       find.text('We send you a code to sign in, no password.'),
       findsOneWidget,
     );
-    expect(find.byKey(const ValueKey('gold-button')), findsOneWidget);
+    // 141 The button in the app's main colour: a gold one looked the same in
+    // every app, whatever its colours.
+    expect(find.byKey(const ValueKey('gold-button')), findsNothing);
+    expect(
+      find.descendant(
+        of: find.byKey(const ValueKey('sign-in-continue')),
+        matching: find.byType(FilledButton),
+      ),
+      findsOneWidget,
+    );
 
     await tester.enterText(
       find.byKey(const ValueKey('phone-field')),
