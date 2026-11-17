@@ -614,6 +614,8 @@ test("132.187 the owner prepares and ships an order in the dashboard; the app's 
       return inbox.items.some((n) => n.type === "order_update" && n.order_id === orderId);
     })
     .toBe(true);
+});
+
 test("132.186 several delivery times a day, any country with its own cities, and a flash sale's products with their pictures", async ({ page, request }) => {
   await signIn(page, client.email, client.password);
   await page.goto("/dashboard/selling?tab=delivery");
