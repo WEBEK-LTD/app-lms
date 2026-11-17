@@ -111,6 +111,8 @@ for (const [i, kind] of KINDS.entries()) {
     test.setTimeout(240_000);
     await freshTab();
     await newProject(kind, `Project ${i + 1}`.slice(0, 30));
+    // The address changes before the project's page is drawn: its menu is read once it's there.
+    await expect(sideMenu().locator('ul a[href="/studio/project/media"]')).toBeAttached();
     const links = await sideMenu()
       .locator("ul a[href]:not([target=_blank])")
       .evaluateAll((all) => all.map((a) => (a as HTMLAnchorElement).getAttribute("href")!));

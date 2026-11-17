@@ -3,6 +3,8 @@ import { buildSecrets, isBuilding } from "@/lib/builds/signing";
 import { encryptionKey } from "@/lib/env";
 import { errorResponse, json } from "@/lib/http";
 import { authorizePipeline } from "@/lib/pipeline-auth";
+import { appReviewSecret, type AppReviewSecret } from "@/lib/publishing/app-review-secret";
+import type { App } from "@/lib/data/types";
 
 /**
  * GET /api/v1/builds/{id}/secrets (docs/api/pipeline.yaml): the signing keys
@@ -20,5 +22,12 @@ export async function GET(request: Request, { params }: RouteContext<"/api/v1/bu
     return errorResponse(409, "build_not_building", `Build ${build.id} is ${build.status}. Keys are only available while it's building.`);
   }
   // 35, 36 Galaxy Store and AppGallery keys only go to builds that upload ("We publish for you").
-  return json(buildSecrets(app, encryptionKey(), { ios: buildHasIos(build), autoPublish: build.autoPublish }));
+  // 102.2 So does the reviewers' sign-in, with the client's contact, for App Review Information.
+  let appReview: ((target: App, key: Buffer) => AppReviewSecret | null) | undefined;
+  if (build.autoPublish) {
+    const [publishing, client] = await Promise.all([store.getPublishingRequest(app.id), store.getClientById(app.clientId)]);
+    const user = client ? await store.getUserById(client.userId) : null;
+    appReview = (target, key) => appReviewSecret(target, key, { listingNotes: publishing?.listing.reviewNotes ?? null, client, user });
+  }
+  return json(buildSecrets(app, encryptionKey(), { ios: buildHasIos(build), autoPublish: build.autoPublish, appReview }));
 }

@@ -157,7 +157,8 @@ paths:
         key only signs the iOS app. 35, 36 The Samsung Galaxy Store and Huawei
         AppGallery keys are only used for uploading, so they are returned only
         when the build's plan includes "We publish for you" (`auto_publish`).
-        42 The same for the Xiaomi GetApps keys.
+        42 The same for the Xiaomi GetApps keys. 102.2 And for `app_review`, the
+        store reviewers' sign-in, sent only with the App Store Connect key.
       parameters:
         - $ref: '#/components/parameters/BuildId'
       responses:
@@ -549,7 +550,7 @@ components:
 
     BuildSecrets:
       type: object
-      required: [android_upload_key, ios_distribution, google_play, app_store_connect, galaxy_store, huawei_appgallery, xiaomi_getapps]
+      required: [android_upload_key, ios_distribution, google_play, app_store_connect, galaxy_store, huawei_appgallery, xiaomi_getapps, app_review]
       properties:
         android_upload_key:
           oneOf:
@@ -634,4 +635,45 @@ components:
                   minLength: 1
                   maxLength: 500
                   description: "What's new in this version (Xiaomi's `updateDesc`): the client's text from the dashboard, or a short default."
+            - { type: 'null' }
+        app_review:
+          description: >-
+            102.2 The store reviewers' sign-in, for the App Store version's App Review
+            Information (`appStoreReviewDetails`), set on each upload with the client's
+            App Store Connect key. Null unless `app_store_connect` is sent and the build's
+            plan includes "We publish for you", or when the app has no review sign-in yet.
+            The pipeline sets the demo account, "sign-in required", the notes (with a line
+            on how to sign in) and the contact fields it has, on the version being
+            prepared only (it creates none), and never submits for review. Never logged or
+            kept in artifacts. Google Play has no API for App access: Yallapp's team enters
+            it there.
+          oneOf:
+            - type: object
+              additionalProperties: false
+              required: [kind, demo_user, demo_password, notes, contact]
+              properties:
+                kind:
+                  type: string
+                  enum: [code, account]
+                  description: "`code`: App sign-in's fixed review phone number or email with its fixed code (no message is sent). `account`: an account of the client's WordPress site or own API."
+                demo_user: { type: string, maxLength: 254, description: "The phone number, email or user name the reviewers type." }
+                demo_password: { type: string, maxLength: 200, description: The fixed code or the account's password. }
+                notes:
+                  type: [string, 'null']
+                  maxLength: 4000
+                  description: The owner's notes for the reviewers (the review account's and Publishing's), in English.
+                contact:
+                  type: object
+                  additionalProperties: false
+                  required: [first_name, last_name, phone, email]
+                  description: >-
+                    Who Apple contacts about the review: the first and last name from the
+                    owner's account name, the phone from its WhatsApp number (E.164), the
+                    email from the app's support email, else the account's. Null when the
+                    platform has none; the pipeline then keeps what App Store Connect has.
+                  properties:
+                    first_name: { type: [string, 'null'] }
+                    last_name: { type: [string, 'null'] }
+                    phone: { type: [string, 'null'] }
+                    email: { type: [string, 'null'] }
             - { type: 'null' }
