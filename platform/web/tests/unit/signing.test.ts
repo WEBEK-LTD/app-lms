@@ -8,7 +8,7 @@ import { newId } from "@/lib/crypto/tokens";
 import { getStore } from "@/lib/data";
 import { MemoryStore } from "@/lib/data/memory";
 import type { DataStore } from "@/lib/data/store";
-import type { App, Build, BuildStatus } from "@/lib/data/types";
+import { DEFAULT_HOSTED_SETTINGS, type App, type Build, type BuildStatus } from "@/lib/data/types";
 import { encryptionKey } from "@/lib/env";
 import { KEY, NOW } from "./helpers";
 
@@ -100,7 +100,7 @@ describe("GET /api/v1/builds/{id}/secrets", () => {
     const response = await secrets(build.id);
     expect(response.status).toBe(200);
     expect(response.headers.get("cache-control")).toBe("no-store");
-    expect(await response.json()).toEqual({ android_upload_key: null, ios_distribution: null, google_play: null, app_store_connect: null, galaxy_store: null, huawei_appgallery: null, xiaomi_getapps: null });
+    expect(await response.json()).toEqual({ android_upload_key: null, ios_distribution: null, google_play: null, app_store_connect: null, galaxy_store: null, huawei_appgallery: null, xiaomi_getapps: null, app_review: null });
   });
 
   it("decrypts the store keys the client uploaded", async () => {
@@ -123,6 +123,7 @@ describe("GET /api/v1/builds/{id}/secrets", () => {
       galaxy_store: null,
       huawei_appgallery: null,
       xiaomi_getapps: null,
+      app_review: null,
     });
   });
 
@@ -166,6 +167,29 @@ describe("GET /api/v1/builds/{id}/secrets", () => {
     });
     await store.updateApp(appId, { xiaomiReleaseNotes: "New courses every week." }, NOW);
     expect((await (await secrets(build.id)).json()).xiaomi_getapps.release_notes).toBe("New courses every week.");
+  });
+
+  it("102.2 sends the reviewers' sign-in with the App Store Connect key to builds that upload", async () => {
+    const appId = newId();
+    const key = encryptionKey();
+    const { build } = await appWithBuild("building", {
+      id: appId,
+      backend: "hosted",
+      hostedSettings: { ...DEFAULT_HOSTED_SETTINGS, reviewPhone: "+905320000000", reviewCode: "246810" },
+      ascIssuerId: "69a6de7e-0000-4000-8000-000000000000",
+      ascKeyId: "2X9R4HXF34",
+      ascPrivateKeyEncrypted: encrypt(p8, key, keyContext.appStore(appId)),
+    });
+    expect((await (await secrets(build.id)).json()).app_review).toBeNull();
+    await store.updateBuild(build.id, { autoPublish: true } as never, NOW);
+    expect((await (await secrets(build.id)).json()).app_review).toEqual({
+      kind: "code",
+      demo_user: "+905320000000",
+      demo_password: "246810",
+      notes: null,
+      // No client account in this test: App Store Connect keeps its contact.
+      contact: { first_name: null, last_name: null, phone: null, email: null },
+    });
   });
 
   it("returns no App Store Connect key without its Issuer ID and Key ID", async () => {
