@@ -697,7 +697,6 @@ export class MysqlStore implements DataStore {
   }
 
   async claimPublishingAccount(appId: string, accountId: string, now: Date): Promise<{ id: string | null; claimed: boolean }> {
-    const value = JSON.stringify({ id: accountId, at: now.toISOString() });
     const rollout = schema.apps.rollout;
     // The app's `rollout` as an object (none yet: an empty one).
     const doc = sql`(CASE WHEN ${rollout} IS NULL OR JSON_VALID(${rollout}) = 0 OR JSON_TYPE(${rollout}) <> 'OBJECT' THEN JSON_OBJECT() ELSE ${rollout} END)`;
@@ -705,7 +704,8 @@ export class MysqlStore implements DataStore {
     const [result] = await this.run((db) =>
       db
         .update(schema.apps)
-        .set({ rollout: sql`JSON_SET(${doc}, '$.publishingAccount', CAST(${value} AS JSON))` })
+        // JSON_OBJECT, not CAST(… AS JSON): MariaDB has no JSON type to cast to.
+        .set({ rollout: sql`JSON_SET(${doc}, '$.publishingAccount', JSON_OBJECT('id', ${accountId}, 'at', ${now.toISOString()}))` })
         .where(and(eq(schema.apps.id, appId), sql`JSON_EXTRACT(${doc}, '$.publishingAccount.id') IS NULL`)),
     );
     const [row] = await this.run((db) => db.select({ rollout: schema.apps.rollout }).from(schema.apps).where(eq(schema.apps.id, appId)).limit(1));
