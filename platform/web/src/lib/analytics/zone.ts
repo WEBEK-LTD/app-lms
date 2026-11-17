@@ -51,11 +51,6 @@ export function isTimeZone(zone: unknown): zone is string {
   }
 }
 
-/** Every time zone, for the picker. */
-export function timeZones(): string[] {
-  return ["UTC", ...Intl.supportedValuesOf("timeZone")];
-}
-
 /** The zone of the account's country, from its WhatsApp number; null when unknown. */
 export function zoneOfPhone(phone: string | null | undefined): string | null {
   const digits = `+${(phone ?? "").replace(/\D+/g, "")}`;

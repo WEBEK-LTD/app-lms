@@ -4,7 +4,7 @@ import { useActionState, useRef, useState, useTransition } from "react";
 import { listChatLibraryAction, saveChatSettingsAction, sendChatReplyAction, type ChatLibraryFile } from "@/app/actions/chat";
 import { FieldError, FormMessage, SubmitButton } from "@/components/form";
 import { Icon } from "@/components/icon";
-import { btn } from "@/components/ui";
+import { kit } from "@/components/studio-page/classes";
 import { useDashT } from "@/components/dashboard-i18n";
 import { initialFormState } from "@/lib/forms";
 
@@ -26,7 +26,7 @@ export function ChatReplyForm({ conversationId, business }: { conversationId: st
     }
   }
   return (
-    <form action={action} noValidate className="flex flex-col gap-3 border-t border-line-soft pt-4">
+    <form action={action} noValidate className="flex flex-col gap-3 border-t border-(--sp-line) pt-4">
       <input type="hidden" name="conversation" value={conversationId} />
       <input type="hidden" name="client" value={clientId} />
       <input type="hidden" name="media" value={file?.id ?? ""} />
@@ -46,7 +46,7 @@ export function ChatReplyForm({ conversationId, business }: { conversationId: st
           aria-invalid={state.errors?.text ? true : undefined}
           aria-describedby={state.errors?.text ? "f-chat-text-error" : "f-chat-text-hint"}
         />
-        <span id="f-chat-text-hint" className="text-[13px] text-muted">
+        <span id="f-chat-text-hint" className="text-[13px] text-(--sp-muted)">
           {t("chat.replyHint", { business })}
         </span>
         <FieldError id="f-chat-text-error" error={state.errors?.text} />
@@ -55,7 +55,7 @@ export function ChatReplyForm({ conversationId, business }: { conversationId: st
         <div className="flex flex-wrap items-center gap-2">
           <LibraryPicker onPick={setFile} />
           {file ? (
-            <span className="inline-flex items-center gap-2 rounded-lg bg-sand px-3 py-1.5 text-sm">
+            <span className="inline-flex items-center gap-2 rounded-lg bg-(--sp-soft) px-3 py-1.5 text-sm">
               {t("chat.attached", { name: file.name })}
               <button type="button" onClick={() => setFile(null)} className="font-semibold text-danger">
                 {t("chat.removeAttachment")}
@@ -85,14 +85,14 @@ function LibraryPicker({ onPick }: { onPick: (file: ChatLibraryFile) => void }) 
   };
   return (
     <>
-      <button type="button" onClick={open} className={`${btn.secondary} h-10 px-3.5 text-sm`}>
+      <button type="button" onClick={open} className={kit.quiet}>
         <Icon name="attach_file" size={18} />
         {t("chat.attach")}
       </button>
       <dialog
         ref={dialog}
         aria-label={t("chat.chooseFile")}
-        className="m-auto w-[min(560px,calc(100vw-32px))] rounded-2xl border border-line bg-white p-0 backdrop:bg-midnight/40"
+        className="m-auto w-[min(560px,calc(100vw-32px))] rounded-2xl border border-(--sp-line) bg-(--sp-surface) p-0 text-(--sp-ink) backdrop:bg-[#0e0d24]/45"
         onClick={(e) => {
           if (e.target === dialog.current) dialog.current?.close();
         }}
@@ -100,14 +100,14 @@ function LibraryPicker({ onPick }: { onPick: (file: ChatLibraryFile) => void }) 
         <div className="flex flex-col gap-4 p-5">
           <div className="flex items-center justify-between gap-3">
             <h2 className="m-0 text-lg font-bold">{t("chat.chooseFile")}</h2>
-            <button type="button" onClick={() => dialog.current?.close()} className={`${btn.ghost} h-9 px-2`} aria-label={t("common.close")}>
+            <button type="button" onClick={() => dialog.current?.close()} className={kit.icon} aria-label={t("common.close")}>
               <Icon name="close" size={20} />
             </button>
           </div>
           {items === null ? (
-            <p className="m-0 text-sm text-muted">{pending ? t("chat.loadingFiles") : ""}</p>
+            <p className="m-0 text-sm text-(--sp-muted)">{pending ? t("chat.loadingFiles") : ""}</p>
           ) : items.length === 0 ? (
-            <p className="m-0 text-[15px] text-ink-4">{t("chat.noFiles")}</p>
+            <p className="m-0 text-[15px] text-(--sp-muted)">{t("chat.noFiles")}</p>
           ) : (
             <ul className="m-0 flex max-h-[60vh] list-none flex-col gap-1.5 overflow-y-auto p-0">
               {items.map((item) => (
@@ -118,19 +118,19 @@ function LibraryPicker({ onPick }: { onPick: (file: ChatLibraryFile) => void }) 
                       onPick(item);
                       dialog.current?.close();
                     }}
-                    className="flex w-full items-center gap-3 rounded-xl border border-line px-3 py-2 text-start hover:border-midnight"
+                    className="flex w-full cursor-pointer items-center gap-3 rounded-xl border border-(--sp-line) bg-transparent px-3 py-2 text-start text-(--sp-ink) hover:border-(--sp-ink)"
                   >
                     {item.thumbUrl ? (
                       // eslint-disable-next-line @next/next/no-img-element
                       <img src={item.thumbUrl} alt="" className="h-11 w-11 flex-none rounded-lg object-cover" />
                     ) : (
-                      <span className="flex h-11 w-11 flex-none items-center justify-center rounded-lg bg-ivory">
+                      <span className="flex h-11 w-11 flex-none items-center justify-center rounded-lg bg-(--sp-tile)">
                         <Icon name={KIND_ICON[item.kind as keyof typeof KIND_ICON] ?? "description"} size={22} />
                       </span>
                     )}
                     <span className="flex min-w-0 flex-1 flex-col">
                       <span className="truncate text-[15px] font-semibold">{item.name}</span>
-                      <span className="text-[13px] text-muted">{item.size}</span>
+                      <span className="text-[13px] text-(--sp-muted)">{item.size}</span>
                     </span>
                   </button>
                 </li>
@@ -171,7 +171,7 @@ export function ChatSettingsForm({ enabled, courseGroups, academy }: { enabled: 
         <input type="checkbox" name="enabled" defaultChecked={on("enabled", enabled)} className="mt-1 h-4 w-4" aria-describedby="f-chat-enabled-hint" />
         <span className="flex flex-col gap-0.5">
           <span className="text-[15px] font-semibold">{t("chat.enabled")}</span>
-          <span id="f-chat-enabled-hint" className="text-sm text-muted">
+          <span id="f-chat-enabled-hint" className="text-sm text-(--sp-muted)">
             {t("chat.enabledHint")}
           </span>
         </span>
@@ -181,7 +181,7 @@ export function ChatSettingsForm({ enabled, courseGroups, academy }: { enabled: 
           <input type="checkbox" name="courseGroups" defaultChecked={on("courseGroups", courseGroups)} className="mt-1 h-4 w-4" aria-describedby="f-chat-groups-hint" />
           <span className="flex flex-col gap-0.5">
             <span className="text-[15px] font-semibold">{t("chat.courseGroups")}</span>
-            <span id="f-chat-groups-hint" className="text-sm text-muted">
+            <span id="f-chat-groups-hint" className="text-sm text-(--sp-muted)">
               {t("chat.courseGroupsHint")}
             </span>
           </span>

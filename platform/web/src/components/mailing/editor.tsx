@@ -22,6 +22,7 @@ import { MAIL_LANGS, type MailAudience, type MailContent, type MailContents, typ
 import { AudienceStep, type AudienceOptions } from "./audience";
 import { Builder, EmailPreview, HtmlEditor, previewHtml } from "./builder";
 import { Field, inputClass, MergeTagHelp, RangeField, TextField, Toggle } from "./fields";
+import { TimeZonePicker } from "../time-zone-picker";
 
 /**
  * 114 A campaign from draft to sent: Audience, Details, Design, Review.
@@ -360,12 +361,6 @@ function Details({ c, update, langs, addLang }: { c: EditorCampaign; update: (p:
   );
 }
 
-function zones(): string[] {
-  const own = Intl.DateTimeFormat().resolvedOptions().timeZone;
-  const common = ["Africa/Cairo", "Europe/Istanbul", "Asia/Riyadh", "Asia/Dubai", "Europe/London", "UTC"];
-  return [...new Set([own, ...common])];
-}
-
 /** The local time in a zone as an ISO instant (the schedule's "15:00 in Cairo"). */
 function zonedToIso(local: string, zone: string): string | null {
   if (!/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}$/.test(local)) return null;
@@ -572,13 +567,8 @@ function Review({ c, assetBase, canSend, canEdit, save, onDone, onUnscheduled, o
                   <input id="f-schedule-at" type="datetime-local" value={local} onChange={(e) => setLocal(e.target.value)} className={inputClass} data-testid="schedule-at" />
                 </Field>
                 <Field label="Time zone" htmlFor="f-zone">
-                  <select id="f-zone" value={zone} onChange={(e) => setZone(e.target.value)} className={`${inputClass} cursor-pointer`}>
-                    {zones().map((z) => (
-                      <option key={z} value={z}>
-                        {z}
-                      </option>
-                    ))}
-                  </select>
+                  {/* 137 Every time zone: searched by city, zone or offset, the usual ones first. */}
+                  <TimeZonePicker id="f-zone" name="zone" label={null} value={zone} onChange={setZone} selectClassName={`${inputClass} min-w-0 flex-1 cursor-pointer`} inputClassName={`${inputClass} sm:max-w-[160px]`} />
                 </Field>
               </div>
             ) : null}

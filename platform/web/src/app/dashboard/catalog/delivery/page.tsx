@@ -14,7 +14,6 @@ export async function generateMetadata(): Promise<Metadata> {
   return { title: (await dashboardText()).t("shop.pickupDelivery") };
 }
 
-const TIMEZONES = ["Europe/Istanbul", "Europe/London", "Europe/Berlin", "Europe/Paris", "Asia/Dubai", "Asia/Riyadh", "Africa/Cairo", "America/New_York"];
 
 /** 26 The Pickup and delivery form's values. */
 function fulfilmentValues(f: FulfilmentSettings): Record<string, string> {
@@ -54,7 +53,7 @@ export default async function CatalogDeliveryPage() {
       <PageHeader title={t("shop.pickupDelivery")} description={t("shop.pickupDeliveryText")} />
       <CatalogTabs app={app} />
       <Section titleId="h-fulfilment" title={t("shop.pickupDelivery")} className="max-w-[860px]">
-        <FulfilmentForm current={fulfilmentValues(fulfilment)} timezones={TIMEZONES.includes(fulfilment.timezone) ? TIMEZONES : [fulfilment.timezone, ...TIMEZONES]} currency={catalogSettings(app).currency} />
+        <FulfilmentForm current={fulfilmentValues(fulfilment)} currency={catalogSettings(app).currency} />
       </Section>
     </div>
   );

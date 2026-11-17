@@ -1,4 +1,5 @@
-import { addDays, isTimeZone, localToUtc, minutesOf, timeOf, utcToLocal } from "../bookings/time";
+import { isIanaZone } from "../time/zones";
+import { addDays, localToUtc, minutesOf, timeOf, utcToLocal } from "../bookings/time";
 import type { App, CatalogCurrency, CatalogFulfilment, FulfilmentSettings, FulfilmentStatus, TimeRange } from "../data/types";
 import { centsToDecimal, formatCents, parsePrice } from "./money";
 
@@ -273,7 +274,7 @@ export function parseFulfilmentForm(v: Record<string, string>, currency?: string
   const prep = Number(v.prepMinutes);
   if (!/^\d{1,3}$/.test(v.prepMinutes ?? "") || prep > 240) errors.prepMinutes = "Enter 0 to 240 minutes.";
   const timezone = (v.timezone ?? "").trim();
-  if (!isTimeZone(timezone) || !timezone.includes("/")) errors.timezone = "Choose a time zone, like Europe/Istanbul.";
+  if (!isIanaZone(timezone)) errors.timezone = "Choose a time zone, like Europe/Istanbul.";
   const hours: TimeRange[][] = [];
   for (let d = 0; d < 7; d += 1) {
     if (v[`open${d}`] !== "on") {

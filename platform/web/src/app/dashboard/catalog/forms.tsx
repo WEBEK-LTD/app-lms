@@ -14,6 +14,7 @@ import {
 } from "@/app/actions/catalog";
 import { Field, FieldError, FormMessage, SubmitButton } from "@/components/form";
 import { CurrencyPicker } from "@/components/currency-picker";
+import { TimeZonePicker } from "@/components/time-zone-picker";
 import { RatesAttribution } from "@/components/rates-attribution";
 import { Icon } from "@/components/icon";
 import { btn } from "@/components/ui";
@@ -542,7 +543,7 @@ export function OptionGroupsEditor({ initial, currency, restaurant, error }: { i
 const WEEKDAY_DATES = [0, 1, 2, 3, 4, 5, 6].map((d) => new Date(Date.UTC(2023, 0, 1 + d)));
 
 /** 26 A restaurant's pickup and delivery, opening hours and order times. */
-export function FulfilmentForm({ current, timezones, currency }: { current: Record<string, string>; timezones: string[]; currency: string }) {
+export function FulfilmentForm({ current, currency }: { current: Record<string, string>; currency: string }) {
   const t = useDashT();
   const lang = useDashLang();
   const weekdays = WEEKDAY_DATES.map((date) => formatDate(lang, date, { weekday: "long", timeZone: "UTC" }));
@@ -626,19 +627,8 @@ export function FulfilmentForm({ current, timezones, currency }: { current: Reco
         <FieldError id="f-hours-error" error={e.hours} />
       </fieldset>
       <div className="grid gap-4 sm:grid-cols-2">
-        <div className="flex min-w-0 flex-col gap-1.5">
-          <label htmlFor="f-timezone" className="text-sm font-semibold">
-            {t("shop.timeZone")}
-          </label>
-          <select id="f-timezone" name="timezone" defaultValue={v.timezone} className="input input-sm" dir="ltr">
-            {timezones.map((zone) => (
-              <option key={zone} value={zone}>
-                {zone}
-              </option>
-            ))}
-          </select>
-          <FieldError id="f-timezone-error" error={e.timezone} />
-        </div>
+        {/* 137 Every time zone: searched by city, zone or offset, the usual ones first. */}
+        <TimeZonePicker id="f-timezone" label={t("shop.timeZone")} defaultValue={v.timezone} error={e.timezone} size="sm" />
         <Field label={t("shop.prepTime")} name="prepMinutes" inputMode="numeric" defaultValue={v.prepMinutes} error={e.prepMinutes} small />
       </div>
       <div className="flex flex-col gap-3">
