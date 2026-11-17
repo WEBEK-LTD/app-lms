@@ -8,6 +8,11 @@ Last updated: 17 November 2026.
 
 ## Current release
 
+Roadmap 143 (the sign-in buttons in the app's main colour): the premium
+sign-in and the screens in its look draw their buttons in the app's main
+colour, in the app and in Studio › Screens, not the second colour's gold
+that looked the same in every app.
+
 Roadmap 79.5 (maintenance): Next.js is 16.4.5 (from 16.4.2, with
 `eslint-config-next`), the first release fixed for GHSA-mfr8-8qww-v76h,
 which `next build` warned about. Nothing else in the lockfile changed and

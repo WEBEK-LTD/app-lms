@@ -3693,3 +3693,13 @@ The owner (17 November) approved automatic store screenshots ("الصور الت
 | [x] | 139.6 The stores' rules: real screens of the app only, no device frame on them (framing stays the owner's choice, at build time, `store_listing.py`); a framed one without the owner's caption gets the listing's own title, then its short description, in its language, and nothing else | `auto-screenshots.test.ts`, `test_store_screenshots.py` |
 | [ ] | 139.7 Not tried against a real store upload or a real app preview on a GitHub runner: that Chromium on the runner draws the Flutter preview (CanvasKit over SwiftShader) at the four sizes, that guest mode and the routes open the screens named (an item from its list's first entry, the cart). Tried here in Chromium against the e2e server's real app preview (a Store app with its content in Yallapp): home, the shop, the cart at the phone, iPhone and iPad sizes came out as the app's own screens; the account came out as the sign-in screen with the preview's own note, so it was left out of the set, and that Google Play and App Store Connect take the set in every language (fastlane `upload_to_play_store` and `upload_to_app_store`) | LAUNCH-CHECKLIST › Phase 139 |
 | [x] | 139.8 Also fixes the owner's own tablet screenshot upload (88.2) on MySQL/MariaDB: `assets.kind` was `varchar(16)` and `tablet_screenshot` has 17 characters, so the save failed with a 500; now `varchar(32)` (`ASSET_KIND_LENGTH`, migration `0141_auto_screenshots`), every kind listed in `ASSET_KINDS` and checked against it | `auto-screenshots.test.ts`, CI's MariaDB e2e |
+
+## Phase 143: The sign-in buttons in the app's main colour
+
+The owner (17 November), on Kech Flora: the sign-in screen's buttons didn't take the app's colours ("زر البوتونز مش هتاخد … من الوان الابلكيشن لانه ثابت علي كل الابلكيشنز … لون اصفر تقريبا"). The premium sign-in (123) drew them in the second colour's gold, which the designs bring (#E8B04B and its kind) and changing the main colour doesn't change, and Studio › Screens drew a fixed gold. No migration.
+
+| Status | Item | Tests |
+|---|---|---|
+| [x] | 143.1 The app: the premium sign-in's main button (`sign_in_screen.dart`) and the buttons of the screens in its look (the code, the password, a new account: `auth_look.dart`) are the app's main colour, as on every other screen; the second colour stays for the terms' links and the picture's glow | `phase123_sign_in_test.dart`, `phase132_sign_in_pictures_test.dart` |
+| [x] | 143.2 Studio › Screens draws the premium sign-in's button in the main colour, as the app does (`auth-preview.tsx`), not a fixed gold | typecheck, lint |
+| [ ] | 143.3 Reaches the apps in the stores with their next build: with the keyboard fix's `CLIENT_APP_RELEASE` 3 (Phase 141) | — |
