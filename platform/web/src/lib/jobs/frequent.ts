@@ -1,6 +1,8 @@
 import { runAutoBuilds } from "../builds/auto";
 import { runAutoScreenshots } from "../app/auto-screenshots-jobs";
 import { runAppReleaseBuilds, type AppReleaseReport } from "../builds/app-release";
+import { askPipelineAgain, type AskAgainReport } from "../builds/ask-again";
+import type { PipelineRuns } from "../builds/dispatch";
 import { queueBuild } from "../app/setup";
 import { runAppReviewSubmissions, type AppReviewReport } from "../publishing/app-review-submit";
 import { noteAppReviewSent, notifyPublishingWork } from "../publishing/service";
@@ -58,6 +60,8 @@ export interface FrequentReport {
   appReview: AppReviewReport;
   /** 138 Builds queued for a new release of Yallapp's own app, apps waiting their turn, builds that couldn't be queued. */
   appRelease: AppReleaseReport;
+  /** 140 Builds queued 10 minutes or more, and whether GitHub was asked again to start the build workflow. */
+  pipeline: AskAgainReport;
   /** 91.2 Order watches looked at, people told of an order update, watches that ended. */
   orders: OrderWatchReport;
   /** 100.2 Store products made or changed in Google Play and the App Store. */
@@ -91,6 +95,8 @@ export async function runFrequentJobs(deps: {
   /** 87.4 The checks before the automatic builds, and how the pipeline is started. */
   preflight?: PreflightDeps;
   startPipeline?: () => Promise<unknown>;
+  /** 140 The build workflow's latest runs (null: GitHub can't say); with startPipeline, a build waiting 10 minutes asks again. */
+  pipelineRuns?: () => Promise<PipelineRuns | null>;
   /** 139 How the store screenshots' workflow is started. */
   startScreenshots?: () => Promise<unknown>;
   /** 88.3 How App Store Connect is reached (tests: a fake fetch). */
@@ -157,6 +163,15 @@ export async function runFrequentJobs(deps: {
     });
   } catch (error) {
     console.error("[frequent] app release builds", error instanceof Error ? error.message : String(error));
+  }
+  // 140 A build still queued after 10 minutes, with no run of the build workflow going: GitHub is asked again.
+  let pipeline: AskAgainReport = { waiting: 0, asked: false };
+  if (deps.startPipeline && deps.pipelineRuns) {
+    try {
+      pipeline = await askPipelineAgain({ store: deps.store, now: deps.now, start: deps.startPipeline, runs: deps.pipelineRuns });
+    } catch (error) {
+      console.error("[frequent] build pipeline", error instanceof Error ? error.message : String(error));
+    }
   }
   // 138 iPhone builds on TestFlight sent to App Review, once Apple has processed them.
   let appReview: AppReviewReport = { looked: 0, submitted: 0, waiting: 0, blocked: 0, skipped: 0 };
@@ -287,5 +302,5 @@ export async function runFrequentJobs(deps: {
       );
     }
   }
-  return { notifications, announcements, ended, campaigns, automatic, builds, screenshots, reviews, appReview, appRelease, orders, storeProducts, storePurchases, rides, library, school, mail, prime, ...(firebase ? { firebase } : {}) };
+  return { notifications, announcements, ended, campaigns, automatic, builds, screenshots, reviews, appReview, appRelease, pipeline, orders, storeProducts, storePurchases, rides, library, school, mail, prime, ...(firebase ? { firebase } : {}) };
 }

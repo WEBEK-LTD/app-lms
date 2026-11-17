@@ -22,6 +22,14 @@ sign-in and the screens in its look draw their buttons in the app's main
 colour, in the app and in Studio › Screens, not the second colour's gold
 that looked the same in every app.
 
+Roadmap 140 (builds never left in the queue): the frequent job asks GitHub
+to start the build workflow again when a build has been queued 10 minutes
+with no run of it going. A run takes 5 builds and runs go one at a time,
+and GitHub's hourly schedule often doesn't run, so a build left over from a
+full run used to wait for the next build queued (Leqaa #2 waited 3 hours on
+17 November). Uses the same `GITHUB_DISPATCH_TOKEN` (Actions: Read and
+write), which already reads runs.
+
 Roadmap 79.5 (maintenance): Next.js is 16.4.5 (from 16.4.2, with
 `eslint-config-next`), the first release fixed for GHSA-mfr8-8qww-v76h,
 which `next build` warned about. Nothing else in the lockfile changed and
