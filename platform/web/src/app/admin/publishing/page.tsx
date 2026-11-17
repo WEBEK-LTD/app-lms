@@ -1,5 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
+import type { ReactNode } from "react";
+import { CopyButton } from "@/components/copy-button";
 import { Icon } from "@/components/icon";
 import { Badge, formatDate, formatDateTime } from "@/components/ui";
 import { appLabel } from "@/lib/app/label";
@@ -393,36 +395,41 @@ function RequestDetail({ row, statuses, mayManage }: { row: Row; statuses: { id:
   );
 }
 
-/** 102 The reviewers' sign-in, the password or code shown only when opened. */
+/** 102 The reviewers' sign-in, the password or code shown only when opened. 102.2 Each value with Copy, for Google Play's App access. */
 function ReviewSignIn({ app, delivery }: { app: App | null; delivery: { customer: string; courier: string | null } | null }) {
   const signIn = app ? reviewSignIn(app, encryptionKey()) : null;
   if (!signIn) return <p className="m-0 text-sm font-semibold text-danger">Store review account: missing</p>;
+  const copied = (value: string, children: ReactNode) => (
+    <dd className="m-0 flex flex-wrap items-start justify-between gap-2">
+      <span className="min-w-0 flex-1 break-all whitespace-pre-line">{children}</span>
+      <CopyButton value={value} />
+    </dd>
+  );
   return (
     <details className="text-sm" data-review-sign-in="">
       <summary className="cursor-pointer font-semibold">Store review account</summary>
-      <dl className="mt-2 mb-0 grid grid-cols-[auto_1fr] gap-x-4 gap-y-1.5">
+      <p className="mt-2 mb-0 text-muted">The App Store gets it with every build we upload (App Review Information). Google Play has no API for it: copy it into Play Console › App content › App access.</p>
+      <dl className="mt-2 mb-0 grid grid-cols-[auto_1fr] items-start gap-x-4 gap-y-1.5">
         <dt className="text-muted">User name</dt>
-        <dd className="m-0 break-all">{signIn.who}</dd>
+        {copied(signIn.who, signIn.who)}
         <dt className="text-muted">{signIn.kind === "code" ? "Fixed code" : "Password"}</dt>
-        <dd className="m-0 break-all">
-          <code>{signIn.secret}</code>
-        </dd>
+        {copied(signIn.secret, <code>{signIn.secret}</code>)}
         {signIn.notes ? (
           <>
             <dt className="text-muted">Notes</dt>
-            <dd className="m-0 whitespace-pre-line">{signIn.notes}</dd>
+            {copied(signIn.notes, signIn.notes)}
           </>
         ) : null}
         {delivery ? (
           <>
             <dt className="text-muted">Notes (customers&apos; app)</dt>
-            <dd className="m-0 whitespace-pre-line">{delivery.customer}</dd>
+            {copied(delivery.customer, delivery.customer)}
           </>
         ) : null}
         {delivery?.courier ? (
           <>
             <dt className="text-muted">Notes (courier app)</dt>
-            <dd className="m-0 whitespace-pre-line">{delivery.courier}</dd>
+            {copied(delivery.courier, delivery.courier)}
           </>
         ) : null}
       </dl>
