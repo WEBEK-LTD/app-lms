@@ -1,5 +1,5 @@
 import { failureExplanation } from "./failures";
-import type { ArtifactKind, Build, BuildStatus, StageKey } from "../data/types";
+import type { ArtifactKind, Build, BuildPlatform, BuildStatus, StageKey } from "../data/types";
 import { bumpPatch } from "../semver";
 
 /**
@@ -135,4 +135,10 @@ export function fileDescription(kind: ArtifactKind, autoPublish: boolean): strin
     case "store_assets":
       return "Store icons, feature graphic, your screenshots and listing text";
   }
+}
+
+/** 142 The one platform a build was started for alone (Builds › Android only / iPhone only); null: both. */
+export function buildOnly(build: Pick<Build, "release">): BuildPlatform | null {
+  const only = build.release?.only;
+  return only === "android" || only === "ios" ? only : null;
 }

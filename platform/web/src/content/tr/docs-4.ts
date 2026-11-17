@@ -233,7 +233,7 @@ Geliştirici hesabınızda otomatik yayın sayfası yoksa yüklemeler elle kalı
 
 ## Derlemeler ne zaman başlar
 
-İlk derlemeniz kurulum adımlarını bitirdiğinizde başlar. Bundan sonra yeni bir sürüme ihtiyaç duyduğunuzda **Yeni derleme başlat** ile yenisini başlatın ([Bir güncelleme yayımlayın](/docs/updates) rehberine bakın). Sayfa, bir derleme çalışırken her adımı gösterir.
+İlk derlemeniz kurulum adımlarını bitirdiğinizde başlar. Bundan sonra yeni bir sürüme ihtiyaç duyduğunuzda **Yeni derleme başlat** ile yenisini başlatın ([Bir güncelleme yayımlayın](/docs/updates) rehberine bakın). Sayfa, bir derleme çalışırken her adımı gösterir. Uygulamanızda hem Android hem iPhone uygulaması olduğunda, düğmenin altındaki **Yalnızca Android** ve **Yalnızca iPhone** bunlardan birini aynı sürümle tek başına derler; **Yeni derleme başlat** her zaman ikisini de yapar.
 
 
 ## Bir derleme başlamadan önce

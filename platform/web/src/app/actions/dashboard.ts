@@ -41,7 +41,7 @@ import { encrypt } from "@/lib/crypto/encryption";
 import { newId } from "@/lib/crypto/tokens";
 import { getStore } from "@/lib/data";
 import type { AppPatch } from "@/lib/data/store";
-import { DEFAULT_HOSTED_SETTINGS, type App, type AssetKind, type BuildVariant, type ConnectorConfig } from "@/lib/data/types";
+import { DEFAULT_HOSTED_SETTINGS, type App, type AssetKind, type BuildPlatform, type BuildVariant, type ConnectorConfig } from "@/lib/data/types";
 import { appUrl, encryptionKey, sessionSecret, superAdminEmails } from "@/lib/env";
 import { shopifyAdminToken, shopifyConnectorConfig, shopifyToken } from "@/lib/hosted/connectors";
 import { oauthRedirectUri, partnerAppCredentials, signOAuthState } from "@/lib/hosted/connectors/partner-apps";
@@ -1058,9 +1058,11 @@ async function startBuild(
   versionName: string,
   /** 104.6 "courier": the delivery company's courier app. */
   variant: BuildVariant = "app",
+  /** 142 Only this platform's app (Android only / iPhone only); missing: both. */
+  only?: BuildPlatform,
 ): Promise<{ ok: true; number: number; versionName: string } | { ok: false; message: string; versionTooLow: boolean }> {
   const store = await getStore();
-  const result = await queueBuild(store, { client: context.client, app: context.app, license: context.license, versionName, variant }, new Date(), assetUrl, preflightDeps(store));
+  const result = await queueBuild(store, { client: context.client, app: context.app, license: context.license, versionName, variant, ...(only ? { only } : {}) }, new Date(), assetUrl, preflightDeps(store));
   if (!result.ok && result.reason === "preflight") {
     // 87.1 The first thing to fix; the Builds page lists them all.
     const first = result.checks.find((c) => c.level === "error")!;
@@ -1081,6 +1083,7 @@ async function startBuild(
       courier_app_off: "The second app for your couriers or drivers isn't in this app's plan.",
       vendor_app_off: "The vendor app is off: choose \"Their own app\" for the vendors in Marketplace settings, on a plan with food delivery.",
       staff_app_off: "The staff app is off: choose \"In the staff app\" for your staff in Settings, on a plan with schools or academies.",
+      ios_unavailable: "The iPhone app needs your App Store Connect key in App setup › Publishing, on a plan with the iOS app.",
     } as const;
     // 110.2 Sample entries left: nothing goes to the stores.
     if (result.reason === "samples") return { ok: false, message: samplesBlockedMessage(result.samples), versionTooLow: false };
@@ -1089,7 +1092,7 @@ async function startBuild(
   // 87.4 The automatic build that was waiting is this one now.
   if (variant === "app" && context.app.autoBuildDueAt) await store.updateApp(context.app.id, { autoBuildDueAt: null }, new Date());
   await startPipeline();
-  await recordStaffChange(context, `Started ${variant === "courier" ? "courier app " : variant === "vendor" ? "vendor app " : variant === "staff" ? "staff app " : ""}build #${result.build.number} (${result.build.versionName})`);
+  await recordStaffChange(context, `Started ${variant === "courier" ? "courier app " : variant === "vendor" ? "vendor app " : variant === "staff" ? "staff app " : ""}build #${result.build.number} (${result.build.versionName})${only === "android" ? ", Android only" : only === "ios" ? ", iPhone only" : ""}`);
   revalidatePath("/dashboard", "layout");
   return { ok: true, number: result.build.number, versionName: result.build.versionName };
 }
@@ -1100,12 +1103,18 @@ function buildVariantOf(formData: FormData): BuildVariant {
   return v === "courier" || v === "vendor" || v === "staff" ? v : "app";
 }
 
+/** 142 The one platform the owner started the build for (the button pressed), or both. */
+function buildOnlyOf(formData: FormData): BuildPlatform | undefined {
+  const only = formData.get("only");
+  return only === "android" || only === "ios" ? only : undefined;
+}
+
 export async function startBuildAction(_: FormState, formData: FormData): Promise<FormState> {
   const context = await requireApp("settings");
   const values = formValues(formData);
   const parsed = startBuildSchema.safeParse(Object.fromEntries(formData));
   if (!parsed.success) return { errors: fieldErrors(parsed.error), values };
-  const result = await startBuild(context, parsed.data.versionName, buildVariantOf(formData));
+  const result = await startBuild(context, parsed.data.versionName, buildVariantOf(formData), buildOnlyOf(formData));
   if (!result.ok) return { message: result.message, errors: result.versionTooLow ? { versionName: result.message } : undefined, values };
   return { ok: true, message: `Build #${result.number} is queued.`, values: { versionName: bumpPatch(result.versionName) } };
 }
@@ -1118,7 +1127,8 @@ export async function retryBuildAction(_: FormState, formData: FormData): Promis
   const context = await requireApp("settings");
   const parsed = startBuildSchema.safeParse(Object.fromEntries(formData));
   if (!parsed.success) return { message: "This build can't be started again. Use Start new build." };
-  const result = await startBuild(context, parsed.data.versionName, buildVariantOf(formData));
+  // 142 The same app or apps as the build that didn't finish.
+  const result = await startBuild(context, parsed.data.versionName, buildVariantOf(formData), buildOnlyOf(formData));
   if (!result.ok) return { message: result.message };
   redirect(`/dashboard/builds?queued=${result.number}`);
 }

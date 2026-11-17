@@ -26,8 +26,27 @@ class QueueEntryTest(unittest.TestCase):
     def test_a_build_from_before_is_released_as_before(self):
         self.assertEqual(
             yallapp_platform.queue_entry(build()),
-            {"id": "b1", "auto_publish": True, "source_ref": "", "android_rollout": "", "ios_phased": False},
+            {"id": "b1", "auto_publish": True, "source_ref": "", "android_rollout": "", "ios_phased": False, "android": True, "ios": True, "only": ""},
         )
+
+    def test_142_which_apps_a_build_makes_reach_the_jobs(self):
+        entry = yallapp_platform.queue_entry(build(android=False, ios=True, only="ios"))
+        self.assertEqual((entry["android"], entry["ios"], entry["only"]), (False, True, "ios"))
+        entry = yallapp_platform.queue_entry(build(android=True, ios=False, only="android"))
+        self.assertEqual((entry["android"], entry["ios"], entry["only"]), (True, False, "android"))
+        # No iOS app on the plan or no App Store Connect key: no Mac for it.
+        entry = yallapp_platform.queue_entry(build(android=True, ios=False, only=None))
+        self.assertEqual((entry["android"], entry["ios"], entry["only"]), (True, False, ""))
+        workflow = (ROOT / ".github" / "workflows" / "build-apps.yml").read_text()
+        self.assertIn("build: ${{ fromJSON(needs.queue.outputs.android) }}", workflow)
+        self.assertIn("build: ${{ fromJSON(needs.queue.outputs.ios) }}", workflow)
+        self.assertIn("if: needs.queue.outputs.ios != '[]' && needs.queue.outputs.ios != ''", workflow)
+        self.assertIn('if b.get("android", True)', workflow)
+        self.assertIn('if b.get("ios", True)', workflow)
+        self.assertIn("BUILD_ONLY: ${{ matrix.build.only }}", workflow)
+        self.assertIn("BUILD_IOS: ${{ matrix.build.ios }}", workflow)
+        # The report still runs for every build, whichever jobs ran.
+        self.assertIn("build: ${{ fromJSON(needs.queue.outputs.builds) }}", workflow)
 
     def test_a_staged_release_and_a_rebuild_reach_the_jobs(self):
         entry = yallapp_platform.queue_entry(
