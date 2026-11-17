@@ -22,19 +22,31 @@ final screenPagesProvider = Provider<Map<String, String>>((ref) {
   final config = gate is GateReady ? gate.config : null;
   // 123 Two screens can share an address (an academy's search is its
   // courses with the search box open, its favourites a tab of My courses):
-  // the page of the screen that is exactly there wins, else the first.
+  // the page of the screen a tab opens wins there (a shop's Shop tab is its
+  // search, at the same address as All products: the tab's page, not
+  // another one over it), then the one exactly there, else the first.
+  final onTabs = <BuiltInScreen>{
+    for (final tab in [...navigation.tabs, ...navigation.more])
+      if (tab.target.type == PageActionType.screen) ?tab.target.screen,
+  };
+  final tabPages = <String>{
+    for (final tab in [...navigation.tabs, ...navigation.more])
+      if (tab.target.type == PageActionType.page) ?tab.target.pageSlug,
+  };
   final out = <String, String>{};
-  final exact = <String>{};
+  final rank = <String, int>{};
   for (final page in navigation.pages) {
     final location = screenLocation(page.screen, module, config);
     if (location == null) continue;
     final uri = Uri.parse(location);
     final whole = !uri.hasQuery && !uri.hasFragment;
-    if (out.containsKey(uri.path) && (exact.contains(uri.path) || !whole)) {
-      continue;
-    }
+    final tab =
+        tabPages.contains(page.slug) ||
+        onTabs.contains(builtInScreenFrom(page.screen));
+    final score = (tab ? 2 : 0) + (whole ? 1 : 0);
+    if ((rank[uri.path] ?? -1) >= score) continue;
     out[uri.path] = page.slug;
-    if (whole) exact.add(uri.path);
+    rank[uri.path] = score;
   }
   return out;
 });

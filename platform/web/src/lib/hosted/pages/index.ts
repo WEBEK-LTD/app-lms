@@ -4,7 +4,7 @@ import type { App, HostedUser } from "../../data/types";
 import { isSamplePlace } from "../../pages/designs/build";
 import { servedLayout } from "../../pages/layout";
 import { etagValues } from "../../pages/plugin";
-import { itemSourcesFor } from "../../pages/sources";
+import { itemSourcesFor, sameScreenAs } from "../../pages/sources";
 import { moreTab, splitTabs } from "../../pages/tab-bar";
 import { pickLanguage, translated, translatedBlock } from "../../pages/translate";
 import { ENTRY_LISTS, STUDIO_PAGE_SCREENS, type ScreenName, type EntryList, type ItemSource, type ItemsQuery, type LanguageCode, type Layout, type LayoutBlock, type LayoutTab, type StudioNode, type Translations, type StudioPage } from "../../pages/types";
@@ -42,7 +42,7 @@ export async function handlePages(ctx: HostedContext, req: HostedRequest, user: 
   // 17 A draft preview gets the Pages & look draft.
   const layout = await servedLayout(ctx.store, ctx.app, ctx.plan ?? null, { draft: Boolean(ctx.preview?.draft), now: ctx.now });
   const lang = pickLanguage(req.headers?.get("accept-language"), layout.languages);
-  if (slug === undefined) return navigation(layout, lang, req);
+  if (slug === undefined) return navigation(layout, lang, req, ctx.app);
   const page = layout.pages.find((p) => p.slug === slug);
   if (!page) return { status: 404, body: { code: "not_found", message: "This page doesn't exist." }, headers: VARY };
   const pc: PageContext = { ctx, user, platform, lang, layout };
@@ -182,7 +182,26 @@ function navTab(tab: LayoutTab, lang: LanguageCode, def: LanguageCode, layout: L
   return { id: t.id, label: t.label, icon: t.icon, ...(t.icon_url ? { icon_url: t.icon_url } : {}), target };
 }
 
-function navigation(layout: Layout, lang: LanguageCode, req: HostedRequest): HostedResult {
+/**
+ * 120 The screen each page is drawn around, as the app gets it: none for a
+ * page drawn around a screen the app shows on the same screen as the page a
+ * tab opens (a shop's All products is its Shop tab, the search), so the app
+ * shows the tab's page there, the one the owner sees for that tab in Studio,
+ * not another over it ("Courses" over a flower shop's bouquets).
+ */
+export function pageScreens(layout: Pick<Layout, "pages" | "tabs">, app: Pick<App, "appType">): Map<string, string> {
+  const out = new Map<string, string>();
+  for (const page of layout.pages) if (page.studio?.screen) out.set(page.slug, page.studio.screen);
+  const tabPages = new Set(layout.tabs.flatMap((t) => (t.target.type === "page" && t.target.page_slug && out.has(t.target.page_slug) ? [t.target.page_slug] : [])));
+  const tabScreens = new Set([...tabPages].map((slug) => out.get(slug)!));
+  for (const [slug, screen] of out) {
+    if (tabPages.has(slug) || tabScreens.has(screen)) continue;
+    if (sameScreenAs(app, screen).some((s) => tabScreens.has(s))) out.delete(slug);
+  }
+  return out;
+}
+
+function navigation(layout: Layout, lang: LanguageCode, req: HostedRequest, app: Pick<App, "appType">): HostedResult {
   const def = layout.languages.default;
   // Each language is its own version, so an app that switches language gets
   // the new texts instead of a 304 (the plugin does the same).
@@ -192,6 +211,7 @@ function navigation(layout: Layout, lang: LanguageCode, req: HostedRequest): Hos
     return { status: 304, headers: { ...VARY, etag } };
   }
   const split = splitTabs(layout.tabs.map((tab) => navTab(tab, lang, def, layout)));
+  const screens = pageScreens(layout, app);
   return {
     status: 200,
     body: {
@@ -203,7 +223,7 @@ function navigation(layout: Layout, lang: LanguageCode, req: HostedRequest): Hos
       // 82.5 The side menu.
       menu: (layout.menu ?? []).map((entry) => navTab(entry, lang, def, layout)),
       // 120 A page drawn around one of the app's screens says which.
-      pages: layout.pages.map((page) => ({ slug: page.slug, title: translated(page, lang, def).title, updated_at: page.updated_at, ...(page.studio?.screen ? { screen: page.studio.screen } : {}) })),
+      pages: layout.pages.map((page) => ({ slug: page.slug, title: translated(page, lang, def).title, updated_at: page.updated_at, ...(screens.has(page.slug) ? { screen: screens.get(page.slug) } : {}) })),
     },
     headers: { ...VARY, etag },
   };

@@ -93,6 +93,27 @@ export function pageScreenOptionsFor(app: Pick<App, "appType" | "vertical">): { 
   return [...own.map((s) => ({ value: s.value as string, label: s.label })), ...innerScreensFor(app).map((s) => ({ value: s.id, label: innerScreenName(s.id)! }))];
 }
 
+/**
+ * Screens an app type shows on one screen, as the app opens them
+ * (mobile/lib/modules/<type>/<type>_routes.dart): a shop's Search is its All
+ * products with the search box open, an academy's its Courses. The first of
+ * each is the screen itself. A Studio page drawn around one of them is the
+ * page of all of them, so a demo has one page for them (its tab's), and the
+ * app shows the tab's page there (GET /pages).
+ */
+const ONE_SCREEN: Partial<Record<string, readonly (readonly ScreenName[])[]>> = {
+  store: [["courses", "search"]],
+  real_estate: [["courses", "search"]],
+  lms: [["courses", "search"]],
+  events: [["events", "search"]],
+  news: [["articles", "search"]],
+};
+
+/** The screens this app shows on the same screen as `screen`, `screen` too. */
+export function sameScreenAs(app: { appType: string }, screen: string): readonly string[] {
+  return ONE_SCREEN[app.appType]?.find((group) => (group as readonly string[]).includes(screen)) ?? [screen];
+}
+
 /** Whether the app can open a screen. */
 export function appOpensScreen(app: Pick<App, "appType" | "vertical">, screen: unknown): screen is ScreenName {
   return screenOptionsFor(app).some((o) => o.value === screen);
