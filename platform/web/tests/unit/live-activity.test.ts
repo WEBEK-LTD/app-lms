@@ -1,4 +1,4 @@
-import { beforeEach, describe, expect, it } from "vitest";
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { GET } from "@/app/api/live-activity/route";
 import { newApp } from "@/lib/app/setup";
 import { registerClient } from "@/lib/auth/accounts";
@@ -187,7 +187,14 @@ describe("hidden entries", () => {
 });
 
 describe("GET /api/live-activity never leaks private fields", () => {
-  beforeEach(() => clearLiveFeedCache());
+  // The route reads the clock itself: set to the tests' NOW, so the 7 days of demo sign-ins
+  // (and the feed's own window) don't run out as the calendar moves on.
+  beforeEach(() => {
+    clearLiveFeedCache();
+    vi.useFakeTimers({ toFake: ["Date"] });
+    vi.setSystemTime(NOW);
+  });
+  afterEach(() => vi.useRealTimers());
 
   it("sends masked names, plan names, places and times only, cached for a minute", async () => {
     const store = await getStore();
