@@ -254,6 +254,9 @@ test("136.20 the iPhone notifications key is checked with Apple before it's save
   await expect(own.getByRole("group", { name: "iPhone notifications" })).toContainText("Apple asks for your APNs key once");
   await own.goto("/dashboard/notifications");
   const section = own.getByRole("region", { name: "iPhone notifications" });
+  await expect(section).toContainText("Key needed");
+  // The key's form is under the row's fold, as the Firebase key's.
+  await section.getByText("Add the APNs key").click();
   await expect(section).toContainText("Apple asks for your APNs key once");
   const p8 = generateKeyPairSync("ec", { namedCurve: "prime256v1" }).privateKey.export({ type: "pkcs8", format: "pem" }).toString();
   await section.getByLabel("APNs key (.p8)").setInputFiles({ name: "AuthKey_ABCDE12345.p8", mimeType: "application/octet-stream", buffer: Buffer.from(p8) });
@@ -264,6 +267,7 @@ test("136.20 the iPhone notifications key is checked with Apple before it's save
   // A made-up key: Apple refuses it, or (without a way to Apple from here) it can't be checked. Either way nothing is saved.
   await expect(section.getByText(/We couldn't reach Apple to check the key|Apple didn't accept this key/)).toBeVisible();
   await own.reload();
+  await expect(own.getByRole("region", { name: "iPhone notifications" })).toContainText("Key needed");
   await expect(own.getByRole("region", { name: "iPhone notifications" })).not.toContainText("accepted by Apple");
   expect(await own.content()).not.toContain("BEGIN PRIVATE KEY");
 });
@@ -281,6 +285,8 @@ test("“Use my own Firebase” brings today's fields back, and Yallapp's again 
   await own.goto("/dashboard/setup?step=publishing");
   await expect(own.getByRole("group", { name: "Push notifications" }).getByRole("radio", { name: "Use my own Firebase" })).toBeChecked();
   await own.goto("/dashboard/notifications");
+  // Its own Firebase: the key is added under Push, as before.
+  await own.getByRole("region", { name: "Push", exact: true }).locator("summary").filter({ hasText: "Add your Firebase key" }).click();
   await expect(own.getByLabel("Firebase service account key (.json)")).toBeVisible();
 
   await own.goto("/dashboard/setup?step=publishing");

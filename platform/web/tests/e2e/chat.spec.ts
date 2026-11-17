@@ -137,21 +137,23 @@ test("a student writes from the app, and the owner answers as the academy with a
   await expect(row).toContainText("Is there a class on Monday?");
   await expect(row).toContainText("1 new");
   await row.click();
-  await expect(own.getByRole("heading", { level: 1, name: "Deniz Aksoy" })).toBeVisible();
-  await expect(own.getByText("Is there a class on Monday?")).toBeVisible();
+  // 132.160 The conversation opens in the inspector beside the list.
+  const thread = own.locator('[data-inspector-chat="Deniz Aksoy"]');
+  await expect(thread.getByRole("heading", { level: 2, name: "Deniz Aksoy" })).toBeVisible();
+  await expect(thread.getByText("Is there a class on Monday?")).toBeVisible();
 
-  await own.getByRole("button", { name: "Send", exact: true }).click();
-  await expect(own.getByText("Write a message or attach a file.")).toBeVisible();
-  await own.getByLabel("Your answer").fill("Yes, at 10:00. Here is the timetable.");
-  await own.getByRole("button", { name: "Attach from Media" }).click();
+  await thread.getByRole("button", { name: "Send", exact: true }).click();
+  await expect(thread.getByText("Write a message or attach a file.")).toBeVisible();
+  await thread.getByLabel("Your answer").fill("Yes, at 10:00. Here is the timetable.");
+  await thread.getByRole("button", { name: "Attach from Media" }).click();
   await own.getByRole("dialog").getByRole("button", { name: /Timetable\.png/ }).click();
-  await expect(own.getByText("Attached: Timetable.png")).toBeVisible();
-  await own.getByRole("button", { name: "Send", exact: true }).click();
-  await expect(own.getByRole("status").filter({ hasText: "Sent." })).toBeVisible();
-  await expect(own.getByLabel("Your answer")).toHaveValue("");
-  await expect(own.getByRole("img", { name: "Timetable.png" })).toBeVisible();
+  await expect(thread.getByText("Attached: Timetable.png")).toBeVisible();
+  await thread.getByRole("button", { name: "Send", exact: true }).click();
+  await expect(thread.getByRole("status").filter({ hasText: "Sent." })).toBeVisible();
+  await expect(thread.getByLabel("Your answer")).toHaveValue("");
+  await expect(thread.getByRole("img", { name: "Timetable.png" })).toBeVisible();
   // The team sees who wrote it; the app sees the academy.
-  await expect(own.getByText(`${business} · ${client.name}`, { exact: false })).toBeVisible();
+  await expect(thread.getByText(`${business} · ${client.name}`, { exact: false })).toBeVisible();
 
   const messages = await (await request.get(`${api}/chat/conversations/${direct!.id}/messages`, { headers: students[0]!.auth })).json();
   expect(messages.items[0]).toMatchObject({ text: "Yes, at 10:00. Here is the timetable.", sender: { kind: "business", name: business }, attachment: { kind: "image", name: "Timetable.png" } });
@@ -193,28 +195,30 @@ test("course groups: the owner turns them on, a report is dealt with and its sen
   // The owner lets Deniz write again from the conversation.
   await own.getByRole("link", { name: "All", exact: true }).click();
   await own.getByRole("link", { name: /^Deniz Aksoy/ }).click();
-  await expect(own.getByText("Deniz Aksoy can read but not send messages.")).toBeVisible();
-  await own.getByRole("button", { name: "Let them send again" }).click();
-  await expect(own.getByRole("button", { name: "Stop them sending" })).toBeVisible();
+  const thread = own.locator('[data-inspector-chat="Deniz Aksoy"]');
+  await expect(thread.getByText("Deniz Aksoy can read but not send messages.")).toBeVisible();
+  await thread.getByRole("button", { name: "Let them send again" }).click();
+  await expect(thread.getByRole("button", { name: "Stop them sending" })).toBeVisible();
   expect((await write(request, 0, group.id, "Sorry.")).status()).toBe(201);
 });
 
 test("deleting a message and a whole conversation, keeping one another year", async ({ request }) => {
   await own.goto("/dashboard/chat?view=group");
   await own.getByRole("link", { name: /Turkish for Beginners/ }).click();
-  await expect(own.getByText("Sorry.")).toBeVisible();
-  await expect(own.getByText("Message deleted")).toBeVisible();
-  await expect(own.getByText(/Messages are kept a year\. The oldest here are deleted on/)).toBeVisible();
-  await own.getByRole("button", { name: "Keep another year" }).click();
-  await expect(own.getByText(/Kept until .*, the oldest messages too\./)).toBeVisible();
+  const thread = own.locator('[data-inspector-chat="Turkish for Beginners"]');
+  await expect(thread.getByText("Sorry.")).toBeVisible();
+  await expect(thread.getByText("Message deleted")).toBeVisible();
+  await expect(thread.getByText(/Messages are kept a year\. The oldest here are deleted on/)).toBeVisible();
+  await thread.getByRole("button", { name: "Keep another year" }).click();
+  await expect(thread.getByText(/Kept until .*, the oldest messages too\./)).toBeVisible();
 
   own.once("dialog", (dialog) => void dialog.accept());
-  await own.getByRole("button", { name: "Delete this message" }).last().click();
-  await expect(own.getByText("Sorry.")).toHaveCount(0);
+  await thread.getByRole("button", { name: "Delete this message" }).last().click();
+  await expect(thread.getByText("Sorry.")).toHaveCount(0);
 
   own.once("dialog", (dialog) => void dialog.accept());
-  await own.getByRole("button", { name: "Delete all messages" }).click();
-  await expect(own.getByText("No messages here yet.")).toBeVisible();
+  await thread.getByRole("button", { name: "Delete all messages" }).click();
+  await expect(thread.getByText("No messages here yet.")).toBeVisible();
   const group = (await conversations(request, 1)).find((c) => c.kind === "group")!;
   expect((await (await request.get(`${api}/chat/conversations/${group.id}/messages`, { headers: students[1]!.auth })).json()).items).toEqual([]);
 });

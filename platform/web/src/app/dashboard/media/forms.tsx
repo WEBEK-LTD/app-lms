@@ -4,7 +4,7 @@ import { useActionState, useState } from "react";
 import { buyStorageAction, renameMediaAction } from "@/app/actions/media";
 import { Field, FieldError, FormMessage, SubmitButton } from "@/components/form";
 import { Icon } from "@/components/icon";
-import { btn } from "@/components/ui";
+import { kit } from "@/components/studio-page/classes";
 import { useDashT } from "@/components/dashboard-i18n";
 import { initialFormState } from "@/lib/forms";
 
@@ -15,7 +15,7 @@ export function RenameForm({ id, name }: { id: string; name: string }) {
   const [editing, setEditing] = useState(false);
   if (!editing) {
     return (
-      <button type="button" onClick={() => setEditing(true)} className={`${btn.ghost} h-8 px-2 text-sm`} aria-label={t("media.renameNamed", { name })}>
+      <button type="button" onClick={() => setEditing(true)} className={`${kit.quiet} self-start`} aria-label={t("media.renameNamed", { name })}>
         <Icon name="edit" size={18} />
         {t("media.rename")}
       </button>
@@ -26,7 +26,7 @@ export function RenameForm({ id, name }: { id: string; name: string }) {
       <input type="hidden" name="id" value={id} />
       <Field id={`f-rename-${id}`} label={t("media.name")} name="name" defaultValue={state.values?.name ?? name} error={state.errors?.name} small className="min-w-[200px] flex-1" />
       <SubmitButton className="h-10">{t("media.saveName")}</SubmitButton>
-      <button type="button" onClick={() => setEditing(false)} className={`${btn.ghost} h-10 px-3 text-sm`}>
+      <button type="button" onClick={() => setEditing(false)} className={`${kit.ghost} h-10 px-3 text-sm`}>
         {t("common.close")}
       </button>
       <FormMessage message={state.message} ok={state.ok} />
@@ -58,8 +58,8 @@ export function BuyStorageForm({ appId, options, provider }: { appId: string; op
       <fieldset className="m-0 flex flex-col gap-2.5 border-0 p-0">
         <legend className="mb-1.5 text-sm font-semibold">{t("media.pack")}</legend>
         {options.map((o) => (
-          <label key={o.id} className={`flex cursor-pointer items-start gap-3 rounded-xl border px-4 py-3 ${offer === o.id ? "border-midnight bg-ivory" : "border-line"}`}>
-            <input type="radio" name="offerChoice" value={o.id} checked={offer === o.id} onChange={() => setOffer(o.id)} className="mt-1 h-4 w-4 accent-midnight" />
+          <label key={o.id} className={`flex cursor-pointer items-start gap-3 rounded-xl border px-4 py-3 ${offer === o.id ? "border-(--sp-ink) bg-(--sp-soft)" : "border-(--sp-line)"}`}>
+            <input type="radio" name="offerChoice" value={o.id} checked={offer === o.id} onChange={() => setOffer(o.id)} className="mt-1 h-4 w-4 accent-(--sp-ink)" />
             <span className="flex min-w-0 flex-1 flex-col gap-0.5">
               <span className="flex flex-wrap items-baseline justify-between gap-2">
                 <span className="text-[15px] font-bold">{o.label}</span>
@@ -67,7 +67,7 @@ export function BuyStorageForm({ appId, options, provider }: { appId: string; op
                   {o.price}
                 </span>
               </span>
-              <span className="text-[13px] text-muted">{o.note}</span>
+              <span className="text-[13px] text-(--sp-muted)">{o.note}</span>
             </span>
           </label>
         ))}
@@ -78,14 +78,14 @@ export function BuyStorageForm({ appId, options, provider }: { appId: string; op
         <Field label={t("license.address")} name="address" autoComplete="street-address" defaultValue={v.address} error={state.errors?.address} small />
       </div>
       {charge ? (
-        <p data-charge-line="" className="m-0 flex items-start gap-2 rounded-xl bg-ivory px-4 py-3 text-sm font-semibold text-ink-2">
+        <p data-charge-line="" className="m-0 flex items-start gap-2 rounded-xl bg-(--sp-soft) px-4 py-3 text-sm font-semibold text-(--sp-ink-2)">
           {charge}
         </p>
       ) : null}
       <SubmitButton className="h-11" pendingText={t("license.opening")}>
         {t("media.buyStorage")}
       </SubmitButton>
-      <span className="text-xs leading-normal text-muted">{t("media.cardOn", { provider })}</span>
+      <span className="text-xs leading-normal text-(--sp-muted)">{t("media.cardOn", { provider })}</span>
     </form>
   );
 }
