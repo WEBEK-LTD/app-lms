@@ -145,6 +145,11 @@ export const en = {
     fAbout: "about",
     fNumber: "number",
   },
+  // 132.160 The console: the page's line, how much is translated, Export or import.
+  line: "Your app's languages, and every text it shows in them.",
+  exportImport: "Export or import",
+  statTranslatedShare: "Translated",
+  textsDone: "{done} of {total} texts, in every language",
 } as const;
 
 type Messages = Strings<typeof en>;
@@ -291,6 +296,10 @@ export const ar: Messages = {
     fAbout: "النبذة",
     fNumber: "الرقم",
   },
+  line: "لغات تطبيقك، وكل نص بيظهر فيها.",
+  exportImport: "تصدير أو استيراد",
+  statTranslatedShare: "المترجم",
+  textsDone: "{done} من {total} نص، في كل اللغات",
 };
 
 export const tr: Messages = {
@@ -434,4 +443,8 @@ export const tr: Messages = {
     fAbout: "hakkında",
     fNumber: "rakam",
   },
+  line: "Uygulamanızın dilleri ve bu dillerde gösterdiği her metin.",
+  exportImport: "Dışa veya içe aktar",
+  statTranslatedShare: "Çevrilen",
+  textsDone: "Tüm dillerde {total} metinden {done}",
 };

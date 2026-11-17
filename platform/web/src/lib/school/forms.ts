@@ -53,9 +53,6 @@ export const SCHOOL_LIMITS = {
   maxCents: 100_000_000,
 } as const;
 
-/** The time zones a school may choose. */
-export const SCHOOL_TIMEZONES = ["Africa/Cairo", "Europe/Istanbul", "Asia/Riyadh", "Asia/Dubai", "Asia/Amman", "Asia/Kuwait", "Asia/Qatar", "Asia/Baghdad", "Africa/Casablanca", "Africa/Tunis", "Africa/Algiers", "Europe/London"] as const;
-
 function optionalId(form: Record<string, string>, name: string, allowed: readonly number[], errors: Record<string, string>, message: string): number | null {
   const text = str(form, name);
   if (!text) return null;

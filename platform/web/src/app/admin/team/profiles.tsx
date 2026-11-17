@@ -1,7 +1,8 @@
 import { saveStaffProfileAction } from "@/app/actions/admin-account-managers";
 import { SubmitButton } from "@/components/form";
 import { Badge } from "@/components/ui";
-import { DEFAULT_STAFF_TIMEZONE, hoursLabel, STAFF_TIMEZONES } from "@/lib/admin/account-managers";
+import { TimeZonePicker } from "@/components/time-zone-picker";
+import { DEFAULT_STAFF_TIMEZONE, hoursLabel } from "@/lib/admin/account-managers";
 import type { TeamRow } from "@/lib/admin/team";
 import type { StaffProfile } from "@/lib/data/types";
 
@@ -83,16 +84,8 @@ export function ContactCards({ team, profiles, manage, error }: { team: TeamRow[
                       To
                       <input type="time" name="to" step={1800} defaultValue={hours?.to ?? ""} className="input input-sm w-auto" />
                     </label>
-                    <label className="flex flex-col gap-1 text-sm font-semibold">
-                      Time zone
-                      <select name="timezone" defaultValue={hours?.timezone ?? DEFAULT_STAFF_TIMEZONE} className="input input-sm w-auto">
-                        {STAFF_TIMEZONES.map((zone) => (
-                          <option key={zone} value={zone}>
-                            {zone.replace(/_/g, " ")}
-                          </option>
-                        ))}
-                      </select>
-                    </label>
+                    {/* 137 Every time zone: searched by city, zone or offset. */}
+                    <TimeZonePicker id={`f-timezone-${m.userId}`} label="Time zone" defaultValue={hours?.timezone ?? DEFAULT_STAFF_TIMEZONE} size="sm" className="min-w-[280px] flex-1" />
                   </div>
                   <div className="flex flex-wrap items-center gap-3">
                     <label className="flex flex-col gap-1 text-sm font-semibold">

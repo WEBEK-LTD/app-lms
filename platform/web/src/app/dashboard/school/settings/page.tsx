@@ -17,7 +17,8 @@ import type { App } from "@/lib/data/types";
 import { appPlan } from "@/lib/entitlements";
 import { PROVIDER_NAME } from "@/lib/payments/provider";
 import { chatAvailable } from "@/lib/chat/access";
-import { SCHOOL_TIMEZONES, schoolMessageFormValues, schoolSettingsFormValues } from "@/lib/school/forms";
+import { schoolMessageFormValues, schoolSettingsFormValues } from "@/lib/school/forms";
+import { TimeZonePicker } from "@/components/time-zone-picker";
 import { schoolMessagesOf } from "@/lib/school/messages";
 import { schoolSettingsOf } from "@/lib/school/settings";
 import { Choice, SchoolForm } from "../forms";
@@ -85,7 +86,6 @@ export default async function SchoolSettingsPage({ searchParams }: { searchParam
       </span>
     </label>
   );
-  const zones = [...new Set([settings.timezone, ...SCHOOL_TIMEZONES])];
   const payments = settings.feesByCard || isOwnPayment(catalogSettings(app).payment);
   // 132.21 `?tab=` opens one (an old link to a part, `#payments`, too).
   const asked = (await searchParams).tab ?? "";
@@ -111,7 +111,8 @@ export default async function SchoolSettingsPage({ searchParams }: { searchParam
             {/* The page kit: the form in its parts. */}
             <FormSection id="s-place" title={t("school.formPlace")}>
               <div className="grid gap-4 sm:grid-cols-2">
-                <Choice id="f-timezone" name="timezone" label={t("school.timezone")} options={zones.map((z) => ({ value: z, label: z }))} defaultValue={values.timezone} />
+                {/* 137 Every time zone: searched by city, zone or offset, the usual ones first. */}
+                <TimeZonePicker id="f-timezone" label={t("school.timezone")} defaultValue={values.timezone} className="sm:col-span-2" />
                 <CurrencyPicker id="f-currency" label={t("school.currency")} defaultValue={values.currency} className="sm:col-span-2" />
               </div>
             </FormSection>

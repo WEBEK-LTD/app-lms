@@ -6,7 +6,7 @@ import { requireClient } from "@/lib/auth/session";
 import { dashboardText } from "@/lib/dashboard-lang";
 import { getStore } from "@/lib/data";
 import { appPlan } from "@/lib/entitlements";
-import { TRAVEL_TIMEZONES, travelSettingsFormValues } from "@/lib/travel/forms";
+import { travelSettingsFormValues } from "@/lib/travel/forms";
 import { travelMode, travelSettingsOf, travelTabLabels } from "@/lib/travel/settings";
 import { TravelSettingsForm } from "../forms";
 import { isTravel, NotTravel, TravelPlanNotice } from "../parts";
@@ -34,7 +34,7 @@ export default async function TravelSettingsPage() {
         </p>
       </Section>
       <Section titleId="h-settings" title={t("travel.settings")}>
-        <TravelSettingsForm values={travelSettingsFormValues(settings)} zones={[...new Set([settings.timeZone, ...TRAVEL_TIMEZONES])]} />
+        <TravelSettingsForm values={travelSettingsFormValues(settings)} />
       </Section>
     </div>
   );

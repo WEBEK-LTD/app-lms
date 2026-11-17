@@ -57,6 +57,22 @@ app into any account. Migration `0130_app_moves` (the requests, and
 `apps.moved_at`, `apps.moved_to_client_id` for the read-only record an app
 leaves behind).
 
+Roadmap 132.160–132.169 (group A in the console): Delivery & offers, Card
+messages, Media, Notifications, Chat, Languages, Screen protection,
+Integrations and App sign-in are built as the console's design: one main
+action in Ember with the rest behind "⋯", the numbers as tiles, lists as
+tables whose rows open in the inspector (a conversation's thread by
+`?open=`), settings as rows. The kit's new pieces are in their own files
+(`components/studio-page/table.tsx`, `parts.tsx`, `tabs.tsx`); the kit's
+own files are unchanged. A flash sale's percent reads right in Arabic.
+
+Roadmap 132.186 (Delivery & offers made easy): several delivery times a
+day as rows with "Add another time" (a break between them), overlaps
+refused in plain words; every country (Intl.DisplayNames names, a
+search, the platform's first ones on top) or every country at once, each
+chosen country's own cities typed right under it with their prices; a
+flash sale's products with their pictures (`lib/selling/countries.ts`).
+
 Roadmap 132.150–132.153 (Studio's console): every Studio project page and
 Your account and Team are in Studio's console (`app/studio/console.tsx`): a
 midnight frame with an icon rail of the menu's groups and a panel of the

@@ -2,6 +2,7 @@
 
 /* eslint-disable @next/next/no-img-element -- the event's pictures, served by our own asset route */
 import { CurrencyPicker } from "@/components/currency-picker";
+import { TimeZonePicker } from "@/components/time-zone-picker";
 import { useActionState, useId, type ReactNode } from "react";
 import { saveEventAction, saveEventSettingsAction, saveTicketTypeAction } from "@/app/actions/events";
 import { Field, FieldError, FormMessage, SubmitButton } from "@/components/form";
@@ -281,14 +282,8 @@ export function EventSettingsForm({
       <div className="grid gap-4 sm:grid-cols-2">
         {/* 135.3 Any currency: searched by name, code or sign, the usual ones first. */}
         <CurrencyPicker id="f-currency" label={t("shop.currency")} defaultValue={value("currency", settings.currency)} error={e.currency} />
-        <Field
-          label={t("shop.timeZone")}
-          name="timeZone"
-          dir="ltr"
-          defaultValue={value("timeZone", settings.timeZone)}
-          hint={t("events.timeZoneHint")}
-          error={e.timeZone}
-        />
+        {/* 137 Every time zone: searched by city, zone or offset, the usual ones first. */}
+        <TimeZonePicker id="f-timeZone" name="timeZone" label={t("shop.timeZone")} defaultValue={value("timeZone", settings.timeZone)} hint={t("events.timeZoneHint")} error={e.timeZone} className="sm:col-span-2" />
       </div>
       <Check name="showMap" label={t("events.openInMaps")} defaultChecked={checked("showMap", settings.showMap)} />
       <Check
