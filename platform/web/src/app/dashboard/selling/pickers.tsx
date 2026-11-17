@@ -7,7 +7,7 @@ import { kit } from "@/components/studio-page/classes";
 import { slotProblems } from "@/lib/selling/delivery";
 
 /**
- * 132.170 Delivery & offers made easy: the day's delivery times as rows (a
+ * 132.186 Delivery & offers made easy: the day's delivery times as rows (a
  * break between two is two times, "Add another time" right under them), the
  * countries from every country with a search, each with its own cities
  * typed in place, and the flash sale's products with their pictures.

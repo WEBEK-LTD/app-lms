@@ -129,7 +129,7 @@ export default async function SellingPage({ searchParams }: { searchParams: Prom
     includedKg: settings.weightPricing ? String(settings.weightPricing.includedKg) : "",
     minFee: settings.shippingMinCents != null ? centsToDecimal(settings.shippingMinCents) : "",
   };
-  // 132.170 Where it delivers as the editor starts: every country, or each chosen one with its cities and their own prices.
+  // 132.186 Where it delivers as the editor starts: every country, or each chosen one with its cities and their own prices.
   const priced = settings.cityPrices ?? [];
   const placed = new Set<number>();
   const priceOf = (cents: number) => centsToDecimal(cents);
@@ -173,7 +173,7 @@ export default async function SellingPage({ searchParams }: { searchParams: Prom
   });
   const otherLangs = langs.filter((l) => l.code !== languages.default);
   // 131 A flash sale's list never has a gift add-on.
-  // 132.170 Each with its picture and price, so the owner knows it at a glance.
+  // 132.186 Each with its picture and price, so the owner knows it at a glance.
   const pictureOf = (p: { imageAssetIds: string[] }) => (p.imageAssetIds[0] ? assetUrl(p.imageAssetIds[0]) : null);
   const flashProducts = source.kind === "catalog" ? products.filter((p) => p.active && !p.addon).map((p) => ({ id: p.id, name: p.name, image: pictureOf(p), price: money(p.salePriceCents ?? p.priceCents) })) : null;
   const flashCategories = categories.map((c) => ({ id: c.id, name: c.name }));
@@ -206,7 +206,7 @@ export default async function SellingPage({ searchParams }: { searchParams: Prom
   const saleState = (s: StoreFlashSale) =>
     !s.active ? <KitStatus tone="neutral">{t("selling.turnOff")}</KitStatus> : unitsLeft(s) === 0 ? <KitStatus tone="warn">{t("selling.soldOut")}</KitStatus> : saleOn(s, now) ? <KitStatus tone="success">{t("selling.live")}</KitStatus> : s.endsAt <= now ? <KitStatus tone="neutral">{t("selling.ended")}</KitStatus> : <KitStatus tone="info">{t("selling.scheduled", { date: formatDate(s.startsAt, lang) })}</KitStatus>;
   const productById = new Map(products.map((p) => [p.id, p]));
-  /** 132.170 A flash sale's first product with a picture: the sale's picture in the table. */
+  /** 132.186 A flash sale's first product with a picture: the sale's picture in the table. */
   const salePicture = (s: StoreFlashSale) => {
     const p = s.productIds.map((id) => productById.get(id)).find((x) => x && x.imageAssetIds.length);
     return p ? pictureOf(p) : null;
@@ -324,7 +324,7 @@ export default async function SellingPage({ searchParams }: { searchParams: Prom
               ...(platform ? ([[t("selling.platformCode", { platform }), s.platformCode ? <bdi dir="ltr">{s.platformCode}</bdi> : t("studioPage.notSet")]] as [string, ReactNode][]) : []),
             ]}
           />
-          {/* 132.170 Its products with their pictures and prices. */}
+          {/* 132.186 Its products with their pictures and prices. */}
           {s.productIds.length && source.kind === "catalog" ? (
             <KitInspectorPart title={t("selling.flashProducts")}>
               <ul className="m-0 flex list-none flex-col gap-2 p-0" data-inspector-products="">

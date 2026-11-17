@@ -384,7 +384,7 @@ export function TravelSettingsForm({ values }: { values: Record<string, string> 
           <Field id="ts-whatsapp" label={t("travel.helpWhatsapp")} name="helpWhatsapp" defaultValue={value("helpWhatsapp")} error={e.helpWhatsapp} />
         </div>
         <Field id="ts-font" label={t("travel.displayFont")} name="displayFont" defaultValue={value("displayFont")} hint={t("travel.displayFontHint")} error={e.displayFont} />
-        {/* 136 Every time zone: searched by city, zone or offset, the usual ones first. */}
+        {/* 137 Every time zone: searched by city, zone or offset, the usual ones first. */}
         <TimeZonePicker id="ts-zone" name="timeZone" label={t("travel.timeZone")} defaultValue={value("timeZone")} error={e.timeZone} />
         <p className="m-0 text-sm text-muted">{t("travel.timeZoneHint")}</p>
       </FormSection>

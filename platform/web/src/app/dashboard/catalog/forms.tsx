@@ -626,7 +626,7 @@ export function FulfilmentForm({ current, currency }: { current: Record<string, 
         <FieldError id="f-hours-error" error={e.hours} />
       </fieldset>
       <div className="grid gap-4 sm:grid-cols-2">
-        {/* 136 Every time zone: searched by city, zone or offset, the usual ones first. */}
+        {/* 137 Every time zone: searched by city, zone or offset, the usual ones first. */}
         <TimeZonePicker id="f-timezone" label={t("shop.timeZone")} defaultValue={v.timezone} error={e.timezone} size="sm" />
         <Field label={t("shop.prepTime")} name="prepMinutes" inputMode="numeric" defaultValue={v.prepMinutes} error={e.prepMinutes} small />
       </div>

@@ -6,12 +6,12 @@ import { parseShippingForm, quoteShipping, SHIPPING_LIMITS, shippingConfigJson, 
 import { en, ar, tr } from "@/i18n/dashboard/selling";
 
 /**
- * 132.170 Delivery & offers made easy: several delivery times a day that
+ * 132.186 Delivery & offers made easy: several delivery times a day that
  * never overlap, every country with its name in the dashboard's language,
  * and the owner's own cities (with their prices) under each.
  */
 
-describe("132.170 several delivery times a day", () => {
+describe("132.186 several delivery times a day", () => {
   it("finds times that overlap or end before they start, and allows a break or back-to-back times", () => {
     // A break: 10:00–13:00, then 16:00–21:00.
     expect(slotProblems([{ start: "10:00", end: "13:00" }, { start: "16:00", end: "21:00" }])).toEqual([null, null]);
@@ -39,7 +39,7 @@ describe("132.170 several delivery times a day", () => {
   });
 });
 
-describe("132.170 every country", () => {
+describe("132.186 every country", () => {
   it("lists all 249 ISO 3166-1 countries, the platform's first ones on top", () => {
     expect(ISO_COUNTRIES).toHaveLength(249);
     expect(new Set(ISO_COUNTRIES).size).toBe(249);
@@ -70,7 +70,7 @@ describe("132.170 every country", () => {
   });
 });
 
-describe("132.170 where it delivers, any country with the owner's own cities", () => {
+describe("132.186 where it delivers, any country with the owner's own cities", () => {
   it("saves any country, each with its cities and their own prices", () => {
     expect(SHIPPING_LIMITS.countries).toBeGreaterThanOrEqual(249);
     const parsed = parseShippingForm({ areasScope: "some", country0: "BR", cities0: "São Paulo\nRio de Janeiro", cityPrices0: "São Paulo: 40", country1: "jp", allCities1: "on", cityPrices1: "Tokyo: 90", shippingMode: "flat" });

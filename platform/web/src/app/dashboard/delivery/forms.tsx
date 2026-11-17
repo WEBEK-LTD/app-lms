@@ -360,7 +360,7 @@ export function DeliverySettingsForm({
                 { value: "ready", label: t("food.courierJob_ready"), hint: t("food.courierJob_readyHint") },
               ]}
             />
-            {/* 136 Every time zone: searched by city, zone or offset, the usual ones first. */}
+            {/* 137 Every time zone: searched by city, zone or offset, the usual ones first. */}
             <TimeZonePicker id="f-timezone" label={t("food.timezone")} defaultValue={state.values?.timezone ?? food.timezone} error={state.errors?.timezone} className="max-w-[560px]" />
           </section>
         </TabPanel>

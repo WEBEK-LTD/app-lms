@@ -55,7 +55,7 @@ export function RulesForm({ current }: { current: Record<string, string> }) {
     <form action={action} noValidate className="flex flex-col gap-4" key={JSON.stringify(v)}>
       <FormMessage message={state.message} ok={state.ok} />
       <div className="grid gap-4 sm:grid-cols-3">
-        {/* 136 Every time zone: searched by city, zone or offset, the usual ones first. */}
+        {/* 137 Every time zone: searched by city, zone or offset, the usual ones first. */}
         <TimeZonePicker label={t("shop.timeZone")} defaultValue={v.timezone ?? ""} error={e.timezone} className="sm:col-span-3" />
         {/* 135.3 Any currency: searched by name, code or sign, the usual ones first. */}
         <CurrencyPicker label={t("shop.currency")} defaultValue={v.currency ?? "TRY"} error={e.currency} className="sm:col-span-3" />

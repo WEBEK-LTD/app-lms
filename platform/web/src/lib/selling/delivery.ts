@@ -199,7 +199,7 @@ export async function checkDelivery(
 }
 
 /**
- * 132.170 What's wrong with each of a day's delivery times, in the order
+ * 132.186 What's wrong with each of a day's delivery times, in the order
  * given: `order` (not two times like 10:00 and 13:00, the end after the
  * start), `overlap` with the index of an earlier-starting time it runs into
  * (10:00–13:00 and 12:00–15:00; one may start when the other ends: a break
@@ -285,7 +285,7 @@ export function parseDeliveryForm(v: Record<string, string>, current: DeliverySc
     used.add(id);
     slots.push({ id, start, end, capacity, feeCents: feeCents && feeCents > 0 ? feeCents : null });
   }
-  // 132.170 Several times a day (a break between them), never two at once.
+  // 132.186 Several times a day (a break between them), never two at once.
   const rows = Array.from({ length: DELIVERY_LIMITS.slots }, (_, i) => ({ start: (v[`slotStart${i}`] ?? "").trim(), end: (v[`slotEnd${i}`] ?? "").trim() }));
   slotProblems(rows).forEach((p, i) => {
     if (p?.kind === "overlap" && !errors[`slot${i}`]) errors[`slot${i}`] = `This time overlaps ${slotLabel(rows[p.with]!)}: let one end before the next starts.`;

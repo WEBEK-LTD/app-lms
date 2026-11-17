@@ -1,5 +1,5 @@
 /**
- * 132.170 Every country a shop can deliver to: the 249 ISO 3166-1 alpha-2
+ * 132.186 Every country a shop can deliver to: the 249 ISO 3166-1 alpha-2
  * codes, named in the dashboard's (or the app's) language by Node's and the
  * browser's own data (Intl.DisplayNames), English when a language has no name
  * for one. The countries the platform serves first keep the short names the
@@ -7,7 +7,7 @@
  * not "المملكة العربية السعودية"). No country data is bundled beyond the codes.
  */
 
-/** The short names of the countries the platform serves first, as the app showed them before 132.170. */
+/** The short names of the countries the platform serves first, as the app showed them before 132.186. */
 export const SHIPPING_COUNTRIES: Record<string, { en: string; ar: string; tr: string }> = {
   TR: { en: "Turkey", ar: "تركيا", tr: "Türkiye" },
   EG: { en: "Egypt", ar: "مصر", tr: "Mısır" },

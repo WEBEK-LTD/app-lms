@@ -134,7 +134,7 @@ export function parseDeliverySettings(form: Record<string, string>, saved: Deliv
     if (parsed.error) errors.cuisines = parsed.error;
     const foodCourierJob = FOOD_COURIER_JOBS.find((v) => v === str(form, "foodCourierJob"));
     if (!foodCourierJob) errors.foodCourierJob = "Choose when a courier gets the order.";
-    // 136 Any IANA zone, as the picker lists them all.
+    // 137 Any IANA zone, as the picker lists them all.
     const timezone = isIanaZone(str(form, "timezone")) ? str(form, "timezone") : undefined;
     if (!timezone) errors.timezone = "Choose the time zone of your restaurants' hours.";
     foodValues = { cuisines: parsed.cuisines, foodCourierJob: foodCourierJob ?? "accepted", timezone: timezone ?? DEFAULT_FOOD_TIMEZONE };

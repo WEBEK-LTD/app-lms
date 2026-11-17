@@ -6,12 +6,12 @@ import { parseRideSettings } from "@/lib/rides/forms";
 import { DEFAULT_DELIVERY_SETTINGS } from "@/lib/delivery/settings";
 import { allTimeZones, isIanaZone, matchesZone, SERVED_ZONES, utcOffsetText, zoneCity, zoneOffsetMinutes, zoneOption, zoneOptions } from "@/lib/time/zones";
 
-/** 136 Every time zone, in every app: lib/time/zones.ts and the forms that use it. */
+/** 137 Every time zone, in every app: lib/time/zones.ts and the forms that use it. */
 
 const JANUARY = new Date("2026-01-15T12:00:00Z");
 const JULY = new Date("2026-07-15T12:00:00Z");
 
-describe("136 the list of time zones", () => {
+describe("137 the list of time zones", () => {
   it("has every IANA zone the runtime knows, and UTC", () => {
     const all = allTimeZones(JANUARY);
     const runtime = Intl.supportedValuesOf("timeZone");
@@ -97,7 +97,7 @@ describe("136 the list of time zones", () => {
   });
 });
 
-describe("136 the forms take any zone", () => {
+describe("137 the forms take any zone", () => {
   const food = { cuisines: "Grill", foodCourierJob: "accepted" };
   it("food delivery: any IANA zone, not only the old short list", () => {
     for (const timezone of ["Asia/Tokyo", "America/Sao_Paulo", "UTC", "Asia/Muscat"]) {

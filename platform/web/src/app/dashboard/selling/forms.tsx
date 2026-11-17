@@ -90,7 +90,7 @@ export function DeliveryForm({
       </div>
       <div className="grid gap-4 sm:grid-cols-2">
         <Field label={t("selling.maxDays")} name="maxDays" inputMode="numeric" defaultValue={v.maxDays} hint={t("selling.maxDaysHint")} error={e.maxDays} small />
-        {/* 136 Every time zone: searched by city, zone or offset, the usual ones first. */}
+        {/* 137 Every time zone: searched by city, zone or offset, the usual ones first. */}
         <TimeZonePicker id="f-timezone" label={t("selling.timezone")} defaultValue={v.timezone} error={e.timezone} size="sm" />
       </div>
       <fieldset className="m-0 flex flex-col gap-2 border-0 p-0">
@@ -105,7 +105,7 @@ export function DeliveryForm({
         </div>
         {e.closed ? <p className="m-0 text-sm text-danger">{e.closed}</p> : null}
       </fieldset>
-      {/* 132.170 The day's times as rows: several a day (a break between them is two times), never overlapping. */}
+      {/* 132.186 The day's times as rows: several a day (a break between them is two times), never overlapping. */}
       <fieldset className="m-0 flex flex-col gap-2 border-0 p-0">
         <legend className="mb-1 text-sm font-semibold">{t("selling.slots")}</legend>
         <p className="m-0 text-[13px] text-muted">{t("selling.slotsHint")}</p>
@@ -129,7 +129,7 @@ export function AreasForm({
 }: {
   values: Record<string, string>;
   currency: string;
-  /** 132.170 Every country, the platform's first ones on top. */
+  /** 132.186 Every country, the platform's first ones on top. */
   countries: CountryChoice[];
   starters: Record<string, string[]>;
   /** Where it delivers now, as the editor starts. */
@@ -143,7 +143,7 @@ export function AreasForm({
   return (
     <form action={action} noValidate className="flex flex-col gap-4" data-areas-form="">
       <FormMessage message={state.message} ok={state.ok} />
-      {/* 132.170 Every country or the ones chosen from all of them, each with the owner's own cities right under it. */}
+      {/* 132.186 Every country or the ones chosen from all of them, each with the owner's own cities right under it. */}
       <AreasEditor start={areas} countries={countries} starters={starters} currency={currency} errors={e} />
       <fieldset className="m-0 flex flex-col gap-2 border-0 p-0">
         <legend className="mb-1 text-sm font-semibold">{t("selling.pricing")}</legend>

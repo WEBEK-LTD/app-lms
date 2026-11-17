@@ -29,11 +29,11 @@ import { countryNameIn, isoCountry, SHIPPING_COUNTRIES } from "./countries";
  * areas at all means every country.
  */
 
-// 132.170 Up to every ISO country (249), so a shop can deliver to many.
+// 132.186 Up to every ISO country (249), so a shop can deliver to many.
 export const SHIPPING_LIMITS = { countries: 250, cities: 200, city: 60, feeCents: 100_000_00, km: 2000 } as const;
 export type ShippingMode = "flat" | "city" | "distance";
 
-/** 132.170 The short names the app showed first (any ISO country can be chosen: lib/selling/countries.ts). */
+/** 132.186 The short names the app showed first (any ISO country can be chosen: lib/selling/countries.ts). */
 export { SHIPPING_COUNTRIES };
 
 /** The starter cities: the largest of each country, in the language the owner writes in. */
@@ -298,7 +298,7 @@ export function parseShippingForm(
     if (unique.length > SHIPPING_LIMITS.cities) errors[`cities${i}`] = `At most ${SHIPPING_LIMITS.cities} cities.`;
     else if (unique.some((c) => c.length > SHIPPING_LIMITS.city)) errors[`cities${i}`] = `A city's name can be at most ${SHIPPING_LIMITS.city} characters.`;
     areas.push({ country: code, cities: v[`allCities${i}`] === "on" || unique.length === 0 ? null : unique });
-    // 132.170 The country's own city prices, from its card ("City: 50" a line).
+    // 132.186 The country's own city prices, from its card ("City: 50" a line).
     for (const line of (v[`cityPrices${i}`] ?? "").split(/\r?\n/).map((l) => l.trim()).filter(Boolean)) {
       const m = /^(.+?)\s*:\s*(.*)$/.exec(line);
       const city = (m ? m[1]! : line).replace(/\s+/g, " ").trim().slice(0, SHIPPING_LIMITS.city);
@@ -310,7 +310,7 @@ export function parseShippingForm(
       if (!ownPrices.some((p) => p.country === code && sameCity(p.city, city))) ownPrices.push({ country: code, city, cents });
     }
   }
-  // 132.170 "Only the countries I choose" with none chosen would save as every country.
+  // 132.186 "Only the countries I choose" with none chosen would save as every country.
   if (v.areasScope === "some" && areas.length === 0 && !Object.keys(errors).some((k) => k.startsWith("country"))) errors.areas = "Choose at least one country, or deliver to every country.";
   const mode: ShippingMode = v.shippingMode === "city" ? "city" : v.shippingMode === "distance" ? "distance" : "flat";
   const fee = (name: string, required: boolean): number | null => {

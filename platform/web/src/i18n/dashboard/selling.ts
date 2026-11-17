@@ -198,7 +198,7 @@ export const en = {
   anonymousYes: "Sent anonymously",
   zone: "Zone",
   fee: "Delivery fee",
-  // 132.170 Several times a day, every country with the owner's own cities, products with their pictures
+  // 132.186 Several times a day, every country with the owner's own cities, products with their pictures
   slotFromN: "From, time {n}",
   slotToN: "To, time {n}",
   slotCapacityN: "Orders, time {n}",
@@ -239,7 +239,7 @@ export const en = {
   productNoMatch: "No product matches “{q}”.",
   when: "Delivery",
   known: {
-    // 132.170
+    // 132.186
     slotOverlap: "This time overlaps {other}: let one end before the next starts.",
     areasNone: "Choose at least one country, or deliver to every country.",
     cityPriceOne: "Enter the price of {city} like 50, or leave it empty.",
@@ -499,7 +499,7 @@ export const ar: Messages = {
   anonymousYes: "متبعت من غير اسم",
   zone: "المنطقة",
   fee: "رسوم التوصيل",
-  // 132.170 أكتر من ميعاد في اليوم، كل الدول بمدنك، والمنتجات بصورها
+  // 132.186 أكتر من ميعاد في اليوم، كل الدول بمدنك، والمنتجات بصورها
   slotFromN: "من، الميعاد {n}",
   slotToN: "لحد، الميعاد {n}",
   slotCapacityN: "الطلبات، الميعاد {n}",
@@ -540,7 +540,7 @@ export const ar: Messages = {
   productNoMatch: "مفيش منتج بالاسم «{q}».",
   when: "التوصيل",
   known: {
-    // 132.170
+    // 132.186
     slotOverlap: "الميعاد ده داخل في {other}: خلّي واحد يخلص قبل ما التاني يبدأ.",
     areasNone: "اختار دولة واحدة على الأقل، أو وصّل لكل الدول.",
     cityPriceOne: "اكتب سعر {city} زي 50، أو سيبه فاضي.",
@@ -790,7 +790,7 @@ export const tr: Messages = {
   anonymousYes: "İsimsiz gönderildi",
   zone: "Bölge",
   fee: "Teslimat ücreti",
-  // 132.170 Günde birden çok saat, kendi şehirlerinizle tüm ülkeler, resimleriyle ürünler
+  // 132.186 Günde birden çok saat, kendi şehirlerinizle tüm ülkeler, resimleriyle ürünler
   slotFromN: "Başlangıç, {n}. saat",
   slotToN: "Bitiş, {n}. saat",
   slotCapacityN: "Sipariş, {n}. saat",
@@ -831,7 +831,7 @@ export const tr: Messages = {
   productNoMatch: "“{q}” ile eşleşen ürün yok.",
   when: "Teslimat",
   known: {
-    // 132.170
+    // 132.186
     slotOverlap: "Bu saat {other} ile çakışıyor: biri bitmeden diğeri başlamasın.",
     areasNone: "En az bir ülke seçin ya da tüm ülkelere teslim edin.",
     cityPriceOne: "{city} için 50 gibi bir fiyat girin ya da boş bırakın.",

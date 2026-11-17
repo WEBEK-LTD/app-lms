@@ -250,7 +250,7 @@ export function parseRideSettings(form: Record<string, string>, saved: DeliveryS
   if (!fareMode) errors.fareMode = "Choose how fares are worked out.";
   const matching = RIDE_MATCHINGS.find((v) => v === str(form, "matching"));
   if (!matching) errors.matching = "Choose how rides reach your drivers.";
-  // 136 Any IANA zone, as the picker lists them all.
+  // 137 Any IANA zone, as the picker lists them all.
   const timezone = isIanaZone(str(form, "timezone")) ? str(form, "timezone") : undefined;
   if (!timezone) errors.timezone = "Choose your time zone.";
   const minutes = (name: string, min: number) => whole(form, name, min, RIDES_LIMITS.minutes, errors, `Enter minutes from ${min} to ${RIDES_LIMITS.minutes}.`);

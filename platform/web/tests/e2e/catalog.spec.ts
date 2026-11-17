@@ -543,7 +543,7 @@ test("131 a gift add-on goes only with a product, and a flash sale on one produc
   expect(tulips.sale?.flash_sale_id ?? null).toBeNull();
 });
 
-test("132.170 several delivery times a day, any country with its own cities, and a flash sale's products with their pictures", async ({ page, request }) => {
+test("132.186 several delivery times a day, any country with its own cities, and a flash sale's products with their pictures", async ({ page, request }) => {
   await signIn(page, client.email, client.password);
   await page.goto("/dashboard/selling?tab=delivery");
   const delivery = page.locator("[data-delivery-form]");

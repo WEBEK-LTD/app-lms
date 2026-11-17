@@ -55,7 +55,7 @@ tables whose rows open in the inspector (a conversation's thread by
 (`components/studio-page/table.tsx`, `parts.tsx`, `tabs.tsx`); the kit's
 own files are unchanged. A flash sale's percent reads right in Arabic.
 
-Roadmap 132.170 (Delivery & offers made easy): several delivery times a
+Roadmap 132.186 (Delivery & offers made easy): several delivery times a
 day as rows with "Add another time" (a break between them), overlaps
 refused in plain words; every country (Intl.DisplayNames names, a
 search, the platform's first ones on top) or every country at once, each

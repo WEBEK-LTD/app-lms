@@ -567,7 +567,7 @@ function Review({ c, assetBase, canSend, canEdit, save, onDone, onUnscheduled, o
                   <input id="f-schedule-at" type="datetime-local" value={local} onChange={(e) => setLocal(e.target.value)} className={inputClass} data-testid="schedule-at" />
                 </Field>
                 <Field label="Time zone" htmlFor="f-zone">
-                  {/* 136 Every time zone: searched by city, zone or offset, the usual ones first. */}
+                  {/* 137 Every time zone: searched by city, zone or offset, the usual ones first. */}
                   <TimeZonePicker id="f-zone" name="zone" label={null} value={zone} onChange={setZone} selectClassName={`${inputClass} min-w-0 flex-1 cursor-pointer`} inputClassName={`${inputClass} sm:max-w-[160px]`} />
                 </Field>
               </div>

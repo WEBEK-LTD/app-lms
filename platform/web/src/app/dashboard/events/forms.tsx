@@ -282,7 +282,7 @@ export function EventSettingsForm({
       <div className="grid gap-4 sm:grid-cols-2">
         {/* 135.3 Any currency: searched by name, code or sign, the usual ones first. */}
         <CurrencyPicker id="f-currency" label={t("shop.currency")} defaultValue={value("currency", settings.currency)} error={e.currency} />
-        {/* 136 Every time zone: searched by city, zone or offset, the usual ones first. */}
+        {/* 137 Every time zone: searched by city, zone or offset, the usual ones first. */}
         <TimeZonePicker id="f-timeZone" name="timeZone" label={t("shop.timeZone")} defaultValue={value("timeZone", settings.timeZone)} hint={t("events.timeZoneHint")} error={e.timeZone} className="sm:col-span-2" />
       </div>
       <Check name="showMap" label={t("events.openInMaps")} defaultChecked={checked("showMap", settings.showMap)} />
