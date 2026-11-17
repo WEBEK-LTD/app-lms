@@ -133,7 +133,11 @@ test("the pricing page shows the four plans and compares every feature", async (
   await expect(table.getByRole("row", { name: /^iOS app/ })).toBeVisible();
   await expect(table.getByRole("row", { name: /^App users/ })).toContainText("1,000");
   await expect(table.getByRole("row", { name: /^App users/ })).toContainText("10,000");
-  await expect(table.getByRole("row", { name: /^Publishing/ })).toContainText("We publish for you");
+  // 138 Every plan: we publish for you, and the other Android stores take every update once connected.
+  const publishing = table.getByRole("row", { name: /^Publishing/ });
+  await expect(publishing.getByRole("cell").filter({ hasText: "We publish for you" })).toHaveCount(4);
+  await expect(table.getByRole("row", { name: /^Automatic updates to Samsung Galaxy Store, Xiaomi GetApps and Huawei AppGallery, with your own account/ }).getByRole("img", { name: /^Included in / })).toHaveCount(4);
+  await expect(table.getByRole("row", { name: /^Automatic store updates/ })).toHaveCount(0);
   await expect(page.getByText("Netlify")).toHaveCount(0);
   // On a phone the table scrolls inside its box; the page itself never scrolls sideways.
   await page.setViewportSize({ width: 390, height: 844 });
@@ -206,7 +210,9 @@ test("a Starter app on the hosted API: the simple page editor, one language, usa
   const features = own.getByRole("region", { name: "In your Starter plan" });
   await expect(features).toContainText("Push notifications");
   await expect(features.locator("[data-upgrade-hint]").filter({ hasText: "iOS app" }).getByRole("link", { name: "Upgrade to Growth" })).toBeVisible();
-  await expect(features.locator("[data-upgrade-hint]").filter({ hasText: "We publish for you" }).getByRole("link", { name: "Upgrade to Pro" })).toBeVisible();
+  // 138 Every plan publishes for the client: no upgrade for it.
+  await expect(features).toContainText("We publish for you");
+  await expect(features.locator("[data-upgrade-hint]").filter({ hasText: "We publish for you" })).toHaveCount(0);
 
   // 94.1 What you pay for: the plan's limits with what the app uses, what it includes, and what is on a higher plan.
   await own.goto("/dashboard/license");

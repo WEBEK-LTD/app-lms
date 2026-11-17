@@ -607,6 +607,16 @@ export class MemoryStore implements DataStore {
     if (app) this.apps.set(id, clone({ ...app, ...patch, updatedAt: now }));
   }
 
+  async claimPublishingAccount(appId: string, accountId: string, now: Date): Promise<{ id: string | null; claimed: boolean }> {
+    const app = this.apps.get(appId);
+    if (!app) return { id: null, claimed: false };
+    const current = app.rollout?.publishingAccount?.id;
+    if (current) return { id: current, claimed: false };
+    // No await between the read and the write: one call at a time takes it.
+    this.apps.set(appId, clone({ ...app, rollout: { ...(app.rollout ?? {}), publishingAccount: { id: accountId, at: now.toISOString() } } }));
+    return { id: accountId, claimed: true };
+  }
+
   async saveSigningKeys(appId: string, keys: SigningKeysPatch, now: Date): Promise<boolean> {
     const app = this.apps.get(appId);
     const columns = Object.keys(keys) as SigningKeyColumn[];
@@ -721,13 +731,13 @@ export class MemoryStore implements DataStore {
     return true;
   }
 
-  async hitRateLimit(bucket: string, windowStart: number): Promise<number> {
+  async hitRateLimit(bucket: string, windowStart: number, _now?: Date, by = 1): Promise<number> {
     const entry = this.rateLimits.get(bucket);
     if (!entry || entry.windowStart !== windowStart) {
-      this.rateLimits.set(bucket, { windowStart, hits: 1 });
-      return 1;
+      this.rateLimits.set(bucket, { windowStart, hits: by });
+      return by;
     }
-    entry.hits += 1;
+    entry.hits += by;
     return entry.hits;
   }
 

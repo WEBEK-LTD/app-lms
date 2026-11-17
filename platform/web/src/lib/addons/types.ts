@@ -11,8 +11,8 @@ import type { Plan, PlanFamily, PlanFeature } from "../plans";
  *   storage, +3 team members) while it runs.
  * - A **feature** switches a plan feature on while it runs.
  *
- * A service can switch a feature on too (the publishing service switches
- * on "We publish for you", so the Publishing step offers it).
+ * A service can switch a feature on too. (The publishing service switched
+ * on "We publish for you"; 138 every plan includes it now.)
  */
 
 export type AddonKind = "service" | "quantity" | "feature";
@@ -82,7 +82,7 @@ export interface AddonDef {
 /** The setting "addons": the team's add-ons and the top plan of each family. */
 export interface AddonsSetting {
   addons: AddonDef[];
-  /** The plan "below the top plan" counts from, per family; missing: the first plan with "We publish for you", else the highest. */
+  /** The plan "below the top plan" counts from, per family; missing: the highest offered plan (138). */
   top?: Partial<Record<PlanFamily, Plan>>;
 }
 

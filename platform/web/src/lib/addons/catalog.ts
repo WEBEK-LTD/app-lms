@@ -11,39 +11,16 @@ import { ADDON_BILLINGS, ADDON_KINDS, BUILT_IN_ADDON_LIMITS, type AddonBilling, 
  */
 
 /**
- * 133 "We publish your app to the stores for you": not offered until the
- * owner switches it on. Its prices are suggestions the owner asked for
- * (Admin › Add-ons shows them as such until the add-on is saved).
+ * 133 "We publish your app to the stores for you" was a built-in service
+ * (EGP 500 / $12 a month). 138 Every plan includes publishing now, so it is
+ * no longer built in, offered or renewed (lib/addons/rules.ts
+ * `addonRetired`); apps that bought it keep their records, and a copy the
+ * team saved stays in Admin › Add-ons, never offered.
  */
 export const PUBLISHING_ADDON_ID = "publishing";
 
-export const BUILT_IN_ADDONS: readonly AddonDef[] = [
-  {
-    id: PUBLISHING_ADDON_ID,
-    kind: "service",
-    icon: "publish",
-    en: {
-      name: "We publish your app to the stores for you",
-      description: "Our team publishes your app and every update to the app stores for you. For apps whose plan doesn't include publishing.",
-    },
-    ar: {
-      name: "إحنا ننشر تطبيقك على المتاجر بدالك",
-      description: "فريقنا بيرفع تطبيقك وكل تحديث ليه على متاجر التطبيقات بدالك. للتطبيقات اللي باقتها مافيهاش النشر.",
-    },
-    tr: {
-      name: "Uygulamanızı mağazalarda sizin için yayınlıyoruz",
-      description: "Ekibimiz uygulamanızı ve her güncellemesini sizin için uygulama mağazalarında yayınlar. Paketinde yayınlama olmayan uygulamalar için.",
-    },
-    // While it runs, the Publishing step offers "Publish it for me".
-    feature: "auto_publish",
-    // Monthly, yearly or for life, as the owner asked, at suggested prices: EGP 500 / $12 a month, EGP 5,000 / $120 a year, EGP 12,500 / $300 for life.
-    prices: { "1": { on: true, egpCents: 50_000, usdCents: 1_200 }, "12": { on: true, egpCents: 500_000, usdCents: 12_000 }, lifetime: { on: true, egpCents: 1_250_000, usdCents: 30_000 } },
-    rule: { family: "both", belowTop: true, plans: null },
-    repeatable: false,
-    active: false,
-    order: 0,
-  },
-];
+/** The add-ons that come with Yallapp until the team edits them (none since 138). */
+export const BUILT_IN_ADDONS: readonly AddonDef[] = [];
 
 export function isBuiltInAddon(id: string): boolean {
   return BUILT_IN_ADDONS.some((a) => a.id === id);

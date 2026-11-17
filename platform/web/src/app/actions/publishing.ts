@@ -8,14 +8,13 @@ import { assetUrl } from "@/lib/assets";
 import { clientFor, mayUseDashboard, type ClientContext } from "@/lib/auth/session";
 import { startPipeline } from "@/lib/builds/dispatch";
 import { getStore } from "@/lib/data";
-import { appPlan } from "@/lib/entitlements";
 import type { DataStore } from "@/lib/data/store";
 import { DEFAULT_HOSTED_SETTINGS, type App, type PublishingRequest } from "@/lib/data/types";
 import { encryptionKey } from "@/lib/env";
 import type { FormState } from "@/lib/forms";
 import { encryptReviewAccount, parseReviewAccountForm, reviewSignInKind } from "@/lib/publishing/review-account";
 import { choosePublishingMode, notifyPublishingTeam } from "@/lib/publishing/service";
-import { APP_STORE_CATEGORIES, applyChecklist, canUseManagedPublishing, checklistProgress, MORE_STORES, PLAY_CATEGORIES, STORE_TITLE, withMoreStores } from "@/lib/publishing/steps";
+import { APP_STORE_CATEGORIES, applyChecklist, checklistProgress, PLAY_CATEGORIES } from "@/lib/publishing/steps";
 import { sampleTotal, samplesBlockedMessage } from "@/lib/samples/lists";
 
 /** The dashboard's current app, for an active client (or our team managing them). */
@@ -47,14 +46,13 @@ async function saveWithReadiness(store: DataStore, context: ClientContext & { ap
   return next;
 }
 
-/** "I'll publish it myself" or "Publish it for me", for the current app. */
+/** "I'll publish it myself" or "Publish it for me", for the current app (138 every plan includes it). */
 export async function choosePublishingModeAction(formData: FormData): Promise<void> {
   const context = await requireApp();
   const mode = formData.get("mode");
   if (mode !== "self" && mode !== "managed") redirect(PAGE);
   const store = await getStore();
   const now = new Date();
-  if (mode === "managed" && !canUseManagedPublishing(await appPlan(store, context.license, now))) redirect(`${PAGE}?error=not-included`);
   // 19 The same as choosing in the setup's Publishing step.
   await choosePublishingMode(store, context, mode, now);
 
@@ -94,37 +92,6 @@ export async function savePublishingChecklistAction(_: FormState, formData: Form
         ? samplesBlockedMessage(samples)
         : "Saved. Tick the other steps when they're done.",
   };
-}
-
-/**
- * 35, 36, 42 "Publish it for me" on Samsung Galaxy Store, Huawei AppGallery and Xiaomi GetApps
- * too: the client ticks the extra stores. A new store starts waiting for the
- * client's steps (in the checklist) and the team is told.
- */
-export async function chooseMoreStoresAction(formData: FormData): Promise<void> {
-  const context = await requireApp();
-  const store = await getStore();
-  const request = await store.getPublishingRequest(context.app.id);
-  if (!request || request.mode !== "managed") redirect(PAGE);
-  const now = new Date();
-  const next = withMoreStores(request, formData.getAll("store").map(String));
-  const added = MORE_STORES.filter((which) => next[which] && !request[which]);
-  const removed = MORE_STORES.filter((which) => !next[which] && request[which]);
-  if (added.length || removed.length) {
-    await saveWithReadiness(store, context, next, now);
-    const names = (list: typeof added) => list.map((which) => STORE_TITLE[which]).join(" and ");
-    await recordStaffChange(
-      context,
-      [added.length ? `Asked us to publish on ${names(added)}` : "", removed.length ? `No longer wants ${names(removed)}` : ""].filter(Boolean).join("; "),
-      { stores: MORE_STORES.filter((which) => request[which]) },
-      { stores: MORE_STORES.filter((which) => next[which]) },
-    );
-    if (added.length) {
-      await notifyPublishingTeam(store, { user: context.user, client: context.client, app: context.app, event: `asked us to publish their app on ${names(added)} too` });
-    }
-  }
-  revalidatePath("/dashboard", "layout");
-  redirect(`${PAGE}#h-more-stores`);
 }
 
 const TEXT_MAX = 2000;

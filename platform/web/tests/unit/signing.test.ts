@@ -119,7 +119,7 @@ describe("GET /api/v1/builds/{id}/secrets", () => {
       ios_distribution: null,
       google_play: { service_account_json: serviceAccount },
       app_store_connect: { issuer_id: "69a6de7e-0000-4000-8000-000000000000", key_id: "2X9R4HXF34", private_key: p8 },
-      // 35, 36, 42 Only for builds that upload (auto_publish): this one doesn't.
+      // 35, 36, 42 The client saved none (138 they go to every build when saved).
       galaxy_store: null,
       huawei_appgallery: null,
       xiaomi_getapps: null,
@@ -127,7 +127,7 @@ describe("GET /api/v1/builds/{id}/secrets", () => {
     });
   });
 
-  it("35, 36 sends the Galaxy Store and AppGallery keys to builds that upload", async () => {
+  it("35, 36 sends the Galaxy Store and AppGallery keys to every build (138 the client's own stores)", async () => {
     const appId = newId();
     const key = encryptionKey();
     const { build } = await appWithBuild("building", {
@@ -139,15 +139,15 @@ describe("GET /api/v1/builds/{id}/secrets", () => {
       huaweiClientId: "client-777",
       huaweiClientSecretEncrypted: encrypt("connect-secret-0123456789", key, keyContext.appGallery(appId)),
     });
-    // A build whose plan includes "We publish for you" (builds keep it from when they were queued).
-    await store.updateBuild(build.id, { autoPublish: true } as never, NOW);
+    // Also a build queued before 138 without "We publish for you".
+    await store.updateBuild(build.id, { autoPublish: false } as never, NOW);
     expect(await (await secrets(build.id)).json()).toMatchObject({
       galaxy_store: { content_id: "000001234567", service_account_id: "sa-123456", private_key: "-----BEGIN PRIVATE KEY-----\nGALAXY\n-----END PRIVATE KEY-----" },
       huawei_appgallery: { app_id: "104123456", client_id: "client-777", client_secret: "connect-secret-0123456789" },
     });
   });
 
-  it("42 sends the Xiaomi GetApps keys to builds that upload, with what's new or the default", async () => {
+  it("42 sends the Xiaomi GetApps keys to every build, with what's new or the default", async () => {
     const appId = newId();
     const key = encryptionKey();
     const keys = {
@@ -157,8 +157,7 @@ describe("GET /api/v1/builds/{id}/secrets", () => {
       xiaomiCertificate: "-----BEGIN CERTIFICATE-----\nXIAOMI\n-----END CERTIFICATE-----",
     };
     const { build } = await appWithBuild("building", keys);
-    expect((await (await secrets(build.id)).json()).xiaomi_getapps).toBeNull();
-    await store.updateBuild(build.id, { autoPublish: true } as never, NOW);
+    await store.updateBuild(build.id, { autoPublish: false } as never, NOW);
     expect((await (await secrets(build.id)).json()).xiaomi_getapps).toEqual({
       user_name: "owner@academy.test",
       password: "xiaomi-api-key-0123456789",

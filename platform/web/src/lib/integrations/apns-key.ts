@@ -30,9 +30,13 @@ export function yallappPushSetup(app: App): boolean {
   return usesYallappFirebase(app);
 }
 
-/** Whether the app may take the APNs key: an iPhone app (a bundle ID) on the hosted API whose notifications Yallapp sets up. */
+/**
+ * Whether the app may take the APNs key: an iPhone app (a bundle ID) on the
+ * hosted API whose notifications Yallapp sets up, or (136.46) a WordPress app
+ * in Yallapp's mode, whose site relays its pushes (POST /api/v1/push/send).
+ */
 export function apnsKeyApplies(app: App): boolean {
-  return app.backend === "hosted" && Boolean(app.iosBundleId) && yallappPushSetup(app);
+  return (app.backend === "hosted" || app.backend === "wordpress") && Boolean(app.iosBundleId) && yallappPushSetup(app);
 }
 
 /** The saved key's public facts, for the pages; null when none is saved. */

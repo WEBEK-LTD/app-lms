@@ -3,9 +3,7 @@
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { recordStaffChange } from "@/lib/admin/audit";
-import { managedPublishing } from "@/lib/app/setup";
 import { clientFor, mayUseDashboard, type ClientContext } from "@/lib/auth/session";
-import { currentPlanId } from "@/lib/billing/plan-change";
 import { getBlobStore } from "@/lib/blobs";
 import { keyContext } from "@/lib/builds/signing";
 import { encrypt } from "@/lib/crypto/encryption";
@@ -13,7 +11,6 @@ import { newId } from "@/lib/crypto/tokens";
 import { getStore } from "@/lib/data";
 import type { AppPatch } from "@/lib/data/store";
 import type { App } from "@/lib/data/types";
-import { effectivePlans } from "@/lib/entitlements";
 import { encryptionKey } from "@/lib/env";
 import type { FormState } from "@/lib/forms";
 import {
@@ -32,9 +29,9 @@ import {
 
 /**
  * 35, 36, 42 The dashboard's "More Android stores" page: Samsung Galaxy Store,
- * Huawei AppGallery and Xiaomi GetApps. Upload keys are kept only on plans
- * with "We publish for you" (the pipeline uploads with them); Huawei push
- * (agconnect-services.json and the app secret) works on every plan, like
+ * Huawei AppGallery and Xiaomi GetApps, the client's own stores. 138 Their
+ * upload keys work on every plan (every build then uploads there by itself),
+ * like Huawei push (agconnect-services.json and the app secret) and
  * Firebase. Keys are encrypted and never shown again; fields left empty keep
  * what was saved.
  */
@@ -50,12 +47,6 @@ async function requireApp(): Promise<ClientContext & { app: App }> {
   return context as ClientContext & { app: App };
 }
 
-/** Whether the app's plan uploads builds to the stores ("We publish for you"). */
-async function uploadsAllowed(context: ClientContext): Promise<boolean> {
-  const store = await getStore();
-  return managedPublishing(context.license ? currentPlanId(context.license, new Date()) : null, await effectivePlans(store));
-}
-
 async function fileText(value: FormDataEntryValue | null, maxBytes: number): Promise<string | null> {
   if (!value || typeof value === "string" || value.size === 0) return null;
   if (value.size > maxBytes) return "";
@@ -69,7 +60,6 @@ export async function saveGalaxyStoreAction(_: FormState, formData: FormData): P
   const context = await requireApp();
   const app = context.app;
   const values = { galaxyContentId: field(formData, "galaxyContentId"), galaxyServiceAccountId: field(formData, "galaxyServiceAccountId") };
-  if (!(await uploadsAllowed(context))) return { message: "Uploading to Galaxy Store is part of “We publish for you”. Upgrade the app's plan to use it.", values };
   const pasted = field(formData, "galaxyPrivateKey");
   const file = await fileText(formData.get("galaxyPrivateKeyFile"), 10_000);
   const keyText = pasted || file;
@@ -141,18 +131,14 @@ export async function saveHuaweiAction(_: FormState, formData: FormData): Promis
   const clientId = values.huaweiClientId;
   const clientSecret = field(formData, "huaweiClientSecret");
   if (clientId || clientSecret) {
-    if (!(await uploadsAllowed(context))) {
-      errors.huaweiClientId = "Uploading to AppGallery is part of “We publish for you”. Upgrade the app's plan to use it.";
-    } else {
-      const idProblem = checkHuaweiClientId(clientId || app.huaweiClientId || "");
-      if (idProblem) errors.huaweiClientId = idProblem;
-      else patch.huaweiClientId = clientId || app.huaweiClientId;
-      if (clientSecret) {
-        const problem = checkHuaweiSecret(clientSecret, "client");
-        if (problem) errors.huaweiClientSecret = problem;
-        else patch.huaweiClientSecretEncrypted = encrypt(clientSecret, key, keyContext.appGallery(app.id));
-      } else if (!app.huaweiClientSecretEncrypted) errors.huaweiClientSecret = "Paste the API client's key too.";
-    }
+    const idProblem = checkHuaweiClientId(clientId || app.huaweiClientId || "");
+    if (idProblem) errors.huaweiClientId = idProblem;
+    else patch.huaweiClientId = clientId || app.huaweiClientId;
+    if (clientSecret) {
+      const problem = checkHuaweiSecret(clientSecret, "client");
+      if (problem) errors.huaweiClientSecret = problem;
+      else patch.huaweiClientSecretEncrypted = encrypt(clientSecret, key, keyContext.appGallery(app.id));
+    } else if (!app.huaweiClientSecretEncrypted) errors.huaweiClientSecret = "Paste the API client's key too.";
   }
   if ((patch.huaweiClientId || patch.huaweiPushSecretEncrypted) && !appId) errors.huaweiAppId = "Add the app ID, or upload agconnect-services.json.";
   if (Object.keys(errors).length) return { errors, values };
@@ -177,7 +163,6 @@ export async function saveXiaomiAction(_: FormState, formData: FormData): Promis
   const context = await requireApp();
   const app = context.app;
   const values = { xiaomiUserName: field(formData, "xiaomiUserName"), xiaomiReleaseNotes: field(formData, "xiaomiReleaseNotes") };
-  if (!(await uploadsAllowed(context))) return { message: "Uploading to Xiaomi GetApps is part of “We publish for you”. Upgrade the app's plan to use it.", values };
   const errors: Record<string, string> = {};
   const userName = values.xiaomiUserName || app.xiaomiUserName || "";
   const nameProblem = checkXiaomiUserName(userName);

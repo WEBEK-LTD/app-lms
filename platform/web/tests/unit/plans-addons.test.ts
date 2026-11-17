@@ -6,7 +6,7 @@ import { remindEndingAddons } from "@/lib/addons/notify";
 import { remindLicense } from "@/lib/notices";
 import { planFor } from "@/lib/marketing-lang";
 import { addonEndFor, applyPaidAddon, grantAddon, newAppAddon, startAddonPayment } from "@/lib/addons/payment";
-import { addonRefusal, addonRenewable, addonRunning, belowTop, limitValue, topPlanOf } from "@/lib/addons/rules";
+import { addonRefusal, addonRenewable, addonRetired, addonRunning, belowTop, limitValue, topPlanOf } from "@/lib/addons/rules";
 import type { AddonDef, AppAddon } from "@/lib/addons/types";
 import { checkCoupon } from "@/lib/billing/coupons";
 import { cardPeriods } from "@/lib/billing/card-plans";
@@ -387,22 +387,57 @@ const PAGES_10 = cleanAddon({
   order: 1,
 })!;
 
+/** 138 A service the team defines, with a feature it switches on (chat): the rules' sample now that publishing is in every plan. */
+const CHAT_SERVICE = cleanAddon({
+  id: "chat-setup",
+  kind: "service",
+  icon: "forum",
+  en: { name: "We set up chat for you", description: "Our team sets up your app's chat." },
+  feature: "chat",
+  prices: { "12": { on: true, egpCents: 100000, usdCents: null } },
+  rule: { family: "both", belowTop: true, plans: null },
+  repeatable: false,
+  active: true,
+  order: 0,
+})!;
+
+/** 138 The publishing service as the team may have saved it before every plan included publishing. */
+const SAVED_PUBLISHING = cleanAddon({
+  id: PUBLISHING_ADDON_ID,
+  kind: "service",
+  icon: "publish",
+  en: { name: "We publish your app to the stores for you", description: "Our team publishes your app and every update to the app stores for you." },
+  feature: "auto_publish",
+  prices: { "1": { on: true, egpCents: 50_000, usdCents: 1_200 }, "12": { on: true, egpCents: 500_000, usdCents: 12_000 } },
+  rule: { family: "both", belowTop: true, plans: null },
+  repeatable: false,
+  active: true,
+  order: 0,
+})!;
+
 function owned(addon: AddonDef, patch: Partial<AppAddon> = {}): AppAddon {
   return { ...newAppAddon({ client: { id: "c1" }, appId: "a1", addon, billing: "12", paymentId: null, grantedBy: null, now: NOW }), ...patch };
 }
 
 describe("133 add-ons", () => {
-  it("come with the publishing service at suggested prices, not offered until the owner switches it on", () => {
-    const publishing = addonsOf(null).find((a) => a.id === PUBLISHING_ADDON_ID)!;
-    expect(publishing).toMatchObject({ kind: "service", feature: "auto_publish", active: false, rule: { belowTop: true } });
-    expect(addonBillings(publishing)).toEqual([
-      { billing: "1", price: { egpCents: 50000, usdCents: 1200 } },
-      { billing: "12", price: { egpCents: 500000, usdCents: 12000 } },
-      { billing: "lifetime", price: { egpCents: 1250000, usdCents: 30000 } },
-    ]);
-    expect(addonText(publishing, "ar").name).toBe(BUILT_IN_ADDONS[0]!.ar!.name);
-    // The team's edit replaces it.
-    expect(addonsOf({ addons: [{ ...publishing, active: true }] }).find((a) => a.id === PUBLISHING_ADDON_ID)?.active).toBe(true);
+  it("138 don't sell publishing any more: none comes built in, and a saved one is never offered, renewed or reminded of", () => {
+    expect(BUILT_IN_ADDONS).toEqual([]);
+    expect(addonsOf(null).find((a) => a.id === PUBLISHING_ADDON_ID)).toBeUndefined();
+    // A copy the team saved before stays in the list (Admin › Add-ons), switched on or not, and is never offered.
+    const saved = addonsOf({ addons: [SAVED_PUBLISHING] }).find((a) => a.id === PUBLISHING_ADDON_ID)!;
+    expect(saved).toMatchObject({ active: true, feature: "auto_publish" });
+    expect(addonRetired(saved)).toBe(true);
+    expect(addonText(saved, "ar").name).toBe("We publish your app to the stores for you");
+    const plans = plansWith({});
+    for (const plan of [plans.starter, plans.growth, plans.pro, plans.business, plans.studio_1, null]) {
+      expect(addonRefusal(saved, { plans, plan, family: plan?.id.startsWith("studio") ? "studio" : "regular", owned: [], setting: null, now: NOW })).toBe("included");
+    }
+    // What an app bought keeps running as it was, and is never renewed.
+    const bought = owned(SAVED_PUBLISHING);
+    expect(addonRunning(bought, NOW)).toBe(true);
+    expect(addonRenewable(bought)).toBe(false);
+    expect(addonRenewable(owned(PAGES_10))).toBe(true);
+    expect(addonRetired(owned(PAGES_10))).toBe(false);
   });
 
   it("are paid the ways the team priced, one-time first", () => {
@@ -447,14 +482,16 @@ describe("133 add-ons", () => {
 
   it("are offered only to the apps their rules allow: below the top plan, the family, once unless repeatable", () => {
     const plans = plansWith({});
-    const publishing = { ...addonsOf(null)[0]!, active: true, prices: { "12": { on: true, egpCents: 100000, usdCents: null } } };
-    // The top plan is the first with "We publish for you" (Pro), or the team's choice.
-    expect(topPlanOf(plans, "regular", null)).toBe("pro");
-    expect(topPlanOf(plans, "regular", { addons: [], top: { regular: "business" } })).toBe("business");
-    expect(belowTop(plans, "growth", null)).toBe(true);
-    expect(belowTop(plans, "pro", null)).toBe(false);
+    const publishing = CHAT_SERVICE;
+    // 138 The top plan is the team's choice, else the highest offered plan (every plan has "We publish for you" now).
+    expect(topPlanOf(plans, "regular", null)).toBe("business");
+    expect(topPlanOf(plans, "regular", { addons: [], top: { regular: "pro" } })).toBe("pro");
+    expect(belowTop(plans, "pro", null)).toBe(true);
     expect(belowTop(plans, "business", null)).toBe(false);
-    const input = (plan: PlanInfo | null, ownedAddons: AppAddon[] = [], family: "regular" | "studio" = "regular") => ({ plans, plan, family, owned: ownedAddons, setting: null, now: NOW });
+    const top = { addons: [], top: { regular: "pro" as const } };
+    expect(belowTop(plans, "growth", top)).toBe(true);
+    expect(belowTop(plans, "pro", top)).toBe(false);
+    const input = (plan: PlanInfo | null, ownedAddons: AppAddon[] = [], family: "regular" | "studio" = "regular") => ({ plans, plan, family, owned: ownedAddons, setting: top, now: NOW });
     expect(addonRefusal(publishing, input(plans.growth))).toBeNull();
     expect(addonRefusal(publishing, input(plans.pro))).toBe("top_plan");
     // Not below the top plan, it would still be on the plan already.
@@ -582,9 +619,8 @@ describe("133 add-on payments, renewals and reminders", () => {
 
   it("a service opens a task; the team can give one with no charge", async () => {
     const { store, client, app } = await withApp();
-    const publishing = addonsOf(null)[0]!;
-    const given = await grantAddon(store, { client, app, addon: publishing, billing: "lifetime", admin: "team@yallapp.test", now: NOW });
-    expect(given).toMatchObject({ kind: "service", taskStatus: "new", grantedBy: "team@yallapp.test", paymentId: null, activeUntil: LIFETIME_END, feature: "auto_publish" });
+    const given = await grantAddon(store, { client, app, addon: CHAT_SERVICE, billing: "lifetime", admin: "team@yallapp.test", now: NOW });
+    expect(given).toMatchObject({ kind: "service", taskStatus: "new", grantedBy: "team@yallapp.test", paymentId: null, activeUntil: LIFETIME_END, feature: "chat" });
     expect(await store.listAppAddons({ taskStatus: ["new", "in_progress"] })).toHaveLength(1);
     await store.updateAppAddon(given.id, { taskStatus: "done", updatedAt: NOW });
     expect(await store.listAppAddons({ taskStatus: ["new", "in_progress"] })).toHaveLength(0);
@@ -608,7 +644,9 @@ describe("133 add-on payments, renewals and reminders", () => {
     const ending = owned(PAGES_10, { appId: app.id, clientId: app.clientId, activeUntil: days(5) });
     const later = owned(PAGES_10, { id: "later", appId: app.id, clientId: app.clientId, activeUntil: days(40) });
     const life = owned(PAGES_10, { id: "life", appId: app.id, clientId: app.clientId, billing: "lifetime", activeUntil: LIFETIME_END });
-    for (const a of [ending, later, life]) await store.createAppAddon(a);
+    // 138 The publishing service bought before: every plan includes it now, so nothing to renew and no reminder.
+    const publishing = owned(SAVED_PUBLISHING, { id: "publishing", appId: app.id, clientId: app.clientId, activeUntil: days(3) });
+    for (const a of [ending, later, life, publishing]) await store.createAppAddon(a);
     const sent: { key: string; values: Record<string, unknown> }[] = [];
     const deps = { store, baseUrl: "https://yallapp.test", now: NOW, mail: async (key: string, _to: string, values: Record<string, unknown>) => void sent.push({ key, values }) };
     const notices = await remindEndingAddons(deps as never);

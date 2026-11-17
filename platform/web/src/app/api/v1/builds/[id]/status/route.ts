@@ -5,6 +5,7 @@ import { notifyBuildFinished } from "@/lib/builds/notify";
 import { errorResponse, json, readJson } from "@/lib/http";
 import { authorizePipeline } from "@/lib/pipeline-auth";
 import { noteMilestones } from "@/lib/milestones/record";
+import { notePlayRelease } from "@/lib/publishing/service";
 
 /** POST /api/v1/builds/{id}/status (docs/api/pipeline.yaml): the pipeline reports progress and artifacts. */
 export async function POST(request: Request, { params }: RouteContext<"/api/v1/builds/[id]/status">): Promise<Response> {
@@ -28,6 +29,8 @@ export async function POST(request: Request, { params }: RouteContext<"/api/v1/b
     refreshSitesSoon([build.appId]);
   }
 
+  // 138 A Google Play draft (the app's first release, sent by hand): the app's publishing account and the team are told once.
+  if (parsed.data.play) await notePlayRelease(store, result.build, new Date()).catch((error: unknown) => console.error("[publishing] play draft notice", error instanceof Error ? error.message : String(error)));
   // Finished just now: the client is emailed, and the team too when it failed.
   const finished = result.build.status !== build.status && (result.build.status === "ready" || result.build.status === "failed");
   if (finished) await notifyBuildFinished(store, result.build).catch(() => undefined);

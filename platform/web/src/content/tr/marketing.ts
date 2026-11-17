@@ -1190,7 +1190,7 @@ export const TR_MARKETING: MarketingTranslation = {
           details: [
             "Telefona kurup denemek ve Galaxy Store, AppGallery ve GetApps için APK",
             "Google Play için App Bundle (AAB)",
-            "iOS derlemesi (Growth ve üzeri); Pro ve Business'ta TestFlight'a yüklenir",
+            "iOS derlemesi (Growth ve üzeri); TestFlight'a yüklenir ve sizin için App Review'a gönderilir",
             "Mağaza simgesi, öne çıkan görsel, ekran görüntüleriniz ve mağaza metni",
           ],
         },
@@ -1345,7 +1345,7 @@ export const TR_MARKETING: MarketingTranslation = {
       title: "Derleyin ve yayımlayın",
       short: "Uygulamalarınızı indirin ya da sizin için biz yayımlayalım.",
       text: "Kurulum tamamlanır tamamlanmaz uygulamalarınız derlenir. İndirip rehberlerimizle yayımlayın ya da sizin için biz yayımlayalım.",
-      details: ["Starter ve Growth: dosyalarınızı indirin ve adım adım rehberleri izleyin", `Pro ve Business: her yeni sürümü ${STORES} üzerinde biz yayımlarız`],
+      details: ["Her pakette: her yeni sürümü Google Play ve App Store'da sizin için biz yayımlarız", "Samsung Galaxy Store, Huawei AppGallery ve Xiaomi GetApps: hesabınızı bir kez bağlayın, her yeni sürüm oraya kendiliğinden gitsin; ya da dosyalarınızı indirip adım adım rehberleri izleyin"],
     },
   ],
   requirements: [
@@ -1470,7 +1470,7 @@ export const TR_MARKETING: MarketingTranslation = {
         },
         {
           q: "Uygulamaları kim yayımlar?",
-          a: `Starter ve Growth'ta dosyaları indirip adım adım rehberlerimizle siz yayımlarsınız. Pro ve Business'ta uygulamanızı ve her yeni sürümünü ${STORES} üzerinde sizin için biz yayımlarız.`,
+          a: "Her pakette uygulamanızı ve her yeni sürümünü kendi geliştirici hesaplarınız altında Google Play ve App Store'da sizin için biz yayımlarız. Samsung Galaxy Store, Huawei AppGallery ve Xiaomi GetApps'te kendiniz yayımlarsınız: hesabınızı bir kez bağlayın, her yeni sürüm oraya kendiliğinden gitsin; ya da dosyaları indirip adım adım rehberlerimizi izleyin.",
         },
         {
           q: "Apple uygulamamı kabul eder mi?",
@@ -1789,10 +1789,11 @@ export const TR_MARKETING: MarketingTranslation = {
   },
   plans: {
     starter: {
-      tagline: "Rehberlerimizle sizin yayımladığınız bir Android uygulaması",
+      tagline: "Google Play'de sizin için yayımladığımız bir Android uygulaması",
       highlights: [
         "Android uygulaması (APK ve AAB)",
         "Google Play, Galaxy Store, AppGallery ve GetApps için",
+        "Google Play'de sizin için biz yayımlarız",
         "1 bağlı platform",
         "1.000 uygulama kullanıcısına kadar",
         "1 uygulama dili",
@@ -1806,6 +1807,7 @@ export const TR_MARKETING: MarketingTranslation = {
       tagline: "Sizinle büyüyen Android ve iOS uygulamaları",
       highlights: [
         "Android ve iOS uygulamaları",
+        "Google Play ve App Store'da sizin için biz yayımlarız",
         "10.000 uygulama kullanıcısına kadar",
         "3 uygulama dili",
         "Tam sayfa düzenleyici",
@@ -1817,7 +1819,7 @@ export const TR_MARKETING: MarketingTranslation = {
     },
     pro: {
       tagline: "Uygulamalarınızı sizin için biz yayımlarız",
-      highlights: ["Growth'taki her şey", "Sınırsız uygulama kullanıcısı", "Tüm uygulama dilleri", "Beş uygulama mağazasının hepsinde biz yayımlarız", "Otomatik mağaza güncellemeleri", "Uygulamada müşterilerinizle sohbet", "Öncelikli destek"],
+      highlights: ["Growth'taki her şey", "Sınırsız uygulama kullanıcısı", "Tüm uygulama dilleri", "Otomatik mağaza güncellemeleri", "Uygulamada müşterilerinizle sohbet", "Öncelikli destek"],
     },
     business: {
       tagline: "Uygulamanız için bir ortak",

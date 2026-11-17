@@ -1,7 +1,7 @@
 {
   "version": "5",
   "dialect": "mysql",
-  "id": "d77279d6-6bea-4fff-a493-56dfa3d7fc07",
+  "id": "4a850c56-e291-411b-9beb-f33989d8939a",
   "prevId": "4dfdf0ed-4c01-472d-864f-9a4039564a2d",
   "tables": {
     "account_deletion_requests": {
@@ -2640,6 +2640,13 @@
           "notNull": false,
           "autoincrement": false
         },
+        "push_relay_at": {
+          "name": "push_relay_at",
+          "type": "datetime(3)",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
         "google_play_key_encrypted": {
           "name": "google_play_key_encrypted",
           "type": "text",
@@ -2918,13 +2925,6 @@
         },
         "screenshot_frame": {
           "name": "screenshot_frame",
-          "type": "longtext",
-          "primaryKey": false,
-          "notNull": false,
-          "autoincrement": false
-        },
-        "auto_screenshots": {
-          "name": "auto_screenshots",
           "type": "longtext",
           "primaryKey": false,
           "notNull": false,

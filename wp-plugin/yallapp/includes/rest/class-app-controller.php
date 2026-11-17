@@ -110,6 +110,8 @@ class App_Controller extends Controller {
 					'qna'          => ! empty( $features['qna'] ),
 					// The app's plan decides push and offline mode (license features).
 					'push'         => $this->plugin->push()->is_configured() && $license->has_feature( 'push' ),
+					// 136.46 iPhones register their APNs token while Yallapp sends the notifications: straight to Apple.
+					'apns'         => $this->plugin->push()->relayed(),
 					'offline'      => $license->has_feature( 'offline_downloads' ),
 					// 45 Lessons saved for offline viewing: the plan and the owner's choice.
 					'downloads'    => $lms && $this->plugin->downloads()->enabled(),

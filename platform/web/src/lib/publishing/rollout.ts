@@ -8,7 +8,8 @@ import { appleToken, type AppleCredentials } from "./review";
 /**
  * 89.2 Staged releases. With "We publish for you", a build can go to a share
  * of Google Play's production users first (the pipeline uploads it with
- * that share) and to Apple's phased release (seven days). The owner then
+ * that share) and to Apple's phased release (seven days). 138 Without a
+ * choice, Google Play's production for everyone. The owner then
  * stops, continues or completes it here, through the stores' own APIs with
  * the keys the app already has: Google Play's Android Publisher API (the
  * service account) and App Store Connect (the .p8 key).
@@ -30,7 +31,8 @@ export function rolloutAfterReport(current: RolloutState | null | undefined, bui
   if (!release) return null;
   let next: RolloutState = { ...current };
   let changed = false;
-  if (release.androidRollout !== null && stages.upload_play === "done" && current?.android?.versionCode !== build.versionCode) {
+  // 138 A draft (the app's first release, sent by hand) isn't out yet: nothing to follow.
+  if (release.androidRollout !== null && stages.upload_play === "done" && release.play?.status !== "draft" && current?.android?.versionCode !== build.versionCode) {
     const fraction = release.androidRollout;
     next = { ...next, android: { versionName: build.versionName, versionCode: build.versionCode, fraction, status: fraction >= 1 ? "completed" : "inProgress", at: now.toISOString() } };
     changed = true;
@@ -155,7 +157,8 @@ export class RolloutError extends Error {
 }
 
 export interface RolloutDeps {
-  store: Pick<DataStore, "updateApp">;
+  /** 138 `getAppById` (when given) keeps a publishing account given since the page was read. */
+  store: Pick<DataStore, "updateApp"> & Partial<Pick<DataStore, "getAppById">>;
   key: Buffer;
   fetcher?: typeof fetch;
   now: Date;
@@ -174,7 +177,7 @@ export async function changeRollout(deps: RolloutDeps, app: App, which: "android
     const status = action === "stop" ? "halted" : fraction >= 1 ? "completed" : "inProgress";
     const token = await googleAccessToken(fetcher, decrypt(app.googlePlayKeyEncrypted, deps.key, keyContext.googlePlay(app.id)), deps.now);
     await setPlayRelease(fetcher, token, app.androidPackage, { versionCode: android.versionCode, fraction, status });
-    const next: RolloutState = { ...current, android: { ...android, fraction, status, at } };
+    const next: RolloutState = { ...(await latestRollout(deps, app)), android: { ...android, fraction, status, at } };
     await deps.store.updateApp(app.id, { rollout: next }, deps.now);
     return next;
   }
@@ -184,7 +187,13 @@ export async function changeRollout(deps: RolloutDeps, app: App, which: "android
   const state = action === "stop" ? "PAUSED" : action === "complete" ? "COMPLETE" : "ACTIVE";
   const credentials = { keyId: app.ascKeyId, issuerId: app.ascIssuerId, privateKey: decrypt(app.ascPrivateKeyEncrypted, deps.key, keyContext.appStore(app.id)) };
   await setApplePhase(fetcher, credentials, app.iosBundleId, state, deps.now);
-  const next: RolloutState = { ...current, ios: { ...ios, state, at } };
+  const next: RolloutState = { ...(await latestRollout(deps, app)), ios: { ...ios, state, at } };
   await deps.store.updateApp(app.id, { rollout: next }, deps.now);
   return next;
+}
+
+/** The app's `rollout` as it is now (the rest of it, written since, is kept). */
+async function latestRollout(deps: RolloutDeps, app: App): Promise<RolloutState> {
+  const fresh = deps.store.getAppById ? await deps.store.getAppById(app.id) : null;
+  return fresh?.rollout ?? app.rollout ?? {};
 }

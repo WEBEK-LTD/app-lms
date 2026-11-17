@@ -78,6 +78,11 @@ export function settingsSummary(settings: Map<PlatformSettingKey, PlatformSettin
     },
     "/admin/settings/sign-in-codes": { now: `${otpNow}.`, attention: !otp && otpFallback().startsWith("Not set") },
     "/admin/settings/contact": { now: contact ? `${contact.value.email}, set here.` : "The defaults.", attention: false },
+    // 138 Each app's publishing account; without any, every app shows the publishing team email.
+    "/admin/settings/publishing-accounts": (() => {
+      const accounts = Array.isArray(get("publishingAccounts")?.value.accounts) ? get("publishingAccounts")!.value.accounts.length : 0;
+      return { now: accounts ? `${accounts} ${accounts === 1 ? "account" : "accounts"}.` : "No accounts yet: every app shows the publishing team email.", attention: false };
+    })(),
     "/admin/settings/invoices": {
       now: invoice?.value.lines.length ? `${invoice.value.lines.length} ${invoice.value.lines.length === 1 ? "line" : "lines"} under Yallapp's name.` : "No company lines yet.",
       attention: false,

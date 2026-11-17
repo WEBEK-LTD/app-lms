@@ -17,14 +17,16 @@ use Yallapp\Push\Push_Service;
 class HuaweiPushTest extends TestCase {
 
 	/**
-	 * Only "hms" is stored as Huawei; everything else (and older apps that send
-	 * nothing) is Firebase.
+	 * Only "hms" is stored as Huawei and (136.46) "apns" as an iPhone's APNs token; everything
+	 * else (and older apps that send nothing) is Firebase.
 	 */
 	public function test_stored_provider() {
 		$this->assertSame( 'hms', Devices::provider( 'hms' ) );
 		$this->assertSame( 'fcm', Devices::provider( 'fcm' ) );
 		$this->assertSame( 'fcm', Devices::provider( null ) );
-		$this->assertSame( 'fcm', Devices::provider( 'apns' ) );
+		$this->assertSame( 'apns', Devices::provider( 'apns' ) );
+		$this->assertSame( 'fcm', Devices::provider( 'APNS' ) );
+		$this->assertSame( 'fcm', Devices::provider( 'web' ) );
 	}
 
 	/**
@@ -50,8 +52,9 @@ class HuaweiPushTest extends TestCase {
 		);
 		$this->assertSame(
 			array(
-				'fcm' => array( 'fcm-1', 'old-1' ),
-				'hms' => array( 'hms-1' ),
+				'fcm'  => array( 'fcm-1', 'old-1' ),
+				'hms'  => array( 'hms-1' ),
+				'apns' => array(),
 			),
 			$split
 		);

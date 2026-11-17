@@ -184,21 +184,15 @@ These are the parts on our servers and consoles.
 
 ## 4. Publishing for clients (Phase 14)
 
-- [ ] Decide which plans include "Publish it for me" and its price. Until
-      the plan flag "managed publishing" exists, every app can ask for it:
-      `canUseManagedPublishing` in `platform/web/src/lib/publishing/steps.ts`
-      returns true for now.
+- [x] Decide which plans include "Publish it for me" and its price: every
+      plan, free (Phase 138, the owner on 17 November).
 - [ ] Our own Apple Account for the publishing team email, with two-factor
       authentication on a team phone (App Store Connect invitations need it).
 - [ ] Never accept a client's Google or Apple password: only invitations.
-- [ ] 35 A Samsung account for the publishing team email, so we can accept
-      Galaxy Store Seller Portal manager invitations (clients invite it as a
-      manager for applications).
-- [ ] 36 A HUAWEI ID for the publishing team email, so we can join clients'
-      AppGallery Connect teams (App administrator and Operations roles).
-- [ ] 42 A Xiaomi account (and developer account) for the publishing team
-      email, so clients can add it as a member who manages their apps on the
-      Xiaomi developer platform.
+- [x] 35, 36, 42 Samsung, HUAWEI and Xiaomi accounts for the publishing team
+      email: not needed since Phase 138 (Galaxy Store, AppGallery and GetApps
+      are the clients' own; our team publishes on Google Play and the App
+      Store only).
 
 ## 5. Demo apps on yallapp.com.tr/demo (Phase 16)
 
@@ -1805,6 +1799,31 @@ and nothing calls Google.
 - [ ] Switching back to the store's checkout opens WooCommerce's checkout
       in the app again within a minute.
 
+## Phase 138: We publish for you, on every plan
+
+- [ ] Paste the publishing accounts' emails in Admin › Settings ›
+      Publishing accounts (each a Google account for Play Console and an
+      Apple Account for App Store Connect on the same email, with
+      two-factor authentication on a team phone), and set each one's limit
+      (50 unless changed). None are in the code. Until one is added, every
+      app shows the publishing team email (Settings › Contact & publishing).
+- [ ] Each account's inbox is read: it gets "is yours to publish" with the
+      app's one-time steps, a Google Play draft to send by hand, and App
+      Review blockers (App Privacy on a first version, the age rating, an
+      agreement).
+- [ ] Expect every active client app to rebuild after the first deploy of
+      Phase 138: `CLIENT_APP_RELEASE` (`platform/web/src/lib/builds/app-release.ts`)
+      is 2, for 132.187's order refresh and 136's iPhone push token, at 4
+      builds an hour (iPhone builds use the paid macOS minutes). Bump it
+      again in each later change that should reach every client's app.
+- [ ] With one real client app on each store: the first Google Play release
+      sent by hand from its draft, then an update that goes to production by
+      itself; an iPhone build that goes to App Review by itself and is
+      released once approved (and one with Apple's phased release).
+- [ ] Apps that bought the publishing add-on: it runs to its end and isn't
+      renewed; decide whether to refund what's left (the records are kept in
+      Admin › Add-ons and on each client's page).
+
 ## Phase 136: iPhone notifications straight to Apple (136.20–136.23)
 
 - [ ] Deploy. Migration `0139_apns_direct` runs with the others, after
@@ -1813,9 +1832,37 @@ and nothing calls Google.
       uploads their own APNs key once under "iPhone notifications"; the
       page shows what Apple answered.
 
+## Phase 136: Notifications sent by Yallapp for WordPress apps (136.40–136.44)
+
+Only once Phase 1 (Yallapp's Firebase pool, keyless sending) is live.
+
+- [ ] Migration `0140_push_relay` runs with the others at deploy (after
+      Phase 1's 0138 and Phase 2's 0139).
+- [ ] Release plugin **0.4.49** in Admin › Plugin releases. Older plugins
+      ignore `LicenseStatus.push`; the Publishing step offers "Yallapp sets
+      up notifications" to a WordPress app only once its site reports 0.4.49
+      or later, so nothing to switch by hand.
+- [ ] On a test WordPress academy in Yallapp's mode, with an Android phone
+      signed in: Settings › Notifications says "Notifications are sent by
+      Yallapp" with no Firebase file; Send a manual notification reaches the
+      phone; uninstalling the app and sending again makes the token
+      disappear from the site (`invalid`).
+- [ ] 136.46 On that academy with an iPhone: before the APNs key is saved,
+      a notification leaves the iPhone's token on the site (`skipped`);
+      after saving it under Notifications › iPhone notifications, the next
+      notification reaches the iPhone straight from Apple.
+- [ ] Switch that app back to its own Firebase in the dashboard: within a
+      minute the site's settings show the Firebase file field again, and a
+      notification sent meanwhile still arrives (409, then the license
+      check, then the retry with the site's own key).
+- [ ] Update the privacy page (yallapp.com.tr/privacy) and the client terms:
+      for apps in Yallapp's mode, push tokens and notification texts of
+      WordPress sites pass through Yallapp to Firebase (Google) and are not
+      stored (design §4, "Privacy text").
+
 ## Phase 139: Store screenshots made automatically
 
-- [ ] Migration `0140_auto_screenshots` runs with the others at deploy.
+- [ ] Migration `0141_auto_screenshots` runs with the others at deploy.
 - [ ] Nothing new to set: the workflow uses the repository's
       `PLATFORM_API_URL` variable and `BUILD_PIPELINE_TOKEN` secret, and
       the platform starts it with `GITHUB_DISPATCH_TOKEN` (already there

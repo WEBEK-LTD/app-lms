@@ -18,6 +18,7 @@ import { publishingTeamEmail } from "../publishing/service";
 import { planReceiptPdf, receiptAttachment } from "../receipts/service";
 import { platformSetting } from "../settings/platform";
 import { billingLabel } from "./catalog";
+import { addonRetired } from "./rules";
 import type { AppAddon } from "./types";
 
 /**
@@ -109,6 +110,8 @@ export async function remindEndingAddons(deps: NoticeDeps): Promise<OwnerNotice[
   for (const addon of await store.listAppAddons({ endingBefore: new Date(now.getTime() + 8 * DAY), limit: 500 })) {
     if (!addon.activeUntil || addon.activeUntil.getTime() <= now.getTime() || isLifetimeEnd(addon.activeUntil)) continue;
     if (addon.billing === "once" || addon.billing === "lifetime") continue;
+    // 138 Every plan includes what it did (publishing): nothing to renew, so no reminder.
+    if (addonRetired(addon)) continue;
     if (addon.remindedFor && addon.remindedFor.getTime() === addon.activeUntil.getTime()) continue;
     await store.updateAppAddon(addon.id, { remindedFor: addon.activeUntil, updatedAt: now });
     const [app, client] = await Promise.all([store.getAppById(addon.appId), store.getClientById(addon.clientId)]);

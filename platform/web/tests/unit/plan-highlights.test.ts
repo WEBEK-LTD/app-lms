@@ -17,7 +17,10 @@ describe("planHighlights", () => {
       "An Android app",
       // 112.3 Every Studio plan has the couriers' and drivers' app until the team unticks it.
       "A second app for couriers",
+      // 138 Every plan publishes for the client, and updates the other Android stores once connected.
+      "We publish to Google Play for you",
       "Email support",
+      "Automatic updates to Galaxy Store, GetApps and AppGallery with your account",
     ]);
   });
 
@@ -30,7 +33,7 @@ describe("planHighlights", () => {
       "Every app language",
       "Android and iOS apps",
       "A second app for couriers",
-      "We publish to the stores for you",
+      "We publish to Google Play and the App Store for you",
       "Motion in the editor",
       "Priority support",
       "Your own account manager",

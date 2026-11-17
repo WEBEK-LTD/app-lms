@@ -10,7 +10,7 @@ import { usesYallappFirebase } from "../firebase/mode";
  * accounts, and can remove that access whenever they like.
  */
 
-/** Whether an app on this plan (as it is now, lib/entitlements.ts) may ask us to publish it: "We publish for you" (13.1). */
+/** Whether an app on this plan (as it is now, lib/entitlements.ts) may ask us to publish it: "We publish for you" (13.1; 138 every plan). */
 export function canUseManagedPublishing(plan: PlanInfo | null): boolean {
   return hasFeature(plan, "auto_publish");
 }
@@ -64,7 +64,7 @@ export const PUBLISHING_STEPS: PublishingStep[] = [
     store: "android",
     title: "Invite our team to Google Play Console",
     text:
-      "In Play Console, open Users and permissions, choose Invite new users and enter {team_email}. Give it Admin (all permissions), or at least the permissions to create and release apps and manage the store listing (a release manager).",
+      "In Play Console, open Users and permissions, choose Invite new users and enter {team_email}. Give it Admin (all permissions), so we can release your app and every update and keep its store listing.",
     links: [{ label: "Google's guide to inviting users", href: "https://support.google.com/googleplay/android-developer/answer/9844686" }],
   },
   {
@@ -83,7 +83,7 @@ export const PUBLISHING_STEPS: PublishingStep[] = [
     store: "ios",
     title: "Invite our team to App Store Connect",
     text:
-      "In App Store Connect, open Users and Access, add {team_email} with the App Manager role, and tick Access to Certificates, Identifiers & Profiles so we can sign your app.",
+      "In App Store Connect, open Users and Access and add {team_email} with the Admin role. Admin includes access to certificates, identifiers and profiles, so we can sign your app and send every update to App Review.",
     links: [
       { label: "App Store Connect", href: "https://appstoreconnect.apple.com/" },
       { label: "Apple's guide to adding users", href: "https://developer.apple.com/help/app-store-connect/manage-your-team/add-and-edit-users" },
@@ -159,9 +159,15 @@ export const PUBLISHING_STEPS: PublishingStep[] = [
   },
 ];
 
-/** 35, 36 The steps for the stores a request covers: Google Play, the App Store, push, and the extra stores the client asked for. */
+/**
+ * The steps for the stores our team publishes on: Google Play, the App Store
+ * and push. 138 Galaxy Store, AppGallery and GetApps are the client's own
+ * (More Android stores): their steps stay listed only for requests from
+ * before, never shown to a client again.
+ */
 export function stepsFor(request: Pick<PublishingRequest, MoreStore>): PublishingStep[] {
-  return PUBLISHING_STEPS.filter((step) => step.store === "android" || step.store === "ios" || step.store === "both" || Boolean(request[step.store]));
+  void request;
+  return PUBLISHING_STEPS.filter((step) => step.store === "android" || step.store === "ios" || step.store === "both");
 }
 
 /** The step's text with the team email in it. */
@@ -170,7 +176,7 @@ export function stepText(step: PublishingStep, teamEmail: string): string {
 }
 
 export const PUBLISHING_STORES: PublishingStore[] = ["android", "ios"];
-/** 35, 36, 42 Stores the client may add to "Publish it for me". */
+/** 35, 36, 42 The other Android stores (138 the client's own: More Android stores). */
 export const MORE_STORES: MoreStore[] = ["galaxy", "huawei", "xiaomi"];
 export const STORE_NAME: Record<PublishingStore, string> = { android: "Google Play", ios: "the App Store", galaxy: "Galaxy Store", huawei: "AppGallery", xiaomi: "Xiaomi GetApps" };
 export const STORE_TITLE: Record<PublishingStore, string> = {
@@ -193,9 +199,10 @@ export function isMoreStore(value: unknown): value is MoreStore {
   return typeof value === "string" && (MORE_STORES as string[]).includes(value);
 }
 
-/** 35, 36 The stores a request covers: Google Play, the App Store and the extra stores the client asked for. */
+/** The stores a request covers: Google Play and the App Store (138 our team no longer publishes on the other Android stores; what a request from before says about them is kept, not shown). */
 export function requestStores(request: Pick<PublishingRequest, MoreStore>): PublishingStore[] {
-  return [...PUBLISHING_STORES, ...MORE_STORES.filter((which) => Boolean(request[which]))];
+  void request;
+  return [...PUBLISHING_STORES];
 }
 
 /** One store's track (a fresh one for an extra store the request doesn't cover). */

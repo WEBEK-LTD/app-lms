@@ -17,6 +17,7 @@ import {
   mainPeriodOf,
   periodIsSuggested,
   periodLeftToSuggestion,
+  isIncludedFeature,
   PLAN_FEATURES,
   PLAN_LIMITS,
   planOffered,
@@ -377,7 +378,8 @@ function PlanPanels({
       pages: typeof plan.limits.pages === "number" ? String(plan.limits.pages) : "",
       extra: Object.fromEntries(limitDefs.map((d) => [d.id, plan.extraLimits && d.id in plan.extraLimits ? (plan.extraLimits[d.id] === null ? "unlimited" : String(plan.extraLimits[d.id])) : ""])),
     },
-    features: family === "studio" ? PLAN_FEATURES.filter((f) => f.id !== "studio") : PLAN_FEATURES.filter((f) => !STUDIO_ONLY_FEATURES.includes(f.id)),
+    // 138 What every plan includes isn't a choice (PlanLimitsFields says so).
+    features: (family === "studio" ? PLAN_FEATURES.filter((f) => f.id !== "studio") : PLAN_FEATURES.filter((f) => !STUDIO_ONLY_FEATURES.includes(f.id))).filter((f) => !isIncludedFeature(f.id)),
     // 133 Pages in the app are a regular plan's; a Studio plan has its Pages per project.
     limits: family === "studio" ? PLAN_LIMITS.filter((l) => l.id !== "pages") : PLAN_LIMITS,
     supportLevels: SUPPORT_LEVELS.map((s) => ({ id: s, label: SUPPORT_LABEL[s] })),

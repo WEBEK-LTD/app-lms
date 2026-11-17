@@ -4,10 +4,10 @@ import { E2E } from "../../playwright.config";
 import { solidPng } from "./png";
 
 /**
- * Publishing yourself (the Growth plan, the Starter of before Phase 13): the
- * App Store Connect key is optional in the publishing step (it only signs the
- * iOS app), the Google Play key isn't offered, and the pipeline still receives
- * the key.
+ * Publishing with your own keys on the Growth plan (the Starter of before
+ * Phase 13). 138 Every plan has "We publish for you": the Publishing step
+ * asks who publishes, with the Google Play key and the App Store Connect key,
+ * and the pipeline receives the key and uploads.
  */
 test.describe.configure({ mode: "serial" });
 // Its own address: sign-ins from the shared one reach the per-IP limit when every spec runs in one 15-minute window.
@@ -121,7 +121,7 @@ test("62 a session that ended on the server stops the header saying Dashboard", 
   await expect(header.getByRole("link", { name: "Sign in" })).toBeVisible();
 });
 
-test("the App Store Connect key is optional on Growth and reaches the pipeline", async ({ page, request }) => {
+test("138 Growth publishes too: the store keys reach the pipeline, and its builds upload", async ({ page, request }) => {
   await signIn(page, client.email, client.password);
   // 121 Without an app yet: the choice of editor or Studio first.
   await page.getByRole("link", { name: "Start from an empty app" }).click();
@@ -175,15 +175,18 @@ test("the App Store Connect key is optional on Growth and reaches the pipeline",
   await expect(page.getByRole("list", { name: "iPhone screenshots: 1 of 10" })).toBeVisible();
   await page.getByRole("button", { name: "Save & continue" }).click();
 
-  // Publishing (Growth: they publish themselves, iOS included)
+  // Publishing (138 Growth publishes for them too: "Publish it for me", or their own keys)
   await expect(page.getByRole("heading", { name: "Publishing" })).toBeVisible();
-  await expect(page.getByRole("group", { name: "App Store Connect API key (optional)" })).toBeVisible();
-  await expect(page.getByText("Needed to sign your iOS app. Without it you get the Android app only.")).toBeVisible();
-  await expect(page.getByText("Service account key (JSON)")).toHaveCount(0);
+  await expect(page.getByRole("radio", { name: /Publish it for me/ })).toBeVisible();
+  await expect(page.getByRole("radio", { name: /I'll publish it myself/ })).toBeChecked();
+  await expect(page.getByRole("group", { name: "App Store Connect API key", exact: true })).toBeVisible();
+  await expect(page.getByText("Service account key (JSON)")).toBeVisible();
+  // No upgrade to be published for.
+  await expect(page.locator("[data-upgrade-hint]").filter({ hasText: "Publish it for me" })).toHaveCount(0);
 
   // Same validation as on Pro.
   await page.getByLabel("Key ID").fill("short");
-  await page.getByRole("button", { name: "Finish setup" }).click();
+  await page.getByRole("button", { name: "Save & finish" }).click();
   await expect(page.getByText("The Key ID is 10 letters and numbers.")).toBeVisible();
 
   await page.getByLabel("Issuer ID").fill("69a6de7e-1234-4bcd-8ef0-123456789abc");
@@ -192,14 +195,14 @@ test("the App Store Connect key is optional on Growth and reaches the pipeline",
 
   // Firebase files must match the package name and bundle ID.
   await page.getByLabel("google-services.json (Android)").setInputFiles({ name: "google-services.json", mimeType: "application/json", buffer: Buffer.from(googleServices("com.other.app")) });
-  await page.getByRole("button", { name: "Finish setup" }).click();
+  await page.getByRole("button", { name: "Save & finish" }).click();
   await expect(page.getByText("This file has no Android app for com.graceacademy.app.")).toBeVisible();
   await page.getByLabel("Issuer ID").fill("69a6de7e-1234-4bcd-8ef0-123456789abc");
   await page.getByLabel("Key ID").fill("2X9R4HXF34");
   await page.getByLabel("Private key (.p8)").setInputFiles({ name: "AuthKey_2X9R4HXF34.p8", mimeType: "application/octet-stream", buffer: Buffer.from(p8) });
   await page.getByLabel("google-services.json (Android)").setInputFiles({ name: "google-services.json", mimeType: "application/json", buffer: Buffer.from(googleServices("com.graceacademy.app")) });
   await page.getByLabel("GoogleService-Info.plist (iOS)").setInputFiles({ name: "GoogleService-Info.plist", mimeType: "application/xml", buffer: Buffer.from(serviceInfo("com.graceacademy.app")) });
-  await page.getByRole("button", { name: "Finish setup" }).click();
+  await page.getByRole("button", { name: "Save & finish" }).click();
   await expect(page).toHaveURL(/\/dashboard\/builds\?started=1$/);
 
   await page.goto("/dashboard/setup?step=publishing");
@@ -208,8 +211,12 @@ test("the App Store Connect key is optional on Growth and reaches the pipeline",
   await expect(page.getByText("GoogleService-Info.plist saved")).toBeVisible();
   expect(await page.content()).not.toContain("BEGIN PRIVATE KEY");
 
-  const queue = await (await request.get("/api/v1/builds/queue", { headers: pipeline })).json();
-  const build = queue.builds.find((b: { version_name: string; auto_publish: boolean }) => b.version_name === "1.0.0" && !b.auto_publish);
+  const appId = await page.getByLabel("Current app").inputValue();
+  const queue = await (await request.get("/api/v1/builds/queue?limit=100", { headers: pipeline })).json();
+  // 138 Every plan's builds upload, to Google Play's production for everyone, and go to App Review.
+  const build = queue.builds.find((b: { app_id: string; version_name: string; auto_publish: boolean; stages: Record<string, string> }) => b.app_id === appId && b.version_name === "1.0.0");
+  expect(build).toMatchObject({ auto_publish: true, stages: { app_review: "pending" } });
+  expect(build.release).toEqual({ android_rollout: 1, ios_phased: false });
   expect(build).toBeTruthy();
   await request.post(`/api/v1/builds/${build.id}/status`, { headers: pipeline, data: { status: "building" } });
   const secrets = await (await request.get(`/api/v1/builds/${build.id}/secrets`, { headers: pipeline })).json();
@@ -218,7 +225,7 @@ test("the App Store Connect key is optional on Growth and reaches the pipeline",
     ios_distribution: null,
     google_play: null,
     app_store_connect: { issuer_id: "69a6de7e-1234-4bcd-8ef0-123456789abc", key_id: "2X9R4HXF34", private_key: p8.trim() },
-    // 35, 36, 42 Only for plans with "We publish for you", and this app has none.
+    // 35, 36, 42 The app saved no keys for the other Android stores; no review sign-in yet.
     galaxy_store: null,
     huawei_appgallery: null,
     xiaomi_getapps: null,

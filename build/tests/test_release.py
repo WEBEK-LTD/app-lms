@@ -49,8 +49,29 @@ class QueueEntryTest(unittest.TestCase):
         ios = (ROOT / "build" / "scripts" / "ios.sh").read_text()
         self.assertIn('phased:"${IOS_PHASED:-false}"', ios)
         fastfile = (ROOT / "build" / "fastlane" / "Fastfile").read_text()
-        self.assertRegex(fastfile, re.compile(r'track: rollout \? "production" : "internal"'))
+        self.assertRegex(fastfile, re.compile(r'track = rollout \? "production" : "internal"'))
         self.assertIn('phased_release: options[:phased].to_s == "true"', fastfile)
+
+    def test_138_where_the_release_went_and_the_app_review_step(self):
+        """138 Google Play's report (a draft until the first release by hand), the App Store
+        version made with the build's version string, and App Review left to the platform."""
+        android = (ROOT / "build" / "scripts" / "android.sh").read_text()
+        self.assertIn('report:"$WORK/play-release.json"', android)
+        self.assertIn('platform status "$BUILD_ID" "{\\"play\\":$(cat "$WORK/play-release.json")}"', android)
+        # The other Android stores upload with the client's keys on every plan.
+        self.assertNotIn('[ "$AUTO_PUBLISH" != "true" ] || [ "$has" != "yes" ]', android)
+        fastfile = (ROOT / "build" / "fastlane" / "Fastfile").read_text()
+        self.assertIn('File.write(options[:report], JSON.generate("track" => track, "status" => sent))', fastfile)
+        self.assertIn('sent = "draft"', fastfile)
+        self.assertIn("automatic_release: true", fastfile)
+        self.assertIn("submit_for_review: false", fastfile)
+        self.assertIn("app_version: version.empty? ? nil : version", fastfile)
+        ios = (ROOT / "build" / "scripts" / "ios.sh").read_text()
+        self.assertIn('version:"$VERSION_NAME"', ios)
+        self.assertIn('REVIEW_STAGE=pending', ios)
+        self.assertIn(r'\"app_review\":\"$REVIEW_STAGE\"', ios)
+        workflow = (ROOT / ".github" / "workflows" / "build-apps.yml").read_text()
+        self.assertEqual(workflow.count('"app_review":"skipped"'), 2)
 
 
 if __name__ == "__main__":

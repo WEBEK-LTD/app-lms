@@ -698,6 +698,22 @@ export class MysqlStore implements DataStore {
     await this.run((db) => db.update(schema.apps).set({ ...patch, updatedAt: now }).where(and(eq(schema.apps.id, id), liveApp())));
   }
 
+  async claimPublishingAccount(appId: string, accountId: string, now: Date): Promise<{ id: string | null; claimed: boolean }> {
+    const rollout = schema.apps.rollout;
+    // The app's `rollout` as an object (none yet: an empty one).
+    const doc = sql`(CASE WHEN ${rollout} IS NULL OR JSON_VALID(${rollout}) = 0 OR JSON_TYPE(${rollout}) <> 'OBJECT' THEN JSON_OBJECT() ELSE ${rollout} END)`;
+    // Set only while it has no account, in the same statement: two requests at once can't both give it one.
+    const [result] = await this.run((db) =>
+      db
+        .update(schema.apps)
+        // JSON_OBJECT, not CAST(… AS JSON): MariaDB has no JSON type to cast to.
+        .set({ rollout: sql`JSON_SET(${doc}, '$.publishingAccount', JSON_OBJECT('id', ${accountId}, 'at', ${now.toISOString()}))` })
+        .where(and(eq(schema.apps.id, appId), sql`JSON_EXTRACT(${doc}, '$.publishingAccount.id') IS NULL`)),
+    );
+    const [row] = await this.run((db) => db.select({ rollout: schema.apps.rollout }).from(schema.apps).where(eq(schema.apps.id, appId)).limit(1));
+    return { id: row ? (row.rollout?.publishingAccount?.id ?? null) : null, claimed: result.affectedRows === 1 };
+  }
+
   async saveSigningKeys(appId: string, keys: SigningKeysPatch, now: Date): Promise<boolean> {
     const columns = Object.keys(keys) as SigningKeyColumn[];
     if (columns.length === 0) return false;
@@ -2824,12 +2840,12 @@ export class MysqlStore implements DataStore {
     );
   }
 
-  async hitRateLimit(bucket: string, windowStart: number, now: Date): Promise<number> {
+  async hitRateLimit(bucket: string, windowStart: number, now: Date, by = 1): Promise<number> {
     // Assignments run left to right: `hits` must read the old window_start.
     await this.run((db) =>
       db.execute(
-        sql`insert into rate_limits (bucket, window_start, hits, updated_at) values (${bucket}, ${windowStart}, 1, ${now})
-            on duplicate key update hits = if(window_start = values(window_start), hits + 1, 1),
+        sql`insert into rate_limits (bucket, window_start, hits, updated_at) values (${bucket}, ${windowStart}, ${by}, ${now})
+            on duplicate key update hits = if(window_start = values(window_start), hits + values(hits), values(hits)),
             window_start = values(window_start), updated_at = values(updated_at)`,
       ),
     );
@@ -2842,7 +2858,7 @@ export class MysqlStore implements DataStore {
     const rows = await this.run((db) =>
       db.select({ hits: schema.rateLimits.hits }).from(schema.rateLimits).where(eq(schema.rateLimits.bucket, bucket)).limit(1),
     );
-    return rows[0]?.hits ?? 1;
+    return rows[0]?.hits ?? by;
   }
 
   async peekRateLimit(bucket: string, windowStart: number): Promise<number> {

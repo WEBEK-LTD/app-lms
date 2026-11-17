@@ -18,9 +18,9 @@ import { restoreFromBuild } from "@/lib/builds/go-back";
 import { apiCheckSignIn } from "@/lib/hosted/test-token";
 import { readApnsKeyForm } from "@/lib/integrations/apns-key";
 import { appTypeName, connectorFits, ENGINES, hostedOnly, isAppType, kindById, defaultKind, ownContentTitle } from "@/lib/app/kinds";
-import { isSetupComplete, managedPublishing, newApp, queueBuild, STEP_LABEL, type SetupStep } from "@/lib/app/setup";
+import { isSetupComplete, newApp, queueBuild, STEP_LABEL, type SetupStep } from "@/lib/app/setup";
 import { currentPlanId } from "@/lib/billing/plan-change";
-import { appPlan, effectivePlans } from "@/lib/entitlements";
+import { effectivePlans } from "@/lib/entitlements";
 import { hasFeature } from "@/lib/plans";
 import { recordStaffChange } from "@/lib/admin/audit";
 import { appTypeOn, getSwitches, noWebsiteFor, websiteOf, websiteOn } from "@/lib/switches";
@@ -798,11 +798,13 @@ async function readFirebaseChoice(formData: FormData, app: App, clientId: string
   const offered = raw === "yallapp" || raw === "own" ? await yallappFirebaseOffered(store, app) : false;
   if (offered && raw === "yallapp") {
     const patch: AppPatch = usesYallappFirebase(app) ? {} : { pushSetup: "yallapp", firebaseAndroidAssetId: null, firebaseIosAssetId: null };
+    // 136.45 A WordPress app counts as in Yallapp's Firebase from this choice (offered only once its site's plugin relays).
+    if (app.backend === "wordpress" && !app.pushRelayAt) patch.pushRelayAt = new Date();
     return { patch, errors: {}, yallapp: true, leftYallapp: false };
   }
   const own = await readFirebaseFiles(formData, app, clientId);
   if (offered && usesYallappFirebase(app)) {
-    return { patch: { firebaseAndroidAssetId: null, firebaseIosAssetId: null, ...own.patch, pushSetup: null }, errors: own.errors, yallapp: false, leftYallapp: true };
+    return { patch: { firebaseAndroidAssetId: null, firebaseIosAssetId: null, ...own.patch, pushSetup: null, pushRelayAt: null }, errors: own.errors, yallapp: false, leftYallapp: true };
   }
   if (app.pushSetup === "yallapp" && (own.patch.firebaseAndroidAssetId || own.patch.firebaseIosAssetId)) own.patch.pushSetup = null;
   return { ...own, yallapp: false, leftYallapp: false };
@@ -874,11 +876,11 @@ async function readAppStoreKey(
 }
 
 /**
- * Pro: stores the Google Play service account JSON and the App Store Connect
- * key, encrypted, and needs at least one of them. Starter: the App Store
- * Connect key is optional and only signs the iOS app (they publish
- * themselves with the guides); the Google Play key is Pro only. Fields left
- * empty keep what was saved before.
+ * The setup's Publishing step: "Publish it for me" (our team, through the
+ * client's invitations), or the Google Play service account JSON and the App
+ * Store Connect key, encrypted, at least one of them. 138 The same on every
+ * plan: every plan includes "We publish for you". Fields left empty keep
+ * what was saved before.
  */
 export async function savePublishingAction(_: FormState, formData: FormData): Promise<FormState> {
   const context = await requireApp("settings");
@@ -901,16 +903,10 @@ export async function savePublishingAction(_: FormState, formData: FormData): Pr
       await recordStaffChange(context, firebase.yallapp ? "Chose Yallapp to set up the app's notifications" : "Chose the app's own Firebase for notifications");
     }
     if (firebase.yallapp) await registerInYallappFirebase(app.id);
+    // 136.45 A WordPress site reads the push mode from its license status (`push`): ask it to check now.
+    if (app.backend === "wordpress" && (firebase.leftYallapp || patch.pushRelayAt)) refreshSitesSoon([app.id]);
   };
 
-  // 13.1 Store keys for uploading are only asked when we publish for the client.
-  const plans = await effectivePlans(store);
-  if (!managedPublishing(context.license ? currentPlanId(context.license, now) : null, plans)) {
-    if (Object.keys(errors).length > 0) return { errors, values };
-    await store.updateApp(app.id, { ...patch, publishingDoneAt: now }, now);
-    await pushChanged();
-    return afterStep(context, "publishing");
-  }
   // 19 Who publishes: "managed" (our team, through invitations) or "self" (with the store keys).
   const mode = formData.get("publishingMode");
   const chosen = mode === "managed" || mode === "self" ? mode : null;
@@ -1171,21 +1167,23 @@ export async function saveVersionsAction(_: FormState, formData: FormData): Prom
 }
 
 /**
- * 89.2 How updates are released when we publish for the owner: the first
- * share of Google Play's production users, and Apple's phased release.
+ * 89.2 How updates are released: the first share of Google Play's
+ * production users, and Apple's phased release; 138 every plan, everyone at
+ * once on Google Play unless the owner picks a share or internal testing.
  * Taken by the next build.
  */
 export async function saveStagedReleaseAction(_: FormState, formData: FormData): Promise<FormState> {
   const context = await requireApp("settings");
   const values = { androidPercent: String(formData.get("androidPercent") ?? ""), iosPhased: formData.get("iosPhased") === "on" ? "on" : "" };
-  const androidPercent = values.androidPercent === "" ? null : Number(values.androidPercent);
+  const internal = values.androidPercent === "internal";
+  const androidPercent = values.androidPercent === "" || internal ? null : Number(values.androidPercent);
   if (androidPercent !== null && !(FIRST_SHARES as readonly number[]).includes(androidPercent)) return { errors: { androidPercent: "Choose a share from the list." }, values };
   const store = await getStore();
-  if (!hasFeature(await appPlan(store, context.license, new Date()), "auto_publish")) return { message: "Staged releases come with “We publish for you”.", values };
   const iosPhased = values.iosPhased === "on";
-  const stagedRelease = androidPercent === null && !iosPhased ? null : { androidPercent, iosPhased };
+  const stagedRelease = androidPercent === null && !iosPhased && !internal ? null : { androidPercent, iosPhased, ...(internal ? { androidInternal: true } : {}) };
   await store.updateApp(context.app.id, { stagedRelease }, new Date());
-  await recordStaffChange(context, stagedRelease ? `Set staged releases: Google Play ${androidPercent ?? "all"}%, App Store ${iosPhased ? "phased" : "at once"}` : "Turned staged releases off");
+  const android = internal ? "internal testing" : `${androidPercent ?? "all"}%`;
+  await recordStaffChange(context, stagedRelease ? `Set how updates are released: Google Play ${android}, App Store ${iosPhased ? "phased" : "at once"}` : "Set updates to go to everyone at once");
   revalidatePath("/dashboard/builds");
   return { ok: true, message: "Saved. Your next build is released this way.", values };
 }

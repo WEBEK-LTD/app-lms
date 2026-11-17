@@ -1,19 +1,11 @@
-import { plansIn } from "@/lib/marketing-lang";
 import type { Metadata } from "next";
 import Link from "next/link";
 import { redirect } from "next/navigation";
 import { KitBar, KitCallout, KitHeader, KitPage, KitSection, KitStatus } from "@/components/studio-page";
-import { UpgradeHint } from "@/components/upgrade";
 import { appLabel } from "@/lib/app/label";
-import { hasStoreKeys, managedPublishing } from "@/lib/app/setup";
+import { hasStoreKeys } from "@/lib/app/setup";
 import { requireClient } from "@/lib/auth/session";
-import { currentPlanId } from "@/lib/billing/plan-change";
-import { getStore } from "@/lib/data";
-import { effectivePlans } from "@/lib/entitlements";
-import { hasFeature, lowestPlanWith } from "@/lib/plans";
-import { isStudioProject } from "@/lib/studio/section";
 import { XIAOMI_DEFAULT_RELEASE_NOTES, XIAOMI_RELEASE_NOTES_MAX } from "@/lib/publishing/more-stores";
-import { publishingTeamEmail } from "@/lib/publishing/service";
 import { GalaxyStoreForm, HuaweiForm, XiaomiForm } from "./forms";
 import { dashboardText } from "@/lib/dashboard-lang";
 import { localePath } from "@/i18n/paths";
@@ -25,25 +17,18 @@ export async function generateMetadata(): Promise<Metadata> {
 }
 
 /**
- * 35, 36, 42 Samsung Galaxy Store, Huawei AppGallery and Xiaomi GetApps: the
- * keys we upload each build with ("We publish for you"), and Huawei push for
- * phones without Google Play (every plan). With "Publish it for me" our team
- * works through the client's invitations instead (the Publishing page).
+ * 35, 36, 42 Samsung Galaxy Store, Huawei AppGallery and Xiaomi GetApps: 138
+ * the client's own stores, on every plan. They publish there themselves:
+ * connected once with their keys, every new build is uploaded there by
+ * itself; else they upload the APK from Builds with the guides. Huawei push
+ * for phones without Google Play, as before. Our team publishes on Google
+ * Play and the App Store only (the Publishing page).
  */
 export default async function MoreStoresPage() {
-  const { app, license } = await requireClient("settings");
+  const { app } = await requireClient("settings");
   if (!app) redirect("/dashboard/app-type");
-  const store = await getStore();
-  const plans = plansIn((await dashboardText()).lang, await effectivePlans(store));
-  const plan = license ? currentPlanId(license, new Date()) : null;
-  const uploads = managedPublishing(plan, plans);
-  // 132.59 A Studio project is offered Studio's plans, never the regular ones.
-  const upgrade = lowestPlanWith(plans, (p) => hasFeature(p, "auto_publish"), plan, isStudioProject(app) ? "studio" : undefined);
   const keys = hasStoreKeys(app);
-  const managed = app.publishingMode === "managed";
-  const teamEmail = await publishingTeamEmail(store);
   const { t, k, lang } = await dashboardText();
-  const cta = upgrade ? t("overview.upgradeTo", { plan: upgrade.name }) : undefined;
   const builds = { link: (chunk: string) => <Link href="/dashboard/builds">{chunk}</Link> };
   const external = (href: string) => ({
     link: (chunk: string) => (
@@ -62,14 +47,10 @@ export default async function MoreStoresPage() {
       <KitBar>
         <PublishingTabs more />
       </KitBar>
-      {managed ? (
-        <KitCallout tone="success" icon="check_circle">
-          {richText(t("stores.moreManaged"), {
-            link: (chunk) => <Link href="/dashboard/publishing#h-more-stores">{chunk}</Link>,
-            email: () => <bdi dir="ltr">{teamEmail}</bdi>,
-          })}
-        </KitCallout>
-      ) : null}
+      {/* 138 A feature of every plan: connected once, every new version goes there by itself. */}
+      <KitCallout tone="success" icon="cloud_upload">
+        <span data-more-stores-benefit="">{richText(t("stores.moreYours"), builds)}</span>
+      </KitCallout>
 
       <KitSection titleId="h-galaxy" title="Samsung Galaxy Store" description={t("stores.galaxyText")} actions={saved(keys.galaxy)}>
         <ol className="m-0 list-decimal space-y-2 ps-5 text-[15px] leading-relaxed text-(--sp-ink) marker:font-bold">
@@ -80,13 +61,7 @@ export default async function MoreStoresPage() {
         <p className="m-0 text-sm">
           <Link href={localePath(lang, "/docs/galaxy-store")}>{t("stores.galaxyGuide")}</Link>
         </p>
-        {uploads ? null : (
-          <UpgradeHint title={t("stores.galaxyUploads")} to={upgrade} cta={cta}>
-            {t("stores.galaxyUpgrade")}
-          </UpgradeHint>
-        )}
         <GalaxyStoreForm
-          uploads={uploads}
           saved={keys.galaxy ? { contentId: app.galaxyContentId ?? "", serviceAccountId: app.galaxyServiceAccountId ?? "" } : null}
         />
         <p className="m-0 text-sm text-(--sp-muted)">{t("stores.keyEncrypted")}</p>
@@ -100,13 +75,7 @@ export default async function MoreStoresPage() {
           </li>
           <li>{richText(t("stores.huaweiStep3"), builds)}</li>
         </ol>
-        {uploads ? null : (
-          <UpgradeHint title={t("stores.huaweiUploads")} to={upgrade} cta={cta}>
-            {t("stores.huaweiUpgrade")}
-          </UpgradeHint>
-        )}
         <HuaweiForm
-          uploads={uploads}
           saved={{
             appId: app.huaweiAppId ?? null,
             agconnect: Boolean(app.huaweiAgconnectAssetId),
@@ -126,13 +95,7 @@ export default async function MoreStoresPage() {
           </li>
           <li>{t("stores.xiaomiStep3")}</li>
         </ol>
-        {uploads ? null : (
-          <UpgradeHint title={t("stores.xiaomiUploads")} to={upgrade} cta={cta}>
-            {t("stores.xiaomiUpgrade")}
-          </UpgradeHint>
-        )}
         <XiaomiForm
-          uploads={uploads}
           saved={keys.xiaomi ? { userName: app.xiaomiUserName ?? "" } : null}
           notes={{ current: app.xiaomiReleaseNotes ?? "", fallback: XIAOMI_DEFAULT_RELEASE_NOTES, max: XIAOMI_RELEASE_NOTES_MAX }}
         />
