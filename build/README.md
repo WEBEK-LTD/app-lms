@@ -121,6 +121,43 @@ Set these alongside the platform's other variables (`platform/web/README.md`):
   Fine-grained tokens: repository `WEBEK-LTD/app-lms` only, permission
   **Actions: Read and write**, nothing else.
 
+## Store screenshots made from the app (139)
+
+"Make them for me" in App setup › Store listing (on for new apps): Yallapp
+takes the store screenshots from the client's app itself, so clients don't
+make them.
+
+- **Where:** [`.github/workflows/store-screenshots.yml`](../.github/workflows/store-screenshots.yml),
+  a separate Linux workflow (never the macOS minutes, no store keys). The
+  platform starts it when a run is queued (`GITHUB_DISPATCH_TOKEN`, the same
+  token as builds); its hourly schedule takes the runs otherwise. Its first
+  step (`store_screenshots.py pending`, plain Python) asks whether a run is
+  waiting; with none, nothing is installed and the job ends in seconds. Netlify
+  can't run a browser, and a separate workflow keeps a slow or failed run
+  from holding a build, and needs no Flutter, Java or signing.
+- **How:** `scripts/store_screenshots.py run` takes the runs waiting
+  (`GET /screenshots/queue`), claims each one (the app preview's signed,
+  read-only link, published pages, guest mode), and
+  `scripts/capture_screens.mjs` opens the app preview (its own web build,
+  `/preview-app/`) in Chromium at each store size: Google Play phone
+  1080 × 1920, Google Play tablets 1600 × 2560 (sent for 7" and 10"),
+  iPhone 6.9" 1320 × 2868 and iPad 13" 2064 × 2752, in each listing
+  language, Android's look for Google Play and iOS's for the App Store. The
+  screens are the app's main ones for its kind (`lib/app/auto-screenshots.ts`
+  `SCREENS`: home, a list, an item, the cart; not the account, which a guest
+  sees as the sign-in screen and the preview draws with a note of its own); an item opens the
+  first one of its list, read from the app's own request. Each picture is
+  made exactly the store size with no alpha and sent back
+  (`PUT /screenshots/{id}/shots/{key}`), then the run ends
+  (`POST /screenshots/{id}/status`).
+- **The listing:** the set is the listing's screenshots, each translation
+  its own (`GET /builds/{id}/store`); `store_listing.py` frames them at build
+  time only when the owner asked, as it does uploads. The owner can replace
+  any one (never overwritten) or remove one.
+- **Made again:** a few minutes after a change that shows on them (the look,
+  the pages, the languages), only when what shows changed; once a month for
+  the content; or with Make again.
+
 ## What clients do once
 
 Clients who chose "Publish it for me" (dashboard › Publishing) do none of

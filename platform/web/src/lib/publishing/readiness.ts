@@ -2,6 +2,7 @@ import { wordsOf } from "../app/kinds";
 import type { App, PublishingListing } from "../data/types";
 import { reviewCodeWho, reviewSignInKind } from "./review-account";
 import { listingMissing } from "./steps";
+import { listingScreenshotIds } from "../app/auto-screenshots";
 
 /**
  * 88.1 Ready to submit: one look at what Google Play and the App Store ask
@@ -94,8 +95,10 @@ export function readiness({ app, listing, ios, managed, platformUrl }: ReadyInpu
   );
 
   // Screenshots: Google Play's phone ones, the App Store's iPhone ones.
-  const play = app.phoneScreenshotIds.length;
-  const apple = app.iphoneScreenshotIds.length;
+  // 139 The screenshots made from the app when "Make them for me" is on.
+  const shots = listingScreenshotIds(app);
+  const play = shots.phone.length;
+  const apple = shots.iphone.length;
   const short = play < PLAY_SCREENSHOTS_MIN || (ios && apple < IPHONE_SCREENSHOTS_MIN);
   if (!short) out.push({ key: "screenshots", state: "ok", text: ios ? "shotsOk" : "shotsOkAndroid", values: { play, apple } });
   else if (managed) out.push({ key: "screenshots", state: "note", text: "shotsWeTake", values: { play, apple }, link: "/dashboard/setup?step=listing" });

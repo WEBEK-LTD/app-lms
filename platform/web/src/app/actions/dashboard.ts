@@ -24,7 +24,9 @@ import { effectivePlans } from "@/lib/entitlements";
 import { hasFeature } from "@/lib/plans";
 import { recordStaffChange } from "@/lib/admin/audit";
 import { appTypeOn, getSwitches, noWebsiteFor, websiteOf, websiteOn } from "@/lib/switches";
-import { startPipeline } from "@/lib/builds/dispatch";
+import { startPipeline, startScreenshots } from "@/lib/builds/dispatch";
+import { makeAgain, scheduleAutoScreenshots, shotAssetKind, switchedAutoScreenshots, withRemoved, withUpload } from "@/lib/app/auto-screenshots-jobs";
+import { freshAutoScreenshots, parseShotKey } from "@/lib/app/auto-screenshots";
 import { assetUrl, ICON_MAX_BYTES, LOGO_MAX_BYTES } from "@/lib/assets";
 import { chooseApp, clientFor, mayUseDashboard, type ClientContext } from "@/lib/auth/session";
 import type { TeamPermission } from "@/lib/team/permissions";
@@ -636,6 +638,8 @@ export async function saveBrandingAction(_: FormState, formData: FormData): Prom
     brandingDoneAt: now,
   };
   await store.updateApp(context.app.id, patch, now);
+  // 139 The app's look shows on its automatic store screenshots: made again in a few minutes.
+  await scheduleAutoScreenshots(store, context.app, now);
   // A newly chosen design becomes the Pages & look draft, with this template and font; what's published stays.
   // 99.2 Or only its look, when the owner keeps their pages.
   const mode = formData.get("designMode") === "look" ? "look" : "all";
@@ -701,6 +705,9 @@ export async function saveListingAction(_: FormState, formData: FormData): Promi
   if (!extras.ok) return { errors: extras.errors, values };
   const now = new Date();
   const patch: AppPatch = { ...parsed.data, ...screenshots.patch, ...extras.extras, listingDoneAt: now };
+  // 139 "Make them for me": switched on (made soon) or off (the uploads above are the listing's again).
+  const autoShots = formData.get("autoScreenshots") === "on";
+  if (autoShots || context.app.autoScreenshots) patch.autoScreenshots = switchedAutoScreenshots(context.app, autoShots, now);
   // A Firebase file is made for one package name or bundle ID.
   if (parsed.data.androidPackage !== context.app.androidPackage) patch.firebaseAndroidAssetId = null;
   if (parsed.data.iosBundleId !== context.app.iosBundleId) patch.firebaseIosAssetId = null;
@@ -959,6 +966,55 @@ export interface UploadResult {
  * Uploads an app icon (PNG, 1024 × 1024, no transparency), a logo (PNG or SVG)
  * or a store screenshot (PNG or JPEG, sizes the store accepts).
  */
+/** 139 What the automatic screenshots' actions answer: an error is a key of the dashboard's words (autoShots.*) or an upload's message. */
+export type AutoShotResult = { ok: true; id?: string; url?: string } | { ok: false; error: string; known?: boolean };
+
+/** 139 Make again: the whole set made now from the app (the owner's own uploads stay). */
+export async function makeScreenshotsAgainAction(): Promise<AutoShotResult> {
+  const context = await requireApp("settings");
+  const store = await getStore();
+  const result = await makeAgain(store, context.app, new Date());
+  if (!result.ok) return { ok: false, error: result.reason === "running" ? "errorRunning" : result.reason === "not_ready" ? "errorNotReady" : result.reason === "inactive" ? "errorInactive" : "errorOff" };
+  await startScreenshots();
+  revalidatePath(inSection(context.app, "/dashboard/setup"));
+  return { ok: true };
+}
+
+/** 139 The owner's own screenshot in one place of the automatic set: checked like an upload, never made again over. */
+export async function replaceAutoShotAction(formData: FormData): Promise<AutoShotResult> {
+  const context = await requireApp("settings");
+  const key = String(formData.get("key") ?? "");
+  const place = parseShotKey(key);
+  const file = formData.get("file");
+  if (!place || !file || typeof file === "string" || file.size === 0) return { ok: false, error: "errorChoose" };
+  if (file.size > SCREENSHOT_MAX_BYTES) return { ok: false, error: `The file is too large. The limit is ${SCREENSHOT_MAX_BYTES / 1024 / 1024} MB.`, known: true };
+  const data = Buffer.from(await file.arrayBuffer());
+  const checked = checkScreenshot(data, place.device);
+  if (!checked.ok) return { ok: false, error: checked.error, known: true };
+  const id = await saveAsset(context.client.id, shotAssetKind(place.device), data, checked.contentType, checked.contentType === "image/png" ? "png" : "jpg");
+  const store = await getStore();
+  const now = new Date();
+  // Read again: a run may have changed the set since the page was opened.
+  const app = (await store.getAppById(context.app.id)) ?? context.app;
+  const next = withUpload(app.autoScreenshots ?? freshAutoScreenshots(true), key, id, now);
+  if (!next) return { ok: false, error: "errorChoose" };
+  await store.updateApp(app.id, { autoScreenshots: next }, now);
+  revalidatePath(inSection(context.app, "/dashboard/setup"));
+  return { ok: true, id, url: `/api/v1/assets/${id}` };
+}
+
+/** 139 One screenshot of the automatic set left out (the set made again on its own leaves it out too). */
+export async function removeAutoShotAction(key: string): Promise<AutoShotResult> {
+  const context = await requireApp("settings");
+  const store = await getStore();
+  const app = (await store.getAppById(context.app.id)) ?? context.app;
+  const next = app.autoScreenshots ? withRemoved(app.autoScreenshots, key) : null;
+  if (!next) return { ok: false, error: "errorChoose" };
+  await store.updateApp(app.id, { autoScreenshots: next }, new Date());
+  revalidatePath(inSection(context.app, "/dashboard/setup"));
+  return { ok: true };
+}
+
 export async function uploadAssetAction(formData: FormData): Promise<UploadResult> {
   const context = await requireActiveClient("settings");
   const kind = formData.get("kind") as AssetKind | null;

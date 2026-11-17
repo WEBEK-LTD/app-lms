@@ -4,9 +4,23 @@ The current state of the project: what is released in the code, what still
 needs checking against real services, and what a deployment needs.
 `docs/ROADMAP.md` is the plan; this file is the current state.
 
-Last updated: 16 November 2026.
+Last updated: 17 November 2026.
 
 ## Current release
+
+Roadmap 139 (store screenshots made automatically) is in the code: App
+setup › Store listing has "Make them for me", on for new apps, in the
+dashboard and in Studio. A separate Linux workflow
+(`.github/workflows/store-screenshots.yml`, started by the platform)
+opens each app's preview at Google Play's phone and tablet sizes, iPhone
+6.9" and iPad 13", in each listing language, takes the main screens of its
+kind and sends them back; they are the listing's screenshots, each
+translation its own. The owner can replace or remove any one; theirs are
+never overwritten. They're made again a few minutes after a change that
+shows on them, and monthly. Not yet run on a GitHub runner against a real
+app preview, nor sent to the stores (LAUNCH-CHECKLIST › Phase 139). It also fixes the owner's own tablet screenshot
+upload on MySQL/MariaDB (`assets.kind` was 16 characters, too short for
+`tablet_screenshot`; now 32, migration `0141_auto_screenshots`).
 
 Phase 138 (We publish for you, on every plan) is in the code: every plan,
 regular and Studio, includes "We publish for you" on Google Play and the

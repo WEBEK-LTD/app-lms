@@ -1,4 +1,4 @@
-import { startPipeline } from "@/lib/builds/dispatch";
+import { startPipeline, startScreenshots } from "@/lib/builds/dispatch";
 import { preflightDeps } from "@/lib/builds/preflight-env";
 import { getStore } from "@/lib/data";
 import { sendTemplate } from "@/lib/email/send";
@@ -51,6 +51,8 @@ export async function POST(request: Request): Promise<Response> {
       // 87.4 Automatic builds: the checks before them, and the pipeline started at once.
       preflight: preflightDeps(store),
       startPipeline,
+      // 139 The store screenshots' workflow, started once when a run was queued.
+      startScreenshots,
       // 114 Email campaigns due start; netlify/functions/mail-campaigns.mts sends the rest every minute.
       mail: await mailDeps(store),
       // 136 Yallapp's Firebase, when it's set up here.

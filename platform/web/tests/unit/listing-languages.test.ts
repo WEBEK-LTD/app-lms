@@ -89,6 +89,8 @@ describe("88.2 the listing in the app's languages", () => {
       supportEmail: "help@academy.test",
       privacyUrl: "https://academy.test/privacy",
       primaryColor: "#F5C04A",
+      // 139 The owner's own uploads: "Make them for me" off.
+      autoScreenshots: null,
     };
     const plain = storeListingOf(app, assetUrl)!;
     expect(Object.keys(plain).sort()).toEqual(["fullDescription", "iphoneScreenshots", "phoneScreenshots", "privacyUrl", "shortDescription", "storeTitle", "supportEmail"]);

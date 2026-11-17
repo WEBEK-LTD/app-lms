@@ -24,6 +24,11 @@ export async function GET(request: Request, { params }: RouteContext<"/api/v1/bu
       short_description: t.shortDescription,
       full_description: t.fullDescription,
       captions: t.captions,
+      // 139 Screenshots made in the translation's own language, when there are.
+      ...(t.phoneScreenshots?.length ? { phone_screenshots: t.phoneScreenshots } : {}),
+      ...(t.iphoneScreenshots?.length ? { iphone_screenshots: t.iphoneScreenshots } : {}),
+      ...(t.tabletScreenshots?.length ? { tablet_screenshots: t.tabletScreenshots } : {}),
+      ...(t.ipadScreenshots?.length ? { ipad_screenshots: t.ipadScreenshots } : {}),
     })),
     tablet_screenshots: listing.tabletScreenshots ?? [],
     ipad_screenshots: listing.ipadScreenshots ?? [],

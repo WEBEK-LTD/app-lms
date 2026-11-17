@@ -26,27 +26,30 @@ export type MoreStoreStage = "upload_galaxy" | "upload_appgallery" | "upload_xia
 export type BuildStages = Record<Exclude<StageKey, MoreStoreStage | "app_review">, StageStatus> & Partial<Record<MoreStoreStage | "app_review", StageStatus>>;
 export type StageStatus = "pending" | "running" | "done" | "failed" | "skipped";
 export type ArtifactKind = "apk" | "aab" | "ipa" | "keystore" | "store_assets";
-export type AssetKind =
-  | "icon"
-  | "logo"
-  | "play_screenshot"
-  | "ios_screenshot"
-  | "tablet_screenshot"
-  | "ipad_screenshot"
-  | "firebase_android"
-  | "firebase_ios"
-  | "product_image"
-  | "huawei_agconnect"
+/** Every kind of uploaded asset (`assets.kind`, at most ASSET_KIND_LENGTH characters: lib/db/schema.ts). */
+export const ASSET_KINDS = [
+  "icon",
+  "logo",
+  "play_screenshot",
+  "ios_screenshot",
+  "tablet_screenshot",
+  "ipad_screenshot",
+  "firebase_android",
+  "firebase_ios",
+  "product_image",
+  "huawei_agconnect",
   // 97.2 The files of an owner's own font.
-  | "font"
+  "font",
   // 97.3 The logo and pictures exported from a Figma file.
-  | "figma_image"
+  "figma_image",
   // 108.2 The pictures of a design brought into Studio (a design file, SVG, Figma, Sketch, Penpot).
-  | "design_image"
+  "design_image",
   // 105.2 A driver's papers (licence, car registration): only the company sees them, never at the public address.
-  | "driver_document"
+  "driver_document",
   // 113.12 A photo of a salary's or an advance's receipt: only the school's dashboard sees it.
-  | "salary_receipt";
+  "salary_receipt",
+] as const;
+export type AssetKind = (typeof ASSET_KINDS)[number];
 export type AppTemplate = "classic" | "bold" | "minimal";
 
 export interface User {
@@ -147,7 +150,7 @@ export interface StoreListing {
   iphoneScreenshots?: string[];
   /** 88.2 Missing on builds queued before. */
   language?: string;
-  translations?: ListingTranslation[];
+  translations?: StoreListingTranslation[];
   tabletScreenshots?: string[];
   ipadScreenshots?: string[];
   frame?: { background: string; textColor: string; captions: string[] } | null;
@@ -255,9 +258,63 @@ export interface ListingTranslation {
   captions: string[];
 }
 
+/** 139 A listing translation in a build's listing: its own screenshots, when made in its language. */
+export interface StoreListingTranslation extends ListingTranslation {
+  phoneScreenshots?: string[];
+  iphoneScreenshots?: string[];
+  tabletScreenshots?: string[];
+  ipadScreenshots?: string[];
+}
+
 /** 88.2 Screenshots framed for the stores: their captions, in order (the colours are the app's). */
 export interface ScreenshotFrame {
   captions: string[];
+}
+
+/** 139 The four screenshot sets the stores ask for: Google Play's phones and tablets (7" and 10"), the App Store's iPhone 6.9" and iPad 13". */
+export type ShotDevice = "phone" | "iphone" | "tablet" | "ipad";
+
+/** 139 The app's main screens an automatic screenshot shows (lib/listing/auto-screenshots.ts picks them for the app's kind). */
+export type ShotScreen = "home" | "list" | "item" | "cart" | "account";
+
+/** 139 One store screenshot of the automatic set, in one language for one device. */
+export interface AutoShot {
+  device: ShotDevice;
+  /** The app language code it was made in (the listing's languages). */
+  language: string;
+  screen: ShotScreen;
+  assetId: string;
+  /** "auto": made by Yallapp, made again with the set; "uploaded": the owner's own in its place, never overwritten. */
+  source: "auto" | "uploaded";
+  /** ISO time it was made or uploaded. */
+  at: string;
+}
+
+/**
+ * 139 "Make them for me": the store screenshots made by Yallapp from the app
+ * itself (its real design, content and language) by the pipeline's Linux job,
+ * kept here (times as ISO strings) and used as the listing's screenshots.
+ */
+export interface AutoScreenshots {
+  on: boolean;
+  /** idle: nothing running; queued: waiting for the pipeline; running: being made; failed: the last run didn't finish (`message`). */
+  state: "idle" | "queued" | "running" | "failed";
+  /** The run being made (`<app id>.<nonce>`); null when none. */
+  jobId: string | null;
+  /** When a run was asked for after a change (debounced like automatic builds); null: none waiting. */
+  dueAt: string | null;
+  queuedAt: string | null;
+  startedAt: string | null;
+  /** When the last set was finished. */
+  madeAt: string | null;
+  /** What showed on the last set (its design, pages, languages and screens): the same, and nothing is made again. */
+  fingerprint: string | null;
+  /** The fingerprint of the run going on, kept as `fingerprint` once it is done. */
+  runFingerprint?: string | null;
+  message: string | null;
+  shots: AutoShot[];
+  /** Places the owner removed (`device:language:screen`): left out when the set is made again on its own; Make again brings them back. */
+  removed: string[];
 }
 
 /**
@@ -805,6 +862,8 @@ export interface App {
   weeklySummary?: boolean;
   /** 87.4 When the automatic build of the latest changes starts; null: none waiting. */
   autoBuildDueAt?: Date | null;
+  /** 139 The store screenshots Yallapp makes from the app; null or missing: off (the owner's uploads). */
+  autoScreenshots?: AutoScreenshots | null;
   /** 93.1 When the owner hid the guide through the first app on the overview; null or missing: shown. */
   guideHiddenAt?: Date | null;
   /**

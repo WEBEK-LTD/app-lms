@@ -981,6 +981,13 @@
       "when": 1794888147293,
       "tag": "0140_push_relay",
       "breakpoints": true
+    },
+    {
+      "idx": 141,
+      "version": "5",
+      "when": 1794899933709,
+      "tag": "0141_auto_screenshots",
+      "breakpoints": true
     }
   ]
 }
