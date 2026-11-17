@@ -8,6 +8,17 @@ Last updated: 16 November 2026.
 
 ## Current release
 
+Roadmap 132.187 (an order shipped in the dashboard shows as shipped in the
+app) is in the code: the app asks again for the orders and the open order
+on an order's notification (arriving while the app is open, or tapped), on
+coming back to the front and when they open again; the stage shows on
+every order on its way; and Leqaa's "How your flowers travel" follows the
+person's newest order. It reaches phones with the next app build; the
+platform's answers were already right. On Huawei phones without Google
+Play, a notification arriving while the app is open isn't passed to it
+(the Push Kit bridge sends taps only), so there the orders refresh on
+coming back to the front and on opening.
+
 Roadmap 134 (pay inside the app for connected stores, Demo) is built for
 WooCommerce: Payments › How customers pay offers Yallapp's checkout (its
 own products), the store's checkout (the default) and paying inside the

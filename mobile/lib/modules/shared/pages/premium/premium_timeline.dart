@@ -14,17 +14,26 @@ import 'premium_shared.dart';
 /// or as a trip's legs with a bar over each (`bars`). Dates in a monospaced
 /// font with `mono`.
 class PremiumTimeline extends StatelessWidget {
-  const PremiumTimeline({super.key, required this.node, required this.dark});
+  const PremiumTimeline({
+    super.key,
+    required this.node,
+    required this.dark,
+    this.activeStep,
+  });
 
   final StudioNode node;
   final bool dark;
+
+  /// 132.160 The active step when something live sets it (an order's step),
+  /// instead of the highlighted entry.
+  final int? activeStep;
 
   @override
   Widget build(BuildContext context) {
     final tones = PremiumTones.of(context, dark: dark);
     final o = node.premium ?? const StudioPremium();
     final entries = node.entries;
-    final active = entries.indexWhere((e) => e.highlight);
+    final active = activeStep ?? entries.indexWhere((e) => e.highlight);
     bool done(int i) => active >= 0 && i <= active;
     final l10n = context.l10n;
     final mono = o.mono ? codeFontFamily : null;
