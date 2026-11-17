@@ -1,4 +1,6 @@
 import type { App } from "../data/types";
+import { usesYallappFirebase } from "../firebase/mode";
+import { compareVersions } from "../semver";
 
 /**
  * 136.41 How the app's pushes are sent, as the plugin reads it in
@@ -8,12 +10,15 @@ import type { App } from "../data/types";
  */
 export type PushSetup = "yallapp" | "own";
 
-/**
- * 136.41 The app's push mode. TODO(136 phase 1): read `app.pushSetup` directly
- * once Phase 1's `apps.push_setup` column is merged; until then every app is
- * "own", so no site relays.
- */
+/** 136.41 The app's push mode: "yallapp" when it's in Yallapp's Firebase (lib/firebase/mode.ts), else "own". */
 export function pushSetupOf(app: App | null | undefined): PushSetup {
-  const setup = (app as (App & { pushSetup?: string | null }) | null | undefined)?.pushSetup;
-  return setup === "yallapp" ? "yallapp" : "own";
+  return app && usesYallappFirebase(app) ? "yallapp" : "own";
+}
+
+/** 136.45 The first plugin that relays pushes (`LicenseStatus.push`, `POST /push/send`). */
+export const RELAY_PLUGIN_VERSION = "0.4.48";
+
+/** 136.45 Whether a site's plugin version relays pushes; an unknown version doesn't. */
+export function pluginRelaysPush(version: string | null | undefined): boolean {
+  return typeof version === "string" && /^\d+\.\d+\.\d+/.test(version) && compareVersions(version, RELAY_PLUGIN_VERSION) >= 0;
 }

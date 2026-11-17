@@ -74,6 +74,8 @@ export interface PushMessage {
   data: Record<string, string>;
   /** 85.2 A picture shown with it (Android; iPhones show it in the app's inbox). */
   image?: string | null;
+  /** 136.40 Android only delivers it to this app's package (`android.restricted_package_name`): a shared project's other apps never get it. */
+  restrictedPackage?: string | null;
 }
 
 export interface PushResult {
@@ -224,7 +226,7 @@ export async function sendPush(
           token: deviceToken,
           notification: { title: message.title, body: message.body, ...(message.image ? { image: message.image } : {}) },
           data: message.data,
-          android: { priority: "high" },
+          android: { priority: "high", ...(message.restrictedPackage ? { restricted_package_name: message.restrictedPackage } : {}) },
           apns: { payload: { aps: { sound: "default" } } },
         },
       }),

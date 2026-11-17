@@ -159,6 +159,8 @@ describe("saves that change what the license status carries ask the site", () =>
 
   it.each([
     ["app/actions/dashboard.ts", "chooseAppTypeAction"],
+    // 136.45 Yallapp's Firebase chosen or left on the Publishing step (`LicenseStatus.push`).
+    ["app/actions/dashboard.ts", "savePublishingAction"],
     ["app/actions/app-sign-in.ts", "saveSignInMethodsAction"],
     // 45 Offline downloads on or off.
     ["app/actions/courses.ts", "saveOfflineDownloadsAction"],
@@ -229,7 +231,7 @@ describe("saves that change what the license status carries ask the site", () =>
       "store_titles",
       // 134 Pay inside the app (Payments › How customers pay); gateway keys changed meanwhile only make Yallapp refuse it, and the plugin opens the store's checkout.
       "store_checkout",
-      // 136.41 How pushes are sent. TODO(136 phase 1): the push-mode save (Phase 1's choice of "Yallapp sets up notifications") calls refreshSitesSoon; until then a relay answers 409 and the plugin checks again.
+      // 136.41 How pushes are sent (App setup › Publishing, "Yallapp sets up notifications"; savePublishingAction asks a WordPress site to check).
       "push",
       "expires_at",
       "checked_at",

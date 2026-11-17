@@ -1,5 +1,5 @@
 import { generateKeyPairSync } from "node:crypto";
-import { beforeAll, describe, expect, it } from "vitest";
+import { beforeAll, describe, expect, it, vi } from "vitest";
 import { POST } from "@/app/api/v1/push/send/route";
 import { newApp } from "@/lib/app/setup";
 import { activateClient, suspendClient } from "@/lib/admin/clients";
@@ -8,6 +8,8 @@ import { getStore } from "@/lib/data";
 import type { MemoryStore } from "@/lib/data/memory";
 import { encryptionKey } from "@/lib/env";
 import type { App } from "@/lib/data/types";
+import { siteRelaysPush, yallappFirebaseOffered } from "@/lib/firebase/env";
+import { serviceAccountOf } from "@/lib/hosted/notify";
 import type { ServiceAccount } from "@/lib/hosted/push";
 import {
   parsePushRelayRequest,
@@ -17,7 +19,7 @@ import {
   sharedSignIn,
   type PushRelayRequest,
 } from "@/lib/license/push-relay";
-import { pushSetupOf } from "@/lib/license/push-setup";
+import { pluginRelaysPush, pushSetupOf, RELAY_PLUGIN_VERSION } from "@/lib/license/push-setup";
 import { activateLicense, checkLicense, parseSiteInfo } from "@/lib/license/service";
 import { RATE_LIMITS, rateLimitHits } from "@/lib/rate-limit";
 import { clearPlatformSettingsCache } from "@/lib/settings/platform";
@@ -82,8 +84,9 @@ function fakeGoogle(options: { signInFails?: boolean; delayMs?: number } = {}) {
 /** An active client whose license is on SITE, with an app in "Yallapp sets up notifications" mode (or not). */
 async function activeSite(options: { pushSetup?: "yallapp" | null; plan?: "starter" | "growth" } = {}) {
   const setup = await setupClient(options.plan ? { plan: options.plan } : {});
-  // TODO(136 phase 1): `pushSetup` is Phase 1's column; until it is merged the test sets it on the record.
-  const app = { ...newApp(setup.client.id, SITE, NOW), appName: "Nour Academy", pushSetup: options.pushSetup === undefined ? "yallapp" : options.pushSetup } as App;
+  // 136.45 A WordPress app in Yallapp's Firebase: chosen (`pushSetup`) while the site relayed (`pushRelayAt`).
+  const yallapp = options.pushSetup === undefined;
+  const app: App = { ...newApp(setup.client.id, SITE, NOW), backend: "wordpress", appName: "Nour Academy", androidPackage: "com.nour.academy", pushSetup: yallapp ? "yallapp" : null, pushRelayAt: yallapp ? NOW : null };
   await setup.store.createApp(app);
   const site = parseSiteInfo(body(setup.licenseKey!));
   if (!site.ok) throw new Error("bad site");
@@ -255,6 +258,8 @@ describe("136.40 Relaying a site's batch", () => {
       },
     });
     expectPlatformContract("POST", "/push/send", result);
+    // In Yallapp's shared project, Android delivers it only to this app's package.
+    expect(google.calls.sends.every((send) => (send.message.android as { restricted_package_name?: string }).restricted_package_name === "com.nour.academy")).toBe(true);
     expect(await rateLimitHits(store, RATE_LIMITS.pushRelayTokens, license!.id, NOW)).toBe(3);
     expect(await rateLimitHits(store, RATE_LIMITS.pushRelaySent, license!.id, NOW)).toBe(1);
     // Nothing of the batch is kept: no token or text in any stored row.
@@ -263,7 +268,7 @@ describe("136.40 Relaying a site's batch", () => {
     expect(stored).not.toContain("Greetings");
   });
 
-  it("asks serviceAccountOf by default, which has no account on main: 503 push_not_ready", async () => {
+  it("asks serviceAccountOf by default, which has none while Yallapp's Firebase isn't set up here: 503 push_not_ready", async () => {
     const { store, licenseKey } = await activeSite();
     const google = fakeGoogle();
     const result = await relayPush(store, request(licenseKey), { encryptionKey: KEY, now: NOW, fetcher: google.fetcher });
@@ -336,8 +341,12 @@ describe("136.40 Relaying a site's batch", () => {
 describe("136.41 LicenseStatus.push", () => {
   it("says own by default and yallapp for an app in Yallapp's mode", async () => {
     expect(pushSetupOf(null)).toBe("own");
-    expect(pushSetupOf({ pushSetup: "yallapp" } as unknown as App)).toBe("yallapp");
-    expect(pushSetupOf({ pushSetup: "other" } as unknown as App)).toBe("own");
+    const wordpress = { ...newApp("client-1", SITE, NOW), backend: "wordpress" } as App;
+    expect(pushSetupOf({ ...wordpress, pushSetup: "yallapp", pushRelayAt: NOW })).toBe("yallapp");
+    // A new app's default "yallapp" never moves a WordPress site that wasn't chosen with a relaying plugin.
+    expect(pushSetupOf({ ...wordpress, pushSetup: "yallapp", pushRelayAt: null })).toBe("own");
+    expect(pushSetupOf({ ...wordpress, pushSetup: null, pushRelayAt: NOW })).toBe("own");
+    expect(pushSetupOf({ ...wordpress, backend: "hosted", pushSetup: "yallapp" })).toBe("yallapp");
 
     const yallapp = await activeSite();
     const site = parseSiteInfo(body(yallapp.licenseKey));
@@ -364,7 +373,7 @@ describe("136.40 POST /api/v1/push/send (route)", () => {
     const { client } = await registerClient(store, { name: "Push Route", email: "push@route.test", whatsapp: "+905446731945", siteUrl: ROUTE_SITE, password: null }, now);
     const outcome = await activateClient(store, { clientId: client.id, plan: "growth", activeUntil: new Date(now.getTime() + 30 * 86_400_000), paymentNote: "test" }, encryptionKey(), now);
     licenseKey = outcome.licenseKey!;
-    await store.createApp({ ...newApp(client.id, ROUTE_SITE, now), appName: "Route Academy", pushSetup: "yallapp" } as App);
+    await store.createApp({ ...newApp(client.id, ROUTE_SITE, now), backend: "wordpress", appName: "Route Academy", pushSetup: "yallapp", pushRelayAt: now });
     const site = parseSiteInfo({ license_key: licenseKey, site_url: ROUTE_SITE, plugin_version: "0.4.48" });
     if (!site.ok) throw new Error("bad site");
     await activateLicense(store, site.value, now);
@@ -389,5 +398,56 @@ describe("136.40 POST /api/v1/push/send (route)", () => {
     expect(waiting.status).toBe(503);
     expect(waiting.headers.get("retry-after")).toBe("300");
     expectPlatformContract("POST", "/push/send", { status: 503, body: await waiting.json() });
+  });
+});
+
+describe("136.45 Yallapp's mode for WordPress apps", () => {
+  it("needs plugin 0.4.48 or later on the site", () => {
+    expect(RELAY_PLUGIN_VERSION).toBe("0.4.48");
+    expect(pluginRelaysPush("0.4.48")).toBe(true);
+    expect(pluginRelaysPush("0.4.50")).toBe(true);
+    expect(pluginRelaysPush("0.5.0")).toBe(true);
+    expect(pluginRelaysPush("0.4.47")).toBe(false);
+    expect(pluginRelaysPush("0.3.99")).toBe(false);
+    expect(pluginRelaysPush("")).toBe(false);
+    expect(pluginRelaysPush("dev")).toBe(false);
+    expect(pluginRelaysPush(null)).toBe(false);
+    expect(pluginRelaysPush(undefined)).toBe(false);
+  });
+
+  it("is offered only once the site's plugin relays, and stays offered (to switch back) while the app is in it", async () => {
+    // Phase 1's test settings: in their expected form, never real ones.
+    vi.stubEnv("GOOGLE_WIF_PROVIDER", "projects/123456789012/locations/global/workloadIdentityPools/yallapp-platform/providers/platform");
+    vi.stubEnv("GOOGLE_PUSH_SERVICE_ACCOUNT", "yallapp-push-sender@yallapp-firebase.iam.gserviceaccount.com");
+    vi.stubEnv("GOOGLE_FIREBASE_APPS_SERVICE_ACCOUNT", "yallapp-firebase-apps@yallapp-firebase.iam.gserviceaccount.com");
+    try {
+      const setup = await setupClient();
+      const app: App = { ...newApp(setup.client.id, SITE, NOW), backend: "wordpress", appName: "Nour Academy" };
+      await setup.store.createApp(app);
+      await setup.store.saveFirebaseProject({ projectId: "yallapp-push-01", projectNumber: "1", apiKeyId: "k", maxApps: 28, status: "open", createdBy: "team", creation: null, checkedAt: null, checkProblem: null, createdAt: NOW, updatedAt: NOW });
+      // No site yet: not offered (a hosted app is, so it's the site that holds it back).
+      expect(await yallappFirebaseOffered(setup.store, { ...app, backend: "hosted" })).toBe(true);
+      expect(await yallappFirebaseOffered(setup.store, app)).toBe(false);
+      const activate = async (version: string) => {
+        const site = parseSiteInfo({ ...body(setup.licenseKey!), plugin_version: version });
+        if (!site.ok) throw new Error("bad site");
+        expect((await (version === "0.4.47" ? activateLicense : checkLicense)(setup.store, site.value, NOW)).status).toBe(200);
+      };
+      await activate("0.4.47");
+      expect(await siteRelaysPush(setup.store, app)).toBe(false);
+      expect(await yallappFirebaseOffered(setup.store, app)).toBe(false);
+      await activate("0.4.48");
+      expect(await siteRelaysPush(setup.store, app)).toBe(true);
+      expect(await yallappFirebaseOffered(setup.store, app)).toBe(true);
+      // In it already: offered whatever the site runs now, so the owner can switch back.
+      const chosen: App = { ...app, pushSetup: "yallapp", pushRelayAt: NOW };
+      await activate("0.4.47");
+      expect(await yallappFirebaseOffered(setup.store, chosen)).toBe(true);
+      // The keyless account is Yallapp's once the app has its project, so the relay sends with it.
+      expect(serviceAccountOf({ ...chosen, firebaseProjectId: "yallapp-push-01" }, KEY)).toMatchObject({ project_id: "yallapp-push-01", federated: true });
+      expect(serviceAccountOf({ ...app, pushSetup: "yallapp", firebaseProjectId: "yallapp-push-01" }, KEY)).toBeNull();
+    } finally {
+      vi.unstubAllEnvs();
+    }
   });
 });

@@ -181,7 +181,6 @@ export async function relayTokens(
       if (stop.aborted) return;
       const index = next++;
       try {
-        // TODO(136 phase 1): Phase 1's sendPush sets `android.restricted_package_name` for a Yallapp-mode account.
         const result = await sendPush(account, [tokens[index]!], message, { fetcher, now: options.now });
         statuses[index] = result.sent > 0 ? "sent" : result.invalidTokens.length > 0 ? "invalid" : "retry";
       } catch {
@@ -230,11 +229,13 @@ export async function relayPush(store: DataStore, request: PushRelayRequest, dep
   const hour = await hitRateLimit(store, RATE_LIMITS.pushRelayTokens, license.id, now, request.tokens.length);
   if (!hour.allowed) return fail(429, "rate_limited", "This site sent its notifications' hourly limit. Try again later.", { retry_after_seconds: hour.retryAfter });
 
-  // TODO(136 phase 1): serviceAccountOf returns the federated account (Yallapp's Firebase) for a Yallapp-mode app.
+  // Yallapp's Firebase: the app's project and push sender, no key (serviceAccountOf); null until the app is registered there.
   const account = (deps.accountOf ?? serviceAccountOf)(app, deps.encryptionKey);
   if (!account) return fail(503, "push_not_ready", "Yallapp is still setting up this app's notifications. Try again later.", { retry_after_seconds: 300 });
 
-  const results = await relayTokens(account, request.tokens, request.message, { fetcher: deps.fetcher, now, clock: deps.clock });
+  // In a shared project, Android delivers only to this app's own package.
+  const message = { ...request.message, restrictedPackage: app.androidPackage?.trim() || null };
+  const results = await relayTokens(account, request.tokens, message, { fetcher: deps.fetcher, now, clock: deps.clock });
   const count = (status: PushRelayTokenStatus) => results.filter((result) => result.status === status).length;
   const body = { results, sent: count("sent"), invalid: count("invalid"), retry: count("retry") };
   if (body.sent > 0) await hitRateLimit(store, RATE_LIMITS.pushRelaySent, license.id, now, body.sent);

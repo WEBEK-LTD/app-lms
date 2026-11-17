@@ -12,6 +12,7 @@ import { firebaseManagement, type FirebaseManagement } from "../google/firebase-
 import type { Fetch } from "../google/http";
 import type { TeamMail } from "../watch/alerts";
 import type { CheckDeps } from "./check";
+import { pluginRelaysPush } from "../license/push-setup";
 import { firebaseSlotsFor, usesYallappFirebase, yallappFirebaseFits } from "./mode";
 import { chooseProject, poolOf } from "./pool";
 import type { ProjectDeps } from "./projects";
@@ -100,9 +101,20 @@ export async function poolHasRoomFor(store: DataStore, app: Pick<App, "appType" 
  */
 export async function yallappFirebaseOffered(store: DataStore, app: App): Promise<boolean> {
   const firebase = federationFromEnv(store);
-  if (!firebase || !yallappFirebaseFits(app)) return false;
+  if (!firebase) return false;
+  // 136.45 A WordPress app: once its site's plugin relays the pushes (0.4.48 or later), or while it's in already.
+  if (app.backend === "wordpress") {
+    if (!usesYallappFirebase(app) && !(await siteRelaysPush(store, app))) return false;
+  } else if (!yallappFirebaseFits(app)) return false;
   if (usesYallappFirebase(app) || (await poolParent(store))) return true;
   return poolHasRoomFor(store, app);
+}
+
+/** 136.45 Whether the WordPress site the app's license is active on runs a plugin that relays pushes. */
+export async function siteRelaysPush(store: DataStore, app: Pick<App, "clientId" | "id">): Promise<boolean> {
+  const license = await store.getLicenseForApp(app.clientId, app.id);
+  const activation = license ? await store.getActivation(license.id) : null;
+  return pluginRelaysPush(activation?.pluginVersion);
 }
 
 /** A new app starts in Yallapp's Firebase when it's set up here and a project has room; otherwise as before (null). */
