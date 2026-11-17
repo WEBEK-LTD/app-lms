@@ -792,48 +792,6 @@
     "blocks": []
    },
    {
-    "slug": "search",
-    "title": "Search",
-    "translations": {
-     "ar": {
-      "title": "البحث"
-     },
-     "tr": {
-      "title": "Ara"
-     }
-    },
-    "studio": {
-     "body": {
-      "id": "sig-35",
-      "type": "column",
-      "children": []
-     },
-     "screen": "search",
-     "header": {
-      "type": "title",
-      "title": "Search",
-      "translations": {
-       "ar": {
-        "title": "البحث"
-       },
-       "tr": {
-        "title": "Ara"
-       }
-      },
-      "background": "#FAF7F1",
-      "color": "#15131A",
-      "dark_background": "#0A0B10",
-      "dark_color": "#F4F1EA",
-      "style": "large"
-     },
-     "background": "#FAF7F1",
-     "dark_background": "#0A0B10"
-    },
-    "show_title": false,
-    "updated_at": "2026-11-13T18:00:00.000Z",
-    "blocks": []
-   },
-   {
     "slug": "favorites",
     "title": "Wishlist",
     "translations": {
@@ -846,7 +804,7 @@
     },
     "studio": {
      "body": {
-      "id": "sig-36",
+      "id": "sig-35",
       "type": "column",
       "children": []
      },
@@ -888,7 +846,7 @@
     },
     "studio": {
      "body": {
-      "id": "sig-37",
+      "id": "sig-36",
       "type": "column",
       "children": []
      },
@@ -930,7 +888,7 @@
     },
     "studio": {
      "body": {
-      "id": "sig-38",
+      "id": "sig-37",
       "type": "column",
       "children": []
      },
@@ -972,7 +930,7 @@
     },
     "studio": {
      "body": {
-      "id": "sig-39",
+      "id": "sig-38",
       "type": "column",
       "children": []
      },
@@ -1014,7 +972,7 @@
     },
     "studio": {
      "body": {
-      "id": "sig-40",
+      "id": "sig-39",
       "type": "column",
       "children": []
      },
@@ -1056,7 +1014,7 @@
     },
     "studio": {
      "body": {
-      "id": "sig-41",
+      "id": "sig-40",
       "type": "column",
       "children": []
      },
@@ -1090,7 +1048,7 @@
     "title": "Change password",
     "studio": {
      "body": {
-      "id": "sig-42",
+      "id": "sig-41",
       "type": "column",
       "children": []
      },
@@ -1105,7 +1063,7 @@
     "title": "A conversation",
     "studio": {
      "body": {
-      "id": "sig-43",
+      "id": "sig-42",
       "type": "column",
       "children": []
      },
@@ -1120,7 +1078,7 @@
     "title": "A course",
     "studio": {
      "body": {
-      "id": "sig-44",
+      "id": "sig-43",
       "type": "column",
       "children": []
      },
@@ -1135,7 +1093,7 @@
     "title": "A bundle",
     "studio": {
      "body": {
-      "id": "sig-45",
+      "id": "sig-44",
       "type": "column",
       "children": []
      },
@@ -1150,7 +1108,7 @@
     "title": "A lesson",
     "studio": {
      "body": {
-      "id": "sig-46",
+      "id": "sig-45",
       "type": "column",
       "children": []
      },
@@ -1165,7 +1123,7 @@
     "title": "A quiz",
     "studio": {
      "body": {
-      "id": "sig-47",
+      "id": "sig-46",
       "type": "column",
       "children": []
      },
@@ -1180,7 +1138,7 @@
     "title": "An assignment",
     "studio": {
      "body": {
-      "id": "sig-48",
+      "id": "sig-47",
       "type": "column",
       "children": []
      },
@@ -1195,7 +1153,7 @@
     "title": "A live session",
     "studio": {
      "body": {
-      "id": "sig-49",
+      "id": "sig-48",
       "type": "column",
       "children": []
      },
@@ -1210,7 +1168,7 @@
     "title": "A question",
     "studio": {
      "body": {
-      "id": "sig-50",
+      "id": "sig-49",
       "type": "column",
       "children": []
      },
@@ -1233,7 +1191,7 @@
     },
     "studio": {
      "body": {
-      "id": "sig-51",
+      "id": "sig-50",
       "type": "column",
       "children": []
      },
@@ -1267,7 +1225,7 @@
     "title": "A learning path",
     "studio": {
      "body": {
-      "id": "sig-52",
+      "id": "sig-51",
       "type": "column",
       "children": []
      },
@@ -1290,7 +1248,7 @@
     },
     "studio": {
      "body": {
-      "id": "sig-53",
+      "id": "sig-52",
       "type": "column",
       "children": []
      },
@@ -1332,7 +1290,7 @@
     },
     "studio": {
      "body": {
-      "id": "sig-54",
+      "id": "sig-53",
       "type": "column",
       "children": []
      },
@@ -1374,7 +1332,7 @@
     },
     "studio": {
      "body": {
-      "id": "sig-55",
+      "id": "sig-54",
       "type": "column",
       "children": []
      },
@@ -1416,7 +1374,7 @@
     },
     "studio": {
      "body": {
-      "id": "sig-56",
+      "id": "sig-55",
       "type": "column",
       "children": []
      },
@@ -1458,7 +1416,7 @@
     },
     "studio": {
      "body": {
-      "id": "sig-57",
+      "id": "sig-56",
       "type": "column",
       "children": []
      },
@@ -1500,7 +1458,7 @@
     },
     "studio": {
      "body": {
-      "id": "sig-58",
+      "id": "sig-57",
       "type": "column",
       "children": []
      },
@@ -1542,7 +1500,7 @@
     },
     "studio": {
      "body": {
-      "id": "sig-59",
+      "id": "sig-58",
       "type": "column",
       "children": []
      },
@@ -1584,7 +1542,7 @@
     },
     "studio": {
      "body": {
-      "id": "sig-60",
+      "id": "sig-59",
       "type": "column",
       "children": []
      },

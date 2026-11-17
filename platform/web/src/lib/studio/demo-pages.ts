@@ -3,7 +3,7 @@ import { STUDIO_PAGE_SCREENS } from "../pages/types";
 import { APP_WORDS } from "./app-words";
 import type { App } from "../data/types";
 import { innerScreen, innerScreenName, innerScreensFor, OWN_SCREEN_TITLES } from "../pages/inner-screens";
-import { pageScreenOptionsFor } from "../pages/sources";
+import { pageScreenOptionsFor, sameScreenAs } from "../pages/sources";
 import { newNodeId } from "./elements";
 import { designedDemoPage, designedOwnPages, designedTabs } from "./demo-designs";
 import type { SectionContext, SectionWord } from "./sections";
@@ -223,9 +223,17 @@ export function demoScreenPages(app: { appType: string; vertical?: string | null
     used.add(slug);
     return slug;
   };
+  // A screen the app shows on the same screen as a tab's, or as one already
+  // given a page, gets none: the app shows one page there, the tab's (a
+  // shop's All products is its Shop tab, a page "Courses" over it hid the tab's).
+  const covered = new Set([...onTabs].flatMap((s) => sameScreenAs(app, s)));
   const own = pageScreenOptionsFor(app as Pick<App, "appType" | "vertical">)
     .map((o) => o.value)
-    .filter((s) => !onTabs.has(s as StudioPageScreen) && OWN_SCREEN_TITLES[s] && !innerScreen(s));
+    .filter((s) => {
+      if (covered.has(s) || onTabs.has(s as StudioPageScreen) || !OWN_SCREEN_TITLES[s] || innerScreen(s)) return false;
+      for (const same of sameScreenAs(app, s)) covered.add(same);
+      return true;
+    });
   return [
     ...own.map((s) => screenPage(slugFor(s), s, OWN_SCREEN_TITLES[s]!, OWN_SCREEN_TITLES[s]!.en, ctx)),
     ...innerScreensFor(app).map((s) => screenPage(slugFor(s.id), s.id, s.title, innerScreenName(s.id)!, ctx)),

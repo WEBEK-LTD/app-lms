@@ -17,7 +17,7 @@ import { ownDesignView } from "@/lib/studio/own-designs";
 import { pickableContent } from "@/lib/hosted/pages/pickable";
 import { marketCanvasOf } from "@/lib/studio/market-canvas-data";
 import { sampleEntries } from "@/lib/studio/sample-entries";
-import { designLayout, layoutHistory, loadLayout, withoutStrings } from "@/lib/pages/layout";
+import { designLayout, hasUnpublishedChanges, layoutHistory, loadLayout, withoutStrings } from "@/lib/pages/layout";
 import { allowedSources } from "@/lib/pages/plan";
 import { categorySourcesFor, itemSourcesFor, pageScreenOptionsFor, screenOptionsFor } from "@/lib/pages/sources";
 import { hasFeature } from "@/lib/plans";
@@ -67,6 +67,8 @@ export default async function StudioEditorPage({ searchParams }: PageProps<"/stu
         draft: withoutStrings(record.draft),
         savedAt: record.draftUpdatedAt.toISOString(),
         published: record.published && record.publishedAt ? { version: record.published.version, at: record.publishedAt.toISOString() } : null,
+        // App audit: whether the draft has changes the app doesn't show yet (they need Publish).
+        changes: hasUnpublishedChanges(record),
         // Editor audit 3.3: the kept publishes, to bring one back.
         history: await layoutHistory(store, app.id),
       }}

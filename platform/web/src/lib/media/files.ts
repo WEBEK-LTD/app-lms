@@ -52,6 +52,8 @@ export const UPLOAD_LINK_SECONDS = 2 * 86_400;
 export const PLAY_LINK_SECONDS = 4 * 3600;
 export const DOWNLOAD_LINK_SECONDS = 15 * 60;
 export const PUBLIC_LINK_SECONDS = 6 * 3600;
+/** How long Netlify's CDN keeps a picture's /m/<id> redirect: an hour, well within its link's 6. */
+export const PICTURE_CDN_SECONDS = 3600;
 
 /** Uploads not finished after this long are cancelled by the daily job (their space comes back). */
 export const STALE_UPLOAD_HOURS = 48;

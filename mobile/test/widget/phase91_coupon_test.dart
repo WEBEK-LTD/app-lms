@@ -45,6 +45,8 @@ Future<void> typeCoupon(WidgetTester tester, String code) async {
   await tester.tap(find.byKey(const Key('cart-coupon-open')));
   await TestApp.settle(tester);
   await tester.enterText(find.byKey(const Key('cart-coupon-field')), code);
+  // Apply comes on with the code.
+  await tester.pump();
   await tester.tap(find.byKey(const Key('cart-coupon-apply')));
   await TestApp.settle(tester);
 }

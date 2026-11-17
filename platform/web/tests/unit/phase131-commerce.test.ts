@@ -75,6 +75,9 @@ describe("131 delivery days and slots", () => {
     const json = deliveryConfigJson(schedule(), "TRY", true);
     expect(json).toMatchObject({ enabled: true, required: true, min_days: 0, max_days: 14, timezone: "Europe/Istanbul", same_day_cutoff: "14:00" });
     expect(json.slots).toHaveLength(3);
+    // The shop's offset, so the app counts today and the cut-off in Istanbul's time wherever the phone is.
+    expect(deliveryConfigJson(schedule(), "TRY", true, FRI_11).utc_offset_minutes).toBe(180);
+    expect(deliveryConfigJson(schedule({ timezone: "America/New_York" }), "TRY", true, new Date("2026-07-01T12:00:00Z")).utc_offset_minutes).toBe(-240);
     expect(deliveryConfigJson(null, "TRY", true)).toEqual({ enabled: false, required: false, min_days: 0, max_days: 0, closed_weekdays: [] });
     const app = { vertical: null, catalogSettings: null } as unknown as App;
     expect(deliveryOf(app)).toBeNull();

@@ -7,6 +7,7 @@ import '../../../core/api/models/models.dart';
 import '../../../core/auth/auth_controller.dart';
 import '../../../core/config/build_config_data.dart';
 import '../../../core/gate/app_gate.dart';
+import '../../../core/routing/app_router.dart' show openLocation;
 import '../../../core/routing/paths.dart';
 import '../../../core/theme/app_icons.dart';
 import '../../../core/theme/app_look.dart';
@@ -114,13 +115,13 @@ class _Sections extends ConsumerWidget {
         if (s.categories.isEmpty) return const SizedBox.shrink();
         final title = s.title ?? context.l10n.categories;
         void open(ProductCategory c) =>
-            context.go(Paths.shopFiltered(category: c.id));
+            openLocation(context, Paths.shopFiltered(category: c.id));
         if (template == AppTemplate.minimal) {
           // Minimal: names only, as chips.
           return _Block(
             title: title,
             template: template,
-            onSeeAll: () => context.go(Paths.shop),
+            onSeeAll: () => openLocation(context, Paths.shop),
             child: SizedBox(
               height: chipRowHeight(context),
               child: ListView.separated(
@@ -140,7 +141,7 @@ class _Sections extends ConsumerWidget {
         return _Block(
           title: title,
           template: template,
-          onSeeAll: () => context.go(Paths.shop),
+          onSeeAll: () => openLocation(context, Paths.shop),
           child: SizedBox(
             // 110 As tall as the names need: one line, or two when one
             // wraps, so no blank band sits under the row.
@@ -168,7 +169,7 @@ class _Sections extends ConsumerWidget {
         return _Block(
           title: s.title ?? _defaultTitle(s.type),
           template: template,
-          onSeeAll: () => context.go(switch (s.type) {
+          onSeeAll: () => openLocation(context, switch (s.type) {
             StoreSectionType.saleProducts => Paths.shopFiltered(onSale: true),
             StoreSectionType.bestSellers => '${Paths.shop}?sort=popular',
             _ => Paths.shop,
@@ -254,7 +255,7 @@ class _ClassicHeader extends StatelessWidget {
             ],
           ),
           const SizedBox(height: 14),
-          _SearchField(onTap: () => context.go(_shopSearch)),
+          _SearchField(onTap: () => openLocation(context, _shopSearch)),
         ],
       ),
     );
@@ -321,7 +322,10 @@ class _BoldHeader extends StatelessWidget {
               ],
             ),
             const SizedBox(height: 18),
-            _SearchField(onTap: () => context.go(_shopSearch), pill: true),
+            _SearchField(
+              onTap: () => openLocation(context, _shopSearch),
+              pill: true,
+            ),
           ],
         ),
       ),
@@ -369,7 +373,7 @@ class _MinimalHeader extends StatelessWidget {
             label: context.words.searchProducts,
             background: Colors.transparent,
             bordered: false,
-            onPressed: () => context.go(_shopSearch),
+            onPressed: () => openLocation(context, _shopSearch),
           ),
           const _NotificationsButton(plain: true),
         ],
@@ -434,7 +438,7 @@ class _Banner extends StatelessWidget {
     final VoidCallback? onTap = product != null
         ? () => context.push(Paths.product(product))
         : category != null
-        ? () => context.go(Paths.shopFiltered(category: category))
+        ? () => openLocation(context, Paths.shopFiltered(category: category))
         : null;
     final heading = title?.trim() ?? '';
     return Semantics(

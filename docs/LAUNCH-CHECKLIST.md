@@ -1878,3 +1878,14 @@ Only once Phase 1 (Yallapp's Firebase pool, keyless sending) is live.
       to Google Play (phone, 7" and 10" tablets) and App Store Connect
       (iPhone 6.9", iPad 13") in every listing language, framed only when
       the owner ticked it, and both stores take them.
+
+## Phase 145: The app audit
+
+- [ ] Release plugin **0.4.50** in Admin › Plugin releases (delivery days in
+      the shop's time: `delivery_date.utc_offset_minutes`). Older plugins
+      leave it out and the app keeps the phone's time, as before.
+- [ ] Publish Leqaa's live demo and Kech Flora's layout once (or delete
+      their "Courses" page in Studio), so apps built before release 4 stop
+      showing "Courses" over the Bouquets tab.
+- [ ] On a phone with a release 4 build: publish a change in Studio, switch
+      away from the app and back, and see it without restarting the app.

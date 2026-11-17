@@ -53,8 +53,8 @@ void runPageAction(BuildContext context, WidgetRef ref, PageAction? action) {
       if (location != null) context.push(location);
     case PageActionType.url:
       final url = action.url;
-      final uri = url == null ? null : Uri.tryParse(url);
-      if (uri == null || !uri.hasScheme) return;
+      final uri = _linkOf(url);
+      if (uri == null) return;
       if (action.openIn == OpenIn.browser ||
           !(uri.scheme == 'https' || uri.scheme == 'http')) {
         openExternal(url!);
@@ -85,35 +85,67 @@ void runPageAction(BuildContext context, WidgetRef ref, PageAction? action) {
 /// Store app (a site whose plugins don't match the app's type) can't, and
 /// shows nothing rather than a card that does nothing when tapped. Pages,
 /// screens and links are checked where they're opened.
-bool canFollowAction(
-  PageAction action,
-  AppType appType,
-) => switch (action.type) {
-  PageActionType.course => action.courseId != null && appType == AppType.lms,
-  PageActionType.item =>
-    action.item != null && itemLocation(action.item!, appType) != null,
-  PageActionType.page || PageActionType.screen || PageActionType.url => true,
-  PageActionType.more => true,
-};
+bool canFollowAction(PageAction action, AppType appType) =>
+    switch (action.type) {
+      PageActionType.course =>
+        action.courseId != null && appType == AppType.lms,
+      PageActionType.item =>
+        action.item != null && itemLocation(action.item!, appType) != null,
+      // A page without its name, or a link without an address, opens nothing.
+      PageActionType.page => (action.pageSlug ?? '').isNotEmpty,
+      PageActionType.url => _linkOf(action.url) != null,
+      PageActionType.screen || PageActionType.more => true,
+    };
+
+/// The address a link action opens; null for a missing or broken one.
+Uri? _linkOf(String? url) {
+  final uri = url == null ? null : Uri.tryParse(url.trim());
+  return uri == null || !uri.hasScheme ? null : uri;
+}
 
 /// 38 Whether tapping [action] opens something: also a built-in screen this
 /// app has with its site's features (a Wishlist tile in an academy without
 /// a wishlist would do nothing).
 bool canOpenAction(WidgetRef ref, PageAction action) {
-  if (action.type != PageActionType.screen) {
-    return canFollowAction(
-      action,
-      ref.read(appEnvironmentProvider).build.appType,
-    );
+  switch (action.type) {
+    case PageActionType.screen:
+      final screen = action.screen;
+      if (screen == null) return false;
+      final gate = ref.watch(appGateProvider);
+      return ref
+              .read(appModuleProvider)
+              .screenLocation(screen, gate is GateReady ? gate.config : null) !=
+          null;
+    case PageActionType.page:
+      final slug = action.pageSlug;
+      if (slug == null || slug.isEmpty) return false;
+      // A page drawn around a screen opens that screen, when the app has it.
+      final around = screenOfPage(ref, slug);
+      if (around != null) {
+        return canOpenAction(
+          ref,
+          PageAction(type: PageActionType.screen, screen: around),
+        );
+      }
+      // A page the owner hasn't published (or took down) would open on an
+      // error; unknown until the pages load.
+      final pages = ref.watch(navigationProvider)?.pages;
+      return pages == null || pages.isEmpty || pages.any((p) => p.slug == slug);
+    // 109 The More tab's list only when the bar has a More tab.
+    case PageActionType.more:
+      return ref.watch(shellTabsProvider).any((t) => t.isMore);
+    case PageActionType.course || PageActionType.item || PageActionType.url:
+      return canFollowAction(
+        action,
+        ref.read(appEnvironmentProvider).build.appType,
+      );
   }
-  final screen = action.screen;
-  if (screen == null) return false;
-  final gate = ref.watch(appGateProvider);
-  return ref
-          .read(appModuleProvider)
-          .screenLocation(screen, gate is GateReady ? gate.config : null) !=
-      null;
 }
+
+/// [action] when tapping it opens something here, else null: a button,
+/// banner or link that would do nothing isn't shown as one to tap.
+PageAction? openableAction(WidgetRef ref, PageAction? action) =>
+    action != null && canOpenAction(ref, action) ? action : null;
 
 /// A list's entries this app can open, and the ones meant only to be read
 /// (no action).
@@ -121,6 +153,13 @@ List<PageItem> followableItems(List<PageItem> items, AppType appType) => [
   for (final item in items)
     if (item.tapAction == null || canFollowAction(item.tapAction!, appType))
       item,
+];
+
+/// 38 [followableItems] that also open here: an entry whose action is a
+/// screen or page this app doesn't have is left out like one it can't follow.
+List<PageItem> openableItems(WidgetRef ref, List<PageItem> items) => [
+  for (final item in items)
+    if (item.tapAction == null || canOpenAction(ref, item.tapAction!)) item,
 ];
 
 /// The detail screen of a list entry, when this app type has one.

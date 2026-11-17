@@ -1,5 +1,6 @@
 import { addDays, isDate, isTimeZone, minutesOf, utcToLocal } from "../bookings/time";
 import { centsToDecimal, formatCents, parsePrice } from "../catalog/money";
+import { zoneOffsetMinutes } from "../time/zones";
 import type { App, CatalogCurrency, DeliveryScheduleSettings, DeliverySlot } from "../data/types";
 
 /**
@@ -109,7 +110,7 @@ export function slotJson(slot: DeliverySlot, currency: string, fees: boolean) {
 }
 
 /** `StoreConfig.delivery_date`: the date as before, with the time zone, the cut-off and the slots. */
-export function deliveryConfigJson(s: DeliveryScheduleSettings | null, currency: string, fees: boolean) {
+export function deliveryConfigJson(s: DeliveryScheduleSettings | null, currency: string, fees: boolean, now: Date = new Date()) {
   if (!s) return { enabled: false, required: false, min_days: 0, max_days: 0, closed_weekdays: [] as number[] };
   return {
     enabled: true,
@@ -118,6 +119,8 @@ export function deliveryConfigJson(s: DeliveryScheduleSettings | null, currency:
     max_days: Math.max(minDaysOf(s), s.maxDays),
     closed_weekdays: [...s.closedWeekdays].sort((a, b) => a - b),
     timezone: s.timezone,
+    // The shop's offset now: the app counts today and the cut-off in the shop's time, wherever the phone is.
+    utc_offset_minutes: zoneOffsetMinutes(s.timezone, now),
     same_day_cutoff: s.sameDay ? s.cutoff : null,
     slots: s.slots.map((slot) => slotJson(slot, currency, fees)),
   };

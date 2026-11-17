@@ -122,12 +122,22 @@ class AppGate extends Notifier<GateState> {
         return;
       }
       final keep = previous is GateReady ? previous.navigation : null;
+      final navigation = await _navigation(api, quiet ? keep : null);
+      final recommended = version != null && version.updateRecommended
+          ? version
+          : null;
+      // A quiet reload that found nothing new (the same config, the pages
+      // not changed since) keeps the state: nothing on screen is rebuilt or
+      // asked again.
+      if (quiet &&
+          previous is GateReady &&
+          _unchanged(previous, config, navigation, recommended)) {
+        return;
+      }
       state = GateReady(
         config,
-        navigation: await _navigation(api, quiet ? keep : null),
-        recommended: version != null && version.updateRecommended
-            ? version
-            : null,
+        navigation: navigation,
+        recommended: recommended,
       );
     } on ApiException catch (e) {
       final stop = gateStateForError(e);
@@ -139,6 +149,23 @@ class AppGate extends Notifier<GateState> {
     } on Object catch (e) {
       if (!quiet || previous is! GateReady) state = GateFailed(e);
     }
+  }
+
+  /// Whether [previous] already shows [config] and [navigation]: the same
+  /// config text, and the same pages (the copy kept when the server said
+  /// they hadn't changed, or none either time).
+  static bool _unchanged(
+    GateReady previous,
+    AppConfig config,
+    Navigation? navigation,
+    VersionPolicy? recommended,
+  ) {
+    final seen = previous.config.fingerprint;
+    return seen != null &&
+        seen == config.fingerprint &&
+        identical(previous.navigation, navigation) &&
+        (previous.recommended == null) == (recommended == null) &&
+        previous.recommended?.storeUrl == recommended?.storeUrl;
   }
 
   /// Keeps what the app needs when it can't reach the server later: how to
