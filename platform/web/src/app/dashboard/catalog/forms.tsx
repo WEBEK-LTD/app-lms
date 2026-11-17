@@ -798,7 +798,7 @@ function CustomerCurrencyList({ base, initial, disabled, error }: { base: string
         ) : (
           chosen.map((code) => (
             <li key={code} className="inline-flex h-8 items-center gap-1 rounded-full border border-line bg-white ps-3 pe-1 text-sm font-bold">
-              {code}
+              <span data-currency-chip>{code}</span>
               <button
                 type="button"
                 onClick={() => setChosen((list) => list.filter((c) => c !== code))}

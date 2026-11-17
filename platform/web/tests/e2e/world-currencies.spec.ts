@@ -289,7 +289,7 @@ test("149 per app: only some currencies, then none, set on the shop's settings",
   await only.getByRole("searchbox", { name: "Find a currency to add" }).fill("dollar");
   await only.getByLabel("Add a currency").selectOption("USD");
   await only.getByRole("button", { name: "Add", exact: true }).click();
-  await expect(only.locator("[data-customer-currencies] li")).toHaveText(["USD"]);
+  await expect(only.locator("[data-currency-chip]")).toHaveText(["USD"]);
   await customers.getByRole("button", { name: "Save" }).click();
   await expect(customers.getByText("Customers' currencies saved.")).toBeVisible();
   expect(await config()).toEqual({ enabled: true, currencies: ["USD"] });
@@ -306,7 +306,7 @@ test("149 per app: only some currencies, then none, set on the shop's settings",
 
   // Off: the shop's currency only, the list kept for later.
   await own.reload();
-  await expect(only.locator("[data-customer-currencies] li")).toHaveText(["USD"]);
+  await expect(only.locator("[data-currency-chip]")).toHaveText(["USD"]);
   await show.uncheck();
   await expect(only.getByRole("button", { name: "Remove USD" })).toBeDisabled();
   await customers.getByRole("button", { name: "Save" }).click();
@@ -322,7 +322,7 @@ test("149 per app: only some currencies, then none, set on the shop's settings",
   await customer.close();
   await own.reload();
   await expect(show).not.toBeChecked();
-  await expect(only.locator("[data-customer-currencies] li")).toHaveText(["USD"]);
+  await expect(only.locator("[data-currency-chip]")).toHaveText(["USD"]);
 
   // In Arabic, the same settings.
   await own.context().addCookies([{ name: "yallapp_lang", value: "ar", url: E2E.baseURL }]);
