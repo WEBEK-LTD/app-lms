@@ -725,7 +725,10 @@ function cartTop(ctx: SectionContext, k: SignatureInk): StudioNode[] {
   ];
 }
 
-/** Over the orders: how an order travels, step by step (the person's own orders under it, the app's). */
+/**
+ * Over the orders: how an order travels, step by step (the person's own orders under it, the app's).
+ * 132.187 The steps follow the person's newest order on its way; without one (and in apps before it) the first step lit, as drawn.
+ */
 function ordersTop(ctx: SectionContext, k: SignatureInk, family: string): StudioNode[] {
   const step = (title: SectionWord, text: SectionWord, highlight = false): StudioEntry => sigEntry(ctx, { title, text }, highlight ? { highlight: true } : {});
   return [
@@ -734,7 +737,7 @@ function ordersTop(ctx: SectionContext, k: SignatureInk, family: string): Studio
       id: idOf(ctx)(),
       type: "timeline",
       name: ctx.w("lqTrackTitle"),
-      timeline: { style: "vertical" },
+      timeline: { style: "vertical", source: "latest_order" },
       color: k.ink,
       dark_color: k.darkInk,
       background: k.surface,

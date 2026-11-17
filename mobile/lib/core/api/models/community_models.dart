@@ -385,6 +385,14 @@ class Order {
   /// 91.4 The loyalty points used on it and earned by it.
   final OrderPoints? points;
 
+  /// 132.160 Whether the order is still on its way: placed or paid and not
+  /// yet completed, cancelled, refunded or failed (a delivered store order is
+  /// completed).
+  bool get inProgress => switch (status) {
+    OrderStatus.pending || OrderStatus.processing || OrderStatus.onHold => true,
+    _ => false,
+  };
+
   /// Whether the order has steps to follow: a restaurant's, or a shipment.
   bool get trackable => fulfilmentStatus != null || shipment != null;
 

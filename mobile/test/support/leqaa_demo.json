@@ -3256,7 +3256,8 @@
         "type": "timeline",
         "name": "How your flowers travel",
         "timeline": {
-         "style": "vertical"
+         "style": "vertical",
+         "source": "latest_order"
         },
         "color": "#2A121C",
         "dark_color": "#F8EAEE",

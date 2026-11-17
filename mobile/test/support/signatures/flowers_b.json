@@ -2990,7 +2990,8 @@
         "type": "timeline",
         "name": "How your flowers travel",
         "timeline": {
-         "style": "vertical"
+         "style": "vertical",
+         "source": "latest_order"
         },
         "color": "#15241D",
         "dark_color": "#EDF3EE",
