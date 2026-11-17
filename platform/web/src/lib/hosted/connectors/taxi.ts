@@ -108,7 +108,8 @@ export class TaxiConnector extends RidesConnector {
     if (!request.user) return signIn();
     const { settings } = await this.settings();
     const taxi = taxiSettingsOf(settings);
-    if (!taxi.databaseUrl || !this.taxiDeps.account) return error(403, "feature_disabled", "This app has no live database.");
+    // 136 Yallapp's Firebase signs no custom tokens (no key): a live database needs the client's own Firebase.
+    if (!taxi.databaseUrl || !this.taxiDeps.account || this.taxiDeps.account.federated) return error(403, "feature_disabled", "This app has no live database.");
     const claims = await this.claimsFor(request.user, request.now);
     const made = customToken(this.taxiDeps.account, `u${request.user.id}`, claims, request.now);
     return {

@@ -6,6 +6,8 @@ import type { DataStore } from "../data/store";
 import type { App, HostedNotification } from "../data/types";
 import { parseServiceAccount, pushTarget, sendPush, type HmsCredentials, type ServiceAccount } from "./push";
 import { raiseAlert } from "../watch/alerts";
+import { yallappFirebaseEnv } from "../env";
+import { usesYallappFirebase } from "../firebase/mode";
 import { noteAppError } from "../watch/app-errors";
 
 export const SERVICE_ACCOUNT_CONTEXT = "app:firebase-service-account";
@@ -15,9 +17,18 @@ export const NOTIFICATION_BODY_MAX = 240;
 /**
  * The app's Firebase service account, or null when none is saved (push is
  * off). 36 With Huawei Push Kit's app ID and app secret saved, it carries
- * them too, for the tokens of Huawei phones without Google Play.
+ * them too, for the tokens of Huawei phones without Google Play. 136 An app
+ * in Yallapp's Firebase gets Yallapp's: its project and push sender, no key
+ * (`federated`, lib/hosted/push.ts), once the app has its project and
+ * Yallapp's Firebase is set up on this server; the client's own service
+ * account, if saved, waits unused.
  */
 export function serviceAccountOf(app: App, key: Buffer): ServiceAccount | null {
+  if (usesYallappFirebase(app)) {
+    const env = yallappFirebaseEnv();
+    if (!env || !app.firebaseProjectId) return null;
+    return { project_id: app.firebaseProjectId, client_email: env.pushAccount, private_key: "", federated: true, hms: hmsCredentialsOf(app, key) };
+  }
   if (!app.firebaseServiceAccountEncrypted) return null;
   try {
     const account = parseServiceAccount(decrypt(app.firebaseServiceAccountEncrypted, key, `${SERVICE_ACCOUNT_CONTEXT}:${app.id}`));
@@ -25,6 +36,16 @@ export function serviceAccountOf(app: App, key: Buffer): ServiceAccount | null {
   } catch {
     return null;
   }
+}
+
+/**
+ * 136 Whether the app's pushes go out: its own service account saved, or
+ * it's in Yallapp's Firebase with its project (and Yallapp's Firebase set up
+ * on this server). What "Is push on?" asks everywhere; nothing is decrypted.
+ */
+export function pushConfigured(app: App): boolean {
+  if (usesYallappFirebase(app)) return Boolean(app.firebaseProjectId && yallappFirebaseEnv());
+  return app.firebaseServiceAccountEncrypted !== null;
 }
 
 /** 36 Huawei Push Kit's credentials, or null when they aren't saved. */

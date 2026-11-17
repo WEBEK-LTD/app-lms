@@ -51,8 +51,8 @@ export interface PageState {
   attention: boolean;
 }
 
-/** Each settings page's state now, for its card on the first settings page. */
-export function settingsSummary(settings: Map<PlatformSettingKey, PlatformSetting>): Record<SettingsPageHref, PageState> {
+/** Each settings page's state now, for its card on the first settings page; 136 the Firebase pool's is read from the store. */
+export function settingsSummary(settings: Map<PlatformSettingKey, PlatformSetting>, firebase: PageState = { now: "Not read.", attention: false }): Record<SettingsPageHref, PageState> {
   const get = <K extends PlatformSettingKey>(key: K) => settings.get(key) as PlatformSetting<K> | undefined;
   const billing = get("billing");
   const provider = billing && isYallappProvider(billing.value.planProvider) ? billing.value.planProvider : "kashier";
@@ -97,6 +97,8 @@ export function settingsSummary(settings: Map<PlatformSettingKey, PlatformSettin
       now: get("courierHub")?.value.reviewCode ? "The review account is set." : "No review account yet: the stores can't review Yallapp Courier.",
       attention: !get("courierHub")?.value.reviewCode,
     },
+    // 136 Yallapp's Firebase: set up or not, and how much room the pool has.
+    "/admin/settings/firebase": firebase,
     "/admin/settings/server": {
       now: rows.every((r) => r.ok) ? "Everything checks out." : `${rows.filter((r) => !r.ok).length} to check.`,
       attention: !rows.every((r) => r.ok),

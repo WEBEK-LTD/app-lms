@@ -5,6 +5,7 @@ import { readPngInfo } from "../png";
 import { REVIEW_LINK } from "../publishing/readiness";
 import { hasReviewSignIn } from "../publishing/review-account";
 import { checkGoogleServiceInfoPlist, checkGoogleServicesJson } from "../store-files";
+import { usesYallappFirebase } from "../firebase/mode";
 import { androidUploadKeySchema, iosDistributionSchema, keyContext } from "./signing";
 
 /**
@@ -23,6 +24,8 @@ export const PREFLIGHT_TEXT = {
   firebaseAndroid: "Your Firebase file for Android doesn't match the app: {problem} Upload the right google-services.json on the Publishing step.",
   firebaseIos: "Your Firebase file for iPhone doesn't match the app: {problem} Upload the right GoogleService-Info.plist on the Publishing step.",
   firebaseMissing: "Push notifications won't reach phones until you add your Firebase files on the Publishing step.",
+  // 136 Yallapp sets up notifications.
+  yallappPushPending: "Yallapp is still setting up your push notifications, so this build may not have them yet. The next build will.",
   appleKeyMissing: "The iPhone app can't be sent to App Store Connect until you add your App Store Connect key on the Publishing step.",
   appleKeyInvalid: "Your App Store Connect key can't be used: {problem} Add it again on the Publishing step.",
   iosCertificateInvalid: "Your iPhone distribution certificate can't be read. Upload the .p12 file again on the Publishing step.",
@@ -44,6 +47,8 @@ export interface PreflightDeps {
   /** The bytes of an upload (the icon, the Firebase files); null when it's gone. */
   readAsset: (assetId: string) => Promise<Buffer | null>;
   key: Buffer;
+  /** 136 Registers what's missing of an app in Yallapp's Firebase and returns it with its files; missing: nothing is registered before the build. */
+  yallappFirebase?: (app: App) => Promise<App>;
 }
 
 const KEY_ID = /^[A-Z0-9]{10}$/;
@@ -79,7 +84,10 @@ export async function preflightChecks(deps: PreflightDeps, app: App, build: { io
     const problem = data ? checkGoogleServiceInfoPlist(data.toString("utf8"), app.iosBundleId) : "The file is gone.";
     if (problem) add("firebase_ios", "error", PREFLIGHT_TEXT.firebaseIos, notifications, { problem });
   }
-  if (!app.firebaseAndroidAssetId && !(build.ios && app.firebaseIosAssetId)) add("firebase", "warning", PREFLIGHT_TEXT.firebaseMissing, notifications);
+  if (!app.firebaseAndroidAssetId && !(build.ios && app.firebaseIosAssetId)) {
+    // 136 In Yallapp's Firebase, nothing for the owner to add: Yallapp is still making the files.
+    add("firebase", "warning", usesYallappFirebase(app) ? PREFLIGHT_TEXT.yallappPushPending : PREFLIGHT_TEXT.firebaseMissing, notifications);
+  }
 
   // The App Store Connect key: the iPhone app is uploaded with it.
   const publishing = "/dashboard/setup?step=publishing";

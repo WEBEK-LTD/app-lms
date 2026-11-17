@@ -220,7 +220,8 @@ test("the team changes the contact details shown everywhere", async () => {
 test("each kind of setting has its own page, listed with what's set now (95.1)", async () => {
   await page.goto("/admin/settings");
   const cards = page.locator("[data-settings-card]");
-  await expect(cards).toHaveCount(11);
+  // 136 Yallapp Firebase projects makes twelve.
+  await expect(cards).toHaveCount(12);
   // 135.6 The day's rates: read by the daily job, or none yet (another spec may have read them first).
   await expect(cards.filter({ hasText: "The day's exchange rates customers see prices with" })).toContainText(/Now: (Rates of \d{4}-\d{2}-\d{2}|No rates yet: customers see the shops' own currencies\.)/);
   // 104.8.2 Yallapp Courier's review account: none set in the tests.
