@@ -26,6 +26,13 @@ info:
       24 hours, or `building` without a report for 6 hours, is closed as
       `failed` when the client starts a new build or the team marks it in the
       admin. A later report on it gets `409 build_finished`.
+    - 139 Store screenshots made from the app ("Make them for me" in App
+      setup › Store listing): the screenshots workflow (Linux) takes the runs
+      waiting from `GET /screenshots/queue`, claims each one, opens the app
+      preview's signed, read-only link at every store size, sends each shot
+      with `PUT /screenshots/{id}/shots/{key}` and ends the run with
+      `POST /screenshots/{id}/status`. The shots are then the listing's
+      screenshots (each translation its own) in `GET /builds/{id}/store`.
   license:
     name: Proprietary, Yallapp
     url: https://yallapp.com.tr
@@ -41,6 +48,8 @@ tags:
     description: Queued builds, their config, and status reports.
   - name: Signing
     description: Signing keys kept between builds, and the client's store keys.
+  - name: Screenshots
+    description: 139 Store screenshots made from each client's app.
 
 paths:
   /builds/queue:
@@ -197,6 +206,150 @@ paths:
         '409': { $ref: '#/components/responses/SigningConflict' }
         '429': { $ref: '#/components/responses/TooManyRequests' }
 
+  /screenshots/queue:
+    get:
+      tags: [Screenshots]
+      operationId: listScreenshotRuns
+      summary: List the store screenshot runs waiting
+      description: |
+        139 The runs queued, oldest first: asked for by the owner (Make again),
+        a new app's first set, or a change that shows on the screenshots (its
+        look, its pages, its languages; made again a few minutes after the
+        last change, only when what shows changed), or a set a month old.
+      parameters:
+        - name: limit
+          in: query
+          required: false
+          schema: { type: integer, minimum: 1, maximum: 50, default: 10 }
+      responses:
+        '200':
+          description: The runs waiting
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [runs]
+                properties:
+                  runs:
+                    type: array
+                    items:
+                      type: object
+                      required: [id, app_id]
+                      properties:
+                        id: { $ref: '#/components/schemas/ScreenshotRunId' }
+                        app_id: { type: string, format: uuid }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '429': { $ref: '#/components/responses/TooManyRequests' }
+
+  /screenshots/{id}/claim:
+    post:
+      tags: [Screenshots]
+      operationId: claimScreenshotRun
+      summary: Start a store screenshot run
+      description: |
+        139 The run starts (claimed again, it answers the same): the app
+        preview's signed, read-only link for this app (published pages, or the
+        draft before the first publish; it works for 3 hours), the browser
+        storage the preview reads first, each device's size and the shots to
+        take. Left out: the places where the owner uploaded their own
+        screenshot (never overwritten) and the ones the owner removed (unless
+        the run is Make again). A run that isn't finished in 2 hours is closed
+        as failed. `409 not_ready`: the app has no content or name yet; the
+        run is closed.
+      parameters:
+        - $ref: '#/components/parameters/ScreenshotRunId'
+      responses:
+        '200':
+          description: The run's plan
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/ScreenshotRun' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '404': { $ref: '#/components/responses/NotFound' }
+        '409': { $ref: '#/components/responses/Conflict' }
+        '429': { $ref: '#/components/responses/TooManyRequests' }
+
+  /screenshots/{id}/shots/{key}:
+    put:
+      tags: [Screenshots]
+      operationId: saveScreenshot
+      summary: Send one screenshot of a run
+      description: |
+        139 One shot, as the request body: a PNG or JPEG without transparency
+        at its device's store size (checked as an upload is), at most 5 MB.
+        It replaces the automatic screenshot in that place; `409
+        owner_upload` when the owner uploaded their own there.
+      parameters:
+        - $ref: '#/components/parameters/ScreenshotRunId'
+        - name: key
+          in: path
+          required: true
+          description: The shot's place, `<device>:<language>:<screen>` (URL-encoded).
+          schema: { $ref: '#/components/schemas/ScreenshotKey' }
+      requestBody:
+        required: true
+        content:
+          image/png:
+            schema: { type: string, contentMediaType: image/png }
+          image/jpeg:
+            schema: { type: string, contentMediaType: image/jpeg }
+      responses:
+        '200':
+          description: Saved
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [asset_id]
+                properties:
+                  asset_id: { type: string, format: uuid }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '404': { $ref: '#/components/responses/NotFound' }
+        '409': { $ref: '#/components/responses/Conflict' }
+        '413': { $ref: '#/components/responses/BadRequest' }
+        '422': { $ref: '#/components/responses/BadRequest' }
+        '429': { $ref: '#/components/responses/TooManyRequests' }
+
+  /screenshots/{id}/status:
+    post:
+      tags: [Screenshots]
+      operationId: finishScreenshotRun
+      summary: End a store screenshot run
+      description: |
+        139 `done`: the shots sent are the set (an automatic one not sent again
+        in this run goes; the owner's own stay), with the date, and an
+        automatic build takes the new listing when the plan has them.
+        `failed`: the set stays as it was, and the owner reads `message`.
+      parameters:
+        - $ref: '#/components/parameters/ScreenshotRunId'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              additionalProperties: false
+              required: [status]
+              properties:
+                status: { type: string, enum: [done, failed] }
+                message: { type: [string, 'null'], maxLength: 2000 }
+      responses:
+        '200':
+          description: The set
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [state, made_at, shots]
+                properties:
+                  state: { type: string, enum: [idle, failed] }
+                  made_at: { type: [string, 'null'], format: date-time }
+                  shots: { type: integer, minimum: 0 }
+        '400': { $ref: '#/components/responses/BadRequest' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '404': { $ref: '#/components/responses/NotFound' }
+        '429': { $ref: '#/components/responses/TooManyRequests' }
+
 components:
   securitySchemes:
     bearerAuth:
@@ -211,6 +364,12 @@ components:
       required: true
       description: The build ID.
       schema: { type: string, format: uuid }
+    ScreenshotRunId:
+      name: id
+      in: path
+      required: true
+      description: 139 The store screenshot run's ID.
+      schema: { $ref: '#/components/schemas/ScreenshotRunId' }
 
   responses:
     BadRequest:
@@ -258,7 +417,7 @@ components:
       properties:
         code:
           type: string
-          examples: [invalid_request, unauthorized, build_not_found, build_finished, build_not_building, key_exists, rate_limited]
+          examples: [invalid_request, unauthorized, build_not_found, build_finished, build_not_building, key_exists, rate_limited, run_not_found, not_ready, invalid_shot, invalid_image, owner_upload, too_large]
         message: { type: string }
 
     BuildStatus:
@@ -470,7 +629,7 @@ components:
           type: string
           pattern: '^[a-z]{2}(-[A-Z]{2})?$'
         translations:
-          description: 88.2 The listing in the app's other languages, each sent to both stores with the same screenshots.
+          description: 88.2 The listing in the app's other languages, each sent to both stores; 139 with its own screenshots when they were made in its language, else the ones above.
           type: array
           maxItems: 20
           items: { $ref: '#/components/schemas/ListingTranslation' }
@@ -508,6 +667,93 @@ components:
           type: array
           maxItems: 10
           items: { type: string, maxLength: 60 }
+        phone_screenshots:
+          description: 139 Google Play phone screenshots made in this language; missing, the main ones.
+          type: array
+          maxItems: 8
+          items: { type: string, format: uri }
+        iphone_screenshots:
+          description: 139 iPhone 6.9-inch screenshots made in this language; missing, the main ones.
+          type: array
+          maxItems: 10
+          items: { type: string, format: uri }
+        tablet_screenshots:
+          description: 139 Google Play tablet screenshots made in this language; missing, the main ones.
+          type: array
+          maxItems: 8
+          items: { type: string, format: uri }
+        ipad_screenshots:
+          description: 139 iPad 13-inch screenshots made in this language; missing, the main ones.
+          type: array
+          maxItems: 10
+          items: { type: string, format: uri }
+
+    ScreenshotRunId:
+      description: 139 `<app id>.<nonce>`.
+      type: string
+      pattern: '^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}\.[0-9a-z]{6,40}$'
+
+    ScreenshotKey:
+      description: 139 A place in the set, `<device>:<language>:<screen>`.
+      type: string
+      pattern: '^(phone|iphone|tablet|ipad):[a-z]{2,3}:(home|list|item|cart|account)$'
+
+    ScreenshotDevice:
+      description: |
+        139 A store size: the picture `width` × `height` is the screen
+        `viewport_width` × `viewport_height` (CSS pixels) at `scale`; `os`, the
+        platform look the preview draws (its `os` parameter).
+      type: object
+      additionalProperties: false
+      required: [width, height, viewport_width, viewport_height, scale, os]
+      properties:
+        width: { type: integer }
+        height: { type: integer }
+        viewport_width: { type: integer }
+        viewport_height: { type: integer }
+        scale: { type: number }
+        os: { type: string, enum: [android, ios] }
+
+    ScreenshotRun:
+      description: |
+        139 A run's plan. Each shot opens `preview_url` with `lang=<language>`
+        and `os=<device os>` added and `#<route>` after it, at its device's
+        size, with `storage` in the browser's local storage first. An item's
+        route has `{id}`: the id of the first item of `list` (the app's own
+        request for that list, a Page of `items`, docs/api/openapi.yaml);
+        without one the shot is left out.
+      type: object
+      additionalProperties: false
+      required: [id, app_id, preview_url, storage, devices, shots]
+      properties:
+        id: { $ref: '#/components/schemas/ScreenshotRunId' }
+        app_id: { type: string, format: uuid }
+        preview_url: { type: string, format: uri }
+        storage:
+          type: object
+          additionalProperties: { type: string }
+        devices:
+          type: object
+          additionalProperties: false
+          required: [phone, iphone, tablet, ipad]
+          properties:
+            phone: { $ref: '#/components/schemas/ScreenshotDevice' }
+            iphone: { $ref: '#/components/schemas/ScreenshotDevice' }
+            tablet: { $ref: '#/components/schemas/ScreenshotDevice' }
+            ipad: { $ref: '#/components/schemas/ScreenshotDevice' }
+        shots:
+          type: array
+          items:
+            type: object
+            additionalProperties: false
+            required: [key, device, language, screen, route]
+            properties:
+              key: { $ref: '#/components/schemas/ScreenshotKey' }
+              device: { type: string, enum: [phone, iphone, tablet, ipad] }
+              language: { type: string, pattern: '^[a-z]{2,3}$' }
+              screen: { type: string, enum: [home, list, item, cart, account] }
+              route: { type: string }
+              list: { type: string }
 
     ScreenshotFrame:
       type: object

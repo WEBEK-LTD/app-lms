@@ -1,4 +1,5 @@
 import { runAutoBuilds } from "../builds/auto";
+import { runAutoScreenshots } from "../app/auto-screenshots-jobs";
 import { runOrderWatches, type OrderWatchReport } from "../hosted/order-watch";
 import { syncReviewStatuses, type ReviewSyncReport } from "../publishing/review";
 import type { PreflightDeps } from "../builds/preflight";
@@ -41,6 +42,8 @@ export interface FrequentReport {
   automatic: AutoRunReport;
   /** 87.4 Automatic builds queued, due ones a build wouldn't change, and ones waiting for a running build. */
   builds: { queued: number; nothing: number; later: number };
+  /** 139 Store screenshot runs queued, due ones whose screens didn't change, runs that stopped and were closed. */
+  screenshots: { queued: number; same: number; stalled: number };
   /** 88.3 iPhone versions in review whose App Store state was read, and the ones whose status changed. */
   reviews: ReviewSyncReport;
   /** 91.2 Order watches looked at, people told of an order update, watches that ended. */
@@ -74,6 +77,8 @@ export async function runFrequentJobs(deps: {
   /** 87.4 The checks before the automatic builds, and how the pipeline is started. */
   preflight?: PreflightDeps;
   startPipeline?: () => Promise<unknown>;
+  /** 139 How the store screenshots' workflow is started. */
+  startScreenshots?: () => Promise<unknown>;
   /** 88.3 How App Store Connect is reached (tests: a fake fetch). */
   storeFetch?: typeof fetch;
   /** 91.2 How the connected platforms are reached (tests: a fake fetch). */
@@ -115,6 +120,13 @@ export async function runFrequentJobs(deps: {
     builds = await runAutoBuilds({ store: deps.store, now: deps.now, assetUrl, preflight: deps.preflight, start: deps.startPipeline ?? (async () => undefined) });
   } catch (error) {
     console.error("[frequent] automatic builds", error instanceof Error ? error.message : String(error));
+  }
+  // 139 The store screenshots made from the apps, when what shows on them changed.
+  let screenshots = { queued: 0, same: 0, stalled: 0 };
+  try {
+    screenshots = await runAutoScreenshots({ store: deps.store, now: deps.now, start: deps.startScreenshots ?? (async () => undefined) });
+  } catch (error) {
+    console.error("[frequent] store screenshots", error instanceof Error ? error.message : String(error));
   }
   // 88.3 What the App Store says about the versions in review.
   let reviews: ReviewSyncReport = { checked: 0, changed: 0, failed: 0 };
@@ -197,5 +209,5 @@ export async function runFrequentJobs(deps: {
   } catch (error) {
     console.error("[frequent] store deliveries", error instanceof Error ? error.message : String(error));
   }
-  return { notifications, announcements, ended, campaigns, automatic, builds, reviews, orders, storeProducts, storePurchases, rides, library, school, mail, prime };
+  return { notifications, announcements, ended, campaigns, automatic, builds, screenshots, reviews, orders, storeProducts, storePurchases, rides, library, school, mail, prime };
 }

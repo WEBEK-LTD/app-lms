@@ -1665,3 +1665,23 @@ Nothing to migrate or set: the articles and screenshots are in the code.
       leaves "Paid, needs attention" with Retry and Refund.
 - [ ] Switching back to the store's checkout opens WooCommerce's checkout
       in the app again within a minute.
+
+## Phase 139: Store screenshots made automatically
+
+- [ ] Migration `0138_auto_screenshots` runs with the others at deploy.
+- [ ] Nothing new to set: the workflow uses the repository's
+      `PLATFORM_API_URL` variable and `BUILD_PIPELINE_TOKEN` secret, and
+      the platform starts it with `GITHUB_DISPATCH_TOKEN` (already there
+      for builds; its **Actions: Read and write** covers this workflow).
+      Without the token, runs wait for the hourly schedule.
+- [ ] Run **Store screenshots** once by hand (GitHub › Actions) with a test
+      app whose run is waiting (Make again on its listing step): the run's
+      log lists the shots sent; the listing step shows them with "Made
+      automatically on"; each picture is the app's real screen (not the
+      preview's "link expired" or loading screen) at 1080 × 1920,
+      1600 × 2560, 1320 × 2868 and 2064 × 2752, in each language.
+- [ ] With "We publish for you" on a test app: the next build sends the set
+      to Google Play (phone, 7" and 10" tablets) and App Store Connect
+      (iPhone 6.9", iPad 13") in every listing language, framed only when
+      the owner ticked it, and both stores take them.
+

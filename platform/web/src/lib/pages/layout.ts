@@ -14,6 +14,7 @@ import { languagesForPlan, layoutForPlan, planLayoutErrors } from "./plan";
 import { inMainLanguage, withBuiltInTexts } from "./builtin";
 import { withLanguageList } from "../i18n/packs";
 import { designFitsApp, findDesign } from "./designs/catalog";
+import { scheduleAutoScreenshots } from "../app/auto-screenshots";
 
 /**
  * The draft and the published copy of an app's layout (roadmap 10.4). The
@@ -175,6 +176,8 @@ export async function publishLayout(
   await store.saveAppLayout(published);
   // 82.4 Kept in the publish history, to go back to.
   await store.addLayoutVersion({ appId: app.id, number: count, layout: published.published!, publishedAt: now, publishedBy: by }, LAYOUT_VERSIONS_KEPT);
+  // 139 What the app shows changed: its automatic store screenshots are made again in a few minutes (when they're on and it shows).
+  await scheduleAutoScreenshots(store, app, now);
   return { ok: true, value: published };
 }
 

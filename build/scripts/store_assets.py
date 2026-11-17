@@ -17,6 +17,7 @@ The zip holds what Google Play and App Store Connect ask for:
   framed/<language>/<device>/          88.2 the screenshots framed with their captions (store_listing.py), when asked
   listing.txt                          title, descriptions, support email, privacy policy
   listing-<language>.txt               88.2 the listing in each of the app's other languages
+  screenshots-<language>/<device>/     139 a language's own screenshots (made in it), when it has them
 
 The feature graphic is also written next to the zip (feature-graphic.png), for
 store_listing.py's Google Play listing.
@@ -155,6 +156,11 @@ def main(config_path, store_path, icon_path, out_path):
         archive.writestr("listing.txt", listing_text(store))
         for item in store.get("translations") or []:
             archive.writestr(f"listing-{item['language']}.txt", listing_text(store, item))
+            # 139 The screenshots made in this language.
+            for device in ("phone", "tablet", "iphone", "ipad"):
+                for index, url in enumerate(item.get(f"{device}_screenshots") or [], start=1):
+                    data = images.get(url)
+                    archive.writestr(f"screenshots-{item['language']}/{device}/{screenshot_name(index, data)}", data)
         # 88.2 The framed screenshots, drawn once for the zip.
         with tempfile.TemporaryDirectory() as frames:
             store_listing.cmd_frames(store, frames, images)

@@ -3,10 +3,10 @@
 /* eslint-disable @next/next/no-img-element -- previews of uploaded files served by our own asset route */
 import Link from "next/link";
 import { useFormLeaveGuard } from "@/components/leave-guard";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import { UpgradeHint } from "@/components/upgrade";
 import type { Plan } from "@/lib/plans";
-import { useActionState, useRef, useState, useTransition, type ReactNode } from "react";
+import { useActionState, useEffect, useRef, useState, useTransition, type ReactNode } from "react";
 import {
   checkApiAction,
   connectPlatformAction,
@@ -17,6 +17,9 @@ import {
   savePublishingAction,
   saveWebsiteAction,
   uploadAssetAction,
+  makeScreenshotsAgainAction,
+  removeAutoShotAction,
+  replaceAutoShotAction,
   type WebsiteFormState,
 } from "@/app/actions/dashboard";
 import { PhoneFrame } from "@/components/device-frame";
@@ -31,7 +34,7 @@ import type { ApiCheckResult } from "@/lib/app/api-check";
 import type { DashKey } from "@/i18n/dashboard";
 import { RULES } from "@/lib/build-config/types";
 import { FontPicker } from "@/components/font-picker";
-import type { AppType, AppVertical, SignInMethod } from "@/lib/data/types";
+import type { AppType, AppVertical, AutoScreenshots, AutoShot, ShotDevice, ShotScreen, SignInMethod } from "@/lib/data/types";
 import { codeDeliveryText, emailOffWarning } from "@/lib/hosted/sign-in-methods";
 import { initialFormState, type FormState } from "@/lib/forms";
 import type { Appearance, LayoutContent } from "@/lib/pages/types";
@@ -1149,13 +1152,186 @@ function ScreenshotGallery({
   );
 }
 
+/** 139 The automatic store screenshots as the listing step shows them (dashboard/setup/page.tsx autoShotsView). */
+export interface AutoShotsView {
+  on: boolean;
+  state: AutoScreenshots["state"];
+  /** The date the last set was finished, in the dashboard's language. */
+  madeAt: string | null;
+  message: string | null;
+  /** A run is asked for after a change. */
+  waiting: boolean;
+  /** The app has its content and name: the set can be made. */
+  ready: boolean;
+  /** The app's plan is active: sets are made only then. */
+  active: boolean;
+  groups: {
+    language: string;
+    name: string;
+    devices: { device: ShotDevice; width: number; height: number; shots: { key: string; screen: ShotScreen; url: string | null; source: AutoShot["source"] | "removed" }[] }[];
+  }[];
+}
+
+const DEVICE_LABEL: Record<ShotDevice, DashKey> = { phone: "autoShots.devicePhone", tablet: "autoShots.deviceTablet", iphone: "autoShots.deviceIphone", ipad: "autoShots.deviceIpad" };
+const SCREEN_LABEL: Record<ShotScreen, DashKey> = { home: "autoShots.screenHome", list: "autoShots.screenList", item: "autoShots.screenItem", cart: "autoShots.screenCart", account: "autoShots.screenAccount" };
+
+/**
+ * 139 "Make them for me": the set made from the app, a group per language and
+ * a row per store size, with Replace and Remove on each screenshot, the
+ * state (Making…, Made automatically on…) and Make again. While a set is
+ * being made the page reads it again every few seconds.
+ */
+function AutoShotsPanel({ view, saved }: { view: AutoShotsView; saved: boolean }) {
+  const t = useDashT();
+  const known = useKnownText();
+  const router = useRouter();
+  const [pending, start] = useTransition();
+  const [note, setNote] = useState<{ text: string; error: boolean } | null>(null);
+  const making = view.state === "queued" || view.state === "running";
+  useEffect(() => {
+    if (!making) return;
+    const timer = setInterval(() => router.refresh(), 8000);
+    return () => clearInterval(timer);
+  }, [making, router]);
+
+  const answer = (result: { ok: boolean; error?: string; known?: boolean }, done?: string) => {
+    if (result.ok) setNote(done ? { text: done, error: false } : null);
+    else setNote({ text: result.known ? known(result.error ?? "") : t(`autoShots.${result.error ?? "errorChoose"}` as DashKey), error: true });
+    router.refresh();
+  };
+  const again = () => start(async () => answer(await makeScreenshotsAgainAction(), t("autoShots.asked")));
+  const remove = (key: string) => start(async () => answer(await removeAutoShotAction(key)));
+  const replace = (key: string, file: File) =>
+    start(async () => {
+      const data = new FormData();
+      data.set("key", key);
+      data.set("file", file);
+      answer(await replaceAutoShotAction(data));
+    });
+
+  const status = !saved
+    ? t("autoShots.saveFirst")
+    : making
+      ? t("autoShots.making")
+      : view.state === "failed"
+        ? view.message
+          ? t("autoShots.failed", { message: known(view.message) })
+          : t("autoShots.failedPlain")
+        : !view.ready
+          ? t("autoShots.notReady")
+          : !view.active
+            ? t("autoShots.inactive")
+            : view.madeAt
+            ? t("autoShots.madeOn", { date: view.madeAt })
+            : t("autoShots.soon");
+  const any = view.groups.some((g) => g.devices.some((d) => d.shots.length > 0));
+  return (
+    <div className="flex flex-col gap-3" data-auto-shots="" data-state={saved ? view.state : "unsaved"}>
+      <div className="flex flex-wrap items-center justify-between gap-3 rounded-lg border border-line-soft bg-sand px-3 py-2.5">
+        <p className="m-0 flex items-center gap-2 text-sm font-semibold" role="status" aria-live="polite">
+          <Icon name={making ? "progress_activity" : view.state === "failed" ? "error" : view.madeAt ? "check_circle" : "schedule"} size={18} className={making ? "animate-spin" : undefined} />
+          <span data-auto-shots-status="">{status}</span>
+        </p>
+        {saved ? (
+          <button type="button" onClick={again} disabled={pending || making || !view.ready || !view.active} aria-describedby="auto-shots-again-hint" className={`${btn.secondary} h-9 px-3 text-sm`}>
+            <Icon name="refresh" size={18} />
+            {t("autoShots.makeAgain")}
+          </button>
+        ) : null}
+      </div>
+      {saved ? (
+        <p id="auto-shots-again-hint" className="m-0 text-xs text-muted">
+          {t("autoShots.makeAgainText")} {t("autoShots.updates")}
+        </p>
+      ) : null}
+      {note ? (
+        <p className={`m-0 text-sm ${note.error ? "font-semibold text-danger" : "text-ink-4"}`} role={note.error ? "alert" : "status"}>
+          {note.text}
+        </p>
+      ) : null}
+      {saved && any
+        ? view.groups.map((group) => (
+            <section key={group.language} className="flex flex-col gap-3 rounded-lg border border-line-soft p-3" aria-labelledby={`auto-shots-${group.language}`} data-auto-shots-language={group.language}>
+              <h4 id={`auto-shots-${group.language}`} className="m-0 text-sm font-bold">
+                {t("autoShots.languageSet", { language: group.name })}
+              </h4>
+              {group.devices.map((device) => (
+                <div key={device.device} className="flex flex-col gap-1.5" data-auto-shots-device={device.device}>
+                  <span className="text-xs font-semibold">
+                    {t(DEVICE_LABEL[device.device])} <span className="font-normal text-muted" dir="ltr">{t("autoShots.size", { width: String(device.width), height: String(device.height) })}</span>
+                  </span>
+                  {device.shots.length === 0 ? <span className="text-xs text-muted">{t("autoShots.none")}</span> : null}
+                  <ul className="m-0 flex list-none gap-2.5 overflow-x-auto p-0 pb-1">
+                    {device.shots.map((shot) => {
+                      const words = { screen: t(SCREEN_LABEL[shot.screen]), device: t(DEVICE_LABEL[device.device]), language: group.name };
+                      const inputId = `auto-shot-${shot.key.replaceAll(":", "-")}`;
+                      return (
+                        <li key={shot.key} className="flex w-[96px] shrink-0 flex-col items-center gap-1" data-auto-shot={shot.key} data-source={shot.source}>
+                          {shot.url ? (
+                            <img src={shot.url} alt={t("autoShots.shotAlt", words)} className="h-36 w-auto max-w-[96px] rounded-lg border border-line bg-white object-cover" />
+                          ) : (
+                            <span className="flex h-36 w-[80px] flex-col items-center justify-center gap-1 rounded-lg border border-dashed border-line px-1 text-center text-[11px] text-muted">
+                              <Icon name="visibility_off" size={18} />
+                              {t("autoShots.removed")}
+                            </span>
+                          )}
+                          <span className="text-[11px] font-semibold">{words.screen}</span>
+                          {shot.source === "uploaded" ? <span className="rounded-full bg-sand px-1.5 text-[10px] font-semibold">{t("autoShots.yours")}</span> : null}
+                          {shot.source === "removed" ? (
+                            <span className="text-center text-[10px] text-muted">{t("autoShots.removedHint")}</span>
+                          ) : (
+                            <span className="flex gap-1">
+                              <input
+                                id={inputId}
+                                type="file"
+                                accept="image/png,image/jpeg"
+                                className="sr-only"
+                                aria-label={t("autoShots.replaceLabel", words)}
+                                disabled={pending}
+                                onChange={(event) => {
+                                  const file = event.target.files?.[0];
+                                  if (file) replace(shot.key, file);
+                                  event.target.value = "";
+                                }}
+                              />
+                              <label htmlFor={inputId} title={t("autoShots.replaceLabel", words)} className="flex h-7 w-7 cursor-pointer items-center justify-center rounded-full border border-line bg-white text-midnight hover:border-midnight">
+                                <Icon name="upload" size={16} />
+                                <span className="sr-only">{t("autoShots.replace")}</span>
+                              </label>
+                              <button
+                                type="button"
+                                onClick={() => remove(shot.key)}
+                                disabled={pending}
+                                aria-label={t("autoShots.removeLabel", words)}
+                                className="flex h-7 w-7 cursor-pointer items-center justify-center rounded-full border border-line bg-white text-midnight hover:border-midnight"
+                              >
+                                <Icon name="delete" size={16} />
+                              </button>
+                            </span>
+                          )}
+                        </li>
+                      );
+                    })}
+                  </ul>
+                </div>
+              ))}
+            </section>
+          ))
+        : null}
+    </div>
+  );
+}
+
 export function ListingStep({
   values,
   screenshots,
   descriptionHint,
   languages,
   listing,
+  auto,
 }: {
+  /** 139 The store screenshots made from the app. */
+  auto: AutoShotsView;
   /** 31 What to describe, for this app's type. */
   descriptionHint: string;
   values: {
@@ -1187,6 +1363,8 @@ export function ListingStep({
   const value = (key: keyof typeof values) => v(state, key, values[key]);
   const text = (name: string, fallback: string) => v(state, name, fallback);
   const [framed, setFramed] = useState(listing.framed);
+  // 139 "Make them for me" as ticked; the set shows once it is saved on.
+  const [autoShots, setAutoShots] = useState(auto.on);
   const [language, setLanguage] = useState(text("listingLanguage", listing.language));
   const others = languages.filter((item) => item.code !== language);
   return (
@@ -1304,6 +1482,33 @@ export function ListingStep({
         <fieldset className="m-0 flex flex-col gap-4 rounded-xl border border-line p-4">
           <legend className="px-1 text-[15px] font-bold">{t("setup.screenshots")}</legend>
           <p className="m-0 text-sm leading-relaxed text-ink-4">{t("setup.screenshotsText")}</p>
+          {/* 139 Made from the app itself, on for new apps. */}
+          <div className="flex items-start gap-3">
+            <input
+              key={answerKey}
+              id="f-autoScreenshots"
+              type="checkbox"
+              name="autoScreenshots"
+              checked={autoShots}
+              onChange={(event) => setAutoShots(event.target.checked)}
+              aria-describedby="f-autoScreenshots-text f-autoScreenshots-rules"
+              className="mt-1 h-4 w-4 cursor-pointer accent-midnight"
+            />
+            <span className="flex flex-col gap-0.5">
+              <label htmlFor="f-autoScreenshots" className="cursor-pointer text-sm font-semibold">
+                {t("autoShots.toggle")}
+              </label>
+              <span id="f-autoScreenshots-text" className="text-xs text-muted">
+                {t("autoShots.toggleText")}
+              </span>
+              <span id="f-autoScreenshots-rules" className="text-xs text-muted">
+                {t("autoShots.rules")}
+              </span>
+            </span>
+          </div>
+          {autoShots ? <AutoShotsPanel view={auto} saved={auto.on} /> : null}
+          {/* The owner's uploads are kept while the set is on, and are the listing's again when it is off. */}
+          <div hidden={autoShots} className="flex flex-col gap-4">
           <ScreenshotGallery
             kind="play_screenshot"
             field="playScreenshotIds"
@@ -1345,6 +1550,7 @@ export function ListingStep({
             error={state.errors?.ipadScreenshotIds}
             saved={state}
           />
+          </div>
           <label className="flex cursor-pointer items-start gap-3">
             <input key={answerKey} type="checkbox" name="frameScreenshots" checked={framed} onChange={(event) => setFramed(event.target.checked)} className="mt-1 h-4 w-4 accent-midnight" />
             <span className="flex flex-col gap-0.5">

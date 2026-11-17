@@ -22,6 +22,7 @@ import { hostedApiUrl } from "../hosted/urls";
 import { yallappSignsIn } from "../hosted/sign-in-methods";
 import { hostedOnly } from "./kinds";
 import { sampleTotal } from "../samples/lists";
+import { autoOn, captionsWithDefaults, freshAutoScreenshots, listingScreenshotIds, shotIds } from "./auto-screenshots";
 
 export const SETUP_STEPS = ["app-type", "website", "branding", "listing", "publishing"] as const;
 export type SetupStep = (typeof SETUP_STEPS)[number];
@@ -68,6 +69,8 @@ export function newApp(clientId: string, siteUrl: string | null, now: Date, appT
     privacyUrl: null,
     phoneScreenshotIds: [],
     iphoneScreenshotIds: [],
+    // 139 A new app's store screenshots are made from the app itself ("Make them for me").
+    autoScreenshots: freshAutoScreenshots(true),
     firebaseAndroidAssetId: null,
     firebaseIosAssetId: null,
     connector: null,
@@ -159,21 +162,38 @@ export function nextStep(app: App | null, plan: Plan | null, plans: Record<Plan,
 
 export function storeListingOf(app: App, assetUrl: (assetId: string) => string): StoreListing | null {
   if (!app.storeTitle || !app.shortDescription || !app.fullDescription || !app.supportEmail || !app.privacyUrl) return null;
+  // 139 The screenshots made from the app when "Make them for me" is on (each language its own), else the owner's uploads.
+  const shots = listingScreenshotIds(app);
+  const auto = autoOn(app) ? app.autoScreenshots! : null;
+  const ownShots = (language: string) => {
+    if (!auto) return {};
+    const lists = { phoneScreenshots: shotIds(auto, "phone", language), iphoneScreenshots: shotIds(auto, "iphone", language), tabletScreenshots: shotIds(auto, "tablet", language), ipadScreenshots: shotIds(auto, "ipad", language) };
+    return Object.fromEntries(Object.entries(lists).filter(([, ids]) => ids.length > 0).map(([key, ids]) => [key, ids.map(assetUrl)]));
+  };
+  // 139 Framed automatic screenshots: a place without a caption takes the listing's own title, then its short description.
+  const captions = (own: string[], texts: { storeTitle: string; shortDescription: string }) => (auto ? captionsWithDefaults(own, texts) : own);
+  const translations = (app.listingTranslations ?? []).map((item) => ({
+    ...item,
+    ...(app.screenshotFrame ? { captions: captions(item.captions, item) } : {}),
+    ...ownShots(item.language),
+  }));
   return {
     storeTitle: app.storeTitle,
     shortDescription: app.shortDescription,
     fullDescription: app.fullDescription,
     supportEmail: app.supportEmail,
     privacyUrl: app.privacyUrl,
-    phoneScreenshots: app.phoneScreenshotIds.map(assetUrl),
-    iphoneScreenshots: app.iphoneScreenshotIds.map(assetUrl),
+    phoneScreenshots: shots.phone.map(assetUrl),
+    iphoneScreenshots: shots.iphone.map(assetUrl),
     // 88.2 The listing in more languages, tablet and iPad screenshots, framed on the app's main colour;
     // only when set, so a listing without them reads as before (automatic builds compare them).
     ...(app.listingLanguage && app.listingLanguage !== "en" ? { language: app.listingLanguage } : {}),
-    ...(app.listingTranslations?.length ? { translations: app.listingTranslations } : {}),
-    ...(app.tabletScreenshotIds?.length ? { tabletScreenshots: app.tabletScreenshotIds.map(assetUrl) } : {}),
-    ...(app.ipadScreenshotIds?.length ? { ipadScreenshots: app.ipadScreenshotIds.map(assetUrl) } : {}),
-    ...(app.screenshotFrame ? { frame: { background: app.primaryColor, textColor: readableOn(app.primaryColor), captions: app.screenshotFrame.captions } } : {}),
+    ...(translations.length ? { translations } : {}),
+    ...(shots.tablet.length ? { tabletScreenshots: shots.tablet.map(assetUrl) } : {}),
+    ...(shots.ipad.length ? { ipadScreenshots: shots.ipad.map(assetUrl) } : {}),
+    ...(app.screenshotFrame
+      ? { frame: { background: app.primaryColor, textColor: readableOn(app.primaryColor), captions: captions(app.screenshotFrame.captions, { storeTitle: app.storeTitle, shortDescription: app.shortDescription }) } }
+      : {}),
   };
 }
 

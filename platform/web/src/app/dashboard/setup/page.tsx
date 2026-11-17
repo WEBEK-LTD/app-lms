@@ -1,6 +1,9 @@
 import { plansIn } from "@/lib/marketing-lang";
 import type { Metadata } from "next";
+import type { Lang } from "@/i18n/config";
 import { listingLanguages } from "@/lib/app/listing-languages";
+import { activeApp, shotLanguagesFor, shotsReady } from "@/lib/app/auto-screenshots-jobs";
+import { DEVICE_SIZES, SCREENS, SHOT_DEVICES, shotKey } from "@/lib/app/auto-screenshots";
 import { appLanguageName } from "@/lib/i18n/language-names";
 import Link from "next/link";
 import { redirect } from "next/navigation";
@@ -31,7 +34,7 @@ import { normalizeSiteUrl } from "@/lib/license/site-url";
 import { siteMatch } from "@/lib/app/site-match";
 import { hasFeature, lowestPlanWith, planName } from "@/lib/plans";
 import { FREE_FONT_COUNT } from "@/lib/fonts/catalog";
-import { BrandingStep, ListingStep, PublishingStep, WebsiteStep, type BrandingDesigns } from "./steps";
+import { BrandingStep, ListingStep, PublishingStep, WebsiteStep, type AutoShotsView, type BrandingDesigns } from "./steps";
 import { CheckLinksPanel } from "../publishing/links/forms";
 import type { DataStore } from "@/lib/data/store";
 import type { App } from "@/lib/data/types";
@@ -55,6 +58,38 @@ const COMING_UP = {
   listing: "setup.upListing",
   publishing: "setup.upPublishing",
 } as const satisfies Record<Exclude<SetupStep, "app-type">, string>;
+
+/** 139 The automatic store screenshots as the listing step shows them: each language, each device, each place of the set. */
+async function autoShotsView(store: DataStore, app: App, lang: Lang): Promise<AutoShotsView> {
+  const auto = app.autoScreenshots;
+  const removed = new Set(auto?.removed ?? []);
+  const languages = await shotLanguagesFor(store, app);
+  const made = new Map((auto?.shots ?? []).map((shot) => [shotKey(shot), shot]));
+  return {
+    on: Boolean(auto?.on),
+    state: auto?.state ?? "idle",
+    madeAt: auto?.madeAt ? formatDate(new Date(auto.madeAt), lang) : null,
+    message: auto?.message ?? null,
+    waiting: Boolean(auto?.dueAt),
+    ready: await shotsReady(store, app),
+    active: await activeApp(store, app, new Date()),
+    groups: languages.map((code) => ({
+      language: code,
+      name: appLanguageName(code, lang),
+      devices: SHOT_DEVICES.map((device) => ({
+        device,
+        width: DEVICE_SIZES[device].width,
+        height: DEVICE_SIZES[device].height,
+        shots: SCREENS[app.appType].flatMap(({ screen }): AutoShotsView["groups"][number]["devices"][number]["shots"] => {
+          const key = shotKey({ device, language: code, screen });
+          const shot = made.get(key);
+          if (removed.has(key)) return [{ key, screen, url: null, source: "removed" }];
+          return shot ? [{ key, screen, url: `/api/v1/assets/${shot.assetId}`, source: shot.source }] : [];
+        }),
+      })),
+    })),
+  };
+}
 
 export default async function SetupPage({ searchParams }: PageProps<"/dashboard/setup">) {
   const context = await requireClient("settings");
@@ -302,6 +337,7 @@ export default async function SetupPage({ searchParams }: PageProps<"/dashboard/
             ipad: (app.ipadScreenshotIds ?? []).map((id) => ({ id, url: `/api/v1/assets/${id}` })),
           }}
           languages={[listingLangs.main, ...listingLangs.others].map((code) => ({ code, name: appLanguageName(code, lang) }))}
+          auto={await autoShotsView(store, app, lang)}
           listing={{
             language: listingLangs.main,
             translations: Object.fromEntries(

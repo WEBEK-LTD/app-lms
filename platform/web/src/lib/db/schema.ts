@@ -77,7 +77,7 @@ import type {
   ChatReportOutcome,
 } from "../data/types";
 // 11.6 and 11.8
-import type { BuildFailure, BuildRelease, BuildVariant, ListingTranslation, ReviewsRow, RolloutState, ScreenshotFrame, StagedRelease } from "../data/types";
+import type { AutoScreenshots, BuildFailure, BuildRelease, BuildVariant, ListingTranslation, ReviewsRow, RolloutState, ScreenshotFrame, StagedRelease } from "../data/types";
 import type { ApiWebhookData, OwnFontFile, StorePurchaseEventKind, StoreAccountSource, StoreBillingItem, StoreBillingSettings, StorePlatform, StoreProductKind, StoreProductSync } from "../data/types";
 import type { AnnouncementAudience, AnnouncementKind, AnnouncementSeverity, CouponDiscount, CouponRedemption } from "../data/types";
 import type { Plan, PlanFeature } from "../plans";
@@ -424,6 +424,8 @@ export const apps = mysqlTable(
     tabletScreenshotIds: jsonText<string[]>("tablet_screenshot_ids"),
     ipadScreenshotIds: jsonText<string[]>("ipad_screenshot_ids"),
     screenshotFrame: jsonText<ScreenshotFrame>("screenshot_frame"),
+    // 139 The store screenshots made from the app ("Make them for me").
+    autoScreenshots: jsonText<AutoScreenshots>("auto_screenshots"),
     // 89.1 The versions the app's users must have, and the one they're asked to update to.
     minVersion: varchar("min_version", { length: 32 }),
     recommendedVersion: varchar("recommended_version", { length: 32 }),

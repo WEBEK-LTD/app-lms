@@ -960,6 +960,13 @@
       "when": 1794847818884,
       "tag": "0137_connected_pay",
       "breakpoints": true
+    },
+    {
+      "idx": 138,
+      "version": "5",
+      "when": 1794884747591,
+      "tag": "0138_auto_screenshots",
+      "breakpoints": true
     }
   ]
 }

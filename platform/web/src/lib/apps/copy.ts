@@ -7,6 +7,7 @@ import type { MediaStorage } from "../media/storage";
 import { storageKeyOf } from "../media/signing";
 import { isSecretField } from "../admin/audit";
 import { APP_TABLES } from "./app-tables";
+import { freshAutoScreenshots } from "../app/auto-screenshots";
 
 /**
  * 132.114 Copying an app, into another account or the same one: a new app
@@ -112,6 +113,8 @@ const FRESH: Partial<App> = {
   listingLanguage: null,
   listingTranslations: null,
   screenshotFrame: null,
+  // 139 The copy's own screenshots are made from it, once it has its listing.
+  autoScreenshots: freshAutoScreenshots(true),
   stagedRelease: null,
   rollout: null,
   minVersion: null,

@@ -17,7 +17,8 @@ Usage:
       store assets zip).
 
 store.json is the build's store listing (docs/api/pipeline.yaml,
-StoreListing). With `frame`, every screenshot is drawn in a thin device frame
+StoreListing). 139 A translation with screenshots of its own (made in its
+language by store_screenshots.py) uses them; one without uses the main ones. With `frame`, every screenshot is drawn in a thin device frame
 on the brand colour with its caption above, at the size it was uploaded (the
 size the store asks for); in each language with that language's captions.
 Languages the store doesn't offer are left out, and said so.
@@ -117,6 +118,12 @@ def languages(listing):
         captions = [(own[i] if i < len(own) else "") or (base[i] if i < len(base) else "") for i in range(max(len(own), len(base)))]
         out.append((code, item, captions))
     return out
+
+
+def shots_of(listing, texts, key):
+    """139 A language's screenshots: the translation's own when it has them, else the listing's."""
+    own = texts.get(key) if texts is not listing else None
+    return own or listing.get(key) or []
 
 
 def write_texts(folder, texts, files):
@@ -243,8 +250,8 @@ def cmd_play(listing, icon, feature, out, images=None):
             with Image.open(feature) as image:
                 image.convert("RGB").save(pictures / "featureGraphic.png")
         rtl = code in RTL
-        phone = write_shots(images, listing.get("phone_screenshots") or [], frame, captions, rtl, [pictures / "phoneScreenshots"], locale)
-        tablet = write_shots(images, listing.get("tablet_screenshots") or [], frame, captions, rtl, [pictures / "sevenInchScreenshots", pictures / "tenInchScreenshots"], locale)
+        phone = write_shots(images, shots_of(listing, texts, "phone_screenshots"), frame, captions, rtl, [pictures / "phoneScreenshots"], locale)
+        tablet = write_shots(images, shots_of(listing, texts, "tablet_screenshots"), frame, captions, rtl, [pictures / "sevenInchScreenshots", pictures / "tenInchScreenshots"], locale)
         print(f"Google Play {locale}: listing, {phone} phone and {tablet} tablet screenshots{' (framed)' if frame else ''}")
     return 0
 
@@ -263,8 +270,8 @@ def cmd_appstore(listing, out, images=None):
         (folder / "privacy_url.txt").write_text(listing.get("privacy_url", "") + "\n", encoding="utf-8")
         rtl = code in RTL
         shots = out / "screenshots" / locale
-        iphone = write_shots(images, listing.get("iphone_screenshots") or [], frame, captions, rtl, [shots], f"{locale}_iphone")
-        ipad = write_shots(images, listing.get("ipad_screenshots") or [], frame, captions, rtl, [shots], f"{locale}_ipad")
+        iphone = write_shots(images, shots_of(listing, texts, "iphone_screenshots"), frame, captions, rtl, [shots], f"{locale}_iphone")
+        ipad = write_shots(images, shots_of(listing, texts, "ipad_screenshots"), frame, captions, rtl, [shots], f"{locale}_ipad")
         print(f"App Store {locale}: listing, {iphone} iPhone and {ipad} iPad screenshots{' (framed)' if frame else ''}")
     return 0
 
@@ -277,9 +284,9 @@ def cmd_frames(listing, out, images=None):
         return 0
     out = Path(out)
     devices = {"phone": "phone_screenshots", "tablet": "tablet_screenshots", "iphone": "iphone_screenshots", "ipad": "ipad_screenshots"}
-    for code, _texts, captions in languages(listing):
+    for code, texts, captions in languages(listing):
         for device, key in devices.items():
-            write_shots(images, listing.get(key) or [], frame, captions, code in RTL, [out / code / device], code)
+            write_shots(images, shots_of(listing, texts, key), frame, captions, code in RTL, [out / code / device], code)
     return 0
 
 

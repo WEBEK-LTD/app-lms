@@ -158,6 +158,9 @@ test("the App Store Connect key is optional on Growth and reaches the pipeline",
   await page.getByLabel("Privacy policy URL").fill("https://academy.test/privacy");
 
   // Screenshots: checked on upload, and Google Play needs at least two.
+  // 139 A new app's are made from the app ("Make them for me", on): this owner uploads their own.
+  await expect(page.getByLabel("Make them for me")).toBeChecked();
+  await page.getByLabel("Make them for me").uncheck();
   const phoneShot = (name: string) => ({ name, mimeType: "image/png", buffer: solidPng(1080, 1920, [244, 239, 230]) });
   await page.locator("#upload-ios_screenshot").setInputFiles(phoneShot("wrong-size.png"));
   await expect(page.getByText("wrong-size.png: iPhone screenshots must be 1320 × 2868")).toBeVisible();
