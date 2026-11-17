@@ -23,7 +23,14 @@ import { isInProgress } from "./view";
  * build config: the app's build config is checked key by key by mobile/'s
  * tool, and nothing in the app changes with the number itself.
  */
-export const CLIENT_APP_RELEASE = 1;
+export const CLIENT_APP_RELEASE = 2;
+/*
+ * The releases:
+ * 1  Builds before Phase 138.
+ * 2  132.187 An order shipped in the dashboard shows as shipped in the app
+ *    (#427), and 136 the iPhone's push token sent straight to Apple with
+ *    the client's APNs key: the app sends its APNs token (#433).
+ */
 
 /** Builds made before 138 count as this release, so shipping 138 rebuilds nothing by itself. */
 const BEFORE_RELEASES = 1;

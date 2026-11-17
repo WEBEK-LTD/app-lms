@@ -3972,6 +3972,78 @@ and marks it paid with `payment_complete()`. A refusal leaves the payment
 customer's page ends on `order-received?shop_order=placed` or
 `confirming`, which the app reads.
 
+## Yallapp sets up notifications (Phase 136)
+
+An app on the hosted API (its own content or a connected platform) can
+leave Firebase to Yallapp: "Yallapp sets up notifications (recommended)" or
+"Use my own Firebase" (today's files and service account, unchanged) on
+the Publishing step (`App.pushSetup` "yallapp", null for the client's own;
+migration `0138_yallapp_firebase`). A new app starts in Yallapp's mode
+when it's set up on the server and a pool project has room
+(`lib/firebase/env.ts` `pushSetupForNewApp`); an app made before keeps its
+own Firebase and is offered the switch. WordPress sites send their pushes
+themselves until the relay (Phase 3), apps on their own API keep their own
+Firebase (`lib/firebase/mode.ts`). Without GOOGLE_WIF_PROVIDER,
+GOOGLE_PUSH_SERVICE_ACCOUNT and GOOGLE_FIREBASE_APPS_SERVICE_ACCOUNT the
+choice isn't offered and nothing calls Google.
+
+- **No key anywhere.** The platform is its own OpenID Connect issuer,
+  `<APP_URL>/oidc`: `/oidc/.well-known/openid-configuration` and
+  `/oidc/jwks.json` (rewritten to `api/oidc/*`), ES256 keys in
+  `platform_signing_keys` (private key PKCS#8 encrypted with
+  ENCRYPTION_KEY, context `platform-signing-key:gcp-wif`; a replaced key
+  stays published two days; `lib/google/platform-keys.ts`, the same
+  helpers as an own API app's sign-in keys, `lib/crypto/es256-keys.ts`).
+  `lib/google/federation.ts` signs a 5-minute assertion (`sub`
+  `push-sender` or `firebase-apps`, `aud` the provider), exchanges it at
+  Google's STS and asks the IAM credentials API for the service account's
+  token (an hour, kept until a minute before it ends). Google's Workload
+  Identity Federation provider trusts the issuer and lets only those two
+  subjects in; turning it off stops everything at once.
+- **The pool** (`firebase_projects`, Admin › Settings › Yallapp Firebase
+  projects): each client's apps in one project (`App.firebaseProjectId`),
+  up to six (the customers' app and its couriers', drivers', vendors' or
+  staff's app, on Android and iOS; `firebaseSlotsFor`), a project taking
+  up to `max_apps` (28, under Firebase's 30). When the room left falls under
+  12 the frequent job creates the next `yallapp-push-NN` under the
+  organization or folder set in Admin (or
+  GOOGLE_FIREBASE_PROJECT_PARENT), step by step and safe to run again
+  (`lib/firebase/projects.ts`: the project, its APIs, Firebase, the
+  push-only API key restricted to Firebase Installations and FCM
+  registration, the two accounts' roles). A failed step waits longer each
+  time (15 minutes, doubling, at most 6 hours), shows Google's words in
+  Admin and opens one team alert (`firebase_project:<id>`). The team can
+  add a project made by hand, open or close one, start the next now, and
+  run Check (both accounts sign in through WIF, each project is read, and
+  `resourcemanager.projects.create` is tested on the parent).
+- **Registering** (`lib/firebase/register.ts`, `app_firebase_apps`, one
+  row per app, variant and platform): each app is looked up by package
+  name or bundle ID before it's added, so a retry never adds it twice; the
+  long-running operation is kept on the row and read again; once ready its
+  config is read and saved as the same assets a client's own files are:
+  one google-services.json with only this client's packages (whatever
+  Firebase put in it), the GoogleService-Info.plist, and the second app's
+  plist in `DeliverySettings.courierFirebaseIosAssetId`. A file is saved
+  again only when its text changes, and an automatic build follows on
+  plans that have them. The build config, the pipeline,
+  `apply_config.dart` and the schema don't change. It runs when the Store
+  listing or Publishing step is saved, before a build (`PreflightDeps`
+  `yallappFirebase`), and from the frequent job for every app not fully
+  set up (one that failed waits 15 minutes; an app set up costs no call).
+  A changed package name or bundle ID removes the old Firebase app and
+  adds the new one; a purge removes the app's Firebase apps (one Google
+  won't remove stops the purge for the next day); a copy starts with none
+  and registers its own once it has its own names.
+- **Sending**: `serviceAccountOf` gives an app in Yallapp's mode Yallapp's
+  project and push sender, no key (`federated`); `sendPush` and
+  `checkFirebaseAccount` then sign in through WIF, so every push path
+  works unchanged. `pushConfigured(app)` answers "is push on?" everywhere
+  it was read from the key column. The taxi's live database stays on the
+  client's own Firebase (no key to sign custom tokens with). `apns`
+  tokens and `ServiceAccount.apns` are the seam for Phase 2, iPhone pushes
+  straight to Apple with the client's APNs key; until then iPhones in
+  Yallapp's mode get their FCM token but no push.
+
 ## The documentation (129.30)
 
 Where the documentation lives, for whoever brings it up to date next:

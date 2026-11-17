@@ -104,6 +104,7 @@ import type { Article, ArticleCategory, ArticleInput, NewsSettings } from "./typ
 import type { CheckInResult, EventInput, EventRecord, EventSettings, EventTicket, TicketClaim, TicketClaimRefusal, TicketType, TicketTypeInput } from "./types";
 // 34 Yallapp sign-in for own API apps
 import type { AppAuthKey, BuildVariant } from "./types";
+import type { AppFirebaseApp, FirebaseAppPlatform, FirebaseAppVariant, FirebaseProject, PlatformKeyPurpose, PlatformSigningKey } from "./types";
 // 63
 import type { CourseAnswer, CourseAnswerInput, CourseQuestion, CourseQuestionInput, CourseQuestionStatus, CourseReview, CourseReviewPatch, MemberCheckIn } from "./types";
 // 29 Charity & donations
@@ -584,6 +585,28 @@ export interface DataStore {
   retireAppAuthKeys(appId: string, now: Date): Promise<void>;
   /** Deletes the app's keys retired before `before`. */
   deleteAppAuthKeysRetiredBefore(appId: string, before: Date): Promise<void>;
+
+  // 136 Yallapp sets up notifications: the platform's issuer keys, the pool of Firebase projects, the apps registered in them
+  /** The keys of a purpose, newest first: the ones signing now and the retired ones not yet deleted. */
+  listPlatformSigningKeys(purpose: PlatformKeyPurpose): Promise<PlatformSigningKey[]>;
+  createPlatformSigningKey(key: PlatformSigningKey): Promise<void>;
+  /** Retires the purpose's current keys: they stop signing (their private keys are dropped), their public keys stay until deleted. */
+  retirePlatformSigningKeys(purpose: PlatformKeyPurpose, now: Date): Promise<void>;
+  deletePlatformSigningKeysRetiredBefore(purpose: PlatformKeyPurpose, before: Date): Promise<void>;
+  /** The pool, in the order the projects were added. */
+  listFirebaseProjects(): Promise<FirebaseProject[]>;
+  getFirebaseProject(projectId: string): Promise<FirebaseProject | null>;
+  /** Adds the project or replaces the one with its ID. */
+  saveFirebaseProject(project: FirebaseProject): Promise<void>;
+  /** Only a project the platform was making under a name that turned out to be taken. */
+  deleteFirebaseProject(projectId: string): Promise<void>;
+  /** How many Firebase apps each project holds (rows of `app_firebase_apps`, whatever their status). */
+  countAppFirebaseAppsByProject(): Promise<Record<string, number>>;
+  /** The app's registered apps, customers' first, Android before iOS. */
+  listAppFirebaseApps(appId: string): Promise<AppFirebaseApp[]>;
+  /** Adds the row or replaces the one of its app, variant and platform. */
+  saveAppFirebaseApp(row: AppFirebaseApp): Promise<void>;
+  deleteAppFirebaseApp(appId: string, variant: FirebaseAppVariant, platform: FirebaseAppPlatform): Promise<void>;
 
   // Platform settings (admin)
   /**

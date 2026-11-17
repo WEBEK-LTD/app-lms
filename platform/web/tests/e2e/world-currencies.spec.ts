@@ -206,6 +206,8 @@ test("135.5–135.7 a customer in another currency: shown in it, charged in poun
   // 132.120 The one Payments page; 132.122 each gateway is a card.
   await own.goto("/studio/project/payments");
   const payments = own.getByRole("region", { name: "Card payments" });
+  // 132.180 Nothing connected yet: the gateway's keys open from its row.
+  await payments.getByRole("button", { name: "Connect", exact: true }).click();
   await payments.locator('[data-gateway="stripe"]').click();
   await payments.getByLabel("Publishable key").fill("pk_test_51DanaSweetsKey");
   await payments.getByLabel("Secret key").fill("sk_test_51DanaSweetsKey");

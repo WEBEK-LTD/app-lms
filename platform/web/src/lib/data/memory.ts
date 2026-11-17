@@ -25,6 +25,8 @@ import type { AppAuthKey, AppLayoutRecord, AppLayoutVersion, AppLayoutVersionSum
 import type { CampaignSend, HostedCart, HostedOrderWatch, NotificationCampaign, NotificationCampaignPatch, NotificationCampaignStatus } from "./types";
 import type { LoyaltyEntry, LoyaltyReason } from "./types";
 import type { GiftOccasion, StoreDelivery, StoreFlashSale, StorePlatformOrder, StorePlatformOrderStatus } from "./types";
+import type { AppFirebaseApp, FirebaseAppPlatform, FirebaseAppVariant, FirebaseProject, PlatformKeyPurpose, PlatformSigningKey } from "./types";
+import { firebaseAppOrder } from "../firebase/order";
 import type {
   AppPatch,
   BuildPatch,
@@ -1069,6 +1071,75 @@ export class MemoryStore implements DataStore {
     for (const [kid, key] of this.appAuthKeys) {
       if (key.appId === appId && key.retiredAt !== null && key.retiredAt < before) this.appAuthKeys.delete(kid);
     }
+  }
+
+  // 136 Yallapp sets up notifications
+
+  private platformSigningKeys = new Map<string, PlatformSigningKey>();
+  private firebaseProjects = new Map<string, FirebaseProject>();
+  private appFirebaseApps = new Map<string, AppFirebaseApp>();
+
+  async listPlatformSigningKeys(purpose: PlatformKeyPurpose): Promise<PlatformSigningKey[]> {
+    return [...this.platformSigningKeys.values()]
+      .filter((k) => k.purpose === purpose)
+      .sort((a, b) => b.createdAt.getTime() - a.createdAt.getTime() || b.kid.localeCompare(a.kid))
+      .map(clone);
+  }
+
+  async createPlatformSigningKey(key: PlatformSigningKey): Promise<void> {
+    if (this.platformSigningKeys.has(key.kid)) throw new Error("Duplicate key ID");
+    this.platformSigningKeys.set(key.kid, clone(key));
+  }
+
+  async retirePlatformSigningKeys(purpose: PlatformKeyPurpose, now: Date): Promise<void> {
+    for (const key of this.platformSigningKeys.values()) {
+      if (key.purpose === purpose && key.retiredAt === null) {
+        key.retiredAt = new Date(now);
+        key.privateKeyEncrypted = null;
+      }
+    }
+  }
+
+  async deletePlatformSigningKeysRetiredBefore(purpose: PlatformKeyPurpose, before: Date): Promise<void> {
+    for (const [kid, key] of this.platformSigningKeys) {
+      if (key.purpose === purpose && key.retiredAt !== null && key.retiredAt < before) this.platformSigningKeys.delete(kid);
+    }
+  }
+
+  async listFirebaseProjects(): Promise<FirebaseProject[]> {
+    return [...this.firebaseProjects.values()].sort((a, b) => a.createdAt.getTime() - b.createdAt.getTime() || a.projectId.localeCompare(b.projectId)).map(clone);
+  }
+
+  async getFirebaseProject(projectId: string): Promise<FirebaseProject | null> {
+    const found = this.firebaseProjects.get(projectId);
+    return found ? clone(found) : null;
+  }
+
+  async saveFirebaseProject(project: FirebaseProject): Promise<void> {
+    this.firebaseProjects.set(project.projectId, clone(project));
+  }
+
+  async deleteFirebaseProject(projectId: string): Promise<void> {
+    this.firebaseProjects.delete(projectId);
+  }
+
+  async countAppFirebaseAppsByProject(): Promise<Record<string, number>> {
+    const counts: Record<string, number> = {};
+    for (const row of this.appFirebaseApps.values()) counts[row.firebaseProjectId] = (counts[row.firebaseProjectId] ?? 0) + 1;
+    return counts;
+  }
+
+  async listAppFirebaseApps(appId: string): Promise<AppFirebaseApp[]> {
+    return [...this.appFirebaseApps.values()].filter((row) => row.appId === appId).sort(firebaseAppOrder).map(clone);
+  }
+
+  async saveAppFirebaseApp(row: AppFirebaseApp): Promise<void> {
+    if (!this.apps.has(row.appId) && !this.deletedApps.has(row.appId)) throw new Error("No such app");
+    this.appFirebaseApps.set(`${row.appId}|${row.variant}|${row.platform}`, clone(row));
+  }
+
+  async deleteAppFirebaseApp(appId: string, variant: FirebaseAppVariant, platform: FirebaseAppPlatform): Promise<void> {
+    this.appFirebaseApps.delete(`${appId}|${variant}|${platform}`);
   }
 
   // Catalog

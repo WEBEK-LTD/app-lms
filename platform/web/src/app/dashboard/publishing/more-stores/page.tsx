@@ -1,8 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { redirect } from "next/navigation";
-import { Icon } from "@/components/icon";
-import { Badge, Notice, PageHeader } from "@/components/ui";
+import { KitBar, KitCallout, KitHeader, KitPage, KitSection, KitStatus } from "@/components/studio-page";
 import { appLabel } from "@/lib/app/label";
 import { hasStoreKeys } from "@/lib/app/setup";
 import { requireClient } from "@/lib/auth/session";
@@ -11,6 +10,7 @@ import { GalaxyStoreForm, HuaweiForm, XiaomiForm } from "./forms";
 import { dashboardText } from "@/lib/dashboard-lang";
 import { localePath } from "@/i18n/paths";
 import { richText } from "@/i18n/rich";
+import { PublishingTabs } from "../tabs";
 
 export async function generateMetadata(): Promise<Metadata> {
   return { title: (await dashboardText()).t("stores.moreTitle") };
@@ -39,34 +39,21 @@ export default async function MoreStoresPage() {
   });
   const bold = { b: (chunk: string) => <b>{chunk}</b> };
 
-  const saved = (on: boolean) => <Badge tone={on ? "success" : "neutral"}>{t(on ? "integrations.states.connected" : "integrations.states.not_set")}</Badge>;
+  const saved = (on: boolean) => <KitStatus tone={on ? "success" : "neutral"}>{t(on ? "integrations.states.connected" : "integrations.states.not_set")}</KitStatus>;
+  // 132.171 The console's look: Publishing's tabs under the title, then one card per store with its state.
   return (
-    <div className="flex flex-col gap-6">
-      {/* The page kit: back to Publishing, then one card per store with its state. */}
-      <PageHeader
-        back={{ href: "/dashboard/publishing", label: t("publishing.title") }}
-        title={t("stores.moreTitle")}
-        description={t("stores.moreIntro", { app: appLabel(app) === "Untitled app" ? k("Untitled app") : appLabel(app) })}
-      />
+    <KitPage>
+      <KitHeader title={t("stores.moreTitle")} description={t("stores.moreIntro", { app: appLabel(app) === "Untitled app" ? k("Untitled app") : appLabel(app) })} />
+      <KitBar>
+        <PublishingTabs more />
+      </KitBar>
       {/* 138 A feature of every plan: connected once, every new version goes there by itself. */}
-      <Notice tone="success" icon="cloud_upload">
+      <KitCallout tone="success" icon="cloud_upload">
         <span data-more-stores-benefit="">{richText(t("stores.moreYours"), builds)}</span>
-      </Notice>
+      </KitCallout>
 
-      <section aria-labelledby="h-galaxy" className="flex flex-col gap-4 rounded-2xl border border-line bg-white p-5 sm:p-6">
-        <div className="flex flex-wrap items-start gap-3">
-          <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-ivory text-midnight">
-            <Icon name="storefront" size={22} />
-          </span>
-          <div className="flex min-w-0 flex-[1_1_220px] flex-col gap-1">
-          <h2 id="h-galaxy" className="m-0 text-lg font-bold">
-            Samsung Galaxy Store
-          </h2>
-          <span className="text-sm text-muted">{t("stores.galaxyText")}</span>
-          </div>
-          {saved(keys.galaxy)}
-        </div>
-        <ol className="m-0 list-decimal space-y-2 ps-5 text-[15px] leading-relaxed text-ink-4 marker:font-bold">
+      <KitSection titleId="h-galaxy" title="Samsung Galaxy Store" description={t("stores.galaxyText")} actions={saved(keys.galaxy)}>
+        <ol className="m-0 list-decimal space-y-2 ps-5 text-[15px] leading-relaxed text-(--sp-ink) marker:font-bold">
           <li>{richText(t("stores.galaxyStep1"), external("https://seller.samsungapps.com/"))}</li>
           <li>{richText(t("stores.galaxyStep2"), builds)}</li>
           <li>{t("stores.galaxyStep3")}</li>
@@ -77,23 +64,11 @@ export default async function MoreStoresPage() {
         <GalaxyStoreForm
           saved={keys.galaxy ? { contentId: app.galaxyContentId ?? "", serviceAccountId: app.galaxyServiceAccountId ?? "" } : null}
         />
-        <p className="m-0 text-sm text-muted">{t("stores.keyEncrypted")}</p>
-      </section>
+        <p className="m-0 text-sm text-(--sp-muted)">{t("stores.keyEncrypted")}</p>
+      </KitSection>
 
-      <section aria-labelledby="h-huawei" className="flex flex-col gap-4 rounded-2xl border border-line bg-white p-5 sm:p-6">
-        <div className="flex flex-wrap items-start gap-3">
-          <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-ivory text-midnight">
-            <Icon name="storefront" size={22} />
-          </span>
-          <div className="flex min-w-0 flex-[1_1_220px] flex-col gap-1">
-          <h2 id="h-huawei" className="m-0 text-lg font-bold">
-            Huawei AppGallery
-          </h2>
-          <span className="text-sm text-muted">{t("stores.huaweiText")}</span>
-          </div>
-          {saved(keys.appGallery)}
-        </div>
-        <ol className="m-0 list-decimal space-y-2 ps-5 text-[15px] leading-relaxed text-ink-4 marker:font-bold">
+      <KitSection titleId="h-huawei" title="Huawei AppGallery" description={t("stores.huaweiText")} actions={saved(keys.appGallery)}>
+        <ol className="m-0 list-decimal space-y-2 ps-5 text-[15px] leading-relaxed text-(--sp-ink) marker:font-bold">
           <li>{richText(t("stores.huaweiStep1"), external("https://developer.huawei.com/consumer/en/"))}</li>
           <li>
             {richText(app.androidPackage ? t("stores.huaweiStep2", { package: app.androidPackage }) : t("stores.huaweiStep2NoPackage"), bold)}
@@ -108,24 +83,12 @@ export default async function MoreStoresPage() {
             clientId: keys.appGallery ? (app.huaweiClientId ?? null) : null,
           }}
         />
-        <p className="m-0 text-sm text-muted">{t("stores.secretsEncrypted")}</p>
-      </section>
+        <p className="m-0 text-sm text-(--sp-muted)">{t("stores.secretsEncrypted")}</p>
+      </KitSection>
 
       {/* 42 Xiaomi GetApps */}
-      <section aria-labelledby="h-xiaomi" className="flex flex-col gap-4 rounded-2xl border border-line bg-white p-5 sm:p-6">
-        <div className="flex flex-wrap items-start gap-3">
-          <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-ivory text-midnight">
-            <Icon name="storefront" size={22} />
-          </span>
-          <div className="flex min-w-0 flex-[1_1_220px] flex-col gap-1">
-          <h2 id="h-xiaomi" className="m-0 text-lg font-bold">
-            Xiaomi GetApps
-          </h2>
-          <span className="text-sm text-muted">{t("stores.xiaomiText")}</span>
-          </div>
-          {saved(keys.xiaomi)}
-        </div>
-        <ol className="m-0 list-decimal space-y-2 ps-5 text-[15px] leading-relaxed text-ink-4 marker:font-bold">
+      <KitSection titleId="h-xiaomi" title="Xiaomi GetApps" description={t("stores.xiaomiText")} actions={saved(keys.xiaomi)}>
+        <ol className="m-0 list-decimal space-y-2 ps-5 text-[15px] leading-relaxed text-(--sp-ink) marker:font-bold">
           <li>{richText(t("stores.xiaomiStep1"), external("https://dev.mi.com/"))}</li>
           <li>
             {richText(app.androidPackage ? t("stores.xiaomiStep2", { package: app.androidPackage }) : t("stores.xiaomiStep2NoPackage"), { ...bold, ...builds })}
@@ -136,8 +99,8 @@ export default async function MoreStoresPage() {
           saved={keys.xiaomi ? { userName: app.xiaomiUserName ?? "" } : null}
           notes={{ current: app.xiaomiReleaseNotes ?? "", fallback: XIAOMI_DEFAULT_RELEASE_NOTES, max: XIAOMI_RELEASE_NOTES_MAX }}
         />
-        <p className="m-0 text-sm text-muted">{t("stores.keyEncrypted")}</p>
-      </section>
-    </div>
+        <p className="m-0 text-sm text-(--sp-muted)">{t("stores.keyEncrypted")}</p>
+      </KitSection>
+    </KitPage>
   );
 }

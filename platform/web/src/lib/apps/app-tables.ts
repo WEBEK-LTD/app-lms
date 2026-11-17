@@ -78,6 +78,9 @@ export const APP_TABLES: Record<string, AppTableRole> = {
   prime_sends: "account",
   staff_profiles: "account",
   account_manager_calls: "account",
+  // 136 The platform's own issuer keys and Yallapp's pool of Firebase projects.
+  platform_signing_keys: "account",
+  firebase_projects: "account",
   // An account's own design library: it stays with the account.
   saved_sections: "account",
   studio_templates: "account",
@@ -116,6 +119,9 @@ export const APP_TABLES: Record<string, AppTableRole> = {
   publishing_events: "builds",
   store_products: "builds",
   store_billing_items: "builds",
+  // 136 The app's apps in Yallapp's Firebase, by package name and bundle ID: its identity, like its store listing.
+  // A copy registers its own once it has its own package name; a move keeps them (the app keeps its ID).
+  app_firebase_apps: "builds",
 
   // Keys and hooks.
   app_auth_keys: "secrets",

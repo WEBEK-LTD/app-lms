@@ -163,6 +163,11 @@ export const AUDIT_ACTIONS = {
   // 106.2 The daily job: a buyer's plan for a template ended; and the team changing a licence's end date.
   "market.licence_ended": "Studio Market plan ended (daily job)",
   "market.licence_end_date": "Studio Market licence end date changed",
+  // 136 Yallapp's Firebase projects
+  "firebase.project_add": "Yallapp Firebase project added",
+  "firebase.project_edit": "Yallapp Firebase project changed",
+  "firebase.project_create": "Yallapp Firebase project created by the platform",
+  "firebase.check": "Yallapp's Firebase checked",
 } as const;
 
 export type AuditAction = keyof typeof AUDIT_ACTIONS;
@@ -201,6 +206,8 @@ export const AUDIT_TARGETS = {
   market_licence: "Studio Market licence",
   // 133
   addon: "Add-on",
+  // 136
+  firebase_project: "Yallapp Firebase project",
 } as const;
 
 export type AuditTargetType = keyof typeof AUDIT_TARGETS;

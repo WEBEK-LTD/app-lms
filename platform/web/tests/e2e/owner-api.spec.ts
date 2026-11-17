@@ -165,6 +165,8 @@ test("the owner runs a shop, an academy and an events app with a free ticket", a
   shopId = appIdOf(shopApi);
   // 132.120 Payments have one page.
   await own.goto("/dashboard/payments");
+  // 132.180 Nothing connected yet: the gateway's keys open from its row.
+  await own.getByRole("region", { name: "Card payments" }).getByRole("button", { name: "Connect", exact: true }).click();
   await own.getByLabel("API key").fill("sandbox-api-key");
   await own.getByLabel("Secret key").fill("sandbox-secret-key");
   await own.getByText("Sandbox keys").click();
@@ -532,7 +534,9 @@ test("the dashboard lists the phone and signs it out; the app signs out too", as
     device_id: string;
   };
   await own.reload();
-  await own.locator(`[data-device="${other.device_id}"]`).getByRole("button", { name: "Sign out Old iPhone" }).click();
+  // 132.178 A phone's Sign out is in its inspector, opened from its row.
+  await own.locator(`[data-device="${other.device_id}"]`).getByRole("button", { name: /^Old iPhone/ }).click();
+  await own.getByRole("region", { name: "Old iPhone" }).getByRole("button", { name: "Sign out Old iPhone" }).click();
   await expect(own.getByRole("status")).toContainText("Old iPhone is signed out.");
   expect((await request.get(`${owner}/me`, { headers: { authorization: `Bearer ${other.access_token}` } })).status()).toBe(401);
 

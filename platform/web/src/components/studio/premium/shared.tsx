@@ -18,6 +18,8 @@ export interface PremiumWords {
   popular: string;
   addLabel: string;
   reviewsNote: string;
+  /** 132.187 Over a timeline that follows the person's newest order. */
+  orderNote: string;
 }
 
 export const PREMIUM_WORDS_EN: PremiumWords = {
@@ -29,6 +31,7 @@ export const PREMIUM_WORDS_EN: PremiumWords = {
   popular: "Most popular",
   addLabel: "Add a label or a price",
   reviewsNote: "In the app, its real reviews",
+  orderNote: "In the app, their newest order",
 };
 
 export interface PremiumProps {

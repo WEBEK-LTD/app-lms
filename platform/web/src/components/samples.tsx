@@ -2,7 +2,7 @@ import Link from "next/link";
 import { removeAllSamplesAction, removeSamplesAction } from "@/app/actions/samples";
 import { SubmitButton } from "@/components/form";
 import { Badge, Notice, btn } from "@/components/ui";
-import { KitDemoLine } from "@/components/studio-page";
+import { KitCallout, KitDemoLine } from "@/components/studio-page";
 import { getStore } from "@/lib/data";
 import { getClientContext } from "@/lib/auth/session";
 import { DEMO_BRANDS } from "@/lib/demo/content";
@@ -112,10 +112,11 @@ export async function SamplesStoreNotice({ app }: { app: App }) {
   const { t } = await dashboardText();
   const count = left.reduce((sum, l) => sum + l.count, 0);
   return (
+    // 132.140 One quiet strip of the premium kit, as on Builds' and Publishing's other notes.
     <div data-samples-guard="">
-      <Notice tone="warn" icon="warning" role="status">
+      <KitCallout tone="warn" icon="warning" role="status">
         {richText(t("samples.stores", { count }), { link: (chunk) => <Link href={LIST_PAGE[left[0]!.list]}>{chunk}</Link> })}
-      </Notice>
+      </KitCallout>
     </div>
   );
 }

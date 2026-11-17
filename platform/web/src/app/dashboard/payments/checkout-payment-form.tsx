@@ -6,6 +6,7 @@ import { FormMessage, SubmitButton } from "@/components/form";
 import { Icon } from "@/components/icon";
 import type { IconName } from "@/components/icon-names";
 import { useDashT } from "@/components/dashboard-i18n";
+import { KitStatus } from "@/components/studio-page";
 import { initialFormState } from "@/lib/forms";
 
 /** 134 One way customers may pay, as the page words it. */
@@ -26,6 +27,7 @@ const CHOICE_ICON: Record<CheckoutChoice["value"], IconName> = { yallapp: "shopp
  * 134 Payments › How customers pay: the three ways, the one in use checked, the Demo note under the in-app one.
  * 132.120 In the Payments page's design: each way a card side by side (as the gateways' cards), the one
  * chosen ringed, one that can't be chosen here greyed with why; the Demo note across under them.
+ * 132.180 In the console: soft cells, the Demo note as the console's slim peach line.
  */
 export function CheckoutPaymentForm({ choices, current, demo, savable }: { choices: CheckoutChoice[]; current: CheckoutChoice["value"]; demo: { title: string; text: string }; savable: boolean }) {
   const t = useDashT();
@@ -42,24 +44,19 @@ export function CheckoutPaymentForm({ choices, current, demo, savable }: { choic
           return (
             <label
               key={c.value}
-              className={`relative flex flex-col gap-2 rounded-2xl border p-4 transition-shadow focus-within:ring-2 focus-within:ring-accent motion-reduce:transition-none ${
-                c.blocked ? "cursor-not-allowed border-line-soft bg-sand" : on ? "cursor-pointer border-midnight bg-white ring-2 ring-midnight" : "cursor-pointer border-line bg-white hover:border-line-strong"
+              className={`relative flex flex-col gap-2 rounded-[14px] p-4 transition-shadow focus-within:ring-2 focus-within:ring-accent motion-reduce:transition-none ${
+                c.blocked ? "cursor-not-allowed bg-(--sp-cell) opacity-80" : on ? "cursor-pointer bg-(--sp-surface) ring-2 ring-(--sp-ink)" : "cursor-pointer bg-(--sp-cell) ring-1 ring-transparent hover:ring-(--sp-line)"
               }`}
               data-choice={c.value}
               data-checked={on ? "" : undefined}
             >
               <span className="flex items-center gap-2">
-                <span className="flex h-9 w-9 flex-none items-center justify-center rounded-xl bg-ivory">
-                  <Icon name={CHOICE_ICON[c.value]} size={20} filled={on} className={on ? "text-accent" : "text-muted"} />
+                <span className="flex h-9 w-9 flex-none items-center justify-center rounded-[10px] bg-(--sp-cell-icon)">
+                  <Icon name={CHOICE_ICON[c.value]} size={20} filled={on} className={on ? "text-accent" : "text-(--sp-muted)"} />
                 </span>
                 <span className="flex min-w-0 flex-1 flex-wrap items-center gap-1.5">
-                  {c.value === current && !c.blocked ? (
-                    <span className="inline-flex items-center gap-1 rounded-full bg-success-bg px-2 py-0.5 text-xs font-bold text-success">
-                      <Icon name="check_circle" size={14} filled />
-                      {t("inAppPay.inUse")}
-                    </span>
-                  ) : null}
-                  {c.tag ? <span className="rounded-full bg-line-soft px-2 py-0.5 text-xs font-bold text-muted">{c.tag}</span> : null}
+                  {c.value === current && !c.blocked ? <KitStatus tone="success">{t("inAppPay.inUse")}</KitStatus> : null}
+                  {c.tag ? <KitStatus tone="neutral">{c.tag}</KitStatus> : null}
                 </span>
                 <input
                   type="radio"
@@ -73,15 +70,15 @@ export function CheckoutPaymentForm({ choices, current, demo, savable }: { choic
                   className="h-4 w-4 shrink-0 accent-midnight"
                 />
               </span>
-              <span id={`${id}-name`} className={`text-[16px] leading-snug font-extrabold ${c.blocked ? "text-ink-3" : "text-midnight"}`}>
+              <span id={`${id}-name`} className={`text-[15px] leading-snug font-bold ${c.blocked ? "text-(--sp-muted)" : "text-(--sp-ink)"}`}>
                 {c.label}
               </span>
-              <span id={`${id}-hint`} className="text-[13px] leading-relaxed text-ink-4">
+              <span id={`${id}-hint`} className="text-[13px] leading-relaxed text-(--sp-muted)">
                 {c.hint}
               </span>
               {c.blocked ? (
-                <span id={`${id}-why`} className="mt-auto flex items-start gap-1.5 border-t border-line-soft pt-2 text-[13px] leading-relaxed text-ink-3" data-blocked="">
-                  <Icon name="block" size={16} className="mt-0.5 shrink-0 text-muted" />
+                <span id={`${id}-why`} className="mt-auto flex items-start gap-1.5 border-t border-(--sp-line-soft) pt-2 text-[13px] leading-relaxed text-(--sp-muted)" data-blocked="">
+                  <Icon name="block" size={16} className="mt-0.5 shrink-0 text-(--sp-muted)" />
                   {c.blocked}
                 </span>
               ) : null}
@@ -89,8 +86,8 @@ export function CheckoutPaymentForm({ choices, current, demo, savable }: { choic
           );
         })}
       </fieldset>
-      <div role="note" className="flex gap-2.5 rounded-xl bg-peach-soft px-4 py-3 text-[14px] leading-relaxed" data-demo-note="">
-        <Icon name="info" size={20} className="mt-0.5 shrink-0" />
+      <div role="note" className="flex gap-2.5 rounded-[11px] bg-(--sp-peach) px-3 py-2.5 text-[13px] leading-relaxed text-(--sp-peach-ink)" data-demo-note="">
+        <Icon name="info" size={17} className="mt-0.5 shrink-0" />
         <span>
           <b>{demo.title}.</b> {demo.text}
         </span>
@@ -130,7 +127,7 @@ export function AttentionActions({ id, refund }: { id: number; refund: string | 
           </form>
         ) : null}
       </div>
-      {refund ? <p className="m-0 text-[13px] text-muted">{refund}</p> : null}
+      {refund ? <p className="m-0 text-[13px] text-(--sp-muted)">{refund}</p> : null}
     </div>
   );
 }

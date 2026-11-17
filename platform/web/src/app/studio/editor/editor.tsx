@@ -210,7 +210,7 @@ export function StudioEditor(props: StudioEditorProps) {
   const greeting = sample.greeting;
   const schoolWords = sample.school;
   // 129.11–129.20 The premium elements' words on the canvas, and their first words when added.
-  const premiumWords = Object.fromEntries((["setPrice", "monthly", "yearly", "perMonth", "perYear", "popular", "addLabel", "reviewsNote"] as const).map((k) => [k, t(`studio.pmw_${k}` as DashKey)])) as unknown as PremiumWords;
+  const premiumWords = Object.fromEntries((["setPrice", "monthly", "yearly", "perMonth", "perYear", "popular", "addLabel", "reviewsNote", "orderNote"] as const).map((k) => [k, t(`studio.pmw_${k}` as DashKey)])) as unknown as PremiumWords;
   // 128.11 A new premium element's and premium map's words are the app's (lib/studio/app-words.ts), in the dashboard's language.
   const premiumNew = premiumAppWords(dashLang, app.name);
   const premiumText = premiumNew.content;

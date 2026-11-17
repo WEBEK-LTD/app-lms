@@ -24,6 +24,9 @@ import { runRideTicks } from "../rides/tick";
 import { runLibraryReminders } from "../school/library";
 import { runSchoolReminders } from "../school/reminders";
 import { runMailCampaigns, type MailRunDeps, type MailRunReport } from "../mailing/campaigns";
+import { runFirebaseRegistrations, type FirebaseDeps, type FirebaseRunReport } from "../firebase/register";
+import { keepPoolStocked, type ProjectDeps, type ProjectRunReport } from "../firebase/projects";
+import { raiseAlert, type TeamMail } from "../watch/alerts";
 
 /**
  * 61 The frequent job: `netlify/functions/frequent-jobs.mts` calls `POST
@@ -31,7 +34,8 @@ import { runMailCampaigns, type MailRunDeps, type MailRunReport } from "../maili
  * the app notifications whose time came and pushes to the owners' phones the
  * announcements that started, and 85.2 the notification campaigns due. 105.2 It moves rides on with time. 113.8 It reminds schools' families of tomorrow's exams, 113.4 and parents of the permission slips due tomorrow. 88.3 It reads the App Store's review state of the iPhone versions in review. 138 It sends iPhone builds on TestFlight to App Review once Apple has processed them, and gives a few apps a run their build for a new release of Yallapp's own app. 100.2 It makes or changes the in-app products waiting for the stores, 100.3 and keeps purchases' access in step. 68 It also asks the WordPress site of every
  * plan that just ended to check its license now (once per end), so the app
- * pauses there within minutes. Safe to run twice at once: each notification,
+ * pauses there within minutes. 136 It registers apps in Yallapp's Firebase
+ * and makes the pool's next project when it runs low. Safe to run twice at once: each notification,
  * announcement and ended plan is taken by one run.
  */
 export interface FrequentReport {
@@ -67,6 +71,8 @@ export interface FrequentReport {
   mail: MailRunReport | null;
   /** 125 Prime: the people whose smart alerts were checked, the alerts pushed and the morning briefs sent. */
   prime: PrimeRunReport;
+  /** 136 Yallapp's Firebase, when it's set up: apps registered further, and the pool's next project being made. */
+  firebase?: { registrations: FirebaseRunReport; projects: ProjectRunReport | null };
 }
 
 export async function runFrequentJobs(deps: {
@@ -88,6 +94,8 @@ export async function runFrequentJobs(deps: {
   platformFetch?: typeof fetch;
   /** 114 How email campaigns are sent; left out, they wait for their own job. */
   mail?: Omit<MailRunDeps, "store" | "budgetMs">;
+  /** 136 Yallapp's Firebase (lib/firebase/env.ts); left out when it isn't set up: nothing calls Google. */
+  firebase?: { registrations: FirebaseDeps; projects: ProjectDeps | null; mail?: TeamMail | null } | null;
 }): Promise<FrequentReport> {
   const notifications = await runScheduledNotifications({ store: deps.store, key: deps.key, now: deps.now, send: deps.send });
   let campaigns: CampaignRunReport = { sent: 0, waiting: 0, failed: 0 };
@@ -233,5 +241,39 @@ export async function runFrequentJobs(deps: {
   } catch (error) {
     console.error("[frequent] store deliveries", error instanceof Error ? error.message : String(error));
   }
-  return { notifications, announcements, ended, campaigns, automatic, builds, reviews, appReview, appRelease, orders, storeProducts, storePurchases, rides, library, school, mail, prime };
+  // 136 Yallapp's Firebase: the pool's next project when it runs low, then the apps not set up yet, each a step further.
+  let firebase: FrequentReport["firebase"];
+  if (deps.firebase) {
+    let projects: ProjectRunReport | null = null;
+    if (deps.firebase.projects) {
+      try {
+        projects = await keepPoolStocked(deps.firebase.projects);
+      } catch (error) {
+        console.error("[frequent] firebase projects", error instanceof Error ? error.message : String(error));
+      }
+    }
+    let registrations: FirebaseRunReport = { apps: 0, ready: 0, failed: 0 };
+    try {
+      registrations = await runFirebaseRegistrations(deps.firebase.registrations);
+    } catch (error) {
+      console.error("[frequent] firebase apps", error instanceof Error ? error.message : String(error));
+    }
+    firebase = { registrations, projects };
+    // Apps wait for room and the platform can't make a project (no organization or folder set): the one time a person is needed.
+    if (registrations.waiting && !deps.firebase.projects) {
+      await raiseAlert(
+        deps.store,
+        {
+          kind: "firebase",
+          key: "firebase_pool_full",
+          title: "Apps are waiting for room in Yallapp's Firebase",
+          detail: `${registrations.waiting} ${registrations.waiting === 1 ? "app waits" : "apps wait"} for a project with room. Set where new projects are made, or add a project made by hand, in Admin › Settings › Yallapp Firebase projects.`,
+          link: "/admin/settings/firebase",
+        },
+        deps.now,
+        deps.firebase.mail,
+      );
+    }
+  }
+  return { notifications, announcements, ended, campaigns, automatic, builds, reviews, appReview, appRelease, orders, storeProducts, storePurchases, rides, library, school, mail, prime, ...(firebase ? { firebase } : {}) };
 }

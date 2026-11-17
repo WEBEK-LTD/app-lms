@@ -281,9 +281,13 @@ test("the team moves each store along, and the client is emailed", async () => {
   // The email's link opens the app's Publishing page.
   await own.goto(new URL(link).pathname + new URL(link).search);
   await expect(own).toHaveURL(/\/dashboard\/publishing$/);
+  // 132.171 Each store is a tile; what its state means, our team's note and its link open in the inspector.
+  await expect(own.locator('[data-store-tile="android"]')).toContainText("Live");
+  await own.locator('[data-store-tile="android"]').click();
   const play = own.getByRole("region", { name: "Google Play" });
   await expect(play).toContainText("Live");
   await expect(play.getByRole("link", { name: "See it on Google Play" })).toHaveAttribute("href", /^https:\/\/play\.google\.com\//);
+  await own.locator('[data-store-tile="ios"]').click();
   await expect(own.getByRole("region", { name: "App Store" })).toContainText("Apple needs a demo phone number");
   const rejection = own.getByRole("region", { name: "App Store" }).locator('[data-rejection="sign_in"]');
   await expect(rejection).toContainText("Why: The reviewers couldn't sign in to the app.");
@@ -299,12 +303,14 @@ test("138 the other Android stores are the client's own, and each app gets one p
   const accountB = `publishing-b-${suffix}@yallapp.test`;
   // Galaxy Store, AppGallery and GetApps: the client publishes there, automatically once connected.
   await own.goto("/dashboard/publishing");
-  const more = own.getByRole("region", { name: "More Android stores" });
+  // 132.140 Folded behind one line.
+  await own.locator("summary", { hasText: "More Android stores" }).click();
+  const more = own.locator("[data-more-stores-yours]");
   await expect(more).toContainText("are yours to publish on, on every plan");
   await expect(more).toContainText("Xiaomi's app store, on Xiaomi, Redmi and POCO phones.");
   await expect(more.getByRole("link", { name: "Connect your stores" })).toHaveAttribute("href", "/dashboard/publishing/more-stores");
   await expect(own.getByRole("checkbox", { name: /Samsung Galaxy Store/ })).toHaveCount(0);
-  await expect(own.getByRole("region", { name: "Samsung Galaxy Store" })).toHaveCount(0);
+  await expect(own.locator('[data-store-tile="galaxy"]')).toHaveCount(0);
   await expect(own.getByRole("region", { name: "Your steps" }).getByText("Invite our team to Seller Portal")).toHaveCount(0);
 
   // The team adds two accounts (the first takes one app).
@@ -454,9 +460,11 @@ test("the team closes a build that stopped, and the client can start again", asy
   await expect(own.getByRole("region", { name: "Build #3 · App version 1.0.1" })).toContainText("Didn't finish");
   await expect(own.getByRole("button", { name: "Start new build" })).toBeEnabled();
   await expect(own.getByRole("textbox", { name: "App version" })).toHaveValue("1.0.1");
-  // The history keeps every build, with its times.
+  // The history keeps every build, with its times (132.140: each build a row of its list; 132.172 its times in its inspector).
   const history = own.getByRole("region", { name: "Build history" });
-  await expect(history.getByRole("row")).toHaveCount(4);
+  await expect(history.getByRole("listitem")).toHaveCount(3);
+  await history.getByRole("listitem").first().getByRole("button", { name: /^#3/ }).click();
+  await expect(own.locator('[data-inspector-build="3"]')).toContainText("Queued");
 });
 
 test("publishing yourself after all tells the team, and the setup's Publishing step asks us again", async () => {

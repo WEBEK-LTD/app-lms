@@ -73,6 +73,8 @@ test("a shop without a website only adds its own payment account", async () => {
   // 132.120 The Products tab opens the one Payments page.
   await expect(own).toHaveURL(/\/(dashboard|studio\/project)\/payments$/);
   const payments = own.getByRole("region", { name: "Card payments" });
+  // 132.180 Nothing connected yet: the gateway's keys open from its row.
+  await payments.getByRole("button", { name: "Connect", exact: true }).click();
   await expect(payments.getByText("Use your own payment account")).toBeVisible();
   await expect(payments.getByRole("group", { name: /^Payment provider/ })).toBeVisible();
   await expect(payments.getByRole("button", { name: "Sell through Yallapp" })).toHaveCount(0);

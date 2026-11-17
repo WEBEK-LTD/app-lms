@@ -30,6 +30,7 @@ import { ConfirmButton } from "../chat/forms";
 import { isDelivery, isFood, NotDelivery, PlanNotice } from "../shipments/parts";
 import { DeliverySettingsForm, ServiceForm } from "./forms";
 import { SampleBadge, SampleEntries, type SampleQuery } from "@/components/samples";
+import { usesYallappFirebase } from "@/lib/firebase/mode";
 
 export async function generateMetadata(): Promise<Metadata> {
   return { title: (await dashboardText()).t("delivery.settings") };
@@ -156,6 +157,7 @@ export default async function DeliverySettingsPage({ searchParams }: { searchPar
               courierAppName: settings.courierAppName ?? "",
               courierAppNameDefault: courierAppNameOf(app, { courierAppName: null }),
               courierFirebaseIos: Boolean(settings.courierFirebaseIosAssetId),
+              yallappFirebase: usesYallappFirebase(app),
               courierIconUrl: settings.courierIconAssetId ? `/api/v1/assets/${settings.courierIconAssetId}` : null,
               couriersWork: settings.courierApp === "yallapp_courier" ? "yallapp_courier" : "own",
             }}

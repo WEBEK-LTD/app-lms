@@ -1,6 +1,7 @@
 import { hasFeature, type PlanInfo } from "../plans";
 import type { App, MoreStore, PublishingEvent, PublishingListing, PublishingRequest, PublishingStatus, PublishingStore, PublishingTrack } from "../data/types";
 import { REJECTION_REASONS } from "../data/types";
+import { usesYallappFirebase } from "../firebase/mode";
 
 /**
  * 14.1 We publish for you: the client's checklist, the store statuses and
@@ -377,9 +378,9 @@ export function newPublishingRequest(app: Pick<App, "id" | "clientId">, mode: Pu
   };
 }
 
-/** Whether a step is done: ticked by the client, or the Firebase project our team creates. */
-export function stepDone(request: Pick<PublishingRequest, "checklist" | "firebaseBy">, id: PublishingStepId): boolean {
-  if (id === "firebase" && request.firebaseBy === "team") return true;
+/** Whether a step is done: ticked by the client, or the Firebase project our team creates (136 or Yallapp's Firebase, `yallapp`). */
+export function stepDone(request: Pick<PublishingRequest, "checklist" | "firebaseBy">, id: PublishingStepId, yallapp = false): boolean {
+  if (id === "firebase" && (request.firebaseBy === "team" || yallapp)) return true;
   return Boolean(request.checklist[id]);
 }
 
@@ -401,10 +402,15 @@ export function listingMissing(
 }
 
 /** How far the client is: steps done (with the listing as one more step). */
-export function checklistProgress(request: PublishingRequest, app: Parameters<typeof listingMissing>[0]): { done: number; total: number; complete: boolean } {
+export function checklistProgress(
+  request: PublishingRequest,
+  app: Parameters<typeof listingMissing>[0] & Partial<Pick<App, "backend" | "pushSetup">>,
+): { done: number; total: number; complete: boolean } {
   // 35, 36 Only the steps of the stores this request covers.
   const ids = stepsFor(request).map((step) => step.id);
-  const steps = ids.filter((id) => stepDone(request, id)).length;
+  // 136 In Yallapp's Firebase there's no Firebase project to make.
+  const yallapp = app.backend !== undefined && usesYallappFirebase({ backend: app.backend, pushSetup: app.pushSetup });
+  const steps = ids.filter((id) => stepDone(request, id, yallapp)).length;
   const listing = listingMissing(app, request.listing).length === 0 ? 1 : 0;
   const total = ids.length + 1;
   return { done: steps + listing, total, complete: steps + listing === total };

@@ -21,6 +21,7 @@ import { templatesFor, TEMPLATES, type SectionWord } from "../studio/sections";
 import type { BotAnswers } from "./answers";
 import { featureSettings } from "./features";
 import type { KindInfo } from "../app/kinds";
+import { pushSetupForNewApp } from "../firebase/env";
 
 /**
  * The app the bot's answers make, with the platform's own steps: a kind
@@ -101,6 +102,8 @@ async function makeRegular(store: DataStore, maker: BotMaker, answers: BotAnswer
   // No website: the content is kept in Yallapp (as "I don't have a website" on the Website step).
   const base: App = answers.website ? named : { ...named, siteUrl: null, backend: "hosted", ...ownContentSetup(ENGINES[kind.engine].ownContent.kind, named), websiteDoneAt: now };
   const app: App = { ...base, ...featureSettings(base, answers.features, plan) };
+  // 136 Yallapp sets up its notifications when its Firebase is set up here and has room.
+  if (await pushSetupForNewApp(store, app)) app.pushSetup = "yallapp";
   await store.createApp(app);
   // The languages first: the design keeps the draft's, and the samples are written in the main one (132.40 Yallapp's texts too).
   const record = await loadLayout(store, app, now);

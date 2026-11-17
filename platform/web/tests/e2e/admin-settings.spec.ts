@@ -220,8 +220,8 @@ test("the team changes the contact details shown everywhere", async () => {
 test("each kind of setting has its own page, listed with what's set now (95.1)", async () => {
   await page.goto("/admin/settings");
   const cards = page.locator("[data-settings-card]");
-  // 138 Publishing accounts.
-  await expect(cards).toHaveCount(12);
+  // 136 Yallapp Firebase projects and 138 Publishing accounts make thirteen.
+  await expect(cards).toHaveCount(13);
   await expect(cards.filter({ hasText: "The accounts clients invite as admin to Google Play and App Store Connect" })).toContainText(/Now: (No accounts yet: every app shows the publishing team email\.|\d+ accounts?\.)/);
   // 135.6 The day's rates: read by the daily job, or none yet (another spec may have read them first).
   await expect(cards.filter({ hasText: "The day's exchange rates customers see prices with" })).toContainText(/Now: (Rates of \d{4}-\d{2}-\d{2}|No rates yet: customers see the shops' own currencies\.)/);

@@ -3,7 +3,10 @@ import Link from "next/link";
 import { cancelInvitationAction, removeMemberAction, resendInvitationAction } from "@/app/actions/team";
 import { SubmitButton } from "@/components/form";
 import { Icon } from "@/components/icon";
-import { Badge, btn, Notice, PageHeader, Section } from "@/components/ui";
+import { KitCallout, KitDrawer, KitFold, KitHeader, KitMore, KitPage, KitStatus, KitThumb, kit } from "@/components/studio-page";
+import { factsOf } from "@/components/studio-page/facts";
+import { KitInspectorBody, KitInspectorFacts, KitInspectorHead } from "@/components/studio-page/parts";
+import { KitTable } from "@/components/studio-page/table";
 import type { DashKey } from "@/i18n/dashboard";
 import { appLabel } from "@/lib/app/label";
 import { requireClient } from "@/lib/auth/session";
@@ -50,6 +53,7 @@ export default async function TeamPage({ searchParams }: PageProps<"/dashboard/t
           .join(", ")
       : t("team.everything");
   const roleName = (role: string) => t(`team.roles.${role}` as DashKey);
+  const closeLabel = t("common.close");
 
   const done =
     one("done") === "resent"
@@ -62,171 +66,277 @@ export default async function TeamPage({ searchParams }: PageProps<"/dashboard/t
             ? k("This invitation isn't open any more.")
             : null;
 
+  // 132.176 The console's look: inviting is the page's one main action in Ember (its form in a drawer); everyone as one table
+  // (the person, their role, their state: on the team, invited or expired), what they may do, changing it and removing them
+  // in the inspector; the activity folded under it.
+  const activityOpen = "person" in params || "page" in params;
+  const avatar = (name: string, dark = false) => (
+    <span aria-hidden="true" className={`flex h-10 w-10 flex-none items-center justify-center rounded-full text-[14px] font-bold ${dark ? "bg-midnight text-ivory" : "bg-(--sp-tile) text-(--sp-ink)"}`}>
+      {dark ? <Icon name="key" size={19} /> : (name.trim()[0] ?? "?").toUpperCase()}
+    </span>
+  );
+  const appsFact = (ids: readonly string[] | null): [string, string] | null => (apps.length > 1 ? [t("team.apps"), appNames(ids)] : null);
   return (
-    <>
-      <PageHeader title={t("team.title")} description={t("team.intro")} />
+    <KitPage>
+      <KitHeader
+        icon="groups"
+        title={t("team.title")}
+        description={t("team.line")}
+        help={t("team.intro")}
+        helpLabel={t("studioPage.help")}
+        actions={
+          <KitDrawer
+            title={t("team.invite")}
+            description={t("team.inviteText")}
+            closeLabel={closeLabel}
+            triggerClassName={kit.main}
+            trigger={
+              <>
+                <Icon name="add" size={20} />
+                {t("team.invite")}
+              </>
+            }
+          >
+            <section aria-label={t("team.invite")} id="invite">
+              <InviteForm apps={appChoices} />
+            </section>
+          </KitDrawer>
+        }
+      />
       {done ? (
-        <Notice tone={one("done") === "closed" ? "warn" : "success"} icon={one("done") === "closed" ? "info" : "check_circle"} role="status">
+        <KitCallout tone={one("done") === "closed" ? "warn" : "success"} icon={one("done") === "closed" ? "info" : "check_circle"} role="status">
           {done}
-        </Notice>
+        </KitCallout>
       ) : null}
 
-      <Section id="invite" title={t("team.invite")} titleId="team-invite" description={t("team.inviteText")}>
-        <InviteForm apps={appChoices} />
-      </Section>
-
-      <Section title={t("team.members")} titleId="team-members" flush>
-        <ul className="m-0 flex list-none flex-col p-0" data-testid="team-members">
-          <li className="flex flex-wrap items-center gap-3 border-b border-line-soft px-5 py-4 sm:px-6">
-            <span className="flex h-10 w-10 flex-none items-center justify-center rounded-full bg-peach text-accent" aria-hidden="true">
-              <Icon name="key" size={20} />
-            </span>
-            <div className="flex min-w-0 flex-1 flex-col">
-              <span className="font-semibold">
-                {user.name} <span className="text-sm font-normal text-muted">({t("team.you")})</span>
-              </span>
-              <span className="truncate text-sm text-muted" dir="ltr">
-                {user.email}
-              </span>
-            </div>
-            <Badge tone="info">{roleName("owner")}</Badge>
-          </li>
-          {members.map(({ member, user: person }) => (
-            <li key={person.id} data-member={person.email} className="flex flex-col gap-2 border-b border-line-soft px-5 py-4 last:border-b-0 sm:px-6">
-              <div className="flex flex-wrap items-center gap-3">
-                <span className="flex h-10 w-10 flex-none items-center justify-center rounded-full bg-sand text-sm font-bold text-ink-3" aria-hidden="true">
-                  {(person.name.trim()[0] ?? "?").toUpperCase()}
-                </span>
-                <div className="flex min-w-0 flex-1 flex-col">
-                  <span className="font-semibold">{person.name}</span>
-                  <span className="truncate text-sm text-muted" dir="ltr">
-                    {person.email}
-                  </span>
-                </div>
-                <Badge tone="neutral">{roleName(member.role)}</Badge>
-              </div>
-              <p className="m-0 text-sm text-ink-4">{areasLine(member.role, member.areas)}</p>
-              {apps.length > 1 ? <p className="m-0 text-sm text-muted">{appNames(member.appIds)}</p> : null}
-              <p className="m-0 text-[13px] text-muted">
-                {t("team.joined", { date: date(member.createdAt) })} · {person.lastSignInAt ? t("team.lastSignIn", { date: date(person.lastSignInAt) }) : t("team.neverSignedIn")}
-              </p>
-              <div className="flex flex-col gap-2">
-                <details className="group rounded-xl border border-line px-3.5 py-2.5">
-                  <summary className="flex min-h-9 cursor-pointer items-center gap-2 text-sm font-semibold" aria-label={t("team.editNamed", { name: person.name })}>
-                    <Icon name="edit" size={18} />
-                    {t("team.edit")}
-                  </summary>
-                  <MemberForm userId={person.id} apps={appChoices} initial={{ role: member.role, areas: member.areas, appIds: member.appIds }} />
-                </details>
-                <details className="rounded-xl border border-line px-3.5 py-2.5">
-                  <summary className="flex min-h-9 cursor-pointer items-center gap-2 text-sm font-semibold text-danger" aria-label={t("team.removeNamed", { name: person.name })}>
-                    <Icon name="delete" size={18} />
-                    {t("team.remove")}
-                  </summary>
-                  <form action={removeMemberAction} className="flex flex-wrap items-center justify-between gap-3 pt-3">
-                    <input type="hidden" name="userId" value={person.id} />
-                    <span className="text-sm text-ink-4">{t("team.removeText", { name: person.name })}</span>
-                    <SubmitButton variant="danger" className="h-10 px-4 text-sm">
-                      {t("team.removeConfirm")}
-                    </SubmitButton>
-                  </form>
-                </details>
-              </div>
-            </li>
-          ))}
-          {members.length === 0 ? <li className="px-5 py-4 text-sm text-muted sm:px-6">{t("team.emptyMembers")}</li> : null}
-        </ul>
-      </Section>
-
-      {invitations.length ? (
-        <Section title={t("team.invitations")} titleId="team-invitations" flush>
-          <ul className="m-0 flex list-none flex-col p-0" data-testid="team-invitations">
-            {invitations.map((invitation) => {
-              const ended = invitation.expiresAt.getTime() <= now.getTime();
-              return (
-                <li key={invitation.id} data-invitation={invitation.email} className="flex flex-wrap items-center gap-3 border-b border-line-soft px-5 py-4 last:border-b-0 sm:px-6">
-                  <span className="flex h-10 w-10 flex-none items-center justify-center rounded-full bg-sand text-ink-3" aria-hidden="true">
-                    <Icon name="mail" size={20} />
-                  </span>
-                  <div className="flex min-w-0 flex-[1_1_220px] flex-col">
-                    <span className="font-semibold">
-                      {invitation.name} · {roleName(invitation.role)}
-                    </span>
-                    <span className="truncate text-sm text-muted" dir="ltr">
-                      {invitation.email}
-                    </span>
-                    <span className="text-[13px] text-muted">
-                      {t("team.sent", { date: date(invitation.sentAt, DATE_TIME) })} ·{" "}
-                      {ended ? <span className="font-semibold text-danger">{t("team.expired", { date: date(invitation.expiresAt) })}</span> : t("team.expires", { date: date(invitation.expiresAt) })}
-                    </span>
-                  </div>
-                  <div className="flex flex-wrap gap-2">
-                    <form action={resendInvitationAction}>
-                      <input type="hidden" name="id" value={invitation.id} />
-                      <SubmitButton variant="secondary" className="h-10 px-3 text-sm" aria-label={t("team.resendNamed", { email: invitation.email })}>
-                        {t("team.resend")}
+      <KitTable
+        label={t("team.members")}
+        title={t("team.members")}
+        titleId="team-members"
+        toolbar={<span className="text-[13px] text-(--sp-muted)">{t("team.peopleCount", { count: members.length + 1, invited: invitations.length })}</span>}
+        columns={[
+          { label: t("team.colPerson"), width: "minmax(0,1fr)" },
+          { label: t("team.canDo"), width: "minmax(0,1fr)", wide: true },
+          { label: t("team.colRole"), width: "120px", phone: "sub" },
+          { label: t("team.colState"), width: "190px", phone: "end" },
+        ]}
+        rows={[
+          {
+            id: "owner",
+            name: user.name,
+            data: { "data-owner": "" },
+            cells: [
+              <span key="name" className="contents">
+                {avatar(user.name, true)}
+                <span className="min-w-0 truncate text-[14.5px] font-bold">{user.name}</span>
+              </span>,
+              t("team.everything"),
+              // "You" first: the line takes its direction from it, not from the name.
+              `${t("team.you")} · ${roleName("owner")}`,
+              <KitStatus key="state" tone="success">
+                {t("team.stateActive")}
+              </KitStatus>,
+            ],
+            inspector: {
+              title: t("team.colPerson"),
+              body: (
+                <KitInspectorBody data-inspector-owner="">
+                  <KitInspectorHead media={avatar(user.name, true)} title={user.name} line={<bdi dir="ltr">{user.email}</bdi>} />
+                  <KitInspectorFacts
+                    facts={factsOf([
+                      [t("team.role"), roleName("owner")],
+                      [t("team.canDo"), t("team.everything")],
+                      appsFact(null),
+                    ])}
+                  />
+                  <p className="m-0 text-[13px] leading-relaxed text-(--sp-muted)">{t("team.you")}</p>
+                </KitInspectorBody>
+              ),
+            },
+          },
+          ...members.map(({ member, user: person }) => ({
+            id: person.id,
+            name: person.name,
+            data: { "data-member": person.email },
+            cells: [
+              <span key="name" className="contents">
+                {avatar(person.name)}
+                <span className="min-w-0 truncate text-[14.5px] font-bold">{person.name}</span>
+              </span>,
+              <span key="areas" className="block truncate">
+                {areasLine(member.role, member.areas)}
+                {apps.length > 1 ? ` · ${appNames(member.appIds)}` : null}
+              </span>,
+              roleName(member.role),
+              person.lastSignInAt ? (
+                <KitStatus key="state" tone="success">
+                  {t("team.stateActive")}
+                </KitStatus>
+              ) : (
+                <KitStatus key="state" tone="neutral">
+                  {t("team.neverSignedIn")}
+                </KitStatus>
+              ),
+            ],
+            inspector: {
+              title: t("team.colPerson"),
+              body: (
+                <KitInspectorBody data-inspector-member={person.email}>
+                  <KitInspectorHead media={avatar(person.name)} title={person.name} line={<bdi dir="ltr">{person.email}</bdi>} />
+                  <KitInspectorFacts
+                    facts={factsOf([
+                      [t("team.role"), roleName(member.role)],
+                      [t("team.canDo"), areasLine(member.role, member.areas)],
+                      appsFact(member.appIds),
+                      [t("team.dates"), t("team.joined", { date: date(member.createdAt) })],
+                      [t("team.colState"), person.lastSignInAt ? t("team.lastSignIn", { date: date(person.lastSignInAt) }) : t("team.neverSignedIn")],
+                    ])}
+                  />
+                  <section aria-label={t("team.editNamed", { name: person.name })} className="flex flex-col gap-1">
+                    <h3 className="m-0 flex items-center gap-2 text-[15px] font-bold">
+                      <Icon name="edit" size={18} />
+                      {t("team.edit")}
+                    </h3>
+                    <MemberForm userId={person.id} apps={appChoices} initial={{ role: member.role, areas: member.areas, appIds: member.appIds }} />
+                  </section>
+                  <details className="group rounded-[14px] bg-danger-bg">
+                    <summary className="flex min-h-11 cursor-pointer list-none items-center gap-2.5 rounded-[14px] px-4 py-2.5 text-sm font-semibold text-danger [&::-webkit-details-marker]:hidden" aria-label={t("team.removeNamed", { name: person.name })}>
+                      <Icon name="delete" size={19} />
+                      <span className="min-w-0 flex-1">{t("team.remove")}</span>
+                      <Icon name="expand_more" size={20} className="shrink-0 transition-transform duration-200 group-open:rotate-180" />
+                    </summary>
+                    <form action={removeMemberAction} className="kit-fold-body flex flex-wrap items-center justify-between gap-3 px-4 pb-4">
+                      <input type="hidden" name="userId" value={person.id} />
+                      <span className="min-w-0 flex-[1_1_200px] text-sm text-(--sp-ink)">{t("team.removeText", { name: person.name })}</span>
+                      <SubmitButton variant="danger" className="h-10 px-4 text-sm">
+                        {t("team.removeConfirm")}
                       </SubmitButton>
                     </form>
+                  </details>
+                </KitInspectorBody>
+              ),
+            },
+          })),
+          ...invitations.map((invitation) => {
+            const ended = invitation.expiresAt.getTime() <= now.getTime();
+            return {
+              id: invitation.id,
+              name: invitation.name,
+              data: { "data-invitation": invitation.email },
+              cells: [
+                <span key="name" className="contents">
+                  <KitThumb icon="mail" size={40} />
+                  <span className="min-w-0 truncate text-[14.5px] font-bold" dir="auto">
+                    {invitation.name}
+                  </span>
+                </span>,
+                <bdi key="email" dir="ltr" className="block truncate text-(--sp-muted)">
+                  {invitation.email}
+                </bdi>,
+                roleName(invitation.role),
+                ended ? (
+                  <KitStatus key="state" tone="danger">
+                    {t("team.expired", { date: date(invitation.expiresAt) })}
+                  </KitStatus>
+                ) : (
+                  <KitStatus key="state" tone="warn">
+                    {t("team.stateInvited")}
+                  </KitStatus>
+                ),
+              ],
+              inspector: {
+                title: t("team.invitation"),
+                actions: (
+                  <KitMore label={t("studioPage.more")} look="row">
                     <form action={cancelInvitationAction}>
                       <input type="hidden" name="id" value={invitation.id} />
-                      <SubmitButton variant="secondary" className="h-10 px-3 text-sm" aria-label={t("team.cancelNamed", { email: invitation.email })}>
+                      <button type="submit" className={`${kit.menuItem} text-danger hover:text-danger`} aria-label={t("team.cancelNamed", { email: invitation.email })}>
+                        <Icon name="cancel" size={18} />
                         {t("team.cancel")}
-                      </SubmitButton>
+                      </button>
                     </form>
-                  </div>
-                </li>
-              );
-            })}
-          </ul>
-        </Section>
-      ) : null}
+                  </KitMore>
+                ),
+                footer: (
+                  <form action={resendInvitationAction}>
+                    <input type="hidden" name="id" value={invitation.id} />
+                    <SubmitButton variant="main" className={`${kit.main} w-full`}>
+                      <Icon name="send" size={18} />
+                      <span aria-hidden="true">{t("team.resend")}</span>
+                      <span className="sr-only">{t("team.resendNamed", { email: invitation.email })}</span>
+                    </SubmitButton>
+                  </form>
+                ),
+                body: (
+                  <KitInspectorBody data-inspector-invitation={invitation.email}>
+                    <KitInspectorHead icon="mail" title={invitation.name} line={<bdi dir="ltr">{invitation.email}</bdi>} />
+                    <KitInspectorFacts
+                      facts={factsOf([
+                        [t("team.role"), roleName(invitation.role)],
+                        [t("team.canDo"), areasLine(invitation.role, invitation.areas)],
+                        appsFact(invitation.appIds),
+                        [t("team.colState"), t("team.sent", { date: date(invitation.sentAt, DATE_TIME) })],
+                        [t("team.dates"), ended ? t("team.expired", { date: date(invitation.expiresAt) }) : t("team.expires", { date: date(invitation.expiresAt) })],
+                      ])}
+                    />
+                  </KitInspectorBody>
+                ),
+              },
+            };
+          }),
+        ]}
+      />
+      {members.length === 0 && invitations.length === 0 ? <p className="m-0 -mt-2 px-1 text-sm text-(--sp-muted)">{t("team.emptyMembers")}</p> : null}
 
-      <Section title={t("team.activity")} titleId="team-activity" description={t("team.activityText")} flush>
-        {people.length > 1 ? (
-          <form method="get" action="/dashboard/team#team-activity" className="flex flex-wrap items-end gap-2 border-b border-line-soft px-5 py-3 sm:px-6" data-testid="team-activity-filter">
-            <div className="flex min-w-0 flex-col gap-1.5">
-              <label htmlFor="f-activity-person" className="text-sm font-semibold">
-                {t("team.activityPerson")}
-              </label>
-              <select id="f-activity-person" name="person" defaultValue={person ?? ""} className="input input-sm min-w-48">
-                <option value="">{t("team.activityEveryone")}</option>
-                {people.map((p) => (
-                  <option key={p.id} value={p.id}>
-                    {p.name}
-                  </option>
-                ))}
-              </select>
-            </div>
-            <button type="submit" className={`${btn.secondary} h-10 px-4 text-sm`}>
-              {t("team.activityShow")}
-            </button>
-          </form>
-        ) : null}
-        {activity.items.length ? (
-          <ol className="m-0 flex list-none flex-col p-0" data-testid="team-activity">
-            {activity.items.map((entry) => (
-              <li key={entry.id} className="flex flex-wrap items-baseline gap-x-3 gap-y-0.5 border-b border-line-soft px-5 py-3 last:border-b-0 sm:px-6">
-                <time dateTime={entry.at.toISOString()} className="w-32 flex-none text-[13px] text-muted">
-                  {date(entry.at, DATE_TIME)}
-                </time>
-                <span className="min-w-0 flex-1 text-sm">
-                  <span className="font-semibold">{entry.actorName}</span> · {k(entry.summary)}
-                  {entry.appId && apps.length > 1 ? <span className="text-muted"> · {appNames([entry.appId])}</span> : null}
-                </span>
-              </li>
-            ))}
-          </ol>
-        ) : (
-          <p className="m-0 px-5 py-4 text-sm text-muted sm:px-6">{t("team.noActivity")}</p>
-        )}
-        {pages > 1 ? (
-          <nav aria-label={t("team.activityPages")} className="flex items-center justify-between gap-3 border-t border-line-soft px-5 py-3 text-sm sm:px-6" data-testid="team-activity-pages">
-            {page > 1 ? <Link href={activityHref(page - 1)}>{t("listings.newer")}</Link> : <span />}
-            <span className="text-muted">{t("common.page", { page, pages })}</span>
-            {page < pages ? <Link href={activityHref(page + 1)}>{t("listings.older")}</Link> : <span />}
-          </nav>
-        ) : null}
-      </Section>
-    </>
+      <div id="team-activity" className="scroll-mt-6">
+        <KitFold summary={t("team.activity")} icon="history" open={activityOpen}>
+          <p className="m-0 text-[13.5px] text-(--sp-muted)">{t("team.activityText")}</p>
+          {people.length > 1 ? (
+            <form method="get" action="/dashboard/team#team-activity" className="flex flex-wrap items-end gap-2" data-testid="team-activity-filter">
+              <div className="flex min-w-0 flex-col gap-1.5">
+                <label htmlFor="f-activity-person" className="text-[13px] font-semibold text-(--sp-muted)">
+                  {t("team.activityPerson")}
+                </label>
+                <select id="f-activity-person" name="person" defaultValue={person ?? ""} className={`${kit.field} min-w-48`}>
+                  <option value="">{t("team.activityEveryone")}</option>
+                  {people.map((p) => (
+                    <option key={p.id} value={p.id}>
+                      {p.name}
+                    </option>
+                  ))}
+                </select>
+              </div>
+              <button type="submit" className={kit.quiet}>
+                {t("team.activityShow")}
+              </button>
+            </form>
+          ) : null}
+          {activity.items.length ? (
+            <ol className="m-0 flex list-none flex-col rounded-xl border border-(--sp-line) bg-(--sp-surface) p-0" data-testid="team-activity">
+              {activity.items.map((entry) => (
+                <li key={entry.id} className="flex flex-wrap items-baseline gap-x-4 gap-y-0.5 border-t border-(--sp-line) px-4 py-3 first:border-t-0">
+                  <time dateTime={entry.at.toISOString()} className="w-32 flex-none text-[13px] text-(--sp-muted) tabular-nums">
+                    {date(entry.at, DATE_TIME)}
+                  </time>
+                  <span className="min-w-0 flex-[1_1_220px] text-sm text-(--sp-ink)">
+                    <span className="font-semibold">{entry.actorName}</span> · {k(entry.summary)}
+                    {entry.appId && apps.length > 1 ? <span className="text-(--sp-muted)"> · {appNames([entry.appId])}</span> : null}
+                  </span>
+                </li>
+              ))}
+            </ol>
+          ) : (
+            <p className="m-0 text-sm text-(--sp-muted)">{t("team.noActivity")}</p>
+          )}
+          {pages > 1 ? (
+            <nav aria-label={t("team.activityPages")} className="flex items-center justify-between gap-3 text-sm" data-testid="team-activity-pages">
+              {page > 1 ? <Link href={activityHref(page - 1)}>{t("listings.newer")}</Link> : <span />}
+              <span className="text-(--sp-muted)">{t("common.page", { page, pages })}</span>
+              {page < pages ? <Link href={activityHref(page + 1)}>{t("listings.older")}</Link> : <span />}
+            </nav>
+          ) : null}
+        </KitFold>
+      </div>
+    </KitPage>
   );
 }

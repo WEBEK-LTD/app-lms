@@ -27,6 +27,30 @@ account for life; no migration (the app's `rollout` JSON and the setting
 `publishingAccounts`). The pipeline contract adds the `app_review` stage
 and the `play` report (docs/api/pipeline.yaml).
 
+Roadmap 136 Phase 1 (Yallapp sets up notifications) is in the code, off
+until its settings are in Netlify: apps on the hosted API can leave
+Firebase to Yallapp, which registers their Android and iOS apps (and the
+bundle's second apps) in its own Firebase projects, saves their files
+where a client's own would be, and sends their pushes without any key
+(the platform is its own OpenID Connect issuer for Google's Workload
+Identity Federation, `/oidc`). The pool of projects grows by itself: the
+frequent job creates the next project when it runs low, and Admin ›
+Settings › Yallapp Firebase projects shows each project's room, Google's
+words when a step failed, and Check. "Use my own Firebase" works as
+before. iPhones in Yallapp's Firebase get pushes from Phase 2 (straight to
+Apple); WordPress sites from Phase 3 (the relay).
+
+Roadmap 132.187 (an order shipped in the dashboard shows as shipped in the
+app) is in the code: the app asks again for the orders and the open order
+on an order's notification (arriving while the app is open, or tapped), on
+coming back to the front and when they open again; the stage shows on
+every order on its way; and Leqaa's "How your flowers travel" follows the
+person's newest order. It reaches phones with the next app build; the
+platform's answers were already right. On Huawei phones without Google
+Play, a notification arriving while the app is open isn't passed to it
+(the Push Kit bridge sends taps only), so there the orders refresh on
+coming back to the front and on opening.
+
 Roadmap 134 (pay inside the app for connected stores, Demo) is built for
 WooCommerce: Payments › How customers pay offers Yallapp's checkout (its
 own products), the store's checkout (the default) and paying inside the
@@ -81,6 +105,31 @@ search, the platform's first ones on top) or every country at once, each
 chosen country's own cities typed right under it with their prices; a
 flash sale's products with their pictures (`lib/selling/countries.ts`).
 
+Roadmap 132.170–132.179 (group B in Studio's console): Publishing,
+Builds, Stability, Invoices, Add-ons, Team, Updates from Yallapp and Your
+phones are in the console's look: one main action in Ember with the rest
+behind "⋯", Publishing's own pages as tabs, the figures as tiles (a store's
+tile opens it), and their lists as tables whose rows open in the inspector
+(group A's KitTable, `components/studio-page/table.tsx`, with the tiles that open
+the inspector in `inspect.tsx`); the settings switches are the
+console's KitSwitch (`studio-page/switch.tsx` puts it in a form).
+`tests/screens/studio-console-b.screens.ts` takes their pictures.
+
+Roadmap 132.180–132.185 (Payments in the console): `/dashboard/payments`
+and `/studio/project/payments` are built in the console's look. At first
+the page shows only its title, "Connect a card gateway" while none is
+connected, the summary as four tiles (the gateway, the last test, the
+webhook, the currency) and "Ways customers pay" as setting rows: the card
+gateway (its keys and Test connection under Connect or Edit), bank
+transfer and the owner's own way each with the console's switch, the days
+to pay while either is on, how they work under "How it works". How
+customers pay is one row (Change opens the ways); the payments made in the
+app are a table, each in the inspector with Retry and Refund. The way rows
+are `components/studio-page/way-row.tsx` (KitWayRow, KitWaySwitch: the
+console's KitSwitch with the field a form sends). Events and Memberships
+share the bank transfer form. `tests/screens/studio-payments.screens.ts`
+takes the page's pictures.
+
 Roadmap 132.150–132.153 (Studio's console): every Studio project page and
 Your account and Team are in Studio's console (`app/studio/console.tsx`): a
 midnight frame with an icon rail of the menu's groups and a panel of the
@@ -98,10 +147,20 @@ Roadmap 132.130–132.134 (Studio's premium pages): a shared page kit
 pill and one action, drawers, settings rows, folds, "?" help, empty
 states; its colours `--sp-…` in `globals.css`, the dashboard's outside
 Studio and the Studio frame's in it, light and dark) is applied to
-Products, Orders, Plan and Your account, in the dashboard and in Studio
-alike. The other Studio project pages, `/studio/team` and Payments still
-use the older page kit (`page-kit.tsx`) until they move to it.
+Products, Orders, Plan, Your account and (132.145) Payments, in the
+dashboard and in Studio alike; on Payments every way customers pay is in
+one card, bank transfer and the owner's own way each with an on/off switch
+(`manualPayments.bankTransferOff`, `customOff`). The other Studio project
+pages and `/studio/team` still use the older page kit (`page-kit.tsx`)
+until they move to it.
 `tests/screens/studio-premium.screens.ts` takes their pictures.
+
+Roadmap 132.140–132.144 (Studio's premium pages, the second set): the
+kit is on Publishing, Builds, Stability, Invoices, Add-ons, Team, Updates
+from Yallapp and Your phones too (each the dashboard's page, in Studio's
+frame), with a settings switch (`studio-page/switch.tsx`) and a build's
+stages as small pills (`BuildStages look="pills"`).
+Their pictures: `tests/screens/studio-console-b.screens.ts` (132.179).
 
 Roadmap 132.1–132.8 (Studio dashboard fixes): a Studio project's menu has
 every page of the dashboard that applies to the project, behind the
@@ -480,6 +539,15 @@ Billing and the App Store's in-app purchase) is complete (steps 100.1 to
   Connect's `appStoreReviewDetails`; the lane loads, but the call hasn't
   run on the macOS runner against a real client's version yet.
 
+- 136 Yallapp's Firebase against real Google (tested only against a
+  fake STS, IAM credentials, Firebase Management, Resource Manager,
+  Service Usage, API Keys and FCM): the WIF exchange with the platform as
+  issuer, whether `getConfig` returns one app or the project's (the
+  platform keeps only the client's packages either way), the minimum
+  roles, the project-creation quota, whether a removed app still counts
+  toward Firebase's 30, whether the push-only key is enough for token
+  registration, and a first Android push (LAUNCH-CHECKLIST 7z8 step 10).
+
 These parts were tested against recorded answers or could not run in the
 test environment:
 
@@ -517,7 +585,14 @@ test environment:
   accounts' one-time steps until Phase 136's key upload is merged.
 - 138 Builds queued before Phase 138 keep `auto_publish: false` and the
   internal track; the next build is published for the client.
-
+- 136 Yallapp's Firebase, Phase 1: iPhones receive no push until Phase 2
+  (straight to Apple with the client's APNs key); the vendors' and staff's
+  apps are registered on Android only (their builds have no iPhone
+  Firebase file yet); WordPress and own API apps keep their own Firebase;
+  after a switch between the two modes, phones keep the other project's
+  token until they update the app (Phase 4); FCM's
+  `android.restricted_package_name` isn't set yet; the taxi's live
+  database needs the client's own Firebase.
 - 134 Pay inside the app is WooCommerce's only. Shopify's API terms keep
   payments on Shopify Checkout; Wix's Create Order needs an app or Wix
   user identity (the connection has a visitor client ID and an account API
@@ -589,6 +664,14 @@ test environment:
   mention the card's consent box or demo sign-ins yet.
 
 ## Deployment
+
+- 136 Migration `0138_yallapp_firebase` (the tables
+  `platform_signing_keys`, `firebase_projects`, `app_firebase_apps` and
+  the apps' `push_setup` and `firebase_project_id`). Nothing changes until
+  GOOGLE_WIF_PROVIDER, GOOGLE_PUSH_SERVICE_ACCOUNT and
+  GOOGLE_FIREBASE_APPS_SERVICE_ACCOUNT are set (and
+  GOOGLE_FIREBASE_PROJECT_PARENT, or Admin's setting, for projects made by
+  the platform): LAUNCH-CHECKLIST 7z8.
 
 - 134 Migration `0137_connected_pay` (the table `store_platform_orders`).
   Plugin 0.4.47 (pay inside the app) goes to sites with the app update

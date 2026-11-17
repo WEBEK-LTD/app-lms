@@ -3,7 +3,8 @@ import { ownPaymentAccount } from "../catalog/settings";
 import type { Activation, App, AppError, IntegrationCheck, IntegrationChecks, IntegrationKey } from "../data/types";
 import type { DataStore } from "../data/store";
 import { platformDefinition } from "../hosted/connectors/registry";
-import { hmsCredentialsOf, serviceAccountOf } from "../hosted/notify";
+import { hmsCredentialsOf, pushConfigured, serviceAccountOf } from "../hosted/notify";
+import { usesYallappFirebase } from "../firebase/mode";
 import { checkFirebaseAccount, checkHmsCredentials } from "../hosted/push";
 import { checkAccount, PROVIDER_NAME, type ProviderUrls } from "../payments/provider";
 
@@ -148,9 +149,14 @@ export function integrationsOf(input: { app: App; activation: Activation | null;
 
   if (hosted) {
     rows.push(
-      app.firebaseServiceAccountEncrypted
-        ? { key: "push", state: "connected", reason: "firebase", subject: null, at: null, testable: true, href: "/dashboard/notifications" }
-        : { key: "push", state: "not_set", reason: "no_firebase", subject: null, at: null, testable: false, href: "/dashboard/notifications" },
+      // 136 Yallapp's Firebase: nothing for the owner to add; tested by signing in to Google without a key.
+      usesYallappFirebase(app)
+        ? pushConfigured(app)
+          ? { key: "push", state: "connected", reason: "yallapp_firebase", subject: null, at: null, testable: true, href: "/dashboard/notifications" }
+          : { key: "push", state: "not_set", reason: "yallapp_firebase_pending", subject: null, at: null, testable: false, href: "/dashboard/setup?step=publishing" }
+        : app.firebaseServiceAccountEncrypted
+          ? { key: "push", state: "connected", reason: "firebase", subject: null, at: null, testable: true, href: "/dashboard/notifications" }
+          : { key: "push", state: "not_set", reason: "no_firebase", subject: null, at: null, testable: false, href: "/dashboard/notifications" },
     );
   }
   if (app.huaweiPushSecretEncrypted && app.huaweiAppId) {
@@ -205,6 +211,17 @@ export async function testIntegration(key: IntegrationKey, app: App, deps: TestD
       return accepted === true ? result(true, "payments_accepted", name) : accepted === false ? result(false, "payments_refused", name) : result(false, "payments_unreachable", name);
     }
     case "push": {
+      // 136 Yallapp's Firebase: the push sender signs in through Workload Identity Federation, no key.
+      if (usesYallappFirebase(app)) {
+        const yallapp = serviceAccountOf(app, deps.encryptionKey);
+        if (!yallapp) return null;
+        try {
+          await checkFirebaseAccount(yallapp, { fetcher: deps.fetcher, now: deps.now });
+          return result(true, "yallapp_push_accepted");
+        } catch (error) {
+          return result(false, "yallapp_push_refused", null, [failure(error)]);
+        }
+      }
       if (!app.firebaseServiceAccountEncrypted) return null;
       const account = serviceAccountOf(app, deps.encryptionKey);
       if (!account) return result(false, "push_unreadable");

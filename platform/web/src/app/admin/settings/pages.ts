@@ -12,6 +12,7 @@ export const SETTINGS_PAGES = [
   { href: "/admin/settings/maps", label: "Maps", text: "The map ride, delivery and food apps open on." },
   { href: "/admin/settings/currencies", label: "Currencies", text: "The day's exchange rates customers see prices with, Refresh now, and the team's own rates." },
   { href: "/admin/settings/yallapp-courier", label: "Yallapp Courier", text: "The stores' review account of Yallapp Courier, and its store links once published." },
+  { href: "/admin/settings/firebase", label: "Yallapp Firebase projects", text: "The Firebase projects Yallapp registers its clients' apps in, how full they are, and Check." },
   { href: "/admin/settings/server", label: "Server", text: "What comes from the Netlify variables, and the media server check." },
 ] as const;
 

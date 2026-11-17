@@ -102,6 +102,8 @@ import { holdsOf, holdsOn } from "../travel/holds";
 import { alertData, bookingColumns, bookingData, flightData, hotelData, reviewData, roomData, type TravelAlertData, type TravelBookingData, type TravelFlightData, type TravelHotelData, type TravelReviewData, type TravelRoomData } from "../travel/rows";
 import type { AppDeletion, AppDeletionStatus, AppMoveRequest, AppMoveStatus, KeptBillingRecord } from "./types";
 import type { GiftOccasion, StoreDelivery, StoreFlashSale, StorePlatformOrder, StorePlatformOrderStatus } from "./types";
+import type { AppFirebaseApp, FirebaseAppPlatform, FirebaseAppVariant, FirebaseProject, PlatformKeyPurpose, PlatformSigningKey } from "./types";
+import { firebaseAppOrder } from "../firebase/order";
 import type { CourierAccount, CourierChallenge, CourierDevice, CourierDevicePatch } from "./types";
 // 114 Email campaigns
 import type { BotPhrase, BotUnmatched, BotUnmatchedStatus } from "../bot/types";
@@ -1249,6 +1251,76 @@ export class MysqlStore implements DataStore {
     await this.run((db) =>
       db.delete(schema.appAuthKeys).where(and(eq(schema.appAuthKeys.appId, appId), isNotNull(schema.appAuthKeys.retiredAt), lt(schema.appAuthKeys.retiredAt, before))),
     );
+  }
+
+  // 136 Yallapp sets up notifications
+
+  async listPlatformSigningKeys(purpose: PlatformKeyPurpose): Promise<PlatformSigningKey[]> {
+    const t = schema.platformSigningKeys;
+    const rows = await this.run((db) => db.select().from(t).where(eq(t.purpose, purpose)).orderBy(desc(t.createdAt), desc(t.kid)));
+    return rows.map((row) => ({ ...row, alg: "ES256" as const }));
+  }
+
+  async createPlatformSigningKey(key: PlatformSigningKey): Promise<void> {
+    await this.run((db) => db.insert(schema.platformSigningKeys).values(key));
+  }
+
+  async retirePlatformSigningKeys(purpose: PlatformKeyPurpose, now: Date): Promise<void> {
+    const t = schema.platformSigningKeys;
+    await this.run((db) => db.update(t).set({ retiredAt: now, privateKeyEncrypted: null }).where(and(eq(t.purpose, purpose), isNull(t.retiredAt))));
+  }
+
+  async deletePlatformSigningKeysRetiredBefore(purpose: PlatformKeyPurpose, before: Date): Promise<void> {
+    const t = schema.platformSigningKeys;
+    await this.run((db) => db.delete(t).where(and(eq(t.purpose, purpose), isNotNull(t.retiredAt), lt(t.retiredAt, before))));
+  }
+
+  async listFirebaseProjects(): Promise<FirebaseProject[]> {
+    const t = schema.firebaseProjects;
+    return this.run((db) => db.select().from(t).orderBy(asc(t.createdAt), asc(t.projectId)));
+  }
+
+  async getFirebaseProject(projectId: string): Promise<FirebaseProject | null> {
+    const t = schema.firebaseProjects;
+    const [row] = await this.run((db) => db.select().from(t).where(eq(t.projectId, projectId)).limit(1));
+    return row ?? null;
+  }
+
+  async saveFirebaseProject(project: FirebaseProject): Promise<void> {
+    const { projectId: _id, createdAt: _created, ...rest } = project;
+    void _id;
+    void _created;
+    await this.run((db) => db.insert(schema.firebaseProjects).values(project).onDuplicateKeyUpdate({ set: rest }));
+  }
+
+  async deleteFirebaseProject(projectId: string): Promise<void> {
+    await this.run((db) => db.delete(schema.firebaseProjects).where(eq(schema.firebaseProjects.projectId, projectId)));
+  }
+
+  async countAppFirebaseAppsByProject(): Promise<Record<string, number>> {
+    const t = schema.appFirebaseApps;
+    const rows = await this.run((db) => db.select({ project: t.firebaseProjectId, n: count() }).from(t).groupBy(t.firebaseProjectId));
+    return Object.fromEntries(rows.map((r) => [r.project, Number(r.n)]));
+  }
+
+  async listAppFirebaseApps(appId: string): Promise<AppFirebaseApp[]> {
+    const t = schema.appFirebaseApps;
+    const rows = await this.run((db) => db.select().from(t).where(eq(t.appId, appId)));
+    return rows.sort(firebaseAppOrder);
+  }
+
+  async saveAppFirebaseApp(row: AppFirebaseApp): Promise<void> {
+    const { appId: _app, variant: _variant, platform: _platform, createdAt: _created, ...rest } = row;
+    void _app;
+    void _variant;
+    void _platform;
+    void _created;
+    await this.run((db) => db.insert(schema.appFirebaseApps).values(row).onDuplicateKeyUpdate({ set: rest }));
+  }
+
+  async deleteAppFirebaseApp(appId: string, variant: FirebaseAppVariant, platform: FirebaseAppPlatform): Promise<void> {
+    const t = schema.appFirebaseApps;
+    await this.run((db) => db.delete(t).where(and(eq(t.appId, appId), eq(t.variant, variant), eq(t.platform, platform))));
   }
 
   // Catalog
