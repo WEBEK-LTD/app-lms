@@ -8,6 +8,11 @@ Last updated: 17 November 2026.
 
 ## Current release
 
+Roadmap 79.5 (maintenance): Next.js is 16.4.5 (from 16.4.2, with
+`eslint-config-next`), the first release fixed for GHSA-mfr8-8qww-v76h,
+which `next build` warned about. Nothing else in the lockfile changed and
+no code needed changing.
+
 Roadmap 139 (store screenshots made automatically) is in the code: App
 setup › Store listing has "Make them for me", on for new apps, in the
 dashboard and in Studio. A separate Linux workflow
