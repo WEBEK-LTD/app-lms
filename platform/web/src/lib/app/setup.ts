@@ -23,6 +23,7 @@ import { yallappSignsIn } from "../hosted/sign-in-methods";
 import { hostedOnly } from "./kinds";
 import { sampleTotal } from "../samples/lists";
 import { autoOn, captionsWithDefaults, freshAutoScreenshots, listingScreenshotIds, shotIds } from "./auto-screenshots";
+import { usesYallappFirebase } from "../firebase/mode";
 
 export const SETUP_STEPS = ["app-type", "website", "branding", "listing", "publishing"] as const;
 export type SetupStep = (typeof SETUP_STEPS)[number];
@@ -306,7 +307,8 @@ export async function queueBuild(
   /** 87.1 The checks before a build (lib/builds/preflight.ts); without them none run. */
   preflight?: PreflightDeps,
 ): Promise<QueueBuildResult> {
-  const { client, app, license } = input;
+  const { client, license } = input;
+  let app = input.app;
   // Each app builds on its own plan: never on another app's license.
   if (
     client.status !== "active" ||
@@ -327,7 +329,7 @@ export async function queueBuild(
   if (samples > 0) return { ok: false, reason: "samples", samples };
   const variant = input.variant ?? "app";
   // 104.6 The courier app: a delivery company (105.1.6 or a food one, 105.2 a ride company's drivers' app), 112.3 always, on a plan with it.
-  const delivery = variant === "courier" ? deliverySettingsOf(await store.getDeliverySettings(app.id)) : null;
+  let delivery = variant === "courier" ? deliverySettingsOf(await store.getDeliverySettings(app.id)) : null;
   // 112.3 Studio's demos (on the Business plan, as every demo) have theirs too, for /demo/studio.
   if (delivery && (!hasSecondApp(app, delivery) || !(hasFeature(plan, "courier_app") || (await isDemoApp(store, app))))) {
     return { ok: false, reason: "courier_app_off" };
@@ -347,6 +349,12 @@ export async function queueBuild(
   if (isInProgress(running, now)) return { ok: false, reason: "build_running" };
   const last = (await store.listBuildsByApp(app.id, 1, variant))[0];
   if (last && compareVersions(input.versionName, last.versionName) < 0) return { ok: false, reason: "version_too_low" };
+
+  // 136 Yallapp's Firebase: what isn't registered yet is done now (a few seconds at most), so the build has its files.
+  if (preflight?.yallappFirebase && usesYallappFirebase(app) && !input.from) {
+    app = await preflight.yallappFirebase(app);
+    if (delivery) delivery = deliverySettingsOf(await store.getDeliverySettings(app.id));
+  }
 
   // The store assigns the final version code; 1 is a valid placeholder for validation.
   // 87.3 A rebuild takes the earlier build's config as it was, with the new version.

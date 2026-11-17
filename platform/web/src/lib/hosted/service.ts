@@ -138,6 +138,8 @@ export interface HostedContext {
   sendEmailCode?: (input: { to: string; code: string; appName: string; minutes: number }) => Promise<void>;
   /** Whether push can be sent (a Firebase service account is saved). */
   push: boolean;
+  /** 136.21 iPhones register APNs tokens (`provider: apns`, `features.apns`): Yallapp mode with the client's APNs key saved. */
+  apns?: boolean;
   /** Public URL of an uploaded asset. */
   assetUrl: (assetId: string) => string;
   /** Used when the app has no website of its own. */
@@ -584,6 +586,8 @@ async function config(ctx: HostedContext, req: HostedRequest): Promise<HostedRes
       qna: false,
       // 13.1 Push and offline mode come with the plan.
       push: ctx.push && (ctx.plan === undefined || hasFeature(ctx.plan, "push")),
+      // 136.21 iPhones send their APNs token: their pushes go straight to Apple.
+      ...(ctx.apns ? { apns: true } : {}),
       orders: false,
       ...extra.features,
       offline: ctx.plan === undefined ? false : hasFeature(ctx.plan, "offline_downloads"),
@@ -1455,8 +1459,10 @@ async function setPushToken(ctx: HostedContext, s: Session, body: Record<string,
     if (typeof prefs[key] === "boolean") preferences[key] = prefs[key] as boolean;
   }
   // 36 Firebase (the default) or Huawei Push Kit, for phones without Google Play.
+  // 136.21 Or an iPhone's APNs token, when the app sends iPhone pushes straight to Apple.
   const provider = body.provider ?? "fcm";
-  if (provider !== "fcm" && provider !== "hms") return badRequest("The push provider must be fcm or hms.");
+  if (provider === "apns" && !ctx.apns) return badRequest("This app sends iPhone pushes through Firebase: send the Firebase token.");
+  if (provider !== "fcm" && provider !== "hms" && provider !== "apns") return badRequest("The push provider must be fcm, hms or apns.");
   // 85.1 The app's language on the phone (its first part: "ar" of "ar-EG"), for campaigns' audiences.
   const language = typeof body.language === "string" && LANGUAGE_TAG.test(body.language) ? body.language.split("-")[0]!.toLowerCase() : undefined;
   // 112.3 Which of the company's apps this is (the build's role): each gets its own pushes. Apps built before send none.

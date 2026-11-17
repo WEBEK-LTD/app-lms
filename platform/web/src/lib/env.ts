@@ -305,6 +305,46 @@ export function figmaApiTestUrl(): string | null {
   return testOnlyUrl("FIGMA_API_TEST_URL");
 }
 
+/**
+ * 136 "Yallapp sets up notifications": the Workload Identity Federation
+ * provider that trusts the platform as an OpenID Connect issuer
+ * (`projects/<number>/locations/global/workloadIdentityPools/<pool>/providers/<provider>`),
+ * the service account that sends pushes and the one that registers apps
+ * (and creates the pool's projects). Not secrets: no key exists. All three
+ * are needed; without them Yallapp's Firebase is off and nothing calls
+ * Google. GOOGLE_FIREBASE_PROJECT_PARENT (`organizations/<id>` or
+ * `folders/<id>`) lets the platform create the pool's next project itself.
+ */
+export interface YallappFirebaseEnv {
+  provider: string;
+  pushAccount: string;
+  appsAccount: string;
+  /** Where the platform creates new pool projects; null: only the team adds them. */
+  parent: string | null;
+}
+
+const WIF_PROVIDER = /^projects\/\d{1,20}\/locations\/global\/workloadIdentityPools\/[a-z0-9-]{4,32}\/providers\/[a-z0-9-]{4,32}$/;
+const SERVICE_ACCOUNT_EMAIL = /^[a-z][a-z0-9-]{4,28}[a-z0-9]@[a-z][a-z0-9-]{4,28}[a-z0-9]\.iam\.gserviceaccount\.com$/;
+const PROJECT_PARENT = /^(organizations|folders)\/\d{1,20}$/;
+
+export function yallappFirebaseEnv(): YallappFirebaseEnv | null {
+  const provider = read("GOOGLE_WIF_PROVIDER");
+  const pushAccount = read("GOOGLE_PUSH_SERVICE_ACCOUNT")?.toLowerCase();
+  const appsAccount = read("GOOGLE_FIREBASE_APPS_SERVICE_ACCOUNT")?.toLowerCase();
+  if (!provider || !pushAccount || !appsAccount) return null;
+  if (!WIF_PROVIDER.test(provider) || !SERVICE_ACCOUNT_EMAIL.test(pushAccount) || !SERVICE_ACCOUNT_EMAIL.test(appsAccount)) {
+    console.error("[firebase] GOOGLE_WIF_PROVIDER, GOOGLE_PUSH_SERVICE_ACCOUNT or GOOGLE_FIREBASE_APPS_SERVICE_ACCOUNT is not in its expected form: Yallapp's Firebase stays off.");
+    return null;
+  }
+  const parent = read("GOOGLE_FIREBASE_PROJECT_PARENT") ?? null;
+  return { provider, pushAccount, appsAccount, parent: parent && PROJECT_PARENT.test(parent) ? parent : null };
+}
+
+/** 136 Local tests only (refused on Netlify): Google's APIs for Yallapp's Firebase (STS, IAM credentials, Firebase, FCM, Cloud projects) are this fake server. */
+export function googleApiTestUrl(): string | null {
+  return testOnlyUrl("GOOGLE_API_TEST_URL");
+}
+
 /** 100.6 Yallapp's Pub/Sub topic for Google Play's real-time notifications (`projects/<project>/topics/<name>`), shown to owners; null: not set up. */
 export function googlePubSubTopic(): string | null {
   const topic = read("GOOGLE_PUBSUB_TOPIC")?.trim();

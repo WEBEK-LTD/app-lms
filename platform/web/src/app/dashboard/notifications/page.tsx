@@ -14,7 +14,8 @@ import { dashboardText } from "@/lib/dashboard-lang";
 import { richText } from "@/i18n/rich";
 import { getStore } from "@/lib/data";
 import { encryptionKey } from "@/lib/env";
-import { NOTIFICATION_BODY_MAX, NOTIFICATION_TITLE_MAX, serviceAccountOf } from "@/lib/hosted/notify";
+import { NOTIFICATION_BODY_MAX, NOTIFICATION_TITLE_MAX, pushConfigured, serviceAccountOf } from "@/lib/hosted/notify";
+import { usesYallappFirebase } from "@/lib/firebase/mode";
 import { PLAN_ENDED_MESSAGE } from "@/lib/hosted/send-notification";
 import { appIsActive } from "@/lib/license/status";
 import { isStudioProject } from "@/lib/studio/section";
@@ -28,6 +29,8 @@ import { UpgradeHint } from "@/components/upgrade";
 import { currentPlanId } from "@/lib/billing/plan-change";
 import { effectivePlans } from "@/lib/entitlements";
 import { hasFeature, lowestPlanWith } from "@/lib/plans";
+import { ApnsKeyForm } from "@/components/apns-key-fields";
+import { apnsKeyApplies, savedApnsKey } from "@/lib/integrations/apns-key";
 
 export async function generateMetadata(): Promise<Metadata> {
   return { title: (await dashboardText()).t("notify.title") };
@@ -91,7 +94,10 @@ export default async function NotificationsPage() {
   }
 
   const onCount = kinds.filter((kind) => autoOn(app, kind)).length;
-  const pushOn = push && account !== null;
+  // 136 Its own key, or Yallapp's Firebase (no key to add or remove here).
+  const yallapp = usesYallappFirebase(app);
+  const pushOn = push && pushConfigured(app) && account !== null;
+  const publishingLink = { link: (chunk: string) => <Link href="/dashboard/setup?step=publishing">{chunk}</Link> };
   const sr = { sr: (chunk: string) => <span className="sr-only">{chunk}</span> };
   const close = t("common.close");
   const more = t("studioPage.more");
@@ -298,7 +304,7 @@ export default async function NotificationsPage() {
                 )}
               </span>
             </KitNext>
-          ) : push && !account ? (
+          ) : push && !account && !yallapp ? (
             <KitNext
               icon="notifications"
               action={
@@ -352,9 +358,19 @@ export default async function NotificationsPage() {
           icon="notifications"
           title={t("notify.push")}
           status={pushOn ? <KitStatus tone="success">{t("notify.statPushOn")}</KitStatus> : <KitStatus tone="neutral">{t("notify.statPushOff")}</KitStatus>}
-          description={account ? richText(t("notify.pushOn"), { project: () => <bdi dir="ltr">{account.project_id}</bdi> }) : push ? t("notify.addKey") : t("notify.inboxOnly")}
+          description={
+            yallapp
+              ? account
+                ? t("notify.yallappOn")
+                : richText(t("notify.yallappSettingUp"), publishingLink)
+              : account
+                ? richText(t("notify.pushOn"), { project: () => <bdi dir="ltr">{account.project_id}</bdi> })
+                : push
+                  ? t("notify.addKey")
+                  : t("notify.inboxOnly")
+          }
           action={
-            account ? (
+            account && !yallapp ? (
               <form action={removeServiceAccountAction}>
                 <SubmitButton variant="pill" className="h-9">
                   {t("notify.removeKey")}
@@ -368,12 +384,33 @@ export default async function NotificationsPage() {
               {t("notify.inboxOnly")}
             </UpgradeHint>
           )}
-          {account ? null : (
+          {yallapp ? (
+            <div className="flex flex-col gap-1.5 text-[14px] leading-relaxed text-(--sp-muted)">
+              <p className="m-0">{t("setup.pushYallappIphone")}</p>
+              <p className="m-0">{t("setup.pushYallappPrivacy")}</p>
+              <p className="m-0">{richText(t("notify.yallappOwn"), publishingLink)}</p>
+            </div>
+          ) : account ? null : (
             <KitFold icon="key" summary={t("notify.addKeyAction")} data-fold="push-key">
               <ServiceAccountForm />
             </KitFold>
           )}
         </KitSettingRow>
+
+        {/* 136.20 iPhone notifications straight to Apple: the client's APNs key, checked with Apple. */}
+        {apnsKeyApplies(app) ? (
+          <KitSettingRow
+            titleId="h-apns"
+            icon="phone_iphone"
+            title={t("apns.title")}
+            status={savedApnsKey(app) ? <KitStatus tone="success">{t("apns.statusOn")}</KitStatus> : <KitStatus tone="neutral">{t("apns.statusOff")}</KitStatus>}
+            description={savedApnsKey(app) ? t("apns.direct") : t("apns.needed")}
+          >
+            <KitFold icon="key" summary={savedApnsKey(app) ? t("apns.replaceAction") : t("apns.addAction")} data-fold="apns-key">
+              <ApnsKeyForm saved={savedApnsKey(app)} buildTeamId={app.appleTeamId ?? null} />
+            </KitFold>
+          </KitSettingRow>
+        ) : null}
 
         {kinds.length ? (
           <KitSettingRow

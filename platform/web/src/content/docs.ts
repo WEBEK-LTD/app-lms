@@ -1408,6 +1408,8 @@ Arabic, Persian, Hebrew, Urdu, Pashto and Uyghur are written right to left: when
     steps: true,
     body: `Push notifications are sent through your own Firebase project, so your customers' devices are registered under your account, not ours. Firebase is free for this use. Set it up once; it takes about 20 minutes.
 
+Apps on Yallapp's hosted API (content managed in Yallapp, or a connected store) can skip all of this: on the **Publishing** step, choose **Yallapp sets up notifications (recommended)**, and Yallapp adds your apps to its own Firebase and puts their files in your builds. The steps below are for **Use my own Firebase**.
+
 ## Before you start
 
 - A Google account for the Firebase console

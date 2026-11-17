@@ -4,7 +4,7 @@ import type { LegalTranslation } from "../translation-types";
 export const TR_LEGAL: Partial<Record<"privacy" | "terms" | "refund", LegalTranslation>> = {
   privacy: {
     title: "Gizlilik politikası",
-    updated: "4 Kasım 2026",
+    updated: "16 Kasım 2026",
     body: `## 1. Biz kimiz
 
 Yallapp'in merkezi Kahire, Mısır'dadır ve burada açıklanan kişisel verilerin veri sorumlusudur. Pek çok ülkede işletmelerle çalışıyoruz; bu yüzden işlediğimiz verilere uygulanan veri koruma yasalarına uyuyoruz: Mısır Kişisel Verilerin Korunması Kanunu (2020 tarihli 151 sayılı Kanun) ve uygulandıkları durumlarda AB Genel Veri Koruma Tüzüğü (GDPR) ile 6698 sayılı Kişisel Verilerin Korunması Kanunu (KVKK). İletişim: [{{contact_email}}](mailto:{{contact_email}}).
@@ -30,7 +30,7 @@ Uygulama kullanıcılarınızın verilerinin nasıl işlendiği, uygulamanın i�
 - **Uygulama içi satın alma (Starter dışındaki tüm planlar, açtığınızda):** Biri uygulamanızda Google Play veya App Store üzerinden bir kurs ya da üyelik satın aldığında Yallapp satın almayı mağazayla doğrular ve kaydını saklar: mağazanın satın alma belirteci veya işlem kimliği, ürün, durumu ve tarihleri ile uygulamanızda ait olduğu hesap (WordPress uygulamalarında web sitesi kullanıcısının kimliği). Ödemeyi Google ve Apple alır; Yallapp parayı veya kart bilgilerini asla almaz. Bu kayıtlarda veri sorumlusu sizsiniz, Yallapp ise veri işleyeninizdir; iadeler ve satın almaların geri yüklenmesi çalışsın diye uygulamanız var olduğu sürece saklanır ve onunla birlikte silinir.
 - **Sohbet (Pro ve Business planları):** Uygulamanızda sohbet olduğunda Yallapp; mesajlarını ve dosyalarını, yazan herkesin adını ve fotoğrafını (WordPress uygulamalarında web sitesi kullanıcısının kimliğini, adını ve fotoğrafını, kurs grupları için de kurslarını) ve kimin kimi şikâyet ettiğini veya engellediğini saklar. Bu verilerde veri sorumlusu sizsiniz, Yallapp ise veri işleyeninizdir. Mesajlar ve dosyalar, bir sohbeti daha uzun süre saklamadığınız sürece gönderildikten bir yıl sonra; bir kişi hesabını sildiğinde veya siz onu sildiğinizde ise hemen silinir.
 
-Her durumda, uygulama kullanıcılarınıza kendi gizlilik bildiriminizi sunmaktan siz sorumlusunuz. Anlık bildirimler kendi Firebase projeniz üzerinden gönderilir. Giriş kodları waabek.com aracılığıyla WhatsApp'tan (bizim numaramızdan ya da bağlarsanız sizinkinden) veya e-posta sunucumuzdan e-postayla (ya da kurarsanız kendi e-posta sunucunuz üzerinden; şifresini şifreli olarak saklarız) gönderilebilir. Kullanıcılarınızdan biriyle ilgili bir sorunda bizden yardım isterseniz, yalnızca bizimle paylaştığınız verileri ve yalnızca talimatlarınız doğrultusunda kullanırız.
+Her durumda, uygulama kullanıcılarınıza kendi gizlilik bildiriminizi sunmaktan siz sorumlusunuz. Anlık bildirimler kendi Firebase projeniz üzerinden gönderilir. Uygulamanız için “Bildirimleri Yallapp kursun” seçeneğini seçtiğinizde, uygulamanızın cihaz bildirim belirteçleri yalnızca uygulamanızın bildirimlerini iletmek için Yallapp tarafından Google Firebase Cloud Messaging üzerinden işlenir. Giriş kodları waabek.com aracılığıyla WhatsApp'tan (bizim numaramızdan ya da bağlarsanız sizinkinden) veya e-posta sunucumuzdan e-postayla (ya da kurarsanız kendi e-posta sunucunuz üzerinden; şifresini şifreli olarak saklarız) gönderilebilir. Kullanıcılarınızdan biriyle ilgili bir sorunda bizden yardım isterseniz, yalnızca bizimle paylaştığınız verileri ve yalnızca talimatlarınız doğrultusunda kullanırız.
 
 ## 4. Verilerinizi neden kullanıyoruz ve hukuki dayanağımız
 
@@ -80,7 +80,7 @@ Değişiklikleri burada yayınlar, önemli olanlar hakkında size e-posta gönde
   },
   terms: {
     title: "Hizmet koşulları",
-    updated: "27 Ekim 2026",
+    updated: "16 Kasım 2026",
     body: `## 1. Bu koşullar hakkında
 
 Bu koşullar Yallapp'i kullanımınızı kapsar: yallapp.com.tr'deki web sitesi, müşteri paneli, Yallapp WordPress eklentisi ve sizin için derlediğimiz mobil uygulamalar. Yallapp'in merkezi Kahire, Mısır'dadır. Bu koşullarda "biz" ifadesi Yallapp anlamına gelir. Bir hesap oluşturarak bu koşulları kabul etmiş olursunuz.
@@ -141,7 +141,7 @@ Bu koşullardaki hiçbir şey, ihmalden kaynaklanan ölüm veya yaralanma ya da 
 
 ## 15. Kişisel veriler
 
-Kişisel verileri [Gizlilik politikamızda](/privacy) açıklandığı şekilde işleriz.
+Kişisel verileri [Gizlilik politikamızda](/privacy) açıklandığı şekilde işleriz. Uygulamanız için “Bildirimleri Yallapp kursun” seçeneğini seçtiğinizde, uygulamanızın cihaz bildirim belirteçleri yalnızca uygulamanızın bildirimlerini iletmek için Yallapp tarafından Google Firebase Cloud Messaging üzerinden işlenir.
 
 ## 16. Bu koşullardaki değişiklikler
 

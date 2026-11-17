@@ -1,6 +1,16 @@
 import type { OrderMoney } from "../market/money";
 import type {
   AppAuthKey,
+  // 136 Yallapp sets up notifications
+  FirebaseAppPlatform,
+  FirebaseAppStatus,
+  FirebaseAppVariant,
+  FirebaseProject,
+  FirebaseProjectCreation,
+  FirebaseProjectStatus,
+  PlatformKeyPurpose,
+  PlatformSigningKey,
+  PushSetup,
   AppBackend,
   AppSection,
   AppType,
@@ -373,6 +383,9 @@ export const apps = mysqlTable(
     // 100.2 Courses and memberships sold through the stores.
     storeBilling: jsonText<StoreBillingSettings>("store_billing"),
     firebaseServiceAccountEncrypted: text("firebase_service_account_encrypted"),
+    // 136 "yallapp": Yallapp registers the apps in its own Firebase project (`firebase_project_id`); null: the client's own Firebase.
+    pushSetup: varchar("push_setup", { length: 8 }).$type<PushSetup>(),
+    firebaseProjectId: varchar("firebase_project_id", { length: 64 }),
     googlePlayKeyEncrypted: text("google_play_key_encrypted"),
     googlePlayClientEmail: varchar("google_play_client_email", { length: 191 }),
     ascIssuerId: varchar("asc_issuer_id", { length: 64 }),
@@ -390,6 +403,10 @@ export const apps = mysqlTable(
     huaweiClientSecretEncrypted: text("huawei_client_secret_encrypted"),
     huaweiAgconnectAssetId: id("huawei_agconnect_asset_id"),
     huaweiPushSecretEncrypted: text("huawei_push_secret_encrypted"),
+    // 136.20 Direct APNs: the client's APNs auth key (encrypted), its Key ID and Team ID.
+    apnsKeyEncrypted: text("apns_key_encrypted"),
+    apnsKeyId: varchar("apns_key_id", { length: 10 }),
+    apnsTeamId: varchar("apns_team_id", { length: 10 }),
     // 42 Xiaomi GetApps: the developer account's email, the API private key (encrypted), Xiaomi's public certificate, what's new.
     xiaomiUserName: varchar("xiaomi_user_name", { length: 254 }),
     xiaomiPasswordEncrypted: text("xiaomi_password_encrypted"),
@@ -643,6 +660,63 @@ export const appAuthKeys = mysqlTable(
     retiredAt: time("retired_at"),
   },
   (t) => [index("app_auth_keys_app_idx").on(t.appId, t.createdAt)],
+);
+
+// 136 The platform's own OpenID Connect issuer keys (`<APP_URL>/oidc`), for Workload Identity Federation with Google.
+export const platformSigningKeys = mysqlTable(
+  "platform_signing_keys",
+  {
+    kid: varchar("kid", { length: 64 }).primaryKey(),
+    purpose: varchar("purpose", { length: 16 }).notNull().$type<PlatformKeyPurpose>(),
+    alg: varchar("alg", { length: 10 }).notNull().$type<"ES256">(),
+    publicJwk: jsonText<PlatformSigningKey["publicJwk"]>("public_jwk").notNull(),
+    privateKeyEncrypted: text("private_key_encrypted"),
+    createdAt: time("created_at").notNull(),
+    retiredAt: time("retired_at"),
+  },
+  (t) => [index("platform_signing_keys_purpose_idx").on(t.purpose, t.createdAt)],
+);
+
+// 136 Yallapp's Firebase projects, the pool the apps are registered in (Admin › Settings › Yallapp Firebase projects).
+export const firebaseProjects = mysqlTable("firebase_projects", {
+  projectId: varchar("project_id", { length: 64 }).primaryKey(),
+  projectNumber: varchar("project_number", { length: 24 }).notNull(),
+  apiKeyId: varchar("api_key_id", { length: 64 }).notNull(),
+  maxApps: int("max_apps").notNull().default(28),
+  status: varchar("status", { length: 8 }).notNull().$type<FirebaseProjectStatus>(),
+  // "team" (added in Admin) or "platform" (created when the pool ran low), and where a created one is in its steps (JSON).
+  createdBy: varchar("created_by", { length: 8 }).notNull().default("team").$type<FirebaseProject["createdBy"]>(),
+  creation: jsonText<FirebaseProjectCreation>("creation"),
+  checkedAt: time("checked_at"),
+  checkProblem: varchar("check_problem", { length: 500 }),
+  createdAt: time("created_at").notNull(),
+  updatedAt: time("updated_at").notNull(),
+});
+
+// 136 Each of an app's apps (the customers' app and its bundle's second apps, on Android and iOS) in a Yallapp Firebase project.
+export const appFirebaseApps = mysqlTable(
+  "app_firebase_apps",
+  {
+    appId: id("app_id")
+      .notNull()
+      .references(() => apps.id, { onDelete: "cascade" }),
+    variant: varchar("variant", { length: 10 }).notNull().$type<FirebaseAppVariant>(),
+    platform: varchar("platform", { length: 8 }).notNull().$type<FirebaseAppPlatform>(),
+    firebaseProjectId: varchar("firebase_project_id", { length: 64 }).notNull(),
+    identifier: varchar("identifier", { length: 160 }).notNull(),
+    firebaseAppId: varchar("firebase_app_id", { length: 100 }),
+    operation: varchar("operation", { length: 255 }),
+    status: varchar("status", { length: 10 }).notNull().$type<FirebaseAppStatus>(),
+    error: varchar("error", { length: 500 }),
+    apnsConfiguredAt: time("apns_configured_at"),
+    createdAt: time("created_at").notNull(),
+    updatedAt: time("updated_at").notNull(),
+  },
+  (t) => [
+    primaryKey({ columns: [t.appId, t.variant, t.platform] }),
+    index("app_firebase_apps_project_idx").on(t.firebaseProjectId),
+    index("app_firebase_apps_status_idx").on(t.status, t.updatedAt),
+  ],
 );
 
 export const hostedRefreshTokens = mysqlTable(

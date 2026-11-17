@@ -2,6 +2,7 @@ import type { DataStore } from "../../data/store";
 import type { App, Article, ArticleCategory, NewsSettings } from "../../data/types";
 import { DEFAULT_NEWS_SETTINGS, handleNews, newsConfig, type NewsArticle, type NewsSource } from "../../news/service";
 import type { Connector, ConnectorRequest, ConnectorResult } from "./types";
+import { pushConfigured } from "../notify";
 
 export interface ArticlesDeps {
   store: DataStore;
@@ -49,8 +50,8 @@ export class ArticlesConnector implements Connector, NewsSource {
   constructor(private readonly deps: ArticlesDeps) {}
 
   async config() {
-    // Breaking news is sent from the dashboard with the app's Firebase account (the hosted API adds the plan's push).
-    return { news: newsConfig(await this.settings(), this.deps.app.firebaseServiceAccountEncrypted !== null) };
+    // Breaking news is sent from the dashboard with the app's Firebase account (the hosted API adds the plan's push); 136 or Yallapp's.
+    return { news: newsConfig(await this.settings(), pushConfigured(this.deps.app)) };
   }
 
   settings(): Promise<NewsSettings> {

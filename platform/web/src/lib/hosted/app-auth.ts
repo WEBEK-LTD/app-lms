@@ -1,5 +1,6 @@
-import { calculateJwkThumbprint, createLocalJWKSet, exportJWK, exportPKCS8, generateKeyPair, importPKCS8, jwtVerify, SignJWT, type JWK } from "jose";
-import { decrypt, encrypt } from "../crypto/encryption";
+import { createLocalJWKSet, importPKCS8, jwtVerify, SignJWT, type JWK } from "jose";
+import { decrypt } from "../crypto/encryption";
+import { currentKey, keySetOf, keysToPublish, newEs256Key } from "../crypto/es256-keys";
 import type { DataStore } from "../data/store";
 import type { AppAuthKey, HostedUser } from "../data/types";
 import { yallappSignsIn } from "./sign-in-methods";
@@ -65,35 +66,23 @@ export const keyContext = (appId: string) => `app-auth-key:${appId}`;
 
 /** A new key pair for the app, the private key encrypted. */
 export async function newAuthKey(appId: string, encryptionKey: Buffer, now: Date): Promise<AppAuthKey> {
-  const { publicKey, privateKey } = await generateKeyPair(SIGN_IN_ALG, { extractable: true });
-  const jwk = await exportJWK(publicKey);
-  const publicJwk = { kty: jwk.kty!, crv: jwk.crv!, x: jwk.x!, y: jwk.y! };
-  return {
-    kid: await calculateJwkThumbprint(publicJwk),
-    appId,
-    alg: SIGN_IN_ALG,
-    publicJwk,
-    privateKeyEncrypted: encrypt(await exportPKCS8(privateKey), encryptionKey, keyContext(appId)),
-    createdAt: now,
-    retiredAt: null,
-  };
+  // 136 The same ES256 key pairs as the platform's own issuer keys (lib/crypto/es256-keys.ts).
+  return { ...(await newEs256Key(encryptionKey, keyContext(appId))), appId, alg: SIGN_IN_ALG, createdAt: now, retiredAt: null };
 }
 
 /** The key that signs now: the newest one not retired. */
 export function signingKey(keys: readonly AppAuthKey[]): AppAuthKey | null {
-  return keys.find((k) => k.retiredAt === null && k.privateKeyEncrypted) ?? null;
+  return currentKey(keys);
 }
 
 /** The keys to publish: those signing now and those retired less than a day ago. */
 export function publishedKeys(keys: readonly AppAuthKey[], now: Date): AppAuthKey[] {
-  return keys.filter((k) => k.retiredAt === null || now.getTime() - k.retiredAt.getTime() < RETIRED_KEY_SECONDS * 1000);
+  return keysToPublish(keys, now, RETIRED_KEY_SECONDS);
 }
 
 /** The JSON Web Key Set (RFC 7517) of the app's published keys, newest first. Public parts only. */
 export function jwksOf(keys: readonly AppAuthKey[], now: Date): { keys: JWK[] } {
-  return {
-    keys: publishedKeys(keys, now).map((k) => ({ kty: k.publicJwk.kty, crv: k.publicJwk.crv, x: k.publicJwk.x, y: k.publicJwk.y, kid: k.kid, alg: k.alg, use: "sig" })),
-  };
+  return keySetOf(keys, now, RETIRED_KEY_SECONDS);
 }
 
 /** The app's signing key, made when it has none. */

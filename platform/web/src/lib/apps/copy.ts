@@ -121,6 +121,8 @@ const FRESH: Partial<App> = {
   recommendedVersion: null,
   firebaseAndroidAssetId: null,
   firebaseIosAssetId: null,
+  // 136 In Yallapp's Firebase, a copy registers its own apps once it has its own package name and bundle ID.
+  firebaseProjectId: null,
   googlePlayClientEmail: null,
   ascIssuerId: null,
   ascKeyId: null,
@@ -129,6 +131,9 @@ const FRESH: Partial<App> = {
   huaweiAppId: null,
   huaweiClientId: null,
   huaweiAgconnectAssetId: null,
+  // 136.20 The APNs key is the client's Apple team's: a copy adds its own.
+  apnsKeyId: null,
+  apnsTeamId: null,
   xiaomiUserName: null,
   xiaomiCertificate: null,
   xiaomiReleaseNotes: null,
@@ -333,7 +338,9 @@ export const COPIERS: { tables: string[]; copy: Copier }[] = [
     copy: async (ctx) => {
       const settings = await ctx.store.getDeliverySettings(ctx.from.id);
       if (settings) {
-        await ctx.store.saveDeliverySettings(ctx.to.id, u(ctx, settings), ctx.now);
+        // 136 The courier app's iPhone file from Yallapp's Firebase is the source's own: the copy gets its own.
+        const own = ctx.from.pushSetup === "yallapp" ? { ...settings, courierFirebaseIosAssetId: null } : settings;
+        await ctx.store.saveDeliverySettings(ctx.to.id, u(ctx, own), ctx.now);
         count(ctx, "delivery_settings");
       }
       for (const s of oldestFirst(await ctx.store.listDeliveryServices(ctx.from.id))) {
