@@ -1,6 +1,7 @@
 "use client";
 
 import { CurrencyPicker } from "@/components/currency-picker";
+import { TimeZonePicker } from "@/components/time-zone-picker";
 import { useActionState } from "react";
 import {
   addBookingCategoryAction,
@@ -45,7 +46,7 @@ function Select({ label, name, value, options, error }: { label: string; name: s
   );
 }
 
-export function RulesForm({ current, timezones }: { current: Record<string, string>; timezones: string[] }) {
+export function RulesForm({ current }: { current: Record<string, string> }) {
   const t = useDashT();
   const [state, action] = useActionState(saveBookingRulesAction, initialFormState);
   const v = state.values ?? current;
@@ -54,7 +55,8 @@ export function RulesForm({ current, timezones }: { current: Record<string, stri
     <form action={action} noValidate className="flex flex-col gap-4" key={JSON.stringify(v)}>
       <FormMessage message={state.message} ok={state.ok} />
       <div className="grid gap-4 sm:grid-cols-3">
-        <Select label={t("shop.timeZone")} name="timezone" value={v.timezone ?? ""} options={timezones.map((t) => ({ value: t, label: t }))} error={e.timezone} />
+        {/* 137 Every time zone: searched by city, zone or offset, the usual ones first. */}
+        <TimeZonePicker label={t("shop.timeZone")} defaultValue={v.timezone ?? ""} error={e.timezone} className="sm:col-span-3" />
         {/* 135.3 Any currency: searched by name, code or sign, the usual ones first. */}
         <CurrencyPicker label={t("shop.currency")} defaultValue={v.currency ?? "TRY"} error={e.currency} className="sm:col-span-3" />
         <Select

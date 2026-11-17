@@ -131,6 +131,8 @@ test("the owner translates a tab name and one of the app's texts; a wrong placeh
 test("export and import a translations file", async () => {
   await own.getByLabel("Search", { exact: true }).fill("");
   const download = own.waitForEvent("download");
+  // 132.137 Export and import are in the translations' "⋯" menu.
+  await own.getByRole("button", { name: "Export or import" }).click();
   await own.getByRole("button", { name: "CSV" }).click();
   const file = await download;
   expect(file.suggestedFilename()).toBe("translations-fr.csv");

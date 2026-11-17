@@ -4,8 +4,10 @@ import { useActionState, useState } from "react";
 import { saveAddonsAction, saveAreasAction, saveCheckoutModeAction, saveDeliveryAction, saveFlashSaleAction, saveGiftsAction, saveOccasionAction, addOccasionAction, saveTemplateAction, saveTitlesAction } from "@/app/actions/selling";
 import { Field, FormMessage, SubmitButton } from "@/components/form";
 import { FormActions } from "@/components/page-kit";
+import { TimeZonePicker } from "@/components/time-zone-picker";
 import { useDashT } from "@/components/dashboard-i18n";
 import { initialFormState } from "@/lib/forms";
+import { AreasEditor, ProductPicker, SlotList, slotRowsOf, type AreasStart, type CountryChoice, type ProductChoice } from "./pickers";
 
 /** 131 Store › Delivery & offers: its forms. */
 
@@ -58,7 +60,20 @@ export function CheckoutModeForm({ mode }: { mode: "standard" | "gift" }) {
 
 const WEEKDAYS = [0, 1, 2, 3, 4, 5, 6];
 
-export function DeliveryForm({ values: saved, currency, timezones, weekdays, feesNote }: { values: Record<string, string>; currency: string; timezones: string[]; weekdays: string[]; feesNote: string | null }) {
+export function DeliveryForm({
+  values: saved,
+  currency,
+  weekdays,
+  feesNote,
+  maxSlots,
+}: {
+  values: Record<string, string>;
+  currency: string;
+  weekdays: string[];
+  feesNote: string | null;
+  /** lib/selling/delivery.ts `DELIVERY_LIMITS.slots`. */
+  maxSlots: number;
+}) {
   const t = useDashT();
   const [state, action] = useActionState(saveDeliveryAction, initialFormState);
   const v = { ...saved, ...state.values };
@@ -75,18 +90,8 @@ export function DeliveryForm({ values: saved, currency, timezones, weekdays, fee
       </div>
       <div className="grid gap-4 sm:grid-cols-2">
         <Field label={t("selling.maxDays")} name="maxDays" inputMode="numeric" defaultValue={v.maxDays} hint={t("selling.maxDaysHint")} error={e.maxDays} small />
-        <div className="flex flex-col gap-1.5">
-          <label htmlFor="f-timezone" className="text-sm font-semibold">
-            {t("selling.timezone")}
-          </label>
-          <select id="f-timezone" name="timezone" defaultValue={v.timezone} className="input input-sm" dir="ltr">
-            {timezones.map((z) => (
-              <option key={z} value={z}>
-                {z}
-              </option>
-            ))}
-          </select>
-        </div>
+        {/* 137 Every time zone: searched by city, zone or offset, the usual ones first. */}
+        <TimeZonePicker id="f-timezone" label={t("selling.timezone")} defaultValue={v.timezone} error={e.timezone} size="sm" />
       </div>
       <fieldset className="m-0 flex flex-col gap-2 border-0 p-0">
         <legend className="mb-1 text-sm font-semibold">{t("selling.closedDays")}</legend>
@@ -100,19 +105,11 @@ export function DeliveryForm({ values: saved, currency, timezones, weekdays, fee
         </div>
         {e.closed ? <p className="m-0 text-sm text-danger">{e.closed}</p> : null}
       </fieldset>
+      {/* 132.186 The day's times as rows: several a day (a break between them is two times), never overlapping. */}
       <fieldset className="m-0 flex flex-col gap-2 border-0 p-0">
         <legend className="mb-1 text-sm font-semibold">{t("selling.slots")}</legend>
         <p className="m-0 text-[13px] text-muted">{t("selling.slotsHint")}</p>
-        {Array.from({ length: 6 }, (_, i) => (
-          <div key={i} className="grid grid-cols-2 gap-2 sm:grid-cols-4" data-slot-row={i}>
-            <input type="hidden" name={`slotId${i}`} value={v[`slotId${i}`] ?? ""} />
-            <Field label={t("selling.slotFrom")} name={`slotStart${i}`} placeholder="10:00" dir="ltr" defaultValue={v[`slotStart${i}`]} small />
-            <Field label={t("selling.slotTo")} name={`slotEnd${i}`} placeholder="13:00" dir="ltr" defaultValue={v[`slotEnd${i}`]} small />
-            <Field label={t("selling.slotCapacity")} name={`slotCapacity${i}`} inputMode="numeric" defaultValue={v[`slotCapacity${i}`]} small />
-            <Field label={t("selling.slotFee", { currency })} name={`slotFee${i}`} inputMode="decimal" defaultValue={v[`slotFee${i}`]} small error={e[`slot${i}`]} />
-          </div>
-        ))}
-        <p className="m-0 text-[13px] text-muted">{feesNote ?? t("selling.slotFull")}</p>
+        <SlotList initial={slotRowsOf(v, maxSlots)} max={maxSlots} currency={currency} errors={e} submitted={state.values} note={feesNote ?? t("selling.slotFull")} />
       </fieldset>
       <FormActions>
         <SubmitButton className="h-10" pendingText={t("common.saving")}>
@@ -128,56 +125,26 @@ export function AreasForm({
   currency,
   countries,
   starters,
+  areas,
 }: {
   values: Record<string, string>;
   currency: string;
-  countries: { code: string; name: string }[];
-  starters: Record<string, string>;
+  /** 132.186 Every country, the platform's first ones on top. */
+  countries: CountryChoice[];
+  starters: Record<string, string[]>;
+  /** Where it delivers now, as the editor starts. */
+  areas: AreasStart;
 }) {
   const t = useDashT();
   const [state, action] = useActionState(saveAreasAction, initialFormState);
   const v = { ...saved, ...state.values };
   const e = state.errors ?? {};
   const [mode, setMode] = useState(v.shippingMode || "flat");
-  const [picked, setPicked] = useState<string[]>(() => Array.from({ length: 4 }, (_, i) => v[`country${i}`] ?? ""));
   return (
     <form action={action} noValidate className="flex flex-col gap-4" data-areas-form="">
       <FormMessage message={state.message} ok={state.ok} />
-      {picked.map((code, i) => (
-        <div key={i} className="grid gap-3 sm:grid-cols-[220px_1fr]" data-area-row={i}>
-          <div className="flex flex-col gap-1.5">
-            <label htmlFor={`f-country${i}`} className="text-sm font-semibold">
-              {t("selling.country")}
-            </label>
-            <select
-              id={`f-country${i}`}
-              name={`country${i}`}
-              value={code}
-              onChange={(ev) => setPicked((list) => list.map((c, n) => (n === i ? ev.target.value : c)))}
-              className="input input-sm"
-            >
-              <option value="">{t("selling.countryNone")}</option>
-              {countries.map((c) => (
-                <option key={c.code} value={c.code}>
-                  {c.name}
-                </option>
-              ))}
-            </select>
-            {e[`country${i}`] ? <p className="m-0 text-sm text-danger">{e[`country${i}`]}</p> : null}
-          </div>
-          <div className="flex flex-col gap-1.5">
-            <label htmlFor={`f-cities${i}`} className="text-sm font-semibold">
-              {t("selling.cities")}
-            </label>
-            <textarea id={`f-cities${i}`} name={`cities${i}`} rows={3} defaultValue={v[`cities${i}`]} className="input" placeholder={code && starters[code] ? starters[code]!.split(", ").slice(0, 3).join("\n") : ""} />
-            <span className="text-xs text-muted">
-              {t("selling.citiesHint")}
-              {code && starters[code] ? ` ${t("selling.suggested", { cities: starters[code]! })}` : ""}
-            </span>
-            {e[`cities${i}`] ? <p className="m-0 text-sm text-danger">{e[`cities${i}`]}</p> : null}
-          </div>
-        </div>
-      ))}
+      {/* 132.186 Every country or the ones chosen from all of them, each with the owner's own cities right under it. */}
+      <AreasEditor start={areas} countries={countries} starters={starters} currency={currency} errors={e} />
       <fieldset className="m-0 flex flex-col gap-2 border-0 p-0">
         <legend className="mb-1 text-sm font-semibold">{t("selling.pricing")}</legend>
         <div className="grid gap-3 sm:grid-cols-3">
@@ -192,14 +159,6 @@ export function AreasForm({
           ))}
         </div>
       </fieldset>
-      <div className="flex flex-col gap-1.5">
-        <label htmlFor="f-city-prices" className="text-sm font-semibold">
-          {t("selling.cityPrices")}
-        </label>
-        <textarea id="f-city-prices" name="cityPrices" rows={3} defaultValue={v.cityPrices} className="input" />
-        <span className="text-xs text-muted">{t("selling.cityPricesHint")}</span>
-        {e.cityPrices ? <p className="m-0 text-sm text-danger">{e.cityPrices}</p> : null}
-      </div>
       {mode === "city" ? <Field label={t("selling.otherCity", { currency })} name="otherCity" inputMode="decimal" defaultValue={v.otherCity} hint={t("selling.otherCityHint")} error={e.otherCity} small /> : null}
       {mode === "distance" ? (
         <div className="grid gap-3 sm:grid-cols-3">
@@ -266,8 +225,8 @@ export function FlashSaleForm({
   sale?: { id: number; values: Record<string, string> };
   currency: string;
   zone: string;
-  /** The shop's own products (checkboxes); null: a platform's, by number. */
-  products: { id: number; name: string }[] | null;
+  /** The shop's own products (checkboxes with their pictures and prices); null: a platform's, by number. */
+  products: ProductChoice[] | null;
   categories: { id: number; name: string }[];
   platform: string | null;
   /** 131 The app's other languages, for the title in each. */
@@ -290,15 +249,7 @@ export function FlashSaleForm({
       ))}
       {e.titles ? <p className="m-0 text-sm text-danger">{e.titles}</p> : null}
       {products ? (
-        <fieldset className="m-0 flex max-h-56 flex-col gap-2 overflow-auto border-0 p-0">
-          <legend className="mb-1 text-sm font-semibold">{t("selling.flashProducts")}</legend>
-          {products.map((p) => (
-            <label key={p.id} className="flex items-center gap-2 text-sm">
-              <input type="checkbox" name="product" value={p.id} defaultChecked={chosen.has(String(p.id))} className="h-4 w-4 accent-midnight" />
-              {p.name}
-            </label>
-          ))}
-        </fieldset>
+        <ProductPicker products={products} chosen={chosen} legend={t("selling.flashProducts")} />
       ) : (
         <Field label={t("selling.flashProductIds")} id={f("ids")} name="productIds" dir="ltr" defaultValue={v.productIds} hint={t("selling.flashProductIdsHint")} small />
       )}

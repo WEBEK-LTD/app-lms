@@ -25,7 +25,6 @@ export async function generateMetadata(): Promise<Metadata> {
   return { title: (await dashboardText()).t("bookings.page", { kind }) };
 }
 
-const TIMEZONES = ["Europe/Istanbul", "Europe/London", "Europe/Berlin", "Europe/Paris", "Asia/Dubai", "Asia/Riyadh", "Africa/Cairo", "America/New_York"];
 
 function serviceValues(s: BookingService | null): Record<string, string> {
   if (!s) return { name: "", duration: "30", price: "", categoryId: "", description: "", color: "", active: "on" };
@@ -291,7 +290,6 @@ export default async function ServicesPage({ searchParams }: { searchParams: Pro
         <TabPanel tab="rules">
         <Section titleId="h-rules" title={t("bookings.rules")}>
           <RulesForm
-            timezones={TIMEZONES.includes(rules.timezone) ? TIMEZONES : [rules.timezone, ...TIMEZONES]}
             current={{
               timezone: rules.timezone,
               currency: rules.currency,

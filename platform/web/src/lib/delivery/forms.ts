@@ -3,6 +3,7 @@ import type { CatalogCurrency, Cuisine, DeliveryService, DeliverySettings, Deliv
 import { DELIVERY_ASSIGNMENTS, DELIVERY_PRICINGS, DELIVERY_TRACKINGS, FOOD_COURIER_JOBS } from "../data/types";
 import { DEFAULT_FOOD_TIMEZONE } from "../food/service";
 import { parseAnyPhone } from "../hosted/phone";
+import { isIanaZone } from "../time/zones";
 import { DELIVERY_LIMITS } from "./settings";
 
 /**
@@ -65,28 +66,6 @@ export function parseZones(text: string, saved: DeliveryZone[]): { zones: Delive
   }
   return { zones, error: null };
 }
-
-/** 105.1 The time zones a food company's opening hours can be in. */
-export const FOOD_TIMEZONES = [
-  "Africa/Cairo",
-  "Europe/Istanbul",
-  "Asia/Riyadh",
-  "Asia/Dubai",
-  "Asia/Kuwait",
-  "Asia/Qatar",
-  "Asia/Bahrain",
-  "Asia/Amman",
-  "Asia/Beirut",
-  "Asia/Baghdad",
-  "Africa/Casablanca",
-  "Africa/Algiers",
-  "Africa/Tunis",
-  "Africa/Tripoli",
-  "Africa/Khartoum",
-  "Europe/London",
-  "Europe/Berlin",
-  "America/New_York",
-] as const;
 
 /** 105.1 The cuisines of the text area, one a line; their IDs stay with their names. */
 export function parseCuisines(text: string, saved: Cuisine[]): { cuisines: Cuisine[]; error: string | null } {
@@ -155,7 +134,8 @@ export function parseDeliverySettings(form: Record<string, string>, saved: Deliv
     if (parsed.error) errors.cuisines = parsed.error;
     const foodCourierJob = FOOD_COURIER_JOBS.find((v) => v === str(form, "foodCourierJob"));
     if (!foodCourierJob) errors.foodCourierJob = "Choose when a courier gets the order.";
-    const timezone = FOOD_TIMEZONES.find((z) => z === str(form, "timezone"));
+    // 137 Any IANA zone, as the picker lists them all.
+    const timezone = isIanaZone(str(form, "timezone")) ? str(form, "timezone") : undefined;
     if (!timezone) errors.timezone = "Choose the time zone of your restaurants' hours.";
     foodValues = { cuisines: parsed.cuisines, foodCourierJob: foodCourierJob ?? "accepted", timezone: timezone ?? DEFAULT_FOOD_TIMEZONE };
   }

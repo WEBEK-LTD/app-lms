@@ -4,8 +4,8 @@ import { notFound, redirect } from "next/navigation";
 import { closeSchoolConversationAction, deleteSchoolMessageAction } from "@/app/actions/chat";
 import { SubmitButton } from "@/components/form";
 import { Icon } from "@/components/icon";
-import { Badge, Notice, PageHeader, Section } from "@/components/ui";
-import { DetailLayout } from "@/components/page-kit";
+import { KitCallout, KitHeader, KitPage, KitStatus, kit } from "@/components/studio-page";
+import { KitInspectorPart } from "@/components/studio-page/parts";
 import type { DashKey } from "@/i18n/dashboard";
 import { requireClient } from "@/lib/auth/session";
 import { chatAvailable } from "@/lib/chat/access";
@@ -57,70 +57,66 @@ export default async function SchoolConversationPage({ params, searchParams }: P
   const { t, date } = await dashboardText();
   const when = (iso: string) => t("listings.utc", { time: date(new Date(iso), WHEN) });
 
+  // 132.160 In the console's look: the header with the way back, the school's note, the messages and closing it in one card.
   return (
-    <div className="flex flex-col gap-6">
-      {/* The page kit: the conversation's header with the way back, its messages beside what the school sees and closing it. */}
-      <PageHeader
+    <KitPage>
+      <KitHeader
         title={
-          <span className="flex flex-wrap items-center gap-2">
+          <span className="flex flex-wrap items-center gap-2.5">
             {teacher?.name ?? "—"} · {other?.name ?? "—"}
-            {conversation.closedAt ? <Badge tone="neutral">{t("chat.closed")}</Badge> : null}
+            {conversation.closedAt ? <KitStatus tone="neutral">{t("chat.closed")}</KitStatus> : null}
           </span>
         }
         description={other?.role === "student" ? t("chat.teacherAndStudent") : t("chat.teacherAndParent", { names: students.join(", ") || "—" })}
         back={{ href: "/dashboard/chat?view=school", label: t("chat.backSchool") }}
       />
-      <DetailLayout
-        main={
-          <>
-            <Section title={t("chat.messages")} titleId="h-school-messages">
-              {hasMore || before ? (
-                <nav className="flex justify-between gap-3 text-sm">
-                  {hasMore && messages[0] ? <Link href={`/dashboard/chat/school/${conversation.id}?before=${messages[0].id}`}>{t("chat.older")}</Link> : <span />}
-                  {before ? <Link href={`/dashboard/chat/school/${conversation.id}`}>{t("chat.newest")}</Link> : null}
-                </nav>
-              ) : null}
-              {messages.length === 0 ? (
-                <p className="m-0 text-[15px] text-muted">{t("chat.noMessages")}</p>
-              ) : (
-                <ol className="m-0 flex list-none flex-col gap-3 p-0">
-                  {messages.map((m) => (
-                    <Message key={m.id} m={m} />
-                  ))}
-                </ol>
-              )}
-            </Section>
-          </>
-        }
-        side={
-          <>
-            <Notice icon={world.messages.adminReads ? "visibility" : "lock"}>{world.messages.adminReads ? t("chat.schoolReads") : t("chat.schoolReportedOnly")}</Notice>
-            <Section title={t("chat.thisConversation")} titleId="h-school-conversation">
-              <form action={closeSchoolConversationAction} className="flex flex-col items-start gap-3">
-                <input type="hidden" name="conversation" value={conversation.id} />
-                <input type="hidden" name="closed" value={conversation.closedAt ? "0" : "1"} />
-                <span className="text-sm text-muted">{conversation.closedAt ? t("chat.closedText") : t("chat.closeText")}</span>
-                <SubmitButton variant="secondary" className="h-9 px-3.5 text-sm" pendingText={t("chat.saving")}>
-                  <Icon name={conversation.closedAt ? "forum" : "lock"} size={18} />
-                  {conversation.closedAt ? t("chat.reopen") : t("chat.close")}
-                </SubmitButton>
-              </form>
-            </Section>
-          </>
-        }
-      />
-    </div>
+      <KitCallout icon={world.messages.adminReads ? "visibility" : "lock"}>{world.messages.adminReads ? t("chat.schoolReads") : t("chat.schoolReportedOnly")}</KitCallout>
+      <section aria-labelledby="h-school-messages" className={`${kit.card} flex max-w-[760px] flex-col gap-5 p-5 sm:p-6`}>
+        <KitInspectorPart
+          title={<span id="h-school-messages">{t("chat.messages")}</span>}
+          aside={
+            hasMore || before ? (
+              <span className="flex gap-4 text-[13px]">
+                {hasMore && messages[0] ? <Link href={`/dashboard/chat/school/${conversation.id}?before=${messages[0].id}`}>{t("chat.older")}</Link> : null}
+                {before ? <Link href={`/dashboard/chat/school/${conversation.id}`}>{t("chat.newest")}</Link> : null}
+              </span>
+            ) : null
+          }
+        >
+          {messages.length === 0 ? (
+            <p className="m-0 text-[15px] text-(--sp-muted)">{t("chat.noMessages")}</p>
+          ) : (
+            <ol className="m-0 flex list-none flex-col gap-3 p-0">
+              {messages.map((m) => (
+                <Message key={m.id} m={m} />
+              ))}
+            </ol>
+          )}
+        </KitInspectorPart>
+        <KitInspectorPart title={<span id="h-school-conversation">{t("chat.thisConversation")}</span>}>
+          <form action={closeSchoolConversationAction} className="flex flex-col items-start gap-2.5 rounded-[14px] border border-(--sp-line) p-4">
+            <input type="hidden" name="conversation" value={conversation.id} />
+            <input type="hidden" name="closed" value={conversation.closedAt ? "0" : "1"} />
+            <span className="text-[13.5px] text-(--sp-muted)">{conversation.closedAt ? t("chat.closedText") : t("chat.closeText")}</span>
+            <SubmitButton variant="pill" className="h-9" pendingText={t("chat.saving")}>
+              <Icon name={conversation.closedAt ? "forum" : "lock"} size={18} />
+              {conversation.closedAt ? t("chat.reopen") : t("chat.close")}
+            </SubmitButton>
+          </form>
+        </KitInspectorPart>
+      </section>
+    </KitPage>
   );
 
   function Message({ m }: { m: OwnerMessageView }) {
     const fromTeacher = Boolean(teacherMember && m.sender.member_id === teacherMember.id);
     return (
       <li className={`flex flex-col gap-1 ${fromTeacher ? "items-end" : "items-start"}`}>
-        <span className="flex flex-wrap items-center gap-2 text-[13px] text-muted">
+        <span className="flex flex-wrap items-center gap-2 text-[12.5px] text-(--sp-muted)">
           {m.sender.name} · {when(m.created_at)}
-          {m.reported ? <Badge tone="warn">{t("chat.reported")}</Badge> : null}
+          {m.reported ? <KitStatus tone="warn">{t("chat.reported")}</KitStatus> : null}
         </span>
-        <div className={`flex max-w-[85%] flex-col gap-2 rounded-2xl px-4 py-3 text-[15px] leading-relaxed ${fromTeacher ? "bg-ivory text-ink-2" : "bg-sand text-ink-2"}`}>
+        <div className={`flex max-w-[85%] flex-col gap-2 rounded-2xl px-4 py-3 text-[15px] leading-relaxed ${fromTeacher ? "bg-(--sp-tile) text-(--sp-ink)" : "bg-(--sp-soft) text-(--sp-ink)"}`}>
           {m.deleted ? (
             <em className="opacity-80">{t("chat.deleted")}</em>
           ) : (
@@ -139,7 +135,7 @@ export default async function SchoolConversationPage({ params, searchParams }: P
           <form action={deleteSchoolMessageAction}>
             <input type="hidden" name="conversation" value={conversation!.id} />
             <input type="hidden" name="message" value={m.id} />
-            <ConfirmButton confirm={t("chat.deleteConfirm")} label={t("chat.deleteMessageLabel")} className="text-[13px] font-semibold text-danger">
+            <ConfirmButton confirm={t("chat.deleteConfirm")} label={t("chat.deleteMessageLabel")} className="cursor-pointer border-0 bg-transparent p-0 text-[12.5px] font-semibold text-danger">
               {t("chat.deleteMessage")}
             </ConfirmButton>
           </form>

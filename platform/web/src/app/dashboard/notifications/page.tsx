@@ -1,18 +1,20 @@
 import { plansIn } from "@/lib/marketing-lang";
 import type { Metadata } from "next";
 import Link from "next/link";
+import type { ReactNode } from "react";
 import { cancelScheduledNotificationAction, removeServiceAccountAction } from "@/app/actions/notifications";
 import { SubmitButton } from "@/components/form";
 import { Icon } from "@/components/icon";
-import { ItemList, ItemRow, LinkCards, Stat, StatRow, Thumb } from "@/components/page-kit";
-import { Badge, btn, EmptyState, formatDateTime, Notice, PageHeader, Section } from "@/components/ui";
+import { KitCallout, KitDrawer, KitEmpty, KitFold, KitHeader, KitHero, KitList, KitMore, KitNext, KitPage, KitRow, KitSection, KitSettingRow, KitSettings, KitStat, KitStatus, KitThumb, kit } from "@/components/studio-page";
+import { KitInspectorBody, KitInspectorFacts, KitInspectorHead } from "@/components/studio-page/parts";
+import { KitTable, type KitTableRow } from "@/components/studio-page/table";
 import { formatDate } from "@/i18n/format";
 import { requireClient } from "@/lib/auth/session";
 import { dashboardText } from "@/lib/dashboard-lang";
 import { richText } from "@/i18n/rich";
 import { getStore } from "@/lib/data";
 import { encryptionKey } from "@/lib/env";
-import { NOTIFICATION_BODY_MAX, NOTIFICATION_TITLE_MAX, serviceAccountOf } from "@/lib/hosted/notify";
+import { NOTIFICATION_BODY_MAX, NOTIFICATION_TITLE_MAX, pushConfigured, serviceAccountOf } from "@/lib/hosted/notify";
 import { usesYallappFirebase } from "@/lib/firebase/mode";
 import { PLAN_ENDED_MESSAGE } from "@/lib/hosted/send-notification";
 import { appIsActive } from "@/lib/license/status";
@@ -35,11 +37,12 @@ export async function generateMetadata(): Promise<Metadata> {
 /** Notifications for apps on the hosted API. Apps on WordPress send them from the plugin. */
 export default async function NotificationsPage() {
   const { app, license, client } = await requireClient("notifications");
-  const { t, k, lang } = await dashboardText();
+  const { t, k, lang, num, date } = await dashboardText();
   if (!app || app.backend !== "hosted") {
     return (
-      <div className="flex flex-col gap-6">
-        <PageHeader
+      <KitPage>
+        <KitHeader
+          icon="notifications"
           title={t("notify.title")}
           description={
             <>
@@ -49,15 +52,19 @@ export default async function NotificationsPage() {
         />
         {/* 85.4 Campaigns go through the WordPress site. */}
         {app?.backend === "wordpress" ? (
-          <LinkCards label={t("notify.title")} items={[{ href: "/dashboard/notifications/campaigns", icon: "campaign", label: t("campaigns.open"), hint: t("campaigns.wordpressAudience") }]} />
+          <KitSection titleId="h-campaigns" title={t("notify.title")} flush>
+            <KitList>
+              <KitRow href="/dashboard/notifications/campaigns" media={<KitThumb icon="campaign" />} title={t("campaigns.open")} meta={t("campaigns.wordpressAudience")} />
+            </KitList>
+          </KitSection>
         ) : null}
-      </div>
+      </KitPage>
     );
   }
   const store = await getStore();
   const [customers, sent, scheduled, zone] = await Promise.all([
     store.countHostedUsers(app.id),
-    store.listHostedBroadcasts(app.id, 20),
+    store.listHostedBroadcasts(app.id, 50),
     store.listScheduledNotifications(app.id, [...LISTED_STATUSES]),
     appZone(store, app),
   ]);
@@ -84,166 +91,333 @@ export default async function NotificationsPage() {
     }
   }
 
+  const onCount = kinds.filter((kind) => autoOn(app, kind)).length;
+  // 136 Its own key, or Yallapp's Firebase (no key to add or remove here).
+  const yallapp = usesYallappFirebase(app);
+  const pushOn = push && pushConfigured(app) && account !== null;
+  const publishingLink = { link: (chunk: string) => <Link href="/dashboard/setup?step=publishing">{chunk}</Link> };
+  const sr = { sr: (chunk: string) => <span className="sr-only">{chunk}</span> };
+  const close = t("common.close");
+  const more = t("studioPage.more");
+
+  // 132.160 What went out in the last 30 days and how many opened it: the phones each one reached, and the phones that opened it (Analytics' numbers).
+  const pushed = new Map<string, number>();
+  const opens = new Map<string, number>();
+  for (const row of await store.listAnalyticsDaily(app.id, dayOf(new Date(now.getTime() - 90 * 86_400_000), zone), dayOf(now, zone), ["push_sent", "push_open"])) {
+    if (row.metric === "push_sent") pushed.set(row.key, (pushed.get(row.key) ?? 0) + row.value);
+    else if (row.key.startsWith("id:")) opens.set(row.key.slice(3), (opens.get(row.key.slice(3)) ?? 0) + row.value);
+  }
+  const month = now.getTime() - 30 * 86_400_000;
+  const recent = sent.filter((n) => n.createdAt.getTime() >= month);
+  const reached = recent.reduce((sum, n) => sum + (pushed.get(String(n.id)) ?? 0), 0);
+  const opened = recent.reduce((sum, n) => sum + (opens.get(String(n.id)) ?? 0), 0);
+  const rate = (open: number, of: number) => (of > 0 ? Math.min(1, open / of) : null);
+  const percent = (value: number | null) => (value === null ? "—" : t("notify.openRate", { percent: num(Math.round(value * 100)) }));
+  const whenSent = (d: Date) => date(d, { day: "numeric", month: "short", year: "numeric", hour: "2-digit", minute: "2-digit", hourCycle: "h23", timeZone: zone });
+
+  const sentRows: KitTableRow[] = sent.map((n) => {
+    const id = String(n.id);
+    const phones = pushed.get(id) ?? 0;
+    const opensOf = opens.get(id) ?? 0;
+    const icon = n.targeted ? "campaign" : n.data?.type ? "notifications" : "send";
+    return {
+      id,
+      name: n.title,
+      text: `${n.title} ${n.body}`,
+      data: { "data-notification": id },
+      cells: [
+        <>
+          <KitThumb icon={icon} size={40} />
+          <span className="flex min-w-0 flex-col gap-0.5">
+            <span className="truncate text-[14.5px] font-bold" dir="auto">
+              {n.title}
+            </span>
+            <span className="truncate text-[12.5px] font-normal text-(--sp-muted)" dir="auto">
+              {n.body}
+            </span>
+          </span>
+        </>,
+        <span key="w" className="text-[13px]">
+          {whenSent(n.createdAt)}
+        </span>,
+        <span key="p" className="font-sans tabular-nums">
+          {num(phones)}
+        </span>,
+        <span key="o" className="font-sans font-semibold tabular-nums">
+          {num(opensOf)}
+        </span>,
+      ],
+      inspector: {
+        title: t("notify.notification"),
+        body: (
+          <KitInspectorBody data-inspector-notification={n.title}>
+            <KitInspectorHead
+              media={
+                n.imageUrl ? (
+                  // eslint-disable-next-line @next/next/no-img-element -- the campaign's own picture, a full address
+                  <img src={n.imageUrl} alt="" className="block aspect-[16/9] w-full rounded-[14px] bg-(--sp-soft) object-cover" />
+                ) : undefined
+              }
+              icon={icon}
+              title={n.title}
+              line={whenSent(n.createdAt)}
+              badges={n.targeted ? <KitStatus tone="info">{t("notify.toAudience")}</KitStatus> : <KitStatus tone="neutral">{t("notify.toEveryone")}</KitStatus>}
+            />
+            <p className="m-0 rounded-[14px] bg-(--sp-soft) px-4 py-3 text-[14.5px] leading-relaxed whitespace-pre-wrap text-(--sp-ink)" dir="auto">
+              {n.body}
+            </p>
+            <KitInspectorFacts
+              facts={[
+                [t("notify.colSent"), whenSent(n.createdAt)],
+                [t("notify.to"), n.targeted ? t("notify.toAudience") : t("notify.toEveryone")],
+                [t("notify.reached"), num(phones)],
+                [t("notify.opened"), num(opensOf)],
+                [t("notify.openRateLabel"), percent(rate(opensOf, phones))],
+                ...(n.link ? ([[t("notify.opens"), <bdi key="l" dir="ltr" className="break-all">{n.link}</bdi>]] as [string, ReactNode][]) : []),
+              ]}
+            />
+            {n.targeted ? (
+              <Link href="/dashboard/notifications/campaigns" className="text-[13.5px] font-semibold">
+                {t("campaigns.open")}
+              </Link>
+            ) : null}
+          </KitInspectorBody>
+        ),
+      },
+    };
+  });
+
+  const scheduledRows: KitTableRow[] = scheduled.map((n) => {
+    const local = localSendAt(n, zone);
+    const goes = t("notify.goesOut", { date: formatDate(lang, n.sendAt, { weekday: "short", day: "numeric", month: "short", year: "numeric", timeZone: zone }), time: local.time });
+    const state = n.status === "scheduled" ? <KitStatus tone="info">{t("notify.scheduled")}</KitStatus> : <KitStatus tone={n.status === "failed" ? "danger" : "warn"}>{t(n.status === "failed" ? "notify.statusFailed" : "notify.statusSending")}</KitStatus>;
+    return {
+      id: String(n.id),
+      name: n.title,
+      data: { "data-scheduled": String(n.id) },
+      cells: [
+        <>
+          <KitThumb icon="schedule" size={40} />
+          <span className="flex min-w-0 flex-col gap-0.5">
+            <span className="truncate text-[14.5px] font-bold" dir="auto">
+              {n.title}
+            </span>
+            <span className="truncate text-[12.5px] font-normal text-(--sp-muted)" dir="auto">
+              {n.body}
+            </span>
+          </span>
+        </>,
+        <span key="g" className="text-[13px]">
+          {goes}
+        </span>,
+        <span key="s">{state}</span>,
+      ],
+      inspector: {
+        title: t("notify.scheduled"),
+        body: (
+          <KitInspectorBody data-inspector-scheduled={n.title}>
+            <KitInspectorHead icon="schedule" title={n.title} line={goes} badges={state} />
+            {n.result && n.status === "failed" ? <KitCallout tone="danger" icon="error">{k(n.result)}</KitCallout> : null}
+            {n.status === "scheduled" ? (
+              <>
+                <EditScheduledForm item={{ id: n.id, title: n.title, body: n.body, date: local.date, time: local.time }} titleMax={NOTIFICATION_TITLE_MAX} bodyMax={NOTIFICATION_BODY_MAX} zone={zoneName} today={today} />
+                <form action={cancelScheduledNotificationAction} className="border-t border-(--sp-line) pt-4">
+                  <input type="hidden" name="id" value={n.id} />
+                  <SubmitButton variant="pill" className="h-9 text-danger hover:text-danger" pendingText={t("common.saving")}>
+                    {richText(t("notify.cancelScheduled", { title: n.title }), sr)}
+                  </SubmitButton>
+                </form>
+              </>
+            ) : (
+              <p className="m-0 rounded-[14px] bg-(--sp-soft) px-4 py-3 text-[14.5px] leading-relaxed whitespace-pre-wrap text-(--sp-ink)" dir="auto">
+                {n.body}
+              </p>
+            )}
+          </KitInspectorBody>
+        ),
+      },
+    };
+  });
+
+  // 132.160 The console's look: New notification as the main action (Campaigns behind "⋯"), what went out and was opened as tiles, what waits and what went out as tables (a notification's details in the inspector), then push and the automatic ones as settings rows.
   return (
-    <div className="flex flex-col gap-6">
-      {/* The page kit: the header and New campaign, the numbers, Campaigns, the form and push, then what's waiting and what went out. */}
-      <PageHeader
+    <KitPage>
+      <KitHeader
+        icon="notifications"
         title={t("notify.title")}
         description={t("notify.intro", { count: customers })}
         actions={
-          <Link href="/dashboard/notifications/campaigns/new" className={`${btn.main} h-11`}>
-            <Icon name="campaign" size={20} />
-            {t("campaigns.newCampaign")}
-          </Link>
+          <>
+            {/* 85.2 Campaigns: to some of the customers, with a picture, a page to open and a weekly time. */}
+            <KitMore label={more}>
+              <Link href="/dashboard/notifications/campaigns" className={kit.menuItem} title={t("campaigns.openText")}>
+                <Icon name="campaign" size={18} />
+                {t("campaigns.open")}
+              </Link>
+              <Link href="/dashboard/notifications/campaigns/new" className={kit.menuItem}>
+                <Icon name="add" size={18} />
+                {t("campaigns.newCampaign")}
+              </Link>
+            </KitMore>
+            <KitDrawer
+              title={t("notify.newNotification")}
+              closeLabel={close}
+              triggerClassName={kit.main}
+              trigger={
+                <>
+                  <Icon name="add" size={20} />
+                  {t("notify.newNotification")}
+                </>
+              }
+            >
+              <SendNotificationForm titleMax={NOTIFICATION_TITLE_MAX} bodyMax={NOTIFICATION_BODY_MAX} zone={zoneName} today={today} />
+            </KitDrawer>
+          </>
         }
       />
-      {ended ? (
-        <Notice tone="warn" icon="warning" role="status">
-          {/* 132.59 An app that never had a plan isn't told its plan has ended. */}
-          {license ? (
-            <>
-              {k(PLAN_ENDED_MESSAGE)} <Link href="/dashboard/license">{t("notify.renewPlan")}</Link>
-            </>
-          ) : (
-            <>
-              {t("studioKit.notifyNotActive")} <Link href="/dashboard/license">{t("studioKit.seePlan")}</Link>
-            </>
-          )}
-        </Notice>
-      ) : null}
 
-      <StatRow label={t("notify.title")}>
-        <Stat icon="groups" label={t("notify.statCustomers")} value={customers} />
-        <Stat icon="schedule" tone="accent" label={t("notify.scheduled")} value={scheduled.length} />
-        <Stat icon="notifications" tone={push && account ? "success" : "warn"} label={t("notify.push")} value={<span className="text-lg">{push && account ? t("notify.statPushOn") : t("notify.statPushOff")}</span>} />
-      </StatRow>
+      <KitHero
+        label={t("notify.title")}
+        stats={
+          <>
+            <KitStat icon="send" label={t("notify.sent")} value={num(recent.length)} hint={reached ? t("notify.reachedPhones", { count: reached }) : t("notify.last30")} progress={rate(opened, reached) ?? undefined} />
+            <KitStat icon="touch_app" tone="accent" label={t("notify.opened")} value={num(opened)} hint={percent(rate(opened, reached))} />
+            <KitStat icon="schedule" label={t("notify.scheduled")} value={num(scheduled.length)} />
+            <KitStat icon="groups" label={t("notify.statCustomers")} value={num(customers)} />
+          </>
+        }
+        next={
+          ended ? (
+            <KitNext icon="warning" tone="warn">
+              {/* 132.59 An app that never had a plan isn't told its plan has ended. */}
+              <span role="status">
+                {license ? (
+                  <>
+                    {k(PLAN_ENDED_MESSAGE)} <Link href="/dashboard/license">{t("notify.renewPlan")}</Link>
+                  </>
+                ) : (
+                  <>
+                    {t("studioKit.notifyNotActive")} <Link href="/dashboard/license">{t("studioKit.seePlan")}</Link>
+                  </>
+                )}
+              </span>
+            </KitNext>
+          ) : push && !account && !yallapp ? (
+            <KitNext
+              icon="notifications"
+              action={
+                <a href="#h-push" className={kit.quiet}>
+                  {t("notify.addKeyAction")}
+                </a>
+              }
+            >
+              {t("notify.pushOffLine")}
+            </KitNext>
+          ) : undefined
+        }
+      />
 
-      {/* 85.2 Campaigns: to some of the customers, with a picture, a page to open and a weekly time. */}
-      <LinkCards label={t("notify.title")} items={[{ href: "/dashboard/notifications/campaigns", icon: "campaign", label: t("campaigns.open"), hint: t("campaigns.openText") }]} />
+      <KitTable
+        label={t("notify.scheduled")}
+        title={t("notify.scheduled")}
+        titleId="h-scheduled"
+        columns={[
+          { label: t("notify.notification"), width: "minmax(0,1fr)" },
+          { label: t("notify.goesOutCol"), width: "minmax(180px,auto)", phone: "sub" },
+          { label: t("common.status"), width: "minmax(100px,auto)", phone: "end" },
+        ]}
+        rows={scheduledRows}
+        empty={<p className="m-0 px-5 py-4 text-[14px] text-(--sp-muted)">{t("notify.nothingScheduled", { zone: zoneName })}</p>}
+      />
 
-      <div className="flex flex-wrap items-start gap-6">
-        <Section id="send" titleId="h-send" title={t("notify.newNotification")} className="flex-[1_1_440px]">
-          <SendNotificationForm titleMax={NOTIFICATION_TITLE_MAX} bodyMax={NOTIFICATION_BODY_MAX} zone={zoneName} today={today} />
-        </Section>
+      <KitTable
+        label={t("notify.sent")}
+        title={t("notify.sent")}
+        titleId="h-sent"
+        search={sent.length > 5 ? t("notify.search") : undefined}
+        noMatch={t("notify.noMatch")}
+        columns={[
+          { label: t("notify.notification"), width: "minmax(0,1fr)" },
+          { label: t("notify.colSent"), width: "170px", wide: true },
+          { label: t("notify.reached"), width: "80px", wide: true },
+          { label: t("notify.opened"), width: "80px", phone: "end" },
+        ]}
+        rows={sentRows}
+        empty={
+          <KitEmpty icon="notifications" title={t("notify.nothingSent")}>
+            {t("notify.nothingSentText")}
+          </KitEmpty>
+        }
+      />
 
-        <Section titleId="h-push" title={t("notify.push")} className="flex-[1_1_320px]">
+      <KitSettings>
+        <KitSettingRow
+          titleId="h-push"
+          icon="notifications"
+          title={t("notify.push")}
+          status={pushOn ? <KitStatus tone="success">{t("notify.statPushOn")}</KitStatus> : <KitStatus tone="neutral">{t("notify.statPushOff")}</KitStatus>}
+          description={
+            yallapp
+              ? account
+                ? t("notify.yallappOn")
+                : richText(t("notify.yallappSettingUp"), publishingLink)
+              : account
+                ? richText(t("notify.pushOn"), { project: () => <bdi dir="ltr">{account.project_id}</bdi> })
+                : push
+                  ? t("notify.addKey")
+                  : t("notify.inboxOnly")
+          }
+          action={
+            account && !yallapp ? (
+              <form action={removeServiceAccountAction}>
+                <SubmitButton variant="pill" className="h-9">
+                  {t("notify.removeKey")}
+                </SubmitButton>
+              </form>
+            ) : undefined
+          }
+        >
           {push ? null : (
             <UpgradeHint title={t("notify.pushFeature")} to={upgrade} compact cta={upgrade ? t("overview.upgradeTo", { plan: upgrade.name }) : undefined}>
               {t("notify.inboxOnly")}
             </UpgradeHint>
           )}
-          {usesYallappFirebase(app) ? (
-            // 136 Yallapp sets up and sends the notifications: no key to add or remove here.
-            <>
-              {account ? (
-                <p className="m-0 flex items-start gap-2 text-[15px] font-semibold text-success">
-                  <Icon name="check_circle" size={20} filled />
-                  <span>{t("notify.yallappOn")}</span>
-                </p>
-              ) : (
-                <p role="status" className="m-0 flex items-start gap-2 text-[15px] leading-relaxed text-ink-4">
-                  <Icon name="hourglass_top" size={20} className="text-muted" />
-                  <span>{richText(t("notify.yallappSettingUp"), { link: (chunk) => <Link href="/dashboard/setup?step=publishing">{chunk}</Link> })}</span>
-                </p>
-              )}
-              <p className="m-0 text-sm leading-relaxed text-ink-4">{t("setup.pushYallappIphone")}</p>
-              <p className="m-0 text-sm leading-relaxed text-ink-4">{t("setup.pushYallappPrivacy")}</p>
-              <p className="m-0 text-sm leading-relaxed text-ink-4">{richText(t("notify.yallappOwn"), { link: (chunk) => <Link href="/dashboard/setup?step=publishing">{chunk}</Link> })}</p>
-            </>
-          ) : account ? (
-            <>
-              <p className="m-0 flex items-center gap-2 text-[15px] font-semibold text-success">
-                <Icon name="check_circle" size={20} filled />
-                <span>{richText(t("notify.pushOn"), { project: () => <bdi dir="ltr">{account.project_id}</bdi> })}</span>
-              </p>
-              <form action={removeServiceAccountAction}>
-                <SubmitButton variant="secondary" className="h-10">
-                  {t("notify.removeKey")}
-                </SubmitButton>
-              </form>
-            </>
-          ) : (
-            <>
-              <p className="m-0 text-[15px] leading-relaxed text-ink-4">{t("notify.addKey")}</p>
+          {yallapp ? (
+            <div className="flex flex-col gap-1.5 text-[14px] leading-relaxed text-(--sp-muted)">
+              <p className="m-0">{t("setup.pushYallappIphone")}</p>
+              <p className="m-0">{t("setup.pushYallappPrivacy")}</p>
+              <p className="m-0">{richText(t("notify.yallappOwn"), publishingLink)}</p>
+            </div>
+          ) : account ? null : (
+            <KitFold icon="key" summary={t("notify.addKeyAction")} data-fold="push-key">
               <ServiceAccountForm />
-            </>
+            </KitFold>
           )}
-        </Section>
-      </div>
+        </KitSettingRow>
 
-      {kinds.length ? (
-        <Section titleId="h-auto" title={t("campaigns.autoTitle")} description={t("campaigns.autoIntro")}>
-          <AutoNotificationsForm
-            kinds={kinds.map((kind) => ({
-              kind,
-              on: autoOn(app, kind),
-              label: t(`campaigns.auto_${kind}`),
-              text: t(`campaigns.auto_${kind}_text`),
-              numbers: t("campaigns.autoNumbers", { people: counts.get(`sent:${kind}`) ?? 0, opened: counts.get(`type:${kind}`) ?? 0 }),
-            }))}
-          />
-        </Section>
-      ) : null}
-
-      <Section titleId="h-scheduled" title={t("notify.scheduled")} flush>
-        {scheduled.length === 0 ? (
-          <p className="m-0 px-5 py-5 text-[15px] text-muted sm:px-6">{t("notify.nothingScheduled", { zone: zoneName })}</p>
-        ) : (
-          <ItemList>
-            {scheduled.map((n, i) => {
-              const local = localSendAt(n, zone);
-              return (
-                <li key={n.id} className="flex flex-col gap-2.5 border-t border-line-soft px-5 py-4 first:border-t-0 sm:px-6">
-                  <div className="flex items-start gap-3.5">
-                    <Thumb icon="schedule" shape="square" tint={i} />
-                    <div className="flex min-w-0 flex-1 flex-col gap-0.5">
-                      <span className="flex flex-wrap items-center gap-2">
-                        <span className="text-[15px] font-bold">{n.title}</span>
-                        {n.status === "scheduled" ? null : <Badge tone={n.status === "failed" ? "danger" : "warn"}>{t(n.status === "failed" ? "notify.statusFailed" : "notify.statusSending")}</Badge>}
-                      </span>
-                      <span className="text-[15px] text-ink-4">{n.body}</span>
-                      <span className="text-[13px] font-semibold text-muted">
-                        {t("notify.goesOut", { date: formatDate(lang, n.sendAt, { weekday: "short", day: "numeric", month: "short", year: "numeric", timeZone: zone }), time: local.time })}
-                      </span>
-                      {n.result && n.status === "failed" ? <span className="text-[13px] text-danger">{k(n.result)}</span> : null}
-                    </div>
-                  </div>
-                  {n.status === "scheduled" ? (
-                    <div className="flex flex-col gap-2 ps-[58px] max-sm:ps-0">
-                      <details className="rounded-xl border border-line-soft bg-sand px-3 py-2">
-                        <summary className="cursor-pointer text-[15px] font-semibold">{richText(t("notify.edit", { title: n.title }), { sr: (chunk) => <span className="sr-only">{chunk}</span> })}</summary>
-                        <EditScheduledForm item={{ id: n.id, title: n.title, body: n.body, date: local.date, time: local.time }} titleMax={NOTIFICATION_TITLE_MAX} bodyMax={NOTIFICATION_BODY_MAX} zone={zoneName} today={today} />
-                      </details>
-                      <form action={cancelScheduledNotificationAction}>
-                        <input type="hidden" name="id" value={n.id} />
-                        <SubmitButton variant="secondary" className="h-9 px-3.5 text-sm" pendingText={t("common.saving")}>
-                          {richText(t("notify.cancelScheduled", { title: n.title }), { sr: (chunk) => <span className="sr-only">{chunk}</span> })}
-                        </SubmitButton>
-                      </form>
-                    </div>
-                  ) : null}
-                </li>
-              );
-            })}
-          </ItemList>
-        )}
-      </Section>
-
-      <Section titleId="h-sent" title={t("notify.sent")} flush>
-        {sent.length === 0 ? (
-          <div className="p-5 sm:p-6">
-            <EmptyState icon="notifications" title={t("notify.nothingSent")}>
-              {t("notify.nothingSentText")}
-            </EmptyState>
-          </div>
-        ) : (
-          <ItemList>
-            {sent.map((n, i) => (
-              <ItemRow key={n.id} media={<Thumb icon="notifications" shape="square" tint={i} />} title={n.title} meta={n.body} aside={<span className="text-[13px] text-muted">{formatDateTime(n.createdAt, lang)}</span>} />
-            ))}
-          </ItemList>
-        )}
-      </Section>
-    </div>
+        {kinds.length ? (
+          <KitSettingRow
+            titleId="h-auto"
+            icon="campaign"
+            title={t("campaigns.autoTitle")}
+            status={<KitStatus tone={onCount ? "success" : "neutral"}>{t("notify.onOf", { on: onCount, total: kinds.length })}</KitStatus>}
+            help={t("campaigns.autoIntro")}
+            helpLabel={t("studioPage.helpSection")}
+          >
+            <KitFold icon="tune" summary={t("notify.autoOpen")} data-fold="auto">
+              <AutoNotificationsForm
+                kinds={kinds.map((kind) => ({
+                  kind,
+                  on: autoOn(app, kind),
+                  label: t(`campaigns.auto_${kind}`),
+                  text: t(`campaigns.auto_${kind}_text`),
+                  numbers: t("campaigns.autoNumbers", { people: counts.get(`sent:${kind}`) ?? 0, opened: counts.get(`type:${kind}`) ?? 0 }),
+                }))}
+              />
+            </KitFold>
+          </KitSettingRow>
+        ) : null}
+      </KitSettings>
+    </KitPage>
   );
 }

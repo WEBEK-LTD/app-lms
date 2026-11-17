@@ -105,6 +105,11 @@ export const en = {
       open: "Open Integrations",
     },
   },
+  // 132.160 The console: the connected ones' share, a test's result in its row.
+  ofAll: "{count, plural, one {of {count} connection} other {of {count} connections}}",
+  worked: "Worked",
+  failed: "Failed",
+  errorCount: "{count, plural, one {{count} error} other {{count} errors}}",
 } as const;
 
 type Messages = Strings<typeof en>;
@@ -212,6 +217,10 @@ export const ar: Messages = {
       open: "فتح التكاملات",
     },
   },
+  ofAll: "{count, plural, zero {من غير اتصالات} one {من اتصال واحد} two {من اتصالين} few {من {count} اتصالات} many {من {count} اتصال} other {من {count} اتصال}}",
+  worked: "اشتغل",
+  failed: "فشل",
+  errorCount: "{count, plural, zero {مفيش أخطاء} one {خطأ واحد} two {خطأين} few {{count} أخطاء} many {{count} خطأ} other {{count} خطأ}}",
 };
 
 export const tr: Messages = {
@@ -317,4 +326,8 @@ export const tr: Messages = {
       open: "Entegrasyonları aç",
     },
   },
+  ofAll: "{count, plural, one {{count} bağlantıdan} other {{count} bağlantıdan}}",
+  worked: "Çalıştı",
+  failed: "Başarısız",
+  errorCount: "{count, plural, one {{count} hata} other {{count} hata}}",
 };
