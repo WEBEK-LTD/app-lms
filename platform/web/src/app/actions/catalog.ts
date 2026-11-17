@@ -17,6 +17,7 @@ import { ipFromHeaders } from "@/lib/http";
 import { parseShipment, shipOrder, shippable } from "@/lib/catalog/shipping";
 import { sendTemplate } from "@/lib/email/send";
 import { CATALOG_CURRENCIES, formatCents, parsePrice } from "@/lib/catalog/money";
+import { isCurrencyCode } from "@/lib/money/currencies";
 import { LOYALTY_LIMITS } from "@/lib/catalog/loyalty";
 import { awaitingManualPayment, manualChoices, readManualPayments } from "@/lib/catalog/manual";
 import { TAX_RATE_MAX_BPS } from "@/lib/catalog/tax";
@@ -362,15 +363,32 @@ export async function saveShopSettingsAction(_: FormState, formData: FormData): 
   return { ok: true, message: "Shop settings saved.", values };
 }
 
-/** 135.7 Customers' currencies: whether a customer is charged in their own currency when the card gateway takes it. */
+/**
+ * 135.7 Customers' currencies: whether a customer is charged in their own
+ * currency when the card gateway takes it; 149 whether prices show in the
+ * customer's currency at all in this app, and only in which (none: any).
+ */
 export async function saveCustomerCurrenciesAction(_: FormState, formData: FormData): Promise<FormState> {
   const { app } = await requireCatalogApp();
   const charge = formData.get("chargeInCustomerCurrency") === "on";
+  const show = formData.get("showInCustomerCurrency") === "on";
+  const typed = formData.getAll("customerCurrencies").map((v) => String(v).trim()).filter(Boolean);
+  const values = { chargeInCustomerCurrency: charge ? "on" : "", showInCustomerCurrency: show ? "on" : "", customerCurrencies: typed.join(",") };
+  if (typed.length > CUSTOMER_CURRENCIES_MAX || typed.some((code) => !isCurrencyCode(code))) {
+    return { errors: { customerCurrencies: "Choose the currencies from the list." }, values };
+  }
   const settings = catalogSettings(app);
-  await (await getStore()).updateApp(app.id, { catalogSettings: { ...settings, chargeInCustomerCurrency: charge } }, new Date());
+  await (await getStore()).updateApp(
+    app.id,
+    { catalogSettings: { ...settings, chargeInCustomerCurrency: charge, showInCustomerCurrency: show, customerCurrencies: [...new Set(typed)] } },
+    new Date(),
+  );
   refresh();
-  return { ok: true, message: "Customers' currencies saved.", values: { chargeInCustomerCurrency: charge ? "on" : "" } };
+  return { ok: true, message: "Customers' currencies saved.", values };
 }
+
+/** 149 At most this many currencies in an app's list (there are 155). */
+const CUSTOMER_CURRENCIES_MAX = 160;
 
 /** 91.4 The shop's loyalty points: on or off, what earns a point, what a point is worth, the fewest used at once. */
 export async function saveLoyaltyAction(_: FormState, formData: FormData): Promise<FormState> {

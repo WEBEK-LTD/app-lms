@@ -27,8 +27,16 @@ export const en = {
   chargeGateway: "Your card gateway, {provider}, takes {count} currencies.",
   charged: "Charged {amount} at {rate}",
   chargedHint: "The customer paid in their currency. Refunds go back in it.",
+  showLabel: "Show prices in the customer's currency",
+  showHint: "Off: everyone sees and pays {base} only, whatever their phone's region or what they pick in the app.",
+  onlyLabel: "Only these currencies (leave empty for all)",
+  onlyAll: "All currencies",
+  onlyAdd: "Add a currency",
+  onlyRemove: "Remove {code}",
+  onlyHint: "A customer in another currency sees {base} only. {base} is always allowed.",
   known: {
     saved: "Customers' currencies saved.",
+    list: "Choose the currencies from the list.",
   },
 } as const;
 
@@ -55,8 +63,16 @@ export const ar: Messages = {
   chargeGateway: "بوابة الدفع بتاعتك، {provider}، بتقبل {count} عملة.",
   charged: "اتسحب {amount} بسعر {rate}",
   chargedHint: "العميل دفع بعملته. المرتجعات بترجع بنفس العملة.",
+  showLabel: "اعرض الأسعار بعملة العميل",
+  showHint: "مقفول: الكل بيشوف ويدفع بـ {base} بس، مهما كانت منطقة موبايله أو العملة اللي اختارها في التطبيق.",
+  onlyLabel: "العملات دي بس (سيبها فاضية للكل)",
+  onlyAll: "كل العملات",
+  onlyAdd: "ضيف عملة",
+  onlyRemove: "شيل {code}",
+  onlyHint: "العميل اللي عملته مش من دول بيشوف {base} بس. و{base} مسموحة دايمًا.",
   known: {
     saved: "اتحفظت إعدادات عملات العملاء.",
+    list: "اختار العملات من القائمة.",
   },
 };
 
@@ -81,7 +97,15 @@ export const tr: Messages = {
   chargeGateway: "Kart altyapınız {provider}, {count} para birimi alıyor.",
   charged: "{rate} kurundan {amount} tahsil edildi",
   chargedHint: "Müşteri kendi para biriminde ödedi. İadeler de o para biriminde yapılır.",
+  showLabel: "Fiyatları müşterinin para biriminde göster",
+  showHint: "Kapalı: telefonunun bölgesi ya da uygulamada seçtiği ne olursa olsun herkes yalnızca {base} görür ve öder.",
+  onlyLabel: "Yalnızca bu para birimleri (hepsi için boş bırakın)",
+  onlyAll: "Tüm para birimleri",
+  onlyAdd: "Para birimi ekle",
+  onlyRemove: "{code} kaldır",
+  onlyHint: "Başka bir para birimindeki müşteri yalnızca {base} görür. {base} her zaman izinlidir.",
   known: {
     saved: "Müşterilerin para birimleri kaydedildi.",
+    list: "Para birimlerini listeden seçin.",
   },
 };

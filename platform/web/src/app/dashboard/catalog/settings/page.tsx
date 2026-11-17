@@ -56,11 +56,13 @@ export default async function CatalogSettingsPage() {
             shippingFields={!fulfilment}
           />
         </Section>
-        {/* 135.7 Customers see the prices in their own currency; charged in it when the gateway takes it. */}
+        {/* 135.7 Customers see the prices in their own currency; charged in it when the gateway takes it. 149 On or off per app, and only in which. */}
         <Section titleId="h-customer-currencies" title={t("money.customerTitle")}>
           <CustomerCurrenciesForm
             base={settings.currency}
             charge={settings.chargeInCustomerCurrency === true}
+            show={settings.showInCustomerCurrency !== false}
+            currencies={settings.customerCurrencies ?? []}
             ratesDate={rates.date}
             gateway={gateway ? { provider: gateway.provider, count: gateway.currencies.length } : null}
           />
