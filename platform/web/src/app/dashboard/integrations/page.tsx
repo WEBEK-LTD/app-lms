@@ -1,10 +1,9 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { redirect } from "next/navigation";
-import { Icon } from "@/components/icon";
 import type { IconName } from "@/components/icon-names";
-import { PageGroup, Stat, StatRow } from "@/components/page-kit";
-import { Badge, PageHeader, btn, formatDate, formatDateTime } from "@/components/ui";
+import { formatDate, formatDateTime } from "@/components/ui";
+import { KitFold, KitGroup, KitHeader, KitHero, KitNext, KitPage, KitSettingRow, KitSettings, KitStat, KitStatus, kit } from "@/components/studio-page";
 import { appLabel } from "@/lib/app/label";
 import { requireClient } from "@/lib/auth/session";
 import { dashboardText } from "@/lib/dashboard-lang";
@@ -65,92 +64,132 @@ export default async function IntegrationsPage() {
   const { t, k, num, lang } = await dashboardText();
   const name = appLabel(app) === "Untitled app" ? k("Untitled app") : appLabel(app);
 
-  const card = (row: Integration) => {
+  const action = (row: Integration) =>
+    row.state === "not_set" ? t("integrations.setUp") : row.testable ? t("integrations.change") : row.key === "whatsapp" || row.key === "mail" ? t("integrations.sendTest") : t("integrations.change");
+  const reason = (row: Integration) => t(`integrations.reasons.${row.reason}` as never, { subject: row.subject ?? "", date: row.at ? formatDateTime(row.at, lang) : "" });
+  const tracksErrors = (row: Integration) => row.key === "website" || row.key === "payments" || row.key === "whatsapp" || row.key === "mail" || row.key === "push";
+
+  // 132.139 Each connection as a row: its name and state, why in one line, its one action; its last test, the test itself and its errors folded under it.
+  const item = (row: Integration) => {
     const heading = t(`integrations.names.${row.key}`);
-    const values = { subject: row.subject ?? "", date: row.at ? formatDateTime(row.at, lang) : "" };
+    const folded = row.testable || tracksErrors(row);
+    const summary = row.testable ? (
+      <>
+        {row.lastCheck ? t("integrations.lastTest", { date: formatDateTime(new Date(row.lastCheck.at), lang) }) : t("integrations.neverTested")}
+        {row.lastCheck ? (
+          <>
+            {" · "}
+            <span className={row.lastCheck.ok ? "text-success" : "text-danger"}>{row.lastCheck.ok ? t("integrations.worked") : t("integrations.failed")}</span>
+          </>
+        ) : null}
+        {row.errors.length ? ` · ${t("integrations.errorCount", { count: row.errors.length })}` : ""}
+      </>
+    ) : row.errors.length ? (
+      `${t("integrations.errorsTitle")} · ${num(row.errors.length)}`
+    ) : (
+      t("integrations.noErrors")
+    );
     return (
-      <section key={row.key} aria-labelledby={`h-${row.key}`} className="flex min-w-0 flex-col gap-3 rounded-2xl border border-line bg-white p-5" data-integration={row.key} data-state={row.state}>
-        <div className="flex flex-wrap items-center gap-3">
-          <span className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-xl ${row.state === "connected" ? "bg-success-bg text-success" : row.state === "problem" ? "bg-danger-bg text-danger" : "bg-sand text-ink-3"}`}>
-            <Icon name={KEY_ICON[row.key]} size={22} />
-          </span>
-          <div className="flex min-w-0 flex-[1_1_160px] flex-col items-start gap-1">
-            <h2 id={`h-${row.key}`} className="m-0 text-base font-bold">
-              {heading}
-            </h2>
-            <Badge tone={STATE_TONE[row.state]}>{t(`integrations.states.${row.state}`)}</Badge>
-          </div>
-          <Link href={row.href} className={`${btn.secondary} h-9 px-3.5 text-sm`}>
-            {row.state === "not_set" ? t("integrations.setUp") : row.testable ? t("integrations.change") : row.key === "whatsapp" || row.key === "mail" ? t("integrations.sendTest") : t("integrations.change")}
+      <KitSettingRow
+        key={row.key}
+        titleId={`h-${row.key}`}
+        icon={KEY_ICON[row.key]}
+        title={heading}
+        status={<KitStatus tone={STATE_TONE[row.state]}>{t(`integrations.states.${row.state}`)}</KitStatus>}
+        description={<span dir="auto">{reason(row)}</span>}
+        action={
+          <Link href={row.href} className={kit.row}>
+            {action(row)}
           </Link>
-        </div>
-        <p className="m-0 text-[15px] leading-relaxed text-ink-4" dir="auto">
-          {t(`integrations.reasons.${row.reason}` as never, values)}
-        </p>
-        {row.testable ? (
-          <div className="flex flex-col gap-2 border-t border-line-soft pt-3">
-            <p className="m-0 text-sm text-muted">
-              {row.lastCheck ? t("integrations.lastTest", { date: formatDateTime(new Date(row.lastCheck.at), lang) }) : t("integrations.neverTested")}
-              {row.lastCheck ? " · " : " "}
-              {row.lastCheck ? (
-                <span className={row.lastCheck.ok ? "text-success" : "text-danger"} data-last-check={row.lastCheck.ok ? "ok" : "failed"}>
-                  {t(`integrations.checks.${row.lastCheck.code}` as never, { subject: row.lastCheck.subject ?? "" })}
-                </span>
-              ) : null}
-            </p>
-            {row.lastCheck && row.lastCheck.problems.length > 0 ? (
-              <ul className="m-0 flex list-disc flex-col gap-0.5 ps-5 text-sm text-ink-4" dir="auto">
-                {row.lastCheck.problems.map((problem, i) => (
-                  <li key={i}>{k(problem)}</li>
-                ))}
-              </ul>
+        }
+        data-integration={row.key}
+        data-state={row.state}
+      >
+        {folded ? (
+          <KitFold summary={summary} icon={row.testable ? "fact_check" : "history"} data-integration-details="">
+            {row.testable ? (
+              <div className="flex flex-col gap-2">
+                {row.lastCheck ? (
+                  <p className="m-0 text-sm" data-last-check={row.lastCheck.ok ? "ok" : "failed"}>
+                    <span className={row.lastCheck.ok ? "text-success" : "text-danger"}>{t(`integrations.checks.${row.lastCheck.code}` as never, { subject: row.lastCheck.subject ?? "" })}</span>
+                  </p>
+                ) : null}
+                {row.lastCheck && row.lastCheck.problems.length > 0 ? (
+                  <ul className="m-0 flex list-disc flex-col gap-0.5 ps-5 text-sm text-(--sp-muted)" dir="auto">
+                    {row.lastCheck.problems.map((problem, i) => (
+                      <li key={i}>{k(problem)}</li>
+                    ))}
+                  </ul>
+                ) : null}
+                <TestIntegrationForm integration={row.key} />
+                <p className="m-0 text-xs text-(--sp-muted)">{t("integrations.testHint")}</p>
+              </div>
             ) : null}
-            <TestIntegrationForm integration={row.key} />
-            <p className="m-0 text-xs text-muted">{t("integrations.testHint")}</p>
-          </div>
+            {tracksErrors(row) ? (
+              <div className={`flex flex-col gap-1.5 ${row.testable ? "border-t border-(--sp-line) pt-4" : ""}`}>
+                <h4 className="m-0 text-sm font-bold">{t("integrations.errorsTitle")}</h4>
+                {row.errors.length === 0 ? (
+                  <p className="m-0 text-sm text-(--sp-muted)">{t("integrations.noErrors")}</p>
+                ) : (
+                  <ul className="m-0 flex list-none flex-col gap-1.5 p-0" data-integration-errors="">
+                    {row.errors.slice(0, 5).map((error) => (
+                      <li key={error.id} className="flex flex-col gap-0.5">
+                        <span className="text-sm break-words" dir="ltr">
+                          {error.message}
+                        </span>
+                        <span className="text-xs text-(--sp-muted)">{t("integrations.errorLine", { count: num(error.count), date: formatDate(error.lastAt, lang) })}</span>
+                      </li>
+                    ))}
+                  </ul>
+                )}
+              </div>
+            ) : null}
+          </KitFold>
         ) : null}
-        {row.key === "website" || row.key === "payments" || row.key === "whatsapp" || row.key === "mail" || row.key === "push" ? (
-          <div className="flex flex-col gap-1.5 border-t border-line-soft pt-3">
-            <h3 className="m-0 text-sm font-bold">{t("integrations.errorsTitle")}</h3>
-            {row.errors.length === 0 ? (
-              <p className="m-0 text-sm text-muted">{t("integrations.noErrors")}</p>
-            ) : (
-              <ul className="m-0 flex list-none flex-col gap-1.5 p-0" data-integration-errors="">
-                {row.errors.slice(0, 5).map((error) => (
-                  <li key={error.id} className="flex flex-col gap-0.5">
-                    <span className="text-sm break-words" dir="ltr">
-                      {error.message}
-                    </span>
-                    <span className="text-xs text-muted">{t("integrations.errorLine", { count: num(error.count), date: formatDate(error.lastAt, lang) })}</span>
-                  </li>
-                ))}
-              </ul>
-            )}
-          </div>
-        ) : null}
-      </section>
+      </KitSettingRow>
     );
   };
 
   const count = (state: IntegrationState) => rows.filter((row) => row.state === state).length;
+  const problem = rows.find((row) => row.state === "problem");
+  // 132.160 The console's look: the connected ones as the dark tile with their share as its bar, what needs attention and what isn't set beside it (the first that needs attention as the next step), then each group's connections as settings rows.
   return (
-    <div className="flex flex-col gap-6">
-      {/* The page kit: the header, how many are connected, then each group's connections as cards. */}
-      <PageHeader title={t("integrations.title")} description={t("integrations.description", { app: name })} />
-      <StatRow label={t("integrations.title")}>
-        <Stat icon="check_circle" tone="success" label={t("integrations.states.connected")} value={count("connected")} />
-        <Stat icon="warning" tone={count("problem") ? "warn" : "neutral"} label={t("integrations.states.problem")} value={count("problem")} />
-        <Stat icon="radio_button_unchecked" label={t("integrations.states.not_set")} value={count("not_set")} />
-      </StatRow>
+    <KitPage>
+      <KitHeader icon="hub" title={t("integrations.title")} description={t("integrations.description", { app: name })} />
+      <KitHero
+        label={t("integrations.title")}
+        stats={
+          <>
+            <KitStat icon="check_circle" tone="success" label={t("integrations.states.connected")} value={num(count("connected"))} hint={t("integrations.ofAll", { count: rows.length })} progress={rows.length ? count("connected") / rows.length : 0} />
+            <KitStat icon="warning" tone={count("problem") ? "warn" : "neutral"} label={t("integrations.states.problem")} value={num(count("problem"))} />
+            <KitStat icon="radio_button_unchecked" label={t("integrations.states.not_set")} value={num(count("not_set"))} />
+          </>
+        }
+        next={
+          problem ? (
+            <KitNext
+              icon="warning"
+              tone="warn"
+              action={
+                <Link href={problem.href} className={kit.quiet}>
+                  {action(problem)}
+                </Link>
+              }
+            >
+              <strong className="font-semibold">{t(`integrations.names.${problem.key}`)}</strong> · {reason(problem)}
+            </KitNext>
+          ) : undefined
+        }
+      />
       {GROUPS.map((group) => {
         const items = rows.filter((row) => group.keys.includes(row.key));
         if (items.length === 0) return null;
         return (
-          <PageGroup key={group.id} title={t(`integrations.groups.${group.id}`)}>
-            <div className="grid gap-4 lg:grid-cols-2">{items.map(card)}</div>
-          </PageGroup>
+          <KitGroup key={group.id} title={<span id={`h-group-${group.id}`}>{t(`integrations.groups.${group.id}`)}</span>}>
+            <KitSettings label={t(`integrations.groups.${group.id}`)}>{items.map(item)}</KitSettings>
+          </KitGroup>
         );
       })}
-    </div>
+    </KitPage>
   );
 }

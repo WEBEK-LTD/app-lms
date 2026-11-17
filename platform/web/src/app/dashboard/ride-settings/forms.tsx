@@ -1,6 +1,7 @@
 "use client";
 
 import { CurrencyPicker } from "@/components/currency-picker";
+import { TimeZonePicker } from "@/components/time-zone-picker";
 import { useActionState, useState, type ReactNode } from "react";
 import { saveRideSettingsAction } from "@/app/actions/rides";
 import { Field, FieldError, FormMessage, SubmitButton } from "@/components/form";
@@ -13,7 +14,6 @@ import { Choices, SecondAppFields } from "../delivery/forms";
 /** 105.2 How fares are worked out, how rides reach drivers, cancelling, safety, payment, areas, promo codes and (112.3) the drivers' app. */
 export function RideSettingsForm({
   values,
-  timezones,
   bundleAllowed,
   bundleOff,
   driverAppNameDefault,
@@ -24,7 +24,6 @@ export function RideSettingsForm({
   values: Record<string, string>;
   /** 135.1 Any ISO 4217 currency now: the picker lists them all. */
   currencies?: readonly string[];
-  timezones: readonly string[];
   bundleAllowed: boolean;
   /** Shown under the second app when the plan doesn't have it. */
   bundleOff: ReactNode;
@@ -68,22 +67,8 @@ export function RideSettingsForm({
           <div className="grid gap-4 sm:grid-cols-2">
             {/* 135.3 Any currency: searched by name, code or sign, the usual ones first. */}
             <CurrencyPicker id="f-currency" label={t("rides.currency")} defaultValue={currency} onChange={setCurrency} error={state.errors?.currency} />
-            <div className="flex flex-col gap-1.5">
-              <label htmlFor="f-timezone" className="text-sm font-semibold">
-                {t("rides.timezone")}
-              </label>
-              <select id="f-timezone" name="timezone" defaultValue={value("timezone")} className="input" aria-describedby="f-timezone-hint">
-                {timezones.map((z) => (
-                  <option key={z} value={z}>
-                    {z}
-                  </option>
-                ))}
-              </select>
-              <span id="f-timezone-hint" className="text-[13px] text-muted">
-                {t("rides.timezoneHint")}
-              </span>
-              <FieldError id="f-timezone-error" error={state.errors?.timezone} />
-            </div>
+            {/* 137 Every time zone: searched by city, zone or offset, the usual ones first. */}
+            <TimeZonePicker id="f-timezone" label={t("rides.timezone")} defaultValue={value("timezone")} hint={t("rides.timezoneHint")} error={state.errors?.timezone} />
           </div>
           <Choices
             legend={t("rides.fareMode")}

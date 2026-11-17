@@ -15,7 +15,6 @@ import { catalogSettings, isOwnPayment } from "@/lib/catalog/settings";
 import { dashboardText } from "@/lib/dashboard-lang";
 import { getStore } from "@/lib/data";
 import type { App } from "@/lib/data/types";
-import { FOOD_TIMEZONES } from "@/lib/delivery/forms";
 import { courierAppNameOf, workedInCustomersApp } from "@/lib/delivery/courier-app";
 import { deliverySettingsOf } from "@/lib/delivery/settings";
 import { appPlan } from "@/lib/entitlements";
@@ -114,7 +113,6 @@ export default async function RideSettingsPage({ searchParams }: { searchParams:
         <RideSettingsForm
           values={rideSettingsFormValues(settings)}
           currencies={CATALOG_CURRENCIES}
-          timezones={FOOD_TIMEZONES}
           bundleAllowed={hasFeature(plan, "courier_app")}
           bundleOff={richText(t("rides.driverAppBundleOff"), { link: (chunk) => <Link href="/dashboard/license">{chunk}</Link> })}
           driverAppNameDefault={courierAppNameOf(app, { courierAppName: null })}

@@ -193,6 +193,8 @@ test("a Starter app on the hosted API: the simple page editor, one language, usa
   api = (await own.locator("code").filter({ hasText: "/api/app/" }).textContent())!.trim();
   expect(api).toMatch(/\/api\/app\/[0-9a-f-]{36}$/);
   await own.goto("/dashboard/app-sign-in");
+  // 132.136 The rules' form opens under its row.
+  await own.locator('details[data-fold="rules"] > summary').click();
   await own.getByLabel("Support WhatsApp").fill("+90 532 111 22 33");
   await own.getByRole("button", { name: "Save", exact: true }).click();
   await expect(own.getByRole("status").first()).toBeVisible();
