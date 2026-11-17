@@ -83,12 +83,6 @@ export async function OtherPayments({ app, wide = false }: { app: App; wide?: bo
   const names = on.map((c) => (c.method === "bank_transfer" ? t("orders.bankTransfer") : c.name));
   return (
     <Section titleId="h-other-payments" title={t("shop.otherPayments")} description={t("shop.otherIntro")} className={wide ? "" : "max-w-[760px]"}>
-      {on.length > 0 ? (
-        <p className="m-0 flex items-center gap-2 rounded-xl bg-success-bg px-4 py-3 text-[15px] font-semibold text-success">
-          <Icon name="check_circle" size={20} filled />
-          {t("shop.otherOn", { methods: formatList(lang, names) })}
-        </p>
-      ) : null}
       <ManualPaymentsForm
         values={{
           bankTransfer: manual?.bankTransfer ?? "",
@@ -96,6 +90,8 @@ export async function OtherPayments({ app, wide = false }: { app: App; wide?: bo
           customInstructions: manual?.custom?.instructions ?? "",
           payWithinDays: String(manual?.payWithinDays ?? PAY_WITHIN_DAYS.default),
         }}
+        on={{ bank: on.some((c) => c.method === "bank_transfer"), custom: on.some((c) => c.method === "custom") }}
+        status={on.length > 0 ? t("shop.otherOn", { methods: formatList(lang, names) }) : null}
       />
     </Section>
   );

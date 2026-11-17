@@ -89,9 +89,12 @@ test("a shop takes a bank transfer, marks it paid, and cancels an unpaid order",
   // No card keys: the bank details and the shop's own method.
   const other = page.getByRole("region", { name: "Bank transfer and your own method" });
   await expect(other).toContainText("Yallapp never sees this money.");
+  // 132.145 Each way to pay is switched on, its details open with it.
+  await other.getByRole("switch", { name: "Your own method" }).check();
   await other.getByLabel("Your own method's name").fill("Cash on delivery");
   await other.getByRole("button", { name: "Save payment methods" }).click();
   await expect(other.getByText("Write what the customer does to pay this way.")).toBeVisible();
+  await other.getByRole("switch", { name: "Bank transfer" }).check();
   await other.getByLabel("Bank details").fill(`Harbour Atlases Ltd\n${IBAN}`);
   await other.getByLabel("What the customer does").fill("Pay the courier when your atlas arrives.");
   await other.getByRole("button", { name: "Save payment methods" }).click();
@@ -165,4 +168,44 @@ test("a shop takes a bank transfer, marks it paid, and cancels an unpaid order",
   await waiting.getByRole("button", { name: /^Order \d+/ }).click();
   await waiting.getByRole("button", { name: "Cancel order" }).click();
   await expect(page.getByRole("region", { name: "Waiting for payment" })).toHaveCount(0);
+});
+
+test("132.145 a card gateway alongside bank transfer and the shop's own way: the payment page offers every one that's on", async ({ page, request }) => {
+  await signIn(page, shop.email, shop.password);
+  await page.goto("/dashboard/payments");
+  // One "Ways customers pay" card: both still on from before, and no card gateway yet.
+  const ways = page.getByRole("region", { name: "Ways customers pay" });
+  const other = ways.getByRole("region", { name: "Bank transfer and your own method" });
+  await expect(other.getByRole("switch", { name: "Bank transfer" })).toBeChecked();
+  await expect(other.getByRole("switch", { name: "Your own method" })).toBeChecked();
+  const payments = ways.getByRole("region", { name: "Card payments" });
+  await expect(payments).toContainText("Not connected");
+  // 132.180 Nothing connected yet: the gateway's keys open from its row.
+  await payments.getByRole("button", { name: "Connect", exact: true }).click();
+  await payments.getByLabel("API key").fill("sandbox-api-key");
+  await payments.getByLabel("Secret key").fill("sandbox-secret-key");
+  await payments.getByText("Sandbox keys").click();
+  await payments.getByRole("button", { name: "Save keys" }).click();
+  await expect(payments.getByText(/keys saved/i)).toBeVisible();
+
+  // The customer can pay by card, by bank transfer or cash on delivery.
+  const customer = await page.context().browser()!.newPage({ extraHTTPHeaders });
+  await checkOut(customer, request);
+  await expect(customer.getByRole("radio")).toHaveCount(3);
+  for (const name of ["Card", "Bank transfer", "Cash on delivery"]) await expect(customer.getByRole("radio", { name, exact: true })).toBeVisible();
+
+  // Switched off, bank transfer leaves the payment page; its details stay for when it's on again.
+  await page.reload();
+  await other.getByRole("switch", { name: "Bank transfer" }).uncheck();
+  await expect(other.getByLabel("Bank details")).toBeHidden();
+  await other.getByRole("button", { name: "Save payment methods" }).click();
+  await expect(other.getByText("Payment methods saved.")).toBeVisible();
+  await expect(other.getByText("On: Cash on delivery")).toBeVisible();
+  await checkOut(customer, request);
+  await expect(customer.getByRole("radio")).toHaveCount(2);
+  await expect(customer.getByRole("radio", { name: "Bank transfer" })).toHaveCount(0);
+  await page.reload();
+  await other.getByRole("switch", { name: "Bank transfer" }).check();
+  await expect(other.getByLabel("Bank details")).toHaveValue(`Harbour Atlases Ltd\n${IBAN}`);
+  await customer.close();
 });
