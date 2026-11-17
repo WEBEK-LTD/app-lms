@@ -258,6 +258,32 @@ test("138 Growth publishes too: the store keys reach the pipeline, and its build
   await expect(keyLink).toHaveAttribute("href", `/api/dashboard/builds/${build.id}/files/keystore`);
   const download = await page.request.get((await keyLink.getAttribute("href"))!, { maxRedirects: 0 });
   expect(download.headers()["location"]).toMatch(/^https:\/\/files\.yallapp\.com\.tr\/grace\/upload-key\.zip\?expires=\d+&sig=[0-9a-f]{64}$/);
+
+  // 142 Both apps here (iOS on the plan, the App Store Connect key saved): each can be built alone, Start new build makes both.
+  // 102 Builds wait for the account the store reviewers sign in with.
+  await page.goto("/dashboard/publishing#h-review");
+  const review = page.getByRole("region", { name: "Store review account (required)" });
+  await review.getByLabel("User name or email").fill("review@academy.test");
+  await review.getByLabel("Password", { exact: true }).fill("Review-pass-2026");
+  await review.getByRole("button", { name: "Save the review account" }).click();
+  await expect(review.getByText("Saved. Enter it in Google Play Console and App Store Connect as the steps say.")).toBeVisible();
+  await page.goto("/dashboard/builds");
+  const one = page.getByRole("group", { name: "Or one app only:" });
+  await expect(one.getByRole("button", { name: "Android only" })).toBeVisible();
+  await one.getByRole("button", { name: "iPhone only" }).click();
+  await expect(page.getByText("Build #2 is queued.")).toBeVisible();
+  const queued = await (await request.get("/api/v1/builds/queue?limit=100", { headers: pipeline })).json();
+  const iphone = queued.builds.find((b: { app_id: string; number: number }) => b.app_id === appId && b.number === 2);
+  expect(iphone).toMatchObject({ only: "ios", android: false, ios: true, stages: { android: "skipped", upload_play: "skipped", ios: "pending", app_review: "pending" } });
+  await request.post(`/api/v1/builds/${iphone.id}/status`, { headers: pipeline, data: { status: "building" } });
+  await request.post(`/api/v1/builds/${iphone.id}/status`, {
+    headers: pipeline,
+    data: { status: "ready", stages: { ios: "done" }, artifacts: [{ kind: "ipa", url: "https://files.yallapp.com.tr/grace/app.ipa" }] },
+  });
+  await page.goto("/dashboard/builds");
+  // Each file from the last build that made its app: the Android ones stay those of build #1.
+  await expect(page.getByRole("link", { name: "Download iOS build (.ipa)" })).toHaveAttribute("href", `/api/dashboard/builds/${iphone.id}/files/ipa`);
+  await expect(page.getByRole("link", { name: "Download Android upload key (keep it safe)" })).toHaveAttribute("href", `/api/dashboard/builds/${build.id}/files/keystore`);
 });
 
 test("the super admin sees signed file links in the build queue", async ({ page }) => {

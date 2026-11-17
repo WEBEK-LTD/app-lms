@@ -2206,7 +2206,7 @@ If your developer account has no automatic publishing page, uploads stay by hand
 
 ## When builds start
 
-Your first build starts when you finish the setup steps. After that, start a new one with **Start new build** whenever you need a new version (see [Release an update](/docs/updates)). The page shows each step while a build runs.
+Your first build starts when you finish the setup steps. After that, start a new one with **Start new build** whenever you need a new version (see [Release an update](/docs/updates)). The page shows each step while a build runs. When your app has both the Android and the iPhone app, **Android only** and **iPhone only** under the button build one of them alone, with the same version; **Start new build** always makes both.
 
 
 ## Before a build starts

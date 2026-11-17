@@ -175,7 +175,12 @@ export interface BuildRelease {
   cause?: "app_release";
   /** 138 The Yallapp release a rebuild of this one was last tried for, and when (it didn't queue). */
   appReleaseTried?: { release: number; at: string } | null;
+  /** 142 Only this platform's app, when the owner started it alone (Builds › Android only / iPhone only); missing: both. */
+  only?: BuildPlatform;
 }
+
+/** 142 The two apps a build makes. */
+export type BuildPlatform = "android" | "ios";
 
 /** 138 docs/api/pipeline.yaml StatusReport `play`. */
 export interface PlayRelease {
