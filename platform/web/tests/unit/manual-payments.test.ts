@@ -40,6 +40,26 @@ describe("the owner's settings", () => {
     expect(readManualPayments({ bankTransfer: "x".repeat(1001), customName: "", customInstructions: "", payWithinDays: "3" })).toMatchObject({ ok: false, field: "bankTransfer" });
   });
 
+  it("132.145 keeps a method switched off unoffered with its details; one switched on with nothing written is off", () => {
+    const off = readManualPayments({ bankTransfer: "IBAN TR00", customName: "Cash on delivery", customInstructions: "Pay the courier.", payWithinDays: "3", bankTransferOn: false, customOn: true });
+    expect(off).toEqual({
+      ok: true,
+      settings: { bankTransfer: "IBAN TR00", custom: { name: "Cash on delivery", instructions: "Pay the courier." }, payWithinDays: 3, bankTransferOff: true },
+    });
+    expect(off.ok && manualChoices(off.settings).map((c) => c.method)).toEqual(["custom"]);
+    // Both off: nothing offered, and nothing lost.
+    const both = readManualPayments({ bankTransfer: "IBAN TR00", customName: "Cash", customInstructions: "Pay.", payWithinDays: "3", bankTransferOn: false, customOn: false });
+    expect(both.ok && both.settings).toMatchObject({ bankTransfer: "IBAN TR00", bankTransferOff: true, customOff: true });
+    expect(both.ok && manualChoices(both.settings)).toEqual([]);
+    expect(paymentsSetUp({ catalogSettings: { ...DEFAULT_CATALOG_SETTINGS, payment: null, manualPayments: both.ok ? both.settings : null }, demo: false })).toBe(false);
+    // Switched on with nothing written: off, as the hints say ("Leave it empty for none").
+    expect(readManualPayments({ bankTransfer: "", customName: "", customInstructions: "", payWithinDays: "3", bankTransferOn: true, customOn: true })).toEqual({ ok: true, settings: null });
+    // Switched on, a method needs its name and what the customer does.
+    expect(readManualPayments({ bankTransfer: "", customName: "", customInstructions: "Pay the courier.", payWithinDays: "3", bankTransferOn: false, customOn: true })).toMatchObject({ ok: false, field: "customName" });
+    // A half-written method switched off is kept as it is, unchecked.
+    expect(readManualPayments({ bankTransfer: "IBAN", customName: "Cash", customInstructions: "", payWithinDays: "3", bankTransferOn: true, customOn: false })).toMatchObject({ ok: true });
+  });
+
   it("offers what is set, and a shop with only these takes orders", () => {
     expect(manualChoices(SETTINGS).map((c) => c.name)).toEqual(["Bank transfer", "Cash on delivery"]);
     expect(manualChoices({ ...SETTINGS, bankTransfer: null }).map((c) => c.method)).toEqual(["custom"]);

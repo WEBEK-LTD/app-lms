@@ -123,6 +123,8 @@ test("a client without a website sets up their shop", async ({ page }) => {
   await page.getByRole("navigation", { name: "Products", exact: true }).getByRole("link", { name: /^Payments/ }).click();
   // 132.120 The Products tab opens the one Payments page.
   await expect(page).toHaveURL(/\/(dashboard|studio\/project)\/payments$/);
+  // 132.180 Nothing connected yet: the gateway's keys open from its row.
+  await page.getByRole("region", { name: "Card payments" }).getByRole("button", { name: "Connect", exact: true }).click();
   await page.getByLabel("API key").fill("sandbox-api-key");
   await page.getByLabel("Secret key").fill("sandbox-secret-key");
   await page.getByText("Sandbox keys").click();
@@ -314,8 +316,10 @@ test("91.4 a customer earns loyalty points on a completed order and uses them on
   await page.goto("/dashboard/catalog#h-loyalty");
   // 132.10 The old address of the loyalty points opens the settings, where they are now.
   await expect(page).toHaveURL(/\/dashboard\/catalog\/settings$/);
+  // The settings finish arriving (the customers' currencies too) before the box is ticked, so nothing redraws it unticked.
+  await page.waitForLoadState("networkidle");
   const loyalty = page.getByRole("region", { name: "Loyalty points" });
-  await loyalty.getByText("Give loyalty points").click();
+  await loyalty.getByRole("checkbox", { name: /^Give loyalty points/ }).check();
   await loyalty.getByLabel("Spend for one point (TRY)").fill("10");
   await loyalty.getByLabel("One point is worth (TRY)").fill("0.10");
   await loyalty.getByLabel("Fewest points used at once").fill("abc");

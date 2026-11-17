@@ -51,6 +51,10 @@ export const en = {
   refunding: "Refunding…",
   refundAll: "Refunds {amount} to the customer through {provider}.",
   attentionBanner: "{count, plural, one {{count} payment in the app needs your attention.} other {{count} payments in the app need your attention.}}",
+  // 132.180 In the console: How customers pay as one row (Change opens the ways), the payments as a table, each in the inspector.
+  change: "Change",
+  colPayment: "Payment",
+  inspectorTitle: "Payment in the app",
   known: {
     // app/actions/in-app-pay.ts
     savedPlatform: "Saved. Customers pay on your store's checkout.",
@@ -117,6 +121,9 @@ export const ar: Messages = {
   refunding: "بيرجّع الفلوس…",
   refundAll: "بيرجّع {amount} للعميل عن طريق {provider}.",
   attentionBanner: "{count, plural, one {فيه دفعة في التطبيق محتاجة انتباهك.} other {فيه {count} دفعات في التطبيق محتاجة انتباهك.}}",
+  change: "غيّر",
+  colPayment: "الدفعة",
+  inspectorTitle: "دفعة في التطبيق",
   known: {
     savedPlatform: "اتحفظ. العملاء هيدفعوا في صفحة الدفع بتاعة متجرك.",
     savedInApp: "اتحفظ. العملاء هيدفعوا جوه التطبيق (تجريبي).",
@@ -179,6 +186,9 @@ export const tr: Messages = {
   refunding: "İade ediliyor…",
   refundAll: "{amount} tutarını {provider} üzerinden müşteriye iade eder.",
   attentionBanner: "{count, plural, other {Uygulamadaki {count} ödemeyle ilgilenmeniz gerekiyor.}}",
+  change: "Değiştir",
+  colPayment: "Ödeme",
+  inspectorTitle: "Uygulamadaki ödeme",
   known: {
     savedPlatform: "Kaydedildi. Müşteriler mağazanızın ödeme sayfasında öder.",
     savedInApp: "Kaydedildi. Müşteriler uygulama içinde öder (Demo).",
