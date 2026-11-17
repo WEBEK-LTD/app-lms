@@ -192,7 +192,10 @@ export default defineConfig({
   },
   projects: [{ name: "chromium", use: { ...devices["Desktop Chrome"] } }],
   webServer: {
-    command: `npx next start -p ${PORT}`,
+    // Playwright's requests keep their connections open between calls; Node closes an idle one
+    // after 5 s, and a call made just then ends in "socket hang up" or ECONNRESET. The test server
+    // keeps them for 10 minutes instead.
+    command: `npx next start -p ${PORT} --keepAliveTimeout 600000`,
     url: `${E2E.baseURL}/api/health`,
     reuseExistingServer: !process.env.CI,
     timeout: 120_000,
