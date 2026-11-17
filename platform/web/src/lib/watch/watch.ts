@@ -92,7 +92,7 @@ async function watchBuilds(deps: WatchDeps): Promise<WatchReport> {
           detail:
             `It was queued ${minutes} minutes ago and the build pipeline hasn't taken it. ` +
             (deps.dispatch
-              ? "The platform asks GitHub to start the pipeline at once: look at GitHub › Actions › Build client apps, or run it there."
+              ? "The platform asks GitHub to start the pipeline at once, and again every few minutes while no run is going: look at GitHub › Actions › Build client apps, or run it there."
               : "GITHUB_DISPATCH_TOKEN isn't set, so builds wait for GitHub's hourly schedule, which often runs hours late. Set it in Netlify (README), or run Build client apps in GitHub › Actions."),
           link: "/admin/builds",
         },
