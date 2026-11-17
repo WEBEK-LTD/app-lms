@@ -37,6 +37,18 @@ sign-in and the screens in its look draw their buttons in the app's main
 colour, in the app and in Studio › Screens, not the second colour's gold
 that looked the same in every app.
 
+Roadmap 145 (the app audit): what the owner publishes shows in an open
+app when it comes back on screen, not only after a full restart; Studio's
+bar says "Not in the app yet" until Publish. A page over the same screen as
+a tab's page no longer covers it (Leqaa's and Kech Flora's Bouquets showed
+"Courses"). The header's bag, buttons and lists as set in Studio; controls
+that did nothing do what they show; delivery days in the shop's time
+(plugin 0.4.50); pictures kept on the phone and decoded at their size, and
+media links kept by Netlify's cache for an hour. `CLIENT_APP_RELEASE` is 4,
+so every active app gets one build with it (4 an hour). Not yet tried on a
+phone. Leqaa's demo and Kech Flora still hold the old "Courses" page: one
+publish of their layout (or deleting that page) clears it for older builds.
+
 Roadmap 79.5 (maintenance): Next.js is 16.4.5 (from 16.4.2, with
 `eslint-config-next`), the first release fixed for GHSA-mfr8-8qww-v76h,
 which `next build` warned about. Nothing else in the lockfile changed and
