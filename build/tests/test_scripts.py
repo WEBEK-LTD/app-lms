@@ -64,6 +64,48 @@ class ReportTest(unittest.TestCase):
             loaded = report.load(tmp, "android", "abc")
         self.assertEqual("failed", loaded["stages"]["android"])
 
+    def test_142_an_iphone_only_build_is_ready_with_the_ios_app(self):
+        ipa = {"kind": "ipa", "url": "https://f/a.ipa"}
+        with tempfile.TemporaryDirectory() as tmp:
+            folder = Path(tmp) / "result-b1-ios"
+            folder.mkdir()
+            (folder / "result.json").write_text(json.dumps(result({"ios": "done", "upload_testflight": "done"}, [ipa])))
+            android, ios = report.results_for(tmp, "b1", "ios")
+        out = report.summarize(android, ios, "ios")
+        self.assertEqual("ready", out["status"])
+        self.assertEqual([ipa], out["artifacts"])
+        self.assertEqual("skipped", out["stages"]["android"])
+        self.assertEqual("skipped", out["stages"]["upload_play"])
+        self.assertIsNone(out["message"])
+
+    def test_142_an_iphone_only_build_fails_with_the_ios_app(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            android, ios = report.results_for(tmp, "b1", "ios")
+        out = report.summarize(android, ios, "ios")
+        self.assertEqual("failed", out["status"])
+        self.assertEqual("failed", out["stages"]["ios"])
+        self.assertEqual(report.IOS_FAILED, out["message"])
+
+    def test_142_an_android_only_build_says_nothing_of_the_ios_app(self):
+        apk = {"kind": "apk", "url": "https://f/a.apk"}
+        with tempfile.TemporaryDirectory() as tmp:
+            folder = Path(tmp) / "result-b1-android"
+            folder.mkdir()
+            (folder / "result.json").write_text(json.dumps(result({"android": "done"}, [apk])))
+            android, ios = report.results_for(tmp, "b1", "android")
+            plain = report.summarize(android, ios, "android")
+            # Without the iOS app (plan or key) no Mac ran: the same words as the iOS job's.
+            android, ios = report.results_for(tmp, "b1", "", ios_built=False)
+            no_key = report.summarize(android, ios)
+        self.assertEqual("ready", plain["status"])
+        self.assertEqual("skipped", plain["stages"]["ios"])
+        self.assertIsNone(plain["message"])
+        self.assertEqual("ready", no_key["status"])
+        self.assertEqual("skipped", no_key["stages"]["app_review"])
+        self.assertEqual(report.NO_IOS, no_key["message"])
+        workflow = (ROOT / ".github" / "workflows" / "build-apps.yml").read_text()
+        self.assertIn(report.NO_IOS, workflow)
+
 
 @unittest.skipUnless(shutil.which("python3"), "python3 missing")
 class IconsTest(unittest.TestCase):

@@ -11,6 +11,11 @@ talks to the platform through [`docs/api/pipeline.yaml`](../docs/api/pipeline.ya
 2. The platform starts the workflow at once (with `GITHUB_DISPATCH_TOKEN`), and
    its schedule checks again every hour. Each run takes up to 5 queued
    builds and marks them `building`, with a link to the run.
+   142 Each job's matrix holds the builds that make its app (`android`,
+   `ios` and `only` in the queue): a build started for the iPhone only runs
+   no Android job, and one for Android alone, or without the iPhone app (no
+   iOS on its plan, no App Store Connect key), takes no Mac. The report
+   (`report.py`) reads the jobs that ran.
 3. **Android** (Ubuntu), per build:
    - Applies the build config to `mobile/` (`tool/apply_config.dart`) and
      writes the client's launcher icons (`scripts/make_icons.py`). With the

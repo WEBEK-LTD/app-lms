@@ -14,9 +14,12 @@ export function StartBuildForm({
   driver = false,
   vendor = false,
   staff = false,
+  split = false,
 }: {
   suggestedVersion: string;
   disabledReason: string | null;
+  /** 142 The app has both apps (iOS on its plan, the App Store Connect key saved): Android only and iPhone only next to it. */
+  split?: boolean;
   /** 104.6 Starts a build of the delivery company's courier app. */
   courier?: boolean;
   /** 105.2 That second app is a ride company's drivers' app. */
@@ -56,10 +59,33 @@ export function StartBuildForm({
           />
         </div>
         {/* The page's one main action; the second app's next to its own card. */}
-        <SubmitButton variant={second ? "primary" : "main"} className="h-11" pendingText={t("builds.starting")} disabled={Boolean(disabledReason)} describedBy={disabledReason ? hint : undefined}>
+        <SubmitButton
+          variant={second ? "primary" : "main"}
+          className="h-11"
+          pendingText={t("builds.starting")}
+          disabled={Boolean(disabledReason)}
+          describedBy={disabledReason ? hint : undefined}
+          pendingFor={split && !second ? { name: "only", value: null } : undefined}
+        >
           {t(staff ? "builds.staffStart" : vendor ? "builds.vendorStart" : courier ? (driver ? "builds.driverStart" : "builds.courierStart") : "builds.startNew")}
         </SubmitButton>
       </div>
+      {/* 142 One app alone, with the same version: the main button builds both. */}
+      {split && !second ? (
+        <div role="group" aria-labelledby="start-build-only" className="flex flex-wrap items-center gap-2 sm:justify-end" data-build-only="">
+          <span id="start-build-only" className="text-[13px] text-muted">
+            {t("builds.onlyOne")}
+          </span>
+          <SubmitButton variant="secondary" className="h-9 px-3 text-sm" name="only" value="android" pendingText={t("builds.starting")} disabled={Boolean(disabledReason)} pendingFor={{ name: "only", value: "android" }}>
+            <Icon name="android" size={18} />
+            {t("builds.onlyAndroid")}
+          </SubmitButton>
+          <SubmitButton variant="secondary" className="h-9 px-3 text-sm" name="only" value="ios" pendingText={t("builds.starting")} disabled={Boolean(disabledReason)} pendingFor={{ name: "only", value: "ios" }}>
+            <Icon name="phone_iphone" size={18} />
+            {t("builds.onlyIphone")}
+          </SubmitButton>
+        </div>
+      ) : null}
       {error ? (
         <span id={`${id}-error`} className="text-[13px] font-semibold text-danger">
           {known(error)}
@@ -78,12 +104,26 @@ export function StartBuildForm({
 }
 
 /** "Try again": the same app version as the build that didn't finish (nothing of it was published). */
-export function RetryBuildForm({ versionName, courier = false, vendor = false, staff = false }: { versionName: string; courier?: boolean; vendor?: boolean; staff?: boolean }) {
+export function RetryBuildForm({
+  versionName,
+  courier = false,
+  vendor = false,
+  staff = false,
+  only = null,
+}: {
+  versionName: string;
+  courier?: boolean;
+  vendor?: boolean;
+  staff?: boolean;
+  /** 142 The one app the build was started for: tried again alone. */
+  only?: "android" | "ios" | null;
+}) {
   const t = useDashT();
   const [state, action] = useActionState(retryBuildAction, initialFormState);
   return (
     <form action={action} className="flex flex-col items-start gap-2">
       <input type="hidden" name="versionName" value={versionName} />
+      {only ? <input type="hidden" name="only" value={only} /> : null}
       {courier ? <input type="hidden" name="variant" value="courier" /> : null}
       {vendor ? <input type="hidden" name="variant" value="vendor" /> : null}
       {staff ? <input type="hidden" name="variant" value="staff" /> : null}

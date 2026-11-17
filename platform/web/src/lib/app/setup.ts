@@ -1,8 +1,8 @@
 import { blocking, preflightChecks, type PreflightCheck, type PreflightDeps } from "../builds/preflight";
 import { newId } from "../crypto/tokens";
 import { BuildRunningError, type DataStore } from "../data/store";
-import { isInProgress, STALLED_MESSAGE } from "../builds/view";
-import type { App, AppType, AppVertical, Build, BuildRelease, BuildStages, BuildVariant, Client, License, StoreListing } from "../data/types";
+import { buildOnly, isInProgress, STALLED_MESSAGE } from "../builds/view";
+import type { App, AppType, AppVertical, Build, BuildPlatform, BuildRelease, BuildStages, BuildVariant, Client, License, StoreListing } from "../data/types";
 import { courierBuildConfig, courierListing, firebaseHasCourierApp, hasSecondApp, secondAppRoleOf } from "../delivery/courier-app";
 import { isDemoApp } from "../demo/apps";
 import { firebaseHasVendorApp, hasVendorApp, vendorBuildConfig, vendorListing } from "../market/vendor-app";
@@ -264,21 +264,24 @@ export function buildConfigFor(
 }
 
 /** The stages a new build starts with. Without iOS on the app's plan (13.1), the iOS stages are skipped from the start. */
-export function initialStages(autoPublish: boolean, app: App, ios = true): BuildStages {
+export function initialStages(autoPublish: boolean, app: App, ios = true, only?: BuildPlatform): BuildStages {
   const keys = hasStoreKeys(app);
+  // 142 A build of one platform's app only: the other's stages are skipped (Galaxy Store, AppGallery and GetApps take the Android app).
+  const android = only !== "ios";
+  const apple = ios && keys.appStore && only !== "android";
   return {
     queued: "done",
-    android: "pending",
+    android: android ? "pending" : "skipped",
     // No iOS app without iOS on the plan, or without an App Store Connect key (the pipeline skips it): don't show it as waiting.
-    ios: ios && keys.appStore ? "pending" : "skipped",
-    upload_play: autoPublish && keys.play ? "pending" : "skipped",
-    upload_testflight: ios && autoPublish && keys.appStore ? "pending" : "skipped",
+    ios: apple ? "pending" : "skipped",
+    upload_play: android && autoPublish && keys.play ? "pending" : "skipped",
+    upload_testflight: apple && autoPublish ? "pending" : "skipped",
     // 138 After TestFlight, the platform sends the version to App Review.
-    app_review: ios && autoPublish && keys.appStore ? "pending" : "skipped",
+    app_review: apple && autoPublish ? "pending" : "skipped",
     // 35, 36, 42 With the store's keys: the client's own store (138 every plan; our team doesn't publish there).
-    upload_galaxy: keys.galaxy ? "pending" : "skipped",
-    upload_appgallery: keys.appGallery ? "pending" : "skipped",
-    upload_xiaomi: keys.xiaomi ? "pending" : "skipped",
+    upload_galaxy: android && keys.galaxy ? "pending" : "skipped",
+    upload_appgallery: android && keys.appGallery ? "pending" : "skipped",
+    upload_xiaomi: android && keys.xiaomi ? "pending" : "skipped",
   };
 }
 
@@ -287,9 +290,14 @@ export function buildHasIos(build: Pick<Build, "stages">): boolean {
   return build.stages.ios !== "skipped";
 }
 
+/** 142 Whether the app can have an iPhone-only build now: iOS in its plan and an App Store Connect key saved. */
+export function iosBuildAvailable(app: App, plan: PlanInfo | null): boolean {
+  return Boolean(plan && hasFeature(plan, "ios") && hasStoreKeys(app).appStore);
+}
+
 export type QueueBuildResult =
   | { ok: true; build: Build; checks: PreflightCheck[] }
-  | { ok: false; reason: "setup_incomplete" | "license_inactive" | "build_running" | "version_too_low" | "invalid_config" | "courier_app_off" | "vendor_app_off" | "staff_app_off"; errors?: ConfigError[] }
+  | { ok: false; reason: "setup_incomplete" | "license_inactive" | "build_running" | "version_too_low" | "invalid_config" | "courier_app_off" | "vendor_app_off" | "staff_app_off" | "ios_unavailable"; errors?: ConfigError[] }
   | { ok: false; reason: "preflight"; checks: PreflightCheck[] }
   /** 110.2 The app still has sample entries: they're removed or made the owner's before anything goes to the stores. */
   | { ok: false; reason: "samples"; samples: number };
@@ -309,6 +317,8 @@ export async function queueBuild(
     /** 138 Queued because Yallapp's own app changed (lib/builds/app-release.ts), for this release of it (else the current one). */
     cause?: "app_release";
     appRelease?: number;
+    /** 142 Only this platform's app (the owner's Android only / iPhone only); a rebuild as it was keeps its build's. Missing: both. */
+    only?: BuildPlatform;
   },
   now: Date,
   assetUrl: (assetId: string) => string,
@@ -397,8 +407,12 @@ export async function queueBuild(
   // "We publish for you" and the iOS app come with the plan (and its switches, 11.5).
   const autoPublish = hasFeature(plan, "auto_publish");
   const ios = hasFeature(plan, "ios");
+  // 142 One platform's app alone: the main app only; an iPhone one needs iOS on the plan and the App Store Connect key.
+  const only = variant === "app" ? (input.only ?? (input.from ? buildOnly(input.from) : null) ?? undefined) : undefined;
+  if (only === "ios" && !iosBuildAvailable(app, plan)) return { ok: false, reason: "ios_unavailable" };
   // 87.1 What the build would trip over: errors stop it here, with what to do.
-  const checks = preflight ? await preflightChecks(preflight, app, { ios, autoPublish }) : [];
+  // 142 Android alone: what only the iPhone app would trip over doesn't stop it.
+  const checks = preflight ? await preflightChecks(preflight, app, { ios: ios && only !== "android", autoPublish }) : [];
   if (blocking(checks).length > 0) return { ok: false, reason: "preflight", checks };
   // A build that stopped without reporting (a cancelled or crashed run) mustn't block the app for ever: close it.
   if (running && (running.status === "queued" || running.status === "building")) {
@@ -414,7 +428,7 @@ export async function queueBuild(
         variant,
         versionName: input.versionName,
         status: "queued",
-        stages: initialStages(autoPublish, app, ios),
+        stages: initialStages(autoPublish, app, ios, only),
         config: validation.config,
         storeListing: listing,
         autoPublish,
@@ -423,7 +437,12 @@ export async function queueBuild(
         logUrl: null,
         ...(input.from ? { sourceRef: input.from.sourceCommit, rebuildOf: input.from.number } : {}),
         // 89.2 Released in stages when the owner asked for it; 138 else to everyone on Google Play. With the Yallapp app release it's made with.
-        release: autoPublish ? { ...buildReleaseOf(app), appRelease: input.appRelease ?? CLIENT_APP_RELEASE, ...(input.cause ? { cause: input.cause } : {}) } : null,
+        // 142 With the one platform it was started for, when the owner chose one.
+        release: autoPublish
+          ? { ...buildReleaseOf(app), appRelease: input.appRelease ?? CLIENT_APP_RELEASE, ...(input.cause ? { cause: input.cause } : {}), ...(only ? { only } : {}) }
+          : only
+            ? { androidRollout: null, iosPhased: false, only }
+            : null,
         createdAt: now,
         startedAt: null,
         finishedAt: null,

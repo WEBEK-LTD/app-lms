@@ -10,12 +10,13 @@ import { KitCallout, KitEmpty, KitFold, KitHeader, KitHero, KitList, KitMore, Ki
 import { KitInspectorBody, KitInspectorHead } from "@/components/studio-page/parts";
 import { KitTable } from "@/components/studio-page/table";
 import { formatDate, formatDateTime } from "@/components/ui";
-import { firebaseListsCourierApp, firebaseListsStaffApp, firebaseListsVendorApp, hasStoreKeys, isSetupComplete, nextStep } from "@/lib/app/setup";
+import { firebaseListsCourierApp, firebaseListsStaffApp, firebaseListsVendorApp, hasStoreKeys, iosBuildAvailable, isSetupComplete, nextStep } from "@/lib/app/setup";
 import { failedApiCheck } from "@/lib/app/api-check-notice";
 import { appLabel, licensePageName, usesPlugin } from "@/lib/app/label";
 import { wordsOf } from "@/lib/app/kinds";
 import { requireClient } from "@/lib/auth/session";
 import {
+  buildOnly,
   failureReason,
   fileDescription,
   fileUnavailableReason,
@@ -263,11 +264,14 @@ export default async function BuildsPage({ searchParams }: PageProps<"/dashboard
   const apiProblem = await failedApiCheck(store, app);
 
   // Each Download button opens a route that signs a fresh 15-minute link when clicked, so it never expires on an open page.
+  // 142 Each file from the last ready build that made its app: one started for the other platform alone left it as it was.
+  const readyFor = (kind: ArtifactKind): Build | null => builds.find((b) => b.status === "ready" && buildOnly(b) !== (kind === "ipa" ? "android" : "ios")) ?? null;
   const fileRow = (kind: ArtifactKind) => {
-    const url = lastReady?.artifacts.find((a) => a.kind === kind)?.url;
+    const source = readyFor(kind);
+    const url = source?.artifacts.find((a) => a.kind === kind)?.url;
     const link = url ? fileLink(url, now) : null;
-    const unavailable = fileUnavailableReason({ kind, build: lastReady, hasAppStoreKey: keys.appStore, iosOnPlan: currentPlan ? hasFeature(currentPlan, "ios") : true, linkProblem: link?.disabledReason ?? null });
-    return { href: unavailable === null && lastReady ? dashboardFileHref(lastReady.id, kind) : null, unavailable: unavailable === null ? null : k(unavailable) };
+    const unavailable = fileUnavailableReason({ kind, build: source, hasAppStoreKey: keys.appStore, iosOnPlan: currentPlan ? hasFeature(currentPlan, "ios") : true, linkProblem: link?.disabledReason ?? null });
+    return { href: unavailable === null && source ? dashboardFileHref(source.id, kind) : null, unavailable: unavailable === null ? null : k(unavailable) };
   };
 
   // 87.1 What the next build would trip over.
@@ -366,7 +370,8 @@ export default async function BuildsPage({ searchParams }: PageProps<"/dashboard
   // the second apps; the stores and guides (the guides folded); how updates are released and which versions people may use as
   // settings rows (their forms folded); then every build as a row with its own actions.
   const failed = current !== null && current.status === "failed";
-  const apkHref = current?.status === "ready" && current.id === lastReady?.id ? fileRow("apk").href : null;
+  // 142 Not for a build of the iPhone app alone: its APK would be an older build's.
+  const apkHref = current?.status === "ready" && current.id === lastReady?.id && buildOnly(current) !== "ios" ? fileRow("apk").href : null;
   const filesTitle = lastReady ? t("builds.filesFrom", { number: lastReady.number, version: lastReady.versionName }) : t("builds.filesLatest");
   const secondFiles = (title: string, row: (kind: ArtifactKind) => { href: string | null; unavailable: string | null }, prefix: string) => ({
     title,
@@ -403,7 +408,7 @@ export default async function BuildsPage({ searchParams }: PageProps<"/dashboard
         description={t("builds.intro", { app: appLabel(app) === "Untitled app" ? k("Untitled app") : appLabel(app), plan: plan ? k(planName(plan, plans)) : t("overview.noPlan") })}
         actions={
           <div className="flex items-start gap-2 max-sm:w-full">
-            <StartBuildForm suggestedVersion={suggestedVersion(current)} disabledReason={disabledReason} />
+            <StartBuildForm suggestedVersion={suggestedVersion(current)} disabledReason={disabledReason} split={iosBuildAvailable(app, currentPlan)} />
             {/* Level with the button, under the field's label. */}
             <div className="pt-6">
               <KitMore label={t("studioPage.more")}>
@@ -510,7 +515,7 @@ export default async function BuildsPage({ searchParams }: PageProps<"/dashboard
           }
           next={
             (failed || stalled) && !licenseProblem && setupDone ? (
-              <KitNext icon="refresh" tone="warn" action={<RetryBuildForm versionName={current.versionName} />}>
+              <KitNext icon="refresh" tone="warn" action={<RetryBuildForm versionName={current.versionName} only={buildOnly(current)} />}>
                 {t("builds.retryLine")}
               </KitNext>
             ) : apkHref ? (

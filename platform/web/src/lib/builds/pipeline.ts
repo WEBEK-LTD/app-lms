@@ -154,8 +154,11 @@ export function buildSummary(build: Build) {
     version_code: build.versionCode,
     status: build.status,
     auto_publish: build.autoPublish,
-    // 13.1 Whether the build's plan includes the iOS app.
+    // 13.1 Whether the build's plan includes the iOS app (142 and the build wasn't started for Android only).
     ios: build.stages.ios !== "skipped",
+    // 142 Whether it makes the Android app (not when started for the iPhone only), and the one platform it was started for.
+    android: build.stages.android !== "skipped",
+    only: build.release?.only ?? null,
     stages: build.stages,
     artifacts: build.artifacts,
     message: build.message,

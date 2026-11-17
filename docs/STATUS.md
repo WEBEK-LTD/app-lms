@@ -8,6 +8,13 @@ Last updated: 17 November 2026.
 
 ## Current release
 
+Roadmap 142 (build one app alone): Builds & downloads has Android only and
+iPhone only under Start new build once the app has both apps (iOS on its
+plan and the App Store Connect key saved); Start new build still makes both.
+The pipeline runs only the jobs of the apps a build makes, so an Android
+build without the iPhone app no longer takes a Mac. Automatic builds and
+Yallapp-release rebuilds compare with the last build of both apps.
+
 Roadmap 79.5 (maintenance): Next.js is 16.4.5 (from 16.4.2, with
 `eslint-config-next`), the first release fixed for GHSA-mfr8-8qww-v76h,
 which `next build` warned about. Nothing else in the lockfile changed and

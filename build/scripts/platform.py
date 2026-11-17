@@ -71,7 +71,8 @@ def write_private(path, payload):
 
 def queue_entry(build):
     """What a build job needs from the queue: 87.3 the commit to build a
-    rebuild from, and 89.2 how it's released (the workflow's matrix)."""
+    rebuild from, 89.2 how it's released, and 142 which apps it makes (the
+    workflow's matrix)."""
     release = build.get("release") or {}
     rollout = release.get("android_rollout")
     return {
@@ -80,6 +81,12 @@ def queue_entry(build):
         "source_ref": build.get("source_ref") or "",
         "android_rollout": "" if rollout is None else f"{float(rollout):g}",
         "ios_phased": bool(release.get("ios_phased")),
+        # 142 Which jobs build it: the Android app unless started for the iPhone only; the iOS
+        # app when its plan has it and the App Store Connect key was saved, unless started for
+        # Android only. A build from before 142 says neither: both, as before.
+        "android": build.get("android") is not False,
+        "ios": build.get("ios") is not False,
+        "only": build.get("only") or "",
     }
 
 

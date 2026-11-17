@@ -5,7 +5,7 @@ import { effectivePlans } from "../entitlements";
 import { appIsActive } from "../license/status";
 import { bumpPatch } from "../semver";
 import type { PreflightDeps } from "./preflight";
-import { isInProgress } from "./view";
+import { buildOnly, isInProgress } from "./view";
 
 /**
  * 138 Yallapp's own app updates reach every client's app by themselves.
@@ -110,8 +110,10 @@ export async function runAppReleaseBuilds(deps: AppReleaseDeps): Promise<AppRele
     for (const variant of VARIANTS) {
       const builds = await store.listBuildsByApp(app.id, 20, variant);
       const newest = builds[0];
+      // 142 The newest build of both apps decides: one started for a single platform left the other on its release.
+      const both = builds.find((b) => !buildOnly(b)) ?? newest;
       // Only apps (and their second apps) that built successfully before, whose newest build is on an older release.
-      if (!newest || !builds.some((b) => b.status === "ready") || !behindAppRelease(newest, current)) continue;
+      if (!newest || !both || !builds.some((b) => b.status === "ready") || !behindAppRelease(both, current)) continue;
       const tried = newest.release?.appReleaseTried;
       if (tried && tried.release === current && now.getTime() - Date.parse(tried.at) < APP_RELEASE_RETRY_HOURS * HOUR) continue;
       if (room <= 0) {
