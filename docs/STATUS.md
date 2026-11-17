@@ -13,8 +13,14 @@ screen, a sheet or a dialog opening over a text field, or another tab,
 closes its keyboard, so it no longer opens again by itself on the way back
 (Flutter gave the field its focus back); a drag that scrolls closes the
 keyboard on every screen, while a list the app moves and the scrolling
-inside a text field don't. `CLIENT_APP_RELEASE` is 3, so every active app
-gets a build with it (4 an hour). Not yet tried on a phone.
+inside a text field don't. `CLIENT_APP_RELEASE` is 3, with 143 below, so
+every active app gets one build with both (4 an hour). Not yet tried on a
+phone.
+
+Roadmap 143 (the sign-in buttons in the app's main colour): the premium
+sign-in and the screens in its look draw their buttons in the app's main
+colour, in the app and in Studio › Screens, not the second colour's gold
+that looked the same in every app.
 
 Roadmap 79.5 (maintenance): Next.js is 16.4.5 (from 16.4.2, with
 `eslint-config-next`), the first release fixed for GHSA-mfr8-8qww-v76h,

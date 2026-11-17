@@ -12,8 +12,8 @@ import '../support/test_app.dart';
 /// picture: Classic the app's own page, Full photo the form on a panel over
 /// the photo filling the screen, Photo and card the form on a card under
 /// the photo, Minimal the logo and the words in the middle, Premium the
-/// welcome over the photo and the button in gold; by day, by night and
-/// right to left.
+/// welcome over the photo and the button (141 in the app's main colour);
+/// by day, by night and right to left.
 void main() {
   setUp(() {
     final binding = TestWidgetsFlutterBinding.ensureInitialized();
@@ -130,7 +130,7 @@ void main() {
       expect(find.text('Your Academy'), findsNothing);
     });
 
-    testWidgets('Premium: the welcome over the photo, the button in gold, '
+    testWidgets('Premium: the welcome over the photo, the main colour button, '
         '$mode', (tester) async {
       await open(tester, 'premium', dark: dark, language: language);
       expect(photoImage(), findsOneWidget);
@@ -138,12 +138,13 @@ void main() {
         find.byKey(const ValueKey('sign-in-premium-card')),
         findsOneWidget,
       );
+      // 141 Not the second colour's gold: the same in every app.
       expect(
         find.ancestor(
           of: find.byKey(const ValueKey('sign-in-continue')),
           matching: find.byType(GoldButtons),
         ),
-        findsOneWidget,
+        findsNothing,
       );
       // The welcome above the card, over the photo.
       final title = tester.getRect(

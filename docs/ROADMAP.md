@@ -3702,5 +3702,15 @@ The owner (17 November), trying Kech Flora: the keyboard sometimes opened by its
 |---|---|---|
 | [x] | 141.1 Why it opened by itself: Flutter gives a screen the focus it last had when what covered it closes, so a text field focused when a screen, a sheet or a dialog opened over it (the shop's search, then a product; a form, then a sheet) took the focus back on the way back and the keyboard opened again; a tab's field also kept the focus, and its keyboard, when another tab was chosen. Now a screen, sheet or dialog opening over a text field takes the focus from it (`KeyboardRouteObserver`, on the app's navigator and each tab's; `closeKeyboard()` also clears the screen's memory of it), and choosing another tab closes it (`MainShell`). The screen that opens still focuses its own field (a search opened to type, a code, a reason) | `phase141_keyboard_test.dart` |
 | [x] | 141.2 A drag that scrolls closes the keyboard, on every screen (`CloseKeyboardOnScroll` in the app's builder, as Flutter's own `keyboardDismissBehavior: onDrag` does for one list): only a drag by the person, so a list the app moves (a chat going to its last message, a field brought into view) doesn't, nor the scrolling inside a text field itself (a long text, moving its cursor) | `phase141_keyboard_test.dart` |
-| [x] | 141.3 `CLIENT_APP_RELEASE` 3 (`lib/builds/app-release.ts`): every active app gets a build with it, 4 an hour, as with release 2 (138.6) | `publish-for-all.test.ts` |
+| [x] | 141.3 `CLIENT_APP_RELEASE` 3 (`lib/builds/app-release.ts`), with Phase 143's sign-in buttons in the same release: every active app gets a build with both, 4 an hour, as with release 2 (138.6) | `publish-for-all.test.ts` |
 | [ ] | 141.4 Not tried on a phone: the widget tests drive Flutter's own focus and test keyboard; a tap outside a text field still leaves its keyboard up (as on Android and iOS by default), so the send button of a chat or a field's own buttons keep it | the owner, on Kech Flora's next build |
+
+## Phase 143: The sign-in buttons in the app's main colour
+
+The owner (17 November), on Kech Flora: the sign-in screen's buttons didn't take the app's colours ("زر البوتونز مش هتاخد … من الوان الابلكيشن لانه ثابت علي كل الابلكيشنز … لون اصفر تقريبا"). The premium sign-in (123) drew them in the second colour's gold, which the designs bring (#E8B04B and its kind) and changing the main colour doesn't change, and Studio › Screens drew a fixed gold. No migration.
+
+| Status | Item | Tests |
+|---|---|---|
+| [x] | 143.1 The app: the premium sign-in's main button (`sign_in_screen.dart`) and the buttons of the screens in its look (the code, the password, a new account: `auth_look.dart`) are the app's main colour, as on every other screen; the second colour stays for the terms' links and the picture's glow | `phase123_sign_in_test.dart`, `phase132_sign_in_pictures_test.dart` |
+| [x] | 143.2 Studio › Screens draws the premium sign-in's button in the main colour, as the app does (`auth-preview.tsx`), not a fixed gold | typecheck, lint |
+| [x] | 143.3 Reaches the apps in the stores with `CLIENT_APP_RELEASE` 3, in the same change as the keyboard fix (Phase 141, #439): one round of builds brings both to every active app | `publish-for-all.test.ts` |

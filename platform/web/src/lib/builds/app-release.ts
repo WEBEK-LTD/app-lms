@@ -32,7 +32,9 @@ export const CLIENT_APP_RELEASE = 3;
  *    the client's APNs key: the app sends its APNs token (#433).
  * 3  141 The keyboard opens only when asked: a screen, sheet or dialog
  *    opening over a text field, or another tab, closes it, so it doesn't
- *    open again by itself on the way back; a drag that scrolls closes it.
+ *    open again by itself on the way back; a drag that scrolls closes it;
+ *    and 143 the premium sign-in's buttons in the app's main colour (not
+ *    the second colour's gold).
  */
 
 /** Builds made before 138 count as this release, so shipping 138 rebuilds nothing by itself. */
