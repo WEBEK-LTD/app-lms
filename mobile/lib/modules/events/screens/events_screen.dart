@@ -19,14 +19,9 @@ import '../widgets/event_widgets.dart';
 /// The Events tab: what's coming up as a list (search and categories) or a
 /// month calendar, where a day shows its events.
 class EventsScreen extends ConsumerStatefulWidget {
-  const EventsScreen({
-    super.key,
-    this.initialCategory,
-    this.focusSearch = false,
-  });
+  const EventsScreen({super.key, this.initialCategory});
 
   final String? initialCategory;
-  final bool focusSearch;
 
   @override
   ConsumerState<EventsScreen> createState() => _EventsScreenState();
@@ -86,7 +81,6 @@ class _EventsScreenState extends ConsumerState<EventsScreen> {
                 padding: const EdgeInsets.fromLTRB(20, 0, 20, 12),
                 child: TextField(
                   controller: _search,
-                  autofocus: widget.focusSearch,
                   onChanged: _searchChanged,
                   textInputAction: TextInputAction.search,
                   decoration: InputDecoration(

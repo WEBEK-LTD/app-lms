@@ -44,13 +44,11 @@ class ShopScreen extends ConsumerStatefulWidget {
     this.initialCategory,
     this.initialOnSale = false,
     this.initialOrder,
-    this.focusSearch = false,
   });
 
   final int? initialCategory;
   final bool initialOnSale;
   final ProductOrder? initialOrder;
-  final bool focusSearch;
 
   @override
   ConsumerState<ShopScreen> createState() => _ShopScreenState();
@@ -65,12 +63,10 @@ class _ShopScreenState extends ConsumerState<ShopScreen> {
   @override
   void initState() {
     super.initState();
+    // 147 The search opens without its keyboard: it comes up only when
+    // the customer taps the field (a tab or a page around this screen
+    // asked for it by itself).
     _query = _initial();
-    if (widget.focusSearch) {
-      WidgetsBinding.instance.addPostFrameCallback((_) {
-        if (mounted) _focus.requestFocus();
-      });
-    }
   }
 
   ProductQuery _initial() => ProductQuery(
@@ -89,7 +85,6 @@ class _ShopScreenState extends ConsumerState<ShopScreen> {
       _search.clear();
       setState(() => _query = _initial());
     }
-    if (widget.focusSearch && !old.focusSearch) _focus.requestFocus();
   }
 
   @override
