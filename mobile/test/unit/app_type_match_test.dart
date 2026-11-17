@@ -131,6 +131,21 @@ void main() {
         expect(canFollowAction(action, AppType.news), isTrue);
       }
     });
+
+    test(
+      'a page without its name or a link without an address opens nothing',
+      () {
+        for (final action in const [
+          PageAction(type: PageActionType.page),
+          PageAction(type: PageActionType.page, pageSlug: ''),
+          PageAction(type: PageActionType.url),
+          PageAction(type: PageActionType.url, url: ''),
+          PageAction(type: PageActionType.url, url: 'not a link'),
+        ]) {
+          expect(canFollowAction(action, AppType.store), isFalse);
+        }
+      },
+    );
   });
 
   group('course about', () {

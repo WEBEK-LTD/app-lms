@@ -214,7 +214,7 @@ class _FlashCard extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final p = context.palette;
     final sale = item.sale!;
-    final action = item.tapAction;
+    final action = openableAction(ref, item.tapAction);
     final Widget content = wide
         ? Row(
             key: const ValueKey('flash-single'),

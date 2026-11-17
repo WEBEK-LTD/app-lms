@@ -8,6 +8,7 @@ import '../../../core/gate/app_gate.dart';
 import '../../../core/l10n/l10n.dart';
 import '../../../core/l10n/vertical_wording.dart';
 import '../../../core/providers.dart';
+import '../../../core/routing/app_router.dart' show openLocation;
 import '../../../core/routing/paths.dart';
 import '../../../core/theme/app_icons.dart';
 import '../../../core/theme/app_theme.dart';
@@ -158,7 +159,7 @@ class _MenuScreenState extends ConsumerState<MenuScreen> {
           SquareIconButton(
             icon: AppIcons.search,
             label: words.searchProducts,
-            onPressed: () => context.go('${Paths.shop}?focus=1'),
+            onPressed: () => openLocation(context, '${Paths.shop}?focus=1'),
           ),
           const SizedBox(width: 10),
           SquareIconButton(
@@ -167,7 +168,7 @@ class _MenuScreenState extends ConsumerState<MenuScreen> {
                 ? context.l10n.cartWithItems(count)
                 : context.l10n.tabCart,
             badge: count > 0,
-            onPressed: () => context.go(Paths.cart),
+            onPressed: () => openLocation(context, Paths.cart),
           ),
         ],
       ),

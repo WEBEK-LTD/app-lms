@@ -182,7 +182,7 @@ class ProfileScreen extends ConsumerWidget {
         'wishlist': _MenuEntry(
           AppIcons.favorite,
           context.l10n.wishlist,
-          () => context.go(Paths.myCoursesTab('wishlist')),
+          () => openLocation(context, Paths.myCoursesTab('wishlist')),
         ),
       if (downloads)
         'downloads': _MenuEntry(
@@ -195,13 +195,13 @@ class ProfileScreen extends ConsumerWidget {
         'my_courses': _MenuEntry(
           AppIcons.myCourses,
           context.l10n.tabMyCourses,
-          () => context.go(Paths.myCourses),
+          () => openLocation(context, Paths.myCourses),
         ),
       if (restaurant)
         'restaurant': _MenuEntry(
           AppIcons.restaurant,
           context.l10n.restaurantMode,
-          () => context.go(Paths.restaurantDesk),
+          () => openLocation(context, Paths.restaurantDesk),
         ),
       if (instructors != null)
         'teachers': _MenuEntry(
@@ -213,7 +213,7 @@ class ProfileScreen extends ConsumerWidget {
         'teacher': _MenuEntry(
           AppIcons.teacher,
           context.l10n.tabTeacher,
-          () => context.go(Paths.teacherDesk),
+          () => openLocation(context, Paths.teacherDesk),
         )
       else if (instructors != null && instructors.applications && user != null)
         'teach': _MenuEntry(
@@ -225,19 +225,19 @@ class ProfileScreen extends ConsumerWidget {
         'shipments': _MenuEntry(
           AppIcons.parcel,
           context.l10n.tabShipments,
-          () => context.go(Paths.shipments),
+          () => openLocation(context, Paths.shipments),
         ),
       if (food && user != null)
         'food_orders': _MenuEntry(
           AppIcons.orders,
           context.l10n.tabFoodOrders,
-          () => context.go(Paths.foodOrders),
+          () => openLocation(context, Paths.foodOrders),
         ),
       if (rides && user != null)
         'rides': _MenuEntry(
           AppIcons.receipt,
           context.l10n.tabMyRides,
-          () => context.go(Paths.myRides),
+          () => openLocation(context, Paths.myRides),
         ),
       if (chatHere)
         'chat': _MenuEntry(
@@ -533,7 +533,8 @@ class ProfileScreen extends ConsumerWidget {
                     SettingsTile(
                       icon: AppIcons.favorite,
                       title: context.l10n.wishlist,
-                      onTap: () => context.go(Paths.myCoursesTab('wishlist')),
+                      onTap: () =>
+                          openLocation(context, Paths.myCoursesTab('wishlist')),
                     ),
                   if (showOrders)
                     SettingsTile(
@@ -562,7 +563,7 @@ class ProfileScreen extends ConsumerWidget {
                     SettingsTile(
                       icon: AppIcons.myCourses,
                       title: context.l10n.tabMyCourses,
-                      onTap: () => context.go(Paths.myCourses),
+                      onTap: () => openLocation(context, Paths.myCourses),
                     ),
                 ],
               ),
@@ -584,7 +585,7 @@ class ProfileScreen extends ConsumerWidget {
                       key: const ValueKey('account-restaurant'),
                       icon: AppIcons.restaurant,
                       title: context.l10n.restaurantMode,
-                      onTap: () => context.go(Paths.restaurantDesk),
+                      onTap: () => openLocation(context, Paths.restaurantDesk),
                     ),
                   if (instructors != null)
                     SettingsTile(
@@ -598,7 +599,7 @@ class ProfileScreen extends ConsumerWidget {
                       key: const ValueKey('account-teacher'),
                       icon: AppIcons.teacher,
                       title: context.l10n.tabTeacher,
-                      onTap: () => context.go(Paths.teacherDesk),
+                      onTap: () => openLocation(context, Paths.teacherDesk),
                     )
                   else if (instructors != null &&
                       instructors.applications &&
@@ -614,21 +615,21 @@ class ProfileScreen extends ConsumerWidget {
                       key: const ValueKey('account-shipments'),
                       icon: AppIcons.parcel,
                       title: context.l10n.tabShipments,
-                      onTap: () => context.go(Paths.shipments),
+                      onTap: () => openLocation(context, Paths.shipments),
                     ),
                   if (food && user != null)
                     SettingsTile(
                       key: const ValueKey('account-food-orders'),
                       icon: AppIcons.orders,
                       title: context.l10n.tabFoodOrders,
-                      onTap: () => context.go(Paths.foodOrders),
+                      onTap: () => openLocation(context, Paths.foodOrders),
                     ),
                   if (rides && user != null)
                     SettingsTile(
                       key: const ValueKey('account-rides'),
                       icon: AppIcons.receipt,
                       title: context.l10n.tabMyRides,
-                      onTap: () => context.go(Paths.myRides),
+                      onTap: () => openLocation(context, Paths.myRides),
                     ),
                   if (chatHere)
                     SettingsTile(
