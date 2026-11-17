@@ -2,6 +2,7 @@ import { decrypt, encrypt } from "../crypto/encryption";
 import type { App } from "../data/types";
 import type { AppPatch } from "../data/store";
 import { courierBundleIdOf } from "../delivery/courier-app";
+import { usesYallappFirebase } from "../firebase/mode";
 import { vendorBundleIdOf } from "../market/vendor-app";
 import { staffBundleIdOf } from "../school/staff-app";
 import { APPLE_ID_PATTERN, checkApnsKey, keyIdFromFileName, parseApnsKey, type ApnsCredentials, type ApnsKeyCheck, type ApnsTransport } from "../hosted/apns";
@@ -20,19 +21,13 @@ export const apnsKeyContext = (appId: string) => `app:${appId}:apns-key`;
 export const APNS_KEY_MAX_BYTES = 4_000;
 
 /**
- * Whether the app's notifications are set up by Yallapp rather than by the
- * client's own Firebase project.
- *
- * MERGE POINT (Phase 1, branch wip-yallapp-firebase): Phase 1 adds
- * `apps.push_setup` ("yallapp" | null). Until it's merged no app has it, so
- * an app counts as Yallapp mode when it has no Firebase service account of
- * its own. An app with its own Firebase keeps sending iPhone pushes through
- * it, as before.
+ * Whether the app's notifications are set up by Yallapp (`apps.push_setup`
+ * "yallapp", on the hosted API: lib/firebase/mode.ts) rather than by the
+ * client's own Firebase project. Apps with their own Firebase keep sending
+ * iPhone pushes through it, as before.
  */
 export function yallappPushSetup(app: App): boolean {
-  const mode = (app as App & { pushSetup?: string | null }).pushSetup;
-  if (mode === "yallapp") return true;
-  return !app.firebaseServiceAccountEncrypted;
+  return usesYallappFirebase(app);
 }
 
 /** Whether the app may take the APNs key: an iPhone app (a bundle ID) on the hosted API whose notifications Yallapp sets up. */

@@ -31,7 +31,10 @@ import { normalizeSiteUrl } from "@/lib/license/site-url";
 import { siteMatch } from "@/lib/app/site-match";
 import { hasFeature, lowestPlanWith, planName } from "@/lib/plans";
 import { FREE_FONT_COUNT } from "@/lib/fonts/catalog";
-import { BrandingStep, ListingStep, PublishingStep, WebsiteStep, type BrandingDesigns } from "./steps";
+import { BrandingStep, ListingStep, PublishingStep, WebsiteStep, type BrandingDesigns, type YallappPushView } from "./steps";
+import { yallappFirebaseOffered } from "@/lib/firebase/env";
+import { usesYallappFirebase } from "@/lib/firebase/mode";
+import { firebaseSetupState } from "@/lib/firebase/register";
 import { CheckLinksPanel } from "../publishing/links/forms";
 import type { DataStore } from "@/lib/data/store";
 import type { App } from "@/lib/data/types";
@@ -71,6 +74,11 @@ export default async function SetupPage({ searchParams }: PageProps<"/dashboard/
   const status = stepStatus(app, plan, effective);
   const requested = (await searchParams).step;
   const step: SetupStep = isSetupStep(requested) && requested !== "app-type" ? requested : (nextStep(app, plan, effective) ?? "website");
+  // 136 "Yallapp sets up notifications" or the client's own Firebase, on the Publishing step when it's offered.
+  const yallappPush: YallappPushView | null =
+    step === "publishing" && (await yallappFirebaseOffered(store, app))
+      ? { chosen: usesYallappFirebase(app) ? "yallapp" : "own", state: usesYallappFirebase(app) ? await firebaseSetupState(store, app) : "waiting" }
+      : null;
   const complete = Object.values(status).every(Boolean);
   const current = plan ? effective[plan] : null;
   // 11.5 Switches: switched-off websites and platforms aren't offered; the app's own stays, with a notice.
@@ -330,7 +338,12 @@ export default async function SetupPage({ searchParams }: PageProps<"/dashboard/
           saved={{
             play: hasStoreKeys(app).play ? { clientEmail: app.googlePlayClientEmail } : null,
             appStore: hasStoreKeys(app).appStore ? { issuerId: app.ascIssuerId, keyId: app.ascKeyId } : null,
-            firebase: { android: Boolean(app.firebaseAndroidAssetId), ios: Boolean(app.firebaseIosAssetId) },
+            // 136 The client's own files only: in Yallapp's Firebase the files are Yallapp's.
+            firebase: {
+              android: !usesYallappFirebase(app) && Boolean(app.firebaseAndroidAssetId),
+              ios: !usesYallappFirebase(app) && Boolean(app.firebaseIosAssetId),
+              yallapp: yallappPush,
+            },
           }}
           // 136.20 The APNs key, for iPhone notifications straight to Apple.
           apns={apnsKeyApplies(app) ? { saved: savedApnsKey(app), buildTeamId: app.appleTeamId ?? null } : null}

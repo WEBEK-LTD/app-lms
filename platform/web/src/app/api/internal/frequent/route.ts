@@ -16,6 +16,7 @@ import { ownerPushDeps } from "@/lib/owner/push-env";
 import { recordJobRun } from "@/lib/watch/runs";
 import { alertFailedScheduledPushes, runWatch } from "@/lib/watch/watch";
 import { dispatchSet, teamMail } from "@/lib/watch/env";
+import { poolParent, yallappFirebase } from "@/lib/firebase/env";
 
 /**
  * POST /api/internal/frequent (roadmap 61): the frequent job. Netlify's
@@ -52,6 +53,8 @@ export async function POST(request: Request): Promise<Response> {
       startPipeline,
       // 114 Email campaigns due start; netlify/functions/mail-campaigns.mts sends the rest every minute.
       mail: await mailDeps(store),
+      // 136 Yallapp's Firebase, when it's set up here.
+      firebase: await firebaseJobDeps(store),
     });
     await alertFailedScheduledPushes(store, jobs.notifications.failed, now, teamMail);
     const watch = await runWatch({ store, now, mail: teamMail, jobs: ["daily", "webhooks", "pipeline"], dispatch: dispatchSet(), crashes: true });
@@ -80,6 +83,12 @@ export async function POST(request: Request): Promise<Response> {
     return { ...jobs, watch, rekey: rekey && { moved: rekey.moved, failed: rekey.failed, done: rekey.done }, integrations, pendingPayments, productPhotos };
   });
   return json(report);
+}
+
+/** 136 Yallapp's Firebase for the frequent job: null when it isn't set up here (nothing calls Google then). */
+async function firebaseJobDeps(store: Awaited<ReturnType<typeof getStore>>) {
+  const firebase = yallappFirebase(store);
+  return firebase ? { registrations: firebase.registrations(), projects: firebase.projects(await poolParent(store), teamMail), mail: teamMail } : null;
 }
 
 /** 114 How the frequent job sends email campaigns; without SIGNING_SECRET they wait (their links couldn't be signed). */

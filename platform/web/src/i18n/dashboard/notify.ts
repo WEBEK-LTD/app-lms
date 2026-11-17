@@ -12,6 +12,9 @@ export const en = {
   inboxOnly: "Your plan sends notifications to the app's inbox only.",
   pushOn: "On · Firebase project <project></project>",
   removeKey: "Remove key",
+  yallappOn: "On · Yallapp sets up and sends your app's notifications. Nothing to add here.",
+  yallappSettingUp: "Yallapp is setting up your push notifications. They start a few minutes after your app's package name and bundle ID are saved. <link>See it on the Publishing step</link>",
+  yallappOwn: "To use your own Firebase instead, choose it on the <link>Publishing step</link>.",
   addKey:
     "Notifications reach the inbox in your app. To also show them on your customers' lock screens, add the key of the same Firebase project as your app's Firebase files.",
   sent: "Sent",
@@ -91,6 +94,9 @@ export const ar: Messages = {
   inboxOnly: "ترسل باقتك الإشعارات إلى صندوق الوارد في التطبيق فقط.",
   pushOn: "مفعّلة · مشروع Firebase <project></project>",
   removeKey: "إزالة المفتاح",
+  yallappOn: "مفعّلة · Yallapp بيجهّز إشعارات تطبيقك وبيبعتها. مفيش حاجة تضيفها هنا.",
+  yallappSettingUp: "Yallapp بيجهّز الإشعارات الفورية. هتشتغل بعد كام دقيقة من حفظ اسم الحزمة ومعرّف الحزمة. <link>شوفها في خطوة «النشر»</link>",
+  yallappOwn: "لو عايز تستخدم Firebase بتاعك بدل كده، اختاره في <link>خطوة «النشر»</link>.",
   addKey:
     "تصل الإشعارات إلى صندوق الوارد في تطبيقك. لتظهر أيضًا على شاشات القفل لدى عملائك، أضف مفتاح مشروع Firebase نفسه الذي تنتمي إليه ملفات Firebase الخاصة بتطبيقك.",
   sent: "المُرسَلة",
@@ -164,6 +170,9 @@ export const tr: Messages = {
   inboxOnly: "Paketiniz bildirimleri yalnızca uygulamanın gelen kutusuna gönderir.",
   pushOn: "Açık · Firebase projesi <project></project>",
   removeKey: "Anahtarı kaldır",
+  yallappOn: "Açık · Uygulamanızın bildirimlerini Yallapp kuruyor ve gönderiyor. Buraya eklemeniz gereken bir şey yok.",
+  yallappSettingUp: "Yallapp anlık bildirimlerinizi kuruyor. Uygulamanızın paket adı ve paket kimliği kaydedildikten birkaç dakika sonra başlar. <link>Yayınlama adımında görün</link>",
+  yallappOwn: "Bunun yerine kendi Firebase'inizi kullanmak için <link>Yayınlama adımında</link> seçin.",
   addKey:
     "Bildirimler uygulamanızdaki gelen kutusuna ulaşır. Müşterilerinizin kilit ekranlarında da görünmeleri için, uygulamanızın Firebase dosyalarıyla aynı Firebase projesinin anahtarını ekleyin.",
   sent: "Gönderilenler",

@@ -25,6 +25,7 @@ import { rideSettingsFormValues } from "@/lib/rides/forms";
 import { offeredTypes } from "@/lib/rides/settings";
 import { isRides, NotRides, RidesPlanNotice, TypesFirst } from "../rides/parts";
 import { RideSettingsForm } from "./forms";
+import { usesYallappFirebase } from "@/lib/firebase/mode";
 
 export async function generateMetadata(): Promise<Metadata> {
   return { title: (await dashboardText()).t("rides.settings") };
@@ -119,6 +120,7 @@ export default async function RideSettingsPage({ searchParams }: { searchParams:
           bundleOff={richText(t("rides.driverAppBundleOff"), { link: (chunk) => <Link href="/dashboard/license">{chunk}</Link> })}
           driverAppNameDefault={courierAppNameOf(app, { courierAppName: null })}
           driverFirebaseIos={Boolean(settings.courierFirebaseIosAssetId)}
+          yallappFirebase={usesYallappFirebase(app)}
           driverIconUrl={settings.courierIconAssetId ? `/api/v1/assets/${settings.courierIconAssetId}` : null}
           before={workedInCustomersApp(settings)}
         />

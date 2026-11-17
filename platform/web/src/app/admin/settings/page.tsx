@@ -8,6 +8,7 @@ import { platformSettings } from "@/lib/settings/platform";
 import { SmtpMissingNotice } from "../smtp-notice";
 import { SETTINGS_PAGES } from "./pages";
 import { settingsSummary } from "./summary";
+import { firebaseSummary } from "./firebase/summary";
 
 export const metadata: Metadata = { title: "Settings" };
 export const dynamic = "force-dynamic";
@@ -20,8 +21,9 @@ export const dynamic = "force-dynamic";
  */
 export default async function SettingsPage() {
   await requireAdmin();
-  const settings = await platformSettings(await getStore(), { fresh: true });
-  const summary = settingsSummary(settings);
+  const store = await getStore();
+  const settings = await platformSettings(store, { fresh: true });
+  const summary = settingsSummary(settings, await firebaseSummary(store));
   return (
     <>
       {/* 19 Without SMTP, production drops every email with only a server log line. */}

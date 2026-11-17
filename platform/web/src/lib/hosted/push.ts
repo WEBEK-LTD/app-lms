@@ -1,5 +1,6 @@
 import { createSign } from "node:crypto";
 import type { PushProvider } from "../data/types";
+import { federatedAccessToken, WIF_SUBJECTS, type Federation } from "../google/federation";
 // 136.21 Direct APNs (see the marked hook in sendPush).
 import { sendApnsPush, type ApnsCredentials, type ApnsTarget, type ApnsTransport } from "./apns";
 
@@ -8,7 +9,10 @@ import { sendApnsPush, type ApnsCredentials, type ApnsTarget, type ApnsTransport
  * the plugin's Push_Service does: the same message shape, so the app handles
  * pushes from either the same way. 36 Tokens from Huawei phones without
  * Google Play go through Huawei Push Kit (server API v1) with the app's ID
- * and app secret, when the client saved them.
+ * and app secret, when the client saved them. 136 An app in Yallapp's
+ * Firebase has no key: its account is `federated` (Yallapp's project and
+ * push sender), and the token comes through Workload Identity Federation
+ * (lib/google/federation.ts).
  */
 
 export interface ServiceAccount {
@@ -17,6 +21,12 @@ export interface ServiceAccount {
   private_key: string;
   /** 36 Huawei Push Kit, for "hms" tokens; without it those tokens are skipped. */
   hms?: HmsCredentials | null;
+  /**
+   * 136 Yallapp's Firebase: `project_id` is Yallapp's project, `client_email`
+   * its push sender, `private_key` empty; the access token comes through
+   * Workload Identity Federation, never a key.
+   */
+  federated?: boolean;
   /** 136.21 The client's APNs key, for "apns" tokens (lib/hosted/apns.ts); without it those tokens are skipped. */
   apns?: ApnsCredentials | null;
 }
@@ -65,6 +75,29 @@ export interface PushResult {
 type Fetch = typeof fetch;
 
 const MESSAGING_SCOPE = "https://www.googleapis.com/auth/firebase.messaging";
+/** FCM's address for a client's own Firebase. */
+const FCM_URL = "https://fcm.googleapis.com";
+
+/** 136 How a federated account signs in: the federation given (tests), else the server's (lib/google/federation-env.ts). */
+export interface PushOptions {
+  fetcher?: Fetch;
+  now?: Date;
+  federation?: Federation;
+}
+
+/** 136 The server's federation with Google; null when Yallapp's Firebase isn't set up here. */
+async function serverFederation(): Promise<Federation | null> {
+  const { federationFromEnv } = await import("../google/federation-env");
+  return federationFromEnv()?.federation ?? null;
+}
+
+/** 136 A federated account's token, through Workload Identity Federation as the push sender, and FCM's address. */
+async function federatedToken(account: ServiceAccount, fetcher: Fetch, now: Date, scope: string, federation?: Federation): Promise<{ token: string; fcm: string }> {
+  const chosen = federation ?? (await serverFederation());
+  if (!chosen) throw new Error("Yallapp's Firebase isn't set up on this server (GOOGLE_WIF_PROVIDER).");
+  const token = await federatedAccessToken(chosen, { serviceAccount: account.client_email, subject: WIF_SUBJECTS.push, scopes: [scope], fetcher, now });
+  return { token, fcm: chosen.endpoints.fcm };
+}
 
 function signedAssertion(account: ServiceAccount, nowSeconds: number, scope: string): string {
   const header = Buffer.from(JSON.stringify({ alg: "RS256", typ: "JWT" })).toString("base64url");
@@ -100,8 +133,10 @@ async function accessToken(account: ServiceAccount, fetcher: Fetch, now: Date, s
 const accessTokens = new Map<string, { token: string; until: number }>();
 
 /** 105.9 An access token of the service account for other Google APIs (the Realtime Database), reused while it lasts. */
-export async function googleAccessToken(account: ServiceAccount, scope: string, options: { fetcher?: Fetch; now?: Date } = {}): Promise<string> {
+export async function googleAccessToken(account: ServiceAccount, scope: string, options: PushOptions = {}): Promise<string> {
   const now = options.now ?? new Date();
+  // 136 Yallapp's push sender only sends: no other API is open to it (taxi's live database stays own Firebase only).
+  if (account.federated) throw new Error("Yallapp's Firebase only sends pushes.");
   const key = `${account.client_email}\n${scope}`;
   const kept = accessTokens.get(key);
   if (kept && kept.until > now.getTime()) return kept.token;
@@ -111,7 +146,12 @@ export async function googleAccessToken(account: ServiceAccount, scope: string, 
 }
 
 /** 80.1 Whether Google accepts the Firebase service account: a token for sending is asked for, nothing is sent. Throws why not. */
-export async function checkFirebaseAccount(account: ServiceAccount, options: { fetcher?: Fetch; now?: Date } = {}): Promise<void> {
+export async function checkFirebaseAccount(account: ServiceAccount, options: PushOptions = {}): Promise<void> {
+  // 136 Yallapp's Firebase: the push sender signs in through Workload Identity Federation.
+  if (account.federated) {
+    await federatedToken(account, options.fetcher ?? fetch, options.now ?? new Date(), MESSAGING_SCOPE, options.federation);
+    return;
+  }
   await accessToken(account, options.fetcher ?? fetch, options.now ?? new Date());
 }
 
@@ -136,7 +176,7 @@ export async function sendPush(
   account: ServiceAccount,
   targets: PushTarget[],
   message: PushMessage,
-  options: { fetcher?: Fetch; now?: Date; apnsTransport?: ApnsTransport } = {},
+  options: PushOptions & { apnsTransport?: ApnsTransport } = {},
 ): Promise<PushResult> {
   const result: PushResult = { sent: 0, invalidTokens: [] };
   const fetcher = options.fetcher ?? fetch;
@@ -164,8 +204,11 @@ export async function sendPush(
     result.invalidTokens.push(...hms.invalidTokens);
   }
   if (tokens.length === 0) return result;
-  const { token } = await accessToken(account, fetcher, options.now ?? new Date());
-  const url = `https://fcm.googleapis.com/v1/projects/${encodeURIComponent(account.project_id)}/messages:send`;
+  // 136 Yallapp's Firebase signs in without a key; a client's own with its service account, as before.
+  const { token, fcm } = account.federated
+    ? await federatedToken(account, fetcher, options.now ?? new Date(), MESSAGING_SCOPE, options.federation)
+    : { token: (await accessToken(account, fetcher, options.now ?? new Date())).token, fcm: FCM_URL };
+  const url = `${fcm}/v1/projects/${encodeURIComponent(account.project_id)}/messages:send`;
   for (const deviceToken of tokens) {
     const response = await fetcher(url, {
       method: "POST",

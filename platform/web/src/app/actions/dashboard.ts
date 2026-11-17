@@ -75,6 +75,9 @@ import { designFitsApp, findDesign } from "@/lib/pages/designs/catalog";
 import { demoOfDesign } from "@/lib/demo/look";
 import { seedForDesign } from "@/lib/samples/server";
 import { samplesBlockedMessage } from "@/lib/samples/lists";
+import { pushSetupForNewApp, yallappFirebase, yallappFirebaseOffered } from "@/lib/firebase/env";
+import { usesYallappFirebase } from "@/lib/firebase/mode";
+import { syncAppFirebase } from "@/lib/firebase/register";
 
 /** Active client with an app, or a redirect. Expired plans can still edit their setup but not build. */
 async function requireActiveClient(permission: TeamPermission): Promise<ClientContext> {
@@ -188,6 +191,8 @@ export async function chooseAppTypeAction(formData: FormData): Promise<void> {
     if (context.apps.length >= MAX_APPS_PER_CLIENT) redirect(`${back}${adding ? "&" : "?"}limit=1`);
     // The account's first app starts with the website given at sign-up; the next ones ask for theirs.
     const app = newApp(context.client.id, context.apps.length ? null : context.client.siteUrl, now, appType, vertical);
+    // 136 Yallapp sets up its notifications when its Firebase is set up here and has room.
+    if (await pushSetupForNewApp(store, app)) app.pushSetup = "yallapp";
     await store.createApp(app);
     // 132.40 An Arabic or Turkish owner's app starts in their language.
     const lang = await ownerLang(context);
@@ -276,6 +281,8 @@ export async function startFromWebsiteAction(formData: FormData): Promise<void> 
   if (draft.details.template) app.template = draft.details.template;
   if (images.logo) app.logoAssetId = await saveAsset(context.client.id, "logo", images.logo.data, images.logo.contentType, images.logo.extension);
   if (images.icon) app.iconAssetId = await saveAsset(context.client.id, "icon", images.icon.data, images.icon.contentType, images.icon.extension);
+  // 136 Yallapp sets up its notifications when its Firebase is set up here and has room.
+  if (await pushSetupForNewApp(store, app)) app.pushSetup = "yallapp";
   await store.createApp(app);
   await chooseApp(app.id);
   const saved = await saveDraft(store, app, inMainLanguage(draft.layout), now);
@@ -698,6 +705,8 @@ export async function saveListingAction(_: FormState, formData: FormData): Promi
   if (parsed.data.androidPackage !== context.app.androidPackage) patch.firebaseAndroidAssetId = null;
   if (parsed.data.iosBundleId !== context.app.iosBundleId) patch.firebaseIosAssetId = null;
   await store.updateApp(context.app.id, patch, now);
+  // 136 In Yallapp's Firebase: the apps for these names are registered now (a changed name's old app removed).
+  if (usesYallappFirebase(context.app)) await registerInYallappFirebase(context.app.id);
   return afterStep(context, "listing");
 }
 
@@ -769,6 +778,52 @@ async function readFirebaseFiles(formData: FormData, app: App, clientId: string)
   return { patch, errors };
 }
 
+/**
+ * 136 Who sets up the app's notifications, when the Publishing step offers
+ * it: "yallapp" (its own files make way for Yallapp's, made next) or "own"
+ * (Yallapp's files leave with it, the client's own files are read as
+ * always). Not offered: the client's own files, as always; files uploaded
+ * then mean their own Firebase.
+ */
+async function readFirebaseChoice(formData: FormData, app: App, clientId: string): Promise<{ patch: AppPatch; errors: Record<string, string>; yallapp: boolean; leftYallapp: boolean }> {
+  const store = await getStore();
+  const raw = formData.get("pushSetup");
+  const offered = raw === "yallapp" || raw === "own" ? await yallappFirebaseOffered(store, app) : false;
+  if (offered && raw === "yallapp") {
+    const patch: AppPatch = usesYallappFirebase(app) ? {} : { pushSetup: "yallapp", firebaseAndroidAssetId: null, firebaseIosAssetId: null };
+    return { patch, errors: {}, yallapp: true, leftYallapp: false };
+  }
+  const own = await readFirebaseFiles(formData, app, clientId);
+  if (offered && usesYallappFirebase(app)) {
+    return { patch: { firebaseAndroidAssetId: null, firebaseIosAssetId: null, ...own.patch, pushSetup: null }, errors: own.errors, yallapp: false, leftYallapp: true };
+  }
+  if (app.pushSetup === "yallapp" && (own.patch.firebaseAndroidAssetId || own.patch.firebaseIosAssetId)) own.patch.pushSetup = null;
+  return { ...own, yallapp: false, leftYallapp: false };
+}
+
+/** 136 The second app's iPhone file was Yallapp's: it leaves with Yallapp's Firebase. */
+async function dropYallappCourierFile(appId: string, now: Date): Promise<void> {
+  const store = await getStore();
+  const rows = await store.listAppFirebaseApps(appId);
+  const settings = await store.getDeliverySettings(appId);
+  if (settings?.courierFirebaseIosAssetId && rows.some((r) => r.platform === "ios" && r.variant !== "customer")) {
+    await store.saveDeliverySettings(appId, { ...settings, courierFirebaseIosAssetId: null }, now);
+  }
+}
+
+/** 136 The app registered in Yallapp's Firebase now, as far as a few seconds go; the frequent job does the rest. */
+async function registerInYallappFirebase(appId: string): Promise<void> {
+  const store = await getStore();
+  const firebase = yallappFirebase(store);
+  const app = await store.getAppById(appId);
+  if (!firebase || !app || !usesYallappFirebase(app)) return;
+  try {
+    await syncAppFirebase(firebase.registrations(), app);
+  } catch (error) {
+    console.error(`[firebase] ${appId}: ${error instanceof Error ? error.message : String(error)}`);
+  }
+}
+
 async function fileText(value: FormDataEntryValue | null, maxBytes: number): Promise<string | null> {
   if (!value || typeof value === "string" || value.size === 0) return null;
   if (value.size > maxBytes) return "";
@@ -825,18 +880,28 @@ export async function savePublishingAction(_: FormState, formData: FormData): Pr
   const app = context.app;
   const key = encryptionKey();
   const appStore = await readAppStoreKey(formData, app, key);
-  const firebase = await readFirebaseFiles(formData, app, context.client.id);
-  // 136.20 The APNs key for iPhone notifications straight to Apple, checked with Apple (lib/integrations/apns-key.ts).
-  const apns = await readApnsKeyForm(app, formData, { key });
+  // 136 Or "Yallapp sets up notifications", when it's offered.
+  const firebase = await readFirebaseChoice(formData, app, context.client.id);
+  // 136.20 The APNs key for iPhone notifications straight to Apple, checked with Apple (lib/integrations/apns-key.ts),
+  // for an app in Yallapp mode, including one choosing it in this same save.
+  const apns = await readApnsKeyForm({ ...app, ...firebase.patch }, formData, { key });
   const errors: Record<string, string> = { ...appStore.errors, ...firebase.errors, ...apns.errors };
   const patch: AppPatch = { ...appStore.patch, ...firebase.patch, ...apns.patch };
   const values = { ...appStore.values, ...apns.values };
+  const pushChanged = async () => {
+    if (firebase.leftYallapp) await dropYallappCourierFile(app.id, now);
+    if (firebase.leftYallapp || patch.pushSetup === "yallapp") {
+      await recordStaffChange(context, firebase.yallapp ? "Chose Yallapp to set up the app's notifications" : "Chose the app's own Firebase for notifications");
+    }
+    if (firebase.yallapp) await registerInYallappFirebase(app.id);
+  };
 
   // 13.1 Store keys for uploading are only asked when we publish for the client.
   const plans = await effectivePlans(store);
   if (!managedPublishing(context.license ? currentPlanId(context.license, now) : null, plans)) {
     if (Object.keys(errors).length > 0) return { errors, values };
     await store.updateApp(app.id, { ...patch, publishingDoneAt: now }, now);
+    await pushChanged();
     return afterStep(context, "publishing");
   }
   // 19 Who publishes: "managed" (our team, through invitations) or "self" (with the store keys).
@@ -861,6 +926,7 @@ export async function savePublishingAction(_: FormState, formData: FormData): Pr
     return { message: "Add your Google Play key, your App Store Connect key, or both. Or choose “Publish it for me”.", values: { ...values, publishingMode: "self" } };
   }
   await store.updateApp(app.id, { ...patch, publishingDoneAt: now }, now);
+  await pushChanged();
   // 19 "Publish it for me" or "I'll publish it myself", chosen here: the same as on the Publishing page.
   if (chosen && chosen !== app.publishingMode) {
     await choosePublishingMode(store, { ...context, app: (await store.getAppById(app.id)) ?? app }, chosen, now);

@@ -91,6 +91,8 @@ export async function testLiveDatabaseAction(): Promise<FormState> {
   if (!taxi.databaseUrl) return { ok: false, message: "Save your database's address first." };
   const account = serviceAccountOf(app, encryptionKey());
   if (!account) return { ok: false, message: "Add your app's Firebase service account first, on the App notifications page: the database must be in the same Firebase project." };
+  // 136 Yallapp's Firebase has no key to reach a database with.
+  if (account.federated) return { ok: false, message: "A live database works with your own Firebase only. On the Publishing step choose “Use my own Firebase”, then add your service account on the App notifications page." };
   try {
     await checkLiveDatabase(liveDatabase(app, taxi, account)!, new Date());
     return { ok: true, message: "Connected: Yallapp wrote to the database, read it back and removed it." };

@@ -8,6 +8,19 @@ Last updated: 16 November 2026.
 
 ## Current release
 
+Roadmap 136 Phase 1 (Yallapp sets up notifications) is in the code, off
+until its settings are in Netlify: apps on the hosted API can leave
+Firebase to Yallapp, which registers their Android and iOS apps (and the
+bundle's second apps) in its own Firebase projects, saves their files
+where a client's own would be, and sends their pushes without any key
+(the platform is its own OpenID Connect issuer for Google's Workload
+Identity Federation, `/oidc`). The pool of projects grows by itself: the
+frequent job creates the next project when it runs low, and Admin ›
+Settings › Yallapp Firebase projects shows each project's room, Google's
+words when a step failed, and Check. "Use my own Firebase" works as
+before. iPhones in Yallapp's Firebase get pushes from Phase 2 (straight to
+Apple); WordPress sites from Phase 3 (the relay).
+
 Roadmap 136.20–136.23 (iPhone notifications straight to Apple, Phase 2
 of "Yallapp sets up notifications") is in the code: the client's APNs
 key is uploaded once, checked with Apple and saved encrypted; `apns`
@@ -437,6 +450,15 @@ Billing and the App Store's in-app purchase) is complete (steps 100.1 to
 - 133 A Kashier payment for 6, 24 or 36 months, for life and for an
   add-on (the amounts are the team's prices; the flow is the plans').
 
+- 136 Yallapp's Firebase against real Google (tested only against a
+  fake STS, IAM credentials, Firebase Management, Resource Manager,
+  Service Usage, API Keys and FCM): the WIF exchange with the platform as
+  issuer, whether `getConfig` returns one app or the project's (the
+  platform keeps only the client's packages either way), the minimum
+  roles, the project-creation quota, whether a removed app still counts
+  toward Firebase's 30, whether the push-only key is enough for token
+  registration, and a first Android push (LAUNCH-CHECKLIST 7z8 step 10).
+
 These parts were tested against recorded answers or could not run in the
 test environment:
 
@@ -462,6 +484,14 @@ test environment:
 
 ## Known gaps
 
+- 136 Yallapp's Firebase, Phase 1: iPhones receive no push until Phase 2
+  (straight to Apple with the client's APNs key); the vendors' and staff's
+  apps are registered on Android only (their builds have no iPhone
+  Firebase file yet); WordPress and own API apps keep their own Firebase;
+  after a switch between the two modes, phones keep the other project's
+  token until they update the app (Phase 4); FCM's
+  `android.restricted_package_name` isn't set yet; the taxi's live
+  database needs the client's own Firebase.
 - 134 Pay inside the app is WooCommerce's only. Shopify's API terms keep
   payments on Shopify Checkout; Wix's Create Order needs an app or Wix
   user identity (the connection has a visitor client ID and an account API
@@ -533,6 +563,14 @@ test environment:
   mention the card's consent box or demo sign-ins yet.
 
 ## Deployment
+
+- 136 Migration `0138_yallapp_firebase` (the tables
+  `platform_signing_keys`, `firebase_projects`, `app_firebase_apps` and
+  the apps' `push_setup` and `firebase_project_id`). Nothing changes until
+  GOOGLE_WIF_PROVIDER, GOOGLE_PUSH_SERVICE_ACCOUNT and
+  GOOGLE_FIREBASE_APPS_SERVICE_ACCOUNT are set (and
+  GOOGLE_FIREBASE_PROJECT_PARENT, or Admin's setting, for projects made by
+  the platform): LAUNCH-CHECKLIST 7z8.
 
 - 134 Migration `0137_connected_pay` (the table `store_platform_orders`).
   Plugin 0.4.47 (pay inside the app) goes to sites with the app update

@@ -1,7 +1,7 @@
 import { createServer, type Http2Server } from "node:http2";
 import { createPublicKey, generateKeyPairSync, verify } from "node:crypto";
 import type { AddressInfo } from "node:net";
-import { afterEach, describe, expect, it } from "vitest";
+import { afterEach, describe, expect, it, vi } from "vitest";
 import { newApp } from "@/lib/app/setup";
 import { decrypt } from "@/lib/crypto/encryption";
 import { MemoryStore } from "@/lib/data/memory";
@@ -268,17 +268,17 @@ describe("136.21 sendPush hands APNs tokens to Apple", () => {
 });
 
 describe("136.20 the app's key", () => {
-  const appWith = (patch: Partial<App> = {}): App => ({ ...newApp("client-1", null, NOW, "store"), id: "app-1", backend: "hosted", iosBundleId: "com.nile.shop", ...patch });
+  const appWith = (patch: Partial<App> = {}): App => ({ ...newApp("client-1", null, NOW, "store"), id: "app-1", backend: "hosted", iosBundleId: "com.nile.shop", pushSetup: "yallapp", ...patch });
 
   it("is for hosted iPhone apps whose notifications Yallapp sets up, and turns direct APNs on once saved", () => {
     expect(apnsKeyApplies(appWith())).toBe(true);
     expect(apnsKeyApplies(appWith({ iosBundleId: null }))).toBe(false);
     expect(apnsKeyApplies(appWith({ backend: "wordpress" }))).toBe(false);
-    // Own Firebase (a service account of the client's): unchanged.
-    expect(yallappPushSetup(appWith({ firebaseServiceAccountEncrypted: "sealed" }))).toBe(false);
-    expect(apnsKeyApplies(appWith({ firebaseServiceAccountEncrypted: "sealed" }))).toBe(false);
-    // Phase 1's mode wins over a service account left from before.
-    expect(yallappPushSetup({ ...appWith({ firebaseServiceAccountEncrypted: "sealed" }), pushSetup: "yallapp" } as App)).toBe(true);
+    // Own Firebase (Phase 1's push_setup null): unchanged.
+    expect(yallappPushSetup(appWith({ pushSetup: null }))).toBe(false);
+    expect(apnsKeyApplies(appWith({ pushSetup: null }))).toBe(false);
+    // Yallapp's mode wins over a service account left from before.
+    expect(yallappPushSetup(appWith({ firebaseServiceAccountEncrypted: "sealed" }))).toBe(true);
     expect(apnsDirectOn(appWith())).toBe(false);
     expect(apnsDirectOn(appWith({ apnsKeyEncrypted: "sealed", apnsKeyId: "ABCDE12345", apnsTeamId: "TEAM123456" }))).toBe(true);
   });
@@ -297,8 +297,16 @@ describe("136.20 the app's key", () => {
     expect(apnsCredentialsOf(saved, KEY)).toMatchObject({ keyId: "ABCDE12345", teamId: "TEAM123456", bundleId: "com.nile.shop", roleBundleIds: { courier: "com.nile.shop.courier", driver: "com.nile.shop.driver", vendor: "com.nile.shop.vendor", staff: "com.nile.shop.staff" } });
     // Bound to its app: another app's row can't open it.
     expect(apnsCredentialsOf({ ...saved, id: "app-2" }, KEY)).toBeNull();
-    // serviceAccountOf carries it next to the Firebase account.
+    // Yallapp's Firebase account (Phase 1, keyless) carries it, once the app has its project and the server is set up.
     expect(serviceAccountOf(saved, KEY)).toBeNull();
+    vi.stubEnv("GOOGLE_WIF_PROVIDER", "projects/123456789012/locations/global/workloadIdentityPools/yallapp-platform/providers/platform");
+    vi.stubEnv("GOOGLE_PUSH_SERVICE_ACCOUNT", "yallapp-push-sender@yallapp-firebase.iam.gserviceaccount.com");
+    vi.stubEnv("GOOGLE_FIREBASE_APPS_SERVICE_ACCOUNT", "yallapp-firebase-apps@yallapp-firebase.iam.gserviceaccount.com");
+    try {
+      expect(serviceAccountOf({ ...saved, firebaseProjectId: "yallapp-push-01" }, KEY)).toMatchObject({ federated: true, apns: { keyId: "ABCDE12345", bundleId: "com.nile.shop" } });
+    } finally {
+      vi.unstubAllEnvs();
+    }
   });
 
   it("says what's wrong, and what Apple answered", async () => {
@@ -335,7 +343,7 @@ describe("136.20 the app's key", () => {
     const read = await readApnsKeyForm(appWith(), form, { key: KEY, transport: apns.transport });
     expect(read.errors).toEqual({});
     expect(read.patch).toMatchObject({ apnsKeyId: "ABCDE12345", apnsTeamId: "TEAM123456" });
-    const own = await readApnsKeyForm(appWith({ firebaseServiceAccountEncrypted: "sealed" }), form, { key: KEY, transport: apns.transport });
+    const own = await readApnsKeyForm(appWith({ pushSetup: null }), form, { key: KEY, transport: apns.transport });
     expect(own).toEqual({ patch: {}, errors: {}, values: {}, message: null });
     expect(apns.requests).toHaveLength(1);
   });

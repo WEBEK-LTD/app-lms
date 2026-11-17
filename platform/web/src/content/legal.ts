@@ -20,7 +20,7 @@ export const PRIVACY: LegalDefault = {
   key: "privacy",
   path: "/privacy",
   title: "Privacy policy",
-  updated: "4 November 2026",
+  updated: "16 November 2026",
   body: `## 1. Who we are
 
 Yallapp is based in Cairo, Egypt, and is the data controller for the personal data described here. We work with businesses in many countries, so we follow the data protection laws that apply to the data we handle: Egypt's Personal Data Protection Law (Law No. 151 of 2020), and, where they apply, the EU General Data Protection Regulation (GDPR) and the Turkish Personal Data Protection Law No. 6698 (KVKK). Contact: [{{contact_email}}](mailto:{{contact_email}}).
@@ -46,7 +46,7 @@ How your app users' data is handled depends on where the app gets its content:
 - **In-app purchases (every plan but Starter, when you turn them on):** when someone buys a course or membership in your app through Google Play or the App Store, Yallapp checks the purchase with the store and keeps a record of it: the store's purchase token or transaction ID, the product, its status and dates, and the account it belongs to in your app (for WordPress apps, the website user's ID). Google and Apple take the payment; Yallapp never receives the money or the card details. For these records you are the data controller and Yallapp is your data processor; they are kept while your app exists, so that refunds and restored purchases work, and deleted with it.
 - **Chat (Pro and Business plans):** when your app has a chat, Yallapp stores its messages and files, the name and picture of each person who writes (for WordPress apps, the website user's ID, name and picture, and their courses for course groups), and who reported or blocked whom. For this data you are the data controller and Yallapp is your data processor. Messages and files are deleted a year after they're sent unless you keep a conversation for longer, and at once when a person deletes their account or you delete them.
 
-In every case you are responsible for giving your app users your own privacy notice. Push notifications are sent through your own Firebase project. Sign-in codes may be sent on WhatsApp through waabek.com (from our number, or from yours if you connect it), or by email from our email server (or through your own email server if you set one up; we store its password encrypted). If you ask us for help with a problem involving one of your users, we use only the data you share with us, and only on your instructions.
+In every case you are responsible for giving your app users your own privacy notice. Push notifications are sent through your own Firebase project. When you choose “Yallapp sets up notifications” for your app, your app's device push tokens are processed by Yallapp through Google Firebase Cloud Messaging, only to deliver your app's notifications. Sign-in codes may be sent on WhatsApp through waabek.com (from our number, or from yours if you connect it), or by email from our email server (or through your own email server if you set one up; we store its password encrypted). If you ask us for help with a problem involving one of your users, we use only the data you share with us, and only on your instructions.
 
 ## 4. Why we use your data, and our legal basis
 
@@ -99,7 +99,7 @@ export const TERMS: LegalDefault = {
   key: "terms",
   path: "/terms",
   title: "Terms of service",
-  updated: "27 October 2026",
+  updated: "16 November 2026",
   body: `## 1. About these terms
 
 These terms cover your use of Yallapp: the website at yallapp.com.tr, the client dashboard, the Yallapp WordPress plugin and the mobile apps we build for you. Yallapp is based in Cairo, Egypt. In these terms, “we” and “us” mean Yallapp. By creating an account, you agree to these terms.
@@ -160,7 +160,7 @@ Nothing in these terms limits liability that the law does not allow us to limit,
 
 ## 15. Personal data
 
-We handle personal data as described in our [Privacy policy](/privacy).
+We handle personal data as described in our [Privacy policy](/privacy). When you choose “Yallapp sets up notifications” for your app, your app's device push tokens are processed by Yallapp through Google Firebase Cloud Messaging, only to deliver your app's notifications.
 
 ## 16. Changes to these terms
 
