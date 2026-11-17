@@ -329,7 +329,9 @@ test("138 the other Android stores are the client's own, and each app gets one p
   await expect(own.getByRole("region", { name: "Your steps" }).getByText(`add ${accountA} with the Admin role`)).toBeVisible();
   await expect.poll(async () => (await mailsTo(accountA)).map((m) => m.subject)).toContain("Publishing: Franklin Lab is yours to publish");
   const assigned = (await mailsTo(accountA)).find((m) => m.subject === "Publishing: Franklin Lab is yours to publish")!;
-  expect(assigned.text).toContain("Send the app's first Google Play release by hand in Play Console");
+  // Google Play is live already (the team marked it): only the steps still to do.
+  expect(assigned.text).not.toContain("Send the app's first Google Play release by hand");
+  expect(assigned.text).toContain("Answer App Privacy in App Store Connect for the app's first iPhone version");
   expect(assigned.text).toContain("(not tracked yet)");
   await own.reload();
   await expect(own.getByText(`you invite our team email, ${accountA}`)).toBeVisible();
@@ -343,7 +345,7 @@ test("138 the other Android stores are the client's own, and each app gets one p
   await expect(steps.locator('[data-account-step="play_first_release"]')).toHaveAttribute("data-state", "done");
   await expect(steps.locator('[data-account-step="app_privacy"]')).toHaveAttribute("data-state", "todo");
   await expect(steps.locator('[data-account-step="apns_key"]')).toContainText("Not tracked yet");
-  await card.getByLabel("Move to").selectOption({ label: `${accountB} (0 of 50)` });
+  await card.getByLabel("Move to", { exact: true }).selectOption({ label: `${accountB} (0 of 50)` });
   await card.getByRole("button", { name: "Move", exact: true }).click();
   await expect(card.getByText(`Moved to ${accountB}.`)).toBeVisible();
   await own.goto("/dashboard/publishing");
@@ -356,7 +358,8 @@ test("138 the other Android stores are the client's own, and each app gets one p
   await b.getByRole("button", { name: "Remove account" }).click();
   await expect(b.getByText(`${accountB} has 1 app: move them to another account in Publishing first, or deactivate it so it takes no new ones.`)).toBeVisible();
   await admin.locator(`[data-publishing-account="${accountA}"]`).getByRole("button", { name: "Remove account" }).click();
-  await expect(admin.getByText(`${accountA} removed.`)).toBeVisible();
+  // Removed: it leaves the list.
+  await expect(admin.locator(`[data-publishing-account="${accountA}"]`)).toHaveCount(0);
   await admin.reload();
   await b.getByLabel("Takes new apps").uncheck();
   await b.getByRole("button", { name: "Save", exact: true }).click();

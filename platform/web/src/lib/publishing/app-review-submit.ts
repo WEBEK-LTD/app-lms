@@ -405,11 +405,18 @@ export async function runAppReviewSubmissions(deps: AppReviewDeps): Promise<AppR
     const previous = build.release?.appReview ?? null;
     const base = { checkedAt: now.toISOString(), since: previous?.since ?? now.toISOString(), versionId: previous?.versionId ?? null, submissionId: previous?.submissionId ?? null, emailed: previous?.emailed ?? null };
     let outcome: SubmitOutcome;
-    if (!app || !credentials || !bundleId) outcome = { state: "blocked", reason: "key" };
+    let api: AppleApi | null = null;
+    try {
+      api = app && credentials && bundleId ? new AppleApi(deps.fetcher ?? fetch, credentials, now) : null;
+    } catch {
+      // A key Node can't sign with: the client adds it again.
+      api = null;
+    }
+    if (!app || !api) outcome = { state: "blocked", reason: "key" };
     else {
       try {
         const review = await reviewSecretOf(store, app, deps.key);
-        outcome = await submitForReview(new AppleApi(deps.fetcher ?? fetch, credentials, now), {
+        outcome = await submitForReview(api, {
           bundleId,
           versionName: build.versionName,
           versionCode: build.versionCode,

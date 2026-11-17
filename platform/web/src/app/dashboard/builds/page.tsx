@@ -826,7 +826,7 @@ function AppReviewLine({ build, text }: { build: Build; text: Awaited<ReturnType
   const { t, k, lang } = text;
   const stage = build.stages.app_review;
   const state = build.release?.appReview ?? null;
-  if (build.status !== "ready" || !stage || stage === "skipped") return null;
+  if (build.status !== "ready" || !stage || stage === "skipped" || build.stages.upload_testflight !== "done") return null;
   if (stage === "done" && state?.submittedAt) {
     return (
       <Notice tone="success" icon="send" role="status">

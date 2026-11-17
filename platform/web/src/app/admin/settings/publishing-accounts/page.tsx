@@ -4,10 +4,12 @@ import { Badge } from "@/components/ui";
 import { can } from "@/lib/admin/permissions";
 import { requireAdmin } from "@/lib/auth/session";
 import { getStore } from "@/lib/data";
-import { accountCounts, DEFAULT_ACCOUNT_LIMIT, pickAccount, readAccounts } from "@/lib/publishing/accounts";
+import Link from "next/link";
+import { appLabel } from "@/lib/app/label";
+import { accountCounts, appAccountId, DEFAULT_ACCOUNT_LIMIT, pickAccount, readAccounts } from "@/lib/publishing/accounts";
 import { publishingTeamEmail } from "@/lib/publishing/service";
 import { Section } from "../parts";
-import { AccountForm, AddAccountForm } from "./forms";
+import { AccountForm, AddAccountForm, MoveAccountForm } from "./forms";
 
 export const metadata: Metadata = { title: "Publishing accounts · Settings" };
 export const dynamic = "force-dynamic";
@@ -25,6 +27,8 @@ export default async function PublishingAccountsPage() {
   const [accounts, apps, teamEmail] = await Promise.all([readAccounts(store, true), store.listApps(), publishingTeamEmail(store)]);
   const counts = accountCounts(apps);
   const next = pickAccount(accounts, counts);
+  const choices = accounts.map((a) => ({ id: a.id, label: `${a.email} (${counts.get(a.id) ?? 0} of ${a.limit}${a.active ? "" : ", no new apps"})` }));
+  const mayMove = can(adminRole, "publishing.manage");
   return (
     <ReadOnly when={!can(adminRole, "settings.edit")} what="change the publishing accounts">
       <Section
@@ -57,6 +61,22 @@ export default async function PublishingAccountsPage() {
                     </span>
                   </div>
                   <AccountForm account={{ id: a.id, email: a.email, limit: a.limit, active: a.active, apps: used }} />
+                  {/* Its apps, each movable to another account (also on Admin › Publishing). */}
+                  {used ? (
+                    <details className="text-sm">
+                      <summary className="cursor-pointer font-semibold">Its apps ({used})</summary>
+                      <ul className="m-0 mt-2 flex list-none flex-col gap-2 p-0" aria-label={`Apps on ${a.email}`}>
+                        {apps
+                          .filter((app) => !app.deletedAt && appAccountId(app) === a.id)
+                          .map((app) => (
+                            <li key={app.id} className="flex flex-wrap items-end justify-between gap-2 border-t border-line-soft pt-2 first:border-t-0 first:pt-0">
+                              <Link href={`/admin/clients/${app.clientId}#app-${app.id}`}>{appLabel(app)}</Link>
+                              {mayMove ? <MoveAccountForm appId={app.id} current={a.id} accounts={choices} /> : null}
+                            </li>
+                          ))}
+                      </ul>
+                    </details>
+                  ) : null}
                 </li>
               );
             })}

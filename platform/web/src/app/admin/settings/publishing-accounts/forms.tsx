@@ -12,8 +12,8 @@ export function AddAccountForm({ defaultLimit }: { defaultLimit: number }) {
     <form action={action} noValidate className="flex flex-col gap-4" aria-label="Add a publishing account">
       <FormMessage message={state.message} ok={state.ok} />
       <div className="grid gap-4 sm:grid-cols-[minmax(0,2fr)_minmax(0,1fr)]">
-        <Field label="Email" name="email" type="email" dir="ltr" defaultValue={state.values?.email ?? ""} hint="The Google (and Apple) sign-in clients invite as admin." error={state.errors?.email} />
-        <Field label="Apps it takes" name="limit" inputMode="numeric" defaultValue={state.values?.limit ?? ""} placeholder={String(defaultLimit)} hint={`Empty: ${defaultLimit}.`} error={state.errors?.limit} />
+        <Field id="new-account-email" label="Email" name="email" type="email" dir="ltr" defaultValue={state.values?.email ?? ""} hint="The Google (and Apple) sign-in clients invite as admin." error={state.errors?.email} />
+        <Field id="new-account-limit" label="Apps it takes" name="limit" inputMode="numeric" defaultValue={state.values?.limit ?? ""} placeholder={String(defaultLimit)} hint={`Empty: ${defaultLimit}.`} error={state.errors?.limit} />
       </div>
       <div>
         <SubmitButton variant="main" className="h-10">
@@ -33,7 +33,7 @@ export function AccountForm({ account }: { account: { id: string; email: string;
       <form action={action} noValidate className="flex flex-wrap items-end gap-3" aria-label={`Publishing account ${account.email}`}>
         <input type="hidden" name="id" value={account.id} />
         <div className="w-[160px]">
-          <Field label="Apps it takes" name="limit" inputMode="numeric" defaultValue={state.values?.limit ?? String(account.limit)} error={state.errors?.limit} />
+          <Field id={`account-${account.id}-limit`} label="Apps it takes" name="limit" inputMode="numeric" defaultValue={state.values?.limit ?? String(account.limit)} error={state.errors?.limit} />
         </div>
         <label className="flex h-10 cursor-pointer items-center gap-2 text-sm">
           <input type="checkbox" name="active" defaultChecked={state.values ? state.values.active === "on" : account.active} className="h-4 w-4 accent-midnight" />

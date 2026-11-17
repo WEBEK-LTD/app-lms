@@ -135,7 +135,7 @@ test("the pricing page shows the four plans and compares every feature", async (
   await expect(table.getByRole("row", { name: /^App users/ })).toContainText("10,000");
   // 138 Every plan: we publish for you, and the other Android stores take every update once connected.
   const publishing = table.getByRole("row", { name: /^Publishing/ });
-  for (const plan of ["Starter", "Growth", "Pro", "Business"]) await expect(publishing.getByRole("cell").filter({ hasText: "We publish for you" })).toHaveCount(4);
+  await expect(publishing.getByRole("cell").filter({ hasText: "We publish for you" })).toHaveCount(4);
   await expect(table.getByRole("row", { name: /^Automatic updates to Samsung Galaxy Store, Xiaomi GetApps and Huawei AppGallery, with your own account/ }).getByRole("img", { name: /^Included in / })).toHaveCount(4);
   await expect(table.getByRole("row", { name: /^Automatic store updates/ })).toHaveCount(0);
   await expect(page.getByText("Netlify")).toHaveCount(0);
