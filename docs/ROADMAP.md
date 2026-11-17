@@ -3736,6 +3736,17 @@ The owner (17 November), on Kech Flora: the sign-in screen's buttons didn't take
 | [x] | 143.2 Studio › Screens draws the premium sign-in's button in the main colour, as the app does (`auth-preview.tsx`), not a fixed gold | typecheck, lint |
 | [x] | 143.3 Reaches the apps in the stores with `CLIENT_APP_RELEASE` 3, in the same change as the keyboard fix (Phase 141, #439): one round of builds brings both to every active app | `publish-for-all.test.ts` |
 
+## Phase 144: The card typed inside the payment page (Stripe)
+
+The owner (17 November), top priority, on Kech Flora with Stripe: the checkout page didn't show where the customer types the card ("صفحة التشك اوت ليه مش بيظهر فيها ان الشخص يدخل فيها الكرت … واتاكد انه على كل الابلكيشنز شغال"). Yallapp's payment page (`/pay/[token]`: stores, food and deliveries, bookings, courses, events, connected stores paying in the app) took the details, then sent the customer to the gateway's own page for the card. With Stripe, its card form now comes into the page itself. No migration.
+
+| Status | Item | Tests |
+|---|---|---|
+| [x] | 144.1 Stripe's Embedded Checkout on our page: the same Checkout Session with `ui_mode: embedded` and `return_url` (`createStripeSession` `embedded`, its own idempotency key), so the payment is read back, refunded and confirmed by the webhook as before; after the details, "Your card" with Stripe's form (`stripe-card.tsx`: Stripe.js from js.stripe.com, `initEmbeddedCheckout`, one form at a time), the number typed in Stripe's own frame (the shop and Yallapp never see it), and Stripe sends the customer to the order's page once it's paid (the app's checkout ends there) | `stripe-paypal.test.ts`, `stripe-paypal.spec.ts`, `connected-pay.spec.ts` |
+| [x] | 144.2 Only with the shop's publishable key saved, of the same mode as its secret key (`stripeEmbeddedKey`); without it, or when Stripe won't start an embedded session, Stripe's own page as before; and when the form doesn't load in 20 seconds (a blocked script), "Pay on Stripe" opens Stripe's page with the same details (`hosted`). The other gateways (iyzico, Kashier, Fawaterk, PayPal) keep their own pages | `stripe-paypal.test.ts` |
+| [x] | 144.3 Local tests: a fake Stripe.js (`STRIPE_JS_URL`, refused on Netlify) whose form pays the fake session and goes to its return_url, so every Stripe test pays in the page | e2e |
+| [ ] | 144.4 For the owner: one payment with Stripe's test card (4242 4242 4242 4242) in Kech Flora's app on a phone, then a live one | — |
+
 ## Phase 145: The app audit, what the owner changes reaches the app
 
 The owner (17 November), on Leqaa and Kech Flora: the Bouquets page showed "Courses" though the editor said "Our bouquet", the bag fixed on the home's header didn't change in the app, and "اي تعديل مش بيتغير صلحه اي شئ مش بيشتغل وشغال شكل بس يتصلح", and pictures came slowly. Five checks in parallel (titles, Studio's elements, controls that did nothing, Studio › Screens and the settings, pictures), one change. No migration.

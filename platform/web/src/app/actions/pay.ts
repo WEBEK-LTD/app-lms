@@ -10,7 +10,7 @@ import { sendManualOrderMails } from "@/lib/catalog/manual-mail";
 import { checkoutAccount, payLinkExpired } from "@/lib/catalog/settings";
 import { sha256Hex } from "@/lib/crypto/tokens";
 import { getStore } from "@/lib/data";
-import { appUrl, encryptionKey, paymentApiUrls } from "@/lib/env";
+import { appUrl, encryptionKey, paymentApiUrls, stripeJsUrl } from "@/lib/env";
 import type { FormState } from "@/lib/forms";
 import { ipFromHeaders } from "@/lib/http";
 import { PaymentError } from "@/lib/payments/errors";
@@ -37,8 +37,19 @@ export async function demoPayAction(token: string): Promise<void> {
   redirect(`/pay/${token}/order-received`);
 }
 
-/** The payment page's form: saves the customer's details and sends them to the provider's page (37 iyzico, Kashier, Fawaterk, Stripe or PayPal), or 96.2 places the order to pay by bank transfer or the owner's own method. */
-export async function payAction(token: string, _: FormState, formData: FormData): Promise<FormState> {
+/** 144 The payment page's state: with Stripe's card form to mount in the page, once the details are in. */
+export interface PayState extends FormState {
+  stripe?: { clientSecret: string; publishableKey: string; jsUrl: string };
+}
+
+/**
+ * The payment page's form: saves the customer's details and sends them to
+ * the provider's page (37 iyzico, Kashier, Fawaterk, Stripe or PayPal), 144
+ * or with Stripe shows its card form in the page, or 96.2 places the order
+ * to pay by bank transfer or the owner's own method. `hosted` (the form
+ * couldn't load) asks for Stripe's own page.
+ */
+export async function payAction(token: string, _: PayState, formData: FormData): Promise<PayState> {
   const values = Object.fromEntries(["name", "phone", "email", "city", "address"].map((k) => [k, String(formData.get(k) ?? "")]));
   const store = await getStore();
   const order = await store.getCatalogOrderByToken(sha256Hex(token));
@@ -98,9 +109,9 @@ export async function payAction(token: string, _: FormState, formData: FormData)
       return { message: `With the shipping and tax for your address, the total is ${formatCents(fresh.totalCents, fresh.currency)}. Check it, then tap Pay.`, values };
     }
   }
-  let pageUrl: string;
+  let started;
   try {
-    pageUrl = await startPayment({
+    started = await startPayment({
       store,
       app,
       account,
@@ -110,6 +121,7 @@ export async function payAction(token: string, _: FormState, formData: FormData)
       customer: checked.customer,
       ip: ipFromHeaders(await headers()),
       callbackUrls: callbackUrls(appUrl(), "order", account.account.provider, token),
+      hosted: formData.get("hosted") === "1",
     });
   } catch (e) {
     if (e instanceof HoldEndedError) return { message: "The places held for this order were released. Go back to the app and get your tickets again." };
@@ -118,5 +130,7 @@ export async function payAction(token: string, _: FormState, formData: FormData)
     await noteAppError(store, { clientId: app.clientId, appId: app.id, source: "payment", code: `${account.account.provider}_start_failed`, detail: e.message }, now);
     return { message: "The card payment couldn't start. Please try again in a moment.", values };
   }
-  redirect(pageUrl);
+  // 144 Stripe's card form, in this page.
+  if (started.stripe) return { values, stripe: { ...started.stripe, jsUrl: stripeJsUrl() } };
+  redirect(started.url);
 }

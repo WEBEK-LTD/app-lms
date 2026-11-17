@@ -2,11 +2,12 @@
 
 import { useActionState, useState } from "react";
 import { useFormStatus } from "react-dom";
-import { payAction } from "@/app/actions/pay";
+import { payAction, type PayState } from "@/app/actions/pay";
 import { Field, FieldError, FormMessage } from "@/components/form";
 import type { CatalogCustomer } from "@/lib/data/types";
 import type { ManualChoice } from "@/lib/catalog/manual";
 import { initialFormState } from "@/lib/forms";
+import { StripeCard } from "./stripe-card";
 
 function PayButton({ label, busy, color, textColor }: { label: string; busy: string; color: string; textColor: string }) {
   const { pending } = useFormStatus();
@@ -41,12 +42,43 @@ export function PayForm({
   textColor: string;
   defaults?: Partial<CatalogCustomer>;
 }) {
-  const [state, action] = useActionState(payAction.bind(null, token), initialFormState);
+  const [state, action] = useActionState<PayState, FormData>(payAction.bind(null, token), initialFormState);
+  // 144 Stripe's form didn't load: its own page instead, with the same details.
+  const [hosted, setHosted] = useState(false);
   const value = (name: keyof CatalogCustomer) => state.values?.[name] ?? defaults?.[name] ?? "";
   const methods = [...(card ? [{ method: "card", name: "Card", instructions: "" }] : []), ...manual];
   // The choice lives outside the form, which React resets after each submit.
   const [method, setMethod] = useState(methods[0]?.method ?? "card");
   const chosen = methods.find((m) => m.method === method);
+  // 144 The details are in: Stripe's card form, in this page.
+  if (state.stripe) {
+    return (
+      <div className="flex flex-col gap-4" data-pay-step="card">
+        <div className="flex flex-col gap-1">
+          <h2 className="m-0 text-[18px] font-bold">Your card</h2>
+          <p className="m-0 text-[15px] leading-relaxed text-ink-4">Enter your card to pay {total}. It goes straight to Stripe: the shop never sees its number.</p>
+        </div>
+        {hosted ? (
+          <form action={action} className="flex flex-col gap-3">
+            <p role="alert" className="m-0 rounded-xl bg-sand px-4 py-3 text-[15px]">
+              The card form didn&apos;t load here. Pay on Stripe&apos;s secure page instead.
+            </p>
+            <input type="hidden" name="method" value="card" />
+            <input type="hidden" name="hosted" value="1" />
+            {(["name", "phone", "email", "city", "address"] as const).map((name) => (
+              <input key={name} type="hidden" name={name} value={value(name)} />
+            ))}
+            <PayButton label={`Pay ${total} on Stripe`} busy="Opening the payment…" color={color} textColor={textColor} />
+          </form>
+        ) : (
+          <StripeCard clientSecret={state.stripe.clientSecret} publishableKey={state.stripe.publishableKey} jsUrl={state.stripe.jsUrl} onFailed={() => setHosted(true)} />
+        )}
+        <button type="button" onClick={() => window.location.reload()} className="cursor-pointer self-start border-0 bg-transparent p-0 text-[15px] font-semibold underline">
+          Change your details
+        </button>
+      </div>
+    );
+  }
   return (
     <div className="flex flex-col gap-4">
       {methods.length > 1 ? (

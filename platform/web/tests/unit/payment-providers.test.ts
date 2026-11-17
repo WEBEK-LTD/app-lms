@@ -425,7 +425,7 @@ describe("a shop's own Kashier or Fawaterk keys", () => {
     const account = (await checkoutAccount(store, app, KEY))!;
     expect(account).toEqual({ account: FAWATERK_ACCOUNT, marketplace: null });
     const page = await startPayment({ store, app, account, fetcher: fawaterk.fetcher, now: NOW, order, customer, ip: "203.0.113.9", callbackUrls: callbackUrls("https://yallapp.test", "order", "fawaterk", "order-token") });
-    expect(page).toBe("https://staging.fawaterk.test/invoice/1001/key1001");
+    expect(page).toEqual({ url: "https://staging.fawaterk.test/invoice/1001/key1001", stripe: null });
     expect(fawaterk.calls[0]!.body).toMatchObject({ cartTotal: "175.00", currency: "EGP", payLoad: { reference: `order-${order.id}` }, cartItems: [{ name: "Koshari × 2", price: "150.00" }, { name: "Shipping", price: "25.00" }] });
     order = (await store.getCatalogOrder(app.id, order.id))!;
     expect(order).toMatchObject({ customer, paymentProvider: "fawaterk", providerRef: "1001", commissionCents: null });
@@ -637,7 +637,7 @@ describe("the Kashier and Fawaterk routes", () => {
       ip: "203.0.113.9",
       callbackUrls: callbackUrls("https://yallapp.test", "order", "kashier", "route-token"),
     });
-    expect(started).toContain("sess1abcdef");
+    expect(started.url).toContain("sess1abcdef");
   });
 
   afterEach(() => {

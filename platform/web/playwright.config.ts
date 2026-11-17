@@ -233,6 +233,8 @@ export default defineConfig({
       KASHIER_API_URL: `http://localhost:${E2E.kashierPort}`,
       FAWATERK_API_URL: `http://localhost:${E2E.fawaterkPort}`,
       STRIPE_API_URL: `http://localhost:${E2E.stripePort}`,
+      // 144 The fake Stripe.js that mounts the embedded card form (tests/e2e/fake-stripe-paypal-servers.ts).
+      STRIPE_JS_URL: `http://localhost:${E2E.stripePort}/v3/`,
       PAYPAL_API_URL: `http://localhost:${E2E.paypalPort}`,
       LICENSE_REFRESH_TEST_URL: `http://localhost:${E2E.wpRefreshPort}`,
       // 80.2 The tests' websites are made up: no daily checks of the apps' connections.

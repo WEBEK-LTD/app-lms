@@ -127,6 +127,8 @@ export interface CheckoutRequest {
   iyzico: { conversationId: string; basketId: string; shipping: boolean };
   /** 49 When the provider's page should stop taking the payment (Kashier takes it); missing: the provider's default. */
   pageExpiresAt?: Date | null;
+  /** 144 Stripe: its card form inside our payment page (Embedded Checkout) instead of its own page; the other providers ignore it. */
+  stripeEmbedded?: boolean;
 }
 
 export interface StartedCheckout {
@@ -140,6 +142,8 @@ export interface StartedCheckout {
    * invoice takes no expiry to the minute.
    */
   expiresAt: Date | null;
+  /** 144 Stripe's Embedded Checkout: the session's secret Stripe.js mounts the card form with (`url` is then where it ends). */
+  stripeClientSecret?: string;
 }
 
 /** Starts a payment on the provider's page. Throws PaymentError when it can't start. */
@@ -151,7 +155,8 @@ export async function startCheckout(account: PaymentAccount, request: CheckoutRe
   }
   // 96.1 Stripe: a Checkout Session; PayPal: an order the customer approves. One line with the total (their pages show it).
   if (account.provider === "stripe") {
-    const { sessionId, url, expiresAt } = await createStripeSession(
+    const embedded = request.stripeEmbedded === true;
+    const { sessionId, url, clientSecret, expiresAt } = await createStripeSession(
       account.keys,
       {
         reference: request.reference,
@@ -161,10 +166,12 @@ export async function startCheckout(account: PaymentAccount, request: CheckoutRe
         customerEmail: request.customer.email || null,
         returnUrl: request.returnUrl,
         expiresAt: request.pageExpiresAt ?? null,
+        embedded,
       },
       { fetcher: options.fetcher, baseUrl: options.urls?.stripe },
     );
-    return { url, providerRef: sessionId, expiresAt };
+    if (embedded && clientSecret) return { url: request.returnUrl, providerRef: sessionId, expiresAt, stripeClientSecret: clientSecret };
+    return { url: url!, providerRef: sessionId, expiresAt };
   }
   if (account.provider === "paypal") {
     const { orderId, url } = await createPaypalOrder(

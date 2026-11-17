@@ -8,6 +8,14 @@ Last updated: 17 November 2026.
 
 ## Current release
 
+Roadmap 144 (the card typed inside the payment page): with Stripe (its
+publishable key saved), Yallapp's payment page (stores, food and
+deliveries, bookings, courses, events, connected stores paying in the app)
+shows Stripe's card form under the customer's details, Embedded Checkout on
+the same Checkout Session, instead of sending them to Stripe's page; the
+other gateways keep their own pages. Not yet tried with a real Stripe
+account (ROADMAP 144.4).
+
 Roadmap 140 (builds never left in the queue): the frequent job asks GitHub
 to start the build workflow again when a build has been queued 10 minutes
 with no run of it going. A run takes 5 builds and runs go one at a time,
