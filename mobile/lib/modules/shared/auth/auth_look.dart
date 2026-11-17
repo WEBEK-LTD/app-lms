@@ -305,16 +305,14 @@ class _OwnFrame extends StatelessWidget {
         );
       case SignInLookStyle.premium:
         // 123 The premium sign-in's: the words large in white over the
-        // photo (or the gold to the main colour), the form on a card.
+        // photo (or the gold to the main colour), the form on a card. 141
+        // Its buttons in the app's main colour, as every other screen's.
         final gold = Theme.of(context).colorScheme.secondary;
         return Scaffold(
           key: const ValueKey('auth-look-premium'),
           bottomNavigationBar: footer == null
               ? null
-              : ColoredBox(
-                  color: p.background,
-                  child: GoldButtons(color: gold, child: footer!),
-                ),
+              : ColoredBox(color: p.background, child: footer!),
           body: Stack(
             fit: StackFit.expand,
             children: [
@@ -373,7 +371,7 @@ class _OwnFrame extends StatelessWidget {
                             ),
                           ],
                         ),
-                        child: GoldButtons(color: gold, child: form),
+                        child: form,
                       ),
                     ],
                   ),

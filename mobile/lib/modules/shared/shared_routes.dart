@@ -16,6 +16,7 @@ import '../../core/api/models/page_models.dart' show TabBarDesign;
 import '../../core/widgets/app_nav_bar.dart';
 import '../../core/widgets/buttons.dart';
 import '../../core/widgets/common.dart';
+import '../../core/widgets/keyboard.dart';
 import '../chat/chat_routes.dart';
 import '../chat/data/chat_providers.dart';
 import '../lms/lesson/embeds/embed_fullscreen_screen.dart';
@@ -250,7 +251,12 @@ List<RouteBase> tabbedRoutes({
     }
     used.add(path);
     branches.add(
-      StatefulShellBranch(routes: [route], initialLocation: location),
+      StatefulShellBranch(
+        routes: [route],
+        initialLocation: location,
+        // 141 A sheet opened in a tab closes the keyboard too (its own navigator).
+        observers: [KeyboardRouteObserver()],
+      ),
     );
   }
   final first = tabs.firstWhere((t) => used.contains(t.path)).location!;
@@ -455,6 +461,9 @@ class MainShell extends ConsumerWidget {
               },
               currentIndex: current,
               onSelected: (i) {
+                // 141 Another tab: the keyboard of a field in this one closes,
+                // so it doesn't stay up over that tab, nor come back here.
+                closeKeyboard();
                 final tab = tabs[i];
                 final index = branchOf[i];
                 if (tab.isMore) {

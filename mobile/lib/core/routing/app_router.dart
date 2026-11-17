@@ -35,6 +35,7 @@ import '../l10n/l10n.dart';
 import '../theme/app_icons.dart';
 import '../theme/symbol_names.dart';
 import '../services/analytics_providers.dart';
+import '../widgets/keyboard.dart';
 import 'app_links.dart';
 import 'app_module.dart';
 import 'paths.dart';
@@ -430,6 +431,9 @@ final appRouterProvider = Provider<GoRouter>((ref) {
     navigatorKey: rootNavigatorKey,
     initialLocation: _startAt(ref),
     refreshListenable: refresh,
+    // 141 A screen, sheet or dialog opening over a text field closes its
+    // keyboard, so it doesn't open again by itself on the way back.
+    observers: [KeyboardRouteObserver()],
     debugLogDiagnostics: false,
     redirect: (context, state) {
       final build = ref.read(appEnvironmentProvider).build;

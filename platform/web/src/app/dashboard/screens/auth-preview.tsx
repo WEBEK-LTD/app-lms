@@ -102,7 +102,8 @@ function Form({ screen, th, color, gold, w }: { screen: AuthScreen; th: Theme; c
       {label}
     </span>
   );
-  const button: CSSProperties = gold ? { background: "linear-gradient(90deg,#E7C982,#B8893A)", color: "#2A1D05" } : { background: color, color: "#FFFFFF" };
+  // 141 Premium's button in the app's main colour too, as the app draws it: a fixed gold looked the same in every app.
+  const button: CSSProperties = { background: color, color: "#FFFFFF" };
   return (
     <>
       {screen === "code" ? (
@@ -121,7 +122,7 @@ function Form({ screen, th, color, gold, w }: { screen: AuthScreen; th: Theme; c
           {field(w.mobileNumber)}
         </span>
       )}
-      <span className="flex h-6 w-full items-center justify-center gap-1 rounded-md font-bold" style={button} data-preview-button={gold ? "gold" : ""}>
+      <span className="flex h-6 w-full items-center justify-center gap-1 rounded-md font-bold" style={button} data-preview-button={gold ? "premium" : ""}>
         {screen === "code" ? w.verify : screen === "signup" ? w.createAccount : gold ? w.continueAction : w.sendCode}
         {gold ? <Icon name="arrow_forward" size={11} /> : null}
       </span>
@@ -225,7 +226,7 @@ function OwnAuthPreview({ screen, look, photo, title, subtitle, appName, color, 
   const heading = headingOf(screen, title ?? w.welcome, w);
   const line = screen === "sign_in" ? (subtitle ?? w.intro) : screen === "code" ? w.codeSent : null;
   if (look.style === "premium") {
-    // 123 The welcome large in white over the photo (or the gold to the main colour), the form on a card at the foot, the button in gold.
+    // 123 The welcome large in white over the photo (or the gold to the main colour), the form on a card at the foot; 141 the button in the main colour.
     return (
       <Frame dark={dark} th={th} style="premium" rtl={rtl}>
         {photo ? <Photo url={photo} color={color} className="absolute inset-0 h-full w-full" thumb={thumb} /> : <span className="absolute inset-0" style={{ background: `linear-gradient(200deg,#D9B36C 0%,${color} 45%,#0E1424 100%)` }} />}
