@@ -2511,7 +2511,7 @@ function parsePremium(ctx: Context, where: string, v: Record<string, unknown>, t
           else if (o.style !== "vertical") tl.style = o.style;
         }
         for (const key of ["times", "mono", "card"] as const) if (o[key] === true) tl[key] = true;
-        // 132.160 The person's newest order on its way.
+        // 132.187 The person's newest order on its way.
         if (o.source !== undefined && o.source !== null) {
           if (!oneOf(STUDIO_TIMELINE_SOURCES, o.source)) bad("choose what the steps follow.");
           else tl.source = o.source;

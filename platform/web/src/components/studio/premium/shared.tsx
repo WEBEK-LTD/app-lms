@@ -18,7 +18,7 @@ export interface PremiumWords {
   popular: string;
   addLabel: string;
   reviewsNote: string;
-  /** 132.160 Over a timeline that follows the person's newest order. */
+  /** 132.187 Over a timeline that follows the person's newest order. */
   orderNote: string;
 }
 

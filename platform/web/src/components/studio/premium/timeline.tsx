@@ -15,7 +15,7 @@ const MONO = "'JetBrains Mono', ui-monospace, SFMono-Regular, Menlo, monospace";
  */
 export function Timeline(p: PremiumProps) {
   const steps = <Steps {...p} />;
-  // 132.160 Following the person's newest order: a sample order out for delivery, and a note that the app shows theirs.
+  // 132.187 Following the person's newest order: a sample order out for delivery, and a note that the app shows theirs.
   if (p.node.timeline?.source !== "latest_order") return steps;
   return (
     <span data-studio-timeline-source="latest_order" style={{ display: "flex", flexDirection: "column", gap: 10 }}>

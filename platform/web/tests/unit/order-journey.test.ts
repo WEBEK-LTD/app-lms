@@ -13,7 +13,7 @@ import { journeyEntryIndex, latestOrderOnItsWay, orderInProgress, orderJourneySt
 import type { SectionContext } from "@/lib/studio/sections";
 
 /**
- * 132.160 "How your flowers travel" follows the person's newest order: every
+ * 132.187 "How your flowers travel" follows the person's newest order: every
  * delivery stage has its step (ordered or paid → prepared → on its way →
  * delivered), a WordPress shop's statuses and a carrier's shipment too; the
  * newest order still on its way is the one followed; the four steps spread
@@ -32,7 +32,7 @@ const timeline = (extra: Record<string, unknown> = {}) => ({
   entries: [{ title: "Order placed", highlight: true }, { title: "Arranged" }, { title: "On its way" }, { title: "Delivered" }],
 });
 
-describe("132.160 the order's journey", () => {
+describe("132.187 the order's journey", () => {
   it("gives every delivery stage a step", () => {
     expect(Object.keys(STAGE_JOURNEY).sort()).toEqual([...DELIVERY_STAGES].sort());
     expect(orderJourneyStep({ status: "processing" })).toBe("ordered");

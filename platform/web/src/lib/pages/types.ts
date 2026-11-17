@@ -1140,7 +1140,7 @@ export interface StudioProgress {
  */
 export const STUDIO_TIMELINE_STYLES = ["vertical", "horizontal", "bars"] as const;
 /**
- * 132.160 What a timeline's steps follow: `latest_order` the signed-in
+ * 132.187 What a timeline's steps follow: `latest_order` the signed-in
  * person's newest order still on its way, its step the active one (ordered or
  * paid, prepared, on its way, delivered: lib/studio/order-journey.ts). Signed
  * out, with no order on its way, and in apps that don't know the source: the
@@ -1148,7 +1148,7 @@ export const STUDIO_TIMELINE_STYLES = ["vertical", "horizontal", "bars"] as cons
  */
 export const STUDIO_TIMELINE_SOURCES = ["latest_order"] as const;
 export interface StudioTimeline {
-  /** 132.160 Missing: the steps as drawn. */
+  /** 132.187 Missing: the steps as drawn. */
   source?: (typeof STUDIO_TIMELINE_SOURCES)[number];
   style?: (typeof STUDIO_TIMELINE_STYLES)[number];
   /** Down the page: each step's date (a time) in a column at its start. */

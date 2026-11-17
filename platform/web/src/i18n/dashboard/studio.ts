@@ -274,7 +274,7 @@ export const en = {
   pm_timeline_bars: "Across, a bar over each",
   pm_times: "Times in a column at the start",
   pm_mono: "Dates in a monospaced font",
-  // 132.160
+  // 132.187
   pm_followsOrder: "Follow the person's newest order",
   pm_followsOrderHint: "In the app, the step their newest order still on its way has reached is the active one. With no order on its way, or signed out, the steps show as you drew them.",
   pm_activeCard: "The current step as a card",
@@ -2066,7 +2066,7 @@ export const ar: Messages = {
   pm_timeline_bars: "بالعرض، شريط فوق كل خطوة",
   pm_times: "المواعيد في عمود في الأول",
   pm_mono: "التواريخ بخط ثابت العرض",
-  // 132.160
+  // 132.187
   pm_followsOrder: "يمشي مع أحدث طلب للعميل",
   pm_followsOrderHint: "في التطبيق، الخطوة اللي وصلها أحدث طلب لسه في الطريق هي اللي بتنوّر. لو مفيش طلب في الطريق أو العميل مش مسجّل دخول، الخطوات بتظهر زي ما رسمتها.",
   pm_activeCard: "الخطوة الحالية في كارت",
@@ -3839,7 +3839,7 @@ export const tr: Messages = {
   pm_timeline_bars: "Yatay, her birinin üstünde çubuk",
   pm_times: "Saatler başta bir sütunda",
   pm_mono: "Tarihler eş aralıklı yazı tipinde",
-  // 132.160
+  // 132.187
   pm_followsOrder: "Kişinin en yeni siparişini izlesin",
   pm_followsOrderHint: "Uygulamada, hâlâ yolda olan en yeni siparişin ulaştığı adım etkin olur. Yolda sipariş yoksa ya da giriş yapılmamışsa adımlar çizdiğiniz gibi görünür.",
   pm_activeCard: "Şu anki adım bir kart olarak",

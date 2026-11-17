@@ -376,7 +376,7 @@ export function PremiumControls(props: Props) {
             </>
           ) : null}
           <Toggle label={t("studio.pm_mono")} checked={node.timeline?.mono === true} onChange={(mono) => onChange({ timeline: { ...node.timeline, mono: mono || undefined } })} />
-          {/* 132.160 The steps follow the person's newest order on its way. */}
+          {/* 132.187 The steps follow the person's newest order on its way. */}
           <Toggle label={t("studio.pm_followsOrder")} checked={node.timeline?.source === "latest_order"} onChange={(follows) => onChange({ timeline: { ...node.timeline, source: follows ? "latest_order" : undefined } })} />
           {node.timeline?.source === "latest_order" ? (
             <span className="text-xs" style={{ color: "var(--sf-muted)" }} data-studio-hint="timeline-latest-order">

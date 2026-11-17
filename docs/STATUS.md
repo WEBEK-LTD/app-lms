@@ -8,7 +8,7 @@ Last updated: 16 November 2026.
 
 ## Current release
 
-Roadmap 132.160 (an order shipped in the dashboard shows as shipped in the
+Roadmap 132.187 (an order shipped in the dashboard shows as shipped in the
 app) is in the code: the app asks again for the orders and the open order
 on an order's notification (arriving while the app is open, or tapped), on
 coming back to the front and when they open again; the stage shows on

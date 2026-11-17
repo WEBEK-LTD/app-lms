@@ -541,7 +541,7 @@ test("131 a gift add-on goes only with a product, and a flash sale on one produc
   expect(tulips.sale?.flash_sale_id ?? null).toBeNull();
 });
 
-test("132.160 the owner prepares and ships an order in the dashboard; the app's API has its stage at once", async ({ page, request }) => {
+test("132.187 the owner prepares and ships an order in the dashboard; the app's API has its stage at once", async ({ page, request }) => {
   // A signed-in customer orders the roses as a gift, from the app.
   const email = `nadia-${suffix}@example.com`;
   const device = { id: `e2e-journey-${suffix}`, platform: "android", name: "Pixel", app_version: "1.0.0" };
