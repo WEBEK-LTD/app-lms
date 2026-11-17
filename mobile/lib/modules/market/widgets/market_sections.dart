@@ -989,10 +989,17 @@ class _Vendors extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     if (vendors.isEmpty) return const SizedBox.shrink();
+    // "See all" opens every place of the section's kind, near the customer.
     final head = MarketSectionHead(
       title: node.title,
       subtitle: node.text,
-      onSeeAll: () {},
+      onSeeAll: () => context.push(
+        Paths.marketList(
+          // The API's kinds (`restaurant`, `grocery`) by the same names.
+          kind: market.kind == StudioMarketKind.all ? null : market.kind.name,
+          title: node.title,
+        ),
+      ),
     );
     switch (market.style) {
       case StudioMarketStyle.spotlight:

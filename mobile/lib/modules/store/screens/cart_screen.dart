@@ -8,6 +8,7 @@ import '../../../core/auth/auth_controller.dart';
 import '../../../core/format/dates.dart';
 import '../../../core/gate/app_gate.dart';
 import '../../../core/providers.dart';
+import '../../../core/routing/app_router.dart' show openLocation;
 import '../../../core/routing/paths.dart';
 import '../../../core/services/external_links.dart';
 import '../../../core/theme/app_icons.dart';
@@ -434,7 +435,7 @@ class _CartScreenState extends ConsumerState<CartScreen> {
                   title: context.l10n.cartEmptyTitle,
                   message: context.l10n.cartEmptyMessage,
                   actionLabel: context.words.startShopping,
-                  onAction: () => context.go(Paths.shop),
+                  onAction: () => openLocation(context, Paths.shop),
                 ),
               ),
             ],
@@ -1445,10 +1446,14 @@ class _CouponCardState extends ConsumerState<_CouponCard> {
             ),
           ),
           const SizedBox(width: 8),
-          TextButton(
-            key: const Key('cart-coupon-apply'),
-            onPressed: _apply,
-            child: Text(l10n.couponApply),
+          // Apply only once there is a code to apply.
+          ListenableBuilder(
+            listenable: _code,
+            builder: (context, _) => TextButton(
+              key: const Key('cart-coupon-apply'),
+              onPressed: _code.text.trim().isEmpty ? null : _apply,
+              child: Text(l10n.couponApply),
+            ),
           ),
         ],
       );

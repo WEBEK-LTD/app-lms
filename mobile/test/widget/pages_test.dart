@@ -19,7 +19,6 @@ const blockMarkers = [
   'Campus tour', // video (MP4)
   'See all courses', // button, filled
   'Our website', // button, outlined
-  'Something new', // button, text (unknown action)
   'Popular courses', // items
   'Business English',
   'Categories', // categories, tiles
@@ -68,8 +67,10 @@ void main() {
             await tester.drag(page, const Offset(0, -2000));
             await TestApp.settle(tester);
             expect(tester.takeException(), isNull, reason: 'end');
-            // The block type the app doesn't know is skipped.
+            // The block type the app doesn't know is skipped, and so is a
+            // button whose action it doesn't know (it would do nothing).
             expect(find.text('From the future'), findsNothing);
+            expect(find.text('Something new'), findsNothing);
             // YouTube and the embed load as web views.
             expect(app.webViews.requests, isNotEmpty);
           });
