@@ -37,7 +37,7 @@ describe("114 the privacy policy's emails from Yallapp", () => {
     for (const words of ["owners of Yallapp accounts", "team members", "small image", "Yallapp address", "the time, the email it was and your address", "12 months", "refuses an address", "unsubscribe link", "unsubscribe button", "Dashboard › Your account", "still come"]) {
       expect(s, words).toContain(words);
     }
-    expect(PRIVACY.updated).toBe("4 November 2026");
+    expect(PRIVACY.updated).toBe("16 November 2026");
     expect(section(PRIVACY.body, "## 8. How long we keep it")).toContain("12 months");
   });
 
@@ -46,7 +46,7 @@ describe("114 the privacy policy's emails from Yallapp", () => {
     for (const words of ["أصحاب حسابات Yallapp", "أعضاء في فريقه", "صورة صغيرة", "12 شهرًا", "يرفض خادم البريد", "رابط إلغاء الاشتراك", "لوحة التحكم › حسابك", "ستظل تصلك"]) expect(ar, words).toContain(words);
     const tr = section(TR_LEGAL.privacy!.body, "## 5. Yallapp'ten e-postalar");
     for (const words of ["Yallapp hesaplarının sahiplerine", "ekip üyesi", "küçük bir görsel", "12 ay", "reddettiğinde", "abonelikten çıkma bağlantısını", "Panel › Hesabınız", "gelmeye devam eder"]) expect(tr, words).toContain(words);
-    expect(AR_LEGAL.privacy!.updated).toBe("4 نوفمبر 2026");
-    expect(TR_LEGAL.privacy!.updated).toBe("4 Kasım 2026");
+    expect(AR_LEGAL.privacy!.updated).toBe("16 نوفمبر 2026");
+    expect(TR_LEGAL.privacy!.updated).toBe("16 Kasım 2026");
   });
 });

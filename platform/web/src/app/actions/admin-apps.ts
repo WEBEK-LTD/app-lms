@@ -28,6 +28,7 @@ import { appTypeOn, getSwitches } from "@/lib/switches";
 import { isLang, type Lang } from "@/i18n/config";
 import { startDraftIn, startLanguages, wordsLangOf } from "@/lib/app/start-language";
 import { appDefaults } from "@/lib/pages/layout";
+import { pushSetupForNewApp } from "@/lib/firebase/env";
 
 /**
  * 132.111–132.115 What our team does with a client's apps from the admin:
@@ -109,6 +110,8 @@ export async function createAppForClientAction(_: FormState, formData: FormData)
     } else {
       if (STUDIO_ONLY_KINDS.has(kind.id)) return { errors: { start: "This kind of app is made in Yallapp Studio." }, values };
       const app: App = { ...newApp(clientId, apps.length ? null : client.siteUrl || null, now, kind.engine, kind.vertical), appName: values.name.slice(0, 60), appTypeDoneAt: now };
+      // 136 Yallapp sets up its notifications when its Firebase is set up here and has room.
+      if (await pushSetupForNewApp(store, app)) app.pushSetup = "yallapp";
       await store.createApp(app);
       if (lang !== "en") await startDraftIn(store, app, languages, now);
       made = { app, open: "/dashboard/setup?step=website" };

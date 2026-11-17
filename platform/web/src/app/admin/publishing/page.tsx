@@ -36,6 +36,7 @@ import {
 } from "@/lib/publishing/steps";
 import { SmtpMissingNotice } from "../smtp-notice";
 import { TeamNotesForm, TrackForm } from "./forms";
+import { usesYallappFirebase } from "@/lib/firebase/mode";
 
 export const metadata: Metadata = { title: "Publishing" };
 export const dynamic = "force-dynamic";
@@ -287,12 +288,13 @@ function RequestDetail({ row, statuses, mayManage }: { row: Row; statuses: { id:
             <h3 className="m-0 text-xs font-bold tracking-wide text-muted uppercase">Client&apos;s steps</h3>
             <ul className="m-0 flex list-none flex-col gap-1.5 p-0 text-sm">
               {stepsFor(request).map((step) => {
-                const done = stepDone(request, step.id);
+                const yallapp = app ? usesYallappFirebase(app) : false;
+                const done = stepDone(request, step.id, yallapp);
                 return (
                   <li key={step.id} className="flex items-start gap-2">
                     <Icon name={done ? "check_circle" : "radio_button_unchecked"} size={18} filled={done} className={done ? "text-success" : "text-faint"} />
                     <span>
-                      {step.id === "firebase" && request.firebaseBy === "team" ? "Firebase project: we create it" : step.title}
+                      {step.id === "firebase" && yallapp ? "Firebase: Yallapp's, set up by the platform" : step.id === "firebase" && request.firebaseBy === "team" ? "Firebase project: we create it" : step.title}
                       <span className="sr-only">{done ? " (done)" : " (not yet)"}</span>
                     </span>
                   </li>

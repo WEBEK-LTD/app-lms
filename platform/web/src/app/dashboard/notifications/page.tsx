@@ -13,6 +13,7 @@ import { richText } from "@/i18n/rich";
 import { getStore } from "@/lib/data";
 import { encryptionKey } from "@/lib/env";
 import { NOTIFICATION_BODY_MAX, NOTIFICATION_TITLE_MAX, serviceAccountOf } from "@/lib/hosted/notify";
+import { usesYallappFirebase } from "@/lib/firebase/mode";
 import { PLAN_ENDED_MESSAGE } from "@/lib/hosted/send-notification";
 import { pushSetupOf } from "@/lib/license/push-setup";
 import { appIsActive } from "@/lib/license/status";
@@ -138,7 +139,25 @@ export default async function NotificationsPage() {
               {t("notify.inboxOnly")}
             </UpgradeHint>
           )}
-          {account ? (
+          {usesYallappFirebase(app) ? (
+            // 136 Yallapp sets up and sends the notifications: no key to add or remove here.
+            <>
+              {account ? (
+                <p className="m-0 flex items-start gap-2 text-[15px] font-semibold text-success">
+                  <Icon name="check_circle" size={20} filled />
+                  <span>{t("notify.yallappOn")}</span>
+                </p>
+              ) : (
+                <p role="status" className="m-0 flex items-start gap-2 text-[15px] leading-relaxed text-ink-4">
+                  <Icon name="hourglass_top" size={20} className="text-muted" />
+                  <span>{richText(t("notify.yallappSettingUp"), { link: (chunk) => <Link href="/dashboard/setup?step=publishing">{chunk}</Link> })}</span>
+                </p>
+              )}
+              <p className="m-0 text-sm leading-relaxed text-ink-4">{t("setup.pushYallappIphone")}</p>
+              <p className="m-0 text-sm leading-relaxed text-ink-4">{t("setup.pushYallappPrivacy")}</p>
+              <p className="m-0 text-sm leading-relaxed text-ink-4">{richText(t("notify.yallappOwn"), { link: (chunk) => <Link href="/dashboard/setup?step=publishing">{chunk}</Link> })}</p>
+            </>
+          ) : account ? (
             <>
               <p className="m-0 flex items-center gap-2 text-[15px] font-semibold text-success">
                 <Icon name="check_circle" size={20} filled />

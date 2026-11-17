@@ -20,6 +20,7 @@ import { siteAddress } from "./academy";
 import { startLayout } from "./start";
 import { withDemoFacts } from "./demo-templates";
 import type { StudioDemoId } from "../demo/constants";
+import { pushSetupForNewApp } from "../firebase/env";
 
 export interface NewStudioProject {
   clientId: string;
@@ -74,6 +75,8 @@ export async function makeStudioProject(store: DataStore, input: NewStudioProjec
     input.source === "catalog"
       ? { ...base, backend: "hosted", ...ownContentSetup(ENGINES[kind.engine].ownContent.kind, base), websiteDoneAt: now }
       : base;
+  // 136 Yallapp sets up its notifications when its Firebase is set up here and has room.
+  if (await pushSetupForNewApp(store, app)) app.pushSetup = "yallapp";
   await store.createApp(app);
   const defaults = defaultLayout(app, await appDefaults(store), now);
   // 132.40 Its other pages and tabs in its main language too, as the app shows them.

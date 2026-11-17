@@ -1625,6 +1625,145 @@ Nothing to migrate or set: the articles and screenshots are in the code.
       and the seven landings, in English, Arabic and Turkish; the search
       finds "Monochrome luxe", "Course screens" and "Minimal luxe home".
 
+## 7z8. Yallapp sets up notifications (Phase 136)
+
+Once done, Yallapp's team has nothing more to do: the platform registers
+each client's apps, and makes the next Firebase project itself when the
+pool runs low. No JSON key is made at any step: the platform signs in to
+Google as its own OpenID Connect issuer (Workload Identity Federation).
+Until the Netlify variables of step 6 are set, nothing changes for anyone
+and nothing calls Google.
+
+- [ ] **1. Deploy.** Migration `0138_yallapp_firebase` runs with the
+      others. Then check that this prints a JSON document whose `issuer`
+      is `https://yallapp.com.tr/oidc`, and that the key set has one key:
+      ```bash
+      curl -s https://yallapp.com.tr/oidc/.well-known/openid-configuration
+      curl -s https://yallapp.com.tr/oidc/jwks.json
+      ```
+- [ ] **2. A Google Cloud organization.** Google lets a service account
+      create projects only under an organization or a folder, so the
+      platform can make the pool's projects itself only with one. In
+      Cloud Shell, `gcloud organizations list` shows it; note its ID.
+      If there's none, the simplest way to get one is **Cloud Identity
+      Free** on the yallapp.com.tr domain (free, no Google Workspace
+      needed): in the Google Cloud console, open IAM & Admin › Identity &
+      Organization and follow the sign-up with a new admin address such
+      as `admin@yallapp.com.tr`, add the TXT record it gives to
+      yallapp.com.tr's DNS to verify the domain, and the organization
+      appears in the console within minutes. Signed in as that admin,
+      give your own Google account Organization Administrator and
+      Folder Admin there. Projects made before (Yallapp Business's) can
+      stay where they are. Without an organization, see step 9.
+      ```bash
+      ORG_ID=$(gcloud organizations list --format='value(name)' --limit=1)
+      ORG=${ORG_ID#organizations/}   # the number alone
+      echo "$ORG"
+      ```
+- [ ] **3. The host project**, for the federation and the two service
+      accounts (it holds no client app). Its ID must be unique worldwide;
+      pick another if it's taken.
+      ```bash
+      H=yallapp-firebase
+      # With the organization:
+      gcloud projects create "$H" --organization="$ORG" --name="Yallapp Firebase"
+      # Or, without one (step 9):
+      # gcloud projects create "$H" --name="Yallapp Firebase"
+      HN=$(gcloud projects describe "$H" --format='value(projectNumber)')
+      gcloud services enable iam.googleapis.com iamcredentials.googleapis.com sts.googleapis.com \
+        cloudresourcemanager.googleapis.com serviceusage.googleapis.com apikeys.googleapis.com \
+        firebase.googleapis.com fcm.googleapis.com --project="$H"
+      gcloud iam service-accounts create yallapp-push-sender --project="$H" --display-name="Yallapp push sender"
+      gcloud iam service-accounts create yallapp-firebase-apps --project="$H" --display-name="Yallapp Firebase apps"
+      SENDER=yallapp-push-sender@$H.iam.gserviceaccount.com
+      APPS=yallapp-firebase-apps@$H.iam.gserviceaccount.com
+      ```
+- [ ] **4. Workload Identity Federation with the platform as issuer:**
+      ```bash
+      gcloud iam workload-identity-pools create yallapp-platform --project="$H" --location=global \
+        --display-name="Yallapp platform"
+      gcloud iam workload-identity-pools providers create-oidc platform --project="$H" --location=global \
+        --workload-identity-pool=yallapp-platform --display-name="yallapp.com.tr" \
+        --issuer-uri="https://yallapp.com.tr/oidc" \
+        --attribute-mapping="google.subject=assertion.sub" \
+        --attribute-condition="assertion.sub == 'push-sender' || assertion.sub == 'firebase-apps'"
+      POOL=projects/$HN/locations/global/workloadIdentityPools/yallapp-platform
+      gcloud iam service-accounts add-iam-policy-binding "$SENDER" --project="$H" \
+        --role=roles/iam.workloadIdentityUser --member="principal://iam.googleapis.com/$POOL/subject/push-sender"
+      gcloud iam service-accounts add-iam-policy-binding "$APPS" --project="$H" \
+        --role=roles/iam.workloadIdentityUser --member="principal://iam.googleapis.com/$POOL/subject/firebase-apps"
+      echo "GOOGLE_WIF_PROVIDER=$POOL/providers/platform"
+      echo "GOOGLE_PUSH_SERVICE_ACCOUNT=$SENDER"
+      echo "GOOGLE_FIREBASE_APPS_SERVICE_ACCOUNT=$APPS"
+      ```
+      Only with an organization: if it limits which identity providers
+      are allowed, add `https://yallapp.com.tr/oidc` to that list. Check
+      with `gcloud org-policies describe iam.workloadIdentityPoolProviders --organization="$ORG"`;
+      "not found" means no limit. Without an organization, skip this.
+- [ ] **5. The folder the pool's projects go in,** with the roles the
+      apps account needs to make and set them up, and the push sender's
+      to send (projects made in the folder inherit them):
+      ```bash
+      gcloud resource-manager folders create --display-name="Yallapp push" --organization="$ORG"
+      FOLDER=$(gcloud resource-manager folders list --organization="$ORG" \
+        --filter='displayName="Yallapp push"' --format='value(name)')
+      F=${FOLDER#folders/}
+      for ROLE in roles/resourcemanager.projectCreator roles/firebase.admin roles/serviceusage.serviceUsageAdmin \
+        roles/serviceusage.apiKeysAdmin roles/resourcemanager.projectIamAdmin; do
+        gcloud resource-manager folders add-iam-policy-binding "$F" --member="serviceAccount:$APPS" --role="$ROLE" --condition=None
+      done
+      gcloud resource-manager folders add-iam-policy-binding "$F" --member="serviceAccount:$SENDER" \
+        --role=roles/firebasecloudmessaging.admin --condition=None
+      echo "GOOGLE_FIREBASE_PROJECT_PARENT=folders/$F"
+      ```
+- [ ] **6. The variables in Netlify** (Site configuration › Environment
+      variables): the four printed lines; none is a secret. Redeploy.
+- [ ] **7. Admin › Settings › Yallapp Firebase projects:** press **Check**.
+      Every line is green: the push sender and the apps account sign in
+      without a key, and "Creating projects" says the apps account may
+      create projects under the folder. Then press **Make the next
+      project now** (or wait for the frequent job, within 5 minutes):
+      `yallapp-push-01` appears as Open, made by the platform. From then
+      on, new apps start in Yallapp's Firebase and the platform makes the
+      next project when fewer than 12 places are left.
+- [ ] **8. Only when Admin shows a project that couldn't be made:** the
+      page and the team's alert give Google's exact reason (a quota, a
+      missing role); fix that one thing in Google Cloud, then press **Try
+      again now**. This is the only time a person is needed.
+- [ ] **9. Only without an organization:** the platform can't create
+      projects, so make each pool project by hand and add it in Admin ›
+      Add a project made by hand. Repeat when Admin says the pool is
+      nearly full.
+      ```bash
+      P=yallapp-push-01
+      gcloud projects create "$P" --name="Yallapp Push 01"
+      N=$(gcloud projects describe "$P" --format='value(projectNumber)')
+      gcloud services enable firebase.googleapis.com fcm.googleapis.com fcmregistrations.googleapis.com \
+        firebaseinstallations.googleapis.com apikeys.googleapis.com --project="$P"
+      curl -sS -X POST -H "Authorization: Bearer $(gcloud auth print-access-token)" \
+        -H "x-goog-user-project: $P" -H "Content-Type: application/json" -d '{}' \
+        "https://firebase.googleapis.com/v1beta1/projects/$P:addFirebase"
+      gcloud services api-keys create --project="$P" --display-name="Yallapp apps (push only)" \
+        --api-target=service=firebaseinstallations.googleapis.com \
+        --api-target=service=fcmregistrations.googleapis.com
+      gcloud services api-keys list --project="$P" --format='value(uid,displayName)'
+      gcloud projects add-iam-policy-binding "$P" --member="serviceAccount:$SENDER" --role=roles/firebasecloudmessaging.admin --condition=None
+      gcloud projects add-iam-policy-binding "$P" --member="serviceAccount:$APPS" --role=roles/firebase.admin --condition=None
+      gcloud projects add-iam-policy-binding "$P" --member="serviceAccount:$APPS" --role=roles/serviceusage.apiKeysViewer --condition=None
+      ```
+      In Admin: the project ID, its number (`$N`) and the key's `uid`, then
+      **Check**.
+- [ ] **10. Once, with the first client app in Yallapp's Firebase** (what
+      couldn't be checked without real Google): its build installs and an
+      Android phone receives a notification sent from Dashboard ›
+      Notifications; the google-services.json in its build lists only that
+      client's packages; the push-only key is enough for the phone to
+      register; Admin shows the project's count going down when an app is
+      purged (whether Firebase keeps a removed app in its 30); and note how
+      many projects Google lets the account create (its quota). iPhones in
+      Yallapp's Firebase receive pushes from Phase 2 (straight to Apple
+      with the client's APNs key), with no step for the team.
+
 ## 8. Accounts the remaining roadmap steps wait on
 
 | Step | What we need |
@@ -1670,11 +1809,12 @@ Nothing to migrate or set: the articles and screenshots are in the code.
 
 Only once Phase 1 (Yallapp's Firebase pool, keyless sending) is live.
 
+- [ ] Migration `0140_push_relay` runs with the others at deploy (after
+      Phase 1's 0138 and Phase 2's 0139).
 - [ ] Release plugin **0.4.48** in Admin › Plugin releases. Older plugins
-      ignore `LicenseStatus.push` and keep sending with the site's own
-      Firebase, so offer "Yallapp sets up notifications" to a WordPress app
-      only once its site runs 0.4.48 (Admin › the client shows the plugin
-      version).
+      ignore `LicenseStatus.push`; the Publishing step offers "Yallapp sets
+      up notifications" to a WordPress app only once its site reports 0.4.48
+      or later, so nothing to switch by hand.
 - [ ] On a test WordPress academy in Yallapp's mode, with an Android phone
       signed in: Settings › Notifications says "Notifications are sent by
       Yallapp" with no Firebase file; Send a manual notification reaches the

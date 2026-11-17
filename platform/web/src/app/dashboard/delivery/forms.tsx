@@ -5,6 +5,7 @@ import { useActionState, useState, type ReactNode } from "react";
 import { saveDeliveryServiceAction, saveDeliverySettingsAction } from "@/app/actions/delivery";
 import { Field, FieldError, FormMessage, SubmitButton } from "@/components/form";
 import { Notice } from "@/components/ui";
+import { Icon } from "@/components/icon";
 import { useDashT } from "@/components/dashboard-i18n";
 import { FormActions, FormSection } from "@/components/page-kit";
 import { OnTabs, TabPanel } from "@/components/page-tabs";
@@ -28,6 +29,8 @@ export interface SettingsFormValues {
   courierAppNameDefault: string;
   /** 104.6 Whether the courier iPhone app's Firebase file is in. */
   courierFirebaseIos: boolean;
+  /** 136 In Yallapp's Firebase: its file is Yallapp's, none to upload. */
+  yallappFirebase?: boolean;
   /** 112.3 The courier app's own icon, if it has one. */
   courierIconUrl: string | null;
   /** 104.8.3 Where the couriers work: their own app ("own") or Yallapp Courier. */
@@ -65,9 +68,11 @@ export function SecondAppFields({
   before: string | null;
   name: { field: string; label: string; hint: string; value: string; placeholder?: string };
   icon: { field: string; label: string; hint: string; saved: string; remove: string; url: string | null };
-  plist: { field: string; label: string; hint: string };
+  /** 136 Null in Yallapp's Firebase: Yallapp makes the file, nothing to upload. */
+  plist: { field: string; label: string; hint: string } | null;
   errors?: Record<string, string>;
 }) {
+  const t = useDashT();
   return (
     <section className="flex flex-col gap-4 border-t border-line-soft pt-5" data-second-app>
       <div className="flex flex-col gap-1">
@@ -108,14 +113,21 @@ export function SecondAppFields({
           ) : null}
           <FieldError id={`f-${icon.field}-error`} error={errors?.[icon.field]} />
         </div>
-        <div className="flex flex-col gap-1.5">
-          <label htmlFor={`f-${plist.field}`} className="text-sm font-semibold">
-            {plist.label}
-          </label>
-          <input id={`f-${plist.field}`} type="file" name={plist.field} accept=".plist,application/xml,text/xml" className="text-sm" />
-          <span className="text-[13px] text-muted">{plist.hint}</span>
-          <FieldError id={`f-${plist.field}-error`} error={errors?.[plist.field]} />
-        </div>
+        {plist ? (
+          <div className="flex flex-col gap-1.5">
+            <label htmlFor={`f-${plist.field}`} className="text-sm font-semibold">
+              {plist.label}
+            </label>
+            <input id={`f-${plist.field}`} type="file" name={plist.field} accept=".plist,application/xml,text/xml" className="text-sm" />
+            <span className="text-[13px] text-muted">{plist.hint}</span>
+            <FieldError id={`f-${plist.field}-error`} error={errors?.[plist.field]} />
+          </div>
+        ) : (
+          <p className="m-0 flex gap-2 text-sm leading-relaxed text-ink-4">
+            <Icon name="notifications" size={20} className="text-muted" />
+            <span>{t("delivery.secondAppYallapp")}</span>
+          </p>
+        )}
       </div>
     </section>
   );
@@ -193,7 +205,7 @@ export function DeliverySettingsForm({
 }) {
   const t = useDashT();
   const [state, action] = useActionState(saveDeliverySettingsAction, initialFormState);
-  const value = (key: Exclude<keyof SettingsFormValues, "cash" | "card" | "courierFirebaseIos" | "courierIconUrl">) => state.values?.[key] ?? settings[key];
+  const value = (key: Exclude<keyof SettingsFormValues, "cash" | "card" | "courierFirebaseIos" | "courierIconUrl" | "yallappFirebase">) => state.values?.[key] ?? settings[key];
   const [work, setWork] = useState(value("couriersWork"));
   const onHub = Boolean(hub) && work === "yallapp_courier";
   const checked = (key: "cash" | "card") => (state.values ? state.values[key] === "on" : settings[key]);
@@ -330,7 +342,7 @@ export function DeliverySettingsForm({
             before={before ? t("delivery.courierAppBefore", { name: value("courierAppName") || settings.courierAppNameDefault }) : null}
             name={{ field: "courierAppName", label: t("delivery.courierAppName"), hint: t("delivery.courierAppNameHint", { name: settings.courierAppNameDefault }), value: value("courierAppName"), placeholder: settings.courierAppNameDefault }}
             icon={{ field: "courierIcon", label: t("delivery.courierIcon"), hint: t("delivery.courierIconHint"), saved: t("delivery.courierIconSaved"), remove: t("delivery.courierIconRemove"), url: settings.courierIconUrl }}
-            plist={{ field: "courierFirebaseIos", label: t("delivery.courierFirebaseIos"), hint: t(settings.courierFirebaseIos ? "delivery.courierFirebaseIosSaved" : "delivery.courierFirebaseIosHint") }}
+            plist={settings.yallappFirebase ? null : { field: "courierFirebaseIos", label: t("delivery.courierFirebaseIos"), hint: t(settings.courierFirebaseIos ? "delivery.courierFirebaseIosSaved" : "delivery.courierFirebaseIosHint") }}
             errors={state.errors}
           />
         </div>

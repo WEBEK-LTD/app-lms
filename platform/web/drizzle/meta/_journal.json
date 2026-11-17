@@ -960,6 +960,13 @@
       "when": 1794847818884,
       "tag": "0137_connected_pay",
       "breakpoints": true
+    },
+    {
+      "idx": 138,
+      "version": "5",
+      "when": 1794866972029,
+      "tag": "0138_yallapp_firebase",
+      "breakpoints": true
     }
   ]
 }
