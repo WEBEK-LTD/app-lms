@@ -1,2 +1,2 @@
--- 136.45 A WordPress app's owner chose Yallapp's Firebase while the site's plugin relays its pushes (0.4.48 or later): only then does a WordPress app count as in Yallapp's Firebase (null: its own, as before).
+-- 136.45 A WordPress app's owner chose Yallapp's Firebase while the site's plugin relays its pushes (0.4.49 or later): only then does a WordPress app count as in Yallapp's Firebase (null: its own, as before).
 ALTER TABLE `apps` ADD `push_relay_at` datetime(3);

@@ -16,7 +16,7 @@ export function pushSetupOf(app: App | null | undefined): PushSetup {
 }
 
 /** 136.45 The first plugin that relays pushes (`LicenseStatus.push`, `POST /push/send`). */
-export const RELAY_PLUGIN_VERSION = "0.4.48";
+export const RELAY_PLUGIN_VERSION = "0.4.49";
 
 /** 136.45 Whether a site's plugin version relays pushes; an unknown version doesn't. */
 export function pluginRelaysPush(version: string | null | undefined): boolean {

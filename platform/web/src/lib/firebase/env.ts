@@ -102,7 +102,7 @@ export async function poolHasRoomFor(store: DataStore, app: Pick<App, "appType" 
 export async function yallappFirebaseOffered(store: DataStore, app: App): Promise<boolean> {
   const firebase = federationFromEnv(store);
   if (!firebase) return false;
-  // 136.45 A WordPress app: once its site's plugin relays the pushes (0.4.48 or later), or while it's in already.
+  // 136.45 A WordPress app: once its site's plugin relays the pushes (0.4.49 or later), or while it's in already.
   if (app.backend === "wordpress") {
     if (!usesYallappFirebase(app) && !(await siteRelaysPush(store, app))) return false;
   } else if (!yallappFirebaseFits(app)) return false;

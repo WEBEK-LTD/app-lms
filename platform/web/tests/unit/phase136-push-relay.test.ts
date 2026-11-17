@@ -1,4 +1,6 @@
 import { generateKeyPairSync } from "node:crypto";
+import { forgetApnsTokens, type ApnsCredentials, type ApnsRequest, type ApnsTransport } from "@/lib/hosted/apns";
+import { apnsKeyApplies } from "@/lib/integrations/apns-key";
 import { beforeAll, describe, expect, it, vi } from "vitest";
 import { POST } from "@/app/api/v1/push/send/route";
 import { newApp } from "@/lib/app/setup";
@@ -40,7 +42,7 @@ function body(licenseKey: string, extra: Record<string, unknown> = {}) {
   return {
     license_key: licenseKey,
     site_url: SITE,
-    plugin_version: "0.4.48",
+    plugin_version: "0.4.49",
     wp_version: "6.8",
     lms: "tutor",
     tokens: [{ token: "tok-ok-1", provider: "fcm" }, { token: "tok-gone-1" }, { token: "tok-busy-1" }],
@@ -113,7 +115,10 @@ describe("136.40 POST /push/send: the request", () => {
     );
     expect(parsed.ok).toBe(true);
     if (!parsed.ok) return;
-    expect(parsed.value.tokens).toEqual(["tok-ok-1", "tok-ok-2"]);
+    expect(parsed.value.tokens).toEqual([
+      { token: "tok-ok-1", provider: "fcm" },
+      { token: "tok-ok-2", provider: "fcm" },
+    ]);
     expect(parsed.value.message).toEqual({
       title: "Weekend sale",
       body: "Everything is 20% off\nuntil Sunday.",
@@ -255,6 +260,7 @@ describe("136.40 Relaying a site's batch", () => {
         sent: 1,
         invalid: 1,
         retry: 1,
+        skipped: 0,
       },
     });
     expectPlatformContract("POST", "/push/send", result);
@@ -374,7 +380,7 @@ describe("136.40 POST /api/v1/push/send (route)", () => {
     const outcome = await activateClient(store, { clientId: client.id, plan: "growth", activeUntil: new Date(now.getTime() + 30 * 86_400_000), paymentNote: "test" }, encryptionKey(), now);
     licenseKey = outcome.licenseKey!;
     await store.createApp({ ...newApp(client.id, ROUTE_SITE, now), backend: "wordpress", appName: "Route Academy", pushSetup: "yallapp", pushRelayAt: now });
-    const site = parseSiteInfo({ license_key: licenseKey, site_url: ROUTE_SITE, plugin_version: "0.4.48" });
+    const site = parseSiteInfo({ license_key: licenseKey, site_url: ROUTE_SITE, plugin_version: "0.4.49" });
     if (!site.ok) throw new Error("bad site");
     await activateLicense(store, site.value, now);
   });
@@ -402,12 +408,14 @@ describe("136.40 POST /api/v1/push/send (route)", () => {
 });
 
 describe("136.45 Yallapp's mode for WordPress apps", () => {
-  it("needs plugin 0.4.48 or later on the site", () => {
-    expect(RELAY_PLUGIN_VERSION).toBe("0.4.48");
-    expect(pluginRelaysPush("0.4.48")).toBe(true);
+  it("needs plugin 0.4.49 or later on the site", () => {
+    expect(RELAY_PLUGIN_VERSION).toBe("0.4.49");
+    expect(pluginRelaysPush("0.4.49")).toBe(true);
     expect(pluginRelaysPush("0.4.50")).toBe(true);
     expect(pluginRelaysPush("0.5.0")).toBe(true);
     expect(pluginRelaysPush("0.4.47")).toBe(false);
+    // 136.46 0.4.48 relayed Firebase tokens only: its iPhones would get nothing.
+    expect(pluginRelaysPush("0.4.48")).toBe(false);
     expect(pluginRelaysPush("0.3.99")).toBe(false);
     expect(pluginRelaysPush("")).toBe(false);
     expect(pluginRelaysPush("dev")).toBe(false);
@@ -436,7 +444,7 @@ describe("136.45 Yallapp's mode for WordPress apps", () => {
       await activate("0.4.47");
       expect(await siteRelaysPush(setup.store, app)).toBe(false);
       expect(await yallappFirebaseOffered(setup.store, app)).toBe(false);
-      await activate("0.4.48");
+      await activate("0.4.49");
       expect(await siteRelaysPush(setup.store, app)).toBe(true);
       expect(await yallappFirebaseOffered(setup.store, app)).toBe(true);
       // In it already: offered whatever the site runs now, so the owner can switch back.
@@ -449,5 +457,105 @@ describe("136.45 Yallapp's mode for WordPress apps", () => {
     } finally {
       vi.unstubAllEnvs();
     }
+  });
+});
+
+describe("136.46 iPhones of a WordPress app, straight to Apple", () => {
+  /** Made up for the test: a fresh P-256 key, never a real APNs key. */
+  const APNS: ApnsCredentials = {
+    keyId: "ABCDE12345",
+    teamId: "TEAM123456",
+    privateKey: generateKeyPairSync("ec", { namedCurve: "prime256v1" }).privateKey.export({ type: "pkcs8", format: "pem" }).toString(),
+    bundleId: "com.nour.academy",
+  };
+  /** iPhones' device tokens (hex, as Apple gives them): one Apple takes, one it no longer knows, one it can't take now. */
+  const OK = "a1".repeat(32);
+  const GONE = "b2".repeat(32);
+  const BUSY = "c3".repeat(32);
+  /** Apple: OK is taken, GONE is Unregistered (410), the rest 503. */
+  function fakeApple() {
+    const requests: ApnsRequest[] = [];
+    const transport: ApnsTransport = () => ({
+      send: async (request) => {
+        requests.push(request);
+        const token = request.path.split("/").pop()!;
+        if (token === OK) return { status: 200, reason: null, id: "id-1" };
+        if (token === GONE) return { status: 410, reason: "Unregistered" };
+        return { status: 503, reason: "ServiceUnavailable" };
+      },
+      close: () => undefined,
+    });
+    return { transport, requests };
+  }
+
+  it("takes provider apns, keeping each token's provider; Huawei stays refused", () => {
+    const parsed = parsePushRelayRequest(body("YALL-7K2D-9QWE-4MNB", { tokens: [{ token: "tok-ok-1" }, { token: OK, provider: "apns" }, { token: OK, provider: "fcm" }] }));
+    expect(parsed.ok && parsed.value.tokens).toEqual([
+      { token: "tok-ok-1", provider: "fcm" },
+      { token: OK, provider: "apns" },
+    ]);
+    const hms = parsePushRelayRequest(body("YALL-7K2D-9QWE-4MNB", { tokens: [{ token: "x", provider: "hms" }] }));
+    expect(hms.ok).toBe(false);
+  });
+
+  it("sends APNs tokens to Apple with the app's key, never to FCM, and Firebase tokens as before", async () => {
+    forgetApnsTokens();
+    const google = fakeGoogle();
+    const apple = fakeApple();
+    const results = await relayTokens(
+      { ...ACCOUNT, apns: APNS },
+      [
+        { token: "tok-ok-1", provider: "fcm" },
+        { token: OK, provider: "apns" },
+        { token: GONE, provider: "apns" },
+        { token: BUSY, provider: "apns" },
+      ],
+      { title: "Hi", body: "There", data: { type: "announcement" } },
+      { fetcher: google.fetcher, now: NOW, apnsTransport: apple.transport },
+    );
+    expect(results).toEqual([
+      { token: "tok-ok-1", status: "sent" },
+      { token: OK, status: "sent" },
+      { token: GONE, status: "invalid" },
+      { token: BUSY, status: "retry" },
+    ]);
+    expect(google.calls.sends.map((send) => send.token)).toEqual(["tok-ok-1"]);
+    expect(apple.requests.map((r) => r.path.split("/").pop())).toEqual([OK, GONE, BUSY]);
+    expect(apple.requests[0]?.headers["apns-topic"]).toBe("com.nour.academy");
+    forgetApnsTokens();
+  });
+
+  it("skips APNs tokens while the app has no APNs key, and says so", async () => {
+    const { store, licenseKey } = await activeSite();
+    const google = fakeGoogle();
+    const apple = fakeApple();
+    const result = await relayPush(
+      store,
+      request(licenseKey, { tokens: [{ token: "tok-ok-1" }, { token: OK, provider: "apns" }] }),
+      deps(google.fetcher, { apnsTransport: apple.transport }),
+    );
+    expect(result).toEqual({
+      status: 200,
+      body: { results: [{ token: "tok-ok-1", status: "sent" }, { token: OK, status: "skipped" }], sent: 1, invalid: 0, retry: 0, skipped: 1 },
+    });
+    expectPlatformContract("POST", "/push/send", result);
+    expect(apple.requests).toHaveLength(0);
+    expect(google.calls.sends.map((send) => send.token)).toEqual(["tok-ok-1"]);
+
+    // With the key (serviceAccountOf gives it to Yallapp-mode accounts), the same iPhone gets it from Apple.
+    forgetApnsTokens();
+    const withKey = await relayPush(store, request(licenseKey, { tokens: [{ token: OK, provider: "apns" }] }), deps(google.fetcher, { apnsTransport: apple.transport, accountOf: () => ({ ...ACCOUNT, apns: APNS }) }));
+    expect(withKey).toMatchObject({ status: 200, body: { sent: 1, skipped: 0 } });
+    expectPlatformContract("POST", "/push/send", withKey);
+    expect(apple.requests).toHaveLength(1);
+    forgetApnsTokens();
+  });
+
+  it("offers the APNs key to a WordPress app in Yallapp's mode, as to a hosted one", () => {
+    const wordpress = { ...newApp("client-1", SITE, NOW), backend: "wordpress", iosBundleId: "com.nour.academy", pushSetup: "yallapp" } as App;
+    expect(apnsKeyApplies({ ...wordpress, pushRelayAt: NOW })).toBe(true);
+    expect(apnsKeyApplies({ ...wordpress, pushRelayAt: null })).toBe(false);
+    expect(apnsKeyApplies({ ...wordpress, pushRelayAt: NOW, iosBundleId: null })).toBe(false);
+    expect(apnsKeyApplies({ ...wordpress, pushRelayAt: NOW, pushSetup: null })).toBe(false);
   });
 });

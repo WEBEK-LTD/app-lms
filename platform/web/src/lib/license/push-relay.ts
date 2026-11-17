@@ -3,6 +3,7 @@ import type { App } from "../data/types";
 import { currentPlanId } from "../billing/plan-change";
 import { effectivePlans, plansForApp } from "../entitlements";
 import { serviceAccountOf } from "../hosted/notify";
+import type { ApnsTransport } from "../hosted/apns";
 import { sendPush, type PushMessage, type ServiceAccount } from "../hosted/push";
 import { hitRateLimit, RATE_LIMITS } from "../rate-limit";
 import { hashLicenseKey } from "./key";
@@ -18,7 +19,10 @@ import { licenseState } from "./status";
  * platform with its license key, and the platform sends them through the
  * app's push path (`serviceAccountOf` and `sendPush`), as it does for hosted
  * apps. Each token gets an answer: sent, invalid (the plugin forgets it) or
- * retry (the plugin tries it again later).
+ * retry (the plugin tries it again later). 136.46 iPhones of an app whose
+ * notifications Yallapp sets up register their APNs token (`provider: apns`);
+ * those go straight to Apple with the client's APNs key, as for hosted apps,
+ * and are `skipped` (kept, not retried) while no key is saved.
  *
  * Nothing about the people is stored: the tokens, the texts and the data pass
  * through to Firebase and are dropped with the request. Only counts are kept,
@@ -44,12 +48,18 @@ const TOKEN_MAX = 4096;
 /** Keys FCM keeps for itself in `data`. */
 const RESERVED_DATA_KEY = /^(from|notification|message_type|collapse_key|google.*|gcm.*)$/i;
 
-export type PushRelayTokenStatus = "sent" | "invalid" | "retry";
+export type PushRelayTokenStatus = "sent" | "invalid" | "retry" | "skipped";
+
+/** 136.46 A token and the service it's from: Firebase, or Apple directly. */
+export interface RelayTarget {
+  token: string;
+  provider: "fcm" | "apns";
+}
 
 export interface PushRelayRequest {
   site: SiteInfo;
-  /** Firebase tokens, without repeats, in the order they came. */
-  tokens: string[];
+  /** The tokens, without repeats, in the order they came. */
+  tokens: RelayTarget[];
   message: PushMessage;
 }
 
@@ -60,6 +70,8 @@ export interface PushRelayAnswer {
     sent: number;
     invalid: number;
     retry: number;
+    /** 136.46 iPhone (APNs) tokens not sent because the app has no APNs key yet. */
+    skipped: number;
   };
 }
 
@@ -84,15 +96,15 @@ export function parsePushRelayRequest(body: unknown): { ok: true; value: PushRel
   if (!Array.isArray(input.tokens) || input.tokens.length < 1 || input.tokens.length > PUSH_RELAY_MAX_TOKENS) {
     return bad(`tokens must be a list of 1 to ${PUSH_RELAY_MAX_TOKENS} device tokens.`);
   }
-  const tokens: string[] = [];
+  const tokens: RelayTarget[] = [];
   for (const item of input.tokens) {
     const entry = item && typeof item === "object" && !Array.isArray(item) ? (item as Record<string, unknown>) : null;
     const token = typeof entry?.token === "string" ? entry.token.trim() : "";
     if (!token || token.length > TOKEN_MAX || /\s/.test(token)) return bad("Each token must be {token, provider} with a device token of at most 4096 characters.");
     const provider = entry?.provider ?? "fcm";
-    // Huawei Push Kit stays on the site (the plugin sends those tokens itself).
-    if (provider !== "fcm") return bad('provider must be "fcm": Huawei tokens are sent by the site itself.');
-    if (!tokens.includes(token)) tokens.push(token);
+    // Huawei Push Kit stays on the site (the plugin sends those tokens itself); 136.46 APNs tokens go to Apple.
+    if (provider !== "fcm" && provider !== "apns") return bad('provider must be "fcm" or "apns": Huawei tokens are sent by the site itself.');
+    if (!tokens.some((t) => t.token === token)) tokens.push({ token, provider });
   }
 
   const notification = input.notification && typeof input.notification === "object" && !Array.isArray(input.notification) ? (input.notification as Record<string, unknown>) : null;
@@ -164,24 +176,28 @@ export function sharedSignIn(fetcher: typeof fetch, stop?: AbortSignal): typeof 
 /** Sends each token on its own (20 at a time) and says what became of it. */
 export async function relayTokens(
   account: ServiceAccount,
-  tokens: string[],
+  targets: (string | RelayTarget)[],
   message: PushMessage,
-  options: { fetcher?: typeof fetch; now?: Date; clock?: () => number; deadlineMs?: number; hardStopMs?: number; concurrency?: number } = {},
+  options: { fetcher?: typeof fetch; now?: Date; clock?: () => number; deadlineMs?: number; hardStopMs?: number; concurrency?: number; apnsTransport?: ApnsTransport } = {},
 ): Promise<PushRelayAnswer["body"]["results"]> {
+  const tokens: RelayTarget[] = targets.map((t) => (typeof t === "string" ? { token: t, provider: "fcm" } : t));
   const stop = AbortSignal.timeout(options.hardStopMs ?? PUSH_RELAY_HARD_STOP_MS);
   const fetcher = sharedSignIn(options.fetcher ?? fetch, stop);
   const clock = options.clock ?? Date.now;
   const started = clock();
   const deadline = options.deadlineMs ?? PUSH_RELAY_DEADLINE_MS;
-  const statuses: PushRelayTokenStatus[] = tokens.map(() => "retry");
+  // 136.46 Without the client's APNs key, Apple's tokens wait (sendPush would drop them): skipped, not retried.
+  const statuses: PushRelayTokenStatus[] = tokens.map((t) => (t.provider === "apns" && !account.apns ? "skipped" : "retry"));
   let next = 0;
   const worker = async () => {
     while (next < tokens.length) {
       if (clock() - started > deadline) return;
       if (stop.aborted) return;
       const index = next++;
+      if (statuses[index] === "skipped") continue;
       try {
-        const result = await sendPush(account, [tokens[index]!], message, { fetcher, now: options.now });
+        const target = tokens[index]!;
+        const result = await sendPush(account, [target.provider === "apns" ? { token: target.token, provider: "apns" } : target.token], message, { fetcher, now: options.now, apnsTransport: options.apnsTransport });
         statuses[index] = result.sent > 0 ? "sent" : result.invalidTokens.length > 0 ? "invalid" : "retry";
       } catch {
         // Google's sign-in or the network failed: the site tries this one again.
@@ -190,7 +206,7 @@ export async function relayTokens(
     }
   };
   await Promise.all(Array.from({ length: Math.min(options.concurrency ?? PUSH_RELAY_CONCURRENCY, tokens.length) }, worker));
-  return tokens.map((token, index) => ({ token, status: statuses[index] ?? "retry" }));
+  return tokens.map((target, index) => ({ token: target.token, status: statuses[index] ?? "retry" }));
 }
 
 export interface PushRelayDeps {
@@ -201,6 +217,8 @@ export interface PushRelayDeps {
   /** The app's push account: `serviceAccountOf` (Phase 1 gives Yallapp-mode apps the federated one). */
   accountOf?: (app: App, key: Buffer) => ServiceAccount | null;
   clock?: () => number;
+  /** 136.46 Apple's HTTP/2 connection (tests give a fake). */
+  apnsTransport?: ApnsTransport;
 }
 
 /** Checks the license, the app's push mode, the plan and the limits, then sends the batch. */
@@ -235,9 +253,9 @@ export async function relayPush(store: DataStore, request: PushRelayRequest, dep
 
   // In a shared project, Android delivers only to this app's own package.
   const message = { ...request.message, restrictedPackage: app.androidPackage?.trim() || null };
-  const results = await relayTokens(account, request.tokens, message, { fetcher: deps.fetcher, now, clock: deps.clock });
+  const results = await relayTokens(account, request.tokens, message, { fetcher: deps.fetcher, now, clock: deps.clock, apnsTransport: deps.apnsTransport });
   const count = (status: PushRelayTokenStatus) => results.filter((result) => result.status === status).length;
-  const body = { results, sent: count("sent"), invalid: count("invalid"), retry: count("retry") };
+  const body = { results, sent: count("sent"), invalid: count("invalid"), retry: count("retry"), skipped: count("skipped") };
   if (body.sent > 0) await hitRateLimit(store, RATE_LIMITS.pushRelaySent, license.id, now, body.sent);
   return { status: 200, body };
 }

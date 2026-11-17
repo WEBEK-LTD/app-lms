@@ -41,6 +41,21 @@ export async function generateMetadata(): Promise<Metadata> {
 export default async function NotificationsPage() {
   const { app, license, client } = await requireClient("notifications");
   const { t, k, lang, num, date } = await dashboardText();
+  // 136.20 The APNs key row, for hosted apps and (136.46) WordPress apps in Yallapp's mode, whose site relays.
+  const apnsRow =
+    app && apnsKeyApplies(app) ? (
+      <KitSettingRow
+        titleId="h-apns"
+        icon="phone_iphone"
+        title={t("apns.title")}
+        status={savedApnsKey(app) ? <KitStatus tone="success">{t("apns.statusOn")}</KitStatus> : <KitStatus tone="neutral">{t("apns.statusOff")}</KitStatus>}
+        description={savedApnsKey(app) ? t("apns.direct") : t("apns.needed")}
+      >
+        <KitFold icon="key" summary={savedApnsKey(app) ? t("apns.replaceAction") : t("apns.addAction")} data-fold="apns-key">
+          <ApnsKeyForm saved={savedApnsKey(app)} buildTeamId={app.appleTeamId ?? null} />
+        </KitFold>
+      </KitSettingRow>
+    ) : null;
   if (!app || app.backend !== "hosted") {
     return (
       <KitPage>
@@ -59,6 +74,8 @@ export default async function NotificationsPage() {
             {t("notify.relayText")}
           </KitCallout>
         ) : null}
+        {/* 136.46 Its iPhones get the relayed notifications straight from Apple, with the client's APNs key. */}
+        {apnsRow ? <KitSettings>{apnsRow}</KitSettings> : null}
         {/* 85.4 Campaigns go through the WordPress site. */}
         {app?.backend === "wordpress" ? (
           <KitSection titleId="h-campaigns" title={t("notify.title")} flush>
@@ -405,19 +422,7 @@ export default async function NotificationsPage() {
         </KitSettingRow>
 
         {/* 136.20 iPhone notifications straight to Apple: the client's APNs key, checked with Apple. */}
-        {apnsKeyApplies(app) ? (
-          <KitSettingRow
-            titleId="h-apns"
-            icon="phone_iphone"
-            title={t("apns.title")}
-            status={savedApnsKey(app) ? <KitStatus tone="success">{t("apns.statusOn")}</KitStatus> : <KitStatus tone="neutral">{t("apns.statusOff")}</KitStatus>}
-            description={savedApnsKey(app) ? t("apns.direct") : t("apns.needed")}
-          >
-            <KitFold icon="key" summary={savedApnsKey(app) ? t("apns.replaceAction") : t("apns.addAction")} data-fold="apns-key">
-              <ApnsKeyForm saved={savedApnsKey(app)} buildTeamId={app.appleTeamId ?? null} />
-            </KitFold>
-          </KitSettingRow>
-        ) : null}
+        {apnsRow}
 
         {kinds.length ? (
           <KitSettingRow

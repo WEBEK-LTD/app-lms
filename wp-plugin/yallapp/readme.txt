@@ -4,7 +4,7 @@ Tags: lms, mobile app, tutor lms, digits, otp
 Requires at least: 6.0
 Tested up to: 7.1
 Requires PHP: 7.4
-Stable tag: 0.4.48
+Stable tag: 0.4.49
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -104,8 +104,10 @@ Yallapp is the service that builds and runs your apps; the plugin needs it to wo
   Yallapp dashboard says so in the license check): for each notification the site sends,
   the license key, site address, plugin and WordPress versions, the notification's title,
   text, picture address and the data the app opens it with (such as a course ID or a
-  link), and the push tokens of the phones it goes to. They pass through Yallapp only
-  to be delivered through Yallapp's Firebase Cloud Messaging; Yallapp stores neither
+  link), and the push tokens of the phones it goes to (Firebase tokens, and iPhones'
+  Apple push tokens). They pass through Yallapp only to be delivered through Yallapp's
+  Firebase Cloud Messaging, or straight to Apple's push service with your app's APNs
+  key for iPhones; Yallapp stores neither
   the tokens nor the texts, and keeps only counts. Otherwise nothing of your
   notifications reaches Yallapp.
 * Campaigns, when you send one from your Yallapp dashboard: Yallapp sends the
@@ -153,6 +155,9 @@ Symbols Rounded by Google (the material-design-icons project),
 under the Apache License 2.0, included as inline SVG.
 
 == Changelog ==
+
+= 0.4.49 =
+* iPhones get the notifications Yallapp sends for your site straight from Apple: when your app uses "Yallapp sets up notifications", the app's iPhones register with Apple, and the plugin hands those phones to Yallapp with the others. Add your APNs key once in your Yallapp dashboard (Notifications › iPhone notifications); until then iPhones are kept and wait for it.
 
 = 0.4.48 =
 * Notifications sent by Yallapp: when your app uses "Yallapp sets up notifications" in your Yallapp dashboard, your site needs no Firebase file. The plugin hands each push notification to Yallapp, which delivers it through Yallapp's Firebase and keeps nothing of it; phones Firebase no longer knows are forgotten as before, and the ones it couldn't reach for now are tried again up to three times in the next minutes. Settings › Notifications then says "Notifications are sent by Yallapp". Apps with their own Firebase keep sending from the site, as before; Huawei phones always do.

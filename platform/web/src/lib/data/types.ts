@@ -636,7 +636,7 @@ export interface App {
   firebaseProjectId?: string | null;
   /**
    * 136.45 When a WordPress app's owner chose Yallapp's Firebase on the
-   * Publishing step, with the site's plugin able to relay (0.4.48 or later).
+   * Publishing step, with the site's plugin able to relay (0.4.49 or later).
    * A WordPress app counts as in Yallapp's Firebase only with it, so a new
    * app's default never moves a site whose plugin can't relay.
    */

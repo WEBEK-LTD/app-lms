@@ -800,7 +800,8 @@ class License_Client {
 	 * (docs/api/platform.yaml, sendPush). Only the license key, site address and versions go with
 	 * them, not the rest of the license check.
 	 *
-	 * @param string[] $tokens       Firebase tokens (at most Push_Service::BATCH_SIZE).
+	 * @param array    $tokens       Firebase tokens, or (136.46) `{token, provider}` rows with
+	 *                               `provider` "fcm" or "apns" (at most Push_Service::BATCH_SIZE).
 	 * @param array    $notification Title, body and picture.
 	 * @param array    $data         Data for the app.
 	 * @return array|WP_Error The PushRelayResult body (`results`, `sent`, `invalid`, `retry`), or the
@@ -826,9 +827,10 @@ class License_Client {
 			'wp_version'     => get_bloginfo( 'version' ),
 			'tokens'         => array_map(
 				static function ( $token ) {
+					$provider = is_array( $token ) && 'apns' === ( $token['provider'] ?? '' ) ? 'apns' : 'fcm';
 					return array(
-						'token'    => (string) $token,
-						'provider' => 'fcm',
+						'token'    => (string) ( is_array( $token ) ? ( $token['token'] ?? '' ) : $token ),
+						'provider' => $provider,
 					);
 				},
 				array_values( $tokens )

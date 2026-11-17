@@ -133,4 +133,83 @@ class PushRelay136Test extends TestCase {
 		$this->assertSame( 900, Push_Service::retry_delay( 1, 3600 ) );
 		$this->assertSame( 3, Push_Service::RETRY_ATTEMPTS );
 	}
+
+	/**
+	 * 136.46 An iPhone's APNs token while the app has no APNs key: kept and not retried.
+	 */
+	public function test_skipped_apns_tokens_are_kept() {
+		$outcome = Push_Service::relay_outcome(
+			array( 'a', 'apns-1' ),
+			array(
+				'results' => array(
+					array(
+						'token'  => 'a',
+						'status' => 'sent',
+					),
+					array(
+						'token'  => 'apns-1',
+						'status' => 'skipped',
+					),
+				),
+			)
+		);
+		$this->assertSame( 1, $outcome['sent'] );
+		$this->assertSame( array( 'apns-1' ), $outcome['skipped'] );
+		$this->assertSame( array(), $outcome['retry'] );
+		$this->assertSame( array(), $outcome['invalid'] );
+	}
+
+	/**
+	 * 136.46 Each token goes to Yallapp with its service; retries keep it, and tokens from before
+	 * (bare strings) are Firebase.
+	 */
+	public function test_tokens_keep_their_provider() {
+		$this->assertSame(
+			array(
+				array(
+					'token'    => 'f-1',
+					'provider' => 'fcm',
+				),
+				array(
+					'token'    => 'a-1',
+					'provider' => 'apns',
+				),
+			),
+			Push_Service::relay_targets( array( 'f-1' ), array( 'a-1' ) )
+		);
+		$this->assertSame(
+			array(
+				array(
+					'token'    => 'old-1',
+					'provider' => 'fcm',
+				),
+				array(
+					'token'    => 'a-1',
+					'provider' => 'apns',
+				),
+				array(
+					'token'    => 'h-1',
+					'provider' => 'fcm',
+				),
+			),
+			Push_Service::normalize_targets(
+				array(
+					'old-1',
+					array(
+						'token'    => 'a-1',
+						'provider' => 'apns',
+					),
+					array(
+						'token'    => 'a-1',
+						'provider' => 'fcm',
+					),
+					array(
+						'token'    => 'h-1',
+						'provider' => 'hms',
+					),
+					'',
+				)
+			)
+		);
+	}
 }

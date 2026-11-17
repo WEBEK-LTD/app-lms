@@ -118,22 +118,24 @@ class Push_Service {
 
 	/**
 	 * 36 Splits device tokens by the service that sends them: Firebase ("fcm", also
-	 * for tokens saved before providers existed) or Huawei Push Kit ("hms"). Pure.
+	 * for tokens saved before providers existed), Huawei Push Kit ("hms") or (136.46)
+	 * Apple through Yallapp ("apns"). Pure.
 	 *
 	 * @param array $targets Rows with `token` and `provider`.
-	 * @return array{fcm: string[], hms: string[]}
+	 * @return array{fcm: string[], hms: string[], apns: string[]}
 	 */
 	public static function split_targets( array $targets ) {
 		$split = array(
-			'fcm' => array(),
-			'hms' => array(),
+			'fcm'  => array(),
+			'hms'  => array(),
+			'apns' => array(),
 		);
 		foreach ( $targets as $target ) {
 			$token = (string) ( $target['token'] ?? '' );
 			if ( '' === $token ) {
 				continue;
 			}
-			$which             = isset( $target['provider'] ) && 'hms' === $target['provider'] ? 'hms' : 'fcm';
+			$which             = isset( $target['provider'] ) && in_array( $target['provider'], array( 'hms', 'apns' ), true ) ? $target['provider'] : 'fcm';
 			$split[ $which ][] = $token;
 		}
 		return $split;
@@ -510,50 +512,110 @@ class Push_Service {
 				$this->plugin->devices()->forget_push_token( $invalid );
 			}
 		}
-		if ( ! $targets['fcm'] ) {
-			return $sent;
+		// 136.40 Through Yallapp's Firebase when the license says so (136.46 with iPhones' APNs tokens
+		// straight to Apple), else with the site's own; APNs tokens can't go through the site's own Firebase.
+		if ( $this->relayed() ) {
+			$relayed = self::relay_targets( $targets['fcm'], $targets['apns'] );
+			return $relayed ? $sent + $this->relay( $relayed, (array) $notification, (array) $data, 0 ) : $sent;
 		}
-		// 136.40 Through Yallapp's Firebase when the license says so, else with the site's own.
-		return $sent + ( $this->relayed() ? $this->relay( $targets['fcm'], (array) $notification, (array) $data, 0 ) : $this->send_own( $targets['fcm'], (array) $notification, (array) $data ) );
+		return $targets['fcm'] ? $sent + $this->send_own( $targets['fcm'], (array) $notification, (array) $data ) : $sent;
 	}
 
 	/**
-	 * 136.40 Sends Firebase tokens again that weren't delivered before (cron), the way the
-	 * site sends now: a site that left Yallapp's Firebase sends them with its own.
+	 * 136.46 The tokens handed to Yallapp, each with its service. Pure.
 	 *
-	 * @param string[] $tokens       Firebase tokens.
-	 * @param array    $notification Title, body and picture.
-	 * @param array    $data         Data for the app.
-	 * @param int      $attempt      How many times they were tried again before (1 the first time).
+	 * @param string[] $fcm  Firebase tokens.
+	 * @param string[] $apns iPhones' APNs tokens.
+	 * @return array<int, array{token: string, provider: string}>
+	 */
+	public static function relay_targets( array $fcm, array $apns ) {
+		$targets = array();
+		foreach ( array(
+			'fcm'  => $fcm,
+			'apns' => $apns,
+		) as $provider => $tokens ) {
+			foreach ( $tokens as $token ) {
+				$targets[] = array(
+					'token'    => (string) $token,
+					'provider' => $provider,
+				);
+			}
+		}
+		return $targets;
+	}
+
+	/**
+	 * 136.40 Sends tokens again that weren't delivered before (cron), the way the site sends now:
+	 * a site that left Yallapp's Firebase sends its Firebase tokens with its own (136.46 its
+	 * iPhones' APNs tokens then wait until they register a Firebase token again).
+	 *
+	 * @param array $tokens       `{token, provider}` rows (or Firebase tokens).
+	 * @param array $notification Title, body and picture.
+	 * @param array $data         Data for the app.
+	 * @param int   $attempt      How many times they were tried again before (1 the first time).
 	 * @return int Messages delivered.
 	 */
 	public function retry_tokens( $tokens, $notification, $data, $attempt ) {
-		$tokens = array_values( array_filter( array_map( 'strval', (array) $tokens ) ) );
-		if ( ! $tokens ) {
+		$targets = self::normalize_targets( (array) $tokens );
+		if ( ! $targets ) {
 			return 0;
 		}
-		return $this->relayed() ? $this->relay( $tokens, (array) $notification, (array) $data, (int) $attempt ) : $this->send_own( $tokens, (array) $notification, (array) $data );
+		if ( $this->relayed() ) {
+			return $this->relay( $targets, (array) $notification, (array) $data, (int) $attempt );
+		}
+		$fcm = array();
+		foreach ( $targets as $target ) {
+			if ( 'fcm' === $target['provider'] ) {
+				$fcm[] = $target['token'];
+			}
+		}
+		return $fcm ? $this->send_own( $fcm, (array) $notification, (array) $data ) : 0;
 	}
 
 	/**
-	 * 136.40 Hands Firebase tokens to Yallapp in batches (POST /push/send): forgets the ones
-	 * Firebase says are gone, and sends the ones it couldn't deliver again later. Never waits
-	 * on a retry: those go to cron.
+	 * 136.46 Tokens as `{token, provider}` rows without repeats: a bare string is a Firebase
+	 * token, any provider but "apns" is "fcm". Pure.
 	 *
-	 * @param string[] $tokens       Firebase tokens.
-	 * @param array    $notification Title, body and picture.
-	 * @param array    $data         Data for the app.
-	 * @param int      $attempt      0 the first time, then each retry's number.
+	 * @param array $tokens Rows or strings.
+	 * @return array<int, array{token: string, provider: string}>
+	 */
+	public static function normalize_targets( array $tokens ) {
+		$targets = array();
+		foreach ( $tokens as $item ) {
+			$token = (string) ( is_array( $item ) ? ( $item['token'] ?? '' ) : $item );
+			if ( '' === $token || isset( $targets[ $token ] ) ) {
+				continue;
+			}
+			$targets[ $token ] = array(
+				'token'    => $token,
+				'provider' => is_array( $item ) && 'apns' === ( $item['provider'] ?? '' ) ? 'apns' : 'fcm',
+			);
+		}
+		return array_values( $targets );
+	}
+
+	/**
+	 * 136.40 Hands tokens to Yallapp in batches (POST /push/send): forgets the ones Firebase or
+	 * Apple says are gone, and sends the ones it couldn't deliver again later. Never waits on a
+	 * retry: those go to cron. 136.46 iPhones' APNs tokens are `skipped` while the app has no APNs
+	 * key in Yallapp: kept, not retried.
+	 *
+	 * @param array $tokens       `{token, provider}` rows (or Firebase tokens).
+	 * @param array $notification Title, body and picture.
+	 * @param array $data         Data for the app.
+	 * @param int   $attempt      0 the first time, then each retry's number.
 	 * @return int Messages Yallapp delivered.
 	 */
 	private function relay( array $tokens, array $notification, array $data, $attempt ) {
 		$sent    = 0;
 		$retry   = array();
 		$wait    = 0;
-		$batches = array_chunk( array_values( array_unique( $tokens ) ), self::BATCH_SIZE );
+		$targets = self::normalize_targets( $tokens );
+		$by      = array_column( $targets, null, 'token' );
+		$batches = array_chunk( $targets, self::BATCH_SIZE );
 		foreach ( $batches as $index => $batch ) {
 			$answer  = $this->plugin->license()->send_push( $batch, $notification, $data );
-			$outcome = self::relay_outcome( $batch, is_wp_error( $answer ) ? array_merge( (array) $answer->get_error_data(), array( 'error' => $answer->get_error_code() ) ) : $answer );
+			$outcome = self::relay_outcome( array_column( $batch, 'token' ), is_wp_error( $answer ) ? array_merge( (array) $answer->get_error_data(), array( 'error' => $answer->get_error_code() ) ) : $answer );
 			$sent   += $outcome['sent'];
 			foreach ( $outcome['invalid'] as $invalid ) {
 				$this->plugin->devices()->forget_push_token( $invalid );
@@ -567,14 +629,20 @@ class Push_Service {
 			if ( $outcome['stop'] ) {
 				// Over a limit, or not ready yet: the other batches wait too, without asking again now.
 				foreach ( array_slice( $batches, $index + 1 ) as $rest ) {
-					$retry = array_merge( $retry, $rest );
+					$retry = array_merge( $retry, array_column( $rest, 'token' ) );
 				}
 				break;
 			}
 		}
 		$next = (int) $attempt + 1;
 		if ( $retry && $next <= self::RETRY_ATTEMPTS ) {
-			wp_schedule_single_event( time() + self::retry_delay( $next, $wait ), self::RETRY_HOOK, array( array_values( array_unique( $retry ) ), $notification, $data, $next ) );
+			$again = array();
+			foreach ( array_values( array_unique( $retry ) ) as $token ) {
+				if ( isset( $by[ $token ] ) ) {
+					$again[] = $by[ $token ];
+				}
+			}
+			wp_schedule_single_event( time() + self::retry_delay( $next, $wait ), self::RETRY_HOOK, array( $again, $notification, $data, $next ) );
 		}
 		return $sent;
 	}
@@ -583,7 +651,8 @@ class Push_Service {
 	 * 136.40 What Yallapp's answer to one batch means for the site. Pure.
 	 *
 	 * - The answer's `results`: `sent` counts, `invalid` tokens are forgotten, `retry` tokens are
-	 *   sent again later; a token the answer leaves out is sent again too.
+	 *   sent again later; a token the answer leaves out is sent again too; (136.46) `skipped` (an
+	 *   iPhone's APNs token while the app has no APNs key) is kept and not sent again.
 	 * - The platform couldn't be reached, timed out, or answered 5xx, 429 or 503 (`push_not_ready`):
 	 *   the whole batch is sent again later (`wait`: the platform's `retry_after_seconds`), and
 	 *   on 429 and 503 the other batches wait as well (`stop`).
@@ -594,13 +663,14 @@ class Push_Service {
 	 * @param string[] $batch  The tokens sent.
 	 * @param array    $result send_push()'s answer: the PushRelayResult body, or for an error its
 	 *                         `error` code with the `status` and `retry_after_seconds` it came with.
-	 * @return array{sent: int, invalid: string[], retry: string[], wait: int, stop: bool, check: bool}
+	 * @return array{sent: int, invalid: string[], retry: string[], skipped: string[], wait: int, stop: bool, check: bool}
 	 */
 	public static function relay_outcome( array $batch, array $result ) {
 		$outcome = array(
 			'sent'    => 0,
 			'invalid' => array(),
 			'retry'   => array(),
+			'skipped' => array(),
 			'wait'    => 0,
 			'stop'    => false,
 			'check'   => false,
@@ -629,6 +699,8 @@ class Push_Service {
 				++$outcome['sent'];
 			} elseif ( 'invalid' === $status ) {
 				$outcome['invalid'][] = $token;
+			} elseif ( 'skipped' === $status ) {
+				$outcome['skipped'][] = $token;
 			} else {
 				$outcome['retry'][] = $token;
 			}

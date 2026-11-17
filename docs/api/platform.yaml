@@ -53,7 +53,8 @@ info:
       the app uses "Yallapp sets up notifications" (`LicenseStatus.push:
       yallapp`): each notification's title, text, picture address and data,
       and the push tokens of the phones it goes to, pass through Yallapp only
-      to be delivered through Yallapp's Firebase. Neither the tokens nor the
+      to be delivered through Yallapp's Firebase, or (136.46) for iPhones
+      straight to Apple's push service with the app's APNs key. Neither the tokens nor the
       texts are stored or logged; only counts are kept. With the app's own
       Firebase (`push: own`, the default) the site sends its pushes itself, as
       before, and nothing passes through Yallapp.
@@ -850,10 +851,18 @@ paths:
         check.
 
         Each token gets its own answer in `results`, in the order sent
-        (repeats once): `sent` (Firebase took it), `invalid` (the token no
-        longer exists: the plugin forgets it, as it does with its own
-        Firebase) or `retry` (Firebase or the network failed for now, or the
-        request ran out of time: the plugin sends it again later). Tokens are
+        (repeats once): `sent` (Firebase or Apple took it), `invalid` (the
+        token no longer exists: the plugin forgets it, as it does with its own
+        Firebase), `retry` (Firebase, Apple or the network failed for now, or
+        the request ran out of time: the plugin sends it again later) or
+        (136.46) `skipped`.
+
+        136.46 iPhones: an app in Yallapp's mode gets `Config.features.apns`
+        from the plugin, so its iPhones register their APNs device token
+        (`provider: apns`). Those go straight to Apple with the client's APNs
+        key (Notifications › iPhone notifications in the Yallapp dashboard),
+        as for apps on the hosted API, never through Firebase. While no key is
+        saved they are `skipped`: not sent, kept by the site, not retried. Tokens are
         sent 20 at a time, and none starts after 7 seconds, so the answer
         comes within about 10 seconds; the plugin waits up to 25.
 
@@ -874,7 +883,7 @@ paths:
             application/json:
               schema: { $ref: '#/components/schemas/PushRelayResult' }
         '400':
-          description: The request is invalid (`invalid_request`), such as more than 200 tokens, a provider other than `fcm`, or a title, text or data over its limit.
+          description: The request is invalid (`invalid_request`), such as more than 200 tokens, a provider other than `fcm` or `apns`, or a title, text or data over its limit.
           content:
             application/json:
               schema: { $ref: '#/components/schemas/Error' }
@@ -1358,13 +1367,13 @@ components:
               type: array
               minItems: 1
               maxItems: 200
-              description: The phones to send to. Only Firebase tokens; the site sends Huawei Push Kit tokens itself.
+              description: The phones to send to. Firebase tokens, and (136.46) iPhones' APNs tokens; the site sends Huawei Push Kit tokens itself.
               items:
                 type: object
                 required: [token]
                 properties:
-                  token: { type: string, maxLength: 4096, description: The device's Firebase Cloud Messaging token. }
-                  provider: { type: string, enum: [fcm], default: fcm }
+                  token: { type: string, maxLength: 4096, description: "The device's Firebase Cloud Messaging token, or with `provider: apns` its APNs device token." }
+                  provider: { type: string, enum: [fcm, apns], default: fcm, description: "`fcm`: Firebase. `apns` (136.46): an iPhone's APNs token, sent straight to Apple." }
             notification:
               type: object
               description: What the phone shows. A title or a body is needed.
@@ -1387,7 +1396,7 @@ components:
 
     PushRelayResult:
       type: object
-      required: [results, sent, invalid, retry]
+      required: [results, sent, invalid, retry, skipped]
       properties:
         results:
           type: array
@@ -1399,11 +1408,12 @@ components:
               token: { type: string }
               status:
                 type: string
-                enum: [sent, invalid, retry]
-                description: '`sent`: Firebase took it. `invalid`: the token no longer exists; forget it. `retry`: not sent this time; send it again later.'
+                enum: [sent, invalid, retry, skipped]
+                description: '`sent`: Firebase or Apple took it. `invalid`: the token no longer exists; forget it. `retry`: not sent this time; send it again later. `skipped` (136.46): an APNs token while the app has no APNs key; keep it, do not retry.'
         sent: { type: integer, minimum: 0 }
         invalid: { type: integer, minimum: 0 }
         retry: { type: integer, minimum: 0 }
+        skipped: { type: integer, minimum: 0, description: 136.46 APNs tokens not sent because the app has no APNs key yet. }
 
     MediaLinks:
       type: object

@@ -79,7 +79,7 @@ add_filter(
 			$token     = (string) $entry['token'];
 			$results[] = array(
 				'token'  => $token,
-				'status' => 0 === strpos( $token, 'relay-ok-' ) ? 'sent' : ( 0 === strpos( $token, 'relay-gone-' ) ? 'invalid' : 'retry' ),
+				'status' => 0 === strpos( $token, 'relay-ok-' ) ? 'sent' : ( 0 === strpos( $token, 'relay-gone-' ) ? 'invalid' : ( 0 === strpos( $token, 'relay-apns-' ) ? 'skipped' : 'retry' ) ),
 			);
 		}
 		return $respond(
@@ -151,10 +151,23 @@ $check( 'relay: a stored status from before 0.4.48 means the site\'s own Firebas
 $checked = $license->check();
 $check( 'relay: the license check keeps push: yallapp', is_array( $checked ) && 'yallapp' === ( $checked['push'] ?? '' ) && $push->relayed(), $checked );
 $check( 'relay: push is set up with no Firebase file on the site', $push->is_configured() );
+// 136.46 The app's iPhones register their APNs token while Yallapp sends the notifications.
+$config = static function () {
+	$request = new WP_REST_Request( 'GET', '/yallapp/v1/config' );
+	$request->set_query_params(
+		array(
+			'platform'    => 'ios',
+			'app_version' => '1.0.0',
+		)
+	);
+	return rest_do_request( $request )->get_data();
+};
+$features = $config()['features'] ?? array();
+$check( 'relay: the app config says features.apns while Yallapp sends', true === ( $features['apns'] ?? null ), $features );
 
 // Three people with phones: one delivered, one gone, one to send again.
 $people = array();
-foreach ( array( 'relay-ok-1', 'relay-gone-1', 'relay-busy-1' ) as $index => $token ) {
+foreach ( array( 'relay-ok-1', 'relay-gone-1', 'relay-busy-1', 'relay-apns-1' ) as $index => $token ) {
 	$user = wp_insert_user(
 		array(
 			'user_login' => 'relay' . $index . wp_rand( 1000, 9999 ),
@@ -171,7 +184,8 @@ foreach ( array( 'relay-ok-1', 'relay-gone-1', 'relay-busy-1' ) as $index => $to
 			'app_version' => '1.0.0',
 		)
 	);
-	$plugin->devices()->set_push( $row, $token, array( 'announcements' => true ) );
+	// 136.46 The iPhone registered its APNs token.
+	$plugin->devices()->set_push( $row, $token, array( 'announcements' => true ), 0 === strpos( $token, 'relay-apns-' ) ? 'apns' : 'fcm' );
 	$people[] = (int) $user;
 }
 
@@ -190,9 +204,10 @@ $tokens       = array_column( (array) ( $last['body']['tokens'] ?? array() ), 't
 sort( $tokens );
 $check( 'relay: the batch goes to POST /push/send, not to Firebase', 1 === count( $requests ) && '/api/v1/push/send' === substr( $last['url'], -17 ) && 'POST' === $last['method'] && ! $google, array( $requests, $google ) );
 $check(
-	'relay: with the license key, the site, the tokens as fcm, the notification and the data',
+	'relay: with the license key, the site, each token with its provider, the notification and the data',
 	$key === ( $last['body']['license_key'] ?? '' ) && ! empty( $last['body']['site_url'] ) && YALLAPP_VERSION === ( $last['body']['plugin_version'] ?? '' )
-		&& array( 'relay-busy-1', 'relay-gone-1', 'relay-ok-1' ) === $tokens && array( 'fcm' ) === array_values( array_unique( array_column( $last['body']['tokens'], 'provider' ) ) )
+		&& array( 'relay-apns-1', 'relay-busy-1', 'relay-gone-1', 'relay-ok-1' ) === $tokens
+		&& array( 'relay-apns-1' => 'apns', 'relay-busy-1' => 'fcm', 'relay-gone-1' => 'fcm', 'relay-ok-1' => 'fcm' ) === ( static function ( $rows ) { $by = array_column( $rows, 'provider', 'token' ); ksort( $by ); return $by; } )( $last['body']['tokens'] )
 		&& $notification === ( $last['body']['notification'] ?? null ) && $data === ( $last['body']['data'] ?? null ),
 	$last['body'] ?? null
 );
@@ -201,11 +216,11 @@ $check( 'relay: the plugin waits up to 25 seconds', 25 === (int) $last['timeout'
 $check( 'relay: the delivered token counts as sent', 1 === $sent, $sent );
 $left = array_column( $plugin->devices()->push_targets( $people, 'announcements' ), 'token' );
 sort( $left );
-$check( 'relay: an invalid token is forgotten', array( 'relay-busy-1', 'relay-ok-1' ) === $left, $left );
+$check( 'relay: an invalid token is forgotten, a skipped iPhone token kept', array( 'relay-apns-1', 'relay-busy-1', 'relay-ok-1' ) === $left, $left );
 $queued = $retries();
 $check(
 	'relay: a token to retry is sent again from cron a minute later, once',
-	1 === count( $queued ) && array( array( 'relay-busy-1' ), $notification, $data, 1 ) === $queued[0]['args'] && $queued[0]['at'] >= time() + 50 && $queued[0]['at'] <= time() + 70,
+	1 === count( $queued ) && array( array( array( 'token' => 'relay-busy-1', 'provider' => 'fcm' ) ), $notification, $data, 1 ) === $queued[0]['args'] && $queued[0]['at'] >= time() + 50 && $queued[0]['at'] <= time() + 70,
 	$queued
 );
 
@@ -230,13 +245,13 @@ $reply = $respond(
 $count = count( $requests );
 $sent  = $push->send_batch( $people, 'announcements', $notification, $data );
 $queued = $retries();
-$check( 'relay: over the limit nothing counts as sent and the batch waits for Retry-After', 0 === $sent && $count + 1 === count( $requests ) && 1 === count( $queued ) && 2 === count( $queued[0]['args'][0] ) && $queued[0]['at'] >= time() + 110, $queued );
+$check( 'relay: over the limit nothing counts as sent and the batch waits for Retry-After', 0 === $sent && $count + 1 === count( $requests ) && 1 === count( $queued ) && 3 === count( $queued[0]['args'][0] ) && $queued[0]['at'] >= time() + 110, $queued );
 $clear_cron();
 
 // Can't reach Yallapp: sent again later, nothing forgotten.
 $reply = new WP_Error( 'http_request_failed', 'Operation timed out after 25001 milliseconds' );
 $sent  = $push->send_batch( $people, 'announcements', $notification, $data );
-$check( 'relay: a timeout sends the batch again later and forgets no one', 0 === $sent && 1 === count( $retries() ) && 2 === count( $plugin->devices()->push_targets( $people, 'announcements' ) ), $retries() );
+$check( 'relay: a timeout sends the batch again later and forgets no one', 0 === $sent && 1 === count( $retries() ) && 3 === count( $plugin->devices()->push_targets( $people, 'announcements' ) ), $retries() );
 $clear_cron();
 
 // The app went back to its own Firebase: the license is checked soon and the batch retried.
@@ -282,6 +297,8 @@ ob_start();
 $page->render();
 $html = (string) ob_get_clean();
 $check( 'relay: with its own Firebase the file field is back', false === strpos( $html, 'Notifications are sent by Yallapp' ) && false !== strpos( $html, 'name="yallapp_firebase"' ) );
+$features = $config()['features'] ?? array();
+$check( 'relay: with its own Firebase the app config has no features.apns', false === ( $features['apns'] ?? null ), $features );
 
 // Leave the site as it was.
 $clear_cron();
