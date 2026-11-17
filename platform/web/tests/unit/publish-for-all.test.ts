@@ -470,6 +470,9 @@ describe("138.6 the publishing accounts", () => {
     ]);
     // With the client's own Firebase the key goes in their Firebase project: not a step here.
     expect(apnsKeyState({ ...iphone, pushSetup: null })).toBeNull();
+    // 136.46 A WordPress site in Yallapp's mode takes the key once its plugin relays the pushes.
+    expect(apnsKeyState({ ...iphone, backend: "wordpress" })).toBeNull();
+    expect(apnsKeyState({ ...iphone, backend: "wordpress", pushRelayAt: NOW })).toBe("todo");
     for (const lang of ["ar", "tr"] as const) for (const id of ACCOUNT_STEP_IDS) expect(ACCOUNT_STEP_TEXT[lang][id], `${lang} ${id}`).toBeTruthy();
   });
 });

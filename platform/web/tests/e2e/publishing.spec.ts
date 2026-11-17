@@ -341,7 +341,7 @@ test("138 the other Android stores are the client's own, and each app gets one p
   // Google Play is live already (the team marked it): only the steps still to do.
   expect(assigned.text).not.toContain("Send the app's first Google Play release by hand");
   expect(assigned.text).toContain("Answer App Privacy in App Store Connect for the app's first iPhone version");
-  // 136.20 A WordPress app's iPhone pushes go through its own Firebase: no APNs key step for the account.
+  // 136.20 A WordPress site that doesn't relay keeps its own Firebase: no APNs key step for the account.
   expect(assigned.text).not.toContain("APNs");
   await own.reload();
   await expect(own.getByText(`you invite our team email, ${accountA}`)).toBeVisible();

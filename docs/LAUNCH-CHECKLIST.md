@@ -1831,3 +1831,31 @@ and nothing calls Google.
       else: no setting, no Apple or Google account step. Each client
       uploads their own APNs key once under "iPhone notifications"; the
       page shows what Apple answered.
+
+## Phase 136: Notifications sent by Yallapp for WordPress apps (136.40–136.44)
+
+Only once Phase 1 (Yallapp's Firebase pool, keyless sending) is live.
+
+- [ ] Migration `0140_push_relay` runs with the others at deploy (after
+      Phase 1's 0138 and Phase 2's 0139).
+- [ ] Release plugin **0.4.49** in Admin › Plugin releases. Older plugins
+      ignore `LicenseStatus.push`; the Publishing step offers "Yallapp sets
+      up notifications" to a WordPress app only once its site reports 0.4.49
+      or later, so nothing to switch by hand.
+- [ ] On a test WordPress academy in Yallapp's mode, with an Android phone
+      signed in: Settings › Notifications says "Notifications are sent by
+      Yallapp" with no Firebase file; Send a manual notification reaches the
+      phone; uninstalling the app and sending again makes the token
+      disappear from the site (`invalid`).
+- [ ] 136.46 On that academy with an iPhone: before the APNs key is saved,
+      a notification leaves the iPhone's token on the site (`skipped`);
+      after saving it under Notifications › iPhone notifications, the next
+      notification reaches the iPhone straight from Apple.
+- [ ] Switch that app back to its own Firebase in the dashboard: within a
+      minute the site's settings show the Firebase file field again, and a
+      notification sent meanwhile still arrives (409, then the license
+      check, then the retry with the site's own key).
+- [ ] Update the privacy page (yallapp.com.tr/privacy) and the client terms:
+      for apps in Yallapp's mode, push tokens and notification texts of
+      WordPress sites pass through Yallapp to Firebase (Google) and are not
+      stored (design §4, "Privacy text").

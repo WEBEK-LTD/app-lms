@@ -2840,12 +2840,12 @@ export class MysqlStore implements DataStore {
     );
   }
 
-  async hitRateLimit(bucket: string, windowStart: number, now: Date): Promise<number> {
+  async hitRateLimit(bucket: string, windowStart: number, now: Date, by = 1): Promise<number> {
     // Assignments run left to right: `hits` must read the old window_start.
     await this.run((db) =>
       db.execute(
-        sql`insert into rate_limits (bucket, window_start, hits, updated_at) values (${bucket}, ${windowStart}, 1, ${now})
-            on duplicate key update hits = if(window_start = values(window_start), hits + 1, 1),
+        sql`insert into rate_limits (bucket, window_start, hits, updated_at) values (${bucket}, ${windowStart}, ${by}, ${now})
+            on duplicate key update hits = if(window_start = values(window_start), hits + values(hits), values(hits)),
             window_start = values(window_start), updated_at = values(updated_at)`,
       ),
     );
@@ -2858,7 +2858,7 @@ export class MysqlStore implements DataStore {
     const rows = await this.run((db) =>
       db.select({ hits: schema.rateLimits.hits }).from(schema.rateLimits).where(eq(schema.rateLimits.bucket, bucket)).limit(1),
     );
-    return rows[0]?.hits ?? 1;
+    return rows[0]?.hits ?? by;
   }
 
   async peekRateLimit(bucket: string, windowStart: number): Promise<number> {

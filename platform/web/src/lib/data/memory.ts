@@ -731,13 +731,13 @@ export class MemoryStore implements DataStore {
     return true;
   }
 
-  async hitRateLimit(bucket: string, windowStart: number): Promise<number> {
+  async hitRateLimit(bucket: string, windowStart: number, _now?: Date, by = 1): Promise<number> {
     const entry = this.rateLimits.get(bucket);
     if (!entry || entry.windowStart !== windowStart) {
-      this.rateLimits.set(bucket, { windowStart, hits: 1 });
-      return 1;
+      this.rateLimits.set(bucket, { windowStart, hits: by });
+      return by;
     }
-    entry.hits += 1;
+    entry.hits += by;
     return entry.hits;
   }
 

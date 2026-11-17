@@ -13,8 +13,9 @@ import { apnsKeyApplies, savedApnsKey } from "../integrations/apns-key";
  *   version went to App Review.
  * - The iPhone notifications key (APNs .p8), made once in the client's Apple
  *   team: done once the app has it saved (136.20, lib/integrations/apns-key.ts).
- *   Only for an iPhone app whose notifications Yallapp sets up; with the
- *   client's own Firebase the key goes in their Firebase project, not here.
+ *   Only for an iPhone app whose notifications Yallapp sets up (on the
+ *   hosted API, or a WordPress site that relays); with the client's own
+ *   Firebase the key goes in their Firebase project, not here.
  */
 
 export const ACCOUNT_STEP_IDS = ["play_first_release", "app_privacy", "apns_key"] as const;
@@ -49,8 +50,9 @@ export const ACCOUNT_STEP_TEXT: Record<"en" | "ar" | "tr", Record<AccountStepId,
 /**
  * The iPhone notifications key's state: done once the app's key is saved
  * (`savedApnsKey`), to do while it isn't; null when the app doesn't take
- * one (no iPhone app, not on the hosted API, or its own Firebase: then the
- * key goes in the client's Firebase project).
+ * one (`apnsKeyApplies`: no iPhone app, its own API, a WordPress site that
+ * doesn't relay, or its own Firebase: then the key goes in the client's
+ * Firebase project).
  */
 export function apnsKeyState(app: App): AccountStepState | null {
   if (savedApnsKey(app)) return "done";
