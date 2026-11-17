@@ -1,7 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { PageGroup } from "@/components/page-kit";
-import { Notice, PageHeader, btn } from "@/components/ui";
+import { KitCallout, KitFold, KitGroup, KitHeader, KitPage, KitSection, KitSettingRow, KitSettings, KitStatus, kit } from "@/components/studio-page";
 import { localePath } from "@/i18n/paths";
 import { richText } from "@/i18n/rich";
 import { dashboardText, type DashboardText } from "@/lib/dashboard-lang";
@@ -24,7 +23,6 @@ export async function generateMetadata(): Promise<Metadata> {
   return { title: (await dashboardText()).t("signin.title") };
 }
 
-const sectionClass = "flex min-w-0 flex-col gap-4 rounded-2xl border border-line bg-white p-5 sm:p-6";
 const GUIDE_DOC = "/docs/my-own-api";
 const GUIDE_SIGN_IN = "#the-sign-in-flow-simply";
 
@@ -40,15 +38,18 @@ function advertised(signIn: NonNullable<NonNullable<App["hostedSettings"]>["apiS
 /** 56 A saved ISO date ("31 Mar 2027") in the dashboard's language. */
 const dayOf = (text: DashboardText, iso: string) => text.date(new Date(iso));
 
-/** 34 Own API apps: their API signs people in, or Yallapp does. */
+/** 34 Own API apps: their API signs people in, or Yallapp does. 132.136 A settings row, its choice in sight. */
 function ProviderSection({ app, text }: { app: App; text: DashboardText }) {
+  const yallapp = yallappSignsIn(app);
   return (
-    <section aria-labelledby="h-provider" className={sectionClass}>
-      <h2 id="h-provider" className="m-0 text-lg font-bold">
-        {text.t("signin.whoSigns")}
-      </h2>
-      <SignInProviderForm current={yallappSignsIn(app) ? "yallapp" : "api"} />
-    </section>
+    <KitSettingRow
+      titleId="h-provider"
+      icon="key"
+      title={text.t("signin.whoSigns")}
+      status={<KitStatus tone="info">{yallapp ? text.t("signin.providerYallapp") : text.t("signin.providerApi")}</KitStatus>}
+    >
+      <SignInProviderForm current={yallapp ? "yallapp" : "api"} />
+    </KitSettingRow>
   );
 }
 
@@ -57,10 +58,7 @@ function DeveloperSection({ app, webhooks, text }: { app: App; webhooks: ApiWebh
   const { t, k, lang } = text;
   const path = signedInPath(app.appType);
   return (
-    <section aria-labelledby="h-developer" className={sectionClass}>
-      <h2 id="h-developer" className="m-0 text-lg font-bold">
-        {t("signin.forDeveloper")}
-      </h2>
+    <KitSection titleId="h-developer" title={t("signin.forDeveloper")}>
       <DeveloperTokens
         jwksUrl={jwksUrl(appUrl(), app.id)}
         issuer={tokenIssuer(appUrl())}
@@ -69,25 +67,25 @@ function DeveloperSection({ app, webhooks, text }: { app: App; webhooks: ApiWebh
         tryUrl={path && app.apiBaseUrl ? `${app.apiBaseUrl.replace(/\/+$/, "")}${path}` : null}
       />
       {/* 49 Account deletions sent to the client's API, signed, with their last try. */}
-      <div className="flex flex-col gap-2" aria-labelledby="h-deletions">
+      <div className="flex flex-col gap-2 border-t border-(--sp-line-soft) pt-5" aria-labelledby="h-deletions">
         <h3 id="h-deletions" className="m-0 text-[16px] font-bold">
           {t("signin.deletions")}
         </h3>
-        <p className="m-0 text-[15px] leading-relaxed text-ink-4">
+        <p className="m-0 text-sm leading-relaxed text-(--sp-muted)">
           {richText(t("signin.deletionsText"), {
             code: () => <code dir="ltr">POST {app.apiBaseUrl ? webhookUrl(app.apiBaseUrl) : WEBHOOK_PATH}</code>, // i18n-ok: code
             del: () => <code dir="ltr">DELETE /me</code>, // i18n-ok: code
           })}
         </p>
         {webhooks.length === 0 ? (
-          <p className="m-0 text-sm text-muted">{t("signin.noDeletions")}</p>
+          <p className="m-0 text-sm text-(--sp-muted)">{t("signin.noDeletions")}</p>
         ) : (
-          <ul className="m-0 flex list-none flex-col gap-1.5 p-0 text-[15px]" data-testid="account-deletions">
+          <ul className="m-0 flex list-none flex-col p-0 text-[15px]" data-testid="account-deletions">
             {webhooks.map((w) => (
-              <li key={w.id} className="flex flex-wrap gap-x-3">
-                <span className="text-muted">{dayOf(text, w.createdAt.toISOString())}</span>
+              <li key={w.id} className="flex flex-wrap items-center gap-x-3 gap-y-1 border-t border-(--sp-line-soft) py-2.5 first:border-t-0">
+                <span className="text-(--sp-muted)">{dayOf(text, w.createdAt.toISOString())}</span>
                 <span>{richText(t("signin.deletionUser"), { code: () => <code>{w.subject}</code> })}</span>
-                <span className={w.status === "delivered" ? "text-success" : w.status === "failed" ? "text-danger" : "text-ink-4"}>{k(webhookStateText(w))}</span>
+                <span className={w.status === "delivered" ? "text-success" : w.status === "failed" ? "text-danger" : "text-(--sp-muted)"}>{k(webhookStateText(w))}</span>
                 {w.status === "failed" ? <ResendWebhookForm id={w.id} /> : null}
               </li>
             ))}
@@ -97,7 +95,7 @@ function DeveloperSection({ app, webhooks, text }: { app: App; webhooks: ApiWebh
           {t("signin.checkNotice")}
         </Link>
       </div>
-    </section>
+    </KitSection>
   );
 }
 
@@ -107,45 +105,43 @@ function CustomApiSignIn({ app, text }: { app: App; text: DashboardText }) {
   const config = { config: () => <code>GET /config</code> }; // i18n-ok: code
   const saved = app.hostedSettings?.apiSignIn ?? null;
   const current = saved && app.apiBaseUrl && saved.baseUrl === app.apiBaseUrl.replace(/\/+$/, "") ? saved : null;
+  // 132.136 The premium kit: who signs people in, what the API offers and the app's email as settings rows.
   return (
-    <div className="flex flex-col gap-6">
-      <PageHeader title={t("signin.title")} description={richText(t("signin.customIntro"), { ...config, methods: () => <code>auth.methods</code> })} />
-      <PageGroup title={t("signin.groupSignIn")}>
-      <ProviderSection app={app} text={text} />
-      <section aria-labelledby="h-api-sign-in" className={sectionClass}>
-        <h2 id="h-api-sign-in" className="m-0 text-lg font-bold">
-          {t("signin.apiOffers")}
-        </h2>
-        {current ? (
-          <>
-            <ul className="m-0 flex flex-col gap-1.5 ps-5 text-[15px]">
-              {advertised(current, text).map((line) => (
-                <li key={line}>{line}</li>
-              ))}
-            </ul>
-            <p className="m-0 text-sm text-muted">{t("signin.lastCheck", { date: dayOf(text, current.checkedAt) })}</p>
-          </>
-        ) : (
-          <p className="m-0 text-[15px] leading-relaxed text-ink-4">{richText(t("signin.runCheck"), config)}</p>
-        )}
-        <div className="flex flex-wrap gap-3">
-          <Link href="/dashboard/setup?step=website" className={`${btn.secondary} h-10 px-4 text-sm`}>
-            {t("signin.checkApi")}
-          </Link>
-          <Link href={localePath(lang, GUIDE_DOC) + GUIDE_SIGN_IN} className={`${btn.secondary} h-10 px-4 text-sm`}>
-            {t("signin.guideSignIn")}
-          </Link>
-        </div>
-      </section>
-      {/* 24 An own API sends its own emails. */}
-      <section aria-labelledby="h-app-mail" className={sectionClass}>
-        <h2 id="h-app-mail" className="m-0 text-lg font-bold">
-          {t("signin.appEmail")}
-        </h2>
-        <p className="m-0 text-[15px] leading-relaxed text-ink-4">{t("signin.apiOwnEmail")}</p>
-      </section>
-      </PageGroup>
-    </div>
+    <KitPage>
+      <KitHeader icon="login" title={t("signin.title")} description={richText(t("signin.customIntro"), { ...config, methods: () => <code>auth.methods</code> })} />
+      {/* The same shape as the page below up to "Who signs people in": its form stays in place, with its message, when the choice changes. */}
+      <KitGroup title={t("signin.groupSignIn")}>
+        <KitSettings>
+          <ProviderSection app={app} text={text} />
+          <KitSettingRow
+            titleId="h-api-sign-in"
+            icon="code"
+            title={t("signin.apiOffers")}
+            description={current ? t("signin.lastCheck", { date: dayOf(text, current.checkedAt) }) : richText(t("signin.runCheck"), config)}
+            action={
+              <>
+                <Link href="/dashboard/setup?step=website" className={kit.row}>
+                  {t("signin.checkApi")}
+                </Link>
+                <Link href={localePath(lang, GUIDE_DOC) + GUIDE_SIGN_IN} className={kit.row}>
+                  {t("signin.guideSignIn")}
+                </Link>
+              </>
+            }
+          >
+            {current ? (
+              <ul className="m-0 flex flex-col gap-1.5 ps-5 text-[15px]">
+                {advertised(current, text).map((line) => (
+                  <li key={line}>{line}</li>
+                ))}
+              </ul>
+            ) : null}
+          </KitSettingRow>
+          {/* 24 An own API sends its own emails. */}
+          <KitSettingRow titleId="h-app-mail" icon="mail" title={t("signin.appEmail")} description={t("signin.apiOwnEmail")} />
+        </KitSettings>
+      </KitGroup>
+    </KitPage>
   );
 }
 
@@ -182,14 +178,17 @@ export default async function AppSignInPage() {
   const ownApi = app?.backend === "custom_api";
   if (!app || (app.backend !== "hosted" && app.backend !== "wordpress" && app.backend !== "setup_requested" && !ownApi)) {
     return (
-      <PageHeader
-        title={t("signin.title")}
-        description={
-          <>
-            {t("signin.chooseSourceFirst")} <Link href="/dashboard/setup">{t("signin.backToSetup")}</Link>
-          </>
-        }
-      />
+      <KitPage>
+        <KitHeader
+          icon="login"
+          title={t("signin.title")}
+          description={
+            <>
+              {t("signin.chooseSourceFirst")} <Link href="/dashboard/setup">{t("signin.backToSetup")}</Link>
+            </>
+          }
+        />
+      </KitPage>
     );
   }
   // 19 An app waiting for the WordPress site our team sets up chooses now; it applies once the site is ready.
@@ -207,95 +206,116 @@ export default async function AppSignInPage() {
   const source = sourceName(app);
   const note = emailSignInNote(app);
   const studio = !wordpress && passwordSignInPossible(app);
+  const ways = studio ? Object.entries(studioWays(app)).filter(([name, on]) => name !== "recovery" && on === "on").length : 0;
+  const choice = signInMethodsChoice(methods);
+  const rules = wordpress ? null : hostedSettingsValues(hostedSettings(app));
+  // 132.136 The premium kit: how people sign in, its choice in sight; the rules, the WhatsApp number and the email each a row with its state as a pill, their forms folded.
   return (
-    <div className="flex flex-col gap-6">
-      {/* The page kit: the header, then the settings in labelled groups: signing in, then the codes and emails. */}
-      <PageHeader title={t("signin.title")} description={wordpress ? t("signin.introWordpress") : ownApi ? t("signin.introOwnApi") : t("signin.introHosted")} />
+    <KitPage>
+      <KitHeader icon="login" title={t("signin.title")} description={wordpress ? t("signin.introWordpress") : ownApi ? t("signin.introOwnApi") : t("signin.introHosted")} />
       {ownApi ? (
-        <PageGroup title={t("signin.groupApi")}>
-          <ProviderSection app={app} text={text} />
+        <KitGroup title={t("signin.groupApi")}>
+          <KitSettings>
+            <ProviderSection app={app} text={text} />
+          </KitSettings>
           <DeveloperSection app={app} webhooks={await (await getStore()).listApiWebhooks(app.id, 20, ["account.deleted"])} text={text} />
-        </PageGroup>
+        </KitGroup>
       ) : null}
-      {waiting ? <Notice icon="hourglass_top">{t("signin.waiting")}</Notice> : null}
+      {waiting ? <KitCallout icon="hourglass_top">{t("signin.waiting")}</KitCallout> : null}
 
       {emailOff ? (
-        <Notice tone="warn" icon="warning">
+        <KitCallout tone="warn" icon="warning">
           {source ? t("signin.emailOffNamed", { source }) : t("signin.emailOffUnnamed")}
           {emailOnlyUsers > 0 ? ` ${t("signin.emailOnlyUsers", { count: emailOnlyUsers })}` : ""}{" "}
           {richText(t("signin.emailAgain"), { link: (chunk) => <Link href="/dashboard/setup?step=website">{chunk}</Link> })}
-        </Notice>
+        </KitCallout>
       ) : null}
 
-      <PageGroup title={t("signin.groupSignIn")}>
-      <section aria-labelledby="h-methods" className={sectionClass}>
-        <h2 id="h-methods" className="m-0 text-lg font-bold">
-          {t("signin.howSignIn")}
-        </h2>
-        {/* 118 Yallapp Studio apps: codes and passwords, any of them. */}
-        {studio ? (
-          <StudioSignInForm current={studioWays(app)} emailPossible={emailSignInPossible(app)} note={note ? k(note) : null} />
-        ) : (
-        <SignInMethodsForm
-          current={signInMethodsChoice(methods)}
-          wordpress={wordpress}
-          emailPossible={emailSignInPossible(app)}
-          note={note ? k(note) : null}
-          chosen={wordpress ? chosenSignInMethods(app) !== null : true}
-          emailWay={chosenEmailSignIn(app) ?? "password"}
-          emailWayChosen={chosenEmailSignIn(app) !== null}
-        />
-        )}
-      </section>
+      <KitGroup title={t("signin.groupSignIn")}>
+        <KitSettings>
+          <KitSettingRow
+            titleId="h-methods"
+            icon="login"
+            title={t("signin.howSignIn")}
+            status={<KitStatus tone="info">{studio ? t("signin.waysCount", { count: ways }) : t(choice === "both" ? "signin.wayBoth" : choice === "email" ? "signin.wayEmail" : "signin.wayPhone")}</KitStatus>}
+          >
+            {/* 118 Yallapp Studio apps: codes and passwords, any of them. */}
+            {studio ? (
+              <StudioSignInForm current={studioWays(app)} emailPossible={emailSignInPossible(app)} note={note ? k(note) : null} />
+            ) : (
+              <SignInMethodsForm
+                current={choice}
+                wordpress={wordpress}
+                emailPossible={emailSignInPossible(app)}
+                note={note ? k(note) : null}
+                chosen={wordpress ? chosenSignInMethods(app) !== null : true}
+                emailWay={chosenEmailSignIn(app) ?? "password"}
+                emailWayChosen={chosenEmailSignIn(app) !== null}
+              />
+            )}
+          </KitSettingRow>
 
-      {wordpress ? null : (
-        <section aria-labelledby="h-rules" className={sectionClass}>
-          <h2 id="h-rules" className="m-0 text-lg font-bold">
-            {t("signin.rules")}
-          </h2>
-          <AppSignInForm current={hostedSettingsValues(hostedSettings(app))} emailOnly={methods.length === 1 && methods[0] === "email"} />
-        </section>
-      )}
-      </PageGroup>
+          {rules ? (
+            <KitSettingRow
+              titleId="h-rules"
+              icon="tune"
+              title={t("signin.rules")}
+              status={rules.signupAllowed === "on" ? <KitStatus tone="success">{t("signin.signupsOpen")}</KitStatus> : <KitStatus tone="neutral">{t("signin.signupsClosed")}</KitStatus>}
+              description={t("signin.rulesLine")}
+            >
+              <KitFold summary={t("signin.rulesOpen")} icon="tune" data-fold="rules">
+                <AppSignInForm current={rules} emailOnly={methods.length === 1 && methods[0] === "email"} />
+              </KitFold>
+            </KitSettingRow>
+          ) : null}
+        </KitSettings>
+      </KitGroup>
 
-      <PageGroup title={t("signin.groupCodes")}>
-      <section aria-labelledby="h-whatsapp" className={sectionClass}>
-        <h2 id="h-whatsapp" className="m-0 text-lg font-bold">
-          {t("signin.whatsappTitle")}
-        </h2>
-        {failedAt ? (
-          <Notice tone="warn" icon="warning" role="status">
-            {t("signin.whatsappFailed", { date: dayOf(text, failedAt) })}
-          </Notice>
-        ) : null}
-        <AppWhatsappForms
-          connected={sender ? { keyLast4: sender.keyLast4, instanceId: sender.instanceId } : null}
-          defaultPhone={client.whatsapp ?? ""}
-          wordpress={wordpress}
-        />
-      </section>
+      <KitGroup title={t("signin.groupCodes")}>
+        <KitSettings>
+          <KitSettingRow
+            titleId="h-whatsapp"
+            icon="chat"
+            title={t("signin.whatsappTitle")}
+            status={failedAt ? <KitStatus tone="warn">{t("signin.failedState")}</KitStatus> : sender ? <KitStatus tone="success">{t("signin.ownNumber")}</KitStatus> : <KitStatus tone="neutral">{t("signin.yallappNumber")}</KitStatus>}
+          >
+            {failedAt ? (
+              <KitCallout tone="warn" icon="warning" role="status">
+                {t("signin.whatsappFailed", { date: dayOf(text, failedAt) })}
+              </KitCallout>
+            ) : null}
+            <AppWhatsappForms
+              connected={sender ? { keyLast4: sender.keyLast4, instanceId: sender.instanceId } : null}
+              defaultPhone={client.whatsapp ?? ""}
+              wordpress={wordpress}
+              fold={{ summary: sender ? t("signin.whatsappChange") : t("signin.whatsappOwnFold"), open: failedAt !== null }}
+            />
+          </KitSettingRow>
 
-      <section aria-labelledby="h-app-mail" className={sectionClass}>
-        <h2 id="h-app-mail" className="m-0 text-lg font-bold">
-          {t("signin.appEmail")}
-        </h2>
-        {mailFailedAt ? (
-          <Notice tone="warn" icon="warning" role="status">
-            {app.hostedSettings?.mailFailedReason
-              ? t("signin.mailFailedReason", { date: dayOf(text, mailFailedAt), reason: k(app.hostedSettings.mailFailedReason) })
-              : t("signin.mailFailed", { date: dayOf(text, mailFailedAt) })}
-          </Notice>
-        ) : null}
-        <AppMailForms
-          current={appMailFormValues(app)}
-          saved={mailServer ? { host: mailServer.host, username: mailServer.username, fromName: mailServer.fromName, fromAddress: mailServer.fromAddress } : null}
-          defaultTestTo={user.email}
-          production={isProduction()}
-          wordpress={wordpress}
-        />
-      </section>
-
-      </PageGroup>
-    </div>
+          <KitSettingRow
+            titleId="h-app-mail"
+            icon="mail"
+            title={t("signin.appEmail")}
+            status={mailFailedAt ? <KitStatus tone="warn">{t("signin.failedState")}</KitStatus> : mailServer ? <KitStatus tone="success">{t("signin.ownServerState")}</KitStatus> : <KitStatus tone="neutral">{t("signin.yallappAddress")}</KitStatus>}
+          >
+            {mailFailedAt ? (
+              <KitCallout tone="warn" icon="warning" role="status">
+                {app.hostedSettings?.mailFailedReason
+                  ? t("signin.mailFailedReason", { date: dayOf(text, mailFailedAt), reason: k(app.hostedSettings.mailFailedReason) })
+                  : t("signin.mailFailed", { date: dayOf(text, mailFailedAt) })}
+              </KitCallout>
+            ) : null}
+            <AppMailForms
+              current={appMailFormValues(app)}
+              saved={mailServer ? { host: mailServer.host, username: mailServer.username, fromName: mailServer.fromName, fromAddress: mailServer.fromAddress } : null}
+              defaultTestTo={user.email}
+              production={isProduction()}
+              wordpress={wordpress}
+              fold={{ summary: mailServer ? t("signin.mailChange") : t("signin.mailOwnFold"), open: mailFailedAt !== null }}
+            />
+          </KitSettingRow>
+        </KitSettings>
+      </KitGroup>
+    </KitPage>
   );
 }

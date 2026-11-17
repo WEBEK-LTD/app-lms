@@ -2,8 +2,9 @@ import type { Metadata } from "next";
 import { signOutAllPhonesAction, signOutPhoneAction } from "@/app/actions/owner-devices";
 import { SubmitButton } from "@/components/form";
 import { Icon } from "@/components/icon";
-import { KitCallout, KitEmpty, KitHeader, KitHero, KitMore, KitNext, KitPage, KitSection, KitStat, KitStatus, KitThumb, kit } from "@/components/studio-page";
-import { KitInspectorFacts, KitInspectorHead, KitTable, KitTableRow } from "@/components/studio-page/table";
+import { KitCallout, KitEmpty, KitHeader, KitHero, KitMore, KitNext, KitPage, KitStat, KitStatus, KitThumb, kit } from "@/components/studio-page";
+import { KitInspectorBody, KitInspectorFacts, KitInspectorHead } from "@/components/studio-page/parts";
+import { KitTable } from "@/components/studio-page/table";
 import { requireClient } from "@/lib/auth/session";
 import { dashboardText } from "@/lib/dashboard-lang";
 import { getStore } from "@/lib/data";
@@ -73,58 +74,58 @@ export default async function PhonesPage({ searchParams }: PageProps<"/dashboard
             }
             next={<KitNext icon="lock">{t("owner.passwordNote")}</KitNext>}
           />
-          <KitSection titleId="h-phones" title={t("owner.count", { count: devices.length })} flush>
-            <KitTable
-              label={t("owner.title")}
-              closeLabel={t("common.close")}
-              media
-              name={t("owner.colPhone")}
-              columns={[
-                { label: t("owner.colSystem"), width: "150px", wide: true },
-                { label: t("owner.colLastUsed"), width: "150px" },
-              ]}
-              end={{ label: t("owner.colNotifications"), width: "150px" }}
-            >
-              {devices.map((device) => (
-                <KitTableRow
-                  key={device.id}
-                  id={device.id}
-                  data-device={device.id}
-                  media={<KitThumb icon={device.platform === "ios" ? "phone_iphone" : "smartphone"} size={40} />}
-                  name={
-                    <span className="min-w-0 truncate" dir="auto">
-                      {device.name}
-                    </span>
-                  }
-                  // The page's words first: the line takes its direction from them (Arabic right to left).
-                  line={t("owner.lastUsed", { date: date(device.lastSeenAt) })}
-                  cells={[system(device), date(device.lastSeenAt)]}
-                  end={device.pushToken ? <KitStatus tone="success">{t("owner.notifications")}</KitStatus> : <span className="text-[13px] text-(--sp-faint)">—</span>}
-                  inspector={{
-                    label: device.name,
-                    title: t("owner.colPhone"),
-                    footer: (
-                      <form action={signOutPhoneAction}>
-                        <input type="hidden" name="id" value={device.id} />
-                        <SubmitButton variant="danger" className="h-11 w-full">
-                          <Icon name="logout" size={18} />
-                          <span aria-hidden="true">{t("owner.signOut")}</span>
-                          <span className="sr-only">{t("owner.signOutNamed", { name: device.name })}</span>
-                        </SubmitButton>
-                      </form>
-                    ),
-                  }}
-                >
-                  <div className="flex flex-col gap-4" data-inspector-device={device.id}>
-                    <KitInspectorHead
-                      top={
-                        <span aria-hidden="true" className="flex h-12 w-12 items-center justify-center rounded-[14px] bg-(--sp-tile) text-(--sp-ink-2)">
-                          <Icon name={device.platform === "ios" ? "phone_iphone" : "smartphone"} size={24} />
-                        </span>
-                      }
-                      title={<bdi>{device.name}</bdi>}
-                      line={system(device)}
-                    />
+          <KitTable
+            label={t("owner.title")}
+            title={t("owner.count", { count: devices.length })}
+            titleId="h-phones"
+            columns={[
+              { label: t("owner.colPhone"), width: "minmax(0,1fr)" },
+              { label: t("owner.colSystem"), width: "150px", wide: true },
+              { label: t("owner.colLastUsed"), width: "150px", phone: "sub" },
+              { label: t("owner.colNotifications"), width: "150px", phone: "end" },
+            ]}
+            rows={devices.map((device) => ({
+              id: device.id,
+              name: device.name,
+              data: { "data-device": device.id },
+              cells: [
+                <span key="name" className="contents">
+                  <KitThumb icon={device.platform === "ios" ? "phone_iphone" : "smartphone"} size={40} />
+                  <span className="min-w-0 truncate text-[14.5px] font-bold" dir="auto">
+                    {device.name}
+                  </span>
+                </span>,
+                system(device),
+                // On a phone, under the name: the page's words first, so the line reads right to left in Arabic.
+                <span key="used">
+                  <span className="@min-[561px]/kit-page:hidden">{t("owner.lastUsed", { date: date(device.lastSeenAt) })}</span>
+                  <span className="@max-[560px]/kit-page:hidden">{date(device.lastSeenAt)}</span>
+                </span>,
+                device.pushToken ? (
+                  <KitStatus key="push" tone="success">
+                    {t("owner.notifications")}
+                  </KitStatus>
+                ) : (
+                  <span key="push" className="text-[13px] text-(--sp-faint)">
+                    —
+                  </span>
+                ),
+              ],
+              inspector: {
+                title: t("owner.colPhone"),
+                footer: (
+                  <form action={signOutPhoneAction}>
+                    <input type="hidden" name="id" value={device.id} />
+                    <SubmitButton variant="danger" className="h-11 w-full">
+                      <Icon name="logout" size={18} />
+                      <span aria-hidden="true">{t("owner.signOut")}</span>
+                      <span className="sr-only">{t("owner.signOutNamed", { name: device.name })}</span>
+                    </SubmitButton>
+                  </form>
+                ),
+                body: (
+                  <KitInspectorBody data-inspector-device={device.id}>
+                    <KitInspectorHead icon={device.platform === "ios" ? "phone_iphone" : "smartphone"} title={device.name} line={system(device)} />
                     <KitInspectorFacts
                       facts={[
                         [t("owner.colSystem"), system(device)],
@@ -134,11 +135,11 @@ export default async function PhonesPage({ searchParams }: PageProps<"/dashboard
                       ]}
                     />
                     <p className="m-0 text-[13px] leading-relaxed text-(--sp-muted)">{t("owner.passwordNote")}</p>
-                  </div>
-                </KitTableRow>
-              ))}
-            </KitTable>
-          </KitSection>
+                  </KitInspectorBody>
+                ),
+              },
+            }))}
+          />
         </>
       ) : (
         <div className={kit.card}>

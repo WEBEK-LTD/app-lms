@@ -2,8 +2,9 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { Icon } from "@/components/icon";
 import { Markdown } from "@/components/markdown";
-import { KitEmpty, KitHeader, KitHero, KitPage, KitSection, KitStat, KitStatus, kit } from "@/components/studio-page";
-import { KitInspectorHead, KitTable, KitTableRow } from "@/components/studio-page/table";
+import { KitEmpty, KitHeader, KitHero, KitPage, KitStat, KitStatus, kit } from "@/components/studio-page";
+import { KitInspectorHead } from "@/components/studio-page/parts";
+import { KitTable } from "@/components/studio-page/table";
 import { updateIcon } from "@/components/update-look";
 import { UpdatesSeen } from "@/components/updates-seen";
 import { requireClient } from "@/lib/auth/session";
@@ -88,70 +89,61 @@ export default async function UpdatesPage() {
               </>
             }
           />
-          <KitSection titleId="h-updates" title={t("nav.updatesCount", { count: updates.all.length })} flush>
-            <KitTable
-              label={t("nav.updates")}
-              closeLabel={t("common.close")}
-              media
-              name={t("nav.colTitle")}
-              columns={[{ label: t("nav.colDate"), width: "150px" }]}
-              end={{ label: t("nav.colKind"), width: "130px" }}
-              search={{ label: t("nav.updatesSearch"), noMatch: t("nav.updatesNoMatch") }}
-              groups={{ all: t("common.all"), items: kinds.map((kind) => ({ value: kind, label: words.kind(kind) })) }}
-            >
-              {updates.all.map((item) => {
-                const shown = itemWords(item, words);
-                const dir = shown.lang === "ar" ? "rtl" : "ltr";
-                return (
-                  <KitTableRow
-                    key={item.key}
-                    id={item.key}
-                    data-update={item.key}
-                    data-new={item.unread ? "" : undefined}
-                    text={`${shown.title} ${shown.body}`}
-                    group={item.kind}
-                    media={
-                      <span aria-hidden="true" className={`flex h-10 w-10 flex-none items-center justify-center rounded-xl bg-(--sp-tile) ${KIND_ICON[item.kind]}`}>
-                        <Icon name={updateIcon(item)} size={21} />
-                      </span>
-                    }
-                    name={
-                      <>
-                        <span lang={shown.lang} dir={dir} className="min-w-0 truncate">
-                          {shown.title}
-                        </span>
-                        {item.unread ? <NewBadge text={text} /> : null}
-                      </>
-                    }
-                    line={
-                      <>
-                        <time dateTime={item.at.toISOString()}>{text.date(item.at)}</time>
-                        {item.current ? null : ` · ${t("nav.ended")}`}
-                      </>
-                    }
-                    cells={[
-                      <span key="d" className="flex flex-col">
-                        <time dateTime={item.at.toISOString()}>{text.date(item.at)}</time>
-                        {item.app || !item.current ? (
-                          <span className="truncate text-[12.5px] text-(--sp-muted)">
-                            {[item.app, item.current ? null : t("nav.ended")].filter(Boolean).join(" · ")}
-                          </span>
-                        ) : null}
-                      </span>,
-                    ]}
-                    end={<KitStatus tone={KIND_TONE[item.kind]}>{words.kind(item.kind)}</KitStatus>}
-                    inspector={{ label: shown.title, title: words.kind(item.kind), footer: <ItemLink item={item} label={shown.linkLabel} text={text} /> }}
-                  >
-                    <article aria-label={shown.title} data-inspector-update={item.key} className="flex flex-col gap-4">
+          <KitTable
+            label={t("nav.updates")}
+            title={t("nav.updatesCount", { count: updates.all.length })}
+            titleId="h-updates"
+            columns={[
+              { label: t("nav.colTitle"), width: "minmax(0,1fr)" },
+              { label: t("nav.colDate"), width: "150px", phone: "sub" },
+              { label: t("nav.colKind"), width: "130px", phone: "end" },
+            ]}
+            search={updates.all.length >= 6 ? t("nav.updatesSearch") : undefined}
+            noMatch={t("nav.updatesNoMatch")}
+            groups={kinds.length > 1 ? { label: t("nav.colKind"), all: t("common.all"), items: kinds.map((kind) => ({ id: kind, label: words.kind(kind) })) } : undefined}
+            rows={updates.all.map((item) => {
+              const shown = itemWords(item, words);
+              const dir = shown.lang === "ar" ? "rtl" : "ltr";
+              return {
+                id: item.key,
+                name: shown.title,
+                data: { "data-update": item.key, "data-new": item.unread ? "" : undefined },
+                text: `${shown.title} ${shown.body}`,
+                group: item.kind,
+                cells: [
+                  <span key="title" className="contents">
+                    <span aria-hidden="true" className={`flex h-10 w-10 flex-none items-center justify-center rounded-xl bg-(--sp-tile) ${KIND_ICON[item.kind]}`}>
+                      <Icon name={updateIcon(item)} size={21} />
+                    </span>
+                    <span lang={shown.lang} dir={dir} className="min-w-0 truncate text-[14.5px] font-bold">
+                      {shown.title}
+                    </span>
+                    {item.unread ? <NewBadge text={text} /> : null}
+                  </span>,
+                  <span key="date" className="flex flex-col">
+                    <time dateTime={item.at.toISOString()}>{text.date(item.at)}</time>
+                    {item.app || !item.current ? (
+                      <span className="truncate text-[12.5px] text-(--sp-muted)">{[item.app, item.current ? null : t("nav.ended")].filter(Boolean).join(" · ")}</span>
+                    ) : null}
+                  </span>,
+                  <KitStatus key="kind" tone={KIND_TONE[item.kind]}>
+                    {words.kind(item.kind)}
+                  </KitStatus>,
+                ],
+                inspector: {
+                  title: words.kind(item.kind),
+                  footer: <ItemLink item={item} label={shown.linkLabel} text={text} />,
+                  body: (
+                    <article aria-label={shown.title} data-inspector-update={item.key} className="flex flex-col gap-5">
                       <KitInspectorHead
-                        top={
+                        badges={
                           <>
                             <KitStatus tone={KIND_TONE[item.kind]}>{words.kind(item.kind)}</KitStatus>
                             {item.unread ? <NewBadge text={text} /> : null}
                           </>
                         }
                         title={
-                          <span lang={shown.lang} dir={dir} className="block">
+                          <span lang={shown.lang} dir={dir}>
                             {shown.title}
                           </span>
                         }
@@ -161,11 +153,11 @@ export default async function UpdatesPage() {
                         {item.kind === "account" ? <p>{shown.body}</p> : <Markdown source={shown.body} />}
                       </div>
                     </article>
-                  </KitTableRow>
-                );
-              })}
-            </KitTable>
-          </KitSection>
+                  ),
+                },
+              };
+            })}
+          />
         </>
       ) : (
         <div className={kit.card}>

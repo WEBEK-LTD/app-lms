@@ -1,281 +1,311 @@
 "use client";
 
-import { Children, createContext, isValidElement, useContext, useState, type CSSProperties, type ReactNode } from "react";
+import Link from "next/link";
+import { usePathname, useRouter } from "next/navigation";
+import { useEffect, useId, useState, type CSSProperties, type ReactNode } from "react";
+import { useDashT } from "../dashboard-i18n";
 import { Icon } from "../icon";
+import { kit } from "./classes";
 import { KitInspector } from "./client";
-import { KitSearch } from "./index";
 
 /**
- * 132.170 A table whose rows the page renders on the server and whose
- * entries open in the inspector (KitInspector: docked beside the page from
- * 1280 px wide, a drawer below that), as Products' table does in the
- * browser: the column heads, one row per entry (its picture, its name as
- * the button that opens it, its cells and its state at the end), and the
- * entry's details as the row's children. One entry is open at a time.
+ * 132.160 A list as the console's table, for a page drawn on the server:
+ * a card with its toolbar (its title, a search, Filters with the list's
+ * groups behind it, how many show, its own actions), the column heads, the
+ * rows on one grid, and the open row's details in the inspector (docked
+ * beside the page from 1280 px, a drawer below that). A row opens from its
+ * first cell (its picture and name), which covers the row; anything else a
+ * row can be clicked on (a pill) has `kit-tr-top`. On a phone (the page
+ * under 560 px) the heads go and a row is its first cell with a column
+ * under it ("sub") and one at its end ("end"); the others hide.
  *
- * The page measures its own width (`.kit-page`): from 820 px down the
- * columns marked `wide` go, and on a phone (560 px) each row is a short
- * card of its name, one line under it (`line`) and its state.
+ * With `open`, the open row is the address's (`?open=`, its details drawn
+ * by the server): a row is a link, and closing the inspector goes back to
+ * the address without it.
  */
 
-/** A column after the name's: its head and its width on the grid; `wide` only while the page is wider than 820 px. */
 export interface KitColumn {
+  /** The column's head. */
   label: ReactNode;
+  /** Its track on the grid: "minmax(0,1fr)", "140px". */
   width: string;
+  /** On a phone: under the first cell, at the row's end, or hidden (the default). */
+  phone?: "sub" | "end" | "hide";
+  /** Hidden while the page is under 820 px (an inspector docked beside it): a column that isn't needed. */
   wide?: boolean;
 }
 
-interface TableState {
-  open: string | null;
-  setOpen: (key: string | null) => void;
-  columns: readonly KitColumn[];
-  media: boolean;
-  closeLabel: string;
-  matches: (row: Findable) => boolean;
+export interface KitRowInspector {
+  /** The inspector bar's small title ("Flash sale"). */
+  title: ReactNode;
+  body: ReactNode;
+  /** The bar's "⋯" (KitMore `look="row"`). */
+  actions?: ReactNode;
+  /** Its foot: the one action. */
+  footer?: ReactNode;
 }
 
-const TableContext = createContext<TableState | null>(null);
+export interface KitTableRow {
+  id: string;
+  /** Names the row's button and its inspector. */
+  name: string;
+  /** One per column; the first is the row's button (words and pictures only). */
+  cells: ReactNode[];
+  inspector?: KitRowInspector;
+  /** What the search looks in. */
+  text?: string;
+  /** The group (a filter) it falls under. */
+  group?: string;
+  /** A row that leads to its own page instead of the inspector. */
+  href?: string;
+  /** The row's own `data-…` attributes. */
+  data?: Record<string, string | undefined>;
+}
 
-const grid = (parts: (string | false)[]) => parts.filter(Boolean).join(" ");
+const ROW =
+  "kit-tr @max-[560px]/kit-page:[--kit-cols:minmax(0,1fr)_auto] @max-[560px]/kit-page:gap-x-3 @max-[560px]/kit-page:gap-y-1 @max-[560px]/kit-page:px-3.5 @max-[560px]/kit-page:py-3";
+const CELL = {
+  main: "flex min-w-0 items-center @max-[560px]/kit-page:col-start-1 @max-[560px]/kit-page:row-start-1",
+  end: "flex min-w-0 flex-wrap items-center gap-1.5 @max-[560px]/kit-page:col-start-2 @max-[560px]/kit-page:row-span-2 @max-[560px]/kit-page:row-start-1 @max-[560px]/kit-page:justify-end",
+  sub: "min-w-0 text-[13.5px] text-(--sp-ink-2) @max-[560px]/kit-page:col-start-1 @max-[560px]/kit-page:text-[13px] @max-[560px]/kit-page:text-(--sp-muted)",
+  hide: "min-w-0 text-[13.5px] text-(--sp-ink-2) @max-[560px]/kit-page:hidden",
+} as const;
+const WIDE = "@max-[820px]/kit-page:hidden";
+/** The event a table sends when one of its rows opens. */
+const OPENED = "kit-table-opened";
 
-/** What a row is found by: its words for the search (`text`) and its group (`group`, one of the table's `groups`). */
-type Findable = { text?: string; group?: string };
-
-/**
- * The table: the name's column (`name`, the rest of the width), the other
- * columns (`columns`), the state's (`end`) and the way in. Its rows are
- * KitTableRow; `media` when they have a picture. From `search.from` rows
- * (6) a search field finds them by their `text`; with two `groups` or more
- * among the rows, a segmented control shows one group.
- */
 export function KitTable({
   label,
-  name,
+  title,
+  titleId,
   columns,
-  end,
-  media = false,
-  closeLabel,
+  rows,
+  empty,
+  noMatch,
   search,
   groups,
-  children,
+  actions,
+  toolbar,
+  open,
+  initialOpen = null,
+  className = "",
   ...data
 }: {
-  /** Names the list of rows. */
+  /** Names the list (and the card when it has no title). */
   label: string;
-  name: ReactNode;
-  columns: readonly KitColumn[];
-  end?: KitColumn;
-  media?: boolean;
-  closeLabel: string;
-  search?: { label: string; noMatch: ReactNode; from?: number };
-  groups?: { all: string; items: readonly { value: string; label: string }[] };
-  children: ReactNode;
-} & { [key: `data-${string}`]: string | number | undefined }) {
-  const [open, setOpen] = useState<string | null>(null);
-  const [query, setQuery] = useState("");
-  const [group, setGroup] = useState("all");
-  const rows = Children.toArray(children).flatMap((child) => (isValidElement<Findable>(child) ? [child.props] : []));
-  const searchable = Boolean(search) && rows.length >= (search?.from ?? 6);
-  const chips = (groups?.items ?? []).map((g) => ({ ...g, count: rows.filter((r) => r.group === g.value).length })).filter((g) => g.count > 0);
-  const q = searchable ? query.trim().toLocaleLowerCase() : "";
-  const g = chips.length > 1 ? group : "all";
-  const matches = (row: Findable) => (g === "all" || row.group === g) && (!q || (row.text ?? "").toLocaleLowerCase().includes(q));
-  const shown = rows.filter(matches).length;
-  const cols = (wideToo: boolean) => grid([media && "40px", "minmax(0,1fr)", ...columns.filter((c) => wideToo || !c.wide).map((c) => c.width), end ? end.width : false, "20px"]);
-  const style = {
-    ["--kit-wide" as string]: cols(true),
-    ["--kit-mid" as string]: cols(false),
-    ["--kit-phone" as string]: grid([media && "40px", "minmax(0,1fr)", end ? "auto" : false]),
-  } as CSSProperties;
-  const chip = (value: string, text: string, count: number) => (
-    <button
-      key={value}
-      type="button"
-      aria-pressed={g === value}
-      onClick={() => setGroup(value)}
-      className={`inline-flex h-[30px] shrink-0 cursor-pointer items-center gap-[7px] rounded-[10px] border-0 px-3 text-[13px] font-semibold whitespace-nowrap transition-colors ${g === value ? "bg-(--sp-seg-on) text-(--sp-ink) shadow-(--sp-shadow)" : "bg-transparent text-(--sp-muted) hover:text-(--sp-ink)"}`}
-    >
-      {text}
-      <span className="font-sans text-[11px] font-semibold text-(--sp-faint) tabular-nums">{count}</span>
-    </button>
-  );
-  return (
-    <TableContext.Provider value={{ open, setOpen, columns, media, closeLabel, matches }}>
-      <div {...data} style={style} className="flex min-w-0 flex-col [--kit-cols:var(--kit-wide)] @max-[820px]/kit-page:[--kit-cols:var(--kit-mid)] @max-[561px]/kit-page:[--kit-cols:var(--kit-phone)]">
-        {searchable || chips.length > 1 ? (
-          <div className="flex flex-wrap items-center gap-2 px-3 pb-3">
-            {searchable && search ? <KitSearch label={search.label} value={query} onChange={setQuery} /> : null}
-            {chips.length > 1 && groups ? (
-              <div className="flex max-w-full gap-0.5 overflow-x-auto rounded-[13px] bg-(--sp-seg-track) p-1 [scrollbar-width:none]">
-                {chip("all", groups.all, rows.length)}
-                {chips.map((c) => chip(c.value, c.label, c.count))}
-              </div>
-            ) : null}
-          </div>
-        ) : null}
-        {shown ? (
-          <>
-            <div className="kit-th @max-[820px]/kit-page:gap-3! @max-[561px]/kit-page:hidden!" aria-hidden="true">
-              <span style={media ? { gridColumn: "span 2" } : undefined}>{name}</span>
-              {columns.map((c, i) => (
-                <span key={i} className={c.wide ? "@max-[820px]/kit-page:hidden" : ""}>
-                  {c.label}
-                </span>
-              ))}
-              {end ? <span>{end.label}</span> : null}
-              <span />
-            </div>
-            <ul aria-label={label} className="m-0 list-none p-0">
-              {children}
-            </ul>
-          </>
-        ) : (
-          <p role="status" className="m-0 border-t border-(--sp-line) px-5 py-8 text-center text-[14.5px] text-(--sp-muted)">
-            {search?.noMatch}
-          </p>
-        )}
-      </div>
-    </TableContext.Provider>
-  );
-}
+  /** A visible heading at the toolbar's start. */
+  title?: ReactNode;
+  titleId?: string;
+  columns: KitColumn[];
+  rows: KitTableRow[];
+  /** Shown instead of the table when there are no rows. */
+  empty?: ReactNode;
+  /** The words when a search or a filter leaves none. */
+  noMatch?: ReactNode;
+  /** A search over the rows' `text`, named by `search`. */
+  search?: string;
+  /** The rows' groups, behind Filters (a segmented control): `all` names them all. */
+  groups?: { label: string; all: string; items: { id: string; label: string }[]; initial?: string };
+  /** The toolbar's own actions, at its end. */
+  actions?: ReactNode;
+  /** More at the toolbar's start (a search sent to the server). */
+  toolbar?: ReactNode;
+  /** The open row is the address's: `param` (`open`), the address's other `query`, the `id` open, and its `row` when the list doesn't show it (filtered out). */
+  open?: { param: string; query: string; id: string | null; row?: KitTableRow | null };
+  initialOpen?: string | null;
+  className?: string;
+} & { [key: `data-${string}`]: string | undefined }) {
+  const t = useDashT();
+  const router = useRouter();
+  const path = usePathname() ?? "";
+  const headId = useId();
+  const [chosen, setChosen] = useState<string | null>(initialOpen);
+  const [going, setGoing] = useState<string | null>(null);
+  const [q, setQ] = useState("");
+  const [group, setGroup] = useState(groups?.initial ?? "all");
+  const [filtersOpen, setFiltersOpen] = useState(false);
+  const openId = open ? (going ?? open.id) : chosen;
+  // One inspector at a time on a page: a row opened in another table closes this one's.
+  useEffect(() => {
+    const onOther = (event: Event) => {
+      if ((event as CustomEvent<string>).detail !== headId) setChosen(null);
+    };
+    window.addEventListener(OPENED, onOther);
+    return () => window.removeEventListener(OPENED, onOther);
+  }, [headId]);
+  const choose = (id: string) => {
+    setChosen(id);
+    window.dispatchEvent(new CustomEvent(OPENED, { detail: headId }));
+  };
+  const hrefOf = (id: string | null) => {
+    const params = new URLSearchParams(open?.query ?? "");
+    if (id !== null) params.set(open?.param ?? "open", id);
+    const query = params.toString();
+    return `${path}${query ? `?${query}` : ""}`;
+  };
+  if (open && going !== null && going === open.id) setGoing(null);
 
-/**
- * One row of a KitTable: `name` is the button that opens the entry (words
- * only); `line` shows under it on a phone in place of the cells; `cells`
- * follow the table's columns; `end` (a pill) stays on a phone too. The
- * row's children are the entry's details in the inspector (`inspector`:
- * its name for screen readers, the small title of its bar, a "⋯" menu, the
- * action at its foot). A cell with a link or a button of its own gives it
- * `kit-tr-top`, so it sits above the row's button.
- */
-export function KitTableRow({
-  id,
-  media,
-  name,
-  line,
-  cells = [],
-  end,
-  inspector,
-  text,
-  group,
-  children,
-  ...data
-}: {
-  id: string;
-  media?: ReactNode;
-  name: ReactNode;
-  line?: ReactNode;
-  cells?: ReactNode[];
-  end?: ReactNode;
-  inspector: { label: string; title: ReactNode; actions?: ReactNode; footer?: ReactNode };
-  children: ReactNode;
-} & Findable & { [key: `data-${string}`]: string | number | undefined }) {
-  const table = useContext(TableContext);
-  const open = table?.open === id;
-  if (table && !table.matches({ text, group })) return null;
-  const at = table?.media ? 2 : 1;
-  return (
-    <li
-      {...data}
-      data-open={open ? "" : undefined}
-      className="kit-tr last:rounded-b-[17px] @max-[820px]/kit-page:gap-3! @max-[561px]/kit-page:gap-x-3! @max-[561px]/kit-page:gap-y-0.5! @max-[561px]/kit-page:px-4! @max-[561px]/kit-page:py-3!"
-    >
-      {media ? <span className="flex @max-[561px]/kit-page:col-start-1 @max-[561px]/kit-page:row-[1/span_2]">{media}</span> : null}
-      <span className={`flex min-w-0 ${at === 2 ? "@max-[561px]/kit-page:col-start-2" : "@max-[561px]/kit-page:col-start-1"} @max-[561px]/kit-page:row-start-1 @max-[561px]/kit-page:self-end`}>
-        <button
-          type="button"
-          aria-haspopup="dialog"
-          aria-expanded={open}
-          onClick={() => table?.setOpen(id)}
-          className="kit-tr-open flex min-w-0 cursor-pointer items-center gap-2 border-0 bg-transparent p-0 text-start text-[14.5px] font-bold text-(--sp-ink) focus-visible:outline-offset-4"
-        >
-          {name}
-        </button>
-      </span>
-      {line ? (
-        <span className={`hidden min-w-0 text-[13px] text-(--sp-muted) @max-[561px]/kit-page:block ${at === 2 ? "@max-[561px]/kit-page:col-start-2" : "@max-[561px]/kit-page:col-start-1"} @max-[561px]/kit-page:row-start-2 @max-[561px]/kit-page:self-start`}>
-          {line}
-        </span>
-      ) : null}
-      {cells.map((cell, i) => (
-        <span key={i} className={`min-w-0 text-[14px] text-(--sp-ink-2) @max-[561px]/kit-page:hidden! ${table?.columns[i]?.wide ? "@max-[820px]/kit-page:hidden!" : ""}`}>
-          {cell}
-        </span>
-      ))}
-      {end !== undefined ? (
-        <span className={`flex min-w-0 items-center ${at === 2 ? "@max-[561px]/kit-page:col-start-3" : "@max-[561px]/kit-page:col-start-2"} @max-[561px]/kit-page:row-[1/span_2]`}>{end}</span>
-      ) : null}
-      <Icon name="chevron_right" size={20} className="text-(--sp-faint) @max-[561px]/kit-page:hidden!" />
-      <KitInspector open={open} onClose={() => table?.setOpen(null)} label={inspector.label} title={inspector.title} actions={inspector.actions} footer={inspector.footer} closeLabel={table?.closeLabel ?? ""}>
-        {children}
-      </KitInspector>
-    </li>
-  );
-}
+  const words = q.trim().toLowerCase();
+  const shown = rows.filter((row) => (group === "all" || row.group === group) && (!words || (row.text ?? row.name).toLowerCase().includes(words)));
+  const filtered = Boolean(words) || group !== "all";
+  const current = rows.find((row) => row.id === openId && row.inspector) ?? (open?.row && open.row.id === openId && open.row.inspector ? open.row : null);
+  const cols = [...columns.map((c) => c.width), "20px"].join(" ");
+  const narrow = [...columns.filter((c) => !c.wide).map((c) => c.width), "20px"].join(" ");
+  const close = () => {
+    if (open) {
+      setGoing(null);
+      router.replace(hrefOf(null), { scroll: false });
+    } else setChosen(null);
+  };
+  const heading = title ? (
+    <h2 id={titleId ?? headId} className="m-0 me-1 text-[15px] font-bold text-(--sp-ink)">
+      {title}
+    </h2>
+  ) : null;
+  const bar = heading || search || groups || actions || toolbar;
 
-/** An entry's facts in the inspector: one box, each fact a label and its value on a line. */
-export function KitInspectorFacts({ facts }: { facts: readonly (readonly [ReactNode, ReactNode] | null | false)[] }) {
   return (
-    <dl className="m-0 rounded-xl border border-(--sp-line)">
-      {facts.map((fact, i) =>
-        fact ? (
-          <div key={i} className="flex items-baseline justify-between gap-4 border-b border-(--sp-line) px-3.5 py-2.5 text-[13.5px] last:border-b-0">
-            <dt className="shrink-0 text-(--sp-muted)">{fact[0]}</dt>
-            <dd className="m-0 min-w-0 text-end font-bold break-words text-(--sp-ink)">{fact[1]}</dd>
+    <section {...data} aria-labelledby={title ? (titleId ?? headId) : undefined} aria-label={title ? undefined : label} className={`${kit.card} flex min-w-0 flex-col [--kit-cols:var(--kit-wide)] @max-[820px]/kit-page:[--kit-cols:var(--kit-narrow)] ${className}`} style={{ ["--kit-wide" as string]: cols, ["--kit-narrow" as string]: narrow } as CSSProperties}>
+      {bar ? (
+        <div className="flex flex-wrap items-center gap-2 p-3 ps-4">
+          {heading}
+          {toolbar}
+          {search ? <SearchField label={search} value={q} onChange={setQ} /> : null}
+          {groups ? (
+            <button type="button" aria-expanded={filtersOpen} aria-controls={`${headId}-filters`} onClick={() => setFiltersOpen((o) => !o)} className={`${kit.quiet} h-10 ${filtersOpen ? "bg-(--sp-soft)" : ""}`}>
+              <Icon name="tune" size={18} />
+              {t("studioPage.filters")}
+              {group !== "all" ? <span className="flex h-5 min-w-5 items-center justify-center rounded-md bg-ember px-1.5 font-sans text-xs font-extrabold text-[#0e0d24] tabular-nums">1</span> : null}
+            </button>
+          ) : null}
+          <span className="flex-1" />
+          {search || groups ? (
+            <span className="flex items-center gap-3 px-1 text-[13px] text-(--sp-muted)">
+              {t("manage.showing", { shown: shown.length, count: rows.length })}
+              {filtered ? (
+                <button
+                  type="button"
+                  onClick={() => {
+                    setQ("");
+                    setGroup("all");
+                  }}
+                  className="cursor-pointer border-0 bg-transparent p-0 text-[13px] font-semibold text-accent underline"
+                >
+                  {t("manage.clearFilters")}
+                </button>
+              ) : null}
+            </span>
+          ) : null}
+          {actions ? <span className="flex flex-wrap items-center gap-2">{actions}</span> : null}
+        </div>
+      ) : null}
+      {groups ? (
+        <div id={`${headId}-filters`} hidden={!filtersOpen} className="kit-reveal mx-3 mb-3 rounded-[14px] bg-(--sp-soft) p-2.5">
+          <div role="group" aria-label={groups.label} className="flex w-fit max-w-full gap-0.5 overflow-x-auto rounded-[13px] bg-(--sp-seg-track) p-1 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
+            {[{ id: "all", label: groups.all }, ...groups.items].map((g) => {
+              const on = group === g.id;
+              const count = g.id === "all" ? rows.length : rows.filter((row) => row.group === g.id).length;
+              return (
+                <button
+                  key={g.id}
+                  type="button"
+                  aria-pressed={on}
+                  onClick={() => setGroup(g.id)}
+                  className={`flex h-[34px] shrink-0 cursor-pointer items-center gap-[7px] rounded-[10px] border-0 px-3.5 text-[13.5px] font-semibold whitespace-nowrap transition-colors ${on ? "bg-(--sp-seg-on) text-(--sp-ink) shadow-(--sp-shadow)" : "bg-transparent text-(--sp-muted) hover:text-(--sp-ink)"}`}
+                >
+                  {g.label}
+                  <span className="font-sans text-[11px] font-semibold text-(--sp-faint) tabular-nums">{count}</span>
+                </button>
+              );
+            })}
           </div>
-        ) : null,
+        </div>
+      ) : null}
+
+      {rows.length === 0 ? (
+        <div className={bar ? "border-t border-(--sp-line)" : ""}>{empty}</div>
+      ) : shown.length === 0 ? (
+        <div className="flex flex-col items-center gap-3 border-t border-(--sp-line) px-6 py-12 text-center">
+          <p className="m-0 text-[15px] font-semibold text-(--sp-ink)">{noMatch}</p>
+          <button
+            type="button"
+            onClick={() => {
+              setQ("");
+              setGroup("all");
+            }}
+            className={kit.quiet}
+          >
+            {t("manage.clearFilters")}
+          </button>
+        </div>
+      ) : (
+        <>
+          <div className={`kit-th @max-[560px]/kit-page:hidden ${bar ? "" : "rounded-t-[17px] border-t-0"}`} aria-hidden="true">
+            {columns.map((c, i) => (
+              <span key={i} className={`min-w-0 truncate ${c.wide ? WIDE : ""}`}>
+                {c.label}
+              </span>
+            ))}
+            <span />
+          </div>
+          <ul aria-label={label} className="m-0 list-none p-0">
+            {shown.map((row) => {
+              const isOpen = row.id === openId;
+              const opener = row.href ? (
+                <Link href={row.href} className="kit-tr-open flex min-w-0 flex-1 items-center gap-3 text-start text-(--sp-ink) no-underline hover:text-(--sp-ink) focus-visible:outline-offset-4">
+                  {row.cells[0]}
+                </Link>
+              ) : open ? (
+                <Link
+                  href={hrefOf(row.id)}
+                  scroll={false}
+                  aria-current={isOpen ? "true" : undefined}
+                  onClick={() => setGoing(row.id)}
+                  className="kit-tr-open flex min-w-0 flex-1 items-center gap-3 text-start text-(--sp-ink) no-underline hover:text-(--sp-ink) focus-visible:outline-offset-4"
+                >
+                  {row.cells[0]}
+                </Link>
+              ) : (
+                <button
+                  type="button"
+                  aria-haspopup={row.inspector ? "dialog" : undefined}
+                  aria-expanded={row.inspector ? isOpen : undefined}
+                  aria-label={row.name}
+                  onClick={() => choose(row.id)}
+                  className="kit-tr-open flex min-w-0 flex-1 cursor-pointer items-center gap-3 border-0 bg-transparent p-0 text-start text-(--sp-ink) focus-visible:outline-offset-4"
+                >
+                  {row.cells[0]}
+                </button>
+              );
+              return (
+                <li key={row.id} {...row.data} data-open={isOpen ? "" : undefined} className={`${ROW} last:rounded-b-[17px]`}>
+                  <span className={CELL.main}>{opener}</span>
+                  {row.cells.slice(1).map((cell, i) => (
+                    <span key={i} className={columns[i + 1]?.wide ? `${CELL.hide} ${WIDE}` : CELL[columns[i + 1]?.phone ?? "hide"]}>
+                      {cell}
+                    </span>
+                  ))}
+                  <Icon name="chevron_right" size={20} className="text-(--sp-faint) @max-[560px]/kit-page:hidden" />
+                </li>
+              );
+            })}
+          </ul>
+        </>
       )}
-    </dl>
-  );
-}
 
-/** The top of an entry in the inspector: its picture or pills (`top`), its name, and one quiet line. */
-export function KitInspectorHead({ top, title, line }: { top?: ReactNode; title: ReactNode; line?: ReactNode }) {
-  return (
-    <div className="flex flex-col gap-1.5">
-      {top ? <div className="mb-1 flex flex-wrap items-center gap-1.5">{top}</div> : null}
-      <h2 className="m-0 text-[21px] leading-[1.25] font-bold break-words text-(--sp-ink)">{title}</h2>
-      {line ? <div className="text-[13.5px] leading-relaxed text-(--sp-muted)">{line}</div> : null}
-    </div>
-  );
-}
-
-const GroupContext = createContext<{ open: string | null; setOpen: (key: string | null) => void; closeLabel: string } | null>(null);
-
-/** 132.171 Entries that open in the inspector without a table (a page's tiles): one open at a time. */
-export function KitInspectGroup({ closeLabel, children }: { closeLabel: string; children: ReactNode }) {
-  const [open, setOpen] = useState<string | null>(null);
-  return <GroupContext.Provider value={{ open, setOpen, closeLabel }}>{children}</GroupContext.Provider>;
-}
-
-/**
- * One entry of a KitInspectGroup: the button that opens it (`className`,
- * `children` its words) and its details in the inspector (`details`).
- */
-export function KitInspectButton({
-  id,
-  className,
-  children,
-  inspector,
-  details,
-  ...data
-}: {
-  id: string;
-  className: string;
-  children: ReactNode;
-  inspector: { label: string; title: ReactNode; actions?: ReactNode; footer?: ReactNode };
-  details: ReactNode;
-} & { [key: `data-${string}`]: string | number | undefined }) {
-  const group = useContext(GroupContext);
-  const open = group?.open === id;
-  return (
-    <>
-      <button {...data} type="button" aria-haspopup="dialog" aria-expanded={open} data-open={open ? "" : undefined} onClick={() => group?.setOpen(id)} className={className}>
-        {children}
-      </button>
-      <KitInspector open={open} onClose={() => group?.setOpen(null)} label={inspector.label} title={inspector.title} actions={inspector.actions} footer={inspector.footer} closeLabel={group?.closeLabel ?? ""}>
-        {details}
+      <KitInspector open={current !== null} onClose={close} label={current?.name ?? ""} title={current?.inspector?.title ?? ""} actions={current?.inspector?.actions} footer={current?.inspector?.footer} closeLabel={t("common.close")}>
+        {current?.inspector?.body ?? null}
       </KitInspector>
-    </>
+    </section>
+  );
+}
+
+/** The toolbar's search field. */
+function SearchField({ label, value, onChange }: { label: string; value: string; onChange: (value: string) => void }) {
+  return (
+    <label className="flex h-10 min-w-0 flex-[0_1_300px] items-center gap-2 rounded-[11px] border border-(--sp-line) bg-(--sp-surface) px-3 text-sm text-(--sp-faint) transition-colors focus-within:border-(--sp-ink) hover:border-(--sp-muted) max-sm:order-last max-sm:flex-[1_1_100%]">
+      <Icon name="search" size={19} />
+      <input type="search" value={value} onChange={(e) => onChange(e.target.value)} placeholder={label} aria-label={label} className="min-w-0 flex-1 border-0 bg-transparent text-sm text-(--sp-ink) outline-0 placeholder:text-(--sp-faint)" />
+    </label>
   );
 }

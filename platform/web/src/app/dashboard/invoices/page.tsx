@@ -1,8 +1,10 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { Icon } from "@/components/icon";
-import { KitEmpty, KitHeader, KitHero, KitPage, KitSection, KitStat, KitStatus, kit } from "@/components/studio-page";
-import { KitInspectorFacts, KitInspectorHead, KitTable, KitTableRow } from "@/components/studio-page/table";
+import { KitEmpty, KitHeader, KitHero, KitPage, KitStat, KitStatus, kit } from "@/components/studio-page";
+import { factsOf } from "@/components/studio-page/facts";
+import { KitInspectorBody, KitInspectorFacts, KitInspectorHead } from "@/components/studio-page/parts";
+import { KitTable } from "@/components/studio-page/table";
 import { formatDate } from "@/components/ui";
 import { appLabel } from "@/lib/app/label";
 import { requireClient } from "@/lib/auth/session";
@@ -81,97 +83,92 @@ export default async function InvoicesPage() {
               </>
             }
           />
-          <KitSection id="h-invoices" titleId="h-invoices-title" title={t("studio.invoicesCount", { count: paid.length })} flush>
-            <KitTable
-              data-invoices=""
-              label={t("studio.invoicesTitle")}
-              closeLabel={t("common.close")}
-              name={t("studio.invoicesColDate")}
-              columns={[
-                { label: t("studio.invoicesColPlan"), width: "minmax(0,1.5fr)" },
-                { label: t("studio.invoicesColAmount"), width: "130px" },
-                { label: t("studio.invoicesColStatus"), width: "96px", wide: true },
-              ]}
-              end={{ label: t("studio.invoicesColReceipt"), width: "88px" }}
-              search={{ label: t("studio.invoicesSearch"), noMatch: t("studio.invoicesNoMatch") }}
-              groups={{ all: t("common.all"), items: projects.map((id) => ({ value: id, label: projectName(id) ?? "—" })) }}
-            >
-              {paid.map((p) => {
-                const project = projectName(p.appId);
-                const what = k(paymentWhat(p, planName(p.plan, effective)));
-                const pdf = `/dashboard/license/receipts/${p.id}/pdf`;
-                return (
-                  <KitTableRow
-                    key={p.id}
-                    id={p.id}
-                    data-invoice={p.id}
-                    text={[receiptNumber(p), project, what, when(p)].filter(Boolean).join(" ")}
-                    group={p.appId ?? undefined}
-                    name={<span className="min-w-0 truncate">{when(p)}</span>}
-                    // The page's words first: the line takes its direction from them, not from a project's Latin name.
-                    line={
-                      <>
-                        {parts(what)} · {amount(p)}
-                      </>
-                    }
-                    cells={[
-                      <span key="w" className="flex min-w-0 flex-col">
-                        <span className="truncate text-(--sp-ink)">{parts(what)}</span>
-                        {projects.length > 1 && project ? <span className="truncate text-[12.5px] text-(--sp-muted)">{project}</span> : null}
-                      </span>,
-                      amount(p),
-                      <KitStatus key="s" tone="success">
-                        {t("studio.invoicesStatusPaid")}
-                      </KitStatus>,
-                    ]}
-                    end={
-                      <a href={pdf} download className={`${kit.row} kit-tr-top h-8 px-3`} aria-label={t("studio.invoicesPdfNamed", { number: receiptNumber(p) })}>
-                        <Icon name="download" size={16} />
+          <KitTable
+            data-invoices=""
+            label={t("studio.invoicesTitle")}
+            title={t("studio.invoicesCount", { count: paid.length })}
+            titleId="h-invoices"
+            columns={[
+              { label: t("studio.invoicesColDate"), width: "minmax(0,1fr)" },
+              { label: t("studio.invoicesColPlan"), width: "minmax(0,1.5fr)", phone: "sub" },
+              { label: t("studio.invoicesColAmount"), width: "130px" },
+              { label: t("studio.invoicesColStatus"), width: "96px", wide: true },
+              { label: t("studio.invoicesColReceipt"), width: "88px", phone: "end" },
+            ]}
+            search={paid.length >= 6 ? t("studio.invoicesSearch") : undefined}
+            noMatch={t("studio.invoicesNoMatch")}
+            groups={projects.length > 1 ? { label: t("studio.invoicesProject"), all: t("common.all"), items: projects.map((id) => ({ id, label: projectName(id) ?? "—" })) } : undefined}
+            rows={paid.map((p) => {
+              const project = projectName(p.appId);
+              const what = k(paymentWhat(p, planName(p.plan, effective)));
+              const pdf = `/dashboard/license/receipts/${p.id}/pdf`;
+              return {
+                id: p.id,
+                name: `${when(p)} · ${receiptNumber(p)}`,
+                data: { "data-invoice": p.id },
+                text: [receiptNumber(p), project, what, when(p)].filter(Boolean).join(" "),
+                group: p.appId ?? undefined,
+                cells: [
+                  <span key="date" className="min-w-0 truncate text-[14.5px] font-bold">
+                    {when(p)}
+                  </span>,
+                  // On a phone, the amount with it under the date; the page's words first, so it reads right to left in Arabic.
+                  <span key="what" className="flex min-w-0 flex-col">
+                    <span className="truncate text-(--sp-ink) @max-[560px]/kit-page:text-(--sp-muted)">
+                      {parts(what)}
+                      <span className="@min-[561px]/kit-page:hidden"> · {amount(p)}</span>
+                    </span>
+                    {projects.length > 1 && project ? <span className="truncate text-[12.5px] text-(--sp-muted)">{project}</span> : null}
+                  </span>,
+                  amount(p),
+                  <KitStatus key="s" tone="success">
+                    {t("studio.invoicesStatusPaid")}
+                  </KitStatus>,
+                  <a key="pdf" href={pdf} download className={`${kit.row} kit-tr-top h-8 px-3`} aria-label={t("studio.invoicesPdfNamed", { number: receiptNumber(p) })}>
+                    <Icon name="download" size={16} />
+                    PDF
+                  </a>,
+                ],
+                inspector: {
+                  title: t("license.receipt"),
+                  footer: (
+                    <div className="flex gap-2">
+                      <Link href={`/dashboard/license/receipts/${p.id}`} className={`${kit.main} flex-1`}>
+                        <Icon name="receipt_long" size={18} />
+                        {t("license.receipt")}
+                      </Link>
+                      <a href={pdf} download className={`${kit.quiet} h-[42px]`}>
+                        <Icon name="download" size={18} />
                         PDF
                       </a>
-                    }
-                    inspector={{
-                      label: receiptNumber(p),
-                      title: t("license.receipt"),
-                      footer: (
-                        <div className="flex gap-2">
-                          <Link href={`/dashboard/license/receipts/${p.id}`} className={`${kit.main} flex-1`}>
-                            <Icon name="receipt_long" size={18} />
-                            {t("license.receipt")}
-                          </Link>
-                          <a href={pdf} download className={`${kit.quiet} h-[42px]`}>
-                            <Icon name="download" size={18} />
-                            PDF
-                          </a>
-                        </div>
-                      ),
-                    }}
-                  >
-                    <div className="flex flex-col gap-4" data-inspector-invoice={p.id}>
+                    </div>
+                  ),
+                  body: (
+                    <KitInspectorBody data-inspector-invoice={p.id}>
                       <KitInspectorHead
-                        top={<KitStatus tone="success">{t("studio.invoicesStatusPaid")}</KitStatus>}
+                        badges={<KitStatus tone="success">{t("studio.invoicesStatusPaid")}</KitStatus>}
                         title={
-                          <bdi dir="ltr" className="font-sans text-[26px] tracking-[-0.5px] tabular-nums">
+                          <span dir="ltr" className="font-sans text-[26px] tracking-[-0.5px] tabular-nums">
                             {formatAmount(p.amountCents, p.currency)}
-                          </bdi>
+                          </span>
                         }
                         line={t("studio.invoicesPaid")}
                       />
                       <KitInspectorFacts
-                        facts={[
+                        facts={factsOf([
                           [t("license.receipt"), <bdi key="n" dir="ltr">{receiptNumber(p)}</bdi>],
                           [t("studio.invoicesColDate"), when(p)],
                           [t("studio.invoicesColPlan"), parts(what)],
                           project ? [t("studio.invoicesProject"), <bdi key="p">{project}</bdi>] : null,
                           [t("studio.invoicesPaidBy"), p.method === "bank_transfer" ? t("studio.invoicesBank") : t("studio.invoicesCard")],
-                        ]}
+                        ])}
                       />
-                    </div>
-                  </KitTableRow>
-                );
-              })}
-            </KitTable>
-          </KitSection>
+                    </KitInspectorBody>
+                  ),
+                },
+              };
+            })}
+          />
         </>
       ) : (
         <div className={kit.card}>

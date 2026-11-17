@@ -14,7 +14,8 @@ import { flashSaleJson, listedSales, withSale } from "./flash-sales";
 import { giftMessagesJson, giftOccasionsOf } from "./gift-messages";
 import { checkGift, checkoutModeOf, deliveryAttributes, deliveryNote, giftConfigJson, giftsOf, hasDeliveryDetails, type CheckoutMode } from "./gifts";
 import { ADDON_LIMITS, ADDON_NEEDS_ITEM, checkAddonLines, hasAddons, offeredWith, sectionTitlesJson } from "./addons";
-import { breakdownJson, needsPlace, placeOf, quoteShipping, SHIPPING_COUNTRIES, shippingRulesOf, type ShippingQuote } from "./shipping";
+import { countryNames } from "./countries";
+import { breakdownJson, needsPlace, placeOf, quoteShipping, shippingRulesOf, type ShippingQuote } from "./shipping";
 
 /**
  * 131 What every store app gets beside its products, wherever they come
@@ -54,7 +55,7 @@ export function storeExtrasConfig(app: App, currency: string, opts: { fees: bool
       ? {
           shipping: {
             mode: rules.mode,
-            countries: rules.areas.map((a) => ({ code: a.country, names: SHIPPING_COUNTRIES[a.country] ?? { en: a.country }, cities: a.cities })),
+            countries: rules.areas.map((a) => ({ code: a.country, names: countryNames(a.country), cities: a.cities })),
             needs_location: rules.mode === "distance",
             charged: opts.fees,
             free_over: rules.freeOverCents !== null ? centsToDecimal(rules.freeOverCents) : null,

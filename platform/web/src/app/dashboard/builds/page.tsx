@@ -7,7 +7,8 @@ import { BUILD_STATUS_LABEL, BUILD_TONE, BuildStages } from "@/components/build-
 import { Icon } from "@/components/icon";
 import type { IconName } from "@/components/icon-names";
 import { KitCallout, KitEmpty, KitFold, KitHeader, KitHero, KitList, KitMore, KitNext, KitPage, KitRow, KitSection, KitSettingRow, KitSettings, KitStatus, KitThumb, kit } from "@/components/studio-page";
-import { KitInspectorHead, KitTable, KitTableRow } from "@/components/studio-page/table";
+import { KitInspectorBody, KitInspectorHead } from "@/components/studio-page/parts";
+import { KitTable } from "@/components/studio-page/table";
 import { formatDate, formatDateTime } from "@/components/ui";
 import { firebaseListsCourierApp, firebaseListsStaffApp, firebaseListsVendorApp, hasStoreKeys, isSetupComplete, nextStep } from "@/lib/app/setup";
 import { failedApiCheck } from "@/lib/app/api-check-notice";
@@ -616,63 +617,54 @@ export default async function BuildsPage({ searchParams }: PageProps<"/dashboard
       {/* 132.172 The builds as a table (the version, the platforms, when, the state); a build's details, its stages, what went
           wrong and its log, and making it again, in the inspector. */}
       {builds.length ? (
-        <KitSection titleId="h-history" title={t("builds.history")} description={t("builds.historyText")} flush>
-          <KitTable
-            label={t("builds.history")}
-            closeLabel={t("common.close")}
-            media
-            name={t("builds.colVersion")}
-            columns={[
-              { label: t("builds.colPlatform"), width: "150px", wide: true },
-              { label: t("builds.queued"), width: "170px" },
-            ]}
-            end={{ label: t("builds.colState"), width: "140px" }}
-          >
-            {builds.map((build) => {
-              const platforms = (["android", "ios"] as const).filter((key) => build.stages[key] && build.stages[key] !== "skipped");
-              const remake = build.status === "ready" && build.sourceCommit && !licenseProblem && !running;
-              return (
-                <KitTableRow
-                  key={build.id}
-                  id={build.id}
-                  data-build={build.number}
-                  media={<KitThumb icon={build.status === "ready" ? "task_alt" : build.status === "failed" ? "error" : "schedule"} size={40} />}
-                  name={
-                    <span className="min-w-0 truncate">
-                      #{build.number} · <bdi dir="ltr">{build.versionName}</bdi> <span className="text-[13px] font-normal text-(--sp-muted)">({build.versionCode})</span>
+        <KitTable
+          label={t("builds.history")}
+          title={t("builds.history")}
+          titleId="h-history"
+          toolbar={<span className="text-[13px] text-(--sp-muted)">{t("builds.historyText")}</span>}
+          columns={[
+            { label: t("builds.colVersion"), width: "minmax(0,1fr)" },
+            { label: t("builds.colPlatform"), width: "150px", wide: true },
+            { label: t("builds.queued"), width: "170px", phone: "sub" },
+            { label: t("builds.colState"), width: "140px", phone: "end" },
+          ]}
+          rows={builds.map((build) => {
+            const platforms = (["android", "ios"] as const).filter((key) => build.stages[key] && build.stages[key] !== "skipped");
+            const remake = build.status === "ready" && build.sourceCommit && !licenseProblem && !running;
+            return {
+              id: build.id,
+              name: `#${build.number} · ${build.versionName}`,
+              data: { "data-build": String(build.number) },
+              cells: [
+                <span key="name" className="contents">
+                  <KitThumb icon={build.status === "ready" ? "task_alt" : build.status === "failed" ? "error" : "schedule"} size={40} />
+                  <span className="min-w-0 truncate text-[14.5px] font-bold">
+                    #{build.number} · <bdi dir="ltr">{build.versionName}</bdi> <span className="text-[13px] font-normal text-(--sp-muted)">({build.versionCode})</span>
+                  </span>
+                </span>,
+                <span key="platforms" className="flex items-center gap-1.5 text-(--sp-ink-2)">
+                  {platforms.map((key) => (
+                    <span key={key} className="inline-flex items-center gap-1">
+                      <Icon name={key === "android" ? "android" : "phone_iphone"} size={17} className="text-(--sp-muted)" />
+                      {key === "android" ? "Android" : "iOS"}
                     </span>
-                  }
-                  line={formatDateTime(build.createdAt, lang)}
-                  cells={[
-                    <span key="p" className="flex items-center gap-1.5 text-(--sp-ink-2)">
-                      {platforms.map((key) => (
-                        <span key={key} className="inline-flex items-center gap-1">
-                          <Icon name={key === "android" ? "android" : "phone_iphone"} size={17} className="text-(--sp-muted)" />
-                          {key === "android" ? "Android" : "iOS"}
-                        </span>
-                      ))}
-                    </span>,
-                    formatDateTime(build.createdAt, lang),
-                  ]}
-                  end={<BuildPill build={build} text={text} />}
-                  inspector={{
-                    label: t("builds.buildTitle", { number: build.number, version: build.versionName }),
-                    title: t("builds.colVersion"),
-                    // 87.3 A ready build made from known code can be made again as it was; 89.3 an earlier one gone back to.
-                    footer: remake ? (
-                      <div className="flex flex-wrap items-center gap-2">
-                        <RebuildForm buildId={build.id} number={build.number} />
-                        {build.id !== builds[0]?.id ? <GoBackForm buildId={build.id} number={build.number} /> : null}
-                      </div>
-                    ) : undefined,
-                  }}
-                >
-                  <div className="flex flex-col gap-4" data-inspector-build={build.number}>
-                    <KitInspectorHead
-                      top={<BuildPill build={build} text={text} />}
-                      title={t("builds.buildTitle", { number: build.number, version: build.versionName })}
-                      line={t("builds.versionCode", { code: build.versionCode })}
-                    />
+                  ))}
+                </span>,
+                formatDateTime(build.createdAt, lang),
+                <BuildPill key="state" build={build} text={text} />,
+              ],
+              inspector: {
+                title: t("builds.colVersion"),
+                // 87.3 A ready build made from known code can be made again as it was; 89.3 an earlier one gone back to.
+                footer: remake ? (
+                  <div className="flex flex-wrap items-center gap-2">
+                    <RebuildForm buildId={build.id} number={build.number} />
+                    {build.id !== builds[0]?.id ? <GoBackForm buildId={build.id} number={build.number} /> : null}
+                  </div>
+                ) : undefined,
+                body: (
+                  <KitInspectorBody data-inspector-build={String(build.number)}>
+                    <KitInspectorHead badges={<BuildPill build={build} text={text} />} title={t("builds.buildTitle", { number: build.number, version: build.versionName })} line={t("builds.versionCode", { code: build.versionCode })} />
                     <Times build={build} now={now} text={text} />
                     <BuildStages stages={build.stages} lang={lang} look="pills" />
                     {build.status === "queued" || build.status === "building" ? <p className="m-0 text-sm text-(--sp-muted)">{k(statusExplanation(build, now))}</p> : null}
@@ -701,12 +693,12 @@ export default async function BuildsPage({ searchParams }: PageProps<"/dashboard
                         {filesTitle}
                       </a>
                     ) : null}
-                  </div>
-                </KitTableRow>
-              );
-            })}
-          </KitTable>
-        </KitSection>
+                  </KitInspectorBody>
+                ),
+              },
+            };
+          })}
+        />
       ) : null}
 
       {/* The files of the latest ready build; 132.172 folded until a build is ready. */}

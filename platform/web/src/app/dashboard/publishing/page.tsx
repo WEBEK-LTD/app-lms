@@ -7,7 +7,8 @@ import { SubmitButton } from "@/components/form";
 import { Icon } from "@/components/icon";
 import { formatDateTime } from "@/components/ui";
 import { KitBar, KitCallout, KitFact, KitFacts, KitFold, KitHeader, KitHero, KitList, KitNext, KitPage, KitRow, KitSection, KitStatus, kit } from "@/components/studio-page";
-import { KitInspectButton, KitInspectGroup, KitInspectorHead } from "@/components/studio-page/table";
+import { KitInspectButton, KitInspectGroup } from "@/components/studio-page/inspect";
+import { KitInspectorBody, KitInspectorHead } from "@/components/studio-page/parts";
 import { appLabel, licensePageName } from "@/lib/app/label";
 import { hasStoreKeys } from "@/lib/app/setup";
 import { requireClient } from "@/lib/auth/session";
@@ -397,19 +398,8 @@ export default async function PublishingPage({ searchParams }: PageProps<"/dashb
                       ) : undefined,
                   }}
                   details={
-                    <div className="flex flex-col gap-4" data-inspector-store={which}>
-                      <KitInspectorHead
-                        top={
-                          <>
-                            <span aria-hidden="true" className="me-1 flex h-11 w-11 items-center justify-center rounded-[14px] bg-(--sp-tile) text-(--sp-ink)">
-                              <Icon name={STORE_ICON[which]} size={22} />
-                            </span>
-                            <KitStatus tone={tone}>{label}</KitStatus>
-                          </>
-                        }
-                        title={STORE_TITLE[which]}
-                        line={when}
-                      />
+                    <KitInspectorBody data-inspector-store={which}>
+                      <KitInspectorHead icon={STORE_ICON[which]} badges={<KitStatus tone={tone}>{label}</KitStatus>} title={STORE_TITLE[which]} line={when} />
                       <p className="m-0 text-[14.5px] leading-relaxed text-(--sp-ink)">{publishingStatusIn(lang, which, track.status).text}</p>
                       {/* 88.3 Why the store turned it down, what to do and where. */}
                       {track.status === "rejected" && track.rejection ? (
@@ -433,7 +423,7 @@ export default async function PublishingPage({ searchParams }: PageProps<"/dashb
                           {t("publishing.reject.checked", { date: formatDateTime(track.checkedAt, lang) })}
                         </p>
                       ) : null}
-                    </div>
+                    </KitInspectorBody>
                   }
                 >
                   <span className="kit-tile-hd">
