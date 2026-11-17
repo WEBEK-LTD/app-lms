@@ -800,11 +800,11 @@ class License_Client {
 	 * (docs/api/platform.yaml, sendPush). Only the license key, site address and versions go with
 	 * them, not the rest of the license check.
 	 *
-	 * @param array    $tokens       Firebase tokens, or (136.46) `{token, provider}` rows with
-	 *                               `provider` "fcm" or "apns" (at most Push_Service::BATCH_SIZE).
-	 * @param array    $notification Title, body and picture.
-	 * @param array    $data         Data for the app.
-	 * @return array|WP_Error The PushRelayResult body (`results`, `sent`, `invalid`, `retry`), or the
+	 * @param array $tokens       Firebase tokens, or (136.46) `{token, provider}` rows with
+	 *                            `provider` "fcm" or "apns" (at most Push_Service::BATCH_SIZE).
+	 * @param array $notification Title, body and picture.
+	 * @param array $data         Data for the app.
+	 * @return array|WP_Error The PushRelayResult body (`results`, `sent`, `invalid`, `retry`, `skipped`), or the
 	 *                        platform's error (`rate_limited` and `push_not_ready` with
 	 *                        `retry_after_seconds`, `push_own_firebase`, `license_inactive`, …).
 	 */
