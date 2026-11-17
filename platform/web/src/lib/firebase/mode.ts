@@ -10,17 +10,23 @@ import { hasStaffApp, staffAppKindOf, staffPackageOf } from "../school/staff-app
  * projects, saves their files where the client's would be, and sends the
  * pushes without a key (lib/firebase/register.ts, lib/hosted/notify.ts).
  * Phase 1: apps on the hosted API (their own content or a connected
- * platform); WordPress sites send their pushes themselves until the relay
- * (Phase 3), apps on their own API keep their own Firebase.
+ * platform); 136.45 WordPress sites once chosen with a plugin that relays
+ * (Phase 3); apps on their own API keep their own Firebase.
  */
 
-/** Whether the app can use Yallapp's Firebase: it's on the hosted API, so the platform sends its pushes. */
-export function yallappFirebaseFits(app: Pick<App, "backend">): boolean {
-  return app.backend === "hosted";
+/**
+ * Whether the app can use Yallapp's Firebase: it's on the hosted API, so the
+ * platform sends its pushes; or (136.45) it's on WordPress and its owner chose
+ * Yallapp's Firebase while the site's plugin relays (`pushRelayAt`), so the
+ * site hands its pushes to the platform (POST /api/v1/push/send). A new app's
+ * default "yallapp" never moves a WordPress site by itself.
+ */
+export function yallappFirebaseFits(app: Pick<App, "backend"> & Partial<Pick<App, "pushRelayAt">>): boolean {
+  return app.backend === "hosted" || (app.backend === "wordpress" && Boolean(app.pushRelayAt));
 }
 
-/** Whether the app is in Yallapp's Firebase: chosen, and on the hosted API. */
-export function usesYallappFirebase(app: Pick<App, "backend"> & Partial<Pick<App, "pushSetup">>): boolean {
+/** Whether the app is in Yallapp's Firebase: chosen, and on the hosted API (or a WordPress site that relays). */
+export function usesYallappFirebase(app: Pick<App, "backend"> & Partial<Pick<App, "pushSetup" | "pushRelayAt">>): boolean {
   return app.pushSetup === "yallapp" && yallappFirebaseFits(app);
 }
 

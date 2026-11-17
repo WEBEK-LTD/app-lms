@@ -791,11 +791,13 @@ async function readFirebaseChoice(formData: FormData, app: App, clientId: string
   const offered = raw === "yallapp" || raw === "own" ? await yallappFirebaseOffered(store, app) : false;
   if (offered && raw === "yallapp") {
     const patch: AppPatch = usesYallappFirebase(app) ? {} : { pushSetup: "yallapp", firebaseAndroidAssetId: null, firebaseIosAssetId: null };
+    // 136.45 A WordPress app counts as in Yallapp's Firebase from this choice (offered only once its site's plugin relays).
+    if (app.backend === "wordpress" && !app.pushRelayAt) patch.pushRelayAt = new Date();
     return { patch, errors: {}, yallapp: true, leftYallapp: false };
   }
   const own = await readFirebaseFiles(formData, app, clientId);
   if (offered && usesYallappFirebase(app)) {
-    return { patch: { firebaseAndroidAssetId: null, firebaseIosAssetId: null, ...own.patch, pushSetup: null }, errors: own.errors, yallapp: false, leftYallapp: true };
+    return { patch: { firebaseAndroidAssetId: null, firebaseIosAssetId: null, ...own.patch, pushSetup: null, pushRelayAt: null }, errors: own.errors, yallapp: false, leftYallapp: true };
   }
   if (app.pushSetup === "yallapp" && (own.patch.firebaseAndroidAssetId || own.patch.firebaseIosAssetId)) own.patch.pushSetup = null;
   return { ...own, yallapp: false, leftYallapp: false };
@@ -894,6 +896,8 @@ export async function savePublishingAction(_: FormState, formData: FormData): Pr
       await recordStaffChange(context, firebase.yallapp ? "Chose Yallapp to set up the app's notifications" : "Chose the app's own Firebase for notifications");
     }
     if (firebase.yallapp) await registerInYallappFirebase(app.id);
+    // 136.45 A WordPress site reads the push mode from its license status (`push`): ask it to check now.
+    if (app.backend === "wordpress" && (firebase.leftYallapp || patch.pushRelayAt)) refreshSitesSoon([app.id]);
   };
 
   // 13.1 Store keys for uploading are only asked when we publish for the client.

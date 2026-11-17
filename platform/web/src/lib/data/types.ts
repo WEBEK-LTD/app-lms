@@ -634,6 +634,13 @@ export interface App {
    */
   pushSetup?: PushSetup | null;
   firebaseProjectId?: string | null;
+  /**
+   * 136.45 When a WordPress app's owner chose Yallapp's Firebase on the
+   * Publishing step, with the site's plugin able to relay (0.4.49 or later).
+   * A WordPress app counts as in Yallapp's Firebase only with it, so a new
+   * app's default never moves a site whose plugin can't relay.
+   */
+  pushRelayAt?: Date | null;
   /** Shop settings when the products are managed in the dashboard (connector "catalog"). */
   catalogSettings: CatalogSettings | null;
   /** 77 The chat's settings; null: on (when the plan has chat), without course groups. */

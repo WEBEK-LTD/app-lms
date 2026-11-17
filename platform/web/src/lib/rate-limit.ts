@@ -27,9 +27,11 @@ export async function hitRateLimit(
   rule: RateLimitRule,
   subject: string,
   now: Date = new Date(),
+  /** 136.42 Hits to add at once (tokens in a batch); 1 by default. */
+  by = 1,
 ): Promise<RateLimitResult> {
   const { bucket, windowStart, windowMs } = windowOf(rule, subject, now);
-  const hits = await store.hitRateLimit(bucket, windowStart, now);
+  const hits = by === 1 ? await store.hitRateLimit(bucket, windowStart, now) : await store.hitRateLimit(bucket, windowStart, now, by);
   return {
     allowed: hits <= rule.limit,
     hits,
@@ -128,6 +130,13 @@ export const RATE_LIMITS = {
   teamInviteEmail: { name: "team-invite:email", limit: 5, windowSeconds: 24 * 60 * 60 },
   // Joining with a link: per IP, like a sign-in.
   teamJoinIp: { name: "team-join:ip", limit: 30, windowSeconds: 15 * 60 },
+  // 136.42 Pushes WordPress sites send through Yallapp (POST /api/v1/push/send): per IP, and per license
+  // in requests a minute and tokens an hour.
+  pushRelayIp: { name: "push-relay:ip", limit: 120, windowSeconds: 60 },
+  pushRelayLicense: { name: "push-relay:license", limit: 60, windowSeconds: 60 },
+  pushRelayTokens: { name: "push-relay:tokens", limit: 20_000, windowSeconds: 60 * 60 },
+  // Not a limit: the pushes a license had delivered today (UTC), a count only.
+  pushRelaySent: { name: "push-relay:sent", limit: Number.MAX_SAFE_INTEGER, windowSeconds: 24 * 60 * 60 },
   // Not a limit: the codes a license sent today (UTC), for the admin's client page.
   signInCodesSent: { name: "codes:sent", limit: Number.MAX_SAFE_INTEGER, windowSeconds: 24 * 60 * 60 },
 } satisfies Record<string, RateLimitRule>;

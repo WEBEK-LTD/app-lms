@@ -386,6 +386,8 @@ export const apps = mysqlTable(
     // 136 "yallapp": Yallapp registers the apps in its own Firebase project (`firebase_project_id`); null: the client's own Firebase.
     pushSetup: varchar("push_setup", { length: 8 }).$type<PushSetup>(),
     firebaseProjectId: varchar("firebase_project_id", { length: 64 }),
+    // 136.45 A WordPress app's owner chose Yallapp's Firebase while the site's plugin relays (0.4.49+); null: a WordPress app stays on its own.
+    pushRelayAt: time("push_relay_at"),
     googlePlayKeyEncrypted: text("google_play_key_encrypted"),
     googlePlayClientEmail: varchar("google_play_client_email", { length: 191 }),
     ascIssuerId: varchar("asc_issuer_id", { length: 64 }),

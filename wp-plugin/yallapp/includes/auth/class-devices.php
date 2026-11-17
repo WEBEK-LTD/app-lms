@@ -197,7 +197,7 @@ class Devices {
 	 * @param int    $row_id      Device row ID.
 	 * @param string $token       Push token.
 	 * @param array  $preferences Notification preferences.
-	 * @param string $provider    36 "fcm" (Firebase) or "hms" (Huawei Push Kit).
+	 * @param string $provider    36 "fcm" (Firebase) or "hms" (Huawei Push Kit); 136.46 "apns" (Apple, through Yallapp).
 	 * @return void
 	 */
 	public function set_push( $row_id, $token, array $preferences, $provider = 'fcm' ) {
@@ -214,13 +214,14 @@ class Devices {
 	}
 
 	/**
-	 * 36 A push provider as stored: "hms" for Huawei Push Kit, else "fcm". Pure.
+	 * 36 A push provider as stored: "hms" for Huawei Push Kit, (136.46) "apns" for an iPhone's
+	 * APNs token, which Yallapp sends straight to Apple, else "fcm". Pure.
 	 *
 	 * @param mixed $provider Provider from the app.
 	 * @return string
 	 */
 	public static function provider( $provider ) {
-		return 'hms' === $provider ? 'hms' : 'fcm';
+		return in_array( $provider, array( 'hms', 'apns' ), true ) ? $provider : 'fcm';
 	}
 
 	/**
@@ -258,7 +259,7 @@ class Devices {
 	}
 
 	/**
-	 * 36 Push tokens for users with the service each one is from ("fcm" or "hms"),
+	 * 36 Push tokens for users with the service each one is from ("fcm", "hms" or 136.46 "apns"),
 	 * honoring each device's preference for the notification kind.
 	 *
 	 * @param int[]  $user_ids User IDs.

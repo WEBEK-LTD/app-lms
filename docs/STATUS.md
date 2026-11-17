@@ -42,6 +42,19 @@ checked against Apple itself: this environment can't reach
 `InvalidProviderToken`) and a real delivery are verified only against a
 local HTTP/2 server and fakes. Check both with the first client's key.
 
+Roadmap 136.40–136.45 (Phase 3, the WordPress relay) is merged with
+Phase 1: the platform's `POST /api/v1/push/send` sends a site's batch of
+Firebase tokens through the app's keyless Yallapp-mode account and answers
+each token sent, invalid or retry, within limits per license;
+`LicenseStatus.push` says `yallapp` for an app in Yallapp's mode (`own`
+otherwise); plugin 0.4.49 relays then (retries from cron, "Notifications
+are sent by Yallapp" in its settings). The Publishing step offers Yallapp's
+mode to a WordPress app only once its site runs plugin 0.4.49 or later.
+136.46: those apps' iPhones register their APNs token (`Config.features.apns`
+from the plugin), the relay sends them straight to Apple with the client's
+APNs key (Notifications › iPhone notifications, now shown for such WordPress
+apps), and answers them `skipped` while no key is saved.
+
 Roadmap 134 (pay inside the app for connected stores, Demo) is built for
 WooCommerce: Payments › How customers pay offers Yallapp's checkout (its
 own products), the store's checkout (the default) and paying inside the
