@@ -143,6 +143,10 @@ final marketVendorPageProvider = FutureProvider.autoDispose
               name: d.name,
               imageUrl: d.imageUrl,
               items: [for (final p in pages[i].items) marketItemFrom(p)],
+              aisles: [
+                for (final a in d.aisles)
+                  MarketShelfAisle(id: '${a.id}', name: a.name),
+              ],
             ),
         ];
       } else {
@@ -163,6 +167,10 @@ final marketVendorPageProvider = FutureProvider.autoDispose
         about: detail.description,
         address: detail.area,
         hours: _today(detail.hours),
+        offers: [
+          for (final (i, c) in detail.offers.indexed)
+            _offerFrom(c, i, [detail.summary]),
+        ],
       );
     });
 
@@ -201,6 +209,8 @@ MarketVendor marketVendorFrom(
   // 115.20 A day or a date when it opens after its days off.
   opensAt: v.opensAt == null ? null : opensLabel(v.opensAt!),
   delivers: v.delivers,
+  freeOver: double.tryParse(v.freeDeliveryOver?.amount ?? ''),
+  freeOverText: v.freeDeliveryOver?.formatted,
   late: switch (v.delay) {
     final d? => MarketLate(
       minutes: d.minutes,
@@ -232,10 +242,14 @@ MarketItem marketItemFrom(api.MarketProduct p) => MarketItem(
     api.ProductUnit.g => MarketUnit.g,
     api.ProductUnit.l => MarketUnit.l,
   },
-  step: p.step,
+  step: p.soldBy?.step ?? p.step,
   hasChoices: p.choices.isNotEmpty,
   popular: p.tags.contains('popular'),
   inStock: p.inStock,
+  brand: p.brand,
+  barcode: p.barcode,
+  minQuantity: p.soldBy?.min,
+  maxQuantity: p.soldBy?.max ?? p.maxQuantity,
 );
 
 /// The kinds the app has, in the owner's order, each with how many

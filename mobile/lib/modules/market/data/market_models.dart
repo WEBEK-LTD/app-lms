@@ -57,6 +57,8 @@ class MarketVendor {
     this.favorited = false,
     this.delivers,
     this.late,
+    this.freeOver,
+    this.freeOverText,
   });
 
   final String id;
@@ -102,6 +104,11 @@ class MarketVendor {
 
   /// 115.20 Running late (still taking orders); null otherwise.
   final MarketLate? late;
+
+  /// 115.40 Free delivery from this basket total on ("EGP 250.00"); null
+  /// when the vendor has no such threshold.
+  final double? freeOver;
+  final String? freeOverText;
 
   /// Outside the vendor's (or the marketplace's) delivery area: no time
   /// and no fee, and no delivery from it (pick-up may still work).
@@ -240,12 +247,24 @@ class MarketItem {
     this.popular = false,
     this.inStock = true,
     this.badge,
+    this.brand,
+    this.barcode,
+    this.minQuantity,
+    this.maxQuantity,
   });
 
   final String id;
   final String name;
   final String? description;
   final String? imageUrl;
+
+  /// 115.40 The brand and the barcode, when the vendor gave them.
+  final String? brand;
+  final String? barcode;
+
+  /// 115.40 The least and most a basket takes, in [unit]; null for no limit.
+  final double? minQuantity;
+  final double? maxQuantity;
 
   /// 115.7.1 Every photo, the main one first.
   final List<String> photos;
@@ -264,6 +283,13 @@ class MarketItem {
   final bool popular;
   final bool inStock;
   final String? badge;
+
+  /// 115.40 Weighed when picked: the price is per [unit].
+  bool get byWeight => unit != MarketUnit.piece;
+
+  /// The least that goes in the basket: its own least, else one step.
+  double get minAmount =>
+      minQuantity ?? (unit == MarketUnit.piece ? 1.0 : step);
 }
 
 /// A menu's section or a shop's aisle.
@@ -273,12 +299,24 @@ class MarketShelf {
     required this.name,
     required this.items,
     this.imageUrl,
+    this.aisles = const [],
   });
 
   final String id;
   final String name;
   final String? imageUrl;
   final List<MarketItem> items;
+
+  /// 115.40 A shop's department's aisles.
+  final List<MarketShelfAisle> aisles;
+}
+
+/// 115.40 An aisle of a shop's department.
+class MarketShelfAisle {
+  const MarketShelfAisle({required this.id, required this.name});
+
+  final String id;
+  final String name;
 }
 
 /// A vendor's page: its card and what it sells.
@@ -291,10 +329,14 @@ class MarketVendorPage {
     this.about,
     this.address,
     this.hours,
+    this.offers = const [],
   });
 
   final MarketVendor vendor;
   final List<MarketShelf> shelves;
+
+  /// 115.40 This vendor's own offers and coupons.
+  final List<MarketOffer> offers;
 
   /// The app's currency and its decimals, for the basket's running total
   /// (the checkout's quote has the real one).

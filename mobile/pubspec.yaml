@@ -47,6 +47,10 @@ dependencies:
   intl: ^0.20.2
   latlong2: 0.10.1
   material_symbols_icons: ^4.2960.0
+  # 115.40 The supermarket's barcode button: finds a product in that store
+  # by its barcode (typed by hand where there is no camera). 7.5.0 was
+  # published on 1 November 2026, over two weeks before it was added.
+  mobile_scanner: 7.5.0
   package_info_plus: 10.2.1
   path_provider: ^2.1.6
   qr_flutter: 4.1.0

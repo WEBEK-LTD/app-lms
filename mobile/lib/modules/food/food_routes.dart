@@ -13,7 +13,10 @@ import '../market/screens/market_complaint_screens.dart';
 import '../market/screens/market_list_screen.dart';
 import '../market/screens/market_order_screen.dart';
 import '../market/screens/market_orders_screen.dart';
+import '../market/data/market_models.dart' show MarketItem;
+import '../market/screens/market_product_screen.dart';
 import '../market/screens/market_search_screen.dart';
+import '../market/screens/market_shelf_screen.dart';
 import '../market/screens/market_vendor_screen.dart';
 import '../delivery/screens/courier_screen.dart';
 import '../shared/account/profile_screen.dart';
@@ -276,6 +279,39 @@ List<RouteBase> _pushedRoutes() => [
   _byId(
     '/market-complaint/:id',
     (id) => MarketComplaintScreen(complaintId: id),
+  ),
+  // 115.40 A supermarket's department, its own search and a product.
+  GoRoute(
+    path: '/market/:vendor/department/:department',
+    pageBuilder: (context, state) => appPage(
+      state,
+      MarketShelfScreen(
+        vendorId: state.pathParameters['vendor'] ?? '',
+        departmentId: state.pathParameters['department'],
+        aisleId: state.uri.queryParameters['aisle'],
+      ),
+    ),
+  ),
+  GoRoute(
+    path: '/market/:vendor/search',
+    pageBuilder: (context, state) => appPage(
+      state,
+      MarketShelfScreen(
+        vendorId: state.pathParameters['vendor'] ?? '',
+        query: state.uri.queryParameters['q'] ?? '',
+      ),
+    ),
+  ),
+  GoRoute(
+    path: '/market/:vendor/product/:id',
+    pageBuilder: (context, state) => appPage(
+      state,
+      MarketProductScreen(
+        vendorId: state.pathParameters['vendor'] ?? '',
+        itemId: state.pathParameters['id'] ?? '',
+        item: state.extra is MarketItem ? state.extra as MarketItem : null,
+      ),
+    ),
   ),
   // 115 A marketplace vendor's page.
   GoRoute(

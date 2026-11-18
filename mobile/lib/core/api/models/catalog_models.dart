@@ -29,15 +29,39 @@ class PageMeta {
 
 /// A paginated list (`Page` + `items`).
 class Paged<T> {
-  const Paged({required this.items, required this.meta});
+  const Paged({required this.items, required this.meta, this.nextCursor});
 
   factory Paged.fromJson(Json json, T Function(Json item) parse) => Paged(
     items: reqListOf(json, 'items', parse),
     meta: PageMeta.fromJson(json),
+    nextCursor: optString(json, 'next_cursor'),
   );
+
+  /// 115.40 A cursor page (`items` and `next_cursor`), with the page's
+  /// numbers when the server sends them.
+  factory Paged.fromCursorJson(Json json, T Function(Json item) parse) {
+    final items = reqListOf(json, 'items', parse);
+    final perPage = optInt(json, 'per_page') ?? items.length;
+    return Paged(
+      items: items,
+      meta: PageMeta(
+        page: optInt(json, 'page') ?? 1,
+        perPage: perPage,
+        total: optInt(json, 'total') ?? items.length,
+        totalPages: optInt(json, 'total_pages') ?? 1,
+      ),
+      nextCursor: optString(json, 'next_cursor'),
+    );
+  }
 
   final List<T> items;
   final PageMeta meta;
+
+  /// 115.40 The next page's cursor; null on the last page, or from servers
+  /// that page by number only ([PageMeta.hasMore] says then).
+  final String? nextCursor;
+
+  bool get hasMore => nextCursor != null || meta.hasMore;
 }
 
 class Category {
