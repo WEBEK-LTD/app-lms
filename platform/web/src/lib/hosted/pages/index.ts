@@ -20,7 +20,7 @@ import { sha256Hex } from "../../crypto/tokens";
 import { readShopCategories } from "./shop-categories";
 import { listHeadings, productFallbacks, withListHeadings, withSampleProduct } from "./lists";
 import "./sources";
-import { ensureStoriesSeeded, servedStories } from "../../stories";
+import { dashboardStoriesSaved, ensureStoriesSeeded, servedStories } from "../../stories";
 import { dashboardStoryElements, withServedStories, type ServedStory, type StoryElementKind } from "../../stories/elements";
 
 /**
@@ -101,8 +101,13 @@ async function servedStudio(pc: PageContext, page: StudioPage): Promise<StudioPa
   const gone = await goneProducts(pc, studio);
   // 157 A template's lists of the shop's categories follow them, read from the layout's own words before any translation.
   const listed = await withCategoryLists(pc, studio.body);
-  // 165 The story elements whose stories come from Dashboard › Stories (copied there from the design the first time).
-  const storyElements = new Map<string, StoryElementKind>(dashboardStoryElements(studio.body).map((e) => [e.node.id, e.kind]));
+  // 165 The story elements whose stories come from Dashboard › Stories (copied there from the design the first time), once
+  // the owner has saved them there; until then they follow the Studio design, the owner's edits there included.
+  const fromDashboard = dashboardStoryElements(studio.body);
+  const saved = fromDashboard.length > 0 && (await dashboardStoriesSaved(pc.ctx.store, pc.ctx.app));
+  // Copied there the first time all the same, so Dashboard › Stories starts from what the app shows.
+  if (fromDashboard.length > 0 && !saved) await ensureStoriesSeeded(pc.ctx.store, pc.ctx.app, pc.ctx.now);
+  const storyElements = new Map<string, StoryElementKind>(saved ? fromDashboard.map((e) => [e.node.id, e.kind]) : []);
   let stories: ServedStory[] | null = null;
   const dashboardStories = async () => {
     if (stories) return stories;

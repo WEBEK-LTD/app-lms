@@ -866,7 +866,8 @@ function DesignTab(props: Props & { node: StudioNode }) {
       {/* 129 Premium motion & media. */}
       {/* 165 Where a story element's stories come from: Dashboard › Stories, or as designed here. */}
       {isStoryElement(node, props.page.body) ? <StoriesSourceControls node={node} body={props.page.body} pickable={props.pickable} onChange={onChange} /> : null}
-      {node.type === "stories" && !fromDashboard(node, props.page.body) ? <StoriesControls {...premiumProps(props, node)} /> : null}
+      {/* 165 The rings' own stories while they follow this design: from Dashboard › Stories only once saved there. */}
+      {node.type === "stories" && (!fromDashboard(node, props.page.body) || !props.pickable.storiesSaved) ? <StoriesControls {...premiumProps(props, node)} /> : null}
       {node.type === "marquee" ? <MarqueeControls {...premiumProps(props, node)} /> : null}
       {node.type === "video_hero" || node.type === "parallax_banner" ? <BannerControls {...premiumProps(props, node)} /> : null}
       {node.type === "gallery" ? <GalleryControls {...premiumProps(props, node)} /> : null}

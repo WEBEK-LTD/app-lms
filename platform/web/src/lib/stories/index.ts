@@ -188,6 +188,18 @@ export function designStories(pages: readonly { slug: string; studio?: { body: S
  * design with no such element leaves the app unmarked, to look again once
  * it has one (the template applied later).
  */
+/**
+ * 165 Whether the owner has saved the app's stories in Dashboard › Stories
+ * (`App.storiesSavedAt`; the copy from Studio isn't theirs). Until then the
+ * story elements follow the Studio design, the owner's edits there
+ * included, so no edit is lost; from then on, the dashboard's. Read as
+ * stored now: the app in hand may have been read before the save.
+ */
+export async function dashboardStoriesSaved(store: DataStore, app: App): Promise<boolean> {
+  if (app.storiesSavedAt) return true;
+  return Boolean((await store.getAppById(app.id))?.storiesSavedAt);
+}
+
 export async function ensureStoriesSeeded(store: DataStore, app: App, now: Date): Promise<number> {
   if (app.storiesSeededAt) return 0;
   // As stored now: the app in hand may have been read before another request copied them (a story removed since stays removed).

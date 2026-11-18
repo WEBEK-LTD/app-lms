@@ -2067,7 +2067,9 @@ on the same channel now signs in with the password there.
 
 ## Phase 165: Dashboard › Stories
 
-Deploy runs migration 0143 (`app_stories`, `apps.stories_seeded_at`) as any
+Deploy runs migrations 0143 (`app_stories`, `apps.stories_seeded_at`) and 0144
+(`apps.stories_saved_at`: until the owner saves in Dashboard › Stories, the
+story elements follow the Studio design) as any
 other. Nothing to copy by hand: each app's Studio stories are copied into
 the dashboard by the code, once, the first time they're needed.
 

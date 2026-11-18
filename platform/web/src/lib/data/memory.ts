@@ -1407,20 +1407,30 @@ export class MemoryStore implements DataStore {
     if (input.importKey !== null && this.appStories.some((s) => s.appId === input.appId && s.importKey === input.importKey)) return null;
     const row: AppStory = { ...clone(input), id: this.nextAppStoryId++ };
     this.appStories.push(row);
+    if (input.importKey === null) this.storiesSaved(input.appId, input.updatedAt);
     return clone(row);
+  }
+
+  /** 165 The owner saved the app's stories in Dashboard › Stories (`App.storiesSavedAt`). */
+  private storiesSaved(appId: string, now: Date): void {
+    const app = this.apps.get(appId);
+    if (app) app.storiesSavedAt = now;
   }
 
   async updateAppStory(appId: string, id: number, patch: Partial<Omit<AppStory, "id" | "appId" | "createdAt" | "importKey">>): Promise<boolean> {
     const found = this.appStories.find((s) => s.appId === appId && s.id === id);
     if (!found) return false;
     Object.assign(found, clone(patch));
+    this.storiesSaved(appId, patch.updatedAt ?? new Date());
     return true;
   }
 
   async deleteAppStory(appId: string, id: number): Promise<boolean> {
     const before = this.appStories.length;
     this.appStories = this.appStories.filter((s) => !(s.appId === appId && s.id === id));
-    return this.appStories.length < before;
+    if (this.appStories.length === before) return false;
+    this.storiesSaved(appId, new Date());
+    return true;
   }
 
   async reorderAppStories(appId: string, ids: number[], now: Date): Promise<void> {
@@ -1428,6 +1438,7 @@ export class MemoryStore implements DataStore {
       const story = this.appStories.find((s) => s.appId === appId && s.id === id);
       if (story && story.position !== position) Object.assign(story, { position, updatedAt: now });
     });
+    this.storiesSaved(appId, now);
   }
 
   async markStoriesSeeded(appId: string, now: Date): Promise<boolean> {

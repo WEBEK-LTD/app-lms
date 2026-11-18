@@ -75,12 +75,18 @@ export const CLIENT_APP_RELEASE = 9;
  *    story's button opens the shop on its category (`Action.category_id`);
  *    older apps show the ring's name, Open and the photo, and open the
  *    shop; 167 Sign out always there for a signed-in person; 168 the gift
- *    checkout end to end: the cart keeps the pin's shipping while the day
- *    waits, the breakdown in the customer's language, no city asked again,
- *    the owner sees the pin; and 171 a tab of the orders, notifications,
+ *    checkout end to end: shipping kept while the day waits, the breakdown
+ *    in the customer's language, no city asked twice, the owner's pin,
+ *    sized products on a flash sale, the sale's own name, a step bar that
+ *    keeps up and fits short screens, and a readable night price; 169 words
+ *    that fit the app's kind (a shop's notifications, not lessons), Turkish
+ *    capitals with their dotted İ, and the gift card's ready messages in
+ *    the customer's language; 171 a tab of the orders, notifications,
  *    settings, chat or teachers shows its screen in its place, the bar
  *    under it, and a journey that follows the person's order shows nothing
- *    without one.
+ *    without one; and 173 an order's screen shows its delivery day and
+ *    time, the recipient and address, the card message and sender, and
+ *    lines that add up to the total (subtotal, coupon, delivery, time fee).
  */
 
 /** Builds made before 138 count as this release, so shipping 138 rebuilds nothing by itself. */

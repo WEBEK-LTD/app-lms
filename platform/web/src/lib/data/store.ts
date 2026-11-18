@@ -881,12 +881,16 @@ export interface DataStore {
   /** 165 The app's stories (Dashboard › Stories), in their order. */
   listAppStories(appId: string): Promise<AppStory[]>;
   getAppStory(appId: string, id: number): Promise<AppStory | null>;
-  /** Null when a story with the same `importKey` is already the app's (a copy from Studio made once). */
+  /**
+   * Null when a story with the same `importKey` is already the app's (a copy from Studio made once).
+   * One without an `importKey` is the owner's: the app's `storiesSavedAt` is set (as by the three below).
+   */
   createAppStory(input: Omit<AppStory, "id">): Promise<AppStory | null>;
-  /** False when the app has no such story. */
+  /** False when the app has no such story. Sets the app's `storiesSavedAt`. */
   updateAppStory(appId: string, id: number, patch: Partial<Omit<AppStory, "id" | "appId" | "createdAt" | "importKey">>): Promise<boolean>;
+  /** Sets the app's `storiesSavedAt` when it removed one. */
   deleteAppStory(appId: string, id: number): Promise<boolean>;
-  /** Puts the app's stories in this order (ids not given keep their order after them). */
+  /** Puts the app's stories in this order (ids not given keep their order after them). Sets the app's `storiesSavedAt`. */
   reorderAppStories(appId: string, ids: number[], now: Date): Promise<void>;
   /** Notes that the app's Studio stories were copied (`apps.stories_seeded_at`); false when it already was. */
   markStoriesSeeded(appId: string, now: Date): Promise<boolean>;

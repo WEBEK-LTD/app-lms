@@ -51,10 +51,19 @@ export function StoriesSourceControls({ node, body, pickable, onChange }: { node
           <option value="studio">{t("stories.studioFromDesign")}</option>
         </select>
       </label>
-      {source === "dashboard" ? (
+      {source === "dashboard" && !pickable.storiesSaved ? (
+        // 165 Until the owner saves in Dashboard › Stories, the app shows these as designed here, the edits here included.
+        <p className="m-0 text-[13px] font-semibold" role="note" data-studio-stories-until-saved>
+          {t("stories.studioUntilSaved")}{" "}
+          <Link href="/studio/project/stories" target="_blank" className="underline">
+            {t("stories.studioOpen")}
+          </Link>
+        </p>
+      ) : null}
+      {source === "dashboard" && pickable.storiesSaved ? (
         <>
-          <p className="m-0 text-[13px] font-semibold" role="note">
-            {t("stories.studioNote")}{" "}
+          <p className="m-0 text-[13px] font-semibold" role="note" data-studio-stories-from-dashboard>
+            {t(kind === "rings" ? "stories.studioRingsNote" : "stories.studioNote")}{" "}
             <Link href="/studio/project/stories" target="_blank" className="underline">
               {t("stories.studioOpen")}
             </Link>

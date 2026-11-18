@@ -1011,7 +1011,6 @@
          {
           "image_url": "http://localhost:3000/flower-photos/blush-bouquet.jpg",
           "heading": "Luxury boxes",
-          "subheading": null,
           "action": {
            "type": "screen",
            "screen": "search",
@@ -1019,16 +1018,11 @@
           },
           "ring": "highlight",
           "ring_color": "#C89B6D",
-          "icon": "favorite",
-          "kicker": "للحب",
-          "title": "قلها بالورد.",
-          "line": "باقات مع بطاقة بكلماتك أنت.",
-          "button_label": "أرسل الزهور"
+          "subheading": null
          },
          {
           "image_url": "http://localhost:3000/flower-photos/tulips.jpg",
           "heading": "Wedding",
-          "subheading": null,
           "action": {
            "type": "screen",
            "screen": "search",
@@ -1036,11 +1030,7 @@
           },
           "ring": "highlight",
           "ring_color": "#C89B6D",
-          "icon": "cake",
-          "kicker": "لعيد ميلاد",
-          "title": "عامٌ جديد يزهر.",
-          "line": "باقات مع بطاقة بكلماتك أنت.",
-          "button_label": "أرسل الزهور"
+          "subheading": null
          }
         ],
         "interval_ms": 5000,
@@ -2140,7 +2130,6 @@
        {
         "image_url": "http://localhost:3000/flower-photos/blush-bouquet.jpg",
         "heading": "Luxury boxes",
-        "subheading": null,
         "action": {
          "type": "screen",
          "screen": "search",
@@ -2148,16 +2137,11 @@
         },
         "ring": "highlight",
         "ring_color": "#C89B6D",
-        "icon": "favorite",
-        "kicker": "للحب",
-        "title": "قلها بالورد.",
-        "line": "باقات مع بطاقة بكلماتك أنت.",
-        "button_label": "أرسل الزهور"
+        "subheading": null
        },
        {
         "image_url": "http://localhost:3000/flower-photos/tulips.jpg",
         "heading": "Wedding",
-        "subheading": null,
         "action": {
          "type": "screen",
          "screen": "search",
@@ -2165,11 +2149,7 @@
         },
         "ring": "highlight",
         "ring_color": "#C89B6D",
-        "icon": "cake",
-        "kicker": "لعيد ميلاد",
-        "title": "عامٌ جديد يزهر.",
-        "line": "باقات مع بطاقة بكلماتك أنت.",
-        "button_label": "أرسل الزهور"
+        "subheading": null
        }
       ],
       "interval_ms": 5000,

@@ -1695,6 +1695,7 @@ export class MysqlStore implements DataStore {
     const { media, texts, icon, action, ...rest } = input;
     try {
       const [result] = await this.run((db) => db.insert(schema.appStories).values({ ...rest, data: { media, texts, icon, action } }));
+      if (input.importKey === null) await this.storiesSaved(input.appId, input.updatedAt);
       return { ...input, id: Number(result.insertId) };
     } catch (error) {
       // A story copied from Studio is copied once (app_stories_import_unique).
@@ -1722,13 +1723,21 @@ export class MysqlStore implements DataStore {
         })
         .where(and(eq(t.appId, appId), eq(t.id, id))),
     );
+    await this.storiesSaved(appId, patch.updatedAt ?? new Date());
     return true;
   }
 
   async deleteAppStory(appId: string, id: number): Promise<boolean> {
     const t = schema.appStories;
     const [result] = await this.run((db) => db.delete(t).where(and(eq(t.appId, appId), eq(t.id, id))));
-    return result.affectedRows > 0;
+    if (result.affectedRows === 0) return false;
+    await this.storiesSaved(appId, new Date());
+    return true;
+  }
+
+  /** 165 The owner saved the app's stories in Dashboard › Stories (`apps.stories_saved_at`); the app's own time stays as it was. */
+  private async storiesSaved(appId: string, now: Date): Promise<void> {
+    await this.run((db) => db.update(schema.apps).set({ storiesSavedAt: now }).where(eq(schema.apps.id, appId)));
   }
 
   async reorderAppStories(appId: string, ids: number[], now: Date): Promise<void> {
@@ -1738,6 +1747,7 @@ export class MysqlStore implements DataStore {
       if (current.find((s) => s.id === id)?.position === position) continue;
       await this.run((db) => db.update(t).set({ position, updatedAt: now }).where(and(eq(t.appId, appId), eq(t.id, id))));
     }
+    await this.storiesSaved(appId, now);
   }
 
   async markStoriesSeeded(appId: string, now: Date): Promise<boolean> {

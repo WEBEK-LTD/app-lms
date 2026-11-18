@@ -1002,6 +1002,13 @@
       "when": 1794981379877,
       "tag": "0143_app_stories",
       "breakpoints": true
+    },
+    {
+      "idx": 144,
+      "version": "5",
+      "when": 1794985510764,
+      "tag": "0144_stories_saved",
+      "breakpoints": true
     }
   ]
 }

@@ -122,6 +122,8 @@ class AppPageView extends ConsumerWidget {
       PageBackground.surface => p.surface,
     };
     final picture = page.headerImageUrl;
+    // 167 The Account as a page of its own: Sign out at its end.
+    final accountEnd = pageStandsForAccount(ref, page.slug);
     final list = ListView(
       padding: EdgeInsets.zero,
       children: [
@@ -147,12 +149,13 @@ class AppPageView extends ConsumerWidget {
           ),
         Padding(
           // 158 Its last block clear of a tab bar over the page, or the
-          // phone's own bar on a page over the tabs.
+          // phone's own bar on a page over the tabs (167 below Sign out when
+          // the Account's end follows: the space is added once).
           padding: EdgeInsets.fromLTRB(
             style.gutter,
             0,
             style.gutter,
-            endRoom(context, 24),
+            accountEnd ? 24 : endRoom(context, 24),
           ),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -192,7 +195,7 @@ class AppPageView extends ConsumerWidget {
           ),
         ),
         // 167 The Account as a page of its own ends with Sign out.
-        if (pageStandsForAccount(ref, page.slug)) ...[
+        if (accountEnd) ...[
           AccountPageEnd(background: background ?? p.background),
           SizedBox(height: accountListEnd(context, 0)),
         ],

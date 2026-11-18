@@ -53,6 +53,8 @@ export interface Pickable {
   shopCategories?: ShopCategories;
   /** 165 Dashboard › Stories, for Studio's canvas (the story elements whose source is the dashboard). */
   stories?: import("../../stories/view").StoryView[];
+  /** 165 Whether the owner has saved them in Dashboard › Stories: until then the story elements follow this design (and stay editable here). */
+  storiesSaved?: boolean;
 }
 
 /** 110 The cards the app shows for a source the platform fills (lib/hosted/pages/sources.ts), by entry. */

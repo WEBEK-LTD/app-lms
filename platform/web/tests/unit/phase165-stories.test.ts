@@ -1,4 +1,10 @@
+import { createElement, type ComponentProps } from "react";
+import { renderToStaticMarkup } from "react-dom/server";
 import { describe, expect, it } from "vitest";
+import { StoriesSourceControls } from "@/app/studio/editor/stories-source-controls";
+import { DashboardI18n } from "@/components/dashboard-i18n";
+import { dashboardMessages, knownEnglish } from "@/i18n/dashboard";
+import type { Pickable } from "@/lib/hosted/pages/pickable";
 import { newApp } from "@/lib/app/setup";
 import { MemoryStore } from "@/lib/data/memory";
 import type { App, AppLayoutRecord } from "@/lib/data/types";
@@ -370,5 +376,68 @@ describe("165 Studio shows the dashboard's stories, and a copy of the app takes 
       [String(mapped), { type: "screen", screen: "courses", category_id: String(mapped) }, true, "home:hero:0"],
       [null, null, false, null],
     ]);
+  });
+});
+
+describe("165 an owner's edit is never lost: the Studio design until the stories are saved in Dashboard › Stories", () => {
+  // The first ring renamed and linked in Studio, as an owner may have done before the dashboard had them.
+  const studioEdited = (layout: LayoutContent): LayoutContent => ({
+    ...layout,
+    pages: layout.pages.map((p) =>
+      p.slug === "home" && p.studio
+        ? { ...p, studio: { ...p.studio, body: mapTree(p.studio.body, (n) => (n.type === "stories" ? { ...n, slides: n.slides!.map((slide, i) => (i === 0 ? { ...slide, heading: "Weddings", action: { type: "screen" as const, screen: "orders" as const } } : slide)) } : n))! } }
+        : p,
+    ),
+  });
+  const note = (lang: "en" | "ar" | "tr", saved: boolean, node: StudioNode, body: StudioNode) => {
+    const pickable = { stories: [], storiesSaved: saved } as unknown as Pickable;
+    const props: ComponentProps<typeof DashboardI18n> = { lang, messages: dashboardMessages(lang), knownEnglish: lang === "en" ? {} : knownEnglish(), children: createElement(StoriesSourceControls, { node, body, pickable, onChange: () => {} }) };
+    return renderToStaticMarkup(createElement(DashboardI18n, props));
+  };
+
+  it("(a) until the owner saves there, the rings follow the Studio design, its edits included; Studio says so", async () => {
+    const store = new MemoryStore();
+    const app = await storiesApp(store);
+    const layout = studioEdited(leqaaLayout(app, "a"));
+    await published(store, app, layout);
+    const rings = ringsOf(await home(store, app, "en")).slides!;
+    expect(rings[0]).toMatchObject({ heading: "Weddings", action: { type: "screen", screen: "orders" } });
+    // Copied into the dashboard all the same, which is no save of the owner's.
+    expect((await store.listAppStories(app.id)).length).toBeGreaterThan(0);
+    expect((await store.getAppById(app.id))?.storiesSavedAt ?? null).toBeNull();
+    const body = layout.pages.find((p) => p.slug === "home")!.studio!.body;
+    const element = allNodes({ body }).find((n) => n.type === "stories")!;
+    expect(storiesSourceOf(element)).toBe("dashboard");
+    expect(note("en", false, element, body)).toContain("Until you save the stories in Dashboard › Stories, the app shows these as designed here");
+    expect(note("en", false, element, body)).not.toContain("These rings come from Dashboard › Stories.");
+  });
+
+  it("(b) once the owner has saved there, the dashboard's; Studio's rings say they come from it (en, Egyptian Arabic, Turkish)", async () => {
+    const store = new MemoryStore();
+    const app = await storiesApp(store);
+    const layout = studioEdited(leqaaLayout(app, "a"));
+    await published(store, app, layout);
+    await home(store, app, "en");
+    const [first] = await store.listAppStories(app.id);
+    // The owner renames the first story's ring in Dashboard › Stories.
+    expect(await store.updateAppStory(app.id, first!.id, { texts: { ...first!.texts, en: { ...first!.texts.en, ring: "From the dashboard" } }, updatedAt: NOW })).toBe(true);
+    expect((await store.getAppById(app.id))?.storiesSavedAt).toEqual(NOW);
+    const rings = ringsOf(await home(store, app, "en")).slides!;
+    expect(rings.map((r) => r.heading)).toContain("From the dashboard");
+    expect(rings.map((r) => r.heading)).not.toContain("Weddings");
+    const body = layout.pages.find((p) => p.slug === "home")!.studio!.body;
+    const element = allNodes({ body }).find((n) => n.type === "stories")!;
+    expect(note("en", true, element, body)).toContain("These rings come from Dashboard › Stories.");
+    expect(note("ar", true, element, body)).toContain("الدواير دي جاية من لوحة التحكم › الستوريز.");
+    expect(note("tr", true, element, body)).toContain("Bu halkalar Panel › Hikâyeler&#x27;den gelir.");
+    expect(note("en", true, element, body)).not.toContain("Until you save");
+    // Removing one is a save too.
+    const other = new MemoryStore();
+    const otherApp = await storiesApp(other);
+    await published(other, otherApp, layout);
+    await home(other, otherApp, "en");
+    const [gone] = await other.listAppStories(otherApp.id);
+    expect(await other.deleteAppStory(otherApp.id, gone!.id)).toBe(true);
+    expect((await other.getAppById(otherApp.id))?.storiesSavedAt).toBeTruthy();
   });
 });

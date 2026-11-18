@@ -80,8 +80,11 @@ export function appStoriesStoreSuite(make: () => DataStore) {
     const first = await s.createAppStory(storyOf(app.id, 0, { importKey: "home:hero:0" }));
     expect(first).not.toBeNull();
     expect(await s.createAppStory(storyOf(app.id, 0, { importKey: "home:hero:0" }))).toBeNull();
-    // The owner's own (no key) are never refused.
+    // A copy from Studio is no save of the owner's (the story elements still follow the design).
+    expect((await s.getAppById(app.id))?.storiesSavedAt ?? null).toBeNull();
+    // The owner's own (no key) are never refused, and saved in Dashboard › Stories.
     expect(await s.createAppStory(storyOf(app.id, 1))).not.toBeNull();
+    expect((await s.getAppById(app.id))?.storiesSavedAt).toBeTruthy();
     expect(await s.createAppStory(storyOf(app.id, 2))).not.toBeNull();
     expect((await s.listAppStories(app.id)).length).toBe(3);
     expect((await s.getAppById(app.id))?.storiesSeededAt ?? null).toBeNull();

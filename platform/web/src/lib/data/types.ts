@@ -793,6 +793,13 @@ export interface App {
   pushRelayAt?: Date | null;
   /** 165 When the stories of its Studio design were copied into Dashboard › Stories (once); null or missing: not yet. */
   storiesSeededAt?: Date | null;
+  /**
+   * 165 When the owner last saved the app's stories in Dashboard › Stories
+   * (added, changed, reordered or removed one; the copy from Studio isn't
+   * the owner's). Null or missing: never, so the story elements still follow
+   * the Studio design, the owner's edits there included.
+   */
+  storiesSavedAt?: Date | null;
   /** Shop settings when the products are managed in the dashboard (connector "catalog"). */
   catalogSettings: CatalogSettings | null;
   /** 77 The chat's settings; null: on (when the plan has chat), without course groups. */

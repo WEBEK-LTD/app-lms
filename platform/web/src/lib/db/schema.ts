@@ -392,6 +392,8 @@ export const apps = mysqlTable(
     pushRelayAt: time("push_relay_at"),
     // 165 When the Studio design's stories were copied into Dashboard › Stories (once); null: not yet.
     storiesSeededAt: time("stories_seeded_at"),
+    // 165 When the owner last saved its stories in Dashboard › Stories (not the copy from Studio); null: never, Studio's design shows.
+    storiesSavedAt: time("stories_saved_at"),
     googlePlayKeyEncrypted: text("google_play_key_encrypted"),
     googlePlayClientEmail: varchar("google_play_client_email", { length: 191 }),
     ascIssuerId: varchar("asc_issuer_id", { length: 64 }),

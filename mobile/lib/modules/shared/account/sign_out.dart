@@ -60,8 +60,9 @@ Future<void> confirmDeleteAccount(BuildContext context, WidgetRef ref) async {
 /// frosted glass; `Scaffold.extendBody` puts its height in the bottom
 /// padding) and past the phone's own bottom edge, so the last entry, Sign
 /// out, can always be scrolled into view and tapped.
+/// 158 The same space as every list's end ([endRoom]).
 double accountListEnd(BuildContext context, double base) =>
-    base + MediaQuery.paddingOf(context).bottom;
+    endRoom(context, base);
 
 /// 167 The end the app adds to a Studio page that stands for the Account
 /// and has no Sign out of its own: Sign out, then Delete account, on a card
