@@ -19885,6 +19885,738 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Open the payment page'**
   String get paySheetOpenAgain;
+
+  /// 115.70 Under the place's name on the vendor desk: the app, the signed-in person's first name and role.
+  ///
+  /// In en, this message translates to:
+  /// **'{app} · {name}, {role}'**
+  String vendorSignedInAs(String app, String name, String role);
+
+  /// 115.70 The ringing bell on the vendor desk: how many orders wait for an answer.
+  ///
+  /// In en, this message translates to:
+  /// **'{n, plural, other{{n} new}}'**
+  String vendorNewCount(int n);
+
+  /// 115.70 The sound switch on the vendor desk, while new orders ring.
+  ///
+  /// In en, this message translates to:
+  /// **'Sound on'**
+  String get vendorSoundOn;
+
+  /// 115.70 The sound switch on the vendor desk, while new orders are silent.
+  ///
+  /// In en, this message translates to:
+  /// **'Sound off'**
+  String get vendorSoundOff;
+
+  /// 115.70 Next to the place's state on the vendor desk: opens the busy and pause choices.
+  ///
+  /// In en, this message translates to:
+  /// **'Busy?'**
+  String get vendorBusyAsk;
+
+  /// 115.70 After Busy?: the extra minutes it offers first.
+  ///
+  /// In en, this message translates to:
+  /// **'+{n} min'**
+  String vendorBusyPlus(int n);
+
+  /// 115.70 A tile on the vendor desk.
+  ///
+  /// In en, this message translates to:
+  /// **'Orders today'**
+  String get vendorOrdersToday;
+
+  /// 115.70 A tile on the vendor desk.
+  ///
+  /// In en, this message translates to:
+  /// **'Sales today'**
+  String get vendorSalesToday;
+
+  /// 115.70 A tile on the vendor desk: orders waiting for an answer.
+  ///
+  /// In en, this message translates to:
+  /// **'New now'**
+  String get vendorNewNow;
+
+  /// 115.70 The vendor desk's lists: new orders.
+  ///
+  /// In en, this message translates to:
+  /// **'New'**
+  String get vendorTabNew;
+
+  /// 115.70 The vendor desk's lists: accepted, being prepared or picked.
+  ///
+  /// In en, this message translates to:
+  /// **'Preparing'**
+  String get vendorTabPreparing;
+
+  /// 115.70 The vendor desk's lists: ready, waiting to be taken.
+  ///
+  /// In en, this message translates to:
+  /// **'Ready'**
+  String get vendorTabReady;
+
+  /// 115.70 The vendor desk's lists: orders for later.
+  ///
+  /// In en, this message translates to:
+  /// **'For later'**
+  String get vendorTabLater;
+
+  /// 115.70 The vendor desk's lists: the last days' finished orders.
+  ///
+  /// In en, this message translates to:
+  /// **'Done'**
+  String get vendorTabDone;
+
+  /// 115.70 The tag of a new order that is ringing.
+  ///
+  /// In en, this message translates to:
+  /// **'Ringing'**
+  String get vendorRinging;
+
+  /// 115.70 The tag of a new order waiting for an answer, after the first.
+  ///
+  /// In en, this message translates to:
+  /// **'New'**
+  String get vendorNewTag;
+
+  /// 115.70 How long ago a new order came, in minutes.
+  ///
+  /// In en, this message translates to:
+  /// **'{n} min ago'**
+  String vendorAgo(int n);
+
+  /// 115.70 A new order that came less than a minute ago.
+  ///
+  /// In en, this message translates to:
+  /// **'just now'**
+  String get vendorJustNow;
+
+  /// 115.70 On an order: the app's courier takes it.
+  ///
+  /// In en, this message translates to:
+  /// **'The app\'s courier'**
+  String get vendorByAppCourier;
+
+  /// 115.70 On an order: the place's own driver takes it.
+  ///
+  /// In en, this message translates to:
+  /// **'Our driver'**
+  String get vendorByOwnDriver;
+
+  /// 115.70 On an order: the customer picks it up.
+  ///
+  /// In en, this message translates to:
+  /// **'Pick-up'**
+  String get vendorPickupTag;
+
+  /// 115.70 On an order: paid in cash.
+  ///
+  /// In en, this message translates to:
+  /// **'Cash'**
+  String get vendorPayCash;
+
+  /// 115.70 On an order: paid by card.
+  ///
+  /// In en, this message translates to:
+  /// **'Card'**
+  String get vendorPayCard;
+
+  /// 115.70 On an order: paid from the wallet.
+  ///
+  /// In en, this message translates to:
+  /// **'Wallet'**
+  String get vendorPayWallet;
+
+  /// 115.70 On an order: how many of its lines are weighed.
+  ///
+  /// In en, this message translates to:
+  /// **'{n} by weight'**
+  String vendorByWeight(int n);
+
+  /// 115.70 On an order: how many lines it has.
+  ///
+  /// In en, this message translates to:
+  /// **'{n} items'**
+  String vendorItemCount(int n);
+
+  /// 115.70 The tag of a line sold by weight on a new order.
+  ///
+  /// In en, this message translates to:
+  /// **'weigh'**
+  String get vendorWeighTag;
+
+  /// 115.70 After +N on a new order: the lines not shown.
+  ///
+  /// In en, this message translates to:
+  /// **'more items'**
+  String get vendorMoreItems;
+
+  /// 115.70 Above the minutes a new order needs.
+  ///
+  /// In en, this message translates to:
+  /// **'Ready in'**
+  String get vendorReadyIn;
+
+  /// 115.70 Under a number of minutes in the ready-in choices.
+  ///
+  /// In en, this message translates to:
+  /// **'min'**
+  String get vendorMin;
+
+  /// 115.70 The accept button: accept, ready at that time.
+  ///
+  /// In en, this message translates to:
+  /// **'Accept · ready {time}'**
+  String vendorAcceptReady(String time);
+
+  /// 115.70 The button that turns a new order down.
+  ///
+  /// In en, this message translates to:
+  /// **'Turn down'**
+  String get vendorTurnDown;
+
+  /// 115.70 The title of the reasons to turn an order down.
+  ///
+  /// In en, this message translates to:
+  /// **'Why are you turning it down?'**
+  String get vendorRejectWhy;
+
+  /// 115.70 A reason to turn an order down.
+  ///
+  /// In en, this message translates to:
+  /// **'We\'re closing'**
+  String get vendorWhyClosing;
+
+  /// 115.70 A reason to turn an order down.
+  ///
+  /// In en, this message translates to:
+  /// **'Too busy'**
+  String get vendorWhyTooBusy;
+
+  /// 115.70 A reason to turn an order down.
+  ///
+  /// In en, this message translates to:
+  /// **'Items unavailable'**
+  String get vendorWhyItems;
+
+  /// 115.70 A reason to turn an order down.
+  ///
+  /// In en, this message translates to:
+  /// **'Too far'**
+  String get vendorWhyTooFar;
+
+  /// 115.70 A reason to turn an order down.
+  ///
+  /// In en, this message translates to:
+  /// **'Other'**
+  String get vendorWhyOther;
+
+  /// 115.71 The picking screen's title: the order and the customer's first name.
+  ///
+  /// In en, this message translates to:
+  /// **'Order {ref} · {name}'**
+  String vendorOrderTitle(String ref, String name);
+
+  /// 115.71 Under the picking title: when the app's courier comes.
+  ///
+  /// In en, this message translates to:
+  /// **'Courier comes {time}'**
+  String vendorCourierComes(String time);
+
+  /// 115.71 Under the picking title: when it should be ready.
+  ///
+  /// In en, this message translates to:
+  /// **'Ready by {time}'**
+  String vendorReadyBy(String time);
+
+  /// 115.71 Under the picking title: how long it has been picked.
+  ///
+  /// In en, this message translates to:
+  /// **'picking {time}'**
+  String vendorPickingFor(String time);
+
+  /// 115.71 A heading of the picking list: the aisle's name and number.
+  ///
+  /// In en, this message translates to:
+  /// **'{aisle} · aisle {n}'**
+  String vendorAisle(String aisle, int n);
+
+  /// 115.71 The picking list's heading for items in no aisle.
+  ///
+  /// In en, this message translates to:
+  /// **'Other items'**
+  String get vendorOtherItems;
+
+  /// 115.71 Before what the customer ordered of a line.
+  ///
+  /// In en, this message translates to:
+  /// **'Asked'**
+  String get vendorAsked;
+
+  /// 115.71 A line's choice: a similar item when it's out.
+  ///
+  /// In en, this message translates to:
+  /// **'If out: similar'**
+  String get vendorIfOutSimilar;
+
+  /// 115.71 A line's choice: the item the customer chose when it's out.
+  ///
+  /// In en, this message translates to:
+  /// **'If out: their pick'**
+  String get vendorIfOutChosen;
+
+  /// 115.71 A line's choice: left out when it's out.
+  ///
+  /// In en, this message translates to:
+  /// **'If out: leave it out'**
+  String get vendorIfOutRemove;
+
+  /// 115.71 Above the weight typed on the keypad.
+  ///
+  /// In en, this message translates to:
+  /// **'Actual weight'**
+  String get vendorActualWeight;
+
+  /// 115.71 The weighed price before the cap.
+  ///
+  /// In en, this message translates to:
+  /// **'Scale price {amount}'**
+  String vendorScalePrice(String amount);
+
+  /// 115.71 What the customer pays for the weighed line.
+  ///
+  /// In en, this message translates to:
+  /// **'Charged {amount}'**
+  String vendorCharged(String amount);
+
+  /// 115.71 Under the charged price of a card or Apple Pay or Google Pay order.
+  ///
+  /// In en, this message translates to:
+  /// **'Card: never above the estimate'**
+  String get vendorCapCard;
+
+  /// 115.71 Under the charged price of a wallet order.
+  ///
+  /// In en, this message translates to:
+  /// **'Wallet: never above the estimate'**
+  String get vendorCapWallet;
+
+  /// 115.71 Under the charged price of a cash order: the heaviest it may weigh.
+  ///
+  /// In en, this message translates to:
+  /// **'Cash: at most {weight}'**
+  String vendorCapCash(String weight);
+
+  /// 115.71 A cash order's weight above the tolerance.
+  ///
+  /// In en, this message translates to:
+  /// **'Too heavy for a cash order: at most {weight}'**
+  String vendorOverCap(String weight);
+
+  /// 115.71 The keypad's scale key.
+  ///
+  /// In en, this message translates to:
+  /// **'From scale'**
+  String get vendorFromScale;
+
+  /// 115.71 Shown when the scale key is tapped.
+  ///
+  /// In en, this message translates to:
+  /// **'A connected scale comes later. Type the weight for now.'**
+  String get vendorScaleLater;
+
+  /// 115.71 The button: this line is out of stock.
+  ///
+  /// In en, this message translates to:
+  /// **'Out'**
+  String get vendorOut;
+
+  /// 115.71 The button: offer something else for this line.
+  ///
+  /// In en, this message translates to:
+  /// **'Swap'**
+  String get vendorSwap;
+
+  /// 115.71 The button: this line is picked.
+  ///
+  /// In en, this message translates to:
+  /// **'Picked'**
+  String get vendorPickedButton;
+
+  /// 115.71 A line found out of stock.
+  ///
+  /// In en, this message translates to:
+  /// **'Out of stock'**
+  String get vendorLineOut;
+
+  /// 115.71 A proposed substitute waiting for the customer, with the time left.
+  ///
+  /// In en, this message translates to:
+  /// **'Asked the customer · {time} left'**
+  String vendorAskedCustomer(String time);
+
+  /// 115.71 A weighed line once picked.
+  ///
+  /// In en, this message translates to:
+  /// **'Weighed {weight} of {ordered} · {price}'**
+  String vendorWeighed(String weight, String ordered, String price);
+
+  /// 115.71 A line of items once picked.
+  ///
+  /// In en, this message translates to:
+  /// **'Picked {qty} · {price}'**
+  String vendorPickedLine(String qty, String price);
+
+  /// 115.71 The customer's own pick brought instead of a line.
+  ///
+  /// In en, this message translates to:
+  /// **'Their pick, for {name}'**
+  String vendorTheirPick(String name);
+
+  /// 115.71 A substitute the customer accepted.
+  ///
+  /// In en, this message translates to:
+  /// **'Instead of {name}'**
+  String vendorInsteadOf(String name);
+
+  /// 115.71 A line left out of the order.
+  ///
+  /// In en, this message translates to:
+  /// **'Left out'**
+  String get vendorLeftOut;
+
+  /// 115.71 The button once every line is done: for the app's courier.
+  ///
+  /// In en, this message translates to:
+  /// **'Ready for courier'**
+  String get vendorReadyForCourier;
+
+  /// 115.71 The button once every line is done: for the customer to pick up.
+  ///
+  /// In en, this message translates to:
+  /// **'Ready for pick-up'**
+  String get vendorReadyForPickup;
+
+  /// 115.71 The button once every line is done: for the place's own driver.
+  ///
+  /// In en, this message translates to:
+  /// **'Ready for our driver'**
+  String get vendorReadyForDriver;
+
+  /// 115.71 Under the ready button: the lines still to do.
+  ///
+  /// In en, this message translates to:
+  /// **'{n, plural, =1{1 line left: {names}} other{{n} lines left: {names}}}'**
+  String vendorLinesLeft(int n, String names);
+
+  /// 115.71 A line left, its substitute waiting for the customer.
+  ///
+  /// In en, this message translates to:
+  /// **'{name} waiting for the customer'**
+  String vendorWaitingCustomer(String name);
+
+  /// 115.71 The sheet that offers the customer a substitute.
+  ///
+  /// In en, this message translates to:
+  /// **'Offer something similar'**
+  String get vendorSwapTitle;
+
+  /// 115.71 Under the substitute sheet's title.
+  ///
+  /// In en, this message translates to:
+  /// **'Same aisle, never dearer than {price}'**
+  String vendorSwapRule(String price);
+
+  /// 115.71 The button that asks the customer about a substitute.
+  ///
+  /// In en, this message translates to:
+  /// **'Ask the customer'**
+  String get vendorSwapAsk;
+
+  /// 115.71 What happens after a substitute is offered.
+  ///
+  /// In en, this message translates to:
+  /// **'The customer has 5 minutes to answer; then their choice for missing items applies.'**
+  String get vendorSwapNote;
+
+  /// 115.71 No substitute found.
+  ///
+  /// In en, this message translates to:
+  /// **'Nothing similar in stock at this price.'**
+  String get vendorSwapNone;
+
+  /// 115.71 After a substitute was offered.
+  ///
+  /// In en, this message translates to:
+  /// **'Asked the customer.'**
+  String get vendorSwapAsked;
+
+  /// 115.71 The swap of a line whose customer chose the substitute.
+  ///
+  /// In en, this message translates to:
+  /// **'Bring their pick'**
+  String get vendorBringTheirPick;
+
+  /// 115.72 Under the Stock title: the place, its products and how many are out.
+  ///
+  /// In en, this message translates to:
+  /// **'{store} · {n} products · {out} out'**
+  String vendorStockSummary(String store, int n, int out);
+
+  /// 115.72 The stock search's hint.
+  ///
+  /// In en, this message translates to:
+  /// **'Name, SKU or barcode'**
+  String get vendorStockHint;
+
+  /// 115.72 A stock filter.
+  ///
+  /// In en, this message translates to:
+  /// **'All'**
+  String get vendorFilterAll;
+
+  /// 115.72 A stock filter: out of stock.
+  ///
+  /// In en, this message translates to:
+  /// **'Out of stock'**
+  String get vendorFilterOut;
+
+  /// 115.72 A stock filter: sold by weight.
+  ///
+  /// In en, this message translates to:
+  /// **'By weight'**
+  String get vendorFilterWeight;
+
+  /// 115.72 A stock filter: on offer.
+  ///
+  /// In en, this message translates to:
+  /// **'Offers'**
+  String get vendorFilterOffers;
+
+  /// 115.72 A product in stock.
+  ///
+  /// In en, this message translates to:
+  /// **'In stock'**
+  String get vendorInStock;
+
+  /// 115.72 A product in stock, counted.
+  ///
+  /// In en, this message translates to:
+  /// **'In stock · {n} left'**
+  String vendorInStockLeft(int n);
+
+  /// 115.72 Kilograms, short.
+  ///
+  /// In en, this message translates to:
+  /// **'kg'**
+  String get vendorUnitKg;
+
+  /// 115.72 Grams, short.
+  ///
+  /// In en, this message translates to:
+  /// **'g'**
+  String get vendorUnitG;
+
+  /// 115.72 Litres, short.
+  ///
+  /// In en, this message translates to:
+  /// **'l'**
+  String get vendorUnitL;
+
+  /// 115.72 After a product's SKU: its price is per kilo.
+  ///
+  /// In en, this message translates to:
+  /// **'per kg'**
+  String get vendorPerKg;
+
+  /// 115.72 The price editor's field.
+  ///
+  /// In en, this message translates to:
+  /// **'New price'**
+  String get vendorNewPrice;
+
+  /// 115.72 The price editor's field, for a price per unit.
+  ///
+  /// In en, this message translates to:
+  /// **'New price / {unit}'**
+  String vendorNewPricePer(String unit);
+
+  /// 115.72 The price before the offer, struck through.
+  ///
+  /// In en, this message translates to:
+  /// **'Shown as was'**
+  String get vendorShownAsWas;
+
+  /// 115.72 The price editor's check: show the old price struck through.
+  ///
+  /// In en, this message translates to:
+  /// **'Show as an offer'**
+  String get vendorShowOffer;
+
+  /// 115.72 The price editor's save.
+  ///
+  /// In en, this message translates to:
+  /// **'Save'**
+  String get vendorSave;
+
+  /// 115.72 The price editor's cancel.
+  ///
+  /// In en, this message translates to:
+  /// **'Cancel'**
+  String get vendorCancel;
+
+  /// 115.72 Under the price editor: who the new price applies to.
+  ///
+  /// In en, this message translates to:
+  /// **'{n, plural, =0{Applies at once to new orders; orders already placed keep their price.} =1{Applies at once to new orders, not to the 1 already placed.} other{Applies at once to new orders, not to the {n} already placed.}}'**
+  String vendorPriceApplies(int n);
+
+  /// 115.72 Under the price editor: the owner's team sees each change.
+  ///
+  /// In en, this message translates to:
+  /// **'{team}\'s team sees each change and can undo it.'**
+  String vendorPriceUndo(String team);
+
+  /// 115.72 After a new price is saved.
+  ///
+  /// In en, this message translates to:
+  /// **'New price saved'**
+  String get vendorPriceSaved;
+
+  /// 115.72 A price that isn't a number above zero.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter a price above zero.'**
+  String get vendorPriceInvalid;
+
+  /// 115.72 The price before the offer isn't above the new one.
+  ///
+  /// In en, this message translates to:
+  /// **'The price it was must be above the new one.'**
+  String get vendorWasAbove;
+
+  /// 115.72 The toast after a barcode is read.
+  ///
+  /// In en, this message translates to:
+  /// **'Scanned: {name}'**
+  String vendorScanned(String name);
+
+  /// 115.72 The toast's button: open the scanned product.
+  ///
+  /// In en, this message translates to:
+  /// **'Open'**
+  String get vendorOpen;
+
+  /// 115.72 No product has the scanned code.
+  ///
+  /// In en, this message translates to:
+  /// **'Nothing here has the code {code}.'**
+  String vendorScanNotFound(String code);
+
+  /// 115.72 The scan button and its sheet.
+  ///
+  /// In en, this message translates to:
+  /// **'Scan a barcode'**
+  String get vendorScanTitle;
+
+  /// 115.72 The scan sheet's field, typed or pasted.
+  ///
+  /// In en, this message translates to:
+  /// **'Type or paste the barcode or SKU'**
+  String get vendorScanTyped;
+
+  /// 115.72 The scan sheet's button.
+  ///
+  /// In en, this message translates to:
+  /// **'Find'**
+  String get vendorScanFind;
+
+  /// 115.72 The add button on Stock and its sheet.
+  ///
+  /// In en, this message translates to:
+  /// **'Add a product'**
+  String get vendorAddProduct;
+
+  /// 115.72 The new product's name.
+  ///
+  /// In en, this message translates to:
+  /// **'Name'**
+  String get vendorProductName;
+
+  /// 115.72 The new product's price.
+  ///
+  /// In en, this message translates to:
+  /// **'Price'**
+  String get vendorPrice;
+
+  /// 115.72 A new product sold by the item.
+  ///
+  /// In en, this message translates to:
+  /// **'By the item'**
+  String get vendorSoldByItem;
+
+  /// 115.72 A new product sold by the kilo.
+  ///
+  /// In en, this message translates to:
+  /// **'By the kilo'**
+  String get vendorSoldByKg;
+
+  /// 115.72 The new product's own code.
+  ///
+  /// In en, this message translates to:
+  /// **'SKU'**
+  String get vendorSku;
+
+  /// 115.72 The new product's barcode.
+  ///
+  /// In en, this message translates to:
+  /// **'Barcode'**
+  String get vendorBarcode;
+
+  /// 115.72 The add sheet's button.
+  ///
+  /// In en, this message translates to:
+  /// **'Add'**
+  String get vendorAdd;
+
+  /// 115.72 After a product is added.
+  ///
+  /// In en, this message translates to:
+  /// **'Product added'**
+  String get vendorProductAdded;
+
+  /// 115.71 Millilitres, short, for a weighed line sold by the litre.
+  ///
+  /// In en, this message translates to:
+  /// **'ml'**
+  String get vendorUnitMl;
+
+  /// 115.70 A staff member's role, after their name on the vendor desk.
+  ///
+  /// In en, this message translates to:
+  /// **'Owner'**
+  String get vendorRoleOwner;
+
+  /// 115.70 A staff member's role, after their name on the vendor desk.
+  ///
+  /// In en, this message translates to:
+  /// **'Manager'**
+  String get vendorRoleManager;
+
+  /// 115.70 A staff member's role, after their name on the vendor desk.
+  ///
+  /// In en, this message translates to:
+  /// **'Orders'**
+  String get vendorRoleOrders;
+
+  /// 115.70 A staff member's role, after their name on the vendor desk.
+  ///
+  /// In en, this message translates to:
+  /// **'Picker'**
+  String get vendorRolePicker;
 }
 
 class _AppLocalizationsDelegate

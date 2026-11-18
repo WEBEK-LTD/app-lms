@@ -19,17 +19,28 @@ import '../data/vendor_providers.dart';
 import 'vendor_pick_screen.dart' show pickAmountText;
 import '../../shared/staff_scaffold.dart';
 
-/// The minutes a vendor may say an order takes.
-const vendorPrepChoices = [10, 15, 20, 30, 45, 60, 90];
+/// The minutes a vendor may say an order takes. 115.70 The owner's
+/// choice (design 08): 10, 15, 20, 30 or 45.
+const vendorPrepChoices = [10, 15, 20, 30, 45];
 
+/// 115.70 Why an order is turned down: the partner panel's reasons.
 String vendorRejectionText(AppLocalizations l10n, VendorRejection r) =>
     switch (r) {
-      VendorRejection.closing => l10n.rejectClosing,
-      VendorRejection.tooBusy => l10n.rejectTooBusy,
-      VendorRejection.itemsUnavailable => l10n.rejectItemUnavailable,
-      VendorRejection.outsideArea => l10n.vendorRejectOutsideArea,
-      VendorRejection.other => l10n.rejectOther,
+      VendorRejection.closing => l10n.vendorWhyClosing,
+      VendorRejection.tooBusy => l10n.vendorWhyTooBusy,
+      VendorRejection.itemsUnavailable => l10n.vendorWhyItems,
+      VendorRejection.outsideArea => l10n.vendorWhyTooFar,
+      VendorRejection.other => l10n.vendorWhyOther,
     };
+
+/// Asks why an order is turned down, and an optional note for the app's
+/// team.
+Future<({VendorRejection reason, String? note})?> askVendorRejection(
+  BuildContext context,
+) => showDialog<({VendorRejection reason, String? note})>(
+  context: context,
+  builder: (_) => const _RejectDialog(),
+);
 
 /// 115 An order as the vendor's staff work it: the items, the customer's
 /// first name and notes, how it is paid and the cash to collect; accept
@@ -117,10 +128,7 @@ class _VendorOrderScreenState extends ConsumerState<VendorOrderScreen> {
 
   Future<void> _reject() async {
     final l10n = context.l10n;
-    final picked = await showDialog<({VendorRejection reason, String? note})>(
-      context: context,
-      builder: (_) => const _RejectDialog(),
-    );
+    final picked = await askVendorRejection(context);
     if (picked == null || !mounted) return;
     await _run(
       (api) => api.rejectVendorOrder(
@@ -159,7 +167,12 @@ class _VendorOrderScreenState extends ConsumerState<VendorOrderScreen> {
     // 115.16 A grocery's or shop's order is picked line by line before
     // it is ready.
     final picks = desk != null && desk.kind != VendorKind.restaurant;
-    final unpicked = picks && o.lines.any((l) => l.outcome == null);
+    // 115.71 Not ready while a substitute waits for the customer.
+    final now = DateTime.now();
+    final unpicked =
+        picks &&
+        (o.lines.any((l) => l.outcome == null) ||
+            o.proposals.values.any((p) => p.waitingAt(now)));
     return switch (o.status) {
       MarketOrderStatus.placed => [
         PrimaryButton(
@@ -173,7 +186,7 @@ class _VendorOrderScreenState extends ConsumerState<VendorOrderScreen> {
         TextButton(
           key: const ValueKey('vendor-reject'),
           onPressed: _busy ? null : _reject,
-          child: Text(l10n.deskReject),
+          child: Text(l10n.vendorTurnDown),
         ),
       ],
       MarketOrderStatus.accepted || MarketOrderStatus.picking when unpicked => [
@@ -512,7 +525,7 @@ class _RejectDialogState extends State<_RejectDialog> {
   Widget build(BuildContext context) {
     final l10n = context.l10n;
     return AlertDialog(
-      title: Text(l10n.deskRejectTitle),
+      title: Text(l10n.vendorRejectWhy),
       content: SingleChildScrollView(
         child: Column(
           mainAxisSize: MainAxisSize.min,
@@ -554,7 +567,7 @@ class _RejectDialogState extends State<_RejectDialog> {
             reason: _reason,
             note: _note.text.trim().isEmpty ? null : _note.text.trim(),
           )),
-          child: Text(l10n.deskReject),
+          child: Text(l10n.vendorTurnDown),
         ),
       ],
     );

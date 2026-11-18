@@ -2608,6 +2608,98 @@ class FakeApi implements YallappApi {
         return MarketProduct.fromJson(p);
       });
 
+  /// 115.72 Stock with its codes: [vendorProducts] searched by name, SKU or
+  /// barcode.
+  @override
+  Future<Paged<VendorStockItem>> listVendorStock({
+    int page = 1,
+    String? query,
+    String? barcode,
+    bool outOfStock = false,
+  }) => _answer('listVendorStock', () {
+    bool matches(Map<String, dynamic> p) {
+      if (barcode != null) {
+        return p['barcode'] == barcode || p['sku'] == barcode;
+      }
+      if (query == null) return true;
+      final q = query.toLowerCase();
+      return '${p['name']}'.toLowerCase().contains(q) ||
+          '${p['sku'] ?? ''}'.toLowerCase().contains(q) ||
+          '${p['barcode'] ?? ''}'.contains(q);
+    }
+
+    return Paged.fromJson(
+      pageJson([
+        for (final p in vendorProducts)
+          if ((!outOfStock || p['in_stock'] == false) && matches(p)) p,
+      ]),
+      VendorStockItem.fromJson,
+    );
+  });
+
+  @override
+  Future<VendorStockItem> updateVendorProductPrice(
+    int id, {
+    required String price,
+    String? wasPrice,
+  }) => _answer('updateVendorProductPrice', () {
+    vendorCalls.add('price $id $price was=$wasPrice');
+    final p = vendorProducts.firstWhere((p) => p['id'] == id);
+    p['price'] = {'amount': price, 'formatted': 'EGP $price'};
+    p['was_price'] = wasPrice == null
+        ? null
+        : {'amount': wasPrice, 'formatted': 'EGP $wasPrice'};
+    return VendorStockItem.fromJson(p);
+  });
+
+  @override
+  Future<VendorStockItem> createVendorProduct(
+    VendorProductDraft draft,
+  ) => _answer('createVendorProduct', () {
+    vendorCalls.add(
+      'create ${draft.name} ${draft.price} ${draft.byWeight ? 'kg' : 'item'} ${draft.sku} ${draft.barcode}',
+    );
+    final p = {
+      'id': 900 + vendorProducts.length,
+      ...draft.toJson(),
+      'price': {'amount': draft.price, 'formatted': 'EGP ${draft.price}'},
+      'in_stock': true,
+    };
+    vendorProducts.insert(0, p);
+    return VendorStockItem.fromJson(p);
+  });
+
+  @override
+  Future<VendorOrder> proposeVendorSubstitute(
+    int orderId,
+    int lineId, {
+    required int productId,
+    required double quantity,
+  }) => _answer('proposeVendorSubstitute', () {
+    vendorCalls.add('propose $orderId $lineId $productId $quantity');
+    final o = _vendorOrder(orderId);
+    final product = vendorProducts.firstWhere((p) => p['id'] == productId);
+    for (final line in (o['lines'] as List).cast<Map<String, dynamic>>()) {
+      if (line['id'] == lineId) {
+        line['proposal'] = {
+          'product': {
+            'id': productId,
+            'name': product['name'],
+            'image_url': product['image_url'],
+          },
+          'quantity': quantity,
+          'price': product['price'],
+          'expires_at': DateTime.now()
+              .add(const Duration(minutes: 5))
+              .toUtc()
+              .toIso8601String(),
+          'status': 'waiting',
+        };
+      }
+    }
+    return VendorOrder.fromJson(o);
+  });
+
   /// 115.16 The statements by month (`YYYY-MM`, `''` for this month) and
   /// the complaints shared with the vendor.
   final vendorStatements = <String, Map<String, dynamic>>{};

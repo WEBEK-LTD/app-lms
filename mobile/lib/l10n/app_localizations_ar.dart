@@ -12809,4 +12809,458 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get paySheetOpenAgain => 'افتح صفحة الدفع';
+
+  @override
+  String vendorSignedInAs(String app, String name, String role) {
+    return '$app · $name، $role';
+  }
+
+  @override
+  String vendorNewCount(int n) {
+    String _temp0 = intl.Intl.pluralLogic(
+      n,
+      locale: localeName,
+      other: '$n طلبًا جديدًا',
+      few: '$n طلبات جديدة',
+      two: 'طلبان جديدان',
+      one: 'طلب جديد',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get vendorSoundOn => 'الصوت مفعّل';
+
+  @override
+  String get vendorSoundOff => 'الصوت متوقف';
+
+  @override
+  String get vendorBusyAsk => 'مشغول؟';
+
+  @override
+  String vendorBusyPlus(int n) {
+    return '+$n دقيقة';
+  }
+
+  @override
+  String get vendorOrdersToday => 'طلبات اليوم';
+
+  @override
+  String get vendorSalesToday => 'مبيعات اليوم';
+
+  @override
+  String get vendorNewNow => 'جديدة الآن';
+
+  @override
+  String get vendorTabNew => 'جديدة';
+
+  @override
+  String get vendorTabPreparing => 'قيد التحضير';
+
+  @override
+  String get vendorTabReady => 'جاهزة';
+
+  @override
+  String get vendorTabLater => 'لوقت لاحق';
+
+  @override
+  String get vendorTabDone => 'منتهية';
+
+  @override
+  String get vendorRinging => 'يرنّ';
+
+  @override
+  String get vendorNewTag => 'جديد';
+
+  @override
+  String vendorAgo(int n) {
+    return 'منذ $n دقيقة';
+  }
+
+  @override
+  String get vendorJustNow => 'الآن';
+
+  @override
+  String get vendorByAppCourier => 'مندوب التطبيق';
+
+  @override
+  String get vendorByOwnDriver => 'سائقنا';
+
+  @override
+  String get vendorPickupTag => 'استلام من المكان';
+
+  @override
+  String get vendorPayCash => 'نقدًا';
+
+  @override
+  String get vendorPayCard => 'بطاقة';
+
+  @override
+  String get vendorPayWallet => 'المحفظة';
+
+  @override
+  String vendorByWeight(int n) {
+    return '$n بالوزن';
+  }
+
+  @override
+  String vendorItemCount(int n) {
+    return '$n أصناف';
+  }
+
+  @override
+  String get vendorWeighTag => 'وزن';
+
+  @override
+  String get vendorMoreItems => 'أصناف أخرى';
+
+  @override
+  String get vendorReadyIn => 'جاهز خلال';
+
+  @override
+  String get vendorMin => 'د';
+
+  @override
+  String vendorAcceptReady(String time) {
+    return 'قبول · جاهز $time';
+  }
+
+  @override
+  String get vendorTurnDown => 'رفض';
+
+  @override
+  String get vendorRejectWhy => 'لماذا ترفض الطلب؟';
+
+  @override
+  String get vendorWhyClosing => 'نحن على وشك الإغلاق';
+
+  @override
+  String get vendorWhyTooBusy => 'ضغط كبير';
+
+  @override
+  String get vendorWhyItems => 'أصناف غير متوفرة';
+
+  @override
+  String get vendorWhyTooFar => 'المسافة بعيدة';
+
+  @override
+  String get vendorWhyOther => 'سبب آخر';
+
+  @override
+  String vendorOrderTitle(String ref, String name) {
+    return 'الطلب $ref · $name';
+  }
+
+  @override
+  String vendorCourierComes(String time) {
+    return 'يصل المندوب $time';
+  }
+
+  @override
+  String vendorReadyBy(String time) {
+    return 'جاهز بحلول $time';
+  }
+
+  @override
+  String vendorPickingFor(String time) {
+    return 'التجهيز $time';
+  }
+
+  @override
+  String vendorAisle(String aisle, int n) {
+    return '$aisle · الممر $n';
+  }
+
+  @override
+  String get vendorOtherItems => 'أصناف أخرى';
+
+  @override
+  String get vendorAsked => 'المطلوب';
+
+  @override
+  String get vendorIfOutSimilar => 'عند النفاد: مشابه';
+
+  @override
+  String get vendorIfOutChosen => 'عند النفاد: اختيار العميل';
+
+  @override
+  String get vendorIfOutRemove => 'عند النفاد: يُحذف';
+
+  @override
+  String get vendorActualWeight => 'الوزن الفعلي';
+
+  @override
+  String vendorScalePrice(String amount) {
+    return 'سعر الميزان $amount';
+  }
+
+  @override
+  String vendorCharged(String amount) {
+    return 'يُحصَّل $amount';
+  }
+
+  @override
+  String get vendorCapCard => 'بطاقة: لا يزيد عن التقدير';
+
+  @override
+  String get vendorCapWallet => 'المحفظة: لا يزيد عن التقدير';
+
+  @override
+  String vendorCapCash(String weight) {
+    return 'نقدًا: $weight كحد أقصى';
+  }
+
+  @override
+  String vendorOverCap(String weight) {
+    return 'أثقل من المسموح لطلب نقدي: $weight كحد أقصى';
+  }
+
+  @override
+  String get vendorFromScale => 'من الميزان';
+
+  @override
+  String get vendorScaleLater => 'ربط الميزان قادم لاحقًا. اكتب الوزن الآن.';
+
+  @override
+  String get vendorOut => 'نفد';
+
+  @override
+  String get vendorSwap => 'بديل';
+
+  @override
+  String get vendorPickedButton => 'تم التجهيز';
+
+  @override
+  String get vendorLineOut => 'غير متوفر';
+
+  @override
+  String vendorAskedCustomer(String time) {
+    return 'بانتظار رد العميل · متبقٍ $time';
+  }
+
+  @override
+  String vendorWeighed(String weight, String ordered, String price) {
+    return 'الوزن $weight من $ordered · $price';
+  }
+
+  @override
+  String vendorPickedLine(String qty, String price) {
+    return 'تم التجهيز $qty · $price';
+  }
+
+  @override
+  String vendorTheirPick(String name) {
+    return 'اختيار العميل بدلًا من $name';
+  }
+
+  @override
+  String vendorInsteadOf(String name) {
+    return 'بدلًا من $name';
+  }
+
+  @override
+  String get vendorLeftOut => 'حُذف من الطلب';
+
+  @override
+  String get vendorReadyForCourier => 'جاهز للمندوب';
+
+  @override
+  String get vendorReadyForPickup => 'جاهز للاستلام';
+
+  @override
+  String get vendorReadyForDriver => 'جاهز لسائقنا';
+
+  @override
+  String vendorLinesLeft(int n, String names) {
+    String _temp0 = intl.Intl.pluralLogic(
+      n,
+      locale: localeName,
+      other: 'بقي $n صنفًا: $names',
+      few: 'بقي $n أصناف: $names',
+      two: 'بقي صنفان: $names',
+      one: 'بقي صنف واحد: $names',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String vendorWaitingCustomer(String name) {
+    return '$name بانتظار رد العميل';
+  }
+
+  @override
+  String get vendorSwapTitle => 'اقترح بديلًا مشابهًا';
+
+  @override
+  String vendorSwapRule(String price) {
+    return 'من نفس الممر، ولا يزيد سعره عن $price';
+  }
+
+  @override
+  String get vendorSwapAsk => 'اسأل العميل';
+
+  @override
+  String get vendorSwapNote =>
+      'أمام العميل 5 دقائق للرد، ثم يُطبَّق اختياره للأصناف الناقصة.';
+
+  @override
+  String get vendorSwapNone => 'لا يوجد بديل متوفر بهذا السعر.';
+
+  @override
+  String get vendorSwapAsked => 'أُرسل السؤال إلى العميل.';
+
+  @override
+  String get vendorBringTheirPick => 'أحضِر اختيار العميل';
+
+  @override
+  String vendorStockSummary(String store, int n, int out) {
+    return '$store · $n منتجًا · $out غير متوفرين';
+  }
+
+  @override
+  String get vendorStockHint => 'الاسم أو SKU أو الباركود';
+
+  @override
+  String get vendorFilterAll => 'الكل';
+
+  @override
+  String get vendorFilterOut => 'غير متوفر';
+
+  @override
+  String get vendorFilterWeight => 'بالوزن';
+
+  @override
+  String get vendorFilterOffers => 'العروض';
+
+  @override
+  String get vendorInStock => 'متوفر';
+
+  @override
+  String vendorInStockLeft(int n) {
+    return 'متوفر · بقي $n';
+  }
+
+  @override
+  String get vendorUnitKg => 'كغ';
+
+  @override
+  String get vendorUnitG => 'غ';
+
+  @override
+  String get vendorUnitL => 'لتر';
+
+  @override
+  String get vendorPerKg => 'للكيلو';
+
+  @override
+  String get vendorNewPrice => 'السعر الجديد';
+
+  @override
+  String vendorNewPricePer(String unit) {
+    return 'السعر الجديد / $unit';
+  }
+
+  @override
+  String get vendorShownAsWas => 'يظهر قبل الخصم';
+
+  @override
+  String get vendorShowOffer => 'اعرضه كعرض';
+
+  @override
+  String get vendorSave => 'حفظ';
+
+  @override
+  String get vendorCancel => 'إلغاء';
+
+  @override
+  String vendorPriceApplies(int n) {
+    String _temp0 = intl.Intl.pluralLogic(
+      n,
+      locale: localeName,
+      other: 'يسري فورًا على الطلبات الجديدة، لا على الـ$n طلبًا القائمة.',
+      few: 'يسري فورًا على الطلبات الجديدة، لا على الطلبات الـ$n القائمة.',
+      two: 'يسري فورًا على الطلبات الجديدة، لا على الطلبين القائمين.',
+      one: 'يسري فورًا على الطلبات الجديدة، لا على الطلب القائم.',
+      zero: 'يسري فورًا على الطلبات الجديدة، وتبقى الطلبات القائمة بسعرها.',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String vendorPriceUndo(String team) {
+    return 'يرى فريق $team كل تعديل ويمكنه التراجع عنه.';
+  }
+
+  @override
+  String get vendorPriceSaved => 'حُفظ السعر الجديد';
+
+  @override
+  String get vendorPriceInvalid => 'أدخل سعرًا أكبر من صفر.';
+
+  @override
+  String get vendorWasAbove => 'يجب أن يكون السعر قبل الخصم أعلى من الجديد.';
+
+  @override
+  String vendorScanned(String name) {
+    return 'تمت القراءة: $name';
+  }
+
+  @override
+  String get vendorOpen => 'فتح';
+
+  @override
+  String vendorScanNotFound(String code) {
+    return 'لا يوجد منتج بالرمز $code.';
+  }
+
+  @override
+  String get vendorScanTitle => 'امسح الباركود';
+
+  @override
+  String get vendorScanTyped => 'اكتب أو الصق الباركود أو SKU';
+
+  @override
+  String get vendorScanFind => 'بحث';
+
+  @override
+  String get vendorAddProduct => 'إضافة منتج';
+
+  @override
+  String get vendorProductName => 'الاسم';
+
+  @override
+  String get vendorPrice => 'السعر';
+
+  @override
+  String get vendorSoldByItem => 'بالقطعة';
+
+  @override
+  String get vendorSoldByKg => 'بالكيلو';
+
+  @override
+  String get vendorSku => 'SKU';
+
+  @override
+  String get vendorBarcode => 'الباركود';
+
+  @override
+  String get vendorAdd => 'إضافة';
+
+  @override
+  String get vendorProductAdded => 'أُضيف المنتج';
+
+  @override
+  String get vendorUnitMl => 'مل';
+
+  @override
+  String get vendorRoleOwner => 'المالك';
+
+  @override
+  String get vendorRoleManager => 'المدير';
+
+  @override
+  String get vendorRoleOrders => 'الطلبات';
+
+  @override
+  String get vendorRolePicker => 'التجهيز';
 }

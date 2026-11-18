@@ -54,6 +54,7 @@ void main() {
           'kinds': ['restaurant'],
           'payment': {'cash': true},
           'vendor_app': 'bundle',
+          'weight_tolerance_percent': 10,
         },
       },
     );
@@ -84,9 +85,11 @@ void main() {
     await TestApp.settle(tester, 20);
     expect(find.text('My store'), findsWidgets);
     expect(find.text('Stock'), findsWidgets);
-    expect(find.textContaining('M-901 · Mona'), findsOneWidget);
+    // 115.70 The new order's card: its number and the customer's first name.
+    expect(find.text('M-901'), findsOneWidget);
+    expect(find.textContaining('Mona · '), findsOneWidget);
 
-    await tester.tap(find.byKey(const ValueKey('vendor-order-901')));
+    await tester.tap(find.byKey(const ValueKey('vendor-order-901-reference')));
     await TestApp.settle(tester, 20);
     expect(find.text('No onions'), findsOneWidget);
     await tester.tap(find.byKey(const ValueKey('vendor-accept')));
@@ -220,42 +223,45 @@ void main() {
     expect(find.byKey(const ValueKey('vendor-ready')), findsNothing);
     await tester.tap(find.byKey(const ValueKey('vendor-pick')));
     await TestApp.settle(tester, 20);
-    expect(find.text('If it\'s out: a similar item'), findsOneWidget);
-    // Bread can't be swapped: the customer asked to leave it out.
+    // 115.71 Each line is saved as it's done: the apples weighed on the
+    // keypad (1.8 kg, cash: at most 1.65 kg, so 1.6), the milk's
+    // substitute brought (a similar one is offered to the customer), the
+    // bread out (the customer asked to leave it out: no swap).
+    expect(find.text('If out: similar'), findsNothing);
+    await tester.tap(find.byKey(const ValueKey('vendor-key-10-1')));
+    await tester.tap(find.byKey(const ValueKey('vendor-key-10-8')));
+    await tester.tap(find.byKey(const ValueKey('vendor-key-10-0')));
+    await tester.tap(find.byKey(const ValueKey('vendor-key-10-0')));
+    await tester.pump();
+    expect(find.byKey(const ValueKey('vendor-pick-10-over')), findsOneWidget);
+    await tester.tap(find.byKey(const ValueKey('vendor-key-10-⌫')));
+    await tester.tap(find.byKey(const ValueKey('vendor-key-10-⌫')));
+    await tester.tap(find.byKey(const ValueKey('vendor-key-10-⌫')));
+    await tester.tap(find.byKey(const ValueKey('vendor-key-10-6')));
+    await tester.tap(find.byKey(const ValueKey('vendor-key-10-0')));
+    await tester.tap(find.byKey(const ValueKey('vendor-key-10-0')));
+    await tester.pump();
+    await tester.tap(find.byKey(const ValueKey('vendor-pick-10-picked')));
+    await TestApp.settle(tester, 20);
+    expect(api.vendorCalls, contains('pick 901 10:picked:1.6:'));
+    // The milk is open now: a similar item is the customer's choice.
+    expect(find.text('If out: similar'), findsOneWidget);
+    await tester.tap(find.byKey(const ValueKey('vendor-pick-20-picked')));
+    await TestApp.settle(tester, 20);
+    expect(api.vendorCalls, contains('pick 901 20:picked:2.0:'));
     expect(
       find.byKey(const ValueKey('vendor-pick-30-substituted')),
       findsNothing,
     );
-    await tester.enterText(
-      find.byKey(const ValueKey('vendor-pick-10-amount')),
-      '1.8',
-    );
-    await tester.tap(find.byKey(const ValueKey('vendor-pick-20-substituted')));
-    await TestApp.settle(tester, 5);
-    // A swap needs the item brought instead.
-    await tester.tap(find.byKey(const ValueKey('vendor-pick-save')));
-    await TestApp.settle(tester, 5);
-    expect(find.textContaining('instead of Milk'), findsOneWidget);
-    await tester.tap(find.byKey(const ValueKey('vendor-pick-20-choose')));
-    await TestApp.settle(tester, 20);
-    await tester.tap(find.byKey(const ValueKey('vendor-substitute-5')));
-    await TestApp.settle(tester, 10);
-    expect(find.text('Oat milk'), findsOneWidget);
     await tester.tap(find.byKey(const ValueKey('vendor-pick-30-missing')));
-    await TestApp.settle(tester, 5);
-    await tester.tap(find.byKey(const ValueKey('vendor-pick-save')));
     await TestApp.settle(tester, 20);
-    expect(
-      api.vendorCalls,
-      contains('pick 901 10:picked:1.8:,20:substituted:2.0:5,30:missing::'),
-    );
-
-    // Back on the order: how each line was picked, and ready.
-    expect(find.byKey(const ValueKey('vendor-line-10-picked')), findsOneWidget);
-    expect(find.text('Missing'), findsOneWidget);
-    await tester.tap(find.byKey(const ValueKey('vendor-ready')));
+    expect(api.vendorCalls, contains('pick 901 30:missing::'));
+    await tester.tap(find.byKey(const ValueKey('vendor-pick-ready')));
     await TestApp.settle(tester, 20);
     expect(api.vendorCalls, contains('ready 901'));
+    // Back on the order: how each line was picked.
+    expect(find.byKey(const ValueKey('vendor-line-10-picked')), findsOneWidget);
+    expect(find.text('Missing'), findsOneWidget);
   });
 
   testWidgets('a picker picks, but sees no statements or complaints', (

@@ -201,10 +201,26 @@ class VendorOrder {
     this.readyAt,
     this.courierName,
     this.timeline = const [],
+    this.aisles = const {},
+    this.proposals = const {},
   });
 
   factory VendorOrder.fromJson(Json json) {
     final payment = asJson(json['payment'], 'payment');
+    // 115.71 Each line's aisle (one order's own read) and its live
+    // substitute, by line id, read beside the line itself.
+    final aisles = <int, VendorAisle>{};
+    final proposals = <int, VendorProposal>{};
+    for (final raw in listOf(json, 'lines', (j) => j)) {
+      final id = optInt(raw, 'id');
+      if (id == null) continue;
+      if (optObject(raw, 'aisle', VendorAisle.fromJson) case final a?) {
+        aisles[id] = a;
+      }
+      if (optObject(raw, 'proposal', VendorProposal.fromJson) case final p?) {
+        proposals[id] = p;
+      }
+    }
     final customer = optObject(json, 'customer', (j) => j) ?? const {};
     final courier = optObject(json, 'courier', (j) => j);
     return VendorOrder(
@@ -249,6 +265,8 @@ class VendorOrder {
               at: at,
             ),
       ],
+      aisles: aisles,
+      proposals: proposals,
     );
   }
 
@@ -277,7 +295,151 @@ class VendorOrder {
   final DateTime createdAt;
   final List<({MarketOrderStatus status, DateTime at})> timeline;
 
+  /// 115.71 Each line's aisle by line id (one order's own read only).
+  final Map<int, VendorAisle> aisles;
+
+  /// 115.71 The substitute offered to the customer for a line, by line id.
+  final Map<int, VendorProposal> proposals;
+
   bool get pickup => fulfilment == MarketFulfilment.pickup;
+
+  /// When it was accepted, for the picking's clock.
+  DateTime? get acceptedAt => [
+    for (final t in timeline)
+      if (t.status == MarketOrderStatus.accepted ||
+          t.status == MarketOrderStatus.picking)
+        t.at,
+  ].firstOrNull;
+}
+
+/// 115.71 Where a line's item is: its aisle, department and the aisle's
+/// rank across the place (`VendorOrder.lines[].aisle`).
+class VendorAisle {
+  const VendorAisle({
+    required this.id,
+    required this.name,
+    required this.position,
+    this.department,
+  });
+
+  factory VendorAisle.fromJson(Json json) => VendorAisle(
+    id: reqInt(json, 'id'),
+    name: reqString(json, 'name'),
+    department: optString(json, 'department'),
+    position: intOr(json, 'position', 0),
+  );
+
+  final int id;
+  final String name;
+  final String? department;
+  final int position;
+}
+
+/// 115.71 (D2) A substitute the picker offered and the customer answers
+/// within 5 minutes (`MarketOrderLine.proposal`): the item, how many, its
+/// price and when the question ends.
+class VendorProposal {
+  const VendorProposal({
+    required this.name,
+    required this.quantity,
+    this.productId,
+    this.imageUrl,
+    this.price,
+    this.expiresAt,
+    this.status,
+  });
+
+  factory VendorProposal.fromJson(Json json) {
+    final product = optObject(json, 'product', (j) => j) ?? const {};
+    return VendorProposal(
+      productId: optInt(product, 'id') ?? optInt(json, 'product_id'),
+      name: optString(product, 'name') ?? optString(json, 'name') ?? '',
+      imageUrl: optString(product, 'image_url'),
+      quantity: optDouble(json, 'quantity') ?? 1,
+      price: optObject(json, 'price', MarketMoney.fromJson),
+      expiresAt: optDate(json, 'expires_at'),
+      status: optString(json, 'status'),
+    );
+  }
+
+  final int? productId;
+  final String name;
+  final String? imageUrl;
+  final double quantity;
+  final MarketMoney? price;
+  final DateTime? expiresAt;
+
+  /// waiting, accepted, declined or expired, when the server says.
+  final String? status;
+
+  /// Still waiting for the customer's answer at [now].
+  bool waitingAt(DateTime now) =>
+      (status == null || status == 'waiting' || status == 'pending') &&
+      (expiresAt == null || expiresAt!.isAfter(now));
+}
+
+/// 115.72 A product as the place's staff see it in Stock: the product,
+/// with its own codes and counted stock (`MarketProduct.sku`, `barcode`,
+/// `stock`, `sold_by`, shown to the vendor only).
+class VendorStockItem {
+  const VendorStockItem({
+    required this.product,
+    this.sku,
+    this.barcode,
+    this.stock,
+    this.soldBy,
+  });
+
+  factory VendorStockItem.fromJson(Json json) => VendorStockItem(
+    product: MarketProduct.fromJson(json),
+    sku: optString(json, 'sku'),
+    barcode: optString(json, 'barcode'),
+    stock: optInt(json, 'stock'),
+    soldBy: optString(json, 'sold_by'),
+  );
+
+  final MarketProduct product;
+  final String? sku;
+  final String? barcode;
+
+  /// Counted stock; null when not counted (D9).
+  final int? stock;
+
+  /// `unit` or `weight` when the server says; else by the product's unit.
+  final String? soldBy;
+
+  int get id => product.id;
+  bool get byWeight => soldBy == null ? product.byWeight : soldBy == 'weight';
+  bool get onOffer => product.wasPrice != null;
+}
+
+/// 115.72 A product the place adds from Stock (`POST /vendor/products`).
+class VendorProductDraft {
+  const VendorProductDraft({
+    required this.name,
+    required this.price,
+    this.byWeight = false,
+    this.sku,
+    this.barcode,
+  });
+
+  final String name;
+
+  /// The amount, with the currency's decimals ("32.00").
+  final String price;
+  final bool byWeight;
+  final String? sku;
+  final String? barcode;
+
+  Json toJson() => {
+    'name': name,
+    'price': price,
+    'unit': byWeight ? 'kg' : 'item',
+    'sold_by': byWeight ? 'weight' : 'unit',
+    if (byWeight) 'step': 0.25,
+    'sku': ?sku,
+    'barcode': ?barcode,
+  };
 }
 
 /// One line of a picked grocery order (`PATCH /vendor/orders/{id}/lines`).

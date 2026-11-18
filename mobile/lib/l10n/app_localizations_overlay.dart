@@ -13163,4 +13163,512 @@ class OverlayLocalizations extends AppLocalizations {
   @override
   String get paySheetOpenAgain =>
       overlay.text('paySheetOpenAgain') ?? base.paySheetOpenAgain;
+
+  @override
+  String vendorSignedInAs(String app, String name, String role) =>
+      overlay.format('vendorSignedInAs', {
+        'app': app,
+        'name': name,
+        'role': role,
+      }) ??
+      base.vendorSignedInAs(app, name, role);
+
+  @override
+  String vendorNewCount(int n) =>
+      overlay.format('vendorNewCount', {'n': n}) ?? base.vendorNewCount(n);
+
+  @override
+  String get vendorSoundOn =>
+      overlay.text('vendorSoundOn') ?? base.vendorSoundOn;
+
+  @override
+  String get vendorSoundOff =>
+      overlay.text('vendorSoundOff') ?? base.vendorSoundOff;
+
+  @override
+  String get vendorBusyAsk =>
+      overlay.text('vendorBusyAsk') ?? base.vendorBusyAsk;
+
+  @override
+  String vendorBusyPlus(int n) =>
+      overlay.format('vendorBusyPlus', {'n': n}) ?? base.vendorBusyPlus(n);
+
+  @override
+  String get vendorOrdersToday =>
+      overlay.text('vendorOrdersToday') ?? base.vendorOrdersToday;
+
+  @override
+  String get vendorSalesToday =>
+      overlay.text('vendorSalesToday') ?? base.vendorSalesToday;
+
+  @override
+  String get vendorNewNow => overlay.text('vendorNewNow') ?? base.vendorNewNow;
+
+  @override
+  String get vendorTabNew => overlay.text('vendorTabNew') ?? base.vendorTabNew;
+
+  @override
+  String get vendorTabPreparing =>
+      overlay.text('vendorTabPreparing') ?? base.vendorTabPreparing;
+
+  @override
+  String get vendorTabReady =>
+      overlay.text('vendorTabReady') ?? base.vendorTabReady;
+
+  @override
+  String get vendorTabLater =>
+      overlay.text('vendorTabLater') ?? base.vendorTabLater;
+
+  @override
+  String get vendorTabDone =>
+      overlay.text('vendorTabDone') ?? base.vendorTabDone;
+
+  @override
+  String get vendorRinging =>
+      overlay.text('vendorRinging') ?? base.vendorRinging;
+
+  @override
+  String get vendorNewTag => overlay.text('vendorNewTag') ?? base.vendorNewTag;
+
+  @override
+  String vendorAgo(int n) =>
+      overlay.format('vendorAgo', {'n': n}) ?? base.vendorAgo(n);
+
+  @override
+  String get vendorJustNow =>
+      overlay.text('vendorJustNow') ?? base.vendorJustNow;
+
+  @override
+  String get vendorByAppCourier =>
+      overlay.text('vendorByAppCourier') ?? base.vendorByAppCourier;
+
+  @override
+  String get vendorByOwnDriver =>
+      overlay.text('vendorByOwnDriver') ?? base.vendorByOwnDriver;
+
+  @override
+  String get vendorPickupTag =>
+      overlay.text('vendorPickupTag') ?? base.vendorPickupTag;
+
+  @override
+  String get vendorPayCash =>
+      overlay.text('vendorPayCash') ?? base.vendorPayCash;
+
+  @override
+  String get vendorPayCard =>
+      overlay.text('vendorPayCard') ?? base.vendorPayCard;
+
+  @override
+  String get vendorPayWallet =>
+      overlay.text('vendorPayWallet') ?? base.vendorPayWallet;
+
+  @override
+  String vendorByWeight(int n) =>
+      overlay.format('vendorByWeight', {'n': n}) ?? base.vendorByWeight(n);
+
+  @override
+  String vendorItemCount(int n) =>
+      overlay.format('vendorItemCount', {'n': n}) ?? base.vendorItemCount(n);
+
+  @override
+  String get vendorWeighTag =>
+      overlay.text('vendorWeighTag') ?? base.vendorWeighTag;
+
+  @override
+  String get vendorMoreItems =>
+      overlay.text('vendorMoreItems') ?? base.vendorMoreItems;
+
+  @override
+  String get vendorReadyIn =>
+      overlay.text('vendorReadyIn') ?? base.vendorReadyIn;
+
+  @override
+  String get vendorMin => overlay.text('vendorMin') ?? base.vendorMin;
+
+  @override
+  String vendorAcceptReady(String time) =>
+      overlay.format('vendorAcceptReady', {'time': time}) ??
+      base.vendorAcceptReady(time);
+
+  @override
+  String get vendorTurnDown =>
+      overlay.text('vendorTurnDown') ?? base.vendorTurnDown;
+
+  @override
+  String get vendorRejectWhy =>
+      overlay.text('vendorRejectWhy') ?? base.vendorRejectWhy;
+
+  @override
+  String get vendorWhyClosing =>
+      overlay.text('vendorWhyClosing') ?? base.vendorWhyClosing;
+
+  @override
+  String get vendorWhyTooBusy =>
+      overlay.text('vendorWhyTooBusy') ?? base.vendorWhyTooBusy;
+
+  @override
+  String get vendorWhyItems =>
+      overlay.text('vendorWhyItems') ?? base.vendorWhyItems;
+
+  @override
+  String get vendorWhyTooFar =>
+      overlay.text('vendorWhyTooFar') ?? base.vendorWhyTooFar;
+
+  @override
+  String get vendorWhyOther =>
+      overlay.text('vendorWhyOther') ?? base.vendorWhyOther;
+
+  @override
+  String vendorOrderTitle(String ref, String name) =>
+      overlay.format('vendorOrderTitle', {'ref': ref, 'name': name}) ??
+      base.vendorOrderTitle(ref, name);
+
+  @override
+  String vendorCourierComes(String time) =>
+      overlay.format('vendorCourierComes', {'time': time}) ??
+      base.vendorCourierComes(time);
+
+  @override
+  String vendorReadyBy(String time) =>
+      overlay.format('vendorReadyBy', {'time': time}) ??
+      base.vendorReadyBy(time);
+
+  @override
+  String vendorPickingFor(String time) =>
+      overlay.format('vendorPickingFor', {'time': time}) ??
+      base.vendorPickingFor(time);
+
+  @override
+  String vendorAisle(String aisle, int n) =>
+      overlay.format('vendorAisle', {'aisle': aisle, 'n': n}) ??
+      base.vendorAisle(aisle, n);
+
+  @override
+  String get vendorOtherItems =>
+      overlay.text('vendorOtherItems') ?? base.vendorOtherItems;
+
+  @override
+  String get vendorAsked => overlay.text('vendorAsked') ?? base.vendorAsked;
+
+  @override
+  String get vendorIfOutSimilar =>
+      overlay.text('vendorIfOutSimilar') ?? base.vendorIfOutSimilar;
+
+  @override
+  String get vendorIfOutChosen =>
+      overlay.text('vendorIfOutChosen') ?? base.vendorIfOutChosen;
+
+  @override
+  String get vendorIfOutRemove =>
+      overlay.text('vendorIfOutRemove') ?? base.vendorIfOutRemove;
+
+  @override
+  String get vendorActualWeight =>
+      overlay.text('vendorActualWeight') ?? base.vendorActualWeight;
+
+  @override
+  String vendorScalePrice(String amount) =>
+      overlay.format('vendorScalePrice', {'amount': amount}) ??
+      base.vendorScalePrice(amount);
+
+  @override
+  String vendorCharged(String amount) =>
+      overlay.format('vendorCharged', {'amount': amount}) ??
+      base.vendorCharged(amount);
+
+  @override
+  String get vendorCapCard =>
+      overlay.text('vendorCapCard') ?? base.vendorCapCard;
+
+  @override
+  String get vendorCapWallet =>
+      overlay.text('vendorCapWallet') ?? base.vendorCapWallet;
+
+  @override
+  String vendorCapCash(String weight) =>
+      overlay.format('vendorCapCash', {'weight': weight}) ??
+      base.vendorCapCash(weight);
+
+  @override
+  String vendorOverCap(String weight) =>
+      overlay.format('vendorOverCap', {'weight': weight}) ??
+      base.vendorOverCap(weight);
+
+  @override
+  String get vendorFromScale =>
+      overlay.text('vendorFromScale') ?? base.vendorFromScale;
+
+  @override
+  String get vendorScaleLater =>
+      overlay.text('vendorScaleLater') ?? base.vendorScaleLater;
+
+  @override
+  String get vendorOut => overlay.text('vendorOut') ?? base.vendorOut;
+
+  @override
+  String get vendorSwap => overlay.text('vendorSwap') ?? base.vendorSwap;
+
+  @override
+  String get vendorPickedButton =>
+      overlay.text('vendorPickedButton') ?? base.vendorPickedButton;
+
+  @override
+  String get vendorLineOut =>
+      overlay.text('vendorLineOut') ?? base.vendorLineOut;
+
+  @override
+  String vendorAskedCustomer(String time) =>
+      overlay.format('vendorAskedCustomer', {'time': time}) ??
+      base.vendorAskedCustomer(time);
+
+  @override
+  String vendorWeighed(String weight, String ordered, String price) =>
+      overlay.format('vendorWeighed', {
+        'weight': weight,
+        'ordered': ordered,
+        'price': price,
+      }) ??
+      base.vendorWeighed(weight, ordered, price);
+
+  @override
+  String vendorPickedLine(String qty, String price) =>
+      overlay.format('vendorPickedLine', {'qty': qty, 'price': price}) ??
+      base.vendorPickedLine(qty, price);
+
+  @override
+  String vendorTheirPick(String name) =>
+      overlay.format('vendorTheirPick', {'name': name}) ??
+      base.vendorTheirPick(name);
+
+  @override
+  String vendorInsteadOf(String name) =>
+      overlay.format('vendorInsteadOf', {'name': name}) ??
+      base.vendorInsteadOf(name);
+
+  @override
+  String get vendorLeftOut =>
+      overlay.text('vendorLeftOut') ?? base.vendorLeftOut;
+
+  @override
+  String get vendorReadyForCourier =>
+      overlay.text('vendorReadyForCourier') ?? base.vendorReadyForCourier;
+
+  @override
+  String get vendorReadyForPickup =>
+      overlay.text('vendorReadyForPickup') ?? base.vendorReadyForPickup;
+
+  @override
+  String get vendorReadyForDriver =>
+      overlay.text('vendorReadyForDriver') ?? base.vendorReadyForDriver;
+
+  @override
+  String vendorLinesLeft(int n, String names) =>
+      overlay.format('vendorLinesLeft', {'n': n, 'names': names}) ??
+      base.vendorLinesLeft(n, names);
+
+  @override
+  String vendorWaitingCustomer(String name) =>
+      overlay.format('vendorWaitingCustomer', {'name': name}) ??
+      base.vendorWaitingCustomer(name);
+
+  @override
+  String get vendorSwapTitle =>
+      overlay.text('vendorSwapTitle') ?? base.vendorSwapTitle;
+
+  @override
+  String vendorSwapRule(String price) =>
+      overlay.format('vendorSwapRule', {'price': price}) ??
+      base.vendorSwapRule(price);
+
+  @override
+  String get vendorSwapAsk =>
+      overlay.text('vendorSwapAsk') ?? base.vendorSwapAsk;
+
+  @override
+  String get vendorSwapNote =>
+      overlay.text('vendorSwapNote') ?? base.vendorSwapNote;
+
+  @override
+  String get vendorSwapNone =>
+      overlay.text('vendorSwapNone') ?? base.vendorSwapNone;
+
+  @override
+  String get vendorSwapAsked =>
+      overlay.text('vendorSwapAsked') ?? base.vendorSwapAsked;
+
+  @override
+  String get vendorBringTheirPick =>
+      overlay.text('vendorBringTheirPick') ?? base.vendorBringTheirPick;
+
+  @override
+  String vendorStockSummary(String store, int n, int out) =>
+      overlay.format('vendorStockSummary', {
+        'store': store,
+        'n': n,
+        'out': out,
+      }) ??
+      base.vendorStockSummary(store, n, out);
+
+  @override
+  String get vendorStockHint =>
+      overlay.text('vendorStockHint') ?? base.vendorStockHint;
+
+  @override
+  String get vendorFilterAll =>
+      overlay.text('vendorFilterAll') ?? base.vendorFilterAll;
+
+  @override
+  String get vendorFilterOut =>
+      overlay.text('vendorFilterOut') ?? base.vendorFilterOut;
+
+  @override
+  String get vendorFilterWeight =>
+      overlay.text('vendorFilterWeight') ?? base.vendorFilterWeight;
+
+  @override
+  String get vendorFilterOffers =>
+      overlay.text('vendorFilterOffers') ?? base.vendorFilterOffers;
+
+  @override
+  String get vendorInStock =>
+      overlay.text('vendorInStock') ?? base.vendorInStock;
+
+  @override
+  String vendorInStockLeft(int n) =>
+      overlay.format('vendorInStockLeft', {'n': n}) ??
+      base.vendorInStockLeft(n);
+
+  @override
+  String get vendorUnitKg => overlay.text('vendorUnitKg') ?? base.vendorUnitKg;
+
+  @override
+  String get vendorUnitG => overlay.text('vendorUnitG') ?? base.vendorUnitG;
+
+  @override
+  String get vendorUnitL => overlay.text('vendorUnitL') ?? base.vendorUnitL;
+
+  @override
+  String get vendorPerKg => overlay.text('vendorPerKg') ?? base.vendorPerKg;
+
+  @override
+  String get vendorNewPrice =>
+      overlay.text('vendorNewPrice') ?? base.vendorNewPrice;
+
+  @override
+  String vendorNewPricePer(String unit) =>
+      overlay.format('vendorNewPricePer', {'unit': unit}) ??
+      base.vendorNewPricePer(unit);
+
+  @override
+  String get vendorShownAsWas =>
+      overlay.text('vendorShownAsWas') ?? base.vendorShownAsWas;
+
+  @override
+  String get vendorShowOffer =>
+      overlay.text('vendorShowOffer') ?? base.vendorShowOffer;
+
+  @override
+  String get vendorSave => overlay.text('vendorSave') ?? base.vendorSave;
+
+  @override
+  String get vendorCancel => overlay.text('vendorCancel') ?? base.vendorCancel;
+
+  @override
+  String vendorPriceApplies(int n) =>
+      overlay.format('vendorPriceApplies', {'n': n}) ??
+      base.vendorPriceApplies(n);
+
+  @override
+  String vendorPriceUndo(String team) =>
+      overlay.format('vendorPriceUndo', {'team': team}) ??
+      base.vendorPriceUndo(team);
+
+  @override
+  String get vendorPriceSaved =>
+      overlay.text('vendorPriceSaved') ?? base.vendorPriceSaved;
+
+  @override
+  String get vendorPriceInvalid =>
+      overlay.text('vendorPriceInvalid') ?? base.vendorPriceInvalid;
+
+  @override
+  String get vendorWasAbove =>
+      overlay.text('vendorWasAbove') ?? base.vendorWasAbove;
+
+  @override
+  String vendorScanned(String name) =>
+      overlay.format('vendorScanned', {'name': name}) ??
+      base.vendorScanned(name);
+
+  @override
+  String get vendorOpen => overlay.text('vendorOpen') ?? base.vendorOpen;
+
+  @override
+  String vendorScanNotFound(String code) =>
+      overlay.format('vendorScanNotFound', {'code': code}) ??
+      base.vendorScanNotFound(code);
+
+  @override
+  String get vendorScanTitle =>
+      overlay.text('vendorScanTitle') ?? base.vendorScanTitle;
+
+  @override
+  String get vendorScanTyped =>
+      overlay.text('vendorScanTyped') ?? base.vendorScanTyped;
+
+  @override
+  String get vendorScanFind =>
+      overlay.text('vendorScanFind') ?? base.vendorScanFind;
+
+  @override
+  String get vendorAddProduct =>
+      overlay.text('vendorAddProduct') ?? base.vendorAddProduct;
+
+  @override
+  String get vendorProductName =>
+      overlay.text('vendorProductName') ?? base.vendorProductName;
+
+  @override
+  String get vendorPrice => overlay.text('vendorPrice') ?? base.vendorPrice;
+
+  @override
+  String get vendorSoldByItem =>
+      overlay.text('vendorSoldByItem') ?? base.vendorSoldByItem;
+
+  @override
+  String get vendorSoldByKg =>
+      overlay.text('vendorSoldByKg') ?? base.vendorSoldByKg;
+
+  @override
+  String get vendorSku => overlay.text('vendorSku') ?? base.vendorSku;
+
+  @override
+  String get vendorBarcode =>
+      overlay.text('vendorBarcode') ?? base.vendorBarcode;
+
+  @override
+  String get vendorAdd => overlay.text('vendorAdd') ?? base.vendorAdd;
+
+  @override
+  String get vendorProductAdded =>
+      overlay.text('vendorProductAdded') ?? base.vendorProductAdded;
+
+  @override
+  String get vendorUnitMl => overlay.text('vendorUnitMl') ?? base.vendorUnitMl;
+
+  @override
+  String get vendorRoleOwner =>
+      overlay.text('vendorRoleOwner') ?? base.vendorRoleOwner;
+
+  @override
+  String get vendorRoleManager =>
+      overlay.text('vendorRoleManager') ?? base.vendorRoleManager;
+
+  @override
+  String get vendorRoleOrders =>
+      overlay.text('vendorRoleOrders') ?? base.vendorRoleOrders;
+
+  @override
+  String get vendorRolePicker =>
+      overlay.text('vendorRolePicker') ?? base.vendorRolePicker;
 }

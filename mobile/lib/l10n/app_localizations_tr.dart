@@ -12321,4 +12321,451 @@ class AppLocalizationsTr extends AppLocalizations {
 
   @override
   String get paySheetOpenAgain => 'Ödeme sayfasını aç';
+
+  @override
+  String vendorSignedInAs(String app, String name, String role) {
+    return '$app · $name, $role';
+  }
+
+  @override
+  String vendorNewCount(int n) {
+    String _temp0 = intl.Intl.pluralLogic(
+      n,
+      locale: localeName,
+      other: '$n yeni',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get vendorSoundOn => 'Ses açık';
+
+  @override
+  String get vendorSoundOff => 'Ses kapalı';
+
+  @override
+  String get vendorBusyAsk => 'Yoğun musunuz?';
+
+  @override
+  String vendorBusyPlus(int n) {
+    return '+$n dk';
+  }
+
+  @override
+  String get vendorOrdersToday => 'Bugünkü siparişler';
+
+  @override
+  String get vendorSalesToday => 'Bugünkü satışlar';
+
+  @override
+  String get vendorNewNow => 'Şu an yeni';
+
+  @override
+  String get vendorTabNew => 'Yeni';
+
+  @override
+  String get vendorTabPreparing => 'Hazırlanıyor';
+
+  @override
+  String get vendorTabReady => 'Hazır';
+
+  @override
+  String get vendorTabLater => 'İleri tarihli';
+
+  @override
+  String get vendorTabDone => 'Tamamlanan';
+
+  @override
+  String get vendorRinging => 'Çalıyor';
+
+  @override
+  String get vendorNewTag => 'Yeni';
+
+  @override
+  String vendorAgo(int n) {
+    return '$n dk önce';
+  }
+
+  @override
+  String get vendorJustNow => 'az önce';
+
+  @override
+  String get vendorByAppCourier => 'Uygulamanın kuryesi';
+
+  @override
+  String get vendorByOwnDriver => 'Sürücümüz';
+
+  @override
+  String get vendorPickupTag => 'Gel-al';
+
+  @override
+  String get vendorPayCash => 'Nakit';
+
+  @override
+  String get vendorPayCard => 'Kart';
+
+  @override
+  String get vendorPayWallet => 'Cüzdan';
+
+  @override
+  String vendorByWeight(int n) {
+    return '$n tartılı';
+  }
+
+  @override
+  String vendorItemCount(int n) {
+    return '$n ürün';
+  }
+
+  @override
+  String get vendorWeighTag => 'tart';
+
+  @override
+  String get vendorMoreItems => 'ürün daha';
+
+  @override
+  String get vendorReadyIn => 'Hazır olma';
+
+  @override
+  String get vendorMin => 'dk';
+
+  @override
+  String vendorAcceptReady(String time) {
+    return 'Kabul · hazır $time';
+  }
+
+  @override
+  String get vendorTurnDown => 'Reddet';
+
+  @override
+  String get vendorRejectWhy => 'Neden reddediyorsunuz?';
+
+  @override
+  String get vendorWhyClosing => 'Kapanıyoruz';
+
+  @override
+  String get vendorWhyTooBusy => 'Çok yoğunuz';
+
+  @override
+  String get vendorWhyItems => 'Ürünler yok';
+
+  @override
+  String get vendorWhyTooFar => 'Çok uzak';
+
+  @override
+  String get vendorWhyOther => 'Diğer';
+
+  @override
+  String vendorOrderTitle(String ref, String name) {
+    return 'Sipariş $ref · $name';
+  }
+
+  @override
+  String vendorCourierComes(String time) {
+    return 'Kurye geliş: $time';
+  }
+
+  @override
+  String vendorReadyBy(String time) {
+    return '$time saatine kadar hazır';
+  }
+
+  @override
+  String vendorPickingFor(String time) {
+    return 'toplama $time';
+  }
+
+  @override
+  String vendorAisle(String aisle, int n) {
+    return '$aisle · reyon $n';
+  }
+
+  @override
+  String get vendorOtherItems => 'Diğer ürünler';
+
+  @override
+  String get vendorAsked => 'İstenen';
+
+  @override
+  String get vendorIfOutSimilar => 'Yoksa: benzeri';
+
+  @override
+  String get vendorIfOutChosen => 'Yoksa: müşterinin seçimi';
+
+  @override
+  String get vendorIfOutRemove => 'Yoksa: çıkarılır';
+
+  @override
+  String get vendorActualWeight => 'Gerçek ağırlık';
+
+  @override
+  String vendorScalePrice(String amount) {
+    return 'Terazi fiyatı $amount';
+  }
+
+  @override
+  String vendorCharged(String amount) {
+    return 'Tahsil edilen $amount';
+  }
+
+  @override
+  String get vendorCapCard => 'Kart: tahminin üstüne çıkmaz';
+
+  @override
+  String get vendorCapWallet => 'Cüzdan: tahminin üstüne çıkmaz';
+
+  @override
+  String vendorCapCash(String weight) {
+    return 'Nakit: en çok $weight';
+  }
+
+  @override
+  String vendorOverCap(String weight) {
+    return 'Nakit sipariş için fazla: en çok $weight';
+  }
+
+  @override
+  String get vendorFromScale => 'Teraziden';
+
+  @override
+  String get vendorScaleLater =>
+      'Terazi bağlantısı daha sonra gelecek. Şimdilik ağırlığı yazın.';
+
+  @override
+  String get vendorOut => 'Yok';
+
+  @override
+  String get vendorSwap => 'Değiştir';
+
+  @override
+  String get vendorPickedButton => 'Toplandı';
+
+  @override
+  String get vendorLineOut => 'Stokta yok';
+
+  @override
+  String vendorAskedCustomer(String time) {
+    return 'Müşteriye soruldu · $time kaldı';
+  }
+
+  @override
+  String vendorWeighed(String weight, String ordered, String price) {
+    return 'Tartılan $weight / $ordered · $price';
+  }
+
+  @override
+  String vendorPickedLine(String qty, String price) {
+    return 'Toplandı $qty · $price';
+  }
+
+  @override
+  String vendorTheirPick(String name) {
+    return 'Müşterinin seçimi, $name yerine';
+  }
+
+  @override
+  String vendorInsteadOf(String name) {
+    return '$name yerine';
+  }
+
+  @override
+  String get vendorLeftOut => 'Siparişten çıkarıldı';
+
+  @override
+  String get vendorReadyForCourier => 'Kuryeye hazır';
+
+  @override
+  String get vendorReadyForPickup => 'Teslime hazır';
+
+  @override
+  String get vendorReadyForDriver => 'Sürücümüze hazır';
+
+  @override
+  String vendorLinesLeft(int n, String names) {
+    String _temp0 = intl.Intl.pluralLogic(
+      n,
+      locale: localeName,
+      other: '$n kalem kaldı: $names',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String vendorWaitingCustomer(String name) {
+    return '$name müşteriyi bekliyor';
+  }
+
+  @override
+  String get vendorSwapTitle => 'Benzer bir ürün önerin';
+
+  @override
+  String vendorSwapRule(String price) {
+    return 'Aynı reyondan, $price fiyatını geçmeyen';
+  }
+
+  @override
+  String get vendorSwapAsk => 'Müşteriye sor';
+
+  @override
+  String get vendorSwapNote =>
+      'Müşterinin yanıt için 5 dakikası var; sonra eksik ürün tercihi uygulanır.';
+
+  @override
+  String get vendorSwapNone => 'Bu fiyatta stokta benzer ürün yok.';
+
+  @override
+  String get vendorSwapAsked => 'Müşteriye soruldu.';
+
+  @override
+  String get vendorBringTheirPick => 'Müşterinin seçimini getir';
+
+  @override
+  String vendorStockSummary(String store, int n, int out) {
+    return '$store · $n ürün · $out stokta yok';
+  }
+
+  @override
+  String get vendorStockHint => 'Ad, SKU veya barkod';
+
+  @override
+  String get vendorFilterAll => 'Tümü';
+
+  @override
+  String get vendorFilterOut => 'Stokta yok';
+
+  @override
+  String get vendorFilterWeight => 'Tartılı';
+
+  @override
+  String get vendorFilterOffers => 'Kampanyalar';
+
+  @override
+  String get vendorInStock => 'Stokta';
+
+  @override
+  String vendorInStockLeft(int n) {
+    return 'Stokta · $n kaldı';
+  }
+
+  @override
+  String get vendorUnitKg => 'kg';
+
+  @override
+  String get vendorUnitG => 'g';
+
+  @override
+  String get vendorUnitL => 'l';
+
+  @override
+  String get vendorPerKg => 'kg başına';
+
+  @override
+  String get vendorNewPrice => 'Yeni fiyat';
+
+  @override
+  String vendorNewPricePer(String unit) {
+    return 'Yeni fiyat / $unit';
+  }
+
+  @override
+  String get vendorShownAsWas => 'Eski fiyat olarak';
+
+  @override
+  String get vendorShowOffer => 'İndirim olarak göster';
+
+  @override
+  String get vendorSave => 'Kaydet';
+
+  @override
+  String get vendorCancel => 'Vazgeç';
+
+  @override
+  String vendorPriceApplies(int n) {
+    String _temp0 = intl.Intl.pluralLogic(
+      n,
+      locale: localeName,
+      other:
+          'Yeni siparişlere hemen uygulanır, verilmiş $n siparişe uygulanmaz.',
+      zero: 'Yeni siparişlere hemen uygulanır; verilmiş siparişler fiyatını korur.',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String vendorPriceUndo(String team) {
+    return '$team ekibi her değişikliği görür ve geri alabilir.';
+  }
+
+  @override
+  String get vendorPriceSaved => 'Yeni fiyat kaydedildi';
+
+  @override
+  String get vendorPriceInvalid => 'Sıfırdan büyük bir fiyat girin.';
+
+  @override
+  String get vendorWasAbove => 'Eski fiyat yenisinden yüksek olmalı.';
+
+  @override
+  String vendorScanned(String name) {
+    return 'Okundu: $name';
+  }
+
+  @override
+  String get vendorOpen => 'Aç';
+
+  @override
+  String vendorScanNotFound(String code) {
+    return '$code koduyla ürün yok.';
+  }
+
+  @override
+  String get vendorScanTitle => 'Barkod okut';
+
+  @override
+  String get vendorScanTyped => 'Barkodu veya SKU\'yu yazın ya da yapıştırın';
+
+  @override
+  String get vendorScanFind => 'Bul';
+
+  @override
+  String get vendorAddProduct => 'Ürün ekle';
+
+  @override
+  String get vendorProductName => 'Ad';
+
+  @override
+  String get vendorPrice => 'Fiyat';
+
+  @override
+  String get vendorSoldByItem => 'Adetle';
+
+  @override
+  String get vendorSoldByKg => 'Kiloyla';
+
+  @override
+  String get vendorSku => 'SKU';
+
+  @override
+  String get vendorBarcode => 'Barkod';
+
+  @override
+  String get vendorAdd => 'Ekle';
+
+  @override
+  String get vendorProductAdded => 'Ürün eklendi';
+
+  @override
+  String get vendorUnitMl => 'ml';
+
+  @override
+  String get vendorRoleOwner => 'Sahip';
+
+  @override
+  String get vendorRoleManager => 'Yönetici';
+
+  @override
+  String get vendorRoleOrders => 'Siparişler';
+
+  @override
+  String get vendorRolePicker => 'Toplayıcı';
 }

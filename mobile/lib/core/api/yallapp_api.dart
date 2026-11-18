@@ -1060,6 +1060,35 @@ abstract class YallappApi {
   });
   Future<MarketProduct> updateVendorProductStock(int id, {bool? inStock});
 
+  /// 115.72 Stock: the place's products with their codes and counted stock,
+  /// searched by name, SKU or [barcode].
+  Future<Paged<VendorStockItem>> listVendorStock({
+    int page = 1,
+    String? query,
+    String? barcode,
+    bool outOfStock = false,
+  });
+
+  /// 115.72 A new price at once for new orders, never for those placed;
+  /// [wasPrice] shows it as an offer, null ends that.
+  Future<VendorStockItem> updateVendorProductPrice(
+    int id, {
+    required String price,
+    String? wasPrice,
+  });
+
+  /// 115.72 A product added from Stock.
+  Future<VendorStockItem> createVendorProduct(VendorProductDraft draft);
+
+  /// 115.71 (D2) Offers the customer [productId] for a missing line; they
+  /// answer within 5 minutes.
+  Future<VendorOrder> proposeVendorSubstitute(
+    int orderId,
+    int lineId, {
+    required int productId,
+    required double quantity,
+  });
+
   /// 115.16 A month's statement (`YYYY-MM`, this month when null): owners
   /// and managers.
   Future<VendorStatement> getVendorStatement({String? month});
@@ -3698,6 +3727,62 @@ class HttpYallappApi implements YallappApi {
         (data) => MarketProduct.fromJson(asJson(data)),
         body: {'in_stock': ?inStock},
       );
+
+  @override
+  Future<Paged<VendorStockItem>> listVendorStock({
+    int page = 1,
+    String? query,
+    String? barcode,
+    bool outOfStock = false,
+  }) => _get(
+    '/vendor/products',
+    _required,
+    (json) => Paged.fromJson(json, VendorStockItem.fromJson),
+    query: {
+      'page': page,
+      'per_page': 50,
+      'q': ?query,
+      'barcode': ?barcode,
+      if (outOfStock) 'out_of_stock': true,
+    },
+  );
+
+  @override
+  Future<VendorStockItem> updateVendorProductPrice(
+    int id, {
+    required String price,
+    String? wasPrice,
+  }) => _send(
+    'PATCH',
+    '/vendor/products/$id',
+    _required,
+    (data) => VendorStockItem.fromJson(asJson(data)),
+    body: {'price': price, 'was_price': wasPrice},
+  );
+
+  @override
+  Future<VendorStockItem> createVendorProduct(VendorProductDraft draft) =>
+      _send(
+        'POST',
+        '/vendor/products',
+        _required,
+        (data) => VendorStockItem.fromJson(asJson(data)),
+        body: draft.toJson(),
+      );
+
+  @override
+  Future<VendorOrder> proposeVendorSubstitute(
+    int orderId,
+    int lineId, {
+    required int productId,
+    required double quantity,
+  }) => _send(
+    'POST',
+    '/vendor/orders/$orderId/lines/$lineId/proposal',
+    _required,
+    (data) => VendorOrder.fromJson(asJson(data)),
+    body: {'product_id': productId, 'quantity': quantity},
+  );
 
   @override
   Future<VendorStatement> getVendorStatement({String? month}) => _get(

@@ -12415,4 +12415,452 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get paySheetOpenAgain => 'Open the payment page';
+
+  @override
+  String vendorSignedInAs(String app, String name, String role) {
+    return '$app · $name, $role';
+  }
+
+  @override
+  String vendorNewCount(int n) {
+    String _temp0 = intl.Intl.pluralLogic(
+      n,
+      locale: localeName,
+      other: '$n new',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get vendorSoundOn => 'Sound on';
+
+  @override
+  String get vendorSoundOff => 'Sound off';
+
+  @override
+  String get vendorBusyAsk => 'Busy?';
+
+  @override
+  String vendorBusyPlus(int n) {
+    return '+$n min';
+  }
+
+  @override
+  String get vendorOrdersToday => 'Orders today';
+
+  @override
+  String get vendorSalesToday => 'Sales today';
+
+  @override
+  String get vendorNewNow => 'New now';
+
+  @override
+  String get vendorTabNew => 'New';
+
+  @override
+  String get vendorTabPreparing => 'Preparing';
+
+  @override
+  String get vendorTabReady => 'Ready';
+
+  @override
+  String get vendorTabLater => 'For later';
+
+  @override
+  String get vendorTabDone => 'Done';
+
+  @override
+  String get vendorRinging => 'Ringing';
+
+  @override
+  String get vendorNewTag => 'New';
+
+  @override
+  String vendorAgo(int n) {
+    return '$n min ago';
+  }
+
+  @override
+  String get vendorJustNow => 'just now';
+
+  @override
+  String get vendorByAppCourier => 'The app\'s courier';
+
+  @override
+  String get vendorByOwnDriver => 'Our driver';
+
+  @override
+  String get vendorPickupTag => 'Pick-up';
+
+  @override
+  String get vendorPayCash => 'Cash';
+
+  @override
+  String get vendorPayCard => 'Card';
+
+  @override
+  String get vendorPayWallet => 'Wallet';
+
+  @override
+  String vendorByWeight(int n) {
+    return '$n by weight';
+  }
+
+  @override
+  String vendorItemCount(int n) {
+    return '$n items';
+  }
+
+  @override
+  String get vendorWeighTag => 'weigh';
+
+  @override
+  String get vendorMoreItems => 'more items';
+
+  @override
+  String get vendorReadyIn => 'Ready in';
+
+  @override
+  String get vendorMin => 'min';
+
+  @override
+  String vendorAcceptReady(String time) {
+    return 'Accept · ready $time';
+  }
+
+  @override
+  String get vendorTurnDown => 'Turn down';
+
+  @override
+  String get vendorRejectWhy => 'Why are you turning it down?';
+
+  @override
+  String get vendorWhyClosing => 'We\'re closing';
+
+  @override
+  String get vendorWhyTooBusy => 'Too busy';
+
+  @override
+  String get vendorWhyItems => 'Items unavailable';
+
+  @override
+  String get vendorWhyTooFar => 'Too far';
+
+  @override
+  String get vendorWhyOther => 'Other';
+
+  @override
+  String vendorOrderTitle(String ref, String name) {
+    return 'Order $ref · $name';
+  }
+
+  @override
+  String vendorCourierComes(String time) {
+    return 'Courier comes $time';
+  }
+
+  @override
+  String vendorReadyBy(String time) {
+    return 'Ready by $time';
+  }
+
+  @override
+  String vendorPickingFor(String time) {
+    return 'picking $time';
+  }
+
+  @override
+  String vendorAisle(String aisle, int n) {
+    return '$aisle · aisle $n';
+  }
+
+  @override
+  String get vendorOtherItems => 'Other items';
+
+  @override
+  String get vendorAsked => 'Asked';
+
+  @override
+  String get vendorIfOutSimilar => 'If out: similar';
+
+  @override
+  String get vendorIfOutChosen => 'If out: their pick';
+
+  @override
+  String get vendorIfOutRemove => 'If out: leave it out';
+
+  @override
+  String get vendorActualWeight => 'Actual weight';
+
+  @override
+  String vendorScalePrice(String amount) {
+    return 'Scale price $amount';
+  }
+
+  @override
+  String vendorCharged(String amount) {
+    return 'Charged $amount';
+  }
+
+  @override
+  String get vendorCapCard => 'Card: never above the estimate';
+
+  @override
+  String get vendorCapWallet => 'Wallet: never above the estimate';
+
+  @override
+  String vendorCapCash(String weight) {
+    return 'Cash: at most $weight';
+  }
+
+  @override
+  String vendorOverCap(String weight) {
+    return 'Too heavy for a cash order: at most $weight';
+  }
+
+  @override
+  String get vendorFromScale => 'From scale';
+
+  @override
+  String get vendorScaleLater =>
+      'A connected scale comes later. Type the weight for now.';
+
+  @override
+  String get vendorOut => 'Out';
+
+  @override
+  String get vendorSwap => 'Swap';
+
+  @override
+  String get vendorPickedButton => 'Picked';
+
+  @override
+  String get vendorLineOut => 'Out of stock';
+
+  @override
+  String vendorAskedCustomer(String time) {
+    return 'Asked the customer · $time left';
+  }
+
+  @override
+  String vendorWeighed(String weight, String ordered, String price) {
+    return 'Weighed $weight of $ordered · $price';
+  }
+
+  @override
+  String vendorPickedLine(String qty, String price) {
+    return 'Picked $qty · $price';
+  }
+
+  @override
+  String vendorTheirPick(String name) {
+    return 'Their pick, for $name';
+  }
+
+  @override
+  String vendorInsteadOf(String name) {
+    return 'Instead of $name';
+  }
+
+  @override
+  String get vendorLeftOut => 'Left out';
+
+  @override
+  String get vendorReadyForCourier => 'Ready for courier';
+
+  @override
+  String get vendorReadyForPickup => 'Ready for pick-up';
+
+  @override
+  String get vendorReadyForDriver => 'Ready for our driver';
+
+  @override
+  String vendorLinesLeft(int n, String names) {
+    String _temp0 = intl.Intl.pluralLogic(
+      n,
+      locale: localeName,
+      other: '$n lines left: $names',
+      one: '1 line left: $names',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String vendorWaitingCustomer(String name) {
+    return '$name waiting for the customer';
+  }
+
+  @override
+  String get vendorSwapTitle => 'Offer something similar';
+
+  @override
+  String vendorSwapRule(String price) {
+    return 'Same aisle, never dearer than $price';
+  }
+
+  @override
+  String get vendorSwapAsk => 'Ask the customer';
+
+  @override
+  String get vendorSwapNote =>
+      'The customer has 5 minutes to answer; then their choice for missing items applies.';
+
+  @override
+  String get vendorSwapNone => 'Nothing similar in stock at this price.';
+
+  @override
+  String get vendorSwapAsked => 'Asked the customer.';
+
+  @override
+  String get vendorBringTheirPick => 'Bring their pick';
+
+  @override
+  String vendorStockSummary(String store, int n, int out) {
+    return '$store · $n products · $out out';
+  }
+
+  @override
+  String get vendorStockHint => 'Name, SKU or barcode';
+
+  @override
+  String get vendorFilterAll => 'All';
+
+  @override
+  String get vendorFilterOut => 'Out of stock';
+
+  @override
+  String get vendorFilterWeight => 'By weight';
+
+  @override
+  String get vendorFilterOffers => 'Offers';
+
+  @override
+  String get vendorInStock => 'In stock';
+
+  @override
+  String vendorInStockLeft(int n) {
+    return 'In stock · $n left';
+  }
+
+  @override
+  String get vendorUnitKg => 'kg';
+
+  @override
+  String get vendorUnitG => 'g';
+
+  @override
+  String get vendorUnitL => 'l';
+
+  @override
+  String get vendorPerKg => 'per kg';
+
+  @override
+  String get vendorNewPrice => 'New price';
+
+  @override
+  String vendorNewPricePer(String unit) {
+    return 'New price / $unit';
+  }
+
+  @override
+  String get vendorShownAsWas => 'Shown as was';
+
+  @override
+  String get vendorShowOffer => 'Show as an offer';
+
+  @override
+  String get vendorSave => 'Save';
+
+  @override
+  String get vendorCancel => 'Cancel';
+
+  @override
+  String vendorPriceApplies(int n) {
+    String _temp0 = intl.Intl.pluralLogic(
+      n,
+      locale: localeName,
+      other: 'Applies at once to new orders, not to the $n already placed.',
+      one: 'Applies at once to new orders, not to the 1 already placed.',
+      zero: 'Applies at once to new orders; orders already placed keep their price.',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String vendorPriceUndo(String team) {
+    return '$team\'s team sees each change and can undo it.';
+  }
+
+  @override
+  String get vendorPriceSaved => 'New price saved';
+
+  @override
+  String get vendorPriceInvalid => 'Enter a price above zero.';
+
+  @override
+  String get vendorWasAbove => 'The price it was must be above the new one.';
+
+  @override
+  String vendorScanned(String name) {
+    return 'Scanned: $name';
+  }
+
+  @override
+  String get vendorOpen => 'Open';
+
+  @override
+  String vendorScanNotFound(String code) {
+    return 'Nothing here has the code $code.';
+  }
+
+  @override
+  String get vendorScanTitle => 'Scan a barcode';
+
+  @override
+  String get vendorScanTyped => 'Type or paste the barcode or SKU';
+
+  @override
+  String get vendorScanFind => 'Find';
+
+  @override
+  String get vendorAddProduct => 'Add a product';
+
+  @override
+  String get vendorProductName => 'Name';
+
+  @override
+  String get vendorPrice => 'Price';
+
+  @override
+  String get vendorSoldByItem => 'By the item';
+
+  @override
+  String get vendorSoldByKg => 'By the kilo';
+
+  @override
+  String get vendorSku => 'SKU';
+
+  @override
+  String get vendorBarcode => 'Barcode';
+
+  @override
+  String get vendorAdd => 'Add';
+
+  @override
+  String get vendorProductAdded => 'Product added';
+
+  @override
+  String get vendorUnitMl => 'ml';
+
+  @override
+  String get vendorRoleOwner => 'Owner';
+
+  @override
+  String get vendorRoleManager => 'Manager';
+
+  @override
+  String get vendorRoleOrders => 'Orders';
+
+  @override
+  String get vendorRolePicker => 'Picker';
 }

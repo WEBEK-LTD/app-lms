@@ -8,6 +8,31 @@ Last updated: 18 November 2026.
 
 ## Current release
 
+Roadmap 115.70–115.76 (the marketplace's vendor app, on
+`wip-market-vendor-app`, not merged): the vendor app's live orders, picking
+and stock as the owner approved them (designs 08–10). A new order rings
+until someone accepts it with a ready-in time (10 to 45 minutes) or turns
+it down with the partner panel's reasons; staff see the customer's first
+name only. Picking goes by aisle (`VendorOrder.lines[].aisle`, new), each
+line with its "If out" choice, the weight typed on a keypad and capped per
+D1 (card, Apple Pay, Google Pay and wallet orders at most the estimate,
+here and on the server; cash at most the tolerance over it, a heavier
+weight refused in the app); Out, Swap (a similar item offered to the
+customer for 5 minutes, or their own pick brought) and Picked are saved
+one line at a time, and Ready stays off while a line is left or a question
+waits. Stock searches by name, SKU or barcode (typed until a camera
+scanner is in), puts items in and out, adds products and changes a price
+for new orders only. The server now sends `vendor` in a place's staff's
+roles (it sent `restaurant` only, so the vendor app refused even Zad
+Market's owner), and the stores' reviewers get a test manager's sign-in on
+their own orders with a sample order and notes in Publishing. The
+substitute proposal, the price edit, the product form and the codes and
+stock fields are built against the names in wip-market-app's and
+wip-market-catalog's plans and wait for those branches; the app's new
+words are the partner panel's (en, ar, tr). In `mobile/`: it needs the
+next app build (`CLIENT_APP_RELEASE` not raised here). Not yet tried on a
+real phone (see "To verify").
+
 Roadmap 170 (paying in the app in the phone's browser sheet, closing
 155.6): inside the apps, Yallapp's payment page opens in the phone's browser
 sheet over the app (SFSafariViewController on iPhone, Chrome Custom Tabs on
@@ -1024,6 +1049,15 @@ sale show, with their prices from Admin › Plans.
 
 ## To verify against real services before release
 
+- **115.70–115.74 The vendor app on a real phone.** The ringing (system
+  alert sound and vibration every few seconds while a new order waits,
+  with the screen on; nothing rings with the app in the background until
+  pushes are sent, audit bug B2), the keypad and the 1.3× text on a small
+  Android phone and an iPhone in Arabic, and the store reviewers' sign-in
+  with the app's review number against a live marketplace (the sample
+  order needs the place open and pick-up on, else delivery to the place).
+  The proposal, price and product routes need wip-market-app's and
+  wip-market-catalog's server side merged first.
 - 138 The App Store Connect calls of the App Review submission
   (`lib/publishing/app-review-submit.ts`): `builds` by version and
   processing state, `usesNonExemptEncryption`, making and renaming an
