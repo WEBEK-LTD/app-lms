@@ -1,7 +1,8 @@
 /**
  * 37 Fake Kashier and Fawaterk APIs for unit tests: a `fetch` that records
  * each request and keeps the sessions and invoices it made, which a test
- * then pays (or tampers with) before the payment is read back.
+ * then pays (or tampers with) before the payment is read back. 153 And
+ * iyzico's Checkout Form, with the script of its form for our own page.
  */
 
 export interface Recorded {
@@ -99,4 +100,52 @@ export function fakeFawaterk(options: { apiKey?: string } = {}) {
     invoice.data = { ...invoice.data, paid: 1, invoice_status: "paid", payment_method: "Card", ...extra };
   };
   return { fetcher, calls, invoices, pay };
+}
+
+/**
+ * 153 iyzico's Checkout Form script for a payment, as `checkoutFormContent`
+ * carries it: it loads iyzico's form (here a made-up bundle) into the div
+ * `iyzipay-checkout-form`, once per page.
+ */
+export function iyzicoFormScript(token: string, bundleUrl = "https://sandbox-static.iyzipay.test/checkoutform/v2/bundle.js"): string {
+  return `<script type="text/javascript">if (typeof iyziInit == 'undefined') {var iyziInit = {currency:"TRY",token:"${token}",locale:"en",createTag:function(){var iyziJSTag = document.createElement('script');iyziJSTag.setAttribute('src','${bundleUrl}?v=1');document.head.appendChild(iyziJSTag);}};iyziInit.createTag();}</script>`;
+}
+
+export interface IyzicoForm {
+  token: string;
+  body: Record<string, unknown>;
+  /** What the read-back answers; a test changes it. */
+  detail: Record<string, unknown>;
+}
+
+/**
+ * 153 iyzico: POST …/checkoutform/initialize/auth/ecom (its page and its
+ * form's script, the same token) and …/checkoutform/auth/ecom/detail.
+ * `content` "base64" answers the script in Base64, "none" leaves it out.
+ */
+export function fakeIyzico(options: { content?: "html" | "base64" | "none" } = {}) {
+  const calls: Recorded[] = [];
+  const forms = new Map<string, IyzicoForm>();
+  const fetcher = (async (url: string, init?: RequestInit) => {
+    const call = record(calls, url, init);
+    const path = new URL(url).pathname;
+    if (path === "/payment/iyzipos/checkoutform/initialize/auth/ecom") {
+      const token = `iyzi-form-${forms.size + 1}`;
+      const body = call.body!;
+      forms.set(token, { token, body, detail: { status: "success", paymentStatus: "FAILURE", basketId: body.basketId, currency: body.currency, paidPrice: body.paidPrice } });
+      const script = iyzicoFormScript(token);
+      const content = options.content === "none" ? {} : { checkoutFormContent: options.content === "base64" ? Buffer.from(script).toString("base64") : script };
+      return Response.json({ status: "success", token, tokenExpireTime: 1800, paymentPageUrl: `https://sandbox-cpp.iyzipay.test?token=${token}&lang=en`, ...content });
+    }
+    if (path === "/payment/iyzipos/checkoutform/auth/ecom/detail") {
+      const form = forms.get(String(call.body?.token));
+      return Response.json(form ? form.detail : { status: "failure", errorMessage: "Not found" });
+    }
+    return Response.json({ status: "failure", errorMessage: "Not found" }, { status: 404 });
+  }) as unknown as typeof fetch;
+  const pay = (token: string) => {
+    const form = forms.get(token)!;
+    form.detail = { ...form.detail, paymentStatus: "SUCCESS", paymentId: `pay-${token}`, itemTransactions: [{ paymentTransactionId: `tx-${token}` }] };
+  };
+  return { fetcher, calls, forms, pay };
 }
