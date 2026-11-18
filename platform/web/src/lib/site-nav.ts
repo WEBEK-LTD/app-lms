@@ -44,6 +44,8 @@ export interface SiteLink {
   desktopOnly?: boolean;
   /** On the top bar only from extra-large screens; the footer has it at every size. */
   wideOnly?: boolean;
+  /** 191 On the top bar only from the widest screens (1536 px): a 1280 px laptop's bar is full; its list and the footer have it at every size. */
+  widestOnly?: boolean;
   /** A small heading above this link in its list (Studio's "Apps made in Studio"). */
   heading?: string;
 }
@@ -101,7 +103,7 @@ export const SITE_NAV: SiteNavEntry[] = [
   { kind: "group", id: "product", label: "Product", items: PRODUCT_LINKS.filter((link) => link.id !== "studio") },
   { kind: "group", id: "studio", label: "Studio", items: STUDIO_LINKS, badge: "New" },
   // 191 Studio Market on the bar itself too (and in Studio's list and the footer).
-  { kind: "link", id: "templates", href: "/templates", label: "Studio Market" },
+  { kind: "link", id: "templates", href: "/templates", label: "Studio Market", widestOnly: true },
   { kind: "link", id: "pricing", href: "/pricing", label: "Pricing" },
   { kind: "link", id: "demo", href: "/demo", label: "Demo" },
   { kind: "group", id: "resources", label: "Resources", items: RESOURCE_LINKS },

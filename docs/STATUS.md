@@ -10,9 +10,9 @@ Last updated: 18 November 2026.
 
 Roadmap 191 (Studio Market lives in Studio): the market's pages are in
 Studio's own frame (/studio/market, a template, My templates, checkout), in
-Studio's menu (Browse templates, My templates, Sell your designs) and on
+Studio's menu (Browse templates, My templates) and on
 Studio's bar; the regular dashboard has none of it, its old addresses open
-the same page in Studio. The website's header has Studio Market on its bar;
+the same page in Studio. The website's header has Studio Market on its bar on wide screens;
 the footer and Studio's list had it already.
 
 Roadmap 189 (the hero's slides, plain to find in Studio): with a slider,
