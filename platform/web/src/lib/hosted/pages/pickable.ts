@@ -1,7 +1,7 @@
 import { readApiList } from "../../app/api-check";
 import type { DataStore } from "../../data/store";
 import { ENGINES, isAppType } from "../../app/kinds";
-import type { App } from "../../data/types";
+import type { App, CatalogCurrency } from "../../data/types";
 import type { ItemSource } from "../../pages/types";
 import { offeredTypes } from "../../rides/settings";
 import { connectorFor } from "../connectors";
@@ -15,6 +15,7 @@ import { catalogSettings } from "../../catalog/settings";
 import { listedSales, unitsLeft } from "../../selling/flash-sales";
 import { giftMessagesJson, giftOccasionsOf } from "../../selling/gift-messages";
 import { appLanguagesOf, couponShown, publicCouponJson } from "../../selling/store";
+import { formatCents } from "../../catalog/money";
 import { bouquetOf } from "../../selling/bouquet";
 
 /** An entry as the app's list card shows it: its picture, its line under the title, its price and its badge (`Item`). */
@@ -37,6 +38,8 @@ export interface PickableCommerce {
   coupons: { code: string; percentOff: number | null; amountOff: string | null; minOrder: string | null; endsAt: string | null }[];
   /** `GET /store/gift-messages` in each of the app's languages: the gift checkout's occasions and messages. */
   giftMessages: Record<string, ReturnType<typeof giftMessagesJson>>;
+  /** 174.6 A sample sale's was and now prices, in the shop's own currency (shown, marked as a sample, until a sale is on). */
+  samplePrices?: { was: string; now: string };
   /** 162 Whether Build your bouquet is set up (Store › Delivery & offers): a Start that opens it says so in the inspector. */
   bouquet?: boolean;
 }
@@ -120,6 +123,7 @@ export async function pickableCommerce(store: DataStore, app: App, now: Date): P
         return { code: j.code, percentOff: j.percent_off, amountOff: j.amount_off_formatted, minOrder: j.min_order_formatted, endsAt: j.ends_at };
       }),
     giftMessages: Object.fromEntries(languages.available.map((lang) => [lang, giftMessagesJson(occasions, lang, languages.default)])),
+    samplePrices: { was: formatCents(50_000, currency as CatalogCurrency), now: formatCents(40_000, currency as CatalogCurrency) },
     bouquet: bouquetOf(app) !== null,
   };
 }
