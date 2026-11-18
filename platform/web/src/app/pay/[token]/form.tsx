@@ -7,7 +7,23 @@ import { Field, FieldError, FormMessage } from "@/components/form";
 import type { CatalogCustomer } from "@/lib/data/types";
 import type { ManualChoice } from "@/lib/catalog/manual";
 import { initialFormState } from "@/lib/forms";
+import { IyzicoCard } from "./iyzico-card";
+import { KashierCard } from "./kashier-card";
 import { StripeCard } from "./stripe-card";
+
+/** 153 The provider's own page, the same payment, when its form can't show in ours. */
+function PayOnProvider({ note, href, label, color, textColor }: { note: string; href: string; label: string; color: string; textColor: string }) {
+  return (
+    <div className="flex flex-col gap-3">
+      <p role="alert" className="m-0 rounded-xl bg-sand px-4 py-3 text-[15px]">
+        {note}
+      </p>
+      <a href={href} className="flex h-12 w-full items-center justify-center rounded-xl text-[16px] font-bold no-underline" style={{ backgroundColor: color, color: textColor }}>
+        {label}
+      </a>
+    </div>
+  );
+}
 
 function PayButton({ label, busy, color, textColor }: { label: string; busy: string; color: string; textColor: string }) {
   const { pending } = useFormStatus();
@@ -43,36 +59,53 @@ export function PayForm({
   defaults?: Partial<CatalogCustomer>;
 }) {
   const [state, action] = useActionState<PayState, FormData>(payAction.bind(null, token), initialFormState);
-  // 144 Stripe's form didn't load: its own page instead, with the same details.
+  // 144 Stripe's form didn't load: its own page instead, with the same details. 153 iyzico's or Kashier's: their page, the same payment.
   const [hosted, setHosted] = useState(false);
   const value = (name: keyof CatalogCustomer) => state.values?.[name] ?? defaults?.[name] ?? "";
   const methods = [...(card ? [{ method: "card", name: "Card", instructions: "" }] : []), ...manual];
   // The choice lives outside the form, which React resets after each submit.
   const [method, setMethod] = useState(methods[0]?.method ?? "card");
   const chosen = methods.find((m) => m.method === method);
-  // 144 The details are in: Stripe's card form, in this page.
-  if (state.stripe) {
+  // 144 The details are in: Stripe's card form (153 iyzico's, Kashier's), in this page.
+  if (state.stripe || state.iyzico || state.kashier) {
+    const provider = state.stripe ? "Stripe" : state.iyzico ? "iyzico" : "Kashier";
     return (
       <div className="flex flex-col gap-4" data-pay-step="card">
         <div className="flex flex-col gap-1">
           <h2 className="m-0 text-[18px] font-bold">Your card</h2>
-          <p className="m-0 text-[15px] leading-relaxed text-ink-4">Enter your card to pay {total}. It goes straight to Stripe: the shop never sees its number.</p>
+          <p className="m-0 text-[15px] leading-relaxed text-ink-4">Enter your card to pay {total}. It goes straight to {provider}: the shop never sees its number.</p>
         </div>
-        {hosted ? (
-          <form action={action} className="flex flex-col gap-3">
-            <p role="alert" className="m-0 rounded-xl bg-sand px-4 py-3 text-[15px]">
-              The card form didn&apos;t load here. Pay on Stripe&apos;s secure page instead.
-            </p>
-            <input type="hidden" name="method" value="card" />
-            <input type="hidden" name="hosted" value="1" />
-            {(["name", "phone", "email", "city", "address"] as const).map((name) => (
-              <input key={name} type="hidden" name={name} value={value(name)} />
-            ))}
-            <PayButton label={`Pay ${total} on Stripe`} busy="Opening the payment…" color={color} textColor={textColor} />
-          </form>
-        ) : (
-          <StripeCard clientSecret={state.stripe.clientSecret} publishableKey={state.stripe.publishableKey} jsUrl={state.stripe.jsUrl} onFailed={() => setHosted(true)} />
-        )}
+        {state.stripe ? (
+          hosted ? (
+            <form action={action} className="flex flex-col gap-3">
+              <p role="alert" className="m-0 rounded-xl bg-sand px-4 py-3 text-[15px]">
+                The card form didn&apos;t load here. Pay on Stripe&apos;s secure page instead.
+              </p>
+              <input type="hidden" name="method" value="card" />
+              <input type="hidden" name="hosted" value="1" />
+              {(["name", "phone", "email", "city", "address"] as const).map((name) => (
+                <input key={name} type="hidden" name={name} value={value(name)} />
+              ))}
+              <PayButton label={`Pay ${total} on Stripe`} busy="Opening the payment…" color={color} textColor={textColor} />
+            </form>
+          ) : (
+            <StripeCard clientSecret={state.stripe.clientSecret} publishableKey={state.stripe.publishableKey} jsUrl={state.stripe.jsUrl} onFailed={() => setHosted(true)} />
+          )
+        ) : null}
+        {state.iyzico ? (
+          hosted ? (
+            <PayOnProvider note="The card form didn't load here. Pay on iyzico's secure page instead." href={state.iyzico.pageUrl} label={`Pay ${total} on iyzico`} color={color} textColor={textColor} />
+          ) : (
+            <IyzicoCard formContent={state.iyzico.formContent} onFailed={() => setHosted(true)} />
+          )
+        ) : null}
+        {state.kashier ? (
+          <>
+            <KashierCard frameUrl={state.kashier.frameUrl} returnUrl={state.kashier.returnUrl} onTrouble={() => setHosted(true)} />
+            {/* The form stays: it may only be slow to say it's there. */}
+            {hosted ? <PayOnProvider note="Card form not showing? Pay on Kashier's secure page instead." href={state.kashier.pageUrl} label={`Pay ${total} on Kashier`} color={color} textColor={textColor} /> : null}
+          </>
+        ) : null}
         <button type="button" onClick={() => window.location.reload()} className="cursor-pointer self-start border-0 bg-transparent p-0 text-[15px] font-semibold underline">
           Change your details
         </button>
