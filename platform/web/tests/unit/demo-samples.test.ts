@@ -170,6 +170,18 @@ describe("templates = demos: the demo's own sample entries", () => {
     expect(await store.listAssetsByClient(client.id)).toEqual([]);
   });
 
+  it("180.22 a gym started from the demo has its timetable's classes at once, gone with the samples", { timeout: 60_000 }, async () => {
+    const { store, client, deps, removeDeps } = await world();
+    const app = await appLike(store, client.id, "fitness");
+    await seedDemoSamples(deps, app.id, "fitness");
+    const coming = await store.listClassSessions({ appId: app.id, startFrom: NOW });
+    expect(bookingSetup((await store.getAppById(app.id))!).classTemplates.length).toBeGreaterThan(0);
+    // The app's Classes showed none until the next day's job.
+    expect(coming.length).toBeGreaterThan(0);
+    await removeAllSamples(removeDeps, app.id);
+    expect(await store.listClassSessions({ appId: app.id, startFrom: NOW })).toEqual([]);
+  });
+
   it("keeps a sample class the owner put their own student in", async () => {
     const { store, client, deps, removeDeps } = await world();
     const app = await appLike(store, client.id, "school");
