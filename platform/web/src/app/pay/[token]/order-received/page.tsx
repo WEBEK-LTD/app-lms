@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { cookies } from "next/headers";
 import { Icon } from "@/components/icon";
 import { btn } from "@/components/ui";
 import { signingSecret } from "@/lib/env";
@@ -9,7 +10,9 @@ import { formatCents } from "@/lib/catalog/money";
 import { fulfilmentOf } from "@/lib/catalog/fulfilment";
 import { sha256Hex } from "@/lib/crypto/tokens";
 import { getStore } from "@/lib/data";
-import { PayShell } from "../shell";
+import { PayShell, textOn } from "../shell";
+import { BackToApp } from "../back-to-app";
+import { appReturnLink, fromAppSheet, type AppReturnResult } from "@/lib/payments/app-return";
 import { paidWithoutPlaces } from "@/lib/events/holds";
 
 export const metadata: Metadata = { title: "Order received", robots: { index: false } };
@@ -29,6 +32,19 @@ export default async function OrderReceivedPage({ params }: { params: Promise<{ 
   const noPlaces = Boolean(order && app?.connector?.kind === "events" && paidWithoutPlaces(order, await store.listTickets({ appId: app.id, orderId: order.id })));
   // 134 A connected store's payment in the app: its order is on the shop's platform, or the shop confirms it.
   const platformOrder = order && app && paid ? await store.getStorePlatformOrder(app.id, order.id) : null;
+  // 170 The app's payment in the phone's browser sheet: back to the app, by itself once it's paid (not when there's more to read here).
+  const back: { result: AppReturnResult; auto: boolean } | null =
+    order && app && fromAppSheet(await cookies())
+      ? platformOrder
+        ? { result: "paid", auto: true }
+        : noPlaces
+          ? { result: "paid", auto: false }
+          : awaitingManualPayment(order)
+            ? { result: "placed", auto: false }
+            : paid
+              ? { result: "paid", auto: true }
+              : { result: "pending", auto: false }
+      : null;
   return (
     <PayShell app={app}>
       {platformOrder ? (
@@ -99,6 +115,7 @@ export default async function OrderReceivedPage({ params }: { params: Promise<{ 
           </p>
         </>
       )}
+      {back && order && app ? <BackToApp href={appReturnLink(app.id, order.id, back.result)} auto={back.auto} color={app.primaryColor} textColor={textOn(app.primaryColor)} /> : null}
     </PayShell>
   );
 }

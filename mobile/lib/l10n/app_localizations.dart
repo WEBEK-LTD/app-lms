@@ -19399,6 +19399,90 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Paid {total}'**
   String orderPaidIn(String total);
+
+  /// 170 Under the phone's browser sheet with the payment page (where Apple Pay and Google Pay show), while the customer pays there.
+  ///
+  /// In en, this message translates to:
+  /// **'Finish paying in the window that opened'**
+  String get paySheetWaitingTitle;
+
+  /// 170 Under the title while the payment page is open in the browser sheet.
+  ///
+  /// In en, this message translates to:
+  /// **'Pay there by card, Apple Pay or Google Pay. You come back here once it\'s done.'**
+  String get paySheetWaitingBody;
+
+  /// 170 While the app asks the platform how the payment stands, after the browser sheet.
+  ///
+  /// In en, this message translates to:
+  /// **'Checking your payment…'**
+  String get paySheetChecking;
+
+  /// 170 The payment was started but isn't confirmed yet (it may still be).
+  ///
+  /// In en, this message translates to:
+  /// **'Your payment isn\'t confirmed yet'**
+  String get paySheetPendingTitle;
+
+  /// 170 Under the title when the payment isn't confirmed yet: never says it failed.
+  ///
+  /// In en, this message translates to:
+  /// **'If you paid, it\'s confirmed within a few minutes and your order shows in your orders. Check again before paying a second time.'**
+  String get paySheetPendingBody;
+
+  /// 170 The browser sheet was closed and no payment was made for the order.
+  ///
+  /// In en, this message translates to:
+  /// **'Not paid yet'**
+  String get paySheetNotPaidTitle;
+
+  /// 170 Under the title when no payment was started for the order.
+  ///
+  /// In en, this message translates to:
+  /// **'Nothing was charged for this order. You can pay now, or close and come back later.'**
+  String get paySheetNotPaidBody;
+
+  /// 170 Under the title when the payment page said the payment didn't go through and the order isn't paid.
+  ///
+  /// In en, this message translates to:
+  /// **'The payment didn\'t go through. You can try again.'**
+  String get paySheetFailedBody;
+
+  /// 170 The order was cancelled or closed meanwhile.
+  ///
+  /// In en, this message translates to:
+  /// **'This order is closed'**
+  String get paySheetClosedTitle;
+
+  /// 170 Under the title when the order is closed.
+  ///
+  /// In en, this message translates to:
+  /// **'Nothing more to pay here. Go back and check out again if you still want it.'**
+  String get paySheetClosedBody;
+
+  /// 170 The platform couldn't be reached to read the payment's state.
+  ///
+  /// In en, this message translates to:
+  /// **'We couldn\'t check your payment'**
+  String get paySheetCheckFailedTitle;
+
+  /// 170 Under the title when the payment's state couldn't be read.
+  ///
+  /// In en, this message translates to:
+  /// **'Check your connection and try again. If you paid, your order is safe.'**
+  String get paySheetCheckFailedBody;
+
+  /// 170 Button: ask the platform again how the payment stands.
+  ///
+  /// In en, this message translates to:
+  /// **'Check payment'**
+  String get paySheetCheckAgain;
+
+  /// 170 Button: open the payment page in the browser sheet again.
+  ///
+  /// In en, this message translates to:
+  /// **'Open the payment page'**
+  String get paySheetOpenAgain;
 }
 
 class _AppLocalizationsDelegate

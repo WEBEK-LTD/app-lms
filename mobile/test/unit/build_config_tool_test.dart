@@ -359,6 +359,28 @@ void main() {
     );
   });
 
+  test('170 the return address: from the app ID, the same on both phones', () {
+    final c = example()
+      ..['links'] = {
+        'app_id': '3F2A9C1E-7b4d-4e8a-9c0f-1a2b3c4d5e6f',
+        'yallapp_base_url': 'https://yallapp.com.tr/a/3f2a9c1e',
+        'crash_report_url': 'https://yallapp.com.tr/api/v1/crashes',
+      };
+    const scheme = 'yallapp-3f2a9c1e7b4d4e8a9c0f1a2b3c4d5e6f';
+    expect(returnSchemeOf(c), scheme);
+    expect(renderAndroidProperties(c), contains('returnScheme=$scheme\n'));
+    expect(renderIosXcconfig(c), contains('YALLAPP_RETURN_SCHEME = $scheme\n'));
+    // Without an app ID: a placeholder nothing sends (the web view stays).
+    expect(
+      renderAndroidProperties(example()),
+      contains('returnScheme=yallapp-dev'),
+    );
+    expect(
+      renderIosXcconfig(example()),
+      contains('YALLAPP_RETURN_SCHEME = yallapp-dev'),
+    );
+  });
+
   test('updates the pubspec version idempotently', () {
     const pubspec = 'name: yallapp\nversion: 0.0.1+1\n\nenvironment:\n';
     final c = example()

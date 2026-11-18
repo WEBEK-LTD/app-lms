@@ -37,6 +37,7 @@ import '../theme/symbol_names.dart';
 import '../services/analytics_providers.dart';
 import '../widgets/keyboard.dart';
 import 'app_links.dart';
+import '../web/pay_sheet.dart' show isPayReturnLink;
 import 'app_module.dart';
 import 'paths.dart';
 
@@ -437,6 +438,10 @@ final appRouterProvider = Provider<GoRouter>((ref) {
     debugLogDiagnostics: false,
     redirect: (context, state) {
       final build = ref.read(appEnvironmentProvider).build;
+      // 170 The payment page's return link reaching the router: the app was
+      // started by it (while it runs, the payment screen gets it on its own
+      // channel). The payment is read afresh on Orders.
+      if (isPayReturnLink(state.uri)) return Paths.orders;
       // 46 A link that opens the app (App Links, Universal Links, a
       // notification's link): its screen, then the sign-in rules below.
       final link = linkLocation(state.uri, build);
