@@ -3,10 +3,11 @@ import { StoreMarks } from "./brand-marks";
 import { Icon } from "./icon";
 import type { IconName } from "./icon-names";
 import { CheckList } from "./marketing";
-import { planPriceFor, planStoresLineFor, storageText } from "./plan-cards";
+import { PlanPrice, planStoresLineFor, storageText } from "./plan-cards";
 import { WhatsAppLink } from "./whatsapp-link";
 import type { Contact } from "@/lib/contact";
 import { hasFeature, planStores, STUDIO_PLAN_CHOICES, type PlanInfo, type PriceView } from "@/lib/plans";
+import type { PeriodKey } from "@/lib/billing/periods";
 import { formatMessage, messagesFor, type Lang } from "@/i18n";
 import { localePath } from "@/i18n/paths";
 import { richText } from "@/i18n/rich";
@@ -41,9 +42,29 @@ function pagesText(lang: Lang, plan: PlanInfo): string {
  * 103R Yallapp Studio's own plans, apart from the regular ones: the plans the
  * team offers (`planOffered`), each with its price, pages, storage and the
  * choices it includes. With none offered yet, Studio plans are on request.
- * What every Studio plan has, and what changes plan by plan, follow.
+ * What every Studio plan has, and what changes plan by plan, follow
+ * (`basics`; 146 the pricing page shows them with Studio's explanation).
+ * 146 For the period the visitor chose, with the price per month and the
+ * saving, as the regular plans' cards (`PlanPrice`); in a row to swipe
+ * through on phones, as theirs.
  */
-export function StudioPlans({ lang, plans, view, contact }: { lang: Lang; plans: PlanInfo[]; view: PriceView; contact: Contact }) {
+export function StudioPlans({
+  lang,
+  plans,
+  view,
+  contact,
+  period = null,
+  basics = true,
+}: {
+  lang: Lang;
+  plans: PlanInfo[];
+  view: PriceView;
+  contact: Contact;
+  /** 146 The billing period the visitor chose: each plan shows it when it has it (else its own main price). */
+  period?: PeriodKey | null;
+  /** 146 What every Studio plan has and what changes plan by plan, under the cards. */
+  basics?: boolean;
+}) {
   const m = messagesFor(lang).studio;
   const words = messagesFor(lang).plans;
   const choices = choiceLabels(lang);
@@ -56,11 +77,21 @@ export function StudioPlans({ lang, plans, view, contact }: { lang: Lang; plans:
   return (
     <div className="flex flex-col gap-8" data-studio-plans="">
       {plans.length > 0 ? (
-        <ul aria-label={m.plansTitle} className="m-0 grid list-none gap-5 p-0 [grid-template-columns:repeat(auto-fit,minmax(min(280px,100%),1fr))]">
+        <ul
+          aria-label={m.plansTitle}
+          // 146 As the regular plans' cards: rows of four (two on tablets) at one width, a row to swipe through on phones.
+          className="-mx-4 my-0 flex list-none snap-x snap-mandatory scroll-px-4 gap-4 overflow-x-auto px-4 pt-1 pb-4 sm:mx-0 sm:flex-wrap sm:justify-center sm:gap-5 sm:overflow-visible sm:px-0"
+        >
           {plans.map((plan) => {
-            const shown = planPriceFor(lang, plan, view);
+            const on = (id: string) => (plan.features as readonly string[]).includes(id);
+            // 146 What the plan doesn't include, folded under what it does, so the card stays short.
+            const missing = shownChoices.filter((id) => !on(id));
             return (
-              <li key={plan.id} data-plan={plan.id} className="flex flex-col gap-5 rounded-[22px] border border-line bg-white p-6">
+              <li
+                key={plan.id}
+                data-plan={plan.id}
+                className="flex w-[84%] max-w-[340px] flex-none snap-start flex-col gap-5 rounded-[22px] border border-line bg-white p-6 sm:w-[calc((100%-1.25rem)/2)] sm:max-w-none lg:w-[calc((100%-3.75rem)/4)]"
+              >
                 <div className="flex flex-col gap-1.5">
                   <span className="flex items-center gap-1.5 text-xs font-bold tracking-[0.8px] text-accent uppercase">
                     <Icon name="dashboard_customize" size={16} />
@@ -76,12 +107,7 @@ export function StudioPlans({ lang, plans, view, contact }: { lang: Lang; plans:
                     </span>
                   ) : null}
                 </div>
-                <div className="flex flex-wrap items-baseline gap-x-1.5">
-                  <span dir={shown.period ? "ltr" : undefined} className={`font-extrabold tracking-[-0.5px] ${shown.period ? "text-[34px]" : "text-[26px]"}`}>
-                    {shown.price}
-                  </span>
-                  {shown.period ? <span className="text-[15px] font-medium text-muted">{formatMessage(lang, words.perPeriod, { period: shown.period })}</span> : null}
-                </div>
+                <PlanPrice plan={plan} view={view} lang={lang} period={period} />
                 <ul className="m-0 flex list-none flex-col gap-2 rounded-xl bg-sand p-3.5 text-sm font-semibold text-ink-2">
                   <li className="flex items-center gap-2.5">
                     <Icon name="view_agenda" size={20} className="text-ink-4" />
@@ -103,20 +129,14 @@ export function StudioPlans({ lang, plans, view, contact }: { lang: Lang; plans:
                   <span className="text-[13px] font-semibold text-ink-4">{planStoresLineFor(lang, plan)}</span>
                 </div>
                 <ul className="m-0 flex list-none flex-col gap-2.5 border-t border-line-soft p-0 pt-5 text-[15px]">
-                  {shownChoices.map((id) => {
-                    const on = (plan.features as readonly string[]).includes(id);
-                    return (
-                      <li key={id} className={`flex gap-2.5 ${on ? "" : "text-muted"}`} data-included={on ? "" : undefined}>
-                        <span className={`mt-px flex h-5 w-5 flex-none items-center justify-center rounded-full ${on ? "bg-success-bg text-success" : "bg-sand text-faint"}`}>
-                          <Icon name={on ? "check" : "close"} size={15} />
-                        </span>
-                        <span>
-                          {choices[id]!.label}
-                          {on ? null : <span className="sr-only">{formatMessage(lang, messagesFor(lang).pricing.notIncluded, { plan: plan.name })}</span>}
-                        </span>
-                      </li>
-                    );
-                  })}
+                  {shownChoices.filter(on).map((id) => (
+                    <li key={id} className="flex gap-2.5" data-included="">
+                      <span className="mt-px flex h-5 w-5 flex-none items-center justify-center rounded-full bg-success-bg text-success">
+                        <Icon name="check" size={15} />
+                      </span>
+                      <span>{choices[id]!.label}</span>
+                    </li>
+                  ))}
                   {plan.highlights.map((item) => (
                     <li key={item} className="flex gap-2.5">
                       <span className="mt-px flex h-5 w-5 flex-none items-center justify-center rounded-full bg-success-bg text-success">
@@ -126,6 +146,27 @@ export function StudioPlans({ lang, plans, view, contact }: { lang: Lang; plans:
                     </li>
                   ))}
                 </ul>
+                {missing.length ? (
+                  <details className="group -mt-2 text-[14px] text-muted" data-not-included="">
+                    <summary className="flex cursor-pointer items-center gap-1.5 font-semibold">
+                      {formatMessage(lang, m.notInPlan, { count: missing.length })}
+                      <Icon name="expand_more" size={18} className="transition-transform group-open:rotate-180" />
+                    </summary>
+                    <ul className="m-0 mt-2.5 flex list-none flex-col gap-2 p-0">
+                      {missing.map((id) => (
+                        <li key={id} className="flex gap-2.5">
+                          <span className="mt-px flex h-5 w-5 flex-none items-center justify-center rounded-full bg-sand text-faint">
+                            <Icon name="close" size={15} />
+                          </span>
+                          <span>
+                            {choices[id]!.label}
+                            <span className="sr-only">{formatMessage(lang, messagesFor(lang).pricing.notIncluded, { plan: plan.name })}</span>
+                          </span>
+                        </li>
+                      ))}
+                    </ul>
+                  </details>
+                ) : null}
                 <AccountLink
                   href={localePath(lang, "/sign-up")}
                   signedInHref="/studio"
@@ -144,25 +185,41 @@ export function StudioPlans({ lang, plans, view, contact }: { lang: Lang; plans:
           <span>{richText(m.plansOnRequest, { link: wa })}</span>
         </p>
       )}
-      <div className="grid gap-5 [grid-template-columns:repeat(auto-fit,minmax(min(320px,100%),1fr))]">
-        <div className="flex flex-col gap-3 rounded-2xl border border-line bg-white p-6">
-          <h3 className="m-0 text-lg font-bold">{m.everyPlan}</h3>
-          <CheckList items={[m.base1, m.base2, m.base3, m.base4, m.base5, m.base6, m.base7, m.base8]} />
-        </div>
-        <div className="flex flex-col gap-3 rounded-2xl border border-line bg-white p-6">
-          <h3 className="m-0 text-lg font-bold">{m.byPlan}</h3>
-          <ul className="m-0 flex list-none flex-col gap-2 p-0 text-[15px]">
-            {[...shownChoices.map((id) => choices[id]!), { label: m.choicePages, icon: "view_agenda" as IconName }].map((choice) => (
-              <li key={choice.label} className="flex gap-2.5">
-                <Icon name={choice.icon} size={20} className="mt-0.5 text-ink-4" />
-                <span>{choice.label}</span>
-              </li>
-            ))}
-          </ul>
-        </div>
+      {basics ? <StudioPlanBasics lang={lang} /> : null}
+    </div>
+  );
+}
+
+/** 103R What every Studio plan has, and what the team chooses plan by plan; 146 also with Studio's explanation on the pricing page. */
+export function StudioPlanBasics({ lang, headingLevel = 3 }: { lang: Lang; headingLevel?: 3 | 4 }) {
+  const m = messagesFor(lang).studio;
+  const Heading = headingLevel === 3 ? "h3" : "h4";
+  return (
+    <div className="grid gap-5 [grid-template-columns:repeat(auto-fit,minmax(min(320px,100%),1fr))]" data-studio-basics="">
+      <div className="flex flex-col gap-3 rounded-2xl border border-line bg-white p-6">
+        <Heading className="m-0 text-lg font-bold">{m.everyPlan}</Heading>
+        <CheckList items={[m.base1, m.base2, m.base3, m.base4, m.base5, m.base6, m.base7, m.base8]} />
+      </div>
+      <div className="flex flex-col gap-3 rounded-2xl border border-line bg-white p-6">
+        <Heading className="m-0 text-lg font-bold">{m.byPlan}</Heading>
+        <ul className="m-0 flex list-none flex-col gap-2 p-0 text-[15px]">
+          {studioPlanChoices(lang).map((choice) => (
+            <li key={choice.label} className="flex gap-2.5">
+              <Icon name={choice.icon} size={20} className="mt-0.5 text-ink-4" />
+              <span>{choice.label}</span>
+            </li>
+          ))}
+        </ul>
       </div>
     </div>
   );
+}
+
+/** 103R What the team chooses plan by plan for Studio, in the page's language: the choices, then the Studio pages a project has. */
+export function studioPlanChoices(lang: Lang): { label: string; icon: IconName }[] {
+  const m = messagesFor(lang).studio;
+  const choices = choiceLabels(lang);
+  return [...STUDIO_PLAN_CHOICES.flatMap((id) => (choices[id] ? [choices[id]] : [])), { label: m.choicePages, icon: "view_agenda" }];
 }
 
 /** 103R Regular apps next to Studio projects, topic by topic, as a table. */
@@ -177,7 +234,33 @@ export function StudioDifferences({ lang }: { lang: Lang }) {
     { icon: "rocket_launch", topic: m.rowPublish, regular: m.rowPublishBoth, studio: m.rowPublishBoth },
   ];
   return (
-    <div className="overflow-x-auto rounded-2xl border border-line bg-white" data-studio-differences="">
+    <div data-studio-differences="">
+      {/* 146 On phones, topic by topic, the two one under the other: no table to scroll sideways. */}
+      <ul className="m-0 flex list-none flex-col gap-3 p-0 sm:hidden" aria-label={m.diffTitle}>
+        {rows.map((row) => (
+          <li key={row.topic} className="flex flex-col gap-3 rounded-2xl border border-line bg-white p-4">
+            <span className="flex items-center gap-2.5 text-[15px] font-bold">
+              <Icon name={row.icon} size={20} className="text-accent" />
+              {row.topic}
+            </span>
+            <span className="flex flex-col gap-0.5 text-[15px] leading-snug text-ink-4">
+              <span className="flex items-center gap-1.5 text-[12px] font-bold tracking-[0.6px] text-muted uppercase">
+                <Icon name="apps" size={16} />
+                {m.regular}
+              </span>
+              {row.regular}
+            </span>
+            <span className="flex flex-col gap-0.5 rounded-xl bg-peach-soft p-3 text-[15px] leading-snug text-ink-2">
+              <span className="flex items-center gap-1.5 text-[12px] font-bold tracking-[0.6px] text-accent uppercase">
+                <Icon name="dashboard_customize" size={16} />
+                {m.studio}
+              </span>
+              {row.studio}
+            </span>
+          </li>
+        ))}
+      </ul>
+      <div className="hidden overflow-x-auto rounded-2xl border border-line bg-white sm:block">
       <table className="w-full min-w-[720px] border-collapse text-[15px]">
         <caption className="sr-only">{m.diffTitle}</caption>
         <thead>
@@ -214,6 +297,7 @@ export function StudioDifferences({ lang }: { lang: Lang }) {
           ))}
         </tbody>
       </table>
+      </div>
     </div>
   );
 }

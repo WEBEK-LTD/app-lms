@@ -252,7 +252,9 @@ test("every menu link opens its own page and marks it", async ({ page }) => {
     }
   }
   await page.goto("/pricing");
-  await expect(page.getByRole("heading", { name: "Compare plans" })).toBeVisible();
+  // 146 The plans first; every feature folded under "Compare plans".
+  await expect(page.getByRole("heading", { name: "Plans for regular apps" })).toBeVisible();
+  await expect(page.locator("details[data-compare-all] > summary")).toContainText("Compare plans");
   const nav = page.getByRole("navigation", { name: "Main" });
   const studio = nav.getByRole("button", { name: "Studio New" });
   await studio.click();

@@ -76,6 +76,38 @@ export function planPriceFor(lang: Lang, plan: PlanInfo, view: PriceView, period
 }
 
 /**
+ * 133 A plan card's price for the period chosen (else its main one), with
+ * what it comes to per month and the saving, or a note that the plan isn't
+ * sold for that period. 146 The regular plans' cards and Studio's share it.
+ */
+export function PlanPrice({ plan, view, lang, period = null }: { plan: PlanInfo; view: PriceView; lang: Lang; period?: PeriodKey | null }) {
+  const m = messagesFor(lang).plans;
+  const shown = planPriceFor(lang, plan, view, period);
+  const chosen = period ? periodPrices(plan, view).find((p) => p.key === period) : null;
+  return (
+    <>
+      <div className="flex flex-wrap items-baseline gap-x-1.5" data-plan-price="">
+        <span dir={shown.period ? "ltr" : undefined} className={`font-extrabold tracking-[-0.5px] ${shown.period ? "text-[34px]" : "text-[26px]"}`}>
+          {shown.price}
+        </span>
+        {shown.period ? <span className="text-[15px] font-medium text-muted">{formatMessage(lang, m.perPeriod, { period: shown.period })}</span> : null}
+      </div>
+      {/* 133 Per month and the saving, worked out from the prices. */}
+      {chosen && (chosen.perMonth || chosen.saving) ? (
+        <div className="-mt-3 flex flex-wrap items-center gap-2 text-[13px] text-muted" data-per-month="">
+          {chosen.perMonth ? <span dir="auto">{formatMessage(lang, m.perMonth, { price: chosen.perMonth })}</span> : null}
+          {chosen.saving ? <span className="rounded-full bg-success-bg px-2 py-0.5 text-[12px] font-bold text-success">{formatMessage(lang, m.save, { percent: chosen.saving })}</span> : null}
+        </div>
+      ) : period && !chosen && shown.period ? (
+        <span className="-mt-3 text-[13px] text-muted" data-not-in-period="">
+          {m.notInPeriod}
+        </span>
+      ) : null}
+    </>
+  );
+}
+
+/**
  * A line's first number, marked so the home page counts up to it as the
  * plans come into view (src/site/story/effects.tsx `data-count`). The text
  * reads the same everywhere, and stays as it is on pages without the effect.
@@ -126,8 +158,6 @@ export function PlanCards({
       {plans.map((plan) => {
         // 133 The team's highlighted plan, with its own badge or "Most popular".
         const featured = plan.featured === true;
-        const shown = planPriceFor(lang, plan, view, period);
-        const chosen = period ? periodPrices(plan, view).find((p) => p.key === period) : null;
         const { stores } = planStores(plan);
         return (
           <li
@@ -154,21 +184,7 @@ export function PlanCards({
                 {plan.tagline}
               </span>
             </div>
-            <div className="flex flex-wrap items-baseline gap-x-1.5">
-              <span dir={shown.period ? "ltr" : undefined} className={`font-extrabold tracking-[-0.5px] ${shown.period ? "text-[34px]" : "text-[26px]"}`}>
-                {shown.price}
-              </span>
-              {shown.period ? <span className="text-[15px] font-medium text-muted">{formatMessage(lang, m.perPeriod, { period: shown.period })}</span> : null}
-            </div>
-            {/* 133 Per month and the saving, worked out from the prices. */}
-            {chosen && (chosen.perMonth || chosen.saving) ? (
-              <div className="-mt-3 flex flex-wrap items-center gap-2 text-[13px] text-muted" data-per-month="">
-                {chosen.perMonth ? <span dir="auto">{formatMessage(lang, m.perMonth, { price: chosen.perMonth })}</span> : null}
-                {chosen.saving ? <span className="rounded-full bg-success-bg px-2 py-0.5 text-[12px] font-bold text-success">{formatMessage(lang, m.save, { percent: chosen.saving })}</span> : null}
-              </div>
-            ) : period && !chosen && shown.period ? (
-              <span className="-mt-3 text-[13px] text-muted">{m.notInPeriod}</span>
-            ) : null}
+            <PlanPrice plan={plan} view={view} lang={lang} period={period} />
             <ul aria-label={formatMessage(lang, m.limits, { plan: plan.name })} className="m-0 flex list-none flex-col gap-2 rounded-xl bg-sand p-3.5 text-sm font-semibold text-ink-2">
               {planLimitLinesFor(lang, plan).map((line) => (
                 <li key={line.icon} className="flex items-center gap-2.5">
@@ -195,7 +211,8 @@ export function PlanCards({
             </ul>
             <AccountLink
               href={localePath(lang, "/sign-up")}
-              signedInHref="/dashboard/license#change-plan"
+              // 146 The period chosen on the pricing page goes with it to the dashboard's plan cards.
+              signedInHref={`/dashboard/license${period ? `?period=${period}` : ""}#change-plan`}
               signedIn={formatMessage(lang, m.choose, { plan: plan.name })}
               className={`mt-auto flex h-[50px] items-center justify-center rounded-xl text-base font-bold no-underline transition-colors ${
                 featured ? "bg-midnight text-white hover:bg-ink-3 hover:text-white" : "border border-midnight text-midnight hover:bg-midnight hover:text-white"

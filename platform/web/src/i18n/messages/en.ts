@@ -258,6 +258,38 @@ export const en = {
       "<b>App stores:</b> every plan builds the Android app for Google Play, Samsung Galaxy Store, Huawei AppGallery and Xiaomi GetApps; the iOS app for the App Store comes with Growth and up. On every plan we publish your app and every update on Google Play and the App Store for you; on Galaxy Store, AppGallery and GetApps you publish yourself with our guides, or add your keys there and every build uploads by itself.",
     fees:
       "Google Play and the App Store charge their own developer account fees, paid directly to Google and Apple; Samsung, Huawei and Xiaomi accounts are free. You can cancel within 3 days of your account being activated for a full refund. See our <link>Refund policy</link>.",
+    /** 146 The pricing page: the app and Studio side by side. */
+    productsLabel: "Yallapp's two products",
+    appName: "Yallapp app",
+    appWho: "Your website or store, turned into an app.",
+    studioWho: "Design your app freely and run everything from Yallapp.",
+    from: "From",
+    seePlans: "See the plans",
+    howItWorks: "How it works",
+    periodHint: "Choose how long to pay for: the app's prices and Studio's below change with it.",
+    lifetimeBoth: "On the app's plans and Studio's alike, wherever a plan is sold for life.",
+    lifetimeSee: "See lifetime prices",
+    aboutTitle: "The app and Studio, in detail",
+    aboutText: "What each one gives you, how it works and who it suits, with real screens of apps made with each.",
+    whoTitle: "Who it suits",
+    appIntro:
+      "Yallapp turns what you already run into your own Android and iOS apps: your website, your online store or your platform, or content you add in the dashboard. Pick a ready-made design, arrange your pages in the page editor, and we build and publish the apps for you.",
+    appGet1: "Your own Android and iOS apps, under your name and logo",
+    appGet2: "Your content from WordPress, Shopify and other platforms, your own API or the dashboard, always up to date",
+    appGet3: "Ready-made designs in light and dark mode, and the page editor",
+    appGet4: "Push notifications, card payments, offline mode, chat and loyalty points, plan by plan",
+    appGet5: "Analytics of how people use your app",
+    appStep1: "Connect your website or platform, or add your content in the dashboard.",
+    appStep2: "Choose a design and arrange your pages.",
+    appStep3: "We build your apps and publish them in the stores for you.",
+    appWhoText:
+      "Businesses with a website, an online store or a platform that want their own app quickly: academies, shops, restaurants, bookings, clinics, gyms, real estate, news, events and charities.",
+    studioStep1: "Pick the kind of project, where its content comes from and a template.",
+    studioStep2: "Design every page in the Studio editor: any element, anywhere, with motion and colors for light and dark mode.",
+    studioStep3: "Run it from your project's own dashboard; we build the apps and publish them for you.",
+    studioWhoText:
+      "Businesses that want a design of their own, and the ones only Studio serves: delivery companies, food delivery, rides and taxis, academies with many teachers, schools and universities.",
+    compareAllText: "Every feature and limit of the app's plans, side by side.",
   },
   solutions: {
     contentFrom: "Content from:",
@@ -422,6 +454,8 @@ export const en = {
     choiceTemplates: "Templates",
     choicePages: "How many Studio pages a project has",
     pages: "{count, plural, =1{1 Studio page per project} other{{count} Studio pages per project}}",
+    /** 146 A Studio plan's card: the choices it doesn't include, folded. */
+    notInPlan: "{count, plural, =1{1 option not on this plan} other{{count} options not on this plan}}",
     unlimitedPages: "Unlimited Studio pages",
     allPlans: "See all plans",
     pricingStudio: "Studio projects are paid on Studio's own plans, not on these. <link>See Yallapp Studio's plans</link>.",

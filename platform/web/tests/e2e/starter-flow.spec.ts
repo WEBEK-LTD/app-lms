@@ -74,7 +74,8 @@ test("signed in, the website's header says Dashboard instead of Sign in and Get 
   await expect(header.getByRole("link", { name: "Sign in" })).toHaveCount(0);
   await expect(header.getByRole("link", { name: "Get started" })).toHaveCount(0);
   await expect(page.getByRole("contentinfo").getByRole("link", { name: "Your dashboard" })).toBeVisible();
-  await expect(page.getByRole("link", { name: "Choose Growth" })).toHaveAttribute("href", "/dashboard/license#change-plan");
+  // 146 With the billing period chosen on the page, when the plans have more than one.
+  await expect(page.getByRole("link", { name: "Choose Growth" })).toHaveAttribute("href", /^\/dashboard\/license(\?period=(1|6|12|24|36|lifetime))?#change-plan$/);
 
   // The session cookie stays HttpOnly; only the "signed in" note is readable.
   const cookies = await page.context().cookies();
