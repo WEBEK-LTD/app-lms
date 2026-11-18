@@ -1016,6 +1016,13 @@
       "when": 1795003639397,
       "tag": "0145_contact_chat",
       "breakpoints": true
+    },
+    {
+      "idx": 146,
+      "version": "5",
+      "when": 1795005554160,
+      "tag": "0146_contact_calls",
+      "breakpoints": true
     }
   ]
 }

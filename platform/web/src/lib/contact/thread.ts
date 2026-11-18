@@ -60,11 +60,13 @@ export function contactWaysJson(settings: ContactSettings, job: Pick<Shipment, "
   if (!job || job.courierId === null) return null;
   const window = threadWindow(job);
   const open = isOpen(window, now);
+  const live = onItsWay(job);
   return {
     chat: settings.chat && open,
-    // The calls come with 184.5 and 184.6 (then: the owner's switch, while the job is on its way); never offered before.
+    // The app call comes with 184.6: never offered before.
     app_call: false,
-    phone_call: false,
+    // 184.5 Switched on, an account that passed its test and isn't paused, while the order is on its way.
+    phone_call: live && settings.phoneCall && Boolean(settings.twilio) && settings.twilioCheck?.ok === true && !settings.phonePausedAt,
     chat_until: window.closesAt ? window.closesAt.toISOString() : null,
   };
 }

@@ -7859,7 +7859,70 @@ export interface ContactSettings {
   chat: boolean;
   appCall: boolean;
   phoneCall: boolean;
+  /** 184.6 How app calls cross strict networks: the owner's Twilio relay (Network Traversal), or direct only. */
+  turn?: "twilio" | "direct";
+  /** 184.5 The owner's own Twilio account (Settings › Calls); null: none entered. */
+  twilio?: ContactTwilio | null;
+  /** 184.5 The last Test the connection, or a call that failed because of the account. */
+  twilioCheck?: ContactTwilioCheck | null;
+  /** 184.5 Phone calls paused since then (a call failed because of the account); cleared when a test passes. */
+  phonePausedAt?: Date | null;
   updatedAt: Date;
+}
+
+/** 184.5 The owner's own Twilio account. The secret is never kept or shown in the clear: it's sealed with the platform's key, bound to the app. */
+export interface ContactTwilio {
+  accountSid: string;
+  /** An API key's SID (SK…); null: the secret is the account's auth token. */
+  keySid: string | null;
+  secretEncrypted: string;
+  /** E.164: the number both phones see. */
+  number: string;
+}
+
+/** What Test the connection found, as codes the dashboard words (lib/contact/twilio.ts). */
+export interface ContactTwilioCheck {
+  at: Date;
+  ok: boolean;
+  /** The first thing wrong, if any. */
+  problem: TwilioProblem | null;
+  /** Each check, in order. */
+  checks: { name: "account" | "number" | "balance" | "relay"; ok: boolean; problem?: TwilioProblem | null }[];
+  /** The account's balance, as Twilio gives it ("23.40", "USD"); null: not read. */
+  balance: { amount: string; currency: string } | null;
+}
+
+export type TwilioProblem =
+  | "auth"
+  | "account_inactive"
+  | "trial"
+  | "number_not_owned"
+  | "number_no_voice"
+  | "low_balance"
+  | "relay_unavailable"
+  | "geo_blocked"
+  | "unreachable"
+  | "unknown";
+
+export const CONTACT_CALL_STATUSES = ["calling", "ringing", "connected", "completed", "no_answer", "busy", "failed", "cancelled"] as const;
+export type ContactCallStatus = (typeof CONTACT_CALL_STATUSES)[number];
+
+/** 184.5 A call between a job's customer and its courier: no recording and no numbers kept. */
+export interface ContactCall {
+  id: number;
+  appId: string;
+  shipmentId: number;
+  courierId: number;
+  kind: "phone" | "app";
+  caller: ContactSide;
+  status: ContactCallStatus;
+  /** Twilio's Call SID. */
+  providerSid: string | null;
+  problem: string | null;
+  durationSeconds: number | null;
+  createdAt: Date;
+  answeredAt: Date | null;
+  endedAt: Date | null;
 }
 
 /** A message on a courier job's thread. */

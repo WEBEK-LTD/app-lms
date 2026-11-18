@@ -778,6 +778,25 @@ describe("79.3 one client never reaches another's data through the Owner API", (
       shipment_id: String(shipment.id),
       // 113.9
       section_id: String(theirSection.id),
+      // 184.5 A call on the other client's courier job.
+      call_id: String(
+        (
+          await store.createContactCall({
+            appId: theirs.delivery.id,
+            shipmentId: shipment.id,
+            courierId: 1,
+            kind: "phone",
+            caller: "customer",
+            status: "completed",
+            providerSid: null,
+            problem: null,
+            durationSeconds: 30,
+            createdAt: NOW,
+            answeredAt: NOW,
+            endedAt: NOW,
+          })
+        ).id,
+      ),
     });
     // 125 The Studio apps' objects of the other client, for the Owner API's paths.
     Object.assign(ids, {

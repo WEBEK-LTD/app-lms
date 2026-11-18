@@ -7041,6 +7041,202 @@ paths:
         '404': { $ref: '#/components/responses/NotFound' }
         '409': { $ref: '#/components/responses/Conflict' }
 
+  /me/market-orders/{order_id}/contact/phone-call:
+    post:
+      tags: [Contact]
+      operationId: callMarketContactByPhone
+      summary: A masked phone call to the courier
+      description: |
+        184.5 A normal phone call, no internet needed: Twilio rings the
+        caller's own number from the app owner's Twilio number (`ring_from`)
+        and, once they answer, dials the courier from the same number.
+        Neither side sees the other's number; nothing is recorded. Only while
+        `ContactWays.phone_call` is true (the order on its way):
+        `phone_call_unavailable` (409) otherwise; `no_phone` (409) when the
+        caller's account has no mobile number; `rate_limited` (429) past 5
+        calls in 10 minutes; `phone_call_failed` (503) when the call couldn't
+        be placed, with words to show (the app then offers chat).
+      parameters:
+        - $ref: '#/components/parameters/MarketOrderId'
+      responses:
+        '202':
+          description: Twilio is ringing the caller's phone
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/ContactCall' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '404': { $ref: '#/components/responses/NotFound' }
+        '409': { $ref: '#/components/responses/Conflict' }
+        '429': { $ref: '#/components/responses/TooManyRequests' }
+        '503': { $ref: '#/components/responses/Unavailable' }
+
+  /me/market-orders/{order_id}/contact/calls/{call_id}:
+    get:
+      tags: [Contact]
+      operationId: getMarketContactCall
+      summary: How a call went
+      description: 184.5 For the call screen to say "No answer" or offer chat. Only this side's job and courier's calls.
+      parameters:
+        - $ref: '#/components/parameters/MarketOrderId'
+        - $ref: '#/components/parameters/ContactCallId'
+      responses:
+        '200':
+          description: The call
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/ContactCall' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '404': { $ref: '#/components/responses/NotFound' }
+
+  /me/food-orders/{order_id}/contact/phone-call:
+    post:
+      tags: [Contact]
+      operationId: callFoodContactByPhone
+      summary: A masked phone call to the courier
+      description: |
+        184.5 A normal phone call, no internet needed: Twilio rings the
+        caller's own number from the app owner's Twilio number (`ring_from`)
+        and, once they answer, dials the courier from the same number.
+        Neither side sees the other's number; nothing is recorded. Only while
+        `ContactWays.phone_call` is true (the order on its way):
+        `phone_call_unavailable` (409) otherwise; `no_phone` (409) when the
+        caller's account has no mobile number; `rate_limited` (429) past 5
+        calls in 10 minutes; `phone_call_failed` (503) when the call couldn't
+        be placed, with words to show (the app then offers chat).
+      parameters:
+        - $ref: '#/components/parameters/FoodOrderId'
+      responses:
+        '202':
+          description: Twilio is ringing the caller's phone
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/ContactCall' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '404': { $ref: '#/components/responses/NotFound' }
+        '409': { $ref: '#/components/responses/Conflict' }
+        '429': { $ref: '#/components/responses/TooManyRequests' }
+        '503': { $ref: '#/components/responses/Unavailable' }
+
+  /me/food-orders/{order_id}/contact/calls/{call_id}:
+    get:
+      tags: [Contact]
+      operationId: getFoodContactCall
+      summary: How a call went
+      description: 184.5 For the call screen to say "No answer" or offer chat. Only this side's job and courier's calls.
+      parameters:
+        - $ref: '#/components/parameters/FoodOrderId'
+        - $ref: '#/components/parameters/ContactCallId'
+      responses:
+        '200':
+          description: The call
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/ContactCall' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '404': { $ref: '#/components/responses/NotFound' }
+
+  /me/shipments/{shipment_id}/contact/phone-call:
+    post:
+      tags: [Contact]
+      operationId: callShipmentContactByPhone
+      summary: A masked phone call to the courier
+      description: |
+        184.5 A normal phone call, no internet needed: Twilio rings the
+        caller's own number from the app owner's Twilio number (`ring_from`)
+        and, once they answer, dials the courier from the same number.
+        Neither side sees the other's number; nothing is recorded. Only while
+        `ContactWays.phone_call` is true (the order on its way):
+        `phone_call_unavailable` (409) otherwise; `no_phone` (409) when the
+        caller's account has no mobile number; `rate_limited` (429) past 5
+        calls in 10 minutes; `phone_call_failed` (503) when the call couldn't
+        be placed, with words to show (the app then offers chat).
+      parameters:
+        - $ref: '#/components/parameters/ShipmentId'
+      responses:
+        '202':
+          description: Twilio is ringing the caller's phone
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/ContactCall' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '404': { $ref: '#/components/responses/NotFound' }
+        '409': { $ref: '#/components/responses/Conflict' }
+        '429': { $ref: '#/components/responses/TooManyRequests' }
+        '503': { $ref: '#/components/responses/Unavailable' }
+
+  /me/shipments/{shipment_id}/contact/calls/{call_id}:
+    get:
+      tags: [Contact]
+      operationId: getShipmentContactCall
+      summary: How a call went
+      description: 184.5 For the call screen to say "No answer" or offer chat. Only this side's job and courier's calls.
+      parameters:
+        - $ref: '#/components/parameters/ShipmentId'
+        - $ref: '#/components/parameters/ContactCallId'
+      responses:
+        '200':
+          description: The call
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/ContactCall' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '404': { $ref: '#/components/responses/NotFound' }
+
+  /courier/jobs/{shipment_id}/contact/phone-call:
+    post:
+      tags: [Contact]
+      operationId: callCourierJobContactByPhone
+      summary: A masked phone call to the customer
+      description: |
+        184.5 A normal phone call, no internet needed: Twilio rings the
+        caller's own number from the app owner's Twilio number (`ring_from`)
+        and, once they answer, dials the customer from the same number.
+        Neither side sees the other's number; nothing is recorded. Only while
+        `ContactWays.phone_call` is true (the order on its way):
+        `phone_call_unavailable` (409) otherwise; `no_phone` (409) when the
+        caller's account has no mobile number; `rate_limited` (429) past 5
+        calls in 10 minutes; `phone_call_failed` (503) when the call couldn't
+        be placed, with words to show (the app then offers chat).
+      parameters:
+        - $ref: '#/components/parameters/ShipmentId'
+      responses:
+        '202':
+          description: Twilio is ringing the caller's phone
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/ContactCall' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '404': { $ref: '#/components/responses/NotFound' }
+        '409': { $ref: '#/components/responses/Conflict' }
+        '429': { $ref: '#/components/responses/TooManyRequests' }
+        '503': { $ref: '#/components/responses/Unavailable' }
+
+  /courier/jobs/{shipment_id}/contact/calls/{call_id}:
+    get:
+      tags: [Contact]
+      operationId: getCourierJobContactCall
+      summary: How a call went
+      description: 184.5 For the call screen to say "No answer" or offer chat. Only this side's job and courier's calls.
+      parameters:
+        - $ref: '#/components/parameters/ShipmentId'
+        - $ref: '#/components/parameters/ContactCallId'
+      responses:
+        '200':
+          description: The call
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/ContactCall' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '404': { $ref: '#/components/responses/NotFound' }
+
   /me/complaints:
     get:
       tags: [Market]
@@ -12827,6 +13023,11 @@ components:
       schema: { type: integer }
     VendorId:
       name: vendor_id
+      in: path
+      required: true
+      schema: { type: integer }
+    ContactCallId:
+      name: call_id
       in: path
       required: true
       schema: { type: integer }
@@ -20523,6 +20724,19 @@ components:
           type: array
           description: Oldest first.
           items: { $ref: '#/components/schemas/ContactMessage' }
+
+    ContactCall:
+      type: object
+      required: [id, kind, caller, status, ring_from, duration_seconds, created_at, ended_at]
+      properties:
+        id: { type: integer }
+        kind: { type: string, enum: [phone, app] }
+        caller: { type: string, enum: [customer, courier] }
+        status: { type: string, enum: [calling, ringing, connected, completed, no_answer, busy, failed, cancelled] }
+        ring_from: { type: [string, 'null'], example: '+14155550142', description: "A phone call: the app owner's Twilio number the caller's phone rings from (E.164). Never the other side's number." }
+        duration_seconds: { type: [integer, 'null'], description: 'How long the two talked, once it ended.' }
+        created_at: { type: string, format: date-time }
+        ended_at: { type: [string, 'null'], format: date-time }
 
     ContactThread:
       description: An order's conversation between its customer and its courier.

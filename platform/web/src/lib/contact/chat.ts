@@ -7,6 +7,7 @@ import { shipmentReference } from "../delivery/service";
 import { hitRateLimit, type RateLimitRule } from "../rate-limit";
 import type { Connector, ConnectorRequest, ConnectorResult } from "../hosted/connectors/types";
 import { error } from "../hosted/connectors/common";
+import { callJson, startPhoneCall, type CallDeps } from "./phone-call";
 import { QUICK_REPLIES, isQuickReply, quickWords } from "./quick";
 import { contactSettingsOf, contactWaysJson, courierThread, customerThread, firstName, isOpen, type CustomerOrder, type Found, type Thread } from "./thread";
 
@@ -28,6 +29,8 @@ export interface ChatDeps {
   app: App;
   /** The pushes to the other side (lib/delivery/flow.ts notifyDeps); none when left out. */
   notify?: (now: Date) => DeliveryNotifyDeps;
+  /** 184.5 What a masked phone call needs (the key, Twilio's fetch, the callbacks' address); no calls when left out. */
+  calls?: Omit<CallDeps, "store" | "app">;
 }
 
 /** How often the open screen asks for new messages. */
@@ -60,15 +63,26 @@ export async function handleContact(deps: ChatDeps, request: ConnectorRequest): 
   const parsed = contactPath(request.path);
   if (!parsed) return null;
   const route = `${request.method} /${parsed.rest.join("/")}`;
-  if (!["GET /", "GET /messages", "POST /messages", "POST /read"].includes(route)) return fail(404, "not_found", "Not found.");
+  const callId = parsed.rest[0] === "calls" && parsed.rest.length === 2 && /^\d{1,15}$/.test(parsed.rest[1]!) ? Number(parsed.rest[1]) : null;
+  const calling = route === "POST /phone-call" || (request.method === "GET" && callId !== null);
+  if (!calling && !["GET /", "GET /messages", "POST /messages", "POST /read"].includes(route)) return fail(404, "not_found", "Not found.");
   const settings = contactSettingsOf(deps.app.id, await deps.store.getContactSettings(deps.app.id));
-  if (!settings.chat) return fail(403, "contact_off", "Chat isn't available in this app.");
+  if (!calling && !settings.chat) return fail(403, "contact_off", "Chat isn't available in this app.");
   const found: Found =
     parsed.where.side === "customer"
       ? await customerThread(deps.store, deps.app, request.user, parsed.where.order)
       : await courierThread(deps.store, deps.app, request.user, parsed.where.jobId, request.now);
   if (!found.ok) return fail(found.status, found.code, found.message);
   const thread = found.thread;
+  if (route === "POST /phone-call") {
+    if (!deps.calls) return fail(409, "phone_call_unavailable", "Phone calls aren't available right now. Write in the chat instead.");
+    return startPhoneCall({ ...deps.calls, store: deps.store, app: deps.app }, thread, settings, request.now, request.lang);
+  }
+  if (callId !== null) {
+    const call = await deps.store.getContactCall(deps.app.id, callId);
+    if (!call || call.shipmentId !== thread.job.id || call.courierId !== thread.courier.id) return fail(404, "not_found", "Call not found.");
+    return { status: 200, body: callJson(call, settings) };
+  }
   if (route === "GET /") return { status: 200, body: await threadJson(deps, thread, settings, request.now) };
   if (route === "GET /messages") return messages(deps, thread, request);
   if (route === "POST /read") return read(deps, thread, request);

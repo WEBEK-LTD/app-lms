@@ -24,7 +24,7 @@ import type {
 } from "./types";
 // 106.12 Studio Market discounts
 import type { MarketDiscount, MarketDiscountKind } from "./types";
-import type { ContactMessage, ContactMessageInput, ContactRead, ContactSettings, ContactSide } from "./types";
+import type { ContactCall, ContactMessage, ContactMessageInput, ContactRead, ContactSettings, ContactSide } from "./types";
 import type { AppStory, GiftOccasion, StoreDelivery, StoreFlashSale, StorePlatformOrder, StorePlatformOrderStatus } from "./types";
 import type {
   Activation,
@@ -2677,4 +2677,11 @@ export interface DataStore {
   listContactReads(appId: string, shipmentId: number): Promise<ContactRead[]>;
   /** 184 Moves a side's read mark forward to `lastReadId` (never back). */
   markContactRead(appId: string, shipmentId: number, side: ContactSide, lastReadId: number, at: Date): Promise<void>;
+  /** 184.5 A call between a job's customer and its courier. */
+  createContactCall(input: Omit<ContactCall, "id">): Promise<ContactCall>;
+  /** False when the app has no such call. */
+  updateContactCall(appId: string, id: number, patch: Partial<Pick<ContactCall, "status" | "providerSid" | "problem" | "durationSeconds" | "answeredAt" | "endedAt">>): Promise<boolean>;
+  getContactCall(appId: string, id: number): Promise<ContactCall | null>;
+  /** A job's calls, newest first. */
+  listContactCalls(appId: string, shipmentId: number, limit: number): Promise<ContactCall[]>;
 }

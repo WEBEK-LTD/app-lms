@@ -1,4 +1,5 @@
 import type { OrderMoney } from "../market/money";
+import type { ContactCallStatus, ContactTwilioCheck } from "../data/types";
 import type {
   AppAuthKey,
   // 136 Yallapp sets up notifications
@@ -6066,8 +6067,44 @@ export const contactSettings = mysqlTable(
     chat: boolean("chat").notNull().default(true),
     appCall: boolean("app_call").notNull().default(false),
     phoneCall: boolean("phone_call").notNull().default(false),
+    // 184.6 How app calls cross strict networks: the owner's Twilio relay, or direct only.
+    turn: varchar("turn", { length: 8 }).notNull().default("direct").$type<"twilio" | "direct">(),
+    // 184.5 The owner's own Twilio account: the SIDs as typed (shown masked), the secret encrypted with the platform's key, bound to the app.
+    twilioAccountSid: varchar("twilio_account_sid", { length: 34 }),
+    twilioKeySid: varchar("twilio_key_sid", { length: 34 }),
+    twilioSecretEncrypted: text("twilio_secret_encrypted"),
+    twilioNumber: varchar("twilio_number", { length: 24 }),
+    // The last Test the connection (or call) and what it found; phone calls pause while it failed.
+    twilioCheck: jsonDated<ContactTwilioCheck>("twilio_check", ["at"]),
+    phonePausedAt: time("phone_paused_at"),
     updatedAt: time("updated_at").notNull(),
   },
+);
+
+/** 184.5 A call between a job's customer and its courier: a masked phone call through the owner's Twilio, or (184.6) an app call. No recording, no numbers. */
+export const contactCalls = mysqlTable(
+  "contact_calls",
+  {
+    id: autoId("id").primaryKey(),
+    appId: id("app_id")
+      .notNull()
+      .references(() => apps.id, { onDelete: "cascade" }),
+    shipmentId: bigint("shipment_id", { mode: "number", unsigned: true })
+      .notNull()
+      .references(() => shipments.id, { onDelete: "cascade" }),
+    courierId: bigint("courier_id", { mode: "number", unsigned: true }).notNull(),
+    kind: varchar("kind", { length: 8 }).notNull().$type<"phone" | "app">(),
+    caller: varchar("caller", { length: 8 }).notNull().$type<"customer" | "courier">(),
+    status: varchar("status", { length: 16 }).notNull().$type<ContactCallStatus>(),
+    // Twilio's Call SID; never a number.
+    providerSid: varchar("provider_sid", { length: 64 }),
+    problem: varchar("problem", { length: 32 }),
+    durationSeconds: int("duration_seconds"),
+    createdAt: time("created_at").notNull(),
+    answeredAt: time("answered_at"),
+    endedAt: time("ended_at"),
+  },
+  (t) => [index("contact_calls_thread_idx").on(t.appId, t.shipmentId, t.id), index("contact_calls_sid_idx").on(t.providerSid)],
 );
 
 /** A message on a courier job's thread, between its customer and the courier who had the job when it was written. */

@@ -1437,6 +1437,62 @@
           "summary": "Mark the conversation read",
           "description": "184 Up to `last_read_id` (never past the newest message, never back). The other side sees \"read\".",
           "access": "signed-in"
+        },
+        {
+          "method": "POST",
+          "path": "/me/market-orders/{order_id}/contact/phone-call",
+          "summary": "A masked phone call to the courier",
+          "description": "184.5 A normal phone call, no internet needed: Twilio rings the caller's own number from the app owner's Twilio number (`ring_from`) and, once they answer, dials the courier from the same number. Neither side sees the other's number; nothing is recorded. Only while `ContactWays.phone_call` is true (the order on its way): `phone_call_unavailable` (409) otherwise; `no_phone` (409) when the caller's account has no mobile number; `rate_limited` (429) past 5 calls in 10 minutes; `phone_call_failed` (503) when the call couldn't be placed, with words to show (the app then offers chat).",
+          "access": "signed-in"
+        },
+        {
+          "method": "GET",
+          "path": "/me/market-orders/{order_id}/contact/calls/{call_id}",
+          "summary": "How a call went",
+          "description": "184.5 For the call screen to say \"No answer\" or offer chat. Only this side's job and courier's calls.",
+          "access": "signed-in"
+        },
+        {
+          "method": "POST",
+          "path": "/me/food-orders/{order_id}/contact/phone-call",
+          "summary": "A masked phone call to the courier",
+          "description": "184.5 A normal phone call, no internet needed: Twilio rings the caller's own number from the app owner's Twilio number (`ring_from`) and, once they answer, dials the courier from the same number. Neither side sees the other's number; nothing is recorded. Only while `ContactWays.phone_call` is true (the order on its way): `phone_call_unavailable` (409) otherwise; `no_phone` (409) when the caller's account has no mobile number; `rate_limited` (429) past 5 calls in 10 minutes; `phone_call_failed` (503) when the call couldn't be placed, with words to show (the app then offers chat).",
+          "access": "signed-in"
+        },
+        {
+          "method": "GET",
+          "path": "/me/food-orders/{order_id}/contact/calls/{call_id}",
+          "summary": "How a call went",
+          "description": "184.5 For the call screen to say \"No answer\" or offer chat. Only this side's job and courier's calls.",
+          "access": "signed-in"
+        },
+        {
+          "method": "POST",
+          "path": "/me/shipments/{shipment_id}/contact/phone-call",
+          "summary": "A masked phone call to the courier",
+          "description": "184.5 A normal phone call, no internet needed: Twilio rings the caller's own number from the app owner's Twilio number (`ring_from`) and, once they answer, dials the courier from the same number. Neither side sees the other's number; nothing is recorded. Only while `ContactWays.phone_call` is true (the order on its way): `phone_call_unavailable` (409) otherwise; `no_phone` (409) when the caller's account has no mobile number; `rate_limited` (429) past 5 calls in 10 minutes; `phone_call_failed` (503) when the call couldn't be placed, with words to show (the app then offers chat).",
+          "access": "signed-in"
+        },
+        {
+          "method": "GET",
+          "path": "/me/shipments/{shipment_id}/contact/calls/{call_id}",
+          "summary": "How a call went",
+          "description": "184.5 For the call screen to say \"No answer\" or offer chat. Only this side's job and courier's calls.",
+          "access": "signed-in"
+        },
+        {
+          "method": "POST",
+          "path": "/courier/jobs/{shipment_id}/contact/phone-call",
+          "summary": "A masked phone call to the customer",
+          "description": "184.5 A normal phone call, no internet needed: Twilio rings the caller's own number from the app owner's Twilio number (`ring_from`) and, once they answer, dials the customer from the same number. Neither side sees the other's number; nothing is recorded. Only while `ContactWays.phone_call` is true (the order on its way): `phone_call_unavailable` (409) otherwise; `no_phone` (409) when the caller's account has no mobile number; `rate_limited` (429) past 5 calls in 10 minutes; `phone_call_failed` (503) when the call couldn't be placed, with words to show (the app then offers chat).",
+          "access": "signed-in"
+        },
+        {
+          "method": "GET",
+          "path": "/courier/jobs/{shipment_id}/contact/calls/{call_id}",
+          "summary": "How a call went",
+          "description": "184.5 For the call screen to say \"No answer\" or offer chat. Only this side's job and courier's calls.",
+          "access": "signed-in"
         }
       ]
     },

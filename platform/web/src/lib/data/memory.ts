@@ -31,7 +31,7 @@ import type { AnalyticsDailyRecord, AnalyticsDailyRow, AnalyticsEventRow, Analyt
 import type { AppAuthKey, AppLayoutRecord, AppLayoutVersion, AppLayoutVersionSummary, OwnFont, PendingPayment, SavedSection, StudioTemplate, StudioDesign, StoreProduct, StorePurchaseRecord, StorePurchaseEvent, StoreBillingItem, BillingSession } from "./types";
 import type { CampaignSend, HostedCart, HostedOrderWatch, NotificationCampaign, NotificationCampaignPatch, NotificationCampaignStatus } from "./types";
 import type { LoyaltyEntry, LoyaltyReason } from "./types";
-import type { ContactMessage, ContactMessageInput, ContactRead, ContactSettings, ContactSide } from "./types";
+import type { ContactCall, ContactMessage, ContactMessageInput, ContactRead, ContactSettings, ContactSide } from "./types";
 import type { AppStory, GiftOccasion, StoreDelivery, StoreFlashSale, StorePlatformOrder, StorePlatformOrderStatus } from "./types";
 import type { AppFirebaseApp, FirebaseAppPlatform, FirebaseAppVariant, FirebaseProject, PlatformKeyPurpose, PlatformSigningKey } from "./types";
 import { firebaseAppOrder } from "../firebase/order";
@@ -9493,6 +9493,31 @@ export class MemoryStore implements DataStore {
     const found = this.contactReads.find((r) => r.appId === appId && r.shipmentId === shipmentId && r.side === side);
     if (!found) this.contactReads.push({ appId, shipmentId, side, lastReadId, readAt: new Date(at) });
     else if (lastReadId > found.lastReadId) Object.assign(found, { lastReadId, readAt: new Date(at) });
+  }
+
+  private contactCalls: ContactCall[] = [];
+  private nextContactCallId = 1;
+
+  async createContactCall(input: Omit<ContactCall, "id">): Promise<ContactCall> {
+    const call: ContactCall = { ...clone(input), id: this.nextContactCallId++ };
+    this.contactCalls.push(call);
+    return clone(call);
+  }
+
+  async updateContactCall(appId: string, id: number, patch: Partial<Pick<ContactCall, "status" | "providerSid" | "problem" | "durationSeconds" | "answeredAt" | "endedAt">>): Promise<boolean> {
+    const found = this.contactCalls.find((c) => c.appId === appId && c.id === id);
+    if (!found) return false;
+    Object.assign(found, clone(patch));
+    return true;
+  }
+
+  async getContactCall(appId: string, id: number): Promise<ContactCall | null> {
+    const found = this.contactCalls.find((c) => c.appId === appId && c.id === id);
+    return found ? clone(found) : null;
+  }
+
+  async listContactCalls(appId: string, shipmentId: number, limit: number): Promise<ContactCall[]> {
+    return this.contactCalls.filter((c) => c.appId === appId && c.shipmentId === shipmentId).sort((a, b) => b.id - a.id).slice(0, limit).map(clone);
   }
 }
 

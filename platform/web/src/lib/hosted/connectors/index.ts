@@ -21,6 +21,16 @@ import type { Connector } from "./types";
 import { withStoreExtras } from "../../selling/store";
 import { withContact } from "../../contact/chat";
 import { notifyDeps } from "../../delivery/flow";
+import { signingSecret } from "../../env";
+
+/** 184.5 The secret Twilio's callback addresses are signed with; null without one (no phone calls then). */
+function callbackSecret(): string | null {
+  try {
+    return signingSecret();
+  } catch {
+    return null;
+  }
+}
 
 export const context = (appId: string) => `app:connector:${appId}`;
 
@@ -121,7 +131,9 @@ function sourceConnector(app: App, key: Buffer, deps: Parameters<typeof connecto
   if (app.connector?.kind === "events") return new EventsConnector({ ...deps, app });
   if (app.connector?.kind === "campaigns") return new DonationsConnector({ ...deps, app });
   // 184.3 The chat between a job's customer and its courier, in front of both.
-  const chat = { store: deps.store, app, notify: (now: Date) => notifyDeps({ store: deps.store, app, now }) };
+  // 184.5 The masked phone call: the owner's Twilio secret is opened with the platform's key; Twilio's callbacks are signed.
+  const calls = { key, fetcher, platformUrl: deps.platformUrl, secret: callbackSecret() };
+  const chat = { store: deps.store, app, notify: (now: Date) => notifyDeps({ store: deps.store, app, now }), ...(calls.secret ? { calls: calls as typeof calls & { secret: string } } : {}) };
   if (app.connector?.kind === "deliveries") return withContact(new DeliveryConnector({ ...deps, app, fetcher }), { ...chat, enabled: deps.delivery !== false });
   if (app.connector?.kind === "restaurants") return withContact(new FoodConnector({ ...deps, app, fetcher }), { ...chat, enabled: deps.food !== false });
   if (app.connector?.kind === "rides") {

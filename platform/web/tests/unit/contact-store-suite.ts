@@ -30,7 +30,7 @@ export function contactStoreSuite(store: () => DataStore) {
     const { app } = await setup(s);
     expect(await s.getContactSettings(app.id)).toBeNull();
     await s.saveContactSettings({ appId: app.id, chat: false, appCall: true, phoneCall: false, updatedAt: NOW });
-    expect(await s.getContactSettings(app.id)).toEqual({ appId: app.id, chat: false, appCall: true, phoneCall: false, updatedAt: NOW });
+    expect(await s.getContactSettings(app.id)).toMatchObject({ appId: app.id, chat: false, appCall: true, phoneCall: false, updatedAt: NOW });
     await s.saveContactSettings({ appId: app.id, chat: true, appCall: false, phoneCall: true, updatedAt: new Date(NOW.getTime() + 1000) });
     expect(await s.getContactSettings(app.id)).toMatchObject({ chat: true, appCall: false, phoneCall: true });
   });
@@ -77,5 +77,34 @@ export function contactStoreSuite(store: () => DataStore) {
     ]);
     await s.markContactRead(app.id, job.id, "customer", 9, later);
     expect((await s.listContactReads(app.id, job.id)).find((r) => r.side === "customer")).toMatchObject({ lastReadId: 9, readAt: later });
+  });
+
+  it("keeps the owner's Twilio account, its last test and a pause (184.5)", async () => {
+    const s = store();
+    const { app } = await setup(s);
+    const later = new Date(NOW.getTime() + 60_000);
+    const settings = {
+      appId: app.id, chat: true, appCall: true, phoneCall: true, turn: "twilio" as const,
+      twilio: { accountSid: `AC${"a1".repeat(16)}`, keySid: null, secretEncrypted: "v2:sealed", number: "+14155550142" },
+      twilioCheck: { at: NOW, ok: false, problem: "low_balance" as const, checks: [{ name: "balance" as const, ok: false, problem: "low_balance" as const }], balance: { amount: "0.12", currency: "USD" } },
+      phonePausedAt: later, updatedAt: later,
+    };
+    await s.saveContactSettings(settings);
+    expect(await s.getContactSettings(app.id)).toEqual(settings);
+    await s.saveContactSettings({ ...settings, twilio: null, twilioCheck: null, phonePausedAt: null, turn: "direct" });
+    expect(await s.getContactSettings(app.id)).toMatchObject({ twilio: null, twilioCheck: null, phonePausedAt: null, turn: "direct" });
+  });
+
+  it("logs calls without numbers, newest first, per job (184.5)", async () => {
+    const s = store();
+    const { app, job } = await setup(s);
+    const base = { appId: app.id, shipmentId: job.id, courierId: 7, kind: "phone" as const, caller: "customer" as const, status: "calling" as const, providerSid: null, problem: null, durationSeconds: null, createdAt: NOW, answeredAt: null, endedAt: null };
+    const first = await s.createContactCall(base);
+    const second = await s.createContactCall({ ...base, caller: "courier" });
+    expect(await s.updateContactCall(app.id, first.id, { status: "completed", providerSid: "CA1", durationSeconds: 73, answeredAt: NOW, endedAt: NOW })).toBe(true);
+    expect(await s.updateContactCall("another-app", first.id, { status: "failed" })).toBe(false);
+    expect(await s.getContactCall(app.id, first.id)).toMatchObject({ status: "completed", providerSid: "CA1", durationSeconds: 73, answeredAt: NOW });
+    expect(await s.getContactCall("another-app", first.id)).toBeNull();
+    expect((await s.listContactCalls(app.id, job.id, 10)).map((c) => c.id)).toEqual([second.id, first.id]);
   });
 }

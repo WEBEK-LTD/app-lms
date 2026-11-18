@@ -108,7 +108,7 @@ import type {
 import { holdsOf, holdsOn } from "../travel/holds";
 import { alertData, bookingColumns, bookingData, flightData, hotelData, reviewData, roomData, type TravelAlertData, type TravelBookingData, type TravelFlightData, type TravelHotelData, type TravelReviewData, type TravelRoomData } from "../travel/rows";
 import type { AppDeletion, AppDeletionStatus, AppMoveRequest, AppMoveStatus, KeptBillingRecord } from "./types";
-import type { ContactMessage, ContactMessageInput, ContactRead, ContactSettings, ContactSide } from "./types";
+import type { ContactCall, ContactMessage, ContactMessageInput, ContactRead, ContactSettings, ContactSide } from "./types";
 import type { AppStory, GiftOccasion, StoreDelivery, StoreFlashSale, StorePlatformOrder, StorePlatformOrderStatus } from "./types";
 import type { AppFirebaseApp, FirebaseAppPlatform, FirebaseAppVariant, FirebaseProject, PlatformKeyPurpose, PlatformSigningKey } from "./types";
 import { firebaseAppOrder } from "../firebase/order";
@@ -11564,13 +11564,30 @@ export class MysqlStore implements DataStore {
   async getContactSettings(appId: string): Promise<ContactSettings | null> {
     const t = schema.contactSettings;
     const [row] = await this.run((db) => db.select().from(t).where(eq(t.appId, appId)).limit(1));
-    return row ?? null;
+    if (!row) return null;
+    const { twilioAccountSid, twilioKeySid, twilioSecretEncrypted, twilioNumber, twilioCheck, ...rest } = row;
+    const twilio = twilioAccountSid && twilioSecretEncrypted && twilioNumber ? { accountSid: twilioAccountSid, keySid: twilioKeySid, secretEncrypted: twilioSecretEncrypted, number: twilioNumber } : null;
+    return { ...rest, twilio, twilioCheck: twilioCheck ?? null };
   }
 
   async saveContactSettings(settings: ContactSettings): Promise<void> {
-    const { appId: _appId, ...rest } = settings;
+    const row = {
+      appId: settings.appId,
+      chat: settings.chat,
+      appCall: settings.appCall,
+      phoneCall: settings.phoneCall,
+      turn: settings.turn ?? "direct",
+      twilioAccountSid: settings.twilio?.accountSid ?? null,
+      twilioKeySid: settings.twilio?.keySid ?? null,
+      twilioSecretEncrypted: settings.twilio?.secretEncrypted ?? null,
+      twilioNumber: settings.twilio?.number ?? null,
+      twilioCheck: settings.twilioCheck ?? null,
+      phonePausedAt: settings.phonePausedAt ?? null,
+      updatedAt: settings.updatedAt,
+    };
+    const { appId: _appId, ...set } = row;
     void _appId;
-    await this.run((db) => db.insert(schema.contactSettings).values(settings).onDuplicateKeyUpdate({ set: rest }));
+    await this.run((db) => db.insert(schema.contactSettings).values(row).onDuplicateKeyUpdate({ set }));
   }
 
   async createContactMessage(input: ContactMessageInput): Promise<{ message: ContactMessage; created: boolean }> {
@@ -11626,6 +11643,29 @@ export class MysqlStore implements DataStore {
         .set({ lastReadId, readAt: at })
         .where(and(eq(t.appId, appId), eq(t.shipmentId, shipmentId), eq(t.side, side), lt(t.lastReadId, lastReadId))),
     );
+  }
+
+  async createContactCall(input: Omit<ContactCall, "id">): Promise<ContactCall> {
+    const [result] = await this.run((db) => db.insert(schema.contactCalls).values(input));
+    return { ...input, id: Number(result.insertId) };
+  }
+
+  async updateContactCall(appId: string, id: number, patch: Partial<Pick<ContactCall, "status" | "providerSid" | "problem" | "durationSeconds" | "answeredAt" | "endedAt">>): Promise<boolean> {
+    const t = schema.contactCalls;
+    if (Object.keys(patch).length === 0) return (await this.getContactCall(appId, id)) !== null;
+    const [result] = await this.run((db) => db.update(t).set(patch).where(and(eq(t.appId, appId), eq(t.id, id))));
+    return result.affectedRows > 0;
+  }
+
+  async getContactCall(appId: string, id: number): Promise<ContactCall | null> {
+    const t = schema.contactCalls;
+    const [row] = await this.run((db) => db.select().from(t).where(and(eq(t.appId, appId), eq(t.id, id))).limit(1));
+    return row ?? null;
+  }
+
+  async listContactCalls(appId: string, shipmentId: number, limit: number): Promise<ContactCall[]> {
+    const t = schema.contactCalls;
+    return this.run((db) => db.select().from(t).where(and(eq(t.appId, appId), eq(t.shipmentId, shipmentId))).orderBy(desc(t.id)).limit(limit));
   }
 }
 

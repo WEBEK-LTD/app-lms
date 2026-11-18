@@ -14,6 +14,7 @@ import { reviewAccountContext } from "../publishing/review-account";
 import { taxiMapsKeyContext } from "../taxi/settings";
 import { payoutAccountContext } from "../studio-market/money";
 import { payoutDetailsContext } from "../studio-market/payout-details";
+import { twilioSecretContext } from "../contact/settings";
 import { settingContext } from "../settings/platform";
 import type { PlatformSettingKey } from "../data/types";
 import { recordJobRun } from "../watch/runs";
@@ -50,6 +51,8 @@ export const CONTEXT_TEMPLATES: ((id: string) => string)[] = [
   (id) => payoutDetailsContext(id, "id_number"),
   (id) => payoutDetailsContext(id, "account"),
   payoutAccountContext,
+  // 184.5 The app owner's own Twilio secret (Settings › Calls).
+  twilioSecretContext,
 ];
 
 export interface RekeyState {

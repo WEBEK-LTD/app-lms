@@ -300,6 +300,7 @@ export const APP_TABLES: Record<string, AppTableRole> = {
   // 184 A courier job's chat between its customer and its courier.
   contact_messages: "messages",
   contact_reads: "messages",
+  contact_calls: "messages",
   school_announcements: "messages",
   school_slips: "messages",
   owner_notices: "messages",
