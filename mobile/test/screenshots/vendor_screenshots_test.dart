@@ -59,7 +59,9 @@ void main() {
     await app.pump(tester);
     await TestApp.settle(tester, 30);
     if (path != null) {
-      app.container.read(appRouterProvider).push(path);
+      // A tab's own page opens as the tab; any other on top of it.
+      final router = app.container.read(appRouterProvider);
+      path == Paths.vendorStock ? router.go(path) : router.push(path);
       await TestApp.settle(tester, 30);
     }
     if (then != null) await then();

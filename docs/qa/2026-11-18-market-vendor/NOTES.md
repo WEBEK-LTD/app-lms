@@ -39,8 +39,9 @@ TZ=Africa/Cairo flutter test test/screenshots/vendor_screenshots_test.dart \
   two lines when it can't fit, with large text on a small phone.
 - **The keypad** has every digit (two rows); the design's single row was a
   sketch of it. "From scale" says a connected scale comes later.
-- **Scan** asks for the barcode typed or pasted until the camera scanner
-  wip-market-app pins is in (`vendorBarcodeScannerProvider`).
+- **Scan** opens wip-market-app's camera scanner (mobile_scanner) on
+  phones; the pictures and tests type the code, as on a phone without a
+  camera.
 - **Aisle icons** are one shelves icon; the designs' per-aisle icons
   (kitchen, grain, nutrition) aren't in the data.
 
@@ -72,5 +73,6 @@ TZ=Africa/Cairo flutter test test/screenshots/vendor_screenshots_test.dart \
 - The store reviewers' sign-in with a live app's review number: the sample
   order needs the place open (and pick-up on, else it's delivered to the
   place's own address).
-- The proposal, the price edit, the product form and the codes and stock
-  fields once wip-market-app and wip-market-catalog are merged.
+- The camera scanner in Stock, and the proposal, price edit and product
+  form against a live server (wip-market-app and wip-market-catalog are
+  merged; their routes are covered by their own tests and the fake here).

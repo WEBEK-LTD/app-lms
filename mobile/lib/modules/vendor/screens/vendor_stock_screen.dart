@@ -1032,43 +1032,54 @@ class _ScanToast extends StatelessWidget {
   Widget build(BuildContext context) {
     final p = context.palette;
     final l10n = context.l10n;
-    return Material(
+    return Container(
       key: const ValueKey('vendor-scan-toast'),
-      color: p.text,
-      elevation: 8,
-      borderRadius: BorderRadius.circular(18),
-      child: Padding(
-        padding: const EdgeInsets.fromLTRB(14, 10, 6, 10),
-        child: Row(
-          children: [
-            AppNetworkImage(
-              url: item.product.imageUrl,
-              width: 32,
-              height: 32,
-              radius: 9,
-              placeholderIcon: Symbols.inventory_2_rounded,
-            ),
-            const SizedBox(width: 10),
-            Expanded(
-              child: Text(
-                l10n.vendorScanned(item.product.name),
-                style: TextStyle(
-                  fontSize: 13,
-                  fontWeight: FontWeight.w600,
-                  color: p.background,
+      decoration: BoxDecoration(
+        color: p.text,
+        borderRadius: BorderRadius.circular(18),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withValues(alpha: p.isDark ? 0.5 : 0.2),
+            blurRadius: 24,
+            offset: const Offset(0, 8),
+          ),
+        ],
+      ),
+      child: Material(
+        type: MaterialType.transparency,
+        child: Padding(
+          padding: const EdgeInsets.fromLTRB(14, 10, 6, 10),
+          child: Row(
+            children: [
+              AppNetworkImage(
+                url: item.product.imageUrl,
+                width: 32,
+                height: 32,
+                radius: 9,
+                placeholderIcon: Symbols.inventory_2_rounded,
+              ),
+              const SizedBox(width: 10),
+              Expanded(
+                child: Text(
+                  l10n.vendorScanned(item.product.name),
+                  style: TextStyle(
+                    fontSize: 13,
+                    fontWeight: FontWeight.w600,
+                    color: p.background,
+                  ),
                 ),
               ),
-            ),
-            TextButton(
-              key: const ValueKey('vendor-scan-open'),
-              onPressed: onOpen,
-              style: TextButton.styleFrom(foregroundColor: p.accent),
-              child: Text(
-                l10n.vendorOpen,
-                style: const TextStyle(fontWeight: FontWeight.w800),
+              TextButton(
+                key: const ValueKey('vendor-scan-open'),
+                onPressed: onOpen,
+                style: TextButton.styleFrom(foregroundColor: p.accent),
+                child: Text(
+                  l10n.vendorOpen,
+                  style: const TextStyle(fontWeight: FontWeight.w800),
+                ),
               ),
-            ),
-          ],
+            ],
+          ),
         ),
       ),
     );
