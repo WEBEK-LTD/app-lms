@@ -118,6 +118,9 @@ export const en = {
   phoneDevices: "Phone and devices",
   countryCode: "Country code",
   countryCodeHint: "Shown first on the sign-in screen, like 90 for Turkey.",
+  // 160.8 Until the owner types their own.
+  countryCodeFromShop: "Shown first on the sign-in screen: your shop's country, from where it delivers or its currency, until you enter another.",
+  countryCodeFromOwner: "Shown first on the sign-in screen: your account's country, until you enter another.",
   devices: "Devices per customer",
   devicesHint: "A customer at the limit signs out on another device first. 0 for no limit.",
   helpTerms: "Help and terms",
@@ -172,7 +175,7 @@ export const en = {
   saveEmail: "Save email settings",
   // 118 Yallapp Studio apps: codes and passwords.
   studioWaysIntro:
-    "Turn on any of these. With a password, a new account still proves its email address or phone number with one code at sign-up, and a forgotten password is reset with a code.",
+    "Turn on the ways you want. A phone number or an email address signs in with a code every time or with a password, not both: with a password it gets a code only once, at sign-up, and to reset a forgotten password.",
   waysLegend: "People sign in with",
   wayPhoneCode: "Phone number and a code",
   wayPhoneCodeHint: "A 6-digit code on WhatsApp, every time.",
@@ -191,6 +194,9 @@ export const en = {
     "People who signed up with a code before set a password with “Forgot password” the first time. The store review number (or email address) signs in with the review code as its password. Passwords are stored as Argon2 hashes: nobody, Yallapp included, can read them.",
   known: {
     chooseOneWay: "Choose at least one way to sign in.",
+    // 160 A channel is a code's or a password's.
+    clashPhone: "A phone number signs in with a code every time or with a password, not both. Turn off “Phone number and a code”, or the password that uses the phone number.",
+    clashEmail: "An email address signs in with a code every time or with a password, not both. Turn off “Email address and a code”, or the password that uses the email address.",
     savedPasswords: "Saved. The app shows it the next time it opens. An app built before password sign-in came needs a new build to show it.",
     // app/actions/app-sign-in.ts
     chooseWho: "Choose who signs people in.",
@@ -465,6 +471,8 @@ export const ar: Messages = {
   phoneDevices: "الهاتف والأجهزة",
   countryCode: "رمز الدولة",
   countryCodeHint: "يظهر أولًا في شاشة تسجيل الدخول، مثل 20 لمصر.",
+  countryCodeFromShop: "بيظهر الأول في شاشة تسجيل الدخول: بلد متجرك، من الأماكن اللي بيوصّل لها أو من عملته، لحد ما تكتب كود تاني.",
+  countryCodeFromOwner: "بيظهر الأول في شاشة تسجيل الدخول: بلد حسابك، لحد ما تكتب كود تاني.",
   devices: "الأجهزة لكل عميل",
   devicesHint: "العميل الذي بلغ الحد يسجّل الخروج من جهاز آخر أولًا. 0 لعدم وضع حد.",
   helpTerms: "المساعدة والشروط",
@@ -519,7 +527,7 @@ export const ar: Messages = {
   saveEmail: "حفظ إعدادات البريد الإلكتروني",
   // 118 تطبيقات Yallapp Studio: الرموز وكلمات المرور.
   studioWaysIntro:
-    "فعّل ما تريد منها. مع كلمة المرور، يُثبت الحساب الجديد بريده الإلكتروني أو رقم هاتفه برمز واحد عند التسجيل، وتُستعاد كلمة المرور المنسيّة برمز.",
+    "شغّل الطرق اللي عايزها. رقم التليفون أو الإيميل يدخل يا إما بكود كل مرة يا إما بباسورد، مش الاتنين: مع الباسورد بيوصله كود مرة واحدة بس وقت التسجيل، ولما حد ينسى الباسورد.",
   waysLegend: "يسجّل الناس الدخول بـ",
   wayPhoneCode: "رقم الهاتف ورمز",
   wayPhoneCodeHint: "رمز من 6 أرقام على WhatsApp في كل مرة.",
@@ -538,6 +546,8 @@ export const ar: Messages = {
     "من سجّل سابقًا برمز يضبط كلمة مرور من «نسيت كلمة المرور» في أول مرة. يسجّل رقم مراجعة المتجر (أو بريدها) الدخول برمز المراجعة كلمةً للمرور. تُحفظ كلمات المرور مُشفّرة بـ Argon2، فلا يستطيع أحد قراءتها، ولا Yallapp نفسها.",
   known: {
     chooseOneWay: "اختر طريقة واحدة على الأقل لتسجيل الدخول.",
+    clashPhone: "رقم التليفون يدخل يا إما بكود كل مرة يا إما بباسورد، مش الاتنين. اقفل «رقم الهاتف ورمز» أو الباسورد اللي بيستخدم رقم التليفون.",
+    clashEmail: "الإيميل يدخل يا إما بكود كل مرة يا إما بباسورد، مش الاتنين. اقفل «البريد الإلكتروني ورمز» أو الباسورد اللي بيستخدم الإيميل.",
     savedPasswords: "تم الحفظ. يعرضه التطبيق في المرة القادمة التي يُفتح فيها. التطبيق المبني قبل إضافة تسجيل الدخول بكلمة المرور يحتاج إلى بناء جديد ليعرضه.",
     chooseWho: "اختر من يتولى تسجيل دخول الناس.",
     providerYallappSaved:
@@ -801,6 +811,8 @@ export const tr: Messages = {
   phoneDevices: "Telefon ve cihazlar",
   countryCode: "Ülke kodu",
   countryCodeHint: "Giriş ekranında ilk gösterilen kod; Türkiye için 90 gibi.",
+  countryCodeFromShop: "Giriş ekranında ilk gösterilir: başka bir kod girene kadar mağazanızın ülkesi, teslimat yaptığı yerlerden veya para biriminden.",
+  countryCodeFromOwner: "Giriş ekranında ilk gösterilir: başka bir kod girene kadar hesabınızın ülkesi.",
   devices: "Müşteri başına cihaz",
   devicesHint: "Sınıra ulaşan bir müşteri önce başka bir cihazdan çıkış yapar. Sınır olmaması için 0.",
   helpTerms: "Yardım ve koşullar",
@@ -855,7 +867,7 @@ export const tr: Messages = {
   saveEmail: "E-posta ayarlarını kaydet",
   // 118 Yallapp Studio uygulamaları: kodlar ve şifreler.
   studioWaysIntro:
-    "İstediklerinizi açın. Şifreyle de yeni bir hesap, kayıtta e-posta adresini veya telefon numarasını bir kodla doğrular; unutulan şifre bir kodla sıfırlanır.",
+    "İstediğiniz yolları açın. Bir telefon numarası veya e-posta adresi ya her seferinde bir kodla ya da şifreyle giriş yapar, ikisiyle birden değil: şifreyle yalnızca bir kez, kayıtta ve unutulan şifreyi sıfırlarken kod alır.",
   waysLegend: "Kullanıcılar şununla giriş yapar",
   wayPhoneCode: "Telefon numarası ve kod",
   wayPhoneCodeHint: "Her seferinde WhatsApp'tan 6 haneli bir kod.",
@@ -874,6 +886,8 @@ export const tr: Messages = {
     "Daha önce kodla kaydolanlar ilk seferde “Şifremi unuttum” ile şifre belirler. Mağaza inceleme numarası (veya e-posta adresi) inceleme kodunu şifre olarak kullanır. Şifreler Argon2 ile saklanır: Yallapp dahil kimse okuyamaz.",
   known: {
     chooseOneWay: "Giriş için en az bir yol seçin.",
+    clashPhone: "Bir telefon numarası ya her seferinde bir kodla ya da şifreyle giriş yapar, ikisiyle birden değil. “Telefon numarası ve kod” seçeneğini veya telefon numarasını kullanan şifreyi kapatın.",
+    clashEmail: "Bir e-posta adresi ya her seferinde bir kodla ya da şifreyle giriş yapar, ikisiyle birden değil. “E-posta adresi ve kod” seçeneğini veya e-posta adresini kullanan şifreyi kapatın.",
     savedPasswords: "Kaydedildi. Uygulama bir sonraki açılışta gösterir. Şifreyle giriş gelmeden önce derlenen bir uygulamanın bunu göstermesi için yeni bir derleme gerekir.",
     chooseWho: "Girişi kimin yapacağını seçin.",
     providerYallappSaved:

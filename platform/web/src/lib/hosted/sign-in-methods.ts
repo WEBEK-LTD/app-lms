@@ -165,9 +165,43 @@ export function passwordSignInPossible(app: Pick<App, "backend" | "section" | "d
 }
 
 /**
+ * 160 The channels a password owns: the email address and the phone number
+ * people type with their password, and the one username accounts are
+ * verified and reset on. On these a code only verifies a new account (once,
+ * at sign-up, which then sets the password) and resets a forgotten
+ * password: it never signs in, and an account is never made without a
+ * password there.
+ */
+export function passwordOwnedChannels(by: readonly PasswordWay[], recovery: SignInMethod): SignInMethod[] {
+  return SIGN_IN_METHODS.filter((m) => by.includes(m) || (by.includes("username") && recovery === m));
+}
+
+/**
+ * 160 The ways the owner turned on that ask for opposite things on one
+ * channel: "Phone number and a code" (a code every time, no password) with
+ * "Phone number and password" (or a username checked by phone), and the
+ * same for email. Empty when the choice is coherent.
+ */
+export function conflictingCodes(codes: readonly SignInMethod[], by: readonly PasswordWay[], recovery: SignInMethod): SignInMethod[] {
+  const owned = passwordOwnedChannels(by, recovery);
+  return SIGN_IN_METHODS.filter((m) => codes.includes(m) && owned.includes(m));
+}
+
+/** 160 What the dashboard says when a channel is chosen with a code and with a password (`known` in i18n/dashboard/signin.ts). */
+export const SIGN_IN_CLASH: Record<SignInMethod, string> = {
+  phone: "A phone number signs in with a code every time or with a password, not both. Turn off “Phone number and a code”, or the password that uses the phone number.",
+  email: "An email address signs in with a code every time or with a password, not both. Turn off “Email address and a code”, or the password that uses the email address.",
+};
+
+/**
  * 118 The app's password sign-in as it works now: the owner's choice, less
  * what the app can't offer (email, where its content finds people by phone).
  * Null: codes only.
+ *
+ * 160 A password is mandatory on its channel: a code that would sign in
+ * where a password does (a choice saved before the dashboard kept the two
+ * apart) is dropped, so that channel signs in with the password only, and
+ * its new accounts set one.
  */
 export function passwordSignIn(app: Pick<App, "backend" | "connector" | "demo" | "section"> & { hostedSettings?: App["hostedSettings"] }): PasswordSignInSettings | null {
   const saved = app.hostedSettings?.passwordSignIn;
@@ -175,17 +209,15 @@ export function passwordSignIn(app: Pick<App, "backend" | "connector" | "demo" |
   const email = emailSignInPossible(app);
   const by = PASSWORD_WAYS.filter((w) => saved.by.includes(w) && (w !== "email" || email));
   if (!by.length) return null;
-  const codes = SIGN_IN_METHODS.filter((m) => saved.codes.includes(m) && (m !== "email" || email));
   const recovery: SignInMethod = saved.recovery === "email" && email ? "email" : "phone";
+  const owned = passwordOwnedChannels(by, recovery);
+  const codes = SIGN_IN_METHODS.filter((m) => saved.codes.includes(m) && (m !== "email" || email) && !owned.includes(m));
   return { by, codes, recovery };
 }
 
 /** 118 The channels codes go to: where they sign in, and where passwords' accounts are verified and reset. */
 export function passwordChannels(settings: PasswordSignInSettings): SignInMethod[] {
-  const used = new Set<SignInMethod>(settings.codes);
-  if (settings.by.includes("email")) used.add("email");
-  if (settings.by.includes("phone")) used.add("phone");
-  if (settings.by.includes("username")) used.add(settings.recovery);
+  const used = new Set<SignInMethod>([...settings.codes, ...passwordOwnedChannels(settings.by, settings.recovery)]);
   return SIGN_IN_METHODS.filter((m) => used.has(m));
 }
 

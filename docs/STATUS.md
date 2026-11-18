@@ -66,6 +66,23 @@ now takes about a minute, so slower runners crossed that point. The checks
 call the cron jobs they test themselves, and the job shows the PHP log when
 it fails. Test only: the plugin stays 0.4.50.
 
+Roadmap 160 (sign-in as the owner's four ways say, and Forgot password): a
+phone number or an email address signs in with a code every time ("…and a
+code": no password anywhere) or with its password ("…and password": the
+code only checks a new account once, which must set a password, and resets
+a forgotten one), never both: the hosted API reads a choice saved with both
+as the password, and App sign-in turns the other off and refuses both on a
+channel. The app shows each way in once with what it signs in with; "Sign
+in with a code instead" is gone. A sign-in opened over the app (the page
+headers' bell, the cart) closes once signed in and opens what it was
+opened for: its screens stayed before, and "Forgot password" tapped there
+opened Notifications. Forgot password opens the reset for the way in use,
+in every sign-in look. The code the phone number starts with follows the
+app: the owner's choice, else the shop's country (where it delivers, else
+its currency), else the owner's, then +90 (a MAD shop delivering to Morocco
+opened on +90). The app's part reaches the stores with
+`CLIENT_APP_RELEASE` 8. Not yet tried on a phone (ROADMAP 160.7).
+
 Roadmap 152 (Our bouquet's chips and button open the product the owner
 links): in Leqaa's looks and the apps made from them (Kech Flora), the
 bouquet's size chips and "Choose this bouquet" open the shop until the

@@ -12,6 +12,7 @@ import '../../core/theme/app_look.dart';
 import '../../core/theme/app_theme.dart';
 import '../../core/theme/fonts/remote_fonts.dart';
 import '../../core/web/web_page_screen.dart';
+import '../../core/api/models/models.dart' show SignInMethod;
 import '../../core/api/models/page_models.dart' show TabBarDesign;
 import '../../core/widgets/app_nav_bar.dart';
 import '../../core/widgets/buttons.dart';
@@ -93,11 +94,17 @@ GoRoute signInRoute() => GoRoute(
       },
     ),
     // 118 Studio apps with passwords: "Forgot password", then the new one.
+    // 160 With the channel of the way in use (`?channel=email|phone`).
     GoRoute(
       path: 'forgot',
       pageBuilder: (context, state) => appPage(
         state,
-        ForgotPasswordScreen(from: state.uri.queryParameters['from']),
+        ForgotPasswordScreen(
+          from: state.uri.queryParameters['from'],
+          channel: SignInMethod.values
+              .where((m) => m.name == state.uri.queryParameters['channel'])
+              .firstOrNull,
+        ),
       ),
     ),
     GoRoute(

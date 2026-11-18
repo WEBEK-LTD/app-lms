@@ -1984,3 +1984,25 @@ active app one build with the same rule (4 an hour).
 - [ ] **WordPress apps:** the plugin sends `manual_size` from its next
       release; until then a WordPress app draws a cover's top bar across the
       cover even when it was sized by hand in Studio.
+
+## Phase 160: Sign-in as the owner's four ways say
+
+Nothing to deploy beyond the code and the apps' next build (`CLIENT_APP_RELEASE` 8):
+no migration, no setting. A choice saved before with a code and a password
+on the same channel now signs in with the password there.
+
+- [ ] **The bell, signed out (Kech Flora or Leqaa):** tap the bell on the
+      Bouquets page, sign in with the email and password: sign-in closes
+      and Notifications opens; back goes to Bouquets. Do it again with
+      "Forgot password": the code by email (or on WhatsApp for the phone
+      number), the new password, then Notifications, never before.
+- [ ] **Each way alone, on App sign-in:** "Phone number and a code" and
+      "Email address and a code": a code every time, no password field and
+      no "Forgot password". "Email address and password" and "Phone number
+      and password": a new account gets one code, then must set a password;
+      signing in again asks for the password only.
+- [ ] **Together:** turning on "Email address and a code" turns off "Email
+      address and password" (and the same for the phone); "Phone number
+      and a code" with "Email address and password": the app shows Email
+      (the password) and Phone (a code).
+
