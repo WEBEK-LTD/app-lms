@@ -1985,13 +1985,13 @@ same rule (4 an hour).
 - [ ] **Screen readers (the next app release's build):** with TalkBack or VoiceOver on,
       the round search and bag over the stories say "Search" and "Cart"
       (in Arabic بحث and السلة), not just "button".
-- [ ] **WordPress apps:** the plugin sends `manual_size` and `name` from its next
-      release; until then a WordPress app draws a cover's top bar across the
+- [ ] **WordPress apps:** release plugin **0.4.51** in Admin › Plugin releases:
+      it sends `manual_size` and `name`; until then a WordPress app draws a cover's top bar across the
       cover even when it was sized by hand in Studio.
 
 ## Phase 160: Sign-in as the owner's four ways say
 
-Nothing to deploy beyond the code and the apps' next build (`CLIENT_APP_RELEASE` 8):
+Nothing to deploy beyond the code and the apps' next build (`CLIENT_APP_RELEASE` 9):
 no migration, no setting. A choice saved before with a code and a password
 on the same channel now signs in with the password there.
 
@@ -2026,7 +2026,7 @@ the dashboard by the code, once, the first time they're needed.
       app and open it again: the new story is first in
       the hero and the rings, the switched-off one is gone, the words are
       in the phone's language. Its button opens the shop (on the category
-      in an app built with release 12).
-- [ ] **Release 12:** once the apps are rebuilt with release 12, a story's
+      in an app built with release 9).
+- [ ] **Release 9:** once the apps are rebuilt with release 9, a story's
       full-screen view shows its small label, title, line and button words,
       and a video story plays its video.

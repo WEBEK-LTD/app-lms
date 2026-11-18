@@ -9,7 +9,7 @@ floating `petal` tab bar (`LEQAA_A_BAR`, `LEQAA_B_BAR`).
 Scope: Sign out, and Delete account being reachable. The sign-in methods
 and Forgot password are on `wip-sign-in-fix` and were not touched.
 
-ROADMAP Phase 167. `CLIENT_APP_RELEASE` 10 (7 when first written; renumbered on merging main, where 7 is Phase 152).
+ROADMAP Phase 167. `CLIENT_APP_RELEASE` 9, the urgent apps' one release (7 when first written, then 10; main has 152 at 7 and 163 at 8).
 
 ## How the Account can be drawn, and where Sign out was
 
@@ -115,7 +115,7 @@ Platform (`platform/web`):
   (`demo-designs/index.ts`).
 - The contract: `Action.type` has `sign_out` (`docs/api/openapi.yaml`,
   `public/developers/openapi.yaml`, the same).
-- `CLIENT_APP_RELEASE` 10 (`lib/builds/app-release.ts`). The preview
+- `CLIENT_APP_RELEASE` 9 (`lib/builds/app-release.ts`). The preview
   rebuilt (`mobile/tool/build_preview.sh`). The app's test projects made
   again from the platform (`mobile/test/support`, the `YALLAPP_WRITE_*`
   writers): their only change is the account page's new element (and the
@@ -156,10 +156,10 @@ phone.
 
 ## Left open
 
-- An app built before release 10 shows a template's new Sign out element
+- An app built before release 9 shows a template's new Sign out element
   over its account as a button that does nothing (it doesn't know
   `sign_out`). Only projects started from a template after this change
-  have the element, and release 10 rebuilds every app (ROADMAP 167.7).
+  have the element, and release 9 rebuilds every app (ROADMAP 167.7).
 - On a phone, after the release-10 builds: Leqaa's and Kech Flora's
   Account, Sign out above the petal bar, in Arabic and English
   (ROADMAP 167.8).

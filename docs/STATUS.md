@@ -23,7 +23,7 @@ serving time, so apps already made from the template have it with no
 change to their pages. The shop's list leaves the demo's categories out
 once the owner has one (a renamed demo category is theirs); the pages'
 version follows the categories, so an open app asks for its pages again;
-Studio's canvas draws the lists as the app does. `CLIENT_APP_RELEASE` 8:
+Studio's canvas draws the lists as the app does. `CLIENT_APP_RELEASE` 9:
 the app opens the category (an older app the whole shop) and asks for the
 shop's chips again when it comes back on screen.
 
@@ -76,7 +76,7 @@ in every sign-in look. The code the phone number starts with follows the
 app: the owner's choice, else the shop's country (where it delivers, else
 its currency), else the owner's, then +90 (a MAD shop delivering to Morocco
 opened on +90). The app's part reaches the stores with
-`CLIENT_APP_RELEASE` 8. Not yet tried on a phone (ROADMAP 160.7).
+`CLIENT_APP_RELEASE` 9. Not yet tried on a phone (ROADMAP 160.7).
 
 Roadmap 161 (the whole app in the customer's currency, and a story's
 Open): the hosted API sends every price of Yallapp's own with its amount,
@@ -88,7 +88,7 @@ shop's products), the owner's switch and list respected, what is charged
 unchanged. A story's Open opens its link, or in a shop the shop, never
 nothing (which left the customer on Home); a shop's story with a link that
 opens nothing is served opening the shop, so older apps follow. Studio says
-what a story's Open opens. `CLIENT_APP_RELEASE` is 8: apps get a build.
+what a story's Open opens. `CLIENT_APP_RELEASE` is 9: apps get a build.
 Prices a template wrote into its own words stay as written (ROADMAP 161.8).
 Not yet tried on Kech Flora (ROADMAP 161.10). No migration.
 
@@ -103,7 +103,7 @@ the cart as one group of lines (`bouquet` on each line), priced by the
 server as any cart, kept on the order and shown as one in the cart, the
 customer's order, the dashboard and Yallapp Business. A shop that hasn't
 set it up, an older app and WordPress keep today's Start: the shop.
-Leqaa's demo has it on. `CLIENT_APP_RELEASE` is 8 (after 152's 7).
+Leqaa's demo has it on. `CLIENT_APP_RELEASE` is 9 (after 152's 7 and 163's 8).
 
 Roadmap 164 (a bound list of products is never an empty section): Leqaa's
 "Picked for you" was bound to featured products, which a real shop may not
@@ -111,7 +111,7 @@ have, so the served page dropped the list and kept its title and "Shop all"
 over nothing. Served now with the shop's best sellers, else its newest, when
 what a list is bound to has nothing (featured, a category, picks, a
 template's sample products); a list with nothing at all goes with its title,
-in the served page and in the app (`heads`, `CLIENT_APP_RELEASE` 8). The apps
+in the served page and in the app (`heads`, `CLIENT_APP_RELEASE` 9). The apps
 already made from the template are right without any edit. Studio's
 inspector chooses what such a list shows: featured, a category, a
 collection, best sellers or newest. The "Our bouquet" page no longer shows
@@ -132,7 +132,7 @@ the stores show the changes without a build; a button with nothing chosen
 opens the shop. An app made from the template has its Studio stories
 copied there once, the first time they're needed, nothing it shows
 changing. Studio says where the stories come from, switches the source and
-draws them. `CLIENT_APP_RELEASE` 12: the viewer shows each story's words,
+draws them. `CLIENT_APP_RELEASE` 9: the viewer shows each story's words,
 button and video, and a button opens the shop on a category; older apps
 show the ring's name and photo and open the shop. Not yet checked on
 Leqaa's and Kech Flora's real projects (ROADMAP 165.10).
@@ -153,7 +153,7 @@ loses the delivery while the chosen day waits for its time; the shipping
 breakdown is in the customer's language; the payment page takes a gift
 without a city the order never had; the owner opens the customer's pin on
 a map; and "How your flowers travel" stays on an order just delivered
-instead of going back to "Order placed". `CLIENT_APP_RELEASE` 7. Still
+instead of going back to "Order placed". `CLIENT_APP_RELEASE` 9. Still
 open (ROADMAP 168.6–168.10): the pin without the platform's map, the
 payment page in Arabic, and the dashboard's times in UTC. The notes:
 docs/qa/2026-11-18-gift-checkout/NOTES.md.
@@ -167,7 +167,7 @@ screen in its place with the bar under it, in every app type; an order
 opened from there covers the bar and Back returns to the tab. And "How your
 flowers travel" with no order showed a sample journey, "Order placed" lit:
 now it, its card and its heading show only with an order, at that order's
-own step. From `CLIENT_APP_RELEASE` 8. Not yet tried on a phone (ROADMAP
+own step. From `CLIENT_APP_RELEASE` 9. Not yet tried on a phone (ROADMAP
 171.7).
 
 Roadmap 106.11, payouts on the 1st (the owner's answer, 18 November): the

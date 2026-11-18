@@ -110,10 +110,9 @@ showed.
 
 ## Release
 
-- `CLIENT_APP_RELEASE` is 11, with a comment line "11 171 …"
-  (`platform/web/src/lib/builds/app-release.ts`). Releases 8 to 10 belong to
-  other branches, per the coordinator. The integration branch
-  `wip-urgent-apps` replaces this line.
+- `CLIENT_APP_RELEASE` is 9 (`platform/web/src/lib/builds/app-release.ts`),
+  the release `wip-urgent-apps` gives the urgent app fixes together (11 on
+  this branch at first).
 - Preview rebuilt with `mobile/tool/build_preview.sh`; `--check` reports "The
   app preview is up to date."
 - Docs: ROADMAP Phase 171 (after Phase 154) and a STATUS entry.

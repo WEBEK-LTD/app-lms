@@ -16792,11 +16792,11 @@ components:
               color: { type: string, pattern: '^#[0-9A-Fa-f]{6}$', description: "Without a photo, the circle's colour." }
               label: { type: string, maxLength: 3, description: "Without a photo, the letters in the circle (initials)." }
               icon: { type: string, description: "Without a photo or `label`, a Material Symbols name in the circle. A story without a photo that has an `action` opens it instead of the stories." }
-              kicker: { type: string, maxLength: 40, description: "165 From Dashboard › Stories (`stories_source` dashboard): the small line over its title in the full-screen viewer. Apps before release 12 don't show it." }
-              title: { type: string, maxLength: 80, description: "165 From Dashboard › Stories: its title in the viewer (`heading` is then the ring's name). Apps before release 12 show `heading`." }
+              kicker: { type: string, maxLength: 40, description: "165 From Dashboard › Stories (`stories_source` dashboard): the small line over its title in the full-screen viewer. Apps before release 9 don't show it." }
+              title: { type: string, maxLength: 80, description: "165 From Dashboard › Stories: its title in the viewer (`heading` is then the ring's name). Apps before release 9 show `heading`." }
               line: { type: string, maxLength: 160, description: "165 From Dashboard › Stories: its line under the title in the viewer." }
-              button_label: { type: string, maxLength: 30, description: "165 From Dashboard › Stories: its button's words (apps before release 12: their own \"Open\")." }
-              video_url: { type: string, format: uri, description: "165 From Dashboard › Stories: its video, played muted in the viewer over `image_url` (its first picture). Apps before release 12 show the photo." }
+              button_label: { type: string, maxLength: 30, description: "165 From Dashboard › Stories: its button's words (apps before release 9: their own \"Open\")." }
+              video_url: { type: string, format: uri, description: "165 From Dashboard › Stories: its video, played muted in the viewer over `image_url` (its first picture). Apps before release 9 show the photo." }
         stories_source:
           type: string
           enum: [dashboard, studio]
@@ -17631,7 +17631,7 @@ components:
             open the shop.
             165 With `screen` `courses` (a store's shop, `^[A-Za-z0-9_.:-]{1,64}$`):
             the shop opened on this category or collection, saved with a
-            story's button in Dashboard › Stories. Apps before release 8 open
+            story's button in Dashboard › Stories. Apps before release 9 open
             the shop.
         course_id: { type: [integer, 'null'], description: For `course`. }
         item: { $ref: '#/components/schemas/ItemRef' }

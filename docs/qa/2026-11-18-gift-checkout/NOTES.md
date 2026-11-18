@@ -128,7 +128,7 @@ Line numbers are from `main` before the fixes.
 | 168.2 | Each shipping line carries `words` (what it is). `breakdownJson` writes it in Arabic or Turkish from the request's language (`shippingLineLabel`). The owner's English `label` is unchanged on orders | `src/lib/selling/shipping.ts`, `src/lib/selling/store.ts`, `src/lib/data/types.ts` |
 | 168.3 | `cityOptionalFor(order)`: a pinned place or a recipient's address with no city makes the city optional ("City (optional)"). iyzico, which needs one, gets the address's last part | `src/lib/catalog/payment.ts`, `src/app/actions/pay.ts`, `src/app/pay/[token]/form.tsx`, `src/app/pay/[token]/page.tsx`, `src/lib/payments/provider.ts` |
 | 168.4 | "The pin on the map" link (Google Maps) on the owner's order, in English, Egyptian Arabic and Turkish | `src/app/dashboard/orders/page.tsx`, `src/i18n/dashboard/selling.ts` |
-| 168.5 | `orderToFollow`: the newest order in progress, else the newest delivered in the last three days (all four steps done). Done in the app and in its web mirror; `CLIENT_APP_RELEASE` 7; the preview rebuilt | `mobile/lib/modules/shared/account/order_journey.dart`, `src/lib/studio/order-journey.ts`, `src/lib/builds/app-release.ts`, `public/preview-app` |
+| 168.5 | `orderToFollow`: the newest order in progress, else the newest delivered in the last three days (all four steps done). Done in the app and in its web mirror; `CLIENT_APP_RELEASE` 9; the preview rebuilt | `mobile/lib/modules/shared/account/order_journey.dart`, `src/lib/studio/order-journey.ts`, `src/lib/builds/app-release.ts`, `public/preview-app` |
 
 ## Tests and their results
 
