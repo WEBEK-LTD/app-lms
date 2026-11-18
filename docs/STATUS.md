@@ -104,7 +104,7 @@ the cart as one group of lines (`bouquet` on each line), priced by the
 server as any cart, kept on the order and shown as one in the cart, the
 customer's order, the dashboard and Yallapp Business. A shop that hasn't
 set it up, an older app and WordPress keep today's Start: the shop.
-Leqaa's demo has it on. `CLIENT_APP_RELEASE` is 9 (after 152's 7 and 163's 8).
+Leqaa's demo has it on. `CLIENT_APP_RELEASE` is 8 (after 152's 7).
 
 Roadmap 164 (a bound list of products is never an empty section): Leqaa's
 "Picked for you" was bound to featured products, which a real shop may not

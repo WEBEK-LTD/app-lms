@@ -1131,7 +1131,13 @@ class _BouquetCard extends ConsumerWidget {
         .map((i) => i.bouquet?.message)
         .whereType<String>()
         .firstOrNull;
-    final problems = {for (final l in lines) ?l?.problem};
+    // A quote still being made again (the cart just changed) may not be
+    // this line's yet: the shop's view only for the same product.
+    CartQuoteLine? quoted(int n) =>
+        lines[n]?.productId == items[n].productId ? lines[n] : null;
+    final problems = {
+      for (var n = 0; n < items.length; n++) ?quoted(n)?.problem,
+    };
     String label(CartItem item, CartQuoteLine? line) {
       final name = line?.name ?? item.name;
       return switch (item.bouquet?.part) {
@@ -1218,11 +1224,11 @@ class _BouquetCard extends ConsumerWidget {
                 children: [
                   Expanded(
                     child: Text(
-                      label(item, lines[n]),
+                      label(item, quoted(n)),
                       style: TextStyle(fontSize: 14, color: p.text),
                     ),
                   ),
-                  if (lines[n] case final line? when line.available) ...[
+                  if (quoted(n) case final line? when line.available) ...[
                     const SizedBox(width: 8),
                     Text(
                       line.lineTotal,
