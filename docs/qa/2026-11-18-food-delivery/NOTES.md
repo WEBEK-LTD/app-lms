@@ -85,3 +85,10 @@ A second build with the fixes 176.1–176.4 was walked again; 176.5 and 176.6 ar
 - **F8:** five tabs on a 360-point phone cut "Restaurants" and "My orders" to "Restaura…" / "My orde…" (`19-sofra-orders-empty.png`): the bar's one-line ellipsis (Phase 110), the same in every app; a design decision.
 - **F9:** `POST /food/quote` answers 503 ("We aren't taking orders in the app yet") but the contract doesn't list it.
 - The store review number is also a restaurant's staff in the preview, so a second "Restaurant" tab shows, by design (the review account).
+
+## The template guard (Phase 166) on these templates
+
+Run from a scratch worktree of this branch with `wip-template-guard` (b5e199b) merged locally, its fixtures regenerated there (`mobile/tool/template_guard_fixtures.sh`, not committed).
+
+- **Prices written as text** (`template-guard.test.ts`): demo_food, food_signature_a/b, demo_delivery, delivery_signature_a/b all pass with 176.1 (their "EGP" words were the guard's findings). The four failures left are outside this scope: Zad's (marketplace) "over EGP 100" words ×2, a store template's tap, and the fixtures needing a commit on the guard's branch.
+- **Layout** (`template_guard_test.dart`, 360/412 points, text 1.0 and 1.3, LTR and RTL): before, 5 in scope failed, all at 1.3 in Arabic. Fixed (176.9): demo_food and food_signature_a's home (the hero's words 260 points past a slide of a set height). Left (176.10): delivery_city's home (15 points under a hanging card), food_signature_b's home and restaurants (the bento's caption 1 point past its tile). The whole guard after the fix: 269 passed, 42 failed, the same list as before less those two.

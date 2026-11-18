@@ -109,7 +109,8 @@ function addressRow(ctx: SectionContext): StudioNode {
     gap: 8,
     cross: "center",
     self_align: "start",
-    height: 66,
+    // 176.7 Its height at the least: two lines at a larger text size make it taller.
+    min_height: 66,
     padding: sides(18, 16, 4, 16),
     children: [
       {

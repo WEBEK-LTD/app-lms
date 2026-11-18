@@ -1,6 +1,7 @@
 import 'dart:math' as math;
 
 import 'package:flutter/material.dart';
+import 'package:flutter/rendering.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../core/api/models/models.dart';
@@ -135,7 +136,16 @@ class StudioCoverView extends ConsumerWidget {
               bottom: pad.bottom,
               start: pad.start,
             ),
-            child: StudioNodeView(node: over, scope: inside, parent: node),
+            child: grows
+                ? _FitsHeld(
+                    align: node.align,
+                    child: StudioNodeView(
+                      node: over,
+                      scope: inside,
+                      parent: node,
+                    ),
+                  )
+                : StudioNodeView(node: over, scope: inside, parent: node),
           ),
       ],
     );
@@ -341,4 +351,106 @@ class _MapPainter extends CustomPainter {
   @override
   bool shouldRepaint(_MapPainter old) =>
       old.colors != colors || old.land != land;
+}
+
+/// 176.7 What lies on a cover that grows with its text, when what holds the
+/// cover gives it a height it can't pass (a slide in a slider of a set
+/// height, Sofra's hero in Arabic at a text size of 1.3): drawn smaller to
+/// fit, never larger, at the cover's own alignment; anywhere else as it is.
+class _FitsHeld extends SingleChildRenderObjectWidget {
+  const _FitsHeld({required this.align, required super.child});
+
+  final StudioAlign align;
+
+  @override
+  RenderObject createRenderObject(BuildContext context) =>
+      _RenderFitsHeld(align);
+
+  @override
+  void updateRenderObject(BuildContext context, _RenderFitsHeld renderObject) {
+    renderObject.align = align;
+  }
+}
+
+class _RenderFitsHeld extends RenderProxyBox {
+  _RenderFitsHeld(this._align);
+
+  StudioAlign _align;
+  set align(StudioAlign value) {
+    if (value == _align) return;
+    _align = value;
+    markNeedsLayout();
+  }
+
+  double _scale = 1;
+
+  @override
+  void performLayout() {
+    final kid = child;
+    if (kid == null) {
+      size = constraints.smallest;
+      return;
+    }
+    if (!constraints.hasBoundedHeight || !constraints.hasBoundedWidth) {
+      _scale = 1;
+      kid.layout(constraints, parentUsesSize: true);
+      size = kid.size;
+      return;
+    }
+    // Its width as given, its own height, then made to fit what it may have.
+    kid.layout(
+      BoxConstraints(
+        minWidth: constraints.maxWidth,
+        maxWidth: constraints.maxWidth,
+        minHeight: constraints.minHeight,
+      ),
+      parentUsesSize: true,
+    );
+    final tall = kid.size.height;
+    _scale = tall > constraints.maxHeight && tall > 0
+        ? constraints.maxHeight / tall
+        : 1;
+    size = constraints.constrain(Size(kid.size.width, tall * _scale));
+  }
+
+  Matrix4 get _transform {
+    final kid = child!;
+    final dx = (size.width - kid.size.width * _scale) / 2;
+    final room = size.height - kid.size.height * _scale;
+    final dy = switch (_align) {
+      StudioAlign.end => room,
+      StudioAlign.start => 0.0,
+      _ => room / 2,
+    };
+    return Matrix4.translationValues(dx, dy, 0)
+      ..multiply(Matrix4.diagonal3Values(_scale, _scale, 1));
+  }
+
+  @override
+  void paint(PaintingContext context, Offset offset) {
+    if (child == null) return;
+    if (_scale == 1) return super.paint(context, offset);
+    layer = context.pushTransform(
+      needsCompositing,
+      offset,
+      _transform,
+      super.paint,
+      oldLayer: layer is TransformLayer ? layer as TransformLayer : null,
+    );
+  }
+
+  @override
+  bool hitTestChildren(BoxHitTestResult result, {required Offset position}) {
+    if (_scale == 1) return super.hitTestChildren(result, position: position);
+    return result.addWithPaintTransform(
+      transform: _transform,
+      position: position,
+      hitTest: (result, position) => child!.hitTest(result, position: position),
+    );
+  }
+
+  @override
+  void applyPaintTransform(RenderBox child, Matrix4 transform) {
+    if (_scale != 1) transform.multiply(_transform);
+  }
 }
