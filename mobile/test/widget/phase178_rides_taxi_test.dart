@@ -3,6 +3,7 @@ import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:yallapp/core/api/models/models.dart';
 import 'package:yallapp/core/config/build_config_data.dart';
 import 'package:yallapp/core/config/build_config_json.dart';
 import 'package:yallapp/core/widgets/premium_chrome.dart';
@@ -342,4 +343,108 @@ void main() {
       expect(tester.takeException(), isNull);
     });
   });
+
+  group('178 Masar\'s home fits a 360-point phone at every text size', () {
+    for (final (lang, page) in [('en', 'home'), ('ar', 'home_ar')]) {
+      for (final scale in [1.0, 1.3]) {
+        testWidgets('$lang, text x$scale: nothing past its card or the map', (
+          tester,
+        ) async {
+          phone(tester);
+          tester.platformDispatcher.textScaleFactorTestValue = scale;
+          addTearDown(tester.platformDispatcher.clearTextScaleFactorTestValue);
+          final fake = api(rides: []);
+          fake.pages = {
+            ...fake.pages,
+            'home': served[page] as Map<String, dynamic>,
+          };
+          final errors = <String>[];
+          final before = FlutterError.onError;
+          FlutterError.onError = (d) => errors.add(d.exceptionAsString());
+          addTearDown(() => FlutterError.onError = before);
+          final app = TestApp(
+            api: fake,
+            appType: AppType.rides,
+            signedIn: true,
+            preferences: {'settings.language': lang},
+          );
+          await app.pump(tester);
+          await TestApp.settle(tester, 20);
+          FlutterError.onError = before;
+          expect(errors, isEmpty, reason: 'the car classes\' cards at x$scale');
+          // The map's words and pins inside the map, the edge's "Downtown" too.
+          final map = tester.getRect(
+            find.byKey(
+              ValueKey(
+                'studio-node-${nodesOf(body(page)).firstWhere((n) => n['type'] == 'map_header')['id']}',
+              ),
+            ),
+          );
+          final labels = find.byWidgetPredicate(
+            (w) =>
+                w.key is ValueKey<String> &&
+                (w.key! as ValueKey<String>).value.startsWith(
+                  'studio-map-label-',
+                ),
+          );
+          expect(labels, findsWidgets);
+          for (final e in labels.evaluate()) {
+            final box = e.renderObject! as RenderBox;
+            final r = box.localToGlobal(Offset.zero) & box.size;
+            final words = tester.getRect(
+              find.descendant(
+                of: find.byWidget(e.widget),
+                matching: find.byType(Text),
+              ),
+            );
+            expect(
+              words.left,
+              greaterThanOrEqualTo(map.left - 0.5),
+              reason: '$r',
+            );
+            expect(
+              words.right,
+              lessThanOrEqualTo(map.right + 0.5),
+              reason: '$words',
+            );
+          }
+        });
+      }
+    }
+  });
+
+  testWidgets('178 a ride that ended as it was read (no driver in time) is '
+      'not on the home as "Your driver is coming"', (tester) async {
+    phone(tester);
+    final fake = _OlderServer()
+      ..navigation = served['navigation'] as Map<String, dynamic>
+      ..pages = {'home': served['home'] as Map<String, dynamic>}
+      ..rides = [rideJson(status: 'no_driver')]
+      ..nearbyTaxis = [];
+    final app = TestApp(api: fake, appType: AppType.rides, signedIn: true);
+    await app.pump(tester);
+    await TestApp.settle(tester, 20);
+    expect(find.text('YOUR DRIVER IS COMING'), findsNothing);
+    expect(find.byKey(const ValueKey('studio-tracking-driver')), findsNothing);
+    expect(tester.takeException(), isNull);
+  });
+}
+
+/// 178 A server before 178 sends a ride that ends while the active list is
+/// read in that list, as it now is (`no_driver`).
+class _OlderServer extends FakeApi {
+  _OlderServer()
+    : super(
+        config: {
+          ...configJson(lms: null),
+          'rides': {
+            ...ridesConfigJson(),
+            'map': {'tiles_url': null, 'attribution': null},
+          },
+        },
+      );
+
+  @override
+  Future<Paged<Ride>> listMyRides({int page = 1, bool active = false}) async =>
+      Paged.fromJson(pageJson(rides), Ride.fromJson);
 }

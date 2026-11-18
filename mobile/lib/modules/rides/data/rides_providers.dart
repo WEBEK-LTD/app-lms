@@ -60,7 +60,10 @@ final activeRideProvider = FutureProvider.autoDispose<Ride?>((ref) async {
   if (!ref.watch(authControllerProvider).isSignedIn) return null;
   final page = await ref.read(yallappApiProvider).listMyRides(active: true);
   for (final ride in page.items) {
-    if (ride.status != RideStatus.scheduled) return ride;
+    // 178 On its way only: a ride an older server ended as it was read (no
+    // driver took it in time) came in this list as `no_driver`, and the
+    // home's card said "Your driver is coming" over the ride's own page.
+    if (ride.status != RideStatus.scheduled && ride.status.active) return ride;
   }
   return null;
 });

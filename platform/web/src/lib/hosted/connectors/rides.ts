@@ -335,8 +335,13 @@ export class RidesConnector implements Connector {
       offset: (page - 1) * perPage,
       limit: perPage,
     });
-    const json = await Promise.all(items.map(async (r) => this.riderJson(await advanceRide(this.flow(request.now), r), request.now)));
-    return { status: 200, body: { page, per_page: perPage, total, total_pages: Math.max(1, Math.ceil(total / perPage)), items: json } };
+    const advanced = await Promise.all(items.map((r) => advanceRide(this.flow(request.now), r)));
+    // 178 The rides on their way only: one that ended while it was read (nobody took it in time, `no_driver`) is over,
+    // not on its way (the home's card said "Your driver is coming" over the ride's own "No driver found").
+    const shown = active ? advanced.filter((r) => RIDE_ACTIVE.includes(r.status)) : advanced;
+    const json = await Promise.all(shown.map((r) => this.riderJson(r, request.now)));
+    const left = total - (advanced.length - shown.length);
+    return { status: 200, body: { page, per_page: perPage, total: left, total_pages: Math.max(1, Math.ceil(left / perPage)), items: json } };
   }
 
   private async myRide(request: ConnectorRequest, id: number): Promise<ConnectorResult> {

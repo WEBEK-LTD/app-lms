@@ -473,6 +473,21 @@ describe("105.2 ride apps on the hosted API", () => {
     expect((await offers(omar.access_token)).map((r) => r.id)).toEqual([real]);
   });
 
+  it("178 a ride nobody took in time is over, never on its way: the active list leaves it out as it ends", async () => {
+    const rider = await signUp("1001113333", "Salma Adel");
+    const id = ((await ask(rider.access_token)).body as { id: number }).id;
+    const active = async () => (await call("GET", "/me/rides", { token: rider.access_token, query: { active: "true" } })).body as { items: { id: number; status: string }[]; total: number };
+    expect((await active()).items).toMatchObject([{ id, status: "searching" }]);
+    // No driver takes it: past the search's minutes, the first read ends it.
+    now = new Date(now.getTime() + 6 * 60_000);
+    expect(await active()).toMatchObject({ items: [], total: 0 });
+    const page = (await call("GET", "/me/rides/{ride_id}", { params: [String(id)], token: rider.access_token })).body as { status: string };
+    expect(page.status).toBe("no_driver");
+    // Asked again, the new one is the one on its way.
+    const again = ((await ask(rider.access_token)).body as { id: number }).id;
+    expect((await active()).items.map((r) => r.id)).toEqual([again]);
+  });
+
   it("178 the riders' app with the review number leaves the review driver's sample rides out, and asks for its own ride", async () => {
     app = { ...app, hostedSettings: { ...app.hostedSettings!, reviewPhone: "+201009990000", reviewCode: "246810" } };
     await store.updateApp(app.id, { hostedSettings: app.hostedSettings }, NOW);
