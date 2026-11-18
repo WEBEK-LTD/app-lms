@@ -15,11 +15,17 @@ const DEVICE = { id: "e2e-demo-install", platform: "android", name: "Pixel 8", a
 let admin: Page;
 const appIds: Record<string, string> = {};
 let token = "";
+/** 156 What the page asked before refreshing demo apps already there (they lose what was changed on them in Studio). */
+const asked: string[] = [];
 
 const ip = (n: number) => ({ "x-forwarded-for": `198.51.100.${n}` });
 
 test.beforeAll(async ({ browser }) => {
   admin = await browser.newPage({ extraHTTPHeaders: { "x-forwarded-for": "203.0.113.161" } });
+  admin.on("dialog", (dialog) => {
+    asked.push(dialog.message());
+    void dialog.accept();
+  });
   await admin.goto("/sign-in");
   await admin.getByLabel("Email").fill(E2E.demosAdminEmail);
   await admin.getByLabel("Password", { exact: true }).fill(E2E.adminPassword);
@@ -60,8 +66,10 @@ test("the team creates the demo apps from the admin", async () => {
   await expect(admin.getByText("Live taxi on the map demo")).toBeVisible();
   await expect(admin.getByRole("heading", { name: "Lale Flowers", level: 2 })).toHaveCount(0);
   await admin.getByRole("tab", { name: "Regular apps" }).click();
-  // Again: updated, not duplicated.
+  // Again: updated, not duplicated. 156 Asked first: a refresh removes what was changed on the demos in Studio.
+  const before = asked.length;
   await admin.getByRole("button", { name: "Refresh all regular demo apps" }).click();
+  await expect.poll(() => asked.slice(before).join(" ")).toContain("removes any changes made to it in Studio");
   await expect(admin.getByRole("status")).toContainText("up to date", { timeout: 30_000 });
   expect(await admin.locator(`form:not(:has(input[name="variant"])):has(button:has-text("Start a build of Lale Flowers")) input[name="appId"]`).inputValue()).toBe(appIds["Lale Flowers"]);
   await admin.goto("/admin/audit");

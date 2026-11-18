@@ -47,7 +47,8 @@ import type { Connector } from "./connectors/types";
 import { decodeJwt, encodeJwt } from "./jwt";
 import { handlePages } from "./pages";
 import { handleFormAnswers, type FormLine } from "./pages/forms";
-import { draftLayout, lookAndLanguages } from "../pages/layout";
+import { draftLayout, lookAndLanguages, publishedLayout } from "../pages/layout";
+import { screenTextForms } from "../demo/screen-text-forms";
 import type { OtpSender } from "./otp-sender";
 import { parseAnyPhone, parsePhone, type Phone } from "./phone";
 import { hasFeature, type PlanInfo } from "../plans";
@@ -592,6 +593,12 @@ async function config(ctx: HostedContext, req: HostedRequest): Promise<HostedRes
     await noteAppError(ctx.store, { clientId: app.clientId, appId: app.id, source: "platform", code: "config_failed", detail: errorText(e) }, ctx.now);
     extra = {};
   }
+  // 10.6 Looks and languages (17: the draft's, in a draft preview)
+  // 43 With each language's name, direction and the owner's string pack.
+  const looks = await lookAndLanguages(ctx.store, app, ctx.preview?.draft ? await draftLayout(ctx.store, app, ctx.now) : undefined, ctx.plan ?? null, {
+    platformUrl: ctx.platformUrl,
+    draft: Boolean(ctx.preview?.draft),
+  });
   return ok({
     site: {
       name: app.appName ?? "App",
@@ -627,7 +634,8 @@ async function config(ctx: HostedContext, req: HostedRequest): Promise<HostedRes
     },
     auth: authConfig(app),
     // 118.3 Studio apps: the sign-in screen's look and the account menu.
-    ...screensConfig(app),
+    // 156 Without the template's words in other languages for a text the owner changed in the main one.
+    ...screensConfig(app, { language: looks.languages.default, words: screenTextForms() }),
     // Paid courses never show "Enroll now" on iOS, nor without card payments in the plan (13.1).
     purchases: {
       ...(extra.purchases ?? { enroll_button: false, free_enrollment: false }),
@@ -687,12 +695,8 @@ async function config(ctx: HostedContext, req: HostedRequest): Promise<HostedRes
     ...(teachersOn(app, ctx.plan) ? { instructors: { applications: courseSetup(app).teachersApply === true, timezone: await appZone(ctx.store, app), staff_app: staffAppPlaceOf(app) } } : {}),
     // 105.4 Schools
     ...(schoolOn(app, ctx.plan) ? { school: await schoolConfigOf(ctx) } : {}),
-    // 10.6 Looks and languages (17: the draft's, in a draft preview)
-    // 43 With each language's name, direction and the owner's string pack.
-    ...(await lookAndLanguages(ctx.store, app, ctx.preview?.draft ? await draftLayout(ctx.store, app, ctx.now) : undefined, ctx.plan ?? null, {
-      platformUrl: ctx.platformUrl,
-      draft: Boolean(ctx.preview?.draft),
-    })),
+    // 10.6 Looks and languages, read above.
+    ...looks,
   });
 }
 
@@ -735,7 +739,7 @@ function passwordConfig(app: App) {
  * address of these endpoints and the owner's choices). The app takes only
  * `auth` from it; everything else comes from the client's own /config.
  */
-function signInConfig(ctx: HostedContext, req: HostedRequest): HostedResult {
+async function signInConfig(ctx: HostedContext, req: HostedRequest): Promise<HostedResult> {
   const platform = req.query.get("platform");
   if (platform !== "android" && platform !== "ios") return badRequest("Unknown platform.");
   if (!req.query.get("app_version")) return badRequest("The app version is missing.");
@@ -754,7 +758,7 @@ function signInConfig(ctx: HostedContext, req: HostedRequest): HostedResult {
     features: { lms: null, lms_version: "", pro: false, certificates: false, quizzes: false, wishlist: false, reviews: false, qna: false, push: false },
     auth: { ...authConfig(app), provider: "yallapp", base_url: ctx.yallappSignIn!.baseUrl },
     // 118.3 A Studio app on its own API: the app takes these with the sign-in rules.
-    ...screensConfig(app),
+    ...screensConfig(app, { language: (await publishedLayout(ctx.store, app.id))?.languages.default ?? null, words: screenTextForms() }),
     purchases: { enroll_button: false, free_enrollment: false },
     content: { block_screen_capture: false, watermark: "off", embed_fullscreen_button: true, embed_height: "auto" },
     app: { update_required: false, maintenance: false, maintenance_message: null },
