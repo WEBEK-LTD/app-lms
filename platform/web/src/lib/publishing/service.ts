@@ -9,6 +9,7 @@ import { emailLangOf, sendTemplate } from "../email/send";
 import { getDashT, type DashT } from "@/i18n/dashboard";
 import { publishingStatusIn } from "./status-lang";
 import { appUrl } from "../env";
+import { appPlanActive } from "../license/status";
 import { mailDelivered } from "../mail";
 import { platformSetting } from "../settings/platform";
 import { newPublishingRequest, STORE_TITLE, trackOf } from "./steps";
@@ -185,12 +186,29 @@ export async function choosePublishingMode(
     await store.addPublishingEvent({ appId: app.id, store: "mode", status: mode, note: null, actorEmail: (context.staff ?? context.member ?? context.user).email, at: now });
     await recordStaffChange(context, mode === "managed" ? "Chose “Publish it for me”" : "Chose “I'll publish it myself”", { publishingMode: before }, { publishingMode: mode });
   }
-  if (newRequest) {
+  // 187 Only an app with a paid plan: without one the request waits, and reaches the team once the plan is paid (publishingPlanPaid).
+  const paid = await appPlanActive(store, app, now);
+  if (newRequest && paid) {
     await notifyPublishingTeam(store, { user: context.user, client: context.client, app, event: "asked us to publish their app" });
-  } else if (mode === "self" && before === "managed") {
+  } else if (mode === "self" && before === "managed" && paid) {
     await notifyPublishingTeam(store, { user: context.user, client: context.client, app, event: "will publish their app themselves" });
   }
   return (await store.getPublishingRequest(app.id)) ?? request;
+}
+
+/**
+ * 187 The app's plan was just paid (lib/admin/clients.ts activateClient, for
+ * an app that had none running): a request to publish it that waited for the
+ * plan reaches the team now. Best effort: an activation never fails on it.
+ */
+export async function publishingPlanPaid(store: DataStore, app: App): Promise<void> {
+  try {
+    const request = await store.getPublishingRequest(app.id);
+    if (!request || request.mode !== "managed" || (app.publishingMode ?? request.mode) !== "managed") return;
+    await notifyPublishingWork(store, app, "asked us to publish their app (its plan is paid now)");
+  } catch (error) {
+    console.error("[publishing] the team wasn't told of a request waiting for its plan:", error instanceof Error ? error.message : error);
+  }
 }
 
 /** Emails the client that publishing on one store moved to a new status. Best effort. */
