@@ -17,6 +17,7 @@ import '../data/store_providers.dart';
 import '../widgets/product_widgets.dart';
 import '../../../core/l10n/l10n.dart';
 import '../../../core/l10n/vertical_wording.dart';
+import '../widgets/quick_add.dart';
 
 Map<ProductOrder, String> get orderLabels => {
   ProductOrder.newest: currentL10n.sortNewest,
@@ -365,7 +366,9 @@ class _ShopScreenState extends ConsumerState<ShopScreen> {
                         productCardTextHeight(
                           context,
                           twoPrices: customerPricesShown(ref),
-                        ),
+                        ) +
+                        // 193 Add to cart under each card.
+                        (quickAddShown(ref) ? quickAddHeight(context) : 0),
                   ),
                   itemCount: items.length,
                   itemBuilder: (context, i) {
@@ -373,6 +376,7 @@ class _ShopScreenState extends ConsumerState<ShopScreen> {
                     return ProductCard(
                       product: product,
                       fill: true,
+                      quickAdd: quickAddShown(ref),
                       onTap: () => context.push(Paths.product(product.id)),
                     );
                   },

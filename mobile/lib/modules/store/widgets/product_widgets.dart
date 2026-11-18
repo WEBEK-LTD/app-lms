@@ -11,6 +11,7 @@ import '../../../core/widgets/buttons.dart';
 import '../../../core/widgets/common.dart';
 import '../../../core/widgets/sale_widgets.dart';
 import '../../../core/l10n/l10n.dart';
+import 'quick_add.dart';
 
 /// The price as the shop shows it, with the regular price struck through
 /// when on sale. 135.5 With the customer's currency: the price in it first
@@ -156,9 +157,14 @@ class ProductCard extends StatelessWidget {
     this.width,
     this.plain = false,
     this.fill = false,
+    this.quickAdd = false,
   });
 
   final ProductSummary product;
+
+  /// 193 With its own Add to cart under it ([quickAddShown]); a fixed-height
+  /// cell makes room for it with [quickAddHeight].
+  final bool quickAdd;
   final VoidCallback onTap;
   final double? width;
 
@@ -275,6 +281,21 @@ class ProductCard extends StatelessWidget {
         ],
       ),
     );
+    // 193 Add to cart under the card's words, read out on its own.
+    final body = !quickAdd
+        ? content
+        : Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              fill ? Expanded(child: content) : content,
+              Padding(
+                padding: plain
+                    ? const EdgeInsets.fromLTRB(2, 0, 2, 8)
+                    : const EdgeInsets.fromLTRB(10, 0, 10, 12),
+                child: QuickAddButton(productId: product.id, summary: product),
+              ),
+            ],
+          );
     final card = plain
         ? Semantics(
             button: true,
@@ -282,10 +303,10 @@ class ProductCard extends StatelessWidget {
             child: InkWell(
               onTap: onTap,
               borderRadius: BorderRadius.circular(context.shapes.card),
-              child: content,
+              child: body,
             ),
           )
-        : AppCard(onTap: onTap, semanticLabel: _a11y(product), child: content);
+        : AppCard(onTap: onTap, semanticLabel: _a11y(product), child: body);
     return width == null ? card : SizedBox(width: width, child: card);
   }
 }

@@ -4360,3 +4360,16 @@ The owner's report (18 November, urgent): a client's Android build failed after 
 | [x] | 192.2 `play-services-tapandpay` left out of every library's lint-check configurations (`mobile/android/build.gradle.kts`), so nothing asks the repositories for it (the apps don't issue cards to wallets) | CI "Build release APK (debug key)" |
 | [x] | 192.3 CI's Flutter job builds a release APK too (the debug key, never uploaded), as client builds do; and the iOS job a release build for a real iPhone (unsigned), so neither store's release build is first tried on a client's app | `mobile.yml` |
 | [ ] | 192.4 The failed client's build run again, and passing | — |
+
+## Phase 193: Add to cart under every product, on Leqaa's looks
+
+The owner's word (18 November, very urgent), on Kech Flora and Leqaa: "keep the old look, just add Add to cart" under every product, on every page. The cards stay exactly as they were; each product's card gets its own Add to cart under it, on a store whose checkout is the gift checkout (`Config.screens.checkout` `gift`: Leqaa's looks A and B and every app made from them, Kech Flora's too). Other shops keep their cards as they were.
+
+| Status | Item | Tests |
+|---|---|---|
+| [x] | 193.1 The button (`QuickAddButton`, mobile/lib/modules/store/widgets/quick_add.dart) in the app's main colour, the app's own words ("Add to cart", "أضف إلى السلة", "Sepete ekle"), Material Symbols Rounded `add_shopping_cart`, by day and by night, right to left in Arabic | `phase193_add_to_cart_test.dart`, screenshots |
+| [x] | 193.2 A product with nothing to choose goes straight in the cart (one, at the shop's price now; the cart's count on Send follows) with "Added to cart" and "View cart"; one with sizes, variations or options opens its page to choose them, so a wrong one never goes in; out of stock, or a shop that can't sell, the button is off ("Out of stock"); the cart, the quote and the checkout as they were | `phase193_add_to_cart_test.dart` |
+| [x] | 193.3 On every list of products: the shop's grid (the Bouquets tab, a category, the search, On sale), the home's rows, a product's "You may also like", and every Studio list of products (grids, rows and carousels: Loved most, Picked for you, the price list, Our bouquet) | `phase193_add_to_cart_test.dart`, `phase161_customer_currency_test.dart` |
+| [x] | 193.4 Studio's canvas draws it under each product's card on those looks, in the layout's language (`components/studio/quick-add.ts`) | `phase193-quick-add.test.ts` |
+| [x] | 193.5 `CLIENT_APP_RELEASE` 13 (12 is the release 12 integration's, #473), the preview rebuilt | `publish-for-all.test.ts`, CI "App preview is up to date" |
+| [ ] | 193.6 A flash sale's own cards (`flash_sale`) keep their look without the button; on Kech Flora's phone, Add to cart on the Bouquets tab and the home | — |
