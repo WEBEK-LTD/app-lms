@@ -4585,13 +4585,15 @@ export class MemoryStore implements DataStore {
     }
     const after = decodeProductCursor(query.cursor);
     const limit = query.perPage;
+    // 115.29 The first page counts what matches (up to the cap); later pages don't.
+    const firstTotal = query.cursor === "" ? Math.min(MARKET_COUNT_CAP, prefix.length + words.length) : null;
     if (!q) {
       const c = after?.k === "s" ? after : null;
       const left = c ? prefix.filter((p) => byShelf(p, { inStock: c.s === 1, position: c.p, id: c.i } as MarketProduct) > 0) : prefix;
       const page = topK(left, byShelf, limit + 1);
       const items = page.slice(0, limit);
       const last = items[items.length - 1];
-      return { items: items.map(clone), total: null, nextCursor: page.length > limit && last ? encodeProductCursor({ k: "s", s: last.inStock ? 1 : 0, p: last.position, i: last.id }) : null };
+      return { items: items.map(clone), total: firstTotal, nextCursor: page.length > limit && last ? encodeProductCursor({ k: "s", s: last.inStock ? 1 : 0, p: last.position, i: last.id }) : null };
     }
     let items: MarketProduct[] = [];
     if (!after || after.k === "n") {
@@ -4599,7 +4601,7 @@ export class MemoryStore implements DataStore {
       items = topK(left, byName, limit + 1);
       if (items.length > limit) {
         const last = items[limit - 1]!;
-        return { items: items.slice(0, limit).map(clone), total: null, nextCursor: encodeProductCursor({ k: "n", n: name(last), i: last.id }) };
+        return { items: items.slice(0, limit).map(clone), total: firstTotal, nextCursor: encodeProductCursor({ k: "n", n: name(last), i: last.id }) };
       }
     }
     const fromId = after?.k === "w" ? after.i : 0;
@@ -4607,7 +4609,7 @@ export class MemoryStore implements DataStore {
     const page = [...items, ...more];
     const out = page.slice(0, limit);
     const last = out[out.length - 1];
-    return { items: out.map(clone), total: null, nextCursor: page.length > limit && last ? encodeProductCursor({ k: "w", i: last.id }) : null };
+    return { items: out.map(clone), total: firstTotal, nextCursor: page.length > limit && last ? encodeProductCursor({ k: "w", i: last.id }) : null };
   }
 
   async searchMarketProducts(input: { appId: string; vendorIds: number[]; q: string; withPhoto?: boolean; perVendor: number; limit: number }): Promise<MarketProduct[]> {

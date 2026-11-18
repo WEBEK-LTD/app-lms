@@ -5003,7 +5003,7 @@ export type MarketNames = Partial<Record<"en" | "ar" | "tr", string>>;
 /** 115.24 A page of products: `total` only when paged by number (`page`, at most MARKET_COUNT_CAP), `nextCursor` when paged by cursor. */
 export interface MarketProductPage {
   items: MarketProduct[];
-  /** Null when paged by cursor (nothing is counted). */
+  /** Null on a cursor's later pages; counted (up to MARKET_COUNT_CAP) by number and on a cursor's first page. */
   total: number | null;
   /** The next page's cursor; null on the last page or when paged by number. */
   nextCursor: string | null;

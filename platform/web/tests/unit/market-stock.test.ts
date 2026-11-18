@@ -227,6 +227,11 @@ describe("115.24 stock moved by orders, and the catalog edited by the place", ()
     // Gone from the customer's list at once (decision 15); a cart with it is refused, "no longer available".
     const list = await call("GET", "/market/vendors/{vendor_id}/products", { params: [String(grocery)] });
     expect((list.body as { items: { id: number }[] }).items.some((p) => p.id === yogurt)).toBe(false);
+    // 115.29 By cursor: the first page counts what customers can buy (milk and cheese), later pages don't.
+    const first = await call("GET", "/market/vendors/{vendor_id}/products", { params: [String(grocery)], query: { cursor: "", per_page: "1" } });
+    expect(first.body).toMatchObject({ total: 2, total_pages: 2, next_cursor: expect.any(String), items: [expect.anything()] });
+    const second = await call("GET", "/market/vendors/{vendor_id}/products", { params: [String(grocery)], query: { cursor: (first.body as { next_cursor: string }).next_cursor, per_page: "1" } });
+    expect(second.body).toMatchObject({ total: null, total_pages: null, next_cursor: null });
     expect((await call("POST", "/market/quote", { token: customer.access_token, body: cart })).body).toMatchObject({ code: "unavailable_item", message: "Yogurt is no longer available." });
 
     // The place counts 5 more: back on sale, in the ledger with who did it.

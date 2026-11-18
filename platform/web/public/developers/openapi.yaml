@@ -6306,7 +6306,8 @@ paths:
         with it first (by name), then names with a word that starts with it.
         Send `cursor` (empty for the first page, then each page's
         `next_cursor`) to page through a big catalog without counting it:
-        `total` and `total_pages` are then null. Without it, pages go by
+        the first page has `total` (what matches, up to 10,000) and later
+        pages have `total` and `total_pages` null. Without it, pages go by
         number and `total` stops at 10,000.
       security: [{}, { bearerAuth: [] }]
       parameters:
@@ -20168,7 +20169,7 @@ components:
 
     MarketProductPage:
       type: object
-      description: '115.24 A page of products: by number (`total` up to 10,000), or by `cursor` (`total` and `total_pages` null, `next_cursor` for the next page).'
+      description: '115.24 A page of products: by number (`total` up to 10,000), or by `cursor` (`next_cursor` for the next page; `total`, what matches up to 10,000, on the first page only, null on later ones with `total_pages`).'
       required: [page, per_page, total, total_pages, items]
       properties:
         page: { type: integer }

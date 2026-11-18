@@ -190,7 +190,8 @@ export function marketStockStoreSuite(store: () => DataStore, options: { big?: n
     let pages = 0;
     for (;;) {
       const page = await s.listMarketProducts({ appId: app.id, vendorId: vendor.id, page: 1, perPage: 20, cursor });
-      expect(page.total).toBeNull();
+      // 115.29 The first page counts what matches (for "20 of 96 shown"); later pages count nothing.
+      expect(page.total).toBe(cursor === "" ? 96 : null);
       seen.push(...page.items.map((p) => p.id));
       pages += 1;
       if (!page.nextCursor) break;
@@ -209,6 +210,7 @@ export function marketStockStoreSuite(store: () => DataStore, options: { big?: n
     cursor = "";
     for (;;) {
       const page = await s.listMarketProducts({ appId: app.id, vendorId: vendor.id, departmentId: department!.id, page: 1, perPage: 10, cursor });
+      if (cursor === "") expect(page.total).toBe(47);
       dairy += page.items.length;
       if (!page.nextCursor) break;
       cursor = page.nextCursor;
@@ -218,6 +220,7 @@ export function marketStockStoreSuite(store: () => DataStore, options: { big?: n
     cursor = "";
     for (;;) {
       const page = await s.listMarketProducts({ appId: app.id, vendorId: vendor.id, q: "item 0", page: 1, perPage: 7, cursor });
+      expect(page.total).toBe(cursor === "" ? 95 : null);
       found.push(...page.items.map((p) => p.name));
       if (!page.nextCursor) break;
       cursor = page.nextCursor;

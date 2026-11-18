@@ -5747,14 +5747,15 @@ export class MysqlStore implements DataStore {
     const word = q ? and(like(t.searchName, `% ${likeEscape(q)}%`), not(like(t.searchName, `${likeEscape(q)}%`))) : undefined;
     const columns = this.productColumns();
     const limit = query.perPage;
+    // Counted up to the cap (never the whole of a big catalog).
+    const capped = (where: SQL | undefined) =>
+      this.run(async (db) => {
+        const [row] = await db.select({ n: sql<number>`count(*)` }).from(db.select({ one: sql`1` }).from(t).where(where).limit(MARKET_COUNT_CAP).as("capped"));
+        return Number(row?.n ?? 0);
+      });
     if (query.cursor === undefined) {
-      // By number, counted up to the cap (never the whole of a big catalog).
+      // By number.
       const offset = (query.page - 1) * query.perPage;
-      const capped = (where: SQL | undefined) =>
-        this.run(async (db) => {
-          const [row] = await db.select({ n: sql<number>`count(*)` }).from(db.select({ one: sql`1` }).from(t).where(where).limit(MARKET_COUNT_CAP).as("capped"));
-          return Number(row?.n ?? 0);
-        });
       if (!q) {
         const [items, total] = await Promise.all([this.run((db) => db.select(columns).from(t).where(base).orderBy(desc(t.inStock), asc(t.position), asc(t.id)).limit(limit).offset(offset)), capped(base)]);
         return { items, total, nextCursor: null };
@@ -5766,6 +5767,8 @@ export class MysqlStore implements DataStore {
       return { items: [...fromFirst, ...fromWords], total: Math.min(MARKET_COUNT_CAP, first + words), nextCursor: null };
     }
     const after = decodeProductCursor(query.cursor);
+    // 115.29 The first page counts what matches (up to the cap); later pages don't.
+    const firstTotal = query.cursor === "" ? (q ? Math.min(MARKET_COUNT_CAP, (await capped(and(base, prefix))) + (await capped(and(base, word)))) : await capped(base)) : null;
     if (!q) {
       const c = after?.k === "s" ? after : null;
       // In stock first (descending), then position and id: the rows after the cursor's.
@@ -5775,7 +5778,7 @@ export class MysqlStore implements DataStore {
       const rows = await this.run((db) => db.select(columns).from(t).where(and(base, past)).orderBy(desc(t.inStock), asc(t.position), asc(t.id)).limit(limit + 1));
       const items = rows.slice(0, limit);
       const last = items[items.length - 1];
-      return { items, total: null, nextCursor: rows.length > limit && last ? encodeProductCursor({ k: "s", s: last.inStock ? 1 : 0, p: last.position, i: last.id }) : null };
+      return { items, total: firstTotal, nextCursor: rows.length > limit && last ? encodeProductCursor({ k: "s", s: last.inStock ? 1 : 0, p: last.position, i: last.id }) : null };
     }
     let items: MarketProduct[] = [];
     if (!after || after.k === "n") {
@@ -5783,7 +5786,7 @@ export class MysqlStore implements DataStore {
       const rows = await this.run((db) => db.select({ ...columns, searchName: t.searchName }).from(t).where(and(base, prefix, past)).orderBy(asc(t.searchName), asc(t.id)).limit(limit + 1));
       if (rows.length > limit) {
         const last = rows[limit - 1]!;
-        return { items: rows.slice(0, limit).map(withoutSearchName), total: null, nextCursor: encodeProductCursor({ k: "n", n: last.searchName, i: last.id }) };
+        return { items: rows.slice(0, limit).map(withoutSearchName), total: firstTotal, nextCursor: encodeProductCursor({ k: "n", n: last.searchName, i: last.id }) };
       }
       items = rows.map(withoutSearchName);
     }
@@ -5792,7 +5795,7 @@ export class MysqlStore implements DataStore {
     const page = [...items, ...more];
     const out = page.slice(0, limit);
     const last = out[out.length - 1];
-    return { items: out, total: null, nextCursor: page.length > limit && last ? encodeProductCursor({ k: "w", i: last.id }) : null };
+    return { items: out, total: firstTotal, nextCursor: page.length > limit && last ? encodeProductCursor({ k: "w", i: last.id }) : null };
   }
 
   async searchMarketProducts(input: { appId: string; vendorIds: number[]; q: string; withPhoto?: boolean; perVendor: number; limit: number }): Promise<MarketProduct[]> {
