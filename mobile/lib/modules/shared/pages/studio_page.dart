@@ -2768,6 +2768,9 @@ class _StudioSliderState extends ConsumerState<_StudioSlider>
   /// Counts the slides' turns, so the open slide's line starts again.
   int _turn = 0;
 
+  /// 177.17 The text size the slider was last drawn at on the screen.
+  double? _textScale;
+
   /// 129.1 The open slide's photo growing slowly (Ken Burns), started again
   /// on each slide.
   late final AnimationController? _zoom = widget.node.kenBurns
@@ -2846,7 +2849,22 @@ class _StudioSliderState extends ConsumerState<_StudioSlider>
     if (kids.isEmpty) return const SizedBox.shrink();
     final node = widget.node;
     final shown = node.dots && kids.length > 1 ? node.indicator : null;
-    return LayoutBuilder(
+    // 177.17 Off the screen (a page under another, a tab not shown) the
+    // slider keeps the text size it was last drawn at, so it is laid out as
+    // it was, and takes the new one when it is back: resized there (the text
+    // size changed with Leqaa's Home under Settings) it left the list it is
+    // in with a semantics node without a place, and the frame threw (181's
+    // flings, look B).
+    final onScreen = TickerMode.valuesOf(context).enabled;
+    final live = MediaQuery.textScalerOf(context);
+    final held = _textScale;
+    // The system's text size is read when it's used, so what is kept is
+    // its factor, not the scaler.
+    final drawnScaler = onScreen || held == null
+        ? live
+        : TextScaler.linear(held);
+    if (onScreen || held == null) _textScale = live.scale(1);
+    final slider = LayoutBuilder(
       builder: (context, constraints) {
         final ratio = node.aspectRatio;
         final drawn =
@@ -2857,7 +2875,7 @@ class _StudioSliderState extends ConsumerState<_StudioSlider>
         // 177 Slides with words grow with a larger text size, as a photo
         // cover does (163.2): an Arabic slide ran 22 points past its
         // slider at 1.3. Pictures alone keep the height drawn.
-        final grow = MediaQuery.textScalerOf(context).scale(1);
+        final grow = drawnScaler.scale(1);
         // Never past the room a fixed parent gives (Leqaa's hero is a
         // slider in a 520-point stack).
         final room = constraints.maxHeight.isFinite
@@ -2965,6 +2983,11 @@ class _StudioSliderState extends ConsumerState<_StudioSlider>
           ],
         );
       },
+    );
+    // Always under its own text size, so the tree keeps its shape.
+    return MediaQuery(
+      data: MediaQuery.of(context).copyWith(textScaler: drawnScaler),
+      child: slider,
     );
   }
 }
