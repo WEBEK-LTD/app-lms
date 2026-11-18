@@ -8,6 +8,15 @@ Last updated: 17 November 2026.
 
 ## Current release
 
+Roadmap 146 (the pricing page: the app and Studio side by side): /pricing
+starts with the two products side by side, each with a real screen and its
+"from" price; one billing period for both, lifetime among its choices;
+Studio's plans right under the regular ones with every period, the price
+per month and the saving; each product explained with real screens; how
+they differ; and every feature of the app's plans in a fold, so the page is
+shorter. Prices still come from Admin › Plans: the owner checks Studio's
+1, 2 and 3-year and lifetime prices there (ROADMAP 146.9).
+
 Roadmap 144 (the card typed inside the payment page): with Stripe (its
 publishable key saved), Yallapp's payment page (stores, food and
 deliveries, bookings, courses, events, connected stores paying in the app)
@@ -44,6 +53,10 @@ Roadmap 143 (the sign-in buttons in the app's main colour): the premium
 sign-in and the screens in its look draw their buttons in the app's main
 colour, in the app and in Studio › Screens, not the second colour's gold
 that looked the same in every app.
+
+Roadmap 150: Studio's canvas draws a cover's top row (the search, the
+wordmark and the bag) across the cover, as the app does; it shrank to its
+icons, which put Kech Flora's bag in the middle.
 
 Roadmap 132.188: Studio's menu and crumbs come to life with its frame, so
 a page opened from the bar's account menu right after the overview no

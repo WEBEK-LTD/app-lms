@@ -104,23 +104,28 @@ test("the pricing page offers the periods, with the price per month, the saving 
   const tabs = visitor.locator("[data-period-tabs]");
   await expect(tabs.locator("[data-period]")).toHaveText(["Monthly", "6 months", "Yearly", "2 years", "3 years", /Lifetime$/]);
   await tabs.locator('[data-period="6"]').click();
-  await expect(visitor).toHaveURL(/\/pricing\?period=6#regular$/);
+  // 146 One choice of period for the app's plans and Studio's.
+  await expect(visitor).toHaveURL(/\/pricing\?period=6#plans$/);
   const card = visitor.locator(`[data-pricing-plans] [data-plan="${PLAN}"]`);
   await expect(card).toContainText(/EGP\s650\s*\/ 6 months/);
   await expect(card.locator("[data-per-month]")).toContainText(/EGP\s108\.33 a month/);
   await expect(card.locator("[data-per-month]")).toContainText("Save 9%");
   // Growth has no 6-month price: its own.
   await expect(visitor.locator('[data-pricing-plans] [data-plan="growth"]')).toContainText("On request");
-  // Lifetime, on its own, to link to.
+  // Lifetime, to link to; 146 a choice of the same picker, the price on the plan's own card.
   const lifetime = visitor.locator("#lifetime");
   await expect(lifetime.getByRole("heading", { name: "Pay once, yours for life" })).toBeVisible();
-  await expect(lifetime.locator(`[data-lifetime-plan="${PLAN}"]`)).toContainText(/EGP\s9,000/);
+  await expect(lifetime.locator('[data-lifetime-from="regular"]')).toContainText(/EGP\s9,000/);
+  await tabs.locator('[data-period="lifetime"]').click();
+  await expect(visitor).toHaveURL(/\/pricing\?period=lifetime#plans$/);
+  await expect(card).toContainText(/EGP\s9,000\s*\/ once/);
   await expect(lifetime.locator("[data-lifetime-note]")).toContainText("What lifetime covers");
   // In Arabic too.
   await visitor.goto("/ar/pricing?period=lifetime");
   await expect(visitor.locator("#lifetime")).toContainText("ادفع مرة واحدة، وتبقى لك مدى الحياة");
   // The copy of Growth says what's included in Growth's Arabic, not in English.
-  const scaleAr = visitor.locator(`#lifetime [data-lifetime-plan="${PLAN}"]`);
+  const scaleAr = visitor.locator(`#regular [data-plan="${PLAN}"]`);
+  await expect(scaleAr).toContainText("9,000");
   await expect(scaleAr).not.toContainText("app languages");
   await expect(visitor.locator(`#regular [data-plan="${PLAN}"]`)).not.toContainText("Up to 10,000 app users");
   // Five plans: the last row's card in the middle, as wide as the others.
@@ -179,7 +184,8 @@ test("a plan priced only by the year gets suggested prices for its other periods
   // 2 years off: its yearly price.
   await visitor.goto("/pricing?period=24");
   await expect(visitor.locator('#regular [data-plan="growth"]')).toContainText(/EGP\s1,500\s*\/ year/);
-  await expect(visitor.locator('#lifetime [data-lifetime-plan="growth"]')).toContainText(/EGP\s6,000/);
+  await visitor.goto("/pricing?period=lifetime");
+  await expect(visitor.locator('#regular [data-plan="growth"]')).toContainText(/EGP\s6,000\s*\/ once/);
   await visitor.goto("/ar/pricing?period=6");
   await expect(visitor.locator('#regular [data-plan="growth"]')).toContainText("850");
   await visitor.close();

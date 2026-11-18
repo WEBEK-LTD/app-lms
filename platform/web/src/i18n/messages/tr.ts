@@ -249,6 +249,38 @@ export const tr: Messages = {
       "<b>Uygulama mağazaları:</b> Her paket Google Play, Samsung Galaxy Store, Huawei AppGallery ve Xiaomi GetApps için Android uygulamasını derler; App Store için iOS uygulaması Growth ve üzeri paketlerde gelir. Her pakette uygulamanızı ve her güncellemesini Google Play ve App Store'da sizin için biz yayınlıyoruz; Galaxy Store, AppGallery ve GetApps'te rehberlerimizle kendiniz yayınlarsınız ya da anahtarlarınızı eklersiniz ve her derleme oraya kendiliğinden yüklenir.",
     fees:
       "Google Play ve App Store kendi geliştirici hesabı ücretlerini alır; bu ücretler doğrudan Google'a ve Apple'a ödenir. Samsung, Huawei ve Xiaomi hesapları ücretsizdir. Hesabınız etkinleştirildikten sonraki 3 gün içinde iptal ederek ödediğiniz tutarın tamamını geri alabilirsiniz. Ayrıntılar için <link>İade politikamıza</link> bakın.",
+    /** 146 The pricing page: the app and Studio side by side. */
+    productsLabel: "Yallapp'in iki ürünü",
+    appName: "Yallapp uygulaması",
+    appWho: "Siteniz ya da mağazanız, artık bir uygulama.",
+    studioWho: "Uygulamanızı özgürce tasarlayın, her şeyi Yallapp'ten yönetin.",
+    from: "Başlangıç",
+    seePlans: "Paketleri görün",
+    howItWorks: "Nasıl çalışır",
+    periodHint: "Ödeme dönemini seçin: aşağıda hem uygulamanın hem Studio'nun fiyatları buna göre değişir.",
+    lifetimeBoth: "Ömür boyu satılan her pakette, uygulamada da Studio'da da.",
+    lifetimeSee: "Ömür boyu fiyatları görün",
+    aboutTitle: "Uygulama ve Studio, ayrıntılı olarak",
+    aboutText: "Her birinin size neler sunduğu, nasıl çalıştığı ve kimlere uygun olduğu; her biriyle yapılmış uygulamalardan gerçek ekranlarla.",
+    whoTitle: "Kimler için uygun",
+    appIntro:
+      "Yallapp, bugün yönettiğiniz şeyi kendi Android ve iOS uygulamalarınıza dönüştürür: sitenizi, online mağazanızı ya da platformunuzu veya panelde eklediğiniz içeriği. Hazır bir tasarım seçin, sayfalarınızı sayfa düzenleyicide düzenleyin; uygulamaları sizin için biz derleyip yayınlarız.",
+    appGet1: "Kendi adınız ve logonuzla Android ve iOS uygulamalarınız",
+    appGet2: "WordPress, Shopify ve diğer platformlardan, kendi API'nizden ya da panelden gelen, her zaman güncel içerik",
+    appGet3: "Açık ve koyu temada hazır tasarımlar ve sayfa düzenleyici",
+    appGet4: "Pakete göre anlık bildirimler, kartla ödeme, çevrimdışı mod, sohbet ve sadakat puanları",
+    appGet5: "Uygulamanızın nasıl kullanıldığına dair analizler",
+    appStep1: "Sitenizi ya da platformunuzu bağlayın veya içeriğinizi panelde ekleyin.",
+    appStep2: "Bir tasarım seçin ve sayfalarınızı düzenleyin.",
+    appStep3: "Uygulamalarınızı derleyip mağazalarda sizin için biz yayınlarız.",
+    appWhoText:
+      "Sitesi, online mağazası ya da platformu olan ve hızla kendi uygulamasını isteyen işletmeler: akademiler, mağazalar, restoranlar, randevular, klinikler, spor salonları, emlak, haberler, etkinlikler ve hayır kurumları.",
+    studioStep1: "Proje türünü, içeriğin nereden geleceğini ve bir şablonu seçin.",
+    studioStep2: "Her sayfayı Studio düzenleyicisinde tasarlayın: her öğe her yerde, hareketle ve açık ve koyu tema renkleriyle.",
+    studioStep3: "Projenizi kendi panelinden yönetin; uygulamaları sizin için biz derleyip yayınlarız.",
+    studioWhoText:
+      "Kendine özgü bir tasarım isteyen işletmeler ve yalnızca Studio'nun hizmet verdikleri: teslimat şirketleri, yemek teslimatı, yolcu taşıma ve taksiler, çok öğretmenli akademiler, okullar ve üniversiteler.",
+    compareAllText: "Uygulama paketlerinin tüm özellikleri ve limitleri, yan yana.",
   },
   solutions: {
     contentFrom: "İçerik kaynakları:",
@@ -409,6 +441,8 @@ export const tr: Messages = {
     choiceTemplates: "Şablonlar",
     choicePages: "Bir projenin kaç Studio sayfası olduğu",
     pages: "{count, plural, =1{Proje başına 1 Studio sayfası} other{Proje başına {count} Studio sayfası}}",
+    /** 146 A Studio plan's card: the choices it doesn't include, folded. */
+    notInPlan: "Bu pakette olmayan {count} özellik",
     unlimitedPages: "Sınırsız Studio sayfası",
     allPlans: "Tüm planları gör",
     pricingStudio: "Studio projeleri bu planlarla değil, Studio'nun kendi planlarıyla ödenir. <link>Yallapp Studio planlarını gör</link>.",

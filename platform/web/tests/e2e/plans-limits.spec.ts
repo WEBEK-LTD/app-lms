@@ -129,7 +129,10 @@ test("the pricing page shows the four plans and compares every feature", async (
   await page.goto("/pricing");
   await expect(page.getByRole("heading", { name: "A plan for every app" })).toBeVisible();
   for (const name of ["Starter", "Growth", "Pro", "Business"]) await expect(page.getByRole("heading", { name, exact: true })).toBeVisible();
+  // 146 Every feature is folded under the plans, so the page stays short: it opens with a click.
   const table = page.getByRole("table", { name: "Everything each plan includes" });
+  await expect(table).toBeHidden();
+  await page.locator("details[data-compare-all] > summary").click();
   await expect(table.getByRole("row", { name: /^iOS app/ })).toBeVisible();
   await expect(table.getByRole("row", { name: /^App users/ })).toContainText("1,000");
   await expect(table.getByRole("row", { name: /^App users/ })).toContainText("10,000");
@@ -158,6 +161,7 @@ test("the team changes what a plan includes, and it's logged", async ({ page }) 
   await expect(admin.getByText("Changed what the Starter plan includes").first()).toBeVisible();
 
   await page.goto("/pricing");
+  await page.locator("details[data-compare-all] > summary").click();
   const users = page.getByRole("table", { name: "Everything each plan includes" }).getByRole("row", { name: /^App users/ });
   await expect(users.getByRole("cell").nth(0)).toHaveText("2");
 });
