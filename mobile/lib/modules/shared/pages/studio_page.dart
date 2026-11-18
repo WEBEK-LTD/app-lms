@@ -3,7 +3,7 @@ import 'dart:math' as math;
 
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/rendering.dart' show RenderProxyBox;
+import 'package:flutter/rendering.dart' show RenderFlex, RenderProxyBox;
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
@@ -2029,6 +2029,27 @@ class StudioNodeView extends ConsumerWidget {
               ? IntrinsicHeight(child: strip)
               : strip,
         );
+      // 179 A row of buttons only (a hero's "Meet the teachers" and
+      // "Browse courses"): as designed when they fit; at a larger text, or
+      // on a narrow phone, the last ones go to a second line instead of
+      // running past the screen (studioButtonsWrap).
+      case StudioNodeType.row when studioButtonsWrap(node, kids):
+        return Wrap(
+          key: ValueKey('studio-buttons-${node.id}'),
+          spacing: node.gap,
+          runSpacing: node.gap > 0 ? node.gap : 8,
+          alignment: switch (node.align) {
+            StudioAlign.center => WrapAlignment.center,
+            StudioAlign.end => WrapAlignment.end,
+            _ => WrapAlignment.start,
+          },
+          crossAxisAlignment: switch (node.cross) {
+            StudioCross.start => WrapCrossAlignment.start,
+            StudioCross.end => WrapCrossAlignment.end,
+            _ => WrapCrossAlignment.center,
+          },
+          children: [for (final child in kids) view(child)],
+        );
       case StudioNodeType.row:
         final stretch =
             node.cross == StudioCross.stretch ||
@@ -2039,6 +2060,16 @@ class StudioNodeView extends ConsumerWidget {
           for (final k in kids)
             if (!_boundEmpty(k)) k,
         ]);
+        // 179 Beside what fills the row, a text (a card's price) is never
+        // wider than the row: as it is when it fits, scaled down to the
+        // row's width at a larger text (studioCappedText).
+        final fills = kids.any((k) => k.width?.fill == true);
+        final gaps =
+            node.gap > 0 &&
+                node.align != StudioAlign.between &&
+                node.align != StudioAlign.around
+            ? node.gap * (kids.length - 1)
+            : 0.0;
         final row = Row(
           mainAxisAlignment: _main(node.align),
           crossAxisAlignment: stretch
@@ -2054,6 +2085,15 @@ class StudioNodeView extends ConsumerWidget {
               // text (studioTextGivingWay).
               else if (identical(child, givesWay))
                 Flexible(child: _selfAlign(child, view(child), Axis.vertical))
+              else if (fills && studioCappedText(child))
+                _RowCap(
+                  reserve: gaps,
+                  child: FittedBox(
+                    fit: BoxFit.scaleDown,
+                    alignment: AlignmentDirectional.centerStart,
+                    child: _selfAlign(child, view(child), Axis.vertical),
+                  ),
+                )
               else
                 _selfAlign(child, view(child), Axis.vertical),
           ], horizontal: true),
@@ -2314,6 +2354,28 @@ final _arabicLetters = RegExp(
 /// before. 163 With two or more, the last gives way (a price's was-price
 /// after it, on a card of a fixed width): before, none did and the row ran
 /// past the card at a larger text size. As before whenever the row fits.
+/// 179 Whether a row is drawn as a row of buttons that may wrap: two or
+/// more buttons and nothing else, none filling the row or set to its own
+/// place across it, laid from its start, middle or end (a row spreading
+/// them apart stays a row, and one stretching them too, unless each has
+/// its own height, which stretching doesn't change).
+bool studioButtonsWrap(StudioNode row, List<StudioNode> kids) =>
+    kids.length >= 2 &&
+    !row.scroll &&
+    (row.cross != StudioCross.stretch ||
+        kids.every((k) => k.height?.fixed != null)) &&
+    (row.align == StudioAlign.start ||
+        row.align == StudioAlign.center ||
+        row.align == StudioAlign.end) &&
+    kids.every(
+      (k) =>
+          k.type == StudioNodeType.button &&
+          k.width?.fill != true &&
+          k.height?.fill != true &&
+          k.selfAlign == null &&
+          k.place == null,
+    );
+
 StudioNode? studioTextGivingWay(List<StudioNode> kids) {
   if (kids.any((k) => k.width?.fill == true)) return null;
   final texts = [
@@ -2324,6 +2386,77 @@ StudioNode? studioTextGivingWay(List<StudioNode> kids) {
         k,
   ];
   return texts.lastOrNull;
+}
+
+/// 179 Whether [child], in a row where another child fills, is a text
+/// kept at most as wide as the row ([_RowCap]): a text of its own width
+/// (a card's price beside its title), not one with a set width.
+bool studioCappedText(StudioNode child) =>
+    child.type == StudioNodeType.text &&
+    child.width?.fill != true &&
+    child.width?.fixed == null;
+
+/// 179 A row's child at most as wide as the row, less [reserve] (its
+/// gaps): a row lays out what doesn't fill at any width, so a long price
+/// at a large text ran past the card's label. As it is whenever it fits.
+class _RowCap extends SingleChildRenderObjectWidget {
+  const _RowCap({required this.reserve, required Widget super.child});
+
+  final double reserve;
+
+  @override
+  RenderObject createRenderObject(BuildContext context) =>
+      _RenderRowCap(reserve);
+
+  @override
+  void updateRenderObject(BuildContext context, _RenderRowCap renderObject) =>
+      renderObject.reserve = reserve;
+}
+
+class _RenderRowCap extends RenderProxyBox {
+  _RenderRowCap(this._reserve);
+
+  double _reserve;
+  set reserve(double value) {
+    if (value == _reserve) return;
+    _reserve = value;
+    markNeedsLayout();
+  }
+
+  BoxConstraints _inner(BoxConstraints constraints) {
+    final row = parent;
+    if (row is! RenderFlex ||
+        row.direction != Axis.horizontal ||
+        !row.constraints.hasBoundedWidth) {
+      return constraints;
+    }
+    final cap = math.max(0.0, row.constraints.maxWidth - _reserve);
+    if (cap >= constraints.maxWidth) return constraints;
+    return BoxConstraints(
+      minWidth: math.min(constraints.minWidth, cap),
+      maxWidth: cap,
+      minHeight: constraints.minHeight,
+      maxHeight: constraints.maxHeight,
+    );
+  }
+
+  @override
+  Size computeDryLayout(covariant BoxConstraints constraints) {
+    final child = this.child;
+    if (child == null) return constraints.smallest;
+    return child.getDryLayout(_inner(constraints));
+  }
+
+  @override
+  void performLayout() {
+    final child = this.child;
+    if (child == null) {
+      size = constraints.smallest;
+      return;
+    }
+    child.layout(_inner(constraints), parentUsesSize: true);
+    size = constraints.constrain(child.size);
+  }
 }
 
 /// 128.10 What it holds at its own width when the width around it is

@@ -18,6 +18,11 @@ import { scheduleAutoScreenshots } from "../app/auto-screenshots";
 import { PAGE_TEXT_FORMS } from "../i18n/builtin";
 import { placeholdersIn, withoutPlaceholders, withoutStaleTranslations, type PlaceholderSpot, type StoreFacts } from "./template-translations";
 import { withSampleProduct } from "../hosted/pages/lists";
+import { withSchoolNews } from "../school/news-ticker";
+import { facultyOf, withAcademyFaculty } from "../teachers/faculty";
+import { isPublished, isTeachersApp } from "../teachers/service";
+import { isReviewTeacher } from "../teachers/review";
+import { courseSetup } from "../courses/setup";
 
 /**
  * The draft and the published copy of an app's layout (roadmap 10.4). The
@@ -410,6 +415,25 @@ async function unpublishedDefaults(store: DataStore, record: AppLayoutRecord | n
 }
 
 /**
+ * 179 A school's layout with the template's news ticker running the school's
+ * own news (lib/school/news-ticker.ts), before the customers' pass would
+ * leave the template's words out of it, and an academy's with its own
+ * teachers in Rawaq's faculty; the same layout elsewhere.
+ */
+async function schoolNews<T extends Layout>(store: DataStore, app: App, layout: T): Promise<T> {
+  if (app.demo === true || !layout.pages.some((p) => p.studio)) return layout;
+  // Each with its own version, so the apps ask for the pages again when the school's news or the teachers change.
+  const marked = (made: T, mark: string): T => (made === layout ? layout : { ...made, version: `${layout.version}~${mark}${sha256Hex(JSON.stringify(made.pages)).slice(0, 8)}` });
+  if (app.appType === "school") return marked(withSchoolNews(layout, await store.listSchoolAnnouncements(app.id)), "n");
+  // 179 An academy with many teachers: Rawaq's faculty is its own teachers (lib/teachers/faculty.ts).
+  if (isTeachersApp(app)) {
+    const teachers = (await store.listTeachers(app.id, { statuses: ["active"] })).filter((t) => !isReviewTeacher(app, t));
+    return marked(withAcademyFaculty(layout, facultyOf(teachers, courseSetup(app).courses, isPublished)), "t");
+  }
+  return layout;
+}
+
+/**
  * What the hosted API serves: the published layout, or before the first
  * publish the default pages and tabs for the app type (132.40 in its
  * draft's languages), with a version that changes when the defaults do.
@@ -418,11 +442,11 @@ export async function servedLayout(store: DataStore, app: App, plan: PlanInfo | 
   // 43 With Yallapp's own translations of the texts it wrote, where the owner has none.
   // 17 The app preview can show the draft, with the plan's limits like the published layout.
   // 156 Without the template's translations of the texts the owner changed: their own text in every language.
-  if (options.draft) return withBuiltInTexts(layoutForPlan(withFreshTranslations(await draftLayout(store, app, options.now ?? new Date()), app), app, plan, await appDefaults(store)));
+  if (options.draft) return withBuiltInTexts(layoutForPlan(withFreshTranslations(await schoolNews(store, app, await draftLayout(store, app, options.now ?? new Date())), app), app, plan, await appDefaults(store)));
   const record = await store.getAppLayout(app.id);
   const published = record?.published ?? null;
   const defaults = await appDefaults(store);
-  if (published) return withBuiltInTexts(layoutForPlan(withFreshTranslations(published, app), app, plan, defaults));
+  if (published) return withBuiltInTexts(layoutForPlan(withFreshTranslations(await schoolNews(store, app, published), app), app, plan, defaults));
   const content = defaultLayout(app, await unpublishedDefaults(store, record), app.createdAt);
   return withBuiltInTexts(layoutForPlan({ version: `default.${sha256Hex(JSON.stringify(content)).slice(0, 16)}`, ...content }, app, plan, defaults));
 }

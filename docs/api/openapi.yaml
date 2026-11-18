@@ -17701,6 +17701,13 @@ components:
             the shop opened on this category or collection, saved with a
             story's button in Dashboard › Stories. Apps before release 9 open
             the shop.
+        teacher_id:
+          type: [integer, 'null']
+          description: |
+            179.6 With `screen` `teachers` in an academy with many teachers: opens
+            this teacher's page (one of the academy's, `TeacherSummary.id`). Hosted
+            `GET /pages` sends it on the taps of Rawaq's faculty (each entry one of
+            the academy's teachers). Apps that don't know it open the Teachers list.
         course_id: { type: [integer, 'null'], description: For `course`. }
         item: { $ref: '#/components/schemas/ItemRef' }
         url: { type: [string, 'null'], format: uri, description: For `url`. }

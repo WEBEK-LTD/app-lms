@@ -251,6 +251,33 @@ older servers leave it out and the app shows the lines and the total as
 before. Needs the next app build (no `CLIENT_APP_RELEASE` change here) and
 plugin 0.4.51 released; not yet tried on a phone (ROADMAP 173.6).
 
+Roadmap 179 (the education templates, tested by hand): Nakhla School's
+look A home ran the template's words in its News pill, which customers'
+apps leave out, so every school showed "News" with nothing after it; it now
+runs the school's own news to everyone (Dashboard › School › News), newest
+first, and goes when there is none. Rawaq Academy's faculty (look A's
+index, look B's slides and rings) named the template's four teachers in
+every academy; it is now the academy's own active teachers, featured
+first, with their subjects and, on B, their newest course, and goes when
+there is none. Both are made when the pages are served, so apps already
+made from the templates have them with no change to their pages, and the
+pages' version follows the news and the teachers. Studio's inspector says
+so over them. The academy's and the school's tabs (Teachers, My courses,
+the parent's day, the school week) now end above the looks' floating tab
+bars (Roadmap 158's `endRoom`); that needs the next app build (no
+`CLIENT_APP_RELEASE` change here). Nakhla's "Forms to sign" card showed the
+word SIGNATURE on Studio's canvas; its icon is in the site's icon font now.
+A row of buttons only (Rawaq B's slides, the classic academy and
+university heroes) puts its last buttons on a second line when they don't
+fit at a large text, instead of running past the screen; as designed when
+they fit (next app build). A faculty entry opens its teacher's page (the
+contract's new `Action.teacher_id`; older apps open the Teachers list), a
+card's price beside its title is never wider than the card's label, and
+Studio's canvas draws the ticker and the faculty with the school's news and
+the academy's teachers.
+Not yet tried on a phone (ROADMAP 179.9); the WordPress dev site was not
+run (179.10).
+
 Roadmap 181 (what 157 to 163 left open for Leqaa and Kech Flora): under a
 premium header that folds as the page scrolls, a quick fling now ends at
 the page's end on Android and the iPhone (it could stop up to about 10

@@ -3,7 +3,9 @@
 import { useDashT } from "@/components/dashboard-i18n";
 import type { Pickable } from "@/lib/hosted/pages/pickable";
 import type { StudioNode } from "@/lib/pages/types";
+import { isTemplateNewsTicker } from "@/lib/school/news-ticker";
 import { templateCategoryList } from "@/lib/studio/shop-categories";
+import { inTemplateFaculty } from "@/lib/teachers/faculty";
 import { eachNode } from "@/lib/studio/tree";
 import { Glyph } from "./shared";
 
@@ -28,6 +30,26 @@ export function CategoryListNote({ node, body, pickable }: { node: StudioNode; b
         <Glyph name="category" size={18} />
       </span>
       <span>{t(own ? "studio.catListOwn" : "studio.catListTemplate")}</span>
+    </p>
+  );
+}
+
+/**
+ * 179 Over Nakhla's news ticker and Rawaq's faculty still as the template
+ * made them: in the app they show the school's own news and the academy's
+ * own teachers (lib/school/news-ticker.ts, lib/teachers/faculty.ts);
+ * changing their words makes them the owner's.
+ */
+export function TemplateDataNote({ node, body }: { node: StudioNode; body: StudioNode }) {
+  const t = useDashT();
+  const kind = isTemplateNewsTicker(node) ? "news" : inTemplateFaculty(body, node.id) ? "faculty" : null;
+  if (!kind) return null;
+  return (
+    <p data-template-data-note={kind} className="m-0 flex items-start gap-2 px-4 py-3 text-xs" style={{ borderBottom: "1px solid var(--sf-line)", background: "var(--sf-select-fill)", color: "var(--sf-ink)" }}>
+      <span style={{ color: "var(--sf-select-ink)" }}>
+        <Glyph name={kind === "news" ? "campaign" : "co_present"} size={18} />
+      </span>
+      <span>{t(kind === "news" ? "studio.schoolNewsNote" : "studio.facultyNote")}</span>
     </p>
   );
 }

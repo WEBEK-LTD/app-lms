@@ -74,7 +74,7 @@ import { BannerControls, BeforeAfterControls, GalleryControls, IndicatorLookCont
 // 129.11–129.20 The premium elements' options and lists, and a layout's premium card style.
 import { PremiumControls, SurfaceControls } from "./premium-controls";
 import { CommerceControls } from "./commerce-controls";
-import { CategoryListNote } from "./category-list-note";
+import { CategoryListNote, TemplateDataNote } from "./category-list-note";
 import { fromDashboard, isStoryElement, StoriesSourceControls } from "./stories-source-controls";
 import { Glyph } from "./shared";
 
@@ -183,6 +183,7 @@ export function Inspector(props: Props) {
       </div>
       {node && !props.headerSelected ? <Tools {...props} node={node} /> : null}
       {node && !props.headerSelected ? <CategoryListNote node={node} body={props.page.body} pickable={props.pickable} /> : null}
+      {node && !props.headerSelected ? <TemplateDataNote node={node} body={props.page.body} /> : null}
       {props.tabsSelected ? (
         <TabsPanel {...props} />
       ) : props.headerSelected ? (
