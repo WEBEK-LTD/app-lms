@@ -39,6 +39,12 @@ import { effectivePlans } from "@/lib/entitlements";
 import { getPlans } from "@/lib/settings/platform";
 import { clientSeesFailureLog, failureExplanation, noMacRunner } from "@/lib/builds/failures";
 import { preflightChecks, renderCheck } from "@/lib/builds/preflight";
+import { AppCheckList } from "@/components/app-check-list";
+import { appCheckable } from "@/lib/studio/app-check";
+import { checkAppOrNull } from "@/lib/studio/app-check-env";
+import { appCheckShown } from "@/lib/builds/app-check-run";
+import { localeInfo } from "@/lib/i18n/locales";
+import { formatNumber } from "@/i18n/format";
 import { preflightDeps } from "@/lib/builds/preflight-env";
 import { GoBackForm, RebuildForm, RetryBuildForm, RolloutButtons, StagedReleaseForm, StartBuildForm, VersionsForm } from "./start-build";
 import { APP_REVIEW_TEXT } from "@/lib/publishing/app-review-submit";
@@ -143,6 +149,57 @@ function Times({ build, now, text }: { build: Build; now: Date; text: DashboardT
         </div>
       ) : null}
     </dl>
+  );
+}
+
+/**
+ * 182 What the check after the build found: the app opened at a phone's size,
+ * every screen, in its main language and one more at a larger text size.
+ */
+function BuildAppCheckView({ build, now, text }: { build: Build; now: Date; text: DashboardText }) {
+  const { t, lang } = text;
+  const check = appCheckShown(build, now);
+  if (!check) return null;
+  const passes = check.passes.map((p) => t("appCheck.buildCheckPass", { language: localeInfo(p.lang)?.nativeName ?? p.lang, scale: formatNumber(lang, p.scale) })).join(" · ");
+  const issues = check.issues.slice(0, 12);
+  return (
+    <div className="flex flex-col gap-2" data-build-app-check={check.status}>
+      <h3 className="m-0 text-sm font-bold text-(--sp-ink)">{t("appCheck.buildCheck")}</h3>
+      {check.status === "running" ? (
+        <p className="m-0 text-sm text-(--sp-muted)">{t("appCheck.buildCheckRunning")}</p>
+      ) : check.status === "failed" ? (
+        <KitCallout tone="warn" icon="info">
+          {t("appCheck.buildCheckFailed")}
+        </KitCallout>
+      ) : check.issues.length === 0 ? (
+        <KitCallout tone="info" icon="task_alt">
+          {t("appCheck.buildCheckClean", { passes })}
+        </KitCallout>
+      ) : (
+        <>
+          <KitCallout tone="warn" icon="warning">
+            {t("appCheck.buildCheckFound", { passes })}
+          </KitCallout>
+          <ul className="m-0 flex list-none flex-col gap-1.5 p-0">
+            {issues.map((issue, i) => {
+              const route = issue.kind === "request" ? "" : t("appCheck.buildIssueRoute", { route: issue.route });
+              return (
+                <li key={i} data-build-issue={issue.kind} className="flex items-start gap-2 text-sm text-(--sp-ink)">
+                  <Icon name={issue.kind === "overflow" ? "warning" : "error"} size={18} className={issue.kind === "overflow" ? "text-warn" : "text-danger"} />
+                  <span className="min-w-0">
+                    {t(issue.kind === "overflow" ? "appCheck.buildIssueOverflow" : issue.kind === "error" ? "appCheck.buildIssueError" : "appCheck.buildIssueRequest", { route })}{" "}
+                    <span className="text-xs text-(--sp-muted)">
+                      ({localeInfo(issue.lang)?.nativeName ?? issue.lang}, {formatNumber(lang, issue.scale)})
+                    </span>
+                  </span>
+                </li>
+              );
+            })}
+          </ul>
+          {check.issues.length > issues.length ? <p className="m-0 text-xs text-(--sp-muted)">{t("appCheck.more", { count: check.issues.length - issues.length })}</p> : null}
+        </>
+      )}
+    </div>
   );
 }
 
@@ -277,6 +334,8 @@ export default async function BuildsPage({ searchParams }: PageProps<"/dashboard
 
   // 87.1 What the next build would trip over.
   const checks = currentPlan ? await preflightChecks(preflightDeps(store), app, { ios: hasFeature(currentPlan, "ios"), autoPublish: hasFeature(currentPlan, "auto_publish") }) : [];
+  // 182 The app as its customers see it now (what's published, in each language): errors stop the next build.
+  const appCheck = isStudioProject(app) && appCheckable(app) ? await checkAppOrNull(store, app, { draft: false }, now) : null;
   const setupDone = isSetupComplete(app, plan, effective);
   // 104.6 One build at a time for the app, its courier app's included.
   const running = isInProgress((await store.listBuildsByApp(app.id, 1, "all"))[0] ?? null, now);
@@ -637,6 +696,16 @@ export default async function BuildsPage({ searchParams }: PageProps<"/dashboard
         </KitSection>
       ) : null}
 
+      {appCheck && appCheck.problems.length ? (
+        <KitSection id="app-check" titleId="h-app-check" title={t("appCheck.title")} flush>
+          <div className={kit.card}>
+            <div className="p-4">
+              <AppCheckList report={appCheck} build />
+            </div>
+          </div>
+        </KitSection>
+      ) : null}
+
       {/* 132.172 The builds as a table (the version, the platforms, when, the state); a build's details, its stages, what went
           wrong and its log, and making it again, in the inspector. */}
       {builds.length ? (
@@ -690,6 +759,7 @@ export default async function BuildsPage({ searchParams }: PageProps<"/dashboard
                     <KitInspectorHead badges={<BuildPill build={build} text={text} />} title={t("builds.buildTitle", { number: build.number, version: build.versionName })} line={t("builds.versionCode", { code: build.versionCode })} />
                     <Times build={build} now={now} text={text} />
                     <BuildStages stages={build.stages} lang={lang} look="pills" />
+                    <BuildAppCheckView build={build} now={now} text={text} />
                     {build.status === "queued" || build.status === "building" ? <p className="m-0 text-sm text-(--sp-muted)">{k(statusExplanation(build, now))}</p> : null}
                     {build.status === "failed" ? (
                       <KitCallout tone={noMacRunner(build) ? "warn" : "danger"} icon={noMacRunner(build) ? "schedule" : "error"}>

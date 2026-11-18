@@ -1,3 +1,4 @@
+import type { App } from "../data/types";
 import { runAutoBuilds } from "../builds/auto";
 import { runAutoScreenshots } from "../app/auto-screenshots-jobs";
 import { runAppReleaseBuilds, type AppReleaseReport } from "../builds/app-release";
@@ -94,6 +95,8 @@ export async function runFrequentJobs(deps: {
   platformUrl?: string;
   /** 87.4 The checks before the automatic builds, and how the pipeline is started. */
   preflight?: PreflightDeps;
+  /** 182 The app check of an app an automatic build was queued for (it tells the team and the owner; never stops the build). */
+  appCheck?: (app: App) => Promise<void>;
   startPipeline?: () => Promise<unknown>;
   /** 140 The build workflow's latest runs (null: GitHub can't say); with startPipeline, a build waiting 10 minutes asks again. */
   pipelineRuns?: () => Promise<PipelineRuns | null>;
@@ -139,7 +142,7 @@ export async function runFrequentJobs(deps: {
   // 87.4 The automatic builds of the latest saves that are due.
   let builds = { queued: 0, nothing: 0, later: 0 };
   try {
-    builds = await runAutoBuilds({ store: deps.store, now: deps.now, assetUrl, preflight: deps.preflight, start: deps.startPipeline ?? (async () => undefined) });
+    builds = await runAutoBuilds({ store: deps.store, now: deps.now, assetUrl, preflight: deps.preflight, start: deps.startPipeline ?? (async () => undefined), appCheck: deps.appCheck });
   } catch (error) {
     console.error("[frequent] automatic builds", error instanceof Error ? error.message : String(error));
   }
@@ -159,7 +162,12 @@ export async function runFrequentJobs(deps: {
       assetUrl,
       preflight: deps.preflight,
       start: deps.startPipeline ?? (async () => undefined),
-      queue: async ({ client, app, license, variant, versionName, appRelease }) => queueBuild(deps.store, { client, app, license, versionName, variant, cause: "app_release", appRelease }, deps.now, assetUrl, deps.preflight),
+      queue: async ({ client, app, license, variant, versionName, appRelease }) => {
+        const queued = await queueBuild(deps.store, { client, app, license, versionName, variant, cause: "app_release", appRelease }, deps.now, assetUrl, deps.preflight);
+        // 182 Yallapp's own release reaches every app; the app check only tells.
+        if (queued.ok && variant === "app") await deps.appCheck?.(app);
+        return queued;
+      },
     });
   } catch (error) {
     console.error("[frequent] app release builds", error instanceof Error ? error.message : String(error));

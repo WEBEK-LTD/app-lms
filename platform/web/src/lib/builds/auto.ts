@@ -59,6 +59,8 @@ export interface AutoBuildDeps {
   preflight?: PreflightDeps;
   /** Starts the pipeline once when something was queued. */
   start: () => Promise<unknown>;
+  /** 182 The app check of an app whose automatic build was queued: it tells, it never stops the build. */
+  appCheck?: (app: App) => Promise<void>;
 }
 
 /** The frequent job: queues the automatic builds that are due and still bring something. */
@@ -93,7 +95,10 @@ export async function runAutoBuilds(deps: AutoBuildDeps): Promise<{ queued: numb
       continue;
     }
     const result = await queueBuild(store, { client, app, license, versionName: bumpPatch(last.versionName) }, now, deps.assetUrl, deps.preflight);
-    if (result.ok) queued += 1;
+    if (result.ok) {
+      queued += 1;
+      await deps.appCheck?.(app);
+    }
   }
   if (queued > 0) await deps.start();
   return { queued, nothing, later };

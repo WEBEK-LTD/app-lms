@@ -7,6 +7,9 @@ import { ownerLang } from "@/lib/app/owner-lang";
 import { startDraftIn, startLanguages, wordsLangOf } from "@/lib/app/start-language";
 import { inMainLanguage } from "@/lib/pages/builtin";
 import { STUDIO_ONLY_KINDS, isStudioProject, studioPathFor } from "@/lib/studio/section";
+import type { DataStore } from "@/lib/data/store";
+import { APP_CHECK_TEXT, appCheckable, checkErrors } from "@/lib/studio/app-check";
+import { checkAppOrNull } from "@/lib/studio/app-check-env";
 import { applyProjectTemplate, projectTemplateOf } from "@/lib/studio/project-templates";
 import { appWords } from "@/lib/studio/app-words";
 import { dashboardText } from "@/lib/dashboard-lang";
@@ -1060,8 +1063,13 @@ async function startBuild(
   variant: BuildVariant = "app",
   /** 142 Only this platform's app (Android only / iPhone only); missing: both. */
   only?: BuildPlatform,
-): Promise<{ ok: true; number: number; versionName: string } | { ok: false; message: string; versionTooLow: boolean }> {
+  /** 182 The app check: true, its warnings don't ask first ("Build anyway", Try again); its errors always stop the build. */
+  anyway = false,
+): Promise<{ ok: true; number: number; versionName: string } | { ok: false; message: string; versionTooLow: boolean; confirm?: true }> {
   const store = await getStore();
+  // 182 The app as its customers would see it: a build the owner starts waits until what's broken is fixed.
+  const blocked = await appCheckBlocks(store, context.app, variant, anyway);
+  if (blocked) return { ok: false, message: blocked.message, versionTooLow: false, ...(blocked.confirm ? { confirm: true as const } : {}) };
   const result = await queueBuild(store, { client: context.client, app: context.app, license: context.license, versionName, variant, ...(only ? { only } : {}) }, new Date(), assetUrl, preflightDeps(store));
   if (!result.ok && result.reason === "preflight") {
     // 87.1 The first thing to fix; the Builds page lists them all.
@@ -1097,6 +1105,22 @@ async function startBuild(
   return { ok: true, number: result.build.number, versionName: result.build.versionName };
 }
 
+/**
+ * 182 Whether the app check stops a build the owner starts: errors always
+ * (fixed in Studio and published first), warnings until "Build anyway". The
+ * customers' app of a Studio project whose pages Yallapp serves; automatic
+ * builds never come here (lib/studio/app-check-alerts.ts tells instead).
+ */
+async function appCheckBlocks(store: DataStore, app: App, variant: BuildVariant, anyway: boolean): Promise<{ message: string; confirm: boolean } | null> {
+  if (variant !== "app" || !isStudioProject(app) || !appCheckable(app)) return null;
+  // Fails open: a check that can't run lets the build go (the team is told).
+  const check = await checkAppOrNull(store, app, { draft: false });
+  if (!check) return null;
+  if (checkErrors(check).length) return { message: APP_CHECK_TEXT.buildBlocked, confirm: false };
+  if (check.warnings && !anyway) return { message: APP_CHECK_TEXT.buildConfirm, confirm: true };
+  return null;
+}
+
 /** The build's app: the customers' (default), 104.6 the couriers' or drivers', 115.16 the vendors', or 116 the staff's. */
 function buildVariantOf(formData: FormData): BuildVariant {
   const v = formData.get("variant");
@@ -1114,8 +1138,9 @@ export async function startBuildAction(_: FormState, formData: FormData): Promis
   const values = formValues(formData);
   const parsed = startBuildSchema.safeParse(Object.fromEntries(formData));
   if (!parsed.success) return { errors: fieldErrors(parsed.error), values };
-  const result = await startBuild(context, parsed.data.versionName, buildVariantOf(formData), buildOnlyOf(formData));
-  if (!result.ok) return { message: result.message, errors: result.versionTooLow ? { versionName: result.message } : undefined, values };
+  const result = await startBuild(context, parsed.data.versionName, buildVariantOf(formData), buildOnlyOf(formData), formData.get("anyway") === "1");
+  // 182 Warnings of the app check: the form offers "Build anyway".
+  if (!result.ok) return { message: result.message, errors: result.versionTooLow ? { versionName: result.message } : undefined, values: result.confirm ? { ...values, appCheck: "confirm" } : values };
   return { ok: true, message: `Build #${result.number} is queued.`, values: { versionName: bumpPatch(result.versionName) } };
 }
 
@@ -1127,8 +1152,8 @@ export async function retryBuildAction(_: FormState, formData: FormData): Promis
   const context = await requireApp("settings");
   const parsed = startBuildSchema.safeParse(Object.fromEntries(formData));
   if (!parsed.success) return { message: "This build can't be started again. Use Start new build." };
-  // 142 The same app or apps as the build that didn't finish.
-  const result = await startBuild(context, parsed.data.versionName, buildVariantOf(formData), buildOnlyOf(formData));
+  // 142 The same app or apps as the build that didn't finish. 182 Its warnings were asked about when it was started.
+  const result = await startBuild(context, parsed.data.versionName, buildVariantOf(formData), buildOnlyOf(formData), true);
   if (!result.ok) return { message: result.message };
   redirect(`/dashboard/builds?queued=${result.number}`);
 }
@@ -1145,6 +1170,9 @@ export async function rebuildBuildAction(_: FormState, formData: FormData): Prom
   if (!from || from.appId !== context.app.id || from.status !== "ready" || !from.sourceCommit) return { message: "This build can't be rebuilt as it was." };
   const variant = from.variant ?? "app";
   const latest = (await store.listBuildsByApp(context.app.id, 1, variant))[0] ?? null;
+  // 182 Rebuilt from the config it had, but with the pages the app serves now: what's broken there stops it too.
+  const blocked = await appCheckBlocks(store, context.app, variant, true);
+  if (blocked) return { message: blocked.message };
   const result = await queueBuild(
     store,
     { client: context.client, app: context.app, license: context.license, versionName: suggestedVersion(latest), from, variant },

@@ -43,6 +43,9 @@ import type { OwnDesignView } from "@/lib/studio/own-designs";
 import { canvasWords, type CanvasWords } from "./canvas-words";
 import { DesignsGallery, type GalleryDesign } from "./designs-gallery";
 import { PublishHistory } from "./publish-history";
+import { AppCheckDialog } from "./app-check-dialog";
+import type { AppCheckReport } from "@/lib/studio/app-check";
+import type { AppProblem } from "@/lib/studio/app-check-rules";
 import { TextStylesPanel } from "./text-styles-panel";
 import { download, fileName, fromBase64, readFont, readPicture, type OwnFontFiles } from "./design-io";
 import { fontUpload, ImportDialog, type ImportChoice } from "./import-dialog";
@@ -108,6 +111,9 @@ export interface StudioEditorProps {
   shareUrl?: string;
   fontCount: number;
   startSlug: string | null;
+  /** 182 An app check's Fix link: the element to select on that page, and the language to edit it in. */
+  startSelect?: string | null;
+  startLang?: string | null;
   studioOnPlan: boolean;
   /** 103R.7 The project's type: its own templates and sections come first. */
   kind: ProjectKind;
@@ -148,10 +154,10 @@ export function StudioEditor(props: StudioEditorProps) {
   const textStyles = useMemo(() => textStylesOf(layout), [layout]);
   const textStyleCount = useMemo(() => textStyleUse(layout), [layout]);
   const [slug, setSlug] = useState(() => layout.pages.find((p) => p.slug === props.startSlug)?.slug ?? layout.pages.find((p) => p.studio)?.slug ?? layout.pages[0]?.slug ?? "");
-  const [selectedId, setSelectedId] = useState<string | null>(null);
+  const [selectedId, setSelectedId] = useState<string | null>(() => props.startSelect ?? null);
   const [hoveredId, setHoveredId] = useState<string | null>(null);
   const [device, setDevice] = useState<Device>("phone");
-  const [lang, setLang] = useState<LanguageCode>(layout.languages.default);
+  const [lang, setLang] = useState<LanguageCode>(() => (props.startLang && layout.languages.available.includes(props.startLang) ? props.startLang : layout.languages.default));
   const [dark, setDark] = useState(false);
   const [zoom, setZoom] = useState<number>(100);
   const [zoomOpen, setZoomOpen] = useState(false);
@@ -165,6 +171,8 @@ export function StudioEditor(props: StudioEditorProps) {
   const [problem, setProblem] = useState<string | null>(null);
   const [notice, setNotice] = useState<string | null>(null);
   const [publishing, setPublishing] = useState(false);
+  // 182 What the app check found on the last Publish (errors stop it; warnings ask first).
+  const [check, setCheck] = useState<AppCheckReport | null>(null);
   const [publishes, setPublishes] = useState<LayoutHistoryEntry[]>(props.initial.history ?? []);
   const [restoring, setRestoring] = useState(false);
   const [myTemplates, setMyTemplates] = useState(props.myTemplates);
@@ -424,12 +432,26 @@ export function StudioEditor(props: StudioEditorProps) {
     return () => window.removeEventListener("beforeunload", warn);
   }, []);
 
-  async function publish() {
+  async function publish(anyway = false) {
     setPublishing(true);
     setNotice(null);
     const sent = edits.current;
     try {
-      const r = await publishLayoutAction(JSON.stringify(layout));
+      // 182 The warnings published anyway before, in this browser: asked again only when they changed.
+      const seen = readSeenWarnings();
+      const r = await publishLayoutAction(JSON.stringify(layout), { anyway, seen });
+      if (anyway && check?.warningsKey) keepSeenWarnings(check.warningsKey);
+      // 182 The app check: not published, the draft saved; its list says what to fix (or to publish anyway).
+      if (!r.ok && r.check) {
+        setCheck(r.check);
+        if (edits.current === sent) {
+          dirty.current = false;
+          setStatus("saved");
+        }
+        setNotice(known(r.errors[0] ?? ""));
+        return;
+      }
+      setCheck(null);
       if (applied(r, sent) && r.ok) setNotice(props.studioOnPlan ? t("studio.published") : t("studio.publishedOff"));
       if (r.ok && r.history) setPublishes(r.history);
     } catch {
@@ -1745,12 +1767,45 @@ export function StudioEditor(props: StudioEditorProps) {
           languages={layout.languages}
         />
       ) : null}
+      {check ? (
+        <AppCheckDialog
+          report={check}
+          busy={publishing}
+          onClose={() => setCheck(null)}
+          onAnyway={() => void publish(true)}
+          onFix={(p: AppProblem) => {
+            setCheck(null);
+            if (p.page && layout.pages.some((pg) => pg.slug === p.page)) setSlug(p.page);
+            if (p.lang && layout.languages.available.includes(p.lang)) setLang(p.lang);
+            setSelectedId(p.element && p.element.includes(":") ? "tabs" : (p.element ?? null));
+          }}
+        />
+      ) : null}
       {askHand ? <ByHandDialog onConfirm={() => goByHand(askHand)} onCancel={cancelByHand} /> : null}
     </div>
   );
 }
 
 /** 107.1 Copying in another tab of the editor shows here too. */
+/** 182 The app check's warnings the owner published anyway (their fingerprint), kept in this browser. */
+const SEEN_WARNINGS = "yallapp.studio.appCheckSeen";
+
+function readSeenWarnings(): string | null {
+  try {
+    return window.localStorage.getItem(SEEN_WARNINGS);
+  } catch {
+    return null;
+  }
+}
+
+function keepSeenWarnings(key: string): void {
+  try {
+    window.localStorage.setItem(SEEN_WARNINGS, key);
+  } catch {
+    // Without storage, Studio asks again the next time.
+  }
+}
+
 function onStorage(changed: () => void): () => void {
   window.addEventListener("storage", changed);
   return () => window.removeEventListener("storage", changed);

@@ -92,6 +92,9 @@ export default async function StudioEditorPage({ searchParams }: PageProps<"/stu
       phoneQr={<QrCode value={`${appUrl()}${previewAppPath(createPreviewToken({ appId: app.id, draft: draftPreviewSupported(app) }, previewKey(signingSecret()), now))}`} label={t("preview.qr", { app: app.appName ?? t("setup.yourApp") })} size={168} />}
       fontCount={FREE_FONT_COUNT}
       startSlug={typeof query.page === "string" ? query.page : null}
+      // 182 An app check's Fix link (Builds, Admin): the element and the language.
+      startSelect={typeof query.select === "string" ? query.select : null}
+      startLang={typeof query.lang === "string" ? query.lang : null}
       // Designing works on any plan; the app gets the design with Studio on the plan (before activation, everything).
       studioOnPlan={plan ? hasFeature(plan, "studio") : true}
       kind={{ type: app.appType, vertical: app.vertical ?? null }}

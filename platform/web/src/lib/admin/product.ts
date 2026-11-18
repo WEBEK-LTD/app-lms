@@ -143,6 +143,7 @@ const STAGE_LABEL: Record<string, string> = {
   upload_appgallery: "AppGallery upload",
   upload_xiaomi: "Xiaomi upload",
   app_review: "Sent to App Review",
+  app_check: "App check",
 };
 
 export function stageLabel(stage: string): string {

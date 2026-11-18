@@ -86,6 +86,15 @@ export function StartBuildForm({
           </SubmitButton>
         </div>
       ) : null}
+      {/* 182 The app check found only things to look at: the owner may build all the same. */}
+      {state.values?.appCheck === "confirm" && !second ? (
+        <div className="flex flex-wrap items-center gap-2 sm:justify-end" data-build-anyway="">
+          <SubmitButton variant="secondary" className="h-9 px-3 text-sm" name="anyway" value="1" pendingText={t("builds.starting")} pendingFor={{ name: "anyway", value: "1" }}>
+            <Icon name="build" size={18} />
+            {t("appCheck.buildAnyway")}
+          </SubmitButton>
+        </div>
+      ) : null}
       {error ? (
         <span id={`${id}-error`} className="text-[13px] font-semibold text-danger">
           {known(error)}

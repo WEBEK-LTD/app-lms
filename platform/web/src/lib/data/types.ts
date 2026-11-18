@@ -15,15 +15,17 @@ import type { StudioScreens } from "../studio/screens";
 export type ClientStatus = "pending" | "active" | "suspended";
 export type LicenseState = "active" | "expired" | "suspended" | "invalid";
 export type BuildStatus = "queued" | "building" | "ready" | "failed";
-export type StageKey = "queued" | "android" | "ios" | "upload_play" | "upload_testflight" | MoreStoreStage | "app_review";
+export type StageKey = "queued" | "android" | "ios" | "upload_play" | "upload_testflight" | MoreStoreStage | "app_review" | "app_check";
 /** 35, 36, 42 Uploads to Samsung Galaxy Store, Huawei AppGallery and Xiaomi GetApps: builds queued before them don't have these stages. */
 export type MoreStoreStage = "upload_galaxy" | "upload_appgallery" | "upload_xiaomi";
 /**
  * A build's stages. 138 `app_review`: the iPhone version sent to App Review
  * by the platform once TestFlight has it (lib/publishing/app-review-submit.ts);
- * builds queued before don't have it.
+ * builds queued before don't have it. 182 `app_check`: the app opened in a
+ * browser after its build, every screen (build/scripts/check_app.mjs); it
+ * never holds the build; builds before don't have it.
  */
-export type BuildStages = Record<Exclude<StageKey, MoreStoreStage | "app_review">, StageStatus> & Partial<Record<MoreStoreStage | "app_review", StageStatus>>;
+export type BuildStages = Record<Exclude<StageKey, MoreStoreStage | "app_review" | "app_check">, StageStatus> & Partial<Record<MoreStoreStage | "app_review" | "app_check", StageStatus>>;
 export type StageStatus = "pending" | "running" | "done" | "failed" | "skipped";
 export type ArtifactKind = "apk" | "aab" | "ipa" | "keystore" | "store_assets";
 /** Every kind of uploaded asset (`assets.kind`, at most ASSET_KIND_LENGTH characters: lib/db/schema.ts). */
@@ -1041,10 +1043,48 @@ export interface Build {
   rebuildOf?: number | null;
   /** 89.2 How "We publish for you" releases it (the app's staged release when queued); null: as before. */
   release?: BuildRelease | null;
+  /** 182 What the check after the build found in the app itself (stage `app_check`); null or missing: not run. */
+  appCheck?: BuildAppCheck | null;
   createdAt: Date;
   startedAt: Date | null;
   finishedAt: Date | null;
   updatedAt: Date;
+}
+
+/** 182 One pass of the check after a build: a language at a text size, and the screens it opened. */
+export interface BuildAppCheckPass {
+  lang: string;
+  scale: number;
+  routes: number;
+}
+
+export const BUILD_ISSUE_KINDS = ["overflow", "error", "request"] as const;
+export type BuildIssueKind = (typeof BUILD_ISSUE_KINDS)[number];
+
+/** 182 What went wrong on a screen: something past its room, a Flutter or uncaught error, a request that failed. */
+export interface BuildAppIssue {
+  kind: BuildIssueKind;
+  lang: string;
+  scale: number;
+  /** The app's route ("/", "/page/offers"), or the address of the request that failed. */
+  route: string;
+  /** The first line of what the app said, for the team. */
+  message: string;
+}
+
+/** 182 The check after a build (docs/api/pipeline.yaml › AppCheckResult). */
+export interface BuildAppCheck {
+  /** "running" from the claim, "done" when reported, "failed" when it couldn't finish. */
+  status: "running" | "done" | "failed";
+  at: string;
+  /** The width and height of the phone (points). */
+  viewport?: { width: number; height: number };
+  passes: BuildAppCheckPass[];
+  issues: BuildAppIssue[];
+  /** Why it couldn't finish. */
+  message?: string | null;
+  /** Whether the preview ran in its check mode (text size, Flutter's own errors and overflows); false: only uncaught errors and failed requests. */
+  checkMode?: boolean;
 }
 
 /**
@@ -6545,7 +6585,7 @@ export interface JobRun {
 }
 
 /** 151 `build_no_mac`: GitHub had no Mac for a build's iOS job (one per build). */
-export type TeamAlertKind = "build_waiting" | "build_stalled" | "build_no_mac" | "job_missing" | "job_failed" | "crash_spike" | "push_failed" | "health" | "integration" | "mail_slow" | "firebase" | "publishing_full" | "market_payouts";
+export type TeamAlertKind = "build_waiting" | "build_stalled" | "build_no_mac" | "job_missing" | "job_failed" | "crash_spike" | "push_failed" | "health" | "integration" | "mail_slow" | "firebase" | "publishing_full" | "market_payouts" | "app_check";
 
 /**
  * 78.3 Something the team should look at (lib/watch), in the admin's bell

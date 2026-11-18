@@ -398,7 +398,7 @@ export type SchoolRowKind =
 export type SigningKeyColumn = "androidUploadKeyEncrypted" | "iosDistributionEncrypted";
 export type SigningKeysPatch = Partial<Record<SigningKeyColumn, string>>;
 export type BuildPatch = Partial<
-  Pick<Build, "status" | "stages" | "artifacts" | "message" | "logUrl" | "failure" | "sourceCommit" | "startedAt" | "finishedAt" | "release">
+  Pick<Build, "status" | "stages" | "artifacts" | "message" | "logUrl" | "failure" | "sourceCommit" | "startedAt" | "finishedAt" | "release" | "appCheck">
 >;
 export type ReleasePatch = Partial<Pick<PluginRelease, "changelog" | "requiresWp" | "requiresPhp" | "testedWp" | "published">>;
 

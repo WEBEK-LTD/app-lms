@@ -28,9 +28,10 @@ const STAGE_LABEL: Record<StageKey, DashKey> = {
   upload_appgallery: "overview.stageAppgallery",
   upload_xiaomi: "overview.stageXiaomi",
   app_review: "overview.stageAppReview",
+  app_check: "overview.stageAppCheck",
 };
 
-const ORDER: StageKey[] = ["queued", "android", "ios", "upload_play", "upload_testflight", "app_review", "upload_galaxy", "upload_appgallery", "upload_xiaomi"];
+const ORDER: StageKey[] = ["queued", "android", "ios", "upload_play", "upload_testflight", "app_review", "upload_galaxy", "upload_appgallery", "upload_xiaomi", "app_check"];
 
 /** 132.141 A build's status as the premium kit's pill tones. */
 export const BUILD_TONE: Record<BuildStatus, "success" | "danger" | "warn" | "neutral"> = { ready: "success", failed: "danger", building: "warn", queued: "neutral" };

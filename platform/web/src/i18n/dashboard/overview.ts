@@ -139,6 +139,7 @@ export const en = {
   stageXiaomi: "Upload to Xiaomi GetApps",
   /** 138 */
   stageAppReview: "Send to App Review",
+  stageAppCheck: "App check",
   // /pending
   pendingTitle: "Account pending activation",
   noProfile: "This account has no client profile",
@@ -302,6 +303,7 @@ export const ar: Messages = {
   stageAppgallery: "الرفع إلى AppGallery",
   stageXiaomi: "الرفع إلى Xiaomi GetApps",
   stageAppReview: "الإرسال لمراجعة App Store",
+  stageAppCheck: "فحص التطبيق",
   pendingTitle: "الحساب بانتظار التفعيل",
   noProfile: "لا يوجد ملف عميل لهذا الحساب",
   noProfileText: "راسلنا على WhatsApp وسنحلّ الأمر.",
@@ -461,6 +463,7 @@ export const tr: Messages = {
   stageAppgallery: "AppGallery'ye yükleme",
   stageXiaomi: "Xiaomi GetApps'e yükleme",
   stageAppReview: "App Review'a gönderme",
+  stageAppCheck: "Uygulama kontrolü",
   pendingTitle: "Hesap etkinleştirme bekliyor",
   noProfile: "Bu hesabın müşteri profili yok",
   noProfileText: "WhatsApp'tan bize yazın, hemen çözelim.",

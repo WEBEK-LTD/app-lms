@@ -71,6 +71,19 @@ test.afterAll(async () => {
   await own.context().close();
 });
 
+/**
+ * Publish, as the owner does. 182 The owner's English text shows as it is in
+ * another of the app's languages: the app check's warning, published anyway.
+ */
+async function publish(): Promise<void> {
+  await own.getByRole("button", { name: "Publish", exact: true }).click();
+  const done = own.getByText("Published. The app shows it the next time it opens.");
+  const anyway = own.getByRole("dialog", { name: "Before your customers see it" }).getByRole("button", { name: "Publish anyway" });
+  await expect(done.or(anyway)).toBeVisible();
+  if (await anyway.isVisible()) await anyway.click();
+  await expect(done).toBeVisible();
+}
+
 /** The published preview's token: the app as it is, what's published, before the project has its plan. */
 async function publishedToken(): Promise<string> {
   await own.goto("/studio/project/preview?pages=published");
@@ -104,8 +117,7 @@ test("a heading renamed in Studio and published reaches the app in English, Arab
   await expect(inApp.locator('[data-language="ar"]')).toHaveText("Arabic: shows your text");
   await expect(inApp.locator('[data-language="tr"]')).toHaveAttribute("data-state", "none");
 
-  await own.getByRole("button", { name: "Publish", exact: true }).click();
-  await expect(own.getByText("Published. The app shows it the next time it opens.")).toBeVisible();
+  await publish();
 
   const token = await publishedToken();
   for (const lang of ["en", "ar", "tr"]) {
@@ -125,8 +137,7 @@ test("the Arabic translation the owner writes by hand is the one the Arabic app 
   await phone.getByText("What our customers say", { exact: true }).first().click();
   await inspector.getByRole("textbox", { name: "Text", exact: true }).fill("آراء عملائنا");
   await expect(inspector.locator('[data-text-in-app="text"] [data-language="ar"]')).toHaveAttribute("data-state", "own");
-  await own.getByRole("button", { name: "Publish", exact: true }).click();
-  await expect(own.getByText("Published. The app shows it the next time it opens.")).toBeVisible();
+  await publish();
   const token = await publishedToken();
   expect(await home(request, token, "ar")).toContain("آراء عملائنا");
   const english = await home(request, token, "en");

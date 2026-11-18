@@ -153,6 +153,65 @@ paths:
         '409': { $ref: '#/components/responses/Conflict' }
         '429': { $ref: '#/components/responses/TooManyRequests' }
 
+  /builds/{id}/app-check/claim:
+    post:
+      tags: [Builds]
+      operationId: claimAppCheck
+      summary: Start the check after a build
+      description: |
+        182 The check after the build starts: the app preview's signed link,
+        the passes and the routes to open. Only the customers' app of a build
+        the pipeline made (`building` or `ready`); `409 build_not_built` for a
+        build still queued or failed, `409 not_checkable` for another app or
+        one without pages. The build's `app_check` stage becomes `running`.
+      parameters:
+        - $ref: '#/components/parameters/BuildId'
+      responses:
+        '200':
+          description: What to open
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/AppCheckPlan' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '404': { $ref: '#/components/responses/NotFound' }
+        '409': { $ref: '#/components/responses/Conflict' }
+        '429': { $ref: '#/components/responses/TooManyRequests' }
+
+  /builds/{id}/app-check:
+    post:
+      tags: [Builds]
+      operationId: reportAppCheck
+      summary: Report what the check after a build found
+      description: |
+        182 Kept on the build and shown in Builds and to the team (Admin ›
+        Watching, one alert per app and set of issues). Taken whatever the
+        build's state, after it finished too: the check never holds or fails
+        the build.
+      parameters:
+        - $ref: '#/components/parameters/BuildId'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/AppCheckResult' }
+      responses:
+        '200':
+          description: Kept
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties: false
+                required: [id, status, issues]
+                properties:
+                  id: { type: string, format: uuid }
+                  status: { type: string, enum: [done, failed] }
+                  issues: { type: integer, description: "The issues kept (each once)." }
+        '400': { $ref: '#/components/responses/BadRequest' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '404': { $ref: '#/components/responses/NotFound' }
+        '429': { $ref: '#/components/responses/TooManyRequests' }
+
   /builds/{id}/secrets:
     get:
       tags: [Signing]
@@ -445,7 +504,11 @@ components:
         `pending` with `upload_testflight`; the pipeline reports `pending` after
         an upload to TestFlight and `skipped` otherwise, and the platform sets
         `done` once the version is in App Review (or `skipped` when a newer
-        build replaced it). Builds queued before 138 don't have it.
+        build replaced it). Builds queued before 138 don't have it. 182
+        `app_check`: the check after the build (`POST /builds/{id}/app-check/claim`
+        sets it `running`, the result `done` or `failed`); it never holds the
+        build, so it often changes after the build is `ready`. Builds before 182
+        don't have it.
       additionalProperties: false
       properties:
         queued: { $ref: '#/components/schemas/StageStatus' }
@@ -457,6 +520,87 @@ components:
         upload_appgallery: { $ref: '#/components/schemas/StageStatus' }
         upload_xiaomi: { $ref: '#/components/schemas/StageStatus' }
         app_review: { $ref: '#/components/schemas/StageStatus' }
+        app_check: { $ref: '#/components/schemas/StageStatus' }
+
+    AppCheckPlan:
+      description: |
+        182 What the check after a build opens. Each pass opens `preview_url`
+        (the app preview with `check=1`: it prints `YALLAPP_CHECK {json}` lines
+        on the console for Flutter's errors and overflows) with `lang=<lang>`
+        added, at `viewport`, with `storage` in the browser's local storage
+        first and the page's root font size at `16 × scale` pixels (Flutter's
+        text scale on the web), then each of `routes` after the hash.
+      type: object
+      additionalProperties: false
+      required: [build_id, app_id, preview_url, storage, viewport, passes, routes]
+      properties:
+        build_id: { type: string, format: uuid }
+        app_id: { type: string, format: uuid }
+        preview_url: { type: string, format: uri, description: "A signed, read-only preview link of 2 hours (published pages, or the draft before the first publish)." }
+        storage:
+          type: object
+          additionalProperties: { type: string }
+        viewport:
+          type: object
+          additionalProperties: false
+          required: [width, height]
+          properties:
+            width: { type: integer, example: 360 }
+            height: { type: integer, example: 800 }
+        passes:
+          type: array
+          description: The main language at 1.0, then one more (Arabic when the app has it) at 1.3.
+          items:
+            type: object
+            additionalProperties: false
+            required: [lang, scale]
+            properties:
+              lang: { type: string, pattern: '^[a-z]{2,3}$' }
+              scale: { type: number, minimum: 0.5, maximum: 3 }
+        routes:
+          type: array
+          maxItems: 40
+          description: "Home (`/`), each page the app serves (`/page/<slug>`), the screens its tabs, More and menu open, and its kind's main lists."
+          items: { type: string }
+
+    AppCheckIssue:
+      type: object
+      additionalProperties: false
+      required: [kind, lang, scale, route, message]
+      properties:
+        kind:
+          type: string
+          enum: [overflow, error, request]
+          description: Something past its room, a Flutter or uncaught error, or a request that failed.
+        lang: { type: string, pattern: '^[a-z]{2,3}$' }
+        scale: { type: number, minimum: 0.5, maximum: 3 }
+        route: { type: string, maxLength: 500, description: "The screen's route, or for `request` the host and path that failed (never its query)." }
+        message: { type: string, maxLength: 500 }
+
+    AppCheckResult:
+      description: 182 What the check after a build found.
+      type: object
+      additionalProperties: false
+      required: [status]
+      properties:
+        status: { type: string, enum: [done, failed] }
+        passes:
+          type: array
+          maxItems: 10
+          items:
+            type: object
+            additionalProperties: false
+            required: [lang, scale, routes]
+            properties:
+              lang: { type: string, pattern: '^[a-z]{2,3}$' }
+              scale: { type: number, minimum: 0.5, maximum: 3 }
+              routes: { type: integer, minimum: 0, description: "The screens that opened." }
+        issues:
+          type: array
+          maxItems: 500
+          items: { $ref: '#/components/schemas/AppCheckIssue' }
+        message: { type: [string, 'null'], maxLength: 2000, description: "Why it couldn't finish, or that its time ran out." }
+        check_mode: { type: boolean, description: "Whether the preview ran in its check mode (false, an older preview: only uncaught errors and failed requests)." }
 
     PlayRelease:
       type: object

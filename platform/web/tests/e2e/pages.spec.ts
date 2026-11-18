@@ -151,6 +151,40 @@ test.afterAll(async () => {
   await new Promise((resolve) => figma.close(resolve));
 });
 
+/**
+ * 182 Publish through the app check: each button that opens nothing is opened
+ * with its Fix link and made to open Home, each label left alone removed,
+ * then published again; the texts not translated into the app's other
+ * languages only ask, and are published anyway. Called after a click on Publish.
+ */
+async function publishFixingTaps(page: Page): Promise<void> {
+  const published = page.getByText(/^Published\./);
+  const check = page.getByRole("dialog", { name: "Before your customers see it" });
+  await expect(published.or(check)).toBeVisible();
+  const fixable = '[data-problem="dead_tap"], [data-problem="label_alone"]';
+  while ((await check.count()) && (await check.locator(fixable).count())) {
+    await expect(check.getByRole("button", { name: "Publish anyway" })).toHaveCount(0);
+    const row = check.locator(fixable).first();
+    const rule = await row.getAttribute("data-problem");
+    const fix = row.locator("a[data-fix]");
+    const id = (await fix.getAttribute("data-fix"))!;
+    await fix.click();
+    await expect(check).toHaveCount(0);
+    // A button: it opens Home. A label left alone: removed, as the owner is told.
+    if (rule === "dead_tap") await page.locator(`select#action-${id}`).selectOption("page:home");
+    else await page.keyboard.press("Delete");
+    await page.getByRole("button", { name: "Publish", exact: true }).click();
+    await expect(published.or(check)).toBeVisible();
+  }
+  if (await check.count()) {
+    // Anything else it found must be only warnings: an error left is named here.
+    const errors = await check.locator('[data-severity="error"]').evaluateAll((rows) => rows.map((r) => `${r.textContent} (${r.getAttribute("data-path")})`));
+    expect(errors, "the app check's errors left").toEqual([]);
+    await check.getByRole("button", { name: "Publish anyway" }).click();
+  }
+  await expect(published).toBeVisible();
+}
+
 test("the team sets the look and languages new apps start with", async () => {
   await admin.goto("/admin/settings/app-defaults");
   const defaults = admin.getByRole("region", { name: "Defaults for new apps" });
@@ -917,8 +951,10 @@ test("103R the team offers a Studio plan; the client makes a Studio project apar
   await expect(phone.locator("[data-studio-tab-center]")).toHaveCount(1);
 
   // Before a plan the project tries everything; publishing works.
+  // 182 The app check: the imported designs' buttons open nothing, so Publish stops on them; Fix opens each.
   await own.getByRole("button", { name: "Publish", exact: true }).click();
-  await expect(own.getByText("Published. The app shows it the next time it opens.")).toBeVisible();
+  await expect(own.getByRole("dialog", { name: "Before your customers see it" }).locator('[data-problem="dead_tap"]')).toHaveCount(3);
+  await publishFixingTaps(own);
   // The draft keeps it.
   await own.goto("/studio/editor?page=spring");
   await expect(own.getByRole("main", { name: "The page in the phone" }).getByText("Hello Studio")).toBeVisible();
@@ -1057,9 +1093,9 @@ test("112.4 a store project starts from a full shop, with a store's sections and
   // ——— end 129.11–129.20 ———
   await expect(own.getByRole("status").filter({ hasText: "Saved just now" })).toBeVisible({ timeout: 10_000 });
 
-  // The page checker takes it all: published.
+  // The page checker takes it all: published. 182 Once the new sections' buttons open something (the app check).
   await own.getByRole("button", { name: "Publish", exact: true }).click();
-  await expect(own.getByText(/^Published\./)).toBeVisible();
+  await publishFixingTaps(own);
 
   // Back to the regular app, for the specs after this one.
   await own.goto("/studio");

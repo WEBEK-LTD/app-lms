@@ -24,6 +24,9 @@ import { refreshSitesSoon } from "@/lib/license/refresh-soon";
 import { designFitsApp, findDesign } from "@/lib/pages/designs/catalog";
 import { demoOfDesign } from "@/lib/demo/look";
 import { seedForDesign } from "@/lib/samples/server";
+import { APP_CHECK_TEXT, appCheckable, checkErrors, type AppCheckReport } from "@/lib/studio/app-check";
+import { checkAppOrNull } from "@/lib/studio/app-check-env";
+import { isStudioProject } from "@/lib/studio/section";
 
 // 10.4 The page and look editor's saves: the draft, publishing and discarding it.
 
@@ -47,7 +50,11 @@ export type LayoutSaveResult =
       blocks?: BlockIssue[];
       /** 1.1 Not published, but the draft is saved without those blocks. */
       draftSaved?: true;
+      /** 182 Not published: the app check found errors, or warnings to publish anyway (`confirm`). The draft is saved. */
+      check?: AppCheckReport;
+      confirm?: true;
     };
+
 
 type LayoutSaved = Extract<LayoutSaveResult, { ok: true }>;
 
@@ -231,12 +238,28 @@ export async function saveLayoutDraftAction(json: string): Promise<LayoutSaveRes
   return saved.incomplete.length ? { ...result(saved.value), incomplete: saved.incomplete } : result(saved.value);
 }
 
-export async function publishLayoutAction(json: string): Promise<LayoutSaveResult> {
+/**
+ * Publishes the draft. 182 `anyway`: published whatever the app check's
+ * warnings; `seen`: the warnings the owner already published anyway (their
+ * fingerprint), not asked about again while they're the same.
+ */
+export async function publishLayoutAction(json: string, options: { anyway?: boolean; seen?: string | null } = {}): Promise<LayoutSaveResult> {
   const { app, user, staff, license } = await requireLayoutApp();
   const store = await getStore();
   const now = new Date();
   // 13.1 The published layout keeps to the app's plan (its languages).
   const input = parseJson(json);
+  // 182 A Studio project is checked as its customers would see it before it's published: the draft saved, then read
+  // the way a phone reads it in each of its languages. Errors stop the publish; warnings ask first.
+  if (isStudioProject(app) && appCheckable(app)) {
+    const saved = await saveDraft(store, app, input, now);
+    if (saved.ok) {
+      // 182 Fails open: a check that can't run lets the owner publish (the team is told).
+      const check = await checkAppOrNull(store, app, { draft: true }, now);
+      if (check && checkErrors(check).length) return { ok: false, errors: [APP_CHECK_TEXT.blocked], check, draftSaved: true };
+      if (check && check.warnings && !options.anyway && check.warningsKey !== options.seen) return { ok: false, errors: [APP_CHECK_TEXT.confirm], check, confirm: true, draftSaved: true };
+    }
+  }
   const published = await publishLayout(store, app, input, (staff ?? user).email, now, await appPlan(store, license, now));
   if (!published.ok) {
     // 1.1 Blocks still to fill in: the draft is saved without them, as the autosave does.

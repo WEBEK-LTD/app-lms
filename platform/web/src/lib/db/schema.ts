@@ -89,7 +89,7 @@ import type {
   ChatReportOutcome,
 } from "../data/types";
 // 11.6 and 11.8
-import type { AutoScreenshots, BuildFailure, BuildRelease, BuildVariant, ListingTranslation, ReviewsRow, RolloutState, ScreenshotFrame, StagedRelease } from "../data/types";
+import type { AutoScreenshots, BuildAppCheck, BuildFailure, BuildRelease, BuildVariant, ListingTranslation, ReviewsRow, RolloutState, ScreenshotFrame, StagedRelease } from "../data/types";
 import type { ApiWebhookData, OwnFontFile, StorePurchaseEventKind, StoreAccountSource, StoreBillingItem, StoreBillingSettings, StorePlatform, StoreProductKind, StoreProductSync } from "../data/types";
 import type { AnnouncementAudience, AnnouncementKind, AnnouncementSeverity, CouponDiscount, CouponRedemption } from "../data/types";
 import type { Plan, PlanFeature } from "../plans";
@@ -512,6 +512,8 @@ export const builds = mysqlTable(
     rebuildOf: int("rebuild_of"),
     // 89.2 How it's released.
     release: jsonText<BuildRelease>("release"),
+    // 182 What the check after the build found in the app itself (BuildAppCheck).
+    appCheck: jsonText<BuildAppCheck>("app_check"),
     createdAt: time("created_at").notNull(),
     startedAt: time("started_at"),
     finishedAt: time("finished_at"),

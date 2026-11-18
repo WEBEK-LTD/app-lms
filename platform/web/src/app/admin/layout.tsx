@@ -76,6 +76,8 @@ export default async function AdminLayout({ children }: { children: React.ReactN
                 { href: "/admin/calls", label: "Calls", icon: "call", badge: { count: callsAsked, label: callsAsked === 1 ? "call to confirm" : "calls to confirm" } },
                 { href: "/admin/builds", label: "Build queue", icon: "build" },
                 { href: "/admin/crashes", label: "Crashes", icon: "warning" },
+                // 182 Each app as its customers see it: the app check.
+                { href: "/admin/app-check", label: "App check", icon: "fact_check" },
                 { href: "/admin/publishing", label: "Publishing", icon: "publish", badge: { count: openPublishing, label: openPublishing === 1 ? "open request" : "open requests" } },
                 { href: "/admin/account-deletion", label: "Account deletion", icon: "delete_forever", badge: { count: openDeletions, label: openDeletions === 1 ? "open request" : "open requests" } },
                 { href: "/admin/deleted-apps", label: "Deleted apps", icon: "restore_from_trash", badge: { count: deletedApps, label: deletedApps === 1 ? "app to restore or delete" : "apps to restore or delete" } },

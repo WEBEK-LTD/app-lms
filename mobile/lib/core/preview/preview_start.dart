@@ -18,6 +18,7 @@ import '../web/browser_frame.dart';
 import '../web/web_view.dart';
 import '../widgets/common.dart';
 import 'preview.dart';
+import 'preview_check.dart';
 import 'preview_widgets.dart';
 
 /// 17 Starts the app preview (the web build): reads the build config for the
@@ -28,6 +29,8 @@ import 'preview_widgets.dart';
 Future<void> runPreview({Uri? address, Dio? http}) async {
   final page = address ?? Uri.base;
   final launch = PreviewLaunch.fromUri(page);
+  // 182 The check after a build: what goes wrong is reported on the console.
+  if (PreviewCheck.requested(page)) PreviewCheck.start();
   if (launch == null) {
     return runApp(const PreviewMessageApp(problem: PreviewProblem.noLink));
   }

@@ -8,6 +8,29 @@ Last updated: 18 November 2026.
 
 ## Current release
 
+Roadmap 182 (every app checked as its owner makes it): each client's real
+app is read the way a phone reads it, in each of its languages, against the
+template guard's rules, now product code (`lib/studio/app-check-rules.ts`).
+Publish in Studio stops on what the customers would see broken (a tap that
+opens nothing or something that isn't there, a page that doesn't load, a
+[placeholder], an empty list under its title, a price the app can't show),
+with each problem's sentence and a Fix link to the element. Warnings
+(untranslated texts, a demo's words, an empty photo, a price written into
+words) ask "Publish anyway". A build the owner starts is checked the same
+way ("Build anyway" for warnings). Automatic builds are never stopped: their
+errors alert the team in Admin › Watching and email the owner once per set.
+After each client build, a new job opens the app's preview in Chromium at
+360 × 800 on every screen, in the main language at text size 1.0 and one
+more at 1.3, and reports Flutter's errors and failed requests on the build
+(stage `app_check`), shown in Builds and Admin › App check; overflows too
+once the preview is rebuilt with its new check mode (182.8a). It never
+holds a build, and a checker that fails lets the owner go ahead. Errors also
+cover a template's sample data where the business's belongs and a label
+left alone. 25 of the 67 templates have errors on `main` as an owner gets
+them, fixed in the templates by 166 and 176–180 (182.12). One migration,
+`0145_build_app_check`. Not run yet against a real build on GitHub's
+runners (182.9).
+
 Roadmap 157 (the template's categories are the shop's): Leqaa's occasion
 rings, chips and ticker and its collections' bento, arches and cards were
 the template's own words, opening the whole shop, whatever categories the

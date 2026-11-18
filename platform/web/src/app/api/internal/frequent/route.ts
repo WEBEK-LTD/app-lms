@@ -11,6 +11,7 @@ import { fetchWaitingPhotos } from "@/lib/market/photos";
 import { safeFetcher } from "@/lib/net/safe-fetch";
 import { errorResponse, hasBearerToken, json } from "@/lib/http";
 import { runFrequentJobs } from "@/lib/jobs/frequent";
+import { checkBeforeAutomaticBuild } from "@/lib/studio/app-check-env";
 import { runRekey } from "@/lib/jobs/rekey";
 import { ownerPushDeps } from "@/lib/owner/push-env";
 import { recordJobRun } from "@/lib/watch/runs";
@@ -50,6 +51,8 @@ export async function POST(request: Request): Promise<Response> {
       refresh: { testSiteUrl: licenseRefreshTestUrl() },
       // 87.4 Automatic builds: the checks before them, and the pipeline started at once.
       preflight: preflightDeps(store),
+      // 182 The app check of each app an automatic build is queued for: the team and the owner are told, the build goes ahead.
+      appCheck: (app) => checkBeforeAutomaticBuild(store, app, now),
       startPipeline,
       // 140 A build waiting 10 minutes with no run going: the pipeline asked again.
       pipelineRuns,
