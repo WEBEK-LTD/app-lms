@@ -45,6 +45,8 @@ test.beforeAll(async ({ browser }) => {
   await admin.waitForURL((url) => url.pathname.startsWith("/admin"));
   await admin.goto(`/admin?q=${encodeURIComponent(client.email)}`);
   await admin.getByRole("link", { name: `Activate ${client.name}` }).click();
+  // A Studio plan as it comes, without "Motion in the editor" (pages.spec.ts turns it on for studio_1 on this server).
+  await admin.getByRole("complementary").getByLabel("Plan", { exact: true }).selectOption("studio_2");
   await admin.getByRole("complementary").getByRole("button", { name: "Activate & send license" }).click();
   await expect(admin.getByRole("status")).toContainText("Activated");
   await admin.close();
@@ -91,13 +93,22 @@ test("174.2 a rounded button's corner handles can be grabbed: a drag sizes it, a
   await corner.scrollIntoViewIfNeeded();
   expect(await reachable(corner)).toBe(true);
   const at = (await corner.boundingBox())!;
-  await own.mouse.move(at.x + at.width / 2, at.y + at.height / 2);
-  await own.mouse.down();
-  for (let i = 1; i <= 5; i += 1) await own.mouse.move(at.x + at.width / 2 + 8 * i, at.y + at.height / 2 + 2 * i);
-  await own.mouse.up();
+  const drag = async () => {
+    await own.mouse.move(at.x + at.width / 2, at.y + at.height / 2);
+    await own.mouse.down();
+    for (let i = 1; i <= 5; i += 1) await own.mouse.move(at.x + at.width / 2 + 8 * i, at.y + at.height / 2 + 2 * i);
+    await own.mouse.up();
+  };
+  // 159 Its size is automatic: the first drag asks, the handle having been reached (not the element under it).
+  await drag();
+  const ask = own.getByRole("alertdialog", { name: "Change this element's size by hand?" });
+  await expect(ask).toBeVisible();
+  await ask.getByRole("button", { name: "Change by hand" }).click();
+  await drag();
   await expect(inspector.getByRole("spinbutton", { name: "Width", exact: true })).toHaveValue(/^\d+$/);
+  // A double click on another corner (reached too) puts it back to its automatic size.
   await phone.locator('[data-studio-resize="top-left"]').dblclick();
-  await expect(inspector.getByRole("spinbutton", { name: "Width", exact: true })).toHaveCount(0);
+  await expect(inspector.locator("[data-studio-size-mode]")).toHaveAttribute("data-studio-size-mode", "auto");
 });
 
 test("174.4 the Motion tab says the plan leaves motion out, and what a plan with it turns on", async () => {

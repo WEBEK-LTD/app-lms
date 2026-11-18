@@ -808,7 +808,7 @@ function Node(props: ViewProps & { node: StudioNode; parentDir: Dir; inStack?: I
     : {};
   const content = Content(locked && !props.lockedAbove ? { ...props, lockedAbove: true } : props);
   return (
-    <div style={{ ...style, ...layoutStyle(node) }} data-studio-node={node.id} data-studio-enter={entranceMark(node.motion)} data-studio-ken-burns={node.ken_burns && node.type !== "slider" ? "" : undefined} {...handlers}>
+    <div style={{ ...style, ...layoutStyle(node) }} data-studio-node={node.id} data-studio-selected={selected && editing ? "" : undefined} data-studio-enter={entranceMark(node.motion)} data-studio-ken-burns={node.ken_burns && node.type !== "slider" ? "" : undefined} {...handlers}>
       {/* 129 A premium card style's ticket perforation and texture, over it without taking room. */}
       {node.surface && (node.surface.ticket || node.surface.pattern) ? <SurfaceExtras s={node.surface} dark={dark} /> : null}
       {content}
