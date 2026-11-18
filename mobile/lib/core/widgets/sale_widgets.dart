@@ -449,7 +449,9 @@ class _ProductFlashSaleState extends State<ProductFlashSale> {
               const SizedBox(width: 6),
               Expanded(
                 child: Text(
-                  l10n.flashSaleTitle,
+                  // 168 The owner's name for the sale, in the app's language.
+                  sale.titleIn(Localizations.localeOf(context).languageCode) ??
+                      l10n.flashSaleTitle,
                   style: TextStyle(
                     fontSize: 14,
                     fontWeight: FontWeight.w800,

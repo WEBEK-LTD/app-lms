@@ -10,6 +10,8 @@ import { handleHosted, type HostedContext, type HostedResult } from "@/lib/hoste
 import { DEFAULT_GIFTS } from "@/lib/selling/gifts";
 import { breakdownJson, quoteShipping, shippingLineLabel, shippingRulesOf } from "@/lib/selling/shipping";
 import { catalogSettings } from "@/lib/catalog/settings";
+import { withSale } from "@/lib/selling/flash-sales";
+import type { StoreFlashSale } from "@/lib/data/types";
 import { clearPlatformSettingsCache } from "@/lib/settings/platform";
 import { NOW, setupClient } from "./helpers";
 
@@ -124,5 +126,47 @@ describe("168 the gift checkout's quote and payment", () => {
     expect(cityOptionalFor({ delivery: { ...gift.delivery!, place: { country: "MA", city: "Marrakech", lat: null, lng: null } } } as Pick<CatalogOrder, "delivery">)).toBe(false);
     // One letter typed is still too short.
     expect(readCustomer(app, { ...values, city: "M" }, { cityOptional: true })).toMatchObject({ ok: false });
+  });
+});
+
+describe("168 a flash sale on a product with sizes, and the sale's name", () => {
+  const sale: StoreFlashSale = {
+    id: 4,
+    appId: "a",
+    title: "Eid roses",
+    titles: { ar: "ورود العيد", tr: "Bayram gülleri" },
+    productIds: [7],
+    categoryId: null,
+    discount: { kind: "percent", percent: 20 },
+    startsAt: new Date("2026-11-18T00:00:00Z"),
+    endsAt: new Date("2026-11-21T00:00:00Z"),
+    limit: 10,
+    sold: 0,
+    platformCode: null,
+    active: true,
+    createdAt: new Date("2026-11-17T00:00:00Z"),
+    updatedAt: new Date("2026-11-17T00:00:00Z"),
+  };
+  const now = new Date("2026-11-18T12:00:00Z");
+  const sized = {
+    id: 7,
+    price: { amount: "300.00", regular_amount: null, currency: "MAD", formatted: "MAD 300.00 – MAD 500.00", on_sale: false, range: true, max_amount: "500.00" },
+  };
+
+  it("lists a product with sizes on sale, both ends at the sale's price, its cheapest size's sale", () => {
+    const out = withSale(sized, [sale], now) as { price: Record<string, unknown>; sale: Record<string, unknown> };
+    expect(out.price).toMatchObject({ amount: "240.00", max_amount: "400.00", on_sale: true, range: true });
+    expect(out.price.formatted).toMatch(/240\.00.*400\.00/);
+    expect(out.sale).toMatchObject({ was: "300.00", now: "240.00", percent_off: 20, flash_sale_id: 4, remaining: 10, title: "Eid roses", titles: { ar: "ورود العيد", tr: "Bayram gülleri" } });
+    // Not in the sale, or the sale over: as it was.
+    expect((withSale({ ...sized, id: 8 }, [sale], now) as { sale: unknown }).sale).toBeNull();
+    expect((withSale(sized, [sale], new Date("2026-11-22T00:00:00Z")) as { sale: unknown }).sale).toBeNull();
+  });
+
+  it("a simple product's sale carries the sale's name too; the source's own sale has none", () => {
+    const simple = { id: 7, price: { amount: "450.00", regular_amount: null, currency: "MAD", formatted: "MAD 450.00", on_sale: false, range: false } };
+    expect((withSale(simple, [sale], now) as { sale: Record<string, unknown> }).sale).toMatchObject({ now: "360.00", title: "Eid roses" });
+    const own = { id: 9, price: { amount: "80.00", regular_amount: "100.00", currency: "MAD", formatted: "MAD 80.00", on_sale: true, range: false } };
+    expect((withSale(own, [sale], now) as { sale: Record<string, unknown> }).sale).not.toHaveProperty("title");
   });
 });

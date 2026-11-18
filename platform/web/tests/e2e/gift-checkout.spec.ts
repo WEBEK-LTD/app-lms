@@ -90,6 +90,19 @@ test("the shop: dirhams, the gift checkout, delivery times, shipping by distance
 
   await own.goto("/dashboard/selling");
   const mode = own.locator("[data-checkout-mode]");
+  // 168 What the app's customers get, as soon as the shop is made: the app's config says it,
+  // and Delivery & offers says the same (it said "Standard checkout" and delivery days off).
+  const config = (await (await own.request.get(`${api}/config?platform=android&app_version=1.0.0`)).json()) as { store: { checkout_mode: string; delivery_date: { enabled: boolean; required: boolean } } };
+  expect(config.store.checkout_mode, "Leqaa's look turns the gift checkout on").toBe("gift");
+  {
+    expect(config.store.delivery_date).toMatchObject({ enabled: true, required: true });
+    await expect(mode.getByLabel(/^Gift checkout/)).toBeChecked();
+    await expect(own.getByText("Gift checkout", { exact: true }).first()).toBeVisible();
+    await own.getByRole("tab", { name: "Delivery times" }).click();
+    await expect(own.locator("[data-delivery-form]").getByLabel("Customers choose the delivery day")).toBeChecked();
+    await expect(own.locator("[data-delivery-form]").getByLabel("A day (and a time) must be chosen")).toBeChecked();
+    await own.getByRole("tab", { name: "Checkout" }).click();
+  }
   await mode.getByLabel(/^Gift checkout/).check();
   await mode.getByRole("button", { name: "Save" }).click();
   await expect(mode.getByText("Saved.")).toBeVisible();
@@ -136,6 +149,35 @@ test("the shop: dirhams, the gift checkout, delivery times, shipping by distance
   const detail = (await (await own.request.get(`${api}/store/products/${rosesId}`)).json()) as { addons: { id: number; name: string }[] };
   cardId = detail.addons.find((a) => a.name === "Greeting Card")!.id;
   expect(cardId).toBeGreaterThan(0);
+});
+
+test("168 a flash sale on a product with sizes is listed on sale, with the owner's name for it", async ({ request }) => {
+  const all = (await (await request.get(`${api}/store/products?per_page=50`)).json()) as { items: { id: number; name: string; price: { range: boolean } }[] };
+  const sized = all.items.find((p) => p.price.range);
+  expect(sized, "Leqaa's samples have a bouquet in sizes").toBeTruthy();
+  const local = (at: Date) => new Intl.DateTimeFormat("sv-SE", { timeZone: "Africa/Casablanca", year: "numeric", month: "2-digit", day: "2-digit", hour: "2-digit", minute: "2-digit" }).format(at).replace(" ", "T");
+  await own.goto("/dashboard/selling");
+  await own.getByRole("button", { name: "Add a flash sale" }).click();
+  const flash = own.getByRole("dialog", { name: "Add a flash sale" }).locator("[data-flash-form]");
+  await flash.getByLabel("Name", { exact: true }).fill("Eid roses");
+  await flash.getByLabel("Name in AR").fill("ورود العيد");
+  await flash.getByLabel(sized!.name, { exact: true }).check();
+  await flash.getByLabel("Value").fill("20");
+  await flash.getByLabel("Starts").fill(local(new Date(Date.now() - 3_600_000)));
+  await flash.getByLabel("Ends").fill(local(new Date(Date.now() + 86_400_000)));
+  await flash.getByRole("button", { name: "Save flash sale" }).click();
+  await expect(own.locator("[data-flash-sale]").first()).toContainText("Eid roses");
+
+  // In the list, on sale as on its page: its sizes from the sale's price, the sale named.
+  const listed = ((await (await request.get(`${api}/store/products?per_page=50`)).json()) as { items: { id: number; price: { on_sale: boolean; range: boolean }; sale: Record<string, unknown> | null }[] }).items.find((p) => p.id === sized!.id)!;
+  expect(listed.price).toMatchObject({ on_sale: true, range: true });
+  expect(listed.sale).toMatchObject({ percent_off: 20, title: "Eid roses", titles: { ar: "ورود العيد" } });
+  expect(typeof listed.sale!.flash_sale_id).toBe("number");
+  // And in the sale the home's flash element shows.
+  const sales = (await (await request.get(`${api}/store/flash-sales`, { headers: { "accept-language": "ar" } })).json()) as { items: { title: string; products: { id: number; sale: unknown }[] }[] };
+  const eid = sales.items.find((s) => s.products.some((p) => p.id === sized!.id))!;
+  expect(eid.title).toBe("ورود العيد");
+  expect(eid.products.find((p) => p.id === sized!.id)!.sale).toMatchObject({ percent_off: 20 });
 });
 
 test("the cart keeps the pin's shipping while the day waits for its time, and reads it in Arabic", async ({ request }) => {

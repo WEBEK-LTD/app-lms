@@ -21,6 +21,8 @@ class ProductSale {
     this.remaining,
     this.total,
     this.flashSaleId,
+    this.title,
+    this.titles = const {},
     String? shopNowFormatted,
   }) : shopNowFormatted = shopNowFormatted ?? nowFormatted;
 
@@ -48,6 +50,13 @@ class ProductSale {
         remaining: optInt(json, 'remaining'),
         total: optInt(json, 'total'),
         flashSaleId: optInt(json, 'flash_sale_id'),
+        title: optString(json, 'title'),
+        titles: {
+          if (json['titles'] is Map)
+            for (final e in (json['titles'] as Map).entries)
+              if (e.value is String && (e.value as String).trim().isNotEmpty)
+                '${e.key}': (e.value as String).trim(),
+        },
       );
     } on FormatException {
       return null;
@@ -73,6 +82,19 @@ class ProductSale {
   final int? remaining;
   final int? total;
   final int? flashSaleId;
+
+  /// 168 The flash sale's name as the owner wrote it; null for the source's
+  /// own sale.
+  final String? title;
+
+  /// 168 Its name in the app's other languages (`ar`, `tr`, …).
+  final Map<String, String> titles;
+
+  /// 168 Its name in [language], else as named; null without one.
+  String? titleIn(String language) {
+    final named = titles[language] ?? title;
+    return named == null || named.trim().isEmpty ? null : named.trim();
+  }
 
   /// Still on at [at]: not ended (a sale without an end is on).
   bool liveAt(DateTime at) => endsAt == null || endsAt!.isAfter(at);

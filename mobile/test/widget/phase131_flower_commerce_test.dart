@@ -10,6 +10,7 @@ import 'package:yallapp/core/format/dates.dart';
 import 'package:yallapp/core/l10n/l10n.dart';
 import 'package:yallapp/core/providers.dart';
 import 'package:yallapp/core/theme/app_theme.dart';
+import 'package:yallapp/core/theme/palette.dart';
 import 'package:yallapp/core/widgets/sale_widgets.dart';
 import 'package:yallapp/modules/shared/pages/studio_flash_sale.dart';
 import 'package:yallapp/modules/store/data/cart_controller.dart';
@@ -430,7 +431,9 @@ void main() {
           );
           await tester.pump();
           expect(tester.takeException(), isNull);
-          expect(find.text('Mother\'s Day roses'), findsOneWidget);
+          // 168 The sale's own name, not the element's (a template's) title.
+          expect(find.text('Roses'), findsOneWidget);
+          expect(find.text('Mother\'s Day roses'), findsNothing);
           expect(find.text('Red roses'), findsOneWidget);
           expect(find.text('₺500.00'), findsNWidgets(2));
           expect(find.byType(SaleChip), findsNWidgets(2));
@@ -462,6 +465,129 @@ void main() {
         });
       }
     }
+
+    // 168 The owner named the sale ("Eid roses"); the template's title is
+    // only for products on their own sale (no flash sale's name).
+    testWidgets('168 the element keeps its title only without a sale name', (
+      tester,
+    ) async {
+      final clock = DateTime.utc(2026, 11, 21, 12);
+      final json = {
+        'id': 'flash',
+        'type': 'flash_sale',
+        'flash_sale': {'look': 'carousel', 'accent': '#C2185B'},
+        'flash': {'id': null, 'title': null, 'ends_at': ends.toIso8601String()},
+        'items': [
+          {
+            'source': 'products',
+            'id': '7',
+            'title': 'Red roses',
+            'price_label': '₺400.00',
+            'sale': {
+              'was': '500.00',
+              'was_formatted': '₺500.00',
+              'now': '400.00',
+              'now_formatted': '₺400.00',
+              'percent_off': 20,
+              'ends_at': ends.toIso8601String(),
+            },
+          },
+        ],
+      };
+      await tester.pumpWidget(
+        bare(
+          StudioFlashSale(
+            node: StudioNode.tryParse(json)!,
+            title: 'Fresh picks at sale prices',
+            now: () => clock,
+          ),
+        ),
+      );
+      await tester.pump();
+      expect(find.text('Fresh picks at sale prices'), findsOneWidget);
+    });
+
+    test(
+      '168 a product\'s sale names its flash sale, in the app\'s language',
+      () {
+        final sale = ProductSale.tryParse({
+          'was': '450.00',
+          'was_formatted': 'MAD 450.00',
+          'now': '360.00',
+          'now_formatted': 'MAD 360.00',
+          'percent_off': 20,
+          'ends_at': ends.toIso8601String(),
+          'remaining': 10,
+          'flash_sale_id': 4,
+          'title': 'Eid roses',
+          'titles': {'ar': 'ورود العيد', 'tr': ''},
+        })!;
+        expect(sale.titleIn('en'), 'Eid roses');
+        expect(sale.titleIn('ar'), 'ورود العيد');
+        // An empty translation falls back to the name.
+        expect(sale.titleIn('tr'), 'Eid roses');
+        // The source's own sale: no name, the app's "Flash sale".
+        expect(
+          ProductSale.tryParse({
+            'was': '1',
+            'was_formatted': '1',
+            'now': '0.5',
+            'now_formatted': '0.5',
+            'percent_off': 50,
+            'ends_at': null,
+            'remaining': null,
+          })!.titleIn('en'),
+          isNull,
+        );
+      },
+    );
+
+    // 168 Leqaa's day plum on the night card read at about 2.1:1.
+    test(
+      '168 the price reads on the night card (4.5:1), the day colour kept',
+      () {
+        const plum = Color(0xFF8E2445);
+        const night = Color(0xFF1E1419);
+        expect(contrastRatio(plum, night), lessThan(3));
+        final price = flashPriceColor(plum, night);
+        expect(contrastRatio(price, night), greaterThanOrEqualTo(4.5));
+        // The same hue, lighter.
+        expect(
+          (HSLColor.fromColor(price).hue - HSLColor.fromColor(plum).hue).abs(),
+          lessThan(2),
+        );
+        // On the day card it stays as it is.
+        expect(flashPriceColor(plum, const Color(0xFFFFFFFF)), plum);
+      },
+    );
+
+    testWidgets('168 dark: the price drawn in its readable night colour', (
+      tester,
+    ) async {
+      final clock = DateTime.utc(2026, 11, 21, 12);
+      await tester.pumpWidget(
+        bare(
+          StudioFlashSale(
+            node: flashNode(look: 'carousel'),
+            title: null,
+            now: () => clock,
+            color: const Color(0xFF8E2445),
+          ),
+          dark: true,
+        ),
+      );
+      await tester.pump();
+      final card = tester.element(find.text('Red roses'));
+      final surface = card.palette.surface;
+      var checked = 0;
+      for (final text in tester.widgetList<Text>(find.text('₺400.00'))) {
+        final color = text.style?.color;
+        if (color == null) continue;
+        checked++;
+        expect(contrastRatio(color, surface), greaterThanOrEqualTo(4.5));
+      }
+      expect(checked, greaterThan(0));
+    });
 
     testWidgets('it is gone once the sale ends, even with reduced motion', (
       tester,
