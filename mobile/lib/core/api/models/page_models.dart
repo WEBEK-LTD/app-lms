@@ -2749,7 +2749,6 @@ class StudioNode {
     this.givenTextAlign,
     this.text,
     this.title,
-    this.name,
     this.endsAt,
     this.maxLines,
     this.imageUrl,
@@ -2901,7 +2900,6 @@ class StudioNode {
         givenTextAlign: enumOrNull(StudioTextAlign.values, json['text_align']),
         text: optString(json, 'text'),
         title: optString(json, 'title'),
-        name: optString(json, 'name'),
         endsAt: DateTime.tryParse(optString(json, 'ends_at') ?? ''),
         maxLines: optInt(json, 'max_lines'),
         imageUrl: optString(json, 'image_url'),
@@ -3171,8 +3169,10 @@ class StudioNode {
   final String id;
   final StudioNodeType type;
 
-  /// 159 The owner's name for it in Studio: what a screen reader says for
-  /// an element that opens something without words of its own.
+  /// The element's name in Studio's layers. 159 What a screen reader says
+  /// for an element that opens something without words of its own. 171 A
+  /// heading of the same name just before a timeline that follows the
+  /// person's order is its title, left out with it when there is no order.
   final String? name;
   final List<StudioNode> children;
   final StudioSize? width;
@@ -3220,11 +3220,6 @@ class StudioNode {
 
   /// 107.3 For a child of an accordion or tabs: its question or tab name.
   final String? title;
-
-  /// The element's name in Studio's layers. 171 A heading of the same name
-  /// just before a timeline that follows the person's order is its title,
-  /// left out with it when there is no order.
-  final String? name;
 
   /// 107.3 For a countdown: when the time is up.
   final DateTime? endsAt;

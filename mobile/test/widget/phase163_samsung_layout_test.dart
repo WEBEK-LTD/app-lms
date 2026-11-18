@@ -107,6 +107,7 @@ void main() {
       tester,
     ) async {
       final problems = LayoutProblems();
+      // 171 The journey and its title show with an order to follow.
       await openLeqaaPage(
         tester,
         look: 'a',
@@ -114,6 +115,7 @@ void main() {
         phone: galaxy,
         problems: problems,
         language: 'ar',
+        withOrder: true,
       );
       final title = tester.renderObject<RenderParagraph>(
         find.text('رحلة زهورك إليهم'),
@@ -128,10 +130,10 @@ void main() {
     // wip-page-scroll's (the coordinating session, 18 November); scrolled
     // to its end it is above the bar (163.2).
 
-    // The steps over the orders are the template's own (a sample, its
-    // first step lit) until the person has an order on its way; then they
-    // follow it (132.160, 132.187).
-    testWidgets('no orders: the template\'s sample steps, the first lit', (
+    // The steps over the orders follow the person's order on its way
+    // (132.160, 132.187). 171 Without one, no sample steps (they showed the
+    // template's, its first step lit): the Orders page's own "No orders yet".
+    testWidgets('no orders: no sample steps, the page\'s own empty state', (
       tester,
     ) async {
       await openLeqaaPage(
@@ -142,7 +144,7 @@ void main() {
         problems: LayoutProblems(),
         language: 'ar',
       );
-      expect(find.text('تم الطلب'), findsOneWidget);
+      expect(find.text('تم الطلب'), findsNothing);
       expect(find.textContaining('5107'), findsNothing);
       expect(find.text('لا توجد طلبات بعد'), findsOneWidget);
     });
@@ -168,12 +170,14 @@ void main() {
     testWidgets('Latin keeps its line height, the cover its height', (
       tester,
     ) async {
+      // 171 The journey's title shows with an order to follow.
       await openLeqaaPage(
         tester,
         look: 'a',
         slug: 'orders',
         phone: samsungCommon,
         problems: LayoutProblems(),
+        withOrder: true,
       );
       // Fraunces at 27 on its designed 1.04.
       final title = tester.renderObject<RenderParagraph>(
