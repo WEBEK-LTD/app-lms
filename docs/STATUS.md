@@ -21,6 +21,17 @@ yet. The wallets are expected in Safari and Chrome, not inside the apps'
 web views (ROADMAP 155.6). Not yet tried with a real Stripe account on real
 devices (ROADMAP 155.7).
 
+The plugin's end-to-end job (WordPress + Tutor LMS) no longer loses a check
+about a minute into its run (main #449 and #450, PR #454): the dev site runs
+no WP-Cron of its own (`DISABLE_WP_CRON`). WP-CLI took WordPress's cron lock
+while building the site; 60 seconds later the next request started
+wp-cron.php in the built-in server's only worker, with WordPress's update
+checks to api.wordpress.org (30 seconds each in cron, then again over plain
+HTTP), and the check waiting behind it timed out after 60 seconds. The suite
+now takes about a minute, so slower runners crossed that point. The checks
+call the cron jobs they test themselves, and the job shows the PHP log when
+it fails. Test only: the plugin stays 0.4.50.
+
 Roadmap 152 (Our bouquet's chips and button open the product the owner
 links): in Leqaa's looks and the apps made from them (Kech Flora), the
 bouquet's size chips and "Choose this bouquet" open the shop until the
