@@ -2068,16 +2068,78 @@ class FakeApi implements YallappApi {
     int? aisle,
     String? query,
     String? barcode,
-  }) => _answer(
-    'listMarketProducts',
-    () => Paged.fromJson(
-      pageJson([
-        for (final p in marketProducts[vendorId] ?? const [])
-          if (department == null || p['department_id'] == department) p,
-      ]),
-      MarketProduct.fromJson,
-    ),
-  );
+    String? cursor,
+  }) => _answer('listMarketProducts', () {
+    productQueries.add((
+      department: department,
+      aisle: aisle,
+      query: query,
+      barcode: barcode,
+      cursor: cursor,
+    ));
+    final all = [
+      for (final p
+          in marketProducts[vendorId] ?? const <Map<String, dynamic>>[])
+        if ((department == null || p['department_id'] == department) &&
+            (aisle == null || p['aisle_id'] == aisle) &&
+            (query == null ||
+                '${p['name']}'.toLowerCase().contains(query.toLowerCase())) &&
+            (barcode == null || p['barcode'] == barcode || p['sku'] == barcode))
+          p,
+    ];
+    // 115.40 Cursor pages of [productPageSize]: the cursor is the next index.
+    if (productPageSize == null) {
+      return Paged.fromJson(pageJson(all), MarketProduct.fromJson);
+    }
+    final from = int.tryParse(cursor ?? '') ?? 0;
+    final to = (from + productPageSize!).clamp(0, all.length);
+    return Paged.fromCursorJson({
+      'items': all.sublist(from.clamp(0, all.length), to),
+      'total': all.length,
+      'next_cursor': to < all.length ? '$to' : null,
+    }, MarketProduct.fromJson);
+  });
+
+  /// 115.40 The product lists asked for, and their page size (null: one page).
+  final productQueries =
+      <
+        ({
+          int? department,
+          int? aisle,
+          String? query,
+          String? barcode,
+          String? cursor,
+        })
+      >[];
+  int? productPageSize;
+
+  /// 115.40 The customer's answers to proposed items.
+  final substituteAnswers = <({int order, int line, bool accept})>[];
+
+  @override
+  Future<MarketOrder> answerMarketSubstitute(
+    int orderId,
+    int lineId, {
+    required bool accept,
+  }) => _answer('answerMarketSubstitute', () {
+    substituteAnswers.add((order: orderId, line: lineId, accept: accept));
+    final order = marketOrders[orderId] ?? marketOrderJson(id: orderId);
+    final lines = [
+      for (final l in (order['lines'] as List).cast<Map<String, dynamic>>())
+        l['id'] == lineId && l['proposal'] is Map
+            ? {
+                ...l,
+                'proposal': {
+                  ...(l['proposal'] as Map<String, dynamic>),
+                  'answer': accept ? 'accepted' : 'declined',
+                  'answered_by': 'customer',
+                },
+              }
+            : l,
+    ];
+    marketOrders[orderId] = {...order, 'lines': lines};
+    return MarketOrder.fromJson(marketOrders[orderId]!);
+  });
 
   @override
   Future<MarketSearchResult> searchMarket(
@@ -2119,12 +2181,15 @@ class FakeApi implements YallappApi {
   final marketOrders = <int, Map<String, dynamic>>{};
   String? marketPayUrl;
 
+  /// 115.40 The quote to answer with; the default one when null.
+  Map<String, dynamic>? marketQuote;
+
   @override
   Future<MarketQuote> quoteMarketOrder(MarketCartInput cart) {
     marketQuotes.add(cart);
     return _answer(
       'quoteMarketOrder',
-      () => MarketQuote.fromJson(marketQuoteJson()),
+      () => MarketQuote.fromJson(marketQuote ?? marketQuoteJson()),
     );
   }
 

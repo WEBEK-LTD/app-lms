@@ -111,8 +111,11 @@ describe("Zad, the multi-vendor demo", { timeout: 30_000 }, () => {
     const shown = await ok<{ departments: { name: string }[] }>("GET", "/market/vendors/{vendor_id}", { params: [String(market.id)] });
     expect(shown.departments.map((d) => d.name)).toEqual(MARKET_CATALOG.map((d) => d.name));
     const products = await ok<{ total: number; items: { name: string; unit: string; image_url: string | null }[] }>("GET", "/market/vendors/{vendor_id}/products", { params: [String(market.id)], query: { per_page: "50" } });
-    expect(products.total).toBe(MARKET_CATALOG.flatMap((d) => d.aisles.flatMap((a) => a.products)).length);
-    expect(products.total).toBeGreaterThanOrEqual(30);
+    // 115.24 What's out of stock (the mangoes) isn't in customers' lists (decision 15).
+    const onSale = MARKET_CATALOG.flatMap((d) => d.aisles.flatMap((a) => a.products)).filter((p) => (p as { inStock?: boolean }).inStock !== false);
+    expect(products.total).toBe(onSale.length);
+    expect(products.items.some((p) => p.name === "Mangoes")).toBe(false);
+    expect(products.total).toBeGreaterThanOrEqual(29);
     expect(products.items.filter((p) => p.unit === "kg").length).toBeGreaterThanOrEqual(8);
     // Every product with its real photo (lib/demo/zad-photos.ts), nothing generated.
     for (const p of products.items) expect(p.image_url, p.name).toMatch(/^https:\/\/yallapp\.test\/api\/v1\/assets\//);

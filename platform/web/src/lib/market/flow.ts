@@ -7,6 +7,7 @@ import { marketOrderReference } from "./json";
 import { priceOrder, type Tax } from "./money";
 import { commissionOfVendor } from "./cart";
 import { joinClub, returnToWallet } from "./offers";
+import { giveBackOrderStock, stockAfterPick } from "./stock";
 import { tellMarketCustomer, tellVendor } from "./notify";
 import { prepWithDelay } from "./vendor-controls";
 
@@ -61,6 +62,8 @@ async function move(store: DataStore, order: MarketOrder, patch: Partial<MarketO
 
 /** Gives back what an order that won't be made took: the wallet's part and the coupon's use. */
 async function giveBack(store: DataStore, order: MarketOrder, now: Date): Promise<void> {
+  // 115.24 Its counted stock, once.
+  await giveBackOrderStock(store, order, now);
   if (order.userId !== null && order.money.wallet > 0) await returnToWallet(store, { appId: order.appId, userId: order.userId, orderId: order.id, amount: order.money.wallet }, now);
   if (order.couponCode || order.money.coupon) {
     for (const c of await store.listMarketCoupons(order.appId)) await store.releaseMarketCouponUse(order.appId, c.id, order.id);
@@ -204,6 +207,8 @@ export async function pickMarketOrder(store: DataStore, order: MarketOrder, pick
   });
   const patch = { lines, money, updatedAt: now };
   if (!(await store.updateMarketOrder(order.appId, order.id, patch, { statuses: [order.status] }))) return { ok: false, reason: "changed" };
+  // 115.24 Left out: its stock back; swapped: the ordered item's back and the substitute's taken.
+  await stockAfterPick(store, order, lines, now);
   const result: MoveResult = { ok: true, order: { ...order, ...patch } };
   // Told once: when a line first comes out other than ordered.
   const changed = (l: MarketOrder["lines"][number]) => l.outcome === "missing" || l.outcome === "substituted" || (l.outcome === "picked" && l.pickedQuantity !== null && l.pickedQuantity !== l.quantity);

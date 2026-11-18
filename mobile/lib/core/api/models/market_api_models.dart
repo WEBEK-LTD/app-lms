@@ -147,7 +147,7 @@ class MarketConfig {
     this.daysAhead = 0,
     this.club = false,
     this.wallet = false,
-    this.weightTolerancePercent = 0,
+    this.weightTolerancePercent = 10,
     this.vendorAppBundled = false,
     this.courierApp = CourierApp.same,
     this.tilesUrl,
@@ -183,7 +183,8 @@ class MarketConfig {
       daysAhead: scheduling == null ? 0 : intOr(scheduling, 'days_ahead', 0),
       club: boolOr(json, 'club', false),
       wallet: boolOr(json, 'wallet', false),
-      weightTolerancePercent: intOr(json, 'weight_tolerance_percent', 0),
+      // 115.40 The server's own default (lib/market/settings.ts) when missing.
+      weightTolerancePercent: intOr(json, 'weight_tolerance_percent', 10),
       vendorAppBundled: json['vendor_app'] == 'bundle',
       courierApp: enumFromSnake(
         CourierApp.values,
@@ -494,6 +495,11 @@ class MarketProduct {
     this.inStock = true,
     this.choices = const [],
     this.tags = const [],
+    this.sku,
+    this.barcode,
+    this.stock,
+    this.soldBy,
+    this.names = const {},
   });
 
   factory MarketProduct.fromJson(Json json) => MarketProduct(
@@ -511,6 +517,15 @@ class MarketProduct {
     inStock: boolOr(json, 'in_stock', true),
     choices: listOf(json, 'choices', DishChoiceGroup.fromJson),
     tags: stringList(json, 'tags'),
+    sku: optString(json, 'sku'),
+    barcode: optString(json, 'barcode'),
+    stock: optDouble(json, 'stock'),
+    soldBy: optObject(json, 'sold_by', MarketSoldBy.fromJson),
+    names: {
+      if (json['names'] case final Map<String, dynamic> names)
+        for (final MapEntry(:key, :value) in names.entries)
+          if (value is String && value.isNotEmpty) key: value,
+    },
   );
 
   final int id;
@@ -541,7 +556,44 @@ class MarketProduct {
   /// spicy, vegetarian, vegan, new, popular, organic, frozen, age_restricted.
   final List<String> tags;
 
-  bool get byWeight => unit != ProductUnit.item;
+  /// 115.40 (Stage 1's catalog fields) The vendor's code, the barcode and
+  /// the counted stock; null from servers without them.
+  final String? sku;
+  final String? barcode;
+  final double? stock;
+
+  /// 115.40 How it is sold, with its own step, least and most; null from
+  /// older servers ([unit], [step] and [maxQuantity] say it then).
+  final MarketSoldBy? soldBy;
+
+  /// 115.40 The name in each of the app's languages, when the vendor gave them.
+  final Map<String, String> names;
+
+  bool get byWeight => soldBy?.byWeight ?? unit != ProductUnit.item;
+}
+
+/// 115.40 `MarketProduct.sold_by`: by the unit or by weight, in steps of
+/// [step] from [min] to [max] (in the product's `unit`).
+class MarketSoldBy {
+  const MarketSoldBy({
+    required this.byWeight,
+    required this.step,
+    this.min,
+    this.max,
+  });
+
+  factory MarketSoldBy.fromJson(Json json) => MarketSoldBy(
+    // `kind` (Stage 1's contract); `unit: weight` from earlier drafts.
+    byWeight: json['kind'] == 'weight' || json['unit'] == 'weight',
+    step: optDouble(json, 'step') ?? 1,
+    min: optDouble(json, 'min'),
+    max: optDouble(json, 'max'),
+  );
+
+  final bool byWeight;
+  final double step;
+  final double? min;
+  final double? max;
 }
 
 /// `MarketCoupon`: an offer or a coupon the customer can use.
@@ -723,6 +775,11 @@ class MarketOrderLine {
     this.outcome,
     this.pickedQuantity,
     this.substituteName,
+    this.substituteQuantity,
+    this.substituteTotal,
+    this.estimatedTotal,
+    this.weighedTotal,
+    this.proposal,
   });
 
   factory MarketOrderLine.fromJson(Json json) => MarketOrderLine(
@@ -745,6 +802,19 @@ class MarketOrderLine {
     outcome: optString(json, 'outcome'),
     pickedQuantity: optDouble(json, 'picked_quantity'),
     substituteName: optObject(json, 'substitute', (j) => reqString(j, 'name')),
+    substituteQuantity: optObject<double?>(
+      json,
+      'substitute',
+      (j) => optDouble(j, 'quantity'),
+    ),
+    substituteTotal: optObject<MarketMoney?>(
+      json,
+      'substitute',
+      (j) => optObject(j, 'total', MarketMoney.fromJson),
+    ),
+    estimatedTotal: optObject(json, 'estimated_total', MarketMoney.fromJson),
+    weighedTotal: optObject(json, 'weighed_total', MarketMoney.fromJson),
+    proposal: optObject(json, 'proposal', MarketProposal.fromJson),
   );
 
   final int? id;
@@ -764,6 +834,70 @@ class MarketOrderLine {
   final String? outcome;
   final double? pickedQuantity;
   final String? substituteName;
+  final double? substituteQuantity;
+  final MarketMoney? substituteTotal;
+
+  /// 115.40 (Stage 1) What the line was priced at when ordered, and what it
+  /// came to once weighed (null until picked); from older servers the
+  /// unit price × quantity, and [total] once picked.
+  final MarketMoney? estimatedTotal;
+  final MarketMoney? weighedTotal;
+
+  /// 115.40 The picker's proposed item for this line, asked live.
+  final MarketProposal? proposal;
+
+  bool get picked => outcome != null;
+  bool get byWeight => unit != ProductUnit.item;
+}
+
+/// 115.40 `MarketOrderLine.proposal`: a similar item the picker proposes
+/// while the line is out, for the customer to accept or leave out until
+/// [expiresAt]; then the order's choice answers it.
+class MarketProposal {
+  const MarketProposal({
+    required this.productId,
+    required this.name,
+    required this.quantity,
+    required this.total,
+    required this.difference,
+    required this.expiresAt,
+    this.imageUrl,
+    this.proposedAt,
+    this.answer,
+    this.answeredBy,
+  });
+
+  factory MarketProposal.fromJson(Json json) => MarketProposal(
+    productId: reqInt(json, 'product_id'),
+    name: reqString(json, 'name'),
+    imageUrl: optString(json, 'image_url'),
+    quantity: optDouble(json, 'quantity') ?? 1,
+    total: MarketMoney.fromJson(asJson(json['total'], 'total')),
+    difference: MarketMoney.fromJson(asJson(json['difference'], 'difference')),
+    proposedAt: optDate(json, 'proposed_at'),
+    expiresAt: reqDate(json, 'expires_at'),
+    answer: optString(json, 'answer'),
+    answeredBy: optString(json, 'answered_by'),
+  );
+
+  final int productId;
+  final String name;
+  final String? imageUrl;
+  final double quantity;
+  final MarketMoney total;
+
+  /// Its total less the line's; negative when it costs less.
+  final MarketMoney difference;
+  final DateTime? proposedAt;
+  final DateTime expiresAt;
+
+  /// accepted or declined; null while it waits.
+  final String? answer;
+
+  /// customer, or timeout when the order's choice answered it.
+  final String? answeredBy;
+
+  bool waiting(DateTime now) => answer == null && now.isBefore(expiresAt);
 }
 
 /// `MarketQuote`: a cart's prices, kept for `POST /market/orders` until
@@ -887,6 +1021,8 @@ class MarketOrder {
     this.complaintId,
     this.complaintUntil,
     this.timeline = const [],
+    this.ifMissing,
+    this.estimated,
   });
 
   factory MarketOrder.fromJson(Json json) {
@@ -927,6 +1063,8 @@ class MarketOrder {
       canComplain: boolOr(json, 'can_complain', false),
       complaintId: optInt(json, 'complaint_id'),
       complaintUntil: optDate(json, 'complaint_until'),
+      ifMissing: enumOrNull(MarketIfMissing.values, json['if_missing']),
+      estimated: json['estimated'] is bool ? json['estimated'] as bool : null,
       createdAt: reqDate(json, 'created_at'),
       timeline: listOf(
         json,
@@ -975,6 +1113,13 @@ class MarketOrder {
   final DateTime createdAt;
   final List<({MarketOrderStatus status, DateTime at})> timeline;
 
+  /// 115.40 The order's own "if something is missing"; null on older orders.
+  final MarketIfMissing? ifMissing;
+
+  /// 115.40 (Stage 1) True while weighed lines aren't picked; null from
+  /// servers without it.
+  final bool? estimated;
+
   bool get finished => const {
     MarketOrderStatus.delivered,
     MarketOrderStatus.pickedUp,
@@ -991,6 +1136,7 @@ class MarketCartLineInput {
     this.choices = const [],
     this.note,
     this.ifMissing,
+    this.substituteProductId,
   });
 
   final int productId;
@@ -998,8 +1144,11 @@ class MarketCartLineInput {
   final List<int> choices;
   final String? note;
 
-  /// Groceries and shops only.
+  /// Groceries and shops only; null takes the order's [MarketCartInput.ifMissing].
   final MarketIfMissing? ifMissing;
+
+  /// 115.40 The item to bring instead, for [MarketIfMissing.chosen].
+  final int? substituteProductId;
 
   Json toJson() => {
     'product_id': productId,
@@ -1007,6 +1156,8 @@ class MarketCartLineInput {
     if (choices.isNotEmpty) 'choices': choices,
     if (note != null && note!.isNotEmpty) 'note': note,
     if (ifMissing != null) 'if_missing': ifMissing!.name,
+    if (ifMissing == MarketIfMissing.chosen && substituteProductId != null)
+      'substitute_product_id': substituteProductId,
   };
 }
 
@@ -1024,6 +1175,7 @@ class MarketCartInput {
     this.scheduledFor,
     this.couponCode,
     this.useWallet = false,
+    this.ifMissing,
   });
 
   final int vendorId;
@@ -1037,9 +1189,14 @@ class MarketCartInput {
   final String? couponCode;
   final bool useWallet;
 
+  /// 115.40 Groceries and shops: what to do when something is out, for
+  /// the whole order; the lines that don't say take it.
+  final MarketIfMissing? ifMissing;
+
   Json toJson() => {
     'vendor_id': vendorId,
     'lines': [for (final l in lines) l.toJson()],
+    if (ifMissing != null) 'if_missing': ifMissing!.name,
     'fulfilment': fulfilment.name,
     if (fulfilment == MarketFulfilment.delivery && address != null)
       'dropoff': {

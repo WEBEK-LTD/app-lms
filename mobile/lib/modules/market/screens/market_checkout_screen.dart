@@ -24,6 +24,8 @@ import '../data/market_basket.dart';
 import '../data/market_models.dart';
 import '../data/market_place.dart';
 import '../data/market_providers.dart';
+import '../wallet_prefs.dart';
+import '../widgets/market_cart_parts.dart';
 import 'market_orders_screen.dart' show marketOrdersProvider;
 import '../../../core/widgets/studio_screen_scope.dart';
 
@@ -60,6 +62,11 @@ class _MarketCheckoutScreenState extends ConsumerState<MarketCheckoutScreen> {
   @override
   void initState() {
     super.initState();
+    // 115 The wallet first when the customer keeps it so (on by default),
+    // where the marketplace has a wallet.
+    _useWallet =
+        (ref.read(marketConfigProvider)?.wallet ?? false) &&
+        ref.read(walletUseFirstProvider);
     WidgetsBinding.instance.addPostFrameCallback((_) => _requote());
   }
 
@@ -93,6 +100,8 @@ class _MarketCheckoutScreenState extends ConsumerState<MarketCheckoutScreen> {
       scheduledFor: _later,
       couponCode: _appliedCoupon,
       useWallet: _useWallet,
+      // 115.40 The order's "if something is missing".
+      ifMissing: vendor.sellsGoods ? basket.ifMissing : null,
     );
   }
 
@@ -326,35 +335,90 @@ class _MarketCheckoutScreenState extends ConsumerState<MarketCheckoutScreen> {
               ],
             ),
           ),
-          const SizedBox(height: 12),
-          _Card(
-            child: Column(
-              children: [
-                for (final line in basket.lines)
-                  _BasketRow(
-                    line: line,
-                    shop: shop,
-                    onAdd: () {
-                      // 115.23 One more of this line, with its choices.
-                      ref.read(marketBasketProvider.notifier).again(line);
-                      _requote();
-                    },
-                    onRemove: () {
-                      ref
-                          .read(marketBasketProvider.notifier)
-                          .remove(line.item, line: line);
-                      _requote();
-                    },
-                    onIfMissing: (v) {
-                      ref
-                          .read(marketBasketProvider.notifier)
-                          .setIfMissing(line.item.id, v);
-                      _requote();
-                    },
-                  ),
-              ],
+          // 115.40 What to do when something is out, for the whole order.
+          if (shop) ...[
+            const SizedBox(height: 12),
+            MarketIfMissingCard(
+              value: basket.ifMissing,
+              onChanged: (v) {
+                ref.read(marketBasketProvider.notifier).setOrderIfMissing(v);
+                _requote();
+              },
             ),
-          ),
+          ],
+          const SizedBox(height: 12),
+          if (shop)
+            _Card(
+              child: Column(
+                children: [
+                  for (final (i, line) in basket.lines.indexed) ...[
+                    if (i > 0) Divider(height: 20, color: p.divider),
+                    MarketCartRow(
+                      line: line,
+                      choice: line.choiceIn(basket),
+                      currency: basket.currency,
+                      decimals: basket.decimals,
+                      onAdd: () {
+                        ref
+                            .read(marketBasketProvider.notifier)
+                            .add(
+                              vendor,
+                              line.item,
+                              currency: basket.currency,
+                              decimals: basket.decimals,
+                            );
+                        _requote();
+                      },
+                      onRemove: () {
+                        ref
+                            .read(marketBasketProvider.notifier)
+                            .remove(line.item);
+                        _requote();
+                      },
+                      onChoice: (v, substitute) {
+                        ref
+                            .read(marketBasketProvider.notifier)
+                            .setIfMissing(
+                              line.item.id,
+                              v,
+                              substitute: substitute,
+                            );
+                        _requote();
+                      },
+                    ),
+                  ],
+                ],
+              ),
+            )
+          else
+            _Card(
+              child: Column(
+                children: [
+                  for (final line in basket.lines)
+                    _BasketRow(
+                      line: line,
+                      shop: shop,
+                      onAdd: () {
+                        // 115.23 One more of this line, with its choices.
+                        ref.read(marketBasketProvider.notifier).again(line);
+                        _requote();
+                      },
+                      onRemove: () {
+                        ref
+                            .read(marketBasketProvider.notifier)
+                            .remove(line.item, line: line);
+                        _requote();
+                      },
+                      onIfMissing: (v) {
+                        ref
+                            .read(marketBasketProvider.notifier)
+                            .setIfMissing(line.item.id, v);
+                        _requote();
+                      },
+                    ),
+                ],
+              ),
+            ),
           if (config?.pickup ?? false) ...[
             const SizedBox(height: 12),
             SegmentedButton<api.MarketFulfilment>(
@@ -397,10 +461,17 @@ class _MarketCheckoutScreenState extends ConsumerState<MarketCheckoutScreen> {
                           ),
                         ),
                       ),
-                      TextButton.icon(
-                        onPressed: _locate,
-                        icon: const Icon(Symbols.my_location, size: 18),
-                        label: Text(l10n.marketUseMyLocation),
+                      // 115.40 Bigger words shrink the button, not past the card.
+                      Flexible(
+                        child: TextButton.icon(
+                          onPressed: _locate,
+                          icon: const Icon(Symbols.my_location, size: 18),
+                          label: Text(
+                            l10n.marketUseMyLocation,
+                            maxLines: 2,
+                            overflow: TextOverflow.ellipsis,
+                          ),
+                        ),
                       ),
                     ],
                   ),
@@ -541,6 +612,17 @@ class _MarketCheckoutScreenState extends ConsumerState<MarketCheckoutScreen> {
                   )
                 : _QuoteLines(quote: quote, error: _quoteError),
           ),
+          // 115.40 Weighed items: the estimate, and what each way to pay means.
+          if (shop && basket.hasWeighed) ...[
+            const SizedBox(height: 12),
+            MarketEstimateCard(
+              quote: quote,
+              basket: basket,
+              tolerancePercent: (config?.weightTolerancePercent ?? 10)
+                  .toDouble(),
+              card: payment != null && payment != api.MarketPayMethod.cash,
+            ),
+          ],
           const SizedBox(height: 20),
           PrimaryButton(
             label: l10n.marketPlaceOrder(

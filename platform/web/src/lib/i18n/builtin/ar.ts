@@ -1262,4 +1262,10 @@ export const SERVER_MESSAGES_AR: Record<string, string> = {
   "This order's delivery can't move to that stage.": "لا يمكن نقل توصيل هذا الطلب إلى هذه المرحلة.",
   "The request isn't valid.": "الطلب غير صالح.",
   "This order doesn't need a refund.": "لا يحتاج هذا الطلب إلى استرداد.",
+  // 115.24 The catalog's editing and stock.
+  "Restaurants have a menu, not products.": "للمطاعم قائمة طعام، لا منتجات.",
+  "Restaurants have a menu, not departments.": "للمطاعم قائمة طعام، لا أقسام.",
+  "Enter the stock as a number.": "أدخل المخزون رقمًا.",
+  "{0} is no longer available.": "{0} لم يعد متوفرًا.",
+  "Order at least {0} of {1}.": "اطلب {0} على الأقل من {1}.",
 };

@@ -1,8 +1,10 @@
 # Marketplace complaints (115.50–115.55): what was built, next to the approved designs
 
-The approved designs are `docs/design/2026-11-18-marketplace/png/` (branch
-`wip-marketplace-designs`): 06a, 06b, 06c (card, wallet, coupon, declined),
-11 and 12.
+The approved designs are `docs/design/2026-11-18-marketplace/png/` on
+`wip-marketplace-designs` at f0dbb9f3 (the final one, with D1's weighed
+numbers): 06a, 06b, 06c (card, wallet, coupon, declined), 11 and 12. The
+app's test data uses those numbers (the cheese at 740 g, EGP 151.65 back,
+the wallet at EGP 201.65).
 
 - `side-by-side/`: each approved PNG on the left and the build on the right,
   at the same width.

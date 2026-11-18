@@ -109,6 +109,26 @@ abstract final class Paths {
   /// 115 A marketplace vendor's page: a restaurant or a shop.
   static String marketVendor(String id) => '/market/${Uri.encodeComponent(id)}';
 
+  /// 115.40 A supermarket's department (and one of its aisles), its
+  /// search, and a product.
+  static String marketDepartment(
+    String vendorId,
+    String departmentId, {
+    String? aisle,
+  }) => Uri(
+    path:
+        '/market/${Uri.encodeComponent(vendorId)}/department/'
+        '${Uri.encodeComponent(departmentId)}',
+    queryParameters: {'aisle': ?aisle},
+  ).toString();
+  static String marketStoreSearch(String vendorId, String query) => Uri(
+    path: '/market/${Uri.encodeComponent(vendorId)}/search',
+    queryParameters: {'q': query},
+  ).toString();
+  static String marketProduct(String vendorId, String itemId) =>
+      '/market/${Uri.encodeComponent(vendorId)}/product/'
+      '${Uri.encodeComponent(itemId)}';
+
   /// 115 The basket and its checkout, an order, and the customer's orders.
   static const marketCheckout = '/market-checkout';
   static String marketOrder(int id) => '/market-order/$id';

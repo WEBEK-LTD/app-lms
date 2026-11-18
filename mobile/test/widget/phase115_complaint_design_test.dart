@@ -57,14 +57,14 @@ Map<String, dynamic> _order(bool ar) {
       _line(
         1,
         ar ? 'جبنة بيضاء، شرائح' : 'White cheese, sliced',
-        '120.00',
-        0.78,
+        '118.40',
+        0.74,
         'kg',
       ),
       _line(2, ar ? 'موز' : 'Bananas', '33.25', 0.95, 'kg'),
       _line(3, ar ? 'بيض، 15 بيضة' : 'Eggs, 15', '160.00', 2, 'item'),
     ],
-    'total': _money('389.25'),
+    'total': _money('387.65'),
     'payment': {'method': 'card', 'status': 'paid', 'wallet_used': null},
     'complaint_until': now
         .add(const Duration(hours: 47, minutes: 20))
@@ -166,7 +166,7 @@ Map<String, dynamic> _decision(String way, bool ar) {
   return switch (way) {
     'card' => {
       'outcome': 'partial_refund',
-      'amount': _money('153.25'),
+      'amount': _money('151.65'),
       'to': 'payment',
       'coupon_code': null,
       'reason': null,
@@ -175,7 +175,7 @@ Map<String, dynamic> _decision(String way, bool ar) {
     },
     'wallet' => {
       'outcome': 'partial_refund',
-      'amount': _money('153.25'),
+      'amount': _money('151.65'),
       'to': 'wallet',
       'coupon_code': null,
       'reason': null,
@@ -232,7 +232,7 @@ FakeApi _api(bool ar) {
   );
   api.me = userJson();
   api.marketOrders[3821] = _order(ar);
-  api.marketWallet = {...api.marketWallet, 'balance': _money('203.25')};
+  api.marketWallet = {...api.marketWallet, 'balance': _money('201.65')};
   return api;
 }
 
@@ -441,7 +441,7 @@ void main() {
               '236.00',
             ],
             'coupon' => ['SORRY-4821'],
-            'wallet' => ['203.25'],
+            'wallet' => ['201.65'],
             _ => <String>[],
           };
           for (final t in also) {

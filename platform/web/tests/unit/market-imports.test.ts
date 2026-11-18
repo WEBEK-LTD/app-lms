@@ -142,7 +142,8 @@ describe("115.8 columns, rows and their errors", () => {
     expect(plan.counts).toEqual({ create: 2, update: 1, skip: 3 });
     const banana = plan.rows[0]!;
     expect(banana).toMatchObject({ line: 2, action: "update", existingId: 7, department: "Fresh", aisle: "Fruit" });
-    expect(banana.product).toMatchObject({ price: 3550, wasPrice: 4000, unit: "kg", step: 0.25, stock: 120, inStock: true, imageAssetId: "asset-banana", tags: ["fruit"], position: 3, imageUrl: "https://cdn.example.com/banana.jpg" });
+    // 115.24 Stock by weight is kept in steps (D9): 120 kg at 0.25 kg is 480.
+    expect(banana.product).toMatchObject({ price: 3550, wasPrice: 4000, unit: "kg", step: 0.25, stock: 480, inStock: true, imageAssetId: "asset-banana", tags: ["fruit"], position: 3, imageUrl: "https://cdn.example.com/banana.jpg" });
     expect(plan.rows[1]!.product).toMatchObject({ name: "لبن كامل الدسم ١ لتر", price: 4200, stock: 0, inStock: false, wasPrice: null });
     expect(plan.rows[2]!.product).toMatchObject({ price: 123450, unit: "item", step: 1 });
     expect(plan.rows[3]).toMatchObject({ action: "skip", errors: ["The name is missing."] });
@@ -184,7 +185,7 @@ describe("115.8 columns, rows and their errors", () => {
     const third = await applyCatalogImport(store, app.id, vendor.id, planCatalogImport(named, { sku: 0, name: 1, price: 2, stock: 3 }, { currency: "EGP", existing: await vendorProducts(store, app.id, vendor.id) }), NOW);
     expect(third).toMatchObject({ created: 0, updated: 2, departments: 0, aisles: 0 });
     const after = (await vendorProducts(store, app.id, vendor.id)).find((p) => p.sku === "FR-001")!;
-    expect(after).toMatchObject({ price: 3300, stock: 80, unit: "kg", aisleId: banana.aisleId, departmentId: banana.departmentId, imageUrl: "https://cdn.example.com/banana.jpg", wasPrice: 4000 });
+    expect(after).toMatchObject({ price: 3300, stock: 320, unit: "kg", aisleId: banana.aisleId, departmentId: banana.departmentId, imageUrl: "https://cdn.example.com/banana.jpg", wasPrice: 4000 });
   });
 
   it("50,000 rows: read and planned in a few seconds", () => {

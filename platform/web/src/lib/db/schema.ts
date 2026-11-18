@@ -156,6 +156,10 @@ import type {
   PackageSize,
   RestaurantMenu,
   MarketUnit,
+  MarketNames,
+  MarketStockMove,
+  MarketStockReason,
+  MarketCatalogChange,
   ComplaintDecision,
   ComplaintReason,
   ComplaintStatus,
@@ -1912,6 +1916,8 @@ export const marketProducts = mysqlTable(
     departmentId: bigint("department_id", { mode: "number", unsigned: true }).references(() => marketDepartments.id, { onDelete: "set null" }),
     aisleId: bigint("aisle_id", { mode: "number", unsigned: true }).references(() => marketAisles.id, { onDelete: "set null" }),
     name: varchar("name", { length: 160 }).notNull(),
+    // 115.24 Its name in the app's other languages.
+    names: jsonText<MarketNames | null>("names"),
     description: varchar("description", { length: 1000 }),
     brand: varchar("brand", { length: 80 }),
     sku: varchar("sku", { length: 64 }),
@@ -1925,22 +1931,84 @@ export const marketProducts = mysqlTable(
     wasPrice: bigint("was_price", { mode: "number", unsigned: true }),
     unit: varchar("unit", { length: 8 }).$type<MarketUnit>().notNull(),
     step: double("step").notNull(),
+    minQuantity: double("min_quantity"),
     maxQuantity: double("max_quantity"),
     stock: int("stock"),
     inStock: boolean("in_stock").notNull(),
     tags: jsonText<string[]>("tags").notNull(),
     position: int("position").notNull(),
+    // 115.24 The name, its other languages and the brand as search reads them (lib/market/search-name.ts);
+    // "" until the store fills it (products saved before it), "#" when nothing in them is a letter or a digit.
+    searchName: varchar("search_name", { length: 255 }).notNull().default(""),
     createdAt: time("created_at").notNull(),
     updatedAt: time("updated_at").notNull(),
   },
   (t) => [
     // An import updates by SKU: one per vendor (MySQL lets many rows have none).
     uniqueIndex("market_products_vendor_sku_unique").on(t.appId, t.vendorId, t.sku),
+    // 115.24 Search from the start of the name (LIKE 'q%'), paged by (search_name, id).
+    index("market_products_search_idx").on(t.appId, t.vendorId, t.searchName),
     index("market_products_vendor_idx").on(t.appId, t.vendorId, t.inStock, t.position),
     index("market_products_department_idx").on(t.appId, t.vendorId, t.departmentId, t.aisleId),
     index("market_products_barcode_idx").on(t.appId, t.vendorId, t.barcode),
     // 115 Links waiting to be fetched into photos (lib/market/photos.ts).
     index("market_products_photo_wait_idx").on(t.imageAssetId, t.photoError),
+  ],
+);
+
+// 115.24 Every change of a counted product's stock: who, why, which order, before and after.
+export const marketStockMoves = mysqlTable(
+  "market_stock_moves",
+  {
+    id: autoId("id").primaryKey(),
+    appId: id("app_id").notNull(),
+    vendorId: bigint("vendor_id", { mode: "number", unsigned: true }).notNull(),
+    productId: bigint("product_id", { mode: "number", unsigned: true }).notNull(),
+    orderId: bigint("order_id", { mode: "number", unsigned: true }),
+    lineId: int("line_id"),
+    reason: varchar("reason", { length: 12 }).$type<MarketStockReason>().notNull(),
+    delta: int("delta").notNull(),
+    // Null for "not counted" (D9).
+    before: int("before"),
+    after: int("after"),
+    by: varchar("by", { length: 10 }).$type<MarketStockMove["by"]>().notNull(),
+    byName: varchar("by_name", { length: 120 }),
+    undoOf: bigint("undo_of", { mode: "number", unsigned: true }),
+    createdAt: time("created_at").notNull(),
+  },
+  (t) => [
+    foreignKey({ name: "market_stock_moves_app_fk", columns: [t.appId], foreignColumns: [apps.id] }).onDelete("cascade"),
+    foreignKey({ name: "market_stock_moves_vendor_fk", columns: [t.vendorId], foreignColumns: [restaurants.id] }).onDelete("cascade"),
+    foreignKey({ name: "market_stock_moves_product_fk", columns: [t.productId], foreignColumns: [marketProducts.id] }).onDelete("cascade"),
+    // An order takes a line's product once and gives it back once (MySQL lets the place's own moves, without an order, repeat).
+    uniqueIndex("market_stock_moves_order_unique").on(t.orderId, t.lineId, t.productId, t.reason),
+    index("market_stock_moves_product_idx").on(t.appId, t.productId, t.createdAt),
+    index("market_stock_moves_vendor_idx").on(t.appId, t.vendorId, t.createdAt),
+  ],
+);
+
+// 115.24 What a place changed in its own catalog (D10), for the owner to see and undo.
+export const marketCatalogChanges = mysqlTable(
+  "market_catalog_changes",
+  {
+    id: autoId("id").primaryKey(),
+    appId: id("app_id").notNull(),
+    vendorId: bigint("vendor_id", { mode: "number", unsigned: true }).notNull(),
+    entity: varchar("entity", { length: 12 }).$type<MarketCatalogChange["entity"]>().notNull(),
+    entityId: bigint("entity_id", { mode: "number", unsigned: true }).notNull(),
+    action: varchar("action", { length: 8 }).$type<MarketCatalogChange["action"]>().notNull(),
+    before: jsonText<Record<string, unknown> | null>("before"),
+    after: jsonText<Record<string, unknown> | null>("after"),
+    fields: jsonText<string[]>("fields").notNull(),
+    by: varchar("by", { length: 8 }).$type<MarketCatalogChange["by"]>().notNull(),
+    byName: varchar("by_name", { length: 120 }),
+    createdAt: time("created_at").notNull(),
+    undoneAt: time("undone_at"),
+  },
+  (t) => [
+    foreignKey({ name: "market_catalog_changes_app_fk", columns: [t.appId], foreignColumns: [apps.id] }).onDelete("cascade"),
+    foreignKey({ name: "market_catalog_changes_vendor_fk", columns: [t.vendorId], foreignColumns: [restaurants.id] }).onDelete("cascade"),
+    index("market_catalog_changes_vendor_idx").on(t.appId, t.vendorId, t.createdAt),
   ],
 );
 
@@ -1963,6 +2031,8 @@ export const marketOrders = mysqlTable(
     deliveryBy: varchar("delivery_by", { length: 8 }).$type<"app" | "vendor">(),
     scheduledFor: time("scheduled_for"),
     lines: jsonText<MarketOrderLine[]>("lines").notNull(),
+    // 115.40 The order's own "if something is missing" (each line keeps its own in `lines`).
+    ifMissing: varchar("if_missing", { length: 8 }).$type<"similar" | "chosen" | "remove">(),
     money: jsonText<OrderMoney>("money").notNull(),
     // The total, apart, for sums and sorting.
     total: bigint("total", { mode: "number" }).notNull(),

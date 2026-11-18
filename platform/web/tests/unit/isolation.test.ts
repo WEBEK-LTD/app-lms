@@ -768,6 +768,11 @@ describe("79.3 one client never reaches another's data through the Owner API", (
       service_id: "1",
       class_id: "1",
       product_id: ids.product_id,
+      // 115.24 A place's departments and aisles: none of these apps' own.
+      department_id: "1",
+      aisle_id: "1",
+      // 115.40 An order's line: their order's (its first), on their path.
+      line_id: "1",
       appointment_id: ids.appointment_id,
       listing_id: ids.listing_id,
       inquiry_id: ids.inquiry_id,

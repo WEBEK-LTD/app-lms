@@ -1,6 +1,8 @@
 import type { DataStore } from "../data/store";
 import type { MarketProduct, MarketProductInput, MarketUnit } from "../data/types";
 import { currencyDecimals, toMinor } from "./currency";
+import { westernDigits } from "./search-name";
+import { stockUnits } from "./stock";
 import type { SheetTable } from "./sheets/table";
 
 /**
@@ -59,7 +61,9 @@ export function suggestMapping(columns: string[]): ColumnMapping {
 
 /** "1.234,50", "1,234.50", "EGP 25", "25 ج.م" → minor units, or null. */
 export function readAmount(text: string, currency: string): number | null {
-  let value = text.replace(/[^\d.,-]/g, "");
+  // 115.24 Arabic-Indic and Persian digits (٢٥٫٥٠) as Western ones, with the Arabic decimal and thousands marks.
+  // A currency's own dots ("ج.م", "Dhs.") around the number aren't its decimals.
+  let value = arabicNumerals(text).replace(/[^\d.,-]/g, "").replace(/^[.,]+|[.,]+$/g, "");
   if (!value) return null;
   const lastComma = value.lastIndexOf(",");
   const lastDot = value.lastIndexOf(".");
@@ -89,8 +93,13 @@ export function readYesNo(text: string): boolean | null {
   return null;
 }
 
+/** 115.24 "٢٥٫٥٠" as "25.50", "١٬٢٣٤" as "1,234". */
+export function arabicNumerals(text: string): string {
+  return westernDigits(text).replace(/\u066b/g, ".").replace(/\u066c/g, ",");
+}
+
 function readNumber(text: string): number | null {
-  const v = text.replace(",", ".").trim();
+  const v = arabicNumerals(text).replace(",", ".").trim();
   if (!/^\d+(\.\d+)?$/.test(v)) return null;
   return Number(v);
 }
@@ -197,7 +206,10 @@ export function planCatalogImport(table: SheetTable, mapping: ColumnMapping, opt
     if (department) departments.set(department.toLowerCase(), department);
     if (department && aisle) aisles.set(`${department.toLowerCase()}\u0000${aisle.toLowerCase()}`, [department, aisle]);
     const keep = <K extends keyof MarketProduct>(key: K, fallback: MarketProduct[K]): MarketProduct[K] => (existing && existing[key] !== undefined ? (existing[key] as MarketProduct[K]) : fallback);
-    const counted = stock !== null ? stock : has("stock") ? null : keep("stock", null);
+    // 115.24 Stock is counted in items, or in steps for items sold by weight (D9): 10 kg at 0.25 kg is 40.
+    const sold = has("unit") ? unit! : keep("unit", unit!);
+    const steps = has("step") || !existing ? step! : keep("step", step!);
+    const counted = stock !== null ? stockUnits({ unit: sold, step: steps }, stock) : has("stock") ? null : keep("stock", null);
     const product: Omit<MarketProductInput, "appId" | "vendorId"> = {
       departmentId: keep("departmentId", null),
       aisleId: keep("aisleId", null),
@@ -227,13 +239,15 @@ export function planCatalogImport(table: SheetTable, mapping: ColumnMapping, opt
   return { rows, counts, departments: [...departments.values()], aisles: [...aisles.values()] };
 }
 
-/** Every product of the vendor, for matching (pages of 1,000). */
+/** Every product of the vendor, for matching (pages of 1,000, by cursor: nothing counted). */
 export async function vendorProducts(store: DataStore, appId: string, vendorId: number): Promise<MarketProduct[]> {
   const out: MarketProduct[] = [];
-  for (let page = 1; ; page++) {
-    const { items, total } = await store.listMarketProducts({ appId, vendorId, page, perPage: 1000 });
-    out.push(...items);
-    if (items.length === 0 || out.length >= total) return out;
+  let cursor = "";
+  for (;;) {
+    const page = await store.listMarketProducts({ appId, vendorId, page: 1, perPage: 1000, cursor });
+    out.push(...page.items);
+    if (!page.nextCursor || page.items.length === 0) return out;
+    cursor = page.nextCursor;
   }
 }
 
