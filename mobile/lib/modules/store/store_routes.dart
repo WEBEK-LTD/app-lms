@@ -145,7 +145,13 @@ List<RouteBase> _pushedRoutes() => [
       final id = intParam(state, 'id');
       return appPage(
         state,
-        id == null ? const NotFoundScreen() : ProductScreen(productId: id),
+        id == null
+            ? const NotFoundScreen()
+            : ProductScreen(
+                productId: id,
+                // 152 Opened from a Studio element's link: the shop if it's gone.
+                orShop: state.uri.queryParameters['or'] == 'shop',
+              ),
       );
     },
     routes: [
