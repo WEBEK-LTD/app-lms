@@ -17,6 +17,7 @@ import { durationLabel, itemWords } from "./item-words";
 import { itemResolver, type Item } from "./items";
 import { sha256Hex } from "../../crypto/tokens";
 import { readShopCategories } from "./shop-categories";
+import { listHeadings, productFallbacks, withListHeadings, withSampleProduct } from "./lists";
 import "./sources";
 
 /**
@@ -89,8 +90,10 @@ export async function handlePages(ctx: HostedContext, req: HostedRequest, user: 
  * categories element like the categories block, without their queries, and
  * left out when their source can't be served.
  */
-async function servedStudio(pc: PageContext, studio: StudioPage): Promise<StudioPage> {
+async function servedStudio(pc: PageContext, page: StudioPage): Promise<StudioPage> {
   const def = pc.layout.languages.default;
+  // 164 The template's sample bouquet in an app made before: one of the shop's products.
+  const studio: StudioPage = { ...page, body: withSampleProduct(page.body) };
   // 152 The products the elements open that the shop no longer has.
   const gone = await goneProducts(pc, studio);
   // 157 A template's lists of the shop's categories follow them, read from the layout's own words before any translation.
@@ -116,7 +119,10 @@ async function servedStudio(pc: PageContext, studio: StudioPage): Promise<Studio
     // 112.4 What this person opened lately is kept on the phone: sent without entries.
     if (node.type === "items" && node.recent) return node.source === "products" && servable(pc.ctx.app, pc.ctx.connector, "products") ? ({ ...shown, items: [] } as StudioNode) : null;
     if (node.type === "items") {
-      const list = (await resolveBlock(pc, { id: node.id, type: "items", visibility: "everyone", title: null, source: node.source, layout: node.layout, query })) as { items?: unknown[] } | null;
+      const listed = (q: ItemsQuery | undefined) => resolveBlock(pc, { id: node.id, type: "items", visibility: "everyone", title: null, source: node.source, layout: node.layout, query: q }) as Promise<{ items?: unknown[] } | null>;
+      let list = await listed(query);
+      // 164 Nothing featured, in its category or of the products picked: the shop's best sellers, else its newest.
+      if (!list?.items && node.source === "products" && query) for (const next of productFallbacks(query)) if ((list = await listed(next))?.items) break;
       return list?.items ? ({ ...shown, items: list.items } as StudioNode) : null;
     }
     if (node.type === "categories") {
@@ -131,7 +137,8 @@ async function servedStudio(pc: PageContext, studio: StudioPage): Promise<Studio
   const header = studio.header ? (({ translations: _h, ...rest }) => (void _h, rest))(translated(studio.header, pc.lang, def)) : studio.header;
   // 159 At their automatic sizes, as Studio's canvas draws them, so apps already on phones draw them so too (a cover's
   // top bar across the cover, its bag at the edge, whatever width a corner drag gave it before the owner was asked).
-  return { ...studio, ...(header !== undefined ? { header } : {}), body: autoSized(body ?? studio.body) };
+  // 164 A list's title goes with it, and is marked so the app hides it with a list it hides (what was seen lately).
+  return { ...studio, ...(header !== undefined ? { header } : {}), body: autoSized(withListHeadings(body ?? studio.body, listHeadings(studio.body))) };
 }
 
 /**

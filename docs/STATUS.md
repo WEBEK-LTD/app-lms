@@ -97,6 +97,16 @@ its currency), else the owner's, then +90 (a MAD shop delivering to Morocco
 opened on +90). The app's part reaches the stores with
 `CLIENT_APP_RELEASE` 8. Not yet tried on a phone (ROADMAP 160.7).
 
+Roadmap 151 (an iPhone build GitHub had no Mac for): when GitHub cancels
+the iOS job in its queue before any step runs, the report says so as its
+own reason (`ios_no_mac_runner`, read from the run's jobs), not a build
+failure; the Android app is as before. Builds & downloads tells the owner,
+without technical words and in their language, that it's a temporary
+problem on our side and offers iPhone only; the admin shows the technical
+cause and the team gets one alert per build. Nothing retries it. Every
+iPhone failure now says its cause in plain words with where to fix it,
+and the iPhone app's build output is for the admin only.
+
 Roadmap 152 (Our bouquet's chips and button open the product the owner
 links): in Leqaa's looks and the apps made from them (Kech Flora), the
 bouquet's size chips and "Choose this bouquet" open the shop until the
@@ -146,7 +156,6 @@ problem on our side and offers iPhone only; the admin shows the technical
 cause and the team gets one alert per build. Nothing retries it. Every
 iPhone failure now says its cause in plain words with where to fix it,
 and the iPhone app's build output is for the admin only.
-
 Roadmap 153 (the card inside the payment page for iyzico and Kashier): as
 with Stripe (144), Yallapp's payment page shows the gateway's own card form
 under the customer's details: iyzico's Checkout Form (the script iyzico
@@ -170,6 +179,20 @@ automatic" (or a double click on a corner) puts the template's size back,
 and a corner dragged up to the edge becomes Fill again. WordPress apps keep
 a size by hand with the next plugin release. Not yet seen on Kech Flora's
 phone.
+
+Roadmap 164 (a bound list of products is never an empty section): Leqaa's
+"Picked for you" was bound to featured products, which a real shop may not
+have, so the served page dropped the list and kept its title and "Shop all"
+over nothing. Served now with the shop's best sellers, else its newest, when
+what a list is bound to has nothing (featured, a category, picks, a
+template's sample products); a list with nothing at all goes with its title,
+in the served page and in the app (`heads`, `CLIENT_APP_RELEASE` 9). The apps
+already made from the template are right without any edit. Studio's
+inspector chooses what such a list shows: featured, a category, a
+collection, best sellers or newest. The "Our bouquet" page no longer shows
+the template's sample "Blush Garden": it is one of the shop's products, the
+one the owner picks, else the best seller, else the newest, and goes when
+the shop has none; apps made before are served the same.
 
 Roadmap 146 (the pricing page: the app and Studio side by side): /pricing
 starts with the two products side by side, each with a real screen and its

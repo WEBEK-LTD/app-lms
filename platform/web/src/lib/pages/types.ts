@@ -1388,6 +1388,8 @@ export interface StudioNode {
   // ——— end 131 ———
   /** 112.4 For `items` of products: the ones this person opened lately, kept on the phone (the servers send none). */
   recent?: boolean;
+  /** 164 Served only: this element is the title of its sibling list with this ID, and hides with it (lib/hosted/pages/lists.ts). */
+  heads?: string;
   source?: ItemSource;
   layout?: (typeof ITEMS_LAYOUTS)[number];
   query?: ItemsQuery;

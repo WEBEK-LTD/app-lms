@@ -38,6 +38,7 @@ import {
   TAB_LABELS,
   type Action,
   type ItemSource,
+  type ItemsQuery,
   type LanguageCode,
   type LayoutTab,
   type StudioHeader,
@@ -1363,6 +1364,16 @@ function SlidesControl({ node, onChange }: { node: StudioNode; onChange: (patch:
   );
 }
 
+/** 164 What a list of products shows, read from its query. */
+const LIST_SHOWS = ["featured", "category", "collection", "best", "newest"] as const;
+type ListShows = (typeof LIST_SHOWS)[number];
+function listShows(q: Pick<ItemsQuery, "featured" | "category_id" | "ids" | "sort">): ListShows {
+  if (q.ids.length) return "collection";
+  if (q.featured) return "featured";
+  if (q.category_id) return "category";
+  return q.sort === "popular" ? "best" : "newest";
+}
+
 function DataTab(props: Props & { node: StudioNode }) {
   const t = useDashT();
   const { node, onChange } = props;
@@ -1370,6 +1381,20 @@ function DataTab(props: Props & { node: StudioNode }) {
     const q = node.query ?? { limit: 4, category_id: null, featured: false, sort: "newest" as const, ids: [] };
     const cats = (node.source ? props.pickable.categories[node.source] : undefined) ?? [];
     const sortKey: Record<string, string> = { newest: "sortNewest", popular: "sortPopular", price_asc: "sortPriceLow", price_desc: "sortPriceHigh", title: "sortTitle" };
+    // 164 What a list of products shows: featured products, a category, a collection picked by hand, the best sellers or the newest.
+    const products = node.source === "products" && !node.recent;
+    const shows = listShows(q);
+    const picks = props.pickable.items.products ?? [];
+    const showAs = (v: ListShows) =>
+      onChange({
+        query: {
+          ...q,
+          featured: v === "featured",
+          category_id: v === "category" ? (q.category_id ?? cats[0]?.id ?? null) : null,
+          ids: v === "collection" ? (q.ids.length ? q.ids : picks.slice(0, Math.min(q.limit, 4)).map((e) => e.id)) : [],
+          sort: v === "best" ? "popular" : v === "newest" ? "newest" : q.sort,
+        },
+      });
     return (
       <>
         <label className="flex flex-col gap-1 font-bold">
@@ -1385,7 +1410,27 @@ function DataTab(props: Props & { node: StudioNode }) {
         <Segments label={t("studio.dataLayout")} value={node.layout ?? "grid"} onChange={(layout) => onChange({ layout })} options={[{ value: "grid", label: t("studio.layoutGrid") }, { value: "list", label: t("studio.layoutList") }, { value: "carousel", label: t("studio.layoutCarousel") }]} />
         {/* 131 How the cards show a product's sale. */}
         <CommerceControls node={node} onChange={onChange} pickable={props.pickable} />
+        {products ? (
+          <label className="flex flex-col gap-1 font-bold">
+            {t("studio.listShows")}
+            <select value={shows} onChange={(e) => showAs(e.target.value as ListShows)} className="h-9 rounded-lg px-1.5 font-normal" style={{ border: "1px solid var(--sf-line)" }}>
+              {LIST_SHOWS.map((v) => (
+                <option key={v} value={v} disabled={(v === "category" && !cats.length) || (v === "collection" && !picks.length)}>
+                  {t(v === "collection" && q.limit === 1 ? "studio.listShows_product" : (`studio.listShows_${v}` as DashKey))}
+                </option>
+              ))}
+            </select>
+          </label>
+        ) : null}
+        {products && shows === "collection" ? (
+          <div className="flex flex-col gap-1">
+            {picks.map((e) => (
+              <Check key={e.id} label={e.title} checked={q.ids.includes(e.id)} onChange={(on) => onChange({ query: { ...q, ids: on ? (q.limit === 1 ? [e.id] : [...q.ids, e.id].slice(0, 30)) : q.ids.filter((i) => i !== e.id) } })} />
+            ))}
+          </div>
+        ) : null}
         <RangeField label={t("studio.howMany")} value={q.limit} min={1} max={30} unit={t("studio.unitItems")} onChange={(limit) => onChange({ query: { ...q, limit } })} />
+        {products && (shows === "best" || shows === "newest" || shows === "collection") ? null : (
         <label className="flex items-center justify-between gap-2">
           {t("studio.sort")}
           <select value={q.sort} onChange={(e) => onChange({ query: { ...q, sort: e.target.value as typeof q.sort } })} className="h-8 rounded-lg px-1.5" style={{ border: "1px solid var(--sf-line)" }}>
@@ -1396,7 +1441,8 @@ function DataTab(props: Props & { node: StudioNode }) {
             ))}
           </select>
         </label>
-        {cats.length ? (
+        )}
+        {cats.length && (!products || shows === "category") ? (
           <label className="flex items-center justify-between gap-2">
             {t("studio.category")}
             <select value={q.category_id ?? ""} onChange={(e) => onChange({ query: { ...q, category_id: e.target.value || null } })} className="h-8 rounded-lg px-1.5" style={{ border: "1px solid var(--sf-line)" }}>
@@ -1409,7 +1455,7 @@ function DataTab(props: Props & { node: StudioNode }) {
             </select>
           </label>
         ) : null}
-        <Check label={t("studio.onlyFeatured")} checked={q.featured} onChange={(featured) => onChange({ query: { ...q, featured } })} />
+        {products ? null : <Check label={t("studio.onlyFeatured")} checked={q.featured} onChange={(featured) => onChange({ query: { ...q, featured } })} />}
         {node.source === "products" ? (
           <>
             <Check label={t("studio.onlyOnSale")} checked={q.on_sale === true} onChange={(on) => onChange({ query: { ...q, on_sale: on || undefined } })} />
@@ -1418,7 +1464,11 @@ function DataTab(props: Props & { node: StudioNode }) {
               <span className="text-xs" style={{ color: "var(--sf-muted)" }}>
                 {t("studio.recentHint")}
               </span>
-            ) : null}
+            ) : (
+              <span className="text-xs" style={{ color: "var(--sf-muted)" }}>
+                {t(q.on_sale ? "studio.listShowsSaleHint" : "studio.listShowsHint")}
+              </span>
+            )}
           </>
         ) : null}
         <Rule />

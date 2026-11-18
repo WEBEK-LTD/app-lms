@@ -1155,6 +1155,22 @@ class StudioNodeView extends ConsumerWidget {
   final StudioNode? parent;
 
   /// False for an element this phone or this person doesn't see.
+  /// The children shown: 164 a list's title only while its list is.
+  static List<StudioNode> shownChildren(
+    List<StudioNode> children,
+    WidgetRef ref,
+  ) {
+    final shown = [
+      for (final child in children)
+        if (shows(child, ref)) child,
+    ];
+    final ids = {for (final child in shown) child.id};
+    return [
+      for (final child in shown)
+        if (child.heads == null || ids.contains(child.heads)) child,
+    ];
+  }
+
   static bool shows(StudioNode node, WidgetRef ref) {
     // 107.2 Hidden by the owner (the servers leave these out already).
     if (node.hidden) return false;
@@ -1853,10 +1869,7 @@ class StudioNodeView extends ConsumerWidget {
 
   /// Rows, columns, layers and grids.
   Widget _layout(BuildContext context, WidgetRef ref) {
-    final kids = [
-      for (final child in node.children)
-        if (shows(child, ref)) child,
-    ];
+    final kids = shownChildren(node.children, ref);
     if (kids.isEmpty) return const SizedBox.shrink();
     final inner = node.font?.uppercase == true ? scope.inCapitals() : scope;
     Widget view(StudioNode child) =>
