@@ -94,6 +94,16 @@ const isEntry = (node: StudioNode): boolean => {
   return ((node.type === "row" && named === "name") || (node.type === "photo_hero" && named === "title")) && holdsTemplateName(node);
 };
 
+/** 179 Whether the element `id` is one of the template's faculty entries, in one, or the rings of them (Studio's inspector says what it shows). */
+export function inTemplateFaculty(body: StudioNode, id: string): boolean {
+  const walk = (node: StudioNode, inside: boolean): boolean => {
+    const here = inside || isEntry(node) || (node.type === "stories" && (node.slides ?? []).some((s) => roleOf(s.heading)?.role === "name"));
+    if (node.id === id) return here;
+    return (node.children ?? []).some((c) => walk(c, here));
+  };
+  return walk(body, false);
+}
+
 /** Whether a Studio page body still has one of the template's faculty entries. */
 export function hasTemplateFaculty(body: StudioNode): boolean {
   if (isEntry(body)) return true;

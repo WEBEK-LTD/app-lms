@@ -12,6 +12,7 @@ import { handleHosted, type HostedContext } from "@/lib/hosted/service";
 import { loadLayout, publishLayout, withoutStrings } from "@/lib/pages/layout";
 import type { LayoutContent, StudioNode, StudioPage } from "@/lib/pages/types";
 import { PLAN_INFO } from "@/lib/plans";
+import { ICON_NAMES } from "@/components/icon-names";
 import { tickerLines, withNewsTicker } from "@/lib/school/news-ticker";
 import { appWords } from "@/lib/studio/app-words";
 import { makeStudioProject } from "@/lib/studio/new-project";
@@ -188,5 +189,37 @@ describe("179.2 Rawaq's faculty is the academy's own teachers", () => {
     expect(named.length).toBe(Math.min(4, samples.length));
     // The template's own Arabic names, which no sample teacher has.
     expect(withoutEntries(home)).not.toMatch(/هانا كلارك|دنيز كايا/);
+  });
+});
+
+describe("179.4 Studio's canvas draws every icon of the education templates", () => {
+  /** Every icon a page names, its elements' own and their calls to action's lead, entries', slides' and buttons' too. */
+  const iconsIn = (value: unknown, out = new Set<string>()): Set<string> => {
+    if (Array.isArray(value)) for (const v of value) iconsIn(v, out);
+    else if (value && typeof value === "object") {
+      for (const [key, v] of Object.entries(value)) {
+        if ((key === "icon" || key === "lead") && typeof v === "string" && /^[a-z0-9_]+$/.test(v)) out.add(v);
+        else iconsIn(v, out);
+      }
+    }
+    return out;
+  };
+  const CASES: [string, string, string | null][] = [
+    ["school", "school_signature_a", "school"],
+    ["school", "school_signature_b", "school"],
+    ["school", "school", null],
+    ["instructors", "instructors_signature_a", "instructors"],
+    ["instructors", "instructors_signature_b", "instructors"],
+    ["instructors", "teachers", null],
+    ["academy", "premium_academy_signature_a", "premium_academy"],
+    ["academy", "premium_academy_signature_b", "premium_academy"],
+    ["academy", "academy_premium", null],
+  ];
+  it.each(CASES)("%s from %s: each icon is in the canvas's font (components/icon-names.ts)", async (kind, template, fromDemo) => {
+    const app = await project(kind, template, "en", fromDemo);
+    const layout = (await loadLayout(store, app, NOW)).draft;
+    const icons = iconsIn([layout.pages.map((p) => p.studio), layout.tabs, app.hostedSettings?.studioScreens]);
+    const subset = new Set<string>(ICON_NAMES);
+    expect([...icons].filter((i) => !subset.has(i)), template).toEqual([]);
   });
 });
