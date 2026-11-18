@@ -196,6 +196,11 @@ export class CatalogConnector implements Connector {
           const list = ids.length ? ids.map((id) => all.find((p) => p.id === id)).filter((p): p is CatalogProduct => Boolean(p)) : all.filter((p) => categoryId !== null && p.categoryIds.includes(categoryId));
           return list.map((p) => this.summary(p, request.now));
         },
+        // 162 A bouquet's wraps and cards: the shop's gift add-ons too, by their IDs.
+        extras: async (ids) => {
+          const all = await this.active();
+          return ids.map((id) => all.find((p) => p.id === id)).filter((p): p is CatalogProduct => Boolean(p)).map((p) => this.summary(p, request.now));
+        },
       },
       request,
     );
