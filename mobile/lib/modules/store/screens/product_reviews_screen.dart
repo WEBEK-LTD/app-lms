@@ -44,7 +44,8 @@ class ProductReviewsScreen extends ConsumerWidget {
             return false;
           },
           child: ListView(
-            padding: const EdgeInsets.fromLTRB(20, 8, 20, 20),
+            // 158 Its end clear of a bar over the screen.
+            padding: EdgeInsets.fromLTRB(20, 8, 20, endRoom(context, 20)),
             children: [
               if (summary != null) ...[
                 RatingSummaryCard(summary: summary),

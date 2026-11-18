@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 import '../../../core/api/models/screens_models.dart';
 import '../../../core/widgets/buttons.dart';
+import '../../../core/widgets/common.dart' show endRoom;
 import '../../../core/widgets/premium_chrome.dart';
 import '../../../core/widgets/studio_screen_scope.dart';
 import 'premium/system_screen_frame.dart';
@@ -72,13 +73,24 @@ class AccountScaffold extends StatelessWidget {
                 ),
               ),
             ),
+          // 158 Its end above a tab bar over the screen, or the phone's
+          // own bar; above the footer, which keeps clear of them itself.
           Expanded(
             child: scrollable
                 ? SingleChildScrollView(
-                    padding: const EdgeInsets.fromLTRB(20, 8, 20, 20),
+                    padding: EdgeInsets.fromLTRB(
+                      20,
+                      8,
+                      20,
+                      footer == null ? endRoom(context, 20) : 20,
+                    ),
                     child: child,
                   )
-                : child,
+                : MediaQuery.removePadding(
+                    context: context,
+                    removeBottom: footer != null,
+                    child: child,
+                  ),
           ),
           if (footer != null) BottomActionBar(child: footer!),
         ],

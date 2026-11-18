@@ -82,7 +82,8 @@ class _OrderScreenState extends ConsumerState<OrderScreen> {
       body = RefreshIndicator(
         onRefresh: () => ref.refresh(orderProvider(widget.orderId).future),
         child: ListView(
-          padding: const EdgeInsets.fromLTRB(20, 8, 20, 24),
+          // 158 Its end clear of a bar over the screen.
+          padding: EdgeInsets.fromLTRB(20, 8, 20, endRoom(context, 24)),
           children: [
             // 110 Where it is, and when it was placed.
             Row(

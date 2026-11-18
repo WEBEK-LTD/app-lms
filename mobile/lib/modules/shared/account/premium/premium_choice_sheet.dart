@@ -33,7 +33,8 @@ class PremiumChoiceSheet<T> extends StatelessWidget {
     }
 
     return SafeArea(
-      child: Padding(
+      // 158 Every choice in reach on a short phone or with a large font.
+      child: SingleChildScrollView(
         padding: const EdgeInsets.fromLTRB(12, 0, 12, 12),
         child: DecoratedBox(
           key: ValueKey('chrome-choice-${look.name}'),

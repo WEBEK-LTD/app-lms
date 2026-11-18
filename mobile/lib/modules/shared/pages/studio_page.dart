@@ -21,7 +21,6 @@ import '../../../core/theme/app_theme.dart';
 import '../../../core/theme/fonts/remote_fonts.dart';
 import '../../../core/theme/palette.dart';
 import '../../../core/theme/symbol_names.dart';
-import '../../../core/widgets/app_nav_bar.dart' show TabBarOverBody;
 import '../../../core/widgets/buttons.dart';
 import '../../../core/widgets/common.dart';
 import '../../../core/widgets/star_text.dart';
@@ -143,56 +142,51 @@ class StudioPageView extends ConsumerWidget {
       // Elements pinned at the top stay under the header (the glass bar
       // then sits over them, not over the page).
       final under = glass && pinnedTop.isEmpty;
-      final list = ListView(
+      // 158 Its end above what covers the screen's foot (a bar over the
+      // page, the phone's own bar) and above what is pinned there.
+      Widget list(double foot) => ListView(
         key: ValueKey('studio-$pageSlug'),
         padding: EdgeInsets.only(
           top: under ? StudioPremiumHeader.openHeightOf(header, top) : 0,
-          bottom: 16 + (TabBarOverBody.of(context) ? bottomInset : 0),
+          bottom: endRoom(context, 16) + foot,
         ),
         children: [StudioNodeView(node: scrolling, scope: scope, parent: null)],
       );
       return ColoredBox(
         color: background,
-        child: Stack(
-          children: [
-            Positioned.fill(
-              child: ChromeFoldingHeader(
-                overlay: under,
-                builder: (context, offset) => StudioPremiumHeader(
-                  header: header,
-                  dark: dark,
-                  top: top,
-                  back: pushed,
-                  offset: offset,
-                ),
-                child: MediaQuery.removePadding(
-                  context: context,
-                  removeTop: true,
-                  child: pinnedTop.isEmpty
-                      ? list
-                      : Column(
-                          crossAxisAlignment: CrossAxisAlignment.stretch,
-                          children: [
-                            _pinnedColumn(pinnedTop, scope),
-                            Expanded(child: list),
-                          ],
-                        ),
-                ),
-              ),
+        child: StudioUnderFoot(
+          foot: pinnedBottom.isEmpty
+              ? null
+              : _pinnedColumn(pinnedBottom, scope),
+          lift: bottomInset,
+          builder: (context, foot) => ChromeFoldingHeader(
+            overlay: under,
+            builder: (context, offset) => StudioPremiumHeader(
+              header: header,
+              dark: dark,
+              top: top,
+              back: pushed,
+              offset: offset,
             ),
-            if (pinnedBottom.isNotEmpty)
-              PositionedDirectional(
-                bottom: bottomInset,
-                start: 0,
-                end: 0,
-                child: _pinnedColumn(pinnedBottom, scope),
-              ),
-          ],
+            child: MediaQuery.removePadding(
+              context: context,
+              removeTop: true,
+              child: pinnedTop.isEmpty
+                  ? list(foot)
+                  : Column(
+                      crossAxisAlignment: CrossAxisAlignment.stretch,
+                      children: [
+                        _pinnedColumn(pinnedTop, scope),
+                        Expanded(child: list(foot)),
+                      ],
+                    ),
+            ),
+          ),
         ),
       );
     }
     // ——— end 130.20 ———
-    final list = ListView(
+    Widget list(double foot) => ListView(
       key: ValueKey('studio-$pageSlug'),
       padding: EdgeInsets.only(
         // 128 A cover first on a page without a header reaches under the
@@ -203,8 +197,10 @@ class StudioPageView extends ConsumerWidget {
             ? top
             : 0,
         // 128.10 Over a bar the page goes on under (glass, float), its end
-        // above the bar.
-        bottom: 16 + (TabBarOverBody.of(context) ? bottomInset : 0),
+        // above the bar; 158 on a page over the tabs, above the phone's
+        // home indicator or navigation bar; and above what is pinned at
+        // the foot (a call to action), however tall it is.
+        bottom: endRoom(context, 16) + foot,
       ),
       children: [
         if (header != null && !overlay)
@@ -218,17 +214,23 @@ class StudioPageView extends ConsumerWidget {
         children: [
           // 110 Without a header, nothing scrolls under the status bar.
           Positioned.fill(
-            child: bleed != null
-                // 128 Light icons over a photo; over the map, as on its land.
-                ? AnnotatedRegion<SystemUiOverlayStyle>(
-                    value: bleed.type == StudioNodeType.photoHero
-                        ? SystemUiOverlayStyle.light
-                        : overlayStyleOn(background),
-                    child: list,
-                  )
-                : header == null
-                ? StatusBarBackdrop(color: background, child: list)
-                : list,
+            child: StudioUnderFoot(
+              foot: pinnedBottom.isEmpty
+                  ? null
+                  : _pinnedColumn(pinnedBottom, scope),
+              lift: bottomInset,
+              builder: (context, foot) => bleed != null
+                  // 128 Light icons over a photo; over the map, as on its land.
+                  ? AnnotatedRegion<SystemUiOverlayStyle>(
+                      value: bleed.type == StudioNodeType.photoHero
+                          ? SystemUiOverlayStyle.light
+                          : overlayStyleOn(background),
+                      child: list(foot),
+                    )
+                  : header == null
+                  ? StatusBarBackdrop(color: background, child: list(foot))
+                  : list(foot),
+            ),
           ),
           if (overlay)
             PositionedDirectional(
@@ -255,13 +257,6 @@ class StudioPageView extends ConsumerWidget {
               start: 0,
               end: 0,
               child: _pinnedColumn(pinnedTop, scope),
-            ),
-          if (pinnedBottom.isNotEmpty)
-            PositionedDirectional(
-              bottom: MediaQuery.paddingOf(context).bottom,
-              start: 0,
-              end: 0,
-              child: _pinnedColumn(pinnedBottom, scope),
             ),
           if (pushed)
             PositionedDirectional(
@@ -305,10 +300,13 @@ class StudioPageView extends ConsumerWidget {
       for (final n in body.children)
         if (n.pin == StudioPin.none) n,
     ]);
-    final screen = MediaQuery.removePadding(
-      context: context,
-      removeTop: true,
-      child: StudioScreenScope(hidesTitle: header != null, child: hosted),
+    // 158 Read where it is, under the room made for the page's foot.
+    final screen = Builder(
+      builder: (context) => MediaQuery.removePadding(
+        context: context,
+        removeTop: true,
+        child: StudioScreenScope(hidesTitle: header != null, child: hosted),
+      ),
     );
     final Widget rest = over.children.isEmpty
         ? screen
@@ -321,57 +319,71 @@ class StudioPageView extends ConsumerWidget {
             ],
             body: screen,
           );
+    // The header (or the status bar's strip), the elements pinned at the
+    // top, and the screen under them; 130.20 a premium header folds as the
+    // screen under it scrolls.
+    final Widget screenColumn = header != null && header.style != null
+        ? ChromeFoldingHeader(
+            builder: (context, offset) => StudioPremiumHeader(
+              header: header,
+              dark: dark,
+              top: top,
+              back: pushed,
+              offset: offset,
+            ),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                if (pinnedTop.isNotEmpty) _pinnedColumn(pinnedTop, scope),
+                Expanded(child: rest),
+              ],
+            ),
+          )
+        : Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              if (header != null)
+                StudioHeaderView(
+                  header: header,
+                  top: top,
+                  scope: scope,
+                  back: pushed && header.type == StudioHeaderType.title,
+                )
+              else
+                AnnotatedRegion<SystemUiOverlayStyle>(
+                  value: overlayStyleOn(background),
+                  child: SizedBox(height: top),
+                ),
+              if (pinnedTop.isNotEmpty) _pinnedColumn(pinnedTop, scope),
+              Expanded(child: rest),
+            ],
+          );
     final view = ColoredBox(
       color: background,
       child: Stack(
         children: [
           Positioned.fill(
-            // 130.20 A premium header folds as the screen under it scrolls.
-            child: header != null && header.style != null
-                ? ChromeFoldingHeader(
-                    builder: (context, offset) => StudioPremiumHeader(
-                      header: header,
-                      dark: dark,
-                      top: top,
-                      back: pushed,
-                      offset: offset,
+            // 158 What is pinned at the page's foot lies over the screen:
+            // the screen's lists end above it (their end room, 158, reads
+            // it with the bar's from MediaQuery's bottom padding).
+            child: StudioUnderFoot(
+              foot: pinnedBottom.isEmpty
+                  ? null
+                  : _pinnedColumn(pinnedBottom, scope),
+              lift: MediaQuery.paddingOf(context).bottom,
+              builder: (context, foot) {
+                final media = MediaQuery.of(context);
+                return MediaQuery(
+                  data: media.copyWith(
+                    padding: media.padding.copyWith(
+                      bottom: media.padding.bottom + foot,
                     ),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.stretch,
-                      children: [
-                        if (pinnedTop.isNotEmpty)
-                          _pinnedColumn(pinnedTop, scope),
-                        Expanded(child: rest),
-                      ],
-                    ),
-                  )
-                : Column(
-                    crossAxisAlignment: CrossAxisAlignment.stretch,
-                    children: [
-                      if (header != null)
-                        StudioHeaderView(
-                          header: header,
-                          top: top,
-                          scope: scope,
-                          back: pushed && header.type == StudioHeaderType.title,
-                        )
-                      else
-                        AnnotatedRegion<SystemUiOverlayStyle>(
-                          value: overlayStyleOn(background),
-                          child: SizedBox(height: top),
-                        ),
-                      if (pinnedTop.isNotEmpty) _pinnedColumn(pinnedTop, scope),
-                      Expanded(child: rest),
-                    ],
                   ),
-          ),
-          if (pinnedBottom.isNotEmpty)
-            PositionedDirectional(
-              bottom: MediaQuery.paddingOf(context).bottom,
-              start: 0,
-              end: 0,
-              child: _pinnedColumn(pinnedBottom, scope),
+                  child: screenColumn,
+                );
+              },
             ),
+          ),
           // The title header has its own; without a header the screen has
           // (130.20 a premium header has its round one).
           if (pushed &&
@@ -513,6 +525,94 @@ bool studioStartsWithCover(StudioNode body) {
 /// under a transparent header), for the header over a cover to take the
 /// page's background. Only the page's list counts: a slider or a row that
 /// scrolls sideways inside it doesn't.
+/// 158 A page with what is pinned at its foot ([foot], a call to action)
+/// lying over it, [lift] above the screen's bottom (over the tabs' bar or
+/// the phone's own): the page is built knowing how tall the foot is, so its
+/// list leaves that much more room after its end and its last element
+/// scrolls clear of it (it stayed under a sticky "Send flowers"). Without
+/// a foot, the page alone.
+class StudioUnderFoot extends StatelessWidget {
+  const StudioUnderFoot({
+    super.key,
+    required this.foot,
+    required this.lift,
+    required this.builder,
+  });
+
+  final Widget? foot;
+  final double lift;
+
+  /// The page, for the foot's height (0 without one).
+  final Widget Function(BuildContext context, double foot) builder;
+
+  @override
+  Widget build(BuildContext context) {
+    final foot = this.foot;
+    if (foot == null) return builder(context, 0);
+    return CustomMultiChildLayout(
+      delegate: _FootLayout(lift),
+      children: [
+        LayoutId(
+          id: _FootSlot.page,
+          // Built while laid out, with the foot measured (as Scaffold
+          // gives its body the height of its bottom bar).
+          child: LayoutBuilder(
+            builder: (context, box) =>
+                builder(context, box is _FootConstraints ? box.foot : 0),
+          ),
+        ),
+        LayoutId(id: _FootSlot.foot, child: foot),
+      ],
+    );
+  }
+}
+
+enum _FootSlot { page, foot }
+
+/// The page's size, and how tall the foot over it is.
+class _FootConstraints extends BoxConstraints {
+  _FootConstraints(Size size, this.foot)
+    : super(
+        minWidth: size.width,
+        maxWidth: size.width,
+        minHeight: size.height,
+        maxHeight: size.height,
+      );
+
+  final double foot;
+
+  @override
+  bool operator ==(Object other) =>
+      other is _FootConstraints && other.foot == foot && super == other;
+
+  @override
+  int get hashCode => Object.hash(super.hashCode, foot);
+}
+
+class _FootLayout extends MultiChildLayoutDelegate {
+  _FootLayout(this.lift);
+
+  final double lift;
+
+  @override
+  void performLayout(Size size) {
+    final foot = layoutChild(
+      _FootSlot.foot,
+      BoxConstraints(
+        minWidth: size.width,
+        maxWidth: size.width,
+        maxHeight: size.height,
+      ),
+    );
+    positionChild(_FootSlot.foot, Offset(0, size.height - lift - foot.height));
+    layoutChild(_FootSlot.page, _FootConstraints(size, foot.height));
+    positionChild(_FootSlot.page, Offset.zero);
+  }
+
+  @override
+  bool shouldRelayout(_FootLayout old) => old.lift != lift;
+}
+
 class _ScrolledUnder extends StatefulWidget {
   const _ScrolledUnder({required this.child});
 

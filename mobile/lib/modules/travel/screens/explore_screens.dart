@@ -618,7 +618,8 @@ class StaysHomeScreen extends ConsumerWidget {
       body: SafeArea(
         bottom: false,
         child: ListView(
-          padding: const EdgeInsets.only(bottom: 24),
+          // 158 Its end clear of a tab bar over the screen.
+          padding: EdgeInsets.only(bottom: endRoom(context, 24)),
           children: [
             Padding(
               padding: const EdgeInsets.fromLTRB(20, 8, 20, 8),
@@ -972,7 +973,8 @@ class FlightsHomeScreen extends ConsumerWidget {
           ),
           SafeArea(
             child: ListView(
-              padding: const EdgeInsets.only(bottom: 24),
+              // 158 Its end clear of a tab bar over the screen.
+              padding: EdgeInsets.only(bottom: endRoom(context, 24)),
               children: [
                 Padding(
                   padding: const EdgeInsets.fromLTRB(20, 8, 20, 8),

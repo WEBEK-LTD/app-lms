@@ -536,18 +536,21 @@ class _HotelResultsScreenState extends ConsumerState<HotelResultsScreen> {
       context: context,
       showDragHandle: true,
       builder: (context) => SafeArea(
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            for (final s in const ['recommended', 'price', 'score', 'stars'])
-              ListTile(
-                title: Text(_sortName(context, s)),
-                trailing: stay.sort == s
-                    ? const Icon(Symbols.check_rounded)
-                    : null,
-                onTap: () => Navigator.of(context).pop(s),
-              ),
-          ],
+        child: SingleChildScrollView(
+          // 158 Every choice in reach on a short phone or with a large font.
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              for (final s in const ['recommended', 'price', 'score', 'stars'])
+                ListTile(
+                  title: Text(_sortName(context, s)),
+                  trailing: stay.sort == s
+                      ? const Icon(Symbols.check_rounded)
+                      : null,
+                  onTap: () => Navigator.of(context).pop(s),
+                ),
+            ],
+          ),
         ),
       ),
     );

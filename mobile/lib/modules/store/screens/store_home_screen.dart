@@ -71,7 +71,8 @@ class _Sections extends ConsumerWidget {
         if (s.type != StoreSectionType.unknown) s,
     ];
     return ListView(
-      padding: const EdgeInsets.only(bottom: 24),
+      // 158 Its end clear of a tab bar over the screen.
+      padding: EdgeInsets.only(bottom: endRoom(context, 24)),
       children: [
         switch (template) {
           AppTemplate.classic => _ClassicHeader(site: site),

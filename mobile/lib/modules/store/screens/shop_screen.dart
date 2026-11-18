@@ -108,19 +108,25 @@ class _ShopScreenState extends ConsumerState<ShopScreen> {
       context: context,
       backgroundColor: p.surface,
       showDragHandle: true,
+      // 158 Its last choices scroll into reach on a short phone or with a
+      // large font (the sheet is at most 9/16 of the screen).
       builder: (context) => SafeArea(
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            for (final entry in orderLabels.entries)
-              ListTile(
-                title: Text(entry.value, style: TextStyle(color: p.text)),
-                trailing: entry.key == _query.orderBy
-                    ? AppIcon(AppIcons.check, color: p.text)
-                    : null,
-                onTap: () => Navigator.of(context).pop(entry.key),
-              ),
-          ],
+        child: SingleChildScrollView(
+          key: const ValueKey('sort-sheet'),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              for (final entry in orderLabels.entries)
+                ListTile(
+                  key: ValueKey('sort-${entry.key.name}'),
+                  title: Text(entry.value, style: TextStyle(color: p.text)),
+                  trailing: entry.key == _query.orderBy
+                      ? AppIcon(AppIcons.check, color: p.text)
+                      : null,
+                  onTap: () => Navigator.of(context).pop(entry.key),
+                ),
+            ],
+          ),
         ),
       ),
     );
@@ -281,25 +287,41 @@ class _ShopScreenState extends ConsumerState<ShopScreen> {
           final width = box.maxWidth - 40;
           final columns = (width / 220).ceil().clamp(2, 6);
           final tile = (width - gap * (columns - 1)) / columns;
-          return GridView.builder(
-            padding: const EdgeInsets.fromLTRB(20, 4, 20, 24),
-            gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-              crossAxisCount: columns,
-              mainAxisSpacing: gap,
-              crossAxisSpacing: gap,
-              mainAxisExtent: tile + productCardTextHeight(context),
-            ),
-            itemCount: items.length + (state.hasMore && error == null ? 1 : 0),
-            itemBuilder: (context, i) {
-              if (i >= items.length) {
-                return LoadingView(label: context.l10n.loadingMoreProducts);
-              }
-              final product = items[i];
-              return ProductCard(
-                product: product,
-                onTap: () => context.push(Paths.product(product.id)),
-              );
-            },
+          return CustomScrollView(
+            slivers: [
+              SliverPadding(
+                padding: const EdgeInsets.fromLTRB(20, 4, 20, 0),
+                sliver: SliverGrid.builder(
+                  gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                    crossAxisCount: columns,
+                    mainAxisSpacing: gap,
+                    crossAxisSpacing: gap,
+                    mainAxisExtent: tile + productCardTextHeight(context),
+                  ),
+                  itemCount: items.length,
+                  itemBuilder: (context, i) {
+                    final product = items[i];
+                    return ProductCard(
+                      product: product,
+                      onTap: () => context.push(Paths.product(product.id)),
+                    );
+                  },
+                ),
+              ),
+              // 158 The next page's spinner across the grid, in its middle
+              // (it was a cell of the grid, in one column).
+              if (state.hasMore && error == null)
+                SliverPadding(
+                  padding: const EdgeInsets.symmetric(horizontal: 20),
+                  sliver: SliverToBoxAdapter(
+                    child: LoadingMore(label: context.l10n.loadingMoreProducts),
+                  ),
+                ),
+              // 158 The last row clear of a tab bar over the screen.
+              SliverPadding(
+                padding: EdgeInsets.only(bottom: endRoom(context, 24)),
+              ),
+            ],
           );
         },
       ),
