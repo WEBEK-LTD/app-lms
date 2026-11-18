@@ -3820,3 +3820,17 @@ The owner (17 November), on Kech Flora's home in Studio: the row with the search
 | Status | Item | Tests |
 |---|---|---|
 | [x] | 150.1 On a stack's layer, a row with no width of its own or `fill` spans the layer whatever its own placement, which moves it up or down only; a row with a width, a column and anything else keep their placement across (`view.tsx`, as `studio_page.dart`'s `Align` around a `Row`) | `studio-canvas-layout.test.ts` |
+
+## Phase 152: Our bouquet's chips and button open the product the owner links
+
+The owner (18 November), on Leqaa's Studio demo and the apps made from it, like Kech Flora: the Our bouquet page's size chips (Classic, Deluxe, Grand) and its "Choose this bouquet" opened the shop. Each now opens the product the app's owner links it to in Studio, picked from their own products, and the shop as before without one. A link is the element's tap (`{ type: "item", item: { source: "products", id } }`), which Studio already offered as "One entry". No migration.
+
+| Status | Item | Tests |
+|---|---|---|
+| [x] | 152.1 The template: both looks' Our bouquet page keeps its sizes and its button on the shop (`search`) until the owner links them; apps made from it, like Kech Flora, keep theirs | `bouquet-links-152.test.ts` |
+| [x] | 152.2 Studio's inspector, "When the customer taps", on any element (the chips are columns, the button a button): in a store "Opens: A product" (was "One entry"), listing the app's own products as the other pickers do (`Pickable.items.products`: those kept in Yallapp, the connected store's, WooCommerce's or the own API's), with "Link to one of your products; without it, it opens the shop" under it; a linked product the list no longer has is named by its ID ("Product 99 (not in the list)") instead of showing as not chosen. English, Egyptian Arabic and Turkish; Material Symbols Rounded; light and dark (the frame's tokens) | `bouquet-links-152.test.ts` |
+| [x] | 152.3 Saving: a store's product link may be saved and published with no product chosen yet (it opens the shop); every other entry still needs its ID | `bouquet-links-152.test.ts` |
+| [x] | 152.4 Hosted `GET /pages`: a Studio element's product link with no product, or with one the shop no longer has (its connector's product answers 404: deleted or hidden), is sent as the shop (`search`), so apps already in the stores follow it too; one that can't be looked up (the platform not answering) is sent as it is; a page's linked products are looked up in parallel, 12 at most. The contract's `ItemRef` says so (both copies) | `bouquet-links-152.test.ts` |
+| [x] | 152.5 The app: a store's product link with no product opens the shop, as the template does; a linked one opens its product (`/product/{id}?or=shop`), whose page goes to the shop in its place when the shop has no such product, so back returns to the bouquet's page, never to "not found"; a product page opened any other way still says it's gone. The preview rebuilt; `CLIENT_APP_RELEASE` 7 (after 6) | `phase152_bouquet_links_test.dart`, `publish-for-all.test.ts` |
+| [ ] | 152.6 WordPress (WooCommerce) store apps: their pages come from the plugin, which sends a gone product's link as it is; the app sends it to the shop from release 7 | — |
+| [ ] | 152.7 For the owner: in Kech Flora's Studio, link "Choose this bouquet" and the sizes to products, publish, and tap them in the app | — |

@@ -4,9 +4,20 @@ The current state of the project: what is released in the code, what still
 needs checking against real services, and what a deployment needs.
 `docs/ROADMAP.md` is the plan; this file is the current state.
 
-Last updated: 17 November 2026.
+Last updated: 18 November 2026.
 
 ## Current release
+
+Roadmap 152 (Our bouquet's chips and button open the product the owner
+links): in Leqaa's looks and the apps made from them (Kech Flora), the
+bouquet's size chips and "Choose this bouquet" open the shop until the
+owner links each to one of their products in Studio ("When the customer
+taps": A product, from the app's own products, with the hint that without
+one it opens the shop). A linked one opens its product; one with no product
+chosen, or whose product the shop no longer has, opens the shop: hosted
+`GET /pages` sends both as the shop, so apps already in the stores follow
+it, and the app does the same from `CLIENT_APP_RELEASE` 7 (WooCommerce
+stores' pages too). Not yet tried on a phone (ROADMAP 152.7).
 
 Roadmap 146 (the pricing page: the app and Studio side by side): /pricing
 starts with the two products side by side, each with a real screen and its
