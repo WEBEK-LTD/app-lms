@@ -37,6 +37,7 @@ import {
 import { splitSale } from "@/lib/studio-market/plans";
 import { decideReview } from "@/lib/studio-market/review";
 import { sendForReview, startTemplate } from "@/lib/studio-market/templates";
+import { getDashT } from "@/i18n/dashboard";
 
 /**
  * 106.12 Studio Market, stage 4: price drops, flash sales and coupon codes.
@@ -608,5 +609,18 @@ describe("106.12 a discount on a free template, or of another designer", () => {
     const free = (await store.getMarketTemplate(template.id))!;
     expect(await createDiscount(store, designer, free, form({ percent: "10" }), NOW)).toEqual({ ok: false, errors: { form: "Discounts are for templates with paid plans." } });
     expect(DAY).toBe(24 * HOUR);
+  });
+});
+
+describe("106.12 the words", () => {
+  it("fill in their numbers in each language", () => {
+    expect(getDashT("en")("marketDiscounts.runningCount", { count: 3 })).toBe("3 running");
+    expect(getDashT("en")("marketDiscounts.runningCount", { count: 0 })).toBe("No discount running");
+    expect(getDashT("en")("marketDiscounts.endsInDays", { days: 2, time: "04:12:09" })).toBe("Ends in 2 days, 04:12:09");
+    expect(getDashT("en")("marketDiscounts.endsInDays", { days: 1, time: "04:12:09" })).toBe("Ends in 1 day, 04:12:09");
+    expect(getDashT("ar")("marketDiscounts.endsInDays", { days: 3, time: "04:12:09" })).toBe("بيخلص بعد 3 أيام و04:12:09");
+    expect(getDashT("ar")("marketDiscounts.runningCount", { count: 11 })).toBe("11 خصم شغّال");
+    expect(getDashT("tr")("marketDiscounts.comingCount", { count: 2 })).toBe("2 indirim sırada");
+    expect(getDashT("tr")("marketDiscounts.endsInDays", { days: 2, time: "04:12:09" })).toBe("2 gün 04:12:09 sonra bitiyor");
   });
 });

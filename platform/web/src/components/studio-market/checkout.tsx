@@ -7,7 +7,7 @@ import { checkoutTemplateAction } from "@/app/actions/studio-market";
 import { useDashT, useKnownText } from "@/components/dashboard-i18n";
 import { Icon } from "@/components/icon";
 import type { IconName } from "@/components/icon-names";
-import { initialFormState } from "@/lib/forms";
+import { initialFormState, type FormState } from "@/lib/forms";
 import type { CoverView } from "@/lib/studio-market/catalog";
 import { Countdown } from "./countdown";
 import { WasPrice } from "./parts";
@@ -144,14 +144,14 @@ function CodeBox({ code, plan, app, renew, sale }: { code: CheckoutProps["code"]
         )}
       </div>
       {code?.problem ? (
-        <p id="code-message" role="alert" data-code-message className="m-0 flex items-start gap-1.5 text-[13px] font-semibold text-danger">
+        <p id="code-message" role="alert" className="m-0 flex items-start gap-1.5 text-[13px] font-semibold text-danger">
           <Icon name="error" size={17} className="mt-px flex-none" />
-          <span>{known(code.problem)}</span>
+          <span data-code-message>{known(code.problem)}</span>
         </p>
       ) : code?.summary ? (
-        <p id="code-message" role="status" data-code-message className="m-0 flex items-start gap-1.5 text-[13px] font-semibold text-success">
+        <p id="code-message" role="status" className="m-0 flex items-start gap-1.5 text-[13px] font-semibold text-success">
           <Icon name="check_circle" size={17} filled className="mt-px flex-none" />
-          <span>{code.summary}</span>
+          <span data-code-message>{code.summary}</span>
         </p>
       ) : null}
       {sale ? <p className="mk-muted m-0 text-[12px] leading-normal">{t("marketDiscounts.noStack")}</p> : null}
@@ -171,19 +171,30 @@ function Pay({ label, disabled }: { label: string; disabled: boolean }) {
 }
 
 export function CheckoutForm(props: CheckoutProps) {
-  const t = useDashT();
-  const known = useKnownText();
   const router = useRouter();
   const [state, action] = useActionState(checkoutTemplateAction, initialFormState);
-  const [plan, setPlan] = useState(state.values?.plan || props.initialPlan);
-  const [app, setApp] = useState(state.values?.app || props.initialApp);
-  const [consent, setConsent] = useState(state.values?.consent === "on");
-  const chosen = props.plans.find((p) => p.period === plan) ?? props.plans[0]!;
+  // React resets a form after each answer of its action (the consent box, the plan and the app back to how they were first drawn): a key that changes with each answer draws them again from it.
+  const [seen, setSeen] = useState(state);
+  const [round, setRound] = useState(0);
+  if (seen !== state) {
+    setSeen(state);
+    setRound((r) => r + 1);
+  }
   // 106.12 The price changed (a sale ended, a code was used up): the page is asked again for the prices now.
   const stale = Boolean(state.errors?.price || state.errors?.code);
   useEffect(() => {
     if (stale) router.refresh();
   }, [stale, state, router]);
+  return <CheckoutFields key={round} {...props} state={state} action={action} />;
+}
+
+function CheckoutFields({ state, action, ...props }: CheckoutProps & { state: FormState; action: (formData: FormData) => void }) {
+  const t = useDashT();
+  const known = useKnownText();
+  const [plan, setPlan] = useState(state.values?.plan || props.initialPlan);
+  const [app, setApp] = useState(state.values?.app || props.initialApp);
+  const [consent, setConsent] = useState(state.values?.consent === "on");
+  const chosen = props.plans.find((p) => p.period === plan) ?? props.plans[0]!;
   const appName = props.renew ? props.renew.app : app === "later" ? null : (props.apps.find((a) => a.id === app)?.name ?? null);
   const section = (n: string, title: string, children: React.ReactNode, aside?: React.ReactNode) => (
     <section className="flex flex-col gap-4 border-t border-[var(--mk-hair)] pt-8" aria-labelledby={`h-${n}`}>
@@ -329,9 +340,9 @@ export function CheckoutForm(props: CheckoutProps) {
           ) : null}
           {chosen.flashEndsAt ? <Countdown endsAt={chosen.flashEndsAt} className="mk-sale-time text-[12.5px]" size={15} /> : null}
           {chosen.codeNote ? (
-            <span data-code-note={chosen.codeNote.tone} className={`flex items-start gap-1.5 text-[12.5px] leading-normal ${chosen.codeNote.tone === "good" ? "text-success" : chosen.codeNote.tone === "warn" ? "text-warn" : "mk-muted"}`}>
+            <span className={`flex items-start gap-1.5 text-[12.5px] leading-normal ${chosen.codeNote.tone === "good" ? "text-success" : chosen.codeNote.tone === "warn" ? "text-warn" : "mk-muted"}`}>
               <Icon name={chosen.codeNote.tone === "good" ? "check_circle" : chosen.codeNote.tone === "warn" ? "warning" : "info"} size={16} className="mt-px flex-none" />
-              <span>{chosen.codeNote.text}</span>
+              <span data-code-note={chosen.codeNote.tone}>{chosen.codeNote.text}</span>
             </span>
           ) : null}
         </div>
