@@ -1086,7 +1086,12 @@ class AppNavBar extends StatelessWidget {
               glyph,
               if (showLabel) ...[
                 SizedBox(height: minimal ? 4 : 0),
-                name(color, size: minimal ? 11 : 12, bold: selected),
+                // 178 At a large font the name takes the room the bar has
+                // left (Masar's frosted glass at 1.3 was one point short),
+                // never more: no overflow; drawn as designed when it fits.
+                Flexible(
+                  child: name(color, size: minimal ? 11 : 12, bold: selected),
+                ),
               ],
             ],
           );
