@@ -7,7 +7,7 @@ import type { App, AppStory } from "@/lib/data/types";
 
 /**
  * 165 Dashboard › Stories in the data stores, the same on the memory store
- * and on MySQL or MariaDB (migration 0142): in their order, changed,
+ * and on MySQL or MariaDB (migration 0143): in their order, changed,
  * reordered, removed, copied from Studio once per key, gone with their app,
  * and the app marked once its Studio stories were copied.
  */

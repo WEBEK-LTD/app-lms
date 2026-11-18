@@ -48,8 +48,13 @@ export const ASSET_KINDS = [
   "driver_document",
   // 113.12 A photo of a salary's or an advance's receipt: only the school's dashboard sees it.
   "salary_receipt",
+  // 106.11 A designer's ID for their first payout: only Yallapp's team with `market.payouts` opens it.
+  "designer_id_document",
 ] as const;
 export type AssetKind = (typeof ASSET_KINDS)[number];
+/** The kinds only their own pages open, never at the public asset address nor copied into a design: a driver's papers, a salary's receipt, 106.11 a designer's ID. */
+export const PRIVATE_ASSET_KINDS: readonly AssetKind[] = ["driver_document", "salary_receipt", "designer_id_document"];
+export const isPrivateAsset = (kind: AssetKind): boolean => PRIVATE_ASSET_KINDS.includes(kind);
 export type AppTemplate = "classic" | "bold" | "minimal";
 
 export interface User {
@@ -6463,7 +6468,7 @@ export interface JobRun {
 }
 
 /** 151 `build_no_mac`: GitHub had no Mac for a build's iOS job (one per build). */
-export type TeamAlertKind = "build_waiting" | "build_stalled" | "build_no_mac" | "job_missing" | "job_failed" | "crash_spike" | "push_failed" | "health" | "integration" | "mail_slow" | "firebase" | "publishing_full";
+export type TeamAlertKind = "build_waiting" | "build_stalled" | "build_no_mac" | "job_missing" | "job_failed" | "crash_spike" | "push_failed" | "health" | "integration" | "mail_slow" | "firebase" | "publishing_full" | "market_payouts";
 
 /**
  * 78.3 Something the team should look at (lib/watch), in the admin's bell

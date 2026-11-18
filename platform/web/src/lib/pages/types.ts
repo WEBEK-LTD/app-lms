@@ -152,7 +152,7 @@ export interface StudioStory extends Slide {
   color?: string;
   label?: string;
   icon?: string;
-  // 165 Served from Dashboard › Stories only (the ring's name is `heading`), shown by the story viewer of apps from release 7.
+  // 165 Served from Dashboard › Stories only (the ring's name is `heading`), shown by the story viewer of apps from release 12.
   /** The small line over the story's title. */
   kicker?: string;
   /** The story's title in the viewer (`heading` is the ring's name). */

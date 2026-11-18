@@ -195,6 +195,12 @@ define( 'WP_DEBUG_DISPLAY', false );
 define( 'YALLAPP_DEV_OTP', true );
 // 68 The dev site has no license: the checks turn enforcement back on where they test it.
 define( 'YALLAPP_ENFORCE_LICENSE', false );
+// No WP-Cron of its own: PHP's built-in server (serve.sh) has one worker, so a wp-cron.php run
+// holds up every request behind it. The cron lock WP-CLI takes while setting up runs out 60
+// seconds later, and the first request after that started WordPress's update checks (30 seconds
+// each in cron, to api.wordpress.org, then its background updater): the checks' next request
+// waited past its 60-second timeout. The checks call the cron jobs they test themselves.
+define( 'DISABLE_WP_CRON', true );
 \$table_prefix = 'wp_';
 if ( ! defined( 'ABSPATH' ) ) {
 	define( 'ABSPATH', __DIR__ . '/' );

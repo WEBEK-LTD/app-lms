@@ -14,6 +14,7 @@ import type { MarketTemplate, MarketTemplateStatus } from "@/lib/data/types";
 import { getStore } from "@/lib/data";
 import { dashboardText } from "@/lib/dashboard-lang";
 import { sellerTemplates, type SellerRow } from "@/lib/studio-market/catalog";
+import { formatUsd } from "@/lib/studio-market/plans";
 import { latestNotes } from "@/lib/studio-market/review";
 import { stepsDone } from "@/lib/studio-market/templates";
 import { sampleEntries } from "@/lib/studio/sample-entries";
@@ -45,6 +46,9 @@ export default async function DesignerTemplatesPage({ searchParams }: PageProps<
   const shown = rows.filter((r) => (tab === "all" || r.template.status === tab) && (!q || r.title.toLowerCase().includes(q.toLowerCase())));
   const notes = new Map(await Promise.all(rows.filter((r) => r.template.status === "changes_requested").map(async (r) => [r.template.id, await latestNotes(store, r.template)] as const)));
   const count = (status: MarketTemplateStatus) => rows.filter((r) => r.template.status === status).length;
+  // 106.11 What each template earned: the designer's 75% of its paid sales, from their ledger.
+  const earned = new Map<string, number>();
+  for (const sale of await store.listDesignerLedger({ designerId: designer.id })) earned.set(sale.templateId, (earned.get(sale.templateId) ?? 0) + sale.designerCents);
 
   const status: Record<MarketTemplateStatus, [string, IconName, string]> = {
     published: ["bg-success-bg text-success", "check_circle", t("studioMarket.statusPublished")],
@@ -223,7 +227,7 @@ export default async function DesignerTemplatesPage({ searchParams }: PageProps<
                         </td>
                         <td className={`px-4 py-3.5 text-end align-middle tabular-nums ${line}`}>{live ? r.template.views : <span className="text-faint">—</span>}</td>
                         <td className={`px-4 py-3.5 text-end align-middle tabular-nums ${line}`}>{live ? t("studioMarket.salesFree", { count: r.applies }) : <span className="text-faint">—</span>}</td>
-                        <td className={`px-4 py-3.5 text-end align-middle font-bold tabular-nums ${line}`}>{live ? <bdi dir="ltr">$0.00</bdi> : <span className="text-faint">—</span>}</td>
+                        <td className={`px-4 py-3.5 text-end align-middle font-bold tabular-nums ${line}`}>{live || earned.has(r.template.id) ? <bdi dir="ltr">{formatUsd(earned.get(r.template.id) ?? 0)}</bdi> : <span className="text-faint">—</span>}</td>
                         <td className={`py-3.5 ps-4 pe-6 align-middle ${line}`}>
                           <span className="flex justify-end gap-1.5">{action(r)}</span>
                           <span className="mt-1 block text-end text-xs text-muted">{lastChange(r)}</span>

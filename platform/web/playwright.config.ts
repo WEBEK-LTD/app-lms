@@ -150,10 +150,16 @@ export const E2E = {
   appMovesAdminEmail: "app-moves-admin@yallapp.test",
   /** 106 The super admin of tests/e2e/studio-market.spec.ts (the review queue). */
   marketAdminEmail: "market-admin@yallapp.test",
+  /** 106.11 The super admin of tests/e2e/studio-market-money.spec.ts (the designers' payouts). */
+  marketMoneyAdminEmail: "market-money-admin@yallapp.test",
+  /** 106.11 Days the payouts' clock runs ahead (STUDIO_MARKET_PAYOUT_TEST_DAYS): a sale paid during the run is before a 1st's cut-off. */
+  payoutTestDays: 31,
   /** 133 The super admin of tests/e2e/plans-addons.spec.ts. */
   plansAddonsAdminEmail: "plans-addons-admin@yallapp.test",
   /** 139 The super admin of tests/e2e/auto-screenshots.spec.ts. */
   autoShotsAdminEmail: "auto-shots-admin@yallapp.test",
+  /** 152 The super admin of tests/e2e/bouquet-links.spec.ts. */
+  bouquetAdminEmail: "bouquet-admin@yallapp.test",
   /** 135 The super admin of tests/e2e/world-currencies.spec.ts (Settings › Currencies). */
   currenciesAdminEmail: "currencies-admin@yallapp.test",
   /** 136 The super admin of tests/e2e/yallapp-firebase.spec.ts (Settings › Yallapp Firebase projects). */
@@ -222,7 +228,7 @@ export default defineConfig({
       YALLAPP_MEDIA_DIR: ".data/e2e-media",
       YALLAPP_MAIL_DIR: E2E.mailDir,
       YALLAPP_OWNER_PUSH_DIR: E2E.ownerPushDir,
-      SUPER_ADMIN_EMAILS: `${E2E.adminEmail},${E2E.settingsAdminEmail},${E2E.listingsAdminEmail},${E2E.pagesAdminEmail},${E2E.teamAdminEmail},${E2E.contentAdminEmail},${E2E.appsAdminEmail},${E2E.publishingAdminEmail},${E2E.plansAdminEmail},${E2E.demosAdminEmail},${E2E.clinicAdminEmail},${E2E.newsAdminEmail},${E2E.restaurantAdminEmail},${E2E.fitnessAdminEmail},${E2E.eventsAdminEmail},${E2E.charityAdminEmail},${E2E.paymentsAdminEmail},${E2E.signInAdminEmail},${E2E.translationsAdminEmail},${E2E.analyticsAdminEmail},${E2E.linksAdminEmail},${E2E.pricesAdminEmail},${E2E.refundsAdminEmail},${E2E.mediaAdminEmail},${E2E.languagesAdminEmail},${E2E.bellAdminEmail},${E2E.dashboardLanguagesAdminEmail},${E2E.ownerApiAdminEmail},${E2E.teamMembersAdminEmail},${E2E.accountDeletionAdminEmail},${E2E.twoStepAdminEmail},${E2E.phase73AdminEmail},${E2E.chatAdminEmail},${E2E.productAdminEmail},${E2E.watchingAdminEmail},${E2E.isolationAdminEmail},${E2E.integrationsAdminEmail},${E2E.siteStartAdminEmail},${E2E.importAdminEmail},${E2E.liveEditorAdminEmail},${E2E.starterAdminEmail},${E2E.invoicesAdminEmail},${E2E.gatewaysAdminEmail},${E2E.connectedPayAdminEmail},${E2E.manualPayAdminEmail},${E2E.inAppAdminEmail},${E2E.deliveryAdminEmail},${E2E.foodAdminEmail},${E2E.ridesAdminEmail},${E2E.teachersAdminEmail},${E2E.schoolAdminEmail},${E2E.universityAdminEmail},${E2E.schoolMessagesAdminEmail},${E2E.taxiAdminEmail},${E2E.travelAdminEmail},${E2E.samplesAdminEmail},${E2E.studioSetupAdminEmail},${E2E.mailAdminEmail},${E2E.marketAdminEmail},${E2E.appMovesAdminEmail},${E2E.plansAddonsAdminEmail},${E2E.currenciesAdminEmail},${E2E.firebaseAdminEmail},${E2E.autoShotsAdminEmail},${E2E.pricingAdminEmail},${E2E.storiesAdminEmail}`,
+      SUPER_ADMIN_EMAILS: `${E2E.adminEmail},${E2E.settingsAdminEmail},${E2E.listingsAdminEmail},${E2E.pagesAdminEmail},${E2E.teamAdminEmail},${E2E.contentAdminEmail},${E2E.appsAdminEmail},${E2E.publishingAdminEmail},${E2E.plansAdminEmail},${E2E.demosAdminEmail},${E2E.clinicAdminEmail},${E2E.newsAdminEmail},${E2E.restaurantAdminEmail},${E2E.fitnessAdminEmail},${E2E.eventsAdminEmail},${E2E.charityAdminEmail},${E2E.paymentsAdminEmail},${E2E.signInAdminEmail},${E2E.translationsAdminEmail},${E2E.analyticsAdminEmail},${E2E.linksAdminEmail},${E2E.pricesAdminEmail},${E2E.refundsAdminEmail},${E2E.mediaAdminEmail},${E2E.languagesAdminEmail},${E2E.bellAdminEmail},${E2E.dashboardLanguagesAdminEmail},${E2E.ownerApiAdminEmail},${E2E.teamMembersAdminEmail},${E2E.accountDeletionAdminEmail},${E2E.twoStepAdminEmail},${E2E.phase73AdminEmail},${E2E.chatAdminEmail},${E2E.productAdminEmail},${E2E.watchingAdminEmail},${E2E.isolationAdminEmail},${E2E.integrationsAdminEmail},${E2E.siteStartAdminEmail},${E2E.importAdminEmail},${E2E.liveEditorAdminEmail},${E2E.starterAdminEmail},${E2E.invoicesAdminEmail},${E2E.gatewaysAdminEmail},${E2E.connectedPayAdminEmail},${E2E.manualPayAdminEmail},${E2E.inAppAdminEmail},${E2E.deliveryAdminEmail},${E2E.foodAdminEmail},${E2E.ridesAdminEmail},${E2E.teachersAdminEmail},${E2E.schoolAdminEmail},${E2E.universityAdminEmail},${E2E.schoolMessagesAdminEmail},${E2E.taxiAdminEmail},${E2E.travelAdminEmail},${E2E.samplesAdminEmail},${E2E.studioSetupAdminEmail},${E2E.mailAdminEmail},${E2E.marketAdminEmail},${E2E.marketMoneyAdminEmail},${E2E.appMovesAdminEmail},${E2E.plansAddonsAdminEmail},${E2E.currenciesAdminEmail},${E2E.firebaseAdminEmail},${E2E.autoShotsAdminEmail},${E2E.pricingAdminEmail},${E2E.bouquetAdminEmail},${E2E.storiesAdminEmail}`,
       YALLAPP_SEED_ADMIN_PASSWORD: E2E.adminPassword,
       SESSION_SECRET: "e2e-session-secret-0123456789abcdef0123456789",
       SIGNING_SECRET: E2E.signingSecret,
@@ -253,6 +259,8 @@ export default defineConfig({
       GOOGLE_PUSH_SERVICE_ACCOUNT: E2E.pushAccount,
       GOOGLE_FIREBASE_APPS_SERVICE_ACCOUNT: E2E.appsAccount,
       GOOGLE_API_TEST_URL: `http://localhost:${E2E.googlePort}`,
+      // 106.11 Studio Market's payouts on the 1st: their clock a month ahead, so a sale made in a test is due (refused on Netlify).
+      STUDIO_MARKET_PAYOUT_TEST_DAYS: String(E2E.payoutTestDays),
     },
   },
 });

@@ -37,7 +37,7 @@ describe("114 the privacy policy's emails from Yallapp", () => {
     for (const words of ["owners of Yallapp accounts", "team members", "small image", "Yallapp address", "the time, the email it was and your address", "12 months", "refuses an address", "unsubscribe link", "unsubscribe button", "Dashboard › Your account", "still come"]) {
       expect(s, words).toContain(words);
     }
-    expect(PRIVACY.updated).toBe("16 November 2026");
+    expect(PRIVACY.updated).toBe("18 November 2026");
     expect(section(PRIVACY.body, "## 8. How long we keep it")).toContain("12 months");
   });
 
@@ -46,7 +46,23 @@ describe("114 the privacy policy's emails from Yallapp", () => {
     for (const words of ["أصحاب حسابات Yallapp", "أعضاء في فريقه", "صورة صغيرة", "12 شهرًا", "يرفض خادم البريد", "رابط إلغاء الاشتراك", "لوحة التحكم › حسابك", "ستظل تصلك"]) expect(ar, words).toContain(words);
     const tr = section(TR_LEGAL.privacy!.body, "## 5. Yallapp'ten e-postalar");
     for (const words of ["Yallapp hesaplarının sahiplerine", "ekip üyesi", "küçük bir görsel", "12 ay", "reddettiğinde", "abonelikten çıkma bağlantısını", "Panel › Hesabınız", "gelmeye devam eder"]) expect(tr, words).toContain(words);
-    expect(AR_LEGAL.privacy!.updated).toBe("16 نوفمبر 2026");
-    expect(TR_LEGAL.privacy!.updated).toBe("16 Kasım 2026");
+    expect(AR_LEGAL.privacy!.updated).toBe("18 نوفمبر 2026");
+    expect(TR_LEGAL.privacy!.updated).toBe("18 Kasım 2026");
+  });
+
+  it("106.11 says what designers' payouts keep, who gets it and how long, in every language", () => {
+    const en = PRIVACY.body;
+    expect(section(en, "## 2. Data we collect from our clients")).toContain("**Studio Market designers' details:**");
+    expect(section(en, "## 2. Data we collect from our clients")).toContain("only our dedicated payments team can see them");
+    expect(section(en, "## 6. Who we share it with")).toContain("We send the transfer details to our bank only to pay out designers' earnings.");
+    expect(section(en, "## 8. How long we keep it")).toContain("we delete the copy of the ID and the verification details when the account is closed");
+    const ar = AR_LEGAL.privacy!.body;
+    expect(section(ar, "## 2. البيانات التي نجمعها من عملائنا")).toContain("**بيانات مصممي Studio Market:**");
+    expect(section(ar, "## 6. مع من نشاركها")).toContain("نرسل بيانات التحويل إلى بنكنا لإتمام تحويل أرباح المصممين فقط.");
+    expect(section(ar, "## 8. مدة الاحتفاظ بها")).toContain("ونحذف صورة الهوية وبيانات التحقق عند إغلاق الحساب.");
+    const tr = TR_LEGAL.privacy!.body;
+    expect(section(tr, "## 2. Müşterilerimizden topladığımız veriler")).toContain("**Studio Market tasarımcılarının bilgileri:**");
+    expect(section(tr, "## 6. Kimlerle paylaşıyoruz")).toContain("yalnızca tasarımcıların kazançlarının ödemesini tamamlamak için");
+    expect(section(tr, "## 8. Ne kadar süre saklıyoruz")).toContain("kimlik kopyasını ve doğrulama bilgilerini hesap kapatıldığında sileriz");
   });
 });

@@ -5902,3 +5902,109 @@ export const studioMarketApplications = mysqlTable(
     index("studio_market_applications_licence_idx").on(t.licenceId, t.appliedAt),
   ],
 );
+
+/**
+ * 106.11 The designer's ledger: one row per paid sale (its id is the
+ * order's), with the order's own split: the sale, the designer's 75% and
+ * Yallapp's 25%. Kept when a template, a buyer or a designer is gone, like
+ * the orders.
+ */
+export const studioMarketLedger = mysqlTable(
+  "studio_market_ledger",
+  {
+    id: id("id").primaryKey(),
+    designerId: id("designer_id").notNull(),
+    templateId: id("template_id").notNull(),
+    clientId: id("client_id").notNull(),
+    kind: varchar("kind", { length: 8 }).notNull().$type<"buy" | "renew">(),
+    plan: varchar("plan", { length: 8 }).notNull(),
+    grossCents: bigint("gross_cents", { mode: "number", unsigned: true }).notNull(),
+    designerCents: bigint("designer_cents", { mode: "number", unsigned: true }).notNull(),
+    yallappCents: bigint("yallapp_cents", { mode: "number", unsigned: true }).notNull(),
+    earnedAt: time("earned_at").notNull(),
+    createdAt: time("created_at").notNull(),
+  },
+  (t) => [index("studio_market_ledger_designer_idx").on(t.designerId, t.earnedAt)],
+);
+
+/**
+ * 106.11 The checks before a designer's first payout: their ID, name and
+ * country, and their bank for SWIFT. The ID number and the IBAN or account
+ * number are encrypted (lib/crypto/encryption.ts); they go with the designer.
+ */
+export const studioMarketPayoutDetails = mysqlTable(
+  "studio_market_payout_details",
+  {
+    designerId: id("designer_id").primaryKey(),
+    legalName: varchar("legal_name", { length: 120 }).notNull(),
+    country: varchar("country", { length: 2 }).notNull(),
+    idType: varchar("id_type", { length: 16 }).notNull().$type<"passport" | "national_id">(),
+    idNumberEncrypted: text("id_number_encrypted").notNull(),
+    idDocumentAssetId: id("id_document_asset_id"),
+    holderName: varchar("holder_name", { length: 120 }).notNull(),
+    accountKind: varchar("account_kind", { length: 8 }).notNull().$type<"iban" | "number">(),
+    accountEncrypted: text("account_encrypted").notNull(),
+    swift: varchar("swift", { length: 11 }).notNull(),
+    bankCode: varchar("bank_code", { length: 34 }),
+    bankName: varchar("bank_name", { length: 120 }).notNull(),
+    bankCountry: varchar("bank_country", { length: 2 }).notNull(),
+    address: varchar("address", { length: 300 }).notNull(),
+    status: varchar("status", { length: 24 }).notNull().$type<"submitted" | "approved" | "changes_requested">(),
+    reviewNote: varchar("review_note", { length: 1000 }),
+    submittedAt: time("submitted_at").notNull(),
+    reviewedAt: time("reviewed_at"),
+    reviewedBy: varchar("reviewed_by", { length: 191 }),
+    createdAt: time("created_at").notNull(),
+    updatedAt: time("updated_at").notNull(),
+  },
+  (t) => [
+    // Named here: drizzle's own name for it is longer than MariaDB's 64 characters.
+    foreignKey({ name: "studio_market_payout_details_designer_fk", columns: [t.designerId], foreignColumns: [studioMarketDesigners.id] }).onDelete("cascade"),
+    index("studio_market_payout_details_status_idx").on(t.status, t.submittedAt),
+  ],
+);
+
+/**
+ * 106.11 The designers' monthly payouts by SWIFT, recorded by the team:
+ * prepared for the bank's file (the amount and the approved bank details
+ * fixed then), then sent or cancelled. `month_slot` (unique) holds the
+ * designer's month while the payout isn't cancelled: one a month. Kept
+ * when the designer is gone.
+ */
+export const studioMarketPayouts = mysqlTable(
+  "studio_market_payouts",
+  {
+    id: id("id").primaryKey(),
+    designerId: id("designer_id").notNull(),
+    period: varchar("period", { length: 7 }).notNull(),
+    monthSlot: varchar("month_slot", { length: 48 }),
+    status: varchar("status", { length: 16 }).notNull().$type<"processing" | "sent" | "cancelled">(),
+    amountCents: bigint("amount_cents", { mode: "number", unsigned: true }).notNull(),
+    currency: varchar("currency", { length: 3 }).notNull().$type<"USD">(),
+    payeeName: varchar("payee_name", { length: 120 }).notNull(),
+    payeeCountry: varchar("payee_country", { length: 2 }).notNull(),
+    payeeAddress: varchar("payee_address", { length: 300 }).notNull(),
+    accountKind: varchar("account_kind", { length: 8 }).notNull().$type<"iban" | "number">(),
+    accountEncrypted: text("account_encrypted").notNull(),
+    accountHint: varchar("account_hint", { length: 48 }).notNull(),
+    swift: varchar("swift", { length: 11 }).notNull(),
+    bankCode: varchar("bank_code", { length: 34 }),
+    bankName: varchar("bank_name", { length: 120 }).notNull(),
+    bankCountry: varchar("bank_country", { length: 2 }).notNull(),
+    preparedAt: time("prepared_at").notNull(),
+    preparedBy: varchar("prepared_by", { length: 191 }).notNull(),
+    bankReference: varchar("bank_reference", { length: 64 }),
+    sentOn: varchar("sent_on", { length: 10 }),
+    sentAt: time("sent_at"),
+    sentBy: varchar("sent_by", { length: 191 }),
+    emailedAt: time("emailed_at"),
+    cancelledAt: time("cancelled_at"),
+    cancelledBy: varchar("cancelled_by", { length: 191 }),
+    cancelNote: varchar("cancel_note", { length: 500 }),
+  },
+  (t) => [
+    uniqueIndex("studio_market_payouts_month_idx").on(t.monthSlot),
+    index("studio_market_payouts_designer_idx").on(t.designerId, t.preparedAt),
+    index("studio_market_payouts_period_idx").on(t.period, t.status),
+  ],
+);
