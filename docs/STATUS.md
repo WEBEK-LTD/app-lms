@@ -8,6 +8,21 @@ Last updated: 18 November 2026.
 
 ## Current release
 
+Roadmap 172 (a saved legal page that lacks the default's new text): Admin ›
+Website content notices when the team's saved version of the privacy
+policy, terms or refund policy, in any language, lacks sentences Yallapp's
+default text added since the version it was based on: a badge in the list
+and, on the page, "Yallapp's default text for this page was updated on …".
+"Review the changes" lists each new or changed paragraph with the new
+sentences highlighted; "Add the new text" puts them into the team's text
+at the places the default has them (or between two ==== lines for the team
+to place, which a save refuses), and nothing is published until Save. A
+save keeps the default's version it was based on with the page's fields
+(no migration); versions saved before are taken as based on the default
+before 18 November 2026. The default's earlier versions come from git
+(`scripts/legal-history.mjs` writes `src/content/legal-history.ts`; run it
+after changing a legal page's default, a unit test says so).
+
 Roadmap 106.11, payouts on the 1st (the owner's answer, 18 November): the
 payout of the 1st covers the sales paid up to the end of the month before,
 cut off at midnight Istanbul time; a sale paid on the 1st or later waits for

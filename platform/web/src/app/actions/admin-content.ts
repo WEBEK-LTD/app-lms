@@ -6,6 +6,7 @@ import { recordAudit } from "@/lib/admin/audit";
 import { requireAdmin } from "@/lib/auth/session";
 import { contentPage, readContentForm, type ContentPage } from "@/lib/content/site";
 import { langContentKey } from "@/lib/content/site-lang";
+import { BASE_FIELD, baseToRecord } from "@/lib/content/legal-updates";
 import { getStore } from "@/lib/data";
 import type { FormState } from "@/lib/forms";
 import { isPrefixedLang, LANG_INFO, type PrefixedLang } from "@/i18n/config";
@@ -38,8 +39,12 @@ export async function saveSiteContentAction(_: FormState, formData: FormData): P
   const key = lang ? langContentKey(page.key, lang) : page.key;
   const before = (await store.getSiteContent(key))?.fields ?? null;
   const name = lang ? `${page.title} (${LANG_INFO[lang].name})` : page.title;
-  await store.setSiteContent(key, Object.keys(read.fields).length ? read.fields : null, admin.email, new Date());
-  await recordAudit({ actor: admin, action: "content.update", target: { type: "content", id: key }, summary: `Saved ${name}`, before, after: read.fields });
+  // 172 A legal page's text keeps the version of the default it's based on (sent by the form), so a later change to the default is noticed.
+  const fields: Record<string, string> = { ...read.fields };
+  const base = page.group === "Legal pages" && fields.body !== undefined ? baseToRecord(page.key, lang ?? "en", formData.get("base")) : null;
+  if (base) fields[BASE_FIELD] = base;
+  await store.setSiteContent(key, Object.keys(read.fields).length ? fields : null, admin.email, new Date());
+  await recordAudit({ actor: admin, action: "content.update", target: { type: "content", id: key }, summary: `Saved ${name}`, before, after: fields });
   rebuild(page);
   return { ok: true, message: `${name} saved. It shows on the website now.`, values: read.fields };
 }

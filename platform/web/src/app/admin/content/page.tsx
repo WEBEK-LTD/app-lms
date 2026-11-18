@@ -4,7 +4,8 @@ import { Badge, formatDateTime } from "@/components/ui";
 import { requireAdmin } from "@/lib/auth/session";
 import { CONTENT_PAGES, type ContentGroup } from "@/lib/content/site";
 import { getStore } from "@/lib/data";
-import { LANG_INFO, PREFIXED_LANGS } from "@/i18n/config";
+import { legalUpdateFor } from "@/lib/content/legal-updates";
+import { LANG_INFO, LANGS, PREFIXED_LANGS } from "@/i18n/config";
 
 export const metadata: Metadata = { title: "Website content" };
 export const dynamic = "force-dynamic";
@@ -45,6 +46,10 @@ export default async function ContentPage() {
                         {/* 55 The Arabic and Turkish versions the team edited. */}
                         {PREFIXED_LANGS.filter((lang) => saved.has(`${page.key}@${lang}`)).map((lang) => (
                           <Badge key={lang} tone="info">{`${LANG_INFO[lang].name} edited`}</Badge>
+                        ))}
+                        {/* 172 A saved version that lacks changes made to Yallapp's default text since. */}
+                        {LANGS.filter((lang) => legalUpdateFor(page.key, lang, saved.get(lang === "en" ? page.key : `${page.key}@${lang}`))).map((lang) => (
+                          <Badge key={`update-${lang}`} tone="warn">{`Default updated (${LANG_INFO[lang].name})`}</Badge>
                         ))}
                       </span>
                     </td>
