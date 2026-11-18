@@ -1191,6 +1191,14 @@ test environment:
 
 ## Planned (to agree on before any work)
 
+- Customer ↔ courier contact (Phase 184, the owner's decision of 18
+  November 2026), in progress on `wip-contact`: chat per order, an in-app
+  call over the internet, and masked phone calls through the app owner's
+  own Twilio account, each switched on per app in Settings › Calls. The
+  designs (`docs/design/2026-11-18-contact`) wait for the owner's approval
+  before any screen is built. The server side and the contract come first:
+  chat, then the masked call, then the in-app call. Nothing is released yet.
+
 - More Studio project types (Phase 105): see `docs/ROADMAP.md`.
 - Studio Market, the Studio template marketplace (Phase 106), no longer
   postponed: stage 1 (designers, free templates reviewed once, applying,
