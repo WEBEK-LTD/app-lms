@@ -15,6 +15,16 @@ Studio's bar; the regular dashboard has none of it, its old addresses open
 the same page in Studio. The website's header has Studio Market on its bar;
 the footer and Studio's list had it already.
 
+Roadmap 189 (the hero's slides, plain to find in Studio): with a slider,
+one of its slides or anything on one selected, the right side lists its
+slides as the layers do, the open one with its icon, words and button, each
+to select; whatever is picked on slide 2 or 3, on the left, the right or the
+phone, is the slide the phone shows. On the canvas every slider has arrows to
+the slide before and after and "Slide 2 of 5". Once Dashboard › Stories is
+saved (until then the app shows the slides designed in Studio), a slider of
+the app's stories says its slides are changed there, with "Edit the slides
+in Stories". Studio's editor only: no app build.
+
 Roadmap 188 (Stripe's PaymentSheet in the apps): the payment page stays
 inside the app's web view, and a Stripe payment there is taken by Stripe's
 native bottom sheet in the app, with the card, Google Pay on Android and

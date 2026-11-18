@@ -76,6 +76,7 @@ import { PremiumControls, SurfaceControls } from "./premium-controls";
 import { CommerceControls } from "./commerce-controls";
 import { CategoryListNote } from "./category-list-note";
 import { fromDashboard, isStoryElement, StoriesSourceControls } from "./stories-source-controls";
+import { SliderSlides } from "./slider-slides";
 import { Glyph } from "./shared";
 
 /**
@@ -107,6 +108,8 @@ interface Props {
   onPage: (patch: Partial<StudioPage>) => void;
   onCopy: () => void;
   onDelete: () => void;
+  /** 189 Selecting another element (a slide of the slider, or what's on it, from the inspector's list of slides). */
+  onSelect?: (id: string) => void;
   /** 107.1 Copying, pasting and moving the selected element. */
   tools: {
     onCopy: () => void;
@@ -179,6 +182,8 @@ export function Inspector(props: Props) {
       </div>
       {node && !props.headerSelected ? <Tools {...props} node={node} /> : null}
       {node && !props.headerSelected ? <CategoryListNote node={node} body={props.page.body} pickable={props.pickable} /> : null}
+      {/* 189 The slider, a slide of it or anything on a slide: its slides, as in the layers, each to select (the phone shows it). */}
+      {node && !props.headerSelected && props.onSelect ? <SliderSlides node={node} body={props.page.body} pickable={props.pickable} onSelect={props.onSelect} /> : null}
       {props.tabsSelected ? (
         <TabsPanel {...props} />
       ) : props.headerSelected ? (
