@@ -114,7 +114,7 @@ describe("173 what an order's total is made of", () => {
       ...ORDER_1057,
     } as never);
     const connector = new CatalogConnector({ store, app, assetUrl: (id) => id, platformUrl: "https://yallapp.test" });
-    const call = (path: string) => connector.handle({ method: "GET", path: path.split("/").filter(Boolean), query: new URLSearchParams(), body: undefined, user, now: NOW });
+    const call = async (path: string) => (await connector.handle({ method: "GET", path: path.split("/").filter(Boolean), query: new URLSearchParams(), body: undefined, user, now: NOW }))!;
 
     const one = await call(`/me/orders/${order.id}`);
     expectContract("GET", "/me/orders/{order_id}", one);
